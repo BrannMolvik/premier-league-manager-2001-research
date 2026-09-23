@@ -142,16 +142,26 @@ The position-overall function `0x41C7E0` plus named tweak keys has directly mapp
 Unmapped slots remain 2, 3, 4, 9, 10 and 16.
 
 
+
+## Complete player-skill ordering checkpoint
+
+All 17 skill slots are now semantically mapped. The remaining six slots were recovered from EA's own Editor.exe Player Skills dialog and agree with the slots already proven from footballmanager.exe position-overall formulas.
+
+Final slot order:
+
+0 Speed; 1 Strength; 2 Stamina; 3 Determination; 4 Injury Proneness; 5 Passing; 6 Shooting; 7 Tackling; 8 Heading; 9 Control; 10 Technique; 11 Awareness; 12 Agility; 13 Goalkeeping; 14 Confidence; 15 Leadership; 16 Set Piece.
+
+
 ## Active Investigation
 
-Current focus: finish semantic mapping of the six remaining player skill slots (2, 3, 4, 9, 10, 16), then trace current-vs-potential development formulas and player characteristic consumers.
+Current focus: recover the development/aging/training formulas that move the 17 current-skill bytes relative to their ceiling/potential targets, and explain the small set of records where current exceeds target.
 
 Immediate next steps:
 
-1. Map remaining current-skill slots 2, 3, 4, 9, 10 and 16 using Editor/UI accessors and named tweak consumers.
-2. Explain the small minority of Master.dat records where ceiling < current.
-3. Recover development/aging/training formulas that move current skills toward ceilings.
-4. Update the clean-room parser to the corrected 4-byte player header and verified skill model.
+1. Explain the small minority of Master.dat records where ceiling/potential target < current.
+2. Recover development/aging/training formulas that move current skills toward targets.
+3. Identify age-curve and training tweak variables used by the development routine.
+4. Update the clean-room parser to the corrected 4-byte player header and complete verified skill model.
 5. Then move into contracts/transfers and season-state logic.
 6. Checkpoint before match-engine work.
 
