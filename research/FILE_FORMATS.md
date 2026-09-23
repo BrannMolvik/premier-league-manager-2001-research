@@ -48,39 +48,86 @@ Unmapped fields remain.
 
 ### Player record (103 bytes)
 
-| Offset | Type | Meaning | Confidence |
-|---|---|---|---|
-| +0 | uint16 | Core.str first-name ID | confirmed |
-| +2 | uint16 | Core.str surname ID | confirmed |
-| +4 | uint16 | club ID | confirmed |
-| +12 | uint32 | DOB serial date | confirmed |
-| +17 | uint8 | height cm | confirmed |
-| +18 | uint8 | weight kg | confirmed |
-| +19 | uint8 | primary position code | confirmed |
-| +20 | uint8 | secondary position code | confirmed |
-| +21 | uint8 | tertiary position code | confirmed |
-| +22..+39 | uint8[18] | compact player characteristic/skill-related bytes | byte block confirmed; exact decoding and semantic order **not yet proven** |
-| +74 | uint32 | club-join serial date | confirmed |
+The record size is now confirmed independently in two ways:
 
-Dates decode using the OLE-style epoch `1899-12-30`.
+1. the `Master.dat` section boundary fits exactly with 30,064 × 103-byte records; and
+2. EA's actual startup importer at `0x418B90` performs 35 file reads totaling exactly **103 bytes per player**.
 
+The player section begins after a six-byte header:
+
+```text
+uint32 player_count = 30064
+uint16 unknown_header_field
+Player[player_count]
+```
+
+The compact record is expanded into a 592-byte runtime `DBRPlayer` object. The following table therefore records **file offsets and loader destinations**, not speculative UI names.
+
+| File offset | Size | Destination / processing | Status |
+|---|---:|---|---|
+| +0 | 2 | runtime +0x04 | confirmed read |
+| +2 | 2 | index converted by `0x64E320` -> runtime +0x08 | confirmed read |
+| +4 | 2 | index converted by `0x64E320` -> runtime +0x0C | confirmed read |
+| +6 | 2 | runtime +0x10 | confirmed read |
+| +8 | 1 | runtime +0x12 | confirmed read |
+| +9 | 1 | temporary | confirmed read |
+| +10 | 4 | runtime +0x14 | confirmed read |
+| +14 | 4 | runtime +0x18 | confirmed read |
+| +18 | 1 | runtime +0x70 | confirmed read |
+| +19 | 1 | runtime +0x1C | confirmed read |
+| +20 | 1 | runtime +0x1D | confirmed read |
+| +21 | 3 | temporary position-data group, then transformed by `0x4EA2D0` | confirmed read; semantic role strongly indicated |
+| +24 | 17 | runtime +0x1E..+0x2E | confirmed read |
+| +41 | 17 | runtime +0x2F..+0x3F | confirmed read |
+| +58 | 1 | runtime +0x40 | confirmed read |
+| +59 | 1 | runtime +0x41 | confirmed read |
+| +60 | 1 | runtime +0x42 | confirmed read |
+| +61 | 1 | runtime +0x43 | confirmed read |
+| +62 | 1 | runtime +0x44 | confirmed read |
+| +63 | 1 | runtime +0x45 | confirmed read |
+| +64 | 4 | runtime +0x48 | confirmed read |
+| +68 | 8 | runtime +0x50 | confirmed read |
+| +76 | 4 | runtime +0x58 | confirmed read |
+| +80 | 2 | runtime +0x5C | confirmed read |
+| +82 | 2 | runtime +0x5E | confirmed read |
+| +84 | 1 | runtime +0x60 | confirmed read |
+| +85 | 1 | runtime +0x61 | confirmed read |
+| +86 | 1 | runtime +0x62 | confirmed read |
+| +87 | 1 | runtime +0x63 | confirmed read |
+| +88 | 4 | runtime +0x64 | confirmed read |
+| +92 | 4 | runtime +0x68 | confirmed read |
+| +96 | 1 | runtime +0x6C | confirmed read |
+| +97 | 2 | temporary A | confirmed read |
+| +99 | 2 | temporary B | confirmed read |
+| +101 | 2 | temporary C | confirmed read |
+
+After the final disk read, the importer derives additional runtime state and invokes several initialization routines; no further bytes are consumed for that player.
+
+#### Correction to earlier attribute interpretation
+
+The former assumption that `+22..+39` was an 18-byte attribute array is **incorrect**.
+
+The original importer proves that the compact record instead contains:
+
+- a 3-byte group at `+21..+23`, strongly associated with position conversion;
+- a **17-byte array at +24..+40**;
+- a **second 17-byte array at +41..+57**.
+
+These two arrays map directly into the same two 17-byte regions present in the runtime `DBRPlayer` object. Their exact semantic relationship (for example current/base/potential skill representations) is still under investigation and must not yet be labeled.
+
+Earlier semantic labels for file offsets such as first name, surname, club, DOB, height and weight are being revalidated against EA's actual importer/accessors. Some happened to produce plausible values in the prototype, but the original loader shows that several early fields are transformed through reference tables rather than copied literally.
 
 ### Player compact-vs-runtime caution
 
-The 103-byte `Master.dat` player record is an initial compact database representation. EA's runtime `DBRPlayer` object is 592 bytes and its save/load path contains additional mutable state, including two adjacent 17-byte arrays.
+The 103-byte `Master.dat` player record is an initial compact database representation. EA's runtime `DBRPlayer` object is 592 bytes.
+
+The startup importer `0x418B90` reads both 17-byte arrays directly from `Master.dat`, while the runtime/save representation contains the same adjacent regions. This is stronger evidence than the earlier inferred 18-byte block, but the actual rating scale and field names still require tracing through accessors/consumers.
 
 Therefore:
 
-- do not treat the compact +22..+39 bytes as direct 0–30 ratings without a proven decoder;
-- do not assume the compact record and save-game/runtime record have identical field order;
-- the prototype's earlier linear `raw * 30 / 255` conversion is provisional and should be removed/replaced once the original accessor/conversion path is recovered.
-
-For David Seaman, the compact bytes at +22..+39 are:
-
-`68, 187, 119, 187, 59, 42, 25, 42, 25, 68, 119, 161, 178, 229, 187, 195, 119, 93`
-
-Their distribution is consistent with an encoded/lookup representation rather than obvious literal 0–30 ratings.
-
+- do not apply the prototype's earlier linear `raw * 30 / 255` conversion;
+- do not label the 17 elements until their accessor/consumer code is recovered;
+- keep compact-file offsets distinct from runtime-object offsets and save-game fields.
 
 ### Manager record (43 bytes)
 
