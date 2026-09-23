@@ -239,18 +239,33 @@ The session timed out while tracing the exact probability math inside adult trai
 
 This is intentionally recorded as an **unverified lead**, not a confirmed formula. Re-enter the relevant code path and verify the source of each multiplier/facility flag before promoting it to `EXECUTABLE_ANALYSIS.md`.
 
+## Training probability complete checkpoint
+
+The active-training success probability is now recovered semantically:
+
+`success if random(0..99) < profileWeight * Q * 0.5`
+
+where:
+
+- Q starts at 1.00;
+- Youth Team Coach (employee type 3) rating 1..5 gives Q = 1.25/1.30/1.35/1.40/1.45;
+- if no Youth Team Coach exists, an Assistant Manager (employee type 1) gives fallback Q = 1.25;
+- a Training Centre (club feature ID 5) adds +0.25 to Q.
+
+The identities are proven from EA's own formatter classes and the CTrainingBuilding constructor.
+
 ## Active Investigation
 
-Current focus: recover the exact club/staff/facility multipliers and probability math in the verified training success formula, now that all seven training method IDs are resolved.
+Current focus: move into contracts/transfers: map player contract fields, transfer-list/bid state, fee/wage negotiation structures, and movement routines.
 
 Immediate next steps:
 
-1. Identify the 40 × 200-byte club-owned record structure at object +0x6B8 and its constructor at 0x424F90.
-2. Map the two 17-byte modifier regions consumed by player development around 0x41ED2C.
-3. Determine the semantic meaning of player runtime bytes +0x70/+0x76, which select records from that 40-entry array.
-4. Connect the modifier structure to Training.cpp / training UI classes and TRN* tweak keys.
-5. Update the clean-room player-development implementation once modifier semantics are proven.
-6. Then move into contracts/transfers and season-state logic.
+1. Trace player contract accessors and identify contract-end, wage and contract-status fields in runtime DBRPlayer.
+2. Map PlayerMovements.cpp and transfer-list state transitions.
+3. Locate transfer-bid/negotiation record structures.
+4. Recover fee/wage valuation formulas and transfer-related tuning variables.
+5. Map transfer completion, medical, and club/player movement updates.
+6. Checkpoint before moving to finances and season AI.
 
 ## Persistence / Checkpoint Rule
 
