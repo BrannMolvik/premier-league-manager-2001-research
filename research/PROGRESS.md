@@ -39,17 +39,32 @@ Static.dat tables immediately preceding the competition table were verified:
 
 These discoveries are documented in `research/FILE_FORMATS.md`.
 
+## Latest checkpoint
+
+Additional Static.dat structures decoded:
+
+- `0x0000`: 7 continents × 10 bytes.
+- `0x004A`: 209 countries × 43 bytes.
+- `0x2369`: 209 nationalities × 3 bytes.
+- `0x4F1F`: 1,053 round records × 36 bytes; includes Premier League matchdays and FA Cup rounds with schedule/replay timing and team-entry counts.
+- `0xE337`: 238 cup-allocation instructions × 28 bytes.
+- `0xFD43`: 28-record league-allocation candidate × 28 bytes.
+- `0x10057`: 380 real Premier League fixtures × 16 bytes with round/home/away club IDs.
+
+The real-fixture table is a particularly strong milestone: the original 2000-01 Premier League schedule can now be reconstructed directly without running the EA executable.
+
 ## Active Investigation
 
-Current focus: identify the remaining `Static.dat` tables surrounding the confirmed position/formation/status/competition sequence, then map league/cup allocation and fixture structures.
+Current focus: continue forward from the confirmed real-fixture table at `0x10057`, identify the remaining Static.dat tables, and formalize the round/allocation fields.
 
 Immediate next steps:
 
-1. Work backward from the position table to identify the preceding typed tables.
-2. Work forward from the competition table and locate table boundaries.
-3. Correlate table candidates with RTTI classes such as `DBTCountries`, `DBTNationalities`, `DBTRounds`, `DBTLeagueAllocations`, `DBTCupAllocInstructions`, `DBTRealFixtures`, and `DBTInternationalFixtures`.
-4. Add a reproducible Static.dat table-inspection script under `tools/`.
-5. Checkpoint each newly verified table before deeper executable tracing.
+1. Decode the table beginning at `0x1181B` (count 108) and subsequent tables.
+2. Confirm the 28-record table at `0xFD43` as `DBTLeagueAllocations` and map its field semantics.
+3. Finish field semantics for cup-allocation instructions and round flags/prize fields.
+4. Locate `DBTInternationalFixtures`, manager rating/sacking tables and remaining static tables.
+5. Add a reproducible Static.dat table-inspection script under `tools/`.
+6. Checkpoint before moving from data structures into executable call-graph tracing.
 
 ## Persistence / Checkpoint Rule
 
