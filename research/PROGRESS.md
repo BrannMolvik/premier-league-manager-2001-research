@@ -312,9 +312,23 @@ New verified transfer findings:
 The exact human-readable enum names for CDealInProgress states 0/1/2 remain unresolved. Do not preserve earlier guesses such as "closed" or "accepted" as facts.
 
 
+## Deal-state semantic checkpoint
+
+CDealInProgress state 2 is now definitively the player-rejected/declined-contract outcome; state 5 is the swap/player-exchange variant. EA's own reason-code-3 event classes are FreePlayerDeclinesContract, PlayerDeclinesContractRenewal, and TPUserPlayerRejects.
+
+Current safe model:
+
+- 0/3 pending or unresolved
+- 1/4 cleared/non-pending for execution
+- 2/5 player rejected contract
+- +3 marks the same state family in a swap/player-exchange deal
+
+Also corrected: proposal helper 0x4F0460 simply tests whether any exchange-player slot is populated.
+
+
 ## Active Investigation
 
-Current focus: tie CDealInProgress states 1/4 and 2/5 directly to medical/pass/fail/contract-conclusion actions, then finish proposal +0x40/+0x44/+0x4C and the transfer execution path.
+Current focus: determine the exact acceptance/clearance paths feeding CDealInProgress state 1/4, finish proposal +0x40/+0x44/+0x4C, and document the full transfer execution path.
 
 Immediate next steps:
 
