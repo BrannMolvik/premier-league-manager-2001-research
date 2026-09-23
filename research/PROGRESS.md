@@ -53,9 +53,17 @@ Additional Static.dat structures decoded:
 
 The real-fixture table is a particularly strong milestone: the original 2000-01 Premier League schedule can now be reconstructed directly without running the EA executable.
 
+
+## Latest executable-analysis checkpoint
+
+MSVC RTTI has been resolved to actual vtables and methods for the manager rating/expectation/sacking classes. Their in-memory record strides are now known (12, 16, 12 and 12 bytes respectively), and their record parsing functions have been identified.
+
+This analysis also prevented a premature identification: the 108-record block at `0x1181B` is still **unresolved**. Its 16-byte apparent grouping alone is not enough to call it `DBTManagerExpectedRankings`, because the values also strongly resemble competition/continental routing data and the binary parser can use packed serialization. Keep it as a candidate until field semantics and load order agree.
+
+
 ## Active Investigation
 
-Current focus: continue forward from the confirmed real-fixture table at `0x10057`, identify the remaining Static.dat tables, and formalize the round/allocation fields.
+Current focus: identify the unresolved 108-record block at `0x1181B` and the dense tables after the international cycle block at `0x1301F`, using RTTI/load-function evidence rather than record-size guessing.
 
 Immediate next steps:
 
