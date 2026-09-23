@@ -1086,6 +1086,40 @@ Tuning/global references such as the `TransferBudget` value around `0x821DC0` be
 Do not label `finance +0x10` as transfer budget. Current evidence identifies it with current cash/balance, while transfer-budget allocation and adjustment remain active research targets.
 
 
+## Chairman budget-settings message layout
+
+RTTI identifies vtable `0x7CDAC0` as `EAMchairbudgetsettings`.
+
+Formatter `0x55C860` exposes the exact user-facing order of its budget fields:
+
+- event +0x3C: TOTALBUDGET
+- event +0x40: STAFFBUDGET
+- event +0x44: PLAYERWAGEBUDGET
+- event +0x48: MAINTENANCEBUDGET
+- event +0x4C: MERCHANDISINGBUDGET
+- event +0x50: MISCBUDGET
+- event +0x54: BUILDINGSLIMIT
+- event +0x58: TRANSFERBUDGET
+
+Serializer/deserializer methods `0x55CFD0` and `0x55D0A0` independently confirm these as persistent 32-bit fields in the event object.
+
+This establishes that FM2001 treats transfer budget as a distinct chairman-assigned budget bucket rather than simply reusing current cash/balance.
+
+The runtime authoritative storage from which this message is populated has not yet been located, so these event offsets must not be mistaken for the live budget object.
+
+Configuration/tuning keys loaded around `0x506E..0x5070` include:
+
+- TransferBudget
+- MiscBudget
+- StadiumBudget
+- FacilitiesBudget
+- PlayerWageBudget
+- StaffWageBudget
+- matching *2K variants
+
+These are configuration inputs/defaults and are likewise separate from the current cash balance.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
