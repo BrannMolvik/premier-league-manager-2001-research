@@ -219,9 +219,18 @@ Training-related tuning values identified near the same loader include:
 The post-age section of `0x41EAD0` obtains a club-owned 40-record array of 200-byte records and reads two 17-byte regions from the selected record. Identifying this structure and its modifier semantics is the next active task.
 
 
+## Training-system checkpoint
+
+- Club training owns 40 x 200-byte per-player records; record +8 is player ID and player +0x70/+0x76 select a record 1-based.
+- The embedded training state has 17 per-skill counters, 17 dword states, seven per-method counters, dates and timed effects.
+- The exact seven 17-skill profile vectors are reconstructed: attacking, defensive, midfield, goalkeeper, rest, fitness and technique.
+- Coach dispatcher 0x42C240 maps methods to goalkeeper, fitness, technique, defensive, midfield and attacking specialist employee roles.
+- 0x4EACE0 is traced through its probabilistic success check and +8 raw-skill increment.
+- Remaining anomaly: method ID 1 routes to the attacking coach, but generic profile selector 0x4EA9A0 returns NULL rather than vector0. This must be resolved before finalizing method IDs.
+
 ## Active Investigation
 
-Current focus: identify the club-owned 40 × 200-byte training/development record array used after the recovered age curve, and map the two 17-byte modifier regions that alter monthly player development.
+Current focus: resolve training method ID 1 / the attacking-vector special case, then recover the remaining club/staff/facility multipliers in the training success formula.
 
 Immediate next steps:
 
