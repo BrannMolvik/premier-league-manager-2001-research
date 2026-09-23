@@ -679,6 +679,55 @@ Relevant EAM event classes include transfer-list/loan-list actions, club offers/
 `PlayerMovements.cpp` source-path literal is present in the executable.
 
 
+## CPlayerMovement transfer-history record
+
+RTTI identifies `CPlayerMovement` (vtable approximately `0x7CA024`).
+
+Relevant routines:
+
+- default constructor `0x514F20`
+- parameterized constructor `0x514F60`
+- serializer/reader `0x514FB0`
+- serializer/writer `0x515010`
+- formatter `0x515070`
+- list insertion helper `0x515290`
+
+The record is 0x18 bytes and is now semantically mapped:
+
+- `+0x04`: player record ID
+- `+0x08`: source/from club ID
+- `+0x0C`: destination/to club ID
+- `+0x10`: transfer consideration (normally numeric fee; special sentinels below)
+- `+0x14`: movement date/current game date
+
+Evidence:
+
+- formatter `0x515070` resolves +0x04 through the player table;
+- +0x08 and +0x0C are resolved through the club table;
+- +0x14 is stamped from the global current date by the constructor;
+- +0x10 is normally passed through the game's currency formatter.
+
+### Special consideration values
+
+`0x515070` treats two numeric values specially:
+
+- value 1 loads global localized string pointer `0x981F9C`
+- value 2 loads global localized string pointer `0x981F98`
+
+Those globals are populated by the language-index loader `0x635F30` from `English.idx`. The relevant `English.idx` entries resolve through `English.str` as:
+
+- index-list entry 2583 -> English.str ID 21747 -> **"on a free transfer"**
+- index-list entry 2584 -> English.str ID 21748 -> **"Bosman"**
+
+Therefore:
+
+- `consideration == 1` means **free transfer**
+- `consideration == 2` means **Bosman**
+- other values are ordinary transfer fees
+
+This record is suitable for reconstructing the game's transfer-history UI independently of the live negotiation state machine.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
