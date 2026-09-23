@@ -900,6 +900,122 @@ It is therefore:
 It is not an eligibility, chairman, finance or medical check.
 
 
+## Transfer execution / club movement path
+
+The actual transfer-completion path is now traced through the Movement Process Manager (MPM) layer and player club-switch routines.
+
+### MPM transfer classes
+
+RTTI/vtables identify:
+
+- `MPMLoanPlayer` vtable ~`0x7D7D54`
+- `MPMTryExecuteTransfer` vtable ~`0x7D7D94`
+- `MPMRemovePlayerDealInProgress` vtable ~`0x7D7DB4`
+- `MPMTransferPlayer` vtable ~`0x7D7DF4`
+
+Relevant execute methods:
+
+- `MPMTryExecuteTransfer::Execute` ~`0x61BAF0`
+- `MPMRemovePlayerDealInProgress::Execute` ~`0x61B950`
+- `MPMTransferPlayer::Execute` ~`0x61B4A0`
+
+The try-execute object stores the four proposal player IDs (target plus up to three exchange players) at object `+8..+0x14`.
+
+Its constructor resolves:
+
+- object `+0x18`: buying/bidding club, from proposal getter `0x4EFEA0`, which returns proposal `+0x34`;
+- object `+0x1C`: selling/current club, from `0x4EFEB0`, which resolves the target player and returns current club at player `+0x72`.
+
+### Deal-state gating before execution
+
+`MPMTryExecuteTransfer::Execute` checks every involved player.
+
+- helper `0x50E830` tests CDealInProgress state 2/5;
+- helper `0x50E870` tests state 1/4.
+
+When state 2/5 is present, the routine:
+
+1. resolves the player;
+2. copies the player's stored negotiation terms back into a local proposal via `0x422970` / `0x421F50`;
+3. calls proposal/event routine `0x4EC780`;
+4. blocks execution.
+
+This is strong evidence that states 2/5 are a **counter-offer / renewed-terms-required phase**, but the exact enum label remains intentionally unconfirmed.
+
+If a player is in neither 1/4 nor 2/5, execution is also blocked. Therefore states 1/4 are the family that satisfies the readiness predicate for progressing toward conclusion.
+
+Function `0x422920` copies proposal terms into the player negotiation object via `0x421EE0`, then invokes `0x50E760`, which promotes base states 0/2 -> 1 and swap states 3/5 -> 4.
+
+### MPMTransferPlayer scheduling
+
+The MPMTransferPlayer constructor around `0x61B300`:
+
+- copies the transfer proposal;
+- schedules execution at current date + 7;
+- sets a mode/state byte/dword at object `+0x5C`.
+
+An alternate constructor path sets the corresponding mode to 0, while this path sets it to 1.
+
+Its execute method `0x61B4A0` ultimately calls player transfer-completion routine `0x4229B0(proposal)` when validation/financial conditions permit.
+
+### Player transfer completion at 0x4229B0
+
+`0x4229B0` is the core target-player transfer-completion routine.
+
+It:
+
+1. gets the buyer club from proposal `+0x34` via `0x4EFEA0`;
+2. computes total offer/consideration via `0x4EFA70`, then converts/rounds it with `0x668350`;
+3. appends a `CPlayerMovement` transfer-history record through `0x515290`, supplying:
+   - player ID,
+   - old/current club from player `+0x72`,
+   - buyer club,
+   - transfer consideration;
+4. copies proposal contract terms into the player's negotiation/contract staging area via `0x421EE0`;
+5. invokes `0x422AA0` with the buyer club;
+6. cleans transient team/position/transfer state associated with the player object.
+
+This connects the live negotiation proposal directly to the previously decoded completed-transfer history object.
+
+### Club switch at 0x422AA0 / 0x422BA0 / 0x422F70
+
+`0x422AA0(newClub)` performs high-level club-switch preparation.
+
+If the player has an old club, it:
+
+- preserves/copies historical state around player `+0x1F8/+0x1FC`;
+- removes the player from the old club through club routines including `0x404BB0`;
+- adds/attaches the player to the new club through routines including `0x404B30`;
+- applies the negotiated wage from the player's staging terms into player `+0xC4`;
+- delegates to lower-level cleanup/setup routines `0x422B80/0x422BA0` and `0x422F40/0x422F70`.
+
+`0x422F70` is the lower-level assign/reset routine. It:
+
+- writes the new club record ID into player club fields including `+0x10` and `+0x72`;
+- invokes club squad/status setup;
+- stamps player `+0x158` from the global current date, strongly identifying it as current-club join date;
+- clears/reset numerous temporary status bits in player `+0x14` and `+0x174`;
+- clears player `+0x178` negotiation/deal count and other transient fields;
+- performs additional post-move initialization.
+
+`0x422BA0` handles removal from the old club and related historical/club-record state. It also cleans club training state when applicable and maintains club-level record/value fields associated with player movements. Exact financial/statistical semantics of those club fields remain under investigation.
+
+### Swap execution
+
+After readiness/financial validation, `MPMTryExecuteTransfer::Execute` loops target plus up to three exchange-player IDs.
+
+For each valid involved player it removes the corresponding live deal with `0x417870` and routes exchange players through the reverse club path using the same club-switch machinery. Later setup invokes `0x422F70` to finalize assignment.
+
+This confirms swap transfers are not a separate simplified record type: they use the same player movement/club assignment machinery, applied symmetrically to the exchanged players.
+
+### Current open transfer questions
+
+- exact user-facing enum names for CDealInProgress states 0/1/2;
+- exact buyer debit / seller credit routines and transfer-budget effects;
+- semantics of proposal trailing fields `+0x40..+0x4C`;
+- exact meanings of club historical/value fields touched by `0x422BA0`.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
