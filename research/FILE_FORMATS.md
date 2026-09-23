@@ -78,6 +78,56 @@ Dates decode using the OLE-style epoch `1899-12-30`.
 
 `Static.dat` is a concatenation of database-like tables.
 
+### Continent table
+
+Offset: `0x0000`
+
+Header: uint32 count (=7)
+
+Record size: 10 bytes.
+
+Confirmed:
+
+- +0 uint32: continent ID
+- +4 uint16: English.str continent-name ID
+
+Decoded names are Europe, Africa, Asia, North America, South America, Oceania, Other.
+
+The meaning of +6..+9 is not yet proven.
+
+### Country table
+
+Offset: `0x004A`
+
+Header: uint32 count (=209)
+
+Record size: 43 bytes.
+
+Confirmed:
+
+- +0 uint32: country ID
+- +4 uint16: English.str country-name ID
+- +10 uint16: English.str three-letter abbreviation ID
+- +24 uint32: continent ID
+- +41 uint16: third country-related English.str ID (semantic role not yet proven)
+
+Examples correctly resolve Albania/ALB/Europe, Algeria/ALG/Africa, United States/USA/North America, Argentina/ARG/South America and Australia/AUS/Oceania.
+
+### Nationality table
+
+Offset: `0x2369`
+
+Header: uint32 count (=209)
+
+Record size: 3 bytes.
+
+Confirmed:
+
+- +0 uint8: nationality ID
+- +1 uint16: English.str nationality-name ID
+
+Examples include Alaskian, Albanian, Algerian, American, Saudi Arabian, Argentinian, Australian and Austrian.
+
 ### Position table
 
 Offset: `0x25E0`
@@ -158,6 +208,81 @@ Record size: 53 bytes.
 | +12 | uint16 | English.str competition-name ID |
 
 Other competition fields are not yet semantically mapped.
+
+### Round table
+
+Offset: `0x4F1F`
+
+Header: uint32 count (=1,053)
+
+Record size: 36 bytes.
+
+Confirmed / strongly verified fields:
+
+- +0 uint32: round-record ID
+- +4 uint16: round/competition type code
+- +6 uint16: competition ID
+- +10 uint16: round or matchday number
+- +14 uint16: English.str round/display-name ID
+- +16 uint8: scheduled week
+- +17 uint8: scheduled weekday
+- +18 uint8: replay week (zero when not used)
+- +19 uint8: replay weekday (zero when not used)
+- +24 uint16: number of teams in the round
+- +26 uint16: number of new entrants/allocated entrants for that round
+
+Evidence:
+
+- competition ID 0 has 38 records named `Prem League`, matching 38 Premier League matchdays.
+- FA Cup records decode as 1st Round, 2nd Round, 3rd Round, 4th Round, 5th Round, Quarter Final, Semi Final, Final.
+- Premier League scheduling begins week/day 7/6, 8/3, 8/6, matching Saturday → midweek → Saturday cadence.
+- FA Cup round records carry replay week/day values.
+- FA Cup team counts progress 80, 40, 64, 32, 16, 8, 4, 2; the 3rd round contains 44 new entrants.
+
+Other flags/financial fields remain unmapped.
+
+### Cup-allocation instruction table
+
+Offset: `0xE337`
+
+Header: uint32 count (=238)
+
+Record size: 28 bytes.
+
+Confirmed:
+
+- +0 uint32: instruction ID
+- +4 uint32: destination competition ID
+- +8 uint32: instruction sequence/index within the competition
+
+Strong evidence indicates later fields specify allocation source/type and team count. FA Cup instructions enumerate sources/counts that sum to 124 teams, and subsequent blocks target League Cup, Challenge Shield, Charity Shield, Champions League and other cup competitions. Exact semantics of +12/+16/+20/+24 are still being separated.
+
+### League-allocation table candidate
+
+Offset: `0xFD43`
+
+Header: uint32 count (=28)
+
+Record size: 28 bytes.
+
+The table is structurally confirmed (records begin with sequential IDs), and the +4 field repeatedly references league competition IDs. It is the strongest current match for RTTI class `DBTLeagueAllocations`, but individual field semantics are not yet promoted to confirmed.
+
+### Real fixture table
+
+Offset: `0x10057`
+
+Header: uint32 count (=380)
+
+Record size: 16 bytes.
+
+Confirmed:
+
+- +0 uint32: fixture ID
+- +4 uint32: zero-based Premier League round index
+- +8 uint32: home club ID
+- +12 uint32: away club ID
+
+The 380 records equal 38 rounds × 10 matches. Round index 0 contains 10 fixtures, round index 1 the next 10, etc. Club IDs resolve to the real Premier League club set in `Master.dat` (Arsenal, Aston Villa, Chelsea, Manchester United, Charlton Athletic, Derby County, Ipswich Town, Leicester City, Sunderland, Bradford City, etc.).
 
 ## Save files
 
