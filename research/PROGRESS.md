@@ -326,18 +326,28 @@ Current safe model:
 Also corrected: proposal helper 0x4F0460 simply tests whether any exchange-player slot is populated.
 
 
+## Transfer execution checkpoint
+
+The actual player-movement path is now traced:
+
+- MPMTryExecuteTransfer stores buyer/seller clubs and gates execution on per-player deal states.
+- states 2/5 strongly behave as counter-offer / renewed-terms-required; states 1/4 satisfy the ready-to-progress predicate. Exact enum names remain deliberately unconfirmed.
+- MPMTransferPlayer ultimately calls player routine 0x4229B0.
+- 0x4229B0 logs CPlayerMovement history, stages negotiated contract terms, and invokes the club-switch path.
+- 0x422F70 writes the new club IDs, stamps the current-club join date, and resets temporary transfer/status state.
+- swap players use the same movement machinery in the reverse club direction.
+
 ## Active Investigation
 
 Current focus: determine the exact acceptance/clearance paths feeding CDealInProgress state 1/4, finish proposal +0x40/+0x44/+0x4C, and document the full transfer execution path.
 
 Immediate next steps:
 
-1. Trace player contract accessors and identify contract-end, wage and contract-status fields in runtime DBRPlayer.
-2. Map PlayerMovements.cpp and transfer-list state transitions.
-3. Locate transfer-bid/negotiation record structures.
-4. Recover fee/wage valuation formulas and transfer-related tuning variables.
-5. Map transfer completion, medical, and club/player movement updates.
-6. Checkpoint before moving to finances and season AI.
+1. Trace the financial checks and postings inside MPMTryExecuteTransfer around 0x61BCBE..0x61BED7.
+2. Identify buyer debit, seller credit and transfer-budget/wage-budget changes.
+3. Map proposal trailing fields +0x40..+0x4C through their readers/writers.
+4. Finish exact names for CDealInProgress states 0/1/2 from named event callbacks.
+5. Checkpoint the transfer/finance subsystem, then broaden into club finances and season AI.
 
 ## Persistence / Checkpoint Rule
 
