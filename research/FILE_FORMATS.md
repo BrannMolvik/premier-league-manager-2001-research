@@ -257,7 +257,7 @@ Confirmed:
 
 Strong evidence indicates later fields specify allocation source/type and team count. FA Cup instructions enumerate sources/counts that sum to 124 teams, and subsequent blocks target League Cup, Challenge Shield, Charity Shield, Champions League and other cup competitions. Exact semantics of +12/+16/+20/+24 are still being separated.
 
-### League-allocation table candidate
+### League-allocation table
 
 Offset: `0xFD43`
 
@@ -265,7 +265,15 @@ Header: uint32 count (=28)
 
 Record size: 28 bytes.
 
-The table is structurally confirmed (records begin with sequential IDs), and the +4 field repeatedly references league competition IDs. It is the strongest current match for RTTI class `DBTLeagueAllocations`, but individual field semantics are not yet promoted to confirmed.
+Class identity is confirmed as `DBTLeagueAllocations` by the actual `Static.dat` load order: global object `0x876C28` has vtable `0x7C9844`, whose RTTI is `DBTLeagueAllocations`, and is loaded immediately after `DBTCupAllocInstructions`.
+
+Confirmed:
+
+- records are 28 bytes on disk
+- +0 uint32: sequential allocation-record ID
+- +4 uint32: league competition ID
+
+Other field semantics are still being mapped.
 
 ### Real fixture table
 
@@ -283,6 +291,24 @@ Confirmed:
 - +12 uint32: away club ID
 
 The 380 records equal 38 rounds × 10 matches. Round index 0 contains 10 fixtures, round index 1 the next 10, etc. Club IDs resolve to the real Premier League club set in `Master.dat` (Arsenal, Aston Villa, Chelsea, Manchester United, Charlton Athletic, Derby County, Ipswich Town, Leicester City, Sunderland, Bradford City, etc.).
+
+### International fixture table
+
+Offset: `0x1181B`
+
+Header: uint32 count (=108)
+
+Record size: 16 bytes.
+
+Class identity is confirmed as `DBTInternationalFixtures` from the actual loader sequence. Its record reader (`DBRInternationalFixture`) reads the packed fields as:
+
+- +0 uint32
+- +4 uint16
+- +6 uint16
+- +8 uint32
+- +12 uint32
+
+Observed values strongly indicate scheduling/routing information for international competition regions. The final two fields reference international competition/region IDs such as Europe (170), South America (177), North America (178), Africa (179), Asia (180), and Oceania (181). Exact semantic names for all five fields remain under investigation.
 
 ### Previous international score table
 
@@ -304,13 +330,15 @@ The home/away IDs resolve to national-team club records such as Austria, Spain, 
 
 The semantics of +4 and +8 remain to be mapped. RTTI contains `DBRPrevInternationalScore` / `DBTPrevInternationalScores`, matching this structure.
 
-### International tournament-cycle / host table
+### International tournament host table
 
 Offset: `0x12E4F`
 
 Header: uint32 count (=23)
 
 Record size: 20 bytes.
+
+Class identity is confirmed as `DBTHosts` / `DBRHost` from the actual loader sequence.
 
 Confirmed:
 
@@ -320,7 +348,88 @@ Confirmed:
 - +12 uint32: primary host national-team club ID
 - +16 uint32: secondary host national-team club ID, or `0xffffffff`
 
-Competition IDs alternate between World Cup (174) and European Championship (171). Host IDs resolve to national-team records. This structure matches RTTI `DBRInternationalFixture` / `DBTInternationalFixtures` and demonstrates that FM2001 carries international tournament-cycle data through 2046.
+Competition IDs alternate between World Cup (174) and European Championship (171). Host IDs resolve to national-team records. FM2001 therefore carries international tournament host-cycle data through 2046.
+
+### Manager rating table
+
+Offset: `0x1301F`
+
+Header: uint32 count (=20)
+
+Packed record size: 6 bytes.
+
+Class identity is confirmed as `DBTManagerRatings`. The binary reader for `DBRManagerRating` reads:
+
+- +0 uint32
+- +4 uint8
+- +5 uint8
+
+All 20 records in this release have first field 0; the second field runs 0..19. The exact semantic labels of the final byte are still being traced.
+
+### Manager expected-ranking table
+
+Offset: `0x1309B`
+
+Header: uint32 count (=262)
+
+Packed record size: 9 bytes.
+
+Class identity is confirmed as `DBTManagerExpectedRankings`. The binary reader for `DBRManagerExpectedRanking` reads:
+
+- +0 uint32
+- +4 uint8
+- +5 uint16
+- +7 uint16
+
+### Manager sack-league table
+
+Offset: `0x139D5`
+
+Header: uint32 count (=24)
+
+Packed record size: 7 bytes.
+
+Class identity is confirmed as `DBTManagerSackLeagues`. The binary reader for `DBRManagerSackLeague` reads:
+
+- +0 uint32
+- +4 uint8
+- +5 uint16
+
+The 24 records begin with sequential IDs 0..23 and threshold-like values.
+
+### Manager sack-cup table
+
+Offset: `0x13A81`
+
+Header: uint32 count (=66)
+
+Packed record size: 8 bytes.
+
+Class identity is confirmed as `DBTManagerSackCups`. The binary reader for `DBRManagerSackCup` reads eight one-byte values into the record after its vtable/base object bookkeeping. The data forms competition/round-like groups with six threshold values; exact labels remain to be mapped.
+
+### Access fan-base table
+
+Offset: `0x13C95`
+
+Header: uint32 count (=42)
+
+Packed record size: 78 bytes.
+
+Class identity is confirmed as `DBTAccessFanBase` / `DBRAccessFanBase`. The class binary reader consumes one uint16 followed by nineteen uint32 values (78 packed bytes total).
+
+The table ends exactly at `0x14965`, where the next verified table begins.
+
+### Access skill/financial-values table
+
+Offset: `0x14965`
+
+Header: uint32 count (=100)
+
+Packed record size: 26 bytes.
+
+Class identity is confirmed as `DBTAccessSkillFinancialValues` / `DBRAccessSkillFinancialValue`. The binary reader consumes one uint16 followed by six uint32 values.
+
+The 100 records end exactly at `Static.dat` EOF (`0x15391`).
 
 ## Save files
 
