@@ -609,19 +609,26 @@ Setup routine `0x4EC360` initializes terms from the current player:
 - +0x2F = player `0x41BC90`
 - +0x30 = player `0x41BCA0`
 
-EA formatter strings expose the contract concepts:
+The complete negotiated-contract field map is now recovered:
 
-- WAGE
-- CONTRACT
-- SIGNONFEEAMOUNT
-- APPEARANCEFEEAMOUNT
-- PROMOTIONBONUSAMOUNT
-- RELEGATIONTRANSFERREQUEST
-- BIGCLUBOFFER
-- BIGMONEYOFFER
-- HOUSE
+- `+0x18`: weekly wage
+- `+0x1C`: signing-on fee
+- `+0x20`: promotion bonus
+- `+0x24`: contract length
+- `+0x28`: appearance fee
+- `+0x2C`: relegation transfer-request clause
+- `+0x2D`: big-club offer clause
+- `+0x2E`: big-money offer clause
+- `+0x2F`: house
+- `+0x30`: car
 
-Exact terms-field-to-label mapping beyond WAGE/CONTRACT is still being verified.
+Evidence combines the transfer formatter keys (`WAGE`, `CONTRACT`, `SIGNONFEEAMOUNT`, `APPEARANCEFEEAMOUNT`, `PROMOTIONBONUSAMOUNT`, `RELEGATIONTRANSFERREQUEST`, `BIGCLUBOFFER`, `BIGMONEYOFFER`, `HOUSE`) with EA's localized contract UI strings, which expose the adjacent clause/benefit sequence:
+
+`RELEGATION CLAUSE`, `BIG CLUB OFFER`, `BIG MONEY OFFER`, `House`, `Car`
+
+and the paired values `No house / Plus a house` and `No car / Plus a car`.
+
+The terms initializer `0x4EC360` fills +0x2F and +0x30 from adjacent player accessors `0x41BC90` and `0x41BCA0`, matching House and Car respectively.
 
 ### CDealInProgress
 
