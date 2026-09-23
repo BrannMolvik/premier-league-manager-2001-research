@@ -61,9 +61,35 @@ MSVC RTTI has been resolved to actual vtables and methods for the manager rating
 This analysis also prevented a premature identification: the 108-record block at `0x1181B` is still **unresolved**. Its 16-byte apparent grouping alone is not enough to call it `DBTManagerExpectedRankings`, because the values also strongly resemble competition/continental routing data and the binary parser can use packed serialization. Keep it as a candidate until field semantics and load order agree.
 
 
+## Static.dat map completion checkpoint
+
+The actual `Static.dat` loader at `0x4F7020` has now been traced. It resolves the previously ambiguous table identities by loading these RTTI-backed global objects in order:
+
+`DBTCompetitions -> DBTRounds -> DBTCupAllocInstructions -> DBTLeagueAllocations -> DBTRealFixtures -> DBTInternationalFixtures -> DBTPrevInternationalScores -> DBTHosts`
+
+The following manager/access tables are then loaded by the outer static-data loader:
+
+`DBTManagerRatings -> DBTManagerExpectedRankings -> DBTManagerSackLeagues -> DBTManagerSackCups -> DBTAccessFanBase -> DBTAccessSkillFinancialValues`
+
+Packed reader widths from the original binary establish exact table boundaries:
+
+- `0x1181B`: InternationalFixtures, 108 × 16
+- `0x11EDF`: PrevInternationalScores, 141 × 28
+- `0x12E4F`: Hosts, 23 × 20
+- `0x1301F`: ManagerRatings, 20 × 6
+- `0x1309B`: ManagerExpectedRankings, 262 × 9
+- `0x139D5`: ManagerSackLeagues, 24 × 7
+- `0x13A81`: ManagerSackCups, 66 × 8
+- `0x13C95`: AccessFanBase, 42 × 78
+- `0x14965`: AccessSkillFinancialValues, 100 × 26
+
+The final table ends exactly at `Static.dat` EOF `0x15391`.
+
+This also corrects the earlier provisional label for `0x12E4F`: it is `DBTHosts`, not `DBTInternationalFixtures`.
+
 ## Active Investigation
 
-Current focus: identify the unresolved 108-record block at `0x1181B` and the dense tables after the international cycle block at `0x1301F`, using RTTI/load-function evidence rather than record-size guessing.
+Current focus: with Static.dat table identities now mapped end-to-end, move from table boundaries into field semantics: league/cup allocation rules, international fixture routing, manager sacking/expectation thresholds, and fan-base/financial value fields.
 
 Immediate next steps:
 
