@@ -1,27 +1,132 @@
 # File Format Analysis
 
-Use this file for reverse engineering game databases, saves, configuration, resources, archives, and other data formats.
+This file records verified structures for FM2001 game data. Offsets currently apply to the exact analyzed release identified by hashes in `research/FINDINGS.md`.
 
-## File inventory
+## String-table format (.str)
 
-_Not yet imported._
+Used by at least `English.str` and `Core.str`.
 
-## Database formats
+### Header/index
 
-_No verified entries yet._
+| Offset | Type | Meaning |
+|---|---|---|
+| +0 | uint32 LE | table/index boundary |
+| +4 | uint32 LE | number of indexed strings |
+| table_offset + 8 | uint32[count] | relative offsets to NUL-terminated strings |
 
-## Save-game formats
+For each entry, the decoded byte position is `8 + relative_offset`. Strings decode correctly using CP1252.
 
-_No verified entries yet._
+## Master.dat
 
-## Resource/archive formats
+### Top-level layout
 
-_No verified entries yet._
+```text
++0x00000000  uint32 club_count (=1246)
++0x00000004  Club[1246]             record size 181
+              ...
+              player section header/count
+              Player[30064]         record size 103
+              Manager[1612]         record size 43
+              2-byte trailer
+```
 
-## Configuration formats
+The exact meaning of every player-section header byte is still being formalized; the known parser uses a six-byte player header at the current boundary.
 
-_No verified entries yet._
+### Club record (181 bytes)
 
-## Unknown formats
+| Offset | Type | Meaning | Confidence |
+|---|---|---|---|
+| +4 | uint16 | English.str club full-name ID | confirmed |
+| +6 | uint16 | English.str short-name ID | confirmed |
+| +16 | uint16 | English.str map-file ID | confirmed |
+| +30 | uint16 | English.str stadium-name ID | confirmed |
+| +44 | uint16 | English.str badge-file ID | confirmed |
+| +46 | uint16 | English.str sponsor ID | confirmed |
+| +48 | uint16 | manager-record ID | confirmed |
 
-_No entries yet._
+Unmapped fields remain.
+
+### Player record (103 bytes)
+
+| Offset | Type | Meaning | Confidence |
+|---|---|---|---|
+| +0 | uint16 | Core.str first-name ID | confirmed |
+| +2 | uint16 | Core.str surname ID | confirmed |
+| +4 | uint16 | club ID | confirmed |
+| +12 | uint32 | DOB serial date | confirmed |
+| +17 | uint8 | height cm | confirmed |
+| +18 | uint8 | weight kg | confirmed |
+| +19 | uint8 | primary position code | confirmed |
+| +20 | uint8 | secondary position code | confirmed |
+| +21 | uint8 | tertiary position code | confirmed |
+| +22..+39 | uint8[18] | player attribute bytes | confirmed block; semantic order tentative |
+| +74 | uint32 | club-join serial date | confirmed |
+
+Dates decode using the OLE-style epoch `1899-12-30`.
+
+### Manager record (43 bytes)
+
+| Offset | Type | Meaning | Confidence |
+|---|---|---|---|
+| +6 | uint16 | Core.str first-name ID | confirmed |
+| +8 | uint16 | Core.str surname ID | confirmed |
+| +10 | uint32 | DOB serial date | confirmed |
+| +22 | uint32 | club-join serial date | confirmed |
+| +29 | uint32 | club ID; 0xffffffff = no club | confirmed |
+
+## Static.dat
+
+`Static.dat` is a concatenation of database-like tables.
+
+### Position table
+
+Offset: `0x25E0`
+
+Header: uint32 count (=20)
+
+Record size: 7 bytes.
+
+| Offset | Type | Meaning |
+|---|---|---|
+| +0 | uint8 | position ID |
+| +1 | uint16 | English.str long-name ID |
+| +3 | uint16 | English.str abbreviation ID |
+| +5..+6 | bytes | not yet mapped |
+
+### Competition table
+
+Offset: `0x2726`
+
+Header: uint32 count (=193)
+
+Record size: 53 bytes.
+
+| Offset | Type | Meaning |
+|---|---|---|
+| +0 | uint32 | competition ID |
+| +12 | uint16 | English.str competition-name ID |
+
+Other competition fields are not yet semantically mapped.
+
+## Save files
+
+Known executable path pattern: `games\\%d.sav`.
+
+The executable contains an incompatible-save/version message, but the save binary format has not yet been decoded.
+
+## .SCI match data
+
+Approximately 252 `.SCI` files exist under `DataInGame`.
+
+Current status: binary format unknown.
+
+Related readable `camera.scr` contains camera-mode definitions for live play, set pieces, replays, manual replay, out-of-play and half time.
+
+## Next format work
+
+1. Map all remaining `Static.dat` table boundaries to RTTI table classes.
+2. Decode league allocation, cup allocation, rounds and fixture structures.
+3. Map player attribute semantics and contract/financial fields.
+4. Map club financial/stadium fields.
+5. Decode save serialization.
+6. Decode `.SCI` and formation/tactical data as needed by the match engine.
