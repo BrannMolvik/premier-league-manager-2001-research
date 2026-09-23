@@ -228,6 +228,17 @@ The post-age section of `0x41EAD0` obtains a club-owned 40-record array of 200-b
 - 0x4EACE0 is traced through its probabilistic success check and +8 raw-skill increment.
 - The former method-ID-1 anomaly is resolved: its jump target returns vector0 (attacking) without executing the invalid-ID `xor eax,eax` path. Final method map: 0 rest/recovery, 1 attacking, 2 midfield, 3 defensive, 4 goalkeeper, 5 fitness, 6 technique.
 
+## Interrupted-session partial lead
+
+The session timed out while tracing the exact probability math inside adult training. Before interruption, static analysis indicated a provisional form:
+
+- nonzero profile weight is multiplied by a club/staff quality multiplier and by approximately 0.5;
+- the result is compared against a random integer in the 0..99 range;
+- observed quality constants were 1.25, 1.30, 1.35, 1.40 and 1.45;
+- one facility-related branch appeared to add +0.25.
+
+This is intentionally recorded as an **unverified lead**, not a confirmed formula. Re-enter the relevant code path and verify the source of each multiplier/facility flag before promoting it to `EXECUTABLE_ANALYSIS.md`.
+
 ## Active Investigation
 
 Current focus: recover the exact club/staff/facility multipliers and probability math in the verified training success formula, now that all seven training method IDs are resolved.
