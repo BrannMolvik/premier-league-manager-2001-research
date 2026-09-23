@@ -348,6 +348,10 @@ Completed-transfer money flow is now proven:
 - transfer budget is a separate subsystem and must not be conflated with this money field;
 - both transfer postings use accounting category code 1000, whose exact display label remains to be mapped.
 
+## Budget-structure checkpoint
+
+EA's `EAMchairbudgetsettings` message now proves eight distinct chairman budget buckets: total, staff, player wages, maintenance, merchandising, miscellaneous, buildings limit and transfers. Transfer budget is therefore structurally separate from the already-recovered current cash/balance field. The message layout is mapped, while the authoritative live budget storage remains an active target.
+
 ## Active Investigation
 
 Current focus: determine the exact acceptance/clearance paths feeding CDealInProgress state 1/4, finish proposal +0x40/+0x44/+0x4C, and document the full transfer execution path.
