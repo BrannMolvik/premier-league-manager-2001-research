@@ -128,6 +128,59 @@ Therefore:
 - do not label the 17 elements until their accessor/consumer code is recovered;
 - keep compact-file offsets distinct from runtime-object offsets and save-game fields.
 
+
+### Player skill-array semantics and scale
+
+The two 17-byte arrays in the compact player record now have a substantially firmer interpretation.
+
+Runtime/file relationship:
+
+- compact `+24..+40` -> runtime `+0x1E..+0x2E`: **current skill values**
+- compact `+41..+57` -> runtime `+0x2F..+0x3F`: **corresponding skill ceilings / potential targets**
+
+Evidence:
+
+- routine `0x41A870` indexes the same slot in both arrays and only increases the current-skill byte while the incremented value remains below the matching second-array value;
+- the age/development routine around `0x41EB03..0x41EDC8` repeatedly reads the second-array byte and writes an interpolated/adjusted value into the matching first-array slot;
+- across all 30,064 compact player records, 99.605% of the 511,088 paired bytes satisfy `array_B >= array_A`.
+
+The few exceptions must still be explained, but the second array is clearly acting as a ceiling/target rather than another independent visible characteristic set.
+
+#### Raw-byte to 0-30 conversion
+
+EA's own overall-rating code converts each raw 0-255 skill byte with the exact integer transformation equivalent to:
+
+```text
+displayed_skill = floor((30 * raw + 128) / 255)
+```
+
+This yields an integer range of 0..30.
+
+The earlier prototype's general idea of mapping bytes to a 0-30 scale was therefore directionally correct, but the record alignment and attribute boundaries were previously wrong.
+
+#### Confirmed current-skill slot identities
+
+The position-overall function at `0x41C7E0` combines current-skill slots with named tuning weights such as `overallgkspeed`, `overallrbtackling`, etc. This directly proves these slot identities:
+
+| Array slot | Runtime offset | Skill |
+|---:|---:|---|
+| 0 | +0x1E | Speed |
+| 1 | +0x1F | Strength |
+| 5 | +0x23 | Passing |
+| 6 | +0x24 | Shooting |
+| 7 | +0x25 | Tackling |
+| 8 | +0x26 | Heading |
+| 11 | +0x29 | Awareness |
+| 12 | +0x2A | Agility |
+| 13 | +0x2B | Goalkeeping |
+| 14 | +0x2C | Confidence |
+| 15 | +0x2D | Leadership |
+
+Leadership is independently supported by code around `0x41BA80` / `0x41BB10`: accessor `0x41EDE0` returns runtime byte `+0x2D`, and that value is compared directly against tweak variable `goodleadership`.
+
+Still-unmapped current-skill slots are 2, 3, 4, 9, 10 and 16.
+
+
 ### Manager record (43 bytes)
 
 | Offset | Type | Meaning | Confidence |
