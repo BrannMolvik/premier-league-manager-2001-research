@@ -1016,6 +1016,76 @@ This confirms swap transfers are not a separate simplified record type: they use
 - exact meanings of club historical/value fields touched by `0x422BA0`.
 
 
+## Transfer financial posting / Balance subsystem
+
+The cash movement for completed transfers is now directly traced and directionally proven.
+
+### Buyer debit and seller credit
+
+During `MPMTryExecuteTransfer::Execute`, after deal-readiness checks, the transfer amount is posted through two club methods:
+
+- seller club -> `0x404BB0`
+- buyer club -> `0x404B30`
+
+The methods are exact financial opposites.
+
+`0x404B30` resolves the user-controlled club finance object and calls `0x5DC650`. That backend routine subtracts the supplied money amount from the finance money field at `finance +0x10`.
+
+`0x404BB0` resolves the same type of finance object and calls `0x5DC510`. That backend routine adds the supplied amount to `finance +0x10`.
+
+Therefore, for the transfer amount used by this path:
+
+- buyer is debited;
+- seller is credited;
+- both postings use the same monetary amount.
+
+### Affordability check
+
+Club method `0x404AE0` compares a requested monetary amount against the same finance-object money value at `+0x10` for a user-controlled club. AI/non-user clubs take a bypass path.
+
+This is used by transfer execution before completion, so a user-controlled buyer must have sufficient available current money for the transaction.
+
+### Balance subsystem evidence
+
+The relevant backend code has source-path metadata for:
+
+`D:\Projects\FM2001\Applications\FootballManager\Balance.cpp`
+
+Related strings include `BALANCE`, `CASH`, and `/cash777`.
+
+Constructor-like routine `0x5DC400` initializes the balance/finance object and embeds the current money object beginning at `+0x10`.
+
+The evidence therefore supports describing `finance +0x10` as the club/user's **current cash/balance amount**. It should not be conflated with the separate transfer-budget system.
+
+### Accounting transaction category
+
+Both buyer and seller posting paths construct a transaction using accounting/category code:
+
+`1000 (0x3E8)`
+
+The finance backend treats code 1000 specially in routines around `0x5DCF5D` and `0x5DDD1D`.
+
+This is clearly part of the transfer cash-flow/accounting hierarchy, but the exact user-facing category name for code 1000 remains unconfirmed.
+
+### Transfer budget is separate
+
+The executable contains distinct budget concepts and tuning/UI strings including:
+
+- `TRANSFERBUDGET`
+- `TRANSFERBUDGETINCREASE`
+- `PLAYERWAGEBUDGET`
+- `STAFFBUDGET`
+- `MAINTENANCEBUDGET`
+- `MERCHANDISINGBUDGET`
+- `MISCBUDGET`
+- `BUILDINGSBUDGET`
+- `TOTALBUDGET`
+
+Tuning/global references such as the `TransferBudget` value around `0x821DC0` belong to this separate budget layer.
+
+Do not label `finance +0x10` as transfer budget. Current evidence identifies it with current cash/balance, while transfer-budget allocation and adjustment remain active research targets.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
