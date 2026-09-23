@@ -497,6 +497,75 @@ Coach dispatcher 0x42C240 maps the same IDs to specialist employee lookups. The 
 
 Training update 0x4EACE0 loops all 17 skills. For a nonzero profile weight it combines profile/staff/club multipliers with a random 0..99 roll; if current skill is below development target, it increments the per-skill training counter/state, calls 0x41A870 for a +8 raw-skill step when still below target, and increments the per-method result counter. Zero-profile paths can reverse a prior step via 0x41A9A0 under the internal countdown/state condition.
 
+## Exact active-training success probability
+
+The numerical training-success formula in `0x4EACE0` is now verified instruction-by-instruction.
+
+For each skill with a nonzero profile weight:
+
+```
+threshold = profile_weight * quality_multiplier * 0.5
+success if random_integer(0..99) < threshold
+```
+
+Evidence:
+
+- random source `0x64D540(100)` returns the 0..99 roll;
+- constant `0x7BD6A8` is double `0.5`;
+- the x87 compare at `0x4EAE09` takes the success path only when the computed threshold is strictly greater than the random roll.
+
+### Quality multiplier
+
+Default multiplier begins at `1.00`.
+
+The routine first searches staff employee type **3** via `0x4D0C10`. EA's own `YouthTeamCoach@ModFmt` formatter at `0x613290` calls that exact lookup, proving employee type 3 is **Youth Team Coach**.
+
+If present, its virtual rating method at vtable +0x40 returns 1..5 and maps to:
+
+- rating 1 -> 1.25
+- rating 2 -> 1.30
+- rating 3 -> 1.35
+- rating 4 -> 1.40
+- rating 5 -> 1.45
+
+If no Youth Team Coach is present, the routine searches employee type **1** via `0x4D0B10`. EA's `AssistantManager@ModFmt` formatter at `0x6134F0` calls this lookup, proving employee type 1 is **Assistant Manager**. Presence of an Assistant Manager supplies fallback multiplier **1.25**.
+
+If neither exists, multiplier remains **1.00**.
+
+### Training Centre bonus
+
+The club building/feature collection at club `+0x65C` is queried for feature ID **5** with `0x5EE9A0`.
+
+The external-building factory around `0x5EECB4` constructs `CTrainingBuilding` and passes literal ID **5** to the common building constructor `0x5EF290`. Therefore feature ID 5 is definitively the **Training Centre**.
+
+If present, constant `0x7BD550` (double **0.25**) is added to the quality multiplier.
+
+Thus:
+
+```
+Q = 1.00
+if YouthTeamCoach exists:
+    Q = {1:1.25, 2:1.30, 3:1.35, 4:1.40, 5:1.45}[rating]
+else if AssistantManager exists:
+    Q = 1.25
+
+if TrainingCentre exists:
+    Q += 0.25
+
+threshold = profile_weight * Q * 0.5
+success = random(0..99) < threshold
+```
+
+For a maximum profile emphasis byte of 25, representative per-update chances are:
+
+- no staff / no Training Centre: 12.5%
+- 1-star Youth Team Coach: 15.625%
+- 5-star Youth Team Coach: 18.125%
+- 5-star Youth Team Coach + Training Centre: 21.25%
+
+The specialist coach selected by training method is handled separately through dispatcher `0x42C240`; additional specialist effects should not be conflated with this Youth-Team-Coach/Training-Centre multiplier until their call path is fully reconstructed.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
