@@ -188,6 +188,59 @@ Scouting commentary strings occur in matching groups for these dimensions, provi
 Additional strings elsewhere include `INJURY PRONENESS`, `TECHNIQUE`, `HANDLING`, `CREATIVITY`, and `OFFENSIVE`. Their existence is verified, but they are **not yet proven** to correspond directly, or in that order, to the remaining bytes of the compact player record.
 
 
+
+
+## Master.dat startup loader and compact player importer
+
+The actual `master.dat` startup path has now been located.
+
+A reference to the `master.dat` filename at approximately `0x827F48` leads to the loader around `0x50D630`.
+
+Its sequence is:
+
+- clubs: global table around `0x874B88`, specialized loader `0x40B9C0`
+- players: global `DBTPlayers` object around `0x875638`, specialized loader `0x4218C0`
+- managers: global table around `0x875620`, specialized loader `0x415B70`
+
+For players:
+
+- `0x4218C0` calls `0x421C80` and then post-processing `0x421CE0`
+- `0x421C80` reads the player count, allocates 592-byte runtime records, and loops over all records
+- each compact player is imported by **`0x418B90`**
+
+### Compact player importer `0x418B90`
+
+`0x418B90` performs 35 direct file reads via `0x667E90`.
+
+Read sizes:
+
+`2,2,2,2,1,1,4,4,1,1,1,3,17,17,1,1,1,1,1,1,4,8,4,2,2,1,1,1,1,4,4,1,2,2,2`
+
+Their sum is **103 bytes exactly**, independently confirming the player-record size.
+
+Key consequences:
+
+- the player record contains a 3-byte compact position-related group at file `+21..+23`;
+- it contains two **17-byte arrays** at file `+24..+40` and `+41..+57`;
+- those arrays copy directly into runtime object `+0x1E..+0x2E` and `+0x2F..+0x3F`;
+- the earlier hypothesis of an 18-byte attribute block at `+22..+39` is wrong.
+
+The position-data temporary is passed through `0x4EA2D0` and expanded into a runtime position structure.
+
+Two early 16-bit file fields are processed through helper `0x64E320`, which indexes a shared table/reference object (argument based around global `0x876CA0`) and stores pointers into runtime offsets `+0x08` and `+0x0C`. The purpose/type of `0x876CA0` remains an active target and is necessary before confidently naming those early fields.
+
+No further disk reads occur after the final 103rd byte; the rest of `0x418B90` derives and initializes runtime state.
+
+### Import-vs-save distinction
+
+This establishes three separate player representations/workflows:
+
+1. CSV/editor-style parser around `0x415CD0`;
+2. compact `Master.dat` startup importer `0x418B90`;
+3. full runtime/save binary reader around `0x416210`.
+
+These must be analyzed separately.
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
