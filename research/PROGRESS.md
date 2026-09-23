@@ -337,17 +337,29 @@ The actual player-movement path is now traced:
 - 0x422F70 writes the new club IDs, stamps the current-club join date, and resets temporary transfer/status state.
 - swap players use the same movement machinery in the reverse club direction.
 
+## Transfer finance checkpoint
+
+Completed-transfer money flow is now proven:
+
+- seller posting path `0x404BB0 -> 0x5DC510` credits the current finance money value;
+- buyer posting path `0x404B30 -> 0x5DC650` debits the same value;
+- affordability check `0x404AE0` compares the proposed amount against that current money value before a user-controlled buyer can proceed;
+- Balance.cpp source metadata and BALANCE/CASH strings identify this as current cash/balance state;
+- transfer budget is a separate subsystem and must not be conflated with this money field;
+- both transfer postings use accounting category code 1000, whose exact display label remains to be mapped.
+
 ## Active Investigation
 
 Current focus: determine the exact acceptance/clearance paths feeding CDealInProgress state 1/4, finish proposal +0x40/+0x44/+0x4C, and document the full transfer execution path.
 
 Immediate next steps:
 
-1. Trace the financial checks and postings inside MPMTryExecuteTransfer around 0x61BCBE..0x61BED7.
-2. Identify buyer debit, seller credit and transfer-budget/wage-budget changes.
+1. Trace xrefs to TransferBudget tuning/global state and identify the runtime current-transfer-budget field.
+2. Determine how completed purchases/sales adjust transfer budget versus cash balance.
 3. Map proposal trailing fields +0x40..+0x4C through their readers/writers.
-4. Finish exact names for CDealInProgress states 0/1/2 from named event callbacks.
-5. Checkpoint the transfer/finance subsystem, then broaden into club finances and season AI.
+4. Identify accounting category code 1000 from the finance/cash-flow UI hierarchy.
+5. Finish exact CDealInProgress state names if named callbacks provide decisive evidence.
+6. Then broaden into club finances and season AI.
 
 ## Persistence / Checkpoint Rule
 
