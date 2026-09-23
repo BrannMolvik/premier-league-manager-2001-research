@@ -254,6 +254,10 @@ where:
 
 The identities are proven from EA's own formatter classes and the CTrainingBuilding constructor.
 
+## Contract/transfer checkpoint
+
+Contract analysis has started and already confirms player weekly wage at +0xC4, contract expiry at +0x154, the 0x50-byte contract terms object, and the core application routine at 0x418FB0. CDealInProgress and CPlayerBidLog structures are located. Several contract-clause bits and player-status bits are structurally mapped but remain deliberately unnamed until tied to EA's named UI actions.
+
 ## Active Investigation
 
 Current focus: move into contracts/transfers: map player contract fields, transfer-list/bid state, fee/wage negotiation structures, and movement routines.
