@@ -152,18 +152,85 @@ Final slot order:
 0 Speed; 1 Strength; 2 Stamina; 3 Determination; 4 Injury Proneness; 5 Passing; 6 Shooting; 7 Tackling; 8 Heading; 9 Control; 10 Technique; 11 Awareness; 12 Agility; 13 Goalkeeping; 14 Confidence; 15 Leadership; 16 Set Piece.
 
 
+## Player aging/development formula checkpoint
+
+The monthly player-development path has now been traced far enough to recover the core age curve used by FM2001.
+
+Key routines:
+
+- `0x41E970`: initializes per-player development baselines and randomized peak ages.
+- `0x41EAD0`: recalculates all 17 current-skill bytes from age, stored baseline, target/potential bytes and club/training modifiers.
+- `0x4173B0`: computes current player age from date of birth and the global game date.
+- `0x4A8070`: main calendar/date tick.
+- `0x40BB10` -> `0x4042E0`: iterates clubs and their players for the monthly development update.
+
+Recovered tuning defaults:
+
+- `AGEPhyical_lowest_peak` -> 25
+- `AGEPhyical_highest_peak` -> 26
+- `AGESkill_lowest_peak` -> 27
+- `AGESkill_highest_peak` -> 29
+- `AGEGoalie_lowest_peak` -> 30
+- `AGEGoalie_highest_peak` -> 32
+- `AGEPeakPeriod` -> 5
+
+Each player stores a baseline age at runtime `+0x122`, copies the 17 baseline current-skill bytes to `+0x111..+0x121`, and stores three per-player peak ages at `+0x123/+0x124/+0x125`.
+
+Normal forward-time skill evolution for one slot is now reconstructed. Let:
+
+- `A0` = baseline age
+- `A` = current age
+- `B` = baseline skill byte
+- `T` = target/development-target byte
+- `P` = relevant personal peak age
+
+Then, before the peak, current skill is linearly interpolated from baseline toward target:
+
+`C = B + ((A-A0)/(P-A0)) * (T-B)`
+
+If the player began before the peak and is now past it, the target is held through the peak period; after that, decline heads toward zero by age 60:
+
+`C = T * (60-A)/(60-P)`
+
+For a player whose baseline age was already beyond the relevant peak:
+
+`C = B * (60-A)/(60-A0)`
+
+The implementation contains additional backward-age branches for date/save edge cases.
+
+Skill groups choose peak ages as follows:
+
+- slots 0..4 use physical peak `+0x123`
+- slots 5..8 use skill peak `+0x124`
+- slots 9..16 use the third/goalkeeper peak `+0x125`
+
+The second 17-byte array should therefore be described as a **development target / peak target**, not a strict ceiling: a small minority of original player records have target bytes lower than current bytes, representing expected regression toward the target.
+
+Strong evidence from the calendar path indicates this recalculation runs on the first day of each month for every club/player.
+
+Training-related tuning values identified near the same loader include:
+
+- `TRNMax_boost` default 8192
+- `TRNBuild_Boost` default 65
+- `TRNInjuryReturnDefault` default 75
+- `TRN_condition_divider` default 512.0
+- `TRN_Condition_Warning_Threshold` default 75
+
+The post-age section of `0x41EAD0` obtains a club-owned 40-record array of 200-byte records and reads two 17-byte regions from the selected record. Identifying this structure and its modifier semantics is the next active task.
+
+
 ## Active Investigation
 
-Current focus: recover the development/aging/training formulas that move the 17 current-skill bytes relative to their ceiling/potential targets, and explain the small set of records where current exceeds target.
+Current focus: identify the club-owned 40 × 200-byte training/development record array used after the recovered age curve, and map the two 17-byte modifier regions that alter monthly player development.
 
 Immediate next steps:
 
-1. Explain the small minority of Master.dat records where ceiling/potential target < current.
-2. Recover development/aging/training formulas that move current skills toward targets.
-3. Identify age-curve and training tweak variables used by the development routine.
-4. Update the clean-room parser to the corrected 4-byte player header and complete verified skill model.
-5. Then move into contracts/transfers and season-state logic.
-6. Checkpoint before match-engine work.
+1. Identify the 40 × 200-byte club-owned record structure at object +0x6B8 and its constructor at 0x424F90.
+2. Map the two 17-byte modifier regions consumed by player development around 0x41ED2C.
+3. Determine the semantic meaning of player runtime bytes +0x70/+0x76, which select records from that 40-entry array.
+4. Connect the modifier structure to Training.cpp / training UI classes and TRN* tweak keys.
+5. Update the clean-room player-development implementation once modifier semantics are proven.
+6. Then move into contracts/transfers and season-state logic.
 
 ## Persistence / Checkpoint Rule
 
