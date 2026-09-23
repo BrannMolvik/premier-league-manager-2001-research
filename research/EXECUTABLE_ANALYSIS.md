@@ -241,6 +241,41 @@ This establishes three separate player representations/workflows:
 
 These must be analyzed separately.
 
+## Core.str reference-table identification
+
+Global object `0x876CA0` is now identified directly as the loaded `core.str` indexed-string table.
+
+Evidence:
+
+- startup at `0x50D3AD` sets ECX to `0x876CA0`;
+- it pushes literal filename `"core.str"` at `0x827F30`;
+- it calls generic string-table loader `0x64E140`;
+- compact player importer `0x418B90` passes 16-bit file indices through helper `0x64E320`;
+- `0x64E320` uses the table object's pointer array at +8 and stores an indexed reference into the runtime player.
+
+Adjacent globals are sibling language-string tables:
+- `0x876C88`: localized language table such as `english.str`
+- `0x876C70`: corresponding EAM-language table such as `englisheam.str`
+
+This resolves compact player file offsets +2 and +4 as Core.str references for first name and surname.
+
+## Corrected Master.dat player boundary
+
+Loader `0x421C80` reads exactly one 4-byte player count and then immediately loops over 103-byte records. There is **no additional 2-byte player-section header**.
+
+The prior six-byte-header assumption shifted every inferred player field by two bytes. Corrected verified compact fields now include:
+
+- +0: player record ID
+- +2: first-name Core.str ID
+- +4: surname Core.str ID
+- +6: club index
+- +8: nationality ID
+- +14: date of birth
+- +19: height cm
+- +20: weight kg
+- +21..+23: three zero-based position codes
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
