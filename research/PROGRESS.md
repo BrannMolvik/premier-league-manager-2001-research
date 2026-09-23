@@ -24,93 +24,32 @@ The fallback remains a persistent VM if a faithful native reimplementation becom
 
 GitHub persistence is active. The connected GitHub account is `BrannMolvik` and has push/admin access to this repository.
 
+The previous v0.3 clean-room parser/reimplementation work is present in the active analysis workspace and its verified findings have now been imported into this repository.
+
 A Windows 11 modernization attempt successfully reconstructed the game installation without the obsolete 16-bit installer, but Windows Smart App Control / Code Integrity blocks the unsigned legacy `footballmanager.exe` before execution. Event ID 3077 in the Code Integrity Operational log explicitly identified the executable as blocked.
 
 A clean-room reimplementation prototype has therefore been started alongside executable reverse engineering.
 
-## Confirmed Findings
+## Newly completed investigation block
 
-### Original media / executable
+Static.dat tables immediately preceding the competition table were verified:
 
-- The available disc image is a FairLight-era release containing the original game data plus an already-decrypted/cracked `footballmanager.exe`.
-- The game is a 32-bit Windows application, not DOS.
-- It uses old DirectX-era APIs including DirectDraw, DirectInput and DirectSound.
-- The original setup path includes a 16-bit installer that cannot run natively on 64-bit Windows.
-- The executable contains extensive leftover C++ source-path/type information, including paths under:
-  - `D:\Projects\FM2001\Applications\FootballManager\...`
-  - `D:\Projects\FM2001\Libraries\Database\...`
-- Match-related source-path strings include:
-  - `Libraries\Database\Match.cpp`
-  - `Applications\FootballManager\FastView\MatchController.cpp`
+- `0x2670`: Formation table, 21 records × 6 bytes. Names include 4-4-2 variants, 5-3-2 variants, 3-4-3 variants, 3-5-2 variants, 4-3-3 variants, 4-5-1, 2-5-3, 5-4-1, Long Ball, Sweeper and Xmas Tree.
+- `0x26F2`: Player-status table, 12 records × 4 bytes. Names include Injured, Banned, International, Cup Tied, First Team, Substitute, On loan, Out of contract, Transfer listed, Bid in, Wanted and Non EU.
 
-### Windows 11 compatibility
-
-- A modernized game folder was built successfully without the original 16-bit installer.
-- The original 3D setup utility runs and writes graphics configuration.
-- Launching `footballmanager.exe` produces only a very brief shell spinner.
-- Running from Command Prompt returned exit code `-1`, but later Code Integrity logging showed that Windows itself blocks the executable.
-- Running as administrator does not bypass the block.
-- Windows Code Integrity Operational Event ID 3077 explicitly names `C:\Games\FM2001\footballmanager.exe`.
-- Binary patching the executable also remains subject to Smart App Control, so compatibility mode/CMD/admin rights are not sufficient solutions on the host OS.
-
-### String tables
-
-- `Core.str` has been decoded as an indexed string table with approximately 29,033 strings.
-- `English.str` has been decoded as an indexed string table with approximately 21,856 strings.
-- These tables contain real player names, club/stadium strings, UI text, competition/world text and asset paths.
-- Example early `Core.str` entries resolve to Arsenal-era player names including David Seaman, Lee Dixon and Nigel Winterburn.
-
-### Master.dat
-
-The file is structured and directly parseable rather than encrypted.
-
-Confirmed top-level record blocks:
-
-- 1,246 club records
-- club record size: 181 bytes
-- 30,064 player records
-- player record size: 103 bytes
-- final 1,612 records identified as manager records
-
-Confirmed relationships/examples:
-
-- The first club record resolves to Arsenal and references strings/assets including Highbury and Arsenal map/texture data.
-- The first player records resolve to David Seaman, Lee Dixon, Nigel Winterburn, Steve Bould and Tony Adams.
-- Player records include a direct club relationship field, so authentic squads can be reconstructed.
-- Player records expose date-of-birth and physical data such as height/weight.
-- A block of one-byte player attributes has been located with values on an apparent 0-30 scale, but exact attribute-name ordering is not yet considered proven.
-- Club records link to manager records.
-- Manager record 10 resolves to Alex Ferguson, born 31 December 1941, joined Manchester United 6 November 1986.
-- Arsenal's club record points to manager record 204, which resolves to Arsène Wenger.
-
-### Clean-room prototype
-
-A prototype has already been produced that:
-
-- does not execute or embed EA's `footballmanager.exe`
-- reads the user's existing `Master.dat`, `English.str` and `Core.str`
-- reconstructs clubs and players from the original data
-- provides a modern searchable database-viewer proof of concept
-
-The prototype proves the original football database can be consumed by a modern application.
+These discoveries are documented in `research/FILE_FORMATS.md`.
 
 ## Active Investigation
 
-Reverse engineer the entire game incrementally while preserving every substantial result in this repository.
+Current focus: identify the remaining `Static.dat` tables surrounding the confirmed position/formation/status/competition sequence, then map league/cup allocation and fixture structures.
 
-Priority order:
+Immediate next steps:
 
-1. Finish formal documentation of `Master.dat` record layouts.
-2. Fully map player-to-club/squad relationships and player attribute semantics.
-3. Map manager record layout.
-4. Locate and decode competition/league structures, schedules and rules.
-5. Identify contracts, transfers, finances, training, scouting and board-state data.
-6. Reverse engineer save-game serialization.
-7. Map high-level executable subsystem/function graph using source-path and RTTI/string clues.
-8. Trace season advancement and AI-management logic.
-9. Trace match creation, simulation and event generation.
-10. Trace `FastView` / match-day presentation and renderer-facing structures.
-11. Implement decoded behavior in the clean-room reimplementation as understanding improves.
+1. Work backward from the position table to identify the preceding typed tables.
+2. Work forward from the competition table and locate table boundaries.
+3. Correlate table candidates with RTTI classes such as `DBTCountries`, `DBTNationalities`, `DBTRounds`, `DBTLeagueAllocations`, `DBTCupAllocInstructions`, `DBTRealFixtures`, and `DBTInternationalFixtures`.
+4. Add a reproducible Static.dat table-inspection script under `tools/`.
+5. Checkpoint each newly verified table before deeper executable tracing.
 
 ## Persistence / Checkpoint Rule
 
