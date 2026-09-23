@@ -67,26 +67,35 @@ Record 0 resolves to Arsenal and includes strings/assets for Arsenal/Highbury.
 
 ### Player records
 
-Confirmed fields:
+The earlier player-field map was corrected after tracing EA's actual compact importer.
 
-- +0 uint16: first-name string ID in `Core.str`
-- +2 uint16: surname string ID in `Core.str`
-- +4 uint16: club ID
-- +12 uint32: date of birth, OLE-style serial date using epoch 1899-12-30
-- +17 uint8: height in centimeters
-- +18 uint8: weight in kilograms
-- +19/+20/+21 uint8: three position codes
-- +22..+39: 18 one-byte attribute values
-- +74 uint32: date joined club, same date encoding
+Confirmed:
 
-The exact semantic label/order of the 18 attribute bytes is not yet considered confirmed.
+- player section header is 4 bytes: uint32 count = 30,064
+- compact record size: 103 bytes
+- +0 uint16: player record ID
+- +2 uint16: first-name ID in `Core.str`
+- +4 uint16: surname ID in `Core.str`
+- +6 uint16: club record index
+- +8 uint8: nationality ID
+- +14 uint32: date of birth, OLE-style serial date using epoch 1899-12-30
+- +19 uint8: height in centimeters
+- +20 uint8: weight in kilograms
+- +21..+23: three zero-based position codes
+- +24..+40: first 17-byte skill-related array
+- +41..+57: second 17-byte skill-related array
 
-Examples:
+Strongly verified:
 
-- player 0 resolves to David Seaman
-- player 0 club relationship resolves to Arsenal
-- David Seaman's join date decodes to 1990-05-18
-- subsequent records resolve to Lee Dixon, Nigel Winterburn, Steve Bould and Tony Adams
+- +9 behaves as a primary/default zero-based position code
+- +18 behaves as shirt/squad number
+
+Example first records resolve correctly when aligned to the true boundary:
+- record 0: David Seaman, Arsenal, English, goalkeeper
+- record 1: Lee Dixon, Arsenal, English, right back
+- record 2: Nigel Winterburn, Arsenal, English, left back
+
+The exact labels and relationship of the paired 17-byte skill arrays remain under active investigation.
 
 ### Manager records
 
