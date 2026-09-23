@@ -20,11 +20,17 @@ TABLES = [
     ("competitions",            0x2726,  193,  53),
     ("rounds",                  0x4F1F,  1053, 36),
     ("cup_alloc_instructions",  0xE337,  238,  28),
-    ("league_alloc_candidate",  0xFD43,  28,   28),
+    ("league_allocations",      0xFD43,  28,   28),
     ("real_fixtures",           0x10057, 380,  16),
-    ("manager_rules_candidate", 0x1181B, 108,  16),
+    ("international_fixtures",  0x1181B, 108,  16),
     ("prev_international_scores",0x11EDF,141,  28),
-    ("international_fixtures",  0x12E4F, 23,   20),
+    ("hosts",                    0x12E4F, 23,   20),
+    ("manager_ratings",         0x1301F, 20,   6),
+    ("manager_expected_rankings",0x1309B,262,  9),
+    ("manager_sack_leagues",    0x139D5, 24,   7),
+    ("manager_sack_cups",       0x13A81, 66,   8),
+    ("access_fan_base",         0x13C95, 42,   78),
+    ("access_skill_financial",  0x14965, 100,  26),
 ]
 
 def u32(data: bytes, off: int) -> int:
