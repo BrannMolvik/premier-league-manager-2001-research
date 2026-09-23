@@ -115,18 +115,45 @@ The importer proves the former 18-byte attribute interpretation was misaligned. 
 This is now committed in `research/FILE_FORMATS.md` and `research/EXECUTABLE_ANALYSIS.md`.
 
 
+
+## Player skill-model checkpoint
+
+The paired 17-byte player arrays are now differentiated:
+
+- runtime `+0x1E..+0x2E`: current skills
+- runtime `+0x2F..+0x3F`: corresponding potential/ceiling targets
+
+The game's exact raw-byte-to-rating conversion has been recovered as `floor((30*raw + 128)/255)`, producing the original 0..30 rating scale.
+
+The position-overall function `0x41C7E0` plus named tweak keys has directly mapped current-skill slots:
+
+- 0 Speed
+- 1 Strength
+- 5 Passing
+- 6 Shooting
+- 7 Tackling
+- 8 Heading
+- 11 Awareness
+- 12 Agility
+- 13 Goalkeeping
+- 14 Confidence
+- 15 Leadership
+
+Unmapped slots remain 2, 3, 4, 9, 10 and 16.
+
+
 ## Active Investigation
 
-Current focus: identify the shared reference table at `0x876CA0`, recover semantic names for the compact player fields, and trace consumers/accessors for the two 17-byte arrays to recover the actual player-rating model.
+Current focus: finish semantic mapping of the six remaining player skill slots (2, 3, 4, 9, 10, 16), then trace current-vs-potential development formulas and player characteristic consumers.
 
 Immediate next steps:
 
-1. Identify the type and contents of global reference object `0x876CA0` used by the compact player importer.
-2. Trace runtime player accessors for offsets `+0x04`, `+0x08`, `+0x0C`, and early identity/club/date fields.
-3. Trace consumers of runtime arrays `+0x1E..+0x2E` and `+0x2F..+0x3F`.
-4. Recover displayed/scouted characteristic ordering and rating conversion.
-5. Update the clean-room parser only after these semantics are proven.
-6. Checkpoint before moving into contracts/transfers or match-engine work.
+1. Map remaining current-skill slots 2, 3, 4, 9, 10 and 16 using Editor/UI accessors and named tweak consumers.
+2. Explain the small minority of Master.dat records where ceiling < current.
+3. Recover development/aging/training formulas that move current skills toward ceilings.
+4. Update the clean-room parser to the corrected 4-byte player header and verified skill model.
+5. Then move into contracts/transfers and season-state logic.
+6. Checkpoint before match-engine work.
 
 ## Persistence / Checkpoint Rule
 
