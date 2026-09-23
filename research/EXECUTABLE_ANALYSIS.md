@@ -800,6 +800,64 @@ The list is keyed by player ID + bidding club ID. A repeated bid from the same c
 A live caller around `0x4EE23A` passes the proposal's main player, club at +0x34, and monetary offer into this list, confirming the key semantics.
 
 
+## Transfer negotiation history fields and deal-state event evidence
+
+Additional transfer-proposal fields are now identified from the negotiation-adjustment routines:
+
+- proposal `+0x38`: **previous/anchor wage offer**.
+  - `0x4EDB10` uses it as the old wage when constructing a counter-offer.
+  - if zero, the routine obtains a fresh wage expectation from player routine `0x420180`;
+  - otherwise it moves halfway from the old offer toward the current offer and enforces at least the player's present weekly wage;
+  - the current wage offer at +0x18 is then copied into +0x38 before any revised offer is written.
+- proposal `+0x3C`: **previous/anchor signing-on-fee offer**.
+  - the same routine performs the analogous midpoint/counter-offer operation against the current signing-on fee at +0x1C and player routine `0x4202A0`.
+- proposal `+0x48`: **stored anchor/previous total proposal valuation** (strongly verified, exact UI name unknown).
+  - helper `0x4F04E0` computes proposal total value with `0x4EFA20`, rounds it, and stores the result at +0x48;
+  - later AI negotiation routines compare current total value against this stored amount when revising the proposal.
+
+Fields +0x40/+0x44/+0x4C remain unresolved.
+
+### End-negotiations event
+
+Vtable `0x7C8F50`, created by routine `0x4EEE50`, is identified through MSVC RTTI as:
+
+`EAMTPUserEndNegotiationssub`
+
+Thus `0x4EEE50` is directly tied to the user-facing **End Negotiations** transfer event, not a generic proposal message.
+
+### MPMTryExecuteTransfer and deal states
+
+Vtable `0x7D7D94` is `MPMTryExecuteTransfer`.
+
+Its execution routine at `0x61BAF0` inspects every player participating in the pending transfer (target plus up to three exchange players):
+
+- global deal predicate `0x50E830` tests states **2/5**;
+- global deal predicate `0x50E870` tests states **1/4**;
+- entries in neither pair are treated as another/pending condition and may cause the transfer execution check to be rescheduled.
+
+This establishes that 0/1/2 are not arbitrary labels: they encode distinct lifecycle conditions relevant to executing an already-constructed transfer, with +3 preserving the same condition for swap/player-exchange deals.
+
+State 2/5 is a special execution-blocking/outcome path inside `MPMTryExecuteTransfer`: when encountered, the routine retrieves the player's active proposal and generates a transfer event before taking the non-normal completion path. The exact user-facing enum name remains deliberately unresolved until tied to a named medical/rejection/contract action.
+
+State 1/4 is treated differently from both pending 0/3 and state 2/5. Earlier provisional wording that 1/4 simply meant "later negotiation phase" or "closed" should not be treated as final.
+
+### Relevant event classes now located
+
+RTTI/vtables tied to the transfer-completion and medical paths include:
+
+- `EAMTPUserEndNegotiationssub` -> vtable `0x7C8F50`
+- `EAMConfirmConcludeTransferDealsub` -> `0x7C9008`
+- `EAMTransferDealConcludedsub` -> `0x7C8FAC`
+- `EAMTPPlayerPassesMedical` -> `0x7D0DC4`
+- `EAMTPPlayerPassesMedicalsub` -> `0x7CCD68`
+- `EAMTPPlayerFailsMedical` -> `0x7CD1DC`
+- `EAMTPPlayerFailsMedicalsub` -> `0x7CCDBC`
+- `EAMEndNegotiationsTransferDeadLinePassed` -> `0x7CE3CC`
+- `EAMTPUserEndNegotiationsOfferNotEnoughM` -> `0x7D5C38`
+
+The proposal routine around `0x4EF170` creates either a Confirm-Conclude-Transfer-Deal or Transfer-Deal-Concluded event depending on club/control conditions, confirming that the transfer subsystem has a distinct conclusion stage after proposal/contract negotiation.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
