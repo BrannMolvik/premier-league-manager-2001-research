@@ -178,7 +178,29 @@ The position-overall function at `0x41C7E0` combines current-skill slots with na
 
 Leadership is independently supported by code around `0x41BA80` / `0x41BB10`: accessor `0x41EDE0` returns runtime byte `+0x2D`, and that value is compared directly against tweak variable `goodleadership`.
 
-Still-unmapped current-skill slots are 2, 3, 4, 9, 10 and 16.
+The complete 17-slot order is now recovered:
+
+| Slot | Skill |
+|---:|---|
+| 0 | Speed |
+| 1 | Strength |
+| 2 | Stamina |
+| 3 | Determination |
+| 4 | Injury Proneness |
+| 5 | Passing |
+| 6 | Shooting |
+| 7 | Tackling |
+| 8 | Heading |
+| 9 | Control |
+| 10 | Technique |
+| 11 | Awareness |
+| 12 | Agility |
+| 13 | Goalkeeping |
+| 14 | Confidence |
+| 15 | Leadership |
+| 16 | Set Piece |
+
+The remaining six names were verified using EA's bundled Editor.exe. Its Player Skills dialog (dialog resource ID 0x73) binds edit controls to an internal contiguous skill-byte region in this exact order. The editor mapping independently agrees with every slot already proven from the game's position-overall formula.
 
 
 ### Manager record (43 bytes)
