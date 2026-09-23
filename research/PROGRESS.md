@@ -100,18 +100,33 @@ The runtime/save reader contains two adjacent 17-byte arrays, while the compact 
 The earlier clean-room prototype's linear 0–30 conversion is explicitly treated as provisional, not a recovered game formula.
 
 
+
+## Compact player importer breakthrough
+
+The actual `Master.dat` startup path and compact player importer are now located.
+
+- player table startup loader: `0x4218C0`
+- record loop: `0x421C80`
+- per-player compact importer: `0x418B90`
+- 35 file reads total exactly **103 bytes**
+
+The importer proves the former 18-byte attribute interpretation was misaligned. The compact record contains a 3-byte position-related group followed by **two 17-byte arrays**, which map directly into two adjacent 17-byte regions of the 592-byte runtime player object.
+
+This is now committed in `research/FILE_FORMATS.md` and `research/EXECUTABLE_ANALYSIS.md`.
+
+
 ## Active Investigation
 
-Current focus: recover the compact 103-byte player import/decode path and identify the real characteristic encoding, while retaining the completed Static.dat map as a parallel reference.
+Current focus: identify the shared reference table at `0x876CA0`, recover semantic names for the compact player fields, and trace consumers/accessors for the two 17-byte arrays to recover the actual player-rating model.
 
 Immediate next steps:
 
-1. Decode the table beginning at `0x1181B` (count 108) and subsequent tables.
-2. Confirm the 28-record table at `0xFD43` as `DBTLeagueAllocations` and map its field semantics.
-3. Finish field semantics for cup-allocation instructions and round flags/prize fields.
-4. Locate `DBTInternationalFixtures`, manager rating/sacking tables and remaining static tables.
-5. Add a reproducible Static.dat table-inspection script under `tools/`.
-6. Checkpoint before moving from data structures into executable call-graph tracing.
+1. Identify the type and contents of global reference object `0x876CA0` used by the compact player importer.
+2. Trace runtime player accessors for offsets `+0x04`, `+0x08`, `+0x0C`, and early identity/club/date fields.
+3. Trace consumers of runtime arrays `+0x1E..+0x2E` and `+0x2F..+0x3F`.
+4. Recover displayed/scouted characteristic ordering and rating conversion.
+5. Update the clean-room parser only after these semantics are proven.
+6. Checkpoint before moving into contracts/transfers or match-engine work.
 
 ## Persistence / Checkpoint Rule
 
