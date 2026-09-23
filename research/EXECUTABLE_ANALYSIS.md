@@ -491,7 +491,7 @@ Training is now confirmed as per-player club state rather than a generic modifie
 
 Global 0x876B40 is seven contiguous 17-byte skill profiles built by 0x4EAA00. With the verified 17-skill order, vectors identify as: vector0 attacking; vector1 defensive; vector2 midfield; vector3 goalkeeper; vector4 rest; vector5 fitness; vector6 technique.
 
-Profile selector 0x4EA9A0 maps method IDs: 0->rest vector4, 1->NULL/special case, 2->midfield vector2, 3->defensive vector1, 4->goalkeeper vector3, 5->fitness vector5, 6->technique vector6. The attacking-vector special case remains unresolved.
+Profile selector 0x4EA9A0 maps method IDs: 0->rest/recovery vector4, 1->attacking vector0, 2->midfield vector2, 3->defensive vector1, 4->goalkeeper vector3, 5->fitness vector5, 6->technique vector6. Earlier analysis incorrectly labeled ID 1 as NULL: its jump-table target is 0x4EA9DE, which returns with EAX still equal to the base address 0x876B40. Only out-of-range IDs reach 0x4EA9DC (`xor eax,eax`) and return NULL.
 
 Coach dispatcher 0x42C240 maps the same IDs to specialist employee lookups. The lookup routines search employee types 7..12. Their one-to-one agreement with profile semantics and EA's UI labels identifies types 7 goalkeeper, 8 fitness, 9 technique, 10 defensive, 11 midfield, 12 attacking. Method 1 routes to type12 (attacking coach), while method0 and method5 route to type8.
 
