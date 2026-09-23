@@ -87,9 +87,22 @@ The final table ends exactly at `Static.dat` EOF `0x15391`.
 
 This also corrects the earlier provisional label for `0x12E4F`: it is `DBTHosts`, not `DBTInternationalFixtures`.
 
+
+## Player-structure checkpoint
+
+The player database investigation has now separated two representations that must not be conflated:
+
+- initial `Master.dat` player records: 103 bytes each
+- runtime `DBRPlayer` objects: 592 bytes each (`0x250`)
+
+The runtime/save reader contains two adjacent 17-byte arrays, while the compact master record contains an 18-byte characteristic/skill-related block. Exact conversion between these representations is now the active target.
+
+The earlier clean-room prototype's linear 0–30 conversion is explicitly treated as provisional, not a recovered game formula.
+
+
 ## Active Investigation
 
-Current focus: with Static.dat table identities now mapped end-to-end, move from table boundaries into field semantics: league/cup allocation rules, international fixture routing, manager sacking/expectation thresholds, and fan-base/financial value fields.
+Current focus: recover the compact 103-byte player import/decode path and identify the real characteristic encoding, while retaining the completed Static.dat map as a parallel reference.
 
 Immediate next steps:
 
