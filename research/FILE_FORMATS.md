@@ -59,10 +59,28 @@ Unmapped fields remain.
 | +19 | uint8 | primary position code | confirmed |
 | +20 | uint8 | secondary position code | confirmed |
 | +21 | uint8 | tertiary position code | confirmed |
-| +22..+39 | uint8[18] | player attribute bytes | confirmed block; semantic order tentative |
+| +22..+39 | uint8[18] | compact player characteristic/skill-related bytes | byte block confirmed; exact decoding and semantic order **not yet proven** |
 | +74 | uint32 | club-join serial date | confirmed |
 
 Dates decode using the OLE-style epoch `1899-12-30`.
+
+
+### Player compact-vs-runtime caution
+
+The 103-byte `Master.dat` player record is an initial compact database representation. EA's runtime `DBRPlayer` object is 592 bytes and its save/load path contains additional mutable state, including two adjacent 17-byte arrays.
+
+Therefore:
+
+- do not treat the compact +22..+39 bytes as direct 0–30 ratings without a proven decoder;
+- do not assume the compact record and save-game/runtime record have identical field order;
+- the prototype's earlier linear `raw * 30 / 255` conversion is provisional and should be removed/replaced once the original accessor/conversion path is recovered.
+
+For David Seaman, the compact bytes at +22..+39 are:
+
+`68, 187, 119, 187, 59, 42, 25, 42, 25, 68, 119, 161, 178, 229, 187, 195, 119, 93`
+
+Their distribution is consistent with an encoded/lookup representation rather than obvious literal 0–30 ratings.
+
 
 ### Manager record (43 bytes)
 
