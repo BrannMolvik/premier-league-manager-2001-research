@@ -297,9 +297,24 @@ Cash fee at proposal +0x10 and buying club +0x34 are confirmed. CPlayerBidLog is
 
 CDeal states 3/4/5 are definitively swap/player-exchange variants of 0/1/2. Exact names of base states 0/1/2 remain the active target.
 
+## Transfer state-machine checkpoint
+
+New verified transfer findings:
+
+- proposal +0x38 = previous/anchor wage offer;
+- proposal +0x3C = previous/anchor signing-on fee;
+- proposal +0x48 = stored anchor/previous total proposal valuation (exact UI label not yet known);
+- vtable 0x7C8F50 is EA's own `EAMTPUserEndNegotiationssub`;
+- vtable 0x7D7D94 is `MPMTryExecuteTransfer`;
+- deal states 2/5 and 1/4 are explicitly distinguished by `MPMTryExecuteTransfer`, while 0/3 remains another/pending condition;
+- medical pass/fail and transfer-conclusion event classes have concrete RTTI/vtable addresses for the next trace.
+
+The exact human-readable enum names for CDealInProgress states 0/1/2 remain unresolved. Do not preserve earlier guesses such as "closed" or "accepted" as facts.
+
+
 ## Active Investigation
 
-Current focus: attach exact meanings to CDealInProgress base states 0/1/2 using named offer/counter-offer/acceptance actions, then map proposal +0x38..+0x4C and transfer completion.
+Current focus: tie CDealInProgress states 1/4 and 2/5 directly to medical/pass/fail/contract-conclusion actions, then finish proposal +0x40/+0x44/+0x4C and the transfer execution path.
 
 Immediate next steps:
 
