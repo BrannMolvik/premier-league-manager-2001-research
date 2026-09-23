@@ -53,63 +53,62 @@ The record size is now confirmed independently in two ways:
 1. the `Master.dat` section boundary fits exactly with 30,064 × 103-byte records; and
 2. EA's actual startup importer at `0x418B90` performs 35 file reads totaling exactly **103 bytes per player**.
 
-The player section begins after a six-byte header:
+The player section begins after a **four-byte header only**:
 
 ```text
 uint32 player_count = 30064
-uint16 unknown_header_field
 Player[player_count]
 ```
 
+This is confirmed directly by loader `0x421C80`, which reads one 4-byte count and immediately enters the 103-byte record loop. The earlier six-byte-header interpretation was a two-byte alignment error.
+
 The compact record is expanded into a 592-byte runtime `DBRPlayer` object. The following table therefore records **file offsets and loader destinations**, not speculative UI names.
 
-| File offset | Size | Destination / processing | Status |
-|---|---:|---|---|
-| +0 | 2 | runtime +0x04 | confirmed read |
-| +2 | 2 | index converted by `0x64E320` -> runtime +0x08 | confirmed read |
-| +4 | 2 | index converted by `0x64E320` -> runtime +0x0C | confirmed read |
-| +6 | 2 | runtime +0x10 | confirmed read |
-| +8 | 1 | runtime +0x12 | confirmed read |
-| +9 | 1 | temporary | confirmed read |
-| +10 | 4 | runtime +0x14 | confirmed read |
-| +14 | 4 | runtime +0x18 | confirmed read |
-| +18 | 1 | runtime +0x70 | confirmed read |
-| +19 | 1 | runtime +0x1C | confirmed read |
-| +20 | 1 | runtime +0x1D | confirmed read |
-| +21 | 3 | temporary position-data group, then transformed by `0x4EA2D0` | confirmed read; semantic role strongly indicated |
-| +24 | 17 | runtime +0x1E..+0x2E | confirmed read |
-| +41 | 17 | runtime +0x2F..+0x3F | confirmed read |
-| +58 | 1 | runtime +0x40 | confirmed read |
-| +59 | 1 | runtime +0x41 | confirmed read |
-| +60 | 1 | runtime +0x42 | confirmed read |
-| +61 | 1 | runtime +0x43 | confirmed read |
-| +62 | 1 | runtime +0x44 | confirmed read |
-| +63 | 1 | runtime +0x45 | confirmed read |
-| +64 | 4 | runtime +0x48 | confirmed read |
-| +68 | 8 | runtime +0x50 | confirmed read |
-| +76 | 4 | runtime +0x58 | confirmed read |
-| +80 | 2 | runtime +0x5C | confirmed read |
-| +82 | 2 | runtime +0x5E | confirmed read |
-| +84 | 1 | runtime +0x60 | confirmed read |
-| +85 | 1 | runtime +0x61 | confirmed read |
-| +86 | 1 | runtime +0x62 | confirmed read |
-| +87 | 1 | runtime +0x63 | confirmed read |
-| +88 | 4 | runtime +0x64 | confirmed read |
-| +92 | 4 | runtime +0x68 | confirmed read |
-| +96 | 1 | runtime +0x6C | confirmed read |
-| +97 | 2 | temporary A | confirmed read |
-| +99 | 2 | temporary B | confirmed read |
-| +101 | 2 | temporary C | confirmed read |
+| File offset | Size | Destination / processing | Semantic identification | Status |
+|---|---:|---|---|---|
+| +0 | 2 | runtime +0x04 | player record ID | confirmed |
+| +2 | 2 | Core.str index -> runtime +0x08 | first name | confirmed |
+| +4 | 2 | Core.str index -> runtime +0x0C | surname | confirmed |
+| +6 | 2 | runtime +0x10 | club record index | confirmed |
+| +8 | 1 | runtime +0x12 | nationality ID | confirmed |
+| +9 | 1 | temporary | primary/default position code (zero-based relative to position table IDs) | strongly verified |
+| +10 | 4 | runtime +0x14 | flags/state field | confirmed read; semantic details unresolved |
+| +14 | 4 | runtime +0x18 | date of birth, OLE-style serial date | confirmed |
+| +18 | 1 | runtime +0x70 | shirt/squad number | strongly verified |
+| +19 | 1 | runtime +0x1C | height in centimeters | confirmed |
+| +20 | 1 | runtime +0x1D | weight in kilograms | confirmed |
+| +21 | 3 | temporary, then transformed by `0x4EA2D0` | three zero-based position codes | strongly verified |
+| +24 | 17 | runtime +0x1E..+0x2E | skill-related array A | confirmed block; labels unresolved |
+| +41 | 17 | runtime +0x2F..+0x3F | skill-related array B | confirmed block; relationship unresolved |
+| +58 | 1 | runtime +0x40 | unknown | confirmed read |
+| +59 | 1 | runtime +0x41 | unknown | confirmed read |
+| +60 | 1 | runtime +0x42 | unknown | confirmed read |
+| +61 | 1 | runtime +0x43 | unknown | confirmed read |
+| +62 | 1 | runtime +0x44 | unknown | confirmed read |
+| +63 | 1 | runtime +0x45 | unknown | confirmed read |
+| +64 | 4 | runtime +0x48 | unknown | confirmed read |
+| +68 | 8 | runtime +0x50 | unknown 64-bit/date-like field | confirmed read |
+| +76 | 4 | runtime +0x58 | unknown | confirmed read |
+| +80 | 2 | runtime +0x5C | unknown | confirmed read |
+| +82 | 2 | runtime +0x5E | unknown | confirmed read |
+| +84 | 1 | runtime +0x60 | unknown | confirmed read |
+| +85 | 1 | runtime +0x61 | unknown | confirmed read |
+| +86 | 1 | runtime +0x62 | unknown | confirmed read |
+| +87 | 1 | runtime +0x63 | unknown | confirmed read |
+| +88 | 4 | runtime +0x64 | unknown | confirmed read |
+| +92 | 4 | runtime +0x68 | unknown | confirmed read |
+| +96 | 1 | runtime +0x6C | unknown | confirmed read |
+| +97 | 2 | temporary A | version-dependent/derived choice input | confirmed read |
+| +99 | 2 | temporary B | version-dependent/derived choice input | confirmed read |
+| +101 | 2 | temporary C | version-dependent/derived choice input | confirmed read |
 
-After the final disk read, the importer derives additional runtime state and invokes several initialization routines; no further bytes are consumed for that player.
+#### Corrected alignment and attribute interpretation
 
-#### Correction to earlier attribute interpretation
-
-The former assumption that `+22..+39` was an 18-byte attribute array is **incorrect**.
+The former assumptions that the player section had a six-byte header and that `+22..+39` was an 18-byte attribute array are **incorrect**.
 
 The original importer proves that the compact record instead contains:
 
-- a 3-byte group at `+21..+23`, strongly associated with position conversion;
+- a 3-byte group at `+21..+23` containing three zero-based position codes, transformed into the runtime position structure;
 - a **17-byte array at +24..+40**;
 - a **second 17-byte array at +41..+57**.
 
