@@ -226,11 +226,11 @@ The post-age section of `0x41EAD0` obtains a club-owned 40-record array of 200-b
 - The exact seven 17-skill profile vectors are reconstructed: attacking, defensive, midfield, goalkeeper, rest, fitness and technique.
 - Coach dispatcher 0x42C240 maps methods to goalkeeper, fitness, technique, defensive, midfield and attacking specialist employee roles.
 - 0x4EACE0 is traced through its probabilistic success check and +8 raw-skill increment.
-- Remaining anomaly: method ID 1 routes to the attacking coach, but generic profile selector 0x4EA9A0 returns NULL rather than vector0. This must be resolved before finalizing method IDs.
+- The former method-ID-1 anomaly is resolved: its jump target returns vector0 (attacking) without executing the invalid-ID `xor eax,eax` path. Final method map: 0 rest/recovery, 1 attacking, 2 midfield, 3 defensive, 4 goalkeeper, 5 fitness, 6 technique.
 
 ## Active Investigation
 
-Current focus: resolve training method ID 1 / the attacking-vector special case, then recover the remaining club/staff/facility multipliers in the training success formula.
+Current focus: recover the exact club/staff/facility multipliers and probability math in the verified training success formula, now that all seven training method IDs are resolved.
 
 Immediate next steps:
 
