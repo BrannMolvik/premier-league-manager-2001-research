@@ -276,6 +276,67 @@ The prior six-byte-header assumption shifted every inferred player field by two 
 - +21..+23: three zero-based position codes
 
 
+
+## Player overall-rating formula and tuning-key recovery
+
+Function `0x41C7E0` is a position-specific player-overall calculation.
+
+It dispatches on position ID 1..19 through a jump table at approximately `0x41E160`. The 19 cases correspond to playable positions after the leading "None" position.
+
+The routine converts raw current-skill bytes to 0..30 values and multiplies them by position-specific tuning weights loaded from named keys.
+
+Recovered tweak mappings include:
+
+- `0x821858` = `overallgkgoalkeeping`
+- `0x821860` = `overallgkagility`
+- `0x821868` = `overallgkawareness`
+- `0x821870` = `overallgkpassing`
+- `0x821878` = `overallgkspeed`
+- `0x821880` = `overallgkconfidence`
+- `0x821888` = `overallgkstrength`
+
+The same pattern continues for RB, LB, CD, SW, RWB, LWB, ANC, DM, RM, LM, CM, RW, LW, AM, CF and ST.
+
+For outfield positions, the repeated seven weighted inputs prove the current-skill slots:
+
+- slot 1 = Strength
+- slot 14 = Confidence
+- slot 0 = Speed
+- slot 8 = Heading
+- slot 6 = Shooting
+- slot 5 = Passing
+- slot 7 = Tackling
+
+The goalkeeper case additionally proves:
+
+- slot 11 = Awareness
+- slot 12 = Agility
+- slot 13 = Goalkeeping
+
+Accessor `0x41EDE0` returns current-skill slot 15, and callers compare it to tweak `goodleadership`, proving slot 15 = Leadership.
+
+### Exact skill scaling
+
+The repeated byte conversion in `0x41C7E0` is mathematically equivalent for raw byte `x` to:
+
+```text
+floor((30*x + 128) / 255)
+```
+
+so the game maps raw 0..255 skill storage to an integer 0..30 rating.
+
+### Current vs potential/ceiling arrays
+
+Two routines now establish the relationship between the adjacent 17-byte arrays:
+
+- `0x41A870` reads current `[player + 0x1E + slot]` and ceiling `[player + 0x2F + slot]`; it raises current by 8 raw units only when the result remains below the ceiling.
+- the development/aging routine around `0x41EB03..0x41EDC8` uses the second-array byte as an endpoint while writing adjusted values into the first-array byte.
+
+A complete scan of Master.dat shows 99.605% of all paired bytes satisfy second-array >= first-array.
+
+Therefore runtime `+0x1E..+0x2E` is the current-skill state and `+0x2F..+0x3F` is the matching ceiling/potential-target state. The small number of exceptions need separate investigation.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
