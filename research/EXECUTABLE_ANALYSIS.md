@@ -566,6 +566,112 @@ For a maximum profile emphasis byte of 25, representative per-update chances are
 The specialist coach selected by training method is handled separately through dispatcher `0x42C240`; additional specialist effects should not be conflated with this Youth-Team-Coach/Training-Centre multiplier until their call path is fully reconstructed.
 
 
+## Contract / transfer-state analysis
+
+Transfer/contract analysis has begun from `DBRPlayer`, `CDealInProgress`, and the contract-terms object.
+
+### Confirmed player contract fields
+
+- runtime player `+0xC4`: **weekly wage**. Proven by `WeeklyWageCompare` / function `0x40B7F0` and direct contract application.
+- runtime player `+0x154`: **contract expiry date**. Function `0x4190F0` computes contract months remaining from this value and global current date `0x9847FC`.
+- player `+0xC0`: a contract-duration/state byte used on a special path in the remaining-contract calculation. Exact semantic label is still unresolved.
+
+### Contract application routine 0x418FB0
+
+A contract terms object is applied to a player by `0x418FB0`.
+
+Confirmed mappings:
+
+- terms `+0x18` -> player `+0xC4`: weekly wage
+- terms `+0x24`: contract length/duration, used by date arithmetic to advance player expiry `+0x154`; its low byte also increments player `+0xC0`
+- terms `+0x2C` toggles player `+0x174` bit 5
+- terms `+0x2D` toggles player `+0x14` bit 27
+- terms `+0x2E` toggles player `+0x14` bit 28
+- terms `+0x28` is converted to double and stored at player `+0x98`
+- terms `+0x1C` is added to player double at `+0x88`
+- terms `+0x20` is converted to double and stored at player `+0xA0`
+
+The exact semantic names of the three money/benefit fields and three clause booleans are being tied to EA's contract UI before promotion.
+
+### Contract terms object
+
+Constructor `0x4EC270` initializes a 0x50-byte terms object. Relevant fields include dwords at `+0x18,+0x1C,+0x20,+0x24,+0x28` and booleans `+0x2C..+0x30`.
+
+Setup routine `0x4EC360` initializes terms from the current player:
+
+- +0x18 = player current wage
+- +0x1C = result from player `0x4202A0` under a club/status condition
+- +0x20 = converted result of player `0x417D30`
+- +0x28 = converted result of player `0x417CF0`
+- +0x2C = player `0x422010`
+- +0x2D = player `0x422030`
+- +0x2E = player `0x422020`
+- +0x2F = player `0x41BC90`
+- +0x30 = player `0x41BCA0`
+
+EA formatter strings expose the contract concepts:
+
+- WAGE
+- CONTRACT
+- SIGNONFEEAMOUNT
+- APPEARANCEFEEAMOUNT
+- PROMOTIONBONUSAMOUNT
+- RELEGATIONTRANSFERREQUEST
+- BIGCLUBOFFER
+- BIGMONEYOFFER
+- HOUSE
+
+Exact terms-field-to-label mapping beyond WAGE/CONTRACT is still being verified.
+
+### CDealInProgress
+
+RTTI identifies `CDealInProgress` (vtable around `0x7C9D30`).
+
+- constructor `0x50E410`
+- parameterized constructor `0x50E460`
+- nested contract-terms object begins at deal `+0x14`
+- main identifier/state dwords at deal `+4,+8,+0xC`
+- byte state at `+0x10`
+- timestamp/date at `+0x64`
+- serialization around `0x50E4B0/0x50E520`
+
+Several helpers test deal state values 1..5; the enum names remain to be recovered.
+
+### Player status bitfields
+
+Player `+0x174` is a bitfield. Functions:
+
+- `0x4181E0`: set bit0, clear bit1
+- `0x418280`: set bit1, clear bit0
+- `0x418180`: clear bit0
+- `0x418170`: clear bit1
+- `0x41BC90`: return bit2
+- `0x41BCA0`: return bit3
+- `0x422010`: return bit5
+
+Player `+0x14` also contains clause/status bits:
+- `0x422030`: bit27
+- `0x422020`: bit28
+
+Do **not** yet label +0x174 bits0/1 as transfer-list/loan-list. Their setter paths also interact with a position/team-status object at player `+0x248`, and code `0x4218E0/0x421950` maps them together with other status bits into category codes 0..4. Named UI actions must establish semantics first.
+
+### Transfer-related classes located
+
+RTTI/source-path analysis has identified:
+
+- `CDealInProgress`
+- `CPlayerBidLog`
+- `CPlayerMovement`
+- `CPlayerTransferHistory`
+- `CClubTransferLog`
+- `CLeagueTransferLog`
+- `EAMPlayerMovements`
+
+Relevant EAM event classes include transfer-list/loan-list actions, club offers/replies, counter offers, accepted offers, player approaches, medical pass/fail, and final deal conclusion.
+
+`PlayerMovements.cpp` source-path literal is present in the executable.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
