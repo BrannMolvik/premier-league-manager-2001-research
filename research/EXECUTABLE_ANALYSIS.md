@@ -858,6 +858,48 @@ RTTI/vtables tied to the transfer-completion and medical paths include:
 The proposal routine around `0x4EF170` creates either a Confirm-Conclude-Transfer-Deal or Transfer-Deal-Concluded event depending on club/control conditions, confirming that the transfer subsystem has a distinct conclusion stage after proposal/contract negotiation.
 
 
+## CDealInProgress rejection state resolved
+
+The semantic meaning of CDealInProgress state **2** (and swap variant **5**) is now directly established from the event path used by `MPMTryExecuteTransfer`.
+
+When `MPMTryExecuteTransfer` detects state 2/5 through `0x50E830`, it calls the transfer-event factory `0x4EC780` with event/reason code **3**.
+
+That factory branches by player context. For reason code 3, the concrete EA event classes are:
+
+- free player: `EAMFreePlayerDeclinesContractMsub` (vtable `0x7C8C5C`)
+- player renewing with the same club: `EAMPlayerDeclinesContractRenewalMsub` (vtable `0x7C8B60`)
+- normal transfer negotiation: `EAMTPUserPlayerRejectsMsub` (vtable `0x7C8AB8`)
+
+Therefore:
+
+- state **2** = player **rejected/declined contract terms**
+- state **5** = the same rejected/declined outcome for a swap/player-exchange deal
+
+This is no longer a provisional "blocking/failure" label.
+
+### Revised interpretation of the three state families
+
+Current evidence supports:
+
+- 0 / 3: pending/unresolved
+- 1 / 4: resolved/cleared for transfer execution
+- 2 / 5: player rejected/declined contract terms
+
+The +3 offset continues to encode involvement in a swap/player-exchange deal.
+
+Do not yet rename state 1/4 simply "contract accepted": it is broader. Proposal helper `0x4F0460` is now proven to return true when any exchange-player slot (+0x04/+0x08/+0x0C) contains a valid player ID. In `0x4EEB80`, either an already-swap-marked target or a proposal containing exchange players can route through `0x422920`, which removes the active proposal and normalizes the player's deal state to 1/4. Thus 1/4 means the player's deal condition is **cleared/non-pending for execution**, but not necessarily by the same acceptance action in every context.
+
+### 0x4F0460 correction
+
+`0x4F0460` checks only whether at least one of proposal fields +0x04, +0x08 or +0x0C is a valid player ID in the global player range.
+
+It is therefore:
+
+`proposal_has_exchange_player()`
+
+It is not an eligibility, chairman, finance or medical check.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
