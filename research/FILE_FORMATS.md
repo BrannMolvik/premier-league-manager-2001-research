@@ -284,6 +284,44 @@ Confirmed:
 
 The 380 records equal 38 rounds × 10 matches. Round index 0 contains 10 fixtures, round index 1 the next 10, etc. Club IDs resolve to the real Premier League club set in `Master.dat` (Arsenal, Aston Villa, Chelsea, Manchester United, Charlton Athletic, Derby County, Ipswich Town, Leicester City, Sunderland, Bradford City, etc.).
 
+### Previous international score table
+
+Offset: `0x11EDF`
+
+Header: uint32 count (=141)
+
+Record size: 28 bytes.
+
+Confirmed:
+
+- +0 uint32: score-record ID (all 0..140 are present, though file order is not numeric)
+- +12 uint32: home national-team club ID
+- +16 uint32: away national-team club ID
+- +20 uint32: home score
+- +24 uint32: away score
+
+The home/away IDs resolve to national-team club records such as Austria, Spain, San Marino, Israel, Cyprus, Estonia, Faroe Islands, Bosnia, Scotland, etc. Non-zero result examples (including 5-0) verify that the last two fields are scores.
+
+The semantics of +4 and +8 remain to be mapped. RTTI contains `DBRPrevInternationalScore` / `DBTPrevInternationalScores`, matching this structure.
+
+### International tournament-cycle / host table
+
+Offset: `0x12E4F`
+
+Header: uint32 count (=23)
+
+Record size: 20 bytes.
+
+Confirmed:
+
+- +0 uint32: record ID, 1..23
+- +4 uint32: tournament year (2002, 2004, ... 2046)
+- +8 uint32: competition ID
+- +12 uint32: primary host national-team club ID
+- +16 uint32: secondary host national-team club ID, or `0xffffffff`
+
+Competition IDs alternate between World Cup (174) and European Championship (171). Host IDs resolve to national-team records. This structure matches RTTI `DBRInternationalFixture` / `DBTInternationalFixtures` and demonstrates that FM2001 carries international tournament-cycle data through 2046.
+
 ## Save files
 
 Known executable path pattern: `games\\%d.sav`.
