@@ -337,6 +337,62 @@ A complete scan of Master.dat shows 99.605% of all paired bytes satisfy second-a
 Therefore runtime `+0x1E..+0x2E` is the current-skill state and `+0x2F..+0x3F` is the matching ceiling/potential-target state. The small number of exceptions need separate investigation.
 
 
+
+## Editor.exe confirmation of complete 17-skill ordering
+
+EA's bundled `Editor.exe` contains a Player Skills dialog (dialog resource ID `0x73`) with 17 editable characteristics.
+
+Parsed dialog controls include:
+
+- Speed
+- Strength
+- Stamina
+- Determination
+- Passing
+- Shooting
+- Tackling
+- Heading
+- Control
+- Leadership
+- Agility
+- Goalkeeping
+- Confidence
+- Awareness
+- Technique
+- Set Piece
+- Injury Proneness
+
+The dialog population routine around `0x40D620` binds these controls to an internal contiguous skill-byte region beginning around editor-object `+0x210`.
+
+The binding order by internal byte is:
+
+- +0x210 Speed
+- +0x211 Strength
+- +0x212 Stamina
+- +0x213 Determination
+- +0x214 Injury Proneness
+- +0x215 Passing
+- +0x216 Shooting
+- +0x217 Tackling
+- +0x218 Heading
+- +0x219 Control
+- +0x21A Technique
+- +0x21B Awareness
+- +0x21C Agility
+- +0x21D Goalkeeping
+- +0x21E Confidence
+- +0x21F Leadership
+- +0x220 Set Piece
+
+This ordering exactly matches the independently proven runtime slots for Speed, Strength, Passing, Shooting, Tackling, Heading, Awareness, Agility, Goalkeeping, Confidence and Leadership.
+
+Therefore the full runtime current-skill array `+0x1E..+0x2E` is now mapped slot-for-slot as:
+
+`Speed, Strength, Stamina, Determination, Injury Proneness, Passing, Shooting, Tackling, Heading, Control, Technique, Awareness, Agility, Goalkeeping, Confidence, Leadership, Set Piece`.
+
+The second 17-byte array uses the same slot ordering for the corresponding ceiling/potential targets.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
