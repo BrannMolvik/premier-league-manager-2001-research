@@ -273,6 +273,18 @@ The negotiated player-contract object is now fully mapped at the user-visible le
 - +0x2F house
 - +0x30 car
 
+## Transfer-history movement checkpoint
+
+`CPlayerMovement` is now mapped as a 0x18-byte transfer-history record:
+
+- player ID
+- source club ID
+- destination club ID
+- fee/consideration
+- movement date
+
+The fee field uses special values 1 = "on a free transfer" and 2 = "Bosman", recovered directly from `English.idx` -> `English.str`. All other values are currency-formatted fees.
+
 ## Active Investigation
 
 Current focus: decode CDealInProgress / CPlayerBidLog state values and the transfer offer/counter-offer/acceptance state machine, then map final player movement.
