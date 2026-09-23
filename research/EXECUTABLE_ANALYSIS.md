@@ -393,6 +393,91 @@ Therefore the full runtime current-skill array `+0x1E..+0x2E` is now mapped slot
 The second 17-byte array uses the same slot ordering for the corresponding ceiling/potential targets.
 
 
+## Player aging/development implementation
+
+The player development path is now mapped around `0x41E970` and `0x41EAD0`.
+
+### Initialization at 0x41E970
+
+The routine:
+
+1. reads current player age via `0x4173B0`;
+2. selects individualized peak ages from tuning-controlled ranges;
+3. stores the current age as development baseline at player `+0x122`;
+4. copies the 17 current skill bytes from `+0x1E..+0x2E` into baseline snapshot `+0x111..+0x121`;
+5. stores physical, skill and third/goalkeeper peaks at `+0x123/+0x124/+0x125`.
+
+Recovered tuning globals/defaults:
+
+- `0x821130 AGEPhyical_lowest_peak = 25`
+- `0x821134 AGEPhyical_highest_peak = 26`
+- `0x821138 AGESkill_lowest_peak = 27`
+- `0x82113C AGESkill_highest_peak = 29`
+- `0x821140 AGEGoalie_lowest_peak = 30`
+- `0x821144 AGEGoalie_highest_peak = 32`
+- `0x821148 AGEPeakPeriod = 5`
+
+### Monthly recalculation at 0x41EAD0
+
+For each of the 17 skill slots, the routine selects a peak:
+
+- slots 0..4 -> physical peak
+- slots 5..8 -> skill peak
+- slots 9..16 -> third/goalkeeper peak
+
+For normal forward time, with baseline age `A0`, age `A`, baseline byte `B`, target byte `T`, and peak `P`:
+
+Before peak:
+```
+C = B + ((A-A0)/(P-A0))*(T-B)
+```
+
+When a player crosses the peak, the target is held through the configured peak period. Beyond that period, decline trends toward zero by age 60:
+```
+C = T * (60-A)/(60-P)
+```
+
+If the player's stored baseline is already beyond the peak:
+```
+C = B * (60-A)/(60-A0)
+```
+
+Backward-time/date-edge branches also exist and should be reproduced only after separate verification.
+
+The target byte is not a hard upper ceiling. Original data contains a small number of target < current pairs, consistent with players whose development path is intended to regress.
+
+### Calendar call frequency
+
+The main calendar routine around `0x4A8070` conditionally calls club-table method `0x40BB10` when a decoded date component equals 1. `0x40BB10` iterates club objects and calls `0x4042E0`; that routine iterates each club's players, calls `0x41EAD0`, then monthly post-development/retirement logic `0x41ABC0`.
+
+This is strong evidence that skill-development recalculation runs on the first day of each month.
+
+### Training/modifier layer
+
+After calculating the pure age curve, `0x41EAD0` obtains a club-related 40-entry array:
+
+- 40 records
+- 200 bytes (`0xC8`) each
+- total allocation `0x1F40` bytes
+- allocated around `0x424E46`
+- record constructor around `0x424F90`
+- pointer stored at owning object `+0x6B8`
+
+The selected record is indexed by a player-assignment byte returned via `0x41E3D0` (player runtime `+0x70` for the current club; `+0x76` otherwise).
+
+Per-skill modifier bytes are read from two regions of that 200-byte record around `+0x30+i` and `+0x54+i`.
+
+Exact record/class identity and the meanings of the two modifier regions remain active targets.
+
+Related training defaults:
+
+- `TRNMax_boost = 8192`
+- `TRNBuild_Boost = 65`
+- `TRNInjuryReturnDefault = 75`
+- `TRN_condition_divider = 512.0`
+- `TRN_Condition_Warning_Threshold = 75`
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
