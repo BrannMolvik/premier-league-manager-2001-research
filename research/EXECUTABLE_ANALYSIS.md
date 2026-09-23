@@ -728,6 +728,78 @@ Therefore:
 This record is suitable for reconstructing the game's transfer-history UI independently of the live negotiation state machine.
 
 
+## Transfer proposal structure and bid log
+
+The core live transfer proposal is the same 0x50-byte structure previously analyzed through its player-contract terms. It is broader than a contract-only object.
+
+Constructor `0x4EC270` initializes the full structure; `0x4EC250` additionally sets the main player and club context. Copy routine `0x4EC1B0` copies all 0x50 bytes.
+
+Verified/strongly established layout:
+
+- `+0x00`: main/target player ID
+- `+0x04`, `+0x08`, `+0x0C`: up to three exchange/swap player IDs; initialized to -1
+- `+0x10`: cash transfer-fee component
+- `+0x14`, `+0x15`: small negotiation/AI state bytes; exact labels unresolved
+- `+0x18`: weekly wage
+- `+0x1C`: signing-on fee
+- `+0x20`: promotion bonus
+- `+0x24`: contract length
+- `+0x28`: appearance fee
+- `+0x2C`: relegation transfer-request clause
+- `+0x2D`: big-club offer clause
+- `+0x2E`: big-money offer clause
+- `+0x2F`: house
+- `+0x30`: car
+- `+0x34`: buying/bidding club ID
+- `+0x38`, `+0x3C`, `+0x40`, `+0x44`, `+0x48`, `+0x4C`: negotiation/history/derived values; exact meanings still being mapped
+
+`0x4EDA20` resolves the main player from +0x00. `0x4ED9A0` resolves the club at +0x34.
+
+`0x4EFA70` computes a total offer-value expression by adding the cash component at +0x10 to `0x4F0E00`, which values non-cash/exchange components. Therefore +0x10 is confirmed as the cash transfer-fee component.
+
+### Swap-aware deal creation
+
+Routine `0x4EFA80` creates per-player `CDealInProgress` entries for a proposal.
+
+- A simple cash-only proposal creates state 0 for the main target.
+- If any exchange player exists in +0x04/+0x08/+0x0C, each exchange player receives state 3, and the main target also receives state 3.
+- Thus states 3/4/5 are definitively the swap/player-exchange variants of states 0/1/2.
+
+The generic transition helper `0x50E5B0` maps:
+- 0 -> 1
+- 1 -> 1
+- 2 -> 1
+- 3 -> 4
+- 4 -> 4
+- 5 -> 4
+
+This proves states 1/4 are the same later negotiation phase, states 2/5 another phase, and the +3 offset encodes player-exchange involvement. Exact user-visible names for base states 0/1/2 are still being tied to named transfer actions.
+
+### CPlayerBidLog
+
+RTTI identifies `CPlayerBidLog` (vtable approximately `0x7CA01C`).
+
+Relevant functions:
+
+- default constructor `0x514AD0`
+- parameterized constructor `0x514B20`
+- update `0x514B70`
+- binary read/write `0x514B90` / `0x514BF0`
+- list add/update wrapper `0x514C50`
+
+Record layout:
+
+- `+0x08`: player ID
+- `+0x0C`: bidding club ID
+- `+0x10..+0x17`: 8-byte monetary bid value
+- `+0x18`: current game date / bid date
+- `+0x1C`: additional counter/status field, semantic meaning unresolved
+
+The list is keyed by player ID + bidding club ID. A repeated bid from the same club for the same player updates the monetary value and date rather than creating a duplicate.
+
+A live caller around `0x4EE23A` passes the proposal's main player, club at +0x34, and monetary offer into this list, confirming the key semantics.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
