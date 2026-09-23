@@ -258,9 +258,24 @@ The identities are proven from EA's own formatter classes and the CTrainingBuild
 
 Contract analysis has started and already confirms player weekly wage at +0xC4, contract expiry at +0x154, the 0x50-byte contract terms object, and the core application routine at 0x418FB0. CDealInProgress and CPlayerBidLog structures are located. Several contract-clause bits and player-status bits are structurally mapped but remain deliberately unnamed until tied to EA's named UI actions.
 
+## Complete contract-term map checkpoint
+
+The negotiated player-contract object is now fully mapped at the user-visible level:
+
+- +0x18 wage
+- +0x1C signing-on fee
+- +0x20 promotion bonus
+- +0x24 contract length
+- +0x28 appearance fee
+- +0x2C relegation transfer-request clause
+- +0x2D big-club offer clause
+- +0x2E big-money offer clause
+- +0x2F house
+- +0x30 car
+
 ## Active Investigation
 
-Current focus: move into contracts/transfers: map player contract fields, transfer-list/bid state, fee/wage negotiation structures, and movement routines.
+Current focus: decode CDealInProgress / CPlayerBidLog state values and the transfer offer/counter-offer/acceptance state machine, then map final player movement.
 
 Immediate next steps:
 
