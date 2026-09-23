@@ -119,6 +119,30 @@ Consequences:
 
 Static reverse engineering and clean-room reimplementation can continue without executing the blocked binary.
 
+
+## Manager-control RTTI / record methods
+
+MSVC RTTI has now been followed from type descriptors through Complete Object Locators to vtables for four manager-control table/record pairs.
+
+Recovered table vtables and record-access/allocation behavior:
+
+- `DBTManagerRatings`: table vtable at approximately `0x7BD454`; record indexing uses 12-byte in-memory records.
+- `DBTManagerExpectedRankings`: table vtable at approximately `0x7BD494`; record indexing uses 16-byte in-memory records.
+- `DBTManagerSackLeagues`: table vtable at approximately `0x7BD4D4`; record indexing uses 12-byte in-memory records.
+- `DBTManagerSackCups`: table vtable at approximately `0x7BD514`; record indexing uses 12-byte in-memory records.
+
+Recovered record vtables / parse functions:
+
+- `DBRManagerRating`: vtable ~`0x7BD468`, parser ~`0x4013B0`
+- `DBRManagerExpectedRanking`: vtable ~`0x7BD4A8`, parser ~`0x4014B0`
+- `DBRManagerSackLeague`: vtable ~`0x7BD4E8`, parser ~`0x4015D0`
+- `DBRManagerSackCup`: vtable ~`0x7BD528`, parser ~`0x4016C0`
+
+The parsers reveal different combinations of 32-bit, 16-bit and 8-bit fields.
+
+Important caution: the 12/16-byte sizes above are **in-memory record strides**, not automatically the packed on-disk `Static.dat` size. Known position/formation/status parsing code demonstrates that file serialization can pack fields differently. Therefore the 108-record block at `Static.dat +0x1181B` remains an unresolved candidate and must not yet be labeled as a manager table solely because 16-byte grouping appears possible.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
