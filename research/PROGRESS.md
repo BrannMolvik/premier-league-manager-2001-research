@@ -285,9 +285,21 @@ The negotiated player-contract object is now fully mapped at the user-visible le
 
 The fee field uses special values 1 = "on a free transfer" and 2 = "Bosman", recovered directly from `English.idx` -> `English.str`. All other values are currency-formatted fees.
 
+## Transfer proposal checkpoint
+
+The live transfer model is now separated into three layers:
+
+- 0x50-byte proposal: target player, up to three exchange players, cash fee, contract terms, buying club and negotiation-history fields.
+- 0x68-byte CDealInProgress: lightweight per-player/per-club negotiation state.
+- 0x18-byte CPlayerMovement: completed transfer-history record.
+
+Cash fee at proposal +0x10 and buying club +0x34 are confirmed. CPlayerBidLog is mapped as player + bidding club + 8-byte bid amount + bid date, with one remaining status/counter field.
+
+CDeal states 3/4/5 are definitively swap/player-exchange variants of 0/1/2. Exact names of base states 0/1/2 remain the active target.
+
 ## Active Investigation
 
-Current focus: decode CDealInProgress / CPlayerBidLog state values and the transfer offer/counter-offer/acceptance state machine, then map final player movement.
+Current focus: attach exact meanings to CDealInProgress base states 0/1/2 using named offer/counter-offer/acceptance actions, then map proposal +0x38..+0x4C and transfer completion.
 
 Immediate next steps:
 
