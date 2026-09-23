@@ -478,6 +478,25 @@ Related training defaults:
 - `TRN_Condition_Warning_Threshold = 75`
 
 
+## Club player-training records and training profiles
+
+Training is now confirmed as per-player club state rather than a generic modifier table.
+
+- A club-side object owns 40 records of 200 bytes each (0xC8), total allocation 0x1F40, pointer at owner +0x6B8.
+- Initialization around 0x61C9C0 clears all 40 records then walks the club player list and initializes one record per eligible player via 0x61C460.
+- Whole-record +8 is a uint16 player ID; unused slots contain 0xffff. 0x61C4B0 resolves it back to the runtime player.
+- Player runtime bytes +0x70/+0x76 are 1-based selectors; 0x417380 computes base + (selector-1)*200.
+- Embedded training state begins at whole-record +0x24. It contains a method ID, countdown/state, 17 per-skill counters, 17 dword states, seven per-method counters, date fields, and a second 17-byte timed-effect region.
+- The monthly development routine reads the primary per-skill byte at whole-record +0x30+skill. Earlier notes suggesting two monthly modifier arrays were incorrect.
+
+Global 0x876B40 is seven contiguous 17-byte skill profiles built by 0x4EAA00. With the verified 17-skill order, vectors identify as: vector0 attacking; vector1 defensive; vector2 midfield; vector3 goalkeeper; vector4 rest; vector5 fitness; vector6 technique.
+
+Profile selector 0x4EA9A0 maps method IDs: 0->rest vector4, 1->NULL/special case, 2->midfield vector2, 3->defensive vector1, 4->goalkeeper vector3, 5->fitness vector5, 6->technique vector6. The attacking-vector special case remains unresolved.
+
+Coach dispatcher 0x42C240 maps the same IDs to specialist employee lookups. The lookup routines search employee types 7..12. Their one-to-one agreement with profile semantics and EA's UI labels identifies types 7 goalkeeper, 8 fitness, 9 technique, 10 defensive, 11 midfield, 12 attacking. Method 1 routes to type12 (attacking coach), while method0 and method5 route to type8.
+
+Training update 0x4EACE0 loops all 17 skills. For a nonzero profile weight it combines profile/staff/club multipliers with a random 0..99 roll; if current skill is below development target, it increments the per-skill training counter/state, calls 0x41A870 for a +8 raw-skill step when still below target, and increments the per-method result counter. Zero-profile paths can reverse a prior step via 0x41A9A0 under the internal countdown/state condition.
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
