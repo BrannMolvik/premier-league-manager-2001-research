@@ -1456,6 +1456,16 @@ Successful open-play goals also contain a `RNG(20)==0` own-goal attribution bran
 
 Exact next target: implement these positional pools/selection routines as clean-room helpers, then assemble the complete type-1 resolver and verify all branch/RNG ordering against `0x62C740`.
 
+
+
+## Open-play positional-selection implementation checkpoint
+
+The verified 0x62DE90 / 0x62B780 / 0x62B7D0 / 0x62B900 / 0x62BCE0 role-pool and player-selection layer is now implemented in reconstruction/match_calculator.py.
+
+Implemented: active role pools; initial carrier selection; role-matched first and close defenders; exact one-roll finisher fallback behavior; 0x62B9D0 defender-wins Control/Tackling Boolean; and the 0x62BBF0 Passing gate with no RNG(2) fallback. MatchSkillPlayer now carries Passing.
+
+Next step: assemble these selectors with the existing finish/accuracy/goalkeeper primitives into the complete type-1 resolver and attach the mapped set-piece transitions.
+
 ## Active Investigation
 
 Primary focus: complete and implement the exact type-1 ordinary/open-play resolver, then connect verified MatchCalculator output to scheduled fixtures.
