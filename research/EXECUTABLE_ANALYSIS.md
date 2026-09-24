@@ -1120,6 +1120,26 @@ Configuration/tuning keys loaded around `0x506E..0x5070` include:
 These are configuration inputs/defaults and are likewise separate from the current cash balance.
 
 
+## Start-of-season budget message lead
+
+RTTI identifies a named EA message class `EAMbcstartseasonmail` associated with the board/chairman start-of-season budget announcement.
+
+Its formatter exposes the same family of budget concepts already confirmed in `EAMchairbudgetsettings`, including the transfer-budget bucket and the other operating-budget categories.
+
+This is an important bridge candidate between the board's season-start budget assignment logic and the user-facing finance/mail system.
+
+Current status: **active lead, not yet a complete live-storage mapping**.
+
+Next trace:
+
+1. identify every constructor/call site that allocates `EAMbcstartseasonmail`;
+2. locate where its budget fields are populated;
+3. follow those source values back to the authoritative live club-budget object;
+4. determine whether completed transfers decrement that budget directly, or whether the budget is recomputed/adjusted through a board policy routine.
+
+Do not treat the message object itself as the authoritative budget store.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
