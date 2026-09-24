@@ -44,6 +44,7 @@ def player(
     skill=100,
     confidence=100,
     leadership=100,
+    balance_code=None,
 ):
     skills = [skill] * 17
     skills[14] = confidence
@@ -54,6 +55,7 @@ def player(
         condition=100,
         form_state=2,
         current_position=role,
+        balance_position_code=role if balance_code is None else balance_code,
         preferred_positions=(role, 0, 0),
         skills=tuple(skills),
     )
@@ -73,6 +75,23 @@ class TeamStrengthTests(unittest.TestCase):
     def test_attack_exact_one_player_sum_and_neutral_context(self):
         subject = player(role=12)
         expected = 17 * ((9900 / 255.0) * 1.0 * 1.0)
+        actual = attack_team_strength(
+            [subject],
+            matrix(1),
+            TeamStrengthContext(
+                tactic_style=0,
+                match_bias=2,
+                user_controlled=True,
+                aggression=5,
+            ),
+        )
+        self.assertAlmostEqual(actual, expected)
+
+    def test_matrix_role_and_balance_code_are_independent(self):
+        subject = player(role=12, balance_code=3)
+        # Matrix selection still uses current role 12; only the small balance
+        # factor comes from position-state +0x05 code 3 -> 120%.
+        expected = 17 * ((9900 / 255.0) * 1.0 * 1.20)
         actual = attack_team_strength(
             [subject],
             matrix(1),
@@ -129,7 +148,8 @@ class TeamStrengthTests(unittest.TestCase):
 
         base = 0.0
         for subject in players:
-            factor = DEFENCE_ROLE_FACTORS[int(subject.current_position)] / 100.0
+            code = int(subject.balance_position_code)
+            factor = DEFENCE_ROLE_FACTORS[code] / 100.0 if code < 13 else 1.0
             base += 17 * (9900 / 255.0) * factor
 
         # This shape satisfies the two central, left, right and central-mid
