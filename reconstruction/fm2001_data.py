@@ -98,6 +98,9 @@ class Manager:
     date_of_birth: date | None
     joined: date | None
     club_id: int | None
+    formation_default: int
+    formation_class3: int
+    formation_class1: int
 
     @property
     def full_name(self):
@@ -212,6 +215,9 @@ class FM2001Database:
             first_id, last_id = struct.unpack_from('<HH', r, 4)
             dob = ole_date(struct.unpack_from('<I', r, 8)[0])
             joined = ole_date(struct.unpack_from('<I', r, 20)[0])
+            formation_default = r[24]
+            formation_class3 = r[25]
+            formation_class1 = r[26]
             club_raw = struct.unpack_from('<I', r, 27)[0]
             club_id = None if club_raw == 0xffffffff else club_raw
             self.managers.append(Manager(
@@ -221,6 +227,9 @@ class FM2001Database:
                 dob,
                 joined,
                 club_id,
+                formation_default,
+                formation_class3,
+                formation_class1,
             ))
 
     def _parse_positions(self):
