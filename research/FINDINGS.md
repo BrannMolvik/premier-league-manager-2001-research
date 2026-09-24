@@ -659,3 +659,17 @@ The first three low bits of `DBRPlayer+0x14` are all exclusion inputs to the com
 - bit 2 = **separate selection-exclusion state**, exact semantic label unresolved.
 
 The simpler helper `0x418130` tests only bits 0 and 1, confirming injury/suspension as the common global unavailability pair. Bit 2 is managed by a separate club roster-selection path and should not be mislabeled as cup-tied; a distinct `CCupTiedPlayer` persistence class and competition lookup path exist in the executable.
+## Cup-tied player persistence
+
+**Confirmed**
+
+FM2001 stores cup-tie state separately from the transient DBRPlayer exclusion bits.
+
+A `CCupTiedPlayer` record stores:
+
+- player ID;
+- the club/team ID for which that player is tied.
+
+Lookup `0x4E9710(collection, player_id, team_id)` returns cup-tied only when a record exists for that player and the stored club differs from the team attempting to field him. Competition helper `0x4F8E40` invokes this lookup through the competition/context cup-tied collection.
+
+Therefore `DBRPlayer+0x14 bit 2` is not a cup-tied bit and must remain a separately named selection-exclusion state.
