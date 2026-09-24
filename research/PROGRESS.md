@@ -919,6 +919,33 @@ Confirmed fields:
 This corrects older notes that did not distinguish the monthly layout from the season budget-settings layout. The monthly statement has no separate merchandising field.
 
 Exact next target: recover the gameplay producer/populator of event 0xA1 and trace how +0x54 TRANSFERBUDGET is calculated from prior allocation, ledger flow, or DBRUser state.
+
+
+## Match-engine feasibility checkpoint
+
+A targeted feasibility investigation of the previously uncertain match/FastView side has produced a significantly more favorable architecture picture.
+
+Confirmed:
+
+- high-level match routine `0x513010` has a separable normal calculator path and a developer-controlled `/skipmatchcalc777` bypass;
+- normal calculation routes through `0x632B20`, which runs stages `0x62AC90 -> 0x62FBC0 -> 0x667E20`;
+- MatchCalculator exposes named tactics/player/substitution command classes;
+- FastView consumes semantic goal/score/possession/substitution/time/penalty/player-update events;
+- the 3D side loads structured external scenario/AI/motion data rather than hiding all behavior in code;
+- the exact disc has **235 loose SCI files**;
+- loose `SCTABLE.STI` has **137 × 48-byte** scenario-selection records, directly confirmed by loader `0x70F000`;
+- `AISCRIPT.VIV`, `MOAI.VIV` and `GEN4TBLS.T` are straightforward BIGF archives;
+- `MOAI.VIV` has **584** motion/animation-named entries;
+- `AISEQS.TBI` and `AITMPS.TBI` each contain **452 × 20-byte** primary records plus **585 × 24-byte** secondary entries;
+- all **584 nonblank AISEQS names** match the 584 MOAI archive entry names;
+- `CAMERA.SCR` is plaintext camera configuration.
+
+Assessment: backend match reconstruction now appears **feasible**, and exact 3D choreography is separable from the core calculator. The hard remaining problem is recovering match decision/probability mathematics, not penetrating an opaque asset format.
+
+Detailed evidence is in `research/MATCH_ENGINE.md`; reproducible format checks are in `tools/inspect_match_assets.py`.
+
+Match-side next target when this branch resumes: map the MatchRecord state and the three normal calculation stages, then trace semantic event generation before attempting exact SCI/MOAI playback.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
