@@ -2754,3 +2754,27 @@ For example:
 game/session +0x698 owns the **bank-loan configuration/state subsystem**, not the chairman transfer-budget reserve.
 
 Its finance-like structure and save persistence are therefore explained without invoking chairman budget storage.
+
+
+## Finance category 1100 / false 0x44C allocation lead
+
+A transient analysis lead around Balance.cpp has been corrected before it could contaminate the event-size model.
+
+Several sites including `0x5DD1C2`, `0x5DDF82`, `0x5E188A` and `0x5E18B4` contain:
+
+`push 0x44C`
+
+The value **0x44C is not an allocation size at these sites**. In each case it is passed as the accounting-category argument into finance aggregation/posting routines such as `0x5DC890`, `0x5DD650`, `0x5DD1F0`, or `0x5DD560`.
+
+This is independently confirmed by real expenditure paths around `0x5D21E5`, `0x5D2440`, `0x5D2712`, and `0x5D2963`: they build a finance value with category **1100 (0x44C)** and then call Balance debit routine `0x5DC650`. These are the same Stadium Manager/Groundsman/facility expenditure paths whose no-budget events were previously mapped.
+
+Finance Overview also queries category 1100 through `0x43F1E0` at `0x43D5BB..0x43D5CE`.
+
+Therefore category 1100 is confirmed as a genuine ledger category used by stadium/grounds/facility expenditure. Its exact EA-facing account-row label is not yet resolved.
+
+Important distinction:
+
+- `0x44C` decimal 1100 as a pushed argument in these Balance.cpp paths = **ledger category**
+- `EAMchairbudgetwarning` object size = also **0x44C bytes**
+
+The numerical equality is coincidental and must not be used to identify an event allocation.
