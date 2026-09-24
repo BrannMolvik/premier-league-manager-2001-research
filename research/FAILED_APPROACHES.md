@@ -232,3 +232,22 @@ Conclusion:
 
 Status:
 - earlier istringstream-global conclusion superseded.
+
+
+## Treat game/session +0x694 as live chairman budget storage
+
+Reason it looked plausible:
+- the pointer is heavily used in finance/business code;
+- it points to a small 0x7C-byte object with multiple integer fields.
+
+Disproof:
+- the object is allocated at `0x425BCA`;
+- `0x5DE530`, tied to named season-ticket events, reads its +0x04 field;
+- nearby season-ticket calculations populate +0x08/+0x0C;
+- `0x618Cxx..0x618EFF` iterate its +0x14..+0x78 entries as business/selection state.
+
+Conclusion:
+- this is season-ticket/business state, not the authoritative chairman transfer-budget object.
+
+Status:
+- ruled out as live transfer-budget storage.
