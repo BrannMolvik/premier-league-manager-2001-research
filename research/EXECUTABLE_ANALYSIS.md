@@ -2262,3 +2262,60 @@ This strengthens the distinction already seen at transfer completion:
 - chairman budget allocations are likely stored or derived elsewhere rather than as a simple adjacent cash scalar in this object.
 
 Do not infer that the whole 0xE0 finance object is itself the chairman budget store merely because it owns cash and ledger state.
+
+
+## Six Balance objects and chairman financial-objective tolerance
+
+A save/load trace corrects the shape of game/session `+0x670..`.
+
+### Six Balance-object pointer slots
+
+Game/session initialization at `0x425EA0` clears exactly six dword pointer slots beginning at `+0x670`.
+
+When active state is built, the first object is created at `+0x670` and the adjacent slots `+0x674..+0x684` are handled as additional objects of the same family. Save code at `0x427E19..0x427E69` loops exactly six times across these pointers:
+
+- for each pointer it calls Balance serializer `0x5DDFB0`;
+- it then serializes the internal state beginning at object `+0x30` through `0x5E1FF0`.
+
+Thus `+0x670..+0x684` are **six separate Balance-object pointers**, not one Balance pointer followed by unrelated fields.
+
+The exact gameplay ownership of all six slots (for example manager/user slots) is not yet assigned here; only the six-object structure is confirmed.
+
+### Balance internal serialized state
+
+Serializer `0x5E1FF0`, called with ECX = Balance `+0x30`, serializes six consecutive 16-byte value/range records at relative offsets:
+
+- +0x00
+- +0x10
+- +0x20
+- +0x30
+- +0x40
+- +0x50
+
+followed by bookkeeping fields through roughly relative `+0x9C`.
+
+This matches constructor `0x5DC400`, which initializes the same six 16-byte subrecords at absolute Balance offsets `+0x30..+0x80`.
+
+### ChairmanPercentBudgetMiss is financial-objective tolerance, not transfer-budget logic
+
+Tuning key `ChairmanPercentBudgetMiss` loads integer global `0x822488`. Unlike the old TransferBudget defaults, this global has a real gameplay consumer at `0x5E1ECE`.
+
+Routine `0x5E1D90` is called with ECX = Balance `+0x30`. It compares:
+
+- current cash = Balance qword `+0x10`
+- a stored target value at Balance `+0x50` (relative +0x20 from the passed subobject)
+
+It first compares the full stored target against current cash. If that branch is not satisfied, it computes:
+
+`target * ChairmanPercentBudgetMiss * 0.01`
+
+The constant at `0x7BD600` is exactly IEEE-754 double **0.01**.
+
+The two event constructors identify the semantics of this check:
+
+- constructor `0x5A5C20`, vtable `0x7D4E04`, RTTI = **EAMManagerObjectiveContinuedSuccess**
+- constructor `0x5952C0`, vtable `0x7D3044`, RTTI = **EAMManagerFailedObjective**
+
+Therefore this path evaluates a manager/chairman **financial objective target and tolerance**, not the seven chairman spending-budget buckets and not transfer affordability.
+
+This is a useful distinction: the Balance object contains persistent financial objectives in addition to current cash and ledger data, but those objective values must not be mislabeled as transfer-budget allocation.
