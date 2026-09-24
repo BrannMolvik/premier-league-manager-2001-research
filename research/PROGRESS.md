@@ -483,9 +483,22 @@ Getter `0x516020` -> byte `0x877552` is called only at the return of seasonal fi
 
 Do not label it `/budget777` yet. The live transfer-budget guard must be found independently.
 
+
+## Accounting category 1000 checkpoint
+
+Completed transfers are now confirmed to feed category `1000` into the club finance ledger on both buyer and seller sides.
+
+The finance layer separately aggregates category-1000 credits and debits and computes a net value (`0x5DC890`, `0x5DD650`, helper `0x43F1E0`). Finance overview code explicitly queries category 1000 through these paths.
+
+No separate transfer-budget scalar write is visible in the immediate transfer-completion/posting path.
+
+**Hypothesis, not yet confirmed:** remaining transfer budget may be computed from a board transfer allocation adjusted by category-1000 transfer ledger flow rather than stored as a separately decremented scalar.
+
+Exact next target: locate the board transfer-allocation source and the comparison/derivation that combines it with category-1000 spending or triggers `OVERSPENTBUDGET`.
+
 ## Active Investigation
 
-Current focus: (1) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` explicitly still unproven as `/budget777`; (2) inspect the completed-transfer posting path and accounting category 1000 for the separate live transfer-budget debit/credit mechanism; (3) trace board-budget event production/live business-consultant state.
+Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
 
 Immediate next steps:
 
