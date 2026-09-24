@@ -794,6 +794,17 @@ with the same loader family continuing into `FSOfferMinLifeTime`.
 Therefore +0x69C is not chairman transfer-budget storage.
 
 Exact next target: trace the quarterly budget-failure/sacking path (including `EAMManagerSackedFailedBudget`) and the remaining board-state/event scheduler objects rather than guessing additional club fields.
+
+
+## Failed-budget sacking event checkpoint
+
+`EAMManagerSackedFailedBudget` is now mapped as event ID **0x190**. Its producer uses game/session sacking-reason value 5.
+
+Reason 5 is set explicitly inside `0x5E1D90`, the already-proven financial-objective tolerance routine that compares current cash with the Balance objective target using `ChairmanPercentBudgetMiss`.
+
+So this named “FailedBudget” sacking event belongs to **financial-objective failure**, not the quarterly chairman rebudget path that takes money from building/transfer reserves.
+
+Exact next target remains the quarterly board-budget producer / remaining persistent board-state owner.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
