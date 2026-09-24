@@ -1508,6 +1508,28 @@ This removes the uncertainty around how often the already-implemented chance res
 
 Immediate next target: fully map 0x62F140 and 0x62F3E0 so the two segment weights can be computed from the actual players/tactics rather than supplied externally. Once those are implemented, a complete normal 90-minute result becomes mechanically reachable.
 
+
+
+## Team-strength builder checkpoint
+
+The current frontier is now the pair `0x62F140` / `0x62F3E0`, which feed the already-mapped five-minute attack scheduler.
+
+Confirmed structurally:
+
+- one routine is the attacking/build-up strength path;
+- one is the defensive/resistance strength path;
+- both iterate active players and all 17 skills;
+- role and team tactics select coefficients from large EA tables;
+- formation/shape plus mentality/aggression/human-AI modifiers adjust the final aggregates.
+
+A role-code naming inconsistency has also surfaced around advanced midfield/wing positions 13/14/15. Numeric codes are stable, but semantic labels may be shifted; verify Static.dat/original consumers before changing `PositionRole` names.
+
+Exact next steps:
+1. verify the 13/14/15 role-name mapping from original data;
+2. decode the team-tactic bytes and coefficient-table indices used by 0x62F140/0x62F3E0;
+3. implement both strength builders with deterministic tests;
+4. connect them to the already-implemented five-minute attack scheduler to produce complete normal-match results.
+
 ## Active Investigation
 
 Primary focus: complete and implement the exact type-1 ordinary/open-play resolver, then connect verified MatchCalculator output to scheduled fixtures.
