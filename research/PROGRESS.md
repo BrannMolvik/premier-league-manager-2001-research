@@ -968,6 +968,30 @@ This materially strengthens feasibility: the backend is a finite, discrete weigh
 
 Exact next match target: map `0x62C740` and the `0x62E1xx/0x62E2xx/0x62E6xx` event branches to semantic outcomes (shots/goals/fouls/cards/injuries/possession), then identify the two team-strength dimensions.
 
+
+
+## MatchCalculator-to-FastView event mapping checkpoint
+
+The linked MatchCalculator record stream is now directly tied to named FastView sender classes.
+
+Confirmed type map from record +0x28:
+
+- **0..4** = goal-event family routed through `Sender<EventGoal>`
+- **5** = unresolved player incident/state family
+- **6** = HalfTime
+- **7** = FullTime
+- **8** = ExtraTime
+- **9** = Penalties
+- **10** = Substitution
+
+A type-1 goal-family record is rerouted through `Sender<EventPenaltyShootoutShot>` while the controller is in penalty-shootout state.
+
+Multiple type-0..4 producer branches directly increment the home/away score pair at match record +0xD4C/+0xD50 before appending the record, proving that this family carries scoring events.
+
+This removes a major reconstruction uncertainty: the simulator's linked record timeline has a recoverable semantic interface into FastView.
+
+Exact next match target: distinguish goal-family types 0/1/2/3/4 and map type 5 to its player incident (card/injury/other) semantics.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
