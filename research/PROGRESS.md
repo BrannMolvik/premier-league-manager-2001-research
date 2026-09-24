@@ -1,6 +1,6 @@
 # Premier League Manager 2001 Reverse-Engineering Progress
 
-_Last updated: 24 September 2026_
+_Last updated: 25 September 2026_
 
 ## Purpose
 
@@ -29,6 +29,47 @@ The previous v0.3 clean-room parser/reimplementation work is present in the acti
 A Windows 11 modernization attempt successfully reconstructed the game installation without the obsolete 16-bit installer, but Windows Smart App Control / Code Integrity blocks the unsigned legacy `footballmanager.exe` before execution. Event ID 3077 in the Code Integrity Operational log explicitly identified the executable as blocked.
 
 A clean-room reimplementation prototype has therefore been started alongside executable reverse engineering.
+
+## 25 September MatchCalculator completion checkpoint
+
+The normal-time backend has advanced beyond the former scoring-only orchestration boundary.
+
+Now clean-room implemented and integrated from direct executable evidence:
+
+- all 16 normal-time five-minute strength/scheduler passes;
+- type-1 open play plus exact type-2 free kick, type-3 corner and type-4 penalty handoffs;
+- Team Orders captain and set-piece priority behavior;
+- recurring Condition decay and exact injury-incidence gate;
+- immediate injury replacement through the original substitute selector/mutation path;
+- exact booking/sending-off path and active-player removal;
+- exact five-minute possession/territory normalization;
+- exact `RNG(7)==0` automatic AI-substitution trigger and call order;
+- AI substitution timing (normally 60/70/80 as original starters leave active state);
+- exact role-rating helper `0x41C7E0` and Form-adjusted outgoing/incoming comparison;
+- type-10 substitution event payload and runtime position/status mutation;
+- due Premier League fixture -> reconstructed result -> live table integration.
+
+Important preserved field distinction:
+
+- assigned/current role = position-state `+0x03`;
+- substitution auxiliary low nibble = `+0x04`;
+- strength/discipline balance-position code = separate `+0x05`.
+
+Substitution copies `+0x03` and `+0x04` from outgoing to incoming, but does not copy `+0x05`.
+
+### Current primary blocker
+
+The backend calculator can now execute a normal match when explicit prepared match-day state is supplied. The next major fidelity/playability target is **authoritative match-day initialization**:
+
+1. identify how the original chooses/marks starting XI and substitute-available participants;
+2. recover initial assigned roles and the `+0x04/+0x05` position-state values;
+3. recover match-start Form and Condition state;
+4. recover AI Team Orders/tactical setup and set-piece/captain priorities;
+5. connect those original initialization paths to the existing simulator so a scheduled fixture no longer needs manually prepared inputs.
+
+Secondary unresolved match details include the higher-level semantic names of MatchCalculator `+0xD3C` and shared guard `+0x1145`, plus exact FastView/3D choreography.
+
+Regression source exists for the new role-rating, automatic-substitution, injury-replacement, dynamic Condition-iteration and scheduler integration paths. This chat environment still has no runnable GitHub checkout, so the complete repository test suite has **not** been executed here. Do not report the whole suite as passing until checkout/CI execution confirms it.
 
 ## Newly completed investigation block
 
