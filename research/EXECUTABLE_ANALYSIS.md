@@ -1701,24 +1701,19 @@ Locate the authoritative board/chairman transfer-allocation state and find the c
 The most promising bridges are the producer paths for `EAMchairbudgetsettings`, `EAMbcstartseasonmail`, `EAMbcmonthlybudget`, and the `OVERSPENTBUDGET` warning/message family.
 
 
-## WinMain command-line handoff checkpoint
+## Corrected WinMain hInstance handoff (supersedes the previous command-line interpretation)
 
-Fresh control-flow tracing found the first direct runtime handoff of the process command line.
+A first pass mistakenly identified the value passed at `0x531398` as WinMain's third parameter (`lpCmdLine`). Rechecking the live stack layout shows that two arguments pushed for the immediately preceding `0x5ECF30` call are still present at that point. Those two pushes shift the apparent stack offset.
 
-The CRT startup path calls the game's WinMain-like routine at `0x530DA0`. Near its return path:
+Corrected interpretation:
 
-- `0x531398` loads the original third WinMain parameter, `lpCmdLine`, from the stack;
-- `0x5313A0` calls `0x531AF0(lpCmdLine)`;
-- `0x531AF0` immediately forwards the same pointer to `0x531C10`.
+- `0x531398` loads WinMain's **first** argument, `hInstance`;
+- `0x5313A0` calls `0x531AF0(hInstance)`;
+- `0x531AF0` forwards it to `0x531C10`;
+- under startup option `0x5160B0`, `0x531D35` calls `0x530380(hInstance)`;
+- `0x530380` stores it at `0x87784C`;
+- `0x530390` later passes `0x87784C` as the `hMod` argument to `SetWindowsHookExA`, confirming that the value is an HINSTANCE/module handle rather than command-line text.
 
-Inside `0x531C10`, after window/message-system initialization:
+Therefore this path is **not** the cheat parser and must not be used as a command-line lead.
 
-- `0x531D27` calls option accessor `0x5160B0`;
-- if true, `0x531D35` calls `0x530380(lpCmdLine)`;
-- `0x530380` stores that pointer at global `0x87784C`.
-
-This proves a concrete command-line data path:
-
-`WinMain lpCmdLine -> 0x531AF0 -> 0x531C10 -> 0x530380 -> global 0x87784C`
-
-The exact purpose of the `0x5160B0` option and the later consumer of `0x87784C` are still under investigation. This is not yet the cheat switch decoder itself, but it narrows the parser search to code that consumes the stored command-line pointer or the startup path around `0x531C10`.
+The real cheat parser remains unresolved and should continue to be traced from the literal table and actual command-line/argv consumers.
