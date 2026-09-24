@@ -1,14 +1,15 @@
 import unittest
+from unittest.mock import patch
 
 from match_calculator import PositionRole
-from match_events import BoundaryRecord, BoundaryType, ChanceOutcome, ChanceRecord
+from match_events import BoundaryRecord, BoundaryType, ChanceOutcome, ChanceRecord, SubstitutionRecord
 from match_simulation import (
     PreparedMatchPlayer,
     PreparedMatchSide,
     resolve_attacking_sequence,
     simulate_normal_match,
 )
-from match_strength import TeamStrengthContext
+from match_strength import SegmentAttack, TeamStrengthContext
 
 
 class ScriptedRng:
@@ -33,7 +34,17 @@ def raw_skills(value=100):
     return (value,) * 17
 
 
-def player(side, idx, role, value=100):
+def player(
+    side,
+    idx,
+    role,
+    value=100,
+    *,
+    active=True,
+    bench=False,
+    preferred=None,
+    aux=0,
+):
     return PreparedMatchPlayer(
         side=side,
         player_index=idx,
@@ -41,25 +52,29 @@ def player(side, idx, role, value=100):
         form_state=2,
         current_position=role,
         balance_position_code=int(role),
-        preferred_positions=(int(role), 0, 0),
+        preferred_positions=preferred or (int(role), 0, 0),
         skills=raw_skills(value),
+        active=active,
+        substitution_available=bench,
+        position_aux_code=aux,
     )
 
 
-def context():
+def context(user_controlled=True):
     return TeamStrengthContext(
         tactic_style=0,
         match_bias=2,
-        user_controlled=True,
+        user_controlled=user_controlled,
         aggression=5,
     )
 
 
-def side(side_id, players, taker_index):
+def side(side_id, players, taker_index, *, user_controlled=True):
+    team_context = context(user_controlled)
     return PreparedMatchSide(
         players=tuple(players),
-        attack_context=context(),
-        defence_context=context(),
+        attack_context=team_context,
+        defence_context=team_context,
         penalty_taker_priority=(taker_index,),
         corner_taker_priority=(taker_index,),
         free_kick_taker_priority=(taker_index,),
@@ -109,6 +124,27 @@ class PreparedMatchTests(unittest.TestCase):
         )
         self.assertEqual(prepared.penalty_taker_priority, (99, 1))
 
+    def test_starting_indices_capture_active_players_not_bench(self):
+        prepared = side(
+            0,
+            [
+                player(0, 1, PositionRole.CENTRE_MIDFIELD),
+                player(
+                    0,
+                    11,
+                    PositionRole.CENTRE_MIDFIELD,
+                    active=False,
+                    bench=True,
+                ),
+            ],
+            1,
+        )
+        self.assertEqual(prepared.starting_player_indices, (1,))
+        self.assertEqual(
+            [item.player_index for item in prepared.active_prepared_players()],
+            [1],
+        )
+
 
 class SequenceIntegrationTests(unittest.TestCase):
     def test_recovered_open_play_path_scores_goal(self):
@@ -156,6 +192,75 @@ class FullNormalMatchTests(unittest.TestCase):
             player(side_id, index, role, value=50)
             for index, role in enumerate(roles)
         ]
+
+    def test_scheduler_rng7_zero_attempts_ai_sub_for_opposite_side(self):
+        home = side(0, self.lineup(0), 10, user_controlled=True)
+
+        away_roles = (
+            PositionRole.GOALKEEPER,
+            PositionRole.RIGHT_BACK,
+            PositionRole.LEFT_BACK,
+            PositionRole.CENTRE_BACK,
+            PositionRole.CENTRE_BACK,
+            PositionRole.SWEEPER,
+            PositionRole.RIGHT_WING_BACK,
+            PositionRole.LEFT_WING_BACK,
+            PositionRole.CENTRE_BACK,
+            PositionRole.CENTRE_BACK,
+            PositionRole.CENTRE_MIDFIELD,
+        )
+        away_players = [
+            player(1, index, role, value=50)
+            for index, role in enumerate(away_roles)
+        ]
+        away_players.append(
+            player(
+                1,
+                11,
+                PositionRole.CENTRE_MIDFIELD,
+                value=250,
+                active=False,
+                bench=True,
+            )
+        )
+        away = side(1, away_players, 10, user_controlled=False)
+
+        class Rng7Gate:
+            def randbelow(self, bound):
+                return 0 if bound == 7 else bound - 1
+
+        def one_home_attack_at_sixty(segment_start, weights, rng):
+            if segment_start == 60:
+                return (SegmentAttack(0, 61),)
+            return ()
+
+        with patch(
+            "match_simulation.schedule_segment_attacks",
+            side_effect=one_home_attack_at_sixty,
+        ), patch(
+            "match_simulation.resolve_attacking_sequence",
+            return_value=(),
+        ):
+            result = simulate_normal_match(
+                home,
+                away,
+                matrix(),
+                matrix(),
+                Rng7Gate(),
+            )
+
+        substitutions = [
+            timed
+            for timed in result.events
+            if isinstance(timed.event, SubstitutionRecord)
+        ]
+        self.assertEqual(len(substitutions), 1)
+        self.assertEqual(substitutions[0].minute, 61)
+        self.assertEqual(substitutions[0].event.player_side, 1)
+        self.assertEqual(substitutions[0].event.outgoing_player_index, 10)
+        self.assertEqual(substitutions[0].event.incoming_player_index, 11)
+        self.assertFalse(away_players[10].active)
+        self.assertTrue(away_players[11].active)
 
     def test_normal_match_runs_all_16_segments_and_boundaries(self):
         home = side(0, self.lineup(0), 10)
