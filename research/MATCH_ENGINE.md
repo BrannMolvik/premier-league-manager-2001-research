@@ -1423,3 +1423,81 @@ The live match bias itself can occupy 0..4.
 ### Position-code clarification
 
 Runtime role codes remain the already-proven zero-based values (13 RW, 14 LW, 15 AM). Static.dat position IDs are one-based, which explains the apparent one-step discrepancy seen in one formation helper. No clean-room enum correction is required.
+
+
+## Team-strength post-matrix modifiers
+
+After summing role/skill contributions, the builders apply a set of exact team-level multipliers.
+
+### Five-level match bias
+
+Attack `0x62F140`:
+
+- bias 0 -> ×0.80
+- 1 -> ×0.90
+- 2 -> ×1.00
+- 3 -> ×1.10
+- 4 -> ×1.20
+
+Defence `0x62F3E0` uses the inverse ordering:
+
+- bias 0 -> ×1.20
+- 1 -> ×1.10
+- 2 -> ×1.00
+- 3 -> ×0.90
+- 4 -> ×0.80
+
+### User-controlled club predicate
+
+Routine `0x4037B0(team)` is the user-controlled-club test. It forwards the club ID into the DBRUser list and checks whether a user's current club matches.
+
+### Active captain modifier
+
+Routine `0x408560(team)` walks Team Orders category 0 and returns the first valid captain.
+
+The builders read that player's:
+
+- runtime +0x2C = Confidence
+- runtime +0x2D = Leadership
+
+Attack captain multiplier:
+
+`0.95 + (Confidence + Leadership) / 5120`
+
+Defence captain multiplier:
+
+`0.90 + (Confidence + Leadership) / 2560`
+
+If no captain is available, this stage leaves the base strength unchanged.
+
+For AI-controlled clubs, the captain/user branch is replaced by fixed multipliers:
+
+- attack ×1.05
+- defence ×1.10
+
+### Aggression multiplier
+
+For user-controlled teams, team byte +0x1B7 applies:
+
+`1.0 + (aggression - 5) × 0.02`
+
+Thus aggression 5 is neutral, 0 -> 0.90, and 9 -> 1.08.
+
+### Defence-only formation coverage
+
+Defence additionally calls `0x62F6A0`.
+
+That helper begins with:
+
+- central requirement counter = 2;
+- five coverage flags = set.
+
+Active current roles satisfy/clear those requirements.
+
+It returns:
+
+`formation_multiplier = 1.0 - 0.05 × (central_count² × 4 + remaining_flags)`
+
+This is a shape/coverage penalty applied only to defence.
+
+Some branch groupings inside `0x62F6A0` are non-intuitive; they should be reproduced literally rather than “corrected” to football expectations.
