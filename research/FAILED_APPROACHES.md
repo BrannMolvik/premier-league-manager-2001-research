@@ -362,3 +362,21 @@ Conclusion:
 
 Status:
 - definitively rejected as live transfer-budget storage.
+
+
+## Treat game/session +0x698 as possible chairman budget storage
+
+Why it looked promising:
+- persistent/save-serialized 0x108-byte object;
+- constructor initializes several finance-value records and tuning-driven child objects;
+- it sits adjacent to other finance/business state.
+
+Disproof:
+- constructor tuning inputs resolve directly to Bank1/Bank2/Bank3 loan limits, repayment terms and APR values;
+- dedicated save/load routines preserve this loan state.
+
+Conclusion:
+- game/session +0x698 is the bank-loan subsystem, not chairman transfer-budget storage.
+
+Status:
+- definitively rejected as live transfer-budget storage.
