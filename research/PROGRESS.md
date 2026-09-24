@@ -568,6 +568,23 @@ The `TRANSFERBUDGETINCREASE` key is now traced to EA's `chairextracashsuccess@Mo
 The success formatter reads a budget/category selector at `+0x10` and an increase amount at `+0x14`, and dispatches across seven budget categories. This proves the chairman extra-budget subsystem represents both the selected budget bucket and the amount being added.
 
 Exact next target: trace who populates the formatter/event selector and amount, then follow that source into the authoritative live board budget state.
+
+
+## Extra-transfer success event field checkpoint
+
+`EAMchairextratransfersuccess` is now directly connected to the seven-way `chairextracashsuccess@ModFmt` budget-adjustment formatter.
+
+Confirmed event fields:
+
+- `+0x3C` = budget increase amount
+- `+0x40` = budget/category selector
+- `+0x44` = club/team ID
+
+The event copies +0x40 to ModFmt +0x10 and +0x3C to ModFmt +0x14, exactly matching the selector/amount fields used by `TRANSFERBUDGETINCREASE`.
+
+If +0x40 is -1, the formatter chooses a random selector 1..6, while the generic formatter supports 1..7. Selector 7 being the transfer-budget value is a strong hypothesis but remains unproven.
+
+Exact resume target: find producers/writers of this event's +0x3C/+0x40/+0x44 fields to recover the selector map and the actual live budget update.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
