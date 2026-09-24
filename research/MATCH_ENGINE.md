@@ -43,10 +43,11 @@ Verified behavior:
 - developer switch `/skipmatchcalc777` is read through `0x516080`; when set, the routine calls `0x512D80` instead of the normal calculation path;
 - the normal path calls `0x632B20` or wrapper `0x632B50` depending runtime mode/state;
 - `0x632B50` only clears byte `match_record +0x1145` and then calls `0x632B20`;
-- `0x632B20` stores the match-record pointer globally at `0x981C78`, then invokes three stages:
-  - `0x62AC90`
-  - `0x62FBC0`
-  - `0x667E20`
+- `0x632B20` stores the match-record pointer globally at `0x981C78`, then calls:
+  - `0x62AC90` — initialization/reset of match-record scores/player-side state;
+  - `0x62FBC0` — drives the actual simulation;
+  - `0x667E20` — **a no-op (`ret`) in this build**, not a third calculation stage.
+- `0x62FBC0` repeatedly calls `0x62AE90` while it reports more work, then finalizes linked match-event state through `0x62F7C0`;
 - after calculation, the high-level routine writes/propagates the calculated state through match-object virtual methods.
 
 This gives a compact, identifiable entry point for deeper backend reconstruction.
@@ -275,3 +276,105 @@ Remaining hard work:
 5. Decode SCI/MOAI choreography and original-style 3D as a separate later layer.
 
 This order reduces project risk: exact 3D reconstruction is no longer a prerequisite for recreating the core match simulation.
+
+
+## Core calculator timeline and strength model
+
+Deeper disassembly of the normal calculator substantially reduces the remaining uncertainty.
+
+### 0x62AC90 initializes the match record
+
+`0x62AC90`:
+
+- clears home/away score-like fields at `+0xD4C/+0xD50`;
+- clears several additional aggregate fields;
+- initializes per-player match state for both sides;
+- processes the first 11 players differently from substitutes/reserves;
+- carries player runtime state into 0x4C-byte per-player match records.
+
+This is initialization, not the main simulation loop.
+
+### 0x62FBC0 drives 0x62AE90
+
+`0x62FBC0` calls `0x62AE90` and repeats it while the return value is nonzero. It then finalizes/reorders linked event state and updates a list rooted around match record `+0xB60`.
+
+The main match simulation therefore lives primarily in the `0x62AE90` family and its callees.
+
+### Five-minute simulation cadence
+
+The normal-time path in `0x62AE90` is explicit.
+
+It begins with minute value 5 and invokes segment routine `0x62B1A0` in five-minute increments:
+
+- 5, 10, 15, 20, 25, 30, 35, 40;
+- boundary record at 45;
+- 50, 55, 60, 65, 70, 75, 80, 85.
+
+If extra time is required, the same routine later processes:
+
+- 95, 100;
+- boundary at 105;
+- 110, 115.
+
+If a penalty shootout is required, `0x631730` creates the penalty-phase record at minute **90** when extra time is not used, or **120** when extra time has been played.
+
+Thus the backend is a discrete five-minute probabilistic simulation, not a continuous 3D-physics simulation.
+
+### Boundary/event record type codes
+
+Plain match-record constructors around `0x6325E0` assign numeric type codes.
+
+Observed usage:
+
+- constructor `0x632640` sets type **6** and is emitted at minute 45;
+- constructor `0x632660` sets type **7** and is used in the final match-completion path;
+- constructor `0x632690` sets type **8** and is used at extra-time transition/boundary points;
+- constructor `0x6326C0` sets type **9** and is called by the penalty-shootout path at minute 90 or 120.
+
+These structurally correspond to the known HalfTime / FullTime / ExtraTime / Penalties semantic-event family. Exact class/type names should still be tied to their serializers/consumers before treating the numeric enum names as final.
+
+### Team-strength aggregate routines
+
+Segment routine `0x62B1A0` calls symmetric floating-point routines `0x62F140` and `0x62F3E0`.
+
+Both:
+
+- iterate the participating player list;
+- skip ineligible/unavailable records through player/status checks;
+- loop **17 times** per player, matching the complete 17-skill model;
+- read current player skill bytes from runtime `player +0x1E + skill_slot`;
+- incorporate additional player runtime/status values and positional/context state;
+- multiply contributions by large role/context weight tables at approximately `0x83B838` and `0x83E2B8`;
+- apply team/manager/tactical/context multipliers before returning a floating aggregate.
+
+The two functions use different weight tables/context bytes, strongly indicating complementary team-strength dimensions rather than duplicate calculations. Exact names such as attack/defence should not yet be assigned.
+
+### Segment event generation
+
+`0x62B1A0`:
+
+1. obtains the two sets of team-strength aggregates;
+2. derives relative integer thresholds/counts from their ratios;
+3. uses the game's RNG at `0x64D5B0`;
+4. repeatedly selects a side/outcome within the five-minute segment;
+5. dispatches into event-generation routines including `0x62C740`, `0x62E130`, `0x62E2F0`, and `0x62E6F0`;
+6. stores three per-segment aggregate/stat values into arrays beginning around `match_record +0x100C/+0x106C/+0x10CC`.
+
+`0x62C740` itself performs further player selection/status/skill calculations and increments the segment aggregate counters before descending into event-specific logic.
+
+This is strong evidence that the core backend is a weighted probabilistic event simulator driven by player attributes/tactics, rather than being dependent on 3D animation physics.
+
+## Revised match feasibility
+
+The biggest technical risk has shifted.
+
+Earlier uncertainty was whether the match system might be an opaque, inseparable 3D engine. The current evidence disproves that concern.
+
+The remaining difficult task is now **semantic recovery**:
+
+- name the complementary strength dimensions and their weight tables;
+- map event-generation branches to shots, goals, fouls, cards, injuries, possession and other statistics;
+- recover substitution/tactical-command effects during the timeline;
+- validate random distributions against the original.
+
+Those are substantial but conventional reverse-engineering tasks with clear entry points.
