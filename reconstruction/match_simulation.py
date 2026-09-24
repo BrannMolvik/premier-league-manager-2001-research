@@ -30,6 +30,7 @@ from match_events import (
 )
 from match_orders import TeamOrderCategory, select_set_piece_taker
 from match_statistics import SegmentCounters, normalize_segment_statistics
+from match_substitution import apply_ai_substitution
 from match_strength import (
     TeamStrengthContext,
     TeamStrengthPlayer,
@@ -58,6 +59,8 @@ class PreparedMatchPlayer:
     skills: tuple[int, ...]
     minimum_strength_override: bool = False
     active: bool = True
+    substitution_available: bool = False
+    position_aux_code: int = 0
 
     def __post_init__(self) -> None:
         if self.side not in (0, 1):
@@ -72,6 +75,10 @@ class PreparedMatchPlayer:
             raise ValueError("current_position must be in 0..19")
         if not 0 <= int(self.balance_position_code) <= 31:
             raise ValueError("balance_position_code must be in 0..31")
+        if not 0 <= int(self.position_aux_code) <= 15:
+            raise ValueError("position_aux_code must be in 0..15")
+        if self.active and self.substitution_available:
+            raise ValueError("a player cannot be active and substitute-available simultaneously")
         if len(self.preferred_positions) != 3:
             raise ValueError("preferred_positions must contain exactly three entries")
         if len(self.skills) != 17:
@@ -119,6 +126,7 @@ class PreparedMatchSide:
     penalty_taker_priority: tuple[int, ...]
     corner_taker_priority: tuple[int, ...]
     free_kick_taker_priority: tuple[int, ...]
+    starting_player_indices: tuple[int, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.players:
@@ -131,6 +139,21 @@ class PreparedMatchSide:
             raise ValueError("prepared player indices must be unique within a side")
         if self.attack_context.aggression != self.defence_context.aggression:
             raise ValueError("a prepared side must use one team Aggression value")
+
+        if not self.starting_player_indices:
+            starters = tuple(
+                int(player.player_index)
+                for player in self.players
+                if player.active
+            )
+            object.__setattr__(self, "starting_player_indices", starters)
+
+        if len(self.starting_player_indices) > 11:
+            raise ValueError("starting_player_indices cannot contain more than 11 players")
+        if len(set(self.starting_player_indices)) != len(self.starting_player_indices):
+            raise ValueError("starting_player_indices must be unique")
+        if any(int(index) not in indices for index in self.starting_player_indices):
+            raise ValueError("starting_player_indices must reference prepared players")
 
 
     @property
@@ -158,6 +181,9 @@ class PreparedMatchSide:
         for player in self.players:
             if player.player_index == player_index:
                 player.active = False
+                player.substitution_available = False
+                player.current_position = int(player.preferred_positions[0])
+                player.position_aux_code = 0
                 return
         raise KeyError(player_index)
 
@@ -344,15 +370,16 @@ def simulate_normal_match(
 ) -> NormalMatchResult:
     """Run the verified normal-time scoring/chance backbone through minute 90.
 
-    This intentionally does not invent the still-unimplemented AI-substitution
-    routine. It does run the recovered
-    strength builders, 0x62B1A0 attack scheduler, type-1/2/3/4 chance resolvers,
+    This runs the recovered strength builders, 0x62B1A0 attack scheduler,
+    type-1/2/3/4 chance resolvers, the exact RNG(7)-gated AI substitution path,
     exact per-segment territory/possession normalization, HalfTime and FullTime
     boundaries. When condition_injury_settings is supplied, it also runs the
     exact mapped 0x62E6F0 Condition loop and 0x62EAE0 injury-incidence gate.
     The exact 0x62E130 discipline path runs after every attacking sequence;
     sending-off events remove that player from later active chance and strength
-    pools.
+    pools. The scheduler then consumes RNG(7), and on a zero invokes 0x62E2F0
+    for the side opposite the scheduler-selected attacker, preserving the
+    original per-sequence call order.
     """
     if side0.side != 0 or side1.side != 1:
         raise ValueError("simulate_normal_match requires side0.side=0 and side1.side=1")
@@ -439,6 +466,27 @@ def simulate_normal_match(
                     sides[discipline.player_side].deactivate(
                         discipline.player_index
                     )
+
+            # Original 0x62B1A0 consumes this roll after chance,
+            # Condition/injury and discipline. A zero calls 0x62E2F0 for the
+            # side opposite the scheduler-selected attacker.
+            if rng.randbelow(7) == 0:
+                substitution_side = 1 - scheduled.side
+                substitution_team = sides[substitution_side]
+                substitution = apply_ai_substitution(
+                    substitution_side,
+                    scheduled.minute,
+                    scores,
+                    substitution_team.players,
+                    substitution_team.starting_player_indices,
+                    substitution_team.attack_context.user_controlled,
+                    enabled=discipline_enabled,
+                )
+                if substitution is not None:
+                    events.append(TimedMatchEvent(
+                        scheduled.minute,
+                        substitution,
+                    ))
 
         possession_segments.append(SegmentPossession(
             calculation_minute=segment_start,
