@@ -2892,3 +2892,37 @@ That routine was already independently identified as the manager/chairman **fina
 Therefore `EAMManagerSackedFailedBudget` refers to failure of the chairman financial objective/balance target, not the quarterly operating-budget overspending path that can consume building and transfer reserves.
 
 Do not use this sacking event as the route to live transfer-budget storage.
+
+
+## EAMChairmanNotEnoughFunds is emitted from the current-cash affordability gate
+
+RTTI and constructor analysis identifies a distinct chairman notification class:
+
+- type: `EAMChairmanNotEnoughFunds`
+- type descriptor: approximately `0x82C350`
+- Complete Object Locator: `0x7EF838`
+- vtable: `0x7CF428`
+- constructor-like routine: `0x546D30`
+- name method returns `"ChairmanNotEnoughFunds"`
+
+A real gameplay caller exists at `0x4EECA0` inside routine `0x4EEB80`.
+
+The decisive condition immediately preceding that event construction is:
+
+```text
+0x4EEBC1  load requested monetary value from object +0x10
+0x4EEBCC  call 0x4ED9A0
+0x4EEBD3  call 0x404AE0
+0x4EEBD8  test AL
+0x4EEBDA  if affordable -> branch away
+...
+0x4EECA0  call 0x546D30  ; EAMChairmanNotEnoughFunds
+```
+
+`0x404AE0` is the already-proven current-cash affordability helper used in transfer/financial expenditure paths. Thus this chairman event is emitted when the requested amount fails the **current Balance cash** test.
+
+The event constructor receives club/manager/context identifiers at +0x40/+0x44/+0x48; it does not expose the separate chairman transfer-budget reserve.
+
+### Consequence
+
+`EAMChairmanNotEnoughFunds` is another cash-insufficiency notification despite its chairman wording. It is not evidence for a separate transfer-budget hard cap and should not be used as the route to the authoritative live transfer reserve.
