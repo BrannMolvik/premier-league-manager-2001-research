@@ -91,6 +91,32 @@ class RuntimePlayerTests(unittest.TestCase):
         self.assertEqual(player.position_aux_code, 0)
         self.assertEqual(player.balance_position_code, 10)
 
+    def test_runtime_player_exposes_selection_player_index_alias(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(index=42),
+            date(2000, 7, 1),
+            Random(1),
+        )
+        self.assertEqual(player.player_index, 42)
+
+    def test_clear_selection_can_apply_exact_position_reset(self):
+        subject = FakePlayer(positions=(12, 18, 0))
+        player = RuntimePlayer.from_database_player(
+            subject,
+            date(2000, 7, 1),
+            Random(1),
+        )
+        player.assign_match_position(19, 2)
+        player.set_match_active()
+
+        player.clear_match_selection(reset_position=True)
+
+        self.assertFalse(player.match_active)
+        self.assertFalse(player.match_substitute_available)
+        self.assertEqual(player.current_position, 12)
+        self.assertEqual(player.position_aux_code, 0)
+        self.assertEqual(player.balance_position_code, 10)
+
     def test_match_selection_flags_are_mutually_exclusive(self):
         player = RuntimePlayer.from_database_player(
             FakePlayer(),
