@@ -376,3 +376,13 @@ Confirmed:
 - disciplinary probability and escalation are aggression-sensitive;
 - injury generation is condition-sensitive and is separate from the booking/dismissal generator;
 - sent-off players are excluded by downstream lineup/AI state and the calculator limits further dismissal generation through a per-side counter.
+
+
+## Match own-goal representation
+
+Confirmed:
+
+- goal-family record `+0x20` is the scoring-side inversion / own-goal flag;
+- the credited scoring side equals the player's actual side when +0x20 is clear and is flipped when +0x20 is set;
+- FastViewPanel routes same-side attribution to `EventPlayerGoal` and opposite-side attribution to `EventPlayerOwnGoal`;
+- own-goal identity is therefore independent of MatchCalculator goal-family type 0..4.
