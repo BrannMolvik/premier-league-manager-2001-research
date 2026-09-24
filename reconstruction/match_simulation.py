@@ -3,6 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Sequence
 
+from match_condition import (
+    ConditionInjurySettings,
+    ConditionInjuryState,
+    apply_sequence_condition_and_injuries,
+)
 from match_calculator import (
     BoundedRng,
     MatchSkillPlayer,
@@ -32,7 +37,7 @@ from match_strength import (
 )
 
 
-@dataclass(frozen=True)
+@dataclass
 class PreparedMatchPlayer:
     """Evidence-backed player state required by the reconstructed calculator.
 
@@ -116,6 +121,9 @@ class PreparedMatchSide:
         indices = {player.player_index for player in self.players}
         if len(indices) != len(self.players):
             raise ValueError("prepared player indices must be unique within a side")
+        if self.attack_context.aggression != self.defence_context.aggression:
+            raise ValueError("a prepared side must use one team Aggression value")
+
         for name in (
             "penalty_taker_index",
             "corner_taker_index",
@@ -298,6 +306,7 @@ def simulate_normal_match(
     attack_matrix: Sequence[Sequence[Sequence[float]]],
     defence_matrix: Sequence[Sequence[Sequence[float]]],
     rng: BoundedRng,
+    condition_injury_settings: ConditionInjurySettings | None = None,
 ) -> NormalMatchResult:
     """Run the verified normal-time scoring/chance backbone through minute 90.
 
@@ -305,7 +314,9 @@ def simulate_normal_match(
     discipline, injury or AI-substitution routines. It does run the recovered
     strength builders, 0x62B1A0 attack scheduler, type-1/2/3/4 chance resolvers,
     exact per-segment territory/possession normalization, HalfTime and FullTime
-    boundaries.
+    boundaries. When condition_injury_settings is supplied, it also runs the
+    exact mapped 0x62E6F0 Condition loop and 0x62EAE0 injury-incidence gate
+    after every attacking sequence.
     """
     if side0.side != 0 or side1.side != 1:
         raise ValueError("simulate_normal_match requires side0.side=0 and side1.side=1")
@@ -314,6 +325,7 @@ def simulate_normal_match(
     events: list[TimedMatchEvent] = []
     possession_segments: list[SegmentPossession] = []
     scores = [0, 0]
+    condition_state = ConditionInjuryState()
     plan = build_match_phase_plan(extra_time=False, penalties=False)
     boundaries = {boundary.minute: boundary.kind for boundary in plan.boundaries}
 
@@ -356,6 +368,23 @@ def simulate_normal_match(
                 rng,
                 counters,
             ))
+
+            if condition_injury_settings is not None:
+                incidents = apply_sequence_condition_and_injuries(
+                    scheduled.side,
+                    side0.players,
+                    side1.players,
+                    side0.attack_context.aggression,
+                    side1.attack_context.aggression,
+                    scheduled.minute,
+                    condition_injury_settings,
+                    condition_state,
+                    rng,
+                )
+                events.extend(
+                    TimedMatchEvent(scheduled.minute, incident)
+                    for incident in incidents
+                )
 
         possession_segments.append(SegmentPossession(
             calculation_minute=segment_start,
