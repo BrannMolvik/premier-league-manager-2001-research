@@ -190,3 +190,24 @@ When a later analysis disproves an earlier interpretation:
 2. mark historical notes as superseded or remove them;
 3. add an entry here if the mistake is likely to be repeated;
 4. commit the correction before continuing.
+
+
+### Treat 0x877540..0x877562 as one basic_istringstream object
+
+Earlier correction:
+- RTTI for nearby routines identified `std::basic_istream`, `std::basic_istringstream`, `std::basic_streambuf`, and `std::basic_stringbuf`;
+- this was used to conclude that `0x877550..` were bytes inside a global stream object and therefore could not be cheat flags.
+
+Disproof:
+- static initializer `0x515F10` invokes `0x5162A0` on `0x877540`;
+- `0x5162A0` is an ordered-tree constructor with a 16-byte object header, allocated 0x24-byte sentinel node, self-referential tree links, and size/bookkeeping fields;
+- its matching destructor `0x515F50` destroys tree nodes;
+- the streambuf/stringbuf RTTI belongs to a separate routine family beginning around `0x5166A0`.
+
+Conclusion:
+- `0x877540..0x87754F` is a tree container;
+- `0x877550..` are independent globals and may legitimately be command/cheat state;
+- the earlier stream-based rejection of all `0x515FF0..0x5160E0` getters is superseded.
+
+Status:
+- definitively superseded by constructor-level evidence.
