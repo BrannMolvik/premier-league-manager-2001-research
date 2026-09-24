@@ -44,6 +44,7 @@ Implemented and unit-tested reconstruction mechanics:
 - generic day-by-day game calendar with daily/monthly hooks;
 - first-of-month player development execution;
 - mutable Premier League results/standings state over the original 380-match schedule;
+- typed MatchCalculator event records for open play/free kicks/corners/penalties, goal/miss/save outcomes, own goals, bookings/sendings-off/injuries, and match boundaries;
 - real scheduled matchdays reconstructed from Static.dat week/weekday round fields.
 
 - monthly 17-skill age/development curve;
