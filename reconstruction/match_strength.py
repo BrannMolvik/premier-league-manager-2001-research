@@ -86,7 +86,7 @@ class TeamStrengthContext:
     match_bias: int
     user_controlled: bool
     aggression: int = 5
-    captain_player_index: int | None = None
+    captain_priority: tuple[int, ...] = ()
 
     def __post_init__(self) -> None:
         if not 0 <= int(self.tactic_style) <= 3:
@@ -117,14 +117,14 @@ def _coefficient(
 
 def _captain(
     players: Sequence[TeamStrengthPlayer],
-    player_index: int | None,
+    priority: Sequence[int],
 ) -> TeamStrengthPlayer | None:
-    if player_index is None:
-        return None
-    return next(
-        (player for player in players if player.player_index == player_index),
-        None,
-    )
+    by_index = {int(player.player_index): player for player in players}
+    for player_index in priority:
+        player = by_index.get(int(player_index))
+        if player is not None:
+            return player
+    return None
 
 
 def _base_strength(
@@ -174,7 +174,7 @@ def attack_team_strength(
     total *= ATTACK_BIAS_MULTIPLIERS[context.match_bias]
 
     if context.user_controlled:
-        captain = _captain(players, context.captain_player_index)
+        captain = _captain(players, context.captain_priority)
         if captain is not None:
             total *= 0.95 + (captain.confidence + captain.leadership) / 5120.0
         total *= 1.0 + (context.aggression - 5) * 0.02
@@ -199,7 +199,7 @@ def defence_team_strength(
     total *= DEFENCE_BIAS_MULTIPLIERS[context.match_bias]
 
     if context.user_controlled:
-        captain = _captain(players, context.captain_player_index)
+        captain = _captain(players, context.captain_priority)
         if captain is not None:
             total *= 0.90 + (captain.confidence + captain.leadership) / 2560.0
         total *= 1.0 + (context.aggression - 5) * 0.02
