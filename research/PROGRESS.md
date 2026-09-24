@@ -1476,6 +1476,26 @@ Dedicated type-2/type-3 resolvers are not fabricated: the open-play function ret
 
 Next target: reverse and implement type-2 free kicks and type-3 corners, then integrate all chance families beneath the five-minute team-strength/frequency driver.
 
+
+
+## Free-kick / corner resolver implementation checkpoint
+
+The post-taker-selection type-2 and type-3 resolvers are now implemented in reconstruction/match_calculator.py with deterministic branch tests.
+
+Implemented:
+
+- Shooting-vs-Passing ×1.2 direct/free-kick delivery choice;
+- cached-context direct and receiver overrides;
+- direct free-kick Shooting path;
+- Set Piece execution gates and possession increments;
+- receiver selection, cached forced-heading behavior, and corner receiver!=taker rule;
+- shared duel/accuracy/goalkeeper and failed-duel transitions;
+- type-2/type-3 presentation-variant behavior without side inversion.
+
+The only upstream piece intentionally outside these functions is Team Orders taker selection; category 3 free-kick and category 2 corner priority lists are already mapped separately.
+
+Primary next target: recover the five-minute chance-generation frequency/team-strength driver sufficiently to invoke the exact type-1/2/3/4 resolvers and produce a complete normal league match result.
+
 ## Active Investigation
 
 Primary focus: complete and implement the exact type-1 ordinary/open-play resolver, then connect verified MatchCalculator output to scheduled fixtures.
