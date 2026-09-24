@@ -44,12 +44,13 @@ Decoded counts in this release:
 - uint32 club count at file +0
 - 1,246 club records
 - club record size: 181 bytes
-- after club records, a player-section count/header is present
+- after club records: uint32 player count (=30,064)
 - 30,064 player records
 - player record size: 103 bytes
-- remaining tail contains 1,612 manager records
+- after player records: uint32 manager count (=1,612)
+- 1,612 manager records
 - manager record size: 43 bytes
-- manager tail is followed by two bytes
+- manager array ends exactly at EOF
 
 ### Club records
 
@@ -61,59 +62,67 @@ Confirmed fields:
 - +30 uint16: stadium-name string ID
 - +44 uint16: badge-file string ID
 - +46 uint16: sponsor string ID
-- +48 uint16: manager record ID
+- +48 uint32: manager record ID
 
 Record 0 resolves to Arsenal and includes strings/assets for Arsenal/Highbury.
 
 ### Player records
 
-The earlier player-field map was corrected after tracing EA's actual compact importer.
+EA's actual compact importer at `0x418B90` proves the 103-byte layout and expands each record into a 592-byte runtime `DBRPlayer`.
 
 Confirmed:
 
-- player section header is 4 bytes: uint32 count = 30,064
+- player section header is exactly 4 bytes: uint32 count = 30,064
 - compact record size: 103 bytes
 - +0 uint16: player record ID
 - +2 uint16: first-name ID in `Core.str`
 - +4 uint16: surname ID in `Core.str`
-- +6 uint16: club record index
+- +6 uint16: current club record index
 - +8 uint8: nationality ID
+- +9 uint8: primary/default zero-based position code
 - +14 uint32: date of birth, OLE-style serial date using epoch 1899-12-30
+- +18 uint8: shirt/squad number
 - +19 uint8: height in centimeters
 - +20 uint8: weight in kilograms
 - +21..+23: three zero-based position codes
-- +24..+40: first 17-byte skill-related array
-- +41..+57: second 17-byte skill-related array
+- +24..+40: 17 current-skill bytes
+- +41..+57: 17 corresponding peak/development-target bytes
 
-Strongly verified:
+The complete skill order is:
 
-- +9 behaves as a primary/default zero-based position code
-- +18 behaves as shirt/squad number
+`Speed, Strength, Stamina, Determination, Injury Proneness, Passing, Shooting, Tackling, Heading, Control, Technique, Awareness, Agility, Goalkeeping, Confidence, Leadership, Set Piece`.
 
-Example first records resolve correctly when aligned to the true boundary:
-- record 0: David Seaman, Arsenal, English, goalkeeper
-- record 1: Lee Dixon, Arsenal, English, right back
-- record 2: Nigel Winterburn, Arsenal, English, left back
+Exact raw-byte to displayed 0..30 conversion:
 
-The exact labels and relationship of the paired 17-byte skill arrays remain under active investigation.
+`floor((30*raw + 128) / 255)`
+
+Examples under the corrected alignment:
+- record 0: David Seaman, club ID 0 (Arsenal)
+- record 1: Lee Dixon, club ID 0 (Arsenal)
+- record 2: Nigel Winterburn, club ID 18 (West Ham United)
+- record 3: Steve Bould, club ID 105 (Sunderland)
+- record 4: Tony Adams, club ID 0 (Arsenal)
+
+The second 17-byte array is a peak/development target, not an invariant hard ceiling; target values lower than current are valid and are handled by the recovered aging/development formulas.
 
 ### Manager records
 
+The manager section begins with a uint32 count (=1,612), followed by 1,612 packed 43-byte records ending exactly at EOF.
+
 Confirmed fields:
 
-- +6 uint16: first-name string ID in `Core.str`
-- +8 uint16: surname string ID in `Core.str`
-- +10 uint32: date of birth, OLE-style serial date
-- +22 uint32: date joined club
-- +29 uint32: club ID; `0xffffffff` indicates no current club
+- +0 uint32: manager record ID
+- +4 uint16: first-name string ID in `Core.str`
+- +6 uint16: surname string ID in `Core.str`
+- +8 uint32: date of birth, OLE-style serial date
+- +20 uint32: date joined club
+- +27 uint32: club ID; `0xffffffff` indicates no current club
 
 Examples:
 
-- manager record 10 resolves to Alex Ferguson
-- DOB decodes to 1941-12-31
-- joined club decodes to 1986-11-06
-- club link resolves to Manchester United
-- Arsenal club record points to manager record 204, resolving to Arsène Wenger
+- manager 10 -> Alex Ferguson, DOB 1941-12-31, joined 1986-11-06, club ID 10
+- manager 204 -> Arsène Wenger, DOB 1958-01-01, joined 1996-09-30, club ID 0 (Arsenal)
+- Arsenal club record points to manager record 204
 
 ## Static.dat
 
@@ -167,6 +176,41 @@ Verified source-path/module strings include:
 - `Libraries\\MatchEngine\\MatchEngine.cpp`
 
 RTTI also exposes record/table classes for clubs, players, managers, countries, nationalities, positions, statuses, rounds, competitions, league allocation, cup allocation, fixtures, manager ratings/sacking, formations and additional systems.
+
+## Player development and training
+
+Confirmed:
+
+- runtime player size is 592 bytes;
+- current skills are runtime +0x1E..+0x2E;
+- development targets are runtime +0x2F..+0x3F;
+- baseline skill snapshot is +0x111..+0x121;
+- individualized age peaks are stored at +0x123/+0x124/+0x125;
+- shipped peak ranges are physical 25-26, outfield skill 27-29, goalkeeper/late group 30-32, with AGEPeakPeriod = 5;
+- the main development recalculation is monthly and uses the recovered piecewise age interpolation/decline formulas;
+- each club owns 40 × 200-byte per-player training records;
+- training methods are 0 rest/recovery, 1 attacking, 2 midfield, 3 defensive, 4 goalkeeper, 5 fitness, 6 technique;
+- active training success uses `random(0..99) < profileWeight * Q * 0.5`;
+- Youth Team Coach quality sets Q to 1.25/1.30/1.35/1.40/1.45, Assistant Manager fallback gives 1.25, and a Training Centre adds 0.25;
+- a successful active-training skill step adds +8 raw skill while below the development target.
+
+## Contracts, transfers and finance
+
+Confirmed:
+
+- player weekly wage is runtime +0xC4;
+- player contract expiry is runtime +0x154;
+- negotiated contract terms include wage, signing-on fee, promotion bonus, contract length, appearance fee, relegation transfer-request clause, big-club clause, big-money clause, house and car;
+- live transfer proposal is 0x50 bytes and supports up to three exchange players;
+- `CDealInProgress` is 0x68 bytes;
+- `CPlayerMovement` is a 0x18-byte completed-transfer history record;
+- movement fee sentinel 1 means free transfer and 2 means Bosman;
+- state 2/5 in the deal-state family is the player-rejected/declined-contract outcome; +3 denotes swap/exchange variants;
+- completed transfers use MPM transfer-execution objects, log history, switch the player's club, stamp join date and clear transient transfer state;
+- buyer cash is debited and seller cash credited by the same transfer amount through Balance.cpp;
+- live cash/balance and chairman-assigned transfer budget are separate concepts;
+- chairman/start-season/monthly budget message layouts and all global budget-default addresses are mapped;
+- the authoritative live transfer-budget store is still unresolved.
 
 ## Match subsystem
 
