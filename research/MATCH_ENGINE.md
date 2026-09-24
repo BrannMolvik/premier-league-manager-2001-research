@@ -487,7 +487,7 @@ Confirmed behavior:
 
 Thus this routine is not a generic match-event generator; it is the automatic substitution decision path.
 
-### 0x62E6F0 is recurring player condition/energy decay
+### 0x62E6F0 is recurring player Condition decay
 
 Routine `0x62E6F0` runs repeatedly during the match and iterates players on both sides.
 
@@ -497,7 +497,7 @@ Helper `0x62E6C0` derives a player-specific probability threshold from player/ru
 - it is decremented by one;
 - `0x62EAE0(player, time/segment)` is called to propagate the update.
 
-This is conclusively a recurring decrement/update of a player condition-like match attribute. Because the executable also exposes `EventPlayerUpdateEnergy`, the strongest current hypothesis is that `+0x77` is an energy/condition value, but the exact event bridge is still being traced and the field should not yet be given a final name.
+This is conclusively a recurring decrement of player **Condition**. The identification is now exact: tuning loader `0x5039A6..0x5039DC` maps literal key `ConditionInjuryInducingLevel` to global `0x821814`, and the injury path compares player `+0x77` directly against that value. The following tuning key `ConditionInjuryRandomiser` maps to `0x821818`. `0x62EAE0` is therefore an injury check run after Condition changes, not an energy-event notifier.
 
 ### Significance
 
@@ -509,3 +509,101 @@ The five-minute simulation now separates into clearer responsibilities:
 - recurring player condition/energy-like decay.
 
 This further reduces the backend reconstruction problem to finite, independently traceable systems.
+
+
+## Type-5 incident subtypes resolved: booked / sent off / injured
+
+The three type-5 per-player status bytes are now semantically resolved.
+
+### Status-byte order
+
+The global per-side/per-player matrix beginning at approximately `0xA14828` stores three bytes per player:
+
+1. byte 0 -> **Booked**
+2. byte 1 -> **Sent Off**
+3. byte 2 -> **Injured**
+
+The executable contains the corresponding FastView/tactics art assets:
+
+- `reused_Art\FastView\Tactics_Booked.444`
+- `reused_Art\FastView\Tactics_SentOff.444`
+- `reused_Art\FastView\Tactics_Injured.444`
+
+The semantics are independently proven by the MatchCalculator creation paths rather than assigned from the filenames alone.
+
+### Booking / yellow-card path
+
+Disciplinary routine `0x62E130` uses player runtime `+0x1B7` as a 0..9 user-adjustable aggression value.
+
+For a selected player whose per-match byte `+0x48` is still clear, one branch creates a type-5 record through `0x62EF20` with:
+
+- record `+0x20 = 0`
+- record `+0x18 = 1`
+
+The MatchController then calls `0x6C28F0`, setting status-matrix byte 0.
+
+The generator sets player-match byte `+0x48 = 1`, so a later disciplinary event knows that the player has already been booked.
+
+Thus type-5 subtype/flag 0 is **Booked / yellow card**.
+
+### Sending-off / red-card path
+
+A later branch in the same aggression-sensitive routine can create:
+
+- record `+0x20 = 0`
+- record `+0x18 = 0`
+- record `+0x1C = 1`
+
+The MatchController routes this to `0x6C2910`, setting status-matrix byte 1.
+
+The calculator additionally:
+
+- sets per-player match byte `+0x49 = 1`;
+- increments a per-side count at match record `+0xD74 + side*4`;
+- restricts the branch so the side count remains below four before another dismissal is generated;
+- calls player routine `0x4181B0`, removing/resetting the player from active selection state.
+
+Lineup/AI routines that copy the three-byte status matrix specifically test the **second byte** to exclude the affected player from active on-field selection.
+
+Thus subtype/flag 1 is **Sent Off / red card**.
+
+The logic also supports a direct-red-style branch: an unbooked high-aggression player can bypass the booking branch and proceed to the dismissal probability test.
+
+### Injury path
+
+The third type-5 encoding is created by `0x62EAE0`, a separate condition-driven injury routine.
+
+It is reached after recurring Condition decay and computes injury probability from:
+
+- match/context state;
+- player status;
+- player **Condition at +0x77**;
+- tuning global `0x821814 = ConditionInjuryInducingLevel`.
+
+When an injury is generated, `0x62EF20` is called with the form that produces:
+
+- record `+0x20 = 1`
+
+The MatchController routes this to `0x6C2930`, setting status-matrix byte 2.
+
+The same injury path then attempts replacement/substitution where permitted, including creation of a type-10 substitution record.
+
+Thus subtype/flag 2 is **Injured**.
+
+### Player +0x1B7 = Aggression
+
+Player runtime byte `+0x1B7` is initialized to 5 and exposed through UI increment/decrement controls clamped to 0..9.
+
+The MatchCalculator RTTI contains a named `AggressionCommand` class, and disciplinary routine `0x62E130` uses `+0x1B7` repeatedly to control both the overall disciplinary-event probability and escalation from booking to dismissal.
+
+This establishes `player +0x1B7` as the player's **Aggression instruction/setting**.
+
+### Reconstruction consequence
+
+Type-5 can now be reconstructed with explicit semantics:
+
+- booked/yellow card;
+- sent off/red card;
+- injury.
+
+The match engine therefore has a compact, recoverable discipline/injury state model rather than an opaque incident system.
