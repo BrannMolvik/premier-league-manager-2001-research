@@ -456,6 +456,19 @@ Getter `0x515FF0` -> byte `0x877550` is confirmed as `/nofmvplease777`: startup 
 
 This validates the corrected interpretation that `0x877550+` contains real developer-command state.
 
+
+## Match developer-command checkpoint
+
+Confirmed command-state mappings:
+
+- `0x877554` / getter `0x516040` -> `/alwayswin777`
+- `0x877555` / getter `0x516050` -> `/alwayslose777`
+- `0x877556` / getter `0x516060` -> `/countrywin777`
+- `0x877557` / getter `0x516070` -> `/countrylose777`
+- `0x877558` / getter `0x516080` -> `/skipmatchcalc777`
+
+The mappings are established from direct match-result override behavior in `0x512D80` and the calculation bypass at `0x5130DC`.
+
 ## Active Investigation
 
 Current focus: (1) trace how the recovered literal pointer table at `0x828510..0x828568`, tree container at `0x877540..0x87754F`, and state bytes at `0x877550+` connect; (2) trace board-budget event production/live business-consultant state because the mapped `TransferBudget` config globals have no executable reads. Prove `/cash777` and `/budget777`, then connect completed transfer postings to the live transfer-budget bucket.
