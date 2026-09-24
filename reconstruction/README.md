@@ -21,7 +21,8 @@ Current parser support includes:
 - complete 17-skill ordering;
 - exact FM2001 raw-byte -> 0..30 display conversion;
 - manager names, DOB, joined-club dates and club links;
-- Static.dat position names.
+- Static.dat position names;
+- the verified 380-match Premier League fixture table (38 rounds × 10 fixtures).
 
 Run:
 
@@ -42,6 +43,7 @@ Implemented and unit-tested reconstruction mechanics:
 - mutable runtime player state initialized from the parsed database;
 - generic day-by-day game calendar with daily/monthly hooks;
 - first-of-month player development execution;
+- mutable Premier League results/standings state over the original 380-match schedule.
 
 - monthly 17-skill age/development curve;
 - exact peak-age grouping and shipped peak-range behavior;
