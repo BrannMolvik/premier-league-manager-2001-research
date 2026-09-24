@@ -1140,6 +1140,29 @@ Local regression status: **20/20 tests pass** across development/training/runtim
 
 This moves the reconstruction from a data browser toward an actual advancing game state.
 
+
+
+## Premier League fixture/table reconstruction checkpoint
+
+The clean-room parser now reads the verified real Premier League fixture table from `Static.dat` at `0x10057`.
+
+Confirmed against the original extracted files:
+
+- 380 fixtures;
+- 38 round indices;
+- exactly 10 fixtures per round;
+- 20 participating clubs;
+- each club appears in 38 fixtures;
+- each club has 19 home and 19 away fixtures.
+
+New reconstruction module `competition_state.py` provides mutable fixture results and league standings (P/W/D/L/GF/GA/GD/points) plus next-unplayed-round selection.
+
+The exact FM2001 equal-points fallback after points/goal difference/goals scored is not yet traced, so that final tie-break is isolated in one sort function for later correction.
+
+Regression status: **23/23 tests pass**, plus the original data integrity check above.
+
+This gives the reconstruction its first real season competition state: original teams/fixtures can now receive match results and produce a league table.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
