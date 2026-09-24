@@ -2,7 +2,12 @@ import unittest
 from dataclasses import dataclass
 
 from match_lineup import AI_FORMATIONS
-from match_preparation import prepare_ai_match_selection
+from match_orders import TeamOrderPriorities
+from match_preparation import (
+    build_prepared_match_side_from_selection,
+    prepare_ai_match_selection,
+)
+from match_team_setup import TeamTacticalState
 
 
 @dataclass
@@ -20,6 +25,8 @@ class Player:
     suspended: bool = False
     selection_excluded: bool = False
     non_eu: bool = False
+    condition: int = 80
+    balance_position_code: int = 10
 
     def assign_match_position(self, role, auxiliary_code):
         self.current_position = int(role)
@@ -207,6 +214,98 @@ class AiMatchPreparationTests(unittest.TestCase):
 
         self.assertEqual(len(prepared.lineup.starters), 11)
         self.assertFalse(prepared.non_eu_restriction_relaxed)
+
+    def test_selected_runtime_state_bridges_to_side_local_match_indices(self):
+        roster = list(reversed(formation_zero_roster()))
+        selected = prepare_ai_match_selection(
+            7,
+            roster,
+            formation_id=0,
+            substitute_quota=0,
+        )
+
+        prepared = build_prepared_match_side_from_selection(
+            selected,
+            side=0,
+            tactical_state=TeamTacticalState(
+                play_style=0,
+                without_ball_style=3,
+                with_ball_style=2,
+                aggression=7,
+            ),
+            user_controlled=True,
+            team_orders=TeamOrderPriorities(
+                captain=(10,),
+                penalty=(9,),
+                corner=(8,),
+                free_kick=(7,),
+            ),
+        )
+
+        # Participant order, not persistent player ID, defines match identity.
+        self.assertEqual(
+            [item.player_index for item in prepared.players],
+            list(range(11)),
+        )
+        self.assertEqual(
+            [item.preferred_positions[0] for item in prepared.players],
+            [item.preferred_positions[0] for item in selected.participants],
+        )
+
+        persistent_to_local = {
+            subject.player_index: local
+            for local, subject in enumerate(selected.participants)
+        }
+        self.assertEqual(
+            prepared.attack_context.captain_priority,
+            (persistent_to_local[10],),
+        )
+        self.assertEqual(
+            prepared.penalty_taker_priority,
+            (persistent_to_local[9],),
+        )
+        self.assertEqual(
+            prepared.corner_taker_priority,
+            (persistent_to_local[8],),
+        )
+        self.assertEqual(
+            prepared.free_kick_taker_priority,
+            (persistent_to_local[7],),
+        )
+
+        self.assertEqual(prepared.attack_context.tactic_style, 2)
+        self.assertEqual(prepared.defence_context.tactic_style, 3)
+        self.assertEqual(prepared.attack_context.match_bias, 3)
+        self.assertEqual(prepared.defence_context.match_bias, 3)
+        self.assertEqual(prepared.attack_context.aggression, 7)
+        self.assertEqual(prepared.defence_context.aggression, 7)
+
+        expected_starters = tuple(
+            persistent_to_local[assignment.player_index]
+            for assignment in selected.lineup.starters
+        )
+        self.assertEqual(prepared.starting_player_indices, expected_starters)
+        self.assertTrue(all(item.condition == 80 for item in prepared.players))
+        self.assertTrue(
+            all(item.balance_position_code == 10 for item in prepared.players)
+        )
+
+    def test_missing_priority_player_id_is_omitted_from_match_priority(self):
+        roster = formation_zero_roster()
+        selected = prepare_ai_match_selection(
+            7,
+            roster,
+            formation_id=0,
+            substitute_quota=0,
+        )
+        prepared = build_prepared_match_side_from_selection(
+            selected,
+            side=0,
+            tactical_state=TeamTacticalState(),
+            user_controlled=True,
+            team_orders=TeamOrderPriorities(captain=(999, 0)),
+        )
+        self.assertEqual(prepared.attack_context.captain_priority, (0,))
 
     def test_incomplete_xi_raises_before_mutating_existing_state(self):
         subject = player(
