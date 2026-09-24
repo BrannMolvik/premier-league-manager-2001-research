@@ -11,6 +11,7 @@ from match_events import (
     IncidentRecord,
     MatchTimeline,
     PossessionRecord,
+    SubstitutionRecord,
     SUBSTITUTION_RECORD_TYPE,
 )
 
@@ -75,6 +76,15 @@ class MatchEventTests(unittest.TestCase):
         self.assertEqual(int(IncidentKind.INJURED), 2)
         incident = IncidentRecord(2, 1, 7)
         self.assertEqual(incident.kind, IncidentKind.INJURED)
+
+    def test_substitution_record_carries_verified_type_10_payload(self):
+        event = SubstitutionRecord(1, 7, 14)
+        self.assertEqual(event.player_side, 1)
+        self.assertEqual(event.outgoing_player_index, 7)
+        self.assertEqual(event.incoming_player_index, 14)
+
+        with self.assertRaises(ValueError):
+            SubstitutionRecord(2, 7, 14)
 
     def test_type_zero_is_rejected_as_active_chance_source(self):
         with self.assertRaises(ValueError):
