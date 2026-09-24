@@ -946,6 +946,28 @@ Detailed evidence is in `research/MATCH_ENGINE.md`; reproducible format checks a
 
 Match-side next target when this branch resumes: map the MatchRecord state and the three normal calculation stages, then trace semantic event generation before attempting exact SCI/MOAI playback.
 
+
+
+## Core match-calculator loop checkpoint
+
+The uncertain backend has now been traced beyond architecture into its actual simulation shape.
+
+Corrections/new findings:
+
+- `0x667E20`, previously listed as a possible third calculation stage, is a no-op `ret`;
+- `0x62AC90` initializes match/player state;
+- `0x62FBC0` drives repeated calls to main simulation routine `0x62AE90`;
+- normal time is simulated in **5-minute chunks** (5..40, boundary 45, then 50..85);
+- extra time uses 95/100, boundary 105, then 110/115;
+- penalty state begins at minute 90 or 120 depending whether extra time is used;
+- `0x62B1A0` is the five-minute segment simulator;
+- its two symmetric strength routines `0x62F140` / `0x62F3E0` iterate players and all **17 current skills**, apply role/context/tactical weight tables, and return floating team aggregates;
+- segment outcomes are then sampled through RNG `0x64D5B0` and dispatched into lower event-generation routines.
+
+This materially strengthens feasibility: the backend is a finite, discrete weighted event simulator with recoverable formulas, not an inseparable 3D simulation.
+
+Exact next match target: map `0x62C740` and the `0x62E1xx/0x62E2xx/0x62E6xx` event branches to semantic outcomes (shots/goals/fouls/cards/injuries/possession), then identify the two team-strength dimensions.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
