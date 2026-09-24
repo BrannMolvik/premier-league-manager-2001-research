@@ -778,6 +778,22 @@ and its periodic routine `0x5E5640` can credit current cash through Balance rout
 Therefore +0x690 is the **food/concession offer subsystem**, not the transfer/building reserve.
 
 Exact next target: continue with the quarterly chairman rebudget producer / remaining board-state owner rather than +0x690.
+
+
+## Sponsor-offer object checkpoint
+
+The persistent object at game/session **+0x69C** is now identified as the sponsor-offer/sponsor-state subsystem. Its update routine `0x617C80` consumes tuning values loaded from:
+
+- `FSNoSponsorMinWait`
+- `FSNoSponsorMaxWait`
+- `FSHaveSponsorMinWait`
+- `FSHaveSponsorMaxWait`
+
+with the same loader family continuing into `FSOfferMinLifeTime`.
+
+Therefore +0x69C is not chairman transfer-budget storage.
+
+Exact next target: trace the quarterly budget-failure/sacking path (including `EAMManagerSackedFailedBudget`) and the remaining board-state/event scheduler objects rather than guessing additional club fields.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
