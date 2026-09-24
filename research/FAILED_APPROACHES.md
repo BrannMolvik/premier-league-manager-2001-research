@@ -455,3 +455,22 @@ Conclusion:
 
 Status:
 - ruled out as transfer-budget storage/check.
+
+
+## Treat game/session +0x6B0 as possible chairman budget state
+
+Why it looked plausible:
+- very large persistent object;
+- contributes values to monthly finance history;
+- contained multiple arrays and an internal list object.
+
+Disproof:
+- internal vtable RTTI identifies `CEntriesList`;
+- club setup passes the stadium/map asset into `0x65D5B0` on this object;
+- load failure formats EA's explicit `Unable to load stadium ... building screens, and ticketing will not work!` message.
+
+Conclusion:
+- game/session +0x6B0 is stadium/entry/building/ticketing state, not chairman budget storage.
+
+Status:
+- ruled out.
