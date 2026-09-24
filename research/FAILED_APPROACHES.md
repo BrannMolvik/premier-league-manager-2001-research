@@ -492,23 +492,6 @@ Status:
 - ruled out.
 
 
-## Treat DBRUser +0x588..+0x5AC as the five chairman quarterly budgets
-
-Why it looked promising:
-- five adjacent qword-style financial values;
-- the chairman operating-budget system has five quarterly categories.
-
-Disproof:
-- the initialization path is fed by media-rights tuning globals whose names include `LRADIO_RES`, `NRADIO_RES`, `NTV_RES`, and `EUROPEAN_RES`;
-- the surrounding tuning family is broadcast/media revenue, not chairman budget allocation.
-
-Conclusion:
-- DBRUser +0x588..+0x5AC is media-rights/commercial finance state, not the five chairman quarterly budgets.
-
-Status:
-- ruled out.
-
-
 ## Treat DBRUser +0x5B8..+0x5D8 as grouped chairman budget state
 
 Why it looked plausible:
