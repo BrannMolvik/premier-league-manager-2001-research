@@ -1,6 +1,6 @@
 # Premier League Manager 2001 Reverse-Engineering Progress
 
-_Last updated: 23 September 2026_
+_Last updated: 24 September 2026_
 
 ## Purpose
 
@@ -95,9 +95,7 @@ The player database investigation has now separated two representations that mus
 - initial `Master.dat` player records: 103 bytes each
 - runtime `DBRPlayer` objects: 592 bytes each (`0x250`)
 
-The runtime/save reader contains two adjacent 17-byte arrays, while the compact master record contains an 18-byte characteristic/skill-related block. Exact conversion between these representations is now the active target.
-
-The earlier clean-room prototype's linear 0–30 conversion is explicitly treated as provisional, not a recovered game formula.
+Both the compact Master.dat player record and the runtime DBRPlayer contain two adjacent 17-byte skill arrays. They are now identified as current skills and corresponding peak/development targets. The complete 17-skill ordering and exact raw-to-0..30 conversion have been recovered.
 
 
 
@@ -331,7 +329,7 @@ Also corrected: proposal helper 0x4F0460 simply tests whether any exchange-playe
 The actual player-movement path is now traced:
 
 - MPMTryExecuteTransfer stores buyer/seller clubs and gates execution on per-player deal states.
-- states 2/5 strongly behave as counter-offer / renewed-terms-required; states 1/4 satisfy the ready-to-progress predicate. Exact enum names remain deliberately unconfirmed.
+- states 2/5 are the player-rejected/declined-contract family; states 1/4 satisfy the ready-to-progress predicate. The +3 offset marks swap/player-exchange variants.
 - MPMTransferPlayer ultimately calls player routine 0x4229B0.
 - 0x4229B0 logs CPlayerMovement history, stages negotiated contract terms, and invokes the club-switch path.
 - 0x422F70 writes the new club IDs, stamps the current-club join date, and resets temporary transfer/status state.
@@ -391,7 +389,10 @@ The board/business budget defaults are now mapped to their exact globals, includ
 Also verified: the generic event allocator's A3/A4 tags are not EAM IDs. `bcstartseasonmail` still identifies itself as event A0, and `bcmonthlybudget` as A1.
 
 
-## Finance cheat trace checkpoint
+## Finance cheat trace checkpoint — SUPERSEDED
+
+This checkpoint is historical and was superseded by the RTTI correction below. Do not use these getter labels.
+
 
 Before continuing the live transfer-budget search, the current cheat-code evidence is now preserved:
 
@@ -400,7 +401,10 @@ Before continuing the live transfer-budget search, the current cheat-code eviden
 - exact labels remain provisional until getter globals are tied back to the literal command-line strings.
 
 
-## Cash/budget cheat mapping checkpoint
+## Cash/budget cheat mapping checkpoint — SUPERSEDED
+
+This checkpoint is historical and was superseded by the RTTI correction below. Do not use these getter labels.
+
 
 The finance cheat split is now resolved:
 
