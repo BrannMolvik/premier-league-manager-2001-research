@@ -858,15 +858,6 @@ So this block is media-rights/reserve state, not chairman budget storage. The ap
 Exact next target: continue mapping unresolved DBRUser finance/board fields and trace the periodic board-budget producer that supplies `EAMchairbudgetsettings +0x58`.
 
 
-## DBRUser media-rights block checkpoint
-
-A five-qword financial-looking block at DBRUser `+0x588..+0x5AC` was tested as a possible match for the five chairman quarterly operating budgets.
-
-It is **not** that structure: the initialization path is fed by radio/TV/European media-rights tuning keys including `LRADIO_RES`, `NRADIO_RES`, `NTV_RES`, and `EUROPEAN_RES`.
-
-So the five-value resemblance is coincidental. Continue the chairman-budget search elsewhere in DBRUser-derived state / board calculation paths.
-
-
 ## DBRUser support-staff list checkpoint
 
 The repeated DBRUser triplets at **+0x5B8, +0x5C4 and +0x5D0** are now identified as list containers for RTTI class **CSupportStaff**. Load code reconstructs 0x218-byte CSupportStaff objects and appends them through the common list helper. The adjacent +0x5E0 triplet is also list/container state.
@@ -876,16 +867,28 @@ Therefore this structured DBRUser block is not chairman budget storage.
 Exact next target: continue through the monthly/calendar path at `0x42AEB0` and its downstream board/business logic, looking for the producer or derivation supplying `EAMchairbudgetsettings +0x58 = TRANSFERBUDGET`.
 ## Active Investigation
 
-Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
+Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
+
+Confirmed constraints that define the search:
+
+- transfer purchases are gated by current cash, stored at active Balance +0x10;
+- transfer fees are posted through accounting category 1000;
+- the chairman transfer budget is a separate mutable reserve/reference allocation;
+- automatic extra-transfer success notifications are presentation-only, so their mutation occurs earlier in board/finance logic;
+- quarterly overspending can consume building and transfer reserves;
+- EAMchairbudgetsettings +0x58 is the displayed TRANSFERBUDGET value;
+- DBRClub shortcut blocks, Balance objective records, funding-request state, bank loans, concessions, sponsors, stadium state and the DBRUser media-rights block have all been ruled out as the live transfer-budget store;
+- CMonthHistory at DBRUser +0x6DC is a confirmed persistent monthly financial-history input and remains a possible ingredient in quarterly recalculation.
 
 Immediate next steps:
 
-1. Trace xrefs to TransferBudget tuning/global state and identify the runtime current-transfer-budget field.
-2. Determine how completed purchases/sales adjust transfer budget versus cash balance.
-3. Map proposal trailing fields +0x40..+0x4C through their readers/writers.
-4. Identify accounting category code 1000 from the finance/cash-flow UI hierarchy.
-5. Finish exact CDealInProgress state names if named callbacks provide decisive evidence.
-6. Then broaden into club finances and season AI.
+1. Map remaining unresolved DBRUser finance/board fields and periodic board routines that can populate EAMchairbudgetsettings, especially +0x58.
+2. Determine whether transfer budget is persisted directly or reconstructed from financial history, category-1000 transfer flow, and board reserve rules.
+3. Once the transfer-budget derivation is proven, trace exactly how purchases, sales, quarterly overspending and automatic chairman increases change the displayed allocation.
+4. Map remaining transfer-proposal fields +0x40/+0x44/+0x4C.
+5. Finish exact CDealInProgress state names where named callbacks provide decisive evidence.
+6. Return to the cheat-command decoder as a secondary line of work; /cash777 behavior is confirmed, while 0x877552 / /budget777 remains unresolved.
+7. Then broaden into season AI, scouting/youth, save serialization and the match engine/FastView.
 
 ## Persistence / Checkpoint Rule
 
