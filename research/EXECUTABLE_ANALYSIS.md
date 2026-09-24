@@ -2620,3 +2620,32 @@ Consequently the gameplay producer for budget-settings/warning events is likely 
 A consecutive copy block around `DBRClub +0x21C..+0x234` initially resembled a possible persistent budget block. Broader xref inspection shows these offsets participate in unrelated club/runtime operations and mixed pointer/index/byte behavior. There is no evidence that they represent the chairman budget array.
 
 Do not label `DBRClub +0x21C..+0x234` as budget storage without new independent evidence.
+
+
+## Stadium/Groundsman no-budget events are current-cash expenditure checks
+
+The named event classes adjacent to the monthly-business events are now tied to real gameplay producers:
+
+- event ID 0x9C = `EAMsmnobudget` ("Stadium Manager no budget")
+- event ID 0x9D = `EAMgdnobudget` ("Groundsman no budget")
+
+Their formatters use EA's own `STADIUMMANAGER` and `GROUNDSMAN` keys.
+
+Direct gameplay construction occurs in the expenditure routines around `0x5D2130..0x5D2A8F`, including:
+
+- `0x5D230E -> 0x571E80` for the Groundsman no-budget message
+- `0x5D23DB -> 0x571BF0` for the Stadium Manager counterpart
+- analogous repeated paths at `0x5D2834` / `0x5D28FE`
+
+The surrounding code proves these are **current-cash affordability** checks, not the chairman transfer-budget reserve:
+
+1. requested cost is converted to the common finance value representation;
+2. active Balance is fetched from game/session +0x670;
+3. current cash is read from Balance +0x10 via `0x5E48D0`;
+4. requested cost is compared against cash;
+5. if affordable, `0x5DC650` is called to debit Balance;
+6. if not affordable, the appropriate Stadium Manager/Groundsman no-budget event is emitted.
+
+This gives another independent example where a user-facing "no budget" message actually corresponds to **cash availability**, reinforcing the need not to infer chairman reserve storage from message wording alone.
+
+These routines are building/facility expenditure logic, not the quarterly transfer/building-reserve rebudget path.
