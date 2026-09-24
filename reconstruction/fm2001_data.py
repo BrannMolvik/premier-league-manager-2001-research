@@ -13,6 +13,8 @@ PLAYER_SKILLS = (
     'Awareness','Agility','Goalkeeping','Confidence','Leadership','Set Piece'
 )
 OLE_EPOCH = date(1899, 12, 30)
+COUNTRY_TABLE_OFFSET = 0x004A
+COUNTRY_RECORD_SIZE = 43
 COMPETITION_TABLE_OFFSET = 0x2726
 COMPETITION_RECORD_SIZE = 53
 ROUND_TABLE_OFFSET = 0x4F1F
@@ -64,6 +66,7 @@ class Club:
     short_name: str
     stadium: str
     manager_id: int
+    country_id: int = 0
 
 @dataclass(frozen=True)
 class Player:
@@ -79,6 +82,7 @@ class Player:
     positions: tuple[int, int, int]
     current_raw: tuple[int, ...]
     target_raw: tuple[int, ...]
+    eu_status_code: int = 2
 
     @property
     def full_name(self):
@@ -107,6 +111,15 @@ class Manager:
     @property
     def full_name(self):
         return f'{self.first_name} {self.surname}'.strip()
+
+@dataclass(frozen=True)
+class CountryDefinition:
+    id: int
+    name: str
+    nationality_id: int
+    european_index: int
+    eu_status_flag: int
+    continent_id: int
 
 @dataclass(frozen=True)
 class Position:
@@ -154,12 +167,14 @@ class FM2001Database:
         self.clubs = []
         self.players = []
         self.managers = []
+        self.countries = []
         self.positions = []
         self.competitions = []
         self.rounds = []
         self.real_fixtures = []
         self._parse_master()
         if self.static:
+            self._parse_countries()
             self._parse_positions()
             self._parse_competitions()
             self._parse_rounds()
@@ -174,6 +189,7 @@ class FM2001Database:
         for i in range(club_count):
             r = d[club_start + i * CLUB_RECORD_SIZE: club_start + (i + 1) * CLUB_RECORD_SIZE]
             name_id, short_id = struct.unpack_from('<HH', r, 4)
+            country_id = struct.unpack_from('<I', r, 12)[0]
             stadium_id = struct.unpack_from('<H', r, 30)[0]
             manager_id = struct.unpack_from('<I', r, 48)[0]
             self.clubs.append(Club(
@@ -182,6 +198,7 @@ class FM2001Database:
                 self.english.get(short_id),
                 self.english.get(stadium_id),
                 manager_id,
+                country_id,
             ))
 
         player_count = struct.unpack_from('<I', d, club_end)[0]
@@ -199,6 +216,7 @@ class FM2001Database:
             positions = tuple(r[21:24])
             current = tuple(r[24:41])
             target = tuple(r[41:58])
+            eu_status_code = r[96]
             self.players.append(Player(
                 player_id,
                 self.core.get(first_id),
@@ -212,6 +230,7 @@ class FM2001Database:
                 positions,
                 current,
                 target,
+                eu_status_code,
             ))
 
         manager_count = struct.unpack_from('<I', d, player_end)[0]
@@ -241,6 +260,34 @@ class FM2001Database:
                 formation_class3,
                 formation_class1,
             ))
+
+    def _parse_countries(self):
+        off = COUNTRY_TABLE_OFFSET
+        count = struct.unpack_from('<I', self.static, off)[0]
+        base = off + 4
+        end = base + count * COUNTRY_RECORD_SIZE
+        if end > len(self.static):
+            raise ValueError('Static.dat country table exceeds file size')
+        for i in range(count):
+            r = self.static[
+                base + i * COUNTRY_RECORD_SIZE:
+                base + (i + 1) * COUNTRY_RECORD_SIZE
+            ]
+            self.countries.append(CountryDefinition(
+                id=struct.unpack_from('<I', r, 0)[0],
+                name=self.english.get(struct.unpack_from('<H', r, 4)[0]),
+                nationality_id=struct.unpack_from('<I', r, 6)[0],
+                european_index=struct.unpack_from('<H', r, 14)[0],
+                eu_status_flag=struct.unpack_from('<H', r, 16)[0],
+                continent_id=struct.unpack_from('<I', r, 24)[0],
+            ))
+
+    def country_for_nationality(self, nationality_id: int) -> CountryDefinition | None:
+        target = int(nationality_id)
+        for country in self.countries:
+            if int(country.nationality_id) == target:
+                return country
+        return None
 
     def _parse_positions(self):
         off = 0x25E0
@@ -329,6 +376,7 @@ class FM2001Database:
             'clubs': len(self.clubs),
             'players': len(self.players),
             'managers': len(self.managers),
+            'countries': len(self.countries),
             'positions': len(self.positions),
             'competitions': len(self.competitions),
             'rounds': len(self.rounds),
