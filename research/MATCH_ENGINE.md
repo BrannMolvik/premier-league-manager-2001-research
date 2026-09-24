@@ -798,3 +798,89 @@ Evidence:
 Thus active MatchCalculator source type **4 = penalty kick**.
 
 This is distinct from penalty-shootout presentation: shootouts reuse type-1 records while the MatchController's current phase reroutes them to `EventPenaltyShootoutShot`. Type 4 is the normal-match penalty-kick chance family.
+
+
+## Active chance-source taxonomy resolved: open play / free kick / corner / penalty
+
+The four active MatchCalculator chance source types are now semantically resolved for this release.
+
+### Team Orders category 2 = corner-kick order
+
+Selector `0x632280` reads Team Orders priority category **2** through `0x40D620/0x40D650`.
+
+It is called by chance resolver `0x62D950`, which emits **source type 3**.
+
+The resolver has a delivery/finishing structure rather than a direct one-player shot:
+
+- the designated category-2 player is selected first as the set-piece taker;
+- a separate attacking target/receiver is selected;
+- the receiver's **Heading** skill at player `+0x26` participates in the chance-resolution path;
+- Shooting also participates in later finishing branches;
+- the opposing goalkeeper is resolved separately;
+- outcomes are recorded through the shared goal/miss/save encoding.
+
+This is the characteristic corner-delivery model.
+
+EA's Team Orders strings independently list the order family after Captains and Penalty Takers as:
+
+- `Corner Kicks (Left)`
+- `Corner Kicks (Right)`
+
+The MatchCalculator collapses the designated corner-priority selection into category 2.
+
+Therefore:
+
+- **Team Orders category 2 = corner-kick priority**
+- **MatchCalculator source type 3 = corner chance**
+
+### Team Orders category 3 = free-kick order
+
+Selector `0x631FB0` reads Team Orders priority category **3**.
+
+It is called by chance resolver `0x62CE10`, which emits fixed **source type 2** records.
+
+Unlike the corner path, the selected category-3 player is itself the primary chance player. The resolver evaluates the taker's set-piece-selected role and direct attacking qualities including **Shooting** and **Passing**, then resolves the chance/goalkeeper outcome through the shared result model.
+
+EA's Team Orders resources independently contain:
+
+- `Free Kicks (Left)`
+- `Free Kicks (Right)`
+
+following the corner entries.
+
+Therefore:
+
+- **Team Orders category 3 = free-kick priority**
+- **MatchCalculator source type 2 = free-kick chance**
+
+### Source type 1 = ordinary/open-play chance
+
+All normal-play uses of common record creator `0x62ECF0` in the main chance generator pass **source type 1**.
+
+The dedicated set-piece resolvers instead emit:
+
+- type 2 from the free-kick path;
+- type 3 from the corner path;
+- type 4 from the penalty-kick path.
+
+No additional normal source family remains once those dedicated set pieces are removed.
+
+Penalty shootouts also reuse type-1 records, but this is explicitly phase-dependent compatibility behavior: MatchController reroutes type-1 records through `EventPenaltyShootoutShot` while in shootout state.
+
+Therefore source type **1 is the ordinary/open-play chance family** during normal match play.
+
+### Final active source mapping
+
+- **type 0** = unused/reserved in this release
+- **type 1** = ordinary/open-play chance
+- **type 2** = free kick
+- **type 3** = corner
+- **type 4** = penalty kick
+
+Chance success/failure remains orthogonal in `record +0x24 mod 3`:
+
+- 0 goal
+- 1 miss
+- 2 goalkeeper save
+
+and own-goal attribution remains orthogonal at `record +0x20`.
