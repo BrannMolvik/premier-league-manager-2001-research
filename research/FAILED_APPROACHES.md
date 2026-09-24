@@ -269,3 +269,20 @@ Conclusion:
 
 Status:
 - ruled out as live budget storage.
+
+
+## Treat game/session +0x5B4 as a hidden chairman-budget controller
+
+Why it looked promising:
+- chairman extra-transfer formatters and multiple finance routines repeatedly dereference game/session +0x5B4 and read fields such as +0x04/+0x40.
+
+Disproof:
+- initializer `0x4258D0` receives a pointer argument and stores that exact pointer directly to game/session +0x5B4 at `0x4258F2`;
+- the pointer is used throughout broad club/team gameplay code, not as a finance-only owned object;
+- the small fields used in chairman messages behave as club/manager identity context.
+
+Conclusion:
+- game/session +0x5B4 is current club/team context, not a separate live budget storage/controller object.
+
+Status:
+- ruled out as a distinct budget store.
