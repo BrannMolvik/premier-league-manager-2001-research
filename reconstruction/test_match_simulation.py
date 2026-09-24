@@ -179,6 +179,11 @@ class FullNormalMatchTests(unittest.TestCase):
             ],
         )
         self.assertEqual(result.score, (0, 0))
+        self.assertEqual(len(result.possession_segments), 16)
+        self.assertEqual(
+            [slot.calculation_minute for slot in result.possession_segments],
+            [5, 10, 15, 20, 25, 30, 35, 40, 50, 55, 60, 65, 70, 75, 80, 85],
+        )
 
 
 if __name__ == "__main__":
