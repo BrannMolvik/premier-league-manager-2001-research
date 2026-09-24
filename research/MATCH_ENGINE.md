@@ -1290,3 +1290,42 @@ Type-3 corners increment attacking possession/control at entry, require Set Piec
 Type-2 creator 0x62EE20 and type-3 creator 0x62EFD0 both apply the 10% +3 presentation-variant bank and keep side inversion clear. For delivered records the semantic scorer is the receiver/finisher; the set-piece taker is retained in the secondary raw MatchRecord player slot.
 
 The clean-room reconstruction now implements resolve_free_kick() and resolve_corner() for these post-taker-selection flows.
+
+
+## Five-minute attacking-sequence driver at 0x62B1A0
+
+The top-level per-segment chance-frequency logic is now mapped.
+
+For the two sides, 0x62B1A0 evaluates the paired team-strength routines in opposite directions:
+
+- side-0 attacking-side strength from 0x62F140 divided by side-1 opposing strength from 0x62F3E0, then multiplied by **1.10**;
+- side-1 attacking-side strength from 0x62F140 divided by side-0 opposing strength from 0x62F3E0, then multiplied by **0.90**.
+
+The shipped constants are exact doubles 1.1 and 0.9.
+
+Each ratio is then multiplied by 100 and converted toward zero to an integer attack weight. Let these be W0 and W1.
+
+The total number of attacking-sequence iterations for the five-minute segment is:
+
+`sequence_count = floor((W0 + W1) / 30)`
+
+The division-by-30 is implemented through the signed magic constant 0x88888889.
+
+For every sequence iteration the game draws:
+
+`RNG(W0 + W1)`
+
+- roll < W0 -> side 0 attacks;
+- otherwise -> side 1 attacks.
+
+The event minute is distributed across the five-minute segment from the overall iteration index i and total N:
+
+`event_minute = segment_start + floor(5 * i / N) + 1`
+
+This gives event minutes inside the interval immediately after the segment start, e.g. the segment invoked at minute 5 produces events in minutes 6..10.
+
+The selected side is then passed into 0x62C740, the already-mapped open-play/set-piece shell. After each sequence the calculator also runs that side's Condition/injury update and disciplinary update, and with probability 1/7 invokes the AI substitution path for the opposite side.
+
+This means chance frequency is not a free-running per-minute process: each five-minute block has a finite strength-derived number of attacking sequences, each assigned to one side by a weighted draw.
+
+The remaining major prerequisite for a complete segment simulator is the exact numeric content of team-strength routines 0x62F140 and 0x62F3E0.
