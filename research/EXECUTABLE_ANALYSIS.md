@@ -1544,3 +1544,18 @@ The disassembly likewise shows no direct read of `0x821D80+`.
 **Probable:** in this build they are either consumed only through an indirect/indexed mechanism that leaves no embedded absolute address, or are dormant/legacy tuning outputs. The absence of any pointer to the range makes a normal indirect consumer less likely, but not impossible.
 
 The live-budget investigation should therefore prioritize the board/business-consultant state that populates `EAMchairbudgetsettings`, `EAMbcstartseasonmail`, and `EAMbcmonthlybudget`, rather than assuming the `TransferBudget` tuning global is read directly during transfer execution.
+
+
+## First command-state semantic mapping: /nofmvplease777
+
+**Confirmed semantic mapping:** getter `0x515FF0`, which returns byte `[0x877550]`, is the game's no-FMV switch and corresponds to literal `/nofmvplease777`.
+
+Evidence:
+
+- startup at `0x530F99` calls `0x515FF0`;
+- when the byte is clear, startup calls the media routine at `0x461E20` with literal filename `easp.tgq`;
+- when the getter is nonzero, that playback block is skipped;
+- the same getter also gates two related media/video paths at `0x461E26` and `0x461F9B`;
+- the recovered literal command table contains the unique matching switch `/nofmvplease777`.
+
+This mapping does not yet reveal how the parser writes `0x877550`, but it establishes that the independent `0x87755x` bytes are genuine developer-command state rather than stream internals.
