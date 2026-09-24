@@ -1158,3 +1158,34 @@ The normal-match type-4 penalty routine is now implemented in reconstruction/mat
 The implementation preserves the full 0x4EA440 position table, Condition factor, Shooting/Goalkeeping, Form, integer truncation points, minimum-strength override, RNG(3)/RNG(256)/RNG(800)/RNG(10) branch order, the record creator's RNG(100)<10 presentation variant, type-4 context flag, and the original no-record branch when high-score suppression rejects the otherwise-unsaved attempt.
 
 This is the first complete evidence-backed scoring/chance resolver implemented as clean-room replacement code.
+
+
+## Verified match-clock / phase scaffold
+
+Routine `0x62AE90` gives an exact finite schedule for backend segment calculation.
+
+Normal time invokes `0x62B1A0` at:
+
+- first half: 5,10,15,20,25,30,35,40
+- second half: 50,55,60,65,70,75,80,85
+
+At minute 45 it creates type-6 HalfTime through `0x632640`.
+
+If extra time is required, `0x632690` creates type-8 ExtraTime at minute 90, then the calculator runs:
+
+- 95,100
+- another type-8 ExtraTime boundary at 105
+- 110,115
+
+If a shootout is required, `0x631730` creates type-9 Penalties at:
+
+- minute 90 when no extra time was played;
+- minute 120 after extra time.
+
+The final type-7 FullTime record from `0x632660` is created at:
+
+- 90 for ordinary normal-time completion;
+- 120 after extra time without a shootout;
+- 130 after a penalty shootout.
+
+The clean-room `match_clock.py` implements this timeline but deliberately leaves the upstream competition/tie decision (whether ET/penalties are required) outside the clock layer.
