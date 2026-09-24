@@ -2556,3 +2556,67 @@ Confirmed behavior now supports this model:
 6. the mutation happens in the producer/board-finance logic before the notification event is created.
 
 Exact storage for the mutable transfer allocation remains unresolved.
+
+
+## Chairman budget-settings event field/producer checkpoint
+
+Further direct analysis of `EAMchairbudgetsettings` sharpens its runtime layout and rules out several misleading producer leads.
+
+### Event identity and serialization
+
+- vtable: `0x7CDAC0`
+- event ID accessor `0x439400` returns **0x4E**
+- serializer `0x55CFD0` persists dwords at:
+  - +0x3C
+  - +0x40
+  - +0x44
+  - +0x48
+  - +0x4C
+  - +0x50
+  - +0x54
+  - +0x58
+  - +0x5C
+  - +0x60
+  - +0x64
+  followed by inherited/event state at +0x38
+
+Formatter `0x55C860` proves the known budget-value fields:
+
+- +0x3C = TOTALBUDGET
+- +0x40 = STAFFBUDGET
+- +0x44 = PLAYERWAGEBUDGET
+- +0x48 = MAINTENANCEBUDGET
+- +0x4C = MERCHANDISINGBUDGET
+- +0x50 = MISCBUDGET
+- +0x54 = BUILDINGSLIMIT
+- +0x58 = TRANSFERBUDGET
+
+UI/action handler `0x55D170` handles action 0x43 by resolving event +0x5C as a club/team identifier and navigating to that club. Therefore:
+
+- +0x5C = **club/team ID**
+
+The semantics of +0x60/+0x64 remain unresolved.
+
+### Immediate event-ID xrefs are not gameplay producers
+
+All currently found hard-coded immediate uses of event ID **0x4E** were inspected. The sites at approximately:
+
+- 0x46C62A
+- 0x483B06
+- 0x4C864B
+- 0x4C88A8..0x4C8A6F
+- 0x4D7D83
+- 0x4D80F1
+- 0x5FA24E
+
+are UI/widget/event registration or setup paths. They do not populate the budget fields and therefore do not reveal the authoritative live budget store.
+
+The same check was performed for hard-coded **0x4A** (`EAMchairbudgetwarning`) references. Sites including 0x475605, 0x4B9E43, and 0x4DF907 are likewise UI/control construction rather than the budget-warning producer.
+
+Consequently the gameplay producer for budget-settings/warning events is likely reached through dynamic event creation/dispatch rather than a direct immediate event-ID constant.
+
+### Rejected DBRClub candidate
+
+A consecutive copy block around `DBRClub +0x21C..+0x234` initially resembled a possible persistent budget block. Broader xref inspection shows these offsets participate in unrelated club/runtime operations and mixed pointer/index/byte behavior. There is no evidence that they represent the chairman budget array.
+
+Do not label `DBRClub +0x21C..+0x234` as budget storage without new independent evidence.
