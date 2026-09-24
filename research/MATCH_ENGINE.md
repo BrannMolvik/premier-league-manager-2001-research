@@ -2047,3 +2047,94 @@ The remaining first-team substitute quota is filled in this exact sequence, each
 Each pass can add at most one player. Any remaining substitute slots are then filled by roster order from unused/available players whose category is **not 3**, preventing additional goalkeepers in the overflow phase.
 
 After first-team selection, non-special team types call `0x40AB40` with the reserve formation and commit flag to construct the reserve XI and its fixed three-player reserve bench.
+## AI lineup core `0x409C90` — formation slots and bench groups
+
+**Confirmed from direct disassembly plus the canonical Static.dat.**
+
+The AI lineup routine uses a built-in formation table at runtime address `0x876CB8`. Initializer `0x50C3B0` writes exactly **21 formations x 11 slots x 8 bytes**.
+
+Each slot contains:
+
+- dword `+0x00`: target runtime role code;
+- low byte of dword `+0x04`: auxiliary position-state value later copied through `0x4EA350` into position-state `+0x04`.
+
+The exact 21 role/aux templates are:
+
+```text
+0 : 19/1 19/0 11/0 10/0 12/1 12/0 4/1 4/0 3/0 2/0 1/0
+1 : 19/1 19/0 14/0 13/0 9/1 9/0 4/1 4/0 3/0 2/0 1/0
+2 : 18/1 18/0 11/0 10/0 9/1 9/0 4/1 4/0 3/0 2/0 1/0
+3 : 19/1 19/0 15/0 12/1 12/0 7/0 6/0 4/2 4/1 4/0 1/0
+4 : 19/1 19/0 18/0 12/1 12/0 7/0 6/0 4/2 4/1 4/0 1/0
+5 : 18/1 18/0 12/1 12/0 9/0 7/0 6/0 4/2 4/1 4/0 1/0
+6 : 19/1 19/0 18/0 11/0 10/0 9/1 9/0 4/2 4/1 4/0 1/0
+7 : 19/1 19/0 18/0 14/0 13/0 12/1 12/0 4/2 4/1 4/0 1/0
+8 : 19/0 18/1 18/0 11/0 10/0 9/1 9/0 4/2 4/1 4/0 1/0
+9 : 19/1 19/0 14/0 13/0 12/1 12/0 9/0 4/2 4/1 4/0 1/0
+10: 19/1 19/0 18/0 14/0 13/0 9/1 9/0 4/2 4/1 4/0 1/0
+11: 19/1 19/0 15/0 11/0 10/0 9/1 9/0 4/2 4/1 4/0 1/0
+12: 19/1 19/0 18/0 12/1 12/0 8/0 7/0 6/0 4/1 4/0 1/0
+13: 19/1 19/0 18/0 15/1 15/0 12/0 7/0 6/0 4/1 4/0 1/0
+14: 19/0 14/0 13/0 12/1 12/0 8/0 4/1 4/0 3/0 2/0 1/0
+15: 18/0 15/1 15/0 11/0 10/0 8/0 4/1 4/0 3/0 2/0 1/0
+16: 19/1 19/0 18/0 15/1 15/0 14/0 13/0 9/0 4/1 4/0 1/0
+17: 18/0 15/1 15/0 11/0 10/0 5/0 4/1 4/0 3/0 2/0 1/0
+18: 19/1 19/0 14/0 13/0 12/1 12/0 4/1 4/0 3/0 2/0 1/0
+19: 19/1 19/0 15/0 12/1 12/0 7/0 6/0 5/0 4/1 4/0 1/0
+20: 19/0 18/1 18/0 15/0 12/1 12/0 4/1 4/0 3/0 2/0 1/0
+```
+
+These are numeric original templates; formation display names have not yet been attached to IDs and should not be guessed.
+
+### Starter selection is two-pass
+
+For each of the eleven target slots, the first pass considers only unselected/eligible players whose one of three stored preferred positions exactly matches the target role. Among those candidates it chooses the strictly highest:
+
+```
+trunc_toward_zero(
+    role_rating(player, target_role) * form_multiplier(player)
+)
+```
+
+with zero scores forced to one.
+
+After the first pass has attempted all eleven slots, a second pass revisits any still-unfilled slot. That fallback drops the exact-preferred-position requirement and chooses the best remaining eligible player by the same target-role rating x Form score.
+
+When normal assignment mode is enabled, the chosen starter receives:
+
+- target role -> position-state `+0x03` through `0x4EA330`;
+- slot auxiliary value -> low nibble of position-state `+0x04` through `0x4EA350`;
+- on-field flag through `0x4182F0`.
+
+### Static position group bytes and substitute phases
+
+Each 7-byte Static.dat position definition contains two bytes after the fields previously parsed by the clean-room loader. The final byte maps directly to the category returned by runtime helper `0x4EA310`.
+
+For the normal runtime roles:
+
+- category 0 = defender;
+- category 1 = midfielder;
+- category 2 = forward;
+- category 3 = goalkeeper;
+- category 255 = unclassified/not used by this grouping.
+
+Static position IDs are one-based relative to the zero-based runtime roles. The canonical records show:
+
+- goalkeeper role 1 -> category 3;
+- roles 2..7 -> category 0;
+- roles 8..15 -> category 1;
+- roles 18..19 -> category 2;
+- roles 16..17 -> category 255.
+
+The last point independently agrees with roles 16/17 taking the zero branch in `0x41C7E0` and not appearing in the 21 built-in formation templates.
+
+After starters, `0x409C90` attempts substitute selection in category order:
+
+1. midfielder (1);
+2. forward (2);
+3. defender (0);
+4. goalkeeper (3).
+
+Each phase chooses the highest eligible remaining player using the current-role rating helper `0x41E1D0` multiplied by Form, marks the player substitute-available through `0x4182C0`, and decrements the remaining substitute count.
+
+A final fill loop then consumes any still-open substitute places from remaining eligible players but excludes category 3, preventing additional goalkeepers through that fallback.
