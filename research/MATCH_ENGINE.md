@@ -744,3 +744,57 @@ Conclusion:
 - active chance/source-family reverse engineering should focus on types 1, 2, 3, and 4.
 
 Do not assign a football semantic to type 0 unless a producer is later found.
+
+
+## Team Orders priority lists: captain and penalty takers
+
+RTTI/source analysis identifies the squad/team-orders screen as **`PTeamOrders2K`** (vtable around `0x7C6FE0`, TypeDescriptor around `0x81DE68`, source path `Applications\\FootballManager\\SquadPan.cpp`).
+
+The MatchCalculator accesses four ordered player-priority categories through club/user helpers `0x40D620` / `0x40D650`.
+
+### Category 0 = captaincy order
+
+Helper `0x408560` reads priority category **0** and returns the first eligible listed player.
+
+Both major team-strength aggregators `0x62F140` and `0x62F3E0` call this helper. The selected player's runtime:
+
+- `+0x2C` = Confidence
+- `+0x2D` = Leadership
+
+are combined into a team-wide strength multiplier.
+
+EA's English resources independently contain the matching Team Orders labels `Captains`, `Click for captaincy order`, and `CAPTAIN`.
+
+Therefore priority category **0 is the captaincy order**.
+
+### Category 1 = penalty-taker order
+
+Helper `0x631F10` explicitly reads priority category **1**.
+
+The penalty-shootout routine around `0x631730` also reads category 1 for both sides and reorders/chooses penalty candidates through that priority list before the shootout sequence.
+
+EA's English resources independently contain `Penalty Takers`, `Click for penalties order`, and `PENALTIES`.
+
+Therefore priority category **1 is the penalty-taker order**.
+
+## MatchCalculator chance type 4 = penalty kick
+
+Chance resolver `0x62D660` is now semantically resolved as a **penalty-kick attempt**.
+
+Evidence:
+
+1. It selects the attacking player through `0x631F10`, the confirmed category-1 penalty-taker selector.
+2. The attempt is a direct one-player shot:
+   - the taker's **Shooting** byte at runtime `+0x24` drives the initial miss/failure test;
+   - the defending goalkeeper is selected separately;
+   - goalkeeper **Goalkeeping** at runtime `+0x2B` drives the save/stop contest.
+3. The three outcomes match the already-decoded chance result at record `+0x24 mod 3`:
+   - 0 = goal
+   - 1 = miss
+   - 2 = goalkeeper save
+4. Successful branches increment the appropriate score field before appending the chance record.
+5. The resolver emits the fixed **type-4** chance record through `0x62EEA0`.
+
+Thus active MatchCalculator source type **4 = penalty kick**.
+
+This is distinct from penalty-shootout presentation: shootouts reuse type-1 records while the MatchController's current phase reroutes them to `EventPenaltyShootoutShot`. Type 4 is the normal-match penalty-kick chance family.
