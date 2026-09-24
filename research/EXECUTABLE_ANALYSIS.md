@@ -2094,3 +2094,53 @@ The seven-way selector in the extra-cash success formatter therefore provides a 
 ### Next trace
 
 Locate constructors/callers that populate the ModFmt object's `+0x10/+0x14`, or the event/handler that supplies those values. That path should expose the board allocation/adjustment state used for transfer budget increases.
+
+
+## EAMchairextratransfersuccess fields feed the budget-adjustment formatter
+
+The relationship between `EAMchairextratransfersuccess` and the generic seven-way chairman budget-adjustment formatter is now directly proven.
+
+Formatter `0x55D5A0` handles the event and, in each of its presentation variants, constructs a temporary `chairextracashsuccess@ModFmt` object.
+
+### Correct ModFmt vtable identification
+
+The generated RTTI/function table around `0x7D6180` alternates vtable function pointers and Complete Object Locator pointers. In particular:
+
+- `0x7D618C` contains COL `0x7F72F0`
+- `0x7D6190` is the vtable start whose first function is `0x60E5C0`
+- COL `0x7F72F0` points to type descriptor `0x8322C0`:
+  `.?AVchairextracashsuccess@ModFmt@@`
+
+Thus the temporary object assigned vptr `0x7D6190` at `0x55D645` is definitively a `chairextracashsuccess@ModFmt`.
+
+### Exact field transfer
+
+After accounting for the two arguments pushed to constructor `0x547160`, the temporary ModFmt object begins at the stack address later written with vptr `0x7D6190`.
+
+The writes are:
+
+- event `+0x40` -> temporary ModFmt `+0x10`
+- event `+0x3C` -> temporary ModFmt `+0x14`
+
+Those are the exact fields consumed by the seven-way chairman adjustment formatter:
+
+- ModFmt `+0x10` = budget/category selector
+- ModFmt `+0x14` = increase amount
+
+Therefore the event fields are now confirmed as:
+
+- `EAMchairextratransfersuccess +0x3C` = **budget increase amount**
+- `EAMchairextratransfersuccess +0x40` = **budget/category selector**
+- `EAMchairextratransfersuccess +0x44` = **club/team ID**, passed through club lookup `0x41C5B0`
+
+### Selector default behavior
+
+If event `+0x40 == -1`, the formatter generates a random selector in the range **1..6** and stores it back into event `+0x40`.
+
+The generic `chairextracashsuccess@ModFmt` formatter supports **seven** selector values (1..7).
+
+This creates a high-value structural clue: selector value 7 is excluded from the random-default path. Because the surrounding system contains seven chairman budget buckets and the event is specifically named `chairextratransfersuccess`, selector 7 is a plausible transfer-budget-specific value. This is still a **hypothesis**, not yet confirmed; the exact selector-to-budget map requires either localized variant recovery or a producer that explicitly assigns a selector.
+
+### Immediate next step
+
+Trace writers/producers of `EAMchairextratransfersuccess +0x3C/+0x40/+0x44`. A producer that sets `+0x40` explicitly should reveal the selector semantics and lead to the authoritative board-budget update state.
