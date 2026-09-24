@@ -60,9 +60,9 @@ def side(side_id, players, taker_index):
         players=tuple(players),
         attack_context=context(),
         defence_context=context(),
-        penalty_taker_index=taker_index,
-        corner_taker_index=taker_index,
-        free_kick_taker_index=taker_index,
+        penalty_taker_priority=(taker_index,),
+        corner_taker_priority=(taker_index,),
+        free_kick_taker_priority=(taker_index,),
     )
 
 
@@ -98,16 +98,16 @@ class PreparedMatchTests(unittest.TestCase):
         self.assertEqual(chance.goalkeeping, 13)
         self.assertEqual(chance.set_piece, 16)
 
-    def test_takers_must_be_active(self):
-        with self.assertRaises(ValueError):
-            PreparedMatchSide(
-                players=(player(0, 1, PositionRole.STRIKER),),
-                attack_context=context(),
-                defence_context=context(),
-                penalty_taker_index=99,
-                corner_taker_index=1,
-                free_kick_taker_index=1,
-            )
+    def test_team_orders_may_reference_inactive_players_for_fallback(self):
+        prepared = PreparedMatchSide(
+            players=(player(0, 1, PositionRole.CENTRE_MIDFIELD),),
+            attack_context=context(),
+            defence_context=context(),
+            penalty_taker_priority=(99, 1),
+            corner_taker_priority=(99, 1),
+            free_kick_taker_priority=(99, 1),
+        )
+        self.assertEqual(prepared.penalty_taker_priority, (99, 1))
 
 
 class SequenceIntegrationTests(unittest.TestCase):
