@@ -438,3 +438,17 @@ Team Orders priority categories consumed by MatchCalculator:
 - 3 free kicks.
 
 The source type is independent of chance outcome at +0x24 and own-goal inversion at +0x20.
+
+
+## Match possession / territory model
+
+Confirmed:
+
+- MatchCalculator raw segment counters at +0x1000/+0x1004/+0x1008 track side-0, neutral/contested, and side-1 possession/control states;
+- those counters are normalized every five-minute segment;
+- +0x106C stores side-0 possession percentage;
+- +0x10CC stores neutral/contested percentage;
+- side-1 percentage is reconstructed as the remainder to 100;
+- +0x100C is a separate territorial/pitch-position metric;
+- MatchController emits these through EventPossession;
+- PossessionFigures displays the three possession percentages, while PossessionDiagram uses the territorial metric to select left/middle/right pitch presentation.
