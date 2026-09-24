@@ -1255,6 +1255,31 @@ Type 1 is the only normal-play chance family used by the common open-play genera
 
 Exact next match target: recover the ordinary/open-play source substructure and the remaining +0x2C context flag, then map shot/stat counters sufficiently to implement a first faithful MatchCalculator slice.
 
+
+
+## Typed MatchCalculator event reconstruction checkpoint
+
+The clean-room reconstruction now has a typed semantic event layer in `reconstruction/match_events.py`.
+
+Implemented only from verified MatchCalculator semantics:
+
+- `ChanceSource`: 1 open play, 2 free kick, 3 corner, 4 penalty;
+- `ChanceOutcome`: goal/miss/save from `record +0x24 mod 3`;
+- the 3/4/5 presentation-variant bank;
+- player actual side/index;
+- `record +0x20` scoring-side inversion / own-goal attribution;
+- type-5 Booked / Sent Off / Injured incident subtypes;
+- type-6/7/8/9 HalfTime / FullTime / ExtraTime / Penalties boundaries;
+- type-10 substitution code preserved as the known record type;
+- `record +0x2C` retained as `context_raw` with no invented semantic name;
+- timeline score calculation from verified goal attribution.
+
+New tests: `reconstruction/test_match_events.py`.
+
+Local event-layer regression: **10/10 tests pass**. This establishes the exact semantic data boundary that the reconstructed probability engine can emit later without requiring FastView or 3D playback.
+
+The current match-stat trace shows `+0x1000/+0x1004/+0x1008` are three segment buckets normalized together into percentage-like arrays, but their exact football labels are not yet proven. Do not label them as possession/territory until their readers establish semantics.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
