@@ -2381,3 +2381,56 @@ If the first XI cannot be completed, `0x409C90` reaches its failure path. It the
 The routine sets that flag to 0, resets its selection state, and jumps back to the start of XI construction. A second failure returns zero instead of retrying again.
 
 This is the original AI escape hatch for a squad that cannot field eleven players under the Non-EU counting restriction. It is not a generic reconstruction fallback and should be reproduced only under those conditions.
+## Exact startup derivation of player Non-EU state
+
+**Confirmed from DBRClub/DBRCountry readers, Editor resources, Master.dat/Static.dat values and `0x421760`.**
+
+The Non-EU Boolean is not arbitrary runtime state. Player startup `0x421CE0` calls `0x421760(player)`; when it returns true, `0x417A20` sets `DBRPlayer+0x14 bit 11` and ensures the persistent `CNonEUPlayer` record exists.
+
+### Source fields
+
+The player's current club/team country is runtime team `+0x14`. The DBRClub reader `0x4022D0` maps packed Master.dat club bytes `+12..+15` directly into this dword. The clean-room club record can therefore expose packed **club +12 uint32** as country ID.
+
+Player runtime byte `DBRPlayer+0x6C` comes from packed Master.dat player **+96**. The shipped database uses only values 1 and 2. EA's bundled Editor player dialog labels this exact concept **EU Status**, with choices **EU** and **Non EU**. Executable behavior and shipped examples establish:
+
+```text
++96 / runtime +0x6C == 1 -> Non-EU classification path is enabled
++96 / runtime +0x6C == 2 -> EU/exempt status; normal path does not mark Non-EU
+```
+
+For example, shipped Arsenal records for Christopher Wreh, Nwankwo Kanu, Oleg Luzhny, Lauren and Nelson Vivas carry value 1, while the English/French/German/Dutch/etc. players and several non-European players with EU/exempt status carry value 2.
+
+Global `0x874BD8/0x874BE0` is the country table. Runtime records are 108-byte **DBRCountry** objects (RTTI `.?AVDBRCountry@@`). Country lookup helper `0x410E00` scans runtime `DBRCountry+0x0C`, which is packed Static.dat country **+6 uint32**, for the player's nationality ID.
+
+The DBRCountry reader `0x410640` maps:
+- packed country +14 uint16 -> runtime `+0x16`;
+- packed country +16 uint16 -> runtime `+0x18`.
+
+The shipped +14 values form the European/UEFA association set: zero outside Europe and a nonzero 1..50-style association index for European countries. Packed +16 is the narrower EU-status eligibility flag used by the normal Non-EU path: England, France, Germany, Italy, Spain, Norway, etc. have 1; Brazil, Argentina, USA, South Korea, etc. have 0.
+
+### Exact predicate `0x421760`
+
+Let:
+- `club_country` = player's current team country ID;
+- `eu_status_code` = player runtime +0x6C / Master.dat player +96;
+- `country` = DBRCountry resolved by player nationality ID.
+
+The executable is equivalent to:
+
+```text
+if club_country == 33:  # Germany in this database
+    return country.european_index == 0
+
+if eu_status_code == 1:
+    if country lookup fails:
+        return true
+    return country.eu_status_flag == 0
+
+return false
+```
+
+Country ID 33 is Germany in the shipped Static.dat. The Germany-specific branch therefore classifies non-European nationalities through the broader European/UEFA index and does not consult the player's +0x6C EU-status code.
+
+For all other club countries, only players whose stored EU Status code is 1 enter classification; they are marked Non-EU when their nationality cannot be resolved or when the nationality country's packed +16 EU-status flag is zero.
+
+This completes the startup derivation needed to initialize the clean-room `RuntimePlayer.non_eu` flag from original database data rather than defaulting every player to false.
