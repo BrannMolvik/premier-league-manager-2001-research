@@ -607,3 +607,61 @@ Type-5 can now be reconstructed with explicit semantics:
 - injury.
 
 The match engine therefore has a compact, recoverable discipline/injury state model rather than an opaque incident system.
+
+
+## Own-goal encoding resolved: goal-family +0x20 is the side-inversion flag
+
+The scoring record model can now distinguish an ordinary credited goal from an own goal without assigning own-goal semantics to any one record type 0..4.
+
+### Calculator player mapping
+
+Helper `0x62F0C0` maps a player pointer into:
+
+- side index (0 or 1);
+- player index within that side.
+
+Goal-family record builders use it to populate the player-side/index fields.
+
+### MatchController derives the credited scoring side
+
+For goal-family records at `0x51994A..0x519962`, MatchController reads:
+
+- record `+0x04` = the recorded player's actual side;
+- record `+0x08` = that player's index;
+- record `+0x20` = side-inversion flag.
+
+The credited scoring side is calculated as:
+
+```
+credited_side = record+0x20 ? !record+0x04 : record+0x04
+```
+
+That side and player index are resolved into the semantic EventGoal payload.
+
+### FastViewPanel distinguishes ordinary goals from own goals
+
+`FastViewPanel` derives from/contains the semantic EventGoal receiver at subobject +0x7C. Its EventGoal callback is **`0x522690`**.
+
+The callback dispatches the event to per-player state via `0x524880`.
+
+Inside `0x524880`:
+
+- EventGoal's credited scoring side is compared with the player's actual side;
+- when they are equal, the function iterates **`Sender<EventPlayerGoal>`** at PlayerProxy +0x20;
+- when they differ, it iterates **`Sender<EventPlayerOwnGoal>`** at PlayerProxy +0x30.
+
+RTTI independently identifies those two sender bases:
+
+- vtable `0x7CA84C` = `Sender<EventPlayerGoal>`
+- vtable `0x7CA844` = `Sender<EventPlayerOwnGoal>`
+
+### Conclusion
+
+**record +0x20 is the own-goal/scoring-side inversion flag.**
+
+- `+0x20 = 0` -> credited side equals player's actual side -> ordinary player goal;
+- `+0x20 != 0` -> credited side is flipped -> player is credited with an own goal for the opponent.
+
+Therefore MatchCalculator types **0..4 are not simply "normal goal / own goal" categories**. Own-goal attribution is orthogonal to the type code and can accompany the goal-family record model through +0x20.
+
+This substantially narrows the remaining type-0..4 problem to the *kind/source/context of scoring event* rather than scorer-vs-own-goal identity.
