@@ -231,7 +231,7 @@ Identified event concepts/classes include:
 
 The executable distinguishes backend match calculation from FastView/3D presentation.
 
-The disc contains approximately 252 binary `.SCI` files under `DataInGame`, plus a readable `camera.scr` describing in-play, set-piece, replay, manual-replay, out-of-play and half-time camera modes. The `.SCI` format is not yet decoded.
+The exact disc contains **235 loose .SCI files**. The 3D scenario layer is now known to be structured and data-driven: loose SCTABLE.STI has 137 fixed 48-byte scenario-selection records; AISCRIPT.VIV, MOAI.VIV and GEN4TBLS.T are BIGF archives; MOAI.VIV contains 584 motion/animation-named entries; and all 584 nonblank AISEQS secondary names map exactly to those MOAI entries. CAMERA.SCR is plaintext. The internal SCI instruction/choreography semantics are still not decoded.
 
 ## Simulation tuning
 
@@ -316,3 +316,14 @@ Confirmed additionally:
 - accounting category 603 = pitch-system maintenance;
 - DBRUser +0x65C owns/query-controls facility/building state used for School, Hotel, Hospital, Club, Training, Parking and Merchandising maintenance;
 - DBRUser +0x6A8 stores pitch-system state used for sprinklers, drainage, pitch cover and heating maintenance.
+
+
+## Match-engine feasibility
+
+Confirmed additionally:
+
+- high-level match processing at `0x513010` exposes a normal calculation route distinct from the `/skipmatchcalc777` result bypass;
+- normal calculation reaches `0x632B20`, which runs `0x62AC90`, `0x62FBC0`, then `0x667E20`;
+- MatchCalculator command classes, semantic FastView event classes, and MatchEngine 3D data loaders are separate architectural layers;
+- the exact disc's match assets use deterministic, parseable formats rather than encryption/obfuscation;
+- this supports a reconstruction strategy in which backend match simulation and semantic event generation are rebuilt before exact original-style 3D choreography.
