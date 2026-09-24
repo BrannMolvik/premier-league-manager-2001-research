@@ -19,6 +19,7 @@ from match_events import (
     ChanceRecord,
     ChanceSource,
     MatchEvent,
+    PossessionRecord,
 )
 from match_statistics import SegmentCounters, normalize_segment_statistics
 from match_strength import (
@@ -149,7 +150,7 @@ class TimedMatchEvent:
 @dataclass(frozen=True)
 class SegmentPossession:
     calculation_minute: int
-    record: object
+    record: PossessionRecord
 
 
 @dataclass(frozen=True)
@@ -301,9 +302,10 @@ def simulate_normal_match(
     """Run the verified normal-time scoring/chance backbone through minute 90.
 
     This intentionally does not invent the still-unimplemented Condition decay,
-    discipline, injury, AI-substitution or possession-normalization routines.
-    It does run the recovered strength builders, 0x62B1A0 attack scheduler,
-    type-1/2/3/4 chance resolvers, HalfTime and FullTime boundaries.
+    discipline, injury or AI-substitution routines. It does run the recovered
+    strength builders, 0x62B1A0 attack scheduler, type-1/2/3/4 chance resolvers,
+    exact per-segment territory/possession normalization, HalfTime and FullTime
+    boundaries.
     """
     if side0.side != 0 or side1.side != 1:
         raise ValueError("simulate_normal_match requires side0.side=0 and side1.side=1")
