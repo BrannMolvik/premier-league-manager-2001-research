@@ -27,13 +27,24 @@ class BoundedRng(Protocol):
 
 @dataclass(frozen=True)
 class TeamStrengthPlayer:
-    """All player inputs consumed by 0x62F140 / 0x62F3E0."""
+    """All player inputs consumed by 0x62F140 / 0x62F3E0.
+
+    current_position is the assigned-role code returned by 0x4EA3C0
+    (position-state +0x03). It selects positional compatibility and the
+    4 x 20 x 17 coefficient matrix row.
+
+    balance_position_code is the separate low-five-bit code returned by
+    0x4EA3E0 (position-state +0x05). It selects the small role-balance
+    factor table for values 0..12; values >=13 use the neutral factor 100.
+    The higher-level semantic name of +0x05 remains unresolved.
+    """
 
     side: int
     player_index: int
     condition: int
     form_state: int
     current_position: int
+    balance_position_code: int
     preferred_positions: tuple[int, int, int]
     skills: tuple[int, ...]
     minimum_strength_override: bool = False
@@ -49,6 +60,8 @@ class TeamStrengthPlayer:
             raise ValueError("form_state must be in 0..4")
         if not 0 <= int(self.current_position) <= 19:
             raise ValueError("current_position must be in 0..19")
+        if not 0 <= int(self.balance_position_code) <= 31:
+            raise ValueError("balance_position_code must be in 0..31")
         if len(self.preferred_positions) != 3:
             raise ValueError("preferred_positions must contain exactly three entries")
         if len(self.skills) != PLAYER_SKILLS:
@@ -123,7 +136,12 @@ def _base_strength(
     total = 0.0
     for player in players:
         role = int(player.current_position)
-        role_factor = role_factors[role] / 100.0
+        balance_code = int(player.balance_position_code)
+        role_factor = (
+            role_factors[balance_code] / 100.0
+            if balance_code < 13
+            else 1.0
+        )
         for skill_index, raw_skill in enumerate(player.skills):
             effective = effective_match_skill(
                 raw_skill,
