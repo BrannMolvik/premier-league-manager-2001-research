@@ -1518,3 +1518,29 @@ The current parser investigation must now determine how:
 3. the independent state bytes beginning at `0x877550`
 
 are connected during startup/command-line parsing.
+
+
+## TransferBudget config globals are write-only in this executable
+
+Fresh whole-image reference scanning has clarified the role of the previously mapped board-budget tuning globals.
+
+### Confirmed direct-reference result
+
+The budget-related globals beginning at `0x821D80`, including:
+
+- `TransferBudget2K` -> `0x821DA8`
+- `TransferBudget` -> `0x821DC0`
+
+are written by the configuration parser around `0x506CFA..0x5072E0`.
+
+A byte-by-byte scan of the entire executable for absolute 32-bit values in the range `0x821D80..0x821DFF` found **only the parser's own destination operands**. There are no other absolute pointers or direct reads of any address in this range.
+
+The disassembly likewise shows no direct read of `0x821D80+`.
+
+### Interpretation
+
+**Confirmed:** these configuration globals are not themselves the authoritative live per-club/user transfer-budget storage.
+
+**Probable:** in this build they are either consumed only through an indirect/indexed mechanism that leaves no embedded absolute address, or are dormant/legacy tuning outputs. The absence of any pointer to the range makes a normal indirect consumer less likely, but not impossible.
+
+The live-budget investigation should therefore prioritize the board/business-consultant state that populates `EAMchairbudgetsettings`, `EAMbcstartseasonmail`, and `EAMbcmonthlybudget`, rather than assuming the `TransferBudget` tuning global is read directly during transfer execution.
