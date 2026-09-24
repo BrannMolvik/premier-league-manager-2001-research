@@ -2496,3 +2496,63 @@ The game has at least two distinct “extra money” mechanisms:
    - its authoritative transfer-budget mutation is still being traced.
 
 Do not conflate the FundRequest cash loan with the chairman transfer-budget allocation.
+
+
+## Automatic transfer-budget event is presentation-only; transfer budget acts as reserve
+
+A vtable-slot comparison with the now-resolved `EAMFundRequestAccept` side-effect handler clarifies where the automatic transfer-budget increase must occur.
+
+### Side-effect slot comparison
+
+`EAMFundRequestAccept` has its class-specific gameplay handler `0x472570` in the vtable slot at vtable +0x3C. That routine performs the confirmed Balance cash credit.
+
+For the automatic chairman events:
+
+- `EAMchairextratransfersuccess` vtable `0x7CDA18`:
+  - vtable +0x3C = **0x4093E0**
+- `EAMchairextratransferfail` vtable `0x7CDA6C`:
+  - vtable +0x3C = **0x4093E0**
+- `EAMchairextraforallbudgets` vtable `0x7CD9C4`:
+  - vtable +0x3C = **0x4093E0**
+
+`0x4093E0` is the shared/default no-op-style handler used broadly by event classes.
+
+The class-specific method `0x55D920` shared by the extra-transfer success/fail events is instead a presentation/navigation handler: for UI action 0x43 it resolves event +0x44 as a club ID and calls `0x604900`.
+
+Therefore the automatic chairman transfer-budget mutation occurs **before** the success event is emitted. The event is notification/presentation, unlike `FundRequestAccept`, which owns its own gameplay mutation.
+
+### Original localization defines transfer budget as a reserve/reference allocation
+
+`ENGLIS2.STR` index 757 (chairman season-budget mail) says:
+
+- quarterly Staff/Wages/Maintenance/Merchandising/Other budgets are **fixed and should not be exceeded**;
+- buildings have a yearly limit;
+- the transfer budget “currently stands at” a value, but the manager is **free to buy and sell players as desired**.
+
+This matches the executable evidence that transfer completion enforces current cash affordability rather than a separate transfer-budget hard cap.
+
+Even more importantly, early chairman budget phrase variants show how the transfer allocation participates in overspending recovery:
+
+- index 22: next-quarter budgets are modified to account for overspending;
+- index 24: the chairman says he has had to **take money from the building and transfer budgets** to account for overspending.
+
+Thus the transfer budget is definitely a mutable board reserve/allocation that can be reduced to compensate for operating-budget overspending, while not serving as the immediate purchase-affordability gate.
+
+### ChairBudgetProfit tuning key
+
+The tuning key `ChairBudgetProfit` loads into global `0x821D80` at `0x506CFA`.
+
+A complete direct-reference check currently finds no later static read of `0x821D80`, so—like the previously mapped TransferBudget defaults—it is configuration-only/indirect unless a dynamic relationship is independently recovered. Do not use it as live transfer-budget storage.
+
+### Refined model
+
+Confirmed behavior now supports this model:
+
+1. current cash/balance controls whether a transfer payment can actually be made;
+2. transfer fees are posted through the finance ledger;
+3. transfer budget is a separate mutable chairman allocation/reference;
+4. quarterly operating overspending can consume the transfer/building reserves;
+5. automatic chairman events can increase transfer budget;
+6. the mutation happens in the producer/board-finance logic before the notification event is created.
+
+Exact storage for the mutable transfer allocation remains unresolved.
