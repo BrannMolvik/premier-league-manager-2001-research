@@ -386,3 +386,16 @@ Confirmed:
 - the credited scoring side equals the player's actual side when +0x20 is clear and is flipped when +0x20 is set;
 - FastViewPanel routes same-side attribution to `EventPlayerGoal` and opposite-side attribution to `EventPlayerOwnGoal`;
 - own-goal identity is therefore independent of MatchCalculator goal-family type 0..4.
+
+
+## Match chance outcome encoding
+
+Confirmed:
+
+- MatchCalculator goal/chance record `+0x24 mod 3` encodes outcome:
+  - 0 = goal
+  - 1 = miss/failed chance
+  - 2 = goalkeeper save/stop;
+- record creators may add +3 as an alternate presentation variant without changing the base result;
+- MatchController emits semantic `EventGoal` only for outcome values 0 or 3;
+- chance/source type at +0x28 is independent of success/failure and independent of the own-goal flag at +0x20.
