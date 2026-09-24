@@ -1111,6 +1111,35 @@ Local verification: **13 unit tests pass**.
 
 This is the first substantial move from research-only knowledge into executable reconstruction logic.
 
+
+
+## Mutable runtime/calendar reconstruction checkpoint
+
+The clean-room reconstruction now has a mutable runtime layer rather than read-only database records.
+
+New files:
+
+- `reconstruction/runtime_state.py`
+- `reconstruction/game_state.py`
+- `reconstruction/test_runtime_state.py`
+
+Implemented:
+
+- conversion of immutable parsed players into mutable `RuntimePlayer` state;
+- initialization of verified development baseline/peak state;
+- baseline-age clamp to 15..50 matching `0x41E970`;
+- player training-modifier storage;
+- mutable monthly skill recalculation;
+- a generic day-by-day `GameCalendar` with daily and monthly hooks;
+- first-of-month dispatch of player development across runtime players;
+- deterministic seed support for reconstruction/test peak generation.
+
+The current `age_on()` helper uses conventional whole-year birthday age. The original player-age accessor is known but its exact calendar edge-case helper is not yet instruction-mapped, so this helper is intentionally isolated for later replacement if needed.
+
+Local regression status: **20/20 tests pass** across development/training/runtime/calendar modules.
+
+This moves the reconstruction from a data browser toward an actual advancing game state.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
