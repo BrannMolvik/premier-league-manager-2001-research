@@ -338,3 +338,17 @@ Confirmed:
 - the five-minute segment routine computes complementary team-strength aggregates through two routines that iterate participating players and **all 17 current skill slots**;
 - those weighted aggregates feed the game's RNG and lower semantic event-generation routines;
 - therefore the backend is a weighted probabilistic football-event calculator and is not dependent on continuous 3D physics for its outcomes.
+
+
+## MatchCalculator event stream
+
+Confirmed:
+
+- MatchCalculator linked-event records carry a type code at +0x28;
+- record types 6/7/8/9/10 map directly to FastView HalfTime/FullTime/ExtraTime/Penalties/Substitution senders;
+- record types 0..4 are routed through FastView's EventGoal sender;
+- during penalty-shootout state, type-1 goal-family records are presented as EventPenaltyShootoutShot;
+- multiple type-0..4 producer paths directly increment the side-indexed score fields at +0xD4C/+0xD50 before appending the record;
+- record type 5 remains an unresolved player incident/state family.
+
+This confirms the calculator emits a structured semantic timeline that can be reconstructed independently of original 3D choreography.
