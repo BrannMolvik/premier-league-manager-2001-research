@@ -731,6 +731,17 @@ The real gameplay producers for `EAMsmnobudget` (0x9C) and `EAMgdnobudget` (0x9D
 Therefore these "no budget" events are another current-cash gate, not evidence for the separate chairman transfer-budget reserve.
 
 Next target returns to persistent/save-state budget structures and the quarterly reserve-rebalancing path.
+
+
+## Balance objective-block resolution checkpoint
+
+The full six-record serialized block at Balance +0x30..+0x80 is now tied to the manager financial-objective system, not chairman spending budgets.
+
+Periodic routine 0x5E12C0 runs on Balance+0x30 and emits EAMManagerWarnedObjective plus EAMMonthlyFinancialTargets. The latter's EA-authored formatter labels its values BALANCEA, BALANCEB, PROFITA, PROFITB and TARGET. Nearby Balance+0x30 routines emit EAMManagerObjectiveGoodWork and continued-success/failed-objective events.
+
+Therefore none of the six +0x30/+0x40/+0x50/+0x60/+0x70/+0x80 value records should be treated as the live transfer-budget store. Current cash remains Balance+0x10; transfer reserve must be elsewhere or derived.
+
+Exact next target: use save-state ownership and quarterly board/business calculations outside the Balance objective block to locate the transfer/building reserve mutation.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
