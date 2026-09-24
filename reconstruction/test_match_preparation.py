@@ -19,6 +19,7 @@ class Player:
     injured: bool = False
     suspended: bool = False
     selection_excluded: bool = False
+    non_eu: bool = False
 
     def assign_match_position(self, role, auxiliary_code):
         self.current_position = int(role)
@@ -153,6 +154,59 @@ class AiMatchPreparationTests(unittest.TestCase):
             blocked.player_index,
             {item.player_index for item in prepared.lineup.starters},
         )
+
+    def test_ai_retries_once_with_non_eu_counter_disabled(self):
+        roster = formation_zero_roster()
+        for subject in roster:
+            subject.non_eu = True
+
+        prepared = prepare_ai_match_selection(
+            7,
+            roster,
+            formation_id=0,
+            substitute_quota=0,
+            non_eu_limit=3,
+        )
+
+        self.assertEqual(len(prepared.lineup.starters), 11)
+        self.assertTrue(prepared.non_eu_restriction_relaxed)
+        self.assertTrue(all(subject.match_active for subject in roster))
+
+    def test_zero_non_eu_limit_still_blocks_players_after_retry(self):
+        roster = formation_zero_roster()
+        for subject in roster:
+            subject.non_eu = True
+
+        with self.assertRaises(ValueError):
+            prepare_ai_match_selection(
+                7,
+                roster,
+                formation_id=0,
+                substitute_quota=0,
+                non_eu_limit=0,
+            )
+
+        self.assertTrue(all(not subject.match_active for subject in roster))
+        self.assertTrue(
+            all(not subject.match_substitute_available for subject in roster)
+        )
+
+    def test_disabled_restriction_flag_uses_no_counting_without_retry_marker(self):
+        roster = formation_zero_roster()
+        for subject in roster:
+            subject.non_eu = True
+
+        prepared = prepare_ai_match_selection(
+            7,
+            roster,
+            formation_id=0,
+            substitute_quota=0,
+            non_eu_limit=3,
+            enforce_non_eu_restriction=False,
+        )
+
+        self.assertEqual(len(prepared.lineup.starters), 11)
+        self.assertFalse(prepared.non_eu_restriction_relaxed)
 
     def test_incomplete_xi_raises_before_mutating_existing_state(self):
         subject = player(
