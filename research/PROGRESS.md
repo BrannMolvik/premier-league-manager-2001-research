@@ -722,6 +722,15 @@ All currently found hard-coded 0x4E references are UI/event registration/setup, 
 A candidate DBRClub block at +0x21C..+0x234 was checked and is not supported as a budget array; its fields are used in unrelated club/runtime logic.
 
 Exact next target: trace the quarterly overspending/rebudget calculation or dynamic construction of EAMchairbudgetsettings, both of which must read the authoritative live transfer/building budget values.
+
+
+## Stadium/Groundsman cash-affordability checkpoint
+
+The real gameplay producers for `EAMsmnobudget` (0x9C) and `EAMgdnobudget` (0x9D) are mapped around 0x5D2130..0x5D2A8F. They compare the requested stadium/facility cost against active Balance cash (+0x10) and debit through 0x5DC650 when affordable; otherwise they emit the corresponding no-budget message.
+
+Therefore these "no budget" events are another current-cash gate, not evidence for the separate chairman transfer-budget reserve.
+
+Next target returns to persistent/save-state budget structures and the quarterly reserve-rebalancing path.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
