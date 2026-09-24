@@ -304,3 +304,24 @@ Conclusion:
 
 Status:
 - ruled out as authoritative transfer-budget storage/check.
+
+
+## Interpret EAMchairextratransfersuccess +0x40 as a seven-budget-category selector
+
+Why it looked plausible:
+- the formatter has a seven-way 1..7 dispatch;
+- the chairman system elsewhere exposes seven budget-related values;
+- selector 7 was excluded from the random 1..6 default path.
+
+Disproof:
+- direct inspection of `ENGLIS2.STR` shows every formatter variant is a different chairman message/circumstance for **increasing the transfer budget**;
+- the event itself is `EAMchairextratransfersuccess`;
+- a separate `EAMchairextraforallbudgets` event handles increases across all budgets.
+
+Correct interpretation:
+- +0x3C = transfer-budget increase amount;
+- +0x40 = success wording/reason variant selector;
+- +0x44 = club/team ID.
+
+Status:
+- superseded and corrected.
