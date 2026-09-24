@@ -408,3 +408,13 @@ Confirmed:
 - active MatchCalculator chance/source types in this release are 1, 2, 3, and 4;
 - type 0 is accepted by FastView's compatibility switch but has no identified normal producer and is not reconstructed by MatchRecord serialization;
 - type 0 is therefore treated as unused/reserved unless future evidence finds an active producer.
+
+
+## Match Team Orders and penalty source type
+
+Confirmed:
+
+- Team Orders runtime priority category 0 = **captaincy order**;
+- priority category 1 = **penalty-taker order**;
+- MatchCalculator active chance source type 4 = **penalty kick**;
+- the normal-match penalty resolver selects the designated penalty taker, resolves Shooting against the opposing goalkeeper/Goalkeeping, and records goal/miss/save through the common chance outcome field.
