@@ -1740,3 +1740,17 @@ The 4 x 20 x 17 matrix index and the small 105/108/... balance-factor table do *
 The reconstruction now requires this second value explicitly as `balance_position_code` and does not silently substitute the assigned role. Tests were updated with explicit values and include a deliberately different assigned-role/balance-code case.
 
 This correction should be treated as part of the current team-strength implementation before using attack-frequency output for fidelity comparisons.
+## 25 September pre-match participant bridge checkpoint
+
+The next autonomous-match boundary has been narrowed from a broad "match-day initialization" problem to one concrete original runtime path.
+
+Confirmed:
+
+- normal match setup populates the MatchCalculator before `0x62AC90`; `0x62AC90` initializes already-selected participants rather than choosing the lineup;
+- exact collector `0x510CD0` walks the team's ordered player-ID roster and includes only runtime players marked active/on-field or substitute-available;
+- `DBRPlayer+0x14 bit 4` is the on-field starter flag and bit 5 is the match-substitute flag;
+- setters enforce those states mutually exclusively;
+- for AI teams, `0x5111A0 -> 0x409B50 -> 0x409C90` establishes lineup/position state before participant collection;
+- the MatchCalculator therefore receives an ordered union of starters and designated substitutes from original runtime DBRPlayer state.
+
+Primary remaining match-initialization target is now `0x409C90`: recover the exact AI starter/bench selection phases, formation role assignment and eligibility filters sufficiently to prepare a scheduled AI club without caller-supplied lineup state. Condition/Form/Team Orders runtime sources remain part of the same bridge but no longer obscure how the participant roster itself is constructed.
