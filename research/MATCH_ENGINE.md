@@ -2314,3 +2314,70 @@ The normal match population path `0x5111A0` now fixes the argument wiring into `
 The substitute quota is the same field returned by dedicated accessor `0x408500(team)`: it resolves the team's current match, dereferences the match competition/context pointer at `+0x4C`, and returns context `+0x1C`. When no current match/context exists, `0x408500` returns the fallback value **5**.
 
 Thus the remaining autonomous team-preparation gap is no longer where formation/quota enter the selector, but how `0x409500` derives its numeric formation-selection class and how the competition object initializes its `+0x1C` substitute-count field.
+## Non-EU lineup restriction and AI retry
+
+**Confirmed from RTTI, player initialization, competition records and `0x409C90`.**
+
+Player helper `0x41B490` returns `DBRPlayer+0x14 bit 11`. This bit is not merely a generic restriction marker.
+
+The persistent record collection at global `0x876B30` creates records with vtable `0x7C89E8`. The vtable's MSVC RTTI Complete Object Locator points to type descriptor `0x81F548`, whose class name is exactly:
+
+```text
+.?AVCNonEUPlayer@@
+```
+
+The executable also embeds source identity `Database\\NonEUPlayer.cpp`.
+
+When bit 11 is set, helper `0x41B4D0` looks the player ID up in this `CNonEUPlayer` collection and creates the record through `0x417A20` when missing. Therefore:
+
+```
+DBRPlayer +0x14 bit 11 = Non-EU player state
+```
+
+### Original startup derivation
+
+Player startup routine `0x421CE0` calls `0x421760(player)`; when that predicate succeeds it calls `0x417A20`, setting the Non-EU bit and creating the persistent `CNonEUPlayer` record.
+
+The exact `0x421760` country/nationality predicate is now localized but its two country metadata words and player `+0x6C` condition still require semantic naming before clean-room initialization should derive Non-EU automatically. Until that final mapping is completed, reconstruction may carry the proven Boolean state explicitly but must not invent nationality rules.
+
+### Competition maximum
+
+Global `0x876C50` is the runtime `DBRCompetition` array owned by `DBTCompetitions`:
+
+- table vtable `0x7C9984` RTTI = `DBTCompetitions`;
+- 64-byte record vtable `0x7C9998` RTTI = `DBRCompetition`.
+
+Helper `0x407DF0(team)` resolves the team's current match competition and returns:
+
+```
+DBRCompetition +0x2B
+```
+
+or **11** when no competition context can be resolved.
+
+The exact DBRCompetition binary reader `0x40F760` maps runtime `+0x2B` to packed Static.dat competition byte **+34**. The 193 shipped competition records contain only values:
+
+```text
+0, 3, 4, 5, 99
+```
+
+Premier League competition ID 0 has value **3**. This is therefore the exact competition maximum consulted for Non-EU lineup selection; 99 is effectively unrestricted under the original integer comparison.
+
+### Selection and retry behavior
+
+Throughout both XI and bench construction, a Non-EU candidate is rejected when:
+
+```
+selected_non_eu_count >= competition_non_eu_limit
+```
+
+The running count is incremented for a selected Non-EU player only while the restriction-enforcement flag is 1 and the team's country/context record enables that restriction path.
+
+If the first XI cannot be completed, `0x409C90` reaches its failure path. It then performs exactly one retry when:
+
+- the team is **not user controlled** (`0x4037B0(team)` is false); and
+- the local restriction-enforcement flag is still 1.
+
+The routine sets that flag to 0, resets its selection state, and jumps back to the start of XI construction. A second failure returns zero instead of retrying again.
+
+This is the original AI escape hatch for a squad that cannot field eleven players under the Non-EU counting restriction. It is not a generic reconstruction fallback and should be reproduced only under those conditions.
