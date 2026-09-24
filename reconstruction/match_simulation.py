@@ -50,6 +50,7 @@ class PreparedMatchPlayer:
     condition: int
     form_state: int
     current_position: int
+    balance_position_code: int
     preferred_positions: tuple[int, int, int]
     skills: tuple[int, ...]
     minimum_strength_override: bool = False
@@ -65,6 +66,8 @@ class PreparedMatchPlayer:
             raise ValueError("form_state must be in 0..4")
         if not 0 <= int(self.current_position) <= 19:
             raise ValueError("current_position must be in 0..19")
+        if not 0 <= int(self.balance_position_code) <= 31:
+            raise ValueError("balance_position_code must be in 0..31")
         if len(self.preferred_positions) != 3:
             raise ValueError("preferred_positions must contain exactly three entries")
         if len(self.skills) != 17:
@@ -79,6 +82,7 @@ class PreparedMatchPlayer:
             condition=self.condition,
             form_state=self.form_state,
             current_position=self.current_position,
+            balance_position_code=self.balance_position_code,
             preferred_positions=self.preferred_positions,
             passing=self.skills[5],
             shooting=self.skills[6],
