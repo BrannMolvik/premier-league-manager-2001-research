@@ -2069,27 +2069,23 @@ RTTI resolves the relevant formatter classes:
 
 Formatter `0x60E3A0` reads:
 
-- object `+0x10`: budget/category selector
+- object `+0x10`: transfer-budget success message/reason variant selector
 - object `+0x14`: monetary/integer increase amount
 
-It dispatches on selector values 1 through 7 via a seven-entry jump table and formats the amount through the common key `TRANSFERBUDGETINCREASE`, while choosing one of seven localized chairman-success templates.
+It dispatches on selector values 1 through 7 via a seven-entry jump table and formats the amount through the common key `TRANSFERBUDGETINCREASE`, while choosing one of seven localized **transfer-budget-success wording/reason variants**.
 
 A second formatter branch beginning around `0x60E5C0` performs the analogous operation for the `chairextraallbudgets` family.
 
 ### Significance
 
-This proves that the chairman “extra cash/budget” subsystem has an explicit runtime representation of:
+This proves that this chairman extra-transfer-success formatter carries:
 
-1. **which budget bucket is being adjusted**; and
-2. **the adjustment amount**.
+1. **which transfer-budget success wording/reason variant is being used**; and
+2. **the transfer-budget increase amount**.
 
 It is not merely a generic success/failure mail.
 
-The surrounding literal block in the same generated formatter source contains the chairman budget keys:
-
-`TOTALBUDGET, STAFFBUDGET, PLAYERWAGEBUDGET, MAINTENANCEBUDGET, MERCHANDISINGBUDGET, MISCBUDGET, BUILDINGSLIMIT, TRANSFERBUDGET`.
-
-The seven-way selector in the extra-cash success formatter therefore provides a concrete route toward the per-bucket board budget model. Exact selector-to-bucket numbering is still being recovered and must not yet be guessed.
+The surrounding formatter source also contains chairman budget keys, but the English resource resolves the seven-way dispatch here as message/reason variants for a **transfer-budget increase**, not seven budget buckets.
 
 ### Next trace
 
@@ -2124,13 +2120,13 @@ The writes are:
 
 Those are the exact fields consumed by the seven-way chairman adjustment formatter:
 
-- ModFmt `+0x10` = budget/category selector
+- ModFmt `+0x10` = transfer-budget success message/reason variant selector
 - ModFmt `+0x14` = increase amount
 
 Therefore the event fields are now confirmed as:
 
 - `EAMchairextratransfersuccess +0x3C` = **budget increase amount**
-- `EAMchairextratransfersuccess +0x40` = **budget/category selector**
+- `EAMchairextratransfersuccess +0x40` = **transfer-budget success message/reason variant selector**
 - `EAMchairextratransfersuccess +0x44` = **club/team ID**, passed through club lookup `0x41C5B0`
 
 ### Selector default behavior
@@ -2139,14 +2135,14 @@ If event `+0x40 == -1`, the formatter generates a random selector in the range *
 
 The generic `chairextracashsuccess@ModFmt` formatter supports **seven** selector values (1..7).
 
-This creates a high-value structural clue: selector value 7 is excluded from the random-default path. Because the surrounding system contains seven chairman budget buckets and the event is specifically named `chairextratransfersuccess`, selector 7 is a plausible transfer-budget-specific value. This is still a **hypothesis**, not yet confirmed; the exact selector-to-budget map requires either localized variant recovery or a producer that explicitly assigns a selector.
+The English localization resolves the meaning of this dispatch: all variants are transfer-budget-increase messages. Selector value 7 is therefore another transfer-budget success wording/reason branch, **not a transfer-budget category ID**.
 
 ### Immediate next step
 
 Trace writers/producers of `EAMchairextratransfersuccess +0x3C/+0x40/+0x44`. A producer that sets `+0x40` explicitly should reveal the selector semantics and lead to the authoritative board-budget update state.
 
 
-## Chairman extra-budget selector dispatch map
+## Chairman extra-transfer success message/reason dispatch map
 
 The seven-way `chairextracashsuccess@ModFmt` dispatch at `0x60E3A0` is now mapped exactly.
 
@@ -2166,7 +2162,7 @@ Every branch formats the same amount from `object +0x14` through `TRANSFERBUDGET
 
 The immediately following `chairextraallbudgets@ModFmt` formatter uses the next template-global block beginning at `0x87A854`.
 
-This proves the selector numbering and branch identity, but **does not yet prove the semantic bucket name for each selector**. In particular, selector 7 remains only a strong transfer-budget candidate until one of these template globals is resolved to its localized text or a producer assigns selector 7 explicitly.
+The selector numbering and branch identity are exact. `ENGLIS2.STR` shows the corresponding texts are all variants describing an **increase to the transfer budget**, so these values select message/reason variants rather than budget buckets.
 
 ## game/session +0x5B4 is current-club context, not budget storage
 
@@ -2319,3 +2315,24 @@ The two event constructors identify the semantics of this check:
 Therefore this path evaluates a manager/chairman **financial objective target and tolerance**, not the seven chairman spending-budget buckets and not transfer affordability.
 
 This is a useful distinction: the Balance object contains persistent financial objectives in addition to current cash and ledger data, but those objective values must not be mislabeled as transfer-budget allocation.
+
+
+## Localization correction: extra-transfer success selector is a reason/message variant
+
+Direct inspection of `ENGLIS2.STR` resolves an earlier ambiguity in the generated `chairextracashsuccess@ModFmt` formatter.
+
+The localized chairman-success variants all describe **increasing the transfer budget** by the formatted `TRANSFERBUDGETINCREASE` amount. They differ in the chairman's wording/circumstance for granting the extra funds.
+
+Therefore:
+
+- `EAMchairextratransfersuccess +0x3C` = transfer-budget increase amount
+- `EAMchairextratransfersuccess +0x40` = success message/reason variant selector
+- `EAMchairextratransfersuccess +0x44` = club/team ID
+- ModFmt `+0x10` = success message/reason variant selector
+- ModFmt `+0x14` = transfer-budget increase amount
+
+If the selector is -1, the formatter randomizes among 1..6; the formatter also has a seventh branch. This is a presentation/reason dispatch, not a seven-budget-category dispatch.
+
+This **supersedes** the earlier hypothesis that selector 1..7 mapped the seven chairman budget buckets or that selector 7 specifically denoted transfer budget. The entire event is already transfer-budget-specific; `EAMchairextraforallbudgets` is the separate across-the-board budget-increase event.
+
+The same English resource also states in the chairman budget-settings mail that the transfer budget “currently stands at” a value while the manager is free to buy and sell players as desired. This is consistent with the binary evidence that completed transfer affordability is enforced against current cash, while transfer budget is a distinct board allocation/reference concept. The exact storage/derivation of that displayed transfer-budget value remains unresolved.
