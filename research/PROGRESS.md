@@ -541,3 +541,12 @@ A new session should:
 5. Continue from the current Active Investigation section.
 
 Do not repeat an earlier experiment solely because the conversation restarted.
+
+
+## 0x877540 type correction checkpoint
+
+Fresh structural analysis supersedes the earlier claim that global `0x877540` is itself a `std::basic_istringstream`. Its constructor `0x5162A0` builds a 16-byte ordered-tree/container header with a self-linked 0x24-byte sentinel node and no vtable. The stream RTTI found previously belongs to separate routines beginning around `0x516370`.
+
+Consequently the bytes at `0x877550..` are adjacent globals, not istringstream fields. The getter family `0x515FF0..0x5160E0` is therefore reopened as option/cheat-state accessors, but literal-to-byte assignments still require parser proof. `0x516090 -> 0x877559` is again a strong `/cash777` candidate from four cash-affordability consumers; `0x516020 -> 0x877552` remains unresolved.
+
+Exact resume point: identify how the literal command table at `0x828510..0x828568` populates the adjacent global option bytes/tree, then prove `/budget777` and follow its consumers into live transfer-budget storage.
