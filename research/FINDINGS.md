@@ -568,9 +568,20 @@ Exact-source validation against the canonical `footballmanager.exe` confirmed th
 
 The reconstruction now also has an evidence-backed normal-time orchestration layer that runs the 16 normal five-minute segments, routes open-play transitions into the recovered free-kick/corner/penalty resolvers, emits Half Time/Full Time boundaries, and can persist the final score of a due Premier League fixture into `PremierLeagueState`.
 
-**Not yet confirmed/implemented as full match behavior**
+**Current implementation boundary (supersedes the earlier "not yet implemented" list)**
 
-The orchestrator does not yet execute the original recurring Condition/injury, discipline, AI-substitution, possession-normalization, or authoritative match-day lineup initialization paths. These remain separate reverse-engineering/integration tasks and are not replaced by generic football logic.
+The clean-room normal-time orchestrator now also executes the recovered recurring match-state paths rather than only the scoring backbone:
+
+- exact Condition workload decay and injury-incidence gates;
+- immediate injury type-5 records and original type-10 replacement path when replacement is allowed;
+- exact aggression-driven booking and dismissal generation;
+- sending-off mutation/removal from later active pools;
+- exact per-segment possession/territory normalization;
+- exact `RNG(7)==0` automatic AI substitution trigger after discipline;
+- original AI substitution timing, outgoing/incoming selection, Form-adjusted role comparison and type-10 event creation;
+- active/substitute player-state mutation, including inheritance of assigned role `+0x03` and auxiliary `+0x04` while preserving the separate balance-position code `+0x05`.
+
+The principal remaining backend match blocker is now **authoritative match-day initialization**: selecting the original starting XI and bench, assigning runtime roles and auxiliary position state, initializing Form/Condition and Team Orders, and reproducing the AI match setup that supplies those inputs. The simulator still accepts explicit prepared state rather than inventing those values.
 
 
 ## Team-strength balance-position field correction
@@ -583,3 +594,27 @@ The current assigned role and the small strength-balance code are separate field
 - +0x05 through `0x4EA3E0`: separate low-five-bit balance-position code; selects the small `0x840D38` factor table for codes 0..12, otherwise neutral 100%.
 
 Attack uses `[105,108,110,120,112,115,97,95,102,92,90,117,100]` for +0x05 codes 0..12. Defence uses 200 minus the corresponding value. The semantic label of +0x05 remains unresolved, so reconstruction exposes it neutrally as `balance_position_code`.
+## AI substitution and injury replacement
+
+**Confirmed**
+
+Normal five-minute sequence processing continues beyond chance/Condition/discipline with a separate `RNG(7)` draw. On zero, `0x62E2F0` is called for the side opposite the scheduler-selected attacker.
+
+For AI-controlled teams the automatic substitution path:
+
+- begins at minute 60 when the original starting XI is intact;
+- moves to minute 70 after one original starter is no longer active, then minute 80 after two;
+- is suppressed while that AI side is leading;
+- scans original XI slots in reverse order;
+- considers outgoing current roles 8..19;
+- obtains the best substitute for the outgoing role through `0x409950`;
+- rejects the pair if that selected substitute's pre-substitution current role is below 8;
+- compares outgoing and incoming role ratings after the five-state Form multiplier and chooses the strictly smallest truncated outgoing-minus-incoming difference.
+
+The exact player role-rating helper `0x41C7E0` is implemented in `reconstruction/match_role_rating.py`. It converts selected raw skills to the 0..30 display scale, applies the role-specific seven-skill weight vector, applies `0x4EA440` position compatibility, caps at 99, adds 0.49 and truncates toward zero. Runtime roles 16 and 17 use the executable's zero branch.
+
+Successful substitutions use `0x409AC0`: the incoming player inherits the outgoing assigned role (`+0x03`) and auxiliary low-nibble field (`+0x04`), but **not** the distinct strength/discipline balance-position field (`+0x05`). The outgoing player is removed from active/substitute state and its position state is reset. Type-10 records carry side, outgoing side-local index and incoming side-local index.
+
+A successful injury uses the same `0x409950 -> 0x409AC0 -> 0x62EF90` replacement path immediately after the type-5 Injury record. AI-controlled teams permit this automatic injury replacement. User-controlled teams permit it only when the still-generically-named MatchCalculator `+0xD3C` mode code is 1 or 3. If no replacement occurs, the injury routine itself does **not** automatically remove the injured player from the field.
+
+The Condition loop checks active state dynamically for each match participant as it reaches that roster slot. Consequently a bench player activated by an injury substitution can be processed later in the same Condition pass if its participant slot occurs later in iteration order.
