@@ -107,6 +107,10 @@ class Manager:
     formation_default: int
     formation_class3: int
     formation_class1: int
+    ai_play_style_source: int = 2
+    ai_aggression_source: int = 50
+    ai_with_ball_source: int = 1
+    ai_without_ball_source: int = 1
 
     @property
     def full_name(self):
@@ -248,6 +252,10 @@ class FM2001Database:
             formation_class3 = r[25]
             formation_class1 = r[26]
             club_raw = struct.unpack_from('<I', r, 27)[0]
+            ai_play_style_source = r[39]
+            ai_aggression_source = r[40]
+            ai_with_ball_source = r[41]
+            ai_without_ball_source = r[42]
             club_id = None if club_raw == 0xffffffff else club_raw
             self.managers.append(Manager(
                 i,
@@ -259,6 +267,10 @@ class FM2001Database:
                 formation_default,
                 formation_class3,
                 formation_class1,
+                ai_play_style_source,
+                ai_aggression_source,
+                ai_with_ball_source,
+                ai_without_ball_source,
             ))
 
     def _parse_countries(self):
