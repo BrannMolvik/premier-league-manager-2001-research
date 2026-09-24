@@ -422,9 +422,18 @@ RTTI proves global `0x877540` is a `std::basic_istringstream`, with standard-lib
 
 All earlier attempted `/cash777` or `/budget777` labels for `0x516090` / `0x516020` are superseded. The actual cheat parser must be recovered independently from the literal cheat-string pointer table.
 
+
+## Cheat-command table recovery checkpoint
+
+Fresh analysis against the exact hashed executable has recovered the contiguous literal developer-switch pointer table at `0x828510..0x828568`. It contains, in order, `/nofmvplease777`, `/fastbuild777`, `/budget777`, `/sacked777`, `/cash777`, `/autorun777`, `/alwayswin777`, `/alwayslose777`, `/countrywin777`, `/countrylose777`, `/skipmatchcalc777`, `/nolimit777`, `/nosackwarnings777`, `/alttab777`, `/showskill777`, `/showstat777`, `/stadiumflags`, `/pitchlitter`, `/pitchwear`, `/noslidefx`, `/cameraflashes`, `/setslide`, and `/alwayssell`.
+
+No direct absolute code xrefs to individual table slots were found, which supports a data-driven iterator/indirection model.
+
+The earlier RTTI correction remains valid for the `0x877540` `basic_istringstream` object, but a refinement is now proven: tiny routines `0x515FE0`, `0x516010`, and `0x5160B0` read separate bytes at `0x82856C`, `0x82856E`, and `0x82856F` respectively. Those bytes sit immediately after the command-pointer table and are initialized to 1. They are not part of the stream object, but their meanings are still unresolved.
+
 ## Active Investigation
 
-Current focus: recover the real data-driven cheat-command parser from the literal `/cash777` and `/budget777` string table; do not use the superseded 0x515Fxx/0x5160xx stream accessors.
+Current focus: trace the consumer/initializer of the recovered cheat-command pointer table at `0x828510..0x828568` and prove the literal-to-runtime-state mapping for `/cash777` and `/budget777`. Keep the `0x877540` stream-accessor correction intact while treating the independently proven `0x82856x` option-byte accessors separately.
 
 Immediate next steps:
 
