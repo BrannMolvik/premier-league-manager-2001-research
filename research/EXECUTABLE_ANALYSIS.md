@@ -1270,6 +1270,26 @@ The classes' own virtual ID accessors prove:
 The allocator/factory tags must therefore be kept distinct from EAM message IDs.
 
 
+## Finance cheat-code trace checkpoint
+
+A finance/debug-cheat trace is being used as a shortcut to the live cash/budget guards.
+
+Current verified/strong evidence:
+
+- The transfer execution path performs a user-club affordability check against the current cash/balance object.
+- On the insufficient-cash branch, the code calls cheat getter `0x516090` before deciding whether to reject the transfer.
+- Therefore `0x516090` is strongly associated with the **cash-affordability bypass** and is the leading candidate for the developer switch exposed as `/cash777`.
+- A distinct cheat getter `0x516020` is used elsewhere inside the finance/business subsystem and is now the leading candidate for the **budget-related bypass**, potentially `/budget777`.
+
+These identities are not yet promoted to final labels until the command-line flag initialization table and all getter consumers are correlated.
+
+Immediate next trace:
+
+1. map each cheat getter back to its global byte/flag;
+2. map those global flags to the literal command-line strings `/cash777` and `/budget777`;
+3. follow the budget getter's consumers to the exact live transfer-budget check/storage.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
