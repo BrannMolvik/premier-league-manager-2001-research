@@ -1311,27 +1311,36 @@ The executable also contains literal command-line switch `/cash777`.
 
 This identifies `0x516090` as the cash-affordability cheat getter.
 
-### 0x516020 = budget override path (/budget777)
+### 0x516020 = unresolved finance-adjacent cheat getter
 
 Getter `0x516020` returns global byte `0x877552`.
 
-Its known consumer is the periodic finance/business budget routine ending around `0x5DE6C3`. That routine is invoked from:
+Its known consumer is a finance/business routine ending around `0x5DE6C3`. RTTI now identifies the objects constructed there as `EAMChairSeasonTicketSetsub` and `EAMSeasonTicketSetsub`, so the routine is tied to season-ticket setting, not directly proven budget allocation. It is invoked from:
 
 - year/season transition path around `0x4A870D`;
 - recurring season/month finance path around `0x4C4826`.
 
-The routine constructs/dispatches chairman/business finance events and ends by returning `0x516020`.
+The routine constructs/dispatches season-ticket-related finance events and ends by returning `0x516020`.
 
-The executable contains the companion literal command-line switch `/budget777`.
+The executable contains a literal `/budget777` switch, but the getter-to-string association has not yet been proven.
 
-Taken together with the separate cash cheat above, this establishes `0x516020` as the budget override/debug getter.
+Therefore `0x516020` remains a finance-adjacent cheat getter/candidate, but must not yet be labeled `/budget777`.
+
+### Correction: season-ticket RTTI at 0x5DE530
+
+RTTI inspection of the vtables constructed by the routine ending at `0x5DE6C3` gives:
+
+- vtable `0x7BD95C` -> `EAMChairSeasonTicketSetsub`
+- vtable `0x7CC3A4` -> `EAMSeasonTicketSetsub`
+
+This invalidates the earlier claim that the routine itself was directly the periodic budget-allocation routine. The `0x516020` getter must be mapped through the actual cheat-command parser or independent consumers before assigning it the `/budget777` label.
 
 ### Consequence for further tracing
 
 The two concepts are therefore explicitly separate in the original executable:
 
-- `/cash777`: bypass current-cash affordability checks;
-- `/budget777`: budget/business override path used by periodic board/finance processing.
+- `0x516090`: proven cash-affordability bypass, strongly matching `/cash777`;
+- `0x516020`: unresolved finance-adjacent getter; `/budget777` remains a candidate until the command-line mapping is recovered.
 
 This reinforces the already-established distinction between the club's live cash balance and its board-assigned budget buckets.
 
