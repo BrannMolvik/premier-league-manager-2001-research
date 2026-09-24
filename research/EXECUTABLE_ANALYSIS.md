@@ -1951,3 +1951,76 @@ Separately, routines `0x618Cxx..0x618EFF` iterate dword entries from object offs
 `game/session +0x694` is a compact season-ticket/business-state object. It is not the seven-bucket chairman budget store.
 
 Do not pursue `+0x694` as transfer-budget storage. Continue with expenditure/budget-check paths and chairman budget event producers instead.
+
+
+## Expenditure-refusal event and category-1000 finance-row checkpoint
+
+### EAMChairmanRefusesExpenditureM
+
+RTTI resolves the chairman expenditure-refusal message:
+
+- type descriptor begins at approximately `0x82D348` (`EAMChairmanRefusesExpenditureM` name at `0x82D350`)
+- Complete Object Locator: `0x7F0E68`
+- vtable: `0x7CFCB0`
+- constructor: `0x56E480`
+- serializer: `0x56E6A0`
+- formatter: `0x56E540`
+
+The constructor stores its two explicit arguments at:
+
+- event `+0x3C`
+- event `+0x40`
+
+The serializer also persists those fields plus the inherited/event field at `+0x38`.
+
+Direct constructor callers include:
+
+- `0x42B5F8`
+- `0x43913F`
+- `0x43CC81`
+- `0x4ED795`
+- `0x61BE71`
+- `0x61BE92`
+
+A closely related/subclass constructor at `0x56E6E0` is called from:
+
+- `0x42B64E`
+- `0x4390D5`
+- `0x43CC1D`
+- `0x4ED6D3`
+- `0x4ED6F2`
+- `0x61BDB3`
+- `0x61BDD3`
+
+Crucially, the transfer-path callers are the same insufficient-cash branches already used to establish the behavior of `0x516090`. Inspection of the constructor arguments shows the refusal message is populated with club/index/manager-like identifiers, not with the failed expenditure amount or a transfer-budget scalar.
+
+Therefore `EAMChairmanRefusesExpenditureM` is a **notification/event layer**, not the authoritative live budget store.
+
+### Category 1000 in Finance Overview
+
+The transfer posting path uses accounting category `1000 (0x3E8)` on both buyer and seller sides.
+
+The finance backend contains explicit category-1000 branches:
+
+- aggregate routine `0x5DC890`: special `0x3E8` comparison at `0x5DCF5D`, exact branch around `0x5DD0CA`
+- aggregate routine `0x5DD650`: special `0x3E8` comparison at `0x5DDD1D`, exact branch around `0x5DDE8A`
+- helper `0x43F1E0` calls both aggregate routines and computes their net difference for the requested category/date range
+
+Finance Overview explicitly passes `0x3E8` into these routines around `0x43E067..0x43E115`. The resulting category-1000 net value is stored in the panel state at approximately `+0xAC0` and rendered through the corresponding Finance Overview row widgets.
+
+This proves category 1000 is not merely an internal transfer posting tag; it has a dedicated aggregate/net presentation path in the finance UI. Its exact localized user-facing label is still unresolved.
+
+### Event-ID xref caution
+
+Direct immediate references to:
+
+- `0x4A` budget warning
+- `0x4F` extra-transfer failure
+- `0x50` extra-transfer success
+- `0x51` extra-for-all-budgets
+
+around `0x46C4D2..0x46C730` were inspected and are UI/event-handler registration, not message producers.
+
+Likewise immediate `0xA1` references at `0x4B480F`, `0x4B4849`, and `0x4D2F4E` are UI/control registration for `bcmonthlybudget`, not the runtime population path.
+
+Do not use these immediate event-ID xrefs as evidence for live budget storage.
