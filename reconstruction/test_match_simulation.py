@@ -40,6 +40,7 @@ def player(side, idx, role, value=100):
         condition=100,
         form_state=2,
         current_position=role,
+        balance_position_code=int(role),
         preferred_positions=(int(role), 0, 0),
         skills=raw_skills(value),
     )
@@ -84,6 +85,7 @@ class PreparedMatchTests(unittest.TestCase):
             condition=100,
             form_state=2,
             current_position=PositionRole.CENTRE_MIDFIELD,
+            balance_position_code=12,
             preferred_positions=(12, 0, 0),
             skills=tuple(skills),
         )
