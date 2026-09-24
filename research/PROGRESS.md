@@ -379,6 +379,11 @@ The suspected runtime club `+0x3C..+0x54` budget block has been disproven from E
 The budget trace therefore returns to the event creation/population path for `EAMbcstartseasonmail`.
 
 
+## Monthly budget message checkpoint
+
+`bcmonthlybudget` (event ID 0xA1) is now mapped: +0x3C total, +0x40 staff, +0x44 player wages, +0x48 maintenance, +0x4C misc, +0x50 buildings, +0x54 transfers. This differs from the season-start message and gives a recurring event to trace back to live budget state.
+
+
 ## Active Investigation
 
 Current focus: trace the actual EAMbcstartseasonmail creation/population path now that runtime club +0x3C..+0x54 has been ruled out as budget storage.
