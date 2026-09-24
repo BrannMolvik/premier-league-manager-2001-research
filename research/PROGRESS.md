@@ -517,6 +517,14 @@ The reopened global option bytes now have verified consumer semantics:
 This proves the runtime byte ordering is not a naive same-index copy of the literal command-pointer table. The decoder is still unresolved.
 
 The finance investigation now returns to direct xrefs of `TransferBudget` / `TransferBudget2K` and the completed-transfer path rather than treating the probable budget cheat byte as authoritative storage.
+
+
+## TransferBudget configuration-only checkpoint
+
+A complete executable-wide absolute-reference and raw-pointer scan shows that `TransferBudget` (`0x821DC0`), `TransferBudget2K` (`0x821DA8`), and the neighboring mapped wage/facilities/stadium/misc budget globals are referenced only by their tuning-loader writes. No later direct read or data-pointer reference exists.
+
+This rules them out as the authoritative live per-club/user budget storage. The current trace must continue through board/business runtime objects, budget messages, and expenditure checks.
+
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
