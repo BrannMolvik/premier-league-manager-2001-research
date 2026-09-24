@@ -84,6 +84,7 @@ def prepared_side(side_id):
             condition=100,
             form_state=2,
             current_position=role,
+            balance_position_code=int(role),
             preferred_positions=(int(role), 0, 0),
             skills=(50,) * 17,
         )
