@@ -1754,3 +1754,100 @@ and the two position-state codes must **not** be conflated.
 The clean-room reconstruction now carries the second field explicitly as `balance_position_code`. It is required from prepared match-day state instead of silently defaulting to the assigned role. Regression source includes a case where current role 12 and balance code 3 deliberately differ, proving that the matrix row and balance factor are independently selected.
 
 This same +0x05 accessor is also used by the discipline candidate helper for its special `code == 8` selection bias, providing an additional independent use of the field.
+## AI substitution routine `0x62E2F0`
+
+**Confirmed from the canonical executable.**
+
+The normal five-minute scheduler calls the AI substitution routine only after the chance, Condition/injury, and discipline paths. After each attacking sequence it performs `RNG(7)`; only a zero result invokes `0x62E2F0`, and the side passed to the substitution routine is the **opposite side from the scheduler-selected attacker**.
+
+The routine exits unless all of the following hold:
+
+- generic MatchCalculator guard byte `+0x1145` is nonzero;
+- the selected side is AI controlled (`0x4037B0(team)` is false);
+- the current minute meets the substitution timing threshold;
+- the selected side is not currently leading.
+
+The timing helper `0x409A70` starts at 3 and scans the original starting XI, decrementing once for every original starter whose active-player bit is no longer set. The threshold is then:
+
+```
+threshold_minute = (9 - remaining_value) * 10
+```
+
+For an untouched starting XI this gives the first possible automatic change at minute 60. After one original starter has left active state it becomes 70, then 80 after two. Because the helper literally counts inactive original starters rather than a separate abstract substitution counter, reconstruction should preserve that state-derived behavior.
+
+Outgoing candidates are scanned over the original eleven lineup slots in reverse order and must still be active. The two role-band helpers together accept only current assigned roles **8..19**. Therefore this automatic AI path does not choose goalkeepers or roles 2..7 as the outgoing player.
+
+For each eligible outgoing player, team helper `0x409950` scans the selected match-participant roster for players in the substitute-available state. It computes `0x41C7E0(candidate, outgoing_current_role)` and keeps the first candidate with the strictly greatest role rating. The helper separately starts with a value of 3 and decrements for every participant who is neither active nor substitute-available; if the resulting value is non-positive, no replacement is returned. After `0x409950` returns, `0x62E2F0` also requires the chosen replacement's pre-substitution current role to be in 8..19.
+
+The outer routine evaluates each surviving outgoing/incoming pair as:
+
+```
+outgoing_value = current_role_rating(outgoing) * form_multiplier(outgoing)
+incoming_value = role_rating(incoming, outgoing_current_role) * form_multiplier(incoming)
+difference = trunc_toward_zero(outgoing_value - incoming_value)
+```
+
+The initial best difference is 200, and the pair with the **strictly smallest** difference is retained. Thus the routine prefers the largest role-and-form improvement, while preserving first encountered candidates on ties.
+
+`current_role_rating(outgoing)` is helper `0x41E1B0`, which simply obtains the outgoing player's current assigned role and calls `0x41C7E0` for that role.
+
+### Role rating helper `0x41C7E0`
+
+The role-rating helper is now fully specified for the roles used by the substitution path.
+
+Each selected raw current skill is first converted to the game's 0..30 display scale:
+
+```
+display_skill = floor((30 * raw_skill + 128) / 255)
+```
+
+Seven weighted display skills are then summed. Canonical skill indices use the 17-skill order already documented in `PLAYER_DEVELOPMENT.md`:
+
+```text
+role 1 :  Strength .3, Confidence .4, Speed .2, Passing .1, Awareness .7, Agility .7, Goalkeeping .9
+role 2 :  Strength .3, Confidence .5, Speed .5, Heading .4, Shooting .1, Passing .6, Tackling .9
+role 3 :  Strength .3, Confidence .5, Speed .5, Heading .4, Shooting .1, Passing .6, Tackling .9
+role 4 :  Strength .3, Confidence .5, Speed .5, Heading .6, Shooting .1, Passing .4, Tackling .9
+role 5 :  Strength .3, Confidence .4, Speed .5, Heading .3, Shooting .2, Passing .7, Tackling .9
+role 6 :  Strength .3, Confidence .4, Speed .6, Heading .2, Shooting .3, Passing .7, Tackling .8
+role 7 :  Strength .3, Confidence .4, Speed .6, Heading .2, Shooting .3, Passing .7, Tackling .8
+role 8 :  Strength .3, Confidence .4, Speed .4, Heading .5, Shooting .2, Passing .6, Tackling .9
+role 9 :  Strength .3, Confidence .3, Speed .3, Heading .5, Shooting .3, Passing .9, Tackling .7
+role 10:  Strength .3, Confidence .3, Speed .4, Heading .5, Shooting .3, Passing .9, Tackling .6
+role 11:  Strength .3, Confidence .3, Speed .4, Heading .5, Shooting .3, Passing .9, Tackling .6
+role 12:  Strength .3, Confidence .3, Speed .4, Heading .5, Shooting .3, Passing .9, Tackling .6
+role 13:  Strength .3, Confidence .4, Speed .7, Heading .2, Shooting .5, Passing .8, Tackling .4
+role 14:  Strength .3, Confidence .4, Speed .7, Heading .2, Shooting .5, Passing .8, Tackling .4
+role 15:  Strength .3, Confidence .4, Speed .4, Heading .4, Shooting .6, Passing .8, Tackling .4
+role 16:  0
+role 17:  0
+role 18:  Strength .3, Confidence .4, Speed .5, Heading .5, Shooting .9, Passing .5, Tackling .2
+role 19:  Strength .3, Confidence .5, Speed .6, Heading .6, Shooting .9, Passing .2, Tackling .2
+```
+
+Every nonzero role's seven weights sum to 3.3. The weighted sum is multiplied by the existing `0x4EA440` positional-compatibility multiplier for the queried role, capped at 99.0, then 0.49 is added and `0x668350` truncates toward zero:
+
+```
+role_rating = trunc_toward_zero(
+    min(weighted_sum * positional_compatibility, 99.0) + 0.49
+)
+```
+
+Roles 16 and 17 route to the zero branch in this release.
+
+### Substitution mutation and type-10 event
+
+Team mutation helper `0x409AC0` copies two position-state values from outgoing to incoming before switching their active/substitute state:
+
+- current assigned role, low five bits of position-state `+0x03`;
+- the low four-bit auxiliary value at position-state `+0x04`.
+
+It does **not** copy the separate `+0x05` balance-position code used by team strength and discipline. The outgoing player's position state is subsequently reset through `0x4EA370`.
+
+The type-10 creator `0x62EF90` creates a substitution record carrying:
+
+- side;
+- outgoing side-local player index at record `+0x08`;
+- incoming side-local player index at record `+0x30`.
+
+The event minute is supplied by the caller. This is sufficient to represent the semantic substitution record independently of FastView presentation.
