@@ -64,6 +64,8 @@ class RuntimePlayer:
     target_raw: tuple[int, ...]
     development: DevelopmentState | None
     training_modifiers: list[int] = field(default_factory=lambda: [0] * 17)
+    match_active: bool = False
+    match_substitute_available: bool = False
 
     @classmethod
     def from_database_player(
@@ -107,6 +109,21 @@ class RuntimePlayer:
             target_raw=target,
             development=development,
         )
+
+    def set_match_active(self) -> None:
+        """Mirror DBRPlayer +0x14 bit-4 setter 0x4182F0."""
+        self.match_active = True
+        self.match_substitute_available = False
+
+    def set_match_substitute_available(self) -> None:
+        """Mirror DBRPlayer +0x14 bit-5 setter 0x4182C0."""
+        self.match_substitute_available = True
+        self.match_active = False
+
+    def clear_match_selection(self) -> None:
+        """Clear the two proven match-selection flags used by 0x510CD0."""
+        self.match_active = False
+        self.match_substitute_available = False
 
     @property
     def full_name(self) -> str:
