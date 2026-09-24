@@ -507,3 +507,21 @@ Conclusion:
 
 Status:
 - ruled out.
+
+
+## Treat DBRUser +0x5B8..+0x5D8 as grouped chairman budget state
+
+Why it looked plausible:
+- repeated compact triplet layout in the per-user runtime object;
+- sits near other persistent manager/finance state.
+
+Disproof:
+- DBRUser load code reconstructs list contents at +0x5B8/+0x5C4/+0x5D0;
+- allocated elements are 0x218-byte polymorphic objects constructed by `0x4CA610`;
+- RTTI resolves vtable `0x7C6834` to **CSupportStaff** and the original Support.cpp module.
+
+Conclusion:
+- these are support-staff list containers, not chairman budgets.
+
+Status:
+- ruled out.
