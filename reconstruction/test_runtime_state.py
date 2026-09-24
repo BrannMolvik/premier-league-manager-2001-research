@@ -70,6 +70,7 @@ class RuntimePlayerTests(unittest.TestCase):
         self.assertEqual(player.current_position, 12)
         self.assertEqual(player.position_aux_code, 0)
         self.assertEqual(player.balance_position_code, 10)
+        self.assertFalse(player.non_eu)
         self.assertEqual(player.skills, (100,) * 17)
         self.assertEqual(player.preferred_positions, (12, 18, 0))
 
