@@ -665,3 +665,63 @@ RTTI independently identifies those two sender bases:
 Therefore MatchCalculator types **0..4 are not simply "normal goal / own goal" categories**. Own-goal attribution is orthogonal to the type code and can accompany the goal-family record model through +0x20.
 
 This substantially narrows the remaining type-0..4 problem to the *kind/source/context of scoring event* rather than scorer-vs-own-goal identity.
+
+
+## Goal-family outcome code resolved at record +0x24
+
+The apparent contradiction where types 1..4 were sometimes created without a score increment is now resolved.
+
+These records describe **goal-scoring chances/outcomes**, while field `record +0x24` stores the chance result.
+
+### Base outcome values
+
+Across the type-1, type-2, type-3 and type-4 creation branches:
+
+- **+0x24 = 0** -> **goal**
+  - every verified branch with this base value increments side score at match record `+0xD4C/+0xD50` immediately before record creation;
+- **+0x24 = 1** -> **miss / failed shot before goalkeeper save resolution**
+  - these branches create the chance record without incrementing the score;
+  - in the clearest type-4 shooting path this outcome is selected before the goalkeeper-vs-shot contest is entered;
+- **+0x24 = 2** -> **saved/stopped by goalkeeper**
+  - no score increment occurs;
+  - in the type-4 path this result is generated after the goalkeeper `Goalkeeping` (+0x2B) contest defeats the shooter's chance.
+
+### +3 presentation variant
+
+The common record creators draw RNG(0..99) and compare against float constant `0x83B4FC = 10.0`.
+
+On the selected branch they add **3** to the base outcome:
+
+- 0 -> 3
+- 1 -> 4
+- 2 -> 5
+
+Thus the semantic result is preserved by `outcome % 3`; the +3 bank is a secondary presentation/variant encoding rather than a different football result.
+
+Exact purpose of the +3 variant (for example alternate FastView/animation treatment) remains unresolved.
+
+### MatchController confirms goal-only forwarding
+
+For MatchCalculator types 0..4, MatchController at `0x51993A` reads record +0x24.
+
+It continues to construct/send semantic `EventGoal` only when:
+
+- +0x24 == 0, or
+- +0x24 == 3.
+
+Values 1/2/4/5 are skipped by the semantic goal sender.
+
+Therefore the class name `EventGoal` is literal: only scored outcomes from the broader calculator chance records reach FastView as EventGoal.
+
+### Consequence
+
+MatchCalculator types 0..4 identify **chance/source families**, not success/failure.
+
+Success is orthogonally encoded by `+0x24`, while own-goal attribution is separately encoded by `+0x20`.
+
+The scoring record model is therefore:
+
+- `+0x28` = chance/source family type;
+- `+0x24 mod 3` = outcome (goal / miss / saved);
+- `+0x20` = scoring-side inversion / own-goal flag;
+- `+0x2C` = additional context flag, still being resolved.
