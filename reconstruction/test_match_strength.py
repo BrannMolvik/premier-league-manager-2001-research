@@ -116,7 +116,7 @@ class TeamStrengthTests(unittest.TestCase):
                 match_bias=4,
                 user_controlled=True,
                 aggression=9,
-                captain_player_index=subject.player_index,
+                captain_priority=(subject.player_index,),
             ),
         )
         self.assertAlmostEqual(actual, expected)
@@ -132,7 +132,7 @@ class TeamStrengthTests(unittest.TestCase):
                 match_bias=2,
                 user_controlled=False,
                 aggression=9,
-                captain_player_index=subject.player_index,
+                captain_priority=(subject.player_index,),
             ),
         )
         self.assertAlmostEqual(actual, base * 1.05)
@@ -170,7 +170,7 @@ class TeamStrengthTests(unittest.TestCase):
                 match_bias=1,
                 user_controlled=True,
                 aggression=0,
-                captain_player_index=players[0].player_index,
+                captain_priority=(players[0].player_index,),
             ),
         )
         self.assertAlmostEqual(actual, expected)
