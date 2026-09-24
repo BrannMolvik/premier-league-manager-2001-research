@@ -496,6 +496,13 @@ No separate transfer-budget scalar write is visible in the immediate transfer-co
 
 Exact next target: locate the board transfer-allocation source and the comparison/derivation that combines it with category-1000 spending or triggers `OVERSPENTBUDGET`.
 
+
+## Command-line handoff checkpoint
+
+The executable now has a concrete startup command-line trace: WinMain's `lpCmdLine` is passed through `0x531AF0 -> 0x531C10`, and under the `0x5160B0` startup option it is stored by `0x530380` into global `0x87784C`.
+
+The immediate next step is to identify the later consumer/parser of this stored pointer and correlate it with the literal command table at `0x828510..0x828568`.
+
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
