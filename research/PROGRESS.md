@@ -836,6 +836,17 @@ It is a 0x1BC4-byte object constructed by `0x65CB20`, contains an RTTI-identifie
 Therefore +0x6B0 is not chairman transfer-budget storage. Its use in `CMonthHistory` supplies stadium/attendance/ticketing context.
 
 Exact next target: continue tracing quarterly board-budget calculation and/or retrieval of prior `EAMchairbudgetsettings` state rather than remaining stadium/business objects.
+
+
+## DBRUser architecture checkpoint
+
+RTTI now proves the large object previously called the "game/session" object is actually **DBRUser** (vtable 0x7BDF4C, constructor ~0x424CA0).
+
+This object owns the six Balance pointers and all the mapped per-manager finance/business state at +0x670 onward, including funding requests, commercial state, concessions, season tickets, bank loans, sponsors, training, stadium, movements and monthly histories.
+
+This materially narrows the transfer-budget search: the chairman allocation should be treated as **per-user DBRUser-owned or DBRUser-derived state**, not as a global club scalar by default.
+
+Exact next target: inspect DBRUser fields and rule/board logic that populate EAMchairbudgetsettings, especially transfer budget +0x58, and test whether the value is persisted directly or reconstructed from user financial history/ledger state.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
