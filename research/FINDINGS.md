@@ -521,3 +521,15 @@ Confirmed:
 - type-2 delivered free kicks and type-3 corners require Set Piece execution and reuse the common finishing primitives;
 - type-3 corners require a receiver distinct from the corner taker;
 - type-2/type-3 creators use the 10% +3 presentation variant and do not use own-goal inversion.
+
+
+## Match five-minute attack-frequency driver
+
+Confirmed:
+
+- each five-minute segment derives one attack weight per side from opposing 0x62F140/0x62F3E0 team-strength ratios;
+- side 0 is multiplied by 1.10 and side 1 by 0.90 before conversion;
+- sequence_count = floor((W0 + W1) / 30);
+- each sequence chooses side 0 when RNG(W0+W1) < W0, otherwise side 1;
+- sequence event minute = segment_start + floor(5*i/N) + 1;
+- each selected sequence calls the normal chance shell 0x62C740, followed by condition/injury and discipline updates.
