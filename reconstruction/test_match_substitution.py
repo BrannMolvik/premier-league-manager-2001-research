@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from match_substitution import (
     ai_substitution_threshold_minute,
     apply_ai_substitution,
+    apply_injury_substitution,
     best_available_replacement,
     substitution_availability_value,
     substitution_timing_value,
@@ -87,6 +88,41 @@ class SubstitutionStateTests(unittest.TestCase):
         replacement = best_available_replacement(players, 12)
         self.assertIsNotNone(replacement)
         self.assertEqual(replacement.player_index, 1)
+
+
+class InjurySubstitutionTests(unittest.TestCase):
+    def test_ai_injury_replacement_allows_defender_roles(self):
+        injured = player(0, 4, 60, active=True, aux=3)
+        bench = player(1, 4, 220, active=False, bench=True)
+
+        event = apply_injury_substitution(
+            0,
+            0,
+            [injured, bench],
+            user_controlled=False,
+        )
+
+        self.assertIsNotNone(event)
+        self.assertEqual(event.outgoing_player_index, 0)
+        self.assertEqual(event.incoming_player_index, 1)
+        self.assertFalse(injured.active)
+        self.assertTrue(bench.active)
+        self.assertEqual(bench.current_position, 4)
+        self.assertEqual(bench.position_aux_code, 3)
+
+    def test_user_injury_replacement_requires_raw_mode_1_or_3(self):
+        for mode, expected in ((None, False), (0, False), (1, True), (2, False), (3, True)):
+            with self.subTest(mode=mode):
+                injured = player(0, 12, 60, active=True)
+                bench = player(1, 12, 220, active=False, bench=True)
+                event = apply_injury_substitution(
+                    0,
+                    0,
+                    [injured, bench],
+                    user_controlled=True,
+                    match_mode_code=mode,
+                )
+                self.assertEqual(event is not None, expected)
 
 
 class AiSubstitutionTests(unittest.TestCase):
