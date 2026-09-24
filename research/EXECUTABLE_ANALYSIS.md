@@ -1607,3 +1607,37 @@ When the current-money comparison indicates insufficient funds, the code calls `
 The recovered command table has the unique literal `/cash777`, matching this behavior exactly.
 
 This restores the earlier cash-cheat conclusion, but on correct evidence: `0x877559` is an independent developer-state byte, not a stream member.
+
+
+## 0x877552 / 0x516020 budget-cheat candidate: return value currently unused
+
+The sole direct consumer of getter `0x516020` (byte `0x877552`) has now been traced through its complete direct call chain.
+
+### Function 0x5DE530
+
+Finance/business routine `0x5DE530`:
+
+- operates on the club finance/business state associated with club runtime offsets including `+0x670`;
+- constructs and dispatches season/business-related EAM messages;
+- conditionally reads the current-money object at finance `+0x10`;
+- ends unconditionally with `call 0x516020`;
+- returns the getter's AL value directly (`ret 8`).
+
+Thus `0x516020` is not used to branch inside `0x5DE530`; it is merely the routine's returned boolean.
+
+### All direct callers ignore that return
+
+Only two direct calls to `0x5DE530` are present:
+
+- around `0x4A870D`, during season/year processing, called with the current club and mode 0;
+- around `0x4C4826`, during another recurring/seasonal club-finance path, called with the current club and mode 1.
+
+In both cases execution immediately overwrites/ignores EAX/AL after the call. There is no `test al`, conditional branch, or propagation of the value.
+
+### Conclusion
+
+**Confirmed:** in all direct executable call paths currently found, the value returned by `0x516020` / `0x877552` has no behavioral effect.
+
+**Unresolved:** `0x877552` may still be the state associated with literal `/budget777`, but finance proximity alone is insufficient to prove that mapping, and no transfer-budget bypass behavior has yet been found for this byte.
+
+This weakens the earlier assumption that `0x516020` would lead directly to the live transfer-budget guard. Continue looking for the actual budget-limit comparison/state rather than forcing this getter into that role.
