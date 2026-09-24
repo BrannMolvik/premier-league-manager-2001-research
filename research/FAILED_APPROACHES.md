@@ -508,3 +508,24 @@ Conclusion:
 
 Status:
 - ruled out.
+
+
+## Index the small team-strength balance-factor table by current assigned role
+
+Why it looked plausible:
+- the handoff-level formula described attack/defence role factors using runtime role codes;
+- the coefficient matrices themselves are definitely indexed by the current assigned role;
+- many normal formations may give both position-state values related or identical-looking values.
+
+Disproof:
+- direct `0x62F140` and `0x62F3E0` disassembly calls `0x4EA3E0` before loading the small factor table at `0x840D38`;
+- `0x4EA3E0` reads low five bits from position-state byte +0x05;
+- the matrix index later calls the distinct accessor `0x4EA3C0`, which reads byte +0x03;
+- positional compatibility also uses the +0x03 current-role accessor.
+
+Conclusion:
+- the matrix role and balance-factor code are separate inputs.
+- do not infer `position_state +0x05 == current assigned role` unless a specific runtime initialization path proves it for that player.
+
+Status:
+- superseded and corrected in reconstruction.
