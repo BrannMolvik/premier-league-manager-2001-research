@@ -442,9 +442,16 @@ Therefore the global bytes at `0x877550..`, exposed by getters `0x515FF0..0x5160
 
 This supersedes the repository's earlier statement that `0x877550..` were `basic_istringstream` internal bytes.
 
+
+## TransferBudget global-reference checkpoint
+
+Whole-image scanning confirms that `0x821D80..0x821DFF`, including `TransferBudget2K` at `0x821DA8` and `TransferBudget` at `0x821DC0`, has no absolute reference anywhere except the config-loader writes themselves. No direct read or pointer-table entry to that range exists in the executable.
+
+Current implication: do not treat these tuning globals as live budget storage. Continue through the board-budget event/state production path to locate the authoritative per-club/user values.
+
 ## Active Investigation
 
-Current focus: trace how the recovered literal pointer table at `0x828510..0x828568`, the ordered-tree container at `0x877540..0x87754F`, and independent state bytes beginning at `0x877550` are connected. Prove the exact literal-to-state mappings for `/cash777` and `/budget777`, then use the budget path to locate live transfer-budget storage.
+Current focus: (1) trace how the recovered literal pointer table at `0x828510..0x828568`, tree container at `0x877540..0x87754F`, and state bytes at `0x877550+` connect; (2) trace board-budget event production/live business-consultant state because the mapped `TransferBudget` config globals have no executable reads. Prove `/cash777` and `/budget777`, then connect completed transfer postings to the live transfer-budget bucket.
 
 Immediate next steps:
 
