@@ -585,6 +585,23 @@ The event copies +0x40 to ModFmt +0x10 and +0x3C to ModFmt +0x14, exactly matchi
 If +0x40 is -1, the formatter chooses a random selector 1..6, while the generic formatter supports 1..7. Selector 7 being the transfer-budget value is a strong hypothesis but remains unproven.
 
 Exact resume target: find producers/writers of this event's +0x3C/+0x40/+0x44 fields to recover the selector map and the actual live budget update.
+
+
+## Selector dispatch and current-club checkpoint
+
+The chairman extra-cash success selector is now structurally mapped end-to-end:
+
+1 -> 0x60E3BA / global 0x87A870
+2 -> 0x60E3EB / global 0x87A86C
+3 -> 0x60E41C / global 0x87A868
+4 -> 0x60E45B / global 0x87A864
+5 -> 0x60E48C / global 0x87A860
+6 -> 0x60E4CD / global 0x87A85C
+7 -> 0x60E50A / global 0x87A858
+
+All seven branches format the same increase amount with `TRANSFERBUDGETINCREASE`; only the localized success template changes. Semantic bucket names are not yet attached to the numeric selector values, so selector 7 remains probable rather than confirmed as transfer budget.
+
+The heavily referenced game/session pointer at `+0x5B4` has also been ruled out as a budget-controller object: initialization `0x4258D0..0x4258F2` stores an incoming current club/team pointer directly into that field. Resume from the event producer / club finance state, not game +0x5B4 as a separate store.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
