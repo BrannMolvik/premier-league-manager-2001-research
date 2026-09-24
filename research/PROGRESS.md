@@ -865,6 +865,15 @@ A five-qword financial-looking block at DBRUser `+0x588..+0x5AC` was tested as a
 It is **not** that structure: the initialization path is fed by radio/TV/European media-rights tuning keys including `LRADIO_RES`, `NRADIO_RES`, `NTV_RES`, and `EUROPEAN_RES`.
 
 So the five-value resemblance is coincidental. Continue the chairman-budget search elsewhere in DBRUser-derived state / board calculation paths.
+
+
+## DBRUser support-staff list checkpoint
+
+The repeated DBRUser triplets at **+0x5B8, +0x5C4 and +0x5D0** are now identified as list containers for RTTI class **CSupportStaff**. Load code reconstructs 0x218-byte CSupportStaff objects and appends them through the common list helper. The adjacent +0x5E0 triplet is also list/container state.
+
+Therefore this structured DBRUser block is not chairman budget storage.
+
+Exact next target: continue through the monthly/calendar path at `0x42AEB0` and its downstream board/business logic, looking for the producer or derivation supplying `EAMchairbudgetsettings +0x58 = TRANSFERBUDGET`.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
