@@ -1,6 +1,11 @@
 import unittest
 
-from match_role_rating import ROLE_SKILL_WEIGHTS, display_skill, role_rating
+from match_role_rating import (
+    ROLE_SKILL_WEIGHTS,
+    best_preferred_role_rating,
+    display_skill,
+    role_rating,
+)
 
 
 class RoleRatingTests(unittest.TestCase):
@@ -38,6 +43,27 @@ class RoleRatingTests(unittest.TestCase):
         # role here and therefore receives the exact 0.50 compatibility factor.
         self.assertEqual(preferred_rating, 49)
         self.assertEqual(out_of_position_rating, 25)
+
+    def test_best_preferred_role_rating_matches_41e1d0_maximum(self):
+        raw = [80] * 17
+        raw[6] = 255
+        preferred = (12, 18, 0)
+
+        expected = max(
+            role_rating(raw, 12, preferred),
+            role_rating(raw, 18, preferred),
+        )
+        self.assertEqual(
+            best_preferred_role_rating(raw, preferred),
+            expected,
+        )
+
+    def test_best_preferred_role_rating_ignores_zero_slots(self):
+        raw = (100,) * 17
+        self.assertEqual(
+            best_preferred_role_rating(raw, (0, 0, 0)),
+            0,
+        )
 
     def test_invalid_skill_vector_is_rejected(self):
         with self.assertRaises(ValueError):
