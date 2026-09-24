@@ -437,3 +437,21 @@ Conclusion:
 
 Status:
 - ruled out.
+
+
+## Treat EAMChairmanNotEnoughFunds as the transfer-budget reserve check
+
+Why it looked promising:
+- distinct chairman-specific event name;
+- emitted from a real gameplay financial path rather than pure UI registration.
+
+Disproof:
+- immediately before construction at `0x4EECA0`, the requested monetary value is passed through `0x404AE0`;
+- `0x404AE0` is independently proven as the current-cash affordability helper;
+- the event is taken only on that cash-test failure branch.
+
+Conclusion:
+- `EAMChairmanNotEnoughFunds` reports insufficient current cash, not exhaustion of the separate chairman transfer-budget reserve.
+
+Status:
+- ruled out as transfer-budget storage/check.
