@@ -384,9 +384,16 @@ The budget trace therefore returns to the event creation/population path for `EA
 `bcmonthlybudget` (event ID 0xA1) is now mapped: +0x3C total, +0x40 staff, +0x44 player wages, +0x48 maintenance, +0x4C misc, +0x50 buildings, +0x54 transfers. This differs from the season-start message and gives a recurring event to trace back to live budget state.
 
 
+## Budget-config checkpoint
+
+The board/business budget defaults are now mapped to their exact globals, including `TransferBudget = 0x821DC0` and `TransferBudget2K = 0x821DA8`, with matching staff/player-wage/facilities/stadium/misc globals.
+
+Also verified: the generic event allocator's A3/A4 tags are not EAM IDs. `bcstartseasonmail` still identifies itself as event A0, and `bcmonthlybudget` as A1.
+
+
 ## Active Investigation
 
-Current focus: trace the actual EAMbcstartseasonmail creation/population path now that runtime club +0x3C..+0x54 has been ruled out as budget storage.
+Current focus: follow the mapped budget-default globals (especially TransferBudget at 0x821DC0) into the live per-club/user budget state, using board/finance initialization and monthly/start-season message population.
 
 Immediate next steps:
 
