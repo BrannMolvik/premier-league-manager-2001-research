@@ -46,7 +46,11 @@ class MatchSkillPlayer:
     current_position: int
     preferred_positions: tuple[int, int, int]
     shooting: int = 0
+    tackling: int = 0
+    heading: int = 0
+    control: int = 0
     goalkeeping: int = 0
+    set_piece: int = 0
     minimum_strength_override: bool = False
 
     def __post_init__(self) -> None:
@@ -56,7 +60,7 @@ class MatchSkillPlayer:
             raise ValueError("player_index must be non-negative")
         if len(self.preferred_positions) != 3:
             raise ValueError("FM2001 position state requires exactly three preferred positions")
-        for name in ("condition", "shooting", "goalkeeping"):
+        for name in ("condition", "shooting", "tackling", "heading", "control", "goalkeeping", "set_piece"):
             value = int(getattr(self, name))
             if not 0 <= value <= 255:
                 raise ValueError(f"{name} must be in 0..255")
@@ -202,6 +206,121 @@ def effective_match_skill(
     value = int(value * position_compatibility_multiplier(current_position, preferred_positions))
     value = int(value * form_multiplier(form_state))
     return value if value != 0 else 1
+
+
+
+def _effective_player_skill(player: MatchSkillPlayer, raw_skill: int) -> int:
+    return effective_match_skill(
+        raw_skill,
+        player.condition,
+        player.current_position,
+        player.preferred_positions,
+        player.form_state,
+        player.minimum_strength_override,
+    )
+
+
+def choose_finish_mode(player: MatchSkillPlayer, rng: BoundedRng):
+    """Heading-vs-Shooting selector used by active chance families."""
+    from match_events import FinishMode
+
+    heading = _effective_player_skill(player, player.heading)
+    shooting = _effective_player_skill(player, player.shooting)
+    return FinishMode.HEADED if rng.randbelow(heading + shooting) < heading else FinishMode.SHOOTING
+
+
+def heading_duel_won(
+    attacker: MatchSkillPlayer,
+    defender: MatchSkillPlayer | None,
+    rng: BoundedRng,
+) -> bool:
+    """0x62BD80: attacker Heading versus defender Heading."""
+    if defender is None:
+        return True
+    attack = _effective_player_skill(attacker, attacker.heading)
+    defend = _effective_player_skill(defender, defender.heading)
+    return rng.randbelow(attack + defend) < attack
+
+
+def control_tackle_duel_won(
+    attacker: MatchSkillPlayer,
+    defender: MatchSkillPlayer | None,
+    rng: BoundedRng,
+) -> bool:
+    """0x62C0D0: attacker Control versus defender Tackling."""
+    if defender is None:
+        return True
+    attack = _effective_player_skill(attacker, attacker.control)
+    defend = _effective_player_skill(defender, defender.tackling)
+    return rng.randbelow(attack + defend) < attack
+
+
+def _accuracy_gate(player: MatchSkillPlayer, raw_skill: int, rng: BoundedRng) -> bool:
+    """Shared RNG(320) skill gate used by Heading/Shooting/Set Piece helpers."""
+    roll = rng.randbelow(320)
+    threshold = _effective_player_skill(player, raw_skill) // 100
+    if roll < threshold:
+        return True
+    return rng.randbelow(2) == 0
+
+
+def heading_attempt_on_target(player: MatchSkillPlayer, rng: BoundedRng) -> bool:
+    """0x62BFC0."""
+    return _accuracy_gate(player, player.heading, rng)
+
+
+def shooting_attempt_on_target(player: MatchSkillPlayer, rng: BoundedRng) -> bool:
+    """0x62C310."""
+    return _accuracy_gate(player, player.shooting, rng)
+
+
+def set_piece_execution_succeeds(player: MatchSkillPlayer, rng: BoundedRng) -> bool:
+    """0x62C420, using the Set Piece attribute at runtime +0x2E."""
+    return _accuracy_gate(player, player.set_piece, rng)
+
+
+def goalkeeper_stops_open_play(
+    goalkeeper: MatchSkillPlayer,
+    current_attacking_score: int,
+    rng: BoundedRng,
+) -> bool:
+    """Outcome behavior of 0x62C530.
+
+    True means the caller records SAVE/stopped outcome. False means the chance
+    passes the goalkeeper/high-score gate and can be recorded as a GOAL.
+    """
+    score = int(current_attacking_score)
+    if score < 0:
+        raise ValueError("current_attacking_score must be non-negative")
+
+    save_roll = rng.randbelow(256)
+    threshold = _effective_player_skill(goalkeeper, goalkeeper.goalkeeping) // 100
+    if save_roll < threshold:
+        return True
+
+    if rng.randbelow(10) >= 10 - score:
+        return True
+    return False
+
+
+def encode_open_play_outcome(base_outcome: int, minute: int, rng: BoundedRng) -> int | None:
+    """Record-creator behavior of 0x62ECF0 for source type 1.
+
+    Before minute 130, plain MISS (1) records are suppressed unless the 10%
+    presentation-variant roll turns them into 4. At minute >=130 (shootout
+    compatibility use), no +3 variant is applied and misses are retained.
+    """
+    outcome = int(base_outcome)
+    minute = int(minute)
+    if outcome not in (0, 1, 2):
+        raise ValueError("base_outcome must be 0, 1, or 2")
+
+    if rng.randbelow(100) < 10 and minute < 130:
+        outcome += 3
+
+    if minute < 130 and outcome == 1:
+        return None
+    return outcome
 
 
 def _presentation_outcome(base_outcome: int, rng: BoundedRng) -> int:
