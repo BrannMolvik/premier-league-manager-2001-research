@@ -2024,3 +2024,32 @@ around `0x46C4D2..0x46C730` were inspected and are UI/event-handler registration
 Likewise immediate `0xA1` references at `0x4B480F`, `0x4B4849`, and `0x4D2F4E` are UI/control registration for `bcmonthlybudget`, not the runtime population path.
 
 Do not use these immediate event-ID xrefs as evidence for live budget storage.
+
+
+## bcmonthlyincome transfer-fee field checkpoint
+
+RTTI resolves vtable `0x7D00FC` as `EAMbcmonthlyincome`.
+
+Relevant methods:
+
+- constructor `0x541A80`
+- ID accessor `0x541AB0` -> `0x9F`
+- name accessor `0x541AC0` -> `"bcmonthlyincome"`
+- formatter `0x5724D0`
+- serialization-related method `0x5730C0`
+
+The formatter uses EA's own literal formatter keys to label the seven business-income dwords:
+
+- `+0x3C` -> `GATE`
+- `+0x40` -> `MERCH`
+- `+0x44` -> `CONC`
+- `+0x48` -> `ADVERTS`
+- `+0x4C` -> `SPONSOR`
+- `+0x50` -> `TELLY`
+- `+0x54` -> `TRANSFERFEES`
+
+The literal `TRANSFERFEES` is at `0x832904` and has only three references, all formatter variants inside `0x5724D0`.
+
+This gives an exact EA-authored semantic label for the monthly-business event's `+0x54` field.
+
+**Not yet proven:** although transfer postings use accounting category 1000 and Finance Overview has a dedicated category-1000 row, the population path connecting category 1000 directly to `EAMbcmonthlyincome +0x54` has not yet been recovered. Keep that relationship as a hypothesis until a producer/aggregation path is found.
