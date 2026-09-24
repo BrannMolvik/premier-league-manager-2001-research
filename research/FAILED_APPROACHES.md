@@ -286,3 +286,21 @@ Conclusion:
 
 Status:
 - ruled out as a distinct budget store.
+
+
+## Treat Balance +0x50 / ChairmanPercentBudgetMiss as transfer-budget enforcement
+
+Why it looked promising:
+- `ChairmanPercentBudgetMiss` is an explicit chairman/budget tuning key with a live gameplay read;
+- routine `0x5E1D90` compares Balance state against current cash.
+
+Disproof:
+- the compared value is Balance +0x50 inside the serialized financial-state block;
+- the percentage calculation is exactly `target * ChairmanPercentBudgetMiss * 0.01`;
+- the two generated events are RTTI-identified as `EAMManagerObjectiveContinuedSuccess` and `EAMManagerFailedObjective`.
+
+Conclusion:
+- this is the manager/chairman financial-objective tolerance system, not the seven spending-budget buckets or transfer-budget affordability.
+
+Status:
+- ruled out as authoritative transfer-budget storage/check.
