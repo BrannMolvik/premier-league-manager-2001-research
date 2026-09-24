@@ -2336,3 +2336,68 @@ If the selector is -1, the formatter randomizes among 1..6; the formatter also h
 This **supersedes** the earlier hypothesis that selector 1..7 mapped the seven chairman budget buckets or that selector 7 specifically denoted transfer budget. The entire event is already transfer-budget-specific; `EAMchairextraforallbudgets` is the separate across-the-board budget-increase event.
 
 The same English resource also states in the chairman budget-settings mail that the transfer budget “currently stands at” a value while the manager is free to buy and sell players as desired. This is consistent with the binary evidence that completed transfer affordability is enforced against current cash, while transfer budget is a distinct board allocation/reference concept. The exact storage/derivation of that displayed transfer-budget value remains unresolved.
+
+
+## Manager-initiated extra-funds request event
+
+The manager-facing “ask the chairman for extra funds” feature is now tied to a specific EAM event family rather than inferred from the automatic `chairextratransfersuccess` mail.
+
+### EAMFundRequest
+
+RTTI/string data identifies:
+
+- type: `EAMFundRequest`
+- vtable: `0x7D4C04`
+- constructor/reset routine: `0x545C10`
+- event ID accessor: `0x545C40` -> **0x185**
+- name accessor: `0x545C50` -> `"FundRequest"`
+- serialization routines include `0x56E6A0` and `0x59E300`
+
+The event serializes three dwords:
+
+- `+0x38`
+- `+0x3C`
+- `+0x40`
+
+Their exact semantic names are not yet assigned.
+
+### EAMFundRequestReject
+
+The immediately following event is:
+
+- type: `EAMFundRequestReject`
+- vtable: `0x7D4C60`
+- constructor/reset routine: `0x545C60`
+- event ID accessor: `0x545C90` -> **0x186**
+- name accessor: `0x545CA0` -> `"FundRequestReject"`
+
+### UI/event registration evidence
+
+Event ID 0x185 is registered/handled in several UI/message paths, including code around:
+
+- `0x4365C4`
+- `0x44CCEC`
+- `0x44D012`
+- `0x46C158`
+
+These references are registration/presentation plumbing and should not by themselves be treated as the gameplay decision producer.
+
+### English resource evidence
+
+Decoded `ENGLIS2.STR` index **1465** is the manager's outgoing request to the chairman. It explicitly asks that “further monies be made available” for squad strengthening.
+
+Nearby response strings include:
+
+- index **1468**: chairman refusal because the club's financial circumstances cannot allow extra funding;
+- index **1470**: chairman response granting a **loan** amount that must be repaid after a specified number of months.
+
+This proves the user-initiated funding-request system is broader than the automatic transfer-budget-increase mail: at least one accepted response can be structured as repayable funding.
+
+### Next trace
+
+Follow the `EAMFundRequest` handling/decision path into the accept/reject event family and identify:
+
+1. where the requested/approved amount is calculated;
+2. whether the approved funds modify current cash, transfer budget, or both;
+3. where the repayment term is stored;
+4. how this interacts with the separate automatic `EAMchairextratransfersuccess` transfer-budget increase.
