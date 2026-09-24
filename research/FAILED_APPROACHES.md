@@ -380,3 +380,23 @@ Conclusion:
 
 Status:
 - definitively rejected as live transfer-budget storage.
+
+
+## Interpret `push 0x44C` in Balance.cpp as allocation of EAMchairbudgetwarning
+
+Why it looked promising:
+- `EAMchairbudgetwarning` is 0x44C bytes;
+- several Balance.cpp sites contain `push 0x44C`;
+- some occur near finance aggregation.
+
+Disproof:
+- the following instruction flow passes 0x44C directly as a category argument to ledger routines rather than to operator new;
+- Stadium Manager/Groundsman expenditure paths use the same 0x44C value while constructing category-tagged finance postings and then debit Balance;
+- Finance Overview independently queries the same category through its aggregation helper.
+
+Conclusion:
+- these are accounting category **1100** references, not event allocations.
+- event size and category value happen to be numerically identical.
+
+Status:
+- rejected before being used as producer evidence.
