@@ -637,3 +637,14 @@ For the player's current club, those predicates map to `DBRPlayer+0x14`:
 Setter `0x4182F0` sets active and clears substitute state. Setter `0x4182C0` sets substitute state and clears active. Removal helper `0x4181B0` clears both and resets position state.
 
 The AI lineup routine `0x409C90` runs before participant collection for non-user-controlled teams. Therefore automatic match preparation can be reconstructed as lineup-state assignment followed by the exact ordered participant filter, rather than inventing a separate match-only roster.
+## Exact DBRPlayer match-state initialization defaults
+
+**Confirmed**
+
+Runtime player initialization now supplies three formerly caller-supplied match inputs exactly:
+
+- Condition byte `DBRPlayer+0x77` initializes to **80**;
+- Form byte `DBRPlayer+0x192` initializes to neutral state **2**;
+- the position-state constructor copies preferred role 0 into assigned role `+0x03`, clears the low nibble of `+0x04`, and forces the low five bits of `+0x05` to **10**.
+
+The last value is the same separate `balance_position_code` already proven to index the small team-strength balance table and participate in discipline candidate selection. Its higher-level semantic label remains unresolved, but its initialization no longer is.
