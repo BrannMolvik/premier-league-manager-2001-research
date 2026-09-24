@@ -1390,3 +1390,67 @@ The real cheat parser must now be recovered from the literal command table itsel
 5. Locate tuning-key loader and recover target globals.
 6. Trace MatchCalculator/MatchEngine event production.
 7. Trace FastView consumption of match events and rendering state.
+
+
+## Literal cheat-command pointer table recovered
+
+Fresh analysis was performed against the exact hashed `footballmanager.exe` recorded in `FINDINGS.md`.
+
+### Confirmed literal table
+
+The known developer switches are referenced by one contiguous pointer table in `.data`:
+
+- `0x828510` -> `/nofmvplease777`
+- `0x828514` -> `/fastbuild777`
+- `0x828518` -> `/budget777`
+- `0x82851C` -> `/sacked777`
+- `0x828520` -> `/cash777`
+- `0x828524` -> `/autorun777`
+- `0x828528` -> `/alwayswin777`
+- `0x82852C` -> `/alwayslose777`
+- `0x828530` -> `/countrywin777`
+- `0x828534` -> `/countrylose777`
+- `0x828538` -> `/skipmatchcalc777`
+- `0x82853C` -> `/nolimit777`
+- `0x828540` -> `/nosackwarnings777`
+- `0x828544` -> `/alttab777`
+- `0x828548` -> `/showskill777`
+- `0x82854C` -> `/showstat777`
+- `0x828550` -> `/stadiumflags`
+- `0x828554` -> `/pitchlitter`
+- `0x828558` -> `/pitchwear`
+- `0x82855C` -> `/noslidefx`
+- `0x828560` -> `/cameraflashes`
+- `0x828564` -> `/setslide`
+- `0x828568` -> `/alwayssell`
+
+A raw little-endian absolute-pointer scan finds no direct code references to the individual pointer-table entries, reinforcing the earlier conclusion that the switches are consumed through iteration or another level of indirection rather than one hard-coded xref per literal.
+
+### Important refinement to the stream-accessor correction
+
+The RTTI correction for global `0x877540` remains definitive: accessors that read bytes inside `0x877550..` are standard-library stream/internal-state accessors and must not be relabeled as cheat flags.
+
+However, not every tiny routine in the surrounding `0x515Fxx/0x5160xx` address range reads that stream object. Three separate accessors read globals immediately following the literal command table:
+
+- `0x515FE0`: returns byte `[0x82856C]`
+- `0x516010`: returns byte `[0x82856E]`
+- `0x5160B0`: returns byte `[0x82856F]`
+
+The four bytes at `0x82856C..0x82856F` are initialized to `01 01 01 01` in the image.
+
+Additionally:
+
+- `0x5160F0` loads a qword floating value from `0x828570`.
+
+These `0x82856x` globals are separate from the `0x877540` `basic_istringstream` object. Their exact option meanings are not yet proven and must not be assigned to `/cash777` or `/budget777` without tracing their writers/consumers.
+
+### Exact next trace
+
+Recover the parser/initializer that consumes the pointer table at `0x828510`. Because direct xrefs to individual table slots are absent, search for:
+
+1. command-line API call sites and startup parsing code;
+2. indirect/base-address references spanning the table;
+3. writers to the state corresponding to each command;
+4. callers of the separate `0x82856C/0x82856E/0x82856F` accessors.
+
+Only after a literal-to-state mapping is proven should `/cash777` or `/budget777` be connected to a runtime budget/cash bypass.
