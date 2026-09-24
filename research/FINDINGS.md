@@ -648,3 +648,14 @@ Runtime player initialization now supplies three formerly caller-supplied match 
 - the position-state constructor copies preferred role 0 into assigned role `+0x03`, clears the low nibble of `+0x04`, and forces the low five bits of `+0x05` to **10**.
 
 The last value is the same separate `balance_position_code` already proven to index the small team-strength balance table and participate in discipline candidate selection. Its higher-level semantic label remains unresolved, but its initialization no longer is.
+## AI lineup base availability flags
+
+**Confirmed**
+
+The first three low bits of `DBRPlayer+0x14` are all exclusion inputs to the competitive lineup availability helper `0x418050`.
+
+- bit 0 = **injured**;
+- bit 1 = **banned/suspended**;
+- bit 2 = **separate selection-exclusion state**, exact semantic label unresolved.
+
+The simpler helper `0x418130` tests only bits 0 and 1, confirming injury/suspension as the common global unavailability pair. Bit 2 is managed by a separate club roster-selection path and should not be mislabeled as cup-tied; a distinct `CCupTiedPlayer` persistence class and competition lookup path exist in the executable.
