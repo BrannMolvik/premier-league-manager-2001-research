@@ -2260,3 +2260,57 @@ This independently proves that `DBRPlayer+0x14 bit 2` is **not** the cup-tied st
 After the base club/low-three-bit exclusions, `0x418050` may enter extra competition-registration checks when an additional DBRPlayer flag at `+0x174 bit 8` is set. That flag initializes clear and can be set by team-assignment/new-player paths, but its higher-level semantic name is not yet proven.
 
 Within those context checks, `0x4F8E40` supplies the confirmed cup-tied test. Another competition-specific branch uses `0x419350`; that branch remains unresolved and should not be folded into the generic clean-room availability predicate yet.
+## Manager-driven first-team formation source
+
+**Confirmed from the canonical executable and Master.dat serializer.**
+
+Wrapper `0x409B50` chooses the first-team formation passed into competitive selector `0x409C90`. The source is the club manager runtime record at the club's manager index (`team+0x40`) in the 64-byte runtime manager array.
+
+The three one-byte manager formation fields are:
+
+- runtime manager `+0x20`;
+- runtime manager `+0x21`;
+- runtime manager `+0x22`.
+
+The Master.dat manager serializer `0x414910` proves that these bytes are persisted directly and sequentially. Because the preceding persisted fields consume 24 bytes, they correspond exactly to packed manager-record offsets:
+
+- Master.dat manager `+24` -> runtime `+0x20`;
+- Master.dat manager `+25` -> runtime `+0x21`;
+- Master.dat manager `+26` -> runtime `+0x22`.
+
+Across all 1,612 shipped manager records, +24 and +26 are always formation IDs in 0..20; +25 is likewise 0..20 except for one `0xFF` record. This independently matches the 21-entry formation table.
+
+### Selection-class mapping in `0x409B50`
+
+When the team is in the normal manager-driven path, `0x409500(team)` returns a selection class. `0x409B50` maps that class to the manager fields exactly as follows:
+
+```text
+class 0 -> manager +0x20
+class 1 -> manager +0x22
+class 2 -> manager +0x20
+class 3 -> manager +0x21
+```
+
+So +0x20 is the default formation for classes 0 and 2, while classes 1 and 3 select the two alternates.
+
+The higher-level football labels for classes 1/2/3 are not yet assigned. `0x409500` clearly derives them from match/opponent context, relative ratings and named game-state tuning such as `GSHomeValue`, `GSAwayValue`, `GSRatingDiv`, cup-stage biases and attack/defence thresholds, but that routine is still being mapped. Reconstruction should therefore expose the numeric class mapping without guessing labels such as attacking/defensive until the remaining branches are fully traced.
+
+After selection, `0x409B50` writes the chosen first-team formation back to team `+0x1D8`.
+
+### Competitive selector call arguments from normal match setup
+
+The normal match population path `0x5111A0` now fixes the argument wiring into `0x409B50 -> 0x409C90`.
+
+`0x409C90` receives, in order:
+
+1. availability/context pointer returned by `0x511170`;
+2. team roster count;
+3. manager-derived first-team formation ID;
+4. stored reserve formation ID from team `+0x1DC`;
+5. the match/competition substitute quota;
+6. commit flag = 1;
+7. restriction-enforcement flag = 1.
+
+The substitute quota is the same field returned by dedicated accessor `0x408500(team)`: it resolves the team's current match, dereferences the match competition/context pointer at `+0x4C`, and returns context `+0x1C`. When no current match/context exists, `0x408500` returns the fallback value **5**.
+
+Thus the remaining autonomous team-preparation gap is no longer where formation/quota enter the selector, but how `0x409500` derives its numeric formation-selection class and how the competition object initializes its `+0x1C` substitute-count field.
