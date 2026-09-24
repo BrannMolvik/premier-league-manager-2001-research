@@ -1280,6 +1280,30 @@ Local event-layer regression: **10/10 tests pass**. This establishes the exact s
 
 The current match-stat trace shows `+0x1000/+0x1004/+0x1008` are three segment buckets normalized together into percentage-like arrays, but their exact football labels are not yet proven. Do not label them as possession/territory until their readers establish semantics.
 
+
+
+## Match possession/territory statistics checkpoint
+
+The segment-stat arrays are now semantically separated:
+
+- raw counters `+0x1000/+0x1004/+0x1008` = side 0 / neutral-contested / side 1 possession-control states;
+- `+0x106C[index]` = normalized side-0 percentage;
+- `+0x10CC[index]` = normalized neutral/contested percentage;
+- side-1 percentage is reconstructed as `100 - first - second`;
+- `+0x100C[index]` is a separate territorial/pitch-position metric.
+
+MatchController retrieves all three values every five minutes and emits named `EventPossession`.
+
+FastView `PossessionFigures.cpp` formats the three possession percentages, while `PossessionDiagram` consumes the +0x100C-derived value and switches among `pitch_left/pitch_middle/pitch_right` assets.
+
+This is enough to model the original possession event shape in reconstruction without conflating possession share with territorial position.
+
+Exact next match targets:
+
+1. resolve chance-record +0x2C or prove it is nonessential to semantic FastView;
+2. implement EventPossession in the clean-room event layer;
+3. continue toward the first verified five-minute MatchCalculator slice.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
