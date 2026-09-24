@@ -814,6 +814,17 @@ Exact next target remains the quarterly board-budget producer / remaining persis
 The producer first tests the requested amount through the already-proven current-cash affordability helper `0x404AE0`; the chairman-not-enough-funds event is created only when that cash check fails. Therefore this event is another **current Balance cash** notification, not the missing chairman transfer-budget reserve check.
 
 Exact next target remains the quarterly rebudget producer / event population path that supplies `EAMchairbudgetsettings +0x58 = TRANSFERBUDGET`.
+
+
+## Monthly finance-history checkpoint
+
+The monthly business/calendar path around `0x429CB0` is now tied to RTTI class **CMonthHistory**.
+
+Each month the game builds a 0x68-byte finance snapshot from cash, Balance aggregates, commercial/attendance data, season-ticket state and club values, then appends it to the persistent history container at game/session **+0x6DC**.
+
+This gives a concrete historical-finance input that may feed quarterly chairman rebudgeting. Exact field names remain partly unresolved, and CMonthHistory should not yet be called the transfer-budget store itself.
+
+Exact next target: trace readers of game/session +0x6DC that run on quarterly/board paths and determine whether they calculate the values later placed into EAMchairbudgetsettings, especially +0x58 TRANSFERBUDGET.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
