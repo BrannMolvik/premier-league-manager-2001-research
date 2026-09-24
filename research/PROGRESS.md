@@ -627,6 +627,17 @@ The main finance object at game/session `+0x670` is now structurally mapped:
 No obvious contiguous seven-dword chairman-budget array is initialized in this object. Treat it as the authoritative cash/accounting object, not automatically as the chairman budget store.
 
 Exact next target remains the board/chairman allocation source and budget-warning/extra-budget producer path; use the finance object only where evidence shows a field/aggregate is consumed.
+
+
+## Balance slots / financial-objective checkpoint
+
+Game/session `+0x670..+0x684` are now confirmed as **six separate Balance-object pointers**. Save code loops over all six, serializing each Balance and its internal state beginning at +0x30.
+
+The promising `ChairmanPercentBudgetMiss` runtime consumer at `0x5E1D90` has also been resolved. It compares current cash (Balance +0x10) with a stored target at Balance +0x50, then tests `target * ChairmanPercentBudgetMiss * 0.01`. The resulting events are RTTI-identified as `EAMManagerObjectiveContinuedSuccess` and `EAMManagerFailedObjective`.
+
+So Balance +0x50 is part of the manager/chairman financial-objective system, **not** the authoritative transfer-budget allocation. Do not follow this target as the seven-bucket budget store.
+
+Resume from chairman budget-setting/extra-budget state and budget-warning producers rather than the financial-objective tolerance path.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
