@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from match_calculator import PositionRole
 from match_events import BoundaryRecord, BoundaryType, ChanceOutcome, ChanceRecord, SubstitutionRecord
+from match_orders import TeamOrderPriorities
 from match_simulation import (
     PreparedMatchPlayer,
     PreparedMatchSide,
@@ -123,6 +124,25 @@ class PreparedMatchTests(unittest.TestCase):
             free_kick_taker_priority=(99, 1),
         )
         self.assertEqual(prepared.penalty_taker_priority, (99, 1))
+
+    def test_team_order_priorities_bridge_all_four_consumers(self):
+        prepared = PreparedMatchSide.from_team_orders(
+            players=(player(0, 1, PositionRole.CENTRE_MIDFIELD),),
+            attack_context=context(),
+            defence_context=context(),
+            team_orders=TeamOrderPriorities(
+                captain=(8, 1),
+                penalty=(9, 1),
+                corner=(7, 1),
+                free_kick=(6, 1),
+            ),
+        )
+
+        self.assertEqual(prepared.attack_context.captain_priority, (8, 1))
+        self.assertEqual(prepared.defence_context.captain_priority, (8, 1))
+        self.assertEqual(prepared.penalty_taker_priority, (9, 1))
+        self.assertEqual(prepared.corner_taker_priority, (7, 1))
+        self.assertEqual(prepared.free_kick_taker_priority, (6, 1))
 
     def test_starting_indices_capture_active_players_not_bench(self):
         prepared = side(
