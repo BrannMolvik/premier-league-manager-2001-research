@@ -1230,6 +1230,31 @@ Categories 2 and 3 are still being traced against the corner/free-kick Team Orde
 
 Exact next match target: prove category2/category3 = corner/free-kick order and thereby label chance types 3 and 2; then classify remaining type1 as the ordinary/open-play family if no contrary producer appears.
 
+
+
+## Match chance-source taxonomy checkpoint
+
+The active MatchCalculator chance-source taxonomy is now resolved:
+
+- type 0 = unused/reserved
+- type 1 = **ordinary/open-play chance**
+- type 2 = **free kick**
+- type 3 = **corner**
+- type 4 = **penalty kick**
+
+Team Orders priority categories used by the calculator are now:
+
+- category 0 = captaincy
+- category 1 = penalty takers
+- category 2 = corner-kick order
+- category 3 = free-kick order
+
+Evidence for types 2/3 is structural, not name-order guessing: the category-2/type-3 resolver selects a set-piece taker plus a separate receiving attacker and uses Heading in the delivery/finish path, while category-3/type-2 is a direct designated-taker free-kick path. EA's Team Orders strings independently agree with the category ordering.
+
+Type 1 is the only normal-play chance family used by the common open-play generator after dedicated free-kick/corner/penalty paths are separated. Penalty shootouts reuse type 1 only under shootout phase routing.
+
+Exact next match target: recover the ordinary/open-play source substructure and the remaining +0x2C context flag, then map shot/stat counters sufficiently to implement a first faithful MatchCalculator slice.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
