@@ -1270,7 +1270,7 @@ The classes' own virtual ID accessors prove:
 The allocator/factory tags must therefore be kept distinct from EAM message IDs.
 
 
-## Finance cheat-code trace checkpoint
+## Finance cheat-code trace checkpoint — SUPERSEDED
 
 A finance/debug-cheat trace is being used as a shortcut to the live cash/budget guards.
 
@@ -1290,7 +1290,7 @@ Immediate next trace:
 3. follow the budget getter's consumers to the exact live transfer-budget check/storage.
 
 
-## Resolved finance cheat mappings
+## Resolved finance cheat mappings — SUPERSEDED
 
 The two finance-related cheat getters can now be assigned semantically from their consumers.
 
@@ -1344,6 +1344,42 @@ The two concepts are therefore explicitly separate in the original executable:
 
 This reinforces the already-established distinction between the club's live cash balance and its board-assigned budget buckets.
 
+
+## Major correction: 0x515Fxx/0x5160xx block is C++ stream machinery, not cheat flags
+
+RTTI has now resolved the global object at `0x877540` conclusively.
+
+`0x515F10` constructs the object by calling `0x5162A0` with ECX=`0x877540`. The vtables manipulated by this constructor/destructor chain identify the object as Microsoft C++ standard-library stream machinery:
+
+- vtable `0x7CA080` -> `std::basic_istream<char, std::char_traits<char>>`
+- vtable `0x7CA088` -> `std::basic_istringstream<char, ...>`
+- vtable `0x7BD734` -> `std::basic_streambuf<char, ...>`
+- vtable `0x7BD76C` -> `std::basic_stringbuf<char, ...>`
+
+Therefore the absolute bytes at `0x877550..0x877562` lie **inside the global istringstream object**. The tiny functions `0x515FF0`, `0x516000`, `0x516020`, ..., `0x5160E0` are accessors for stream/internal state, not a table of developer cheat booleans.
+
+This invalidates the previous attempted mappings:
+
+- `0x516090` must **not** be called `/cash777` merely because some callers occur near cash comparisons;
+- `0x516020` must **not** be called `/budget777`;
+- caller context around these functions must be reinterpreted as stream/parser-state use.
+
+The literal cheat switches `/cash777` and `/budget777` still exist in the executable, but their actual parser/storage must be located independently from the command-string table.
+
+### Why this is definitive
+
+The RTTI Complete Object Locators immediately preceding the vtables point to type descriptors:
+
+- `.?AV?$basic_istream@DU?$char_traits@D@std@@@std@@`
+- `.?AV?$basic_istringstream@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@`
+- `.?AV?$basic_streambuf@DU?$char_traits@D@std@@@std@@`
+- `.?AV?$basic_stringbuf@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@`
+
+This is stronger evidence than behavioral inference from individual call sites.
+
+### New cheat-trace direction
+
+The real cheat parser must now be recovered from the literal command table itself. Known literals include `/cash777`, `/budget777`, `/fastbuild777`, `/alwayswin777`, `/alwayslose777`, `/skipmatchcalc777`, etc. A pointer table in `.data` references them, but direct code xrefs are absent, implying a data-driven parser or another level of indirection.
 
 ## Current executable-analysis priorities
 
