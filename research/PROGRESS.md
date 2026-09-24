@@ -1083,6 +1083,34 @@ Treat type 0 as **unused/reserved/legacy-compatible** unless new producer eviden
 
 Exact next match target: assign EA-grounded semantics to active source types 1..4 using report/stat counters, source-branch logic, and original string/tuning evidence.
 
+
+
+## Reconstruction development/training implementation checkpoint
+
+The first recovered gameplay mechanics are now implemented in clean-room Python and covered by deterministic unit tests.
+
+New reconstruction files:
+
+- `reconstruction/player_development.py`
+- `reconstruction/test_player_development.py`
+
+Implemented from verified executable behavior:
+
+- raw skill -> displayed rating conversion and minimum rating floor;
+- monthly age/development curve for both baseline-before-peak and baseline-after-peak cases;
+- 0..4 / 5..8 / 9..16 peak grouping;
+- five-year peak plateau default;
+- exact monthly per-skill training modifier including the original overshoot quirk;
+- exact seven 17-byte training profiles from `0x4EAA00`;
+- Youth Team Coach / Assistant Manager / Training Centre quality multiplier;
+- active training success threshold;
+- strict +8 skill step at `0x41A870` and -8 reversal at `0x41A9A0`;
+- high-exclusive peak-age selection behavior.
+
+Local verification: **13 unit tests pass**.
+
+This is the first substantial move from research-only knowledge into executable reconstruction logic.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
