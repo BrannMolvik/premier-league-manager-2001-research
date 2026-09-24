@@ -405,13 +405,16 @@ Before continuing the live transfer-budget search, the current cheat-code eviden
 The finance cheat split is now resolved:
 
 - `0x516090` is the `/cash777` affordability-bypass getter used after current-cash comparisons;
-- `0x516020` is the `/budget777` getter returned by the periodic board/business budget routine.
+- `0x516020` is finance-adjacent but **not yet proven** to be `/budget777`; RTTI shows its current known caller is a season-ticket setting routine.
 
 This gives a new direct route into the live budget logic while preserving the distinction between cash and assigned budgets.
 
+## Correction checkpoint: 0x516020 not yet proven as budget777
+
+RTTI resolved the routine ending at 0x5DE6C3 as season-ticket setting (`EAMChairSeasonTicketSetsub` / `EAMSeasonTicketSetsub`). The previous label of 0x516020 as definitively `/budget777` was premature and has been reverted. The `/cash777` association for 0x516090 remains strongly supported by four independent current-cash affordability checks.
 ## Active Investigation
 
-Current focus: use the resolved `/budget777` finance routine around 0x5DE530 to map the live board-budget state and identify the authoritative transfer-budget field.
+Current focus: recover the actual cheat-command mapping so `/budget777` is tied to the correct getter, then use that getter's consumers to locate the live transfer-budget state.
 
 Immediate next steps:
 
