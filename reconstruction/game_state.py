@@ -43,14 +43,23 @@ class GameState:
     monthly_player_updates: int = 0
 
     @classmethod
-    def from_database(cls, database, start_date: date, seed: int | None = None) -> "GameState":
+    def from_database(
+        cls,
+        database,
+        start_date: date,
+        seed: int | None = None,
+        season_year: int | None = None,
+    ) -> "GameState":
         rng = Random(seed)
         players = {
             p.index: RuntimePlayer.from_database_player(p, start_date, rng)
             for p in database.players
         }
         fixtures = getattr(database, "real_fixtures", ())
-        league = PremierLeagueState(fixtures) if fixtures else None
+        rounds = getattr(database, "premier_league_rounds", ())
+        if season_year is None:
+            season_year = start_date.year if start_date.month >= 7 else start_date.year - 1
+        league = PremierLeagueState(fixtures, rounds, season_year) if fixtures else None
         state = cls(
             calendar=GameCalendar(start_date),
             players=players,
@@ -73,16 +82,26 @@ class GameState:
         return state
 
     def _run_monthly_player_development(self, on_date: date) -> None:
-        updated = 0
-        for player in self.players.values():
-            updated += int(player.monthly_development_update(on_date))
-        self.monthly_player_updates += updated
+        self.monthly_player_updates += sum(
+            int(player.monthly_development_update(on_date))
+            for player in self.players.values()
+        )
 
     def advance_one_day(self) -> date:
         return self.calendar.advance_one_day()
 
     def advance(self, days: int) -> date:
         return self.calendar.advance(days)
+
+    def fixtures_due_today(self):
+        if self.premier_league is None:
+            return ()
+        return self.premier_league.fixtures_on(self.calendar.current_date)
+
+    def next_match_date(self) -> date | None:
+        if self.premier_league is None:
+            return None
+        return self.premier_league.next_match_date(self.calendar.current_date)
 
     def record_premier_league_result(self, fixture_id: int, home_goals: int, away_goals: int):
         if self.premier_league is None:
