@@ -1851,3 +1851,41 @@ The type-10 creator `0x62EF90` creates a substitution record carrying:
 - incoming side-local player index at record `+0x30`.
 
 The event minute is supplied by the caller. This is sufficient to represent the semantic substitution record independently of FastView presentation.
+## Injury replacement path after `0x62EAE0`
+
+**Confirmed from the canonical executable and now integrated into the clean-room normal-match loop.**
+
+A successful injury is not merely a type-5 status event. The original routine immediately attempts a replacement after recording the injury:
+
+1. update injury state and the global last-injury minute;
+2. append type-5 subtype-2 Injury;
+3. test automatic-replacement permission through `0x62EAB0`;
+4. if allowed, call `0x409950(team, injured_player, participant_count)`;
+5. if a replacement exists, apply `0x409AC0`;
+6. append type-10 Substitution through `0x62EF90` at the same event minute.
+
+The control helper `0x62EAB0` behaves as follows:
+
+- AI-controlled team -> replacement path allowed;
+- user-controlled team -> allowed only when MatchCalculator raw mode field `+0xD3C` equals 1 or 3;
+- otherwise -> no automatic injury replacement.
+
+The higher-level UI/competition meaning of `+0xD3C` remains unresolved. Reconstruction therefore exposes it as a raw `match_mode_code` rather than assigning an unsupported semantic name.
+
+Unlike the scheduled AI substitution routine `0x62E2F0`, injury replacement does **not** apply the role-8..19 outgoing/incoming filters. It uses `0x409950` directly for the injured player's current assigned role, so defenders can be replaced through this path.
+
+If no replacement is permitted or available, `0x62EAE0` does not itself deactivate the injured player. Removal occurs only if the substitution mutation succeeds.
+
+### Dynamic participant iteration in `0x62E6F0`
+
+The Condition loop iterates the match-participant pointer array and checks `0x417F50` separately for each entry when that entry is reached. It does not work from a frozen active-player snapshot.
+
+This has a subtle but reproducible consequence: if an injury substitution activates a bench player whose participant-array slot appears later in the current Condition pass, that newly active player can also be processed for workload/Condition in the **same attacking sequence**.
+
+The clean-room Condition loop now preserves this by accepting the full participant sequence, checking each player's active state dynamically, and applying the immediate injury-substitution callback before iteration continues.
+
+### Shared match-state guard
+
+The injury-incidence routine checks the same generic MatchCalculator byte `+0x1145` that guards discipline processing. Condition decay itself occurs outside that injury guard. Therefore disabling this match-state update byte suppresses injury incidence but does not suppress the underlying Condition decrement.
+
+The semantic name of `+0x1145` is still unresolved and should remain generic until its initialization/source is identified.
