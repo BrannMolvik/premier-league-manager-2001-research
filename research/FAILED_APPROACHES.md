@@ -325,3 +325,21 @@ Correct interpretation:
 
 Status:
 - superseded and corrected.
+
+
+## Treat DBRClub +0x21C..+0x234 as the chairman budget block
+
+Why it looked promising:
+- club-state copy code moves a consecutive group of dwords in this region;
+- the size/shape initially resembled a persistent multi-budget structure.
+
+Disproof/current evidence:
+- broader xref inspection shows these offsets are used in unrelated club/runtime operations;
+- accesses include mixed pointer/index/byte-style behavior inconsistent with a dedicated seven-budget monetary array;
+- no budget formatter, warning calculation, or chairman-budget event has yet been tied to this region.
+
+Conclusion:
+- do not identify DBRClub +0x21C..+0x234 as live budget storage without new independent evidence.
+
+Status:
+- rejected as current budget candidate.
