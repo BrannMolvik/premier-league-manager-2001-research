@@ -497,11 +497,11 @@ No separate transfer-budget scalar write is visible in the immediate transfer-co
 Exact next target: locate the board transfer-allocation source and the comparison/derivation that combines it with category-1000 spending or triggers `OVERSPENTBUDGET`.
 
 
-## Command-line handoff checkpoint
+## Corrected startup-handoff checkpoint
 
-The executable now has a concrete startup command-line trace: WinMain's `lpCmdLine` is passed through `0x531AF0 -> 0x531C10`, and under the `0x5160B0` startup option it is stored by `0x530380` into global `0x87784C`.
+The previous checkpoint misidentified the value passed through `0x531AF0 -> 0x531C10 -> 0x530380` as `lpCmdLine`. Correct stack accounting proves it is WinMain's **hInstance**. Global `0x87784C` is later used as the `hMod` argument to `SetWindowsHookExA`, independently confirming the correction.
 
-The immediate next step is to identify the later consumer/parser of this stored pointer and correlate it with the literal command table at `0x828510..0x828568`.
+This route is not the cheat parser. Resume the cheat search from the literal pointer table and true command-line/argv consumers.
 
 ## Active Investigation
 
