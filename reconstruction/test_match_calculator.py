@@ -6,6 +6,7 @@ from match_calculator import (
     PositionalPools,
     OpenPlayResolution,
     PositionRole,
+    SetPieceResolution,
     build_positional_pools,
     choose_finish_mode,
     control_tackle_duel_won,
@@ -17,6 +18,8 @@ from match_calculator import (
     first_duel_defender_wins,
     passing_gate_succeeds,
     position_compatibility_multiplier,
+    resolve_corner,
+    resolve_free_kick,
     resolve_open_play_attempt,
     resolve_penalty,
     select_close_defender,
@@ -330,6 +333,71 @@ class FullOpenPlayResolverTests(unittest.TestCase):
         result=resolve_open_play_attempt(attack,defend,25,0,rng)
         self.assertEqual(result.transition,ChanceSource.PENALTY)
         self.assertEqual((result.neutral_increment,result.attacking_possession_increment),(1,2))
+
+
+class SetPieceResolverTests(unittest.TestCase):
+    def p(self, idx, role, side=0, **kwargs):
+        base=dict(
+            side=side, player_index=idx, condition=100, form_state=2,
+            current_position=role, preferred_positions=(role,0,0),
+            shooting=100, passing=100, tackling=100, heading=100,
+            control=100, goalkeeping=0, set_piece=100,
+        )
+        base.update(kwargs)
+        return MatchSkillPlayer(**base)
+
+    def teams(self):
+        taker=self.p(1, PositionRole.CENTRE_MIDFIELD, shooting=100, passing=100, set_piece=100)
+        receiver=self.p(2, PositionRole.STRIKER, shooting=100, heading=100)
+        keeper=self.p(0, PositionRole.GOALKEEPER, 1, goalkeeping=100)
+        centre=self.p(3, PositionRole.CENTRE_BACK, 1, tackling=100, heading=100)
+        return taker, receiver, [taker, receiver], [keeper, centre]
+
+    def test_direct_free_kick_goal(self):
+        taker,receiver,attack,defend=self.teams()
+        rng=ScriptedRng([0, 0, 255, 0, 50])
+        result=resolve_free_kick(taker,attack,defend,0,rng)
+        self.assertEqual(result.event.source, ChanceSource.FREE_KICK)
+        self.assertEqual(result.event.outcome, ChanceOutcome.GOAL)
+        self.assertEqual(result.event.finish_mode, FinishMode.SHOOTING)
+        self.assertEqual(result.attacking_possession_increment,1)
+
+    def test_cached_receiver_forces_headed_free_kick_delivery(self):
+        taker,receiver,attack,defend=self.teams()
+        rng=ScriptedRng([0, 0, 0, 0, 0, 50])
+        result=resolve_free_kick(taker,attack,defend,0,rng,receiver_override=receiver)
+        self.assertIsNotNone(result.event)
+        self.assertEqual(result.event.finish_mode,FinishMode.HEADED)
+        self.assertEqual(result.attacking_possession_increment,2)
+
+    def test_force_direct_free_kick_skips_source_choice(self):
+        taker,receiver,attack,defend=self.teams()
+        rng=ScriptedRng([0,255,0,50])
+        result=resolve_free_kick(taker,attack,defend,0,rng,force_direct=True)
+        self.assertEqual(result.event.outcome,ChanceOutcome.GOAL)
+        self.assertEqual(rng.calls[0],320)
+
+    def test_corner_requires_set_piece_execution(self):
+        taker,receiver,attack,defend=self.teams()
+        result=resolve_corner(taker,attack,defend,0,ScriptedRng([319,1]))
+        self.assertIsNone(result.event)
+        self.assertEqual(result.attacking_possession_increment,1)
+
+    def test_corner_cached_receiver_forces_heading(self):
+        taker,receiver,attack,defend=self.teams()
+        rng=ScriptedRng([0,0,0,0,0,50])
+        result=resolve_corner(taker,attack,defend,0,rng,receiver_override=receiver)
+        self.assertIsNotNone(result.event)
+        self.assertEqual(result.event.source,ChanceSource.CORNER)
+        self.assertEqual(result.event.finish_mode,FinishMode.HEADED)
+        self.assertEqual(result.attacking_possession_increment,2)
+
+    def test_corner_rejects_taker_as_receiver(self):
+        taker,receiver,attack,defend=self.teams()
+        result=resolve_corner(taker,attack,defend,0,ScriptedRng([0]),receiver_override=taker)
+        self.assertIsNone(result.event)
+        self.assertEqual(result.attacking_possession_increment,2)
+
 
 if __name__ == '__main__':
     unittest.main()
