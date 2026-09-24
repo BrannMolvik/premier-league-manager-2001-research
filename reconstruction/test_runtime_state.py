@@ -38,6 +38,27 @@ class RuntimePlayerTests(unittest.TestCase):
         self.assertIsNotNone(player.development)
         self.assertEqual(player.development.baseline_age, 20)
 
+    def test_match_selection_flags_are_mutually_exclusive(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(),
+            date(2000, 7, 1),
+            Random(1),
+        )
+        self.assertFalse(player.match_active)
+        self.assertFalse(player.match_substitute_available)
+
+        player.set_match_active()
+        self.assertTrue(player.match_active)
+        self.assertFalse(player.match_substitute_available)
+
+        player.set_match_substitute_available()
+        self.assertFalse(player.match_active)
+        self.assertTrue(player.match_substitute_available)
+
+        player.clear_match_selection()
+        self.assertFalse(player.match_active)
+        self.assertFalse(player.match_substitute_available)
+
     def test_initializer_clamps_stored_baseline_age(self):
         young = FakePlayer(date_of_birth=date(1995, 1, 1))
         player = RuntimePlayer.from_database_player(young, date(2000, 7, 1), Random(1))
