@@ -571,3 +571,15 @@ The reconstruction now also has an evidence-backed normal-time orchestration lay
 **Not yet confirmed/implemented as full match behavior**
 
 The orchestrator does not yet execute the original recurring Condition/injury, discipline, AI-substitution, possession-normalization, or authoritative match-day lineup initialization paths. These remain separate reverse-engineering/integration tasks and are not replaced by generic football logic.
+
+
+## Team-strength balance-position field correction
+
+**Confirmed; supersedes the earlier shorthand that the 105/108/... role-factor table is indexed by the current runtime role.**
+
+The current assigned role and the small strength-balance code are separate fields in the player's position-state object:
+
+- +0x03 through `0x4EA3C0`: current assigned role; selects positional compatibility and the 4 x 20 x 17 matrix role.
+- +0x05 through `0x4EA3E0`: separate low-five-bit balance-position code; selects the small `0x840D38` factor table for codes 0..12, otherwise neutral 100%.
+
+Attack uses `[105,108,110,120,112,115,97,95,102,92,90,117,100]` for +0x05 codes 0..12. Defence uses 200 minus the corresponding value. The semantic label of +0x05 remains unresolved, so reconstruction exposes it neutrally as `balance_position_code`.
