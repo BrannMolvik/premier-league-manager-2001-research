@@ -378,3 +378,61 @@ The remaining difficult task is now **semantic recovery**:
 - validate random distributions against the original.
 
 Those are substantial but conventional reverse-engineering tasks with clear entry points.
+
+
+## Calculator event types mapped to FastView senders
+
+The Football Manager match-controller processing routine around `0x519862..0x519DA1` switches directly on each MatchCalculator linked record's type field at **record +0x28**.
+
+The controller constructor `0x518C80` independently maps its sender members by RTTI:
+
+- controller +0x10 = `Sender<EventGoal>`
+- controller +0x20 = `Sender<EventPossession>`
+- controller +0x30 = `Sender<EventPenaltyShootoutShot>`
+- controller +0x40 = `Sender<EventHalfTime>`
+- controller +0x50 = `Sender<EventFullTime>`
+- controller +0x60 = `Sender<EventExtraTime>`
+- controller +0x70 = `Sender<EventPenalties>`
+- controller +0x80 = `Sender<EventSub>`
+
+The MatchCalculator type switch can therefore be mapped directly:
+
+- **types 0..4** -> common goal-family processing through `Sender<EventGoal>`
+- **type 5** -> separate player-state/incident handling; exact semantic label remains unresolved
+- **type 6** -> `EventHalfTime`
+- **type 7** -> `EventFullTime`
+- **type 8** -> `EventExtraTime`
+- **type 9** -> `EventPenalties`
+- **type 10** -> `EventSub`
+
+The type-7 path is handled immediately before the jump table: when record +0x28 == 7, the controller iterates the sender at +0x50, proving FullTime directly.
+
+### Penalty-shootout reuse of type-1 goal records
+
+When the controller is in its penalty-shootout state, a **type-1** goal-family record is diverted into the sender at controller +0x30 instead of the normal EventGoal sender.
+
+RTTI proves +0x30 is `Sender<EventPenaltyShootoutShot>`.
+
+Thus penalty-shootout kicks reuse part of the ordinary goal-family MatchCalculator record model, with the controller's current match phase selecting the semantic presentation event.
+
+### Types 0..4 are a goal-event family
+
+The common handler for types 0..4 constructs the event payload and iterates `Sender<EventGoal>`.
+
+Lower calculator code independently shows score increments immediately before several creators in this family:
+
+- score fields are the side-indexed pair at match record `+0xD4C/+0xD50`;
+- branches around `0x62CAD3`, `0x62CC9A`, `0x62D0D0`, `0x62D40D`, `0x62D50E`, `0x62D914`, `0x62DC62`, and `0x62DD62` increment one of those score fields and then append one of the type-0..4 record variants.
+
+Known record creators include:
+
+- `0x62ECF0` -> goal-family record with type supplied through its arguments; observed callers commonly create type 1;
+- `0x62EE20` -> type 2;
+- `0x62EEA0` -> type 4;
+- `0x62EFD0` -> manually appends the same 0x38-byte linked-record shape with caller-supplied subtype fields.
+
+Exact labels for types 0/1/2/3/4 (for example ordinary goal vs own goal vs set-piece source) remain to be recovered from their payload fields and player-goal/own-goal consumers. They should not yet be named more specifically than **goal-family records**.
+
+### Significance
+
+The bridge from MatchCalculator records into semantic FastView events is now directly visible. Reconstructing the backend does not require guessing how its timeline is interpreted: the executable exposes a compact typed record stream whose major timeline/substitution/goal families are mapped to named event senders.
