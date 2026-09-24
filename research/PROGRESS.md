@@ -469,9 +469,16 @@ Confirmed command-state mappings:
 
 The mappings are established from direct match-result override behavior in `0x512D80` and the calculation bypass at `0x5130DC`.
 
+
+## Confirmed /cash777 mapping
+
+Getter `0x516090` -> state byte `0x877559` is the cash-affordability bypass corresponding to `/cash777`. All four consumers compare a required monetary amount to the club's current finance balance and use this flag to bypass the insufficient-funds path.
+
+This conclusion is now restored on corrected object-layout evidence, not the superseded stream interpretation.
+
 ## Active Investigation
 
-Current focus: (1) trace how the recovered literal pointer table at `0x828510..0x828568`, tree container at `0x877540..0x87754F`, and state bytes at `0x877550+` connect; (2) trace board-budget event production/live business-consultant state because the mapped `TransferBudget` config globals have no executable reads. Prove `/cash777` and `/budget777`, then connect completed transfer postings to the live transfer-budget bucket.
+Current focus: (1) recover how the literal pointer table populates the command-state bytes, with `/cash777` now confirmed at `0x877559` and `/budget777` still unresolved; (2) trace board-budget event production/live business-consultant state because the mapped `TransferBudget` config globals have no executable reads; (3) connect completed transfer postings to the live transfer-budget bucket.
 
 Immediate next steps:
 
