@@ -1,6 +1,6 @@
 # Player Development and Aging
 
-_Last updated: 23 September 2026_
+_Last updated: 24 September 2026_
 
 This file tracks the recovered FM2001 player-development model. It separates verified executable behavior from remaining hypotheses.
 
@@ -217,19 +217,18 @@ The recalculation formulas explicitly support:
 
 This explains the small minority of original database records where target < current without treating them as corrupt data.
 
-## Club/training modifier after age recalculation
+## Per-player club training modifier after age recalculation
 
-After the base age formula, `0x41EAD0` performs an additional per-skill adjustment when:
+The object returned through `0x417380` is now identified as the player's **per-club training record**.
 
-1. a club/state predicate reached through `0x417340` is true; and
-2. player flag bit tested by `0x417A60` is not set.
+Each club-side training object owns 40 records of 200 bytes each. Player runtime bytes `+0x70/+0x76` are 1-based selectors into that table. Whole-record `+8` stores the player ID, and the embedded training subobject begins at whole-record `+0x24`.
 
-It obtains a club-associated structure through `0x417380` and reads a skill-indexed byte at returned-object `+0x30+slot`.
+The primary 17 one-byte per-skill training counters are at whole-record `+0x30..+0x40` (subobject `+0x0C..+0x1C`).
 
-Observed adjustment:
+After the base age formula, `0x41EAD0` reads the selected player's per-skill training byte:
 
 ```text
-m = club_data[0x30 + slot]
+m = training_record[0x30 + slot]
 
 if current + m <= target:
     current = current + m
@@ -237,12 +236,47 @@ else:
     current = target - m
 ```
 
-The semantic identity of this object/byte is not yet confirmed. Training/development influence is a strong hypothesis, but this must be proven from the surrounding club structures and source/RTTI evidence before naming it definitively.
+A second 17-byte region in the training subobject is used for temporary timed effects/cooldowns and is not a second monthly-development boost vector.
+
+## Active training profiles
+
+The exact seven 17-skill profile vectors have been reconstructed. Method IDs are:
+
+0. Rest / recovery
+1. Attacking
+2. Midfield
+3. Defensive
+4. Goalkeeper
+5. Fitness
+6. Technique
+
+Successful active training for a skill calls player routine `0x41A870`, adding +8 raw skill while remaining below the development target.
+
+## Active training success probability
+
+For a skill whose selected training profile has nonzero weight:
+
+```text
+threshold = profile_weight * Q * 0.5
+success if random_integer(0..99) < threshold
+```
+
+Quality multiplier `Q`:
+
+- starts at 1.00;
+- Youth Team Coach rating 1..5 gives 1.25 / 1.30 / 1.35 / 1.40 / 1.45;
+- if there is no Youth Team Coach, an Assistant Manager gives fallback 1.25;
+- a Training Centre adds +0.25.
+
+The identities of the Youth Team Coach, Assistant Manager and Training Centre paths are proven from EA's own formatter/RTTI/building code.
+
+## Invocation cadence
+
+The date/calendar path strongly establishes that the main age/development recalculation runs on the **first day of each month** for club players.
 
 ## Next steps
 
-1. Identify the club-associated object returned by `0x417380` and the 17 bytes at `+0x30`.
-2. Identify predicates `0x417340` and player flag accessor `0x417A60`.
-3. Determine invocation cadence for `0x41EAD0` during season progression.
-4. Recover how training systems modify the per-skill club/player development values.
-5. Integrate the verified development model into the clean-room reconstruction.
+1. Finish naming remaining training subobject countdown/date/timed-effect fields.
+2. Reproduce the monthly age + training update in clean-room code and validate against known records.
+3. Trace injury/condition interactions with training.
+4. Continue into contracts/transfers/season logic without revisiting the now-resolved training-record identity.
