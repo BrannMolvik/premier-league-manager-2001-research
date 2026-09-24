@@ -533,6 +533,14 @@ RTTI now identifies event IDs 0x4F/0x50/0x51 as `EAMchairextratransferfail`, `EA
 
 These are strong runtime-budget leads, but remain message containers rather than proven live storage. The next trace is their producers/handlers and the finance overview/business-controller state they expose.
 
+
+
+## Season-ticket state rejection checkpoint
+
+The heavily used game/session pointer at `+0x694` has been ruled out as live transfer-budget storage. It points to a 0x7C-byte object whose +0x04/+0x08/+0x0C fields and +0x14..+0x78 selection array are consumed by the season-ticket/business calculation and `EAMSeasonTicketSet` paths.
+
+Resume live-budget tracing from actual budget/expenditure checks and chairman budget-event producers, not game/session +0x694.
+
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
