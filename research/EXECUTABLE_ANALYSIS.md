@@ -1196,6 +1196,32 @@ Therefore runtime club `+0x3C` is a localized sponsor-string pointer/reference, 
 This falsifies the proposed shortcut from club `+0x3C..+0x54` to start-season budget fields. Continue tracing the budget event population through its actual creation/fill path.
 
 
+## EAMbcmonthlybudget field layout
+
+The event adjacent to `bcstartseasonmail` is class ID `0xA1`, name `bcmonthlybudget`, vtable approximately `0x7D01A4`.
+
+Relevant methods:
+
+- constructor: `0x541B20`
+- ID accessor: `0x541B50` -> `0xA1`
+- name accessor: `0x541B60` -> `"bcmonthlybudget"`
+- formatter: `0x573190`
+
+The formatter proves this seven-dword layout:
+
+- event `+0x3C`: TOTALBUDGET
+- event `+0x40`: STAFFBUDGET
+- event `+0x44`: PLAYERWAGEBUDGET
+- event `+0x48`: MAINTENANCEBUDGET
+- event `+0x4C`: MISCBUDGET
+- event `+0x50`: BUILDINGSBUDGET
+- event `+0x54`: TRANSFERBUDGET
+
+This differs from `EAMbcstartseasonmail`, which carries staff, player wages, maintenance, merchandising, miscellaneous, buildings limit and transfers without a separate total-budget field.
+
+The monthly-budget message is a promising recurring bridge to authoritative live budget state; its population source remains the next trace target.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
