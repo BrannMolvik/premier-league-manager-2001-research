@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Sequence
 
 from match_condition import (
@@ -28,7 +28,7 @@ from match_events import (
     MatchEvent,
     PossessionRecord,
 )
-from match_orders import TeamOrderCategory, select_set_piece_taker
+from match_orders import TeamOrderCategory, TeamOrderPriorities, select_set_piece_taker
 from match_statistics import SegmentCounters, normalize_segment_statistics
 from match_substitution import apply_ai_substitution, apply_injury_substitution
 from match_strength import (
@@ -154,6 +154,41 @@ class PreparedMatchSide:
             raise ValueError("starting_player_indices must be unique")
         if any(int(index) not in indices for index in self.starting_player_indices):
             raise ValueError("starting_player_indices must reference prepared players")
+
+
+    @classmethod
+    def from_team_orders(
+        cls,
+        players: Sequence[PreparedMatchPlayer],
+        attack_context: TeamStrengthContext,
+        defence_context: TeamStrengthContext,
+        team_orders: TeamOrderPriorities,
+        starting_player_indices: Sequence[int] = (),
+    ) -> "PreparedMatchSide":
+        """Build one prepared side from the exact four Team Orders lists.
+
+        Captain priority is copied into both strength contexts; penalty, corner
+        and free-kick priorities remain on the side for the existing taker
+        selectors. This mirrors the original split consumers while providing
+        one coherent pre-match input object.
+        """
+        attack_context = replace(
+            attack_context,
+            captain_priority=tuple(team_orders.captain),
+        )
+        defence_context = replace(
+            defence_context,
+            captain_priority=tuple(team_orders.captain),
+        )
+        return cls(
+            players=tuple(players),
+            attack_context=attack_context,
+            defence_context=defence_context,
+            penalty_taker_priority=tuple(team_orders.penalty),
+            corner_taker_priority=tuple(team_orders.corner),
+            free_kick_taker_priority=tuple(team_orders.free_kick),
+            starting_player_indices=tuple(int(i) for i in starting_player_indices),
+        )
 
 
     @property
