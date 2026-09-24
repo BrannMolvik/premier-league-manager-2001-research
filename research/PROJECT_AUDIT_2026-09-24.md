@@ -188,6 +188,21 @@ This is the largest gap between research progress and construction progress.
 7. Make the match calculator the next major reverse-engineering phase.
 8. Treat FastView/.SCI as a separate presentation reconstruction after backend match behavior is understood.
 
+
+
+## Audit-window additions
+
+Three additional monthly maintenance findings were committed during the audit window and are part of the current canonical state:
+
+- monthly DBRUser routine `0x42AEB0` is a maintenance cash-debit dispatcher, not the chairman quarterly rebudget producer;
+- accounting category **601** = stadium-size maintenance selected from `SM_10000..SM_100000`;
+- accounting category **602** = major facility/building maintenance for School, Hotel, Hospital, Club, Training, Parking and Merchandising facilities;
+- accounting category **603** = pitch-system maintenance for sprinklers, drainage, pitch cover and heating;
+- DBRUser `+0x65C` is a facility/building collection used by category-602 maintenance;
+- DBRUser `+0x6A8` is pitch/stadium-installation maintenance state used by category-603 maintenance.
+
+These findings further narrow the chairman transfer-budget search by eliminating another monthly/calendar branch that initially looked like possible rebudget logic.
+
 ## Current audit conclusion
 
 The reverse engineering is substantive and technically useful, not superficial. The management side is much further along than the playable implementation.
