@@ -1319,6 +1319,24 @@ Chance record `+0x2C` is now proven to be a **1-bit Boolean context flag** in th
 
 Updated event regression status: **13/13 tests pass**.
 
+
+
+## Penalty-resolver recovery checkpoint
+
+The timeout did **not** lose the type-4 penalty disassembly. Local files preserved `0x62D660`, and the partial exact formula is now committed.
+
+Confirmed:
+
+- `0x64D5B0(N)` yields bounded integer RNG in `0..N-1`;
+- effective Shooting/Goalkeeping uses `(floor(Condition/3)+66) * skill`, then position/role compatibility, then Form, with truncation after each floating multiplier;
+- Form states 0..4 map to 0.90 / 0.95 / 1.00 / 1.05 / 1.10;
+- miss branch: one `RNG(3)` path performs `RNG(256)` versus `floor(effective_shooting/100)`;
+- save branch: `RNG(800)` versus `floor(effective_goalkeeping/100)`;
+- successful scoring then passes `RNG(10) < 10-current_score` before score increment/type-4 GOAL record;
+- the remaining implementation blocker is the exact input/state needed for the already-numeric position/role compatibility helper `0x4EA440`.
+
+Exact next step: model `0x4EA440` sufficiently to reproduce its multiplier, then implement the penalty resolver with deterministic RNG tests.
+
 ## Active Investigation
 
 Primary focus: reach the first faithful playable MatchCalculator slice and connect it to the already-implemented career/calendar/fixture shell.
