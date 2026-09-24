@@ -884,3 +884,86 @@ Chance success/failure remains orthogonal in `record +0x24 mod 3`:
 - 2 goalkeeper save
 
 and own-goal attribution remains orthogonal at `record +0x20`.
+
+
+## Possession / territorial segment statistics resolved
+
+The five-minute MatchCalculator segment statistics at `+0x1000..+0x10CC` are now tied directly to FastView's named possession UI.
+
+### Three raw possession-state counters
+
+During segment simulation, MatchCalculator accumulates:
+
+- match record `+0x1000` — side-0 possession/control count;
+- `+0x1004` — neutral/contested possession-state count;
+- `+0x1008` — side-1 possession/control count.
+
+Routine `0x62C740` proves the side mapping:
+
+- when side argument is 0, it increments `+0x1000`;
+- when side argument is 1, it increments `+0x1008`;
+- common contested/progression phases increment `+0x1004`.
+
+### Normalization into per-segment percentages
+
+At `0x62B50D..`, the three counters are summed.
+
+The game computes:
+
+- `100 * (+0x1000) / total` -> stored in segment array `+0x106C[index]`;
+- `100 * (+0x1004) / total` -> stored in `+0x10CC[index]`;
+- the third displayed percentage is later reconstructed as `100 - first - second`, corresponding to side 1 / `+0x1008`.
+
+Small +/-5 random variation is applied within bounded ranges before storage, and the first two percentages are constrained so their sum does not exceed 100.
+
+The raw counters are reset after each five-minute segment.
+
+### FastView EventPossession bridge
+
+MatchController at `0x5196A3..0x5197B8` calls `0x631240` to retrieve three segment values:
+
+- `+0x100C[index]`;
+- `+0x106C[index]`;
+- `+0x10CC[index]`.
+
+It smooths them and constructs `EventPossession` through `0x51A6B0`, then dispatches that event through the RTTI-identified `Sender<EventPossession>`.
+
+The EventPossession constructor stores:
+
+- byte `+0x0C` = the separate `+0x100C` metric;
+- byte `+0x0D` = side-0 possession percentage;
+- byte `+0x0E` = neutral/contested percentage;
+- byte `+0x0F` = `100 - +0x0D - +0x0E` = side-1 percentage.
+
+### PossessionFigures confirms the three percentages
+
+The executable contains source path:
+
+`Applications\FootballManager\FastView\PossessionFigures.cpp`
+
+and art assets:
+
+- `team_bar_2.444`
+- `blank_bar.444`
+- `team_bar_1.444`
+
+PossessionFigures receiver `0x51EA80` reads EventPossession bytes `+0x0D/+0x0E/+0x0F` and formats all three as `%u%%`.
+
+This confirms a three-part possession display: the two teams plus a neutral/contested component.
+
+### +0x100C is territorial/pitch-position state, not another possession percentage
+
+EventPossession byte `+0x0C`, sourced from segment array `+0x100C`, is not printed by PossessionFigures.
+
+Instead it is consumed by the RTTI-identified `PossessionDiagram` path around `0x522BB0`, which changes among a three-state display.
+
+The executable ships the matching assets:
+
+- `pitch_left.444`
+- `pitch_middle.444`
+- `pitch_right.444`
+- `pitch_normal.444`
+
+Thus `+0x100C` is a **territorial / pitch-position bias metric** used to move the FastView possession diagram among left/middle/right states, while `+0x106C/+0x10CC` and the remainder represent the possession percentages.
+
+Exact orientation of side 0 as screen-left/right depends on current team presentation and should not be hard-coded as home/away until that display mapping is traced.
