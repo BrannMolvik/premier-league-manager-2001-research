@@ -124,6 +124,11 @@ class RuntimePlayer:
         )
 
     @property
+    def player_index(self) -> int:
+        """Side-local selection helpers use this alias for the runtime player ID."""
+        return int(self.index)
+
+    @property
     def base_match_unavailable(self) -> bool:
         """Exact low-three-bit exclusion state consumed by 0x418050."""
         return bool(self.injured or self.suspended or self.selection_excluded)
@@ -164,10 +169,17 @@ class RuntimePlayer:
         self.match_substitute_available = True
         self.match_active = False
 
-    def clear_match_selection(self) -> None:
-        """Clear the two proven match-selection flags used by 0x510CD0."""
+    def clear_match_selection(self, *, reset_position: bool = False) -> None:
+        """Clear the two proven first-team match-selection flags.
+
+        The standalone flag clear is useful while reconstructing status
+        transitions. Callers reproducing removal helper 0x4181B0 should pass
+        reset_position=True so the assigned role/auxiliary state is reset too.
+        """
         self.match_active = False
         self.match_substitute_available = False
+        if reset_position:
+            self.reset_match_position()
 
     @property
     def full_name(self) -> str:
