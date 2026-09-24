@@ -992,6 +992,24 @@ This removes a major reconstruction uncertainty: the simulator's linked record t
 
 Exact next match target: distinguish goal-family types 0/1/2/3/4 and map type 5 to its player incident (card/injury/other) semantics.
 
+
+
+## Match incident/substitution/condition checkpoint
+
+The match branch has been decomposed further:
+
+- MatchCalculator **type 5** is a per-player incident/status family with three independent subtype flags stored in a 3-byte matrix per player;
+- exact labels of the three flags are still unresolved and are deliberately not yet called cards/injury;
+- `0x62E2F0` is confirmed AI substitution decision logic and emits type-10 records through `0x62EF90`;
+- `0x62E6F0` is a recurring player-condition/energy-like decay routine that decrements player runtime byte +0x77 and propagates the change via `0x62EAE0`.
+
+Exact next match targets:
+
+1. identify the three type-5 incident flags;
+2. connect `0x62EAE0` to the named energy/form FastView event and give player +0x77 its final semantic name;
+3. prove player +0x1B7 as the user-adjustable aggression instruction and map its role in incident probabilities;
+4. continue distinguishing goal-family record types 0..4.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
