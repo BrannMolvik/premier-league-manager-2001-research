@@ -1816,3 +1816,36 @@ Therefore:
 - the association must remain probable until the literal decoder or an independent budget consumer proves it.
 
 The next finance trace should therefore proceed from the actual `TransferBudget` configuration globals and transfer-completion code rather than assuming that `0x516020` directly exposes the live transfer budget.
+
+
+## TransferBudget global xref result: configuration-only storage
+
+A full absolute-reference scan of the exact hashed executable was performed for the mapped board-budget tuning globals:
+
+- `StaffWageBudget2K` `0x821D94`
+- `PlayerWageBudget2K` `0x821D98`
+- `FacilitiesBudget2K` `0x821D9C`
+- `MiscBudget2K` `0x821DA0`
+- `StadiumBudget2K` `0x821DA4`
+- `TransferBudget2K` `0x821DA8`
+- `StaffWageBudget` `0x821DAC`
+- `PlayerWageBudget` `0x821DB0`
+- `FacilitiesBudget` `0x821DB4`
+- `StadiumBudget` `0x821DB8`
+- `MiscBudget` `0x821DBC`
+- `TransferBudget` `0x821DC0`
+
+For the entire budget block, each exact global address occurs in the executable image only at its tuning-loader assignment. For example:
+
+- `TransferBudget2K` is written at `0x506ECE`;
+- `TransferBudget` is written at `0x507030`.
+
+A raw binary scan also found no data-table pointer references to `0x821DA8`, `0x821DC0`, or the neighboring mapped budget globals. Their only occurrences are the immediate destination operands of those loader writes.
+
+### Consequence
+
+These globals are **not the authoritative live per-club/user budget store**, and there is no static evidence that normal gameplay reads them directly after loading.
+
+They should be treated as configuration/tuning outputs or legacy/default values until a dynamic/indirect relationship is independently demonstrated.
+
+The live-budget investigation must therefore proceed through the board/business runtime state and its budget events/checks rather than attempting to follow direct xrefs from `TransferBudget`.
