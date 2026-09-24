@@ -391,9 +391,18 @@ The board/business budget defaults are now mapped to their exact globals, includ
 Also verified: the generic event allocator's A3/A4 tags are not EAM IDs. `bcstartseasonmail` still identifies itself as event A0, and `bcmonthlybudget` as A1.
 
 
+## Finance cheat trace checkpoint
+
+Before continuing the live transfer-budget search, the current cheat-code evidence is now preserved:
+
+- `0x516090` is called specifically on the insufficient-current-cash transfer branch and is the leading `/cash777` candidate;
+- `0x516020` is a separate finance/business cheat getter and is the leading `/budget777` candidate;
+- exact labels remain provisional until getter globals are tied back to the literal command-line strings.
+
+
 ## Active Investigation
 
-Current focus: follow the mapped budget-default globals (especially TransferBudget at 0x821DC0) into the live per-club/user budget state, using board/finance initialization and monthly/start-season message population.
+Current focus: resolve `/cash777` vs `/budget777` cheat getters and use the budget-bypass consumer path to locate the authoritative live transfer-budget storage.
 
 Immediate next steps:
 
