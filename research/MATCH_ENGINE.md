@@ -967,3 +967,23 @@ The executable ships the matching assets:
 Thus `+0x100C` is a **territorial / pitch-position bias metric** used to move the FastView possession diagram among left/middle/right states, while `+0x106C/+0x10CC` and the remainder represent the possession percentages.
 
 Exact orientation of side 0 as screen-left/right depends on current team presentation and should not be hard-coded as home/away until that display mapping is traced.
+
+
+## Chance record +0x2C is a one-bit opaque context flag
+
+The remaining chance-record field at `+0x2C` is now constrained enough for reconstruction even though its exact presentation/subtype name is still unknown.
+
+Confirmed:
+
+- all active chance source types 1..4 use the common chance serializer path `0x6337B0`;
+- that serializer reads record `+0x2C` and writes it through `0x659D30` with a **1-bit width**;
+- therefore the field is Boolean in the persisted MatchRecord representation;
+- normal MatchController handling for chance types 1..4 at `0x519928` reads outcome `+0x24`, side-inversion `+0x20`, player side/index and phase state, but **does not read +0x2C**;
+- it therefore does not affect semantic `EventGoal` delivery, scorer attribution or own-goal attribution;
+- observed creators set it to 0 or 1 within the same source/outcome families, so it is not another source or result code.
+
+Conclusion:
+
+`+0x2C` is retained as an opaque **chance context flag**. Its exact lower-level meaning may matter to detailed statistics/replay/scene selection, but it is not required for the first semantic MatchCalculator implementation.
+
+The clean-room event model should preserve it as a Boolean without assigning an unsupported football label.
