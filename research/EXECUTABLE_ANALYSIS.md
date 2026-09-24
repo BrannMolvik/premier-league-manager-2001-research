@@ -2864,3 +2864,31 @@ The immediately following tuning family continues with `FSOfferMinLifeTime`.
 game/session `+0x69C` owns sponsor-offer / sponsor-state scheduling, not chairman transfer-budget storage.
 
 This removes another persistent finance/business-looking object from the live transfer-budget search.
+
+
+## EAMManagerSackedFailedBudget is financial-objective failure, not quarterly reserve overspending
+
+RTTI resolves `EAMManagerSackedFailedBudget`:
+
+- type descriptor: `0x830D90`
+- Complete Object Locator: `0x7F5758`
+- vtable: `0x7D4F54`
+- ID accessor `0x545EE0` returns **0x190**
+- name accessor `0x545EF0` returns `"ManagerSackedFailedBudget"`
+- serializer paths `0x59A7B0` / `0x5A8CD0` persist event fields +0x38/+0x3C/+0x40/+0x44
+- constructor-like routine `0x5A6E90` stores explicit values at +0x3C/+0x40/+0x44.
+
+The gameplay producer at `0x42936C..0x4293F0` emits this event when game/session sacking-reason state `+0x10D8` equals **5**.
+
+Crucially, the setter for reason 5 is directly visible at:
+
+- `0x5E1F8E: push 5`
+- `0x5E1F92: call 0x42C6C0`
+
+inside routine `0x5E1D90`.
+
+That routine was already independently identified as the manager/chairman **financial-objective tolerance** path: it compares current cash against the stored Balance objective target and uses `ChairmanPercentBudgetMiss`.
+
+Therefore `EAMManagerSackedFailedBudget` refers to failure of the chairman financial objective/balance target, not the quarterly operating-budget overspending path that can consume building and transfer reserves.
+
+Do not use this sacking event as the route to live transfer-budget storage.
