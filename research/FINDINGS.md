@@ -673,3 +673,12 @@ A `CCupTiedPlayer` record stores:
 Lookup `0x4E9710(collection, player_id, team_id)` returns cup-tied only when a record exists for that player and the stored club differs from the team attempting to field him. Competition helper `0x4F8E40` invokes this lookup through the competition/context cup-tied collection.
 
 Therefore `DBRPlayer+0x14 bit 2` is not a cup-tied bit and must remain a separately named selection-exclusion state.
+## Non-EU player restriction in AI team selection
+
+**Confirmed**
+
+`DBRPlayer+0x14 bit 11` is the game's **Non-EU** state. The persistent collection consulted by `0x41B4D0` creates records whose vtable RTTI is `CNonEUPlayer`, matching the embedded `NonEUPlayer.cpp` source identity.
+
+The corresponding competition limit is `DBRCompetition+0x2B`, packed Static.dat competition byte **+34**. `0x407DF0` returns that value for the current competition or defaults to 11 without competition context. The shipped Premier League value is **3**.
+
+Competitive selector `0x409C90` rejects a Non-EU candidate after the running restricted count reaches that maximum. If an AI-controlled team cannot complete the XI while restriction counting is enabled, the routine retries the whole XI selection exactly once with the restriction-enforcement flag cleared. User-controlled teams do not receive that automatic relaxation.
