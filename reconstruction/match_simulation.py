@@ -20,6 +20,7 @@ from match_events import (
     ChanceSource,
     MatchEvent,
 )
+from match_statistics import SegmentCounters, normalize_segment_statistics
 from match_strength import (
     TeamStrengthContext,
     TeamStrengthPlayer,
@@ -146,8 +147,15 @@ class TimedMatchEvent:
 
 
 @dataclass(frozen=True)
+class SegmentPossession:
+    calculation_minute: int
+    record: object
+
+
+@dataclass(frozen=True)
 class NormalMatchResult:
     events: tuple[TimedMatchEvent, ...]
+    possession_segments: tuple[SegmentPossession, ...] = ()
 
     @property
     def score(self) -> tuple[int, int]:
@@ -183,7 +191,7 @@ def _resolve_set_piece_chain(
     scores: list[int],
     rng: BoundedRng,
     events: list[TimedMatchEvent],
-) -> None:
+) -> int:
     attack_players = attacking.chance_players()
     defend_players = defending.chance_players()
 
@@ -193,6 +201,7 @@ def _resolve_set_piece_chain(
                 return player
         raise KeyError(player_index)
 
+    possession_increment = 0
     current_source: ChanceSource | None = source
 
     while current_source is not None:
@@ -207,7 +216,7 @@ def _resolve_set_piece_chain(
                 rng,
             )
             _append_chance(events, minute, event, scores)
-            return
+            return possession_increment
 
         if current_source is ChanceSource.FREE_KICK:
             resolution = resolve_free_kick(
@@ -228,8 +237,11 @@ def _resolve_set_piece_chain(
         else:
             raise ValueError(f"unsupported set-piece transition {current_source!r}")
 
+        possession_increment += resolution.attacking_possession_increment
         _append_chance(events, minute, resolution.event, scores)
         current_source = resolution.transition
+
+    return possession_increment
 
 
 def resolve_attacking_sequence(
@@ -238,6 +250,7 @@ def resolve_attacking_sequence(
     defending: PreparedMatchSide,
     scores: list[int],
     rng: BoundedRng,
+    counters: SegmentCounters | None = None,
 ) -> tuple[TimedMatchEvent, ...]:
     """Run one scheduler-selected 0x62C740 sequence plus exact set-piece handoffs."""
     if attacking.side == defending.side:
@@ -253,10 +266,17 @@ def resolve_attacking_sequence(
         scores[attacking.side],
         rng,
     )
+    if counters is not None:
+        counters.neutral += resolution.neutral_increment
+        counters.add_attacking(
+            attacking.side,
+            resolution.attacking_possession_increment,
+        )
+
     _append_chance(events, minute, resolution.event, scores)
 
     if resolution.transition is not None:
-        _resolve_set_piece_chain(
+        extra_possession = _resolve_set_piece_chain(
             resolution.transition,
             minute,
             attacking,
@@ -265,6 +285,8 @@ def resolve_attacking_sequence(
             rng,
             events,
         )
+        if counters is not None:
+            counters.add_attacking(attacking.side, extra_possession)
 
     return tuple(events)
 
@@ -288,6 +310,7 @@ def simulate_normal_match(
 
     sides = (side0, side1)
     events: list[TimedMatchEvent] = []
+    possession_segments: list[SegmentPossession] = []
     scores = [0, 0]
     plan = build_match_phase_plan(extra_time=False, penalties=False)
     boundaries = {boundary.minute: boundary.kind for boundary in plan.boundaries}
@@ -316,7 +339,11 @@ def simulate_normal_match(
             strengths[1][1],
         )
 
-        for scheduled in schedule_segment_attacks(segment_start, weights, rng):
+        scheduled_attacks = schedule_segment_attacks(segment_start, weights, rng)
+        counters = SegmentCounters()
+        side0_attack_count = sum(1 for item in scheduled_attacks if item.side == 0)
+
+        for scheduled in scheduled_attacks:
             attacking = sides[scheduled.side]
             defending = sides[1 - scheduled.side]
             events.extend(resolve_attacking_sequence(
@@ -325,7 +352,18 @@ def simulate_normal_match(
                 defending,
                 scores,
                 rng,
+                counters,
             ))
+
+        possession_segments.append(SegmentPossession(
+            calculation_minute=segment_start,
+            record=normalize_segment_statistics(
+                side0_attack_count,
+                len(scheduled_attacks),
+                counters,
+                rng,
+            ),
+        ))
 
         boundary_minute = segment_start + 5
         kind = boundaries.get(boundary_minute)
@@ -335,4 +373,4 @@ def simulate_normal_match(
                 BoundaryRecord(kind),
             ))
 
-    return NormalMatchResult(tuple(events))
+    return NormalMatchResult(tuple(events), tuple(possession_segments))
