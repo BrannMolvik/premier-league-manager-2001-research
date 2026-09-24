@@ -1056,3 +1056,74 @@ The final type-7 FullTime record from `0x632660` is created at:
 - 130 after a penalty shootout.
 
 The clean-room `match_clock.py` implements this timeline but deliberately leaves the upstream competition/tie decision (whether ET/penalties are required) outside the clock layer.
+
+
+## Open-play helper routines resolved
+
+The helper chain used by the type-1 open-play Heading/Shooting branches is now mapped numerically.
+
+### 0x62BD80 — aerial Heading duel
+
+Inputs include the selected attacking finisher and an opposing defender.
+
+- if no defender is supplied, returns success;
+- computes effective **Heading** for attacker and defender with the common Condition × skill × position × Form pipeline;
+- draws `RNG(attacker_heading + defender_heading)`;
+- attacker wins when `roll < attacker_heading`.
+
+### 0x62C0D0 — Control vs Tackling duel
+
+Same weighted-duel structure, but:
+
+- attacker uses **Control** (+0x27);
+- defender uses **Tackling** (+0x25).
+
+No defender -> automatic attacker success.
+
+### 0x62BFC0 / 0x62C310 / 0x62C420 — accuracy/execution gates
+
+These three routines share one structure:
+
+- `0x62BFC0` uses **Heading**;
+- `0x62C310` uses **Shooting**;
+- `0x62C420` uses **Set Piece** (+0x2E).
+
+Each:
+
+1. draws `RNG(320)`;
+2. compares against `floor(effective_skill / 100)`;
+3. if the skill threshold succeeds -> returns success;
+4. otherwise draws `RNG(2)` and succeeds only when that roll is 0.
+
+### 0x62C530 — goalkeeper / score-stop gate
+
+The routine uses the active opposing goalkeeper at match state +0xE24.
+
+1. draw `RNG(256)`;
+2. calculate effective **Goalkeeping**;
+3. if `roll < floor(effective_goalkeeping/100)` -> returns stopped/save;
+4. otherwise draw `RNG(10)`;
+5. if `roll >= 10-current_attacking_score` -> also returns stopped;
+6. otherwise performs goal/stat bookkeeping and returns the goal-success path.
+
+The type-1 caller encodes any nonzero return as SAVE outcome 2; therefore the high-score suppression path is represented as a stopped/saved chance to the event stream.
+
+### Type-1 common record creator miss suppression
+
+Common source-type-1 creator `0x62ECF0` has a behavior not shared by the dedicated type-2/3/4 creators.
+
+It always draws `RNG(100)`.
+
+Before minute 130:
+
+- if roll < 10, adds +3 to the base outcome;
+- after that, if the resulting outcome is still exactly 1 (plain MISS), it returns 0 without appending a record.
+
+Consequently ordinary type-1 misses are normally omitted from the event list; only the 10% presentation-variant miss (raw outcome 4) is retained.
+
+At minute >=130, used by penalty-shootout compatibility routing:
+
+- no +3 presentation variant is added;
+- plain miss outcome 1 is retained.
+
+This behavior explains how the same type-1 record creator can serve sparse normal-play highlights and complete penalty-shootout attempts.
