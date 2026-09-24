@@ -123,6 +123,23 @@ class IncidentRecord:
 
 
 @dataclass(frozen=True)
+class SubstitutionRecord:
+    """Verified type-10 MatchCalculator substitution payload."""
+
+    player_side: int
+    outgoing_player_index: int
+    incoming_player_index: int
+
+    def __post_init__(self) -> None:
+        if self.player_side not in (0, 1):
+            raise ValueError("player_side must be 0 or 1")
+        if self.outgoing_player_index < 0:
+            raise ValueError("outgoing_player_index must be non-negative")
+        if self.incoming_player_index < 0:
+            raise ValueError("incoming_player_index must be non-negative")
+
+
+@dataclass(frozen=True)
 class BoundaryRecord:
     kind: BoundaryType
 
@@ -158,7 +175,7 @@ class PossessionRecord:
         return 100 - self.side0_percent - self.neutral_percent
 
 
-MatchEvent = ChanceRecord | IncidentRecord | BoundaryRecord | PossessionRecord
+MatchEvent = ChanceRecord | IncidentRecord | SubstitutionRecord | BoundaryRecord | PossessionRecord
 
 
 @dataclass
