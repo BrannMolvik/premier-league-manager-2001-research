@@ -581,13 +581,39 @@ Known executable path pattern: `games\\%d.sav`.
 
 The executable contains an incompatible-save/version message, but the save binary format has not yet been decoded.
 
-## .SCI match data
+## MatchEngine scenario / animation data
 
-Approximately 252 `.SCI` files exist under `DataInGame`.
+The exact extracted disc contains **235 loose `.SCI` files** under `DATAING`. This supersedes the earlier rough estimate of approximately 252.
 
-Current status: binary format unknown.
+The loose `SCTABLE.STI` contains uint32 count **137** followed by 137 fixed **48-byte** records:
 
-Related readable `camera.scr` contains camera-mode definitions for live play, set pieces, replays, manual replay, out-of-play and half time.
+- +0x00: SCI filename[16]
+- +0x10..+0x1C: four uint32 condition/mask fields
+- +0x20: VIV filename[16]
+
+Executable loader `0x70F000` independently confirms the 48-byte runtime record size.
+
+`AISCRIPT.VIV`, `MOAI.VIV`, and `GEN4TBLS.T` use EA's BIGF archive format with big-endian offsets/sizes and NUL-terminated filenames.
+
+Archive counts:
+
+- AISCRIPT.VIV: 140 entries, including an embedded 139-record SCTABLE plus 139 SCI files;
+- MOAI.VIV: 584 entries;
+- GEN4TBLS.T: 7 entries.
+
+`AISEQS.TBI` and `AITMPS.TBI` are each 23,088 bytes and consist of:
+
+- 8-byte header;
+- 452 × 20-byte primary records;
+- 585 × 24-byte secondary entries.
+
+AISEQS contains one blank secondary entry; its other **584 names exactly match the 584 MOAI.VIV entry names**.
+
+The internal SCI instruction/choreography format is not yet decoded, but SCI files contain many readable identifiers that overlap MOAI motion names and are clearly structured rather than encrypted/opaque.
+
+Related readable `CAMERA.SCR` contains camera-mode definitions for live play, set pieces, replays, manual replay, out-of-play and half time.
+
+See `research/MATCH_ENGINE.md` and `tools/inspect_match_assets.py` for the current detailed analysis.
 
 ## Next format work
 
