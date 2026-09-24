@@ -742,6 +742,15 @@ Periodic routine 0x5E12C0 runs on Balance+0x30 and emits EAMManagerWarnedObjecti
 Therefore none of the six +0x30/+0x40/+0x50/+0x60/+0x70/+0x80 value records should be treated as the live transfer-budget store. Current cash remains Balance+0x10; transfer reserve must be elsewhere or derived.
 
 Exact next target: use save-state ownership and quarterly board/business calculations outside the Balance objective block to locate the transfer/building reserve mutation.
+
+
+## Bank-loan object checkpoint
+
+The persistent 0x108-byte object at game/session +0x698 is now identified as bank-loan state. Constructor 0x5DED10 consumes explicit Bank1/Bank2/Bank3 loan amount, term and APR tuning globals, and the object is serialized through 0x5DF360/0x5DF430.
+
+Therefore +0x698 is not the live chairman transfer-budget reserve.
+
+Exact next target: continue eliminating/identifying the remaining persistent game-owned finance/business objects, especially +0x690 and any quarterly board-state owner, while tracing the overspending reserve mutation.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
