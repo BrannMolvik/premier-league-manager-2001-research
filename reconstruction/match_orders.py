@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import IntEnum
 from typing import Sequence
 
@@ -17,6 +18,39 @@ class TeamOrderCategory(IntEnum):
     PENALTY = 1
     CORNER = 2
     FREE_KICK = 3
+
+
+@dataclass(frozen=True)
+class TeamOrderPriorities:
+    """Exact four human Team Orders priority categories.
+
+    Original storage is owned by the user-team companion/profile returned by
+    0x403850. Category counts live at profile +0x206+category and category
+    player-ID list pointers at profile +0x660+4*category. IDs are uint16 and
+    are consumed in stored order.
+    """
+
+    captain: tuple[int, ...] = ()
+    penalty: tuple[int, ...] = ()
+    corner: tuple[int, ...] = ()
+    free_kick: tuple[int, ...] = ()
+
+    def __post_init__(self) -> None:
+        for name in ("captain", "penalty", "corner", "free_kick"):
+            values = tuple(int(value) for value in getattr(self, name))
+            if any(not 0 <= value <= 0xFFFF for value in values):
+                raise ValueError(f"{name} player IDs must be uint16 values")
+            object.__setattr__(self, name, values)
+
+    def for_category(self, category: TeamOrderCategory | int) -> tuple[int, ...]:
+        category = TeamOrderCategory(int(category))
+        if category is TeamOrderCategory.CAPTAIN:
+            return self.captain
+        if category is TeamOrderCategory.PENALTY:
+            return self.penalty
+        if category is TeamOrderCategory.CORNER:
+            return self.corner
+        return self.free_kick
 
 
 def first_active_priority(
