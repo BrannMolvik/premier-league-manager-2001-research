@@ -352,3 +352,13 @@ Confirmed:
 - record type 5 remains an unresolved player incident/state family.
 
 This confirms the calculator emits a structured semantic timeline that can be reconstructed independently of original 3D choreography.
+
+
+## Match calculator — additional semantic structure
+
+Confirmed:
+
+- MatchCalculator type 5 is a three-subtype per-player incident/status record family; its exact card/injury labels remain unresolved;
+- routine `0x62E2F0` performs AI substitution decisions and creates type-10 substitution records;
+- routine `0x62E6F0` performs recurring player condition/energy-like decay by decrementing player byte `+0x77` and propagating an update;
+- these systems are separate from the goal-family record generation and five-minute team-strength calculation.
