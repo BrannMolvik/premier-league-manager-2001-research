@@ -279,3 +279,8 @@ Confirmed additionally:
 - `FUNDMaxReqPerYear` and `FUNDMaxTimeToRepay` are live tuning inputs to this system;
 - accepted manager funding requests credit the club's current cash through Balance credit routine `0x5DC510`;
 - this repayable cash-funding system is distinct from the automatic chairman transfer-budget-increase event family.
+
+
+## Runtime ownership correction
+
+Older notes often call the large object returned/used throughout manager gameplay the "game/session" object. RTTI now identifies it as **DBRUser**. Existing offsets such as +0x670 Balance, +0x690 concessions, +0x698 bank loans, +0x6B0 stadium, etc. remain valid; only the ownership terminology changes.
