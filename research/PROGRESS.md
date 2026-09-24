@@ -1466,6 +1466,16 @@ Implemented: active role pools; initial carrier selection; role-matched first an
 
 Next step: assemble these selectors with the existing finish/accuracy/goalkeeper primitives into the complete type-1 resolver and attach the mapped set-piece transitions.
 
+
+
+## Outer type-1 open-play resolver implementation checkpoint
+
+The verified outer 0x62C740 flow is now assembled in reconstruction/match_calculator.py as resolve_open_play_attempt(). It preserves the 5% direct-corner branch, possession/control increments, carrier/defender selection, early Control/Tackling abort, Passing gate, finisher/close-defender selection, forced shooting when carrier==finisher, Heading-vs-Shooting finish path, accuracy and goalkeeper gates, normal miss suppression, 5% own-goal attribution, and the exact lost-duel handoff structure to penalty/free-kick/corner.
+
+Dedicated type-2/type-3 resolvers are not fabricated: the open-play function returns the verified ChanceSource transition so the caller can invoke those exact resolvers once implemented.
+
+Next target: reverse and implement type-2 free kicks and type-3 corners, then integrate all chance families beneath the five-minute team-strength/frequency driver.
+
 ## Active Investigation
 
 Primary focus: complete and implement the exact type-1 ordinary/open-play resolver, then connect verified MatchCalculator output to scheduled fixtures.
