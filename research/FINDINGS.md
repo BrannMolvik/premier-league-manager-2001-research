@@ -304,3 +304,15 @@ Confirmed:
 - DBRUser list triplets beginning at `+0x5B8,+0x5C4,+0x5D0` are support-staff containers (RTTI `CSupportStaff`), not budget state;
 - `EAMchairbudgetsettings +0x58` is the displayed transfer-budget value;
 - the authoritative persisted or derived source of that transfer-budget value remains unresolved.
+
+
+## Contracts, transfers and finance — monthly maintenance categories
+
+Confirmed additionally:
+
+- monthly DBRUser routine `0x42AEB0` performs maintenance cash debits rather than chairman rebudgeting;
+- accounting category 601 = stadium-size maintenance;
+- accounting category 602 = major club-facility maintenance;
+- accounting category 603 = pitch-system maintenance;
+- DBRUser +0x65C owns/query-controls facility/building state used for School, Hotel, Hospital, Club, Training, Parking and Merchandising maintenance;
+- DBRUser +0x6A8 stores pitch-system state used for sprinklers, drainage, pitch cover and heating maintenance.
