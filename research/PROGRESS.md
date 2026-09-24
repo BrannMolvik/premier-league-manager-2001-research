@@ -412,9 +412,15 @@ This gives a new direct route into the live budget logic while preserving the di
 ## Correction checkpoint: 0x516020 not yet proven as budget777
 
 RTTI resolved the routine ending at 0x5DE6C3 as season-ticket setting (`EAMChairSeasonTicketSetsub` / `EAMSeasonTicketSetsub`). The previous label of 0x516020 as definitively `/budget777` was premature and has been reverted. The `/cash777` association for 0x516090 remains strongly supported by four independent current-cash affordability checks.
+## Critical cheat-trace correction
+
+RTTI proves global `0x877540` is a `std::basic_istringstream`, with standard-library `basic_istream`/`basic_stringbuf` vtables. Therefore the byte getters at `0x515FF0..0x5160E0` are stream/internal-state accessors, **not cheat flags**.
+
+All earlier attempted `/cash777` or `/budget777` labels for `0x516090` / `0x516020` are superseded. The actual cheat parser must be recovered independently from the literal cheat-string pointer table.
+
 ## Active Investigation
 
-Current focus: recover the actual cheat-command mapping so `/budget777` is tied to the correct getter, then use that getter's consumers to locate the live transfer-budget state.
+Current focus: recover the real data-driven cheat-command parser from the literal `/cash777` and `/budget777` string table; do not use the superseded 0x515Fxx/0x5160xx stream accessors.
 
 Immediate next steps:
 
