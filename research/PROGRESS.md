@@ -1184,6 +1184,35 @@ Regression status: **25/25 tests pass** across development, training, runtime/ca
 
 No placeholder match simulator has been invented: results are currently injected explicitly until the recovered MatchCalculator is ready to replace that boundary.
 
+
+
+## Real Premier League calendar scheduling checkpoint
+
+The reconstruction now parses all **1,053** Static.dat round records and maps the 38 Premier League rounds onto actual season dates.
+
+Verified schedule interpretation:
+
+- scheduled weekday **1..7 = Monday..Sunday**;
+- week 0 is the Monday-led week containing July 1 of the season start year;
+- date conversion reproduces the shipped 2000–01 calendar, including:
+  - round 1: 19 Aug 2000;
+  - round 2: 23 Aug 2000;
+  - Boxing Day round: 26 Dec 2000;
+  - New Year's Day round: 1 Jan 2001;
+  - final round: Sunday 20 May 2001.
+
+The exact original files verify:
+
+- 1,053 total round definitions;
+- 38 Premier League round definitions;
+- 10 fixtures due on each PL matchday.
+
+`PremierLeagueState` now exposes round dates, fixtures due on a date, and the next unplayed match date. `GameState` exposes `fixtures_due_today()` and `next_match_date()`, so the advancing calendar can now reach the original league matchdays naturally.
+
+No match result is auto-generated yet; the MatchCalculator reconstruction remains the intended producer.
+
+Regression status: **28/28 tests pass**, plus exact-source parser/date verification.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
