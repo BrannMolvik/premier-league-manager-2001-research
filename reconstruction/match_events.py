@@ -22,6 +22,13 @@ class ChanceOutcome(IntEnum):
     SAVE = 2
 
 
+class FinishMode(IntEnum):
+    """Verified chance-record +0x2C finish selector."""
+
+    HEADED = 0
+    SHOOTING = 1
+
+
 class IncidentKind(IntEnum):
     """Type-5 per-player incident/status subtypes."""
 
@@ -51,9 +58,10 @@ class ChanceRecord:
     and side-local index. side_inversion corresponds to +0x20 and changes a
     scored chance into an own-goal attribution for the opposing side.
 
-    context_flag preserves calculator +0x2C as the verified one-bit Boolean
-    field. Its exact football/presentation meaning remains unresolved; normal
-    FastView EventGoal delivery does not consume it.
+    finish_mode corresponds to calculator record +0x2C:
+    0 = headed finish (Heading branch), 1 = shooting/kicked finish
+    (Shooting branch). This is independent of source, outcome and own-goal
+    attribution.
     """
 
     source: ChanceSource
@@ -61,7 +69,7 @@ class ChanceRecord:
     player_side: int
     player_index: int
     side_inversion: bool = False
-    context_flag: bool = False
+    finish_mode: FinishMode = FinishMode.HEADED
 
     def __post_init__(self) -> None:
         if not isinstance(self.source, ChanceSource):
@@ -73,7 +81,8 @@ class ChanceRecord:
         if self.player_index < 0:
             raise ValueError("player_index must be non-negative")
         object.__setattr__(self, "side_inversion", bool(self.side_inversion))
-        object.__setattr__(self, "context_flag", bool(self.context_flag))
+        if not isinstance(self.finish_mode, FinishMode):
+            object.__setattr__(self, "finish_mode", FinishMode(int(self.finish_mode)))
 
     @property
     def outcome(self) -> ChanceOutcome:
