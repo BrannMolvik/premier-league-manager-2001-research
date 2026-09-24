@@ -3046,24 +3046,6 @@ Thus this five-qword block belongs to radio/TV/European media-rights/reserve sta
 Do not use DBRUser +0x588..+0x5A8 as the chairman budget array.
 
 
-## DBRUser +0x588..+0x5AC five-qword block is media-rights state, not chairman budgets
-
-A grouped block of five qword-style financial values at DBRUser offsets approximately `+0x588..+0x5AC` initially looked unusually promising because the chairman system has five quarterly operating-budget categories.
-
-The block is initialized together through the `0x4268C0` path, but the tuning globals feeding it resolve to **media-rights revenue parameters**, including names such as:
-
-- `LRADIO_RES`
-- `NRADIO_RES`
-- `NTV_RES`
-- `EUROPEAN_RES`
-
-The surrounding tuning family is radio/television/European media income rather than Staff/Wages/Maintenance/Merchandising/Misc budget allocation.
-
-### Conclusion
-
-The apparent five-value shape is coincidental. DBRUser `+0x588..+0x5AC` belongs to media-rights/commercial finance state and should not be labeled as the five chairman quarterly budgets.
-
-
 ## DBRUser +0x5B8/+0x5C4/+0x5D0 are CSupportStaff lists
 
 The repeated triplet structures beginning at `DBRUser +0x5B8` initially resembled compact grouped finance state, but save/load and RTTI analysis identifies them as list/container headers for support-staff objects.
