@@ -1530,6 +1530,23 @@ Exact next steps:
 3. implement both strength builders with deterministic tests;
 4. connect them to the already-implemented five-minute attack scheduler to produce complete normal-match results.
 
+
+
+## Team-strength modifier checkpoint
+
+Committed separately from the coefficient-table discovery:
+
+- attack bias multipliers 0.8/0.9/1.0/1.1/1.2;
+- inverse defence bias multipliers;
+- user-controlled-club predicate at 0x4037B0;
+- captain selector at 0x408560;
+- captain Confidence + Leadership attack/defence formulas;
+- AI fixed ×1.05 attack / ×1.10 defence modifiers;
+- aggression factor `1 + (value-5)*0.02`;
+- defence-only formation coverage penalty from 0x62F6A0.
+
+Immediate next target: extract the two original 4×20×17 matrices into a user-local data loader and implement the attack/defence strength builders around these verified modifiers.
+
 ## Active Investigation
 
 Primary focus: complete and implement the exact type-1 ordinary/open-play resolver, then connect verified MatchCalculator output to scheduled fixtures.
