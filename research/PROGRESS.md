@@ -825,6 +825,17 @@ Each month the game builds a 0x68-byte finance snapshot from cash, Balance aggre
 This gives a concrete historical-finance input that may feed quarterly chairman rebudgeting. Exact field names remain partly unresolved, and CMonthHistory should not yet be called the transfer-budget store itself.
 
 Exact next target: trace readers of game/session +0x6DC that run on quarterly/board paths and determine whether they calculate the values later placed into EAMchairbudgetsettings, especially +0x58 TRANSFERBUDGET.
+
+
+## Stadium object checkpoint
+
+The large unresolved persistent object at game/session **+0x6B0** is now decisively identified as the **stadium model/state**.
+
+It is a 0x1BC4-byte object constructed by `0x65CB20`, contains an RTTI-identified `CEntriesList`, and during club setup `0x65D5B0` loads the stadium asset. Failure leads directly to EA's literal warning that the stadium could not be loaded and that building screens/ticketing will not work.
+
+Therefore +0x6B0 is not chairman transfer-budget storage. Its use in `CMonthHistory` supplies stadium/attendance/ticketing context.
+
+Exact next target: continue tracing quarterly board-budget calculation and/or retrieval of prior `EAMchairbudgetsettings` state rather than remaining stadium/business objects.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
