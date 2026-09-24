@@ -711,6 +711,17 @@ Original localization also sharpens the finance model:
 This strongly explains why completed-transfer affordability checks current cash while transfer budget has resisted discovery as a separate hard-cap check: it is a mutable board reserve/reference allocation, not the immediate purchase gate.
 
 Exact next target: trace the quarterly budget-recalculation/overspending producer that takes money from building and transfer reserves. That path must read/write the authoritative live transfer-budget state and may be easier to locate than the automatic increase producer.
+
+
+## Chairman budget-settings producer checkpoint
+
+`EAMchairbudgetsettings` is confirmed as event ID **0x4E**. Its serializer contains the eight known budget values through +0x58 plus additional fields +0x5C/+0x60/+0x64; the UI action handler proves +0x5C is the club/team ID.
+
+All currently found hard-coded 0x4E references are UI/event registration/setup, not the gameplay producer. The same is true for the inspected hard-coded 0x4A budget-warning references. The live producer must therefore be located through dynamic event creation/dispatch or through the board-finance calculation that fills the event.
+
+A candidate DBRClub block at +0x21C..+0x234 was checked and is not supported as a budget array; its fields are used in unrelated club/runtime logic.
+
+Exact next target: trace the quarterly overspending/rebudget calculation or dynamic construction of EAMchairbudgetsettings, both of which must read the authoritative live transfer/building budget values.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
