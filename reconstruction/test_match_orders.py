@@ -3,6 +3,7 @@ import unittest
 from match_calculator import MatchSkillPlayer, PositionRole
 from match_orders import (
     TeamOrderCategory,
+    TeamOrderPriorities,
     first_active_priority,
     select_set_piece_taker,
 )
@@ -39,6 +40,42 @@ def player(index, role, set_piece=100):
         goalkeeping=100,
         set_piece=set_piece,
     )
+
+
+class TeamOrderPriorityStorageTests(unittest.TestCase):
+    def test_exact_four_category_mapping(self):
+        priorities = TeamOrderPriorities(
+            captain=(7, 3),
+            penalty=(9, 7),
+            corner=(4,),
+            free_kick=(11, 5),
+        )
+
+        self.assertEqual(
+            priorities.for_category(TeamOrderCategory.CAPTAIN),
+            (7, 3),
+        )
+        self.assertEqual(
+            priorities.for_category(TeamOrderCategory.PENALTY),
+            (9, 7),
+        )
+        self.assertEqual(
+            priorities.for_category(TeamOrderCategory.CORNER),
+            (4,),
+        )
+        self.assertEqual(
+            priorities.for_category(TeamOrderCategory.FREE_KICK),
+            (11, 5),
+        )
+
+    def test_player_ids_are_normalized_and_validated_as_uint16(self):
+        priorities = TeamOrderPriorities(captain=[3, 7])
+        self.assertEqual(priorities.captain, (3, 7))
+
+        with self.assertRaises(ValueError):
+            TeamOrderPriorities(penalty=(-1,))
+        with self.assertRaises(ValueError):
+            TeamOrderPriorities(corner=(0x10000,))
 
 
 class TeamOrderSelectionTests(unittest.TestCase):
