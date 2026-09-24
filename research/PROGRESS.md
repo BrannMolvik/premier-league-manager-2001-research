@@ -1547,6 +1547,21 @@ Committed separately from the coefficient-table discovery:
 
 Immediate next target: extract the two original 4×20×17 matrices into a user-local data loader and implement the attack/defence strength builders around these verified modifiers.
 
+
+
+## Per-player strength formula checkpoint
+
+Exact contribution inside the team-strength matrices is now known:
+
+`(effective_skill / 255) * coefficient[tactic][role][skill] * (role_factor / 100)`.
+
+Attack role factors 0..12:
+105,108,110,120,112,115,97,95,102,92,90,117,100.
+
+Defence uses 200 minus those values; roles 13..19 use 100 for both.
+
+Next: implement the exact formation-coverage helper and coefficient-matrix loader, then the two complete strength builders.
+
 ## Active Investigation
 
 Primary focus: complete and implement the exact type-1 ordinary/open-play resolver, then connect verified MatchCalculator output to scheduled fixtures.
