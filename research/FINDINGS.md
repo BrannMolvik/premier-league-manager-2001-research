@@ -399,3 +399,12 @@ Confirmed:
 - record creators may add +3 as an alternate presentation variant without changing the base result;
 - MatchController emits semantic `EventGoal` only for outcome values 0 or 3;
 - chance/source type at +0x28 is independent of success/failure and independent of the own-goal flag at +0x20.
+
+
+## Match source-type range
+
+Confirmed:
+
+- active MatchCalculator chance/source types in this release are 1, 2, 3, and 4;
+- type 0 is accepted by FastView's compatibility switch but has no identified normal producer and is not reconstructed by MatchRecord serialization;
+- type 0 is therefore treated as unused/reserved unless future evidence finds an active producer.
