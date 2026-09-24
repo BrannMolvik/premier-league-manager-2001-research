@@ -51,8 +51,9 @@ class ChanceRecord:
     and side-local index. side_inversion corresponds to +0x20 and changes a
     scored chance into an own-goal attribution for the opposing side.
 
-    context_raw preserves the unresolved calculator +0x2C field without
-    assigning an unsupported football meaning to it.
+    context_flag preserves calculator +0x2C as the verified one-bit Boolean
+    field. Its exact football/presentation meaning remains unresolved; normal
+    FastView EventGoal delivery does not consume it.
     """
 
     source: ChanceSource
@@ -60,7 +61,7 @@ class ChanceRecord:
     player_side: int
     player_index: int
     side_inversion: bool = False
-    context_raw: int = 0
+    context_flag: bool = False
 
     def __post_init__(self) -> None:
         if not isinstance(self.source, ChanceSource):
@@ -71,6 +72,8 @@ class ChanceRecord:
             raise ValueError("player_side must be 0 or 1")
         if self.player_index < 0:
             raise ValueError("player_index must be non-negative")
+        object.__setattr__(self, "side_inversion", bool(self.side_inversion))
+        object.__setattr__(self, "context_flag", bool(self.context_flag))
 
     @property
     def outcome(self) -> ChanceOutcome:
@@ -119,7 +122,34 @@ class BoundaryRecord:
             object.__setattr__(self, "kind", BoundaryType(int(self.kind)))
 
 
-MatchEvent = ChanceRecord | IncidentRecord | BoundaryRecord
+@dataclass(frozen=True)
+class PossessionRecord:
+    """Verified EventPossession payload from one five-minute segment.
+
+    territory is the separate +0x100C-derived territorial/pitch-position metric.
+    side0_percent and neutral_percent are the two explicitly stored possession
+    percentages; side1_percent is reconstructed as the remainder to 100.
+    """
+
+    territory: int
+    side0_percent: int
+    neutral_percent: int
+
+    def __post_init__(self) -> None:
+        for name in ("territory", "side0_percent", "neutral_percent"):
+            value = int(getattr(self, name))
+            if not 0 <= value <= 100:
+                raise ValueError(f"{name} must be in 0..100")
+            object.__setattr__(self, name, value)
+        if self.side0_percent + self.neutral_percent > 100:
+            raise ValueError("side0_percent + neutral_percent cannot exceed 100")
+
+    @property
+    def side1_percent(self) -> int:
+        return 100 - self.side0_percent - self.neutral_percent
+
+
+MatchEvent = ChanceRecord | IncidentRecord | BoundaryRecord | PossessionRecord
 
 
 @dataclass
