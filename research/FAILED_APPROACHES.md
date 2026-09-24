@@ -474,3 +474,19 @@ Conclusion:
 
 Status:
 - ruled out.
+
+
+## Treat DBRUser +0x588..+0x5A8 as the five chairman operating budgets
+
+Why it looked promising:
+- exactly five consecutive qword financial values;
+- chairman has five quarterly operating-budget categories.
+
+Disproof:
+- initializer `0x4268C0` sources the values from tuning globals explicitly named `LRADIO_MAX/RES`, `NRADIO_MAX/RES`, `LTV_MAX/RES`, `NTV_MAX/RES`, and `EUROPEAN_MAX/RES`.
+
+Conclusion:
+- the block is media-rights/reserve state, not chairman operating-budget state.
+
+Status:
+- ruled out.
