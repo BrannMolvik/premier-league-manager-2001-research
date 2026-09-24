@@ -3079,3 +3079,70 @@ The +0x5E0 triplet is also a list header; periodic/user-management code appends 
 ### Conclusion
 
 DBRUser `+0x5B8/+0x5C4/+0x5D0` are support-staff-related list containers. The adjacent +0x5E0 structure is also list state. None should be interpreted as the chairman transfer/operating budget array.
+
+
+## Monthly DBRUser maintenance dispatcher 0x42AEB0
+
+The monthly DBRUser routine `0x42AEB0` is now resolved as a three-part **stadium/facility maintenance debit** dispatcher rather than chairman quarterly rebudgeting.
+
+It calls:
+
+1. `0x42B000`
+2. `0x42AED0`
+3. `0x42B3B0`
+
+and all three eventually construct finance values and debit the active Balance with `0x5DC650`.
+
+### 0x42AED0 — stadium-size maintenance, accounting category 601
+
+The routine queries the stadium object at `DBRUser +0x6B0` through `0x65DA60` and `0x65D9B0`, combines the result, and feeds it through `0x4290A0`.
+
+The resulting stadium/capacity-like value is bracketed at 10,000-unit steps from 10,000 through 90,000, selecting one of the tuning values:
+
+- `SM_10000`
+- `SM_20000`
+- ...
+- `SM_100000`
+
+The chosen maintenance amount is converted through `0x5E43B0` with accounting category **0x259 = 601** and then debited from the active Balance through `0x5DC650`.
+
+### 0x42B000 — pitch-system maintenance, accounting category 603
+
+This routine reads byte levels/state from the 0x14-byte object at `DBRUser +0x6A8` and computes maintenance from exact tuning-key pairs:
+
+- `SpinklersMaintenance` + `SpinklersMaintenanceLevel`
+- `DrainageMaintenance` + `DrainageMaintenanceLevel`
+- `PitchCoverMaintenance` + `PitchCoverMaintenanceLevel`
+- `HeatingMaintenance` + `HeatingMaintenanceLevel`
+
+The total is posted/debited as accounting category **0x25B = 603** through Balance debit `0x5DC650`.
+
+Thus `DBRUser +0x6A8` is pitch/stadium-installation maintenance state, not chairman-budget storage.
+
+### 0x42B3B0 — major facility maintenance, accounting category 602
+
+This routine queries the collection at `DBRUser +0x65C` for facility IDs 0..6. For present facilities, it combines a base maintenance amount with the facility's current level through these tuning pairs:
+
+- `SchoolMaintenance` / `SchoolMaintenanceLevel`
+- `HotelMaintenance` / `HotelMaintenanceLevel`
+- `HospitalMaintenance` / `HospitalMaintenanceLevel`
+- `ClubMaintenance` / `ClubMaintenanceLevel`
+- `TrainingMaintenance` / `TrainingMaintenanceLevel`
+- `ParkingMaintenance` / `ParkingMaintenanceLevel`
+- `MerchandisingMaintenance` / `MerchandisingMaintenanceLevel`
+
+The accumulated cost is posted/debited as accounting category **0x25A = 602** through `0x5DC650`.
+
+The object at `DBRUser +0x65C` is therefore a facility/building collection used to query facility presence/level, not a chairman-budget scalar.
+
+### Consequence
+
+The monthly `0x42AEB0` branch belongs to operating maintenance and cash accounting. It does not calculate the chairman's quarterly operating limits or the transfer-budget reserve.
+
+It does, however, recover three precise finance categories:
+
+- 601 = stadium-size maintenance
+- 602 = major facility/building maintenance
+- 603 = pitch-system maintenance
+
+These are separate from category 1000 (transfers) and category 1100 (stadium/grounds expenditure previously mapped).
