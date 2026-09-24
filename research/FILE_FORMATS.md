@@ -383,6 +383,9 @@ Record size: 53 bytes.
 |---|---|---|
 | +0 | uint32 | competition ID |
 | +12 | uint16 | English.str competition-name ID |
+| +34 | uint8 | maximum Non-EU players used by competitive lineup selection | confirmed |
+
+Runtime `DBRCompetition` records are 64 bytes and the packed 53-byte reader maps disk +34 directly to runtime `+0x2B`. Team helper `0x407DF0` returns this byte as the Non-EU selection limit for the current competition, with a fallback of 11 when no competition context is available. Shipped values are 0, 3, 4, 5 and 99; Premier League competition ID 0 stores **3**. Value 99 therefore behaves as an effectively unrestricted limit.
 
 Other competition fields are not yet semantically mapped.
 
