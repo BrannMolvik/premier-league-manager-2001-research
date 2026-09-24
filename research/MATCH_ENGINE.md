@@ -1272,3 +1272,8 @@ The score increment itself remains on the attacking side; the inversion changes 
 ## Clean-room positional pools and selectors
 
 The mapped 0x62DE90/0x62B780/0x62B7D0/0x62B900/0x62BCE0 role pools and selectors are now implemented in reconstruction/match_calculator.py. The 0x62BCE0 finisher helper preserves the original single RNG(100) roll while falling through empty buckets. The early 0x62B9D0 duel remains distinct from later 0x62C0D0 because its true return means the defender won; 0x62BBF0 remains a separate Passing gate without coin-flip recovery.
+
+
+## Clean-room outer type-1 resolver
+
+The mapped 0x62C740 shell is now implemented as resolve_open_play_attempt(). It returns both semantic chance records and explicit set-piece handoffs while preserving the original RNG order and possession counter increments. Free-kick/corner transitions remain explicit boundaries rather than placeholder simulations, keeping the clean-room implementation evidence-backed.
