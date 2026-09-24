@@ -510,3 +510,14 @@ Confirmed:
 - there is a direct 5% corner branch before ordinary open play;
 - a failed final duel can branch into penalty/free kick/corner using RNG(4), RNG(100)<20, and RNG(2);
 - scored open-play chances with a close defender have a RNG(20)==0 own-goal attribution branch.
+
+
+## Match free-kick and corner resolvers
+
+Confirmed:
+
+- type-2 normal free kicks choose direct vs delivered from effective Shooting relative to floor(1.2 * (Shooting + Passing));
+- cached set-piece state can force a direct free kick or force a delivered headed receiver;
+- type-2 delivered free kicks and type-3 corners require Set Piece execution and reuse the common finishing primitives;
+- type-3 corners require a receiver distinct from the corner taker;
+- type-2/type-3 creators use the 10% +3 presentation variant and do not use own-goal inversion.
