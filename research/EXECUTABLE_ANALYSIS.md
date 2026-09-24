@@ -3271,3 +3271,35 @@ Both aggregate routines iterate participating players and then loop exactly **17
 The resulting ratios feed RNG `0x64D5B0` and event-generation routines including `0x62C740`, `0x62E130`, `0x62E2F0`, and `0x62E6F0`.
 
 This proves the backend is a discrete weighted probabilistic event simulator. Exact semantic names for the two strength dimensions and downstream event branches remain active work.
+
+
+## MatchCalculator record type -> FastView sender mapping
+
+RTTI on the match-controller sender members plus the record switch at `0x519862` now gives direct semantic mapping for MatchCalculator records.
+
+Controller sender layout from constructor `0x518C80`:
+
+- +0x10 Sender<EventGoal>
+- +0x20 Sender<EventPossession>
+- +0x30 Sender<EventPenaltyShootoutShot>
+- +0x40 Sender<EventHalfTime>
+- +0x50 Sender<EventFullTime>
+- +0x60 Sender<EventExtraTime>
+- +0x70 Sender<EventPenalties>
+- +0x80 Sender<EventSub>
+
+The controller's MatchCalculator record type at +0x28 maps:
+
+- 0..4 -> EventGoal family
+- 5 -> unresolved player incident/state family
+- 6 -> HalfTime
+- 7 -> FullTime
+- 8 -> ExtraTime
+- 9 -> Penalties
+- 10 -> Substitution
+
+During penalty-shootout state, type-1 goal-family records are instead sent through EventPenaltyShootoutShot.
+
+Lower calculator branches confirm that the side-indexed score dwords at +0xD4C/+0xD50 are incremented in multiple paths immediately before appending types from the 0..4 family.
+
+This establishes a direct calculator-record -> semantic FastView bridge.
