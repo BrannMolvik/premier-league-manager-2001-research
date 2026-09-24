@@ -420,3 +420,20 @@ Conclusion:
 
 Status:
 - ruled out.
+
+
+## Treat game/session +0x69C as chairman budget storage
+
+Why it looked plausible:
+- persistent save-state object adjacent to other finance/business objects;
+- runtime periodic logic.
+
+Disproof:
+- the object's update path consumes globals loaded from `FSNoSponsorMinWait`, `FSNoSponsorMaxWait`, `FSHaveSponsorMinWait`, and `FSHaveSponsorMaxWait`;
+- the same tuning family continues with `FSOfferMinLifeTime`.
+
+Conclusion:
+- game/session +0x69C is sponsor-offer/sponsor-state scheduling, not chairman transfer-budget storage.
+
+Status:
+- ruled out.
