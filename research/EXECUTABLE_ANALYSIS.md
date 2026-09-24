@@ -1222,6 +1222,54 @@ This differs from `EAMbcstartseasonmail`, which carries staff, player wages, mai
 The monthly-budget message is a promising recurring bridge to authoritative live budget state; its population source remains the next trace target.
 
 
+## Board-budget configuration globals
+
+The tuning/config loader around `0x506C00..0x5072E0` has now been mapped directly from key string -> destination global.
+
+Budget-related mappings:
+
+- `StaffWageBudget2K` -> `0x821D94`
+- `PlayerWageBudget2K` -> `0x821D98`
+- `FacilitiesBudget2K` -> `0x821D9C`
+- `MiscBudget2K` -> `0x821DA0`
+- `StadiumBudget2K` -> `0x821DA4`
+- `TransferBudget2K` -> `0x821DA8`
+- `StaffWageBudget` -> `0x821DAC`
+- `PlayerWageBudget` -> `0x821DB0`
+- `FacilitiesBudget` -> `0x821DB4`
+- `StadiumBudget` -> `0x821DB8`
+- `MiscBudget` -> `0x821DBC`
+- `TransferBudget` -> `0x821DC0`
+
+Related business-consultant/finance tuning:
+
+- `ChairBudgetProfit` -> `0x821D80`
+- `profitpoolmax` -> `0x821D88` (double)
+- `profitpoolreturn` -> `0x821D90`
+- `BCExtraPerLevel` -> `0x821DC4`
+- `MerchPercentageP` -> `0x821DC8`
+- `MerchPercentageN` -> `0x821DCC`
+- `AdvertPercentageN` -> `0x821DD0`
+- `ConcessionPercentageP` -> `0x821DD4`
+- `ConcessionPercentageN` -> `0x821DD8`
+- `BCIncrease` -> `0x821DDC`
+
+These are global configuration/default values, not yet identified as the authoritative live per-club budget store.
+
+### EAM factory-tag caution
+
+A large generic allocation/factory switch around `0x53B4xx` passes values such as `0xA3` and `0xA4` to allocator `0x537C80` before constructing `bcstartseasonmail` and `bcmonthlybudget`.
+
+Those values are **not the EAM event IDs**.
+
+The classes' own virtual ID accessors prove:
+
+- `EAMbcstartseasonmail::ID` at `0x541B00` returns `0xA0`;
+- `EAMbcmonthlybudget::ID` at `0x541B50` returns `0xA1`.
+
+The allocator/factory tags must therefore be kept distinct from EAM message IDs.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
