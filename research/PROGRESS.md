@@ -762,6 +762,22 @@ Real Stadium Manager/Groundsman expenditure paths at 0x5D21E5/0x5D2440/0x5D2712/
 Thus category 1100 is a real stadium/grounds/facility expenditure ledger category. The equality between decimal category 1100 (0x44C) and the 0x44C-byte EAMchairbudgetwarning object size is coincidental.
 
 No incorrect event-producer conclusion from this lead was committed.
+
+
+## Concession-offer object checkpoint
+
+The remaining persistent finance-looking object at game/session **+0x690** is now identified and ruled out as chairman budget storage.
+
+It is a 0xB50-byte object containing eight 0x168-byte offer records. Its live tuning inputs are explicitly named:
+
+- `FCConcessionOfferMinWait`
+- `FCConcessionOfferMaxWait`
+
+and its periodic routine `0x5E5640` can credit current cash through Balance routine `0x5DC510`.
+
+Therefore +0x690 is the **food/concession offer subsystem**, not the transfer/building reserve.
+
+Exact next target: continue with the quarterly chairman rebudget producer / remaining board-state owner rather than +0x690.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
