@@ -2401,3 +2401,98 @@ Follow the `EAMFundRequest` handling/decision path into the accept/reject event 
 2. whether the approved funds modify current cash, transfer budget, or both;
 3. where the repayment term is stored;
 4. how this interacts with the separate automatic `EAMchairextratransfersuccess` transfer-budget increase.
+
+
+## FundRequestAccept credits current cash and stores repayment state
+
+The manager-initiated funding request path is now traced through its accepted-result event and into the finance mutation.
+
+### EAMFundRequestAccept
+
+RTTI resolves:
+
+- type: `EAMFundRequestAccept`
+- vtable: `0x7D4CB4`
+- ID accessor `0x472550` -> **0x187**
+- name accessor `0x472560` -> `"FundRequestAccept"`
+- serializer pair includes `0x5B4BA0` / `0x586A90`
+
+The event serializes five dwords:
+
+- `+0x38`
+- `+0x3C`
+- `+0x40`
+- `+0x44`
+- `+0x48`
+
+Formatter `0x5A5110` gives exact semantic labels for two of these fields:
+
+- event `+0x3C` -> formatter key **AMOUNT**
+- event `+0x40` -> formatter key **MONTHS**
+
+Thus:
+
+- `+0x3C` = approved funding amount
+- `+0x40` = repayment period in months
+
+### Tuning connection
+
+The accept construction path around `0x472480..0x4724E1` reads global `0x8222B8`.
+
+The tuning loader at `0x50A215..0x50A24B` proves:
+
+- key `FUNDMaxTimeToRepay` at `0x823BA0`
+- parsed value stored at global `0x8222B8`
+
+The neighboring loader proves:
+
+- key `FUNDMaxReqPerYear` at `0x823BB4`
+- parsed value stored at global `0x8222B4`
+
+Routine `0x5E2330` checks a funding-state object's request count at `+0x08` against `FUNDMaxReqPerYear`, confirming that the request subsystem tracks yearly request usage.
+
+### Approved amount calculation
+
+Routine `0x5E2350` computes the amount granted by an accepted request.
+
+Observed behavior:
+
+- accesses the active Balance object through game/session `+0x670`;
+- if Balance `+0x94` is active, it derives a temporary value/range from Balance `+0x40`;
+- otherwise it constructs the basis from current-club data around runtime `+0xD0/+0xD4`;
+- helper `0x5E48D0` extracts/converts that financial value;
+- the result is reduced by a divisor: a fallback path effectively divides by 10, while another path divides by `10 + <context-dependent value>`.
+
+The exact semantic label of the basis at Balance +0x40 / club +0xD0/+0xD4 is still unresolved, but `0x5E2350` is definitively the approved-funding amount calculator.
+
+### Actual finance mutation
+
+Handler `0x472570` is the critical path.
+
+After validating the event/club context, it obtains a per-club/request-state object at runtime `+0x688` and then:
+
+- calls `0x5E2350` and stores the approved amount at request-state `+0x04`;
+- increments request-state `+0x08`;
+- stores `FUNDMaxTimeToRepay` at request-state `+0x0C`;
+- calls `0x5E2350` again to obtain the cash amount;
+- converts it to the finance value object used by Balance;
+- passes that value to **`0x5DC510`**, the already-proven Balance credit routine.
+
+Therefore an accepted manager `FundRequest` **credits current cash/balance**.
+
+This is distinct from the automatic `EAMchairextratransfersuccess` mail, which explicitly describes an increase to the transfer budget.
+
+### Consequence
+
+The game has at least two distinct “extra money” mechanisms:
+
+1. **Manager FundRequest / FundRequestAccept**
+   - produces a repayable amount;
+   - stores repayment/request counters;
+   - adds the approved amount to current cash via Balance.
+
+2. **Automatic chairman extra-transfer success**
+   - presentation explicitly says the transfer budget is increased;
+   - its authoritative transfer-budget mutation is still being traced.
+
+Do not conflate the FundRequest cash loan with the chairman transfer-budget allocation.
