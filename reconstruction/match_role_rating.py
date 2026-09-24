@@ -72,3 +72,26 @@ def role_rating(
 
     # 0x668350 truncates toward zero. weighted is non-negative here.
     return int(weighted + 0.49)
+
+
+def best_preferred_role_rating(
+    skills: Sequence[int],
+    preferred_positions: Sequence[int],
+) -> int:
+    """Exact behavior of helper 0x41E1D0.
+
+    The original evaluates 0x41C7E0 for each of the player's three stored
+    preferred positions, ignores zero/None role entries, and returns the
+    greatest rating. This differs from 0x41E1B0, which rates only the current
+    assigned role.
+    """
+    if len(preferred_positions) < 3:
+        raise ValueError("preferred_positions must contain at least three entries")
+
+    best = 0
+    for role in preferred_positions[:3]:
+        role = int(role)
+        if role == 0:
+            continue
+        best = max(best, role_rating(skills, role, preferred_positions))
+    return best
