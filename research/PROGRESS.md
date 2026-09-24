@@ -1496,6 +1496,18 @@ The only upstream piece intentionally outside these functions is Team Orders tak
 
 Primary next target: recover the five-minute chance-generation frequency/team-strength driver sufficiently to invoke the exact type-1/2/3/4 resolvers and produce a complete normal league match result.
 
+
+
+## Five-minute attack-frequency driver checkpoint
+
+0x62B1A0 is now mapped as the finite per-segment attack scheduler.
+
+Given the two paired team-strength ratios it produces integer side weights W0/W1, with shipped 1.10 vs 0.90 bias, then runs floor((W0+W1)/30) attacking sequences. Each sequence chooses its attacking side through RNG(W0+W1), distributes its event minute inside the five-minute window, and calls 0x62C740 plus the condition/discipline update paths.
+
+This removes the uncertainty around how often the already-implemented chance resolvers are called.
+
+Immediate next target: fully map 0x62F140 and 0x62F3E0 so the two segment weights can be computed from the actual players/tactics rather than supplied externally. Once those are implemented, a complete normal 90-minute result becomes mechanically reachable.
+
 ## Active Investigation
 
 Primary focus: complete and implement the exact type-1 ordinary/open-play resolver, then connect verified MatchCalculator output to scheduled fixtures.
