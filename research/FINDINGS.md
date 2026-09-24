@@ -418,3 +418,23 @@ Confirmed:
 - priority category 1 = **penalty-taker order**;
 - MatchCalculator active chance source type 4 = **penalty kick**;
 - the normal-match penalty resolver selects the designated penalty taker, resolves Shooting against the opposing goalkeeper/Goalkeeping, and records goal/miss/save through the common chance outcome field.
+
+
+## Match chance-source taxonomy
+
+Confirmed for the analyzed release:
+
+- MatchCalculator source type 0 = unused/reserved;
+- source type 1 = ordinary/open-play chance;
+- source type 2 = free kick;
+- source type 3 = corner;
+- source type 4 = penalty kick.
+
+Team Orders priority categories consumed by MatchCalculator:
+
+- 0 captaincy;
+- 1 penalty takers;
+- 2 corner kicks;
+- 3 free kicks.
+
+The source type is independent of chance outcome at +0x24 and own-goal inversion at +0x20.
