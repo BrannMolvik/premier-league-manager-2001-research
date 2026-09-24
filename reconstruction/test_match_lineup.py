@@ -15,13 +15,21 @@ class Player:
     skills: tuple[int, ...]
     preferred_positions: tuple[int, int, int]
     form_state: int = 2
+    non_eu: bool = False
 
 
-def player(index: int, role: int, value: int = 100) -> Player:
+def player(
+    index: int,
+    role: int,
+    value: int = 100,
+    *,
+    non_eu: bool = False,
+) -> Player:
     return Player(
         player_index=index,
         skills=(value,) * 17,
         preferred_positions=(role, 0, 0),
+        non_eu=non_eu,
     )
 
 
@@ -128,6 +136,94 @@ class StarterSelectionTests(unittest.TestCase):
 
         self.assertEqual(result.starters[0].player_index, 1)
         self.assertEqual(result.starters[1].player_index, 2)
+
+
+class NonEuRestrictionTests(unittest.TestCase):
+    def test_running_limit_blocks_fourth_non_eu_selection(self):
+        roster = [
+            player(index, slot.role, 180, non_eu=True)
+            for index, slot in enumerate(AI_FORMATIONS[0])
+        ]
+
+        result = select_ai_lineup_core(
+            roster,
+            formation_id=0,
+            substitute_quota=0,
+            non_eu_limit=3,
+            count_non_eu=True,
+        )
+
+        self.assertEqual(len(result.starters), 3)
+        self.assertEqual(len(result.unfilled_slot_indices), 8)
+
+    def test_retry_mode_stops_counting_but_keeps_limit_comparison(self):
+        roster = [
+            player(index, slot.role, 180, non_eu=True)
+            for index, slot in enumerate(AI_FORMATIONS[0])
+        ]
+
+        relaxed = select_ai_lineup_core(
+            roster,
+            formation_id=0,
+            substitute_quota=0,
+            non_eu_limit=3,
+            count_non_eu=False,
+        )
+        self.assertEqual(len(relaxed.starters), 11)
+
+        zero_limit = select_ai_lineup_core(
+            roster,
+            formation_id=0,
+            substitute_quota=0,
+            non_eu_limit=0,
+            count_non_eu=False,
+        )
+        self.assertEqual(len(zero_limit.starters), 0)
+        self.assertEqual(len(zero_limit.unfilled_slot_indices), 11)
+
+    def test_bench_selection_uses_same_non_eu_running_count(self):
+        starters = formation_zero_starters()
+        base = len(starters)
+        candidates = [
+            player(base + 0, 12, 160, non_eu=True),
+            player(base + 1, 19, 160, non_eu=True),
+            player(base + 2, 4, 160, non_eu=True),
+            player(base + 3, 1, 160, non_eu=True),
+        ]
+
+        result = select_ai_lineup_core(
+            starters + candidates,
+            formation_id=0,
+            substitute_quota=4,
+            non_eu_limit=2,
+        )
+
+        self.assertEqual(
+            result.substitutes,
+            (base + 0, base + 1),
+        )
+
+    def test_99_limit_is_effectively_unrestricted_for_normal_match_squad(self):
+        roster = [
+            player(index, slot.role, 180, non_eu=True)
+            for index, slot in enumerate(AI_FORMATIONS[0])
+        ]
+        roster.extend([
+            player(11, 12, 160, non_eu=True),
+            player(12, 19, 160, non_eu=True),
+            player(13, 4, 160, non_eu=True),
+            player(14, 1, 160, non_eu=True),
+        ])
+
+        result = select_ai_lineup_core(
+            roster,
+            formation_id=0,
+            substitute_quota=4,
+            non_eu_limit=99,
+        )
+
+        self.assertEqual(len(result.starters), 11)
+        self.assertEqual(len(result.substitutes), 4)
 
 
 class BenchSelectionTests(unittest.TestCase):
