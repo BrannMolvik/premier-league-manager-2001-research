@@ -66,6 +66,11 @@ class RuntimePlayer:
     training_modifiers: list[int] = field(default_factory=lambda: [0] * 17)
     match_active: bool = False
     match_substitute_available: bool = False
+    condition: int = 80
+    form_state: int = 2
+    current_position: int = 0
+    position_aux_code: int = 0
+    balance_position_code: int = 10
 
     @classmethod
     def from_database_player(
@@ -108,7 +113,38 @@ class RuntimePlayer:
             current_raw=current,
             target_raw=target,
             development=development,
+            condition=80,
+            form_state=2,
+            current_position=int(source.positions[0]),
+            position_aux_code=0,
+            balance_position_code=10,
         )
+
+    @property
+    def skills(self) -> tuple[int, ...]:
+        """Current 17 raw skills in the shape consumed by match helpers."""
+        return tuple(self.current_raw)
+
+    @property
+    def preferred_positions(self) -> tuple[int, int, int]:
+        """Exact three preferred runtime roles loaded from the database."""
+        return self.positions
+
+    def assign_match_position(self, role: int, auxiliary_code: int) -> None:
+        """Mirror the low-bit writes of 0x4EA330 / 0x4EA350."""
+        role = int(role)
+        auxiliary_code = int(auxiliary_code)
+        if not 0 <= role <= 19:
+            raise ValueError("role must be in 0..19")
+        if not 0 <= auxiliary_code <= 15:
+            raise ValueError("auxiliary_code must be in 0..15")
+        self.current_position = role
+        self.position_aux_code = auxiliary_code
+
+    def reset_match_position(self) -> None:
+        """Mirror 0x4EA370: preferred role 0 plus auxiliary low nibble zero."""
+        self.current_position = int(self.positions[0])
+        self.position_aux_code = 0
 
     def set_match_active(self) -> None:
         """Mirror DBRPlayer +0x14 bit-4 setter 0x4182F0."""
