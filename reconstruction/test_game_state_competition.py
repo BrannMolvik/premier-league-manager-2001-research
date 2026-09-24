@@ -100,9 +100,9 @@ def prepared_side(side_id):
         players=players,
         attack_context=context,
         defence_context=context,
-        penalty_taker_index=10,
-        corner_taker_index=10,
-        free_kick_taker_index=10,
+        penalty_taker_priority=(10,),
+        corner_taker_priority=(10,),
+        free_kick_taker_priority=(10,),
     )
 
 
