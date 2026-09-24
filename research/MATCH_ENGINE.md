@@ -1133,3 +1133,28 @@ Remaining item before writing the exact clean-room resolver:
 - preserve the numeric behavior of `0x4EA440` and determine the minimum player/position state required to reproduce the same compatibility multiplier.
 
 No approximation is needed for the Form, Condition, Shooting, Goalkeeping, RNG, miss/save or score-limit branches.
+
+
+## Position compatibility routine 0x4EA440 fully mapped
+
+The final numeric input to the type-4 penalty strength calculation is now reconstructed.
+
+The runtime position object at player +0x248 contains three compatible/preferred zero-based position codes in its first three bytes and the current assigned role in byte +0x03 low 5 bits, read by 0x4EA3C0. Routine 0x4EA410 tests those three preferred codes.
+
+Routine 0x4EA440 first returns **1.00** for an exact role match, then applies the original fallback table using literal doubles **1.00 / 0.90 / 0.85 / 0.80 / 0.75 / 0.70 / 0.50 / 0.10**.
+
+The role codes are the same zero-based values used by the original data:
+
+0 None, 1 GK, 2 RB, 3 LB, 4 CB, 5 SW, 6 RWB, 7 LWB, 8 ANC, 9 DM, 10 RM, 11 LM, 12 CM, 13 RW, 14 LW, 15 AM, 16 RF, 17 LF, 18 CF, 19 ST.
+
+Representative fallbacks include RB from RWB/CB = 0.90, CM from DM/RM/LM/AM = 0.90, RM from RW = 0.85, AM from CF/ST = 0.75, and an out-of-position GK = 0.10. RF/LF have no special non-exact fallback and fall to 0.50.
+
+Real records independently confirm the coding: David Seaman=1 GK, Tony Adams=4 CB, Patrick Vieira=12 CM, Dennis Bergkamp=18 CF, Thierry Henry=19 ST.
+
+## First exact clean-room MatchCalculator resolver
+
+The normal-match type-4 penalty routine is now implemented in reconstruction/match_calculator.py.
+
+The implementation preserves the full 0x4EA440 position table, Condition factor, Shooting/Goalkeeping, Form, integer truncation points, minimum-strength override, RNG(3)/RNG(256)/RNG(800)/RNG(10) branch order, the record creator's RNG(100)<10 presentation variant, type-4 context flag, and the original no-record branch when high-score suppression rejects the otherwise-unsaved attempt.
+
+This is the first complete evidence-backed scoring/chance resolver implemented as clean-room replacement code.
