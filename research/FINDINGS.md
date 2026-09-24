@@ -266,3 +266,16 @@ Verified:
 - Code Integrity Operational log Event ID 3077 explicitly names `C:\Games\FM2001\footballmanager.exe`
 
 Compatibility mode, command-line launch and administrator elevation do not bypass that policy.
+
+
+## Contracts, transfers and finance — manager funding request
+
+Confirmed additionally:
+
+- `EAMFundRequest` = event ID 0x185;
+- `EAMFundRequestReject` = 0x186;
+- `EAMFundRequestAccept` = 0x187;
+- accepted request +0x3C is the granted amount and +0x40 is the repayment term in months;
+- `FUNDMaxReqPerYear` and `FUNDMaxTimeToRepay` are live tuning inputs to this system;
+- accepted manager funding requests credit the club's current cash through Balance credit routine `0x5DC510`;
+- this repayable cash-funding system is distinct from the automatic chairman transfer-budget-increase event family.
