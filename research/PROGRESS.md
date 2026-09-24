@@ -893,6 +893,32 @@ The daily DBRUser calendar path directly emits the FA transfer-window event fami
 with constructor/populators `0x56D9A0`, `0x56DC10`, and `0x56DE00` respectively.
 
 This branch is transfer-season/calendar logic, not chairman rebudgeting. Resume the finance search from other periodic/board routines rather than these daily transfer-window messages.
+
+
+## Monthly budget-event layout checkpoint
+
+`EAMbcmonthlybudget` is now exactly mapped:
+
+- event ID **0xA1**
+- vtable **0x7D01A4**
+- constructor `0x541B20`
+- serializer `0x5730C0`
+- formatter `0x573190`
+
+Confirmed fields:
+
+- +0x3C TOTALBUDGET
+- +0x40 STAFFBUDGET
+- +0x44 PLAYERWAGEBUDGET
+- +0x48 MAINTENANCEBUDGET
+- +0x4C MISCBUDGET
+- +0x50 BUILDINGSBUDGET
+- +0x54 TRANSFERBUDGET
+- +0x58 serialized context/identity field, exact name unresolved
+
+This corrects older notes that did not distinguish the monthly layout from the season budget-settings layout. The monthly statement has no separate merchandising field.
+
+Exact next target: recover the gameplay producer/populator of event 0xA1 and trace how +0x54 TRANSFERBUDGET is calculated from prior allocation, ledger flow, or DBRUser state.
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
