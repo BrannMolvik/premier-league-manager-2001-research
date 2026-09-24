@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Protocol, Sequence
+from typing import Callable, Protocol, Sequence
 
-from match_events import IncidentKind, IncidentRecord
+from match_events import IncidentKind, IncidentRecord, SubstitutionRecord
 
 
 DEFAULT_CONDITION_INJURY_INDUCING_LEVEL = 75
@@ -105,9 +105,13 @@ def _injury_after_condition_change(
     settings: ConditionInjurySettings,
     state: ConditionInjuryState,
     rng,
+    enabled: bool = True,
 ) -> IncidentRecord | None:
-    # 0x62EAE0 excludes the goalkeeper role before the incidence roll.
+    # 0x62EAE0 excludes the goalkeeper role, then checks the shared
+    # MatchCalculator +0x1145 guard before incidence processing.
     if int(player.current_position) == 1:
+        return None
+    if not enabled:
         return None
 
     key = (int(player.side), int(player.player_index))
@@ -150,12 +154,17 @@ def apply_sequence_condition_and_injuries(
     settings: ConditionInjurySettings,
     state: ConditionInjuryState,
     rng,
-) -> tuple[IncidentRecord, ...]:
+    injury_enabled: bool = True,
+    injury_substitution_handler: Callable[[IncidentRecord], SubstitutionRecord | None] | None = None,
+) -> tuple[IncidentRecord | SubstitutionRecord, ...]:
     """Exact mapped 0x62E6F0 workload/Condition loop plus 0x62EAE0 incidence.
 
-    The caller supplies already-active players in their executable iteration
-    order. Substitution/removal after an injury is intentionally outside this
-    function because that type-10 path is a separate routine.
+    The caller supplies match participants in executable iteration order.
+    Each entry is checked for active state at the moment it is reached, matching
+    0x417F50 in the original loop. This matters because an immediate injury
+    replacement can activate a bench player before a later roster slot is
+    visited. When injury_substitution_handler is provided, the returned type-10
+    record is appended immediately after the type-5 injury record.
     """
     attacking_side = int(attacking_side)
     if attacking_side not in (0, 1):
@@ -163,7 +172,7 @@ def apply_sequence_condition_and_injuries(
 
     players_by_side = (side0_players, side1_players)
     aggression_by_side = (int(side0_aggression), int(side1_aggression))
-    incidents: list[IncidentRecord] = []
+    incidents: list[IncidentRecord | SubstitutionRecord] = []
 
     # 0x62E6F0 iterates the attacking roster first, then the defending roster.
     for side in (attacking_side, 1 - attacking_side):
@@ -172,6 +181,9 @@ def apply_sequence_condition_and_injuries(
             raise ValueError("aggression must be in 0..9")
 
         for player in players_by_side[side]:
+            if not bool(getattr(player, "active", True)):
+                continue
+
             base = condition_decay_threshold(player.skills[2], aggression)
             threshold = _workload_threshold(
                 player.current_position,
@@ -193,8 +205,13 @@ def apply_sequence_condition_and_injuries(
                 settings,
                 state,
                 rng,
+                enabled=injury_enabled,
             )
             if incident is not None:
                 incidents.append(incident)
+                if injury_substitution_handler is not None:
+                    substitution = injury_substitution_handler(incident)
+                    if substitution is not None:
+                        incidents.append(substitution)
 
     return tuple(incidents)
