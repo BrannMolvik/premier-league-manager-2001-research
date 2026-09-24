@@ -3,7 +3,9 @@ import unittest
 from match_calculator import (
     FORM_MULTIPLIERS,
     MatchSkillPlayer,
+    PositionalPools,
     PositionRole,
+    build_positional_pools,
     choose_finish_mode,
     control_tackle_duel_won,
     effective_match_skill,
@@ -11,8 +13,14 @@ from match_calculator import (
     goalkeeper_stops_open_play,
     heading_attempt_on_target,
     heading_duel_won,
+    first_duel_defender_wins,
+    passing_gate_succeeds,
     position_compatibility_multiplier,
     resolve_penalty,
+    select_close_defender,
+    select_finisher,
+    select_first_defender,
+    select_initial_carrier,
     set_piece_execution_succeeds,
     shooting_attempt_on_target,
 )
@@ -213,6 +221,64 @@ class OpenPlayPrimitiveTests(unittest.TestCase):
     def test_type1_shootout_time_retains_miss_without_variant(self):
         self.assertEqual(encode_open_play_outcome(1, 130, ScriptedRng([5])), 1)
 
+class OpenPlaySelectionTests(unittest.TestCase):
+    def p(self, idx, role, side=0, **kwargs):
+        base=dict(side=side, player_index=idx, condition=100, form_state=2, current_position=role, preferred_positions=(role,0,0), shooting=100, passing=100, tackling=100, heading=100, control=100, goalkeeping=0, set_piece=100)
+        base.update(kwargs)
+        return MatchSkillPlayer(**base)
+
+    def test_pool_builder_matches_role_groups(self):
+        players=[self.p(0,1),self.p(1,2),self.p(2,4),self.p(3,9),self.p(4,10),self.p(5,12),self.p(6,13),self.p(7,15),self.p(8,18),self.p(9,19),self.p(10,16)]
+        pools=build_positional_pools(players)
+        self.assertEqual([p.player_index for p in pools.midfield],[4,5])
+        self.assertEqual([p.player_index for p in pools.attacking_mid],[6,7])
+        self.assertEqual([p.player_index for p in pools.forwards],[8,9])
+        self.assertEqual(pools.goalkeeper.player_index,0)
+        self.assertEqual([p.player_index for p in pools.holding_mid],[3,5])
+        self.assertNotIn(10,[p.player_index for p in pools.forwards])
+
+    def test_initial_carrier_prefers_midfield(self):
+        pools=PositionalPools((self.p(1,10),self.p(2,12)),(self.p(3,13),),(),None,(),(),(),(),(),())
+        rng=ScriptedRng([1])
+        self.assertEqual(select_initial_carrier(pools,rng).player_index,2)
+        self.assertEqual(rng.calls,[2])
+
+    def test_first_defender_role_fallbacks(self):
+        rm=self.p(1,10,1); rb=self.p(2,2,1); cb=self.p(3,4,1); hold=self.p(4,9,1)
+        defending=PositionalPools((),(),(),None,(rb,),(),(cb,),(hold,),(rm,),())
+        self.assertEqual(select_first_defender(self.p(10,13),defending,ScriptedRng([0])).player_index,1)
+        defending=PositionalPools((),(),(),None,(rb,),(),(cb,),(hold,),(),())
+        self.assertEqual(select_first_defender(self.p(10,13),defending,ScriptedRng([0])).player_index,2)
+        self.assertEqual(select_first_defender(self.p(11,15),defending,ScriptedRng([0])).player_index,4)
+
+    def test_close_defender_fullback_then_centre_fallback(self):
+        rb=self.p(1,2,1); cb=self.p(2,4,1)
+        defending=PositionalPools((),(),(),None,(rb,),(),(cb,),(),(),())
+        self.assertEqual(select_close_defender(self.p(10,13),defending,ScriptedRng([0])).player_index,1)
+        defending=PositionalPools((),(),(),None,(),(),(cb,),(),(),())
+        self.assertEqual(select_close_defender(self.p(10,13),defending,ScriptedRng([0])).player_index,2)
+
+    def test_finisher_reuses_one_roll_across_empty_buckets(self):
+        mid=self.p(1,12); wing=self.p(2,13); fwd=self.p(3,19)
+        pools=PositionalPools((mid,),(wing,),(fwd,),None,(),(),(),(),(),())
+        self.assertEqual(select_finisher(pools,ScriptedRng([49,0])).player_index,3)
+        pools=PositionalPools((mid,),(wing,),(),None,(),(),(),(),(),())
+        self.assertEqual(select_finisher(pools,ScriptedRng([49,0])).player_index,2)
+        pools=PositionalPools((),(),(fwd,),None,(),(),(),(),(),())
+        self.assertEqual(select_finisher(pools,ScriptedRng([80,0])).player_index,3)
+
+    def test_first_duel_true_means_defender_win(self):
+        carrier=self.p(1,12,control=100); defender=self.p(2,9,1,tackling=100)
+        defend=effective_match_skill(100,100,9,(9,0,0),2)
+        self.assertTrue(first_duel_defender_wins(carrier,defender,ScriptedRng([0])))
+        self.assertFalse(first_duel_defender_wins(carrier,defender,ScriptedRng([defend])))
+        self.assertFalse(first_duel_defender_wins(carrier,None,ScriptedRng([])))
+
+    def test_passing_gate_has_no_coin_fallback(self):
+        carrier=self.p(1,12,passing=100)
+        threshold=effective_match_skill(100,100,12,(12,0,0),2)//100
+        self.assertTrue(passing_gate_succeeds(carrier,ScriptedRng([threshold-1])))
+        self.assertFalse(passing_gate_succeeds(carrier,ScriptedRng([threshold])))
 
 if __name__ == '__main__':
     unittest.main()
