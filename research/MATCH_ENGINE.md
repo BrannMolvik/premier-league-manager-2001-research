@@ -1953,3 +1953,97 @@ The MatchCalculator layout visible from this path includes:
 - side 1 participant array at `+0x05B4`, count at `+0x0B54`.
 
 `0x62AC90` copies each participant's runtime Condition byte `DBRPlayer+0x77` into its per-match state and resets score/segment state. Calls to `0x417A40/0x417A50` in this initializer set `DBRPlayer+0x18F`; they are **not** the starter/substitute flags and should not be conflated with `+0x14 bit 4/5`.
+
+## Team-selection status and AI selection routines
+
+### First-team / reserve selection state
+
+**Confirmed.**
+
+Player selection state is represented by four mutually exclusive bits plus the unselected state:
+
+- first-team XI / on-field: player `+0x14` bit 4, status code 4;
+- first-team substitute: player `+0x14` bit 5, status code 3;
+- reserve-team XI: player `+0x174` bit 0, status code 2;
+- reserve-team substitute: player `+0x174` bit 1, status code 1;
+- none selected: status code 0.
+
+`0x4218E0` returns those status codes in the priority above and `0x421950` dispatches status setters. Reserve-XI transitions use `0x418220` to swap the current `+0x03/+0x04` position state with reserve-stored bytes `+0x152/+0x153`.
+
+`0x408500(team)` returns the competition-dependent first-team substitute quota, with a fallback of 5 when no competition context is available.
+
+### Position metadata used by selection
+
+**Confirmed from Static.dat plus executable consumers.**
+
+The Position table's final bytes are now decoded:
+
+- disk record `+5`: position ordering key;
+- disk record `+6`: broad position category.
+
+Categories are:
+
+- 0 defender: RB/LB/CB/SW/RWB/LWB;
+- 1 midfielder: ANC/DM/RM/LM/CM/RW/LW/AM;
+- 2 attacker: CF/ST;
+- 3 goalkeeper: GK;
+- 255: None/RF/LF in the shipped data.
+
+The loaded runtime helper `0x4EA310` returns this broad category. The status sort uses the ordering key.
+
+### Simple selector `0x40AF60`
+
+**Confirmed core behavior.**
+
+Argument 2 is the first-team formation index. Argument 3 enables substitute filling and argument 4 is the requested first-team substitute count. Argument 5 equal to 1 commits the chosen XI/status mutations. Argument 7 controls whether the chosen formation is written back to team `+0x1D8`. Arguments 1 and 6 are unused by the recovered body.
+
+For each of the 11 formation slots, the selector first scans the roster in order and considers unused players whose current role or one of their three preferred roles matches the formation slot. The player with the strictly greatest `0x41C7E0(player, required_role)` rating is retained; zero ratings are treated as one. Ties preserve the first roster entry.
+
+A second pass fills any still-empty formation slot from all unused players using the same role rating, allowing out-of-position choices.
+
+When commit mode is 1 it clears prior selection state across the roster, assigns each chosen player's exact formation role and formation auxiliary byte, marks the player first-team active, and accumulates `0x41E1D0` into team `+0x34`.
+
+If substitute filling is enabled, the routine then walks the roster from first to last and marks the first still-nonactive players as first-team substitutes until the requested quota is exhausted. This simple path does not separately optimize substitute ability.
+
+### Competitive selector `0x409C90`
+
+**Confirmed selection structure; several helper-field semantic names remain intentionally generic.**
+
+The seven stack arguments are structurally:
+
+1. availability/context parameter passed to the full player-availability helper;
+2. roster count;
+3. first-team formation index;
+4. reserve-team formation index;
+5. first-team substitute quota;
+6. commit-selection flag;
+7. a restriction-enforcement flag that the AI can relax and retry if no XI can be completed.
+
+The first XI is built in two stages. Every selected-player comparison uses:
+
+```
+trunc_toward_zero(
+    role_rating(player, formation_role) * form_multiplier(player)
+)
+```
+
+with zero coerced to one and strict-greater comparison, so roster order wins ties.
+
+Stage 1 processes the eleven formation slots in order and considers only unused, available players whose **preferred-position triplet** contains that slot's required role. Stage 2 revisits unfilled slots and chooses the best unused available player regardless of preferred-position match.
+
+This path applies the original availability/status filters and a separate player-restriction counter/limit path before accepting a candidate. The restriction is stored in player `+0x14` bit 11 and bounded through `0x407DF0(team)`. The executable contains the database class/source identity `CNonEUPlayer` / `NonEUPlayer.cpp`, making a non-EU-player restriction the leading interpretation, but the bit's complete lifecycle should be traced before the reconstruction exposes that semantic name as final. If an AI-controlled team cannot complete the XI while argument 7 is 1, the routine retries with that restriction flag cleared.
+
+In commit mode, chosen XI players receive the formation role and auxiliary byte and are marked first-team active. The team-strength/rating aggregate written to team `+0x34` uses `0x41E1D0 * Form` on this competitive path.
+
+#### Competitive bench construction
+
+The remaining first-team substitute quota is filled in this exact sequence, each ranked pass choosing the strictly greatest `0x41E1D0 * Form` value among unused, available players of the requested broad category:
+
+1. category 1, midfielder;
+2. category 2, attacker;
+3. category 0, defender;
+4. category 3, goalkeeper.
+
+Each pass can add at most one player. Any remaining substitute slots are then filled by roster order from unused/available players whose category is **not 3**, preventing additional goalkeepers in the overflow phase.
+
+After first-team selection, non-special team types call `0x40AB40` with the reserve formation and commit flag to construct the reserve XI and its fixed three-player reserve bench.
