@@ -1634,3 +1634,54 @@ Fresh structural analysis supersedes the earlier claim that global `0x877540` is
 Consequently the bytes at `0x877550..` are adjacent globals, not istringstream fields. The getter family `0x515FF0..0x5160E0` is therefore reopened as option/cheat-state accessors, but literal-to-byte assignments still require parser proof. `0x516090 -> 0x877559` is again a strong `/cash777` candidate from four cash-affordability consumers; `0x516020 -> 0x877552` remains unresolved.
 
 Exact resume point: identify how the literal command table at `0x828510..0x828568` populates the adjacent global option bytes/tree, then prove `/budget777` and follow its consumers into live transfer-budget storage.
+
+
+## 25 September normal-match orchestration checkpoint
+
+The former primary team-strength blocker is now implemented and connected to a clean-room normal-time match orchestrator.
+
+Confirmed repository implementation:
+
+- `reconstruction/match_strength.py`
+  - exact `0x62F140` attacking-strength contribution pipeline;
+  - exact `0x62F3E0` defensive-strength contribution pipeline;
+  - original 4 x 20 x 17 coefficient matrices supplied through the data-free loader;
+  - role balance factors, live match bias, captain/AI, aggression and defence formation coverage;
+  - exact `0x62B1A0` attack weights, sequence count, side draw and within-segment minute distribution.
+- `reconstruction/match_simulation.py`
+  - explicit prepared match-day player state rather than guessed lineups/Condition/Form/Team Orders;
+  - all 16 verified normal-time five-minute segment calls;
+  - strength recomputation at each segment;
+  - scheduler-selected type-1 open-play resolution;
+  - exact handoffs into type-2 free kicks, type-3 corners and type-4 penalties;
+  - dynamic score accumulation;
+  - Half Time at 45 and Full Time at 90;
+  - timed semantic event output.
+- `GameState.simulate_premier_league_fixture()`
+  - requires the fixture to be due on the current calendar date;
+  - runs the reconstructed normal-time simulator;
+  - records the resulting home/away score into `PremierLeagueState`;
+  - therefore updates the live league table through the existing result/table path.
+
+The exact Library disc image was re-materialized in this session and converted from raw MODE1/2352 to ISO9660 only in the temporary analysis environment. The root `FOOTBAL.EXE` matched the canonical SHA-256 and the existing coefficient loader successfully decoded both real 4 x 20 x 17 matrices. No original binary or game-data asset was committed.
+
+Regression source has been added for:
+
+- team-strength formulas and scheduler;
+- one exact open-play scoring sequence;
+- complete normal-time phase traversal;
+- due-fixture simulation -> stored result -> league-table update.
+
+Environment limitation: this chat session could not obtain a runnable local GitHub checkout, so the newly committed repository regression files have not yet been executed as one full suite in this session. Do not report them as passing until executed in a checkout/CI environment.
+
+### Current backend boundary
+
+The new orchestrator is a complete **normal-time scoring/chance backbone**, but it intentionally does not fabricate still-unimplemented per-sequence side systems. Remaining integrations before calling the backend MatchCalculator complete are:
+
+1. recurring Condition decay and the `0x62EAE0` injury path;
+2. aggression-driven booking/sending-off generation at `0x62E130`;
+3. AI substitution decisions at `0x62E2F0` and type-10 mutation;
+4. exact per-segment possession normalization / territorial value production;
+5. authoritative match-day lineup/assigned-role/Form/Condition/Team Orders initialization from the original runtime paths.
+
+The immediate playable path is now materially shorter: once prepared match-day state is available, a scheduled Premier League fixture can already traverse the recovered normal-time scoring engine and persist its score into the table without any generic score generator.
