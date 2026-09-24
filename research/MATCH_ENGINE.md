@@ -1541,3 +1541,39 @@ Therefore defence role factors for 0..12 are:
 The final `/100` is literal constant **0.01** at `0x7BD600`.
 
 This role split is independent of the much larger 4×20×17 coefficient matrices.
+
+
+## Clean-room team-strength builders and scheduler implemented
+
+The verified `0x62F140` / `0x62F3E0` team-strength formulas are now executable in `reconstruction/match_strength.py`.
+
+Implemented exactly from the current reverse-engineering evidence:
+
+- all 17 raw player skills;
+- shared effective-skill pipeline (Condition, positional compatibility, Form, disable/minimum override);
+- 4 x 20 x 17 tactic/role/skill coefficient matrices;
+- attack role-balance table at `0x840D38`;
+- defence role factors as `200 - attack_factor` for roles 0..12;
+- five-level live match-bias multipliers;
+- user captain Confidence/Leadership multipliers;
+- fixed AI attack/defence multipliers;
+- user aggression multiplier;
+- defence-only literal `0x62F6A0` formation-coverage multiplier.
+
+The same module now contains the verified head of `0x62B1A0`:
+
+- side-0 ratio x1.10 and side-1 ratio x0.90;
+- integer attack weights after x100 conversion;
+- `floor((W0+W1)/30)` sequence count;
+- side selection through `RNG(W0+W1)`;
+- event-minute distribution `segment_start + floor(5*i/N) + 1`.
+
+Deterministic regression coverage is in `reconstruction/test_match_strength.py`.
+
+### Exact-source validation
+
+The original Library disc image was re-materialized and converted from raw MODE1/2352 sectors to ISO9660 locally. The root `FOOTBAL.EXE` hashes to the expected analyzed executable SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+The existing data-free coefficient loader successfully reads both real matrices from that executable as exact `4 x 20 x 17` double arrays. Observed values are plausible sparse football weights (attack range 0.0..1.2, defence range 0.0..1.3), providing an additional direct validation that the mapped table geometry and PE loader are correct.
+
+This closes the former main numeric prerequisite for the five-minute attack-frequency scheduler. The next backend step is orchestration: use these strengths to run each normal-time segment through the already-implemented chance resolvers and accumulate a complete score/event timeline.
