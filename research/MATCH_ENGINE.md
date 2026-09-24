@@ -2138,3 +2138,66 @@ After starters, `0x409C90` attempts substitute selection in category order:
 Each phase chooses the highest eligible remaining player using the current-role rating helper `0x41E1D0` multiplied by Form, marks the player substitute-available through `0x4182C0`, and decrements the remaining substitute count.
 
 A final fill loop then consumes any still-open substitute places from remaining eligible players but excludes category 3, preventing additional goalkeepers through that fallback.
+## Match-day runtime defaults: Form, Condition, and position state
+
+**Confirmed from the canonical executable.**
+
+Several values that were previously treated as caller-supplied unknowns have exact DBRPlayer initialization behavior.
+
+### Form
+
+DBRPlayer initialization writes:
+
+```
+DBRPlayer +0x192 = 2
+```
+
+at `0x41B330`.
+
+This is the neutral member of the already-recovered five-state Form scale 0..4. Therefore a newly initialized runtime player begins at **Form state 2 / Normal**, not at an unknown value.
+
+The later Form transition routine `0x41B870` mutates this byte within 0..4 using the named tuning globals `FormChangeProb`, `InFormChangeProb`, `OutOfFormChangeProb`, and `FormIncreaseProb`. Match and lineup code consume the current runtime value through `0x41B970`.
+
+### Condition
+
+DBRPlayer initialization at `0x417930` writes:
+
+```
+DBRPlayer +0x77 = 0x50
+```
+
+so initial runtime **Condition = 80**.
+
+Subsequent training/rest/match paths mutate the same byte; MatchCalculator `0x62AC90` copies its current value into per-match state. Thus the authoritative match input is the live runtime Condition byte, with 80 as its proven initialization value.
+
+### Position-state constructor
+
+The six-byte position state referenced from DBRPlayer `+0x248` is initialized by `0x4EA2D0`.
+
+The constructor:
+
+1. copies the three stored preferred/runtime role bytes into position-state `+0x00..+0x02`;
+2. calls `0x4EA370`, which copies preferred role 0 into current assigned role `+0x03` and clears the low nibble of auxiliary byte `+0x04`;
+3. calls `0x4EA3B0`.
+
+`0x4EA3B0` performs:
+
+```
+position_state[5] = (position_state[5] & 0xEA) | 0x0A
+```
+
+For the low five bits returned by `0x4EA3E0`, this forces:
+
+```
+balance_position_code = 10
+```
+
+regardless of the previous low-five-bit contents.
+
+Therefore the clean-room startup state can now initialize:
+
+- current assigned role = first preferred role;
+- auxiliary position code low nibble = 0;
+- separate balance-position code low five bits = **10**.
+
+AI formation selection later overwrites assigned role `+0x03` and auxiliary `+0x04` for starters, but does not overwrite the distinct `+0x05` balance code. Substitution likewise copies `+0x03/+0x04` but not `+0x05`.
