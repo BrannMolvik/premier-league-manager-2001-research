@@ -1052,6 +1052,27 @@ Thus own goals are **not a dedicated one of types 0..4**. The remaining scoring-
 
 Exact next match target: map types 0,1,2,3,4 through their creators/call-site contexts and the +0x24/+0x2C fields.
 
+
+
+## Match chance-outcome encoding checkpoint
+
+The ambiguous scoring records are now resolved structurally.
+
+For MatchCalculator goal/chance-family records:
+
+- `record +0x28` = chance/source family type;
+- `record +0x24 mod 3` = result:
+  - 0 = **goal**
+  - 1 = **miss / failed chance before goalkeeper-save resolution**
+  - 2 = **saved/stopped by goalkeeper**
+- the record creators occasionally add +3, yielding 3/4/5 as presentation variants of the same three base outcomes;
+- MatchController sends semantic `EventGoal` only for +0x24 values **0 or 3**;
+- `record +0x20` remains the independent own-goal/scoring-side inversion flag.
+
+This explains why types 2/3/4 appeared on both scoring and non-scoring branches: type encodes the source family, not whether the chance scored.
+
+Exact next match target: map source-family types 0..4 and the remaining +0x2C context field.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
