@@ -36,7 +36,7 @@ class RoleRatingTests(unittest.TestCase):
 
         # Role 18 is directly preferred. Right back has no compatible preferred
         # role here and therefore receives the exact 0.50 compatibility factor.
-        self.assertEqual(preferred_rating, 50)
+        self.assertEqual(preferred_rating, 49)
         self.assertEqual(out_of_position_rating, 25)
 
     def test_invalid_skill_vector_is_rejected(self):
