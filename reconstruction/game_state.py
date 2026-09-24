@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from random import Random
 from typing import Callable, Iterable
 
+from competition_state import PremierLeagueState
 from runtime_state import RuntimePlayer
 
 
@@ -38,6 +39,7 @@ class GameCalendar:
 class GameState:
     calendar: GameCalendar
     players: dict[int, RuntimePlayer]
+    premier_league: PremierLeagueState | None = None
     monthly_player_updates: int = 0
 
     @classmethod
@@ -47,7 +49,13 @@ class GameState:
             p.index: RuntimePlayer.from_database_player(p, start_date, rng)
             for p in database.players
         }
-        state = cls(calendar=GameCalendar(start_date), players=players)
+        fixtures = getattr(database, "real_fixtures", ())
+        league = PremierLeagueState(fixtures) if fixtures else None
+        state = cls(
+            calendar=GameCalendar(start_date),
+            players=players,
+            premier_league=league,
+        )
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
         return state
 
@@ -75,3 +83,13 @@ class GameState:
 
     def advance(self, days: int) -> date:
         return self.calendar.advance(days)
+
+    def record_premier_league_result(self, fixture_id: int, home_goals: int, away_goals: int):
+        if self.premier_league is None:
+            raise RuntimeError("Premier League state is not loaded")
+        return self.premier_league.record_result(fixture_id, home_goals, away_goals)
+
+    def premier_league_table(self):
+        if self.premier_league is None:
+            return ()
+        return self.premier_league.table()
