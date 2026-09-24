@@ -36,7 +36,7 @@ The reconstruction code is intentionally data-free. Research evidence, addresses
 
 ## Current gameplay status
 
-This is still a data/reconstruction prototype, not a complete playable replacement.
+This is still a reconstruction prototype, not a complete playable replacement. The runtime can now build a coherent career-state object containing mutable players, an advancing calendar, the original Premier League fixture list, match results and a live league table.
 
 Implemented and unit-tested reconstruction mechanics:
 
