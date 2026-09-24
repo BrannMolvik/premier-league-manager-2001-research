@@ -13,6 +13,8 @@ PLAYER_SKILLS = (
     'Awareness','Agility','Goalkeeping','Confidence','Leadership','Set Piece'
 )
 OLE_EPOCH = date(1899, 12, 30)
+COMPETITION_TABLE_OFFSET = 0x2726
+COMPETITION_RECORD_SIZE = 53
 ROUND_TABLE_OFFSET = 0x4F1F
 ROUND_RECORD_SIZE = 36
 REAL_FIXTURE_TABLE_OFFSET = 0x10057
@@ -115,6 +117,12 @@ class Position:
     lineup_group: int = 255
 
 @dataclass(frozen=True)
+class CompetitionDefinition:
+    id: int
+    name: str
+    max_non_eu_players: int
+
+@dataclass(frozen=True)
 class RoundDefinition:
     id: int
     type_code: int
@@ -147,11 +155,13 @@ class FM2001Database:
         self.players = []
         self.managers = []
         self.positions = []
+        self.competitions = []
         self.rounds = []
         self.real_fixtures = []
         self._parse_master()
         if self.static:
             self._parse_positions()
+            self._parse_competitions()
             self._parse_rounds()
             self._parse_real_fixtures()
 
@@ -248,6 +258,24 @@ class FM2001Database:
                 lineup_group=r[6],
             ))
 
+    def _parse_competitions(self):
+        off = COMPETITION_TABLE_OFFSET
+        count = struct.unpack_from('<I', self.static, off)[0]
+        base = off + 4
+        end = base + count * COMPETITION_RECORD_SIZE
+        if end > len(self.static):
+            raise ValueError('Static.dat competition table exceeds file size')
+        for i in range(count):
+            r = self.static[
+                base + i * COMPETITION_RECORD_SIZE:
+                base + (i + 1) * COMPETITION_RECORD_SIZE
+            ]
+            self.competitions.append(CompetitionDefinition(
+                id=struct.unpack_from('<I', r, 0)[0],
+                name=self.english.get(struct.unpack_from('<H', r, 12)[0]),
+                max_non_eu_players=r[34],
+            ))
+
     def _parse_rounds(self):
         off = ROUND_TABLE_OFFSET
         count = struct.unpack_from('<I', self.static, off)[0]
@@ -302,6 +330,7 @@ class FM2001Database:
             'players': len(self.players),
             'managers': len(self.managers),
             'positions': len(self.positions),
+            'competitions': len(self.competitions),
             'rounds': len(self.rounds),
             'real_fixtures': len(self.real_fixtures),
         }
