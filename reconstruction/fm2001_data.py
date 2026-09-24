@@ -13,6 +13,8 @@ PLAYER_SKILLS = (
     'Awareness','Agility','Goalkeeping','Confidence','Leadership','Set Piece'
 )
 OLE_EPOCH = date(1899, 12, 30)
+ROUND_TABLE_OFFSET = 0x4F1F
+ROUND_RECORD_SIZE = 36
 REAL_FIXTURE_TABLE_OFFSET = 0x10057
 REAL_FIXTURE_RECORD_SIZE = 16
 
@@ -108,6 +110,20 @@ class Position:
     abbreviation: str
 
 @dataclass(frozen=True)
+class RoundDefinition:
+    id: int
+    type_code: int
+    competition_id: int
+    round_number: int
+    name: str
+    scheduled_week: int
+    scheduled_weekday: int
+    replay_week: int
+    replay_weekday: int
+    team_count: int
+    new_entrants: int
+
+@dataclass(frozen=True)
 class RealFixture:
     id: int
     round_index: int
@@ -126,10 +142,12 @@ class FM2001Database:
         self.players = []
         self.managers = []
         self.positions = []
+        self.rounds = []
         self.real_fixtures = []
         self._parse_master()
         if self.static:
             self._parse_positions()
+            self._parse_rounds()
             self._parse_real_fixtures()
 
     def _parse_master(self):
@@ -213,6 +231,29 @@ class FM2001Database:
             name_id, abbr_id = struct.unpack_from('<HH', r, 1)
             self.positions.append(Position(pid, self.english.get(name_id), self.english.get(abbr_id)))
 
+    def _parse_rounds(self):
+        off = ROUND_TABLE_OFFSET
+        count = struct.unpack_from('<I', self.static, off)[0]
+        base = off + 4
+        end = base + count * ROUND_RECORD_SIZE
+        if end > len(self.static):
+            raise ValueError('Static.dat round table exceeds file size')
+        for i in range(count):
+            r = self.static[base + i * ROUND_RECORD_SIZE: base + (i + 1) * ROUND_RECORD_SIZE]
+            self.rounds.append(RoundDefinition(
+                id=struct.unpack_from('<I', r, 0)[0],
+                type_code=struct.unpack_from('<H', r, 4)[0],
+                competition_id=struct.unpack_from('<H', r, 6)[0],
+                round_number=struct.unpack_from('<H', r, 10)[0],
+                name=self.english.get(struct.unpack_from('<H', r, 14)[0]),
+                scheduled_week=r[16],
+                scheduled_weekday=r[17],
+                replay_week=r[18],
+                replay_weekday=r[19],
+                team_count=struct.unpack_from('<H', r, 24)[0],
+                new_entrants=struct.unpack_from('<H', r, 26)[0],
+            ))
+
     def _parse_real_fixtures(self):
         off = REAL_FIXTURE_TABLE_OFFSET
         if off + 4 > len(self.static):
@@ -228,6 +269,10 @@ class FM2001Database:
             )
             self.real_fixtures.append(RealFixture(fixture_id, round_index, home, away))
 
+    @property
+    def premier_league_rounds(self):
+        return [r for r in self.rounds if r.competition_id == 0]
+
     def club_squad(self, club_id: int):
         return [p for p in self.players if p.club_id == club_id]
 
@@ -240,5 +285,6 @@ class FM2001Database:
             'players': len(self.players),
             'managers': len(self.managers),
             'positions': len(self.positions),
+            'rounds': len(self.rounds),
             'real_fixtures': len(self.real_fixtures),
         }
