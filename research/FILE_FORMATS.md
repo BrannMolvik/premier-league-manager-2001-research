@@ -285,7 +285,37 @@ Record size: 7 bytes.
 | +0 | uint8 | position ID |
 | +1 | uint16 | English.str long-name ID |
 | +3 | uint16 | English.str abbreviation ID |
-| +5..+6 | bytes | not yet mapped |
+| +5 | uint8 | position ordering key used by team-selection/status ordering; 255 for None/RF/LF | strongly verified |
+| +6 | uint8 | broad selection category: 0 defender, 1 midfielder, 2 attacker, 3 goalkeeper; 255 for None/RF/LF | strongly verified |
+
+
+
+The two final Position-table bytes correlate directly with the runtime 20-byte position metadata used by team selection. The shipped values are:
+
+| Runtime role | +5 order | +6 category |
+|---|---:|---:|
+| None | 255 | 255 |
+| GK | 0 | 3 |
+| RB | 1 | 0 |
+| LB | 3 | 0 |
+| CB | 5 | 0 |
+| SW | 6 | 0 |
+| RWB | 2 | 0 |
+| LWB | 4 | 0 |
+| ANC | 7 | 1 |
+| DM | 8 | 1 |
+| RM | 10 | 1 |
+| LM | 11 | 1 |
+| CM | 9 | 1 |
+| RW | 13 | 1 |
+| LW | 14 | 1 |
+| AM | 12 | 1 |
+| RF | 255 | 255 |
+| LF | 255 | 255 |
+| CF | 15 | 2 |
+| ST | 16 | 2 |
+
+Runtime helper `0x4EA310` returns the category byte through the loaded position-metadata record. The status comparator `0x417E20` uses the order byte inside each selection-status class.
 
 ### Formation table
 
