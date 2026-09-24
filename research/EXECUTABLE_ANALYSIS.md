@@ -1717,3 +1717,62 @@ Corrected interpretation:
 Therefore this path is **not** the cheat parser and must not be used as a command-line lead.
 
 The real cheat parser remains unresolved and should continue to be traced from the literal table and actual command-line/argv consumers.
+
+
+## Correction: 0x877540 is a tree/container, not an istringstream
+
+Fresh re-analysis of the exact hashed executable disproves the earlier repository-level conclusion that global `0x877540` itself is a `std::basic_istringstream`.
+
+### Confirmed object construction
+
+Static constructor `0x515F10` calls `0x5162A0` with `ECX=0x877540`.
+
+`0x5162A0` initializes a **16-byte non-polymorphic tree/container header**, not an iostream object:
+
+- writes two one-byte comparator/allocator-like state values at object +0/+1;
+- clears object +8;
+- allocates a **0x24-byte sentinel/node**;
+- stores the node pointer at object +4;
+- stores zero at object +0x0C;
+- makes the node self-linked through its tree-link fields;
+- uses globals `0x877568` and `0x87756C` as a shared sentinel/allocation reference pair.
+
+Destructor `0x515F50` walks/frees that node structure and releases the sentinel. There is no stream vtable written into `0x877540`.
+
+This shape is consistent with an old MSVC ordered tree/set/map-style container implementation.
+
+### Why the earlier RTTI conclusion happened
+
+The stream RTTI/vtables recorded earlier are real:
+
+- `0x7CA080`: `std::basic_istream<...>`
+- `0x7CA088`: `std::basic_istringstream<...>`
+- `0x7BD734`: `std::basic_streambuf<...>`
+- `0x7BD76C`: `std::basic_stringbuf<...>`
+
+However, those vtables are manipulated by the **separate routine family beginning at `0x516370`**, which operates on a much larger stream object via offsets such as `-0x54`, `-0x4C`, etc. They do not establish the type of the 16-byte global at `0x877540`.
+
+### Consequence for the adjacent byte getters
+
+The bytes beginning at `0x877550` occur immediately **after** the 16-byte tree/container object and are not fields inside an istringstream.
+
+Therefore these accessors must be reopened as independent global option/cheat-state bytes:
+
+- `0x515FF0` -> `0x877550`
+- `0x516000` -> `0x877551`
+- `0x516020` -> `0x877552`
+- `0x516030` -> `0x877553`
+- `0x516040` -> `0x877554`
+- `0x516050` -> `0x877555`
+- `0x516060` -> `0x877556`
+- `0x516070` -> `0x877557`
+- `0x516080` -> `0x877558`
+- `0x516090` -> `0x877559`
+- `0x5160A0` -> `0x87755A`
+- `0x5160C0` -> `0x87755C`
+- `0x5160D0` -> `0x877560`
+- `0x5160E0` -> `0x877562`
+
+This does **not** by itself prove which literal switch controls which byte. In particular, `0x516090` again becomes a strong `/cash777` candidate because its four known consumers gate insufficient-current-cash branches, while `0x516020` remains only a finance-adjacent candidate until the literal-to-byte parser mapping is recovered.
+
+The parser investigation should now treat the tree at `0x877540`, the adjacent option bytes, and the literal pointer table at `0x828510..0x828568` as potentially related components rather than stream internals.
