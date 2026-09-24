@@ -1267,3 +1267,8 @@ When the roll is 0 and a close defender exists, the type-1 goal record is emitte
 Therefore successful open-play goals with an involved close defender have a **5% record-attribution branch to own goal** at this stage.
 
 The score increment itself remains on the attacking side; the inversion changes player attribution in the semantic event stream.
+
+
+## Clean-room positional pools and selectors
+
+The mapped 0x62DE90/0x62B780/0x62B7D0/0x62B900/0x62BCE0 role pools and selectors are now implemented in reconstruction/match_calculator.py. The 0x62BCE0 finisher helper preserves the original single RNG(100) roll while falling through empty buckets. The early 0x62B9D0 duel remains distinct from later 0x62C0D0 because its true return means the defender won; 0x62BBF0 remains a separate Passing gate without coin-flip recovery.
