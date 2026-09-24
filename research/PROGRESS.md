@@ -655,6 +655,17 @@ All seven formatter branches describe an increase to the **transfer budget**; th
 The chairman budget-settings localization also explicitly distinguishes the transfer budget from quarterly spending limits and says the manager is free to buy and sell players. This fits the code-level observation that transfer completion checks current cash while transfer budget is a separate board allocation/reference value.
 
 Exact next target: identify the manager-to-chairman extra-funds request event/action in the English resource and trace its gameplay producer/handler to where the transfer-budget value is read and increased.
+
+
+## FundRequest event checkpoint
+
+The manager-initiated “request extra funds” feature is now identified as `EAMFundRequest` event ID **0x185**, with `EAMFundRequestReject` at **0x186**. The request event serializes three dwords at +0x38/+0x3C/+0x40.
+
+`ENGLIS2.STR` index 1465 contains the outgoing request for further monies for squad strengthening. Nearby response text proves the chairman can reject the request (index 1468) or grant a repayable loan amount with a month term (index 1470).
+
+This is a stronger live-finance lead than the automatic extra-transfer-success mail because it begins from an explicit manager action and must pass through a decision path that calculates/changes funding.
+
+Exact next target: trace the 0x185 handler into the accept/reject events and identify the approved amount, repayment state, and whether the mutation hits current cash, transfer budget, or both.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
