@@ -2212,3 +2212,53 @@ Both known callers were checked:
 In both cases execution proceeds immediately into unrelated calls/state updates and does **not** branch on or otherwise consume the return value from `0x5DE530`.
 
 Therefore the byte at `0x877552` remains an unresolved option state. Its adjacency to the literal `/budget777` command family is insufficient to call it a working live-budget bypass, and no current caller evidence connects it to transfer-budget enforcement.
+
+
+## game/session +0x670 finance object structure
+
+The finance object referenced throughout transfer affordability, transfer posting, Finance Overview, and season-business code is now structurally mapped at construction time.
+
+### Allocation and constructor
+
+During game/session rebuild at `0x425A6A..0x425AEF`:
+
+- any previous object at game/session `+0x670` is destroyed/freed;
+- exactly **0xE0 bytes** are allocated;
+- constructor `0x5DC400` initializes the object;
+- the resulting pointer is stored at game/session `+0x670`.
+
+Constructor `0x5DC400` initializes:
+
+- `+0x00 = 1`
+- `+0x04 = 0`
+- `+0x08 = 0`
+- `+0x10..+0x1C` from its four explicit constructor inputs
+- an object/subrecord beginning at `+0x20`
+- six 16-byte accounting/range-like subrecords beginning at `+0x30, +0x40, +0x50, +0x60, +0x70, +0x80` via `0x5E42E0`
+- later bookkeeping fields around `+0x94..+0xA8`
+- a byte at `+0xCC`
+
+The constructor does **not** initialize an obvious contiguous seven-dword chairman-budget array.
+
+### Cash/balance field
+
+The cash/balance is definitively the qword at finance-object `+0x10`.
+
+Evidence:
+
+- `0x5DC650` (debit path) loads current value via `0x5E48D0` with ECX = object `+0x10`, compares it against the requested debit, and subtracts the requested amount from the qword at `+0x10`.
+- `0x5DC510` (credit path) adds the posted amount directly to qword `[object+0x10]`.
+- UI/business routines including `0x42962C`, `0x4298B4`, and `0x42C083` read this same qword for displayed/current finances.
+- transfer buyer/seller paths call these same credit/debit routines through game/session `+0x670`.
+
+### Consequence for live transfer budget
+
+The `+0x670` object is the authoritative cash/accounting object, but its constructor and directly observed field layout do not expose a separate obvious seven-bucket chairman allocation array.
+
+This strengthens the distinction already seen at transfer completion:
+
+- cash is a persistent qword field at finance object `+0x10`;
+- transfer fees are posted into accounting ledger/category state;
+- chairman budget allocations are likely stored or derived elsewhere rather than as a simple adjacent cash scalar in this object.
+
+Do not infer that the whole 0xE0 finance object is itself the chairman budget store merely because it owns cash and ledger state.
