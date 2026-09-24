@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from enum import IntEnum
 from typing import Protocol, Sequence
 
-from match_events import ChanceRecord, ChanceSource
+from match_events import ChanceRecord, ChanceSource, FinishMode
 
 
 class PositionRole(IntEnum):
@@ -234,7 +234,7 @@ def resolve_penalty(
                 _presentation_outcome(1, rng),
                 taker.side,
                 taker.player_index,
-                context_flag=True,
+                finish_mode=FinishMode.SHOOTING,
             )
 
     goalkeeping_strength = effective_match_skill(
@@ -251,7 +251,7 @@ def resolve_penalty(
             _presentation_outcome(2, rng),
             taker.side,
             taker.player_index,
-            context_flag=True,
+            finish_mode=FinishMode.SHOOTING,
         )
 
     if rng.randbelow(10) >= 10 - score:
@@ -262,5 +262,5 @@ def resolve_penalty(
         _presentation_outcome(0, rng),
         taker.side,
         taker.player_index,
-        context_flag=True,
+        finish_mode=FinishMode.SHOOTING,
     )
