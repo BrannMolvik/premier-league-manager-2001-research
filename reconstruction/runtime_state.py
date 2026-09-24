@@ -14,6 +14,47 @@ from player_development import (
 )
 
 
+class CountrySource(Protocol):
+    european_index: int
+    eu_status_flag: int
+
+
+PLAYER_EU_STATUS_NON_EU = 1
+PLAYER_EU_STATUS_EU = 2
+GERMANY_COUNTRY_ID = 33
+
+
+def derive_non_eu_status(
+    club_country_id: int,
+    eu_status_code: int,
+    nationality_country: CountrySource | None,
+) -> bool:
+    """Exact shipped-data behavior of player startup helper 0x421760.
+
+    Germany (country ID 33) uses the broader European/UEFA-country index and
+    the original code assumes nationality lookup succeeds on that branch.
+    Other club countries only classify players whose stored Editor "EU Status"
+    code is 1 (Non EU); an unresolved nationality then counts as Non-EU.
+    """
+    club_country_id = int(club_country_id)
+    eu_status_code = int(eu_status_code)
+
+    if club_country_id == GERMANY_COUNTRY_ID:
+        if nationality_country is None:
+            raise ValueError(
+                "Germany Non-EU initialization requires a resolved nationality "
+                "country, matching the original shipped-data assumption"
+            )
+        return int(nationality_country.european_index) == 0
+
+    if eu_status_code == PLAYER_EU_STATUS_NON_EU:
+        if nationality_country is None:
+            return True
+        return int(nationality_country.eu_status_flag) == 0
+
+    return False
+
+
 class PlayerSource(Protocol):
     index: int
     first_name: str
@@ -27,6 +68,7 @@ class PlayerSource(Protocol):
     positions: tuple[int, int, int]
     current_raw: tuple[int, ...]
     target_raw: tuple[int, ...]
+    eu_status_code: int
 
 
 PHYSICAL_PEAK_RANGE = (25, 26)
@@ -75,6 +117,7 @@ class RuntimePlayer:
     suspended: bool = False
     selection_excluded: bool = False
     non_eu: bool = False
+    eu_status_code: int = PLAYER_EU_STATUS_EU
 
     @classmethod
     def from_database_player(
@@ -122,6 +165,9 @@ class RuntimePlayer:
             current_position=int(source.positions[0]),
             position_aux_code=0,
             balance_position_code=10,
+            eu_status_code=int(
+                getattr(source, "eu_status_code", PLAYER_EU_STATUS_EU)
+            ),
         )
 
     @property
