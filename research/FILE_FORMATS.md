@@ -217,10 +217,22 @@ The player section is followed by a four-byte manager count (=1,612), then 1,612
 | +25 | uint8 | alternate AI formation ID used by selection class 3 (runtime manager +0x21); 0xff can represent no value | confirmed |
 | +26 | uint8 | alternate AI formation ID used by selection class 1 (runtime manager +0x22) | confirmed |
 | +27 | uint32 | club ID; 0xffffffff = no club | confirmed |
+| +39 | uint8 | AI tactical source byte consumed as Play/Strategy input by pre-match packet builder | confirmed |
+| +40 | uint8 | AI aggression source; pre-match packet uses floor(value/6), low 4 bits | confirmed |
+| +41 | uint8 | AI With Ball style source; pre-match packet stores low 2 bits | confirmed |
+| +42 | uint8 | AI Without Ball style source; pre-match packet stores low 2 bits | confirmed |
 
 Validation examples:
 - manager 10 -> Alex Ferguson, DOB 1941-12-31, joined 1986-11-06, club ID 10;
 - manager 204 -> Arsène Wenger, DOB 1958-01-01, joined 1996-09-30, club ID 0 (Arsenal).
+
+The four final tactical bytes are loaded unchanged into runtime DBRManager +0x30..+0x33. Routine `0x40D860` transforms them when constructing the AI pre-match tactics packet:
+- raw +39 -> `0x4035E0` Play/Strategy mapping;
+- raw +40 -> integer divide by 6, then low four bits;
+- raw +41 -> low two bits;
+- raw +42 -> low two bits.
+
+Canonical examples: Ferguson stores `3,80,2,3`; Wenger `2,90,4,3`; Houllier `1,60,4,2`; O'Leary `3,80,1,3`. These are source values, not yet asserted to be identical to final MatchCalculator tactic indices.
 
 ## Static.dat
 
