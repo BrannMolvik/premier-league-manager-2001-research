@@ -1406,6 +1406,27 @@ The clean-room event schema and exact penalty resolver are updated to use `Finis
 
 Exact next target: reverse the type-1 helper routines `0x62BD80`, `0x62BFC0`, `0x62C0D0`, `0x62C310`, and `0x62C530` to recover open-play save/goal/miss/own-goal decisions.
 
+
+
+## Open-play primitive reconstruction checkpoint
+
+The five helper routines underneath type-1 open play are now mapped and implemented as reusable clean-room primitives:
+
+- `0x62BD80`: Heading-vs-Heading aerial duel;
+- `0x62C0D0`: Control-vs-Tackling duel;
+- `0x62BFC0`: headed-finish accuracy gate;
+- `0x62C310`: shooting-finish accuracy gate;
+- `0x62C420`: Set Piece execution gate;
+- `0x62C530`: goalkeeper/high-score stop gate.
+
+The shared accuracy helpers use `RNG(320)` against `floor(effective_skill/100)`, then an `RNG(2)==0` fallback.
+
+The type-1 record creator `0x62ECF0` is also mapped: before minute 130 it suppresses plain miss records unless the 10% +3 presentation-variant roll turns MISS 1 into MISS 4. At minute >=130 it keeps misses and does not add the +3 variant.
+
+These behaviors are added to `reconstruction/match_calculator.py` with deterministic tests.
+
+Exact next target: map the type-1 player-selection/setup routines and the branches taken when the aerial or Control/Tackling duel fails, so the complete open-play chance resolver can be assembled without placeholders.
+
 ## Active Investigation
 
 Primary focus: reach the first faithful playable MatchCalculator slice and connect it to the already-implemented career/calendar/fixture shell.
