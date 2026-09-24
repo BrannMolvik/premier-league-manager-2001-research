@@ -3062,3 +3062,38 @@ The surrounding tuning family is radio/television/European media income rather t
 ### Conclusion
 
 The apparent five-value shape is coincidental. DBRUser `+0x588..+0x5AC` belongs to media-rights/commercial finance state and should not be labeled as the five chairman quarterly budgets.
+
+
+## DBRUser +0x5B8/+0x5C4/+0x5D0 are CSupportStaff lists
+
+The repeated triplet structures beginning at `DBRUser +0x5B8` initially resembled compact grouped finance state, but save/load and RTTI analysis identifies them as list/container headers for support-staff objects.
+
+### Structure
+
+Constructor initialization creates repeated list headers:
+
+- +0x5B8/+0x5BC/+0x5C0
+- +0x5C4/+0x5C8/+0x5CC
+- +0x5D0/+0x5D4/+0x5D8
+- +0x5E0/+0x5E4/+0x5E8
+
+The first three are reconstructed during DBRUser loading by reading list counts and appending objects/references through list helper `0x617D70`.
+
+For the first two lists, the loader allocates **0x218-byte** polymorphic objects and constructs them via `0x4CA610` before deserialization.
+
+### RTTI identity
+
+Constructor `0x4CA610` writes vtable `0x7C6834`.
+
+- preceding Complete Object Locator: `0x7E6748`
+- TypeDescriptor: `0x81E298`
+- RTTI name: **CSupportStaff**
+- nearby source-path string: `Applications\\FootballManager\\Manager\\Support.cpp`
+
+The third list at +0x5D0 loads support-staff references through the global support structure at `0x875604` and appends them into the same list family.
+
+The +0x5E0 triplet is also a list header; periodic/user-management code appends small entries to it. Its exact element semantics remain unresolved, but its list behavior rules it out as a scalar chairman-budget field.
+
+### Conclusion
+
+DBRUser `+0x5B8/+0x5C4/+0x5D0` are support-staff-related list containers. The adjacent +0x5E0 structure is also list state. None should be interpreted as the chairman transfer/operating budget array.
