@@ -108,6 +108,8 @@ class Position:
     id: int
     name: str
     abbreviation: str
+    lineup_order: int = 255
+    lineup_group: int = 255
 
 @dataclass(frozen=True)
 class RoundDefinition:
@@ -229,7 +231,13 @@ class FM2001Database:
             r = self.static[base + i * 7: base + (i + 1) * 7]
             pid = r[0]
             name_id, abbr_id = struct.unpack_from('<HH', r, 1)
-            self.positions.append(Position(pid, self.english.get(name_id), self.english.get(abbr_id)))
+            self.positions.append(Position(
+                pid,
+                self.english.get(name_id),
+                self.english.get(abbr_id),
+                lineup_order=r[5],
+                lineup_group=r[6],
+            ))
 
     def _parse_rounds(self):
         off = ROUND_TABLE_OFFSET
