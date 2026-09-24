@@ -5,7 +5,11 @@ from typing import Callable, Protocol, Sequence, TypeVar
 
 from match_availability import base_lineup_eligible
 from match_lineup import AiLineupCoreResult, AiLineupPlayer, select_ai_lineup_core
+from match_orders import TeamOrderPriorities
 from match_participants import collect_match_participants
+from match_simulation import PreparedMatchPlayer, PreparedMatchSide
+from match_strength import TeamStrengthContext
+from match_team_setup import TeamTacticalState, play_style_to_strategy_code
 
 
 class MutableAiMatchPlayer(AiLineupPlayer, Protocol):
@@ -16,6 +20,10 @@ class MutableAiMatchPlayer(AiLineupPlayer, Protocol):
     suspended: bool
     selection_excluded: bool
     non_eu: bool
+    condition: int
+    current_position: int
+    position_aux_code: int
+    balance_position_code: int
 
     def assign_match_position(self, role: int, auxiliary_code: int) -> None: ...
     def set_match_active(self) -> None: ...
@@ -140,4 +148,114 @@ def prepare_ai_match_selection(
         lineup=result,
         participants=tuple(participants),
         non_eu_restriction_relaxed=non_eu_restriction_relaxed,
+    )
+
+def _translate_team_orders_to_participant_indices(
+    team_orders: TeamOrderPriorities,
+    participant_index_by_player_id: dict[int, int],
+) -> TeamOrderPriorities:
+    """Translate persistent Team Orders player IDs to side-local match indices.
+
+    The original user profile stores DBRPlayer IDs. MatchCalculator semantic
+    records identify players by their index inside the side participant array.
+    The clean-room bridge therefore resolves priorities at preparation time.
+    Missing IDs are omitted because they cannot resolve to a match participant.
+    """
+    def translate(values: Sequence[int]) -> tuple[int, ...]:
+        return tuple(
+            participant_index_by_player_id[int(player_id)]
+            for player_id in values
+            if int(player_id) in participant_index_by_player_id
+        )
+
+    return TeamOrderPriorities(
+        captain=translate(team_orders.captain),
+        penalty=translate(team_orders.penalty),
+        corner=translate(team_orders.corner),
+        free_kick=translate(team_orders.free_kick),
+    )
+
+
+def build_prepared_match_side_from_selection(
+    selection: PreparedAiMatchSelection,
+    side: int,
+    tactical_state: TeamTacticalState,
+    *,
+    user_controlled: bool = False,
+    team_orders: TeamOrderPriorities | None = None,
+) -> PreparedMatchSide:
+    """Bridge selected runtime participants into the reconstructed calculator.
+
+    Participant array order defines side-local match player indices. Current
+    Condition/Form/assigned role/auxiliary/balance state is copied. Live team
+    With Ball and Without Ball styles feed attack/defence coefficient contexts;
+    Play style supplies the initial match bias; Aggression feeds both contexts.
+    Persistent human Team Orders IDs are translated to participant indices.
+    """
+    side = int(side)
+    if side not in (0, 1):
+        raise ValueError("side must be 0 or 1")
+
+    participants = tuple(selection.participants)
+    if not participants:
+        raise ValueError("selection has no match participants")
+
+    player_id_to_local = {
+        int(player.player_index): local_index
+        for local_index, player in enumerate(participants)
+    }
+    if len(player_id_to_local) != len(participants):
+        raise ValueError("match participants must have unique persistent player IDs")
+
+    prepared_players = tuple(
+        PreparedMatchPlayer(
+            side=side,
+            player_index=local_index,
+            condition=int(player.condition),
+            form_state=int(player.form_state),
+            current_position=int(player.current_position),
+            balance_position_code=int(player.balance_position_code),
+            preferred_positions=tuple(
+                int(role) for role in player.preferred_positions[:3]
+            ),
+            skills=tuple(int(value) for value in player.skills),
+            active=bool(player.match_active),
+            substitution_available=bool(player.match_substitute_available),
+            position_aux_code=int(player.position_aux_code),
+        )
+        for local_index, player in enumerate(participants)
+    )
+
+    match_bias = play_style_to_strategy_code(tactical_state.play_style)
+    attack_context = TeamStrengthContext(
+        tactic_style=int(tactical_state.with_ball_style),
+        match_bias=match_bias,
+        user_controlled=bool(user_controlled),
+        aggression=int(tactical_state.aggression),
+    )
+    defence_context = TeamStrengthContext(
+        tactic_style=int(tactical_state.without_ball_style),
+        match_bias=match_bias,
+        user_controlled=bool(user_controlled),
+        aggression=int(tactical_state.aggression),
+    )
+
+    persistent_orders = team_orders or TeamOrderPriorities()
+    local_orders = _translate_team_orders_to_participant_indices(
+        persistent_orders,
+        player_id_to_local,
+    )
+
+    starting_player_indices = tuple(
+        player_id_to_local[int(assignment.player_index)]
+        for assignment in selection.lineup.starters
+        if int(assignment.player_index) in player_id_to_local
+    )
+
+    return PreparedMatchSide.from_team_orders(
+        players=prepared_players,
+        attack_context=attack_context,
+        defence_context=defence_context,
+        team_orders=local_orders,
+        starting_player_indices=starting_player_indices,
     )
