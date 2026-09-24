@@ -856,6 +856,15 @@ The five-qword DBRUser block at **+0x588..+0x5A8** has been ruled out as the fiv
 So this block is media-rights/reserve state, not chairman budget storage. The apparent five-values/five-budgets match was coincidental.
 
 Exact next target: continue mapping unresolved DBRUser finance/board fields and trace the periodic board-budget producer that supplies `EAMchairbudgetsettings +0x58`.
+
+
+## DBRUser media-rights block checkpoint
+
+A five-qword financial-looking block at DBRUser `+0x588..+0x5AC` was tested as a possible match for the five chairman quarterly operating budgets.
+
+It is **not** that structure: the initialization path is fed by radio/TV/European media-rights tuning keys including `LRADIO_RES`, `NRADIO_RES`, `NTV_RES`, and `EUROPEAN_RES`.
+
+So the five-value resemblance is coincidental. Continue the chairman-budget search elsewhere in DBRUser-derived state / board calculation paths.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
