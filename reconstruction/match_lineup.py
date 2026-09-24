@@ -12,6 +12,7 @@ class AiLineupPlayer(Protocol):
     skills: Sequence[int]
     preferred_positions: Sequence[int]
     form_state: int
+    non_eu: bool
 
 
 @dataclass(frozen=True)
@@ -114,17 +115,22 @@ def select_ai_lineup_core(
     *,
     eligible: Callable[[AiLineupPlayer], bool] | None = None,
     starter_allowed: Callable[[AiLineupPlayer, Sequence[AiLineupPlayer]], bool] | None = None,
+    non_eu_limit: int | None = None,
+    count_non_eu: bool = True,
 ) -> AiLineupCoreResult:
     """Evidence-backed selection core of competitive AI routine 0x409C90.
 
-    This deliberately leaves two still-partially-unresolved executable filters
-    outside the selector. The eligible callback corresponds to the precomputed
-    player-availability result (0x418050 / 0x418130 path). The starter_allowed
-    callback can enforce the stateful bit-11/team-limit restriction.
+    The eligible callback represents remaining competition/context availability
+    beyond the now-proven base filters. The starter_allowed callback remains for
+    any still-unresolved stateful candidate restriction other than Non-EU.
 
-    Passing no callbacks models only the now-proven formation/rating/ordering
-    core. It must not be described as the complete 0x409C90 until those two
-    filters are fully reconstructed.
+    non_eu_limit models the exact DBRCompetition +0x2B maximum. A Non-EU
+    candidate is rejected when the running selected Non-EU count is already
+    greater than or equal to that limit. count_non_eu controls only whether a
+    selected Non-EU player increments that running count; the limit comparison
+    itself remains active. This distinction reproduces the original AI retry,
+    where the count stops increasing but a zero limit still rejects Non-EU
+    candidates.
     """
     formation_id = int(formation_id)
     substitute_quota = int(substitute_quota)
@@ -132,6 +138,10 @@ def select_ai_lineup_core(
         raise ValueError("formation_id must be in 0..20")
     if substitute_quota < 0:
         raise ValueError("substitute_quota must be non-negative")
+    if non_eu_limit is not None and int(non_eu_limit) < 0:
+        raise ValueError("non_eu_limit must be non-negative or None")
+
+    non_eu_limit = None if non_eu_limit is None else int(non_eu_limit)
 
     indices = [int(player.player_index) for player in players]
     if len(set(indices)) != len(indices):
@@ -144,6 +154,18 @@ def select_ai_lineup_core(
     selected_indices: set[int] = set()
     selected_players: list[AiLineupPlayer] = []
     assignments: list[StarterAssignment | None] = [None] * 11
+    selected_non_eu_count = 0
+
+    def non_eu_candidate_allowed(player: AiLineupPlayer) -> bool:
+        if not bool(player.non_eu) or non_eu_limit is None:
+            return True
+        return selected_non_eu_count < non_eu_limit
+
+    def record_selection(player: AiLineupPlayer) -> None:
+        nonlocal selected_non_eu_count
+        selected_indices.add(int(player.player_index))
+        if bool(player.non_eu) and bool(count_non_eu):
+            selected_non_eu_count += 1
 
     def choose_for_slot(
         slot_index: int,
@@ -160,6 +182,8 @@ def select_ai_lineup_core(
                 continue
             if not is_eligible(player):
                 continue
+            if not non_eu_candidate_allowed(player):
+                continue
             preferred = tuple(int(role) for role in player.preferred_positions[:3])
             if require_preferred_match and int(slot.role) not in preferred:
                 continue
@@ -174,7 +198,7 @@ def select_ai_lineup_core(
         if best is None:
             return
 
-        selected_indices.add(int(best.player_index))
+        record_selection(best)
         selected_players.append(best)
         assignments[slot_index] = StarterAssignment(
             int(best.player_index),
@@ -207,6 +231,8 @@ def select_ai_lineup_core(
                 continue
             if not is_eligible(player):
                 continue
+            if not non_eu_candidate_allowed(player):
+                continue
 
             primary_role = int(player.preferred_positions[0])
             if lineup_group_for_role(primary_role) != group:
@@ -219,7 +245,7 @@ def select_ai_lineup_core(
 
         if best is not None:
             player_index = int(best.player_index)
-            selected_indices.add(player_index)
+            record_selection(best)
             substitutes.append(player_index)
             remaining -= 1
 
@@ -234,10 +260,12 @@ def select_ai_lineup_core(
                 continue
             if not is_eligible(player):
                 continue
+            if not non_eu_candidate_allowed(player):
+                continue
             if lineup_group_for_role(int(player.preferred_positions[0])) == 3:
                 continue
 
-            selected_indices.add(player_index)
+            record_selection(player)
             substitutes.append(player_index)
             remaining -= 1
 
