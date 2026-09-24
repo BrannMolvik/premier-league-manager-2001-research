@@ -478,6 +478,183 @@ def resolve_open_play_attempt(attacking_players: Sequence[MatchSkillPlayer], def
     own_goal = close_defender if (close_defender is not None and rng.randbelow(20) == 0) else None
     return OpenPlayResolution(event=_open_play_record(finisher,0,minute,finish_mode,rng,own_goal), neutral_increment=neutral, attacking_possession_increment=side_control)
 
+
+@dataclass(frozen=True)
+class SetPieceResolution:
+    """Semantic result of one exact type-2/type-3 resolver invocation."""
+
+    event: ChanceRecord | None = None
+    transition: ChanceSource | None = None
+    attacking_possession_increment: int = 0
+
+
+def _set_piece_record(
+    source: ChanceSource,
+    player: MatchSkillPlayer,
+    base_outcome: int,
+    finish_mode: FinishMode,
+    rng: BoundedRng,
+) -> ChanceRecord:
+    return ChanceRecord(
+        source,
+        _presentation_outcome(base_outcome, rng),
+        player.side,
+        player.player_index,
+        finish_mode=finish_mode,
+    )
+
+
+def _resolve_delivered_set_piece_finish(
+    source: ChanceSource,
+    taker: MatchSkillPlayer,
+    receiver: MatchSkillPlayer,
+    defending: PositionalPools,
+    current_attacking_score: int,
+    rng: BoundedRng,
+    force_headed: bool = False,
+) -> SetPieceResolution:
+    close_defender = select_close_defender(receiver, defending, rng)
+
+    if taker is receiver:
+        finish_mode = FinishMode.SHOOTING
+    elif force_headed:
+        finish_mode = FinishMode.HEADED
+    else:
+        finish_mode = choose_finish_mode(receiver, rng)
+
+    if finish_mode is FinishMode.HEADED:
+        if not heading_duel_won(receiver, close_defender, rng):
+            return SetPieceResolution(
+                transition=_failed_final_duel_transition(close_defender, rng),
+            )
+        if not heading_attempt_on_target(receiver, rng):
+            return SetPieceResolution(
+                event=_set_piece_record(source, receiver, 1, finish_mode, rng)
+            )
+    else:
+        if not control_tackle_duel_won(receiver, close_defender, rng):
+            return SetPieceResolution(
+                transition=_failed_final_duel_transition(close_defender, rng),
+            )
+        if not shooting_attempt_on_target(receiver, rng):
+            return SetPieceResolution(
+                event=_set_piece_record(source, receiver, 1, finish_mode, rng)
+            )
+
+    if defending.goalkeeper is None:
+        raise ValueError("set-piece resolution requires a defending goalkeeper")
+    if goalkeeper_stops_open_play(defending.goalkeeper, current_attacking_score, rng):
+        return SetPieceResolution(
+            event=_set_piece_record(source, receiver, 2, finish_mode, rng)
+        )
+    return SetPieceResolution(
+        event=_set_piece_record(source, receiver, 0, finish_mode, rng)
+    )
+
+
+def resolve_free_kick(
+    taker: MatchSkillPlayer,
+    attacking_players: Sequence[MatchSkillPlayer],
+    defending_players: Sequence[MatchSkillPlayer],
+    current_attacking_score: int,
+    rng: BoundedRng,
+    receiver_override: MatchSkillPlayer | None = None,
+    force_direct: bool = False,
+) -> SetPieceResolution:
+    """Post-taker-selection reconstruction of type-2 resolver 0x62CE10."""
+    attacking = build_positional_pools(attacking_players)
+    defending = build_positional_pools(defending_players)
+    possession = 1
+
+    direct = bool(force_direct)
+    if receiver_override is not None:
+        direct = False
+    elif not force_direct:
+        shooting = _effective_player_skill(taker, taker.shooting)
+        passing = _effective_player_skill(taker, taker.passing)
+        bound = int((shooting + passing) * 1.2)
+        direct = rng.randbelow(bound) < shooting
+
+    if direct:
+        finish_mode = FinishMode.SHOOTING
+        if not shooting_attempt_on_target(taker, rng):
+            return SetPieceResolution(
+                event=_set_piece_record(ChanceSource.FREE_KICK, taker, 1, finish_mode, rng),
+                attacking_possession_increment=possession,
+            )
+        if defending.goalkeeper is None:
+            raise ValueError("free-kick resolution requires a defending goalkeeper")
+        if goalkeeper_stops_open_play(defending.goalkeeper, current_attacking_score, rng):
+            return SetPieceResolution(
+                event=_set_piece_record(ChanceSource.FREE_KICK, taker, 2, finish_mode, rng),
+                attacking_possession_increment=possession,
+            )
+        return SetPieceResolution(
+            event=_set_piece_record(ChanceSource.FREE_KICK, taker, 0, finish_mode, rng),
+            attacking_possession_increment=possession,
+        )
+
+    if not set_piece_execution_succeeds(taker, rng):
+        return SetPieceResolution(attacking_possession_increment=possession)
+
+    possession += 1
+    receiver = receiver_override or select_finisher(attacking, rng)
+    if receiver is None:
+        return SetPieceResolution(attacking_possession_increment=possession)
+
+    result = _resolve_delivered_set_piece_finish(
+        ChanceSource.FREE_KICK,
+        taker,
+        receiver,
+        defending,
+        current_attacking_score,
+        rng,
+        force_headed=receiver_override is not None and receiver is not taker,
+    )
+    return SetPieceResolution(
+        event=result.event,
+        transition=result.transition,
+        attacking_possession_increment=possession,
+    )
+
+
+def resolve_corner(
+    taker: MatchSkillPlayer,
+    attacking_players: Sequence[MatchSkillPlayer],
+    defending_players: Sequence[MatchSkillPlayer],
+    current_attacking_score: int,
+    rng: BoundedRng,
+    receiver_override: MatchSkillPlayer | None = None,
+) -> SetPieceResolution:
+    """Post-taker-selection reconstruction of type-3 resolver 0x62D950."""
+    attacking = build_positional_pools(attacking_players)
+    defending = build_positional_pools(defending_players)
+    possession = 1
+
+    if not set_piece_execution_succeeds(taker, rng):
+        return SetPieceResolution(attacking_possession_increment=possession)
+
+    possession += 1
+    receiver = receiver_override or select_finisher(attacking, rng)
+    if receiver is None or receiver is taker:
+        return SetPieceResolution(attacking_possession_increment=possession)
+
+    result = _resolve_delivered_set_piece_finish(
+        ChanceSource.CORNER,
+        taker,
+        receiver,
+        defending,
+        current_attacking_score,
+        rng,
+        force_headed=receiver_override is not None,
+    )
+    return SetPieceResolution(
+        event=result.event,
+        transition=result.transition,
+        attacking_possession_increment=possession,
+    )
+
+
 def _presentation_outcome(base_outcome: int, rng: BoundedRng) -> int:
     return int(base_outcome) + (3 if rng.randbelow(100) < 10 else 0)
 
