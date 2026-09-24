@@ -1308,7 +1308,7 @@ Exact next match targets:
 
 ## Chance context + possession reconstruction checkpoint
 
-Chance record `+0x2C` is now proven to be a **1-bit Boolean context flag** in the active type-1..4 serializer. MatchController's normal goal path does not read it, so it is not required for semantic EventGoal/scorer/own-goal behavior. Reconstruction preserves it as `context_flag` without inventing a name.
+Chance record `+0x2C` is now resolved beyond the earlier Boolean-only checkpoint: **0 = headed finish, 1 = shooting/kicked finish**. Type-1 open play chooses between the two by weighted RNG over effective Heading + Shooting; type-2/type-3 repeat the same split, while penalties always use shooting mode. Reconstruction now exposes `FinishMode.HEADED` / `FinishMode.SHOOTING`.
 
 `reconstruction/match_events.py` now also implements the verified `EventPossession` shape:
 
@@ -1388,6 +1388,23 @@ The clock module does not invent competition rules; it accepts upstream `extra_t
 Local combined MatchCalculator/clock regression: **19/19 tests pass**.
 
 Exact next step: reverse the type-1 open-play selection and shot-resolution path sufficiently to implement the first normal five-minute scoring slice.
+
+
+
+## Match finish-mode checkpoint
+
+The previously opaque one-bit chance field `+0x2C` is now semantically resolved:
+
+- 0 = **headed finish**
+- 1 = **shooting/kicked finish**
+
+Type-1 open play computes effective Heading and Shooting using the shared Condition × skill × position × Form pipeline, draws `RNG(heading+shooting)`, and selects the headed branch when the roll is below Heading. The two branches emit +0x2C 0 and 1 respectively.
+
+Type-2 free kicks and type-3 corners independently reproduce the same two modes. Type-4 penalties always emit shooting mode.
+
+The clean-room event schema and exact penalty resolver are updated to use `FinishMode` instead of an opaque context flag.
+
+Exact next target: reverse the type-1 helper routines `0x62BD80`, `0x62BFC0`, `0x62C0D0`, `0x62C310`, and `0x62C530` to recover open-play save/goal/miss/own-goal decisions.
 
 ## Active Investigation
 
