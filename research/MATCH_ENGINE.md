@@ -2201,3 +2201,29 @@ Therefore the clean-room startup state can now initialize:
 - separate balance-position code low five bits = **10**.
 
 AI formation selection later overwrites assigned role `+0x03` and auxiliary `+0x04` for starters, but does not overwrite the distinct `+0x05` balance code. Substitution likewise copies `+0x03/+0x04` but not `+0x05`.
+## AI lineup availability flags at DBRPlayer +0x14
+
+**Confirmed / partially named from executable lifecycle.**
+
+The full competitive availability helper `0x418050(player, team_id, context)` begins by marking a player unavailable when any of the low three bits of `DBRPlayer+0x14` are set, or when the player's normal club ID at `+0x10` differs from the requested team.
+
+The low bits now separate as follows:
+
+- **bit 0 / 0x01 = injured**.
+  - getter `0x417FF0`;
+  - injury creation paths `0x41A5B0` and `0x41A670` refuse to create a second injury when this bit is already set;
+  - those paths allocate the player's injury-state object at `+0x24C` and dispatch through `0x605F90` into the named injury-probability system;
+  - MatchCalculator injury processing reaches `0x41A5B0` directly.
+- **bit 1 / 0x02 = banned/suspended**.
+  - it is part of the simpler global-unavailability test `0x418130`, which checks `+0x14 & 3`;
+  - post-match routine `0x419680` sets bit 1 when either of the two suspension countdown fields (`+0x13E` / `+0x13B`) is active under its competition/date conditions;
+  - post-match maintenance `0x419490` clears bit 1 before decrementing the relevant suspension countdown for the match just processed, then subsequent selection-state refresh can set it again while suspension remains.
+- **bit 2 / 0x04 = separate selection-exclusion flag; higher-level name unresolved**.
+  - setter `0x418010`, clearer `0x418030`;
+  - it participates in `0x418050` but not in the simpler `0x418130` injury/suspension check;
+  - it is set and cleared by a separate Club.cpp roster-selection/reordering path around `0x50F4D0..0x50FA58`.
+  - It must **not** yet be labeled cup-tied: the executable has a distinct persistent `CCupTiedPlayer` database class and separate competition-player lookup path.
+
+After the low-bit/club checks, `0x418050` applies competition/context-specific registration checks through `0x4F8E40` / `0x419350` and a separate bit-11/date-backed player restriction. Those context checks remain outside the clean-room generic availability primitive until their persistent database semantics are fully named.
+
+This means the core AI lineup eligibility bridge can safely internalize injury and suspension immediately while keeping bit 2 and competition registration as explicit neutral exclusion inputs.
