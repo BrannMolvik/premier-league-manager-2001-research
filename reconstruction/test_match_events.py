@@ -9,6 +9,7 @@ from match_events import (
     IncidentKind,
     IncidentRecord,
     MatchTimeline,
+    PossessionRecord,
     SUBSTITUTION_RECORD_TYPE,
 )
 
@@ -78,12 +79,27 @@ class MatchEventTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             ChanceRecord(0, 0, 0, 1)
 
-    def test_unresolved_context_is_preserved_without_semantic_guess(self):
-        event = ChanceRecord(1, 0, 0, 1, context_raw=17)
-        self.assertEqual(event.context_raw, 17)
+    def test_context_flag_preserves_verified_one_bit_semantics(self):
+        self.assertFalse(ChanceRecord(1, 0, 0, 1, context_flag=0).context_flag)
+        self.assertTrue(ChanceRecord(1, 0, 0, 1, context_flag=1).context_flag)
 
     def test_boundary_record_numeric_mapping(self):
         self.assertEqual(BoundaryRecord(7).kind, BoundaryType.FULL_TIME)
+
+
+    def test_possession_record_reconstructs_side1_remainder(self):
+        event = PossessionRecord(territory=55, side0_percent=43, neutral_percent=12)
+        self.assertEqual(event.side1_percent, 45)
+
+    def test_possession_record_validates_percentages(self):
+        with self.assertRaises(ValueError):
+            PossessionRecord(territory=50, side0_percent=70, neutral_percent=40)
+        with self.assertRaises(ValueError):
+            PossessionRecord(territory=101, side0_percent=50, neutral_percent=0)
+
+    def test_possession_event_does_not_change_score(self):
+        timeline = MatchTimeline([PossessionRecord(50, 45, 10)])
+        self.assertEqual(timeline.score(), (0, 0))
 
 
 if __name__ == '__main__':
