@@ -251,3 +251,21 @@ Conclusion:
 
 Status:
 - ruled out as live transfer-budget storage.
+
+
+## Treat EAMChairmanRefusesExpenditureM as live budget storage
+
+Why it looked promising:
+- the event is generated from the same insufficient-funds transfer branches used by the cash-affordability checks;
+- its name explicitly refers to chairman refusal of expenditure.
+
+Disproof:
+- constructor `0x56E480` stores only two small identifier/context arguments at +0x3C/+0x40;
+- transfer-path callers populate these with club/index/manager-like identifiers rather than the rejected monetary amount or a budget scalar;
+- formatter `0x56E540` selects localized refusal text but does not expose live budget fields.
+
+Conclusion:
+- this class is a notification/event object, not authoritative transfer-budget state.
+
+Status:
+- ruled out as live budget storage.
