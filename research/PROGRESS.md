@@ -525,6 +525,14 @@ A complete executable-wide absolute-reference and raw-pointer scan shows that `T
 
 This rules them out as the authoritative live per-club/user budget storage. The current trace must continue through board/business runtime objects, budget messages, and expenditure checks.
 
+
+
+## Chairman extra-transfer event checkpoint
+
+RTTI now identifies event IDs 0x4F/0x50/0x51 as `EAMchairextratransferfail`, `EAMchairextratransfersuccess`, and `EAMchairextraforallbudgets`. Their vtables and generic-factory construction branches are mapped. `EAMchairbudgetwarning` is also located.
+
+These are strong runtime-budget leads, but remain message containers rather than proven live storage. The next trace is their producers/handlers and the finance overview/business-controller state they expose.
+
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
