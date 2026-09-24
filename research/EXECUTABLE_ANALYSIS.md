@@ -3146,3 +3146,25 @@ It does, however, recover three precise finance categories:
 - 603 = pitch-system maintenance
 
 These are separate from category 1000 (transfers) and category 1100 (stadium/grounds expenditure previously mapped).
+
+
+## Daily FA transfer-window calendar events
+
+The genuine daily DBRUser/calendar dispatcher around `0x42AA60..0x42AD14` directly constructs three FA transfer-window events. RTTI and event-ID accessors identify them exactly:
+
+- **0x88 = EAMFAtransferdeadlinesoon**
+  - vtable `0x7CFBB4`
+  - constructor/populator `0x56D9A0`
+  - ID accessor `0x5414F0` -> 0x88
+- **0x89 = EAMFAtransferdeadlinenow**
+  - vtable `0x7CFC08`
+  - constructor/populator `0x56DC10`
+  - ID accessor `0x541540` -> 0x89
+- **0x8A = EAMFAtransfernegstart**
+  - vtable `0x7CFC5C`
+  - constructor/populator `0x56DE00`
+  - ID accessor `0x426850` -> 0x8A
+
+The daily path tests calendar/date helpers before allocating and enqueueing these events into the global EAM/message system. This confirms that transfer-window warnings/opening are generated from the DBRUser daily calendar update rather than from transfer negotiation UI code.
+
+These emissions occur before DBRUser event-list cleanup and the weekly/monthly maintenance/training/financial-objective branches.
