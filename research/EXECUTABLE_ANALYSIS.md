@@ -1169,6 +1169,33 @@ This class is a message/container, not yet proven to be authoritative live stora
 A potentially related structural clue is that runtime `DBRClub` records are `0x2A8` bytes and contain seven consecutive dwords at club `+0x3C..+0x54`. A club copy path copies this block verbatim. The count/spacing matches the start-season budget message, but this is **not yet sufficient evidence** to call those club fields budgets; their semantics must be established independently.
 
 
+## Rejected live-budget hypothesis: club +0x3C..+0x54
+
+The apparent seven-dword similarity between runtime `DBRClub +0x3C..+0x54` and the seven fields of `EAMbcstartseasonmail` is **coincidental**. This club region is not the authoritative budget block.
+
+EA's compact club reader at `0x4022D0` was traced byte-for-byte. It consumes exactly 181 bytes per `Master.dat` club record and expands string indices into runtime pointers before `0x403660` copies the temporary record into the 0x2A8-byte runtime club object.
+
+Relevant mappings:
+
+- runtime/temp `+0x38` <- disk `+0x2C`, 2-byte localized string reference
+- runtime/temp `+0x3C` <- disk `+0x2E`, 2-byte localized string reference
+- runtime/temp `+0x40` <- disk `+0x30`, 4-byte integer
+- runtime/temp `+0x44..+0x49` <- disk `+0x34..+0x39`, six raw bytes
+- runtime/temp `+0x4A..+0x61` <- disk `+0x3A..+0x51`, 24 raw bytes
+- runtime/temp `+0x64` <- disk `+0x52`, 4-byte integer
+
+Validation against club record 0 (Arsenal):
+
+- disk `+0x2C` string ID 920 -> `arsenal.tga`
+- disk `+0x2E` string ID 921 -> `Sponsor`
+- disk `+0x30` uint32 -> 204, matching the already-identified Arsène Wenger manager record ID
+- disk `+0x52` uint32 -> 82
+
+Therefore runtime club `+0x3C` is a localized sponsor-string pointer/reference, and `+0x40` is the manager ID/reference field. The following bytes belong to compact club visual/kit/other record data, not a seven-budget array.
+
+This falsifies the proposed shortcut from club `+0x3C..+0x54` to start-season budget fields. Continue tracing the budget event population through its actual creation/fill path.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
