@@ -602,6 +602,15 @@ The chairman extra-cash success selector is now structurally mapped end-to-end:
 All seven branches format the same increase amount with `TRANSFERBUDGETINCREASE`; only the localized success template changes. Semantic bucket names are not yet attached to the numeric selector values, so selector 7 remains probable rather than confirmed as transfer budget.
 
 The heavily referenced game/session pointer at `+0x5B4` has also been ruled out as a budget-controller object: initialization `0x4258D0..0x4258F2` stores an incoming current club/team pointer directly into that field. Resume from the event producer / club finance state, not game +0x5B4 as a separate store.
+
+
+## DBRClub / budget-cheat correction checkpoint
+
+The current-club runtime record is now tied to RTTI as `DBRClub`, size **0x2A8 bytes**, with `DBTClubs` at global `0x874B9C`. This gives a concrete runtime club object for finance-field tracing.
+
+The apparent budget-option path was also rechecked: although `0x5DE530` returns the value from `0x516020 -> 0x877552`, both callers (`0x4A870D`, `0x4C4826`) ignore that return. Keep `0x877552` unresolved; do not treat it as proven `/budget777` behavior or as a route to live transfer-budget storage.
+
+Exact next target: inspect DBRClub finance-related fields and finance-controller structures for the seven chairman budget buckets, using the confirmed 0x2A8 record boundary and known current-club pointer.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
