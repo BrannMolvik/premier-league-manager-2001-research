@@ -1345,7 +1345,7 @@ The two concepts are therefore explicitly separate in the original executable:
 This reinforces the already-established distinction between the club's live cash balance and its board-assigned budget buckets.
 
 
-## Major correction: 0x515Fxx/0x5160xx block is C++ stream machinery, not cheat flags
+## Major correction: 0x515Fxx/0x5160xx block is C++ stream machinery, not cheat flags — SUPERSEDED AGAIN
 
 RTTI has now resolved the global object at `0x877540` conclusively.
 
@@ -1428,7 +1428,7 @@ A raw little-endian absolute-pointer scan finds no direct code references to the
 
 ### Important refinement to the stream-accessor correction
 
-The RTTI correction for global `0x877540` remains definitive: accessors that read bytes inside `0x877550..` are standard-library stream/internal-state accessors and must not be relabeled as cheat flags.
+The earlier RTTI-based interpretation of global `0x877540` is superseded by constructor-level analysis below. The object at `0x877540` is a 16-byte ordered-tree container ending at `0x87754F`, so the bytes at `0x877550..` are independent globals, not members of that container.
 
 However, not every tiny routine in the surrounding `0x515Fxx/0x5160xx` address range reads that stream object. Three separate accessors read globals immediately following the literal command table:
 
@@ -1454,3 +1454,67 @@ Recover the parser/initializer that consumes the pointer table at `0x828510`. Be
 4. callers of the separate `0x82856C/0x82856E/0x82856F` accessors.
 
 Only after a literal-to-state mapping is proven should `/cash777` or `/budget777` be connected to a runtime budget/cash bypass.
+
+
+## Correction to the 0x877540 interpretation: tree container, not istringstream
+
+**Confirmed. This supersedes the earlier claim that the global beginning at `0x877540` is itself a `std::basic_istringstream`.**
+
+Fresh constructor-level analysis separates two adjacent C++ template implementations that had previously been conflated.
+
+### 0x877540 object
+
+Static initializer `0x515F00` calls `0x515F10`, which invokes `0x5162A0` with ECX=`0x877540`.
+
+Routine `0x5162A0` is an ordered-tree container constructor:
+
+- stores two one-byte policy/allocator/comparator values at object `+0/+1`;
+- clears object `+0x08`;
+- allocates a 0x24-byte sentinel/header node;
+- stores that node at object `+0x04`;
+- initializes self-referential tree links in the sentinel;
+- clears object `+0x0C`;
+- uses shared tree bookkeeping globals at `0x877568/0x87756C`.
+
+Destructor `0x515F50` operates on the same 16-byte container and destroys its tree nodes.
+
+Therefore the object beginning at `0x877540` occupies the 16-byte range `0x877540..0x87754F`. The bytes beginning at `0x877550` are **not inside that container**.
+
+### Where the stream RTTI actually appears
+
+The `std::basic_streambuf` / `std::basic_stringbuf` RTTI and vtables are used by a different routine family beginning around `0x5166A0`. For example, `0x5166A0` installs streambuf/stringbuf vtables `0x7BD734` and `0x7BD76C` in the object passed through ECX.
+
+This nearby stream implementation caused the earlier false association with the global at `0x877540`.
+
+### Consequence for the tiny getters
+
+The following getters once again represent independent global bytes rather than bytes proven to be internal stream state:
+
+- `0x515FF0` -> `[0x877550]`
+- `0x516000` -> `[0x877551]`
+- `0x516020` -> `[0x877552]`
+- `0x516030` -> `[0x877553]`
+- `0x516040` -> `[0x877554]`
+- `0x516050` -> `[0x877555]`
+- `0x516060` -> `[0x877556]`
+- `0x516070` -> `[0x877557]`
+- `0x516080` -> `[0x877558]`
+- `0x516090` -> `[0x877559]`
+- `0x5160A0` -> `[0x87755A]`
+- `0x5160C0` -> `[0x87755C]`
+- `0x5160D0` -> `[0x877560]`
+- `0x5160E0` -> `[0x877562]`
+
+Their command-line meanings still require literal-to-state mapping. In particular, the strong consumer evidence that `0x516090` bypasses insufficient-current-cash checks becomes relevant again, but it is not yet enough by itself to prove that the corresponding literal is `/cash777`.
+
+The separate initialized globals at `0x82856C/0x82856E/0x82856F` remain distinct from both the tree header and the `0x87755x` bytes.
+
+### Updated parser target
+
+The current parser investigation must now determine how:
+
+1. the literal pointer table at `0x828510..0x828568`;
+2. the ordered-tree container at `0x877540`; and
+3. the independent state bytes beginning at `0x877550`
+
+are connected during startup/command-line parsing.
