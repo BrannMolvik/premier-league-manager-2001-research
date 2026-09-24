@@ -39,6 +39,10 @@ This is still a data/reconstruction prototype, not a complete playable replaceme
 
 Implemented and unit-tested reconstruction mechanics:
 
+- mutable runtime player state initialized from the parsed database;
+- generic day-by-day game calendar with daily/monthly hooks;
+- first-of-month player development execution;
+
 - monthly 17-skill age/development curve;
 - exact peak-age grouping and shipped peak-range behavior;
 - post-age monthly training modifier behavior;
