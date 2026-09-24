@@ -1364,3 +1364,62 @@ A formation-coverage helper used by this path groups several role codes in a way
 This could mean the existing enum labels for roles 13/14/15 need correction even though the numeric codes themselves are right. No reconstruction code should be changed until the original Static.dat position table and executable consumers are reconciled.
 
 This issue is now explicitly checkpointed so future sessions do not silently rely on possibly shifted semantic labels.
+
+
+## Team-strength coefficient matrices and tactic selectors
+
+The coefficient tables used by the two five-minute strength builders are now structurally proven.
+
+Attack routine `0x62F140` reads doubles from **0x83B838**.
+
+Defence routine `0x62F3E0` reads doubles from **0x83E2B8**.
+
+The difference is exactly:
+
+`0x2A80 = 10880 bytes = 1360 doubles = 4 × 20 × 17`.
+
+The executable's index arithmetic is therefore:
+
+`coefficient[tactic_style][runtime_role][skill]`
+
+with:
+
+- 4 tactic-style values;
+- 20 runtime role codes;
+- 17 player skills.
+
+Attack and defence each have their own complete 4×20×17 matrix.
+
+### Tactic bytes
+
+Attack indexes its matrix using team byte **+0x1B6**, matching the four **With Ball** styles:
+
+- 0 Normal
+- 1 Short Pass
+- 2 Long Ball
+- 3 Counter
+
+Defence indexes its matrix using team byte **+0x1B5**, matching the four **Without Ball** styles:
+
+- 0 Normal
+- 1 Contain
+- 2 Press
+- 3 Offside Trap
+
+The separate three-state team byte **+0x1B4** is the Play style:
+
+- 0 Play Attack
+- 1 Play Normal
+- 2 Play Defend
+
+Routine `0x40DA30` converts those initial values into match-bias states:
+
+- Play Attack -> 3
+- Play Normal -> 2
+- Play Defend -> 1
+
+The live match bias itself can occupy 0..4.
+
+### Position-code clarification
+
+Runtime role codes remain the already-proven zero-based values (13 RW, 14 LW, 15 AM). Static.dat position IDs are one-based, which explains the apparent one-step discrepancy seen in one formation helper. No clean-room enum correction is required.
