@@ -51,6 +51,19 @@ Clearly separate:
 
 Record enough detail that another session can reproduce important conclusions.
 
+## Continuous checkpoint cadence
+
+For this project, "checkpoint frequently" means:
+
+- commit immediately after each verified subproblem or corrected interpretation;
+- commit before switching to a different subsystem;
+- during a long unresolved trace, commit partial evidence/next address at least once per substantial analysis block rather than waiting for a final conclusion;
+- never allow several user-visible progress updates to occur without a corresponding GitHub checkpoint;
+- when a finding is promising but not verified, record it explicitly as a hypothesis/active lead rather than leaving it only in chat.
+
+The repository must remain close enough to the live investigation that a timeout loses at most one small analysis block.
+
+
 ## Timeout protocol
 
 If the current task cannot be completed before a session ends:
