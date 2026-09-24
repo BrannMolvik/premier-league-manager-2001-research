@@ -30,7 +30,7 @@ from match_events import (
 )
 from match_orders import TeamOrderCategory, select_set_piece_taker
 from match_statistics import SegmentCounters, normalize_segment_statistics
-from match_substitution import apply_ai_substitution
+from match_substitution import apply_ai_substitution, apply_injury_substitution
 from match_strength import (
     TeamStrengthContext,
     TeamStrengthPlayer,
@@ -367,6 +367,7 @@ def simulate_normal_match(
     rng: BoundedRng,
     condition_injury_settings: ConditionInjurySettings | None = None,
     discipline_enabled: bool = True,
+    match_mode_code: int | None = None,
 ) -> NormalMatchResult:
     """Run the verified normal-time scoring/chance backbone through minute 90.
 
@@ -377,9 +378,12 @@ def simulate_normal_match(
     exact mapped 0x62E6F0 Condition loop and 0x62EAE0 injury-incidence gate.
     The exact 0x62E130 discipline path runs after every attacking sequence;
     sending-off events remove that player from later active chance and strength
-    pools. The scheduler then consumes RNG(7), and on a zero invokes 0x62E2F0
-    for the side opposite the scheduler-selected attacker, preserving the
-    original per-sequence call order.
+    pools. Successful injuries immediately enter the recovered 0x409950 /
+    0x409AC0 replacement path when allowed. AI teams always permit that injury
+    replacement; user-controlled teams require raw MatchCalculator +0xD3C mode
+    1 or 3, exposed here as match_mode_code. The scheduler then consumes RNG(7),
+    and on a zero invokes 0x62E2F0 for the side opposite the scheduler-selected
+    attacker, preserving the original per-sequence call order.
     """
     if side0.side != 0 or side1.side != 1:
         raise ValueError("simulate_normal_match requires side0.side=0 and side1.side=1")
@@ -434,16 +438,29 @@ def simulate_normal_match(
             ))
 
             if condition_injury_settings is not None:
+                def replace_injured_player(incident):
+                    team = sides[incident.player_side]
+                    return apply_injury_substitution(
+                        incident.player_side,
+                        incident.player_index,
+                        team.players,
+                        team.attack_context.user_controlled,
+                        match_mode_code=match_mode_code,
+                        enabled=discipline_enabled,
+                    )
+
                 incidents = apply_sequence_condition_and_injuries(
                     scheduled.side,
-                    side0.active_prepared_players(),
-                    side1.active_prepared_players(),
+                    side0.players,
+                    side1.players,
                     side0.attack_context.aggression,
                     side1.attack_context.aggression,
                     scheduled.minute,
                     condition_injury_settings,
                     condition_state,
                     rng,
+                    injury_enabled=discipline_enabled,
+                    injury_substitution_handler=replace_injured_player,
                 )
                 events.extend(
                     TimedMatchEvent(scheduled.minute, incident)
