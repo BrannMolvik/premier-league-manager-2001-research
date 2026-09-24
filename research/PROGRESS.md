@@ -1163,6 +1163,27 @@ Regression status: **23/23 tests pass**, plus the original data integrity check 
 
 This gives the reconstruction its first real season competition state: original teams/fixtures can now receive match results and produce a league table.
 
+
+
+## Integrated season-state skeleton checkpoint
+
+`GameState` now combines:
+
+- mutable runtime players;
+- the advancing game calendar;
+- first-of-month development updates;
+- the original 380-match Premier League schedule;
+- mutable match results;
+- live league-table calculation.
+
+A loaded database can therefore create one coherent career-state object rather than separate parser demos.
+
+New regression file: `reconstruction/test_game_state_competition.py`.
+
+Regression status: **25/25 tests pass** across development, training, runtime/calendar, fixture parsing, league-table state and integrated game-state behavior.
+
+No placeholder match simulator has been invented: results are currently injected explicitly until the recovered MatchCalculator is ready to replace that boundary.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
