@@ -343,3 +343,22 @@ Conclusion:
 
 Status:
 - rejected as current budget candidate.
+
+
+## Treat the six Balance +0x30..+0x80 records as possible chairman budget buckets
+
+Why it remained plausible:
+- the six 16-byte value/range records are persistent and serialized;
+- only Balance +0x50 had previously been semantically identified, leaving the other five open.
+
+Disproof:
+- periodic routine 0x5E12C0 is called with ECX = Balance+0x30 and directly processes this whole block;
+- it constructs RTTI-named EAMManagerWarnedObjective and EAMMonthlyFinancialTargets events;
+- EAMMonthlyFinancialTargets formatter explicitly labels values BALANCEA, BALANCEB, PROFITA, PROFITB and TARGET;
+- adjacent routines on the same block emit EAMManagerObjectiveGoodWork and manager-objective success/failure events.
+
+Conclusion:
+- the six serialized records form financial-objective/target/forecast state, not the chairman spending-budget reserve array.
+
+Status:
+- definitively rejected as live transfer-budget storage.
