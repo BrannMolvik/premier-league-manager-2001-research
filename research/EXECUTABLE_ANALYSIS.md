@@ -1641,3 +1641,61 @@ In both cases execution immediately overwrites/ignores EAX/AL after the call. Th
 **Unresolved:** `0x877552` may still be the state associated with literal `/budget777`, but finance proximity alone is insufficient to prove that mapping, and no transfer-budget bypass behavior has yet been found for this byte.
 
 This weakens the earlier assumption that `0x516020` would lead directly to the live transfer-budget guard. Continue looking for the actual budget-limit comparison/state rather than forcing this getter into that role.
+
+
+## Accounting category 1000 and transfer-ledger checkpoint
+
+Fresh tracing of the completed-transfer posting path and finance aggregators has clarified how category `1000 (0x3E8)` is used.
+
+### Confirmed: completed transfers post category 1000
+
+The already-mapped transfer-completion path calls:
+
+- seller wrapper `0x404BB0 -> 0x5DC510`
+- buyer wrapper `0x404B30 -> 0x5DC650`
+
+Both wrappers construct a finance transaction with accounting category `1000`.
+
+The transfer-completion routine around `0x422AA0` uses these wrappers on the old and new clubs around the player club-switch operation. No second obvious transfer-budget scalar write is visible in this immediate completion path.
+
+### Confirmed: category 1000 is a normal two-sided finance-ledger category
+
+The finance subsystem stores transactions in a ledger and independently aggregates positive and negative entries by category and date range.
+
+- `0x5DC890(category, range)` ultimately uses `0x5DD1F0` to sum matching nonnegative/credit entries.
+- `0x5DD650(category, range)` uses the parallel negative-entry path around `0x5DD560` and returns the magnitude of matching debits/outflows.
+- helper `0x43F1E0` calls both sides and returns the net value: positive credits minus negative/outflow magnitude.
+
+Category `1000` is explicitly queried through all of these paths in the finance-overview code around `0x43E03E..0x43E10x`. The overview therefore maintains/report credits, debits and a net value for category 1000 rather than treating the transfer posting code as an isolated side effect.
+
+### Seller-side secondary posting
+
+When `0x5DC510` credits incoming money it also constructs an additional debit using category `1600 (0x640)`.
+
+The secondary amount is:
+
+`incoming_amount * 0.01 * 0.2 = incoming_amount * 0.002`
+
+from constants `0x7BD600 = 0.01` and `0x821850 = 0.2`.
+
+The semantic name of category 1600 is not yet proven, so this must not be described as a tax/levy/commission without further evidence.
+
+### Current transfer-budget model
+
+**Confirmed:** completed transfer purchases/sales change current cash and create category-1000 finance-ledger entries.
+
+**Confirmed:** no separate transfer-budget scalar mutation has been found in the immediate player-movement/posting path.
+
+**Hypothesis:** the user's remaining/available transfer budget may be derived dynamically from a board/chairman transfer allocation combined with the category-1000 transfer ledger (for example allocation adjusted by net transfer spending), rather than maintained as a separately decremented scalar.
+
+The hypothesis is not yet promoted because the actual board-allocation-versus-category-1000 comparison has not been located.
+
+### Exact next trace
+
+Locate the authoritative board/chairman transfer-allocation state and find the code that:
+
+1. reads that allocation;
+2. queries category 1000 transfer credits/debits or net flow;
+3. derives/checks remaining transfer budget or an overspent condition.
+
+The most promising bridges are the producer paths for `EAMchairbudgetsettings`, `EAMbcstartseasonmail`, `EAMbcmonthlybudget`, and the `OVERSPENTBUDGET` warning/message family.
