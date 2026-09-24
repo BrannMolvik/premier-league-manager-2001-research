@@ -352,9 +352,22 @@ Completed-transfer money flow is now proven:
 
 EA's `EAMchairbudgetsettings` message now proves eight distinct chairman budget buckets: total, staff, player wages, maintenance, merchandising, miscellaneous, buildings limit and transfers. Transfer budget is therefore structurally separate from the already-recovered current cash/balance field. The message layout is mapped, while the authoritative live budget storage remains an active target.
 
+## 24 September resume checkpoint
+
+The previous session continued beyond the last GitHub commit and located a new named budget-related message class, `EAMbcstartseasonmail`, which represents the board/chairman start-of-season budget announcement.
+
+This work had remained only in the conversation and was therefore not safely persisted. It is now checkpointed in `research/EXECUTABLE_ANALYSIS.md`.
+
+Current exact resume target:
+
+- trace construction/population of `EAMbcstartseasonmail`;
+- identify the authoritative runtime source for its transfer/staff/wage/maintenance/merchandising/misc/building budget fields;
+- determine how transfer completion changes the assigned transfer budget independently of the already-mapped cash balance.
+
+
 ## Active Investigation
 
-Current focus: determine the exact acceptance/clearance paths feeding CDealInProgress state 1/4, finish proposal +0x40/+0x44/+0x4C, and document the full transfer execution path.
+Current focus: trace EAMbcstartseasonmail back to the authoritative live budget object, then determine transfer-budget adjustments independently of cash balance.
 
 Immediate next steps:
 
