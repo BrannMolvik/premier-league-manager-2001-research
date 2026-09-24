@@ -452,3 +452,13 @@ Confirmed:
 - +0x100C is a separate territorial/pitch-position metric;
 - MatchController emits these through EventPossession;
 - PossessionFigures displays the three possession percentages, while PossessionDiagram uses the territorial metric to select left/middle/right pitch presentation.
+
+
+## Match chance context flag and possession payload
+
+Confirmed:
+
+- active chance-record `+0x2C` is serialized as exactly one bit;
+- normal FastView `EventGoal` delivery does not consume that field;
+- it is retained as an opaque Boolean chance-context flag rather than assigned an unsupported football meaning;
+- `EventPossession` carries a separate territorial metric plus side-0 and neutral/contested possession percentages; side-1 percentage is reconstructed as the remainder to 100.
