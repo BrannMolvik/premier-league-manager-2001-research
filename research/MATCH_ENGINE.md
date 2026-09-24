@@ -436,3 +436,76 @@ Exact labels for types 0/1/2/3/4 (for example ordinary goal vs own goal vs set-p
 ### Significance
 
 The bridge from MatchCalculator records into semantic FastView events is now directly visible. Reconstructing the backend does not require guessing how its timeline is interpreted: the executable exposes a compact typed record stream whose major timeline/substitution/goal families are mapped to named event senders.
+
+
+## Type-5 player-incident records and per-segment player-state updates
+
+Further tracing separates three previously unresolved branches in the five-minute simulator.
+
+### Type 5 is a three-subtype per-player incident/status record
+
+MatchController type-5 handling is at `0x519B89`. Unlike types 0..4, it does not emit through `Sender<EventGoal>`.
+
+Its payload selects one of three small setters:
+
+- `0x6C28F0`
+- `0x6C2910`
+- `0x6C2930`
+
+These write one of three adjacent bytes in a global per-side/per-player matrix beginning at approximately `0xA14828`.
+
+The indexing is structurally:
+
+`3 * (player_index + 18 * side) + subtype_byte`
+
+so each player has three independent incident/status flags.
+
+The exact football labels of the three bytes are not yet proven and must not yet be called yellow/red/injury by name.
+
+Record creator `0x62EF20` constructs type-5 records. Two confirmed creation forms from `0x62E130` are:
+
+- subtype path A: record `+0x18 = 1`, causing FastView/controller code to call `0x6C28F0`;
+- subtype path B: record `+0x18 = 0`, record `+0x1C = 1`, causing `0x6C2910`.
+
+Subtype B also marks per-player match-state byte `+0x49`, increments a side counter, and calls player routine `0x4181B0`, so it has a stronger/removal-like effect than subtype A.
+
+A third encoding uses record `+0x20 != 0` and routes to `0x6C2930`.
+
+### 0x62E2F0 is AI substitution logic
+
+Routine `0x62E2F0` is now structurally resolved as computer-manager substitution logic.
+
+Confirmed behavior:
+
+- returns/avoids the decision path for a human-controlled club through `0x4037B0`;
+- checks match minute and score context;
+- evaluates current players and substitute candidates;
+- compares player metrics/availability;
+- selects a replacement;
+- calls `0x62EF90`, the confirmed **type-10 substitution-record creator**;
+- updates per-player match-state bytes after the substitution.
+
+Thus this routine is not a generic match-event generator; it is the automatic substitution decision path.
+
+### 0x62E6F0 is recurring player condition/energy decay
+
+Routine `0x62E6F0` runs repeatedly during the match and iterates players on both sides.
+
+Helper `0x62E6C0` derives a player-specific probability threshold from player/runtime state. When the RNG condition succeeds:
+
+- player byte `+0x77` is checked to be greater than 1;
+- it is decremented by one;
+- `0x62EAE0(player, time/segment)` is called to propagate the update.
+
+This is conclusively a recurring decrement/update of a player condition-like match attribute. Because the executable also exposes `EventPlayerUpdateEnergy`, the strongest current hypothesis is that `+0x77` is an energy/condition value, but the exact event bridge is still being traced and the field should not yet be given a final name.
+
+### Significance
+
+The five-minute simulation now separates into clearer responsibilities:
+
+- weighted team/event probability generation;
+- per-player incident/status generation (type 5);
+- AI substitution decisions (type 10);
+- recurring player condition/energy-like decay.
+
+This further reduces the backend reconstruction problem to finite, independently traceable systems.
