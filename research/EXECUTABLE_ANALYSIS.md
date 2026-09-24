@@ -2649,3 +2649,60 @@ The surrounding code proves these are **current-cash affordability** checks, not
 This gives another independent example where a user-facing "no budget" message actually corresponds to **cash availability**, reinforcing the need not to infer chairman reserve storage from message wording alone.
 
 These routines are building/facility expenditure logic, not the quarterly transfer/building-reserve rebudget path.
+
+
+## Balance +0x30..+0x80 block is financial-objective/target state
+
+The six serialized 16-byte records inside each Balance object at absolute offsets +0x30, +0x40, +0x50, +0x60, +0x70 and +0x80 have now been tied directly to the manager financial-objective system.
+
+### Periodic objective routine
+
+Routine `0x5E12C0` is invoked with:
+
+`ECX = active Balance + 0x30`
+
+from the periodic/calendar path at `0x42AE21`.
+
+It reads and updates the six value/range records, compares them with current cash from Balance +0x10, and emits named manager-objective events.
+
+Named constructors called from this routine include:
+
+- `0x5954F0` -> RTTI **EAMManagerWarnedObjective**
+- `0x5A6360` -> RTTI **EAMMonthlyFinancialTargets**
+
+The nearby routine `0x5E1C00`, also called with `ECX = Balance + 0x30`, emits:
+
+- `0x5A5F50` -> RTTI **EAMManagerObjectiveGoodWork**
+
+The already-mapped `0x5E1D90` emits the continued-success / failed-objective family.
+
+### EAMMonthlyFinancialTargets field labels
+
+`EAMMonthlyFinancialTargets` uses vtable `0x7D4EAC`.
+
+Formatter `0x5A6450` labels its monetary fields with EA-authored keys:
+
+- event +0x3C -> **BALANCEA**
+- event +0x40 -> **BALANCEB**
+- event +0x44 -> **PROFITA**
+- event +0x48 -> **PROFITB**
+- event +0x4C -> **TARGET**
+- event +0x50 -> club/team ID
+
+The label strings are:
+
+- `0x8330FC` = `BALANCEA`
+- `0x833108` = `BALANCEB`
+- `0x833114` = `PROFITA`
+- `0x83311C` = `PROFITB`
+- `0x833124` = `TARGET`
+
+At `0x5E15E8..0x5E1616`, `0x5E12C0` extracts values from the Balance +0x30 objective block and passes them directly into the `EAMMonthlyFinancialTargets` constructor.
+
+### Consequence
+
+The six serialized Balance records at +0x30..+0x80 are persistent **financial-target/objective/forecast state**. They are not the chairman's staff/wage/maintenance/merchandising/misc/buildings/transfer budget array.
+
+This rules out the remaining unmapped members of this six-record block as the authoritative live transfer-budget reserve.
+
+The Balance object still owns current cash and accounting/ledger data, but the transfer-budget allocation must be found elsewhere or derived before presentation.
