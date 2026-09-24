@@ -3020,3 +3020,27 @@ The finance/business systems are therefore **per runtime user/manager**, not fie
 This also explains why several apparently unrelated per-club systems are adjacent: DBRUser aggregates the active manager's club, finance, training, stadium, histories and message/event state.
 
 Terminology in older notes that says "game/session +offset" should be read as the same DBRUser-relative offset unless independently referring to a different object.
+
+
+## DBRUser +0x588..+0x5A8 is media-rights state, not five operating budgets
+
+A block of five consecutive qword values at `DBRUser +0x588, +0x590, +0x598, +0x5A0, +0x5A8` initially looked unusually promising because the chairman system has five quarterly operating-budget categories.
+
+Routine `0x4268C0` initializes all five values together and chooses their contents from tuning globals in the `0x821220..0x821268` range.
+
+The tuning loader resolves those globals to explicit media-rights keys:
+
+- `0x821220` = `LRADIO_MAX`
+- `0x821228` = `LRADIO_RES`
+- `0x821230` = `NRADIO_MAX`
+- `0x821238` = `NRADIO_RES`
+- `0x821240` = `LTV_MAX`
+- `0x821248` = `LTV_RES`
+- `0x821250` = `NTV_MAX`
+- `0x821258` = `NTV_RES`
+- `0x821260` = `EUROPEAN_MAX`
+- `0x821268` = `EUROPEAN_RES`
+
+Thus this five-qword block belongs to radio/TV/European media-rights/reserve state. The numeric coincidence with the five quarterly chairman operating budgets is not semantic evidence.
+
+Do not use DBRUser +0x588..+0x5A8 as the chairman budget array.
