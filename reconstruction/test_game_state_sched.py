@@ -1,0 +1,58 @@
+import unittest
+from dataclasses import dataclass
+from datetime import date
+
+from game_state import GameState
+
+
+@dataclass(frozen=True)
+class Player:
+    index: int
+    club_id: int
+    first_name: str = "A"
+    surname: str = "P"
+    nationality_id: int = 0
+    date_of_birth: date | None = date(1980, 1, 1)
+    shirt_number: int = 1
+    height_cm: int = 180
+    weight_kg: int = 75
+    positions: tuple[int, int, int] = (0, 0, 0)
+    current_raw: tuple[int, ...] = (100,) * 17
+    target_raw: tuple[int, ...] = (150,) * 17
+
+
+@dataclass(frozen=True)
+class Fixture:
+    id: int
+    round_index: int
+    home_club_id: int
+    away_club_id: int
+
+
+@dataclass(frozen=True)
+class Round:
+    round_number: int
+    scheduled_week: int
+    scheduled_weekday: int
+
+
+class Database:
+    players = [Player(1, 1), Player(2, 2)]
+    real_fixtures = [Fixture(0, 0, 1, 2), Fixture(1, 1, 2, 1)]
+    premier_league_rounds = [Round(1, 7, 6), Round(2, 8, 3)]
+
+
+class GameScheduleIntegrationTests(unittest.TestCase):
+    def test_next_match_date_and_due_fixtures_follow_calendar(self):
+        state = GameState.from_database(Database(), date(2000, 8, 18), seed=1, season_year=2000)
+        self.assertEqual(state.next_match_date(), date(2000, 8, 19))
+        self.assertEqual(state.fixtures_due_today(), ())
+        state.advance_one_day()
+        self.assertEqual([f.id for f in state.fixtures_due_today()], [0])
+        state.record_premier_league_result(0, 2, 1)
+        self.assertEqual(state.fixtures_due_today(), ())
+        self.assertEqual(state.next_match_date(), date(2000, 8, 23))
+
+
+if __name__ == "__main__":
+    unittest.main()
