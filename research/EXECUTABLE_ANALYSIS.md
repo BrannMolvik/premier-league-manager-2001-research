@@ -1140,6 +1140,35 @@ Next trace:
 Do not treat the message object itself as the authoritative budget store.
 
 
+## EAMbcstartseasonmail exact budget-field layout
+
+RTTI identifies `EAMbcstartseasonmail` with vtable approximately `0x7D0150`.
+
+Relevant methods:
+
+- constructor/default initializer: `0x541AD0`
+- message/class ID accessor: `0x541B00`, returns `0xA0`
+- class-name accessor: `0x541B10`, returns `"bcstartseasonmail"`
+- formatter: `0x572AE0`
+- serialization-related method: `0x5730C0`
+
+The formatter directly proves the seven season-start budget fields:
+
+- event `+0x3C`: STAFFBUDGET
+- event `+0x40`: PLAYERWAGEBUDGET
+- event `+0x44`: MAINTENANCEBUDGET
+- event `+0x48`: MERCHANDISINGBUDGET
+- event `+0x4C`: MISCBUDGET
+- event `+0x50`: BUILDINGSLIMIT
+- event `+0x54`: TRANSFERBUDGET
+
+Unlike `EAMchairbudgetsettings`, this message does **not** carry a separate TOTALBUDGET field in the preceding slot.
+
+This class is a message/container, not yet proven to be authoritative live storage. The current target is to trace where these seven values are populated.
+
+A potentially related structural clue is that runtime `DBRClub` records are `0x2A8` bytes and contain seven consecutive dwords at club `+0x3C..+0x54`. A club copy path copies this block verbatim. The count/spacing matches the start-season budget message, but this is **not yet sufficient evidence** to call those club fields budgets; their semantics must be established independently.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
