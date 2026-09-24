@@ -544,3 +544,30 @@ Confirmed:
 - AI sides receive fixed strength boosts;
 - aggression is a separate user-team multiplier;
 - defence has a separate formation-coverage penalty.
+
+
+## MatchCalculator team-strength and normal-time integration
+
+**Confirmed**
+
+The paired team-strength builders feeding the five-minute MatchCalculator scheduler are fully specified and now clean-room implemented:
+
+- attack coefficients: executable VA `0x83B838`;
+- defence coefficients: `0x83E2B8`;
+- each table is exactly `4 x 20 x 17` doubles;
+- one player/skill contribution is
+  `(effective_skill / 255) * coefficient[tactic][role][skill] * (role_factor / 100)`;
+- attack role factors for roles 0..12 are
+  `105,108,110,120,112,115,97,95,102,92,90,117,100`;
+- defence uses `200 - attack_factor` for those roles; roles 13..19 use 100 for both;
+- live bias, captain/AI, aggression and defence formation-coverage multipliers are applied after the matrix sum.
+
+The five-minute driver converts those strengths to side weights with the verified 1.10/0.90 asymmetry, runs `floor((W0+W1)/30)` sequences, selects the attacking side with `RNG(W0+W1)`, and places sequences within the five-minute window by `segment_start + floor(5*i/N) + 1`.
+
+Exact-source validation against the canonical `footballmanager.exe` confirmed that the data-free PE coefficient loader returns two real `4 x 20 x 17` matrices from the analyzed executable.
+
+The reconstruction now also has an evidence-backed normal-time orchestration layer that runs the 16 normal five-minute segments, routes open-play transitions into the recovered free-kick/corner/penalty resolvers, emits Half Time/Full Time boundaries, and can persist the final score of a due Premier League fixture into `PremierLeagueState`.
+
+**Not yet confirmed/implemented as full match behavior**
+
+The orchestrator does not yet execute the original recurring Condition/injury, discipline, AI-substitution, possession-normalization, or authoritative match-day lineup initialization paths. These remain separate reverse-engineering/integration tasks and are not replaced by generic football logic.
