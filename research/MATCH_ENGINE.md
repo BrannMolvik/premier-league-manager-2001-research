@@ -1722,3 +1722,35 @@ otherwise both stored percentages start at 33.
 Each stored percentage independently receives `RNG(10)-5` only when strictly between 5 and 95 and is clamped to 0..100. If their sum exceeds 100, side0 is reduced to `100-neutral`. Side1 is the implicit remainder.
 
 This exact normalization is now integrated into all 16 normal-time statistic slots in the clean-room orchestrator.
+
+
+## Team-strength role-factor indexing correction
+
+**Confirmed, superseding the earlier assumption that the small role-balance table is indexed by the current assigned role.**
+
+Direct instruction-level recheck of both `0x62F140` and `0x62F3E0` proves that two distinct fields in the player position-state object are used:
+
+- `0x4EA3C0` returns `position_state[+0x03] & 0x1F`.
+  - This is the current/assigned runtime role.
+  - It is passed into `0x4EA440` for positional compatibility.
+  - It selects the role dimension of the 4 x 20 x 17 attack/defence coefficient matrix.
+- `0x4EA3E0` returns `position_state[+0x05] & 0x1F`.
+  - This separately indexes the small balance-factor table at `0x840D38` when the value is below 13.
+  - Values >=13 use a neutral 100% balance factor.
+  - Attack uses the table value directly.
+  - Defence uses `200 - table[value]`.
+  - The higher-level semantic name of this +0x05 field is still unresolved.
+
+Therefore one player/skill contribution is more precisely:
+
+```
+(effective_skill / 255)
+* matrix[tactic][current_role_from_+0x03][skill]
+* balance_factor[position_state_+0x05] / 100
+```
+
+and the two position-state codes must **not** be conflated.
+
+The clean-room reconstruction now carries the second field explicitly as `balance_position_code`. It is required from prepared match-day state instead of silently defaulting to the assigned role. Regression source includes a case where current role 12 and balance code 3 deliberately differ, proving that the matrix row and balance factor are independently selected.
+
+This same +0x05 accessor is also used by the discipline candidate helper for its special `code == 8` selection bias, providing an additional independent use of the field.
