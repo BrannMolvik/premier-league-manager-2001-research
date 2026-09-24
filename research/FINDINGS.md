@@ -484,3 +484,14 @@ Confirmed:
 - player +0x248 position state contains three compatible roles plus current assigned role;
 - 0x4EA440 provides exact role-compatibility multipliers 1.00/0.90/0.85/0.80/0.75/0.70/0.50/0.10;
 - the normal-match type-4 penalty resolver is now fully reconstructable including Condition, role compatibility, Form, miss/save thresholds, high-score suppression, and the chance creator's 10% presentation-variant roll.
+
+
+## Match open-play resolution primitives
+
+Confirmed:
+
+- `0x62BD80` resolves attacker Heading vs defender Heading with weighted bounded RNG;
+- `0x62C0D0` resolves attacker Control vs defender Tackling with the same weighted-duel model;
+- `0x62BFC0`, `0x62C310`, and `0x62C420` are Heading, Shooting, and Set Piece execution gates using RNG(320), effective_skill/100, and a 50% fallback;
+- `0x62C530` resolves goalkeeper Goalkeeping through RNG(256), followed by the same 10-current-score suppression gate used elsewhere;
+- normal-time type-1 creator `0x62ECF0` suppresses plain MISS records 90% of the time and retains the +3 presentation-variant miss; at minute >=130 misses are retained without +3 variation.
