@@ -474,3 +474,13 @@ Confirmed:
 - the Shooting miss gate uses `RNG(256)` against `floor(effective_shooting/100)` on one branch selected by `RNG(3)`;
 - the goalkeeper save gate uses `RNG(800)` against `floor(effective_goalkeeping/100)`;
 - the goal branch includes `RNG(10) < 10-current_score` before incrementing the score.
+
+
+## Match position compatibility and exact penalty resolver
+
+Confirmed:
+
+- the runtime role codes used by MatchCalculator are the original zero-based position codes;
+- player +0x248 position state contains three compatible roles plus current assigned role;
+- 0x4EA440 provides exact role-compatibility multipliers 1.00/0.90/0.85/0.80/0.75/0.70/0.50/0.10;
+- the normal-match type-4 penalty resolver is now fully reconstructable including Condition, role compatibility, Form, miss/save thresholds, high-score suppression, and the chance creator's 10% presentation-variant roll.
