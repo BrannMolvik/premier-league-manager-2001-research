@@ -476,9 +476,16 @@ Getter `0x516090` -> state byte `0x877559` is the cash-affordability bypass corr
 
 This conclusion is now restored on corrected object-layout evidence, not the superseded stream interpretation.
 
+
+## 0x877552 budget-candidate checkpoint
+
+Getter `0x516020` -> byte `0x877552` is called only at the return of seasonal finance routine `0x5DE530`. Both direct callers of `0x5DE530` ignore its return value, so this byte currently has no proven behavioral effect in the discovered call graph.
+
+Do not label it `/budget777` yet. The live transfer-budget guard must be found independently.
+
 ## Active Investigation
 
-Current focus: (1) recover how the literal pointer table populates the command-state bytes, with `/cash777` now confirmed at `0x877559` and `/budget777` still unresolved; (2) trace board-budget event production/live business-consultant state because the mapped `TransferBudget` config globals have no executable reads; (3) connect completed transfer postings to the live transfer-budget bucket.
+Current focus: (1) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` explicitly still unproven as `/budget777`; (2) inspect the completed-transfer posting path and accounting category 1000 for the separate live transfer-budget debit/credit mechanism; (3) trace board-budget event production/live business-consultant state.
 
 Immediate next steps:
 
