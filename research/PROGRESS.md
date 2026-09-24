@@ -1366,6 +1366,29 @@ This is the first original FM2001 chance-resolution routine running as clean-roo
 
 Exact next step: implement the verified five-minute match phase/boundary scaffold, then reverse and add type-1 open-play selection/resolution.
 
+
+
+## Match clock scaffold checkpoint
+
+New reconstruction files:
+
+- `reconstruction/match_clock.py`
+- `reconstruction/test_match_clock.py`
+
+The verified `0x62AE90` timeline is now executable:
+
+- 16 normal-time five-minute simulation calls;
+- HalfTime at 45;
+- optional ExtraTime boundaries at 90 and 105 with simulation at 95/100/110/115;
+- Penalties boundary at 90 or 120 depending whether extra time occurred;
+- final FullTime record at 90, 120, or 130.
+
+The clock module does not invent competition rules; it accepts upstream `extra_time` / `penalties` decisions and only reproduces the original phase schedule.
+
+Local combined MatchCalculator/clock regression: **19/19 tests pass**.
+
+Exact next step: reverse the type-1 open-play selection and shot-resolution path sufficiently to implement the first normal five-minute scoring slice.
+
 ## Active Investigation
 
 Primary focus: reach the first faithful playable MatchCalculator slice and connect it to the already-implemented career/calendar/fixture shell.
