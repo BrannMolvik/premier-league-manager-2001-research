@@ -1559,3 +1559,28 @@ Evidence:
 - the recovered literal command table contains the unique matching switch `/nofmvplease777`.
 
 This mapping does not yet reveal how the parser writes `0x877550`, but it establishes that the independent `0x87755x` bytes are genuine developer-command state rather than stream internals.
+
+
+## Match-result developer flags mapped
+
+The adjacent command-state getters used by match setup at `0x512D80` and match processing at `0x513010` can now be mapped semantically to the matching literal developer switches.
+
+### Confirmed mappings
+
+- `0x516040` -> byte `0x877554` -> **`/alwayswin777`**
+  - in `0x512D80`, when enabled, the routine tests which participating club satisfies the user/control predicate `0x4037B0` and forces that side's result flag to win while clearing the opponent.
+- `0x516050` -> byte `0x877555` -> **`/alwayslose777`**
+  - performs the exact inverse assignment for the user/control predicate.
+- `0x516060` -> byte `0x877556` -> **`/countrywin777`**
+  - resolves the configured/selected country-side club through the global competition/country path and forces a matching side to win.
+- `0x516070` -> byte `0x877557` -> **`/countrylose777`**
+  - performs the inverse country-side result assignment.
+- `0x516080` -> byte `0x877558` -> **`/skipmatchcalc777`**
+  - at `0x5130DC`, when enabled, match processing calls the compact result-selection routine `0x512D80` directly instead of continuing through the normal calculation path;
+  - the same getter has a second consumer at `0x60BE75`, consistent with a global match-calculation bypass.
+
+These mappings align one-for-one with the unique literal switches in the recovered command table and with the behavior of the corresponding consumers.
+
+### Consequence
+
+Together with `0x877550 = /nofmvplease777`, six independent bytes in the `0x877550+` block are now semantically tied to literal developer commands. This further disproves the superseded interpretation of these bytes as stream internals.
