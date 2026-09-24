@@ -449,6 +449,13 @@ Whole-image scanning confirms that `0x821D80..0x821DFF`, including `TransferBudg
 
 Current implication: do not treat these tuning globals as live budget storage. Continue through the board-budget event/state production path to locate the authoritative per-club/user values.
 
+
+## Confirmed command-state mapping: /nofmvplease777
+
+Getter `0x515FF0` -> byte `0x877550` is confirmed as `/nofmvplease777`: startup uses it to skip playback of `easp.tgq`, and the same getter gates related FMV/video paths.
+
+This validates the corrected interpretation that `0x877550+` contains real developer-command state.
+
 ## Active Investigation
 
 Current focus: (1) trace how the recovered literal pointer table at `0x828510..0x828568`, tree container at `0x877540..0x87754F`, and state bytes at `0x877550+` connect; (2) trace board-budget event production/live business-consultant state because the mapped `TransferBudget` config globals have no executable reads. Prove `/cash777` and `/budget777`, then connect completed transfer postings to the live transfer-budget bucket.
