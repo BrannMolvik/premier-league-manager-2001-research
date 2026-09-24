@@ -360,5 +360,19 @@ Confirmed:
 
 - MatchCalculator type 5 is a three-subtype per-player incident/status record family; its exact card/injury labels remain unresolved;
 - routine `0x62E2F0` performs AI substitution decisions and creates type-10 substitution records;
-- routine `0x62E6F0` performs recurring player condition/energy-like decay by decrementing player byte `+0x77` and propagating an update;
+- routine `0x62E6F0` performs recurring player **Condition** decay; player `+0x77` is proven as Condition by its direct comparison with tuning key `ConditionInjuryInducingLevel`;
 - these systems are separate from the goal-family record generation and five-minute team-strength calculation.
+
+
+## Match discipline and injury semantics
+
+Confirmed:
+
+- MatchCalculator type-5 subtype 0 = **Booked / yellow card**;
+- type-5 subtype 1 = **Sent Off / red card**;
+- type-5 subtype 2 = **Injured**;
+- player runtime `+0x77` = **Condition**;
+- player runtime `+0x1B7` = 0..9 **Aggression** instruction/setting;
+- disciplinary probability and escalation are aggression-sensitive;
+- injury generation is condition-sensitive and is separate from the booking/dismissal generator;
+- sent-off players are excluded by downstream lineup/AI state and the calculator limits further dismissal generation through a per-side counter.
