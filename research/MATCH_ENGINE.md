@@ -1889,3 +1889,67 @@ The clean-room Condition loop now preserves this by accepting the full participa
 The injury-incidence routine checks the same generic MatchCalculator byte `+0x1145` that guards discipline processing. Condition decay itself occurs outside that injury guard. Therefore disabling this match-state update byte suppresses injury incidence but does not suppress the underlying Condition decrement.
 
 The semantic name of `+0x1145` is still unresolved and should remain generic until its initialization/source is identified.
+## Pre-match participant construction
+
+**Confirmed from the canonical executable.**
+
+The high-level normal-match path constructs a MatchCalculator, then invokes a virtual pre-match population method before `0x62AC90`. Therefore `0x62AC90` is not the lineup selector: it initializes per-match state from participant arrays that are already populated.
+
+### Participant collector `0x510CD0`
+
+The participant collector receives a team object and destination player-pointer array. The team stores an ordered array of 16-bit player IDs beginning at `team+0x244`, with its roster count at `team+0x294`.
+
+For each roster ID, the collector resolves the corresponding runtime `DBRPlayer` from the global player array. The executable arithmetic independently confirms a **592-byte DBRPlayer stride**.
+
+A player is copied into the MatchCalculator participant array when either:
+
+- `0x417F50(player, team)` reports the player active/on field; or
+- `0x417F60(player, team)` reports the player available as a match substitute.
+
+Players that satisfy neither predicate are omitted. Included players preserve the team's roster-ID iteration order.
+
+`0x510D60` invokes this collector for both sides:
+
+- side 0 participant pointers begin at MatchCalculator `+0x04`, count at `+0x5A4`;
+- side 1 participant pointers begin at `+0x5B4`, count at `+0xB54`.
+
+### Runtime starter/substitute flags
+
+The two collector predicates are now traced to exact `DBRPlayer` flag bits for the player's current club.
+
+After confirming `DBRPlayer+0x10` matches `team+0x04`:
+
+- `DBRPlayer+0x14 bit 4 (0x10)` = **starting/on-field active flag**.
+  - getter path: `0x417EE0 -> 0x417F50`;
+  - setter `0x4182F0` sets bit 4 and clears bit 5.
+- `DBRPlayer+0x14 bit 5 (0x20)` = **match substitute-available flag**.
+  - getter path: `0x417F00 -> 0x417F60`;
+  - setter `0x4182C0` sets bit 5 and clears bit 4.
+
+Removal helper `0x4181B0` clears both match-selection bits and resets the player's position state.
+
+This proves that the clean-room `active` and `substitution_available` concepts correspond to original runtime state rather than reconstruction-only abstractions.
+
+### Ordering relative to AI lineup selection
+
+The population routine `0x510D60` invokes `0x5111A0` before collecting participants. For each non-user-controlled team, that path calls `0x409B50`, which enters the AI lineup routine `0x409C90`.
+
+The original order is therefore:
+
+1. AI/user lineup state is established on runtime DBRPlayers;
+2. starters receive the on-field flag and substitutes receive the substitute-available flag;
+3. `0x510CD0` filters the ordered team roster using those two flags;
+4. `0x62AC90` initializes MatchCalculator per-player state from the resulting participant arrays.
+
+This identifies `0x409C90` as the remaining major bridge between club runtime state and an autonomously prepared reconstructed match.
+
+### `0x62AC90` participant-state initialization
+
+The MatchCalculator layout visible from this path includes:
+
+- side 0 team pointer at `+0x0000`;
+- side 0 participant array at `+0x0004`, count at `+0x05A4`;
+- side 1 team pointer at `+0x05B0`;
+- side 1 participant array at `+0x05B4`, count at `+0x0B54`.
+
+`0x62AC90` copies each participant's runtime Condition byte `DBRPlayer+0x77` into its per-match state and resets score/segment state. Calls to `0x417A40/0x417A50` in this initializer set `DBRPlayer+0x18F`; they are **not** the starter/substitute flags and should not be conflated with `+0x14 bit 4/5`.
