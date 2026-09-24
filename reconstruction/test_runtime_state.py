@@ -38,6 +38,40 @@ class RuntimePlayerTests(unittest.TestCase):
         self.assertIsNotNone(player.development)
         self.assertEqual(player.development.baseline_age, 20)
 
+    def test_database_player_gets_exact_initial_match_state(self):
+        subject = FakePlayer(positions=(12, 18, 0))
+        player = RuntimePlayer.from_database_player(
+            subject,
+            date(2000, 7, 1),
+            Random(1),
+        )
+
+        self.assertEqual(player.condition, 80)
+        self.assertEqual(player.form_state, 2)
+        self.assertEqual(player.current_position, 12)
+        self.assertEqual(player.position_aux_code, 0)
+        self.assertEqual(player.balance_position_code, 10)
+        self.assertEqual(player.skills, (100,) * 17)
+        self.assertEqual(player.preferred_positions, (12, 18, 0))
+
+    def test_match_position_assignment_and_reset_preserve_balance_code(self):
+        subject = FakePlayer(positions=(12, 18, 0))
+        player = RuntimePlayer.from_database_player(
+            subject,
+            date(2000, 7, 1),
+            Random(1),
+        )
+
+        player.assign_match_position(19, 2)
+        self.assertEqual(player.current_position, 19)
+        self.assertEqual(player.position_aux_code, 2)
+        self.assertEqual(player.balance_position_code, 10)
+
+        player.reset_match_position()
+        self.assertEqual(player.current_position, 12)
+        self.assertEqual(player.position_aux_code, 0)
+        self.assertEqual(player.balance_position_code, 10)
+
     def test_match_selection_flags_are_mutually_exclusive(self):
         player = RuntimePlayer.from_database_player(
             FakePlayer(),
