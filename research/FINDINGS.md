@@ -327,3 +327,14 @@ Confirmed additionally:
 - MatchCalculator command classes, semantic FastView event classes, and MatchEngine 3D data loaders are separate architectural layers;
 - the exact disc's match assets use deterministic, parseable formats rather than encryption/obfuscation;
 - this supports a reconstruction strategy in which backend match simulation and semantic event generation are rebuilt before exact original-style 3D choreography.
+
+
+## Match calculator core structure
+
+Confirmed:
+
+- `0x667E20` is a no-op in the analyzed build; normal calculation is initialized by `0x62AC90` and driven through `0x62FBC0 -> 0x62AE90`;
+- the backend simulates normal play in discrete **five-minute segments** with explicit half-time, extra-time and penalty boundaries;
+- the five-minute segment routine computes complementary team-strength aggregates through two routines that iterate participating players and **all 17 current skill slots**;
+- those weighted aggregates feed the game's RNG and lower semantic event-generation routines;
+- therefore the backend is a weighted probabilistic football-event calculator and is not dependent on continuous 3D physics for its outcomes.
