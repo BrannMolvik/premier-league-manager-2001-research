@@ -1849,3 +1849,73 @@ These globals are **not the authoritative live per-club/user budget store**, and
 They should be treated as configuration/tuning outputs or legacy/default values until a dynamic/indirect relationship is independently demonstrated.
 
 The live-budget investigation must therefore proceed through the board/business runtime state and its budget events/checks rather than attempting to follow direct xrefs from `TransferBudget`.
+
+
+## Chairman extra-transfer / budget event classes
+
+RTTI and vtable analysis has now resolved several chairman events that are likely relevant to runtime budget adjustments.
+
+### Exact event classes
+
+- `EAMchairextratransferfail`
+  - type descriptor: `0x82C5A0`
+  - complete-object locator: `0x7EFE20`
+  - vtable: `0x7CDA6C`
+  - ID accessor `0x540C40` returns `0x4F`
+  - name accessor `0x540C50` returns `"chairextratransferfail"`
+
+- `EAMchairextratransfersuccess`
+  - type descriptor: `0x82C3E0`
+  - complete-object locator: `0x7EF998`
+  - vtable: `0x7CDA18`
+  - ID accessor `0x540C60` returns `0x50`
+  - name accessor `0x540C70` returns `"chairextratransfersuccess"`
+
+- `EAMchairextraforallbudgets`
+  - type descriptor: `0x82C280`
+  - complete-object locator: `0x7EF638`
+  - vtable: `0x7CD9C4`
+  - ID accessor `0x540C80` returns `0x51`
+
+- `EAMchairbudgetwarning`
+  - type descriptor: `0x82C410`
+  - complete-object locator: `0x7EF9E8`
+  - vtable: `0x7CDC10`
+
+The already-mapped `EAMchairbudgetsettings` uses vtable `0x7CDAC0`.
+
+### Generic EAM factory
+
+Generic factory `0x538DE0` validates an EAM/event ID and dispatches through the jump table at `0x540200`.
+
+Relevant branches include:
+
+- `0x53A10B`: allocate 0x50 bytes, construct vtable `0x7CDA6C` = extra-transfer failure
+- `0x53A147`: allocate 0x50 bytes, construct vtable `0x7CDA18` = extra-transfer success
+- `0x53A183`: allocate 0x4C bytes, construct vtable `0x7CD9C4` = extra-for-all-budgets
+- `0x53A0CF`: allocate 0x68 bytes, construct vtable `0x7CDAC0` = chairman budget settings
+- `0x539FDC`: allocate 0x44C bytes, construct vtable `0x7CDC10` = chairman budget warning
+
+The jump-table entries for the first three correspond to IDs `0x4F`, `0x50`, and `0x51`, agreeing with the classes' own virtual ID accessors.
+
+### Extra-transfer success message fields
+
+Formatter-like method `0x55D5A0` for `EAMchairextratransfersuccess` consumes:
+
+- object `+0x3C`
+- object `+0x40`
+- object `+0x44`
+
+The +0x44 field is passed through club/team lookup helper `0x41C5B0`. If +0x40 is -1, the formatter chooses a randomized value 1..6 and stores it back. +0x3C is used as another formatted value.
+
+The localized template key is `CHAIREXTRACASHSUCCESS`, despite the class being named `chairextratransfersuccess`. Exact semantic names for these three fields are not yet proven.
+
+### Budget-warning message
+
+`EAMchairbudgetwarning` is a much larger 0x44C-byte event object. Formatter `0x55B650` uses:
+
+- a 0x400-byte payload beginning at +0x3C;
+- +0x43C as a formatted integer/money-like value associated with `OVERSPENTBUDGET`;
+- +0x440 as a club/team identifier passed through `0x41C5B0`.
+
+These event objects are message containers, not yet identified as authoritative live budget storage. Their producer paths are now priority leads because an extra-transfer-budget success/failure decision necessarily consumes live budget/board state.
