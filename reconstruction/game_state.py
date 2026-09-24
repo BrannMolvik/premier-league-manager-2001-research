@@ -6,6 +6,7 @@ from random import Random
 from typing import Callable, Iterable
 
 from competition_state import PremierLeagueState
+from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
 from runtime_state import RuntimePlayer
 
 
@@ -112,3 +113,45 @@ class GameState:
         if self.premier_league is None:
             return ()
         return self.premier_league.table()
+
+    def simulate_premier_league_fixture(
+        self,
+        fixture_id: int,
+        home_side: PreparedMatchSide,
+        away_side: PreparedMatchSide,
+        attack_matrix,
+        defence_matrix,
+        rng,
+    ) -> NormalMatchResult:
+        """Simulate one fixture due today and persist its result into league state.
+
+        The caller supplies the recovered match-day player/tactic state explicitly;
+        this method does not invent a lineup, Condition, Form, or Team Orders.
+        """
+        if self.premier_league is None:
+            raise RuntimeError("Premier League state is not loaded")
+        if fixture_id not in self.premier_league.fixtures:
+            raise KeyError(fixture_id)
+        if fixture_id in self.premier_league.results:
+            raise ValueError(f"fixture {fixture_id} already has a result")
+
+        due_ids = {fixture.id for fixture in self.fixtures_due_today()}
+        if fixture_id not in due_ids:
+            raise ValueError(
+                f"fixture {fixture_id} is not due on {self.calendar.current_date}"
+            )
+
+        result = simulate_normal_match(
+            home_side,
+            away_side,
+            attack_matrix,
+            defence_matrix,
+            rng,
+        )
+        home_goals, away_goals = result.score
+        self.premier_league.record_result(
+            fixture_id,
+            home_goals,
+            away_goals,
+        )
+        return result
