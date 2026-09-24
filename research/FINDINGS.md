@@ -458,9 +458,9 @@ Confirmed:
 
 Confirmed:
 
-- active chance-record `+0x2C` is serialized as exactly one bit;
-- normal FastView `EventGoal` delivery does not consume that field;
-- it is retained as an opaque Boolean chance-context flag rather than assigned an unsupported football meaning;
+- active chance-record `+0x2C` is serialized as exactly one bit and is now resolved as finish mode;
+- `+0x2C = 0` means a headed finish and `+0x2C = 1` means a shooting/kicked finish;
+- type-1/2/3 choose the bit from a weighted effective Heading-vs-Shooting roll, while penalties use shooting mode;
 - `EventPossession` carries a separate territorial metric plus side-0 and neutral/contested possession percentages; side-1 percentage is reconstructed as the remainder to 100.
 
 
