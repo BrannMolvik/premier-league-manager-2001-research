@@ -211,3 +211,24 @@ Conclusion:
 
 Status:
 - definitively superseded by constructor-level evidence.
+
+
+## Superseded correction: treating 0x877540 itself as std::basic_istringstream
+
+Earlier conclusion:
+- global `0x877540` was identified as a `std::basic_istringstream`;
+- therefore bytes `0x877550..` were treated as stream/internal state and the nearby getters were rejected as cheat/option accessors.
+
+Disproof:
+- static constructor `0x515F10 -> 0x5162A0` initializes `0x877540` as a 16-byte non-polymorphic ordered-tree/container header;
+- `0x5162A0` allocates a 0x24-byte self-linked sentinel/tree node and writes no stream vtable to the object;
+- destructor `0x515F50` clears/frees the tree structure;
+- the real basic_istream/basic_istringstream/basic_stringbuf vtables occur in the separate routine family beginning around `0x516370`, operating on a larger object through unrelated offsets.
+
+Conclusion:
+- `0x877540` is not itself the istringstream object claimed by the earlier RTTI interpretation;
+- bytes `0x877550..` must be treated as adjacent independent globals;
+- exact cheat literal mappings still require parser evidence and must not be inferred solely from adjacency.
+
+Status:
+- earlier istringstream-global conclusion superseded.
