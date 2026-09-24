@@ -1427,33 +1427,60 @@ These behaviors are added to `reconstruction/match_calculator.py` with determini
 
 Exact next target: map the type-1 player-selection/setup routines and the branches taken when the aerial or Control/Tackling duel fails, so the complete open-play chance resolver can be assembled without placeholders.
 
+
+
+## Type-1 outer open-play flow checkpoint
+
+The normal-play shell around `0x62C740` is now mapped beyond the reusable helper formulas.
+
+Confirmed sequence:
+
+1. rebuild active positional pools with `0x62DE90`;
+2. `RNG(100)<5` -> direct type-3 corner;
+3. otherwise choose initial carrier primarily from RM/LM/CM, fallback RW/LW/AM;
+4. choose a role-matched defender;
+5. resolve Control-vs-Tackling; defender win aborts;
+6. require a Passing gate via `RNG(320) < floor(effective_passing/100)`;
+7. select finisher with ~50% CF/ST, 25% RW/LW/AM, 25% RM/LM/CM weighting subject to availability;
+8. select a closer role-matched defender;
+9. choose Heading vs Shooting finish mode unless carrier==finisher, which goes directly to Shooting;
+10. resolve the already-implemented duel, accuracy, and goalkeeper primitives.
+
+If the final aerial or Control/Tackling duel is lost:
+
+- `RNG(4)==0` with defender -> `RNG(100)<20` penalty, otherwise free kick;
+- otherwise `RNG(2)==0` -> corner;
+- otherwise no chance event.
+
+Successful open-play goals also contain a `RNG(20)==0` own-goal attribution branch when a close defender exists.
+
+Exact next target: implement these positional pools/selection routines as clean-room helpers, then assemble the complete type-1 resolver and verify all branch/RNG ordering against `0x62C740`.
+
 ## Active Investigation
 
-Primary focus: reach the first faithful playable MatchCalculator slice and connect it to the already-implemented career/calendar/fixture shell.
+Primary focus: complete and implement the exact type-1 ordinary/open-play resolver, then connect verified MatchCalculator output to scheduled fixtures.
 
-Confirmed match foundation:
+Current verified MatchCalculator stack:
 
-- five-minute backend simulation cadence is mapped;
-- active chance taxonomy is 1 open play / 2 free kick / 3 corner / 4 penalty;
-- chance outcome is goal/miss/save at +0x24 mod 3;
-- +0x20 is own-goal side inversion;
-- +0x2C is a preserved one-bit opaque context flag and is nonessential to semantic EventGoal;
-- type-5 booking/sending-off/injury and type-10 substitutions are mapped;
-- player Condition and Aggression fields are mapped;
-- possession and territorial EventPossession payload is mapped;
-- clean-room runtime/calendar, original Premier League dates/fixtures/table, development/training, and typed match-event interfaces already exist.
+- exact role compatibility and effective-skill pipeline;
+- exact penalty type-4 resolver implemented;
+- match clock/phase scaffold implemented;
+- type-1 duel, Passing/accuracy, goalkeeper, finish-mode, and record-creator primitives implemented;
+- type-1 positional pools, carrier/defender/finisher selection flow, 5% direct-corner branch, failed-duel set-piece transitions, and 5% own-goal attribution branch mapped;
+- typed chance/incident/boundary/possession event schema implemented;
+- original Premier League calendar/fixtures/table and mutable player runtime already implemented.
 
 Immediate next steps:
 
-1. Reverse the exact type-4 penalty probability calculation (taker Shooting vs goalkeeper Goalkeeping and all constants/RNG branches) as the smallest fully bounded MatchCalculator slice.
-2. Implement that exact penalty resolver with deterministic tests.
-3. Add the verified five-minute match timeline/boundary scaffold without inventing open-play probabilities.
-4. Continue into open-play type-1 player selection and shot resolution, then free-kick/corner formulas.
-5. Wire completed MatchCalculator slices into scheduled Premier League fixtures only when their result generation is evidence-backed.
-6. Keep the unresolved chairman transfer-budget derivation as the secondary finance investigation; do not lose the existing DBRUser/Balance work.
-7. After a playable league-match loop exists, deepen season AI, scouting/youth, save serialization and FastView/SCI presentation.
+1. Implement the verified positional pool and selection helpers from `0x62DE90/0x62B780/0x62B7D0/0x62B900/0x62BCE0` with deterministic tests.
+2. Assemble the complete type-1 open-play chance resolver preserving exact RNG order and all early-abort/set-piece branches.
+3. Trace/implement type-2 free-kick and type-3 corner formulas, reusing the existing primitives.
+4. Recover the five-minute chance-generation frequency/team-strength path sufficiently to make a complete league-match result evidence-backed.
+5. Wire that simulator into scheduled Premier League fixtures and league-table updates.
+6. Keep chairman transfer-budget derivation as the secondary finance investigation.
+7. After a playable match loop exists, deepen season AI, scouting/youth, saves and FastView/SCI.
 
-Secondary finance target: locate the authoritative chairman transfer-budget value supplying `EAMchairbudgetsettings +0x58`, likely elsewhere in DBRUser state or derived from board/financial history.
+Secondary finance target: authoritative chairman transfer-budget value supplying `EAMchairbudgetsettings +0x58`.
 
 ## Persistence / Checkpoint Rule
 
