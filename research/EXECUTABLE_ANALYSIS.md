@@ -2926,3 +2926,27 @@ The event constructor receives club/manager/context identifiers at +0x40/+0x44/+
 ### Consequence
 
 `EAMChairmanNotEnoughFunds` is another cash-insufficiency notification despite its chairman wording. It is not evidence for a separate transfer-budget hard cap and should not be used as the route to the authoritative live transfer reserve.
+
+
+## CMonthHistory monthly finance snapshots at game/session +0x6DC
+
+RTTI identifies the 0x68-byte objects built by the monthly business/calendar routine around `0x429CB0` as **`CMonthHistory`**.
+
+- `CMonthHistory` vtable: `0x7BE088`
+- RTTI type descriptor: approximately `0x819738`
+- companion/history-container RTTI: `CHistories`, vtable around `0x7BE170`
+- each `CMonthHistory` allocation is exactly **0x68 bytes**
+- completed snapshots are appended to the persistent list/container at game/session **+0x6DC** via `0x617D70`
+
+The monthly producer populates the snapshot through virtual setters with values drawn from:
+
+- current club/business state;
+- the persistent commercial/attendance model at game +0x68C;
+- current Balance cash at +0x10;
+- Balance monthly/ledger aggregate helpers such as `0x5DD2E0`, `0x5DD3C0`, `0x5DD4A0`, and `0x5DD500`;
+- season-ticket/business state at game +0x694;
+- additional current-club values including runtime club fields around +0x144/+0x160.
+
+The class contains a mix of integer and qword/double-valued monthly history fields through offsets +0x10..+0x64. Its virtual setter/getter family is concentrated at `0x428B70..0x428D40`.
+
+This is the first confirmed persistent **monthly financial-history** structure and is a plausible input to quarterly chairman budget recalculation. It is not itself yet proven to store the live transfer-budget allocation.
