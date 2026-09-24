@@ -1034,6 +1034,24 @@ Player +0x1B7 is confirmed as the 0..9 **Aggression** instruction/setting; it dr
 
 Exact next match target: distinguish goal-family types 0..4 and map their payload fields/player attribution.
 
+
+
+## Match own-goal encoding checkpoint
+
+Goal-family own-goal semantics are now resolved independently of record types 0..4.
+
+- calculator record +0x04 = player's actual side;
+- +0x08 = player index;
+- +0x20 = **scoring-side inversion / own-goal flag**;
+- MatchController derives credited side as `+0x20 ? !+0x04 : +0x04`;
+- FastViewPanel callback `0x522690 -> 0x524880` compares credited side with actual player side;
+- equal -> `Sender<EventPlayerGoal>`;
+- different -> `Sender<EventPlayerOwnGoal>`.
+
+Thus own goals are **not a dedicated one of types 0..4**. The remaining scoring-type investigation should identify source/context such as open play or set-piece variants.
+
+Exact next match target: map types 0,1,2,3,4 through their creators/call-site contexts and the +0x24/+0x2C fields.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
