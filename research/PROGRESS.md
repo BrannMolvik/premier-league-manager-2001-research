@@ -1754,3 +1754,29 @@ Confirmed:
 - the MatchCalculator therefore receives an ordered union of starters and designated substitutes from original runtime DBRPlayer state.
 
 Primary remaining match-initialization target is now `0x409C90`: recover the exact AI starter/bench selection phases, formation role assignment and eligibility filters sufficiently to prepare a scheduled AI club without caller-supplied lineup state. Condition/Form/Team Orders runtime sources remain part of the same bridge but no longer obscure how the participant roster itself is constructed.
+## 25 September autonomous AI pre-match selection checkpoint
+
+The clean-room runtime can now execute the proven AI lineup-selection/mutation bridge rather than requiring a caller to hand-build an XI.
+
+Implemented:
+
+- exact low-bit base availability state on RuntimePlayer:
+  - injured;
+  - suspended/banned;
+  - separate unresolved selection-exclusion flag;
+- exact CCupTiedPlayer record semantics and cup-tied lookup as a separate competition layer;
+- all 21 original numeric first-team formation templates;
+- exact two-pass 0x409C90 starter selection core;
+- exact Form-adjusted role scoring and roster-order tie behavior;
+- exact ranked substitute categories plus overflow/no-extra-goalkeeper rule;
+- first-team role/auxiliary writes and starter/substitute flag mutation;
+- exact 0x510CD0-style ordered participant collection;
+- refusal to commit an incomplete XI by default, leaving the original restriction-relaxation/context path explicit rather than fabricating a fallback.
+
+reconstruction/match_preparation.py now composes RuntimePlayer-like state into an AI-selected participant list. The remaining external selection inputs are narrowed to:
+
+1. competition/context registration checks beyond the proven cup-tied predicate;
+2. the bit-11 team restriction/quota retry;
+3. the original formation/substitute-quota source supplied by the team/competition runtime.
+
+The next highest-value bridge is to resolve those team-level pre-match inputs together with tactical/order state, so a scheduled AI club can be prepared without caller-supplied formation/tactic metadata.
