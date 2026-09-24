@@ -1577,3 +1577,148 @@ The original Library disc image was re-materialized and converted from raw MODE1
 The existing data-free coefficient loader successfully reads both real matrices from that executable as exact `4 x 20 x 17` double arrays. Observed values are plausible sparse football weights (attack range 0.0..1.2, defence range 0.0..1.3), providing an additional direct validation that the mapped table geometry and PE loader are correct.
 
 This closes the former main numeric prerequisite for the five-minute attack-frequency scheduler. The next backend step is orchestration: use these strengths to run each normal-time segment through the already-implemented chance resolvers and accumulate a complete score/event timeline.
+
+
+## Exact recurring Condition / injury / discipline formulas recovered
+
+Fresh direct disassembly of the canonical executable resolves much more of the per-sequence tail of `0x62B1A0`.
+
+### Per-sequence call order
+
+After each scheduler-selected attacking sequence, `0x62B1A0` calls, in order:
+
+1. `0x62C740` chance resolution;
+2. `0x62E6F0(attacking_side, event_minute)` Condition/injury update;
+3. `0x62E130(attacking_side, event_minute)` discipline update;
+4. with probability `1/7`, `0x62E2F0` AI substitution logic.
+
+Thus both Condition and discipline run once per generated attacking sequence, not merely once per five-minute segment.
+
+### Condition probability helper `0x62E6C0`
+
+The helper consumes:
+
+- team tactical Aggression byte `+0x1B7`;
+- player Stamina raw byte `+0x20`.
+
+It returns exactly:
+
+```
+floor((256 - Stamina) / 32) + 2 * Aggression
+```
+
+The caller compares `RNG(100)` against this threshold.
+
+Workload is role- and side-asymmetric:
+
+- **attacking side**
+  - runtime roles >=16: full threshold;
+  - roles 8..15: threshold / 2, integer-truncated;
+  - roles <=7: no Condition roll.
+- **defending side**
+  - roles <=7: full threshold;
+  - roles 8..15: threshold / 2, integer-truncated;
+  - roles >=16: no Condition roll.
+
+The attacking side is iterated first, then the defending side. On a successful roll, Condition `+0x77` is decremented by one only when it is greater than 1. The injury routine `0x62EAE0` is then called immediately with the changed player and current event minute.
+
+This means Condition changes inside the scheduler sequence loop can affect later skill checks in the same five-minute segment even though team attack/defence weights were built once at the beginning of that segment.
+
+### Injury incidence `0x62EAE0`
+
+Confirmed incidence score:
+
+```
+environment_component
++ floor(InjuryProneness / 8)
++ max(0, ConditionInjuryInducingLevel - Condition)
+```
+
+where:
+
+- `environment_component = match_environment_byte >> 6`, therefore 0..3;
+- Injury Proneness is player raw skill byte `+0x22`;
+- shipped executable default `ConditionInjuryInducingLevel` at `0x821814` is **75**.
+
+The injury roll is:
+
+```
+RNG(1000) < incidence_score
+```
+
+with the following additional guards:
+
+- goalkeeper role 1 is excluded;
+- an already-injured player is excluded;
+- the incidence score must be non-zero;
+- a global match injury cooldown requires the previous injury minute to be **strictly earlier than current_minute - 10**.
+
+The RNG(1000) draw occurs before the ten-minute cooldown check.
+
+On success, the routine stores the current minute as the last-injury minute, marks the side/player injury state, creates the confirmed type-5 Injury record, and then attempts a replacement/substitution through the existing type-10 path when allowed.
+
+The higher-level semantic name of the source byte copied into match `+0xD47` is **not yet proven**. Only its use as a 0..3 injury environment component is confirmed, so reconstruction should keep it generically named until the source object field `+0x1D7` is identified.
+
+The adjacent shipped tuning global `ConditionInjuryRandomiser` at `0x821818` defaults to **3**, but it is not used in this incidence gate. Its separate use should be traced before assigning semantics.
+
+### Discipline routine `0x62E130`
+
+Discipline is applied to the **defending/opposing side** of the scheduler-selected attack.
+
+Overall incident gate for that defending team's Aggression:
+
+```
+RNG(800) < floor(Aggression * Aggression / 2) + 12
+```
+
+If that succeeds, `RNG(100)` selects a role band for the candidate foul/card player:
+
+- roll <=40: runtime roles 3..7;
+- 41..85: roles 8..12;
+- 86..99: roles 13..19.
+
+The band bounds in `0x62E5D0` are strict (`role > lower && role < upper`). The helper counts eligible active players, selects a 1-based target through `RNG(count)+1`, and contains an additional bias involving position-state byte `+0x05`: while scanning before the target, a player whose `+0x05 & 0x1F == 8` can be selected early when `RNG(10) < 5`. The higher-level meaning of that secondary position-state byte is not yet named.
+
+For an unbooked selected player:
+
+- `RNG(100) >= Aggression` creates a **Booked** event and sets booked byte `+0x48 = 1`;
+- `RNG(100) < Aggression` bypasses the booking and proceeds to the dismissal test, providing the direct-red path.
+
+Dismissal escalation:
+
+```
+RNG(10) < Aggression
+```
+
+followed by:
+
+```
+RNG(5) < 4 - defending_side_red_count
+```
+
+On success the routine creates **Sent Off**, sets `+0x49 = 1`, increments the defending side's dismissal count, and removes/resets the player from active on-field selection. The second gate naturally prevents a fifth sending-off for one side.
+
+### Exact segment statistics normalization
+
+The tail of `0x62B1A0` / `0x62B3F0` is now instruction-mapped and implemented in `reconstruction/match_statistics.py`.
+
+Territory starts at 50. When at least one attacking sequence exists:
+
+```
+territory = floor(side0_attack_sequences * 100 / total_attack_sequences)
+```
+
+If `5 < territory < 95`, add `RNG(10)-5`, then clamp to 0..100.
+
+Raw possession counters are `side0 / neutral / side1`. If their sum is positive:
+
+```
+side0_percent  = floor(side0_raw  * 100 / raw_total)
+neutral_percent = floor(neutral_raw * 100 / raw_total)
+```
+
+otherwise both stored percentages start at 33.
+
+Each stored percentage independently receives `RNG(10)-5` only when strictly between 5 and 95 and is clamped to 0..100. If their sum exceeds 100, side0 is reduced to `100-neutral`. Side1 is the implicit remainder.
+
+This exact normalization is now integrated into all 16 normal-time statistic slots in the clean-room orchestrator.
