@@ -1584,3 +1584,26 @@ These mappings align one-for-one with the unique literal switches in the recover
 ### Consequence
 
 Together with `0x877550 = /nofmvplease777`, six independent bytes in the `0x877550+` block are now semantically tied to literal developer commands. This further disproves the superseded interpretation of these bytes as stream internals.
+
+
+## Cash-bypass developer flag recovered
+
+**Confirmed behavior / effectively unique literal match:** getter `0x516090` -> byte `[0x877559]` is the game's cash-affordability bypass and corresponds to `/cash777`.
+
+Evidence from all four known consumers:
+
+- `0x439072`
+- `0x43CBBA`
+- `0x61B5A0`
+- `0x61BD08`
+
+Each path first computes a prospective monetary amount using the finance/money wrapper routines `0x5E43B0` / `0x5E48D0`, obtains the club finance object through the already mapped `+0x670` path, and compares the required value against the current-money object at finance `+0x10`.
+
+When the current-money comparison indicates insufficient funds, the code calls `0x516090`:
+
+- flag clear -> enters the insufficient-funds/rejection handling path;
+- flag set -> branches past that handling and proceeds as if affordability succeeded.
+
+The recovered command table has the unique literal `/cash777`, matching this behavior exactly.
+
+This restores the earlier cash-cheat conclusion, but on correct evidence: `0x877559` is an independent developer-state byte, not a stream member.
