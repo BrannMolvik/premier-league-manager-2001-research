@@ -2778,3 +2778,54 @@ Important distinction:
 - `EAMchairbudgetwarning` object size = also **0x44C bytes**
 
 The numerical equality is coincidental and must not be used to identify an event allocation.
+
+
+## game/session +0x690 is the concession-offer subsystem
+
+The large persistent object at game/session `+0x690` initially looked like a plausible per-manager/per-club chairman state owner because it is serialized and contains eight repeated records.
+
+### Lifetime and layout
+
+During game/session rebuild around `0x425B52..0x425BB9`:
+
+- exactly **0xB50 bytes** are allocated;
+- constructor `0x425F90` initializes the object;
+- it contains **8 repeated 0x168-byte records** beginning at object +0x08;
+- each record is initialized by `0x5E4E90`;
+- trailing object fields exist at +0xB48 and +0xB4C;
+- the object is stored at game/session **+0x690**.
+
+Each repeated record serializes:
+
+- dword +0x00
+- 0x40-byte text buffer at +0x04
+- 0x100-byte text buffer at +0x44
+- dwords +0x144, +0x148, +0x14C, +0x150
+- qword +0x158
+- dwords +0x160 and +0x164
+
+### Tuning identity
+
+Periodic routine `0x5E5330` uses globals:
+
+- `0x821280`
+- `0x821284`
+
+The tuning-loader writes at `0x4FF02D` and `0x4FF068` resolve those exact globals to:
+
+- **FCConcessionOfferMinWait** -> `0x821280`
+- **FCConcessionOfferMaxWait** -> `0x821284`
+
+Nearby tuning names continue the same concession family, e.g. `FCBadConcessionHighCrowd`.
+
+### Cash-credit behavior
+
+Routine `0x5E5640`, called from the periodic game path at `0x42A9FD`, iterates the active +0x690 records, obtains a financial value from each record through `0x5E56F0`, converts it to the common Balance value representation, and calls **`0x5DC510`** on the active Balance.
+
+Thus matured/active concession records can directly credit current cash.
+
+### Conclusion
+
+game/session **+0x690 is the food/concession commercial-offer subsystem**, not chairman transfer-budget storage.
+
+The eight-record persistent layout, text buffers, offer timing and cash-credit behavior are fully consistent with concession/commercial offers and inconsistent with a compact chairman budget array.
