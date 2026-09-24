@@ -431,9 +431,20 @@ No direct absolute code xrefs to individual table slots were found, which suppor
 
 The earlier RTTI correction remains valid for the `0x877540` `basic_istringstream` object, but a refinement is now proven: tiny routines `0x515FE0`, `0x516010`, and `0x5160B0` read separate bytes at `0x82856C`, `0x82856E`, and `0x82856F` respectively. Those bytes sit immediately after the command-pointer table and are initialized to 1. They are not part of the stream object, but their meanings are still unresolved.
 
+
+## 0x877540 container correction checkpoint
+
+Constructor-level analysis has overturned the prior RTTI-based interpretation of `0x877540`.
+
+**Confirmed:** `0x515F10 -> 0x5162A0` constructs a 16-byte ordered-tree container at `0x877540..0x87754F`, including an allocated 0x24-byte sentinel/header node and tree bookkeeping. The streambuf/stringbuf RTTI belongs to a separate implementation family beginning around `0x5166A0`.
+
+Therefore the global bytes at `0x877550..`, exposed by getters `0x515FF0..0x5160E0`, are not inside the tree object and are no longer disqualified as command/cheat state. Their exact literal mappings remain to be proven.
+
+This supersedes the repository's earlier statement that `0x877550..` were `basic_istringstream` internal bytes.
+
 ## Active Investigation
 
-Current focus: trace the consumer/initializer of the recovered cheat-command pointer table at `0x828510..0x828568` and prove the literal-to-runtime-state mapping for `/cash777` and `/budget777`. Keep the `0x877540` stream-accessor correction intact while treating the independently proven `0x82856x` option-byte accessors separately.
+Current focus: trace how the recovered literal pointer table at `0x828510..0x828568`, the ordered-tree container at `0x877540..0x87754F`, and independent state bytes beginning at `0x877550` are connected. Prove the exact literal-to-state mappings for `/cash777` and `/budget777`, then use the budget path to locate live transfer-budget storage.
 
 Immediate next steps:
 
