@@ -987,3 +987,149 @@ Conclusion:
 `+0x2C` is retained as an opaque **chance context flag**. Its exact lower-level meaning may matter to detailed statistics/replay/scene selection, but it is not required for the first semantic MatchCalculator implementation.
 
 The clean-room event model should preserve it as a Boolean without assigning an unsupported football label.
+
+
+## Type-4 penalty resolver: exact partial probability pipeline
+
+The timeout-period trace of normal-match penalty resolver `0x62D660` was recovered from local disassembly and is now checkpointed.
+
+### Bounded MatchCalculator RNG
+
+Helper `0x64D5B0(N)` calls the MatchCalculator PRNG at `0x64D5D0`, multiplies its [0,1)-style floating result by `N`, and converts toward zero through `0x668350`.
+
+For positive `N`, callers therefore receive an integer in:
+
+`0 .. N-1`.
+
+The penalty resolver uses bounded draws with `N = 3, 256, 800, 10`.
+
+### Effective player strength pipeline
+
+Both the taker's Shooting check and goalkeeper Goalkeeping check use the same core strength construction.
+
+For a player skill byte `S` and Condition byte `C = player +0x77`:
+
+`condition_factor = floor(C / 3) + 66`
+
+The resolver then computes, with integer truncation after each floating multiplier:
+
+1. `base = condition_factor * S`
+2. multiply by a positional/role compatibility multiplier returned by `0x4EA440`;
+3. truncate through `0x668350`;
+4. multiply by player Form multiplier returned by `0x41B970`;
+5. truncate again through `0x668350`;
+6. if the final value is zero, force it to 1.
+
+A per-match player-state flag can bypass this calculation and force effective strength to 1.
+
+### Player Form is exact
+
+Player runtime `+0x192` is a five-state Form value.
+
+Routine `0x41B970` maps states exactly as:
+
+- state 0 = **Bad Form** = 0.90
+- state 1 = **Out Of Form** = 0.95
+- state 2 = **Normal Form** = 1.00
+- state 3 = **In Form** = 1.05
+- state 4 = **Fantastic Form** = 1.10
+
+The executable contains the corresponding tuning names:
+
+- `BadFormModifier`
+- `OutOfFormModifier`
+- `NormalFormModifier`
+- `InFormModifier`
+- `FantasticFormModifier`
+
+with shipped doubles `0.90 / 0.95 / 1.00 / 1.05 / 1.10`.
+
+### Positional/role compatibility multiplier
+
+The player object referenced at runtime `+0x248` is passed through:
+
+- `0x4EA3C0` to obtain a position/role code;
+- `0x4EA440` to obtain a floating compatibility multiplier.
+
+The helper compares that role code against the object's preferred/compatible position bytes and returns one of several multipliers.
+
+Observed constants include:
+
+- 1.00
+- 0.90
+- 0.85
+- 0.80
+- 0.75
+- 0.70
+- 0.50
+- 0.10
+
+The exact football labels for every compatibility branch are not yet assigned, so reconstruction should currently treat this as a verified numeric **position/role compatibility multiplier** rather than inventing names.
+
+### Penalty miss gate
+
+The taker is selected through the confirmed penalty-taker priority list.
+
+The resolver first draws `RNG(3)`.
+
+- when the draw is nonzero, it skips the explicit miss gate and proceeds to goalkeeper resolution;
+- when the draw is zero, it computes effective Shooting strength as above, then draws `RNG(256)`.
+
+The threshold is integer:
+
+`floor(effective_shooting / 100)`
+
+If:
+
+`roll >= threshold`
+
+the resolver emits a type-4 **MISS** record (base outcome 1).
+
+Otherwise it proceeds to the goalkeeper check.
+
+### Goalkeeper save gate
+
+The opposing goalkeeper is selected and effective **Goalkeeping** strength is calculated with the same Condition × position compatibility × Form pipeline.
+
+The resolver draws `RNG(800)`.
+
+Threshold:
+
+`floor(effective_goalkeeping / 100)`
+
+If:
+
+`roll < threshold`
+
+the resolver emits a type-4 **SAVE** record (base outcome 2).
+
+Otherwise it proceeds to the final scoring gate.
+
+### Final score-limit gate
+
+Before incrementing the score, the resolver draws `RNG(10)` and compares it against:
+
+`10 - current_score_for_attacking_side`
+
+A goal is recorded only when:
+
+`roll < 10 - current_score`.
+
+The successful branch:
+
+- increments the attacking player's scoring/stat counter;
+- increments the attacking side's score at `+0xD4C/+0xD50`;
+- emits a type-4 **GOAL** record (base outcome 0);
+- invokes `0x62B660` afterward.
+
+This behaves as a score-ceiling / high-score suppression gate and prevents this goal path from increasing the side once the score approaches/reaches 10.
+
+### Current reconstruction status
+
+The penalty resolver is now almost implementation-ready.
+
+Remaining item before writing the exact clean-room resolver:
+
+- preserve the numeric behavior of `0x4EA440` and determine the minimum player/position state required to reproduce the same compatibility multiplier.
+
+No approximation is needed for the Form, Condition, Shooting, Goalkeeping, RNG, miss/save or score-limit branches.
