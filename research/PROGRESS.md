@@ -865,6 +865,21 @@ The repeated DBRUser triplets at **+0x5B8, +0x5C4 and +0x5D0** are now identifie
 Therefore this structured DBRUser block is not chairman budget storage.
 
 Exact next target: continue through the monthly/calendar path at `0x42AEB0` and its downstream board/business logic, looking for the producer or derivation supplying `EAMchairbudgetsettings +0x58 = TRANSFERBUDGET`.
+
+
+## Monthly maintenance dispatcher checkpoint
+
+Monthly routine `0x42AEB0` has been ruled out as the chairman rebudget producer. It dispatches three maintenance cash debits:
+
+- category **601**: stadium-size maintenance selected by `SM_10000..SM_100000`;
+- category **602**: major facilities (School/Hotel/Hospital/Club/Training/Parking/Merchandising) with level-based maintenance;
+- category **603**: pitch systems (sprinklers/drainage/pitch cover/heating) with level-based maintenance.
+
+All three debit current Balance cash through `0x5DC650`.
+
+This also identifies DBRUser +0x65C as a facility/building collection and +0x6A8 as pitch/stadium-installation maintenance state rather than chairman budget storage.
+
+Exact next target: continue in the periodic/event path and locate quarterly board-budget calculation or retrieval/population of `EAMchairbudgetsettings +0x58`.
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
