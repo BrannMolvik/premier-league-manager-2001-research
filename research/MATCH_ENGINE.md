@@ -1329,3 +1329,38 @@ The selected side is then passed into 0x62C740, the already-mapped open-play/set
 This means chance frequency is not a free-running per-minute process: each five-minute block has a finite strength-derived number of attacking sequences, each assigned to one side by a weighted draw.
 
 The remaining major prerequisite for a complete segment simulator is the exact numeric content of team-strength routines 0x62F140 and 0x62F3E0.
+
+
+## Five-minute team-strength builders: structural mapping checkpoint
+
+The two paired routines feeding the five-minute attack scheduler are now structurally separated.
+
+### 0x62F140 — attacking/build-up strength
+
+This routine iterates the active players for one side and accumulates weighted contributions from all **17 player skills**. The coefficient lookup is indexed by the player's current role/position and current team-tactic state. The resulting floating aggregate is then modified by team-level context before being returned to the segment scheduler.
+
+### 0x62F3E0 — defensive/resistance strength
+
+This companion routine performs the same broad pattern for the opposing/defensive dimension: it iterates active players, applies role/tactic-specific coefficients across all 17 skills, and then applies formation/team-level modifiers before returning the second strength aggregate used by the five-minute segment driver.
+
+### Shared structure now confirmed
+
+Both routines depend on:
+
+- all 17 player attributes;
+- current player role/position;
+- large EA coefficient tables rather than a small hand-written formula;
+- current team tactical settings;
+- formation/shape state;
+- mentality/aggression-style team modifiers;
+- separate human/AI contextual modifiers.
+
+The five-minute scheduler therefore does **not** invent attacks from raw overall ratings. It consumes two higher-level, role-aware team-strength aggregates built from the original player/tactic matrices.
+
+### Important position-code consistency issue under review
+
+A formation-coverage helper used by this path groups several role codes in a way that may conflict with the current clean-room `PositionRole` naming for the advanced midfield/wing codes. In particular, one helper groups code 14 with the right-sided defensive/midfield roles and code 15 with the left-sided equivalents, while code 13 behaves centrally.
+
+This could mean the existing enum labels for roles 13/14/15 need correction even though the numeric codes themselves are right. No reconstruction code should be changed until the original Static.dat position table and executable consumers are reconciled.
+
+This issue is now explicitly checkpointed so future sessions do not silently rely on possibly shifted semantic labels.
