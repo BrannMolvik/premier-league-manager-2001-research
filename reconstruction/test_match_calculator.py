@@ -4,6 +4,7 @@ from match_calculator import (
     FORM_MULTIPLIERS,
     MatchSkillPlayer,
     PositionalPools,
+    OpenPlayResolution,
     PositionRole,
     build_positional_pools,
     choose_finish_mode,
@@ -16,6 +17,7 @@ from match_calculator import (
     first_duel_defender_wins,
     passing_gate_succeeds,
     position_compatibility_multiplier,
+    resolve_open_play_attempt,
     resolve_penalty,
     select_close_defender,
     select_finisher,
@@ -279,6 +281,55 @@ class OpenPlaySelectionTests(unittest.TestCase):
         threshold=effective_match_skill(100,100,12,(12,0,0),2)//100
         self.assertTrue(passing_gate_succeeds(carrier,ScriptedRng([threshold-1])))
         self.assertFalse(passing_gate_succeeds(carrier,ScriptedRng([threshold])))
+class FullOpenPlayResolverTests(unittest.TestCase):
+    def p(self, idx, role, side=0, **kwargs):
+        base=dict(side=side, player_index=idx, condition=100, form_state=2, current_position=role, preferred_positions=(role,0,0), shooting=100, passing=100, tackling=100, heading=100, control=100, goalkeeping=0, set_piece=100)
+        base.update(kwargs)
+        return MatchSkillPlayer(**base)
+
+    def basic_teams(self):
+        attack=[self.p(1,PositionRole.CENTRE_MIDFIELD)]
+        defend=[self.p(0,PositionRole.GOALKEEPER,1,goalkeeping=100), self.p(2,PositionRole.CENTRE_BACK,1,tackling=100,heading=100)]
+        return attack,defend
+
+    def test_direct_five_percent_corner_precedes_possession_accounting(self):
+        attack,defend=self.basic_teams()
+        result=resolve_open_play_attempt(attack,defend,5,0,ScriptedRng([0]))
+        self.assertEqual(result.transition,ChanceSource.CORNER)
+        self.assertEqual((result.neutral_increment,result.attacking_possession_increment),(0,0))
+
+    def test_complete_shooting_goal_path(self):
+        attack,defend=self.basic_teams()
+        rng=ScriptedRng([50,0,0,80,0,0,0,0,255,0,1,50])
+        result=resolve_open_play_attempt(attack,defend,25,0,rng)
+        self.assertIsNotNone(result.event)
+        self.assertEqual(result.event.outcome,ChanceOutcome.GOAL)
+        self.assertEqual(result.event.finish_mode,FinishMode.SHOOTING)
+        self.assertFalse(result.event.is_own_goal)
+        self.assertEqual((result.neutral_increment,result.attacking_possession_increment),(1,2))
+
+    def test_goal_can_be_attributed_as_own_goal(self):
+        attack,defend=self.basic_teams()
+        rng=ScriptedRng([50,0,0,80,0,0,0,0,255,0,0,50])
+        result=resolve_open_play_attempt(attack,defend,25,0,rng)
+        self.assertTrue(result.event.is_own_goal)
+        self.assertEqual(result.event.player_side,1)
+        self.assertEqual(result.event.credited_side,0)
+
+    def test_first_defender_win_aborts_before_passing(self):
+        attack=[self.p(1,PositionRole.CENTRE_MIDFIELD)]
+        defend=[self.p(0,PositionRole.GOALKEEPER,1,goalkeeping=100), self.p(2,PositionRole.DEFENSIVE_MIDFIELD,1,tackling=100)]
+        result=resolve_open_play_attempt(attack,defend,25,0,ScriptedRng([50,0,0,0]))
+        self.assertIsNone(result.event)
+        self.assertIsNone(result.transition)
+        self.assertEqual((result.neutral_increment,result.attacking_possession_increment),(1,1))
+
+    def test_lost_final_duel_can_transition_to_penalty(self):
+        attack,defend=self.basic_teams()
+        rng=ScriptedRng([50,0,80,0,0,15000,0,0])
+        result=resolve_open_play_attempt(attack,defend,25,0,rng)
+        self.assertEqual(result.transition,ChanceSource.PENALTY)
+        self.assertEqual((result.neutral_increment,result.attacking_possession_increment),(1,2))
 
 if __name__ == '__main__':
     unittest.main()
