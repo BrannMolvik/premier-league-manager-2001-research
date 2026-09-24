@@ -89,6 +89,84 @@ def ai_substitution_threshold_minute(
     return (9 - substitution_timing_value(players, starting_player_indices)) * 10
 
 
+def _perform_substitution(
+    outgoing: MutableSubstitutionPlayer,
+    incoming: MutableSubstitutionPlayer,
+) -> SubstitutionRecord:
+    """Apply the position/status mutations performed by team helper 0x409AC0."""
+    side = int(outgoing.side)
+    if int(incoming.side) != side:
+        raise ValueError("substitution players must belong to the same side")
+
+    outgoing_role = int(outgoing.current_position)
+    outgoing_aux = int(outgoing.position_aux_code)
+
+    # Incoming inherits assigned role (+0x03 low five bits) and the +0x04
+    # low nibble. The separate +0x05 balance-position code is untouched.
+    incoming.current_position = outgoing_role
+    incoming.position_aux_code = outgoing_aux
+
+    outgoing.active = False
+    outgoing.substitution_available = False
+    incoming.substitution_available = False
+    incoming.active = True
+
+    # 0x4181B0 -> 0x4EA370 resets the outgoing position state.
+    outgoing.current_position = int(outgoing.preferred_positions[0])
+    outgoing.position_aux_code = 0
+
+    return SubstitutionRecord(
+        player_side=side,
+        outgoing_player_index=int(outgoing.player_index),
+        incoming_player_index=int(incoming.player_index),
+    )
+
+
+def apply_injury_substitution(
+    side: int,
+    injured_player_index: int,
+    players: Sequence[MutableSubstitutionPlayer],
+    user_controlled: bool,
+    *,
+    match_mode_code: int | None = None,
+    enabled: bool = True,
+) -> SubstitutionRecord | None:
+    """Immediate replacement path inside injury routine 0x62EAE0.
+
+    AI-controlled teams always enter the replacement path. A user-controlled
+    team does so only when the still-generically-named MatchCalculator +0xD3C
+    mode value is 1 or 3. Replacement ranking is 0x409950 and, unlike the
+    automatic 0x62E2F0 path, there is no additional role>=8 filter.
+    """
+    if not enabled:
+        return None
+
+    side = int(side)
+    if side not in (0, 1):
+        raise ValueError("side must be 0 or 1")
+
+    if bool(user_controlled) and match_mode_code not in (1, 3):
+        return None
+
+    injured = None
+    for player in players:
+        if int(player.player_index) == int(injured_player_index):
+            injured = player
+            break
+    if injured is None:
+        raise KeyError(injured_player_index)
+    if int(injured.side) != side:
+        raise ValueError("injured player side does not match substitution side")
+    if not bool(injured.active):
+        return None
+
+    replacement = best_available_replacement(players, int(injured.current_position))
+    if replacement is None:
+        return None
+
+    return _perform_substitution(injured, replacement)
+
+
 def apply_ai_substitution(
     side: int,
     minute: int,
@@ -171,27 +249,4 @@ def apply_ai_substitution(
     if best_outgoing is None or best_incoming is None:
         return None
 
-    outgoing_role = int(best_outgoing.current_position)
-    outgoing_aux = int(best_outgoing.position_aux_code)
-
-    # 0x409AC0 copies current role (+0x03 low five bits) and the separate
-    # +0x04 low-nibble value into the incoming player. It does not copy the
-    # +0x05 balance-position code.
-    best_incoming.current_position = outgoing_role
-    best_incoming.position_aux_code = outgoing_aux
-
-    best_outgoing.active = False
-    best_outgoing.substitution_available = False
-    best_incoming.substitution_available = False
-    best_incoming.active = True
-
-    # 0x4181B0 -> 0x4EA370 resets the outgoing position state to its first
-    # stored preferred role and clears the +0x04 low nibble.
-    best_outgoing.current_position = int(best_outgoing.preferred_positions[0])
-    best_outgoing.position_aux_code = 0
-
-    return SubstitutionRecord(
-        player_side=side,
-        outgoing_player_index=int(best_outgoing.player_index),
-        incoming_player_index=int(best_incoming.player_index),
-    )
+    return _perform_substitution(best_outgoing, best_incoming)
