@@ -400,3 +400,23 @@ Conclusion:
 
 Status:
 - rejected before being used as producer evidence.
+
+
+## Treat game/session +0x690 as chairman budget storage
+
+Why it looked promising:
+- persistent save-state object;
+- large 0xB50 allocation;
+- eight repeated 0x168-byte records suggested per-manager/per-club state.
+
+Disproof:
+- its periodic timing globals are explicitly loaded from `FCConcessionOfferMinWait` and `FCConcessionOfferMaxWait`;
+- nearby tuning keys are concession-specific;
+- routine `0x5E5640` iterates active records and credits their financial value to current cash through Balance `0x5DC510`;
+- record layout includes large text buffers consistent with commercial/concession offers.
+
+Conclusion:
+- game/session +0x690 is the concession-offer subsystem, not chairman transfer-budget storage.
+
+Status:
+- ruled out.
