@@ -1562,6 +1562,28 @@ Defence uses 200 minus those values; roles 13..19 use 100 for both.
 
 Next: implement the exact formation-coverage helper and coefficient-matrix loader, then the two complete strength builders.
 
+
+
+## Position-role enum consistency check in progress
+
+While tracing the two five-minute team-strength builders (0x62F140 / 0x62F3E0), a formation-coverage helper grouped runtime role codes in a way that may conflict with the current clean-room PositionRole labels for the attacking-midfield trio.
+
+Observed helper grouping currently suggests:
+- one role code groups with RB/RWB/RM;
+- another groups with LB/LWB/LM;
+- a third remains central.
+
+This may mean the current reconstructed RW/LW/AM numeric labels are shifted.
+
+**Status: unconfirmed — do not change reconstruction enums yet.**
+
+Exact next step:
+1. verify the original Static.dat position-table ordering against known real-player records and loader semantics;
+2. if the enum is wrong, correct it in one controlled commit with regression updates before continuing team-strength implementation;
+3. otherwise record why the formation helper uses the apparent cross-role grouping.
+
+This checkpoint exists specifically so the position-role concern survives chat/network timeouts.
+
 ## Active Investigation
 
 Primary focus: complete and implement the exact type-1 ordinary/open-play resolver, then connect verified MatchCalculator output to scheduled fixtures.
