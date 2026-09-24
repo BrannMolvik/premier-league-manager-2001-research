@@ -1685,3 +1685,17 @@ The new orchestrator is a complete **normal-time scoring/chance backbone**, but 
 5. authoritative match-day lineup/assigned-role/Form/Condition/Team Orders initialization from the original runtime paths.
 
 The immediate playable path is now materially shorter: once prepared match-day state is available, a scheduled Premier League fixture can already traverse the recovered normal-time scoring engine and persist its score into the table without any generic score generator.
+
+
+## Team-strength position-field correction checkpoint
+
+A fresh instruction-level audit found and corrected one important implementation assumption in the newly added strength builders.
+
+The 4 x 20 x 17 matrix index and the small 105/108/... balance-factor table do **not** use the same player-position field:
+
+- assigned role `+0x03` / `0x4EA3C0` -> compatibility + coefficient-matrix role;
+- separate position-state `+0x05` / `0x4EA3E0` -> small attack/defence balance factor.
+
+The reconstruction now requires this second value explicitly as `balance_position_code` and does not silently substitute the assigned role. Tests were updated with explicit values and include a deliberately different assigned-role/balance-code case.
+
+This correction should be treated as part of the current team-strength implementation before using attack-frequency output for fidelity comparisons.
