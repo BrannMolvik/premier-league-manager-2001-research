@@ -1776,3 +1776,43 @@ Therefore these accessors must be reopened as independent global option/cheat-st
 This does **not** by itself prove which literal switch controls which byte. In particular, `0x516090` again becomes a strong `/cash777` candidate because its four known consumers gate insufficient-current-cash branches, while `0x516020` remains only a finance-adjacent candidate until the literal-to-byte parser mapping is recovered.
 
 The parser investigation should now treat the tree at `0x877540`, the adjacent option bytes, and the literal pointer table at `0x828510..0x828568` as potentially related components rather than stream internals.
+
+
+## Cheat-state consumer semantics checkpoint
+
+The reopened adjacent global-byte getters now have enough consumer evidence to recover several behaviors independently of the still-unresolved literal decoder.
+
+### Confirmed behavior
+
+- `0x516000` reads byte `0x877551`. Its consumers at `0x438EB7` and `0x43CF70` force a computed timing/count value down to the literal value 3 when the byte is set. This is a fast-path override and is strongly compatible with the nearby developer switch `/fastbuild777`.
+- `0x516040` / `0x516050` / `0x516060` / `0x516070` read `0x877554..0x877557` and are consumed consecutively inside match setup routine `0x512D80`. They force opposite match-result directions for the user-controlled side and for the country/national side. This is the match-result override family.
+- `0x516080` reads `0x877558`. In match-processing code at `0x60BE50`, the true branch bypasses later match-calculation work. This is the match-calculation skip/bypass behavior.
+- `0x516090` reads `0x877559`. Four known consumers (`0x439072`, `0x43CBBA`, `0x61B5A0`, `0x61BD08`) occur after comparisons against the already-recovered current cash/balance value. When cash is insufficient, this byte allows the operation/transfer to proceed. Thus its **behavior is definitively a current-cash affordability bypass**.
+
+### Probable literal associations
+
+The executable literals and the consumer behavior make these associations strong, but the literal-to-byte decoder itself is still not recovered:
+
+- `0x877551` / `0x516000` -> probably `/fastbuild777`
+- `0x877554` / `0x516040` -> probably `/alwayswin777`
+- `0x877555` / `0x516050` -> probably `/alwayslose777`
+- `0x877556` / `0x516060` -> probably `/countrywin777`
+- `0x877557` / `0x516070` -> probably `/countrylose777`
+- `0x877558` / `0x516080` -> probably `/skipmatchcalc777`
+- `0x877559` / `0x516090` -> very probably `/cash777`
+
+This ordering demonstrates that the runtime option bytes are **not** a simple same-index copy of the literal pointer table. In the literal table, `/cash777` appears before the always-win/lose family; in the runtime-byte behavior, the cash bypass follows that family.
+
+### Budget candidate at 0x877552
+
+`0x516020` reads byte `0x877552`. Its only currently identified caller is the end of finance/business routine `0x5DE530`, which creates/dispatches the named season-ticket event classes `EAMChairSeasonTicketSetsub` and `EAMSeasonTicketSetsub`.
+
+At `0x5DE6C3`, the routine calls `0x516020` immediately before restoring registers and returning. Its two known callers at `0x4A870D` and `0x4C4826` do not visibly branch on the returned AL value afterward.
+
+Therefore:
+
+- the byte's behavior is **not yet sufficient** to call it a budget bypass;
+- `0x877552` remains a strong structural candidate for `/budget777`, especially given the surrounding option-byte ordering;
+- the association must remain probable until the literal decoder or an independent budget consumer proves it.
+
+The next finance trace should therefore proceed from the actual `TransferBudget` configuration globals and transfer-completion code rather than assuming that `0x516020` directly exposes the live transfer budget.
