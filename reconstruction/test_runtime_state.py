@@ -38,6 +38,25 @@ class RuntimePlayerTests(unittest.TestCase):
         self.assertIsNotNone(player.development)
         self.assertEqual(player.development.baseline_age, 20)
 
+    def test_base_match_unavailable_tracks_low_three_exclusion_states(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(),
+            date(2000, 7, 1),
+            Random(1),
+        )
+        self.assertFalse(player.base_match_unavailable)
+
+        player.injured = True
+        self.assertTrue(player.base_match_unavailable)
+        player.injured = False
+
+        player.suspended = True
+        self.assertTrue(player.base_match_unavailable)
+        player.suspended = False
+
+        player.selection_excluded = True
+        self.assertTrue(player.base_match_unavailable)
+
     def test_database_player_gets_exact_initial_match_state(self):
         subject = FakePlayer(positions=(12, 18, 0))
         player = RuntimePlayer.from_database_player(
