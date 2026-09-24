@@ -1337,6 +1337,35 @@ Confirmed:
 
 Exact next step: model `0x4EA440` sufficiently to reproduce its multiplier, then implement the penalty resolver with deterministic RNG tests.
 
+
+
+## Exact penalty-resolver implementation checkpoint
+
+The first fully evidence-backed MatchCalculator chance resolver is now implemented.
+
+New files:
+
+- reconstruction/match_calculator.py
+- reconstruction/test_match_calculator.py
+
+Implemented from the exact executable path:
+
+- zero-based PositionRole codes;
+- full 0x4EA440 position-compatibility table;
+- five shipped Form multipliers;
+- exact Condition × skill × position × Form effective-strength pipeline;
+- type-4 penalty MISS / SAVE / GOAL branches;
+- exact RNG call ordering and bounds;
+- original high-score suppression gate;
+- 10% +3 presentation-variant roll;
+- original type-4 Boolean context flag.
+
+Local regression: **15/15 new MatchCalculator tests pass**.
+
+This is the first original FM2001 chance-resolution routine running as clean-room replacement code rather than only research notes.
+
+Exact next step: implement the verified five-minute match phase/boundary scaffold, then reverse and add type-1 open-play selection/resolution.
+
 ## Active Investigation
 
 Primary focus: reach the first faithful playable MatchCalculator slice and connect it to the already-implemented career/calendar/fixture shell.
