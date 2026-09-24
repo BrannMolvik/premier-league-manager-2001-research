@@ -1001,7 +1001,7 @@ The match branch has been decomposed further:
 - MatchCalculator **type 5** is a per-player incident/status family with three independent subtype flags stored in a 3-byte matrix per player;
 - exact labels of the three flags are still unresolved and are deliberately not yet called cards/injury;
 - `0x62E2F0` is confirmed AI substitution decision logic and emits type-10 records through `0x62EF90`;
-- `0x62E6F0` is a recurring player-condition/energy-like decay routine that decrements player runtime byte +0x77 and propagates the change via `0x62EAE0`.
+- `0x62E6F0` is a recurring **Condition** decay routine; player +0x77 is now proven as Condition through the `ConditionInjuryInducingLevel` tuning key, and `0x62EAE0` is the subsequent injury check.
 
 Exact next match targets:
 
@@ -1009,6 +1009,30 @@ Exact next match targets:
 2. connect `0x62EAE0` to the named energy/form FastView event and give player +0x77 its final semantic name;
 3. prove player +0x1B7 as the user-adjustable aggression instruction and map its role in incident probabilities;
 4. continue distinguishing goal-family record types 0..4.
+
+
+
+## Match discipline/injury semantics checkpoint
+
+Type-5 is now fully resolved at the top semantic level:
+
+- subtype/status byte 0 = **Booked / yellow card**;
+- subtype/status byte 1 = **Sent Off / red card**;
+- subtype/status byte 2 = **Injured**.
+
+Supporting state:
+
+- per-player match byte +0x48 = booked state;
+- per-player match byte +0x49 = sent-off state;
+- MatchController maps the three subtypes through `0x6C28F0/0x6C2910/0x6C2930`;
+- lineup/AI logic excludes players whose sent-off byte is set;
+- the injury subtype is generated from the Condition-driven `0x62EAE0` path and can trigger a type-10 replacement/substitution.
+
+Player runtime +0x77 is confirmed **Condition**. Tuning loader maps `ConditionInjuryInducingLevel` to global 0x821814, which is directly compared against +0x77 in the match injury generator.
+
+Player +0x1B7 is confirmed as the 0..9 **Aggression** instruction/setting; it drives booking/dismissal probabilities and matches the named MatchCalculator `AggressionCommand`.
+
+Exact next match target: distinguish goal-family types 0..4 and map their payload fields/player attribution.
 
 ## Active Investigation
 
