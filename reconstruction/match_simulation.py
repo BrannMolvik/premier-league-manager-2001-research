@@ -186,6 +186,13 @@ def _resolve_set_piece_chain(
 ) -> None:
     attack_players = attacking.chance_players()
     defend_players = defending.chance_players()
+
+    def active_attacker(player_index: int) -> MatchSkillPlayer:
+        for player in attack_players:
+            if player.player_index == player_index:
+                return player
+        raise KeyError(player_index)
+
     current_source: ChanceSource | None = source
 
     while current_source is not None:
@@ -194,7 +201,7 @@ def _resolve_set_piece_chain(
             if goalkeeper is None:
                 raise ValueError("penalty resolution requires a defending goalkeeper")
             event = resolve_penalty(
-                attacking.chance_player(attacking.penalty_taker_index),
+                active_attacker(attacking.penalty_taker_index),
                 goalkeeper,
                 scores[attacking.side],
                 rng,
@@ -204,7 +211,7 @@ def _resolve_set_piece_chain(
 
         if current_source is ChanceSource.FREE_KICK:
             resolution = resolve_free_kick(
-                attacking.chance_player(attacking.free_kick_taker_index),
+                active_attacker(attacking.free_kick_taker_index),
                 attack_players,
                 defend_players,
                 scores[attacking.side],
@@ -212,7 +219,7 @@ def _resolve_set_piece_chain(
             )
         elif current_source is ChanceSource.CORNER:
             resolution = resolve_corner(
-                attacking.chance_player(attacking.corner_taker_index),
+                active_attacker(attacking.corner_taker_index),
                 attack_players,
                 defend_players,
                 scores[attacking.side],
