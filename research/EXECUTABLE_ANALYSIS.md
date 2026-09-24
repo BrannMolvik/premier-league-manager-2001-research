@@ -3168,3 +3168,55 @@ The genuine daily DBRUser/calendar dispatcher around `0x42AA60..0x42AD14` direct
 The daily path tests calendar/date helpers before allocating and enqueueing these events into the global EAM/message system. This confirms that transfer-window warnings/opening are generated from the DBRUser daily calendar update rather than from transfer negotiation UI code.
 
 These emissions occur before DBRUser event-list cleanup and the weekly/monthly maintenance/training/financial-objective branches.
+
+
+## EAMbcmonthlybudget exact runtime layout
+
+RTTI and vtable reconstruction now fixes the monthly Business Consultant budget statement precisely.
+
+### Class identity
+
+- RTTI type: `EAMbcmonthlybudget`
+- TypeDescriptor: `0x82D5E8` (class name at `0x82D5F0`)
+- Complete Object Locator: `0x7F12D0`
+- vtable: **`0x7D01A4`**
+- constructor/reset: **`0x541B20`**
+- event ID accessor: **`0x541B50 -> 0xA1`**
+- name accessor: **`0x541B60 -> "bcmonthlybudget"`**
+- serializer: **`0x5730C0`**
+- formatter: **`0x573190`**
+
+### Serialized fields
+
+Serializer `0x5730C0` persists dwords at:
+
+- +0x3C
+- +0x40
+- +0x44
+- +0x48
+- +0x4C
+- +0x50
+- +0x54
+- +0x58
+
+plus the inherited/event field at +0x38.
+
+### Exact EA-authored formatter labels
+
+Formatter `0x573190` maps the budget values to literal keys:
+
+- `+0x3C` -> **TOTALBUDGET**
+- `+0x40` -> **STAFFBUDGET**
+- `+0x44` -> **PLAYERWAGEBUDGET**
+- `+0x48` -> **MAINTENANCEBUDGET**
+- `+0x4C` -> **MISCBUDGET**
+- `+0x50` -> **BUILDINGSBUDGET**
+- `+0x54` -> **TRANSFERBUDGET**
+
+The monthly statement therefore contains seven budget values. Unlike the season chairman budget-settings mail, it has **no separate merchandising-budget field**.
+
+The remaining `+0x58` serialized dword is context/identity state rather than a formatted budget value; its exact semantic label remains to be confirmed.
+
+### Importance
+
+The English `bcsmonthlybudget` text states that these values show how the budgets stand **after last month's expenditure**. Therefore `EAMbcmonthlybudget +0x54` is currently the strongest observable representation of the live/remaining transfer budget and its producer is the highest-priority route to the authoritative derivation/state.
