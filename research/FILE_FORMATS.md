@@ -212,6 +212,9 @@ The player section is followed by a four-byte manager count (=1,612), then 1,612
 | +6 | uint16 | Core.str surname ID | confirmed |
 | +8 | uint32 | DOB serial date | confirmed |
 | +20 | uint32 | club-join serial date | confirmed |
+| +24 | uint8 | default/primary AI formation ID (runtime manager +0x20) | confirmed |
+| +25 | uint8 | alternate AI formation ID used by selection class 3 (runtime manager +0x21); 0xff can represent no value | confirmed |
+| +26 | uint8 | alternate AI formation ID used by selection class 1 (runtime manager +0x22) | confirmed |
 | +27 | uint32 | club ID; 0xffffffff = no club | confirmed |
 
 Validation examples:
