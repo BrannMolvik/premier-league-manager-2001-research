@@ -565,7 +565,7 @@ This is an exact EA-authored transfer-finance label. The link from accounting ca
 
 The `TRANSFERBUDGETINCREASE` key is now traced to EA's `chairextracashsuccess@ModFmt` formatter at `0x60E3A0`, paired with `chairextracashfail` and `chairextraallbudgets`.
 
-The success formatter reads a budget/category selector at `+0x10` and an increase amount at `+0x14`, and dispatches across seven budget categories. This proves the chairman extra-budget subsystem represents both the selected budget bucket and the amount being added.
+The success formatter reads a message/reason variant selector at `+0x10` and a transfer-budget increase amount at `+0x14`. `ENGLIS2.STR` proves all seven branches are transfer-budget-success wording variants, not seven budget categories.
 
 Exact next target: trace who populates the formatter/event selector and amount, then follow that source into the authoritative live board budget state.
 
@@ -577,12 +577,12 @@ Exact next target: trace who populates the formatter/event selector and amount, 
 Confirmed event fields:
 
 - `+0x3C` = budget increase amount
-- `+0x40` = budget/category selector
+- `+0x40` = transfer-budget success message/reason variant selector
 - `+0x44` = club/team ID
 
 The event copies +0x40 to ModFmt +0x10 and +0x3C to ModFmt +0x14, exactly matching the selector/amount fields used by `TRANSFERBUDGETINCREASE`.
 
-If +0x40 is -1, the formatter chooses a random selector 1..6, while the generic formatter supports 1..7. Selector 7 being the transfer-budget value is a strong hypothesis but remains unproven.
+If +0x40 is -1, the formatter chooses a random message/reason variant 1..6; the formatter also supports a seventh wording branch. The previous selector-7-as-transfer-budget hypothesis is superseded.
 
 Exact resume target: find producers/writers of this event's +0x3C/+0x40/+0x44 fields to recover the selector map and the actual live budget update.
 
@@ -599,7 +599,7 @@ The chairman extra-cash success selector is now structurally mapped end-to-end:
 6 -> 0x60E4CD / global 0x87A85C
 7 -> 0x60E50A / global 0x87A858
 
-All seven branches format the same increase amount with `TRANSFERBUDGETINCREASE`; only the localized success template changes. Semantic bucket names are not yet attached to the numeric selector values, so selector 7 remains probable rather than confirmed as transfer budget.
+All seven branches format the same transfer-budget increase amount with `TRANSFERBUDGETINCREASE`; only the localized success/reason wording changes. These selector values are not budget-category IDs.
 
 The heavily referenced game/session pointer at `+0x5B4` has also been ruled out as a budget-controller object: initialization `0x4258D0..0x4258F2` stores an incoming current club/team pointer directly into that field. Resume from the event producer / club finance state, not game +0x5B4 as a separate store.
 
@@ -638,6 +638,23 @@ The promising `ChairmanPercentBudgetMiss` runtime consumer at `0x5E1D90` has als
 So Balance +0x50 is part of the manager/chairman financial-objective system, **not** the authoritative transfer-budget allocation. Do not follow this target as the seven-bucket budget store.
 
 Resume from chairman budget-setting/extra-budget state and budget-warning producers rather than the financial-objective tolerance path.
+
+
+## Extra-transfer selector correction checkpoint
+
+English localization resolves the seven-way `EAMchairextratransfersuccess` formatter dispatch.
+
+Confirmed corrected semantics:
+
+- +0x3C = transfer-budget increase amount
+- +0x40 = transfer-budget success message/reason variant selector
+- +0x44 = club/team ID
+
+All seven formatter branches describe an increase to the **transfer budget**; they are different wording/circumstance variants. The previous idea that selector 1..7 represented the seven chairman budget buckets, or that selector 7 specifically meant transfer budget, is superseded.
+
+The chairman budget-settings localization also explicitly distinguishes the transfer budget from quarterly spending limits and says the manager is free to buy and sell players. This fits the code-level observation that transfer completion checks current cash while transfer budget is a separate board allocation/reference value.
+
+Exact next target: identify the manager-to-chairman extra-funds request event/action in the English resource and trace its gameplay producer/handler to where the transfer-budget value is read and increased.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
