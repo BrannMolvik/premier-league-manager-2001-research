@@ -43,7 +43,8 @@ Implemented and unit-tested reconstruction mechanics:
 - mutable runtime player state initialized from the parsed database;
 - generic day-by-day game calendar with daily/monthly hooks;
 - first-of-month player development execution;
-- mutable Premier League results/standings state over the original 380-match schedule.
+- mutable Premier League results/standings state over the original 380-match schedule;
+- real scheduled matchdays reconstructed from Static.dat week/weekday round fields.
 
 - monthly 17-skill age/development curve;
 - exact peak-age grouping and shipped peak-range behavior;
