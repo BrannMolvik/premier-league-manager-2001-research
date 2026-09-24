@@ -2829,3 +2829,38 @@ Thus matured/active concession records can directly credit current cash.
 game/session **+0x690 is the food/concession commercial-offer subsystem**, not chairman transfer-budget storage.
 
 The eight-record persistent layout, text buffers, offer timing and cash-credit behavior are fully consistent with concession/commercial offers and inconsistent with a compact chairman budget array.
+
+
+## game/session +0x69C is the sponsor-offer subsystem
+
+The persistent object at game/session `+0x69C` is now identified from its live tuning inputs and periodic logic.
+
+### Persistence
+
+- the object is allocated during game/session construction;
+- it is serialized through routine `0x617BA0`;
+- its runtime update path includes `0x617C80`.
+
+### Exact tuning identity
+
+Routine `0x617C80` consumes globals:
+
+- `0x8212B0`
+- `0x8212B4`
+- `0x8212B8`
+- `0x8212BC`
+
+The tuning loader maps these exact globals to:
+
+- `FSNoSponsorMinWait` -> `0x8212B0`
+- `FSNoSponsorMaxWait` -> `0x8212B4`
+- `FSHaveSponsorMinWait` -> `0x8212B8`
+- `FSHaveSponsorMaxWait` -> `0x8212BC`
+
+The immediately following tuning family continues with `FSOfferMinLifeTime`.
+
+### Conclusion
+
+game/session `+0x69C` owns sponsor-offer / sponsor-state scheduling, not chairman transfer-budget storage.
+
+This removes another persistent finance/business-looking object from the live transfer-budget search.
