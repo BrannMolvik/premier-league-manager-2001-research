@@ -1127,3 +1127,143 @@ At minute >=130, used by penalty-shootout compatibility routing:
 - plain miss outcome 1 is retained.
 
 This behavior explains how the same type-1 record creator can serve sparse normal-play highlights and complete penalty-shootout attempts.
+
+
+## Type-1 outer open-play flow and positional player pools
+
+The outer normal-play flow around `0x62C740` is now structurally mapped.
+
+### Positional pools built by 0x62DE90
+
+Before a side's chance is resolved, `0x62DE90` rebuilds role-grouped active-player pools.
+
+Attacking pools:
+
+- `+0xDF8`, count `+0xF44` — RM / LM / CM (roles 10,11,12);
+- `+0xDCC`, count `+0xF40` — RW / LW / AM (13,14,15);
+- `+0xDA0`, count `+0xF3C` — CF / ST (18,19).
+
+RF/LF (16,17) are not placed into these three attacking-selection pools.
+
+Defending pools:
+
+- `+0xE24` — goalkeeper;
+- `+0xE28`, count `+0xF4C` — RB / RWB;
+- `+0xE54`, count `+0xF48` — LB / LWB;
+- `+0xE80`, count `+0xF50` — CB / SW;
+- `+0xF04`, count `+0xF5C` — ANC / DM / CM;
+- `+0xED8`, count `+0xF58` — RM;
+- `+0xEAC`, count `+0xF54` — LM.
+
+Inactive/unavailable players are filtered before entering these pools.
+
+### Initial ball carrier / passer: 0x62B780
+
+The initial open-play player is selected from:
+
+1. RM/LM/CM pool `+0xDF8` if non-empty;
+2. otherwise RW/LW/AM pool `+0xDCC`;
+3. otherwise no open-play carrier is returned.
+
+Selection within the chosen pool is uniform via bounded RNG.
+
+### Role-matched first defender: 0x62B7D0
+
+The initial defender is selected based on the carrier's current role:
+
+- RM -> defending RM;
+- LM -> defending LM;
+- CM -> central ANC/DM/CM pool;
+- RW -> defending RM, falling back to RB/RWB;
+- LW -> defending LM, falling back to LB/LWB;
+- AM -> central ANC/DM/CM, falling back to CB/SW;
+- CF/ST -> central ANC/DM/CM;
+- RF/LF -> no mapped defender in this helper.
+
+### First duel and pass
+
+`0x62B9D0` resolves the carrier's **Control** against the selected defender's **Tackling** with the shared effective-skill formula and weighted RNG.
+
+The helper returns true when the defender wins the tackle. The type-1 generator aborts that open-play sequence on this result.
+
+If the carrier survives, `0x62BBF0` performs a Passing gate:
+
+- draws `RNG(320)`;
+- computes effective **Passing**;
+- succeeds only when `roll < floor(effective_passing/100)`;
+- unlike the later finishing accuracy helpers, there is no RNG(2) fallback.
+
+Failure aborts the sequence.
+
+### Possession/control accounting
+
+At the start of this resolution step the neutral/contested counter `+0x1004` is incremented.
+
+The attacking side's possession/control bucket `+0x1000` or `+0x1008` is also incremented according to side.
+
+This links the open-play flow directly to the already-mapped three-part EventPossession model.
+
+### Finisher selection: 0x62BCE0
+
+After a successful carrier duel/pass, the actual finisher is selected with one `RNG(100)`:
+
+- roll < 50: choose a random CF/ST if that pool is non-empty;
+- else roll < 75: choose a random RW/LW/AM if available;
+- otherwise choose a random RM/LM/CM.
+
+If the preferred bucket for that random range is empty, the routine falls through to available alternatives.
+
+Thus the intended role weighting is approximately:
+
+- 50% CF/ST;
+- 25% RW/LW/AM;
+- 25% RM/LM/CM,
+
+subject to pool availability.
+
+### Close defender: 0x62B900
+
+A second, closer defender is selected for the finisher:
+
+- RM/RW -> RB/RWB;
+- LM/LW -> LB/LWB;
+- CM/AM/CF/ST -> CB/SW;
+- RF/LF -> no defender.
+
+If the original carrier and finisher are the same player, the generator bypasses the Heading-vs-Shooting selection and enters the shooting-finish branch directly.
+
+Otherwise effective Heading and Shooting are calculated and the already-mapped FinishMode weighted roll chooses the headed or kicked finish.
+
+### Failed final duel can create a set piece
+
+If the final **Heading-vs-Heading** duel or **Control-vs-Tackling** duel is lost, both finish branches enter the same set-piece transition logic.
+
+1. draw `RNG(4)`;
+2. only when that roll is 0 and a close defender exists:
+   - draw `RNG(100)`;
+   - if roll < **20** -> invoke type-4 **penalty** resolver `0x62D660`;
+   - otherwise -> invoke type-2 **free-kick** resolver `0x62CE10`.
+3. otherwise draw `RNG(2)`;
+   - roll 0 -> invoke type-3 **corner** resolver `0x62D950`;
+   - roll 1 -> no chance event from this branch.
+
+This gives an exact transition structure from a lost final duel into the dedicated set-piece resolvers.
+
+### Direct corner branch before open play
+
+Immediately after rebuilding the positional pools, `0x62C740` draws `RNG(100)` and compares it against literal float **5.0**.
+
+- roll < 5 -> bypass ordinary open-play setup and invoke the type-3 corner resolver directly;
+- otherwise -> continue into carrier selection.
+
+Thus this stage has an explicit **5% direct-corner branch** before the ordinary type-1 sequence.
+
+### Rare own-goal attribution on a scored open-play chance
+
+After `0x62C530` has accepted a goal and incremented the attacking score, the Heading and Shooting goal branches draw `RNG(20)`.
+
+When the roll is 0 and a close defender exists, the type-1 goal record is emitted with the already-proven side-inversion flag set. Otherwise a normal scorer record is emitted.
+
+Therefore successful open-play goals with an involved close defender have a **5% record-attribution branch to own goal** at this stage.
+
+The score increment itself remains on the attacking side; the inversion changes player attribution in the semantic event stream.
