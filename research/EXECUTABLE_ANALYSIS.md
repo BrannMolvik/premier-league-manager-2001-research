@@ -1919,3 +1919,35 @@ The localized template key is `CHAIREXTRACASHSUCCESS`, despite the class being n
 - +0x440 as a club/team identifier passed through `0x41C5B0`.
 
 These event objects are message containers, not yet identified as authoritative live budget storage. Their producer paths are now priority leads because an extra-transfer-budget success/failure decision necessarily consumes live budget/board state.
+
+
+## Rejected live-budget candidate: game/session +0x694
+
+The global game/session object returned by `0x4139D0` owns a pointer at `+0x694` that initially looked promising because it is heavily used in the `0x5DAxxx..0x5DExxx` finance/business region.
+
+Its allocation and consumers now identify it with the **season-ticket/business-selection state**, not the authoritative transfer-budget store.
+
+### Construction
+
+During game/session initialization around `0x425BCA`:
+
+- 0x7C bytes are allocated;
+- dwords +0x00, +0x04, +0x08, +0x0C and +0x10 are initialized to zero;
+- the pointer is stored at game/session `+0x694`.
+
+### Season-ticket evidence
+
+Routine `0x5DE530`, already tied by RTTI to `EAMChairSeasonTicketSetsub` / `EAMSeasonTicketSetsub`, immediately reads:
+
+- game/session `+0x694`;
+- state `+0x04` from that object.
+
+The preceding season/business calculations around `0x5DE2xx` populate the same object's `+0x08` and `+0x0C` fields when zero.
+
+Separately, routines `0x618Cxx..0x618EFF` iterate dword entries from object offsets `+0x14` through `+0x78` and use them as selection/category state while evaluating club/player/business data.
+
+### Conclusion
+
+`game/session +0x694` is a compact season-ticket/business-state object. It is not the seven-bucket chairman budget store.
+
+Do not pursue `+0x694` as transfer-budget storage. Continue with expenditure/budget-check paths and chairman budget event producers instead.
