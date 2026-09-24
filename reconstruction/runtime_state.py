@@ -74,6 +74,7 @@ class RuntimePlayer:
     injured: bool = False
     suspended: bool = False
     selection_excluded: bool = False
+    non_eu: bool = False
 
     @classmethod
     def from_database_player(
