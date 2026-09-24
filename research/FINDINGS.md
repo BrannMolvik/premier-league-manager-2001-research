@@ -284,3 +284,23 @@ Confirmed additionally:
 ## Runtime ownership correction
 
 Older notes often call the large object returned/used throughout manager gameplay the "game/session" object. RTTI now identifies it as **DBRUser**. Existing offsets such as +0x670 Balance, +0x690 concessions, +0x698 bank loans, +0x6B0 stadium, etc. remain valid; only the ownership terminology changes.
+
+
+## Runtime user / finance architecture
+
+Confirmed:
+
+- the large runtime object previously described in older notes as the game/session object is RTTI-identified as **DBRUser** (vtable `0x7BDF4C`);
+- DBRUser owns six Balance pointers at `+0x670..+0x684`;
+- current cash is the qword at active Balance `+0x10`;
+- completed transfer purchases debit this cash and sales credit it;
+- accounting category 1000 is used for transfer postings and has a dedicated Finance Overview aggregate path;
+- accounting category 1100 is used by stadium/grounds/facility expenditure paths;
+- manager `FundRequest` / `FundRequestAccept` is a separate repayable cash-funding system and accepted requests credit current cash;
+- the Balance `+0x30..+0x80` block is manager financial-objective/forecast state, not chairman spending budgets;
+- DBRUser `+0x698` is bank-loan state, `+0x690` concession offers, `+0x69C` sponsor offers, and `+0x6B0` stadium/building/ticketing state;
+- persistent monthly finance snapshots are RTTI-identified as `CMonthHistory` and are stored through the DBRUser history container around `+0x6DC`;
+- the five qwords beginning at DBRUser `+0x588,+0x590,+0x598,+0x5A0,+0x5A8` are media-rights state sourced from radio/TV/European tuning values, not the five chairman operating budgets;
+- DBRUser list triplets beginning at `+0x5B8,+0x5C4,+0x5D0` are support-staff containers (RTTI `CSupportStaff`), not budget state;
+- `EAMchairbudgetsettings +0x58` is the displayed transfer-budget value;
+- the authoritative persisted or derived source of that transfer-budget value remains unresolved.
