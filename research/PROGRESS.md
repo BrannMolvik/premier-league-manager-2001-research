@@ -1304,30 +1304,48 @@ Exact next match targets:
 2. implement EventPossession in the clean-room event layer;
 3. continue toward the first verified five-minute MatchCalculator slice.
 
+
+
+## Chance context + possession reconstruction checkpoint
+
+Chance record `+0x2C` is now proven to be a **1-bit Boolean context flag** in the active type-1..4 serializer. MatchController's normal goal path does not read it, so it is not required for semantic EventGoal/scorer/own-goal behavior. Reconstruction preserves it as `context_flag` without inventing a name.
+
+`reconstruction/match_events.py` now also implements the verified `EventPossession` shape:
+
+- territorial/pitch-position metric;
+- side-0 possession percentage;
+- neutral/contested percentage;
+- side-1 percentage reconstructed as the remainder to 100.
+
+Updated event regression status: **13/13 tests pass**.
+
 ## Active Investigation
 
-Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
+Primary focus: reach the first faithful playable MatchCalculator slice and connect it to the already-implemented career/calendar/fixture shell.
 
-Confirmed constraints that define the search:
+Confirmed match foundation:
 
-- transfer purchases are gated by current cash, stored at active Balance +0x10;
-- transfer fees are posted through accounting category 1000;
-- the chairman transfer budget is a separate mutable reserve/reference allocation;
-- automatic extra-transfer success notifications are presentation-only, so their mutation occurs earlier in board/finance logic;
-- quarterly overspending can consume building and transfer reserves;
-- EAMchairbudgetsettings +0x58 is the displayed TRANSFERBUDGET value;
-- DBRClub shortcut blocks, Balance objective records, funding-request state, bank loans, concessions, sponsors, stadium state and the DBRUser media-rights block have all been ruled out as the live transfer-budget store;
-- CMonthHistory at DBRUser +0x6DC is a confirmed persistent monthly financial-history input and remains a possible ingredient in quarterly recalculation.
+- five-minute backend simulation cadence is mapped;
+- active chance taxonomy is 1 open play / 2 free kick / 3 corner / 4 penalty;
+- chance outcome is goal/miss/save at +0x24 mod 3;
+- +0x20 is own-goal side inversion;
+- +0x2C is a preserved one-bit opaque context flag and is nonessential to semantic EventGoal;
+- type-5 booking/sending-off/injury and type-10 substitutions are mapped;
+- player Condition and Aggression fields are mapped;
+- possession and territorial EventPossession payload is mapped;
+- clean-room runtime/calendar, original Premier League dates/fixtures/table, development/training, and typed match-event interfaces already exist.
 
 Immediate next steps:
 
-1. Map remaining unresolved DBRUser finance/board fields and periodic board routines that can populate EAMchairbudgetsettings, especially +0x58.
-2. Determine whether transfer budget is persisted directly or reconstructed from financial history, category-1000 transfer flow, and board reserve rules.
-3. Once the transfer-budget derivation is proven, trace exactly how purchases, sales, quarterly overspending and automatic chairman increases change the displayed allocation.
-4. Map remaining transfer-proposal fields +0x40/+0x44/+0x4C.
-5. Finish exact CDealInProgress state names where named callbacks provide decisive evidence.
-6. Return to the cheat-command decoder as a secondary line of work; /cash777 behavior is confirmed, while 0x877552 / /budget777 remains unresolved.
-7. Then broaden into season AI, scouting/youth, save serialization and the match engine/FastView.
+1. Reverse the exact type-4 penalty probability calculation (taker Shooting vs goalkeeper Goalkeeping and all constants/RNG branches) as the smallest fully bounded MatchCalculator slice.
+2. Implement that exact penalty resolver with deterministic tests.
+3. Add the verified five-minute match timeline/boundary scaffold without inventing open-play probabilities.
+4. Continue into open-play type-1 player selection and shot resolution, then free-kick/corner formulas.
+5. Wire completed MatchCalculator slices into scheduled Premier League fixtures only when their result generation is evidence-backed.
+6. Keep the unresolved chairman transfer-budget derivation as the secondary finance investigation; do not lose the existing DBRUser/Balance work.
+7. After a playable league-match loop exists, deepen season AI, scouting/youth, save serialization and FastView/SCI presentation.
+
+Secondary finance target: locate the authoritative chairman transfer-budget value supplying `EAMchairbudgetsettings +0x58`, likely elsewhere in DBRUser state or derived from board/financial history.
 
 ## Persistence / Checkpoint Rule
 
