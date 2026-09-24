@@ -611,6 +611,22 @@ The current-club runtime record is now tied to RTTI as `DBRClub`, size **0x2A8 b
 The apparent budget-option path was also rechecked: although `0x5DE530` returns the value from `0x516020 -> 0x877552`, both callers (`0x4A870D`, `0x4C4826`) ignore that return. Keep `0x877552` unresolved; do not treat it as proven `/budget777` behavior or as a route to live transfer-budget storage.
 
 Exact next target: inspect DBRClub finance-related fields and finance-controller structures for the seven chairman budget buckets, using the confirmed 0x2A8 record boundary and known current-club pointer.
+
+
+## Finance object +0x670 checkpoint
+
+The main finance object at game/session `+0x670` is now structurally mapped:
+
+- allocation size: **0xE0 bytes**
+- constructor: `0x5DC400`
+- cash/current balance: **qword at object +0x10**
+- `0x5DC510` credits that qword
+- `0x5DC650` checks and debits that qword
+- the remaining object contains multiple accounting/range subrecords and bookkeeping state.
+
+No obvious contiguous seven-dword chairman-budget array is initialized in this object. Treat it as the authoritative cash/accounting object, not automatically as the chairman budget store.
+
+Exact next target remains the board/chairman allocation source and budget-warning/extra-budget producer path; use the finance object only where evidence shows a field/aggregate is consumed.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
