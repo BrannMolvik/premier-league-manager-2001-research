@@ -2180,3 +2180,35 @@ Initialization at `0x4258D0` proves it is not an internally allocated budget obj
 The pointer is used pervasively throughout general club/team code, not only finance. Known uses include reading its small club/manager identity fields such as `+0x04` and `+0x40`, which are passed into event/message constructors and formatters.
 
 Therefore `game/session +0x5B4` is current-club/team context and must not be treated as an owned chairman-budget controller or hidden seven-bucket storage object.
+
+
+## DBRClub runtime size and budget-cheat caller-chain correction
+
+RTTI now ties the current-club table and record types together:
+
+- `DBRClub` RTTI type descriptor: `0x8185B8`
+- `DBRClub` vtable: `0x7BD614`
+- constructor: `0x405A40`
+- destructor: `0x405AD0`
+- runtime record size: **0x2A8 bytes**, proven by `DBTClubs` allocation stride in `0x40BBB0..0x40BC43`
+- `DBTClubs` vtable: `0x7BD718`
+- global table object is stored at `0x874B9C`
+
+This independently confirms that game/session `+0x5B4` points into the current `DBRClub` context.
+
+### 0x516020 / 0x877552 caller-chain correction
+
+Routine `0x5DE530` ends with:
+
+- `0x5DE6C3: call 0x516020`
+
+so the getter's AL/EAX technically becomes the function return value.
+
+Both known callers were checked:
+
+- `0x4A870D`
+- `0x4C4826`
+
+In both cases execution proceeds immediately into unrelated calls/state updates and does **not** branch on or otherwise consume the return value from `0x5DE530`.
+
+Therefore the byte at `0x877552` remains an unresolved option state. Its adjacency to the literal `/budget777` command family is insufficient to call it a working live-budget bypass, and no current caller evidence connects it to transfer-budget enforcement.
