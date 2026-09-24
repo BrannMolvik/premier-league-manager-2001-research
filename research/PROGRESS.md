@@ -805,6 +805,15 @@ Reason 5 is set explicitly inside `0x5E1D90`, the already-proven financial-objec
 So this named “FailedBudget” sacking event belongs to **financial-objective failure**, not the quarterly chairman rebudget path that takes money from building/transfer reserves.
 
 Exact next target remains the quarterly board-budget producer / remaining persistent board-state owner.
+
+
+## ChairmanNotEnoughFunds cash-gate checkpoint
+
+`EAMChairmanNotEnoughFunds` is now tied to a real gameplay producer at `0x4EECA0`.
+
+The producer first tests the requested amount through the already-proven current-cash affordability helper `0x404AE0`; the chairman-not-enough-funds event is created only when that cash check fails. Therefore this event is another **current Balance cash** notification, not the missing chairman transfer-budget reserve check.
+
+Exact next target remains the quarterly rebudget producer / event population path that supplies `EAMchairbudgetsettings +0x58 = TRANSFERBUDGET`.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
