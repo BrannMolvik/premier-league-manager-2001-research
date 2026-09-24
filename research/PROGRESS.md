@@ -751,6 +751,17 @@ The persistent 0x108-byte object at game/session +0x698 is now identified as ban
 Therefore +0x698 is not the live chairman transfer-budget reserve.
 
 Exact next target: continue eliminating/identifying the remaining persistent game-owned finance/business objects, especially +0x690 and any quarterly board-state owner, while tracing the overspending reserve mutation.
+
+
+## Finance category 1100 correction checkpoint
+
+The apparent 0x44C-byte chairman-warning allocations in Balance.cpp were rechecked and are not allocations. At those sites 0x44C is the accounting-category argument **1100** passed to ledger aggregation/posting routines.
+
+Real Stadium Manager/Groundsman expenditure paths at 0x5D21E5/0x5D2440/0x5D2712/0x5D2963 use the same category 1100 before debiting current cash through 0x5DC650, and Finance Overview queries category 1100 through 0x43F1E0.
+
+Thus category 1100 is a real stadium/grounds/facility expenditure ledger category. The equality between decimal category 1100 (0x44C) and the 0x44C-byte EAMchairbudgetwarning object size is coincidental.
+
+No incorrect event-producer conclusion from this lead was committed.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
