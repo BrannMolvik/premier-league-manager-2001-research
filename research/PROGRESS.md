@@ -693,6 +693,24 @@ It then credits the approved amount to the active Balance through **0x5DC510**, 
 This separates the user-requested repayable funding system from the automatic chairman `chairextratransfersuccess` system, whose text explicitly increases transfer budget.
 
 Exact next target: trace the automatic transfer-budget-increase producer/mutation and compare it with the now-resolved cash-loan path.
+
+
+## Transfer-budget reserve-model checkpoint
+
+Vtable comparison now proves `EAMchairextratransfersuccess` does not itself apply the budget mutation. In the same side-effect slot where `EAMFundRequestAccept` has handler `0x472570`, the automatic extra-transfer success/fail/all-budgets events all use generic handler `0x4093E0`. Their class-specific `0x55D920` path is UI/navigation only.
+
+Therefore the automatic transfer-budget increase is applied in its producer/board-finance logic **before** the notification event is emitted.
+
+Original localization also sharpens the finance model:
+
+- the five quarterly operating budgets are fixed spending limits;
+- buildings have an annual limit;
+- the transfer budget is separately stated while the manager is “free to buy and sell players as you wish”;
+- after quarterly overspending, chairman wording explicitly says money can be taken from the **building and transfer budgets** to compensate.
+
+This strongly explains why completed-transfer affordability checks current cash while transfer budget has resisted discovery as a separate hard-cap check: it is a mutable board reserve/reference allocation, not the immediate purchase gate.
+
+Exact next target: trace the quarterly budget-recalculation/overspending producer that takes money from building and transfer reserves. That path must read/write the authoritative live transfer-budget state and may be easier to locate than the automatic increase producer.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
