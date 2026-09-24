@@ -3234,12 +3234,12 @@ At `0x513010`:
 - developer getter `0x516080` (`/skipmatchcalc777`) can redirect processing to compact result routine `0x512D80`;
 - the normal path calls `0x632B20` or wrapper `0x632B50`;
 - `0x632B50` clears byte `match_record +0x1145` and delegates to `0x632B20`;
-- `0x632B20` stores the record pointer at global `0x981C78`, then calls:
-  1. `0x62AC90`
-  2. `0x62FBC0`
-  3. `0x667E20`
+- `0x632B20` stores the record pointer at global `0x981C78`, then calls `0x62AC90`, `0x62FBC0`, and `0x667E20`;
+- fresh disassembly proves `0x667E20` is just **`ret`** in this build, so it is not a third calculation stage;
+- `0x62AC90` initializes/reset match/player state;
+- `0x62FBC0` drives the simulator by repeatedly invoking `0x62AE90`.
 
-This three-stage chain is now the primary backend match-calculation trace.
+The primary backend calculation trace is therefore `0x62AC90 -> 0x62FBC0 -> repeated 0x62AE90`, with `0x667E20` a no-op placeholder.
 
 ### Presentation/data split
 
@@ -3252,3 +3252,22 @@ The executable separately exposes:
 This makes the backend calculator, semantic event stream and 3D scenario/animation presentation independently traceable.
 
 Full asset-format findings are maintained in `research/MATCH_ENGINE.md`.
+
+
+## Match calculator five-minute loop and weighted team aggregates
+
+Further static tracing of `0x62AE90` / `0x62B1A0` establishes the calculator's basic temporal and numerical model.
+
+- normal play is simulated in five-minute chunks at 5..40 and 50..85;
+- a type-6 boundary record is inserted at minute 45;
+- extra time, when required, is processed at 95/100 and 110/115 with type-8 boundary handling around 90/105;
+- penalty routine `0x631730` creates type-9 state at minute 90 or 120 depending extra-time use;
+- final state uses the type-7 record family.
+
+Within each five-minute segment, `0x62B1A0` computes complementary floating team-strength aggregates through `0x62F140` and `0x62F3E0`.
+
+Both aggregate routines iterate participating players and then loop exactly **17 skill slots** per player, reading current raw skills from player runtime +0x1E+slot and applying player/status/tactical/context multipliers plus large role/context weight tables.
+
+The resulting ratios feed RNG `0x64D5B0` and event-generation routines including `0x62C740`, `0x62E130`, `0x62E2F0`, and `0x62E6F0`.
+
+This proves the backend is a discrete weighted probabilistic event simulator. Exact semantic names for the two strength dimensions and downstream event branches remain active work.
