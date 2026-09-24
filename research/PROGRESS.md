@@ -847,6 +847,15 @@ This object owns the six Balance pointers and all the mapped per-manager finance
 This materially narrows the transfer-budget search: the chairman allocation should be treated as **per-user DBRUser-owned or DBRUser-derived state**, not as a global club scalar by default.
 
 Exact next target: inspect DBRUser fields and rule/board logic that populate EAMchairbudgetsettings, especially transfer budget +0x58, and test whether the value is persisted directly or reconstructed from user financial history/ledger state.
+
+
+## Media-rights block correction checkpoint
+
+The five-qword DBRUser block at **+0x588..+0x5A8** has been ruled out as the five chairman operating budgets. Routine `0x4268C0` initializes it from tuning values named `LRADIO_MAX/RES`, `NRADIO_MAX/RES`, `LTV_MAX/RES`, `NTV_MAX/RES`, and `EUROPEAN_MAX/RES`.
+
+So this block is media-rights/reserve state, not chairman budget storage. The apparent five-values/five-budgets match was coincidental.
+
+Exact next target: continue mapping unresolved DBRUser finance/board fields and trace the periodic board-budget producer that supplies `EAMchairbudgetsettings +0x58`.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
