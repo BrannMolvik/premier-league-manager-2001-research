@@ -880,6 +880,19 @@ All three debit current Balance cash through `0x5DC650`.
 This also identifies DBRUser +0x65C as a facility/building collection and +0x6A8 as pitch/stadium-installation maintenance state rather than chairman budget storage.
 
 Exact next target: continue in the periodic/event path and locate quarterly board-budget calculation or retrieval/population of `EAMchairbudgetsettings +0x58`.
+
+
+## Transfer-window calendar checkpoint
+
+The daily DBRUser calendar path directly emits the FA transfer-window event family:
+
+- 0x88 = `EAMFAtransferdeadlinesoon`
+- 0x89 = `EAMFAtransferdeadlinenow`
+- 0x8A = `EAMFAtransfernegstart`
+
+with constructor/populators `0x56D9A0`, `0x56DC10`, and `0x56DE00` respectively.
+
+This branch is transfer-season/calendar logic, not chairman rebudgeting. Resume the finance search from other periodic/board routines rather than these daily transfer-window messages.
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
