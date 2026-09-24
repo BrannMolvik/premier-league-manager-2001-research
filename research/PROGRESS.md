@@ -1073,6 +1073,16 @@ This explains why types 2/3/4 appeared on both scoring and non-scoring branches:
 
 Exact next match target: map source-family types 0..4 and the remaining +0x2C context field.
 
+
+
+## Match source-type 0 checkpoint
+
+Direct creators and MatchRecord serialization now agree that only chance/source types **1, 2, 3, and 4** are actively generated/reconstructed in this release. FastView accepts type 0, but no normal producer has been found and the serializer never rebuilds it.
+
+Treat type 0 as **unused/reserved/legacy-compatible** unless new producer evidence appears.
+
+Exact next match target: assign EA-grounded semantics to active source types 1..4 using report/stat counters, source-branch logic, and original string/tuning evidence.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
