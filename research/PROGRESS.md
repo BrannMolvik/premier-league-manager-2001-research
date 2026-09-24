@@ -552,6 +552,13 @@ Category 1000 is explicitly aggregated and rendered as a dedicated net row in Fi
 Immediate event-ID references for budget warning / extra-transfer events and `bcmonthlybudget` were inspected and are UI/event registration, not producers.
 
 Exact next target: identify the localized Finance Overview label for category 1000 and/or trace `EAMchairbudgetsettings` / chairman extra-transfer handlers back to the authoritative board allocation source.
+
+
+## Monthly-income transfer-fees checkpoint
+
+`EAMbcmonthlyincome` is now identified as event ID `0x9F`. EA's formatter labels its seven dword business-income fields as `GATE, MERCH, CONC, ADVERTS, SPONSOR, TELLY, TRANSFERFEES`, with `TRANSFERFEES` at event `+0x54`.
+
+This is an exact EA-authored transfer-finance label. The link from accounting category 1000 to this event field is plausible but remains unconfirmed until the monthly-income producer is traced.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
