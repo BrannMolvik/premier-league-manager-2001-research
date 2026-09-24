@@ -6,6 +6,7 @@ from match_events import (
     ChanceOutcome,
     ChanceRecord,
     ChanceSource,
+    FinishMode,
     IncidentKind,
     IncidentRecord,
     MatchTimeline,
@@ -79,9 +80,11 @@ class MatchEventTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             ChanceRecord(0, 0, 0, 1)
 
-    def test_context_flag_preserves_verified_one_bit_semantics(self):
-        self.assertFalse(ChanceRecord(1, 0, 0, 1, context_flag=0).context_flag)
-        self.assertTrue(ChanceRecord(1, 0, 0, 1, context_flag=1).context_flag)
+    def test_finish_mode_maps_record_2c_semantics(self):
+        self.assertEqual(ChanceRecord(1, 0, 0, 1, finish_mode=0).finish_mode, FinishMode.HEADED)
+        self.assertEqual(ChanceRecord(1, 0, 0, 1, finish_mode=1).finish_mode, FinishMode.SHOOTING)
+        with self.assertRaises(ValueError):
+            ChanceRecord(1, 0, 0, 1, finish_mode=2)
 
     def test_boundary_record_numeric_mapping(self):
         self.assertEqual(BoundaryRecord(7).kind, BoundaryType.FULL_TIME)
