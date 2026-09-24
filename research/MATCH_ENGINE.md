@@ -1501,3 +1501,43 @@ It returns:
 This is a shape/coverage penalty applied only to defence.
 
 Some branch groupings inside `0x62F6A0` are non-intuitive; they should be reproduced literally rather than “corrected” to football expectations.
+
+
+## Per-player strength contribution formula
+
+The inner contribution loop of both `0x62F140` and `0x62F3E0` is now exact.
+
+For each active player and each of the 17 skills:
+
+1. build the already-recovered effective skill integer:
+   `(floor(Condition/3)+66) * raw_skill`, then position compatibility, then Form, with truncation after each floating multiplier;
+2. if the per-match player-state disable flag is set, use effective strength **1** instead;
+3. multiply by **1/255** (`0x7D7F10 = 0.00392156862745098`);
+4. multiply by the appropriate tactic/role/skill matrix coefficient;
+5. multiply by the role balance factor / 100;
+6. add to the team sum.
+
+Thus one contribution is:
+
+`(effective_skill / 255) * matrix[tactic][role][skill] * (role_factor / 100)`
+
+### Role balance factors
+
+For runtime roles 0..12, attack uses the integer table at **0x840D38**:
+
+`[105,108,110,120,112,115,97,95,102,92,90,117,100]`
+
+For roles 13..19 attack uses 100.
+
+Defence uses:
+
+- `200 - attack_role_factor` for roles 0..12;
+- 100 for roles 13..19.
+
+Therefore defence role factors for 0..12 are:
+
+`[95,92,90,80,88,85,103,105,98,108,110,83,100]`.
+
+The final `/100` is literal constant **0.01** at `0x7BD600`.
+
+This role split is independent of the much larger 4×20×17 coefficient matrices.
