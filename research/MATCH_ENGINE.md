@@ -2477,3 +2477,47 @@ Aggression        +0x1B7 = 5
 Canonical manager raw examples include Ferguson `3,80,2,3` and Wenger `2,90,4,3`. Because source value 4 is masked to zero in the packet, the persisted bytes must remain distinguished from final MatchCalculator tactic indices until the concrete TacticsCommand visitor is fully mapped.
 
 The clean-room reconstruction now exposes these as neutral AI tactical source values and reproduces the exact packet transforms without prematurely assigning downstream semantics.
+## Exact human Team Orders priority storage
+
+**Confirmed from accessors `0x40D620/0x40D650` and MatchCalculator consumers.**
+
+The four human Team Orders categories are stored on the user-team companion/profile returned by `0x403850(team)`. This helper returns null for AI-controlled teams, so these explicit lists are user-team state rather than generic AI tactical state.
+
+For category index `c`:
+
+```text
+count(c)      = byte  [profile + 0x206 + c]
+list_ptr(c)   = dword [profile + 0x660 + 4*c]
+player_id(i)  = uint16[list_ptr(c) + 2*i]
+```
+
+The categories are exactly:
+
+- 0 = captain priority;
+- 1 = penalty-taker priority;
+- 2 = corner-taker priority;
+- 3 = free-kick-taker priority.
+
+### Category 0 — captain
+
+Team helper `0x408560`, already consumed by the human team-strength path, scans category 0 in stored order. Each listed player ID is resolved to the global DBRPlayer array and checked with active/on-field predicate `0x417F50(player, team)`. The first active listed player is returned. If no listed active player exists, the helper returns null; there is no carrier fallback for captaincy.
+
+### Category 1 — penalties
+
+Selector `0x631F10` resolves the relevant team, confirms it has a user companion/profile, then scans category 1 in stored order with the same `0x417F50` active-player test. The first active listed player is returned. If the list is empty or all listed players are inactive, it falls back to `0x62B780`.
+
+The same category is also used by the pre-match participant-ordering path around `0x631A8C..0x631B40`, independently confirming category 1 as the penalty priority list.
+
+### Category 2 — corners
+
+Selector `0x632280` scans category 2 in stored order, requires `0x417F50`, returns the first active listed player, and falls back to `0x62B780` when none is usable.
+
+### Category 3 — free kicks
+
+Selector `0x631FB0` scans category 3 in stored order, requires `0x417F50`, returns the first active listed player, and falls back to `0x62B780` when none is usable.
+
+For AI-controlled teams `0x403850` returns null, so the category-list branch is skipped. Existing reconstructed AI behavior remains separate: penalties use the calculator carrier fallback, while corners/free kicks use the recovered best-effective-Set-Piece selector.
+
+The nearby 10-dword team region beginning at `team+0x178`, manipulated by `0x408530`, is therefore **not** the Team Orders priority storage and should not be labeled as such.
+
+The clean-room `TeamOrderPriorities` model now mirrors these four categories while remaining data-free.
