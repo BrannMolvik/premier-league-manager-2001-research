@@ -46,6 +46,7 @@ class MatchSkillPlayer:
     current_position: int
     preferred_positions: tuple[int, int, int]
     shooting: int = 0
+    passing: int = 0
     tackling: int = 0
     heading: int = 0
     control: int = 0
@@ -60,7 +61,7 @@ class MatchSkillPlayer:
             raise ValueError("player_index must be non-negative")
         if len(self.preferred_positions) != 3:
             raise ValueError("FM2001 position state requires exactly three preferred positions")
-        for name in ("condition", "shooting", "tackling", "heading", "control", "goalkeeping", "set_piece"):
+        for name in ("condition", "shooting", "passing", "tackling", "heading", "control", "goalkeeping", "set_piece"):
             value = int(getattr(self, name))
             if not 0 <= value <= 255:
                 raise ValueError(f"{name} must be in 0..255")
@@ -322,6 +323,82 @@ def encode_open_play_outcome(base_outcome: int, minute: int, rng: BoundedRng) ->
         return None
     return outcome
 
+
+@dataclass(frozen=True)
+class PositionalPools:
+    """Role-grouped active players matching 0x62DE90 selection buckets."""
+    midfield: tuple[MatchSkillPlayer, ...]
+    attacking_mid: tuple[MatchSkillPlayer, ...]
+    forwards: tuple[MatchSkillPlayer, ...]
+    goalkeeper: MatchSkillPlayer | None
+    right_defence: tuple[MatchSkillPlayer, ...]
+    left_defence: tuple[MatchSkillPlayer, ...]
+    centre_defence: tuple[MatchSkillPlayer, ...]
+    holding_mid: tuple[MatchSkillPlayer, ...]
+    right_mid_defence: tuple[MatchSkillPlayer, ...]
+    left_mid_defence: tuple[MatchSkillPlayer, ...]
+
+def build_positional_pools(players: Sequence[MatchSkillPlayer]) -> PositionalPools:
+    """Equivalent of 0x62DE90 role grouping for already-active players."""
+    midfield=[]; attacking_mid=[]; forwards=[]
+    right_defence=[]; left_defence=[]; centre_defence=[]
+    holding_mid=[]; right_mid_defence=[]; left_mid_defence=[]
+    goalkeeper=None
+    for player in players:
+        role=int(player.current_position)
+        if role in (PositionRole.RIGHT_MIDFIELD, PositionRole.LEFT_MIDFIELD, PositionRole.CENTRE_MIDFIELD): midfield.append(player)
+        elif role in (PositionRole.RIGHT_WINGER, PositionRole.LEFT_WINGER, PositionRole.ATTACKING_MIDFIELD): attacking_mid.append(player)
+        elif role in (PositionRole.CENTRE_FORWARD, PositionRole.STRIKER): forwards.append(player)
+        if role == PositionRole.GOALKEEPER: goalkeeper=player
+        elif role in (PositionRole.RIGHT_BACK, PositionRole.RIGHT_WING_BACK): right_defence.append(player)
+        elif role in (PositionRole.LEFT_BACK, PositionRole.LEFT_WING_BACK): left_defence.append(player)
+        elif role in (PositionRole.CENTRE_BACK, PositionRole.SWEEPER): centre_defence.append(player)
+        elif role in (PositionRole.ANCHOR, PositionRole.DEFENSIVE_MIDFIELD, PositionRole.CENTRE_MIDFIELD): holding_mid.append(player)
+        elif role == PositionRole.RIGHT_MIDFIELD: right_mid_defence.append(player)
+        elif role == PositionRole.LEFT_MIDFIELD: left_mid_defence.append(player)
+    return PositionalPools(tuple(midfield),tuple(attacking_mid),tuple(forwards),goalkeeper,tuple(right_defence),tuple(left_defence),tuple(centre_defence),tuple(holding_mid),tuple(right_mid_defence),tuple(left_mid_defence))
+
+def _pick(pool: Sequence[MatchSkillPlayer], rng: BoundedRng) -> MatchSkillPlayer | None:
+    return None if not pool else pool[rng.randbelow(len(pool))]
+
+def select_initial_carrier(pools: PositionalPools, rng: BoundedRng) -> MatchSkillPlayer | None:
+    if pools.midfield: return _pick(pools.midfield, rng)
+    return _pick(pools.attacking_mid, rng)
+
+def select_first_defender(carrier: MatchSkillPlayer, defending: PositionalPools, rng: BoundedRng) -> MatchSkillPlayer | None:
+    role=int(carrier.current_position)
+    if role == PositionRole.RIGHT_MIDFIELD: return _pick(defending.right_mid_defence, rng)
+    if role == PositionRole.LEFT_MIDFIELD: return _pick(defending.left_mid_defence, rng)
+    if role in (PositionRole.CENTRE_MIDFIELD, PositionRole.CENTRE_FORWARD, PositionRole.STRIKER): return _pick(defending.holding_mid, rng)
+    if role == PositionRole.RIGHT_WINGER: return _pick(defending.right_mid_defence, rng) or _pick(defending.right_defence, rng)
+    if role == PositionRole.LEFT_WINGER: return _pick(defending.left_mid_defence, rng) or _pick(defending.left_defence, rng)
+    if role == PositionRole.ATTACKING_MIDFIELD: return _pick(defending.holding_mid, rng) or _pick(defending.centre_defence, rng)
+    return None
+
+def select_close_defender(finisher: MatchSkillPlayer, defending: PositionalPools, rng: BoundedRng) -> MatchSkillPlayer | None:
+    role=int(finisher.current_position)
+    if role in (PositionRole.RIGHT_MIDFIELD, PositionRole.RIGHT_WINGER): return _pick(defending.right_defence, rng) or _pick(defending.centre_defence, rng)
+    if role in (PositionRole.LEFT_MIDFIELD, PositionRole.LEFT_WINGER): return _pick(defending.left_defence, rng) or _pick(defending.centre_defence, rng)
+    if role in (PositionRole.CENTRE_MIDFIELD, PositionRole.ATTACKING_MIDFIELD, PositionRole.CENTRE_FORWARD, PositionRole.STRIKER): return _pick(defending.centre_defence, rng)
+    return None
+
+def select_finisher(pools: PositionalPools, rng: BoundedRng) -> MatchSkillPlayer | None:
+    roll=rng.randbelow(100)
+    if roll < 50 and pools.forwards: return _pick(pools.forwards, rng)
+    if roll < 75 and pools.attacking_mid: return _pick(pools.attacking_mid, rng)
+    if pools.midfield: return _pick(pools.midfield, rng)
+    if pools.forwards: return _pick(pools.forwards, rng)
+    return _pick(pools.attacking_mid, rng)
+
+def first_duel_defender_wins(carrier: MatchSkillPlayer, defender: MatchSkillPlayer | None, rng: BoundedRng) -> bool:
+    if defender is None: return False
+    attack=_effective_player_skill(carrier, carrier.control)
+    defend=_effective_player_skill(defender, defender.tackling)
+    return rng.randbelow(attack + defend) < defend
+
+def passing_gate_succeeds(carrier: MatchSkillPlayer, rng: BoundedRng) -> bool:
+    roll=rng.randbelow(320)
+    return roll < (_effective_player_skill(carrier, carrier.passing) // 100)
 
 def _presentation_outcome(base_outcome: int, rng: BoundedRng) -> int:
     return int(base_outcome) + (3 if rng.randbelow(100) < 10 else 0)
