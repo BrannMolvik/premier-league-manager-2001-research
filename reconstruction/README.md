@@ -9,6 +9,8 @@ The parser reads a user's existing FM2001 files:
 - `English.str`
 - `Static.dat`
 
+Current reconstruction support also includes a tested implementation of the verified player development/training core in `player_development.py`.
+
 Current parser support includes:
 
 - corrected Master.dat club/player/manager boundaries;
@@ -34,6 +36,15 @@ The reconstruction code is intentionally data-free. Research evidence, addresses
 ## Current gameplay status
 
 This is still a data/reconstruction prototype, not a complete playable replacement.
+
+Implemented and unit-tested reconstruction mechanics:
+
+- monthly 17-skill age/development curve;
+- exact peak-age grouping and shipped peak-range behavior;
+- post-age monthly training modifier behavior;
+- exact seven training profile vectors;
+- Youth Team Coach / Assistant Manager / Training Centre quality multiplier;
+- active-training success threshold and strict +8/-8 raw-skill steps.
 
 Not yet implemented as gameplay:
 
