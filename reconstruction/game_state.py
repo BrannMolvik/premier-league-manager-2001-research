@@ -7,7 +7,7 @@ from typing import Callable, Iterable
 
 from competition_state import PremierLeagueState
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
-from runtime_state import RuntimePlayer
+from runtime_state import RuntimePlayer, derive_non_eu_status
 
 
 DateHook = Callable[[date], None]
@@ -56,6 +56,30 @@ class GameState:
             p.index: RuntimePlayer.from_database_player(p, start_date, rng)
             for p in database.players
         }
+
+        # Original startup 0x421CE0 derives DBRPlayer +0x14 bit 11 (Non-EU)
+        # after player and club/country tables are loaded. Keep lightweight fake
+        # databases compatible by applying this only when those exact tables are
+        # available.
+        clubs = tuple(getattr(database, "clubs", ()))
+        countries = tuple(getattr(database, "countries", ()))
+        if clubs and countries:
+            clubs_by_id = {int(club.index): club for club in clubs}
+            countries_by_nationality = {
+                int(country.nationality_id): country
+                for country in countries
+            }
+            for player in players.values():
+                club = clubs_by_id[int(player.club_id)]
+                nationality_country = countries_by_nationality.get(
+                    int(player.nationality_id)
+                )
+                player.non_eu = derive_non_eu_status(
+                    int(club.country_id),
+                    int(player.eu_status_code),
+                    nationality_country,
+                )
+
         fixtures = getattr(database, "real_fixtures", ())
         rounds = getattr(database, "premier_league_rounds", ())
         if season_year is None:
