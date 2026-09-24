@@ -725,3 +725,22 @@ The scoring record model is therefore:
 - `+0x24 mod 3` = outcome (goal / miss / saved);
 - `+0x20` = scoring-side inversion / own-goal flag;
 - `+0x2C` = additional context flag, still being resolved.
+
+
+## MatchCalculator type 0 is unused/reserved in this release
+
+The active goal/chance-family source types in the analyzed FM2001 executable are **1, 2, 3, and 4**.
+
+Evidence:
+
+- exhaustive direct creator/call-site tracing finds normal MatchCalculator production paths for types 1, 2, 3, and 4;
+- no normal calculator producer for type 0 has been found;
+- the MatchRecord serialization/reconstruction code explicitly rebuilds only source types 1..4 from its compact source/type encoding and never reconstructs type 0;
+- FastView still accepts type 0 in the shared 0..4 switch, indicating compatibility/reserved handling rather than active normal generation.
+
+Conclusion:
+
+- type 0 should currently be treated as **unused/reserved/legacy-compatible** in this release;
+- active chance/source-family reverse engineering should focus on types 1, 2, 3, and 4.
+
+Do not assign a football semantic to type 0 unless a producer is later found.
