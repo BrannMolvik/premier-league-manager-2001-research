@@ -2983,3 +2983,40 @@ The same object is then queried via routines such as `0x65D920` and is used toge
 Game/session `+0x6B0` is the **stadium model/state subsystem**. Its large arrays and `CEntriesList` describe stadium/entry/building/ticketing data rather than chairman budget storage.
 
 Its contribution to `CMonthHistory` is therefore stadium/attendance/ticketing input, not evidence that monthly history owns the transfer-budget reserve.
+
+
+## Runtime "game/session" object is DBRUser
+
+RTTI resolves the large runtime object whose fields we have been referring to as game/session state as **`DBRUser`**.
+
+### RTTI / vtable proof
+
+- TypeDescriptor: `0x8194E0` = `DBRUser`
+- Complete Object Locator: `0x7DFC70`
+- vtable: **`0x7BDF4C`**
+- constructor begins around **`0x424CA0`**
+- destructor/reset path around **`0x424FC0`** restores the same vtable
+
+The constructor writes vtable `0x7BDF4C` at `0x424DBA`, then initializes the fields we have already mapped, including:
+
+- six Balance pointers at `DBRUser +0x670..+0x684`;
+- funding-request state at +0x688;
+- commercial/attendance state +0x68C;
+- concession +0x690;
+- season-ticket state +0x694;
+- bank-loan state +0x698;
+- sponsor state +0x69C;
+- additional small business/building state +0x6A0..+0x6AC;
+- stadium state +0x6B0;
+- event/list state +0x6B4;
+- 40×200-byte training state +0x6B8;
+- 256×0x18-byte movement-history style table +0x6BC;
+- persistent history containers including CMonthHistory around +0x6DC.
+
+### Significance for chairman budgets
+
+The finance/business systems are therefore **per runtime user/manager**, not fields of a generic global game object. The unresolved chairman transfer-budget allocation should be searched as DBRUser-owned or DBRUser-derived state.
+
+This also explains why several apparently unrelated per-club systems are adjacent: DBRUser aggregates the active manager's club, finance, training, stadium, histories and message/event state.
+
+Terminology in older notes that says "game/session +offset" should be read as the same DBRUser-relative offset unless independently referring to a different object.
