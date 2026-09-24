@@ -238,6 +238,28 @@ else:
 
 A second 17-byte region in the training subobject is used for temporary timed effects/cooldowns and is not a second monthly-development boost vector.
 
+
+
+## Exact training profile vectors
+
+Routine `0x4EAA00` initializes seven contiguous 17-byte vectors at global `0x876B40`. Direct binary cross-check gives the exact bytes in source-storage order:
+
+- attacking: `[25,0,0,0,0,0,25,0,25,25,0,0,0,0,0,0,0]`
+- defensive: `[0,0,0,25,0,0,0,25,25,0,0,12,0,0,0,0,13]`
+- midfield: `[0,0,25,0,0,25,0,0,0,25,0,0,0,0,0,0,25]`
+- goalkeeper: `[0,0,0,0,0,12,0,0,0,25,0,0,25,25,0,0,13]`
+- rest/recovery: all zero
+- fitness: `[25,25,25,9,0,0,0,0,0,0,0,8,8,0,0,0,0]`
+- technique: `[0,0,0,0,0,0,0,0,25,0,25,0,0,0,12,13,25]`
+
+Method selector `0x4EA9A0` maps runtime IDs:
+
+0 rest/recovery, 1 attacking, 2 midfield, 3 defensive, 4 goalkeeper, 5 fitness, 6 technique.
+
+The non-25 weights (12, 13, 9 and 8) are therefore part of the original probability model and should not be rounded to generic high/low emphases.
+
+Routine `0x41A870` was rechecked directly: active training adds +8 only when `current+8 < 255` **and** `current+8 < target`. Equality with the target does not step.
+
 ## Active training profiles
 
 The exact seven 17-skill profile vectors have been reconstructed. Method IDs are:
