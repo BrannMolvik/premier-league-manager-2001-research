@@ -400,9 +400,18 @@ Before continuing the live transfer-budget search, the current cheat-code eviden
 - exact labels remain provisional until getter globals are tied back to the literal command-line strings.
 
 
+## Cash/budget cheat mapping checkpoint
+
+The finance cheat split is now resolved:
+
+- `0x516090` is the `/cash777` affordability-bypass getter used after current-cash comparisons;
+- `0x516020` is the `/budget777` getter returned by the periodic board/business budget routine.
+
+This gives a new direct route into the live budget logic while preserving the distinction between cash and assigned budgets.
+
 ## Active Investigation
 
-Current focus: resolve `/cash777` vs `/budget777` cheat getters and use the budget-bypass consumer path to locate the authoritative live transfer-budget storage.
+Current focus: use the resolved `/budget777` finance routine around 0x5DE530 to map the live board-budget state and identify the authoritative transfer-budget field.
 
 Immediate next steps:
 
