@@ -618,3 +618,22 @@ Successful substitutions use `0x409AC0`: the incoming player inherits the outgoi
 A successful injury uses the same `0x409950 -> 0x409AC0 -> 0x62EF90` replacement path immediately after the type-5 Injury record. AI-controlled teams permit this automatic injury replacement. User-controlled teams permit it only when the still-generically-named MatchCalculator `+0xD3C` mode code is 1 or 3. If no replacement occurs, the injury routine itself does **not** automatically remove the injured player from the field.
 
 The Condition loop checks active state dynamically for each match participant as it reaches that roster slot. Consequently a bench player activated by an injury substitution can be processed later in the same Condition pass if its participant slot occurs later in iteration order.
+## Match participant construction and runtime selection flags
+
+**Confirmed**
+
+The MatchCalculator participant arrays are populated from each team's ordered runtime roster after lineup selection has already marked player state.
+
+- team roster IDs begin at team object `+0x244`, with count at `+0x294`;
+- collector `0x510CD0` resolves each ID to its 592-byte runtime `DBRPlayer`;
+- a player is included when either the active predicate `0x417F50` or substitute predicate `0x417F60` succeeds;
+- included players retain team-roster iteration order.
+
+For the player's current club, those predicates map to `DBRPlayer+0x14`:
+
+- bit 4 / `0x10` = starting/on-field active;
+- bit 5 / `0x20` = match substitute available.
+
+Setter `0x4182F0` sets active and clears substitute state. Setter `0x4182C0` sets substitute state and clears active. Removal helper `0x4181B0` clears both and resets position state.
+
+The AI lineup routine `0x409C90` runs before participant collection for non-user-controlled teams. Therefore automatic match preparation can be reconstructed as lineup-state assignment followed by the exact ordered participant filter, rather than inventing a separate match-only roster.
