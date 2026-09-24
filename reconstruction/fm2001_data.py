@@ -13,6 +13,8 @@ PLAYER_SKILLS = (
     'Awareness','Agility','Goalkeeping','Confidence','Leadership','Set Piece'
 )
 OLE_EPOCH = date(1899, 12, 30)
+REAL_FIXTURE_TABLE_OFFSET = 0x10057
+REAL_FIXTURE_RECORD_SIZE = 16
 
 class StringTable:
     def __init__(self, path: Path):
@@ -105,6 +107,13 @@ class Position:
     name: str
     abbreviation: str
 
+@dataclass(frozen=True)
+class RealFixture:
+    id: int
+    round_index: int
+    home_club_id: int
+    away_club_id: int
+
 class FM2001Database:
     def __init__(self, game_dir: str | Path):
         self.game_dir = Path(game_dir)
@@ -117,9 +126,11 @@ class FM2001Database:
         self.players = []
         self.managers = []
         self.positions = []
+        self.real_fixtures = []
         self._parse_master()
         if self.static:
             self._parse_positions()
+            self._parse_real_fixtures()
 
     def _parse_master(self):
         d = self.master
@@ -202,8 +213,26 @@ class FM2001Database:
             name_id, abbr_id = struct.unpack_from('<HH', r, 1)
             self.positions.append(Position(pid, self.english.get(name_id), self.english.get(abbr_id)))
 
+    def _parse_real_fixtures(self):
+        off = REAL_FIXTURE_TABLE_OFFSET
+        if off + 4 > len(self.static):
+            return
+        count = struct.unpack_from('<I', self.static, off)[0]
+        base = off + 4
+        end = base + count * REAL_FIXTURE_RECORD_SIZE
+        if end > len(self.static):
+            raise ValueError('Static.dat real-fixture table exceeds file size')
+        for i in range(count):
+            fixture_id, round_index, home, away = struct.unpack_from(
+                '<IIII', self.static, base + i * REAL_FIXTURE_RECORD_SIZE
+            )
+            self.real_fixtures.append(RealFixture(fixture_id, round_index, home, away))
+
     def club_squad(self, club_id: int):
         return [p for p in self.players if p.club_id == club_id]
+
+    def fixtures_for_round(self, round_index: int):
+        return [f for f in self.real_fixtures if f.round_index == round_index]
 
     def summary(self):
         return {
@@ -211,4 +240,5 @@ class FM2001Database:
             'players': len(self.players),
             'managers': len(self.managers),
             'positions': len(self.positions),
+            'real_fixtures': len(self.real_fixtures),
         }
