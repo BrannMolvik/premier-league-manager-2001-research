@@ -23,14 +23,12 @@ For each entry, the decoded byte position is `8 + relative_offset`. Strings deco
 ```text
 +0x00000000  uint32 club_count (=1246)
 +0x00000004  Club[1246]             record size 181
-              ...
-              player section header/count
+              uint32 player_count (=30064)
               Player[30064]         record size 103
+              uint32 manager_count (=1612)
               Manager[1612]         record size 43
-              2-byte trailer
+              EOF
 ```
-
-The exact meaning of every player-section header byte is still being formalized; the known parser uses a six-byte player header at the current boundary.
 
 ### Club record (181 bytes)
 
@@ -42,7 +40,7 @@ The exact meaning of every player-section header byte is still being formalized;
 | +30 | uint16 | English.str stadium-name ID | confirmed |
 | +44 | uint16 | English.str badge-file ID | confirmed |
 | +46 | uint16 | English.str sponsor ID | confirmed |
-| +48 | uint16 | manager-record ID | confirmed |
+| +48 | uint32 | manager-record ID | confirmed |
 
 Unmapped fields remain.
 
@@ -136,7 +134,7 @@ The two 17-byte arrays in the compact player record now have a substantially fir
 Runtime/file relationship:
 
 - compact `+24..+40` -> runtime `+0x1E..+0x2E`: **current skill values**
-- compact `+41..+57` -> runtime `+0x2F..+0x3F`: **corresponding skill ceilings / potential targets**
+- compact `+41..+57` -> runtime `+0x2F..+0x3F`: **corresponding peak/development target values**
 
 Evidence:
 
@@ -144,7 +142,7 @@ Evidence:
 - the age/development routine around `0x41EB03..0x41EDC8` repeatedly reads the second-array byte and writes an interpolated/adjusted value into the matching first-array slot;
 - across all 30,064 compact player records, 99.605% of the 511,088 paired bytes satisfy `array_B >= array_A`.
 
-The few exceptions must still be explained, but the second array is clearly acting as a ceiling/target rather than another independent visible characteristic set.
+The few exceptions must still be explained, but the second array is clearly acting as a development/peak target rather than another independent visible characteristic set.
 
 #### Raw-byte to 0-30 conversion
 
@@ -203,15 +201,22 @@ The complete 17-slot order is now recovered:
 The remaining six names were verified using EA's bundled Editor.exe. Its Player Skills dialog (dialog resource ID 0x73) binds edit controls to an internal contiguous skill-byte region in this exact order. The editor mapping independently agrees with every slot already proven from the game's position-overall formula.
 
 
-### Manager record (43 bytes)
+### Manager section and record (43 bytes)
+
+The player section is followed by a four-byte manager count (=1,612), then 1,612 packed 43-byte manager records. The manager array ends exactly at EOF.
 
 | Offset | Type | Meaning | Confidence |
 |---|---|---|---|
-| +6 | uint16 | Core.str first-name ID | confirmed |
-| +8 | uint16 | Core.str surname ID | confirmed |
-| +10 | uint32 | DOB serial date | confirmed |
-| +22 | uint32 | club-join serial date | confirmed |
-| +29 | uint32 | club ID; 0xffffffff = no club | confirmed |
+| +0 | uint32 | manager record ID | confirmed |
+| +4 | uint16 | Core.str first-name ID | confirmed |
+| +6 | uint16 | Core.str surname ID | confirmed |
+| +8 | uint32 | DOB serial date | confirmed |
+| +20 | uint32 | club-join serial date | confirmed |
+| +27 | uint32 | club ID; 0xffffffff = no club | confirmed |
+
+Validation examples:
+- manager 10 -> Alex Ferguson, DOB 1941-12-31, joined 1986-11-06, club ID 10;
+- manager 204 -> Arsène Wenger, DOB 1958-01-01, joined 1996-09-30, club ID 0 (Arsenal).
 
 ## Static.dat
 
@@ -586,9 +591,8 @@ Related readable `camera.scr` contains camera-mode definitions for live play, se
 
 ## Next format work
 
-1. Map all remaining `Static.dat` table boundaries to RTTI table classes.
-2. Decode league allocation, cup allocation, rounds and fixture structures.
-3. Map player attribute semantics and contract/financial fields.
-4. Map club financial/stadium fields.
-5. Decode save serialization.
-6. Decode `.SCI` and formation/tactical data as needed by the match engine.
+1. Finish semantics of remaining partially decoded Static.dat fields (competition/allocation/manager thresholds).
+2. Map remaining Master.dat club/player/manager fields needed by gameplay.
+3. Decode save serialization.
+4. Decode .SCI and formation/tactical data needed by the match engine.
+5. Keep clean-room parsers synchronized with the verified layouts above.
