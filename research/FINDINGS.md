@@ -533,3 +533,14 @@ Confirmed:
 - each sequence chooses side 0 when RNG(W0+W1) < W0, otherwise side 1;
 - sequence event minute = segment_start + floor(5*i/N) + 1;
 - each selected sequence calls the normal chance shell 0x62C740, followed by condition/injury and discipline updates.
+
+
+## Match team-strength modifiers
+
+Confirmed:
+
+- match bias is reciprocal between attack and defence;
+- human-controlled sides use the active captain's Confidence and Leadership;
+- AI sides receive fixed strength boosts;
+- aggression is a separate user-team multiplier;
+- defence has a separate formation-coverage penalty.
