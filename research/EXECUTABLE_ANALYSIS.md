@@ -2706,3 +2706,51 @@ The six serialized Balance records at +0x30..+0x80 are persistent **financial-ta
 This rules out the remaining unmapped members of this six-record block as the authoritative live transfer-budget reserve.
 
 The Balance object still owns current cash and accounting/ledger data, but the transfer-budget allocation must be found elsewhere or derived before presentation.
+
+
+## game/session +0x698 is the bank-loan subsystem
+
+The persistent 0x108-byte object at game/session +0x698 has now been identified from its constructor inputs and save path.
+
+### Lifetime / persistence
+
+- allocation size: 0x108 bytes
+- constructor: `0x5DED10`
+- stored at game/session `+0x698`
+- load path invokes `0x5DF430`
+- save path invokes `0x5DF360`
+
+The object is therefore persistent save-state, which initially made it a plausible chairman-budget candidate.
+
+### Constructor tuning proves bank-loan identity
+
+Constructor `0x5DED10` initializes finance-value records and allocates several 0xB0 child records from tuning globals.
+
+The tuning-loader xrefs feeding those records resolve to explicit bank-loan keys, including:
+
+- `Bank1LoanMax`
+- `Bank1Term1`
+- `Bank1Term2`
+- `Bank1APR`
+- `Bank2LoanMin`
+- `Bank2LoanMax`
+- `Bank2Term1`
+- `Bank2Term2`
+- `Bank2APR`
+- `Bank3LoanMin`
+- `Bank3LoanMax`
+- `Bank3Term1`
+- and the continuation of the same bank parameter family.
+
+For example:
+- global 0x821178 is loaded from `Bank1LoanMax`;
+- 0x821180 / 0x821184 from `Bank1Term1` / `Bank1Term2`;
+- 0x821188 from `Bank1APR`;
+- 0x8211A0 / 0x8211A4 from `Bank2Term1` / `Bank2Term2`;
+- 0x8211A8 from `Bank2APR`.
+
+### Conclusion
+
+game/session +0x698 owns the **bank-loan configuration/state subsystem**, not the chairman transfer-budget reserve.
+
+Its finance-like structure and save persistence are therefore explained without invoking chairman budget storage.
