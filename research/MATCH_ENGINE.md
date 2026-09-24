@@ -2434,3 +2434,46 @@ Country ID 33 is Germany in the shipped Static.dat. The Germany-specific branch 
 For all other club countries, only players whose stored EU Status code is 1 enter classification; they are marked Non-EU when their nationality cannot be resolved or when the nationality country's packed +16 EU-status flag is zero.
 
 This completes the startup derivation needed to initialize the clean-room `RuntimePlayer.non_eu` flag from original database data rather than defaulting every player to false.
+## AI manager tactical packet sources
+
+**Confirmed from DBRManager loading and pre-match packet builder `0x40D860`.**
+
+For an AI-controlled team, the pre-match tactics packet does not read the live user-team tactical bytes directly. It resolves the club manager and reads runtime DBRManager bytes `+0x30..+0x33`, which map to packed Master.dat manager record bytes `+39..+42`.
+
+The packet transforms them exactly as follows:
+
+```text
+strategy_code      = 0x4035E0(manager+0x30)
+aggression_code    = floor((manager+0x31) / 6) & 0x0F
+with_ball_code     = (manager+0x32) & 0x03
+without_ball_code  = (manager+0x33) & 0x03
+```
+
+`0x4035E0` maps source values:
+
+```text
+0 -> 3
+1 -> 2
+2 -> 1
+other -> 2
+```
+
+For a user-controlled team the same packet fields instead come from live team state:
+
+- Play style `team+0x1B4` through `0x4035E0`;
+- Aggression `team+0x1B7` directly;
+- With Ball style `team+0x1B6` low two bits;
+- Without Ball style `team+0x1B5` low two bits.
+
+The team constructor initializes these live fields to:
+
+```text
+Play style        +0x1B4 = 1
+Without Ball      +0x1B5 = 0
+With Ball         +0x1B6 = 0
+Aggression        +0x1B7 = 5
+```
+
+Canonical manager raw examples include Ferguson `3,80,2,3` and Wenger `2,90,4,3`. Because source value 4 is masked to zero in the packet, the persisted bytes must remain distinguished from final MatchCalculator tactic indices until the concrete TacticsCommand visitor is fully mapped.
+
+The clean-room reconstruction now exposes these as neutral AI tactical source values and reproduces the exact packet transforms without prematurely assigning downstream semantics.
