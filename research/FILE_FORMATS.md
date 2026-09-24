@@ -36,6 +36,7 @@ For each entry, the decoded byte position is `8 + relative_offset`. Strings deco
 |---|---|---|---|
 | +4 | uint16 | English.str club full-name ID | confirmed |
 | +6 | uint16 | English.str short-name ID | confirmed |
+| +12 | uint32 | country ID; loaded directly into runtime club/team +0x14 | confirmed |
 | +16 | uint16 | English.str map-file ID | confirmed |
 | +30 | uint16 | English.str stadium-name ID | confirmed |
 | +44 | uint16 | English.str badge-file ID | confirmed |
@@ -95,7 +96,7 @@ The compact record is expanded into a 592-byte runtime `DBRPlayer` object. The f
 | +87 | 1 | runtime +0x63 | unknown | confirmed read |
 | +88 | 4 | runtime +0x64 | unknown | confirmed read |
 | +92 | 4 | runtime +0x68 | unknown | confirmed read |
-| +96 | 1 | runtime +0x6C | unknown | confirmed read |
+| +96 | 1 | runtime +0x6C | EU-status code used by Non-EU initialization: 1 = Non EU path, 2 = EU/exempt path | strongly verified |
 | +97 | 2 | temporary A | version-dependent/derived choice input | confirmed read |
 | +99 | 2 | temporary B | version-dependent/derived choice input | confirmed read |
 | +101 | 2 | temporary C | version-dependent/derived choice input | confirmed read |
@@ -254,11 +255,22 @@ Confirmed:
 
 - +0 uint32: country ID
 - +4 uint16: English.str country-name ID
+- +6 uint32: nationality/country lookup key used by player nationality resolver `0x410E00`
 - +10 uint16: English.str three-letter abbreviation ID
+- +14 uint16: European/UEFA-country index; zero for non-European countries, nonzero for the 51 shipped European associations
+- +16 uint16: EU-status flag used by normal Non-EU player classification; 1 for the shipped EU/EEA-style eligible group, 0 otherwise
 - +24 uint32: continent ID
 - +41 uint16: third country-related English.str ID (semantic role not yet proven)
 
-Examples correctly resolve Albania/ALB/Europe, Algeria/ALG/Africa, United States/USA/North America, Argentina/ARG/South America and Australia/AUS/Oceania.
+The runtime records are 108-byte `DBRCountry` objects (RTTI confirmed). The binary reader maps packed +14 and +16 directly to runtime `DBRCountry+0x16/+0x18`, which are the two words consumed by player Non-EU initializer `0x421760`.
+
+Examples:
+- England: +14=6, +16=1
+- Germany: +14=2, +16=1
+- Norway: +14=10, +16=1
+- Brazil / Argentina / United States / South Korea: +14=0, +16=0
+
+The +14 nonzero set is the shipped European/UEFA association set; +16 is the narrower football EU-status eligibility set.
 
 ### Nationality table
 
