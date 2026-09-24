@@ -666,6 +666,33 @@ The manager-initiated “request extra funds” feature is now identified as `EA
 This is a stronger live-finance lead than the automatic extra-transfer-success mail because it begins from an explicit manager action and must pass through a decision path that calculates/changes funding.
 
 Exact next target: trace the 0x185 handler into the accept/reject events and identify the approved amount, repayment state, and whether the mutation hits current cash, transfer budget, or both.
+
+
+## FundRequestAccept cash-credit checkpoint
+
+The manager-initiated extra-funds path is now substantially resolved.
+
+`EAMFundRequestAccept` is event ID **0x187**. Its formatter proves:
+
+- +0x3C = approved **AMOUNT**
+- +0x40 = repayment **MONTHS**
+
+The accept path uses tuning globals:
+
+- `FUNDMaxReqPerYear` -> 0x8222B4
+- `FUNDMaxTimeToRepay` -> 0x8222B8
+
+Handler `0x472570` updates a request-state object at runtime +0x688:
+
+- +0x04 = approved amount
+- +0x08 = request count, incremented
+- +0x0C = repayment-term value
+
+It then credits the approved amount to the active Balance through **0x5DC510**, proving that accepted FundRequest money increases **current cash**, not the separate transfer-budget scalar.
+
+This separates the user-requested repayable funding system from the automatic chairman `chairextratransfersuccess` system, whose text explicitly increases transfer budget.
+
+Exact next target: trace the automatic transfer-budget-increase producer/mutation and compare it with the now-resolved cash-loan path.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
