@@ -2950,3 +2950,36 @@ The monthly producer populates the snapshot through virtual setters with values 
 The class contains a mix of integer and qword/double-valued monthly history fields through offsets +0x10..+0x64. Its virtual setter/getter family is concentrated at `0x428B70..0x428D40`.
 
 This is the first confirmed persistent **monthly financial-history** structure and is a plausible input to quarterly chairman budget recalculation. It is not itself yet proven to store the live transfer-budget allocation.
+
+
+## game/session +0x6B0 is the stadium model/state
+
+The large persistent object at game/session `+0x6B0` is now identified from its initialization and error path.
+
+### Lifetime / structure
+
+- allocation size: **0x1BC4 bytes**
+- constructor: `0x65CB20`
+- stored at game/session `+0x6B0`
+- contains an internal polymorphic `CEntriesList` at object `+0x1B98`
+  - vtable `0x7BDF78`
+  - RTTI type descriptor `0x819558` = `CEntriesList`
+- serializes substantial stadium/entry state through the `0x65Dxxx` routine family.
+
+### Definitive stadium identity
+
+During club/game setup at `0x425722..0x42574F`:
+
+1. the current club's stadium/map-related object is obtained;
+2. game/session `+0x6B0` is passed that asset identifier via `0x65D5B0`;
+3. if the load fails, the game formats the literal string:
+
+> `Unable to load stadium : %s ,you may continue, but the building screens, and ticketing will not work!`
+
+The same object is then queried via routines such as `0x65D920` and is used together with season-ticket state during club setup and monthly-history calculations.
+
+### Consequence
+
+Game/session `+0x6B0` is the **stadium model/state subsystem**. Its large arrays and `CEntriesList` describe stadium/entry/building/ticketing data rather than chairman budget storage.
+
+Its contribution to `CMonthHistory` is therefore stadium/attendance/ticketing input, not evidence that monthly history owns the transfer-budget reserve.
