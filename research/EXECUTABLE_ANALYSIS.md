@@ -2144,3 +2144,39 @@ This creates a high-value structural clue: selector value 7 is excluded from the
 ### Immediate next step
 
 Trace writers/producers of `EAMchairextratransfersuccess +0x3C/+0x40/+0x44`. A producer that sets `+0x40` explicitly should reveal the selector semantics and lead to the authoritative board-budget update state.
+
+
+## Chairman extra-budget selector dispatch map
+
+The seven-way `chairextracashsuccess@ModFmt` dispatch at `0x60E3A0` is now mapped exactly.
+
+The routine reads selector `object +0x10`, subtracts 1, bounds-checks against 6, and dispatches through jump table `0x60E5A4`.
+
+Exact selector branches:
+
+- selector 1 -> `0x60E3BA` -> template/global `0x87A870`
+- selector 2 -> `0x60E3EB` -> template/global `0x87A86C`
+- selector 3 -> `0x60E41C` -> template/global `0x87A868`
+- selector 4 -> `0x60E45B` -> template/global `0x87A864`
+- selector 5 -> `0x60E48C` -> template/global `0x87A860`
+- selector 6 -> `0x60E4CD` -> template/global `0x87A85C`
+- selector 7 -> `0x60E50A` -> template/global `0x87A858`
+
+Every branch formats the same amount from `object +0x14` through `TRANSFERBUDGETINCREASE`; only the selected localized chairman-success template changes.
+
+The immediately following `chairextraallbudgets@ModFmt` formatter uses the next template-global block beginning at `0x87A854`.
+
+This proves the selector numbering and branch identity, but **does not yet prove the semantic bucket name for each selector**. In particular, selector 7 remains only a strong transfer-budget candidate until one of these template globals is resolved to its localized text or a producer assigns selector 7 explicitly.
+
+## game/session +0x5B4 is current-club context, not budget storage
+
+A repeatedly encountered pointer at game/session `+0x5B4` appeared in the chairman extra-transfer formatter and many finance routines.
+
+Initialization at `0x4258D0` proves it is not an internally allocated budget object:
+
+- the function receives a pointer argument at `[esp+0x10]`;
+- at `0x4258F2` that argument is stored directly into game/session `+0x5B4`.
+
+The pointer is used pervasively throughout general club/team code, not only finance. Known uses include reading its small club/manager identity fields such as `+0x04` and `+0x40`, which are passed into event/message constructors and formatters.
+
+Therefore `game/session +0x5B4` is current-club/team context and must not be treated as an owned chairman-budget controller or hidden seven-bucket storage object.
