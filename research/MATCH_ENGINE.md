@@ -1277,3 +1277,16 @@ The mapped 0x62DE90/0x62B780/0x62B7D0/0x62B900/0x62BCE0 role pools and selectors
 ## Clean-room outer type-1 resolver
 
 The mapped 0x62C740 shell is now implemented as resolve_open_play_attempt(). It returns both semantic chance records and explicit set-piece handoffs while preserving the original RNG order and possession counter increments. Free-kick/corner transitions remain explicit boundaries rather than placeholder simulations, keeping the clean-room implementation evidence-backed.
+
+
+## Type-2 free-kick and type-3 corner flows completed
+
+Type-2 free kicks now have a complete post-taker-selection model. The normal branch computes effective Shooting and Passing, forms floor((Shooting + Passing) * 1.2), and draws RNG(bound). A roll below effective Shooting selects the direct shot; otherwise the free kick is delivered. Cached match context overrides this choice: a cached taker with no cached receiver forces direct execution, while a cached receiver forces delivery.
+
+Direct free kicks use the Shooting accuracy helper, then the shared goalkeeper/high-score gate, and emit type-2 records with shooting FinishMode. Delivered free kicks require Set Piece execution first, increment the attacking possession/control bucket a second time, select a receiver, and reuse the shared Heading/Shooting finish machinery. A cached distinct receiver forces the headed branch; taker==receiver forces shooting. Failed final duels retain the already-mapped penalty/free-kick/corner transitions.
+
+Type-3 corners increment attacking possession/control at entry, require Set Piece execution, increment possession again after successful delivery, then choose a distinct receiver. receiver==taker returns without a chance. A cached receiver forces Heading; otherwise the ordinary weighted Heading-vs-Shooting selector is used. Final duel, accuracy, goalkeeper and failed-duel transitions are shared with the other chance families.
+
+Type-2 creator 0x62EE20 and type-3 creator 0x62EFD0 both apply the 10% +3 presentation-variant bank and keep side inversion clear. For delivered records the semantic scorer is the receiver/finisher; the set-piece taker is retained in the secondary raw MatchRecord player slot.
+
+The clean-room reconstruction now implements resolve_free_kick() and resolve_corner() for these post-taker-selection flows.
