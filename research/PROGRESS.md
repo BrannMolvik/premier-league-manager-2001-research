@@ -503,6 +503,20 @@ The previous checkpoint misidentified the value passed through `0x531AF0 -> 0x53
 
 This route is not the cheat parser. Resume the cheat search from the literal pointer table and true command-line/argv consumers.
 
+
+
+## Cheat-state behavior checkpoint
+
+The reopened global option bytes now have verified consumer semantics:
+
+- `0x877554..0x877557` are the four match-result override states used together in `0x512D80`; their probable literal identities are `/alwayswin777`, `/alwayslose777`, `/countrywin777`, and `/countrylose777`.
+- `0x877558` bypasses later match calculation and is probably `/skipmatchcalc777`.
+- `0x877559` is definitively a current-cash affordability bypass from four independent consumers and is very probably `/cash777`.
+- `0x877552` is read by `0x516020` at the end of the season-ticket finance routine `0x5DE530`; its probable `/budget777` association remains unproven because current callers do not visibly consume the returned value.
+
+This proves the runtime byte ordering is not a naive same-index copy of the literal command-pointer table. The decoder is still unresolved.
+
+The finance investigation now returns to direct xrefs of `TransferBudget` / `TransferBudget2K` and the completed-transfer path rather than treating the probable budget cheat byte as authoritative storage.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
