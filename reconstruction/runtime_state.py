@@ -71,6 +71,9 @@ class RuntimePlayer:
     current_position: int = 0
     position_aux_code: int = 0
     balance_position_code: int = 10
+    injured: bool = False
+    suspended: bool = False
+    selection_excluded: bool = False
 
     @classmethod
     def from_database_player(
@@ -119,6 +122,11 @@ class RuntimePlayer:
             position_aux_code=0,
             balance_position_code=10,
         )
+
+    @property
+    def base_match_unavailable(self) -> bool:
+        """Exact low-three-bit exclusion state consumed by 0x418050."""
+        return bool(self.injured or self.suspended or self.selection_excluded)
 
     @property
     def skills(self) -> tuple[int, ...]:
