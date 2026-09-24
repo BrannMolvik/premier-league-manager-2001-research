@@ -3220,3 +3220,35 @@ The remaining `+0x58` serialized dword is context/identity state rather than a f
 ### Importance
 
 The English `bcsmonthlybudget` text states that these values show how the budgets stand **after last month's expenditure**. Therefore `EAMbcmonthlybudget +0x54` is currently the strongest observable representation of the live/remaining transfer budget and its producer is the highest-priority route to the authoritative derivation/state.
+
+
+## MatchEngine feasibility / modular calculation checkpoint
+
+A dedicated match investigation now establishes a clearer executable boundary.
+
+### High-level calculator route
+
+At `0x513010`:
+
+- a temporary match-record/state object is built through `0x62ABD0`;
+- developer getter `0x516080` (`/skipmatchcalc777`) can redirect processing to compact result routine `0x512D80`;
+- the normal path calls `0x632B20` or wrapper `0x632B50`;
+- `0x632B50` clears byte `match_record +0x1145` and delegates to `0x632B20`;
+- `0x632B20` stores the record pointer at global `0x981C78`, then calls:
+  1. `0x62AC90`
+  2. `0x62FBC0`
+  3. `0x667E20`
+
+This three-stage chain is now the primary backend match-calculation trace.
+
+### Presentation/data split
+
+The executable separately exposes:
+
+- MatchCalculator command classes such as tactics, strategy, style, formation and substitution commands;
+- FastView sender/receiver classes for semantic match events;
+- MatchEngine data loaders for `SCTABLE.STI`, `AISEQS.TBI`, `MOAI.VIV`, `GEN4TBLS.T` and FC/FCDB assets.
+
+This makes the backend calculator, semantic event stream and 3D scenario/animation presentation independently traceable.
+
+Full asset-format findings are maintained in `research/MATCH_ENGINE.md`.
