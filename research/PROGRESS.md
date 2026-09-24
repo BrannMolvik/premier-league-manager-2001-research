@@ -541,6 +541,17 @@ The heavily used game/session pointer at `+0x694` has been ruled out as live tra
 
 Resume live-budget tracing from actual budget/expenditure checks and chairman budget-event producers, not game/session +0x694.
 
+
+
+## Expenditure-refusal and category-1000 checkpoint
+
+`EAMChairmanRefusesExpenditureM` is now mapped through RTTI/constructor/serializer. In the transfer insufficient-cash path it carries club/index/manager-like identifiers, not a failed amount or budget scalar, so it is notification-only and not the live transfer-budget store.
+
+Category 1000 is explicitly aggregated and rendered as a dedicated net row in Finance Overview. The transfer ledger therefore has a visible finance-UI representation, strengthening the hypothesis that remaining transfer budget may be derived from board allocation plus category-1000 flow. The exact localized label of category 1000 is still unresolved.
+
+Immediate event-ID references for budget warning / extra-transfer events and `bcmonthlybudget` were inspected and are UI/event registration, not producers.
+
+Exact next target: identify the localized Finance Overview label for category 1000 and/or trace `EAMchairbudgetsettings` / chairman extra-transfer handlers back to the authoritative board allocation source.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
