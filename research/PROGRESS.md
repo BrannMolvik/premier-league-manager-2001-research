@@ -559,6 +559,15 @@ Exact next target: identify the localized Finance Overview label for category 10
 `EAMbcmonthlyincome` is now identified as event ID `0x9F`. EA's formatter labels its seven dword business-income fields as `GATE, MERCH, CONC, ADVERTS, SPONSOR, TELLY, TRANSFERFEES`, with `TRANSFERFEES` at event `+0x54`.
 
 This is an exact EA-authored transfer-finance label. The link from accounting category 1000 to this event field is plausible but remains unconfirmed until the monthly-income producer is traced.
+
+
+## Chairman budget-adjustment formatter checkpoint
+
+The `TRANSFERBUDGETINCREASE` key is now traced to EA's `chairextracashsuccess@ModFmt` formatter at `0x60E3A0`, paired with `chairextracashfail` and `chairextraallbudgets`.
+
+The success formatter reads a budget/category selector at `+0x10` and an increase amount at `+0x14`, and dispatches across seven budget categories. This proves the chairman extra-budget subsystem represents both the selected budget bucket and the amount being added.
+
+Exact next target: trace who populates the formatter/event selector and amount, then follow that source into the authoritative live board budget state.
 ## Active Investigation
 
 Current focus: (1) locate the authoritative board/chairman transfer allocation and find where it is combined with the confirmed category-1000 transfer ledger to derive/check remaining budget or overspending; (2) recover how the literal pointer table populates command-state bytes, with `/cash777` confirmed at `0x877559` and `0x877552` still unproven as `/budget777`; (3) continue unresolved proposal fields and exact finance labels after the live budget derivation is proven.
