@@ -462,3 +462,15 @@ Confirmed:
 - normal FastView `EventGoal` delivery does not consume that field;
 - it is retained as an opaque Boolean chance-context flag rather than assigned an unsupported football meaning;
 - `EventPossession` carries a separate territorial metric plus side-0 and neutral/contested possession percentages; side-1 percentage is reconstructed as the remainder to 100.
+
+
+## Match penalty probability pipeline
+
+Confirmed:
+
+- MatchCalculator bounded RNG helper `0x64D5B0(N)` returns integer values in `0..N-1`;
+- normal-match type-4 penalty attempts use player Condition, Shooting/Goalkeeping, positional-role compatibility and five-state Form modifiers;
+- Form modifiers are exactly 0.90, 0.95, 1.00, 1.05 and 1.10 from Bad through Fantastic;
+- the Shooting miss gate uses `RNG(256)` against `floor(effective_shooting/100)` on one branch selected by `RNG(3)`;
+- the goalkeeper save gate uses `RNG(800)` against `floor(effective_goalkeeping/100)`;
+- the goal branch includes `RNG(10) < 10-current_score` before incrementing the score.
