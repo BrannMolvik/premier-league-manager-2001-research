@@ -2053,3 +2053,44 @@ The literal `TRANSFERFEES` is at `0x832904` and has only three references, all f
 This gives an exact EA-authored semantic label for the monthly-business event's `+0x54` field.
 
 **Not yet proven:** although transfer postings use accounting category 1000 and Finance Overview has a dedicated category-1000 row, the population path connecting category 1000 directly to `EAMbcmonthlyincome +0x54` has not yet been recovered. Keep that relationship as a hypothesis until a producer/aggregation path is found.
+
+
+## Chairman extra-budget adjustment formatter checkpoint
+
+The literal formatter key `TRANSFERBUDGETINCREASE` at `0x83A200` has 13 static references, all concentrated in the formatter routine family around `0x60E3A0..0x60E77F`.
+
+RTTI resolves the relevant formatter classes:
+
+- `0x60FD00` / RTTI around `0x7F72A0` -> `chairextracashfail@ModFmt`
+- `0x60E3A0` / RTTI around `0x7F72F0` -> `chairextracashsuccess@ModFmt`
+- `0x60E5C0` / RTTI around `0x7F7340` -> `chairextraallbudgets@ModFmt`
+
+### chairextracashsuccess input model
+
+Formatter `0x60E3A0` reads:
+
+- object `+0x10`: budget/category selector
+- object `+0x14`: monetary/integer increase amount
+
+It dispatches on selector values 1 through 7 via a seven-entry jump table and formats the amount through the common key `TRANSFERBUDGETINCREASE`, while choosing one of seven localized chairman-success templates.
+
+A second formatter branch beginning around `0x60E5C0` performs the analogous operation for the `chairextraallbudgets` family.
+
+### Significance
+
+This proves that the chairman “extra cash/budget” subsystem has an explicit runtime representation of:
+
+1. **which budget bucket is being adjusted**; and
+2. **the adjustment amount**.
+
+It is not merely a generic success/failure mail.
+
+The surrounding literal block in the same generated formatter source contains the chairman budget keys:
+
+`TOTALBUDGET, STAFFBUDGET, PLAYERWAGEBUDGET, MAINTENANCEBUDGET, MERCHANDISINGBUDGET, MISCBUDGET, BUILDINGSLIMIT, TRANSFERBUDGET`.
+
+The seven-way selector in the extra-cash success formatter therefore provides a concrete route toward the per-bucket board budget model. Exact selector-to-bucket numbering is still being recovered and must not yet be guessed.
+
+### Next trace
+
+Locate constructors/callers that populate the ModFmt object's `+0x10/+0x14`, or the event/handler that supplies those values. That path should expose the board allocation/adjustment state used for transfer budget increases.
