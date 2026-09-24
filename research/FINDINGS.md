@@ -495,3 +495,18 @@ Confirmed:
 - `0x62BFC0`, `0x62C310`, and `0x62C420` are Heading, Shooting, and Set Piece execution gates using RNG(320), effective_skill/100, and a 50% fallback;
 - `0x62C530` resolves goalkeeper Goalkeeping through RNG(256), followed by the same 10-current-score suppression gate used elsewhere;
 - normal-time type-1 creator `0x62ECF0` suppresses plain MISS records 90% of the time and retains the +3 presentation-variant miss; at minute >=130 misses are retained without +3 variation.
+
+
+## Match type-1 outer open-play flow
+
+Confirmed:
+
+- positional pools group attackers into RM/LM/CM, RW/LW/AM, and CF/ST; defenders into GK, right-back, left-back, centre-back, central-defensive-midfield, RM and LM groups;
+- normal open play begins with a carrier from RM/LM/CM, falling back to RW/LW/AM;
+- the first role-matched defender can end the move through a Control-vs-Tackling duel;
+- the carrier must pass a Passing-only RNG(320) threshold;
+- finishers are weighted roughly 50% CF/ST, 25% RW/LW/AM, 25% RM/LM/CM subject to availability;
+- a closer defender is selected by finisher role before Heading/Shooting resolution;
+- there is a direct 5% corner branch before ordinary open play;
+- a failed final duel can branch into penalty/free kick/corner using RNG(4), RNG(100)<20, and RNG(2);
+- scored open-play chances with a close defender have a RNG(20)==0 own-goal attribution branch.
