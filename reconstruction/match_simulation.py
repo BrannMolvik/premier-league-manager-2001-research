@@ -8,6 +8,7 @@ from match_condition import (
     ConditionInjuryState,
     apply_sequence_condition_and_injuries,
 )
+from match_discipline import DisciplineState, apply_sequence_discipline
 from match_calculator import (
     BoundedRng,
     MatchSkillPlayer,
@@ -23,9 +24,11 @@ from match_events import (
     BoundaryType,
     ChanceRecord,
     ChanceSource,
+    IncidentKind,
     MatchEvent,
     PossessionRecord,
 )
+from match_orders import TeamOrderCategory, select_set_piece_taker
 from match_statistics import SegmentCounters, normalize_segment_statistics
 from match_strength import (
     TeamStrengthContext,
@@ -54,6 +57,7 @@ class PreparedMatchPlayer:
     preferred_positions: tuple[int, int, int]
     skills: tuple[int, ...]
     minimum_strength_override: bool = False
+    active: bool = True
 
     def __post_init__(self) -> None:
         if self.side not in (0, 1):
@@ -112,9 +116,9 @@ class PreparedMatchSide:
     players: tuple[PreparedMatchPlayer, ...]
     attack_context: TeamStrengthContext
     defence_context: TeamStrengthContext
-    penalty_taker_index: int
-    corner_taker_index: int
-    free_kick_taker_index: int
+    penalty_taker_priority: tuple[int, ...]
+    corner_taker_priority: tuple[int, ...]
+    free_kick_taker_priority: tuple[int, ...]
 
     def __post_init__(self) -> None:
         if not self.players:
@@ -128,28 +132,33 @@ class PreparedMatchSide:
         if self.attack_context.aggression != self.defence_context.aggression:
             raise ValueError("a prepared side must use one team Aggression value")
 
-        for name in (
-            "penalty_taker_index",
-            "corner_taker_index",
-            "free_kick_taker_index",
-        ):
-            if int(getattr(self, name)) not in indices:
-                raise ValueError(f"{name} must identify an active prepared player")
 
     @property
     def side(self) -> int:
         return self.players[0].side
 
     def chance_players(self) -> tuple[MatchSkillPlayer, ...]:
-        return tuple(player.chance_player() for player in self.players)
+        return tuple(
+            player.chance_player()
+            for player in self.players
+            if player.active
+        )
 
     def strength_players(self) -> tuple[TeamStrengthPlayer, ...]:
-        return tuple(player.strength_player() for player in self.players)
+        return tuple(
+            player.strength_player()
+            for player in self.players
+            if player.active
+        )
 
-    def chance_player(self, player_index: int) -> MatchSkillPlayer:
+    def active_prepared_players(self) -> tuple[PreparedMatchPlayer, ...]:
+        return tuple(player for player in self.players if player.active)
+
+    def deactivate(self, player_index: int) -> None:
         for player in self.players:
             if player.player_index == player_index:
-                return player.chance_player()
+                player.active = False
+                return
         raise KeyError(player_index)
 
 
@@ -207,23 +216,25 @@ def _resolve_set_piece_chain(
 ) -> int:
     attack_players = attacking.chance_players()
     defend_players = defending.chance_players()
-
-    def active_attacker(player_index: int) -> MatchSkillPlayer:
-        for player in attack_players:
-            if player.player_index == player_index:
-                return player
-        raise KeyError(player_index)
-
     possession_increment = 0
     current_source: ChanceSource | None = source
 
     while current_source is not None:
         if current_source is ChanceSource.PENALTY:
+            taker = select_set_piece_taker(
+                attack_players,
+                TeamOrderCategory.PENALTY,
+                attacking.attack_context.user_controlled,
+                attacking.penalty_taker_priority,
+                rng,
+            )
             goalkeeper = build_positional_pools(defend_players).goalkeeper
+            if taker is None:
+                return possession_increment
             if goalkeeper is None:
                 raise ValueError("penalty resolution requires a defending goalkeeper")
             event = resolve_penalty(
-                active_attacker(attacking.penalty_taker_index),
+                taker,
                 goalkeeper,
                 scores[attacking.side],
                 rng,
@@ -232,16 +243,34 @@ def _resolve_set_piece_chain(
             return possession_increment
 
         if current_source is ChanceSource.FREE_KICK:
+            taker = select_set_piece_taker(
+                attack_players,
+                TeamOrderCategory.FREE_KICK,
+                attacking.attack_context.user_controlled,
+                attacking.free_kick_taker_priority,
+                rng,
+            )
+            if taker is None:
+                return possession_increment
             resolution = resolve_free_kick(
-                active_attacker(attacking.free_kick_taker_index),
+                taker,
                 attack_players,
                 defend_players,
                 scores[attacking.side],
                 rng,
             )
         elif current_source is ChanceSource.CORNER:
+            taker = select_set_piece_taker(
+                attack_players,
+                TeamOrderCategory.CORNER,
+                attacking.attack_context.user_controlled,
+                attacking.corner_taker_priority,
+                rng,
+            )
+            if taker is None:
+                return possession_increment
             resolution = resolve_corner(
-                active_attacker(attacking.corner_taker_index),
+                taker,
                 attack_players,
                 defend_players,
                 scores[attacking.side],
@@ -311,16 +340,19 @@ def simulate_normal_match(
     defence_matrix: Sequence[Sequence[Sequence[float]]],
     rng: BoundedRng,
     condition_injury_settings: ConditionInjurySettings | None = None,
+    discipline_enabled: bool = True,
 ) -> NormalMatchResult:
     """Run the verified normal-time scoring/chance backbone through minute 90.
 
-    This intentionally does not invent the still-unimplemented Condition decay,
-    discipline, injury or AI-substitution routines. It does run the recovered
+    This intentionally does not invent the still-unimplemented AI-substitution
+    routine. It does run the recovered
     strength builders, 0x62B1A0 attack scheduler, type-1/2/3/4 chance resolvers,
     exact per-segment territory/possession normalization, HalfTime and FullTime
     boundaries. When condition_injury_settings is supplied, it also runs the
-    exact mapped 0x62E6F0 Condition loop and 0x62EAE0 injury-incidence gate
-    after every attacking sequence.
+    exact mapped 0x62E6F0 Condition loop and 0x62EAE0 injury-incidence gate.
+    The exact 0x62E130 discipline path runs after every attacking sequence;
+    sending-off events remove that player from later active chance and strength
+    pools.
     """
     if side0.side != 0 or side1.side != 1:
         raise ValueError("simulate_normal_match requires side0.side=0 and side1.side=1")
@@ -330,6 +362,7 @@ def simulate_normal_match(
     possession_segments: list[SegmentPossession] = []
     scores = [0, 0]
     condition_state = ConditionInjuryState()
+    discipline_state = DisciplineState()
     plan = build_match_phase_plan(extra_time=False, penalties=False)
     boundaries = {boundary.minute: boundary.kind for boundary in plan.boundaries}
 
@@ -376,8 +409,8 @@ def simulate_normal_match(
             if condition_injury_settings is not None:
                 incidents = apply_sequence_condition_and_injuries(
                     scheduled.side,
-                    side0.players,
-                    side1.players,
+                    side0.active_prepared_players(),
+                    side1.active_prepared_players(),
                     side0.attack_context.aggression,
                     side1.attack_context.aggression,
                     scheduled.minute,
@@ -389,6 +422,23 @@ def simulate_normal_match(
                     TimedMatchEvent(scheduled.minute, incident)
                     for incident in incidents
                 )
+
+            discipline = apply_sequence_discipline(
+                scheduled.side,
+                side0.active_prepared_players(),
+                side1.active_prepared_players(),
+                side0.attack_context.aggression,
+                side1.attack_context.aggression,
+                discipline_state,
+                rng,
+                enabled=discipline_enabled,
+            )
+            if discipline is not None:
+                events.append(TimedMatchEvent(scheduled.minute, discipline))
+                if discipline.kind is IncidentKind.SENT_OFF:
+                    sides[discipline.player_side].deactivate(
+                        discipline.player_index
+                    )
 
         possession_segments.append(SegmentPossession(
             calculation_minute=segment_start,
