@@ -372,9 +372,16 @@ Current exact resume target:
 A matching seven-dword block exists at runtime club +0x3C..+0x54, but that relationship remains a hypothesis until the club fields are independently identified.
 
 
+## Club-budget shortcut rejected
+
+The suspected runtime club `+0x3C..+0x54` budget block has been disproven from EA's original 181-byte club importer. Club +0x3C is the expanded sponsor-string reference (Arsenal resolves to `Sponsor`), +0x40 is manager ID 204 (Arsène Wenger for Arsenal), and the following bytes are club record data. Do not revisit this block as live budget storage.
+
+The budget trace therefore returns to the event creation/population path for `EAMbcstartseasonmail`.
+
+
 ## Active Investigation
 
-Current focus: determine whether runtime club +0x3C..+0x54 is the authoritative seven-budget block or a coincidental seven-field sequence; then trace EAMbcstartseasonmail population.
+Current focus: trace the actual EAMbcstartseasonmail creation/population path now that runtime club +0x3C..+0x54 has been ruled out as budget storage.
 
 Immediate next steps:
 
