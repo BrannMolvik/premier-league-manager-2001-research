@@ -365,9 +365,16 @@ Current exact resume target:
 - determine how transfer completion changes the assigned transfer budget independently of the already-mapped cash balance.
 
 
+## Start-season mail field checkpoint
+
+`EAMbcstartseasonmail` is now mapped exactly at the message level. It carries seven dword budget values at +0x3C..+0x54 in this order: staff, player wages, maintenance, merchandising, miscellaneous, buildings limit, transfers. It does not contain the TOTALBUDGET field present in `EAMchairbudgetsettings`.
+
+A matching seven-dword block exists at runtime club +0x3C..+0x54, but that relationship remains a hypothesis until the club fields are independently identified.
+
+
 ## Active Investigation
 
-Current focus: trace EAMbcstartseasonmail back to the authoritative live budget object, then determine transfer-budget adjustments independently of cash balance.
+Current focus: determine whether runtime club +0x3C..+0x54 is the authoritative seven-budget block or a coincidental seven-field sequence; then trace EAMbcstartseasonmail population.
 
 Immediate next steps:
 
