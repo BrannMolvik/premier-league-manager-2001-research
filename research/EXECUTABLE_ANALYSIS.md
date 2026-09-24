@@ -1290,6 +1290,52 @@ Immediate next trace:
 3. follow the budget getter's consumers to the exact live transfer-budget check/storage.
 
 
+## Resolved finance cheat mappings
+
+The two finance-related cheat getters can now be assigned semantically from their consumers.
+
+### 0x516090 = cash affordability bypass (/cash777)
+
+Getter `0x516090` returns global byte `0x877559`.
+
+All four known consumers occur immediately after comparisons between a requested monetary amount and the club/user's **current cash/balance** value:
+
+- `0x439072`
+- `0x43CBBA`
+- `0x61B5A0`
+- `0x61BD08`
+
+In each case, if available cash is insufficient, the operation is rejected unless `0x516090` returns true.
+
+The executable also contains literal command-line switch `/cash777`.
+
+This identifies `0x516090` as the cash-affordability cheat getter.
+
+### 0x516020 = budget override path (/budget777)
+
+Getter `0x516020` returns global byte `0x877552`.
+
+Its known consumer is the periodic finance/business budget routine ending around `0x5DE6C3`. That routine is invoked from:
+
+- year/season transition path around `0x4A870D`;
+- recurring season/month finance path around `0x4C4826`.
+
+The routine constructs/dispatches chairman/business finance events and ends by returning `0x516020`.
+
+The executable contains the companion literal command-line switch `/budget777`.
+
+Taken together with the separate cash cheat above, this establishes `0x516020` as the budget override/debug getter.
+
+### Consequence for further tracing
+
+The two concepts are therefore explicitly separate in the original executable:
+
+- `/cash777`: bypass current-cash affordability checks;
+- `/budget777`: budget/business override path used by periodic board/finance processing.
+
+This reinforces the already-established distinction between the club's live cash balance and its board-assigned budget buckets.
+
+
 ## Current executable-analysis priorities
 
 1. Correlate RTTI table classes with `Static.dat` load sequence and record sizes.
