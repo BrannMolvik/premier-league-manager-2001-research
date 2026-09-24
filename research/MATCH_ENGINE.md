@@ -2227,3 +2227,36 @@ The low bits now separate as follows:
 After the low-bit/club checks, `0x418050` applies competition/context-specific registration checks through `0x4F8E40` / `0x419350` and a separate bit-11/date-backed player restriction. Those context checks remain outside the clean-room generic availability primitive until their persistent database semantics are fully named.
 
 This means the core AI lineup eligibility bridge can safely internalize injury and suspension immediately while keeping bit 2 and competition registration as explicit neutral exclusion inputs.
+## Cup-tied persistence record and competition lookup
+
+**Confirmed from RTTI, constructor, serializer and lookup code in the canonical executable.**
+
+The executable contains a distinct persistence class named `CCupTiedPlayer` (`CupTiedPlayer.cpp`). Its record constructor at `0x4E95D0` stores two 16-bit identifiers:
+
+- record `+0x04`: player ID;
+- record `+0x06`: club/team ID for which that player is tied/registered.
+
+Collection helper `0x4E96E0(collection, player_id)` searches by the player ID field.
+
+The actual cup-tied predicate is `0x4E9710(collection, player_id, team_id)`:
+
+```
+record = find_by_player_id(collection, player_id)
+if record is None:
+    return false
+if record.club_id == team_id:
+    return false
+return true
+```
+
+Thus a player with no record is not cup-tied, and a player whose record belongs to the team trying to field him is not cup-tied. A record for the same player tied to a **different** club makes the lookup return true.
+
+The competition/context helper `0x4F8E40` is a thin wrapper around this exact check. It passes team ID and player ID into the `CCupTiedPlayer` collection stored at context object `+0x48`.
+
+This independently proves that `DBRPlayer+0x14 bit 2` is **not** the cup-tied state. Cup ties are represented by their own persistent competition collection and consulted through `0x4F8E40`.
+
+### Placement inside full availability helper `0x418050`
+
+After the base club/low-three-bit exclusions, `0x418050` may enter extra competition-registration checks when an additional DBRPlayer flag at `+0x174 bit 8` is set. That flag initializes clear and can be set by team-assignment/new-player paths, but its higher-level semantic name is not yet proven.
+
+Within those context checks, `0x4F8E40` supplies the confirmed cup-tied test. Another competition-specific branch uses `0x419350`; that branch remains unresolved and should not be folded into the generic clean-room availability predicate yet.
