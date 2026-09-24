@@ -385,6 +385,23 @@ Evidence:
 
 Other flags/financial fields remain unmapped.
 
+
+#### Week/day date interpretation
+
+For the shipped Premier League schedule, the two scheduling bytes decode as:
+
+- weekday **1..7 = Monday..Sunday**;
+- week 0 = the Monday-led week containing July 1 of the season start year.
+
+Thus:
+
+```
+week_zero_monday = July 1 - weekday_offset_to_Monday
+date = week_zero_monday + week*7 + (weekday-1)
+```
+
+This reproduces known 2000–01 schedule dates directly from Static.dat, including 19 Aug 2000, 23 Aug 2000, Boxing Day (26 Dec), New Year's Day (1 Jan), and the final Sunday 20 May 2001.
+
 ### Cup-allocation instruction table
 
 Offset: `0xE337`
