@@ -8,7 +8,7 @@ from match_condition import (
     condition_decay_threshold,
     injury_incidence_score,
 )
-from match_events import IncidentKind
+from match_events import IncidentKind, IncidentRecord, SubstitutionRecord
 
 
 @dataclass
@@ -18,6 +18,7 @@ class Player:
     condition: int
     current_position: int
     skills: tuple[int, ...]
+    active: bool = True
 
 
 class ScriptedRng:
@@ -35,11 +36,11 @@ class ScriptedRng:
         return value
 
 
-def player(side, index, role, stamina=128, injury=0, condition=100):
+def player(side, index, role, stamina=128, injury=0, condition=100, active=True):
     skills = [0] * 17
     skills[2] = stamina
     skills[4] = injury
-    return Player(side, index, condition, role, tuple(skills))
+    return Player(side, index, condition, role, tuple(skills), active)
 
 
 class ConditionFormulaTests(unittest.TestCase):
@@ -125,6 +126,55 @@ class SequenceConditionTests(unittest.TestCase):
         self.assertEqual(subject.condition, 75)
         self.assertEqual(events, ())
         self.assertEqual(rng.calls, [100, 1000])
+
+    def test_immediate_replacement_can_activate_later_roster_slot(self):
+        injured = player(0, 1, 19, injury=255, condition=76)
+        bench = player(0, 2, 19, injury=0, condition=100, active=False)
+        rng = ScriptedRng([0, 0, 0, 999])
+
+        def replace(incident):
+            self.assertIsInstance(incident, IncidentRecord)
+            injured.active = False
+            bench.active = True
+            return SubstitutionRecord(0, 1, 2)
+
+        events = apply_sequence_condition_and_injuries(
+            0,
+            [injured, bench],
+            [],
+            5,
+            5,
+            20,
+            ConditionInjurySettings(0),
+            ConditionInjuryState(),
+            rng,
+            injury_substitution_handler=replace,
+        )
+
+        self.assertEqual(len(events), 2)
+        self.assertEqual(events[0].kind, IncidentKind.INJURED)
+        self.assertIsInstance(events[1], SubstitutionRecord)
+        self.assertEqual(bench.condition, 99)
+        self.assertEqual(rng.calls, [100, 1000, 100, 1000])
+
+    def test_disabled_injury_guard_still_allows_condition_decay(self):
+        subject = player(0, 1, 19, injury=255, condition=76)
+        rng = ScriptedRng([0])
+        events = apply_sequence_condition_and_injuries(
+            0,
+            [subject],
+            [],
+            5,
+            5,
+            20,
+            ConditionInjurySettings(0),
+            ConditionInjuryState(),
+            rng,
+            injury_enabled=False,
+        )
+        self.assertEqual(subject.condition, 75)
+        self.assertEqual(events, ())
+        self.assertEqual(rng.calls, [100])
 
     def test_injury_event_after_cooldown(self):
         subject = player(0, 1, 19, injury=255, condition=76)
