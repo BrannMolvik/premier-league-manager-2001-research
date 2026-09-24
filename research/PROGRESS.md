@@ -1213,6 +1213,23 @@ No match result is auto-generated yet; the MatchCalculator reconstruction remain
 
 Regression status: **28/28 tests pass**, plus exact-source parser/date verification.
 
+
+
+## Match Team Orders / penalty chance checkpoint
+
+Confirmed:
+
+- `PTeamOrders2K` is the Team Orders screen owning the ordered player-priority lists used by MatchCalculator;
+- priority category **0 = captaincy order**;
+- priority category **1 = penalty-taker order**;
+- chance source type **4 = penalty kick**.
+
+Type-4 resolver `0x62D660` selects through the category-1 penalty list, tests the taker's Shooting, then the opposing goalkeeper's Goalkeeping, and emits goal/miss/save using the existing +0x24 outcome model.
+
+Categories 2 and 3 are still being traced against the corner/free-kick Team Orders lists; do not promote their exact ordering until that path is proven.
+
+Exact next match target: prove category2/category3 = corner/free-kick order and thereby label chance types 3 and 2; then classify remaining type1 as the ordinary/open-play family if no contrary producer appears.
+
 ## Active Investigation
 
 Current focus: locate the authoritative chairman transfer-budget allocation from the now-confirmed **DBRUser** runtime architecture.
