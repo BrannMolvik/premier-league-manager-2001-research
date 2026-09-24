@@ -400,6 +400,84 @@ def passing_gate_succeeds(carrier: MatchSkillPlayer, rng: BoundedRng) -> bool:
     roll=rng.randbelow(320)
     return roll < (_effective_player_skill(carrier, carrier.passing) // 100)
 
+@dataclass(frozen=True)
+class OpenPlayResolution:
+    """One exact outer type-1 attempt before dedicated set-piece resolution."""
+    event: ChanceRecord | None = None
+    transition: ChanceSource | None = None
+    neutral_increment: int = 0
+    attacking_possession_increment: int = 0
+
+def _failed_final_duel_transition(close_defender: MatchSkillPlayer | None, rng: BoundedRng) -> ChanceSource | None:
+    if rng.randbelow(4) == 0 and close_defender is not None:
+        return ChanceSource.PENALTY if rng.randbelow(100) < 20 else ChanceSource.FREE_KICK
+    return ChanceSource.CORNER if rng.randbelow(2) == 0 else None
+
+def _open_play_record(finisher: MatchSkillPlayer, base_outcome: int, minute: int, finish_mode: FinishMode, rng: BoundedRng, own_goal_defender: MatchSkillPlayer | None = None) -> ChanceRecord | None:
+    raw=encode_open_play_outcome(base_outcome, minute, rng)
+    if raw is None: return None
+    if own_goal_defender is not None:
+        return ChanceRecord(ChanceSource.OPEN_PLAY, raw, own_goal_defender.side, own_goal_defender.player_index, side_inversion=True, finish_mode=finish_mode)
+    return ChanceRecord(ChanceSource.OPEN_PLAY, raw, finisher.side, finisher.player_index, finish_mode=finish_mode)
+
+def resolve_open_play_attempt(attacking_players: Sequence[MatchSkillPlayer], defending_players: Sequence[MatchSkillPlayer], minute: int, current_attacking_score: int, rng: BoundedRng) -> OpenPlayResolution:
+    """Assemble the verified outer flow of 0x62C740 without inventing type-2/3 outcomes.
+
+    Dedicated free-kick/corner/penalty resolvers remain separate. When the
+    original branch hands off to one, this function returns transition=that
+    ChanceSource so the caller can invoke the corresponding exact resolver.
+    """
+    attack=build_positional_pools(attacking_players)
+    defend=build_positional_pools(defending_players)
+
+    if rng.randbelow(100) < 5:
+        return OpenPlayResolution(transition=ChanceSource.CORNER)
+
+    carrier=select_initial_carrier(attack, rng)
+    neutral=1
+    side_control=1
+    if carrier is None:
+        return OpenPlayResolution(neutral_increment=neutral, attacking_possession_increment=side_control)
+
+    first_defender=select_first_defender(carrier, defend, rng)
+    if first_defender is not None and first_duel_defender_wins(carrier, first_defender, rng):
+        return OpenPlayResolution(neutral_increment=neutral, attacking_possession_increment=side_control)
+
+    if not passing_gate_succeeds(carrier, rng):
+        return OpenPlayResolution(neutral_increment=neutral, attacking_possession_increment=side_control)
+
+    side_control += 1
+    finisher=select_finisher(attack, rng)
+    if finisher is None:
+        return OpenPlayResolution(neutral_increment=neutral, attacking_possession_increment=side_control)
+    close_defender=select_close_defender(finisher, defend, rng)
+
+    if carrier is finisher:
+        finish_mode=FinishMode.SHOOTING
+    else:
+        finish_mode=choose_finish_mode(finisher, rng)
+
+    if finish_mode is FinishMode.HEADED:
+        duel_won=heading_duel_won(finisher, close_defender, rng)
+        if not duel_won:
+            return OpenPlayResolution(transition=_failed_final_duel_transition(close_defender, rng), neutral_increment=neutral, attacking_possession_increment=side_control)
+        if not heading_attempt_on_target(finisher, rng):
+            return OpenPlayResolution(event=_open_play_record(finisher,1,minute,finish_mode,rng), neutral_increment=neutral, attacking_possession_increment=side_control)
+    else:
+        duel_won=control_tackle_duel_won(finisher, close_defender, rng)
+        if not duel_won:
+            return OpenPlayResolution(transition=_failed_final_duel_transition(close_defender, rng), neutral_increment=neutral, attacking_possession_increment=side_control)
+        if not shooting_attempt_on_target(finisher, rng):
+            return OpenPlayResolution(event=_open_play_record(finisher,1,minute,finish_mode,rng), neutral_increment=neutral, attacking_possession_increment=side_control)
+
+    if defend.goalkeeper is None:
+        raise ValueError("open-play resolution requires a defending goalkeeper")
+    if goalkeeper_stops_open_play(defend.goalkeeper, current_attacking_score, rng):
+        return OpenPlayResolution(event=_open_play_record(finisher,2,minute,finish_mode,rng), neutral_increment=neutral, attacking_possession_increment=side_control)
+
+    own_goal = close_defender if (close_defender is not None and rng.randbelow(20) == 0) else None
+    return OpenPlayResolution(event=_open_play_record(finisher,0,minute,finish_mode,rng,own_goal), neutral_increment=neutral, attacking_possession_increment=side_control)
+
 def _presentation_outcome(base_outcome: int, rng: BoundedRng) -> int:
     return int(base_outcome) + (3 if rng.randbelow(100) < 10 else 0)
 
