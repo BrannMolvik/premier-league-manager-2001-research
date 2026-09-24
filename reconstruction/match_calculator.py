@@ -655,6 +655,51 @@ def resolve_corner(
     )
 
 
+
+def formation_coverage_multiplier(players: Sequence[MatchSkillPlayer]) -> float:
+    """Exact defence-shape multiplier from 0x62F6A0.
+
+    The role grouping intentionally follows the original jump table, including
+    its non-intuitive handling of runtime roles 13/14/15.
+    """
+    central_count = 2
+    left_presence = 1
+    right_presence = 1
+    central_mid_presence = 1
+    right_advanced_presence = 1
+    left_advanced_presence = 1
+
+    for player in players:
+        role = int(player.current_position)
+
+        if role in (PositionRole.CENTRE_BACK, PositionRole.SWEEPER):
+            if central_count:
+                central_count -= 1
+        elif role == PositionRole.RIGHT_BACK:
+            right_presence = 0
+        elif role == PositionRole.LEFT_BACK:
+            left_presence = 0
+        elif role in (PositionRole.RIGHT_WING_BACK, PositionRole.RIGHT_MIDFIELD, PositionRole.LEFT_WINGER):
+            right_presence = 0
+            right_advanced_presence = 0
+        elif role in (PositionRole.LEFT_WING_BACK, PositionRole.LEFT_MIDFIELD, PositionRole.ATTACKING_MIDFIELD):
+            left_presence = 0
+            left_advanced_presence = 0
+        elif role in (PositionRole.ANCHOR, PositionRole.DEFENSIVE_MIDFIELD, PositionRole.CENTRE_MIDFIELD):
+            central_mid_presence = 0
+        # Runtime role 13 (RIGHT_WINGER) is a deliberate no-op in 0x62F6A0.
+
+    penalty_units = (
+        central_count * central_count * 4
+        + left_presence
+        + right_presence
+        + central_mid_presence
+        + right_advanced_presence
+        + left_advanced_presence
+    )
+    return 1.0 - 0.05 * penalty_units
+
+
 def _presentation_outcome(base_outcome: int, rng: BoundedRng) -> int:
     return int(base_outcome) + (3 if rng.randbelow(100) < 10 else 0)
 
