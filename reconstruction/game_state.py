@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, timedelta
-from random import Random
+from time import time
 from typing import Callable, Iterable
 
 from competition_state import PremierLeagueState
@@ -14,6 +14,7 @@ from match_environment import (
     recover_ai_pitch_wear,
 )
 from match_injury_persistence import clear_expired_persistent_injury
+from match_schedule import MsvcCrtRng
 from match_preparation import (
     PreparedPremierLeagueAiSide,
     build_premier_league_ai_match_side,
@@ -78,6 +79,17 @@ class GameState:
     team_tactics: dict[int, TeamTacticalState] = field(default_factory=dict)
     pitch_wear: dict[int, int] = field(default_factory=dict)
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
+    rng: MsvcCrtRng | None = None
+
+    def _resolve_rng(self, rng=None):
+        if rng is not None:
+            return rng
+        if self.rng is None:
+            raise RuntimeError(
+                "no shared game RNG is attached; pass rng explicitly or build "
+                "the state with GameState.from_database"
+            )
+        return self.rng
 
     @classmethod
     def from_database(
@@ -87,10 +99,23 @@ class GameState:
         seed: int | None = None,
         season_year: int | None = None,
     ) -> "GameState":
-        rng = Random(seed)
+        if seed is None:
+            seed = int(time())
+        rng = MsvcCrtRng(int(seed))
+        source_players = tuple(database.players)
+
+        # DBTPlayers 0x421C80 constructs the complete player array before its
+        # load pass. Therefore all constructor RNG(15) morale draws precede
+        # every player's peak-age and post-load draws.
+        constructor_morales = tuple(100 - rng.randbelow(15) for _ in source_players)
         players = {
-            p.index: RuntimePlayer.from_database_player(p, start_date, rng)
-            for p in database.players
+            p.index: RuntimePlayer.from_database_player(
+                p,
+                start_date,
+                rng,
+                constructor_morale=constructor_morale,
+            )
+            for p, constructor_morale in zip(source_players, constructor_morales)
         }
 
         # Original startup 0x421CE0 derives DBRPlayer +0x14 bit 11 (Non-EU)
@@ -122,7 +147,7 @@ class GameState:
             season_year = start_date.year if start_date.month >= 7 else start_date.year - 1
         league = PremierLeagueState(fixtures, rounds, season_year) if fixtures else None
         roster_order: dict[int, list[int]] = {}
-        for source_player in database.players:
+        for source_player in source_players:
             roster_order.setdefault(int(source_player.club_id), []).append(
                 int(source_player.index)
             )

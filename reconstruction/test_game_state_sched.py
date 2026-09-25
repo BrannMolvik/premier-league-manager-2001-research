@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import date
 
 from game_state import GameState
+from match_schedule import MsvcCrtRng
 
 
 @dataclass(frozen=True)
@@ -43,6 +44,37 @@ class Database:
 
 
 class GameScheduleIntegrationTests(unittest.TestCase):
+    def test_database_startup_preserves_two_phase_original_rng_order(self):
+        state = GameState.from_database(
+            Database(),
+            date(2000, 8, 18),
+            seed=1,
+            season_year=2000,
+        )
+
+        self.assertIsInstance(state.rng, MsvcCrtRng)
+        self.assertEqual(state.players[1].morale, 100)
+        self.assertEqual(state.players[2].morale, 92)
+        self.assertEqual(
+            (
+                state.players[1].development.peak_ages.physical,
+                state.players[1].development.peak_ages.skill,
+                state.players[1].development.peak_ages.late,
+                state.players[1].startup_month_span,
+            ),
+            (25, 28, 31, 36),
+        )
+        self.assertEqual(
+            (
+                state.players[2].development.peak_ages.physical,
+                state.players[2].development.peak_ages.skill,
+                state.players[2].development.peak_ages.late,
+                state.players[2].startup_month_span,
+            ),
+            (25, 28, 31, 48),
+        )
+        self.assertEqual(state.rng.state, 0xDF90722B)
+
     def test_next_match_date_and_due_fixtures_follow_calendar(self):
         state = GameState.from_database(Database(), date(2000, 8, 18), seed=1, season_year=2000)
         self.assertEqual(state.next_match_date(), date(2000, 8, 19))

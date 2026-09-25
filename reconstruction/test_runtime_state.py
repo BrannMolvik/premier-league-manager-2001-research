@@ -4,6 +4,7 @@ from datetime import date
 from random import Random
 
 from game_state import GameCalendar, GameState
+from match_schedule import MsvcCrtRng
 from runtime_state import RuntimePlayer, age_on
 
 
@@ -37,6 +38,26 @@ class RuntimePlayerTests(unittest.TestCase):
         self.assertEqual(player.current_raw[0], 101)
         self.assertIsNotNone(player.development)
         self.assertEqual(player.development.baseline_age, 20)
+
+    def test_single_player_startup_consumes_exact_crt_draw_sequence(self):
+        rng = MsvcCrtRng(1)
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(),
+            date(2000, 7, 1),
+            rng,
+        )
+
+        self.assertEqual(player.morale, 100)
+        self.assertEqual(
+            (
+                player.development.peak_ages.physical,
+                player.development.peak_ages.skill,
+                player.development.peak_ages.late,
+            ),
+            (25, 27, 31),
+        )
+        self.assertEqual(player.startup_month_span, 36)
+        self.assertEqual(rng.state, 0xCAE1DF84)
 
     def test_base_match_unavailable_tracks_low_three_exclusion_states(self):
         player = RuntimePlayer.from_database_player(

@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
-from random import Random
 from typing import Protocol, Sequence
+
+from match_schedule import BoundedRng
 
 from player_development import (
     DevelopmentState,
@@ -74,6 +75,18 @@ class PlayerSource(Protocol):
 PHYSICAL_PEAK_RANGE = (25, 26)
 SKILL_PEAK_RANGE = (27, 29)
 LATE_PEAK_RANGE = (30, 32)
+DEFAULT_MAXIMUM_MORALE = 100
+INITIAL_MORALE_RANDOM_RANGE = 15
+POST_LOAD_MONTH_SPAN_RANDOM_RANGE = 5
+
+
+def bounded_draw(rng, bound: int) -> int:
+    """Use an exact bounded source, while retaining legacy test compatibility."""
+    if hasattr(rng, "randbelow"):
+        return int(rng.randbelow(int(bound)))
+    if hasattr(rng, "randrange"):
+        return int(rng.randrange(int(bound)))
+    raise TypeError("rng must provide randbelow(bound) or randrange(bound)")
 
 
 def age_on(date_of_birth: date, on_date: date) -> int:
@@ -126,24 +139,36 @@ class RuntimePlayer:
     injury_source_mode: int | None = None
     injury_severity_code: int | None = None
     injury_history_weight: int = 0
+    morale: int = DEFAULT_MAXIMUM_MORALE
+    startup_month_span: int = 0
 
     @classmethod
     def from_database_player(
         cls,
         source: PlayerSource,
         as_of: date,
-        rng: Random,
+        rng: BoundedRng,
+        *,
+        constructor_morale: int | None = None,
     ) -> "RuntimePlayer":
         current = list(source.current_raw)
         target = tuple(source.target_raw)
         development: DevelopmentState | None = None
 
+        # 0x4178D0 consumes RNG(15) before database loading and initializes
+        # +0x18E from the shipped maximummorale default (100). GameState can
+        # supply a pre-consumed value to preserve DBTPlayers' two-phase order.
+        if constructor_morale is None:
+            constructor_morale = DEFAULT_MAXIMUM_MORALE - bounded_draw(
+                rng, INITIAL_MORALE_RANDOM_RANGE
+            )
+
         if source.date_of_birth is not None:
             actual_age = age_on(source.date_of_birth, as_of)
             peaks = PeakAges(
-                choose_peak_age(actual_age, *PHYSICAL_PEAK_RANGE, rng.randrange),
-                choose_peak_age(actual_age, *SKILL_PEAK_RANGE, rng.randrange),
-                choose_peak_age(actual_age, *LATE_PEAK_RANGE, rng.randrange),
+                choose_peak_age(actual_age, *PHYSICAL_PEAK_RANGE, lambda n: bounded_draw(rng, n)),
+                choose_peak_age(actual_age, *SKILL_PEAK_RANGE, lambda n: bounded_draw(rng, n)),
+                choose_peak_age(actual_age, *LATE_PEAK_RANGE, lambda n: bounded_draw(rng, n)),
             )
             # 0x41E970 clamps only the stored working baseline age.
             baseline_age = min(50, max(15, actual_age))
@@ -153,6 +178,13 @@ class RuntimePlayer:
                 target_raw=target,
                 peak_ages=peaks,
             )
+
+        # 0x418EF5 consumes RNG(5), adds one and multiplies by 12 before
+        # storing the byte at DBRPlayer+0xC0. Its higher-level label is still
+        # unresolved, so preserve it neutrally as a month span.
+        startup_month_span = (
+            bounded_draw(rng, POST_LOAD_MONTH_SPAN_RANDOM_RANGE) + 1
+        ) * 12
 
         return cls(
             index=source.index,
@@ -176,6 +208,8 @@ class RuntimePlayer:
             eu_status_code=int(
                 getattr(source, "eu_status_code", PLAYER_EU_STATUS_EU)
             ),
+            morale=int(constructor_morale),
+            startup_month_span=startup_month_span,
         )
 
     @property
