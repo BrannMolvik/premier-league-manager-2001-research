@@ -54,6 +54,16 @@ class OrderedRoundSource(RoundSource, Protocol):
     source_competition_reference: int
 
 
+class CupAllocationInstructionSource(Protocol):
+    id: int
+    destination_competition_id: int
+    sequence_index: int
+    instruction_type: int
+    source_reference: int
+    quantity: int
+    auxiliary: int
+
+
 @dataclass(frozen=True)
 class PrimaryMode0CompetitionRngReplay:
     """Isolated Europe-root selector mechanics.
@@ -607,3 +617,39 @@ def replay_primary_mode0_ordered_competition_rng(
         uefa_cup_club_id=uefa_cup_club_id,
         state_entering_primary_shuffle=current_state(),
     )
+
+
+
+def ordered_cup_allocation_instructions(
+    destination_competition_id: int,
+    instructions: Iterable[CupAllocationInstructionSource],
+) -> tuple[CupAllocationInstructionSource, ...]:
+    """Reproduce per-destination DBRCupAllocInstruction qsort order.
+
+    Startup attaches pointers in source-table order and qsorts each
+    competition's pointer array with comparator 0x4F7A30 over sequence_index.
+
+    Canonical lists with <=8 entries use the exact small-array CRT qsort path.
+    Larger canonical lists have unique sequence keys, so ordinary ascending
+    key order is equivalent. Refuse a large equal-key group instead of
+    silently assuming stability.
+    """
+    selected = tuple(
+        instruction
+        for instruction in instructions
+        if int(instruction.destination_competition_id)
+        == int(destination_competition_id)
+    )
+    if len(selected) <= 8:
+        return _msvc_small_qsort_by_key(
+            selected,
+            lambda instruction: int(instruction.sequence_index),
+        )
+
+    keys = [int(instruction.sequence_index) for instruction in selected]
+    if len(set(keys)) != len(keys):
+        raise ValueError(
+            "large Cup allocation list contains equal sequence keys; "
+            "full CRT qsort ordering is required"
+        )
+    return tuple(sorted(selected, key=lambda instruction: int(instruction.sequence_index)))
