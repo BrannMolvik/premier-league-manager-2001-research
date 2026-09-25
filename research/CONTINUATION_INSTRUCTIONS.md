@@ -77,7 +77,8 @@ A timeout should lose at most one small analysis block.
 - `RUNTIME_COMPATIBILITY.md`: launch behavior, Windows compatibility, graphics/audio/runtime dependencies, wrappers, patches.
 - `tools/`: research/validation scripts that do not contain copyrighted game assets.
 - `extracted/`: small legal-to-store derived metadata only, never an uncontrolled original-asset dump.
-- `reconstruction/`: clean-room implementation.
+- `reconstruction/`: modern replacement/runtime implementation (historical directory name; original assets may be reused by the port).
+- `original_assets/`: intentionally imported authorized original resources and their provenance manifest.
 
 ## Evidence discipline
 
@@ -91,11 +92,13 @@ Clearly separate:
 
 A chat conclusion is provisional until it is persisted with enough evidence that another session can reproduce it.
 
-## Clean-room rule
+## Original-resource and repository rule
 
-Never commit the original executable, database/string files, disc images, or extracted copyrighted asset dumps.
+The project owner has confirmed authorization to reuse the contents of the supplied FM2001 archive/disc image.
 
-The repository contains a CI clean-room guard. It is a safety net, not permission to place original assets in the worktree.
+Prefer original resources when they can be used directly or converted for Windows 11 compatibility. Intentionally imported source assets belong under `original_assets/` and should be provenance-tracked according to `research/ASSET_POLICY.md`.
+
+Do not commit raw full-disc images, duplicate archive copies, temporary extraction dumps, reverse-engineering databases, or cache/build noise. The repository asset-policy CI check enforces placement/hygiene rules; it is not a ban on authorized original resources.
 
 ## Gate completion procedure
 
