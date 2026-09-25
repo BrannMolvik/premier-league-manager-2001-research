@@ -2808,3 +2808,59 @@ This establishes two distinct layers:
 2. the compact `0x40D860` snapshot used to initialize MatchEngine/presentation-side team data.
 
 The outstanding tactical question is consequently narrower: determine how live team state is mutated when tactical commands occur and what role the type-11 MatchCalculator command records play in replay/presentation synchronization. Do not use the 0x40D860 AI manager packet as a substitute for live backend tactical state.
+## Exact CullingVisitor command-batch behavior
+
+**Confirmed from RTTI, vtable `0x7D7FEC`, constructor `0x634580`, and all visitor handlers.**
+
+The first visitor run over a submitted tactical-command batch is the original class:
+
+```text
+CullingVisitor
+```
+
+Its vtable has the same typed-command slot ordering as `ConversionVisitor`:
+
+| Visitor slot | Command | CullingVisitor handler |
+|---|---|---:|
+| +0x04 | SubstitutionCommand | `0x634890` |
+| +0x08 | StyleCommand | `0x634830` |
+| +0x0C | StrategyCommand | `0x6347D0` |
+| +0x10 | PositionCommand | `0x634760` |
+| +0x14 | OrdersCommand | `0x6346F0` |
+| +0x18 | FormationCommand | `0x634690` |
+| +0x1C | DefensiveStyleCommand | `0x634630` |
+| +0x20 | AggressionCommand | `0x6345D0` |
+
+The constructor initializes five scalar seen-flags at object bytes `+0x08..+0x0C` and two 18-byte per-slot seen arrays at `+0x0D..+0x1E` and `+0x1F..+0x30`.
+
+The scalar mapping is exact:
+
+```text
++0x08 Aggression
++0x09 DefensiveStyle
++0x0A Formation
++0x0B Strategy
++0x0C Style
+```
+
+For each of those five command classes, the first command encountered is appended to the culled-output list and its flag is set. Later commands of the same class in the same batch are skipped.
+
+`OrdersCommand` calls the generic primary-value getter `0x6335B0` and uses that value as an index into the 18-byte array beginning at `CullingVisitor+0x0D`. Thus the first Orders command for each of the 18 command slots is retained and later Orders commands for the same slot are culled.
+
+`PositionCommand` uses the same primary-value getter as an index into the second 18-byte array beginning at `+0x1F`, again retaining only the first command for each slot.
+
+`SubstitutionCommand` handler `0x634890` does not consult a seen flag and always appends its command pointer.
+
+Therefore the command submission pipeline is:
+
+```text
+typed command list
+    -> CullingVisitor
+       - first scalar tactic command per category
+       - first Position/Orders command per 18 player slots
+       - all substitutions
+    -> ConversionVisitor
+    -> compact MatchCalculator timeline records
+```
+
+This culling stage is not a live tactical-state applier; it only builds the filtered command list that the following ConversionVisitor serializes into MatchCalculator record families.
