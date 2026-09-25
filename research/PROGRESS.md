@@ -2509,3 +2509,25 @@ UEFA Cup         RNG(6)
 and nothing else mapped before `0x615BE0`.
 
 Next: implement this two-draw competition tail and lock the exact fixed-seed state entering `0x615BE0`.
+
+
+## 26 September Gate 3 completion checkpoint
+
+Gate 3 - Build an executable startup RNG ledger - is complete.
+
+Implemented and verified:
+
+- one shared `MsvcCrtRng` replays the recovered startup path through Loader444, DBTPlayers, generated names, per-user youth generation and primary competition selection;
+- the primary competition tail is exactly Champions League `RNG(6)` followed by UEFA Cup `RNG(6)`;
+- argument-1 `0x404110` and `0x50EA90` add no primary pre-shuffle RNG;
+- `reconstruction/startup_sequence.py` composes the full replay through the exact state entering primary `0x615BE0`;
+- fixed-seed tests lock intermediate states and the final pre-shuffle state;
+- startup player code requires the reconstructed bounded-RNG interface and no longer silently accepts Python `random.Random.randrange`.
+
+Latest validation at `a382f7982614cbe1d0cf8508d7790df6d17246d9`: **314 tests passed**.
+
+Gate 4 is now active.
+
+The first Gate-4 issue is that `0x615BE0` shuffles every populated primary schedule bucket in bucket-index order. Therefore the exact RNG state at function entry is necessary but not sufficient for the first Premier League matchday: all earlier populated buckets and their sizes/order must be reproduced because each bucket of size N consumes bounds N..2 before later buckets are reached.
+
+Next target: recover the primary schedule-container bucket indexing/date ordering and enumerate every populated bucket before the first Premier League fixture date, then propagate the shared CRT state to the first PL bucket.
