@@ -653,3 +653,50 @@ def ordered_cup_allocation_instructions(
             "full CRT qsort ordering is required"
         )
     return tuple(sorted(selected, key=lambda instruction: int(instruction.sequence_index)))
+
+
+
+class InitialLeagueClubSource(Protocol):
+    index: int
+    short_name: str
+    competition_id: int
+
+
+def initial_league_club_ids(
+    clubs: Iterable[InitialLeagueClubSource],
+    competition_id: int,
+) -> tuple[int, ...]:
+    """Return 0x4F7A60's initial unsorted League membership.
+
+    Startup scans DBRClub records in canonical Master.dat order and appends a
+    direct type-0 ClubRef/LeagueClub to the runtime competition named by
+    DBRClub+0x10, which maps from packed club dword +8.
+    """
+    competition_id = int(competition_id)
+    return tuple(
+        int(club.index)
+        for club in clubs
+        if int(club.competition_id) == competition_id
+    )
+
+
+def initial_ranked_league_club_ids(
+    clubs: Iterable[InitialLeagueClubSource],
+    competition_id: int,
+) -> tuple[int, ...]:
+    """Return the initial 0x4F4940 League ranking order.
+
+    LeagueClub statistics are zero at new-game construction, so comparator
+    0x4F45E0 reaches its final club-string tie-breaker. That string is
+    DBRClub+0x0C, the runtime short-name string loaded from the second packed
+    club name ID. The original comparison is bytewise; CP1252 reproduces the
+    canonical English data.
+    """
+    competition_id = int(competition_id)
+    selected = [
+        club
+        for club in clubs
+        if int(club.competition_id) == competition_id
+    ]
+    selected.sort(key=lambda club: str(club.short_name).encode("cp1252"))
+    return tuple(int(club.index) for club in selected)
