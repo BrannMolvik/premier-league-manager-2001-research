@@ -6,6 +6,7 @@ from match_orders import TeamOrderPriorities
 from match_preparation import (
     build_prepared_match_side_from_selection,
     prepare_ai_match_selection,
+    prepare_premier_league_ai_selection,
 )
 from match_team_setup import TeamTacticalState
 
@@ -306,6 +307,120 @@ class AiMatchPreparationTests(unittest.TestCase):
             team_orders=TeamOrderPriorities(captain=(999, 0)),
         )
         self.assertEqual(prepared.attack_context.captain_priority, (0,))
+
+    def test_premier_league_ai_selection_derives_formation_quota_and_non_eu_limit(self):
+        @dataclass(frozen=True)
+        class Manager:
+            formation_default: int = 0
+            formation_class3: int = 2
+            formation_class1: int = 1
+
+        @dataclass(frozen=True)
+        class Competition:
+            substitute_quota: int = 5
+            max_non_eu_players: int = 3
+
+        @dataclass(frozen=True)
+        class Row:
+            club_id: int
+            played: int
+            points: int
+
+        roster = formation_zero_roster(club=7)
+        roster.extend(
+            (
+                player(11, 7, 12, 160),
+                player(12, 7, 19, 160),
+                player(13, 7, 4, 160),
+                player(14, 7, 1, 160),
+                player(15, 7, 10, 150),
+            )
+        )
+        opponent = formation_zero_roster(club=8)
+
+        # With four matches remaining, club 7 is four points below the safe
+        # relegation cut. League pressure +2 plus home value +1 reaches the
+        # exact GSAttPerc threshold and selects the attacking alternate.
+        table = [
+            Row(1, 34, 80),
+            Row(2, 34, 70),
+            Row(3, 34, 65),
+            Row(4, 34, 60),
+            Row(5, 34, 55),
+            Row(6, 34, 50),
+            Row(9, 34, 40),
+            Row(10, 34, 35),
+            Row(11, 34, 30),
+            Row(12, 34, 28),
+            Row(13, 34, 27),
+            Row(14, 34, 26),
+            Row(15, 34, 25),
+            Row(16, 34, 24),
+            Row(17, 34, 23),
+            Row(18, 34, 22),
+            Row(19, 34, 21),
+            Row(20, 34, 20),
+            Row(7, 34, 18),
+            Row(8, 34, 16),
+        ]
+
+        result = prepare_premier_league_ai_selection(
+            7,
+            roster,
+            opponent,
+            Manager(),
+            Competition(),
+            table,
+            is_home=True,
+        )
+
+        self.assertEqual(result.strategy_score, 3)
+        self.assertEqual(int(result.selection_class), 1)
+        self.assertEqual(result.formation_id, 1)
+        self.assertEqual(result.substitute_quota, 5)
+        self.assertEqual(len(result.selection.lineup.starters), 11)
+        self.assertEqual(len(result.selection.lineup.substitutes), 5)
+
+    def test_premier_league_ai_selection_uses_normal_formation_early_season(self):
+        @dataclass(frozen=True)
+        class Manager:
+            formation_default: int = 0
+            formation_class3: int = 2
+            formation_class1: int = 1
+
+        @dataclass(frozen=True)
+        class Competition:
+            substitute_quota: int = 5
+            max_non_eu_players: int = 3
+
+        @dataclass(frozen=True)
+        class Row:
+            club_id: int
+            played: int
+            points: int
+
+        roster = formation_zero_roster(club=7)
+        roster.extend(
+            player(11 + i, 7, role, 150)
+            for i, role in enumerate((12, 19, 4, 1, 10))
+        )
+        opponent = formation_zero_roster(club=8)
+        table = [Row(club_id, 10, 20) for club_id in range(1, 21)]
+
+        result = prepare_premier_league_ai_selection(
+            7,
+            roster,
+            opponent,
+            Manager(),
+            Competition(),
+            table,
+            is_home=False,
+        )
+
+        self.assertEqual(result.strategy_score, -1)
+        self.assertEqual(int(result.selection_class), 2)
+        self.assertEqual(result.formation_id, 0)
+        self.assertEqual(result.substitute_quota, 5)
 
     def test_incomplete_xi_raises_before_mutating_existing_state(self):
         subject = player(
