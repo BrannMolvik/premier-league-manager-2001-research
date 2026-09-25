@@ -3303,3 +3303,20 @@ During penalty-shootout state, type-1 goal-family records are instead sent throu
 Lower calculator branches confirm that the side-indexed score dwords at +0xD4C/+0xD50 are incremented in multiple paths immediately before appending types from the 0..4 family.
 
 This establishes a direct calculator-record -> semantic FastView bridge.
+
+
+## Fixed real-fixture runtime construction path
+
+Direct executable tracing resolves the fixed League fixture-construction chain:
+
+- 0x4F72D0: iterate DBTRounds in table order and attach to competitions;
+- 0x4F4500: League virtual +0x04 / AddRound; append round pointer to League+0x50, count at +0x54;
+- 0x4F76A4..0x4F770D: iterate DBTRealFixtures in global table order and append each fixture pointer to its DBRRound+0x2C array, count +0x30;
+- 0x4F5150: generic League initialization chooses fixed builder 0x6173D0 when fixed-fixture mode has a real-fixture list;
+- 0x6173D0: outer loop over League+0x50 rounds, inner loop over DBRRound+0x2C fixtures, construct 0x50-byte LeagueMatch through 0x5104F0, choose schedule container through 0x4F3B50, insert through 0x615950.
+
+No rand / 0x64D540 call occurs in 0x6173D0 before each insertion.
+
+RTTI/global anchors: DBTRealFixtures vtable 0x7C9884, global 0x876C18; DBRRealFixture vtable 0x7C9898 and size 0x14; DBTRounds vtable 0x7C99C4, global 0x876BD0; DBRRound vtable 0x7C99D8; League vtable 0x7C9AC0.
+
+ScotPremierLeague uses 0x4FAC60 for its first virtual method and follows a different procedural-generation path; it is not evidence for English Premier League ordering.

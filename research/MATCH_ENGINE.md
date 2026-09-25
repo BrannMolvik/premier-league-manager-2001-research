@@ -3786,3 +3786,24 @@ The clean-room now contains the exact reusable CRT RNG and bucket
 head-insertion/shuffle primitives in `reconstruction/match_schedule.py`.
 They are intentionally not yet wired into the default season scheduler until
 the preceding insertion/generation stream is fully recovered.
+
+
+## Exact fixed Premier League fixture insertion order
+
+Confirmed from direct disassembly of the canonical executable and the shipped Static.dat.
+
+DBTRealFixtures are attached to DBRRound objects at 0x4F76A4..0x4F770D while the global fixture table is traversed in source order. Each fixture pointer is appended to the owning round's pointer array at DBRRound+0x2C and the count at +0x30 is incremented. There is no sorting, so each round preserves global DBTRealFixtures order.
+
+DBTRounds are attached to competitions at 0x4F72D0 in global round-table order. For the League vtable at 0x7C9AC0, virtual slot +0x04 is 0x4F4500. That method appends the round pointer to League+0x50, increments League+0x54, and records schedule week/day state at League+0x60. Again, no sort occurs.
+
+Generic League initialization at 0x4F5150 selects fixed-fixture builder 0x6173D0 when fixed-fixture mode is requested and the first round has a real-fixture list. Otherwise it uses procedural builder 0x6170F0. ScotPremierLeague overrides the first virtual method with 0x4FAC60, so the Scottish procedural generator must not be generalized to the English Premier League.
+
+0x6173D0 walks League+0x50 rounds in order and, for each round, DBRRound+0x2C fixtures in order. It resolves home from fixture+0x0C and away from fixture+0x10, constructs a 0x50-byte LeagueMatch via 0x5104F0, chooses a schedule container via 0x4F3B50, and inserts it via 0x615950. No RNG call occurs in 0x6173D0 before insertion.
+
+Runtime anchors: DBTRealFixtures global 0x876C18 (count 0x876C1C, data 0x876C20, accessor 0x874BB4); DBTRounds global 0x876BD0 (count 0x876BD4, data 0x876BD8, accessor 0x874BA8); DBRRealFixture is 0x14 bytes.
+
+The shipped Static.dat has the 38 Premier League rounds first in the round table and 380 real fixtures as ten consecutive records per round. Thus round 0 fixed-builder insertion is fixture IDs 0..9, round 1 is 10..19, and so on. Since 0x615950 head-inserts, an isolated round-0 bucket is 9..0 immediately before the later random bucket shuffle.
+
+PremierLeagueState now preserves round/fixture source order and exposes fixed_fixture_insertion_ids(), fixed_fixture_insertion_ids_on(), and fixed_fixture_pre_shuffle_ids_on(). Default due-fixture execution remains the deterministic fallback until the shared RNG state entering the final bucket shuffle is recovered.
+
+Global schedule buckets can contain nodes from other competitions, so the clean-room helper claims exact relative order of the fixed Premier League nodes, not completeness of the entire global bucket.

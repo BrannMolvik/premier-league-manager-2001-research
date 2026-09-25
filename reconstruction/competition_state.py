@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Iterable, Protocol
 
+from match_schedule import schedule_bucket_pre_shuffle_order
+
 
 class FixtureSource(Protocol):
     id: int
@@ -82,7 +84,21 @@ class PremierLeagueState:
         rounds: Iterable[RoundSource] = (),
         season_year: int | None = None,
     ):
-        self.fixtures = {f.id: f for f in fixtures}
+        fixture_sources = tuple(fixtures)
+        round_sources = tuple(rounds)
+        self.fixture_source_order = tuple(int(f.id) for f in fixture_sources)
+        self.fixtures = {f.id: f for f in fixture_sources}
+        self.round_source_order = tuple(
+            int(round_def.round_number) - 1
+            for round_def in round_sources
+            if 1 <= int(round_def.round_number) <= 38
+        )
+        if not self.round_source_order:
+            # Lightweight synthetic callers sometimes omit DBTRounds. Preserve
+            # first encounter order rather than inventing an ID sort.
+            self.round_source_order = tuple(dict.fromkeys(
+                int(f.round_index) for f in fixture_sources
+            ))
         self.club_ids = tuple(sorted({
             club_id
             for f in self.fixtures.values()
@@ -91,13 +107,82 @@ class PremierLeagueState:
         self.results: dict[int, MatchResult] = {}
         self.round_dates: dict[int, date] = {}
         if season_year is not None:
-            for round_def in rounds:
+            for round_def in round_sources:
                 if 1 <= round_def.round_number <= 38:
                     self.round_dates[round_def.round_number - 1] = season_weekday_date(
                         season_year,
                         round_def.scheduled_week,
                         round_def.scheduled_weekday,
                     )
+
+
+    def fixed_fixture_insertion_ids(
+        self,
+        round_indices: Iterable[int] | None = None,
+        *,
+        unplayed_only: bool = False,
+    ) -> tuple[int, ...]:
+        """Return exact League fixed-fixture insertion order before bucketing.
+
+        The executable attaches real-fixture pointers to each round in global
+        fixture source order, then walks League rounds in round source order
+        and each round's fixture list in that preserved source order. No RNG is
+        consumed by the fixed builder before schedule insertion.
+        """
+        if round_indices is None:
+            selected_rounds = self.round_source_order
+        else:
+            selected = {int(index) for index in round_indices}
+            selected_rounds = tuple(
+                index for index in self.round_source_order if index in selected
+            )
+
+        ids: list[int] = []
+        for round_index in selected_rounds:
+            for fixture_id in self.fixture_source_order:
+                fixture = self.fixtures[fixture_id]
+                if int(fixture.round_index) != int(round_index):
+                    continue
+                if unplayed_only and fixture_id in self.results:
+                    continue
+                ids.append(fixture_id)
+        return tuple(ids)
+
+    def fixed_fixture_insertion_ids_on(
+        self,
+        on_date: date,
+        *,
+        unplayed_only: bool = True,
+    ) -> tuple[int, ...]:
+        """Return fixed Premier League insertion order for rounds on one date."""
+        due_rounds = tuple(
+            round_index
+            for round_index in self.round_source_order
+            if self.round_dates.get(round_index) == on_date
+        )
+        return self.fixed_fixture_insertion_ids(
+            due_rounds,
+            unplayed_only=unplayed_only,
+        )
+
+    def fixed_fixture_pre_shuffle_ids_on(
+        self,
+        on_date: date,
+        *,
+        unplayed_only: bool = True,
+    ) -> tuple[int, ...]:
+        """Return PL-node order after head insertion, before bucket shuffle.
+
+        This is the exact relative order of fixed Premier League nodes. Other
+        competitions can share a global schedule bucket, so this deliberately
+        does not claim completeness of the entire global bucket.
+        """
+        return schedule_bucket_pre_shuffle_order(
+            self.fixed_fixture_insertion_ids_on(
+                on_date,
+                unplayed_only=unplayed_only,
+            )
+        )
 
     def fixtures_for_round(self, round_index: int):
         return tuple(sorted(

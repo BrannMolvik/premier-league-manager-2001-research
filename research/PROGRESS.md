@@ -1810,3 +1810,19 @@ Remaining same-day-order target: recover the exact Premier League match-node
 insertion/generation path and all intervening RNG consumption leading into
 the final bucket shuffle. Until that is complete, fixture-ID order remains an
 explicit deterministic fallback rather than a fidelity claim.
+
+
+## 25 September fixed Premier League insertion-order checkpoint
+
+The English fixed-real-fixture path is now directly recovered:
+
+- DBTRealFixtures are attached to their DBRRound in global fixture-table order at 0x4F76A4..0x4F770D;
+- DBTRounds are attached to League in global round-table order through 0x4F72D0 -> League::AddRound 0x4F4500;
+- generic League initialization 0x4F5150 chooses fixed builder 0x6173D0 when real fixtures are present;
+- 0x6173D0 walks rounds then each round's fixture list in those preserved source orders and consumes no RNG before schedule insertion;
+- shipped Premier League round 0 therefore inserts fixture IDs 0..9, round 1 10..19, etc.;
+- because 0x615950 is head insertion, each isolated ten-match PL round is reversed immediately before the later random bucket shuffle.
+
+PremierLeagueState now preserves source order and exposes the recovered fixed insertion/pre-shuffle order without replacing the deterministic default execution order prematurely.
+
+Next schedule-fidelity target: prove schedule-container selection for Premier League competition 0 and the exact shared-RNG state/consumers before 0x615BE0, including whether 0x4FA790 runs on the normal new-game path and whether unrelated competition nodes coexist in the same buckets.

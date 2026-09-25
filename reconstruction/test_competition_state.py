@@ -80,6 +80,55 @@ class LeagueStateTests(unittest.TestCase):
             league.next_club_match_date(1, after_date=second),
         )
 
+
+    def test_fixed_fixture_builder_preserves_round_then_source_order(self):
+        league = PremierLeagueState(
+            (
+                # Deliberately interleave rounds and scramble fixture IDs.
+                Fixture(40, 0, 1, 2),
+                Fixture(3, 1, 3, 4),
+                Fixture(10, 0, 5, 6),
+                Fixture(7, 0, 7, 8),
+            ),
+            (
+                Round(1, 7, 6),
+                Round(2, 8, 3),
+            ),
+            2000,
+        )
+
+        self.assertEqual(
+            league.fixed_fixture_insertion_ids(),
+            (40, 10, 7, 3),
+        )
+
+    def test_fixed_date_bucket_head_insertion_reverses_source_insertion(self):
+        league = PremierLeagueState(
+            (
+                Fixture(40, 0, 1, 2),
+                Fixture(10, 0, 3, 4),
+                Fixture(7, 0, 5, 6),
+            ),
+            (Round(1, 7, 6),),
+            2000,
+        )
+        on_date = league.round_date(0)
+
+        self.assertEqual(
+            league.fixed_fixture_insertion_ids_on(on_date),
+            (40, 10, 7),
+        )
+        self.assertEqual(
+            league.fixed_fixture_pre_shuffle_ids_on(on_date),
+            (7, 10, 40),
+        )
+
+        league.record_result(10, 0, 0)
+        self.assertEqual(
+            league.fixed_fixture_pre_shuffle_ids_on(on_date),
+            (7, 40),
+        )
+
     def test_duplicate_result_is_rejected(self):
         self.league.record_result(0, 1, 0)
         with self.assertRaises(ValueError):
