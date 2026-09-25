@@ -2684,3 +2684,58 @@ Across all 193 shipped competition records, packed byte +17 contains only:
 The shipped Premier League, competition ID 0, stores **5**.
 
 This removes the last unknown source for the bench-size argument in the normal AI lineup path. The clean-room `CompetitionDefinition` now exposes `substitute_quota` directly from Static.dat +17.
+
+## Tactics command conversion into MatchCalculator type-11 records
+
+**Confirmed from command RTTI/vtables, ConversionVisitor dispatch, compact-record constructors and serializer `0x6336E0`.**
+
+The front-end tactical command hierarchy is converted into MatchCalculator linked records through `ConversionVisitor` (vtable `0x7D7FC4`). The exact typed-command dispatch is:
+
+| Typed command | Visitor slot | ConversionVisitor handler | Type-11 subcommand |
+|---|---:|---:|---:|
+| StrategyCommand | +0x0C | `0x634400` | 0 |
+| StyleCommand | +0x08 | `0x634480` | 1 |
+| DefensiveStyleCommand | +0x1C | `0x6341F0` | 2 |
+| FormationCommand | +0x18 | `0x634270` | 3 |
+| AggressionCommand | +0x20 | `0x634170` | 4 |
+| PositionCommand | +0x10 | `0x634370` | 5 |
+| OrdersCommand | +0x14 | `0x6342F0` | separate family 12 |
+| SubstitutionCommand | remaining visitor slot | `0x634500` | separate substitution form |
+
+For the five simple tactical commands, the visitor reads the command value through getter `0x6335B0`, then constructs a 0x38-byte compact record using:
+
+- Strategy -> `0x632A60`
+- Style -> `0x632A90`
+- DefensiveStyle -> `0x632A00`
+- Formation -> `0x632A30`
+- Aggression -> `0x6329D0`
+- Position -> `0x632AF0`
+
+The shared constructor `0x6329A0` sets:
+
+```text
+record +0x28 = 11       # MatchCalculator command-record family
+record +0x08 = subcommand kind
+record +0x2C = primary command value
+```
+
+and inherits the generic time/order/team fields from the base record constructor chain.
+
+### Independent serializer confirmation
+
+Type-11 serializer `0x633A20` switches on `record+0x08` and uses payload widths consistent with the command value domains:
+
+- subcommand 0 Strategy: payload `+0x2C` serialized in 3 bits;
+- subcommand 1 Style: payload in 3 bits;
+- subcommand 2 DefensiveStyle: payload in 2 bits;
+- subcommand 3 Formation: payload in 5 bits;
+- subcommand 4 Aggression: payload in 4 bits;
+- subcommand 5 Position: serializes additional player/position fields (`+0x0C`, `+0x2C`, `+0x24`) rather than only a scalar.
+
+The event-family serializer's outer switch routes `record+0x28 == 11` specifically to `0x633A20`, independently confirming that these are **type-11 command records** rather than direct calls that mutate team tactical bytes.
+
+### Important architectural boundary
+
+`0x62FD90` does **not** apply these commands. It inserts/copies the 0x38-byte compact record into the MatchCalculator linked list in time/order sequence. Therefore the ConversionVisitor path should not be modeled as immediately writing team `+0x1B4..+0x1B7`.
+
+The remaining task is to find the later consumer that processes type-11 records and applies subcommands 0..5 to live calculator/team tactical state. That consumer is the authoritative bridge needed before manager packet values can be equated with final MatchCalculator tactic indices.
