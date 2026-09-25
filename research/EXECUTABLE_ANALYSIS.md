@@ -4038,3 +4038,76 @@ after `0x413830` completes, the CRT state reaches `0x4F7C00` unchanged.
 The remaining first-Premier-League-shuffle problem is upstream of
 `0x4C42EE` and inside the already-identified RNG-active competition/schedule
 initialization beneath `0x4F7C00`, not in the intervening wrapper code.
+
+
+## Earlier new-game UI branch narrowed further
+
+**Confirmed from direct disassembly and RTTI around `0x4C41C0..0x4C42EE`.**
+
+Several formerly opaque virtual calls immediately before the already-proven
+`0x4E2EB0 -> 0x5328B0 -> 0x413830` block are now concrete UI-state paths,
+not hidden RNG consumers.
+
+### TeamSelect event-handler identity
+
+The caller at `0x4DA480` is a virtual method on vtable `0x7C7650`.
+Its MSVC RTTI type descriptor at `0x81EC10` is:
+
+```text
+.?AVPMain@TeamSelect@@
+```
+
+so this part of startup is the TeamSelect main-panel transition into the final
+new-game construction routine `0x4C41C0`.
+
+The corresponding deleting-destructor entry is `0x4D9740`, which dispatches
+to `0x4D9B10`. That destructor only tears down TeamSelect UI controls,
+arrays and owned allocations; no `0x64D530` / `0x64D540` call occurs in
+that destruction path.
+
+### User +0x5BC / +0x5F0 virtual calls are deterministic control toggles
+
+The two controls called at `0x4C4200..0x4C4240` are now identified from the
+user-object constructor and RTTI:
+
+- user `+0x5BC`: vtable `0x7BE530`, RTTI
+  `.?AVBitmap@ease_2001@@`;
+- user `+0x5F0`: vtable `0x7BE340`, RTTI `.?AVeCText@@`.
+
+For both vtables, virtual slot `+0x30` is exactly `0x64F510`.
+`0x64F510` calls slot `+0x0C` with argument 1; for these two concrete
+classes that slot is `0x64F3E0`, which only mutates control-state bits and
+routes deterministic invalidation/update callbacks. No random call is present.
+
+### `0x432D20` refresh virtuals are also bounded
+
+The control classes used by `0x432D20` resolve through concrete vtables
+`0x7BE530`, `0x7BE5D8`, `0x7BE768`, `0x7BEB2C`,
+`0x7BEDEC` and `0x7BEED8`. Their `+0x34` entries all resolve to
+`0x64F520`, the matching deterministic control-state toggle.
+
+The one additional `+0x98` call on the compound control at user `+0x4E0`
+resolves to `0x5D6200`. That routine iterates child controls and applies
+`0x64F710` / `0x64F750` state bits; it contains no RNG call.
+
+Therefore `0x432D20` itself is RNG-clean.
+
+### Unreachable branch after `0x6596A0`
+
+At `0x4C427A`, the routine calls `0x6596A0` and compares its result with
+4. The callee is literally:
+
+```asm
+xor eax, eax
+ret
+```
+
+so the comparison can never equal 4 in this build. The block
+`0x4C4284..0x4C42EC`, which copies two strings from the active user, is
+therefore unreachable on this path. Control always falls directly to
+`0x4C42EE`.
+
+This removes another source of ambiguity from the pre-`0x413830` startup
+ledger. The remaining work in `0x4C41C0..0x4C42EE` is limited to finishing
+the transitive audit of the larger `0x432A20` UI/team refresh and the
+remaining deterministic setup helpers around it.
