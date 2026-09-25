@@ -3010,3 +3010,61 @@ The argument value 1 enables additional shirt/position-state handling earlier in
 Therefore the **fresh initial runtime roster order equals global Master.dat/DBRPlayer order filtered by current club**.
 
 This matters because the exact AI selector preserves roster order for strict-score ties and the MatchCalculator participant collector preserves this same team-roster order. A clean-room game initialized directly from the shipped database can consequently derive the original starting roster order by filtering the parsed player sequence by club ID. Later transfer/reordering operations may of course mutate runtime roster order and must be preserved as live state.
+## Exact AI-opponent pre-match Condition initialization
+
+**Confirmed from match setup 0x510D60, AI selection 0x5111A0, team Condition helper 0x4080F0, RNG helper 0x64D5B0, and the original tuning-key loader.**
+
+For each non-user-controlled team, the original setup order is:
+
+```text
+0x5111A0  AI formation / XI / substitutes / participant construction
+0x40D860  MatchEngine-side initial team snapshot
+...
+0x4080F0  overwrite Condition for every player in that team roster
+...
+MatchCalculator execution
+```
+
+The user-team predicate is checked through `0x4139E0`; `0x4080F0` is skipped for a user-controlled team.
+
+### Exact Condition formula
+
+`0x4080F0` walks the full ordered roster `team+0x244`, not only the selected XI/bench, and writes:
+
+```text
+DBRPlayer+0x77 =
+    OppMinVal
+    + RNG(6)
+    + RNG(5)
+```
+
+The store is a byte store, so tuning-overflow behavior is naturally modulo 256.
+
+The tuning loader at `0x5034D7..0x50350D` names global `0x8217C0` exactly:
+
+```text
+OppMinVal
+```
+
+and the analyzed executable's initialized default is:
+
+```text
+OppMinVal = 90
+```
+
+Therefore with shipped defaults each AI-controlled club player enters the match with Condition in **90..99**, consuming exactly two RNG calls per roster player in roster order:
+
+```text
+RNG(6)  -> 0..5
+RNG(5)  -> 0..4
+```
+
+This happens **after** AI lineup selection, so Condition does not affect which XI/bench is chosen by `0x409C90`. It does affect the subsequent MatchCalculator effective-skill and fatigue/injury paths.
+
+### Persistence consequence
+
+The initializer mutates the underlying DBRPlayer objects directly. Thus an AI player's Condition may persist after the match, but the next non-user match setup overwrites it again with a fresh `OppMinVal + RNG(6) + RNG(5)` value before calculation.
+
+This means ordinary between-match Condition recovery is primarily relevant to user-controlled/preserved team state; autonomous AI-vs-AI simulation should reproduce the pre-match randomization rather than carrying raw post-match fatigue forward unchanged.
+
+The clean-room autonomous Premier League AI path now performs this exact whole-roster initialization after lineup selection and before building the calculator-facing side, on the same RNG stream used by the match.
