@@ -3838,3 +3838,62 @@ swap-delete the bounds descend `RNG(511)`, `RNG(510)`, and so on for the
 
 The clean-room helper now reproduces the exact first-match `!Spare` lookup,
 the 512-candidate cap, table-order filtering, and descending selection bounds.
+
+
+## DummyLeague random sorter ownership and primary-container exclusion
+
+An instruction-boundary audit corrects a potentially serious misattribution.
+
+`League::EnsureSorted 0x4F4940` does not itself contain RNG. On first use it
+dispatches virtual slot +0x38.
+
+The relevant vtables are:
+
+```text
+DummyLeague 0x7C9A80 +0x38 -> 0x4F4750
+League      0x7C9AC0 +0x38 -> 0x4F4720
+ScotPL      0x7C9C94 +0x38 -> 0x4F4720
+```
+
+`0x4F4720` is RNG-clean: it qsorts the existing LeagueClub pointer array and
+clears +0x58.
+
+The adjacent function `0x4F4750` is the **DummyLeague-only** override. It
+builds temporary (LeagueClub pointer, score) pairs and for every participant
+resolves the team, calculates `0x409900(team)`, derives
+`floor(value/20)`, calls `0x64D540(bound)` once, stores
+`value - roll`, then sorts/copies the pointers back. Thus a first lazy sort
+of a DummyLeague consumes one CRT draw per participant.
+
+### Why this does not affect the first Premier League bucket shuffle
+
+The primary/mode-0 path was checked at all currently relevant sources:
+
+1. Primary DummyLeague roots initialize through `0x4F5130 -> 0x4F3DE0`;
+   that path never calls `0x4F4940`.
+2. Cup round source references are packed Round dword **+20**, loaded to
+   runtime `DBRRound+0x14`. `0x4F3B10` interprets the low word as the
+   competition ID and the high word as the child selector.
+3. Scanning the shipped primary-container Cups finds only three non-FFFF
+   source references:
+   - Champions League round -> competition 14, Ch. League Phase 1 (League);
+   - Champions League round -> competition 167, Ch. League Phase 2 (League);
+   - WCC Group Stage -> competition 192, WCC Group Phase (League).
+   There are **zero primary Cup round references to a DummyLeague**.
+4. The special Cup paths at `0x4F5D75/0x4F5D9B/0x4F5E08` that do sort
+   DummyLeagues are for secondary-container European Championship / World Cup
+   seed objects (Euro Seeds 1-6, IDs 182-187), processed only after the primary
+   container has already reached its shuffle.
+5. The other generic callers `0x410E91 -> 0x4F7B40` and
+   `0x410F17 -> 0x4F7B80` explicitly dynamic-cast their source object to
+   RTTI **League** before calling the helper, so they dispatch RNG-clean
+   `0x4F4720`, not DummyLeague `0x4F4750`.
+
+Therefore DummyLeague's random lazy sorter is a real original-game RNG
+mechanism, but it is **not part of the currently mapped RNG stream entering
+the first primary/Premier-League bucket shuffle**.
+
+The clean-room RoundDefinition now exposes packed +20 neutrally as
+`source_competition_reference`, with low-word `source_competition_id` and
+high-word `source_child_code`, so this boundary can be checked directly from
+Static.dat.

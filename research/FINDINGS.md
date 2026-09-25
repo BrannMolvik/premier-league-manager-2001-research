@@ -865,3 +865,23 @@ Confirmed:
 - the final included candidate is player index 6643;
 - candidate RNG bounds therefore start at `RNG(512)` and descend by one after
   each swap-delete selection.
+
+
+## DummyLeague lazy-sort RNG is secondary to the first PL shuffle
+
+Confirmed:
+
+- 0x4F4940 lazy-dispatches virtual +0x38;
+- ordinary League and ScotPremierLeague use RNG-clean 0x4F4720;
+- DummyLeague alone uses RNG-capable 0x4F4750, one CRT draw per participant;
+- packed Round +20 is the source competition reference consumed through
+  DBRRound+0x14 / 0x4F3B10;
+- no shipped primary Cup round references a DummyLeague;
+- the only primary non-FFFF sources are League IDs 14, 167 and 192;
+- the secondary Euro/World Cup seed paths can sort DummyLeagues, but run only
+  after the primary container shuffle;
+- nationality/country helper callers cast explicitly to League before
+  0x4F7B40/0x4F7B80.
+
+So DummyLeague's random sorter must be preserved for broader competition
+fidelity but excluded from the first Premier League shuffle RNG ledger.

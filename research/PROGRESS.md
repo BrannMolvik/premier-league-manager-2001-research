@@ -2038,3 +2038,28 @@ Next startup-RNG target: combine the now-known 512-source sequence with the
 selected user's option-category-3 mode and country-specific two-name bounds,
 then finish auditing any remaining pre-`0x4F7C00` callers so a complete
 new-game-to-first-PL-shuffle ledger can be generated.
+
+
+## 25 September DummyLeague sorter boundary checkpoint
+
+A late RNG audit found and then correctly localized the random sorter near
+0x4F4720.
+
+The RNG routine is not League's +0x38 method. DummyLeague overrides that slot
+with 0x4F4750; normal League/ScotPremierLeague use RNG-clean 0x4F4720.
+DummyLeague's override consumes one RNG call per participant during its first
+lazy sort.
+
+Static.dat Round +20 is now mapped as the source competition reference used by
+Cup setup. Scanning all primary Cup rounds proves none references a DummyLeague:
+Champions League references League phases 14/167 and WCC references League
+phase 192. The known DummyLeague sorts are confined to secondary-container
+Euro/World Cup seed logic, after the primary PL shuffle.
+
+This removes the apparent new DummyLeague draw block from the first-PL-shuffle
+ledger while retaining it as a verified mechanism for later broader
+competition reconstruction.
+
+Next target: continue the pre-schedule audit for genuinely primary-path RNG
+consumers and assemble a concrete total-call ledger from srand through the
+first 0x947AD8/0x615BE0 bucket shuffle.

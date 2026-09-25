@@ -4,6 +4,8 @@ import unittest
 from fm2001_data import (
     COMPETITION_RECORD_SIZE,
     COMPETITION_TABLE_OFFSET,
+    ROUND_RECORD_SIZE,
+    ROUND_TABLE_OFFSET,
     FM2001Database,
 )
 
@@ -67,6 +69,44 @@ class CompetitionParserTests(unittest.TestCase):
         self.assertFalse(db.competitions[1].is_root_competition)
         self.assertEqual(db.competitions[1].initialization_order_value, -3)
         self.assertEqual(db.competitions[1].country_region_id, 123)
+
+
+class RoundParserTests(unittest.TestCase):
+    def test_round_source_competition_reference_is_packed_dword_20(self):
+        data = bytearray(ROUND_TABLE_OFFSET + 4 + 2 * ROUND_RECORD_SIZE)
+        struct.pack_into("<I", data, ROUND_TABLE_OFFSET, 2)
+        base = ROUND_TABLE_OFFSET + 4
+
+        first = base
+        struct.pack_into("<I", data, first + 0, 201)
+        struct.pack_into("<H", data, first + 4, 3)
+        struct.pack_into("<H", data, first + 6, 9)
+        struct.pack_into("<H", data, first + 10, 4)
+        struct.pack_into("<H", data, first + 14, 500)
+        struct.pack_into("<I", data, first + 20, 14)
+        struct.pack_into("<H", data, first + 24, 8)
+        struct.pack_into("<H", data, first + 26, 8)
+
+        second = base + ROUND_RECORD_SIZE
+        struct.pack_into("<I", data, second + 0, 202)
+        struct.pack_into("<H", data, second + 4, 1)
+        struct.pack_into("<H", data, second + 6, 9)
+        struct.pack_into("<H", data, second + 10, 5)
+        struct.pack_into("<H", data, second + 14, 501)
+        struct.pack_into("<I", data, second + 20, 0x0002FFFF)
+
+        db = FM2001Database.__new__(FM2001Database)
+        db.static = bytes(data)
+        db.english = FakeStrings()
+        db.rounds = []
+        db._parse_rounds()
+
+        self.assertEqual(db.rounds[0].source_competition_reference, 14)
+        self.assertEqual(db.rounds[0].source_competition_id, 14)
+        self.assertEqual(db.rounds[0].source_child_code, 0)
+        self.assertEqual(db.rounds[1].source_competition_reference, 0x0002FFFF)
+        self.assertIsNone(db.rounds[1].source_competition_id)
+        self.assertEqual(db.rounds[1].source_child_code, 2)
 
 
 if __name__ == "__main__":

@@ -181,6 +181,16 @@ class RoundDefinition:
     replay_weekday: int
     team_count: int
     new_entrants: int
+    source_competition_reference: int = 0xFFFFFFFF
+
+    @property
+    def source_competition_id(self) -> int | None:
+        value = int(self.source_competition_reference) & 0xFFFF
+        return None if value == 0xFFFF else value
+
+    @property
+    def source_child_code(self) -> int:
+        return (int(self.source_competition_reference) >> 16) & 0xFFFF
 
 @dataclass(frozen=True)
 class RealFixture:
@@ -401,6 +411,7 @@ class FM2001Database:
                 replay_weekday=r[19],
                 team_count=struct.unpack_from('<H', r, 24)[0],
                 new_entrants=struct.unpack_from('<H', r, 26)[0],
+                source_competition_reference=struct.unpack_from('<I', r, 20)[0],
             ))
 
     def _parse_real_fixtures(self):
