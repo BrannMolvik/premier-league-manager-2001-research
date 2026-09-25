@@ -1974,3 +1974,14 @@ Next target: finish the transitive RNG audit of generic root League
 initialization and then enumerate any earlier non-player startup consumers
 before 0x616620. If those paths are clean/bounded, the exact CRT state entering
 0x615BE0 can be reconstructed.
+
+
+## 25 September pre-schedule youth RNG checkpoint
+
+The startup RNG ledger found a major upstream consumer before 0x4F7C00.
+
+The user-reset path 0x413830 -> 0x413980 -> 0x61DF90 generates a randomized set of young players. It consumes an option-size draw when applicable, one candidate-selection draw per generated player, and two nested name-generation draws per selected player through 0x421C00 -> 0x421BA0.
+
+Clean-room additions expose Master.dat player +10 as initial_flags and model the exact option target mapping, candidate filter, and swap-delete selection behavior in startup_rng.py.
+
+Next target: recover 0x421BA0 per-country/fallback name-list bounds, then account for the separate 0x414330 -> 0x421C00 loop that can consume many startup name-generation draws before 0x61DF90.

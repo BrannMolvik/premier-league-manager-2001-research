@@ -813,3 +813,17 @@ Confirmed from the canonical shipped data and executable:
 
 The clean-room preserves this behavior rather than replacing it with a normal
 RNG(7) selection.
+
+
+## New-game youth generation is a pre-schedule RNG consumer
+
+Confirmed:
+
+- 0x413980 invokes 0x61DF90 before schedule construction;
+- option category 3 yields target 4+RNG(2), 5+RNG(2), 6+RNG(3), or deterministic 4 for absent/other values;
+- candidate selection uses RNG(candidate_count) and swap-with-last deletion;
+- candidate eligibility is source club match plus DBRPlayer flags bit 3 clear;
+- each selected player then calls 0x421C00, which transitively consumes two additional bounded RNG draws through 0x421BA0;
+- exact generated-name bounds are still unresolved.
+
+Therefore first-matchday shuffle state is user/new-game configuration dependent, not a fixed function of the shipped database alone.

@@ -85,6 +85,7 @@ class Player:
     current_raw: tuple[int, ...]
     target_raw: tuple[int, ...]
     eu_status_code: int = 2
+    initial_flags: int = 0
 
     @property
     def full_name(self):
@@ -245,6 +246,7 @@ class FM2001Database:
             r = d[player_start + i * PLAYER_RECORD_SIZE: player_start + (i + 1) * PLAYER_RECORD_SIZE]
             player_id, first_id, last_id, club_id = struct.unpack_from('<HHHH', r, 0)
             nationality = r[8]
+            initial_flags = struct.unpack_from('<I', r, 10)[0]
             dob = ole_date(struct.unpack_from('<I', r, 14)[0])
             shirt = r[18]
             height = r[19]
@@ -267,6 +269,7 @@ class FM2001Database:
                 current,
                 target,
                 eu_status_code,
+                initial_flags,
             ))
 
         manager_count = struct.unpack_from('<I', d, player_end)[0]

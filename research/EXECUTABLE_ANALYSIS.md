@@ -3664,3 +3664,33 @@ in that order, before the eventual primary schedule-container bucket shuffle.
 The clean-room now exposes Master.dat club +18 and +98 under neutral names
 `runtime_value_1c_source` and `team_category_code`, plus tested helpers that
 reproduce the filter and count-minus-one selection quirk.
+
+
+## Pre-schedule user youth-generation RNG block
+
+The transitive startup audit found an additional RNG consumer before 0x4F7C00 schedule construction.
+
+New-game setup calls 0x413830. Its 0x413980 pass walks the user list at +0x9CC. For each user it clears the generated-player list through 0x61E0E0, then calls 0x61DF90.
+
+0x61DF90 scans DBRPlayers in table order and keeps players whose runtime club +0x10 equals global 0x8755D0 and whose DBRPlayer +0x14 bit 3 predicate 0x417A60 is clear. Master.dat player dword +10 is loaded into that flags field, so the parser now exposes it neutrally as Player.initial_flags.
+
+0x42C3A0 looks up user option category 3. Its exact count contribution is:
+
+    option absent/other -> 0, no RNG
+    option 0 -> RNG(2)
+    option 1 -> RNG(2) + 1
+    option 2 -> RNG(3) + 2
+
+0x61DF90 adds 4. It then repeatedly consumes RNG(candidate_count), selects that candidate, and removes it by swap-with-last. 0x61E0E0 has cleared the destination count beforehand.
+
+Crucially, selected candidates are transformed through 0x41E510, which calls 0x421C00. 0x421C00 invokes 0x421BA0 twice, and each 0x421BA0 invocation consumes a bounded 0x64D540 draw for generated first/surname source selection.
+
+Thus each generated player contributes an interleaved sequence:
+
+    RNG(current_candidate_count)
+    RNG(name_bound)
+    RNG(name_bound)
+
+before the next candidate draw. The exact name_bound mapping remains the next target.
+
+This corrects a direct-call-only observation: 0x421C00 has no direct 0x64D540 instruction, but transitively it consumes two RNG draws through 0x421BA0.
