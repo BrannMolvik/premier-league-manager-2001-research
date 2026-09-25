@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "project": "FM2001 clean-room reconstruction",
+  "updated": "2026-09-26",
+  "current_gate": 1,
+  "current_gate_name": "Repository stabilization",
+  "status": "in_progress",
+  "technical_baseline_head": "1014b042a19fc851b8d87e653ee1e5d807816630",
+  "last_verified_reconstruction_ci_head": "0205d90a61d8b0386bfd6660a46910833257256a",
+  "last_verified_test_count": 307,
+  "active_task": "Stabilize repository handoff, documentation, clean-room guard, and canonical-data verification",
+  "next_technical_task": "Trace TeamSelect panel construction/activation callers backward to the recovered database/player startup sequence and enumerate mandatory CRT RNG consumers before the first Premier League schedule shuffle",
+  "blocked": false,
+  "canonical_live_state": "research/CURRENT_STATE.md",
+  "roadmap": "ROADMAP.md"
+}
