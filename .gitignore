@@ -27,22 +27,18 @@ Thumbs.db
 *.gpr
 *.rep/
 
-# Original FM2001 executable / canonical database and string files
-**/[Ff][Oo][Oo][Tt][Bb][Aa][Ll].exe
-**/[Ff][Oo][Oo][Tt][Bb][Aa][Ll][Ll][Mm][Aa][Nn][Aa][Gg][Ee][Rr].exe
-**/[Ee][Dd][Ii][Tt][Oo][Rr].exe
-**/[Mm][Aa][Ss][Tt][Ee][Rr].dat
-**/[Ss][Tt][Aa][Tt][Ii][Cc].dat
-**/[Cc][Oo][Rr][Ee].str
-**/[Ee][Nn][Gg][Ll][Ii][Ss][Hh].str
-
-# Disc images / raw optical-media dumps
+# Raw source packaging / disc-image containers.
+# Useful authorized resources should be extracted into original_assets/
+# and recorded in original_assets/MANIFEST.md.
 *.iso
-*.bin
 *.cue
-*.img
 *.mdf
 *.mds
 *.nrg
 *.ccd
 *.sub
+*.zip
+*.7z
+*.rar
+famg2001.bin
+FAMG2001.BIN
