@@ -3068,3 +3068,96 @@ The initializer mutates the underlying DBRPlayer objects directly. Thus an AI pl
 This means ordinary between-match Condition recovery is primarily relevant to user-controlled/preserved team state; autonomous AI-vs-AI simulation should reproduce the pre-match randomization rather than carrying raw post-match fatigue forward unchanged.
 
 The clean-room autonomous Premier League AI path now performs this exact whole-roster initialization after lineup selection and before building the calculator-facing side, on the same RNG stream used by the match.
+## Exact Pitch Wear environment field and lifecycle
+
+**Confirmed from DBRTeam field writes, match setup, UI bands and the original tuning-key loader.**
+
+The formerly neutral DBRTeam byte at `team+0x1D7`, copied into MatchCalculator `+0xD47`, is exactly **Pitch Wear**.
+
+The original tuning table names the governing globals:
+
+```text
+PitchRecover  = 2
+PitchWear     = 16
+RainPitchWear = 32
+MaxPitchWear  = 192
+```
+
+in the analyzed executable.
+
+### Initialization and match input
+
+The DBRTeam constructor initializes:
+
+```text
+team+0x1D7 = 0
+```
+
+At match setup `0x510FE4..0x510FF4`, the first match team (side 0 / home side in the reconstructed fixture path) is resolved and its Pitch Wear byte is copied unchanged to:
+
+```text
+MatchCalculator+0xD47
+```
+
+The recovered injury-incidence routine later uses the top two bits of this byte:
+
+```text
+pitch_wear_contribution = PitchWear >> 6
+```
+
+so Pitch Wear contributes 0..3 to the injury incidence score.
+
+### Post-match wear
+
+The post-match team routine around `0x404D40` reads MatchCalculator weather byte `+0xD46`.
+
+If weather code is **2**, it adds `RainPitchWear`; otherwise it adds `PitchWear`. The result is capped at `MaxPitchWear`:
+
+```text
+if match_weather == 2:
+    wear += RainPitchWear
+else:
+    wear += PitchWear
+
+wear = min(wear, MaxPitchWear)
+```
+
+Thus weather code 2 is independently identified as the rain state for pitch-wear purposes.
+
+### Daily recovery
+
+Global day-advance processing calls `0x40BA50`, which iterates every club/team and invokes `0x40DD70` once per day.
+
+For a non-user-controlled team, `0x40DD70` begins with exactly:
+
+```text
+recovery = PitchRecover
+```
+
+and subtracts that amount from Pitch Wear, flooring at zero.
+
+For the user-controlled club only, additional grounds/facility-dependent recovery can be added probabilistically. The associated tuning keys include:
+
+```text
+PWHeatingGain
+PWDrainageGain
+PWSprinklerGain
+PWGGain
+```
+
+Those user-facility modifiers remain a separate reconstruction concern; autonomous AI clubs use the exact base recovery of 2 per day.
+
+### UI bands
+
+The pitch-status UI compares the same DBRTeam byte against:
+
+```text
+30
+60
+90
+120
+```
+
+to select one of five pitch-condition presentation states, independently confirming that this byte is a bounded wear/condition scalar rather than a weather enum.
+
+This resolves the last unnamed input to `ConditionInjurySettings`: autonomous match calculation should receive the current home club Pitch Wear byte as the environment value, not an invented weather or pitch-type code.
