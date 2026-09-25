@@ -10,9 +10,11 @@ from typing import Iterable, Protocol
 
 from competition_startup import (
     ClubSource as CompetitionClubSource,
+    CompetitionSource,
     CountrySource as CompetitionCountrySource,
-    PrimaryMode0CompetitionRngReplay,
-    replay_primary_mode0_competition_rng,
+    PrimaryMode0PreShuffleStateReplay,
+    RoundSource,
+    replay_primary_mode0_pre_shuffle_state,
 )
 from startup_rng import (
     GeneratedNameCountrySource,
@@ -46,7 +48,7 @@ class StartupToPrimaryShuffleReplay:
     """All recovered checkpoints through entry to primary 0x615BE0."""
 
     precompetition: PrecompetitionStartupRngReplay
-    primary_competition: PrimaryMode0CompetitionRngReplay
+    primary_competition_state: PrimaryMode0PreShuffleStateReplay
     state_entering_primary_shuffle: int
 
 
@@ -57,13 +59,22 @@ def replay_startup_rng_to_primary_shuffle(
     players: Iterable[StartupPlayerSource],
     selected_user_country_id: int,
     users: Iterable[StartupUserRngConfig],
+    competitions: Iterable[CompetitionSource],
+    rounds: Iterable[RoundSource],
 ) -> StartupToPrimaryShuffleReplay:
-    """Advance one shared RNG through every mapped draw before 0x615BE0."""
+    """Advance one shared RNG through every mapped state change before 0x615BE0.
+
+    The competition phase currently replays the exact hidden CRT-state advance
+    from primary Cup pairing shuffles plus the two Europe selectors. Exact Cup
+    pairing outputs/interleaving are tracked separately from this state ledger.
+    """
 
     club_list = tuple(clubs)
     country_list = tuple(countries)
     player_list = tuple(players)
     user_list = tuple(users)
+    competition_list = tuple(competitions)
+    round_list = tuple(rounds)
 
     precompetition = replay_precompetition_startup_rng(
         rng,
@@ -73,13 +84,15 @@ def replay_startup_rng_to_primary_shuffle(
         selected_user_country_id=int(selected_user_country_id),
         users=user_list,
     )
-    primary_competition = replay_primary_mode0_competition_rng(
+    primary_competition_state = replay_primary_mode0_pre_shuffle_state(
         rng,
+        competition_list,
+        round_list,
         club_list,
         country_list,
     )
     return StartupToPrimaryShuffleReplay(
         precompetition=precompetition,
-        primary_competition=primary_competition,
+        primary_competition_state=primary_competition_state,
         state_entering_primary_shuffle=int(rng.state) & 0xFFFFFFFF,
     )
