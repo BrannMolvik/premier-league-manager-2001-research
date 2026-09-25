@@ -4598,3 +4598,87 @@ time-derived srand(seed)
 
 This hidden presentation-related RNG consumer must be reproduced even though the modern Windows 11 port may decode/display the original background asset differently. Fidelity requires advancing the shared game RNG stream as the original Loader444 did.
 
+
+
+## Initial PStartMenu path correction: screen factory ID 0x323
+
+**Confirmed, 26 September 2026. This prevents a false pre-menu RNG path from being attributed to ordinary startup.**
+
+A provisional trace through `0x432190` looked like a possible initial PStartMenu creation route. Closer inspection proves it is a **later route that requires an already-existing current user**, not the zero-user first front-end entry.
+
+### User-list state around 0x874C10
+
+Global object `0x874C10` owns the user-list state. Relevant fields are:
+
+- `+0x9CC`: linked user list;
+- `+0x9D4` = absolute `0x8755E4`: user count;
+- `+0x9C4`: current-user index.
+
+The user-add path around `0x413BB0`:
+
+1. allocates/constructs a 0x10F0-byte user object through `0x424CA0`;
+2. inserts it into the user list through `0x617D70`;
+3. configures the user;
+4. increments `[owner+0x9D4]`;
+5. updates the current-user index.
+
+`0x413D80` resets the user list/count/current index.
+
+`0x413B10(index)` resolves a user object from the linked list, while `0x4139D0()` resolves the current user via `+0x9C4 -> 0x413B10`.
+
+### Why 0x432190 is not first-start PStartMenu creation
+
+`0x432190` calls `0x4139D0` and immediately dereferences state from the returned current-user object. It therefore assumes a current user already exists.
+
+It must not be used as evidence for the zero-user startup path between application `srand` and the first New Game database load.
+
+This matters because broader calendar/game-state code reachable from that later route contains RNG-bearing functions on unrelated branches. Those calls are not automatically part of ordinary first-start RNG consumption.
+
+### Normal PStartMenu factory path
+
+PStartMenu constructor `0x4C3280` has three direct callers:
+
+- `0x4325E5` - the later current-user route described above;
+- `0x47C928` - generic front-end screen factory;
+- `0x4DA4C4` - TeamSelect back/return route.
+
+The generic factory beginning at `0x47AEC0` dispatches front-end screen IDs. Its compressed jump-table mapping resolves:
+
+```text
+screen ID 0x321 -> 0x47C889
+screen ID 0x322 -> 0x47C8DD
+screen ID 0x323 -> 0x47C928 -> 0x4C3280  ; PStartMenu
+```
+
+Screen ID `0x323` is explicitly registered through the front-end navigation registration path (`0x60C9C0`) and appears in associated navigation/resource setup.
+
+Navigation handler `0x47AD60` resolves the selected navigation record, reads its screen ID from record `+0x0C`, calls `0x47AEC0`, then registers/activates the returned panel.
+
+Thus the correct ordinary front-end investigation is the **screen-factory/navigation route to ID 0x323**, not `0x432190`.
+
+### Related TeamSelect evidence
+
+The TeamSelect event callback `0x4DA480` distinguishes:
+
+- control/event ID `0x2A`: start/continue -> `0x4C41C0`;
+- control/event ID `0x29`: back/return -> `0x4C3280` PStartMenu.
+
+That independently confirms the PStartMenu/TeamSelect front-end relationship.
+
+### Updated audit target
+
+For the seed-to-player RNG ledger, audit only the actual startup chain:
+
+```text
+srand
+ -> bground.444 Loader444 (260 raw draws)
+ -> intro/front-end initialization
+ -> navigation/screen factory
+ -> screen ID 0x323 PStartMenu
+ -> New Game event ID 2
+ -> 0x50D630
+ -> DBTPlayers startup RNG
+```
+
+Do not attribute RNG from later current-user/calendar routes to this path without concrete reachability proof.
+
