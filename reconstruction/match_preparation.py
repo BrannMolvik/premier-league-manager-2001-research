@@ -14,6 +14,7 @@ from match_team_setup import (
     TeamTacticalState,
     formation_selection_class_from_score,
     game_strategy_score,
+    initialize_ai_roster_condition,
     manager_formation_for_selection_class,
     play_style_to_strategy_code,
     premier_league_strategy_bias,
@@ -373,6 +374,7 @@ def prepare_premier_league_ai_match_side(
     *,
     side: int,
     is_home: bool,
+    rng,
     tactical_state: TeamTacticalState | None = None,
     additional_eligible: Callable[[PlayerT], bool] | None = None,
     preserve_existing_selection: Callable[[PlayerT], bool] | None = None,
@@ -381,8 +383,10 @@ def prepare_premier_league_ai_match_side(
     """Prepare a calculator-ready Premier League AI side autonomously.
 
     A normally constructed AI DBRTeam retains the authoritative backend
-    defaults: Normal Play, Normal Without Ball, Normal With Ball and
-    Aggression 5. Manager tactical preference bytes belong to the separate
+    tactical defaults: Normal Play, Normal Without Ball, Normal With Ball and
+    Aggression 5. After AI selection, the original setup also overwrites every
+    roster player's Condition with OppMinVal + RNG(6) + RNG(5), using shipped
+    OppMinVal=90. Manager tactical preference bytes belong to the separate
     MatchEngine-side snapshot and are intentionally not substituted here.
 
     Pass tactical_state when copied/preserved live DBRTeam state already has
@@ -400,6 +404,12 @@ def prepare_premier_league_ai_match_side(
         preserve_existing_selection=preserve_existing_selection,
         require_complete_xi=require_complete_xi,
     )
+
+    # Original 0x510D60 runs 0x5111A0 (AI selection/participant setup) first,
+    # then 0x4080F0 for each non-user team before MatchCalculator execution.
+    # The initializer covers the whole roster, including non-participants.
+    initialize_ai_roster_condition(ordered_roster, rng)
+
     live_tactics = tactical_state or TeamTacticalState()
     match_side = build_prepared_match_side_from_selection(
         preparation.selection,
