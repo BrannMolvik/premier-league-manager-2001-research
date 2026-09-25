@@ -7,9 +7,9 @@
   "status": "in_progress",
   "gate_1_status": "complete",
   "latest_reverse_engineering_checkpoint": "1014b042a19fc851b8d87e653ee1e5d807816630",
-  "last_verified_reconstruction_ci_head": "a382f7982614cbe1d0cf8508d7790df6d17246d9",
-  "last_verified_test_count": 314,
-  "active_task": "Account for Cup round scheduler/pairing RNG before primary 0x615BE0",
+  "last_verified_reconstruction_ci_head": "a7785c42f6ceeea31d00ec13dc8f0cc731176758",
+  "last_verified_test_count": 323,
+  "active_task": "Materialize exact primary Cup bounded-RNG ordering and pairing output before resuming Gate 4 bucket shuffles",
   "next_gate": 4,
   "next_gate_name": "Resolve exact Premier League matchday ordering",
   "blocked": false,
@@ -24,7 +24,10 @@
   "asset_policy_status": "passed",
   "gate_2_status": "complete",
   "startup_rng_ledger": "research/STARTUP_RNG_LEDGER.md",
-  "gate_3_status": "reopened",
-  "gate_4_status": "paused_pending_corrected_pre_shuffle_rng",
-  "previously_claimed_primary_shuffle_state_status": "superseded_pending_cup_round_rng"
+  "gate_3_status": "in_progress_exact_pairing_order",
+  "gate_4_status": "paused_with_valid_scheduler_groundwork",
+  "corrected_primary_competition_rng_calls": 1739,
+  "corrected_primary_cup_pairing_rng_calls": 1737,
+  "corrected_synthetic_pre_shuffle_state": "0x986E4579",
+  "pre_shuffle_hidden_state_status": "corrected"
 }
