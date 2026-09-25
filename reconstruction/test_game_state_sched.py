@@ -75,6 +75,20 @@ class GameScheduleIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(state.rng.state, 0xDF90722B)
 
+    def test_database_state_resolves_its_shared_rng_by_default(self):
+        state = GameState.from_database(
+            Database(),
+            date(2000, 8, 18),
+            seed=1,
+            season_year=2000,
+        )
+        self.assertIs(state._resolve_rng(), state.rng)
+
+    def test_player_only_state_requires_explicit_rng(self):
+        state = GameState.from_players([], date(2000, 8, 18))
+        with self.assertRaises(RuntimeError):
+            state._resolve_rng()
+
     def test_next_match_date_and_due_fixtures_follow_calendar(self):
         state = GameState.from_database(Database(), date(2000, 8, 18), seed=1, season_year=2000)
         self.assertEqual(state.next_match_date(), date(2000, 8, 19))

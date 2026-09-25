@@ -262,7 +262,7 @@ class GameState:
         self,
         attack_matrix,
         defence_matrix,
-        rng,
+        rng=None,
         *,
         fixture_order: Iterable[int] | None = None,
     ) -> tuple[tuple[int, NormalMatchResult], ...]:
@@ -274,6 +274,7 @@ class GameState:
         Callers may supply the exact due fixture IDs in a known scheduler order
         without changing any match-level behavior.
         """
+        rng = self._resolve_rng(rng)
         due_ids = tuple(int(fixture.id) for fixture in self.fixtures_due_today())
         if fixture_order is None:
             ordered_ids = due_ids
@@ -304,7 +305,7 @@ class GameState:
         self,
         attack_matrix,
         defence_matrix,
-        rng,
+        rng=None,
         *,
         fixture_order: Iterable[int] | None = None,
     ) -> tuple[tuple[int, NormalMatchResult], ...]:
@@ -315,6 +316,7 @@ class GameState:
         on the new date are processed only after that date's fixtures, followed
         by daily AI Pitch Wear recovery and then first-of-month development.
         """
+        rng = self._resolve_rng(rng)
         self.calendar.increment_one_day()
         results = self.simulate_due_premier_league_ai_fixtures(
             attack_matrix,
@@ -348,13 +350,14 @@ class GameState:
     def prepare_premier_league_ai_fixture_sides(
         self,
         fixture_id: int,
-        rng,
+        rng=None,
     ) -> tuple[PreparedPremierLeagueAiSide, PreparedPremierLeagueAiSide]:
         """Prepare both AI sides in the original shared fixture RNG order.
 
         The original high-level order is:
         both AI selections -> weather -> home AI Condition -> away AI Condition.
         """
+        rng = self._resolve_rng(rng)
         if self.premier_league is None:
             raise RuntimeError("Premier League state is not loaded")
         fixture_id = int(fixture_id)
@@ -453,9 +456,10 @@ class GameState:
         fixture_id: int,
         attack_matrix,
         defence_matrix,
-        rng,
+        rng=None,
     ) -> NormalMatchResult:
         """Prepare two AI clubs, simulate the due fixture, and store its result."""
+        rng = self._resolve_rng(rng)
         home, away = self.prepare_premier_league_ai_fixture_sides(fixture_id, rng)
         fixture = self.premier_league.fixtures[int(fixture_id)]
         home_club_id = int(fixture.home_club_id)
@@ -551,7 +555,7 @@ class GameState:
         away_side: PreparedMatchSide,
         attack_matrix,
         defence_matrix,
-        rng,
+        rng=None,
         *,
         condition_injury_settings: ConditionInjurySettings | None = None,
     ) -> NormalMatchResult:
@@ -560,6 +564,7 @@ class GameState:
         The caller supplies the recovered match-day player/tactic state explicitly;
         this method does not invent a lineup, Condition, Form, or Team Orders.
         """
+        rng = self._resolve_rng(rng)
         if self.premier_league is None:
             raise RuntimeError("Premier League state is not loaded")
         if fixture_id not in self.premier_league.fixtures:
