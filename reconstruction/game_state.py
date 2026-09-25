@@ -184,6 +184,7 @@ class GameState:
             competitions=competitions_by_id,
             team_tactics=team_tactics,
             pitch_wear=pitch_wear,
+            rng=rng,
         )
         state.calendar.daily_hooks.append(state._run_daily_injury_returns)
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
