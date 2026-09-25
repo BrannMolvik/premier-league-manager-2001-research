@@ -3409,3 +3409,242 @@ When no future competition fixture context is available, `0x419680` sets the sus
 RuntimePlayer now preserves the four normal-league discipline values separately from the boolean availability bit. The autonomous Premier League post-match path reproduces the original three phases in roster/participant order and uses each club's own next unplayed fixture date for the effective-date gate.
 
 Because `base_lineup_eligible()` already rejects `RuntimePlayer.suspended`, the refreshed suspension state automatically feeds the next AI lineup selection.
+## Exact persistent match-injury lifecycle
+
+**Confirmed from post-match controller `0x5127A0`, injury creator `0x41A5B0`, persistent-object factory `0x605F70/0x605F90`, injury finalizer `0x60AA20`, return cleanup `0x418AD0`, and the original injury tuning table.**
+
+A MatchCalculator type-5 injury incident is not itself the long-term injury state. After the match, FM2001 can create a separate 12-byte persistent injury object referenced by:
+
+```text
+DBRPlayer+0x24C
+```
+
+The persistent object stores:
+
+```text
++0x00  absolute return date
++0x04  injury source mode
++0x05  severity code
++0x08  player ID
+```
+
+It does **not** retain the anatomical injury bucket. Consequently presentation naming ambiguities do not prevent exact availability/recovery reconstruction.
+
+### AI minimum-availability guard
+
+`0x41A5B0` treats user and non-user teams differently.
+
+For a non-user/AI team it calls the team availability counter and compares it with the tuning key:
+
+```text
+MinPlayersAvailForInj = 14
+```
+
+If fewer than 14 players are currently available, no persistent injury object is created.
+
+This test happens before the existing-injury check and before injury-generator RNG. Because the post-match controller walks participants in order and marks a newly injured player immediately, that new injury can reduce the available-player count seen by later participants in the same match.
+
+User-controlled teams bypass this 14-player guard.
+
+### Source mode
+
+If no persistent injury already exists, `0x41A5B0` chooses:
+
+```text
+Condition >= 75 -> source mode 0
+Condition <  75 -> source mode 1
+```
+
+The split uses the already-known:
+
+```text
+ConditionInjuryInducingLevel = 75
+```
+
+This Condition is the **post-calculator** DBRPlayer Condition. The persistent injury finalizer can then reduce it further.
+
+### Mode 0 category table
+
+The normal match-injury dispatcher consumes `RNG(100)` and uses cumulative thresholds:
+
+```text
+ 0..2   Broken Toe
+ 3..5   Ankle
+ 6..11  Achilles
+12..17  Shin
+18..25  Calf
+26..33  Thigh
+34..39  Knee
+40..49  Hamstring
+50..59  Groin
+60..68  Hernia
+69..77  Abdomen/Stomach
+78..83  Ribs
+84..87  Collar Bone
+88..95  special presentation bucket
+96..99  Broken Leg
+```
+
+The shipped tuning keys confirm the cumulative boundaries 3, 6, 12, 18, 26, 34, 40, 50, 60, 69, 78, 84, 88 and 96. A separately loaded shoulder-dislocation threshold exists but is not referenced by this dispatcher.
+
+### Mode 1 low-Condition table
+
+For Condition below 75, source mode 1 consumes `RNG(100)` and uses:
+
+```text
+ 0..9   Ankle
+10..19  Achilles
+20..29  Calf
+30..39  Thigh
+40..49  Knee
+50..59  Hamstring
+60..69  Groin
+70..79  Hernia
+80..99  Abdomen/Stomach
+```
+
+### Exact severity/recovery behavior used by match injuries
+
+The individual generators often hard-code recovery windows rather than using the generic `Injury*OutMin/Max` tuning table.
+
+Key reconstructed branches:
+
+```text
+Broken Toe:
+    recovery = RNG(4)+3              # 3..6 weeks
+    severity = constructor default 4
+    Condition drop = 40
+
+Ankle / Calf / Thigh / Hamstring / Groin:
+    severity roll RNG(100)
+    <50  code0, 1 week,        drop10
+    <80  code1, RNG(4)+3,      drop35
+    <95  code2, RNG(4)+11,     drop60
+    else code3, RNG(4)+11,     drop60
+
+Achilles:
+    severity roll RNG(100)
+    <80  code1, RNG(4)+3,      drop35
+    <95  code2, RNG(12)+12,    drop60
+    else code3, RNG(12)+12,    drop60
+
+Shin:
+    consumes an otherwise-unused RNG(100)
+    code1, RNG(4)+3, drop35
+
+Knee:
+    severity roll RNG(100)
+    <50  code0, RNG(2)+1,      drop10
+    <80  code1, RNG(4)+3,      drop35
+    <95  code2, RNG(4)+12,     drop60
+    else code3, RNG(4)+11,     drop60
+
+Hernia:
+    consumes unused RNG(100)
+    code1, RNG(3)+4, drop35
+
+Abdomen/Stomach:
+    consumes unused RNG(100)
+    code0, RNG(2)+1, drop10
+
+Ribs:
+    severity roll RNG(100)
+    <50  code0, 1 week,        drop10
+    else code1, RNG(4)+3,      drop35
+
+Collar Bone:
+    consumes unused RNG(100)
+    code1, RNG(4)+3, drop35
+
+special 88..95 bucket:
+    consumes unused RNG(100)
+    code1, literal 6 weeks, drop35
+
+Broken Leg:
+    severity roll RNG(100)
+    <60  code1, literal 12 weeks, drop35
+    <90  code2, literal 26 weeks, drop60
+    else code3, literal 26 weeks, drop60
+```
+
+Several of these expose original-code quirks, including the Achilles first severity threshold reading the same 80-valued global used by the ankle path and the special bucket reading the knee-moderate Condition-drop global. The reconstruction preserves the executed behavior rather than replacing it with nearby unused tuning keys.
+
+### Persistent finalization
+
+For an autonomous AI club there is no medical-staff recovery reduction. The common finalizer performs:
+
+```text
+injured bit = 1
+return_date = current_date + 7 * recovery_weeks
+
+if Condition > condition_drop:
+    Condition -= condition_drop
+else:
+    Condition = 1
+```
+
+It also updates DBRPlayer `+0x22` by severity:
+
+```text
+code0 -> +1
+code1 -> +4
+code2/code3 -> +8
+code4 -> +0
+```
+
+The clean-room runtime preserves this byte neutrally as `injury_history_weight` because its broader gameplay semantics are not yet named.
+
+For a user-controlled team, the original finalizer can reduce recovery weeks through a medical/staff path that consumes additional `RNG(5)` calls. That user-specific medical modifier remains deliberately separate; the autonomous AI path is exact.
+
+### Return from injury
+
+The finalizer schedules a return event for the absolute return date. The return handler eventually calls `0x418AD0`, which:
+
+- destroys/clears the persistent injury object;
+- clears the persistent injured bit;
+- does **not** restore Condition.
+
+The clean-room daily scheduler therefore clears injury metadata and `injured=False` when the stored return date is reached, leaving current Condition unchanged.
+
+### Exact post-match RNG ordering
+
+A critical correction to the earlier reconstruction is that `0x5127A0` works **participant by participant**:
+
+```text
+for participant in participant order:
+    persist cards/red card for this player
+        -> possible red RNG(3)
+
+    if this participant was injured:
+        create persistent injury now
+        -> category/severity/recovery RNG
+
+move to next participant
+```
+
+Only after the incident pass does the later player/Form processing run.
+
+Thus, for example:
+
+```text
+participant 0 injured
+participant 1 sent off
+
+RNG order:
+    participant 0 injury RNG
+    participant 1 red-card RNG(3)
+    later Form RNG
+```
+
+It is incorrect to process all red cards for a side first and all injuries afterward.
+
+The clean-room autonomous Premier League path now:
+
+1. synchronizes MatchCalculator Condition copies back to runtime players;
+2. serves old suspension state;
+3. processes cards and persistent injury creation interleaved in participant order;
+4. refreshes next-fixture suspension availability;
+5. applies home Pitch Wear;
+6. runs the later post-match Form pass without re-copying Condition.
+
+This ensures the persistent injury Condition loss cannot be overwritten by a later calculator-state copy.
