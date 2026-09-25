@@ -3,7 +3,10 @@ from dataclasses import dataclass
 
 from competition_startup import (
     europe_root_cup_candidate_ids,
+    primary_mode0_cup_pairing_draw_count,
+    primary_mode0_cup_round_team_counts,
     replay_primary_mode0_competition_rng,
+    replay_primary_mode0_pre_shuffle_state,
     select_europe_root_cup_candidate,
 )
 from match_schedule import MsvcCrtRng
@@ -21,6 +24,19 @@ class Club:
 class Country:
     id: int
     eu_status_flag: int
+
+
+@dataclass(frozen=True)
+class Competition:
+    id: int
+    runtime_kind_code: int
+    schedule_container_code: int
+
+
+@dataclass(frozen=True)
+class Round:
+    competition_id: int
+    team_count: int
 
 
 class RecordingRng:
@@ -126,3 +142,68 @@ class EuropeRootCupSelectorTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+class PrimaryCupSchedulerStateTests(unittest.TestCase):
+    def test_primary_cup_round_counts_exclude_secondary_and_non_cups(self):
+        competitions = (
+            Competition(9, 2, 1),
+            Competition(10, 2, 0),
+            Competition(170, 2, 2),
+            Competition(0, 1, 1),
+        )
+        rounds = (
+            Round(9, 4),
+            Round(9, 2),
+            Round(10, 8),
+            Round(170, 16),
+            Round(0, 20),
+        )
+
+        self.assertEqual(
+            primary_mode0_cup_round_team_counts(competitions, rounds),
+            (4, 2, 8),
+        )
+        self.assertEqual(
+            primary_mode0_cup_pairing_draw_count(competitions, rounds),
+            3 + 1 + 7,
+        )
+
+    def test_state_only_replay_adds_pairing_and_two_selector_calls(self):
+        competitions = (Competition(9, 2, 1),)
+        rounds = (Round(9, 4), Round(9, 2))
+        countries = (
+            Country(26, 1),
+            Country(31, 1),
+            Country(33, 1),
+            Country(24, 1),
+            Country(40, 1),
+            Country(66, 1),
+            Country(73, 1),
+        )
+        clubs = (
+            Club(1118, 26, 90000, 2),
+            Club(1135, 31, 90000, 2),
+            Club(1137, 33, 75000, 2),
+            Club(1139, 24, 60000, 2),
+            Club(1143, 40, 60000, 2),
+            Club(1159, 66, 55000, 2),
+            Club(1162, 73, 100000, 2),
+        )
+        rng = MsvcCrtRng(0x2797444C)
+
+        replay = replay_primary_mode0_pre_shuffle_state(
+            rng,
+            competitions,
+            rounds,
+            clubs,
+            countries,
+        )
+
+        self.assertEqual(replay.primary_cup_round_count, 2)
+        self.assertEqual(replay.cup_pairing_draw_count, 4)
+        self.assertEqual(replay.europe_selector_draw_count, 2)
+        self.assertEqual(replay.total_draw_count, 6)
+        self.assertEqual(replay.state_entering_primary_shuffle, 0x0A7571CA)
+        self.assertEqual(rng.state, 0x0A7571CA)
