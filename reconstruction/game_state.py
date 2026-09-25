@@ -207,6 +207,7 @@ class GameState:
     def prepare_premier_league_ai_fixture_sides(
         self,
         fixture_id: int,
+        rng,
     ) -> tuple[PreparedPremierLeagueAiSide, PreparedPremierLeagueAiSide]:
         """Prepare both AI sides from live game/database state.
 
@@ -265,6 +266,7 @@ class GameState:
                 table,
                 side=side,
                 is_home=is_home,
+                rng=rng,
                 tactical_state=self.team_tactics.get(
                     club_id,
                     TeamTacticalState(),
@@ -293,7 +295,7 @@ class GameState:
         rng,
     ) -> NormalMatchResult:
         """Prepare two AI clubs, simulate the due fixture, and store its result."""
-        home, away = self.prepare_premier_league_ai_fixture_sides(fixture_id)
+        home, away = self.prepare_premier_league_ai_fixture_sides(fixture_id, rng)
         result = self.simulate_premier_league_fixture(
             fixture_id,
             home.match_side,
