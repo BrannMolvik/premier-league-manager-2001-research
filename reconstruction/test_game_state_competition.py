@@ -211,7 +211,10 @@ class IntegratedGameStateTests(unittest.TestCase):
             seed=1,
             season_year=2000,
         )
-        home, away = state.prepare_premier_league_ai_fixture_sides(0)
+        home, away = state.prepare_premier_league_ai_fixture_sides(
+            0,
+            MidpointRng(),
+        )
 
         self.assertEqual(home.preparation.formation_id, 0)
         self.assertEqual(away.preparation.formation_id, 0)
@@ -225,6 +228,12 @@ class IntegratedGameStateTests(unittest.TestCase):
         self.assertEqual(away.match_side.attack_context.tactic_style, 0)
         self.assertFalse(home.match_side.attack_context.user_controlled)
         self.assertFalse(away.match_side.attack_context.user_controlled)
+        self.assertTrue(
+            all(player.condition == 95 for player in state.ordered_club_roster(1))
+        )
+        self.assertTrue(
+            all(player.condition == 95 for player in state.ordered_club_roster(2))
+        )
 
     def test_due_ai_fixture_can_prepare_simulate_and_store_result(self):
         state = GameState.from_database(
