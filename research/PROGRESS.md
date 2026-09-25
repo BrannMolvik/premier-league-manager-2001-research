@@ -2568,3 +2568,22 @@ Implementation/tests were committed in:
 - `1be9a02785ab7aa85a23d783d1eee8351127d63d`
 
 Next: use the exact country/root competition initialization order and procedural League round match counts to establish the first Premier League bucket's complete pre-shuffle population and PL slot positions, while checking whether any pre-54 fixture can be conflict-shifted into that bucket.
+
+
+## 26 September first Premier League bucket structure checkpoint
+
+Gate 4 now has the exact pre-shuffle structure of the first PL date bucket.
+
+Canonical Static.dat + executable construction order prove:
+
+- primary bucket 54 contains **142 ordinary LeagueMatch nodes**;
+- country/runtime traversal is source order and canonical country IDs equal source indices;
+- procedural leagues emit exactly N/2 matches per round;
+- the Premier League's 10 fixed fixtures are inserted IDs 0..9 and therefore form the head-inserted local block 9..0;
+- 96 target-54 league matches are inserted after the PL and therefore precede it in the final linked-list order;
+- 36 target-54 league matches were inserted before the PL and remain behind it;
+- PL fixture IDs 9..0 therefore occupy **zero-based pre-shuffle slots 96..105** in the 142-entry bucket.
+
+The target-54 ±1 conflict window is clear for these league clubs, and adjacent target data does not add shifted ordinary League nodes into bucket 54.
+
+Remaining first-matchday ordering task: determine the exact CRT state reaching bucket 54 after shuffling primary buckets 0..53, then run the known 142-entry Fisher-Yates and filter the ten PL nodes.
