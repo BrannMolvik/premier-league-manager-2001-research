@@ -203,6 +203,105 @@ class GameState:
             return ()
         return self.premier_league.table()
 
+    def prepare_premier_league_ai_fixture_sides(
+        self,
+        fixture_id: int,
+    ) -> tuple[PreparedPremierLeagueAiSide, PreparedPremierLeagueAiSide]:
+        """Prepare both AI sides from live game/database state.
+
+        This composes the recovered fresh/runtime roster order, current Premier
+        League table, club-manager link, manager formation strategy, competition
+        substitute/Non-EU limits, exact AI lineup selector, and live DBRTeam
+        backend tactical state.
+        """
+        if self.premier_league is None:
+            raise RuntimeError("Premier League state is not loaded")
+        fixture_id = int(fixture_id)
+        if fixture_id not in self.premier_league.fixtures:
+            raise KeyError(fixture_id)
+
+        competition = self.competitions.get(0)
+        if competition is None:
+            raise RuntimeError(
+                "Premier League competition definition is not loaded"
+            )
+
+        fixture = self.premier_league.fixtures[fixture_id]
+        table = self.premier_league.table()
+
+        def prepare_one(
+            club_id: int,
+            opponent_id: int,
+            *,
+            side: int,
+            is_home: bool,
+        ) -> PreparedPremierLeagueAiSide:
+            club_id = int(club_id)
+            opponent_id = int(opponent_id)
+            club = self.clubs.get(club_id)
+            if club is None:
+                raise RuntimeError(f"club definition {club_id} is not loaded")
+            manager_id = int(club.manager_id)
+            manager = self.managers.get(manager_id)
+            if manager is None:
+                raise RuntimeError(
+                    f"manager {manager_id} for club {club_id} is not loaded"
+                )
+
+            roster = self.ordered_club_roster(club_id)
+            opponent_roster = self.ordered_club_roster(opponent_id)
+            if not roster:
+                raise RuntimeError(f"club {club_id} has no runtime roster")
+            if not opponent_roster:
+                raise RuntimeError(f"club {opponent_id} has no runtime roster")
+
+            return prepare_premier_league_ai_match_side(
+                club_id,
+                roster,
+                opponent_roster,
+                manager,
+                competition,
+                table,
+                side=side,
+                is_home=is_home,
+                tactical_state=self.team_tactics.get(
+                    club_id,
+                    TeamTacticalState(),
+                ),
+            )
+
+        home = prepare_one(
+            fixture.home_club_id,
+            fixture.away_club_id,
+            side=0,
+            is_home=True,
+        )
+        away = prepare_one(
+            fixture.away_club_id,
+            fixture.home_club_id,
+            side=1,
+            is_home=False,
+        )
+        return home, away
+
+    def simulate_premier_league_ai_fixture(
+        self,
+        fixture_id: int,
+        attack_matrix,
+        defence_matrix,
+        rng,
+    ) -> NormalMatchResult:
+        """Prepare two AI clubs, simulate the due fixture, and store its result."""
+        home, away = self.prepare_premier_league_ai_fixture_sides(fixture_id)
+        return self.simulate_premier_league_fixture(
+            fixture_id,
+            home.match_side,
+            away.match_side,
+            attack_matrix,
+            defence_matrix,
+            rng,
+        )
+
     def simulate_premier_league_fixture(
         self,
         fixture_id: int,
