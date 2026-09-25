@@ -2734,3 +2734,18 @@ Implementation checkpoints:
 - `37990f407e088e88c3e4d148d6a21ea8ca02f289` locks canonical count/ID/type invariants in verification.
 
 Next: finish instruction types 1/2/3 semantics and exact ClubRef source order, resolve the one equal-sequence instruction pair under the real CRT qsort, then materialize each primary Cup round's initial ClubRef array.
+
+
+## 26 September ClubRef semantic correction checkpoint
+
+A participant-layer audit corrected one interpretation before it could enter implementation.
+
+`0x4F67D0` does sort type-2 ClubRefs before all other tags, but the pair read from the referenced object at `+0x20/+0x22` is **not a schedule date**. Type-2 ClubRefs point to runtime competition objects; `+0x20/+0x22` is the competition ID/context pair also consumed by `0x4F3B10`.
+
+Further resolver tracing establishes:
+
+- ClubRef type 1 = match-result reference: selector 0 resolves the referenced match's winner/result club; nonzero selector uses `0x513FB0` to return the opposite/losing side;
+- ClubRef type 2 = competition-position reference; its selector/index addresses an eligible position in the referenced competition/ranking;
+- type-4 allocation instructions advance the per-source position accumulator used when subsequent type-1 allocation instructions emit type-2 references.
+
+This makes the domestic playoff allocation records intelligible and materially narrows the remaining allocation-type reconstruction.
