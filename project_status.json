@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "project": "FM2001 clean-room reconstruction",
+  "project": "FM2001 Windows 11 modernization/port",
   "updated": "2026-09-26",
   "current_gate": 2,
   "current_gate_name": "Finish the startup RNG chain",
@@ -17,5 +17,9 @@
   "blocked": false,
   "canonical_live_state": "research/CURRENT_STATE.md",
   "roadmap": "ROADMAP.md",
-  "handoff_prompt": "research/HANDOFF_PROMPT.md"
+  "handoff_prompt": "research/HANDOFF_PROMPT.md",
+  "project_mode": "authorized_original_asset_reuse",
+  "asset_policy": "research/ASSET_POLICY.md",
+  "original_assets_path": "original_assets/",
+  "mission": "Preserve and reuse as much of the original FM2001 game as practical while replacing incompatible legacy runtime/code for Windows 11"
 }
