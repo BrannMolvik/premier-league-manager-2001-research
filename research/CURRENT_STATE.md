@@ -21,7 +21,7 @@ Authorized original resources belong under `original_assets/` with provenance tr
 ## Verified repository state
 
 - Latest reverse-engineering checkpoint before stabilization: `1014b042a19fc851b8d87e653ee1e5d807816630` - **Advance startup RNG boundary before TeamSelect click**
-- Latest reconstruction-suite validation after port-policy transition: `d485246159b7131a680635b7f3e6a9135c95f54f` - **307 tests passed**
+- Latest reconstruction-suite validation: `c5d040f36e5ff20e13ee962b3df5ea2c854a8582` - **309 tests passed**
 - Latest repository asset-policy validation: `17ee2f299a2a0d87f959b9480df9b48d194de6aa` - **passed**
 - Commits after `1014b042...` are repository-management, documentation, verification/CI hardening, and the Windows 11 port/authorized-asset policy transition. They do not supersede the latest reverse-engineering address/path findings.
 
@@ -71,8 +71,8 @@ The 260 draws are 259 one-time Loader444 table-initialization calls plus one per
 
 Next:
 
-1. add/test a startup RNG replay helper for this exact 260-draw compatibility side effect;
-2. finish auditing the remaining post-`srand`, pre-PStartMenu startup helpers for any other mandatory CRT consumers;
+1. **DONE:** replay/test the exact 260-draw Loader444 compatibility side effect;
+2. finish auditing the remaining post-`srand`, pre-PStartMenu startup path for any other mandatory CRT consumers;
 3. if none remain, assemble the complete seed -> background -> DBTPlayers -> TeamSelect -> `0x413830` -> competition/schedule ledger.
 
 Commit each verified boundary and checkpoint unresolved traces after roughly ten minutes.
