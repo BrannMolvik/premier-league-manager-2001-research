@@ -4,6 +4,7 @@ These helpers preserve executable quirks without assigning unsupported football
 semantics to still-neutral source fields.
 """
 
+from dataclasses import dataclass
 from typing import Iterable, Protocol
 
 
@@ -21,6 +22,16 @@ class CountrySource(Protocol):
 
 class BoundedRng(Protocol):
     def randbelow(self, bound: int) -> int: ...
+
+
+@dataclass(frozen=True)
+class PrimaryMode0CompetitionRngReplay:
+    """RNG-visible Europe-root selections before primary 0x615BE0."""
+
+    candidate_ids: tuple[int, ...]
+    champions_league_club_id: int
+    uefa_cup_club_id: int
+    draw_count: int
 
 
 def europe_root_cup_candidate_ids(
@@ -71,3 +82,37 @@ def select_europe_root_cup_candidate(
     if len(candidates) == 1:
         return candidates[0]
     return candidates[rng.randbelow(len(candidates) - 1)]
+
+
+def replay_primary_mode0_competition_rng(
+    rng: BoundedRng,
+    clubs: Iterable[ClubSource],
+    countries: Iterable[CountrySource],
+) -> PrimaryMode0CompetitionRngReplay:
+    """Replay the exact mapped primary competition RNG tail before 0x615BE0.
+
+    The canonical shipped path has only two RNG-visible root-Cup selections:
+    Champions League ID 9 followed by UEFA Cup ID 10. Both independently
+    build the same 0x40C6C0 candidate vector with exclusion -1 and use the
+    original count-minus-one selector.
+
+    WCC, primary DummyLeague roots, relevant child Leagues, Scottish PL, and
+    the subsequent argument-1 team-finalization paths add no mapped CRT draw.
+    """
+    club_list = tuple(clubs)
+    country_list = tuple(countries)
+    candidates = europe_root_cup_candidate_ids(
+        club_list,
+        country_list,
+        excluded_club_id=-1,
+    )
+
+    champions_league_club_id = select_europe_root_cup_candidate(candidates, rng)
+    uefa_cup_club_id = select_europe_root_cup_candidate(candidates, rng)
+
+    return PrimaryMode0CompetitionRngReplay(
+        candidate_ids=candidates,
+        champions_league_club_id=champions_league_club_id,
+        uefa_cup_club_id=uefa_cup_club_id,
+        draw_count=2 if len(candidates) > 1 else 0,
+    )
