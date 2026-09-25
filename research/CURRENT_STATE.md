@@ -21,7 +21,7 @@ Authorized original resources belong under `original_assets/` with provenance tr
 ## Verified repository state
 
 - Latest reverse-engineering checkpoint before stabilization: `1014b042a19fc851b8d87e653ee1e5d807816630` - **Advance startup RNG boundary before TeamSelect click**
-- Latest reconstruction-suite validation: `c5d040f36e5ff20e13ee962b3df5ea2c854a8582` - **309 tests passed**
+- Latest reconstruction-suite validation: `52d5b4c2eaa9535a67a73b484e712fe0043306b5` - **312 tests passed**
 - Latest repository asset-policy validation: `17ee2f299a2a0d87f959b9480df9b48d194de6aa` - **passed**
 - Commits after `1014b042...` are repository-management, documentation, verification/CI hardening, and the Windows 11 port/authorized-asset policy transition. They do not supersede the latest reverse-engineering address/path findings.
 
@@ -46,20 +46,18 @@ Therefore the remaining uncertainty has been pushed backward to the TeamSelect p
 
 ## Exact next task
 
-Gate 2 is complete. Gate 3 starts from the canonical `STARTUP_RNG_LEDGER.md`.
+The complete pre-competition sequence is now executable on one shared `MsvcCrtRng`, with fixed-seed intermediate checkpoints after Loader444, DBTPlayers, generated names, and youth generation.
 
-Implement a high-level startup replay that preserves one shared `MsvcCrtRng` and advances it through:
+Continue Gate 3 at the primary/mode-0 competition boundary:
 
-1. Loader444 first-decode 260 raw calls;
-2. the DBTPlayers constructor/load draw sequence;
-3. `0x414330` generated-name draws;
-4. each linked user's `0x61DF90` youth-generation block.
+1. close the residual argument-1 `0x404110` / `0x50EA90` team-setup RNG audit before `0x615BE0`;
+2. implement the proven Europe-root competition draws in exact order:
+   - Champions League: `RNG(6)`
+   - UEFA Cup: `RNG(6)`;
+3. add a fixed-seed checkpoint for the exact CRT state entering `0x615BE0`;
+4. if no other primary-container consumers remain, complete Gate 3 and hand exact bucket-shuffle ordering to Gate 4.
 
-Add fixed-seed tests that assert the RNG state after each major phase, not merely the final state.
-
-Then continue the ledger into the already-researched primary/mode-0 competition initialization and first `0x947AD8 / 0x615BE0` bucket shuffle.
-
-Commit each implementation/test block separately.
+Commit each verified research/implementation boundary separately.
 
 ## Gate 3 completion criteria
 
