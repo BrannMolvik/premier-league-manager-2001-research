@@ -1902,3 +1902,26 @@ Examples: England initializes League Cup -> FA Cup -> Challenge Shield -> Charit
 Remaining caveat: roots with equal +15 compare equal under qsort, so their relative order is not yet guaranteed. This currently matters most in the Other pseudo-country (116), where several roots share key 0.
 
 Next target remains class-specific RNG: audit DummyLeague roots, ScotPremierLeague ID27, Cup mode-0 roots/children, and the argument-1 team setup helpers to produce the exact pre-0x615BE0 bounded-draw sequence.
+
+## 25 September DummyLeague / ScotPremierLeague RNG checkpoint
+
+The mode-0 initializer ledger eliminated another large class.
+
+Vtable decoding proves packed kind 3 constructs DummyLeague and uses initializer
+0x4F5130. That initializer plus base child dispatcher 0x4F3DE0 are RNG-clean.
+The shipped primary set contains 118 DummyLeague roots and none has children,
+so all 118 can be removed from the pre-0x615BE0 RNG-consumer list.
+
+Scottish Premiership competition 27 is likewise a childless primary root.
+Its special 0x4FAC60 initializer has no direct random call, and the only direct
+RNG block in generic procedural League builder 0x6170F0 is skipped because the
+Scottish root has no parent. Nested generic-League helpers remain under audit.
+
+CompetitionDefinition now exposes packed +14 class code, +4 parent,
++15 initialization-order value and +27 country/region ID, allowing future
+startup-ledger code to derive the competition hierarchy from Static.dat rather
+than hard-coded IDs.
+
+Next exact target: finish transitive RNG audit of root League initialization,
+then reduce the remaining mode-0 RNG ledger to Cup roots and the three
+Cup-parent child League phases (IDs 14, 167, 192), including WCC +0x40 state.

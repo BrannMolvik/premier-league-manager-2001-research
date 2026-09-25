@@ -3475,3 +3475,55 @@ Concrete shipped examples for mode 0:
 - Other country 116 includes multiple roots with equal key 0 (Other, Spanish Playoff 1, Spanish Playoff 2, World Club Chmps), then UEFA Super Cup (3), Intercont. Cup (4). Equal-key relative order is not defined by comparator 0x4F79A0 and must not be assumed from source order without separate evidence.
 
 Countries themselves are traversed by 0x616620 in the global country-table order at 0x874BE0. This gives an exact outer ordering for root competition initialization, with only equal root sort keys retaining qsort-order uncertainty.
+
+## DummyLeague and Scottish Premiership pre-shuffle RNG audit
+
+Vtable decoding directly from the canonical executable resolves the remaining
+runtime-class identities around packed competition byte +14:
+
+- `0x7C9A80` is RTTI-confirmed **DummyLeague**; virtual +0x00 = `0x4F5130`;
+- `0x7C9AC0` is **League**; virtual +0x00 = `0x4F5150`;
+- `0x7C9B58` is **Cup**; virtual +0x00 = `0x4F5A30`;
+- `0x7C9C94` is **ScotPremierLeague**; virtual +0x00 = `0x4FAC60`.
+
+### DummyLeague
+
+`0x4F5130` only clears bit 0 of object byte +0x40 and delegates to
+`0x4F3DE0`. The latter walks object +0x08/+0x0C child pointers in stored
+order and invokes each child's virtual +0x00. There is no direct random call
+in either function.
+
+A raw shipped Static.dat cross-check finds **118 primary/mode-0 DummyLeague
+roots and zero children of any kind beneath those primary DummyLeague roots**.
+Thus these 118 root initializers contribute no RNG draw before the primary
+schedule-container shuffle.
+
+### ScotPremierLeague ID 27
+
+Competition ID 27 is the only special class-1 object constructed through
+`0x4FABD0` / vtable `0x7C9C94`. It is a primary-container root and has no
+children in the shipped table.
+
+Its initializer `0x4FAC60` contains no direct `0x64D530`/`0x64D540`
+call. It first delegates to generic `League::Initialize 0x4F5150`, then
+builds the Scottish-specific match structures and inserts them through
+`0x615950`.
+
+For this root object, the direct RNG block in generic procedural builder
+`0x6170F0` at `0x617277` is skipped because that block requires a non-null
+parent competition. Therefore the Scottish-specific wrapper itself adds no
+known bounded RNG draw at this point.
+
+This does not yet certify every transitive helper reached by generic League
+initialization as RNG-free; that nested-helper audit remains separate.
+
+### Parser support
+
+The clean-room CompetitionDefinition now exposes the packed fields needed to
+reconstruct this initialization ledger from actual data:
+
+- +14 -> `runtime_kind_code` / `runtime_kind`;
+- +4 signed parent ID -> `parent_competition_id`;
+- +15 signed word -> `initialization_order_value`;
+- +27 dword -> `country_region_id`;
+- existing +45 -> `schedule_container_code`.

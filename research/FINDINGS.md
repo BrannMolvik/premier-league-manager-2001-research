@@ -753,3 +753,24 @@ Confirmed:
 - countries are processed in global country-table order;
 - child competitions are recursively attached to parent object+0x08/+0x0C in global competition-table ID order and do not appear independently in country+0x40;
 - equal packed +15 keys compare equal and retain unresolved qsort relative order.
+
+## Competition runtime metadata and class-specific RNG eliminations
+
+Confirmed clean-room parser fields now include runtime class code, parent
+competition, root initialization-order value, country/region ID, and schedule
+container code.
+
+For pre-Premier-League-shuffle RNG accounting:
+
+- shipped primary DummyLeague roots: 118;
+- primary DummyLeague roots have no children in the shipped competition tree;
+- DummyLeague virtual initializer 0x4F5130 and recursive base initializer
+  0x4F3DE0 contain no RNG call, eliminating those 118 roots as direct RNG
+  consumers;
+- Scottish Premiership ID 27 is a root with no children;
+- ScotPremierLeague::Initialize 0x4FAC60 has no direct bounded RNG call;
+- its generic procedural-League RNG block at 0x617277 is skipped for this root
+  because the block requires a non-null parent.
+
+Nested generic League helpers are still being audited before declaring the
+entire Scottish/root-League path transitively RNG-clean.

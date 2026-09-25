@@ -140,6 +140,25 @@ class CompetitionDefinition:
     substitute_quota: int
     max_non_eu_players: int
     schedule_container_code: int = 0
+    runtime_kind_code: int = 0
+    parent_competition_id: int | None = None
+    initialization_order_value: int = 0
+    country_region_id: int = 0
+
+    @property
+    def runtime_kind(self) -> str:
+        """Runtime class selected by competition construction at 0x4F70F0."""
+        if int(self.runtime_kind_code) == 1:
+            return "scot_premier_league" if int(self.id) == 27 else "league"
+        if int(self.runtime_kind_code) == 2:
+            return "cup"
+        if int(self.runtime_kind_code) == 3:
+            return "dummy_league"
+        return "unknown"
+
+    @property
+    def is_root_competition(self) -> bool:
+        return self.parent_competition_id is None
 
     @property
     def uses_secondary_schedule_container(self) -> bool:
@@ -342,6 +361,14 @@ class FM2001Database:
                 substitute_quota=r[17],
                 max_non_eu_players=r[34],
                 schedule_container_code=struct.unpack_from('<I', r, 45)[0],
+                runtime_kind_code=r[14],
+                parent_competition_id=(
+                    None
+                    if struct.unpack_from('<i', r, 4)[0] < 0
+                    else struct.unpack_from('<i', r, 4)[0]
+                ),
+                initialization_order_value=struct.unpack_from('<h', r, 15)[0],
+                country_region_id=struct.unpack_from('<I', r, 27)[0],
             ))
 
     def _parse_rounds(self):
