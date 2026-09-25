@@ -548,6 +548,57 @@ class TacticsPacketFields:
     without_ball_code: int
 
 
+@dataclass(frozen=True)
+class MatchEngineTacticsFields:
+    """Exact tactical values copied out by MatchEngine bridge 0x533B70.
+
+    This is deliberately separate from TeamTacticalState. The packed word made
+    by 0x40D860 belongs to the MatchEngine/front-end setup path, while the core
+    MatchCalculator strength/discipline routines read the live team bytes at
+    +0x1B4..+0x1B7 directly.
+
+    0x533B70 copies only the upper two bits of the packed four-bit aggression
+    field into its output structure; keep that value neutral until the later
+    MatchEngine consumer is assigned a stronger semantic label.
+    """
+
+    formation_id: int
+    strategy_code: int
+    with_ball_code: int
+    without_ball_code: int
+    aggression_upper_code: int
+
+
+def pack_tactics_word(
+    formation_id: int,
+    fields: TacticsPacketFields,
+) -> int:
+    """Pack the bit ranges explicitly written by 0x40D860.
+
+    The original allocation may contain unrelated high bits; this clean-room
+    helper intentionally reconstructs only the proven low 18-bit payload.
+    """
+    return (
+        (int(formation_id) & 0xFF)
+        | ((int(fields.strategy_code) & 0x03) << 8)
+        | ((int(fields.aggression_code) & 0x0F) << 10)
+        | ((int(fields.with_ball_code) & 0x03) << 14)
+        | ((int(fields.without_ball_code) & 0x03) << 16)
+    )
+
+
+def decode_match_engine_tactics_word(word: int) -> MatchEngineTacticsFields:
+    """Exact 0x533B70 decode of the first packed team-tactics dword."""
+    value = int(word) & 0xFFFFFFFF
+    return MatchEngineTacticsFields(
+        formation_id=value & 0xFF,
+        strategy_code=(value >> 8) & 0x03,
+        with_ball_code=(value >> 14) & 0x03,
+        without_ball_code=(value >> 16) & 0x03,
+        aggression_upper_code=(value >> 12) & 0x03,
+    )
+
+
 def play_style_to_strategy_code(play_style: int) -> int:
     """Exact switch in 0x4035E0.
 
