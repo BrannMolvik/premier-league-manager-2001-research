@@ -40,6 +40,20 @@ class RoundSource(Protocol):
     team_count: int
 
 
+class OrderedCompetitionSource(CompetitionSource, Protocol):
+    parent_competition_id: int | None
+    initialization_order_value: int
+    country_region_id: int
+
+
+class OrderedRoundSource(RoundSource, Protocol):
+    id: int
+    type_code: int
+    scheduled_week: int
+    scheduled_weekday: int
+    source_competition_reference: int
+
+
 @dataclass(frozen=True)
 class PrimaryMode0CompetitionRngReplay:
     """Isolated Europe-root selector mechanics.
@@ -52,6 +66,29 @@ class PrimaryMode0CompetitionRngReplay:
     champions_league_club_id: int
     uefa_cup_club_id: int
     draw_count: int
+
+
+@dataclass(frozen=True)
+class PrimaryMode0OrderedRngEvent:
+    kind: str
+    competition_id: int
+    round_id: int | None
+    bounds: tuple[int, ...]
+    pre_sort_slot_order: tuple[int, ...]
+    selected_club_id: int | None
+    state_after: int
+
+
+@dataclass(frozen=True)
+class PrimaryMode0OrderedCompetitionRngReplay:
+    events: tuple[PrimaryMode0OrderedRngEvent, ...]
+    primary_cup_round_count: int
+    cup_pairing_draw_count: int
+    europe_selector_draw_count: int
+    total_draw_count: int
+    champions_league_club_id: int | None
+    uefa_cup_club_id: int | None
+    state_entering_primary_shuffle: int
 
 
 @dataclass(frozen=True)
@@ -247,4 +284,326 @@ def replay_primary_mode0_pre_shuffle_state(
         europe_selector_draw_count=selector_draw_count,
         total_draw_count=total_draw_count,
         state_entering_primary_shuffle=state,
+    )
+
+
+
+def _msvc_small_qsort_by_key(items, key):
+    """Reproduce the <=8-element path of CRT qsort at 0x668DA4."""
+    result = list(items)
+    if len(result) > 8:
+        raise ValueError("small CRT qsort helper only models arrays of at most 8")
+    for end in range(len(result) - 1, 0, -1):
+        max_index = 0
+        max_key = key(result[0])
+        for index in range(1, end + 1):
+            value = key(result[index])
+            if value > max_key:
+                max_index = index
+                max_key = value
+        result[max_index], result[end] = result[end], result[max_index]
+    return tuple(result)
+
+
+def _competition_subtree_has_primary_cup(
+    competition_id: int,
+    competitions_by_parent: dict[int, tuple[OrderedCompetitionSource, ...]],
+    competition_by_id: dict[int, OrderedCompetitionSource],
+) -> bool:
+    competition = competition_by_id[int(competition_id)]
+    if (
+        int(competition.runtime_kind_code) == 2
+        and int(competition.schedule_container_code) not in (2, 3)
+    ):
+        return True
+    return any(
+        _competition_subtree_has_primary_cup(
+            int(child.id),
+            competitions_by_parent,
+            competition_by_id,
+        )
+        for child in competitions_by_parent.get(int(competition_id), ())
+    )
+
+
+def primary_mode0_root_initialization_order(
+    competitions: Iterable[OrderedCompetitionSource],
+    country_ids_in_source_order: Iterable[int],
+) -> tuple[OrderedCompetitionSource, ...]:
+    """Return root initialization order relevant to the primary container.
+
+    Country root arrays are built in source competition order, qsorted by
+    runtime +0x18 = -initialization_order_value, then traversed backwards.
+
+    For root arrays of at most eight elements this reproduces the executable's
+    exact small-array CRT qsort path. For larger arrays, unique-key ordering is
+    exact; equal-key groups are accepted only when at most one member's
+    subtree can consume primary Cup RNG, because then their internal
+    permutation cannot change the emitted RNG event sequence.
+    """
+    competition_list = tuple(competitions)
+    by_id = {int(competition.id): competition for competition in competition_list}
+    children: dict[int, list[OrderedCompetitionSource]] = {}
+    for competition in competition_list:
+        parent = competition.parent_competition_id
+        if parent is not None:
+            children.setdefault(int(parent), []).append(competition)
+    children_tuple = {
+        parent: tuple(values)
+        for parent, values in children.items()
+    }
+
+    roots_by_country: dict[int, list[OrderedCompetitionSource]] = {}
+    for competition in competition_list:
+        if competition.parent_competition_id is None:
+            roots_by_country.setdefault(
+                int(competition.country_region_id),
+                [],
+            ).append(competition)
+
+    ordered: list[OrderedCompetitionSource] = []
+    for country_id in country_ids_in_source_order:
+        roots = roots_by_country.get(int(country_id), [])
+        if not roots:
+            continue
+
+        if len(roots) <= 8:
+            qsorted = _msvc_small_qsort_by_key(
+                roots,
+                lambda competition: -int(competition.initialization_order_value),
+            )
+            initialized = tuple(reversed(qsorted))
+        else:
+            groups: dict[int, list[OrderedCompetitionSource]] = {}
+            for root in roots:
+                groups.setdefault(
+                    int(root.initialization_order_value),
+                    [],
+                ).append(root)
+            for same_key in groups.values():
+                rng_bearing = [
+                    root
+                    for root in same_key
+                    if _competition_subtree_has_primary_cup(
+                        int(root.id),
+                        children_tuple,
+                        by_id,
+                    )
+                ]
+                if len(rng_bearing) > 1:
+                    raise ValueError(
+                        "large equal-key root group contains multiple primary "
+                        "Cup RNG-bearing subtrees; full CRT qsort emulation required"
+                    )
+            initialized = tuple(
+                sorted(
+                    roots,
+                    key=lambda competition: int(
+                        competition.initialization_order_value
+                    ),
+                )
+            )
+
+        ordered.extend(
+            competition
+            for competition in initialized
+            if int(competition.schedule_container_code) not in (2, 3)
+        )
+
+    return tuple(ordered)
+
+
+def _effective_cup_round_sort_key(
+    round_definition: OrderedRoundSource,
+    rounds_by_competition: dict[int, tuple[OrderedRoundSource, ...]],
+) -> tuple[int, int]:
+    if int(round_definition.type_code) != 3:
+        return (
+            int(round_definition.scheduled_week),
+            int(round_definition.scheduled_weekday) - 1,
+        )
+
+    child_competition_id = int(round_definition.source_competition_reference) & 0xFFFF
+    child_rounds = rounds_by_competition.get(child_competition_id, ())
+    if not child_rounds:
+        raise ValueError(
+            f"MiniLeague round {int(round_definition.id)} has no child League schedule"
+        )
+    first_child_round = child_rounds[0]
+    return (
+        int(first_child_round.scheduled_week),
+        int(first_child_round.scheduled_weekday) - 1,
+    )
+
+
+def primary_cup_round_initialization_order(
+    competition_id: int,
+    rounds: Iterable[OrderedRoundSource],
+) -> tuple[OrderedRoundSource, ...]:
+    """Reproduce Cup+0x38 qsort order before Cup::init schedules rounds."""
+    round_list = tuple(rounds)
+    by_competition: dict[int, list[OrderedRoundSource]] = {}
+    for round_definition in round_list:
+        by_competition.setdefault(
+            int(round_definition.competition_id),
+            [],
+        ).append(round_definition)
+    by_competition_tuple = {
+        competition: tuple(values)
+        for competition, values in by_competition.items()
+    }
+    cup_rounds = by_competition_tuple.get(int(competition_id), ())
+    if len(cup_rounds) > 8:
+        raise ValueError("canonical Cup round qsort model supports at most 8 rounds")
+    return _msvc_small_qsort_by_key(
+        cup_rounds,
+        lambda round_definition: _effective_cup_round_sort_key(
+            round_definition,
+            by_competition_tuple,
+        ),
+    )
+
+
+def replay_primary_mode0_ordered_competition_rng(
+    rng: BoundedRng,
+    competitions: Iterable[OrderedCompetitionSource],
+    rounds: Iterable[OrderedRoundSource],
+    clubs: Iterable[ClubSource],
+    countries: Iterable[CountrySource],
+) -> PrimaryMode0OrderedCompetitionRngReplay:
+    """Replay primary competition RNG in the recovered executable order.
+
+    This closes exact bounded-call ordering before primary 0x615BE0:
+    country traversal, root competition ordering, recursive child ordering,
+    Europe selector positions, Cup round qsort order, and each round's first
+    participant Fisher-Yates.
+
+    pre_sort_slot_order is the randomized participant-slot order immediately
+    after the mandatory Fisher-Yates. NormalRound and TwoLegRound subsequently
+    qsort the 16-byte participant records by seeding/reference fields, so this
+    slot order is not yet the final club pairing for those rounds.
+    """
+    competition_list = tuple(competitions)
+    round_list = tuple(rounds)
+    club_list = tuple(clubs)
+    country_list = tuple(countries)
+
+    children: dict[int, list[OrderedCompetitionSource]] = {}
+    for competition in competition_list:
+        parent = competition.parent_competition_id
+        if parent is not None:
+            children.setdefault(int(parent), []).append(competition)
+
+    candidates = europe_root_cup_candidate_ids(
+        club_list,
+        country_list,
+        excluded_club_id=-1,
+    )
+
+    events: list[PrimaryMode0OrderedRngEvent] = []
+    champions_league_club_id: int | None = None
+    uefa_cup_club_id: int | None = None
+
+    def current_state() -> int:
+        return int(getattr(rng, "state", 0)) & 0xFFFFFFFF
+
+    def visit(competition: OrderedCompetitionSource) -> None:
+        nonlocal champions_league_club_id, uefa_cup_club_id
+
+        if int(competition.schedule_container_code) in (2, 3):
+            return
+
+        if int(competition.runtime_kind_code) == 2:
+            if (
+                competition.parent_competition_id is None
+                and int(competition.country_region_id) == 123
+            ):
+                if not candidates:
+                    selected = -1
+                    bounds: tuple[int, ...] = ()
+                elif len(candidates) == 1:
+                    selected = int(candidates[0])
+                    bounds = ()
+                else:
+                    bound = len(candidates) - 1
+                    selected = int(candidates[rng.randbelow(bound)])
+                    bounds = (bound,)
+
+                if int(competition.id) == 9:
+                    champions_league_club_id = selected
+                elif int(competition.id) == 10:
+                    uefa_cup_club_id = selected
+
+                events.append(
+                    PrimaryMode0OrderedRngEvent(
+                        kind="europe_selector",
+                        competition_id=int(competition.id),
+                        round_id=None,
+                        bounds=bounds,
+                        pre_sort_slot_order=(),
+                        selected_club_id=selected,
+                        state_after=current_state(),
+                    )
+                )
+
+            for round_definition in primary_cup_round_initialization_order(
+                int(competition.id),
+                round_list,
+            ):
+                participant_count = int(round_definition.team_count)
+                slots = list(range(participant_count))
+                bounds = []
+                for remaining in range(participant_count, 1, -1):
+                    selected_index = rng.randbelow(remaining)
+                    last = remaining - 1
+                    slots[selected_index], slots[last] = (
+                        slots[last],
+                        slots[selected_index],
+                    )
+                    bounds.append(remaining)
+                events.append(
+                    PrimaryMode0OrderedRngEvent(
+                        kind="cup_round_shuffle",
+                        competition_id=int(competition.id),
+                        round_id=int(round_definition.id),
+                        bounds=tuple(bounds),
+                        pre_sort_slot_order=tuple(slots),
+                        selected_club_id=None,
+                        state_after=current_state(),
+                    )
+                )
+
+        for child in children.get(int(competition.id), ()):
+            visit(child)
+
+    country_ids = tuple(int(country.id) for country in country_list)
+    for root in primary_mode0_root_initialization_order(
+        competition_list,
+        country_ids,
+    ):
+        visit(root)
+
+    cup_round_events = tuple(
+        event for event in events if event.kind == "cup_round_shuffle"
+    )
+    selector_events = tuple(
+        event for event in events if event.kind == "europe_selector"
+    )
+    total_draw_count = sum(len(event.bounds) for event in events)
+
+    return PrimaryMode0OrderedCompetitionRngReplay(
+        events=tuple(events),
+        primary_cup_round_count=len(cup_round_events),
+        cup_pairing_draw_count=sum(
+            len(event.bounds)
+            for event in cup_round_events
+        ),
+        europe_selector_draw_count=sum(
+            len(event.bounds)
+            for event in selector_events
+        ),
+        total_draw_count=total_draw_count,
+        champions_league_club_id=champions_league_club_id,
+        uefa_cup_club_id=uefa_cup_club_id,
+        state_entering_primary_shuffle=current_state(),
     )
