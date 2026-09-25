@@ -2708,3 +2708,29 @@ passes **326 tests**.
 Remaining Gate-3 task: recover the 16-byte Cup participant records, their
 allocation/source order and post-Fisher-Yates comparator `0x4F67D0`, then
 materialize final pairings rather than only shuffled slot indices.
+
+
+## 26 September ClubRef and Cup allocation bridge checkpoint
+
+Gate 3 advanced from exact RNG slot permutations into the actual Cup participant-record layer.
+
+Direct binary evidence now proves:
+
+- the 16-byte round participant record is RTTI-named `ClubRef`;
+- ClubRef fields are vtable, cached/direct club pointer, referenced runtime object pointer, 16-bit type tag and 16-bit selector/index;
+- constructors `0x4F2CB0/CE0/D10/D40/D90` create tags 0/1/2/3/4 respectively;
+- post-randomization comparator `0x4F67D0` groups type-2 references first and orders type-2 records by their referenced object's schedule pair; all non-type2 pairs compare equal;
+- the 238 packed Cup allocation instructions expand to 0x20-byte `DBRCupAllocInstruction` runtime records;
+- runtime +0x08 = destination competition, +0x0C = sequence/index, +0x10 = instruction type, +0x14/+0x18/+0x1C = the three remaining packed parameters;
+- startup attaches instructions to their destination competitions, then qsorts each destination instruction list by sequence/index through `0x4F7A30`;
+- canonical type counts are 11/2/148/11/66 for types 1..5;
+- type 5 is confirmed to produce direct type-0 ClubRefs from a referenced League;
+- type 4 updates an allocation accumulator rather than directly appending a ClubRef;
+- Cup participant append/fill runs through `0x4F57E0 -> 0x4F5790 -> 0x4F5570`.
+
+Implementation checkpoints:
+
+- `4545b5bba6094c632d32eef5f24b2d5078f9f59c` parses the 238 allocation instructions into `FM2001Database`;
+- `37990f407e088e88c3e4d148d6a21ea8ca02f289` locks canonical count/ID/type invariants in verification.
+
+Next: finish instruction types 1/2/3 semantics and exact ClubRef source order, resolve the one equal-sequence instruction pair under the real CRT qsort, then materialize each primary Cup round's initial ClubRef array.
