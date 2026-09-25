@@ -4124,3 +4124,116 @@ handling, and final head insertion.
 This helper is deliberately scoped to ordinary unflagged LeagueMatch nodes;
 other schedule-node classes must not be assumed to share the same virtual
 overlap semantics without proof.
+
+
+## First Premier League bucket has 142 matches and a fixed PL pre-shuffle block
+
+**Confirmed for the canonical shipped data.**
+
+This closes the structure of primary bucket 54 itself, independently of the
+still-active task of advancing the CRT stream through buckets 0..53.
+
+### Country traversal order
+
+`0x616620` walks the runtime country table forward from global `0x874BE0`
+with 0x6C-byte stride. The canonical Static.dat country table contains 209
+records whose stored IDs exactly equal their source indices 0..208.
+
+Within a country, the already-recovered root-competition ordering makes
+`0x411020` initialize matching roots in effective ascending packed
+initialization-order value.
+
+Therefore bucket-targeting League construction order follows canonical country
+source order and then root initialization order.
+
+### Procedural League round emits N/2 matches
+
+For a procedural League with N teams, `0x6170F0` uses `League+0x3C = N`.
+For each generated matchday its pairing loop increments the participant index
+twice and emits one call per pair to League virtual slot `+0x3C`.
+
+League vtable `0x7C9AC0` resolves `+0x3C` to `0x616FC0`, which constructs
+one 0x50-byte LeagueMatch and inserts it through `0x615950`.
+
+All canonical target-54 leagues have even N, so each contributes exactly N/2
+match nodes.
+
+### Canonical target-54 composition
+
+The primary Static.dat rounds whose nominal target is 54 are:
+
+| country ID | competition | teams | matches |
+| ---: | --- | ---: | ---: |
+| 9 | Belgian Division 1 | 18 | 9 |
+| 9 | Belgian Division 2 | 18 | 9 |
+| 24 | Dutch Division 1 | 18 | 9 |
+| 24 | Dutch Division 2 | 18 | 9 |
+| 26 | F.A. Premier League | 20 | 10 |
+| 26 | English Division 1 | 24 | 12 |
+| 26 | English Division 2 | 24 | 12 |
+| 26 | English Division 3 | 24 | 12 |
+| 26 | Conference | 22 | 11 |
+| 31 | French Division 1 | 18 | 9 |
+| 31 | French Division 2 | 20 | 10 |
+| 33 | Bundesliga 1 | 18 | 9 |
+| 66 | Scottish Premiership | 12 | 6 |
+| 66 | Scottish Division 1 | 10 | 5 |
+| 66 | Scottish Division 2 | 10 | 5 |
+| 66 | Scottish Division 3 | 10 | 5 |
+
+Total:
+
+```text
+142 ordinary LeagueMatch nodes
+```
+
+There is no primary nominal round at bucket 53. Bucket 55 contains only
+Bundesliga 2 / Regional North / Regional South, whose clubs are disjoint from
+the Bundesliga-1 target-54 clubs.
+
+The nearby same-club schedules also leave the ±1-day conflict window clear:
+the preceding English/French/German/Scottish domestic rounds relevant to these
+clubs are at least three target days away, and the Spanish target-52 Super Cup
+belongs to different clubs. Thus these target-54 ordinary League nodes remain
+in bucket 54 rather than being displaced by the `0x615950` conflict search;
+no adjacent target contributes a shifted ordinary League node into this bucket.
+
+### Exact Premier League block before shuffle
+
+Before England is processed, target 54 already contains:
+
+```text
+Belgium: 9 + 9 = 18
+Holland: 9 + 9 = 18
+                     --
+                     36
+```
+
+England then initializes the Premier League and inserts fixed fixture IDs
+0..9. Because insertion is at the head, the PL block immediately becomes:
+
+```text
+9, 8, 7, 6, 5, 4, 3, 2, 1, 0
+```
+
+After the Premier League, later target-54 matches inserted at the head are:
+
+```text
+English D1/D2/D3/Conference: 12+12+12+11 = 47
+France D1/D2:                          9+10 = 19
+Germany Bundesliga 1:                     = 9
+Scotland Prem/D1/D2/D3:              6+5+5+5 = 21
+                                                --
+                                                96
+```
+
+Therefore, in the complete 142-entry bucket immediately before
+`0x615AE0`:
+
+- Premier League nodes occupy **zero-based slots 96..105**;
+- their slot order is **fixture IDs 9,8,7,6,5,4,3,2,1,0**;
+- 96 later-initialized matches are before the PL block;
+- 36 earlier-initialized matches are after it.
+
+This is enough to recover the PL relative order from the 142-entry
+Fisher-Yates shuffle once the exact CRT state reaching bucket 54 is known.
