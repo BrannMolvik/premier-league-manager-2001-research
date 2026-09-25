@@ -2587,3 +2587,41 @@ Canonical Static.dat + executable construction order prove:
 The target-54 ±1 conflict window is clear for these league clubs, and adjacent target data does not add shifted ordinary League nodes into bucket 54.
 
 Remaining first-matchday ordering task: determine the exact CRT state reaching bucket 54 after shuffling primary buckets 0..53, then run the known 142-entry Fisher-Yates and filter the ten PL nodes.
+
+
+## 26 September Gate 3 correction: Cup round schedulers consume pre-shuffle RNG
+
+**This checkpoint supersedes the earlier Gate-3 conclusion that the primary competition tail before `0x615BE0` consisted only of Champions League `RNG(6)` followed by UEFA Cup `RNG(6)`.**
+
+While reconstructing Gate-4 bucket populations, RTTI and direct disassembly resolved the Cup round runtime classes and their scheduling virtuals:
+
+- packed round type 1 -> `NormalRound`, scheduling virtual `0x4F64D0`;
+- packed round type 2 -> `TwoLegRound`, scheduling virtual `0x4F6820`;
+- packed round type 3 -> `MiniLeagueRound`, scheduling virtual `0x4F6B10`.
+
+Cup initialization loops runtime rounds at `0x4F62B1..0x4F6321` and calls each round's virtual slot `+0x04` **before** returning to the primary `0x616620` path and before final `0x615BE0` bucket shuffling.
+
+Both `NormalRound 0x4F64D0` and `TwoLegRound 0x4F6820` begin with an unconditional participant-array Fisher-Yates when their runtime participant count N is greater than one:
+
+```text
+RNG(N)
+RNG(N-1)
+...
+RNG(2)
+```
+
+That is N-1 mandatory CRT draws for each active round scheduler invocation, independent of the later flag-controlled parent-vector branch.
+
+`MiniLeagueRound 0x4F6B10` also contains a direct RNG shuffle and remains to be mapped exactly.
+
+Therefore the synthetic checkpoint previously recorded as the exact state entering primary `0x615BE0` (including `0x5D07D526` in the current tests) is **not authoritative** until active Cup round participant counts/order and any additional flag-controlled shuffles are included.
+
+Gate 3 is reopened. Gate-4 schedule-bucket mapping and ordinary LeagueMatch conflict-placement research remains valid and committed, but final same-day ordering must wait for the corrected pre-shuffle CRT state.
+
+Immediate correction target:
+
+1. map `NormalRound`, `TwoLegRound`, and `MiniLeagueRound` startup participant counts;
+2. determine which runtime Cup rounds are active/scheduled during initial primary-container setup;
+3. resolve the third round-scheduler flag and its additional parent-vector shuffle conditions;
+4. add every resulting bounded draw to the shared startup replay;
+5. replace the provisional pre-`0x615BE0` checkpoint and tests.
