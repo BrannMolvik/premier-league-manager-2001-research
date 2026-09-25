@@ -6,9 +6,9 @@ This is the **canonical live resume point**. It is intentionally short. Historic
 
 ## Current gate
 
-**Gate 4 - Resolve exact Premier League matchday ordering**
+**Gate 3 - Build an executable startup RNG ledger (REOPENED)**
 
-Gates 1, 2 and 3 are complete. See `../ROADMAP.md` for gate definitions and completion criteria.
+Gates 1 and 2 are complete. Gate 3 was previously marked complete but has been reopened after discovering mandatory Cup round scheduler RNG before primary `0x615BE0`. Gate-4 scheduler groundwork remains valid but is paused.
 
 ## Porting mission
 
@@ -25,13 +25,13 @@ Authorized original resources belong under `original_assets/` with provenance tr
 - Latest repository asset-policy validation: `17ee2f299a2a0d87f959b9480df9b48d194de6aa` - **passed**
 - Commits after `1014b042...` are repository-management, documentation, verification/CI hardening, and the Windows 11 port/authorized-asset policy transition. They do not supersede the latest reverse-engineering address/path findings.
 
-## Gate 4 objective
+## Gate 3 correction objective
 
-Replace the deterministic fixture-ID same-day fallback with the original primary schedule-container ordering.
+Restore the exact shared MSVC CRT state entering primary `0x615BE0`.
 
-The exact shared MSVC CRT state entering primary `0x615BE0` is now reproducible. Gate 4 must carry that state through the schedule buckets in their original order and recover the exact linked-list order for Premier League matchdays.
+The earlier replay correctly covers Loader444, DBTPlayers, generated names, per-user youth generation, and the two Europe-root selector draws, but a Gate-4 audit proved that Cup round scheduling runs before `0x615BE0` and performs additional participant-pairing shuffles.
 
-Canonical startup evidence: `STARTUP_RNG_LEDGER.md`.
+Canonical startup evidence remains `STARTUP_RNG_LEDGER.md`, but its competition tail must now be amended.
 
 ## Last verified technical boundary
 
@@ -48,32 +48,32 @@ Therefore the remaining uncertainty has been pushed backward to the TeamSelect p
 
 ## Exact next task
 
-The first Premier League bucket's pre-shuffle structure is now exact:
+Correct the pre-`0x615BE0` competition RNG ledger.
 
-- final primary bucket index: 54;
-- total ordinary LeagueMatch nodes: 142;
-- PL fixture IDs occupy zero-based slots 96..105;
-- PL local order at those slots is 9,8,7,6,5,4,3,2,1,0.
+Confirmed correction:
 
-The remaining first-matchday ordering variable is the CRT state reaching bucket 54.
+- Cup initialization calls each runtime round's scheduling virtual before final bucket shuffle;
+- type 1 `NormalRound 0x4F64D0` and type 2 `TwoLegRound 0x4F6820` each perform a mandatory participant Fisher-Yates of N-1 draws when N>1;
+- type 3 `MiniLeagueRound 0x4F6B10` also contains a direct RNG shuffle;
+- therefore the old `0x5D07D526` synthetic "state entering primary shuffle" is provisional/incomplete.
 
 Continue by:
 
-1. enumerate final bucket populations for primary indices 0..53, including any conflict-shifted cup/European nodes;
-2. compute the exact Fisher-Yates raw-draw sequence before bucket 54;
-3. advance the Gate-3 shared CRT state to the first PL shuffle;
-4. shuffle the known 142-entry bucket and derive/filter the exact ten-fixture PL order for fixed-seed regression cases;
-5. generalize the mechanism to later PL matchdays.
+1. map runtime round participant-count initialization for NormalRound/TwoLegRound/MiniLeagueRound;
+2. enumerate which primary Cup rounds are active at new-game startup and their N values;
+3. resolve the scheduler flag passed from `0x4F62B1..0x4F6321` and any extra parent-vector shuffle;
+4. update `competition_startup.py` / `startup_sequence.py` and fixed-seed checkpoints;
+5. only after the corrected state is exact, resume Gate 4 using the already-implemented bucket placement logic.
 
-Commit each verified scheduler boundary separately.
+Commit every verified boundary separately.
 
-## Gate 4 completion criteria
+## Gate 3 completion criteria (reopened)
 
-- [ ] Premier League source fixture insertion order is preserved.
-- [ ] Schedule bucket/container selection is reproduced.
-- [ ] Shuffle input RNG state is reproduced through all preceding buckets.
-- [ ] Same-day Premier League extraction/execution order is reproduced.
-- [ ] Regression tests cover the first several real matchdays.
+- [x] One shared MSVC CRT RNG stream covers the mapped pre-competition startup phases.
+- [x] Fixed-seed intermediate checkpoints exist for those phases.
+- [x] Python-RNG startup fallbacks are isolated/removed.
+- [ ] Cup round scheduling RNG before primary `0x615BE0` is fully included.
+- [ ] A corrected exact state entering primary `0x615BE0` is locked by tests.
 
 
 ## Current implementation state
@@ -95,7 +95,8 @@ Already implemented and tested at a substantial level:
 
 See `FIDELITY_GAPS.md` for the canonical list. The most relevant current gaps are:
 
-- exact inter-bucket RNG consumption/order inside primary `0x615BE0` is still being completed;
+- mandatory Cup round pairing/scheduling RNG before primary `0x615BE0` is being corrected;
+- exact inter-bucket RNG consumption/order inside primary `0x615BE0` is Gate-4 work paused behind that correction;
 - deterministic fixture-ID same-day fallback;
 - unresolved final league-table tie fallback;
 - approximation around persistent-injury availability helper `0x405080`;
@@ -104,7 +105,7 @@ See `FIDELITY_GAPS.md` for the canonical list. The most relevant current gaps ar
 
 ## Do not work on yet
 
-Unless required to unblock Gate 4, defer:
+Unless required to unblock the reopened Gate 3, defer:
 
 - transfers/contracts implementation;
 - finance/board implementation;
