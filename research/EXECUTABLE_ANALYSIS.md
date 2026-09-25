@@ -4795,3 +4795,130 @@ time-derived srand(seed)
 
 No other mandatory game-CRT draw has been identified between the application seed and DBTPlayers startup.
 
+
+
+## Primary mode-0 team finalization adds no RNG before 0x615BE0
+
+**Confirmed for the ordinary new-game primary-container path, 26 September 2026.**
+
+An older checkpoint left the argument-1 `0x404110` and `0x50EA90` paths as residual transitive-RNG audit items. They are now closed.
+
+### Exact 0x616620 ordering
+
+For the primary schedule container (`object+0x14 == 0`), `0x616620` executes:
+
+```text
+country loop
+  -> 0x411020 competition initialization
+
+(no 0x4FA790 because primary mode == 0)
+
+team loop
+  -> 0x404110(team, outer_argument=1)
+
+same primary-team subset
+  -> 0x50EA90(team)
+
+0x615BE0 schedule-bucket shuffle
+```
+
+Thus any RNG in either team-finalization helper would advance the stream after competition initialization but before `0x615BE0`.
+
+### Argument-1 0x404110 path
+
+At `0x40421C`, the outer argument is tested. New-game `0x616620` passes 1, so the RNG-bearing argument-zero player loop:
+
+```text
+0x404250 -> 0x41ACA0
+```
+
+is skipped.
+
+The argument-1 path enters `0x40425D`.
+
+For eligible ordinary clubs it then temporarily sets:
+
+```text
+team+0x74 = 2
+```
+
+before calling `0x409B50`, restoring the original category only after that call returns.
+
+Inside `0x409C90`, reached by `0x409B50`, the player loop tests `0x403640(team)`.
+
+Because the temporary team category is 2, `0x403640 == 1`, and the loop takes:
+
+```text
+0x409D44 -> 0x418130
+```
+
+rather than:
+
+```text
+0x409D1B -> 0x418050
+```
+
+`0x418130` is a trivial flag predicate:
+
+```text
+test BYTE PTR [ecx+0x14], 3
+setne al
+ret
+```
+
+and consumes no RNG.
+
+A conservative recursive direct-call audit of `0x409C90` finds one path to `0x64D540`:
+
+```text
+0x409C90
+ -> 0x418050
+ -> 0x41B4D0
+ -> 0x417A20
+ -> 0x4E9F10
+ -> 0x4E99D0
+ -> RNG(4)
+```
+
+but the temporary category-2 predicate proves that exact branch is not taken on the new-game argument-1 path. No second direct-call RNG route was found from `0x409C90`.
+
+The remaining argument-1 calls (`0x403640`, `0x404050`, `0x403FF0`, `0x4F3240`, `0x4F32C0`) contain no mapped CRT draw on this path.
+
+### 0x50EA90 path
+
+`0x50EA90` performs deterministic team/player-list preparation through:
+
+```text
+0x5EE730
+0x405890
+0x411390
+0x50EB90
+0x5EE740
+```
+
+`0x50EB90` builds/evaluates a temporary player selection, uses deterministic player-overall helpers, and clears/fills the relevant runtime list state.
+
+A recursive direct-call audit from `0x50EA90` (including `0x50EB90`) reaches no known game CRT RNG entry point. `0x50ED20`, one of its setup helpers, simply fills the 40-entry team array with -1 and zeros the count.
+
+### Primary competition RNG consequence
+
+The previously recovered competition initialization remains the only mapped RNG before the primary `0x615BE0` call:
+
+```text
+Champions League ID 9: RNG(6)
+UEFA Cup ID 10:         RNG(6)
+```
+
+in that order.
+
+WCC selection is deterministic, the relevant child League parent vectors have one element and therefore do not shuffle, primary DummyLeague roots do not lazy-sort, and the Scottish root's parent-dependent shuffle is skipped.
+
+Therefore the shared CRT state entering the primary `0x615BE0` schedule-container shuffle is obtained by taking the exact pre-competition state and advancing exactly two additional bounded draws:
+
+```text
+RNG(6)
+RNG(6)
+```
+
+This closes the primary competition/team-finalization RNG boundary for Gate 3.
+
