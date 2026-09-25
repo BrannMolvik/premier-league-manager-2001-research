@@ -15,4 +15,4 @@ The project owner has confirmed authorization to use the contents of the supplie
 
 See `research/ASSET_POLICY.md` for the full policy.
 
-No original binary assets have been added by this documentation commit.
+No original binary assets have been added yet. Future asset-import work should inventory the authorized source archive systematically rather than adding files ad hoc.
