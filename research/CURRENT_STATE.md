@@ -57,22 +57,28 @@ Therefore the remaining uncertainty has been pushed backward to the TeamSelect p
 
 ## Exact next task
 
-The Loader444 side effect is implemented/tested, and a false startup lead has been removed:
+The ordinary first-start path is now closed from application `srand` through the initial PStartMenu and New Game database load:
 
-- `0x432190` is a later route that requires an existing current user;
-- the ordinary front end can create PStartMenu through generic screen factory `0x47AEC0`;
-- **screen ID `0x323` -> `0x47C928 -> 0x4C3280` PStartMenu**.
+```text
+srand(seed)
+ -> deterministic setup
+ -> bground.444 Loader444: exactly 260 raw draws
+ -> PREMINTRO.TGQ
+ -> deterministic inline PStartMenu construction/idle
+ -> deterministic New Game event prefix
+ -> DBTPlayers startup RNG
+```
 
-Continue Gate 2 on the actual first-start chain:
+The first PStartMenu is constructed inline at `0x53120F..0x53129C` with vtable `0x7C64E0`; the generic screen-factory ID `0x323` route is a valid later navigation path but is not required for first creation.
 
-1. trace post-intro front-end initialization/navigation into screen ID `0x323`;
-2. audit any RNG-bearing functions concretely reachable before the user selects New Game;
-3. connect that to the already-proven PStartMenu ID-2 -> `0x50D630` -> DBTPlayers path;
-4. if no other mandatory consumers exist, assemble the complete seed-to-competition startup RNG ledger.
+Final Gate-2 task:
 
-Do not count RNG from later current-user/calendar routes unless concrete first-start reachability is proven.
+1. assemble/review the complete seed -> Loader444 -> DBTPlayers -> TeamSelect -> `0x413830` -> competition-entry RNG ledger;
+2. state exactly which portions depend on selected human club/options/user count;
+3. update `FINDINGS.md` and the gate checklist;
+4. if the ledger has no remaining pre-competition ambiguity, mark Gate 2 complete and activate Gate 3.
 
-Commit each verified boundary and checkpoint unresolved traces after roughly ten minutes.
+Commit the gate transition only after the ledger is internally consistent.
 
 ## Gate 2 completion criteria
 
