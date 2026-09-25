@@ -4682,3 +4682,116 @@ srand
 
 Do not attribute RNG from later current-user/calendar routes to this path without concrete reachability proof.
 
+
+
+## Initial inline PStartMenu creation closes the post-intro RNG gap
+
+**Confirmed on the ordinary first-start path, 26 September 2026.**
+
+The generic screen-factory ID-0x323 mapping remains valid for later navigation, but the first PStartMenu is even more direct: the main startup routine constructs it **inline immediately after the Premier League intro**.
+
+### Exact startup order after bground.444
+
+The relevant main path is:
+
+```text
+0x531166 -> 0x461D50   bground.444
+0x53116D -> 0x5EE560   presentation update
+0x531175 -> 0x461E20   PREMINTRO.TGQ
+0x53117F -> allocate/construct front-end owner (0x431A30)
+...
+0x53120F -> allocate 0x2E0 bytes
+0x531226..0x53129B      inline PStartMenu construction
+0x53129C                 object vtable = 0x7C64E0
+...
+0x5312D3 -> 0x5329A0   register panel
+...
+0x531398 -> 0x531AF0   enter front-end event loop
+```
+
+Vtable `0x7C64E0` is the same PStartMenu vtable used by constructor `0x4C3280`.
+
+Thus the zero-user initial menu does **not** depend on later current-user helper `0x432190`, and it does not need the generic factory to appear for the first time.
+
+### Inline constructor RNG audit
+
+The inline constructor uses:
+
+- `0x64F300` for the embedded base control;
+- `0x6687C1` for its fixed vector/container;
+- `0x4C3470` three times for the three embedded controls;
+- then installs PStartMenu vtable `0x7C64E0`.
+
+The three `0x4C3470` controls use vtable `0x7C652C`. The common embedded control uses vtable `0x7BE530`.
+
+For both relevant vtables:
+
+```text
+slot +0x30 -> 0x64F510
+slot +0x34 -> 0x64F520
+slot +0x0C -> 0x64F3E0
+```
+
+`0x64F510/0x64F520` only forward boolean 1/0 to virtual `+0x0C`; `0x64F3E0` performs deterministic control-state toggling through the already-audited UI path. The startup loops at `0x531316..0x53138F` therefore do not consume CRT RNG.
+
+A recursive direct-call audit of the concrete PStartMenu refresh/activation helpers (`0x4C35A0`, `0x4C3720`, `0x516030`, `0x655F40`, `0x64F600`, `0x5329D0`, `0x5329A0`, `0x5EE560`, `0x5EE580`, `0x5328B0`, `0x432D20`, `0x432E00`, `0x431390`, `0x64F510`, `0x64F520`, `0x64F3E0`) finds no path to the known game CRT RNG entry points.
+
+### Event-loop / idle path
+
+`0x531AF0` enters the normal front-end loop.
+
+Its repeated status checks through `0x432EB0` only snapshot/read event-state bytes via `0x656960/0x656980`.
+
+The normal loop helpers:
+
+- `0x531B40`;
+- `0x531B80`;
+- `0x531BB0`;
+- `0x6350B0`;
+- `0x531BE0`;
+- `0x432E80`;
+- `0x5DC300`;
+- `0x531C10`
+
+have no direct-call path to the known CRT RNG entry points on this first-menu route. `0x5DC300` is an audio-option/maintenance check.
+
+Thus simply waiting at the initial PStartMenu does not advance the recovered game CRT stream through this loop.
+
+### Post-srand setup before Loader444
+
+The concrete startup helpers between `srand` and `bground.444` were also audited for direct/transitive calls to the known game CRT RNG entry points:
+
+- `0x634E50`;
+- `0x5327E0`;
+- `0x64E350` (when selected by the deterministic mode branch);
+- `0x604160`;
+- `0x619F70`;
+- `0x531400`;
+- `0x603C90`;
+- associated deterministic setup helpers.
+
+No additional game-CRT consumer was found.
+
+`0x5327E0` contains one graphics-interface virtual call through the object copied from `0x947AC4 -> 0x947594`. That object is supplied by the graphics/middleware interface setup, not a call into the known executable CRT RNG entry points. It does not alter the recovered executable's MSVC RNG state through any mapped callback.
+
+### Result
+
+For the ordinary first-start/new-game path, the seed-to-player prefix is now closed as:
+
+```text
+time-derived srand(seed)
+ -> deterministic platform/front-end setup
+ -> first bground.444 Loader444 decode
+      -> 259 raw rand() table-init draws
+      -> 1 raw rand() conversion draw
+      = 260 raw CRT draws
+ -> PREMINTRO.TGQ
+ -> deterministic inline PStartMenu construction/activation
+ -> deterministic idle/event loop until New Game
+ -> deterministic PStartMenu event-ID-2 prefix
+ -> 0x50D630
+ -> DBTPlayers startup RNG
+```
+
+No other mandatory game-CRT draw has been identified between the application seed and DBTPlayers startup.
+
