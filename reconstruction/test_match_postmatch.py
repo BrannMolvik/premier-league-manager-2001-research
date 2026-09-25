@@ -1,11 +1,16 @@
 import unittest
 from dataclasses import dataclass
+from datetime import date, timedelta
 
 from match_events import IncidentKind, IncidentRecord, SubstitutionRecord
 from match_postmatch import (
     FormTransitionSettings,
     appeared_player_indices,
+    apply_league_match_discipline,
     persist_post_match_side,
+    persist_premier_league_discipline,
+    refresh_league_suspension_for_next_fixture,
+    serve_league_suspension_after_fixture,
     update_post_match_form,
 )
 from match_simulation import (
@@ -37,6 +42,11 @@ class RuntimePlayer:
     condition: int = 80
     form_state: int = 2
     injured: bool = False
+    suspended: bool = False
+    discipline_yellow_total: int = 0
+    discipline_yellow_cycle: int = 0
+    suspension_matches_remaining: int = 0
+    suspension_effective_date: date | None = None
 
 
 def prepared_player(index, *, active=True, bench=False, condition=80):
@@ -122,6 +132,189 @@ class FormTransitionTests(unittest.TestCase):
         self.assertEqual(update_post_match_form(4, ScriptedRng([0, 0])), 4)
         self.assertEqual(update_post_match_form(0, ScriptedRng([0, 0])), 1)
         self.assertEqual(update_post_match_form(4, ScriptedRng([0, 99])), 3)
+
+
+class LeagueSuspensionTests(unittest.TestCase):
+    def test_fifth_yellow_creates_one_match_ban_effective_in_seven_days(self):
+        player = RuntimePlayer(
+            discipline_yellow_total=4,
+            discipline_yellow_cycle=4,
+        )
+        fixture_date = date(2000, 8, 19)
+
+        apply_league_match_discipline(
+            player,
+            bookings=1,
+            dismissals=0,
+            fixture_date=fixture_date,
+            rng=ScriptedRng([]),
+        )
+
+        self.assertEqual(player.discipline_yellow_total, 5)
+        self.assertEqual(player.discipline_yellow_cycle, 0)
+        self.assertEqual(player.suspension_matches_remaining, 1)
+        self.assertEqual(
+            player.suspension_effective_date,
+            fixture_date + timedelta(days=7),
+        )
+
+    def test_preincrement_modulo_13_branch_adds_three_matches(self):
+        player = RuntimePlayer(
+            discipline_yellow_total=12,
+            discipline_yellow_cycle=2,
+        )
+        fixture_date = date(2000, 8, 19)
+
+        apply_league_match_discipline(
+            player,
+            bookings=1,
+            dismissals=0,
+            fixture_date=fixture_date,
+            rng=ScriptedRng([]),
+        )
+
+        self.assertEqual(player.discipline_yellow_total, 13)
+        self.assertEqual(player.discipline_yellow_cycle, 3)
+        self.assertEqual(player.suspension_matches_remaining, 3)
+        self.assertEqual(
+            player.suspension_effective_date,
+            fixture_date + timedelta(days=7),
+        )
+
+    def test_red_card_rng_zero_adds_three_matches_nonzero_adds_one(self):
+        fixture_date = date(2000, 8, 19)
+
+        three_match = RuntimePlayer()
+        rng = ScriptedRng([0])
+        apply_league_match_discipline(
+            three_match,
+            bookings=0,
+            dismissals=1,
+            fixture_date=fixture_date,
+            rng=rng,
+        )
+        self.assertEqual(three_match.suspension_matches_remaining, 3)
+        self.assertEqual(rng.calls, [3])
+
+        one_match = RuntimePlayer()
+        rng = ScriptedRng([2])
+        apply_league_match_discipline(
+            one_match,
+            bookings=0,
+            dismissals=1,
+            fixture_date=fixture_date,
+            rng=rng,
+        )
+        self.assertEqual(one_match.suspension_matches_remaining, 1)
+        self.assertEqual(rng.calls, [3])
+
+    def test_existing_effective_date_is_not_reset_when_more_ban_is_added(self):
+        fixture_date = date(2000, 8, 19)
+        existing = date(2000, 8, 23)
+        player = RuntimePlayer(
+            suspension_matches_remaining=1,
+            suspension_effective_date=existing,
+        )
+
+        apply_league_match_discipline(
+            player,
+            bookings=1,
+            dismissals=1,
+            fixture_date=fixture_date,
+            rng=ScriptedRng([1]),
+        )
+
+        self.assertEqual(player.suspension_effective_date, existing)
+        self.assertEqual(player.suspension_matches_remaining, 2)
+
+    def test_seven_day_gate_can_allow_an_intervening_fixture(self):
+        player = RuntimePlayer(
+            suspension_matches_remaining=1,
+            suspension_effective_date=date(2000, 8, 26),
+            suspended=True,
+        )
+
+        # The just-played Aug 23 fixture is still before the activation date.
+        self.assertFalse(
+            serve_league_suspension_after_fixture(
+                player,
+                date(2000, 8, 23),
+            )
+        )
+        self.assertEqual(player.suspension_matches_remaining, 1)
+
+        # A next fixture on Aug 25 is also before activation, so availability
+        # remains clear. A fixture on/after Aug 26 activates the ban.
+        self.assertFalse(
+            refresh_league_suspension_for_next_fixture(
+                player,
+                date(2000, 8, 25),
+            )
+        )
+        self.assertFalse(player.suspended)
+
+        self.assertTrue(
+            refresh_league_suspension_for_next_fixture(
+                player,
+                date(2000, 8, 26),
+            )
+        )
+        self.assertTrue(player.suspended)
+
+    def test_active_ban_serves_one_match_then_expires(self):
+        player = RuntimePlayer(
+            suspended=True,
+            suspension_matches_remaining=1,
+            suspension_effective_date=date(2000, 8, 26),
+        )
+
+        self.assertTrue(
+            serve_league_suspension_after_fixture(
+                player,
+                date(2000, 9, 2),
+            )
+        )
+        self.assertFalse(player.suspended)
+        self.assertEqual(player.suspension_matches_remaining, 0)
+        self.assertFalse(
+            refresh_league_suspension_for_next_fixture(
+                player,
+                date(2000, 9, 9),
+            )
+        )
+
+    def test_full_side_order_serves_then_adds_cards_then_refreshes(self):
+        roster = [RuntimePlayer() for _ in range(4)]
+        roster[3].suspended = True
+        roster[3].suspension_matches_remaining = 1
+        roster[3].suspension_effective_date = date(2000, 8, 19)
+
+        side = prepared_side()
+        result = NormalMatchResult(events=(
+            TimedMatchEvent(20, IncidentRecord(IncidentKind.BOOKED, 0, 0)),
+            TimedMatchEvent(70, IncidentRecord(IncidentKind.SENT_OFF, 0, 1)),
+        ))
+        roster[0].discipline_yellow_cycle = 4
+
+        summary = persist_premier_league_discipline(
+            roster,
+            roster,
+            0,
+            result,
+            date(2000, 8, 19),
+            date(2000, 8, 26),
+            ScriptedRng([1]),
+        )
+
+        self.assertEqual(summary.served_player_count, 1)
+        self.assertEqual(summary.booked_player_indices, frozenset((0,)))
+        self.assertEqual(summary.sent_off_player_indices, frozenset((1,)))
+        self.assertEqual(roster[0].suspension_matches_remaining, 1)
+        self.assertTrue(roster[0].suspended)
+        self.assertEqual(roster[1].suspension_matches_remaining, 1)
+        self.assertTrue(roster[1].suspended)
+        self.assertEqual(roster[3].suspension_matches_remaining, 0)
+        self.assertFalse(roster[3].suspended)
 
 
 class PostMatchPersistenceTests(unittest.TestCase):
