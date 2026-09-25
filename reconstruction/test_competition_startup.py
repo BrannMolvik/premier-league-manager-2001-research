@@ -3,8 +3,11 @@ from dataclasses import dataclass
 
 from competition_startup import (
     europe_root_cup_candidate_ids,
+    primary_cup_round_initialization_order,
     primary_mode0_cup_pairing_draw_count,
     primary_mode0_cup_round_team_counts,
+    primary_mode0_root_initialization_order,
+    replay_primary_mode0_ordered_competition_rng,
     replay_primary_mode0_competition_rng,
     replay_primary_mode0_pre_shuffle_state,
     select_europe_root_cup_candidate,
@@ -31,12 +34,20 @@ class Competition:
     id: int
     runtime_kind_code: int
     schedule_container_code: int
+    parent_competition_id: int | None = None
+    initialization_order_value: int = 0
+    country_region_id: int = 0
 
 
 @dataclass(frozen=True)
 class Round:
     competition_id: int
     team_count: int
+    id: int = 0
+    type_code: int = 1
+    scheduled_week: int = 0
+    scheduled_weekday: int = 1
+    source_competition_reference: int = 0xFFFFFFFF
 
 
 class RecordingRng:
@@ -202,6 +213,100 @@ class PrimaryCupSchedulerStateTests(unittest.TestCase):
         self.assertEqual(replay.total_draw_count, 6)
         self.assertEqual(replay.state_entering_primary_shuffle, 0x0A7571CA)
         self.assertEqual(rng.state, 0x0A7571CA)
+
+class OrderedCompetitionRngTests(unittest.TestCase):
+    def test_small_country_root_qsort_resolves_spanish_equal_key_order(self):
+        competitions = (
+            Competition(31, 1, 1, None, 7, 73),
+            Competition(32, 1, 1, None, 8, 73),
+            Competition(33, 2, 1, None, 5, 73),
+            Competition(34, 2, 1, None, 5, 73),
+            Competition(95, 3, 1, None, 9, 73),
+        )
+
+        ordered = primary_mode0_root_initialization_order(
+            competitions,
+            (73,),
+        )
+
+        self.assertEqual(
+            tuple(competition.id for competition in ordered),
+            (33, 34, 31, 32, 95),
+        )
+
+    def test_cup_round_qsort_uses_child_league_date_for_minileague(self):
+        rounds = (
+            Round(9, 32, 201, 3, 0, 0, 14),
+            Round(9, 28, 198, 2, 2, 3),
+            Round(9, 16, 202, 3, 0, 0, 167),
+            Round(14, 4, 224, 4, 11, 3),
+            Round(167, 4, 910, 4, 21, 3),
+        )
+
+        ordered = primary_cup_round_initialization_order(9, rounds)
+
+        self.assertEqual(
+            tuple(round_definition.id for round_definition in ordered),
+            (198, 201, 202),
+        )
+
+    def test_ordered_replay_places_selector_before_its_cup_rounds(self):
+        countries = (
+            Country(26, 1),
+            Country(31, 1),
+            Country(33, 1),
+            Country(24, 1),
+            Country(40, 1),
+            Country(66, 1),
+            Country(73, 1),
+            Country(123, 1),
+        )
+        clubs = (
+            Club(1118, 26, 90000, 2),
+            Club(1135, 31, 90000, 2),
+            Club(1137, 33, 75000, 2),
+            Club(1139, 24, 60000, 2),
+            Club(1143, 40, 60000, 2),
+            Club(1159, 66, 55000, 2),
+            Club(1162, 73, 100000, 2),
+        )
+        competitions = (
+            Competition(9, 2, 1, None, 0, 123),
+            Competition(10, 2, 1, None, 1, 123),
+        )
+        rounds = (
+            Round(9, 4, 198, 2, 2, 3),
+            Round(9, 2, 205, 1, 47, 3),
+            Round(10, 6, 210, 2, 6, 4),
+        )
+        rng = MsvcCrtRng(0x12345678)
+
+        replay = replay_primary_mode0_ordered_competition_rng(
+            rng,
+            competitions,
+            rounds,
+            clubs,
+            countries,
+        )
+
+        self.assertEqual(
+            tuple(
+                (event.kind, event.competition_id, event.round_id, event.bounds)
+                for event in replay.events
+            ),
+            (
+                ("europe_selector", 9, None, (6,)),
+                ("cup_round_shuffle", 9, 198, (4, 3, 2)),
+                ("cup_round_shuffle", 9, 205, (2,)),
+                ("europe_selector", 10, None, (6,)),
+                ("cup_round_shuffle", 10, 210, (6, 5, 4, 3, 2)),
+            ),
+        )
+        self.assertEqual(replay.total_draw_count, 11)
+        self.assertEqual(replay.primary_cup_round_count, 3)
+        self.assertEqual(replay.cup_pairing_draw_count, 9)
+        self.assertEqual(replay.europe_selector_draw_count, 2)
+
 
 if __name__ == "__main__":
     unittest.main()
