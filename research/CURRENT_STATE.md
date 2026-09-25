@@ -21,10 +21,9 @@ Authorized original resources belong under `original_assets/` with provenance tr
 ## Verified repository state
 
 - Latest reverse-engineering checkpoint before stabilization: `1014b042a19fc851b8d87e653ee1e5d807816630` - **Advance startup RNG boundary before TeamSelect click**
-- Stabilization validation rerun: `9bc06b0cd5e844813a837468adcdc4b3518e4c8b`
-- Reconstruction suite at that validation point: **307 tests passed**
-- Repository asset guard at that validation point: **passed**
-- Commits after `1014b042...` are repository-management, documentation, verification, and CI hardening. They do not supersede the latest reverse-engineering address/path findings.
+- Latest reconstruction-suite validation after port-policy transition: `d485246159b7131a680635b7f3e6a9135c95f54f` - **307 tests passed**
+- Latest repository asset-policy validation: `17ee2f299a2a0d87f959b9480df9b48d194de6aa` - **passed**
+- Commits after `1014b042...` are repository-management, documentation, verification/CI hardening, and the Windows 11 port/authorized-asset policy transition. They do not supersede the latest reverse-engineering address/path findings.
 
 ## Gate 2 objective
 
