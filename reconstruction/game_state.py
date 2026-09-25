@@ -10,6 +10,7 @@ from match_preparation import (
     PreparedPremierLeagueAiSide,
     prepare_premier_league_ai_match_side,
 )
+from match_postmatch import persist_post_match_side
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
 from match_team_setup import TeamTacticalState
 from runtime_state import RuntimePlayer, derive_non_eu_status
@@ -293,7 +294,7 @@ class GameState:
     ) -> NormalMatchResult:
         """Prepare two AI clubs, simulate the due fixture, and store its result."""
         home, away = self.prepare_premier_league_ai_fixture_sides(fixture_id)
-        return self.simulate_premier_league_fixture(
+        result = self.simulate_premier_league_fixture(
             fixture_id,
             home.match_side,
             away.match_side,
@@ -301,6 +302,23 @@ class GameState:
             defence_matrix,
             rng,
         )
+
+        # Original post-match processing continues on the same RNG stream.
+        # The selection participants are the persistent RuntimePlayer objects in
+        # the same side-local order used to build PreparedMatchSide.
+        persist_post_match_side(
+            home.match_side,
+            home.preparation.selection.participants,
+            result,
+            rng,
+        )
+        persist_post_match_side(
+            away.match_side,
+            away.preparation.selection.participants,
+            result,
+            rng,
+        )
+        return result
 
     def simulate_premier_league_fixture(
         self,
