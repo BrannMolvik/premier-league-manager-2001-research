@@ -4271,3 +4271,101 @@ A direct-call audit of `0x4D9290..0x4D973F` finds no direct calls to the known C
 2. audit the pre-`0x50D630` ID-2 branch helpers;
 3. close the TeamSelect constructor/activation helper graph transitively where necessary.
 
+
+
+## 0x50D630 startup loader closed: DBTPlayers is the mandatory RNG source
+
+**Confirmed for the standard PStartMenu ID-2 new-game path, 26 September 2026.**
+
+The core loader called at `0x4C392F` has now been audited far enough to separate its deterministic database setup from the shared CRT-RNG consumers.
+
+### Loader order
+
+`0x50D630` executes:
+
+```text
+0x4310C0             input/resource/file setup
+0x40B9C0             DBTClubs load
+0x413890             club/special-team lookup setup
+0x4218C0             DBTPlayers load
+0x415B70             manager-table load
+0x431160             setup cleanup/finalization
+0x4F6EB0             club/nationality post-processing
+club iteration        deterministic derived-field hookup
+```
+
+### DBTClubs path is RNG-clean during load
+
+The DBTClubs object at `0x874B88` uses vtable `0x7BD718`.
+
+Its allocation virtual at vtable `+0x08` resolves to `0x40BBE0`, which constructs the complete club array with record constructor `0x405A40`.
+
+The load path is therefore:
+
+```text
+0x40B9C0
+  -> virtual +0x08 = 0x40BBE0
+       -> N x 0x405A40 club constructor
+  -> N x 0x4022D0 compact record read
+  -> N x 0x403660 runtime import/copy
+  -> 0x40BD10 post-load setup
+```
+
+No known CRT RNG entry point occurs on this load path. The nearby random selector `0x40BB50` is a separate routine and is **not** called by `0x40B9C0`.
+
+The later `0x4F6EB0` post-processing path calls `0x40BA90 -> 0x40B380`; `0x40B380` is the already-proven deterministic single-field reset, not the adjacent random routine.
+
+### DBTManagers path is RNG-clean during load
+
+The manager table at `0x875620` uses vtable `0x7BDA0C`.
+
+Its allocation virtual `+0x08` resolves to `0x414B80`, which constructs 0x40-byte manager runtime records with `0x414C50`.
+
+Per-record loader `0x4147F0` contains one previously-indirect record virtual at slot `+0x18`. The constructed manager record vtable at `0x7BDA20` resolves that slot to:
+
+```text
+0x415B50
+  -> 0x414D50
+```
+
+which is deterministic serialized-field handling.
+
+After each record load, `0x415B70` calls `0x414E10` to copy/finalize manager fields. That routine contains no RNG.
+
+The manager-behavior functions around `0x415435` and `0x415760` do contain RNG(10) draws, but they are **not on the manager-table startup load path**.
+
+### DBTPlayers post-process adds no new random draw
+
+`0x4218C0` calls:
+
+```text
+0x421C80   allocation + compact-player loading
+0x421CE0   post-processing
+```
+
+The known mandatory startup draws are all in the `0x421C80` construction/load phase:
+
+```text
+N x RNG(15)
+then per player:
+  RNG(1), RNG(2), RNG(2), RNG(5)
+```
+
+`0x421CE0` performs date normalization, Non-EU classification, club/player linkage and related post-processing. Its direct path contains no CRT RNG call; the previously-audited Non-EU branch `0x421D4B -> 0x421760 -> 0x417A20` is also zero-draw.
+
+### Remaining 0x50D630 helpers
+
+The setup/finalization pair `0x4310C0 / 0x431160`, special-club lookup `0x413890 -> 0x40C4E0`, and post-load `0x4F6EB0` path contain no known CRT RNG call on their reachable direct paths. The final club loop uses deterministic `0x403640` classification and table lookups.
+
+### Result
+
+For the standard new-game path through `0x50D630`, the **only confirmed mandatory CRT RNG consumption is the already-reconstructed DBTPlayers startup sequence**.
+
+This closes the core database-loader portion of Gate 2.
+
+Remaining pre-TeamSelect uncertainty is now outside `0x50D630`:
+
+1. calls earlier in PStartMenu ID-2 branch `0x4C37C7..0x4C392E`;
+2. TeamSelect constructor/helper graph after `0x4C3992`, although the constructor has no direct RNG entry call;
+3. any state path that executes before the user later clicks Start/Continue.
+
