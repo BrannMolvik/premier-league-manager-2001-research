@@ -57,12 +57,17 @@ Therefore the remaining uncertainty has been pushed backward to the TeamSelect p
 
 ## Exact next task
 
-The core database loader `0x50D630` is now closed for the standard new-game path: its only mandatory CRT RNG consumption is the already-reconstructed DBTPlayers startup sequence.
+The standard PStartMenu -> core database load -> TeamSelect construction/activation -> Start/Continue path is now bounded.
 
-Continue Gate 2 by closing the two remaining pre-click boundaries:
+Confirmed mandatory randomness on that connected path is:
 
-1. audit PStartMenu event-ID-2 calls before `0x4C392F -> 0x50D630` and classify any conditional existing-game paths separately from fresh-start mandatory behavior;
-2. finish the TeamSelect constructor/registration/activation helper graph after `0x4C3992`, looking for any transitive CRT RNG call before the user presses Start/Continue.
+1. the already-reconstructed DBTPlayers startup sequence inside `0x50D630`;
+2. the already-reconstructed `0x413830` generated-name/youth sequence after the Start click;
+3. later mapped competition/schedule consumers.
+
+TeamSelect construction, activation, idle/start-button handling, and the other `0x50D630` database loaders are zero-draw on the standard path.
+
+The remaining Gate-2 question is now **earlier than PStartMenu**: trace from the application's CRT seed call to the PStartMenu/database-loader entry and identify any mandatory RNG consumers before DBTPlayers startup.
 
 Commit each verified boundary and checkpoint unresolved traces after roughly ten minutes.
 
