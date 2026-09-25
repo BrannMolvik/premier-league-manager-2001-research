@@ -272,6 +272,64 @@ class IntegratedGameStateTests(unittest.TestCase):
         self.assertTrue(
             all(player.form_state == 2 for player in state.ordered_club_roster(2))
         )
+    def test_daily_injury_return_clears_exact_persistent_state(self):
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 1),
+            seed=1,
+            season_year=2000,
+        )
+        player = state.players[100]
+        player.injured = True
+        player.injury_return_date = date(2000, 7, 2)
+        player.injury_source_mode = 0
+        player.injury_severity_code = 2
+        player.condition = 37
+
+        state.advance_one_day()
+
+        self.assertFalse(player.injured)
+        self.assertIsNone(player.injury_return_date)
+        self.assertIsNone(player.injury_source_mode)
+        self.assertIsNone(player.injury_severity_code)
+        self.assertEqual(player.condition, 37)
+
+    def test_injury_return_reenables_player_for_ai_selection(self):
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 1),
+            seed=1,
+            season_year=2000,
+        )
+        player = state.players[100]
+        player.injured = True
+        player.injury_return_date = date(2000, 7, 2)
+        player.injury_source_mode = 0
+        player.injury_severity_code = 1
+
+        home, _ = state.prepare_premier_league_ai_fixture_sides(
+            0,
+            MidpointRng(),
+        )
+        selected_before = {
+            assignment.player_index
+            for assignment in home.preparation.selection.lineup.starters
+        } | set(home.preparation.selection.lineup.substitutes)
+        self.assertNotIn(100, selected_before)
+
+        state.advance_one_day()
+        self.assertFalse(player.injured)
+
+        home, _ = state.prepare_premier_league_ai_fixture_sides(
+            0,
+            MidpointRng(),
+        )
+        selected_after = {
+            assignment.player_index
+            for assignment in home.preparation.selection.lineup.starters
+        } | set(home.preparation.selection.lineup.substitutes)
+        self.assertIn(100, selected_after)
+
     def test_daily_ai_pitch_recovery_uses_exact_base_value(self):
         state = GameState.from_database(
             AutonomousDatabase(),
