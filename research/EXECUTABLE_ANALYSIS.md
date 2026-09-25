@@ -5098,10 +5098,12 @@ NormalRound and TwoLegRound shuffle their ClubRef arrays, then qsort 16-byte rec
 The comparator behavior is exact:
 
 - type-2 ClubRefs sort before every non-type-2 ClubRef;
-- if both records are type 2, follow each `+0x08` object pointer, then compare the two-word schedule pair at referenced-object `+0x20` through `0x4F3BB0`;
+- if both records are type 2, follow each `+0x08` runtime competition pointer and compare the two-word competition-reference pair at object `+0x20/+0x22` through `0x4F3BB0`;
 - if neither is type 2, comparator result is zero.
 
-Therefore the mandatory Fisher-Yates remains meaningful: it randomizes relative order inside comparator-equivalent groups, while type-2 references are grouped first and chronologically ordered by their referenced schedule pair.
+This corrects an initial misread of object `+0x20` as a schedule pair. The same competition-object layout is independently used by `0x4F3B10`: `+0x20` is the competition ID and `+0x22` is the child/context selector.
+
+Therefore the mandatory Fisher-Yates remains meaningful: it randomizes relative order inside comparator-equivalent groups, while type-2 references are grouped first and ordered by their referenced competition identity.
 
 ### DBRCupAllocInstruction runtime layout
 
@@ -5186,3 +5188,29 @@ Thus exact Cup participant source order is determined jointly by:
 3. the sorted Cup round array and new-entrant quotas.
 
 This is now the active Gate-3 reconstruction boundary.
+
+
+### ClubRef type-1 / type-2 semantics
+
+Further resolver tracing gives concrete meanings to the two most important deferred tags.
+
+**Type 1 = match-result reference.**
+
+Resolver `0x4F28E0` calls the referenced object's virtual `+0x44` and caches that returned club. When ClubRef `+0x0E != 0`, it instead calls `0x513FB0`.
+
+`0x513FB0` obtains the same virtual-`+0x44` club, compares it with the first match-side club wrapper at object `+0x14`, and returns the opposite side. Therefore:
+
+```text
+type 1, selector 0     -> winner/result club from referenced match
+type 1, selector != 0  -> losing/opposite club from referenced match
+```
+
+**Type 2 = competition-position reference.**
+
+The type-1 allocation-instruction fallback at `0x4F5F58..` constructs type-2 ClubRefs with `0x4F2D10(source_competition, position_index)`. Its position index comes from a per-source accumulator that type-4 allocation instructions can advance.
+
+The type-2 resolver `0x4F290B..` validates the referenced competition, sorts/accesses its ranking array, and resolves the requested eligible position.
+
+This directly explains the paired allocation records used by playoff competitions. For example, type-4 instructions advance a source-league offset, then a following type-1 instruction emits sequential type-2 references from that offset.
+
+These semantics replace the earlier generic “type-2 chronological reference” interpretation.
