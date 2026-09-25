@@ -25,6 +25,7 @@ class BoundedRng(Protocol):
 
 
 class RawCrtRng(Protocol):
+    state: int
     def rand15(self) -> int: ...
 
 
