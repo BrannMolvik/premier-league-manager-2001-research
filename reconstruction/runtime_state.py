@@ -122,6 +122,10 @@ class RuntimePlayer:
     discipline_yellow_cycle: int = 0
     suspension_matches_remaining: int = 0
     suspension_effective_date: date | None = None
+    injury_return_date: date | None = None
+    injury_source_mode: int | None = None
+    injury_severity_code: int | None = None
+    injury_history_weight: int = 0
 
     @classmethod
     def from_database_player(
