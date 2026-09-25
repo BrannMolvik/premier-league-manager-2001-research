@@ -2421,3 +2421,36 @@ srand(seed)
 ```
 
 Combined with the already-closed TeamSelect and post-`0x413830` paths, this leaves assembly/review of the complete seed-to-competition ledger as the final Gate-2 task.
+
+
+## 26 September Gate 2 completion checkpoint
+
+Gate 2 - Finish the startup RNG chain - is complete.
+
+The standard seed-to-competition path is now bounded as:
+
+```text
+srand(time seed)
+ -> Loader444 first bground.444 decode: 260 raw draws
+ -> initial PStartMenu/front end: zero additional draws
+ -> PStartMenu New Game prefix: zero
+ -> DBTPlayers startup: 150,320 draws for 30,064 shipped players
+ -> TeamSelect lifetime / Start dispatch: zero
+ -> 0x414330 generated names: 2,422 draws
+ -> 0x413980 per-user youth block(s): exact replayable order
+ -> immediate competition-entry wrappers: zero
+ -> 0x4F7C00 competition/schedule initialization boundary
+```
+
+The fixed prefix before per-user youth generation is **153,002 raw CRT draws**.
+
+The complete parameterized ledger is persisted in `research/STARTUP_RNG_LEDGER.md`.
+
+All Gate-2 completion criteria are satisfied:
+
+- TeamSelect lifetime/activation bounded;
+- mandatory pre-competition RNG consumers enumerated;
+- exact competition-entry CRT state reproducible from seed plus human-game configuration;
+- findings and implementation consequences committed.
+
+Gate 3 is now active. Its first task is to compose the existing Loader444, DBTPlayers, generated-name and youth replay pieces into one executable startup ledger with fixed-seed intermediate-state tests, then extend through primary competition initialization toward the first Premier League schedule-bucket shuffle.
