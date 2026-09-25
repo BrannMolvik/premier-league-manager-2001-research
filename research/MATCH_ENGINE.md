@@ -3604,7 +3604,7 @@ The finalizer schedules a return event for the absolute return date. The return 
 - clears the persistent injured bit;
 - does **not** restore Condition.
 
-The clean-room daily scheduler therefore clears injury metadata and `injured=False` when the stored return date is reached, leaving current Condition unchanged.
+The return event is queued in the global dated-event container. Fast calendar advancement processes due fixtures before the post-match/day event pass, so an injury whose stored return date equals a fixture date remains unavailable for that day's fixture and is cleared afterward. The clean-room season scheduler must therefore clear injury metadata and `injured=False` in the post-fixture phase of the stored return date, leaving current Condition unchanged.
 
 ### Exact post-match RNG ordering
 
@@ -3648,3 +3648,36 @@ The clean-room autonomous Premier League path now:
 6. runs the later post-match Form pass without re-copying Condition.
 
 This ensures the persistent injury Condition loss cannot be overwritten by a later calculator-state copy.
+
+
+## Exact fast-calendar day order and due-fixture scheduler
+
+**Confirmed from direct disassembly of the canonical executable.**
+
+The accelerated calendar loop increments the global current date at `0x4A84FD` and then calls `0x4A83D0` once for that new date. `0x4A83D0` is a three-stage dispatcher:
+
+```text
+0x4A7280
+0x4A8260
+0x4A8070
+```
+
+The middle stage is the actual dated-match scheduler. `0x4A8260` runs the date-indexed walker `0x6168C0` first on container `0x947AD8` and then on `0x947AF0`.
+
+For the bucket corresponding to the current date, `0x6168C0` walks the stored linked list of scheduled match nodes. After its eligibility checks it invokes virtual slot `+0x10` on the underlying match object. The `LeagueMatch` RTTI/vtable at `0x7C4C24` maps that slot to `0x513010`, the already-recovered match-controller/calculation path.
+
+The scheduler separates user-involved and autonomous matches. Helper `0x616990` iterates the registered user contexts and compares their club with both match sides. The first scheduler pass skips matches for which that helper is true, so eligible autonomous fixtures are calculated first. A second pass walks the bucket again and calculates remaining eligible matches.
+
+### Same-day match order
+
+The original scheduler does not establish fixture-ID order as its execution order. Date-bucket insertion at `0x615950` links nodes into per-date lists, and `0x615AE0` performs an RNG-driven shuffle of one linked list. `0x615BE0` applies that shuffle across schedule buckets during the schedule setup path reached from `0x616620`.
+
+Therefore a clean-room multi-fixture loop must not claim that sorting simultaneous fixtures by static fixture ID reproduces original RNG ordering. Until the schedule-container initialization stream is reproduced, exact cross-fixture RNG order for simultaneous matches remains a separate boundary.
+
+### Post-fixture day maintenance
+
+After the dated-match scheduler returns, `0x4A8070` begins by processing the global dated-event container `0x947AA8` through `0x613EE0(current_date, 1)`. The event walker calls virtual slot `+0x10` for events whose stored date is at or before the supplied date.
+
+The persistent injury return object is RTTI class `MPMInjuryReverse` with vtable `0x7D7760`. Its `+0x10` handler is `0x5D7B40`, which ultimately calls `0x418AD0` for each returned player. Because this event pass occurs after `0x4A8260`, a player returning on a fixture date becomes available only after that day's scheduled fixtures have been processed.
+
+The existing Pitch Wear cadence remains daily. `0x4A8070` calls `0x4138E0` on every day; `0x4138E0` calls club traversal `0x40BA50`, which invokes `0x40DD70` for each club. The separate `0x40BAD0` traversal inside `0x4A8070` is gated by the weekly date test and calls a different club routine, so it is not the Pitch Wear recovery path.
