@@ -317,3 +317,101 @@ Exact Cup fixture/pairing outputs still require the true bounded-call order:
 
 That ordering matters to which teams are paired, even though it does not change
 the final hidden LCG state after all 1,739 calls.
+
+
+## 10. Exact primary competition bounded-call order
+
+The reopened Gate-3 work now goes beyond hidden-state call counting. The
+canonical **bounded-call event order** before primary `0x615BE0` is
+reproducible.
+
+### Cup round ordering
+
+Cup virtual `+0x04 = 0x4F6D60` appends runtime rounds in source attachment
+order. Cup virtual `+0x08 = 0x4F6E30` then qsorts the round-pointer array
+before `Cup::init` schedules it.
+
+Comparator `0x4F6E50` compares each round's virtual slot-0 8-byte schedule
+key:
+
+- NormalRound / TwoLegRound: `(scheduled_week, scheduled_weekday-1)`;
+- MiniLeagueRound: the first schedule pair of its referenced child League.
+
+All canonical primary Cups contain at most eight runtime rounds, so the
+analyzed CRT qsort uses its exact small-array selection-sort path. Equal keys
+are therefore deterministic rather than left as a stable-sort assumption.
+
+### Root competition ordering
+
+Country roots are attached in global competition source order, qsorted by
+runtime `+0x18 = -initialization_order_value`, and traversed backwards.
+
+For small root arrays the exact CRT qsort behavior is reproduced. This resolves
+Spain's equal-key pair as:
+
+```text
+Spanish Cup -> Super Cup -> Primera -> Segunda -> Spanish Spare
+```
+
+The large equal-key group in country 116 contains only one primary-Cup
+RNG-bearing subtree (World Club Championship), so its position among zero-draw
+roots cannot change the competition RNG event stream.
+
+Children are visited in source/global competition order.
+
+### Europe selector positions
+
+The Europe root selector executes inside Cup initialization **before** that
+Cup's round scheduler loop.
+
+The canonical primary competition stream contains:
+
+```text
+117 RNG-bearing events
+  115 Cup round participant shuffles
+    2 Europe-root selectors
+1,739 bounded CRT calls total
+```
+
+The selector events are event indices:
+
+```text
+99  Champions League
+108 UEFA Cup
+```
+
+For synthetic state `0x2797444C`:
+
+```text
+before Champions League selector: 0xA16F47F1
+RNG(6) -> candidate index 0 -> club 1118
+after selector:                   0x82C7CAF0
+
+before UEFA Cup selector:         0x1A3358D6
+RNG(6) -> candidate index 4 -> club 1143
+after selector:                   0x5FA76C41
+
+after all 1,739 calls:            0x986E4579
+```
+
+The complete ordered bound stream is canonically fingerprinted by SHA-256 over
+little-endian uint16 bounds:
+
+```text
+baef6479394ffee84e7a9aec58d74f1c5418ccaeaad7f617d9ed0f77e95fd8df
+```
+
+`reconstruction/competition_startup.py` now materializes this event sequence
+and the Fisher-Yates **participant-slot permutation** for each Cup round.
+`reconstruction/verify.py` locks the canonical event count, selector positions,
+bound-stream digest, selected Europe candidates, and final CRT state.
+
+### Remaining distinction: slot permutation versus club pairing
+
+NormalRound and TwoLegRound perform a participant-record qsort after the
+mandatory Fisher-Yates. Therefore the recovered randomized slot permutation is
+not yet sufficient to claim the final club/winner-reference pairings.
+
+The remaining Gate-3 task is to materialize the 16-byte participant records,
+their allocation/source order, and comparator `0x4F67D0`, then apply the
+post-randomization qsort and pairing logic.
