@@ -1,10 +1,12 @@
 # Premier League Manager 2001 Reverse-Engineering Progress
 
-_Last updated: 25 September 2026_
+_Last updated: 26 September 2026_
 
 ## Purpose
 
-This file is the canonical resume point for the project. Any ChatGPT, Codex, or local-agent session working on this repository should read this file before starting new investigation.
+This file is the **chronological project log**. It preserves dated checkpoints, including older "current" statements that may later be superseded.
+
+The canonical live resume point is now `research/CURRENT_STATE.md`, with long-term sequencing in `ROADMAP.md`. New sessions should not treat early status sections in this file as current merely because they appear near the top.
 
 ## Current Goal
 
@@ -57,9 +59,11 @@ Important preserved field distinction:
 
 Substitution copies `+0x03` and `+0x04` from outgoing to incoming, but does not copy `+0x05`.
 
-### Current primary blocker
+### Historical primary blocker at this checkpoint (superseded)
 
-The backend calculator can now execute a normal match when explicit prepared match-day state is supplied. The next major fidelity/playability target is **authoritative match-day initialization**:
+At this dated checkpoint, the backend calculator could execute a normal match when explicit prepared match-day state was supplied. The then-next fidelity/playability target was **authoritative match-day initialization**.
+
+Later 25 September work implemented the autonomous AI preparation path, so this is retained as history rather than a live blocker:
 
 1. identify how the original chooses/marks starting XI and substitute-available participants;
 2. recover initial assigned roles and the `+0x04/+0x05` position-state values;
@@ -2200,3 +2204,20 @@ clicks Start/Continue. Trace panel construction/activation and its caller chain
 back to the already-recovered database/player startup sequence, looking only
 for mandatory CRT RNG consumers that can survive until the first schedule
 shuffle.
+
+
+## 26 September repository stabilization checkpoint
+
+A repository-structure audit found that the technical implementation was healthy but the handoff documentation had accumulated conflicting "current" statements across a long chronological log.
+
+The project now separates live truth from history:
+
+- `ROADMAP.md` defines sequential development gates;
+- `research/CURRENT_STATE.md` is the short canonical resume point;
+- `research/PROGRESS.md` remains the chronological record;
+- `research/BACKLOG.md` captures useful deferred work;
+- `research/FIDELITY_GAPS.md` tracks observable reconstruction deviations;
+- `research/HANDOFF_PROMPT.md` provides a reusable fresh-session prompt;
+- `project_status.json` mirrors the current gate for tools/agents.
+
+Stale status text was explicitly reconciled rather than deleting historical evidence. The current technical next target remains the TeamSelect panel lifetime/activation path before the Start/Continue click, tracing backward toward the already-recovered database/player startup sequence for mandatory CRT RNG consumers.
