@@ -2489,3 +2489,23 @@ seed 0x12345678
 GitHub Actions at `52d5b4c2eaa9535a67a73b484e712fe0043306b5` passes **312 tests**.
 
 Next Gate-3 task: close the residual primary-container team-setup audit, then model the already-recovered Champions League `RNG(6)` -> UEFA Cup `RNG(6)` sequence and establish the exact shared CRT state entering `0x615BE0`.
+
+
+## 26 September primary competition RNG-tail closure checkpoint
+
+The last old Gate-3 competition/team-finalization uncertainty is closed.
+
+Direct branch tracing proves that new-game `0x404110(team, 1)` cannot take the only direct-call RNG chain found beneath `0x409C90`: it temporarily forces team category 2, so `0x403640` sends the per-player predicate to RNG-clean `0x418130` instead of `0x418050`.
+
+A recursive direct-call audit of `0x50EA90` also reaches no mapped CRT RNG entry point.
+
+Since `0x616620` orders competition initialization -> `0x404110` team loop -> `0x50EA90` loop -> `0x615BE0`, the exact primary-container RNG contribution after the pre-competition ledger is now:
+
+```text
+Champions League RNG(6)
+UEFA Cup         RNG(6)
+```
+
+and nothing else mapped before `0x615BE0`.
+
+Next: implement this two-draw competition tail and lock the exact fixed-seed state entering `0x615BE0`.
