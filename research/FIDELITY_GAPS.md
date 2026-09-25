@@ -8,7 +8,7 @@ Historical uncertainty that has since been resolved should be moved to the resol
 
 | Gap | Current reconstruction behavior | Original status | Planned gate |
 | --- | --- | --- | --- |
-| Startup RNG before first PL shuffle | Shared MSVC CRT stream covers the mapped player-startup block and recovered startup helpers, but the full mandatory pre-shuffle path is not yet closed | Remaining TeamSelect lifetime/activation caller path is under investigation | 2-3 |
+| Startup RNG before first PL shuffle | Seed-to-competition path is now fully bounded, including the 260-draw Loader444 side effect, DBTPlayers, TeamSelect zero-draw lifetime, and user name/youth block | Remaining uncertainty is inside primary competition initialization before the first PL bucket shuffle | 3 |
 | Same-day Premier League execution order | Deterministic fixture-ID order unless an explicit scheduler order is supplied | Head insertion, PL source order, container, and Fisher-Yates are recovered; exact entering RNG state remains | 4 |
 | League-table final tie fallback | Club ID after points / GD / goals scored | Exact original fallback after the first three keys is unresolved | 15 or earlier if standings behavior requires it |
 | Persistent-injury availability count | Approximation around the inputs to helper `0x405080` | Injury generation/persistence is substantially recovered, but this availability helper is not exact | 15 |
