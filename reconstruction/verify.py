@@ -7,9 +7,12 @@ import sys
 from competition_startup import (
     primary_mode0_cup_pairing_draw_count,
     primary_mode0_cup_round_team_counts,
+    primary_mode0_root_initialization_order,
+    replay_primary_mode0_ordered_competition_rng,
 )
 from competition_state import PremierLeagueState
 from fm2001_data import FM2001Database
+from match_schedule import MsvcCrtRng
 
 
 CANONICAL_HASHES = {
@@ -109,6 +112,97 @@ def verify_database(db: FM2001Database) -> None:
         )
         == 115,
         "Primary Cup RNG round-count helper does not cover all 115 rounds",
+    )
+
+    spanish_root_order = tuple(
+        int(competition.id)
+        for competition in primary_mode0_root_initialization_order(
+            db.competitions,
+            tuple(int(country.id) for country in db.countries),
+        )
+        if int(competition.country_region_id) == 73
+    )
+    require(
+        spanish_root_order == (33, 34, 31, 32, 95),
+        f"Unexpected canonical Spain root initialization order: {spanish_root_order}",
+    )
+
+    ordered_competition_rng = replay_primary_mode0_ordered_competition_rng(
+        MsvcCrtRng(0x2797444C),
+        db.competitions,
+        db.rounds,
+        db.clubs,
+        db.countries,
+    )
+    require(
+        len(ordered_competition_rng.events) == 117,
+        (
+            "Expected 117 primary competition RNG events, got "
+            f"{len(ordered_competition_rng.events)}"
+        ),
+    )
+    require(
+        ordered_competition_rng.primary_cup_round_count == 115,
+        "Ordered replay does not contain all 115 primary Cup rounds",
+    )
+    require(
+        ordered_competition_rng.cup_pairing_draw_count == 1737,
+        "Ordered replay does not contain exactly 1737 Cup shuffle draws",
+    )
+    require(
+        ordered_competition_rng.europe_selector_draw_count == 2,
+        "Ordered replay does not contain exactly two Europe selector draws",
+    )
+    require(
+        ordered_competition_rng.total_draw_count == 1739,
+        "Ordered replay does not contain exactly 1739 total competition draws",
+    )
+
+    selector_event_indices = tuple(
+        index
+        for index, event in enumerate(ordered_competition_rng.events)
+        if event.kind == "europe_selector"
+    )
+    require(
+        selector_event_indices == (99, 108),
+        f"Unexpected Europe selector event positions: {selector_event_indices}",
+    )
+
+    ordered_bounds = tuple(
+        bound
+        for event in ordered_competition_rng.events
+        for bound in event.bounds
+    )
+    bounds_blob = b"".join(
+        int(bound).to_bytes(2, "little")
+        for bound in ordered_bounds
+    )
+    bounds_sha256 = sha256(bounds_blob).hexdigest()
+    require(
+        bounds_sha256
+        == "baef6479394ffee84e7a9aec58d74f1c5418ccaeaad7f617d9ed0f77e95fd8df",
+        f"Primary competition ordered-bound digest mismatch: {bounds_sha256}",
+    )
+    require(
+        ordered_competition_rng.champions_league_club_id == 1118,
+        (
+            "Synthetic ordered replay selected unexpected Champions League "
+            f"candidate {ordered_competition_rng.champions_league_club_id}"
+        ),
+    )
+    require(
+        ordered_competition_rng.uefa_cup_club_id == 1143,
+        (
+            "Synthetic ordered replay selected unexpected UEFA Cup candidate "
+            f"{ordered_competition_rng.uefa_cup_club_id}"
+        ),
+    )
+    require(
+        ordered_competition_rng.state_entering_primary_shuffle == 0x986E4579,
+        (
+            "Corrected ordered primary competition state mismatch: "
+            f"0x{ordered_competition_rng.state_entering_primary_shuffle:08X}"
+        ),
     )
     require(
         len({f.round_index for f in db.real_fixtures}) == 38,
