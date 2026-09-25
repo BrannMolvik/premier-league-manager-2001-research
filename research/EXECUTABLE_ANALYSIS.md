@@ -4466,3 +4466,135 @@ PStartMenu ID 2
 
 The next remaining question is no longer TeamSelect: it is whether any mandatory CRT RNG consumers occur **between application seeding and entry into this PStartMenu/database-loader sequence**. That must be settled before the complete seed-to-first-PL-shuffle ledger can be called closed.
 
+
+
+## Post-srand bground.444 load consumes exactly 260 raw CRT draws
+
+**Confirmed from the standard application startup path and Loader444 implementation, 26 September 2026.**
+
+The ordinary application seed occurs at:
+
+```text
+0x531098 -> 0x66A767      current-time source
+0x53109E -> 0x66950F      CRT srand(seed)
+```
+
+The startup routine later loads:
+
+```text
+FM2001_art\generic\bground.444
+```
+
+at `0x531166 -> 0x461D50`.
+
+The authorized source-disc file is confirmed at Joliet path:
+
+```text
+FM2001_Art/Generic/bground.444
+```
+
+with:
+
+- file size **222,616 bytes**;
+- SHA-256 `9db0d71daf70d77b4f5f2307304bb8c5eac4ee3a07a85f2828b570fbbf3b7fb9`;
+- first two little-endian uint16 values **800, 600**, matching the 800x600 front-end display dimensions.
+
+### Extension dispatch selects Loader444
+
+The generic image-loader registry registers extension `444` to the loader object at `0x985AC0`.
+
+RTTI names the class:
+
+```text
+.?AVLoader444@EAUK@@
+```
+
+and its vtable `0x7D9284` has decode method `0x68598A`.
+
+The startup `bground.444` load therefore reaches:
+
+```text
+0x461D50
+ -> 0x64D930
+ -> 0x657820 generic image loading
+ -> Loader444::decode 0x68598A
+ -> 0x6864A0
+ -> 0x6868E0
+```
+
+### One-time Loader444 table initialization: 259 draws
+
+`0x6864A0` begins by reading global flag `0x9FB524`.
+
+If zero, it executes:
+
+```text
+ESI = 0
+loop:
+    0x66951C rand()
+    table[ESI] = AL
+    ESI++
+while ESI < 0x103
+```
+
+So the first initialization consumes exactly:
+
+```text
+0x103 = 259 raw CRT rand() calls
+```
+
+The routine later writes `1` to `0x9FB524` at `0x686823` / `0x6868D1`, making this table-generation block one-time.
+
+The flag lies in the zero-filled virtual tail of the executable's `.data` section:
+
+- `.data` VA `0x817000`;
+- raw bytes end at VA `0x875000`;
+- virtual section extends to approximately `0xADA9F8`;
+- `0x9FB524` is therefore initially zero at process startup.
+
+The only writes/xrefs to `0x9FB524` in the executable are the reads and the two writes inside `0x6864A0`.
+
+### Why the flag is still zero when srand has just run
+
+Before `0x53109E` seeds the CRT stream, the startup path does play `easp.tgq` and load `FM2001_Art\Generic\License.png`.
+
+Neither can initialize the Loader444 table:
+
+- the EA Sports FMV call passes no background-image argument to `0x461900`, so its optional `0x461D50` image-load branch is not taken;
+- `License.png` is dispatched through the PNG loader, not `Loader444`;
+- `0x6864A0` has only one direct caller, `Loader444::decode 0x68598A`.
+
+Thus the first post-seed `bground.444` decode sees `0x9FB524 == 0` and performs the 259 draws.
+
+### Per-conversion draw: exactly one more rand()
+
+After `0x6864A0`, `Loader444::decode 0x68598A` calls `0x6868E0` exactly once.
+
+`0x6868E0` branches on global format value `0x9FB514`:
+
+- 16-bit branch -> `0x686993 -> 0x66951C`;
+- alternate branch -> `0x686B09 -> 0x66951C`.
+
+The branches are mutually exclusive and each contains exactly one raw CRT `rand()` call before completing the conversion.
+
+Therefore the mandatory original contribution of the first post-seed `bground.444` load is:
+
+```text
+259 table-initialization draws
++ 1 conversion/dither draw
+= 260 raw MSVC CRT rand() calls
+```
+
+### Updated seed-to-player boundary
+
+The standard startup RNG sequence now begins:
+
+```text
+time-derived srand(seed)
+ -> bground.444 Loader444: 260 raw rand() draws
+ -> later fresh-game PStartMenu path
+ -> DBTPlayers startup draws
+```
+
+This hidden presentation-related RNG consumer must be reproduced even though the modern Windows 11 port may decode/display the original background asset differently. Fidelity requires advancing the shared game RNG stream as the original Loader444 did.
+
