@@ -2975,3 +2975,38 @@ MatchEngine initial tactics snapshot
 ```
 
 These are related representations, but they are not one shared mutable tactical store.
+## Exact initial team roster order
+
+**Confirmed from player startup `0x421CE0` and team append helper `0x40D4F0`.**
+
+The ordered team roster at:
+
+```text
+team +0x244  uint16 player IDs
+team +0x294  roster count
+```
+
+is not initialized by a separate rating/position sort.
+
+Startup routine `0x421CE0` iterates the global runtime DBRPlayer array linearly in its database-loaded order. For each player it:
+
+1. performs player startup state work, including the already-mapped Non-EU derivation;
+2. resolves the player's current club/team;
+3. obtains the player's uint16 ID from `DBRPlayer+0x04`;
+4. calls `0x40D4F0(team, player_id, 1)`.
+
+The append tail of `0x40D4F0` is exact:
+
+```text
+index = team+0x294
+team[+0x244 + 2*index] = player_id
+team+0x294 = index + 1
+```
+
+at `0x40D5DF..0x40D5FD`.
+
+The argument value 1 enables additional shirt/position-state handling earlier in the helper, but the roster insertion itself is still an append at the current count. There is no sort before this insertion.
+
+Therefore the **fresh initial runtime roster order equals global Master.dat/DBRPlayer order filtered by current club**.
+
+This matters because the exact AI selector preserves roster order for strict-score ties and the MatchCalculator participant collector preserves this same team-roster order. A clean-room game initialized directly from the shipped database can consequently derive the original starting roster order by filtering the parsed player sequence by club ID. Later transfer/reordering operations may of course mutate runtime roster order and must be preserved as live state.
