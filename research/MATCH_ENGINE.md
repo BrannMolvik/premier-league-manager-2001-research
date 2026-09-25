@@ -2739,3 +2739,72 @@ The event-family serializer's outer switch routes `record+0x28 == 11` specifical
 `0x62FD90` does **not** apply these commands. It inserts/copies the 0x38-byte compact record into the MatchCalculator linked list in time/order sequence. Therefore the ConversionVisitor path should not be modeled as immediately writing team `+0x1B4..+0x1B7`.
 
 The remaining task is to find the later consumer that processes type-11 records and applies subcommands 0..5 to live calculator/team tactical state. That consumer is the authoritative bridge needed before manager packet values can be equated with final MatchCalculator tactic indices.
+## 0x40D860 is MatchEngine-side initial team data, not backend tactical state
+
+**Confirmed from the high-level match setup at 0x510F06..0x510F28, decoder 0x533B20/0x533B70 and the MatchEngine initialization path at 0x533270 -> 0x6C1D00/0x6C1D30.**
+
+The 0x3C-byte block built by `0x40D860(team)` is stored on the MatchCalculator/match-record object at:
+
+- side 0: `match+0x5A8`;
+- side 1: `match+0xB58`.
+
+Those fields are later decoded by `0x533B20 -> 0x533B70` while the game is preparing the external MatchEngine structures. The caller at `0x533270` passes the decoded side data into routines `0x6C1D00/0x6C1D30` in the executable region associated with the embedded source identity:
+
+```text
+D:\Projects\FM2001\Libraries\MatchEngine\MatchEngine.cpp
+```
+
+Therefore the previously reconstructed manager/user compact tactical fields are **MatchEngine-side initial team data**. They must not be equated with the live DBRTeam tactical bytes consumed by the backend MatchCalculator strength routines.
+
+### Exact packed layout used by 0x40D860
+
+The first dword contains:
+
+```text
+bits  0..7   formation ID (team+0x1D8)
+bits  8..9   strategy code
+bits 10..13  packed aggression source
+bits 14..15  With Ball code
+bits 16..17  Without Ball code
+```
+
+For user-controlled teams the strategy/aggression/style inputs originate from live team tactical state. For AI teams they originate from the manager tactical source bytes already mapped at DBRManager +0x30..+0x33.
+
+The remainder contains up to 18 ordered-roster player position-state bytes:
+
+```text
+packet +0x04+i  = 0x4EA3E0(player position state)  # separate balance-position code
+packet +0x16+i  = 0x4EA3C0(player position state)  # assigned role
+packet +0x28+i  = 0x4EA3D0(player position state)  # auxiliary position byte
+```
+
+### MatchEngine decoder 0x533B70
+
+The decoder expands the compact side block into the MatchEngine-facing structure:
+
+```text
+out +0x00 = formation ID
+out +0x04 = strategy bits 8..9
+out +0x08 = With Ball bits 14..15
+out +0x0C = Without Ball bits 16..17
+out +0x10 = bits 12..13 of the packed aggression nibble
+```
+
+It also expands the three per-player byte arrays into dword-spaced MatchEngine arrays for each side participant.
+
+The fact that the MatchEngine decoder retains only bits 12..13 of the packed four-bit aggression source is another reason not to reinterpret the compact manager packet as the backend's live 0..9 DBRTeam Aggression value.
+
+### Backend distinction
+
+The recovered backend strength builders still read the live team object directly:
+
+- `0x62F140` indexes attack coefficients from `team+0x1B6`;
+- `0x62F3E0` indexes defence coefficients from `team+0x1B5`;
+- the human-team aggression multiplier reads `team+0x1B7`.
+
+This establishes two distinct layers:
+
+1. DBRTeam/live football-management tactical state used by the backend calculator;
+2. the compact `0x40D860` snapshot used to initialize MatchEngine/presentation-side team data.
+
+The outstanding tactical question is consequently narrower: determine how live team state is mutated when tactical commands occur and what role the type-11 MatchCalculator command records play in replay/presentation synchronization. Do not use the 0x40D860 AI manager packet as a substitute for live backend tactical state.
