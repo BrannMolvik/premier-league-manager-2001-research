@@ -4,6 +4,7 @@ from datetime import date
 
 from game_state import GameState
 from match_calculator import PositionRole
+from match_lineup import AI_FORMATIONS
 from match_simulation import PreparedMatchPlayer, PreparedMatchSide
 from match_strength import TeamStrengthContext
 
@@ -47,6 +48,68 @@ class FakeDatabase:
         Round(2, 1, 6),
     ]
 
+
+@dataclass(frozen=True)
+class AutoClub:
+    index: int
+    manager_id: int
+    country_id: int = 0
+
+
+@dataclass(frozen=True)
+class AutoManager:
+    index: int
+    formation_default: int = 0
+    formation_class3: int = 2
+    formation_class1: int = 1
+
+
+@dataclass(frozen=True)
+class AutoCompetition:
+    id: int = 0
+    substitute_quota: int = 5
+    max_non_eu_players: int = 3
+
+
+def auto_players_for_club(club_id, start_index):
+    roles = [slot.role for slot in AI_FORMATIONS[0]] + [
+        PositionRole.CENTRE_MIDFIELD,
+        PositionRole.STRIKER,
+        PositionRole.CENTRE_BACK,
+        PositionRole.GOALKEEPER,
+        PositionRole.RIGHT_MIDFIELD,
+    ]
+    return [
+        FakePlayer(
+            start_index + offset,
+            club_id=club_id,
+            positions=(int(role), 0, 0),
+            current_raw=(160,) * 17,
+            target_raw=(180,) * 17,
+        )
+        for offset, role in enumerate(roles)
+    ]
+
+
+class AutonomousDatabase:
+    players = auto_players_for_club(1, 100) + auto_players_for_club(2, 200)
+    real_fixtures = [
+        Fixture(0, 0, 1, 2),
+        Fixture(1, 0, 3, 4),
+        Fixture(2, 0, 5, 6),
+        Fixture(3, 0, 7, 8),
+        Fixture(4, 0, 9, 10),
+        Fixture(5, 0, 11, 12),
+        Fixture(6, 0, 13, 14),
+        Fixture(7, 0, 15, 16),
+        Fixture(8, 0, 17, 18),
+        Fixture(9, 0, 19, 20),
+    ]
+    premier_league_rounds = [Round(1, 0, 6)]
+    clubs = [AutoClub(1, 10), AutoClub(2, 20)]
+    managers = [AutoManager(10), AutoManager(20)]
+    competitions = [AutoCompetition()]
+    countries = []
 
 class MidpointRng:
     def randbelow(self, bound):
@@ -121,6 +184,62 @@ class IntegratedGameStateTests(unittest.TestCase):
         self.assertEqual(table[0].points, 3)
         self.assertEqual(state.premier_league.next_unplayed_round(), 1)
 
+    def test_database_initial_roster_order_matches_player_iteration_order(self):
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 1),
+            seed=1,
+            season_year=2000,
+        )
+        self.assertEqual(
+            [player.index for player in state.ordered_club_roster(1)],
+            list(range(100, 116)),
+        )
+        self.assertEqual(
+            [player.index for player in state.ordered_club_roster(2)],
+            list(range(200, 216)),
+        )
+
+    def test_due_ai_fixture_prepares_both_sides_without_lineup_inputs(self):
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 1),
+            seed=1,
+            season_year=2000,
+        )
+        home, away = state.prepare_premier_league_ai_fixture_sides(0)
+
+        self.assertEqual(home.preparation.formation_id, 0)
+        self.assertEqual(away.preparation.formation_id, 0)
+        self.assertEqual(home.preparation.substitute_quota, 5)
+        self.assertEqual(away.preparation.substitute_quota, 5)
+        self.assertEqual(len(home.match_side.starting_player_indices), 11)
+        self.assertEqual(len(away.match_side.starting_player_indices), 11)
+        self.assertEqual(len(home.match_side.players), 16)
+        self.assertEqual(len(away.match_side.players), 16)
+        self.assertEqual(home.match_side.attack_context.tactic_style, 0)
+        self.assertEqual(away.match_side.attack_context.tactic_style, 0)
+        self.assertFalse(home.match_side.attack_context.user_controlled)
+        self.assertFalse(away.match_side.attack_context.user_controlled)
+
+    def test_due_ai_fixture_can_prepare_simulate_and_store_result(self):
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 1),
+            seed=1,
+            season_year=2000,
+        )
+        result = state.simulate_premier_league_ai_fixture(
+            0,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MidpointRng(),
+        )
+
+        self.assertIn(0, state.premier_league.results)
+        stored = state.premier_league.results[0]
+        self.assertEqual((stored.home_goals, stored.away_goals), result.score)
+        self.assertEqual(sum(row.played for row in state.premier_league_table()), 2)
     def test_due_fixture_can_be_simulated_and_written_to_table(self):
         state = GameState.from_database(
             FakeDatabase(),
