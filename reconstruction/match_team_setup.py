@@ -341,6 +341,35 @@ def manager_formation_for_game_strategy(
     )
 
 
+OPP_MIN_VAL = 90
+
+
+class MutableConditionSource(Protocol):
+    condition: int
+
+
+def initialize_ai_roster_condition(
+    players: Sequence[MutableConditionSource],
+    rng,
+    *,
+    minimum_condition: int = OPP_MIN_VAL,
+) -> None:
+    """Exact non-user team Condition initializer 0x4080F0.
+
+    The routine runs after AI lineup selection and before calculation. It walks
+    the entire ordered team roster and writes:
+        OppMinVal + RNG(6) + RNG(5)
+    to DBRPlayer+0x77 as a byte. The shipped OppMinVal default is 90.
+    """
+    minimum = int(minimum_condition)
+    for player in players:
+        player.condition = (
+            minimum
+            + int(rng.randbelow(6))
+            + int(rng.randbelow(5))
+        ) & 0xFF
+
+
 class StrategyRatingPlayer(Protocol):
     skills: Sequence[int]
     preferred_positions: Sequence[int]
