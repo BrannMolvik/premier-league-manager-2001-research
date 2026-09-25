@@ -7,9 +7,12 @@ from match_postmatch import (
     FormTransitionSettings,
     appeared_player_indices,
     apply_league_match_discipline,
+    persist_post_match_form,
     persist_post_match_side,
     persist_premier_league_discipline,
+    persist_premier_league_match_incidents,
     refresh_league_suspension_for_next_fixture,
+    sync_post_match_conditions,
     serve_league_suspension_after_fixture,
     update_post_match_form,
 )
@@ -47,6 +50,11 @@ class RuntimePlayer:
     discipline_yellow_cycle: int = 0
     suspension_matches_remaining: int = 0
     suspension_effective_date: date | None = None
+    selection_excluded: bool = False
+    injury_return_date: date | None = None
+    injury_source_mode: int | None = None
+    injury_severity_code: int | None = None
+    injury_history_weight: int = 0
 
 
 def prepared_player(index, *, active=True, bench=False, condition=80):
@@ -315,6 +323,77 @@ class LeagueSuspensionTests(unittest.TestCase):
         self.assertTrue(roster[1].suspended)
         self.assertEqual(roster[3].suspension_matches_remaining, 0)
         self.assertFalse(roster[3].suspended)
+
+
+class ExactIncidentOrderingTests(unittest.TestCase):
+    def test_injury_rng_for_earlier_participant_precedes_later_red_rng(self):
+        side = prepared_side()
+        participants = [RuntimePlayer() for _ in range(4)]
+        roster = participants + [RuntimePlayer() for _ in range(10)]
+        result = NormalMatchResult(events=(
+            TimedMatchEvent(30, IncidentRecord(IncidentKind.INJURED, 0, 0)),
+            TimedMatchEvent(70, IncidentRecord(IncidentKind.SENT_OFF, 0, 1)),
+        ))
+
+        # MatchCalculator Condition already exists on PreparedMatchSide. Sync it
+        # before the original 0x5127A0 card/injury loop.
+        sync_post_match_conditions(side, participants)
+        rng = ScriptedRng([
+            2,  # participant 0 injury category -> broken toe
+            1,  # broken-toe RNG(4) -> four weeks
+            1,  # participant 1 red RNG(3) -> one-match suspension
+        ])
+        summary = persist_premier_league_match_incidents(
+            roster,
+            participants,
+            0,
+            result,
+            date(2000, 8, 19),
+            date(2000, 8, 26),
+            rng,
+        )
+
+        self.assertEqual(rng.calls, [100, 4, 3])
+        self.assertEqual(summary.injured_player_indices, frozenset((0,)))
+        self.assertEqual(
+            summary.discipline.sent_off_player_indices,
+            frozenset((1,)),
+        )
+        self.assertTrue(participants[0].injured)
+        self.assertEqual(participants[0].injury_return_date, date(2000, 9, 16))
+        self.assertEqual(participants[0].condition, 34)
+        self.assertEqual(participants[1].suspension_matches_remaining, 1)
+
+    def test_condition_sync_happens_before_persistent_injury_drop(self):
+        side = prepared_side()
+        participants = [RuntimePlayer(condition=80) for _ in range(4)]
+        roster = participants + [RuntimePlayer() for _ in range(10)]
+        result = NormalMatchResult(events=(
+            TimedMatchEvent(40, IncidentRecord(IncidentKind.INJURED, 0, 0)),
+        ))
+
+        self.assertEqual(side.players[0].condition, 74)
+        sync_post_match_conditions(side, participants)
+        self.assertEqual(participants[0].condition, 74)
+
+        # Condition 74 selects low-Condition mode 1. Ankle/minor drops 10.
+        rng = ScriptedRng([0, 49])
+        persist_premier_league_match_incidents(
+            roster,
+            participants,
+            0,
+            result,
+            date(2000, 8, 19),
+            date(2000, 8, 26),
+            rng,
+        )
+        self.assertEqual(participants[0].injury_source_mode, 1)
+        self.assertEqual(participants[0].condition, 64)
+
+        # The later Form pass must not copy PreparedMatchPlayer.condition back.
+        form_rng = ScriptedRng([99, 99])
+        persist_post_match_form(side, participants, result, form_rng)
+        self.assertEqual(participants[0].condition, 64)
 
 
 class PostMatchPersistenceTests(unittest.TestCase):
