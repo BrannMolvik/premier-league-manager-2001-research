@@ -45,7 +45,7 @@ The reconstruction is no longer only a parser/browser. Current tested implementa
 - exact schedule-bucket head insertion and Fisher-Yates shuffle primitives;
 - recovered fixed Premier League fixture insertion order and schedule-container selection.
 
-At reconstruction-changing commit `0205d90a61d8b0386bfd6660a46910833257256a`, GitHub Actions ran **307 tests successfully**. Later commits through the pre-stabilization technical baseline `1014b042a19fc851b8d87e653ee1e5d807816630` changed research documentation rather than reconstruction code.
+At repository-stabilization validation commit `16ea9615ca5d9f7f401ba53cffb819d016e64659`, GitHub Actions ran **307 tests successfully**. That checkpoint also passed the clean-room repository guard. The stabilization changes affect verification/workflow/documentation infrastructure rather than the recovered match-simulation behavior.
 
 ## Important fidelity boundaries
 
