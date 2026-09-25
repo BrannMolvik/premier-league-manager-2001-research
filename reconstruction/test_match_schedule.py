@@ -1,8 +1,13 @@
 import unittest
+from dataclasses import dataclass
 
 from match_schedule import (
     MsvcCrtRng,
     build_and_shuffle_schedule_bucket,
+    choose_ordinary_league_schedule_bucket,
+    first_ordinary_league_conflict_near,
+    insert_ordinary_league_match,
+    ordinary_league_matches_conflict,
     schedule_bucket_pre_shuffle_order,
     shuffle_schedule_bucket,
 )
@@ -76,3 +81,103 @@ class ScheduleBucketShuffleTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+@dataclass(frozen=True)
+class LeagueMatch:
+    id: int
+    home_club_id: int
+    away_club_id: int
+
+
+class OrdinaryLeaguePlacementTests(unittest.TestCase):
+    def empty_buckets(self, count=20):
+        return [[] for _ in range(count)]
+
+    def test_overlap_predicate_matches_either_club(self):
+        existing = LeagueMatch(1, 10, 20)
+        self.assertTrue(
+            ordinary_league_matches_conflict(
+                existing,
+                LeagueMatch(2, 10, 30),
+            )
+        )
+        self.assertTrue(
+            ordinary_league_matches_conflict(
+                existing,
+                LeagueMatch(3, 40, 20),
+            )
+        )
+        self.assertFalse(
+            ordinary_league_matches_conflict(
+                existing,
+                LeagueMatch(4, 30, 40),
+            )
+        )
+
+    def test_near_search_scans_previous_current_next_in_order(self):
+        buckets = self.empty_buckets()
+        candidate = LeagueMatch(9, 1, 2)
+        buckets[6].append(LeagueMatch(1, 1, 30))
+        buckets[7].append(LeagueMatch(2, 2, 40))
+
+        self.assertEqual(
+            first_ordinary_league_conflict_near(buckets, 7, candidate),
+            6,
+        )
+
+    def test_no_conflict_keeps_nominal_bucket(self):
+        buckets = self.empty_buckets()
+        candidate = LeagueMatch(9, 1, 2)
+
+        self.assertEqual(
+            choose_ordinary_league_schedule_bucket(buckets, 8, candidate),
+            8,
+        )
+
+    def test_conflict_on_nominal_prefers_later_side_on_distance_tie(self):
+        buckets = self.empty_buckets()
+        candidate = LeagueMatch(9, 1, 2)
+        buckets[8].append(LeagueMatch(1, 1, 30))
+
+        # Initial conflict C=8 gives lower=6 / upper=10. Equal distance from
+        # nominal 8 falls through to the executable's upper-side probe.
+        self.assertEqual(
+            choose_ordinary_league_schedule_bucket(buckets, 8, candidate),
+            10,
+        )
+
+    def test_conflict_on_next_day_pushes_to_earlier_side(self):
+        buckets = self.empty_buckets()
+        candidate = LeagueMatch(9, 1, 2)
+        buckets[9].append(LeagueMatch(1, 1, 30))
+
+        # Search around nominal 8 finds C=9. lower=7 is closer than upper=11,
+        # and its 6..8 neighborhood is clear.
+        self.assertEqual(
+            choose_ordinary_league_schedule_bucket(buckets, 8, candidate),
+            7,
+        )
+
+    def test_repeated_upper_conflict_can_switch_search_to_lower_side(self):
+        buckets = self.empty_buckets()
+        candidate = LeagueMatch(9, 1, 2)
+        buckets[8].append(LeagueMatch(1, 1, 30))
+        buckets[11].append(LeagueMatch(2, 2, 40))
+
+        # C=8 ties -> probe center 10, whose 9..11 neighborhood conflicts at
+        # 11. upper becomes 13; lower=6 is now closer and clear.
+        self.assertEqual(
+            choose_ordinary_league_schedule_bucket(buckets, 8, candidate),
+            6,
+        )
+
+    def test_insertion_is_head_insertion_at_resolved_bucket(self):
+        buckets = self.empty_buckets()
+        first = LeagueMatch(1, 10, 20)
+        second = LeagueMatch(2, 30, 40)
+
+        self.assertEqual(insert_ordinary_league_match(buckets, 8, first), 8)
+        self.assertEqual(insert_ordinary_league_match(buckets, 8, second), 8)
+        self.assertEqual([match.id for match in buckets[8]], [2, 1])
