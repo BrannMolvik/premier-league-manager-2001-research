@@ -18,7 +18,10 @@ from match_preparation import (
     build_premier_league_ai_match_side,
     prepare_premier_league_ai_selection,
 )
-from match_postmatch import persist_post_match_side
+from match_postmatch import (
+    persist_post_match_side,
+    persist_premier_league_discipline,
+)
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
 from match_team_setup import TeamTacticalState
 from runtime_state import RuntimePlayer, derive_non_eu_status
@@ -359,15 +362,47 @@ class GameState:
             ),
         )
 
-        # 0x404D40 updates only the home club's pitch after the match.
+        fixture_date = self.calendar.current_date
+        away_club_id = int(fixture.away_club_id)
+        home_next = self.premier_league.next_club_match_date(
+            home_club_id,
+            after_date=fixture_date,
+        )
+        away_next = self.premier_league.next_club_match_date(
+            away_club_id,
+            after_date=fixture_date,
+        )
+
+        # Exact post-match order: serve old suspensions across the full roster,
+        # apply this match's participant cards, then refresh next-fixture
+        # availability. Red-card RNG(3) therefore precedes Form RNG(100).
+        persist_premier_league_discipline(
+            self.ordered_club_roster(home_club_id),
+            home.preparation.selection.participants,
+            0,
+            result,
+            fixture_date,
+            home_next,
+            rng,
+        )
+        persist_premier_league_discipline(
+            self.ordered_club_roster(away_club_id),
+            away.preparation.selection.participants,
+            1,
+            result,
+            fixture_date,
+            away_next,
+            rng,
+        )
+
+        # 0x404D40 updates only the home club's pitch after discipline handling.
         self.pitch_wear[home_club_id] = pitch_wear_after_match(
             pitch_wear_before,
             environment.weather_code,
         )
 
-        # Original post-match processing continues on the same RNG stream.
-        # The selection participants are the persistent RuntimePlayer objects in
-        # the same side-local order used to build PreparedMatchSide.
+        # The later 0x404CE0 player pass persists Condition/injury state and
+        # runs post-match Form transitions on the same continuing RNG stream.
         persist_post_match_side(
             home.match_side,
             home.preparation.selection.participants,
