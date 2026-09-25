@@ -3955,3 +3955,77 @@ those values appear in the pre-match packet. The new clean-room
 `pack_tactics_word()` / `decode_match_engine_tactics_word()` helpers preserve
 the proven MatchEngine packet geometry for later FastView/3D work without
 polluting calculator semantics.
+
+
+## Primary schedule bucket target mapping
+
+**Confirmed from `0x4F4500`, `0x615700`, `0x615950`, `0x615BE0`, and `0x6169F0`.**
+
+The primary schedule container at `0x947AD8` is constructed with nominal span
+`0x16E`. Constructor `0x615700` adds seven, so the container owns **373**
+bucket-head pointers.
+
+On new-game startup, `0x4F7C18 -> 0x6169F0` initializes the primary container's
+date/serial base before competition schedule construction.
+
+For League rounds, `0x4F4500` appends one 8-byte schedule pair at
+`League+0x60`:
+
+```text
+pair[0] = DBRRound scheduled_week
+pair[1] = DBRRound scheduled_weekday - 1
+```
+
+The fixed League builder `0x6173D0` passes that pair directly to
+`0x615950`.
+
+At insertion, `0x615950` computes the nominal schedule offset:
+
+```text
+target_offset = 7 * pair[0] + pair[1]
+              = 7 * scheduled_week + (scheduled_weekday - 1)
+```
+
+It converts `container+0x08 + target_offset` to a calendar date and advances
+the target offset by one when that date is December 25.
+
+For the first shipped Premier League round:
+
+```text
+scheduled_week    = 7
+scheduled_weekday = 6
+target_offset     = 7*7 + (6-1) = 54
+```
+
+This matches the already-verified 19 August 2000 date interpretation in
+`FILE_FORMATS.md`.
+
+### Target bucket is not always final bucket
+
+`0x615950` does **not** blindly head-insert at the nominal offset. It first
+uses `0x615890` to search the target and nearby buckets for conflicts involving
+the match being inserted. If necessary it probes outward and chooses another
+bucket, then stores the chosen final bucket index at match-node `+0x10`.
+
+Therefore Static.dat week/day pairs alone are insufficient to enumerate final
+global bucket contents. Gate 4 must reproduce the insertion/conflict-resolution
+path in the exact global competition construction order.
+
+### Final shuffle traversal
+
+`0x615BE0` iterates:
+
+```text
+bucket_index = 0
+while bucket_index < container+0x04:   # 373 for primary
+    shuffle(bucket[bucket_index])       # 0x615AE0
+    bucket_index += 1
+```
+
+Thus primary bucket shuffling is strictly increasing **0..372**. Every earlier
+bucket with N>1 consumes Fisher-Yates bounds `N, N-1, ..., 2` before a later
+Premier League bucket receives the shared CRT stream.
+
+This means the exact state at entry to `0x615BE0`, now recovered in Gate 3,
+must be combined with exact final bucket populations/order to reproduce Premier
+League same-day execution order.
