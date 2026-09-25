@@ -2521,3 +2521,139 @@ For AI-controlled teams `0x403850` returns null, so the category-list branch is 
 The nearby 10-dword team region beginning at `team+0x178`, manipulated by `0x408530`, is therefore **not** the Team Orders priority storage and should not be labeled as such.
 
 The clean-room `TeamOrderPriorities` model now mirrors these four categories while remaining data-free.
+## AI formation strategy classifier `0x409500`
+
+**Confirmed from direct disassembly and the original tuning-key loader.**
+
+The numerical selection classes previously left unnamed are now resolved by the executable's own tuning vocabulary and by their manager-formation consumers.
+
+The final thresholds are stored in globals initialized from:
+
+```text
+GSDefPerc = -3
+GSAttPerc =  3
+```
+
+and `0x409500` returns:
+
+```text
+score <= GSDefPerc       -> class 3 -> manager +0x21 -> defensive formation
+GSDefPerc < score < GSAttPerc
+                         -> class 2 -> manager +0x20 -> normal/default formation
+score >= GSAttPerc       -> class 1 -> manager +0x22 -> attacking formation
+no usable match context  -> class 0 -> manager +0x20 -> normal/default formation
+```
+
+This is independently consistent with the dominant shipped manager triple `(0,2,1)`: formation 2 is the more cautious variant of formation 0, while formation 1 is the more attacking variant. Other common manager triples follow the same pattern.
+
+### Exact tuning names and defaults used by the score
+
+The contiguous loader around `0x4FD9FD..0x4FDDA8` names the relevant globals explicitly:
+
+```text
+GSDefPerc                         -3
+GSAttPerc                          3
+GSHomeValue                        1
+GSAwayValue                       -1
+GSRatingDiv                    10000
+GSCupFinalBias                     3
+GSCupSemiFinalBias                 2
+GSCupQuarterFinalBias              1
+GSPrecedenceDiv                    3
+GSGoForWinLeagueBias               2
+GSGoForPromotionBias               1
+GSGoForPromotionPlayoffBias        runtime/tuning value
+GSGoForAvoidRelegationBias         1
+GSGoForAvoidRelegationPlayoffBias  3
+GSStartWorryingAboutLeaguePos      8
+GSReallyWorryingAboutLeaguePos     4
+```
+
+The promotion-playoff bias lives at global `0x877448` and is populated from its named tuning key; its pre-loader binary default is not stored in the initialized .data block, so reconstruction should not invent a default value when no tuning source is available.
+
+### Home/away and relative squad-rating pressure
+
+The match object identifies one side as the home side. `0x409500` begins the strategy score with:
+
+- home -> `GSHomeValue`;
+- away -> `GSAwayValue`.
+
+Team rating helper `0x409900` walks at most the first eleven IDs in the team's ordered roster and sums `0x41E1D0(player)`, the already-recovered best-preferred-position role rating.
+
+It computes:
+
+```text
+rating_delta = trunc_toward_zero(
+    (current_rating - opponent_rating) / GSRatingDiv
+)
+```
+
+and converts its absolute magnitude to a pressure step:
+
+```text
+abs(delta) <   5 -> 0
+>= 5            -> 1
+>= 10           -> 2
+>= 20           -> 3
+>= 50           -> 4
+>= 100          -> 5
+```
+
+A positive delta (current team stronger) **subtracts** the step, pushing toward the defensive/protective formation bucket. A zero/negative delta adds the step, so a sufficiently weaker team is pushed toward the attacking bucket.
+
+With the analyzed release's default `GSRatingDiv=10000`, ordinary 0..99 role-rating sums make this component effectively dormant unless tuning overrides the divisor. The arithmetic is nevertheless reconstructed exactly.
+
+### Aggregate/score deficit boost
+
+For competition/context type 2, `0x409500` computes the relevant current-team aggregate deficit through `0x513ED0/0x513F00`. Only a positive deficit adds attacking pressure:
+
+```text
+1 goal behind -> +2
+2 goals behind -> +5
+3 goals behind -> +6
+4+ behind      -> +7
+level/ahead    -> +0
+```
+
+This provides direct behavioral confirmation that increasing strategy score means increasing pressure toward the attacking manager formation.
+
+### Cup-round context `0x409680`
+
+For cup-style context, `0x409680` adds:
+
+```text
+final         -> GSCupFinalBias
+semi-final    -> GSCupSemiFinalBias
+quarter-final -> GSCupQuarterFinalBias
+other round   -> 0
+```
+
+plus:
+
+```text
+trunc_toward_zero((competition_precedence + 12) / GSPrecedenceDiv)
+```
+
+using the default precedence divisor 3.
+
+### Late-season league objective pressure
+
+The non-cup branch asks the competition helpers for the team's remaining matches and five possible objective gaps:
+
+1. win league;
+2. promotion;
+3. promotion playoff;
+4. avoid relegation;
+5. avoid relegation playoff.
+
+No league-position pressure is applied while more than `GSStartWorryingAboutLeaguePos` matches remain (default 8).
+
+For the first applicable objective whose positive points gap is mathematically reachable at **less than 3.0 points per remaining match**, the executable computes approximately:
+
+```text
+pressure = trunc(points_gap / matches_remaining + 0.499) + objective_base_bias
+```
+
+If more than `GSReallyWorryingAboutLeaguePos` matches remain (default 4), that pressure is halved with signed truncation toward zero. In the final four matches it is used at full value.
+
+The clean-room helpers in `match_team_setup.py` now reproduce the final class bucket, relative-rating step, aggregate-deficit step, cup-round bias and common late-season objective arithmetic. The remaining higher-level task is to reproduce the exact competition helper that decides which objective gap is active for a given club/table state.
