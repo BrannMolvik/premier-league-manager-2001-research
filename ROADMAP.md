@@ -96,7 +96,8 @@ Completion criteria:
 - [x] One shared MSVC CRT RNG stream is used for all currently mapped mandatory startup draws.
 - [x] Fixed-seed tests verify intermediate state, not only final output.
 - [x] Legacy Python-RNG fallbacks are removed or isolated where original behavior requires CRT RNG.
-- [ ] Account for Cup round scheduler/pairing RNG before primary `0x615BE0` and restore an exact pre-shuffle state.
+- [x] Account for the full Cup round scheduler RNG call cost before primary `0x615BE0` and restore the exact hidden CRT state.
+- [ ] Materialize exact bounded-call ordering and Cup pairing output required for global schedule reconstruction.
 
 ## Gate 4 - Resolve exact Premier League matchday ordering
 
