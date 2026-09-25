@@ -72,6 +72,14 @@ class PreparedPremierLeagueAiSelection:
     selection: "PreparedAiMatchSelection"
 
 @dataclass(frozen=True)
+class PreparedPremierLeagueAiSide:
+    """Autonomous Premier League AI selection plus calculator-ready side."""
+
+    preparation: PreparedPremierLeagueAiSelection
+    tactical_state: TeamTacticalState
+    match_side: PreparedMatchSide
+
+@dataclass(frozen=True)
 class PreparedAiMatchSelection:
     """Result of the proven AI selection core plus exact participant filtering."""
 
@@ -353,4 +361,55 @@ def prepare_premier_league_ai_selection(
         formation_id=formation_id,
         substitute_quota=substitute_quota,
         selection=selection,
+    )
+
+def prepare_premier_league_ai_match_side(
+    team_club_id: int,
+    ordered_roster: Sequence[PlayerT],
+    opponent_roster: Sequence[PlayerT],
+    manager: ManagerFormationInput,
+    competition: CompetitionSelectionInput,
+    table_rows: Sequence[LeagueTableInput],
+    *,
+    side: int,
+    is_home: bool,
+    tactical_state: TeamTacticalState | None = None,
+    additional_eligible: Callable[[PlayerT], bool] | None = None,
+    preserve_existing_selection: Callable[[PlayerT], bool] | None = None,
+    require_complete_xi: bool = True,
+) -> PreparedPremierLeagueAiSide:
+    """Prepare a calculator-ready Premier League AI side autonomously.
+
+    A normally constructed AI DBRTeam retains the authoritative backend
+    defaults: Normal Play, Normal Without Ball, Normal With Ball and
+    Aggression 5. Manager tactical preference bytes belong to the separate
+    MatchEngine-side snapshot and are intentionally not substituted here.
+
+    Pass tactical_state when copied/preserved live DBRTeam state already has
+    non-default values; that exact runtime state is then used unchanged.
+    """
+    preparation = prepare_premier_league_ai_selection(
+        team_club_id,
+        ordered_roster,
+        opponent_roster,
+        manager,
+        competition,
+        table_rows,
+        is_home=is_home,
+        additional_eligible=additional_eligible,
+        preserve_existing_selection=preserve_existing_selection,
+        require_complete_xi=require_complete_xi,
+    )
+    live_tactics = tactical_state or TeamTacticalState()
+    match_side = build_prepared_match_side_from_selection(
+        preparation.selection,
+        side,
+        live_tactics,
+        user_controlled=False,
+        team_orders=TeamOrderPriorities(),
+    )
+    return PreparedPremierLeagueAiSide(
+        preparation=preparation,
+        tactical_state=live_tactics,
+        match_side=match_side,
     )
