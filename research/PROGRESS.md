@@ -2358,3 +2358,24 @@ The authorized source asset was also extracted/verified:
 `FM2001_Art/Generic/bground.444`, 222,616 bytes, SHA-256 `9db0d71daf70d77b4f5f2307304bb8c5eac4ee3a07a85f2828b570fbbf3b7fb9`, with 800x600 dimensions encoded in its opening uint16s.
 
 Next: represent this 260-draw compatibility side effect in the startup RNG replay/tests, then continue auditing the short post-seed/pre-PStartMenu path for any other mandatory consumers.
+
+
+## 26 September Loader444 replay implementation checkpoint
+
+The newly recovered 260-draw presentation-side RNG cost is now represented in executable reconstruction code.
+
+Added to `reconstruction/startup_rng.py`:
+
+- `LOADER444_FIRST_DECODE_RAW_DRAWS = 260`;
+- `consume_loader444_first_decode_rng(rng)`, which advances the shared MSVC CRT stream with exactly 260 raw `rand15()` calls before DBTPlayers startup.
+
+The implementation deliberately models the RNG side effect rather than tying fidelity to the legacy image decoder. The Windows 11 port can decode/display the original `bground.444` through a modern path while still reproducing the original shared RNG state.
+
+Tests cover both:
+
+- exact call count = 260;
+- exact resulting `MsvcCrtRng` internal state versus 260 manual raw CRT draws.
+
+GitHub Actions at `c5d040f36e5ff20e13ee962b3df5ea2c854a8582` is green with **309 tests passed**. Repository asset policy also passes.
+
+Remaining Gate-2 work: finish proving the exact ordinary post-`srand` path into the first PStartMenu/database load has no additional mandatory CRT consumer beyond Loader444, then assemble the complete startup ledger.
