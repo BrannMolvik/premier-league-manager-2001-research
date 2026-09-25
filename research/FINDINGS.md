@@ -937,3 +937,26 @@ The fixed prefix before per-user youth generation is therefore **153,002 raw CRT
 The complete parameterized ordering and one-user diagnostic counts are recorded in `research/STARTUP_RNG_LEDGER.md`.
 
 This closes the Gate-2 pre-competition discovery boundary. Remaining uncertainty before the first Premier League bucket shuffle belongs to competition initialization and is the Gate-3 continuation.
+
+
+## Exact primary-container RNG tail before schedule shuffle
+
+Confirmed for ordinary new-game primary/mode-0 initialization:
+
+- `0x616620` initializes all mode-0 competitions before its team-finalization loops;
+- Europe roots contribute exactly `RNG(6)` for Champions League ID 9 followed by `RNG(6)` for UEFA Cup ID 10;
+- WCC and the relevant child-League one-entry parent vectors contribute no draw;
+- primary DummyLeague roots and the Scottish root add no draw on their proven startup branches;
+- new-game `0x404110(team, 1)` skips the argument-zero `0x41ACA0` RNG path;
+- its temporary team category 2 forces `0x409C90` to call RNG-clean `0x418130` instead of the sibling `0x418050` route that can eventually reach RNG(4);
+- recursive direct-call audit of `0x50EA90` reaches no mapped CRT RNG entry point;
+- `0x615BE0` runs only after those team loops.
+
+Therefore the exact primary competition/team-finalization contribution between the canonical pre-competition startup state and entry to the first primary schedule-container shuffle is:
+
+```text
+RNG(6)
+RNG(6)
+```
+
+in that order.
