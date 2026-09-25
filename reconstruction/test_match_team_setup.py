@@ -4,13 +4,18 @@ from dataclasses import dataclass
 from match_team_setup import (
     DEFAULT_SUBSTITUTE_QUOTA,
     FormationSelectionClass,
+    LeagueObjectiveGaps,
     ManagerFormationPreferences,
     ManagerTacticalSources,
     TeamTacticalState,
     aggregate_deficit_pressure,
     cup_round_strategy_bias,
     formation_selection_class_from_score,
+    game_strategy_score,
+    late_season_league_strategy_bias,
+    league_objective_gaps_from_sorted_points,
     league_objective_pressure,
+    manager_formation_for_game_strategy,
     manager_formation_for_selection_class,
     manager_tactics_packet_fields,
     play_style_to_strategy_code,
@@ -135,6 +140,88 @@ class FormationStrategyClassifierTests(unittest.TestCase):
         self.assertEqual(cup_round_strategy_bias(2, 0), 6)
         self.assertEqual(cup_round_strategy_bias(3, 0), 5)
         self.assertEqual(cup_round_strategy_bias(4, 0), 4)
+
+    def test_exact_league_cut_line_gap_mapping_for_top_division(self):
+        points = [80, 72, 68, 60, 45, 41, 38, 35, 30, 25]
+        gaps = league_objective_gaps_from_sorted_points(
+            points,
+            current_rank=7,
+            automatic_promotion_places=0,
+            playoff_places=0,
+            relegation_places=3,
+        )
+        self.assertEqual(gaps.win_league, 45)
+        self.assertIsNone(gaps.promotion)
+        self.assertIsNone(gaps.promotion_playoff)
+        self.assertEqual(gaps.avoid_relegation, 0)
+        self.assertIsNone(gaps.avoid_relegation_playoff)
+
+    def test_exact_league_cut_line_gap_mapping_with_promotion_and_playoffs(self):
+        points = [80, 74, 70, 66, 64, 60, 55, 50, 45, 40]
+        gaps = league_objective_gaps_from_sorted_points(
+            points,
+            current_rank=6,
+            automatic_promotion_places=2,
+            playoff_places=4,
+            relegation_places=2,
+        )
+        self.assertIsNone(gaps.win_league)
+        self.assertEqual(gaps.promotion, 19)
+        self.assertEqual(gaps.promotion_playoff, 5)
+        self.assertEqual(gaps.avoid_relegation, -10)
+        self.assertEqual(gaps.avoid_relegation_playoff, 19)
+
+    def test_late_season_strategy_uses_first_reachable_objective(self):
+        gaps = LeagueObjectiveGaps(
+            win_league=20,        # 20 / 4 >= 3, unreachable -> continue.
+            avoid_relegation=2,   # 2 / 4 reachable -> +1 base.
+        )
+        self.assertEqual(
+            late_season_league_strategy_bias(gaps, 4),
+            1,
+        )
+
+    def test_premier_league_style_bottom_team_gets_relegation_pressure(self):
+        points = [80, 70, 65, 60, 55, 50, 45, 40, 38, 30, 28, 27, 26, 25, 24, 23, 22, 20, 18, 16]
+        gaps = league_objective_gaps_from_sorted_points(
+            points,
+            current_rank=18,
+            relegation_places=3,
+        )
+        # Title gap is mathematically impossible in four matches, so the
+        # original ordered scan continues to the relegation cut line.
+        self.assertEqual(
+            late_season_league_strategy_bias(gaps, 4),
+            2,
+        )
+
+    def test_game_strategy_score_composes_home_rating_deficit_and_context(self):
+        # Home +1, equal rating 0, one behind +2, context +1 => +4 -> attack.
+        score = game_strategy_score(
+            is_home=True,
+            current_rating=500,
+            opponent_rating=500,
+            aggregate_goals_behind=1,
+            competition_context_bias=1,
+        )
+        self.assertEqual(score, 4)
+        self.assertEqual(
+            formation_selection_class_from_score(score),
+            FormationSelectionClass.ATTACKING,
+        )
+
+    def test_game_strategy_can_choose_manager_formation_directly(self):
+        manager = Manager()
+        self.assertEqual(
+            manager_formation_for_game_strategy(
+                manager,
+                is_home=True,
+                current_rating=500,
+                opponent_rating=500,
+                aggregate_goals_behind=1,
+            ),
+            14,
+        )
 
     def test_late_season_objective_pressure_window_and_halving(self):
         # Outside the final eight matches there is no league-position pressure.
