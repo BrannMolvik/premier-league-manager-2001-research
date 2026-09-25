@@ -690,7 +690,7 @@ Competitive selector `0x409C90` rejects a Non-EU candidate after the running res
 
 The autonomous Premier League path now includes AI strategy/formation choice, exact AI lineup core, substitutes, runtime position/selection state, ordered participant collection, match environment generation, normal-time MatchCalculator simulation, incident persistence, post-match Form/Condition, Pitch Wear, persistent injuries and league-result storage.
 
-The main match/season fidelity boundary is now global state ordering rather than missing basic AI preparation: the reconstruction has an exact MSVC CRT RNG primitive and exact schedule shuffle mechanics, but new-game RuntimePlayer peak-age initialization still consumes Python random.Random rather than the shared FM2001 CRT stream. Exact same-day fixture order also remains an explicit deterministic fallback until the original RNG state entering the Premier League bucket shuffle is reproduced.
+The main match/season fidelity boundary is now global state ordering rather than missing basic AI preparation. The reconstruction has an exact MSVC CRT RNG primitive, the recovered DBRPlayer startup block now consumes that shared CRT stream, and the exact schedule shuffle mechanics are implemented. The remaining uncertainty is the set/order of other mandatory startup RNG consumers before the first Premier League bucket shuffle. Exact same-day fixture order therefore remains an explicit deterministic fallback until the original RNG state entering that shuffle is reproduced.
 
 Premier League fixed-fixture scheduling is additionally constrained as follows:
 
