@@ -37,12 +37,20 @@ class Competition:
     id: int
     runtime_kind_code: int
     schedule_container_code: int
+    parent_competition_id: int | None = None
+    initialization_order_value: int = 0
+    country_region_id: int = 0
 
 
 @dataclass(frozen=True)
 class Round:
     competition_id: int
     team_count: int
+    id: int = 0
+    type_code: int = 1
+    scheduled_week: int = 0
+    scheduled_weekday: int = 1
+    source_competition_reference: int = 0xFFFFFFFF
 
 
 class StartupSequenceTests(unittest.TestCase):
@@ -65,6 +73,7 @@ class StartupSequenceTests(unittest.TestCase):
             Country(40, 40, 1),
             Country(66, 66, 1),
             Country(73, 73, 1),
+            Country(123, 123, 1),
         )
         clubs = (
             # Name-generation / youth source fixtures.
@@ -86,15 +95,16 @@ class StartupSequenceTests(unittest.TestCase):
             StartupUserRngConfig(country_id=31, option_mode=2),
         )
         competitions = (
-            Competition(9, 2, 1),
-            Competition(170, 2, 2),
-            Competition(0, 1, 1),
+            Competition(9, 2, 1, None, 0, 123),
+            Competition(10, 2, 1, None, 1, 123),
+            Competition(170, 2, 2, None, 0, 116),
+            Competition(0, 1, 1, None, 9, 26),
         )
         rounds = (
-            Round(9, 4),
-            Round(9, 2),
-            Round(170, 16),
-            Round(0, 20),
+            Round(9, 4, 198, 2, 2, 3),
+            Round(9, 2, 205, 1, 47, 3),
+            Round(170, 16, 1000, 1, 10, 1),
+            Round(0, 20, 0, 4, 7, 6),
         )
         rng = MsvcCrtRng(0x12345678)
 
@@ -144,6 +154,18 @@ class StartupSequenceTests(unittest.TestCase):
         self.assertEqual(
             replay.primary_competition_state.total_draw_count,
             6,
+        )
+        self.assertEqual(
+            tuple(
+                (event.kind, event.competition_id, event.round_id)
+                for event in replay.primary_competition_state.events
+            ),
+            (
+                ("europe_selector", 9, None),
+                ("cup_round_shuffle", 9, 198),
+                ("cup_round_shuffle", 9, 205),
+                ("europe_selector", 10, None),
+            ),
         )
         self.assertEqual(
             replay.state_entering_primary_shuffle,
