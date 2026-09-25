@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from competition_startup import (
     europe_root_cup_candidate_ids,
+    ordered_cup_allocation_instructions,
     primary_cup_round_initialization_order,
     primary_mode0_cup_pairing_draw_count,
     primary_mode0_cup_round_team_counts,
@@ -48,6 +49,17 @@ class Round:
     scheduled_week: int = 0
     scheduled_weekday: int = 1
     source_competition_reference: int = 0xFFFFFFFF
+
+
+@dataclass(frozen=True)
+class CupAllocation:
+    id: int
+    destination_competition_id: int
+    sequence_index: int
+    instruction_type: int = 5
+    source_reference: int = 0
+    quantity: int = 0
+    auxiliary: int = 0
 
 
 class RecordingRng:
@@ -310,3 +322,37 @@ class OrderedCompetitionRngTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+
+class CupAllocationOrderingTests(unittest.TestCase):
+    def test_small_equal_key_order_matches_crt_qsort(self):
+        instructions = (
+            CupAllocation(160, 23, 1, source_reference=21, quantity=18),
+            CupAllocation(161, 23, 2, source_reference=22, quantity=18),
+            CupAllocation(162, 23, 2, source_reference=24, quantity=5),
+            CupAllocation(163, 23, 4, source_reference=83, quantity=5),
+            CupAllocation(164, 23, 5, source_reference=24, quantity=13),
+            CupAllocation(165, 23, 6, source_reference=83, quantity=13),
+            CupAllocation(166, 23, 7, source_reference=25, quantity=10),
+        )
+
+        ordered = ordered_cup_allocation_instructions(23, instructions)
+
+        self.assertEqual(
+            tuple(instruction.id for instruction in ordered),
+            (160, 162, 161, 163, 164, 165, 166),
+        )
+
+    def test_large_unique_sequence_order_is_ascending(self):
+        instructions = tuple(
+            CupAllocation(i, 10, 20 - i)
+            for i in range(12)
+        )
+
+        ordered = ordered_cup_allocation_instructions(10, instructions)
+
+        self.assertEqual(
+            tuple(instruction.sequence_index for instruction in ordered),
+            tuple(sorted(instruction.sequence_index for instruction in instructions)),
+        )
