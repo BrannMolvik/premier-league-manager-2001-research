@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from typing import Protocol, Sequence
 
 from match_events import IncidentKind, IncidentRecord, SubstitutionRecord
+from match_injury_persistence import generate_persistent_match_injury
 from match_simulation import NormalMatchResult, PreparedMatchSide
 
 
@@ -113,6 +114,141 @@ class PostMatchPersistenceSummary:
     injured_player_indices: frozenset[int]
 
 
+def sync_post_match_conditions(
+    side: PreparedMatchSide,
+    runtime_participants: Sequence[MutablePostMatchPlayer],
+) -> None:
+    """Copy calculator Condition back before post-match injury finalization."""
+    prepared = tuple(side.players)
+    runtime = tuple(runtime_participants)
+    if len(prepared) != len(runtime):
+        raise ValueError(
+            "runtime participant count must match prepared participant count"
+        )
+    for local_index, player in enumerate(prepared):
+        if int(player.player_index) != local_index:
+            raise ValueError(
+                "prepared participants must use contiguous side-local indices"
+            )
+        runtime[local_index].condition = int(player.condition)
+
+
+def persist_post_match_form(
+    side: PreparedMatchSide,
+    runtime_participants: Sequence[MutablePostMatchPlayer],
+    result: NormalMatchResult,
+    rng: BoundedRng,
+    *,
+    form_settings: FormTransitionSettings = FormTransitionSettings(),
+) -> frozenset[int]:
+    """Run only the later 0x41B870 Form pass for players who appeared."""
+    runtime = tuple(runtime_participants)
+    if len(side.players) != len(runtime):
+        raise ValueError(
+            "runtime participant count must match prepared participant count"
+        )
+    appeared = appeared_player_indices(side, result)
+    for local_index, player in enumerate(runtime):
+        if local_index in appeared:
+            player.form_state = update_post_match_form(
+                int(player.form_state),
+                rng,
+                form_settings,
+            )
+    return appeared
+
+
+@dataclass(frozen=True)
+class PremierLeagueIncidentPersistenceSummary:
+    discipline: LeagueDisciplineSummary
+    injured_player_indices: frozenset[int]
+
+
+def persist_premier_league_match_incidents(
+    roster: Sequence[MutablePostMatchPlayer],
+    participants: Sequence[MutablePostMatchPlayer],
+    side: int,
+    result: NormalMatchResult,
+    fixture_date: date,
+    next_fixture_date: date | None,
+    rng: BoundedRng,
+    *,
+    user_controlled: bool = False,
+) -> PremierLeagueIncidentPersistenceSummary:
+    """Exact 0x5127A0 League card/injury interleaving for one team.
+
+    Existing bans are served for the whole roster first. The participant loop
+    then processes each player's cards and immediately creates that player's
+    persistent injury object before moving to the next participant. This
+    preserves red-card RNG(3) versus injury-generator RNG ordering. Finally,
+    the suspended bit is refreshed against the club's own next fixture.
+
+    Calculator Condition must already have been synchronized to ``participants``
+    before this function is called, matching the original in-place DBRPlayer
+    calculator mutations.
+    """
+    side = int(side)
+    if side not in (0, 1):
+        raise ValueError("side must be 0 or 1")
+
+    roster_tuple = tuple(roster)
+    participant_tuple = tuple(participants)
+    served = sum(
+        int(serve_league_suspension_after_fixture(player, fixture_date))
+        for player in roster_tuple
+    )
+
+    bookings: dict[int, int] = {}
+    dismissals: dict[int, int] = {}
+    injuries: set[int] = set()
+    for timed in result.events:
+        event = timed.event
+        if not isinstance(event, IncidentRecord) or int(event.player_side) != side:
+            continue
+        local_index = int(event.player_index)
+        if event.kind is IncidentKind.BOOKED:
+            bookings[local_index] = bookings.get(local_index, 0) + 1
+        elif event.kind is IncidentKind.SENT_OFF:
+            dismissals[local_index] = dismissals.get(local_index, 0) + 1
+        elif event.kind is IncidentKind.INJURED:
+            injuries.add(local_index)
+
+    persisted_injuries: set[int] = set()
+    for local_index, player in enumerate(participant_tuple):
+        apply_league_match_discipline(
+            player,
+            bookings.get(local_index, 0),
+            dismissals.get(local_index, 0),
+            fixture_date,
+            rng,
+        )
+        if local_index in injuries:
+            generated = generate_persistent_match_injury(
+                player,
+                roster_tuple,
+                fixture_date,
+                rng,
+                user_controlled=bool(user_controlled),
+            )
+            if generated is not None:
+                persisted_injuries.add(local_index)
+
+    suspended_count = sum(
+        int(refresh_league_suspension_for_next_fixture(player, next_fixture_date))
+        for player in roster_tuple
+    )
+
+    discipline = LeagueDisciplineSummary(
+        served_player_count=served,
+        booked_player_indices=frozenset(bookings),
+        sent_off_player_indices=frozenset(dismissals),
+        suspended_for_next_fixture_count=suspended_count,
+    )
+    return PremierLeagueIncidentPersistenceSummary(
+        discipline=discipline,
+        injured_player_indices=frozenset(persisted_injuries),
+    )
+
 def persist_post_match_side(
     side: PreparedMatchSide,
     runtime_participants: Sequence[MutablePostMatchPlayer],
@@ -121,32 +257,15 @@ def persist_post_match_side(
     *,
     form_settings: FormTransitionSettings = FormTransitionSettings(),
 ) -> PostMatchPersistenceSummary:
-    """Persist the proven post-match player state for one side.
+    """Compatibility wrapper for proven generic Condition/injury/Form state.
 
-    Original MatchCalculator Condition processing mutates DBRPlayer+0x77
-    directly, so the clean-room copy must be written back for every participant.
-
-    Match-local injury flags are converted to persistent injury state during
-    0x5127A0/0x41A5B0. Form update 0x41B870 is then run once for every player
-    who actually appeared, in participant/roster order.
-
-    Premier League suspension/card persistence is handled separately by
-    persist_premier_league_discipline(), because the executable processes the
-    entire club roster before and after its participant-card loop.
+    The autonomous Premier League path uses the more exact split sequence:
+    sync_post_match_conditions -> persist_premier_league_match_incidents ->
+    persist_post_match_form. This wrapper retains the earlier generic injury
+    boolean behavior for isolated callers/tests that have no competition state.
     """
-    prepared = tuple(side.players)
     runtime = tuple(runtime_participants)
-    if len(prepared) != len(runtime):
-        raise ValueError(
-            "runtime participant count must match prepared participant count"
-        )
-
-    for local_index, player in enumerate(prepared):
-        if int(player.player_index) != local_index:
-            raise ValueError(
-                "prepared participants must use contiguous side-local indices"
-            )
-        runtime[local_index].condition = int(player.condition)
+    sync_post_match_conditions(side, runtime)
 
     side_id = int(side.side)
     injured: set[int] = set()
@@ -165,15 +284,13 @@ def persist_post_match_side(
             runtime[local_index].injured = True
             injured.add(local_index)
 
-    appeared = appeared_player_indices(side, result)
-    for local_index, player in enumerate(runtime):
-        if local_index in appeared:
-            player.form_state = update_post_match_form(
-                int(player.form_state),
-                rng,
-                form_settings,
-            )
-
+    appeared = persist_post_match_form(
+        side,
+        runtime,
+        result,
+        rng,
+        form_settings=form_settings,
+    )
     return PostMatchPersistenceSummary(
         appeared_player_indices=appeared,
         injured_player_indices=frozenset(injured),
