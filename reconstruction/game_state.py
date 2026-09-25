@@ -38,14 +38,24 @@ class GameCalendar:
     daily_hooks: list[DateHook] = field(default_factory=list)
     monthly_hooks: list[DateHook] = field(default_factory=list)
 
-    def advance_one_day(self) -> date:
+    def increment_one_day(self) -> date:
+        """Move the calendar date without running post-fixture maintenance."""
         self.current_date += timedelta(days=1)
+        return self.current_date
+
+    def run_post_fixture_maintenance(self) -> date:
+        """Run the reconstructed 0x4A8070-era day maintenance subset."""
         for hook in tuple(self.daily_hooks):
             hook(self.current_date)
         if self.current_date.day == 1:
             for hook in tuple(self.monthly_hooks):
                 hook(self.current_date)
         return self.current_date
+
+    def advance_one_day(self) -> date:
+        """Advance a fixture-free day and run its post-fixture maintenance."""
+        self.increment_one_day()
+        return self.run_post_fixture_maintenance()
 
     def advance(self, days: int) -> date:
         if days < 0:
@@ -221,6 +231,73 @@ class GameState:
 
     def advance(self, days: int) -> date:
         return self.calendar.advance(days)
+
+    def simulate_due_premier_league_ai_fixtures(
+        self,
+        attack_matrix,
+        defence_matrix,
+        rng,
+        *,
+        fixture_order: Iterable[int] | None = None,
+    ) -> tuple[tuple[int, NormalMatchResult], ...]:
+        """Simulate every unplayed Premier League fixture due on the current date.
+
+        The executable walks a shuffled per-date linked list. Until that startup
+        shuffle/RNG stream is reconstructed, the default keeps the existing
+        stable fixture-ID order exposed by PremierLeagueState.fixtures_on().
+        Callers may supply the exact due fixture IDs in a known scheduler order
+        without changing any match-level behavior.
+        """
+        due_ids = tuple(int(fixture.id) for fixture in self.fixtures_due_today())
+        if fixture_order is None:
+            ordered_ids = due_ids
+        else:
+            ordered_ids = tuple(int(fixture_id) for fixture_id in fixture_order)
+            if (
+                len(ordered_ids) != len(set(ordered_ids))
+                or set(ordered_ids) != set(due_ids)
+            ):
+                raise ValueError(
+                    "fixture_order must contain each fixture due today exactly once"
+                )
+
+        return tuple(
+            (
+                fixture_id,
+                self.simulate_premier_league_ai_fixture(
+                    fixture_id,
+                    attack_matrix,
+                    defence_matrix,
+                    rng,
+                ),
+            )
+            for fixture_id in ordered_ids
+        )
+
+    def advance_one_day_with_premier_league_ai_fixtures(
+        self,
+        attack_matrix,
+        defence_matrix,
+        rng,
+        *,
+        fixture_order: Iterable[int] | None = None,
+    ) -> tuple[tuple[int, NormalMatchResult], ...]:
+        """Advance one day using the recovered fast-calendar phase order.
+
+        The proven ordering is date increment -> due fixtures -> the reconstructed
+        post-fixture day-maintenance subset. In particular, injury return events
+        on the new date are processed only after that date's fixtures, followed
+        by daily AI Pitch Wear recovery and then first-of-month development.
+        """
+        self.calendar.increment_one_day()
+        results = self.simulate_due_premier_league_ai_fixtures(
+            attack_matrix,
+            defence_matrix,
+            rng,
+            fixture_order=fixture_order,
+        )
+        self.calendar.run_post_fixture_maintenance()
+        return results
 
     def fixtures_due_today(self):
         if self.premier_league is None:
