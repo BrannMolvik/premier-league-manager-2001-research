@@ -715,3 +715,16 @@ Confirmed:
 - GameState.from_database now uses MsvcCrtRng for this recovered startup block and retains the same RNG object for subsequent autonomous match simulation unless a caller explicitly supplies a different scripted RNG.
 
 This resolves the Python-Random mismatch identified by the 25 September audit for the currently mapped player-startup block. Exact RNG state at the first Premier League schedule shuffle still depends on other startup RNG consumers not yet audited.
+
+## Mode-0 procedural competition RNG before PL shuffle
+
+Confirmed:
+
+- 0x411020 dispatches competition initializers for a requested schedule-container mode and walks its competition pointer array in reverse index order;
+- generic procedural League builder 0x6170F0 has a bounded-RNG shuffle, but only when the League has a parent and the parent virtual +0x18 predicate is true;
+- League/ScotPremierLeague parents return false for +0x18; Cup/DummyLeague parents return true;
+- root leagues therefore skip this specific random shuffle;
+- mode-0 child League IDs 14, 167 and 192 have Cup parents and are currently proven candidates for this pre-bucket RNG consumer;
+- 0x6178B0 copies the relevant parent Cup vector at +0x54/+0x58 before the shuffle;
+- exact vector counts/order for those child phases remain unresolved;
+- 0x40B380 itself is RNG-clean; the rand() seen at adjacent 0x40B390 belongs to another function.

@@ -1868,3 +1868,15 @@ Recovered exact order:
 GameState.from_database now seeds MsvcCrtRng (explicit seed for deterministic reconstruction, current epoch seconds when omitted), preserves the table-wide two-phase draw order, and stores the live RNG on GameState. Autonomous Premier League methods can continue using this stored stream by default; test callers can still inject scripted RNGs.
 
 CI is green after the implementation. Remaining RNG target: enumerate every other startup RNG consumer between application srand and the first 0x947AD8 / 0x615BE0 Premier League bucket shuffle, then reproduce that sequence before enabling exact default same-day fixture ordering.
+
+## 25 September mode-0 pre-shuffle competition RNG checkpoint
+
+The startup-to-Premier-League shuffle trace has narrowed again.
+
+0x411020 initializes competitions matching the current schedule container before 0x615BE0. Generic procedural League initialization can consume RNG in 0x6170F0, but only for child leagues whose parent competition passes virtual +0x18. Root leagues skip the block entirely; League parents return false, Cup/DummyLeague parents return true.
+
+Static.dat identifies the currently proven mode-0 candidates as IDs 14 (Ch. League Phase 1), 167 (Ch. League Phase 2), and 192 (WCC Group Phase), all with Cup parents. Their RNG draw counts depend on parent Cup participant vector +0x54/+0x58 at child initialization.
+
+A nearby disassembly ambiguity was corrected before persistence: 0x616620 calls RNG-clean 0x40B380, not adjacent RNG-using 0x40B390.
+
+Next exact target: recover how Champions League / World Club Championship Cup initialization populates +0x54/+0x58 before child League initialization, determine the reverse competition-init order used by 0x411020, and audit nested Cup initialization callees for any additional RNG consumption.

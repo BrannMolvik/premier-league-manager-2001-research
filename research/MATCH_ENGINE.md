@@ -3827,3 +3827,13 @@ This removes an important uncertainty from the Premier League RNG chain: 0x4FA79
 The remaining Premier League shuffle-state problem is now confined to RNG consumers that occur before or inside the mode-0 0x947AD8 0x616620 path, plus any earlier application/setup consumers before that call.
 
 CompetitionDefinition now exposes packed +45 neutrally as schedule_container_code and the exact uses_secondary_schedule_container predicate; no unsupported football semantic name is assigned.
+
+## Pre-shuffle mode-0 competition RNG boundary
+
+The remaining random state entering the first Premier League bucket shuffle is not determined solely by player startup. Mode-0 container finalization initializes matching competition objects before 0x615BE0.
+
+The important recovered conditional consumer is procedural League builder 0x6170F0. Its parent-vector shuffle is skipped for root leagues and for children whose parent virtual +0x18 returns zero. League parents return zero; Cup/DummyLeague parents return one.
+
+Under the shipped mode-0 competition data, the currently proven child-League candidates for this RNG block are Champions League Phase 1 (ID 14), Champions League Phase 2 (ID 167), and WCC Group Phase (ID 192). Exact RNG draw counts depend on the parent Cup participant vector at +0x54/+0x58 when each child initializes and remain unresolved.
+
+This supersedes the provisional idea that all procedural lower divisions necessarily consume the 0x617277 shuffle. Root English lower leagues have null parents and skip it.

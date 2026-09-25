@@ -3346,3 +3346,53 @@ DBTPlayers load function 0x421C80 first invokes virtual +0x08 to allocate/constr
         RNG(1), RNG(2), RNG(2), RNG(5)
 
 The Non-EU startup path 0x421D4B -> 0x421760 -> 0x417A20 does not call 0x64D540. 0x417A20 sets DBRPlayer bit 11 and creates/inserts the CNonEUPlayer record without an RNG draw.
+
+## Mode-0 competition initialization before the first Premier League bucket shuffle
+
+Direct tracing of 0x616620 and the competition runtime hierarchy narrows the remaining pre-shuffle RNG ledger.
+
+### 0x411020 competition dispatch order
+
+Within 0x616620, helper 0x411020 iterates its competition-pointer array at object +0x40 / count +0x44 in reverse index order. For each competition object, it calls virtual +0x30 with the requested container mode. Only matching competitions receive virtual +0x00 initialization.
+
+The relevant runtime construction fields are now tied back to packed Static.dat competition records:
+
+- runtime +0x08 comes from packed +4 and is the parent competition ID/reference;
+- runtime +0x14 comes from packed +14 and selects the runtime class;
+- class 1 constructs League, except competition ID 27 which constructs ScotPremierLeague;
+- class 2 constructs Cup;
+- class 3 constructs DummyLeague;
+- all of these use the inherited +0x30 container selector 0x4F3B70.
+
+### Procedural League parent-vector shuffle
+
+Generic League initialization 0x4F5150 uses fixed builder 0x6173D0 when real fixtures are available; otherwise it reaches procedural builder 0x6170F0.
+
+0x6170F0 contains a conditional Fisher-Yates-style shuffle around 0x617245..0x617290. The block is entered only when League+0x04 has a non-null parent competition and the parent virtual +0x18 predicate is nonzero. Helper 0x6178B0 copies the relevant parent-owned pointer/ID vector into temporary global 0x947B10/+0x14, and the builder then consumes RNG(remaining) while shuffling that temporary vector.
+
+Important correction: root leagues whose parent pointer is null skip this RNG block completely. Therefore ordinary top-level procedural leagues such as the English lower divisions do not consume this specific 0x617277 shuffle merely by existing.
+
+The virtual +0x18 split is also resolved: League / ScotPremierLeague map it to 0x6596A0, which returns 0, while Cup / DummyLeague map it to 0x651E20, which returns 1. Thus a child League reaches this shuffle only when its parent is of the true-predicate family, notably Cup/DummyLeague.
+
+Static.dat mode-0 class-1 child competitions currently identified as candidates are:
+
+- ID 14, Ch. League Phase 1, parent 9 Champions League (Cup) -> shuffle predicate true;
+- ID 97, Dutch Playoffs 1, parent 96 Division 2 (HOL) (League) -> false;
+- ID 157, Belgian Playoff, parent 26 Division 2 (BEL) (League) -> false;
+- ID 167, Ch. League Phase 2, parent 9 Champions League (Cup) -> true;
+- ID 169, Dutch Playoffs 2, parent 96 Division 2 (HOL) (League) -> false;
+- ID 192, WCC Group Phase, parent 101 World Club Chmps (Cup) -> true.
+
+Therefore IDs 14, 167 and 192 are the currently proven mode-0 candidates for this specific pre-Premier-League-bucket RNG consumer.
+
+### Source vector for 0x6178B0
+
+0x6178B0 does not copy the child League's own round list. It follows League+0x04 to the parent competition and, after matching the child/context relation, copies the vector at parent +0x54/+0x58 through 0x617910. 0x617910 treats this as pointer + count and copies count dwords.
+
+For Cup, constructor 0x4F51E0 initializes +0x54/+0x58 to null/zero, while Cup initialization 0x4F5A30 later allocates and fills this array in relevant branches. The values are club/team-ID-like participants used by 0x616FC0 when the child procedural League constructs matches. Exact population/count timing for Champions League and World Club Championship remains under investigation.
+
+### Boundary correction: 0x40B380
+
+0x616620 calls 0x40B380 during its mode-matched team loop. Exact instruction-boundary inspection shows 0x40B380 only stores -1 at [ecx+0x1B0] and returns. The adjacent function 0x40B390 contains a rand() call, but 0x616620 does not call 0x40B390 here. The 0x40B380 path is therefore RNG-clean.
+
+Cup initializer 0x4F5A30 has no direct 0x64D530/0x64D540 call in its own body through its return at 0x4F6340, but nested callees are not yet fully audited. Nearby RNG-heavy routines beginning at 0x4F64D0 are distinct functions and must not be attributed to Cup::init unless a call path is proven.
