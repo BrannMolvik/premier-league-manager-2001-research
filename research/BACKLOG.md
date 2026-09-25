@@ -26,13 +26,15 @@ A backlog item is not necessarily a bug or fidelity error. Known deviations from
 
 ## Save / compatibility
 
-- Add an internal clean-room save format at Gate 8.
+- Add an internal modern save format at Gate 8.
 - Continue original FM2001 save-format compatibility later without blocking the internal save system.
 - Keep legacy executable/runtime compatibility research separate from the native reconstruction unless it directly supplies evidence.
 
 ## UI / presentation
 
-- Recreate management screens only after the core human-manager loop is stable.
+- Inventory the authorized archive for menu/login music, sound effects, UI graphics, fonts, badges, icons, backgrounds, match-presentation resources, and other reusable presentation assets.
+- Restore management screens after the core human-manager loop is stable, preferring original resources and layouts over unnecessary recreations.
+- Integrate original login/menu music and front-end audio during the presentation gates.
 - Leave FastView/3D presentation until Gate 14 unless a presentation structure is needed to understand simulation semantics.
 
 ## Tooling / quality
