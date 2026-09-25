@@ -57,27 +57,22 @@ Therefore the remaining uncertainty has been pushed backward to the TeamSelect p
 
 ## Exact next task
 
-The application seed boundary is now connected to a newly recovered mandatory consumer:
+The Loader444 side effect is implemented/tested, and a false startup lead has been removed:
 
-```text
-0x53109E srand(time-derived seed)
- -> first bground.444 Loader444 decode
- -> exactly 260 raw MSVC rand() calls
- -> later fresh-game PStartMenu
- -> DBTPlayers startup RNG
-```
+- `0x432190` is a later route that requires an existing current user;
+- the ordinary front end can create PStartMenu through generic screen factory `0x47AEC0`;
+- **screen ID `0x323` -> `0x47C928 -> 0x4C3280` PStartMenu**.
 
-The 260 draws are 259 one-time Loader444 table-initialization calls plus one per-conversion draw.
+Continue Gate 2 on the actual first-start chain:
 
-Next:
+1. trace post-intro front-end initialization/navigation into screen ID `0x323`;
+2. audit any RNG-bearing functions concretely reachable before the user selects New Game;
+3. connect that to the already-proven PStartMenu ID-2 -> `0x50D630` -> DBTPlayers path;
+4. if no other mandatory consumers exist, assemble the complete seed-to-competition startup RNG ledger.
 
-1. **DONE:** replay/test the exact 260-draw Loader444 compatibility side effect;
-2. finish auditing the remaining post-`srand`, pre-PStartMenu startup path for any other mandatory CRT consumers;
-3. if none remain, assemble the complete seed -> background -> DBTPlayers -> TeamSelect -> `0x413830` -> competition/schedule ledger.
+Do not count RNG from later current-user/calendar routes unless concrete first-start reachability is proven.
 
 Commit each verified boundary and checkpoint unresolved traces after roughly ten minutes.
-
-Do not broaden into unrelated subsystems.
 
 ## Gate 2 completion criteria
 
