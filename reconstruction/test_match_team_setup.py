@@ -19,8 +19,10 @@ from match_team_setup import (
     manager_formation_for_selection_class,
     manager_tactics_packet_fields,
     play_style_to_strategy_code,
+    premier_league_strategy_bias,
     rating_difference_pressure,
     resolved_substitute_quota,
+    strategy_team_rating,
     team_tactics_packet_fields,
 )
 
@@ -208,6 +210,74 @@ class FormationStrategyClassifierTests(unittest.TestCase):
         self.assertEqual(
             formation_selection_class_from_score(score),
             FormationSelectionClass.ATTACKING,
+        )
+
+    def test_strategy_team_rating_uses_only_first_eleven_roster_entries(self):
+        @dataclass(frozen=True)
+        class RatedPlayer:
+            skills: tuple[int, ...]
+            preferred_positions: tuple[int, int, int]
+
+        players = [
+            RatedPlayer((100,) * 17, (12, 0, 0))
+            for _ in range(11)
+        ]
+        extra = RatedPlayer((255,) * 17, (19, 0, 0))
+        expected_one = strategy_team_rating(players[:1])
+        self.assertEqual(
+            strategy_team_rating(players + [extra]),
+            expected_one * 11,
+        )
+
+    def test_premier_league_bias_uses_title_then_relegation_cut(self):
+        @dataclass(frozen=True)
+        class Row:
+            club_id: int
+            played: int
+            points: int
+
+        rows = [
+            Row(1, 34, 80),
+            Row(2, 34, 70),
+            Row(3, 34, 60),
+            Row(4, 34, 50),
+            Row(5, 34, 40),
+            Row(6, 34, 30),
+            Row(7, 34, 24),
+            Row(8, 34, 22),
+            Row(9, 34, 20),
+            Row(10, 34, 18),
+        ]
+
+        # Club 9 cannot reach the title in four matches, but is two points
+        # below the safe cut at rank count-3-1, so relegation pressure applies.
+        self.assertEqual(
+            premier_league_strategy_bias(rows, 9, total_matches=38),
+            2,
+        )
+
+    def test_premier_league_bias_is_zero_before_final_eight_matches(self):
+        @dataclass(frozen=True)
+        class Row:
+            club_id: int
+            played: int
+            points: int
+
+        rows = [
+            Row(1, 20, 50),
+            Row(2, 20, 45),
+            Row(3, 20, 40),
+            Row(4, 20, 35),
+            Row(5, 20, 30),
+            Row(6, 20, 25),
+            Row(7, 20, 20),
+            Row(8, 20, 15),
+            Row(9, 20, 10),
+            Row(10, 20, 5),
+        ]
+        self.assertEqual(
+            premier_league_strategy_bias(rows, 9, total_matches=38),
+            0,
         )
 
     def test_game_strategy_can_choose_manager_formation_directly(self):
