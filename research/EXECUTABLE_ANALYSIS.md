@@ -3432,3 +3432,46 @@ After competition initialization, 0x616620 calls team routine 0x404110 with the 
 0x50EA90, called later for relevant mode-0 teams, has not shown a direct RNG call in the currently traced body/call graph, but its exact nested callees remain part of the active audit.
 
 These corrections leave the unresolved pre-shuffle RNG work concentrated in: mode-0 Cup/child competition state, any RNG reachable through the argument-1 team setup path, and earlier startup systems before 0x616620.
+
+## Exact country root-competition registration and initialization order
+
+Direct disassembly of 0x4F7380, 0x4F79A0, 0x4F8FF0, 0x4F70E0, 0x4F3BE0 and 0x411020 resolves how competition objects reach mode-0 initialization.
+
+### Packed +27 is the competition country/region index
+
+0x4F8FF0 reads the runtime competition object's 16-bit competition ID at object+0x20, indexes the 0x40-byte DBRCompetition table at 0x876C50, reads DBRCompetition+0x24, and multiplies that value by the 0x6C-byte country stride to return a country object from 0x874BE0.
+
+The DBRCompetition loader 0x40F760 maps runtime DBRCompetition+0x24 from packed Static.dat dword +27. Therefore packed competition +27 is the country/region index used by the runtime competition hierarchy.
+
+This also explains the special values already seen by Cup construction: 123 is the Europe country record and 116 is the Other pseudo-country record. Cup+0x34 is derived from this country/region association.
+
+### Country +0x40 contains root competitions only
+
+0x4F7380 first recursively constructs all competition objects. It then scans the global runtime competition pointer array in source/ID order. Only objects with object+0x04 == null (no parent competition) are counted and later appended to their country object's pointer array at country+0x40, count +0x44.
+
+A secondary root subset lives at country+0x48/+0x4C for competition virtual +0x24 types 1 or 3.
+
+Child competitions are not appended to country+0x40. 0x4F70E0 recursively constructs them under their parent: it scans packed competitions in global ID order for records whose parent ID matches, allocates parent object+0x08 according to object+0x0C, and recursively creates/attaches the children in that source order.
+
+### Root sort key
+
+0x4F79A0 is the qsort comparator for country+0x40. It compares runtime competition object+0x18 ascending.
+
+Base competition constructor 0x4F3BE0 sets object+0x18 to the negated signed DBRCompetition word +0x16. The DBRCompetition loader maps +0x16 from packed Static.dat signed word +15.
+
+Thus country+0x40 is sorted by ascending -packed(+15), equivalently descending packed +15 for ordinary positive values.
+
+### Initialization reverses the sorted array
+
+0x411020 starts at country+0x44-1 and walks country+0x40 backward. For every root whose virtual +0x30 matches the requested schedule-container mode, it invokes virtual +0x00.
+
+Therefore, absent equal-key qsort ambiguity, root competition initialization within each country proceeds in ascending packed word +15.
+
+Concrete shipped examples for mode 0:
+
+- England country 26: League Cup (5), FA Cup (6), Challenge Shield (7), Charity Shield (8), F.A. Premier League (9), Division 1 (10), Division 2 (11), Division 3 (12), Conference (13), Conference 2 (14), Conference Cup (15).
+- Europe country 123: Champions League (0), UEFA Cup (1).
+- Scotland country 66: League Cup (5), Scottish Cup (6), Premiership (7), Division 1 (8), Division 2 (9), Division 3 (10).
+- Other country 116 includes multiple roots with equal key 0 (Other, Spanish Playoff 1, Spanish Playoff 2, World Club Chmps), then UEFA Super Cup (3), Intercont. Cup (4). Equal-key relative order is not defined by comparator 0x4F79A0 and must not be assumed from source order without separate evidence.
+
+Countries themselves are traversed by 0x616620 in the global country-table order at 0x874BE0. This gives an exact outer ordering for root competition initialization, with only equal root sort keys retaining qsort-order uncertainty.

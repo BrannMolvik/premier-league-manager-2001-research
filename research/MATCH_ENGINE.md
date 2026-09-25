@@ -3845,3 +3845,9 @@ The parent-vector count used by child procedural Leagues must not be inferred fr
 Champions League ID 9 reaches a 0x40C6C0 team-selection route that can consume one RNG(count-1) draw if its filtered candidate vector has more than one entry. WCC ID 101 uses a special +0x34==2 branch whose random-vs-nonrandom outcome still depends on Cup+0x40.
 
 The post-competition team call 0x404110 is also narrower than first feared: new-game 0x616620 supplies argument 1, which skips the 0x41ACA0 RNG-using morale branch. Do not include those draws in the first Premier League bucket-shuffle ledger.
+
+## Exact root competition order before the PL bucket shuffle
+
+Mode-0 competition initialization is country-ordered and deterministic except for equal sort keys. Packed competition dword +27 is the country/region index. Country root arrays contain only parentless competitions, are qsorted by runtime object+0x18 = -signed(packed word +15), and 0x411020 walks each array backwards. The resulting effective initialization order is ascending packed +15 within each country.
+
+For England this places the Premier League after League Cup, FA Cup, Challenge Shield and Charity Shield, and before the lower English leagues. Since 0x615BE0 runs only after all country competition initialization has completed, RNG consumers from roots or descendants anywhere in the mode-0 pass can still affect the eventual Premier League fixture-bucket shuffle.

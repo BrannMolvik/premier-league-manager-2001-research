@@ -740,3 +740,16 @@ Confirmed:
 - WCC ID 101 (+27=116) has a special branch whose RNG use depends on Cup+0x40 and remains unresolved;
 - 0x4F6360 is RNG-clean; the earlier apparent RNG call belonged to the next function;
 - new-game 0x616620 passes argument 1 to 0x404110, so 0x404110 skips its 0x41ACA0 RNG-using morale path before 0x615BE0.
+
+## Competition registration / initialization order
+
+Confirmed:
+
+- packed competition dword +27 is the country/region index used by 0x4F8FF0;
+- country+0x40/+0x44 stores root (parentless) competition pointers only;
+- roots are appended in global competition source/ID order, then qsorted by runtime competition +0x18;
+- runtime +0x18 is the negated signed packed word +15;
+- 0x411020 walks the sorted root array in reverse, yielding effective ascending packed +15 initialization order;
+- countries are processed in global country-table order;
+- child competitions are recursively attached to parent object+0x08/+0x0C in global competition-table ID order and do not appear independently in country+0x40;
+- equal packed +15 keys compare equal and retain unresolved qsort relative order.

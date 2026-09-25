@@ -1890,3 +1890,15 @@ First, mode-0 Cup initialization skips the eight-entry +0x54 allocation branch. 
 Second, the RNG-using 0x41ACA0 branch reachable from team routine 0x404110 is not taken during new-game schedule finalization: 0x616620 passes outer argument 1, which skips that path.
 
 Immediate next targets: prove mode-0 competition registration/initialization order, trace later mutations of Cup+0x54/+0x58 before child League IDs 14/167/192 initialize, resolve WCC Cup+0x40 on the new-game path, and audit the argument-1 0x404110 / 0x50EA90 nested callees for any remaining RNG.
+
+## 25 September exact root competition initialization-order checkpoint
+
+The mode-0 pre-shuffle ledger now has an exact outer competition ordering.
+
+Packed Static.dat competition +27 is the country/region index. Each country owns an array of root competitions only. Those roots are sorted by runtime +0x18 = -signed(packed +15), then 0x411020 walks the array backwards, so effective initialization is ascending packed +15. Child competitions are recursively attached in global competition ID order under their parent.
+
+Examples: England initializes League Cup -> FA Cup -> Challenge Shield -> Charity Shield -> Premier League -> Division 1 -> Division 2 -> Division 3 -> Conference -> Conference 2 -> Conference Cup. Europe initializes Champions League -> UEFA Cup.
+
+Remaining caveat: roots with equal +15 compare equal under qsort, so their relative order is not yet guaranteed. This currently matters most in the Other pseudo-country (116), where several roots share key 0.
+
+Next target remains class-specific RNG: audit DummyLeague roots, ScotPremierLeague ID27, Cup mode-0 roots/children, and the argument-1 team setup helpers to produce the exact pre-0x615BE0 bounded-draw sequence.
