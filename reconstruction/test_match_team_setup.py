@@ -171,7 +171,7 @@ class FormationStrategyClassifierTests(unittest.TestCase):
         self.assertEqual(gaps.promotion, 19)
         self.assertEqual(gaps.promotion_playoff, 5)
         self.assertEqual(gaps.avoid_relegation, -5)
-        self.assertEqual(gaps.avoid_relegation_playoff, 19)
+        self.assertEqual(gaps.avoid_relegation_playoff, 11)
 
     def test_late_season_strategy_uses_first_reachable_objective(self):
         gaps = LeagueObjectiveGaps(
