@@ -2283,3 +2283,21 @@ Modern FFmpeg successfully decoded and converted the complete original `premintr
 Detailed evidence is in `research/STARTUP_PRESENTATION.md`.
 
 This was a side verification only. Gate 2 remains the active technical task.
+
+
+## 26 September TeamSelect construction-order checkpoint
+
+Gate 2 advanced and the first new boundary was committed immediately to avoid losing work across chat/session interruptions.
+
+Confirmed from direct executable disassembly:
+
+- PStartMenu event handler `0x4C3770` dispatches event/control ID 2 to branch `0x4C37C7`;
+- that branch calls core loader `0x50D630` at `0x4C392F`;
+- only afterward does it allocate the TeamSelect object and call `PMain@TeamSelect` constructor `0x4D9290` at `0x4C39B0`;
+- `0x50D630` calls club loader `0x40B9C0`, player loader `0x4218C0`, and manager loader `0x415B70`;
+- therefore the already-recovered DBTPlayers startup RNG sequence definitely occurs **before TeamSelect construction/activation**;
+- direct calls inside TeamSelect constructor `0x4D9290..0x4D973F` do not include any known CRT RNG entry point, though its helper graph still requires transitive audit before calling the constructor fully RNG-clean.
+
+This is the first concrete connection between the recovered player startup RNG sequence and the TeamSelect lifetime path.
+
+Next target: audit the other mandatory loaders/setup calls inside `0x50D630` and the pre-`0x50D630` portion of PStartMenu ID-2 branch for any additional CRT RNG consumers before TeamSelect exists.
