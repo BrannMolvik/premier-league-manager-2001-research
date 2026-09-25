@@ -2337,3 +2337,24 @@ Confirmed:
 - together with the earlier TeamSelect method/click audit, the standard TeamSelect lifetime from construction through Start/Continue consumes zero CRT RNG draws.
 
 The seed-to-shuffle investigation therefore moves one boundary earlier: determine whether anything consumes the CRT RNG between application seeding and the PStartMenu/database-loader path. If not, the startup ledger can be closed around the already-reconstructed DBTPlayers and `0x413830` draws plus competition/schedule consumers.
+
+
+## 26 September Loader444 pre-player RNG checkpoint
+
+A previously hidden mandatory startup RNG consumer has been recovered and committed.
+
+After the application seeds CRT randomness at `0x53109E`, startup loads `FM2001_art\generic\bground.444`. Extension dispatch selects RTTI class `Loader444@EAUK`, whose decode method `0x68598A` calls `0x6864A0` and then `0x6868E0`.
+
+Exact draw count:
+
+- `0x6864A0` initializes a 0x103-byte random table with **259 raw CRT rand() calls** when global `0x9FB524` is zero;
+- `0x9FB524` is zero-filled process data and is not initialized by the pre-srand EA Sports FMV or License.png path;
+- `0x6864A0` sets the flag to 1 afterward;
+- `0x6868E0` then consumes exactly **one** additional raw rand() call on either mutually-exclusive pixel-format branch.
+
+Therefore the standard first post-seed background load advances the shared CRT stream by exactly **260 raw rand() calls before DBTPlayers startup**.
+
+The authorized source asset was also extracted/verified:
+`FM2001_Art/Generic/bground.444`, 222,616 bytes, SHA-256 `9db0d71daf70d77b4f5f2307304bb8c5eac4ee3a07a85f2828b570fbbf3b7fb9`, with 800x600 dimensions encoded in its opening uint16s.
+
+Next: represent this 260-draw compatibility side effect in the startup RNG replay/tests, then continue auditing the short post-seed/pre-PStartMenu path for any other mandatory consumers.
