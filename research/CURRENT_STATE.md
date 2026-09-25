@@ -48,20 +48,22 @@ Therefore the remaining uncertainty has been pushed backward to the TeamSelect p
 
 ## Exact next task
 
-Gate 4 now has the exact nominal bucket coordinate system:
+The first Premier League bucket's pre-shuffle structure is now exact:
 
-- primary container has 373 buckets and `0x615BE0` traverses indices 0..372;
-- League round target offset is `7*scheduled_week + (scheduled_weekday-1)`;
-- first Premier League round targets bucket 54;
-- `0x615950` can move individual nodes from their nominal target through `0x615890` conflict resolution.
+- final primary bucket index: 54;
+- total ordinary LeagueMatch nodes: 142;
+- PL fixture IDs occupy zero-based slots 96..105;
+- PL local order at those slots is 9,8,7,6,5,4,3,2,1,0.
+
+The remaining first-matchday ordering variable is the CRT state reaching bucket 54.
 
 Continue by:
 
-1. resolve the `0x615790/0x615890` conflict predicates and outward search rules;
-2. reconstruct final primary bucket placement in original competition/insertion order;
-3. enumerate bucket sizes/order for indices before and including first PL target 54;
-4. propagate the Gate-3 CRT state through those bucket shuffles and derive exact first-PL-matchday order;
-5. extend to later PL matchdays and regression tests.
+1. enumerate final bucket populations for primary indices 0..53, including any conflict-shifted cup/European nodes;
+2. compute the exact Fisher-Yates raw-draw sequence before bucket 54;
+3. advance the Gate-3 shared CRT state to the first PL shuffle;
+4. shuffle the known 142-entry bucket and derive/filter the exact ten-fixture PL order for fixed-seed regression cases;
+5. generalize the mechanism to later PL matchdays.
 
 Commit each verified scheduler boundary separately.
 
