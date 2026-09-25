@@ -1,8 +1,8 @@
-# FM2001 Reconstruction Roadmap
+# FM2001 Windows 11 Port Roadmap
 
 ## Purpose
 
-This is the authoritative long-term development plan for the clean-room reconstruction of **The F.A. Premier League Football Manager 2001**.
+This is the authoritative long-term development plan for the **Windows 11 modernization/port of The F.A. Premier League Football Manager 2001**. The goal is to preserve and reuse authorized original game resources wherever practical while replacing incompatible legacy runtime/code with a modern implementation.
 
 The project is deliberately organized around sequential gates. Only one gate should be active at a time. Interesting discoveries outside the active gate belong in `research/BACKLOG.md` unless they are required to unblock the active work.
 
@@ -18,7 +18,7 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 6. Update `research/CURRENT_STATE.md` whenever the exact next task changes.
 7. Preserve old research as historical evidence; do not silently rewrite chronology.
 8. Mark every fidelity claim as confirmed, probable, hypothesis, fallback, or approximation as appropriate.
-9. Keep original copyrighted game assets outside this repository.
+9. Reuse authorized original FM2001 resources deliberately under `original_assets/`, with provenance. Keep raw disc images, duplicate archives, temporary dumps, and unrelated binary noise out of Git.
 10. Before moving to the next gate, verify the gate's completion criteria.
 
 ## Current roadmap status
@@ -27,7 +27,8 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 - **Next gate:** Gate 3 - Build an executable startup RNG ledger
 - **Gate 1 completed:** 26 September 2026
 - **Pre-stabilization technical baseline:** `1014b042a19fc851b8d87e653ee1e5d807816630`
-- **Gate 1 validation:** clean-room guard passed and reconstruction suite ran 307 tests successfully
+- **Gate 1 validation:** repository asset guard passed and reconstruction suite ran 307 tests successfully
+- **Porting policy update:** authorized original assets should now be reused wherever practical; see `research/ASSET_POLICY.md`
 
 ---
 
@@ -47,7 +48,7 @@ Completion criteria:
 - [x] A reusable new-chat handoff prompt exists.
 - [x] Stale 279-test / Python-Random / match-day-blocker status text is reconciled.
 - [x] Old audits are clearly historical snapshots.
-- [x] A clean-room asset guard and `.gitignore` are present.
+- [x] A repository asset/hygiene guard and `.gitignore` are present.
 - [x] `reconstruction/verify.py` validates canonical hashes with explicit failures.
 - [x] CI uses maintained GitHub Actions versions.
 - [x] The stabilization changes are committed and the live state advances to Gate 2.
@@ -228,9 +229,9 @@ Completion criteria:
 - [ ] Each newly supported competition format has deterministic regression coverage.
 - [ ] The Premier League no longer behaves as an isolated world.
 
-## Gate 13 - Faithful management UI
+## Gate 13 - Restore original management presentation
 
-Goal: reproduce the original interaction flow after gameplay is stable.
+Goal: restore the original FM2001 interaction flow and visual identity after gameplay is stable, reusing authorized original UI assets wherever practical rather than recreating them unnecessarily.
 
 Suggested screen order:
 
@@ -250,15 +251,18 @@ Suggested screen order:
 Completion criteria:
 
 - [ ] Simulation logic remains separated from presentation code.
-- [ ] Normal play follows recognizably similar screen flow to FM2001.
+- [ ] Original UI graphics/resources are inventoried and reused or converted where practical.
+- [ ] Main-menu/login presentation, screen structure, navigation, and timing closely follow the original.
+- [ ] Normal play feels recognizably like FM2001 rather than a generic replacement UI.
 
-## Gate 14 - FastView / match presentation
+## Gate 14 - Original audio and match presentation
 
-Goal: reconstruct presentation on top of an already stable event/state stream.
+Goal: restore FM2001's player-visible audio/match presentation on top of the stable event/state stream, using authorized original music, sound effects, graphics, and presentation resources wherever practical.
 
 Completion criteria:
 
 - [ ] Match presentation consumes reconstructed match state/events rather than duplicating simulation logic.
+- [ ] Original login/menu music and applicable sound resources are integrated or converted for the modern runtime.
 - [ ] A match is recognizably presented in the style/workflow of the original.
 - [ ] Presentation fidelity does not block core management play.
 
@@ -282,13 +286,14 @@ Completion criteria:
 - [ ] No deadlocked calendar, roster collapse, invalid competition state, runaway injury/discipline state, save corruption, or unbounded state growth remains unexplained.
 - [ ] Regressions exist for discovered failures.
 
-## Gate 17 - Final clean-room and release audit
+## Gate 17 - Final modernization and release audit
 
-Goal: produce a distributable clean-room reconstruction.
+Goal: produce a stable Windows 11 port/modernization build with intentional provenance for reused original resources.
 
 Completion criteria:
 
-- [ ] No original copyrighted executable/data assets are distributed.
+- [ ] Reused original assets are intentional, authorized, organized under the asset policy, and provenance-tracked.
+- [ ] Raw disc images, temporary dumps, and accidental packaging artifacts are excluded.
 - [ ] Full automated suite passes.
 - [ ] Clean installation works outside the development environment.
 - [ ] New game, season progression, save/reload, and management loop work.
@@ -297,4 +302,4 @@ Completion criteria:
 
 ## Final project definition of done
 
-A person other than the developers can install the clean-room reconstruction, point it at legally owned original data where required, start a game, manage a club through a season, save/reload, and experience gameplay recognizably corresponding to **The F.A. Premier League Football Manager 2001**, with known fidelity differences documented rather than hidden.
+A person other than the developers can install the Windows 11 port, start a game, manage a club through a season, save/reload, and experience something that feels like **The F.A. Premier League Football Manager 2001** because original authorized data/presentation resources are preserved wherever practical and replacement runtime code reproduces the incompatible legacy behavior. Known fidelity differences remain documented rather than hidden.
