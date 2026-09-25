@@ -2662,3 +2662,49 @@ Implementation changes:
 The remaining Gate-3 task is not hidden-state counting; it is **exact bounded
 draw ordering and Cup pairing output** so Gate 4 can reconstruct the actual Cup
 matches sharing global date buckets with Premier League fixtures.
+
+
+## 26 September ordered Cup RNG event checkpoint
+
+The reopened Gate-3 correction has advanced from call-count fidelity to exact
+bounded-call ordering.
+
+Direct binary tracing established:
+
+- Cup rounds append in source order through `0x4F6D60`;
+- Cup `+0x08 = 0x4F6E30` qsorts the runtime round array before scheduling;
+- Normal/TwoLeg round sort keys are their week/day pair;
+- MiniLeague sort keys come from the first schedule pair of the referenced
+  child League;
+- canonical primary Cup arrays are all <=8 rounds, so the exact small-array CRT
+  qsort path is reproducible;
+- Spain's equal-key root Cups resolve deterministically to Spanish Cup then
+  Super Cup;
+- Europe selectors occur before their own Cup round loops.
+
+The canonical competition-stage stream is now:
+
+- 117 RNG-bearing events;
+- 115 Cup round shuffle events;
+- 2 Europe selectors;
+- 1,739 bounded calls;
+- Champions League selector event index 99;
+- UEFA Cup selector event index 108;
+- ordered-bound digest
+  `baef6479394ffee84e7a9aec58d74f1c5418ccaeaad7f617d9ed0f77e95fd8df`;
+- corrected synthetic final state `0x986E4579`.
+
+Implementation commits:
+
+- `2f1304385ab2c58e8790bf8c29ddc32a5103f6e9` ordered primary Cup RNG replay;
+- `33310ed202038ba81c73eafbabcd9ac6309c2671` event-order tests;
+- `eb0110436d517c612d030a1de1f6b2338c021d0a` startup sequence integration;
+- `c35f1fcd8d7ebe4aa67e339776e22f09e2a54900` startup boundary tests;
+- `1ee98449980c872de33ecdb377124701f3766149` canonical verification locks.
+
+GitHub Actions at `1ee98449980c872de33ecdb377124701f3766149`
+passes **326 tests**.
+
+Remaining Gate-3 task: recover the 16-byte Cup participant records, their
+allocation/source order and post-Fisher-Yates comparator `0x4F67D0`, then
+materialize final pairings rather than only shuffled slot indices.
