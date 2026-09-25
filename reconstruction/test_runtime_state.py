@@ -1,8 +1,6 @@
 import unittest
 from dataclasses import dataclass
 from datetime import date
-from random import Random
-
 from game_state import GameCalendar, GameState
 from match_schedule import MsvcCrtRng
 from runtime_state import RuntimePlayer, age_on
@@ -31,7 +29,7 @@ class RuntimePlayerTests(unittest.TestCase):
         self.assertEqual(age_on(dob, date(2000, 6, 15)), 20)
 
     def test_database_player_becomes_mutable_runtime_player(self):
-        player = RuntimePlayer.from_database_player(FakePlayer(), date(2000, 7, 1), Random(1))
+        player = RuntimePlayer.from_database_player(FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1))
         self.assertEqual(player.full_name, "Test Player")
         self.assertEqual(player.current_raw, [100] * 17)
         player.current_raw[0] = 101
@@ -63,7 +61,7 @@ class RuntimePlayerTests(unittest.TestCase):
         player = RuntimePlayer.from_database_player(
             FakePlayer(),
             date(2000, 7, 1),
-            Random(1),
+            MsvcCrtRng(1),
         )
         self.assertFalse(player.base_match_unavailable)
 
@@ -83,7 +81,7 @@ class RuntimePlayerTests(unittest.TestCase):
         player = RuntimePlayer.from_database_player(
             subject,
             date(2000, 7, 1),
-            Random(1),
+            MsvcCrtRng(1),
         )
 
         self.assertEqual(player.condition, 80)
@@ -100,7 +98,7 @@ class RuntimePlayerTests(unittest.TestCase):
         player = RuntimePlayer.from_database_player(
             subject,
             date(2000, 7, 1),
-            Random(1),
+            MsvcCrtRng(1),
         )
 
         player.assign_match_position(19, 2)
@@ -117,7 +115,7 @@ class RuntimePlayerTests(unittest.TestCase):
         player = RuntimePlayer.from_database_player(
             FakePlayer(index=42),
             date(2000, 7, 1),
-            Random(1),
+            MsvcCrtRng(1),
         )
         self.assertEqual(player.player_index, 42)
 
@@ -126,7 +124,7 @@ class RuntimePlayerTests(unittest.TestCase):
         player = RuntimePlayer.from_database_player(
             subject,
             date(2000, 7, 1),
-            Random(1),
+            MsvcCrtRng(1),
         )
         player.assign_match_position(19, 2)
         player.set_match_active()
@@ -143,7 +141,7 @@ class RuntimePlayerTests(unittest.TestCase):
         player = RuntimePlayer.from_database_player(
             FakePlayer(),
             date(2000, 7, 1),
-            Random(1),
+            MsvcCrtRng(1),
         )
         self.assertFalse(player.match_active)
         self.assertFalse(player.match_substitute_available)
@@ -162,11 +160,11 @@ class RuntimePlayerTests(unittest.TestCase):
 
     def test_initializer_clamps_stored_baseline_age(self):
         young = FakePlayer(date_of_birth=date(1995, 1, 1))
-        player = RuntimePlayer.from_database_player(young, date(2000, 7, 1), Random(1))
+        player = RuntimePlayer.from_database_player(young, date(2000, 7, 1), MsvcCrtRng(1))
         self.assertEqual(player.development.baseline_age, 15)
 
     def test_monthly_update_mutates_current_skills(self):
-        player = RuntimePlayer.from_database_player(FakePlayer(), date(2000, 7, 1), Random(1))
+        player = RuntimePlayer.from_database_player(FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1))
         before = tuple(player.current_raw)
         changed = player.monthly_development_update(date(2001, 7, 1))
         self.assertTrue(changed)
@@ -190,7 +188,7 @@ class CalendarTests(unittest.TestCase):
         self.assertEqual(calls, [date(2000, 2, 1)])
 
     def test_game_state_runs_player_updates_on_month_boundary(self):
-        runtime = RuntimePlayer.from_database_player(FakePlayer(), date(2000, 1, 31), Random(1))
+        runtime = RuntimePlayer.from_database_player(FakePlayer(), date(2000, 1, 31), MsvcCrtRng(1))
         state = GameState.from_players([runtime], date(2000, 1, 31))
         self.assertEqual(state.monthly_player_updates, 0)
         state.advance_one_day()
