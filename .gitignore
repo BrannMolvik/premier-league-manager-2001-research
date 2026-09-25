@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+*.bak
+
+# Reverse-engineering tool databases / temporary projects
+*.idb
+*.i64
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+*.gpr
+*.rep/
+
+# Original FM2001 executable / canonical database and string files
+**/[Ff][Oo][Oo][Tt][Bb][Aa][Ll].exe
+**/[Ff][Oo][Oo][Tt][Bb][Aa][Ll][Ll][Mm][Aa][Nn][Aa][Gg][Ee][Rr].exe
+**/[Ee][Dd][Ii][Tt][Oo][Rr].exe
+**/[Mm][Aa][Ss][Tt][Ee][Rr].dat
+**/[Ss][Tt][Aa][Tt][Ii][Cc].dat
+**/[Cc][Oo][Rr][Ee].str
+**/[Ee][Nn][Gg][Ll][Ii][Ss][Hh].str
+
+# Disc images / raw optical-media dumps
+*.iso
+*.bin
+*.cue
+*.img
+*.mdf
+*.mds
+*.nrg
+*.ccd
+*.sub
