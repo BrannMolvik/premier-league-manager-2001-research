@@ -339,8 +339,6 @@ class GameState:
         attack_matrix,
         defence_matrix,
         rng,
-        *,
-        condition_injury_settings: ConditionInjurySettings | None = None,
     ) -> NormalMatchResult:
         """Prepare two AI clubs, simulate the due fixture, and store its result."""
         home, away = self.prepare_premier_league_ai_fixture_sides(fixture_id, rng)
@@ -392,6 +390,8 @@ class GameState:
         attack_matrix,
         defence_matrix,
         rng,
+        *,
+        condition_injury_settings: ConditionInjurySettings | None = None,
     ) -> NormalMatchResult:
         """Simulate one fixture due today and persist its result into league state.
 
