@@ -3,8 +3,10 @@ from dataclasses import dataclass
 
 from competition_startup import (
     europe_root_cup_candidate_ids,
+    replay_primary_mode0_competition_rng,
     select_europe_root_cup_candidate,
 )
+from match_schedule import MsvcCrtRng
 
 
 @dataclass(frozen=True)
@@ -77,6 +79,40 @@ class EuropeRootCupSelectorTests(unittest.TestCase):
             1159,
         )
         self.assertEqual(rng.calls, [6])
+
+    def test_primary_mode0_tail_replays_two_rng6_draws_in_root_order(self):
+        countries = (
+            Country(26, 1),
+            Country(31, 1),
+            Country(33, 1),
+            Country(24, 1),
+            Country(40, 1),
+            Country(66, 1),
+            Country(73, 1),
+        )
+        clubs = (
+            Club(1118, 26, 90000, 2),
+            Club(1135, 31, 90000, 2),
+            Club(1137, 33, 75000, 2),
+            Club(1139, 24, 60000, 2),
+            Club(1143, 40, 60000, 2),
+            Club(1159, 66, 55000, 2),
+            Club(1162, 73, 100000, 2),
+        )
+        # This is the exact post-youth checkpoint from the synthetic
+        # end-to-end startup replay in test_startup_rng.py.
+        rng = MsvcCrtRng(0x2797444C)
+
+        replay = replay_primary_mode0_competition_rng(rng, clubs, countries)
+
+        self.assertEqual(
+            replay.candidate_ids,
+            (1118, 1135, 1137, 1139, 1143, 1159, 1162),
+        )
+        self.assertEqual(replay.champions_league_club_id, 1118)
+        self.assertEqual(replay.uefa_cup_club_id, 1143)
+        self.assertEqual(replay.draw_count, 2)
+        self.assertEqual(rng.state, 0x5D07D526)
 
     def test_empty_and_singleton_lists_consume_no_rng(self):
         class NoRng:
