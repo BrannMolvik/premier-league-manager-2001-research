@@ -57,16 +57,21 @@ Therefore the remaining uncertainty has been pushed backward to the TeamSelect p
 
 ## Exact next task
 
-Trace **TeamSelect construction and activation** and its caller chain backward until it reconnects with the already recovered database/player startup sequence.
+The TeamSelect caller chain is now connected to the recovered player startup sequence:
 
-For each reachable call on the standard new-game path:
+- PStartMenu event/control ID 2 -> branch `0x4C37C7`;
+- `0x4C392F -> 0x50D630` loads runtime databases including `DBTPlayers`;
+- only afterward does `0x4C39B0 -> 0x4D9290` construct `PMain@TeamSelect`.
 
-1. determine whether it can consume the CRT RNG;
-2. distinguish mandatory from conditional/unreachable draws;
-3. record deterministic/UI-only branches as ruled out;
-4. checkpoint verified subpaths in the relevant research file(s);
-5. append chronological progress to `PROGRESS.md`;
-6. commit at each meaningful verified boundary, or after roughly ten minutes if the trace remains unfinished.
+Therefore the known DBRPlayer startup RNG draws occur before TeamSelect exists.
+
+Continue Gate 2 by auditing:
+
+1. the other mandatory loaders/setup calls inside `0x50D630` for additional CRT RNG consumers;
+2. the pre-`0x50D630` calls on PStartMenu event-ID-2 branch;
+3. the TeamSelect constructor/activation helper graph transitively where required.
+
+For each reachable call, distinguish mandatory, conditional, unreachable, and deterministic behavior. Commit every meaningful verified boundary and make a checkpoint after roughly ten minutes if unresolved.
 
 Do not broaden into unrelated subsystems.
 
