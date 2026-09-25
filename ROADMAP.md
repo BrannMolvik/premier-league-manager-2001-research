@@ -93,14 +93,14 @@ The ledger should cover, as applicable:
 
 Completion criteria:
 
-- [x] One shared MSVC CRT RNG stream is used for all mapped mandatory startup draws.
+- [x] One shared MSVC CRT RNG stream is used for all currently mapped mandatory startup draws.
 - [x] Fixed-seed tests verify intermediate state, not only final output.
 - [x] Legacy Python-RNG fallbacks are removed or isolated where original behavior requires CRT RNG.
-- [x] Remaining uncertain consumers before the first primary shuffle are explicitly documented/resolved.
+- [ ] Account for Cup round scheduler/pairing RNG before primary `0x615BE0` and restore an exact pre-shuffle state.
 
 ## Gate 4 - Resolve exact Premier League matchday ordering
 
-**Status: IN PROGRESS**
+**Status: PAUSED — valid scheduler groundwork retained; waiting for corrected Gate-3 RNG ledger**
 
 Goal: replace deterministic fixture-ID fallback with the original scheduling/execution order.
 
