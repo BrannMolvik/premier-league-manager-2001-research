@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import Protocol
+from typing import Protocol, Sequence
+
+from match_role_rating import best_preferred_role_rating
 
 
 class FormationSelectionClass(IntEnum):
@@ -337,6 +339,61 @@ def manager_formation_for_game_strategy(
         preferences,
         formation_selection_class_from_score(score),
     )
+
+
+class StrategyRatingPlayer(Protocol):
+    skills: Sequence[int]
+    preferred_positions: Sequence[int]
+
+
+class LeagueStrategyRow(Protocol):
+    club_id: int
+    played: int
+    points: int
+
+
+def strategy_team_rating(players: Sequence[StrategyRatingPlayer]) -> int:
+    """Exact 0x409900 team-rating sum used by the formation classifier.
+
+    The executable consumes at most the first eleven entries in team roster
+    order and sums 0x41E1D0, the best preferred-position role rating.
+    """
+    return sum(
+        best_preferred_role_rating(player.skills, player.preferred_positions)
+        for player in players[:11]
+    )
+
+
+def premier_league_strategy_bias(
+    table_rows: Sequence[LeagueStrategyRow],
+    club_id: int,
+    *,
+    total_matches: int = 38,
+) -> int:
+    """Reconstruct the 0x409680 league-position bias for the Premier League.
+
+    The shipped top division has no promotion/playoff cut and three relegation
+    places, so only title and avoid-relegation objectives can become active.
+    """
+    rows = tuple(table_rows)
+    target = int(club_id)
+    rank = next(
+        (index for index, row in enumerate(rows) if int(row.club_id) == target),
+        None,
+    )
+    if rank is None:
+        raise KeyError(f"club {target} is not present in the league table")
+
+    row = rows[rank]
+    matches_remaining = int(total_matches) - int(row.played)
+    gaps = league_objective_gaps_from_sorted_points(
+        [int(item.points) for item in rows],
+        rank,
+        automatic_promotion_places=0,
+        playoff_places=0,
+        relegation_places=3,
+    )
+    return late_season_league_strategy_bias(gaps, matches_remaining)
 
 class ManagerFormationSource(Protocol):
     formation_default: int
