@@ -2085,3 +2085,23 @@ calls it twice is not on this path.
 Next target: finish proving the other immediate pre-`0x4F7C00` wrappers are
 RNG-clean, then move farther back in startup to locate any database/team RNG
 consumers that precede the already-reconstructed player initialization block.
+
+
+## 25 September Scouting reseed correction checkpoint
+
+A potentially project-changing RNG lead was resolved safely before it could
+distort the new-game reconstruction.
+
+The extra `srand` at `0x4AF7F0` belongs to **PScouting2K**. RTTI from
+vtable `0x7C2E6C` names the class directly. Scouting event code 31 invokes
+`0x4AE970`, which hashes Scouting UI/search state, reseeds the CRT stream,
+and Fisher-Yates shuffles its candidate list.
+
+This mechanism is real but **not part of the proven mandatory new-game path**.
+Therefore the already recovered new-game RNG sequence remains relevant:
+player startup, generated-name setup, per-user youth generation, primary
+competition initialization, then the PL schedule-bucket shuffle.
+
+Next target returns to the actual new-game call graph: finish the pre-
+`0x4F7C00` transitive audit and then move backward from `0x4C42EE` toward
+Master/Static loading to enumerate any remaining mandatory RNG consumers.

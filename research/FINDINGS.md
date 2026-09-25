@@ -901,3 +901,20 @@ Confirmed startup ordering:
 
 Clean-room replay helpers now consume the whole recovered user-dependent block
 in original ordering instead of treating the draws independently.
+
+
+## PScouting2K deterministic reseed
+
+Confirmed correction:
+
+- `0x4AF7F0` is a genuine CRT `srand` helper;
+- its caller lives in RTTI class `PScouting2K`, not the new-game wizard;
+- PScouting2K event code 31 calls `0x4AE970`, which reseeds from hashed
+  Scouting-panel state and then shuffles a player/candidate vector;
+- a nested Scouting path can reseed/shuffle again through `0x4AEAE0`;
+- this reseed is therefore a Scouting-result determinism mechanism and is not
+  evidence that ordinary new-game creation resets the global RNG before the
+  first Premier League schedule shuffle.
+
+Do not discard the reconstructed startup RNG ledger on the basis of
+`0x4AF7F0`.

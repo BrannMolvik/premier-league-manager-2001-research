@@ -3942,3 +3942,42 @@ This does not yet make the full srand-to-shuffle state exact because earlier
 database/startup consumers still require a complete ledger, but the entire
 user-dependent `0x413830` contribution can now be advanced deterministically
 once the human club country and option-category-3 value are known.
+
+
+## Scouting-screen CRT reseed boundary at 0x4AF7F0
+
+A fourth `srand` call site exists at `0x4AF7F0 -> 0x66950F`, but RTTI now
+proves it is **not an automatic new-game reseed**.
+
+The event handler containing the only caller `0x4AE0FD -> 0x4AE970` has
+vtable `0x7C2E6C`. Its CompleteObjectLocator at `0x7E3D20` points to
+TypeDescriptor `0x81C9C0`, whose decorated name is:
+
+```text
+.?AVPScouting2K@@
+```
+
+and the adjacent original source path is:
+
+```text
+D:\Projects\FM2001\Applications\FootballManager\MenuPan.cpp
+```
+
+Thus `0x4ADB50` is a `PScouting2K` event handler. Event code 31 dispatches
+to `0x4AE0FB`, which calls `0x4AE970`.
+
+`0x4AE970` builds a player/candidate pointer vector, calls
+`0x4AF7F0(-1)`, and immediately performs a descending bounded-RNG shuffle.
+A nested path through `0x4AEAE0` can call `0x4AF7F0` again with another
+argument and shuffle a second vector.
+
+`0x4AF7F0` hashes fields belonging to the Scouting panel state (including
+several control values and integerized range fields) and passes that hash to
+the CRT `srand`. It therefore deliberately makes Scouting result ordering
+deterministic for a given panel/search state.
+
+This is an important original RNG mechanism for future Scouting fidelity, but
+it must **not** be used to reset or simplify the mandatory new-game startup
+RNG stream. The earlier startup/player/name/youth/competition ledger remains
+necessary for reproducing the first Premier League bucket shuffle unless a
+separate later mandatory reseed is found.
