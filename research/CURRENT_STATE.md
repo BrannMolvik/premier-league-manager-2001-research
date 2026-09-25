@@ -6,9 +6,9 @@ This is the **canonical live resume point**. It is intentionally short. Historic
 
 ## Current gate
 
-**Gate 3 - Build an executable startup RNG ledger**
+**Gate 4 - Resolve exact Premier League matchday ordering**
 
-Gates 1 and 2 are complete. See `../ROADMAP.md` for gate definitions and completion criteria.
+Gates 1, 2 and 3 are complete. See `../ROADMAP.md` for gate definitions and completion criteria.
 
 ## Porting mission
 
@@ -25,11 +25,13 @@ Authorized original resources belong under `original_assets/` with provenance tr
 - Latest repository asset-policy validation: `17ee2f299a2a0d87f959b9480df9b48d194de6aa` - **passed**
 - Commits after `1014b042...` are repository-management, documentation, verification/CI hardening, and the Windows 11 port/authorized-asset policy transition. They do not supersede the latest reverse-engineering address/path findings.
 
-## Gate 3 objective
+## Gate 4 objective
 
-Turn the now-closed seed-to-competition RNG research into one executable replay with fixed-seed intermediate checkpoints, then continue that exact shared CRT stream through primary competition initialization to the first Premier League schedule-bucket shuffle.
+Replace the deterministic fixture-ID same-day fallback with the original primary schedule-container ordering.
 
-Canonical pre-competition evidence: `STARTUP_RNG_LEDGER.md`.
+The exact shared MSVC CRT state entering primary `0x615BE0` is now reproducible. Gate 4 must carry that state through the schedule buckets in their original order and recover the exact linked-list order for Premier League matchdays.
+
+Canonical startup evidence: `STARTUP_RNG_LEDGER.md`.
 
 ## Last verified technical boundary
 
@@ -46,25 +48,25 @@ Therefore the remaining uncertainty has been pushed backward to the TeamSelect p
 
 ## Exact next task
 
-The complete pre-competition sequence is now executable on one shared `MsvcCrtRng`, with fixed-seed intermediate checkpoints after Loader444, DBTPlayers, generated names, and youth generation.
+The shared CRT state entering primary `0x615BE0` is now exact, but `0x615BE0` shuffles populated date buckets sequentially. Earlier non-Premier-League buckets can therefore advance the RNG before the first PL date.
 
-Continue Gate 3 at the primary/mode-0 competition boundary:
+Continue Gate 4 by:
 
-1. close the residual argument-1 `0x404110` / `0x50EA90` team-setup RNG audit before `0x615BE0`;
-2. implement the proven Europe-root competition draws in exact order:
-   - Champions League: `RNG(6)`
-   - UEFA Cup: `RNG(6)`;
-3. add a fixed-seed checkpoint for the exact CRT state entering `0x615BE0`;
-4. if no other primary-container consumers remain, complete Gate 3 and hand exact bucket-shuffle ordering to Gate 4.
+1. recover the primary schedule-container bucket index/date mapping and traversal order;
+2. enumerate all populated primary buckets before the first Premier League date and their entry counts;
+3. reproduce each preceding bucket's Fisher-Yates consumption in order;
+4. combine that with the already-recovered Premier League insertion order to derive exact first-matchday fixture order;
+5. extend the same mechanism across later PL matchdays and add regression tests.
 
-Commit each verified research/implementation boundary separately.
+Commit each verified boundary separately.
 
-## Gate 3 completion criteria
+## Gate 4 completion criteria
 
-- [ ] One shared MSVC CRT RNG stream is used for all mapped mandatory startup draws.
-- [ ] Fixed-seed tests verify intermediate state, not only final output.
-- [ ] Legacy Python-RNG fallbacks are removed or isolated where original behavior requires CRT RNG.
-- [ ] Remaining uncertain competition consumers before the first PL shuffle are explicitly documented or resolved.
+- [ ] Premier League source fixture insertion order is preserved.
+- [ ] Schedule bucket/container selection is reproduced.
+- [ ] Shuffle input RNG state is reproduced through all preceding buckets.
+- [ ] Same-day Premier League extraction/execution order is reproduced.
+- [ ] Regression tests cover the first several real matchdays.
 
 
 ## Current implementation state
@@ -86,7 +88,7 @@ Already implemented and tested at a substantial level:
 
 See `FIDELITY_GAPS.md` for the canonical list. The most relevant current gaps are:
 
-- incomplete global CRT state before the first PL shuffle;
+- exact inter-bucket RNG consumption/order inside primary `0x615BE0` is still being completed;
 - deterministic fixture-ID same-day fallback;
 - unresolved final league-table tie fallback;
 - approximation around persistent-injury availability helper `0x405080`;
@@ -95,7 +97,7 @@ See `FIDELITY_GAPS.md` for the canonical list. The most relevant current gaps ar
 
 ## Do not work on yet
 
-Unless required to unblock Gate 2, defer:
+Unless required to unblock Gate 4, defer:
 
 - transfers/contracts implementation;
 - finance/board implementation;
