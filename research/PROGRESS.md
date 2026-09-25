@@ -2379,3 +2379,21 @@ Tests cover both:
 GitHub Actions at `c5d040f36e5ff20e13ee962b3df5ea2c854a8582` is green with **309 tests passed**. Repository asset policy also passes.
 
 Remaining Gate-2 work: finish proving the exact ordinary post-`srand` path into the first PStartMenu/database load has no additional mandatory CRT consumer beyond Loader444, then assemble the complete startup ledger.
+
+
+## 26 September initial PStartMenu path correction checkpoint
+
+A potentially misleading startup branch was corrected and committed before continuing the RNG ledger.
+
+Confirmed:
+
+- global `0x8755E4` is the user count at object `0x874C10+0x9D4`, not an independent startup flag;
+- `0x413BB0` adds a user and increments that count;
+- `0x413D80` resets the user list/count/current index;
+- `0x432190` requires an already-existing current user through `0x4139D0`, so it cannot be the zero-user initial PStartMenu route;
+- generic front-end factory `0x47AEC0` maps **screen ID 0x323** to `0x47C928 -> 0x4C3280`, the PStartMenu constructor;
+- TeamSelect control ID `0x29` also returns to `0x4C3280`, independently confirming the relationship.
+
+This removes later user/calendar branches from the mandatory pre-DBTPlayers RNG audit unless a concrete first-start call path reaches them.
+
+Next: trace the actual post-intro front-end navigation/factory activation of screen ID 0x323 and classify any RNG-bearing functions reachable before the New Game ID-2 event.
