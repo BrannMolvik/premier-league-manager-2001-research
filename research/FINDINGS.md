@@ -847,3 +847,21 @@ Confirmed:
 - 0x414330 then makes 54 more generated-name calls for the selected user's
   team country, yielding another 108 draws;
 - total 0x414330 name draws on the shipped team table: **2,422**.
+
+
+## Exact !Spare youth source pool
+
+Confirmed:
+
+- `0x50D672 -> 0x413890 -> 0x40C4E0` initializes global `0x8755D0`;
+- `0x40C4E0` returns the first runtime team-table index whose full name is
+  exactly `!Spare`;
+- canonical Master.dat therefore sets `0x8755D0 = 332`;
+- this raw team 332 is distinct from the cloned special team object whose ID
+  is forced to -1;
+- 2,048 shipped players belong to club 332 and all pass the source bit-3 test;
+- `0x61DF90` has a fixed 512-WORD candidate buffer, so only the first 512
+  qualifying Spare players enter the vector;
+- the final included candidate is player index 6643;
+- candidate RNG bounds therefore start at `RNG(512)` and descend by one after
+  each swap-delete selection.

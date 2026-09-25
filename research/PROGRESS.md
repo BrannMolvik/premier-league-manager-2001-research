@@ -2011,3 +2011,30 @@ Next target: use these helpers to construct the exact pre-schedule draw ledger
 for a concrete new-game/user configuration, including the selected user's
 country and 0x61DF90 youth candidate/name sequence; then continue auditing
 any remaining setup callees before enabling exact default PL fixture order.
+
+
+## 25 September exact !Spare youth-pool checkpoint
+
+The fixed youth source global is resolved.
+
+`0x8755D0` is written by `0x413890` from exact-name lookup `0x40C4E0`;
+with the shipped Master.dat it is club **332, !Spare**. The similarly named
+special -1 team is a clone and must not be confused with the raw source-team
+index.
+
+There are 2,048 Spare players in Master.dat, all source-eligible on the bit-3
+predicate, but `0x61DF90` has only a 512-entry WORD candidate buffer.
+Therefore the actual vector is the first 512 Spare players in DBRPlayer table
+order, ending at player index 6643.
+
+This makes the youth candidate draw sequence concrete:
+`RNG(512), RNG(511), RNG(510), ...` for however many of the 4..8 target
+players are generated.
+
+Clean-room startup_rng.py now enforces the 512-entry cap, reproduces the exact
+`!Spare` lookup, and can emit the descending candidate-selection bounds.
+
+Next startup-RNG target: combine the now-known 512-source sequence with the
+selected user's option-category-3 mode and country-specific two-name bounds,
+then finish auditing any remaining pre-`0x4F7C00` callers so a complete
+new-game-to-first-PL-shuffle ledger can be generated.

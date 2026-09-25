@@ -16,6 +16,22 @@ class PlayerSource(Protocol):
     initial_flags: int
 
 
+class SpareClubSource(Protocol):
+    index: int
+    name: str
+
+
+STARTUP_YOUTH_CANDIDATE_CAP = 0x200
+
+
+def startup_spare_club_id(clubs: Iterable[SpareClubSource]) -> int:
+    """Reproduce 0x40C4E0: first exact !Spare team-table match, else 0."""
+    for club in clubs:
+        if str(club.name) == "!Spare":
+            return int(club.index)
+    return 0
+
+
 def startup_youth_target_count(option_mode: int | None, rng: BoundedRng) -> int:
     """Reproduce 0x42C3A0 followed by the +4 in 0x61DF90."""
     if option_mode is None:
@@ -34,14 +50,35 @@ def startup_youth_candidate_ids(
     players: Iterable[PlayerSource],
     source_club_id: int,
 ) -> tuple[int, ...]:
-    """Reproduce the 0x61DF90 club/bit-3 candidate filter in table order."""
+    """Reproduce the 0x61DF90 source filter and fixed 512-WORD buffer."""
     source_club_id = int(source_club_id)
-    return tuple(
-        int(player.index)
-        for player in players
-        if int(player.club_id) == source_club_id
-        and not (int(player.initial_flags) & 0x08)
-    )
+    result: list[int] = []
+    for player in players:
+        if int(player.club_id) != source_club_id:
+            continue
+        if int(player.initial_flags) & 0x08:
+            continue
+        result.append(int(player.index))
+        if len(result) >= STARTUP_YOUTH_CANDIDATE_CAP:
+            break
+    return tuple(result)
+
+
+def startup_youth_selection_bounds(
+    candidate_count: int,
+    target_count: int,
+    *,
+    destination_count: int = 0,
+) -> tuple[int, ...]:
+    """Return exact candidate-selection RNG bounds for one 0x61DF90 run.
+
+    The loop stops when the candidate list is empty, the requested target has
+    been reached, or the destination list reaches its hard cap of 20 entries.
+    """
+    candidate_count = max(0, int(candidate_count))
+    remaining_slots = max(0, 20 - int(destination_count))
+    draws = min(candidate_count, max(0, int(target_count)), remaining_slots)
+    return tuple(candidate_count - offset for offset in range(draws))
 
 
 def select_startup_youth_candidate(candidates: list[int], rng: BoundedRng) -> int:

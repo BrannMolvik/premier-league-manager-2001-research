@@ -6,8 +6,10 @@ from startup_rng import (
     generated_name_source_eligible,
     generated_name_source_ids,
     select_startup_youth_candidate,
+    startup_spare_club_id,
     startup_youth_candidate_ids,
     startup_youth_target_count,
+    startup_youth_selection_bounds,
     startup_team_name_country_ids,
     startup_team_name_rng_bounds,
 )
@@ -59,6 +61,50 @@ class StartupYouthRngTests(unittest.TestCase):
             Player(10, 50, 0x10),
         )
         self.assertEqual(startup_youth_candidate_ids(players, 50), (7, 10))
+
+
+    def test_spare_lookup_returns_first_exact_name_or_zero(self):
+        @dataclass(frozen=True)
+        class Team:
+            index: int
+            name: str
+
+        clubs = (
+            Team(1, "!Spare Youth"),
+            Team(332, "!Spare"),
+            Team(900, "!Spare"),
+        )
+        self.assertEqual(startup_spare_club_id(clubs), 332)
+        self.assertEqual(startup_spare_club_id((Team(1, "Spare"),)), 0)
+
+    def test_candidate_scan_stops_at_original_512_entry_buffer(self):
+        players = tuple(Player(i, 332, 0) for i in range(700))
+        result = startup_youth_candidate_ids(players, 332)
+        self.assertEqual(len(result), 512)
+        self.assertEqual(result[0], 0)
+        self.assertEqual(result[-1], 511)
+
+    def test_candidate_cap_counts_only_eligible_source_players(self):
+        players = tuple(
+            Player(i, 332 if i % 2 == 0 else 99, 0x08 if i % 4 == 0 else 0)
+            for i in range(3000)
+        )
+        expected = tuple(
+            p.index for p in players
+            if p.club_id == 332 and not (p.initial_flags & 0x08)
+        )[:512]
+        self.assertEqual(startup_youth_candidate_ids(players, 332), expected)
+
+    def test_selection_bounds_descend_from_actual_candidate_count(self):
+        self.assertEqual(
+            startup_youth_selection_bounds(512, 5),
+            (512, 511, 510, 509, 508),
+        )
+        self.assertEqual(startup_youth_selection_bounds(3, 8), (3, 2, 1))
+        self.assertEqual(
+            startup_youth_selection_bounds(512, 8, destination_count=18),
+            (512, 511),
+        )
 
     def test_selection_uses_current_count_then_swap_deletes(self):
         candidates = [10, 20, 30, 40]

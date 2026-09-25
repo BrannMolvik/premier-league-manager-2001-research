@@ -3767,3 +3767,74 @@ user+0x5B4 and the country is team+0x14.
 Therefore 0x414330 alone consumes 2,422 name RNG draws on the shipped team
 table, plus the exact bounds depend on each team country and on the selected
 user's country for the final 108 draws.
+
+
+## Exact !Spare source-team global and youth candidate buffer
+
+The unresolved global at `0x8755D0` is now directly tied to the shipped
+`!Spare` team.
+
+### Initialization proof
+
+After Master.dat team loading, `0x50D672` loads object base `0x874C10`
+into ECX and calls `0x413890`.
+
+`0x413890` calls `0x40C4E0`, then stores EAX at object offset `+0x9C0`.
+
+```text
+0x874C10 + 0x9C0 = 0x8755D0
+```
+
+`0x40C4E0` scans the runtime team table in source/index order and compares
+each full team name against the literal string **"!Spare"**. It returns the
+index of the first exact match, with fallback zero if no match exists.
+
+The canonical Master.dat contains:
+
+```text
+club index 332
+name       !Spare
+short name SPA
+country    116
+```
+
+Therefore the shipped startup value is exactly:
+
+```text
+0x8755D0 = 332
+```
+
+This is distinct from the special cloned team object at `0x874B94`.
+Team post-load `0x40BD10` also searches for the same `!Spare` record,
+copies it into that special object, and forces the clone's runtime team ID to
+-1. The raw table team 332 remains the source/parking-team index used by
+`0x8755D0`; the -1 clone is a related but separate runtime object.
+
+This interpretation is corroborated by later uses: normal schedule/team setup
+skips team index `0x8755D0`, player cleanup/release paths assign players to
+it, and `0x61DF90` uses it as the source-club filter for generated youth.
+
+### Exact shipped candidate pool
+
+Canonical Master.dat has **2,048** players whose packed club ID is 332.
+All 2,048 have DBRPlayer source flags bit 3 clear.
+
+However, `0x61DF90` does not retain all of them. Its local candidate array is
+a fixed **0x200 WORD (512-entry)** buffer and the scan stops once EBP reaches
+0x200.
+
+Thus the shipped youth-generation candidate vector is exactly the first 512
+`!Spare` players in DBRPlayer table order. Its first entries are:
+
+```text
+5, 17, 77, 87, 92, 115, 120, 125, 126, 143, ...
+```
+
+and the 512th/final entry is player index **6643**.
+
+The first candidate-selection draw is therefore `RNG(512)`; after each
+swap-delete the bounds descend `RNG(511)`, `RNG(510)`, and so on for the
+4..8 requested youth players.
+
+The clean-room helper now reproduces the exact first-match `!Spare` lookup,
+the 512-candidate cap, table-order filtering, and descending selection bounds.
