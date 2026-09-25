@@ -118,6 +118,31 @@ class PremierLeagueState:
     def round_date(self, round_index: int) -> date | None:
         return self.round_dates.get(round_index)
 
+    def next_club_match_date(
+        self,
+        club_id: int,
+        after_date: date | None = None,
+    ) -> date | None:
+        """Return the next unplayed fixture date for one club.
+
+        FM2001's post-match suspension refresh searches from current_date+1,
+        so callers pass the just-played date and this helper requires a
+        strictly later round date.
+        """
+        club_id = int(club_id)
+        dates: list[date] = []
+        for fixture in self.fixtures.values():
+            if fixture.id in self.results:
+                continue
+            if club_id not in (int(fixture.home_club_id), int(fixture.away_club_id)):
+                continue
+            round_date = self.round_dates.get(int(fixture.round_index))
+            if round_date is None:
+                continue
+            if after_date is not None and round_date <= after_date:
+                continue
+            dates.append(round_date)
+        return min(dates) if dates else None
     def next_match_date(self, on_or_after: date | None = None) -> date | None:
         dates = []
         for round_index, round_date in self.round_dates.items():
