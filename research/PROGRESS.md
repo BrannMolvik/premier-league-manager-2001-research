@@ -2625,3 +2625,40 @@ Immediate correction target:
 3. resolve the third round-scheduler flag and its additional parent-vector shuffle conditions;
 4. add every resulting bounded draw to the shared startup replay;
 5. replace the provisional pre-`0x615BE0` checkpoint and tests.
+
+
+## 26 September corrected primary Cup RNG-state checkpoint
+
+The reopened Gate-3 correction is now quantified and implemented.
+
+Runtime round construction/allocation plus canonical Static.dat prove every
+primary Cup round reaches its scheduler with N equal to packed `team_count`.
+All three round classes start with an N-entry Fisher-Yates, contributing N-1
+CRT calls.
+
+Canonical totals:
+
+- 27 primary Cups;
+- 115 rounds;
+- 80 NormalRound / 32 TwoLegRound / 3 MiniLeagueRound;
+- **1,737** mandatory round-pairing calls;
+- plus two Europe-root selector calls;
+- **1,739 total primary-competition calls before `0x615BE0`**.
+
+For the existing synthetic post-youth state `0x2797444C`, the corresponding
+canonical competition-stage state is `0x986E4579`. The old two-draw value
+`0x5D07D526` is superseded.
+
+Implementation changes:
+
+- `competition_startup.py` now derives primary Cup round counts from parsed
+  competition/round metadata and replays the exact hidden CRT-state cost;
+- `startup_sequence.py` composes that state replay instead of pretending the
+  Europe selectors are adjacent;
+- unit tests replace the obsolete two-draw final checkpoint;
+- `verify.py` locks canonical 27/115/80-32-3/1737 invariants when run against
+  the authorized shipped data.
+
+The remaining Gate-3 task is not hidden-state counting; it is **exact bounded
+draw ordering and Cup pairing output** so Gate 4 can reconstruct the actual Cup
+matches sharing global date buckets with Premier League fixtures.
