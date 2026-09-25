@@ -3255,3 +3255,157 @@ both deterministic AI selections
 ```
 
 and feeds current home Pitch Wear into the recovered Condition/injury settings.
+## Exact Premier League suspension lifecycle
+
+**Confirmed from post-match controller `0x5127A0`, DBRPlayer routines `0x419490`, `0x419680`, `0x4197C0`, and RTTI for the normal `League` versus special `Cup` runtime objects.**
+
+The normal Premier League path uses the general DBRPlayer suspension state:
+
+```text
++0x139  cumulative booking counter
++0x13A  rolling five-booking counter
++0x13B  general suspension matches remaining
++0x160  suspension effective date
++0x14 bit 1  currently suspended/unavailable flag
+```
+
+The separate `+0x13E` counter belongs to a special competition path. The relevant virtual method on the normal RTTI class `League` returns zero, while the `Cup` implementation enables the special branch. The shipped Premier League therefore uses `+0x13B`, not `+0x13E`.
+
+All of these bytes initialize to zero in the DBRPlayer runtime constructor around `0x41794F..0x41796D`.
+
+### Exact post-match ordering
+
+For each team, `0x5127A0` performs:
+
+```text
+1. 0x419490 over the complete club roster
+   -> clear suspended bit
+   -> serve one already-active ban match when eligible
+
+2. 0x4197C0 over MatchCalculator participants in participant order
+   -> process current-match dismissal/booking counters
+
+3. 0x419680 over the complete club roster
+   -> set suspended bit for the next competition fixture
+```
+
+Only after this discipline pass does the later team post-match routine `0x404CE0` run player Form processing. Therefore any red-card `RNG(3)` draw occurs **before** post-match Form `RNG(100)` draws.
+
+### Serving an existing general suspension — 0x419490
+
+The routine first clears DBRPlayer `+0x14 bit 1`.
+
+For the normal League branch:
+
+```text
+if suspension_matches_remaining == 0:
+    stop
+
+if suspension_effective_date > current_match_date:
+    stop
+
+suspension_matches_remaining -= 1
+```
+
+Exactly one match is consumed. If the counter reaches zero, the executable can create the corresponding return-from-suspension news/message object; that presentation side effect is not required for match availability.
+
+### Current-match participant card inputs
+
+The participant records consumed by `0x4197C0` use:
+
+```text
+participant +0x48  booking count/input
+participant +0x49  dismissal/red-card input
+participant +0x4A  injury input
+```
+
+The clean-room timeline maps type-5 BOOKED and SENT_OFF incidents to the first two fields for persistence.
+
+### Dismissal path
+
+Dismissal is processed before bookings.
+
+If the player previously had no general suspension counter:
+
+```text
+suspension_effective_date = current_match_date + 7 days
+```
+
+Then the executable consumes:
+
+```text
+RNG(3)
+```
+
+with exact result:
+
+```text
+RNG(3) == 0  -> add 3 suspension matches
+otherwise    -> add 1 suspension match
+```
+
+If a suspension counter already existed, adding the new ban does **not** reset the prior effective date.
+
+### Booking path
+
+If the current match booking input is nonzero, `0x4197C0` first evaluates the **pre-increment** cumulative booking byte:
+
+```text
+if cumulative_booking_counter % 13 == 12:
+    if suspension_matches_remaining == 0:
+        suspension_effective_date = current_match_date + 7 days
+    suspension_matches_remaining += 3
+```
+
+The modulo-13 rule is unusual but instruction-level exact and is intentionally preserved without relabeling it as a modern real-world card rule.
+
+It then increments both booking bytes by the match booking count:
+
+```text
++0x139 += bookings
++0x13A += bookings
+```
+
+and applies the five-booking threshold:
+
+```text
+if +0x13A >= 5:
+    +0x13A -= 5
+    if suspension_matches_remaining == 0:
+        suspension_effective_date = current_match_date + 7 days
+    suspension_matches_remaining += 1
+```
+
+The original performs one threshold check/subtraction rather than a loop.
+
+### Seven-day activation gate and next-fixture refresh — 0x419680
+
+After current-match cards are added, the executable resolves the club's next competition fixture beginning from **current date + 1 day**.
+
+For a known next fixture:
+
+```text
+suspended = (
+    suspension_matches_remaining > 0
+    and suspension_effective_date <= next_fixture_date
+)
+```
+
+Thus a newly issued ban does **not** automatically mean “miss the next match.” A club can play an intervening fixture inside the seven-day effective-date window before the suspension activates.
+
+Example:
+
+```text
+Sat Aug 19: new one-match ban; effective Sat Aug 26
+Wed Aug 23: player may still be eligible
+Sat Aug 26: suspended bit becomes active
+after Aug 26 fixture: 0x419490 consumes one suspension match
+```
+
+When no future competition fixture context is available, `0x419680` sets the suspended bit whenever the general counter remains nonzero.
+
+### Clean-room implementation
+
+RuntimePlayer now preserves the four normal-league discipline values separately from the boolean availability bit. The autonomous Premier League post-match path reproduces the original three phases in roster/participant order and uses each club's own next unplayed fixture date for the effective-date gate.
+
+Because `base_lineup_eligible()` already rejects `RuntimePlayer.suspended`, the refreshed suspension state automatically feeds the next AI lineup selection.
