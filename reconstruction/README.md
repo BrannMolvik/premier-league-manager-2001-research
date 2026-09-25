@@ -1,6 +1,6 @@
-# FM2001 clean-room reconstruction
+# FM2001 modern runtime reconstruction
 
-This directory contains clean-room code only. It does **not** include EA game data or executable code.
+This directory contains the modern replacement/runtime code used by the Windows 11 port. The directory name is retained for repository stability, but the overall project is no longer restricted to a clean-room-only asset model. Authorized original FM2001 resources may be reused from `../original_assets/` according to `../research/ASSET_POLICY.md`.
 
 The parser reads a user's existing FM2001 files:
 
@@ -17,7 +17,7 @@ python verify.py C:\Games\FM2001
 
 to validate that the files match the analyzed release and that the core parsed invariants still hold. `RUN_PROTOTYPE.cmd` opens the small Tkinter data browser.
 
-## Implemented clean-room systems
+## Implemented modernized systems
 
 The reconstruction is no longer only a parser/browser. Current tested implementation includes:
 
@@ -58,11 +58,11 @@ Known boundaries include:
 - exact league-table tie ordering beyond points / goal difference / goals scored is unresolved and currently uses a deterministic club-ID fallback;
 - persistent-injury availability counting still contains an approximation around original helper `0x405080`;
 - some competition-specific eligibility and user-controlled match setup paths remain incomplete;
-- contracts, transfers, finance/board logic are extensively researched but are not yet implemented as a complete clean-room gameplay loop;
+- contracts, transfers, finance/board logic are extensively researched but are not yet implemented as a complete modern gameplay loop;
 - broader competitions, scouting, youth, and save compatibility remain incomplete;
 - the current UI is a data browser rather than a faithful FM2001 management interface;
 - FastView / 3D presentation remains largely unreconstructed.
 
 The live list is maintained in `../research/FIDELITY_GAPS.md`.
 
-Research evidence, addresses, and confidence levels live under `research/`. Code should only be promoted from deterministic fallback to fidelity claim when executable evidence supports it.
+Research evidence, addresses, and confidence levels live under `research/`. Code should only be promoted from deterministic fallback to fidelity claim when executable evidence supports it. Player-visible resources should preferentially reuse authorized original assets when practical so the final Windows 11 build retains the original game's presentation and feel.
