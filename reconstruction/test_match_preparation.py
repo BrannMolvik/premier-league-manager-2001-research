@@ -6,6 +6,7 @@ from match_orders import TeamOrderPriorities
 from match_preparation import (
     build_prepared_match_side_from_selection,
     prepare_ai_match_selection,
+    prepare_premier_league_ai_match_side,
     prepare_premier_league_ai_selection,
 )
 from match_team_setup import TeamTacticalState
@@ -422,6 +423,104 @@ class AiMatchPreparationTests(unittest.TestCase):
         self.assertEqual(result.formation_id, 0)
         self.assertEqual(result.substitute_quota, 5)
 
+    def test_autonomous_ai_match_side_uses_exact_fresh_backend_defaults(self):
+        @dataclass(frozen=True)
+        class Manager:
+            formation_default: int = 0
+            formation_class3: int = 2
+            formation_class1: int = 1
+
+        @dataclass(frozen=True)
+        class Competition:
+            substitute_quota: int = 5
+            max_non_eu_players: int = 3
+
+        @dataclass(frozen=True)
+        class Row:
+            club_id: int
+            played: int
+            points: int
+
+        roster = formation_zero_roster(club=7)
+        roster.extend(
+            player(11 + i, 7, role, 150)
+            for i, role in enumerate((12, 19, 4, 1, 10))
+        )
+        opponent = formation_zero_roster(club=8)
+        table = [Row(club_id, 10, 20) for club_id in range(1, 21)]
+
+        result = prepare_premier_league_ai_match_side(
+            7,
+            roster,
+            opponent,
+            Manager(),
+            Competition(),
+            table,
+            side=0,
+            is_home=True,
+        )
+
+        self.assertEqual(result.tactical_state, TeamTacticalState())
+        self.assertFalse(result.match_side.attack_context.user_controlled)
+        self.assertFalse(result.match_side.defence_context.user_controlled)
+        self.assertEqual(result.match_side.attack_context.tactic_style, 0)
+        self.assertEqual(result.match_side.defence_context.tactic_style, 0)
+        self.assertEqual(result.match_side.attack_context.match_bias, 2)
+        self.assertEqual(result.match_side.defence_context.match_bias, 2)
+        self.assertEqual(result.match_side.attack_context.aggression, 5)
+        self.assertEqual(len(result.match_side.starting_player_indices), 11)
+        self.assertEqual(len(result.match_side.players), 16)
+
+    def test_autonomous_ai_match_side_preserves_supplied_live_tactics(self):
+        @dataclass(frozen=True)
+        class Manager:
+            formation_default: int = 0
+            formation_class3: int = 2
+            formation_class1: int = 1
+
+        @dataclass(frozen=True)
+        class Competition:
+            substitute_quota: int = 5
+            max_non_eu_players: int = 3
+
+        @dataclass(frozen=True)
+        class Row:
+            club_id: int
+            played: int
+            points: int
+
+        roster = formation_zero_roster(club=7)
+        roster.extend(
+            player(11 + i, 7, role, 150)
+            for i, role in enumerate((12, 19, 4, 1, 10))
+        )
+        opponent = formation_zero_roster(club=8)
+        table = [Row(club_id, 10, 20) for club_id in range(1, 21)]
+        live = TeamTacticalState(
+            play_style=2,
+            without_ball_style=3,
+            with_ball_style=2,
+            aggression=8,
+        )
+
+        result = prepare_premier_league_ai_match_side(
+            7,
+            roster,
+            opponent,
+            Manager(),
+            Competition(),
+            table,
+            side=1,
+            is_home=False,
+            tactical_state=live,
+        )
+
+        self.assertIs(result.tactical_state, live)
+        self.assertEqual(result.match_side.side, 1)
+        self.assertEqual(result.match_side.attack_context.tactic_style, 2)
+        self.assertEqual(result.match_side.defence_context.tactic_style, 3)
+        self.assertEqual(result.match_side.attack_context.match_bias, 1)
+        self.assertEqual(result.match_side.attack_context.aggression, 8)
     def test_incomplete_xi_raises_before_mutating_existing_state(self):
         subject = player(
             1,
