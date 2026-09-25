@@ -2267,3 +2267,19 @@ Consequences:
 This policy change does **not** alter the active technical Gate 2 task. Startup RNG reconstruction remains the immediate blocker before schedule-order fidelity and real-data season integration.
 
 Long-term presentation gates are updated accordingly: the target is to restore the original FM2001 experience, including original login/menu music and interface resources, on top of the modern Windows 11-compatible runtime.
+
+
+## 26 September intro FMV verification checkpoint
+
+A focused presentation audit of the authorized source disc confirmed that the original startup videos are directly reusable:
+
+- `FMV/easp.tgq`: EA Sports logo FMV with embedded stereo EA ADPCM audio;
+- `FMV/premintro.tgq`: approximately 54-second Premier League intro with embedded stereo EA ADPCM audio.
+
+The analyzed executable explicitly calls `easp.tgq` during startup and later calls `PREMINTRO.TGQ` through FMV wrapper `0x461E20`. The Premier intro call uses flag 1 while the EA logo uses flag 0; lower routine `0x461900` uses flag bit 0 to register input callbacks, making a user-skip role for that flag probable.
+
+Modern FFmpeg successfully decoded and converted the complete original `premintro.tgq` to H.264/AAC while preserving its picture/audio content. This establishes that the original intro plus original embedded music/audio is technically straightforward to carry into the Windows 11 port.
+
+Detailed evidence is in `research/STARTUP_PRESENTATION.md`.
+
+This was a side verification only. Gate 2 remains the active technical task.
