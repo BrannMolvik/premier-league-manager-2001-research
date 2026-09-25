@@ -6,9 +6,9 @@ This is the **canonical live resume point**. It is intentionally short. Historic
 
 ## Current gate
 
-**Gate 2 - Finish the startup RNG chain**
+**Gate 3 - Build an executable startup RNG ledger**
 
-Gate 1 (repository stabilization) is complete. See `../ROADMAP.md` for gate definitions and completion criteria.
+Gates 1 and 2 are complete. See `../ROADMAP.md` for gate definitions and completion criteria.
 
 ## Porting mission
 
@@ -25,22 +25,11 @@ Authorized original resources belong under `original_assets/` with provenance tr
 - Latest repository asset-policy validation: `17ee2f299a2a0d87f959b9480df9b48d194de6aa` - **passed**
 - Commits after `1014b042...` are repository-management, documentation, verification/CI hardening, and the Windows 11 port/authorized-asset policy transition. They do not supersede the latest reverse-engineering address/path findings.
 
-## Gate 2 objective
+## Gate 3 objective
 
-Close the remaining mandatory new-game RNG path before the first Premier League schedule shuffle.
+Turn the now-closed seed-to-competition RNG research into one executable replay with fixed-seed intermediate checkpoints, then continue that exact shared CRT stream through primary competition initialization to the first Premier League schedule-bucket shuffle.
 
-The reconstruction already has:
-
-- the exact MSVC CRT RNG primitive;
-- DBRPlayer constructor/startup draws on the shared CRT stream;
-- generated-name and per-user youth RNG helpers;
-- recovered competition/schedule RNG consumers;
-- exact schedule bucket head insertion;
-- descending Fisher-Yates shuffle;
-- fixed Premier League fixture source/insertion order;
-- Premier League schedule-container selection.
-
-What remains is to prove which mandatory RNG consumers can occur **before** the already bounded TeamSelect click-to-new-game path and survive into the first Premier League shuffle state.
+Canonical pre-competition evidence: `STARTUP_RNG_LEDGER.md`.
 
 ## Last verified technical boundary
 
@@ -57,37 +46,28 @@ Therefore the remaining uncertainty has been pushed backward to the TeamSelect p
 
 ## Exact next task
 
-The ordinary first-start path is now closed from application `srand` through the initial PStartMenu and New Game database load:
+Gate 2 is complete. Gate 3 starts from the canonical `STARTUP_RNG_LEDGER.md`.
 
-```text
-srand(seed)
- -> deterministic setup
- -> bground.444 Loader444: exactly 260 raw draws
- -> PREMINTRO.TGQ
- -> deterministic inline PStartMenu construction/idle
- -> deterministic New Game event prefix
- -> DBTPlayers startup RNG
-```
+Implement a high-level startup replay that preserves one shared `MsvcCrtRng` and advances it through:
 
-The first PStartMenu is constructed inline at `0x53120F..0x53129C` with vtable `0x7C64E0`; the generic screen-factory ID `0x323` route is a valid later navigation path but is not required for first creation.
+1. Loader444 first-decode 260 raw calls;
+2. the DBTPlayers constructor/load draw sequence;
+3. `0x414330` generated-name draws;
+4. each linked user's `0x61DF90` youth-generation block.
 
-Final Gate-2 task:
+Add fixed-seed tests that assert the RNG state after each major phase, not merely the final state.
 
-1. assemble/review the complete seed -> Loader444 -> DBTPlayers -> TeamSelect -> `0x413830` -> competition-entry RNG ledger;
-2. state exactly which portions depend on selected human club/options/user count;
-3. update `FINDINGS.md` and the gate checklist;
-4. if the ledger has no remaining pre-competition ambiguity, mark Gate 2 complete and activate Gate 3.
+Then continue the ledger into the already-researched primary/mode-0 competition initialization and first `0x947AD8 / 0x615BE0` bucket shuffle.
 
-Commit the gate transition only after the ledger is internally consistent.
+Commit each implementation/test block separately.
 
-## Gate 2 completion criteria
+## Gate 3 completion criteria
 
-Gate 2 is complete when:
+- [ ] One shared MSVC CRT RNG stream is used for all mapped mandatory startup draws.
+- [ ] Fixed-seed tests verify intermediate state, not only final output.
+- [ ] Legacy Python-RNG fallbacks are removed or isolated where original behavior requires CRT RNG.
+- [ ] Remaining uncertain competition consumers before the first PL shuffle are explicitly documented or resolved.
 
-- [ ] TeamSelect lifetime/activation path is bounded.
-- [ ] Mandatory RNG consumers before schedule initialization are enumerated, or any residual boundary is precisely stated.
-- [ ] The RNG state entering competition/schedule initialization can be described from a known seed for the standard new-game path.
-- [ ] The resulting findings/implementation consequences are committed and reviewed against `FINDINGS.md`.
 
 ## Current implementation state
 
