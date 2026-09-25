@@ -702,3 +702,16 @@ Premier League fixed-fixture scheduling is additionally constrained as follows:
 - the RNG-heavy 0x4FA790 branch belongs to the other mode-1 container and cannot run before the Premier League container is finalized.
 
 League-table equal-points ordering after points / goal difference / goals scored remains unresolved; reconstruction intentionally uses club ID only as a deterministic fallback.
+
+## DBRPlayer startup RNG ordering
+
+Confirmed:
+
+- every runtime player constructor consumes RNG(15) and initializes +0x18E from maximummorale minus that roll; shipped maximummorale is 100;
+- DBTPlayers constructs the complete player array before loading records, so all constructor RNG(15) draws happen first;
+- each loaded player then consumes peak RNG(1), RNG(2), RNG(2), followed by RNG(5);
+- the RNG(5) result becomes a 12/24/36/48/60 month byte at +0xC0 and is used to derive +0x154;
+- the Non-EU startup branch adds no random draw;
+- GameState.from_database now uses MsvcCrtRng for this recovered startup block and retains the same RNG object for subsequent autonomous match simulation unless a caller explicitly supplies a different scripted RNG.
+
+This resolves the Python-Random mismatch identified by the 25 September audit for the currently mapped player-startup block. Exact RNG state at the first Premier League schedule shuffle still depends on other startup RNG consumers not yet audited.

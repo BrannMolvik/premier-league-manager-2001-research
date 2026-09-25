@@ -302,3 +302,18 @@ The date/calendar path strongly establishes that the main age/development recalc
 2. Reproduce the monthly age + training update in clean-room code and validate against known records.
 3. Trace injury/condition interactions with training.
 4. Continue into contracts/transfers/season logic without revisiting the now-resolved training-record identity.
+
+
+## 25 September startup RNG ordering correction
+
+The peak-age formulas were already correct, but direct disassembly now fixes their position in the shared game RNG stream.
+
+DBRPlayer constructor 0x4178D0 pushes bound 15 and later calls 0x64D540 at 0x41797F. The result is subtracted from global byte 0x821C25 and stored at player +0x18E. Global 0x821C25 is loaded from the named tuning key maximummorale; the shipped value is 100. Thus construction performs:
+
+    player+0x18E = 100 - RNG(15)
+
+DBRPlayer load routine 0x418B90 later calls 0x41E970 for the three peak draws and then calls RNG(5) at 0x418EF5. That result is incremented, multiplied by 12, stored at player +0xC0, and used to derive date +0x154. The higher-level semantic label for +0xC0/+0x154 remains unresolved.
+
+DBTPlayers loader 0x421C80 proves table-wide ordering: it invokes its allocation/construction virtual before entering the per-record load loop. Therefore all constructor RNG(15) draws for the full player table occur before any player's three peak draws or post-load RNG(5).
+
+The clean-room GameState now reproduces this two-phase ordering with MsvcCrtRng. RuntimePlayer exposes +0x18E as morale and preserves the unresolved +0xC0 value neutrally as startup_month_span.

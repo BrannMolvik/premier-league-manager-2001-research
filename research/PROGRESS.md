@@ -1853,3 +1853,18 @@ The audit also found documentation drift and one important fidelity risk:
 - RuntimePlayer new-game peak-age initialization uses Python random.Random even though the recovered original initializer uses the same bounded CRT RNG family as the later game. This means formulas are correct in isolation but the global original RNG timeline is not yet reproduced end-to-end.
 
 A new research/PROJECT_AUDIT_2026-09-25.md records the reconciled status and risks. Immediate next work remains exact startup/global RNG sequencing into the Premier League bucket shuffle, followed by real ten-fixture/multi-round/full-season integration tests.
+
+## 25 September shared CRT startup checkpoint
+
+The player-startup RNG fidelity issue from the repository audit is now implemented and tested.
+
+Recovered exact order:
+
+- construct the full DBRPlayer array first, consuming RNG(15) once per player for initial morale;
+- then load players in table order;
+- per loaded player consume RNG(1), RNG(2), RNG(2) for peak ages, then RNG(5) for the unresolved +0xC0 month-span field;
+- Non-EU startup classification consumes no RNG.
+
+GameState.from_database now seeds MsvcCrtRng (explicit seed for deterministic reconstruction, current epoch seconds when omitted), preserves the table-wide two-phase draw order, and stores the live RNG on GameState. Autonomous Premier League methods can continue using this stored stream by default; test callers can still inject scripted RNGs.
+
+CI is green after the implementation. Remaining RNG target: enumerate every other startup RNG consumer between application srand and the first 0x947AD8 / 0x615BE0 Premier League bucket shuffle, then reproduce that sequence before enabling exact default same-day fixture ordering.

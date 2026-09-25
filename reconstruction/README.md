@@ -54,7 +54,7 @@ This remains a reconstruction prototype rather than a complete replacement.
 Known boundaries include:
 
 - the default multi-fixture season loop still uses deterministic fixture-ID order unless an explicit scheduler order is supplied; exact Premier League shuffle ordering requires reproducing the shared original RNG state entering schedule finalization;
-- runtime initialization currently uses Python `random.Random` for peak-age draws even though the original peak initializer calls FM2001's global bounded CRT RNG; formulas are tested, but full new-game RNG sequencing is not yet exact;
+- the recovered DBRPlayer startup RNG block now uses the shared original MSVC CRT stream, but other startup subsystems before schedule finalization still need to be audited before the first Premier League shuffle state is exact;
 - exact league-table tie ordering beyond points / goal difference / goals scored is unresolved and currently uses a deterministic club-ID fallback;
 - some competition-specific eligibility and user-controlled match setup paths remain incomplete;
 - user-specific medical modifiers for injury recovery remain separate;

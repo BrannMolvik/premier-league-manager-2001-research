@@ -3330,3 +3330,19 @@ ScotPremierLeague uses 0x4FAC60 for its first virtual method and follows a diffe
 Global constructors prove the schedule-container modes: 0x615670 calls 0x615700 for 0x947AD8 with byte argument 0; 0x6156C0 calls it for 0x947AF0 with byte argument 1. 0x615700 stores this byte at object+0x14.
 
 At new-game schedule setup 0x4F7F08, 0x616620 is invoked first for 0x947AD8 and then for 0x947AF0, both with call argument 1. Within 0x616620 the 0x4FA790 call at 0x616755 is conditional on object+0x14, so it is skipped for 0x947AD8 and taken for 0x947AF0. The first container reaches 0x615BE0 before the second-container 0x4FA790 calls can advance CRT rand state.
+
+## DBRPlayer new-game RNG block
+
+Direct startup tracing extends the known global RNG timeline.
+
+Constructor 0x4178D0 leaves literal bound 15 on the stack until the 0x64D540 call at 0x41797F. It subtracts the returned byte from global 0x821C25 and stores the result at DBRPlayer+0x18E. The tuning loader at 0x505841..0x505877 identifies 0x821C25 as maximummorale; shipped value 100.
+
+Loader 0x418B90 calls development initializer 0x41E970 at 0x418EC2, consuming the shipped peak bounds RNG(1), RNG(2), RNG(2). Immediately afterward 0x418EF5 calls RNG(5); (roll+1)*12 is stored at DBRPlayer+0xC0 and feeds date construction at +0x154.
+
+DBTPlayers load function 0x421C80 first invokes virtual +0x08 to allocate/construct the complete 0x250-byte player array, and only then loops the array calling 0x418B90. For N players, the currently proven order is therefore:
+
+    N x RNG(15)
+    then for each player in table order:
+        RNG(1), RNG(2), RNG(2), RNG(5)
+
+The Non-EU startup path 0x421D4B -> 0x421760 -> 0x417A20 does not call 0x64D540. 0x417A20 sets DBRPlayer bit 11 and creates/inserts the CNonEUPlayer record without an RNG draw.
