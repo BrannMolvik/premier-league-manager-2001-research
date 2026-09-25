@@ -2168,3 +2168,35 @@ is now strictly:
 Next target: walk backward from the sole caller `0x4DA4A5` in
 `PMain@TeamSelect`, then identify where that panel/new-game flow first enters
 the already-reconstructed player/database startup sequence.
+
+
+## 25 September TeamSelect start-button RNG boundary checkpoint
+
+The immediate pre-`0x4C41C0` event-dispatch gap is now closed.
+
+Confirmed:
+
+- RTTI identifies `0x4DA480` as the `PMain@TeamSelect` virtual event
+  callback at vtable slot `+0x10`;
+- event/control ID `0x2A` is the branch that calls `0x4C41C0` at
+  `0x4DA4A5`;
+- the embedded TeamSelect control at `+0x3690` is
+  `Button@ease_2001`;
+- its setup stores ID `0x2A` and the TeamSelect owner;
+- the generic Button input path calls TeamSelect `+0x0C` first
+  (concrete `0x5CFA50`, constant true), performs deterministic UI/sound
+  handling and state mutation, then dispatches TeamSelect `+0x10`;
+- the Button setup chain forces its optional `+0x28` callback pointer to
+  zero, removing the last opaque pre-parent state-change callback;
+- no known CRT RNG entry point is called directly anywhere in the TeamSelect
+  method range `0x4D7CC0..0x4DA4D0`.
+
+Therefore the concrete click-to-new-game path consumes **zero RNG draws**
+before `0x4C41C0`.
+
+This pushes the remaining first-PL-shuffle uncertainty farther backward again:
+the next target is the TeamSelect panel lifetime/activation path before the user
+clicks Start/Continue. Trace panel construction/activation and its caller chain
+back to the already-recovered database/player startup sequence, looking only
+for mandatory CRT RNG consumers that can survive until the first schedule
+shuffle.
