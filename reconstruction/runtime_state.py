@@ -118,6 +118,10 @@ class RuntimePlayer:
     selection_excluded: bool = False
     non_eu: bool = False
     eu_status_code: int = PLAYER_EU_STATUS_EU
+    discipline_yellow_total: int = 0
+    discipline_yellow_cycle: int = 0
+    suspension_matches_remaining: int = 0
+    suspension_effective_date: date | None = None
 
     @classmethod
     def from_database_player(
