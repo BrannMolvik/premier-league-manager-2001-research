@@ -68,6 +68,7 @@ class Club:
     short_name: str
     stadium: str
     manager_id: int
+    competition_id: int = 0
     country_id: int = 0
     runtime_value_1c_source: int = 0
     team_category_code: int = 0
@@ -247,6 +248,7 @@ class FM2001Database:
         for i in range(club_count):
             r = d[club_start + i * CLUB_RECORD_SIZE: club_start + (i + 1) * CLUB_RECORD_SIZE]
             name_id, short_id = struct.unpack_from('<HH', r, 4)
+            competition_id = struct.unpack_from('<I', r, 8)[0]
             country_id = struct.unpack_from('<I', r, 12)[0]
             runtime_value_1c_source = struct.unpack_from('<I', r, 18)[0]
             stadium_id = struct.unpack_from('<H', r, 30)[0]
@@ -258,6 +260,7 @@ class FM2001Database:
                 self.english.get(short_id),
                 self.english.get(stadium_id),
                 manager_id,
+                competition_id,
                 country_id,
                 runtime_value_1c_source,
                 team_category_code,
