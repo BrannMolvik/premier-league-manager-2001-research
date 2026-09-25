@@ -4900,9 +4900,11 @@ The remaining argument-1 calls (`0x403640`, `0x404050`, `0x403FF0`, `0x4F3240`, 
 
 A recursive direct-call audit from `0x50EA90` (including `0x50EB90`) reaches no known game CRT RNG entry point. `0x50ED20`, one of its setup helpers, simply fills the 40-entry team array with -1 and zeros the count.
 
-### Primary competition RNG consequence
+### Primary competition RNG consequence — SUPERSEDED
 
-The previously recovered competition initialization remains the only mapped RNG before the primary `0x615BE0` call:
+> **Superseded 26 September 2026:** the two Europe selectors below are real, but they are not the only pre-`0x615BE0` consumers. Cup round scheduling virtuals also perform mandatory participant-array shuffles before the final primary bucket shuffle. See the correction below.
+
+The previously recovered selector contribution is:
 
 ```text
 Champions League ID 9: RNG(6)
@@ -4922,3 +4924,132 @@ RNG(6)
 
 This closes the primary competition/team-finalization RNG boundary for Gate 3.
 
+
+
+## Primary Cup round scheduler RNG correction and exact state cost
+
+**Confirmed 26 September 2026 from RTTI, direct disassembly, round constructors,
+Cup initialization flow, and canonical Static.dat.**
+
+This supersedes the older two-draw-only pre-`0x615BE0` state claim.
+
+### Runtime round classes
+
+Packed round type codes resolve directly to:
+
+```text
+type 1 = NormalRound    scheduler 0x4F64D0
+type 2 = TwoLegRound    scheduler 0x4F6820
+type 3 = MiniLeagueRound scheduler 0x4F6B10
+```
+
+Cup initialization at `0x4F62B1..0x4F6321` calls each runtime round's
+scheduling virtual before control returns to primary `0x616620` and before
+`0x615BE0`.
+
+All three schedulers begin by Fisher-Yates shuffling their current participant
+array. For runtime count N>1 the mandatory bound sequence is:
+
+```text
+RNG(N), RNG(N-1), ..., RNG(2)
+```
+
+so every active round contributes exactly **N-1 CRT calls**.
+
+### Runtime N equals the packed round team count at scheduling time
+
+`DBRRound` loading maps:
+
+```text
+runtime +0x20 <- Static.dat round +24 team_count
+runtime +0x22 <- Static.dat round +26 new_entrants
+```
+
+Base round constructor `0x4F5380` allocates `team_count * 0x10` bytes,
+zeros current participant count at `+0x0C`, stores capacity/team count at
+`+0x10`, and stores new-entrant quota at `+0x14`.
+
+`0x4F5570` appends one participant/reference and increments `+0x0C`.
+Direct Cup allocation `0x4F5790` fills each round to its new-entrant quota.
+NormalRound/TwoLegRound schedulers pass winner references into the next round;
+MiniLeagueRound likewise fills the next round toward its capacity.
+
+Canonical Static.dat is internally consistent with those transitions, so every
+primary Cup round is scheduled with N equal to its packed `team_count`.
+
+### Flag-controlled secondary shuffle adds no primary-root draw
+
+The Cup scheduler call passes `next_round`, round index and a flag. Root
+primary Cups can set that flag on the final round, but the later secondary
+shuffle also requires a non-null `next_round`. The final root round has
+`next_round == null`, so that optional path does not add a draw.
+
+No additional primary-root secondary round shuffle is therefore added to the
+mandatory count.
+
+### Canonical primary Cup total
+
+Canonical data contains:
+
+```text
+27 primary-container Cups
+115 Cup rounds total
+ 80 NormalRound
+ 32 TwoLegRound
+  3 MiniLeagueRound
+```
+
+Summing `team_count - 1` across all 115 rounds gives:
+
+```text
+1,737 mandatory Cup round-pairing CRT calls
+```
+
+The two already-proven Europe-root selector calls still occur:
+
+```text
+Champions League selector: 1 call (RNG(6))
+UEFA Cup selector:         1 call (RNG(6))
+```
+
+Therefore primary competition initialization advances the hidden CRT state by
+exactly:
+
+```text
+1,737 + 2 = 1,739 calls
+```
+
+before `0x615BE0`.
+
+### Corrected synthetic checkpoint
+
+For the existing synthetic precompetition checkpoint:
+
+```text
+state after youth = 0x2797444C
+```
+
+advancing the canonical 1,739 primary-competition calls yields:
+
+```text
+state entering primary 0x615BE0 = 0x986E4579
+```
+
+The old `0x5D07D526` value represented only two calls and is superseded.
+
+### Fidelity distinction
+
+The hidden MSVC CRT state can be reproduced exactly from the total number of
+bounded calls because every `0x64D540` invocation advances the same LCG once,
+regardless of its bound/result.
+
+However, exact Cup pair identities require the real **interleaving and bounds**
+of:
+
+- root competition initialization;
+- Europe selector calls;
+- each Cup's sorted round order;
+- each round's Fisher-Yates outputs.
+
+That bounded-output ordering is the remaining reopened Gate-3 task before
+Gate 4 uses the resulting Cup fixtures for exact global bucket placement.
