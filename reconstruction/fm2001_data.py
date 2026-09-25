@@ -137,6 +137,7 @@ class Position:
 class CompetitionDefinition:
     id: int
     name: str
+    substitute_quota: int
     max_non_eu_players: int
 
 @dataclass(frozen=True)
@@ -332,6 +333,7 @@ class FM2001Database:
             self.competitions.append(CompetitionDefinition(
                 id=struct.unpack_from('<I', r, 0)[0],
                 name=self.english.get(struct.unpack_from('<H', r, 12)[0]),
+                substitute_quota=r[17],
                 max_non_eu_players=r[34],
             ))
 
