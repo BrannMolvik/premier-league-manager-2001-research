@@ -10,11 +10,11 @@ from typing import Iterable, Protocol
 
 from competition_startup import (
     ClubSource as CompetitionClubSource,
-    CompetitionSource,
     CountrySource as CompetitionCountrySource,
-    PrimaryMode0PreShuffleStateReplay,
-    RoundSource,
-    replay_primary_mode0_pre_shuffle_state,
+    OrderedCompetitionSource,
+    OrderedRoundSource,
+    PrimaryMode0OrderedCompetitionRngReplay,
+    replay_primary_mode0_ordered_competition_rng,
 )
 from startup_rng import (
     GeneratedNameCountrySource,
@@ -48,7 +48,7 @@ class StartupToPrimaryShuffleReplay:
     """All recovered checkpoints through entry to primary 0x615BE0."""
 
     precompetition: PrecompetitionStartupRngReplay
-    primary_competition_state: PrimaryMode0PreShuffleStateReplay
+    primary_competition_state: PrimaryMode0OrderedCompetitionRngReplay
     state_entering_primary_shuffle: int
 
 
@@ -59,14 +59,15 @@ def replay_startup_rng_to_primary_shuffle(
     players: Iterable[StartupPlayerSource],
     selected_user_country_id: int,
     users: Iterable[StartupUserRngConfig],
-    competitions: Iterable[CompetitionSource],
-    rounds: Iterable[RoundSource],
+    competitions: Iterable[OrderedCompetitionSource],
+    rounds: Iterable[OrderedRoundSource],
 ) -> StartupToPrimaryShuffleReplay:
     """Advance one shared RNG through every mapped state change before 0x615BE0.
 
-    The competition phase currently replays the exact hidden CRT-state advance
-    from primary Cup pairing shuffles plus the two Europe selectors. Exact Cup
-    pairing outputs/interleaving are tracked separately from this state ledger.
+    The competition phase replays the recovered bounded-call ordering across
+    primary Cup participant shuffles and Europe selectors. The mandatory
+    Fisher-Yates slot permutations are materialized; the later participant
+    record qsort still separates those permutations from final club pairings.
     """
 
     club_list = tuple(clubs)
@@ -84,7 +85,7 @@ def replay_startup_rng_to_primary_shuffle(
         selected_user_country_id=int(selected_user_country_id),
         users=user_list,
     )
-    primary_competition_state = replay_primary_mode0_pre_shuffle_state(
+    primary_competition_state = replay_primary_mode0_ordered_competition_rng(
         rng,
         competition_list,
         round_list,
