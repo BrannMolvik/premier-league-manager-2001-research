@@ -2454,3 +2454,38 @@ All Gate-2 completion criteria are satisfied:
 - findings and implementation consequences committed.
 
 Gate 3 is now active. Its first task is to compose the existing Loader444, DBTPlayers, generated-name and youth replay pieces into one executable startup ledger with fixed-seed intermediate-state tests, then extend through primary competition initialization toward the first Premier League schedule-bucket shuffle.
+
+
+## 26 September Gate 3 precompetition replay checkpoint
+
+The Gate-2 ledger is now executable as one shared-CRT replay rather than a set of independent helpers.
+
+Implemented in `reconstruction/startup_rng.py`:
+
+- `consume_dbtplayers_startup_rng(rng, player_count)`, preserving the two-phase DBTPlayers order;
+- `StartupUserRngConfig`;
+- `PrecompetitionStartupRngReplay` phase-checkpoint result;
+- `replay_precompetition_startup_rng(...)`, which advances one shared RNG through Loader444 -> DBTPlayers -> `0x414330` names -> all linked-user youth blocks.
+
+Tests now verify exact intermediate MSVC states, not only call counts.
+
+For synthetic seed `0x12345678` with 25 players/two users:
+
+```text
+after Loader444:  0xC526B5BC
+after DBTPlayers: 0x7B7B62DB
+after team names: 0x0C18030B
+after youth:      0x2797444C
+```
+
+The shipped-size DBTPlayers checkpoint is also locked:
+
+```text
+seed 0x12345678
+ -> Loader444 state 0xC526B5BC
+ -> 30,064-player DBTPlayers state 0x8FF8E56C
+```
+
+GitHub Actions at `52d5b4c2eaa9535a67a73b484e712fe0043306b5` passes **312 tests**.
+
+Next Gate-3 task: close the residual primary-container team-setup audit, then model the already-recovered Champions League `RNG(6)` -> UEFA Cup `RNG(6)` sequence and establish the exact shared CRT state entering `0x615BE0`.
