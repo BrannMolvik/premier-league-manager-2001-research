@@ -4211,3 +4211,63 @@ Result: the concrete Start/Continue button dispatch itself consumes **zero CRT
 RNG draws** before entering `0x4C41C0`. The next startup-RNG audit boundary
 must therefore move earlier in the TeamSelect panel lifetime / activation path,
 rather than searching between the click callback and `0x4C41C0`.
+
+
+## TeamSelect construction is downstream of DBTPlayers startup RNG
+
+**Confirmed from direct disassembly of the PStartMenu event path, 26 September 2026.**
+
+The event handler at `0x4C3770` dispatches on `[event+0x20] - 1` through the jump table at `0x4C3EA4`. Jump-table entry 1 therefore maps **event/control ID 2** to branch `0x4C37C7`.
+
+That branch is the new-game/startup route that eventually creates `PMain@TeamSelect`. Its relevant order is:
+
+```text
+PStartMenu event handler 0x4C3770
+  event/control ID 2
+  -> branch 0x4C37C7
+  ...
+  -> 0x4C392F call 0x50D630
+  ...
+  -> allocate 0x36DC bytes at 0x4C3992
+  -> 0x4C39B0 call 0x4D9290   ; PMain@TeamSelect constructor
+  -> 0x653320 window/panel setup
+  -> 0x5329A0 register/activate panel
+```
+
+### 0x50D630 is the core database/runtime loader on this path
+
+Inside `0x50D630`, the original executable calls the major runtime-table loaders in this order:
+
+```text
+0x40B9C0  clubs
+0x413890  adjacent table/setup
+0x4218C0  DBTPlayers
+0x415B70  managers
+```
+
+The already-mapped `DBTPlayers` loader `0x4218C0 -> 0x421C80` performs the recovered startup RNG sequence:
+
+```text
+all DBRPlayer constructors:
+  N x RNG(15)
+
+then each loaded player in table order:
+  RNG(1), RNG(2), RNG(2), RNG(5)
+```
+
+Therefore those player-startup draws occur **before the TeamSelect object is even allocated or constructed**.
+
+This connects the previously separate DBRPlayer startup RNG work to the concrete TeamSelect/new-game caller chain.
+
+### TeamSelect constructor boundary
+
+`PMain@TeamSelect` constructor `0x4D9290` is called directly from `0x4C39B0`.
+
+A direct-call audit of `0x4D9290..0x4D973F` finds no direct calls to the known CRT RNG entry points `0x64D530/0x64D540/0x64D5B0/0x66951C`. The constructor is dominated by embedded control construction and deterministic setup; it also calls already-resolved `0x6596A0`.
+
+**Caution:** this establishes the constructor's direct boundary, not yet a complete transitive proof for every helper it invokes. The remaining Gate-2 work is now narrower:
+
+1. audit the non-player loaders and setup calls in/around `0x50D630` for additional mandatory RNG consumers;
+2. audit the pre-`0x50D630` ID-2 branch helpers;
+3. close the TeamSelect constructor/activation helper graph transitively where necessary.
+
