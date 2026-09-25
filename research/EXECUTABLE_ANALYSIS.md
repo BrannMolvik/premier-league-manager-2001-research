@@ -4111,3 +4111,43 @@ This removes another source of ambiguity from the pre-`0x413830` startup
 ledger. The remaining work in `0x4C41C0..0x4C42EE` is limited to finishing
 the transitive audit of the larger `0x432A20` UI/team refresh and the
 remaining deterministic setup helpers around it.
+
+
+## `0x432A20` TeamSelect refresh is RNG-clean
+
+**Confirmed; closes the last substantial ambiguity in the immediate
+pre-`0x413830` TeamSelect refresh.**
+
+The direct call graph reachable from `0x432A20` contains no call to either
+original random entry point `0x64D530` or bounded wrapper `0x64D540`.
+The routine is a TeamSelect/user-team UI refresh: it rebuilds a small cached
+resource object, updates team-derived display state, writes control values and
+invalidates/redraws controls.
+
+The one indirect call in `0x432A20` is at `0x432B77` on the control stored
+at user `+0x240`.
+
+That control is constructed with vtable `0x7BE5D8`; virtual slot `+0x30`
+therefore resolves to `0x64F510`. Its setup at `0x4305D1..0x4305FD`
+passes zero for the `0x64F380` callback-mask field stored at control
+`+0x1C`. Consequently:
+
+```text
+0x432B77
+  -> 0x64F510
+  -> concrete +0x0C = 0x64F3E0(argument=1)
+  -> 0x64F710(state bit 1)
+```
+
+cannot take the optional opaque callback branch guarded by
+`requested_bit & control+0x1C`, because `control+0x1C == 0`.
+The remaining invalidation/layout path is deterministic and contains no RNG.
+
+Together with the already-resolved `0x432D20` control refresh, the
+PMain@TeamSelect destructor and the constant-zero `0x6596A0` branch, this
+means the entire `0x4C41C0..0x4C42EE` prefix is now accounted for as
+zero-draw on the mandatory new-game path.
+
+Therefore the first RNG activity inside `0x4C41C0` remains the known
+`0x413830` generated-name/youth block at `0x4C4304`; no earlier
+TeamSelect UI refresh in the same routine advances the CRT stream.
