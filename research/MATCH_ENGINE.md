@@ -4029,3 +4029,98 @@ Premier League bucket receives the shared CRT stream.
 This means the exact state at entry to `0x615BE0`, now recovered in Gate 3,
 must be combined with exact final bucket populations/order to reproduce Premier
 League same-day execution order.
+
+
+## Exact ordinary LeagueMatch conflict placement
+
+**Confirmed from `0x615790`, `0x615890`, `0x615950`, LeagueMatch vtable
+`0x7C4C24`, and overlap method `0x510A80`.**
+
+For ordinary LeagueMatch nodes, schedule insertion does more than head-insert at
+the nominal week/day bucket.
+
+### Same-team conflict predicate
+
+`0x615790` scans the existing linked list in one bucket. For each normal
+unflagged node it dispatches virtual slot 0.
+
+For LeagueMatch vtable `0x7C4C24`:
+
+```text
+slot +0x00 = 0x510A80
+slot +0x04 = 0x510A40
+slot +0x18 = 0x6559A0
+```
+
+`0x510A80(existing, candidate)` calls the candidate's `+0x04` predicate
+against both existing team wrappers at `existing+0x14` and
+`existing+0x28`. The result is true iff the two matches share either club.
+
+The generic bucket scan skips nodes when node `+0x08 != 0` or when bit 6 of
+the flags returned through virtual `+0x18` is set. Normal freshly-created
+LeagueMatch nodes enter with those skip conditions clear.
+
+### Neighbor search: 0x615890
+
+For a center bucket C, `0x615890` scans in this exact order:
+
+```text
+max(C-1, 0)
+C
+C+1                 # when within the container
+```
+
+and returns the first conflicting bucket index.
+
+Thus a candidate cannot be placed on a center day whose ±1-day neighborhood
+already contains a normal match involving either club.
+
+### Outward placement: 0x615950
+
+Let T be the nominal target. If `0x615890(T)` finds no conflict, insertion
+stays at T.
+
+If the first conflict is at C:
+
+```text
+lower = C - 2
+upper = C + 2
+```
+
+The routine repeatedly compares:
+
+```text
+T - lower
+upper - T
+```
+
+It probes the lower side only when it is **strictly closer** and its boundary
+conditions pass. Otherwise it probes the upper side. Therefore an equal-distance
+tie prefers the **later** side.
+
+If the probed center still has a ±1 conflict:
+
+- lower probe: `lower = conflicting_index - 2`;
+- upper probe: `upper = conflicting_index + 2`;
+
+and the distance comparison repeats.
+
+The first clear center becomes the final bucket, after which `0x615950`
+head-inserts the node and stores the selected schedule index at node `+0x10`.
+
+### Reconstruction implementation
+
+`reconstruction/match_schedule.py` now contains:
+
+- `ordinary_league_matches_conflict`;
+- `first_ordinary_league_conflict_near`;
+- `choose_ordinary_league_schedule_bucket`;
+- `insert_ordinary_league_match`.
+
+Tests cover previous/current/next scan order, no-conflict placement, later-side
+tie preference, earlier-side preference when closer, repeated outward conflict
+handling, and final head insertion.
+
+This helper is deliberately scoped to ordinary unflagged LeagueMatch nodes;
+other schedule-node classes must not be assumed to share the same virtual
+overlap semantics without proof.
