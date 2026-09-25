@@ -2657,3 +2657,30 @@ pressure = trunc(points_gap / matches_remaining + 0.499) + objective_base_bias
 If more than `GSReallyWorryingAboutLeaguePos` matches remain (default 4), that pressure is halved with signed truncation toward zero. In the final four matches it is used at full value.
 
 The clean-room helpers in `match_team_setup.py` now reproduce the final class bucket, relative-rating step, aggregate-deficit step, cup-round bias and common late-season objective arithmetic. The remaining higher-level task is to reproduce the exact competition helper that decides which objective gap is active for a given club/table state.
+## Exact competition substitute quota source
+
+**Confirmed from RTTI, DBRCompetition deserialization and runtime Competition construction.**
+
+The object stored at the current match's `+0x4C` pointer is a runtime `Competition` object (MSVC RTTI `.?AVCompetition@@`), not a Round object. Team helper `0x408500(team)` returns:
+
+```text
+current_match->competition_context->+0x1C
+```
+
+and falls back to **5** when no current match/context can be resolved.
+
+The value's source is now exact:
+
+1. `DBRCompetition` binary reader `0x40F760` reads packed Static.dat competition byte **+17** into runtime `DBRCompetition+0x18`;
+2. `Competition` constructor `0x4F3BE0` sign-extends `DBRCompetition+0x18` and stores it at `Competition+0x1C`;
+3. `0x408500` returns that dword unchanged as the first-team substitute quota passed to `0x409C90`.
+
+Across all 193 shipped competition records, packed byte +17 contains only:
+
+```text
+0, 3, 5, 7
+```
+
+The shipped Premier League, competition ID 0, stores **5**.
+
+This removes the last unknown source for the bench-size argument in the normal AI lineup path. The clean-room `CompetitionDefinition` now exposes `substitute_quota` directly from Static.dat +17.
