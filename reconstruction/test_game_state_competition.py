@@ -228,6 +228,10 @@ class IntegratedGameStateTests(unittest.TestCase):
         self.assertEqual(away.match_side.attack_context.tactic_style, 0)
         self.assertFalse(home.match_side.attack_context.user_controlled)
         self.assertFalse(away.match_side.attack_context.user_controlled)
+        environment = state.prepared_match_environments[0]
+        self.assertEqual(environment.temperature_c, 30)
+        self.assertEqual(environment.weather_code, 1)
+        self.assertFalse(environment.weekday_evening)
         self.assertTrue(
             all(player.condition == 95 for player in state.ordered_club_roster(1))
         )
@@ -254,6 +258,10 @@ class IntegratedGameStateTests(unittest.TestCase):
         stored = state.premier_league.results[0]
         self.assertEqual((stored.home_goals, stored.away_goals), result.score)
         self.assertEqual(sum(row.played for row in state.premier_league_table()), 2)
+        # July 1 is a hot/non-rain weather state, so the home pitch receives
+        # the exact normal PitchWear increment of 16.
+        self.assertEqual(state.pitch_wear[1], 16)
+        self.assertEqual(state.pitch_wear[2], 0)
         # With midpoint RNG, neutral-form starters fail the 5% transition on
         # their first post-match draw. Eleven starters per side therefore add
         # exactly 22 trailing RNG(100) calls after the calculator finishes.
@@ -264,6 +272,21 @@ class IntegratedGameStateTests(unittest.TestCase):
         self.assertTrue(
             all(player.form_state == 2 for player in state.ordered_club_roster(2))
         )
+    def test_daily_ai_pitch_recovery_uses_exact_base_value(self):
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 1),
+            seed=1,
+            season_year=2000,
+        )
+        state.pitch_wear[1] = 16
+        state.pitch_wear[2] = 1
+
+        state.advance_one_day()
+
+        self.assertEqual(state.pitch_wear[1], 14)
+        self.assertEqual(state.pitch_wear[2], 0)
+
     def test_due_fixture_can_be_simulated_and_written_to_table(self):
         state = GameState.from_database(
             FakeDatabase(),
