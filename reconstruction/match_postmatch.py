@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date, timedelta
 from typing import Protocol, Sequence
 
 from match_events import IncidentKind, IncidentRecord, SubstitutionRecord
@@ -21,6 +22,14 @@ class MutablePostMatchPlayer(Protocol):
     condition: int
     form_state: int
     injured: bool
+
+
+class MutableLeagueDisciplinePlayer(Protocol):
+    suspended: bool
+    discipline_yellow_total: int
+    discipline_yellow_cycle: int
+    suspension_matches_remaining: int
+    suspension_effective_date: date | None
 
 
 @dataclass(frozen=True)
@@ -121,9 +130,9 @@ def persist_post_match_side(
     0x5127A0/0x41A5B0. Form update 0x41B870 is then run once for every player
     who actually appeared, in participant/roster order.
 
-    Suspension/card counters are deliberately not handled here until the
-    0x419490/0x4197C0/0x419680 competition-specific persistence path is fully
-    reconstructed.
+    Premier League suspension/card persistence is handled separately by
+    persist_premier_league_discipline(), because the executable processes the
+    entire club roster before and after its participant-card loop.
     """
     prepared = tuple(side.players)
     runtime = tuple(runtime_participants)
@@ -169,3 +178,183 @@ def persist_post_match_side(
         appeared_player_indices=appeared,
         injured_player_indices=frozenset(injured),
     )
+
+@dataclass(frozen=True)
+class LeagueDisciplineSummary:
+    served_player_count: int
+    booked_player_indices: frozenset[int]
+    sent_off_player_indices: frozenset[int]
+    suspended_for_next_fixture_count: int
+
+
+def serve_league_suspension_after_fixture(
+    player: MutableLeagueDisciplinePlayer,
+    fixture_date: date,
+) -> bool:
+    """Exact normal-League 0x419490 general-suspension branch.
+
+    The routine first clears the persistent suspended bit. If the general
+    DBRPlayer+0x13B counter is nonzero and its +0x160 effective date is not
+    later than the just-played fixture date, exactly one suspension match is
+    consumed. New cards from the current match are processed only afterwards.
+    """
+    player.suspended = False
+    remaining = int(player.suspension_matches_remaining) & 0xFF
+    if remaining == 0:
+        return False
+
+    effective = player.suspension_effective_date
+    if effective is not None and effective > fixture_date:
+        return False
+
+    player.suspension_matches_remaining = (remaining - 1) & 0xFF
+    return True
+
+
+def apply_league_match_discipline(
+    player: MutableLeagueDisciplinePlayer,
+    bookings: int,
+    dismissals: int,
+    fixture_date: date,
+    rng: BoundedRng,
+) -> None:
+    """Exact normal-League card-to-suspension arithmetic from 0x4197C0.
+
+    DBRPlayer fields:
+      +0x139 cumulative booking counter,
+      +0x13A rolling five-booking counter,
+      +0x13B general suspension matches remaining,
+      +0x160 suspension effective date.
+
+    The executable processes dismissal first, then bookings. A new suspension
+    created while no existing general suspension remains receives an effective
+    date exactly seven days after the current match.
+    """
+    bookings = int(bookings) & 0xFF
+    dismissals = int(dismissals) & 0xFF
+
+    if dismissals:
+        remaining = int(player.suspension_matches_remaining) & 0xFF
+        if remaining == 0:
+            player.suspension_effective_date = fixture_date + timedelta(days=7)
+
+        # Exact 0x64D540(3): zero -> +3 matches, nonzero -> +1 match.
+        addition = 3 if int(rng.randbelow(3)) == 0 else 1
+        player.suspension_matches_remaining = (remaining + addition) & 0xFF
+
+    if not bookings:
+        return
+
+    total = int(player.discipline_yellow_total) & 0xFF
+    cycle = int(player.discipline_yellow_cycle) & 0xFF
+    remaining = int(player.suspension_matches_remaining) & 0xFF
+
+    # Exact pre-increment modulo-13 branch at 0x41991E..0x419969.
+    if total % 13 == 12:
+        if remaining == 0:
+            player.suspension_effective_date = fixture_date + timedelta(days=7)
+        remaining = (remaining + 3) & 0xFF
+
+    total = (total + bookings) & 0xFF
+    cycle = (cycle + bookings) & 0xFF
+
+    # The original performs one threshold check/subtraction, not a loop.
+    if cycle >= 5:
+        cycle = (cycle - 5) & 0xFF
+        if remaining == 0:
+            player.suspension_effective_date = fixture_date + timedelta(days=7)
+        remaining = (remaining + 1) & 0xFF
+
+    player.discipline_yellow_total = total
+    player.discipline_yellow_cycle = cycle
+    player.suspension_matches_remaining = remaining
+
+
+def refresh_league_suspension_for_next_fixture(
+    player: MutableLeagueDisciplinePlayer,
+    next_fixture_date: date | None,
+) -> bool:
+    """Exact normal-League 0x419680 suspended-bit refresh.
+
+    With a known next competition fixture, the bit is set only when the general
+    suspension counter is nonzero and its effective date is on/before that next
+    fixture. With no fixture context the original sets the bit whenever the
+    counter is nonzero.
+    """
+    remaining = int(player.suspension_matches_remaining) & 0xFF
+    if remaining == 0:
+        player.suspended = False
+        return False
+
+    if next_fixture_date is None:
+        player.suspended = True
+        return True
+
+    effective = player.suspension_effective_date
+    player.suspended = effective is None or effective <= next_fixture_date
+    return bool(player.suspended)
+
+
+def persist_premier_league_discipline(
+    roster: Sequence[MutableLeagueDisciplinePlayer],
+    participants: Sequence[MutableLeagueDisciplinePlayer],
+    side: int,
+    result: NormalMatchResult,
+    fixture_date: date,
+    next_fixture_date: date | None,
+    rng: BoundedRng,
+) -> LeagueDisciplineSummary:
+    """Reproduce the normal-League post-match discipline ordering in 0x5127A0.
+
+    Phase 1: 0x419490 over the complete team roster, serving an already-active
+    suspension against the match just played.
+
+    Phase 2: 0x4197C0 over MatchCalculator participants in participant order,
+    using type-5 BOOKED/SENT_OFF records as the clean-room equivalent of the
+    original participant +0x48/+0x49 counters.
+
+    Phase 3: 0x419680 over the complete roster, setting availability for the
+    next competition fixture according to the seven-day effective-date gate.
+    """
+    side = int(side)
+    if side not in (0, 1):
+        raise ValueError("side must be 0 or 1")
+
+    served = sum(
+        int(serve_league_suspension_after_fixture(player, fixture_date))
+        for player in roster
+    )
+
+    bookings: dict[int, int] = {}
+    dismissals: dict[int, int] = {}
+    for timed in result.events:
+        event = timed.event
+        if not isinstance(event, IncidentRecord) or int(event.player_side) != side:
+            continue
+        local_index = int(event.player_index)
+        if event.kind is IncidentKind.BOOKED:
+            bookings[local_index] = bookings.get(local_index, 0) + 1
+        elif event.kind is IncidentKind.SENT_OFF:
+            dismissals[local_index] = dismissals.get(local_index, 0) + 1
+
+    for local_index, player in enumerate(participants):
+        apply_league_match_discipline(
+            player,
+            bookings.get(local_index, 0),
+            dismissals.get(local_index, 0),
+            fixture_date,
+            rng,
+        )
+
+    suspended_count = sum(
+        int(refresh_league_suspension_for_next_fixture(player, next_fixture_date))
+        for player in roster
+    )
+
+    return LeagueDisciplineSummary(
+        served_player_count=served,
+        booked_player_indices=frozenset(bookings),
+        sent_off_player_indices=frozenset(dismissals),
+        suspended_for_next_fixture_count=suspended_count,
+    )
+
