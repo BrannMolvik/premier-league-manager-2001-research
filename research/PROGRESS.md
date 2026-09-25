@@ -2105,3 +2105,34 @@ competition initialization, then the PL schedule-bucket shuffle.
 Next target returns to the actual new-game call graph: finish the pre-
 `0x4F7C00` transitive audit and then move backward from `0x4C42EE` toward
 Master/Static loading to enumerate any remaining mandatory RNG consumers.
+
+
+## 25 September immediate pre-schedule RNG-clean checkpoint
+
+The mandatory new-game path immediately before schedule setup is now narrower.
+
+Direct disassembly proves:
+
+- `0x4C42EE -> 0x4E2EB0`: user-list cleanup only, zero RNG draws;
+- `0x4C42FA -> 0x5328B0`: controller/UI synchronization only, zero RNG draws;
+- `0x4C4304 -> 0x413830`: the already-recovered generated-name and per-user
+  youth RNG block;
+- `0x4C4379 -> 0x4F7380`: deterministic competition/country runtime graph
+  construction, zero RNG draws;
+- `0x4C4381 -> 0x4F7C00`: schedule/competition initialization begins.
+
+The potentially opaque virtual calls inside `0x4F7380` were resolved far
+enough to exclude hidden random consumption: class-code getters are constant
+returns, round-attachment handlers only allocate/link data, and post-build
+handlers only perform deterministic qsort operations.
+
+Consequently the CRT state leaving `0x413830` reaches `0x4F7C00`
+unchanged. The remaining first-Premier-League-shuffle uncertainty is now
+confined to RNG consumers earlier than `0x4C42EE` plus the already-mapped
+RNG-active competition/schedule paths under `0x4F7C00`.
+
+Next target: walk backward through the same new-game function before
+`0x4C42EE`, beginning with `0x532980`, `0x432A20`, `0x432D20`,
+the user/controller virtual calls, `0x4311D0`, `0x5EC060`,
+`0x4E9830` and `0x6596A0`, and rule each branch in or out of the mandatory
+startup RNG ledger.
