@@ -2531,3 +2531,21 @@ Gate 4 is now active.
 The first Gate-4 issue is that `0x615BE0` shuffles every populated primary schedule bucket in bucket-index order. Therefore the exact RNG state at function entry is necessary but not sufficient for the first Premier League matchday: all earlier populated buckets and their sizes/order must be reproduced because each bucket of size N consumes bounds N..2 before later buckets are reached.
 
 Next target: recover the primary schedule-container bucket indexing/date ordering and enumerate every populated bucket before the first Premier League fixture date, then propagate the shared CRT state to the first PL bucket.
+
+
+## 26 September Gate 4 bucket-mapping checkpoint
+
+The first Gate-4 scheduler boundary is committed.
+
+Confirmed:
+
+- primary `0x947AD8` contains 373 bucket heads;
+- `0x6169F0` initializes its date/serial base before new-game competition scheduling;
+- League `0x4F4500` stores each round's scheduled week plus zero-based weekday in the `League+0x60` schedule array;
+- `0x615950` computes nominal target offset exactly as `7*week + (weekday-1)`;
+- first Premier League round week/day 7/6 therefore targets offset **54**;
+- `0x615950` has an original December-25 one-day adjustment;
+- crucially, `0x615950` can move a match away from its nominal target using `0x615890` conflict searches, so final bucket populations require reproducing insertion/conflict behavior;
+- `0x615BE0` shuffles the primary container strictly in bucket-index order 0..372.
+
+Next: reverse the `0x615790/0x615890` conflict predicate and insertion search sufficiently to reconstruct final bucket placement, then enumerate every primary bucket before/including first PL target 54.
