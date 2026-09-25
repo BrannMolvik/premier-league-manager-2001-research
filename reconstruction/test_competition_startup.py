@@ -140,11 +140,6 @@ class EuropeRootCupSelectorTests(unittest.TestCase):
         self.assertEqual(select_europe_root_cup_candidate((42,), rng), 42)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
-
 class PrimaryCupSchedulerStateTests(unittest.TestCase):
     def test_primary_cup_round_counts_exclude_secondary_and_non_cups(self):
         competitions = (
@@ -207,3 +202,6 @@ class PrimaryCupSchedulerStateTests(unittest.TestCase):
         self.assertEqual(replay.total_draw_count, 6)
         self.assertEqual(replay.state_entering_primary_shuffle, 0x0A7571CA)
         self.assertEqual(rng.state, 0x0A7571CA)
+
+if __name__ == "__main__":
+    unittest.main()
