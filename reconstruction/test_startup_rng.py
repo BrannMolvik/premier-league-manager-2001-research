@@ -4,12 +4,15 @@ from dataclasses import dataclass
 from match_schedule import MsvcCrtRng
 from startup_rng import (
     LOADER444_FIRST_DECODE_RAW_DRAWS,
+    StartupUserRngConfig,
+    consume_dbtplayers_startup_rng,
     consume_loader444_first_decode_rng,
     consume_rng_bounds,
     consume_startup_team_name_rng,
     generated_name_rng_bound,
     generated_name_source_eligible,
     generated_name_source_ids,
+    replay_precompetition_startup_rng,
     replay_startup_youth_generation,
     replay_startup_youth_generation_for_country,
     select_startup_youth_candidate,
@@ -71,6 +74,29 @@ class Loader444StartupRngTests(unittest.TestCase):
 
         self.assertEqual(replay_rng.state, manual_rng.state)
         self.assertEqual(replay_rng.rand15(), manual_rng.rand15())
+
+
+class DbtPlayersStartupRngTests(unittest.TestCase):
+    def test_exact_two_phase_bounds_for_two_players(self):
+        rng = RecordingRng([0] * 10)
+
+        consumed = consume_dbtplayers_startup_rng(rng, 2)
+
+        self.assertEqual(consumed, 10)
+        self.assertEqual(
+            rng.calls,
+            [15, 15, 1, 2, 2, 5, 1, 2, 2, 5],
+        )
+
+    def test_shipped_player_count_reaches_fixed_seed_checkpoint(self):
+        rng = MsvcCrtRng(0x12345678)
+        consume_loader444_first_decode_rng(rng)
+        self.assertEqual(rng.state, 0xC526B5BC)
+
+        consumed = consume_dbtplayers_startup_rng(rng, 30064)
+
+        self.assertEqual(consumed, 150320)
+        self.assertEqual(rng.state, 0x8FF8E56C)
 
 
 class StartupYouthRngTests(unittest.TestCase):
@@ -227,7 +253,68 @@ class GeneratedNameRngTests(unittest.TestCase):
         )
 
 
+@dataclass(frozen=True)
+class FullStartupPlayer:
+    index: int
+    club_id: int
+    first_name: str
+    surname: str
+    nationality_id: int
+    initial_flags: int = 0
+
+
 class StartupReplayTests(unittest.TestCase):
+    def test_full_precompetition_replay_has_exact_phase_states(self):
+        players = tuple(
+            [
+                FullStartupPlayer(i, 332, "Alan", f"Smith{i}", 26)
+                for i in range(12)
+            ]
+            + [
+                FullStartupPlayer(12 + i, 332, "Eric", f"Brown{i}", 31)
+                for i in range(13)
+            ]
+        )
+        countries = (Country(26, 26), Country(31, 31))
+        clubs = (
+            Club(0, "Arsenal", 26, 1),
+            Club(332, "!Spare", 26, 1),
+            Club(2, "England", 26, 2),
+            Club(3, "Chelsea", 31, 1),
+        )
+        users = (
+            StartupUserRngConfig(country_id=26, option_mode=0),
+            StartupUserRngConfig(country_id=31, option_mode=2),
+        )
+        rng = MsvcCrtRng(0x12345678)
+
+        replay = replay_precompetition_startup_rng(
+            rng,
+            clubs,
+            countries,
+            players,
+            selected_user_country_id=31,
+            users=users,
+        )
+
+        self.assertEqual(replay.after_loader444_state, 0xC526B5BC)
+        self.assertEqual(replay.after_players_state, 0x7B7B62DB)
+        self.assertEqual(replay.after_team_names_state, 0x0C18030B)
+        self.assertEqual(replay.after_youth_state, 0x2797444C)
+        self.assertEqual(rng.state, replay.after_youth_state)
+
+        self.assertEqual(replay.loader444_draw_count, 260)
+        self.assertEqual(replay.player_draw_count, 125)
+        self.assertEqual(replay.team_name_draw_count, 112)
+        self.assertEqual(replay.youth_targets, (5, 6))
+        self.assertEqual(
+            replay.youth_source_ids,
+            (
+                (2, 6, 23, 13, 7),
+                (10, 11, 7, 4, 1, 24),
+            ),
+        )
+
     def test_consume_rng_bounds_preserves_order(self):
         rng = RecordingRng([1, 0, 2])
         self.assertEqual(consume_rng_bounds(rng, (3, 4, 5)), (1, 0, 2))
