@@ -6,7 +6,12 @@ from random import Random
 from typing import Callable, Iterable
 
 from competition_state import PremierLeagueState
+from match_preparation import (
+    PreparedPremierLeagueAiSide,
+    prepare_premier_league_ai_match_side,
+)
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
+from match_team_setup import TeamTacticalState
 from runtime_state import RuntimePlayer, derive_non_eu_status
 
 
@@ -42,6 +47,11 @@ class GameState:
     players: dict[int, RuntimePlayer]
     premier_league: PremierLeagueState | None = None
     monthly_player_updates: int = 0
+    club_roster_order: dict[int, list[int]] = field(default_factory=dict)
+    clubs: dict[int, object] = field(default_factory=dict)
+    managers: dict[int, object] = field(default_factory=dict)
+    competitions: dict[int, object] = field(default_factory=dict)
+    team_tactics: dict[int, TeamTacticalState] = field(default_factory=dict)
 
     @classmethod
     def from_database(
@@ -85,10 +95,39 @@ class GameState:
         if season_year is None:
             season_year = start_date.year if start_date.month >= 7 else start_date.year - 1
         league = PremierLeagueState(fixtures, rounds, season_year) if fixtures else None
+        roster_order: dict[int, list[int]] = {}
+        for source_player in database.players:
+            roster_order.setdefault(int(source_player.club_id), []).append(
+                int(source_player.index)
+            )
+
+        clubs_by_id = {
+            int(club.index): club
+            for club in getattr(database, "clubs", ())
+        }
+        managers_by_id = {
+            int(manager.index): manager
+            for manager in getattr(database, "managers", ())
+        }
+        competitions_by_id = {
+            int(competition.id): competition
+            for competition in getattr(database, "competitions", ())
+        }
+        known_club_ids = set(roster_order) | set(clubs_by_id)
+        team_tactics = {
+            club_id: TeamTacticalState()
+            for club_id in known_club_ids
+        }
+
         state = cls(
             calendar=GameCalendar(start_date),
             players=players,
             premier_league=league,
+            club_roster_order=roster_order,
+            clubs=clubs_by_id,
+            managers=managers_by_id,
+            competitions=competitions_by_id,
+            team_tactics=team_tactics,
         )
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
         return state
@@ -99,12 +138,38 @@ class GameState:
         players: Iterable[RuntimePlayer],
         start_date: date,
     ) -> "GameState":
+        player_list = tuple(players)
+        roster_order: dict[int, list[int]] = {}
+        for player in player_list:
+            roster_order.setdefault(int(player.club_id), []).append(int(player.index))
         state = cls(
             calendar=GameCalendar(start_date),
-            players={p.index: p for p in players},
+            players={p.index: p for p in player_list},
+            club_roster_order=roster_order,
+            team_tactics={
+                club_id: TeamTacticalState()
+                for club_id in roster_order
+            },
         )
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
         return state
+
+    def ordered_club_roster(self, club_id: int) -> tuple[RuntimePlayer, ...]:
+        """Return live team-roster order matching DBRTeam +0x244 semantics."""
+        club_id = int(club_id)
+        ids = self.club_roster_order.get(club_id, ())
+        return tuple(
+            self.players[player_id]
+            for player_id in ids
+            if player_id in self.players
+        )
+
+    def set_team_tactics(self, club_id: int, state: TeamTacticalState) -> None:
+        """Replace the live backend tactical state for one club."""
+        club_id = int(club_id)
+        if club_id not in self.club_roster_order and club_id not in self.clubs:
+            raise KeyError(club_id)
+        self.team_tactics[club_id] = state
 
     def _run_monthly_player_development(self, on_date: date) -> None:
         self.monthly_player_updates += sum(
