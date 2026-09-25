@@ -112,7 +112,11 @@ class AutonomousDatabase:
     countries = []
 
 class MidpointRng:
+    def __init__(self):
+        self.calls = []
+
     def randbelow(self, bound):
+        self.calls.append(bound)
         return bound // 2
 
 
@@ -229,17 +233,28 @@ class IntegratedGameStateTests(unittest.TestCase):
             seed=1,
             season_year=2000,
         )
+        rng = MidpointRng()
         result = state.simulate_premier_league_ai_fixture(
             0,
             coefficient_matrix(),
             coefficient_matrix(),
-            MidpointRng(),
+            rng,
         )
 
         self.assertIn(0, state.premier_league.results)
         stored = state.premier_league.results[0]
         self.assertEqual((stored.home_goals, stored.away_goals), result.score)
         self.assertEqual(sum(row.played for row in state.premier_league_table()), 2)
+        # With midpoint RNG, neutral-form starters fail the 5% transition on
+        # their first post-match draw. Eleven starters per side therefore add
+        # exactly 22 trailing RNG(100) calls after the calculator finishes.
+        self.assertEqual(rng.calls[-22:], [100] * 22)
+        self.assertTrue(
+            all(player.form_state == 2 for player in state.ordered_club_roster(1))
+        )
+        self.assertTrue(
+            all(player.form_state == 2 for player in state.ordered_club_roster(2))
+        )
     def test_due_fixture_can_be_simulated_and_written_to_table(self):
         state = GameState.from_database(
             FakeDatabase(),
