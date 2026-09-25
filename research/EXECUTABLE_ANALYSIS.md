@@ -3981,3 +3981,60 @@ it must **not** be used to reset or simplify the mandatory new-game startup
 RNG stream. The earlier startup/player/name/youth/competition ledger remains
 necessary for reproducing the first Premier League bucket shuffle unless a
 separate later mandatory reseed is found.
+
+
+## Immediate pre-schedule wrappers are RNG-clean
+
+**Confirmed from direct disassembly of the new-game path around `0x4C42EE..0x4C4381`.**
+
+The calls immediately surrounding the already-recovered user-reset RNG block do
+not advance the original CRT random stream:
+
+```text
+0x4C42EE -> 0x4E2EB0    user-list cleanup                 0 RNG draws
+0x4C42FA -> 0x5328B0    controller/UI state synchronization 0 RNG draws
+0x4C4304 -> 0x413830    generated-name + per-user youth block (RNG-active)
+0x4C4379 -> 0x4F7380    competition/country graph construction 0 RNG draws
+0x4C4381 -> 0x4F7C00    schedule setup / competition initialization boundary
+```
+
+### `0x4E2EB0`
+
+This wrapper resolves the active user through `0x4139D0` and calls
+`0x42CA60` on a user-owned linked-list region. `0x42CA60` only walks and
+frees list nodes through the allocator/free path; neither routine reaches
+`0x64D530` or `0x64D540`.
+
+### `0x5328B0`
+
+This routine changes the controller nesting/state counter at `0x877A70` and
+routes through `0x532890`; when the counter returns to zero it may also call
+`0x532C10`. The nested geometry/state helpers `0x532D90`,
+`0x656AC0` and `0x653160` are deterministic. `0x532C10` is a Windows
+message-pump/UI synchronization path. No bounded-RNG or raw-rand call is
+present in this branch.
+
+### `0x4F7380`
+
+This is deterministic runtime competition/country graph construction before
+the later schedule initializer. It allocates and links competition objects,
+attaches rounds, builds country-owned vectors and sorts them with deterministic
+comparators.
+
+The indirect calls that could have obscured RNG use are now bounded:
+
+- competition virtual `+0x24` resolves to constant class-return helpers:
+  League/ScotPremierLeague -> 1, Cup -> 2, DummyLeague -> 3;
+- virtual `+0x04` round-attachment handlers allocate/link round structures
+  and contain no RNG calls;
+- virtual `+0x08` post-build handlers only qsort already-built arrays and
+  contain no RNG calls;
+- direct construction/linking helpers reached from `0x4F7380`, including
+  `0x4F70E0`, `0x4F72D0`, `0x4F99F0`, `0x4FA6F0` and
+  `0x4F8FF0`, do not reach `0x64D530` or `0x64D540` on this path.
+
+Therefore there is no hidden random consumption in these immediate wrappers:
+after `0x413830` completes, the CRT state reaches `0x4F7C00` unchanged.
+The remaining first-Premier-League-shuffle problem is upstream of
+`0x4C42EE` and inside the already-identified RNG-active competition/schedule
+initialization beneath `0x4F7C00`, not in the intervening wrapper code.
