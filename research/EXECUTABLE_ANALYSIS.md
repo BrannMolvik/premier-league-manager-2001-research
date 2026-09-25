@@ -3320,3 +3320,13 @@ No rand / 0x64D540 call occurs in 0x6173D0 before each insertion.
 RTTI/global anchors: DBTRealFixtures vtable 0x7C9884, global 0x876C18; DBRRealFixture vtable 0x7C9898 and size 0x14; DBTRounds vtable 0x7C99C4, global 0x876BD0; DBRRound vtable 0x7C99D8; League vtable 0x7C9AC0.
 
 ScotPremierLeague uses 0x4FAC60 for its first virtual method and follows a different procedural-generation path; it is not evidence for English Premier League ordering.
+
+## Schedule container selector / mode split
+
+0x4F3B50 calls League virtual +0x30 and returns 0x947AF0 on true, 0x947AD8 on false. For League, +0x30 is 0x4F3B70.
+
+0x4F3B70 resolves DBRCompetition from League+0x20 and reads DBRCompetition+0x38. It returns 1 iff that dword equals 2 or 3. The DBRCompetition packed reader 0x40F760 reads runtime +0x38 from Static.dat record dword +45. Competition 0 (Premier League) has packed +45 = 1, so 0x4F3B70 returns false and fixed LeagueMatch nodes are inserted into 0x947AD8.
+
+Global constructors prove the schedule-container modes: 0x615670 calls 0x615700 for 0x947AD8 with byte argument 0; 0x6156C0 calls it for 0x947AF0 with byte argument 1. 0x615700 stores this byte at object+0x14.
+
+At new-game schedule setup 0x4F7F08, 0x616620 is invoked first for 0x947AD8 and then for 0x947AF0, both with call argument 1. Within 0x616620 the 0x4FA790 call at 0x616755 is conditional on object+0x14, so it is skipped for 0x947AD8 and taken for 0x947AF0. The first container reaches 0x615BE0 before the second-container 0x4FA790 calls can advance CRT rand state.

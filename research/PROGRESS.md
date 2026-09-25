@@ -1826,3 +1826,17 @@ The English fixed-real-fixture path is now directly recovered:
 PremierLeagueState now preserves source order and exposes the recovered fixed insertion/pre-shuffle order without replacing the deterministic default execution order prematurely.
 
 Next schedule-fidelity target: prove schedule-container selection for Premier League competition 0 and the exact shared-RNG state/consumers before 0x615BE0, including whether 0x4FA790 runs on the normal new-game path and whether unrelated competition nodes coexist in the same buckets.
+
+## 25 September Premier League schedule-container checkpoint
+
+Schedule-container selection is resolved exactly:
+
+- DBRCompetition+0x38 comes from packed Static.dat competition dword +45;
+- League selector 0x4F3B70 returns true only for values 2 or 3;
+- true -> 0x947AF0; false -> 0x947AD8;
+- shipped Premier League competition 0 has packed +45 = 1, so it uses 0x947AD8;
+- 0x947AD8 is constructed with container mode +0x14 = 0; 0x947AF0 with +0x14 = 1;
+- startup finalizes 0x947AD8 first, then 0x947AF0;
+- 0x4FA790 is gated by container mode +0x14 and therefore runs only for 0x947AF0.
+
+Result: the RNG-heavy 0x4FA790 path is no longer a blocker for reproducing the Premier League shuffle. Remaining work is to audit RNG consumption on the 0x947AD8/mode-0 finalization path and before its 0x616620 call.

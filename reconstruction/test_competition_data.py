@@ -25,11 +25,13 @@ class CompetitionParserTests(unittest.TestCase):
         struct.pack_into("<I", data, first + 0, 0)
         struct.pack_into("<H", data, first + 12, 100)
         data[first + 34] = 3
+        struct.pack_into("<I", data, first + 45, 1)
 
         second = base + COMPETITION_RECORD_SIZE
         struct.pack_into("<I", data, second + 0, 25)
         struct.pack_into("<H", data, second + 12, 101)
         data[second + 34] = 99
+        struct.pack_into("<I", data, second + 45, 2)
 
         db = FM2001Database.__new__(FM2001Database)
         db.static = bytes(data)
@@ -42,8 +44,12 @@ class CompetitionParserTests(unittest.TestCase):
         self.assertEqual(db.competitions[0].id, 0)
         self.assertEqual(db.competitions[0].name, "name-100")
         self.assertEqual(db.competitions[0].max_non_eu_players, 3)
+        self.assertEqual(db.competitions[0].schedule_container_code, 1)
+        self.assertFalse(db.competitions[0].uses_secondary_schedule_container)
         self.assertEqual(db.competitions[1].id, 25)
         self.assertEqual(db.competitions[1].max_non_eu_players, 99)
+        self.assertEqual(db.competitions[1].schedule_container_code, 2)
+        self.assertTrue(db.competitions[1].uses_secondary_schedule_container)
 
 
 if __name__ == "__main__":

@@ -3807,3 +3807,23 @@ The shipped Static.dat has the 38 Premier League rounds first in the round table
 PremierLeagueState now preserves round/fixture source order and exposes fixed_fixture_insertion_ids(), fixed_fixture_insertion_ids_on(), and fixed_fixture_pre_shuffle_ids_on(). Default due-fixture execution remains the deterministic fallback until the shared RNG state entering the final bucket shuffle is recovered.
 
 Global schedule buckets can contain nodes from other competitions, so the clean-room helper claims exact relative order of the fixed Premier League nodes, not completeness of the entire global bucket.
+
+## Premier League schedule-container selection and shuffle isolation
+
+The competition-to-container selector is now exact. League virtual slot +0x30 is 0x4F3B70. It resolves the owning DBRCompetition and returns true only when DBRCompetition+0x38 is 2 or 3. 0x4F3B50 maps true to global schedule container 0x947AF0 and false to 0x947AD8.
+
+The DBRCompetition reader at 0x40F760 maps runtime +0x38 from packed Static.dat competition dword +45. The shipped Premier League record (competition ID 0) stores value 1 at packed +45. Therefore Premier League matches use 0x947AD8, not 0x947AF0.
+
+The two global schedule containers are constructed differently:
+
+- 0x615670 constructs 0x947AD8 through 0x615700 with mode byte 0 and nominal span argument 0x16E;
+- 0x6156C0 constructs 0x947AF0 through 0x615700 with mode byte 1 and nominal span argument 0x5B8;
+- 0x615700 stores that mode byte at container+0x14.
+
+Startup schedule finalization at 0x4F7F08 calls 0x616620 on 0x947AD8 first, then on 0x947AF0. Inside 0x616620, the RNG-heavy 0x4FA790 branch at 0x616755 is gated by container+0x14, not by the function argument. It therefore runs for 0x947AF0 only.
+
+This removes an important uncertainty from the Premier League RNG chain: 0x4FA790 cannot consume random values before the Premier League bucket shuffle, because the Premier League lives in 0x947AD8 and that container reaches its final 0x615BE0 shuffle before 0x947AF0 processing begins.
+
+The remaining Premier League shuffle-state problem is now confined to RNG consumers that occur before or inside the mode-0 0x947AD8 0x616620 path, plus any earlier application/setup consumers before that call.
+
+CompetitionDefinition now exposes packed +45 neutrally as schedule_container_code and the exact uses_secondary_schedule_container predicate; no unsupported football semantic name is assigned.

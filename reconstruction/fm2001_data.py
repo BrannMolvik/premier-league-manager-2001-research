@@ -139,6 +139,12 @@ class CompetitionDefinition:
     name: str
     substitute_quota: int
     max_non_eu_players: int
+    schedule_container_code: int = 0
+
+    @property
+    def uses_secondary_schedule_container(self) -> bool:
+        """Exact 0x4F3B70 predicate over DBRCompetition+0x38."""
+        return int(self.schedule_container_code) in (2, 3)
 
 @dataclass(frozen=True)
 class RoundDefinition:
@@ -335,6 +341,7 @@ class FM2001Database:
                 name=self.english.get(struct.unpack_from('<H', r, 12)[0]),
                 substitute_quota=r[17],
                 max_non_eu_players=r[34],
+                schedule_container_code=struct.unpack_from('<I', r, 45)[0],
             ))
 
     def _parse_rounds(self):
