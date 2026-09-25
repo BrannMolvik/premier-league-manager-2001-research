@@ -170,6 +170,174 @@ def league_objective_pressure(
     return pressure
 
 
+
+@dataclass(frozen=True)
+class LeagueObjectiveGaps:
+    """Five ordered point-gap outputs produced by 0x4F8C50."""
+
+    win_league: int | None = None
+    promotion: int | None = None
+    promotion_playoff: int | None = None
+    avoid_relegation: int | None = None
+    avoid_relegation_playoff: int | None = None
+
+
+def league_objective_gaps_from_sorted_points(
+    points_by_rank: tuple[int, ...] | list[int],
+    current_rank: int,
+    *,
+    automatic_promotion_places: int = 0,
+    playoff_places: int = 0,
+    relegation_places: int = 0,
+) -> LeagueObjectiveGaps:
+    """Reconstruct the cut-line point gaps written by 0x4F8C50.
+
+    points_by_rank must already be in competition table order. The original
+    helper reads points as 3*wins + draws from that sorted table.
+    """
+    points = tuple(int(value) for value in points_by_rank)
+    rank = int(current_rank)
+    if not points:
+        raise ValueError("points_by_rank cannot be empty")
+    if not 0 <= rank < len(points):
+        raise ValueError("current_rank is outside the table")
+    if min(
+        int(automatic_promotion_places),
+        int(playoff_places),
+        int(relegation_places),
+    ) < 0:
+        raise ValueError("place counts must be non-negative")
+
+    auto = int(automatic_promotion_places)
+    playoff = int(playoff_places)
+    relegation = int(relegation_places)
+    count = len(points)
+    current_points = points[rank]
+
+    if auto > count or auto + playoff > count or relegation + playoff >= count:
+        raise ValueError("competition cut-line counts exceed table size")
+
+    win_league = None
+    promotion = None
+    if auto:
+        promotion = points[auto - 1] - current_points
+    else:
+        win_league = points[0] - current_points
+
+    promotion_playoff = (
+        points[auto + playoff - 1] - current_points
+        if playoff
+        else None
+    )
+    avoid_relegation = (
+        points[count - relegation - 1] - current_points
+        if relegation
+        else None
+    )
+    avoid_relegation_playoff = (
+        points[count - relegation - playoff - 1] - current_points
+        if playoff
+        else None
+    )
+
+    return LeagueObjectiveGaps(
+        win_league=win_league,
+        promotion=promotion,
+        promotion_playoff=promotion_playoff,
+        avoid_relegation=avoid_relegation,
+        avoid_relegation_playoff=avoid_relegation_playoff,
+    )
+
+
+def _league_objective_pressure_or_none(
+    points_gap: int | None,
+    matches_remaining: int,
+    base_bias: int | None,
+) -> int | None:
+    if points_gap is None:
+        return None
+    remaining = int(matches_remaining)
+    gap = int(points_gap)
+    if remaining <= 0 or remaining > GS_START_WORRYING_ABOUT_LEAGUE_POS or gap <= 0:
+        return None
+    required_per_match = gap / remaining
+    if required_per_match >= 3.0:
+        return None
+    if base_bias is None:
+        raise ValueError("applicable objective requires a known base bias")
+    value = int(required_per_match + 0.499) + int(base_bias)
+    if remaining > GS_REALLY_WORRYING_ABOUT_LEAGUE_POS:
+        value = int(value / 2)
+    return value
+
+
+def late_season_league_strategy_bias(
+    gaps: LeagueObjectiveGaps,
+    matches_remaining: int,
+    *,
+    win_league_bias: int = GS_GO_FOR_WIN_LEAGUE_BIAS,
+    promotion_bias: int = GS_GO_FOR_PROMOTION_BIAS,
+    promotion_playoff_bias: int | None = None,
+    avoid_relegation_bias: int = GS_GO_FOR_AVOID_RELEGATION_BIAS,
+    avoid_relegation_playoff_bias: int = GS_GO_FOR_AVOID_RELEGATION_PLAYOFF_BIAS,
+) -> int:
+    """Exact first-applicable objective ordering used by 0x409680."""
+    objectives = (
+        (gaps.win_league, win_league_bias),
+        (gaps.promotion, promotion_bias),
+        (gaps.promotion_playoff, promotion_playoff_bias),
+        (gaps.avoid_relegation, avoid_relegation_bias),
+        (gaps.avoid_relegation_playoff, avoid_relegation_playoff_bias),
+    )
+    for gap, bias in objectives:
+        value = _league_objective_pressure_or_none(
+            gap,
+            matches_remaining,
+            bias,
+        )
+        if value is not None:
+            return value
+    return 0
+
+
+def game_strategy_score(
+    *,
+    is_home: bool,
+    current_rating: int,
+    opponent_rating: int,
+    aggregate_goals_behind: int = 0,
+    competition_context_bias: int = 0,
+) -> int:
+    """Compose the additive 0x409500 strategy-score components."""
+    score = GS_HOME_VALUE if bool(is_home) else GS_AWAY_VALUE
+    score += rating_difference_pressure(current_rating, opponent_rating)
+    score += aggregate_deficit_pressure(aggregate_goals_behind)
+    score += int(competition_context_bias)
+    return score
+
+
+def manager_formation_for_game_strategy(
+    preferences,
+    *,
+    is_home: bool,
+    current_rating: int,
+    opponent_rating: int,
+    aggregate_goals_behind: int = 0,
+    competition_context_bias: int = 0,
+) -> int:
+    """Choose the manager formation from a reconstructed 0x409500 score."""
+    score = game_strategy_score(
+        is_home=is_home,
+        current_rating=current_rating,
+        opponent_rating=opponent_rating,
+        aggregate_goals_behind=aggregate_goals_behind,
+        competition_context_bias=competition_context_bias,
+    )
+    return manager_formation_for_selection_class(
+        preferences,
+        formation_selection_class_from_score(score),
+    )
+
 class ManagerFormationSource(Protocol):
     formation_default: int
     formation_class3: int
