@@ -1840,3 +1840,16 @@ Schedule-container selection is resolved exactly:
 - 0x4FA790 is gated by container mode +0x14 and therefore runs only for 0x947AF0.
 
 Result: the RNG-heavy 0x4FA790 path is no longer a blocker for reproducing the Premier League shuffle. Remaining work is to audit RNG consumption on the 0x947AD8/mode-0 finalization path and before its 0x616620 call.
+
+## 25 September repository audit checkpoint
+
+A fresh repository audit at parent HEAD e956925cfdc12cd96583a3cbd6bf86d70d13fa31 found the implementation and CI healthy: **279 reconstruction tests pass**.
+
+The audit also found documentation drift and one important fidelity risk:
+
+- reconstruction/README.md still described the project as largely a parser/browser and incorrectly listed season AI and the match engine as unimplemented;
+- older FINDINGS/PROGRESS sections still describe match-day initialization as the main backend blocker even though later commits implement AI preparation;
+- the 24 September project audit is now historical and materially understates match/reconstruction progress;
+- RuntimePlayer new-game peak-age initialization uses Python random.Random even though the recovered original initializer uses the same bounded CRT RNG family as the later game. This means formulas are correct in isolation but the global original RNG timeline is not yet reproduced end-to-end.
+
+A new research/PROJECT_AUDIT_2026-09-25.md records the reconciled status and risks. Immediate next work remains exact startup/global RNG sequencing into the Premier League bucket shuffle, followed by real ten-fixture/multi-round/full-season integration tests.

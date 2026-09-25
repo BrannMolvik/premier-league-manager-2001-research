@@ -1,4 +1,4 @@
-# FM2001 clean-room reconstruction prototype
+# FM2001 clean-room reconstruction
 
 This directory contains clean-room code only. It does **not** include EA game data or executable code.
 
@@ -9,58 +9,58 @@ The parser reads a user's existing FM2001 files:
 - `English.str`
 - `Static.dat`
 
-Current reconstruction support also includes a tested implementation of the verified player development/training core in `player_development.py`.
-
-Current parser support includes:
-
-- corrected Master.dat club/player/manager boundaries;
-- 1,246 clubs, 30,064 players and 1,612 managers;
-- club names, stadiums and manager links;
-- player names, current club links, dates, height/weight and positions;
-- both verified 17-byte player skill arrays;
-- complete 17-skill ordering;
-- exact FM2001 raw-byte -> 0..30 display conversion;
-- manager names, DOB, joined-club dates and club links;
-- Static.dat position names;
-- the verified 380-match Premier League fixture table (38 rounds × 10 fixtures).
-
 Run:
 
 ```
 python verify.py C:\Games\FM2001
 ```
 
-to validate the exact analyzed release, or run `RUN_PROTOTYPE.cmd` on Windows to open the small Tkinter data browser.
+to validate the analyzed release. `RUN_PROTOTYPE.cmd` opens the small Tkinter data browser.
 
-The reconstruction code is intentionally data-free. Research evidence, addresses and confidence levels live under `research/`; this code should only be updated when those semantics are verified.
+## Implemented clean-room systems
 
-## Current gameplay status
+The reconstruction is no longer only a parser/browser. Current tested implementation includes:
 
-This is still a reconstruction prototype, not a complete playable replacement. The runtime can now build a coherent career-state object containing mutable players, an advancing calendar, the original Premier League fixture list, match results and a live league table.
+- corrected Master.dat and Static.dat parsing for clubs, players, managers, countries, positions, competitions, rounds and the 380 real Premier League fixtures;
+- mutable runtime player state;
+- monthly aging/development and training mechanics;
+- Premier League dated fixtures, mutable results and league table;
+- exact runtime match-state defaults for Condition, Form and position state;
+- AI formation strategy, lineup selection, substitutes, role assignment and Non-EU restriction handling;
+- ordered match participant collection;
+- exact role compatibility, role rating and 4 x 20 x 17 attack/defence coefficient support;
+- open-play, free-kick, corner and penalty chance resolution;
+- normal-time five-minute scheduling and chance routing;
+- recurring Condition decay and match injury incidence;
+- bookings, sendings-off and suspension persistence;
+- AI substitutions and injury replacements;
+- possession/territory normalization;
+- weather and home pitch wear;
+- post-match Condition/Form synchronization;
+- persistent match injury generation and return events;
+- Premier League fixture -> match -> result -> table integration;
+- fast-calendar fixture-before-maintenance day ordering;
+- exact MSVC CRT RNG primitive used by the original executable;
+- exact schedule-bucket head insertion and Fisher-Yates shuffle primitives;
+- recovered fixed Premier League fixture insertion order and schedule-container selection.
 
-Implemented and unit-tested reconstruction mechanics:
+GitHub Actions runs the reconstruction unit suite on changes. At audit commit parent
+`e956925cfdc12cd96583a3cbd6bf86d70d13fa31`, **279 tests pass**.
 
-- mutable runtime player state initialized from the parsed database;
-- generic day-by-day game calendar with daily/monthly hooks;
-- first-of-month player development execution;
-- mutable Premier League results/standings state over the original 380-match schedule;
-- typed MatchCalculator event records for open play/free kicks/corners/penalties, goal/miss/save outcomes, own goals, bookings/sendings-off/injuries, and match boundaries;
-- verified possession/territorial event payload including side-0 / neutral / side-1 percentages;
-- exact normal-match penalty resolver, including position compatibility, Condition/Form, miss/save/goal RNG gates and presentation variants;
-- verified five-minute match clock/phase scaffold for normal time, extra time, penalties and final boundaries;
-- real scheduled matchdays reconstructed from Static.dat week/weekday round fields.
+## Important fidelity boundaries
 
-- monthly 17-skill age/development curve;
-- exact peak-age grouping and shipped peak-range behavior;
-- post-age monthly training modifier behavior;
-- exact seven training profile vectors;
-- Youth Team Coach / Assistant Manager / Training Centre quality multiplier;
-- active-training success threshold and strict +8/-8 raw-skill steps.
+This remains a reconstruction prototype rather than a complete replacement.
 
-Not yet implemented as gameplay:
+Known boundaries include:
 
-- season simulation and AI;
-- full transfer/finance behavior;
-- save-game compatibility;
-- match engine;
-- FastView / 3D match presentation.
+- the default multi-fixture season loop still uses deterministic fixture-ID order unless an explicit scheduler order is supplied; exact Premier League shuffle ordering requires reproducing the shared original RNG state entering schedule finalization;
+- runtime initialization currently uses Python `random.Random` for peak-age draws even though the original peak initializer calls FM2001's global bounded CRT RNG; formulas are tested, but full new-game RNG sequencing is not yet exact;
+- exact league-table tie ordering beyond points / goal difference / goals scored is unresolved and currently uses a deterministic club-ID fallback;
+- some competition-specific eligibility and user-controlled match setup paths remain incomplete;
+- user-specific medical modifiers for injury recovery remain separate;
+- contracts, transfers, finance/board logic are extensively researched but are not yet implemented as a complete clean-room gameplay loop;
+- broader competitions, scouting, youth and save compatibility remain incomplete;
+- the current UI is a data browser rather than a faithful FM2001 management interface;
+- FastView / 3D presentation remains largely unreconstructed.
+
+Research evidence, addresses and confidence levels live under `research/`. Code should only be promoted from deterministic fallback to fidelity claim when executable evidence supports it.

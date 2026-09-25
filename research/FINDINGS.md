@@ -682,3 +682,23 @@ Therefore `DBRPlayer+0x14 bit 2` is not a cup-tied bit and must remain a separat
 The corresponding competition limit is `DBRCompetition+0x2B`, packed Static.dat competition byte **+34**. `0x407DF0` returns that value for the current competition or defaults to 11 without competition context. The shipped Premier League value is **3**.
 
 Competitive selector `0x409C90` rejects a Non-EU candidate after the running restricted count reaches that maximum. If an AI-controlled team cannot complete the XI while restriction counting is enabled, the routine retries the whole XI selection exactly once with the restriction-enforcement flag cleared. User-controlled teams do not receive that automatic relaxation.
+
+
+## 25 September current implementation boundary
+
+**Supersedes older FINDINGS sections that call match-day initialization the principal MatchCalculator blocker.**
+
+The autonomous Premier League path now includes AI strategy/formation choice, exact AI lineup core, substitutes, runtime position/selection state, ordered participant collection, match environment generation, normal-time MatchCalculator simulation, incident persistence, post-match Form/Condition, Pitch Wear, persistent injuries and league-result storage.
+
+The main match/season fidelity boundary is now global state ordering rather than missing basic AI preparation: the reconstruction has an exact MSVC CRT RNG primitive and exact schedule shuffle mechanics, but new-game RuntimePlayer peak-age initialization still consumes Python random.Random rather than the shared FM2001 CRT stream. Exact same-day fixture order also remains an explicit deterministic fallback until the original RNG state entering the Premier League bucket shuffle is reproduced.
+
+Premier League fixed-fixture scheduling is additionally constrained as follows:
+
+- real fixtures preserve Static.dat source order within each round;
+- the fixed League builder consumes no RNG before schedule insertion;
+- schedule insertion is head insertion;
+- per-bucket shuffle is descending Fisher-Yates;
+- competition 0 uses schedule container 0x947AD8 (mode 0);
+- the RNG-heavy 0x4FA790 branch belongs to the other mode-1 container and cannot run before the Premier League container is finalized.
+
+League-table equal-points ordering after points / goal difference / goals scored remains unresolved; reconstruction intentionally uses club ID only as a deterministic fallback.
