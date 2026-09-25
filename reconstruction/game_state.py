@@ -151,7 +151,6 @@ class GameState:
             pitch_wear=pitch_wear,
         )
         state.calendar.daily_hooks.append(state._run_daily_injury_returns)
-        state.calendar.daily_hooks.append(state._run_daily_injury_returns)
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
         return state
@@ -179,6 +178,7 @@ class GameState:
                 for club_id in roster_order
             },
         )
+        state.calendar.daily_hooks.append(state._run_daily_injury_returns)
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
         return state
