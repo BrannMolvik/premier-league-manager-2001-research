@@ -2221,3 +2221,30 @@ The project now separates live truth from history:
 - `project_status.json` mirrors the current gate for tools/agents.
 
 Stale status text was explicitly reconciled rather than deleting historical evidence. The current technical next target remains the TeamSelect panel lifetime/activation path before the Start/Continue click, tracing backward toward the already-recovered database/player startup sequence for mandatory CRT RNG consumers.
+
+
+## 26 September Gate 1 completion checkpoint
+
+Repository stabilization is complete.
+
+Completed:
+
+- introduced the sequential gate roadmap and one-gate working rule;
+- established `research/CURRENT_STATE.md` as the short canonical live resume point;
+- separated backlog, fidelity gaps, chronological progress, and verified findings;
+- added a reusable cross-chat handoff prompt and machine-readable status file;
+- reconciled the stale 279-test count, obsolete Python-Random startup statement, and historical match-day-initialization blocker;
+- marked dated project audits as historical snapshots;
+- added `.gitignore` rules for development/reverse-engineering noise and original game artifacts;
+- added a CI clean-room guard that rejects forbidden original filenames/disc-image formats and byte-identical canonical originals by SHA-256;
+- strengthened `reconstruction/verify.py` to verify the canonical Master.dat / Static.dat / Core.str / English.str SHA-256 values and use explicit verification failures rather than optimization-sensitive `assert` statements;
+- refreshed the GitHub Actions workflow versions.
+
+Validation at commit `16ea9615ca5d9f7f401ba53cffb819d016e64659`:
+
+- clean-room repository guard: **passed**;
+- reconstruction unit suite: **307 tests passed**.
+
+Gate 1 is therefore complete. Gate 2 is active.
+
+Exact Gate 2 resume target: continue from the TeamSelect panel lifetime/activation path before the Start/Continue click. Trace construction/activation and its caller chain backward to the already-recovered database/player startup sequence, recording only mandatory CRT RNG consumers that can affect the state entering the first Premier League schedule shuffle.
