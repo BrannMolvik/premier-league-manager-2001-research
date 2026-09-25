@@ -64,6 +64,15 @@ def player(index, club, role, value=180, **kwargs):
     )
 
 
+class MidpointRng:
+    def __init__(self):
+        self.calls = []
+
+    def randbelow(self, bound):
+        self.calls.append(bound)
+        return bound // 2
+
+
 def formation_zero_roster(club=7):
     return [
         player(index, club, slot.role, 180)
@@ -458,6 +467,7 @@ class AiMatchPreparationTests(unittest.TestCase):
             table,
             side=0,
             is_home=True,
+            rng=MidpointRng(),
         )
 
         self.assertEqual(result.tactical_state, TeamTacticalState())
@@ -470,6 +480,8 @@ class AiMatchPreparationTests(unittest.TestCase):
         self.assertEqual(result.match_side.attack_context.aggression, 5)
         self.assertEqual(len(result.match_side.starting_player_indices), 11)
         self.assertEqual(len(result.match_side.players), 16)
+        self.assertTrue(all(subject.condition == 95 for subject in roster))
+        self.assertTrue(all(subject.condition == 95 for subject in result.match_side.players))
 
     def test_autonomous_ai_match_side_preserves_supplied_live_tactics(self):
         @dataclass(frozen=True)
@@ -512,6 +524,7 @@ class AiMatchPreparationTests(unittest.TestCase):
             table,
             side=1,
             is_home=False,
+            rng=MidpointRng(),
             tactical_state=live,
         )
 
