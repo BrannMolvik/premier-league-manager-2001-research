@@ -12,6 +12,13 @@ class Fixture:
     away_club_id: int
 
 
+@dataclass(frozen=True)
+class Round:
+    round_number: int
+    scheduled_week: int
+    scheduled_weekday: int
+
+
 class LeagueStateTests(unittest.TestCase):
     def setUp(self):
         self.fixtures = [
@@ -40,6 +47,38 @@ class LeagueStateTests(unittest.TestCase):
         self.assertEqual((club3.draws, club3.points), (1, 1))
         club2 = next(r for r in table if r.club_id == 2)
         self.assertEqual(club2.goal_difference, -2)
+
+    def test_next_club_match_date_is_strictly_after_current_fixture(self):
+        league = PremierLeagueState(
+            (
+                Fixture(0, 0, 1, 2),
+                Fixture(1, 1, 1, 3),
+                Fixture(2, 2, 2, 3),
+            ),
+            (
+                Round(1, 7, 6),
+                Round(2, 8, 3),
+                Round(3, 9, 6),
+            ),
+            2000,
+        )
+        first = league.round_date(0)
+        second = league.round_date(1)
+        third = league.round_date(2)
+
+        league.record_result(0, 1, 0)
+
+        self.assertEqual(
+            league.next_club_match_date(1, after_date=first),
+            second,
+        )
+        self.assertEqual(
+            league.next_club_match_date(2, after_date=first),
+            third,
+        )
+        self.assertIsNone(
+            league.next_club_match_date(1, after_date=second),
+        )
 
     def test_duplicate_result_is_rejected(self):
         self.league.record_result(0, 1, 0)
