@@ -2248,3 +2248,22 @@ Validation at commit `16ea9615ca5d9f7f401ba53cffb819d016e64659`:
 Gate 1 is therefore complete. Gate 2 is active.
 
 Exact Gate 2 resume target: continue from the TeamSelect panel lifetime/activation path before the Start/Continue click. Trace construction/activation and its caller chain backward to the already-recovered database/player startup sequence, recording only mandatory CRT RNG consumers that can affect the state entering the first Premier League schedule shuffle.
+
+
+## 26 September Windows 11 port mission update
+
+The project owner clarified the intended end state: this is a **Windows 11 modernization/port of FM2001**, not a strict clean-room-only replacement. The contents of the supplied source archive/disc image are authorized for use in the project, and the preferred strategy is now to preserve/reuse as much of the original game as technically practical.
+
+Consequences:
+
+- original music, sound effects, interface graphics, strings, data, and other useful resources should be reused directly when the modern runtime can consume them;
+- where old formats are inconvenient, convert the authorized original resource rather than replacing it without need;
+- the modern runtime/reconstruction remains necessary for incompatible executable/game logic and obsolete Windows/runtime behavior;
+- `original_assets/` is now the controlled repository location for intentionally imported source/converted resources;
+- `research/ASSET_POLICY.md` defines provenance and placement rules;
+- raw disc/archive containers and temporary reverse-engineering artifacts remain excluded to avoid repository bloat and accidental dumps;
+- the old strict clean-room guard has been replaced by a repository asset-policy check.
+
+This policy change does **not** alter the active technical Gate 2 task. Startup RNG reconstruction remains the immediate blocker before schedule-order fidelity and real-data season integration.
+
+Long-term presentation gates are updated accordingly: the target is to restore the original FM2001 experience, including original login/menu music and interface resources, on top of the modern Windows 11-compatible runtime.
