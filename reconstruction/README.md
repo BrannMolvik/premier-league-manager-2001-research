@@ -45,7 +45,7 @@ The reconstruction is no longer only a parser/browser. Current tested implementa
 - exact schedule-bucket head insertion and Fisher-Yates shuffle primitives;
 - recovered fixed Premier League fixture insertion order and schedule-container selection.
 
-At repository-stabilization validation commit `16ea9615ca5d9f7f401ba53cffb819d016e64659`, GitHub Actions ran **307 tests successfully**. That checkpoint also passed the clean-room repository guard. The stabilization changes affect verification/workflow/documentation infrastructure rather than the recovered match-simulation behavior.
+After the Windows 11 port/asset-policy transition, GitHub Actions at `d485246159b7131a680635b7f3e6a9135c95f54f` still ran **307 tests successfully**. The repository asset-policy check also passes on the updated porting structure. These policy/documentation changes do not alter the recovered match-simulation behavior.
 
 ## Important fidelity boundaries
 
