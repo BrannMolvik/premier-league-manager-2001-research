@@ -1,7 +1,10 @@
 import unittest
 from dataclasses import dataclass
 
+from match_schedule import MsvcCrtRng
 from startup_rng import (
+    LOADER444_FIRST_DECODE_RAW_DRAWS,
+    consume_loader444_first_decode_rng,
     consume_rng_bounds,
     consume_startup_team_name_rng,
     generated_name_rng_bound,
@@ -39,6 +42,35 @@ class Player:
     index: int
     club_id: int
     initial_flags: int = 0
+
+
+class Loader444StartupRngTests(unittest.TestCase):
+    def test_first_decode_consumes_exactly_260_raw_crt_draws(self):
+        class RecordingRawRng:
+            def __init__(self):
+                self.calls = 0
+
+            def rand15(self):
+                self.calls += 1
+                return 0
+
+        rng = RecordingRawRng()
+        consumed = consume_loader444_first_decode_rng(rng)
+
+        self.assertEqual(LOADER444_FIRST_DECODE_RAW_DRAWS, 260)
+        self.assertEqual(consumed, 260)
+        self.assertEqual(rng.calls, 260)
+
+    def test_first_decode_advances_real_msvc_state_exactly_like_260_rand_calls(self):
+        replay_rng = MsvcCrtRng(0x12345678)
+        manual_rng = MsvcCrtRng(0x12345678)
+
+        consume_loader444_first_decode_rng(replay_rng)
+        for _ in range(260):
+            manual_rng.rand15()
+
+        self.assertEqual(replay_rng.state, manual_rng.state)
+        self.assertEqual(replay_rng.rand15(), manual_rng.rand15())
 
 
 class StartupYouthRngTests(unittest.TestCase):
