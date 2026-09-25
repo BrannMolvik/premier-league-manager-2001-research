@@ -23,8 +23,9 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Current roadmap status
 
-- **Active gate:** Gate 2 - Finish the startup RNG chain
-- **Next gate:** Gate 3 - Build an executable startup RNG ledger
+- **Active gate:** Gate 3 - Build an executable startup RNG ledger
+- **Next gate:** Gate 4 - Resolve exact Premier League matchday ordering
+- **Gate 2 completed:** 26 September 2026
 - **Gate 1 completed:** 26 September 2026
 - **Pre-stabilization technical baseline:** `1014b042a19fc851b8d87e653ee1e5d807816630`
 - **Gate 1 validation:** repository asset guard passed and reconstruction suite ran 307 tests successfully
@@ -55,7 +56,7 @@ Completion criteria:
 
 ## Gate 2 - Finish the startup RNG chain
 
-**Status: IN PROGRESS**
+**Status: COMPLETE (26 September 2026)**
 
 Goal: close the remaining mandatory new-game RNG path before the first Premier League schedule shuffle.
 
@@ -69,12 +70,14 @@ Work:
 
 Completion criteria:
 
-- [ ] TeamSelect lifetime/activation path is bounded.
-- [ ] Every mandatory RNG consumer before schedule initialization is enumerated or an explicit unresolved boundary remains.
-- [ ] The RNG state entering competition/schedule initialization can be described from a known seed for the standard new-game path.
-- [ ] Findings and implementation consequences are committed.
+- [x] TeamSelect lifetime/activation path is bounded.
+- [x] Every mandatory RNG consumer before schedule initialization is enumerated or an explicit unresolved boundary remains.
+- [x] The RNG state entering competition/schedule initialization can be described from a known seed for the standard new-game path.
+- [x] Findings and implementation consequences are committed.
 
 ## Gate 3 - Build an executable startup RNG ledger
+
+**Status: IN PROGRESS**
 
 Goal: turn the recovered startup sequence into reproducible code and tests.
 
