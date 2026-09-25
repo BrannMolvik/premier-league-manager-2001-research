@@ -1,5 +1,7 @@
 # Project Audit — 25 September 2026
 
+> **Historical snapshot notice (added 26 September 2026):** This audit is preserved as a dated record of the repository at its stated parent HEAD. Its **279-test** count and Python-`random.Random` startup risk were accurate to that audit point but were superseded by later commits. Use `research/CURRENT_STATE.md` for live status, `ROADMAP.md` for the active plan, and `research/FIDELITY_GAPS.md` for current unresolved fidelity boundaries.
+
 ## Scope
 
 This audit reviews the canonical GitHub state after the large MatchCalculator,
