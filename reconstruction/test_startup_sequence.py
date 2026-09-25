@@ -32,6 +32,19 @@ class Club:
     runtime_value_1c_source: int
 
 
+@dataclass(frozen=True)
+class Competition:
+    id: int
+    runtime_kind_code: int
+    schedule_container_code: int
+
+
+@dataclass(frozen=True)
+class Round:
+    competition_id: int
+    team_count: int
+
+
 class StartupSequenceTests(unittest.TestCase):
     def test_shared_rng_reaches_exact_primary_shuffle_checkpoint(self):
         players = tuple(
@@ -72,6 +85,17 @@ class StartupSequenceTests(unittest.TestCase):
             StartupUserRngConfig(country_id=26, option_mode=0),
             StartupUserRngConfig(country_id=31, option_mode=2),
         )
+        competitions = (
+            Competition(9, 2, 1),
+            Competition(170, 2, 2),
+            Competition(0, 1, 1),
+        )
+        rounds = (
+            Round(9, 4),
+            Round(9, 2),
+            Round(170, 16),
+            Round(0, 20),
+        )
         rng = MsvcCrtRng(0x12345678)
 
         replay = replay_startup_rng_to_primary_shuffle(
@@ -81,6 +105,8 @@ class StartupSequenceTests(unittest.TestCase):
             players,
             selected_user_country_id=31,
             users=users,
+            competitions=competitions,
+            rounds=rounds,
         )
 
         # Adding the seven category-2 competition selector clubs does not add
@@ -104,22 +130,26 @@ class StartupSequenceTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            replay.primary_competition.candidate_ids,
-            (1118, 1135, 1137, 1139, 1143, 1159, 1162),
+            replay.primary_competition_state.primary_cup_round_count,
+            2,
         )
         self.assertEqual(
-            replay.primary_competition.champions_league_club_id,
-            1118,
+            replay.primary_competition_state.cup_pairing_draw_count,
+            4,
         )
         self.assertEqual(
-            replay.primary_competition.uefa_cup_club_id,
-            1143,
+            replay.primary_competition_state.europe_selector_draw_count,
+            2,
+        )
+        self.assertEqual(
+            replay.primary_competition_state.total_draw_count,
+            6,
         )
         self.assertEqual(
             replay.state_entering_primary_shuffle,
-            0x5D07D526,
+            0x0A7571CA,
         )
-        self.assertEqual(rng.state, 0x5D07D526)
+        self.assertEqual(rng.state, 0x0A7571CA)
 
 
 if __name__ == "__main__":
