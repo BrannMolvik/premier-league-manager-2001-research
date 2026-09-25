@@ -471,15 +471,33 @@ Offset: `0xE337`
 
 Header: uint32 count (=238)
 
-Record size: 28 bytes.
+Record size: 28 bytes packed; **0x20 bytes at runtime** after the vtable pointer is added.
 
-Confirmed:
+Confirmed packed fields:
 
-- +0 uint32: instruction ID
-- +4 uint32: destination competition ID
-- +8 uint32: instruction sequence/index within the competition
+| Offset | Type | Meaning | Confidence |
+|---|---|---|---|
+| +0 | uint32 | instruction ID | confirmed |
+| +4 | uint32 | destination competition ID | confirmed |
+| +8 | uint32 | instruction sequence/index within destination | confirmed |
+| +12 | uint32 | instruction type, values 1..5 | confirmed |
+| +16 | uint32 | source/reference parameter | structural role confirmed; exact type-specific semantics vary |
+| +20 | uint32 | quantity/count parameter | structural role confirmed; exact type-specific semantics vary |
+| +24 | uint32 | auxiliary parameter | structural role confirmed; exact type-specific semantics vary |
 
-Strong evidence indicates later fields specify allocation source/type and team count. FA Cup instructions enumerate sources/counts that sum to 124 teams, and subsequent blocks target League Cup, Challenge Shield, Charity Shield, Champions League and other cup competitions. Exact semantics of +12/+16/+20/+24 are still being separated.
+Runtime `DBRCupAllocInstruction` layout is packed fields shifted by +4 after its vtable. Startup attaches instruction pointers to destination runtime competitions and qsorts each destination's list using runtime `+0x0C`, independently confirming packed `+8` as the processing sequence/index.
+
+Canonical instruction-type counts are:
+
+```text
+type 1:  11
+type 2:   2
+type 3: 148
+type 4:  11
+type 5:  66
+```
+
+Type 5 is directly confirmed to source clubs from a referenced League and create direct ClubRef participants. The remaining type-specific semantics are being separated without assigning unsupported names prematurely.
 
 ### League-allocation table
 
