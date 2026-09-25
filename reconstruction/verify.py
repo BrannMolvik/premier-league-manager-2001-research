@@ -4,6 +4,10 @@ from hashlib import sha256
 from pathlib import Path
 import sys
 
+from competition_startup import (
+    primary_mode0_cup_pairing_draw_count,
+    primary_mode0_cup_round_team_counts,
+)
 from competition_state import PremierLeagueState
 from fm2001_data import FM2001Database
 
@@ -60,6 +64,51 @@ def verify_database(db: FM2001Database) -> None:
     require(
         len(db.real_fixtures) == 380,
         f"Expected 380 real fixtures, got {len(db.real_fixtures)}",
+    )
+
+    primary_cup_ids = {
+        int(competition.id)
+        for competition in db.competitions
+        if int(competition.runtime_kind_code) == 2
+        and int(competition.schedule_container_code) not in (2, 3)
+    }
+    primary_cup_rounds = tuple(
+        round_definition
+        for round_definition in db.rounds
+        if int(round_definition.competition_id) in primary_cup_ids
+    )
+    require(
+        len(primary_cup_ids) == 27,
+        f"Expected 27 primary Cups, got {len(primary_cup_ids)}",
+    )
+    require(
+        len(primary_cup_rounds) == 115,
+        f"Expected 115 primary Cup rounds, got {len(primary_cup_rounds)}",
+    )
+    require(
+        {
+            round_type: sum(
+                int(round_definition.type_code) == round_type
+                for round_definition in primary_cup_rounds
+            )
+            for round_type in (1, 2, 3)
+        }
+        == {1: 80, 2: 32, 3: 3},
+        "Primary Cup round classes do not match canonical 80/32/3 split",
+    )
+    require(
+        primary_mode0_cup_pairing_draw_count(db.competitions, db.rounds) == 1737,
+        "Expected 1737 mandatory primary Cup pairing RNG calls",
+    )
+    require(
+        len(
+            primary_mode0_cup_round_team_counts(
+                db.competitions,
+                db.rounds,
+            )
+        )
+        == 115,
+        "Primary Cup RNG round-count helper does not cover all 115 rounds",
     )
     require(
         len({f.round_index for f in db.real_fixtures}) == 38,
