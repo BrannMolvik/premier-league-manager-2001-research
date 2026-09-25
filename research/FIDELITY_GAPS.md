@@ -18,7 +18,8 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | Transfers/contracts | Research substantially ahead of implementation | Not yet a complete playable system | 9 |
 | Finance/board | Research substantially ahead of implementation | Not yet a complete playable system | 10 |
 | Broader competitions | Core structures known, full behavior incomplete | Premier League is the strongest reconstructed competition | 12 |
-| UI fidelity | Tk/data-browser prototype rather than FM2001 interface | Original screen/workflow reconstruction incomplete | 13 |
+| Original front-end presentation | Tk/data-browser prototype; original UI/music resources not yet integrated into the modern runtime | Authorized original screen/audio resources should be inventoried, reused, and converted where needed | 13-14 |
+| UI fidelity | Tk/data-browser prototype rather than FM2001 interface | Original screen/workflow restoration incomplete | 13 |
 | FastView/3D | Largely unreconstructed | Intentionally low priority until gameplay is stable | 14 |
 
 ## Resolved or superseded gaps
