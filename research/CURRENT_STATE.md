@@ -21,59 +21,72 @@ Authorized original resources belong under `original_assets/` with provenance tr
 ## Verified repository state
 
 - Latest reverse-engineering checkpoint before stabilization: `1014b042a19fc851b8d87e653ee1e5d807816630` - **Advance startup RNG boundary before TeamSelect click**
-- Latest reconstruction-suite validation: `52d5b4c2eaa9535a67a73b484e712fe0043306b5` - **312 tests passed**
+- Latest reconstruction-suite validation: `a7785c42f6ceeea31d00ec13dc8f0cc731176758` - **323 tests passed**
 - Latest repository asset-policy validation: `17ee2f299a2a0d87f959b9480df9b48d194de6aa` - **passed**
 - Commits after `1014b042...` are repository-management, documentation, verification/CI hardening, and the Windows 11 port/authorized-asset policy transition. They do not supersede the latest reverse-engineering address/path findings.
 
 ## Gate 3 correction objective
 
-Restore the exact shared MSVC CRT state entering primary `0x615BE0`.
+The hidden shared MSVC CRT state entering primary `0x615BE0` is now corrected.
 
-The earlier replay correctly covers Loader444, DBTPlayers, generated names, per-user youth generation, and the two Europe-root selector draws, but a Gate-4 audit proved that Cup round scheduling runs before `0x615BE0` and performs additional participant-pairing shuffles.
+Canonical primary competition totals are:
 
-Canonical startup evidence remains `STARTUP_RNG_LEDGER.md`, but its competition tail must now be amended.
+- 27 primary Cups;
+- 115 primary Cup rounds;
+- 80 NormalRound / 32 TwoLegRound / 3 MiniLeagueRound;
+- 1,737 mandatory Cup participant-shuffle calls;
+- 2 Europe-root selector calls;
+- **1,739 total competition-stage CRT calls before `0x615BE0`**.
+
+For the existing synthetic post-youth checkpoint `0x2797444C`, the corrected competition-stage state is `0x986E4579`.
+
+Gate 3 remains open only because exact bounded-call **ordering and resulting Cup pairings** must still be materialized. That output is required by Gate 4 to know the complete global schedule bucket contents.
 
 ## Last verified technical boundary
 
-The concrete TeamSelect Start/Continue click path consumes **zero CRT RNG draws** before `0x4C41C0`.
+The startup path through TeamSelect and pre-competition initialization is bounded.
 
-Inside the subsequent new-game path:
+The corrected primary Cup scheduler state is also quantified and implemented:
 
-- the TeamSelect prefix through `0x4C42EE` is zero-draw;
-- `0x413830` is the recovered generated-name / per-user youth RNG block;
-- the path after `0x413830` through `0x4F7C00` is zero-draw;
-- RNG-active competition/schedule work beneath `0x4F7C00` is separately mapped.
+- all 115 primary Cup rounds contribute their mandatory participant Fisher-Yates;
+- total Cup pairing RNG cost is 1,737 calls;
+- the two Europe selectors add two more calls;
+- hidden CRT state after all 1,739 competition-stage calls is reproducible exactly;
+- canonical invariants are enforced by `reconstruction/verify.py`.
 
-Therefore the remaining uncertainty has been pushed backward to the TeamSelect panel lifetime/activation path before the user presses Start/Continue.
+Gate-4 groundwork remains valid and committed:
+
+- exact primary bucket coordinate system;
+- exact ordinary LeagueMatch conflict-placement search;
+- first Premier League target bucket = 54;
+- complete target-54 bucket = 142 LeagueMatch nodes;
+- PL fixture IDs occupy pre-shuffle slots 96..105 in order 9..0.
+
+The remaining blocker is not RNG call count; it is exact Cup bounded-call order/pairing output so Cup-generated matches can be placed into the global schedule before the bucket shuffle.
 
 ## Exact next task
 
-Correct the pre-`0x615BE0` competition RNG ledger.
-
-Confirmed correction:
-
-- Cup initialization calls each runtime round's scheduling virtual before final bucket shuffle;
-- type 1 `NormalRound 0x4F64D0` and type 2 `TwoLegRound 0x4F6820` each perform a mandatory participant Fisher-Yates of N-1 draws when N>1;
-- type 3 `MiniLeagueRound 0x4F6B10` also contains a direct RNG shuffle;
-- therefore the old `0x5D07D526` synthetic "state entering primary shuffle" is provisional/incomplete.
+Materialize the exact primary Cup scheduler RNG order and pairing output.
 
 Continue by:
 
-1. map runtime round participant-count initialization for NormalRound/TwoLegRound/MiniLeagueRound;
-2. enumerate which primary Cup rounds are active at new-game startup and their N values;
-3. resolve the scheduler flag passed from `0x4F62B1..0x4F6321` and any extra parent-vector shuffle;
-4. update `competition_startup.py` / `startup_sequence.py` and fixed-seed checkpoints;
-5. only after the corrected state is exact, resume Gate 4 using the already-implemented bucket placement logic.
+1. reproduce the canonical country/root competition initialization order used before primary `0x615BE0`;
+2. place the Champions League / UEFA Cup selector draws at their exact positions within that order;
+3. reproduce each Cup's runtime round ordering;
+4. for every NormalRound / TwoLegRound / MiniLeagueRound, execute its exact descending Fisher-Yates bounds rather than merely advancing raw CRT state;
+5. materialize the resulting participant pairings/matches needed by the primary schedule;
+6. once those Cup schedule nodes are reproducible, return to the already-valid Gate-4 bucket-placement work and propagate the corrected CRT stream through buckets 0..53 into PL bucket 54.
 
-Commit every verified boundary separately.
+Commit every verified ordering/pairing boundary separately.
 
 ## Gate 3 completion criteria (reopened)
 
 - [x] One shared MSVC CRT RNG stream covers the mapped pre-competition startup phases.
 - [x] Fixed-seed intermediate checkpoints exist for those phases.
 - [x] Python-RNG startup fallbacks are isolated/removed.
-- [ ] Cup round scheduling RNG before primary `0x615BE0` is fully included.
-- [ ] A corrected exact state entering primary `0x615BE0` is locked by tests.
+- [x] Cup round scheduler RNG call count before primary `0x615BE0` is fully included.
+- [x] Corrected hidden CRT state entering primary `0x615BE0` is reproducible and canonically verified.
+- [ ] Exact bounded-call ordering and Cup pairing output are materialized for schedule reconstruction.
 
 
 ## Current implementation state
@@ -95,7 +108,7 @@ Already implemented and tested at a substantial level:
 
 See `FIDELITY_GAPS.md` for the canonical list. The most relevant current gaps are:
 
-- mandatory Cup round pairing/scheduling RNG before primary `0x615BE0` is being corrected;
+- exact Cup participant-shuffle ordering/pairing output before primary `0x615BE0` is still being materialized;
 - exact inter-bucket RNG consumption/order inside primary `0x615BE0` is Gate-4 work paused behind that correction;
 - deterministic fixture-ID same-day fallback;
 - unresolved final league-table tie fallback;
