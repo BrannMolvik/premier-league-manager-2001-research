@@ -10,12 +10,20 @@ This is the **canonical live resume point**. It is intentionally short. Historic
 
 Gate 1 (repository stabilization) is complete. See `../ROADMAP.md` for gate definitions and completion criteria.
 
+## Porting mission
+
+The project is now explicitly a **Windows 11 modernization/port**, not a strict clean-room-only replacement.
+
+The project owner has confirmed that the supplied FM2001 archive/disc contents are authorized for project use. Future work should therefore preserve and reuse original data, music, sounds, interface graphics, strings, and other resources wherever technically practical. Modern code should replace the incompatible runtime/game logic while keeping the original player-visible experience as intact as possible.
+
+Authorized original resources belong under `original_assets/` with provenance tracked according to `ASSET_POLICY.md`.
+
 ## Verified repository state
 
 - Latest reverse-engineering checkpoint before stabilization: `1014b042a19fc851b8d87e653ee1e5d807816630` - **Advance startup RNG boundary before TeamSelect click**
 - Stabilization validation rerun: `9bc06b0cd5e844813a837468adcdc4b3518e4c8b`
 - Reconstruction suite at that validation point: **307 tests passed**
-- Clean-room repository guard at that validation point: **passed**
+- Repository asset guard at that validation point: **passed**
 - Commits after `1014b042...` are repository-management, documentation, verification, and CI hardening. They do not supersede the latest reverse-engineering address/path findings.
 
 ## Gate 2 objective
