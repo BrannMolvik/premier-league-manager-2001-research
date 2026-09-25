@@ -19,6 +19,8 @@ COMPETITION_TABLE_OFFSET = 0x2726
 COMPETITION_RECORD_SIZE = 53
 ROUND_TABLE_OFFSET = 0x4F1F
 ROUND_RECORD_SIZE = 36
+CUP_ALLOCATION_TABLE_OFFSET = 0xE337
+CUP_ALLOCATION_RECORD_SIZE = 28
 REAL_FIXTURE_TABLE_OFFSET = 0x10057
 REAL_FIXTURE_RECORD_SIZE = 16
 
@@ -193,6 +195,17 @@ class RoundDefinition:
         return (int(self.source_competition_reference) >> 16) & 0xFFFF
 
 @dataclass(frozen=True)
+class CupAllocationInstruction:
+    id: int
+    destination_competition_id: int
+    sequence_index: int
+    instruction_type: int
+    source_reference: int
+    quantity: int
+    auxiliary: int
+
+
+@dataclass(frozen=True)
 class RealFixture:
     id: int
     round_index: int
@@ -214,6 +227,7 @@ class FM2001Database:
         self.positions = []
         self.competitions = []
         self.rounds = []
+        self.cup_allocation_instructions = []
         self.real_fixtures = []
         self._parse_master()
         if self.static:
@@ -221,6 +235,7 @@ class FM2001Database:
             self._parse_positions()
             self._parse_competitions()
             self._parse_rounds()
+            self._parse_cup_allocation_instructions()
             self._parse_real_fixtures()
 
     def _parse_master(self):
@@ -414,6 +429,31 @@ class FM2001Database:
                 source_competition_reference=struct.unpack_from('<I', r, 20)[0],
             ))
 
+    def _parse_cup_allocation_instructions(self):
+        off = CUP_ALLOCATION_TABLE_OFFSET
+        count = struct.unpack_from('<I', self.static, off)[0]
+        base = off + 4
+        end = base + count * CUP_ALLOCATION_RECORD_SIZE
+        if end > len(self.static):
+            raise ValueError('Static.dat Cup allocation table exceeds file size')
+        for i in range(count):
+            values = struct.unpack_from(
+                '<7I',
+                self.static,
+                base + i * CUP_ALLOCATION_RECORD_SIZE,
+            )
+            self.cup_allocation_instructions.append(
+                CupAllocationInstruction(
+                    id=values[0],
+                    destination_competition_id=values[1],
+                    sequence_index=values[2],
+                    instruction_type=values[3],
+                    source_reference=values[4],
+                    quantity=values[5],
+                    auxiliary=values[6],
+                )
+            )
+
     def _parse_real_fixtures(self):
         off = REAL_FIXTURE_TABLE_OFFSET
         if off + 4 > len(self.static):
@@ -448,5 +488,6 @@ class FM2001Database:
             'positions': len(self.positions),
             'competitions': len(self.competitions),
             'rounds': len(self.rounds),
+            'cup_allocation_instructions': len(self.cup_allocation_instructions),
             'real_fixtures': len(self.real_fixtures),
         }
