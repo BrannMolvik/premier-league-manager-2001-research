@@ -364,6 +364,37 @@ def prepare_premier_league_ai_selection(
         selection=selection,
     )
 
+def build_premier_league_ai_match_side(
+    preparation: PreparedPremierLeagueAiSelection,
+    ordered_roster: Sequence[PlayerT],
+    *,
+    side: int,
+    rng,
+    tactical_state: TeamTacticalState | None = None,
+) -> PreparedPremierLeagueAiSide:
+    """Finish one already-selected AI side after shared fixture setup.
+
+    The high-level original match setup selects both AI teams before generating
+    weather, then initializes non-user Condition for side 0 and side 1. Keeping
+    this finishing step separate lets fixture-level callers preserve that exact
+    RNG order.
+    """
+    initialize_ai_roster_condition(ordered_roster, rng)
+    live_tactics = tactical_state or TeamTacticalState()
+    match_side = build_prepared_match_side_from_selection(
+        preparation.selection,
+        side,
+        live_tactics,
+        user_controlled=False,
+        team_orders=TeamOrderPriorities(),
+    )
+    return PreparedPremierLeagueAiSide(
+        preparation=preparation,
+        tactical_state=live_tactics,
+        match_side=match_side,
+    )
+
+
 def prepare_premier_league_ai_match_side(
     team_club_id: int,
     ordered_roster: Sequence[PlayerT],
@@ -405,21 +436,10 @@ def prepare_premier_league_ai_match_side(
         require_complete_xi=require_complete_xi,
     )
 
-    # Original 0x510D60 runs 0x5111A0 (AI selection/participant setup) first,
-    # then 0x4080F0 for each non-user team before MatchCalculator execution.
-    # The initializer covers the whole roster, including non-participants.
-    initialize_ai_roster_condition(ordered_roster, rng)
-
-    live_tactics = tactical_state or TeamTacticalState()
-    match_side = build_prepared_match_side_from_selection(
-        preparation.selection,
-        side,
-        live_tactics,
-        user_controlled=False,
-        team_orders=TeamOrderPriorities(),
-    )
-    return PreparedPremierLeagueAiSide(
-        preparation=preparation,
-        tactical_state=live_tactics,
-        match_side=match_side,
+    return build_premier_league_ai_match_side(
+        preparation,
+        ordered_roster,
+        side=side,
+        rng=rng,
+        tactical_state=tactical_state,
     )
