@@ -10,6 +10,7 @@ from match_team_setup import (
     TeamTacticalState,
     aggregate_deficit_pressure,
     cup_round_strategy_bias,
+    decode_match_engine_tactics_word,
     formation_selection_class_from_score,
     game_strategy_score,
     late_season_league_strategy_bias,
@@ -18,6 +19,7 @@ from match_team_setup import (
     manager_formation_for_game_strategy,
     manager_formation_for_selection_class,
     manager_tactics_packet_fields,
+    pack_tactics_word,
     play_style_to_strategy_code,
     premier_league_strategy_bias,
     rating_difference_pressure,
@@ -353,6 +355,34 @@ class TacticsPacketTests(unittest.TestCase):
             TeamTacticalState(play_style=3)
         with self.assertRaises(ValueError):
             TeamTacticalState(aggression=10)
+
+    def test_exact_match_engine_packet_decode_is_separate_from_live_team_state(self):
+        packet = manager_tactics_packet_fields(
+            ManagerTacticalSources(3, 80, 2, 3)
+        )
+        word = pack_tactics_word(14, packet)
+        decoded = decode_match_engine_tactics_word(word)
+
+        self.assertEqual(decoded.formation_id, 14)
+        self.assertEqual(decoded.strategy_code, 2)
+        self.assertEqual(decoded.with_ball_code, 2)
+        self.assertEqual(decoded.without_ball_code, 3)
+
+        # 80 // 6 = 13 = binary 1101. 0x533B70 does not copy the full
+        # four-bit value: it extracts packed bits 12..13, i.e. the upper pair.
+        self.assertEqual(packet.aggression_code, 13)
+        self.assertEqual(decoded.aggression_upper_code, 3)
+
+    def test_match_engine_decoder_preserves_human_default_packet_geometry(self):
+        packet = team_tactics_packet_fields(TeamTacticalState())
+        decoded = decode_match_engine_tactics_word(pack_tactics_word(0, packet))
+
+        self.assertEqual(decoded.formation_id, 0)
+        self.assertEqual(decoded.strategy_code, 2)
+        self.assertEqual(decoded.with_ball_code, 0)
+        self.assertEqual(decoded.without_ball_code, 0)
+        self.assertEqual(packet.aggression_code, 5)
+        self.assertEqual(decoded.aggression_upper_code, 1)
 
 
 if __name__ == "__main__":
