@@ -4,9 +4,9 @@ _Last verified: 26 September 2026_
 
 ## Scope
 
-This file is the canonical **standard new-game RNG ledger from the application CRT seed to entry into competition/schedule initialization**.
+This file is the canonical **standard new-game RNG ledger from the application CRT seed through the currently recovered primary-competition RNG state**.
 
-It deliberately stops at the competition boundary. RNG consumed inside competition initialization and the first Premier League schedule-bucket shuffle is the active Gate-3 work.
+The precompetition sequence is exact. Primary Cup scheduling now has an exact hidden-state call total, while exact bounded-output interleaving/pair identities remain the reopened Gate-3 task before the first Premier League schedule-bucket shuffle.
 
 The original executable uses one shared MSVC CRT RNG stream.
 
@@ -249,3 +249,71 @@ Gate 3 must turn this ledger into a single executable replay and then continue t
 - any remaining competition-specific RNG consumers;
 - the first `0x947AD8 / 0x615BE0` Premier League bucket shuffle;
 - fixed-seed intermediate-state tests.
+
+
+## 9. Primary competition RNG correction
+
+A Gate-4 audit found an omitted pre-`0x615BE0` consumer: every primary Cup
+round scheduler shuffles its runtime participant array before the global
+schedule-bucket shuffle.
+
+Runtime round classes are:
+
+- type 1 `NormalRound` -> `0x4F64D0`;
+- type 2 `TwoLegRound` -> `0x4F6820`;
+- type 3 `MiniLeagueRound` -> `0x4F6B10`.
+
+Each round scheduled with N participants consumes:
+
+```text
+RNG(N), RNG(N-1), ..., RNG(2)
+```
+
+for exactly N-1 calls.
+
+Canonical Static.dat plus the runtime round-fill logic proves:
+
+```text
+primary Cups:       27
+primary Cup rounds: 115
+Normal / TwoLeg / MiniLeague: 80 / 32 / 3
+sum(N-1):           1,737 calls
+Europe selectors:      2 calls
+total competition:  1,739 calls
+```
+
+The old assumption that the primary competition tail was merely adjacent
+`RNG(6), RNG(6)` calls is superseded. Those two selector calls remain real but
+are interleaved with Cup initialization/scheduling.
+
+### Hidden-state replay
+
+Because every bounded draw advances the MSVC LCG exactly once, the hidden state
+after primary competition initialization can be reproduced exactly from the
+1,739-call total even before every Cup pairing output is materialized.
+
+For the synthetic Gate-3 post-youth checkpoint:
+
+```text
+0x2797444C
+  + 1,739 CRT calls
+= 0x986E4579
+```
+
+`competition_startup.py` now separates:
+
+- the isolated Europe selector mechanics; and
+- `replay_primary_mode0_pre_shuffle_state`, which advances the complete mapped
+  primary competition **state** cost from parsed Cup/round metadata.
+
+### Remaining Gate-3 work
+
+Exact Cup fixture/pairing outputs still require the true bounded-call order:
+
+1. country/root competition initialization order;
+2. Europe selector position within that order;
+3. each Cup's runtime round sort order;
+4. each round's exact Fisher-Yates bound sequence.
+
+That ordering matters to which teams are paired, even though it does not change
+the final hidden LCG state after all 1,739 calls.
