@@ -3681,3 +3681,108 @@ After the dated-match scheduler returns, `0x4A8070` begins by processing the glo
 The persistent injury return object is RTTI class `MPMInjuryReverse` with vtable `0x7D7760`. Its `+0x10` handler is `0x5D7B40`, which ultimately calls `0x418AD0` for each returned player. Because this event pass occurs after `0x4A8260`, a player returning on a fixture date becomes available only after that day's scheduled fixtures have been processed.
 
 The existing Pitch Wear cadence remains daily. `0x4A8070` calls `0x4138E0` on every day; `0x4138E0` calls club traversal `0x40BA50`, which invokes `0x40DD70` for each club. The separate `0x40BAD0` traversal inside `0x4A8070` is gated by the weekly date test and calls a different club routine, so it is not the Pitch Wear recovery path.
+
+
+## Exact schedule-bucket insertion, shuffle, and CRT RNG
+
+**Confirmed from direct disassembly of the canonical executable at
+`0x615950`, `0x615AE0`, `0x615BE0`, `0x64D530`, `0x64D540`,
+`0x66950F`, `0x66951C`, and startup path `0x531097..0x5310A3`.**
+
+The remaining same-day fixture-order boundary is now much narrower.
+
+### Bucket insertion is head insertion
+
+`0x615950` resolves the supplied date to a schedule-container bucket, stores
+that bucket index in the schedule node at `+0x10`, then performs:
+
+```text
+node->next = bucket_head
+bucket_head = node
+```
+
+Therefore the linked-list order immediately before shuffling is the **reverse
+of insertion order** for all nodes assigned to the same date bucket.
+
+### Per-bucket shuffle is exact descending Fisher-Yates
+
+`0x615AE0` first counts the nodes, copies their pointers to a temporary array
+in current linked-list order, and for `remaining = N .. 2` performs:
+
+```text
+j = RNG(remaining)
+swap(array[j], array[remaining - 1])
+```
+
+It then rewires the linked list in that array order. Thus an N-node bucket
+consumes exactly `N-1` bounded RNG calls with bounds:
+
+```text
+N, N-1, N-2, ..., 2
+```
+
+A ten-match bucket therefore consumes nine draws in the final bucket shuffle.
+
+`0x615BE0` applies `0x615AE0` to container buckets in increasing bucket-index
+order.
+
+### Exact MSVC CRT random generator
+
+`0x66950F` is the executable's `srand` implementation. It stores the
+supplied 32-bit value directly in CRT per-thread random state.
+
+`0x66951C` is `rand`:
+
+```text
+state = (state * 0x343FD + 0x269EC3) mod 2^32
+rand15 = (state >> 16) & 0x7FFF
+```
+
+`0x64D530` is a direct jump to this `rand` routine. This corrects the
+earlier provisional interpretation of `0x64D530` as a random-state getter.
+
+`0x64D540(bound)` calls `rand` once and multiplies by the double constant
+at `0x7D8060`, which is exactly `1/32768`:
+
+```text
+RNG(bound) = floor(rand15 * bound / 32768)
+```
+
+For every positive schedule-list count this is exactly reproduced by integer
+`(rand15 * bound) // 32768`.
+
+### Application seed and save/load behavior
+
+At application startup, `0x531097` passes a null pointer to the CRT
+time routine at `0x66A767`, then passes its return value directly to
+`0x66950F`. The time routine uses `GetLocalTime`, `GetSystemTime`, and
+`GetTimeZoneInformation` before converting to the CRT time value. The
+initial global random stream is therefore time-seeded rather than fixed.
+
+The save path at `0x50DE11` calls `0x64D530` (advancing `rand` once),
+serializes that 15-bit returned value, and then immediately reseeds the CRT
+generator with the same value at `0x50DE2E`. The load path restores the
+serialized value with `0x66950F` at `0x50E16E`. Save/load therefore
+checkpoints the game's future random stream by reseeding from a `rand()`
+output rather than serializing the hidden 32-bit CRT state directly.
+
+### Consequence for exact same-day fixture order
+
+There is no single static "original fixture order" for a matchday. The final
+order depends on the shared CRT random state when schedule-bucket shuffling is
+reached. In addition, schedule-generation code reached from the setup path
+(for example `0x4FA790`) itself makes repeated `0x64D540` calls before
+inserting generated match objects into `0x947AF0`.
+
+Therefore reproducing one original new-game matchday ordering requires:
+
+1. the exact initial/current saved CRT seed;
+2. every earlier RNG consumer in the relevant schedule-generation path;
+3. exact insertion order into each date bucket;
+4. the head-insertion reversal;
+5. the final descending Fisher-Yates calls.
+
+The clean-room now contains the exact reusable CRT RNG and bucket
+head-insertion/shuffle primitives in `reconstruction/match_schedule.py`.
+They are intentionally not yet wired into the default season scheduler until
+the preceding insertion/generation stream is fully recovered.

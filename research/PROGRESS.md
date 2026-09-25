@@ -1780,3 +1780,33 @@ reconstruction/match_preparation.py now composes RuntimePlayer-like state into a
 3. the original formation/substitute-quota source supplied by the team/competition runtime.
 
 The next highest-value bridge is to resolve those team-level pre-match inputs together with tactical/order state, so a scheduled AI club can be prepared without caller-supplied formation/tactic metadata.
+
+
+## 25 September exact schedule RNG/shuffle checkpoint
+
+The reconstruction regression workflow is now operational and green:
+**270 tests pass** at commit `3473737015fb6a283a5f807ba1af91f8f6494794`.
+The preceding failures were stale synthetic fixtures/assertions and were
+corrected without relaxing production behavior.
+
+The simultaneous-fixture scheduler investigation has also advanced:
+
+- `0x615950` is confirmed head insertion, so a date bucket begins in reverse
+  insertion order;
+- `0x615AE0` is exact descending Fisher-Yates with RNG bounds `N..2`;
+- `0x615BE0` shuffles buckets in increasing bucket-index order;
+- `0x66951C` is the classic MSVC 32-bit LCG / 15-bit `rand()`;
+- `0x64D540(n)` is exactly `floor(rand15*n/32768)`;
+- `0x64D530` is another `rand()` entry point, not a state getter;
+- application startup seeds the CRT stream from the current-time routine;
+- save/load deliberately serializes a `rand()` output and reseeds from it;
+- schedule-generation paths can consume the same shared RNG before the final
+  date-bucket shuffle.
+
+Clean-room exact RNG and bucket-shuffle primitives now live in
+`reconstruction/match_schedule.py`.
+
+Remaining same-day-order target: recover the exact Premier League match-node
+insertion/generation path and all intervening RNG consumption leading into
+the final bucket shuffle. Until that is complete, fixture-ID order remains an
+explicit deterministic fallback rather than a fidelity claim.
