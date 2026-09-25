@@ -57,17 +57,23 @@ Therefore the remaining uncertainty has been pushed backward to the TeamSelect p
 
 ## Exact next task
 
-The standard PStartMenu -> core database load -> TeamSelect construction/activation -> Start/Continue path is now bounded.
+The application seed boundary is now connected to a newly recovered mandatory consumer:
 
-Confirmed mandatory randomness on that connected path is:
+```text
+0x53109E srand(time-derived seed)
+ -> first bground.444 Loader444 decode
+ -> exactly 260 raw MSVC rand() calls
+ -> later fresh-game PStartMenu
+ -> DBTPlayers startup RNG
+```
 
-1. the already-reconstructed DBTPlayers startup sequence inside `0x50D630`;
-2. the already-reconstructed `0x413830` generated-name/youth sequence after the Start click;
-3. later mapped competition/schedule consumers.
+The 260 draws are 259 one-time Loader444 table-initialization calls plus one per-conversion draw.
 
-TeamSelect construction, activation, idle/start-button handling, and the other `0x50D630` database loaders are zero-draw on the standard path.
+Next:
 
-The remaining Gate-2 question is now **earlier than PStartMenu**: trace from the application's CRT seed call to the PStartMenu/database-loader entry and identify any mandatory RNG consumers before DBTPlayers startup.
+1. add/test a startup RNG replay helper for this exact 260-draw compatibility side effect;
+2. finish auditing the remaining post-`srand`, pre-PStartMenu startup helpers for any other mandatory CRT consumers;
+3. if none remain, assemble the complete seed -> background -> DBTPlayers -> TeamSelect -> `0x413830` -> competition/schedule ledger.
 
 Commit each verified boundary and checkpoint unresolved traces after roughly ten minutes.
 
