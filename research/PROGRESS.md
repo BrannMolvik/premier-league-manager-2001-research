@@ -1985,3 +1985,29 @@ The user-reset path 0x413830 -> 0x413980 -> 0x61DF90 generates a randomized set 
 Clean-room additions expose Master.dat player +10 as initial_flags and model the exact option target mapping, candidate filter, and swap-delete selection behavior in startup_rng.py.
 
 Next target: recover 0x421BA0 per-country/fallback name-list bounds, then account for the separate 0x414330 -> 0x421C00 loop that can consume many startup name-generation draws before 0x61DF90.
+
+
+## 25 September generated-name bound checkpoint
+
+The two nested RNG bounds inside 0x421C00/0x421BA0 are now reproducible from
+the shipped data rather than symbolic.
+
+DBTNationalities post-process 0x411A10 constructs filtered player-pointer
+vectors per nationality in table order. The four literal string exclusions
+are preserved exactly. 0x421BA0 uses that vector count when >10, otherwise
+falls back to the full DBTPlayers count.
+
+The earlier 0x414330 startup block is also quantified: 1,157 shipped teams
+qualify for one generated-name call (2,314 RNG draws), followed by 54 fixed
+generated-name calls for the selected user's club country (108 more draws).
+Thus 0x414330 contributes 2,422 bounded name draws before 0x413980 youth
+generation.
+
+Clean-room startup_rng.py now exposes/test-covers the exact name-source
+filter, nationality source ordering, per-country RNG bound, team-loop filter,
+and two-draw-per-team sequence.
+
+Next target: use these helpers to construct the exact pre-schedule draw ledger
+for a concrete new-game/user configuration, including the selected user's
+country and 0x61DF90 youth candidate/name sequence; then continue auditing
+any remaining setup callees before enabling exact default PL fixture order.

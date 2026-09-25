@@ -3694,3 +3694,76 @@ Thus each generated player contributes an interleaved sequence:
 before the next candidate draw. The exact name_bound mapping remains the next target.
 
 This corrects a direct-call-only observation: 0x421C00 has no direct 0x64D540 instruction, but transitively it consumes two RNG draws through 0x421BA0.
+
+
+## Generated-name nationality vectors and 0x414330 team loop
+
+Direct tracing of DBTNationalities post-processing at 0x411A10 resolves the
+two bounds consumed by every 0x421C00 generated-name call.
+
+0x411A10 first frees and zeros every DBRNationality +0x0C/+0x10 vector.
+It then makes a first pass over all runtime DBRPlayers. A player contributes
+to its nationality count only when all literal byte tests pass:
+
+    first_name[1] != '.'
+    surname[0]   != 'N'
+    surname[1]   != 'o'
+    surname[2]   != '.'
+
+The comparisons are independent branches exactly as written; they must not be
+collapsed into a single 'No.' prefix test. The function then allocates
+count*4 bytes for every nationality and makes a second identical player-table
+pass, storing qualifying DBRPlayer pointers in original player-table order.
+
+Thus DBRNationality+0x10 is the filtered source-vector count, not the raw
+number of players with that nationality.
+
+0x421BA0 uses that count when it is >10. For count <=10 it falls back to
+DBTPlayers+0x04, the complete runtime player count (30064 in the shipped
+database). 0x421C00 reads DBRCountry+0x0C as the nationality index and uses
+index 26 only when that field is -1. Existing country-loader evidence maps
+DBRCountry+0x0C to Static.dat country dword +6.
+
+Applying the exact 0x411A10 filter to the canonical Master.dat leaves 23,392
+name-source players and excludes 6,672. Example filtered source counts include:
+
+    England nationality 26: 2548
+    Scotland 66:            1113
+    Italy 40:               1024
+    France 31:               812
+    Holland 24:              713
+    Spain 73:                627
+    Germany 33:              602
+
+### 0x414330 per-team generated-name loop
+
+Before user youth generation, 0x413830 calls 0x414330. Its first loop walks
+all runtime teams in team-table order. A team reaches 0x421C00 only when
+0x403F90 returns zero and the redundant subsequent 0x403640 check is also
+zero.
+
+0x403F90 is true when either:
+
+- team category byte +0x74 is 2 or 3 (0x403640), or
+- 0x403FC0 is true: team full-name text begins '!' or runtime team ID +0x04
+  is negative.
+
+For Master.dat-backed teams IDs are 0..1245, so the shipped source-data
+equivalent is: category not 2/3 and club name does not begin '!'.
+
+Canonical data contains 1,157 qualifying teams. Each calls 0x421C00 once
+with its team country, consuming **two country-specific name RNG draws**.
+That is 2,314 bounded RNG calls before the later fixed-name blocks.
+
+After the team loop, 0x414330 makes 54 additional 0x421C00 calls using the
+country of the currently selected user's team:
+
+    4 + 1 + 1 + 12 + 36 = 54 calls
+
+so this contributes another 108 bounded name RNG draws. The selected user is
+resolved through 0x4139D0 -> 0x413B10 using controller +0x9C4; its team is
+user+0x5B4 and the country is team+0x14.
+
+Therefore 0x414330 alone consumes 2,422 name RNG draws on the shipped team
+table, plus the exact bounds depend on each team country and on the selected
+user's country for the final 108 draws.

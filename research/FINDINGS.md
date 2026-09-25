@@ -827,3 +827,23 @@ Confirmed:
 - exact generated-name bounds are still unresolved.
 
 Therefore first-matchday shuffle state is user/new-game configuration dependent, not a fixed function of the shipped database alone.
+
+
+## Generated-name RNG bounds and startup team-name draw count
+
+Confirmed:
+
+- 0x411A10 builds DBRNationality name-source vectors from players in table
+  order using four independent literal string exclusions;
+- DBRNationality+0x10 is that filtered vector count;
+- 0x421BA0 uses RNG(nationality_count) only when count>10, otherwise
+  RNG(total_player_count); shipped total is 30064;
+- DBRCountry+0x0C supplies the nationality index to 0x421C00, with fallback
+  index 26 only when it is -1;
+- the shipped name-source vectors contain 23,392 players after the exact
+  string filter;
+- 0x414330's team loop calls 0x421C00 for 1,157 Master.dat teams, yielding
+  2,314 country-specific name draws;
+- 0x414330 then makes 54 more generated-name calls for the selected user's
+  team country, yielding another 108 draws;
+- total 0x414330 name draws on the shipped team table: **2,422**.
