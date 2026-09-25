@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from hashlib import sha256
 from pathlib import Path
 import sys
@@ -60,6 +61,26 @@ def verify_database(db: FM2001Database) -> None:
     require(len(db.managers) == 1612, f"Expected 1612 managers, got {len(db.managers)}")
     require(len(db.positions) == 20, f"Expected 20 positions, got {len(db.positions)}")
     require(len(db.rounds) == 1053, f"Expected 1053 rounds, got {len(db.rounds)}")
+    require(
+        len(db.cup_allocation_instructions) == 238,
+        (
+            "Expected 238 Cup allocation instructions, got "
+            f"{len(db.cup_allocation_instructions)}"
+        ),
+    )
+    require(
+        tuple(instruction.id for instruction in db.cup_allocation_instructions)
+        == tuple(range(238)),
+        "Cup allocation instruction IDs are not canonical source order 0..237",
+    )
+    allocation_type_counts = Counter(
+        int(instruction.instruction_type)
+        for instruction in db.cup_allocation_instructions
+    )
+    require(
+        allocation_type_counts == {1: 11, 2: 2, 3: 148, 4: 11, 5: 66},
+        f"Unexpected Cup allocation instruction type counts: {allocation_type_counts}",
+    )
     require(
         len(db.premier_league_rounds) == 38,
         f"Expected 38 Premier League rounds, got {len(db.premier_league_rounds)}",
