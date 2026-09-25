@@ -4151,3 +4151,63 @@ zero-draw on the mandatory new-game path.
 Therefore the first RNG activity inside `0x4C41C0` remains the known
 `0x413830` generated-name/youth block at `0x4C4304`; no earlier
 TeamSelect UI refresh in the same routine advances the CRT stream.
+
+
+## TeamSelect start-button dispatch is RNG-clean before 0x4C41C0
+
+**Confirmed**
+
+The remaining immediate caller boundary before the new-game/reset routine is now
+resolved through concrete RTTI and Button control code.
+
+The sole call to `0x4C41C0` in the TeamSelect event handler is:
+
+```text
+PMain@TeamSelect event handler 0x4DA480
+  event/control ID 0x2A
+  -> 0x4DA4A5 call 0x4C41C0
+```
+
+RTTI ties vtable `0x7C7650` to `PMain@TeamSelect`; its virtual slot
+`+0x10` is `0x4DA480`.
+
+The embedded control at TeamSelect `+0x3690` has RTTI
+`Button@ease_2001`. Setup writes control ID `0x2A` and the TeamSelect
+owner through `0x64F3C0`:
+
+```text
+button +0x20 = 0x2A
+button +0x24 = TeamSelect owner
+```
+
+The concrete click path is:
+
+```text
+Button@ease_2001::input 0x64F7A0
+  -> owner virtual +0x0C = TeamSelect 0x5CFA50 (constant return 1)
+  -> optional UI/sound callback
+  -> Button state update
+  -> owner virtual +0x10 = TeamSelect 0x4DA480
+  -> reads button +0x20 == 0x2A
+  -> 0x4C41C0
+```
+
+The last potentially opaque pre-parent callback in the Button state update is
+provably absent for this control. The generic Button setup route
+`0x652FD0 -> 0x651E30 -> 0x651BA0 -> 0x64F380` passes zero as the
+control `+0x28` callback pointer. Therefore `0x64F710` cannot enter its
+optional `[control+0x28] vtable +0x0C` notification branch.
+
+The optional global callback at `0x984810` resolves to a UI/sound path
+(`0x5DBFC0`, option accessor `0x515FE0`, and sound/timer plumbing) and
+does not call the CRT RNG entry points. Calls after the owner `+0x10`
+callback cannot affect the RNG state entering `0x4C41C0`.
+
+A direct audit of the TeamSelect method range `0x4D7CC0..0x4DA4D0`
+also finds no calls to the known CRT RNG entry points
+`0x64D530/0x64D540/0x64D5B0/0x66951C`.
+
+Result: the concrete Start/Continue button dispatch itself consumes **zero CRT
+RNG draws** before entering `0x4C41C0`. The next startup-RNG audit boundary
+must therefore move earlier in the TeamSelect panel lifetime / activation path,
+rather than searching between the click callback and `0x4C41C0`.
