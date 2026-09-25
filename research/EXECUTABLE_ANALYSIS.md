@@ -5053,3 +5053,136 @@ of:
 
 That bounded-output ordering is the remaining reopened Gate-3 task before
 Gate 4 uses the resulting Cup fixtures for exact global bucket placement.
+
+
+## Cup ClubRef participant records and allocation instruction bridge
+
+**Confirmed 26 September 2026 from RTTI, direct disassembly and canonical Static.dat.**
+
+This advances reopened Gate 3 from ordered RNG slot permutations toward real Cup participant/pairing reconstruction.
+
+### 16-byte participant record is ClubRef
+
+RTTI resolves the vtable used by Cup round participant entries at `0x7C4D60` to:
+
+```text
+.?AVClubRef@@
+```
+
+The runtime record is 16 bytes:
+
+```text
++0x00  vtable = 0x7C4D60
++0x04  cached/direct club pointer
++0x08  referenced runtime object pointer
++0x0C  uint16 ClubRef type tag
++0x0E  uint16 selector/index/encoded flags
+```
+
+Confirmed constructors:
+
+```text
+0x4F2CB0 -> type 0: direct club pointer in +0x04
+0x4F2CE0 -> type 1: object pointer +0x08, caller selector +0x0E
+0x4F2D10 -> type 2: object pointer +0x08, caller selector +0x0E
+0x4F2D40 -> type 3: object pointer +0x08, derived selector +0x0E
+0x4F2D90 -> type 4: object pointer +0x08, encoded selector/flag bits +0x0E
+```
+
+Type 3 derives its `+0x0E` selector from the referenced competition's DBRCompetition word `+0x0C`, a caller-supplied multiplier and an added offset.
+
+### Post-Fisher-Yates comparator 0x4F67D0
+
+NormalRound and TwoLegRound shuffle their ClubRef arrays, then qsort 16-byte records with comparator `0x4F67D0`.
+
+The comparator behavior is exact:
+
+- type-2 ClubRefs sort before every non-type-2 ClubRef;
+- if both records are type 2, follow each `+0x08` object pointer, then compare the two-word schedule pair at referenced-object `+0x20` through `0x4F3BB0`;
+- if neither is type 2, comparator result is zero.
+
+Therefore the mandatory Fisher-Yates remains meaningful: it randomizes relative order inside comparator-equivalent groups, while type-2 references are grouped first and chronologically ordered by their referenced schedule pair.
+
+### DBRCupAllocInstruction runtime layout
+
+The packed Static.dat Cup-allocation table at `0xE337` contains 238 records of seven dwords (28 bytes).
+
+The runtime class has vtable `0x7C9818` and expands each packed record to 0x20 bytes:
+
+```text
+runtime +0x00  vtable
+runtime +0x04  packed +0   instruction ID
+runtime +0x08  packed +4   destination competition ID
+runtime +0x0C  packed +8   sequence/index
+runtime +0x10  packed +12  instruction type
+runtime +0x14  packed +16  source/reference parameter
+runtime +0x18  packed +20  quantity/count parameter
+runtime +0x1C  packed +24  auxiliary parameter
+```
+
+### Attachment and sort before Cup::init
+
+Startup at `0x4F773A..`:
+
+1. scans all 238 runtime instructions in source-table order;
+2. uses instruction `+0x08` to find the destination runtime competition;
+3. counts and allocates that competition's instruction pointer array at competition `+0x24/+0x28`;
+4. appends instruction pointers in source order;
+5. qsorts each destination's pointer array at `0x4F7812` using comparator `0x4F7A30`.
+
+Comparator `0x4F7A30` compares instruction runtime `+0x0C`, proving packed dword `+8` is the ordering sequence/index used by Cup initialization.
+
+There is exactly one canonical duplicate destination/sequence pair:
+
+```text
+destination competition 23, sequence 2:
+  instruction 161: type 5, source 22, quantity 18
+  instruction 162: type 5, source 24, quantity 5
+```
+
+Its equal-key order still requires the full CRT qsort path or direct runtime-equivalent proof before source-order assumptions are allowed.
+
+### Instruction-type dispatch
+
+Cup::init reads runtime `+0x10`, subtracts one, and dispatches five cases:
+
+```text
+type 1 -> 0x4F5ED5
+type 2 -> 0x4F5FE1
+type 3 -> 0x4F60DD
+type 4 -> 0x4F6136
+type 5 -> 0x4F5F97
+```
+
+Canonical type distribution:
+
+```text
+type 1:  11
+type 2:   2
+type 3: 148
+type 4:  11
+type 5:  66
+total:  238
+```
+
+Current proven construction details:
+
+- type 5 traverses the referenced League's club/ranking array and feeds direct clubs through `0x4F5840 -> 0x4F2CB0`, creating **ClubRef type 0**;
+- type 1 has branches that construct **ClubRef type 1** through `0x4F2CE0` and **ClubRef type 2** through `0x4F2D10`;
+- type 2 can copy/create type-1 references or create **ClubRef type 3** through `0x4F2D40`, depending on the referenced competition/runtime class;
+- type 4 updates an allocation accumulator using instruction `+0x14/+0x18`; it does not directly append a ClubRef in its dispatch body;
+- type 3 routes through `0x4F58C0`; its precise source-reference semantics are still being traced.
+
+### Round fill order
+
+`0x4F57E0 -> 0x4F5790` chooses the current Cup round from the already-sorted Cup round array. Global/current round index `0x876BB8` walks backward while the round's new-entrant quota at `+0x14` is not greater than current participant count `+0x0C`.
+
+The selected round receives the new ClubRef through `0x4F5570`, which appends one 16-byte ClubRef and increments the round participant count.
+
+Thus exact Cup participant source order is determined jointly by:
+
+1. per-Cup sorted allocation-instruction order;
+2. each instruction type's ClubRef production order;
+3. the sorted Cup round array and new-entrant quotas.
+
+This is now the active Gate-3 reconstruction boundary.
