@@ -2301,3 +2301,23 @@ Confirmed from direct executable disassembly:
 This is the first concrete connection between the recovered player startup RNG sequence and the TeamSelect lifetime path.
 
 Next target: audit the other mandatory loaders/setup calls inside `0x50D630` and the pre-`0x50D630` portion of PStartMenu ID-2 branch for any additional CRT RNG consumers before TeamSelect exists.
+
+
+## 26 September core database-loader RNG checkpoint
+
+Another Gate-2 boundary is now closed and committed.
+
+The `0x50D630` core startup loader called before TeamSelect construction has been audited:
+
+- DBTClubs allocation virtual resolves to `0x40BBE0`, constructing clubs through `0x405A40`; its normal load/import/post-load path contains no CRT RNG;
+- the nearby club random selector `0x40BB50` is not called by the startup club loader;
+- DBTManagers allocation virtual resolves to `0x414B80`, constructing records through `0x414C50`;
+- manager loader `0x4147F0`'s record virtual `+0x18` resolves through vtable `0x7BDA20` to `0x415B50 -> 0x414D50`, which is deterministic serialization handling;
+- manager post-copy `0x414E10` is deterministic;
+- manager RNG-bearing behavior routines around `0x415435/0x415760` are not on the startup manager-load path;
+- DBTPlayers post-process `0x421CE0` adds no new RNG beyond the already-reconstructed `0x421C80` startup draws;
+- `0x4310C0/0x431160`, `0x413890 -> 0x40C4E0`, and `0x4F6EB0` do not introduce a mandatory CRT draw.
+
+Result: **inside `0x50D630`, the mandatory startup RNG source is the known DBTPlayers sequence.**
+
+Next target: close the PStartMenu ID-2 calls before `0x50D630` and then finish the TeamSelect constructor/activation helper audit.
