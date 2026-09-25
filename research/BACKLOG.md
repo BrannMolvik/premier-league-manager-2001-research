@@ -32,7 +32,7 @@ A backlog item is not necessarily a bug or fidelity error. Known deviations from
 
 ## UI / presentation
 
-- Inventory the authorized archive for menu/login music, sound effects, UI graphics, fonts, badges, icons, backgrounds, match-presentation resources, and other reusable presentation assets.
+- Intro FMVs are now identified and decoded: `FMV/easp.tgq` and `FMV/premintro.tgq` both contain embedded original audio; see `STARTUP_PRESENTATION.md`. Continue the asset inventory for separate menu/login music, sound effects, UI graphics, fonts, badges, icons, backgrounds, and match-presentation resources.
 - Restore management screens after the core human-manager loop is stable, preferring original resources and layouts over unnecessary recreations.
 - Integrate original login/menu music and front-end audio during the presentation gates.
 - Leave FastView/3D presentation until Gate 14 unless a presentation structure is needed to understand simulation semantics.
