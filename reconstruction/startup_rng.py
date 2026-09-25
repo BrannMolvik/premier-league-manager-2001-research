@@ -3,6 +3,7 @@
 Only behavior with proven executable ordering/bounds is modeled here.
 """
 
+from dataclasses import dataclass
 from typing import Iterable, Protocol
 
 
@@ -12,6 +13,10 @@ class BoundedRng(Protocol):
 
 class RawCrtRng(Protocol):
     def rand15(self) -> int: ...
+
+
+class StatefulStartupRng(BoundedRng, RawCrtRng, Protocol):
+    state: int
 
 
 LOADER444_FIRST_DECODE_RAW_DRAWS = 260
@@ -33,6 +38,32 @@ def consume_loader444_first_decode_rng(rng: RawCrtRng) -> int:
     for _ in range(LOADER444_FIRST_DECODE_RAW_DRAWS):
         rng.rand15()
     return LOADER444_FIRST_DECODE_RAW_DRAWS
+
+
+def consume_dbtplayers_startup_rng(rng: BoundedRng, player_count: int) -> int:
+    """Advance the exact DBTPlayers construction/load RNG sequence.
+
+    DBTPlayers constructs every DBRPlayer before loading any compact records.
+    Therefore all RNG(15) constructor morale draws happen first. The later
+    per-record load pass consumes RNG(1), RNG(2), RNG(2), RNG(5) in table
+    order. Even RNG(1) advances the underlying CRT state.
+
+    Returns the number of raw/bounded CRT calls consumed.
+    """
+    player_count = int(player_count)
+    if player_count < 0:
+        raise ValueError("player_count must not be negative")
+
+    for _ in range(player_count):
+        rng.randbelow(15)
+
+    for _ in range(player_count):
+        rng.randbelow(1)
+        rng.randbelow(2)
+        rng.randbelow(2)
+        rng.randbelow(5)
+
+    return player_count * 5
 
 
 class PlayerSource(Protocol):
@@ -134,6 +165,38 @@ class GeneratedNameClubSource(Protocol):
     name: str
     country_id: int
     team_category_code: int
+
+
+class StartupPlayerSource(PlayerSource, GeneratedNamePlayerSource, Protocol):
+    pass
+
+
+class StartupClubSource(SpareClubSource, GeneratedNameClubSource, Protocol):
+    pass
+
+
+@dataclass(frozen=True)
+class StartupUserRngConfig:
+    """RNG-visible user configuration consumed by 0x413980 / 0x61DF90."""
+
+    country_id: int
+    option_mode: int | None
+    destination_count: int = 0
+
+
+@dataclass(frozen=True)
+class PrecompetitionStartupRngReplay:
+    """Intermediate shared-CRT checkpoints for the recovered startup ledger."""
+
+    after_loader444_state: int
+    after_players_state: int
+    after_team_names_state: int
+    after_youth_state: int
+    loader444_draw_count: int
+    player_draw_count: int
+    team_name_draw_count: int
+    youth_targets: tuple[int, ...]
+    youth_source_ids: tuple[tuple[int, ...], ...]
 
 
 def generated_name_source_eligible(first_name: str, surname: str) -> bool:
@@ -326,4 +389,77 @@ def replay_startup_youth_generation_for_country(
         option_mode,
         name_bound,
         destination_count=destination_count,
+    )
+
+
+def replay_precompetition_startup_rng(
+    rng: StatefulStartupRng,
+    clubs: Iterable[StartupClubSource],
+    countries: Iterable[GeneratedNameCountrySource],
+    players: Iterable[StartupPlayerSource],
+    selected_user_country_id: int,
+    users: Iterable[StartupUserRngConfig],
+) -> PrecompetitionStartupRngReplay:
+    """Replay every recovered mandatory RNG consumer before competition entry.
+
+    This is the executable form of research/STARTUP_RNG_LEDGER.md. It advances
+    one shared CRT stream through:
+
+      Loader444 first-decode compatibility side effect
+      -> DBTPlayers construction/load
+      -> 0x414330 generated-name block
+      -> one 0x61DF90 youth block per linked user
+
+    It intentionally stops before competition initialization. The function
+    models RNG-visible startup behavior only; it does not construct player or
+    user objects.
+    """
+    club_list = tuple(clubs)
+    country_list = tuple(countries)
+    player_list = tuple(players)
+    user_list = tuple(users)
+
+    loader444_draw_count = consume_loader444_first_decode_rng(rng)
+    after_loader444_state = int(rng.state) & 0xFFFFFFFF
+
+    player_draw_count = consume_dbtplayers_startup_rng(rng, len(player_list))
+    after_players_state = int(rng.state) & 0xFFFFFFFF
+
+    team_name_draw_count = consume_startup_team_name_rng(
+        rng,
+        club_list,
+        country_list,
+        player_list,
+        selected_user_country_id=int(selected_user_country_id),
+    )
+    after_team_names_state = int(rng.state) & 0xFFFFFFFF
+
+    spare_club_id = startup_spare_club_id(club_list)
+    candidates = startup_youth_candidate_ids(player_list, spare_club_id)
+
+    youth_targets: list[int] = []
+    youth_source_ids: list[tuple[int, ...]] = []
+    for user in user_list:
+        target, selected = replay_startup_youth_generation_for_country(
+            rng,
+            candidates,
+            user.option_mode,
+            int(user.country_id),
+            country_list,
+            player_list,
+            destination_count=int(user.destination_count),
+        )
+        youth_targets.append(int(target))
+        youth_source_ids.append(tuple(int(value) for value in selected))
+
+    return PrecompetitionStartupRngReplay(
+        after_loader444_state=after_loader444_state,
+        after_players_state=after_players_state,
+        after_team_names_state=after_team_names_state,
+        after_youth_state=int(rng.state) & 0xFFFFFFFF,
+        loader444_draw_count=loader444_draw_count,
+        player_draw_count=player_draw_count,
+        team_name_draw_count=team_name_draw_count,
+        youth_targets=tuple(youth_targets),
+        youth_source_ids=tuple(youth_source_ids),
     )
