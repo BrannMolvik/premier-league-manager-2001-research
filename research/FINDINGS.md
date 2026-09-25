@@ -728,3 +728,15 @@ Confirmed:
 - 0x6178B0 copies the relevant parent Cup vector at +0x54/+0x58 before the shuffle;
 - exact vector counts/order for those child phases remain unresolved;
 - 0x40B380 itself is RNG-clean; the rand() seen at adjacent 0x40B390 belongs to another function.
+
+## Mode-0 Cup and team-setup RNG corrections
+
+Confirmed:
+
+- Cup's eight-dword +0x54 allocation branch is selector-true/mode-1 only; Champions League/WCC mode-0 initialization skips it;
+- a root mode-0 Cup with an empty +0x54 vector later initializes one slot at +0x54/+0x58;
+- Cup+0x34 derives from packed competition dword +27: 123 -> 1, 116 -> 2, otherwise 0;
+- Champions League ID 9 (+27=123) uses the 0x40C6C0 selection route, which consumes at most one RNG(count-1) draw via 0x5EE6C0 when its candidate vector has >1 entries;
+- WCC ID 101 (+27=116) has a special branch whose RNG use depends on Cup+0x40 and remains unresolved;
+- 0x4F6360 is RNG-clean; the earlier apparent RNG call belonged to the next function;
+- new-game 0x616620 passes argument 1 to 0x404110, so 0x404110 skips its 0x41ACA0 RNG-using morale path before 0x615BE0.

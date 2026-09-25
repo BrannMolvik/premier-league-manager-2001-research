@@ -3837,3 +3837,11 @@ The important recovered conditional consumer is procedural League builder 0x6170
 Under the shipped mode-0 competition data, the currently proven child-League candidates for this RNG block are Champions League Phase 1 (ID 14), Champions League Phase 2 (ID 167), and WCC Group Phase (ID 192). Exact RNG draw counts depend on the parent Cup participant vector at +0x54/+0x58 when each child initializes and remain unresolved.
 
 This supersedes the provisional idea that all procedural lower divisions necessarily consume the 0x617277 shuffle. Root English lower leagues have null parents and skip it.
+
+## Mode-0 Cup pre-shuffle correction
+
+The parent-vector count used by child procedural Leagues must not be inferred from Cup's eight-entry mode-1 allocation branch. Mode-0 Cups jump over that block. A root mode-0 Cup later initializes Cup+0x54/+0x58 to one slot when still empty, then may populate that slot through competition-specific selection logic.
+
+Champions League ID 9 reaches a 0x40C6C0 team-selection route that can consume one RNG(count-1) draw if its filtered candidate vector has more than one entry. WCC ID 101 uses a special +0x34==2 branch whose random-vs-nonrandom outcome still depends on Cup+0x40.
+
+The post-competition team call 0x404110 is also narrower than first feared: new-game 0x616620 supplies argument 1, which skips the 0x41ACA0 RNG-using morale branch. Do not include those draws in the first Premier League bucket-shuffle ledger.

@@ -1880,3 +1880,13 @@ Static.dat identifies the currently proven mode-0 candidates as IDs 14 (Ch. Leag
 A nearby disassembly ambiguity was corrected before persistence: 0x616620 calls RNG-clean 0x40B380, not adjacent RNG-using 0x40B390.
 
 Next exact target: recover how Champions League / World Club Championship Cup initialization populates +0x54/+0x58 before child League initialization, determine the reverse competition-init order used by 0x411020, and audit nested Cup initialization callees for any additional RNG consumption.
+
+## 25 September mode-0 Cup branch correction checkpoint
+
+The pre-Premier-League-shuffle RNG audit corrected two important provisional interpretations before they could enter implementation.
+
+First, mode-0 Cup initialization skips the eight-entry +0x54 allocation branch. Root mode-0 Cups later create a one-entry vector when empty. Champions League ID 9 then reaches 0x40C6C0, whose selector consumes one bounded RNG draw only if its filtered candidate vector has more than one member. WCC ID 101 follows a separate branch whose Cup+0x40 state is still unresolved.
+
+Second, the RNG-using 0x41ACA0 branch reachable from team routine 0x404110 is not taken during new-game schedule finalization: 0x616620 passes outer argument 1, which skips that path.
+
+Immediate next targets: prove mode-0 competition registration/initialization order, trace later mutations of Cup+0x54/+0x58 before child League IDs 14/167/192 initialize, resolve WCC Cup+0x40 on the new-game path, and audit the argument-1 0x404110 / 0x50EA90 nested callees for any remaining RNG.

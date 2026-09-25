@@ -3396,3 +3396,39 @@ For Cup, constructor 0x4F51E0 initializes +0x54/+0x58 to null/zero, while Cup in
 0x616620 calls 0x40B380 during its mode-matched team loop. Exact instruction-boundary inspection shows 0x40B380 only stores -1 at [ecx+0x1B0] and returns. The adjacent function 0x40B390 contains a rand() call, but 0x616620 does not call 0x40B390 here. The 0x40B380 path is therefore RNG-clean.
 
 Cup initializer 0x4F5A30 has no direct 0x64D530/0x64D540 call in its own body through its return at 0x4F6340, but nested callees are not yet fully audited. Nearby RNG-heavy routines beginning at 0x4F64D0 are distinct functions and must not be attributed to Cup::init unless a call path is proven.
+
+## Mode-0 Cup initialization correction and post-competition RNG boundary
+
+Further instruction-boundary tracing corrects two provisional assumptions from the ongoing pre-shuffle audit.
+
+### Mode-0 Cup skips the +0x54 eight-entry branch
+
+Cup::init 0x4F5A30 begins by calling virtual +0x30. When the selector is false (mode 0, including Champions League ID 9 and World Club Championship ID 101), control jumps directly to 0x4F5E33.
+
+The earlier block around 0x4F5B7F that allocates eight dwords at Cup+0x54/+0x58 belongs to the selector-true / mode-1 branch. It must not be used to infer the parent-vector count seen by mode-0 child Leagues.
+
+In the real mode-0 branch, after round/match setup, 0x4F61E6 verifies mode 0 and a root Cup (Cup+0x04 == null). If Cup+0x54 is still null it initializes exactly one dword: Cup+0x58 = 1, allocates through 0x4FBAC0, and sets the sole entry to -1.
+
+Cup+0x34 is derived in constructor 0x4F51E0 from DBRCompetition+0x24, which in turn comes from packed competition dword +27:
+
+- packed +27 == 123 -> Cup+0x34 = 1;
+- packed +27 == 116 -> Cup+0x34 = 2;
+- otherwise Cup+0x34 = 0.
+
+Shipped data therefore gives Champions League ID 9 (+27=123) mode 1 of this Cup selector, while World Club Championship ID 101 (+27=116) uses selector value 2.
+
+For Cup+0x34 == 1, the root mode-0 branch calls 0x40C6C0 for its sole +0x54 entry. 0x40C6C0 builds a filtered temporary team vector and selects through 0x5EE6A0 -> 0x5EE6C0. 0x5EE6C0 consumes exactly one 0x64D540(count-1) draw when the candidate count is greater than one, otherwise no RNG draw.
+
+For Cup+0x34 == 2, competition ID 101 has a special branch: when Cup+0x40 is non-null it resolves through non-random lookup 0x40C550; when null it falls back to the same 0x40C6C0 selector. Whether +0x40 is non-null on the shipped new-game path remains to be proven.
+
+Function 0x4F6360, used by another +0x34==2 special case, contains no RNG call. An earlier static call-graph heuristic falsely attributed a later function's 0x64D540 call across the function boundary.
+
+### 0x404110 does not consume its morale RNG on new-game finalization
+
+After competition initialization, 0x616620 calls team routine 0x404110 with the outer argument passed to 0x616620. The new-game setup passes outer argument 1.
+
+0x404110's path to player helper 0x41ACA0 (which does contain RNG calls) lies under the argument-zero branch. With argument 1, control jumps past that branch to 0x40425D and proceeds through AI/team setup instead. Therefore the known 0x41ACA0 morale/random path is not part of this new-game pre-0x615BE0 RNG ledger.
+
+0x50EA90, called later for relevant mode-0 teams, has not shown a direct RNG call in the currently traced body/call graph, but its exact nested callees remain part of the active audit.
+
+These corrections leave the unresolved pre-shuffle RNG work concentrated in: mode-0 Cup/child competition state, any RNG reachable through the argument-1 team setup path, and earlier startup systems before 0x616620.
