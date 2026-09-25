@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - ".github/workflows/reconstruction-tests.yml"
+      - "reconstruction/**"
   workflow_dispatch:
 
 jobs:
