@@ -714,7 +714,7 @@ Confirmed:
 - the Non-EU startup branch adds no random draw;
 - GameState.from_database now uses MsvcCrtRng for this recovered startup block and retains the same RNG object for subsequent autonomous match simulation unless a caller explicitly supplies a different scripted RNG.
 
-This resolves the Python-Random mismatch identified by the 25 September audit for the currently mapped player-startup block. Exact RNG state at the first Premier League schedule shuffle still depends on other startup RNG consumers not yet audited.
+This resolves the Python-Random mismatch identified by the 25 September audit for the player-startup block. The mandatory **pre-competition** startup RNG path is now fully bounded; see `STARTUP_RNG_LEDGER.md`. Exact RNG state at the first Premier League bucket shuffle still additionally depends on competition-initialization consumers, which are the Gate-3 continuation.
 
 ## Mode-0 procedural competition RNG before PL shuffle
 
@@ -918,3 +918,22 @@ Confirmed correction:
 
 Do not discard the reconstructed startup RNG ledger on the basis of
 `0x4AF7F0`.
+
+
+## Seed-to-competition startup RNG path closed
+
+Confirmed on the standard new-game path:
+
+- application `srand` is followed by exactly **260 raw CRT draws** from the first `bground.444` Loader444 decode;
+- no other mandatory game-CRT draw occurs before the New Game database load;
+- shipped DBTPlayers startup consumes **150,320** draws for 30,064 players;
+- TeamSelect construction/activation/start dispatch is zero-draw;
+- `0x414330` contributes exactly **2,422** generated-name draws;
+- `0x413980` then contributes one replayable youth-generation block per linked human user;
+- the path from the end of `0x413830` to competition-entry wrapper `0x4F7C00` adds no draw.
+
+The fixed prefix before per-user youth generation is therefore **153,002 raw CRT draws**.
+
+The complete parameterized ordering and one-user diagnostic counts are recorded in `research/STARTUP_RNG_LEDGER.md`.
+
+This closes the Gate-2 pre-competition discovery boundary. Remaining uncertainty before the first Premier League bucket shuffle belongs to competition initialization and is the Gate-3 continuation.
