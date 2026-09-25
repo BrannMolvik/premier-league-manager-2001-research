@@ -10,6 +10,31 @@ class BoundedRng(Protocol):
     def randbelow(self, bound: int) -> int: ...
 
 
+class RawCrtRng(Protocol):
+    def rand15(self) -> int: ...
+
+
+LOADER444_FIRST_DECODE_RAW_DRAWS = 260
+
+
+def consume_loader444_first_decode_rng(rng: RawCrtRng) -> int:
+    """Advance the shared CRT stream for the first startup .444 decode.
+
+    The original Loader444 path consumes 259 raw rand() calls while lazily
+    initializing its process-global table, followed by one mutually-exclusive
+    pixel-conversion/dither rand() call.
+
+    The modern Windows 11 port may decode bground.444 differently, but startup
+    fidelity still requires advancing the shared MSVC CRT state by all 260
+    original raw draws before DBTPlayers construction begins.
+
+    Returns the number of raw CRT draws consumed.
+    """
+    for _ in range(LOADER444_FIRST_DECODE_RAW_DRAWS):
+        rng.rand15()
+    return LOADER444_FIRST_DECODE_RAW_DRAWS
+
+
 class PlayerSource(Protocol):
     index: int
     club_id: int
