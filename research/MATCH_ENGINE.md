@@ -3864,3 +3864,24 @@ Champions League child phases behave the same way with respect to the parent
 vector: count one means zero child-shuffle draws. The unresolved Cup-level
 random selection is now concentrated in the two Europe roots, Champions League
 ID 9 and UEFA Cup ID 10, which each use 0x40C6C0.
+
+
+## Europe-root pre-shuffle contribution is exactly two RNG(6) draws
+
+The mode-0 competition RNG ledger no longer has a symbolic Europe candidate
+count. `0x40C6C0` builds a seven-team shipped vector:
+England, France, Germany, Holland, Italy, Scotland, Spain.
+
+Its shared selector uses `RNG(count-1)`, not `RNG(count)`, so each Europe
+root consumes `RNG(6)`. Spain is the unreachable seventh entry.
+
+Because root order is Champions League then UEFA Cup, the currently recovered
+Europe-root pre-bucket sequence is:
+
+```text
+RNG(6)  # Champions League
+RNG(6)  # UEFA Cup
+```
+
+Their child group/phase leagues consume zero parent-vector shuffle draws
+because the populated mode-0 parent vector has count one.

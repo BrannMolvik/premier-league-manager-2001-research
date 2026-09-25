@@ -3574,3 +3574,93 @@ point.
 
 The remaining competition-level unknown is therefore principally the exact
 candidate-list count supplied to the two Europe-root `0x40C6C0` calls.
+
+
+## Exact Europe-root Cup random-selector bound
+
+The last symbolic quantity in the Europe-root Cup selector is now resolved
+against the canonical shipped Master.dat and Static.dat.
+
+### Runtime filter -> source record mapping
+
+The candidate loop in `0x40C6C0` applies:
+
+```text
+0x403640(team) == 1
+team+0x1C > 50000
+country(team)+0x18 != 0
+```
+
+Direct tracing of Master.dat team load
+`0x50D630 -> 0x40B9C0 -> 0x403660` maps these runtime fields back to the
+181-byte packed club record:
+
+- runtime team +0x14 <- packed club dword **+12** (country ID);
+- runtime team +0x1C <- packed club dword **+18**;
+- runtime team +0x74 <- packed club byte **+98**.
+
+Helper `0x403640` accepts runtime +0x74 values 2 or 3. Existing country-loader
+evidence maps runtime `DBRCountry+0x18` to Static.dat country word **+16**.
+
+Therefore the exact source-data filter is:
+
+```text
+club[+98] in {2,3}
+club.dword[+18] > 50000
+country[club.dword(+12)].word(+16) != 0
+```
+
+with the passed exclusion team omitted.
+
+### Shipped candidate vector
+
+Applying that filter to the canonical data yields exactly seven teams in
+runtime team-table order:
+
+```text
+1118 England   country 26  value +18 =  90000  type 2
+1135 France    country 31  value +18 =  90000  type 2
+1137 Germany   country 33  value +18 =  75000  type 2
+1139 Holland   country 24  value +18 =  60000  type 2
+1143 Italy     country 40  value +18 =  60000  type 2
+1159 Scotland  country 66  value +18 =  55000  type 2
+1162 Spain     country 73  value +18 = 100000  type 2
+```
+
+The vector is appended in ascending runtime team index because `0x40C6C0`
+walks the team table from index zero upward.
+
+### Original count-minus-one quirk
+
+`0x5EE6A0` delegates random index selection to `0x5EE6C0`.
+`0x5EE6C0` reads list count with `0x6335B0`; when count > 1 it calls
+`0x5EE920`, which returns exactly `count - 1`, and passes that as the bound
+to `0x64D540`.
+
+For the seven-entry shipped vector:
+
+```text
+0x5EE6C0 -> RNG(6)
+```
+
+so only indices 0..5 are reachable. The final candidate, Spain at index 6, is
+unreachable through this selector. This is an original executable quirk and
+must not be "corrected" to RNG(7) in a fidelity reconstruction.
+
+Champions League ID 9 and UEFA Cup ID 10 each create their own identical
+seven-entry candidate vector; their root +0x54 exclusion value starts at -1,
+so neither removes a real team from the filter.
+
+Given the proven Europe root order, the competition-level contribution is
+therefore:
+
+```text
+Champions League: RNG(6)
+UEFA Cup:         RNG(6)
+```
+
+in that order, before the eventual primary schedule-container bucket shuffle.
+
+The clean-room now exposes Master.dat club +18 and +98 under neutral names
+`runtime_value_1c_source` and `team_category_code`, plus tested helpers that
+reproduce the filter and count-minus-one selection quirk.

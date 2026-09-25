@@ -795,3 +795,21 @@ Confirmed before the primary schedule bucket shuffle:
 
 Next unresolved quantity: the exact shipped candidate count for those two
 Europe-root selections.
+
+
+## Exact Europe-root Cup candidate vector and RNG bound
+
+Confirmed from the canonical shipped data and executable:
+
+- 0x40C6C0 filters Master.dat clubs by packed +98 type in {2,3}, packed dword
+  +18 > 50000, and the club country's Static.dat +16 word being nonzero;
+- the shipped vector contains exactly seven entries in team-table order:
+  England 1118, France 1135, Germany 1137, Holland 1139, Italy 1143,
+  Scotland 1159, Spain 1162;
+- 0x5EE6C0 passes **count-1** to the bounded RNG, so count 7 means **RNG(6)**;
+- as a result the final vector entry, Spain, is unreachable in this selector;
+- Champions League ID 9 and UEFA Cup ID 10 each perform one independent
+  RNG(6) draw, in that root initialization order.
+
+The clean-room preserves this behavior rather than replacing it with a normal
+RNG(7) selection.

@@ -1946,3 +1946,31 @@ than one team.
 
 Immediate target: reconstruct/count the 0x40C6C0 candidate set from shipped
 team/country data, which should yield the exact remaining Europe-root bounds.
+
+
+## 25 September exact Europe selector checkpoint
+
+The Europe-root Cup RNG bound is fully recovered.
+
+The runtime filter in 0x40C6C0 maps to Master.dat club +98 in {2,3}, club
+dword +18 > 50000, and Static.dat country +16 != 0. The canonical data yields
+seven candidates, ordered England, France, Germany, Holland, Italy, Scotland,
+Spain.
+
+The selector contains an original count-minus-one quirk: 0x5EE6C0 calls
+RNG(count-1). Thus the seven-entry list uses RNG(6) and Spain, the final
+entry, cannot be selected.
+
+Champions League ID 9 and UEFA Cup ID 10 each build this vector independently
+and therefore contribute exactly two RNG(6) draws in that order before the
+primary schedule bucket shuffle.
+
+Clean-room parser support now exposes the two neutral Master.dat fields needed
+for this filter, and competition_startup.py has deterministic tests for the
+filter, exclusion behavior, empty/singleton handling, and unreachable-final-
+entry quirk.
+
+Next target: finish the transitive RNG audit of generic root League
+initialization and then enumerate any earlier non-player startup consumers
+before 0x616620. If those paths are clean/bounded, the exact CRT state entering
+0x615BE0 can be reconstructed.

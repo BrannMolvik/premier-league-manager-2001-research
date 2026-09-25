@@ -67,6 +67,8 @@ class Club:
     stadium: str
     manager_id: int
     country_id: int = 0
+    runtime_value_1c_source: int = 0
+    team_category_code: int = 0
 
 @dataclass(frozen=True)
 class Player:
@@ -220,8 +222,10 @@ class FM2001Database:
             r = d[club_start + i * CLUB_RECORD_SIZE: club_start + (i + 1) * CLUB_RECORD_SIZE]
             name_id, short_id = struct.unpack_from('<HH', r, 4)
             country_id = struct.unpack_from('<I', r, 12)[0]
+            runtime_value_1c_source = struct.unpack_from('<I', r, 18)[0]
             stadium_id = struct.unpack_from('<H', r, 30)[0]
             manager_id = struct.unpack_from('<I', r, 48)[0]
+            team_category_code = r[98]
             self.clubs.append(Club(
                 i,
                 self.english.get(name_id),
@@ -229,6 +233,8 @@ class FM2001Database:
                 self.english.get(stadium_id),
                 manager_id,
                 country_id,
+                runtime_value_1c_source,
+                team_category_code,
             ))
 
         player_count = struct.unpack_from('<I', d, club_end)[0]
