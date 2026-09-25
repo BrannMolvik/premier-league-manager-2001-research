@@ -774,3 +774,24 @@ For pre-Premier-League-shuffle RNG accounting:
 
 Nested generic League helpers are still being audited before declaring the
 entire Scottish/root-League path transitively RNG-clean.
+
+
+## Europe-root Cup RNG narrowed to two selectors
+
+Confirmed before the primary schedule bucket shuffle:
+
+- WCC ID 101 has non-null Cup+0x40 from construction and takes deterministic
+  lookup 0x40C550, not random fallback 0x40C6C0;
+- Cup populates its one-entry mode-0 +0x54 vector before recursively
+  initializing children;
+- WCC Group Phase ID 192 therefore receives a one-element parent vector and
+  consumes no procedural-League shuffle RNG;
+- Champions League child phases IDs 14 and 167 likewise receive a one-element
+  parent vector and consume no shuffle RNG themselves;
+- the only primary root Cups with Europe selector +0x34 == 1 are Champions
+  League ID 9 and UEFA Cup ID 10;
+- each calls 0x40C6C0, whose final selector consumes one RNG(candidate_count-1)
+  draw when its filtered candidate list has more than one entry.
+
+Next unresolved quantity: the exact shipped candidate count for those two
+Europe-root selections.

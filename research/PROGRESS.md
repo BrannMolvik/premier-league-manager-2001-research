@@ -1925,3 +1925,24 @@ than hard-coded IDs.
 Next exact target: finish transitive RNG audit of root League initialization,
 then reduce the remaining mode-0 RNG ledger to Cup roots and the three
 Cup-parent child League phases (IDs 14, 167, 192), including WCC +0x40 state.
+
+
+## 25 September WCC / Europe Cup RNG checkpoint
+
+The mode-0 competition RNG ledger has narrowed to a much smaller set.
+
+WCC ID 101 is now proven non-random in its root Cup team selector because
+Cup+0x40 is initialized and the WCC-specific branch uses 0x40C550. The root
+Cup populates its one-entry +0x54 vector before child initialization, so WCC
+Group Phase ID 192 consumes zero parent-vector shuffle draws.
+
+Champions League child phases IDs 14 and 167 also receive a one-entry parent
+vector and consume zero 0x617277 shuffle draws.
+
+The only primary root Cups using random selector 0x40C6C0 are Champions League
+ID 9 and UEFA Cup ID 10. Each selector makes exactly one
+RNG(candidate_count-1) call when its filtered candidate vector contains more
+than one team.
+
+Immediate target: reconstruct/count the 0x40C6C0 candidate set from shipped
+team/country data, which should yield the exact remaining Europe-root bounds.

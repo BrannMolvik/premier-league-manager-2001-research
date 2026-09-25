@@ -3527,3 +3527,50 @@ reconstruct this initialization ledger from actual data:
 - +15 signed word -> `initialization_order_value`;
 - +27 dword -> `country_region_id`;
 - existing +45 -> `schedule_container_code`.
+
+
+## WCC and Europe-root Cup pre-shuffle RNG resolution
+
+Further tracing of Cup construction and the mode-0 tail resolves the World Club
+Championship branch and sharply reduces the remaining root-Cup RNG set.
+
+Cup constructor `0x4F51E0` initializes Cup+0x40 through `0x4F4460`.
+For a root Cup, `0x4F4460` invokes virtual +0x20. Cup vtable
+`0x7C9B58` maps +0x20 to `0x6CE1E0`, which returns constant **2**.
+Consequently a root Cup reaches the non-null +0x40 construction path. The
+pointer is taken either from the special global at `0x874B94` or from the
+`0x874B90` table indexed by DBRCompetition runtime +0x1C.
+
+For World Club Championship competition ID 101, Cup+0x34 == 2. In the mode-0
+tail at `0x4F626A`, the now-proven non-null Cup+0x40 causes the WCC-specific
+branch to resolve its sole Cup+0x54 entry through the deterministic
+`0x40C550` lookup. It does **not** fall back to `0x40C6C0`, so WCC root
+initialization contributes no RNG draw through this selector.
+
+Cup child initialization occurs only at the end of `0x4F5A30`:
+`0x4F6334 -> 0x4F3DE0`. Thus the parent has already created and populated
+its mode-0 Cup+0x54/+0x58 vector before child virtual +0x00 methods run.
+
+The mode-0 root vector has exactly one element. Therefore WCC Group Phase
+(ID 192) copies a one-element parent vector in `0x6178B0`; the procedural
+League shuffle at `0x617277` immediately sees count <= 1 and consumes no
+bounded RNG draw.
+
+The same one-element fact applies to Champions League child phases IDs 14 and
+167: the child-League Fisher-Yates itself consumes no RNG. Any Champions
+League RNG at this stage comes from the parent Cup's team-selection call, not
+from those child shuffles.
+
+Shipped primary root Cups with the Europe selector Cup+0x34 == 1 are exactly:
+
+- competition 9, Champions League;
+- competition 10, UEFA Cup.
+
+Those two roots call `0x40C6C0`. Its temporary candidate list is selected by
+`0x5EE6A0 -> 0x5EE6C0`; when list count > 1, `0x5EE6C0` calls
+`RNG(count - 1)` exactly once. All other primary root Cups either use
+deterministic lookup logic or the WCC-specific non-random +0x40 branch at this
+point.
+
+The remaining competition-level unknown is therefore principally the exact
+candidate-list count supplied to the two Europe-root `0x40C6C0` calls.

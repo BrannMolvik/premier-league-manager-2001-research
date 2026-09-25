@@ -3851,3 +3851,16 @@ The post-competition team call 0x404110 is also narrower than first feared: new-
 Mode-0 competition initialization is country-ordered and deterministic except for equal sort keys. Packed competition dword +27 is the country/region index. Country root arrays contain only parentless competitions, are qsorted by runtime object+0x18 = -signed(packed word +15), and 0x411020 walks each array backwards. The resulting effective initialization order is ascending packed +15 within each country.
 
 For England this places the Premier League after League Cup, FA Cup, Challenge Shield and Charity Shield, and before the lower English leagues. Since 0x615BE0 runs only after all country competition initialization has completed, RNG consumers from roots or descendants anywhere in the mode-0 pass can still affect the eventual Premier League fixture-bucket shuffle.
+
+## Competition-level RNG ledger narrowed to Europe selectors
+
+World Club Championship no longer contributes an unresolved random branch to
+the first Premier League bucket-shuffle state. Root Cup construction guarantees
+WCC ID 101 a non-null +0x40 pointer, so its mode-0 tail uses deterministic
+0x40C550. Its child WCC Group Phase sees the already-populated one-entry parent
+vector and therefore does not enter the procedural League RNG shuffle.
+
+Champions League child phases behave the same way with respect to the parent
+vector: count one means zero child-shuffle draws. The unresolved Cup-level
+random selection is now concentrated in the two Europe roots, Champions League
+ID 9 and UEFA Cup ID 10, which each use 0x40C6C0.
