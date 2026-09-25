@@ -13,14 +13,16 @@ from match_environment import (
     pitch_wear_after_match,
     recover_ai_pitch_wear,
 )
+from match_injury_persistence import clear_expired_persistent_injury
 from match_preparation import (
     PreparedPremierLeagueAiSide,
     build_premier_league_ai_match_side,
     prepare_premier_league_ai_selection,
 )
 from match_postmatch import (
-    persist_post_match_side,
-    persist_premier_league_discipline,
+    persist_post_match_form,
+    persist_premier_league_match_incidents,
+    sync_post_match_conditions,
 )
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
 from match_team_setup import TeamTacticalState
@@ -148,6 +150,8 @@ class GameState:
             team_tactics=team_tactics,
             pitch_wear=pitch_wear,
         )
+        state.calendar.daily_hooks.append(state._run_daily_injury_returns)
+        state.calendar.daily_hooks.append(state._run_daily_injury_returns)
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
         return state
@@ -195,6 +199,11 @@ class GameState:
         if club_id not in self.club_roster_order and club_id not in self.clubs:
             raise KeyError(club_id)
         self.team_tactics[club_id] = state
+
+    def _run_daily_injury_returns(self, on_date: date) -> None:
+        """Clear persistent injury state when the scheduled return date arrives."""
+        for player in self.players.values():
+            clear_expired_persistent_injury(player, on_date)
 
     def _run_daily_ai_pitch_recovery(self, _on_date: date) -> None:
         """Apply the exact base PitchRecover=2 path for autonomous AI clubs."""
@@ -373,10 +382,23 @@ class GameState:
             after_date=fixture_date,
         )
 
-        # Exact post-match order: serve old suspensions across the full roster,
-        # apply this match's participant cards, then refresh next-fixture
-        # availability. Red-card RNG(3) therefore precedes Form RNG(100).
-        persist_premier_league_discipline(
+        # MatchCalculator mutates DBRPlayer Condition in-place in the original.
+        # Our calculator uses prepared copies, so synchronize both participant
+        # arrays before the 0x5127A0 incident persistence loop can apply an
+        # additional injury Condition drop.
+        sync_post_match_conditions(
+            home.match_side,
+            home.preparation.selection.participants,
+        )
+        sync_post_match_conditions(
+            away.match_side,
+            away.preparation.selection.participants,
+        )
+
+        # Exact participant-order persistence:
+        # old bans -> each player's cards then injury -> next-fixture ban state.
+        # This preserves red RNG(3) / injury RNG interleaving.
+        persist_premier_league_match_incidents(
             self.ordered_club_roster(home_club_id),
             home.preparation.selection.participants,
             0,
@@ -384,8 +406,9 @@ class GameState:
             fixture_date,
             home_next,
             rng,
+            user_controlled=False,
         )
-        persist_premier_league_discipline(
+        persist_premier_league_match_incidents(
             self.ordered_club_roster(away_club_id),
             away.preparation.selection.participants,
             1,
@@ -393,23 +416,24 @@ class GameState:
             fixture_date,
             away_next,
             rng,
+            user_controlled=False,
         )
 
-        # 0x404D40 updates only the home club's pitch after discipline handling.
+        # 0x404D40 updates only the home club's pitch after incident handling.
         self.pitch_wear[home_club_id] = pitch_wear_after_match(
             pitch_wear_before,
             environment.weather_code,
         )
 
-        # The later 0x404CE0 player pass persists Condition/injury state and
-        # runs post-match Form transitions on the same continuing RNG stream.
-        persist_post_match_side(
+        # The later player pass runs Form only. It must not re-copy Condition,
+        # which would erase the persistent injury finalizer's Condition loss.
+        persist_post_match_form(
             home.match_side,
             home.preparation.selection.participants,
             result,
             rng,
         )
-        persist_post_match_side(
+        persist_post_match_form(
             away.match_side,
             away.preparation.selection.participants,
             result,
