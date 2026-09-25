@@ -2549,3 +2549,22 @@ Confirmed:
 - `0x615BE0` shuffles the primary container strictly in bucket-index order 0..372.
 
 Next: reverse the `0x615790/0x615890` conflict predicate and insertion search sufficiently to reconstruct final bucket placement, then enumerate every primary bucket before/including first PL target 54.
+
+
+## 26 September Gate 4 conflict-placement checkpoint
+
+The ordinary LeagueMatch placement search is now both reverse-engineered and implemented.
+
+Confirmed:
+
+- `0x615790` treats two ordinary LeagueMatch nodes as conflicting when they share either club;
+- `0x615890` scans center-1, center, center+1 and returns the first conflicting bucket;
+- `0x615950` searches outward in two-day jumps from the first conflict;
+- it probes the side closer to the original nominal target, with the **later side winning equal-distance ties**;
+- the first clear center is used, then the match is head-inserted.
+
+Implementation/tests were committed in:
+- `4f6a4b4c1b893eaef52637e306788dd785c0867e`
+- `1be9a02785ab7aa85a23d783d1eee8351127d63d`
+
+Next: use the exact country/root competition initialization order and procedural League round match counts to establish the first Premier League bucket's complete pre-shuffle population and PL slot positions, while checking whether any pre-54 fixture can be conflict-shifted into that bucket.
