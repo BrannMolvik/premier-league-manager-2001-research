@@ -80,13 +80,16 @@ INITIAL_MORALE_RANDOM_RANGE = 15
 POST_LOAD_MONTH_SPAN_RANDOM_RANGE = 5
 
 
-def bounded_draw(rng, bound: int) -> int:
-    """Use an exact bounded source, while retaining legacy test compatibility."""
-    if hasattr(rng, "randbelow"):
-        return int(rng.randbelow(int(bound)))
-    if hasattr(rng, "randrange"):
-        return int(rng.randrange(int(bound)))
-    raise TypeError("rng must provide randbelow(bound) or randrange(bound)")
+def bounded_draw(rng: BoundedRng, bound: int) -> int:
+    """Consume the exact bounded-RNG interface used by reconstructed game paths.
+
+    Startup/player initialization is part of FM2001's shared MSVC CRT stream.
+    Accepting Python's random.Random.randrange here made it possible for callers
+    to silently substitute a different generator and break global RNG ordering.
+    """
+    if not hasattr(rng, "randbelow"):
+        raise TypeError("rng must provide randbelow(bound)")
+    return int(rng.randbelow(int(bound)))
 
 
 def age_on(date_of_birth: date, on_date: date) -> int:
