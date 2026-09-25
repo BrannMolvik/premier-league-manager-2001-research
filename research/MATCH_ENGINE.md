@@ -3885,3 +3885,73 @@ RNG(6)  # UEFA Cup
 
 Their child group/phase leagues consume zero parent-vector shuffle draws
 because the populated mode-0 parent vector has count one.
+
+
+## Manager tactic packet is a MatchEngine bridge, not MatchCalculator live state
+
+**Confirmed; corrects the tempting but unsupported assumption that the AI
+manager bytes at DBRManager +0x30..+0x33 should be copied into team
++0x1B4..+0x1B7 before core calculation.**
+
+Pre-match helper `0x40D860` builds one compact 60-byte team packet. Its first
+dword contains:
+
+- bits 0..7: formation ID from team +0x1D8;
+- bits 8..9: strategy code from `0x4035E0`;
+- bits 10..13: four-bit aggression packet value;
+- bits 14..15: With Ball packet value;
+- bits 16..17: Without Ball packet value.
+
+For user-controlled teams those sources are live team +0x1B4..+0x1B7. For AI
+teams they are the already-mapped manager +0x30..+0x33 values, including the
+manager aggression-source divide-by-six transform.
+
+The critical downstream trace is separate from MatchCalculator:
+
+1. the match-front-end object stores the packets at side fields +0x5A8/+0xB58;
+2. `0x533B20` retrieves the corresponding packet;
+3. `0x533B70` decodes it into a larger per-side setup structure;
+4. the caller immediately passes that structure to `0x6C1D30`, in the
+   MatchEngine initialization layer.
+
+The exact `0x533B70` first-dword decode is:
+
+```text
+formation              = packed & 0xff
+strategy               = (packed >> 8)  & 3
+with_ball               = (packed >> 14) & 3
+without_ball            = (packed >> 16) & 3
+aggression_upper_pair   = (packed >> 12) & 3
+```
+
+The last field is deliberately named neutrally. Although `0x40D860` writes a
+four-bit aggression value into bits 10..13, this MatchEngine bridge copies only
+bits 12..13 into the inspected output field. Do not relabel that two-bit value
+as the full live team Aggression setting without a later consumer proof.
+
+By contrast, the core MatchCalculator independently reads the live team object:
+
+- `0x40DA30` reads team +0x1B4 for the initial strategy/bias conversion;
+- attack strength `0x62F140` indexes its matrix from team +0x1B6;
+- defence strength `0x62F3E0` indexes its matrix from team +0x1B5;
+- discipline `0x62E130` reads team +0x1B7 directly;
+- the user-only strength modifier also reads +0x1B7 directly.
+
+The AI pre-match selector `0x5111A0` calls the lineup/formation path
+`0x409B50` but does not copy the manager packet values into +0x1B4..+0x1B7.
+A static audit of writes to those four live bytes likewise finds constructor,
+copy/load and user-control mutation paths, not a `0x40D860` manager-to-team
+transfer.
+
+Therefore the clean-room reconstruction must keep two concepts separate:
+
+- **live team tactical state** used by MatchCalculator;
+- **manager-derived MatchEngine packet state** used by the presentation/engine
+  setup path.
+
+In particular, autonomous AI MatchCalculator preparation must not replace its
+live team tactical state with `manager_tactics_packet_fields()` merely because
+those values appear in the pre-match packet. The new clean-room
+`pack_tactics_word()` / `decode_match_engine_tactics_word()` helpers preserve
+the proven MatchEngine packet geometry for later FastView/3D work without
+polluting calculator semantics.
