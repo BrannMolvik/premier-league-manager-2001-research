@@ -2136,3 +2136,35 @@ Next target: walk backward through the same new-game function before
 the user/controller virtual calls, `0x4311D0`, `0x5EC060`,
 `0x4E9830` and `0x6596A0`, and rule each branch in or out of the mandatory
 startup RNG ledger.
+
+
+## 25 September TeamSelect pre-reset RNG checkpoint
+
+The mandatory new-game RNG boundary has moved farther backward.
+
+The entire TeamSelect prefix inside `0x4C41C0`, from function entry through
+`0x4C42EE`, is now proven zero-draw:
+
+- the current TeamSelect panel teardown is deterministic;
+- `0x432A20` has no direct or transitive bounded-RNG path, and its sole
+  previously-opaque control virtual is a callback-masked deterministic toggle;
+- `0x432D20` resolves to deterministic control enable/disable operations;
+- user `+0x5BC/+0x5F0` virtuals are concrete Bitmap/eCText state toggles;
+- `0x6596A0` always returns zero, making `0x4C4284..0x4C42EC`
+  unreachable.
+
+Thus no RNG is consumed between entry to `0x4C41C0` and the already-known
+`0x413830` block at `0x4C4304`.
+
+Combined with the previous checkpoint, the path after `0x413830` through
+`0x4F7C00` is also zero-draw. The remaining pre-first-PL-shuffle uncertainty
+is now strictly:
+
+1. RNG consumers before the call to `0x4C41C0` from the TeamSelect event
+   handler/caller chain; and
+2. the already-recovered RNG-active startup/competition work beneath
+   `0x4F7C00`.
+
+Next target: walk backward from the sole caller `0x4DA4A5` in
+`PMain@TeamSelect`, then identify where that panel/new-game flow first enters
+the already-reconstructed player/database startup sequence.
