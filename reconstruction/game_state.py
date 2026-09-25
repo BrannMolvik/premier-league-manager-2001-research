@@ -6,9 +6,17 @@ from random import Random
 from typing import Callable, Iterable
 
 from competition_state import PremierLeagueState
+from match_condition import ConditionInjurySettings
+from match_environment import (
+    MatchEnvironment,
+    generate_match_environment,
+    pitch_wear_after_match,
+    recover_ai_pitch_wear,
+)
 from match_preparation import (
     PreparedPremierLeagueAiSide,
-    prepare_premier_league_ai_match_side,
+    build_premier_league_ai_match_side,
+    prepare_premier_league_ai_selection,
 )
 from match_postmatch import persist_post_match_side
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
@@ -53,6 +61,8 @@ class GameState:
     managers: dict[int, object] = field(default_factory=dict)
     competitions: dict[int, object] = field(default_factory=dict)
     team_tactics: dict[int, TeamTacticalState] = field(default_factory=dict)
+    pitch_wear: dict[int, int] = field(default_factory=dict)
+    prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
 
     @classmethod
     def from_database(
@@ -119,6 +129,10 @@ class GameState:
             club_id: TeamTacticalState()
             for club_id in known_club_ids
         }
+        pitch_wear = {
+            club_id: 0
+            for club_id in known_club_ids
+        }
 
         state = cls(
             calendar=GameCalendar(start_date),
@@ -129,7 +143,9 @@ class GameState:
             managers=managers_by_id,
             competitions=competitions_by_id,
             team_tactics=team_tactics,
+            pitch_wear=pitch_wear,
         )
+        state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
         return state
 
@@ -151,7 +167,12 @@ class GameState:
                 club_id: TeamTacticalState()
                 for club_id in roster_order
             },
+            pitch_wear={
+                club_id: 0
+                for club_id in roster_order
+            },
         )
+        state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
         return state
 
@@ -171,6 +192,11 @@ class GameState:
         if club_id not in self.club_roster_order and club_id not in self.clubs:
             raise KeyError(club_id)
         self.team_tactics[club_id] = state
+
+    def _run_daily_ai_pitch_recovery(self, _on_date: date) -> None:
+        """Apply the exact base PitchRecover=2 path for autonomous AI clubs."""
+        for club_id, wear in tuple(self.pitch_wear.items()):
+            self.pitch_wear[club_id] = recover_ai_pitch_wear(wear)
 
     def _run_monthly_player_development(self, on_date: date) -> None:
         self.monthly_player_updates += sum(
@@ -209,12 +235,10 @@ class GameState:
         fixture_id: int,
         rng,
     ) -> tuple[PreparedPremierLeagueAiSide, PreparedPremierLeagueAiSide]:
-        """Prepare both AI sides from live game/database state.
+        """Prepare both AI sides in the original shared fixture RNG order.
 
-        This composes the recovered fresh/runtime roster order, current Premier
-        League table, club-manager link, manager formation strategy, competition
-        substitute/Non-EU limits, exact AI lineup selector, and live DBRTeam
-        backend tactical state.
+        The original high-level order is:
+        both AI selections -> weather -> home AI Condition -> away AI Condition.
         """
         if self.premier_league is None:
             raise RuntimeError("Premier League state is not loaded")
@@ -231,13 +255,7 @@ class GameState:
         fixture = self.premier_league.fixtures[fixture_id]
         table = self.premier_league.table()
 
-        def prepare_one(
-            club_id: int,
-            opponent_id: int,
-            *,
-            side: int,
-            is_home: bool,
-        ) -> PreparedPremierLeagueAiSide:
+        def inputs_for(club_id: int, opponent_id: int):
             club_id = int(club_id)
             opponent_id = int(opponent_id)
             club = self.clubs.get(club_id)
@@ -249,41 +267,69 @@ class GameState:
                 raise RuntimeError(
                     f"manager {manager_id} for club {club_id} is not loaded"
                 )
-
             roster = self.ordered_club_roster(club_id)
             opponent_roster = self.ordered_club_roster(opponent_id)
             if not roster:
                 raise RuntimeError(f"club {club_id} has no runtime roster")
             if not opponent_roster:
                 raise RuntimeError(f"club {opponent_id} has no runtime roster")
+            return manager, roster, opponent_roster
 
-            return prepare_premier_league_ai_match_side(
-                club_id,
-                roster,
-                opponent_roster,
-                manager,
-                competition,
-                table,
-                side=side,
-                is_home=is_home,
-                rng=rng,
-                tactical_state=self.team_tactics.get(
-                    club_id,
-                    TeamTacticalState(),
-                ),
-            )
-
-        home = prepare_one(
+        home_manager, home_roster, away_roster = inputs_for(
             fixture.home_club_id,
             fixture.away_club_id,
-            side=0,
+        )
+        away_manager, away_roster_check, home_roster_check = inputs_for(
+            fixture.away_club_id,
+            fixture.home_club_id,
+        )
+        if away_roster_check != away_roster or home_roster_check != home_roster:
+            raise RuntimeError("fixture roster resolution became inconsistent")
+
+        home_preparation = prepare_premier_league_ai_selection(
+            fixture.home_club_id,
+            home_roster,
+            away_roster,
+            home_manager,
+            competition,
+            table,
             is_home=True,
         )
-        away = prepare_one(
+        away_preparation = prepare_premier_league_ai_selection(
             fixture.away_club_id,
-            fixture.home_club_id,
-            side=1,
+            away_roster,
+            home_roster,
+            away_manager,
+            competition,
+            table,
             is_home=False,
+        )
+
+        environment = generate_match_environment(
+            self.calendar.current_date,
+            rng,
+        )
+        self.prepared_match_environments[fixture_id] = environment
+
+        home = build_premier_league_ai_match_side(
+            home_preparation,
+            home_roster,
+            side=0,
+            rng=rng,
+            tactical_state=self.team_tactics.get(
+                int(fixture.home_club_id),
+                TeamTacticalState(),
+            ),
+        )
+        away = build_premier_league_ai_match_side(
+            away_preparation,
+            away_roster,
+            side=1,
+            rng=rng,
+            tactical_state=self.team_tactics.get(
+                int(fixture.away_club_id),
+                TeamTacticalState(),
+            ),
         )
         return home, away
 
@@ -293,9 +339,16 @@ class GameState:
         attack_matrix,
         defence_matrix,
         rng,
+        *,
+        condition_injury_settings: ConditionInjurySettings | None = None,
     ) -> NormalMatchResult:
         """Prepare two AI clubs, simulate the due fixture, and store its result."""
         home, away = self.prepare_premier_league_ai_fixture_sides(fixture_id, rng)
+        fixture = self.premier_league.fixtures[int(fixture_id)]
+        home_club_id = int(fixture.home_club_id)
+        pitch_wear_before = int(self.pitch_wear.get(home_club_id, 0))
+        environment = self.prepared_match_environments[int(fixture_id)]
+
         result = self.simulate_premier_league_fixture(
             fixture_id,
             home.match_side,
@@ -303,6 +356,15 @@ class GameState:
             attack_matrix,
             defence_matrix,
             rng,
+            condition_injury_settings=ConditionInjurySettings(
+                environment_byte=pitch_wear_before,
+            ),
+        )
+
+        # 0x404D40 updates only the home club's pitch after the match.
+        self.pitch_wear[home_club_id] = pitch_wear_after_match(
+            pitch_wear_before,
+            environment.weather_code,
         )
 
         # Original post-match processing continues on the same RNG stream.
@@ -355,6 +417,7 @@ class GameState:
             attack_matrix,
             defence_matrix,
             rng,
+            condition_injury_settings=condition_injury_settings,
         )
         home_goals, away_goals = result.score
         self.premier_league.record_result(
