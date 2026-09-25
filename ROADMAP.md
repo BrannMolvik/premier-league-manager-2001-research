@@ -23,32 +23,38 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Current roadmap status
 
-- **Active gate:** Gate 1 - Repository stabilization
-- **Next gate:** Gate 2 - Finish the startup RNG chain
-- **Technical baseline before stabilization:** `1014b042a19fc851b8d87e653ee1e5d807816630`
+- **Active gate:** Gate 2 - Finish the startup RNG chain
+- **Next gate:** Gate 3 - Build an executable startup RNG ledger
+- **Gate 1 completed:** 26 September 2026
+- **Pre-stabilization technical baseline:** `1014b042a19fc851b8d87e653ee1e5d807816630`
+- **Gate 1 validation:** clean-room guard passed and reconstruction suite ran 307 tests successfully
 
 ---
 
 ## Gate 1 - Repository stabilization
 
+**Status: COMPLETE (26 September 2026)**
+
 Goal: make the repository itself sufficient to resume work across ChatGPT, Codex, and local-agent sessions.
 
 Completion criteria:
 
-- [ ] `ROADMAP.md` is the canonical long-term plan.
-- [ ] `research/CURRENT_STATE.md` is the short canonical live resume point.
-- [ ] `research/BACKLOG.md` holds deliberately deferred work.
-- [ ] `research/FIDELITY_GAPS.md` tracks known reconstruction deviations.
-- [ ] `research/CONTINUATION_INSTRUCTIONS.md` starts new sessions from the live files rather than the full history.
-- [ ] A reusable new-chat handoff prompt exists.
-- [ ] Stale 279-test / Python-Random / match-day-blocker status text is reconciled.
-- [ ] Old audits are clearly historical snapshots.
-- [ ] A clean-room asset guard and `.gitignore` are present.
-- [ ] `reconstruction/verify.py` validates canonical hashes with explicit failures.
-- [ ] CI uses maintained GitHub Actions versions.
-- [ ] The stabilization changes are committed and the live state advances to Gate 2.
+- [x] `ROADMAP.md` is the canonical long-term plan.
+- [x] `research/CURRENT_STATE.md` is the short canonical live resume point.
+- [x] `research/BACKLOG.md` holds deliberately deferred work.
+- [x] `research/FIDELITY_GAPS.md` tracks known reconstruction deviations.
+- [x] `research/CONTINUATION_INSTRUCTIONS.md` starts new sessions from the live files rather than the full history.
+- [x] A reusable new-chat handoff prompt exists.
+- [x] Stale 279-test / Python-Random / match-day-blocker status text is reconciled.
+- [x] Old audits are clearly historical snapshots.
+- [x] A clean-room asset guard and `.gitignore` are present.
+- [x] `reconstruction/verify.py` validates canonical hashes with explicit failures.
+- [x] CI uses maintained GitHub Actions versions.
+- [x] The stabilization changes are committed and the live state advances to Gate 2.
 
 ## Gate 2 - Finish the startup RNG chain
+
+**Status: IN PROGRESS**
 
 Goal: close the remaining mandatory new-game RNG path before the first Premier League schedule shuffle.
 
