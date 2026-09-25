@@ -3,7 +3,7 @@
 Use the following prompt when opening a fresh ChatGPT/Codex session. The repository, not the previous chat, is the source of truth.
 
 ```text
-Continue the FM2001 clean-room reconstruction.
+Continue the FM2001 Windows 11 modernization/port.
 
 Repository:
 https://github.com/BrannMolvik/premier-league-manager-2001-research
@@ -28,7 +28,9 @@ Persistence rules:
 - update research/PROGRESS.md with chronological evidence;
 - update research/CURRENT_STATE.md whenever the exact next task or active gate changes;
 - never leave substantial useful work only in chat;
-- keep original copyrighted game assets out of GitHub.
+- preserve/reuse authorized original FM2001 resources wherever practical;
+- put intentionally imported original resources under original_assets/ with provenance per research/ASSET_POLICY.md;
+- keep raw disc images, duplicate archives, temporary extraction dumps, and unrelated binary noise out of Git.
 
 When a gate's completion criteria are satisfied, audit the gate, mark it complete in ROADMAP.md, update CURRENT_STATE.md/project_status.json, and only then move to the next gate.
 ```
