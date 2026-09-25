@@ -186,3 +186,119 @@ def startup_team_name_rng_bounds(
         bound = generated_name_rng_bound(country_id, country_list, player_list)
         result.extend((bound, bound))
     return tuple(result)
+
+
+def consume_rng_bounds(rng: BoundedRng, bounds: Iterable[int]) -> tuple[int, ...]:
+    """Consume one original bounded draw for every supplied bound."""
+    results: list[int] = []
+    for bound in bounds:
+        bound = int(bound)
+        if bound <= 0:
+            raise ValueError("RNG bounds must be positive")
+        results.append(int(rng.randbelow(bound)))
+    return tuple(results)
+
+
+def consume_startup_team_name_rng(
+    rng: BoundedRng,
+    clubs: Iterable[GeneratedNameClubSource],
+    countries: Iterable[GeneratedNameCountrySource],
+    players: Iterable[GeneratedNamePlayerSource],
+    selected_user_country_id: int,
+) -> int:
+    """Consume the exact 0x414330 generated-name RNG calls.
+
+    The team-table pass consumes two draws for every qualifying team.  The
+    later fixed blocks make 54 more 0x421C00 calls using the currently selected
+    user's team country, i.e. another 108 draws with that country's name bound.
+
+    Returns the number of bounded RNG calls consumed.
+    """
+    club_list = tuple(clubs)
+    country_list = tuple(countries)
+    player_list = tuple(players)
+    team_bounds = startup_team_name_rng_bounds(
+        club_list,
+        country_list,
+        player_list,
+    )
+    consume_rng_bounds(rng, team_bounds)
+
+    user_bound = generated_name_rng_bound(
+        int(selected_user_country_id),
+        country_list,
+        player_list,
+    )
+    consume_rng_bounds(rng, (user_bound,) * 108)
+    return len(team_bounds) + 108
+
+
+def replay_startup_youth_generation(
+    rng: BoundedRng,
+    candidates: Iterable[int],
+    option_mode: int | None,
+    name_bound: int,
+    *,
+    destination_count: int = 0,
+) -> tuple[int, tuple[int, ...]]:
+    """Replay the RNG-visible portion of 0x61DF90 for one user.
+
+    Exact order per generated player is:
+
+        RNG(current_candidate_count)
+        RNG(name_bound)
+        RNG(name_bound)
+
+    Candidate removal is swap-with-last.  The option-size draw, when present,
+    occurs before the loop.  Returned candidate IDs are the exact selected
+    source players; generated first/surname values are intentionally not
+    materialized here, but their two RNG calls are consumed in the right place.
+    """
+    candidate_list = [int(value) for value in candidates]
+    name_bound = int(name_bound)
+    if name_bound <= 0:
+        raise ValueError("name_bound must be positive")
+
+    target_count = startup_youth_target_count(option_mode, rng)
+    draw_count = len(
+        startup_youth_selection_bounds(
+            len(candidate_list),
+            target_count,
+            destination_count=destination_count,
+        )
+    )
+
+    selected: list[int] = []
+    for _ in range(draw_count):
+        selected.append(select_startup_youth_candidate(candidate_list, rng))
+        rng.randbelow(name_bound)
+        rng.randbelow(name_bound)
+
+    return target_count, tuple(selected)
+
+
+def replay_startup_youth_generation_for_country(
+    rng: BoundedRng,
+    candidates: Iterable[int],
+    option_mode: int | None,
+    country_id: int,
+    countries: Iterable[GeneratedNameCountrySource],
+    players: Iterable[GeneratedNamePlayerSource],
+    *,
+    destination_count: int = 0,
+) -> tuple[int, tuple[int, ...]]:
+    """Resolve the 0x421C00 country name bound and replay one user's youth RNG."""
+    country_list = tuple(countries)
+    player_list = tuple(players)
+    name_bound = generated_name_rng_bound(
+        int(country_id),
+        country_list,
+        player_list,
+    )
+    return replay_startup_youth_generation(
+        rng,
+        candidates,
+        option_mode,
+        name_bound,
+        destination_count=destination_count,
+    )

@@ -2,9 +2,13 @@ import unittest
 from dataclasses import dataclass
 
 from startup_rng import (
+    consume_rng_bounds,
+    consume_startup_team_name_rng,
     generated_name_rng_bound,
     generated_name_source_eligible,
     generated_name_source_ids,
+    replay_startup_youth_generation,
+    replay_startup_youth_generation_for_country,
     select_startup_youth_candidate,
     startup_spare_club_id,
     startup_youth_candidate_ids,
@@ -188,6 +192,82 @@ class GeneratedNameRngTests(unittest.TestCase):
         self.assertEqual(
             startup_team_name_rng_bounds(clubs, countries, players),
             (12, 12, 13, 13),
+        )
+
+
+class StartupReplayTests(unittest.TestCase):
+    def test_consume_rng_bounds_preserves_order(self):
+        rng = RecordingRng([1, 0, 2])
+        self.assertEqual(consume_rng_bounds(rng, (3, 4, 5)), (1, 0, 2))
+        self.assertEqual(rng.calls, [3, 4, 5])
+
+    def test_team_name_replay_adds_108_selected_user_country_draws(self):
+        clubs = (
+            Club(0, "Arsenal", 26, 1),
+            Club(1, "!Spare", 26, 1),
+            Club(2, "England", 26, 2),
+            Club(3, "Chelsea", 31, 1),
+        )
+        players = tuple(
+            [NamePlayer(i, "Alan", f"Smith{i}", 26) for i in range(12)]
+            + [NamePlayer(100+i, "Eric", f"Brown{i}", 31) for i in range(13)]
+        )
+        countries = (Country(26, 26), Country(31, 31))
+        rng = RecordingRng([0] * 112)
+
+        consumed = consume_startup_team_name_rng(
+            rng,
+            clubs,
+            countries,
+            players,
+            selected_user_country_id=31,
+        )
+
+        self.assertEqual(consumed, 112)
+        self.assertEqual(rng.calls[:4], [12, 12, 13, 13])
+        self.assertEqual(rng.calls[4:], [13] * 108)
+
+    def test_youth_replay_interleaves_selection_and_two_name_draws(self):
+        # option mode 0 first draws RNG(2)=1, requesting five players. Only
+        # four candidates exist, so all four are consumed.
+        rng = RecordingRng([1] + [0] * 12)
+        target, selected = replay_startup_youth_generation(
+            rng,
+            (10, 20, 30, 40),
+            option_mode=0,
+            name_bound=13,
+        )
+
+        self.assertEqual(target, 5)
+        self.assertEqual(selected, (10, 40, 30, 20))
+        self.assertEqual(
+            rng.calls,
+            [2, 4, 13, 13, 3, 13, 13, 2, 13, 13, 1, 13, 13],
+        )
+
+    def test_country_wrapper_uses_exact_generated_name_bound(self):
+        players = tuple(
+            [NamePlayer(i, "Alan", f"Smith{i}", 26) for i in range(12)]
+            + [NamePlayer(100+i, "Eric", f"Brown{i}", 31) for i in range(13)]
+        )
+        countries = (Country(26, 26), Country(31, 31))
+        # Unknown option value gives deterministic target 4, so the only
+        # calls are candidate/name/name repeated four times.
+        rng = RecordingRng([0] * 12)
+        target, selected = replay_startup_youth_generation_for_country(
+            rng,
+            (10, 20, 30, 40),
+            99,
+            31,
+            countries,
+            players,
+        )
+
+        self.assertEqual(target, 4)
+        self.assertEqual(selected, (10, 40, 30, 20))
+        self.assertEqual(
+            rng.calls,
+            [4, 13, 13, 3, 13, 13, 2, 13, 13, 1, 13, 13],
         )
 
 

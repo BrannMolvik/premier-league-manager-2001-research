@@ -3897,3 +3897,48 @@ The clean-room RoundDefinition now exposes packed +20 neutrally as
 `source_competition_reference`, with low-word `source_competition_id` and
 high-word `source_child_code`, so this boundary can be checked directly from
 Static.dat.
+
+
+## Exact replayable 0x413830 RNG sub-block
+
+The user-reset path immediately before schedule construction is now ordered
+well enough to replay its RNG state, not merely list local findings.
+
+`0x413830` executes:
+
+```text
+0x414330   generated-name startup block
+0x413980   per-user youth generation
+0x413730   state reset/maintenance
+```
+
+`0x413980` walks the linked user list at manager object +0x9CC. For each user
+it calls `0x61E0E0` once to clear the destination list, then calls
+`0x61DF90` **once**, followed by `0x61DD30` post-processing. The separate
+routine around `0x61DE40` that contains two `0x61DF90` calls is not the
+new-game `0x413980` path and must not be double-counted.
+
+For one user, the RNG-visible `0x61DF90` sequence is therefore:
+
+```text
+optional option-size RNG(2) / RNG(3)
+for each generated player:
+    RNG(current_candidate_count)
+    RNG(country_name_bound)
+    RNG(country_name_bound)
+```
+
+where the candidate count begins at 512 in the shipped data and decreases by
+one through swap-delete. `0x41E510` receives the human user's team country
+from `team+0x14`; it passes that country to `0x421C00`, which resolves the
+country's nationality source vector and consumes the two name draws.
+
+The clean-room startup_rng module now has replay helpers that consume these
+draws in exact order and return the selected !Spare player IDs. It also
+replays the preceding `0x414330` block: all per-team generated-name draws,
+then exactly 108 additional draws using the currently selected user's country.
+
+This does not yet make the full srand-to-shuffle state exact because earlier
+database/startup consumers still require a complete ledger, but the entire
+user-dependent `0x413830` contribution can now be advanced deterministically
+once the human club country and option-category-3 value are known.

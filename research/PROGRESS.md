@@ -2063,3 +2063,25 @@ competition reconstruction.
 Next target: continue the pre-schedule audit for genuinely primary-path RNG
 consumers and assemble a concrete total-call ledger from srand through the
 first 0x947AD8/0x615BE0 bucket shuffle.
+
+
+## 25 September replayable user-startup RNG checkpoint
+
+The `0x413830` pre-schedule RNG contribution can now be replayed end to end
+for a supplied human-game configuration.
+
+New tested helpers:
+- consume the entire `0x414330` generated-name sequence, including its 108
+  selected-user-country draws;
+- replay one user's `0x61DF90` youth sequence with the exact option draw,
+  descending candidate bounds, swap-delete selected IDs, and two country-name
+  draws per youth;
+- resolve the youth name bound directly from parsed country/player data.
+
+A control-flow correction is also locked down: the actual new-game
+`0x413980` path calls `0x61DF90` once per user. A different routine that
+calls it twice is not on this path.
+
+Next target: finish proving the other immediate pre-`0x4F7C00` wrappers are
+RNG-clean, then move farther back in startup to locate any database/team RNG
+consumers that precede the already-reconstructed player initialization block.

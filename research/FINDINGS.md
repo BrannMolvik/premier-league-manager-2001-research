@@ -885,3 +885,19 @@ Confirmed:
 
 So DummyLeague's random sorter must be preserved for broader competition
 fidelity but excluded from the first Premier League shuffle RNG ledger.
+
+
+## Replayed pre-schedule user RNG block
+
+Confirmed startup ordering:
+
+- `0x413830` calls `0x414330`, then `0x413980`, then RNG-clean/reset work;
+- `0x413980` performs exactly one `0x61DF90` youth-generation call per
+  linked user;
+- each user's youth block consumes optional target-size RNG first, then
+  selection/name/name for every generated player;
+- the two name draws use that user's team country;
+- the 512-candidate !Spare vector and swap-delete behavior are already exact.
+
+Clean-room replay helpers now consume the whole recovered user-dependent block
+in original ordering instead of treating the draws independently.
