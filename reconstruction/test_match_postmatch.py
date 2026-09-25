@@ -339,8 +339,8 @@ class ExactIncidentOrderingTests(unittest.TestCase):
         # before the original 0x5127A0 card/injury loop.
         sync_post_match_conditions(side, participants)
         rng = ScriptedRng([
-            2,  # participant 0 injury category -> broken toe
-            1,  # broken-toe RNG(4) -> four weeks
+            2,  # Condition 74 -> mode-1 category roll -> ankle
+            1,  # ankle severity roll -> minor one-week injury
             1,  # participant 1 red RNG(3) -> one-match suspension
         ])
         summary = persist_premier_league_match_incidents(
@@ -353,15 +353,15 @@ class ExactIncidentOrderingTests(unittest.TestCase):
             rng,
         )
 
-        self.assertEqual(rng.calls, [100, 4, 3])
+        self.assertEqual(rng.calls, [100, 100, 3])
         self.assertEqual(summary.injured_player_indices, frozenset((0,)))
         self.assertEqual(
             summary.discipline.sent_off_player_indices,
             frozenset((1,)),
         )
         self.assertTrue(participants[0].injured)
-        self.assertEqual(participants[0].injury_return_date, date(2000, 9, 16))
-        self.assertEqual(participants[0].condition, 34)
+        self.assertEqual(participants[0].injury_return_date, date(2000, 8, 26))
+        self.assertEqual(participants[0].condition, 64)
         self.assertEqual(participants[1].suspension_matches_remaining, 1)
 
     def test_condition_sync_happens_before_persistent_injury_drop(self):

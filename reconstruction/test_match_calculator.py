@@ -115,7 +115,7 @@ class PenaltyResolverTests(unittest.TestCase):
         self.assertEqual(event.source, ChanceSource.PENALTY)
         self.assertEqual(event.outcome, ChanceOutcome.MISS)
         self.assertEqual(event.raw_outcome, 1)
-        self.assertTrue(event.context_flag)
+        self.assertEqual(event.finish_mode, FinishMode.SHOOTING)
         self.assertEqual(rng.calls, [3, 256, 100])
 
     def test_saved_penalty_and_presentation_variant(self):
@@ -329,7 +329,7 @@ class FullOpenPlayResolverTests(unittest.TestCase):
 
     def test_lost_final_duel_can_transition_to_penalty(self):
         attack,defend=self.basic_teams()
-        rng=ScriptedRng([50,0,80,0,0,15000,0,0])
+        rng=ScriptedRng([50,0,80,0,0,0,15000,0,0])
         result=resolve_open_play_attempt(attack,defend,25,0,rng)
         self.assertEqual(result.transition,ChanceSource.PENALTY)
         self.assertEqual((result.neutral_increment,result.attacking_possession_increment),(1,2))

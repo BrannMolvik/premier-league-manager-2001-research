@@ -80,9 +80,17 @@ def players_for_club(club_id: int, start_index: int):
 
 class TwoRoundDatabase:
     players = players_for_club(1, 100) + players_for_club(2, 200)
+    # The two dated fixtures exercise season progression. Nine undated
+    # placeholders make the synthetic competition a full 20-club Premier
+    # League table without introducing extra due matches; the real strategy
+    # cut-line logic is intentionally not weakened for a two-club test table.
     real_fixtures = [
         Fixture(0, 0, 1, 2),
         Fixture(1, 1, 2, 1),
+        *[
+            Fixture(100 + offset, 99, 3 + 2 * offset, 4 + 2 * offset)
+            for offset in range(9)
+        ],
     ]
     # 2000-01: round week/day 7/6 = Aug 19; 8/3 = Aug 23.
     premier_league_rounds = [

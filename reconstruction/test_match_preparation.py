@@ -144,6 +144,10 @@ class AiMatchPreparationTests(unittest.TestCase):
         # one weak healthy candidate compete for a slot.
         roster[0] = injured
         roster[1] = healthy
+        # Preserve a second eligible striker so this test isolates the
+        # availability predicate rather than deliberately creating an
+        # impossible two-striker formation.
+        roster.append(player(22, 7, 19, 10))
 
         prepared = prepare_ai_match_selection(
             7,
@@ -159,6 +163,10 @@ class AiMatchPreparationTests(unittest.TestCase):
     def test_additional_competition_eligibility_is_composed(self):
         roster = formation_zero_roster()
         blocked = roster[0]
+        # Formation 0 has two striker slots. Add a replacement candidate so
+        # blocking one player tests eligibility composition, not incomplete-XI
+        # handling.
+        roster.append(player(11, 7, 19, 20))
 
         prepared = prepare_ai_match_selection(
             7,

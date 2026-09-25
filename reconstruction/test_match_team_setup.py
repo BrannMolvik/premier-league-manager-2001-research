@@ -155,7 +155,7 @@ class FormationStrategyClassifierTests(unittest.TestCase):
         self.assertEqual(gaps.win_league, 45)
         self.assertIsNone(gaps.promotion)
         self.assertIsNone(gaps.promotion_playoff)
-        self.assertEqual(gaps.avoid_relegation, 0)
+        self.assertEqual(gaps.avoid_relegation, 3)
         self.assertIsNone(gaps.avoid_relegation_playoff)
 
     def test_exact_league_cut_line_gap_mapping_with_promotion_and_playoffs(self):
@@ -170,7 +170,7 @@ class FormationStrategyClassifierTests(unittest.TestCase):
         self.assertIsNone(gaps.win_league)
         self.assertEqual(gaps.promotion, 19)
         self.assertEqual(gaps.promotion_playoff, 5)
-        self.assertEqual(gaps.avoid_relegation, -10)
+        self.assertEqual(gaps.avoid_relegation, -5)
         self.assertEqual(gaps.avoid_relegation_playoff, 19)
 
     def test_late_season_strategy_uses_first_reachable_objective(self):
