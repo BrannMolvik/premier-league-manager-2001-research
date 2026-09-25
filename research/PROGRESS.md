@@ -2749,3 +2749,37 @@ Further resolver tracing establishes:
 - type-4 allocation instructions advance the per-source position accumulator used when subsequent type-1 allocation instructions emit type-2 references.
 
 This makes the domestic playoff allocation records intelligible and materially narrows the remaining allocation-type reconstruction.
+
+
+## 26 September initial League membership/ranking checkpoint
+
+The source order feeding Cup allocation from League competitions is now recoverable.
+
+Direct executable tracing shows startup routine `0x4F7A60` walks DBRClub records in canonical Master.dat order. For each club it reads the competition assignment at runtime DBRClub+0x10, maps that from packed club dword +8, creates a direct type-0 ClubRef/LeagueClub, and appends it to that League's +0x34 array.
+
+Thus the initial unsorted League membership is:
+
+```text
+Master.dat club source order
+ -> filter by packed club +8 competition ID
+```
+
+Before type-5 Cup allocation consumes a referenced League, `0x4F4940` sorts the LeagueClub array through comparator `0x4F45E0`. At new-game startup all standings statistics are zero, so the comparator reaches its final club-string tie-breaker. That resolves DBRClub+0x0C, the runtime short/display-name string loaded from the second packed club name ID.
+
+Canonical initial league ranking is therefore:
+
+```text
+initial League members
+ -> sort by short/display-name string in CP1252 byte order
+```
+
+Canonical data has no duplicate short/display names within a starting League, so this initial ranking order is deterministic without additional qsort tie ambiguity.
+
+Implementation commits:
+
+- `882a8dddee82697d016786925be99a9f359b82bc` exposes packed club +8 as `Club.competition_id`;
+- `a500c6d9f090ef71c7f27f46fcc4e8f881aa1732` implements initial League membership/ranking helpers.
+
+GitHub Actions at `a500c6d9f090ef71c7f27f46fcc4e8f881aa1732` passes **328 tests**.
+
+This directly enables exact type-5 Cup allocation from referenced League ranking arrays and supports type-2 ClubRef position references.
