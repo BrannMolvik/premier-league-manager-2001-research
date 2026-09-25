@@ -2397,3 +2397,27 @@ Confirmed:
 This removes later user/calendar branches from the mandatory pre-DBTPlayers RNG audit unless a concrete first-start call path reaches them.
 
 Next: trace the actual post-intro front-end navigation/factory activation of screen ID 0x323 and classify any RNG-bearing functions reachable before the New Game ID-2 event.
+
+
+## 26 September seed-to-PStartMenu RNG closure checkpoint
+
+The ordinary first-start path from the application seed through the first PStartMenu is now closed for the shared game CRT stream.
+
+New key correction/confirmation:
+
+- after `PREMINTRO.TGQ`, main startup directly allocates a 0x2E0-byte object at `0x53120F` and finishes by assigning PStartMenu vtable `0x7C64E0` at `0x53129C`;
+- this is the actual zero-user initial PStartMenu construction path;
+- the embedded-control `+0x30/+0x34` virtuals resolve to `0x64F510/0x64F520 -> 0x64F3E0`, deterministic control toggles;
+- the normal front-end idle/event loop `0x531AF0` and its concrete event/audio helpers do not advance the game CRT stream;
+- the setup functions between `0x53109E srand` and the first Loader444 decode contain no additional mapped game-CRT RNG consumer.
+
+Result for the standard path:
+
+```text
+srand(seed)
+ -> 260 raw Loader444 draws
+ -> no further mandatory draw before New Game
+ -> DBTPlayers startup RNG
+```
+
+Combined with the already-closed TeamSelect and post-`0x413830` paths, this leaves assembly/review of the complete seed-to-competition ledger as the final Gate-2 task.
