@@ -2321,3 +2321,19 @@ The `0x50D630` core startup loader called before TeamSelect construction has bee
 Result: **inside `0x50D630`, the mandatory startup RNG source is the known DBTPlayers sequence.**
 
 Next target: close the PStartMenu ID-2 calls before `0x50D630` and then finish the TeamSelect constructor/activation helper audit.
+
+
+## 26 September TeamSelect lifetime RNG closure checkpoint
+
+The standard fresh-start TeamSelect lifetime is now closed as an RNG boundary.
+
+Confirmed:
+
+- PStartMenu construction writes zero to global `0x875614`, so the optional `0x4506B0` modal is skipped on the standard fresh-start ID-2 path;
+- the PStartMenu pre-`0x50D630` helpers resolve to deterministic UI/resource/date/setup behavior;
+- the child virtual `+0x34` loop resolves through `0x64F520 -> 0x64F3E0` and only toggles UI state;
+- TeamSelect constructor `0x4D9290` and its reachable constructor helpers contain no CRT RNG path;
+- TeamSelect panel registration/activation through `0x653320`, `0x5329A0`, `0x4DAF40`, `0x6542B0`, `0x653A30`, `0x5EE560`, `0x532C10` and `0x5328B0` is deterministic;
+- together with the earlier TeamSelect method/click audit, the standard TeamSelect lifetime from construction through Start/Continue consumes zero CRT RNG draws.
+
+The seed-to-shuffle investigation therefore moves one boundary earlier: determine whether anything consumes the CRT RNG between application seeding and the PStartMenu/database-loader path. If not, the startup ledger can be closed around the already-reconstructed DBTPlayers and `0x413830` draws plus competition/schedule consumers.
