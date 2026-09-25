@@ -2864,3 +2864,114 @@ typed command list
 ```
 
 This culling stage is not a live tactical-state applier; it only builds the filtered command list that the following ConversionVisitor serializes into MatchCalculator record families.
+## Backend DBRTeam tactical state: exact write-site audit
+
+**Confirmed by a whole-executable audit of byte writes to the four live DBRTeam tactical fields, together with their already-mapped MatchCalculator consumers.**
+
+The live backend fields are:
+
+```text
+team +0x1B4  Play style
+team +0x1B5  Without Ball / defensive style
+team +0x1B6  With Ball / attacking style
+team +0x1B7  Aggression
+```
+
+For genuine DBRTeam instances, the executable has only three classes of writes to these fields:
+
+1. **team construction/default initialization**;
+2. **team-object copy/state transfer**, which preserves an already-existing value;
+3. **the user tactical UI/controller**.
+
+No separate AI-manager initialization or AI tactical-decision path writes these four DBRTeam bytes.
+
+### Exact fresh-team defaults
+
+The DBRTeam constructor initializes:
+
+```text
++0x1B4 Play style        = 1  # Normal
++0x1B5 Without Ball      = 0  # Normal
++0x1B6 With Ball         = 0  # Normal
++0x1B7 Aggression        = 5
+```
+
+Relevant constructor writes are `0x403777`, `0x403737`, `0x40373D`, and `0x40377E`.
+
+### Exact copy path
+
+The team copy/state-transfer routine at `0x40C2AD..0x40C2D7` copies all four bytes verbatim from one DBRTeam object to another:
+
+```text
+source +0x1B4 -> destination +0x1B4
+source +0x1B5 -> destination +0x1B5
+source +0x1B6 -> destination +0x1B6
+source +0x1B7 -> destination +0x1B7
+```
+
+Therefore a runtime team can preserve non-default values that were already present; the conclusion below applies to the normal fresh AI-team path, not to an arbitrarily copied/mutated object.
+
+### User tactical-control writes
+
+The tactical UI handler around `0x4D6770` resolves the currently user-controlled team and performs the only normal direct gameplay mutations found for these fields.
+
+Play style:
+
+```text
+0x4D6DCA -> 0
+0x4D6DD7 -> 1
+0x4D6DE5 -> 2
+```
+
+Without Ball:
+
+```text
+0x4D6DF3 -> 0
+0x4D6E00 -> 1
+0x4D6E0E -> 2
+0x4D6E1C -> 3
+```
+
+With Ball:
+
+```text
+0x4D6E2A -> 0
+0x4D6E37 -> 2
+0x4D6E45 -> 1
+0x4D6E53 -> 3
+```
+
+Aggression is clamped/selected through the UI path and written at `0x4D701E`.
+
+### No backend AI-manager write
+
+An exhaustive instruction-level search for byte writes to `+0x1B5`, `+0x1B6`, and `+0x1B7` finds only the constructor, DBRTeam copy path, and user-UI mutations above. The corresponding DBRTeam `+0x1B4` writes have the same constructor/copy/UI structure; apparent dword writes at the same numeric offset elsewhere belong to unrelated object layouts or stack frames rather than this DBRTeam byte.
+
+This resolves the former AI-tactics uncertainty:
+
+- the manager tactical bytes `DBRManager+0x30..+0x33` are used by the separate compact MatchEngine-side snapshot mapped in the previous section;
+- they are **not copied into** backend DBRTeam `+0x1B4..+0x1B7`;
+- a normally constructed AI club therefore enters the backend calculator with the fresh DBRTeam defaults unless those live fields have been preserved through an existing copied/mutated team state.
+
+That behavior is consistent with the backend's separate fixed AI strength modifiers (attack x1.05 and defence x1.10) and with its direct reads of the DBRTeam fields.
+
+### Type-11 consequence
+
+The MatchCalculator advance path around `0x62FE10` likewise does not apply family-11 tactical records back into DBRTeam state. Its football-record passes process scoring/incidents/substitutions/statistical state, while tactical family 11 remains part of the chronological command/event stream.
+
+The evidence therefore supports this architecture:
+
+```text
+live DBRTeam tactical state
+    <- constructor / copied state / user tactical controls
+
+typed tactical commands
+    -> CullingVisitor
+    -> ConversionVisitor
+    -> family-11 timeline records
+
+MatchEngine initial tactics snapshot
+    <- 0x40D860 (user live state or AI manager presentation preferences)
+```
+
+These are related representations, but they are not one shared mutable tactical store.
