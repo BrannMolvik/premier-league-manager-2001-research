@@ -4369,3 +4369,100 @@ Remaining pre-TeamSelect uncertainty is now outside `0x50D630`:
 2. TeamSelect constructor/helper graph after `0x4C3992`, although the constructor has no direct RNG entry call;
 3. any state path that executes before the user later clicks Start/Continue.
 
+
+
+## Fresh-start PStartMenu and TeamSelect activation path is RNG-clean
+
+**Confirmed for the standard new-game route, 26 September 2026.**
+
+The remaining PStartMenu ID-2 prefix before `0x50D630`, plus TeamSelect construction/registration after the loader, has now been resolved far enough to close it as a mandatory RNG source.
+
+### Fresh-start PStartMenu prefix
+
+The ID-2 branch at `0x4C37C7` begins with a conditional check of global `0x875614`.
+
+All writes to that global in the relevant startup/UI code were located:
+
+```text
+0x4325DF  -> writes ESI
+0x4C388A  -> writes EBP
+0x4C48C4  -> writes 1
+0x4C4D38  -> writes 1
+0x4C5195  -> writes 1
+```
+
+At `0x432531`, before the `0x4325DF` store, `ESI` is explicitly zeroed. Therefore the PStartMenu construction/start path writes **0** to `0x875614`. The later value-1 stores belong to later UI/new-game-type flows.
+
+For the standard fresh-start PStartMenu ID-2 route, the optional `0x4506B0` modal branch is therefore skipped.
+
+The remaining prefix helpers are deterministic:
+
+- `0x421C50 -> 0x4175A0`;
+- `0x413D80 -> 0x414530`;
+- `0x4138B0 -> 0x414530`;
+- `0x413780` constructs the 2000-record helper array through `0x412DB0`;
+- `0x4145A0` performs state cleanup/copy;
+- `0x532980`, `0x653A30`, `0x5ECF30`, `0x5329A0`, `0x4E9830`, `0x5102C0`, `0x5328B0` and `0x64CC70` resolve to UI/layout/resource/date handling.
+
+No known CRT RNG entry point is reached by the standard mandatory prefix.
+
+The child-control virtual `+0x34` loop is also resolved rather than left opaque. PStartMenu constructs controls whose relevant vtables use:
+
+```text
+slot +0x34 -> 0x64F520
+slot +0x0C -> 0x64F3E0
+```
+
+`0x64F520` forwards a zero argument to owner/control virtual `+0x0C`; `0x64F3E0` only toggles UI state through `0x64F750/0x64F710`. This loop is therefore zero-draw.
+
+The conditional modal helper `0x4506B0`, while not mandatory on the fresh-start path, was also checked at its direct helper level and is UI/modal construction/geometry/event handling rather than an RNG consumer. The nearby RNG-bearing routine `0x5EE6C0` is unrelated and is not reached from that modal path.
+
+### TeamSelect constructor is transitively RNG-clean on the startup path
+
+The TeamSelect constructor `0x4D9290` calls:
+
+- `0x64D730` - trivial embedded-structure initialization;
+- `0x64E500` - resource/rectangle initialization;
+- `0x64F300` - generic UI-control initialization;
+- `0x6687C1` - vector/container construction;
+- `0x431390` - UI-control constructor;
+- `0x465940` - UI-control constructor;
+- `0x6596A0` - constant zero;
+- `0x4151C0` - deterministic manager/category/string predicate.
+
+These reachable constructor helpers contain no CRT RNG path.
+
+### TeamSelect registration/activation tail is RNG-clean
+
+After `0x4C39B0 -> 0x4D9290`, the PStartMenu branch performs panel setup/activation:
+
+- `0x653320` - geometry;
+- `0x5329A0 -> 0x4DAF40 / 0x6542B0` - panel registration/activation;
+- `0x653A30` - layout;
+- `0x5EE560 -> 0x5EE4F0 -> 0x5EE1E0` - rendering/presentation path;
+- `0x532C10` / `0x5328B0` - front-end UI state.
+
+The nearby `0x5EE6C0` routine contains RNG, but it is a distinct function and is not on this activation chain.
+
+Combined with the previously completed audit of TeamSelect methods `0x4D7CC0..0x4DA4D0` and the Start/Continue click dispatch, the **standard TeamSelect lifetime from construction through activation and the later Start click introduces no CRT RNG draw**.
+
+### Updated Gate-2 boundary
+
+The concrete standard path is now:
+
+```text
+PStartMenu ID 2
+  -> deterministic pre-loader UI/setup
+  -> 0x50D630
+       -> deterministic clubs/managers/setup
+       -> mandatory DBTPlayers startup RNG sequence
+  -> deterministic TeamSelect construction/activation
+  -> user Start/Continue
+  -> deterministic click dispatch
+  -> 0x4C41C0 deterministic prefix
+  -> known 0x413830 generated-name/youth RNG block
+  -> deterministic path to competition startup
+```
+
+The next remaining question is no longer TeamSelect: it is whether any mandatory CRT RNG consumers occur **between application seeding and entry into this PStartMenu/database-loader sequence**. That must be settled before the complete seed-to-first-PL-shuffle ledger can be called closed.
+
