@@ -161,6 +161,26 @@ class InternalSaveTests(unittest.TestCase):
                 snapshot,
             )
 
+    def test_contract_wage_and_expiry_survive_roundtrip(self):
+        original = self.build_controller()
+        player = original.state.players[1000]
+        player.weekly_wage = 4321
+        player.contract_expiry_date = date(2004, 6, 30)
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        restored_player = restored.state.players[1000]
+        self.assertEqual(restored_player.weekly_wage, 4321)
+        self.assertEqual(
+            restored_player.contract_expiry_date,
+            date(2004, 6, 30),
+        )
+
     def test_wrong_source_database_is_rejected(self):
         original = self.build_controller()
         snapshot = snapshot_human_gameplay(original)
