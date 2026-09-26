@@ -3041,3 +3041,44 @@ Next: finish an exact tested translation of `0x616CE0..0x616F20`, identify
 every primary procedural League runtime instance and initialization position,
 integrate its bounds into the shared startup stream, and then resume the Cup
 schedule-node materializer on the corrected RNG state.
+
+
+## 26 September complete primary competition RNG replay checkpoint
+
+The procedural-League correction is now fully integrated rather than only
+bounded as a lower-limit warning.
+
+Canonical complete competition replay before primary `0x615BE0`:
+
+- 39 procedural League runtime instances;
+- 4,302 procedural-League bounded calls;
+- 1,737 Cup participant-shuffle calls;
+- 124 DummyLeague lazy-ranking calls;
+- 2 Europe-root selector calls;
+- 6,165 bounded calls total;
+- 167 high-level RNG events;
+- ordered-bound SHA-256
+  `3e7accfdf108a48a53902bb32a782fb23c64c7e5ce54eff101e0f869f6c3629c`;
+- synthetic post-youth state `0x2797444C -> 0x0DD3ACA3`;
+- Europe selector event indices 137 / 158, selecting clubs 1137 / 1159
+  under the synthetic checkpoint.
+
+Filtering procedural-League events reproduces the earlier 1,863-call subset,
+including digest
+`a6675e77b8256fcb8d5834efa6a9d006182078c12f27887c8228a14eca889711`
+and intermediate state `0xAECA9FA5`, proving that the correction is additive
+rather than a rewrite of the earlier Cup/DummyLeague ordering.
+
+Implementation is integrated through
+`reconstruction/procedural_league.py`,
+`reconstruction/competition_runtime.py`,
+`reconstruction/startup_sequence.py`, and `reconstruction/verify.py`.
+
+Validation at `fba3babd72859d4c932c1aadffc81f6b54e339a0`:
+
+- reconstruction GitHub Actions: **365 tests passed**;
+- repository asset-policy GitHub Actions: **passed**.
+
+The live resume point was reconciled after that implementation. Gate 3 now
+continues at procedural League schedule-node emission in `0x6170F0`, the
+conditional child-parent vector shuffle, and exact Cup/League node insertion.
