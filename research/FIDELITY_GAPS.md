@@ -10,7 +10,7 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | --- | --- | --- | --- |
 | League-table final tie fallback | Club ID after points / GD / goals scored | Exact original fallback after the first three keys is unresolved | 15 or earlier if standings behavior requires it |
 | Persistent-injury availability count | Approximation around the inputs to helper `0x405080` | Injury generation/persistence is substantially recovered, but this availability helper is not exact | 15 |
-| Real-data season integration | Unit/regression suite is broad, but season progression tests are mostly synthetic | Canonical raw data invariants are known; full 10-match / 380-match automated integration remains | 5-6 |
+| Real-data season integration | **Three canonical rounds / 30 matches are now reproducibly audited end-to-end** | Full 38-round / 380-match multi-seed proof remains | 6 |
 | Human-controlled match setup | Autonomous AI path is much further ahead | User-control initialization/workflow is incomplete | 7 |
 | Save/load | No complete internal/original save workflow | Individual serialization findings exist | 8 |
 | Transfers/contracts | Research substantially ahead of implementation | Not yet a complete playable system | 9 |
