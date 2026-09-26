@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 3,
-  "active_task": "Finish procedural League schedule-node emission in 0x6170F0 and integrate exact Cup/League schedule nodes",
-  "last_known_main_head": "22a2ee9715906e7dc2b3192fd867a1f468e635a0",
+  "active_task": "Finish ScotPremierLeague post-split schedule nodes and integrate exact Cup/League schedule-node descriptors",
+  "last_known_main_head": "d94ded1d5bb99fc4ebbf552dcf766ae37a6edd55",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,5 +20,5 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 1,
   "last_recovery_reason": "manual-end-to-end-test",
-  "note": "Continuous FM2001 work armed. Focus-safe recovery infrastructure committed on main: Chrome extension owns stale recovery in inactive tabs; Windows watchdog never launches/focuses Chrome."
+  "note": "Recovery generation 1 is active. Generic procedural League schedule-node emission is checkpointed; continuing Gate 3 at the Scottish post-split and integrated Cup/League schedule-node layer."
 }
