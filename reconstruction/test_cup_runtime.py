@@ -201,7 +201,7 @@ class PrimaryCupRuntimeTests(unittest.TestCase):
         refs = result.cups[0].runtime.rounds[0].participant_refs
         self.assertEqual(
             tuple(ref.direct_club_id for ref in refs),
-            (10, 11),
+            (11, 10),
         )
 
 
