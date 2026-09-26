@@ -21,7 +21,7 @@ Authorized original resources belong under `original_assets/` with provenance tr
 ## Verified repository state
 
 - Latest reverse-engineering checkpoint before stabilization: `1014b042a19fc851b8d87e653ee1e5d807816630` - **Advance startup RNG boundary before TeamSelect click**
-- Latest reconstruction-suite validation: `218e780064343838a3546fe497fe31606eb05b70` - **341 tests passed**
+- Latest reconstruction-suite validation: `0407d23260e901155f8ff0841c7e16374196ee29` - **355 tests passed**
 - Latest repository asset-policy validation: `17ee2f299a2a0d87f959b9480df9b48d194de6aa` - **passed**
 - Commits after `1014b042...` are repository-management, documentation, verification/CI hardening, and the Windows 11 port/authorized-asset policy transition. They do not supersede the latest reverse-engineering address/path findings.
 
@@ -68,31 +68,30 @@ The remaining blocker is not RNG call count; it is exact Cup bounded-call order/
 
 ## Exact next task
 
-The complete pre-`0x615BE0` RNG stream is now corrected again after type-5
-Cup allocation exposed 11 lazily ranked DummyLeague sources:
+Gate 3 now has executable Cup runtime materialization, not only RNG accounting:
 
-- 1,737 Cup participant-shuffle calls;
-- 124 DummyLeague ranking calls;
-- 2 Europe selectors;
-- **1,863 total calls**;
-- corrected synthetic state `0xAECA9FA5`;
-- corrected ordered-bound SHA-256
-  `a6675e77b8256fcb8d5834efa6a9d006182078c12f27887c8228a14eca889711`;
-- allocation-aware replay contains 128 high-level RNG events;
-- latest CI passes 341 tests.
+- corrected primary pre-`0x615BE0` ledger remains **1,863 calls** / state `0xAECA9FA5`;
+- type-5 DummyLeague ranking RNG is integrated;
+- exact legacy CRT `qsort` behavior is implemented;
+- standard allocation types 1/3/4/5 expand into semantic ClubRefs;
+- silent entrant-capacity overflow is reproduced;
+- both Champions-League-to-UEFA type-2 transfer branches are represented as exact semantic ClubRefs;
+- NormalRound/TwoLegRound shuffle -> qsort -> split-half pairing is implemented;
+- MiniLeague shuffle/distribution/qualification propagation is implemented;
+- Cup runtime rounds now materialize participant arrays, pairings, and propagated winner/group-position refs;
+- the conditional auxiliary Cup shuffle is proven zero-draw at startup;
+- latest CI passes 355 tests.
 
 Continue Gate 3 by:
 
-1. reproduce the exact DummyLeague `score - RNG(bound)` ranking consumed by
-   type-5 allocation and materialize the selected direct-club ClubRefs;
-2. expand canonical type-1/type-3/type-4/type-5 allocation instructions into
-   the exact ClubRef sequence inserted into each sorted Cup round;
-3. finish the two Champions-League-to-UEFA type-2 transfer descriptor paths;
-4. reproduce MiniLeague participant distribution into child League groups;
-5. run every Cup round through the already-exact shuffle/qsort/pairing machinery;
-6. close Gate 3 and resume Gate 4 with the resulting Cup schedule nodes.
+1. run the canonical all-primary-Cup materializer end-to-end in original competition order;
+2. inject the two UEFA type-2 transfer ref sequences at their exact runtime points;
+3. verify every Cup round reaches its canonical participant count after allocation plus propagated refs;
+4. materialize the resulting Cup match/schedule nodes needed by the primary schedule container;
+5. lock canonical digests/checkpoints for participant/pairing output;
+6. close Gate 3 and resume Gate 4 with those Cup schedule nodes.
 
-Commit every verified allocation/pairing boundary separately.
+Commit every verified canonical materialization boundary separately.
 
 ## Gate 3 completion criteria (reopened)
 
