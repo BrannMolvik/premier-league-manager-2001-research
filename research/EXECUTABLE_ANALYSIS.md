@@ -5325,3 +5325,52 @@ For League/DummyLeague/Scot sources, `+0x1C = 0x4F3EE0` reads the dedicated `+0x
 ### ClubRef type 4 is outside primary Cup allocation
 
 A full direct-call scan finds type-4 ClubRef constructor `0x4F2D90` only at `0x4FADA5`, `0x4FADB5`, `0x4FAE17`, and `0x4FAE27`, all within Scottish Premier League procedural scheduling. No primary Cup allocation branch creates type-4 ClubRefs, so that tag can be deferred for the reopened Gate-3 Cup-pairing objective.
+
+
+### Type-5 quantity counts successful allocations
+
+Direct disassembly of the type-5 loop at `0x4F5F97..0x4F5FDC` settles the
+remaining quantity ambiguity.
+
+The loop maintains two separate counters:
+
+- `EBX` = source ranking index, incremented after **every** candidate;
+- stack local `[esp+0x14]` = successful-allocation count.
+
+After resolving source ranking entry `EBX`, it calls `0x4F5840`. The success
+counter is incremented only when `0x4F5840` returns nonzero:
+
+```text
+0x4F5FC3 call 0x4F5840
+0x4F5FC8 test eax,eax
+0x4F5FCA je   no_success_increment
+0x4F5FCC inc  [esp+0x14]        ; accepted club count
+...
+0x4F5FD7 inc  ebx               ; source index always advances
+0x4F5FD8 cmp  success_count, instruction.quantity
+0x4F5FDA jl   0x4F5FA6
+```
+
+Therefore type-5 `quantity` means **N successfully accepted clubs**, not N
+source positions inspected.
+
+This confirms the current reconstruction helper
+`select_type5_direct_club_ids()`, which scans past blocked/duplicate clubs
+until the requested success count is reached or the source ranking ends.
+
+### Canonical allocation-capacity audit
+
+Across the 27 primary Cups, 24 request exactly their summed round
+`new_entrants` capacity.
+
+Three intentionally request more refs than can be inserted:
+
+```text
+League Cup (5):              94 requested / 92 capacity
+Champions League (9):        77 requested / 76 capacity
+World Club Championship(101):10 requested /  8 capacity
+```
+
+This is compatible with the already-recovered `0x4F57E0` behavior: once all
+round entrant quotas are full, later ClubRefs are silently not inserted even
+though a direct-club allocation can still be marked successful by its caller.
