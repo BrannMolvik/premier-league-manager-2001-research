@@ -2,43 +2,31 @@
 
 _Last reconciled: 27 September 2026_
 
-This is the **canonical live resume point**. Historical chronology belongs in
-`PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
-topic-specific research files.
+This is the **canonical live resume point**. Historical chronology belongs in `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and topic-specific research files.
 
 ## Current gate
 
-**Gate 7 - Minimum human-manager gameplay loop**
+**Gate 8 - Internal save/load**
 
-Gates 1 through 6 are complete. Gate 6 closed after three deterministic
-canonical 38-round / 380-fixture Premier League seasons completed with exact
-recovered scheduler order and coherent match, table, lineup, discipline,
-injury, Form, Condition, and Pitch Wear state.
+Gates 1 through 7 are complete. Gate 7 closed after the human-controlled path was connected to the same reconstructed match backend as AI clubs, exposed through a temporary playable Tkinter surface, and exercised against canonical shipped data across six Arsenal fixtures / six complete Premier League matchdays from 19 August through 23 September 2000.
 
 ## Porting mission
 
-This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc
-contents are authorized for project use. Preserve and reuse original data,
-music, sounds, interface graphics, strings, and other resources wherever
-technically practical while replacing incompatible legacy runtime/game logic.
+This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc contents are authorized for project use. Preserve and reuse original data, music, sounds, interface graphics, strings, and other resources wherever technically practical while replacing incompatible legacy runtime/game logic.
 
-Authorized original resources belong under `original_assets/` with provenance
-tracked according to `ASSET_POLICY.md`.
+Authorized original resources belong under `original_assets/` with provenance tracked according to `ASSET_POLICY.md`.
 
 ## Verified repository state
 
-- Gate-6 strengthened audit checkpoint:
-  `b86980bd47e4919ed9ca4a15f22f8d2153c93fb9`.
-- Reconstruction GitHub Actions at that checkpoint: **402 tests passed**.
-- Repository asset-policy workflow: **passed**.
-- Gate-5 evidence: `research/GATE5_REAL_MATCHDAY_INTEGRATION.md`.
-- Gate-6 evidence: `research/GATE6_FULL_SEASON.md`.
-- Canonical executable SHA-256:
-  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- Gate-7 canonical evidence: `research/GATE7_HUMAN_GAMEPLAY.md`.
+- Gate-7 audit runner: `reconstruction/canonical_human_gameplay_audit.py`.
+- GitHub reconstruction Actions at `92a003f6fb6e08eb810de8eb964c73260329cb69`: **407 tests passed**.
+- Repository asset-policy workflow at that checkpoint: **passed**.
+- Canonical executable SHA-256: `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
 
-## Canonical startup/scheduler checkpoint
+## Stable startup / scheduler checkpoint
 
-The solved canonical autonomous path through primary schedule finalization is:
+The solved canonical autonomous path through primary schedule finalization remains:
 
 - actual-count primary competition RNG: **6,156 calls**;
 - state entering primary `0x615BE0`: **`0x0E556598`**;
@@ -47,139 +35,81 @@ The solved canonical autonomous path through primary schedule finalization is:
 - primary bucket-shuffle calls: **9,178**;
 - state after primary schedule shuffle: **`0x839953AA`**.
 
-See `research/GATE4_SCHEDULE_ORDER.md` for the recovered
-`0x615950 / 0x615BE0 / 0x615C10` details.
+Gate-4 evidence: `research/GATE4_SCHEDULE_ORDER.md`.
 
-## Gate-5 canonical real-data checkpoint
+## Stable autonomous-season checkpoint
 
-The reusable runner `reconstruction/canonical_matchday_audit.py` verifies
-the canonical shipped files, reconstructs all 38 PL scheduler orders from the
-shipped data, installs them into `GameState`, and runs the same autonomous
-match backend used by the reconstruction.
+Gate 6 completed three deterministic canonical 38-round / 380-fixture Premier League seasons with exact scheduler order, 19 home + 19 away matches for every club, reconciled league totals, valid 11+5 selection state after every round, and injury/return plus suspension/resolution progression.
 
-Three-round audit SHA-256:
+Evidence: `research/GATE6_FULL_SEASON.md`.
 
-`dbe2aa4e5de50884b52616af3312e46f805d43b992c8cbb972d4446479535f4b`
+## Gate-7 human gameplay checkpoint
 
-The three-round run completed 30 real matches with all 20 clubs participating
-once per round, table goals reconciling, valid 11+5 selections, coherent
-injuries/suspensions, and valid Form/Condition.
+Implemented:
 
-## Gate-6 full-season checkpoint
+- `GameState.simulate_premier_league_human_fixture()` routes a human side and AI side through the same MatchCalculator and post-match persistence backend;
+- `HumanGameplayController` persists human club, formation, XI/bench, tactics and Team Orders;
+- legal deterministic human lineup autofill reuses the proven lineup/Non-EU selection core;
+- scheduler-aware advance pauses before the human fixture while preserving AI fixtures before/after it on the same date;
+- the temporary Tkinter **Play** tab exposes club, lineup, tactics, advance, play, result and table.
 
-The strengthened audit additionally requires:
+Canonical six-fixture Arsenal audit:
 
-- exactly 380 result fixture IDs;
-- 38 matches per club;
-- 19 home + 19 away per club;
-- reconciled played/W/D/L/points/goals totals;
-- valid 11 active + 5 substitute-available players after every real round;
-- Condition 0..100 and Form 0..4 after every round;
-- injury entry **and** return progression;
-- suspension entry **and** resolution progression.
+- dates: 19 Aug to 23 Sep 2000;
+- six complete 10-match PL matchdays / **60 stored results**;
+- Arsenal record after six: **4 wins, 1 draw, 1 loss, 13 points**;
+- human squad Condition remained **28..80**;
+- two active injuries at the final checkpoint, with legal autofill continuing correctly;
+- match RNG final state: **`0xBE52A1F6`**;
+- audit SHA-256: `6baeb94d17acbdeddcda253f66a6a5e62fb9c427a7ab42e7e7ff0f457721ebee`.
 
-Three deterministic full seasons passed.
+Evidence: `research/GATE7_HUMAN_GAMEPLAY.md`.
 
-### Seed 1
+## Gate-8 goal
 
-Audit SHA-256:
+Add an **internal versioned save format** for the modern port before attempting original FM2001 save compatibility.
 
-`1516a4a311ec06566bb3e549b102eabc7990bf387f842836a2ffc0003f8819ec`
+Required persistent state includes, at minimum:
 
-Key results:
-
-- 380 results;
-- table played total 760;
-- global goals 960;
-- wins/draws/losses 299/162/299;
-- Condition 60..99;
-- injury entries/exits 102/93;
-- suspension entries/exits 52/48;
-- final RNG `0x2C36A2D4`.
-
-### Seed 2
-
-Audit SHA-256:
-
-`a3a678366ef2d43b7ba9c84ee9e10bb7e64863b2bb293f7cb9a3214453782bb3`
-
-- global goals 963;
-- Condition 55..99;
-- injury entries/exits 106/93;
-- suspension entries/exits 59/54;
-- final RNG `0xA8BCDCAD`.
-
-### Seed 3
-
-Audit SHA-256:
-
-`74b41a698d8932fcf09bca6529cb744f7f6c4c09f47c891c1c870609cfeeadb4`
-
-- global goals 1,024;
-- Condition 55..99;
-- injury entries/exits 114/97;
-- suspension entries/exits 62/60;
-- final RNG `0x8773A02A`.
-
-Every full-season run retained 19 home + 19 away fixtures for every club and
-completed all 380 fixtures exactly once.
-
-## Gate-7 goal
-
-Make the reconstructed backend directly playable for one human manager before
-pursuing full original UI fidelity.
-
-The user must be able to:
-
-- start a new game;
-- choose a club;
-- inspect the squad;
-- choose a lineup and tactics;
-- advance time;
-- play/simulate a fixture;
-- inspect the result and table;
-- continue to the next fixture.
+- current calendar date and scheduler order;
+- clubs/managers/competition state required for continuation;
+- mutable player skills, Condition, Form, positions, selection flags, injuries and suspensions;
+- team tactics and human-manager selection/Team Orders;
+- Premier League fixture results/table-reconstructible state;
+- Pitch Wear and prepared/runtime state that materially affects continuation;
+- relevant MSVC CRT RNG state;
+- pending human matchday/controller state if a save occurs before the user fixture.
 
 ## Exact next task
 
-1. **Completed:** audited the existing human-control/prototype code and added a
-   persistent backend controller on top of the existing GameState/match engine.
-2. **Completed:** mixed human-vs-AI fixtures use the same calculator and
-   persistence paths as autonomous fixtures; scheduler-aware same-day ordering
-   is preserved around the pending human match.
-3. **Completed:** 20-club synthetic regression covers club selection, squad,
-   tactics, XI/bench validation, advance-to-fixture, result/table and a
-   three-week continuation loop. CI at `22e81eac`: **406 tests passed**.
-4. Connect the verified controller to the existing Tkinter prototype as a
-   minimal temporary playable surface: club, formation, XI/bench, tactics,
-   advance, play, result and table.
-5. Exercise that surface/controller against canonical shipped data and re-audit
-   Gate-7 completion criteria.
+1. Audit `GameState`, `HumanGameplayController`, competition state and runtime dataclasses for every mutable field that must survive save/reload.
+2. Define a small explicit versioned JSON-compatible snapshot schema. Do not pickle live Python objects and do not conflate this with original PLM2001 save compatibility.
+3. Implement save -> reload for the Gate-7 human gameplay state, including RNG and pending scheduler/controller state.
+4. Add deterministic equivalence tests: branch one game state, save/reload one branch, then continue both through multiple fixtures and require identical results/state/RNG.
+5. Add canonical shipped-data save/reload continuation audit, then re-audit Gate-8 criteria.
 
-## Gate 7 completion criteria
+## Gate 8 completion criteria
 
-- [ ] User-controlled setup feeds the same reconstructed match backend as AI
-      teams.
-- [ ] Several weeks can be played without manual developer intervention.
+- [ ] Calendar, clubs, players, managers, competitions, fixtures/results, injuries, suspensions, tactics, and relevant RNG state persist.
+- [ ] Save -> reload -> continue produces equivalent state.
+- [ ] Multi-week games can be resumed.
+- [ ] Original PLM2001 save compatibility remains separately tracked if incomplete.
 
 ## Known live fidelity boundaries
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
 
-- user-controlled match setup/workflow is incomplete;
-- standalone synthetic callers without reconstructed scheduler state retain an
-  explicit fixture-ID fallback;
-- unresolved final league-table tie fallback;
-- approximation around persistent-injury availability helper `0x405080`;
-- internal save/load is Gate 8;
-- transfers/contracts, finance/board, broader competitions, original front-end
-  fidelity, and FastView/3D remain later gates.
+- internal save/load is not yet implemented;
+- original FM2001 save compatibility is explicitly later/separate;
+- exact final league-table tie fallback remains unresolved;
+- persistent-injury availability helper `0x405080` retains an approximation;
+- transfers/contracts, finance/board, broader competitions, original front-end fidelity and FastView/3D remain later gates.
 
 ## Do not work on yet
 
-Unless required to unblock Gate 7, defer:
+Unless required to unblock Gate 8, defer:
 
-- save/load beyond what the gameplay loop strictly needs;
+- original FM2001 save-file compatibility;
 - transfers/contracts implementation;
 - finance/board implementation;
 - broader competition season-transition behavior;
