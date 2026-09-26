@@ -26,9 +26,11 @@ class CompetitionParserTests(unittest.TestCase):
         first = base
         struct.pack_into("<I", data, first + 0, 0)
         struct.pack_into("<i", data, first + 4, -1)
+        struct.pack_into("<I", data, first + 8, 1)
         struct.pack_into("<H", data, first + 12, 100)
         data[first + 14] = 1
         struct.pack_into("<h", data, first + 15, 9)
+        data[first + 18] = 38
         data[first + 34] = 3
         struct.pack_into("<I", data, first + 27, 26)
         struct.pack_into("<I", data, first + 45, 1)
@@ -36,9 +38,11 @@ class CompetitionParserTests(unittest.TestCase):
         second = base + COMPETITION_RECORD_SIZE
         struct.pack_into("<I", data, second + 0, 25)
         struct.pack_into("<i", data, second + 4, 0)
+        struct.pack_into("<I", data, second + 8, 8)
         struct.pack_into("<H", data, second + 12, 101)
         data[second + 14] = 2
         struct.pack_into("<h", data, second + 15, -3)
+        data[second + 18] = 6
         data[second + 34] = 99
         struct.pack_into("<I", data, second + 27, 123)
         struct.pack_into("<I", data, second + 45, 2)
@@ -60,6 +64,8 @@ class CompetitionParserTests(unittest.TestCase):
         self.assertTrue(db.competitions[0].is_root_competition)
         self.assertEqual(db.competitions[0].initialization_order_value, 9)
         self.assertEqual(db.competitions[0].country_region_id, 26)
+        self.assertEqual(db.competitions[0].runtime_instance_count, 1)
+        self.assertEqual(db.competitions[0].scheduled_matchday_count, 38)
         self.assertEqual(db.competitions[1].id, 25)
         self.assertEqual(db.competitions[1].max_non_eu_players, 99)
         self.assertEqual(db.competitions[1].schedule_container_code, 2)
@@ -69,6 +75,8 @@ class CompetitionParserTests(unittest.TestCase):
         self.assertFalse(db.competitions[1].is_root_competition)
         self.assertEqual(db.competitions[1].initialization_order_value, -3)
         self.assertEqual(db.competitions[1].country_region_id, 123)
+        self.assertEqual(db.competitions[1].runtime_instance_count, 8)
+        self.assertEqual(db.competitions[1].scheduled_matchday_count, 6)
 
 
 class RoundParserTests(unittest.TestCase):
