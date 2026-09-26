@@ -111,81 +111,21 @@ function Test-RecoveryGuard($RuntimeState) {
 }
 
 function Request-Recovery([string]$Reason, [int]$StaleMinutes, $RuntimeState) {
-    $guard = Test-RecoveryGuard $RuntimeState
-    if (-not $guard) {
-        Write-WatchdogLog "Recovery suppressed by cooldown/rate limit."
-        return
-    }
-
-    $encodedReason = [Uri]::EscapeDataString($Reason)
-    $url = "https://chatgpt.com/?fm2001_auto_recover=1&reason=$encodedReason&stale_minutes=$StaleMinutes"
-
     if ($DryRun) {
-        Write-WatchdogLog "DRY RUN: would open $url"
+        Write-WatchdogLog "DRY RUN: stale recovery would be delegated to the Chrome extension."
         return
     }
 
-    Write-WatchdogLog "Recovery requested: $Reason; stale for $StaleMinutes minute(s)."
-
-    $chromeCandidates = @()
-
-    # Prefer an already-running Chrome binary when available.
+    $chromeRunning = $false
     try {
-        $runningChrome = Get-Process chrome -ErrorAction SilentlyContinue |
-            Select-Object -First 1 -ExpandProperty Path
-        if ($runningChrome) { $chromeCandidates += $runningChrome }
+        $chromeRunning = $null -ne (Get-Process chrome -ErrorAction SilentlyContinue | Select-Object -First 1)
     } catch {}
 
-    # Windows App Paths registration is more reliable than assuming one install location.
-    $appPathKeys = @(
-        "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe",
-        "HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe",
-        "HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe"
-    )
-    foreach ($key in $appPathKeys) {
-        try {
-            $candidate = (Get-ItemProperty -Path $key -ErrorAction Stop).'(default)'
-            if (-not $candidate) {
-                $candidate = (Get-ItemProperty -Path $key -ErrorAction Stop).PSChildName
-            }
-            if ($candidate -and (Test-Path $candidate)) {
-                $chromeCandidates += $candidate
-            }
-        } catch {}
-    }
-
-    $knownPaths = @()
-    if ($env:ProgramFiles) {
-        $knownPaths += (Join-Path $env:ProgramFiles "Google\\Chrome\\Application\\chrome.exe")
-    }
-    if (${env:ProgramFiles(x86)}) {
-        $knownPaths += (Join-Path ${env:ProgramFiles(x86)} "Google\\Chrome\\Application\\chrome.exe")
-    }
-    if ($env:LOCALAPPDATA) {
-        $knownPaths += (Join-Path $env:LOCALAPPDATA "Google\\Chrome\\Application\\chrome.exe")
-    }
-    foreach ($candidate in $knownPaths) {
-        if ($candidate -and (Test-Path $candidate)) {
-            $chromeCandidates += $candidate
-        }
-    }
-
-    $chrome = $chromeCandidates | Select-Object -Unique | Select-Object -First 1
-    if ($chrome) {
-        Write-WatchdogLog "Launching Chrome from: $chrome"
-        Start-Process -FilePath $chrome -ArgumentList $url
+    if ($chromeRunning) {
+        Write-WatchdogLog "Stale detected ($Reason; $StaleMinutes minute(s)). Chrome is running; background recovery is delegated to the extension. Watchdog will not focus the browser."
     } else {
-        Write-WatchdogLog "Chrome executable not found directly; using the registered default browser."
-        Start-Process $url
+        Write-WatchdogLog "Stale detected ($Reason; $StaleMinutes minute(s)), but Chrome is closed. Recovery is deferred until Chrome is opened; watchdog will not launch or focus it."
     }
-
-    $historyStrings = @($guard.History | ForEach-Object { $_.ToString("o") })
-    $historyStrings += $guard.Now.ToString("o")
-    $newLocal = [PSCustomObject]@{
-        lastRecoveryAt = $guard.Now.ToString("o")
-        recoveryHistory = $historyStrings
-    }
-    Save-LocalState $newLocal
 }
 
 function Invoke-WatchdogCheck {
