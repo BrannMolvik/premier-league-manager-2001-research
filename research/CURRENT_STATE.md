@@ -142,23 +142,19 @@ The user must be able to:
 
 ## Exact next task
 
-1. Audit the existing human-control and prototype front-end code. Reuse the
-   already-reconstructed AI/match backend rather than creating a parallel match
-   engine.
-2. Define the minimum persistent human-manager state: selected club, user
-   tactics, chosen starting XI/substitutes, and whether the next due fixture
-   contains the user club.
-3. Implement the smallest backend gameplay controller that can:
-   - create a canonical new-game state;
-   - select a PL club;
-   - expose squad/tactics/lineup;
-   - advance to the next user fixture while autonomous PL matches continue;
-   - simulate the user fixture through the same reconstructed backend;
-   - expose result + current table;
-   - continue repeatedly without developer-only intervention.
-4. Add focused tests for a several-week human-controlled loop.
-5. Only after the backend loop is stable, connect it to the existing prototype
-   UI or a minimal temporary control surface as appropriate.
+1. **Completed:** audited the existing human-control/prototype code and added a
+   persistent backend controller on top of the existing GameState/match engine.
+2. **Completed:** mixed human-vs-AI fixtures use the same calculator and
+   persistence paths as autonomous fixtures; scheduler-aware same-day ordering
+   is preserved around the pending human match.
+3. **Completed:** 20-club synthetic regression covers club selection, squad,
+   tactics, XI/bench validation, advance-to-fixture, result/table and a
+   three-week continuation loop. CI at `22e81eac`: **406 tests passed**.
+4. Connect the verified controller to the existing Tkinter prototype as a
+   minimal temporary playable surface: club, formation, XI/bench, tactics,
+   advance, play, result and table.
+5. Exercise that surface/controller against canonical shipped data and re-audit
+   Gate-7 completion criteria.
 
 ## Gate 7 completion criteria
 
