@@ -2,6 +2,8 @@ const REPO = "BrannMolvik/premier-league-manager-2001-research";
 const MAIN_BRANCH = "main";
 const RUNTIME_BRANCH = "agent-runtime";
 const CHAT_URL = "https://chatgpt.com/";
+const STALE_CHECK_ALARM = "fm2001-stale-check";
+const STALE_CHECK_MINUTES = 3;
 
 const runtimeStateUrl = () =>
   `https://raw.githubusercontent.com/${REPO}/${RUNTIME_BRANCH}/research/AUTO_CONTINUE_STATE.json?ts=${Date.now()}`;
@@ -30,6 +32,17 @@ async function fetchText(url) {
 
 async function getRuntimeState() {
   return fetchJson(runtimeStateUrl());
+}
+
+async function getBranchActivity(branch) {
+  const data = await fetchJson(
+    `https://api.github.com/repos/${REPO}/branches/${branch}?ts=${Date.now()}`
+  );
+  const dateText =
+    data?.commit?.commit?.committer?.date ||
+    data?.commit?.commit?.author?.date ||
+    null;
+  return dateText ? Date.parse(dateText) : 0;
 }
 
 function shouldMonitor(state) {
@@ -149,9 +162,63 @@ async function triggerRecovery(reason, state, details = {}) {
     return false;
   }
 
-  const tab = await chrome.tabs.create({ url: CHAT_URL, active: true });
+  const tab = await chrome.tabs.create({ url: CHAT_URL, active: false });
   return savePendingRecovery(reason, state, tab.id, details, guard);
 }
+
+
+async function checkForStaleSession() {
+  try {
+    const state = await getRuntimeState();
+    if (!shouldMonitor(state)) {
+      return;
+    }
+
+    const [runtimeActivity, mainActivity] = await Promise.all([
+      getBranchActivity(RUNTIME_BRANCH),
+      getBranchActivity(MAIN_BRANCH)
+    ]);
+    const latestActivity = Math.max(runtimeActivity, mainActivity);
+    if (!latestActivity) {
+      return;
+    }
+
+    const staleAfterMinutes = Number(state.stale_after_minutes || 15);
+    const staleMinutes = Math.floor((Date.now() - latestActivity) / 60000);
+    if (staleMinutes < staleAfterMinutes) {
+      return;
+    }
+
+    await triggerRecovery("stale-repository-activity", state, {
+      stale_minutes: staleMinutes,
+      source: "chrome-extension-background-alarm"
+    });
+  } catch (error) {
+    console.warn("FM2001 stale-session background check failed", error);
+  }
+}
+
+function ensureStaleAlarm() {
+  chrome.alarms.create(STALE_CHECK_ALARM, {
+    periodInMinutes: STALE_CHECK_MINUTES
+  });
+}
+
+chrome.runtime.onInstalled.addListener(() => {
+  ensureStaleAlarm();
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  ensureStaleAlarm();
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === STALE_CHECK_ALARM) {
+    checkForStaleSession();
+  }
+});
+
+ensureStaleAlarm();
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "fm2001-ui-failure") {
