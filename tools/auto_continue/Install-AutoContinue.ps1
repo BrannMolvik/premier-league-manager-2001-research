@@ -21,7 +21,7 @@ if (-not (Test-Path $SourceWatchdog)) {
 New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
 Copy-Item -Force $SourceWatchdog $InstalledWatchdog
 
-$taskCommand = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "' + $InstalledWatchdog + '" -Once'
+$taskCommand = 'powershell.exe -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + $InstalledWatchdog + '" -Once'
 schtasks.exe /Create /F /SC MINUTE /MO 3 /TN $TaskName /TR $taskCommand | Out-Null
 
 Write-Host ""
