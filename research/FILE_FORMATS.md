@@ -272,6 +272,7 @@ Confirmed:
 - +14 uint16: European/UEFA-country index; zero for non-European countries, nonzero for the 51 shipped European associations
 - +16 uint16: EU-status flag used by normal Non-EU player classification; 1 for the shipped EU/EEA-style eligible group, 0 otherwise
 - +24 uint32: continent ID
+- +37 uint32: financial-value percentage multiplier used by player-money helper `0x423990`; runtime `DBRCountry+0x30`
 - +41 uint16: third country-related English.str ID (semantic role not yet proven)
 
 The runtime records are 108-byte `DBRCountry` objects (RTTI confirmed). The binary reader maps packed +14 and +16 directly to runtime `DBRCountry+0x16/+0x18`, which are the two words consumed by player Non-EU initializer `0x421760`.
@@ -672,6 +673,27 @@ Packed record size: 26 bytes.
 Class identity is confirmed as `DBTAccessSkillFinancialValues` / `DBRAccessSkillFinancialValue`. The binary reader consumes one uint16 followed by six uint32 values.
 
 The 100 records end exactly at `Static.dat` EOF (`0x15391`).
+
+Runtime `DBRAccessSkillFinancialValue` records are 32 bytes (vtable/base
+bookkeeping plus the packed data). The packed uint16 ID becomes the runtime ID
+field; the six packed uint32 values map to runtime offsets
+`+0x08,+0x0C,+0x10,+0x14,+0x18,+0x1C`.
+
+For starting weekly wage, executable path
+`0x418E56 -> 0x41E1D0 -> 0x423A50 -> 0x423990` proves:
+
+- the player's maximum preferred-role rating (0..99) directly selects the row;
+- runtime row `+0x10` = weekly-wage base;
+- runtime row `+0x14` = positive random range;
+- startup wage before country scaling =
+  `base + RNG(random_range)`;
+- club `+0x14` supplies country ID;
+- `DBRCountry+0x30` supplies a percentage multiplier;
+- final wage = truncation of `unscaled * multiplier * 0.01`;
+- this release's optional x4 branch is disabled because `0x6596A0` returns 0.
+
+Shipped country multipliers are mostly 100, with seven non-100 countries
+(75/80/120).
 
 ## Save files
 
