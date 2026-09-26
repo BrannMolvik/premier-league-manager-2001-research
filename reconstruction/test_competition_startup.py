@@ -23,6 +23,8 @@ class Club:
     country_id: int
     runtime_value_1c_source: int
     team_category_code: int
+    short_name: str = ""
+    competition_id: int = 0
 
 
 @dataclass(frozen=True)
@@ -403,6 +405,31 @@ class HistoricalCompetitionEnumerationTests(unittest.TestCase):
         self.assertEqual(
             initial_competition_enumeration_club_ids(clubs, 5),
             (1, None, 3),
+        )
+
+
+
+class InitialLeagueOrderingTests(unittest.TestCase):
+    def test_initial_membership_preserves_master_source_order(self):
+        clubs = (
+            Club(0, 26, 0, 0, "Zulu", 7),
+            Club(1, 26, 0, 0, "Alpha", 3),
+            Club(2, 26, 0, 0, "Bravo", 7),
+            Club(3, 26, 0, 0, "Echo", 7),
+        )
+
+        self.assertEqual(initial_league_club_ids(clubs, 7), (0, 2, 3))
+
+    def test_initial_ranking_uses_short_name_byte_order(self):
+        clubs = (
+            Club(0, 26, 0, 0, "Zulu", 7),
+            Club(1, 26, 0, 0, "Alpha", 7),
+            Club(2, 26, 0, 0, "Bravo", 7),
+        )
+
+        self.assertEqual(
+            initial_ranked_league_club_ids(clubs, 7),
+            (1, 2, 0),
         )
 
 
