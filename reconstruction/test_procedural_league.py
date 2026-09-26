@@ -6,6 +6,7 @@ from procedural_league import (
     materialize_procedural_league_match_emissions,
     materialize_scot_premier_split_match_emissions,
     procedural_league_cycle_count,
+    shuffle_procedural_league_parent_vector,
 )
 
 
@@ -19,6 +20,38 @@ class ZeroRng:
 
 
 class ProceduralLeagueRoundRobinTests(unittest.TestCase):
+    def test_parent_vector_branch_is_zero_draw_for_canonical_singletons(self):
+        for competition_id in (14, 167, 192):
+            with self.subTest(competition_id=competition_id):
+                rng = ZeroRng()
+                result = shuffle_procedural_league_parent_vector(
+                    (competition_id,),
+                    rng,
+                    parent_shuffle_enabled=True,
+                )
+                self.assertEqual(result, (competition_id,))
+                self.assertEqual(rng.bounds, [])
+
+    def test_parent_vector_branch_skips_when_parent_predicate_is_false(self):
+        rng = ZeroRng()
+        result = shuffle_procedural_league_parent_vector(
+            (10, 20, 30),
+            rng,
+            parent_shuffle_enabled=False,
+        )
+        self.assertEqual(result, (10, 20, 30))
+        self.assertEqual(rng.bounds, [])
+
+    def test_parent_vector_branch_uses_fisher_yates_when_count_exceeds_one(self):
+        rng = ZeroRng()
+        result = shuffle_procedural_league_parent_vector(
+            (10, 20, 30),
+            rng,
+            parent_shuffle_enabled=True,
+        )
+        self.assertEqual(rng.bounds, [3, 2])
+        self.assertEqual(result, (20, 30, 10))
+
     def test_four_team_zero_rng_matches_legacy_recursive_order(self):
         rng = ZeroRng()
 
