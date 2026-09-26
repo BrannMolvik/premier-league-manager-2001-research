@@ -155,14 +155,14 @@ class CanonicalFirstMatchdayShuffleRegressionTests(unittest.TestCase):
             bucket_54[96 + offset] = ("pl", fixture_id)
         buckets.append(tuple(bucket_54))
 
-        rng = MsvcCrtRng(0x0E556598)
+        rng = MsvcCrtRng(0x4F5CF274)
         shuffled = shuffle_primary_schedule_buckets(
             buckets,
             rng,
         )
 
         self.assertEqual(shuffled.draw_count, 532)
-        self.assertEqual(shuffled.state_after, 0xC290356C)
+        self.assertEqual(shuffled.state_after, 0x81075208)
 
         pl_positions = [
             (index, item[1])
@@ -172,21 +172,21 @@ class CanonicalFirstMatchdayShuffleRegressionTests(unittest.TestCase):
         self.assertEqual(
             pl_positions,
             [
-                (0, 8),
-                (8, 3),
-                (10, 2),
-                (16, 4),
-                (26, 6),
-                (78, 9),
-                (88, 5),
-                (95, 0),
-                (97, 1),
-                (103, 7),
+                (36, 0),
+                (41, 6),
+                (44, 8),
+                (49, 5),
+                (51, 1),
+                (52, 9),
+                (78, 3),
+                (102, 2),
+                (104, 4),
+                (114, 7),
             ],
         )
         self.assertEqual(
             [fixture_id for _, fixture_id in pl_positions],
-            [8, 3, 2, 4, 6, 9, 5, 0, 1, 7],
+            [0, 6, 8, 5, 1, 9, 3, 2, 4, 7],
         )
 
 
@@ -197,16 +197,16 @@ class CanonicalEarlyMatchdayShuffleRegressionTests(unittest.TestCase):
         # 0x615AE0 shuffles the target bucket. pre_start is the first relative
         # linked-list slot occupied by the ten PL fixtures before the shuffle.
         snapshots = (
-            (1, 142, 0x1CBB48A1, 96, tuple(range(9, -1, -1)), (8, 3, 2, 4, 6, 9, 5, 0, 1, 7)),
-            (2, 10, 0xC836DF29, 0, tuple(range(19, 9, -1)), (14, 10, 15, 12, 18, 17, 11, 19, 16, 13)),
-            (3, 142, 0x2A01F910, 96, tuple(range(29, 19, -1)), (27, 24, 25, 23, 26, 21, 28, 20, 22, 29)),
-            (4, 142, 0x24BF4337, 96, tuple(range(39, 29, -1)), (37, 36, 33, 30, 38, 32, 31, 35, 39, 34)),
-            (5, 142, 0x895E0D2A, 96, tuple(range(49, 39, -1)), (43, 48, 42, 41, 47, 45, 46, 44, 40, 49)),
-            (6, 138, 0xA13ED3A6, 92, tuple(range(59, 49, -1)), (53, 54, 51, 50, 56, 57, 59, 52, 58, 55)),
-            (7, 142, 0x929F341B, 96, tuple(range(69, 59, -1)), (60, 65, 64, 68, 67, 69, 66, 62, 63, 61)),
-            (8, 142, 0x555492A2, 96, tuple(range(79, 69, -1)), (73, 74, 78, 75, 70, 77, 72, 79, 76, 71)),
-            (9, 142, 0x0191E699, 96, tuple(range(89, 79, -1)), (81, 88, 84, 82, 83, 87, 89, 80, 85, 86)),
-            (10, 142, 0xC067FF47, 96, tuple(range(99, 89, -1)), (95, 98, 94, 90, 96, 99, 91, 97, 92, 93)),
+            (1, 142, 0xD545A52D, 96, tuple(range(9, -1, -1)), (0, 6, 8, 5, 1, 9, 3, 2, 4, 7)),
+            (2, 10, 0x8A86E535, 0, tuple(range(19, 9, -1)), (16, 14, 19, 11, 17, 13, 18, 15, 10, 12)),
+            (3, 142, 0x6097BC6C, 96, tuple(range(29, 19, -1)), (20, 23, 21, 29, 22, 27, 26, 24, 25, 28)),
+            (4, 142, 0x5F974FE3, 96, tuple(range(39, 29, -1)), (31, 35, 36, 37, 33, 38, 30, 32, 34, 39)),
+            (5, 142, 0xA0CA8166, 96, tuple(range(49, 39, -1)), (49, 43, 44, 47, 42, 41, 46, 48, 45, 40)),
+            (6, 138, 0x9AE8168B, 92, tuple(range(59, 49, -1)), (50, 58, 54, 59, 53, 51, 56, 55, 52, 57)),
+            (7, 142, 0xE567E387, 96, tuple(range(69, 59, -1)), (64, 62, 61, 66, 67, 65, 63, 69, 68, 60)),
+            (8, 142, 0x7EE89D5E, 96, tuple(range(79, 69, -1)), (75, 76, 78, 70, 72, 77, 79, 74, 73, 71)),
+            (9, 142, 0x117F71A5, 96, tuple(range(89, 79, -1)), (88, 80, 82, 81, 89, 85, 83, 84, 87, 86)),
+            (10, 142, 0x82282EF3, 96, tuple(range(99, 89, -1)), (99, 91, 97, 95, 92, 90, 94, 98, 93, 96)),
         )
 
         for (
