@@ -756,5 +756,36 @@ class StandardCupAllocationExpansionTests(unittest.TestCase):
             )
 
 
+class CupAllocationOverflowTests(unittest.TestCase):
+    def test_excess_allocations_are_silently_dropped_after_capacity(self):
+        round_obj = type("R", (), {"id": 1, "new_entrants": 2})()
+        instructions = (
+            CupAllocation(1, 81, 1, 3, 8, 3),
+        )
+
+        expansion = expand_standard_cup_allocation_instructions(
+            81,
+            (round_obj,),
+            instructions,
+            ranked_club_ids_by_source={},
+            enumerated_club_ids_by_source={8: (101, 102, 103)},
+        )
+
+        self.assertEqual(
+            tuple(ref.direct_club_id for ref in expansion.emitted_refs),
+            (101, 102),
+        )
+        self.assertEqual(
+            tuple(ref.direct_club_id for ref in expansion.dropped_refs),
+            (103,),
+        )
+        # 0x4F5840 still marks the accepted direct club as belonging to the
+        # destination Cup even though 0x4F57E0 could not insert its ClubRef.
+        self.assertEqual(
+            expansion.selected_direct_club_ids,
+            (101, 102, 103),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
