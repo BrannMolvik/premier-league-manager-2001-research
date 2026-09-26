@@ -10,7 +10,7 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | --- | --- | --- | --- |
 | League-table final tie fallback | Club ID after points / GD / goals scored | Exact original fallback after the first three keys is unresolved | 15 or earlier if standings behavior requires it |
 | Persistent-injury availability count | Approximation around the inputs to helper `0x405080` | Injury generation/persistence is substantially recovered, but this availability helper is not exact | 15 |
-| Save/load | No complete internal/original save workflow | Individual serialization findings exist | 8 |
+| Original FM2001 save compatibility | Modern port now has a complete internal schema-2 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
 | Transfers/contracts | Research substantially ahead of implementation | Not yet a complete playable system | 9 |
 | Finance/board | Research substantially ahead of implementation | Not yet a complete playable system | 10 |
 | Broader competitions | Core structures known, full behavior incomplete | Premier League is the strongest reconstructed competition | 12 |
@@ -19,6 +19,20 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | FastView/3D | Largely unreconstructed | Intentionally low priority until gameplay is stable | 14 |
 
 ## Resolved or superseded gaps
+
+### Internal modern-port save/load
+
+**Resolved for Gate 8.** Schema-2 source-bound JSON saves persist the live
+human-game runtime, both relevant RNG streams, league/result state, player
+Condition/Form/injury/suspension/development state, tactics, scheduler order,
+and even a pending mid-matchday human fixture. File saves default to gzip and
+the temporary Play tab exposes Save Game / Load Game. A canonical Arsenal branch
+saved before the 26 August 2000 human fixture and reloaded into a fresh runtime
+remained exactly equal through 23 September / 60 stored PL results. See
+`research/GATE8_INTERNAL_SAVE.md`.
+
+This does **not** claim compatibility with original FM2001 save files; that is
+retained above as a separate fidelity gap.
 
 ### Human-controlled minimum gameplay loop
 
