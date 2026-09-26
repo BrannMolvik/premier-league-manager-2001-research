@@ -35,7 +35,7 @@ from runtime_state import RuntimePlayer
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 2
+SAVE_SCHEMA_VERSION = 3
 
 
 def _iso(value: date | None) -> str | None:
@@ -221,6 +221,8 @@ PLAYER_RECORD_FIELDS = (
     "injury_history_weight",
     "morale",
     "startup_month_span",
+    "weekly_wage",
+    "contract_expiry_date",
 )
 
 
@@ -263,6 +265,8 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         int(player.injury_history_weight),
         int(player.morale),
         int(player.startup_month_span),
+        int(player.weekly_wage),
+        _iso(player.contract_expiry_date),
     ]
 
 
@@ -316,6 +320,8 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         injury_history_weight=int(value[19]),
         morale=int(value[20]),
         startup_month_span=int(value[21]),
+        weekly_wage=int(value[22]),
+        contract_expiry_date=_date(value[23]),
     )
 
 
