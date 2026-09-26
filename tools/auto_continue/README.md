@@ -76,9 +76,9 @@ Automatic recovery occurs only when:
 
 Normal project commits on `main` act as heartbeats. The default checkpoint target is 10 minutes and stale threshold is 15 minutes.
 
-If ChatGPT explicitly displays a connection interruption or conversation-length failure, the extension may recover immediately rather than waiting for the lease timeout.
+If ChatGPT explicitly displays a transient connection interruption/stall, the extension first recovers **in the same worker chat**: it clicks the visible Stop/Stop generating control if present, waits for the composer, and submits a short continuation prompt. A new chat is reserved for a confirmed conversation-length/max-length condition.
 
-If the page disappears silently while Chrome is running, the extension notices the missing repository heartbeat and creates a new ChatGPT recovery tab with `active: false`. Chrome remains in the background/minimized and the current foreground application is not intentionally disturbed.
+If the page disappears silently while Chrome is running, the extension notices the missing repository heartbeat and first reuses its recorded worker tab. It stops any still-running generation and submits a continuation prompt in that same conversation. Only if no usable worker tab remains does it create a new ChatGPT recovery tab with `active: false`.
 
 If Chrome is completely closed, the Windows watchdog records the stale condition but **does not launch Chrome**. Recovery resumes after Chrome is opened again. This focus-safe behavior is intentional so auto-continue cannot interrupt a fullscreen game or other foreground work.
 
@@ -104,3 +104,12 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\auto_continue\In
 ```
 
 Then remove the unpacked extension from `chrome://extensions/` if desired.
+
+
+## Recovery policy from version 0.3.0
+
+- Transient timeout / connection interruption: reuse the existing worker conversation.
+- Silent stale repository heartbeat: reuse the recorded worker conversation first.
+- True conversation-length / maximum-length limit: create a fresh background conversation using the canonical GitHub handoff.
+- Missing/closed worker tab: a fresh background conversation is an allowed fallback.
+- Extension reload/update clears any stale pending recovery prompt from the previous version.
