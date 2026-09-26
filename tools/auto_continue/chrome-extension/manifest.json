@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "FM2001 ChatGPT Auto Continue",
-  "version": "0.2.0",
-  "description": "Recovers continuous FM2001 ChatGPT work after a stalled session, connection interruption, or chat-length limit.",
+  "version": "0.3.0",
+  "description": "Recovers FM2001 work in-place after transient stalls and only opens a new background chat for true conversation-length exhaustion.",
   "permissions": [
     "storage",
     "tabs",
