@@ -20,6 +20,15 @@ function Write-WatchdogLog([string]$Message) {
     Write-Host $line
 }
 
+function Get-ConfigInt($Object, [string]$Name, [int]$Default) {
+    if ($null -eq $Object) { return $Default }
+    $property = $Object.PSObject.Properties[$Name]
+    if ($null -eq $property -or $null -eq $property.Value -or [string]::IsNullOrWhiteSpace([string]$property.Value)) {
+        return $Default
+    }
+    return [int]$property.Value
+}
+
 function Get-JsonUrl([string]$Url) {
     Invoke-RestMethod -Uri $Url -Headers @{
         "User-Agent" = "FM2001-AutoContinue-Watchdog"
@@ -28,7 +37,8 @@ function Get-JsonUrl([string]$Url) {
 }
 
 function Get-RuntimeState {
-    $url = "https://raw.githubusercontent.com/$Repo/$RuntimeBranch/research/AUTO_CONTINUE_STATE.json?ts=$([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())"
+    $stamp = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+    $url = "https://raw.githubusercontent.com/$Repo/$RuntimeBranch/research/AUTO_CONTINUE_STATE.json?ts=$stamp"
     Invoke-RestMethod -Uri $url -Headers @{ "User-Agent" = "FM2001-AutoContinue-Watchdog" } -TimeoutSec 20
 }
 
@@ -67,8 +77,8 @@ function Save-LocalState($State) {
 function Test-RecoveryGuard($RuntimeState) {
     $local = Load-LocalState
     $now = [DateTimeOffset]::UtcNow
-    $cooldown = [int]($RuntimeState.recovery_cooldown_minutes ?? 20)
-    $maxPerHour = [int]($RuntimeState.max_recoveries_per_hour ?? 3)
+    $cooldown = Get-ConfigInt $RuntimeState "recovery_cooldown_minutes" 20
+    $maxPerHour = Get-ConfigInt $RuntimeState "max_recoveries_per_hour" 3
 
     $history = @()
     foreach ($value in @($local.recoveryHistory)) {
@@ -148,7 +158,7 @@ function Invoke-WatchdogCheck {
             $mainActivity.Timestamp
         }
 
-        $staleAfter = [int]($runtime.stale_after_minutes ?? 15)
+        $staleAfter = Get-ConfigInt $runtime "stale_after_minutes" 15
         $staleMinutes = [int][Math]::Floor(([DateTimeOffset]::UtcNow - $latest).TotalMinutes)
 
         if ($staleMinutes -ge $staleAfter) {
