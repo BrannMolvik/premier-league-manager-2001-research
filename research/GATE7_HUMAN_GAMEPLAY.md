@@ -1,5 +1,11 @@
 # Gate 7 - Minimum Human-Manager Gameplay Loop
 
+> **27 September 2026 startup-wage RNG correction:** deterministic RNG states,
+> schedule orders, audit hashes and later gameplay outcomes in this file that
+> conflict with `research/STARTUP_WAGE_RNG_CORRECTION.md` are superseded by
+> that correction. The gate's functional conclusion remains valid.
+
+
 _Status: COMPLETE (27 September 2026)_
 
 Gate 7 proves that the reconstructed Premier League backend is directly usable by one human manager before original-UI fidelity, transfers, finance, or save/load are added.
