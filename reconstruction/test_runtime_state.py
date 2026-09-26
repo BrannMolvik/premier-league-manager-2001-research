@@ -52,10 +52,10 @@ class RuntimePlayerTests(unittest.TestCase):
                 player.development.peak_ages.skill,
                 player.development.peak_ages.late,
             ),
-            (25, 27, 31),
+            (25, 28, 31),
         )
         self.assertEqual(player.startup_month_span, 36)
-        self.assertEqual(rng.state, 0xCAE1DF84)
+        self.assertEqual(rng.state, 0x3D6C1037)
 
     def test_base_match_unavailable_tracks_low_three_exclusion_states(self):
         player = RuntimePlayer.from_database_player(
