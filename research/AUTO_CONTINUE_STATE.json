@@ -7,9 +7,9 @@
   "mode": "continuous",
   "status": "working",
   "work_owner": "chatgpt",
-  "active_gate": 6,
-  "active_task": "Run canonical 38-round/380-fixture autonomous Premier League season and audit full-season state",
-  "last_known_main_head": "b7152397a8416356d166a45aec0ed4f80b12bf44",
+  "active_gate": 7,
+  "active_task": "Audit existing human-control and prototype front-end code, then implement the minimum persistent human-manager gameplay controller",
+  "last_known_main_head": "bb876154d52186cfafe6ca166ccb215f800b9047",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 7,
+  "recovery_generation": 8,
   "last_recovery_reason": "stale-repository-activity",
   "note": "Recovered into a new worker because no usable worker tab remained. Continue from GitHub canonical state without repeating persisted investigation. Transient stalls should still reuse/stop/re-prompt the same worker when available."
 }
