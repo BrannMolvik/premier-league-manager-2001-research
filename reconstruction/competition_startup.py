@@ -700,3 +700,57 @@ def initial_ranked_league_club_ids(
     ]
     selected.sort(key=lambda club: str(club.short_name).encode("cp1252"))
     return tuple(int(club.index) for club in selected)
+
+
+
+class HistoricalCompetitionClubSource(Protocol):
+    index: int
+    competition_id: int
+    historical_competition_id: int
+    historical_slot_index: int
+
+
+def initial_competition_enumeration_club_ids(
+    clubs: Iterable[HistoricalCompetitionClubSource],
+    competition_id: int,
+) -> tuple[int | None, ...]:
+    """Reproduce startup's competition +0x30 historical/qualification array.
+
+    For ordinary League/Dummy/Scot competitions, capacity +0x3C is finalized
+    from the number of current members before the array is allocated. The
+    subsequent DBRClub pass uses packed club +32 as target competition and
+    packed +36 as preferred slot.
+
+    In-range preferred slots replace any occupant; a displaced club is put in
+    the first empty slot. Out-of-range clubs also use the first empty slot.
+    If no empty slot remains, 0x4F7BD0 silently leaves the extra club out.
+    """
+    club_list = tuple(clubs)
+    competition_id = int(competition_id)
+    capacity = sum(
+        int(club.competition_id) == competition_id
+        for club in club_list
+    )
+    slots: list[int | None] = [None] * capacity
+
+    def insert_first_empty(club_id: int) -> None:
+        for index, value in enumerate(slots):
+            if value is None:
+                slots[index] = int(club_id)
+                return
+
+    for club in club_list:
+        if int(club.historical_competition_id) != competition_id:
+            continue
+
+        club_id = int(club.index)
+        preferred = int(club.historical_slot_index)
+        if 0 <= preferred < capacity:
+            displaced = slots[preferred]
+            slots[preferred] = club_id
+            if displaced is not None:
+                insert_first_empty(displaced)
+        else:
+            insert_first_empty(club_id)
+
+    return tuple(slots)
