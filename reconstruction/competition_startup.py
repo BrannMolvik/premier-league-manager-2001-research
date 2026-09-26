@@ -1361,3 +1361,139 @@ def expand_standard_cup_allocation_instructions(
         source_position_offsets=tuple(sorted(source_offsets.items())),
         selected_direct_club_ids=tuple(sorted(direct_ids)),
     )
+
+
+
+@dataclass(frozen=True)
+class UefaTransferExpansion:
+    source_round_id: int
+    source_path: str
+    refs: tuple[CupClubRefDescriptor, ...]
+
+
+def expand_champions_league_to_uefa_transfer(
+    source_sorted_rounds: Iterable[OrderedRoundSource],
+    source_round_participant_refs: dict[int, tuple[CupClubRefDescriptor, ...]],
+    *,
+    source_round_index: int,
+    quantity: int,
+    child_rounds_by_competition: dict[int, tuple[OrderedRoundSource, ...]],
+) -> UefaTransferExpansion:
+    """Reproduce the two canonical allocation-type-2 UEFA transfer branches.
+
+    The instruction auxiliary field indexes the source Champions League round
+    array after Cup round qsort.
+
+    Non-MiniLeague branch:
+      - inspect the *next* source round;
+      - scan its participant ClubRefs in order;
+      - for each type-1 propagated winner ref, create type-1 selector=1
+        against the same referenced match token (the losing/opposite side).
+
+    MiniLeague branch:
+      - use the selected MiniLeague round itself;
+      - derive group size from the first round of its child League template;
+      - group_count = source_round.team_count / group_size;
+      - initial position index = group_size - 2;
+      - emit group positions in reverse group order;
+      - after one full group cycle, increment the position index.
+
+    Canonical Champions League -> UEFA instructions use:
+      aux=3, quantity=8  -> MiniLeague third-place transfers;
+      aux=2, quantity=16 -> knockout losers feeding the same UEFA Cup.
+    """
+    rounds = tuple(source_sorted_rounds)
+    source_round_index = int(source_round_index)
+    quantity = int(quantity)
+
+    if not 0 <= source_round_index < len(rounds):
+        raise ValueError("source_round_index is outside the sorted Cup round array")
+    if quantity < 0:
+        raise ValueError("quantity must be non-negative")
+
+    source_round = rounds[source_round_index]
+
+    if int(source_round.type_code) != 3:
+        next_index = source_round_index + 1
+        if next_index >= len(rounds):
+            raise ValueError(
+                "non-MiniLeague UEFA transfer requires a following source round"
+            )
+        next_round = rounds[next_index]
+        result: list[CupClubRefDescriptor] = []
+        for ref in source_round_participant_refs.get(int(next_round.id), ()):
+            if int(ref.type_code) != 1:
+                continue
+            if ref.reference_token is None:
+                raise ValueError(
+                    "propagated type-1 source ref lacks a match reference token"
+                )
+            result.append(
+                CupClubRefDescriptor(
+                    type_code=1,
+                    selector=1,
+                    reference_token=ref.reference_token,
+                )
+            )
+            if len(result) == quantity:
+                break
+        if len(result) != quantity:
+            raise ValueError(
+                f"knockout loser transfer found {len(result)} of "
+                f"{quantity} required propagated winner refs"
+            )
+        return UefaTransferExpansion(
+            source_round_id=int(source_round.id),
+            source_path="knockout_losers",
+            refs=tuple(result),
+        )
+
+    child_competition_id = int(source_round.source_competition_reference) & 0xFFFF
+    child_rounds = child_rounds_by_competition.get(child_competition_id, ())
+    if not child_rounds:
+        raise ValueError(
+            f"MiniLeague source round {int(source_round.id)} has no child League rounds"
+        )
+
+    group_size = int(child_rounds[0].team_count)
+    if group_size <= 0:
+        raise ValueError("MiniLeague child group size must be positive")
+    if int(source_round.team_count) % group_size:
+        raise ValueError(
+            "MiniLeague source team count is not divisible by child group size"
+        )
+
+    group_count = int(source_round.team_count) // group_size
+    if group_count <= 0:
+        raise ValueError("MiniLeague group count must be positive")
+
+    position_index = group_size - 2
+    remaining_group_counter = group_count
+    result: list[CupClubRefDescriptor] = []
+
+    for _ in range(quantity):
+        remaining_group_counter -= 1
+        group_index = remaining_group_counter
+        result.append(
+            CupClubRefDescriptor(
+                type_code=3,
+                selector=position_index,
+                competition_id=child_competition_id,
+                competition_context=group_index,
+                reference_token=(
+                    "group_position",
+                    child_competition_id,
+                    group_index,
+                    position_index,
+                ),
+            )
+        )
+        if remaining_group_counter == 0:
+            position_index += 1
+            remaining_group_counter = group_count
+
+    return UefaTransferExpansion(
+        source_round_id=int(source_round.id),
+        source_path="minileague_group_positions",
+        refs=tuple(result),
+    )
