@@ -43,6 +43,15 @@ class Database:
     premier_league_rounds = [Round(1, 7, 6), Round(2, 8, 3)]
 
 
+class SameDayDatabase:
+    players = [Player(1, 1), Player(2, 2)]
+    real_fixtures = [
+        Fixture(0, 0, 1, 2),
+        Fixture(1, 0, 3, 4),
+    ]
+    premier_league_rounds = [Round(1, 7, 6)]
+
+
 class GameScheduleIntegrationTests(unittest.TestCase):
     def test_database_startup_preserves_two_phase_original_rng_order(self):
         state = GameState.from_database(
@@ -98,6 +107,48 @@ class GameScheduleIntegrationTests(unittest.TestCase):
         state.record_premier_league_result(0, 2, 1)
         self.assertEqual(state.fixtures_due_today(), ())
         self.assertEqual(state.next_match_date(), date(2000, 8, 23))
+
+
+    def test_installed_scheduler_order_becomes_default_due_order(self):
+        state = GameState.from_database(
+            SameDayDatabase(),
+            date(2000, 8, 18),
+            seed=1,
+            season_year=2000,
+        )
+        state.install_premier_league_scheduler_order(
+            ((0, (1, 0)),)
+        )
+        state.advance_one_day()
+        self.assertEqual(
+            state.due_premier_league_fixture_ids_in_scheduler_order(),
+            (1, 0),
+        )
+
+    def test_scheduler_order_requires_exact_round_fixture_set(self):
+        state = GameState.from_database(
+            SameDayDatabase(),
+            date(2000, 8, 18),
+            seed=1,
+            season_year=2000,
+        )
+        with self.assertRaises(ValueError):
+            state.install_premier_league_scheduler_order(
+                ((0, (1,)),)
+            )
+
+    def test_missing_installed_round_keeps_stable_fixture_id_fallback(self):
+        state = GameState.from_database(
+            SameDayDatabase(),
+            date(2000, 8, 18),
+            seed=1,
+            season_year=2000,
+        )
+        state.advance_one_day()
+        self.assertEqual(
+            state.due_premier_league_fixture_ids_in_scheduler_order(),
+            (0, 1),
+        )
 
 
 if __name__ == "__main__":
