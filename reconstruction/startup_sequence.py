@@ -11,6 +11,7 @@ from typing import Iterable, Protocol
 from competition_startup import (
     ClubSource as CompetitionClubSource,
     CountrySource as CompetitionCountrySource,
+    CupAllocationInstructionSource,
     OrderedCompetitionSource,
     OrderedRoundSource,
     PrimaryMode0OrderedCompetitionRngReplay,
@@ -61,6 +62,7 @@ def replay_startup_rng_to_primary_shuffle(
     users: Iterable[StartupUserRngConfig],
     competitions: Iterable[OrderedCompetitionSource],
     rounds: Iterable[OrderedRoundSource],
+    allocation_instructions: Iterable[CupAllocationInstructionSource] = (),
 ) -> StartupToPrimaryShuffleReplay:
     """Advance one shared RNG through every mapped state change before 0x615BE0.
 
@@ -76,6 +78,7 @@ def replay_startup_rng_to_primary_shuffle(
     user_list = tuple(users)
     competition_list = tuple(competitions)
     round_list = tuple(rounds)
+    allocation_list = tuple(allocation_instructions)
 
     precompetition = replay_precompetition_startup_rng(
         rng,
@@ -91,6 +94,8 @@ def replay_startup_rng_to_primary_shuffle(
         round_list,
         club_list,
         country_list,
+        allocation_list,
+        player_list,
     )
     return StartupToPrimaryShuffleReplay(
         precompetition=precompetition,
