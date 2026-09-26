@@ -87,7 +87,7 @@ The system has two loop guards:
 - recovery cooldown (default 20 minutes);
 - maximum recovery attempts (default 3 per hour).
 
-The browser extension also stores its own recovery history, independent of the Windows watchdog.
+The browser extension keeps its own cooldown for explicit UI-error recovery. Silent/stale-session recovery is owned by the Windows watchdog, which avoids duplicate replacement chats.
 
 It never auto-recovers while the runtime state says `waiting_for_user`, `paused`, or `completed`.
 
