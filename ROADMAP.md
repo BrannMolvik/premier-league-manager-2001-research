@@ -23,8 +23,9 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Current roadmap status
 
-- **Active gate:** Gate 8 - Internal save/load
-- **Next gate:** Gate 9 - Transfers and contracts
+- **Active gate:** Gate 9 - Transfers and contracts
+- **Next gate:** Gate 10 - Finances and board systems
+- **Gate 8 completed:** 27 September 2026
 - **Gate 7 completed:** 27 September 2026
 - **Gate 6 completed:** 27 September 2026
 - **Gate 5 completed:** 27 September 2026
@@ -178,18 +179,22 @@ Evidence: `research/GATE7_HUMAN_GAMEPLAY.md`.
 
 ## Gate 8 - Internal save/load
 
-**Status: IN PROGRESS**
+**Status: COMPLETE (27 September 2026)**
 
 Goal: support reliable development and play sessions before original save compatibility.
 
 Completion criteria:
 
-- [ ] Calendar, clubs, players, managers, competitions, fixtures/results, injuries, suspensions, tactics, and relevant RNG state persist.
-- [ ] Save -> reload -> continue produces equivalent state.
-- [ ] Multi-week games can be resumed.
-- [ ] Original PLM2001 save compatibility remains separately tracked if incomplete.
+- [x] Calendar, clubs, players, managers, competitions, fixtures/results, injuries, suspensions, tactics, and relevant RNG state persist.
+- [x] Save -> reload -> continue produces equivalent state.
+- [x] Multi-week games can be resumed.
+- [x] Original PLM2001 save compatibility remains separately tracked if incomplete.
+
+Evidence: `research/GATE8_INTERNAL_SAVE.md`.
 
 ## Gate 9 - Transfers and contracts
+
+**Status: IN PROGRESS**
 
 Goal: make squad building part of the playable season.
 
