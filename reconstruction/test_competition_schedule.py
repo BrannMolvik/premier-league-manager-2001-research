@@ -7,6 +7,7 @@ from competition_schedule import (
     materialize_cup_round_schedule_nodes,
     materialize_procedural_league_schedule_nodes,
     materialize_scot_premier_split_schedule_nodes,
+    ordered_league_schedule_entries,
 )
 from competition_startup import (
     CupClubRefDescriptor,
@@ -119,6 +120,19 @@ class CompetitionScheduleTests(unittest.TestCase):
                 competition_id=5,
             ),
             (),
+        )
+
+    def test_league_schedule_entries_sort_runtime_week_then_weekday(self):
+        rounds = (
+            SimpleNamespace(scheduled_week=12, scheduled_weekday=6),
+            SimpleNamespace(scheduled_week=10, scheduled_weekday=6),
+            SimpleNamespace(scheduled_week=10, scheduled_weekday=3),
+            SimpleNamespace(scheduled_week=10, scheduled_weekday=3),
+        )
+
+        self.assertEqual(
+            ordered_league_schedule_entries(rounds),
+            ((10, 3), (10, 3), (10, 6), (12, 6)),
         )
 
     def test_procedural_league_node_uses_exact_schedule_index(self):
