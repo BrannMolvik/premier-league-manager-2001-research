@@ -2783,3 +2783,14 @@ Implementation commits:
 GitHub Actions at `a500c6d9f090ef71c7f27f46fcc4e8f881aa1732` passes **328 tests**.
 
 This directly enables exact type-5 Cup allocation from referenced League ranking arrays and supports type-2 ClubRef position references.
+
+
+## 26 September direct allocation eligibility checkpoint
+
+Two participant-source ambiguities are now resolved.
+
+1. `0x4F5810` checks **destination Cup+0x34**, not candidate club+0x34. For Europe-root Cups, candidate helper `0x40C7A0` tests whether club+0x1B0 already resolves to another competition. Successful European direct allocation writes the destination competition ID into club+0x1B0, so later European direct allocations skip that club. Club+0x2A0 separately prevents duplicates within the same Cup.
+
+2. Allocation type 3 does not enumerate the ordinary current League ranking at +0x34/+0x38. League/Dummy/Scot virtual +0x1C uses a separate +0x30/+0x3C historical/qualification array. Startup builds it from packed Master.dat club +32/+36 (target competition, preferred slot) with first-empty collision fallback through `0x4F7BD0`. Cup sources instead enumerate Cup+0x40/+0x44.
+
+This prevents the reconstruction from incorrectly using alphabetized current League order for type-3 allocations.
