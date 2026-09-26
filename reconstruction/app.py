@@ -376,24 +376,25 @@ class App(tk.Tk):
             refresh_roster()
 
         def auto_fill():
-            if self.gameplay is None or self.gameplay.human is None:
-                return
-            available = [
-                player.index
-                for player in self.gameplay.squad()
-                if not player.base_match_unavailable
-            ]
-            if len(available) < 16:
-                messagebox.showerror(
-                    'FM2001 gameplay',
-                    'Fewer than 16 available players.',
+            try:
+                controller = self._ensure_gameplay()
+                selection = controller.autofill_lineup(
+                    int(formation_var.get())
                 )
-                return
-            selected_starters.clear()
-            selected_subs.clear()
-            selected_starters.update(available[:11])
-            selected_subs.update(available[11:16])
-            refresh_roster()
+                selected_starters.clear()
+                selected_subs.clear()
+                selected_starters.update(
+                    int(assignment.player_index)
+                    for assignment in selection.lineup.starters
+                )
+                selected_subs.update(
+                    int(player_id)
+                    for player_id in selection.lineup.substitutes
+                )
+                status.set('Legal 11+5 lineup auto-filled.')
+                refresh_roster()
+            except Exception as exc:
+                messagebox.showerror('FM2001 gameplay', str(exc))
 
         def apply_lineup():
             try:
