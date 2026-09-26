@@ -70,6 +70,7 @@ def run_canonical_human_gameplay_audit(
             "canonical human selection contains an unavailable player",
         )
 
+        results_before_matchday = len(league.results)
         fixture = controller.advance_to_next_user_fixture()
         _require(fixture is not None, "no remaining human Premier League fixture")
         _require(
@@ -81,7 +82,6 @@ def run_canonical_human_gameplay_audit(
         )
 
         fixture_date = controller.state.calendar.current_date
-        before_matchday = len(league.results)
         pending_id = int(fixture.id)
         outcome = controller.play_user_fixture()
         after_matchday = len(league.results)
@@ -95,18 +95,8 @@ def run_canonical_human_gameplay_audit(
             "canonical Premier League matchday did not contain 10 matches",
         )
         _require(
-            after_matchday - before_matchday
-            == len(
-                tuple(
-                    result
-                    for result in outcome.matchday_results
-                    if int(result[0]) not in {
-                        int(value[0])
-                        for value in outcome.matchday_results[:0]
-                    }
-                )
-            ),
-            "stored result count did not advance with the matchday",
+            after_matchday - results_before_matchday == 10,
+            "stored result count did not advance by one complete matchday",
         )
 
         matchday_fixtures = tuple(
