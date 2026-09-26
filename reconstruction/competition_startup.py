@@ -1432,11 +1432,10 @@ def expand_standard_cup_allocation_instructions(
                 already_in_destination=direct_ids,
                 unavailable_direct_club_ids=unavailable,
             )
-            if len(selected_ids) != quantity:
-                raise ValueError(
-                    f"type-5 source {source_id} produced {len(selected_ids)} "
-                    f"of {quantity} requested clubs"
-                )
+            # 0x4F5F97 scans source entries until either quantity
+            # successful 0x4F5840 admissions have occurred or the source
+            # ranking is exhausted. Source exhaustion is a normal silent
+            # underfill, not an error (canonical League Cup does this).
             for club_id in selected_ids:
                 club_id = int(club_id)
                 direct_ids.add(club_id)
