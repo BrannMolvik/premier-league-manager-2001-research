@@ -14,8 +14,10 @@ from competition_startup import (
     CupAllocationInstructionSource,
     OrderedCompetitionSource,
     OrderedRoundSource,
-    PrimaryMode0OrderedCompetitionRngReplay,
-    replay_primary_mode0_ordered_competition_rng,
+)
+from competition_runtime import (
+    PrimaryMode0CompleteCompetitionRngReplay,
+    replay_primary_mode0_complete_competition_rng,
 )
 from startup_rng import (
     GeneratedNameCountrySource,
@@ -49,7 +51,7 @@ class StartupToPrimaryShuffleReplay:
     """All recovered checkpoints through entry to primary 0x615BE0."""
 
     precompetition: PrecompetitionStartupRngReplay
-    primary_competition_state: PrimaryMode0OrderedCompetitionRngReplay
+    primary_competition_state: PrimaryMode0CompleteCompetitionRngReplay
     state_entering_primary_shuffle: int
 
 
@@ -67,9 +69,8 @@ def replay_startup_rng_to_primary_shuffle(
     """Advance one shared RNG through every mapped state change before 0x615BE0.
 
     The competition phase replays the recovered bounded-call ordering across
-    primary Cup participant shuffles and Europe selectors. The mandatory
-    Fisher-Yates slot permutations are materialized; the later participant
-    record qsort still separates those permutations from final club pairings.
+    procedural League round-robin generation, primary Cup participant
+    shuffles, DummyLeague lazy ranking, and Europe selectors.
     """
 
     club_list = tuple(clubs)
@@ -88,7 +89,7 @@ def replay_startup_rng_to_primary_shuffle(
         selected_user_country_id=int(selected_user_country_id),
         users=user_list,
     )
-    primary_competition_state = replay_primary_mode0_ordered_competition_rng(
+    primary_competition_state = replay_primary_mode0_complete_competition_rng(
         rng,
         competition_list,
         round_list,

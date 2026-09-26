@@ -5,6 +5,7 @@ from hashlib import sha256
 from pathlib import Path
 import sys
 
+from competition_runtime import replay_primary_mode0_complete_competition_rng
 from competition_startup import (
     primary_mode0_cup_pairing_draw_count,
     primary_mode0_cup_round_team_counts,
@@ -154,7 +155,7 @@ def verify_database(db: FM2001Database) -> None:
         == 124,
         "Expected 124 primary DummyLeague lazy-sort RNG calls",
     )
-    full_state_replay = replay_primary_mode0_pre_shuffle_state(
+    cup_subset_state_replay = replay_primary_mode0_pre_shuffle_state(
         MsvcCrtRng(0x2797444C),
         db.competitions,
         db.rounds,
@@ -163,18 +164,18 @@ def verify_database(db: FM2001Database) -> None:
         db.cup_allocation_instructions,
     )
     require(
-        full_state_replay.total_draw_count == 1863,
-        f"Expected 1863 complete pre-shuffle draws, got {full_state_replay.total_draw_count}",
+        cup_subset_state_replay.total_draw_count == 1863,
+        f"Expected 1863 Cup/DummyLeague/selector subset draws, got {cup_subset_state_replay.total_draw_count}",
     )
     require(
-        full_state_replay.dummy_league_sort_draw_count == 124,
-        "Complete replay did not include 124 DummyLeague lazy-sort draws",
+        cup_subset_state_replay.dummy_league_sort_draw_count == 124,
+        "Cup-focused subset did not include 124 DummyLeague lazy-sort draws",
     )
     require(
-        full_state_replay.state_entering_primary_shuffle == 0xAECA9FA5,
+        cup_subset_state_replay.state_entering_primary_shuffle == 0xAECA9FA5,
         (
-            "Complete primary pre-shuffle state mismatch: "
-            f"0x{full_state_replay.state_entering_primary_shuffle:08X}"
+            "Cup-focused subset checkpoint mismatch: "
+            f"0x{cup_subset_state_replay.state_entering_primary_shuffle:08X}"
         ),
     )
 
@@ -286,6 +287,107 @@ def verify_database(db: FM2001Database) -> None:
         (
             "Corrected ordered primary competition state mismatch: "
             f"0x{ordered_competition_rng.state_entering_primary_shuffle:08X}"
+        ),
+    )
+
+    complete_competition_rng = replay_primary_mode0_complete_competition_rng(
+        MsvcCrtRng(0x2797444C),
+        db.competitions,
+        db.rounds,
+        db.clubs,
+        db.countries,
+        db.cup_allocation_instructions,
+        db.players,
+    )
+    require(
+        len(complete_competition_rng.events) == 167,
+        (
+            "Expected 167 complete primary competition RNG events, got "
+            f"{len(complete_competition_rng.events)}"
+        ),
+    )
+    require(
+        complete_competition_rng.procedural_league_instance_count == 39,
+        (
+            "Expected 39 procedural League runtime instances, got "
+            f"{complete_competition_rng.procedural_league_instance_count}"
+        ),
+    )
+    require(
+        complete_competition_rng.procedural_league_draw_count == 4302,
+        (
+            "Expected 4302 procedural League RNG calls, got "
+            f"{complete_competition_rng.procedural_league_draw_count}"
+        ),
+    )
+    require(
+        complete_competition_rng.cup_pairing_draw_count == 1737,
+        "Complete replay lost the 1737 Cup participant-shuffle calls",
+    )
+    require(
+        complete_competition_rng.dummy_league_sort_draw_count == 124,
+        "Complete replay lost the 124 DummyLeague lazy-sort calls",
+    )
+    require(
+        complete_competition_rng.europe_selector_draw_count == 2,
+        "Complete replay lost the two Europe-root selector calls",
+    )
+    require(
+        complete_competition_rng.total_draw_count == 6165,
+        (
+            "Expected 6165 complete primary competition calls, got "
+            f"{complete_competition_rng.total_draw_count}"
+        ),
+    )
+    complete_bounds = tuple(
+        bound
+        for event in complete_competition_rng.events
+        for bound in event.bounds
+    )
+    complete_bounds_blob = b"".join(
+        int(bound).to_bytes(2, "little")
+        for bound in complete_bounds
+    )
+    complete_bounds_sha256 = sha256(complete_bounds_blob).hexdigest()
+    require(
+        complete_bounds_sha256
+        == "3e7accfdf108a48a53902bb32a782fb23c64c7e5ce54eff101e0f869f6c3629c",
+        (
+            "Complete primary competition ordered-bound digest mismatch: "
+            f"{complete_bounds_sha256}"
+        ),
+    )
+    complete_selector_event_indices = tuple(
+        index
+        for index, event in enumerate(complete_competition_rng.events)
+        if event.kind == "europe_selector"
+    )
+    require(
+        complete_selector_event_indices == (137, 158),
+        (
+            "Unexpected complete Europe selector event positions: "
+            f"{complete_selector_event_indices}"
+        ),
+    )
+    require(
+        complete_competition_rng.champions_league_club_id == 1137,
+        (
+            "Complete replay selected unexpected Champions League candidate "
+            f"{complete_competition_rng.champions_league_club_id}"
+        ),
+    )
+    require(
+        complete_competition_rng.uefa_cup_club_id == 1159,
+        (
+            "Complete replay selected unexpected UEFA Cup candidate "
+            f"{complete_competition_rng.uefa_cup_club_id}"
+        ),
+    )
+    require(
+        complete_competition_rng.state_entering_primary_shuffle == 0x0DD3ACA3,
+        (
+            "Complete primary pre-shuffle state mismatch: "
+            f"0x{complete_competition_rng.state_entering_primary_shuffle:08X}"
         ),
     )
     require(
