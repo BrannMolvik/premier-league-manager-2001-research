@@ -32,25 +32,27 @@ Current tested implementation includes:
 - one shared human-vs-AI backend path rather than a separate human match engine;
 - persistent human club, formation, XI/bench, tactics and Team Orders workflow;
 - scheduler-aware advance-to-user-fixture behavior while other PL matches continue;
-- temporary Tkinter controls for club, lineup, tactics, advance/play, result and table.
+- temporary Tkinter controls for club, lineup, tactics, advance/play, result and table;
+- schema-2 internal save/load with source-database binding, gzip `.fm2k` files, mid-matchday continuation, and Play-tab Save/Load controls.
 
 Canonical real-data evidence now includes:
 
 - three-round autonomous integration: `../research/GATE5_REAL_MATCHDAY_INTEGRATION.md`;
 - three deterministic full seasons: `../research/GATE6_FULL_SEASON.md`;
-- six human-controlled Arsenal fixtures over more than a month: `../research/GATE7_HUMAN_GAMEPLAY.md`.
+- six human-controlled Arsenal fixtures over more than a month: `../research/GATE7_HUMAN_GAMEPLAY.md`;
+- canonical mid-matchday save/reload branch equivalence through that same six-fixture span: `../research/GATE8_INTERNAL_SAVE.md`.
 
-The Gate-7 clean-room suite contains **407 passing tests**. Canonical human audit digest: `6baeb94d17acbdeddcda253f66a6a5e62fb9c427a7ab42e7e7ff0f457721ebee`.
+The current reconstruction suite contains **413 passing tests**. Gate-8 canonical save/reload audit digest: `69a91dbce914be2fe5babdf8a8c71ad77bad5653c9cac09468520330f7c7b413`.
 
 ## Current development boundary
 
-The minimum human gameplay loop is complete. The next roadmap gate is **Gate 8: internal save/load**, so development/play sessions can persist calendar, roster, competition, fixture/result, injury/suspension, tactics and relevant RNG state.
+The minimum human gameplay loop and internal resumable save/load are complete. The active roadmap gate is **Gate 9: transfers and contracts**, making squad building part of the playable season.
 
 Known remaining fidelity boundaries include:
 
 - exact final league-table tie fallback beyond points / goal difference / goals scored;
 - the remaining approximation around persistent-injury availability helper `0x405080`;
-- internal save/load and later original-save compatibility;
+- original FM2001 save-file compatibility;
 - transfers/contracts and AI transfer activity;
 - finances/board and broader management systems;
 - broader competition season transitions;
