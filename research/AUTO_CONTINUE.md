@@ -103,8 +103,7 @@ The local recovery layer has two cooperating parts:
   monitor. It survives a dead ChatGPT tab and checks whether a session marked
   `working` has stopped producing repository checkpoints.
 - the Chromium extension under `tools/auto_continue/chrome-extension/`
-  watches the ChatGPT UI, opens/submits replacement chats, and also performs
-  its own GitHub lease check while Chrome is running.
+  watches the ChatGPT UI and opens/submits replacement chats.
 
 Installation is documented in `tools/auto_continue/README.md`.
 
@@ -127,7 +126,7 @@ start immediately.
 
 ### 2. Repository inactivity lease
 
-Every few minutes both the extension and the Windows watchdog can read:
+Every few minutes the Windows watchdog reads:
 
 - runtime state from `agent-runtime`;
 - latest commit time on `agent-runtime`;
