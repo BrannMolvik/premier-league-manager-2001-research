@@ -9,6 +9,7 @@ from competition_startup import (
     initial_dummy_league_sort_entries,
     initial_league_club_ids,
     initial_ranked_league_club_ids,
+    expand_champions_league_to_uefa_transfer,
     expand_standard_cup_allocation_instructions,
     msvc_crt_qsort,
     ordered_cup_allocation_instructions,
@@ -784,6 +785,103 @@ class CupAllocationOverflowTests(unittest.TestCase):
         self.assertEqual(
             expansion.selected_direct_club_ids,
             (101, 102, 103),
+        )
+
+
+class UefaTransferExpansionTests(unittest.TestCase):
+    def test_knockout_loser_transfer_copies_next_round_winner_refs(self):
+        source_rounds = (
+            type("R", (), {
+                "id": 200,
+                "type_code": 2,
+                "team_count": 32,
+                "source_competition_reference": 0xFFFFFFFF,
+            })(),
+            type("R", (), {
+                "id": 201,
+                "type_code": 3,
+                "team_count": 32,
+                "source_competition_reference": 14,
+            })(),
+        )
+        source_refs = {
+            201: (
+                CupClubRefDescriptor(
+                    type_code=0,
+                    direct_club_id=1,
+                    reference_token=("direct_club", 1),
+                ),
+                CupClubRefDescriptor(
+                    type_code=1,
+                    selector=0,
+                    reference_token=("match", 200, 0),
+                ),
+                CupClubRefDescriptor(
+                    type_code=1,
+                    selector=0,
+                    reference_token=("match", 200, 1),
+                ),
+            )
+        }
+
+        expansion = expand_champions_league_to_uefa_transfer(
+            source_rounds,
+            source_refs,
+            source_round_index=0,
+            quantity=2,
+            child_rounds_by_competition={},
+        )
+
+        self.assertEqual(expansion.source_path, "knockout_losers")
+        self.assertEqual(
+            tuple(
+                (ref.type_code, ref.selector, ref.reference_token)
+                for ref in expansion.refs
+            ),
+            (
+                (1, 1, ("match", 200, 0)),
+                (1, 1, ("match", 200, 1)),
+            ),
+        )
+
+    def test_minileague_transfer_emits_reverse_group_third_places(self):
+        source_round = type("R", (), {
+            "id": 201,
+            "type_code": 3,
+            "team_count": 32,
+            "source_competition_reference": 14,
+        })()
+        child_round = type("R", (), {
+            "id": 224,
+            "team_count": 4,
+        })()
+
+        expansion = expand_champions_league_to_uefa_transfer(
+            (source_round,),
+            {},
+            source_round_index=0,
+            quantity=8,
+            child_rounds_by_competition={14: (child_round,)},
+        )
+
+        self.assertEqual(
+            expansion.source_path,
+            "minileague_group_positions",
+        )
+        self.assertEqual(
+            tuple(
+                (
+                    ref.type_code,
+                    ref.competition_id,
+                    ref.competition_context,
+                    ref.selector,
+                )
+                for ref in expansion.refs
+            ),
+            tuple(
+                (3, 14, group_index, 2)
+                for group_index in range(7, -1, -1)
+            ),
         )
 
 
