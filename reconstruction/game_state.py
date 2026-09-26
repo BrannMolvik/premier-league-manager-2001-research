@@ -79,6 +79,7 @@ class GameState:
     team_tactics: dict[int, TeamTacticalState] = field(default_factory=dict)
     pitch_wear: dict[int, int] = field(default_factory=dict)
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
+    premier_league_scheduler_order: dict[int, tuple[int, ...]] = field(default_factory=dict)
     rng: MsvcCrtRng | None = None
 
     def _resolve_rng(self, rng=None):
@@ -258,6 +259,101 @@ class GameState:
     def advance(self, days: int) -> date:
         return self.calendar.advance(days)
 
+    def install_premier_league_scheduler_order(
+        self,
+        order_by_round: Iterable[tuple[int, Iterable[int]]],
+    ) -> None:
+        """Install exact shuffled ScheduleContainer order for PL rounds.
+
+        Gate 4 reconstructs the fixed-League fixture order by scanning the
+        shuffled primary container in 0x615C10 head-to-tail traversal order.
+        Each supplied round must contain exactly that round's fixture IDs once.
+        """
+
+        if self.premier_league is None:
+            raise RuntimeError("Premier League state is not loaded")
+
+        normalized: dict[int, tuple[int, ...]] = {}
+        for round_index, fixture_ids in order_by_round:
+            round_index = int(round_index)
+            ids = tuple(int(fixture_id) for fixture_id in fixture_ids)
+            expected = {
+                int(fixture.id)
+                for fixture in self.premier_league.fixtures_for_round(round_index)
+            }
+            if (
+                len(ids) != len(set(ids))
+                or set(ids) != expected
+            ):
+                raise ValueError(
+                    f"scheduler order for round {round_index} must contain "
+                    "each round fixture exactly once"
+                )
+            normalized[round_index] = ids
+
+        self.premier_league_scheduler_order = normalized
+
+    def due_premier_league_fixture_ids_in_scheduler_order(self) -> tuple[int, ...]:
+        """Return today's unplayed PL fixtures in recovered scheduler order.
+
+        Installed Gate-4 round order is preferred. A round without installed
+        scheduler state retains PremierLeagueState.fixtures_on()'s stable
+        fixture-ID fallback so lightweight/synthetic callers remain usable.
+        """
+
+        due = tuple(self.fixtures_due_today())
+        if not due:
+            return ()
+
+        due_ids = {int(fixture.id) for fixture in due}
+        by_round: dict[int, set[int]] = {}
+        for fixture in due:
+            by_round.setdefault(int(fixture.round_index), set()).add(
+                int(fixture.id)
+            )
+
+        ordered: list[int] = []
+        covered: set[int] = set()
+        if self.premier_league is not None:
+            round_order = tuple(self.premier_league.round_source_order)
+        else:
+            round_order = ()
+
+        for round_index in round_order:
+            round_due = by_round.get(int(round_index))
+            if not round_due:
+                continue
+            installed = self.premier_league_scheduler_order.get(int(round_index))
+            if installed is None:
+                fallback = tuple(
+                    int(fixture.id)
+                    for fixture in due
+                    if int(fixture.round_index) == int(round_index)
+                )
+                ordered.extend(fallback)
+                covered.update(fallback)
+                continue
+
+            selected = tuple(
+                fixture_id
+                for fixture_id in installed
+                if fixture_id in round_due
+            )
+            ordered.extend(selected)
+            covered.update(selected)
+
+        # Synthetic callers can omit DBTRounds; preserve the existing due-list
+        # fallback for any fixture not covered by round_source_order.
+        ordered.extend(
+            int(fixture.id)
+            for fixture in due
+            if int(fixture.id) not in covered
+        )
+
+        if set(ordered) != due_ids or len(ordered) != len(due_ids):
+            raise RuntimeError("installed Premier League scheduler order is inconsistent")
+        return tuple(ordered)
+
     def simulate_due_premier_league_ai_fixtures(
         self,
         attack_matrix,
@@ -268,16 +364,16 @@ class GameState:
     ) -> tuple[tuple[int, NormalMatchResult], ...]:
         """Simulate every unplayed Premier League fixture due on the current date.
 
-        The executable walks a shuffled per-date linked list. Until that startup
-        shuffle/RNG stream is reconstructed, the default keeps the existing
-        stable fixture-ID order exposed by PremierLeagueState.fixtures_on().
-        Callers may supply the exact due fixture IDs in a known scheduler order
-        without changing any match-level behavior.
+        The executable walks a shuffled per-date linked list. When Gate-4
+        scheduler order has been installed, that recovered order is used by
+        default. Lightweight/synthetic callers without installed scheduler
+        state retain PremierLeagueState.fixtures_on()'s stable fixture-ID
+        fallback. An explicit fixture_order still overrides both.
         """
         rng = self._resolve_rng(rng)
         due_ids = tuple(int(fixture.id) for fixture in self.fixtures_due_today())
         if fixture_order is None:
-            ordered_ids = due_ids
+            ordered_ids = self.due_premier_league_fixture_ids_in_scheduler_order()
         else:
             ordered_ids = tuple(int(fixture_id) for fixture_id in fixture_order)
             if (
