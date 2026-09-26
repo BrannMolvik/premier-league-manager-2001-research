@@ -19,6 +19,7 @@ Authorized original resources belong under `original_assets/` with provenance tr
 ## Verified repository state
 
 - Current verified integration checkpoint: `fba3babd72859d4c932c1aadffc81f6b54e339a0` - **Integrate complete primary competition RNG replay**.
+- Latest working schedule-emission checkpoint: `a16cf8d1d2bb256824520818eab16160b762dc13` - **Checkpoint procedural League schedule-node recovery**. No Actions run was attached when checked; do not replace the verified 365-test baseline with this newer checkpoint until CI/local full-suite evidence exists.
 - Reconstruction GitHub Actions at that head: **365 tests passed**.
 - Repository asset-policy GitHub Actions at that head: **passed**.
 - Canonical executable hash: `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
@@ -97,25 +98,22 @@ The bucket-54 population/order must be re-audited after Cup and procedural child
 
 ## Exact next task
 
-Continue Gate 3 from the schedule-node layer:
+Continue Gate 3 from the integrated schedule-node layer:
 
-1. Finish direct tracing of **procedural League schedule-node emission in `0x6170F0`**, including:
-   - reuse of the randomized one-cycle pairing matrix across `scheduled_matchday_count`;
-   - home/away direction and alternating-cycle behavior;
-   - exact date selection;
-   - LeagueMatch construction and insertion order through `0x615950`.
-2. Resolve the conditional parent-vector shuffle around `0x617245..0x617290` for child Leagues whose parent is a Cup/DummyLeague. Confirm whether any canonical startup path consumes additional draws there; do not assume the historical count-one observation without rechecking the actual child contexts.
+1. Finish the **ScotPremierLeague competition-27 post-split schedule-node trace** after `0x4FAC60` returns from generic League initialization. The generic fourth cycle is intercepted by `0x6170A0`; recover the exact 30 final-match symbolic refs/date sequence for matchdays 34-38.
+2. Re-check and codify the conditional parent-vector branch `0x617245..0x617290`. Existing canonical evidence says CL phase children 14/167 and WCC child 192 copy one-element parent vectors, so the Fisher-Yates guard consumes zero draws; lock that as a tested invariant rather than adding speculative RNG.
 3. Implement schedule-node descriptors for:
-   - NormalRound CupMatch;
-   - TwoLeg first/second-leg matches;
-   - MiniLeague child LeagueMatch nodes;
+   - NormalRound `CupMatch`;
+   - TwoLeg `FirstLegMatch` / `SecondLegMatch`;
+   - MiniLeague child `LeagueMatch` nodes using the now-implemented generic procedural emitter;
+   - ScotPremierLeague final-split nodes;
    - generic symbolic ClubRef conflict identity.
 4. Integrate all schedule nodes into the **actual primary competition initialization order**, sharing the already-correct complete RNG stream.
 5. Execute the complete materializer against canonical `Master.dat` / `Static.dat` / STR data and lock:
    - participant digest;
    - pairing digest;
    - schedule-node digest;
-   - counts per Cup/round and any dropped refs;
+   - counts per Cup/round/League runtime and any dropped refs;
    - confirmation that the complete 6,165-call replay/state/digest is unchanged.
 6. Audit Gate-3 completion criteria. If complete, update `ROADMAP.md`, `CURRENT_STATE.md`, `project_status.json`, and `PROGRESS.md`, commit the gate transition, then resume Gate 4.
 
@@ -153,7 +151,8 @@ Already implemented and tested at a substantial level:
 See `FIDELITY_GAPS.md` for the canonical list. Most relevant now:
 
 - complete startup schedule-node emission is not yet materialized;
-- MiniLeague child procedural-League match emission still needs the final direct trace/implementation;
+- generic MiniLeague child procedural-League emission is traced/implemented; full child participant integration into the primary schedule materializer remains open;
+- ScotPremierLeague competition-27 final post-split schedule-node materialization remains open;
 - exact inter-bucket RNG consumption/order inside primary `0x615BE0` is Gate-4 work paused behind Gate 3;
 - deterministic fixture-ID same-day fallback;
 - unresolved final league-table tie fallback;
