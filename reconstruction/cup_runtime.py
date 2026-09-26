@@ -84,6 +84,20 @@ class _TracingRng:
         self.bounds.append(bound)
         return int(self.delegate.randbelow(bound))
 
+    def begin_cup_round(
+        self,
+        competition_id: int,
+        round_id: int,
+        participant_count: int,
+    ) -> None:
+        hook = getattr(self.delegate, "begin_cup_round", None)
+        if callable(hook):
+            hook(
+                int(competition_id),
+                int(round_id),
+                int(participant_count),
+            )
+
     @property
     def state(self) -> int | None:
         value = getattr(self.delegate, "state", None)
