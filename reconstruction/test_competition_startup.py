@@ -167,7 +167,7 @@ class EuropeRootCupSelectorTests(unittest.TestCase):
         )
         # This is the exact post-youth checkpoint from the synthetic
         # end-to-end startup replay in test_startup_rng.py.
-        rng = MsvcCrtRng(0x2797444C)
+        rng = MsvcCrtRng(0x4B68DE28)
 
         replay = replay_primary_mode0_competition_rng(rng, clubs, countries)
 
@@ -176,9 +176,9 @@ class EuropeRootCupSelectorTests(unittest.TestCase):
             (1118, 1135, 1137, 1139, 1143, 1159, 1162),
         )
         self.assertEqual(replay.champions_league_club_id, 1118)
-        self.assertEqual(replay.uefa_cup_club_id, 1143)
+        self.assertEqual(replay.uefa_cup_club_id, 1159)
         self.assertEqual(replay.draw_count, 2)
-        self.assertEqual(rng.state, 0x5D07D526)
+        self.assertEqual(rng.state, 0x76779DE2)
 
     def test_empty_and_singleton_lists_consume_no_rng(self):
         class NoRng:
@@ -236,7 +236,7 @@ class PrimaryCupSchedulerStateTests(unittest.TestCase):
             Club(1159, 66, 55000, 2),
             Club(1162, 73, 100000, 2),
         )
-        rng = MsvcCrtRng(0x2797444C)
+        rng = MsvcCrtRng(0x4B68DE28)
 
         replay = replay_primary_mode0_pre_shuffle_state(
             rng,
@@ -250,8 +250,8 @@ class PrimaryCupSchedulerStateTests(unittest.TestCase):
         self.assertEqual(replay.cup_pairing_draw_count, 4)
         self.assertEqual(replay.europe_selector_draw_count, 2)
         self.assertEqual(replay.total_draw_count, 6)
-        self.assertEqual(replay.state_entering_primary_shuffle, 0x0A7571CA)
-        self.assertEqual(rng.state, 0x0A7571CA)
+        self.assertEqual(replay.state_entering_primary_shuffle, 0x44D2B546)
+        self.assertEqual(rng.state, 0x44D2B546)
 
 class OrderedCompetitionRngTests(unittest.TestCase):
     def test_small_country_root_qsort_resolves_spanish_equal_key_order(self):
