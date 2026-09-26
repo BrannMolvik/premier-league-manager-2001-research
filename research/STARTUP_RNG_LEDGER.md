@@ -6,7 +6,7 @@ _Last verified: 26 September 2026_
 
 This file is the canonical **standard new-game RNG ledger from the application CRT seed through the currently recovered primary-competition RNG state**.
 
-The precompetition sequence is exact. Primary Cup scheduling now has an exact hidden-state call total, while exact bounded-output interleaving/pair identities remain the reopened Gate-3 task before the first Premier League schedule-bucket shuffle.
+The precompetition sequence is exact. The complete currently mapped primary-competition RNG stream before the first primary `0x615BE0` shuffle is also executable and canonically locked. Gate 3 remains open for complete competition schedule-node materialization, not for the currently mapped RNG call ledger.
 
 The original executable uses one shared MSVC CRT RNG stream.
 
@@ -509,3 +509,90 @@ Until this solver is fully integrated, treat:
 
 as checkpoints for the previously mapped Cup/DummyLeague/Europe-selector
 **subset only**, not as the final primary pre-shuffle state.
+
+
+## 11. Complete procedural-League integration checkpoint
+
+**Confirmed and integrated 26 September 2026.**
+
+The procedural-League correction described above is no longer provisional. The
+legacy round-robin solver beneath `0x6170F0` has been translated and integrated
+into one complete primary competition replay.
+
+Recovered call chain:
+
+```text
+League::Initialize 0x4F5150
+ -> procedural builder 0x6170F0
+ -> round-robin solver 0x616F20
+ -> 0x616EA0
+ -> randomized/backtracking selector 0x616CE0
+ -> bounded RNG 0x64D540
+```
+
+Canonical primary data creates **39 procedural League runtime instances** before
+the first primary `0x615BE0`. Their exact solver executions consume **4,302
+bounded calls**. Together with the already-correct Cup/DummyLeague/Europe
+subset, the complete currently mapped competition stream is:
+
+```text
+4,302 procedural-League round-robin calls
+1,737 Cup participant Fisher-Yates calls
+  124 DummyLeague lazy-ranking calls
+    2 Europe-root selector calls
+-----------------------------------------
+6,165 bounded CRT calls total
+```
+
+The complete replay contains **167 high-level RNG events**.
+
+For synthetic post-youth state `0x2797444C`:
+
+```text
+state entering primary 0x615BE0 = 0x0DD3ACA3
+```
+
+The complete ordered-bound SHA-256 over little-endian uint16 bounds is:
+
+```text
+3e7accfdf108a48a53902bb32a782fb23c64c7e5ce54eff101e0f869f6c3629c
+```
+
+The Europe-selector event indices move to:
+
+```text
+137  Champions League
+158  UEFA Cup
+```
+
+With the synthetic starting state these selectors choose clubs **1137** and
+**1159** respectively.
+
+As an additive-consistency audit, filtering procedural-League events from the
+new complete stream reproduces the old subset exactly:
+
+```text
+128 events
+1,863 calls
+selector indices 110 / 119
+digest a6675e77b8256fcb8d5834efa6a9d006182078c12f27887c8228a14eca889711
+state  0xAECA9FA5
+```
+
+Therefore the older values remain useful regression checkpoints, but only for
+that subset.
+
+Implementation is in `reconstruction/procedural_league.py`,
+`reconstruction/competition_runtime.py`, `reconstruction/startup_sequence.py`,
+and `reconstruction/verify.py`.
+
+Validation at `fba3babd72859d4c932c1aadffc81f6b54e339a0`:
+
+- reconstruction GitHub Actions: **365 tests passed**;
+- repository asset-policy GitHub Actions: **passed**.
+
+The remaining Gate-3 work is schedule-node materialization: finish the
+procedural-League emission trace in `0x6170F0`, resolve the conditional
+parent-vector shuffle for child Leagues, compose Cup and League nodes in exact
+initialization order, and lock canonical participant/pairing/schedule-node
+digests before entering Gate 4.
