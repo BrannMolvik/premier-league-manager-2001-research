@@ -5,7 +5,7 @@
   "main_branch": "main",
   "enabled": true,
   "mode": "continuous",
-  "status": "waiting_for_user",
+  "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 3,
   "active_task": "Finish procedural League schedule-node emission in 0x6170F0 and integrate exact Cup/League schedule nodes",
@@ -20,5 +20,5 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 0,
   "last_recovery_reason": null,
-  "note": "Runtime control state only. Auto-recovery is armed but currently waiting for local installation/testing; technical project history stays on main."
+  "note": "Local Chrome extension and Windows watchdog verified on 2026-09-26. Continuous overnight FM2001 work armed."
 }
