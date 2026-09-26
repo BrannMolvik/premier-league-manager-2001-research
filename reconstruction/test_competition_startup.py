@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from competition_startup import (
     europe_root_cup_candidate_ids,
+    initial_competition_enumeration_club_ids,
     ordered_cup_allocation_instructions,
     primary_cup_round_initialization_order,
     primary_mode0_cup_pairing_draw_count,
@@ -22,6 +23,14 @@ class Club:
     country_id: int
     runtime_value_1c_source: int
     team_category_code: int
+
+
+@dataclass(frozen=True)
+class HistoricalClub:
+    index: int
+    competition_id: int
+    historical_competition_id: int
+    historical_slot_index: int
 
 
 @dataclass(frozen=True)
@@ -320,9 +329,6 @@ class OrderedCompetitionRngTests(unittest.TestCase):
         self.assertEqual(replay.europe_selector_draw_count, 2)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 
 class CupAllocationOrderingTests(unittest.TestCase):
@@ -356,3 +362,49 @@ class CupAllocationOrderingTests(unittest.TestCase):
             tuple(instruction.sequence_index for instruction in ordered),
             tuple(sorted(instruction.sequence_index for instruction in instructions)),
         )
+
+
+
+class HistoricalCompetitionEnumerationTests(unittest.TestCase):
+    def test_preferred_slot_collision_moves_displaced_club_to_first_empty(self):
+        clubs = (
+            HistoricalClub(10, 7, 7, 1),
+            HistoricalClub(11, 7, 7, 1),
+            HistoricalClub(12, 7, 7, 2),
+        )
+
+        self.assertEqual(
+            initial_competition_enumeration_club_ids(clubs, 7),
+            (10, 11, 12),
+        )
+
+    def test_out_of_range_slot_uses_first_empty_and_full_array_drops_extra(self):
+        clubs = (
+            HistoricalClub(20, 8, 8, 99),
+            HistoricalClub(21, 8, 8, 1),
+            HistoricalClub(22, 9, 8, 0),  # target history array only, not capacity
+        )
+
+        # Capacity is two because only clubs 20/21 are current members of 8.
+        # 20 falls back to first empty, 21 takes slot 1. Club 22 then displaces
+        # 20 from slot 0, but there is no empty slot for the displaced club.
+        self.assertEqual(
+            initial_competition_enumeration_club_ids(clubs, 8),
+            (22, 21),
+        )
+
+    def test_only_target_historical_competition_contributes(self):
+        clubs = (
+            HistoricalClub(1, 5, 5, 0),
+            HistoricalClub(2, 5, 6, 1),
+            HistoricalClub(3, 5, 5, 2),
+        )
+
+        self.assertEqual(
+            initial_competition_enumeration_club_ids(clubs, 5),
+            (1, None, 3),
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()
