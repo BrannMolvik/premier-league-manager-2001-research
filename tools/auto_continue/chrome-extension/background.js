@@ -306,7 +306,11 @@ function ensureStaleAlarm() {
   });
 }
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
+  await chrome.storage.local.remove([
+    "pendingResume",
+    "recoveryInFlightAt"
+  ]);
   ensureStaleAlarm();
 });
 
