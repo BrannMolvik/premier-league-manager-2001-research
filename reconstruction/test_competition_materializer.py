@@ -60,6 +60,14 @@ class Country:
     eu_status_flag: int = 0
 
 
+@dataclass(frozen=True)
+class RealFixture:
+    id: int
+    round_index: int
+    home_club_id: int
+    away_club_id: int
+
+
 class IntegratedCompetitionMaterializerTests(unittest.TestCase):
     def _fixture(self):
         competitions = (
@@ -154,6 +162,59 @@ class IntegratedCompetitionMaterializerTests(unittest.TestCase):
         self.assertEqual(
             rng.state,
             result.state_entering_primary_shuffle,
+        )
+
+    def test_fixed_league_zero_draw_nodes_keep_traversal_position(self):
+        competitions = (
+            Competition(0, 1, initialization_order_value=0),
+            Competition(50, 2, initialization_order_value=1),
+        )
+        rounds = (
+            Round(0, 0, 4, 4, 0, 1, 6),
+            Round(1, 0, 4, 4, 0, 2, 3),
+            Round(100, 50, 1, 4, 4, 3, 1),
+        )
+        allocations = (Allocation(1, 50, 1, 3, 0, 4),)
+        clubs = tuple(
+            Club(
+                index=club_id,
+                short_name=f"Club {club_id}",
+                competition_id=0,
+                historical_competition_id=0,
+                historical_slot_index=slot,
+            )
+            for slot, club_id in enumerate((10, 11, 12, 13))
+        )
+        fixtures = (
+            RealFixture(0, 0, 10, 11),
+            RealFixture(1, 0, 12, 13),
+            RealFixture(2, 1, 10, 12),
+            RealFixture(3, 1, 11, 13),
+        )
+
+        result = materialize_primary_rng_driven_schedule(
+            MsvcCrtRng(0x12345678),
+            competitions,
+            rounds,
+            clubs,
+            (Country(1),),
+            allocations,
+            real_fixtures=fixtures,
+        )
+
+        self.assertEqual(result.rng_plan_total_draw_count, 3)
+        self.assertEqual(result.rng_plan_event_count, 2)
+        self.assertEqual(result.schedule_node_count, 6)
+        self.assertEqual(
+            tuple(node.node_kind for node in result.schedule_nodes),
+            (
+                "fixed_league_match",
+                "fixed_league_match",
+                "fixed_league_match",
+                "fixed_league_match",
+                "cup_match",
+                "cup_match",
+            ),
         )
 
     def test_integrated_schedule_digest_is_repeatable(self):
