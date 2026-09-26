@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 3,
-  "last_recovery_reason": "stale-repository-activity-no-worker-tab",
+  "recovery_generation": 4,
+  "last_recovery_reason": "stale-repository-activity",
   "note": "Recovered into a new worker because no usable worker tab remained. Continue from GitHub canonical state without repeating persisted investigation. Transient stalls should still reuse/stop/re-prompt the same worker when available."
 }
