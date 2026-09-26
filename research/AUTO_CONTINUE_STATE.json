@@ -3,7 +3,7 @@
   "project": "FM2001 Windows 11 modernization/port",
   "runtime_branch": "agent-runtime",
   "main_branch": "main",
-  "enabled": true,
+  "enabled": false,
   "mode": "continuous",
   "status": "paused",
   "work_owner": "chatgpt",
@@ -20,5 +20,5 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 2,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Auto-continue paused after browser instability. Main now contains v0.3.0 same-chat recovery: transient stalls reuse/stop/re-prompt existing worker; only true chat-length exhaustion or missing worker opens a new background chat."
+  "note": "Auto-continue hard-disabled while cleaning up hidden/duplicate worker tabs after browser instability. Existing hidden worker may continue until manually stopped, but no new recovery should spawn."
 }
