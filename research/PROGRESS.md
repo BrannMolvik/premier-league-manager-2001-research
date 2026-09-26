@@ -3434,3 +3434,39 @@ Validation at `22e81eacf91e56062aad101560eb94da2a8af301`:
 Next: connect this verified controller to the existing Tkinter prototype as a
 minimal temporary playable surface, then exercise the canonical shipped-data
 path and audit Gate-7 completion criteria.
+
+
+## 27 September Gate 7 completion - canonical human-manager gameplay
+
+Gate 7 is complete.
+
+The existing backend was reused rather than forked. A human-controlled side now
+feeds the same reconstructed MatchCalculator, environment, result/table,
+Condition, injury/discipline, Form and Pitch Wear persistence paths as AI
+teams. `HumanGameplayController` persists club, formation, XI/bench, tactics
+and Team Orders while preserving recovered same-day scheduler order around the
+pending human fixture.
+
+The temporary Tkinter prototype now has a Play tab for club selection, legal
+11+5 lineup selection/autofill, formation, tactics, advance, match simulation,
+result and live table. This is a minimum Gate-7 surface, not the later
+original-style UI.
+
+Synthetic regression uses a full 20-club / 10-match-per-round shape and
+deliberately places the user fixture in the middle of the same-day scheduler
+order. GitHub Actions at `92a003f6fb6e08eb810de8eb964c73260329cb69`:
+**407 tests passed**; asset policy passed.
+
+Canonical shipped-data audit then controlled Arsenal (club 0) for six real
+Premier League fixtures from 19 August through 23 September 2000. Six complete
+matchdays produced 60 results. Arsenal finished the audit segment 4-1-1 on 13
+points; Condition remained 28..80 and legal autofill continued with two players
+injured at the final checkpoint.
+
+Canonical Gate-7 audit SHA-256:
+`6baeb94d17acbdeddcda253f66a6a5e62fb9c427a7ab42e7e7ff0f457721ebee`.
+
+Evidence: `research/GATE7_HUMAN_GAMEPLAY.md`.
+
+Gate 8 now begins with an internal, versioned save/load format. Original FM2001
+save compatibility remains explicitly separate.
