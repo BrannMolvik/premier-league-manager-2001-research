@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from competition_startup import (
     europe_root_cup_candidate_ids,
     initial_competition_enumeration_club_ids,
+    initial_league_club_ids,
+    initial_ranked_league_club_ids,
     ordered_cup_allocation_instructions,
     primary_cup_round_initialization_order,
     primary_mode0_cup_pairing_draw_count,
