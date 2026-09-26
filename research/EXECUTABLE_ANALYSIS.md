@@ -5374,3 +5374,48 @@ World Club Championship(101):10 requested /  8 capacity
 This is compatible with the already-recovered `0x4F57E0` behavior: once all
 round entrant quotas are full, later ClubRefs are silently not inserted even
 though a direct-club allocation can still be marked successful by its caller.
+
+
+### Conditional auxiliary Cup shuffle consumes zero startup RNG
+
+A follow-up audit of Cup round dispatch at `0x4F62A3..0x4F6321` resolves a
+second Fisher-Yates-looking branch in NormalRound/TwoLegRound without changing
+the corrected startup ledger.
+
+Round virtual `+0x08` is:
+
+```text
+NormalRound  (vtable 0x7C9BAC): 0x651980 -> false
+TwoLegRound  (vtable 0x7C9BC4): 0x651980 -> false
+MiniLeague   (vtable 0x7C9BDC): 0x5B6380 -> true
+```
+
+The Cup scheduler carries a flag that becomes true across MiniLeague ->
+non-MiniLeague transitions (subject to the Cup predicate), and passes that flag
+to the round scheduler.
+
+NormalRound and TwoLegRound both contain an additional shuffle when that flag
+is true, but the object being shuffled is **not the round participant array**.
+They copy the Cup's auxiliary vector at `Cup+0x54`, whose element count is
+`Cup+0x58`.
+
+New-game Cup initialization at `0x4F6200..` creates that vector with exactly
+one entry:
+
+```text
+esi = &Cup+0x54
+[esi+4] = 1        ; Cup+0x58 = 1
+allocate storage
+storage[0] = -1
+```
+
+The later Europe-root selector may replace that single stored value, but does
+not increase the vector count.
+
+In both NormalRound and TwoLegRound the auxiliary Fisher-Yates loop is guarded
+by `count > 1` before calling `0x64D540`.
+
+Therefore canonical new-game startup can enter the conditional branch, but its
+auxiliary vector size is one and it consumes **zero CRT RNG calls**.
+
+The complete primary pre-`0x615BE0` total remains **1,863 bounded calls**.
