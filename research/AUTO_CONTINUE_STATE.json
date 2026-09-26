@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 4,
   "active_task": "Place the complete 9346-node primary schedule into 373 buckets from corrected state 0x0E556598 and recover exact first Premier League matchday order",
-  "last_known_main_head": "99a75bd1c68b6c4c537481a177fe773dcaeb3c74",
+  "last_known_main_head": "ba72b6ae51a1a62167bb5f5691c1af27b756d7e3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 5,
+  "recovery_generation": 6,
   "last_recovery_reason": "stale-repository-activity",
   "note": "Recovered into a new worker because no usable worker tab remained. Continue from GitHub canonical state without repeating persisted investigation. Transient stalls should still reuse/stop/re-prompt the same worker when available."
 }
