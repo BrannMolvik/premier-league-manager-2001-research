@@ -16,7 +16,7 @@ from game_state import GameState
 from match_lineup import AI_FORMATIONS, AiLineupCoreResult, StarterAssignment
 from match_orders import TeamOrderPriorities
 from match_participants import collect_match_participants
-from match_preparation import PreparedAiMatchSelection
+from match_preparation import PreparedAiMatchSelection, prepare_ai_match_selection
 from match_schedule import MsvcCrtRng
 from match_team_setup import TeamTacticalState, resolved_substitute_quota
 
@@ -241,6 +241,47 @@ class HumanGameplayController:
         self.human.starter_ids = tuple(int(value) for value in starter_ids)
         self.human.substitute_ids = tuple(int(value) for value in substitute_ids)
         return selection
+
+    def autofill_lineup(
+        self,
+        formation_id: int = 0,
+    ) -> PreparedAiMatchSelection:
+        """Choose a legal deterministic XI/bench using the proven selection core.
+
+        This is a convenience for the temporary prototype and automated audits,
+        not a replacement for manual human selection. It reuses the same
+        evidence-backed slot/bench/Non-EU logic already used by AI selection,
+        then persists the resulting player IDs as the human-controlled lineup.
+        """
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+
+        competition = self.state.competitions.get(0)
+        if competition is None:
+            raise RuntimeError("Premier League competition definition is not loaded")
+
+        roster = self.state.ordered_club_roster(self.human.club_id)
+        selection = prepare_ai_match_selection(
+            self.human.club_id,
+            roster,
+            int(formation_id),
+            resolved_substitute_quota(int(competition.substitute_quota)),
+            require_complete_xi=True,
+            non_eu_limit=int(competition.max_non_eu_players),
+        )
+        starter_ids = tuple(
+            int(assignment.player_index)
+            for assignment in selection.lineup.starters
+        )
+        substitute_ids = tuple(
+            int(player_id)
+            for player_id in selection.lineup.substitutes
+        )
+        return self.set_lineup(
+            int(formation_id),
+            starter_ids,
+            substitute_ids,
+        )
 
     def current_selection(self) -> PreparedAiMatchSelection:
         if self.human is None:
