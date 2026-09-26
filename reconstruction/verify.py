@@ -8,8 +8,11 @@ import sys
 from competition_startup import (
     primary_mode0_cup_pairing_draw_count,
     primary_mode0_cup_round_team_counts,
+    primary_mode0_dummy_league_sort_draw_count,
+    primary_mode0_dummy_league_sort_source_ids,
     primary_mode0_root_initialization_order,
     replay_primary_mode0_ordered_competition_rng,
+    replay_primary_mode0_pre_shuffle_state,
 )
 from competition_state import PremierLeagueState
 from fm2001_data import FM2001Database
@@ -134,6 +137,46 @@ def verify_database(db: FM2001Database) -> None:
         == 115,
         "Primary Cup RNG round-count helper does not cover all 115 rounds",
     )
+    dummy_sort_sources = primary_mode0_dummy_league_sort_source_ids(
+        db.competitions,
+        db.cup_allocation_instructions,
+    )
+    require(
+        dummy_sort_sources == (89, 93, 25, 104, 168, 162, 148, 139, 102, 131, 120),
+        f"Unexpected primary DummyLeague lazy-sort sources: {dummy_sort_sources}",
+    )
+    require(
+        primary_mode0_dummy_league_sort_draw_count(
+            db.competitions,
+            db.cup_allocation_instructions,
+            db.clubs,
+        )
+        == 124,
+        "Expected 124 primary DummyLeague lazy-sort RNG calls",
+    )
+    full_state_replay = replay_primary_mode0_pre_shuffle_state(
+        MsvcCrtRng(0x2797444C),
+        db.competitions,
+        db.rounds,
+        db.clubs,
+        db.countries,
+        db.cup_allocation_instructions,
+    )
+    require(
+        full_state_replay.total_draw_count == 1863,
+        f"Expected 1863 complete pre-shuffle draws, got {full_state_replay.total_draw_count}",
+    )
+    require(
+        full_state_replay.dummy_league_sort_draw_count == 124,
+        "Complete replay did not include 124 DummyLeague lazy-sort draws",
+    )
+    require(
+        full_state_replay.state_entering_primary_shuffle == 0xAECA9FA5,
+        (
+            "Complete primary pre-shuffle state mismatch: "
+            f"0x{full_state_replay.state_entering_primary_shuffle:08X}"
+        ),
+    )
 
     spanish_root_order = tuple(
         int(competition.id)
@@ -158,7 +201,7 @@ def verify_database(db: FM2001Database) -> None:
     require(
         len(ordered_competition_rng.events) == 117,
         (
-            "Expected 117 primary competition RNG events, got "
+            "Expected 117 Cup/selector partial RNG events, got "
             f"{len(ordered_competition_rng.events)}"
         ),
     )
@@ -176,7 +219,7 @@ def verify_database(db: FM2001Database) -> None:
     )
     require(
         ordered_competition_rng.total_draw_count == 1739,
-        "Ordered replay does not contain exactly 1739 total competition draws",
+        "Cup/selector partial replay does not contain exactly 1739 draws",
     )
 
     selector_event_indices = tuple(
@@ -221,7 +264,7 @@ def verify_database(db: FM2001Database) -> None:
     require(
         ordered_competition_rng.state_entering_primary_shuffle == 0x986E4579,
         (
-            "Corrected ordered primary competition state mismatch: "
+            "Cup/selector partial-state checkpoint mismatch: "
             f"0x{ordered_competition_rng.state_entering_primary_shuffle:08X}"
         ),
     )
