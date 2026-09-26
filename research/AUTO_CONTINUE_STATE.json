@@ -3,9 +3,9 @@
   "project": "FM2001 Windows 11 modernization/port",
   "runtime_branch": "agent-runtime",
   "main_branch": "main",
-  "enabled": false,
+  "enabled": true,
   "mode": "continuous",
-  "status": "paused",
+  "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 3,
   "active_task": "Continue exact Cup/League schedule-node materialization from the competition startup schedule-descriptor checkpoint",
@@ -20,5 +20,5 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 2,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Auto-continue hard-disabled while cleaning up hidden/duplicate worker tabs after browser instability. Existing hidden worker may continue until manually stopped, but no new recovery should spawn."
+  "note": "Recovery re-enabled after >10 minutes without duplicate-worker commits. Extension v0.3.0 installed: transient stalls reuse/stop/re-prompt the existing worker; only true chat-length exhaustion or a missing worker may open a new background chat."
 }
