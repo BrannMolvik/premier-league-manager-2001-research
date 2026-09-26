@@ -3276,3 +3276,51 @@ Validation before transition:
 `ROADMAP.md` now marks Gate 3 complete and Gate 4 in progress. Gate 4 resumes
 from `0x0E556598` by placing the complete 9,346-node set into the recovered
 373-bucket primary schedule and re-auditing first-matchday ordering.
+
+
+## 27 September Gate 4 completion - exact Premier League schedule order
+
+Gate 4 is complete.
+
+The complete 9,346-node Gate-3 primary schedule was placed through a clean-room
+implementation of the canonical primary ScheduleContainer path and then
+shuffled from corrected state `0x0E556598`.
+
+Recovered/implemented path:
+
+```text
+0x615670 -> 0x615700   373 primary buckets
+0x615950              date mapping, conflict search, head insertion
+0x615890 -> 0x615790  adjacent conflict predicate
+0x615BE0 -> 0x615AE0  ascending-bucket Fisher-Yates
+0x615C10              head-to-tail linked-list execution traversal
+```
+
+Canonical placement/shuffle audit:
+
+- 9,346 nodes placed;
+- 168 non-empty buckets;
+- maximum bucket size 147;
+- 38 nodes displaced from nominal buckets by conflict placement;
+- 373-bucket count-vector SHA-256
+  `fce6003d6a415813c08d3b55152ae6bf3da3fb9f68eef3bf4c0666e1df67718b`;
+- 9,178 primary bucket-shuffle RNG calls;
+- final primary shuffle state `0x839953AA`.
+
+Bucket 54 is still exactly 142 nodes with no moved-in/moved-out entries.
+Premier League fixture IDs occupy pre-shuffle slots 96..105 as 9..0. The
+corrected first-matchday execution order is:
+
+`8, 3, 2, 4, 6, 9, 5, 0, 1, 7`
+
+The first ten real Premier League matchday orders are now independent
+regressions in `test_primary_schedule.py`.
+
+Validation at `c44e72ddae2e7976e8a1685f1662d659dc4a5e4c`:
+
+- reconstruction CI: **399 tests passed**;
+- asset-policy workflow: **passed**.
+
+Detailed evidence is in `research/GATE4_SCHEDULE_ORDER.md`. Gate 5 now
+integrates that recovered scheduler order into canonical real-data matchday
+execution and proves a full 10-match round end-to-end.
