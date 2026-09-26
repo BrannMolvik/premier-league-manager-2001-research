@@ -16,7 +16,9 @@ from match_environment import (
 from match_injury_persistence import clear_expired_persistent_injury
 from match_schedule import MsvcCrtRng
 from match_preparation import (
+    PreparedAiMatchSelection,
     PreparedPremierLeagueAiSide,
+    build_prepared_match_side_from_selection,
     build_premier_league_ai_match_side,
     prepare_premier_league_ai_selection,
 )
@@ -25,6 +27,7 @@ from match_postmatch import (
     persist_premier_league_match_incidents,
     sync_post_match_conditions,
 )
+from match_orders import TeamOrderPriorities
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
 from match_team_setup import TeamTacticalState
 from runtime_state import RuntimePlayer, derive_non_eu_status
@@ -639,6 +642,180 @@ class GameState:
         persist_post_match_form(
             away.match_side,
             away.preparation.selection.participants,
+            result,
+            rng,
+        )
+        return result
+
+    def simulate_premier_league_human_fixture(
+        self,
+        fixture_id: int,
+        human_club_id: int,
+        human_selection: PreparedAiMatchSelection,
+        attack_matrix,
+        defence_matrix,
+        rng=None,
+        *,
+        team_orders: TeamOrderPriorities | None = None,
+    ) -> NormalMatchResult:
+        """Simulate one human-vs-AI PL fixture through the shared backend.
+
+        Human selection/tactics remain persistent runtime state. The opponent
+        uses the same autonomous preparation path as AI-vs-AI fixtures. Match
+        simulation and every post-match persistence helper are shared with the
+        established backend; the only control distinction is the exact
+        user_controlled flag passed into match-side/treatment paths.
+        """
+        rng = self._resolve_rng(rng)
+        if self.premier_league is None:
+            raise RuntimeError("Premier League state is not loaded")
+
+        fixture_id = int(fixture_id)
+        human_club_id = int(human_club_id)
+        if fixture_id not in self.premier_league.fixtures:
+            raise KeyError(fixture_id)
+        fixture = self.premier_league.fixtures[fixture_id]
+        home_club_id = int(fixture.home_club_id)
+        away_club_id = int(fixture.away_club_id)
+        if human_club_id not in (home_club_id, away_club_id):
+            raise ValueError("human club does not participate in this fixture")
+
+        competition = self.competitions.get(0)
+        if competition is None:
+            raise RuntimeError("Premier League competition definition is not loaded")
+
+        human_is_home = human_club_id == home_club_id
+        ai_club_id = away_club_id if human_is_home else home_club_id
+        ai_club = self.clubs.get(ai_club_id)
+        if ai_club is None:
+            raise RuntimeError(f"club definition {ai_club_id} is not loaded")
+        ai_manager = self.managers.get(int(ai_club.manager_id))
+        if ai_manager is None:
+            raise RuntimeError(
+                f"manager {int(ai_club.manager_id)} for club {ai_club_id} is not loaded"
+            )
+
+        human_roster = self.ordered_club_roster(human_club_id)
+        ai_roster = self.ordered_club_roster(ai_club_id)
+        if not human_roster or not ai_roster:
+            raise RuntimeError("human/AI fixture requires both runtime rosters")
+
+        ai_preparation = prepare_premier_league_ai_selection(
+            ai_club_id,
+            ai_roster,
+            human_roster,
+            ai_manager,
+            competition,
+            self.premier_league.table(),
+            is_home=not human_is_home,
+        )
+
+        # Original high-level setup performs both selections before weather.
+        # User Condition is persistent; only the autonomous side receives the
+        # recovered OppMinVal + RNG(6) + RNG(5) pre-match overwrite.
+        environment = generate_match_environment(
+            self.calendar.current_date,
+            rng,
+        )
+        self.prepared_match_environments[fixture_id] = environment
+
+        ai_prepared = build_premier_league_ai_match_side(
+            ai_preparation,
+            ai_roster,
+            side=1 if human_is_home else 0,
+            rng=rng,
+            tactical_state=self.team_tactics.get(
+                ai_club_id,
+                TeamTacticalState(),
+            ),
+        )
+        human_side = build_prepared_match_side_from_selection(
+            human_selection,
+            0 if human_is_home else 1,
+            self.team_tactics.get(
+                human_club_id,
+                TeamTacticalState(),
+            ),
+            user_controlled=True,
+            team_orders=team_orders or TeamOrderPriorities(),
+        )
+
+        if human_is_home:
+            home_side = human_side
+            away_side = ai_prepared.match_side
+            home_participants = human_selection.participants
+            away_participants = ai_preparation.selection.participants
+            home_user_controlled = True
+            away_user_controlled = False
+        else:
+            home_side = ai_prepared.match_side
+            away_side = human_side
+            home_participants = ai_preparation.selection.participants
+            away_participants = human_selection.participants
+            home_user_controlled = False
+            away_user_controlled = True
+
+        pitch_wear_before = int(self.pitch_wear.get(home_club_id, 0))
+        result = self.simulate_premier_league_fixture(
+            fixture_id,
+            home_side,
+            away_side,
+            attack_matrix,
+            defence_matrix,
+            rng,
+            condition_injury_settings=ConditionInjurySettings(
+                environment_byte=pitch_wear_before,
+            ),
+        )
+
+        fixture_date = self.calendar.current_date
+        home_next = self.premier_league.next_club_match_date(
+            home_club_id,
+            after_date=fixture_date,
+        )
+        away_next = self.premier_league.next_club_match_date(
+            away_club_id,
+            after_date=fixture_date,
+        )
+
+        sync_post_match_conditions(home_side, home_participants)
+        sync_post_match_conditions(away_side, away_participants)
+
+        persist_premier_league_match_incidents(
+            self.ordered_club_roster(home_club_id),
+            home_participants,
+            0,
+            result,
+            fixture_date,
+            home_next,
+            rng,
+            user_controlled=home_user_controlled,
+        )
+        persist_premier_league_match_incidents(
+            self.ordered_club_roster(away_club_id),
+            away_participants,
+            1,
+            result,
+            fixture_date,
+            away_next,
+            rng,
+            user_controlled=away_user_controlled,
+        )
+
+        self.pitch_wear[home_club_id] = pitch_wear_after_match(
+            pitch_wear_before,
+            environment.weather_code,
+        )
+
+        persist_post_match_form(
+            home_side,
+            home_participants,
+            result,
+            rng,
+        )
+        persist_post_match_form(
+            away_side,
+            away_participants,
             result,
             rng,
         )
