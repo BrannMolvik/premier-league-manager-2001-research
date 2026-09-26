@@ -769,6 +769,30 @@ class StandardCupAllocationExpansionTests(unittest.TestCase):
             (101, 104, 105),
         )
 
+    def test_type5_source_exhaustion_silently_underfills(self):
+        round_obj = type("R", (), {"id": 12, "new_entrants": 10})()
+        instructions = (
+            CupAllocation(1, 62, 1, 5, 9, 5),
+        )
+
+        expansion = expand_standard_cup_allocation_instructions(
+            62,
+            (round_obj,),
+            instructions,
+            ranked_club_ids_by_source={9: (101, 102, 103)},
+            enumerated_club_ids_by_source={},
+            unavailable_direct_club_ids=(102,),
+        )
+
+        self.assertEqual(
+            tuple(ref.direct_club_id for ref in expansion.emitted_refs),
+            (101, 103),
+        )
+        self.assertEqual(
+            expansion.selected_direct_club_ids,
+            (101, 103),
+        )
+
     def test_latest_open_round_is_filled_before_previous_round(self):
         rounds = (
             type("R", (), {"id": 1, "new_entrants": 2})(),
