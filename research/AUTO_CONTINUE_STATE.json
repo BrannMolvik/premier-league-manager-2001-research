@@ -5,7 +5,7 @@
   "main_branch": "main",
   "enabled": true,
   "mode": "continuous",
-  "status": "working",
+  "status": "paused",
   "work_owner": "chatgpt",
   "active_gate": 3,
   "active_task": "Continue exact Cup/League schedule-node materialization from the competition startup schedule-descriptor checkpoint",
@@ -20,5 +20,5 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 2,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 2 is active. Main advanced through Scottish post-split schedule-node tests and competition startup schedule descriptors; continue Gate 3 from current canonical main."
+  "note": "Auto-continue paused after 2026-09-26 browser instability: extension opened a new chat on timeout instead of recovering in-place. Repairing recovery policy before re-arming."
 }
