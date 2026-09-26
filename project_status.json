@@ -9,12 +9,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "1de95008900eb6a0614cb3b8dca800b23685b247",
-  "last_verified_reconstruction_ci_head": "76ab612b5e9e678a2703f24d0efdc72212146928",
-  "last_verified_test_count": 413,
-  "asset_policy_validated_head": "76ab612b5e9e678a2703f24d0efdc72212146928",
+  "latest_reverse_engineering_checkpoint": "1c1b62fa96788e780d0327f4e71521303dac735f",
+  "last_verified_reconstruction_ci_head": "1c1b62fa96788e780d0327f4e71521303dac735f",
+  "last_verified_test_count": 418,
+  "asset_policy_validated_head": "1c1b62fa96788e780d0327f4e71521303dac735f",
   "asset_policy_status": "passed",
-  "active_task": "Materialize DBTAccessSkillFinancialValues starting wages and initial contract expiry, then build persistent Gate-9 contract/transfer state.",
+  "active_task": "Implement persistent transfer proposal/deal/bid-log/movement state over the schema-3 runtime, then build the human bid-to-completion workflow.",
   "next_gate": 10,
   "next_gate_name": "Finances and board systems",
   "blocked": false,
@@ -123,5 +123,9 @@
   "gate8_canonical_final_rng_state": "0xC0009A67",
   "dbtplayers_startup_rng_calls": 180384,
   "corrected_synthetic_post_youth_state": "0x4B68DE28",
-  "startup_wage_rng_correction": "research/STARTUP_WAGE_RNG_CORRECTION.md"
+  "startup_wage_rng_correction": "research/STARTUP_WAGE_RNG_CORRECTION.md",
+  "current_internal_save_schema": 3,
+  "gate9_starting_contract_state": true,
+  "gate9_authentic_starting_wages": true,
+  "gate9_authentic_initial_contract_expiry": true
 }
