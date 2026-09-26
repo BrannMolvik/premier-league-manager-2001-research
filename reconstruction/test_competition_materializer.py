@@ -261,7 +261,7 @@ class IntegratedCompetitionMaterializerTests(unittest.TestCase):
             Allocation(1, 30, 1, 4, 20, 1),
             Allocation(2, 30, 2, 1, 20, 1),
             Allocation(3, 30, 3, 4, 20, 1),
-            Allocation(4, 30, 4, 1, 20, 2),
+            Allocation(4, 30, 4, 1, 20, 3),
         )
         clubs = tuple(
             Club(
@@ -308,6 +308,7 @@ class IntegratedCompetitionMaterializerTests(unittest.TestCase):
                 (2, 20, 1),
                 (2, 20, 3),
                 (2, 20, 4),
+                (2, 20, 5),
             },
         )
 
