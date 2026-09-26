@@ -2815,3 +2815,48 @@ Canonical allocation behavior is narrowed further:
 - type-4 ClubRef construction is confined to Scottish Premier League procedural scheduling, not Cup allocation.
 
 CI repair commit `05ce4173b91af2573b52227b7a97272e8adba64e` restores **333 tests passing**.
+
+
+## 26 September DummyLeague allocation RNG correction checkpoint
+
+Gate 3 caught another hidden pre-shuffle RNG consumer before Gate 4 resumed.
+
+The older DummyLeague exclusion audit checked Cup round source references but
+missed type-5 Cup allocation instructions. Type-5 calls `0x4F4940` on its
+source competition; when that source is a DummyLeague, first access invokes
+RNG-bearing `0x4F4750`.
+
+Canonical primary startup first-sorts 11 unique DummyLeague sources through
+type-5 allocation:
+
+`89, 93, 25, 104, 168, 162, 148, 139, 102, 131, 120`.
+
+They contain 124 teams in total, adding 124 bounded CRT calls.
+
+Corrected primary competition total:
+
+- 1,737 Cup round Fisher-Yates calls;
+- 124 DummyLeague ranking calls;
+- 2 Europe selectors;
+- **1,863 total calls**.
+
+Corrected synthetic checkpoint:
+
+`0x2797444C -> 0xAECA9FA5`.
+
+Corrected ordered-bound SHA-256:
+
+`a6675e77b8256fcb8d5834efa6a9d006182078c12f27887c8228a14eca889711`.
+
+The allocation-aware ordered replay now emits 128 high-level events, with
+DummyLeague sorts at indices 20,47,60,98..105 and Europe selectors at 110/119.
+For the synthetic checkpoint both Europe selectors resolve to club 1137.
+
+Implementation/verification checkpoints:
+- `90bd76c2...` state-only DummyLeague accounting;
+- `efb1b8e6...` ordered DummyLeague events;
+- `006ad710...` canonical 1,863-call verifier;
+- `1622a7ff...` composed startup replay propagation;
+- `218e7800...` DummyLeague score/bound tests.
+
+Latest CI at `218e780064343838a3546fe497fe31606eb05b70`: **341 tests passed**.
