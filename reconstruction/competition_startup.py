@@ -1202,3 +1202,155 @@ def allocate_ref_to_latest_open_cup_round(
             return index
         index -= 1
     return -1
+
+
+@dataclass(frozen=True)
+class StandardCupAllocationExpansion:
+    round_buckets: tuple[CupRoundAllocationBucket, ...]
+    emitted_refs: tuple[CupClubRefDescriptor, ...]
+    source_position_offsets: tuple[tuple[int, int], ...]
+    selected_direct_club_ids: tuple[int, ...]
+
+
+def expand_standard_cup_allocation_instructions(
+    destination_competition_id: int,
+    sorted_rounds: Iterable[OrderedRoundSource],
+    allocation_instructions: Iterable[CupAllocationInstructionSource],
+    *,
+    ranked_club_ids_by_source: dict[int, tuple[int, ...]],
+    enumerated_club_ids_by_source: dict[int, tuple[int | None, ...]],
+    unavailable_direct_club_ids: Iterable[int] = (),
+) -> StandardCupAllocationExpansion:
+    """Expand canonical allocation types 1/3/4/5 into Cup round ClubRefs."""
+    destination_competition_id = int(destination_competition_id)
+    round_list = tuple(sorted_rounds)
+    buckets = [
+        CupRoundAllocationBucket(
+            round_id=int(round_definition.id),
+            new_entrant_quota=int(getattr(round_definition, "new_entrants")),
+            participant_refs=[],
+        )
+        for round_definition in round_list
+    ]
+    current_round_index = len(buckets) - 1
+
+    source_offsets: dict[int, int] = {}
+    direct_ids: set[int] = set()
+    unavailable = {int(value) for value in unavailable_direct_club_ids}
+    emitted: list[CupClubRefDescriptor] = []
+
+    def append_ref(ref: CupClubRefDescriptor) -> None:
+        nonlocal current_round_index
+        current_round_index = allocate_ref_to_latest_open_cup_round(
+            buckets,
+            current_round_index,
+            ref,
+        )
+        if current_round_index < 0:
+            raise ValueError(
+                f"destination Cup {destination_competition_id} exceeded "
+                "its new-entrant capacity"
+            )
+        emitted.append(ref)
+
+    for instruction in ordered_cup_allocation_instructions(
+        destination_competition_id,
+        allocation_instructions,
+    ):
+        instruction_type = int(instruction.instruction_type)
+        source_id = int(instruction.source_reference)
+        quantity = int(instruction.quantity)
+
+        if instruction_type == 4:
+            source_offsets[source_id] = source_offsets.get(source_id, 0) + quantity
+            continue
+
+        if instruction_type == 1:
+            start = source_offsets.get(source_id, 0)
+            for selector in range(start, start + quantity):
+                append_ref(
+                    CupClubRefDescriptor(
+                        type_code=2,
+                        selector=selector,
+                        competition_id=source_id,
+                        competition_context=0,
+                        reference_token=(
+                            "competition_position",
+                            source_id,
+                            selector,
+                        ),
+                    )
+                )
+            source_offsets[source_id] = start + quantity
+            continue
+
+        if instruction_type == 3:
+            source_ids = enumerated_club_ids_by_source.get(source_id)
+            if source_ids is None:
+                raise ValueError(f"missing type-3 enumeration for source {source_id}")
+            for _ in range(quantity):
+                selected = None
+                for club_id in source_ids:
+                    if club_id is None:
+                        continue
+                    club_id = int(club_id)
+                    if club_id in direct_ids or club_id in unavailable:
+                        continue
+                    selected = club_id
+                    break
+                if selected is None:
+                    raise ValueError(
+                        f"type-3 source {source_id} ran out of eligible clubs"
+                    )
+                direct_ids.add(selected)
+                append_ref(
+                    CupClubRefDescriptor(
+                        type_code=0,
+                        direct_club_id=selected,
+                        reference_token=("direct_club", selected),
+                    )
+                )
+            continue
+
+        if instruction_type == 5:
+            source_ids = ranked_club_ids_by_source.get(source_id)
+            if source_ids is None:
+                raise ValueError(f"missing type-5 ranking for source {source_id}")
+            selected_ids = select_type5_direct_club_ids(
+                source_ids,
+                quantity,
+                already_in_destination=direct_ids,
+                unavailable_direct_club_ids=unavailable,
+            )
+            if len(selected_ids) != quantity:
+                raise ValueError(
+                    f"type-5 source {source_id} produced {len(selected_ids)} "
+                    f"of {quantity} requested clubs"
+                )
+            for club_id in selected_ids:
+                club_id = int(club_id)
+                direct_ids.add(club_id)
+                append_ref(
+                    CupClubRefDescriptor(
+                        type_code=0,
+                        direct_club_id=club_id,
+                        reference_token=("direct_club", club_id),
+                    )
+                )
+            continue
+
+        if instruction_type == 2:
+            raise NotImplementedError(
+                "allocation type 2 requires Champions-League transfer descriptors"
+            )
+
+        raise ValueError(
+            f"unsupported Cup allocation instruction type {instruction_type}"
+        )
+
+    return StandardCupAllocationExpansion(
+        round_buckets=tuple(buckets),
+        emitted_refs=tuple(emitted),
+        source_position_offsets=tuple(sorted(source_offsets.items())),
+        selected_direct_club_ids=tuple(sorted(direct_ids)),
+    )
