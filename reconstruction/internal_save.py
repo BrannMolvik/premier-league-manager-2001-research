@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from datetime import date
 from hashlib import sha256
+import gzip
 import json
 from pathlib import Path
 from typing import Any
@@ -34,7 +35,7 @@ from runtime_state import RuntimePlayer
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 1
+SAVE_SCHEMA_VERSION = 2
 
 
 def _iso(value: date | None) -> str | None:
@@ -45,13 +46,12 @@ def _date(value: str | None) -> date | None:
     return None if value is None else date.fromisoformat(str(value))
 
 
-def _source_payload_from_database(database) -> dict[str, Any]:
-    fixtures = tuple(getattr(database, "real_fixtures", ()))
+def _source_payload(players, clubs, managers, competitions, fixtures):
     return {
-        "player_ids": sorted(int(player.index) for player in getattr(database, "players", ())),
-        "club_ids": sorted(int(club.index) for club in getattr(database, "clubs", ())),
-        "manager_ids": sorted(int(manager.index) for manager in getattr(database, "managers", ())),
-        "competition_ids": sorted(int(comp.id) for comp in getattr(database, "competitions", ())),
+        "players": _source_records(players, _PLAYER_SIGNATURE_FIELDS),
+        "clubs": _source_records(clubs, _CLUB_SIGNATURE_FIELDS),
+        "managers": _source_records(managers, _MANAGER_SIGNATURE_FIELDS),
+        "competitions": _source_records(competitions, _COMPETITION_SIGNATURE_FIELDS),
         "fixtures": sorted(
             [
                 int(fixture.id),
@@ -62,26 +62,27 @@ def _source_payload_from_database(database) -> dict[str, Any]:
             for fixture in fixtures
         ),
     }
+
+
+def _source_payload_from_database(database) -> dict[str, Any]:
+    return _source_payload(
+        tuple(getattr(database, "players", ())),
+        tuple(getattr(database, "clubs", ())),
+        tuple(getattr(database, "managers", ())),
+        tuple(getattr(database, "competitions", ())),
+        tuple(getattr(database, "real_fixtures", ())),
+    )
 
 
 def _source_payload_from_state(state: GameState) -> dict[str, Any]:
     league = state.premier_league
-    fixtures = () if league is None else tuple(league.fixtures.values())
-    return {
-        "player_ids": sorted(int(value) for value in state.players),
-        "club_ids": sorted(int(value) for value in state.clubs),
-        "manager_ids": sorted(int(value) for value in state.managers),
-        "competition_ids": sorted(int(value) for value in state.competitions),
-        "fixtures": sorted(
-            [
-                int(fixture.id),
-                int(fixture.round_index),
-                int(fixture.home_club_id),
-                int(fixture.away_club_id),
-            ]
-            for fixture in fixtures
-        ),
-    }
+    return _source_payload(
+        tuple(state.players.values()),
+        tuple(state.clubs.values()),
+        tuple(state.managers.values()),
+        tuple(state.competitions.values()),
+        () if league is None else tuple(league.fixtures.values()),
+    )
 
 
 def _source_signature(payload: dict[str, Any]) -> str:
@@ -93,7 +94,7 @@ def _source_descriptor_from_state(state: GameState) -> dict[str, Any]:
     payload = _source_payload_from_state(state)
     return {
         "signature_sha256": _source_signature(payload),
-        "player_count": len(payload["player_ids"]),
+        "player_count": len(payload["players"]),
         "club_count": len(payload["club_ids"]),
         "manager_count": len(payload["manager_ids"]),
         "competition_count": len(payload["competition_ids"]),
@@ -115,119 +116,163 @@ def _assert_database_matches(database, descriptor: dict[str, Any]) -> None:
 def _snapshot_development(value: DevelopmentState | None):
     if value is None:
         return None
-    return {
-        "baseline_age": int(value.baseline_age),
-        "baseline_raw": [int(v) for v in value.baseline_raw],
-        "target_raw": [int(v) for v in value.target_raw],
-        "peak_ages": {
-            "physical": int(value.peak_ages.physical),
-            "skill": int(value.peak_ages.skill),
-            "late": int(value.peak_ages.late),
-        },
-    }
+    return [
+        int(value.baseline_age),
+        [int(v) for v in value.baseline_raw],
+        [
+            int(value.peak_ages.physical),
+            int(value.peak_ages.skill),
+            int(value.peak_ages.late),
+        ],
+    ]
 
 
-def _restore_development(value) -> DevelopmentState | None:
+def _restore_development(value, target_raw) -> DevelopmentState | None:
     if value is None:
         return None
-    peaks = value["peak_ages"]
+    peaks = value[2]
     return DevelopmentState(
-        baseline_age=int(value["baseline_age"]),
-        baseline_raw=tuple(int(v) for v in value["baseline_raw"]),
-        target_raw=tuple(int(v) for v in value["target_raw"]),
+        baseline_age=int(value[0]),
+        baseline_raw=tuple(int(v) for v in value[1]),
+        target_raw=tuple(int(v) for v in target_raw),
         peak_ages=PeakAges(
-            physical=int(peaks["physical"]),
-            skill=int(peaks["skill"]),
-            late=int(peaks["late"]),
+            physical=int(peaks[0]),
+            skill=int(peaks[1]),
+            late=int(peaks[2]),
         ),
     )
 
 
-def _snapshot_player(player: RuntimePlayer) -> dict[str, Any]:
-    return {
-        "index": int(player.index),
-        "first_name": str(player.first_name),
-        "surname": str(player.surname),
-        "club_id": int(player.club_id),
-        "nationality_id": int(player.nationality_id),
-        "date_of_birth": _iso(player.date_of_birth),
-        "shirt_number": int(player.shirt_number),
-        "height_cm": int(player.height_cm),
-        "weight_kg": int(player.weight_kg),
-        "positions": [int(v) for v in player.positions],
-        "current_raw": [int(v) for v in player.current_raw],
-        "target_raw": [int(v) for v in player.target_raw],
-        "development": _snapshot_development(player.development),
-        "training_modifiers": [int(v) for v in player.training_modifiers],
-        "match_active": bool(player.match_active),
-        "match_substitute_available": bool(player.match_substitute_available),
-        "condition": int(player.condition),
-        "form_state": int(player.form_state),
-        "current_position": int(player.current_position),
-        "position_aux_code": int(player.position_aux_code),
-        "balance_position_code": int(player.balance_position_code),
-        "injured": bool(player.injured),
-        "suspended": bool(player.suspended),
-        "selection_excluded": bool(player.selection_excluded),
-        "non_eu": bool(player.non_eu),
-        "eu_status_code": int(player.eu_status_code),
-        "discipline_yellow_total": int(player.discipline_yellow_total),
-        "discipline_yellow_cycle": int(player.discipline_yellow_cycle),
-        "suspension_matches_remaining": int(player.suspension_matches_remaining),
-        "suspension_effective_date": _iso(player.suspension_effective_date),
-        "injury_return_date": _iso(player.injury_return_date),
-        "injury_source_mode": player.injury_source_mode,
-        "injury_severity_code": player.injury_severity_code,
-        "injury_history_weight": int(player.injury_history_weight),
-        "morale": int(player.morale),
-        "startup_month_span": int(player.startup_month_span),
-    }
+_PLAYER_FLAG_MATCH_ACTIVE = 1 << 0
+_PLAYER_FLAG_SUBSTITUTE = 1 << 1
+_PLAYER_FLAG_INJURED = 1 << 2
+_PLAYER_FLAG_SUSPENDED = 1 << 3
+_PLAYER_FLAG_SELECTION_EXCLUDED = 1 << 4
+_PLAYER_FLAG_NON_EU = 1 << 5
+
+# Schema-2 player records intentionally use positional arrays. With roughly 30k
+# players, repeating descriptive JSON keys for every player dominated the save
+# size. The schema version plus this ordered field definition keeps the format
+# explicit while source-backed immutable identity/biographical fields stay in
+# Master.dat rather than being duplicated into each save.
+PLAYER_RECORD_FIELDS = (
+    "index",
+    "club_id",
+    "shirt_number",
+    "current_raw",
+    "development",
+    "training_modifiers_or_null",
+    "flags",
+    "condition",
+    "form_state",
+    "current_position",
+    "position_aux_code",
+    "balance_position_code",
+    "discipline_yellow_total",
+    "discipline_yellow_cycle",
+    "suspension_matches_remaining",
+    "suspension_effective_date",
+    "injury_return_date",
+    "injury_source_mode",
+    "injury_severity_code",
+    "injury_history_weight",
+    "morale",
+    "startup_month_span",
+)
 
 
-def _restore_player(value: dict[str, Any]) -> RuntimePlayer:
+def _snapshot_player(player: RuntimePlayer) -> list[Any]:
+    flags = 0
+    if player.match_active:
+        flags |= _PLAYER_FLAG_MATCH_ACTIVE
+    if player.match_substitute_available:
+        flags |= _PLAYER_FLAG_SUBSTITUTE
+    if player.injured:
+        flags |= _PLAYER_FLAG_INJURED
+    if player.suspended:
+        flags |= _PLAYER_FLAG_SUSPENDED
+    if player.selection_excluded:
+        flags |= _PLAYER_FLAG_SELECTION_EXCLUDED
+    if player.non_eu:
+        flags |= _PLAYER_FLAG_NON_EU
+
+    training = [int(v) for v in player.training_modifiers]
+    return [
+        int(player.index),
+        int(player.club_id),
+        int(player.shirt_number),
+        [int(v) for v in player.current_raw],
+        _snapshot_development(player.development),
+        None if not any(training) else training,
+        flags,
+        int(player.condition),
+        int(player.form_state),
+        int(player.current_position),
+        int(player.position_aux_code),
+        int(player.balance_position_code),
+        int(player.discipline_yellow_total),
+        int(player.discipline_yellow_cycle),
+        int(player.suspension_matches_remaining),
+        _iso(player.suspension_effective_date),
+        _iso(player.injury_return_date),
+        player.injury_source_mode,
+        player.injury_severity_code,
+        int(player.injury_history_weight),
+        int(player.morale),
+        int(player.startup_month_span),
+    ]
+
+
+def _restore_player(value: list[Any], source) -> RuntimePlayer:
+    if len(value) != len(PLAYER_RECORD_FIELDS):
+        raise ValueError(
+            f"invalid schema-2 player record length {len(value)}; "
+            f"expected {len(PLAYER_RECORD_FIELDS)}"
+        )
+    if int(value[0]) != int(source.index):
+        raise ValueError("saved player record does not match source player ID")
+
+    flags = int(value[6])
+    training = value[5]
     return RuntimePlayer(
-        index=int(value["index"]),
-        first_name=str(value["first_name"]),
-        surname=str(value["surname"]),
-        club_id=int(value["club_id"]),
-        nationality_id=int(value["nationality_id"]),
-        date_of_birth=_date(value["date_of_birth"]),
-        shirt_number=int(value["shirt_number"]),
-        height_cm=int(value["height_cm"]),
-        weight_kg=int(value["weight_kg"]),
-        positions=tuple(int(v) for v in value["positions"]),
-        current_raw=[int(v) for v in value["current_raw"]],
-        target_raw=tuple(int(v) for v in value["target_raw"]),
-        development=_restore_development(value["development"]),
-        training_modifiers=[int(v) for v in value["training_modifiers"]],
-        match_active=bool(value["match_active"]),
-        match_substitute_available=bool(value["match_substitute_available"]),
-        condition=int(value["condition"]),
-        form_state=int(value["form_state"]),
-        current_position=int(value["current_position"]),
-        position_aux_code=int(value["position_aux_code"]),
-        balance_position_code=int(value["balance_position_code"]),
-        injured=bool(value["injured"]),
-        suspended=bool(value["suspended"]),
-        selection_excluded=bool(value["selection_excluded"]),
-        non_eu=bool(value["non_eu"]),
-        eu_status_code=int(value["eu_status_code"]),
-        discipline_yellow_total=int(value["discipline_yellow_total"]),
-        discipline_yellow_cycle=int(value["discipline_yellow_cycle"]),
-        suspension_matches_remaining=int(value["suspension_matches_remaining"]),
-        suspension_effective_date=_date(value["suspension_effective_date"]),
-        injury_return_date=_date(value["injury_return_date"]),
-        injury_source_mode=(
-            None if value["injury_source_mode"] is None
-            else int(value["injury_source_mode"])
+        index=int(source.index),
+        first_name=str(source.first_name),
+        surname=str(source.surname),
+        club_id=int(value[1]),
+        nationality_id=int(source.nationality_id),
+        date_of_birth=source.date_of_birth,
+        shirt_number=int(value[2]),
+        height_cm=int(source.height_cm),
+        weight_kg=int(source.weight_kg),
+        positions=tuple(int(v) for v in source.positions),
+        current_raw=[int(v) for v in value[3]],
+        target_raw=tuple(int(v) for v in source.target_raw),
+        development=_restore_development(value[4], source.target_raw),
+        training_modifiers=(
+            [0] * 17 if training is None else [int(v) for v in training]
         ),
-        injury_severity_code=(
-            None if value["injury_severity_code"] is None
-            else int(value["injury_severity_code"])
-        ),
-        injury_history_weight=int(value["injury_history_weight"]),
-        morale=int(value["morale"]),
-        startup_month_span=int(value["startup_month_span"]),
+        match_active=bool(flags & _PLAYER_FLAG_MATCH_ACTIVE),
+        match_substitute_available=bool(flags & _PLAYER_FLAG_SUBSTITUTE),
+        condition=int(value[7]),
+        form_state=int(value[8]),
+        current_position=int(value[9]),
+        position_aux_code=int(value[10]),
+        balance_position_code=int(value[11]),
+        injured=bool(flags & _PLAYER_FLAG_INJURED),
+        suspended=bool(flags & _PLAYER_FLAG_SUSPENDED),
+        selection_excluded=bool(flags & _PLAYER_FLAG_SELECTION_EXCLUDED),
+        non_eu=bool(flags & _PLAYER_FLAG_NON_EU),
+        eu_status_code=int(getattr(source, "eu_status_code", 2)),
+        discipline_yellow_total=int(value[12]),
+        discipline_yellow_cycle=int(value[13]),
+        suspension_matches_remaining=int(value[14]),
+        suspension_effective_date=_date(value[15]),
+        injury_return_date=_date(value[16]),
+        injury_source_mode=(None if value[17] is None else int(value[17])),
+        injury_severity_code=(None if value[18] is None else int(value[18])),
+        injury_history_weight=int(value[19]),
+        morale=int(value[20]),
+        startup_month_span=int(value[21]),
     )
 
 
@@ -401,10 +446,17 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
 
 
 def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
-    players = {
-        int(value["index"]): _restore_player(value)
-        for value in snapshot["players"]
+    source_players = {
+        int(player.index): player
+        for player in getattr(database, "players", ())
     }
+    players = {}
+    for value in snapshot["players"]:
+        player_id = int(value[0])
+        source = source_players.get(player_id)
+        if source is None:
+            raise ValueError(f"saved player {player_id} is absent from source database")
+        players[player_id] = _restore_player(value, source)
     clubs = {
         int(club.index): club
         for club in getattr(database, "clubs", ())
@@ -619,9 +671,19 @@ def loads_human_gameplay(
 def save_human_gameplay(
     controller: HumanGameplayController,
     path: str | Path,
+    *,
+    compress: bool = True,
 ) -> Path:
+    """Write one internal save.
+
+    The logical format is UTF-8 JSON. File saves default to gzip compression
+    because the complete runtime snapshot is highly compressible;
+    load_human_gameplay also accepts uncompressed JSON for transparency and
+    debugging.
+    """
     path = Path(path)
-    path.write_text(dumps_human_gameplay(controller), encoding="utf-8")
+    payload = dumps_human_gameplay(controller).encode("utf-8")
+    path.write_bytes(gzip.compress(payload) if compress else payload)
     return path
 
 
@@ -631,9 +693,12 @@ def load_human_gameplay(
     defence_matrix,
     path: str | Path,
 ) -> HumanGameplayController:
+    payload = Path(path).read_bytes()
+    if payload.startswith(b"\x1f\x8b"):
+        payload = gzip.decompress(payload)
     return loads_human_gameplay(
         database,
         attack_matrix,
         defence_matrix,
-        Path(path).read_text(encoding="utf-8"),
+        payload.decode("utf-8"),
     )
