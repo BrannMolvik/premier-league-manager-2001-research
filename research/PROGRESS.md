@@ -3359,3 +3359,39 @@ Validation at `6c87d6a1fae5b6e9ea2fac4fd1dccc4685ea01c5`:
 
 Gate 6 now extends the same canonical path to 38 rounds / 380 fixtures and
 multiple deterministic seeds.
+
+
+## 27 September Gate 6 first full-season pass
+
+The exact committed Gate-5 audit runner was extended to its existing
+`--rounds 38` mode and executed against the canonical shipped files with
+`player_seed=1`.
+
+The autonomous Premier League season completed all **38 rounds / 380 fixtures**
+without an exception.
+
+Initial full-season checkpoint:
+
+- final matchday: **20 May 2001**;
+- days advanced from 18 August 2000: **275**;
+- stored results: **380**;
+- league-table played total: **760**;
+- global goals for / against: **960 / 960**;
+- persisted match environments: **380**;
+- PL runtime players: **644**;
+- final Condition range: **60..99**;
+- injured players at season end: **9**;
+- suspended players at season end: **4**;
+- accumulated yellow total: **576**;
+- final autonomous match RNG state: **0x2C36A2D4**;
+- preliminary audit SHA-256:
+  `585118700ee56966476083f585cdc0442170cb506f2aa9031e554a73282c2605`.
+
+Round 38 scheduler order was:
+
+`378, 377, 371, 372, 379, 375, 374, 376, 370, 373`
+
+This is a successful first Gate-6 season pass, but Gate 6 is not closed yet.
+Next, strengthen the reusable audit with explicit 19-home/19-away checks,
+per-round lineup validity, and longitudinal injury/suspension progression;
+then repeat full seasons under multiple deterministic seeds.
