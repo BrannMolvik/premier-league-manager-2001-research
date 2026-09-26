@@ -107,18 +107,43 @@ class GameState:
             seed = int(time())
         rng = MsvcCrtRng(int(seed))
         source_players = tuple(database.players)
+        clubs = tuple(getattr(database, "clubs", ()))
+        countries = tuple(getattr(database, "countries", ()))
+        financial_values = tuple(
+            getattr(database, "access_skill_financial_values", ())
+        )
+        clubs_by_id_for_wage = {int(club.index): club for club in clubs}
+        countries_by_id_for_wage = {
+            int(country.id): country
+            for country in countries
+            if hasattr(country, "id")
+        }
 
         # DBTPlayers 0x421C80 constructs the complete player array before its
         # load pass. Therefore all constructor RNG(15) morale draws precede
-        # every player's peak-age and post-load draws.
+        # every player's wage, peak-age and contract-span draws.
         constructor_morales = tuple(100 - rng.randbelow(15) for _ in source_players)
-        players = {
-            p.index: RuntimePlayer.from_database_player(
+
+        def build_player(p, constructor_morale):
+            multiplier = 100
+            club = clubs_by_id_for_wage.get(int(p.club_id))
+            if club is not None:
+                country = countries_by_id_for_wage.get(int(club.country_id))
+                if country is not None:
+                    multiplier = int(
+                        getattr(country, "financial_multiplier_percent", 100)
+                    )
+            return RuntimePlayer.from_database_player(
                 p,
                 start_date,
                 rng,
                 constructor_morale=constructor_morale,
+                financial_values=financial_values,
+                country_multiplier_percent=multiplier,
             )
+
+        players = {
+            p.index: build_player(p, constructor_morale)
             for p, constructor_morale in zip(source_players, constructor_morales)
         }
 
@@ -126,8 +151,6 @@ class GameState:
         # after player and club/country tables are loaded. Keep lightweight fake
         # databases compatible by applying this only when those exact tables are
         # available.
-        clubs = tuple(getattr(database, "clubs", ()))
-        countries = tuple(getattr(database, "countries", ()))
         if clubs and countries:
             clubs_by_id = {int(club.index): club for club in clubs}
             countries_by_nationality = {
