@@ -183,6 +183,12 @@ function setNativeTextValue(element, value) {
 }
 
 function fillComposer(composer, prompt) {
+  try {
+    composer.focus({ preventScroll: true });
+  } catch (_error) {
+    try { composer.focus(); } catch (_ignored) {}
+  }
+
   if (
     composer instanceof HTMLTextAreaElement ||
     composer instanceof HTMLInputElement
