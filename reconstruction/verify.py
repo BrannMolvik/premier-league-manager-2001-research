@@ -197,11 +197,13 @@ def verify_database(db: FM2001Database) -> None:
         db.rounds,
         db.clubs,
         db.countries,
+        db.cup_allocation_instructions,
+        db.players,
     )
     require(
-        len(ordered_competition_rng.events) == 117,
+        len(ordered_competition_rng.events) == 128,
         (
-            "Expected 117 Cup/selector partial RNG events, got "
+            "Expected 128 primary competition RNG events, got "
             f"{len(ordered_competition_rng.events)}"
         ),
     )
@@ -218,8 +220,8 @@ def verify_database(db: FM2001Database) -> None:
         "Ordered replay does not contain exactly two Europe selector draws",
     )
     require(
-        ordered_competition_rng.total_draw_count == 1739,
-        "Cup/selector partial replay does not contain exactly 1739 draws",
+        ordered_competition_rng.total_draw_count == 1863,
+        "Ordered replay does not contain exactly 1863 total competition draws",
     )
 
     selector_event_indices = tuple(
@@ -228,8 +230,26 @@ def verify_database(db: FM2001Database) -> None:
         if event.kind == "europe_selector"
     )
     require(
-        selector_event_indices == (99, 108),
+        selector_event_indices == (110, 119),
         f"Unexpected Europe selector event positions: {selector_event_indices}",
+    )
+    dummy_event_indices = tuple(
+        index
+        for index, event in enumerate(ordered_competition_rng.events)
+        if event.kind == "dummy_league_lazy_sort"
+    )
+    require(
+        dummy_event_indices == (20, 47, 60, 98, 99, 100, 101, 102, 103, 104, 105),
+        f"Unexpected DummyLeague lazy-sort event positions: {dummy_event_indices}",
+    )
+    require(
+        sum(
+            len(event.bounds)
+            for event in ordered_competition_rng.events
+            if event.kind == "dummy_league_lazy_sort"
+        )
+        == 124,
+        "Ordered replay does not contain exactly 124 DummyLeague sort draws",
     )
 
     ordered_bounds = tuple(
@@ -244,27 +264,27 @@ def verify_database(db: FM2001Database) -> None:
     bounds_sha256 = sha256(bounds_blob).hexdigest()
     require(
         bounds_sha256
-        == "baef6479394ffee84e7a9aec58d74f1c5418ccaeaad7f617d9ed0f77e95fd8df",
+        == "a6675e77b8256fcb8d5834efa6a9d006182078c12f27887c8228a14eca889711",
         f"Primary competition ordered-bound digest mismatch: {bounds_sha256}",
     )
     require(
-        ordered_competition_rng.champions_league_club_id == 1118,
+        ordered_competition_rng.champions_league_club_id == 1137,
         (
             "Synthetic ordered replay selected unexpected Champions League "
             f"candidate {ordered_competition_rng.champions_league_club_id}"
         ),
     )
     require(
-        ordered_competition_rng.uefa_cup_club_id == 1143,
+        ordered_competition_rng.uefa_cup_club_id == 1137,
         (
             "Synthetic ordered replay selected unexpected UEFA Cup candidate "
             f"{ordered_competition_rng.uefa_cup_club_id}"
         ),
     )
     require(
-        ordered_competition_rng.state_entering_primary_shuffle == 0x986E4579,
+        ordered_competition_rng.state_entering_primary_shuffle == 0xAECA9FA5,
         (
-            "Cup/selector partial-state checkpoint mismatch: "
+            "Corrected ordered primary competition state mismatch: "
             f"0x{ordered_competition_rng.state_entering_primary_shuffle:08X}"
         ),
     )
