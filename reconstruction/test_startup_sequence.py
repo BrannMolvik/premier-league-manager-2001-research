@@ -156,15 +156,15 @@ class StartupSequenceTests(unittest.TestCase):
         )
         self.assertEqual(
             replay.precompetition.after_players_state,
-            0x7B7B62DB,
+            0xC6A1E94A,
         )
         self.assertEqual(
             replay.precompetition.after_team_names_state,
-            0x0C18030B,
+            0x9936CABA,
         )
         self.assertEqual(
             replay.precompetition.after_youth_state,
-            0x2797444C,
+            0x4B68DE28,
         )
 
         self.assertEqual(
@@ -210,9 +210,9 @@ class StartupSequenceTests(unittest.TestCase):
         )
         self.assertEqual(
             replay.state_entering_primary_shuffle,
-            0x0A7571CA,
+            0x44D2B546,
         )
-        self.assertEqual(rng.state, 0x0A7571CA)
+        self.assertEqual(rng.state, 0x44D2B546)
 
 
 if __name__ == "__main__":
