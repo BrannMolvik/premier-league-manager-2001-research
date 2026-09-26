@@ -3111,3 +3111,17 @@ timers that could create two recovery chats.
 
 The runtime is intentionally left at `mode=continuous`,
 `status=waiting_for_user` until the local components are installed and tested.
+
+## 2026-09-26 - Procedural League schedule-node emission recovered
+
+- Recovered generic procedural League node emission directly from canonical `FOOTBAL.EXE`:
+  - `0x616F40` computes `ceil(scheduled_matchday_count / (team_count - 1))`;
+  - `0x6170F0` reuses the randomized one-cycle pairing matrix;
+  - exact insertion traversal is pairing round -> pair -> cycle;
+  - participant direction swaps after each cycle, producing alternating home/away;
+  - `0x616FC0` date index is `(team_count - 1) * cycle_index + round_index` and inserts a `LeagueMatch` through `0x615950`.
+- Canonical data validation shows complete-cycle counts for every generic primary procedural League, including CL child groups (4 teams / 6 matchdays) and WCC groups (4 / 3).
+- Isolated the Scottish exception: competition 27 (12 teams / 38 matchdays) intercepts the fourth generic cycle via `0x6170A0`; `0x4FAC60` creates the final five-matchday post-split schedule separately.
+- Added implementation checkpoint `f24bda9` and regression-test checkpoint `0997c8d`.
+- No GitHub Actions workflow run was attached to `0997c8d` when checked, so the previously verified full-suite baseline remains `fba3babd` with 365 tests passed.
+- Next: finish the Scottish final-split node description, then add Cup/League schedule-node descriptors and integrate them into the complete primary competition materializer.
