@@ -94,6 +94,7 @@ class PrimaryMode0OrderedCompetitionRngReplay:
     events: tuple[PrimaryMode0OrderedRngEvent, ...]
     primary_cup_round_count: int
     cup_pairing_draw_count: int
+    dummy_league_sort_draw_count: int
     europe_selector_draw_count: int
     total_draw_count: int
     champions_league_club_id: int | None
@@ -264,12 +265,71 @@ def primary_mode0_cup_pairing_draw_count(
     )
 
 
+def primary_mode0_dummy_league_sort_source_ids(
+    competitions: Iterable[CompetitionSource],
+    allocation_instructions: Iterable[CupAllocationInstructionSource],
+) -> tuple[int, ...]:
+    """Return unique DummyLeague sources lazily sorted by primary Cup type-5 allocation.
+
+    Type-5 allocation calls 0x4F4940 on the source competition before reading
+    its ranking. Ordinary League uses deterministic 0x4F4720; DummyLeague
+    dispatches RNG-bearing 0x4F4750. The sorted flag on source +0x40 means
+    only the first such access per DummyLeague consumes RNG.
+    """
+    competition_by_id = {
+        int(competition.id): competition
+        for competition in competitions
+    }
+    result: list[int] = []
+    seen: set[int] = set()
+    for instruction in allocation_instructions:
+        if int(instruction.instruction_type) != 5:
+            continue
+        destination = competition_by_id.get(
+            int(instruction.destination_competition_id)
+        )
+        source = competition_by_id.get(int(instruction.source_reference))
+        if destination is None or source is None:
+            continue
+        if int(destination.runtime_kind_code) != 2:
+            continue
+        if int(destination.schedule_container_code) in (2, 3):
+            continue
+        if int(source.runtime_kind_code) != 3:
+            continue
+        source_id = int(source.id)
+        if source_id not in seen:
+            seen.add(source_id)
+            result.append(source_id)
+    return tuple(result)
+
+
+def primary_mode0_dummy_league_sort_draw_count(
+    competitions: Iterable[CompetitionSource],
+    allocation_instructions: Iterable[CupAllocationInstructionSource],
+    clubs: Iterable[object],
+) -> int:
+    """Count one 0x64D540 call per member on each first DummyLeague lazy sort."""
+    source_ids = set(
+        primary_mode0_dummy_league_sort_source_ids(
+            competitions,
+            allocation_instructions,
+        )
+    )
+    return sum(
+        1
+        for club in clubs
+        if int(getattr(club, "competition_id", -1)) in source_ids
+    )
+
+
 def replay_primary_mode0_pre_shuffle_state(
     rng: RawCrtRng,
     competitions: Iterable[CompetitionSource],
     rounds: Iterable[RoundSource],
     clubs: Iterable[ClubSource],
     countries: Iterable[CountrySource],
+    allocation_instructions: Iterable[CupAllocationInstructionSource] = (),
 ) -> PrimaryMode0PreShuffleStateReplay:
     """Advance the exact mapped CRT *state* to primary 0x615BE0.
 
@@ -300,7 +360,16 @@ def replay_primary_mode0_pre_shuffle_state(
         excluded_club_id=-1,
     )
     selector_draw_count = 2 if len(candidates) > 1 else 0
-    total_draw_count = pairing_draw_count + selector_draw_count
+    dummy_league_sort_draw_count = primary_mode0_dummy_league_sort_draw_count(
+        competition_list,
+        tuple(allocation_instructions),
+        club_list,
+    )
+    total_draw_count = (
+        pairing_draw_count
+        + dummy_league_sort_draw_count
+        + selector_draw_count
+    )
 
     for _ in range(total_draw_count):
         rng.rand15()
@@ -309,6 +378,7 @@ def replay_primary_mode0_pre_shuffle_state(
     return PrimaryMode0PreShuffleStateReplay(
         primary_cup_round_count=len(team_counts),
         cup_pairing_draw_count=pairing_draw_count,
+        dummy_league_sort_draw_count=dummy_league_sort_draw_count,
         europe_selector_draw_count=selector_draw_count,
         total_draw_count=total_draw_count,
         state_entering_primary_shuffle=state,
