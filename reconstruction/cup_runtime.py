@@ -14,6 +14,10 @@ from hashlib import sha256
 import json
 from typing import Iterable
 
+from competition_schedule import (
+    StartupScheduleNode,
+    materialize_cup_round_schedule_nodes,
+)
 from competition_startup import (
     CupClubRefDescriptor,
     MaterializedCupRuntime,
@@ -52,6 +56,8 @@ class PrimaryCupRuntimeMaterialization:
     type2_injected_ref_count: int
     participant_sha256: str
     pairing_sha256: str
+    cup_schedule_nodes: tuple[StartupScheduleNode, ...]
+    cup_schedule_sha256: str
     state_after: int | None
 
     @property
@@ -438,6 +444,48 @@ def materialize_primary_cup_runtime(
     cups = tuple(materialized_cups)
     participant_digest, pairing_digest = _runtime_digests(cups)
 
+    round_by_id = {
+        int(round_definition.id): round_definition
+        for round_definition in round_list
+    }
+    cup_schedule_nodes_list: list[StartupScheduleNode] = []
+    for cup in cups:
+        for runtime_round in cup.runtime.rounds:
+            round_definition = round_by_id.get(int(runtime_round.round_id))
+            if round_definition is None:
+                raise ValueError(
+                    f"missing round definition {int(runtime_round.round_id)} "
+                    f"for Cup {int(cup.competition_id)}"
+                )
+            cup_schedule_nodes_list.extend(
+                materialize_cup_round_schedule_nodes(
+                    runtime_round,
+                    round_definition,
+                    competition_id=int(cup.competition_id),
+                )
+            )
+    cup_schedule_nodes = tuple(cup_schedule_nodes_list)
+    cup_schedule_digest = _digest_json(
+        [
+            [
+                node.node_kind,
+                int(node.competition_id),
+                int(node.competition_context),
+                None if node.round_id is None else int(node.round_id),
+                int(node.pair_index),
+                None if node.schedule_index is None else int(node.schedule_index),
+                None if node.scheduled_week is None else int(node.scheduled_week),
+                None
+                if node.scheduled_weekday is None
+                else int(node.scheduled_weekday),
+                _ref_signature(node.participant_0_ref),
+                _ref_signature(node.participant_1_ref),
+                list(node.node_token),
+            ]
+            for node in cup_schedule_nodes
+        ]
+    )
+
     return PrimaryCupRuntimeMaterialization(
         cups=cups,
         ordered_bounds=tuple(tracing_rng.bounds),
@@ -446,5 +494,7 @@ def materialize_primary_cup_runtime(
         type2_injected_ref_count=type2_injected_ref_count,
         participant_sha256=participant_digest,
         pairing_sha256=pairing_digest,
+        cup_schedule_nodes=cup_schedule_nodes,
+        cup_schedule_sha256=cup_schedule_digest,
         state_after=tracing_rng.state,
     )
