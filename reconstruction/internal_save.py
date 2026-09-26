@@ -46,6 +46,49 @@ def _date(value: str | None) -> date | None:
     return None if value is None else date.fromisoformat(str(value))
 
 
+_PLAYER_SIGNATURE_FIELDS = (
+    "index", "first_name", "surname", "nationality_id", "date_of_birth",
+    "height_cm", "weight_kg", "positions", "target_raw", "eu_status_code",
+)
+_CLUB_SIGNATURE_FIELDS = (
+    "index", "manager_id", "competition_id", "country_id",
+    "runtime_value_1c_source", "team_category_code",
+    "historical_competition_id", "historical_slot_index",
+)
+_MANAGER_SIGNATURE_FIELDS = (
+    "index", "club_id", "formation_default", "formation_class3",
+    "formation_class1", "ai_play_style_source", "ai_aggression_source",
+    "ai_with_ball_source", "ai_without_ball_source",
+)
+_COMPETITION_SIGNATURE_FIELDS = (
+    "id", "substitute_quota", "max_non_eu_players", "schedule_container_code",
+    "runtime_kind_code", "parent_competition_id", "initialization_order_value",
+    "country_region_id", "enumerated_club_reference_0",
+    "enumerated_club_reference_1", "runtime_instance_count",
+    "scheduled_matchday_count",
+)
+
+
+def _stable_source_value(value):
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, (tuple, list)):
+        return [_stable_source_value(v) for v in value]
+    return str(value)
+
+
+def _source_records(values, fields):
+    return sorted(
+        [
+            _stable_source_value(getattr(value, field_name, None))
+            for field_name in fields
+        ]
+        for value in values
+    )
+
+
 def _source_payload(players, clubs, managers, competitions, fixtures):
     return {
         "players": _source_records(players, _PLAYER_SIGNATURE_FIELDS),
@@ -95,9 +138,9 @@ def _source_descriptor_from_state(state: GameState) -> dict[str, Any]:
     return {
         "signature_sha256": _source_signature(payload),
         "player_count": len(payload["players"]),
-        "club_count": len(payload["club_ids"]),
-        "manager_count": len(payload["manager_ids"]),
-        "competition_count": len(payload["competition_ids"]),
+        "club_count": len(payload["clubs"]),
+        "manager_count": len(payload["managers"]),
+        "competition_count": len(payload["competitions"]),
         "fixture_count": len(payload["fixtures"]),
     }
 
