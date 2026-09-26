@@ -4,8 +4,8 @@ This folder contains the local recovery layer for long-running FM2001 work.
 
 It has two parts:
 
-- `watchdog.ps1`: Windows-side lease monitor. It checks GitHub every three minutes through Task Scheduler and opens a recovery ChatGPT page when a session marked `working` has stopped checkpointing.
-- `chrome-extension/`: watches the ChatGPT page for explicit interruption / conversation-length errors and submits the canonical repository handoff into a fresh chat.
+- `watchdog.ps1`: Windows-side lease monitor. It checks GitHub every three minutes through Task Scheduler, logs stale sessions, and deliberately never launches or focuses Chrome.
+- `chrome-extension/`: checks GitHub every three minutes while Chrome is running, watches ChatGPT for explicit interruption / conversation-length errors, and submits the canonical repository handoff into a fresh **background** tab.
 
 GitHub remains the source of truth. The recovery system does not try to scrape the previous conversation transcript.
 
@@ -22,7 +22,7 @@ First pull the latest `main` branch in the local repository.
    `tools\auto_continue\chrome-extension`
 5. Leave the extension enabled.
 
-The extension only has access to `chatgpt.com`, the public GitHub API/raw files, local extension storage, alarms, and tabs.
+The extension only has access to `chatgpt.com`, the public GitHub API/raw files, local extension storage, alarms, and tabs. Recovery tabs are created inactive so Chrome does not intentionally take foreground focus.
 
 ### 2. Install the Windows watchdog
 
@@ -78,7 +78,9 @@ Normal project commits on `main` act as heartbeats. The default checkpoint targe
 
 If ChatGPT explicitly displays a connection interruption or conversation-length failure, the extension may recover immediately rather than waiting for the lease timeout.
 
-If the page disappears silently, the Windows watchdog notices the missing repository heartbeat, opens a new ChatGPT page, and the extension submits the recovery prompt there.
+If the page disappears silently while Chrome is running, the extension notices the missing repository heartbeat and creates a new ChatGPT recovery tab with `active: false`. Chrome remains in the background/minimized and the current foreground application is not intentionally disturbed.
+
+If Chrome is completely closed, the Windows watchdog records the stale condition but **does not launch Chrome**. Recovery resumes after Chrome is opened again. This focus-safe behavior is intentional so auto-continue cannot interrupt a fullscreen game or other foreground work.
 
 ## Safety
 
@@ -87,7 +89,7 @@ The system has two loop guards:
 - recovery cooldown (default 20 minutes);
 - maximum recovery attempts (default 3 per hour).
 
-The browser extension keeps its own cooldown for explicit UI-error recovery. Silent/stale-session recovery is owned by the Windows watchdog, which avoids duplicate replacement chats.
+The browser extension owns both explicit UI-error recovery and silent/stale-session recovery, with one shared cooldown/rate limit. The Windows watchdog is detector/logging-only and never opens the browser.
 
 It never auto-recovers while the runtime state says `waiting_for_user`, `paused`, or `completed`.
 
