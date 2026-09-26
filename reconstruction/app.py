@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from fm2001_data import FM2001Database, PLAYER_SKILLS
 from human_gameplay import HumanGameplayController
+from internal_save import load_human_gameplay, save_human_gameplay
 from match_team_setup import TeamTacticalState
 
 DEFAULT_GAME_DIR = Path(r'C:\Games\FM2001')
@@ -12,7 +13,7 @@ DEFAULT_GAME_DIR = Path(r'C:\Games\FM2001')
 class App(tk.Tk):
     def __init__(self, game_dir: Path):
         super().__init__()
-        self.title('FM2001 Clean-Room Prototype')
+        self.title('FM2001 Windows 11 Port Prototype')
         self.geometry('1180x760')
         self.game_dir = Path(game_dir)
         self.db = FM2001Database(self.game_dir)
@@ -22,7 +23,7 @@ class App(tk.Tk):
     def _build(self):
         top = ttk.Frame(self, padding=10)
         top.pack(fill='x')
-        ttk.Label(top, text='FM2001 clean-room data prototype', font=('Segoe UI', 15, 'bold')).pack(side='left')
+        ttk.Label(top, text='FM2001 Windows 11 port prototype', font=('Segoe UI', 15, 'bold')).pack(side='left')
         ttk.Label(top, text=str(self.db.summary())).pack(side='right')
         nb = ttk.Notebook(self)
         nb.pack(fill='both', expand=True, padx=10, pady=(0, 10))
@@ -505,11 +506,118 @@ class App(tk.Tk):
             command=play_match,
         ).pack(side='left')
 
+        save_row = ttk.Frame(right)
+        save_row.pack(fill='x', pady=(8, 0))
+
+        def sync_loaded_gameplay():
+            controller = self.gameplay
+            selected_starters.clear()
+            selected_subs.clear()
+
+            if controller is None or controller.human is None:
+                status.set('Save loaded. Choose a Premier League club.')
+                match_text.set('No fixture pending.')
+                refresh_roster()
+                refresh_table()
+                return
+
+            human = controller.human
+            club = controller.state.clubs.get(int(human.club_id))
+            club_name = getattr(club, 'name', str(human.club_id))
+            club_var.set(f'{human.club_id}: {club_name}')
+            formation_var.set(int(human.formation_id))
+            selected_starters.update(int(v) for v in human.starter_ids)
+            selected_subs.update(int(v) for v in human.substitute_ids)
+
+            tactics = controller.state.team_tactics.get(
+                int(human.club_id),
+                TeamTacticalState(),
+            )
+            play_style.set(int(tactics.play_style))
+            without_ball.set(int(tactics.without_ball_style))
+            with_ball.set(int(tactics.with_ball_style))
+            aggression.set(int(tactics.aggression))
+
+            if controller.pending_fixture_id is None:
+                match_text.set(
+                    f'Loaded {controller.state.calendar.current_date}. '
+                    'No fixture currently pending.'
+                )
+            else:
+                fixture = controller.state.premier_league.fixtures[
+                    int(controller.pending_fixture_id)
+                ]
+                home = controller.state.clubs.get(int(fixture.home_club_id))
+                away = controller.state.clubs.get(int(fixture.away_club_id))
+                home_name = getattr(home, 'name', str(fixture.home_club_id))
+                away_name = getattr(away, 'name', str(fixture.away_club_id))
+                match_text.set(
+                    f'Loaded {controller.state.calendar.current_date}: '
+                    f'{home_name} vs {away_name}. Ready to play.'
+                )
+
+            status.set('Internal save loaded.')
+            refresh_roster()
+            refresh_table()
+
+        def save_game():
+            try:
+                if self.gameplay is None or self.gameplay.human is None:
+                    raise RuntimeError('Start or load a human-manager game first.')
+                path = filedialog.asksaveasfilename(
+                    title='Save FM2001 modern game',
+                    defaultextension='.fm2k',
+                    filetypes=(
+                        ('FM2001 modern save', '*.fm2k'),
+                        ('All files', '*.*'),
+                    ),
+                    initialfile='fm2001-save.fm2k',
+                )
+                if not path:
+                    return
+                save_human_gameplay(self.gameplay, path)
+                status.set(f'Saved {Path(path).name}.')
+            except Exception as exc:
+                messagebox.showerror('FM2001 save', str(exc))
+
+        def load_game():
+            try:
+                path = filedialog.askopenfilename(
+                    title='Load FM2001 modern game',
+                    filetypes=(
+                        ('FM2001 modern save', '*.fm2k'),
+                        ('All files', '*.*'),
+                    ),
+                )
+                if not path:
+                    return
+                runtime = self._ensure_gameplay()
+                self.gameplay = load_human_gameplay(
+                    self.db,
+                    runtime.attack_matrix,
+                    runtime.defence_matrix,
+                    path,
+                )
+                sync_loaded_gameplay()
+            except Exception as exc:
+                messagebox.showerror('FM2001 load', str(exc))
+
+        ttk.Button(
+            save_row,
+            text='Save Game',
+            command=save_game,
+        ).pack(side='left', padx=(0, 6))
+        ttk.Button(
+            save_row,
+            text='Load Game',
+            command=load_game,
+        ).pack(side='left')
+
     def _status(self, nb):
         f = ttk.Frame(nb, padding=20)
         nb.add(f, text='Status')
         text = (
-            'Clean-room prototype. Contains no EA game data or executable code.\n\n'
+            'Windows 11 modernization prototype using the authorized original game files locally.\n\n'
             'Reads the user\'s existing Master.dat, Core.str, English.str and Static.dat.\n\n'
             'Implemented here:\n'
             '• corrected 4-byte player-section header\n'
