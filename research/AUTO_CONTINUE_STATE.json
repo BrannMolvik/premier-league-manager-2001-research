@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 3,
   "active_task": "Continue exact Cup/League schedule-node materialization from the competition startup schedule-descriptor checkpoint",
-  "last_known_main_head": "8f1b52320b660751ed088243b7a9154234badbff",
+  "last_known_main_head": "232b301eff85e7786d140566de8292dcd26191c4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,5 +20,5 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 2,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Auto-continue paused after 2026-09-26 browser instability: extension opened a new chat on timeout instead of recovering in-place. Repairing recovery policy before re-arming."
+  "note": "Auto-continue paused after browser instability. Main now contains v0.3.0 same-chat recovery: transient stalls reuse/stop/re-prompt existing worker; only true chat-length exhaustion or missing worker opens a new background chat."
 }
