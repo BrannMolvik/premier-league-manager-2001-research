@@ -566,6 +566,47 @@ For a maximum profile emphasis byte of 25, representative per-update chances are
 The specialist coach selected by training method is handled separately through dispatcher `0x42C240`; additional specialist effects should not be conflated with this Youth-Team-Coach/Training-Centre multiplier until their call path is fully reconstructed.
 
 
+## Starting weekly wage and initial contract expiry resolved
+
+Gate-9 contract work completed the startup contract initialization path.
+
+### Weekly wage
+
+Inside compact-player importer `0x418B90`:
+
+1. `0x41E1D0` returns the player's maximum rating across the three stored
+   preferred positions;
+2. that 0..99 rating selects the corresponding
+   `DBRAccessSkillFinancialValue` row;
+3. `0x423A50` draws `RNG(row+0x14)` and adds row `+0x10`;
+4. `0x423990` multiplies by the player's club-country
+   `DBRCountry+0x30` financial percentage and by 0.01, truncating toward zero;
+5. `0x418E76` stores the result at player `+0xC4`, the confirmed weekly wage.
+
+The 100-row Static.dat table is now parsed at offset `0x14965`. Packed record
+size is 26 bytes: uint16 ID plus six uint32 values. The wage fields are the
+third/fourth dwords (runtime `+0x10/+0x14`).
+
+The optional x4 branch in `0x423990` is inactive in this executable because
+`0x6596A0` is exactly `xor eax,eax; ret`.
+
+### Initial contract expiry
+
+After development initialization, `0x418EF5` consumes `RNG(5)`, adds one,
+and multiplies by 12, producing an exact 12/24/36/48/60-month span at player
+`+0xC0`.
+
+`0x418F10..0x418F68` copies the global current date, advances it one month at a
+time for that span, and stores the resulting date at player `+0x154`.
+
+The modern RuntimePlayer now materializes both `weekly_wage` and
+`contract_expiry_date`; internal save schema 3 persists both.
+
+Canonical seed-1 audit from the current port date 18 August 2000 gives wages
+from 75 through 35,972 and expiry dates from 18 August 2001 through
+18 August 2005. Those values are port-runtime evidence, not a claim that the
+original game's new-game calendar anchor has separately been proven.
+
 ## Contract / transfer-state analysis
 
 Transfer/contract analysis has begun from `DBRPlayer`, `CDealInProgress`, and the contract-terms object.
