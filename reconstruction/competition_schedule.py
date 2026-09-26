@@ -136,8 +136,16 @@ def materialize_cup_round_schedule_nodes(
 
     primary_week = int(round_definition.scheduled_week)
     primary_weekday = int(round_definition.scheduled_weekday)
-    second_week = int(round_definition.replay_week)
-    second_weekday = int(round_definition.replay_weekday)
+    second_week = (
+        int(round_definition.replay_week)
+        if round_type == 2
+        else None
+    )
+    second_weekday = (
+        int(round_definition.replay_weekday)
+        if round_type == 2
+        else None
+    )
 
     nodes: list[StartupScheduleNode] = []
     for pairing in runtime_round.pairings:
