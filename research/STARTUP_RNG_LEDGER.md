@@ -296,8 +296,8 @@ For the synthetic Gate-3 post-youth checkpoint:
 
 ```text
 0x2797444C
-  + 1,739 CRT calls
-= 0x986E4579
+  + 1,863 CRT calls
+= 0xAECA9FA5
 ```
 
 `competition_startup.py` now separates:
@@ -391,14 +391,14 @@ before UEFA Cup selector:         0x1A3358D6
 RNG(6) -> candidate index 4 -> club 1143
 after selector:                   0x5FA76C41
 
-after all 1,739 calls:            0x986E4579
+after all 1,863 calls:            0xAECA9FA5
 ```
 
 The complete ordered bound stream is canonically fingerprinted by SHA-256 over
 little-endian uint16 bounds:
 
 ```text
-baef6479394ffee84e7a9aec58d74f1c5418ccaeaad7f617d9ed0f77e95fd8df
+a6675e77b8256fcb8d5834efa6a9d006182078c12f27887c8228a14eca889711
 ```
 
 `reconstruction/competition_startup.py` now materializes this event sequence
@@ -415,3 +415,77 @@ not yet sufficient to claim the final club/winner-reference pairings.
 The remaining Gate-3 task is to materialize the 16-byte participant records,
 their allocation/source order, and comparator `0x4F67D0`, then apply the
 post-randomization qsort and pairing logic.
+
+
+### DummyLeague lazy-sort correction
+
+**Confirmed 26 September 2026.**
+
+The earlier 1,739-call primary competition ledger omitted RNG consumed by
+type-5 Cup allocations that source a DummyLeague.
+
+Type-5 allocation calls `0x4F4940` on its source competition before reading
+that competition's ranked club array. For an ordinary League this dispatches
+deterministic `0x4F4720`; for a DummyLeague it dispatches RNG-bearing
+`0x4F4750` on the first access only.
+
+Eleven unique primary-path DummyLeague sources are first accessed this way:
+
+```text
+89, 93, 25, 104, 168, 162, 148, 139, 102, 131, 120
+```
+
+Their starting membership counts sum to **124**. The sort consumes one bounded
+CRT call per member, using:
+
+```text
+team_score = sum 0x41E1D0(player) for first 11 roster players
+bound      = floor(team_score / 20)
+RNG(bound)
+randomized_score = team_score - roll
+```
+
+The team roster is the already-proven Master.dat player order filtered by club,
+and `0x41E1D0` is already reproduced by
+`match_role_rating.best_preferred_role_rating`.
+
+Therefore the complete mapped primary competition cost is:
+
+```text
+1,737 Cup participant Fisher-Yates calls
+  124 DummyLeague lazy-ranking calls
+    2 Europe-root selector calls
+---------------------------------------
+1,863 bounded CRT calls before 0x615BE0
+```
+
+For the canonical synthetic post-youth checkpoint `0x2797444C`:
+
+```text
+state entering primary 0x615BE0 = 0xAECA9FA5
+```
+
+The corrected ordered stream contains **128 high-level RNG events**. The
+DummyLeague lazy-sort events are at indices:
+
+```text
+20, 47, 60, 98, 99, 100, 101, 102, 103, 104, 105
+```
+
+and the Europe selector events move to indices:
+
+```text
+110, 119
+```
+
+For the synthetic checkpoint both Europe selectors choose candidate index 2,
+club **1137**.
+
+The corrected ordered-bound SHA-256 is:
+
+```text
+a6675e77b8256fcb8d5834efa6a9d006182078c12f27887c8228a14eca889711
+```
+
+All older 1,739-call / `0x986E4579` / `baef647...` statements in historical
+chronology are superseded by this correction.
