@@ -21,7 +21,7 @@ Authorized original resources belong under `original_assets/` with provenance tr
 ## Verified repository state
 
 - Latest reverse-engineering checkpoint before stabilization: `1014b042a19fc851b8d87e653ee1e5d807816630` - **Advance startup RNG boundary before TeamSelect click**
-- Latest reconstruction-suite validation: `a500c6d9f090ef71c7f27f46fcc4e8f881aa1732` - **328 tests passed**
+- Latest reconstruction-suite validation: `9b64326d963c1d92aa06e61fc856f0ecef0fc607` - **339 tests passed**
 - Latest repository asset-policy validation: `17ee2f299a2a0d87f959b9480df9b48d194de6aa` - **passed**
 - Commits after `1014b042...` are repository-management, documentation, verification/CI hardening, and the Windows 11 port/authorized-asset policy transition. They do not supersede the latest reverse-engineering address/path findings.
 
@@ -66,25 +66,23 @@ The remaining blocker is not RNG call count; it is exact Cup bounded-call order/
 
 ## Exact next task
 
-The participant-source layer has advanced substantially:
+The Cup participant/pairing layer is now substantially closed:
 
-- `ClubRef` is confirmed as the 16-byte Cup participant record;
-- allocation instructions are parsed and ordered exactly per destination Cup;
-- ClubRef type 1 is a match-result reference;
-- ClubRef type 2 is a competition-position reference;
-- type-5 Cup allocation reads direct clubs from a referenced League ranking;
-- initial League membership comes from Master.dat club order filtered by packed club +8 competition ID;
-- initial League ranking is deterministic short/display-name order through `0x4F45E0`;
-- canonical League ranking/source helpers are implemented and validated.
+- exact full legacy CRT `qsort` behavior is implemented, including unstable equal-element movement;
+- the corrected 1,739-call pre-`0x615BE0` ledger remains valid; DummyLeague's RNG-bearing finalizer occurs only after the primary bucket shuffle;
+- allocation types 1/2/3/4/5 are structurally narrowed for canonical startup;
+- type-4 ClubRef construction is outside primary Cup allocation;
+- initial League membership/ranking and competition historical-enumeration arrays are implemented;
+- NormalRound/TwoLegRound preparation is implemented exactly as Fisher-Yates -> ClubRef qsort -> first-half-vs-second-half pairing;
+- latest CI passes 339 tests.
 
 Continue Gate 3 by:
 
-1. finish instruction types 1/2/3 and their exact ClubRef production loops;
-2. resolve remaining ClubRef tags 3/4 where they occur in primary startup;
-3. build each primary Cup round's initial 16-byte ClubRef array in exact source order;
-4. apply the already-recovered Fisher-Yates plus `0x4F67D0` post-shuffle sort;
-5. materialize exact winner/league-position/direct-club pairings and generated Cup matches;
-6. resume Gate 4 with those Cup nodes in the global schedule.
+1. expand canonical Cup allocation instructions into the exact ClubRef sequence inserted into each sorted Cup round;
+2. finish the Champions-League-to-UEFA special type-2 transfer descriptors (knockout losers and MiniLeague group positions);
+3. reproduce MiniLeague participant distribution into child League groups;
+4. materialize every primary Cup round's final ClubRef array and generated match/pairing nodes;
+5. close Gate 3 and resume Gate 4 with those Cup schedule nodes inserted into the already-recovered global schedule.
 
 Commit each participant/allocation/pairing boundary separately.
 
