@@ -2860,3 +2860,23 @@ Implementation/verification checkpoints:
 - `218e7800...` DummyLeague score/bound tests.
 
 Latest CI at `218e780064343838a3546fe497fe31606eb05b70`: **341 tests passed**.
+
+
+## 26 September type-5 quantity and Cup-capacity checkpoint
+
+The type-5 allocation loop is now exact.
+
+Direct disassembly of `0x4F5F97..0x4F5FDC` proves that its source ranking
+index advances on every candidate but its instruction progress counter advances
+only when `0x4F5840` succeeds. Type-5 `quantity` therefore counts accepted
+clubs, matching the implemented scan-until-N-successes helper.
+
+A canonical count audit across all 27 primary Cups shows:
+
+- 24 Cups request exactly their total `new_entrants` capacity;
+- League Cup requests 94 for 92 slots;
+- Champions League requests 77 for 76 slots;
+- World Club Championship requests 10 for 8 slots.
+
+Those three excess requests are intentional and are handled by the proven
+silent-overflow behavior once all Cup round entrant quotas are full.
