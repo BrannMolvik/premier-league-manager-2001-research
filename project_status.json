@@ -9,12 +9,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "1c1b62fa96788e780d0327f4e71521303dac735f",
-  "last_verified_reconstruction_ci_head": "1c1b62fa96788e780d0327f4e71521303dac735f",
-  "last_verified_test_count": 418,
-  "asset_policy_validated_head": "1c1b62fa96788e780d0327f4e71521303dac735f",
+  "latest_reverse_engineering_checkpoint": "d10a0d83c7c9eab8ed48e4af21ac15b3ef62e2ee",
+  "last_verified_reconstruction_ci_head": "8f7936d9badd1744e851c2027f9ac1818a7bd7de",
+  "last_verified_test_count": 424,
+  "asset_policy_validated_head": "8f7936d9badd1744e851c2027f9ac1818a7bd7de",
   "asset_policy_status": "passed",
-  "active_task": "Implement persistent transfer proposal/deal/bid-log/movement state over the schema-3 runtime, then build the human bid-to-completion workflow.",
+  "active_task": "Recover selling-club accept/refuse decision and reason codes, then implement the human transfer workflow.",
   "next_gate": 10,
   "next_gate_name": "Finances and board systems",
   "blocked": false,
@@ -127,5 +127,7 @@
   "current_internal_save_schema": 3,
   "gate9_starting_contract_state": true,
   "gate9_authentic_starting_wages": true,
-  "gate9_authentic_initial_contract_expiry": true
+  "gate9_authentic_initial_contract_expiry": true,
+  "gate9_transfer_runtime_state": true,
+  "gate9_transfer_state_save_reload": true
 }
