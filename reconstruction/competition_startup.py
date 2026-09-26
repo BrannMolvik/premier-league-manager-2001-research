@@ -1039,6 +1039,35 @@ def initial_ranked_league_club_ids(
 
 
 
+class InitialCupEnumerationSource(Protocol):
+    enumerated_club_reference_0: int
+    enumerated_club_reference_1: int
+
+
+def initial_cup_enumeration_club_ids(
+    competition: InitialCupEnumerationSource,
+) -> tuple[int, int]:
+    """Reproduce Cup virtual enumeration at vtable +0x1C/+0x20.
+
+    Canonical Cup vtable 0x7C9B58 maps:
+    - +0x1C -> 0x4F5770, returning Cup+0x40 for index 0 and Cup+0x44 otherwise;
+    - +0x20 -> 0x6CE1E0, returning the constant count 2.
+
+    Cup construction at 0x4F5287..0x4F52E7 initializes +0x40/+0x44 from the
+    two DBRCompetition club-reference fields already exposed by the parser as
+    enumerated_club_reference_0/1. Negative values use the global null/sentinel
+    club pointer in the executable; canonical shipped Cup records used by
+    type-3 allocation have non-negative references.
+    """
+    first = int(competition.enumerated_club_reference_0)
+    second = int(competition.enumerated_club_reference_1)
+    if first < 0 or second < 0:
+        raise ValueError(
+            "canonical Cup enumeration requires non-negative club references"
+        )
+    return (first, second)
+
+
 class HistoricalCompetitionClubSource(Protocol):
     index: int
     competition_id: int
