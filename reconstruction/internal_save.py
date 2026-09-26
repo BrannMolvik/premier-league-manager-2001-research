@@ -32,6 +32,14 @@ from match_simulation import NormalMatchResult, SegmentPossession, TimedMatchEve
 from match_team_setup import TeamTacticalState
 from player_development import DevelopmentState, PeakAges
 from runtime_state import RuntimePlayer
+from transfer_state import (
+    ContractTerms,
+    DealInProgress,
+    PlayerBidLogEntry,
+    PlayerMovement,
+    TransferProposal,
+    TransferRuntimeState,
+)
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
@@ -431,6 +439,177 @@ def _restore_normal_match_result(value: dict[str, Any]) -> NormalMatchResult:
     )
 
 
+def _snapshot_contract_terms(value: ContractTerms) -> dict[str, Any]:
+    return {
+        "weekly_wage": int(value.weekly_wage),
+        "signing_on_fee": int(value.signing_on_fee),
+        "promotion_bonus": int(value.promotion_bonus),
+        "contract_length_months": int(value.contract_length_months),
+        "appearance_fee": int(value.appearance_fee),
+        "relegation_transfer_request_clause": bool(
+            value.relegation_transfer_request_clause
+        ),
+        "big_club_offer_clause": bool(value.big_club_offer_clause),
+        "big_money_offer_clause": bool(value.big_money_offer_clause),
+        "house": bool(value.house),
+        "car": bool(value.car),
+    }
+
+
+def _restore_contract_terms(value: dict[str, Any]) -> ContractTerms:
+    return ContractTerms(
+        weekly_wage=int(value["weekly_wage"]),
+        signing_on_fee=int(value["signing_on_fee"]),
+        promotion_bonus=int(value["promotion_bonus"]),
+        contract_length_months=int(value["contract_length_months"]),
+        appearance_fee=int(value["appearance_fee"]),
+        relegation_transfer_request_clause=bool(
+            value["relegation_transfer_request_clause"]
+        ),
+        big_club_offer_clause=bool(value["big_club_offer_clause"]),
+        big_money_offer_clause=bool(value["big_money_offer_clause"]),
+        house=bool(value["house"]),
+        car=bool(value["car"]),
+    )
+
+
+def _snapshot_transfer_state(value: TransferRuntimeState) -> dict[str, Any]:
+    return {
+        "proposals": [
+            {
+                "target_player_id": int(proposal.target_player_id),
+                "buying_club_id": int(proposal.buying_club_id),
+                "cash_fee": int(proposal.cash_fee),
+                "exchange_player_ids": [
+                    int(player_id) for player_id in proposal.exchange_player_ids
+                ],
+                "negotiation_state_14": int(proposal.negotiation_state_14),
+                "negotiation_state_15": int(proposal.negotiation_state_15),
+                "contract_terms": _snapshot_contract_terms(
+                    proposal.contract_terms
+                ),
+                "previous_wage_offer": int(proposal.previous_wage_offer),
+                "previous_signing_on_fee_offer": int(
+                    proposal.previous_signing_on_fee_offer
+                ),
+                "field_40": int(proposal.field_40),
+                "field_44": int(proposal.field_44),
+                "previous_total_value": int(proposal.previous_total_value),
+                "field_4c": int(proposal.field_4c),
+            }
+            for _, proposal in sorted(value.proposals.items())
+        ],
+        "deals": [
+            {
+                "player_id": int(deal.player_id),
+                "buying_club_id": int(deal.buying_club_id),
+                "selling_club_id": int(deal.selling_club_id),
+                "state": int(deal.state),
+                "contract_terms": _snapshot_contract_terms(
+                    deal.contract_terms
+                ),
+                "created_date": deal.created_date.isoformat(),
+            }
+            for _, deal in sorted(value.deals.items())
+        ],
+        "bid_log": [
+            {
+                "player_id": int(entry.player_id),
+                "bidding_club_id": int(entry.bidding_club_id),
+                "bid_value": int(entry.bid_value),
+                "bid_date": entry.bid_date.isoformat(),
+                "status_counter": int(entry.status_counter),
+            }
+            for _, entry in sorted(value.bid_log.items())
+        ],
+        "movements": [
+            {
+                "player_id": int(movement.player_id),
+                "from_club_id": int(movement.from_club_id),
+                "to_club_id": int(movement.to_club_id),
+                "consideration": int(movement.consideration),
+                "movement_date": movement.movement_date.isoformat(),
+            }
+            for movement in value.movements
+        ],
+    }
+
+
+def _restore_transfer_state(value: dict[str, Any] | None) -> TransferRuntimeState:
+    if value is None:
+        return TransferRuntimeState()
+
+    runtime = TransferRuntimeState()
+    for proposal_value in value.get("proposals", ()):
+        proposal = TransferProposal(
+            target_player_id=int(proposal_value["target_player_id"]),
+            buying_club_id=int(proposal_value["buying_club_id"]),
+            cash_fee=int(proposal_value["cash_fee"]),
+            exchange_player_ids=tuple(
+                int(player_id)
+                for player_id in proposal_value["exchange_player_ids"]
+            ),
+            negotiation_state_14=int(proposal_value["negotiation_state_14"]),
+            negotiation_state_15=int(proposal_value["negotiation_state_15"]),
+            contract_terms=_restore_contract_terms(
+                proposal_value["contract_terms"]
+            ),
+            previous_wage_offer=int(proposal_value["previous_wage_offer"]),
+            previous_signing_on_fee_offer=int(
+                proposal_value["previous_signing_on_fee_offer"]
+            ),
+            field_40=int(proposal_value["field_40"]),
+            field_44=int(proposal_value["field_44"]),
+            previous_total_value=int(proposal_value["previous_total_value"]),
+            field_4c=int(proposal_value["field_4c"]),
+        )
+        runtime.proposals[
+            runtime.proposal_key(
+                proposal.target_player_id,
+                proposal.buying_club_id,
+            )
+        ] = proposal
+
+    for deal_value in value.get("deals", ()):
+        deal = DealInProgress(
+            player_id=int(deal_value["player_id"]),
+            buying_club_id=int(deal_value["buying_club_id"]),
+            selling_club_id=int(deal_value["selling_club_id"]),
+            state=int(deal_value["state"]),
+            contract_terms=_restore_contract_terms(
+                deal_value["contract_terms"]
+            ),
+            created_date=date.fromisoformat(deal_value["created_date"]),
+        )
+        runtime.deals[int(deal.player_id)] = deal
+
+    for entry_value in value.get("bid_log", ()):
+        entry = PlayerBidLogEntry(
+            player_id=int(entry_value["player_id"]),
+            bidding_club_id=int(entry_value["bidding_club_id"]),
+            bid_value=int(entry_value["bid_value"]),
+            bid_date=date.fromisoformat(entry_value["bid_date"]),
+            status_counter=int(entry_value["status_counter"]),
+        )
+        runtime.bid_log[
+            runtime.proposal_key(entry.player_id, entry.bidding_club_id)
+        ] = entry
+
+    for movement_value in value.get("movements", ()):
+        runtime.movements.append(
+            PlayerMovement(
+                player_id=int(movement_value["player_id"]),
+                from_club_id=int(movement_value["from_club_id"]),
+                to_club_id=int(movement_value["to_club_id"]),
+                consideration=int(movement_value["consideration"]),
+                movement_date=date.fromisoformat(
+                    movement_value["movement_date"]
+                ),
+            )
+        )
+    return runtime
+
+
 def snapshot_game_state(state: GameState) -> dict[str, Any]:
     league = state.premier_league
     league_snapshot = None
@@ -490,6 +669,7 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             str(int(round_index)): [int(v) for v in values]
             for round_index, values in sorted(state.premier_league_scheduler_order.items())
         },
+        "transfers": _snapshot_transfer_state(state.transfers),
         "rng_state": None if state.rng is None else int(state.rng.state),
     }
 
@@ -584,6 +764,7 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             int(round_index): tuple(int(v) for v in values)
             for round_index, values in snapshot["premier_league_scheduler_order"].items()
         },
+        transfers=_restore_transfer_state(snapshot.get("transfers")),
         rng=(
             None
             if snapshot["rng_state"] is None
