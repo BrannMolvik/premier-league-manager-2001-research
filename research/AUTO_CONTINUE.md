@@ -123,8 +123,7 @@ non-message UI elements for interruption/length-limit signals such as:
 It deliberately ignores text inside user/assistant message containers so old
 messages discussing a timeout do not cause a false recovery.
 
-When such a signal appears while runtime status is `working`, recovery may
-start immediately.
+When such a signal appears while runtime status is `working`, recovery may start immediately. Transient interruption/stall signals recover **inside the same worker conversation**. The extension clicks the ChatGPT Stop/Stop generating control if present, then submits a short continuation prompt in that conversation. A new conversation is reserved for a confirmed conversation-length/max-length condition.
 
 ### 2. Repository inactivity lease
 
@@ -135,10 +134,7 @@ browser extension read:
 - latest commit time on `agent-runtime`;
 - latest commit time on `main`.
 
-If the state is `working` and neither branch has activity within
-`stale_after_minutes`, the browser extension treats the previous work session
-as dead even when the ChatGPT UI never displayed an explicit error and opens a
-replacement ChatGPT tab with `active: false`.
+If the state is `working` and neither branch has activity within `stale_after_minutes`, the browser extension treats the previous work session as stalled even when the ChatGPT UI never displayed an explicit error. It first reuses the recorded worker tab, stops any still-running generation, and re-prompts in the same conversation. Only when that worker tab no longer exists may it create a replacement ChatGPT tab with `active: false`.
 
 The Windows watchdog remains an independent detector/logging path if the old
 ChatGPT tab is gone, but it never opens or focuses Chrome. If Chrome is fully
@@ -152,9 +148,9 @@ When recovery is triggered, the local watcher:
 
 1. enforces cooldown and per-hour loop limits;
 2. fetches the latest `research/HANDOFF_PROMPT.md` from `main`;
-3. opens a new `https://chatgpt.com/` tab in the background (`active: false`);
-4. inserts an auto-recovery prefix plus the latest handoff prompt;
-5. sends it when the ChatGPT composer is available.
+3. for transient/stale recovery, reuse the recorded worker tab, stop generation if needed, and submit a short continuation prompt there;
+4. only for a true chat-length limit or missing worker tab, open a new `https://chatgpt.com/` tab in the background (`active: false`) and insert the canonical handoff;
+5. send the recovery prompt when the ChatGPT composer is available.
 
 The new session is instructed to verify current `main`, read the canonical
 state, mark runtime status `working`, and continue without asking the user to
@@ -205,3 +201,14 @@ submission.
 If a future ChatGPT UI update breaks automatic prompt insertion, the repository
 still contains a complete recovery prompt and exact current state; only the
 last local UI step needs repair.
+
+
+## Same-chat recovery rule
+
+From extension version 0.3.0 onward:
+
+- Connection interruption, timeout, stalled response, or stale repository heartbeat: **reuse the existing worker chat**.
+- If ChatGPT is still generating, click the visible Stop / Stop generating control first.
+- True conversation-length / maximum-length exhaustion: create a fresh background chat and use the canonical GitHub handoff.
+- Missing or closed worker tab: a fresh background chat is an allowed fallback.
+- Do not create a new chat merely because one response stalled.
