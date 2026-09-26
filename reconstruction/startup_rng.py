@@ -45,8 +45,12 @@ def consume_dbtplayers_startup_rng(rng: BoundedRng, player_count: int) -> int:
 
     DBTPlayers constructs every DBRPlayer before loading any compact records.
     Therefore all RNG(15) constructor morale draws happen first. The later
-    per-record load pass consumes RNG(1), RNG(2), RNG(2), RNG(5) in table
-    order. Even RNG(1) advances the underlying CRT state.
+    per-record load pass first consumes one wage-range RNG call through
+    DBTAccessSkillFinancialValues::0x423A50, followed by development
+    RNG(1), RNG(2), RNG(2) and contract-span RNG(5), in table order.
+    The wage bound varies by the player's financial-value band; this state-only
+    replay uses RNG(1) as a neutral one-call surrogate because every bounded
+    CRT call advances the same hidden LCG state once.
 
     Returns the number of raw/bounded CRT calls consumed.
     """
@@ -58,12 +62,17 @@ def consume_dbtplayers_startup_rng(rng: BoundedRng, player_count: int) -> int:
         rng.randbelow(15)
 
     for _ in range(player_count):
+        # 0x418E6E -> 0x423A50: randomized starting weekly wage. The exact
+        # bound comes from DBTAccessSkillFinancialValues +0x14. For startup
+        # hidden-state replay only, any positive bound is equivalent because
+        # 0x64D540 consumes exactly one CRT rand() call.
+        rng.randbelow(1)
         rng.randbelow(1)
         rng.randbelow(2)
         rng.randbelow(2)
         rng.randbelow(5)
 
-    return player_count * 5
+    return player_count * 6
 
 
 class PlayerSource(Protocol):
