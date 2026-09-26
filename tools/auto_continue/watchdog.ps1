@@ -125,7 +125,19 @@ function Request-Recovery([string]$Reason, [int]$StaleMinutes, $RuntimeState) {
     }
 
     Write-WatchdogLog "Recovery requested: $Reason; stale for $StaleMinutes minute(s)."
-    Start-Process $url
+
+    $chromeCandidates = @(
+        (Join-Path $env:ProgramFiles "Google\\Chrome\\Application\\chrome.exe"),
+        (Join-Path ${env:ProgramFiles(x86)} "Google\\Chrome\\Application\\chrome.exe"),
+        (Join-Path $env:LOCALAPPDATA "Google\\Chrome\\Application\\chrome.exe")
+    ) | Where-Object { $_ -and (Test-Path $_) }
+
+    if ($chromeCandidates.Count -gt 0) {
+        Start-Process -FilePath $chromeCandidates[0] -ArgumentList $url
+    } else {
+        Write-WatchdogLog "Chrome executable not found; using the Windows default browser."
+        Start-Process $url
+    }
 
     $historyStrings = @($guard.History | ForEach-Object { $_.ToString("o") })
     $historyStrings += $guard.Now.ToString("o")
