@@ -1145,3 +1145,60 @@ def prepare_cup_knockout_round(
         sorted_refs=ordered,
         pairs=pairs,
     )
+
+
+def select_type5_direct_club_ids(
+    ranked_club_ids: Iterable[int],
+    quantity: int,
+    *,
+    already_in_destination: Iterable[int] = (),
+    unavailable_direct_club_ids: Iterable[int] = (),
+) -> tuple[int, ...]:
+    """Reproduce 0x4F5F97's scan-until-N-successes behavior.
+
+    Type-5 starts at source ranking index zero for every instruction. It
+    advances the source index on every candidate, but increments its success
+    count only when 0x4F5840 accepts the club. The instruction +0x1C
+    auxiliary field is not consulted on this path.
+    """
+    quantity = int(quantity)
+    if quantity < 0:
+        raise ValueError("quantity must be non-negative")
+
+    blocked = {int(value) for value in already_in_destination}
+    blocked.update(int(value) for value in unavailable_direct_club_ids)
+
+    selected: list[int] = []
+    for club_id in ranked_club_ids:
+        club_id = int(club_id)
+        if club_id in blocked:
+            continue
+        selected.append(club_id)
+        blocked.add(club_id)
+        if len(selected) == quantity:
+            break
+
+    return tuple(selected)
+
+
+@dataclass
+class CupRoundAllocationBucket:
+    round_id: int
+    new_entrant_quota: int
+    participant_refs: list[CupClubRefDescriptor]
+
+
+def allocate_ref_to_latest_open_cup_round(
+    round_buckets: list[CupRoundAllocationBucket],
+    current_round_index: int,
+    club_ref: CupClubRefDescriptor,
+) -> int:
+    """Reproduce 0x4F5790 -> 0x4F57E0 latest-round-first entrant filling."""
+    index = int(current_round_index)
+    while index >= 0:
+        bucket = round_buckets[index]
+        if len(bucket.participant_refs) < int(bucket.new_entrant_quota):
+            bucket.participant_refs.append(club_ref)
+            return index
+        index -= 1
+    return -1
