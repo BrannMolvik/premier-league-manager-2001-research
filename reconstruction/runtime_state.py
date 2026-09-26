@@ -166,6 +166,13 @@ class RuntimePlayer:
                 rng, INITIAL_MORALE_RANDOM_RANGE
             )
 
+        # 0x418E6E -> 0x423A50 randomizes the starting weekly wage before
+        # 0x41E970 development initialization. Gate 9 has not yet materialized
+        # DBTAccessSkillFinancialValues, so consume one neutral bounded draw to
+        # preserve the exact shared CRT state/order without inventing a wage.
+        # Any positive bound advances the MSVC CRT state identically once.
+        bounded_draw(rng, 1)
+
         if source.date_of_birth is not None:
             actual_age = age_on(source.date_of_birth, as_of)
             peaks = PeakAges(
