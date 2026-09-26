@@ -960,3 +960,18 @@ RNG(6)
 ```
 
 in that order.
+
+
+## Gate-9 startup wage correction
+
+Direct executable tracing of compact-player import now proves that
+`0x418B90 -> 0x423A50` consumes one unconditional bounded CRT call per player
+to randomize the starting weekly wage before development and contract-span
+initialization. The result is stored at DBRPlayer `+0xC4`.
+
+The selected data source is RTTI-identified
+`DBTAccessSkillFinancialValues` / `DBRAccessSkillFinancialValue`.
+This corrects the earlier startup ledger from 150,320 to **180,384 DBTPlayers
+calls** for the shipped 30,064 players. See
+`research/STARTUP_WAGE_RNG_CORRECTION.md` for the re-baselined Gate-3 through
+Gate-8 deterministic evidence.
