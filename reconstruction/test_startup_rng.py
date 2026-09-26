@@ -78,14 +78,14 @@ class Loader444StartupRngTests(unittest.TestCase):
 
 class DbtPlayersStartupRngTests(unittest.TestCase):
     def test_exact_two_phase_bounds_for_two_players(self):
-        rng = RecordingRng([0] * 10)
+        rng = RecordingRng([0] * 12)
 
         consumed = consume_dbtplayers_startup_rng(rng, 2)
 
-        self.assertEqual(consumed, 10)
+        self.assertEqual(consumed, 12)
         self.assertEqual(
             rng.calls,
-            [15, 15, 1, 2, 2, 5, 1, 2, 2, 5],
+            [15, 15, 1, 1, 2, 2, 5, 1, 1, 2, 2, 5],
         )
 
     def test_shipped_player_count_reaches_fixed_seed_checkpoint(self):
@@ -95,8 +95,8 @@ class DbtPlayersStartupRngTests(unittest.TestCase):
 
         consumed = consume_dbtplayers_startup_rng(rng, 30064)
 
-        self.assertEqual(consumed, 150320)
-        self.assertEqual(rng.state, 0x8FF8E56C)
+        self.assertEqual(consumed, 180384)
+        self.assertEqual(rng.state, 0xA9C5115C)
 
 
 class StartupYouthRngTests(unittest.TestCase):
@@ -298,20 +298,20 @@ class StartupReplayTests(unittest.TestCase):
         )
 
         self.assertEqual(replay.after_loader444_state, 0xC526B5BC)
-        self.assertEqual(replay.after_players_state, 0x7B7B62DB)
-        self.assertEqual(replay.after_team_names_state, 0x0C18030B)
-        self.assertEqual(replay.after_youth_state, 0x2797444C)
+        self.assertEqual(replay.after_players_state, 0xC6A1E94A)
+        self.assertEqual(replay.after_team_names_state, 0x9936CABA)
+        self.assertEqual(replay.after_youth_state, 0x4B68DE28)
         self.assertEqual(rng.state, replay.after_youth_state)
 
         self.assertEqual(replay.loader444_draw_count, 260)
-        self.assertEqual(replay.player_draw_count, 125)
+        self.assertEqual(replay.player_draw_count, 150)
         self.assertEqual(replay.team_name_draw_count, 112)
-        self.assertEqual(replay.youth_targets, (5, 6))
+        self.assertEqual(replay.youth_targets, (4, 8))
         self.assertEqual(
             replay.youth_source_ids,
             (
-                (2, 6, 23, 13, 7),
-                (10, 11, 7, 4, 1, 24),
+                (5, 1, 11, 0),
+                (6, 2, 23, 21, 0, 1, 20, 8),
             ),
         )
 
