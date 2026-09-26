@@ -3324,3 +3324,38 @@ Validation at `c44e72ddae2e7976e8a1685f1662d659dc4a5e4c`:
 Detailed evidence is in `research/GATE4_SCHEDULE_ORDER.md`. Gate 5 now
 integrates that recovered scheduler order into canonical real-data matchday
 execution and proves a full 10-match round end-to-end.
+
+
+## 27 September Gate 5 completion - canonical real matchday integration
+
+Gate 5 is complete.
+
+`GameState` now accepts the recovered per-round Premier League scheduler order
+and uses it by default for due fixtures. The exact committed
+`canonical_matchday_audit.py` independently verifies shipped hashes,
+reconstructs the 9,346-node schedule, places/shuffles it, extracts all 38 PL
+orders, and then runs the autonomous AI match path.
+
+Canonical three-round audit SHA-256:
+
+`dbe2aa4e5de50884b52616af3312e46f805d43b992c8cbb972d4446479535f4b`
+
+The audit completed 30 matches across 19, 23, and 26 August 2000. All 20 clubs
+participated exactly once per round. After round 3:
+
+- 30 stored results;
+- table played total 60;
+- global goals 87-for / 87-against;
+- 30 persisted match environments;
+- 644 unique PL runtime players;
+- Condition 34..99;
+- 5 injuries with valid return dates;
+- 3 active suspensions with valid counters/effective dates;
+- yellow total 44;
+- every club retained 11 active + 5 substitute-available players.
+
+Validation at `6c87d6a1fae5b6e9ea2fac4fd1dccc4685ea01c5`:
+**402 reconstruction tests passed** and the asset-policy workflow passed.
+
+Gate 6 now extends the same canonical path to 38 rounds / 380 fixtures and
+multiple deterministic seeds.
