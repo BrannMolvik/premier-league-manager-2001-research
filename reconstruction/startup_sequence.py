@@ -15,9 +15,9 @@ from competition_startup import (
     OrderedCompetitionSource,
     OrderedRoundSource,
 )
-from competition_runtime import (
-    PrimaryMode0CompleteCompetitionRngReplay,
-    replay_primary_mode0_complete_competition_rng,
+from competition_materializer import (
+    PrimaryRngDrivenScheduleMaterialization,
+    materialize_primary_rng_driven_schedule,
 )
 from startup_rng import (
     GeneratedNameCountrySource,
@@ -51,7 +51,7 @@ class StartupToPrimaryShuffleReplay:
     """All recovered checkpoints through entry to primary 0x615BE0."""
 
     precompetition: PrecompetitionStartupRngReplay
-    primary_competition_state: PrimaryMode0CompleteCompetitionRngReplay
+    primary_competition_state: PrimaryRngDrivenScheduleMaterialization
     state_entering_primary_shuffle: int
 
 
@@ -65,12 +65,19 @@ def replay_startup_rng_to_primary_shuffle(
     competitions: Iterable[OrderedCompetitionSource],
     rounds: Iterable[OrderedRoundSource],
     allocation_instructions: Iterable[CupAllocationInstructionSource] = (),
+    *,
+    real_fixtures: Iterable[object] = (),
+    fixed_fixture_competition_ids: Iterable[int] = (0,),
+    cup_enumerated_club_ids_by_source: dict[
+        int, tuple[int | None, ...]
+    ] | None = None,
 ) -> StartupToPrimaryShuffleReplay:
     """Advance one shared RNG through every mapped state change before 0x615BE0.
 
-    The competition phase replays the recovered bounded-call ordering across
-    procedural League round-robin generation, primary Cup participant
-    shuffles, DummyLeague lazy ranking, and Europe selectors.
+    The competition phase materializes the recovered runtime participants and
+    schedule nodes while consuming the same CRT stream. Cup Fisher-Yates
+    bounds therefore come from each runtime round's actual +0x0C participant
+    count after allocation/propagation, not the packed Static.dat capacity.
     """
 
     club_list = tuple(clubs)
@@ -89,7 +96,7 @@ def replay_startup_rng_to_primary_shuffle(
         selected_user_country_id=int(selected_user_country_id),
         users=user_list,
     )
-    primary_competition_state = replay_primary_mode0_complete_competition_rng(
+    primary_competition_state = materialize_primary_rng_driven_schedule(
         rng,
         competition_list,
         round_list,
@@ -97,6 +104,9 @@ def replay_startup_rng_to_primary_shuffle(
         country_list,
         allocation_list,
         player_list,
+        fixed_fixture_competition_ids=fixed_fixture_competition_ids,
+        real_fixtures=real_fixtures,
+        cup_enumerated_club_ids_by_source=cup_enumerated_club_ids_by_source,
     )
     return StartupToPrimaryShuffleReplay(
         precompetition=precompetition,
