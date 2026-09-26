@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 3,
   "active_task": "Finish procedural League schedule-node emission in 0x6170F0 and integrate exact Cup/League schedule nodes",
-  "last_known_main_head": "0e55f1113f62ffb8a29b411f044478a74f23799a",
+  "last_known_main_head": "e83cb14dd36b7ca7da6ae4da09c5ddb4d10f2ddb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,5 +20,5 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 0,
   "last_recovery_reason": null,
-  "note": "Runtime control state only. Auto-recovery is armed but currently waiting for user installation/testing; technical project history stays on main."
+  "note": "Runtime control state only. Auto-recovery is armed but currently waiting for local installation/testing; technical project history stays on main."
 }
