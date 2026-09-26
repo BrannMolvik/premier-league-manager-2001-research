@@ -23,6 +23,8 @@ CUP_ALLOCATION_TABLE_OFFSET = 0xE337
 CUP_ALLOCATION_RECORD_SIZE = 28
 REAL_FIXTURE_TABLE_OFFSET = 0x10057
 REAL_FIXTURE_RECORD_SIZE = 16
+ACCESS_SKILL_FINANCIAL_TABLE_OFFSET = 0x14965
+ACCESS_SKILL_FINANCIAL_RECORD_SIZE = 26
 
 class StringTable:
     def __init__(self, path: Path):
@@ -132,6 +134,17 @@ class CountryDefinition:
     european_index: int
     eu_status_flag: int
     continent_id: int
+    financial_multiplier_percent: int = 100
+
+@dataclass(frozen=True)
+class AccessSkillFinancialValue:
+    id: int
+    field_08: int
+    field_0c: int
+    weekly_wage_base: int
+    weekly_wage_random_range: int
+    field_18: int
+    field_1c: int
 
 @dataclass(frozen=True)
 class Position:
@@ -236,6 +249,7 @@ class FM2001Database:
         self.rounds = []
         self.cup_allocation_instructions = []
         self.real_fixtures = []
+        self.access_skill_financial_values = []
         self._parse_master()
         if self.static:
             self._parse_countries()
@@ -244,6 +258,7 @@ class FM2001Database:
             self._parse_rounds()
             self._parse_cup_allocation_instructions()
             self._parse_real_fixtures()
+            self._parse_access_skill_financial_values()
 
     def _parse_master(self):
         d = self.master
@@ -365,6 +380,7 @@ class FM2001Database:
                 european_index=struct.unpack_from('<H', r, 14)[0],
                 eu_status_flag=struct.unpack_from('<H', r, 16)[0],
                 continent_id=struct.unpack_from('<I', r, 24)[0],
+                financial_multiplier_percent=struct.unpack_from('<I', r, 37)[0],
             ))
 
     def country_for_nationality(self, nationality_id: int) -> CountryDefinition | None:
@@ -486,6 +502,35 @@ class FM2001Database:
             )
             self.real_fixtures.append(RealFixture(fixture_id, round_index, home, away))
 
+    def _parse_access_skill_financial_values(self):
+        off = ACCESS_SKILL_FINANCIAL_TABLE_OFFSET
+        if off + 4 > len(self.static):
+            return
+        count = struct.unpack_from('<I', self.static, off)[0]
+        base = off + 4
+        end = base + count * ACCESS_SKILL_FINANCIAL_RECORD_SIZE
+        if end > len(self.static):
+            raise ValueError('Static.dat financial-value table exceeds file size')
+        for i in range(count):
+            r = self.static[
+                base + i * ACCESS_SKILL_FINANCIAL_RECORD_SIZE:
+                base + (i + 1) * ACCESS_SKILL_FINANCIAL_RECORD_SIZE
+            ]
+            record_id = struct.unpack_from('<H', r, 0)[0]
+            values = struct.unpack_from('<6I', r, 2)
+            self.access_skill_financial_values.append(
+                AccessSkillFinancialValue(record_id, *values)
+            )
+
+    def access_skill_financial_value(self, rating: int):
+        rating = int(rating)
+        if not 0 <= rating < len(self.access_skill_financial_values):
+            raise IndexError(rating)
+        value = self.access_skill_financial_values[rating]
+        if int(value.id) != rating:
+            raise ValueError('financial-value table IDs are not rating-indexed')
+        return value
+
     @property
     def premier_league_rounds(self):
         return [r for r in self.rounds if r.competition_id == 0]
@@ -507,4 +552,5 @@ class FM2001Database:
             'rounds': len(self.rounds),
             'cup_allocation_instructions': len(self.cup_allocation_instructions),
             'real_fixtures': len(self.real_fixtures),
+            'access_skill_financial_values': len(self.access_skill_financial_values),
         }
