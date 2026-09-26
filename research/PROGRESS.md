@@ -3543,3 +3543,42 @@ Full evidence: `research/STARTUP_WAGE_RNG_CORRECTION.md`.
 
 Gate 9 resumes by materializing the financial-value table so the authentic wage
 amount, not just its RNG consumption, enters RuntimePlayer contract state.
+
+
+## 27 September Gate 9 contract initialization checkpoint
+
+The previously neutral startup wage RNG call is now fully materialized.
+
+Recovered and implemented:
+
+- Static.dat `DBTAccessSkillFinancialValues`: offset `0x14965`, 100 records,
+  packed size 26 bytes;
+- best preferred-role rating 0..99 directly selects the wage row;
+- row runtime `+0x10/+0x14` = weekly-wage base/random range;
+- `0x423A50`: `base + RNG(range)`;
+- `0x423990`: country financial multiplier from `DBRCountry+0x30`, then
+  * 0.01 with truncation;
+- `0x6596A0` optional x4 branch is hard-disabled in the canonical executable;
+- initial contract span remains exact 12/24/36/48/60 months from `RNG(5)`;
+- `0x418F10..0x418F68` advances the current date month-by-month into
+  `DBRPlayer+0x154` contract expiry.
+
+RuntimePlayer now stores authentic starting `weekly_wage` and
+`contract_expiry_date`. GameState supplies the player's club-country
+multiplier while preserving the corrected shared CRT ordering.
+
+The Gate-8 internal save format has advanced to schema **3** so both contract
+fields survive save/reload. Schema-2 historical Gate-8 evidence remains valid
+for that checkpoint; current saves use schema 3.
+
+Canonical seed-1 port-date smoke result (18 Aug 2000):
+- 30,064 players;
+- wage range 75..35,972;
+- no zero wages;
+- expiry range 18 Aug 2001..18 Aug 2005.
+
+GitHub Actions at `1c1b62fa96788e780d0327f4e71521303dac735f`:
+**418 tests passed**; asset policy passed.
+
+Next Gate-9 task: persistent transfer proposal/deal/bid-log/movement state and
+the first human bid -> decision -> negotiation -> completion workflow.
