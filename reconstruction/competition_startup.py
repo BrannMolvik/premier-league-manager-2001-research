@@ -94,7 +94,6 @@ class PrimaryMode0OrderedCompetitionRngReplay:
     events: tuple[PrimaryMode0OrderedRngEvent, ...]
     primary_cup_round_count: int
     cup_pairing_draw_count: int
-    dummy_league_sort_draw_count: int
     europe_selector_draw_count: int
     total_draw_count: int
     champions_league_club_id: int | None
@@ -113,6 +112,7 @@ class PrimaryMode0PreShuffleStateReplay:
 
     primary_cup_round_count: int
     cup_pairing_draw_count: int
+    dummy_league_sort_draw_count: int
     europe_selector_draw_count: int
     total_draw_count: int
     state_entering_primary_shuffle: int
