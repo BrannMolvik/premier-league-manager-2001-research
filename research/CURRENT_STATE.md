@@ -28,14 +28,14 @@ Authorized original resources belong under `original_assets/` with provenance tr
 
 The previously mapped Cup/DummyLeague/Europe-selector stream remains valid, but it is only a subset.
 
-Complete canonical primary competition replay before primary `0x615BE0` now contains:
+The previously reported complete replay used packed Static.dat Cup team counts for round Fisher-Yates. Canonical materialization has now proven that Cup allocation may silently underfill and that `0x4F64D0` / `0x4F6820` shuffle runtime round `+0x0C` actual participant count. Therefore the following older totals are **provisional/superseded pending the actual-count replay**:
 
-- **39 procedural League runtime instances**;
-- **4,302 procedural-League bounded calls**;
-- **1,737 Cup participant-shuffle calls**;
-- **124 DummyLeague lazy-ranking calls**;
-- **2 Europe-root selector calls**;
-- **6,165 bounded calls total**;
+- 39 procedural League runtime instances;
+- 4,302 procedural-League bounded calls;
+- 1,737 Cup participant-shuffle calls;
+- 124 DummyLeague lazy-ranking calls;
+- 2 Europe-root selector calls;
+- 6,165 bounded calls total.
 - **167 high-level RNG events**.
 
 For the synthetic post-youth checkpoint `0x2797444C`:
@@ -62,7 +62,7 @@ Filtering procedural-League events out of the complete stream reproduces the old
 - ordered-bound digest `a6675e77b8256fcb8d5834efa6a9d006182078c12f27887c8228a14eca889711`;
 - subset-only state `0xAECA9FA5`.
 
-Therefore `0xAECA9FA5` must never again be described as the final state entering `0x615BE0`.
+Therefore `0xAECA9FA5` must never again be described as the final state entering `0x615BE0`. The later `0x0DD3ACA3` / 6,165-call checkpoint is also no longer final until Cup shuffles are replayed from actual runtime participant counts.
 
 ## Last verified technical boundary
 
@@ -98,16 +98,12 @@ The bucket-54 population/order must be re-audited after Cup and procedural child
 
 ## Exact next task
 
-Continue Gate 3 from the now-integrated primary schedule-node materializer:
+Continue Gate 3 from the canonical actual-count correction:
 
-1. Resolve the canonical shipped-data blocker exposed by the first integrated run: allocation type 3 reads **Cup 98's runtime Cup+0x40/+0x44 enumeration**. Recover the exact Cup-source enumerator, audit every type-3 instruction whose source is a Cup, and implement it without approximation.
-2. Rerun `materialize_primary_rng_driven_schedule()` against canonical `Master.dat` / `Static.dat` / STR data plus the real-fixture table. The former League-parent child blocker is already resolved through `0x4F4FD0`. The materializer must retain the already-verified complete competition RNG stream:
-   - 6,165 bounded calls;
-   - 167 RNG-bearing high-level events, plus the explicit zero-draw fixed-League traversal marker used only for node ordering;
-   - synthetic state `0x2797444C -> 0x0DD3ACA3`;
-   - ordered-bound digest `3e7accfdf108a48a53902bb32a782fb23c64c7e5ce54eff101e0f869f6c3629c`.
-3. Lock the canonical participant, pairing, Cup-schedule, and complete schedule-node SHA-256 digests; record counts per Cup/round/League runtime, fixed-fixture count, Scottish split count, and dropped refs.
-4. Re-audit Gate-3 completion criteria. If complete, update `ROADMAP.md`, `CURRENT_STATE.md`, `project_status.json`, and `PROGRESS.md`, commit the gate transition, then resume Gate 4.
+1. Replace the static-team-count Cup round event plan with an **actual runtime participant-count** replay. Competition traversal order is already recovered; procedural League events must be injected at the same positions while Cup round shuffle bounds are learned from the materialized round's real `+0x0C` count.
+2. Continue canonical allocation fidelity until every primary Cup round materializes without invented participants. Type-3 Cup source enumeration is now exact (`Cup+0x40/+0x44` = two constructor club refs); type-3 and type-5 source exhaustion are exact silent underfills.
+3. Run the rebuilt integrated replay on canonical shipped data and lock the corrected bounded-call total, ordered-bound digest, final CRT state, participant digest, pairing digest, and complete schedule-node digest.
+4. Re-audit Gate-3 completion criteria. Close Gate 3 only after those corrected canonical outputs are stable and CI-tested.
 
 ## Gate 3 completion criteria (reopened)
 
@@ -116,8 +112,8 @@ Continue Gate 3 from the now-integrated primary schedule-node materializer:
 - [x] Python-RNG startup fallbacks are isolated/removed.
 - [x] Cup round scheduler RNG is included.
 - [x] Procedural-League round-robin RNG is translated and integrated for every primary runtime instance.
-- [x] Final hidden CRT state entering primary `0x615BE0` is reproducible for the complete mapped competition replay.
-- [x] Exact bounded-call ordering, including DummyLeague lazy sorts and Europe selectors, is canonically verified.
+- [ ] Final hidden CRT state entering primary `0x615BE0` is reproducible using **actual runtime Cup participant counts**.
+- [ ] Exact bounded-call ordering, including procedural League draws, DummyLeague lazy sorts, Europe selectors, and actual-count Cup shuffles, is canonically verified.
 - [ ] Complete canonical Cup/League participant, pairing, and schedule-node outputs are materialized and digest-locked for global schedule reconstruction.
 
 ## Current implementation state
