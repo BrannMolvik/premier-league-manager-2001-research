@@ -1,10 +1,16 @@
-const FAILURE_PATTERNS = [
-  /connection interrupted/i,
+const LENGTH_FAILURE_PATTERNS = [
   /conversation (?:is )?too long/i,
   /maximum (?:conversation )?length/i,
   /reached (?:the )?maximum length/i,
   /this conversation has reached.{0,80}limit/i,
   /start a new chat to continue/i
+];
+
+const TRANSIENT_FAILURE_PATTERNS = [
+  /connection interrupted/i,
+  /network error/i,
+  /something went wrong/i,
+  /response interrupted/i
 ];
 
 const COMPOSER_SELECTORS = [
@@ -19,6 +25,12 @@ const SEND_SELECTORS = [
   "button[aria-label='Send prompt']",
   "button[aria-label='Send message']",
   "button[aria-label^='Send']"
+];
+
+const STOP_SELECTORS = [
+  "button[data-testid='stop-button']",
+  "button[aria-label='Stop streaming']",
+  "button[aria-label='Stop generating']"
 ];
 
 const reportedFailures = new Set();
@@ -36,6 +48,20 @@ function isConversationMessage(element) {
   return Boolean(element?.closest?.("[data-message-author-role]"));
 }
 
+function reportFailure(kind, text, pattern) {
+  const signature = `${kind}:${pattern.source}:${text.slice(0, 180)}`;
+  if (reportedFailures.has(signature)) {
+    return;
+  }
+  reportedFailures.add(signature);
+
+  chrome.runtime.sendMessage({
+    type: "fm2001-ui-failure",
+    failureKind: kind,
+    reason: text.slice(0, 300)
+  });
+}
+
 function detectFailureInNode(node) {
   const element = elementFromNode(node);
   if (!element || isConversationMessage(element)) {
@@ -47,18 +73,16 @@ function detectFailureInNode(node) {
     return;
   }
 
-  for (const pattern of FAILURE_PATTERNS) {
+  for (const pattern of LENGTH_FAILURE_PATTERNS) {
     if (pattern.test(text)) {
-      const signature = `${pattern.source}:${text.slice(0, 180)}`;
-      if (reportedFailures.has(signature)) {
-        return;
-      }
-      reportedFailures.add(signature);
+      reportFailure("length", text, pattern);
+      return;
+    }
+  }
 
-      chrome.runtime.sendMessage({
-        type: "fm2001-ui-failure",
-        reason: text.slice(0, 300)
-      });
+  for (const pattern of TRANSIENT_FAILURE_PATTERNS) {
+    if (pattern.test(text)) {
+      reportFailure("transient", text, pattern);
       return;
     }
   }
@@ -90,7 +114,7 @@ function requestRecoveryFromUrl() {
   }
 
   localRecoveryRequested = true;
-  const reason = params.get("reason") || "local-watchdog";
+  const reason = params.get("reason") || "legacy-local-watchdog";
   const staleMinutes = params.get("stale_minutes") || "unknown";
 
   chrome.runtime.sendMessage(
@@ -99,7 +123,7 @@ function requestRecoveryFromUrl() {
       reason,
       details: {
         stale_minutes: staleMinutes,
-        source: "windows-watchdog"
+        source: "legacy-watchdog-url"
       }
     },
     (response) => {
@@ -159,8 +183,6 @@ function setNativeTextValue(element, value) {
 }
 
 function fillComposer(composer, prompt) {
-  composer.focus();
-
   if (
     composer instanceof HTMLTextAreaElement ||
     composer instanceof HTMLInputElement
@@ -244,6 +266,29 @@ function pressEnter(composer) {
   );
 }
 
+async function waitForComposer(timeoutMs = 15000) {
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    const composer = findFirstVisible(COMPOSER_SELECTORS);
+    if (composer) {
+      return composer;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  return null;
+}
+
+async function stopCurrentGenerationIfNeeded() {
+  const stopButton = findFirstVisible(STOP_SELECTORS);
+  if (!stopButton || stopButton.disabled) {
+    return false;
+  }
+
+  stopButton.click();
+  await new Promise((resolve) => setTimeout(resolve, 1200));
+  return true;
+}
+
 async function submitPendingResume() {
   if (resumeSubmitting) {
     return;
@@ -254,13 +299,17 @@ async function submitPendingResume() {
     return;
   }
 
-  const composer = findFirstVisible(COMPOSER_SELECTORS);
-  if (!composer) {
-    return;
-  }
-
   resumeSubmitting = true;
   try {
+    if (pending.stopFirst) {
+      await stopCurrentGenerationIfNeeded();
+    }
+
+    const composer = await waitForComposer();
+    if (!composer) {
+      return;
+    }
+
     const filled = fillComposer(composer, pending.prompt);
     if (!filled) {
       return;
@@ -286,8 +335,16 @@ async function submitPendingResume() {
   }
 }
 
+chrome.runtime.onMessage.addListener((message) => {
+  if (message?.type === "fm2001-run-pending-resume") {
+    submitPendingResume();
+  }
+});
+
 requestRecoveryFromUrl();
 
-const resumeInterval = setInterval(submitPendingResume, 2000);
-setTimeout(() => clearInterval(resumeInterval), 30 * 60 * 1000);
+// Allow a newly created background recovery tab time to load its composer.
+// Long-lived in-place recovery is event-driven by the background service worker.
+const startupResumeInterval = setInterval(submitPendingResume, 2000);
+setTimeout(() => clearInterval(startupResumeInterval), 2 * 60 * 1000);
 submitPendingResume();
