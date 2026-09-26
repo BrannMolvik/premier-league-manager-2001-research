@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 3,
-  "active_task": "Resolve League-parent child participant sources, then run canonical integrated schedule materializer and lock digests",
-  "last_known_main_head": "f434642c77f0d89850a63b84a3a24d36c3e35afe",
+  "active_task": "Run canonical integrated schedule materializer and lock Gate-3 digests/counts",
+  "last_known_main_head": "4c1560cf2f0271787ea20c1cd219e032c9ebf3ab",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 4,
+  "recovery_generation": 5,
   "last_recovery_reason": "stale-repository-activity",
   "note": "Recovered into a new worker because no usable worker tab remained. Continue from GitHub canonical state without repeating persisted investigation. Transient stalls should still reuse/stop/re-prompt the same worker when available."
 }
