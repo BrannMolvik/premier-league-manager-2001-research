@@ -12,6 +12,7 @@ from competition_startup import (
     expand_champions_league_to_uefa_transfer,
     expand_standard_cup_allocation_instructions,
     msvc_crt_qsort,
+    materialize_cup_runtime_rounds,
     ordered_cup_allocation_instructions,
     primary_cup_round_initialization_order,
     primary_mode0_cup_pairing_draw_count,
@@ -995,6 +996,111 @@ class MiniLeaguePreparationTests(unittest.TestCase):
             ),
             (0, 0),
         )
+
+
+class CupRuntimeMaterializationTests(unittest.TestCase):
+    class IdentityRng:
+        def randbelow(self, bound):
+            return bound - 1
+
+    def test_knockout_winners_feed_next_round(self):
+        round1 = type("R", (), {
+            "id": 100,
+            "type_code": 1,
+            "team_count": 4,
+            "new_entrants": 4,
+            "source_competition_reference": 0xFFFFFFFF,
+        })()
+        round2 = type("R", (), {
+            "id": 101,
+            "type_code": 1,
+            "team_count": 2,
+            "new_entrants": 0,
+            "source_competition_reference": 0xFFFFFFFF,
+        })()
+        instructions = (
+            CupAllocation(1, 50, 1, 3, 8, 4),
+        )
+        expansion = expand_standard_cup_allocation_instructions(
+            50,
+            (round1, round2),
+            instructions,
+            ranked_club_ids_by_source={},
+            enumerated_club_ids_by_source={8: (1, 2, 3, 4)},
+        )
+
+        runtime = materialize_cup_runtime_rounds(
+            50,
+            (round1, round2),
+            expansion,
+            self.IdentityRng(),
+            child_rounds_by_competition={},
+        )
+
+        self.assertEqual(len(runtime.rounds[0].pairings), 2)
+        self.assertEqual(len(runtime.rounds[1].pairings), 1)
+        final_refs = dict(runtime.round_participant_refs)[101]
+        self.assertEqual(len(final_refs), 2)
+        self.assertTrue(all(ref.type_code == 1 for ref in final_refs))
+        self.assertEqual(
+            tuple(ref.reference_token for ref in final_refs),
+            (
+                ("cup_result", 50, 100, 0),
+                ("cup_result", 50, 100, 1),
+            ),
+        )
+
+    def test_minileague_positions_feed_next_round(self):
+        group_round = type("R", (), {
+            "id": 200,
+            "type_code": 3,
+            "team_count": 8,
+            "new_entrants": 8,
+            "source_competition_reference": 300,
+        })()
+        final_round = type("R", (), {
+            "id": 201,
+            "type_code": 1,
+            "team_count": 2,
+            "new_entrants": 0,
+            "source_competition_reference": 0xFFFFFFFF,
+        })()
+        child_round = type("R", (), {
+            "id": 400,
+            "team_count": 4,
+        })()
+        instructions = (
+            CupAllocation(1, 60, 1, 3, 8, 8),
+        )
+        expansion = expand_standard_cup_allocation_instructions(
+            60,
+            (group_round, final_round),
+            instructions,
+            ranked_club_ids_by_source={},
+            enumerated_club_ids_by_source={8: tuple(range(10, 18))},
+        )
+
+        runtime = materialize_cup_runtime_rounds(
+            60,
+            (group_round, final_round),
+            expansion,
+            self.IdentityRng(),
+            child_rounds_by_competition={300: (child_round,)},
+        )
+
+        self.assertEqual(len(runtime.rounds[0].minileague_groups), 2)
+        final_refs = dict(runtime.round_participant_refs)[201]
+        self.assertEqual(
+            tuple(
+                (ref.type_code, ref.competition_context, ref.selector)
+                for ref in final_refs
+            ),
+            (
+                (2, 0, 0),
+                (2, 1, 0),
+            ),
+        )
+        self.assertEqual(len(runtime.rounds[1].pairings), 1)
 
 
 if __name__ == "__main__":
