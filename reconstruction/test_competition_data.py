@@ -6,6 +6,8 @@ from fm2001_data import (
     COMPETITION_TABLE_OFFSET,
     ROUND_RECORD_SIZE,
     ROUND_TABLE_OFFSET,
+    ACCESS_SKILL_FINANCIAL_TABLE_OFFSET,
+    ACCESS_SKILL_FINANCIAL_RECORD_SIZE,
     FM2001Database,
 )
 
@@ -77,6 +79,44 @@ class CompetitionParserTests(unittest.TestCase):
         self.assertEqual(db.competitions[1].country_region_id, 123)
         self.assertEqual(db.competitions[1].runtime_instance_count, 8)
         self.assertEqual(db.competitions[1].scheduled_matchday_count, 6)
+
+
+class AccessSkillFinancialParserTests(unittest.TestCase):
+    def test_financial_rows_decode_packed_id_plus_six_dwords(self):
+        data = bytearray(
+            ACCESS_SKILL_FINANCIAL_TABLE_OFFSET
+            + 4
+            + 2 * ACCESS_SKILL_FINANCIAL_RECORD_SIZE
+        )
+        struct.pack_into("<I", data, ACCESS_SKILL_FINANCIAL_TABLE_OFFSET, 2)
+        base = ACCESS_SKILL_FINANCIAL_TABLE_OFFSET + 4
+        struct.pack_into(
+            "<H6I", data, base,
+            0, 50, 10, 1000, 250, 10, 2,
+        )
+        struct.pack_into(
+            "<H6I",
+            data,
+            base + ACCESS_SKILL_FINANCIAL_RECORD_SIZE,
+            1, 125, 25, 2000, 500, 13, 3,
+        )
+
+        db = FM2001Database.__new__(FM2001Database)
+        db.static = bytes(data)
+        db.access_skill_financial_values = []
+
+        db._parse_access_skill_financial_values()
+
+        self.assertEqual(len(db.access_skill_financial_values), 2)
+        self.assertEqual(
+            db.access_skill_financial_values[0].weekly_wage_base,
+            1000,
+        )
+        self.assertEqual(
+            db.access_skill_financial_values[0].weekly_wage_random_range,
+            250,
+        )
+        self.assertEqual(db.access_skill_financial_value(1).id, 1)
 
 
 class RoundParserTests(unittest.TestCase):
