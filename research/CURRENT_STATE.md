@@ -100,14 +100,13 @@ The bucket-54 population/order must be re-audited after Cup and procedural child
 
 Continue Gate 3 from the now-integrated primary schedule-node materializer:
 
-1. Resolve the exact startup participant source for the remaining **League-parent procedural child competitions 97, 157, and 169** if canonical execution cannot populate them from current direct members. Their parents are ordinary Leagues, so the Cup/DummyLeague parent-vector shuffle is correctly skipped; do not invent symbolic participants.
-2. Execute `materialize_primary_rng_driven_schedule()` against the canonical `Master.dat` / `Static.dat` / STR data plus the real-fixture table. The materializer must retain the already-verified complete competition RNG stream:
+1. Execute `materialize_primary_rng_driven_schedule()` against the canonical `Master.dat` / `Static.dat` / STR data plus the real-fixture table. The former League-parent child blocker is resolved: generic League::Initialize `0x4F5150 -> 0x4F4FD0` expands destination Cup-allocation types 4/1 into exact type-2 source-position ClubRefs for competitions 97, 157, and 169. The materializer must retain the already-verified complete competition RNG stream:
    - 6,165 bounded calls;
    - 167 RNG-bearing high-level events, plus the explicit zero-draw fixed-League traversal marker used only for node ordering;
    - synthetic state `0x2797444C -> 0x0DD3ACA3`;
    - ordered-bound digest `3e7accfdf108a48a53902bb32a782fb23c64c7e5ce54eff101e0f869f6c3629c`.
-3. Lock the canonical participant, pairing, Cup-schedule, and complete schedule-node SHA-256 digests; record counts per Cup/round/League runtime, fixed-fixture count, Scottish split count, and dropped refs.
-4. Re-audit Gate-3 completion criteria. If complete, update `ROADMAP.md`, `CURRENT_STATE.md`, `project_status.json`, and `PROGRESS.md`, commit the gate transition, then resume Gate 4.
+2. Lock the canonical participant, pairing, Cup-schedule, and complete schedule-node SHA-256 digests; record counts per Cup/round/League runtime, fixed-fixture count, Scottish split count, and dropped refs.
+3. Re-audit Gate-3 completion criteria. If complete, update `ROADMAP.md`, `CURRENT_STATE.md`, `project_status.json`, and `PROGRESS.md`, commit the gate transition, then resume Gate 4.
 
 ## Gate 3 completion criteria (reopened)
 
@@ -144,7 +143,7 @@ Already implemented and tested at a substantial level:
 See `FIDELITY_GAPS.md` for the canonical list. Most relevant now:
 
 - the primary schedule-node materializer is implemented for fixed real-fixture Leagues, generic procedural Leagues, MiniLeague child groups, ScotPremierLeague's post-split schedule, and Cup Normal/TwoLeg nodes, but its canonical shipped-data output has not yet been digest-locked;
-- League-parent procedural child competitions 97/157/169 still need exact participant-source confirmation if current direct membership is insufficient during the canonical run;
+- League-parent procedural child competitions 97/157/169 now have exact type-2 source-position ClubRefs recovered from `0x4F4FD0`; the remaining Gate-3 requirement is the shipped-data end-to-end digest lock;
 - exact inter-bucket RNG consumption/order inside primary `0x615BE0` is Gate-4 work paused behind Gate 3;
 - deterministic fixture-ID same-day fallback;
 - unresolved final league-table tie fallback;
