@@ -77,7 +77,7 @@ Completion criteria:
 
 ## Gate 3 - Build an executable startup RNG ledger
 
-**Status: IN PROGRESS**
+**Status: COMPLETE**
 
 Goal: turn the recovered startup sequence into reproducible code and tests.
 
@@ -96,12 +96,12 @@ Completion criteria:
 - [x] One shared MSVC CRT RNG stream is used for all currently mapped mandatory startup draws.
 - [x] Fixed-seed tests verify intermediate state, not only final output.
 - [x] Legacy Python-RNG fallbacks are removed or isolated where original behavior requires CRT RNG.
-- [x] Account for the full Cup round scheduler RNG call cost before primary `0x615BE0` and restore the exact hidden CRT state.
-- [ ] Materialize exact bounded-call ordering and Cup pairing output required for global schedule reconstruction.
+- [x] Account for the full Cup round scheduler RNG call cost before primary `0x615BE0` using each runtime round's actual `+0x0C` participant count and restore the exact hidden CRT state.
+- [x] Materialize exact bounded-call ordering, Cup/League participant and pairing output, and schedule-node descriptors required for global schedule reconstruction.
 
 ## Gate 4 - Resolve exact Premier League matchday ordering
 
-**Status: PAUSED — valid scheduler groundwork retained; waiting for corrected Gate-3 RNG ledger**
+**Status: IN PROGRESS**
 
 Goal: replace deterministic fixture-ID fallback with the original scheduling/execution order.
 
