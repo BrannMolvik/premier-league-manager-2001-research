@@ -528,14 +528,22 @@ class CupKnockoutPreparationTests(unittest.TestCase):
             ((2, 0), (3, 1)),
         )
 
-    def test_odd_synthetic_knockout_round_is_rejected(self):
+    def test_odd_knockout_round_leaves_one_sorted_ref_unpaired(self):
         refs = tuple(
             CupClubRefDescriptor(type_code=0, direct_club_id=club_id)
             for club_id in range(3)
         )
 
-        with self.assertRaises(ValueError):
-            prepare_cup_knockout_round(refs, RecordingRng(0))
+        prepared = prepare_cup_knockout_round(refs, RecordingRng(0))
+
+        self.assertEqual(len(prepared.sorted_refs), 3)
+        self.assertEqual(len(prepared.pairs), 1)
+        paired_ids = {
+            ref.direct_club_id
+            for pair in prepared.pairs
+            for ref in pair
+        }
+        self.assertEqual(len(paired_ids), 2)
 
 
 @dataclass(frozen=True)
@@ -777,7 +785,7 @@ class StandardCupAllocationExpansionTests(unittest.TestCase):
             )
             for club_id in (1, 2, 3, 4, 5)
         )
-        prepared = prepare_cup_knockout_round(refs, RecordingRng())
+        prepared = prepare_cup_knockout_round(refs, RecordingRng(0))
 
         self.assertEqual(len(prepared.sorted_refs), 5)
         self.assertEqual(len(prepared.pairs), 2)
