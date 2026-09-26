@@ -3197,3 +3197,18 @@ This is not being approximated. The exact next task is to recover the Cup-source
 enumeration semantics for Cup 98 (and audit whether any other type-3 Cup sources
 exist), implement them, then rerun the canonical materializer. No participant,
 pairing, or schedule digest is labeled canonical until this path is resolved.
+
+## 27 September canonical Cup allocation / RNG correction
+
+The canonical integrated run exposed two reconstruction assumptions that were stricter than the executable:
+
+1. Allocation type 5 (`0x4F5F97`) stops normally when its source ranking is exhausted, even if fewer than the requested number of clubs were accepted. Canonical League Cup demonstrates this directly: after two earlier type-3 qualifiers and the first Premier League type-5 instruction, the later `quantity=15` Premier League instruction can admit only 13 remaining clubs.
+2. Allocation type 3 (`0x4F60DD -> 0x4F58C0`) likewise performs exactly `quantity` source scans, but an exhausted scan inserts nothing and does not fail the instruction.
+
+Both silent-underfill behaviors are now implemented and regression-tested.
+
+A larger RNG-ledger correction follows from direct scheduler disassembly. NormalRound `0x4F64D0` and TwoLegRound `0x4F6820` load their Fisher-Yates count from runtime round `+0x0C` (the actual ClubRef count) before calling `0x64D540`. They do not shuffle the packed Static.dat team-capacity field directly.
+
+The canonical UEFA Cup materialization proves the distinction matters: allocation currently produces 80 refs for round 210 against packed capacity 82 before further exact eligibility semantics are resolved. Therefore the prior Gate-3 complete replay's Cup draw total of 1,737 and grand total of 6,165, which were derived from packed round team counts, must be treated as **superseded/provisional**, not final canonical values, until an actual-count integrated replay is completed.
+
+Next: replace the static-count Cup event plan with an adaptive one-pass competition replay that injects procedural-League RNG at the recovered competition traversal points while learning each Cup round's real descending shuffle bounds from the materialized participant vector.
