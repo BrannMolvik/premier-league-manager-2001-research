@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 8,
-  "active_task": "Audit mutable Gate-7 state and implement a versioned internal save snapshot with deterministic save/reload continuation",
-  "last_known_main_head": "092febc5e61f47cbff7d261cdb5a2fd4c3b3a145",
+  "active_task": "Compact the versioned internal save by referencing immutable database player fields, then rerun synthetic and canonical save/reload equivalence",
+  "last_known_main_head": "6e5c37faf8c0ddfbb92b2c4a9c77c7f143c3a998",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 9,
+  "recovery_generation": 10,
   "last_recovery_reason": "stale-repository-activity",
   "note": "Recovered into a new worker because no usable worker tab remained. Continue from GitHub canonical state without repeating persisted investigation. Transient stalls should still reuse/stop/re-prompt the same worker when available."
 }
