@@ -768,6 +768,36 @@ class StandardCupAllocationExpansionTests(unittest.TestCase):
             (101,),
         )
 
+    def test_knockout_odd_runtime_count_leaves_final_ref_unpaired(self):
+        refs = tuple(
+            CupClubRefDescriptor(
+                type_code=0,
+                direct_club_id=club_id,
+                reference_token=("direct_club", club_id),
+            )
+            for club_id in (1, 2, 3, 4, 5)
+        )
+        prepared = prepare_cup_knockout_round(refs, RecordingRng())
+
+        self.assertEqual(len(prepared.sorted_refs), 5)
+        self.assertEqual(len(prepared.pairs), 2)
+        paired_ids = {
+            ref.direct_club_id
+            for pair in prepared.pairs
+            for ref in pair
+        }
+        self.assertEqual(len(paired_ids), 4)
+        self.assertEqual(
+            len(
+                {
+                    ref.direct_club_id
+                    for ref in prepared.sorted_refs
+                }
+                - paired_ids
+            ),
+            1,
+        )
+
     def test_type5_scans_from_zero_and_skips_existing_direct_clubs(self):
         round_obj = type("R", (), {"id": 11, "new_entrants": 4})()
         instructions = (
