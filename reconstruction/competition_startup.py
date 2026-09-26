@@ -116,6 +116,24 @@ class PrimaryMode0PreShuffleStateReplay:
     total_draw_count: int
     state_entering_primary_shuffle: int
 
+@dataclass(frozen=True)
+class CupClubRefDescriptor:
+    """Semantic reconstruction of the 16-byte runtime ClubRef."""
+
+    type_code: int
+    selector: int = 0
+    direct_club_id: int | None = None
+    competition_id: int | None = None
+    competition_context: int = 0
+    reference_token: tuple | None = None
+
+
+@dataclass(frozen=True)
+class PreparedKnockoutRound:
+    shuffled_refs: tuple[CupClubRefDescriptor, ...]
+    sorted_refs: tuple[CupClubRefDescriptor, ...]
+    pairs: tuple[tuple[CupClubRefDescriptor, CupClubRefDescriptor], ...]
+
 
 def europe_root_cup_candidate_ids(
     clubs: Iterable[ClubSource],
@@ -815,3 +833,58 @@ def initial_competition_enumeration_club_ids(
             insert_first_empty(club_id)
 
     return tuple(slots)
+
+
+def compare_cup_club_refs(
+    left: CupClubRefDescriptor,
+    right: CupClubRefDescriptor,
+) -> int:
+    """Reproduce ClubRef comparator 0x4F67D0."""
+    left_type = int(left.type_code)
+    right_type = int(right.type_code)
+
+    if left_type == 2:
+        if right_type != 2:
+            return -1
+        left_key = (
+            int(left.competition_id if left.competition_id is not None else -1),
+            int(left.competition_context),
+        )
+        right_key = (
+            int(right.competition_id if right.competition_id is not None else -1),
+            int(right.competition_context),
+        )
+        return _compare_orderable(left_key, right_key)
+
+    if right_type == 2:
+        return 1
+    return 0
+
+
+def prepare_cup_knockout_round(
+    participant_refs: Iterable[CupClubRefDescriptor],
+    rng: BoundedRng,
+) -> PreparedKnockoutRound:
+    """Reproduce NormalRound/TwoLegRound shuffle, qsort, and pairing."""
+    shuffled = list(participant_refs)
+    if len(shuffled) % 2:
+        raise ValueError(
+            "canonical primary knockout rounds have even participant counts"
+        )
+
+    for remaining in range(len(shuffled), 1, -1):
+        selected = rng.randbelow(remaining)
+        last = remaining - 1
+        shuffled[selected], shuffled[last] = shuffled[last], shuffled[selected]
+
+    ordered = msvc_crt_qsort(shuffled, compare_cup_club_refs)
+    half = len(ordered) // 2
+    pairs = tuple(
+        (ordered[index], ordered[half + index])
+        for index in range(half)
+    )
+    return PreparedKnockoutRound(
+        shuffled_refs=tuple(shuffled),
+        sorted_refs=ordered,
+        pairs=pairs,
+    )
