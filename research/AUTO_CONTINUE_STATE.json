@@ -4,12 +4,12 @@
   "runtime_branch": "agent-runtime",
   "main_branch": "main",
   "enabled": true,
-  "mode": "interactive",
+  "mode": "continuous",
   "status": "waiting_for_user",
   "work_owner": "chatgpt",
   "active_gate": 3,
   "active_task": "Finish procedural League schedule-node emission in 0x6170F0 and integrate exact Cup/League schedule nodes",
-  "last_known_main_head": "51d9daa5854dd0bbc74d87b9b81e14d7515d5d63",
+  "last_known_main_head": "0e55f1113f62ffb8a29b411f044478a74f23799a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,5 +20,5 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 0,
   "last_recovery_reason": null,
-  "note": "Runtime control state only. Update this branch for session working/waiting/recovery transitions; keep technical project history on main."
+  "note": "Runtime control state only. Auto-recovery is armed but currently waiting for user installation/testing; technical project history stays on main."
 }
