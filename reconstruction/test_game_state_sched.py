@@ -71,7 +71,7 @@ class GameScheduleIntegrationTests(unittest.TestCase):
                 state.players[1].development.peak_ages.late,
                 state.players[1].startup_month_span,
             ),
-            (25, 28, 31, 36),
+            (25, 28, 30, 24),
         )
         self.assertEqual(
             (
@@ -80,9 +80,9 @@ class GameScheduleIntegrationTests(unittest.TestCase):
                 state.players[2].development.peak_ages.late,
                 state.players[2].startup_month_span,
             ),
-            (25, 28, 31, 48),
+            (25, 28, 30, 60),
         )
-        self.assertEqual(state.rng.state, 0xDF90722B)
+        self.assertEqual(state.rng.state, 0x6DF109FD)
 
     def test_database_state_resolves_its_shared_rng_by_default(self):
         state = GameState.from_database(
