@@ -5270,3 +5270,58 @@ The startup placement pass writes the club into that preferred slot when in rang
 For Cup sources, virtual `+0x1C = 0x4F5770` instead enumerates Cup `+0x40` at index zero and Cup `+0x44` at the second index.
 
 Accordingly, allocation type 3 must use the competition's dedicated historical/qualification enumeration, not the alphabetized current League table.
+
+
+## DummyLeague +0x0C random sort is post-primary-shuffle
+
+**Confirmed 26 September 2026 from the concrete `0x616620`, `0x411020`, `0x411150`, and `0x616A70` call paths.**
+
+A participant-source audit raised a potential concern because DummyLeague virtual `+0x0C = 0x4F7FE0` invokes virtual `+0x38 = 0x4F4750`, and `0x4F4750` consumes CRT RNG while sorting DummyLeague participants.
+
+That RNG does **not** belong to the primary pre-`0x615BE0` startup ledger.
+
+### Primary initialization path
+
+`0x616620` traverses countries and calls `0x411020(country, schedule_mode, outer_argument)`.
+For each matching root competition, `0x411020` checks virtual `+0x30` against the requested schedule mode and calls competition virtual **`+0x00`** at `0x41113E`. It does **not** call virtual `+0x0C`.
+
+After country/root initialization, `0x616620` runs the already-audited team finalization paths and then calls `0x615BE0` at `0x6168A4` before returning.
+
+### Competition +0x0C finalization path
+
+Country helper `0x411150` scans root competitions and calls virtual **`+0x0C`** at `0x411178`.
+The only direct executable caller of `0x411150` is later helper `0x616A70`; a direct call site is `0x4F93E7 -> 0x616A70`, outside the `0x616620` primary construction/shuffle sequence.
+
+Therefore DummyLeague `+0x0C -> 0x4F7FE0 -> 0x4F4750` random sorting occurs **after** primary `0x615BE0`, not before it.
+
+### Gate-3 consequence
+
+The corrected primary pre-shuffle competition ledger remains **1,737 Cup participant-shuffle calls + 2 Europe selector calls = 1,739 bounded CRT calls**. No DummyLeague finalization draw belongs before primary `0x615BE0`.
+
+## Canonical Cup allocation semantics narrowed
+
+### Allocation type 1
+
+All 11 shipped type-1 instructions reference ordinary root Leagues. League virtual `+0x18 = 0x6596A0` returns false, so the alternate match-selection branch is not taken for canonical startup data.
+
+The canonical type-1 path emits sequential **type-2 competition-position ClubRefs** from the referenced League, starting at the per-source accumulator value and incrementing that accumulator for every emitted reference. Type-4 allocation instructions modify the same accumulator before later type-1 instructions and emit no ClubRef themselves.
+
+### Allocation type 2
+
+There are exactly two shipped type-2 instructions, both transferring teams from Champions League competition 9 into UEFA Cup competition 10.
+
+If the indexed source round is not a MiniLeagueRound, the code examines the **next** source round, selects participant ClubRefs of type 1, follows their referenced match object, and creates new ClubRef **type 1 with selector 1**. Because selector 1 resolves the opposite side, this path transfers knockout losers.
+
+If the indexed source round is a MiniLeagueRound, the code constructs ClubRef **type 3** references from the MiniLeague child-League grouping/position state. This is the group-placement transfer path.
+
+### Allocation type 3
+
+Canonical type-3 instructions call `0x4F58C0(destination, source, 0)` once per requested entry. For non-null sources, `0x4F58C0` enumerates the source through virtual `+0x20/+0x1C`, rejects already-used/ineligible direct clubs via `0x4F5810`, and adds the first accepted club through `0x4F5840` as a direct type-0 ClubRef.
+
+The caller restarts at source index 0 for every requested entry; the duplicate guard makes successive calls advance to successive eligible unique source clubs.
+
+For League/DummyLeague/Scot sources, `+0x1C = 0x4F3EE0` reads the dedicated `+0x30/+0x3C` enumeration array. For Cup sources, `+0x1C = 0x4F5770` enumerates Cup `+0x40/+0x44`.
+
+### ClubRef type 4 is outside primary Cup allocation
+
+A full direct-call scan finds type-4 ClubRef constructor `0x4F2D90` only at `0x4FADA5`, `0x4FADB5`, `0x4FAE17`, and `0x4FAE27`, all within Scottish Premier League procedural scheduling. No primary Cup allocation branch creates type-4 ClubRefs, so that tag can be deferred for the reopened Gate-3 Cup-pairing objective.
