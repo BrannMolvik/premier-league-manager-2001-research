@@ -298,21 +298,122 @@ def replay_primary_mode0_pre_shuffle_state(
 
 
 
-def _msvc_small_qsort_by_key(items, key):
-    """Reproduce the <=8-element path of CRT qsort at 0x668DA4."""
+def _compare_orderable(left, right) -> int:
+    if left < right:
+        return -1
+    if left > right:
+        return 1
+    return 0
+
+
+def msvc_crt_qsort(items, comparator):
+    """Reproduce the VC-era CRT qsort at 0x668DA4.
+
+    The executable uses an iterative quicksort with an eight-element cutoff.
+    Ranges of <=8 elements go through 0x668EF8, a selection-style shortsort
+    that is deliberately *not stable* for equal elements.
+
+    Larger ranges:
+    - swap the middle element to the low/pivot slot;
+    - scan inward with <= / >= comparisons against the pivot;
+    - swap the pivot into the final high-scan position;
+    - process the smaller partition immediately and push the larger partition.
+
+    Exact equal-element movement matters for Cup ClubRef ordering because
+    comparator 0x4F67D0 returns zero for most non-type2 pairs.
+    """
     result = list(items)
-    if len(result) > 8:
-        raise ValueError("small CRT qsort helper only models arrays of at most 8")
-    for end in range(len(result) - 1, 0, -1):
-        max_index = 0
-        max_key = key(result[0])
-        for index in range(1, end + 1):
-            value = key(result[index])
-            if value > max_key:
-                max_index = index
-                max_key = value
-        result[max_index], result[end] = result[end], result[max_index]
+    if len(result) < 2:
+        return tuple(result)
+
+    stack: list[tuple[int, int]] = []
+    low = 0
+    high = len(result) - 1
+
+    while True:
+        count = high - low + 1
+        if count <= 8:
+            end = high
+            while end > low:
+                max_index = low
+                for index in range(low + 1, end + 1):
+                    if comparator(result[index], result[max_index]) > 0:
+                        max_index = index
+                result[max_index], result[end] = result[end], result[max_index]
+                end -= 1
+
+            if not stack:
+                break
+            low, high = stack.pop()
+            continue
+
+        middle = low + count // 2
+        result[middle], result[low] = result[low], result[middle]
+
+        low_scan = low
+        high_scan = high + 1
+        while True:
+            low_scan += 1
+            while (
+                low_scan <= high
+                and comparator(result[low_scan], result[low]) <= 0
+            ):
+                low_scan += 1
+
+            high_scan -= 1
+            while (
+                high_scan > low
+                and comparator(result[high_scan], result[low]) >= 0
+            ):
+                high_scan -= 1
+
+            if high_scan < low_scan:
+                break
+
+            result[low_scan], result[high_scan] = (
+                result[high_scan],
+                result[low_scan],
+            )
+
+        result[low], result[high_scan] = result[high_scan], result[low]
+
+        left = (low, high_scan - 1)
+        right = (low_scan, high)
+        left_count = max(0, left[1] - left[0] + 1)
+        right_count = max(0, right[1] - right[0] + 1)
+
+        # 0x668E8F branches when the left partition is strictly smaller,
+        # pushing the larger partition and immediately processing the smaller.
+        if left_count >= right_count:
+            if left_count >= 2:
+                stack.append(left)
+            if right_count >= 2:
+                low, high = right
+                continue
+        else:
+            if right_count >= 2:
+                stack.append(right)
+            if left_count >= 2:
+                low, high = left
+                continue
+
+        if not stack:
+            break
+        low, high = stack.pop()
+
     return tuple(result)
+
+
+def _msvc_qsort_by_key(items, key):
+    return msvc_crt_qsort(
+        items,
+        lambda left, right: _compare_orderable(key(left), key(right)),
+    )
+
+
+def _msvc_small_qsort_by_key(items, key):
+    """Compatibility wrapper; exact CRT behavior now supports all sizes."""
+    return _msvc_qsort_by_key(items, key)
 
 
 def _competition_subtree_has_primary_cup(
@@ -377,42 +478,11 @@ def primary_mode0_root_initialization_order(
         if not roots:
             continue
 
-        if len(roots) <= 8:
-            qsorted = _msvc_small_qsort_by_key(
-                roots,
-                lambda competition: -int(competition.initialization_order_value),
-            )
-            initialized = tuple(reversed(qsorted))
-        else:
-            groups: dict[int, list[OrderedCompetitionSource]] = {}
-            for root in roots:
-                groups.setdefault(
-                    int(root.initialization_order_value),
-                    [],
-                ).append(root)
-            for same_key in groups.values():
-                rng_bearing = [
-                    root
-                    for root in same_key
-                    if _competition_subtree_has_primary_cup(
-                        int(root.id),
-                        children_tuple,
-                        by_id,
-                    )
-                ]
-                if len(rng_bearing) > 1:
-                    raise ValueError(
-                        "large equal-key root group contains multiple primary "
-                        "Cup RNG-bearing subtrees; full CRT qsort emulation required"
-                    )
-            initialized = tuple(
-                sorted(
-                    roots,
-                    key=lambda competition: int(
-                        competition.initialization_order_value
-                    ),
-                )
-            )
+        qsorted = _msvc_qsort_by_key(
+            roots,
+            lambda competition: -int(competition.initialization_order_value),
+        )
+        initialized = tuple(reversed(qsorted))
 
         ordered.extend(
             competition
@@ -640,19 +710,10 @@ def ordered_cup_allocation_instructions(
         if int(instruction.destination_competition_id)
         == int(destination_competition_id)
     )
-    if len(selected) <= 8:
-        return _msvc_small_qsort_by_key(
-            selected,
-            lambda instruction: int(instruction.sequence_index),
-        )
-
-    keys = [int(instruction.sequence_index) for instruction in selected]
-    if len(set(keys)) != len(keys):
-        raise ValueError(
-            "large Cup allocation list contains equal sequence keys; "
-            "full CRT qsort ordering is required"
-        )
-    return tuple(sorted(selected, key=lambda instruction: int(instruction.sequence_index)))
+    return _msvc_qsort_by_key(
+        selected,
+        lambda instruction: int(instruction.sequence_index),
+    )
 
 
 
