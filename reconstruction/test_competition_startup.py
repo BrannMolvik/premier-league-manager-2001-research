@@ -20,6 +20,7 @@ from competition_startup import (
     primary_mode0_dummy_league_sort_source_ids,
     primary_mode0_root_initialization_order,
     prepare_cup_knockout_round,
+    prepare_cup_minileague_round,
     rank_dummy_league_for_type5,
     replay_primary_mode0_ordered_competition_rng,
     replay_primary_mode0_competition_rng,
@@ -882,6 +883,117 @@ class UefaTransferExpansionTests(unittest.TestCase):
                 (3, 14, group_index, 2)
                 for group_index in range(7, -1, -1)
             ),
+        )
+
+
+class MiniLeaguePreparationTests(unittest.TestCase):
+    def test_distribution_spreads_non_direct_refs_before_direct_clubs(self):
+        class IdentityRng:
+            def randbelow(self, bound):
+                return bound - 1
+
+        refs = (
+            CupClubRefDescriptor(
+                type_code=2,
+                selector=0,
+                competition_id=14,
+                competition_context=0,
+                reference_token=("seed", 0),
+            ),
+            CupClubRefDescriptor(
+                type_code=2,
+                selector=0,
+                competition_id=14,
+                competition_context=1,
+                reference_token=("seed", 1),
+            ),
+            CupClubRefDescriptor(
+                type_code=2,
+                selector=0,
+                competition_id=14,
+                competition_context=2,
+                reference_token=("seed", 2),
+            ),
+            CupClubRefDescriptor(
+                type_code=2,
+                selector=0,
+                competition_id=14,
+                competition_context=3,
+                reference_token=("seed", 3),
+            ),
+            CupClubRefDescriptor(type_code=0, direct_club_id=100),
+            CupClubRefDescriptor(type_code=0, direct_club_id=101),
+            CupClubRefDescriptor(type_code=0, direct_club_id=102),
+            CupClubRefDescriptor(type_code=0, direct_club_id=103),
+        )
+
+        prepared = prepare_cup_minileague_round(
+            refs,
+            IdentityRng(),
+            child_competition_id=14,
+            group_size=4,
+            next_round_existing_count=0,
+            next_round_capacity=4,
+        )
+
+        self.assertEqual(len(prepared.groups), 2)
+        self.assertEqual(
+            tuple(ref.competition_context for ref in prepared.groups[0][:2]),
+            (0, 2),
+        )
+        self.assertEqual(
+            tuple(ref.competition_context for ref in prepared.groups[1][:2]),
+            (1, 3),
+        )
+        self.assertTrue(
+            all(ref.type_code == 0 for ref in prepared.groups[0][2:])
+        )
+        self.assertTrue(
+            all(ref.type_code == 0 for ref in prepared.groups[1][2:])
+        )
+
+        self.assertEqual(
+            tuple(
+                (
+                    ref.competition_context,
+                    ref.selector,
+                )
+                for ref in prepared.propagated_refs
+            ),
+            (
+                (0, 0),
+                (1, 0),
+                (0, 1),
+                (1, 1),
+            ),
+        )
+
+    def test_next_round_existing_refs_reduce_propagation_count(self):
+        class IdentityRng:
+            def randbelow(self, bound):
+                return bound - 1
+
+        refs = tuple(
+            CupClubRefDescriptor(type_code=0, direct_club_id=club_id)
+            for club_id in range(8)
+        )
+
+        prepared = prepare_cup_minileague_round(
+            refs,
+            IdentityRng(),
+            child_competition_id=192,
+            group_size=4,
+            next_round_existing_count=1,
+            next_round_capacity=2,
+        )
+
+        self.assertEqual(len(prepared.propagated_refs), 1)
+        self.assertEqual(
+            (
+                prepared.propagated_refs[0].competition_context,
+                prepared.propagated_refs[0].selector,
+            ),
+            (0, 0),
         )
 
 
