@@ -6,6 +6,7 @@ from competition_startup import (
     initial_competition_enumeration_club_ids,
     initial_league_club_ids,
     initial_ranked_league_club_ids,
+    msvc_crt_qsort,
     ordered_cup_allocation_instructions,
     primary_cup_round_initialization_order,
     primary_mode0_cup_pairing_draw_count,
@@ -433,6 +434,28 @@ class InitialLeagueOrderingTests(unittest.TestCase):
             initial_ranked_league_club_ids(clubs, 7),
             (1, 2, 0),
         )
+
+
+class LegacyCrtQsortTests(unittest.TestCase):
+    def test_equal_small_range_uses_unstable_shortsort_rotation(self):
+        self.assertEqual(
+            msvc_crt_qsort((0, 1, 2, 3), lambda left, right: 0),
+            (1, 2, 3, 0),
+        )
+
+    def test_equal_large_range_keeps_exact_middle_pivot_swap(self):
+        self.assertEqual(
+            msvc_crt_qsort(tuple(range(10)), lambda left, right: 0),
+            (5, 1, 2, 3, 4, 0, 6, 7, 8, 9),
+        )
+
+    def test_mixed_values_sort_ascending(self):
+        values = (4, 1, 4, 2, 3, 1, 0, 5, 2, 4, 3)
+        ordered = msvc_crt_qsort(
+            values,
+            lambda left, right: (left > right) - (left < right),
+        )
+        self.assertEqual(ordered, tuple(sorted(values)))
 
 
 if __name__ == "__main__":
