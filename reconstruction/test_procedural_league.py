@@ -4,6 +4,7 @@ from match_schedule import MsvcCrtRng
 from procedural_league import (
     generate_procedural_league_round_robin,
     materialize_procedural_league_match_emissions,
+    materialize_scot_premier_split_match_emissions,
     procedural_league_cycle_count,
 )
 
@@ -105,6 +106,43 @@ class ProceduralLeagueRoundRobinTests(unittest.TestCase):
                 (1, 1, 1, 4, 3, 0),
             ],
         )
+    def test_scottish_post_split_symbolic_nodes(self):
+        emissions = materialize_scot_premier_split_match_emissions(12, 38)
+
+        self.assertEqual(len(emissions), 30)
+        self.assertEqual(
+            [
+                (
+                    item.pair_index,
+                    item.schedule_index,
+                    item.split_group,
+                    item.participant_0_selector,
+                    item.participant_1_selector,
+                )
+                for item in emissions[:8]
+            ],
+            [
+                (0, 33, "top", 3, 1),
+                (0, 33, "bottom", 2, 0),
+                (1, 33, "top", 7, 5),
+                (1, 33, "bottom", 6, 4),
+                (2, 33, "top", 11, 9),
+                (2, 33, "bottom", 10, 8),
+                (3, 34, "top", 15, 13),
+                (3, 34, "bottom", 14, 12),
+            ],
+        )
+        self.assertEqual(
+            [sum(item.schedule_index == index for item in emissions) for index in range(33, 38)],
+            [6, 6, 6, 6, 6],
+        )
+        self.assertEqual(emissions[-2].schedule_index, 37)
+        self.assertEqual(emissions[-2].participant_0_selector, 59)
+        self.assertEqual(emissions[-1].participant_0_selector, 58)
+
+    def test_scottish_split_rejects_noncanonical_partial_cycle_shape(self):
+        with self.assertRaises(ValueError):
+            materialize_scot_premier_split_match_emissions(12, 37)
     def test_odd_team_count_is_rejected_instead_of_inventing_byes(self):
         with self.assertRaises(ValueError):
             generate_procedural_league_round_robin((0, 1, 2), ZeroRng())
