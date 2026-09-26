@@ -33,6 +33,7 @@ from competition_schedule import (
 )
 from competition_startup import (
     CupClubRefDescriptor,
+    expand_league_position_allocation_instructions,
     initial_league_club_ids,
 )
 from cup_runtime import (
@@ -256,12 +257,14 @@ def materialize_primary_rng_driven_schedule(
     the caller's RNG.  The real RNG is then consumed exactly once by the
     interleaving adapter and existing Cup materializer.
 
-    Procedural League participants are exact when they are either:
+    Procedural League participants are exact when they are:
+    - MiniLeague groups already materialized by the parent Cup;
     - current direct members of the League in Master.dat; or
-    - MiniLeague groups already materialized by the parent Cup.
+    - type-2 source-position ClubRefs created by League::Initialize helper
+      0x4F4FD0 from the League's allocation-instruction vector.
 
-    If neither source yields the expected participant count, this routine
-    raises instead of manufacturing symbolic participant identities.
+    If those recovered sources do not yield the expected participant count,
+    this routine raises instead of manufacturing participant identities.
     """
     start_state = getattr(rng, "state", None)
     if start_state is None:
@@ -360,13 +363,25 @@ def materialize_primary_rng_driven_schedule(
                 club_list,
                 int(event.competition_id),
             )
-            if len(direct_ids) != participant_count:
-                raise ValueError(
-                    f"procedural League {key} requires {participant_count} "
-                    f"participants, but exact startup sources provide "
-                    f"{len(direct_ids)}"
+            if len(direct_ids) == participant_count:
+                refs = tuple(direct_club_ref(club_id) for club_id in direct_ids)
+            else:
+                allocation_expansion = (
+                    expand_league_position_allocation_instructions(
+                        int(event.competition_id),
+                        instruction_list,
+                    )
                 )
-            refs = tuple(direct_club_ref(club_id) for club_id in direct_ids)
+                if len(allocation_expansion.participant_refs) == participant_count:
+                    refs = allocation_expansion.participant_refs
+                else:
+                    raise ValueError(
+                        f"procedural League {key} requires {participant_count} "
+                        f"participants, but direct membership provides "
+                        f"{len(direct_ids)} and League allocation helper "
+                        f"0x4F4FD0 provides "
+                        f"{len(allocation_expansion.participant_refs)}"
+                    )
 
         if len(refs) != participant_count:
             raise ValueError(
