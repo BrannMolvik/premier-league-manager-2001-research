@@ -5,6 +5,7 @@ from competition_schedule import (
     club_refs_conflict,
     direct_club_ref,
     materialize_cup_round_schedule_nodes,
+    materialize_fixed_league_schedule_nodes,
     materialize_procedural_league_schedule_nodes,
     materialize_scot_premier_split_schedule_nodes,
     ordered_league_schedule_entries,
@@ -120,6 +121,73 @@ class CompetitionScheduleTests(unittest.TestCase):
                 competition_id=5,
             ),
             (),
+        )
+
+    def test_fixed_league_nodes_preserve_round_then_fixture_table_order(self):
+        rounds = (
+            SimpleNamespace(
+                id=10,
+                competition_id=0,
+                scheduled_week=1,
+                scheduled_weekday=6,
+            ),
+            SimpleNamespace(
+                id=11,
+                competition_id=0,
+                scheduled_week=2,
+                scheduled_weekday=3,
+            ),
+            SimpleNamespace(
+                id=12,
+                competition_id=99,
+                scheduled_week=1,
+                scheduled_weekday=1,
+            ),
+        )
+        fixtures = (
+            SimpleNamespace(
+                id=100,
+                round_index=11,
+                home_club_id=1,
+                away_club_id=2,
+            ),
+            SimpleNamespace(
+                id=101,
+                round_index=10,
+                home_club_id=3,
+                away_club_id=4,
+            ),
+            SimpleNamespace(
+                id=102,
+                round_index=10,
+                home_club_id=5,
+                away_club_id=6,
+            ),
+        )
+
+        nodes = materialize_fixed_league_schedule_nodes(
+            rounds,
+            fixtures,
+            competition_id=0,
+        )
+
+        self.assertEqual(
+            [
+                (
+                    node.round_id,
+                    node.pair_index,
+                    node.participant_0_ref.direct_club_id,
+                    node.participant_1_ref.direct_club_id,
+                    node.scheduled_week,
+                    node.scheduled_weekday,
+                )
+                for node in nodes
+            ],
+            [
+                (10, 0, 3, 4, 1, 6),
+                (10, 1, 5, 6, 1, 6),
+                (11, 0, 1, 2, 2, 3),
+            ],
         )
 
     def test_league_schedule_entries_sort_runtime_week_then_weekday(self):
