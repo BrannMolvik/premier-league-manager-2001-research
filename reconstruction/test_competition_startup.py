@@ -6,6 +6,7 @@ from competition_startup import (
     compare_cup_club_refs,
     europe_root_cup_candidate_ids,
     initial_competition_enumeration_club_ids,
+    initial_cup_enumeration_club_ids,
     initial_dummy_league_sort_entries,
     initial_league_club_ids,
     initial_ranked_league_club_ids,
@@ -807,6 +808,34 @@ class StandardCupAllocationExpansionTests(unittest.TestCase):
                 ranked_club_ids_by_source={},
                 enumerated_club_ids_by_source={},
             )
+
+
+class CupSourceEnumerationTests(unittest.TestCase):
+    def test_cup_virtual_enumerator_exposes_two_constructor_club_refs(self):
+        source = type(
+            "CupSource",
+            (),
+            {
+                "enumerated_club_reference_0": 591,
+                "enumerated_club_reference_1": 589,
+            },
+        )()
+        self.assertEqual(
+            initial_cup_enumeration_club_ids(source),
+            (591, 589),
+        )
+
+    def test_negative_cup_enumerator_reference_is_not_approximated(self):
+        source = type(
+            "CupSource",
+            (),
+            {
+                "enumerated_club_reference_0": -1,
+                "enumerated_club_reference_1": 589,
+            },
+        )()
+        with self.assertRaises(ValueError):
+            initial_cup_enumeration_club_ids(source)
 
 
 class CupAllocationOverflowTests(unittest.TestCase):
