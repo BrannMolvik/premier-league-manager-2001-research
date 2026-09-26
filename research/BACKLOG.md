@@ -43,3 +43,10 @@ A backlog item is not necessarily a bug or fidelity error. Known deviations from
 - Add long-duration multi-seed stress harnesses at Gate 16.
 - Consider stricter typing/static analysis after the simulation APIs settle.
 - Periodically audit historical research for statements that are technically superseded but not clearly labeled as such.
+
+
+- **DBTLeagueAllocations / DBRLeagueAllocation table**: canonical Static.dat
+  offset `0xFD43`, 28 packed 7-dword records, RTTI vtables `0x7C9844` /
+  `0x7C9858`. This is distinct from DBTCupAllocInstructions and was not
+  needed for Gate-3 startup. Recover its season-transition semantics when
+  broader promotion/relegation lifecycle work becomes active.
