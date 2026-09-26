@@ -72,6 +72,8 @@ class Club:
     country_id: int = 0
     runtime_value_1c_source: int = 0
     team_category_code: int = 0
+    historical_competition_id: int = 0
+    historical_slot_index: int = 0
 
 @dataclass(frozen=True)
 class Player:
@@ -150,6 +152,8 @@ class CompetitionDefinition:
     parent_competition_id: int | None = None
     initialization_order_value: int = 0
     country_region_id: int = 0
+    enumerated_club_id_0: int | None = None
+    enumerated_club_id_1: int | None = None
 
     @property
     def runtime_kind(self) -> str:
@@ -252,6 +256,8 @@ class FM2001Database:
             country_id = struct.unpack_from('<I', r, 12)[0]
             runtime_value_1c_source = struct.unpack_from('<I', r, 18)[0]
             stadium_id = struct.unpack_from('<H', r, 30)[0]
+            historical_competition_id = struct.unpack_from('<i', r, 32)[0]
+            historical_slot_index = struct.unpack_from('<i', r, 36)[0]
             manager_id = struct.unpack_from('<I', r, 48)[0]
             team_category_code = r[98]
             self.clubs.append(Club(
@@ -264,6 +270,8 @@ class FM2001Database:
                 country_id,
                 runtime_value_1c_source,
                 team_category_code,
+                historical_competition_id,
+                historical_slot_index,
             ))
 
         player_count = struct.unpack_from('<I', d, club_end)[0]
@@ -406,6 +414,16 @@ class FM2001Database:
                 ),
                 initialization_order_value=struct.unpack_from('<h', r, 15)[0],
                 country_region_id=struct.unpack_from('<I', r, 27)[0],
+                enumerated_club_id_0=(
+                    None
+                    if struct.unpack_from('<i', r, 19)[0] < 0
+                    else struct.unpack_from('<i', r, 19)[0]
+                ),
+                enumerated_club_id_1=(
+                    None
+                    if struct.unpack_from('<i', r, 23)[0] < 0
+                    else struct.unpack_from('<i', r, 23)[0]
+                ),
             ))
 
     def _parse_rounds(self):
