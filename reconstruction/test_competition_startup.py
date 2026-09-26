@@ -10,6 +10,7 @@ from competition_startup import (
     initial_league_club_ids,
     initial_ranked_league_club_ids,
     expand_champions_league_to_uefa_transfer,
+    expand_league_position_allocation_instructions,
     expand_standard_cup_allocation_instructions,
     msvc_crt_qsort,
     materialize_cup_runtime_rounds,
@@ -639,6 +640,55 @@ class DummyLeagueLazySortTests(unittest.TestCase):
             ),
             2,
         )
+
+
+class LeaguePositionAllocationExpansionTests(unittest.TestCase):
+    def test_canonical_dutch_playoff_1_pattern_emits_four_position_refs(self):
+        instructions = (
+            CupAllocation(205, 97, 1, 4, 54, 15),
+            CupAllocation(206, 97, 2, 1, 54, 1),
+            CupAllocation(207, 97, 3, 4, 96, 1),
+            CupAllocation(208, 97, 4, 1, 96, 1),
+            CupAllocation(213, 97, 5, 4, 96, 1),
+            CupAllocation(214, 97, 6, 1, 96, 2),
+        )
+
+        expansion = expand_league_position_allocation_instructions(
+            97,
+            instructions,
+        )
+
+        self.assertEqual(
+            tuple(
+                (ref.type_code, ref.competition_id, ref.selector)
+                for ref in expansion.participant_refs
+            ),
+            (
+                (2, 54, 15),
+                (2, 96, 1),
+                (2, 96, 3),
+                (2, 96, 4),
+            ),
+        )
+        self.assertEqual(
+            expansion.source_position_offsets,
+            ((54, 16), (96, 5)),
+        )
+
+    def test_non_league_helper_types_are_no_ops_as_in_4f4fd0(self):
+        instructions = (
+            CupAllocation(1, 97, 1, 3, 54, 9),
+            CupAllocation(2, 97, 2, 5, 54, 9),
+            CupAllocation(3, 97, 3, 2, 54, 9),
+        )
+
+        expansion = expand_league_position_allocation_instructions(
+            97,
+            instructions,
+        )
+
+        self.assertEqual(expansion.participant_refs, ())
+        self.assertEqual(expansion.source_position_offsets, ())
 
 
 class StandardCupAllocationExpansionTests(unittest.TestCase):
