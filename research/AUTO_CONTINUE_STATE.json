@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 9,
-  "active_task": "Decode DBTAccessSkillFinancialValues to compute authentic starting weekly wages; add initial contract expiry and persistent contract state",
+  "active_task": "Decode DBTAccessSkillFinancialValues for authentic startup weekly wages; materialize initial contract expiry; then add persistent contract state",
   "last_known_main_head": "8e03561b39b7eb955dbab0e70ed915f8fe7576f4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 11,
+  "recovery_generation": 12,
   "last_recovery_reason": "stale-repository-activity",
   "note": "Recovered into a new worker because no usable worker tab remained. Continue from GitHub canonical state without repeating persisted investigation. Transient stalls should still reuse/stop/re-prompt the same worker when available."
 }
