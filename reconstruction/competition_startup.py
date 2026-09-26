@@ -1151,12 +1151,14 @@ def prepare_cup_knockout_round(
     participant_refs: Iterable[CupClubRefDescriptor],
     rng: BoundedRng,
 ) -> PreparedKnockoutRound:
-    """Reproduce NormalRound/TwoLegRound shuffle, qsort, and pairing."""
+    """Reproduce NormalRound/TwoLegRound shuffle, qsort, and pairing.
+
+    The executable does not reject odd runtime participant counts. After
+    qsort it computes floor(count/2), pairs the first half against the next
+    half, and leaves the final sorted ClubRef unpaired. That ref is not
+    propagated as a bye by 0x4F64D0/0x4F6820.
+    """
     shuffled = list(participant_refs)
-    if len(shuffled) % 2:
-        raise ValueError(
-            "canonical primary knockout rounds have even participant counts"
-        )
 
     for remaining in range(len(shuffled), 1, -1):
         selected = rng.randbelow(remaining)
@@ -1765,11 +1767,19 @@ def materialize_cup_runtime_rounds(
         round_type = int(round_definition.type_code)
         current_refs = participant_refs_by_round[round_id]
         expected_count = int(round_definition.team_count)
-        if len(current_refs) != expected_count:
+        if len(current_refs) > expected_count:
             raise ValueError(
                 f"Cup {competition_id} round {round_id} has "
-                f"{len(current_refs)} refs before scheduling; expected "
-                f"{expected_count}"
+                f"{len(current_refs)} refs before scheduling; packed capacity "
+                f"is only {expected_count}"
+            )
+
+        begin_cup_round = getattr(rng, "begin_cup_round", None)
+        if callable(begin_cup_round):
+            begin_cup_round(
+                competition_id,
+                round_id,
+                len(current_refs),
             )
 
         next_round = (
