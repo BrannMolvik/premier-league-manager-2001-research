@@ -244,3 +244,46 @@ def shuffle_primary_schedule_buckets(
         draw_count=draw_count,
         state_after=None if state is None else int(state) & 0xFFFFFFFF,
     )
+
+
+def fixed_league_fixture_order_by_round(
+    buckets: Iterable[Iterable[StartupScheduleNode]],
+    *,
+    competition_id: int = 0,
+) -> tuple[tuple[int, tuple[int, ...]], ...]:
+    """Extract head-to-tail fixed-League execution order per round.
+
+    0x615C10 walks each shuffled bucket from its linked-list head through +0x04
+    next pointers. Scanning buckets in ascending container order and retaining
+    that per-bucket order therefore yields the scheduler-visible fixture order.
+
+    The fixed League node token is emitted as
+    ("fixed_league_match", competition_id, context, fixture_id).
+    """
+
+    competition_id = int(competition_id)
+    by_round: dict[int, list[int]] = {}
+    round_order: list[int] = []
+
+    for bucket in buckets:
+        for node in bucket:
+            if (
+                node.node_kind != "fixed_league_match"
+                or int(node.competition_id) != competition_id
+                or node.round_id is None
+            ):
+                continue
+
+            round_id = int(node.round_id)
+            if round_id not in by_round:
+                by_round[round_id] = []
+                round_order.append(round_id)
+
+            if not node.node_token:
+                raise ValueError("fixed League schedule node has no fixture token")
+            by_round[round_id].append(int(node.node_token[-1]))
+
+    return tuple(
+        (round_id, tuple(by_round[round_id]))
+        for round_id in round_order
+    )
