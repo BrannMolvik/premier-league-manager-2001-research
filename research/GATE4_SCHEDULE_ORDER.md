@@ -1,5 +1,11 @@
 # Gate 4 - Primary Schedule Placement and Premier League Order
 
+> **27 September 2026 startup-wage RNG correction:** deterministic RNG states,
+> schedule orders, audit hashes and later gameplay outcomes in this file that
+> conflict with `research/STARTUP_WAGE_RNG_CORRECTION.md` are superseded by
+> that correction. The gate's functional conclusion remains valid.
+
+
 _Last verified: 27 September 2026_
 
 This note is the canonical evidence for Gate 4. It starts from the Gate-3
