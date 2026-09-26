@@ -1221,6 +1221,9 @@ def expand_standard_cup_allocation_instructions(
     ranked_club_ids_by_source: dict[int, tuple[int, ...]],
     enumerated_club_ids_by_source: dict[int, tuple[int | None, ...]],
     unavailable_direct_club_ids: Iterable[int] = (),
+    special_type2_refs_by_instruction_id: dict[
+        int, tuple[CupClubRefDescriptor, ...]
+    ] | None = None,
 ) -> StandardCupAllocationExpansion:
     """Expand canonical allocation types 1/3/4/5 into Cup round ClubRefs."""
     destination_competition_id = int(destination_competition_id)
@@ -1238,6 +1241,10 @@ def expand_standard_cup_allocation_instructions(
     source_offsets: dict[int, int] = {}
     direct_ids: set[int] = set()
     unavailable = {int(value) for value in unavailable_direct_club_ids}
+    special_type2_refs_by_instruction_id = (
+        {} if special_type2_refs_by_instruction_id is None
+        else special_type2_refs_by_instruction_id
+    )
     emitted: list[CupClubRefDescriptor] = []
     dropped: list[CupClubRefDescriptor] = []
 
@@ -1346,9 +1353,22 @@ def expand_standard_cup_allocation_instructions(
             continue
 
         if instruction_type == 2:
-            raise NotImplementedError(
-                "allocation type 2 requires Champions-League transfer descriptors"
+            supplied = special_type2_refs_by_instruction_id.get(
+                int(instruction.id)
             )
+            if supplied is None:
+                raise NotImplementedError(
+                    "allocation type 2 requires Champions-League transfer "
+                    "descriptors"
+                )
+            if len(supplied) != quantity:
+                raise ValueError(
+                    f"type-2 instruction {int(instruction.id)} supplied "
+                    f"{len(supplied)} refs for quantity {quantity}"
+                )
+            for ref in supplied:
+                append_ref(ref)
+            continue
 
         raise ValueError(
             f"unsupported Cup allocation instruction type {instruction_type}"
