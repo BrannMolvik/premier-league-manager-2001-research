@@ -119,7 +119,7 @@ Latest standard handoff follows:
 ${handoff}`;
 }
 
-async function triggerRecovery(reason, state, details = {}) {
+async function savePendingRecovery(reason, state, tabId, details = {}) {
   const guard = await recoveryGuard(state);
   if (!guard) {
     return false;
@@ -130,9 +130,8 @@ async function triggerRecovery(reason, state, details = {}) {
   try {
     const handoff = await fetchText(handoffUrl());
     const prompt = buildRecoveryPrompt(reason, handoff, details);
-    const tab = await chrome.tabs.create({ url: CHAT_URL, active: true });
     const recoveryRecord = {
-      tabId: tab.id,
+      tabId,
       prompt,
       reason,
       createdAt: guard.now,
@@ -149,9 +148,14 @@ async function triggerRecovery(reason, state, details = {}) {
     return true;
   } catch (error) {
     await chrome.storage.local.set({ recoveryInFlightAt: 0 });
-    console.warn("FM2001 auto-continue recovery failed", error);
+    console.warn("FM2001 auto-continue recovery preparation failed", error);
     return false;
   }
+}
+
+async function triggerRecovery(reason, state, details = {}) {
+  const tab = await chrome.tabs.create({ url: CHAT_URL, active: true });
+  return savePendingRecovery(reason, state, tab.id, details);
 }
 
 async function checkLease() {
@@ -228,6 +232,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ ok: true });
       } catch (error) {
         console.warn("FM2001 UI-failure recovery failed", error);
+        sendResponse({ ok: false, error: String(error) });
+      }
+    })();
+    return true;
+  }
+
+  if (message?.type === "fm2001-request-recovery") {
+    (async () => {
+      try {
+        const state = await getRuntimeState();
+        if (!shouldMonitor(state)) {
+          sendResponse({ ok: false, reason: "runtime-not-working" });
+          return;
+        }
+
+        const tabId = sender?.tab?.id;
+        if (!tabId) {
+          sendResponse({ ok: false, reason: "missing-tab" });
+          return;
+        }
+
+        const accepted = await savePendingRecovery(
+          message.reason || "local watchdog recovery request",
+          state,
+          tabId,
+          message.details || {}
+        );
+        sendResponse({ ok: accepted });
+      } catch (error) {
+        console.warn("FM2001 local-watchdog recovery failed", error);
         sendResponse({ ok: false, error: String(error) });
       }
     })();
