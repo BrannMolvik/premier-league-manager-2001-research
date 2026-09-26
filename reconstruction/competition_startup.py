@@ -1710,6 +1710,7 @@ def materialize_cup_runtime_rounds(
                             reference_token=result_token,
                         )
                     )
+            participant_refs_by_round[round_id] = list(prepared.sorted_refs)
             materialized.append(
                 MaterializedCupRound(
                     round_id=round_id,
@@ -1751,6 +1752,7 @@ def materialize_cup_runtime_rounds(
                 next_round_existing_count=next_existing,
                 next_round_capacity=next_capacity,
             )
+            participant_refs_by_round[round_id] = list(prepared.sorted_refs)
             if next_round is not None:
                 participant_refs_by_round[int(next_round.id)].extend(
                     prepared.propagated_refs
