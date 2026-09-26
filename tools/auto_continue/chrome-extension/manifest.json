@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "FM2001 ChatGPT Auto Continue",
+  "version": "0.1.0",
+  "description": "Recovers continuous FM2001 ChatGPT work after a stalled session, connection interruption, or chat-length limit.",
+  "permissions": [
+    "alarms",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://api.github.com/*",
+    "https://raw.githubusercontent.com/*",
+    "https://chatgpt.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chatgpt.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "FM2001 Auto Continue"
+  }
+}
