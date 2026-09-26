@@ -1,6 +1,7 @@
 param(
     [switch]$Once,
-    [switch]$DryRun
+    [switch]$DryRun,
+    [switch]$TestRecovery
 )
 
 $ErrorActionPreference = "Stop"
@@ -190,6 +191,19 @@ function Request-Recovery([string]$Reason, [int]$StaleMinutes, $RuntimeState) {
 function Invoke-WatchdogCheck {
     try {
         $runtime = Get-RuntimeState
+
+        if ($TestRecovery) {
+            if (
+                $runtime.enabled -eq $true -and
+                [string]$runtime.mode -eq "continuous" -and
+                [string]$runtime.status -eq "working"
+            ) {
+                Request-Recovery "manual-end-to-end-test" 0 $runtime
+            } else {
+                Write-WatchdogLog "Test recovery skipped: runtime status=$($runtime.status), mode=$($runtime.mode)."
+            }
+            return
+        }
 
         $shouldMonitor =
             $runtime.enabled -eq $true -and
