@@ -5,6 +5,7 @@ from datetime import date
 from typing import Protocol, Sequence
 
 from match_schedule import BoundedRng
+from player_contract import contract_expiry_from_month_span, initial_weekly_wage
 
 from player_development import (
     DevelopmentState,
@@ -144,6 +145,8 @@ class RuntimePlayer:
     injury_history_weight: int = 0
     morale: int = DEFAULT_MAXIMUM_MORALE
     startup_month_span: int = 0
+    weekly_wage: int = 0
+    contract_expiry_date: date | None = None
 
     @classmethod
     def from_database_player(
@@ -153,6 +156,8 @@ class RuntimePlayer:
         rng: BoundedRng,
         *,
         constructor_morale: int | None = None,
+        financial_values=None,
+        country_multiplier_percent: int = 100,
     ) -> "RuntimePlayer":
         current = list(source.current_raw)
         target = tuple(source.target_raw)
@@ -166,12 +171,21 @@ class RuntimePlayer:
                 rng, INITIAL_MORALE_RANDOM_RANGE
             )
 
-        # 0x418E6E -> 0x423A50 randomizes the starting weekly wage before
-        # 0x41E970 development initialization. Gate 9 has not yet materialized
-        # DBTAccessSkillFinancialValues, so consume one neutral bounded draw to
-        # preserve the exact shared CRT state/order without inventing a wage.
-        # Any positive bound advances the MSVC CRT state identically once.
-        bounded_draw(rng, 1)
+        # 0x418E56 -> 0x423A50 initializes DBRPlayer+0xC4 weekly wage
+        # before development. Canonical databases supply the 100-row financial
+        # table; lightweight tests without it still consume one neutral call so
+        # the shared CRT ordering remains exact.
+        if financial_values:
+            weekly_wage = initial_weekly_wage(
+                current,
+                source.positions,
+                financial_values,
+                int(country_multiplier_percent),
+                rng,
+            )
+        else:
+            bounded_draw(rng, 1)
+            weekly_wage = 0
 
         if source.date_of_birth is not None:
             actual_age = age_on(source.date_of_birth, as_of)
@@ -195,6 +209,9 @@ class RuntimePlayer:
         startup_month_span = (
             bounded_draw(rng, POST_LOAD_MONTH_SPAN_RANDOM_RANGE) + 1
         ) * 12
+        contract_expiry_date = contract_expiry_from_month_span(
+            as_of, startup_month_span
+        )
 
         return cls(
             index=source.index,
@@ -220,6 +237,8 @@ class RuntimePlayer:
             ),
             morale=int(constructor_morale),
             startup_month_span=startup_month_span,
+            weekly_wage=int(weekly_wage),
+            contract_expiry_date=contract_expiry_date,
         )
 
     @property
