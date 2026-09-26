@@ -90,12 +90,12 @@ async function recoveryGuard(state) {
   return { now, history };
 }
 
-function buildRecoveryPrompt(reason, handoff, details = {}) {
+function buildNewChatRecoveryPrompt(reason, handoff, details = {}) {
   const detailText = Object.entries(details)
     .map(([key, value]) => `${key}: ${value}`)
     .join("\n");
 
-  return `AUTO-RECOVERY: the previous FM2001 ChatGPT work session was still marked as working but stopped progressing.
+  return `AUTO-RECOVERY: the previous FM2001 ChatGPT work session can no longer continue in its existing conversation.
 
 Recovery reason: ${reason}
 ${detailText ? `${detailText}\n` : ""}
@@ -109,11 +109,23 @@ Before substantive work:
 5. Mark the runtime state as mode=continuous and status=working, increment recovery_generation, and record the latest main HEAD.
 6. Continue the exact current task from the repository and checkpoint at the normal persistence boundaries.
 
-If the old chat merely hit its length limit, treat this as a normal handoff, not as a reason to restart the investigation.
+A new conversation was created because the previous conversation reached a true chat-length limit or no usable worker tab remained. Do not restart already-persisted investigation.
 
 Latest standard handoff follows:
 
 ${handoff}`;
+}
+
+function buildInPlaceRecoveryPrompt(reason, details = {}) {
+  const detailText = Object.entries(details)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join("\n");
+
+  return `Continue the FM2001 work from the last successful GitHub checkpoint. The previous response appears to have stalled or been interrupted.
+
+Recovery reason: ${reason}
+${detailText ? `${detailText}\n` : ""}
+Do not restart completed work. Check the current main HEAD and research/CURRENT_STATE.md, then continue the exact active task. Keep committing meaningful verified progress and checkpoint roughly every 10 minutes during unresolved work.`;
 }
 
 async function savePendingRecovery(
@@ -121,7 +133,8 @@ async function savePendingRecovery(
   state,
   tabId,
   details = {},
-  existingGuard = null
+  existingGuard = null,
+  options = {}
 ) {
   const guard = existingGuard || (await recoveryGuard(state));
   if (!guard) {
@@ -131,18 +144,28 @@ async function savePendingRecovery(
   await chrome.storage.local.set({ recoveryInFlightAt: guard.now });
 
   try {
-    const handoff = await fetchText(handoffUrl());
-    const prompt = buildRecoveryPrompt(reason, handoff, details);
+    const inPlace = options.inPlace === true;
+    const prompt = inPlace
+      ? buildInPlaceRecoveryPrompt(reason, details)
+      : buildNewChatRecoveryPrompt(
+          reason,
+          await fetchText(handoffUrl()),
+          details
+        );
+
     const recoveryRecord = {
       tabId,
       prompt,
       reason,
+      inPlace,
+      stopFirst: options.stopFirst === true,
       createdAt: guard.now,
       expiresAt: guard.now + 30 * 60 * 1000
     };
 
     await chrome.storage.local.set({
       pendingResume: recoveryRecord,
+      workerTabId: tabId,
       lastRecoveryAt: guard.now,
       recoveryHistory: [...guard.history, guard.now],
       recoveryInFlightAt: 0
@@ -156,16 +179,81 @@ async function savePendingRecovery(
   }
 }
 
-async function triggerRecovery(reason, state, details = {}) {
+async function notifyRecoveryTab(tabId) {
+  try {
+    await chrome.tabs.sendMessage(tabId, {
+      type: "fm2001-run-pending-resume"
+    });
+  } catch (_error) {
+    // The content script may still be loading. It also checks pending state on load.
+  }
+}
+
+async function recoverInPlace(tabId, reason, state, details = {}) {
+  if (!tabId) {
+    return false;
+  }
+
+  try {
+    await chrome.tabs.get(tabId);
+  } catch (_error) {
+    return false;
+  }
+
+  const guard = await recoveryGuard(state);
+  if (!guard) {
+    return false;
+  }
+
+  const accepted = await savePendingRecovery(
+    reason,
+    state,
+    tabId,
+    details,
+    guard,
+    { inPlace: true, stopFirst: true }
+  );
+
+  if (accepted) {
+    await notifyRecoveryTab(tabId);
+  }
+  return accepted;
+}
+
+async function triggerNewChatRecovery(reason, state, details = {}) {
   const guard = await recoveryGuard(state);
   if (!guard) {
     return false;
   }
 
   const tab = await chrome.tabs.create({ url: CHAT_URL, active: false });
-  return savePendingRecovery(reason, state, tab.id, details, guard);
+  return savePendingRecovery(
+    reason,
+    state,
+    tab.id,
+    details,
+    guard,
+    { inPlace: false, stopFirst: false }
+  );
 }
 
+async function recoverExistingWorker(reason, state, details = {}) {
+  const stored = await chrome.storage.local.get(["workerTabId"]);
+  const tabId = stored.workerTabId;
+  if (!tabId) {
+    return false;
+  }
+
+  const accepted = await recoverInPlace(tabId, reason, state, details);
+  if (!accepted) {
+    try {
+      await chrome.tabs.get(tabId);
+    } catch (_error) {
+      await chrome.storage.local.remove("workerTabId");
+    }
+  }
+  return accepted;
+}
 
 async function checkForStaleSession() {
   try {
@@ -189,10 +277,24 @@ async function checkForStaleSession() {
       return;
     }
 
-    await triggerRecovery("stale-repository-activity", state, {
+    const details = {
       stale_minutes: staleMinutes,
       source: "chrome-extension-background-alarm"
-    });
+    };
+
+    const reused = await recoverExistingWorker(
+      "stale-repository-activity",
+      state,
+      details
+    );
+
+    if (!reused) {
+      await triggerNewChatRecovery(
+        "stale-repository-activity-no-worker-tab",
+        state,
+        details
+      );
+    }
   } catch (error) {
     console.warn("FM2001 stale-session background check failed", error);
   }
@@ -225,17 +327,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     (async () => {
       try {
         const state = await getRuntimeState();
-        if (
-          shouldMonitor(state) &&
-          state.auto_new_chat_on_ui_failure !== false
-        ) {
-          await triggerRecovery(
-            message.reason || "ChatGPT UI failure signal",
-            state,
-            { page: sender?.tab?.url || "unknown" }
-          );
+        if (!shouldMonitor(state)) {
+          sendResponse({ ok: false, reason: "runtime-not-working" });
+          return;
         }
-        sendResponse({ ok: true });
+
+        const failureKind = message.failureKind || "transient";
+        const reason = message.reason || "ChatGPT UI failure signal";
+        const tabId = sender?.tab?.id;
+
+        if (failureKind === "length") {
+          const accepted = await triggerNewChatRecovery(reason, state, {
+            page: sender?.tab?.url || "unknown",
+            failure_kind: failureKind
+          });
+          sendResponse({ ok: accepted, action: "new-chat" });
+          return;
+        }
+
+        const accepted = await recoverInPlace(tabId, reason, state, {
+          page: sender?.tab?.url || "unknown",
+          failure_kind: failureKind
+        });
+        sendResponse({ ok: accepted, action: "in-place" });
       } catch (error) {
         console.warn("FM2001 UI-failure recovery failed", error);
         sendResponse({ ok: false, error: String(error) });
@@ -259,15 +373,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           return;
         }
 
-        const accepted = await savePendingRecovery(
-          message.reason || "local watchdog recovery request",
-          state,
+        const accepted = await recoverInPlace(
           tabId,
+          message.reason || "local recovery request",
+          state,
           message.details || {}
         );
         sendResponse({ ok: accepted });
       } catch (error) {
-        console.warn("FM2001 local-watchdog recovery failed", error);
+        console.warn("FM2001 local recovery failed", error);
         sendResponse({ ok: false, error: String(error) });
       }
     })();
@@ -308,6 +422,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         stored.pendingResume &&
         stored.pendingResume.tabId === sender?.tab?.id
       ) {
+        await chrome.storage.local.set({ workerTabId: sender.tab.id });
         await chrome.storage.local.remove("pendingResume");
       }
       sendResponse({ ok: true });
