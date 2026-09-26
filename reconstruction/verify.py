@@ -156,7 +156,7 @@ def verify_database(db: FM2001Database) -> None:
         "Expected 124 primary DummyLeague lazy-sort RNG calls",
     )
     cup_subset_state_replay = replay_primary_mode0_pre_shuffle_state(
-        MsvcCrtRng(0x2797444C),
+        MsvcCrtRng(0x4B68DE28),
         db.competitions,
         db.rounds,
         db.clubs,
@@ -172,7 +172,7 @@ def verify_database(db: FM2001Database) -> None:
         "Cup-focused subset did not include 124 DummyLeague lazy-sort draws",
     )
     require(
-        cup_subset_state_replay.state_entering_primary_shuffle == 0xAECA9FA5,
+        cup_subset_state_replay.state_entering_primary_shuffle == 0x00523131,
         (
             "Cup-focused subset checkpoint mismatch: "
             f"0x{cup_subset_state_replay.state_entering_primary_shuffle:08X}"
@@ -193,7 +193,7 @@ def verify_database(db: FM2001Database) -> None:
     )
 
     ordered_competition_rng = replay_primary_mode0_ordered_competition_rng(
-        MsvcCrtRng(0x2797444C),
+        MsvcCrtRng(0x4B68DE28),
         db.competitions,
         db.rounds,
         db.clubs,
@@ -276,14 +276,14 @@ def verify_database(db: FM2001Database) -> None:
         ),
     )
     require(
-        ordered_competition_rng.uefa_cup_club_id == 1118,
+        ordered_competition_rng.uefa_cup_club_id == 1143,
         (
             "Synthetic ordered replay selected unexpected UEFA Cup candidate "
             f"{ordered_competition_rng.uefa_cup_club_id}"
         ),
     )
     require(
-        ordered_competition_rng.state_entering_primary_shuffle == 0xAECA9FA5,
+        ordered_competition_rng.state_entering_primary_shuffle == 0x00523131,
         (
             "Corrected ordered primary competition state mismatch: "
             f"0x{ordered_competition_rng.state_entering_primary_shuffle:08X}"
@@ -291,7 +291,7 @@ def verify_database(db: FM2001Database) -> None:
     )
 
     actual_competition_runtime = materialize_primary_rng_driven_schedule(
-        MsvcCrtRng(0x2797444C),
+        MsvcCrtRng(0x4B68DE28),
         db.competitions,
         db.rounds,
         db.clubs,
@@ -322,8 +322,8 @@ def verify_database(db: FM2001Database) -> None:
             for event in actual_competition_runtime.rng_events
             if event.kind == "procedural_league_round_robin"
         )
-        == 4302,
-        "Actual replay lost the 4302 procedural League RNG calls",
+        == 3982,
+        "Actual replay lost the 3982 procedural League RNG calls",
     )
     require(
         sum(
@@ -353,15 +353,15 @@ def verify_database(db: FM2001Database) -> None:
         "Actual replay lost the two Europe-root selector calls",
     )
     require(
-        actual_competition_runtime.rng_plan_total_draw_count == 6156,
+        actual_competition_runtime.rng_plan_total_draw_count == 5836,
         (
-            "Expected 6156 actual primary competition calls, got "
+            "Expected 5836 actual primary competition calls, got "
             f"{actual_competition_runtime.rng_plan_total_draw_count}"
         ),
     )
     require(
         actual_competition_runtime.rng_bounds_sha256
-        == "1ed67d7402f1fb749d963f8978a242a6833a1f4410434b61165c906b943a710d",
+        == "3fb0ad9c8b9d21f55916e36c82d22762a0c45e37045f264ccb01a7dfc5415196",
         (
             "Actual primary competition ordered-bound digest mismatch: "
             f"{actual_competition_runtime.rng_bounds_sha256}"
@@ -380,21 +380,21 @@ def verify_database(db: FM2001Database) -> None:
         ),
     )
     require(
-        actual_competition_runtime.cup_runtime.champions_league_club_id == 1137,
+        actual_competition_runtime.cup_runtime.champions_league_club_id == 1118,
         (
             "Actual replay selected unexpected Champions League candidate "
             f"{actual_competition_runtime.cup_runtime.champions_league_club_id}"
         ),
     )
     require(
-        actual_competition_runtime.cup_runtime.uefa_cup_club_id == 1159,
+        actual_competition_runtime.cup_runtime.uefa_cup_club_id == 1139,
         (
             "Actual replay selected unexpected UEFA Cup candidate "
             f"{actual_competition_runtime.cup_runtime.uefa_cup_club_id}"
         ),
     )
     require(
-        actual_competition_runtime.state_entering_primary_shuffle == 0x0E556598,
+        actual_competition_runtime.state_entering_primary_shuffle == 0x4F5CF274,
         (
             "Actual primary pre-shuffle state mismatch: "
             f"0x{actual_competition_runtime.state_entering_primary_shuffle:08X}"
@@ -402,22 +402,22 @@ def verify_database(db: FM2001Database) -> None:
     )
     require(
         actual_competition_runtime.cup_runtime.participant_sha256
-        == "f9282d4c236e14f9ccb56a8ecf90dc42095278e94471624f7248eb005e3daa4e",
+        == "dd1f880d75aa63ff6bad1276cbac971c9a5ef568fe7fe0474401e690c12128ca",
         "Canonical Cup participant digest mismatch",
     )
     require(
         actual_competition_runtime.cup_runtime.pairing_sha256
-        == "e2f34fe736db27a011c274d8be0b0df26ed7547062c80a8b34b7d56620c63e45",
+        == "f8654c52f03bdefde67ed0421d54eeed1e2cc77209dc92d167dae3329817895b",
         "Canonical Cup pairing digest mismatch",
     )
     require(
         actual_competition_runtime.cup_runtime.cup_schedule_sha256
-        == "30b06c3e420ebb5bbead56a14b00340a532d12dcc5bdffba715e4f84eca5ca89",
+        == "b8705d885dd4d3be6a40df33744746884c074678032add21da1b1001c22bfe33",
         "Canonical Cup schedule-node digest mismatch",
     )
     require(
         actual_competition_runtime.schedule_sha256
-        == "0a22c9f0c1fa20de770a7d679583b6b4e4bdbd9363a5bda07194bfe8919cc35a",
+        == "d2645b5973e0c6e41d8775724c3632239664331dbdb86eb7b435051f6b5cc058",
         "Canonical complete schedule-node digest mismatch",
     )
     require(
