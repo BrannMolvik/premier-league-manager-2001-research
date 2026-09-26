@@ -6,10 +6,9 @@ It preserves one real MSVC CRT stream: procedural-League solvers are injected
 at their recovered competition-initialization positions while the Cup
 materializer consumes its own bounded calls.
 
-Fixed real-fixture Leagues consume no pre-0x615BE0 RNG and are intentionally
-not included here yet.  They require a separate zero-draw insertion marker in
-the full competition traversal before this module can claim the complete
-primary schedule-node set.
+Fixed real-fixture Leagues consume no pre-0x615BE0 RNG. They are represented
+by explicit zero-draw traversal markers so their LeagueMatch nodes retain the
+correct position relative to procedural League and Cup initialization.
 """
 
 from __future__ import annotations
@@ -27,6 +26,7 @@ from competition_schedule import (
     StartupScheduleNode,
     direct_club_ref,
     materialize_cup_round_schedule_nodes,
+    materialize_fixed_league_schedule_nodes,
     materialize_procedural_league_schedule_nodes,
     materialize_scot_premier_split_schedule_nodes,
     ordered_league_schedule_entries,
@@ -245,6 +245,7 @@ def materialize_primary_rng_driven_schedule(
     players: Iterable[object] = (),
     *,
     fixed_fixture_competition_ids: Iterable[int] = (0,),
+    real_fixtures: Iterable[object] = (),
     cup_enumerated_club_ids_by_source: dict[
         int, tuple[int | None, ...]
     ] | None = None,
@@ -273,6 +274,7 @@ def materialize_primary_rng_driven_schedule(
     instruction_list = tuple(allocation_instructions)
     player_list = tuple(players)
     fixed_ids = tuple(int(value) for value in fixed_fixture_competition_ids)
+    real_fixture_list = tuple(real_fixtures)
 
     plan_rng = MsvcCrtRng(int(start_state))
     plan = replay_primary_mode0_complete_competition_rng(
@@ -284,6 +286,7 @@ def materialize_primary_rng_driven_schedule(
         instruction_list,
         player_list,
         fixed_fixture_competition_ids=fixed_ids,
+        include_zero_rng_competition_events=True,
     )
 
     interleaved_rng = _InterleavingCompetitionRng(
@@ -421,9 +424,27 @@ def materialize_primary_rng_driven_schedule(
             competition_context=int(event.competition_context),
         )
 
+    fixed_nodes: dict[tuple[int, int], tuple[StartupScheduleNode, ...]] = {}
+    for event in plan.events:
+        if event.kind != "fixed_league":
+            continue
+        key = (int(event.competition_id), int(event.competition_context))
+        fixed_nodes[key] = materialize_fixed_league_schedule_nodes(
+            round_list,
+            real_fixture_list,
+            competition_id=int(event.competition_id),
+            competition_context=int(event.competition_context),
+        )
+
     ordered_nodes: list[StartupScheduleNode] = []
     for event in plan.events:
-        if event.kind == "procedural_league_round_robin":
+        if event.kind == "fixed_league":
+            ordered_nodes.extend(
+                fixed_nodes[
+                    (int(event.competition_id), int(event.competition_context))
+                ]
+            )
+        elif event.kind == "procedural_league_round_robin":
             ordered_nodes.extend(
                 league_nodes[
                     (int(event.competition_id), int(event.competition_context))
