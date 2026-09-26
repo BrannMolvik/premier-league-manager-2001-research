@@ -152,8 +152,8 @@ class CompetitionDefinition:
     parent_competition_id: int | None = None
     initialization_order_value: int = 0
     country_region_id: int = 0
-    enumerated_club_id_0: int | None = None
-    enumerated_club_id_1: int | None = None
+    enumerated_club_reference_0: int = -1
+    enumerated_club_reference_1: int = -1
 
     @property
     def runtime_kind(self) -> str:
@@ -414,16 +414,8 @@ class FM2001Database:
                 ),
                 initialization_order_value=struct.unpack_from('<h', r, 15)[0],
                 country_region_id=struct.unpack_from('<I', r, 27)[0],
-                enumerated_club_id_0=(
-                    None
-                    if struct.unpack_from('<i', r, 19)[0] < 0
-                    else struct.unpack_from('<i', r, 19)[0]
-                ),
-                enumerated_club_id_1=(
-                    None
-                    if struct.unpack_from('<i', r, 23)[0] < 0
-                    else struct.unpack_from('<i', r, 23)[0]
-                ),
+                enumerated_club_reference_0=struct.unpack_from('<i', r, 19)[0],
+                enumerated_club_reference_1=struct.unpack_from('<i', r, 23)[0],
             ))
 
     def _parse_rounds(self):
