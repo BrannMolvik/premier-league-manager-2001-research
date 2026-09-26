@@ -147,6 +147,27 @@ class PrimaryCupRuntimeTests(unittest.TestCase):
         self.assertEqual(len(first.participant_sha256), 64)
         self.assertEqual(len(first.pairing_sha256), 64)
         self.assertNotEqual(first.participant_sha256, first.pairing_sha256)
+        self.assertEqual(first.cup_schedule_sha256, second.cup_schedule_sha256)
+        self.assertEqual(len(first.cup_schedule_sha256), 64)
+        self.assertEqual(len(first.cup_schedule_nodes), 4)
+        self.assertEqual(
+            tuple(
+                (
+                    node.node_kind,
+                    node.competition_id,
+                    node.round_id,
+                    node.scheduled_week,
+                    node.scheduled_weekday,
+                )
+                for node in first.cup_schedule_nodes
+            ),
+            (
+                ("cup_match", 50, 100, 1, 1),
+                ("cup_match", 50, 100, 1, 1),
+                ("cup_match", 50, 101, 2, 1),
+                ("cup_match", 60, 200, 3, 1),
+            ),
+        )
 
     def test_type3_cup_source_requires_exact_cup_enumerator(self):
         competitions = (
