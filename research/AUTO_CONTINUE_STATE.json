@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 3,
-  "active_task": "Finish ScotPremierLeague post-split schedule nodes and integrate exact Cup/League schedule-node descriptors",
-  "last_known_main_head": "d94ded1d5bb99fc4ebbf552dcf766ae37a6edd55",
+  "active_task": "Continue exact Cup/League schedule-node materialization from the competition startup schedule-descriptor checkpoint",
+  "last_known_main_head": "8f1b52320b660751ed088243b7a9154234badbff",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 1,
-  "last_recovery_reason": "manual-end-to-end-test",
-  "note": "Recovery generation 1 is active. Generic procedural League schedule-node emission is checkpointed; continuing Gate 3 at the Scottish post-split and integrated Cup/League schedule-node layer."
+  "recovery_generation": 2,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery generation 2 is active. Main advanced through Scottish post-split schedule-node tests and competition startup schedule descriptors; continue Gate 3 from current canonical main."
 }
