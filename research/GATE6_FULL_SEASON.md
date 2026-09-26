@@ -1,5 +1,11 @@
 # Gate 6 - Full Autonomous Premier League Season
 
+> **27 September 2026 startup-wage RNG correction:** deterministic RNG states,
+> schedule orders, audit hashes and later gameplay outcomes in this file that
+> conflict with `research/STARTUP_WAGE_RNG_CORRECTION.md` are superseded by
+> that correction. The gate's functional conclusion remains valid.
+
+
 _Last verified: 27 September 2026_
 
 Gate 6 extends the canonical real-data integration path from Gate 5 through a
