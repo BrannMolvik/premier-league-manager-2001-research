@@ -25,6 +25,7 @@ from competition_startup import (
     expand_champions_league_to_uefa_transfer,
     expand_standard_cup_allocation_instructions,
     initial_competition_enumeration_club_ids,
+    initial_cup_enumeration_club_ids,
     initial_dummy_league_sort_entries,
     initial_ranked_league_club_ids,
     materialize_cup_runtime_rounds,
@@ -300,12 +301,10 @@ def materialize_primary_cup_runtime(
                 source_id,
             )
         elif runtime_kind == 2:
-            if source_id not in cup_enumerations:
-                raise ValueError(
-                    f"type-3 source Cup {source_id} requires its exact "
-                    "Cup+0x40/+0x44 enumeration"
-                )
-            result = cup_enumerations[source_id]
+            if source_id in cup_enumerations:
+                result = cup_enumerations[source_id]
+            else:
+                result = initial_cup_enumeration_club_ids(source)
         else:
             raise ValueError(
                 f"type-3 source {source_id} has unsupported runtime kind "
