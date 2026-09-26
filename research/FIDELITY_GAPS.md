@@ -10,17 +10,36 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | --- | --- | --- | --- |
 | League-table final tie fallback | Club ID after points / GD / goals scored | Exact original fallback after the first three keys is unresolved | 15 or earlier if standings behavior requires it |
 | Persistent-injury availability count | Approximation around the inputs to helper `0x405080` | Injury generation/persistence is substantially recovered, but this availability helper is not exact | 15 |
-| Real-data season integration | **Three canonical rounds / 30 matches are now reproducibly audited end-to-end** | Full 38-round / 380-match multi-seed proof remains | 6 |
-| Human-controlled match setup | Autonomous AI path is much further ahead | User-control initialization/workflow is incomplete | 7 |
 | Save/load | No complete internal/original save workflow | Individual serialization findings exist | 8 |
 | Transfers/contracts | Research substantially ahead of implementation | Not yet a complete playable system | 9 |
 | Finance/board | Research substantially ahead of implementation | Not yet a complete playable system | 10 |
 | Broader competitions | Core structures known, full behavior incomplete | Premier League is the strongest reconstructed competition | 12 |
-| Original front-end presentation | Tk/data-browser prototype; original UI/music resources not yet integrated into the modern runtime | Authorized original screen/audio resources should be inventoried, reused, and converted where needed | 13-14 |
-| UI fidelity | Tk/data-browser prototype rather than FM2001 interface | Original screen/workflow restoration incomplete | 13 |
+| Original front-end presentation | Temporary Tk prototype now has a functional Play tab, but it is intentionally not the original FM2001 presentation | Authorized original screen/audio resources should be inventoried, reused, and converted where needed | 13-14 |
+| UI fidelity | Minimum human gameplay controls exist; original FM2001 screen structure/workflow is still unreconstructed | Original screen/workflow restoration incomplete | 13 |
 | FastView/3D | Largely unreconstructed | Intentionally low priority until gameplay is stable | 14 |
 
 ## Resolved or superseded gaps
+
+### Human-controlled minimum gameplay loop
+
+**Resolved for Gate 7.** One human Premier League club now uses the same
+reconstructed MatchCalculator, persistence, scheduler, table, injury,
+discipline, Form, Condition and Pitch Wear backend as autonomous AI clubs.
+The temporary Play tab supports club, formation, XI/bench, tactics, advance,
+match simulation, result and table. A canonical Arsenal run completed six
+human fixtures from 19 August through 23 September 2000 while all six full
+10-match matchdays continued in recovered scheduler order. See
+`research/GATE7_HUMAN_GAMEPLAY.md`.
+
+This does not resolve original front-end fidelity, transfers/finance, or
+save/load; those remain separate later gates.
+
+### Real-data full-season integration
+
+**Resolved in Gate 6.** Three deterministic canonical 38-round / 380-fixture
+Premier League seasons completed with exact recovered scheduler order and
+coherent table, lineup, injury/return, suspension/resolution, Form, Condition
+and Pitch Wear state. See `research/GATE6_FULL_SEASON.md`.
 
 ### Same-day Premier League execution order
 
