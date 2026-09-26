@@ -23,6 +23,7 @@ const SEND_SELECTORS = [
 
 const reportedFailures = new Set();
 let resumeSubmitting = false;
+let localRecoveryRequested = false;
 
 function elementFromNode(node) {
   if (node?.nodeType === Node.ELEMENT_NODE) {
@@ -76,6 +77,41 @@ if (document.documentElement) {
     childList: true,
     subtree: true
   });
+}
+
+function requestRecoveryFromUrl() {
+  if (localRecoveryRequested) {
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("fm2001_auto_recover") !== "1") {
+    return;
+  }
+
+  localRecoveryRequested = true;
+  const reason = params.get("reason") || "local-watchdog";
+  const staleMinutes = params.get("stale_minutes") || "unknown";
+
+  chrome.runtime.sendMessage(
+    {
+      type: "fm2001-request-recovery",
+      reason,
+      details: {
+        stale_minutes: staleMinutes,
+        source: "windows-watchdog"
+      }
+    },
+    (response) => {
+      if (response?.ok) {
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete("fm2001_auto_recover");
+        cleanUrl.searchParams.delete("reason");
+        cleanUrl.searchParams.delete("stale_minutes");
+        history.replaceState({}, "", cleanUrl.toString());
+      }
+    }
+  );
 }
 
 function isVisible(element) {
@@ -249,6 +285,8 @@ async function submitPendingResume() {
     resumeSubmitting = false;
   }
 }
+
+requestRecoveryFromUrl();
 
 const resumeInterval = setInterval(submitPendingResume, 2000);
 setTimeout(() => clearInterval(resumeInterval), 30 * 60 * 1000);
