@@ -1,8 +1,6 @@
 const REPO = "BrannMolvik/premier-league-manager-2001-research";
 const MAIN_BRANCH = "main";
 const RUNTIME_BRANCH = "agent-runtime";
-const POLL_ALARM = "fm2001-auto-continue";
-const POLL_MINUTES = 3;
 const CHAT_URL = "https://chatgpt.com/";
 
 const runtimeStateUrl = () =>
@@ -41,20 +39,6 @@ function shouldMonitor(state) {
     state.mode === "continuous" &&
     state.status === "working"
   );
-}
-
-async function getBranchActivity(branch) {
-  const url =
-    `https://api.github.com/repos/${REPO}/branches/${encodeURIComponent(branch)}?ts=${Date.now()}`;
-  const data = await fetchJson(url);
-  const dateText =
-    data?.commit?.commit?.committer?.date ||
-    data?.commit?.commit?.author?.date ||
-    null;
-  return {
-    sha: data?.commit?.sha || null,
-    timestamp: dateText ? Date.parse(dateText) : 0
-  };
 }
 
 async function recoveryGuard(state) {
@@ -169,62 +153,6 @@ async function triggerRecovery(reason, state, details = {}) {
   return savePendingRecovery(reason, state, tab.id, details, guard);
 }
 
-async function checkLease() {
-  try {
-    const state = await getRuntimeState();
-    if (!shouldMonitor(state)) {
-      return;
-    }
-
-    const [runtimeActivity, mainActivity] = await Promise.all([
-      getBranchActivity(RUNTIME_BRANCH),
-      getBranchActivity(MAIN_BRANCH)
-    ]);
-
-    const latestActivity = Math.max(
-      runtimeActivity.timestamp || 0,
-      mainActivity.timestamp || 0
-    );
-
-    if (!latestActivity) {
-      return;
-    }
-
-    const staleAfterMinutes = Number(state.stale_after_minutes || 15);
-    const staleForMs = Date.now() - latestActivity;
-
-    if (staleForMs >= staleAfterMinutes * 60 * 1000) {
-      await triggerRecovery("stale repository activity lease", state, {
-        stale_minutes: Math.floor(staleForMs / 60000),
-        runtime_head: runtimeActivity.sha || "unknown",
-        main_head: mainActivity.sha || "unknown"
-      });
-    }
-  } catch (error) {
-    console.warn("FM2001 auto-continue lease check failed", error);
-  }
-}
-
-function ensureAlarm() {
-  chrome.alarms.create(POLL_ALARM, { periodInMinutes: POLL_MINUTES });
-}
-
-chrome.runtime.onInstalled.addListener(() => {
-  ensureAlarm();
-  checkLease();
-});
-
-chrome.runtime.onStartup.addListener(() => {
-  ensureAlarm();
-  checkLease();
-});
-
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === POLL_ALARM) {
-    checkLease();
-  }
-});
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "fm2001-ui-failure") {
     (async () => {
@@ -320,12 +248,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
-  if (message?.type === "fm2001-check-now") {
-    checkLease().finally(() => sendResponse({ ok: true }));
-    return true;
-  }
-
   return false;
 });
-
-ensureAlarm();
