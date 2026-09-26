@@ -31,6 +31,7 @@ from match_orders import TeamOrderPriorities
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
 from match_team_setup import TeamTacticalState
 from runtime_state import RuntimePlayer, derive_non_eu_status
+from transfer_state import TransferRuntimeState
 
 
 DateHook = Callable[[date], None]
@@ -83,6 +84,7 @@ class GameState:
     pitch_wear: dict[int, int] = field(default_factory=dict)
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
     premier_league_scheduler_order: dict[int, tuple[int, ...]] = field(default_factory=dict)
+    transfers: TransferRuntimeState = field(default_factory=TransferRuntimeState)
     rng: MsvcCrtRng | None = None
 
     def _resolve_rng(self, rng=None):
