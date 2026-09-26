@@ -1608,3 +1608,173 @@ def prepare_cup_minileague_round(
         groups=tuple(tuple(group) for group in groups),
         propagated_refs=tuple(propagated),
     )
+
+
+@dataclass(frozen=True)
+class CupPairingDescriptor:
+    competition_id: int
+    round_id: int
+    round_type: int
+    pair_index: int
+    left_ref: CupClubRefDescriptor
+    right_ref: CupClubRefDescriptor
+    result_token: tuple
+
+
+@dataclass(frozen=True)
+class MaterializedCupRound:
+    round_id: int
+    round_type: int
+    participant_refs: tuple[CupClubRefDescriptor, ...]
+    pairings: tuple[CupPairingDescriptor, ...]
+    minileague_groups: tuple[tuple[CupClubRefDescriptor, ...], ...] = ()
+
+
+@dataclass(frozen=True)
+class MaterializedCupRuntime:
+    competition_id: int
+    rounds: tuple[MaterializedCupRound, ...]
+    round_participant_refs: tuple[
+        tuple[int, tuple[CupClubRefDescriptor, ...]], ...
+    ]
+
+
+def materialize_cup_runtime_rounds(
+    competition_id: int,
+    sorted_rounds: Iterable[OrderedRoundSource],
+    allocation_expansion: StandardCupAllocationExpansion,
+    rng: BoundedRng,
+    *,
+    child_rounds_by_competition: dict[int, tuple[OrderedRoundSource, ...]],
+) -> MaterializedCupRuntime:
+    """Materialize parent-Cup round ClubRefs and pairings in startup order."""
+    competition_id = int(competition_id)
+    round_list = tuple(sorted_rounds)
+    allocation_by_round = {
+        int(bucket.round_id): list(bucket.participant_refs)
+        for bucket in allocation_expansion.round_buckets
+    }
+    participant_refs_by_round = {
+        int(round_definition.id): list(
+            allocation_by_round.get(int(round_definition.id), ())
+        )
+        for round_definition in round_list
+    }
+
+    materialized: list[MaterializedCupRound] = []
+
+    for round_index, round_definition in enumerate(round_list):
+        round_id = int(round_definition.id)
+        round_type = int(round_definition.type_code)
+        current_refs = participant_refs_by_round[round_id]
+        expected_count = int(round_definition.team_count)
+        if len(current_refs) != expected_count:
+            raise ValueError(
+                f"Cup {competition_id} round {round_id} has "
+                f"{len(current_refs)} refs before scheduling; expected "
+                f"{expected_count}"
+            )
+
+        next_round = (
+            round_list[round_index + 1]
+            if round_index + 1 < len(round_list)
+            else None
+        )
+
+        if round_type in (1, 2):
+            prepared = prepare_cup_knockout_round(current_refs, rng)
+            pairings: list[CupPairingDescriptor] = []
+            for pair_index, (left_ref, right_ref) in enumerate(prepared.pairs):
+                result_token = (
+                    "cup_result",
+                    competition_id,
+                    round_id,
+                    pair_index,
+                )
+                pairings.append(
+                    CupPairingDescriptor(
+                        competition_id=competition_id,
+                        round_id=round_id,
+                        round_type=round_type,
+                        pair_index=pair_index,
+                        left_ref=left_ref,
+                        right_ref=right_ref,
+                        result_token=result_token,
+                    )
+                )
+                if next_round is not None:
+                    participant_refs_by_round[int(next_round.id)].append(
+                        CupClubRefDescriptor(
+                            type_code=1,
+                            selector=0,
+                            reference_token=result_token,
+                        )
+                    )
+            materialized.append(
+                MaterializedCupRound(
+                    round_id=round_id,
+                    round_type=round_type,
+                    participant_refs=prepared.sorted_refs,
+                    pairings=tuple(pairings),
+                )
+            )
+            continue
+
+        if round_type == 3:
+            child_competition_id = (
+                int(round_definition.source_competition_reference) & 0xFFFF
+            )
+            child_rounds = child_rounds_by_competition.get(
+                child_competition_id,
+                (),
+            )
+            if not child_rounds:
+                raise ValueError(
+                    f"MiniLeague round {round_id} has no child League rounds"
+                )
+            group_size = int(child_rounds[0].team_count)
+            next_existing = (
+                len(participant_refs_by_round[int(next_round.id)])
+                if next_round is not None
+                else 0
+            )
+            next_capacity = (
+                int(next_round.team_count)
+                if next_round is not None
+                else 0
+            )
+            prepared = prepare_cup_minileague_round(
+                current_refs,
+                rng,
+                child_competition_id=child_competition_id,
+                group_size=group_size,
+                next_round_existing_count=next_existing,
+                next_round_capacity=next_capacity,
+            )
+            if next_round is not None:
+                participant_refs_by_round[int(next_round.id)].extend(
+                    prepared.propagated_refs
+                )
+            materialized.append(
+                MaterializedCupRound(
+                    round_id=round_id,
+                    round_type=round_type,
+                    participant_refs=prepared.sorted_refs,
+                    pairings=(),
+                    minileague_groups=prepared.groups,
+                )
+            )
+            continue
+
+        raise ValueError(
+            f"unsupported parent Cup round type {round_type}"
+        )
+
+    return MaterializedCupRuntime(
+        competition_id=competition_id,
+        rounds=tuple(materialized),
+        round_participant_refs=tuple(
+            (int(round_definition.id), tuple(participant_refs_by_round[int(round_definition.id)]))
+            for round_definition in round_list
+        ),
+    )
