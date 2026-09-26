@@ -126,16 +126,55 @@ function Request-Recovery([string]$Reason, [int]$StaleMinutes, $RuntimeState) {
 
     Write-WatchdogLog "Recovery requested: $Reason; stale for $StaleMinutes minute(s)."
 
-    $chromeCandidates = @(
-        (Join-Path $env:ProgramFiles "Google\\Chrome\\Application\\chrome.exe"),
-        (Join-Path ${env:ProgramFiles(x86)} "Google\\Chrome\\Application\\chrome.exe"),
-        (Join-Path $env:LOCALAPPDATA "Google\\Chrome\\Application\\chrome.exe")
-    ) | Where-Object { $_ -and (Test-Path $_) }
+    $chromeCandidates = @()
 
-    if ($chromeCandidates.Count -gt 0) {
-        Start-Process -FilePath $chromeCandidates[0] -ArgumentList $url
+    # Prefer an already-running Chrome binary when available.
+    try {
+        $runningChrome = Get-Process chrome -ErrorAction SilentlyContinue |
+            Select-Object -First 1 -ExpandProperty Path
+        if ($runningChrome) { $chromeCandidates += $runningChrome }
+    } catch {}
+
+    # Windows App Paths registration is more reliable than assuming one install location.
+    $appPathKeys = @(
+        "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe",
+        "HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe",
+        "HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe"
+    )
+    foreach ($key in $appPathKeys) {
+        try {
+            $candidate = (Get-ItemProperty -Path $key -ErrorAction Stop).'(default)'
+            if (-not $candidate) {
+                $candidate = (Get-ItemProperty -Path $key -ErrorAction Stop).PSChildName
+            }
+            if ($candidate -and (Test-Path $candidate)) {
+                $chromeCandidates += $candidate
+            }
+        } catch {}
+    }
+
+    $knownPaths = @()
+    if ($env:ProgramFiles) {
+        $knownPaths += (Join-Path $env:ProgramFiles "Google\\Chrome\\Application\\chrome.exe")
+    }
+    if (${env:ProgramFiles(x86)}) {
+        $knownPaths += (Join-Path ${env:ProgramFiles(x86)} "Google\\Chrome\\Application\\chrome.exe")
+    }
+    if ($env:LOCALAPPDATA) {
+        $knownPaths += (Join-Path $env:LOCALAPPDATA "Google\\Chrome\\Application\\chrome.exe")
+    }
+    foreach ($candidate in $knownPaths) {
+        if ($candidate -and (Test-Path $candidate)) {
+            $chromeCandidates += $candidate
+        }
+    }
+
+    $chrome = $chromeCandidates | Select-Object -Unique | Select-Object -First 1
+    if ($chrome) {
+        Write-WatchdogLog "Launching Chrome from: $chrome"
+        Start-Process -FilePath $chrome -ArgumentList $url
     } else {
-        Write-WatchdogLog "Chrome executable not found; using the Windows default browser."
+        Write-WatchdogLog "Chrome executable not found directly; using the registered default browser."
         Start-Process $url
     }
 
