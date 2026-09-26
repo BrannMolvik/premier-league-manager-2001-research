@@ -3513,3 +3513,33 @@ GitHub reconstruction Actions at `72c21e8f07bf9bf57f6dc3cbaba83809cdd06414`:
 Evidence: `research/GATE8_INTERNAL_SAVE.md`.
 
 Gate 9 now begins: Transfers and contracts.
+
+
+## 27 September Gate-9 dependency correction - starting wage RNG
+
+While beginning contract implementation, direct tracing of the starting weekly
+wage exposed one omitted mandatory CRT draw per DBRPlayer:
+`0x418B90 -> 0x423A50` randomizes DBRPlayer `+0xC4` weekly wage from
+`DBTAccessSkillFinancialValues`.
+
+The startup replay/runtime now consumes this draw at the exact original point.
+All affected Gate-3 through Gate-8 canonical regressions were re-run.
+
+Key corrected checkpoints:
+- DBTPlayers: 180,384 calls;
+- synthetic post-youth state: `0x4B68DE28`;
+- primary competition: 5,836 calls;
+- state entering primary shuffle: `0x4F5CF274`;
+- state after 9,178 bucket-shuffle calls: `0xD25DFFE6`;
+- Gate-5 audit: `3c48d74ef2428dbc421f1ff39fa6952a095499f19dfdc312642884844c0c0a61`;
+- Gate-7 audit: `4e324f5b231e62893849c904bde5a4c5cb5cb9ee3be4f54d119e5d850c8be33e`;
+- Gate-8 audit: `25d5a461cf0c7eb4e05ad718d81a81815407deb15c25784eff514842e28d0b03`.
+
+All three Gate-6 380-fixture seasons and Gate-8 branch-equivalence still pass.
+GitHub Actions at `76ab612b5e9e678a2703f24d0efdc72212146928`:
+**413 tests passed** and asset policy passed.
+
+Full evidence: `research/STARTUP_WAGE_RNG_CORRECTION.md`.
+
+Gate 9 resumes by materializing the financial-value table so the authentic wage
+amount, not just its RNG consumption, enters RuntimePlayer contract state.
