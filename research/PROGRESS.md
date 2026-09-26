@@ -2880,3 +2880,20 @@ A canonical count audit across all 27 primary Cups shows:
 
 Those three excess requests are intentional and are handled by the proven
 silent-overflow behavior once all Cup round entrant quotas are full.
+
+
+## 26 September conditional Cup-shuffle checkpoint
+
+The extra shuffle visible inside NormalRound/TwoLegRound does not require
+another Gate-3 RNG correction.
+
+- NormalRound/TwoLegRound virtual +0x08 returns false; MiniLeague returns true.
+- Cup dispatch can therefore enable the auxiliary-shuffle flag after a
+  MiniLeague -> knockout transition.
+- The auxiliary shuffle operates on Cup+0x54, **not** the participant ClubRef
+  array.
+- New-game initialization sets Cup+0x58 (that vector's count) to exactly 1.
+- Both auxiliary loops call CRT RNG only when the copied count is >1.
+
+Result: the conditional branch consumes zero startup draws and the canonical
+pre-`0x615BE0` ledger remains **1,863 calls / state 0xAECA9FA5**.
