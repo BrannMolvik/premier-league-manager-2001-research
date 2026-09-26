@@ -7,6 +7,8 @@ semantics to still-neutral source fields.
 from dataclasses import dataclass
 from typing import Iterable, Protocol
 
+from match_role_rating import best_preferred_role_rating
+
 
 class ClubSource(Protocol):
     index: int
@@ -62,6 +64,19 @@ class CupAllocationInstructionSource(Protocol):
     source_reference: int
     quantity: int
     auxiliary: int
+
+
+class DummyLeagueRatingPlayerSource(Protocol):
+    club_id: int
+    current_raw: tuple[int, ...]
+    positions: tuple[int, int, int]
+
+
+@dataclass(frozen=True)
+class DummyLeagueSortEntry:
+    club_id: int
+    base_score: int
+    rng_bound: int
 
 
 @dataclass(frozen=True)
@@ -632,12 +647,59 @@ def primary_cup_round_initialization_order(
     )
 
 
+def initial_dummy_league_sort_entries(
+    source_competition_id: int,
+    clubs: Iterable[object],
+    players: Iterable[DummyLeagueRatingPlayerSource],
+) -> tuple[DummyLeagueSortEntry, ...]:
+    """Build 0x4F4750's initial DummyLeague score/bound stream.
+
+    Runtime team rosters are Master.dat player order filtered by club. 0x409900
+    sums best-preferred-position rating (0x41E1D0) for at most the first 11
+    roster players. 0x4F4750 then calls RNG(floor(score/20)) once per league
+    member before sorting by score-roll.
+    """
+    source_competition_id = int(source_competition_id)
+    players_by_club: dict[int, list[DummyLeagueRatingPlayerSource]] = {}
+    for player in players:
+        players_by_club.setdefault(int(player.club_id), []).append(player)
+
+    result: list[DummyLeagueSortEntry] = []
+    for club in clubs:
+        if int(getattr(club, "competition_id", -1)) != source_competition_id:
+            continue
+        club_id = int(getattr(club, "index"))
+        roster = players_by_club.get(club_id, ())
+        score = sum(
+            best_preferred_role_rating(
+                tuple(int(value) for value in player.current_raw),
+                tuple(int(value) for value in player.positions[:3]),
+            )
+            for player in roster[:11]
+        )
+        bound = score // 20
+        if bound <= 0:
+            raise ValueError(
+                f"DummyLeague club {club_id} produced non-positive RNG bound {bound}"
+            )
+        result.append(
+            DummyLeagueSortEntry(
+                club_id=club_id,
+                base_score=score,
+                rng_bound=bound,
+            )
+        )
+    return tuple(result)
+
+
 def replay_primary_mode0_ordered_competition_rng(
     rng: BoundedRng,
     competitions: Iterable[OrderedCompetitionSource],
     rounds: Iterable[OrderedRoundSource],
     clubs: Iterable[ClubSource],
     countries: Iterable[CountrySource],
+    allocation_instructions: Iterable[CupAllocationInstructionSource] = (),
+    players: Iterable[DummyLeagueRatingPlayerSource] = (),
 ) -> PrimaryMode0OrderedCompetitionRngReplay:
     """Replay primary competition RNG in the recovered executable order.
 
@@ -655,6 +717,12 @@ def replay_primary_mode0_ordered_competition_rng(
     round_list = tuple(rounds)
     club_list = tuple(clubs)
     country_list = tuple(countries)
+    allocation_list = tuple(allocation_instructions)
+    player_list = tuple(players)
+    competition_by_id = {
+        int(competition.id): competition
+        for competition in competition_list
+    }
 
     children: dict[int, list[OrderedCompetitionSource]] = {}
     for competition in competition_list:
@@ -671,6 +739,7 @@ def replay_primary_mode0_ordered_competition_rng(
     events: list[PrimaryMode0OrderedRngEvent] = []
     champions_league_club_id: int | None = None
     uefa_cup_club_id: int | None = None
+    sorted_dummy_league_ids: set[int] = set()
 
     def current_state() -> int:
         return int(getattr(rng, "state", 0)) & 0xFFFFFFFF
@@ -682,6 +751,43 @@ def replay_primary_mode0_ordered_competition_rng(
             return
 
         if int(competition.runtime_kind_code) == 2:
+            if allocation_list:
+                for instruction in ordered_cup_allocation_instructions(
+                    int(competition.id),
+                    allocation_list,
+                ):
+                    if int(instruction.instruction_type) != 5:
+                        continue
+                    source = competition_by_id.get(int(instruction.source_reference))
+                    if source is None or int(source.runtime_kind_code) != 3:
+                        continue
+                    source_id = int(source.id)
+                    if source_id in sorted_dummy_league_ids:
+                        continue
+                    sorted_dummy_league_ids.add(source_id)
+                    entries = initial_dummy_league_sort_entries(
+                        source_id,
+                        club_list,
+                        player_list,
+                    )
+                    bounds: list[int] = []
+                    for entry in entries:
+                        rng.randbelow(int(entry.rng_bound))
+                        bounds.append(int(entry.rng_bound))
+                    events.append(
+                        PrimaryMode0OrderedRngEvent(
+                            kind="dummy_league_lazy_sort",
+                            competition_id=int(competition.id),
+                            round_id=None,
+                            bounds=tuple(bounds),
+                            pre_sort_slot_order=tuple(
+                                int(entry.club_id) for entry in entries
+                            ),
+                            selected_club_id=None,
+                            state_after=current_state(),
+                        )
+                    )
+
             if (
                 competition.parent_competition_id is None
                 and int(competition.country_region_id) == 123
