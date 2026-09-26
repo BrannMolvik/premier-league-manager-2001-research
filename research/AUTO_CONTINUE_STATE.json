@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 7,
-  "active_task": "Connect verified human gameplay controller to the Tkinter prototype, then exercise canonical shipped-data play loop",
-  "last_known_main_head": "9f71929e2698343c7e4d94fc5c3b30c396cdbfcd",
+  "active_task": "Verify playable Tkinter surface, run canonical shipped-data human gameplay audit, then re-audit Gate 7",
+  "last_known_main_head": "0e315cbe67baf2f2fecf30c94f8de51a1208702a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 8,
+  "recovery_generation": 9,
   "last_recovery_reason": "stale-repository-activity",
   "note": "Recovered into a new worker because no usable worker tab remained. Continue from GitHub canonical state without repeating persisted investigation. Transient stalls should still reuse/stop/re-prompt the same worker when available."
 }
