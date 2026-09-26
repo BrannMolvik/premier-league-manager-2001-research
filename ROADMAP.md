@@ -23,8 +23,9 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Current roadmap status
 
-- **Active gate:** Gate 6 - Full autonomous Premier League season
-- **Next gate:** Gate 7 - Human-controlled match setup
+- **Active gate:** Gate 7 - Minimum human-manager gameplay loop
+- **Next gate:** Gate 8 - Internal save/load
+- **Gate 6 completed:** 27 September 2026
 - **Gate 5 completed:** 27 September 2026
 - **Gate 4 completed:** 27 September 2026
 - **Gate 3 completed:** 27 September 2026
@@ -132,25 +133,27 @@ Completion criteria:
 
 ## Gate 6 - Full autonomous Premier League season
 
-**Status: IN PROGRESS**
+**Status: COMPLETE (27 September 2026)**
 
 Goal: complete a robust real-data 38-round / 380-fixture season.
 
 Completion criteria:
 
-- [ ] Exactly 380 fixtures complete once each.
-- [ ] Every club plays 38 matches.
-- [ ] Every club has 19 home and 19 away matches.
-- [ ] League-table totals reconcile.
-- [ ] Goals for/against reconcile globally.
-- [ ] Discipline and suspensions progress correctly.
-- [ ] Injuries and returns progress correctly.
-- [ ] Condition/Form stay within valid state.
-- [ ] No invalid player/club IDs or impossible lineups appear.
-- [ ] Multiple deterministic seeds complete.
-- [ ] Failures become regression tests.
+- [x] Exactly 380 fixtures complete once each.
+- [x] Every club plays 38 matches.
+- [x] Every club has 19 home and 19 away matches.
+- [x] League-table totals reconcile.
+- [x] Goals for/against reconcile globally.
+- [x] Discipline and suspensions progress correctly.
+- [x] Injuries and returns progress correctly.
+- [x] Condition/Form stay within valid state.
+- [x] No invalid player/club IDs or impossible lineups appear.
+- [x] Multiple deterministic seeds complete.
+- [x] Failures become regression tests (no full-season failure remained; earlier discovered failures were converted to regressions).
 
 ## Gate 7 - Minimum human-manager gameplay loop
+
+**Status: IN PROGRESS**
 
 Goal: make the backend directly playable before pursuing full UI fidelity.
 
