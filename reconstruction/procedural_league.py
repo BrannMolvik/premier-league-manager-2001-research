@@ -116,6 +116,97 @@ def materialize_procedural_league_match_emissions(
                 )
     return tuple(emissions)
 
+@dataclass(frozen=True)
+class ScotPremierSplitMatchEmission:
+    """One unresolved post-split ScotPremierLeague LeagueMatch.
+
+    The original prebuilds these final-five-matchday nodes with type-4
+    symbolic ClubRefs. participant_0_selector is the ClubRef stored at
+    LeagueMatch+0x14; participant_1_selector is stored at +0x28.
+    Resolution is deferred until the post-33-match ranking is known.
+    """
+
+    pair_index: int
+    schedule_index: int
+    split_group: str
+    participant_0_selector: int
+    participant_1_selector: int
+
+
+def materialize_scot_premier_split_match_emissions(
+    team_count: int,
+    scheduled_matchday_count: int,
+) -> tuple[ScotPremierSplitMatchEmission, ...]:
+    """Reproduce the symbolic final split emitted by 0x4FAC60.
+
+    ScotPremierLeague first runs generic League initialization. Its +0x3C
+    override 0x6170A0 intercepts the synthetic final round-robin cycle
+    instead of inserting it. After 33 canonical matchdays, 0x4FAC60 groups
+    those intercepted pairs into top- and bottom-half arrays and prebuilds
+    unresolved type-4 ClubRefs for the real split fixtures.
+
+    Selector encoding recovered from 0x4F2D90/0x4F2A78:
+      bits 2+  = split-array pair index
+      bit 1    = first/second endpoint selector
+      bit 0    = top/bottom split array selector
+
+    For each split-pair index the executable inserts the top-half match first
+    and the bottom-half match second. The date advances after team_count/4
+    pair indices, yielding five dates with six matches each for the canonical
+    12-team / 38-matchday Scottish Premiership.
+    """
+    team_count = int(team_count)
+    scheduled_matchday_count = int(scheduled_matchday_count)
+    if team_count < 4 or team_count % 2:
+        raise ValueError("ScotPremierLeague split requires an even team count >= 4")
+
+    group_size = team_count // 2
+    if group_size % 2:
+        raise ValueError("ScotPremierLeague split groups must contain an even team count")
+
+    cycle_count = procedural_league_cycle_count(
+        team_count,
+        scheduled_matchday_count,
+    )
+    round_count = team_count - 1
+    remainder = scheduled_matchday_count % round_count
+    if remainder != group_size - 1:
+        raise ValueError(
+            "ScotPremierLeague split requires a final partial cycle of group_size-1 matchdays"
+        )
+
+    split_pair_count = group_size * (group_size - 1) // 2
+    pairs_per_matchday = group_size // 2
+    base_schedule_index = (cycle_count - 1) * round_count
+
+    emissions: list[ScotPremierSplitMatchEmission] = []
+    for pair_index in range(split_pair_count):
+        schedule_index = base_schedule_index + pair_index // pairs_per_matchday
+        selector_base = 4 * pair_index
+
+        # 0x4FAC60 constructs the +0x14 ClubRef second. For the top-six
+        # array that is selector 4*i+3, paired with +0x28 selector 4*i+1.
+        emissions.append(
+            ScotPremierSplitMatchEmission(
+                pair_index=pair_index,
+                schedule_index=schedule_index,
+                split_group="top",
+                participant_0_selector=selector_base + 3,
+                participant_1_selector=selector_base + 1,
+            )
+        )
+        emissions.append(
+            ScotPremierSplitMatchEmission(
+                pair_index=pair_index,
+                schedule_index=schedule_index,
+                split_group="bottom",
+                participant_0_selector=selector_base + 2,
+                participant_1_selector=selector_base + 0,
+            )
+        )
+
+    return tuple(emissions)
+
 @dataclass
 class _Slot:
     team: object | None
