@@ -5526,3 +5526,59 @@ Competition 27 is the deliberate exception: 12 teams and 38 matchdays gives `cei
 After generic League initialization returns, `0x4FAC60` starts from schedule index `(cycle_count - 1) * (team_count - 1) = 33` and constructs the final post-split Scottish schedule separately. Therefore a faithful materializer must not emit a full generic fourth round-robin cycle for competition 27.
 
 Clean-room support was added in commits `f24bda9` / `0997c8d`: `procedural_league_cycle_count()` models `0x616F40`, and `materialize_procedural_league_match_emissions()` models the generic round -> pair -> cycle emission order, alternating home/away direction, and exact date-array index.
+
+
+## League child playoff participant construction at 0x4F4FD0
+
+**Confirmed 26 September 2026 from canonical FOOTBAL.EXE and Static.dat.**
+
+The remaining empty procedural child Leagues 97 (Dutch Playoffs 1), 157
+(Belgian Playoff), and 169 (Dutch Playoffs 2) are not populated from direct
+Master.dat membership. Their participant ClubRefs are built from the same
+DBTCupAllocInstructions table already used by Cup startup.
+
+Startup attaches each DBRCupAllocInstruction to its destination competition at
+0x4F773A..0x4F77E7. Generic League::Initialize 0x4F5150 checks the resulting
+Competition+0x28 instruction count and calls 0x4F4FD0 before entering the
+procedural builder 0x6170F0.
+
+0x4F4FD0 owns a temporary per-source competition position counter. For each
+destination instruction in the recovered instruction order:
+
+- allocation type 4 adds quantity to the source counter and emits no ClubRef;
+- allocation type 1 constructs quantity ClubRefs through 0x4F2D10;
+- 0x4F2D10 sets ClubRef type 2, stores the referenced source runtime object at
+  +0x08, and stores the current source-position selector at +0x0E;
+- the source counter increments after every emitted ref;
+- allocation types 2, 3, and 5 have no branch in this League helper.
+
+Canonical League-target allocation instructions use only types 1 and 4. The
+three previously unresolved 4-team children therefore receive exactly:
+
+```text
+97  Dutch Playoffs 1:
+    source 54 selector 15
+    source 96 selector 1
+    source 96 selector 3
+    source 96 selector 4
+
+157 Belgian Playoff:
+    source 26 selector 1
+    source 26 selector 2
+    source 26 selector 3
+    source 26 selector 4
+
+169 Dutch Playoffs 2:
+    source 54 selector 16
+    source 96 selector 2
+    source 96 selector 5
+    source 96 selector 6
+```
+
+This resolves the last known participant-identity hole in the primary
+procedural-League startup materializer without inventing direct club IDs.
+
+A separate Static.dat table at offset 0xFD43 is RTTI-identified as
+DBTLeagueAllocations / DBRLeagueAllocation (28 records, seven packed dwords).
+It is distinct from the DBTCupAllocInstructions startup mechanism above and is
+not required to solve Gate 3.
