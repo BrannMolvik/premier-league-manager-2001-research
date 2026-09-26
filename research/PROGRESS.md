@@ -3470,3 +3470,46 @@ Evidence: `research/GATE7_HUMAN_GAMEPLAY.md`.
 
 Gate 8 now begins with an internal, versioned save/load format. Original FM2001
 save compatibility remains explicitly separate.
+
+
+## 27 September Gate 8 completion - internal save/load
+
+Gate 8 is complete.
+
+The modern port now has an explicit versioned internal save format
+(`fm2001-modern-internal-save`, schema 2). Saves are deterministic JSON
+logically and gzip-compressed `.fm2k` files by default. Immutable source-backed
+database definitions are verified by a structural SHA-256 rather than copied
+blindly into each save, while mutable/startup-randomized runtime state is
+persisted.
+
+The save contains calendar/scheduler state, runtime players and development
+baselines, Condition/Form, injuries/suspensions, selection/tactics, Premier
+League results, Pitch Wear, both relevant CRT RNG streams, human manager state,
+and pending same-day match state. It supports saving after earlier AI fixtures
+have already run but before the human fixture.
+
+Schema-2 canonical mid-matchday checkpoint:
+- raw deterministic JSON: 6,535,498 bytes;
+- gzip save: 998,022 bytes;
+- source signature:
+  `6ba4b9c3bce385f084053d7b0ef13595652e3335ac7ea04991637281785668cc`;
+- raw save SHA-256:
+  `0eac6a1c5ddd248c76f153b2a274d334240fd0ec72cdc494331cb543e37838f6`.
+
+A fresh canonical database/runtime restored the save before Arsenal fixture 20
+on 26 August 2000 and stayed exactly equal to the uninterrupted branch through
+23 September / 60 PL results / final match RNG `0xBE52A1F6`.
+
+Canonical Gate-8 audit SHA-256:
+`69a91dbce914be2fe5babdf8a8c71ad77bad5653c9cac09468520330f7c7b413`.
+
+The playable Tkinter Play tab now exposes Save Game and Load Game and restores
+club, XI/bench, formation, tactics, table, date and a pending fixture.
+
+GitHub reconstruction Actions at `72c21e8f07bf9bf57f6dc3cbaba83809cdd06414`:
+**413 tests passed**; asset policy passed.
+
+Evidence: `research/GATE8_INTERNAL_SAVE.md`.
+
+Gate 9 now begins: Transfers and contracts.
