@@ -5419,3 +5419,76 @@ Therefore canonical new-game startup can enter the conditional branch, but its
 auxiliary vector size is one and it consumes **zero CRT RNG calls**.
 
 The complete primary pre-`0x615BE0` total remains **1,863 bounded calls**.
+
+## Cup round schedule-node construction and generic ClubRef conflict identity
+
+**Confirmed 26 September 2026 from the canonical `FOOTBAL.EXE`
+(SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`).**
+
+This extends the reopened Gate-3 Cup participant reconstruction from pairings
+to the objects inserted into the primary schedule container.
+
+### NormalRound `0x4F64D0`
+
+After its already-recovered participant Fisher-Yates, ClubRef qsort, and
+split-half pairing, each pairing allocates a 0x5C-byte match and calls
+`0x510520`, whose resulting class is `CupMatch`.
+
+The scheduler then selects the parent Cup's schedule container through
+`0x4F3B50` and calls `0x615950` with the date pair at NormalRound runtime
+`+0x20/+0x24`.
+
+Therefore one startup `CupMatch` node is emitted per NormalRound pairing.
+The packed replay week/day fields are not a second startup node for this class;
+replay behavior is handled separately by the Cup-match runtime when required.
+
+### TwoLegRound `0x4F6820`
+
+Each pairing emits two distinct 0x5C-byte nodes, in this order:
+
+1. `0x510640` -> `FirstLegMatch`, inserted through `0x615950` using
+   runtime date pair `+0x20/+0x24`;
+2. `0x510680` -> `SecondLegMatch`, inserted through `0x615950` using
+   runtime date pair `+0x28/+0x2C`.
+
+The winner ClubRef propagated to the next Cup round is constructed only after
+the second-leg object has replaced the local match pointer, so the aggregate
+winner reference is anchored on the `SecondLegMatch` object.
+
+### MiniLeagueRound `0x4F6B10`
+
+MiniLeagueRound performs the participant shuffle/qsort/distribution already
+implemented in the reconstruction, but it does **not** call `0x615950`
+itself.
+
+Instead it assigns distributed participant ClubRefs into the referenced child
+League groups. The Cup initializer later recursively initializes those child
+League objects, and generic procedural League scheduling emits their
+group-stage `LeagueMatch` nodes.
+
+Consequently exact MiniLeague schedule materialization requires reproducing the
+child-League `0x6170F0` fixture/date emission path rather than inventing
+CupMatch nodes for the parent MiniLeague round.
+
+### Generic conflict predicate beneath `0x615950`
+
+Schedule-container routine `0x615790` dispatches a match virtual overlap
+predicate. CupMatch, FirstLegMatch and SecondLegMatch share the relevant
+virtuals `0x510A80` and `0x510A40` with the normal match family.
+
+`0x510A40` tests an input ClubRef against the match's first ClubRef at
+`+0x14`, then its second at `+0x28`, using `0x4F2830`.
+`0x510A80` applies that virtual to both participants of another match.
+
+`0x4F2830` has two exact identity modes:
+
+- when the left ClubRef resolves directly, the right ref must also resolve and
+  the resolved club pointers must be equal;
+- when the left ClubRef is unresolved, a resolving right ref cannot match;
+  if both are unresolved, equality requires the same 16-bit type at
+  ClubRef+`0x0C`, the same referenced runtime-object pointer at
+  ClubRef+`0x08`, and the same 16-bit selector at ClubRef+`0x0E`.
+
+Thus the startup scheduler does not expand an unresolved winner/group-position
+reference into every club it might later resolve to. Two symbolic refs overlap
+only when their source identity/type/selector are structurally identical.

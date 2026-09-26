@@ -9,7 +9,7 @@
   "latest_reverse_engineering_checkpoint": "1014b042a19fc851b8d87e653ee1e5d807816630",
   "last_verified_reconstruction_ci_head": "8b52d20a3e363430c33257b1954763a377aa0b06",
   "last_verified_test_count": 358,
-  "active_task": "Trace exact Cup schedule-node construction/insertion, wire it into the all-primary-Cup driver, then run canonical data verification",
+  "active_task": "Finish MiniLeague child procedural LeagueMatch emission and generic ClubRef conflict placement, then wire and run canonical all-Cup schedule materialization",
   "next_gate": 4,
   "next_gate_name": "Resolve exact Premier League matchday ordering",
   "blocked": false,
@@ -36,5 +36,7 @@
     110,
     119
   ],
-  "primary_dummy_league_sort_rng_calls": 124
+  "primary_dummy_league_sort_rng_calls": 124,
+  "canonical_source_available_in_session": true,
+  "canonical_footbal_exe_sha256": "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"
 }

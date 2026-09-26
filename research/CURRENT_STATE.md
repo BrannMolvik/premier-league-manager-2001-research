@@ -85,13 +85,13 @@ Gate 3 now has executable Cup runtime materialization, not only RNG accounting:
 
 Continue Gate 3 by:
 
-1. trace the exact NormalRound / TwoLegRound / MiniLeague schedule-node construction and insertion semantics so materialized Cup pairings can become primary-container nodes without approximation;
-2. wire those recovered node rules into the all-primary-Cup driver;
-3. execute the driver against the authorized canonical Master.dat / Static.dat / STR set when those files are available to the execution environment, verifying all 27 Cups / 115 rounds, both UEFA type-2 injections, the 1,863-call bound digest/state, and participant/pairing digests;
+1. finish the MiniLeague child-League procedural scheduler trace so its group-stage LeagueMatch node dates, construction order, and insertion order are exact;
+2. implement the generic schedule-conflict identity rule for symbolic Cup/League ClubRefs and wire NormalRound/TwoLegRound/MiniLeague-derived nodes into the all-primary-Cup driver;
+3. execute the driver against the now-materialized authorized canonical Master.dat / Static.dat / STR set, verifying all 27 Cups / 115 rounds, both UEFA type-2 injections, the 1,863-call bound digest/state, emitted schedule nodes, and participant/pairing digests;
 4. lock those canonical digests/checkpoints in verification;
 5. close Gate 3 and resume Gate 4 with the emitted Cup schedule nodes.
 
-The canonical game binaries were not available in the current ChatGPT file library or connected Dropbox during the 358-test checkpoint, so no unexecuted participant/pairing digest is being claimed as canonical.
+After that 358-test checkpoint, the authorized disc-image archive was recovered from the retained ChatGPT Library reference and materialized for direct analysis. The extracted canonical files match the repository's locked hashes, including FOOTBAL.EXE SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`. No original binary/data payload is being committed.
 
 Commit every verified canonical materialization boundary separately.
 
@@ -126,7 +126,7 @@ Already implemented and tested at a substantial level:
 See `FIDELITY_GAPS.md` for the canonical list. The most relevant current gaps are:
 
 - the all-Cup orchestration exists and is integration-tested, but its canonical participant/pairing digests still require execution against the authorized shipped data;
-- exact Cup schedule-node construction/insertion semantics are still being traced before primary `0x615BE0`;
+- NormalRound and TwoLegRound startup schedule-node construction is now exact; MiniLeague group-stage nodes still require the child procedural-League emission trace before primary `0x615BE0`;
 - exact inter-bucket RNG consumption/order inside primary `0x615BE0` is Gate-4 work paused behind that correction;
 - deterministic fixture-ID same-day fallback;
 - unresolved final league-table tie fallback;

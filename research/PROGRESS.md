@@ -2940,3 +2940,52 @@ schedule-container insertion semantics for NormalRound, TwoLegRound, and
 MiniLeagueRound, then wire those nodes into the all-Cup driver. Once canonical
 game data is available to the execution environment, run the driver end to end
 and lock the resulting shipped-data digests before closing Gate 3.
+
+## 26 September canonical source recovery and Cup schedule-node checkpoint
+
+The authorized original disc image was recovered from the retained ChatGPT
+Library reference and materialized for direct executable/data analysis. The
+disc payload was extracted transiently only; no original binary or database
+payload is being added to the repository.
+
+Canonical extracted hashes match the already locked release:
+
+- `FOOTBAL.EXE`: `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`;
+- `Master.dat`: `183dd457d09ce616f99a664636727668ec15eab3f65b9057ef0953e76548b6b8`;
+- `Static.dat`: `e0ff7c10a5f5f973a87cf6cd2d3770e623071899a0b30378debd0e7d13edb9d8`;
+- `English.str`: `aa594a55ad95c672b69184e5f3ff8349e41fe95b48c5dcb3c8fcfe2bcdf5b601`;
+- `Core.str`: `b0800475769fa087e69de989388569e5b29f495e5abe5d62687c2acb1d339e06`.
+
+Direct disassembly now resolves the Cup node layer substantially:
+
+- NormalRound scheduler `0x4F64D0` creates one 0x5C-byte `CupMatch`
+  through `0x510520` for every materialized pairing and inserts it through
+  `0x615950` using the round's primary week/day pair at runtime
+  `+0x20/+0x24`;
+- TwoLegRound scheduler `0x4F6820` creates a `FirstLegMatch` through
+  `0x510640`, inserts it at `+0x20/+0x24`, then creates a
+  `SecondLegMatch` through `0x510680` and inserts it at
+  `+0x28/+0x2C`; the propagated winner ClubRef references the second-leg
+  match object;
+- MiniLeagueRound `0x4F6B10` does not call `0x615950` directly. It
+  distributes the shuffled/sorted participants into child League objects,
+  whose normal procedural League initialization later creates the group-stage
+  LeagueMatch nodes;
+- the generic schedule-conflict virtuals shared by Cup/League match classes
+  are `0x510A80` / `0x510A40`. They test both participant ClubRefs via
+  `0x4F2830`;
+- `0x4F2830` treats resolved/direct ClubRefs as conflicting only when they
+  resolve to the same club pointer. If both refs are unresolved/symbolic, it
+  requires an exact match of ClubRef type at `+0x0C`, referenced runtime
+  object pointer at `+0x08`, and selector at `+0x0E`. A direct-vs-symbolic
+  pair does not conflict.
+
+This means schedule placement can be reproduced without prematurely resolving
+future Cup winners: symbolic references conflict only when they identify the
+same unresolved source object/type/selector.
+
+Next target: finish `0x6170F0` procedural League fixture emission for the
+MiniLeague child competitions, including exact round/date and insertion order.
+Then implement the schedule-node descriptors and generic ClubRef conflict
+placement, run the all-Cup materializer against the recovered canonical data,
+and lock the resulting digests.
