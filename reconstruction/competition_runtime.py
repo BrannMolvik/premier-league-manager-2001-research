@@ -84,6 +84,7 @@ def replay_primary_mode0_complete_competition_rng(
     players: Iterable[object] = (),
     *,
     fixed_fixture_competition_ids: Iterable[int] = (0,),
+    include_zero_rng_competition_events: bool = False,
 ) -> PrimaryMode0CompleteCompetitionRngReplay:
     """Replay all currently proven primary competition RNG before 0x615BE0.
 
@@ -199,6 +200,18 @@ def replay_primary_mode0_complete_competition_rng(
                 competition_context=competition_context,
                 participant_count=participant_count,
                 bounds=replay.bounds,
+            )
+
+        elif runtime_kind == 1 and include_zero_rng_competition_events:
+            append_event(
+                kind="fixed_league",
+                competition_id=competition_id,
+                competition_context=competition_context,
+                participant_count=sum(
+                    int(getattr(club, "competition_id", -1)) == competition_id
+                    for club in club_list
+                ),
+                bounds=(),
             )
 
         elif runtime_kind == 2:
