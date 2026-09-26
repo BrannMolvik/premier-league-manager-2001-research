@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 3,
   "active_task": "Finish procedural League schedule-node emission in 0x6170F0 and integrate exact Cup/League schedule nodes",
-  "last_known_main_head": "e83cb14dd36b7ca7da6ae4da09c5ddb4d10f2ddb",
+  "last_known_main_head": "4b795726e26f2102ff2009b43962ff3e3609cd3d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 0,
-  "last_recovery_reason": null,
-  "note": "Local Chrome extension and Windows watchdog verified on 2026-09-26. Continuous overnight FM2001 work armed."
+  "recovery_generation": 1,
+  "last_recovery_reason": "manual-end-to-end-test",
+  "note": "Recovered by the Windows watchdog on 2026-09-26 during the manual end-to-end test. Continuous FM2001 work resumed from canonical GitHub state."
 }
