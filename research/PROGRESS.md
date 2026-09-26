@@ -3167,3 +3167,33 @@ does not supply the packed team count. The materializer deliberately raises rath
 than inventing symbolic refs. After that source is resolved, run the complete
 materializer against the authorized shipped data and lock participant, pairing, and
 schedule-node digests before closing Gate 3.
+
+
+## 27 September canonical integrated materializer run - Cup-source enumerator blocker
+
+The authorized canonical shipped data was executed against the integrated Gate-3
+materializer from synthetic post-youth CRT state `0x2797444C`.
+
+Input parse was canonical and complete:
+
+- 1,246 clubs;
+- 30,064 players;
+- 1,612 managers;
+- 209 countries;
+- 193 competitions;
+- 1,053 rounds;
+- 238 Cup-allocation instructions;
+- 380 real fixtures.
+
+The run advanced beyond the previously unresolved League-parent playoff children
+97/157/169 using the recovered `0x4F4FD0` type-2 source-position ClubRefs.
+It then stopped at the next deliberately unimplemented exact source:
+
+```text
+ValueError: type-3 source Cup 98 requires its exact Cup+0x40/+0x44 enumeration
+```
+
+This is not being approximated. The exact next task is to recover the Cup-source
+enumeration semantics for Cup 98 (and audit whether any other type-3 Cup sources
+exist), implement them, then rerun the canonical materializer. No participant,
+pairing, or schedule digest is labeled canonical until this path is resolved.
