@@ -8,12 +8,12 @@ topic-specific research files.
 
 ## Current gate
 
-**Gate 5 - Real-data matchday integration**
+**Gate 6 - Full autonomous Premier League season**
 
-Gates 1 through 4 are complete. Gate 4 closed after the complete 9,346-node
-primary schedule was placed and shuffled with the corrected Gate-3 CRT state,
-and the first ten canonical Premier League same-day fixture orders were
-regression-locked.
+Gates 1 through 5 are complete. Gate 5 closed after the recovered scheduler
+order was integrated into `GameState` and the exact committed real-data audit
+completed three consecutive canonical Premier League rounds with coherent
+match, table, discipline, injury, Form, Condition, and Pitch Wear state.
 
 ## Porting mission
 
@@ -125,35 +125,60 @@ The standalone matchday API may still use deterministic fixture-ID order when
 no reconstructed startup scheduler order is supplied. This is now an
 integration fallback, not an unknown original behavior.
 
+## Gate-5 canonical integration checkpoint
+
+The reusable runner `reconstruction/canonical_matchday_audit.py` verifies the
+canonical shipped hashes, reconstructs all 38 scheduler orders from source
+data, installs them into `GameState`, and audits persisted state.
+
+Exact committed three-round audit SHA-256:
+
+`dbe2aa4e5de50884b52616af3312e46f805d43b992c8cbb972d4446479535f4b`
+
+Observed after three real rounds / 30 matches:
+
+- stored results: **30**;
+- table played total: **60**;
+- goals for / against: **87 / 87**;
+- all 20 clubs played exactly 3;
+- 30 match environments persisted;
+- 644 PL runtime players remained in unique rosters;
+- Condition range **34..99**;
+- 5 injured players, all with return dates;
+- 3 suspended players with valid remaining counts/effective dates;
+- yellow total **44**;
+- every PL club retained exactly 11 active + 5 substitute-available players.
+
+See `research/GATE5_REAL_MATCHDAY_INTEGRATION.md`.
+
 ## Exact next task
 
-Continue Gate 5 against canonical shipped data:
+Continue Gate 6 using the same canonical audit path:
 
-1. Connect the recovered Premier League scheduler order to the real-data
-   matchday execution path instead of supplying fixture order manually.
-2. Run one complete canonical **10-match Premier League round** through the
-   existing AI preparation, match simulation, post-match persistence, result
-   storage, and league-table update.
-3. Verify all **20 Premier League clubs participate exactly once** in that
-   round and that every due fixture executes in the recovered scheduler order.
-4. Audit and persist round-level state:
-   - 10 results stored exactly once;
-   - table played totals reconcile;
-   - goals for/against reconcile;
-   - discipline, injuries, Form, Condition, and Pitch Wear persist coherently;
-   - no invalid player/club IDs or impossible lineups.
-5. Extend the integration across several consecutive canonical real rounds.
-   When Gate-5 criteria are satisfied, update the roadmap/status and move to
-   Gate 6.
+1. Run all **38 Premier League rounds / 380 fixtures** using the recovered
+   scheduler order and original coefficient matrices.
+2. Verify every fixture completes exactly once, each club plays 38 matches with
+   19 home / 19 away, table totals and global goals reconcile, and no invalid
+   player/club/lineup state appears.
+3. Audit discipline/suspension and injury/return progression through the full
+   season, plus Condition/Form bounds.
+4. Repeat the complete season under multiple deterministic match/player seeds.
+5. Convert any failure into a focused regression test. Close Gate 6 only after
+   multiple deterministic full seasons complete.
 
-## Gate 5 completion criteria
+## Gate 6 completion criteria
 
-- [ ] Canonical data hashes are checked before integration runs.
-- [ ] One complete real 10-match Premier League round runs.
-- [ ] All 20 clubs participate exactly once in that round.
-- [ ] Results, table, statistics, discipline, injuries, Form, Condition, and
-      Pitch Wear persist coherently.
-- [ ] Several consecutive real rounds run without invalid state.
+- [ ] Exactly 380 fixtures complete once each.
+- [ ] Every club plays 38 matches.
+- [ ] Every club has 19 home and 19 away matches.
+- [ ] League-table totals reconcile.
+- [ ] Goals for/against reconcile globally.
+- [ ] Discipline and suspensions progress correctly.
+- [ ] Injuries and returns progress correctly.
+- [ ] Condition/Form stay within valid state.
+- [ ] No invalid player/club IDs or impossible lineups appear.
+- [ ] Multiple deterministic seeds complete.
+- [ ] Failures become regression tests.
 
 ## Current implementation state
 
@@ -175,7 +200,7 @@ Already implemented and tested at a substantial level:
 
 See `FIDELITY_GAPS.md`. Most relevant now:
 
-- canonical real-data 10-match and multi-round integration is not yet locked;
+- canonical three-round real-data integration is locked; full 38-round multi-seed season proof is Gate 6;
 - standalone callers without startup scheduler state still use an explicit
   deterministic fixture-ID fallback;
 - unresolved final league-table tie fallback;
