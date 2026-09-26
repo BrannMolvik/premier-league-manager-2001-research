@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "description": "Recovers continuous FM2001 ChatGPT work after a stalled session, connection interruption, or chat-length limit.",
   "permissions": [
-    "alarms",
     "storage",
     "tabs"
   ],
