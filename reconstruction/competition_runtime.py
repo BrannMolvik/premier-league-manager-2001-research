@@ -35,6 +35,27 @@ class PrimaryCompetitionRuntimeRngEvent:
 
 
 @dataclass(frozen=True)
+class PrimaryCompetitionRuntimeEventSpec:
+    """RNG-independent competition-initialization event skeleton.
+
+    Cup round shuffle bounds are deliberately absent here because the
+    executable uses the runtime round's actual ClubRef count at +0x0C, which
+    can be below the packed Static.dat team capacity after allocation
+    filtering. The integrated materializer supplies that count immediately
+    before each round scheduler runs.
+    """
+
+    kind: str
+    competition_id: int
+    competition_context: int
+    round_id: int | None = None
+    participant_count: int | None = None
+    source_competition_id: int | None = None
+    expected_bounds: tuple[int, ...] = ()
+    selected_club_id: int | None = None
+
+
+@dataclass(frozen=True)
 class PrimaryMode0CompleteCompetitionRngReplay:
     events: tuple[PrimaryCompetitionRuntimeRngEvent, ...]
     procedural_league_instance_count: int
@@ -344,3 +365,177 @@ def replay_primary_mode0_complete_competition_rng(
         uefa_cup_club_id=uefa_cup_club_id,
         state_entering_primary_shuffle=_state(rng),
     )
+
+
+def primary_mode0_competition_event_skeleton(
+    competitions: Iterable[object],
+    rounds: Iterable[object],
+    clubs: Iterable[object],
+    countries: Iterable[object],
+    allocation_instructions: Iterable[object] = (),
+    players: Iterable[object] = (),
+    *,
+    fixed_fixture_competition_ids: Iterable[int] = (0,),
+    include_zero_rng_competition_events: bool = True,
+) -> tuple[PrimaryCompetitionRuntimeEventSpec, ...]:
+    """Build exact traversal markers without pre-consuming the CRT stream.
+
+    This is the event-order companion to the older state replay. Procedural
+    League participant counts and DummyLeague/Europe bounds are knowable before
+    execution. Cup round bounds are not: 0x4F64D0/0x4F6820 read runtime
+    round+0x0C after allocations and prior-round propagation, so the adaptive
+    materializer fills those bounds from the live round immediately before the
+    scheduler's Fisher-Yates loop.
+    """
+    competition_list = tuple(competitions)
+    round_list = tuple(rounds)
+    club_list = tuple(clubs)
+    country_list = tuple(countries)
+    instruction_list = tuple(allocation_instructions)
+    player_list = tuple(players)
+    fixed_ids = {int(value) for value in fixed_fixture_competition_ids}
+
+    competition_by_id = {
+        int(competition.id): competition
+        for competition in competition_list
+    }
+    children: dict[int, list[object]] = {}
+    for competition in competition_list:
+        parent = getattr(competition, "parent_competition_id", None)
+        if parent is not None:
+            children.setdefault(int(parent), []).append(competition)
+
+    rounds_by_competition: dict[int, list[object]] = {}
+    for round_definition in round_list:
+        rounds_by_competition.setdefault(
+            int(round_definition.competition_id),
+            [],
+        ).append(round_definition)
+    rounds_by_competition_tuple = {
+        competition_id: tuple(values)
+        for competition_id, values in rounds_by_competition.items()
+    }
+
+    candidates = europe_root_cup_candidate_ids(
+        club_list,
+        country_list,
+        excluded_club_id=-1,
+    )
+    sorted_dummy_league_ids: set[int] = set()
+    events: list[PrimaryCompetitionRuntimeEventSpec] = []
+
+    def visit(competition, competition_context: int) -> None:
+        if int(competition.schedule_container_code) in (2, 3):
+            return
+
+        competition_id = int(competition.id)
+        runtime_kind = int(competition.runtime_kind_code)
+
+        if runtime_kind == 1 and competition_id not in fixed_ids:
+            events.append(
+                PrimaryCompetitionRuntimeEventSpec(
+                    kind="procedural_league_round_robin",
+                    competition_id=competition_id,
+                    competition_context=int(competition_context),
+                    participant_count=_procedural_league_team_count(
+                        competition_id,
+                        club_list,
+                        rounds_by_competition_tuple,
+                    ),
+                )
+            )
+        elif runtime_kind == 1 and include_zero_rng_competition_events:
+            events.append(
+                PrimaryCompetitionRuntimeEventSpec(
+                    kind="fixed_league",
+                    competition_id=competition_id,
+                    competition_context=int(competition_context),
+                    participant_count=sum(
+                        int(getattr(club, "competition_id", -1)) == competition_id
+                        for club in club_list
+                    ),
+                )
+            )
+        elif runtime_kind == 2:
+            for instruction in ordered_cup_allocation_instructions(
+                competition_id,
+                instruction_list,
+            ):
+                if int(instruction.instruction_type) != 5:
+                    continue
+                source = competition_by_id.get(int(instruction.source_reference))
+                if source is None or int(source.runtime_kind_code) != 3:
+                    continue
+                source_id = int(source.id)
+                if source_id in sorted_dummy_league_ids:
+                    continue
+                sorted_dummy_league_ids.add(source_id)
+                entries = initial_dummy_league_sort_entries(
+                    source_id,
+                    club_list,
+                    player_list,
+                )
+                events.append(
+                    PrimaryCompetitionRuntimeEventSpec(
+                        kind="dummy_league_lazy_sort",
+                        competition_id=competition_id,
+                        competition_context=int(competition_context),
+                        source_competition_id=source_id,
+                        participant_count=len(entries),
+                        expected_bounds=tuple(
+                            int(entry.rng_bound) for entry in entries
+                        ),
+                    )
+                )
+
+            if (
+                getattr(competition, "parent_competition_id", None) is None
+                and int(competition.country_region_id) == 123
+            ):
+                if not candidates:
+                    bounds = ()
+                    selected = -1
+                elif len(candidates) == 1:
+                    bounds = ()
+                    selected = int(candidates[0])
+                else:
+                    bounds = (len(candidates) - 1,)
+                    selected = None
+                events.append(
+                    PrimaryCompetitionRuntimeEventSpec(
+                        kind="europe_selector",
+                        competition_id=competition_id,
+                        competition_context=int(competition_context),
+                        expected_bounds=bounds,
+                        selected_club_id=selected,
+                    )
+                )
+
+            for round_definition in primary_cup_round_initialization_order(
+                competition_id,
+                round_list,
+            ):
+                events.append(
+                    PrimaryCompetitionRuntimeEventSpec(
+                        kind="cup_round_shuffle",
+                        competition_id=competition_id,
+                        competition_context=int(competition_context),
+                        round_id=int(round_definition.id),
+                    )
+                )
+
+        for child in children.get(competition_id, ()):
+            multiplicity = int(getattr(child, "runtime_instance_count", 1))
+            if multiplicity < 0:
+                raise ValueError("runtime child competition multiplicity is negative")
+            for child_context in range(multiplicity):
+                visit(child, child_context)
+
+    country_ids = tuple(int(country.id) for country in country_list)
+    for root in primary_mode0_root_initialization_order(
+        competition_list,
+        country_ids,
+    ):
+        visit(root, 0)
+
+    return tuple(events)
