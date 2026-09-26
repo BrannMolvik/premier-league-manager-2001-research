@@ -188,7 +188,7 @@ def materialize_primary_cup_runtime(
 
     The caller supplies the shared CRT-compatible bounded RNG at the state that
     enters primary competition initialization.  For the canonical synthetic
-    Gate-3 checkpoint that is MsvcCrtRng(0x2797444C).
+    corrected Gate-3 startup checkpoint MsvcCrtRng(0x4B68DE28).
 
     Cup allocation type 3 normally reads the dedicated League/DummyLeague/
     ScotPremierLeague historical-enumeration array, which is reconstructed
