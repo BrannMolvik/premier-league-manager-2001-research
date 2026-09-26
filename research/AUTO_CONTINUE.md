@@ -95,12 +95,20 @@ If the relevant autonomous project/task is genuinely finished, use
 If the session dies before making this transition, it will remain `working`,
 which is exactly what lets the watchdog recover it.
 
-## Local watchdog
+## Local recovery watcher
 
-The Chromium extension under `tools/auto_continue/chrome-extension/` is the
-primary local recovery watcher.
+The local recovery layer has two cooperating parts:
 
-It does two independent checks:
+- `tools/auto_continue/watchdog.ps1` is a deterministic Windows-side lease
+  monitor. It survives a dead ChatGPT tab and checks whether a session marked
+  `working` has stopped producing repository checkpoints.
+- the Chromium extension under `tools/auto_continue/chrome-extension/`
+  watches the ChatGPT UI, opens/submits replacement chats, and also performs
+  its own GitHub lease check while Chrome is running.
+
+Installation is documented in `tools/auto_continue/README.md`.
+
+It uses two independent failure signals:
 
 ### 1. Explicit ChatGPT UI failure
 
@@ -119,7 +127,7 @@ start immediately.
 
 ### 2. Repository inactivity lease
 
-Every few minutes the extension reads:
+Every few minutes both the extension and the Windows watchdog can read:
 
 - runtime state from `agent-runtime`;
 - latest commit time on `agent-runtime`;
@@ -129,7 +137,11 @@ If the state is `working` and neither branch has activity within
 `stale_after_minutes`, it treats the previous work session as dead even when
 the ChatGPT UI never displayed an explicit error.
 
-This catches silent timeouts and disconnected tabs.
+This catches silent timeouts and disconnected tabs. The Windows watchdog is
+the stronger detector when the old ChatGPT page or browser process is no
+longer usable. When it detects a stale lease, it opens a special recovery URL;
+the extension recognizes that URL, builds the handoff from GitHub, and submits
+it in that newly opened ChatGPT page.
 
 ## Recovery action
 
@@ -181,8 +193,10 @@ This is why repository state must remain sufficient to resume the project.
 ## Fallback
 
 The automatic browser restart is best-effort because ChatGPT UI selectors can
-change. The repository inactivity signal remains independent of those selectors,
-and the extension uses several composer/send-button fallbacks.
+change. The repository inactivity signal remains independent of those selectors.
+The Windows watchdog can still detect the stopped worker and open ChatGPT even
+if the old tab is gone; the extension uses several composer/send-button
+fallbacks for the final prompt submission.
 
 If a future ChatGPT UI update breaks automatic prompt insertion, the repository
 still contains a complete recovery prompt and exact current state; only the
