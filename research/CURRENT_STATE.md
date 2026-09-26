@@ -27,7 +27,7 @@ Authorized original resources belong under `original_assets/` with provenance tr
 
 ## Gate 3 correction objective
 
-The hidden shared MSVC CRT state entering primary `0x615BE0` is now corrected.
+The previously recorded shared MSVC CRT state entering primary `0x615BE0` is **not yet complete**. Direct executable tracing on 26 September found an earlier-missed RNG-bearing procedural-League round-robin generator beneath `0x6170F0`.
 
 Canonical primary competition totals are:
 
@@ -37,9 +37,9 @@ Canonical primary competition totals are:
 - 1,737 mandatory Cup participant-shuffle calls;
 - 124 mandatory DummyLeague lazy-ranking calls reached through type-5 Cup allocation;
 - 2 Europe-root selector calls;
-- **1,863 total competition-stage CRT calls before `0x615BE0`**.
+- **1,863 mapped Cup/DummyLeague/Europe-selector calls**, plus newly confirmed procedural-League round-robin draws that are still being quantified.
 
-For the existing synthetic post-youth checkpoint `0x2797444C`, the corrected competition-stage state is `0xAECA9FA5`.
+The old synthetic checkpoint `0x2797444C -> 0xAECA9FA5` is therefore superseded as a claimed final pre-`0x615BE0` state. Keep it only as the state after the previously mapped 1,863-call subset until the procedural-League draws are integrated.
 
 Gate 3 remains open only because exact bounded-call **ordering and resulting Cup pairings** must still be materialized. That output is required by Gate 4 to know the complete global schedule bucket contents.
 
@@ -70,7 +70,8 @@ The remaining blocker is not RNG call count; it is exact Cup bounded-call order/
 
 Gate 3 now has executable Cup runtime materialization, not only RNG accounting:
 
-- corrected primary pre-`0x615BE0` ledger remains **1,863 calls** / state `0xAECA9FA5`;
+- the previously mapped Cup/DummyLeague/Europe-selector subset remains **1,863 calls**, but direct tracing of `0x6170F0 -> 0x616F20 -> 0x616EA0 -> 0x616CE0 -> 0x64D540` proves additional pre-shuffle procedural-League RNG;
+- canonical data contains 22 primary root procedural Leagues besides the fixed-fixture Premier League; their unique-pair lower bound alone is **3,591 additional bounded draws**, before retries and child League instances;
 - type-5 DummyLeague ranking RNG is integrated;
 - exact legacy CRT `qsort` behavior is implemented;
 - standard allocation types 1/3/4/5 expand into semantic ClubRefs;
@@ -85,7 +86,7 @@ Gate 3 now has executable Cup runtime materialization, not only RNG accounting:
 
 Continue Gate 3 by:
 
-1. finish the MiniLeague child-League procedural scheduler trace so its group-stage LeagueMatch node dates, construction order, and insertion order are exact;
+1. finish translating the procedural-League round-robin solver at `0x616CE0..0x616F20`, quantify its exact bounded-call stream for every primary League instance, and replace the superseded final pre-`0x615BE0` checkpoint;
 2. implement the generic schedule-conflict identity rule for symbolic Cup/League ClubRefs and wire NormalRound/TwoLegRound/MiniLeague-derived nodes into the all-primary-Cup driver;
 3. execute the driver against the now-materialized authorized canonical Master.dat / Static.dat / STR set, verifying all 27 Cups / 115 rounds, both UEFA type-2 injections, the 1,863-call bound digest/state, emitted schedule nodes, and participant/pairing digests;
 4. lock those canonical digests/checkpoints in verification;
@@ -101,7 +102,7 @@ Commit every verified canonical materialization boundary separately.
 - [x] Fixed-seed intermediate checkpoints exist for those phases.
 - [x] Python-RNG startup fallbacks are isolated/removed.
 - [x] Cup round scheduler RNG call count before primary `0x615BE0` is fully included.
-- [x] Corrected hidden CRT state entering primary `0x615BE0` is reproducible and canonically verified.
+- [ ] Final hidden CRT state entering primary `0x615BE0` is reproducible after integrating the newly confirmed procedural-League round-robin RNG. The older 1,863-call state is now only an intermediate subset checkpoint.
 - [x] Exact bounded-call ordering, including type-5 DummyLeague lazy sorts, is materialized and canonically verified.
 - [ ] Cup participant records and final pairing output are materialized for schedule reconstruction.
 
@@ -127,6 +128,7 @@ See `FIDELITY_GAPS.md` for the canonical list. The most relevant current gaps ar
 
 - the all-Cup orchestration exists and is integration-tested, but its canonical participant/pairing digests still require execution against the authorized shipped data;
 - NormalRound and TwoLegRound startup schedule-node construction is now exact; MiniLeague group-stage nodes still require the child procedural-League emission trace before primary `0x615BE0`;
+- procedural-League round-robin RNG before primary `0x615BE0` is newly confirmed and must be integrated before any final Gate-4 shuffle state is trusted;
 - exact inter-bucket RNG consumption/order inside primary `0x615BE0` is Gate-4 work paused behind that correction;
 - deterministic fixture-ID same-day fallback;
 - unresolved final league-table tie fallback;

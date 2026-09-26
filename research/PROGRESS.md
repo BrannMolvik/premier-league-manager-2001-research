@@ -2989,3 +2989,55 @@ MiniLeague child competitions, including exact round/date and insertion order.
 Then implement the schedule-node descriptors and generic ClubRef conflict
 placement, run the all-Cup materializer against the recovered canonical data,
 and lock the resulting digests.
+
+## 26 September procedural-League RNG correction checkpoint
+
+**This checkpoint supersedes the claim that the complete primary
+pre-`0x615BE0` competition-stage stream is 1,863 bounded calls ending at
+`0xAECA9FA5`.**
+
+Direct disassembly of the canonical `FOOTBAL.EXE` resolves an earlier-missed
+RNG path inside the ordinary procedural League builder:
+
+```text
+League::Initialize 0x4F5150
+ -> procedural builder 0x6170F0
+ -> round-robin solver 0x616F20
+ -> 0x616EA0
+ -> randomized/backtracking selector 0x616CE0
+ -> 0x64D540(bound)
+```
+
+The call at `0x61721C` is reached before `0x6170F0` emits its LeagueMatch
+nodes and before primary `0x615BE0`. It is separate from the already-known
+conditional parent-vector shuffle at `0x617277`.
+
+Canonical Static/Master data has **22 primary root procedural Leagues** in
+addition to the fixed-fixture Premier League. Their club counts imply
+**3,591 unique pairings** in one round-robin cycle. Because `0x616CE0`
+performs at least one bounded RNG call for each chosen pairing, these roots
+alone prove at least **3,591 additional pre-shuffle bounded calls**, before
+backtracking retries and before child procedural League instances such as
+Champions League group phases.
+
+A direct high-level translation of the solver has been sanity-checked on
+synthetic even-sized leagues: it produces every unordered club pair exactly
+once. It also shows the original backtracking can add extra draws. For
+example, one tested 20-team state consumed 213 calls for 190 pair selections.
+
+Consequences:
+
+- the existing 1,737 Cup-shuffle + 124 DummyLeague + 2 Europe-selector =
+  1,863 stream remains valid as a **mapped subset**, not the final primary
+  pre-shuffle ledger;
+- `0xAECA9FA5` remains only the state after that older subset and must not be
+  presented as the final state entering `0x615BE0`;
+- Gate 3 remains open and moves temporarily back to RNG-ledger correction;
+- Gate-4 bucket/date/conflict primitives remain useful, but any final bucket
+  shuffle state/order derived from the old checkpoint is paused pending the
+  corrected procedural-League stream.
+
+Next: finish an exact tested translation of `0x616CE0..0x616F20`, identify
+every primary procedural League runtime instance and initialization position,
+integrate its bounds into the shared startup stream, and then resume the Cup
+schedule-node materializer on the corrected RNG state.

@@ -489,3 +489,23 @@ a6675e77b8256fcb8d5834efa6a9d006182078c12f27887c8228a14eca889711
 
 All older 1,739-call / `0x986E4579` / `baef647...` statements in historical
 chronology are superseded by this correction.
+
+
+## 26 September 2026 correction: procedural League generator is RNG-active
+
+The earlier 1,863-call primary competition total is **not the complete
+pre-`0x615BE0` stream**. Canonical executable tracing found that procedural
+League builder `0x6170F0` unconditionally reaches round-robin solver
+`0x616F20 -> 0x616EA0 -> 0x616CE0`, whose candidate selection calls
+`0x64D540`. These draws occur before schedule-node emission and before the
+primary container's final `0x615BE0` shuffle.
+
+Until this solver is fully integrated, treat:
+
+- 1,863 calls,
+- ordered-bound digest
+  `a6675e77b8256fcb8d5834efa6a9d006182078c12f27887c8228a14eca889711`,
+- and synthetic state `0xAECA9FA5`
+
+as checkpoints for the previously mapped Cup/DummyLeague/Europe-selector
+**subset only**, not as the final primary pre-shuffle state.

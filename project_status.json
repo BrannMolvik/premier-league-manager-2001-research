@@ -9,7 +9,7 @@
   "latest_reverse_engineering_checkpoint": "1014b042a19fc851b8d87e653ee1e5d807816630",
   "last_verified_reconstruction_ci_head": "8b52d20a3e363430c33257b1954763a377aa0b06",
   "last_verified_test_count": 358,
-  "active_task": "Finish MiniLeague child procedural LeagueMatch emission and generic ClubRef conflict placement, then wire and run canonical all-Cup schedule materialization",
+  "active_task": "Translate and integrate procedural-League round-robin RNG (0x616CE0..0x616F20), then resume Cup schedule-node materialization",
   "next_gate": 4,
   "next_gate_name": "Resolve exact Premier League matchday ordering",
   "blocked": false,
@@ -24,12 +24,12 @@
   "asset_policy_status": "passed",
   "gate_2_status": "complete",
   "startup_rng_ledger": "research/STARTUP_RNG_LEDGER.md",
-  "gate_3_status": "in_progress_schedule_node_materialization",
+  "gate_3_status": "reopened_procedural_league_rng_correction",
   "gate_4_status": "paused_with_valid_scheduler_groundwork",
-  "corrected_primary_competition_rng_calls": 1863,
+  "corrected_primary_competition_rng_calls": null,
   "corrected_primary_cup_pairing_rng_calls": 1737,
-  "corrected_synthetic_pre_shuffle_state": "0xAECA9FA5",
-  "pre_shuffle_hidden_state_status": "corrected",
+  "corrected_synthetic_pre_shuffle_state": null,
+  "pre_shuffle_hidden_state_status": "superseded_pending_procedural_league_rng",
   "primary_competition_rng_event_count": 128,
   "primary_competition_ordered_bounds_sha256": "a6675e77b8256fcb8d5834efa6a9d006182078c12f27887c8228a14eca889711",
   "europe_selector_event_indices": [
@@ -38,5 +38,8 @@
   ],
   "primary_dummy_league_sort_rng_calls": 124,
   "canonical_source_available_in_session": true,
-  "canonical_footbal_exe_sha256": "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"
+  "canonical_footbal_exe_sha256": "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3",
+  "procedural_league_rng_confirmed": true,
+  "primary_root_procedural_league_count_excluding_fixed_pl": 22,
+  "procedural_league_root_rng_minimum_additional_calls": 3591
 }
