@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 3,
   "active_task": "Finish procedural League schedule-node emission in 0x6170F0 and integrate exact Cup/League schedule nodes",
-  "last_known_main_head": "4b795726e26f2102ff2009b43962ff3e3609cd3d",
+  "last_known_main_head": "22a2ee9715906e7dc2b3192fd867a1f468e635a0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,5 +20,5 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 1,
   "last_recovery_reason": "manual-end-to-end-test",
-  "note": "Recovered by the Windows watchdog on 2026-09-26 during the manual end-to-end test. Continuous FM2001 work resumed from canonical GitHub state."
+  "note": "Continuous FM2001 work armed. Focus-safe recovery infrastructure committed on main: Chrome extension owns stale recovery in inactive tabs; Windows watchdog never launches/focuses Chrome."
 }
