@@ -147,6 +147,23 @@ def run_canonical_matchday_audit(
 
     round_audits: list[dict] = []
     days_advanced = 0
+    previous_injured = {
+        int(player.index)
+        for player in state.players.values()
+        if player.injured
+    }
+    previous_suspended = {
+        int(player.index)
+        for player in state.players.values()
+        if player.suspended
+    }
+    ever_injured = set(previous_injured)
+    ever_suspended = set(previous_suspended)
+    injury_state_entries = 0
+    injury_state_exits = 0
+    suspension_state_entries = 0
+    suspension_state_exits = 0
+
     while len(round_audits) < rounds_to_run:
         days_advanced += 1
         if days_advanced > 366:
@@ -157,6 +174,26 @@ def run_canonical_matchday_audit(
             matrices.defence,
             match_rng,
         )
+
+        current_injured = {
+            int(player.index)
+            for player in state.players.values()
+            if player.injured
+        }
+        current_suspended = {
+            int(player.index)
+            for player in state.players.values()
+            if player.suspended
+        }
+        injury_state_entries += len(current_injured - previous_injured)
+        injury_state_exits += len(previous_injured - current_injured)
+        suspension_state_entries += len(current_suspended - previous_suspended)
+        suspension_state_exits += len(previous_suspended - current_suspended)
+        ever_injured.update(current_injured)
+        ever_suspended.update(current_suspended)
+        previous_injured = current_injured
+        previous_suspended = current_suspended
+
         if not results:
             continue
 
@@ -197,6 +234,33 @@ def run_canonical_matchday_audit(
             and len(counts) == 20
             and all(value == 1 for value in counts.values()),
             f"PL round {round_id} does not contain all 20 clubs exactly once",
+        )
+
+        round_selection_issues = []
+        for club_id in sorted(counts):
+            roster = state.ordered_club_roster(club_id)
+            active = {player.index for player in roster if player.match_active}
+            substitutes = {
+                player.index
+                for player in roster
+                if player.match_substitute_available
+            }
+            if len(active) != 11 or len(substitutes) != 5 or active & substitutes:
+                round_selection_issues.append(
+                    [club_id, len(active), len(substitutes), sorted(active & substitutes)]
+                )
+        _require(
+            not round_selection_issues,
+            f"invalid persisted selections after PL round {round_id}: {round_selection_issues}",
+        )
+
+        _require(
+            all(0 <= int(player.condition) <= 100 for player in state.players.values()),
+            f"player Condition escaped 0..100 after PL round {round_id}",
+        )
+        _require(
+            all(0 <= int(player.form_state) <= 4 for player in state.players.values()),
+            f"player Form escaped 0..4 after PL round {round_id}",
         )
 
         round_audits.append(
@@ -240,6 +304,24 @@ def run_canonical_matchday_audit(
         == sum(row.goals_against for row in table),
         "league-table goals for/against do not reconcile",
     )
+    _require(
+        sum(row.wins for row in table) == sum(row.losses for row in table),
+        "league-table wins/losses do not reconcile",
+    )
+    _require(
+        sum(row.wins + row.draws + row.losses for row in table)
+        == sum(row.played for row in table),
+        "league-table W/D/L totals do not reconcile with played totals",
+    )
+    _require(
+        sum(row.draws for row in table) % 2 == 0,
+        "league-table draw total is not even",
+    )
+    _require(
+        sum(row.points for row in table)
+        == 3 * sum(row.wins for row in table) + sum(row.draws for row in table),
+        "league-table points do not reconcile with W/D totals",
+    )
 
     pl_club_ids = set(state.premier_league.club_ids)
     pl_players = [
@@ -251,6 +333,44 @@ def run_canonical_matchday_audit(
         len({player.index for player in pl_players}) == len(pl_players),
         "a PL runtime player appears in more than one club roster",
     )
+    for club_id in pl_club_ids:
+        _require(
+            all(
+                int(player.club_id) == int(club_id)
+                for player in state.ordered_club_roster(club_id)
+            ),
+            f"PL roster {club_id} contains a player owned by another club",
+        )
+
+    if rounds_to_run == 38:
+        _require(
+            set(state.premier_league.results) == set(state.premier_league.fixtures),
+            "full season did not complete every PL fixture exactly once",
+        )
+        home_counts = Counter(
+            int(fixture.home_club_id)
+            for fixture in state.premier_league.fixtures.values()
+        )
+        away_counts = Counter(
+            int(fixture.away_club_id)
+            for fixture in state.premier_league.fixtures.values()
+        )
+        _require(
+            all(home_counts[club_id] == 19 for club_id in pl_club_ids),
+            "a PL club does not have exactly 19 home fixtures",
+        )
+        _require(
+            all(away_counts[club_id] == 19 for club_id in pl_club_ids),
+            "a PL club does not have exactly 19 away fixtures",
+        )
+        _require(
+            injury_state_entries > 0 and injury_state_exits > 0,
+            "full season did not demonstrate both injury entry and return",
+        )
+        _require(
+            suspension_state_entries > 0 and suspension_state_exits > 0,
+            "full season did not demonstrate both suspension entry and resolution",
+        )
 
     selection_issues = []
     for club_id in sorted(pl_club_ids):
@@ -330,7 +450,27 @@ def run_canonical_matchday_audit(
             int(player.discipline_yellow_total)
             for player in pl_players
         ),
+        "injury_state_entries": injury_state_entries,
+        "injury_state_exits": injury_state_exits,
+        "distinct_players_ever_injured": len(ever_injured),
+        "suspension_state_entries": suspension_state_entries,
+        "suspension_state_exits": suspension_state_exits,
+        "distinct_players_ever_suspended": len(ever_suspended),
+        "table_win_total": sum(row.wins for row in table),
+        "table_draw_total": sum(row.draws for row in table),
+        "table_loss_total": sum(row.losses for row in table),
+        "table_points_total": sum(row.points for row in table),
     }
+
+    if rounds_to_run == 38:
+        audit["home_fixture_counts"] = {
+            str(club_id): home_counts[club_id]
+            for club_id in sorted(pl_club_ids)
+        }
+        audit["away_fixture_counts"] = {
+            str(club_id): away_counts[club_id]
+            for club_id in sorted(pl_club_ids)
+        }
 
     digest_payload = json.dumps(
         audit,
