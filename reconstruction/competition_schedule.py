@@ -203,6 +203,32 @@ def materialize_cup_round_schedule_nodes(
     return tuple(nodes)
 
 
+def ordered_league_schedule_entries(
+    round_definitions: Iterable[object],
+) -> tuple[tuple[int, int], ...]:
+    """Reproduce League+0x60 date-array construction and ordering.
+
+    League::AddRound at 0x4F4500 appends DBRRound scheduled week and
+    scheduled_weekday-1 into the 8-byte entries at League+0x60/+0x64.
+    The dedicated 0x4F4580 qsort then orders those entries by week first and
+    zero-based weekday second using comparator 0x4F45A0.
+
+    Return source-style one-based weekdays so StartupScheduleNode uses the same
+    public week/weekday convention as Cup round definitions. Equal runtime date
+    entries are byte-identical, so their qsort permutation cannot change this
+    returned date sequence.
+    """
+    entries = [
+        (
+            int(round_definition.scheduled_week),
+            int(round_definition.scheduled_weekday) - 1,
+        )
+        for round_definition in round_definitions
+    ]
+    entries.sort(key=lambda value: (value[0], value[1]))
+    return tuple((week, weekday + 1) for week, weekday in entries)
+
+
 def materialize_procedural_league_schedule_nodes(
     emissions: Iterable[ProceduralLeagueMatchEmission],
     schedule_entries: Sequence[tuple[int, int]],
