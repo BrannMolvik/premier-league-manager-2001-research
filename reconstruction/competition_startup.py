@@ -1205,6 +1205,74 @@ def allocate_ref_to_latest_open_cup_round(
 
 
 @dataclass(frozen=True)
+class LeaguePositionAllocationExpansion:
+    participant_refs: tuple[CupClubRefDescriptor, ...]
+    source_position_offsets: tuple[tuple[int, int], ...]
+
+
+def expand_league_position_allocation_instructions(
+    destination_competition_id: int,
+    allocation_instructions: Iterable[CupAllocationInstructionSource],
+) -> LeaguePositionAllocationExpansion:
+    """Reproduce League::Initialize helper 0x4F4FD0 for types 1 and 4.
+
+    The executable gives every competition its destination allocation
+    instruction vector before initialization. Generic League::Initialize calls
+    0x4F4FD0 when that vector is non-empty. A temporary per-source position
+    counter starts at zero:
+
+    - type 4 adds quantity to the source counter and emits nothing;
+    - type 1 emits quantity type-2 ClubRefs against source runtime context 0,
+      using the current counter as selector and incrementing after each ref.
+
+    Other allocation types are ignored by 0x4F4FD0. Canonical Static.dat has
+    only types 1 and 4 for League destinations (playoff child Leagues).
+    """
+    destination_competition_id = int(destination_competition_id)
+    source_offsets: dict[int, int] = {}
+    emitted: list[CupClubRefDescriptor] = []
+
+    for instruction in ordered_cup_allocation_instructions(
+        destination_competition_id,
+        allocation_instructions,
+    ):
+        instruction_type = int(instruction.instruction_type)
+        source_id = int(instruction.source_reference)
+        quantity = int(instruction.quantity)
+
+        if instruction_type == 4:
+            source_offsets[source_id] = source_offsets.get(source_id, 0) + quantity
+            continue
+
+        if instruction_type == 1:
+            start = source_offsets.get(source_id, 0)
+            for selector in range(start, start + quantity):
+                emitted.append(
+                    CupClubRefDescriptor(
+                        type_code=2,
+                        selector=selector,
+                        competition_id=source_id,
+                        competition_context=0,
+                        reference_token=(
+                            "competition_position",
+                            source_id,
+                            selector,
+                        ),
+                    )
+                )
+            source_offsets[source_id] = start + quantity
+            continue
+
+        # 0x4F4FD0 has no branch for allocation types 2, 3 or 5.
+        # Preserve that no-op behavior instead of borrowing Cup semantics.
+
+    return LeaguePositionAllocationExpansion(
+        participant_refs=tuple(emitted),
+        source_position_offsets=tuple(sorted(source_offsets.items())),
+    )
+
+
+@dataclass(frozen=True)
 class StandardCupAllocationExpansion:
     round_buckets: tuple[CupRoundAllocationBucket, ...]
     emitted_refs: tuple[CupClubRefDescriptor, ...]
