@@ -18,6 +18,7 @@ from internal_save import (
 )
 from match_schedule import MsvcCrtRng
 from test_human_gameplay import Database, coefficient_matrix
+from transfer_state import ContractTerms, PlayerMovement, TransferProposal
 
 
 SCHEDULER_ORDER = (
@@ -179,6 +180,71 @@ class InternalSaveTests(unittest.TestCase):
         self.assertEqual(
             restored_player.contract_expiry_date,
             date(2004, 6, 30),
+        )
+
+    def test_transfer_runtime_state_survives_roundtrip(self):
+        original = self.build_controller()
+        terms = ContractTerms(
+            weekly_wage=9000,
+            signing_on_fee=120000,
+            promotion_bonus=25000,
+            contract_length_months=36,
+            appearance_fee=500,
+            big_club_offer_clause=True,
+            house=True,
+        )
+        proposal = TransferProposal(
+            target_player_id=2000,
+            buying_club_id=1,
+            cash_fee=1_750_000,
+            exchange_player_ids=(1000, -1, -1),
+            contract_terms=terms,
+            previous_wage_offer=8000,
+            previous_signing_on_fee_offer=100000,
+            previous_total_value=2_000_000,
+        )
+        original.state.transfers.submit_proposal(
+            proposal,
+            selling_club_id=2,
+            current_date=date(2000, 7, 2),
+        )
+        original.state.transfers.deals[2000].mark_ready()
+        original.state.transfers.bid_log[(2000, 1)].status_counter = 3
+        original.state.transfers.record_movement(
+            PlayerMovement(
+                player_id=1001,
+                from_club_id=1,
+                to_club_id=2,
+                consideration=500000,
+                movement_date=date(2000, 7, 1),
+            )
+        )
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+        self.assertEqual(
+            restored.state.transfers.proposals[(2000, 1)],
+            proposal,
+        )
+        self.assertTrue(
+            restored.state.transfers.deals[2000].ready_for_execution
+        )
+        self.assertEqual(
+            restored.state.transfers.bid_log[(2000, 1)].status_counter,
+            3,
+        )
+        self.assertEqual(
+            restored.state.transfers.movements[-1].player_id,
+            1001,
         )
 
     def test_wrong_source_database_is_rejected(self):
