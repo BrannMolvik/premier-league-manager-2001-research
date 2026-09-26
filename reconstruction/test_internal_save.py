@@ -1,6 +1,9 @@
 import json
+import tempfile
 import unittest
+from dataclasses import replace
 from datetime import date
+from pathlib import Path
 
 from game_state import GameState
 from human_gameplay import HumanGameplayController
@@ -9,6 +12,8 @@ from internal_save import (
     dumps_human_gameplay,
     loads_human_gameplay,
     restore_human_gameplay,
+    save_human_gameplay,
+    load_human_gameplay,
     snapshot_human_gameplay,
 )
 from match_schedule import MsvcCrtRng
@@ -105,6 +110,56 @@ class InternalSaveTests(unittest.TestCase):
 
         self.assertEqual(len(original.state.premier_league.results), 30)
         self.assertEqual(len(restored.state.premier_league.results), 30)
+
+    def test_gzip_file_roundtrip_preserves_state(self):
+        original = self.build_controller()
+        original.advance_to_next_user_fixture()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "gate8.fm2k"
+            save_human_gameplay(original, path)
+            self.assertEqual(path.read_bytes()[:2], b"\x1f\x8b")
+            restored = load_human_gameplay(
+                Database(),
+                coefficient_matrix(),
+                coefficient_matrix(),
+                path,
+            )
+
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
+    def test_source_signature_ignores_live_skill_changes_but_binds_source_identity(self):
+        original = self.build_controller()
+        original.state.players[1000].current_raw[0] += 1
+        snapshot = snapshot_human_gameplay(original)
+
+        restored = restore_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            snapshot,
+        )
+        self.assertEqual(
+            restored.state.players[1000].current_raw[0],
+            original.state.players[1000].current_raw[0],
+        )
+
+        class AlteredDatabase(Database):
+            players = [
+                replace(player, surname="Changed") if player.index == 1000 else player
+                for player in Database.players
+            ]
+
+        with self.assertRaisesRegex(ValueError, "source database"):
+            restore_human_gameplay(
+                AlteredDatabase(),
+                coefficient_matrix(),
+                coefficient_matrix(),
+                snapshot,
+            )
 
     def test_wrong_source_database_is_rejected(self):
         original = self.build_controller()
