@@ -398,10 +398,22 @@ class App(tk.Tk):
         def apply_lineup():
             try:
                 controller = self._ensure_gameplay()
+                squad_order = tuple(
+                    int(player.index)
+                    for player in controller.squad()
+                )
                 controller.set_lineup(
                     int(formation_var.get()),
-                    tuple(selected_starters),
-                    tuple(selected_subs),
+                    tuple(
+                        player_id
+                        for player_id in squad_order
+                        if player_id in selected_starters
+                    ),
+                    tuple(
+                        player_id
+                        for player_id in squad_order
+                        if player_id in selected_subs
+                    ),
                 )
                 status.set('Lineup applied.')
                 refresh_roster()
