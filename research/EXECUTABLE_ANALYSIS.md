@@ -5214,3 +5214,59 @@ The type-2 resolver `0x4F290B..` validates the referenced competition, sorts/acc
 This directly explains the paired allocation records used by playoff competitions. For example, type-4 instructions advance a source-league offset, then a following type-1 instruction emits sequential type-2 references from that offset.
 
 These semantics replace the earlier generic “type-2 chronological reference” interpretation.
+
+
+### Direct-club eligibility filter corrected
+
+Instruction-boundary tracing of `0x4F5810` and `0x40C7A0` removes one previously ambiguous condition.
+
+`0x4F5810` receives:
+
+- `ECX` = destination Cup runtime object;
+- stack argument = candidate club.
+
+Its checks are:
+
+```text
+if candidate.club+0x2A0 == destination Cup:
+    reject
+
+if destination Cup+0x34 == 1:
+    if 0x40C7A0(candidate club) != 0:
+        reject
+
+accept
+```
+
+Thus the `+0x34 == 1` test belongs to the **destination Cup**, not the candidate club.
+
+`0x40C7A0(candidate)` reads candidate club `+0x1B0`. If it is -1 the helper returns null/false. Otherwise it converts that stored competition ID to the standard two-word competition reference and resolves it through `0x4F3B10`.
+
+Therefore Europe-root direct allocation rejects a club that already has a valid European competition assignment in club `+0x1B0`.
+
+When `0x4F5840` successfully adds a direct club to a Cup whose `+0x34 == 1`, it writes that destination Cup's competition ID back to candidate club `+0x1B0`. This makes the exclusion self-consistent across later European allocation instructions.
+
+The generic duplicate guard at club `+0x2A0` independently prevents the same direct club from being appended twice to the same destination Cup.
+
+### Type-3 source array is not the current League table
+
+The competition enumerator used by allocation type 3 is virtual `+0x1C`.
+
+For League / DummyLeague / ScotPremierLeague it resolves to `0x4F3EE0`, which indexes the runtime array at competition `+0x30` with count at `+0x3C`.
+
+This is distinct from the current League membership/ranking array at `+0x34/+0x38` consumed by type-5 allocation.
+
+Startup populates the `+0x30` enumeration array from two additional DBRClub fields:
+
+```text
+runtime DBRClub+0x2C <- packed Master.dat club +32
+runtime DBRClub+0x30 <- packed Master.dat club +36
+```
+
+The first field selects the target competition enumeration array; the second is a preferred slot/index.
+
+The startup placement pass writes the club into that preferred slot when in range. If the slot was occupied, the displaced old club is reinserted by `0x4F7BD0`, which scans from index zero and uses the first empty slot. Out-of-range preferred slots likewise fall back through `0x4F7BD0`.
+
+For Cup sources, virtual `+0x1C = 0x4F5770` instead enumerates Cup `+0x40` at index zero and Cup `+0x44` at the second index.
+
+Accordingly, allocation type 3 must use the competition's dedicated historical/qualification enumeration, not the alphabetized current League table.
