@@ -274,11 +274,12 @@ def primary_mode0_cup_pairing_draw_count(
     competitions: Iterable[CompetitionSource],
     rounds: Iterable[RoundSource],
 ) -> int:
-    """Count mandatory first-shuffle calls across primary Cup round schedulers.
+    """Count packed-capacity Cup shuffle calls for legacy diagnostics.
 
-    NormalRound, TwoLegRound and MiniLeagueRound all begin by shuffling the
-    runtime participant array. A round containing N participants therefore
-    consumes max(N-1, 0) bounded CRT calls before schedule-bucket shuffling.
+    This uses Static.dat round.team_count and therefore yields the historical
+    1,737-call template. The executable actually shuffles runtime round+0x0C;
+    canonical allocation underfill reduces the shipped-data total. Use the
+    integrated competition materializer for canonical RNG claims.
     """
     return sum(
         max(0, int(team_count) - 1)
@@ -355,17 +356,13 @@ def replay_primary_mode0_pre_shuffle_state(
     countries: Iterable[CountrySource],
     allocation_instructions: Iterable[CupAllocationInstructionSource] = (),
 ) -> PrimaryMode0PreShuffleStateReplay:
-    """Advance the exact mapped CRT *state* to primary 0x615BE0.
+    """Advance the historical packed-capacity CRT state diagnostic.
 
-    The primary Cup round schedulers contribute one raw CRT state advance for
-    every Fisher-Yates bounded call. The two Europe-root selectors contribute
-    one call each only when their shipped candidate vector has more than one
-    entry.
-
-    This helper deliberately advances raw rand15() calls instead of pretending
-    the selector/pairing outputs are adjacent. It is exact for hidden CRT state;
-    exact bounded-output interleaving and Cup pair identities remain separate
-    scheduler-fidelity work.
+    This helper predates recovery of silent Cup allocation underfill and uses
+    Static.dat team_count to count Cup Fisher-Yates calls. It remains useful
+    for reproducing the old 1,863-call subset checkpoint, but it is not the
+    canonical state entering 0x615BE0. The integrated materializer uses each
+    runtime round's actual +0x0C participant count.
     """
     competition_list = tuple(competitions)
     round_list = tuple(rounds)
