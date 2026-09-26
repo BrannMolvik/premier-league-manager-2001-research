@@ -23,8 +23,10 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Current roadmap status
 
-- **Active gate:** Gate 3 - Build an executable startup RNG ledger
-- **Next gate:** Gate 4 - Resolve exact Premier League matchday ordering
+- **Active gate:** Gate 5 - Real-data matchday integration
+- **Next gate:** Gate 6 - Full autonomous Premier League season
+- **Gate 4 completed:** 27 September 2026
+- **Gate 3 completed:** 27 September 2026
 - **Gate 2 completed:** 26 September 2026
 - **Gate 1 completed:** 26 September 2026
 - **Pre-stabilization technical baseline:** `1014b042a19fc851b8d87e653ee1e5d807816630`
@@ -101,19 +103,21 @@ Completion criteria:
 
 ## Gate 4 - Resolve exact Premier League matchday ordering
 
-**Status: IN PROGRESS**
+**Status: COMPLETE (27 September 2026)**
 
 Goal: replace deterministic fixture-ID fallback with the original scheduling/execution order.
 
 Completion criteria:
 
-- [ ] Premier League source fixture insertion order is preserved.
-- [ ] Schedule bucket/container selection is reproduced.
-- [ ] Shuffle input RNG state is reproduced.
-- [ ] Same-day extraction/execution order is reproduced.
-- [ ] Regression tests cover the first several real matchdays.
+- [x] Premier League source fixture insertion order is preserved.
+- [x] Schedule bucket/container selection is reproduced.
+- [x] Shuffle input RNG state is reproduced.
+- [x] Same-day extraction/execution order is reproduced.
+- [x] Regression tests cover the first several real matchdays.
 
 ## Gate 5 - Real-data matchday integration
+
+**Status: IN PROGRESS**
 
 Goal: prove the reconstructed systems work together against the canonical shipped database.
 
