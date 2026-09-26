@@ -3395,3 +3395,42 @@ This is a successful first Gate-6 season pass, but Gate 6 is not closed yet.
 Next, strengthen the reusable audit with explicit 19-home/19-away checks,
 per-round lineup validity, and longitudinal injury/suspension progression;
 then repeat full seasons under multiple deterministic seeds.
+
+
+## 27 September Gate 7 backend human-manager loop checkpoint
+
+Gate 7 began by auditing the existing prototype and runtime rather than adding a
+parallel match engine. The useful existing pieces were already present:
+GameState owns live rosters, tactics, scheduler-aware calendar progression,
+autonomous AI preparation, the shared match calculator, incident persistence,
+Form/Condition synchronization, pitch wear, and league-table/results state.
+The Tkinter app remained only a database browser.
+
+Implemented:
+
+- GameState.simulate_premier_league_human_fixture(): one human-controlled side
+  plus one autonomous AI side, sharing the established environment, calculator,
+  result, injury/discipline, Form/Condition, pitch-wear and table paths.
+- reconstruction/human_gameplay.py with persistent human club, formation,
+  XI/bench, Team Orders and tactics workflow.
+- scheduler-aware advance-to-next-user-fixture behavior: AI fixtures earlier on
+  the same date execute before the human match; later same-day fixtures execute
+  after it; daily maintenance remains after the complete matchday.
+- canonical shipped-data constructor hook reusing Gate-4 scheduler reconstruction
+  and FOOTBAL.EXE coefficient matrices.
+- exact validation for 11 starters, PL substitute quota, unique squad membership,
+  current availability and Non-EU limit before a human match.
+
+Regression coverage uses a 20-club / 10-match synthetic Premier League shape,
+including a human fixture deliberately placed in the middle of the scheduler
+list so both pre-user and post-user AI execution are exercised. A three-week
+human-controlled loop completes through the same backend.
+
+Validation at `22e81eacf91e56062aad101560eb94da2a8af301`:
+
+- reconstruction GitHub Actions: **406 tests passed**;
+- repository asset-policy workflow: **passed**.
+
+Next: connect this verified controller to the existing Tkinter prototype as a
+minimal temporary playable surface, then exercise the canonical shipped-data
+path and audit Gate-7 completion criteria.
