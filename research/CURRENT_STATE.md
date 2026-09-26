@@ -128,17 +128,20 @@ Completion requires:
    12/24/36/48/60-month contract expiry.
 2. **Completed:** current internal save schema **3** persists weekly wage and
    contract expiry.
-3. Define the minimum mutable contract/transfer state required by the recovered
-   proposal/deal/bid-log/movement logic and include it in the internal save.
-4. Implement the smallest end-to-end human transfer path: bid -> club decision
+3. **Completed:** persistent proposal/deal/bid-log/movement state is attached
+   to GameState and round-trips through schema-3 saves. CI at `8f7936d9`:
+   **424 tests passed**.
+4. Recover the selling-club accept/refuse decision/reason-code path without
+   approximating known decline reasons.
+5. Implement the smallest end-to-end human transfer path: bid -> club decision
    -> player negotiation -> completion -> roster movement.
-5. Add AI transfer progression only after the human path/state model is stable.
-6. Build synthetic and canonical regressions and re-audit every Gate-9 criterion.
+6. Add AI transfer progression only after the human path/state model is stable.
+7. Build synthetic and canonical regressions and re-audit every Gate-9 criterion.
 
 ## Gate 9 completion criteria
 
 - [x] Initial player weekly wage and contract expiry are represented and saved.
-- [ ] Full negotiated contract terms / transfer-deal state are represented.
+- [x] Full negotiated contract terms / proposal/deal/bid-log/movement state are represented and saved.
 - [ ] Bids can be made and evaluated.
 - [ ] Clubs accept/refuse according to reconstructed logic where known.
 - [ ] Player negotiations, wages, duration, and transfer completion work.
