@@ -5,7 +5,7 @@ from hashlib import sha256
 from pathlib import Path
 import sys
 
-from competition_runtime import replay_primary_mode0_complete_competition_rng
+from competition_materializer import materialize_primary_rng_driven_schedule
 from competition_startup import (
     primary_mode0_cup_pairing_draw_count,
     primary_mode0_cup_round_team_counts,
@@ -290,7 +290,7 @@ def verify_database(db: FM2001Database) -> None:
         ),
     )
 
-    complete_competition_rng = replay_primary_mode0_complete_competition_rng(
+    actual_competition_runtime = materialize_primary_rng_driven_schedule(
         MsvcCrtRng(0x2797444C),
         db.competitions,
         db.rounds,
@@ -298,98 +298,159 @@ def verify_database(db: FM2001Database) -> None:
         db.countries,
         db.cup_allocation_instructions,
         db.players,
+        real_fixtures=db.real_fixtures,
     )
     require(
-        len(complete_competition_rng.events) == 167,
+        actual_competition_runtime.rng_plan_event_count == 168,
         (
-            "Expected 167 complete primary competition RNG events, got "
-            f"{len(complete_competition_rng.events)}"
+            "Expected 168 actual competition traversal events including the "
+            "zero-RNG fixed League marker, got "
+            f"{actual_competition_runtime.rng_plan_event_count}"
         ),
     )
     require(
-        complete_competition_rng.procedural_league_instance_count == 39,
+        sum(
+            event.kind == "procedural_league_round_robin"
+            for event in actual_competition_runtime.rng_events
+        )
+        == 39,
+        "Expected 39 procedural League runtime instances",
+    )
+    require(
+        sum(
+            len(event.bounds)
+            for event in actual_competition_runtime.rng_events
+            if event.kind == "procedural_league_round_robin"
+        )
+        == 4302,
+        "Actual replay lost the 4302 procedural League RNG calls",
+    )
+    require(
+        sum(
+            len(event.bounds)
+            for event in actual_competition_runtime.rng_events
+            if event.kind == "cup_round_shuffle"
+        )
+        == 1728,
+        "Expected 1728 actual-count Cup participant-shuffle calls",
+    )
+    require(
+        sum(
+            len(event.bounds)
+            for event in actual_competition_runtime.rng_events
+            if event.kind == "dummy_league_lazy_sort"
+        )
+        == 124,
+        "Actual replay lost the 124 DummyLeague lazy-sort calls",
+    )
+    require(
+        sum(
+            len(event.bounds)
+            for event in actual_competition_runtime.rng_events
+            if event.kind == "europe_selector"
+        )
+        == 2,
+        "Actual replay lost the two Europe-root selector calls",
+    )
+    require(
+        actual_competition_runtime.rng_plan_total_draw_count == 6156,
         (
-            "Expected 39 procedural League runtime instances, got "
-            f"{complete_competition_rng.procedural_league_instance_count}"
+            "Expected 6156 actual primary competition calls, got "
+            f"{actual_competition_runtime.rng_plan_total_draw_count}"
         ),
     )
     require(
-        complete_competition_rng.procedural_league_draw_count == 4302,
+        actual_competition_runtime.rng_bounds_sha256
+        == "1ed67d7402f1fb749d963f8978a242a6833a1f4410434b61165c906b943a710d",
         (
-            "Expected 4302 procedural League RNG calls, got "
-            f"{complete_competition_rng.procedural_league_draw_count}"
+            "Actual primary competition ordered-bound digest mismatch: "
+            f"{actual_competition_runtime.rng_bounds_sha256}"
         ),
     )
-    require(
-        complete_competition_rng.cup_pairing_draw_count == 1737,
-        "Complete replay lost the 1737 Cup participant-shuffle calls",
-    )
-    require(
-        complete_competition_rng.dummy_league_sort_draw_count == 124,
-        "Complete replay lost the 124 DummyLeague lazy-sort calls",
-    )
-    require(
-        complete_competition_rng.europe_selector_draw_count == 2,
-        "Complete replay lost the two Europe-root selector calls",
-    )
-    require(
-        complete_competition_rng.total_draw_count == 6165,
-        (
-            "Expected 6165 complete primary competition calls, got "
-            f"{complete_competition_rng.total_draw_count}"
-        ),
-    )
-    complete_bounds = tuple(
-        bound
-        for event in complete_competition_rng.events
-        for bound in event.bounds
-    )
-    complete_bounds_blob = b"".join(
-        int(bound).to_bytes(2, "little")
-        for bound in complete_bounds
-    )
-    complete_bounds_sha256 = sha256(complete_bounds_blob).hexdigest()
-    require(
-        complete_bounds_sha256
-        == "3e7accfdf108a48a53902bb32a782fb23c64c7e5ce54eff101e0f869f6c3629c",
-        (
-            "Complete primary competition ordered-bound digest mismatch: "
-            f"{complete_bounds_sha256}"
-        ),
-    )
-    complete_selector_event_indices = tuple(
+    actual_selector_event_indices = tuple(
         index
-        for index, event in enumerate(complete_competition_rng.events)
+        for index, event in enumerate(actual_competition_runtime.rng_events)
         if event.kind == "europe_selector"
     )
     require(
-        complete_selector_event_indices == (137, 158),
+        actual_selector_event_indices == (138, 159),
         (
-            "Unexpected complete Europe selector event positions: "
-            f"{complete_selector_event_indices}"
+            "Unexpected actual Europe selector event positions: "
+            f"{actual_selector_event_indices}"
         ),
     )
     require(
-        complete_competition_rng.champions_league_club_id == 1137,
+        actual_competition_runtime.cup_runtime.champions_league_club_id == 1137,
         (
-            "Complete replay selected unexpected Champions League candidate "
-            f"{complete_competition_rng.champions_league_club_id}"
+            "Actual replay selected unexpected Champions League candidate "
+            f"{actual_competition_runtime.cup_runtime.champions_league_club_id}"
         ),
     )
     require(
-        complete_competition_rng.uefa_cup_club_id == 1159,
+        actual_competition_runtime.cup_runtime.uefa_cup_club_id == 1159,
         (
-            "Complete replay selected unexpected UEFA Cup candidate "
-            f"{complete_competition_rng.uefa_cup_club_id}"
+            "Actual replay selected unexpected UEFA Cup candidate "
+            f"{actual_competition_runtime.cup_runtime.uefa_cup_club_id}"
         ),
     )
     require(
-        complete_competition_rng.state_entering_primary_shuffle == 0x0DD3ACA3,
+        actual_competition_runtime.state_entering_primary_shuffle == 0x0E556598,
         (
-            "Complete primary pre-shuffle state mismatch: "
-            f"0x{complete_competition_rng.state_entering_primary_shuffle:08X}"
+            "Actual primary pre-shuffle state mismatch: "
+            f"0x{actual_competition_runtime.state_entering_primary_shuffle:08X}"
         ),
     )
+    require(
+        actual_competition_runtime.cup_runtime.participant_sha256
+        == "f9282d4c236e14f9ccb56a8ecf90dc42095278e94471624f7248eb005e3daa4e",
+        "Canonical Cup participant digest mismatch",
+    )
+    require(
+        actual_competition_runtime.cup_runtime.pairing_sha256
+        == "e2f34fe736db27a011c274d8be0b0df26ed7547062c80a8b34b7d56620c63e45",
+        "Canonical Cup pairing digest mismatch",
+    )
+    require(
+        actual_competition_runtime.cup_runtime.cup_schedule_sha256
+        == "30b06c3e420ebb5bbead56a14b00340a532d12dcc5bdffba715e4f84eca5ca89",
+        "Canonical Cup schedule-node digest mismatch",
+    )
+    require(
+        actual_competition_runtime.schedule_sha256
+        == "0a22c9f0c1fa20de770a7d679583b6b4e4bdbd9363a5bda07194bfe8919cc35a",
+        "Canonical complete schedule-node digest mismatch",
+    )
+    require(
+        len(actual_competition_runtime.cup_runtime.cup_schedule_nodes) == 1226,
+        "Expected 1226 canonical Cup schedule nodes",
+    )
+    require(
+        actual_competition_runtime.schedule_node_count == 9346,
+        "Expected 9346 canonical primary schedule nodes",
+    )
+    require(
+        actual_competition_runtime.cup_runtime.dropped_ref_count == 3,
+        "Expected three canonical allocation refs dropped after round capacity",
+    )
+    require(
+        actual_competition_runtime.cup_runtime.type2_injected_ref_count == 24,
+        "Expected 24 canonical Champions-League-to-UEFA type-2 refs",
+    )
+
+    uefa_cup = next(
+        cup
+        for cup in actual_competition_runtime.cup_runtime.cups
+        if int(cup.competition_id) == 10
+    )
+    require(
+        tuple(
+            len(runtime_round.participant_refs)
+            for runtime_round in uefa_cup.runtime.rounds
+        )
+        == (80, 95, 47, 31, 15, 7, 3, 1),
+        "Canonical UEFA Cup runtime underfill chain changed",
+    )
+
     require(
         len({f.round_index for f in db.real_fixtures}) == 38,
         "Real fixtures do not span exactly 38 round indices",
