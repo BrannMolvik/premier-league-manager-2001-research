@@ -1,9 +1,13 @@
-"""Complete primary competition RNG replay through 0x615BE0.
+"""Primary competition RNG traversal helpers through 0x615BE0.
 
-This layer extends the Cup-focused replay in competition_startup.py with the
-randomized procedural-League round-robin generator reached through 0x6170F0.
-The older 1,863-call Cup/DummyLeague/Europe stream remains useful as a subset,
-but is not the final primary competition state.
+The adaptive canonical path is primary_mode0_competition_event_skeleton()
+combined with competition_materializer.py. It learns each Cup shuffle from
+the runtime round's actual +0x0C participant count.
+
+replay_primary_mode0_complete_competition_rng() is retained as a historical
+packed-capacity diagnostic. It uses Static.dat team_count for Cup rounds and
+therefore must not be used as the final canonical pre-0x615BE0 state when
+allocation underfill changes runtime participant counts.
 """
 
 from __future__ import annotations
@@ -57,6 +61,12 @@ class PrimaryCompetitionRuntimeEventSpec:
 
 @dataclass(frozen=True)
 class PrimaryMode0CompleteCompetitionRngReplay:
+    """Legacy packed-capacity competition replay result.
+
+    Kept for regression comparison with the earlier 6,165-call checkpoint.
+    The canonical actual-count ledger is emitted by competition_materializer.
+    """
+
     events: tuple[PrimaryCompetitionRuntimeRngEvent, ...]
     procedural_league_instance_count: int
     procedural_league_draw_count: int
@@ -107,7 +117,7 @@ def replay_primary_mode0_complete_competition_rng(
     fixed_fixture_competition_ids: Iterable[int] = (0,),
     include_zero_rng_competition_events: bool = False,
 ) -> PrimaryMode0CompleteCompetitionRngReplay:
-    """Replay all currently proven primary competition RNG before 0x615BE0.
+    """Replay the legacy packed-capacity competition RNG template.
 
     Runtime initialization order is:
     - country/root order recovered by primary_mode0_root_initialization_order;
