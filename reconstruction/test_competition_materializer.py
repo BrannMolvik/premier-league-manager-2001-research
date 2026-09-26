@@ -217,6 +217,100 @@ class IntegratedCompetitionMaterializerTests(unittest.TestCase):
             ),
         )
 
+    def test_league_child_uses_position_refs_from_allocation_vector(self):
+        competitions = (
+            Competition(
+                20,
+                1,
+                initialization_order_value=0,
+                scheduled_matchday_count=3,
+            ),
+            Competition(
+                30,
+                1,
+                parent_competition_id=20,
+                initialization_order_value=0,
+                scheduled_matchday_count=3,
+            ),
+        )
+        parent_rounds = tuple(
+            Round(
+                id=index,
+                competition_id=20,
+                type_code=4,
+                team_count=4,
+                new_entrants=0,
+                scheduled_week=index + 1,
+                scheduled_weekday=1,
+            )
+            for index in range(3)
+        )
+        child_rounds = tuple(
+            Round(
+                id=10 + index,
+                competition_id=30,
+                type_code=4,
+                team_count=4,
+                new_entrants=0,
+                scheduled_week=10 + index,
+                scheduled_weekday=1,
+            )
+            for index in range(3)
+        )
+        allocations = (
+            Allocation(1, 30, 1, 4, 20, 1),
+            Allocation(2, 30, 2, 1, 20, 1),
+            Allocation(3, 30, 3, 4, 20, 1),
+            Allocation(4, 30, 4, 1, 20, 2),
+        )
+        clubs = tuple(
+            Club(
+                index=club_id,
+                short_name=f"Club {club_id}",
+                competition_id=20,
+                historical_competition_id=20,
+                historical_slot_index=slot,
+            )
+            for slot, club_id in enumerate((10, 11, 12, 13))
+        )
+
+        result = materialize_primary_rng_driven_schedule(
+            MsvcCrtRng(0x12345678),
+            competitions,
+            parent_rounds + child_rounds,
+            clubs,
+            (Country(1),),
+            allocations,
+            fixed_fixture_competition_ids=(),
+        )
+
+        child_nodes = tuple(
+            node
+            for node in result.schedule_nodes
+            if node.competition_id == 30
+        )
+        self.assertEqual(len(child_nodes), 6)
+        seen_refs = {
+            (
+                ref.type_code,
+                ref.competition_id,
+                ref.selector,
+            )
+            for node in child_nodes
+            for ref in (
+                node.participant_0_ref,
+                node.participant_1_ref,
+            )
+        }
+        self.assertEqual(
+            seen_refs,
+            {
+                (2, 20, 1),
+                (2, 20, 3),
+                (2, 20, 4),
+            },
+        )
+
     def test_integrated_schedule_digest_is_repeatable(self):
         fixture = self._fixture()
 
