@@ -80,6 +80,15 @@ class DummyLeagueSortEntry:
 
 
 @dataclass(frozen=True)
+class DummyLeagueRankedEntry:
+    club_id: int
+    base_score: int
+    rng_bound: int
+    roll: int
+    randomized_score: int
+
+
+@dataclass(frozen=True)
 class PrimaryMode0CompetitionRngReplay:
     """Isolated Europe-root selector mechanics.
 
@@ -690,6 +699,78 @@ def initial_dummy_league_sort_entries(
             )
         )
     return tuple(result)
+
+
+def rank_dummy_league_for_type5(
+    entries: Iterable[DummyLeagueSortEntry],
+    rng: BoundedRng,
+    quantity: int,
+) -> tuple[DummyLeagueRankedEntry, ...]:
+    """Return the exact prefix consumed by canonical type-5 Cup allocation.
+
+    0x4F4750 consumes one bounded draw per DummyLeague participant and sorts
+    temporary (LeagueClub*, score-roll) entries descending by randomized score.
+
+    For arrays of <=16 elements the analyzed old-MSVC STL path is insertion
+    sort; equal scores retain source order. Canonical multi-club type-5 reads
+    all use such arrays.
+
+    Canonical >16 DummyLeague sources are only read with quantity==1. For those
+    sources the corrected startup replay produces a unique maximum, so the top
+    club is exact without claiming the unresolved remainder of the old STL
+    introsort order.
+    """
+    entry_list = tuple(entries)
+    quantity = int(quantity)
+    if quantity < 0 or quantity > len(entry_list):
+        raise ValueError("quantity must be within the DummyLeague entry count")
+
+    scored: list[DummyLeagueRankedEntry] = []
+    for entry in entry_list:
+        roll = int(rng.randbelow(int(entry.rng_bound)))
+        scored.append(
+            DummyLeagueRankedEntry(
+                club_id=int(entry.club_id),
+                base_score=int(entry.base_score),
+                rng_bound=int(entry.rng_bound),
+                roll=roll,
+                randomized_score=int(entry.base_score) - roll,
+            )
+        )
+
+    if len(scored) <= 16:
+        # Exact old-STL insertion-sort semantics: move earlier elements only
+        # while candidate score is strictly greater. Equal scores are stable.
+        ordered: list[DummyLeagueRankedEntry] = []
+        for candidate in scored:
+            insert_at = len(ordered)
+            while (
+                insert_at > 0
+                and candidate.randomized_score
+                > ordered[insert_at - 1].randomized_score
+            ):
+                insert_at -= 1
+            ordered.insert(insert_at, candidate)
+        return tuple(ordered[:quantity])
+
+    if quantity == 0:
+        return ()
+    if quantity != 1:
+        raise ValueError(
+            "exact >16 DummyLeague ordering beyond the unique top entry "
+            "requires the full legacy STL introsort"
+        )
+
+    best_score = max(entry.randomized_score for entry in scored)
+    best = tuple(
+        entry for entry in scored if entry.randomized_score == best_score
+    )
+    if len(best) != 1:
+        raise ValueError(
+            "top DummyLeague randomized score is tied; legacy >16 sort "
+            "tie behavior must be reproduced before selecting quantity 1"
+        )
+    return best
 
 
 def replay_primary_mode0_ordered_competition_rng(
