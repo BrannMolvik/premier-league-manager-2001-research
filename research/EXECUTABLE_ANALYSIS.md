@@ -5492,3 +5492,37 @@ virtuals `0x510A80` and `0x510A40` with the normal match family.
 Thus the startup scheduler does not expand an unresolved winner/group-position
 reference into every club it might later resolve to. Two symbolic refs overlap
 only when their source identity/type/selector are structurally identical.
+
+## Procedural League schedule-node emission and cycle reuse
+
+**Confirmed 26 September 2026 from canonical `FOOTBAL.EXE` (SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`).**
+
+Direct tracing of `0x6170F0`, `0x616F40`, and generic League virtual `+0x3C = 0x616FC0` resolves the schedule-node layer after the randomized one-cycle round-robin matrix is complete.
+
+`0x616F40` reads DBRCompetition runtime byte `+0x19`, which `0x40F760` loads from packed Static.dat competition byte `+18` (the clean-room `scheduled_matchday_count`). It divides that value by `League+0x3C - 1` and increments the quotient when the remainder is nonzero. The exact schedule-cycle count is therefore `ceil(scheduled_matchday_count / (team_count - 1))`.
+
+`0x6172C3..0x61735D` iterates in this exact order:
+
+1. pairing-matrix round index `0 .. team_count-2`;
+2. adjacent pair within that round;
+3. schedule cycle `0 .. cycle_count-1` for that pair.
+
+The pairing matrix is not regenerated for later cycles. After each virtual `+0x3C` call, `0x617313..0x617317` swaps the two participant-slot pointers. Therefore cycle 0 uses the matrix pair direction, cycle 1 reverses home/away, cycle 2 restores the original direction, and so on.
+
+`0x616FC0` allocates one 0x50-byte ordinary `LeagueMatch`, constructs it through `0x5104F0`, selects the owning schedule container through `0x4F3B50`, and inserts through `0x615950`. Its schedule date pointer is:
+
+```text
+League+0x60 + 8 * ((team_count - 1) * cycle_index + round_index)
+```
+
+so all pairings in the same matrix round/cycle share the same nominal week/day entry. This also confirms that emission/insertion order is round -> pair -> cycle, not chronological cycle -> round order.
+
+Canonical Static.dat cross-check: every generic primary procedural League has a scheduled-matchday count divisible by `team_count - 1`. The 4-team Champions League child groups use 6 matchdays (two complete cycles); the 4-team WCC groups use 3 (one cycle).
+
+### ScotPremierLeague partial final cycle
+
+Competition 27 is the deliberate exception: 12 teams and 38 matchdays gives `ceil(38/11) = 4` with a five-matchday remainder. Its vtable overrides `+0x3C` with `0x6170A0`. During the fourth cycle, `0x6170A0` intercepts the generated pair instead of calling generic `0x616FC0`, storing the pair into ScotPremierLeague `+0x6C/+0x70`.
+
+After generic League initialization returns, `0x4FAC60` starts from schedule index `(cycle_count - 1) * (team_count - 1) = 33` and constructs the final post-split Scottish schedule separately. Therefore a faithful materializer must not emit a full generic fourth round-robin cycle for competition 27.
+
+Clean-room support was added in commits `f24bda9` / `0997c8d`: `procedural_league_cycle_count()` models `0x616F40`, and `materialize_procedural_league_match_emissions()` models the generic round -> pair -> cycle emission order, alternating home/away direction, and exact date-array index.
