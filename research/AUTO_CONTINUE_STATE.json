@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 9,
-  "active_task": "Implement persistent transfer proposal/deal/bid-log/movement state over schema-3 runtime, then human bid-to-completion workflow",
-  "last_known_main_head": "1c1b62fa96788e780d0327f4e71521303dac735f",
+  "active_task": "Integrate TransferRuntimeState into GameState and schema-3 saves with exact proposal/deal/bid-log/movement round-trip tests",
+  "last_known_main_head": "27d8710b9399d4ee23e34793e483b9f954634707",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 12,
+  "recovery_generation": 13,
   "last_recovery_reason": "stale-repository-activity",
   "note": "Recovered into a new worker because no usable worker tab remained. Continue from GitHub canonical state without repeating persisted investigation. Transient stalls should still reuse/stop/re-prompt the same worker when available."
 }
