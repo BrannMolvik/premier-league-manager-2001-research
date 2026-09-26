@@ -1,5 +1,11 @@
 # Gate 8 - Internal Save/Load
 
+> **27 September 2026 startup-wage RNG correction:** deterministic RNG states,
+> schedule orders, audit hashes and later gameplay outcomes in this file that
+> conflict with `research/STARTUP_WAGE_RNG_CORRECTION.md` are superseded by
+> that correction. The gate's functional conclusion remains valid.
+
+
 _Status: implementation and canonical equivalence verified 27 September 2026_
 
 Gate 8 adds a versioned **internal save format for the modern Windows 11 port**.
