@@ -30,8 +30,9 @@ tracked according to `ASSET_POLICY.md`.
 - Gate-8 evidence: `research/GATE8_INTERNAL_SAVE.md`.
 - Gate-8 canonical audit runner:
   `reconstruction/canonical_internal_save_audit.py`.
-- Internal save implementation: `reconstruction/internal_save.py`,
-  schema **2**, gzip `.fm2k` files.
+- Internal save implementation: `reconstruction/internal_save.py`.
+  Historical Gate-8 checkpoint used schema 2; current Gate-9 contract runtime
+  uses schema **3**, gzip `.fm2k` files.
 - Reconstruction GitHub Actions at
   `72c21e8f07bf9bf57f6dc3cbaba83809cdd06414`: **413 tests passed**.
 - Repository asset-policy workflow at that checkpoint: **passed**.
@@ -122,13 +123,13 @@ Completion requires:
 
 ## Exact next task
 
-1. Materialize `DBTAccessSkillFinancialValues` / `DBRAccessSkillFinancialValue`
-   so the already-proven startup wage routine `0x423A50` produces authentic
-   player weekly wages instead of only consuming its RNG call.
-2. Add authentic initial contract expiry from the already-recovered startup
-   12/24/36/48/60-month span.
+1. **Completed:** authentic starting weekly wage from
+   `DBTAccessSkillFinancialValues` + country multiplier, plus exact initial
+   12/24/36/48/60-month contract expiry.
+2. **Completed:** current internal save schema **3** persists weekly wage and
+   contract expiry.
 3. Define the minimum mutable contract/transfer state required by the recovered
-   proposal/deal/movement logic and include it in the internal save.
+   proposal/deal/bid-log/movement logic and include it in the internal save.
 4. Implement the smallest end-to-end human transfer path: bid -> club decision
    -> player negotiation -> completion -> roster movement.
 5. Add AI transfer progression only after the human path/state model is stable.
@@ -136,7 +137,8 @@ Completion requires:
 
 ## Gate 9 completion criteria
 
-- [ ] Contract state is represented.
+- [x] Initial player weekly wage and contract expiry are represented and saved.
+- [ ] Full negotiated contract terms / transfer-deal state are represented.
 - [ ] Bids can be made and evaluated.
 - [ ] Clubs accept/refuse according to reconstructed logic where known.
 - [ ] Player negotiations, wages, duration, and transfer completion work.
