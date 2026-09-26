@@ -2,6 +2,8 @@ import unittest
 from dataclasses import dataclass
 
 from competition_startup import (
+    CupClubRefDescriptor,
+    compare_cup_club_refs,
     europe_root_cup_candidate_ids,
     initial_competition_enumeration_club_ids,
     initial_league_club_ids,
@@ -12,6 +14,7 @@ from competition_startup import (
     primary_mode0_cup_pairing_draw_count,
     primary_mode0_cup_round_team_counts,
     primary_mode0_root_initialization_order,
+    prepare_cup_knockout_round,
     replay_primary_mode0_ordered_competition_rng,
     replay_primary_mode0_competition_rng,
     replay_primary_mode0_pre_shuffle_state,
@@ -456,6 +459,73 @@ class LegacyCrtQsortTests(unittest.TestCase):
             lambda left, right: (left > right) - (left < right),
         )
         self.assertEqual(ordered, tuple(sorted(values)))
+
+
+class CupKnockoutPreparationTests(unittest.TestCase):
+    def test_clubref_comparator_groups_type2_first(self):
+        direct = CupClubRefDescriptor(type_code=0, direct_club_id=10)
+        position_a = CupClubRefDescriptor(
+            type_code=2,
+            selector=3,
+            competition_id=7,
+            competition_context=0,
+        )
+        position_b = CupClubRefDescriptor(
+            type_code=2,
+            selector=1,
+            competition_id=8,
+            competition_context=0,
+        )
+
+        self.assertLess(compare_cup_club_refs(position_a, direct), 0)
+        self.assertGreater(compare_cup_club_refs(direct, position_a), 0)
+        self.assertLess(compare_cup_club_refs(position_a, position_b), 0)
+        self.assertEqual(compare_cup_club_refs(direct, direct), 0)
+
+    def test_knockout_round_uses_exact_qsort_then_split_half_pairs(self):
+        class ZeroRng:
+            def __init__(self):
+                self.calls = []
+
+            def randbelow(self, bound):
+                self.calls.append(bound)
+                return 0
+
+        refs = tuple(
+            CupClubRefDescriptor(type_code=0, direct_club_id=club_id)
+            for club_id in range(4)
+        )
+        rng = ZeroRng()
+
+        prepared = prepare_cup_knockout_round(refs, rng)
+
+        self.assertEqual(rng.calls, [4, 3, 2])
+        self.assertEqual(
+            tuple(ref.direct_club_id for ref in prepared.shuffled_refs),
+            (1, 2, 3, 0),
+        )
+        # All four records compare equal, so the CRT <=8 shortsort rotates the
+        # shuffled block once more before the original split-half pairing.
+        self.assertEqual(
+            tuple(ref.direct_club_id for ref in prepared.sorted_refs),
+            (2, 3, 0, 1),
+        )
+        self.assertEqual(
+            tuple(
+                (left.direct_club_id, right.direct_club_id)
+                for left, right in prepared.pairs
+            ),
+            ((2, 0), (3, 1)),
+        )
+
+    def test_odd_synthetic_knockout_round_is_rejected(self):
+        refs = tuple(
+            CupClubRefDescriptor(type_code=0, direct_club_id=club_id)
+            for club_id in range(3)
+        )
+
+        with self.assertRaises(ValueError):
+            prepare_cup_knockout_round(refs, RecordingRng(0))
 
 
 if __name__ == "__main__":
