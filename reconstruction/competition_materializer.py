@@ -19,8 +19,9 @@ import json
 from typing import Iterable
 
 from competition_runtime import (
+    PrimaryCompetitionRuntimeEventSpec,
     PrimaryCompetitionRuntimeRngEvent,
-    replay_primary_mode0_complete_competition_rng,
+    primary_mode0_competition_event_skeleton,
 )
 from competition_schedule import (
     StartupScheduleNode,
@@ -40,7 +41,6 @@ from cup_runtime import (
     PrimaryCupRuntimeMaterialization,
     materialize_primary_cup_runtime,
 )
-from match_schedule import MsvcCrtRng
 from procedural_league import (
     ProceduralLeagueMatchEmission,
     ProceduralLeagueRoundRobin,
@@ -56,6 +56,8 @@ class PrimaryRngDrivenScheduleMaterialization:
 
     rng_plan_total_draw_count: int
     rng_plan_event_count: int
+    rng_bounds_sha256: str
+    rng_events: tuple[PrimaryCompetitionRuntimeRngEvent, ...]
     cup_runtime: PrimaryCupRuntimeMaterialization
     schedule_nodes: tuple[StartupScheduleNode, ...]
     schedule_sha256: str
@@ -67,17 +69,26 @@ class PrimaryRngDrivenScheduleMaterialization:
 
 
 class _InterleavingCompetitionRng:
-    """Inject procedural-League RNG events around Cup-runtime RNG requests."""
+    """Consume the exact competition event skeleton on one live CRT stream.
+
+    Procedural League RNG is injected at recovered traversal positions.
+    DummyLeague/Europe events verify their known bounds. Cup round bounds are
+    supplied by begin_cup_round() from the runtime round's actual +0x0C
+    ClubRef count immediately before its Fisher-Yates loop.
+    """
 
     def __init__(
         self,
         delegate,
-        events: tuple[PrimaryCompetitionRuntimeRngEvent, ...],
+        event_specs: tuple[PrimaryCompetitionRuntimeEventSpec, ...],
     ):
         self.delegate = delegate
-        self.events = events
+        self.event_specs = event_specs
         self.event_index = 0
         self.bound_index = 0
+        self.active_cup_bounds: tuple[int, ...] | None = None
+        self.active_cup_participant_count: int | None = None
+        self.events: list[PrimaryCompetitionRuntimeRngEvent] = []
         self.league_round_robins: dict[
             tuple[int, int], ProceduralLeagueRoundRobin
         ] = {}
@@ -86,87 +97,194 @@ class _InterleavingCompetitionRng:
     def state(self) -> int:
         return int(getattr(self.delegate, "state")) & 0xFFFFFFFF
 
-    def _advance_empty_events(self) -> None:
-        while self.event_index < len(self.events):
-            event = self.events[self.event_index]
-            if event.bounds:
-                return
-            self.event_index += 1
-            self.bound_index = 0
-
-    def _consume_league_events(self) -> None:
-        self._advance_empty_events()
-        while self.event_index < len(self.events):
-            event = self.events[self.event_index]
-            if event.kind != "procedural_league_round_robin":
-                return
-            if self.bound_index:
-                raise RuntimeError("procedural League event began mid-bound stream")
-            if event.participant_count is None:
-                raise RuntimeError("procedural League event has no participant count")
-
-            replay = generate_procedural_league_round_robin(
-                tuple(range(int(event.participant_count))),
-                self.delegate,
+    def _record_event(
+        self,
+        spec: PrimaryCompetitionRuntimeEventSpec,
+        bounds: tuple[int, ...],
+        *,
+        participant_count: int | None = None,
+        selected_club_id: int | None = None,
+    ) -> None:
+        self.events.append(
+            PrimaryCompetitionRuntimeRngEvent(
+                kind=spec.kind,
+                competition_id=int(spec.competition_id),
+                competition_context=int(spec.competition_context),
+                round_id=(
+                    None if spec.round_id is None else int(spec.round_id)
+                ),
+                participant_count=(
+                    spec.participant_count
+                    if participant_count is None
+                    else int(participant_count)
+                ),
+                source_competition_id=(
+                    None
+                    if spec.source_competition_id is None
+                    else int(spec.source_competition_id)
+                ),
+                bounds=tuple(int(value) for value in bounds),
+                selected_club_id=(
+                    spec.selected_club_id
+                    if selected_club_id is None
+                    else int(selected_club_id)
+                ),
+                state_after=self.state,
             )
-            if tuple(replay.bounds) != tuple(event.bounds):
-                raise RuntimeError(
-                    "procedural League interleave diverged from verified RNG plan"
+        )
+
+    def _advance_event(self) -> None:
+        self.event_index += 1
+        self.bound_index = 0
+        self.active_cup_bounds = None
+        self.active_cup_participant_count = None
+
+    def _drain_internal_events(self) -> None:
+        while self.event_index < len(self.event_specs):
+            spec = self.event_specs[self.event_index]
+
+            if spec.kind == "procedural_league_round_robin":
+                if spec.participant_count is None:
+                    raise RuntimeError(
+                        "procedural League event has no participant count"
+                    )
+                replay = generate_procedural_league_round_robin(
+                    tuple(range(int(spec.participant_count))),
+                    self.delegate,
                 )
-            if self.state != int(event.state_after):
-                raise RuntimeError(
-                    "procedural League interleave ended at the wrong CRT state"
+                key = (
+                    int(spec.competition_id),
+                    int(spec.competition_context),
                 )
-            key = (int(event.competition_id), int(event.competition_context))
-            if key in self.league_round_robins:
-                raise RuntimeError(f"duplicate procedural League runtime {key}")
-            self.league_round_robins[key] = replay
-            self.event_index += 1
-            self.bound_index = 0
-            self._advance_empty_events()
+                if key in self.league_round_robins:
+                    raise RuntimeError(
+                        f"duplicate procedural League runtime {key}"
+                    )
+                self.league_round_robins[key] = replay
+                self._record_event(
+                    spec,
+                    tuple(replay.bounds),
+                    participant_count=int(spec.participant_count),
+                )
+                self._advance_event()
+                continue
+
+            if spec.kind == "fixed_league":
+                self._record_event(spec, ())
+                self._advance_event()
+                continue
+
+            if (
+                spec.kind in ("dummy_league_lazy_sort", "europe_selector")
+                and not spec.expected_bounds
+            ):
+                self._record_event(spec, ())
+                self._advance_event()
+                continue
+
+            return
+
+    def begin_cup_round(
+        self,
+        competition_id: int,
+        round_id: int,
+        participant_count: int,
+    ) -> None:
+        self._drain_internal_events()
+        if self.event_index >= len(self.event_specs):
+            raise RuntimeError(
+                f"unexpected Cup round {competition_id}/{round_id} after event plan"
+            )
+        spec = self.event_specs[self.event_index]
+        if (
+            spec.kind != "cup_round_shuffle"
+            or int(spec.competition_id) != int(competition_id)
+            or spec.round_id is None
+            or int(spec.round_id) != int(round_id)
+        ):
+            raise RuntimeError(
+                "Cup round traversal diverged from competition event skeleton: "
+                f"expected {spec.kind} {spec.competition_id}/{spec.round_id}, "
+                f"received {competition_id}/{round_id}"
+            )
+        if self.active_cup_bounds is not None:
+            raise RuntimeError("previous Cup round RNG event is still active")
+
+        participant_count = int(participant_count)
+        if participant_count < 0:
+            raise ValueError("Cup participant count must be non-negative")
+        self.active_cup_participant_count = participant_count
+        self.active_cup_bounds = tuple(
+            range(participant_count, 1, -1)
+        )
+        self.bound_index = 0
+
+        if not self.active_cup_bounds:
+            self._record_event(
+                spec,
+                (),
+                participant_count=participant_count,
+            )
+            self._advance_event()
 
     def randbelow(self, bound: int) -> int:
         bound = int(bound)
-        self._consume_league_events()
-        self._advance_empty_events()
-        if self.event_index >= len(self.events):
+        self._drain_internal_events()
+        if self.event_index >= len(self.event_specs):
+            raise RuntimeError(f"unexpected trailing RNG({bound})")
+
+        spec = self.event_specs[self.event_index]
+        if spec.kind == "cup_round_shuffle":
+            if self.active_cup_bounds is None:
+                raise RuntimeError(
+                    "Cup scheduler called RNG before reporting its actual "
+                    "runtime participant count"
+                )
+            expected_bounds = self.active_cup_bounds
+        elif spec.kind in ("dummy_league_lazy_sort", "europe_selector"):
+            expected_bounds = tuple(spec.expected_bounds)
+        else:
             raise RuntimeError(
-                f"Cup materializer requested unexpected trailing RNG({bound})"
+                f"external RNG({bound}) reached unexpected event {spec.kind}"
             )
 
-        event = self.events[self.event_index]
-        if event.kind == "procedural_league_round_robin":
-            raise RuntimeError("procedural League event was not consumed")
-        if self.bound_index >= len(event.bounds):
-            raise RuntimeError("RNG event bound cursor exceeded event length")
-
-        expected = int(event.bounds[self.bound_index])
+        if self.bound_index >= len(expected_bounds):
+            raise RuntimeError(
+                f"RNG event {spec.kind} exceeded its recovered bound sequence"
+            )
+        expected = int(expected_bounds[self.bound_index])
         if expected != bound:
             raise RuntimeError(
-                f"RNG interleave mismatch at {event.kind}: expected "
+                f"RNG interleave mismatch at {spec.kind}: expected "
                 f"RNG({expected}), received RNG({bound})"
             )
 
         value = int(self.delegate.randbelow(bound))
         self.bound_index += 1
-        if self.bound_index == len(event.bounds):
-            if self.state != int(event.state_after):
-                raise RuntimeError(
-                    f"{event.kind} ended at the wrong CRT state"
-                )
-            self.event_index += 1
-            self.bound_index = 0
+        if self.bound_index == len(expected_bounds):
+            self._record_event(
+                spec,
+                expected_bounds,
+                participant_count=(
+                    self.active_cup_participant_count
+                    if spec.kind == "cup_round_shuffle"
+                    else spec.participant_count
+                ),
+            )
+            self._advance_event()
         return value
 
     def finish(self) -> None:
-        self._consume_league_events()
-        self._advance_empty_events()
-        if self.event_index != len(self.events) or self.bound_index:
-            event = self.events[self.event_index]
+        self._drain_internal_events()
+        if self.event_index != len(self.event_specs):
+            spec = self.event_specs[self.event_index]
             raise RuntimeError(
-                "Cup materializer did not consume the complete non-League RNG "
-                f"plan; next event is {event.kind}"
+                "competition materializer did not consume the complete event "
+                f"skeleton; next event is {spec.kind} "
+                f"{spec.competition_id}/{spec.round_id}"
             )
+        if self.active_cup_bounds is not None:
+            raise RuntimeError("competition materializer ended mid-Cup shuffle")
 
 
 def _mapped_league_replay(
@@ -279,9 +397,7 @@ def materialize_primary_rng_driven_schedule(
     fixed_ids = tuple(int(value) for value in fixed_fixture_competition_ids)
     real_fixture_list = tuple(real_fixtures)
 
-    plan_rng = MsvcCrtRng(int(start_state))
-    plan = replay_primary_mode0_complete_competition_rng(
-        plan_rng,
+    event_specs = primary_mode0_competition_event_skeleton(
         competition_list,
         round_list,
         club_list,
@@ -294,7 +410,7 @@ def materialize_primary_rng_driven_schedule(
 
     interleaved_rng = _InterleavingCompetitionRng(
         rng,
-        tuple(plan.events),
+        tuple(event_specs),
     )
     cup_runtime = materialize_primary_cup_runtime(
         interleaved_rng,
@@ -307,13 +423,6 @@ def materialize_primary_rng_driven_schedule(
         cup_enumerated_club_ids_by_source=cup_enumerated_club_ids_by_source,
     )
     interleaved_rng.finish()
-
-    if interleaved_rng.state != int(plan.state_entering_primary_shuffle):
-        raise RuntimeError("integrated competition materializer ended at wrong CRT state")
-    if cup_runtime.champions_league_club_id != plan.champions_league_club_id:
-        raise RuntimeError("Champions League selector diverged from RNG plan")
-    if cup_runtime.uefa_cup_club_id != plan.uefa_cup_club_id:
-        raise RuntimeError("UEFA Cup selector diverged from RNG plan")
 
     competition_by_id = {
         int(competition.id): competition
@@ -350,7 +459,7 @@ def materialize_primary_rng_driven_schedule(
                     ] = tuple(group)
 
     league_nodes: dict[tuple[int, int], tuple[StartupScheduleNode, ...]] = {}
-    for event in plan.events:
+    for event in interleaved_rng.events:
         if event.kind != "procedural_league_round_robin":
             continue
         key = (int(event.competition_id), int(event.competition_context))
@@ -440,7 +549,7 @@ def materialize_primary_rng_driven_schedule(
         )
 
     fixed_nodes: dict[tuple[int, int], tuple[StartupScheduleNode, ...]] = {}
-    for event in plan.events:
+    for event in interleaved_rng.events:
         if event.kind != "fixed_league":
             continue
         key = (int(event.competition_id), int(event.competition_context))
@@ -452,7 +561,7 @@ def materialize_primary_rng_driven_schedule(
         )
 
     ordered_nodes: list[StartupScheduleNode] = []
-    for event in plan.events:
+    for event in interleaved_rng.events:
         if event.kind == "fixed_league":
             ordered_nodes.extend(
                 fixed_nodes[
@@ -475,9 +584,21 @@ def materialize_primary_rng_driven_schedule(
             )
 
     nodes = tuple(ordered_nodes)
+    actual_events = tuple(interleaved_rng.events)
+    ordered_bounds = tuple(
+        int(bound)
+        for event in actual_events
+        for bound in event.bounds
+    )
+    bounds_blob = b"".join(
+        int(bound).to_bytes(2, "little")
+        for bound in ordered_bounds
+    )
     return PrimaryRngDrivenScheduleMaterialization(
-        rng_plan_total_draw_count=int(plan.total_draw_count),
-        rng_plan_event_count=len(plan.events),
+        rng_plan_total_draw_count=len(ordered_bounds),
+        rng_plan_event_count=len(actual_events),
+        rng_bounds_sha256=sha256(bounds_blob).hexdigest(),
+        rng_events=actual_events,
         cup_runtime=cup_runtime,
         schedule_nodes=nodes,
         schedule_sha256=_node_digest(nodes),
