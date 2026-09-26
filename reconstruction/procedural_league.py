@@ -20,6 +20,34 @@ class BoundedRng(Protocol):
     def randbelow(self, bound: int) -> int: ...
 
 
+def shuffle_procedural_league_parent_vector(
+    values: Iterable[T],
+    rng: BoundedRng,
+    *,
+    parent_shuffle_enabled: bool,
+) -> tuple[T, ...]:
+    """Reproduce the conditional parent-vector shuffle at 0x617245..0x617290.
+
+    0x6170F0 reaches this Fisher-Yates block only for a child League whose
+    parent virtual +0x18 predicate is true. Root Leagues and League-parent
+    children skip it entirely. When entered, helper 0x6178B0 has already
+    copied the parent-owned vector into a temporary array.
+
+    The loop is guarded by count > 1. Therefore the canonical Champions League
+    child phases 14/167 and WCC child 192, whose copied mode-0 parent vectors
+    contain exactly one entry, consume zero bounded CRT draws here.
+    """
+    result = list(values)
+    if not parent_shuffle_enabled:
+        return tuple(result)
+
+    for remaining in range(len(result), 1, -1):
+        selected = rng.randbelow(remaining)
+        last = remaining - 1
+        result[selected], result[last] = result[last], result[selected]
+    return tuple(result)
+
+
 @dataclass(frozen=True)
 class ProceduralLeagueRoundRobin:
     rounds: tuple[tuple[tuple[T, T], ...], ...]
