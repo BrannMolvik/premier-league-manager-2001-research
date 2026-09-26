@@ -6,6 +6,7 @@ from competition_startup import (
     compare_cup_club_refs,
     europe_root_cup_candidate_ids,
     initial_competition_enumeration_club_ids,
+    initial_dummy_league_sort_entries,
     initial_league_club_ids,
     initial_ranked_league_club_ids,
     msvc_crt_qsort,
@@ -13,6 +14,8 @@ from competition_startup import (
     primary_cup_round_initialization_order,
     primary_mode0_cup_pairing_draw_count,
     primary_mode0_cup_round_team_counts,
+    primary_mode0_dummy_league_sort_draw_count,
+    primary_mode0_dummy_league_sort_source_ids,
     primary_mode0_root_initialization_order,
     prepare_cup_knockout_round,
     replay_primary_mode0_ordered_competition_rng,
@@ -526,6 +529,66 @@ class CupKnockoutPreparationTests(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             prepare_cup_knockout_round(refs, RecordingRng(0))
+
+
+@dataclass(frozen=True)
+class DummyPlayer:
+    club_id: int
+    current_raw: tuple[int, ...]
+    positions: tuple[int, int, int]
+
+
+class DummyLeagueLazySortTests(unittest.TestCase):
+    def test_initial_sort_entry_uses_first_eleven_roster_players(self):
+        clubs = (
+            Club(10, 26, 0, 0, "Dummy", 5),
+        )
+        # Goalkeeper role with max raw skills caps 0x41E1D0 at 99.
+        players = tuple(
+            DummyPlayer(
+                club_id=10,
+                current_raw=(255,) * 17,
+                positions=(1, 0, 0),
+            )
+            for _ in range(12)
+        )
+
+        entries = initial_dummy_league_sort_entries(5, clubs, players)
+
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0].club_id, 10)
+        self.assertEqual(entries[0].base_score, 11 * 99)
+        self.assertEqual(entries[0].rng_bound, (11 * 99) // 20)
+
+    def test_primary_type5_dummy_sources_are_unique_and_count_members(self):
+        competitions = (
+            Competition(5, 3, 1),
+            Competition(9, 2, 1),
+        )
+        instructions = (
+            CupAllocation(1, 9, 1, 5, 5, 2),
+            CupAllocation(2, 9, 2, 5, 5, 1),
+        )
+        clubs = (
+            Club(10, 26, 0, 0, "A", 5),
+            Club(11, 26, 0, 0, "B", 5),
+        )
+
+        self.assertEqual(
+            primary_mode0_dummy_league_sort_source_ids(
+                competitions,
+                instructions,
+            ),
+            (5,),
+        )
+        self.assertEqual(
+            primary_mode0_dummy_league_sort_draw_count(
+                competitions,
+                instructions,
+                clubs,
+            ),
+            2,
+        )
 
 
 if __name__ == "__main__":
