@@ -18,9 +18,9 @@ Authorized original resources belong under `original_assets/` with provenance tr
 
 ## Verified repository state
 
-- Current verified integration checkpoint: `fba3babd72859d4c932c1aadffc81f6b54e339a0` - **Integrate complete primary competition RNG replay**.
-- Latest working schedule-emission checkpoint: `a16cf8d1d2bb256824520818eab16160b762dc13` - **Checkpoint procedural League schedule-node recovery**. No Actions run was attached when checked; do not replace the verified 365-test baseline with this newer checkpoint until CI/local full-suite evidence exists.
-- Reconstruction GitHub Actions at that head: **365 tests passed**.
+- Current verified integration checkpoint: `2bcce1db718f0b7e8d35d93c90df65b0ca98a0da` - **Test fixed League integration in primary schedule**.
+- The recovered schedule-node layers are now integrated through `reconstruction/competition_materializer.py`: fixed real-fixture League nodes, generic procedural League nodes, ScotPremierLeague post-split nodes, and Cup Normal/TwoLeg nodes are sequenced against the complete competition initialization event plan on one real CRT stream.
+- Reconstruction GitHub Actions at that head: **383 tests passed**.
 - Repository asset-policy GitHub Actions at that head: **passed**.
 - Canonical executable hash: `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
 
@@ -98,24 +98,16 @@ The bucket-54 population/order must be re-audited after Cup and procedural child
 
 ## Exact next task
 
-Continue Gate 3 from the integrated schedule-node layer:
+Continue Gate 3 from the now-integrated primary schedule-node materializer:
 
-1. Finish the **ScotPremierLeague competition-27 post-split schedule-node trace** after `0x4FAC60` returns from generic League initialization. The generic fourth cycle is intercepted by `0x6170A0`; recover the exact 30 final-match symbolic refs/date sequence for matchdays 34-38.
-2. Re-check and codify the conditional parent-vector branch `0x617245..0x617290`. Existing canonical evidence says CL phase children 14/167 and WCC child 192 copy one-element parent vectors, so the Fisher-Yates guard consumes zero draws; lock that as a tested invariant rather than adding speculative RNG.
-3. Implement schedule-node descriptors for:
-   - NormalRound `CupMatch`;
-   - TwoLeg `FirstLegMatch` / `SecondLegMatch`;
-   - MiniLeague child `LeagueMatch` nodes using the now-implemented generic procedural emitter;
-   - ScotPremierLeague final-split nodes;
-   - generic symbolic ClubRef conflict identity.
-4. Integrate all schedule nodes into the **actual primary competition initialization order**, sharing the already-correct complete RNG stream.
-5. Execute the complete materializer against canonical `Master.dat` / `Static.dat` / STR data and lock:
-   - participant digest;
-   - pairing digest;
-   - schedule-node digest;
-   - counts per Cup/round/League runtime and any dropped refs;
-   - confirmation that the complete 6,165-call replay/state/digest is unchanged.
-6. Audit Gate-3 completion criteria. If complete, update `ROADMAP.md`, `CURRENT_STATE.md`, `project_status.json`, and `PROGRESS.md`, commit the gate transition, then resume Gate 4.
+1. Resolve the exact startup participant source for the remaining **League-parent procedural child competitions 97, 157, and 169** if canonical execution cannot populate them from current direct members. Their parents are ordinary Leagues, so the Cup/DummyLeague parent-vector shuffle is correctly skipped; do not invent symbolic participants.
+2. Execute `materialize_primary_rng_driven_schedule()` against the canonical `Master.dat` / `Static.dat` / STR data plus the real-fixture table. The materializer must retain the already-verified complete competition RNG stream:
+   - 6,165 bounded calls;
+   - 167 RNG-bearing high-level events, plus the explicit zero-draw fixed-League traversal marker used only for node ordering;
+   - synthetic state `0x2797444C -> 0x0DD3ACA3`;
+   - ordered-bound digest `3e7accfdf108a48a53902bb32a782fb23c64c7e5ce54eff101e0f869f6c3629c`.
+3. Lock the canonical participant, pairing, Cup-schedule, and complete schedule-node SHA-256 digests; record counts per Cup/round/League runtime, fixed-fixture count, Scottish split count, and dropped refs.
+4. Re-audit Gate-3 completion criteria. If complete, update `ROADMAP.md`, `CURRENT_STATE.md`, `project_status.json`, and `PROGRESS.md`, commit the gate transition, then resume Gate 4.
 
 ## Gate 3 completion criteria (reopened)
 
@@ -144,15 +136,15 @@ Already implemented and tested at a substantial level:
 - startup/schedule RNG primitives;
 - exact legacy CRT qsort behavior;
 - Cup allocation, participant, pairing, and cross-Cup transfer materialization;
-- procedural League round-robin RNG generation.
+- procedural League round-robin RNG generation;
+- integrated fixed/procedural/Scottish/Cup primary schedule-node materialization on the shared competition RNG stream.
 
 ## Known live fidelity boundaries
 
 See `FIDELITY_GAPS.md` for the canonical list. Most relevant now:
 
-- complete startup schedule-node emission is not yet materialized;
-- generic MiniLeague child procedural-League emission is traced/implemented; full child participant integration into the primary schedule materializer remains open;
-- ScotPremierLeague competition-27 final post-split schedule-node materialization remains open;
+- the primary schedule-node materializer is implemented for fixed real-fixture Leagues, generic procedural Leagues, MiniLeague child groups, ScotPremierLeague's post-split schedule, and Cup Normal/TwoLeg nodes, but its canonical shipped-data output has not yet been digest-locked;
+- League-parent procedural child competitions 97/157/169 still need exact participant-source confirmation if current direct membership is insufficient during the canonical run;
 - exact inter-bucket RNG consumption/order inside primary `0x615BE0` is Gate-4 work paused behind Gate 3;
 - deterministic fixture-ID same-day fallback;
 - unresolved final league-table tie fallback;
