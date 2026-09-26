@@ -1045,8 +1045,8 @@ class CupRuntimeMaterializationTests(unittest.TestCase):
         self.assertEqual(
             tuple(ref.reference_token for ref in final_refs),
             (
-                ("cup_result", 50, 100, 0),
                 ("cup_result", 50, 100, 1),
+                ("cup_result", 50, 100, 0),
             ),
         )
 
