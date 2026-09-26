@@ -1,0 +1,286 @@
+const REPO = "BrannMolvik/premier-league-manager-2001-research";
+const MAIN_BRANCH = "main";
+const RUNTIME_BRANCH = "agent-runtime";
+const POLL_ALARM = "fm2001-auto-continue";
+const POLL_MINUTES = 3;
+const CHAT_URL = "https://chatgpt.com/";
+
+const runtimeStateUrl = () =>
+  `https://raw.githubusercontent.com/${REPO}/${RUNTIME_BRANCH}/research/AUTO_CONTINUE_STATE.json?ts=${Date.now()}`;
+
+const handoffUrl = () =>
+  `https://raw.githubusercontent.com/${REPO}/${MAIN_BRANCH}/research/HANDOFF_PROMPT.md?ts=${Date.now()}`;
+
+async function fetchJson(url) {
+  const response = await fetch(url, {
+    cache: "no-store",
+    headers: { Accept: "application/vnd.github+json" }
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} for ${url}`);
+  }
+  return response.json();
+}
+
+async function fetchText(url) {
+  const response = await fetch(url, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status} for ${url}`);
+  }
+  return response.text();
+}
+
+async function getRuntimeState() {
+  return fetchJson(runtimeStateUrl());
+}
+
+function shouldMonitor(state) {
+  return (
+    state &&
+    state.enabled === true &&
+    state.mode === "continuous" &&
+    state.status === "working"
+  );
+}
+
+async function getBranchActivity(branch) {
+  const url =
+    `https://api.github.com/repos/${REPO}/branches/${encodeURIComponent(branch)}?ts=${Date.now()}`;
+  const data = await fetchJson(url);
+  const dateText =
+    data?.commit?.commit?.committer?.date ||
+    data?.commit?.commit?.author?.date ||
+    null;
+  return {
+    sha: data?.commit?.sha || null,
+    timestamp: dateText ? Date.parse(dateText) : 0
+  };
+}
+
+async function recoveryGuard(state) {
+  const now = Date.now();
+  const stored = await chrome.storage.local.get([
+    "lastRecoveryAt",
+    "recoveryHistory",
+    "recoveryInFlightAt"
+  ]);
+
+  const cooldownMinutes = Number(state.recovery_cooldown_minutes || 20);
+  const maxPerHour = Number(state.max_recoveries_per_hour || 3);
+
+  if (
+    stored.recoveryInFlightAt &&
+    now - stored.recoveryInFlightAt < 5 * 60 * 1000
+  ) {
+    return null;
+  }
+
+  if (
+    stored.lastRecoveryAt &&
+    now - stored.lastRecoveryAt < cooldownMinutes * 60 * 1000
+  ) {
+    return null;
+  }
+
+  const history = (stored.recoveryHistory || []).filter(
+    (timestamp) => now - timestamp < 60 * 60 * 1000
+  );
+
+  if (history.length >= maxPerHour) {
+    return null;
+  }
+
+  return { now, history };
+}
+
+function buildRecoveryPrompt(reason, handoff, details = {}) {
+  const detailText = Object.entries(details)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join("\n");
+
+  return `AUTO-RECOVERY: the previous FM2001 ChatGPT work session was still marked as working but stopped progressing.
+
+Recovery reason: ${reason}
+${detailText ? `${detailText}\n` : ""}
+Do not ask Daniel to reconstruct the previous chat. GitHub is canonical.
+
+Before substantive work:
+1. Check the current main HEAD.
+2. Read research/CURRENT_STATE.md and research/CONTINUATION_INSTRUCTIONS.md.
+3. Read research/AUTO_CONTINUE.md.
+4. Read research/AUTO_CONTINUE_STATE.json from the agent-runtime branch.
+5. Mark the runtime state as mode=continuous and status=working, increment recovery_generation, and record the latest main HEAD.
+6. Continue the exact current task from the repository and checkpoint at the normal persistence boundaries.
+
+If the old chat merely hit its length limit, treat this as a normal handoff, not as a reason to restart the investigation.
+
+Latest standard handoff follows:
+
+${handoff}`;
+}
+
+async function triggerRecovery(reason, state, details = {}) {
+  const guard = await recoveryGuard(state);
+  if (!guard) {
+    return false;
+  }
+
+  await chrome.storage.local.set({ recoveryInFlightAt: guard.now });
+
+  try {
+    const handoff = await fetchText(handoffUrl());
+    const prompt = buildRecoveryPrompt(reason, handoff, details);
+    const tab = await chrome.tabs.create({ url: CHAT_URL, active: true });
+    const recoveryRecord = {
+      tabId: tab.id,
+      prompt,
+      reason,
+      createdAt: guard.now,
+      expiresAt: guard.now + 30 * 60 * 1000
+    };
+
+    await chrome.storage.local.set({
+      pendingResume: recoveryRecord,
+      lastRecoveryAt: guard.now,
+      recoveryHistory: [...guard.history, guard.now],
+      recoveryInFlightAt: 0
+    });
+
+    return true;
+  } catch (error) {
+    await chrome.storage.local.set({ recoveryInFlightAt: 0 });
+    console.warn("FM2001 auto-continue recovery failed", error);
+    return false;
+  }
+}
+
+async function checkLease() {
+  try {
+    const state = await getRuntimeState();
+    if (!shouldMonitor(state)) {
+      return;
+    }
+
+    const [runtimeActivity, mainActivity] = await Promise.all([
+      getBranchActivity(RUNTIME_BRANCH),
+      getBranchActivity(MAIN_BRANCH)
+    ]);
+
+    const latestActivity = Math.max(
+      runtimeActivity.timestamp || 0,
+      mainActivity.timestamp || 0
+    );
+
+    if (!latestActivity) {
+      return;
+    }
+
+    const staleAfterMinutes = Number(state.stale_after_minutes || 15);
+    const staleForMs = Date.now() - latestActivity;
+
+    if (staleForMs >= staleAfterMinutes * 60 * 1000) {
+      await triggerRecovery("stale repository activity lease", state, {
+        stale_minutes: Math.floor(staleForMs / 60000),
+        runtime_head: runtimeActivity.sha || "unknown",
+        main_head: mainActivity.sha || "unknown"
+      });
+    }
+  } catch (error) {
+    console.warn("FM2001 auto-continue lease check failed", error);
+  }
+}
+
+function ensureAlarm() {
+  chrome.alarms.create(POLL_ALARM, { periodInMinutes: POLL_MINUTES });
+}
+
+chrome.runtime.onInstalled.addListener(() => {
+  ensureAlarm();
+  checkLease();
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  ensureAlarm();
+  checkLease();
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === POLL_ALARM) {
+    checkLease();
+  }
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.type === "fm2001-ui-failure") {
+    (async () => {
+      try {
+        const state = await getRuntimeState();
+        if (
+          shouldMonitor(state) &&
+          state.auto_new_chat_on_ui_failure !== false
+        ) {
+          await triggerRecovery(
+            message.reason || "ChatGPT UI failure signal",
+            state,
+            { page: sender?.tab?.url || "unknown" }
+          );
+        }
+        sendResponse({ ok: true });
+      } catch (error) {
+        console.warn("FM2001 UI-failure recovery failed", error);
+        sendResponse({ ok: false, error: String(error) });
+      }
+    })();
+    return true;
+  }
+
+  if (message?.type === "fm2001-get-pending-resume") {
+    (async () => {
+      const stored = await chrome.storage.local.get(["pendingResume"]);
+      const pending = stored.pendingResume || null;
+      const tabId = sender?.tab?.id;
+
+      if (!pending) {
+        sendResponse({ pending: null });
+        return;
+      }
+
+      if (pending.expiresAt && Date.now() > pending.expiresAt) {
+        await chrome.storage.local.remove("pendingResume");
+        sendResponse({ pending: null });
+        return;
+      }
+
+      if (pending.tabId !== tabId) {
+        sendResponse({ pending: null });
+        return;
+      }
+
+      sendResponse({ pending });
+    })();
+    return true;
+  }
+
+  if (message?.type === "fm2001-resume-consumed") {
+    (async () => {
+      const stored = await chrome.storage.local.get(["pendingResume"]);
+      if (
+        stored.pendingResume &&
+        stored.pendingResume.tabId === sender?.tab?.id
+      ) {
+        await chrome.storage.local.remove("pendingResume");
+      }
+      sendResponse({ ok: true });
+    })();
+    return true;
+  }
+
+  if (message?.type === "fm2001-check-now") {
+    checkLease().finally(() => sendResponse({ ok: true }));
+    return true;
+  }
+
+  return false;
+});
+
+ensureAlarm();
