@@ -9,6 +9,7 @@ from competition_startup import (
     initial_dummy_league_sort_entries,
     initial_league_club_ids,
     initial_ranked_league_club_ids,
+    expand_standard_cup_allocation_instructions,
     msvc_crt_qsort,
     ordered_cup_allocation_instructions,
     primary_cup_round_initialization_order,
@@ -635,6 +636,124 @@ class DummyLeagueLazySortTests(unittest.TestCase):
             ),
             2,
         )
+
+
+class StandardCupAllocationExpansionTests(unittest.TestCase):
+    def test_type4_offset_then_type1_emits_position_refs(self):
+        rounds = (
+            Round(50, 4, 100, 1, 1, 1),
+        )
+        rounds = tuple(
+            type("R", (), {
+                "id": r.id,
+                "new_entrants": 4,
+                "competition_id": r.competition_id,
+                "team_count": r.team_count,
+                "type_code": r.type_code,
+                "scheduled_week": r.scheduled_week,
+                "scheduled_weekday": r.scheduled_weekday,
+                "source_competition_reference": r.source_competition_reference,
+            })()
+            for r in rounds
+        )
+        instructions = (
+            CupAllocation(1, 50, 1, 4, 7, 2),
+            CupAllocation(2, 50, 2, 1, 7, 2),
+        )
+
+        expansion = expand_standard_cup_allocation_instructions(
+            50,
+            rounds,
+            instructions,
+            ranked_club_ids_by_source={},
+            enumerated_club_ids_by_source={},
+        )
+
+        self.assertEqual(
+            tuple((ref.type_code, ref.competition_id, ref.selector) for ref in expansion.emitted_refs),
+            ((2, 7, 2), (2, 7, 3)),
+        )
+        self.assertEqual(expansion.source_position_offsets, ((7, 4),))
+        self.assertEqual(len(expansion.round_buckets[0].participant_refs), 2)
+
+    def test_type3_restarts_scan_and_skips_destination_duplicates(self):
+        round_obj = type("R", (), {"id": 10, "new_entrants": 3})()
+        instructions = (
+            CupAllocation(1, 60, 1, 3, 8, 3),
+        )
+
+        expansion = expand_standard_cup_allocation_instructions(
+            60,
+            (round_obj,),
+            instructions,
+            ranked_club_ids_by_source={},
+            enumerated_club_ids_by_source={8: (101, 102, 103)},
+        )
+
+        self.assertEqual(
+            tuple(ref.direct_club_id for ref in expansion.emitted_refs),
+            (101, 102, 103),
+        )
+
+    def test_type5_scans_from_zero_and_skips_existing_direct_clubs(self):
+        round_obj = type("R", (), {"id": 11, "new_entrants": 4})()
+        instructions = (
+            CupAllocation(1, 61, 1, 3, 8, 1),
+            CupAllocation(2, 61, 2, 5, 9, 2),
+        )
+
+        expansion = expand_standard_cup_allocation_instructions(
+            61,
+            (round_obj,),
+            instructions,
+            ranked_club_ids_by_source={9: (101, 104, 105)},
+            enumerated_club_ids_by_source={8: (101,)},
+        )
+
+        self.assertEqual(
+            tuple(ref.direct_club_id for ref in expansion.emitted_refs),
+            (101, 104, 105),
+        )
+
+    def test_latest_open_round_is_filled_before_previous_round(self):
+        rounds = (
+            type("R", (), {"id": 1, "new_entrants": 2})(),
+            type("R", (), {"id": 2, "new_entrants": 1})(),
+        )
+        instructions = (
+            CupAllocation(1, 70, 1, 3, 8, 3),
+        )
+
+        expansion = expand_standard_cup_allocation_instructions(
+            70,
+            rounds,
+            instructions,
+            ranked_club_ids_by_source={},
+            enumerated_club_ids_by_source={8: (1, 2, 3)},
+        )
+
+        self.assertEqual(
+            tuple(ref.direct_club_id for ref in expansion.round_buckets[1].participant_refs),
+            (1,),
+        )
+        self.assertEqual(
+            tuple(ref.direct_club_id for ref in expansion.round_buckets[0].participant_refs),
+            (2, 3),
+        )
+
+    def test_type2_is_explicitly_deferred(self):
+        round_obj = type("R", (), {"id": 1, "new_entrants": 1})()
+        instructions = (
+            CupAllocation(1, 80, 1, 2, 9, 1, 3),
+        )
+        with self.assertRaises(NotImplementedError):
+            expand_standard_cup_allocation_instructions(
+                80,
+                (round_obj,),
+                instructions,
+                ranked_club_ids_by_source={},
+                enumerated_club_ids_by_source={},
+            )
 
 
 if __name__ == "__main__":
