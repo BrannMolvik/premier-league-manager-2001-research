@@ -1208,6 +1208,7 @@ def allocate_ref_to_latest_open_cup_round(
 class StandardCupAllocationExpansion:
     round_buckets: tuple[CupRoundAllocationBucket, ...]
     emitted_refs: tuple[CupClubRefDescriptor, ...]
+    dropped_refs: tuple[CupClubRefDescriptor, ...]
     source_position_offsets: tuple[tuple[int, int], ...]
     selected_direct_club_ids: tuple[int, ...]
 
@@ -1238,19 +1239,24 @@ def expand_standard_cup_allocation_instructions(
     direct_ids: set[int] = set()
     unavailable = {int(value) for value in unavailable_direct_club_ids}
     emitted: list[CupClubRefDescriptor] = []
+    dropped: list[CupClubRefDescriptor] = []
 
     def append_ref(ref: CupClubRefDescriptor) -> None:
         nonlocal current_round_index
-        current_round_index = allocate_ref_to_latest_open_cup_round(
+        selected_round_index = allocate_ref_to_latest_open_cup_round(
             buckets,
             current_round_index,
             ref,
         )
-        if current_round_index < 0:
-            raise ValueError(
-                f"destination Cup {destination_competition_id} exceeded "
-                "its new-entrant capacity"
-            )
+        if selected_round_index < 0:
+            # 0x4F57E0 silently ignores the ClubRef when 0x4F5790 reports that
+            # every round has reached its new-entrant quota. Callers such as
+            # 0x4F5840 still treat the direct-club allocation as successful
+            # and update destination ownership state.
+            current_round_index = -1
+            dropped.append(ref)
+            return
+        current_round_index = selected_round_index
         emitted.append(ref)
 
     for instruction in ordered_cup_allocation_instructions(
@@ -1351,6 +1357,7 @@ def expand_standard_cup_allocation_instructions(
     return StandardCupAllocationExpansion(
         round_buckets=tuple(buckets),
         emitted_refs=tuple(emitted),
+        dropped_refs=tuple(dropped),
         source_position_offsets=tuple(sorted(source_offsets.items())),
         selected_direct_club_ids=tuple(sorted(direct_ids)),
     )
