@@ -312,6 +312,52 @@ class IntegratedCompetitionMaterializerTests(unittest.TestCase):
             },
         )
 
+    def test_cup_shuffle_uses_actual_runtime_count_after_underfill(self):
+        competitions = (
+            Competition(20, 3, initialization_order_value=0),
+            Competition(50, 2, initialization_order_value=1),
+        )
+        rounds = (
+            Round(
+                id=100,
+                competition_id=50,
+                type_code=1,
+                team_count=4,
+                new_entrants=4,
+                scheduled_week=7,
+                scheduled_weekday=1,
+            ),
+        )
+        allocations = (
+            Allocation(1, 50, 1, 3, 20, 4),
+        )
+        clubs = (
+            Club(10, "A", 20, 20, 0),
+            Club(11, "B", 20, 20, 1),
+        )
+
+        result = materialize_primary_rng_driven_schedule(
+            MsvcCrtRng(0x12345678),
+            competitions,
+            rounds,
+            clubs,
+            (Country(1),),
+            allocations,
+            fixed_fixture_competition_ids=(),
+        )
+
+        self.assertEqual(result.cup_runtime.ordered_bounds, (2,))
+        self.assertEqual(result.rng_plan_total_draw_count, 1)
+        self.assertEqual(result.rng_plan_event_count, 1)
+        self.assertEqual(
+            tuple(
+                (event.kind, event.participant_count, event.bounds)
+                for event in result.rng_events
+            ),
+            (("cup_round_shuffle", 2, (2,)),),
+        )
+        self.assertEqual(result.schedule_node_count, 1)
+
     def test_integrated_schedule_digest_is_repeatable(self):
         fixture = self._fixture()
 
