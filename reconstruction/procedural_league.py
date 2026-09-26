@@ -31,6 +31,91 @@ class ProceduralLeagueRoundRobin:
         return sum(len(round_pairs) for round_pairs in self.rounds)
 
 
+@dataclass(frozen=True)
+class ProceduralLeagueMatchEmission:
+    """One LeagueMatch call emitted by 0x6172C3..0x61735D.
+
+    schedule_index addresses League+0x60's sorted week/weekday array.
+    home_team and away_team are passed to the same 0x5104F0 LeagueMatch
+    constructor positions used by fixed home/away fixtures.
+    """
+
+    round_index: int
+    pair_index: int
+    cycle_index: int
+    schedule_index: int
+    home_team: object
+    away_team: object
+
+
+def procedural_league_cycle_count(
+    team_count: int,
+    scheduled_matchday_count: int,
+) -> int:
+    """Reproduce 0x616F40's ceiling division.
+
+    The executable divides the competition's scheduled-matchday byte by
+    team_count - 1 and increments the quotient when there is a remainder.
+    Generic canonical procedural Leagues use complete cycles; the special
+    ScotPremierLeague override handles its partial final cycle separately.
+    """
+    team_count = int(team_count)
+    scheduled_matchday_count = int(scheduled_matchday_count)
+    if team_count <= 1:
+        raise ValueError("procedural League cycle count requires at least two teams")
+    if scheduled_matchday_count < 0:
+        raise ValueError("scheduled matchday count must not be negative")
+    quotient, remainder = divmod(scheduled_matchday_count, team_count - 1)
+    return quotient + int(remainder != 0)
+
+
+def materialize_procedural_league_match_emissions(
+    round_robin: ProceduralLeagueRoundRobin,
+    scheduled_matchday_count: int,
+) -> tuple[ProceduralLeagueMatchEmission, ...]:
+    """Reproduce generic 0x6170F0 LeagueMatch emission order.
+
+    0x6170F0 iterates pairing rounds first, then adjacent pairs, then schedule
+    cycles for that pair. It reuses the same randomized one-cycle matrix and
+    swaps the two participant pointers after every emitted cycle, so odd cycles
+    reverse home/away direction. 0x616FC0 selects the date-array entry as
+    (team_count - 1) * cycle_index + round_index.
+
+    This helper models the generic League vtable path. ScotPremierLeague uses
+    its 0x6170A0 override for the final partial cycle and is intentionally not
+    folded into this generic routine.
+    """
+    rounds = tuple(round_robin.rounds)
+    if not rounds:
+        return ()
+
+    round_count = len(rounds)
+    team_count = round_count + 1
+    cycle_count = procedural_league_cycle_count(
+        team_count,
+        scheduled_matchday_count,
+    )
+
+    emissions: list[ProceduralLeagueMatchEmission] = []
+    for round_index, round_pairs in enumerate(rounds):
+        for pair_index, (left, right) in enumerate(round_pairs):
+            for cycle_index in range(cycle_count):
+                if cycle_index & 1:
+                    home_team, away_team = right, left
+                else:
+                    home_team, away_team = left, right
+                emissions.append(
+                    ProceduralLeagueMatchEmission(
+                        round_index=round_index,
+                        pair_index=pair_index,
+                        cycle_index=cycle_index,
+                        schedule_index=round_count * cycle_index + round_index,
+                        home_team=home_team,
+                        away_team=away_team,
+                    )
+                )
+    return tuple(emissions)
+
 @dataclass
 class _Slot:
     team: object | None
