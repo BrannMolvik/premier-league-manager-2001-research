@@ -12,6 +12,8 @@ class Competition:
     parent_competition_id: int | None = None
     initialization_order_value: int = 0
     country_region_id: int = 1
+    enumerated_club_reference_0: int = -1
+    enumerated_club_reference_1: int = -1
 
 
 @dataclass(frozen=True)
@@ -169,28 +171,38 @@ class PrimaryCupRuntimeTests(unittest.TestCase):
             ),
         )
 
-    def test_type3_cup_source_requires_exact_cup_enumerator(self):
+    def test_type3_cup_source_uses_constructor_enumerator(self):
         competitions = (
-            Competition(40, 2, initialization_order_value=0),
-            Competition(50, 2, initialization_order_value=1),
+            Competition(
+                40,
+                2,
+                initialization_order_value=0,
+                enumerated_club_reference_0=10,
+                enumerated_club_reference_1=11,
+            ),
         )
         rounds = (
             Round(100, 40, 1, 2, 2, 1, 1),
-            Round(200, 50, 1, 1, 1, 2, 1),
         )
         allocations = (
             Allocation(1, 40, 1, 3, 40, 2),
         )
 
-        with self.assertRaisesRegex(ValueError, r"Cup\+0x40/\+0x44"):
-            materialize_primary_cup_runtime(
-                IdentityRng(),
-                competitions,
-                rounds,
-                (),
-                (Country(1),),
-                allocations,
-            )
+        result = materialize_primary_cup_runtime(
+            IdentityRng(),
+            competitions,
+            rounds,
+            (),
+            (Country(1),),
+            allocations,
+        )
+
+        self.assertEqual(result.ordered_bounds, (2,))
+        refs = result.cups[0].runtime.rounds[0].participant_refs
+        self.assertEqual(
+            tuple(ref.direct_club_id for ref in refs),
+            (10, 11),
+        )
 
 
 if __name__ == "__main__":
