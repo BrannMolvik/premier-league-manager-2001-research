@@ -18,6 +18,7 @@ from competition_startup import (
     primary_mode0_dummy_league_sort_source_ids,
     primary_mode0_root_initialization_order,
     prepare_cup_knockout_round,
+    rank_dummy_league_for_type5,
     replay_primary_mode0_ordered_competition_rng,
     replay_primary_mode0_competition_rng,
     replay_primary_mode0_pre_shuffle_state,
@@ -539,6 +540,51 @@ class DummyPlayer:
 
 
 class DummyLeagueLazySortTests(unittest.TestCase):
+    def test_type5_small_dummy_ranking_is_stable_on_equal_scores(self):
+        from competition_startup import DummyLeagueSortEntry
+
+        entries = (
+            DummyLeagueSortEntry(10, 100, 10),
+            DummyLeagueSortEntry(11, 100, 10),
+            DummyLeagueSortEntry(12, 90, 9),
+        )
+
+        class ZeroRng:
+            def randbelow(self, bound):
+                return 0
+
+        ranked = rank_dummy_league_for_type5(entries, ZeroRng(), 3)
+
+        self.assertEqual(
+            tuple(entry.club_id for entry in ranked),
+            (10, 11, 12),
+        )
+
+    def test_type5_ranking_uses_score_minus_roll(self):
+        from competition_startup import DummyLeagueSortEntry
+
+        entries = (
+            DummyLeagueSortEntry(10, 100, 10),
+            DummyLeagueSortEntry(11, 98, 9),
+            DummyLeagueSortEntry(12, 95, 9),
+        )
+
+        class SequenceRng:
+            def __init__(self):
+                self.values = iter((9, 0, 0))
+
+            def randbelow(self, bound):
+                value = next(self.values)
+                self.assert_bound = bound
+                return value
+
+        ranked = rank_dummy_league_for_type5(entries, SequenceRng(), 3)
+
+        self.assertEqual(
+            tuple((entry.club_id, entry.randomized_score) for entry in ranked),
+            ((11, 98), (12, 95), (10, 91)),
+        )
+
     def test_initial_sort_entry_uses_first_eleven_roster_players(self):
         clubs = (
             Club(10, 26, 0, 0, "Dummy", 5),
