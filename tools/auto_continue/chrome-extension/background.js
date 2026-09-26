@@ -119,8 +119,14 @@ Latest standard handoff follows:
 ${handoff}`;
 }
 
-async function savePendingRecovery(reason, state, tabId, details = {}) {
-  const guard = await recoveryGuard(state);
+async function savePendingRecovery(
+  reason,
+  state,
+  tabId,
+  details = {},
+  existingGuard = null
+) {
+  const guard = existingGuard || (await recoveryGuard(state));
   if (!guard) {
     return false;
   }
@@ -154,8 +160,13 @@ async function savePendingRecovery(reason, state, tabId, details = {}) {
 }
 
 async function triggerRecovery(reason, state, details = {}) {
+  const guard = await recoveryGuard(state);
+  if (!guard) {
+    return false;
+  }
+
   const tab = await chrome.tabs.create({ url: CHAT_URL, active: true });
-  return savePendingRecovery(reason, state, tab.id, details);
+  return savePendingRecovery(reason, state, tab.id, details, guard);
 }
 
 async function checkLease() {
