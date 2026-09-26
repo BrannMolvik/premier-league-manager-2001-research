@@ -6,7 +6,7 @@ _Last verified: 26 September 2026_
 
 This file is the canonical **standard new-game RNG ledger from the application CRT seed through the currently recovered primary-competition RNG state**.
 
-The precompetition sequence is exact. The complete currently mapped primary-competition RNG stream before the first primary `0x615BE0` shuffle is also executable and canonically locked. Gate 3 remains open for complete competition schedule-node materialization, not for the currently mapped RNG call ledger.
+The precompetition sequence is exact. The canonical primary-competition RNG stream before the first primary `0x615BE0` shuffle is now executable from actual runtime participant counts and digest-locked. Gate 3 is complete; Gate 4 owns the final schedule-bucket shuffle/execution-order reconstruction.
 
 The original executable uses one shared MSVC CRT RNG stream.
 
@@ -511,9 +511,9 @@ as checkpoints for the previously mapped Cup/DummyLeague/Europe-selector
 **subset only**, not as the final primary pre-shuffle state.
 
 
-## 11. Complete procedural-League integration checkpoint
+## 11. Historical packed-capacity procedural-League checkpoint
 
-**Confirmed and integrated 26 September 2026.**
+**Confirmed 26 September 2026, later superseded for final-state claims by Section 12.**
 
 The procedural-League correction described above is no longer provisional. The
 legacy round-robin solver beneath `0x6170F0` has been translated and integrated
@@ -596,3 +596,111 @@ procedural-League emission trace in `0x6170F0`, resolve the conditional
 parent-vector shuffle for child Leagues, compose Cup and League nodes in exact
 initialization order, and lock canonical participant/pairing/schedule-node
 digests before entering Gate 4.
+
+
+## 12. Canonical actual-count competition replay and Gate-3 closure
+
+**Confirmed and integrated 27 September 2026.**
+
+Canonical shipped-data execution exposed a subtle but material correction to
+Section 11. Cup round schedulers `0x4F64D0` / `0x4F6820` read runtime
+round `+0x0C`, the **actual ClubRef count after allocation and
+propagation**, rather than blindly using the packed Static.dat team capacity.
+
+Cup allocation also preserves two original underfill quirks:
+
+- type 5 (`0x4F5F97`) stops normally when the source ranking is exhausted;
+- type 3 (`0x4F60DD -> 0x4F58C0`) can likewise exhaust its source without
+  failing the instruction.
+
+Normal/TwoLeg scheduling does not repair an odd runtime count. It shuffles and
+qsorts the actual vector, pairs `floor(count/2)` entries from each half,
+and leaves one final sorted ClubRef unpaired when the count is odd.
+
+The integrated canonical replay therefore contains:
+
+```text
+4,302 procedural-League round-robin calls
+1,728 actual-count Cup participant Fisher-Yates calls
+  124 DummyLeague lazy-ranking calls
+    2 Europe-root selector calls
+-----------------------------------------
+6,156 bounded CRT calls total
+```
+
+There are **167 RNG-bearing events** plus the explicit zero-draw fixed Premier
+League traversal marker, for **168 traversal events** in the integrated node
+ledger.
+
+For synthetic post-youth state `0x2797444C`:
+
+```text
+state entering primary 0x615BE0 = 0x0E556598
+```
+
+The canonical ordered-bound SHA-256 over little-endian uint16 bounds is:
+
+```text
+1ed67d7402f1fb749d963f8978a242a6833a1f4410434b61165c906b943a710d
+```
+
+The Europe selectors remain clubs **1137** and **1159**. In the integrated
+traversal event list, which includes the fixed-League zero-draw marker, their
+indices are **138** and **159**.
+
+Canonical materialization digests:
+
+```text
+Cup participants:
+f9282d4c236e14f9ccb56a8ecf90dc42095278e94471624f7248eb005e3daa4e
+
+Cup pairings/groups:
+e2f34fe736db27a011c274d8be0b0df26ed7547062c80a8b34b7d56620c63e45
+
+Cup schedule nodes:
+30b06c3e420ebb5bbead56a14b00340a532d12dcc5bdffba715e4f84eca5ca89
+
+Complete primary schedule nodes:
+0a22c9f0c1fa20de770a7d679583b6b4e4bdbd9363a5bda07194bfe8919cc35a
+```
+
+Canonical node/allocation counts:
+
+- 27 primary Cups / 115 Cup rounds;
+- 1,226 Cup schedule nodes;
+- 9,346 complete primary schedule nodes before bucket placement/shuffle;
+- 3 allocation refs dropped after destination round capacity was exhausted;
+- 24 Champions-League-to-UEFA type-2 transfer refs.
+
+The UEFA Cup is the canonical visible underfill chain. Runtime participant
+counts across rounds 210..217 are:
+
+```text
+80, 95, 47, 31, 15, 7, 3, 1
+```
+
+versus packed capacities:
+
+```text
+82, 96, 48, 32, 16, 8, 4, 2
+```
+
+The older **6,165 / 1,737 / 0x0DD3ACA3 / 3e7acc...** checkpoint is retained
+only as a packed-capacity regression diagnostic. It is not the canonical state
+entering `0x615BE0`.
+
+Implementation now composes the precompetition replay directly into
+`materialize_primary_rng_driven_schedule()` through
+`reconstruction/startup_sequence.py`, so one MSVC CRT object spans the mapped
+startup phases and the actual-count competition materialization.
+
+Gate-3 completion validation:
+
+- canonical shipped-data verifier locks all values above;
+- composed startup regression uses live runtime Cup counts;
+- reconstruction GitHub Actions: **392 tests passed** at
+  `b4264affbdbbf1e69d18a9293c2e46833ca4b76e`;
+- repository asset-policy workflow: **passed** at the same head.
+
+Gate 3 is complete. Gate 4 resumes at exact primary schedule-bucket population,
+shuffle, and same-day execution order.
