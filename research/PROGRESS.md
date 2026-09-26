@@ -3082,3 +3082,32 @@ Validation at `fba3babd72859d4c932c1aadffc81f6b54e339a0`:
 The live resume point was reconciled after that implementation. Gate 3 now
 continues at procedural League schedule-node emission in `0x6170F0`, the
 conditional child-parent vector shuffle, and exact Cup/League node insertion.
+
+
+## 26 September automatic continuation infrastructure
+
+Added a local recovery layer for long-running ChatGPT reverse-engineering work so
+a timeout, silent connection loss, or conversation-length limit does not require
+manual reconstruction of the previous chat.
+
+The recovery architecture now uses:
+
+- `main` as canonical technical state;
+- a separate `agent-runtime` branch for ephemeral worker status;
+- `research/AUTO_CONTINUE_STATE.json` as the runtime lease/state record;
+- a Windows PowerShell watchdog that checks the public GitHub branch activity
+  every three minutes and treats a continuously-working session as stale after
+  the configured 15-minute lease;
+- a Chrome Manifest V3 extension that detects explicit ChatGPT interruption /
+  conversation-length UI signals and can submit the canonical handoff into a
+  new chat;
+- a special watchdog recovery URL so the Windows detector can launch Chrome and
+  hand the new tab to the extension without requiring native-messaging access;
+- cooldown and per-hour recovery limits to prevent restart loops.
+
+Silent inactivity has one authority: the Windows watchdog. The extension handles
+explicit ChatGPT UI failures and prompt submission, avoiding duplicate stale
+timers that could create two recovery chats.
+
+The runtime is intentionally left at `mode=continuous`,
+`status=waiting_for_user` until the local components are installed and tested.
