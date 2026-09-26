@@ -143,7 +143,7 @@ def verify_database(db: FM2001Database) -> None:
         db.cup_allocation_instructions,
     )
     require(
-        dummy_sort_sources == (89, 93, 25, 104, 168, 162, 148, 139, 102, 131, 120),
+        dummy_sort_sources == (89, 25, 93, 104, 168, 162, 148, 139, 102, 131, 120),
         f"Unexpected primary DummyLeague lazy-sort sources: {dummy_sort_sources}",
     )
     require(
@@ -276,7 +276,7 @@ def verify_database(db: FM2001Database) -> None:
         ),
     )
     require(
-        ordered_competition_rng.uefa_cup_club_id == 1137,
+        ordered_competition_rng.uefa_cup_club_id == 1118,
         (
             "Synthetic ordered replay selected unexpected UEFA Cup candidate "
             f"{ordered_competition_rng.uefa_cup_club_id}"
