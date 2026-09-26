@@ -23,8 +23,9 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Current roadmap status
 
-- **Active gate:** Gate 7 - Minimum human-manager gameplay loop
-- **Next gate:** Gate 8 - Internal save/load
+- **Active gate:** Gate 8 - Internal save/load
+- **Next gate:** Gate 9 - Transfers and contracts
+- **Gate 7 completed:** 27 September 2026
 - **Gate 6 completed:** 27 September 2026
 - **Gate 5 completed:** 27 September 2026
 - **Gate 4 completed:** 27 September 2026
@@ -153,7 +154,7 @@ Completion criteria:
 
 ## Gate 7 - Minimum human-manager gameplay loop
 
-**Status: IN PROGRESS**
+**Status: COMPLETE (27 September 2026)**
 
 Goal: make the backend directly playable before pursuing full UI fidelity.
 
@@ -170,10 +171,14 @@ The user must be able to:
 
 Completion criteria:
 
-- [ ] User-controlled setup feeds the same reconstructed match backend as AI teams.
-- [ ] Several weeks can be played without manual developer intervention.
+- [x] User-controlled setup feeds the same reconstructed match backend as AI teams.
+- [x] Several weeks can be played without manual developer intervention.
+
+Evidence: `research/GATE7_HUMAN_GAMEPLAY.md`.
 
 ## Gate 8 - Internal save/load
+
+**Status: IN PROGRESS**
 
 Goal: support reliable development and play sessions before original save compatibility.
 
