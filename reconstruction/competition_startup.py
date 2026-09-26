@@ -1409,9 +1409,10 @@ def expand_standard_cup_allocation_instructions(
                     selected = club_id
                     break
                 if selected is None:
-                    raise ValueError(
-                        f"type-3 source {source_id} ran out of eligible clubs"
-                    )
+                    # 0x4F60DD calls 0x4F58C0 quantity times, but 0x4F58C0
+                    # simply returns its exhausted source index when no
+                    # eligible club remains. The instruction still advances.
+                    continue
                 direct_ids.add(selected)
                 append_ref(
                     CupClubRefDescriptor(
