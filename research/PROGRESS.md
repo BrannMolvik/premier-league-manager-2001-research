@@ -3582,3 +3582,34 @@ GitHub Actions at `1c1b62fa96788e780d0327f4e71521303dac735f`:
 
 Next Gate-9 task: persistent transfer proposal/deal/bid-log/movement state and
 the first human bid -> decision -> negotiation -> completion workflow.
+
+
+## 27 September Gate 9 persistent transfer-state checkpoint
+
+The first live transfer runtime layer is now implemented and saveable.
+
+`reconstruction/transfer_state.py` models the recovered structures without
+inventing club/AI decision policy:
+
+- full 0x50-byte proposal fields that are semantically known;
+- negotiated contract terms: wage, signing-on fee, promotion bonus, contract
+  length in months, appearance fee, three clauses, house and car;
+- CDealInProgress state families 0/1/2 and swap variants 3/4/5;
+- exact 0x4F0460 exchange-player predicate;
+- keyed CPlayerBidLog behavior, including repeated-bid value/date update;
+- CPlayerMovement history with free-transfer sentinel 1 and Bosman sentinel 2.
+
+`GameState` now owns `TransferRuntimeState`. Internal save schema 3 persists
+proposals, deals, keyed bid-log entries and movement history. Missing transfer
+state in an earlier schema-3 snapshot restores as an empty runtime state.
+
+Regression coverage verifies cash-only and swap initial states, +3 swap-family
+transitions, rejected/ready state normalization, repeated bid updates,
+movement sentinels, and exact transfer-state save/reload equality.
+
+GitHub Actions at `8f7936d9badd1744e851c2027f9ac1818a7bd7de`:
+**424 tests passed**; asset policy passed.
+
+Next: trace the selling-club offer-decision routine/reason codes from the
+executable. Do not guess the Poor Offer / Key Player / Can't Spare / Hot
+Prospect / rival thresholds.
