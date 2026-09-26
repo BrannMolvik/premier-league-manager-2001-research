@@ -345,3 +345,61 @@ def materialize_scot_premier_split_schedule_nodes(
         )
 
     return tuple(nodes)
+
+
+def materialize_fixed_league_schedule_nodes(
+    round_definitions: Iterable[object],
+    real_fixtures: Iterable[object],
+    *,
+    competition_id: int,
+    competition_context: int = 0,
+) -> tuple[StartupScheduleNode, ...]:
+    """Reproduce 0x6173D0's fixed real-fixture insertion order.
+
+    0x4F72D0 attaches DBRRound objects in DBTRounds table order, while
+    0x4F76A4 appends DBRRealFixture pointers to each round in global
+    DBTRealFixtures order. 0x6173D0 then walks rounds first and each round's
+    attached fixture vector second, constructing ordinary LeagueMatch nodes
+    without consuming RNG.
+    """
+    competition_id = int(competition_id)
+    competition_context = int(competition_context)
+    rounds = tuple(
+        round_definition
+        for round_definition in round_definitions
+        if int(round_definition.competition_id) == competition_id
+    )
+    fixtures = tuple(real_fixtures)
+
+    nodes: list[StartupScheduleNode] = []
+    for round_definition in rounds:
+        round_id = int(round_definition.id)
+        pair_index = 0
+        for fixture in fixtures:
+            if int(fixture.round_index) != round_id:
+                continue
+            home_ref = direct_club_ref(int(fixture.home_club_id))
+            away_ref = direct_club_ref(int(fixture.away_club_id))
+            fixture_id = int(getattr(fixture, "id", pair_index))
+            nodes.append(
+                StartupScheduleNode(
+                    node_kind="fixed_league_match",
+                    competition_id=competition_id,
+                    competition_context=competition_context,
+                    round_id=round_id,
+                    pair_index=pair_index,
+                    schedule_index=None,
+                    scheduled_week=int(round_definition.scheduled_week),
+                    scheduled_weekday=int(round_definition.scheduled_weekday),
+                    participant_0_ref=home_ref,
+                    participant_1_ref=away_ref,
+                    node_token=(
+                        "fixed_league_match",
+                        competition_id,
+                        competition_context,
+                        fixture_id,
+                    ),
+                )
+            )
+            pair_index += 1
+    return tuple(nodes)
