@@ -40,16 +40,25 @@ tracked according to `ASSET_POLICY.md`.
 
 ## Stable startup / scheduler checkpoint
 
-The solved canonical path through primary schedule finalization remains:
+A Gate-9 contract trace exposed one previously omitted unconditional weekly-wage
+RNG call per DBRPlayer inside `0x418B90 -> 0x423A50`. The full correction and
+Gate-3-through-Gate-8 re-baseline are in
+`research/STARTUP_WAGE_RNG_CORRECTION.md`.
 
-- actual-count primary competition RNG: **6,156 calls**;
-- state entering primary `0x615BE0`: **`0x0E556598`**;
+Corrected canonical path through primary schedule finalization:
+
+- DBTPlayers startup RNG: **180,384 calls** for 30,064 players;
+- synthetic post-youth state: **`0x4B68DE28`**;
+- actual-count primary competition RNG: **5,836 calls**;
+- state entering primary `0x615BE0`: **`0x4F5CF274`**;
 - complete primary schedule nodes: **9,346**;
 - primary buckets: **373**;
 - primary bucket-shuffle calls: **9,178**;
-- state after primary schedule shuffle: **`0x839953AA`**.
+- state after primary schedule shuffle: **`0xD25DFFE6`**;
+- first PL fixture order: **0, 6, 8, 5, 1, 9, 3, 2, 4, 7**.
 
-Gate-4 evidence: `research/GATE4_SCHEDULE_ORDER.md`.
+Gate-4 historical evidence remains in `research/GATE4_SCHEDULE_ORDER.md`;
+corrected deterministic values are authoritative in the correction note.
 
 ## Stable autonomous and human gameplay checkpoints
 
@@ -84,13 +93,16 @@ Canonical mid-matchday save:
 - raw save SHA-256:
   `0eac6a1c5ddd248c76f153b2a274d334240fd0ec72cdc494331cb543e37838f6`.
 
-A fresh database/runtime restored that state and remained exactly equal to the
-uninterrupted branch through 23 September / 60 PL results / final match RNG
-`0xBE52A1F6`.
+After the startup-wage correction, the 26 August scheduler puts Arsenal's
+fixture first on the date, so the save now has **0 prior** and **9 later**
+same-day AI fixtures. A fresh database/runtime still remains exactly equal to
+the uninterrupted branch through 23 September / 60 PL results.
 
-Canonical Gate-8 audit SHA-256:
+Corrected Gate-8 final match RNG: **`0xC0009A67`**.
 
-`69a91dbce914be2fe5babdf8a8c71ad77bad5653c9cac09468520330f7c7b413`
+Corrected Gate-8 audit SHA-256:
+
+`25d5a461cf0c7eb4e05ad718d81a81815407deb15c25784eff514842e28d0b03`
 
 Original FM2001 save compatibility is **not** claimed; it remains a separate
 fidelity task.
@@ -110,12 +122,13 @@ Completion requires:
 
 ## Exact next task
 
-1. Inventory all existing transfer/contract/bid/wage/negotiation/player-movement
-   research and code before implementing anything new.
-2. Separate executable-backed behavior already recovered from unresolved policy,
-   finance, UI and AI-transfer gaps.
+1. Materialize `DBTAccessSkillFinancialValues` / `DBRAccessSkillFinancialValue`
+   so the already-proven startup wage routine `0x423A50` produces authentic
+   player weekly wages instead of only consuming its RNG call.
+2. Add authentic initial contract expiry from the already-recovered startup
+   12/24/36/48/60-month span.
 3. Define the minimum mutable contract/transfer state required by the recovered
-   logic and make it part of the Gate-8 saveable runtime.
+   proposal/deal/movement logic and include it in the internal save.
 4. Implement the smallest end-to-end human transfer path: bid -> club decision
    -> player negotiation -> completion -> roster movement.
 5. Add AI transfer progression only after the human path/state model is stable.
