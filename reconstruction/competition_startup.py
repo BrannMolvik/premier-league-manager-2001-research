@@ -1517,3 +1517,94 @@ def expand_champions_league_to_uefa_transfer(
         source_path="minileague_group_positions",
         refs=tuple(result),
     )
+
+
+@dataclass(frozen=True)
+class PreparedMiniLeagueRound:
+    shuffled_refs: tuple[CupClubRefDescriptor, ...]
+    sorted_refs: tuple[CupClubRefDescriptor, ...]
+    groups: tuple[tuple[CupClubRefDescriptor, ...], ...]
+    propagated_refs: tuple[CupClubRefDescriptor, ...]
+
+
+def prepare_cup_minileague_round(
+    participant_refs: Iterable[CupClubRefDescriptor],
+    rng: BoundedRng,
+    *,
+    child_competition_id: int,
+    group_size: int,
+    next_round_existing_count: int = 0,
+    next_round_capacity: int = 0,
+) -> PreparedMiniLeagueRound:
+    """Reproduce primary MiniLeague shuffle/distribution/qualification refs."""
+    refs = list(participant_refs)
+    group_size = int(group_size)
+    if group_size <= 0:
+        raise ValueError("group_size must be positive")
+    if len(refs) % group_size:
+        raise ValueError("MiniLeague participant count must divide into equal groups")
+
+    for remaining in range(len(refs), 1, -1):
+        selected = rng.randbelow(remaining)
+        last = remaining - 1
+        refs[selected], refs[last] = refs[last], refs[selected]
+
+    ordered = msvc_crt_qsort(refs, compare_cup_club_refs)
+    group_count = len(ordered) // group_size
+    groups: list[list[CupClubRefDescriptor]] = [
+        [] for _ in range(group_count)
+    ]
+
+    group_index = 0
+    for ref in ordered:
+        if int(ref.type_code) == 0:
+            continue
+        groups[group_index].append(ref)
+        group_index += 1
+        if group_index == group_count:
+            group_index = 0
+
+    for ref in ordered:
+        if int(ref.type_code) != 0:
+            continue
+        groups[group_index].append(ref)
+        group_index += 1
+        if group_index == group_count:
+            group_index = 0
+
+    if any(len(group) != group_size for group in groups):
+        raise ValueError("MiniLeague round-robin distribution produced uneven groups")
+
+    needed = max(0, int(next_round_capacity) - int(next_round_existing_count))
+    propagated: list[CupClubRefDescriptor] = []
+    position_index = 0
+    while len(propagated) < needed:
+        for child_group_index in range(group_count):
+            if len(propagated) == needed:
+                break
+            if position_index >= group_size:
+                raise ValueError(
+                    "next round requires more MiniLeague positions than available"
+                )
+            propagated.append(
+                CupClubRefDescriptor(
+                    type_code=2,
+                    selector=position_index,
+                    competition_id=int(child_competition_id),
+                    competition_context=child_group_index,
+                    reference_token=(
+                        "group_position",
+                        int(child_competition_id),
+                        child_group_index,
+                        position_index,
+                    ),
+                )
+            )
+        position_index += 1
+
+    return PreparedMiniLeagueRound(
+        shuffled_refs=tuple(refs),
+        sorted_refs=ordered,
+        groups=tuple(tuple(group) for group in groups),
+        propagated_refs=tuple(propagated),
+    )
