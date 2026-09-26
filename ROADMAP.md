@@ -23,8 +23,9 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Current roadmap status
 
-- **Active gate:** Gate 5 - Real-data matchday integration
-- **Next gate:** Gate 6 - Full autonomous Premier League season
+- **Active gate:** Gate 6 - Full autonomous Premier League season
+- **Next gate:** Gate 7 - Human-controlled match setup
+- **Gate 5 completed:** 27 September 2026
 - **Gate 4 completed:** 27 September 2026
 - **Gate 3 completed:** 27 September 2026
 - **Gate 2 completed:** 26 September 2026
@@ -117,19 +118,21 @@ Completion criteria:
 
 ## Gate 5 - Real-data matchday integration
 
-**Status: IN PROGRESS**
+**Status: COMPLETE (27 September 2026)**
 
 Goal: prove the reconstructed systems work together against the canonical shipped database.
 
 Completion criteria:
 
-- [ ] Canonical data hashes are checked before integration runs.
-- [ ] One complete real 10-match Premier League round runs.
-- [ ] All 20 clubs participate exactly once in that round.
-- [ ] Results, table, statistics, discipline, injuries, Form, Condition, and Pitch Wear persist coherently.
-- [ ] Several consecutive real rounds run without invalid state.
+- [x] Canonical data hashes are checked before integration runs.
+- [x] One complete real 10-match Premier League round runs.
+- [x] All 20 clubs participate exactly once in that round.
+- [x] Results, table, statistics, discipline, injuries, Form, Condition, and Pitch Wear persist coherently.
+- [x] Several consecutive real rounds run without invalid state.
 
 ## Gate 6 - Full autonomous Premier League season
+
+**Status: IN PROGRESS**
 
 Goal: complete a robust real-data 38-round / 380-fixture season.
 
