@@ -2794,3 +2794,24 @@ Two participant-source ambiguities are now resolved.
 2. Allocation type 3 does not enumerate the ordinary current League ranking at +0x34/+0x38. League/Dummy/Scot virtual +0x1C uses a separate +0x30/+0x3C historical/qualification array. Startup builds it from packed Master.dat club +32/+36 (target competition, preferred slot) with first-empty collision fallback through `0x4F7BD0`. Cup sources instead enumerate Cup+0x40/+0x44.
 
 This prevents the reconstruction from incorrectly using alphabetized current League order for type-3 allocations.
+
+
+## 26 September DummyLeague timing and allocation semantics checkpoint
+
+A potentially serious Gate-3 RNG concern is closed.
+
+- `0x616620 -> 0x411020` initializes root competitions through virtual +0x00 only.
+- `0x616620` reaches primary `0x615BE0` at `0x6168A4` and returns.
+- competition virtual +0x0C is dispatched by `0x411150`, whose only direct caller is later helper `0x616A70`.
+- therefore DummyLeague `+0x0C -> 0x4F7FE0 -> RNG-bearing 0x4F4750` runs after the primary bucket shuffle.
+- the corrected 1,739-call pre-`0x615BE0` ledger remains valid.
+
+Canonical allocation behavior is narrowed further:
+
+- all 11 type-1 instructions reference ordinary Leagues and emit sequential type-2 competition-position ClubRefs using the per-source accumulator;
+- type-4 allocation instructions advance that accumulator and emit no ClubRef;
+- the two type-2 instructions are Champions-League-to-UEFA transfers: knockout-loser refs on the non-MiniLeague branch and type-3 group-position refs on the MiniLeague branch;
+- type-3 repeatedly selects the first eligible unique club from the source competition enumeration and emits direct type-0 ClubRefs;
+- type-4 ClubRef construction is confined to Scottish Premier League procedural scheduling, not Cup allocation.
+
+CI repair commit `05ce4173b91af2573b52227b7a97272e8adba64e` restores **333 tests passing**.
