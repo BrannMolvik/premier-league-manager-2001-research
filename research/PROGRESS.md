@@ -2897,3 +2897,46 @@ another Gate-3 RNG correction.
 
 Result: the conditional branch consumes zero startup draws and the canonical
 pre-`0x615BE0` ledger remains **1,863 calls / state 0xAECA9FA5**.
+
+## 26 September all-primary-Cup orchestration checkpoint
+
+Gate 3 now has an end-to-end orchestration layer rather than only per-Cup
+materialization primitives.
+
+Committed implementation:
+
+- `reconstruction/cup_runtime.py` traverses competitions in recovered primary
+  initialization order on one shared bounded CRT stream;
+- lazy DummyLeague type-5 ranking is consumed at first access;
+- deterministic League rankings and historical enumeration arrays feed the
+  recovered allocation semantics;
+- previously materialized Cup state is used to inject allocation type-2 UEFA
+  transfer ClubRefs at the later destination Cup;
+- Europe-root selectors and all round Fisher-Yates/qsort/pairing work share
+  the same traced RNG;
+- every scheduled round still hard-fails unless its participant count reaches
+  the packed canonical `team_count`;
+- stable participant and pairing/group SHA-256 digests are produced by the
+  orchestration layer;
+- unresolved Cup-source type-3 enumeration is not guessed: callers must supply
+  the exact Cup+0x40/+0x44 values if that path is encountered.
+
+Cross-Cup synthetic regression coverage proves that a source Cup can
+materialize knockout winners, feed loser references into a later Cup through
+allocation type 2, and continue scheduling on the same ordered RNG stream.
+
+Validation at `8b52d20a3e363430c33257b1954763a377aa0b06`:
+
+- reconstruction unit suite: **358 tests passed**;
+- repository asset-policy workflow: **passed**.
+
+The authorized canonical Master.dat / Static.dat / STR files were searched for
+in the current ChatGPT file library and connected Dropbox but were not
+available there. Therefore no new participant/pairing digest is being labeled
+canonical without an actual shipped-data run.
+
+Next target: recover exact Cup match/schedule-node creation and primary
+schedule-container insertion semantics for NormalRound, TwoLegRound, and
+MiniLeagueRound, then wire those nodes into the all-Cup driver. Once canonical
+game data is available to the execution environment, run the driver end to end
+and lock the resulting shipped-data digests before closing Gate 3.

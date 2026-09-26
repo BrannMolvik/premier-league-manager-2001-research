@@ -21,7 +21,7 @@ Authorized original resources belong under `original_assets/` with provenance tr
 ## Verified repository state
 
 - Latest reverse-engineering checkpoint before stabilization: `1014b042a19fc851b8d87e653ee1e5d807816630` - **Advance startup RNG boundary before TeamSelect click**
-- Latest reconstruction-suite validation: `0407d23260e901155f8ff0841c7e16374196ee29` - **355 tests passed**
+- Latest reconstruction-suite validation: `8b52d20a3e363430c33257b1954763a377aa0b06` - **358 tests passed**
 - Latest repository asset-policy validation: `17ee2f299a2a0d87f959b9480df9b48d194de6aa` - **passed**
 - Commits after `1014b042...` are repository-management, documentation, verification/CI hardening, and the Windows 11 port/authorized-asset policy transition. They do not supersede the latest reverse-engineering address/path findings.
 
@@ -80,16 +80,18 @@ Gate 3 now has executable Cup runtime materialization, not only RNG accounting:
 - MiniLeague shuffle/distribution/qualification propagation is implemented;
 - Cup runtime rounds now materialize participant arrays, pairings, and propagated winner/group-position refs;
 - the conditional auxiliary Cup shuffle is proven zero-draw at startup;
-- latest CI passes 355 tests.
+- `reconstruction/cup_runtime.py` now composes all primary Cups on one shared RNG stream, including lazy DummyLeague ranking, UEFA type-2 transfer injection, allocation, Europe selectors, round materialization, and stable participant/pairing digests;
+- cross-Cup synthetic integration is locked by CI at **358 tests passed**.
 
 Continue Gate 3 by:
 
-1. run the canonical all-primary-Cup materializer end-to-end in original competition order;
-2. inject the two UEFA type-2 transfer ref sequences at their exact runtime points;
-3. verify every Cup round reaches its canonical participant count after allocation plus propagated refs;
-4. materialize the resulting Cup match/schedule nodes needed by the primary schedule container;
-5. lock canonical digests/checkpoints for participant/pairing output;
-6. close Gate 3 and resume Gate 4 with those Cup schedule nodes.
+1. trace the exact NormalRound / TwoLegRound / MiniLeague schedule-node construction and insertion semantics so materialized Cup pairings can become primary-container nodes without approximation;
+2. wire those recovered node rules into the all-primary-Cup driver;
+3. execute the driver against the authorized canonical Master.dat / Static.dat / STR set when those files are available to the execution environment, verifying all 27 Cups / 115 rounds, both UEFA type-2 injections, the 1,863-call bound digest/state, and participant/pairing digests;
+4. lock those canonical digests/checkpoints in verification;
+5. close Gate 3 and resume Gate 4 with the emitted Cup schedule nodes.
+
+The canonical game binaries were not available in the current ChatGPT file library or connected Dropbox during the 358-test checkpoint, so no unexecuted participant/pairing digest is being claimed as canonical.
 
 Commit every verified canonical materialization boundary separately.
 
@@ -123,7 +125,8 @@ Already implemented and tested at a substantial level:
 
 See `FIDELITY_GAPS.md` for the canonical list. The most relevant current gaps are:
 
-- exact Cup allocation-to-ClubRef output and final pairings before primary `0x615BE0` are still being materialized;
+- the all-Cup orchestration exists and is integration-tested, but its canonical participant/pairing digests still require execution against the authorized shipped data;
+- exact Cup schedule-node construction/insertion semantics are still being traced before primary `0x615BE0`;
 - exact inter-bucket RNG consumption/order inside primary `0x615BE0` is Gate-4 work paused behind that correction;
 - deterministic fixture-ID same-day fallback;
 - unresolved final league-table tie fallback;
