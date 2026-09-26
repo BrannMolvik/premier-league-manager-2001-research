@@ -63,12 +63,12 @@ class Round:
     scheduled_weekday: int
 
 
-def players_for_club(club_id: int, start: int):
+def players_for_club(club_id: int):
     roles = [slot.role for slot in AI_FORMATIONS[0]]
     roles += [12, 19, 4, 1, 10, 11, 18, 9, 2]
     return [
         Player(
-            index=start + offset,
+            index=club_id * 1000 + offset,
             club_id=club_id,
             positions=(int(role), 0, 0),
             shirt_number=offset + 1,
@@ -77,16 +77,35 @@ def players_for_club(club_id: int, start: int):
     ]
 
 
+def round_fixtures(round_index: int, start_id: int):
+    fixtures = []
+    for pair in range(10):
+        left = pair * 2 + 1
+        right = left + 1
+        if round_index % 2:
+            home, away = right, left
+        else:
+            home, away = left, right
+        fixtures.append(
+            Fixture(start_id + pair, round_index, home, away)
+        )
+    return fixtures
+
+
 class Database:
-    players = players_for_club(1, 100) + players_for_club(2, 200)
-    clubs = (Club(1, 10), Club(2, 20))
-    managers = (Manager(10), Manager(20))
+    players = [
+        player
+        for club_id in range(1, 21)
+        for player in players_for_club(club_id)
+    ]
+    clubs = tuple(Club(club_id, club_id) for club_id in range(1, 21))
+    managers = tuple(Manager(club_id) for club_id in range(1, 21))
     competitions = (Competition(),)
     countries = ()
-    real_fixtures = (
-        Fixture(0, 0, 1, 2),
-        Fixture(1, 1, 2, 1),
-        Fixture(2, 2, 1, 2),
+    real_fixtures = tuple(
+        round_fixtures(0, 0)
+        + round_fixtures(1, 10)
+        + round_fixtures(2, 20)
     )
     premier_league_rounds = (
         Round(1, 0, 6),
@@ -113,11 +132,13 @@ class HumanGameplayControllerTests(unittest.TestCase):
             seed=1,
             season_year=2000,
         )
+        # Put the human club-1 fixture in the middle of each same-day list so
+        # the controller must execute AI matches both before and after it.
         state.install_premier_league_scheduler_order(
             (
-                (0, (0,)),
-                (1, (1,)),
-                (2, (2,)),
+                (0, (5, 6, 7, 8, 9, 0, 1, 2, 3, 4)),
+                (1, (15, 16, 17, 18, 19, 10, 11, 12, 13, 14)),
+                (2, (25, 26, 27, 28, 29, 20, 21, 22, 23, 24)),
             )
         )
         return HumanGameplayController(
@@ -174,13 +195,20 @@ class HumanGameplayControllerTests(unittest.TestCase):
         self.assertEqual(controller.state.calendar.current_date, date(2000, 7, 1))
         self.assertNotIn(0, controller.state.premier_league.results)
         self.assertEqual(controller.pending_fixture_id, 0)
+        self.assertEqual(
+            tuple(sorted(controller.state.premier_league.results)),
+            (5, 6, 7, 8, 9),
+        )
 
         outcome = controller.play_user_fixture()
 
         self.assertEqual(outcome.fixture_id, 0)
-        self.assertIn(0, controller.state.premier_league.results)
-        self.assertEqual([fixture_id for fixture_id, _ in outcome.matchday_results], [0])
-        self.assertEqual(sum(row.played for row in outcome.table), 2)
+        self.assertEqual(
+            [fixture_id for fixture_id, _ in outcome.matchday_results],
+            [5, 6, 7, 8, 9, 0, 1, 2, 3, 4],
+        )
+        self.assertEqual(len(controller.state.premier_league.results), 10)
+        self.assertEqual(sum(row.played for row in outcome.table), 20)
         self.assertIsNone(controller.pending_fixture_id)
 
     def test_three_week_human_loop_reuses_same_backend(self):
@@ -188,21 +216,18 @@ class HumanGameplayControllerTests(unittest.TestCase):
         controller.select_club(1)
 
         completed = []
-        for expected_fixture_id in (0, 1, 2):
+        for expected_fixture_id in (0, 10, 20):
             self.set_available_lineup(controller)
             fixture = controller.advance_to_next_user_fixture()
             self.assertEqual(fixture.id, expected_fixture_id)
             outcome = controller.play_user_fixture()
             completed.append(outcome.fixture_id)
 
-        self.assertEqual(completed, [0, 1, 2])
-        self.assertEqual(
-            set(controller.state.premier_league.results),
-            {0, 1, 2},
-        )
+        self.assertEqual(completed, [0, 10, 20])
+        self.assertEqual(len(controller.state.premier_league.results), 30)
         self.assertEqual(
             sum(row.played for row in controller.state.premier_league_table()),
-            6,
+            60,
         )
         self.assertTrue(
             all(
