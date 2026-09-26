@@ -236,6 +236,26 @@ class HumanGameplayControllerTests(unittest.TestCase):
             )
         )
 
+    def test_autofill_produces_persistent_legal_11_plus_5(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+
+        selection = controller.autofill_lineup(0)
+
+        self.assertEqual(len(selection.lineup.starters), 11)
+        self.assertEqual(len(selection.lineup.substitutes), 5)
+        self.assertEqual(
+            tuple(
+                int(assignment.player_index)
+                for assignment in selection.lineup.starters
+            ),
+            controller.human.starter_ids,
+        )
+        self.assertEqual(
+            tuple(int(value) for value in selection.lineup.substitutes),
+            controller.human.substitute_ids,
+        )
+
     def test_unavailable_human_player_is_rejected(self):
         controller = self.build_controller()
         controller.select_club(1)
