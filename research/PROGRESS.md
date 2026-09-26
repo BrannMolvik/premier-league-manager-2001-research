@@ -3125,3 +3125,45 @@ The runtime is intentionally left at `mode=continuous`,
 - Added implementation checkpoint `f24bda9` and regression-test checkpoint `0997c8d`.
 - No GitHub Actions workflow run was attached to `0997c8d` when checked, so the previously verified full-suite baseline remains `fba3babd` with 365 tests passed.
 - Next: finish the Scottish final-split node description, then add Cup/League schedule-node descriptors and integrate them into the complete primary competition materializer.
+
+
+## 26 September auto-recovery schedule-node integration checkpoint
+
+Recovered from the repository after the previous worker became unavailable. The live
+handoff was stale: the Scottish post-split trace, parent-vector zero-draw invariant,
+Cup/League schedule descriptors, and symbolic ClubRef conflict identity were already
+persisted on main, so none of that investigation was repeated.
+
+New integration work in this recovery:
+
+- `d090408f` / `2528fe8f`: attached exact Cup schedule nodes and a deterministic
+  Cup-schedule digest to the all-Cup runtime materializer.
+- `2c0002a1` / `498e9d35`: added an interleaving primary materializer that uses
+  the verified complete competition RNG replay as an event plan while consuming the
+  real CRT stream exactly once. Procedural League solvers are injected at their
+  recovered initialization positions and their pair matrices are retained for
+  schedule-node construction.
+- The first CI run exposed one genuine descriptor bug: normal Cup rounds were
+  unnecessarily reading TwoLeg replay-date fields. `69fb14aa` fixes that path.
+- `54e9f352` / `8b0b41c6` / `f7e67a07`: added explicit zero-RNG fixed-League
+  traversal markers and exact `0x6173D0` fixed real-fixture node materialization,
+  preserving round-table then per-round fixture-table order.
+- `c1d06bba` / `2bcce1db`: locked synthetic fixed-League and integrated ordering
+  regressions.
+
+Validation at `2bcce1db718f0b7e8d35d93c90df65b0ca98a0da`:
+
+- reconstruction GitHub Actions: **383 tests passed**;
+- repository asset-policy workflow: **passed**.
+
+The integrated materializer now sequences fixed real-fixture League nodes, generic
+procedural League nodes, competition-27 Scottish post-split nodes, and Cup
+Normal/TwoLeg nodes against the complete primary competition event plan while
+preserving the already-verified RNG ledger.
+
+The remaining canonical materialization risk is participant identity for the
+League-parent playoff children 97, 157, and 169 if their current direct membership
+does not supply the packed team count. The materializer deliberately raises rather
+than inventing symbolic refs. After that source is resolved, run the complete
+materializer against the authorized shipped data and lock participant, pairing, and
+schedule-node digests before closing Gate 3.
