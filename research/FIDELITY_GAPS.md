@@ -8,7 +8,7 @@ Historical uncertainty that has since been resolved should be moved to the resol
 
 | Gap | Current reconstruction behavior | Original status | Planned gate |
 | --- | --- | --- | --- |
-| Startup RNG before first PL shuffle | Seed-to-competition path is now fully bounded, including the 260-draw Loader444 side effect, DBTPlayers, TeamSelect zero-draw lifetime, and user name/youth block | Remaining uncertainty is inside primary competition initialization before the first PL bucket shuffle | 3 |
+| Startup RNG before first PL shuffle | **Resolved.** One MSVC CRT stream now spans the mapped precompetition path and actual-count competition materialization; canonical competition phase is 6,156 bounded calls ending at `0x0E556598` | Packed-capacity 6,165-call replay is retained only as a historical diagnostic | 3 |
 | Same-day Premier League execution order | Deterministic fixture-ID order unless an explicit scheduler order is supplied | Head insertion, PL source order, container, and Fisher-Yates are recovered; exact entering RNG state remains | 4 |
 | League-table final tie fallback | Club ID after points / GD / goals scored | Exact original fallback after the first three keys is unresolved | 15 or earlier if standings behavior requires it |
 | Persistent-injury availability count | Approximation around the inputs to helper `0x405080` | Injury generation/persistence is substantially recovered, but this availability helper is not exact | 15 |
@@ -30,7 +30,7 @@ Historical uncertainty that has since been resolved should be moved to the resol
 
 Older audit text identified Python `random.Random` use for peak/development draws. `GameState.from_database` now uses `MsvcCrtRng` for the recovered startup sequence and retains the same RNG object for later autonomous simulation unless a caller explicitly supplies another RNG.
 
-This does **not** mean the entire startup RNG timeline is solved. The remaining gap is the set/order of other mandatory consumers before schedule finalization, tracked separately above.
+The mapped startup RNG timeline through entry to primary `0x615BE0` is now solved for Gate 3. The remaining scheduler gap is the bucket placement/shuffle and same-day execution order tracked under Gate 4.
 
 ### Missing authoritative AI match-day initialization
 
