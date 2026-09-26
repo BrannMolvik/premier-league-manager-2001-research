@@ -7,9 +7,9 @@
   "status": "in_progress",
   "gate_1_status": "complete",
   "latest_reverse_engineering_checkpoint": "1014b042a19fc851b8d87e653ee1e5d807816630",
-  "last_verified_reconstruction_ci_head": "9b64326d963c1d92aa06e61fc856f0ecef0fc607",
-  "last_verified_test_count": 339,
-  "active_task": "Expand canonical Cup allocations into exact ClubRef round arrays, including UEFA transfer descriptors and MiniLeague distribution",
+  "last_verified_reconstruction_ci_head": "218e780064343838a3546fe497fe31606eb05b70",
+  "last_verified_test_count": 341,
+  "active_task": "Materialize exact Cup allocation ClubRefs, beginning with type-5 DummyLeague ranked selections",
   "next_gate": 4,
   "next_gate_name": "Resolve exact Premier League matchday ordering",
   "blocked": false,
@@ -26,14 +26,15 @@
   "startup_rng_ledger": "research/STARTUP_RNG_LEDGER.md",
   "gate_3_status": "in_progress_participant_pairings",
   "gate_4_status": "paused_with_valid_scheduler_groundwork",
-  "corrected_primary_competition_rng_calls": 1739,
+  "corrected_primary_competition_rng_calls": 1863,
   "corrected_primary_cup_pairing_rng_calls": 1737,
-  "corrected_synthetic_pre_shuffle_state": "0x986E4579",
+  "corrected_synthetic_pre_shuffle_state": "0xAECA9FA5",
   "pre_shuffle_hidden_state_status": "corrected",
-  "primary_competition_rng_event_count": 117,
-  "primary_competition_ordered_bounds_sha256": "baef6479394ffee84e7a9aec58d74f1c5418ccaeaad7f617d9ed0f77e95fd8df",
+  "primary_competition_rng_event_count": 128,
+  "primary_competition_ordered_bounds_sha256": "a6675e77b8256fcb8d5834efa6a9d006182078c12f27887c8228a14eca889711",
   "europe_selector_event_indices": [
-    99,
-    108
-  ]
+    110,
+    119
+  ],
+  "primary_dummy_league_sort_rng_calls": 124
 }
