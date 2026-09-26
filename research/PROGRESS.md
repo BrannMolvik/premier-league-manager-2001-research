@@ -3212,3 +3212,67 @@ A larger RNG-ledger correction follows from direct scheduler disassembly. Normal
 The canonical UEFA Cup materialization proves the distinction matters: allocation currently produces 80 refs for round 210 against packed capacity 82 before further exact eligibility semantics are resolved. Therefore the prior Gate-3 complete replay's Cup draw total of 1,737 and grand total of 6,165, which were derived from packed round team counts, must be treated as **superseded/provisional**, not final canonical values, until an actual-count integrated replay is completed.
 
 Next: replace the static-count Cup event plan with an adaptive one-pass competition replay that injects procedural-League RNG at the recovered competition traversal points while learning each Cup round's real descending shuffle bounds from the materialized participant vector.
+
+
+## 27 September Gate 3 completion - actual-count canonical startup ledger
+
+Gate 3 is complete after canonical shipped-data execution corrected the final
+Cup RNG assumption and locked the full participant/pairing/schedule-node state.
+
+The decisive correction was that Cup round schedulers `0x4F64D0` /
+`0x4F6820` shuffle runtime round `+0x0C` actual participant count after
+allocation/propagation. Packed Static.dat `team_count` is only capacity.
+Canonical allocation preserves source-exhaustion underfill, so the old
+packed-capacity 1,737 Cup-call / 6,165 total checkpoint was nine draws too high.
+
+Canonical competition replay from synthetic post-youth state `0x2797444C`:
+
+- 39 procedural League runtime instances / **4,302 calls**;
+- 115 Cup round shuffles / **1,728 calls**;
+- 11 DummyLeague lazy-ranking events / **124 calls**;
+- 2 Europe selectors / **2 calls**;
+- **6,156 bounded calls total**;
+- **167 RNG-bearing events** plus one zero-draw fixed-League traversal marker;
+- ordered-bound SHA-256
+  `1ed67d7402f1fb749d963f8978a242a6833a1f4410434b61165c906b943a710d`;
+- state entering primary `0x615BE0` = **`0x0E556598`**;
+- Europe selectors = clubs **1137 / 1159**.
+
+Canonical materialization digests:
+
+- Cup participants:
+  `f9282d4c236e14f9ccb56a8ecf90dc42095278e94471624f7248eb005e3daa4e`;
+- Cup pairings/groups:
+  `e2f34fe736db27a011c274d8be0b0df26ed7547062c80a8b34b7d56620c63e45`;
+- Cup schedule nodes:
+  `30b06c3e420ebb5bbead56a14b00340a532d12dcc5bdffba715e4f84eca5ca89`;
+- complete primary schedule nodes:
+  `0a22c9f0c1fa20de770a7d679583b6b4e4bdbd9363a5bda07194bfe8919cc35a`.
+
+Canonical output contains **1,226 Cup nodes** and **9,346 complete primary
+schedule nodes** before bucket placement/shuffle. Three allocation refs are
+dropped after destination capacity; 24 Champions-League-to-UEFA type-2 refs
+are injected.
+
+The UEFA Cup exposes the original underfill/odd-count behavior directly.
+Runtime participant counts for rounds 210..217 are:
+
+`80, 95, 47, 31, 15, 7, 3, 1`
+
+The scheduler pairs floor(count/2) and does not synthesize a bye for the final
+unpaired ref.
+
+The composed `startup_sequence.py` now feeds the precompetition replay
+directly into `materialize_primary_rng_driven_schedule()` on the same CRT
+object, so the single-stream Gate-3 criterion is executable rather than merely
+documented.
+
+Validation before transition:
+
+- reconstruction CI at `b4264affbdbbf1e69d18a9293c2e46833ca4b76e`:
+  **392 tests passed**;
+- repository asset-policy workflow: **passed**.
+
+`ROADMAP.md` now marks Gate 3 complete and Gate 4 in progress. Gate 4 resumes
+from `0x0E556598` by placing the complete 9,346-node set into the recovered
+373-bucket primary schedule and re-auditing first-matchday ordering.
