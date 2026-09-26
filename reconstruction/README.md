@@ -1,68 +1,60 @@
 # FM2001 modern runtime reconstruction
 
-This directory contains the modern replacement/runtime code used by the Windows 11 port. The directory name is retained for repository stability, but the overall project is no longer restricted to a clean-room-only asset model. Authorized original FM2001 resources may be reused from `../original_assets/` according to `../research/ASSET_POLICY.md`.
+This directory contains the modern replacement/runtime code used by the Windows 11 port. Authorized original FM2001 resources may be reused from `../original_assets/` according to `../research/ASSET_POLICY.md`; raw disc images and temporary extraction data stay outside Git.
 
-The parser reads a user's existing FM2001 files:
+## Canonical files
 
-- `Master.dat`
-- `Core.str`
-- `English.str`
-- `Static.dat`
+The runtime reads the analyzed FM2001 release from the user's existing installation, including `Master.dat`, `Static.dat`, `Core.str`, `English.str`, and `FOOTBAL.EXE` where executable-backed coefficients or verification are required.
 
-Run:
+Verify the shipped files before canonical integration work:
 
-```
+```text
 python verify.py C:\Games\FM2001
 ```
 
-to validate that the files match the analyzed release and that the core parsed invariants still hold. `RUN_PROTOTYPE.cmd` opens the small Tkinter data browser.
+`RUN_PROTOTYPE.cmd` opens the current Tkinter prototype. Its **Play** tab is now a minimum human-manager gameplay surface, not just a data browser.
 
 ## Implemented modernized systems
 
-The reconstruction is no longer only a parser/browser. Current tested implementation includes:
+Current tested implementation includes:
 
-- corrected Master.dat and Static.dat parsing for clubs, players, managers, countries, positions, competitions, rounds, and the 380 real Premier League fixtures;
-- mutable runtime player state;
-- monthly aging/development and training mechanics;
-- Premier League dated fixtures, mutable results, and league table;
-- exact runtime match-state defaults for Condition, Form, and position state;
-- AI formation strategy, lineup selection, substitutes, role assignment, and Non-EU restriction handling;
-- ordered match participant collection;
-- exact role compatibility, role rating, and 4 x 20 x 17 attack/defence coefficient support;
-- open-play, free-kick, corner, and penalty chance resolution;
-- normal-time five-minute scheduling and chance routing;
-- recurring Condition decay and match injury incidence;
-- bookings, sendings-off, and suspension persistence;
-- AI substitutions and injury replacements;
-- possession/territory normalization;
-- weather and home pitch wear;
-- post-match Condition/Form synchronization;
-- persistent match injury generation and return events;
-- Premier League fixture -> match -> result -> table integration;
-- fast-calendar fixture-before-maintenance day ordering;
-- exact MSVC CRT RNG primitive used by the original executable;
-- recovered DBRPlayer startup RNG block on the shared MSVC CRT stream;
-- exact schedule-bucket head insertion and Fisher-Yates shuffle primitives;
-- recovered fixed Premier League fixture insertion order and schedule-container selection.
+- canonical Master.dat / Static.dat / STR parsing and executable hash verification;
+- mutable player, club, manager, competition, fixture, result and table state;
+- aging/development/training and startup player state;
+- exact shared MSVC CRT startup and primary competition RNG ledger;
+- Cup allocation/pairing, procedural League generation, Scottish split nodes, and primary schedule-node materialization;
+- exact 373-bucket primary schedule placement, conflict resolution, Fisher-Yates shuffle, and recovered Premier League same-day order;
+- autonomous full 38-round / 380-fixture Premier League seasons;
+- AI strategy, formation, XI/substitute selection, role assignment and Non-EU handling;
+- match environment, weather, Pitch Wear and tactical state;
+- normal-time MatchCalculator simulation with open play and set pieces;
+- Condition decay, injuries/returns, discipline/suspensions, substitutions and post-match Form;
+- one shared human-vs-AI backend path rather than a separate human match engine;
+- persistent human club, formation, XI/bench, tactics and Team Orders workflow;
+- scheduler-aware advance-to-user-fixture behavior while other PL matches continue;
+- temporary Tkinter controls for club, lineup, tactics, advance/play, result and table.
 
-After the Windows 11 port/asset-policy transition, GitHub Actions at `d485246159b7131a680635b7f3e6a9135c95f54f` still ran **307 tests successfully**. The repository asset-policy check also passes on the updated porting structure. These policy/documentation changes do not alter the recovered match-simulation behavior.
+Canonical real-data evidence now includes:
 
-## Important fidelity boundaries
+- three-round autonomous integration: `../research/GATE5_REAL_MATCHDAY_INTEGRATION.md`;
+- three deterministic full seasons: `../research/GATE6_FULL_SEASON.md`;
+- six human-controlled Arsenal fixtures over more than a month: `../research/GATE7_HUMAN_GAMEPLAY.md`.
 
-This remains a reconstruction prototype rather than a complete replacement.
+The Gate-7 clean-room suite contains **407 passing tests**. Canonical human audit digest: `6baeb94d17acbdeddcda253f66a6a5e62fb9c427a7ab42e7e7ff0f457721ebee`.
 
-Known boundaries include:
+## Current development boundary
 
-- the full mandatory startup RNG path before the first Premier League schedule shuffle is not yet completely bounded;
-- the default multi-fixture season loop still uses deterministic fixture-ID order unless an explicit scheduler order is supplied;
-- exact league-table tie ordering beyond points / goal difference / goals scored is unresolved and currently uses a deterministic club-ID fallback;
-- persistent-injury availability counting still contains an approximation around original helper `0x405080`;
-- some competition-specific eligibility and user-controlled match setup paths remain incomplete;
-- contracts, transfers, finance/board logic are extensively researched but are not yet implemented as a complete modern gameplay loop;
-- broader competitions, scouting, youth, and save compatibility remain incomplete;
-- the current UI is a data browser rather than a faithful FM2001 management interface;
-- FastView / 3D presentation remains largely unreconstructed.
+The minimum human gameplay loop is complete. The next roadmap gate is **Gate 8: internal save/load**, so development/play sessions can persist calendar, roster, competition, fixture/result, injury/suspension, tactics and relevant RNG state.
 
-The live list is maintained in `../research/FIDELITY_GAPS.md`.
+Known remaining fidelity boundaries include:
 
-Research evidence, addresses, and confidence levels live under `research/`. Code should only be promoted from deterministic fallback to fidelity claim when executable evidence supports it. Player-visible resources should preferentially reuse authorized original assets when practical so the final Windows 11 build retains the original game's presentation and feel.
+- exact final league-table tie fallback beyond points / goal difference / goals scored;
+- the remaining approximation around persistent-injury availability helper `0x405080`;
+- internal save/load and later original-save compatibility;
+- transfers/contracts and AI transfer activity;
+- finances/board and broader management systems;
+- broader competition season transitions;
+- faithful original FM2001 front-end presentation;
+- original match presentation / FastView / 3D.
+
+The live list is maintained in `../research/FIDELITY_GAPS.md`. Research evidence, addresses, confidence levels, and gate status live under `../research/` and `../ROADMAP.md`.
