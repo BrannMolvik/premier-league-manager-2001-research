@@ -34,13 +34,13 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-10 checkpoint:
 
 ```text
-80bc03134ec21a890ef87727a9272ed1e40ee3f6
-Test schema 9 Balance save roundtrip
+5dc29a072d6e4f91744b882251df16f980c82f55
+Account for Saturday payroll after transfer
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **492 tests passed**;
+- reconstruction suite: **497 tests passed**;
 - repository asset-policy workflow: **passed**.
 
 Current internal save schema: **9**.
@@ -145,10 +145,14 @@ Existing reverse engineering already establishes:
    Finance/Transfer UI consumer exists for the separate chairman
    transfer/wage-budget event family. Treat it as legacy/persistence-compatible
    unless new executable evidence proves an active store; do not invent one.
-6. **Active:** recover and integrate live recurring cash flows, beginning with
-   the proven first-of-month support-staff debit at `0x4CA0F0`, then player
-   wages and match/recurring income.
-7. Starting Balance cash initialization remains deliberately explicit until the
+6. **Completed:** weekly player payroll is integrated on the recovered
+   Saturday cadence using stored weekly wages, loaned-in exclusion and
+   category-101 Balance postings. The first-of-month support-staff path is
+   recovered as category 102 but concrete amounts remain deferred until the
+   original CSupportStaff cost state is materialized.
+7. **Active:** recover the next ordinary live cash-flow producer, prioritizing
+   match-day income / attendance receipts and other recurring income.
+8. Starting Balance cash initialization remains deliberately explicit until the
    original `0x5DC400` constructor-input source is recovered; do not invent a
    default cash value.
 
