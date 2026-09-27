@@ -1,6 +1,6 @@
 import unittest
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from game_state import GameCalendar, GameState
 from match_schedule import MsvcCrtRng
 from runtime_state import RuntimePlayer, age_on
@@ -22,11 +22,33 @@ class FakePlayer:
     target_raw: tuple[int, ...] = (180,) * 17
 
 
+class JoinDateNormalizationTests(unittest.TestCase):
+    def test_old_or_future_join_dates_fall_back_to_200_days_ago(self):
+        current = date(2000, 8, 18)
+        self.assertEqual(
+            normalize_current_club_join_date(date(1950, 1, 1), current),
+            current - timedelta(days=200),
+        )
+        self.assertEqual(
+            normalize_current_club_join_date(date(2000, 12, 1), current),
+            current - timedelta(days=200),
+        )
+
+    def test_plausible_join_date_is_preserved(self):
+        current = date(2000, 8, 18)
+        joined = date(2000, 6, 1)
+        self.assertEqual(
+            normalize_current_club_join_date(joined, current),
+            joined,
+        )
+
+
 class RuntimePlayerTests(unittest.TestCase):
     def test_age_on_birthday_boundary(self):
         dob = date(1980, 6, 15)
         self.assertEqual(age_on(dob, date(2000, 6, 14)), 19)
-        self.assertEqual(age_on(dob, date(2000, 6, 15)), 20)
+        self.assertEqual(age_on(dob, date(2000, 6, 15)), 20,
+    normalize_current_club_join_date)
 
     def test_database_player_becomes_mutable_runtime_player(self):
         player = RuntimePlayer.from_database_player(FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1))
