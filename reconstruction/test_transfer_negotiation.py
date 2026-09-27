@@ -1,6 +1,11 @@
 import unittest
+from datetime import date
+from types import SimpleNamespace
 
-from transfer_negotiation import adjust_player_counter_offer
+from transfer_negotiation import (
+    adjust_live_player_counter_offer,
+    adjust_player_counter_offer,
+)
 from transfer_state import ContractTerms, TransferProposal
 
 
@@ -100,6 +105,66 @@ class CounterOfferTransformTests(unittest.TestCase):
         )
         self.assertEqual(result.desired_weekly_wage, 1001)
         self.assertEqual(result.desired_signing_on_fee, 1001)
+
+    def test_live_adapter_uses_runtime_expectations_and_current_wage(self):
+        rows = tuple(
+            SimpleNamespace(
+                id=i,
+                weekly_wage_base=100,
+                weekly_wage_random_range=10,
+                field_18=1000,
+                field_1c=100,
+            )
+            for i in range(100)
+        )
+        player = SimpleNamespace(
+            index=1,
+            club_id=10,
+            weekly_wage=950,
+            current_raw=[255] * 17,
+            positions=(1, 0, 0),
+            eu_status_code=2,
+            contract_expiry_date=date(2000, 8, 1),
+            age=lambda on_date: 25,
+        )
+        state = SimpleNamespace(
+            players={1: player},
+            clubs={
+                10: SimpleNamespace(country_id=3),
+                11: SimpleNamespace(country_id=3),
+            },
+            countries={
+                3: SimpleNamespace(financial_multiplier_percent=100),
+            },
+            access_skill_financial_values=rows,
+            calendar=SimpleNamespace(current_date=date(2000, 8, 18)),
+        )
+        proposal = TransferProposal(
+            target_player_id=1,
+            buying_club_id=11,
+            contract_terms=ContractTerms(
+                weekly_wage=50,
+                signing_on_fee=50,
+                contract_length_months=12,
+            ),
+        )
+        rng = RecordingRng([2])
+
+        result = adjust_live_player_counter_offer(
+            state,
+            proposal,
+            rng,
+        )
+
+        # Max row: wage fresh expectation 110 -> mode -1 => 100, then
+        # current wage floor is only used on repeated negotiations.
+        self.assertEqual(result.desired_weekly_wage, 100)
+        self.assertEqual(result.proposal.contract_terms.weekly_wage, 100)
+        # Signing raw (1000+100)*2 expired-EU bonus = 2200, mode -2 => 2200.
+        self.assertEqual(result.desired_signing_on_fee, 2200)
+        self.assertEqual(result.proposal.contract_terms.signing_on_fee, 2200)
+        self.assertEqual(result.proposal.contract_terms.contract_length_months, 48)
+        self.assertEqual(rng.bounds, [3])
 
     def test_same_club_renewal_skips_signing_fee_revision(self):
         rng = RecordingRng([1])
