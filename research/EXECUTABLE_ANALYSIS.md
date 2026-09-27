@@ -7431,6 +7431,10 @@ source-backed candidate generator, the same-league ranking tests are exact:
 - objective **1**: `table_index <= 1` -> finish in the **top two**;
 - objective **5**: `table_index <= team_count / 2` using signed integer
   division before comparison.
+- objective **6**: succeeds when the current competition classification is
+  unchanged or improved relative to the objective's stored competition
+  classification. In the current same-Premier-League/no-relegation runtime
+  slice, remaining in the Premier League satisfies this branch.
 
 The last condition is an executable quirk worth preserving. With 20 clubs and a
 zero-based table index it accepts indices 0..10 inclusive; do not modernize it
