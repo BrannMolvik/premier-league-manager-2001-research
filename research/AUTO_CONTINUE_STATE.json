@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 9,
   "active_task": "Recover and implement minimal evidence-backed AI transfer activity during calendar progression, then run canonical Gate-9 integration",
-  "last_known_main_head": "66e4337db538098f0d0a4597901b5c784d1cebd9",
+  "last_known_main_head": "a6409ffb6d0f7ac154bd6de6c4d67bd7110b076d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 19,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate 9 seller chairman core decision is complete on main. Current worker owns valuation/count live adapters; avoid repeating the 0x4EF940 seller-decision trace.",
+  "recovery_generation": 20,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovered into a fresh worker after same-chat no-progress fallback. Main already includes recurring AI transfer trace plus AccessFanBase/club transfer relationship inputs through a6409ffb; continue from that persisted boundary without repeating seller-decision work.",
   "same_chat_fallback_minutes": 30
 }
