@@ -3775,3 +3775,25 @@ GitHub Actions at `de175a605755da951a36fab3699831083f52de94`:
 
 The remaining Gate-9 implementation criterion is AI transfer activity during
 calendar progression, followed by canonical integration/audit.
+
+
+## 27 September Gate 9 - recurring AI transfer hook recovered
+
+Canonical FOOTBAL.EXE tracing identified the recurring autonomous acquisition
+entry point needed for the final Gate-9 criterion.
+
+Every club reaches `0x40DD70` during club/calendar maintenance. When
+`(current_date_integer + 5) % 7 == 0`, it calls `0x40DC90`. That routine
+keeps the input as the buying club, chooses another club, asks `0x40DBB0` for
+a target from the selling roster, then calls `0x41EFB0(target,buyer)`.
+
+`0x40DBB0` includes club-status/minimum-roster checks, random roster
+sampling, player eligibility, and a >26-week current-club-tenure requirement.
+`0x41EFB0` is confirmed as an autonomous acquisition/signing routine that
+ultimately reaches the existing player movement family.
+
+This is sufficient to avoid inventing an arbitrary daily AI-transfer bot.
+Before implementation, finish mapping the `0x41EFB0` fee/contract constants
+and the remaining `0x40DC90` eligibility predicates; then wire the proven
+weekly path into GameState calendar maintenance and regression-test actual AI
+movement.
