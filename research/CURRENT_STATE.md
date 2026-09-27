@@ -133,8 +133,10 @@ Existing reverse engineering already establishes:
   consumer;
 - normal Finance Overview and Transfer UI have no reference to this chairman
   budget family and instead use live Balance/accounting state;
-- concession offers are a confirmed live income producer through
-  `0x42A9FD -> 0x5E5640 -> 0x5E56F0 -> 0x5DC510`;
+- the concession subsystem contains an exact monthly category-300 Balance
+  credit path, but the recovered fresh-game generator never activates a
+  persistent record, so it is dormant/legacy state rather than an ordinary
+  live income producer;
 - match-day/ticketing calculations depend on stadium-section state at DBRUser
   `+0x694` and the stadium model at `+0x6B0`, neither of which is currently
   materialized by the clean-room runtime;
@@ -167,9 +169,11 @@ Existing reverse engineering already establishes:
    `+0x694/+0x6B0` stadium inputs toward Balance credit `0x5DC510`, and
    recover cadence, home/away behavior, attendance/capacity inputs, ticket-price
    input, ledger category and exact money conversion.
-8. **Parallel shortest income trace:** recover `0x5E56F0` concession offer
-   source fields, posting category and payment-state conditions. The cash-credit
-   path itself is already proven; do not invent missing amount/category values.
+8. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
+   returns the active record's `+0x160` qword, `0x5E5640` posts category
+   300 on day-of-month 1, but `0x5E5330` never appends its generated stack
+   candidate or increments the fresh-game active count. Leave normal concession
+   income disabled unless a genuine activation writer is later recovered.
 9. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
    because the table is already parsed. The original 26-section stadium state
    and stadium capacity/entry model are separate dependencies.
@@ -185,8 +189,9 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
   state, but no ordinary fresh-game producer/consumer is mapped;
 - match-day/gate income is intentionally not approximated while the original
   stadium-section/capacity inputs and exact posting formula remain unresolved;
-- concession income has a proven Balance-credit path but is not integrated
-  until its exact offer amount/category/state behavior is recovered;
+- concession payout is intentionally not integrated into ordinary progression:
+  its category-300 monthly credit path is exact, but the fresh-game generator
+  does not create active records in the recovered executable;
 - Balance credit's secondary category-1600 debit is not integrated until its
   exact conversion/rounding is recovered;
 - broader player-negotiation refusal/duration branches remain explicit deferred
