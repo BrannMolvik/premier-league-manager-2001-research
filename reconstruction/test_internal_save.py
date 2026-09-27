@@ -250,6 +250,33 @@ class InternalSaveTests(unittest.TestCase):
         self.assertEqual(restored_player.loan_club_id, 2)
         self.assertTrue(restored_player.selling_squad_count_excluded)
 
+    def test_weekly_ai_transfer_runtime_state_survives_roundtrip(self):
+        original = self.build_controller()
+        player = original.state.players[1000]
+        player.ai_transfer_block_value_64 = 17
+        player.ai_transfer_status_bit_9 = True
+        original.state.ai_transfer_buy_counter[2] = 3
+        original.state.country_transfer_window_open[0] = False
+        original.state.user_controlled_club_id = 1
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        restored_player = restored.state.players[1000]
+        self.assertEqual(restored_player.ai_transfer_block_value_64, 17)
+        self.assertTrue(restored_player.ai_transfer_status_bit_9)
+        self.assertEqual(restored.state.ai_transfer_buy_counter[2], 3)
+        self.assertFalse(restored.state.country_transfer_window_open[0])
+        self.assertEqual(restored.state.user_controlled_club_id, 1)
+        self.assertEqual(
+            restored.state.ai_transfer_startup_roster_count,
+            original.state.ai_transfer_startup_roster_count,
+        )
+
     def test_transfer_runtime_state_survives_roundtrip(self):
         original = self.build_controller()
         terms = ContractTerms(
