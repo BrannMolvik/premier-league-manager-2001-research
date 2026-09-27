@@ -559,6 +559,15 @@ class HumanGameplayController:
             + ((fixture_id, user_result),)
             + tuple(trailing)
         )
+        # Matchday completion is the clean-room counterpart of the annual
+        # competition-finalization boundary. Only the final PL matchday can
+        # trigger the recovered sporting/financial objective transition.
+        if (
+            all_results
+            and len(self.state.premier_league.results)
+            == len(self.state.premier_league.fixtures)
+        ):
+            self.state.run_premier_league_financial_objective_season_transition()
         self.state.calendar.run_post_fixture_maintenance()
         self.last_transfer_executions = tuple(
             self.state.run_due_transfer_maintenance(
