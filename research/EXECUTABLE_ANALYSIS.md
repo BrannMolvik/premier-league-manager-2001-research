@@ -7246,3 +7246,112 @@ round-trip does not divide it back through a display conversion, so the packed
 value becomes current cash unchanged. The modern runtime can now initialize a
 controlled club Balance from original source data instead of requiring an
 invented/external default.
+
+
+## Gate 10 financial-objective / reason-5 sacking lifecycle
+
+The finance-linked board/job-security path is now substantially resolved from
+`0x5DF670`, `0x5DFB90`, `0x5DFFE0`, `0x5E00F0`, and evaluation routine
+`0x5E1D90`.
+
+### Balance-owned objective state
+
+The active `Balance` owns a persistent financial-objective subobject beginning
+at **Balance +0x30**. Its serialized state includes six finance-value slots and
+selection/lifecycle fields. The fields used by the recovered path include:
+
+- objective subobject `+0x00`: base finance value used to generate candidates;
+- `+0x10`: selected objective's **immediate starting-funds amount**;
+- `+0x20`: selected objective's **three-year formal target**;
+- `+0x50`: starting-funds snapshot;
+- `+0x64`: selected objective ID;
+- `+0x6C`: objective-selection/start date;
+- `+0x70`: objective deadline;
+- `+0x78`: active/initialized state;
+- `+0x90/+0x94/+0x98`: the three generated candidate objective IDs.
+
+Fresh DBRUser/Balance setup and this objective state are part of one lifecycle:
+`0x5DF670` is also the path that installs the source-backed club starting cash
+into active Balance `+0x10` on the fresh special branch.
+
+### Three candidate objectives and selection
+
+Normal objective setup generates three candidate IDs with `0x5DFD30` and
+stores them at `+0x90/+0x94/+0x98`. RTTI identifies the two chairman messages
+used to present them as:
+
+- `EAMManagerNewClubSelectObjectivesub`;
+- `EAMManagerSelectObjectivesub`.
+
+The event action handler passes selected index 0/1/2 into `0x5DFB90`.
+That routine resolves the chosen candidate ID, stores it at `+0x64`, computes
+both financial amounts, and records the objective dates.
+
+Importantly, selection changes live finances immediately: the chosen objective's
+`+0x10` starting-funds amount is copied into active Balance `+0x10` and also
+saved to objective `+0x50`. Therefore the packed `Master.dat +165` club cash
+is the **pre-objective base**, not necessarily the final opening playable cash
+after the manager accepts a chairman objective.
+
+### Exact three-year horizon
+
+`0x5DFB90` copies the current date into `+0x6C`, decodes it with
+`0x64CCD0`, adds **3** to the decoded year component, converts it back through
+`0x64CC70`, and stores the result at `+0x70`.
+
+The selected financial objective therefore has an exact **three-year horizon**.
+The objective check is reached from the user-controlled club lifecycle through
+`0x404110 -> 0x426220 -> 0x5E1D90`, itself driven by the global competition/
+season setup path. It is not a monthly Balance check.
+
+### Exact starting-funds and target percentages
+
+For objective IDs 1..17, `0x5DFFE0` applies the following percentages to the
+objective base finance value to produce immediate starting funds, while
+`0x5E00F0` applies the corresponding target percentage:
+
+| Objective ID | Starting funds | Three-year target |
+|---:|---:|---:|
+| 1 | 155% | 170% |
+| 2 | 135% | 150% |
+| 3 | 100% | 110% |
+| 4 | 135% | 155% |
+| 5 | 125% | 135% |
+| 6 | 100% | 110% |
+| 7 | 125% | 150% |
+| 8 | 125% | 135% |
+| 9 | 100% | 110% |
+| 10 | 200% | 220% |
+| 11 | 190% | 205% |
+| 12 | 180% | 195% |
+| 13 | 170% | 185% |
+| 14 | 165% | 180% |
+| 15 | 145% | 155% |
+| 16 | 150% | 180% |
+| 17 | 100% | 105% |
+
+Both helpers multiply the base finance value by the selected integer percentage
+and by exact `0.01`.
+
+### Exact financial-objective dismissal threshold
+
+At deadline evaluation, `0x5E1D90` compares current active Balance cash with
+the formal target stored at objective `+0x20`.
+
+- current cash **above** the full target takes the clear-success path;
+- cash below/equal to target is then compared against
+  `target * ChairmanPercentBudgetMiss * 0.01`;
+- the named tuning loader gives **ChairmanPercentBudgetMiss = 95**;
+- current cash **greater than 95%** of target avoids the financial dismissal
+  and takes a near-miss/non-sacking outcome;
+- current cash **at or below 95%** of target stores sacking reason **5** through
+  `0x42C6C0`.
+
+Reason 5 is the already RTTI-backed `EAMManagerSackedFailedBudget` outcome.
+This path is specifically the selected three-year financial objective and must
+not be conflated with the separate dormant chairman quarterly-budget event
+family.
+
+The remaining implementation dependency is candidate generation: translate
+`0x5DFD30` sufficiently to reproduce the three source-backed objective IDs for
+the controlled Premier League club before materializing objective state.
