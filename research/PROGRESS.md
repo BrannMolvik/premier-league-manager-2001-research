@@ -4808,3 +4808,16 @@ Exact next target: recover the method-change setter semantics and the two
 weekly eligibility predicates, then materialize the minimum persistent
 per-player training state and human method-selection workflow before attaching
 Saturday updates.
+
+
+## Gate 11 weekly training eligibility resolved — 28 September 2026
+
+Follow-up disassembly of `0x61C520` ties the two weekly training exclusion
+checks to existing DBRPlayer flag semantics:
+
+- injured, `+0x14 bit 0`;
+- separate selection-exclusion state, `+0x14 bit 2`.
+
+Suspension bit 1 is not tested by this call path, and bit 2 remains distinct
+from the separately persisted cup-tied mechanism. The remaining narrow trace
+before state implementation is the human training-method mutation itself.
