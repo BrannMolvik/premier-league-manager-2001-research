@@ -3838,3 +3838,37 @@ Detailed instruction evidence is in `research/EXECUTABLE_ANALYSIS.md`.
 Next: finish the remaining buyer/seller/candidate predicate semantics needed by
 the clean-room data model, then implement the Saturday calendar path and run
 canonical Gate-9 integration.
+
+
+## 2026-09-27 - Gate 9 recovery: remaining weekly AI predicates
+
+Recovery resumed from main `4f174fcf90ad27b2e75ba5448601844039b35eb7`
+without reopening already-persisted transfer findings. The canonical
+`FOOTBAL.EXE` was re-materialized from the authorized disc archive and its
+SHA-256 reverified as
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+Instruction-level follow-up resolved the remaining implementable weekly AI
+acquisition predicates:
+
+- `0x403E10` validates an assigned club manager;
+- `0x403E70` rejects the FREE TRANSFER pseudo-club, club category 2/3,
+  `!`-prefixed names, closed country/window state, excessive buy counters
+  for rosters above 28, and managerless clubs;
+- `0x4F33B0` is exactly
+  `roster_count < club_byte_1e8 - 2`;
+- `0x40C7D0` discounts mismatched/current-club and status-bit-9 players
+  before applying `AccessFanBase.field_48 - 4`;
+- `0x4088E0` now has exact lineup-group coverage-equivalence and minimum
+  tables, plus the explicit `player+0x64 > -1` exclusion check;
+- the autonomous `0x423340` contract-duration table is completely decoded
+  and its truncated integer is confirmed to be applied as calendar months.
+
+The business meaning of player `+0x64`, club `+0x1E8`, and the source-file
+seed for country runtime `+0x54` remain deliberately unnamed rather than
+guessed. Their exact consumer behavior is sufficient to expose clean-room
+runtime inputs and proceed with implementation.
+
+Next: wire these predicates into a Saturday calendar AI-acquisition pass,
+exercise it deterministically, then run the full Gate-9 transfer suite and
+audit the final criterion.
