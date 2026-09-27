@@ -253,6 +253,30 @@ class OrdinaryMoneyResponseTests(unittest.TestCase):
         self.assertEqual(result.response_code, 2)
         self.assertEqual(rng.bounds, [])
 
+    def test_recently_joined_player_returns_code_17_before_money_policy(self):
+        state = self.state(player_wage=900)
+        state.players[1].current_club_join_date = date(2000, 8, 1)
+        result = evaluate_ordinary_money_response(
+            state,
+            self.proposal(wage=5000, sign=5000, months=36),
+            RecordingRng([]),
+        )
+        self.assertEqual(
+            result.outcome,
+            OrdinaryMoneyResponse.RECENTLY_JOINED_CURRENT_CLUB,
+        )
+        self.assertEqual(result.response_code, 17)
+
+    def test_eight_weeks_is_not_recently_joined(self):
+        state = self.state(player_wage=900)
+        state.players[1].current_club_join_date = date(2000, 6, 23)
+        result = evaluate_ordinary_money_response(
+            state,
+            self.proposal(wage=1200, sign=1000, months=36),
+            RecordingRng([]),
+        )
+        self.assertEqual(result.outcome, OrdinaryMoneyResponse.ACCEPTED)
+
     def test_direct_acceptance_marks_player_signed_elsewhere(self):
         state = self.state(player_wage=900)
         rng = RecordingRng([])
