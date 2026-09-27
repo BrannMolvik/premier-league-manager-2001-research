@@ -6433,3 +6433,64 @@ an index with `RNG(global_club_count)` and loops until `0x403790` succeeds.
 Because `0x403790` is exactly `club+0x70 > BigClubFanBase`, both the weekly
 buyer and the randomly selected seller are in the same >21 fan-base tier
 before seller-specific `0x40DBB0` checks run.
+
+
+## Gate 10 quarterly-budget trace: DBRUser dispatcher/history ownership checkpoint
+
+Fresh canonical `FOOTBAL.EXE` tracing after the schema-9 Balance integration
+rules out two more apparent board-budget owners and sharpens the monthly finance
+call chain.
+
+### DBRUser +0x6B8 is squad/player runtime state, not chairman finance state
+
+DBRUser construction at `0x424E46..` allocates exactly `0x1F40` bytes for
+`+0x6B8` using an array constructor with:
+
+- element count **0x28 = 40**;
+- element size **0xC8**;
+- element constructor **0x424F90**.
+
+Routine `0x61C9C0`, called with this object and the owning DBRUser, iterates
+those 40 records and then walks the active club roster through DBRClub
+`+0x294/+0x244`. It resolves DBRPlayer objects and calls the already-known
+player/transfer/status family (`0x417340`, `0x417460`, `0x418750`,
+`0x417380`) while rebuilding the records.
+
+Therefore DBRUser `+0x6B8` is a fixed-capacity squad/player runtime array.
+It is not a plausible persistent chairman transfer/building-budget store.
+
+### DBRUser +0x6DC is a 12-month rolling CMonthHistory list
+
+Monthly producer `0x429CB0` operates on the list at DBRUser
+`+0x6DC/+0x6E0`.
+
+Before appending a new snapshot it counts the existing linked records. When
+the count is exactly **12**, it removes the oldest entry through
+`0x42C910`. It then allocates a 0x68-byte `CMonthHistory` object
+(vtable `0x7BE088`), populates it from current club/business state and
+Balance aggregates/current cash, and appends it through `0x617D70`.
+
+Thus `+0x6DC` is explicitly a rolling annual history container. It can be an
+input to board calculations, but it is not itself the live transfer-budget
+allocation.
+
+### First-of-month coordinator chain
+
+Season/calendar coordinator code around `0x4A8070` checks the current date.
+On day 1 it executes, per DBRUser:
+
+1. `0x4C9E90(user_index)`;
+2. `0x429CB0(DBRUser)` to create/update the 12-month `CMonthHistory`;
+3. `0x5E2460(DBRUser+0x688,...)` for the already-mapped funding-request
+   state;
+4. `0x4E2840(DBRUser)`.
+
+Direct inspection rules out `0x4C9E90` as the chairman-budget calculation:
+it rebuilds support-staff lists at `+0x5B8/+0x5C4/+0x5D0`.
+`0x4E2840` is likewise player-selection/report generation rather than a
+budget reserve calculation.
+
+The authoritative chairman quarterly rebudget producer therefore remains
+unresolved. Continue from dynamic event creation/population and consumers of
+the rolling monthly histories rather than revisiting these eliminated DBRUser
+owners.
