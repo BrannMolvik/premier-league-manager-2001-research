@@ -15,6 +15,33 @@ When choosing between rebuilding an original resource and reusing it, prefer thi
 3. recreate behavior/code around the asset while preserving the original content;
 4. make a replacement asset only when the original cannot reasonably be used.
 
+## Non-substitution rule
+
+Original FM2001 content and recovered original behavior are the default source of truth.
+
+Do **not** recreate, redesign, substitute, modernize, or replace an original game
+resource merely because a replacement would be easier to implement. If an
+original asset, layout, string, audio/video resource, database value, screen
+definition, timing value, navigation rule, or other behavior can be extracted,
+decoded, converted, wrapped, or otherwise made usable, use the original.
+
+The only accepted reasons not to use the original are:
+
+1. **incompatibility** - the original form cannot operate correctly in the
+   modern Windows 11 runtime, even after a reasonable compatibility,
+   conversion, or wrapper layer; or
+2. **inaccessibility** - the original resource or behavior cannot be recovered
+   from the authorized source material with the available evidence/tools.
+
+Incompatibility is a reason to adapt the original, not automatically to replace
+it. Prefer the smallest compatibility layer or format conversion that preserves
+the original content and behavior. Inaccessibility must be documented before a
+replacement/fallback is treated as intentional.
+
+Convenience, implementation speed, aesthetic preference, or a desire to
+"modernize" the look/feel are **not** reasons to replace accessible original
+FM2001 material.
+
 This applies to resources such as:
 
 - music and menu/login audio;
