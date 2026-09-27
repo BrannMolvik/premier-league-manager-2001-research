@@ -4004,3 +4004,18 @@ serialized 0x9CC bytes exactly.
 This removes the last large opaque block immediately before +0x10D8 from the
 chairman-budget search. Next: audit remaining DBRUser scalars and finance/board
 arithmetic rather than serialized container owners.
+
+
+## 27 September 2026 - Gate 10 support-staff controller resolved
+
+`DBRUser +0x5DC` is now removed from the chairman-budget search.
+
+The `0x4D0B10..0x4D1290` family uses the object at +0x5DC as a support-staff
+selector/controller while walking the DBRUser's actual staff lists. The
+functions select virtual staff-type IDs in order; `0x4D0C90` is exact type 4,
+the Business Consultant lookup used by the financial-objective path.
+`0x4D13D0` dispatches staff types 1..16 to the corresponding lookups.
+
+The methods do not read monetary/budget fields from the +0x5DC object.
+Together with the prior support-staff/scouting classifications, this closes the
+`+0x5B8..+0x5EC` neighborhood as a live chairman-budget candidate.
