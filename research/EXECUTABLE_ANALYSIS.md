@@ -7023,3 +7023,59 @@ The named loader also directly confirms the whole tuning family:
 five `ATTLeagueEndPlayCan*` values. The live gate-attendance producer is now
 formula-complete; the next dependency is source-state materialization for the
 26-section ticket object and stadium entry model.
+
+
+## Gate 10 stadium/ticket source-state bridge
+
+The source-state dependency below the now-complete gate-attendance formula is
+substantially closed.
+
+### DBRUser-owned stadium object
+
+DBRUser construction initializes `+0x6B0 = null`. Fresh setup later allocates a
+**0x1BC4-byte** stadium object, constructs it with `0x65CB20(DBRUser*)`, and
+stores it at `+0x6B0`. Save/load uses the same allocation/constructor before
+`0x65F1C0` deserialization when needed.
+
+Fresh setup then calls `0x65D5B0` with the club map filename. The valid-map
+path reads the fixed map header/grid, instantiates non-empty buildings and
+assigns section IDs from the constructor's fixed anchors. Ticket-capacity code
+therefore consumes an owned runtime representation of the original stadium map,
+not an inferred fan-base approximation.
+
+### Ticket state object and fresh section bootstrap
+
+The object at `DBRUser +0x694` is exactly **0x7C bytes**. Fresh user setup
+allocates 0x7C bytes and zeroes its first five dwords. Serializer/deserializer
+`0x6186E0/0x618750` prove the complete persisted layout:
+
+- `+0x00..+0x10`: five dwords;
+- `+0x14..+0x7B`: one 0x68-byte block = 26 section-state dwords.
+
+The first four dwords were already mapped as season-ticket quantity, season-
+ticket price, terrace match price and seating match price.
+
+Fresh section initialization `0x6187E0` walks section IDs 0..25, looks up the
+mapped stadium building through `0x65D190`, and writes:
+
+- **-1** if the instance flag byte `+0x14` has bit `0x02` set;
+- **0** otherwise.
+
+The already-recovered season-ticket allocator then changes selected ordinary
+sections to state 2, and the visiting allocator changes selected remaining
+ordinary sections to state 1. This provides the exact fresh-state progression
+`unavailable(-1) / home(0) / visiting(1) / season-ticket(2)` from original map
+state.
+
+### Building data source
+
+The finance-facing global building table is 3,000 × 0x74 bytes at
+`0x988E08`. `0x660A80` obtains the WAD member name from the pointer at
+`0x84A530`, which resolves to **`Lists\\Buildings.dat`**, and fills each live
+record via a 0x74 read followed by a 0x5C read into record+8.
+
+The original extracted member is exactly 3,000 × 0xD0 bytes. Each serialized
+entry is 0x74 + 0x5C bytes, and its second segment duplicates first-segment
+bytes +0x08..+0x63 in all 3,000 records. This is sufficient to reproduce the
+live fields required by the ticket code without any dependency on the legacy
+stadium renderer; field semantics remain tied to their executable consumers.
