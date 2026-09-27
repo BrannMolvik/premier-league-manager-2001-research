@@ -267,6 +267,38 @@ class HumanGameplayControllerTests(unittest.TestCase):
         self.assertTrue(objective.progression_gate_reached)
         self.assertEqual(objective.progression_state, 1)
 
+    def test_financial_objective_dismissal_ends_single_user_control(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+        objective = FinancialObjectiveState(
+            base_cash=1_000_000,
+            candidate_ids=(1, 5, 6),
+        )
+        # Three-year deadline falls in the synthetic 2000 season. ID 6 reaches
+        # its same-PL sporting gate, but current cash remains below 95% target.
+        objective.select(2, date(1997, 8, 1))
+        balance = BalanceRuntimeState(
+            current_cash=objective.starting_funds,
+            financial_objective=objective,
+        )
+        controller.state.finance_balances[1] = balance
+
+        for expected_fixture_id in (0, 10, 20):
+            self.set_available_lineup(controller)
+            self.assertEqual(
+                controller.advance_to_next_user_fixture().id,
+                expected_fixture_id,
+            )
+            controller.play_user_fixture()
+
+        self.assertEqual(controller.state.user_sacking_reason, 5)
+        self.assertIsNone(controller.state.user_controlled_club_id)
+        self.assertIsNone(controller.human)
+        # Original +0x10D8 handling leaves DBRUser/Balance state intact while
+        # the single-user outer loop returns to PStartMenu.
+        self.assertIs(controller.state.finance_balances[1], balance)
+        self.assertEqual(balance.financial_objective.selected_objective_id, 6)
+
     def test_human_cash_transfer_controller_path_moves_player_safely(self):
         controller = self.build_controller()
         controller.select_club(1)
