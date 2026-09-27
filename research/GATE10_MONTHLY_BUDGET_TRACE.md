@@ -352,3 +352,68 @@ budget storage.
 Among the small serialized objects in this DBRUser region, `+0x6A0` remains
 unclassified. It is a linked-list owner persisted by `0x61C290/0x61C230`
 and should be classified next before moving to larger scalar blocks.
+
+
+## DBRUser +0x6A0 is condition-injury state, not chairman finance state
+
+The final compact serialized object in the `+0x6A0..+0x6AC` region is now
+semantically bounded.
+
+### Persistence and record layout
+
+`DBRUser +0x6A0` owns a linked list persisted by:
+
+- write: `0x61C230`;
+- read: `0x61C290`.
+
+Each loaded list record is 0x14 bytes and contains three 16-bit values followed
+by dword state including a date/status field. The wider condition-injury
+runtime record family around `0x61C360..` also carries player-linked state and
+date ranges.
+
+### Direct player linkage
+
+Helper `0x61C4B0` takes the record's 16-bit player index at `+0x08` and
+resolves it directly into the global DBRPlayer table at `0x875640`. The
+subsequent paths call established DBRPlayer/player-status helpers and club
+eligibility routines.
+
+For example, `0x61C6C0..`:
+
+- resolves the record's DBRPlayer;
+- checks player status and active club/manager state;
+- checks club roster capacity;
+- calls player transfer/status helpers including `0x417DD0`,
+  `0x4173B0`, `0x41E1D0`, and club helper `0x405590`;
+- applies bounded RNG decisions before mutating the player/record state.
+
+### Tuning keys identify the subsystem
+
+The same path reads globals:
+
+- `0x821814`;
+- `0x821818`.
+
+Their tuning-loader writes are directly tied to the shipped keys:
+
+- `0x821814` <- **ConditionInjuryInducingLevel**;
+- `0x821818` <- **ConditionInjuryRandomiser**.
+
+Nearby keys are the matching condition-injury duration family, including
+`ConditionInjuryAchillesOutMin/Max`, shin/thigh variants, and related injury
+settings.
+
+This establishes `+0x6A0` as persistent player condition/injury-management
+state, not a staff/wage/maintenance/building/transfer budget owner.
+
+### Consequence
+
+All three formerly-unclassified compact serialized DBRUser owners in this
+region are now removed from the chairman-budget search:
+
+- `+0x6A0`: condition-injury state;
+- `+0x6A4`: out-of-game/injury record container;
+- `+0x6AC`: monthly-summary message bookkeeping.
+
+The next chairman-budget trace should move to the remaining larger
+serialized/scalar DBRUser regions rather than revisiting these objects.
