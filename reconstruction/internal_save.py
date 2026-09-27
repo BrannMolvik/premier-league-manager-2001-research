@@ -43,7 +43,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 3
+SAVE_SCHEMA_VERSION = 4
 
 
 def _iso(value: date | None) -> str | None:
@@ -200,6 +200,7 @@ _PLAYER_FLAG_INJURED = 1 << 2
 _PLAYER_FLAG_SUSPENDED = 1 << 3
 _PLAYER_FLAG_SELECTION_EXCLUDED = 1 << 4
 _PLAYER_FLAG_NON_EU = 1 << 5
+_PLAYER_FLAG_TRANSFER_LISTED = 1 << 6
 
 # Schema-2 player records intentionally use positional arrays. With roughly 30k
 # players, repeating descriptive JSON keys for every player dominated the save
@@ -231,6 +232,7 @@ PLAYER_RECORD_FIELDS = (
     "startup_month_span",
     "weekly_wage",
     "contract_expiry_date",
+    "loan_club_id",
 )
 
 
@@ -248,6 +250,8 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         flags |= _PLAYER_FLAG_SELECTION_EXCLUDED
     if player.non_eu:
         flags |= _PLAYER_FLAG_NON_EU
+    if player.transfer_listed:
+        flags |= _PLAYER_FLAG_TRANSFER_LISTED
 
     training = [int(v) for v in player.training_modifiers]
     return [
@@ -275,6 +279,7 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         int(player.startup_month_span),
         int(player.weekly_wage),
         _iso(player.contract_expiry_date),
+        None if player.loan_club_id is None else int(player.loan_club_id),
     ]
 
 
@@ -318,6 +323,8 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         selection_excluded=bool(flags & _PLAYER_FLAG_SELECTION_EXCLUDED),
         non_eu=bool(flags & _PLAYER_FLAG_NON_EU),
         eu_status_code=int(getattr(source, "eu_status_code", 2)),
+        transfer_listed=bool(flags & _PLAYER_FLAG_TRANSFER_LISTED),
+        loan_club_id=(None if value[24] is None else int(value[24])),
         discipline_yellow_total=int(value[12]),
         discipline_yellow_cycle=int(value[13]),
         suspension_matches_remaining=int(value[14]),
