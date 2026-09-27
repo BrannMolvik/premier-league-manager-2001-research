@@ -106,13 +106,16 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\auto_continue\In
 Then remove the unpacked extension from `chrome://extensions/` if desired.
 
 
-## Recovery policy from version 0.3.1
+## Recovery policy from version 0.3.2
 
 - Transient timeout / connection interruption / Retry / Try again: reuse the existing worker conversation.
-- Silent stale repository heartbeat: reuse the recorded worker conversation first.
+- Silent stale repository heartbeat: reuse the recorded worker conversation first. If that recovery produces no repository activity for 30 minutes, open one fresh inactive recovery tab.
 - True conversation-length / maximum-length limit: create a fresh background conversation using the canonical GitHub handoff.
 - Missing/closed worker tab: a fresh background conversation is an allowed fallback.
 - Extension reload/update clears any stale pending recovery prompt from the previous version.
 
 
 Version 0.3.1 also scans already-rendered error controls on page load, so reloading a ChatGPT tab that is already sitting on Retry can trigger recovery without waiting for a new DOM mutation. Heartbeat polling uses GitHub commit Atom feeds instead of repeated REST branch calls to avoid unauthenticated API throttling.
+
+
+Version 0.3.2 adds a timed escalation guard. The first same-chat recovery starts a 30-minute progress window (configurable through `same_chat_fallback_minutes`). Repeated same-chat attempts do not reset that window. Any new `main` or `agent-runtime` commit clears it. If the window expires with no repository progress, the extension may open a fresh `active: false` ChatGPT recovery tab even when the old worker tab still exists.
