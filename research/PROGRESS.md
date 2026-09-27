@@ -3936,3 +3936,36 @@ completion to debit/credit and insufficient-funds behavior, persist it in the
 next internal save schema, then resume the separate authoritative
 transfer-budget-store trace.
 
+
+
+## 27 September 2026 - Gate 10 current-cash runtime integrated
+
+The first Gate-10 finance slice is implemented and verified.
+
+- Added `reconstruction/finance_state.py` with a clean-room
+  `BalanceRuntimeState` representing the proven Balance `+0x10` current-cash
+  qword and signed accounting postings.
+- Transfer accounting category **1000** is now used for completed transfer
+  buyer/seller postings.
+- Removed the temporary Gate-9 affordability callback from GameState and
+  HumanGameplayController calendar paths.
+- A controlled buyer now checks live Balance cash. Insufficient cash leaves the
+  scheduled transfer pending and does not mutate rosters or finance state.
+- Successful completion debits a materialized buyer Balance and credits a
+  materialized seller Balance by the identical transfer amount before the
+  player switch.
+- Internal save schema advanced to **9** and persists current cash plus the
+  Balance ledger posting amount/category/date.
+- Starting cash is **not** guessed. The original constructor-input source for
+  Balance `0x5DC400` remains unresolved, so a controlled club's cash must be
+  initialized explicitly until that source is recovered.
+
+Verified checkpoint:
+
+`80bc03134ec21a890ef87727a9272ed1e40ee3f6`
+
+GitHub Actions: **492 tests passed**; repository asset-policy workflow passed.
+
+Next: resume the existing chairman quarterly overspending/rebudget trace to
+locate the authoritative live transfer/building budget reserve before modeling
+the other operating budgets.
