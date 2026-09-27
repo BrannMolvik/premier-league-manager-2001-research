@@ -202,6 +202,31 @@ class InternalSaveTests(unittest.TestCase):
         self.assertTrue(restored_player.house)
         self.assertTrue(restored_player.car)
 
+    def test_original_training_state_survives_roundtrip(self):
+        original = self.build_controller()
+        player = original.state.players[1000]
+        player.set_training_method(3)
+        player.training_countdown = 2
+        player.training_active_count = 4
+        player.training_modifiers[1] = 2
+        player.training_skill_states[1] = 0
+        player.training_method_results[3] = 6
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        restored_player = restored.state.players[1000]
+        self.assertEqual(restored_player.training_method_id, 3)
+        self.assertEqual(restored_player.training_countdown, 2)
+        self.assertEqual(restored_player.training_active_count, 4)
+        self.assertEqual(restored_player.training_modifiers[1], 2)
+        self.assertEqual(restored_player.training_skill_states[1], 0)
+        self.assertEqual(restored_player.training_method_results[3], 6)
+
     def test_current_club_join_date_survives_roundtrip(self):
         original = self.build_controller()
         original.state.players[1000].current_club_join_date = date(2000, 5, 1)
