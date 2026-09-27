@@ -4253,3 +4253,30 @@ Exact next target: resolve that final terrace/seating field mapping, then finish
 the two parallel attendance-demand calculations and exact caps/conversion/
 rounding before materializing stadium state and writing deterministic finance
 regressions.
+
+
+## Gate 10 terrace/seating mapping resolved — 28 September 2026
+
+Recovery generation 27 rematerialized the authorized FM2001 source archive only
+in the temporary working container and reverified the canonical executable
+SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+No original binary or extracted game data was added to Git.
+
+The last unresolved ticket-class label in the live gate-receipt path is now
+instruction-locked. PTickets recommendation helper `0x461340` applies an extra
+`0.75` multiplier relative to the otherwise parallel `0x4615B0` path. The
+screen compares ticket field `+0x08` against the discounted result and
+`+0x0C` against the undiscounted result. This proves:
+
+- `+0x08` = terrace ticket price;
+- `+0x0C` = seating ticket price;
+- by the previously proven helper pairing, stadium entry `+0x1C` = terrace
+  capacity and `+0x28` = seating capacity.
+
+The section-state dimension remains independently resolved as state 0 home,
+state 1 visiting, state 2 season-ticket reserved and -1 unavailable.
+
+No runtime behavior changed in this checkpoint. Exact next target: finish the
+two parallel attendance-demand, cap, conversion and randomized-rounding
+pipelines inside `0x5DA2F0` before materializing the minimum stadium state and
+adding deterministic finance regressions.
