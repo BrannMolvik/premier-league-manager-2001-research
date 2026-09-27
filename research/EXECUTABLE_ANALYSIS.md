@@ -6580,3 +6580,103 @@ Next trace: follow the monthly business-income/summary producer and Balance
 monthly aggregates that feed `CMonthHistory`/Business Consultant reporting,
 looking for the seven budget outputs without returning to already-eliminated
 event-constructor and tuning-global paths.
+
+
+## Gate 10 recurring wage/cost paths: categories 101 and 102
+
+The live recurring-cash trace now resolves the ordinary player-payroll cadence
+and the first-of-month support-staff debit without relying on the inactive
+chairman budget-message family.
+
+### Weekly player payroll: 0x4A810D -> 0x40BAD0 -> 0x403C70
+
+Calendar coordinator `0x4A8070` tests:
+
+`(current_date_integer + 5) % 7 == 0`.
+
+On that weekly phase, already mapped to **Saturday** in the 2000/01 calendar,
+it calls `0x40BAD0`. That routine iterates the live club table and calls
+`0x403C70` once per club.
+
+For an eligible club, `0x403C70` iterates its roster and:
+
+- performs weekly player maintenance through `0x41E420`;
+- excludes a player on the human-club branch when the neutral status bit tested
+  by `0x417FF0` is set;
+- excludes `0x41FA50(player, club_id)`, which is exactly the **loaned-in**
+  shape: registered/contract club differs from the current club, active/current
+  club equals the passed club, and the registered club is not `!Spare`;
+- otherwise loads exact weekly wage from `DBRPlayer +0xC4` and adds it to
+  the club payroll total.
+
+On the ordinary executable branch (`0x6596A0 == 0`) the total is passed
+unchanged into club wrapper `0x404390`.
+
+`0x404390` constructs a Balance posting with:
+
+- accounting category **0x65 = 101**;
+- flag **1**;
+- current date;
+- the supplied payroll amount;
+
+then debits the controlled user's active Balance through `0x5DC650`.
+
+There is no monthly conversion in this normal path: the stored weekly wages are
+summed and paid on the weekly Saturday cadence.
+
+The alternate unreachable-in-this-build branch selected only if
+`0x6596A0 != 0` multiplies the accumulated amount by
+`0x7BD550 == 0.25` and adds it to club state at `+0x1C8`; it is not the
+ordinary shipped path.
+
+### Category 101 is broader player-cost accounting
+
+The same category 101 is also used by player routine `0x419400`, called
+from a post-participation/statistics path. That routine posts the player money
+field at `+0x98/+0x9C`, with `+0x98` already mapped from negotiated
+contract terms as appearance fee.
+
+Therefore category 101 is a **player-cost ledger category**, not a label that
+should be narrowed to weekly wages only. Weekly payroll is one confirmed
+producer inside that category.
+
+Finance Overview independently aggregates category 101 through:
+
+- `0x43D216 -> 0x5DC890`;
+- `0x43D24C -> 0x5DD650`;
+- `0x43D29F -> 0x43F1E0`.
+
+### First-of-month support-staff costs: 0x4CA0F0
+
+On day-of-month 1, the calendar coordinator calls `0x4CA0F0`.
+
+The routine iterates support-staff lists at DBRUser `+0x5B8` and
+`+0x5C4`. For each staff object it calls virtual `+0x24`, multiplies
+the returned value by:
+
+- `0x7C6828 = 1000.0`;
+- `0x7C6820 = 1/12`;
+
+then debits active Balance through `0x5DC650`.
+
+The call stack deliberately preserves category/flag arguments across the
+finance-value conversion, proving:
+
+- category **0x66 = 102**;
+- flag **1**.
+
+Finance Overview independently aggregates category 102 at
+`0x43D39D/0x43D3DE/0x43D42B`, confirming that this is a distinct live
+support-staff cost row.
+
+### Reconstruction consequence
+
+RuntimePlayer already materializes weekly wage and loan club state, so the
+ordinary weekly player-payroll debit can now be integrated in Gate 10 without
+inventing new source data.
+
+Support-staff monthly costs are exactly recovered at the accounting/cadence
+level, but the current clean-room runtime does not yet materialize the original
+CSupportStaff salary/cost object. Preserve this path as recovered evidence and
+defer its concrete amount integration until that staff dependency exists,
+rather than inventing staff salaries.
