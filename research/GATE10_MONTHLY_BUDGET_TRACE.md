@@ -877,3 +877,80 @@ experience and finance paths:
 3. if no live budget consumer exists, treat the chairman budget event family
    as a fidelity/legacy compatibility item rather than inventing an
    authoritative mutable store for Gate 10.
+
+
+## Normal Finance/Transfer UI has no chairman-budget consumer
+
+The legacy/inactive-budget hypothesis was tested directly against the two normal
+fresh-game UI classes most likely to expose a live transfer or wage budget.
+
+### PFinanceOverview is Balance/accounting-driven
+
+MSVC RTTI resolves:
+
+- `PFinanceOverview` type descriptor at `0x81B0F0`;
+- Complete Object Locator `0x7E10A8`;
+- vtable `0x7BFCC4`;
+- concrete constructor vtable writes at `0x43F7AC/0x43F81E`.
+
+A bounded disassembly of the full Finance Overview implementation region
+(`0x43C800..0x440190`) finds **no reference** to:
+
+- chairman budget-default globals `0x821D80..0x821DC0`;
+- `TOTALBUDGET`, `PLAYERWAGEBUDGET`, `TRANSFERBUDGET`,
+  `BUILDINGSLIMIT` or the sibling budget formatter keys;
+- the A0/A1 or chairman budget-settings/warning vtables.
+
+Instead, the panel repeatedly resolves `DBRUser +0x670` and calls the live
+Balance aggregate family:
+
+- `0x5DC890` credit/income aggregation;
+- `0x5DD650` debit/outflow aggregation;
+- `0x43F1E0` net aggregation.
+
+This includes the already-proven category-1000 transfer row.
+
+Therefore the normal Finance Overview presents live Balance/accounting data,
+not a separate chairman transfer/wage-budget scalar.
+
+### PTransfer2K likewise has no chairman-budget reference
+
+RTTI resolves:
+
+- `PTransfer2K` type descriptor at `0x81C9A0`;
+- Complete Object Locator `0x7E3CD0`;
+- vtable `0x7C2EB8`;
+- constructor/destructor vtable writes around `0x47B5D6/0x47FA2E`.
+
+A broad disassembly scan across the Transfer screen implementation region
+(`0x47A000..0x482500`) likewise finds no reference to the named budget
+globals, budget formatter keys, or chairman A0/A1/settings/warning vtables.
+
+Transfer affordability remains enforced in the transfer workflow through the
+already-proven current-cash helper `0x404AE0`, outside the presentation
+class.
+
+### Budget-key xrefs are formatter-only
+
+A complete direct xref inventory for the executable literals
+`TOTALBUDGET`, `STAFFBUDGET`, `PLAYERWAGEBUDGET`,
+`MAINTENANCEBUDGET`, `MERCHANDISINGBUDGET`, `MISCBUDGET`,
+`BUILDINGSLIMIT/BUILDINGSBUDGET` and `TRANSFERBUDGET` finds them only
+inside the already-identified chairman / Business Consultant event formatter
+ranges around `0x55C8xx..0x55CExx` and
+`0x572Bxx..0x5736xx`.
+
+The A0/A1 constructors themselves only initialize common event base state
+through `+0x34`; they do not seed the budget payload fields.
+
+### Consequence
+
+There is now no mapped fresh-game producer **and** no normal Finance/Transfer
+UI consumer for a separate chairman transfer-budget scalar in this executable.
+The active FM2001 spending model exposed by ordinary gameplay is instead
+centered on Balance current cash, accounting ledgers and financial objectives.
+
+This is still a bounded static conclusion, not a claim that legacy budget
+events can never be loaded from old save/event state. It does make inventing a
+new live transfer-budget store for the modern port increasingly unjustified
+without new evidence.
