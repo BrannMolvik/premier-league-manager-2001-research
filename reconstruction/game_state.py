@@ -127,6 +127,10 @@ class GameState:
     ai_transfer_buy_counter: dict[int, int] = field(default_factory=dict)
     country_transfer_window_open: dict[int, bool] = field(default_factory=dict)
     user_controlled_club_id: int | None = None
+    # DBRUser +0x10D8: persistent manager-sacking reason. The original
+    # objective evaluator writes this first; the outer manager loop later
+    # consumes it to show the reason-specific message and leave management.
+    user_sacking_reason: int | None = None
     rng: MsvcCrtRng | None = None
 
     def _resolve_rng(self, rng=None):
@@ -628,10 +632,29 @@ class GameState:
 
         # 0x426220 -> 0x5E1D90 is the annual objective evaluation. Its own
         # year gate makes this a no-op until the exact three-year deadline year.
-        return objective.evaluate(
+        evaluation = objective.evaluate(
             balance.current_cash,
             self.calendar.current_date,
         )
+        if evaluation is not None and evaluation.sacking_reason is not None:
+            # 0x5E1D90 -> DBRUser::0x42C6C0 stores the reason at +0x10D8.
+            self.user_sacking_reason = int(evaluation.sacking_reason)
+        return evaluation
+
+    def finalize_single_user_sacking_control(self) -> int | None:
+        """Mirror the shipped single-user DBRUser sacking control transition.
+
+        0x4290F0 consumes +0x10D8 and queues the reason-specific manager-
+        sacking message. With the canonical 0x516010 gate true and only one
+        user, the outer loop leaves management and constructs PStartMenu. The
+        DBRUser/Balance state itself is not destroyed at the reason-write site,
+        so this method only ends active control and keeps the persistent reason.
+        """
+        if self.user_sacking_reason is None:
+            return None
+        reason = int(self.user_sacking_reason)
+        self.user_controlled_club_id = None
+        return reason
 
     def set_current_cash(self, club_id: int, amount: int) -> BalanceRuntimeState:
         """Materialize/update the active Balance current-cash qword for a club."""
@@ -1177,6 +1200,7 @@ class GameState:
             rng,
             user_controlled_club_id=self.user_controlled_club_id,
         )
+        self.finalize_single_user_sacking_control()
         return results
 
     def fixtures_due_today(self):
