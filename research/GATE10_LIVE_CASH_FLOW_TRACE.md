@@ -576,19 +576,63 @@ level. The next Gate-10 dependency is no longer attendance algebra; it is
 materializing the minimum original-compatible ticket/section and stadium state
 needed to feed that formula in the modern runtime.
 
+
+
+### Fresh ordinary ticket-price initialization resolved
+
+The final fresh-state ambiguity for ordinary terrace/seating prices is resolved
+at `0x5DE160`.
+
+The 0x7C ticket object is created with both ordinary price fields zero. The
+original runtime initializes them lazily from a match/business path rather than
+hard-coding them in the object constructor. `0x5DE160` obtains the already-
+recovered competition reference prices through `0x40CBC0`:
+
+- first output = seating reference;
+- second output = exact `0.75 * seating` terrace reference.
+
+Both values pass through the normal finance/money conversion path
+`0x5E43B0 -> 0x5E48D0`. The routine then ranks the club's `DBRClub +0x70`
+fan-base/access index against the other clubs in its league. Helper `0x4F40E0`
+returns the count of league clubs whose own `+0x70` value is less than or equal
+to the target club's value. With league team count `N` and this count `r`, the
+reference price multiplier is exactly:
+
+```text
+if r <= floor(N / 2):
+    multiplier = 0.90
+elif r < N - 5:
+    multiplier = 0.95
+else:
+    multiplier = 1.00
+```
+
+The constants are literal doubles in the executable: 90.0 / 95.0 multiplied by
+0.01 on the discounted branches.
+
+After the multiplier, x87 helper `0x668350` performs the already-proven
+truncation toward zero. The routine writes:
+
+- seating result -> ticket `+0x0C` **only if +0x0C is zero**;
+- terrace result -> ticket `+0x08` **only if +0x08 is zero**.
+
+Existing nonzero prices therefore survive later calls unchanged. This closes
+the fresh ordinary ticket-price state needed by the Gate-10 producer.
+
 ### Remaining formula work
 
 The producer, supporter-side categories and section ownership are now known,
 but implementation remains intentionally blocked until these details are
 closed:
 
-1. materialize only the required original ticket/section and stadium source
-   state at `+0x694/+0x6B0`;
-2. implement the now-complete side-modifier plus four-cell attendance formula;
-3. add deterministic regressions covering position/end-play modifiers, price
-   response, capacity/fan-base caps, truncation, RNG subtraction,
-   home/visiting revenue and season-ticket attendance before normal matchday
-   integration.
+1. materialize the now-mapped original ticket/section and stadium source state
+   at `+0x694/+0x6B0` in the modern runtime;
+2. implement the complete side-modifier, lazy ticket-price initialization and
+   four-cell attendance formula;
+3. add deterministic regressions covering source parsing, initial prices,
+   position/end-play modifiers, price response, capacity/fan-base caps,
+   truncation, RNG subtraction, home/visiting revenue and season-ticket
+   attendance before normal matchday integration.
 
 ## Monthly income report is not a producer
 
