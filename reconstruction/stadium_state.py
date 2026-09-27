@@ -44,6 +44,17 @@ SECTION_ANCHORS: tuple[tuple[int, int], ...] = (
     (17, 23), (22, 23),
 )
 
+SEASON_TICKET_SECTION_ORDER: tuple[int, ...] = (
+    22, 21, 20, 19, 18, 17, 16, 15, 25, 14, 13, 12, 11,
+    24, 10, 9, 8, 7, 6, 5, 4, 23, 3, 2, 1, 0,
+)
+
+VISITING_SECTION_ORDER: tuple[int, ...] = (
+    24, 10, 9, 8, 7, 6, 5, 4, 23, 3, 2, 1, 0,
+    22, 21, 19, 18, 17, 16, 15, 25, 14, 13, 12, 11, 24,
+)
+
+
 
 @dataclass(frozen=True)
 class StadiumBuildingDefinition:
@@ -121,6 +132,78 @@ class StadiumSourceState:
     @property
     def initial_home_capacity(self) -> StadiumSectionCapacity:
         return self.capacity_for_section_state(self.initial_section_states, 0)
+
+
+@dataclass
+class TicketRuntimeState:
+    """Minimum recovered DBRUser +0x694 ticket state needed by Gate 10."""
+
+    season_ticket_quantity: int = 0
+    season_ticket_price: int = 0
+    terrace_price: int = 0
+    seating_price: int = 0
+    auxiliary: int = 0
+    section_states: list[int] | None = None
+
+    def __post_init__(self) -> None:
+        if self.section_states is None:
+            self.section_states = [0] * 26
+        else:
+            self.section_states = [int(value) for value in self.section_states]
+        if len(self.section_states) != 26:
+            raise ValueError("ticket section state must contain exactly 26 values")
+
+    @classmethod
+    def from_stadium(cls, stadium: StadiumSourceState) -> "TicketRuntimeState":
+        return cls(section_states=list(stadium.initial_section_states))
+
+    def allocate_visiting_sections(
+        self,
+        stadium: StadiumSourceState,
+        club_stadium_capacity: int,
+    ) -> int:
+        """Reproduce 0x618A20's mandatory visiting-supporter allocation.
+
+        Existing state-1 sections are first cleared to zero. State -1 and
+        season-ticket state 2 are skipped. The executable then walks its fixed
+        26-entry order and assigns state 1 until accumulated terrace+seating
+        capacity reaches 10 * floor(club_capacity / 100).
+        """
+        for index, state in enumerate(self.section_states):
+            if state == 1:
+                self.section_states[index] = 0
+
+        target = 10 * (max(0, int(club_stadium_capacity)) // 100)
+        accumulated = 0
+        if target <= 0:
+            return 0
+
+        for section_index in VISITING_SECTION_ORDER:
+            if accumulated >= target:
+                break
+            state = int(self.section_states[section_index])
+            if state in (-1, 2):
+                continue
+            instance = stadium.section_instances[section_index]
+            if instance is None or (int(instance.flags) & 0x02):
+                continue
+            definition = stadium.buildings[int(instance.building_id)]
+            capacity = (
+                int(definition.terrace_capacity)
+                + int(definition.seating_capacity)
+            )
+            accumulated += capacity
+            self.section_states[section_index] = 1
+            if accumulated >= target:
+                break
+        return accumulated
+
+    def capacity(
+        self,
+        stadium: StadiumSourceState,
+        selector: int,
+    ) -> StadiumSectionCapacity:
+        return stadium.capacity_for_section_state(self.section_states, selector)
 
 
 def parse_buildings_dat(
