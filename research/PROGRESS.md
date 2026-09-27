@@ -3663,3 +3663,34 @@ the live valuation adapter.
 Next: verify the proposal-total helper for cash-only bids, then connect
 `TransferProposal.submit` -> live seller inputs -> seller decision -> accepted
 player-negotiation state.
+
+
+## 27 September Gate 9 live cash-bid workflow checkpoint
+
+Canonical disassembly completed the seller-value expression used by
+`0x4EF940`.
+
+For ordinary cash-only proposals, setup calls `0x4EFE80(0,0)`. In
+`0x4EFA20`:
+
+- `0x6596A0` contributes zero;
+- `0x4F0E00` contributes zero when all exchange slots are -1;
+- `0x4EFE10` selector 0 contributes zero;
+- proposal `+0x10` contributes the cash fee.
+
+Thus the exact seller comparison for the default cash-only path uses the cash
+fee itself.
+
+Implemented `reconstruction/transfer_workflow.py`:
+
+- exact cash-only proposal total helper;
+- live target/seller/buyer validation;
+- live `0x4205A0` player valuation;
+- live `0x4212F0` protected-player inputs;
+- live `0x405080` eligible selling-squad count;
+- proposal/deal/bid-log creation **before** seller response, matching original
+  lifecycle;
+- returned seller decision (accepted / too cheap / squad too small).
+
+Accepted bids remain pending; player negotiation and completion are intentionally
+not invented in this checkpoint.
