@@ -39,13 +39,13 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-11 code checkpoint:
 
 ```text
-3f7bec072a66437361a908128ea45de9e95b418d
-Test player training state persistence
+efe8a3039536cda6e7470d0237262d859c6cad03
+Test exact weekly training RNG transition
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **555 tests passed**;
+- reconstruction suite: **559 tests passed**;
 - repository asset-policy workflow: **passed**.
 
 Current internal save schema: **13**.
@@ -150,14 +150,18 @@ Several target systems already have substantial research or backend behavior:
    for nonzero profile weights in slots 0..16; method draw counts are
    0/4/4/5/5/6/5. Its timed-effect prepass consumes no RNG, and later
    condition/injury logic is a different function.
-5. Implement the exact weekly counter/countdown/+8/-8 transition as a
-   deterministic primitive with an explicit quality multiplier.
-6. Do **not** attach Saturday calendar execution until Youth Team Coach,
-   Assistant Manager and Training Centre inputs are source-backed in GameState;
-   do not silently assume those original states are absent.
-7. After the weekly primitive and quality source bridge are live, audit the next
-   Gate-11 management workflow rather than broadening training with guessed UI
-   behavior.
+5. **Weekly transition implemented and verified:** the explicit-quality
+   primitive reproduces exact profile draws, +8 gains, countdown-zero -8
+   reversals and eligibility skips without altering calendar progression.
+6. **Active dependency:** recover/materialize the fresh-game Youth Team Coach /
+   Assistant Manager quality source used by the support-staff subsystem, plus
+   Training Centre presence when source-backed. Fresh startup demonstrably
+   creates and assigns support staff, so quality must not default silently to
+   1.0.
+7. Attach Saturday calendar execution only after that quality bridge is
+   deterministic and source-backed.
+8. After live weekly training is verified, audit the next Gate-11 management
+   workflow rather than broadening training with guessed UI behavior.
 
 ## Known live fidelity boundaries
 
