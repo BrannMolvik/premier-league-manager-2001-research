@@ -7448,3 +7448,45 @@ This resolves the semantic relationship with `0x5E1D90`: at the deadline year,
 if `+0x68` was never achieved the manager takes reason **4**; only after the
 sporting objective gate succeeds does the cash target determine clear success,
 near miss, or reason **5** dismissal.
+
+
+## Gate 10 manager-sacking reason and single-user control transition
+
+The concrete side effect of financial-objective dismissal reasons 4 and 5 is
+now traced beyond the objective evaluator.
+
+`0x5E1D90` does not directly construct a sacking event on those failure
+branches. Instead it calls DBRUser helper `0x42C6C0(reason)`. That helper is
+exactly:
+
+```text
+DBRUser +0x10D8 = reason
+```
+
+and returns. Constructor/new-game initialization clears the field, while the
+DBRUser save/load paths serialize it, so this is persistent user/job state.
+
+The later DBRUser routine `0x4290F0` reads `+0x10D8`. When nonzero it builds
+one of five reason-specific manager-sacking EAM/message objects, queues it, and
+returns true. Reason 4 and reason 5 therefore remain distinct all the way into
+the later sacking-message pass.
+
+The sole direct caller at `0x432547` checks that return. The following helper
+`0x516010` reads static byte `0x82856E`, which is **1** in the canonical
+shipped executable. Thus the normal shipped path enters the control-transition
+branch whenever a sacking reason is present.
+
+For a single-user game (user count <=1), that branch clears global active
+control state at `0x875614`, calls `0x4C3280`, and returns from the management
+loop. `0x4C3280` belongs to the already-identified `PStartMenu` front-end
+family (its neighboring event handler is `PStartMenu::... 0x4C3770`) and builds
+the start-menu panel. In multi-user play, the caller instead cycles to another
+user/control context.
+
+Implementation consequence for the current single-user clean-room scope:
+
+- persist the DBRUser-equivalent sacking reason separately from the Balance;
+- do not delete Balance/objective/club state when dismissal occurs;
+- after the current matchday/annual maintenance has completed, end active human
+  club control, matching the original return to Start Menu;
+- keep multi-user cycling deferred until multi-user management is in scope.
