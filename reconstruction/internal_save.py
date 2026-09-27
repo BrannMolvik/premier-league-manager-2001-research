@@ -44,7 +44,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 7
+SAVE_SCHEMA_VERSION = 8
 
 
 def _iso(value: date | None) -> str | None:
@@ -64,6 +64,8 @@ _CLUB_SIGNATURE_FIELDS = (
     "index", "manager_id", "competition_id", "country_id",
     "runtime_value_1c_source", "team_category_code",
     "historical_competition_id", "historical_slot_index",
+    "fan_base_index", "related_club_id_0", "related_club_id_1",
+    "related_club_id_2",
 )
 _MANAGER_SIGNATURE_FIELDS = (
     "index", "club_id", "formation_default", "formation_class3",
@@ -75,7 +77,7 @@ _COMPETITION_SIGNATURE_FIELDS = (
     "runtime_kind_code", "parent_competition_id", "initialization_order_value",
     "country_region_id", "enumerated_club_reference_0",
     "enumerated_club_reference_1", "runtime_instance_count",
-    "scheduled_matchday_count",
+    "scheduled_matchday_count", "valuation_division_category",
 )
 
 
@@ -244,6 +246,8 @@ PLAYER_RECORD_FIELDS = (
     "big_money_offer_clause",
     "house",
     "car",
+    "ai_transfer_block_value_64",
+    "ai_transfer_status_bit_9",
 )
 
 
@@ -301,6 +305,8 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         bool(player.big_money_offer_clause),
         bool(player.house),
         bool(player.car),
+        int(player.ai_transfer_block_value_64),
+        bool(player.ai_transfer_status_bit_9),
     ]
 
 
@@ -357,6 +363,8 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         big_money_offer_clause=bool(value[30]),
         house=bool(value[31]),
         car=bool(value[32]),
+        ai_transfer_block_value_64=int(value[33]),
+        ai_transfer_status_bit_9=bool(value[34]),
         discipline_yellow_total=int(value[12]),
         discipline_yellow_cycle=int(value[13]),
         suspension_matches_remaining=int(value[14]),
@@ -778,6 +786,19 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             for round_index, values in sorted(state.premier_league_scheduler_order.items())
         },
         "transfers": _snapshot_transfer_state(state.transfers),
+        "ai_transfer_buy_counter": {
+            str(int(club_id)): int(value)
+            for club_id, value in sorted(state.ai_transfer_buy_counter.items())
+        },
+        "country_transfer_window_open": {
+            str(int(country_id)): bool(value)
+            for country_id, value in sorted(state.country_transfer_window_open.items())
+        },
+        "user_controlled_club_id": (
+            None
+            if state.user_controlled_club_id is None
+            else int(state.user_controlled_club_id)
+        ),
         "rng_state": None if state.rng is None else int(state.rng.state),
     }
 
@@ -817,9 +838,18 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         int(index): position
         for index, position in enumerate(getattr(database, "positions", ()))
     }
+    access_fan_bases = tuple(
+        getattr(database, "access_fan_bases", ())
+    )
     access_skill_financial_values = tuple(
         getattr(database, "access_skill_financial_values", ())
     )
+    startup_roster_count: dict[int, int] = {
+        club_id: 0 for club_id in clubs
+    }
+    for source_player in getattr(database, "players", ()):
+        club_id = int(source_player.club_id)
+        startup_roster_count[club_id] = startup_roster_count.get(club_id, 0) + 1
 
     league_snapshot = snapshot["premier_league"]
     league = None
@@ -863,7 +893,22 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         competitions=competitions,
         countries=countries,
         positions=positions,
+        access_fan_bases=access_fan_bases,
         access_skill_financial_values=access_skill_financial_values,
+        ai_transfer_startup_roster_count=startup_roster_count,
+        ai_transfer_buy_counter={
+            int(club_id): int(value)
+            for club_id, value in snapshot["ai_transfer_buy_counter"].items()
+        },
+        country_transfer_window_open={
+            int(country_id): bool(value)
+            for country_id, value in snapshot["country_transfer_window_open"].items()
+        },
+        user_controlled_club_id=(
+            None
+            if snapshot["user_controlled_club_id"] is None
+            else int(snapshot["user_controlled_club_id"])
+        ),
         team_tactics={
             int(club_id): TeamTacticalState(
                 play_style=int(value["play_style"]),
@@ -985,6 +1030,7 @@ def restore_human_gameplay(
                 free_kick=tuple(int(v) for v in orders["free_kick"]),
             ),
         )
+        controller.state.user_controlled_club_id = int(human["club_id"])
 
     pending = control["pending_fixture_id"]
     controller.pending_fixture_id = None if pending is None else int(pending)
