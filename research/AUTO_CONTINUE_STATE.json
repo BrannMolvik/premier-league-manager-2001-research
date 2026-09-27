@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 18,
+  "recovery_generation": 19,
   "last_recovery_reason": "stale-repository-activity",
   "note": "Gate 9 seller chairman core decision is complete on main. Current worker owns valuation/count live adapters; avoid repeating the 0x4EF940 seller-decision trace.",
   "same_chat_fallback_minutes": 30
