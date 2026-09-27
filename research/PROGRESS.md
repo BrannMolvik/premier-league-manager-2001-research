@@ -4482,3 +4482,40 @@ Next integration dependencies are the controlled-club facility attendance
 multiplier and the exact four gate-RNG draws' placement relative to match and
 post-match RNG consumers; automatic fixture posting remains disabled until
 those are source-backed.
+
+
+## Gate 10 normal Premier League gate integration — 28 September 2026
+
+The live Gate-10 receipt path is now attached to normal Premier League fixture
+progression.
+
+New source-backed inputs and ordering:
+
+- Premier League `EPBase = 30.0`, giving exact reference prices 30.0 seating
+  and 22.5 terrace;
+- fresh controlled-club facility attendance factor = 0.90 because the original
+  `+0x65C` facility collection starts empty;
+- ordinary side modifiers are derived from the current pre-match league table
+  and selected XI through the recovered `0x5DBA60` formula;
+- each normal league fixture consumes exactly four gate RNG draws after
+  MatchCalculator and before incident/Form RNG, even when no user Balance is
+  credited;
+- controlled home fixtures with materialized source-backed stadium/ticket state
+  post category 1 visiting-supporter and category 2 home-supporter revenue at
+  that exact point.
+
+Implementation commits:
+
+- `17c5680` source-backed gate side-input helpers;
+- `8c7e0fe` exact live-input regressions;
+- `09f243d` normal PL gate RNG/receipt integration;
+- `0d3010d` live input/RNG integration regressions.
+
+GitHub Actions at `0d3010df0dbbb60ab147d40dedd1ad83ff533965`:
+
+- reconstruction suite: **531 tests passed**;
+- repository asset-policy workflow: **passed**.
+
+The ordinary PL gate-receipt path is no longer the active research blocker.
+Next Gate-10 trace: close Balance credit `0x5DC510`'s secondary category-1600
+debit conversion/rounding before integrating it.
