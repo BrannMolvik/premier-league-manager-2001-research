@@ -698,6 +698,17 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         int(comp.id): comp
         for comp in getattr(database, "competitions", ())
     }
+    countries = {
+        int(country.id): country
+        for country in getattr(database, "countries", ())
+    }
+    positions = {
+        int(position.id): position
+        for position in getattr(database, "positions", ())
+    }
+    access_skill_financial_values = tuple(
+        getattr(database, "access_skill_financial_values", ())
+    )
 
     league_snapshot = snapshot["premier_league"]
     league = None
@@ -739,6 +750,9 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         clubs=clubs,
         managers=managers,
         competitions=competitions,
+        countries=countries,
+        positions=positions,
+        access_skill_financial_values=access_skill_financial_values,
         team_tactics={
             int(club_id): TeamTacticalState(
                 play_style=int(value["play_style"]),
