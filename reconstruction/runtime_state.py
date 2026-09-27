@@ -180,6 +180,10 @@ class RuntimePlayer:
     big_money_offer_clause: bool = False
     house: bool = False
     car: bool = False
+    # Gate-9 weekly AI acquisition consumes two still-neutrally named runtime
+    # fields. Fresh constructors/reset paths establish these exact defaults.
+    ai_transfer_block_value_64: int = -1
+    ai_transfer_status_bit_9: bool = False
 
     @classmethod
     def from_database_player(
