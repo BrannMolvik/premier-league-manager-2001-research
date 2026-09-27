@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Finish original training method-change semantics, then materialize persistent per-player training method/countdown/counters with human selection and save support before weekly Saturday activation.",
-  "last_known_main_head": "8222c710dd67eda4826fd20b020a278769004afc",
+  "active_task": "Translate mandatory weekly 0x4EACE0 training transition and exact shared RNG order; keep specialist-coach, condition/injury and timed-effect branches isolated until source-backed.",
+  "last_known_main_head": "769165ff73f48054367a2787350d6a7ffa4d2fdd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 34,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate 11 training cadence/state checkpoint is on main 8222c710. Weekly eligibility is now rechecked as injury bit0 OR separate selection-exclusion bit2. Method setter trace remains active.",
+  "note": "Human per-player training method/state and save schema 13 verified at 3f7bec072 (555 tests + asset policy). Continue only exact weekly training transition/RNG trace before calendar hook.",
   "same_chat_fallback_minutes": 30
 }
