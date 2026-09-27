@@ -7148,3 +7148,47 @@ This removes another caller-supplied input from the normal Premier League gate
 receipt path. The separate controlled-club facility multiplier and exact RNG
 placement relative to the match/post-match pipeline still need to be attached
 before automatic posting is enabled.
+
+
+## Gate 10 normal Premier League gate integration boundary
+
+The final live inputs and RNG placement for the ordinary Premier League path are
+now instruction-locked.
+
+`0x40CBC0` selects the named `EPBase` tuning value for the Premier League.
+The loader initializes `EPBase` to exact double **30.0**, so normal PL
+reference prices are **30.0 seating** and **22.5 terrace**.
+
+Controlled-club helper `0x42B0E0` returns the attendance facility multiplier:
+
+```text
+factor = 0.90
+if Hotel:      factor += 0.08 * (level + 1)
+if Club House: factor += 0.04 * (level + 1)
+if Parking:    factor += 0.05 * (level + 1)
+```
+
+Fresh `DBRUser +0x65C` facility state is constructed empty. Therefore the
+exact fresh-game controlled-club factor is **0.90** until those later building
+states exist.
+
+The high-level LeagueMatch path fixes RNG placement. Normal match calculation
+returns before `0x513252 -> 0x5DA2F0`. The following virtual `+0x3C`
+dispatch resolves to `0x5132E0 -> 0x511370`, which then reaches
+`0x5127A0` post-match incident persistence and the later Form processing.
+Consequently the attendance producer's four randomized-subtraction draws occur
+after MatchCalculator but before any post-match red-card, persistent-injury, or
+Form RNG.
+
+The call is not conditional on a user Balance. Every ordinary LeagueMatch
+executes the attendance producer and therefore consumes the four draws. Balance
+crediting remains conditional on the relevant controlled club.
+
+The clean-room PL fixture flows now reproduce this boundary: gate inputs are
+snapshotted from the pre-result table and selected XI, the match is simulated,
+four shared-stream draws are consumed in home seating / visiting seating / home
+terrace / visiting terrace order, and any category-1/2 receipt is posted before
+incident/Form persistence.
+
+CI at `0d3010df0dbbb60ab147d40dedd1ad83ff533965` passed 531 tests plus
+the asset-policy workflow.
