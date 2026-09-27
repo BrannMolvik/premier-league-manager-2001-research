@@ -3613,3 +3613,28 @@ GitHub Actions at `8f7936d9badd1744e851c2027f9ac1818a7bd7de`:
 Next: trace the selling-club offer-decision routine/reason codes from the
 executable. Do not guess the Poor Offer / Key Player / Can't Spare / Hot
 Prospect / rival thresholds.
+
+
+## 27 September Gate 9 - selling-club bid decision recovered
+
+Canonical executable tracing resolved the ordinary seller-chairman decision at
+`0x4EF940`.
+
+Exact order:
+
+- target under 30 with fewer than 11 higher-rated squadmates:
+  reject as **Too Cheap** when total proposal value is strictly below 60% of
+  `0x4205A0` player value;
+- otherwise/after passing price, reject as **Too Small Squad** when
+  `0x405080` returns fewer than 17 eligible/countable players;
+- otherwise route to **Offer Accepted / Approach Player**.
+
+RTTI directly names all three paths:
+`EAMTPChairmanBlockTooCheap*`,
+`EAMTPChairmanBlockTooSmallSquad*`, and
+`EAMTransferOfferAcceptedMsub` / `EAMTPUserApproachPlayersub`.
+
+The pure evidence-backed decision is implemented in
+`reconstruction/transfer_decision.py` with boundary tests. The adapter for
+`0x4205A0` valuation and the full four-bit `0x405080` eligibility count
+remain separate so no unresolved semantics are guessed.
