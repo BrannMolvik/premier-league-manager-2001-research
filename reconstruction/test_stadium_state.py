@@ -109,7 +109,10 @@ class StadiumSourceStateTests(unittest.TestCase):
                     (anchor0[0], anchor0[1], 0),
                     (anchor4[0], anchor4[1], 1),
                 ],
-                [0, 0x02],
+                # Per-instance flag bytes are consumed in the original 40x40
+                # grid scan order. anchor4 (17,16) precedes anchor0 (21,15),
+                # so mark that first instantiated section unavailable.
+                [0x02, 0],
             ),
             buildings,
         )
