@@ -157,6 +157,16 @@ class HumanGameplayController:
             raise RuntimeError("select a human club first")
         return self.state.ordered_club_roster(self.human.club_id)
 
+    def set_player_training_method(self, player_id: int, method_id: int) -> None:
+        """Assign one of the seven original per-player training methods."""
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        player_id = int(player_id)
+        player = self.state.players.get(player_id)
+        if player is None or int(player.club_id) != int(self.human.club_id):
+            raise ValueError("player is not in the human-controlled squad")
+        player.set_training_method(int(method_id))
+
     def set_tactics(self, tactics: TeamTacticalState) -> None:
         if self.human is None:
             raise RuntimeError("select a human club first")
