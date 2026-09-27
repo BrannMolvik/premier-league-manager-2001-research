@@ -7833,3 +7833,42 @@ This narrows the remaining training startup problem to:
 4. then reproduce the six fixed staff draws on the same shared CRT stream.
 
 No support-staff semantic uncertainty remains at this boundary.
+
+
+## Gate 11 secondary Euro-seed DummyLeague RNG cost
+
+The secondary-container Euro seed pools used by Cup initializer `0x4F5A30`
+are now source-backed from the compact club database rather than inferred from
+runtime behavior.
+
+New-game setup `0x4F7C00` constructs DummyLeague IDs **182..187** and fills
+their current participant arrays from each club's historical/qualification
+allocation pair (Master.dat club +32/+36, already mapped to the competition
+enumeration target and preferred slot). Canonical source counts are:
+
+```text
+182 Euro Seeds 1   9
+183 Euro Seeds 2   9
+184 Euro Seeds 3   9
+185 Euro Seeds 4   9
+186 Euro Seeds 5   9
+187 Euro Seeds 6   6
+                     --
+                     51
+```
+
+All 51 clubs are current members of Europe DummyLeague 170. The six seed sets
+therefore form a complete partition of the European national-team pool.
+
+During secondary Cup initialization, the European Championship / World Cup
+special paths at `0x4F5D75/0x4F5D9B/0x4F5E08` call
+`League::EnsureSorted 0x4F4940` on these seed DummyLeagues. The DummyLeague
+sort flag makes only the first access to each seed RNG-bearing; its virtual
+sort `0x4F4750` consumes one bounded CRT draw per participant. Consequently
+the complete first-lazy-sort cost of the six seed pools is exactly **51 CRT
+draws**, regardless of how many later accesses the Cup loops make.
+
+This is one fixed component of the secondary `0x947AF0 -> 0x616620` startup
+RNG replay. Cup-round and child-League scheduling plus `0x4FA790` and the
+secondary final bucket shuffle remain to be composed before the post-secondary
+staff-pool seed is closed.
