@@ -6266,3 +6266,116 @@ as **months** to the global current date to set contract expiry `+0x154`.
 Finally `0x41EFB0` records CPlayerMovement through `0x515290` and enters
 the same `0x422B80 -> 0x422F40/0x422F70` club-switch family already used by
 the ordinary transfer reconstruction.
+
+
+### Remaining weekly-acquisition predicates resolved at instruction level
+
+Recovery generation 21 reopened only the still-unknown predicates around the
+already-mapped `0x40DC90 -> 0x40DBB0 -> 0x41EFB0` path. The following
+details come from the same canonical `FOOTBAL.EXE`
+(SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`).
+
+#### Club manager and transfer-window gates
+
+`0x403E10` is a concrete active-manager test. Club `+0x40` is the manager
+index. If it is not -1, the routine indexes the manager table at
+`0x875628` using 64-byte records and validates manager `+0x24`; an invalid
+manager clears club `+0x40` back to -1. The routine returns true exactly
+when a valid manager remains. This layout agrees with the already parsed
+`Club.manager_id` / `Manager.club_id` relationship in `Master.dat`.
+
+`0x403E70`, used by the weekly buyer path, requires all of the following:
+
+- club name is not the literal `FREE TRANSFER`;
+- `0x403640` is false, i.e. club byte `+0x74` is neither 2 nor 3;
+- the club name does not begin with `!`;
+- `0x405880` returns nonzero;
+- when roster count `club+0x294` is greater than 28, byte
+  `club+0x1ED` is no greater than either `MaxPlayersBuyMonthly`
+  (`0x8223F8`) or `MaxPlayersBuySeason` (`0x822400`);
+- `0x403E10` returns true.
+
+`0x405890` indexes the 108-byte runtime country record table at
+`0x874BE0` using club `+0x14`; `0x405880` returns country byte
+`+0x54`. This byte is a runtime on/off gate driven by the country's dated
+window machinery: `0x411380` toggles it, and `0x4111E0`,
+`0x411250`, and `0x411260` test the four dated boundary slots at
+country `+0x58/+0x5C/+0x60/+0x64`. Therefore the acquisition path is
+country/window gated, not globally unconditional. The exact source-file
+field that seeds this runtime byte is still intentionally left unnamed.
+
+#### Buyer intermediate roster-capacity gate
+
+The previously opaque `0x4F33B0` call in `0x40DC90` is now exact. It is
+called with `ecx = club+0x1E0` and current roster count. It reads byte
+`[ecx+8]` (club `+0x1E8`), subtracts 2, and succeeds iff:
+
+```text
+roster_count < club_byte_1e8 - 2
+```
+
+The semantic label of club `+0x1E8` remains unresolved, so reconstruction
+should preserve this as an explicitly named capacity input rather than guess a
+business meaning.
+
+#### Seller spare-roster test
+
+`0x40C7D0` first requires raw roster count to remain strictly greater than
+`AccessFanBase.field_48 - 4`. It then walks the seller roster and discounts
+a player from the effective count when any of these hold:
+
+- player registered/contract club `+0x10` does not match seller club id;
+- player active/current club `+0x72` does not match seller club id;
+- player status bit 9 in dword `+0x14` is set.
+
+After every discount the effective count must still be strictly greater than
+the same retained-roster threshold.
+
+#### Exact positional spare-player gate in 0x4088E0
+
+After the seller-wide spare-roster check, `0x4088E0(candidate, seller)`
+rejects the candidate if `0x417460(candidate)` is true, requires player
+`+0x72 == +0x10`, then compares positional coverage.
+
+`0x417460` itself is now exact but its business label is not: it returns
+true iff signed dword `player+0x64 > -1`. Constructors and reset paths set
+this field to -1. No guessed semantic name is assigned yet.
+
+The candidate's runtime position at `player+0x248` is converted by
+`0x4EA310` to the already parsed `Position.lineup_group`. `0x406950`
+normalizes that group through this exact 20-entry coverage-equivalence table:
+
+```text
+[0, 1, 2, 3, 4, 4, 2, 3, 4, 6, 7, 8, 9, 7, 8, 6, 0, 0, 10, 10]
+```
+
+It counts seller roster members whose normalized coverage group matches the
+candidate. `0x4087E0` supplies this exact raw-lineup-group minimum table:
+
+```text
+[0, 2, 1, 1, 4, 4, 2, 2, 4, 3, 2, 2, 3, 2, 2, 3, 0, 0, 3, 3]
+```
+
+The candidate is saleable only when the matching normalized coverage count is
+**strictly greater** than that minimum.
+
+#### Autonomous contract-duration table and unit
+
+The `0x423340` autonomous contract table is now decoded completely. Rows
+are competition/category indices 0..4; columns are age bands
+`<=18, 19-21, 22-25, 26-28, 29-31, >31`:
+
+```text
+category 0: 7.0, 5.0, 4.0, 4.0, 3.0, 2.5
+category 1: 4.5, 4.0, 4.0, 3.0, 2.5, 2.0
+category 2: 3.5, 3.0, 3.0, 2.5, 2.0, 2.0
+category 3: 3.0, 2.5, 2.5, 2.0, 2.0, 2.0
+category 4: 2.0, 3.0, 3.0, 2.0, 2.0, 1.0
+```
+
+`0x41EFB0` truncates the selected float toward zero before storing it in the
+contract staging object. `0x422F40` copies it to player word `+0x200`,
+and `0x422F70 -> 0x4192B0 -> 0x64CDD0` applies that integer as **calendar
+months**. The resulting 1-7 month autonomous terms look unusually short, but
+the unit is now directly verified by date arithmetic and should not be
+silently converted to years.
