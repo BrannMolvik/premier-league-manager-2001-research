@@ -954,3 +954,75 @@ This is still a bounded static conclusion, not a claim that legacy budget
 events can never be loaded from old save/event state. It does make inventing a
 new live transfer-budget store for the modern port increasingly unjustified
 without new evidence.
+
+
+## Generic A0/A1 factory is reached from DBRUser save-load only
+
+The last plausible fresh-game bootstrap loophole for the generic budget-event
+factory is now closed at the enclosing DBRUser persistence routines.
+
+### 0x5CF840 is the DBRUser event-list reader
+
+The call at `0x42744C -> 0x5CF840` sits inside the large DBRUser
+deserialization routine beginning around `0x427250`.
+
+The surrounding routine repeatedly calls stream-read primitive `0x667E90`
+while rebuilding persisted DBRUser state, including:
+
+- support-staff lists;
+- the event list at `DBRUser +0x6B4`;
+- six Balance objects at `+0x670..+0x684`;
+- finance/business objects such as concession, stadium-section, bank-loan and
+  sponsor state;
+- injury/condition objects;
+- stadium state;
+- history containers and later raw/preset state.
+
+At `0x427442` the event-list owner at `+0x6B4` is loaded, the stream
+handle is pushed, and `0x5CF840` is called.
+
+Inside `0x5CF840`:
+
+1. `0x667E90` reads the serialized list count;
+2. for each item it reads type/subtype dwords;
+3. subtype zero reaches generic EAM factory `0x538DE0`;
+4. the returned event's virtual load method at vtable +0x04 reads its payload;
+5. the event is appended to the list.
+
+This is binary persistence reconstruction, not gameplay event production.
+
+### 0x5CF8E0 is the mirror writer
+
+The paired call at `0x427DE7 -> 0x5CF8E0` occurs in the corresponding
+DBRUser serialization path.
+
+`0x5CF8E0`:
+
+- counts the linked event records;
+- writes the count and event type/subtype values with stream-write primitive
+  `0x667FA7`;
+- calls each event's virtual save/serialize method.
+
+The read/write symmetry independently confirms the role of the A0/A1 factory
+call path.
+
+### Consequence
+
+There is no normal-new-game serialized template feeding the generic factory.
+The only mapped route capable of constructing A0/A1 through
+`0x538DE0` is **loading previously serialized DBRUser event state**.
+
+Combined with:
+
+- unique constructor/vtable writes;
+- no ordinary factory function pointer;
+- no typed fresh-game construction/enqueue site;
+- no normal Finance Overview or Transfer-screen consumer;
+- loader-only named budget defaults;
+
+the shipped executable provides no mapped ordinary fresh-game path that creates
+or consumes the separate chairman transfer/wage-budget message payloads.
+
+The remaining evidence is most consistent with a legacy/persistence-compatible
+budget-event family rather than an active authoritative budget store that the
+modern port should invent.
