@@ -162,8 +162,12 @@ Completion requires:
     movement, join-date/signing-bit cleanup, movement history, the 40-player
     +7-day retry, and explicit Gate-10 affordability dependency. Schema 7
     persists the full completion state. CI at `de175a60`: **477 tests passed**.
-11. Add AI transfer activity during calendar progression, then build canonical
-    transfer regressions and re-audit every Gate-9 criterion.
+11. **In progress:** canonical executable now proves a recurring weekly AI
+    acquisition path:
+    `0x40DD70 -> 0x40DC90(buyer) -> 0x40DBB0(seller) -> 0x41EFB0(target,buyer)`.
+    Finish the exact `0x41EFB0` pricing/contract constants and remaining
+    club/candidate predicates, then wire this path into calendar maintenance,
+    build canonical regressions, and re-audit Gate 9.
 
 ## Gate 9 completion criteria
 
