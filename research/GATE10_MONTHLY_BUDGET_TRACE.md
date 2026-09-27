@@ -43,3 +43,32 @@ The strongest remaining path is generic event/template/rule population:
 identify the machinery that creates or clones Business Consultant / board
 events and follow the source values written to `EAMbcmonthlybudget` fields
 `+0x3C..+0x54`.
+
+
+## Global enqueue classification
+
+The common EAM queue insertion path is now identified as:
+
+- a 12-byte `MPMEAMail` wrapper (vtable `0x7BD564`);
+- dated from the current calendar;
+- enqueued into global queue `0x947AA8` through `0x613EC0`.
+
+A complete vtable/RTTI classification of direct `0x613EC0` producer sites was
+run across the executable. In the finance/business range, direct payloads
+resolve to season tickets, funding requests, financial objectives, stadium
+messages, loans/transfers and similar already-mapped event families.
+
+Extending the same classification to all direct enqueue sites found **no**
+directly constructed payload whose RTTI is `EAMchairbudgetsettings`,
+`EAMchairbudgetwarning`, `EAMbcmonthlyincome`,
+`EAMbcstartseasonmail`, or `EAMbcmonthlybudget`.
+
+This is positive evidence that the chairman/Business Consultant budget family
+does not enter the mail queue through the ordinary pattern of local typed-event
+construction followed by `MPMEAMail -> 0x613EC0`. The remaining producer is
+therefore very likely a generic/generated/template path that supplies an event
+pointer without a nearby class-vtable write.
+
+Next target: trace the named `ModFmt::BusinessConsultant` runtime class and
+generic generated-event machinery rather than scanning additional direct
+enqueue sites.
