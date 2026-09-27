@@ -30,13 +30,6 @@ function Get-ConfigInt($Object, [string]$Name, [int]$Default) {
     return [int]$property.Value
 }
 
-function Get-JsonUrl([string]$Url) {
-    Invoke-RestMethod -Uri $Url -Headers @{
-        "User-Agent" = "FM2001-AutoContinue-Watchdog"
-        "Accept" = "application/vnd.github+json"
-    } -TimeoutSec 20
-}
-
 function Get-RuntimeState {
     $stamp = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
     $url = "https://raw.githubusercontent.com/$Repo/$RuntimeBranch/research/AUTO_CONTINUE_STATE.json?ts=$stamp"
@@ -44,13 +37,18 @@ function Get-RuntimeState {
 }
 
 function Get-BranchActivity([string]$Branch) {
-    $url = "https://api.github.com/repos/$Repo/branches/$Branch"
-    $data = Get-JsonUrl $url
-    $dateText = $data.commit.commit.committer.date
-    if (-not $dateText) { $dateText = $data.commit.commit.author.date }
+    $stamp = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+    $url = "https://github.com/$Repo/commits/$Branch.atom?ts=$stamp"
+    $response = Invoke-WebRequest -UseBasicParsing -Uri $url -Headers @{
+        "User-Agent" = "FM2001-AutoContinue-Watchdog"
+        "Accept" = "application/atom+xml"
+    } -TimeoutSec 20
+    $match = [regex]::Match([string]$response.Content, "<updated>([^<]+)</updated>", "IgnoreCase")
+    if (-not $match.Success) {
+        throw "No <updated> timestamp in GitHub commit feed for $Branch"
+    }
     [PSCustomObject]@{
-        Sha = $data.commit.sha
-        Timestamp = if ($dateText) { [DateTimeOffset]::Parse($dateText) } else { [DateTimeOffset]::MinValue }
+        Timestamp = [DateTimeOffset]::Parse($match.Groups[1].Value)
     }
 }
 
