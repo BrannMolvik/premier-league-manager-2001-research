@@ -6,6 +6,10 @@ from time import time
 from typing import Callable, Iterable
 
 from competition_state import PremierLeagueState
+from finance_state import (
+    BalanceRuntimeState,
+    TRANSFER_ACCOUNT_CATEGORY,
+)
 from match_condition import ConditionInjurySettings
 from match_environment import (
     MatchEnvironment,
@@ -89,6 +93,11 @@ class GameState:
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
     premier_league_scheduler_order: dict[int, tuple[int, ...]] = field(default_factory=dict)
     transfers: TransferRuntimeState = field(default_factory=TransferRuntimeState)
+    # Original DBRUser owns Balance pointers rather than club-wide finance
+    # scalars. The clean-room runtime keys materialized Balance objects by the
+    # controlled club they belong to. Starting cash is intentionally not
+    # invented; callers initialize a balance when its source value is known.
+    finance_balances: dict[int, BalanceRuntimeState] = field(default_factory=dict)
     # Gate-9 source/runtime inputs for the recovered weekly club acquisition
     # path. Startup roster counts are immutable initialization baselines;
     # country gates start enabled at 0x4117C6; the neutral buy-counter byte is
@@ -353,17 +362,79 @@ class GameState:
             user_controlled_club_id=user_controlled_club_id,
         )
 
+    def set_current_cash(self, club_id: int, amount: int) -> BalanceRuntimeState:
+        """Materialize/update the active Balance current-cash qword for a club."""
+        club_id = int(club_id)
+        amount = int(amount)
+        if club_id not in self.clubs and club_id not in self.club_roster_order:
+            raise KeyError(club_id)
+        balance = self.finance_balances.get(club_id)
+        if balance is None:
+            balance = BalanceRuntimeState(current_cash=amount)
+            self.finance_balances[club_id] = balance
+        else:
+            balance.current_cash = amount
+        return balance
+
+    def current_cash(self, club_id: int) -> int:
+        club_id = int(club_id)
+        try:
+            return int(self.finance_balances[club_id].current_cash)
+        except KeyError as exc:
+            raise RuntimeError(
+                f"current cash is not initialized for club {club_id}"
+            ) from exc
+
+    def can_afford_current_cash(self, club_id: int, amount: int) -> bool:
+        club_id = int(club_id)
+        try:
+            balance = self.finance_balances[club_id]
+        except KeyError as exc:
+            raise RuntimeError(
+                f"current cash is not initialized for club {club_id}"
+            ) from exc
+        return bool(balance.can_afford(int(amount)))
+
+    def post_transfer_cash(
+        self,
+        *,
+        buyer_club_id: int,
+        seller_club_id: int,
+        amount: int,
+    ) -> None:
+        """Apply the recovered category-1000 transfer cash postings.
+
+        Original wrappers resolve a Balance only for a user-controlled club.
+        The reconstruction therefore posts only to materialized Balance objects:
+        a controlled buyer is debited and a controlled seller is credited.
+        """
+        buyer_club_id = int(buyer_club_id)
+        seller_club_id = int(seller_club_id)
+        amount = int(amount)
+        if amount <= 0:
+            # Movement sentinels/free transfers are not cash postings.
+            return
+        buyer = self.finance_balances.get(buyer_club_id)
+        if buyer is not None:
+            buyer.debit(
+                amount,
+                category=TRANSFER_ACCOUNT_CATEGORY,
+                posting_date=self.calendar.current_date,
+            )
+        seller = self.finance_balances.get(seller_club_id)
+        if seller is not None:
+            seller.credit(
+                amount,
+                category=TRANSFER_ACCOUNT_CATEGORY,
+                posting_date=self.calendar.current_date,
+            )
+
     def run_due_transfer_maintenance(
         self,
         *,
         user_controlled_club_id: int | None = None,
-        can_afford=None,
     ):
-        """Execute due recovered MPMTransferPlayer objects.
-
-        The controlled-buyer cash check remains an explicit Gate-10 dependency.
-        Callers with a human buying club must supply can_afford(club_id, fee).
-        """
+        """Execute due recovered MPMTransferPlayer objects using live Balance cash."""
         from transfer_workflow import execute_due_ordinary_cash_transfers
 
         if user_controlled_club_id is None:
@@ -371,21 +442,20 @@ class GameState:
         return execute_due_ordinary_cash_transfers(
             self,
             user_controlled_club_id=user_controlled_club_id,
-            can_afford=can_afford,
         )
 
-    def advance_one_day(self, *, transfer_can_afford=None) -> date:
+    def advance_one_day(self) -> date:
         self.calendar.increment_one_day()
         self.calendar.run_post_fixture_maintenance()
-        self.run_due_transfer_maintenance(can_afford=transfer_can_afford)
+        self.run_due_transfer_maintenance()
         self.run_weekly_ai_transfer_maintenance()
         return self.calendar.current_date
 
-    def advance(self, days: int, *, transfer_can_afford=None) -> date:
+    def advance(self, days: int) -> date:
         if days < 0:
             raise ValueError("days must be non-negative")
         for _ in range(days):
-            self.advance_one_day(transfer_can_afford=transfer_can_afford)
+            self.advance_one_day()
         return self.calendar.current_date
 
     def install_premier_league_scheduler_order(
