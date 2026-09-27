@@ -653,3 +653,46 @@ reason from the transfer/building-budget search.
 Next trace should focus on remaining DBRUser scalar fields and board/monthly
 arithmetic outside the now-classified serialized containers, rather than
 continuing to search the +0x700..+0x10D8 save region.
+
+
+## DBRUser +0x694 is stadium-section state, not chairman budget storage
+
+The previously unclassified persistent pointer at `DBRUser +0x694` is now
+bounded by its constructor, serializer, and live consumers.
+
+### Persistent object shape
+
+DBRUser setup allocates exactly **0x7C bytes** for `+0x694`.
+The object is serialized by:
+
+- read: `0x6186E0`;
+- write: `0x618750`.
+
+Those routines persist five leading dwords followed by a contiguous 0x68-byte
+tail. The tail is exactly **26 dwords** beginning at object `+0x14`.
+
+### Live consumers are stadium-section calculations
+
+Initialization and update helpers `0x6187E0`, `0x618A20`,
+`0x618B60`, `0x618C10` and related routines iterate exactly 26 entries.
+For each index they query the stadium structure at `DBRUser +0x6B0`, resolve
+a stadium section through the collection at stadium `+0x1B98`, and read
+section flags/capacity-derived values.
+
+The 26 persisted dwords are tested and assigned as small state values such as
+0, 1, 2, and -1. Downstream monthly/business routines at `0x429904`,
+`0x429BB4`, `0x42A111`, `0x42A5D2` and `0x42C1F2` combine the
+object's leading `+0x08/+0x0C` values with stadium capacity helpers
+`0x65DA60/0x65D9B0` and the per-section state.
+
+This is stadium/attendance-section state, not a compact set of chairman
+staff/wage/maintenance/building/transfer allocations.
+
+Therefore `DBRUser +0x694` is removed from the live transfer-budget search.
+
+### Remaining storage search
+
+The known persistent finance-adjacent DBRUser owners from `+0x688` through
+`+0x6B0` are now all semantically bounded. The chairman reserve trace should
+move away from this pointer cluster and toward the board/accounting arithmetic
+that calculates quarterly budget outcomes or toward other non-DBRUser owners.
