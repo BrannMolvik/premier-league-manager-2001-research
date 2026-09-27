@@ -4553,3 +4553,25 @@ GitHub Actions at `3fc54ed8524fabade0f37be7017f84d5e967a279`:
 Exact next Gate-10 task: trace `Balance` constructor `0x5DC400` and its
 fresh-game callers to recover authoritative new-game starting cash instead of
 requiring an explicit caller-supplied value.
+
+
+## Gate 10 starting cash source resolved — 28 September 2026
+
+Recovery generation 33 continued only the active Balance initialization trace.
+The source is now closed end-to-end:
+
+- `Balance::Balance 0x5DC400` is zero-initialized on fresh DBRUser creation;
+- DBRUser startup `0x425680` later reads controlled-club
+  `DBRClub +0xD0/+0xD4` and writes the converted value to active Balance
+  `+0x10`;
+- compact club parser `0x4022D0` reads that qword directly from
+  `Master.dat` club bytes **+165..+172**;
+- runtime copier `0x403660` preserves it unchanged;
+- the field is IEEE-754 double starting cash, e.g. Arsenal 28,000,000.0 and
+  Manchester United 34,000,000.0;
+- the standard analyzed build uses currency scale 1.0, so fresh current cash is
+  exactly the packed double.
+
+This removes the last reason to require a guessed or externally supplied
+starting Balance amount. Next task: parse the field into `Club`, materialize the
+controlled club Balance from it, and add deterministic parser/runtime tests.
