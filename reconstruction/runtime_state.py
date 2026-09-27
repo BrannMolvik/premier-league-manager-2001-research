@@ -173,6 +173,13 @@ class RuntimePlayer:
     loan_club_id: int | None = None
     signed_for_other_club: bool = False
     current_club_join_date: date | None = None
+    promotion_bonus: int = 0
+    appearance_fee: int = 0
+    relegation_transfer_request_clause: bool = False
+    big_club_offer_clause: bool = False
+    big_money_offer_clause: bool = False
+    house: bool = False
+    car: bool = False
 
     @classmethod
     def from_database_player(
