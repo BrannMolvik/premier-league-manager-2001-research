@@ -134,6 +134,17 @@ class PlayerBidLogEntry:
 
 
 @dataclass(frozen=True)
+class ScheduledTransfer:
+    proposal: TransferProposal
+    due_date: date
+    mode: int = 0
+
+    def __post_init__(self):
+        if int(self.mode) not in (0, 1):
+            raise ValueError("MPMTransferPlayer mode must be 0 or 1")
+
+
+@dataclass(frozen=True)
 class PlayerMovement:
     player_id: int
     from_club_id: int
@@ -156,6 +167,7 @@ class TransferRuntimeState:
     deals: dict[int, DealInProgress] = field(default_factory=dict)
     bid_log: dict[tuple[int, int], PlayerBidLogEntry] = field(default_factory=dict)
     movements: list[PlayerMovement] = field(default_factory=list)
+    scheduled_transfers: list[ScheduledTransfer] = field(default_factory=list)
 
     def proposal_key(self, player_id: int, buying_club_id: int) -> tuple[int, int]:
         return (int(player_id), int(buying_club_id))
@@ -212,6 +224,9 @@ class TransferRuntimeState:
 
     def record_movement(self, movement: PlayerMovement) -> None:
         self.movements.append(movement)
+
+    def schedule_transfer(self, scheduled: ScheduledTransfer) -> None:
+        self.scheduled_transfers.append(scheduled)
 
     def clear_proposal(self, player_id: int, buying_club_id: int) -> None:
         self.proposals.pop(
