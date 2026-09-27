@@ -3,8 +3,10 @@ from datetime import date
 from types import SimpleNamespace
 
 from transfer_negotiation import (
+    OrdinaryMoneyResponse,
     adjust_live_player_counter_offer,
     adjust_player_counter_offer,
+    evaluate_ordinary_money_response,
 )
 from transfer_state import ContractTerms, TransferProposal
 
@@ -179,6 +181,136 @@ class CounterOfferTransformTests(unittest.TestCase):
         self.assertEqual(result.proposal.contract_terms.signing_on_fee, 10)
         self.assertEqual(result.proposal.previous_signing_on_fee_offer, 10)
         self.assertFalse(result.signing_fee_was_raised)
+
+
+class OrdinaryMoneyResponseTests(unittest.TestCase):
+    def state(self, *, wage_base=1000, wage_range=200, player_wage=900):
+        rows = tuple(
+            SimpleNamespace(
+                id=i,
+                weekly_wage_base=wage_base,
+                weekly_wage_random_range=wage_range,
+                field_18=1000,
+                field_1c=100,
+            )
+            for i in range(100)
+        )
+        player = SimpleNamespace(
+            index=1,
+            club_id=10,
+            weekly_wage=player_wage,
+            current_raw=[255] * 17,
+            positions=(1, 0, 0),
+            eu_status_code=1,
+            contract_expiry_date=date(2001, 8, 18),
+            age=lambda on_date: 25,
+        )
+        return SimpleNamespace(
+            players={1: player},
+            clubs={
+                10: SimpleNamespace(country_id=3),
+                11: SimpleNamespace(country_id=3),
+            },
+            countries={
+                3: SimpleNamespace(financial_multiplier_percent=100),
+            },
+            access_skill_financial_values=rows,
+            calendar=SimpleNamespace(current_date=date(2000, 8, 18)),
+        )
+
+    def proposal(self, *, wage, sign=1000, months=36, field_44=0):
+        return TransferProposal(
+            target_player_id=1,
+            buying_club_id=11,
+            contract_terms=ContractTerms(
+                weekly_wage=wage,
+                signing_on_fee=sign,
+                contract_length_months=months,
+            ),
+            field_44=field_44,
+        )
+
+    def test_wage_below_75_percent_floor_returns_reason_code_4_without_rng(self):
+        rng = RecordingRng([])
+        result = evaluate_ordinary_money_response(
+            self.state(),
+            self.proposal(wage=749),
+            rng,
+        )
+        self.assertEqual(result.outcome, OrdinaryMoneyResponse.LOW_WAGE)
+        self.assertEqual(result.response_code, 4)
+        self.assertEqual(result.wage_floor, 1000)
+        self.assertEqual(rng.bounds, [])
+
+    def test_strong_terms_take_direct_code_2_acceptance_without_rng(self):
+        rng = RecordingRng([])
+        result = evaluate_ordinary_money_response(
+            self.state(player_wage=900),
+            self.proposal(wage=1200, sign=1000, months=36),
+            rng,
+        )
+        self.assertEqual(result.outcome, OrdinaryMoneyResponse.ACCEPTED)
+        self.assertEqual(result.response_code, 2)
+        self.assertEqual(rng.bounds, [])
+
+    def test_invalid_duration_stops_at_unmapped_423340_counter_path(self):
+        rng = RecordingRng([])
+        result = evaluate_ordinary_money_response(
+            self.state(player_wage=900),
+            self.proposal(wage=1200, months=73),
+            rng,
+        )
+        self.assertEqual(
+            result.outcome,
+            OrdinaryMoneyResponse.INVALID_DURATION_COUNTER,
+        )
+        self.assertEqual(result.response_code, 1)
+        self.assertTrue(result.requires_duration_adjustment_423340)
+        self.assertEqual(rng.bounds, [])
+
+    def test_rng_7_to_9_defers_to_broader_refusal_policy(self):
+        rng = RecordingRng([7])
+        result = evaluate_ordinary_money_response(
+            self.state(player_wage=1100),
+            self.proposal(wage=1000),
+            rng,
+        )
+        self.assertEqual(
+            result.outcome,
+            OrdinaryMoneyResponse.DEFER_TO_BROADER_POLICY,
+        )
+        self.assertIsNone(result.response_code)
+        self.assertEqual(result.rng10_roll, 7)
+        self.assertEqual(rng.bounds, [10])
+
+    def test_rng_counter_branch_returns_code_1_and_marks_422070_dependency(self):
+        rng = RecordingRng([0, 0])
+        result = evaluate_ordinary_money_response(
+            self.state(wage_base=1000, wage_range=200, player_wage=1100),
+            self.proposal(wage=1000, sign=1000),
+            rng,
+        )
+        self.assertEqual(
+            result.outcome,
+            OrdinaryMoneyResponse.COUNTER_OFFER,
+        )
+        self.assertEqual(result.response_code, 1)
+        self.assertEqual(result.proposal.contract_terms.weekly_wage, 1200)
+        self.assertTrue(result.requires_clause_adjustment_422070)
+        self.assertEqual(rng.bounds, [10, 3])
+
+    def test_rng_negotiation_can_accept_and_restore_submitted_anchor_wage(self):
+        rng = RecordingRng([0, 1])
+        result = evaluate_ordinary_money_response(
+            self.state(wage_base=900, wage_range=100, player_wage=1100),
+            self.proposal(wage=1000, sign=1000),
+            rng,
+        )
+        self.assertEqual(result.outcome, OrdinaryMoneyResponse.ACCEPTED)
+        self.assertEqual(result.response_code, 2)
+        self.assertEqual(result.proposal.contract_terms.weekly_wage, 1000)
+        self.assertEqual(result.proposal.contract_terms.contract_length_months, 36)
+        self.assertEqual(rng.bounds, [10, 3])
 
 
 if __name__ == "__main__":
