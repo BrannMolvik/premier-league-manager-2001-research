@@ -759,3 +759,51 @@ budget storage:
 - `+0x5EC` begins the separately classified scouting-state array.
 
 The chairman reserve search should no longer revisit this region.
+
+
+## Global 0x51F950/0x51F990 path is League participant-cache state
+
+The remaining first-of-month/global call pair reached from the calendar
+coordinator through `0x4A83A0` has now been classified and removed from the
+chairman-budget search.
+
+### 0x4A8280 builds League-derived cache objects
+
+`0x4A8280` iterates the active DBRUsers and current competition objects. For
+candidate competitions it:
+
+- obtains the live polymorphic competition object;
+- compares its club/team references against the user's current club;
+- performs an MSVC dynamic cast using the RTTI descriptors at
+  `0x818958` / `0x818978`, whose type names are
+  `Competition` and `League`;
+- on a successful League cast, calls `0x4F87A0`.
+
+`0x4F87A0` allocates an 8-byte container and deep-copies the source
+League container beginning at `League +0x34` through `0x4F8560`.
+The resulting clone is then installed through `0x51F950` for the
+per-user slot or `0x51F990` for the singleton/global slot.
+
+### 0x51F950/0x51F990 are replace-and-destroy setters
+
+`0x51F950` indexes global pointer array `0x87776C`; `0x51F990`
+owns singleton pointer `0x8777EC`. When an old pointer exists, both call
+`0x4F8620`, which destroys the copied container elements and backing array,
+then frees the object. Otherwise they simply install the supplied pointer.
+
+`0x4A83A0` passes null through these setters for every user slot and the
+singleton, so it is a cache-clear routine rather than a monthly finance
+calculation.
+
+Downstream consumers around `0x5233F9/0x52341D/0x523438` read the same
+cached pointers while working with live Competition/League objects, further
+confirming competition ownership.
+
+### Consequence
+
+The `0x4A83A0 -> 0x51F950/0x51F990` path immediately following
+first-of-month user processing is **competition/League participant-cache
+maintenance**, not the quarterly chairman budget producer.
+
+The Gate-10 trace should continue with board/accounting arithmetic and other
+calendar/season coordinator calls, not this global cache family.
