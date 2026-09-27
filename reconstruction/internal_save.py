@@ -43,7 +43,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 5
+SAVE_SCHEMA_VERSION = 6
 
 
 def _iso(value: date | None) -> str | None:
@@ -57,6 +57,7 @@ def _date(value: str | None) -> date | None:
 _PLAYER_SIGNATURE_FIELDS = (
     "index", "first_name", "surname", "nationality_id", "date_of_birth",
     "height_cm", "weight_kg", "positions", "target_raw", "eu_status_code",
+    "joined_current_club_date",
 )
 _CLUB_SIGNATURE_FIELDS = (
     "index", "manager_id", "competition_id", "country_id",
@@ -234,6 +235,7 @@ PLAYER_RECORD_FIELDS = (
     "weekly_wage",
     "contract_expiry_date",
     "loan_club_id",
+    "current_club_join_date",
 )
 
 
@@ -283,6 +285,7 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         int(player.weekly_wage),
         _iso(player.contract_expiry_date),
         None if player.loan_club_id is None else int(player.loan_club_id),
+        _iso(player.current_club_join_date),
     ]
 
 
@@ -331,6 +334,7 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         signed_for_other_club=bool(
             flags & _PLAYER_FLAG_SIGNED_FOR_OTHER_CLUB
         ),
+        current_club_join_date=_date(value[25]),
         discipline_yellow_total=int(value[12]),
         discipline_yellow_cycle=int(value[13]),
         suspension_matches_remaining=int(value[14]),
