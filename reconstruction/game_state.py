@@ -112,8 +112,8 @@ class GameState:
     transfers: TransferRuntimeState = field(default_factory=TransferRuntimeState)
     # Original DBRUser owns Balance pointers rather than club-wide finance
     # scalars. The clean-room runtime keys materialized Balance objects by the
-    # controlled club they belong to. Starting cash is intentionally not
-    # invented; callers initialize a balance when its source value is known.
+    # controlled club they belong to. Fresh controlled-club cash comes from
+    # Master.dat club +165 -> DBRClub +0xD0/+0xD4 -> Balance +0x10.
     finance_balances: dict[int, BalanceRuntimeState] = field(default_factory=dict)
     stadium_sources: dict[int, StadiumSourceState] = field(default_factory=dict)
     ticket_states: dict[int, TicketRuntimeState] = field(default_factory=dict)
@@ -437,6 +437,34 @@ class GameState:
         self.stadium_sources[club_id] = stadium
         self.ticket_states[club_id] = tickets
         return tickets
+
+    def initialize_controlled_club_balance(
+        self,
+        club_id: int,
+    ) -> BalanceRuntimeState:
+        """Materialize fresh DBRUser Balance cash from the original club field.
+
+        Master.dat club +165 is copied to DBRClub +0xD0/+0xD4. Fresh-user
+        initializer 0x425680 passes that double through the standard-build
+        finance conversion (currency factor 1.0) and stores it at active
+        Balance +0x10. Existing runtime Balance state is preserved.
+        """
+        club_id = int(club_id)
+        club = self.clubs.get(club_id)
+        if club is None:
+            raise KeyError(club_id)
+        if club_id in self.finance_balances:
+            self.user_controlled_club_id = club_id
+            return self.finance_balances[club_id]
+        if not hasattr(club, "starting_cash"):
+            raise RuntimeError(
+                f"club {club_id} has no source-backed starting cash"
+            )
+        amount = float(getattr(club, "starting_cash"))
+        balance = BalanceRuntimeState(current_cash=amount)
+        self.finance_balances[club_id] = balance
+        self.user_controlled_club_id = club_id
+        return balance
 
     def set_current_cash(self, club_id: int, amount: int) -> BalanceRuntimeState:
         """Materialize/update the active Balance current-cash qword for a club."""
