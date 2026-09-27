@@ -4575,3 +4575,29 @@ The source is now closed end-to-end:
 This removes the last reason to require a guessed or externally supplied
 starting Balance amount. Next task: parse the field into `Club`, materialize the
 controlled club Balance from it, and add deterministic parser/runtime tests.
+
+
+## Gate 10 financial-objective lifecycle checkpoint — 28 September 2026
+
+The active board/job-security trace moved from the previously identified reason-5
+sacking event into the Balance-owned financial-objective state.
+
+Verified results:
+
+- the objective subobject starts at active Balance `+0x30`;
+- three candidate IDs are generated and presented through RTTI-backed
+  `EAMManagerNewClubSelectObjectivesub` / `EAMManagerSelectObjectivesub`;
+- selection installs both an immediate starting-funds amount and a separate
+  formal target;
+- the immediate amount **overwrites live current cash**, meaning Master.dat
+  club +165 is the pre-objective base rather than always the final opening cash;
+- the deadline is exactly three years after selection;
+- all 17 starting-funds/target percentage pairs are instruction-locked;
+- `ChairmanPercentBudgetMiss = 95` and deadline cash at or below 95% of target
+  sets reason 5, which feeds `EAMManagerSackedFailedBudget`;
+- the check belongs to the controlled-club competition/season lifecycle, not a
+  monthly cash test.
+
+Exact next target: translate `0x5DFD30` far enough to generate the authentic
+three candidate objective IDs for a Premier League club, then materialize and
+persist the selected objective state without inventing chairman policy.
