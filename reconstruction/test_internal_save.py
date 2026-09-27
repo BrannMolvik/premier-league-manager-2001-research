@@ -182,6 +182,22 @@ class InternalSaveTests(unittest.TestCase):
             date(2004, 6, 30),
         )
 
+    def test_current_club_join_date_survives_roundtrip(self):
+        original = self.build_controller()
+        original.state.players[1000].current_club_join_date = date(2000, 5, 1)
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.players[1000].current_club_join_date,
+            date(2000, 5, 1),
+        )
+
     def test_signed_for_other_club_status_survives_roundtrip(self):
         original = self.build_controller()
         original.state.players[1000].signed_for_other_club = True
