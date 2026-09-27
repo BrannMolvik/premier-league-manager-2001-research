@@ -7,10 +7,10 @@ through GameState's reconstructed Premier League simulation backend.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Iterable
+from typing import Callable, Iterable
 
 from game_state import GameState
 from match_lineup import AI_FORMATIONS, AiLineupCoreResult, StarterAssignment
@@ -19,6 +19,20 @@ from match_participants import collect_match_participants
 from match_preparation import PreparedAiMatchSelection, prepare_ai_match_selection
 from match_schedule import MsvcCrtRng
 from match_team_setup import TeamTacticalState, resolved_substitute_quota
+from transfer_decision import SellingClubDecision
+from transfer_negotiation import (
+    OrdinaryMoneyResponse,
+    OrdinaryMoneyResponseResult,
+    evaluate_ordinary_money_response,
+)
+from transfer_state import ContractTerms
+from transfer_workflow import (
+    LiveCashBidEvaluation,
+    evaluate_live_cash_bid,
+    execute_due_ordinary_cash_transfers,
+    schedule_ordinary_cash_transfer,
+    submit_live_cash_bid,
+)
 
 
 @dataclass
@@ -58,6 +72,8 @@ class HumanGameplayController:
         self.pending_fixture_id: int | None = None
         self._pending_prior_results: tuple[tuple[int, object], ...] = ()
         self._pending_after_fixture_ids: tuple[int, ...] = ()
+        self.transfer_can_afford: Callable[[int, int], bool] | None = None
+        self.last_transfer_executions: tuple[object, ...] = ()
 
     @classmethod
     def from_canonical_game_dir(
@@ -130,6 +146,103 @@ class HumanGameplayController:
         if self.human is None:
             raise RuntimeError("select a human club first")
         self.human.team_orders = orders
+
+    def set_transfer_affordability_check(
+        self,
+        callback: Callable[[int, int], bool] | None,
+    ) -> None:
+        """Attach the Gate-10 current-cash check used at transfer completion."""
+        self.transfer_can_afford = callback
+
+    def submit_cash_bid(
+        self,
+        target_player_id: int,
+        cash_fee: int,
+    ) -> LiveCashBidEvaluation:
+        """Submit and evaluate one recovered ordinary cash-only transfer bid."""
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        return submit_live_cash_bid(
+            self.state,
+            target_player_id=int(target_player_id),
+            buying_club_id=int(self.human.club_id),
+            cash_fee=int(cash_fee),
+        )
+
+    def offer_player_contract(
+        self,
+        target_player_id: int,
+        terms: ContractTerms,
+        *,
+        rng=None,
+    ) -> OrdinaryMoneyResponseResult:
+        """Submit player terms after the selling club accepted the cash bid.
+
+        The method composes already recovered Gate-9 primitives. It does not
+        invent the still-unmapped 0x422470 refusal/duration branches: those are
+        returned explicitly by evaluate_ordinary_money_response.
+        """
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+
+        player_id = int(target_player_id)
+        buyer_id = int(self.human.club_id)
+        key = self.state.transfers.proposal_key(player_id, buyer_id)
+        proposal = self.state.transfers.proposals.get(key)
+        if proposal is None:
+            raise RuntimeError("submit a cash bid for this player first")
+
+        seller_response = evaluate_live_cash_bid(self.state, proposal)
+        if seller_response.decision != SellingClubDecision.ACCEPTED:
+            raise RuntimeError(
+                f"selling club has not accepted the bid: "
+                f"{seller_response.decision.value}"
+            )
+
+        if any(
+            int(scheduled.proposal.target_player_id) == player_id
+            and int(scheduled.proposal.buying_club_id) == buyer_id
+            for scheduled in self.state.transfers.scheduled_transfers
+        ):
+            raise RuntimeError("this transfer is already scheduled")
+
+        submitted = replace(proposal, contract_terms=terms)
+        self.state.transfers.proposals[key] = submitted
+        deal = self.state.transfers.deals.get(player_id)
+        if deal is not None:
+            deal.contract_terms = terms
+
+        if rng is None:
+            rng = self.match_rng
+        result = evaluate_ordinary_money_response(
+            self.state,
+            submitted,
+            rng,
+        )
+
+        self.state.transfers.proposals[key] = result.proposal
+        if deal is not None:
+            deal.contract_terms = result.proposal.contract_terms
+
+        if result.outcome == OrdinaryMoneyResponse.ACCEPTED:
+            schedule_ordinary_cash_transfer(
+                self.state,
+                result.proposal,
+                mode=0,
+            )
+        return result
+
+    def process_due_transfers(self):
+        """Execute due transfers using the explicit Gate-10 affordability hook."""
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        results = execute_due_ordinary_cash_transfers(
+            self.state,
+            user_controlled_club_id=int(self.human.club_id),
+            can_afford=self.transfer_can_afford,
+        )
+        self.last_transfer_executions = tuple(results)
+        return self.last_transfer_executions
 
     def _prepare_human_selection(
         self,
@@ -348,6 +461,7 @@ class HumanGameplayController:
                 self.attack_matrix,
                 self.defence_matrix,
                 self.match_rng,
+                transfer_can_afford=self.transfer_can_afford,
             )
 
         if self.state.calendar.current_date < target_date:
@@ -429,6 +543,12 @@ class HumanGameplayController:
             + tuple(trailing)
         )
         self.state.calendar.run_post_fixture_maintenance()
+        self.last_transfer_executions = tuple(
+            self.state.run_due_transfer_maintenance(
+                user_controlled_club_id=self.human.club_id,
+                can_afford=self.transfer_can_afford,
+            )
+        )
         self.state.run_weekly_ai_transfer_maintenance(
             self.match_rng,
             user_controlled_club_id=self.human.club_id,
