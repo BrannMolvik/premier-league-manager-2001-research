@@ -37,10 +37,16 @@ jobs:
           if (-not (Test-Path $csc)) {
             throw "64-bit .NET Framework C# compiler not found at $csc"
           }
+          $refRoot = Join-Path ${env:ProgramFiles(x86)} "Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8"
+          foreach ($assembly in @("PresentationCore.dll", "PresentationFramework.dll", "WindowsBase.dll")) {
+            if (-not (Test-Path (Join-Path $refRoot $assembly))) {
+              throw "WPF reference assembly not found: $assembly in $refRoot"
+            }
+          }
           & $csc /nologo /target:winexe /optimize+ `
-            /reference:PresentationCore.dll `
-            /reference:PresentationFramework.dll `
-            /reference:WindowsBase.dll `
+            /reference:"$refRoot\PresentationCore.dll" `
+            /reference:"$refRoot\PresentationFramework.dll" `
+            /reference:"$refRoot\WindowsBase.dll" `
             /out:IntroPlayer.exe `
             tools\feasibility_build\IntroPlayer.cs
           if ($LASTEXITCODE -ne 0) {
