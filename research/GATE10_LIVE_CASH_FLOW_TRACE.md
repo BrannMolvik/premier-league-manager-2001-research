@@ -164,16 +164,59 @@ from a club stadium string or unmapped `DBTAccessFanBase` fields. The
 original ticket-section/stadium state must be materialized or equivalently
 reconstructed from the authorized stadium data.
 
-### Applicability boundary
+### Applicability boundary: cup/knockout branch confirmed
 
 The ordinary branch credits categories 1 and 2 when the primary club is
-user-controlled. A separate branch, selected by a local match/competition flag,
-can independently credit both primary and secondary controlled clubs using each
-club's own ticket prices.
+user-controlled. The special flag set at `0x5DA705` is now tied directly to
+the cup/knockout attendance branch rather than an unnamed generic match flag.
 
-The condition that sets that flag is not yet semantically named. Do not call it
-neutral-ground revenue sharing, cup sharing, or any other policy until the
-branch around `0x5DA5CF..0x5DA705` is decoded.
+The branch at `0x5DA5CF..0x5DA744` consumes the executable's explicit
+attendance tuning globals:
+
+- `ATTCupFianlBoost` -> `0x821088` (spelling preserved from the binary);
+- `ATTCupSemiFinalBoost` -> `0x82108C`;
+- `ATTCupQuarterFinalBoot` -> `0x821090` (spelling preserved);
+- `ATTCupDiv` -> `0x821094`.
+
+It selects the final/semi-final/quarter-final factor from the cup round
+relationship and then normalizes by `ATTCupDiv`. In this same branch the
+special posting flag is set to 1. Later posting logic can independently credit
+categories 1 and 2 to both controlled participants, each using that user's own
+ticket prices.
+
+This proves the special branch is a **cup/knockout attendance path**. It does
+not, by itself, prove a user-facing policy label such as "revenue sharing" or
+"neutral-ground receipts", so those labels remain deliberately unassigned.
+
+### Ticket-state header refinement
+
+The ticket object at DBRUser `+0x694` now has a stronger header map:
+
+- `+0x00` = season-ticket quantity;
+- `+0x04` = season-ticket price;
+- `+0x08` and `+0x0C` = the two ordinary match-day ticket prices;
+- `+0x14..+0x78` = 26 per-section allocation/classification dwords.
+
+The category-3 producer at `0x5D0E20..0x5D0FF4` obtains a season-ticket
+quantity, stores it at `+0x00`, stores the chosen season-ticket price at
+`+0x04`, and credits exactly:
+
+`double(+0x00 quantity * +0x04 price)`
+
+as category **3**.
+
+Helper `0x618820`, called from the same season-ticket workflow, marks selected
+stadium sections with state **2** until the required season-ticket capacity is
+covered. Therefore section state 2 is the season-ticket-reserved allocation,
+while states 0 and 1 are the two ordinary match-day section classes.
+
+The shipped English string table independently contains the exact finance/help
+labels "Year to date home fan ticket sales", "Year to date visiting fan ticket
+sales", "Year to date season ticket sales", "Terraces", "Recommended terrace
+ticket price", "Seating places available", and "Recommended seat ticket price".
+These are strong semantic leads, but the exact mapping of category 1 versus 2
+and `+0x08` versus `+0x0C` is still being instruction-locked rather than
+assigned from string order alone.
 
 ### Remaining formula work
 
@@ -181,12 +224,11 @@ The producer is now known, but implementation remains intentionally blocked
 until these instruction details are closed:
 
 1. decode the attendance/count calculations feeding the four count values;
-2. identify the exact semantic distinction between categories 1 and 2;
-3. identify the exact two ticket-price/section classes represented by
-   `+0x08/+0x0C`;
-4. decode the special both-clubs applicability flag;
-5. preserve the exact integer/floating conversion and rounding path;
-6. materialize only the required stadium/section source state and add
+2. tie categories 1 and 2 exactly to home-supporter versus visiting-supporter
+   ticket sales;
+3. tie `+0x08/+0x0C` and section states 0/1 exactly to terrace versus seating;
+4. preserve the exact integer/floating conversion and rounding path;
+5. materialize only the required stadium/section source state and add
    deterministic finance regressions before normal matchday integration.
 
 ## Monthly income report is not a producer
