@@ -6780,15 +6780,49 @@ values and density classifications into the match output structure. The exact
 count formula is still being translated and must not be replaced with a generic
 fan-base formula.
 
-### Match applicability
+### Match applicability: cup branch resolved
 
-The ordinary path posts to the primary controlled club. A flag set earlier in
-`0x5DA2F0` selects a second path capable of posting categories 1 and 2 to
-both primary and secondary controlled clubs, each with that user's own ticket
-prices. The flag-setting branch around `0x5DA5CF..0x5DA705` is not yet
-semantically identified, so no neutral/cup/revenue-sharing label is assigned.
+The ordinary path posts to the primary controlled club. The special flag is set
+at `0x5DA705` inside a branch whose tuning identity is now explicit:
+
+- `ATTCupFianlBoost` -> `0x821088`;
+- `ATTCupSemiFinalBoost` -> `0x82108C`;
+- `ATTCupQuarterFinalBoot` -> `0x821090`;
+- `ATTCupDiv` -> `0x821094`.
+
+The loader mappings occur at `0x4FDDE3/0x4FDE1E/0x4FDE59/0x4FDE94`.
+The match routine selects the cup-round boost from the round relationship and
+normalizes it by `ATTCupDiv`, then sets the special flag. Later posting code
+can credit both controlled participants' categories 1 and 2. This proves a
+cup/knockout attendance branch; it does not yet justify a narrower business
+policy label such as revenue sharing.
+
+### Ticket-state header and season-ticket section state
+
+The category-3 path at `0x5D0E20..0x5D0FF4` now fixes the first four
+dwords of DBRUser `+0x694`:
+
+- `+0x00`: season-ticket quantity;
+- `+0x04`: season-ticket price;
+- `+0x08/+0x0C`: the two ordinary match-day ticket prices.
+
+The path stores the season-ticket count returned by `0x5DE350` into
+`+0x00`, stores the selected price into `+0x04`, multiplies them, constructs
+accounting category 3, and credits Balance.
+
+`0x618820` is invoked in that same workflow and marks stadium sections with
+classification **2** until enough capacity is reserved for the season-ticket
+quantity. The 26 section-state dwords therefore have at least these proven
+classes:
+
+- state 2 = season-ticket-reserved section allocation;
+- states 0 and 1 = the two ordinary match-day section classes.
+
+The English STR table contains the separate terrace/seating and
+home/away-supporter finance labels expected by this UI, but the exact state
+0/1 -> terrace/seating and category 1/2 -> home/visiting mapping remains open
+until tied to instructions rather than positional string order.
 
 Exact next trace: translate the attendance-count pipeline inside
-`0x5DA2F0`, map the two ticket-price/section classes and category-1/category-2
-distinction, and decode the both-clubs flag before implementing match-day
-income.
+`0x5DA2F0`, tie states 0/1 to terrace/seating, and tie categories 1/2 to
+home/visiting supporter sales before implementing match-day income.
