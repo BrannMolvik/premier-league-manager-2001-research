@@ -112,3 +112,13 @@ A deterministic fallback is allowed while a subsystem is being reconstructed, bu
 1. be named as a fallback in code/docs;
 2. have a corresponding entry here if it can change observable game behavior;
 3. be removed or explicitly accepted before Gate 17.
+
+
+## Financial-objective automatic lifecycle
+
+The fresh Premier League candidate set, selection cash/target mutation, three-year
+deadline, 95% reason-5 threshold, and save persistence are implemented. The
+remaining fidelity gap is automatic derivation of the objective `+0x68`
+progression gate from the later competition/season transition. Until that bridge
+is translated, the clean-room exposes the gate explicitly and does not invent
+when it becomes true.
