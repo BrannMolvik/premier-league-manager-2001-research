@@ -975,3 +975,35 @@ This corrects the earlier startup ledger from 150,320 to **180,384 DBTPlayers
 calls** for the shipped 30,064 players. See
 `research/STARTUP_WAGE_RNG_CORRECTION.md` for the re-baselined Gate-3 through
 Gate-8 deterministic evidence.
+
+
+## Gate 10 chairman-budget event reachability boundary
+
+Direct static analysis now bounds the separate chairman/Business Consultant
+budget-message family much more tightly.
+
+Confirmed for the shipped executable:
+
+- A0 `EAMbcstartseasonmail`, A1 `EAMbcmonthlybudget`,
+  `EAMchairbudgetsettings`, and `EAMchairbudgetwarning` each have a
+  single concrete vtable write at their constructor;
+- A0/A1 constructors are reached only through generic EAM factory
+  `0x538DE0`;
+- that generic factory is called only from DBRUser/event persistence readers,
+  with mirror writers proving save/load ownership;
+- there is no ordinary static fresh-game construction/enqueue path for A0/A1;
+- named Staff/PlayerWage/Facilities/Misc/Stadium/Transfer budget tuning globals
+  have loader writes but no recovered live consumers;
+- normal `PFinanceOverview` is Balance/accounting-ledger driven and
+  `PTransfer2K` has no references to these budget globals/events/formatter
+  keys.
+
+The evidence therefore supports treating this chairman budget-event family as
+**legacy/persistence-compatible with no mapped ordinary fresh-game producer or
+consumer**. This is a bounded static conclusion, not a proof that every legacy
+save or deliberately computed dispatch can never materialize the classes.
+
+Do not invent a mutable live transfer-budget store in the modern port unless a
+new executable path proves one. Gate 10 should continue from the live systems
+that are directly exercised in ordinary play: current Balance cash, accounting
+postings, recurring income/costs, and financial objectives.
