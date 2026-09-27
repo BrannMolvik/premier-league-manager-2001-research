@@ -79,6 +79,9 @@ class Club:
     historical_competition_id: int = 0
     historical_slot_index: int = 0
     fan_base_index: int = 0
+    related_club_id_0: int = -1
+    related_club_id_1: int = -1
+    related_club_id_2: int = -1
 
 @dataclass(frozen=True)
 class Player:
@@ -296,6 +299,9 @@ class FM2001Database:
             manager_id = struct.unpack_from('<I', r, 48)[0]
             fan_base_index = struct.unpack_from('<I', r, 94)[0]
             team_category_code = r[98]
+            related_club_id_0 = struct.unpack_from('<i', r, 99)[0]
+            related_club_id_1 = struct.unpack_from('<i', r, 103)[0]
+            related_club_id_2 = struct.unpack_from('<i', r, 107)[0]
             self.clubs.append(Club(
                 i,
                 self.english.get(name_id),
@@ -309,6 +315,9 @@ class FM2001Database:
                 historical_competition_id,
                 historical_slot_index,
                 fan_base_index,
+                related_club_id_0,
+                related_club_id_1,
+                related_club_id_2,
             ))
 
         player_count = struct.unpack_from('<I', d, club_end)[0]
