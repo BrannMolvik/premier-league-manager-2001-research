@@ -7107,3 +7107,44 @@ still zero. Existing user-set prices are preserved.
 
 With this path and the stadium/map source bridge, the Gate-10 gate-receipt
 producer has no remaining reverse-engineering blocker before implementation.
+
+
+## Gate 10 FanFactor source and Premier League value
+
+The neutral `tier_factor` input in the recovered attendance formula is now tied
+to its exact original source rather than left caller-supplied.
+
+The named tuning loader maps:
+
+- `FanFactor1 = 0.9`;
+- `FanFactor2 = 0.8`;
+- `FanFactor3 = 0.7`;
+- `FanFactor4 = 0.6`;
+- `FanFactor5 = 0.5`.
+
+Inside `0x5DA2F0`, the match competition and club country/region are passed to
+`0x410FF0`. That helper searches the country's stored root-competition pointer
+array at `+0x48/+0x4C` and returns the competition's array index. The switch
+then selects FanFactor1..4 for indices 0..3; index 4 and all later/default cases
+use FanFactor5.
+
+The root array construction was already recovered: parentless competitions are
+attached in global source order and qsorted by runtime competition
+`+0x18 = -initialization_order_value`. For England (country/region 26), the
+stored root order is:
+
+```text
+90, 89, 7, 4, 3, 2, 0, 6, 8, 1, 5
+```
+
+Premier League competition 0 is therefore stored at index **6**, which takes the
+default/FanFactor5 branch. The exact Premier League attendance factor is thus:
+
+```text
+FanFactor5 = 0.5
+```
+
+This removes another caller-supplied input from the normal Premier League gate
+receipt path. The separate controlled-club facility multiplier and exact RNG
+placement relative to the match/post-match pipeline still need to be attached
+before automatic posting is enabled.
