@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Materialize Balance/current-cash runtime state on agent/gate10-finances, connect transfer affordability/debit/credit, persist it, then resume the separate transfer-budget store trace",
-  "last_known_main_head": "1cbedf7888a20635d763d02e9ad0bfb2e8334465",
+  "active_task": "Trace the quarterly chairman overspending/rebudget producer to locate the authoritative live transfer/building budget reserve; keep Balance starting cash explicit until the original 0x5DC400 constructor input source is recovered.",
+  "last_known_main_head": "c82517436fd88116ad1b4a302cbab69c7907e214",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 23,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Gate 9 is complete and fast-forwarded to main. Active feature branch is agent/gate10-finances from main 1cbedf78. Continue Gate 10 from research/CURRENT_STATE.md; do not reopen Gate-9 transfer work.",
+  "note": "Audit confirmed Gate 9 closed cleanly with documented evidence and green CI before Gate 10. agent/gate10-finances has been fast-forwarded to current main c8251743. Resume Gate 10 from research/CURRENT_STATE.md; do not repeat the already-completed Balance/current-cash integration.",
   "same_chat_fallback_minutes": 30
 }
