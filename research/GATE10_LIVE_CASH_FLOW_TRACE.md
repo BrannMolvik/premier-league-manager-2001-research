@@ -302,19 +302,144 @@ those two physical capacity fields separately for section state 0 and state 1.
 The section-state dimension is therefore supporter allocation (home/visiting),
 while `+0x1C/+0x28` is the terrace/seating dimension.
 
+### Exact four-way attendance demand and stochastic integerization
+
+The body of the gate-receipt attendance calculation is now instruction-locked.
+The function maintains four ordinary-supporter capacities, one for each
+supporter side and physical ticket class:
+
+- home seating;
+- visiting seating;
+- home terrace;
+- visiting terrace.
+
+For a controlled club those capacities are derived from the original 26-section
+allocation through `0x618E00` and the stadium helpers. For the direct stadium
+path the same four values correspond to state-0/state-1 splits of stadium-entry
+`+0x28` seating and `+0x1C` terrace. This independently agrees with the
+resolved ticket-class mapping.
+
+#### Reference ticket prices and price response
+
+`0x40CBC0` selects the competition/division reference ticket price. Its first
+output is the seating reference; its second output is exactly 75% of that
+amount, the terrace reference. Controlled clubs compare their live ticket
+prices with those converted references:
+
+- seating delta = `ticket +0x0C - seating_reference`;
+- terrace delta = `ticket +0x08 - terrace_reference`.
+
+Price-response helper `0x5DA250(delta, reference)` is piecewise. With
+`a = delta` and `b = reference`:
+
+```text
+if a > b:             p = 0.1
+else if a > 0:        p = max(0.1, 1 - a / b)
+else if a > -0.5*b:   p = 1 - a / (2*b)
+else if a > -b:       p = 1.5 - a / (4*b)
+else:                  p = 2.0
+```
+
+The threshold discontinuities are preserved as executable behavior rather than
+smoothed into a modern pricing curve.
+
+#### Demand body and caps
+
+Club field `+0x70` indexes the 84-byte AccessFanBase runtime table. Entry
+`+0x08` supplies the raw fan-base scalar used by this calculation. A separate
+indexed factor selects one of `0.9, 0.8, 0.7, 0.6, 0.5` (with later/default
+cases also 0.5). Its higher-level semantic label remains deliberately open.
+Call that selected value `tier_factor` and the side-specific upstream
+attendance value `side_modifier`.
+
+Before capping, each of the four class/side demands has the common shape:
+
+```text
+weighted_fan_base = fan_base_raw * tier_factor
+
+demand = weighted_fan_base
+       * (2.0 - tier_factor)
+       * side_modifier
+       * price_response
+```
+
+For a controlled club, `0x42B0E0` additionally multiplies this by the exact
+stadium/facility attendance factor. That helper starts at 0.9 and adds the
+recovered Hotel, Club House and Parking attendance bonuses when those club
+buildings are present.
+
+The demand is then capped in this order:
+
+1. outside the special cup/knockout branch, no higher than
+   `fan_base_raw`;
+2. always no higher than the allocated capacity for that exact
+   home/visiting × terrace/seating cell.
+
+Thus the four floating outputs are home seating, visiting seating, home terrace
+and visiting terrace demand. No generic replacement attendance model is needed
+for this body.
+
+#### Exact conversion and random subtraction
+
+Helper `0x668350` changes the x87 control word to round toward zero and uses
+`fistp`; its conversions are therefore **truncation toward zero**, not ordinary
+round-to-nearest.
+
+The RNG used by `0x64D540` is the game's MSVC-style 15-bit stream:
+
+```text
+seed = seed * 0x343FD + 0x269EC3
+rand15 = (seed >> 16) & 0x7FFF
+```
+
+For positive integer `n`, `0x64D540(n)` returns exactly:
+
+```text
+floor(rand15 * n / 32768)
+```
+
+For every one of the four capped floating demands, the executable derives the
+random-subtraction span from the already-computed price response `p`:
+
+```text
+if p > 1.0:
+    span_float = demand / (100 + 1000 * (p - 1))
+else:
+    span_float = demand * 0.01
+
+span = max(1, trunc_toward_zero(span_float))
+base_count = trunc_toward_zero(demand)
+count = base_count - floor(rand15 * span / 32768)
+```
+
+The four integer counts are then summed as:
+
+- ordinary home attendance = home terrace + home seating;
+- visiting attendance = visiting terrace + visiting seating.
+
+Season-ticket quantity is added to the home attendance only after ordinary
+home ticket revenue has been calculated, preserving the already-proven category
+2/category 3 separation.
+
+The class-demand body and its exact stochastic integerization are therefore
+closed. The remaining attendance-formula dependency is upstream: translate the
+side-modifier producers `0x5DBA60` (ordinary competition path) and
+`0x5DBCD0` (the alternate type-6 paired path) sufficiently to reproduce their
+inputs without semantic invention.
+
 ### Remaining formula work
 
 The producer, supporter-side categories and section ownership are now known,
 but implementation remains intentionally blocked until these details are
 closed:
 
-1. finish translating the two parallel attendance-demand calculations and their
-   caps/randomized rounding;
-2. tie stadium-entry fields `+0x1C/+0x28`, and therefore ticket prices
-   `+0x08/+0x0C`, exactly to terrace versus seating;
-3. preserve the exact integer/floating conversion and rounding path;
-4. materialize only the required stadium/section source state and add
-   deterministic finance regressions before normal matchday integration.
+1. finish translating the upstream side-attendance modifiers at `0x5DBA60`
+   and `0x5DBCD0` that feed the now-exact four-way demand body;
+2. materialize only the required original ticket/section and stadium source
+   state at `+0x694/+0x6B0`;
+3. add deterministic regressions covering price response, capacity/fan-base
+   caps, truncation, RNG subtraction, home/visiting revenue and season-ticket
+   attendance before normal matchday integration.
 
 ## Monthly income report is not a producer
 
@@ -369,15 +494,12 @@ rounding matters.
 Do not restart the already-closed producer search. Continue inside
 `0x5DA2F0` from the current instruction map:
 
-1. finish the two parallel supporter-demand calculations that produce the four
-   terrace/seating-by-home/visiting count components;
-2. resolve stadium-entry field `+0x1C` versus `+0x28` as terrace versus
-   seating and thereby name DBRUser ticket prices `+0x08/+0x0C`;
-3. preserve the exact caps, floating-point conversions, `0x668350` rounding
-   calls and `0x64D540` randomized subtraction behavior;
-4. identify the minimum original stadium source data needed to materialize
-   `+0x694/+0x6B0` state in the clean-room runtime;
-5. add deterministic finance regressions before normal match-day integration.
+1. translate the remaining upstream side-modifier producers `0x5DBA60` and
+   `0x5DBCD0` without assigning unsupported labels to their inputs;
+2. identify the minimum original stadium/ticket source data needed to
+   materialize `+0x694/+0x6B0` state in the modern runtime;
+3. implement the now-locked four-cell demand/price/cap/truncation/RNG path and
+   add deterministic finance regressions before normal match-day integration.
 
 Concession generation remains intentionally disabled on fresh games for the
 separate dormant-path reason documented above.
