@@ -807,3 +807,73 @@ maintenance**, not the quarterly chairman budget producer.
 
 The Gate-10 trace should continue with board/accounting arithmetic and other
 calendar/season coordinator calls, not this global cache family.
+
+
+## Static reachability of A0/A1 budget events is persistence-only
+
+The generic-factory route has now been checked for both direct and ordinary
+address-taken reachability, tightening the earlier producer boundary.
+
+### Constructor/vtable uniqueness
+
+For the relevant budget-event classes, each concrete vtable constant occurs
+exactly once in the entire executable image: at that class's constructor
+vtable write. In particular:
+
+- `EAMbcstartseasonmail` vtable `0x7D0150`: one image occurrence;
+- `EAMbcmonthlybudget` vtable `0x7D01A4`: one image occurrence;
+- `EAMchairbudgetwarning` vtable `0x7CDC10`: one image occurrence;
+- `EAMchairbudgetsettings` vtable `0x7CDAC0`: one image occurrence.
+
+The A0 constructor `0x541AD0` and A1 constructor `0x541B20` each have
+exactly one direct caller, their respective branch inside generic EAM factory
+`0x538DE0`.
+
+There is therefore no second typed construction site and no static prototype
+object carrying one of these vtables that could bootstrap a memcpy/clone path.
+
+### Generic factory has only persistence callers
+
+A complete executable disassembly contains exactly two direct calls to
+`0x538DE0`:
+
+- `0x5CE588`: wrapped-mail/event deserialization;
+- `0x5CF8A7`: DBRUser event-list deserialization.
+
+A raw-image scan also finds no absolute `0x538DE0` function pointer, so the
+factory is not present in an ordinary static callback/function-pointer table.
+The same check finds no absolute constructor pointer for A0/A1.
+
+This does not mathematically exclude deliberately computed code pointers or
+unknown behavior outside the mapped executable. It does establish that the
+ordinary static call graph has **no fresh-game path** that can instantiate
+A0/A1 through their only constructors.
+
+### Interpretation boundary
+
+The strongest evidence-backed description is now:
+
+- A0/A1 and related chairman-budget message classes are **persistence-loadable
+  presentation/event types** in this shipped build;
+- no mapped fresh-game producer creates them;
+- named budget default globals are likewise loader-only;
+- current-cash and financial-objective systems, by contrast, have direct live
+  gameplay consumers.
+
+This materially raises the possibility that the older chairman operating /
+transfer-budget event family is legacy or inactive in the normal FM2001
+fresh-game path. Do **not** yet promote that to a global-unreachable claim:
+legacy saves or an unmapped computed dispatch may still materialize these
+types.
+
+### Revised next target
+
+Test the legacy/inactive-budget hypothesis against the remaining live user
+experience and finance paths:
+
+1. identify whether any normal fresh-game UI reads a transfer/wage budget
+   outside these event formatters;
+2. continue recovering the proven monthly wage/operating cash debits;
+3. if no live budget consumer exists, treat the chairman budget event family
+   as a fidelity/legacy compatibility item rather than inventing an
+   authoritative mutable store for Gate 10.
