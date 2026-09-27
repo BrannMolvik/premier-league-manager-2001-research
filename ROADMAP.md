@@ -23,8 +23,9 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Current roadmap status
 
-- **Active gate:** Gate 9 - Transfers and contracts
-- **Next gate:** Gate 10 - Finances and board systems
+- **Active gate:** Gate 10 - Finances and board systems
+- **Next gate:** Gate 11 - Broader management systems
+- **Gate 9 completed:** 27 September 2026
 - **Gate 8 completed:** 27 September 2026
 - **Gate 7 completed:** 27 September 2026
 - **Gate 6 completed:** 27 September 2026
@@ -194,18 +195,20 @@ Evidence: `research/GATE8_INTERNAL_SAVE.md`.
 
 ## Gate 9 - Transfers and contracts
 
-**Status: IN PROGRESS**
+**Status: COMPLETE (27 September 2026)**
 
 Goal: make squad building part of the playable season.
 
 Completion criteria:
 
-- [ ] Contract state is represented.
-- [ ] Bids can be made and evaluated.
-- [ ] Clubs accept/refuse according to reconstructed logic where known.
-- [ ] Player negotiations, wages, duration, and transfer completion work.
-- [ ] Player movement updates squads safely.
-- [ ] AI transfer activity can occur during calendar progression.
+- [x] Contract state is represented.
+- [x] Bids can be made and evaluated.
+- [x] Clubs accept/refuse according to reconstructed logic where known.
+- [x] Player negotiations, wages, duration, and transfer completion work.
+- [x] Player movement updates squads safely.
+- [x] AI transfer activity can occur during calendar progression.
+
+Evidence: `research/GATE9_TRANSFERS_AND_CONTRACTS.md`.
 
 ## Gate 10 - Finances and board systems
 
