@@ -3,6 +3,7 @@ from types import SimpleNamespace
 import unittest
 
 from game_state import GameCalendar, GameState
+from gate_receipts import calculate_matchday_gate_receipts
 from stadium_state import (
     MAP_HEADER_SIZE,
     MAP_TRAILING_SIZE,
@@ -140,6 +141,61 @@ class GateSourceMaterializationTests(unittest.TestCase):
         )
         # Two clubs have fan-base index <=20; N=6, floor(N/2)=3 -> 90%.
         self.assertEqual((tickets.terrace_price, tickets.seating_price), (67, 90))
+
+
+class GateLedgerPostingTests(unittest.TestCase):
+    @staticmethod
+    def receipts(season_ticket_quantity=0):
+        return calculate_matchday_gate_receipts(
+            home_fan_base_raw=10000,
+            visiting_fan_base_raw=10000,
+            home_tier_factor=1.0,
+            visiting_tier_factor=1.0,
+            home_side_modifier=1.0,
+            visiting_side_modifier=1.0,
+            seating_reference=30.0,
+            terrace_reference=22.5,
+            home_seating_price_delta=0.0,
+            visiting_seating_price_delta=0.0,
+            home_terrace_price_delta=0.0,
+            visiting_terrace_price_delta=0.0,
+            home_seating_capacity=1000,
+            visiting_seating_capacity=800,
+            home_terrace_capacity=500,
+            visiting_terrace_capacity=200,
+            host_seating_price=30,
+            host_terrace_price=22,
+            rand15_values=(0, 0, 0, 0),
+            season_ticket_quantity=season_ticket_quantity,
+        )
+
+    def test_gate_posting_credits_visiting_then_home_categories(self):
+        state = GameState(
+            calendar=GameCalendar(date(2000, 8, 19)),
+            players={},
+            clubs={0: SimpleNamespace()},
+        )
+        balance = state.set_current_cash(0, 100000)
+        posted = state.post_gate_receipts(0, self.receipts(season_ticket_quantity=250))
+
+        self.assertEqual(posted, {1: 28400, 2: 41000})
+        self.assertEqual(balance.current_cash, 169400)
+        self.assertEqual(
+            [(entry.category, entry.amount) for entry in balance.ledger],
+            [(1, 28400), (2, 41000)],
+        )
+        # Season-ticket holders affect attendance only; category 3 is separate.
+        self.assertEqual(balance.ledger[-1].amount, 41000)
+        self.assertEqual(self.receipts(250).home_attendance, 1750)
+
+    def test_gate_posting_does_nothing_without_materialized_host_balance(self):
+        state = GameState(
+            calendar=GameCalendar(date(2000, 8, 19)),
+            players={},
+            clubs={0: SimpleNamespace()},
+        )
+        self.assertEqual(state.post_gate_receipts(0, self.receipts()), {})
+        self.assertEqual(state.finance_balances, {})
 
 
 if __name__ == "__main__":
