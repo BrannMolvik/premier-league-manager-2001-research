@@ -21,11 +21,14 @@ Recovered transform:
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from enum import Enum
 
 from match_schedule import BoundedRng
 from player_contract import (
     live_player_signing_on_fee_expectation,
+    live_player_signing_on_fee_floor,
     live_player_wage_expectation,
+    live_player_wage_floor,
 )
 from transfer_state import TransferProposal
 
@@ -199,4 +202,181 @@ def adjust_live_player_counter_offer(
         current_player_weekly_wage=int(player.weekly_wage),
         renewing_same_club=int(player.club_id) == buying_club_id,
         rng=rng,
+    )
+
+
+class OrdinaryMoneyResponse(str, Enum):
+    """Recovered outcomes from the money/term slice of DBRPlayer::0x422470."""
+
+    ACCEPTED = "accepted"
+    COUNTER_OFFER = "counter_offer"
+    LOW_WAGE = "low_wage"
+    DEFER_TO_BROADER_POLICY = "defer_to_broader_policy"
+    INVALID_DURATION_COUNTER = "invalid_duration_counter"
+
+
+@dataclass(frozen=True)
+class OrdinaryMoneyResponseResult:
+    outcome: OrdinaryMoneyResponse
+    proposal: TransferProposal
+    response_code: int | None
+    wage_floor: int
+    signing_fee_floor: int
+    rng10_roll: int | None = None
+    counter_adjustment: CounterOfferAdjustment | None = None
+    requires_clause_adjustment_422070: bool = False
+    requires_duration_adjustment_423340: bool = False
+
+
+def evaluate_ordinary_money_response(
+    state,
+    proposal: TransferProposal,
+    rng: BoundedRng | None = None,
+) -> OrdinaryMoneyResponseResult:
+    """Reproduce the proven money/term subpath of DBRPlayer::0x422470.
+
+    This stops explicitly when the original reaches one of two still-unmapped
+    policy helpers:
+    - the broader refusal/status policy at 0x422803;
+    - invalid-duration revision helper 0x423340.
+
+    It therefore does not invent reason codes or clause mutations outside the
+    disassembled subpath.
+
+    Proven branches:
+    - wage < 75% of 0x420210 wage floor -> response code 4;
+    - sufficiently strong wage/signing/duration terms -> response code 2
+      (Player Accepts);
+    - weaker/anchored terms consume RNG(10); rolls 0..6 enter 0x4EDB10;
+    - after that counter transform, if revised_wage*0.95 > submitted anchor,
+      response code 1 (Counter Offer) is selected after 0x422070;
+    - otherwise wage is restored to the submitted anchor and response code 2
+      is selected;
+    - RNG(10) rolls 7..9 and low-anchor cases continue into 0x422803.
+    """
+
+    player_id = int(proposal.target_player_id)
+    buying_club_id = int(proposal.buying_club_id)
+    try:
+        player = state.players[player_id]
+    except KeyError as exc:
+        raise KeyError(f"unknown target player {player_id}") from exc
+    if rng is None:
+        rng = state._resolve_rng()
+
+    wage_floor = live_player_wage_floor(
+        state,
+        player_id,
+        buying_club_id,
+    )
+    signing_floor = live_player_signing_on_fee_floor(
+        state,
+        player_id,
+        buying_club_id,
+    )
+    submitted_wage = int(proposal.contract_terms.weekly_wage)
+    submitted_signing = int(proposal.contract_terms.signing_on_fee)
+    duration = int(proposal.contract_terms.contract_length_months)
+    history_duration = int(proposal.field_44)
+    current_player_wage = int(player.weekly_wage)
+    same_club = int(player.club_id) == buying_club_id
+
+    # 0x4226D3: reject only on a strict shortfall below 75%.
+    if submitted_wage * 4 < wage_floor * 3:
+        return OrdinaryMoneyResponseResult(
+            outcome=OrdinaryMoneyResponse.LOW_WAGE,
+            proposal=proposal,
+            response_code=4,
+            wage_floor=wage_floor,
+            signing_fee_floor=signing_floor,
+        )
+
+    use_randomized_branch = submitted_wage <= current_player_wage
+    if not use_randomized_branch:
+        if duration < 6 or duration > 72:
+            return OrdinaryMoneyResponseResult(
+                outcome=OrdinaryMoneyResponse.INVALID_DURATION_COUNTER,
+                proposal=proposal,
+                response_code=1,
+                wage_floor=wage_floor,
+                signing_fee_floor=signing_floor,
+                requires_duration_adjustment_423340=True,
+            )
+
+        if duration <= history_duration:
+            use_randomized_branch = True
+        elif (not same_club) and submitted_signing < signing_floor:
+            use_randomized_branch = True
+        elif submitted_wage < wage_floor:
+            use_randomized_branch = True
+        else:
+            return OrdinaryMoneyResponseResult(
+                outcome=OrdinaryMoneyResponse.ACCEPTED,
+                proposal=proposal,
+                response_code=2,
+                wage_floor=wage_floor,
+                signing_fee_floor=signing_floor,
+            )
+
+    # 0x42277C: only 0..6 enter the negotiation transform.
+    roll = int(rng.randbelow(10))
+    if roll >= 7:
+        return OrdinaryMoneyResponseResult(
+            outcome=OrdinaryMoneyResponse.DEFER_TO_BROADER_POLICY,
+            proposal=proposal,
+            response_code=None,
+            wage_floor=wage_floor,
+            signing_fee_floor=signing_floor,
+            rng10_roll=roll,
+        )
+
+    adjustment = adjust_live_player_counter_offer(
+        state,
+        proposal,
+        rng,
+    )
+    anchor_wage = int(adjustment.proposal.previous_wage_offer)
+
+    # 0x4227A8: an anchor below the lower wage floor leaves this proven slice.
+    if anchor_wage < wage_floor:
+        return OrdinaryMoneyResponseResult(
+            outcome=OrdinaryMoneyResponse.DEFER_TO_BROADER_POLICY,
+            proposal=adjustment.proposal,
+            response_code=None,
+            wage_floor=wage_floor,
+            signing_fee_floor=signing_floor,
+            rng10_roll=roll,
+            counter_adjustment=adjustment,
+        )
+
+    revised_wage = int(adjustment.proposal.contract_terms.weekly_wage)
+    if revised_wage * 95 > anchor_wage * 100:
+        return OrdinaryMoneyResponseResult(
+            outcome=OrdinaryMoneyResponse.COUNTER_OFFER,
+            proposal=adjustment.proposal,
+            response_code=1,
+            wage_floor=wage_floor,
+            signing_fee_floor=signing_floor,
+            rng10_roll=roll,
+            counter_adjustment=adjustment,
+            requires_clause_adjustment_422070=True,
+        )
+
+    # 0x4227DD restores the submitted anchor wage before the code-2 path.
+    accepted_terms = replace(
+        adjustment.proposal.contract_terms,
+        weekly_wage=anchor_wage,
+    )
+    accepted_proposal = replace(
+        adjustment.proposal,
+        contract_terms=accepted_terms,
+    )
+    return OrdinaryMoneyResponseResult(
+        outcome=OrdinaryMoneyResponse.ACCEPTED,
+        proposal=accepted_proposal,
+        response_code=2,
+        wage_floor=wage_floor,
+        signing_fee_floor=signing_floor,
+        rng10_roll=roll,
+        counter_adjustment=adjustment,
     )
