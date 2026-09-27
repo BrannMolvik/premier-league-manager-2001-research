@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Trace Balance constructor 0x5DC400 and ordinary fresh-game callers to recover the authoritative source of initial current cash; do not invent a default amount.",
+  "active_task": "Trace Balance constructor 0x5DC400 and ordinary fresh-game callers to recover the authoritative source of initial current cash; keep explicit starting cash until proven.",
   "last_known_main_head": "24b1e70af7748de7faf997282aee330b150b7a34",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 32,
+  "recovery_generation": 33,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 32: category-1600 secondary debit integrated exactly and CI-green at 3fc54ed8 (533 tests + asset policy), schema 10. Main canonical docs/status advanced through 24b1e70a. Continue only starting Balance cash source trace.",
+  "note": "Recovery generation 33 resumed from main 24b1e70a. Gate receipts and category-1600 debit are complete; continue only 0x5DC400 initial Balance cash source trace.",
   "same_chat_fallback_minutes": 30
 }
