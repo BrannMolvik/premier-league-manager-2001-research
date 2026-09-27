@@ -4725,3 +4725,21 @@ Next Gate-10 target: trace the concrete gameplay side effect of the reason-4 and
 reason-5 manager-sacking events and materialize the minimum authentic
 job-security/control state. The objective evaluator currently returns the exact
 reason but must not invent how FM2001 removes or reassigns the manager.
+
+
+## Gate 10 manager-sacking side effect resolved — 28 September 2026
+
+Objective failure reasons 4/5 now have a concrete downstream control path.
+`0x42C6C0` simply writes the reason to persistent DBRUser `+0x10D8`.
+Later `0x4290F0` turns a nonzero reason into the matching sacking EAM/message
+and returns true. The shipped follow-up gate `0x516010` is constant true.
+
+In a single-user game, the main loop then clears active control state and enters
+`0x4C3280`, the PStartMenu creation family. It does not destroy the DBRUser or
+Balance object at the reason-write site. Multi-user play cycles user context
+instead.
+
+Next implementation: persist the sacking reason in GameState/save state and end
+active human control only after the current season-finalization/matchday
+maintenance completes, preserving the original separation between persistent
+reason state and front-end control transition.
