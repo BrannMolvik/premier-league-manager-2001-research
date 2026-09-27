@@ -4661,3 +4661,27 @@ Exact next task: translate and attach the later season/competition transition
 that sets objective `+0x68 = 1` (and updates `+0x9C`) so deadline evaluation
 can be invoked automatically at the correct lifecycle point rather than through
 the explicit clean-room gate setter.
+
+
+## Gate 10 sporting-objective progression resolved — 28 September 2026
+
+The objective lifecycle's remaining `+0x68` semantic gap is closed for the
+normal Premier League path.
+
+Season finalization calls the 17-way objective progression routine twice around
+the competition transition. The pre-transition flag-1 pass evaluates the normal
+PL finishing target. For the three source-backed fresh PL candidates:
+
+- ID 13 succeeds only at table index 0 (champion);
+- ID 1 succeeds at index 0 or 1 (top two);
+- ID 5 succeeds when `table_index <= team_count // 2`, preserving the original
+  inclusive midpoint comparison.
+
+Success writes objective `+0x68 = 1` and increments `+0x9C`. This proves that
+`+0x68` is a sporting-objective success gate, explaining why the deadline path
+uses reason 4 when it is clear and only applies the reason-5 financial target
+when it is set.
+
+Next implementation block: run this PL-specific sporting check once at the
+completed-season boundary, then invoke the already-tested year-gated financial
+objective evaluator from the same annual lifecycle.
