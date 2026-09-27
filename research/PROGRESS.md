@@ -4821,3 +4821,37 @@ checks to existing DBRPlayer flag semantics:
 Suspension bit 1 is not tested by this call path, and bit 2 remains distinct
 from the separately persisted cup-tied mechanism. The remaining narrow trace
 before state implementation is the human training-method mutation itself.
+
+
+## Gate 11 human training state verified — 28 September 2026
+
+The first playable Gate-11 management action is now integrated without altering
+the shared game RNG.
+
+Verified checkpoint:
+
+`3f7bec072a66437361a908128ea45de9e95b418d`
+
+GitHub Actions passed:
+
+- **555 reconstruction tests**;
+- repository asset-policy workflow.
+
+Implemented and tested:
+
+- fresh per-player training method **5 = Fitness**;
+- original eight-week countdown;
+- active training count;
+- 17 persistent per-skill training counters and dword-state equivalents;
+- seven per-method result counters;
+- human-controlled per-player method selection restricted to the human squad;
+- method changes preserve accumulated counters/countdown, matching the original
+  independently serialized record layout and direct method-byte mutations;
+- save schema **13** persists all of this state;
+- weekly eligibility helper is injury OR selection-exclusion, not ordinary
+  suspension.
+
+Automatic Saturday `0x4EACE0` execution remains intentionally disabled at
+this checkpoint. The next trace must instruction-lock the mandatory weekly RNG
+calls and separate them from still-unmaterialized specialist-coach,
+condition/injury and timed-effect branches before calendar integration.
