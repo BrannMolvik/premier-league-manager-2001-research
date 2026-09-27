@@ -2,6 +2,8 @@ import unittest
 from datetime import date
 from types import SimpleNamespace
 
+from finance_state import TRANSFER_ACCOUNT_CATEGORY
+from game_state import GameCalendar, GameState
 from match_role_rating import best_preferred_role_rating
 from transfer_decision import SellingClubDecision
 from transfer_state import ContractTerms, TransferProposal, TransferRuntimeState
@@ -96,11 +98,11 @@ def build_completion_state(*, buyer_roster_count=5):
     )
     seller_roster = [1, *range(2, 20)]
     buyer_roster = list(range(100, 100 + buyer_roster_count))
-    return SimpleNamespace(
+    return GameState(
+        calendar=GameCalendar(date(2000, 8, 18)),
         players={1: target},
         clubs={10: SimpleNamespace(), 11: SimpleNamespace()},
         club_roster_order={10: seller_roster, 11: buyer_roster},
-        calendar=SimpleNamespace(current_date=date(2000, 8, 18)),
         transfers=TransferRuntimeState(),
     )
 
@@ -138,13 +140,12 @@ class ScheduledTransferCompletionTests(unittest.TestCase):
         self.assertEqual(scheduled.due_date, date(2000, 8, 19))
         self.assertTrue(state.players[1].signed_for_other_club)
 
+        state.set_current_cash(11, 1_000_000)
+        state.set_current_cash(10, 250_000)
         state.calendar.current_date = date(2000, 8, 19)
         result = execute_due_ordinary_cash_transfers(
             state,
             user_controlled_club_id=11,
-            can_afford=lambda club_id, amount: (
-                club_id == 11 and amount == 750_000
-            ),
         )
 
         self.assertEqual(len(result), 1)
@@ -184,6 +185,17 @@ class ScheduledTransferCompletionTests(unittest.TestCase):
         self.assertNotIn((1, 11), state.transfers.proposals)
         self.assertNotIn(1, state.transfers.deals)
 
+        self.assertEqual(state.current_cash(11), 250_000)
+        self.assertEqual(state.current_cash(10), 1_000_000)
+        self.assertEqual(
+            [(p.amount, p.category) for p in state.finance_balances[11].ledger],
+            [(-750_000, TRANSFER_ACCOUNT_CATEGORY)],
+        )
+        self.assertEqual(
+            [(p.amount, p.category) for p in state.finance_balances[10].ledger],
+            [(750_000, TRANSFER_ACCOUNT_CATEGORY)],
+        )
+
     def test_forty_player_buyer_reschedules_mode_zero_plus_seven_days(self):
         state = build_completion_state(buyer_roster_count=40)
         proposal = self.proposal()
@@ -203,17 +215,47 @@ class ScheduledTransferCompletionTests(unittest.TestCase):
         self.assertEqual(state.players[1].club_id, 10)
         self.assertEqual(state.transfers.movements, [])
 
-    def test_controlled_buyer_requires_explicit_gate10_affordability(self):
+    def test_controlled_buyer_requires_materialized_balance_cash(self):
         state = build_completion_state()
         proposal = self.proposal()
         schedule_ordinary_cash_transfer(state, proposal)
         state.calendar.current_date = date(2000, 8, 19)
 
-        with self.assertRaisesRegex(RuntimeError, "affordability"):
+        with self.assertRaisesRegex(RuntimeError, "current cash"):
             execute_due_ordinary_cash_transfers(
                 state,
                 user_controlled_club_id=11,
             )
+
+    def test_insufficient_current_cash_blocks_transfer_without_posting(self):
+        state = build_completion_state()
+        proposal = self.proposal()
+        state.transfers.submit_proposal(
+            proposal,
+            selling_club_id=10,
+            current_date=state.calendar.current_date,
+        )
+        schedule_ordinary_cash_transfer(state, proposal)
+        state.set_current_cash(11, 749_999)
+        state.set_current_cash(10, 250_000)
+        state.calendar.current_date = date(2000, 8, 19)
+
+        result = execute_due_ordinary_cash_transfers(
+            state,
+            user_controlled_club_id=11,
+        )
+
+        self.assertEqual(
+            result[0].outcome,
+            ScheduledTransferOutcome.INSUFFICIENT_FUNDS,
+        )
+        self.assertEqual(state.current_cash(11), 749_999)
+        self.assertEqual(state.current_cash(10), 250_000)
+        self.assertEqual(state.finance_balances[11].ledger, [])
+        self.assertEqual(state.finance_balances[10].ledger, [])
+        self.assertEqual(state.players[1].club_id, 10)
+        self.assertEqual(len(state.transfers.scheduled_transfers), 1)
+        self.assertEqual(state.transfers.movements, [])
 
 
 class CashProposalTotalTests(unittest.TestCase):
