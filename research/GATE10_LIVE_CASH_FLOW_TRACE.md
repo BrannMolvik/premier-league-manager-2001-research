@@ -87,62 +87,107 @@ Do **not** integrate category-300 concession income into normal calendar
 progression as though fresh games generate it. Treat this as a dormant/legacy
 payout path unless a genuine activation writer is later recovered.
 
-## Match-day / attendance income dependency boundary
+## Match-day gate-receipt producer recovered
 
-Match-day gate/attendance receipts remain the preferred next income target, but
-the modern data model is missing a required original dependency.
+A complete Balance-credit call-site scan found the actual live match-day
+producer outside the earlier monthly/history address family:
 
-The original side has two relevant persistent owners.
+`0x513252 -> 0x5DA2F0 -> Balance 0x5DC510`.
 
-### DBRUser +0x694: stadium-section / attendance state
+The earlier `0x429904/0x429BB4/0x42A111/0x42A5D2/0x42C1F2`
+family remains relevant to business/history reporting, but it is not the
+primary gate-receipt posting path.
 
-This is a 0x7C-byte persistent object. Its tail contains exactly 26 dwords,
-one per stadium-section state entry. Live helpers include:
+### Accounting categories and ticket-price inputs
 
-- `0x6187E0`;
-- `0x618A20`;
-- `0x618B60`;
-- `0x618C10`.
+Inside `0x5DA2F0`, the active controlled user's DBRUser `+0x694`
+ticket/section state supplies the two dword ticket prices at `+0x08` and
+`+0x0C`. They are converted to floating point and combined with two pairs of
+attendance/count values.
 
-The section calculations resolve entries from the stadium model and combine
-them with capacity-derived values.
+The first posting has the exact shape:
 
-Downstream monthly/business routines include:
+`double(price_08) * count_A0 + double(price_0C) * count_A1`
 
-- `0x429904`;
-- `0x429BB4`;
-- `0x42A111`;
-- `0x42A5D2`;
-- `0x42C1F2`.
+and is credited as accounting category **1** at `0x5DB456`.
 
-They use stadium capacity helpers including `0x65DA60` and `0x65D9B0`.
+The second posting has the same two-price shape with a second attendance/count
+pair:
 
-### DBRUser +0x6B0: stadium model/state
+`double(price_08) * count_B0 + double(price_0C) * count_B1`
 
-This is the 0x1BC4-byte stadium model constructed by `0x65CB20`. It contains
-the stadium entries used by the ticketing/section logic. The original error
-path explicitly states that if the stadium cannot be loaded, building screens
-and ticketing will not work.
+and is credited as accounting category **2** at `0x5DB4B9`.
 
-### What the reconstruction currently has
+Equivalent controlled-club posting branches occur at
+`0x5DB58D/0x5DB5F0` and `0x5DB692/0x5DB6F5`.
 
-The clean-room database/runtime already exposes:
+The exact user-facing distinction between categories 1 and 2, and between the
+two `+0x08/+0x0C` price types, is not yet named. Their role as live
+match-ticket receipts is independently locked by the ledger family below.
 
-- each club's stadium string/identifier;
-- each club's `fan_base_index`;
-- the 42-row `DBTAccessFanBase` table from Static.dat as 19 packed dwords per
-  row;
-- one proven AccessFanBase field semantic, runtime `+0x48`, used by the
-  transfer subsystem as a retained-roster threshold input.
+### Gate-receipt ledger family
 
-It does **not** currently materialize the original 26-section stadium state or
-the `+0x6B0` stadium capacity/entries model.
+Balance aggregate helper `0x5DC890` expands high-level accounting category
+**0** into the exact sum of subcategories **1, 2, and 3**. Finance Overview
+queries that high-level category-0 aggregate.
 
-Therefore the presence of `AccessFanBase` is not evidence for a gate-receipt
-formula, and its unmapped fields must not be relabeled as attendance values.
+Category **3** is independently produced by the ticket/season-ticket path at
+`0x5D0FF4` and `0x5D1684`: it multiplies a selected ticket quantity by
+its selected ticket price, passes category 3 through the normal finance-value
+constructor, and credits Balance.
 
-No original stadium binary assets are currently imported under
-`original_assets/`.
+Together, these instruction paths establish:
+
+- high-level category **0** = the gate/ticket-receipt family;
+- categories **1 and 2** = live match-day ticket receipt components;
+- category **3** = the separate pre-match/season-ticket sales component.
+
+This is stronger evidence than the separate `EAMbcmonthlyincome` label
+`GATE`, although that presentation label is consistent with it.
+
+### Stadium/section dependency is also confirmed
+
+The producer directly consumes the state previously identified as the missing
+runtime dependency:
+
+- DBRUser `+0x694`: ticket prices plus 26 section-state dwords at
+  `+0x14..+0x78`;
+- DBRUser `+0x6B0`: the loaded stadium/entry model.
+
+In particular, helper `0x618E00` loops the 26 section entries, filters them by
+section selector 0 or 1, and sums capacity-like stadium-entry dimensions after
+conversion through `0x4290A0`. `0x5DA2F0` also calls stadium helpers
+including `0x65D920`, `0x65DA60`, and `0x65D9B0`.
+
+Therefore the modern runtime still cannot faithfully post gate receipts merely
+from a club stadium string or unmapped `DBTAccessFanBase` fields. The
+original ticket-section/stadium state must be materialized or equivalently
+reconstructed from the authorized stadium data.
+
+### Applicability boundary
+
+The ordinary branch credits categories 1 and 2 when the primary club is
+user-controlled. A separate branch, selected by a local match/competition flag,
+can independently credit both primary and secondary controlled clubs using each
+club's own ticket prices.
+
+The condition that sets that flag is not yet semantically named. Do not call it
+neutral-ground revenue sharing, cup sharing, or any other policy until the
+branch around `0x5DA5CF..0x5DA705` is decoded.
+
+### Remaining formula work
+
+The producer is now known, but implementation remains intentionally blocked
+until these instruction details are closed:
+
+1. decode the attendance/count calculations feeding the four count values;
+2. identify the exact semantic distinction between categories 1 and 2;
+3. identify the exact two ticket-price/section classes represented by
+   `+0x08/+0x0C`;
+4. decode the special both-clubs applicability flag;
+5. preserve the exact integer/floating conversion and rounding path;
+6. materialize only the required stadium/section source state and add
+   deterministic finance regressions before normal matchday integration.
 
 ## Monthly income report is not a producer
 
