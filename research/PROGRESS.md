@@ -4427,3 +4427,43 @@ Exact next task: attach recovered fresh terrace/seating price initialization and
 source-backed club/competition inputs to the ticket runtime state, then integrate
 the complete gate attendance/revenue producer into normal matchday progression
 with deterministic ledger regressions.
+
+
+## Gate 10 gate-receipt runtime/ledger checkpoint — 28 September 2026
+
+Implementation has advanced from source parsing into the complete testable
+receipt/ledger slice.
+
+Verified through `ad31b680f07f2a5ff552e22a76a37efccfb9cc4f`:
+
+- lazy ordinary ticket-price initialization implements the recovered 90/95/100%
+  fan-base-rank bands, truncation toward zero and preservation of existing
+  nonzero user prices;
+- `GameState.materialize_gate_source_state` combines a parsed original stadium,
+  the exact fresh section/visiting allocation, club capacity and league fan-base
+  ranking while keeping the unresolved tuning/currency reference-price adapter
+  explicit;
+- the aggregate gate calculator consumes its four random values in the original
+  order: home seating, visiting seating, home terrace, visiting terrace;
+- the aggregate returns ordinary home/visiting attendance and exact host cash
+  amounts from terrace/seating counts and prices;
+- season-ticket quantity is appended to home attendance only after ordinary
+  category-2 revenue, preserving the separate category-3 sale path;
+- `GameState.post_gate_receipts` credits category 1 visiting-supporter and
+  category 2 home-supporter revenue only when the home club owns a materialized
+  Balance.
+
+A shipped-data check independently confirms Arsenal's PL fan-base ordering:
+19 of 20 clubs have `fan_base_index <= 31`, placing Arsenal in the 100% fresh
+price band; its source stadium capacity remains 38,500 for the exact 10%
+visiting-allocation threshold.
+
+GitHub Actions at `ad31b680`:
+
+- reconstruction suite: **523 tests passed**;
+- repository asset-policy workflow: **passed**.
+
+Exact next task: derive the remaining live attendance inputs from current
+`GameState`/source data, especially the neutral-named supporter factor and
+ordinary league side modifier, then call the four-cell calculator and ledger
+posting exactly once at the recovered matchday point.
