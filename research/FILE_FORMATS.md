@@ -742,3 +742,79 @@ See `research/MATCH_ENGINE.md` and `tools/inspect_match_assets.py` for the curre
 3. Decode save serialization.
 4. Decode .SCI and formation/tactical data needed by the match engine.
 5. Keep clean-room parsers synchronized with the verified layouts above.
+
+
+## Stadium source data needed by Gate 10
+
+The Gate-10 ticket/attendance trace now has a direct source-data bridge to the
+original stadium resources.
+
+### Per-club `.MAP` layout
+
+Fresh DBRUser initialization obtains the club map filename and calls
+`0x65D5B0` on the owned stadium object at `DBRUser +0x6B0`. A valid map is
+identified by the three-byte prefix `FM\0`; the loader then calls `0x65D440`.
+
+`0x65D440` reads, in order:
+
+1. **0x1A0 bytes** into stadium `+0xD8`;
+2. **0x1900 bytes** into stadium `+0x278`, exactly 40×40 dwords;
+3. one extra byte for every instantiated/non-empty grid building through
+   `0x65CE40`;
+4. **0x10 trailing bytes** into stadium `+0x1BB0`.
+
+A grid dword of `0xFFFFFFFF` is empty. Otherwise:
+
+- building ID = `cell & 0x3FFF`;
+- rotation = `(cell >> 14) & 3`.
+
+The Arsenal source map validates the layout exactly. Its decompressed length is
+8,190 bytes and it contains 1,355 non-empty grid cells:
+
+```text
+3 + 0x1A0 + 0x1900 + 1355 + 0x10 = 8190
+```
+
+Each instantiated grid building becomes a 0x1C-byte runtime entry. Its mapped
+fields include rectangle bounds, packed building ID/rotation at `+0x10`, the
+per-map flag byte at `+0x14`, and stadium-section index at `+0x18`.
+
+### 26 ticket sections are assigned from fixed stadium anchors
+
+The stadium constructor `0x65CB20` embeds the 26 Gate-10 section anchor
+coordinates. After map instantiation, `0x65CE40` resolves each anchor to the
+building rectangle that contains it and stores the section number into that
+instance's `+0x18` field.
+
+Section 0..25 anchors are:
+
+```text
+(21,15) (20,15) (19,15) (18,15) (17,16) (17,17) (17,18)
+(17,19) (17,20) (17,21) (17,22) (18,23) (19,23) (20,23)
+(21,23) (22,22) (22,21) (22,20) (22,19) (22,18) (22,17)
+(22,16) (22,15) (17,15) (17,23) (22,23)
+```
+
+This means the modern finance runtime does not need to invent a 26-section
+stadium model: it can recover the original section-to-building mapping directly
+from the original per-club map.
+
+### Global building-list source
+
+The global stadium-building table used by the ticket helpers starts at
+`0x988E08`, has stride **0x74**, and contains exactly **3,000** entries.
+Gate-10 capacity consumers address building fields in this table, including the
+already-proven terrace/seating fields `+0x1C/+0x28`.
+
+Loader `0x660A80` opens the WAD member whose pointer at `0x84A530` resolves
+to the original filename **`Lists\\Buildings.dat`**. It then walks all 3,000
+live 0x74-byte records. For every record it performs a 0x74-byte read into the
+record base and a second 0x5C-byte read into record `+0x08` through the two
+stream/interface pointers returned by the WAD-open path.
+
+The extracted original `Buildings.dat` is 624,000 bytes, exactly
+`3000 * 0xD0`. Its per-entry serialized shape is correspondingly
+`0x74 + 0x5C`; the second 0x5C segment matches bytes `+0x08..+0x63` of the
+first segment for all 3,000 source entries. This duplication is recorded as a
+serialization fact only. Runtime semantic fields must continue to be named from
+executable consumers, not from positional guesses.
