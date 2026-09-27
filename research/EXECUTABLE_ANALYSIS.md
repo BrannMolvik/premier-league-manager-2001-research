@@ -7192,3 +7192,32 @@ incident/Form persistence.
 
 CI at `0d3010df0dbbb60ab147d40dedd1ad83ff533965` passed 531 tests plus
 the asset-policy workflow.
+
+
+## Gate 10 Balance::credit category-1600 debit
+
+Direct disassembly of `0x5DC510` closes the secondary-debit conversion path.
+
+The incoming finance value is converted to double through `0x5E48D0`, then
+the exact floating amount is multiplied by literal double **0.01** and literal
+double **0.2**. The result is stored as a qword double and passed to finance
+constructor `0x5E43B0` with conversion flags zero. `0x5DC510` then calls
+`Balance::debit 0x5DC650` with category **1600** and flag **1**.
+
+No `0x668350` integer conversion occurs. The secondary debit is therefore
+exactly `incoming * 0.002` as a floating finance value. For example, crediting
+1.0 creates a 0.002 debit; an integer-truncated implementation would be wrong.
+
+The original operation order adds the full primary credit first, performs the
+secondary debit second, and only then appends the primary credit transaction.
+Because the debit helper appends its transaction during the nested call, ledger
+order is category-1600 debit first and the primary credit second.
+
+Finance Overview explicitly queries category 1600 through
+`0x5DC890/0x5DD650/0x43F1E0`. Its user-facing semantic label remains
+unresolved and is not guessed.
+
+The clean-room Balance now preserves fractional money, implements the nested
+secondary debit, and schema-10 internal saves preserve fractional cash/ledger
+values. CI at `3fc54ed8524fabade0f37be7017f84d5e967a279` passed 533 tests
+plus asset policy.
