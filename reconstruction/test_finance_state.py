@@ -256,5 +256,26 @@ class PremierLeagueObjectiveProgressionTests(unittest.TestCase):
 
 
 
+    def test_deadline_dismissal_persists_reason_before_control_exit(self):
+        state, objective = self.state_for(6, 19)
+        state.calendar.current_date = date(2003, 5, 20)
+        objective.selected_on = date(2000, 8, 18)
+        objective.deadline = date(2003, 8, 18)
+        objective.progression_gate_reached = True
+        objective.progression_state = 1
+        state.finance_balances[100].current_cash = objective.target_cash * 0.95
+
+        evaluation = state.run_premier_league_financial_objective_season_transition()
+        self.assertEqual((evaluation.outcome, evaluation.sacking_reason), ("dismissed", 5))
+        self.assertEqual(state.user_sacking_reason, 5)
+        self.assertEqual(state.user_controlled_club_id, 100)
+
+        balance = state.finance_balances[100]
+        self.assertEqual(state.finalize_single_user_sacking_control(), 5)
+        self.assertIsNone(state.user_controlled_club_id)
+        self.assertIs(state.finance_balances[100], balance)
+        self.assertEqual(balance.financial_objective.selected_objective_id, 6)
+
+
 if __name__ == "__main__":
     unittest.main()
