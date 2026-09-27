@@ -756,3 +756,43 @@ invent a default amount.
 
 Concession generation remains intentionally disabled on fresh games for the
 separate dormant-path reason documented above.
+
+
+## Fresh-game starting cash source resolved
+
+The authoritative initial current-cash source is now instruction-locked.
+
+`Balance::Balance` at `0x5DC400` does **not** embed a starting-money constant.
+Fresh DBRUser construction creates the active and secondary Balance objects with
+zero-valued finance objects. The subsequent DBRUser initialization routine at
+`0x425680` resolves the controlled `DBRClub` and then performs:
+
+```text
+club +0xD0/+0xD4
+  -> 0x5E4410(..., convert_flag=1)
+  -> 0x5E48D0(..., convert_flag=0)
+  -> active Balance +0x10 current cash
+```
+
+The compact-club importer closes the source mapping. Parser `0x4022D0` reads an
+8-byte field directly into temporary club `+0xD0`; runtime copier `0x403660`
+rep-copies that field unchanged to `DBRClub +0xD0/+0xD4`. Accounting for every
+preceding packed read places the source at exact `Master.dat` club record bytes
+**+165..+172**.
+
+Those eight bytes are an IEEE-754 little-endian double. Canonical examples are:
+
+- Arsenal: `28,000,000.0`;
+- Aston Villa: `19,000,000.0`;
+- Liverpool: `25,000,000.0`;
+- Manchester United: `34,000,000.0`.
+
+Money helper `0x5E4410` multiplies flag-1 input by the build currency factor at
+`0x87AD88`; `0x5E48D0` only divides when its own flag argument is nonzero.
+The fresh-user path passes zero to `0x5E48D0`. In the analyzed standard build,
+`0x6596A0 == 0` selects currency factor **1.0**, so the packed +165 double is
+stored unchanged as active current cash.
+
+This resolves the final Gate-10 starting-cash source. No guessed default is
+needed: a controlled club's Balance should be materialized from its parsed
+`Master.dat +165` double when that DBRUser-equivalent control state is created.
