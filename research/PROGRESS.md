@@ -4467,3 +4467,18 @@ Exact next task: derive the remaining live attendance inputs from current
 `GameState`/source data, especially the neutral-named supporter factor and
 ordinary league side modifier, then call the four-cell calculator and ledger
 posting exactly once at the recovered matchday point.
+
+
+## Gate 10 Premier League FanFactor resolved — 28 September 2026
+
+The neutral supporter tier factor in the implemented gate formula is now
+source-backed. `0x410FF0` selects among `FanFactor1..5` using the competition's
+index in its country's sorted root-competition array. The shipped defaults are
+0.9/0.8/0.7/0.6/0.5, with later/default indices using 0.5. England's root order
+places Premier League competition 0 at index 6, proving the PL factor is
+**0.5**.
+
+Next integration dependencies are the controlled-club facility attendance
+multiplier and the exact four gate-RNG draws' placement relative to match and
+post-match RNG consumers; automatic fixture posting remains disabled until
+those are source-backed.
