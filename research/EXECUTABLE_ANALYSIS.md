@@ -6959,3 +6959,67 @@ Remaining formula dependency: the upstream side modifiers supplied by
 `0x5DBA60` on the ordinary path and `0x5DBCD0` on the alternate type-6 path.
 Those helpers must be translated before declaring the entire attendance producer
 closed. The exact demand/cap/conversion/RNG body itself is no longer open.
+
+
+## Gate 10 attendance side-modifier formulas
+
+The final upstream attendance-formula dependency is now resolved.
+
+### Ordinary league helper 0x5DBA60
+
+For a club participating in an ordinary league match, `0x5DBA60` computes four
+components and returns their tuning-weighted average.
+
+- `0x4FA670` supplies a league-importance factor from the competition's
+  country/region hierarchy. It performs signed integer division on runtime
+  competition order field `+0x18` before returning `1.0 - quotient`.
+- `0x4F4070` obtains the club's sorted league-table index.
+- `0x4F8DF0` returns that table row's `+0x10` games-played value;
+  `0x4F8DA0` returns `league+0x5C - games_played` as games remaining.
+- league-position factor is 1.0 while games played <5 or games remaining <4;
+  otherwise it is `1 - table_index/team_count`.
+- when games remaining is below `ATTLeagueEndPlay` (default 5), `0x4F8C50`
+  produces title/direct-promotion/promotion-playoff/direct-relegation/
+  relegation-playoff points gaps. A positive gap is active only when
+  `gap/games_remaining <= 3.0`.
+- the five end-play values are 1.0 or the named CanGoUp/CanPlayOffUp/CanGoDw/
+  CanPlayOffDw tuning divided by `ATTLeagueEndPlayCanWin`, yielding shipped
+  defaults 1.0/0.8/0.6/0.3/0.2.
+- the first 11 player IDs at club `+0x244` are rated through `0x41E1D0`;
+  their maximum preferred-role overall ratings are summed and multiplied by
+  exact double `0.00125`, i.e. divided by 800.
+
+The return value is exactly:
+
+```text
+(ATTPrestigeBoost          * xi_rating
+ + ATTLeagueEndPlayBoost   * end_play_factor
+ + ATTLeaguePosBoost       * league_position_factor
+ + ATTLeagueImportanceBoost* league_importance_factor)
+/
+(ATTPrestigeBoost + ATTLeagueEndPlayBoost
+ + ATTLeaguePosBoost + ATTLeagueImportanceBoost)
+```
+
+All four shipped weights are 10.
+
+### Type-6 helper 0x5DBCD0
+
+For the alternate type-6 paired path, each club's first-11 factor is computed
+identically as `sum(overall)/800`. The helper returns:
+
+```text
+0.2 * (ATTPrestigeBoost * primary_xi
+     + ATTOtherPrestigeBoost * other_xi)
+    / (ATTPrestigeBoost + ATTOtherPrestigeBoost)
+```
+
+Defaults are 10 and 5 respectively. The caller reverses the two club arguments
+for the second side.
+
+The named loader also directly confirms the whole tuning family:
+`ATTLeagueImportanceBoost`, `ATTLeaguePosBoost`, `ATTLeagueEndPlayBoost`,
+`ATTPrestigeBoost`, `ATTOtherPrestigeBoost`, `ATTLeagueEndPlay`, and all
+five `ATTLeagueEndPlayCan*` values. The live gate-attendance producer is now
+formula-complete; the next dependency is source-state materialization for the
+26-section ticket object and stadium entry model.
