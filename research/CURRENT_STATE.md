@@ -131,9 +131,14 @@ Completion requires:
 3. **Completed:** persistent proposal/deal/bid-log/movement state is attached
    to GameState and round-trips through schema-3 saves. CI at `8f7936d9`:
    **424 tests passed**.
-4. Recover the selling-club accept/refuse decision/reason-code path without
-   approximating known decline reasons.
-5. Implement the smallest end-to-end human transfer path: bid -> club decision
+4. **Completed:** selling-club core decision at `0x4EF940`: protected
+   under-30/top-11 players reject below 60% value as Too Cheap; clubs with
+   fewer than 17 `0x405080` count reject as Too Small Squad; otherwise
+   Offer Accepted. Exact RTTI reason events are mapped and the pure decision
+   is implemented/tested.
+5. Recover/adapt `0x4205A0` player valuation and the four-bit `0x405080`
+   count into live runtime inputs, then implement the smallest end-to-end human
+   transfer path: bid -> club decision
    -> player negotiation -> completion -> roster movement.
 6. Add AI transfer progression only after the human path/state model is stable.
 7. Build synthetic and canonical regressions and re-audit every Gate-9 criterion.
@@ -142,8 +147,8 @@ Completion requires:
 
 - [x] Initial player weekly wage and contract expiry are represented and saved.
 - [x] Full negotiated contract terms / proposal/deal/bid-log/movement state are represented and saved.
-- [ ] Bids can be made and evaluated.
-- [ ] Clubs accept/refuse according to reconstructed logic where known.
+- [ ] Bids can be made and evaluated end-to-end from live runtime inputs.
+- [x] Core clubs accept/refuse decision/reason logic is reconstructed and tested.
 - [ ] Player negotiations, wages, duration, and transfer completion work.
 - [ ] Player movement updates squads safely.
 - [ ] AI transfer activity can occur during calendar progression.
