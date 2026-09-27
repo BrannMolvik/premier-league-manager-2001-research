@@ -8,7 +8,6 @@ adapters belong in the runtime integration layer.
 from __future__ import annotations
 
 from dataclasses import dataclass
-import math
 
 
 @dataclass(frozen=True)
@@ -120,3 +119,134 @@ def calculate_gate_cell(
         cup_special=cup_special,
     )
     return randomized_gate_count(demand, response, rand15)
+
+
+
+@dataclass(frozen=True)
+class GateReceiptResult:
+    """Four recovered attendance cells plus the category-1/2 posting amounts."""
+
+    home_seating: GateAttendanceCell
+    visiting_seating: GateAttendanceCell
+    home_terrace: GateAttendanceCell
+    visiting_terrace: GateAttendanceCell
+    home_revenue: int
+    visiting_revenue: int
+    season_ticket_quantity: int = 0
+
+    @property
+    def ordinary_home_attendance(self) -> int:
+        return int(self.home_seating.count) + int(self.home_terrace.count)
+
+    @property
+    def visiting_attendance(self) -> int:
+        return int(self.visiting_seating.count) + int(self.visiting_terrace.count)
+
+    @property
+    def home_attendance(self) -> int:
+        return self.ordinary_home_attendance + max(0, int(self.season_ticket_quantity))
+
+    @property
+    def total_attendance(self) -> int:
+        return self.home_attendance + self.visiting_attendance
+
+
+def calculate_matchday_gate_receipts(
+    *,
+    home_fan_base_raw: float,
+    visiting_fan_base_raw: float,
+    home_tier_factor: float,
+    visiting_tier_factor: float,
+    home_side_modifier: float,
+    visiting_side_modifier: float,
+    seating_reference: float,
+    terrace_reference: float,
+    home_seating_price_delta: float,
+    visiting_seating_price_delta: float,
+    home_terrace_price_delta: float,
+    visiting_terrace_price_delta: float,
+    home_seating_capacity: int,
+    visiting_seating_capacity: int,
+    home_terrace_capacity: int,
+    visiting_terrace_capacity: int,
+    host_seating_price: int,
+    host_terrace_price: int,
+    rand15_values: tuple[int, int, int, int],
+    home_facility_factor: float = 1.0,
+    visiting_facility_factor: float = 1.0,
+    season_ticket_quantity: int = 0,
+    cup_special: bool = False,
+) -> GateReceiptResult:
+    """Run the four-cell gate body in original RNG order.
+
+    The executable consumes RNG in this order:
+    home seating -> visiting seating -> home terrace -> visiting terrace.
+    Category 1 is visiting-supporter ordinary ticket revenue; category 2 is
+    home-supporter ordinary ticket revenue. Season-ticket holders are appended
+    only to the home attendance output after category-2 revenue is determined.
+    """
+    if len(rand15_values) != 4:
+        raise ValueError("rand15_values must contain exactly four values")
+
+    home_seating = calculate_gate_cell(
+        fan_base_raw=home_fan_base_raw,
+        tier_factor=home_tier_factor,
+        side_modifier=home_side_modifier,
+        price_delta=home_seating_price_delta,
+        reference_price=seating_reference,
+        capacity=home_seating_capacity,
+        rand15=rand15_values[0],
+        facility_factor=home_facility_factor,
+        cup_special=cup_special,
+    )
+    visiting_seating = calculate_gate_cell(
+        fan_base_raw=visiting_fan_base_raw,
+        tier_factor=visiting_tier_factor,
+        side_modifier=visiting_side_modifier,
+        price_delta=visiting_seating_price_delta,
+        reference_price=seating_reference,
+        capacity=visiting_seating_capacity,
+        rand15=rand15_values[1],
+        facility_factor=visiting_facility_factor,
+        cup_special=cup_special,
+    )
+    home_terrace = calculate_gate_cell(
+        fan_base_raw=home_fan_base_raw,
+        tier_factor=home_tier_factor,
+        side_modifier=home_side_modifier,
+        price_delta=home_terrace_price_delta,
+        reference_price=terrace_reference,
+        capacity=home_terrace_capacity,
+        rand15=rand15_values[2],
+        facility_factor=home_facility_factor,
+        cup_special=cup_special,
+    )
+    visiting_terrace = calculate_gate_cell(
+        fan_base_raw=visiting_fan_base_raw,
+        tier_factor=visiting_tier_factor,
+        side_modifier=visiting_side_modifier,
+        price_delta=visiting_terrace_price_delta,
+        reference_price=terrace_reference,
+        capacity=visiting_terrace_capacity,
+        rand15=rand15_values[3],
+        facility_factor=visiting_facility_factor,
+        cup_special=cup_special,
+    )
+
+    home_revenue = (
+        int(host_seating_price) * int(home_seating.count)
+        + int(host_terrace_price) * int(home_terrace.count)
+    )
+    visiting_revenue = (
+        int(host_seating_price) * int(visiting_seating.count)
+        + int(host_terrace_price) * int(visiting_terrace.count)
+    )
+    return GateReceiptResult(
+        home_seating=home_seating,
+        visiting_seating=visiting_seating,
+        home_terrace=home_terrace,
+        visiting_terrace=visiting_terrace,
+        home_revenue=home_revenue,
+        visiting_revenue=visiting_revenue,
+        season_ticket_quantity=max(0, int(season_ticket_quantity)),
+    )
