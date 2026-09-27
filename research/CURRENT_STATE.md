@@ -151,8 +151,8 @@ Existing reverse engineering already establishes:
   while ticket `+0x0C` paired with stadium-entry `+0x28` is seating;
 - the four home/visiting × terrace/seating demand cells, ticket-price response,
   fan-base/capacity caps, truncation and randomized subtraction inside
-  `0x5DA2F0` are now instruction-locked; the remaining formula dependency is
-  the upstream side-modifier helpers `0x5DBA60/0x5DBCD0`;
+  `0x5DA2F0` are instruction-locked, and the ordinary/type-6 upstream
+  side-modifier helpers `0x5DBA60/0x5DBCD0` are now translated as well;
 - the producer still depends on the 26-section state at DBRUser `+0x694` and
   stadium model at `+0x6B0`, neither of which is currently materialized by
   the modern runtime;
@@ -178,13 +178,11 @@ Existing reverse engineering already establishes:
    category-101 Balance postings. The first-of-month support-staff path is
    recovered as category 102 but concrete amounts remain deferred until the
    original CSupportStaff cost state is materialized.
-7. **Active:** finish the recovered live gate-receipt producer
-   `0x513252 -> 0x5DA2F0`. The four home/visiting × terrace/seating demand
-   calculations are now exact, including reference ticket prices, piecewise
-   price response, fan-base/capacity caps, controlled-club facility multiplier,
-   truncation toward zero and the MSVC-15-bit randomized subtraction. Close the
-   remaining upstream side-modifier producers `0x5DBA60` and `0x5DBCD0`.
-   Then materialize only required `+0x694/+0x6B0` ticket/stadium state and add
+7. **Active:** the recovered live gate-receipt producer
+   `0x513252 -> 0x5DA2F0` is now formula-complete, including the ordinary
+   `0x5DBA60` and type-6 `0x5DBCD0` side modifiers. Materialize only the
+   required original-compatible `+0x694/+0x6B0` ticket/section and stadium
+   source state, then implement the locked attendance/revenue path and add
    deterministic regressions before normal matchday integration.
 8. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
@@ -205,12 +203,12 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
 - chairman budget-message payloads remain loadable from legacy event/save
   state, but no ordinary fresh-game producer/consumer is mapped;
 - match-day/gate posting categories and producer are recovered, the special
-  both-clubs path is identified as cup/knockout attendance, and terrace/seating
-  capacity classes and the four-cell demand/cap/truncation/RNG body are now
+  both-clubs path is identified as cup/knockout attendance, and the complete
+  side-modifier plus four-cell demand/cap/truncation/RNG formula is now
   instruction-locked; income is still intentionally not integrated while the
-  upstream side-modifier helpers and required original stadium-section/capacity
-  state remain unresolved; category 1/2 and section state 0/1 are resolved as
-  visiting/home supporter sides;
+  required original stadium-section/capacity source state remains unresolved;
+  category 1/2 and section state 0/1 are resolved as visiting/home supporter
+  sides;
 - concession payout is intentionally not integrated into ordinary progression:
   its category-300 monthly credit path is exact, but the fresh-game generator
   does not create active records in the recovered executable;
