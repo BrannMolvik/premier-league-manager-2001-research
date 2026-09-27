@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 9,
   "active_task": "Recover selling-club accept/refuse decision and reason codes, then implement human bid-to-negotiation workflow",
-  "last_known_main_head": "d10a0d83c7c9eab8ed48e4af21ac15b3ef62e2ee",
+  "last_known_main_head": "3c99701c41219499c91aba1b28b3c9876daaa4d2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,5 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 13,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered into a new worker because no usable worker tab remained. Continue from GitHub canonical state without repeating persisted investigation. Transient stalls should still reuse/stop/re-prompt the same worker when available."
+  "note": "Auto-continue v0.3.2 policy: transient/Retry failures recover in place first; if the first same-chat recovery produces no main or agent-runtime commit for 30 minutes, one fresh inactive recovery tab is allowed even if the old worker tab still exists. GitHub heartbeat polling uses commit Atom feeds to avoid REST rate limits.",
+  "same_chat_fallback_minutes": 30
 }
