@@ -11,7 +11,7 @@ from ai_transfers import (
     related_club_suppression_passes,
     run_weekly_ai_acquisitions,
 )
-from game_state import GameCalendar
+from game_state import GameCalendar, GameState
 from runtime_state import RuntimePlayer
 from transfer_state import TransferRuntimeState
 
@@ -191,6 +191,32 @@ class WeeklyAiTransferTests(unittest.TestCase):
         self.assertEqual(state.club_roster_order[2], [])
         self.assertEqual(len(state.transfers.movements), 1)
         self.assertEqual(state.ai_transfer_buy_counter[1], 1)
+
+    def test_calendar_progression_runs_saturday_ai_transfer_pass(self):
+        source = build_state(date(2000, 8, 18))
+        rng = ScriptedRng([3, 1, 0, 0, 0, 0])
+        state = GameState(
+            calendar=source.calendar,
+            players=source.players,
+            club_roster_order=source.club_roster_order,
+            clubs=source.clubs,
+            managers=source.managers,
+            competitions=source.competitions,
+            countries=source.countries,
+            positions=source.positions,
+            access_fan_bases=source.access_fan_bases,
+            access_skill_financial_values=source.access_skill_financial_values,
+            transfers=source.transfers,
+            ai_transfer_startup_roster_count=source.ai_transfer_startup_roster_count,
+            ai_transfer_buy_counter=source.ai_transfer_buy_counter,
+            country_transfer_window_open=source.country_transfer_window_open,
+            rng=rng,
+        )
+
+        self.assertEqual(state.advance_one_day(), date(2000, 8, 19))
+        self.assertEqual(state.players[20].club_id, 1)
+        self.assertEqual(len(state.transfers.movements), 1)
+        self.assertEqual(state.transfers.movements[0].player_id, 20)
 
     def test_non_saturday_consumes_no_rng(self):
         state = build_state(date(2000, 8, 18))
