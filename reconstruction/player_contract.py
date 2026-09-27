@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import date
+import math
 from typing import Protocol, Sequence
 
 from match_role_rating import best_preferred_role_rating
@@ -58,3 +59,177 @@ def contract_expiry_from_month_span(start_date: date, month_span: int) -> date:
         else:
             month += 1
     return date(year, month, int(start_date.day))
+
+
+def _scaled_financial_value(
+    raw_value: int,
+    country_multiplier_percent: int,
+) -> int:
+    """Reproduce 0x423990 with the shipped x4 developer branch inactive."""
+    raw_value = int(raw_value)
+    multiplier = int(country_multiplier_percent)
+    if raw_value < 0 or multiplier < 0:
+        raise ValueError("financial values/multipliers must not be negative")
+    return (raw_value * multiplier) // 100
+
+
+def _round_positive_significant(value: float, digits: int) -> float:
+    """Reproduce 0x5E4830 for positive values using x87 truncation."""
+    value = float(value)
+    digits = int(digits)
+    if value <= 0.0:
+        return value
+    exponent = math.trunc(math.log10(value))
+    if exponent >= digits:
+        scale = 10.0 ** (exponent - digits + 1)
+        return math.trunc(value / scale + 0.5) * scale
+    if exponent < digits - 1:
+        scale = 10.0 ** (digits - exponent - 1)
+        return math.trunc(scale * value + 0.5) / scale
+    return float(math.trunc(value + 0.5))
+
+
+def round_transfer_wage_amount(value: int | float) -> int:
+    """Reproduce money mode -1 used by 0x420180/0x420210.
+
+    The canonical executable initializes the active money factor 0x87AD88 to
+    1.0 (0x6596A0 returns currency mode 0), then mode -1 rounds to one
+    significant digit below 1,000, two below 100,000, and three thereafter.
+    """
+    value = float(value)
+    if value <= 0.0:
+        return int(value)
+    digits = 1 if value < 1_000.0 else (2 if value < 100_000.0 else 3)
+    return int(_round_positive_significant(value, digits))
+
+
+def round_transfer_signing_fee_amount(value: int | float) -> int:
+    """Reproduce money mode -2 used by 0x4202A0.
+
+    This is the exact positive-value ladder in 0x5E44F0..0x5E4821.
+    The 20..100 branch intentionally preserves the executable's observed
+    quotient result rather than "fixing" it into a multiple-of-five amount.
+    """
+    value = float(value)
+    if value <= 0.0:
+        return int(value)
+    if value < 20.0:
+        return int(math.floor(value + 0.5))
+    if value < 100.0:
+        return int((value + 2.5) * 0.2)
+    if value < 250.0:
+        return int((value + 5.0) * 0.1) * 10
+    if value < 500.0:
+        return int((value + 12.5) * 0.04) * 25
+    if value < 10_000.0:
+        return int((value + 25.0) * 0.02) * 50
+    if value < 100_000.0:
+        return int((value + 50.0) * 0.01) * 100
+    if value < 1_000_000.0:
+        return int((value + 250.0) * 0.002) * 500
+    if value < 5_000_000.0:
+        return int((value + 2_500.0) * 0.0002) * 5_000
+    if value < 10_000_000.0:
+        return int((value + 25_000.0) * 0.00002) * 50_000
+    return int((value + 125_000.0) * 0.000004) * 250_000
+
+
+def _live_financial_contract_inputs(state, player_id: int, buying_club_id: int):
+    player_id = int(player_id)
+    buying_club_id = int(buying_club_id)
+    try:
+        player = state.players[player_id]
+    except KeyError as exc:
+        raise KeyError(f"unknown player {player_id}") from exc
+    try:
+        club = state.clubs[buying_club_id]
+    except KeyError as exc:
+        raise KeyError(f"unknown buying club {buying_club_id}") from exc
+    try:
+        country = state.countries[int(club.country_id)]
+    except KeyError as exc:
+        raise ValueError(
+            f"buying club {buying_club_id} has no resolved country"
+        ) from exc
+
+    rating = best_preferred_role_rating(
+        player.current_raw,
+        player.positions,
+    )
+    rows = tuple(state.access_skill_financial_values)
+    if not 0 <= rating < len(rows):
+        raise ValueError(
+            f"financial-value row {rating} is unavailable for player {player_id}"
+        )
+    row = rows[rating]
+    if int(getattr(row, "id", rating)) != rating:
+        raise ValueError("financial-value table is not rating-indexed")
+    multiplier = int(
+        getattr(country, "financial_multiplier_percent", 100)
+    )
+    return player, row, multiplier
+
+
+def live_player_wage_expectation(
+    state,
+    player_id: int,
+    buying_club_id: int,
+) -> int:
+    """Reproduce DBRPlayer::0x420180 for the canonical currency mode."""
+    _player, row, multiplier = _live_financial_contract_inputs(
+        state, player_id, buying_club_id
+    )
+    raw = int(row.weekly_wage_base) + int(row.weekly_wage_random_range)
+    scaled = _scaled_financial_value(raw, multiplier)
+    return round_transfer_wage_amount(scaled)
+
+
+def live_player_wage_floor(
+    state,
+    player_id: int,
+    buying_club_id: int,
+) -> int:
+    """Reproduce DBRPlayer::0x420210 for the canonical currency mode."""
+    _player, row, multiplier = _live_financial_contract_inputs(
+        state, player_id, buying_club_id
+    )
+    scaled = _scaled_financial_value(
+        int(row.weekly_wage_base),
+        multiplier,
+    )
+    return round_transfer_wage_amount(scaled)
+
+
+def signing_fee_doubling_eligible(state, player_id: int) -> bool:
+    """Reproduce 0x41E5C0 exactly from live RuntimePlayer state.
+
+    Predicate:
+    - age >= 24;
+    - compact/runtime +0x6C code == 2 (EU/exempt path);
+    - contract expiry <= current game date.
+    """
+    player = state.players[int(player_id)]
+    age = player.age(state.calendar.current_date)
+    return bool(
+        age is not None
+        and int(age) >= 24
+        and int(player.eu_status_code) == 2
+        and player.contract_expiry_date is not None
+        and player.contract_expiry_date <= state.calendar.current_date
+    )
+
+
+def live_player_signing_on_fee_expectation(
+    state,
+    player_id: int,
+    buying_club_id: int,
+) -> int:
+    """Reproduce DBRPlayer::0x4202A0 for the canonical currency mode."""
+    player, row, multiplier = _live_financial_contract_inputs(
+        state, player_id, buying_club_id
+    )
+    raw = int(row.field_18) + int(row.field_1c)
+    scaled = _scaled_financial_value(raw, multiplier)
+    if signing_fee_doubling_eligible(state, int(player.index)):
+        scaled *= 2
+    return round_transfer_signing_fee_amount(scaled)
