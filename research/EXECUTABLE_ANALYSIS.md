@@ -5872,3 +5872,75 @@ mapping before use.
 
 The live reconstruction now exposes this exact default path in
 `transfer_workflow.cash_only_proposal_total_value()`.
+
+
+## Player counter-offer transform and response codes
+
+Canonical Gate-9 disassembly now resolves the core normal-transfer counter-offer
+mutation at `0x4EDB10 -> 0x4EE180`.
+
+### 0x4EDB10 money-term revision
+
+Proposal history fields:
+
+- `+0x38`: previous/anchor weekly-wage offer;
+- `+0x3C`: previous/anchor signing-on-fee offer.
+
+Weekly wage:
+
+- if `+0x38 == 0`, desired wage comes from player helper `0x420180`;
+- otherwise desired wage is the signed-truncating midpoint between the previous
+  anchor and the current submitted wage, then floored to at least the player's
+  current weekly wage;
+- the submitted wage is copied into `+0x38` before revision;
+- double constant `0x7BDCC0 == 1.1`;
+- the wage is raised only when `desired > current * 1.1`;
+- equality at exactly 110% does not revise the submitted wage.
+
+Signing-on fee is analogous using helper `0x4202A0` and `+0x3C`, except
+same-club renewal skips signing-fee revision.
+
+### 0x4EE180 duration revision
+
+The counter-offer always consumes exactly one `RNG(3)` call and writes:
+
+```text
+contract_length_months = (RNG(3) + 2) * 12
+```
+
+so the revised duration is exactly **24, 36, or 48 months**.
+
+The reconstruction implements this isolated exact mutation in
+`reconstruction/transfer_negotiation.py` without claiming the broader player
+decision policy.
+
+### DBRPlayer::0x422470 response codes
+
+Normal proposal processing calls `DBRPlayer::0x422470` from `0x4F0D58`.
+
+- response code **1** routes through `0x422280`;
+- MSVC RTTI identifies the object created there as
+  `EAMTransferUserPlayerCounterOfferMsub`;
+- therefore code **1 = player counter-offer**.
+- response code **2** routes through `0x4F0660` and then `0x4EE490`;
+- the normal transfer event created there uses vtable `0x7C8EFC`, RTTI
+  `EAMTransferPlayerAcceptsMsub`;
+- therefore code **2 = player accepts terms**.
+- response codes **3..18** are passed as reason/status codes to `0x4EC780`.
+
+### Acceptance is not identical to immediate deal readiness
+
+The only executable call to `0x50E760` (deal-state promotion to 1/4) is from
+player helper `0x422920`. The only external call to `0x422920` in this
+transfer path is `0x4EEE2A`.
+
+Inside `0x4EEB80`, `0x4EEE2A` is reached when:
+
+- player helper `0x422950` is true; `0x422950 -> 0x50E790 -> 0x50E590`,
+  and `0x50E590` tests deal states **3..5** (swap family); or
+- proposal helper `0x4F0460` reports an exchange player.
+
+Thus ordinary cash-only code-2 acceptance emits the Player Accepts event but
+does **not** directly invoke the 1/4 ready-state promotion at that point.
+The later conclude/medical/execution path must remain separate in the modern
+runtime rather than marking every accepted cash proposal immediately ready.
