@@ -20,7 +20,7 @@ A backlog item is not necessarily a bug or fidelity error. Known deviations from
 
 ## Management systems
 
-- Implement contracts and transfers from the existing research corpus during Gate 9.
+- Gate 9 contracts/transfers are complete; residual fidelity branches remain tracked in `FIDELITY_GAPS.md`.
 - Implement cash, budgets, wages, commercial/stadium flows, chairman/board behavior, and job security during Gate 10.
 - Connect scouting, youth, messages/news, and broader manager workflows during Gate 11.
 
