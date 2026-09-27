@@ -166,6 +166,24 @@ class HumanGameplayControllerTests(unittest.TestCase):
             available[11:16],
         )
 
+    def test_human_manager_can_change_training_method_for_own_player_only(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+        player = controller.squad()[0]
+        player.training_countdown = 4
+        player.training_modifiers[0] = 2
+
+        controller.set_player_training_method(player.index, 1)
+
+        self.assertEqual(player.training_method_id, 1)
+        self.assertEqual(player.training_countdown, 4)
+        self.assertEqual(player.training_modifiers[0], 2)
+
+        with self.assertRaisesRegex(ValueError, "human-controlled squad"):
+            controller.set_player_training_method(2000, 2)
+        with self.assertRaisesRegex(ValueError, "0..6"):
+            controller.set_player_training_method(player.index, 7)
+
     def test_club_squad_lineup_and_tactics_persist(self):
         controller = self.build_controller()
         human = controller.select_club(1)
