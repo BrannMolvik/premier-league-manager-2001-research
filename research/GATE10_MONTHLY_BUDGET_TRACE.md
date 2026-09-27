@@ -558,3 +558,43 @@ especially the `+0x700/+0x704/+0x708/+0x70C` region and any scalar fields
 with finance/monthly consumers. Do not revisit external scripts, the four
 `+0x5EC` records, presentation events, Balance objective records, or named
 budget-default globals.
+
+
+## DBRUser +0x700/+0x704/+0x708 is managed-club ID history
+
+The next large-state pass resolves the dynamic array immediately preceding the
+opaque +0x70C raw block.
+
+Constructor/setup state:
+
+- `DBRUser +0x700` = dynamic dword-array pointer;
+- `+0x704` = current count;
+- `+0x708` = capacity, initialized to **10**.
+
+Helper `0x425590` appends one dword and grows capacity by ten when needed.
+Helper `0x425620` returns the last dword or -1 when empty.
+
+The only direct append call is in DBRUser setup at `0x4256D7`. Immediately
+before that call:
+
+- `EDI = DBRUser +0x5B4` current club/team object;
+- `EDX = [EDI+0x04]`;
+- EDX is passed to `0x425590`.
+
+Thus the array stores the current club/team record identifier as part of
+manager/user setup and preserves prior entries. Its shape and sole producer are
+consistent with managed-club/career club-ID history, not a monetary budget
+array.
+
+Save/load independently persists:
+
+- the count at +0x704;
+- capacity at +0x708;
+- exactly `count * 4` bytes of +0x700 array contents.
+
+Therefore +0x700..+0x708 is removed from the chairman transfer/building-budget
+search.
+
+Next target remains the adjacent raw 0x9CC-byte block at `DBRUser +0x70C`
+through just before +0x10D8, plus any scalar finance/monthly consumers elsewhere
+in DBRUser.
