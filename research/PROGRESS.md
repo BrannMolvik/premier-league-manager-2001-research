@@ -4519,3 +4519,37 @@ GitHub Actions at `0d3010df0dbbb60ab147d40dedd1ad83ff533965`:
 The ordinary PL gate-receipt path is no longer the active research blocker.
 Next Gate-10 trace: close Balance credit `0x5DC510`'s secondary category-1600
 debit conversion/rounding before integrating it.
+
+
+## Gate 10 category-1600 credit debit integrated — 28 September 2026
+
+The remaining Balance-credit conversion ambiguity is closed.
+
+`Balance::credit 0x5DC510` does not round the secondary debit to an integer.
+It converts the incoming finance value to double, multiplies by exact literals
+0.01 and 0.2, constructs a second finance value with conversion flags zero, and
+calls `Balance::debit` as category 1600 / flag 1. The result is therefore an
+exact floating finance value equal to **0.2% of the incoming credit**.
+
+Implementation consequences:
+
+- Balance current cash and postings now preserve fractional values;
+- every credit inserts the category-1600 debit before the primary credit in
+  ledger order;
+- a rounding-sensitive regression proves that credit 1 produces debit 0.002;
+- transfer seller credits and gate receipts now include their original
+  secondary debit;
+- internal save schema advanced from 9 to **10** so fractional cash/postings
+  survive roundtrip.
+
+The first CI pass exposed only stale assertions that assumed credits had no
+secondary debit. Those were reconciled without changing the recovered behavior.
+
+GitHub Actions at `3fc54ed8524fabade0f37be7017f84d5e967a279`:
+
+- reconstruction suite: **533 tests passed**;
+- repository asset-policy workflow: **passed**.
+
+Exact next Gate-10 task: trace `Balance` constructor `0x5DC400` and its
+fresh-game callers to recover authoritative new-game starting cash instead of
+requiring an explicit caller-supplied value.
