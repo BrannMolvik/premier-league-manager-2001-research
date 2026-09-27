@@ -29,30 +29,63 @@ The modern runtime currently has:
   with concrete amounts deliberately deferred because CSupportStaff cost state
   is not materialized.
 
-## Confirmed ordinary income producer: concessions
+## Concession payout path: exact but dormant on the ordinary fresh-game path
 
-The original executable already provides one verified recurring commercial cash
-producer:
+Fresh instruction-level recovery against the canonical executable
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+corrects the earlier description of concessions as an ordinary recurring
+producer.
+
+The payout path itself is exact:
 
 `0x42A9FD -> 0x5E5640 -> 0x5E56F0 -> Balance 0x5DC510`
 
-`0x5E5640` iterates active records from the concession subsystem at
-`DBRUser +0x690`. The subsystem is a 0xB50-byte object containing eight
-0x168-byte concession-offer records and is controlled by tuning including
-`FCConcessionOfferMinWait` and `FCConcessionOfferMaxWait`.
+### Exact amount, category, and cadence
 
-The path obtains a financial value from each active record through `0x5E56F0`
-and credits the active Balance through `0x5DC510`.
+`0x5E56F0` computes the selected 0x168-byte record address and returns the
+qword at record `+0x160` as a floating-point value.
 
-This is enough to prove that concession income is a real live current-cash
-producer. It is **not yet enough to integrate it faithfully** because the
-repository does not preserve:
+`0x5E5640`:
 
-- the accounting category attached to the concession posting;
-- the exact meaning/source of the amount returned from the offer record;
-- the complete offer-state transitions required to decide when a record pays.
+- exits when the concession object's active-record count at `+0x00` is zero;
+- decodes the current serial date through `0x64CCD0`;
+- continues only when decoded day-of-month is **1**;
+- loops records `0 .. count-1`;
+- wraps each record's `+0x160` value through `0x5E43B0` with accounting
+  category **0x12C = 300** and conversion flag 0;
+- credits the active Balance through `0x5DC510`.
 
-Do not invent any of those values.
+Thus the exact dormant posting is:
+
+`first day of month -> each active record's +0x160 double -> category 300 -> Balance credit`.
+
+### Why this is not an ordinary fresh-game income source
+
+The same executable also proves that the ordinary new-game path does not
+activate those records:
+
+- concession-object construction initializes active count `+0x00 = 0`;
+- each record initializes `+0x160/+0x164` to the all-ones sentinel;
+- `0x5E5330`, the only periodic offer generator called from the DBRUser path,
+  builds a complete 0x168-byte candidate record **on the stack**;
+- that candidate receives its generated financial offer at record `+0x158`
+  and an expiry/date value at `+0x164`;
+- the routine never copies the candidate into the persistent +0x690 object and
+  never increments its active-record count;
+- the separate `0x5E5710` pass likewise walks active records and decodes dates
+  without mutating the active set;
+- a complete direct-reference scan of DBRUser `+0x690` found construction,
+  save/load, the periodic payout/generator calls, and the date pass, but no
+  ordinary record-activation writer.
+
+Persisted save data can still contain nonzero records because save/load
+serializes the count and active records. The executable therefore contains a
+valid payout mechanism for such state, but the currently recovered fresh-game
+path does not create that state.
+
+Do **not** integrate category-300 concession income into normal calendar
+progression as though fresh games generate it. Treat this as a dormant/legacy
+payout path unless a genuine activation writer is later recovered.
 
 ## Match-day / attendance income dependency boundary
 
