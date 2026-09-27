@@ -277,6 +277,44 @@ class InternalSaveTests(unittest.TestCase):
             original.state.ai_transfer_startup_roster_count,
         )
 
+    def test_balance_cash_and_transfer_ledger_survive_roundtrip(self):
+        original = self.build_controller()
+        original.state.set_current_cash(1, 1_000_000)
+        original.state.set_current_cash(2, 250_000)
+        original.state.post_transfer_cash(
+            buyer_club_id=1,
+            seller_club_id=2,
+            amount=300_000,
+        )
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(restored.state.current_cash(1), 700_000)
+        self.assertEqual(restored.state.current_cash(2), 550_000)
+        self.assertEqual(
+            [
+                (entry.amount, entry.category, entry.posting_date)
+                for entry in restored.state.finance_balances[1].ledger
+            ],
+            [(-300_000, 1000, date(2000, 6, 30))],
+        )
+        self.assertEqual(
+            [
+                (entry.amount, entry.category, entry.posting_date)
+                for entry in restored.state.finance_balances[2].ledger
+            ],
+            [(300_000, 1000, date(2000, 6, 30))],
+        )
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
     def test_transfer_runtime_state_survives_roundtrip(self):
         original = self.build_controller()
         terms = ContractTerms(
