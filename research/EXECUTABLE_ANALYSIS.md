@@ -6525,3 +6525,58 @@ The chairman warning is most likely created through the generic/dynamic EAM
 path and populated afterward. Continue with dynamic event population/queue
 dispatch or with board-calculation data flow, not further `0x44C` allocation
 searches.
+
+
+## Gate 10 monthly transfer-budget bridge: category-1000 and disc-data checks
+
+Two candidate routes to `EAMbcmonthlybudget +0x54` were tested against the
+canonical executable/disc and bounded.
+
+### Direct category-1000 aggregate calls are Finance Overview only
+
+A complete scan of immediate accounting-category **1000 (0x3E8)** arguments
+around the known Balance aggregate helpers found the direct category-1000
+queries at `0x43E067..`:
+
+- `0x43E08B -> 0x5DC890` (credit/income-side aggregate);
+- `0x43E0DB -> 0x5DD650` (debit/outflow-side aggregate);
+- `0x43E115 -> 0x43F1E0` (net helper).
+
+These values are stored in Finance Overview panel state around
+`+0xAC0`. No second direct category-1000 call into those aggregate helpers
+was found in a monthly/chairman calculation.
+
+This weakens the earlier hypothesis that the remaining transfer-budget figure
+is directly computed in a hidden board routine as chairman allocation minus a
+hard-coded category-1000 aggregate. Such a derivation could still be indirect,
+but it is not present as another immediate category-1000 query.
+
+### Shipped BUSINESS directory is presentation assets, not board scripts
+
+The authorized ISO9660 image contains `/FM2001_/BUSINESS` with subdirectories
+such as:
+
+- `ADMIN`
+- `CASHFLOW`
+- `CHARTS`
+- `CONTRAC`
+- `DATABAS`
+- `EXTERNA`
+- `MAINTEN`
+- `SCOUTING`
+- `STADIUM`
+- `TICKETS`
+- `TRANSFER`
+
+The files under these directories are `.444`/image presentation resources
+(for example cashflow backgrounds/graphs and transfer alpha assets). There is
+no Business Consultant event script or board-budget data file in this
+directory.
+
+Therefore the population/derivation of `EAMbcmonthlybudget` still belongs to
+internal executable/runtime data flow rather than an external BUSINESS script.
+
+Next trace: follow the monthly business-income/summary producer and Balance
+monthly aggregates that feed `CMonthHistory`/Business Consultant reporting,
+looking for the seven budget outputs without returning to already-eliminated
+event-constructor and tuning-global paths.
