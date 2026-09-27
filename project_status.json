@@ -9,12 +9,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "5ff4cba6b2f8eea466d8f068e04116d4ec023253",
+  "latest_reverse_engineering_checkpoint": "fda4105e75ee14a265e81a862cd12614c3fd5367",
   "last_verified_reconstruction_ci_head": "3fc54ed8524fabade0f37be7017f84d5e967a279",
   "last_verified_test_count": 533,
   "asset_policy_validated_head": "3fc54ed8524fabade0f37be7017f84d5e967a279",
   "asset_policy_status": "passed",
-  "active_task": "Trace Balance constructor 0x5DC400 and ordinary fresh-game callers to recover the authoritative source of initial current cash.",
+  "active_task": "Close finance-linked chairman financial-objective/job-security path at 0x5E1D90, including target source, ChairmanPercentBudgetMiss tolerance, cadence/state transition and reason-5 sacking.",
   "next_gate": 11,
   "next_gate_name": "Broader management systems",
   "blocked": false,
@@ -148,7 +148,7 @@
   "gate10_balance_save_reload": true,
   "gate10_balance_verified_checkpoint": "3fc54ed8524fabade0f37be7017f84d5e967a279",
   "gate10_balance_verified_test_count": 533,
-  "gate10_starting_cash_source_resolved": false,
+  "gate10_starting_cash_source_resolved": true,
   "canonical_source_required_for_next_trace": true,
   "canonical_source_last_verified_date": "2026-09-27",
   "gate10_payroll_integrated": true,
@@ -181,5 +181,8 @@
   "gate10_premier_league_seating_reference": 30,
   "gate10_premier_league_terrace_reference": 22.5,
   "gate10_fresh_controlled_facility_factor": 0.9,
-  "gate10_gate_rng_position": "after_match_calculator_before_incident_and_form"
+  "gate10_gate_rng_position": "after_match_calculator_before_incident_and_form",
+  "gate10_starting_cash_integrated": true,
+  "gate10_starting_cash_master_club_offset": 165,
+  "gate10_arsenal_starting_cash": 28000000
 }
