@@ -6902,3 +6902,60 @@ section states, confirming that terrace/seating and home/visiting are separate
 dimensions. The next trace remains the two parallel attendance-demand pipelines
 inside `0x5DA2F0`, including their caps, floating/integer conversion,
 `0x668350` rounding calls and `0x64D540` randomized subtraction.
+
+
+## Gate 10 exact attendance-demand and random-subtraction body
+
+Follow-up tracing of `0x5DA2F0` closes the common calculation applied to all
+four ordinary gate-attendance cells: home/visiting × terrace/seating.
+
+The resolved allocated capacities are home seating, visiting seating, home
+terrace and visiting terrace. `0x40CBC0` supplies competition/division reference
+prices as seating plus an exact 0.75 terrace derivative. Controlled-club live
+prices use `+0x0C` seating and `+0x08` terrace.
+
+Price-response helper `0x5DA250`, for price delta `a` and converted reference
+price `b`, returns:
+
+```text
+if a > b:             0.1
+elif a > 0:            max(0.1, 1 - a/b)
+elif a > -0.5*b:       1 - a/(2*b)
+elif a > -b:           1.5 - a/(4*b)
+else:                   2.0
+```
+
+The common pre-cap demand is:
+
+```text
+fan_base_raw * tier_factor * (2 - tier_factor)
+             * side_modifier * price_response
+```
+
+and controlled clubs additionally multiply by `0x42B0E0`, the facility
+attendance factor that begins at 0.9 and adds Hotel/Club House/Parking bonuses.
+Outside the special cup/knockout path, demand is capped to the AccessFanBase
+scalar; it is then always capped to the exact allocated physical-class capacity.
+
+`0x668350` is now proven to be x87 conversion with RC=11, hence truncation
+toward zero. `0x64D540(n)` advances the same MSVC-style state as
+`seed = seed*0x343FD + 0x269EC3`, takes `rand15=(seed>>16)&0x7FFF`, and
+returns `floor(rand15*n/32768)` for positive `n`.
+
+For each capped floating demand `d` and price response `p`, final count is:
+
+```text
+span_float = d / (100 + 1000*(p-1))  if p > 1
+             d * 0.01                 otherwise
+span = max(1, trunc(span_float))
+count = trunc(d) - floor(rand15 * span / 32768)
+```
+
+Home terrace+seating and visiting terrace+seating are summed separately; season
+tickets are appended only to the home attendance output after category-2
+ordinary gate revenue is determined.
+
+Remaining formula dependency: the upstream side modifiers supplied by
+`0x5DBA60` on the ordinary path and `0x5DBCD0` on the alternate type-6 path.
+Those helpers must be translated before declaring the entire attendance producer
+closed. The exact demand/cap/conversion/RNG body itself is no longer open.
