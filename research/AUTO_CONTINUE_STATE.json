@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Recover the actual match-day/gate receipt producer from DBRUser +0x694/+0x6B0 stadium state via 0x429904/0x429BB4/0x42A111/0x42A5D2/0x42C1F2 toward Balance credit 0x5DC510; in parallel trace 0x5E56F0 for exact concession amount/category/state. Do not infer attendance from unmapped AccessFanBase fields or invent formulas.",
-  "last_known_main_head": "fb9cd2028fd9c0d9e7360cc0f9ddb5fe0f9a398c",
+  "active_task": "Recover the actual match-day/gate receipt producer from DBRUser +0x694/+0x6B0 stadium state via 0x429904/0x429BB4/0x42A111/0x42A5D2/0x42C1F2 toward Balance credit 0x5DC510. Concession category-300 payout is instruction-locked but dormant on the recovered fresh-game path; do not integrate it as normal recurring income.",
+  "last_known_main_head": "2d76d828ffc6a0473bd7dc42fceecf01afdd341c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 25,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 25 resumed from main fb9cd2028fd9c0d9e7360cc0f9ddb5fe0f9a398c. Continue Gate 10 bounded live-income tracing from the persisted stadium/gate-receipt and concession targets; no restart of prior investigation.",
+  "note": "Recovery generation 25: canonical executable rematerialized and hash verified. Concession payout resolved as day-1 monthly category 300 from record +0x160, but fresh-game generator does not activate records. Main checkpoint advanced to 2d76d828ffc6a0473bd7dc42fceecf01afdd341c. Continue Gate 10 gate-receipt trace only.",
   "same_chat_fallback_minutes": 30
 }
