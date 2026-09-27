@@ -45,7 +45,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 9
+SAVE_SCHEMA_VERSION = 10
 
 
 def _iso(value: date | None) -> str | None:
@@ -789,10 +789,10 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
         "transfers": _snapshot_transfer_state(state.transfers),
         "finance_balances": {
             str(int(club_id)): {
-                "current_cash": int(balance.current_cash),
+                "current_cash": balance.current_cash,
                 "ledger": [
                     {
-                        "amount": int(posting.amount),
+                        "amount": posting.amount,
                         "category": int(posting.category),
                         "posting_date": posting.posting_date.isoformat(),
                     }
@@ -952,10 +952,10 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         transfers=_restore_transfer_state(snapshot.get("transfers")),
         finance_balances={
             int(club_id): BalanceRuntimeState(
-                current_cash=int(value["current_cash"]),
+                current_cash=value["current_cash"],
                 ledger=[
                     FinancePosting(
-                        amount=int(posting["amount"]),
+                        amount=posting["amount"],
                         category=int(posting["category"]),
                         posting_date=date.fromisoformat(posting["posting_date"]),
                     )
