@@ -6379,3 +6379,57 @@ and `0x422F70 -> 0x4192B0 -> 0x64CDD0` applies that integer as **calendar
 months**. The resulting 1-7 month autonomous terms look unusually short, but
 the unit is now directly verified by date arithmetic and should not be
 silently converted to years.
+
+
+### Weekly AI acquisition initialization follow-up
+
+The interrupted implementation trace was resumed from the persisted
+`e430fc90` checkpoint and closed two fresh-game initialization gaps.
+
+#### Country transfer-window gate starts enabled
+
+Runtime country copy/setup at `0x411740..0x4117D0` copies the static country
+fields and then unconditionally writes:
+
+```text
+0x4117C6: mov byte ptr [country+0x54], 1
+```
+
+Helper `0x411600` independently performs the same write. Daily country-date
+maintenance can later toggle this byte through `0x411380`, but a newly built
+runtime begins with the gate enabled. Therefore the clean-room fresh-game
+runtime does not need to invent an initial transfer-window value.
+
+#### Club transfer tracker +0x08 is startup roster count
+
+The club initialization path around `0x404272..0x4042AB` passes the live
+club roster count (`club+0x294`) as the first argument to `0x4F3240` for
+the tracker embedded at `club+0x1E0`. `0x4F3240` stores that byte directly
+at tracker `+0x08`, i.e. club `+0x1E8`.
+
+Thus the previously recovered `0x4F33B0` weekly buyer-capacity predicate:
+
+```text
+current_roster_count < club_byte_1e8 - 2
+```
+
+means exactly:
+
+```text
+current_roster_count < startup_roster_count - 2
+```
+
+for a normally initialized club unless another proven tracker update has
+changed the baseline.
+
+The same initialization call also stores the two independently computed club
+values from `0x403FF0` and `0x404050` at tracker +0x09/+0x0A. They are not
+needed by `0x40DC90` and remain outside the Gate-9 weekly acquisition slice.
+
+#### Random seller source is big-club filtered
+
+`0x40BB50`, called by `0x40DC90` to obtain the prospective seller, draws
+an index with `RNG(global_club_count)` and loops until `0x403790` succeeds.
+Because `0x403790` is exactly `club+0x70 > BigClubFanBase`, both the weekly
+buyer and the randomly selected seller are in the same >21 fan-base tier
+before seller-specific `0x40DBB0` checks run.
