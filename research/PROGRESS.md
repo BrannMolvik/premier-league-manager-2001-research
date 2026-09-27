@@ -3988,3 +3988,19 @@ Two additional false storage/producer routes are now closed:
 Next: classify the remaining large serialized/raw DBRUser region beginning at
 `+0x700/+0x704/+0x708/+0x70C` and continue looking for finance/monthly
 arithmetic feeding the chairman reserve.
+
+
+## 27 September 2026 - Gate 10 PFormation2k block resolved
+
+The 0x9CC-byte raw DBRUser save region at `+0x70C..+0x10D7` is now
+instruction- and RTTI-classified.
+
+`PFormation2k` (vtable `0x7C1AB4`) accesses this exact DBRUser region.
+It checks magic `0x074A3216`, then uses five 0x1F4-byte records beginning at
+`+0x714`. The records contain formation/team-sheet names plus current-club
+player IDs and assigned-role data. Five records plus the 8-byte header equal the
+serialized 0x9CC bytes exactly.
+
+This removes the last large opaque block immediately before +0x10D8 from the
+chairman-budget search. Next: audit remaining DBRUser scalars and finance/board
+arithmetic rather than serialized container owners.
