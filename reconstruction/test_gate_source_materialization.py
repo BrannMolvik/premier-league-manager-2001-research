@@ -264,6 +264,36 @@ class GateLiveIntegrationTests(unittest.TestCase):
         self.assertEqual(balance.ledger[3].amount, 41000)
 
 
+class StartingCashSourceTests(unittest.TestCase):
+    def test_controlled_balance_uses_source_starting_cash(self):
+        state = GameState(
+            calendar=GameCalendar(date(2000, 8, 1)),
+            players={},
+            clubs={0: SimpleNamespace(starting_cash=28_000_000.0)},
+        )
+
+        balance = state.initialize_controlled_club_balance(0)
+
+        self.assertEqual(balance.current_cash, 28_000_000)
+        self.assertEqual(state.current_cash(0), 28_000_000)
+        self.assertEqual(state.user_controlled_club_id, 0)
+        self.assertEqual(balance.ledger, [])
+
+    def test_existing_balance_is_not_reset_by_control_reinitialization(self):
+        state = GameState(
+            calendar=GameCalendar(date(2000, 8, 1)),
+            players={},
+            clubs={0: SimpleNamespace(starting_cash=28_000_000.0)},
+        )
+        balance = state.initialize_controlled_club_balance(0)
+        balance.current_cash = 12_345
+
+        same = state.initialize_controlled_club_balance(0)
+
+        self.assertIs(same, balance)
+        self.assertEqual(same.current_cash, 12_345)
+
+
 class GateLedgerPostingTests(unittest.TestCase):
     @staticmethod
     def receipts(season_ticket_quantity=0):
