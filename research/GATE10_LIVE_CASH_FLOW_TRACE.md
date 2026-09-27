@@ -619,6 +619,19 @@ truncation toward zero. The routine writes:
 Existing nonzero prices therefore survive later calls unchanged. This closes
 the fresh ordinary ticket-price state needed by the Gate-10 producer.
 
+
+
+### Premier League FanFactor resolved
+
+The previously neutral `tier_factor` is selected from the named
+`FanFactor1..FanFactor5` tuning family by the competition's index in its
+country/region root-competition array. `0x410FF0` returns that stored-array
+index; indices 0..3 select 0.9/0.8/0.7/0.6, while index 4 and later/default use
+0.5.
+
+England's recovered root order places Premier League competition 0 at index 6,
+so normal Premier League gate demand uses exact `tier_factor = 0.5`.
+
 ### Remaining formula work
 
 The producer, supporter-side categories and section ownership are now known,
