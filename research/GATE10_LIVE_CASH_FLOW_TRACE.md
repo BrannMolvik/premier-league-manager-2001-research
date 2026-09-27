@@ -268,6 +268,40 @@ The remaining label question is now only which of entry `+0x1C` and
 `+0x28` is terrace versus seating. Do not infer that last mapping from UI
 layout alone.
 
+### Terrace/seating ticket class resolved
+
+The final physical ticket-class ambiguity is now instruction-locked against the
+canonical executable rather than inferred from UI order.
+
+The ticket panel update routine at `0x45FF10` computes two recommended match-day
+prices from the same league/division base-price path:
+
+- `0x461340` applies an additional multiply by `0x7BD558 == 0.75` before
+  the final rounding path;
+- `0x4615B0` uses the same base-price selection without that 25% reduction.
+
+The resulting values are kept separately by the ticket panel. The live ticket
+price at `DBRUser +0x694 +0x08` is displayed and compared at `0x460553 /
+0x4605AD` against the **0.75-discounted** `0x461340` recommendation. The
+price at `+0x0C` is displayed and compared at `0x4606F9 / 0x460753`
+against the **undiscounted** `0x4615B0` recommendation.
+
+This identifies the ordinary prices exactly:
+
+- `DBRUser +0x694 +0x08` = **terrace ticket price**;
+- `DBRUser +0x694 +0x0C` = **seating ticket price**.
+
+The already-proven receipt/helper pairing therefore resolves the stadium-entry
+capacity fields too:
+
+- stadium entry `+0x1C` = **terrace capacity/class**;
+- stadium entry `+0x28` = **seating capacity/class**.
+
+This is independently consistent with `0x618C10`, which accumulates each of
+those two physical capacity fields separately for section state 0 and state 1.
+The section-state dimension is therefore supporter allocation (home/visiting),
+while `+0x1C/+0x28` is the terrace/seating dimension.
+
 ### Remaining formula work
 
 The producer, supporter-side categories and section ownership are now known,
