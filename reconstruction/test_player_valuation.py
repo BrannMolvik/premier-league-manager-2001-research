@@ -1,8 +1,11 @@
 import unittest
 from dataclasses import dataclass
+from datetime import date
+from types import SimpleNamespace
 
 from player_valuation import (
     access_financial_base_value,
+    live_player_transfer_value,
     player_transfer_value,
     recent_rating_value_multiplier,
 )
@@ -12,6 +15,7 @@ from player_valuation import (
 class Row:
     field_08: int
     field_0c: int
+    id: int = 0
 
 
 class PlayerValuationTests(unittest.TestCase):
@@ -111,6 +115,64 @@ class PlayerValuationTests(unittest.TestCase):
         )
         self.assertAlmostEqual(without, 2100.0)
         self.assertAlmostEqual(with_adjustment, 1680.0)
+
+    def test_live_adapter_resolves_source_tables_and_clamps_division_category(self):
+        player = SimpleNamespace(
+            current_raw=[200] * 17,
+            positions=(4, 0, 0),
+            current_position=4,
+            club_id=10,
+            age=lambda on_date: 25,
+        )
+        # The repeated skills/CB preference produce one deterministic rating.
+        from match_role_rating import best_preferred_role_rating
+        rating = best_preferred_role_rating(player.current_raw, player.positions)
+        rows = [Row(1000, 0, id=i) for i in range(rating + 1)]
+        state = SimpleNamespace(
+            players={1: player},
+            access_skill_financial_values=tuple(rows),
+            positions={4: SimpleNamespace(lineup_group=0)},
+            clubs={10: SimpleNamespace(competition_id=20, country_id=30)},
+            competitions={
+                20: SimpleNamespace(valuation_division_category=255)
+            },
+            countries={30: SimpleNamespace(eu_status_flag=1)},
+            calendar=SimpleNamespace(current_date=date(2000, 8, 18)),
+        )
+
+        value = live_player_transfer_value(state, 1)
+
+        # 255 is clamped by 0x405500 to DIV6 category 5.
+        self.assertAlmostEqual(value, 1000 * 1.10 * 1.05)
+
+    def test_live_adapter_applies_explicit_recent_rating_inputs(self):
+        player = SimpleNamespace(
+            current_raw=[200] * 17,
+            positions=(4, 0, 0),
+            current_position=4,
+            club_id=10,
+            age=lambda on_date: 25,
+        )
+        from match_role_rating import best_preferred_role_rating
+        rating = best_preferred_role_rating(player.current_raw, player.positions)
+        rows = [Row(1000, 0, id=i) for i in range(rating + 1)]
+        state = SimpleNamespace(
+            players={1: player},
+            access_skill_financial_values=tuple(rows),
+            positions={4: SimpleNamespace(lineup_group=0)},
+            clubs={10: SimpleNamespace(competition_id=20, country_id=30)},
+            competitions={20: SimpleNamespace(valuation_division_category=0)},
+            countries={30: SimpleNamespace(eu_status_flag=1)},
+            calendar=SimpleNamespace(current_date=date(2000, 8, 18)),
+        )
+
+        value = live_player_transfer_value(
+            state,
+            1,
+            appearance_count=5,
+            recent_ratings=[5, 5, 5, 5, 5],
+        )
+        self.assertAlmostEqual(value, 1000 * 2.0 * 1.05 * 0.8)
 
     def test_rating_history_is_limited_to_six_entries(self):
         with self.assertRaisesRegex(ValueError, "at most six"):
