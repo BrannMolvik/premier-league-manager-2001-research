@@ -218,17 +218,68 @@ These are strong semantic leads, but the exact mapping of category 1 versus 2
 and `+0x08` versus `+0x0C` is still being instruction-locked rather than
 assigned from string order alone.
 
+
+### Home/visiting split and section-state allocation
+
+The supporter-side split is now instruction-locked strongly enough to name the
+two accounting subcategories.
+
+At the end of `0x5DA2F0`:
+
+- category **1** uses the count pair later stored as the non-season-ticket
+  supporter group;
+- category **2** uses the second count pair;
+- after both match-day postings are complete, the controlled primary club's
+  season-ticket quantity from `DBRUser +0x694 +0x00` is added **only** to the
+  category-2 count group before attendance output is written;
+- output `+0xD84` receives the combined attendance total;
+- output `+0xD8C` receives the category-2/home-side attendance group,
+  including season-ticket holders;
+- output `+0xD90` receives the category-1/visiting-side attendance group.
+
+This cleanly separates revenue from attendance: category 2 is ordinary **home
+supporter match-day ticket sales**, category 1 is ordinary **visiting supporter
+match-day ticket sales**, and category 3 remains season-ticket sales. Season
+tickets increase the home attendance count but are not double-counted in the
+category-2 revenue posting.
+
+The section allocator independently supports the same home/visiting split.
+`0x618A20` first clears every section state 1 back to 0, skips unavailable
+and season-ticket-reserved (state 2) sections, and then marks sections state 1
+until accumulated ordinary capacity reaches:
+
+`10 * floor(club_stadium_capacity / 100)`
+
+places. `0x618B60(ticket_state, 1)` enforces the same minimum when the user
+tries to reassign sections in the ticket screen. State **1** is therefore the
+mandatory visiting/away-supporter allocation; state **0** is the remaining
+ordinary home-supporter allocation; state **2** is the already-proven
+season-ticket allocation; `-1` is unavailable/disabled section state.
+
+The two match-day price classes are also structurally paired with distinct
+stadium-entry capacity fields:
+
+- `DBRUser +0x694 +0x08` is paired with stadium-entry field `+0x1C`
+  through the `0x65DA60/0x65DAB0` family;
+- `DBRUser +0x694 +0x0C` is paired with stadium-entry field `+0x28`
+  through the `0x65D9B0/0x65DA00` family.
+
+The remaining label question is now only which of entry `+0x1C` and
+`+0x28` is terrace versus seating. Do not infer that last mapping from UI
+layout alone.
+
 ### Remaining formula work
 
-The producer is now known, but implementation remains intentionally blocked
-until these instruction details are closed:
+The producer, supporter-side categories and section ownership are now known,
+but implementation remains intentionally blocked until these details are
+closed:
 
-1. decode the attendance/count calculations feeding the four count values;
-2. tie categories 1 and 2 exactly to home-supporter versus visiting-supporter
-   ticket sales;
-3. tie `+0x08/+0x0C` and section states 0/1 exactly to terrace versus seating;
-4. preserve the exact integer/floating conversion and rounding path;
-5. materialize only the required stadium/section source state and add
+1. finish translating the two parallel attendance-demand calculations and their
+   caps/randomized rounding;
+2. tie stadium-entry fields `+0x1C/+0x28`, and therefore ticket prices
+   `+0x08/+0x0C`, exactly to terrace versus seating;
+3. preserve the exact integer/floating conversion and rounding path;
+4. materialize only the required stadium/section source state and add
    deterministic finance regressions before normal matchday integration.
 
 ## Monthly income report is not a producer
@@ -281,27 +332,18 @@ rounding matters.
 
 ## Exact next binary-backed trace
 
-When the authorized executable/disc is available to the active worker, do **not**
-restart the broader finance investigation. Continue from these exact targets:
+Do not restart the already-closed producer search. Continue inside
+`0x5DA2F0` from the current instruction map:
 
-1. Trace `0x429904`, `0x429BB4`, `0x42A111`, `0x42A5D2`, and
-   `0x42C1F2` through their stadium/section inputs and any call that reaches
-   Balance credit `0x5DC510`.
-2. Identify the actual match-day/gate receipt producer, including:
-   - invocation cadence;
-   - home/away applicability;
-   - attendance/capacity input fields;
-   - ticket-price input;
-   - accounting category;
-   - exact money conversion/rounding.
-3. In parallel, `0x5E56F0` is the shortest known route to making concession
-   income implementable. Recover its source fields and posting category.
-4. Materialize only the required original stadium data/asset format if the
-   gate-receipt formula genuinely depends on it. Any intentionally imported
-   authorized asset belongs under `original_assets/` with manifest provenance.
-5. Add deterministic finance regressions before wiring the producer into normal
-   calendar/matchday progression.
+1. finish the two parallel supporter-demand calculations that produce the four
+   terrace/seating-by-home/visiting count components;
+2. resolve stadium-entry field `+0x1C` versus `+0x28` as terrace versus
+   seating and thereby name DBRUser ticket prices `+0x08/+0x0C`;
+3. preserve the exact caps, floating-point conversions, `0x668350` rounding
+   calls and `0x64D540` randomized subtraction behavior;
+4. identify the minimum original stadium source data needed to materialize
+   `+0x694/+0x6B0` state in the clean-room runtime;
+5. add deterministic finance regressions before normal match-day integration.
 
-Until those details are recovered, the correct reconstruction behavior is to
-leave gate/concession income unimplemented rather than inventing a plausible
-formula.
+Concession generation remains intentionally disabled on fresh games for the
+separate dormant-path reason documented above.
