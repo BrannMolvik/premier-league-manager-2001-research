@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Lock the exact shared CRT RNG state/order at fresh support-staff generation/assignment, attach source-backed support staff and initial no-Training-Centre state to GameState, then enable verified Saturday training.",
-  "last_known_main_head": "d99db25671d271223e07b3828d2bc744d113fb26",
+  "active_task": "Complete the secondary 0x947AF0 -> 0x616620 RNG replay (secondary competition initialization, 0x4FA790 international fixtures, final bucket shuffle), then continue exact shared CRT state into fresh support-staff generation.",
+  "last_known_main_head": "b963cb20d3839ece18e14e3d870d14a116308546",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 35,
+  "recovery_generation": 36,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery resumed from main d99db256. Fresh staff generator, rating tiers and training quality multiplier are implemented/tested; remaining blocker is startup RNG/order integration, not staff semantics.",
+  "note": "Recovery generation advanced from main b963cb20. InternationalFixture table is parsed and 0x4FA790 fields are resolved. Continue only the complete secondary schedule RNG replay; do not reopen support-staff semantics.",
   "same_chat_fallback_minutes": 30
 }
