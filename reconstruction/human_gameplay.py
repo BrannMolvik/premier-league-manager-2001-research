@@ -580,6 +580,14 @@ class HumanGameplayController:
             user_controlled_club_id=self.human.club_id,
         )
 
+        # DBRUser +0x10D8 is consumed by the outer manager loop after the
+        # reason-specific sacking message is queued. In single-user play the
+        # original then leaves management for PStartMenu. Preserve the state,
+        # but end active human control only after this matchday's maintenance.
+        sacking_reason = self.state.finalize_single_user_sacking_control()
+        if sacking_reason is not None:
+            self.human = None
+
         self.pending_fixture_id = None
         self._pending_prior_results = ()
         self._pending_after_fixture_ids = ()
