@@ -295,7 +295,7 @@ class InternalSaveTests(unittest.TestCase):
         )
 
         self.assertEqual(restored.state.current_cash(1), 700_000)
-        self.assertEqual(restored.state.current_cash(2), 550_000)
+        self.assertEqual(restored.state.current_cash(2), 549_400)
         self.assertEqual(
             [
                 (entry.amount, entry.category, entry.posting_date)
@@ -308,7 +308,10 @@ class InternalSaveTests(unittest.TestCase):
                 (entry.amount, entry.category, entry.posting_date)
                 for entry in restored.state.finance_balances[2].ledger
             ],
-            [(300_000, 1000, date(2000, 6, 30))],
+            [
+                (-600, 1600, date(2000, 6, 30)),
+                (300_000, 1000, date(2000, 6, 30)),
+            ],
         )
         self.assertEqual(
             snapshot_human_gameplay(restored),
