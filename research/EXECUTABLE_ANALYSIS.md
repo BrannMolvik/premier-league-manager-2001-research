@@ -6494,3 +6494,34 @@ The authoritative chairman quarterly rebudget producer therefore remains
 unresolved. Continue from dynamic event creation/population and consumers of
 the rolling monthly histories rather than revisiting these eliminated DBRUser
 owners.
+
+
+## Gate 10 chairman warning: 0x44C allocation false leads resolved
+
+A direct search for non-factory `push 0x44C -> operator new` sites was used to
+test whether the large `EAMchairbudgetwarning` object was constructed directly
+by gameplay code outside generic EAM factory `0x538DE0`.
+
+All candidate allocations were classified from the vtable written by their
+constructor and MSVC RTTI. None is `EAMchairbudgetwarning`:
+
+- `0x40455F -> 0x587120 -> vtable 0x7D1828`
+  = **EAMLoanedOutTooManyPlayers**;
+- `0x404794 -> 0x587580 -> vtable 0x7D187C`
+  = **EAMLoanedTooManyPlayersIn**;
+- `0x4D327E -> ... -> vtable 0x7C6EDC`
+  = **EAMManagerJobApplicationsub**;
+- `0x5E80ED -> 0x5B3B30 -> vtable 0x7D5CE0`
+  = **EAMDeclineBuyPlayerTooValued**;
+- `0x61CC36 -> 0x54D930 -> vtable 0x7CBD48`
+  = **EAMAssManMonthlyTrainingReportMsub**.
+
+The only direct vtable write found for `EAMchairbudgetwarning`
+(`vtable 0x7CDC10`, RTTI `EAMchairbudgetwarning`) remains the generic EAM
+factory branch at `0x539FDC`.
+
+Consequence: allocation-size searches do not reveal the gameplay producer.
+The chairman warning is most likely created through the generic/dynamic EAM
+path and populated afterward. Continue with dynamic event population/queue
+dispatch or with board-calculation data flow, not further `0x44C` allocation
+searches.
