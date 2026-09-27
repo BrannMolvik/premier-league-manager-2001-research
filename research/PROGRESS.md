@@ -4375,3 +4375,19 @@ to reconstruct the legacy stadium renderer for Gate 10. Remaining source-state
 work is to lock the fresh ordinary ticket-price initialization and package the
 minimum original WAD/map resources or an exact parser-backed representation,
 then implement deterministic gate-receipt tests.
+
+
+## Gate 10 ticket-price initialization closed — 28 September 2026
+
+The remaining fresh ordinary price state is now instruction-locked.
+`0x5DE160` lazily initializes zero ticket prices from `0x40CBC0` reference
+prices, preserving existing nonzero user settings. It converts the seating
+reference and the exact 0.75 terrace derivative through the normal money path,
+then applies a fan-base-order multiplier of 90%, 95% or 100% according to the
+club's `+0x70` index rank within the league. Both results use the original
+truncation-toward-zero helper before writing seating `+0x0C` and terrace
+`+0x08`.
+
+The match-day gate producer now has no remaining research prerequisite for the
+minimum Premier League implementation. Next: add the exact original stadium
+source parser/runtime state and deterministic gate-receipt regressions.
