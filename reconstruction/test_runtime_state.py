@@ -3,7 +3,11 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from game_state import GameCalendar, GameState
 from match_schedule import MsvcCrtRng
-from runtime_state import RuntimePlayer, age_on
+from runtime_state import (
+    RuntimePlayer,
+    age_on,
+    normalize_current_club_join_date,
+)
 
 
 @dataclass(frozen=True)
@@ -47,8 +51,7 @@ class RuntimePlayerTests(unittest.TestCase):
     def test_age_on_birthday_boundary(self):
         dob = date(1980, 6, 15)
         self.assertEqual(age_on(dob, date(2000, 6, 14)), 19)
-        self.assertEqual(age_on(dob, date(2000, 6, 15)), 20,
-    normalize_current_club_join_date)
+        self.assertEqual(age_on(dob, date(2000, 6, 15)), 20)
 
     def test_database_player_becomes_mutable_runtime_player(self):
         player = RuntimePlayer.from_database_player(FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1))
