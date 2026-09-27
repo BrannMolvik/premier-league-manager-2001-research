@@ -5733,3 +5733,103 @@ high-level evaluator.
 
 Modern reconstruction implementation:
 `reconstruction/transfer_decision.py`.
+
+
+## 0x405080 selling-squad count fully mapped
+
+The seller-chairman decision at `0x4EF940` compares `0x405080` with 17.
+The helper is now fully mapped.
+
+`0x405080` begins with the club roster count at `DBRClub+0x294`, walks
+the player IDs from the club roster, and subtracts one player for each record
+carrying any of these `DBRPlayer+0x14` bits, in this order:
+
+- bit 8: **transfer-listed**;
+- bit 0: **injured**;
+- bit 6: **loaned out / temporary-club assignment**;
+- bit 1: **suspended/banned**.
+
+Thus the exact seller safeguard is the number of players in the selling club
+who are neither transfer-listed, injured, loaned out, nor suspended.
+
+### Bit 6 = loaned out
+
+This is directly established through the Movement Process Manager loan path.
+
+- RTTI vtable `0x7D7D54` is `MPMLoanPlayer`.
+- Its execute path at `0x61B620` ultimately calls player routine
+  `0x41A9D0`.
+- `0x41A9D0` writes the temporary/loan club ID into player `+0x10`, while
+  the parent/current-club field at `+0x72` is preserved, and sets
+  `DBRPlayer+0x14 bit 6`.
+- helper `0x41B510` returns `+0x10` when bit 6 is set and `+0x72`
+  otherwise.
+- return/cleanup routine `0x41AA50` restores `+0x10 = +0x72` and clears
+  bit 6.
+
+Therefore bit 6 is the player's active loan/temporary-club state.
+
+### Bit 8 = transfer-listed
+
+Routine `0x420A10` sets `DBRPlayer+0x14 bit 8` and caches the player's
+transfer value at `+0x180`.
+
+The decisive named-event xref is the action handler around `0x5D0440`.
+It handles vtable `0x7CBEEC`, whose RTTI name is
+`EAMAcceptTransferRequestsub`, and its accepted action calls `0x41B530`.
+`0x41B530` calls `0x420A10`.
+
+Other callers also place players into this same state, including the
+relegation-clause path `0x4208E0`, which emits
+`EAMRelegationClauseEffectiveWarning` before calling `0x420A10`.
+
+Together with the executable string/RTTI family
+`EAMPutPlayerOnTransferList`, this establishes bit 8 as the
+**transfer-listed** state.
+
+Modern RuntimePlayer now represents these states as `transfer_listed` and
+`loan_club_id`. Internal save schema **4** persists both, and
+`eligible_selling_squad_count()` reproduces `0x405080`.
+
+## 0x4205A0 player transfer valuation reconstructed
+
+The seller's 60%-price test now has a live valuation implementation.
+
+`0x4205A0` selects the player's max-preferred-role rating through
+`0x41E1D0`, indexes the 100-row AccessSkillFinancialValues table, and passes
+the base financial value into `0x4205F0`.
+
+Base helper `0x423980` is:
+
+```text
+row.field_08 + (row.field_0c >> 1)
+```
+
+Shipped multipliers recovered from the named tuning-key loader:
+
+- position: DEF 1.05, MID 0.95, ATT 1.20, GK 0.55;
+- young age threshold 18, all groups 0.75 below it;
+- old age threshold 31:
+  DEF 0.75, MID 0.65, ATT 0.60, GK 0.85 above it;
+- division categories:
+  2.00, 1.75, 1.50, 1.25, 1.10, 1.10;
+- `NonEUFeePercentage` = 0.70, but club countries whose
+  `DBRCountry+0x18 == 1` use 1.0.
+
+The division category comes from runtime `DBRCompetition+0x28`, populated
+from packed Static.dat competition byte **+31**. Helper `0x405500` clamps
+values above 5 to category 5.
+
+After player appearance counter `+0x188 > 4`, the six-byte circular history
+at `+0x79..+0x7E` contributes an average-rating multiplier:
+
+- rating 7: 1.0;
+- below 7: -10% per point;
+- above 7: +20% per point.
+
+The modern implementation is `reconstruction/player_valuation.py`.
+`live_player_transfer_value()` resolves the immutable financial, position,
+competition and country inputs directly from source-backed GameState tables.
+The modern match backend does not yet persist the original six-byte rating
+history, so callers must still supply appearance/history inputs once that
+modifier becomes relevant.
