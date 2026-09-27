@@ -2,6 +2,7 @@ import unittest
 
 from gate_receipts import (
     calculate_gate_cell,
+    calculate_matchday_gate_receipts,
     capped_gate_demand,
     randomized_gate_count,
     ticket_price_response,
@@ -101,6 +102,70 @@ class RandomizedGateCountTests(unittest.TestCase):
         self.assertEqual(result.price_response, 1.0)
         self.assertEqual(result.demand, 5000.0)
         self.assertEqual(result.count, 5000)
+
+
+class MatchdayGateReceiptTests(unittest.TestCase):
+    def test_four_cell_order_revenue_and_season_ticket_attendance(self):
+        result = calculate_matchday_gate_receipts(
+            home_fan_base_raw=10000,
+            visiting_fan_base_raw=10000,
+            home_tier_factor=1.0,
+            visiting_tier_factor=1.0,
+            home_side_modifier=1.0,
+            visiting_side_modifier=1.0,
+            seating_reference=30.0,
+            terrace_reference=22.5,
+            home_seating_price_delta=0.0,
+            visiting_seating_price_delta=0.0,
+            home_terrace_price_delta=0.0,
+            visiting_terrace_price_delta=0.0,
+            home_seating_capacity=1000,
+            visiting_seating_capacity=800,
+            home_terrace_capacity=500,
+            visiting_terrace_capacity=200,
+            host_seating_price=30,
+            host_terrace_price=22,
+            rand15_values=(0, 0, 0, 0),
+            season_ticket_quantity=100,
+        )
+        self.assertEqual(result.home_seating.count, 1000)
+        self.assertEqual(result.visiting_seating.count, 800)
+        self.assertEqual(result.home_terrace.count, 500)
+        self.assertEqual(result.visiting_terrace.count, 200)
+        self.assertEqual(result.home_revenue, 41000)
+        self.assertEqual(result.visiting_revenue, 28400)
+        self.assertEqual(result.ordinary_home_attendance, 1500)
+        self.assertEqual(result.home_attendance, 1600)
+        self.assertEqual(result.visiting_attendance, 1000)
+        self.assertEqual(result.total_attendance, 2600)
+
+    def test_four_rand_values_are_consumed_by_documented_cell_order(self):
+        result = calculate_matchday_gate_receipts(
+            home_fan_base_raw=10000,
+            visiting_fan_base_raw=10000,
+            home_tier_factor=1.0,
+            visiting_tier_factor=1.0,
+            home_side_modifier=1.0,
+            visiting_side_modifier=1.0,
+            seating_reference=30.0,
+            terrace_reference=22.5,
+            home_seating_price_delta=0.0,
+            visiting_seating_price_delta=0.0,
+            home_terrace_price_delta=0.0,
+            visiting_terrace_price_delta=0.0,
+            home_seating_capacity=10000,
+            visiting_seating_capacity=10000,
+            home_terrace_capacity=10000,
+            visiting_terrace_capacity=10000,
+            host_seating_price=30,
+            host_terrace_price=22,
+            rand15_values=(0, 8192, 16384, 32767),
+        )
+        # Demand 10000 gives span 100. Subtractions are 0,25,50,99.
+        self.assertEqual(result.home_seating.count, 10000)
+        self.assertEqual(result.visiting_seating.count, 9975)
+        self.assertEqual(result.home_terrace.count, 9950)
+        self.assertEqual(result.visiting_terrace.count, 9901)
 
 
 if __name__ == "__main__":
