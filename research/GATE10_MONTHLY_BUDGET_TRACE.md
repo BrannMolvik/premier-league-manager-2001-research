@@ -496,3 +496,65 @@ mapped executable's ordinary static consumers.
 The quarterly producer must now be sought through live accounting/board
 arithmetic or another generated-data path. Presentation objects and named
 default globals no longer provide a credible storage location.
+
+
+## Canonical-disc rule inventory and DBRUser +0x5EC classification
+
+Recovery resumed from main `df12a79645270c07374189e43a0e9d007080ffaa`.
+The authorized disc image was re-materialized and converted from MODE1/2352
+locally. The extracted `FOOTBAL.EXE` SHA-256 was reverified as:
+
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+No extracted binary/data was added to Git.
+
+### No external chairman-budget rule/script resource on the disc
+
+A full ISO9660 filename inventory was checked for event/rule/config/data
+resources outside the already-inspected BUSINESS presentation tree.
+
+The potentially executable/data-oriented loose resources are limited to known
+families such as:
+
+- `ENGLIS2.IDX/STR` and `ENGLISH.IDX/STR` localization;
+- `MASTER.DAT`, `STATIC.DAT`;
+- match/presentation data such as `AISCRIPT.VIV`, `GEN4TBLS.T`,
+  `CAMERA.SCR`, `FC.BIN`, set-piece/control files;
+- audio `.EAM/.STR` data;
+- UI/image resources under `FM2001_/BUSINESS`.
+
+There is no separate board/chairman/business-consultant rule file, EAM
+scenario file, budget table, or other obvious external source capable of
+holding the live quarterly reserve mutation.
+
+This strengthens the current producer model: the mutable chairman
+building/transfer reserve is executable/runtime behavior, not a missed loose
+disc script.
+
+### DBRUser +0x5EC is scouting state, not budget storage
+
+DBRUser construction creates exactly four 0x1C-byte records beginning at
+`+0x5EC` through constructor `0x424F70`. Save/load iterates those four
+records through `0x4ACAC0`.
+
+The DBRUser accessors `0x42BCE0/0x42BD10` first call `0x42B8A0`, map the
+requested context to one of the four records, then address:
+
+`DBRUser + 0x5EC + index * 0x1C`.
+
+Those accessors are heavily consumed throughout the already-identified
+`PScouting2K` / scouting routine family around `0x4ADxxx..0x4AFxxx`.
+The record helpers manage player-indexed list entries and scouting-side state;
+for example `0x4AD080` compares a 16-bit player identifier with record
+fields and `0x4AD130` searches the record's dynamic player list.
+
+Therefore the four persisted `+0x5EC` records are scouting/list state and
+are removed from the chairman-budget search.
+
+### Revised next target
+
+Continue classifying the remaining large serialized/raw DBRUser state,
+especially the `+0x700/+0x704/+0x708/+0x70C` region and any scalar fields
+with finance/monthly consumers. Do not revisit external scripts, the four
+`+0x5EC` records, presentation events, Balance objective records, or named
+budget-default globals.
