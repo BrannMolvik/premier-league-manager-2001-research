@@ -253,10 +253,10 @@ class GateLiveIntegrationTests(unittest.TestCase):
         self.assertEqual(rng.bounds, [32768, 32768, 32768, 32768])
         self.assertEqual(receipts.home_revenue, 41000)
         self.assertEqual(receipts.visiting_revenue, 28400)
-        self.assertEqual(balance.current_cash, 70400)
+        self.assertAlmostEqual(balance.current_cash, 70261.2)
         self.assertEqual(
             [(entry.category, entry.amount) for entry in balance.ledger],
-            [(1, 28400), (2, 41000)],
+            [(1600, -56.8), (1, 28400), (1600, -82), (2, 41000)],
         )
 
 
@@ -296,10 +296,10 @@ class GateLedgerPostingTests(unittest.TestCase):
         posted = state.post_gate_receipts(0, self.receipts(season_ticket_quantity=250))
 
         self.assertEqual(posted, {1: 28400, 2: 41000})
-        self.assertEqual(balance.current_cash, 169400)
+        self.assertAlmostEqual(balance.current_cash, 169261.2)
         self.assertEqual(
             [(entry.category, entry.amount) for entry in balance.ledger],
-            [(1, 28400), (2, 41000)],
+            [(1600, -56.8), (1, 28400), (1600, -82), (2, 41000)],
         )
         # Season-ticket holders affect attendance only; category 3 is separate.
         self.assertEqual(balance.ledger[-1].amount, 41000)
