@@ -6872,3 +6872,33 @@ user-label-resolved:
 
 The remaining ticket-class task is only to prove which field is terrace and
 which is seating, then finish translating the demand/capping/rounding pipeline.
+
+
+## Gate 10 terrace/seating ticket-class resolution
+
+The remaining gate-receipt ticket-class ambiguity is now resolved directly from
+the original ticket-screen code.
+
+PTickets update routine `0x45FF10` calls both recommendation helpers. Helper
+`0x461340` shares the same league/division base-price selection as
+`0x4615B0`, but additionally multiplies the price by
+`0x7BD558 == 0.75` before its final rounding. The ticket screen compares
+`DBRUser +0x694 +0x08` against that discounted result at `0x4605AD`, while
+it compares `+0x0C` against the undiscounted `0x4615B0` result at
+`0x460753`.
+
+Thus:
+
+- ticket price `+0x08` = terrace;
+- ticket price `+0x0C` = seating.
+
+The previously instruction-locked capacity pairing then fixes:
+
+- stadium-entry `+0x1C` = terrace capacity;
+- stadium-entry `+0x28` = seating capacity.
+
+`0x618C10` independently accumulates both physical fields for both ordinary
+section states, confirming that terrace/seating and home/visiting are separate
+dimensions. The next trace remains the two parallel attendance-demand pipelines
+inside `0x5DA2F0`, including their caps, floating/integer conversion,
+`0x668350` rounding calls and `0x64D540` randomized subtraction.
