@@ -7079,3 +7079,31 @@ entry is 0x74 + 0x5C bytes, and its second segment duplicates first-segment
 bytes +0x08..+0x63 in all 3,000 records. This is sufficient to reproduce the
 live fields required by the ticket code without any dependency on the legacy
 stadium renderer; field semantics remain tied to their executable consumers.
+
+
+## Gate 10 lazy ordinary ticket-price initialization
+
+Routine `0x5DE160` closes the last fresh-state ticket-price dependency.
+The 0x7C ticket object starts with `+0x08/+0x0C == 0`; the original runtime
+fills them lazily when this path first needs them.
+
+`0x40CBC0` supplies seating reference price first and its exact 0.75 terrace
+reference second. Each is converted through `0x5E43B0 -> 0x5E48D0`.
+
+The club is then ordered by the same `DBRClub +0x70` fan-base/access index used
+elsewhere in attendance. `0x4F40E0` counts league clubs with index <= the
+selected club. For team count N and count r:
+
+```text
+r <= floor(N/2) -> 0.90
+r < N-5         -> 0.95
+otherwise       -> 1.00
+```
+
+The discounted branches literally multiply by 90.0 or 95.0 and then 0.01.
+After truncation-toward-zero through `0x668350`, seating is stored to `+0x0C`
+and terrace to `+0x08`, but each store occurs only when that destination is
+still zero. Existing user-set prices are preserved.
+
+With this path and the stadium/map source bridge, the Gate-10 gate-receipt
+producer has no remaining reverse-engineering blocker before implementation.
