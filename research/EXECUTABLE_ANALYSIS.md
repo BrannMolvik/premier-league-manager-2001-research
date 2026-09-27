@@ -7872,3 +7872,96 @@ This is one fixed component of the secondary `0x947AF0 -> 0x616620` startup
 RNG replay. Cup-round and child-League scheduling plus `0x4FA790` and the
 secondary final bucket shuffle remain to be composed before the post-secondary
 staff-pool seed is closed.
+
+
+## Gate 11 secondary competition RNG checkpoint
+
+The competition-initialization portion of the mode-1 `0x947AF0 -> 0x616620`
+pass is now bounded exactly from the canonical post-primary-shuffle CRT state
+`0xD25DFFE6`.
+
+### DummyLeague lazy sorts: 139 draws
+
+World Cup 174 initializes before European Championship 171 under the recovered
+secondary root order. Its standard type-5 allocations first access the six
+regional DummyLeagues:
+
+```text
+Europe 170          51
+South America 177   10
+Africa 179          12
+North America 178    7
+Asia 180             6
+Oceania 181          2
+                     --
+                     88
+```
+
+The World Cup special branch then first-accesses seed DummyLeagues 182..187,
+whose source-backed counts are 9/9/9/9/9/6 = 51. DummyLeague `0x4F4750`
+consumes one CRT draw per participant, so all first-access lazy sorts together
+consume exactly **139 draws**. Later European Championship accesses reuse the
+already-sorted Europe/seed pools and add no sort draws.
+
+### Cup round shuffles: 93 draws
+
+The type-5 allocations plus the special seed branch fill the first two packed
+round capacities exactly:
+
+- World Cup: standard allocations supply 31 new entrants; the first five
+  successful seed additions fill the remaining five slots across the 6- and
+  32-team MiniLeague rounds. The sixth seed cannot append once capacity is
+  full.
+- European Championship: standard Europe allocation supplies 16 entrants; the
+  special seed scan fills the remaining four slots across the 6- and 16-team
+  MiniLeague rounds.
+
+The resulting Cup scheduler Fisher-Yates counts are therefore:
+
+```text
+World Cup:  (6-1)+(32-1)+(16-1)+(8-1)+(4-1)+(2-1) = 62
+Euro Champ: (6-1)+(16-1)+(8-1)+(4-1)+(2-1)         = 31
+                                                       --
+                                                       93
+```
+
+### Child League procedural RNG and inactive competition 188
+
+The active MiniLeague children are source-determined by the parent rounds:
+
+- World Cup: 8 instances of 4-team League 175, then one 6-team League 176;
+- European Championship: 4 instances of 4-team League 172, then one 6-team
+  League 173.
+
+The exact recovered recursive round-robin solver consumes **6 draws** for each
+4-team instance and **15 draws** for each 6-team instance at this shared-CRT
+state, with no backtracking extras on the canonical path.
+
+European child League 188 is deliberately inactive in this startup phase.
+`0x4F59A0(6)` checks qualifier children 173/188: it clears bit `0x02` only
+for the child whose runtime participant count equals six and sets that bit on
+the mismatching child. Thus 173 is enabled and the five-team 188 is skipped by
+`0x4F5150` before `0x6170F0`; 188 consumes zero procedural-League RNG.
+
+### Exact post-secondary-competition state
+
+Replaying in executable order from `0xD25DFFE6` gives:
+
+```text
+regional DummyLeague sorts      88 draws -> 0x595EACBE
+Euro seed DummyLeague sorts     51 draws -> 0xFD868E3B
+World Cup round shuffles        62 draws -> 0x51696F39
+8 x 4-team WC child Leagues     48 draws
+1 x 6-team WC qualifier         15 draws -> 0xB02B456E
+Euro Championship shuffles      31 draws -> 0x7AFBC067
+4 x 4-team EC child Leagues     24 draws
+1 x 6-team EC qualifier         15 draws -> 0x492DC9DC
+```
+
+Total secondary competition-initialization cost is **334 CRT draws**, and the
+state entering `0x4FA790` is therefore **`0x492DC9DC`**.
+
+The remaining secondary-startup RNG work is now only `0x4FA790` itself and the
+final secondary `0x615BE0` bucket shuffle. Exact national-team ordering still
+matters for `0x4FA790` because same-team avoidance can accelerate a pool cursor
+and trigger a reshuffle earlier.
