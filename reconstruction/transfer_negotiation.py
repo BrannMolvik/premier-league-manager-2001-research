@@ -213,6 +213,7 @@ class OrdinaryMoneyResponse(str, Enum):
     LOW_WAGE = "low_wage"
     PLAYER_TERMS_TOO_HIGH = "player_terms_too_high"
     ALREADY_SIGNED_ELSEWHERE = "already_signed_elsewhere"
+    RECENTLY_JOINED_CURRENT_CLUB = "recently_joined_current_club"
     DEFER_TO_BROADER_POLICY = "defer_to_broader_policy"
     INVALID_DURATION_COUNTER = "invalid_duration_counter"
 
@@ -283,19 +284,6 @@ def evaluate_ordinary_money_response(
     current_player_wage = int(player.weekly_wage)
     same_club = int(player.club_id) == buying_club_id
 
-    # 0x4224B9: player +0x174 bit 7 means the player has already
-    # accepted terms with another club. The normal constructor clears this bit;
-    # code-2 acceptance sets it at 0x4227E6, and club assignment clears it at
-    # 0x422F70.
-    if bool(getattr(player, "signed_for_other_club", False)):
-        return OrdinaryMoneyResponseResult(
-            outcome=OrdinaryMoneyResponse.ALREADY_SIGNED_ELSEWHERE,
-            proposal=proposal,
-            response_code=16,
-            wage_floor=wage_floor,
-            signing_fee_floor=signing_floor,
-        )
-
     # 0x4224A4: an excessive submitted contract length is rejected
     # immediately with response code 18. RTTI on the response event identifies
     # this as EAMChairmanPlayerTermsTooHighsub. This precedes the later
@@ -306,6 +294,34 @@ def evaluate_ordinary_money_response(
             outcome=OrdinaryMoneyResponse.PLAYER_TERMS_TOO_HIGH,
             proposal=proposal,
             response_code=18,
+            wage_floor=wage_floor,
+            signing_fee_floor=signing_floor,
+        )
+
+    # 0x4224B9: player +0x174 bit 7 means the player has already accepted
+    # terms with another club.
+    if bool(getattr(player, "signed_for_other_club", False)):
+        return OrdinaryMoneyResponseResult(
+            outcome=OrdinaryMoneyResponse.ALREADY_SIGNED_ELSEWHERE,
+            proposal=proposal,
+            response_code=16,
+            wage_floor=wage_floor,
+            signing_fee_floor=signing_floor,
+        )
+
+    # 0x4224D5..0x422505: a different buying club is refused when
+    # 0x419390 reports fewer than eight weeks since the player's current-club
+    # join date.
+    joined = getattr(player, "current_club_join_date", None)
+    if (
+        int(player.club_id) != buying_club_id
+        and joined is not None
+        and (state.calendar.current_date - joined).days // 7 < 8
+    ):
+        return OrdinaryMoneyResponseResult(
+            outcome=OrdinaryMoneyResponse.RECENTLY_JOINED_CURRENT_CLUB,
+            proposal=proposal,
+            response_code=17,
             wage_floor=wage_floor,
             signing_fee_floor=signing_floor,
         )
