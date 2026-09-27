@@ -9,12 +9,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "fbad41bc0fbf03586372ccdc57fc453b41c6b3af",
+  "latest_reverse_engineering_checkpoint": "990cd9030027de340134981b11774c14fe838bc7",
   "last_verified_reconstruction_ci_head": "5dc29a072d6e4f91744b882251df16f980c82f55",
   "last_verified_test_count": 497,
   "asset_policy_validated_head": "5dc29a072d6e4f91744b882251df16f980c82f55",
   "asset_policy_status": "passed",
-  "active_task": "Recover the actual match-day/gate receipt producer from DBRUser +0x694/+0x6B0 stadium state via 0x429904/0x429BB4/0x42A111/0x42A5D2/0x42C1F2 toward Balance credit 0x5DC510; in parallel trace 0x5E56F0 for exact concession amount/category/state. Do not infer attendance from unmapped AccessFanBase fields or invent formulas.",
+  "active_task": "Close the remaining Gate-10 attendance side-modifier producers 0x5DBA60 and 0x5DBCD0 feeding the now-exact four-way home/visiting x terrace/seating demand body; then materialize minimum DBRUser +0x694/+0x6B0 ticket/stadium state and add deterministic gate-receipt regressions.",
   "next_gate": 11,
   "next_gate_name": "Broader management systems",
   "blocked": false,
@@ -167,5 +167,10 @@
   "gate10_balance_credit_secondary_category": 1600,
   "gate10_balance_credit_secondary_rate": 0.002,
   "gate10_balance_credit_secondary_debit_integrated": false,
-  "gate10_balance_credit_secondary_rounding_resolved": false
+  "gate10_balance_credit_secondary_rounding_resolved": false,
+  "gate10_gate_receipt_producer_recovered": true,
+  "gate10_ticket_class_mapping_recovered": true,
+  "gate10_attendance_demand_body_recovered": true,
+  "gate10_attendance_random_subtraction_recovered": true,
+  "gate10_attendance_side_modifiers_recovered": false
 }
