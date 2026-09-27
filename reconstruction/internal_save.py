@@ -701,10 +701,13 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
     countries = {
         int(country.id): country
         for country in getattr(database, "countries", ())
+        if hasattr(country, "id")
     }
+    # Preserve the source-table index used by DBRPlayer position bytes and
+    # 0x4EA310; Position.id is a different semantic field.
     positions = {
-        int(position.id): position
-        for position in getattr(database, "positions", ())
+        int(index): position
+        for index, position in enumerate(getattr(database, "positions", ()))
     }
     access_skill_financial_values = tuple(
         getattr(database, "access_skill_financial_values", ())
