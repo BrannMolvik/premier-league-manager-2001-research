@@ -146,14 +146,17 @@ Several target systems already have substantial research or backend behavior:
 3. **Weekly eligibility resolved:** Saturday active training skips injured
    players and the separate selection-exclusion bit 2; ordinary suspension does
    not block this path.
-4. Continue translating `0x4EACE0` only far enough to separate the mandatory
-   weekly profile/counter/countdown/RNG transition from specialist-coach,
-   condition/injury and timed-effect branches.
-5. Instruction-lock the exact number/order of shared RNG calls for the minimum
-   weekly transition before adding it to calendar progression. Do not wire a
-   partial updater that changes global match RNG ordering.
-6. After weekly training is live and deterministic, audit the next Gate-11
-   management workflow rather than broadening training with guessed staff or UI
+4. **Weekly RNG boundary resolved:** `0x4EACE0` consumes one RNG(100) only
+   for nonzero profile weights in slots 0..16; method draw counts are
+   0/4/4/5/5/6/5. Its timed-effect prepass consumes no RNG, and later
+   condition/injury logic is a different function.
+5. Implement the exact weekly counter/countdown/+8/-8 transition as a
+   deterministic primitive with an explicit quality multiplier.
+6. Do **not** attach Saturday calendar execution until Youth Team Coach,
+   Assistant Manager and Training Centre inputs are source-backed in GameState;
+   do not silently assume those original states are absent.
+7. After the weekly primitive and quality source bridge are live, audit the next
+   Gate-11 management workflow rather than broadening training with guessed UI
    behavior.
 
 ## Known live fidelity boundaries
