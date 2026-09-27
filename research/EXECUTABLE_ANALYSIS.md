@@ -7575,3 +7575,21 @@ minimum per-player method/counter/countdown state, recover the method-change
 setter semantics, and then schedule the weekly state transition with the shared
 MSVC RNG. Existing first-of-month age/development recalculation can consume the
 resulting per-skill counters through its already implemented modifier path.
+
+
+### Weekly training eligibility predicates resolved
+
+The two player checks inside `0x61C520` are now named from their already-mapped
+DBRPlayer flag helpers:
+
+- `0x417FF0` tests `DBRPlayer +0x14 bit 0` = **injured**;
+- `0x418140` tests `DBRPlayer +0x14 bit 2` = the separately recovered
+  **selection-exclusion state**.
+
+If either predicate is true, the record does not enter `0x4EACE0` that week.
+The second flag is deliberately not relabeled: prior executable work already
+proved it is not the separate cup-tied persistence mechanism. The weekly
+training gate also does not test the ordinary suspension bit here.
+
+This leaves the human method-change mutation as the last small state-transition
+question before implementing the minimum persistent training record.
