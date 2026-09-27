@@ -137,9 +137,14 @@ Existing reverse engineering already establishes:
   credit path, but the recovered fresh-game generator never activates a
   persistent record, so it is dormant/legacy state rather than an ordinary
   live income producer;
-- match-day/ticketing calculations depend on stadium-section state at DBRUser
-  `+0x694` and the stadium model at `+0x6B0`, neither of which is currently
-  materialized by the clean-room runtime;
+- live match-day receipts are now instruction-located at
+  `0x513252 -> 0x5DA2F0 -> 0x5DC510`: categories 1 and 2 combine the two
+  DBRUser `+0x694 +0x08/+0x0C` ticket prices with recovered attendance-count
+  components; high-level category 0 sums categories 1+2+3 and category 3 is the
+  separate ticket/season-ticket sale path;
+- the exact attendance/count formula still depends on the 26-section state at
+  DBRUser `+0x694` and the stadium model at `+0x6B0`, neither of which is
+  currently materialized by the clean-room runtime;
 - original Balance credit `0x5DC510` also constructs a category-1600 debit of
   0.2% of incoming money, but its exact money conversion/rounding and category
   label remain unresolved.
@@ -162,13 +167,13 @@ Existing reverse engineering already establishes:
    category-101 Balance postings. The first-of-month support-staff path is
    recovered as category 102 but concrete amounts remain deferred until the
    original CSupportStaff cost state is materialized.
-7. **Active:** continue the bounded live-income trace in
-   `research/GATE10_LIVE_CASH_FLOW_TRACE.md`. Priority is the actual
-   match-day/gate receipt producer: trace `0x429904`, `0x429BB4`,
-   `0x42A111`, `0x42A5D2` and `0x42C1F2` through DBRUser
-   `+0x694/+0x6B0` stadium inputs toward Balance credit `0x5DC510`, and
-   recover cadence, home/away behavior, attendance/capacity inputs, ticket-price
-   input, ledger category and exact money conversion.
+7. **Active:** finish the recovered live gate-receipt producer
+   `0x513252 -> 0x5DA2F0`. Translate the attendance/count pipeline feeding
+   the category-1/category-2 postings, identify the two `+0x08/+0x0C`
+   ticket-price/section classes, decode the special branch that can post for
+   both controlled clubs, and preserve exact conversion/rounding. Then
+   materialize only the required `+0x694/+0x6B0` stadium state and add
+   deterministic regressions before normal matchday integration.
 8. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
    300 on day-of-month 1, but `0x5E5330` never appends its generated stack
@@ -187,8 +192,10 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
 
 - chairman budget-message payloads remain loadable from legacy event/save
   state, but no ordinary fresh-game producer/consumer is mapped;
-- match-day/gate income is intentionally not approximated while the original
-  stadium-section/capacity inputs and exact posting formula remain unresolved;
+- match-day/gate posting categories and producer are recovered, but income is
+  intentionally not approximated while the exact attendance-count calculation,
+  ticket-class semantics, special both-clubs condition and required original
+  stadium-section/capacity state remain unresolved;
 - concession payout is intentionally not integrated into ordinary progression:
   its category-300 monthly credit path is exact, but the fresh-game generator
   does not create active records in the recovered executable;
