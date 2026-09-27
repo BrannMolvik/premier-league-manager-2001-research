@@ -4855,3 +4855,26 @@ Automatic Saturday `0x4EACE0` execution remains intentionally disabled at
 this checkpoint. The next trace must instruction-lock the mandatory weekly RNG
 calls and separate them from still-unmaterialized specialist-coach,
 condition/injury and timed-effect branches before calendar integration.
+
+
+## Gate 11 weekly training RNG boundary closed — 28 September 2026
+
+The primary active-training function itself is now bounded exactly.
+
+- `0x4EACE0` ends at `0x4EAEA2`; later condition/injury logic is a separate
+  routine.
+- Its pre-loop timed-effect expiry `0x4EBA90` uses no RNG, and fresh training
+  records initialize all 17 timed-effect bytes to zero.
+- The skill loop consumes one `RNG(100)` only for each nonzero profile weight,
+  in skill order 0..16.
+- Exact eligible-player draw counts are 0/4/4/5/5/6/5 for methods
+  Rest/Attacking/Midfield/Defensive/Goalkeeper/Fitness/Technique.
+
+The shared-RNG placement is therefore no longer the blocker. Automatic Saturday
+training still must not guess the quality multiplier because the current modern
+runtime does not yet materialize the original Youth Team Coach, Assistant
+Manager and Training Centre owners consumed by `0x4EACE0`.
+
+Next implementation boundary: add the exact weekly state transition as an
+explicit-quality primitive with deterministic RNG tests. Keep calendar wiring
+disabled until the quality inputs become source-backed.
