@@ -873,6 +873,7 @@ For fresh same-league Premier League candidates:
 ID 13 -> table_index < 1
 ID  1 -> table_index <= 1
 ID  5 -> table_index <= team_count // 2
+ID  6 -> current competition classification <= stored objective classification
 ```
 
 The table index is zero-based in the recovered League table path. The ID-5
