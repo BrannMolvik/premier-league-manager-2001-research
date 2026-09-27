@@ -4312,3 +4312,32 @@ complete. Exact next target is the two upstream side-modifier helpers
 `0x5DBA60` and `0x5DBCD0`; once those are translated, materialize only the
 minimum original-compatible ticket/stadium state and add deterministic finance
 regressions.
+
+
+## Gate 10 attendance side modifiers resolved — 28 September 2026
+
+Recovery generation 28 resumed from `ad9c826fbcb5d332254ee84d860a783589d2811e`
+and continued only the two remaining upstream attendance helpers.
+
+Instruction-level translation closes both:
+
+- ordinary league `0x5DBA60` is the weighted average of first-XI rating,
+  end-of-season opportunity, league-position and league-importance factors;
+- first-XI rating is exactly the first 11 roster entries' `0x41E1D0` overall
+  values summed and divided by 800;
+- position is neutral before five matches played and for the final three
+  matches remaining, otherwise `1 - table_index/team_count`;
+- the late-season branch uses exact title/promotion/playoff/relegation points
+  gaps and accepts a positive gap only when it is reachable at no more than
+  three points per remaining match;
+- the named end-play defaults produce factors 1.0/0.8/0.6/0.3/0.2;
+- alternate type-6 `0x5DBCD0` is a 10:5 weighted own/opponent XI-rating blend
+  followed by an exact 0.2 multiplier.
+
+All associated named tuning globals and shipped defaults were tied back to the
+loader. The gate-receipt producer is now formula-complete at the instruction
+level. No runtime behavior changed in this checkpoint.
+
+Exact next task: recover/materialize the minimum original-compatible stadium and
+26-section ticket state needed by `+0x694/+0x6B0`, then implement the recovered
+attendance/revenue path with deterministic regressions.
