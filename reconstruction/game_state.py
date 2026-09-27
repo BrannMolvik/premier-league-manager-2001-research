@@ -36,6 +36,7 @@ from match_orders import TeamOrderPriorities
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
 from match_team_setup import TeamTacticalState
 from runtime_state import RuntimePlayer, derive_non_eu_status
+from stadium_state import StadiumSourceState, TicketRuntimeState
 from transfer_state import TransferRuntimeState
 
 
@@ -99,6 +100,8 @@ class GameState:
     # controlled club they belong to. Starting cash is intentionally not
     # invented; callers initialize a balance when its source value is known.
     finance_balances: dict[int, BalanceRuntimeState] = field(default_factory=dict)
+    stadium_sources: dict[int, StadiumSourceState] = field(default_factory=dict)
+    ticket_states: dict[int, TicketRuntimeState] = field(default_factory=dict)
     # Gate-9 source/runtime inputs for the recovered weekly club acquisition
     # path. Startup roster counts are immutable initialization baselines;
     # country gates start enabled at 0x4117C6; the neutral buy-counter byte is
@@ -362,6 +365,63 @@ class GameState:
             rng,
             user_controlled_club_id=user_controlled_club_id,
         )
+
+    def materialize_gate_source_state(
+        self,
+        club_id: int,
+        stadium: StadiumSourceState,
+        *,
+        seating_reference: float,
+        terrace_reference: float,
+        competition_id: int = 0,
+    ) -> TicketRuntimeState:
+        """Attach the recovered minimum stadium/ticket state for one club.
+
+        Reference ticket prices are explicit because 0x40CBC0 obtains them
+        through the original tuning/currency path rather than a field currently
+        materialized in CompetitionDefinition. Everything after those converted
+        references is source-backed from the live club/league/stadium state.
+        """
+        club_id = int(club_id)
+        competition_id = int(competition_id)
+        club = self.clubs.get(club_id)
+        if club is None:
+            raise KeyError(club_id)
+
+        if competition_id == 0 and self.premier_league is not None:
+            league_club_ids = tuple(int(value) for value in self.premier_league.club_ids)
+        else:
+            league_club_ids = tuple(
+                int(candidate_id)
+                for candidate_id, candidate in self.clubs.items()
+                if int(getattr(candidate, "competition_id", -1)) == competition_id
+            )
+        if club_id not in league_club_ids:
+            raise ValueError(
+                f"club {club_id} is not in competition {competition_id}"
+            )
+
+        target_fan_base_index = int(getattr(club, "fan_base_index"))
+        rank_count = sum(
+            int(getattr(self.clubs[candidate_id], "fan_base_index"))
+            <= target_fan_base_index
+            for candidate_id in league_club_ids
+        )
+
+        tickets = TicketRuntimeState.from_stadium(stadium)
+        tickets.allocate_visiting_sections(
+            stadium,
+            int(getattr(club, "runtime_value_1c_source")),
+        )
+        tickets.initialize_ordinary_prices(
+            seating_reference=seating_reference,
+            terrace_reference=terrace_reference,
+            fan_base_rank_count=rank_count,
+            league_team_count=len(league_club_ids),
+        )
+        self.stadium_sources[club_id] = stadium
+        self.ticket_states[club_id] = tickets
+        return tickets
 
     def set_current_cash(self, club_id: int, amount: int) -> BalanceRuntimeState:
         """Materialize/update the active Balance current-cash qword for a club."""
