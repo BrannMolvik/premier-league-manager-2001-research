@@ -858,3 +858,28 @@ gets **13, 1, 5**.
 This closes the source-backed candidate dependency for normal Premier League
 objective integration. Broader objective-generator branches remain deferred
 until broader competitions are in scope.
+
+
+## Premier League objective progression gate resolved
+
+Objective `+0x68` is the sporting-objective success gate. The season-transition
+routine `0x5E0310` runs from `0x5E1C00` at the annual competition-finalization
+boundary and sets that byte only when the selected sporting target is achieved.
+Its common success tail advances `+0x9C`.
+
+For fresh same-league Premier League candidates:
+
+```text
+ID 13 -> table_index < 1
+ID  1 -> table_index <= 1
+ID  5 -> table_index <= team_count // 2
+```
+
+The table index is zero-based in the recovered League table path. The ID-5
+comparison is therefore intentionally inclusive at the midpoint. The original
+season code calls progression with flag 1 before `0x4F9010`, then flag 0 after
+it; the ordinary PL final-table conditions above use the flag-1 pass.
+
+At the three-year deadline, `0x5E1D90` uses reason 4 if this sporting gate was
+never achieved. If it was achieved, the already-implemented financial target /
+95% tolerance path applies and can produce reason 5.
