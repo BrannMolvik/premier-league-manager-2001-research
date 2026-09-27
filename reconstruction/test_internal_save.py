@@ -18,7 +18,12 @@ from internal_save import (
 )
 from match_schedule import MsvcCrtRng
 from test_human_gameplay import Database, coefficient_matrix
-from transfer_state import ContractTerms, PlayerMovement, TransferProposal
+from transfer_state import (
+    ContractTerms,
+    PlayerMovement,
+    ScheduledTransfer,
+    TransferProposal,
+)
 
 
 SCHEDULER_ORDER = (
@@ -167,6 +172,13 @@ class InternalSaveTests(unittest.TestCase):
         player = original.state.players[1000]
         player.weekly_wage = 4321
         player.contract_expiry_date = date(2004, 6, 30)
+        player.promotion_bonus = 9000
+        player.appearance_fee = 450
+        player.relegation_transfer_request_clause = True
+        player.big_club_offer_clause = True
+        player.big_money_offer_clause = False
+        player.house = True
+        player.car = True
 
         restored = loads_human_gameplay(
             Database(),
@@ -181,6 +193,13 @@ class InternalSaveTests(unittest.TestCase):
             restored_player.contract_expiry_date,
             date(2004, 6, 30),
         )
+        self.assertEqual(restored_player.promotion_bonus, 9000)
+        self.assertEqual(restored_player.appearance_fee, 450)
+        self.assertTrue(restored_player.relegation_transfer_request_clause)
+        self.assertTrue(restored_player.big_club_offer_clause)
+        self.assertFalse(restored_player.big_money_offer_clause)
+        self.assertTrue(restored_player.house)
+        self.assertTrue(restored_player.car)
 
     def test_current_club_join_date_survives_roundtrip(self):
         original = self.build_controller()
@@ -268,6 +287,13 @@ class InternalSaveTests(unittest.TestCase):
                 movement_date=date(2000, 7, 1),
             )
         )
+        original.state.transfers.schedule_transfer(
+            ScheduledTransfer(
+                proposal=proposal,
+                due_date=date(2000, 7, 9),
+                mode=1,
+            )
+        )
 
         restored = loads_human_gameplay(
             Database(),
@@ -294,6 +320,10 @@ class InternalSaveTests(unittest.TestCase):
         self.assertEqual(
             restored.state.transfers.movements[-1].player_id,
             1001,
+        )
+        self.assertEqual(
+            restored.state.transfers.scheduled_transfers,
+            original.state.transfers.scheduled_transfers,
         )
 
     def test_wrong_source_database_is_rejected(self):
