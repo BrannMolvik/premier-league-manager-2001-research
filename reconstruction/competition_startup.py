@@ -602,6 +602,46 @@ def primary_mode0_root_initialization_order(
     return tuple(ordered)
 
 
+def secondary_mode1_root_initialization_order(
+    competitions: Iterable[OrderedCompetitionSource],
+    country_ids_in_source_order: Iterable[int],
+) -> tuple[OrderedCompetitionSource, ...]:
+    """Return root initialization order for schedule container 0x947AF0.
+
+    0x411020 traverses the same per-country root arrays as the primary pass:
+    source-order append, VC-era CRT qsort by runtime +0x18, then reverse
+    traversal. The only difference is the virtual +0x30 selector, so retain
+    exactly roots whose schedule-container code is 2 or 3.
+    """
+    competition_list = tuple(competitions)
+
+    roots_by_country: dict[int, list[OrderedCompetitionSource]] = {}
+    for competition in competition_list:
+        if competition.parent_competition_id is None:
+            roots_by_country.setdefault(
+                int(competition.country_region_id),
+                [],
+            ).append(competition)
+
+    ordered: list[OrderedCompetitionSource] = []
+    for country_id in country_ids_in_source_order:
+        roots = roots_by_country.get(int(country_id), [])
+        if not roots:
+            continue
+
+        qsorted = _msvc_qsort_by_key(
+            roots,
+            lambda competition: -int(competition.initialization_order_value),
+        )
+        ordered.extend(
+            competition
+            for competition in reversed(qsorted)
+            if int(competition.schedule_container_code) in (2, 3)
+        )
+
+    return tuple(ordered)
+
+
 def _effective_cup_round_sort_key(
     round_definition: OrderedRoundSource,
     rounds_by_competition: dict[int, tuple[OrderedRoundSource, ...]],
