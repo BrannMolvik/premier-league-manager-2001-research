@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Close the remaining Gate-10 attendance side-modifier producers 0x5DBA60 and 0x5DBCD0 feeding the now-exact four-way demand body; then materialize minimum +0x694/+0x6B0 ticket/stadium state and deterministic gate-receipt regressions.",
-  "last_known_main_head": "ad9c826fbcb5d332254ee84d860a783589d2811e",
+  "active_task": "Materialize minimum original-compatible +0x694/+0x6B0 ticket/section and stadium source state, then implement the complete Gate-10 matchday attendance/revenue formula with deterministic regressions.",
+  "last_known_main_head": "3bb6b90f9aea5a3eb2842faf70ce7246ed90f0d4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 28,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 28 resumed from main ad9c826fbcb5d332254ee84d860a783589d2811e. Continue only side-modifier producers 0x5DBA60/0x5DBCD0 feeding the already-exact four-cell gate attendance demand.",
+  "note": "Recovery generation 28 closed both side modifiers and advanced main to 3bb6b90f. Continue from DBRUser +0x6B0 stadium construction/source data and +0x694 26-section ticket state.",
   "same_chat_fallback_minutes": 30
 }
