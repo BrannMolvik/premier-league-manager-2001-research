@@ -22,6 +22,7 @@ from competition_startup import (
     primary_mode0_dummy_league_sort_draw_count,
     primary_mode0_dummy_league_sort_source_ids,
     primary_mode0_root_initialization_order,
+    secondary_mode1_root_initialization_order,
     prepare_cup_knockout_round,
     prepare_cup_minileague_round,
     rank_dummy_league_for_type5,
@@ -271,6 +272,36 @@ class OrderedCompetitionRngTests(unittest.TestCase):
         self.assertEqual(
             tuple(competition.id for competition in ordered),
             (33, 34, 31, 32, 95),
+        )
+
+    def test_secondary_root_order_uses_same_crt_qsort_then_mode_filter(self):
+        competitions = tuple(
+            Competition(
+                competition_id,
+                3 if competition_id not in (171, 174) else 2,
+                2,
+                None,
+                0,
+                116,
+            )
+            for competition_id in (
+                170, 171, 174, 177, 178, 179, 180, 181,
+                182, 183, 184, 185, 186, 187,
+            )
+        )
+
+        ordered = secondary_mode1_root_initialization_order(
+            competitions,
+            (116,),
+        )
+
+        self.assertEqual(
+            tuple(competition.id for competition in ordered),
+            (
+                187, 186, 185, 184, 183, 182,
+                181, 180, 179, 178, 177,
+                174, 171, 170,
+            ),
         )
 
     def test_cup_round_qsort_uses_child_league_date_for_minileague(self):
