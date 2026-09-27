@@ -113,6 +113,7 @@ class HumanGameplayController:
             raise ValueError(f"club {club_id} has no runtime squad")
 
         self.human = HumanManagerState(club_id=club_id)
+        self.state.user_controlled_club_id = club_id
         return self.human
 
     def squad(self) -> tuple[object, ...]:
@@ -428,6 +429,10 @@ class HumanGameplayController:
             + tuple(trailing)
         )
         self.state.calendar.run_post_fixture_maintenance()
+        self.state.run_weekly_ai_transfer_maintenance(
+            self.match_rng,
+            user_controlled_club_id=self.human.club_id,
+        )
 
         self.pending_fixture_id = None
         self._pending_prior_results = ()
