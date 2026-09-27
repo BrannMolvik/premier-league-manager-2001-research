@@ -4903,3 +4903,28 @@ so using quality 1.0 as an implicit fallback would erase original state. The
 active trace is now the minimum support-staff type/rating state required to
 source Youth Team Coach / Assistant Manager quality, with Training Centre
 presence handled only when its original owner is materialized.
+
+
+## Gate 11 training support-staff source narrowed — 28 September 2026
+
+The quality-multiplier dependency is now tied to minimum original staff fields.
+
+- training first looks for support type 3 (Youth Team Coach), then type 2
+  (Assistant Manager fallback);
+- CSupportStaff `+0x04` is the virtual staff type;
+- `+0x10` is the normal 1..5 training rating;
+- status `+0x18 == 2` forces the training rating virtual to return 1;
+- fresh generator `0x4C98B0` consumes RNG for an age-like 25..49 value,
+  derives/clamps a 1..5 rating, consumes `RNG(16)+1` for staff type, and
+  appends the object to the global pool;
+- fresh startup grows that pool to 200 and calls the per-user rebuild
+  `0x4C9E90` twice before normal play.
+
+This proves a silent fresh-training Q=1.0 assumption would be unsafe until the
+per-user employed list is resolved. Training Centre feature ID5 is a separate
+case: the source-backed fresh DBRUser facility collection starts empty, so its
+initial +0.25 contribution is exactly absent.
+
+Next trace: map the three DBRUser support-list headers and the `0x4C9E90`
+assignment result far enough to determine whether a fresh user begins with a
+type-3 or type-2 staff member in the list scanned by training.
