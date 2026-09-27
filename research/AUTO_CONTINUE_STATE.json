@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 9,
-  "active_task": "Recover and implement minimal evidence-backed AI transfer activity during calendar progression, then run canonical Gate-9 integration",
-  "last_known_main_head": "a6409ffb6d0f7ac154bd6de6c4d67bd7110b076d",
+  "active_task": "Finish the remaining evidence-backed weekly AI acquisition predicates, implement Saturday calendar AI transfer activity, and run canonical Gate-9 integration",
+  "last_known_main_head": "4f174fcf90ad27b2e75ba5448601844039b35eb7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 20,
+  "recovery_generation": 21,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovered into a fresh worker after same-chat no-progress fallback. Main already includes recurring AI transfer trace plus AccessFanBase/club transfer relationship inputs through a6409ffb; continue from that persisted boundary without repeating seller-decision work.",
+  "note": "Fresh recovery verified main at 4f174fcf. Resume from the weekly AI acquisition core checkpoint: resolve only the remaining clean-room buyer/seller/candidate predicates, then wire the proven Saturday path into calendar maintenance and regression-test actual AI movement.",
   "same_chat_fallback_minutes": 30
 }
