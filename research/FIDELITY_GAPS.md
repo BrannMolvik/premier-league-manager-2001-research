@@ -10,14 +10,14 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | --- | --- | --- | --- |
 | League-table final tie fallback | Club ID after points / GD / goals scored | Exact original fallback after the first three keys is unresolved | 15 or earlier if standings behavior requires it |
 | Persistent-injury availability count | Approximation around the inputs to helper `0x405080` | Injury generation/persistence is substantially recovered, but this availability helper is not exact | 15 |
-| Original FM2001 save compatibility | Modern port now has a versioned internal schema-9 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
+| Original FM2001 save compatibility | Modern port now has a versioned internal schema-10 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
 | Autonomous transfer-window lifecycle | Fresh-game country gates start at the proven enabled value; later dated toggles are not yet driven from source boundary data | Runtime country +0x54 consumer/toggle behavior is known, but the complete source boundary mapping is unresolved | 15 or earlier if season transfer timing requires it |
 | Autonomous contract category helper | The exact 0x423340 age/category month table is used; the current port labels a clamped competition valuation category as an approximation for the unresolved 0x4FA510 category source | Exact 0x4FA510 category-source mapping remains unresolved | 15 or earlier if contract-term fidelity requires it |
 | Autonomous buy-counter lifecycle | The recovered >28-player buyer gate and 3/8 thresholds are represented with a persisted neutral counter, incremented on AI purchase | Exact club +0x1ED update/reset lifecycle remains unresolved | 15 or earlier if long-season transfer frequency requires it |
 | Player negotiation residual branches | The proven ordinary money path handles accepted, low-wage, counter-offer, already-signed and recently-joined outcomes; unresolved 0x422803 / invalid-duration 0x423340 branches return explicit deferred states | Remaining refusal/status and duration-revision policy is not guessed | 15 or earlier if a broader negotiation case blocks play |
 | Due-transfer same-day ordering | Scheduled MPMTransferPlayer objects execute in reconstructed day maintenance after the date's fixture block | Exact original ordering relative to a fixture on the same due date is not yet instruction-locked | 15 or earlier if same-day transfer availability matters |
 | Chairman legacy budget-event family | Modern port does not invent a live transfer/wage-budget scalar; ordinary play uses proven Balance/accounting paths | A0/A1/settings/warning payloads are persistence-loadable, but no ordinary fresh-game producer or Finance/Transfer UI consumer is mapped in the shipped executable | 15 or earlier if new evidence appears |
-| Match-day / recurring commercial income | Normal Premier League gate income is integrated for source-backed controlled-home state; fresh-game concession income stays disabled | Ordinary PL categories, source stadium/ticket state, FanFactor, prices, side modifiers, four-cell demand and post-calculator four-draw RNG placement are recovered and integrated. Cup/knockout gate branches and later facility-upgrade bonuses remain broader fidelity work; concession category-300 payout is exact but fresh games do not activate records | 10 |\n| Balance credit secondary category 1600 debit | `BalanceRuntimeState.credit()` currently records only the primary credit | Original `0x5DC510` also creates a category-1600 debit equal to 0.2% of incoming money; exact money-conversion/rounding and the category label remain unresolved | 10 |\n| Finance/board | Current cash, transfer postings and weekly player payroll are implemented; broader recurring cash flows and financial objectives remain in progress | Not yet a complete playable system | 10 |
+| Match-day / recurring commercial income | Normal Premier League gate income is integrated for source-backed controlled-home state; fresh-game concession income stays disabled | Ordinary PL categories, source stadium/ticket state, FanFactor, prices, side modifiers, four-cell demand and post-calculator four-draw RNG placement are recovered and integrated. Cup/knockout gate branches and later facility-upgrade bonuses remain broader fidelity work; concession category-300 payout is exact but fresh games do not activate records | 10 |\n| Finance/board | Current cash, transfer postings and weekly player payroll are implemented; broader recurring cash flows and financial objectives remain in progress | Not yet a complete playable system | 10 |
 | Broader competitions | Core structures known, full behavior incomplete | Premier League is the strongest reconstructed competition | 12 |
 | Original front-end presentation | Temporary Tk prototype now has a functional Play tab, but it is intentionally not the original FM2001 presentation | Authorized original screen/audio resources should be inventoried, reused, and converted where needed | 13-14 |
 | UI fidelity | Minimum human gameplay controls exist; original FM2001 screen structure/workflow is still unreconstructed | Original screen/workflow restoration incomplete | 13 |
@@ -25,9 +25,20 @@ Historical uncertainty that has since been resolved should be moved to the resol
 
 ## Resolved or superseded gaps
 
+
+### Balance credit secondary category 1600 debit
+
+**Resolved in Gate 10.** `Balance::credit 0x5DC510` adds the full primary
+credit, computes a secondary floating finance value as
+`incoming * 0.01 * 0.2`, debits that value through category 1600 / flag 1,
+then appends the primary credit transaction. No integer truncation occurs.
+The modern Balance preserves fractional values and schema-10 internal saves
+roundtrip them. Finance Overview queries category 1600, but its EA-facing label
+remains unresolved.
+
 ### Internal modern-port save/load
 
-**Resolved for Gate 8.** The source-bound JSON save path now uses schema 9 and persists the live
+**Resolved for Gate 8.** The source-bound JSON save path now uses schema 10 and persists the live
 human-game runtime, both relevant RNG streams, league/result state, player
 Condition/Form/injury/suspension/development state, tactics, scheduler order,
 and even a pending mid-matchday human fixture. File saves default to gzip and
