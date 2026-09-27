@@ -8,6 +8,13 @@ adapters belong in the runtime integration layer.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Iterable
+
+
+PREMIER_LEAGUE_TIER_FACTOR = 0.5
+PREMIER_LEAGUE_SEATING_REFERENCE = 30.0
+PREMIER_LEAGUE_TERRACE_REFERENCE = 22.5
+FRESH_CONTROLLED_FACILITY_FACTOR = 0.9
 
 
 @dataclass(frozen=True)
@@ -16,6 +23,113 @@ class GateAttendanceCell:
     price_response: float
     random_span: int
     count: int
+
+
+def signed_trunc_division(numerator: int, denominator: int) -> int:
+    """C/C++ signed integer division toward zero for a positive denominator."""
+    numerator = int(numerator)
+    denominator = int(denominator)
+    if denominator <= 0:
+        raise ValueError("denominator must be positive")
+    quotient = abs(numerator) // denominator
+    return -quotient if numerator < 0 else quotient
+
+
+def league_importance_factor(
+    *,
+    current_runtime_order: int,
+    first_runtime_order: int,
+    competition_count: int,
+) -> float:
+    """Reproduce 0x4FA670 after its country-root competition lookup."""
+    quotient = signed_trunc_division(
+        int(first_runtime_order) - int(current_runtime_order),
+        int(competition_count),
+    )
+    return 1.0 - float(quotient)
+
+
+def league_position_factor(
+    *,
+    table_index: int,
+    team_count: int,
+    games_played: int,
+    games_remaining: int,
+) -> float:
+    """Exact 0x5DBA60 league-position component."""
+    table_index = int(table_index)
+    team_count = int(team_count)
+    games_played = int(games_played)
+    games_remaining = int(games_remaining)
+    if team_count <= 0:
+        raise ValueError("team_count must be positive")
+    if not 0 <= table_index < team_count:
+        raise ValueError("table_index must reference the current league table")
+    if games_remaining < 4 or games_played < 5:
+        return 1.0
+    return 1.0 - float(table_index) / float(team_count)
+
+
+def league_end_play_factor(
+    *,
+    games_remaining: int,
+    objective_gaps: Iterable[tuple[bool, int, float]],
+    threshold: int = 5,
+) -> float:
+    """Apply the 0x5DBA60 ordered late-season objective test.
+
+    objective_gaps entries are (enabled, positive-points-gap, factor), already
+    ordered as the executable's win/promotion/playoff/relegation/playoff cases.
+    """
+    games_remaining = int(games_remaining)
+    if games_remaining <= 0 or games_remaining >= int(threshold):
+        return 0.0
+    for enabled, gap, factor in objective_gaps:
+        gap = int(gap)
+        if not bool(enabled) or gap <= 0:
+            continue
+        if float(gap) / float(games_remaining) <= 3.0:
+            return float(factor)
+    return 0.0
+
+
+def first_xi_rating_factor(overall_ratings: Iterable[int]) -> float:
+    """Exact 0x5DBA60 first-11 overall-rating scale: sum * 0.00125."""
+    ratings = tuple(int(value) for value in overall_ratings)
+    if len(ratings) != 11:
+        raise ValueError("FM2001 gate prestige input requires exactly 11 ratings")
+    return float(sum(ratings)) * 0.00125
+
+
+def ordinary_league_side_modifier(
+    *,
+    first_xi_ratings: Iterable[int],
+    end_play_factor: float,
+    position_factor: float,
+    importance_factor: float,
+    prestige_weight: int = 10,
+    end_play_weight: int = 10,
+    position_weight: int = 10,
+    importance_weight: int = 10,
+) -> float:
+    """Exact weighted-average return shape of 0x5DBA60."""
+    xi = first_xi_rating_factor(first_xi_ratings)
+    weights = (
+        int(prestige_weight),
+        int(end_play_weight),
+        int(position_weight),
+        int(importance_weight),
+    )
+    denominator = sum(weights)
+    if denominator == 0:
+        raise ValueError("attendance side-modifier weights must not sum to zero")
+    numerator = (
+        float(weights[0]) * xi
+        + float(weights[1]) * float(end_play_factor)
+        + float(weights[2]) * float(position_factor)
+        + float(weights[3]) * float(importance_factor)
+    )
+    return numerator / float(denominator)
 
 
 def ticket_price_response(delta: float, reference: float) -> float:
