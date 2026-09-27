@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Translate chairman financial-objective candidate generator 0x5DFD30 sufficiently to reproduce authentic three candidate IDs for a Premier League controlled club, then materialize/persist selected objective state and deadline evaluation.",
-  "last_known_main_head": "0633454c17c551cd40d6b4a3d23a4c92dffc8d23",
+  "active_task": "Trace and integrate the authentic manager/control-state side effect for financial-objective sacking reasons 4 and 5, then audit remaining Gate-10 completion criteria.",
+  "last_known_main_head": "eabe0838d3f8a2d235d72b05e71a7f61f40761af",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 34,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 34 resumed from main 0633454c. Gate receipts, source-backed starting cash, and category-1600 debit are complete. Continue only 0x5DFD30 financial-objective candidate generation and then objective state integration.",
+  "note": "Recovery generation 34: financial objective candidates, selection, schema-11 persistence, same-PL sporting progression IDs 13/1/5/6, and annual deadline invocation are integrated. eabe0838 passed 548 tests + asset policy. Continue only manager-sacking side effect / Gate-10 audit.",
   "same_chat_fallback_minutes": 30
 }
