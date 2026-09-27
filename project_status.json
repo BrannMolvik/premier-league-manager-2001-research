@@ -14,7 +14,7 @@
   "last_verified_test_count": 497,
   "asset_policy_validated_head": "5dc29a072d6e4f91744b882251df16f980c82f55",
   "asset_policy_status": "passed",
-  "active_task": "Close the remaining Gate-10 attendance side-modifier producers 0x5DBA60 and 0x5DBCD0 feeding the now-exact four-way home/visiting x terrace/seating demand body; then materialize minimum DBRUser +0x694/+0x6B0 ticket/stadium state and add deterministic gate-receipt regressions.",
+  "active_task": "Materialize minimum original-compatible +0x694/+0x6B0 ticket/section and stadium state, then implement the now-complete Gate-10 matchday attendance/revenue formula with deterministic regressions.",
   "next_gate": 11,
   "next_gate_name": "Broader management systems",
   "blocked": false,
@@ -172,5 +172,7 @@
   "gate10_ticket_class_mapping_recovered": true,
   "gate10_attendance_demand_body_recovered": true,
   "gate10_attendance_random_subtraction_recovered": true,
-  "gate10_attendance_side_modifiers_recovered": false
+  "gate10_attendance_side_modifiers_recovered": false,
+  "active_gate": 10,
+  "last_updated": "2026-09-28"
 }
