@@ -7726,3 +7726,66 @@ facility collection. Gate-10 work independently established that this facility
 collection starts empty in fresh controlled-club state. Therefore the initial
 Training Centre contribution is **0.0** until later building gameplay creates
 that feature. Future facility changes still need the owning building system.
+
+
+### Fresh employed training staff and effective rating resolved
+
+The fresh controlled-user path is now tied directly to the training-scanned
+support list.
+
+One-shot DBRUser initializer `0x425680` calls `0x4D1760`. The latter clears
+the three support-list containers and then calls `0x4C9D40` with explicit
+staff types, in this exact order:
+
+```text
+1, 2, 3, 4, 5, 13
+```
+
+Router `0x4CA070` dispatches by staff type:
+
+- types **1..5** -> DBRUser list header at `+0x5B8/+0x5BC/+0x5C0`;
+- types **6..16** -> sibling list at `+0x5C4/+0x5C8/+0x5CC`.
+
+The training lookups `0x4D0B10/0x4D0C10` scan `DBRUser+0x5BC`, so the
+fresh Assistant Manager (type 2) and Youth Team Coach (type 3) are both in the
+exact employed list used by training.
+
+The later `0x4C9E90` candidate rebuild does not replace this conclusion:
+the existing list node chain remains, and `0x4D1320` refreshes staff status.
+
+Compatibility helper `0x4CAF80` subtracts 6 from the staff type before its
+special-case switch. Types 1..5 therefore take its default successful path.
+Consequently `0x4CB0B0` sets the fresh type-2/type-3 staff status to **1**,
+not status 2. Their training-quality virtual thus returns their real `+0x10`
+rating rather than the forced value 1.
+
+### Initial fixed-type staff generator 0x4C9D40
+
+Unlike the 200-object generic pool generator, `0x4C9D40(type)` receives the
+staff type explicitly. For each of the six initial staff it consumes:
+
+1. `RNG(25)+25` for the age-like field;
+2. `RNG(2)` for the rating within a competition tier.
+
+The explicit type becomes `staff+0x04`; the generated rating becomes
+`staff+0x10`.
+
+The rating tier is selected through `0x4FA520`, which derives the controlled
+club's competition position/context. Its four low cases return
+`RNG(2)+4`, `+3`, `+2`, or `+1`; later/default cases use
+`RNG(2)+1`.
+
+Premier League competition 0 is already proven to resolve outside those first
+four cases in this hierarchy. Therefore the fresh Premier League Youth Team
+Coach rating is exactly **1 or 2**, and with no fresh Training Centre the weekly
+quality multiplier is exactly:
+
+```text
+rating 1 -> Q = 1.25
+rating 2 -> Q = 1.30
+```
+
+The remaining problem is no longer the staff data model or quality formula. It
+is the exact startup CRT state entering `0x4D1760`, so the Youth Coach's
+single `RNG(2)` result can be reproduced without shifting the canonical match
+RNG stream.
