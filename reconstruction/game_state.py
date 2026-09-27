@@ -548,6 +548,85 @@ class GameState:
             self.calendar.current_date,
         )
 
+    def run_premier_league_financial_objective_season_transition(
+        self,
+    ) -> FinancialObjectiveEvaluation | None:
+        """Run the recovered same-PL sporting objective at season finalization.
+
+        Original 0x4A8628 reaches 0x5E1C00/0x5E0310 at the annual competition
+        transition. This clean-room slice intentionally covers only the
+        same-Premier-League branches reachable from fresh PL candidates
+        13/1/5. Broader promotion/relegation classification routes remain
+        deferred with broader competition season transitions.
+        """
+        if self.premier_league is None or self.user_controlled_club_id is None:
+            return None
+        if len(self.premier_league.results) != len(self.premier_league.fixtures):
+            return None
+
+        club_id = int(self.user_controlled_club_id)
+        balance = self.finance_balances.get(club_id)
+        if balance is None or balance.financial_objective is None:
+            return None
+        objective = balance.financial_objective
+        if (
+            not objective.active
+            or objective.selected_objective_id == 0
+            or objective.selected_on is None
+        ):
+            return None
+
+        # 0x5E1C00 skips the sporting-progression check in the same calendar
+        # year as objective selection and once +0x68 has already been set.
+        if (
+            int(self.calendar.current_date.year) != int(objective.selected_on.year)
+            and not objective.progression_gate_reached
+        ):
+            table = tuple(self.premier_league.table())
+            table_index = next(
+                (
+                    index
+                    for index, row in enumerate(table)
+                    if int(row.club_id) == club_id
+                ),
+                None,
+            )
+            if table_index is None:
+                raise RuntimeError(
+                    f"controlled club {club_id} is absent from Premier League table"
+                )
+
+            objective_id = int(objective.selected_objective_id)
+            achieved = False
+            if objective_id == 13:
+                achieved = table_index < 1
+            elif objective_id == 1:
+                achieved = table_index <= 1
+            elif objective_id == 5:
+                # Preserve the original inclusive midpoint comparison exactly.
+                achieved = table_index <= len(table) // 2
+            else:
+                # Fresh Premier League candidate generation only emits 13/1/5
+                # (or 1/5/6 for the lower rank half). Objective 6 and broader
+                # competition branches require additional translated semantics.
+                return objective.evaluate(
+                    balance.current_cash,
+                    self.calendar.current_date,
+                )
+
+            if achieved:
+                objective.progression_gate_reached = True
+                objective.progression_state = (
+                    int(objective.progression_state) + 1
+                ) & 0xFF
+
+        # 0x426220 -> 0x5E1D90 is the annual objective evaluation. Its own
+        # year gate makes this a no-op until the exact three-year deadline year.
+        return objective.evaluate(
+            balance.current_cash,
+            self.calendar.current_date,
+        )
+
     def set_current_cash(self, club_id: int, amount: int) -> BalanceRuntimeState:
         """Materialize/update the active Balance current-cash qword for a club."""
         club_id = int(club_id)
@@ -1079,6 +1158,10 @@ class GameState:
             rng,
             fixture_order=fixture_order,
         )
+        # The original chairman sporting-objective transition is annual, not
+        # daily. Invoke it only on the matchday that actually completes the PL.
+        if results and len(self.premier_league.results) == len(self.premier_league.fixtures):
+            self.run_premier_league_financial_objective_season_transition()
         self.calendar.run_post_fixture_maintenance()
         self.run_due_transfer_maintenance(
             user_controlled_club_id=self.user_controlled_club_id,
