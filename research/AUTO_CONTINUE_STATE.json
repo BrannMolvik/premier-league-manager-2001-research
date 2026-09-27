@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 9,
-  "active_task": "Promote live 0x420180/0x4202A0 expectations, complete ordinary 0x422470 player response policy, then trace post-accept conclude/medical deal-state transition",
+  "active_task": "Promote live 0x420180/0x420210/0x4202A0 contract expectations from source tables, then finish ordinary 0x422470 player response policy",
   "last_known_main_head": "eb92b69c234bdf3208d90248a8a70c15edf3a32d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 16,
+  "recovery_generation": 17,
   "last_recovery_reason": "stale-repository-activity",
   "note": "Gate 9 seller chairman core decision is complete on main. Current worker owns valuation/count live adapters; avoid repeating the 0x4EF940 seller-decision trace.",
   "same_chat_fallback_minutes": 30
