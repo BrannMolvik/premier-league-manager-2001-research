@@ -17,7 +17,10 @@ response, matching the original lifecycle around 0x4EE23A / 0x4EFA80.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import timedelta
+from enum import Enum
 
+from player_contract import contract_expiry_from_month_span
 from player_valuation import live_player_transfer_value
 from transfer_decision import (
     SellingClubBidInputs,
@@ -26,7 +29,12 @@ from transfer_decision import (
     evaluate_selling_club_bid,
     higher_rated_squadmate_count,
 )
-from transfer_state import ContractTerms, TransferProposal
+from transfer_state import (
+    ContractTerms,
+    PlayerMovement,
+    ScheduledTransfer,
+    TransferProposal,
+)
 
 
 @dataclass(frozen=True)
@@ -163,3 +171,212 @@ def submit_live_cash_bid(
         appearance_count=int(appearance_count),
         recent_ratings=recent_ratings,
     )
+
+
+class ScheduledTransferOutcome(str, Enum):
+    COMPLETED = "completed"
+    RESCHEDULED_SQUAD_FULL = "rescheduled_squad_full"
+    BLOCKED_SQUAD_FULL = "blocked_squad_full"
+    INSUFFICIENT_FUNDS = "insufficient_funds"
+
+
+@dataclass(frozen=True)
+class ScheduledTransferExecution:
+    scheduled: ScheduledTransfer
+    outcome: ScheduledTransferOutcome
+    movement: PlayerMovement | None = None
+
+
+def schedule_ordinary_cash_transfer(
+    state,
+    proposal: TransferProposal,
+    *,
+    mode: int = 0,
+) -> ScheduledTransfer:
+    """Schedule the recovered MPMTransferPlayer ordinary-cash handoff.
+
+    0x61B270 schedules mode 0 at current date + 1. 0x61B300 schedules mode 1
+    at current date + 7. Both preserve the proposal and set DBRPlayer+0x174
+    bit 7 (already signed elsewhere).
+    """
+    if proposal.has_exchange_player:
+        raise ValueError("ordinary cash scheduler does not accept exchange players")
+    player_id = int(proposal.target_player_id)
+    if player_id not in state.players:
+        raise KeyError(f"unknown target player {player_id}")
+    buyer_id = int(proposal.buying_club_id)
+    if buyer_id not in state.clubs:
+        raise ValueError(f"unknown buying club {buyer_id}")
+
+    mode = int(mode)
+    if mode not in (0, 1):
+        raise ValueError("MPMTransferPlayer mode must be 0 or 1")
+    delay = 1 if mode == 0 else 7
+    scheduled = ScheduledTransfer(
+        proposal=proposal,
+        due_date=state.calendar.current_date + timedelta(days=delay),
+        mode=mode,
+    )
+    state.players[player_id].signed_for_other_club = True
+    state.transfers.schedule_transfer(scheduled)
+    return scheduled
+
+
+def _complete_ordinary_cash_transfer(state, proposal: TransferProposal) -> PlayerMovement:
+    """Apply the recovered 0x4229B0 -> 0x422AA0/0x422F70 core state changes.
+
+    Finance posting remains outside this helper until Gate 10 supplies the live
+    Balance subsystem. The caller must perform/authorize the controlled-buyer
+    affordability check before entering here.
+    """
+    if proposal.has_exchange_player:
+        raise ValueError("ordinary cash completion does not accept exchange players")
+
+    player_id = int(proposal.target_player_id)
+    buyer_id = int(proposal.buying_club_id)
+    player = state.players[player_id]
+    seller_id = int(player.club_id)
+    if seller_id == buyer_id:
+        raise ValueError("target player already belongs to buying club")
+
+    old_roster = state.club_roster_order.setdefault(seller_id, [])
+    new_roster = state.club_roster_order.setdefault(buyer_id, [])
+    if old_roster.count(player_id) != 1:
+        raise RuntimeError(
+            f"seller roster must contain player {player_id} exactly once"
+        )
+    if player_id in new_roster:
+        raise RuntimeError(
+            f"buyer roster already contains player {player_id}"
+        )
+
+    movement = PlayerMovement(
+        player_id=player_id,
+        from_club_id=seller_id,
+        to_club_id=buyer_id,
+        consideration=int(proposal.cash_fee),
+        movement_date=state.calendar.current_date,
+    )
+    state.transfers.record_movement(movement)
+
+    old_roster.remove(player_id)
+    new_roster.append(player_id)
+    player.club_id = buyer_id
+    player.current_club_join_date = state.calendar.current_date
+    player.signed_for_other_club = False
+    player.transfer_listed = False
+    player.loan_club_id = None
+
+    terms = proposal.contract_terms
+    player.weekly_wage = int(terms.weekly_wage)
+    player.contract_expiry_date = contract_expiry_from_month_span(
+        state.calendar.current_date,
+        int(terms.contract_length_months),
+    )
+    player.promotion_bonus = int(terms.promotion_bonus)
+    player.appearance_fee = int(terms.appearance_fee)
+    player.relegation_transfer_request_clause = bool(
+        terms.relegation_transfer_request_clause
+    )
+    player.big_club_offer_clause = bool(terms.big_club_offer_clause)
+    player.big_money_offer_clause = bool(terms.big_money_offer_clause)
+    player.house = bool(terms.house)
+    player.car = bool(terms.car)
+    if hasattr(player, "clear_match_selection"):
+        player.clear_match_selection(reset_position=True)
+
+    state.transfers.clear_deals_for(proposal)
+    state.transfers.clear_proposal(player_id, buyer_id)
+    return movement
+
+
+def execute_due_ordinary_cash_transfers(
+    state,
+    *,
+    user_controlled_club_id: int | None = None,
+    can_afford=None,
+) -> tuple[ScheduledTransferExecution, ...]:
+    """Execute due MPMTransferPlayer mode-0/1 objects.
+
+    Exact recovered behavior represented here:
+    - buyer roster count >= 40: mode 0 is rescheduled +7 days as mode 1;
+    - buyer roster count >= 40 in mode 1 ends negotiations;
+    - otherwise the normal completion path can run;
+    - a user-controlled buyer must pass the current-cash affordability gate.
+
+    Gate 10 has not yet materialized Balance state, so controlled-buyer
+    affordability is supplied explicitly as a callback:
+        can_afford(buying_club_id, cash_fee) -> bool
+    AI/non-user buyers follow the executable bypass and need no callback.
+    """
+    now = state.calendar.current_date
+    remaining = []
+    results = []
+
+    for scheduled in tuple(state.transfers.scheduled_transfers):
+        if scheduled.due_date > now:
+            remaining.append(scheduled)
+            continue
+
+        proposal = scheduled.proposal
+        buyer_id = int(proposal.buying_club_id)
+        buyer_roster = state.club_roster_order.setdefault(buyer_id, [])
+
+        if len(buyer_roster) >= 40:
+            if int(scheduled.mode) == 0:
+                retry = ScheduledTransfer(
+                    proposal=proposal,
+                    due_date=now + timedelta(days=7),
+                    mode=1,
+                )
+                remaining.append(retry)
+                results.append(
+                    ScheduledTransferExecution(
+                        scheduled=retry,
+                        outcome=ScheduledTransferOutcome.RESCHEDULED_SQUAD_FULL,
+                    )
+                )
+            else:
+                state.transfers.clear_deals_for(proposal)
+                state.transfers.clear_proposal(
+                    proposal.target_player_id,
+                    proposal.buying_club_id,
+                )
+                results.append(
+                    ScheduledTransferExecution(
+                        scheduled=scheduled,
+                        outcome=ScheduledTransferOutcome.BLOCKED_SQUAD_FULL,
+                    )
+                )
+            continue
+
+        if (
+            user_controlled_club_id is not None
+            and buyer_id == int(user_controlled_club_id)
+        ):
+            if can_afford is None:
+                raise RuntimeError(
+                    "controlled-buyer transfer execution requires explicit "
+                    "current-cash affordability until Gate 10"
+                )
+            if not bool(can_afford(buyer_id, int(proposal.cash_fee))):
+                remaining.append(scheduled)
+                results.append(
+                    ScheduledTransferExecution(
+                        scheduled=scheduled,
+                        outcome=ScheduledTransferOutcome.INSUFFICIENT_FUNDS,
+                    )
+                )
+                continue
+
+        movement = _complete_ordinary_cash_transfer(state, proposal)
+        results.append(
+            ScheduledTransferExecution(
+                scheduled=scheduled,
+                outcome=ScheduledTransferOutcome.COMPLETED,
+                movement=movement,
+            )
+        )
+
+    state.transfers.scheduled_transfers[:] = remaining
+    return tuple(results)
