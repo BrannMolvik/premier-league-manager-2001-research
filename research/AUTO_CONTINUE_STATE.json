@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 22,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered after stale repository activity. Main is unchanged at 4f174fcf; feature branch agent/gate9-ai-transfers is authoritative for in-progress Gate-9 AI-transfer work at e430fc90. Continue implementation without repeating recovered predicate tracing.",
+  "recovery_generation": 23,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Fresh recovery after same-chat no-progress escalation. Main remains at 4f174fcf; feature branch agent/gate9-ai-transfers remains authoritative for in-progress Gate-9 AI-transfer work from e430fc90. Continue from repository checkpoints without repeating recovered predicate tracing.",
   "same_chat_fallback_minutes": 30
 }
