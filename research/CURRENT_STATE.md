@@ -155,12 +155,13 @@ Several target systems already have substantial research or backend behavior:
    reversals and eligibility skips without altering calendar progression.
 6. **Active dependency:** fresh staff types, ratings, employed-list ownership
    and Training Centre absence are resolved and the exact training-quality
-   primitive is implemented. The remaining blocker is shared-CRT placement:
-   lock the secondary schedule-container `0x947AF0 -> 0x616620` RNG stream.
-   Its completion state is now proven to be exactly the state entering the
-   fresh 200-person support-staff pool generator. Then replay the known pool /
-   user-assignment draws through the first `0x425680 -> 0x4D1760` fixed-staff
-   initialization.
+   primitive is implemented. Secondary competition initialization is now exact:
+   334 shared-CRT draws take post-primary state `0xD25DFFE6` to
+   `0x492DC9DC`. Finish the source-backed `0x4FA790` international-fixture
+   replay and final secondary `0x615BE0` bucket shuffle. That completion state
+   is proven to enter the fresh 200-person support-staff pool generator; then
+   replay the known pool/user-assignment draws through the first
+   `0x425680 -> 0x4D1760` fixed-staff initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
 8. After live weekly training is verified, audit the next Gate-11 management
