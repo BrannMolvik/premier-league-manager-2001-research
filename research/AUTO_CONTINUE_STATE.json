@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 24,
+  "recovery_generation": 25,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 24 reconciled Gate 10 recurring-income state. Main now has research/GATE10_LIVE_CASH_FLOW_TRACE.md and exact stadium/concession trace targets. Verified code baseline remains 5dc29a with 497 tests; later commits are research/status only and asset-policy checks passed.",
+  "note": "Recovery generation 25 resumed from main fb9cd2028fd9c0d9e7360cc0f9ddb5fe0f9a398c. Continue Gate 10 bounded live-income tracing from the persisted stadium/gate-receipt and concession targets; no restart of prior investigation.",
   "same_chat_fallback_minutes": 30
 }
