@@ -6713,3 +6713,82 @@ level, but the current clean-room runtime does not yet materialize the original
 CSupportStaff salary/cost object. Preserve this path as recovered evidence and
 defer its concrete amount integration until that staff dependency exists,
 rather than inventing staff salaries.
+
+
+## Gate 10 live match-day receipts: 0x5DA2F0
+
+A complete scan of direct calls to Balance credit `0x5DC510` recovered the
+actual match-day ticket-income producer:
+
+`0x513252 -> 0x5DA2F0`.
+
+This corrects the earlier working assumption that the primary producer would be
+found directly in the monthly/business routines around `0x429xxx`.
+
+### Live category-1/category-2 postings
+
+The posting tail of `0x5DA2F0` reads the controlled user's ticket state at
+DBRUser `+0x694`. Dwords `+0x08` and `+0x0C` are converted to floating
+point and used as two ticket-price inputs.
+
+The first amount is:
+
+`price_08 * count_A0 + price_0C * count_A1`
+
+and is posted as category **1** through Balance credit at `0x5DB456`.
+
+The second is:
+
+`price_08 * count_B0 + price_0C * count_B1`
+
+and is posted as category **2** through Balance credit at `0x5DB4B9`.
+
+Additional controlled-club branches reproduce these postings at
+`0x5DB58D/0x5DB5F0` and `0x5DB692/0x5DB6F5`.
+
+### Category-0 family proves ticket/gate identity
+
+Balance aggregate `0x5DC890` handles high-level category **0** by summing
+exact categories **1 + 2 + 3**. Finance Overview requests this high-level
+category-0 aggregate.
+
+Category **3** has an independent ticket-sale producer at
+`0x5D0FF4/0x5D1684`. That path updates/uses DBRUser `+0x694` ticket state,
+runs the section/ticket helpers, multiplies selected quantity by selected price,
+constructs category 3, and credits Balance.
+
+Therefore categories 1 and 2 are the two live match-day components of the
+category-0 gate/ticket family, while category 3 is the separate
+season-ticket/pre-match ticket-sale component. Exact EA-facing labels for
+subcategories 1 and 2 remain unresolved.
+
+### Attendance input chain
+
+`0x5DA2F0` directly consumes both original ticket/stadium owners:
+
+- DBRUser `+0x694` ticket/section state;
+- DBRUser `+0x6B0` stadium model.
+
+Helper `0x618E00` walks all 26 stadium sections, filters section-state values
+by selector 0/1, sums multiple stadium-entry capacity dimensions, and converts
+them through `0x4290A0`. The match producer also calls
+`0x65D920/0x65DA60/0x65D9B0`.
+
+The producer later selects one of the `FanFactor1..FanFactor5` tuning values
+while scaling an attendance-related quantity, and writes crowd/attendance
+values and density classifications into the match output structure. The exact
+count formula is still being translated and must not be replaced with a generic
+fan-base formula.
+
+### Match applicability
+
+The ordinary path posts to the primary controlled club. A flag set earlier in
+`0x5DA2F0` selects a second path capable of posting categories 1 and 2 to
+both primary and secondary controlled clubs, each with that user's own ticket
+prices. The flag-setting branch around `0x5DA5CF..0x5DA705` is not yet
+semantically identified, so no neutral/cup/revenue-sharing label is assigned.
+
+Exact next trace: translate the attendance-count pipeline inside
+`0x5DA2F0`, map the two ticket-price/section classes and category-1/category-2
+distinction, and decode the both-clubs flag before implementing match-day
+income.
