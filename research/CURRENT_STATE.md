@@ -39,13 +39,13 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-10 **code** checkpoint:
 
 ```text
-cf59d6ddef3034ac5ea96b91605fd2641f67d3a3
-Test GameState financial objective lifecycle
+eabe0838d3f8a2d235d72b05e71a7f61f40761af
+Test objective hook on final human matchday
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **541 tests passed**;
+- reconstruction suite: **548 tests passed**;
 - repository asset-policy workflow: **passed**.
 
 Current internal save schema: **11**.
@@ -177,11 +177,13 @@ Existing reverse engineering already establishes:
   +165 through runtime `DBRClub +0xD0/+0xD4` into active Balance +0x10;
   the modern canonical human-club selection path now mirrors this source-backed
   initialization;
-- fresh Premier League chairman-objective candidate generation is now exact and
-  implemented: high fan-base-rank half -> `13,1,5`, lower half -> `1,5,6`;
-  selection immediately replaces Balance cash, stores the target/deadline and
-  persists through schema 11. The later `+0x68` progression transition remains
-  the only unresolved automatic lifecycle bridge before the deadline check;
+- fresh Premier League chairman-objective candidate generation, selection and
+  annual progression are now integrated. High fan-base-rank half -> `13,1,5`,
+  lower half -> `1,5,6`; IDs 13/1/5/6 use their recovered same-PL sporting
+  success branches at the completed-season boundary, setting `+0x68` and
+  advancing `+0x9C` before the three-year financial evaluation. Save schema 11
+  preserves the lifecycle. The concrete manager-dismissal side effect of returned
+  reasons 4/5 remains the next board/job-security dependency;
 
 ## Exact next task
 
@@ -220,18 +222,20 @@ Existing reverse engineering already establishes:
    opening cash/target percentages, stores the three-year deadline, persists in
    save schema 11, and reproduces the exact >target / >95% / <=95% evaluation
    branches including reasons 4/5. CI at `cf59d6dd` passed **541 tests**.
-11. **Active:** attach the later season/competition progression path that sets
-   objective `+0x68 = 1` and advances `+0x9C`, then invoke the already-
-   implemented deadline evaluation at the authentic lifecycle point. The
-   clean-room currently exposes this gate explicitly rather than inventing an
-   automatic transition. Do not substitute the dormant chairman quarterly-
-   budget message family.
-12. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
+11. **Completed:** the same-Premier-League objective progression bridge now
+   runs automatically on the completed-season boundary for fresh PL candidate
+   IDs 13/1/5/6, sets `+0x68`, advances `+0x9C`, and invokes the recovered
+   year-gated deadline evaluation. CI at `eabe0838` passed **548 tests**.
+12. **Active:** trace and integrate the minimum authentic gameplay side effect
+   of the reason-4/reason-5 manager-sacking events emitted by the objective
+   path. Do not turn the returned reason code into an invented game-over flag;
+   identify the original manager/control-state mutation first.
+13. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
    300 on day-of-month 1, but `0x5E5330` never appends its generated stack
    candidate or increments the fresh-game active count. Leave normal concession
    income disabled unless a genuine activation writer is later recovered.
-13. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
+14. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
    because the table is already parsed. The original 26-section stadium state
    and stadium capacity/entry model are separate dependencies.
 
