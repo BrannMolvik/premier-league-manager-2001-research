@@ -7,9 +7,9 @@
   "mode": "continuous",
   "status": "working",
   "work_owner": "chatgpt",
-  "active_gate": 9,
-  "active_task": "Implement the recovered Saturday AI acquisition path from feature-branch checkpoint e430fc90, then run canonical Gate-9 integration",
-  "last_known_main_head": "4f174fcf90ad27b2e75ba5448601844039b35eb7",
+  "active_gate": 10,
+  "active_task": "Materialize Balance/current-cash runtime state on agent/gate10-finances, connect transfer affordability/debit/credit, persist it, then resume the separate transfer-budget store trace",
+  "last_known_main_head": "1cbedf7888a20635d763d02e9ad0bfb2e8334465",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 23,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Fresh recovery after same-chat no-progress escalation. Main remains at 4f174fcf; feature branch agent/gate9-ai-transfers remains authoritative for in-progress Gate-9 AI-transfer work from e430fc90. Continue from repository checkpoints without repeating recovered predicate tracing.",
+  "note": "Gate 9 is complete and fast-forwarded to main. Active feature branch is agent/gate10-finances from main 1cbedf78. Continue Gate 10 from research/CURRENT_STATE.md; do not reopen Gate-9 transfer work.",
   "same_chat_fallback_minutes": 30
 }
