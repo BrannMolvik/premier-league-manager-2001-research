@@ -195,6 +195,51 @@ class RuntimePlayerTests(unittest.TestCase):
         self.assertTrue(changed)
         self.assertNotEqual(tuple(player.current_raw), before)
 
+    def test_training_state_uses_original_fresh_defaults(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1)
+        )
+        self.assertEqual(player.training_method_id, 5)
+        self.assertEqual(player.training_countdown, 8)
+        self.assertEqual(player.training_active_count, 0)
+        self.assertEqual(player.training_modifiers, [0] * 17)
+        self.assertEqual(player.training_skill_states, [1] * 17)
+        self.assertEqual(player.training_method_results, [0] * 7)
+
+    def test_training_method_change_preserves_accumulated_training_state(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1)
+        )
+        player.training_countdown = 3
+        player.training_active_count = 2
+        player.training_modifiers[4] = 2
+        player.training_skill_states[4] = 0
+        player.training_method_results[5] = 7
+
+        player.set_training_method(2)
+
+        self.assertEqual(player.training_method_id, 2)
+        self.assertEqual(player.training_countdown, 3)
+        self.assertEqual(player.training_active_count, 2)
+        self.assertEqual(player.training_modifiers[4], 2)
+        self.assertEqual(player.training_skill_states[4], 0)
+        self.assertEqual(player.training_method_results[5], 7)
+        with self.assertRaisesRegex(ValueError, "0..6"):
+            player.set_training_method(7)
+
+    def test_weekly_training_exclusion_uses_injury_and_selection_bit_not_suspension(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1)
+        )
+        self.assertFalse(player.weekly_training_excluded)
+        player.suspended = True
+        self.assertFalse(player.weekly_training_excluded)
+        player.injured = True
+        self.assertTrue(player.weekly_training_excluded)
+        player.injured = False
+        player.selection_excluded = True
+        self.assertTrue(player.weekly_training_excluded)
+
 
 class CalendarTests(unittest.TestCase):
     def test_monthly_hook_fires_when_entering_first_day(self):
