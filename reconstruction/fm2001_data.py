@@ -82,6 +82,7 @@ class Club:
     related_club_id_0: int = -1
     related_club_id_1: int = -1
     related_club_id_2: int = -1
+    map_file: str = ""
 
 @dataclass(frozen=True)
 class Player:
@@ -292,6 +293,7 @@ class FM2001Database:
             name_id, short_id = struct.unpack_from('<HH', r, 4)
             competition_id = struct.unpack_from('<I', r, 8)[0]
             country_id = struct.unpack_from('<I', r, 12)[0]
+            map_file_id = struct.unpack_from('<H', r, 16)[0]
             runtime_value_1c_source = struct.unpack_from('<I', r, 18)[0]
             stadium_id = struct.unpack_from('<H', r, 30)[0]
             historical_competition_id = struct.unpack_from('<i', r, 32)[0]
@@ -318,6 +320,7 @@ class FM2001Database:
                 related_club_id_0,
                 related_club_id_1,
                 related_club_id_2,
+                self.english.get(map_file_id),
             ))
 
         player_count = struct.unpack_from('<I', d, club_end)[0]
@@ -591,6 +594,27 @@ class FM2001Database:
         if int(value.id) != rating:
             raise ValueError('financial-value table IDs are not rating-indexed')
         return value
+
+
+    def stadium_source_state(self, club_id: int, buildings_source):
+        """Materialize the Gate-10 original stadium state for one club.
+
+        buildings_source is the recovered original Lists\\Buildings.dat member
+        (or a path to it). The club's per-stadium MAP path comes directly from
+        Master.dat +16 through English.str, e.g. MapFiles\\arsenal.map.
+        """
+        from stadium_state import parse_buildings_dat, parse_stadium_map
+
+        club_id = int(club_id)
+        if not 0 <= club_id < len(self.clubs):
+            raise IndexError(club_id)
+        club = self.clubs[club_id]
+        if not club.map_file:
+            raise ValueError(f"club {club_id} has no stadium map source")
+        relative = Path(*club.map_file.replace("\\\\", "/").replace("\\", "/").split("/"))
+        map_path = self.game_dir / relative
+        buildings = parse_buildings_dat(buildings_source)
+        return parse_stadium_map(map_path, buildings)
 
     @property
     def premier_league_rounds(self):
