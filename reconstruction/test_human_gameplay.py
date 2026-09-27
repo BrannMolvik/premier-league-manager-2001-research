@@ -11,7 +11,6 @@ from match_team_setup import TeamTacticalState
 from transfer_decision import SellingClubDecision
 from transfer_negotiation import OrdinaryMoneyResponse
 from transfer_state import ContractTerms
-from transfer_workflow import ScheduledTransferOutcome
 
 
 @dataclass(frozen=True)
@@ -303,17 +302,17 @@ class HumanGameplayControllerTests(unittest.TestCase):
         self.assertEqual(len(state.transfers.scheduled_transfers), 1)
 
         scheduled = state.transfers.scheduled_transfers[0]
-        state.calendar.current_date = scheduled.due_date
+        self.assertEqual(scheduled.due_date, date(2000, 7, 1))
         controller.set_transfer_affordability_check(
             lambda club_id, fee: club_id == 1 and fee == 500_000
         )
-        executions = controller.process_due_transfers()
-
-        self.assertEqual(len(executions), 1)
         self.assertEqual(
-            executions[0].outcome,
-            ScheduledTransferOutcome.COMPLETED,
+            state.advance_one_day(
+                transfer_can_afford=controller.transfer_can_afford,
+            ),
+            date(2000, 7, 1),
         )
+
         self.assertEqual(state.players[target_id].club_id, 1)
         self.assertIn(target_id, state.club_roster_order[1])
         self.assertNotIn(target_id, state.club_roster_order[2])
