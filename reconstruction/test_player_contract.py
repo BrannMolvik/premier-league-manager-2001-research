@@ -7,6 +7,7 @@ from player_contract import (
     contract_expiry_from_month_span,
     initial_weekly_wage,
     live_player_signing_on_fee_expectation,
+    live_player_signing_on_fee_floor,
     live_player_wage_expectation,
     live_player_wage_floor,
     round_transfer_signing_fee_amount,
@@ -126,12 +127,21 @@ class PlayerContractTests(unittest.TestCase):
             live_player_signing_on_fee_expectation(state, 1, 7),
             18800,
         )
+        # field_18 only: 10000*75%=7500, doubled=15000, rounded to 15000.
+        self.assertEqual(
+            live_player_signing_on_fee_floor(state, 1, 7),
+            15000,
+        )
 
         player.eu_status_code = 1
         self.assertFalse(signing_fee_doubling_eligible(state, 1))
         self.assertEqual(
             live_player_signing_on_fee_expectation(state, 1, 7),
             9400,
+        )
+        self.assertEqual(
+            live_player_signing_on_fee_floor(state, 1, 7),
+            7500,
         )
 
     def test_contract_expiry_advances_months_preserving_day(self):
