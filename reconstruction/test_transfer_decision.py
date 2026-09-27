@@ -1,9 +1,12 @@
 import unittest
+from types import SimpleNamespace
 
 from transfer_decision import (
     SellingClubBidInputs,
     SellingClubDecision,
+    eligible_selling_squad_count,
     evaluate_selling_club_bid,
+    higher_rated_squadmate_count,
     protected_young_first_team_player,
 )
 
@@ -70,6 +73,61 @@ class SellingClubDecisionTests(unittest.TestCase):
             self.inputs(eligible_squad_count=17)
         )
         self.assertEqual(result, SellingClubDecision.ACCEPTED)
+
+    def test_405080_excludes_transfer_listed_injured_loaned_and_suspended(self):
+        def player(index, **status):
+            defaults = dict(
+                transfer_listed=False,
+                injured=False,
+                loan_club_id=None,
+                suspended=False,
+            )
+            defaults.update(status)
+            obj = SimpleNamespace(index=index, **defaults)
+            obj.selling_squad_count_excluded = bool(
+                obj.transfer_listed
+                or obj.injured
+                or obj.loan_club_id is not None
+                or obj.suspended
+            )
+            return obj
+
+        roster = [
+            player(1),
+            player(2, transfer_listed=True),
+            player(3, injured=True),
+            player(4, loan_club_id=99),
+            player(5, suspended=True),
+        ]
+        state = SimpleNamespace(
+            ordered_club_roster=lambda club_id: tuple(roster)
+        )
+        self.assertEqual(eligible_selling_squad_count(state, 10), 1)
+
+    def test_higher_rated_count_uses_exact_best_preferred_role_rating(self):
+        low = SimpleNamespace(
+            index=1,
+            club_id=10,
+            current_raw=[80] * 17,
+            positions=(4, 0, 0),
+        )
+        high = SimpleNamespace(
+            index=2,
+            club_id=10,
+            current_raw=[220] * 17,
+            positions=(4, 0, 0),
+        )
+        equal = SimpleNamespace(
+            index=3,
+            club_id=10,
+            current_raw=[80] * 17,
+            positions=(4, 0, 0),
+        )
+        state = SimpleNamespace(
+            players={1: low, 2: high, 3: equal},
+            ordered_club_roster=lambda club_id: (low, high, equal),
+        )
+        self.assertEqual(higher_rated_squadmate_count(state, 1), 1)
 
     def test_too_cheap_reason_precedes_small_squad_reason(self):
         result = evaluate_selling_club_bid(
