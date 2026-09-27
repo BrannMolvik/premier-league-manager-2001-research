@@ -4071,3 +4071,49 @@ Next Gate-10 target: recover the next ordinary live cash-flow producer,
 prioritizing match-day income / attendance receipts and other recurring
 income before returning to support-staff amounts that require a broader staff
 runtime dependency.
+
+
+## 28 September 2026 - Gate 10 recurring-income recovery boundary
+
+Automatic recovery resumed from main `c67c7db6ccb2e16e461d53855be413ec73260599`
+without reopening the completed Balance, chairman-budget reachability, or
+payroll work. The runtime lease was refreshed on `agent-runtime` at recovery
+generation 24.
+
+The verified implementation baseline remains:
+
+`5dc29a072d6e4f91744b882251df16f980c82f55`
+
+GitHub Actions at that code checkpoint passed **497 reconstruction tests** and
+the repository asset-policy workflow.
+
+The next ordinary cash-flow investigation was bounded from the existing
+instruction evidence:
+
+- concessions are a confirmed live cash producer through
+  `0x42A9FD -> 0x5E5640 -> 0x5E56F0 -> 0x5DC510`;
+- the exact concession accounting category, amount-field semantics and full
+  offer-state transition remain unresolved and are therefore not guessed;
+- match-day/gate income depends on the original stadium-section state at
+  `DBRUser +0x694` and stadium model at `+0x6B0`;
+- the modern runtime already exposes club stadium identifiers and
+  `DBTAccessFanBase`, but does not materialize the original 26-section
+  stadium/capacity state, so unmapped fan-base fields are not relabeled as
+  attendance inputs;
+- `EAMbcmonthlyincome` confirms the reporting labels GATE, MERCH, CONC,
+  ADVERTS, SPONSOR, TELLY and TRANSFERFEES, but is not treated as a live
+  producer;
+- original Balance credit `0x5DC510` also constructs a category-1600 debit
+  equal to 0.2% of incoming money. Its semantic label and exact
+  conversion/rounding remain unresolved, so the clean-room credit primitive is
+  not changed speculatively.
+
+A focused durable handoff now exists at
+`research/GATE10_LIVE_CASH_FLOW_TRACE.md`. The exact next executable trace is
+the stadium/business family `0x429904`, `0x429BB4`, `0x42A111`,
+`0x42A5D2`, `0x42C1F2` toward Balance credit, with `0x5E56F0` as the
+parallel shortest route to an implementable concession posting.
+
+No runtime behavior changed in this checkpoint. The correct current behavior is
+to leave gate/concession income unimplemented until the exact producer inputs,
+category and money conversion are recovered.
