@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Derive remaining live Gate-10 supporter/tier and ordinary league side-modifier inputs from GameState/source state, then consume four RNG draws in recovered order and post category-1/2 receipts once per normal home fixture.",
+  "active_task": "Integrate source-backed normal Premier League gate receipts: derive AccessFanBase raw value, exact ordinary league side modifiers and fresh controlled-club 0.9 facility factor, consume four rand15 draws immediately after MatchCalculator and before incident/Form RNG, then post category 1/2 once for a controlled home fixture.",
   "last_known_main_head": "75c3401d12286d8a8c2ce09740c3c6cbd18a3f69",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 31,
+  "recovery_generation": 32,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 31 resumed from main 75c3401. Gate source/ticket state, lazy prices, four-cell calculator, category postings, and Premier League FanFactor are already persisted. Continue only live supporter/tier and ordinary league side-modifier inputs plus the single normal-matchday posting hook.",
+  "note": "Recovery generation 32. Main remains 75c3401. New verified trace: EPBase=30.0 -> PL seating reference 30 / terrace 22.5; fresh facility collection is empty so controlled-club factor starts 0.9; gate RNG executes after calculator and before 0x5127A0 incidents / Form.",
   "same_chat_fallback_minutes": 30
 }
