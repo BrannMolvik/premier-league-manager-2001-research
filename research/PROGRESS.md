@@ -4949,3 +4949,18 @@ staff-backed:
 The active blocker is now only startup RNG placement: locate the exact CRT state
 entering the one-shot `0x4D1760` user initialization so the Youth Coach
 rating can be reproduced without corrupting the post-schedule/match RNG ledger.
+
+
+## Gate 11 fresh-staff RNG boundary checkpoint — 28 September 2026
+
+The remaining fresh training-quality RNG dependency is no longer an open-ended
+startup search. Direct startup disassembly proves `0x4F7C00` runs the primary
+`0x947AD8` `0x616620` pass and then the secondary `0x947AF0` pass. On return,
+TeamSelect immediately counts the support-staff pool and calls `0x4C98B0` until
+it reaches 200. No CRT-random call occurs between secondary schedule completion
+and the first generated support staff.
+
+Thus the exact state entering staff-pool generation equals the **post-secondary
+schedule** RNG state. The next trace is now specifically the secondary
+`0x616620` RNG stream, not the already-complete primary schedule replay or the
+already-resolved staff generator.
