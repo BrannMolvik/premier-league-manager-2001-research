@@ -211,6 +211,7 @@ class OrdinaryMoneyResponse(str, Enum):
     ACCEPTED = "accepted"
     COUNTER_OFFER = "counter_offer"
     LOW_WAGE = "low_wage"
+    PLAYER_TERMS_TOO_HIGH = "player_terms_too_high"
     DEFER_TO_BROADER_POLICY = "defer_to_broader_policy"
     INVALID_DURATION_COUNTER = "invalid_duration_counter"
 
@@ -280,6 +281,20 @@ def evaluate_ordinary_money_response(
     history_duration = int(proposal.field_44)
     current_player_wage = int(player.weekly_wage)
     same_club = int(player.club_id) == buying_club_id
+
+    # 0x4224A4: an excessive submitted contract length is rejected
+    # immediately with response code 18. RTTI on the response event identifies
+    # this as EAMChairmanPlayerTermsTooHighsub. This precedes the later
+    # 0x423340 repair path, so 85+ months must not be treated as an ordinary
+    # duration counter-offer.
+    if duration > 84:
+        return OrdinaryMoneyResponseResult(
+            outcome=OrdinaryMoneyResponse.PLAYER_TERMS_TOO_HIGH,
+            proposal=proposal,
+            response_code=18,
+            wage_floor=wage_floor,
+            signing_fee_floor=signing_floor,
+        )
 
     # 0x4226D3: reject only on a strict shortfall below 75%.
     if submitted_wage * 4 < wage_floor * 3:
