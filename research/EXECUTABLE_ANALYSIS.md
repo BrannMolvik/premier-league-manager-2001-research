@@ -6136,20 +6136,133 @@ remaining `0x40DC90` predicates must be mapped before code claims fidelity.
 
 ### Related tuning defaults
 
-Canonical executable tuning defaults used by this subsystem include:
+The tuning-loader targets must be kept separate from values recovered from
+other transfer tables/configuration. Direct loader tracing establishes these
+built-in executable defaults for the club-acquisition globals used below:
 
-- `MAX_TRANSFERS_PER_WEEK` = 80;
-- `MAX_PLAYERS_ON_TRANSFER_LIST` = 50;
-- `perc_value_diff_for_unsolicited_bid` = 25;
-- `perc_chance_per_week_of_unsolicited_bid` = 200;
-- `BigClubBuyChance`-named global = 21;
-- `MaxPlayersSellSeason` = 8;
-- `MaxPlayersBuySeason` = 3;
-- `MaxPlayersSellMonthly` = 3;
-- `MaxPlayersBuyMonthly` = 20;
-- `ChanceCounterBid` = 0.9.
+- `0x822408` <- `BigClubFanBase` = **21**;
+- `0x82240C` <- `BigClubBuyChance` = **50**;
+- `0x822404` <- `MaxPlayersSellSeason` = **8**;
+- `0x822400` <- `MaxPlayersBuySeason` = **8**;
+- `0x8223FC` <- `MaxPlayersSellMonthly` = **3**;
+- `0x8223F8` <- `MaxPlayersBuyMonthly` = **3**.
 
-These names come from the original tuning-key loader, but several consumers
-show that the stored values are thresholds/counters rather than necessarily
-literal probabilities. Modern code must follow the actual consumer branch,
-not infer semantics from the key name alone.
+The prior note that labeled 21 as `BigClubBuyChance` conflated adjacent
+loader targets; 21 is the built-in `BigClubFanBase` value. External tuning
+data can overwrite these globals at load time, so consumer behavior should be
+implemented from the mapped globals rather than from the key names alone.
+
+Other transfer tuning recovered elsewhere remains relevant, including
+`MAX_TRANSFERS_PER_WEEK`, `MAX_PLAYERS_ON_TRANSFER_LIST`,
+`perc_value_diff_for_unsolicited_bid`,
+`perc_chance_per_week_of_unsolicited_bid`, and `ChanceCounterBid`.
+
+
+## 0x40DC90 / 0x40DBB0 / 0x41EFB0 autonomous-acquisition detail
+
+Fresh instruction-level tracing of canonical `FOOTBAL.EXE`
+(SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+resolves the remaining core mechanics behind the Gate-9 weekly AI acquisition
+path.
+
+### Weekly phase
+
+`0x40DD70` executes `0x40DC90` when
+`(current_date_integer + 5) % 7 == 0`. The game's serial-date converter
+`0x64CCD0` maps this phase to **Saturday** in the 2000/01 season calendar
+(for example 18 August 2000 serializes as 730731; the next day, Saturday
+19 August, satisfies the modulus).
+
+### Buyer gate and related-club suppression in 0x40DC90
+
+For the input/buying club:
+
+- `0x4037B0` must be false, excluding a user-controlled club;
+- club `+0x70` must be strictly greater than global `0x822408`,
+  the `BigClubFanBase` threshold;
+- `0x403E70` must return true;
+- a bounded draw uses `BigClubBuyChance` at `0x82240C`.
+  Exact draw value 3 bypasses the normal intermediate gate. Otherwise the
+  `club+0x1E0` container check through `0x4F33B0` must succeed and a second
+  `RNG(BigClubBuyChance)` draw must be less than 10.
+
+A prospective seller is drawn from the global club table through `0x40BB50`.
+The three dwords at club `+0x78/+0x7C/+0x80` are exactly the related-club IDs
+now exposed by the parser. `0x4079A0` checks all three. For each direction
+(buyer->seller and seller->buyer) that matches, a separate `RNG(100)` must
+be <= 10 for the seller to survive; a non-match consumes no relationship draw.
+Thus one directional relation is normally rejected 89% of the time, while a
+mutual relation requires both <=10 draws.
+
+### Seller threshold and target sampling in 0x40DBB0
+
+`0x40DB90` resolves the seller's AccessFanBase row from club `+0x70`, reads
+runtime row `+0x48`, and returns **field_48 - 4**. This is the seller's
+retained-roster threshold used by `0x40DBB0` and `0x40C7D0`.
+
+`0x40DBB0` requires:
+
+- seller `0x4037B0 != 1` (not user controlled);
+- seller `0x403E10 != 0`;
+- roster count strictly greater than `AccessFanBase.field_48 - 4`;
+- `0x40C7D0` still true, which rechecks the threshold after discounting
+  roster members whose active/current club does not match or whose status bit
+  9 is set.
+
+While that condition remains true, the routine draws a random roster index,
+requires candidate predicate `0x4088E0`, and then requires
+`0x419390(candidate) > 26`. `0x419390` computes elapsed whole weeks from
+player current-club join date `+0x158` when present. Therefore the weekly
+seller path only returns players with **more than 26 completed weeks** at the
+club.
+
+### Direct acquisition guard and fee construction in 0x41EFB0
+
+The handoff itself has a second defensive gate:
+
+- pending/deal count `player+0x178` must be zero;
+- signed-for-another-club bit 7 at `player+0x174` must be clear;
+- `0x419390(player)` must be at least **12 weeks**.
+
+The >26-week seller selection is therefore stricter on the weekly
+`0x40DC90` path; the 12-week check protects other callers of `0x41EFB0`.
+
+For an ordinary contracted player, `0x4205A0` supplies the valuation and the
+fee stored in player `+0xB8` is:
+
+- valuation < 500,000:
+  `0.98 * value + RNG(trunc(0.30 * value))`;
+- valuation >= 500,000:
+  `1.10 * value + RNG(trunc(0.20 * value))`.
+
+The branch direction above follows the x87 `fcom` status test at
+`0x41F043..0x41F054`; constants are read directly from
+`0x7BDCC0..0x7BDCD8`. `0x668350` truncates the floating bound toward zero
+before the bounded RNG call.
+
+If the player has no current club, consideration is the movement sentinel
+**1.0** (free transfer). Predicate `0x41E5C0` selects sentinel **2.0**,
+matching the already-recovered Bosman movement marker; that predicate requires
+the `0x41E5A0` age/status condition and contract expiry `+0x154 <= current
+date`.
+
+### Autonomous wage and contract term
+
+`0x4232A0` computes the new weekly wage using the same
+DBRAccessSkillFinancialValue machinery already recovered for player
+initialization: preferred-position maximum rating selects the row,
+`0x423A50` draws within its wage range, and country financial scaling is
+applied. The result is written directly to player `+0xC4`.
+
+`0x423340` returns the autonomous contract-length value. It chooses one of
+six age bands (<=18, 19-21, 22-25, 26-28, 29-31, >31), combines that with a
+competition/category index from `0x4FA510`, and selects from its embedded
+float table. `0x668350` truncates that value and `0x41EFB0` stores it in
+the local contract staging object's `+0x10`. `0x422F40` copies the staging
+object to player `+0x1F0`, making this word player `+0x200`;
+`0x422F70` passes it to `0x4192B0`, whose date arithmetic adds that value
+as **months** to the global current date to set contract expiry `+0x154`.
+
+Finally `0x41EFB0` records CPlayerMovement through `0x515290` and enters
+the same `0x422B80 -> 0x422F40/0x422F70` club-switch family already used by
+the ordinary transfer reconstruction.
