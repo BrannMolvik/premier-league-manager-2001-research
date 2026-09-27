@@ -89,6 +89,14 @@ class GameState:
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
     premier_league_scheduler_order: dict[int, tuple[int, ...]] = field(default_factory=dict)
     transfers: TransferRuntimeState = field(default_factory=TransferRuntimeState)
+    # Gate-9 source/runtime inputs for the recovered weekly club acquisition
+    # path. Startup roster counts are immutable initialization baselines;
+    # country gates start enabled at 0x4117C6; the neutral buy-counter byte is
+    # persisted so a save/reload does not reset autonomous acquisition state.
+    ai_transfer_startup_roster_count: dict[int, int] = field(default_factory=dict)
+    ai_transfer_buy_counter: dict[int, int] = field(default_factory=dict)
+    country_transfer_window_open: dict[int, bool] = field(default_factory=dict)
+    user_controlled_club_id: int | None = None
     rng: MsvcCrtRng | None = None
 
     def _resolve_rng(self, rng=None):
@@ -218,6 +226,18 @@ class GameState:
             club_id: 0
             for club_id in known_club_ids
         }
+        ai_transfer_startup_roster_count = {
+            club_id: len(roster_order.get(club_id, ()))
+            for club_id in known_club_ids
+        }
+        ai_transfer_buy_counter = {
+            club_id: 0
+            for club_id in known_club_ids
+        }
+        country_transfer_window_open = {
+            country_id: True
+            for country_id in countries_by_id
+        }
 
         state = cls(
             calendar=GameCalendar(start_date),
@@ -233,6 +253,9 @@ class GameState:
             access_skill_financial_values=financial_values,
             team_tactics=team_tactics,
             pitch_wear=pitch_wear,
+            ai_transfer_startup_roster_count=ai_transfer_startup_roster_count,
+            ai_transfer_buy_counter=ai_transfer_buy_counter,
+            country_transfer_window_open=country_transfer_window_open,
             rng=rng,
         )
         state.calendar.daily_hooks.append(state._run_daily_injury_returns)
@@ -259,6 +282,14 @@ class GameState:
                 for club_id in roster_order
             },
             pitch_wear={
+                club_id: 0
+                for club_id in roster_order
+            },
+            ai_transfer_startup_roster_count={
+                club_id: len(values)
+                for club_id, values in roster_order.items()
+            },
+            ai_transfer_buy_counter={
                 club_id: 0
                 for club_id in roster_order
             },
@@ -301,11 +332,39 @@ class GameState:
             for player in self.players.values()
         )
 
+    def run_weekly_ai_transfer_maintenance(
+        self,
+        rng=None,
+        *,
+        user_controlled_club_id: int | None = None,
+    ):
+        """Run the recovered Saturday 0x40DD70 autonomous acquisition pass."""
+        if rng is None:
+            if self.rng is None:
+                return ()
+            rng = self.rng
+        from ai_transfers import run_weekly_ai_acquisitions
+
+        if user_controlled_club_id is None:
+            user_controlled_club_id = self.user_controlled_club_id
+        return run_weekly_ai_acquisitions(
+            self,
+            rng,
+            user_controlled_club_id=user_controlled_club_id,
+        )
+
     def advance_one_day(self) -> date:
-        return self.calendar.advance_one_day()
+        self.calendar.increment_one_day()
+        self.calendar.run_post_fixture_maintenance()
+        self.run_weekly_ai_transfer_maintenance()
+        return self.calendar.current_date
 
     def advance(self, days: int) -> date:
-        return self.calendar.advance(days)
+        if days < 0:
+            raise ValueError("days must be non-negative")
+        for _ in range(days):
+            self.advance_one_day()
+        return self.calendar.current_date
 
     def install_premier_league_scheduler_order(
         self,
@@ -469,6 +528,10 @@ class GameState:
             fixture_order=fixture_order,
         )
         self.calendar.run_post_fixture_maintenance()
+        self.run_weekly_ai_transfer_maintenance(
+            rng,
+            user_controlled_club_id=self.user_controlled_club_id,
+        )
         return results
 
     def fixtures_due_today(self):
