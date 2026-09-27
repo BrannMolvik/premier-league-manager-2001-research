@@ -5623,3 +5623,113 @@ A separate Static.dat table at offset 0xFD43 is RTTI-identified as
 DBTLeagueAllocations / DBRLeagueAllocation (28 records, seven packed dwords).
 It is distinct from the DBTCupAllocInstructions startup mechanism above and is
 not required to solve Gate 3.
+
+
+## Selling-club bid decision at 0x4EF940
+
+Gate-9 tracing against the canonical executable
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+has resolved the core seller-chairman decision for an ordinary transfer offer.
+
+### Decision order
+
+Routine `0x4EF940` evaluates the proposal in this exact order:
+
+1. It calls player helper `0x4212F0`.
+2. If that helper is true, it computes proposal total value through
+   `0x4EFA20`, computes player transfer value through `0x4205A0`, multiplies
+   the player value by the double constant at `0x7C90B0`, which is exactly
+   **0.6**, and compares the two.
+3. If `0.6 * player_value > proposal_total_value`, it calls `0x4F01A0`.
+4. Otherwise it resolves the selling club and calls `0x405080`.
+5. If the returned count is **< 17**, it calls `0x4EFF30`.
+6. Otherwise it calls `0x4F0EA0`, the accepted/approach-player path.
+
+Equality at exactly 60% passes the price check. The rejection is a strict
+shortfall.
+
+### 0x4212F0 meaning
+
+`0x4212F0` is no longer opaque.
+
+It:
+
+- resolves the player's current club through `0x417270`;
+- calls `0x408860(club, player)`, which counts squadmates whose
+  `0x41E1D0` max-preferred-role rating is **strictly higher** than the target;
+- requires that count to be **< 11**;
+- calls player age helper `0x4173B0`;
+- requires age **< 30**.
+
+Thus the 60%-of-value protection applies only to players younger than 30 who
+have fewer than eleven higher-rated squadmates.
+
+### Too-cheap event families
+
+`0x4F01A0` produces two context variants. RTTI resolves their vtables:
+
+- `0x7C91B8` =
+  `EAMTPChairmanBlockTooCheapBidClubsub`
+- `0x7C9164` =
+  `EAMTPChairnanBlockTooCheapOwnClubsub`
+
+The typo `Chairnan` is present in the shipped RTTI name.
+
+This directly establishes the reason semantics: **Chairman blocks bid because
+the bid is too cheap**.
+
+### Too-small-squad event families
+
+`0x4EFF30` likewise produces two control-context variants:
+
+- `0x7C9110` =
+  `EAMTPChairmanBlockTooSmallSquadBidClubsub`
+- `0x7C90BC` =
+  `EAMTPChairnanBlockTooSmallSquadOwnClubsub`
+
+Therefore the `0x405080 < 17` branch is exactly **Chairman blocks transfer
+because the squad is too small**.
+
+`0x405080` walks the club roster and decrements its count for players carrying
+any of four `DBRPlayer+0x14` availability/status bits: 8, 0, 6, or 1. Some of
+those bits already overlap reconstructed injury/suspension availability, but
+the complete four-bit semantic map is not yet promoted. Keep the exact count
+helper separate from the recovered decision until that adapter is complete.
+
+### Accepted path
+
+`0x4F0EA0` is the successful seller path.
+
+RTTI proves at least these concrete event variants:
+
+- vtable `0x7C92BC` =
+  `EAMTransferOfferAcceptedMsub`
+- vtable `0x7C9260` =
+  `EAMTPUserApproachPlayersub`
+
+The seller decision can therefore be represented exactly as:
+
+```text
+if under_30_and_fewer_than_11_higher_rated_squadmates:
+    if proposal_total_value < 0.6 * player_value:
+        TOO_CHEAP
+if eligible_squad_count < 17:
+    SQUAD_TOO_SMALL
+ACCEPTED
+```
+
+### Contract-clause must-sell events
+
+A separate proposal path around `0x4F1190` contains forced-sale contract-clause
+events. RTTI resolves:
+
+- `0x7C93B8` = `EAMTPBigClubMustSellsub`
+- `0x7C9364` = `EAMTPRelegationClauseMustSellsub`
+- `0x7C9310` = `EAMTPBigMoneyMustSellsub`
+
+These are distinct from the normal `0x4EF940` chairman decision and must be
+ordered through their actual caller path before being merged into one
+high-level evaluator.
+
+Modern reconstruction implementation:
+`reconstruction/transfer_decision.py`.
