@@ -7593,3 +7593,42 @@ training gate also does not test the ordinary suspension bit here.
 
 This leaves the human method-change mutation as the last small state-transition
 question before implementing the minimum persistent training record.
+
+
+### Exact weekly training RNG boundary
+
+Direct disassembly of `0x4EACE0..0x4EAEA2` closes the shared-RNG question for
+the primary weekly training transition.
+
+The function's pre-loop call `0x4EBA90(training, player)` is a date-gated
+expiry pass over the separate timed-effect bytes at `training+0x88..+0x98`.
+It consumes **no RNG**. Fresh constructor `0x4EAB80` initializes all 17 of
+those bytes to zero, so this branch has no skill effect in fresh state until
+another producer creates a timed effect.
+
+The 17-skill loop calls `0x64D540(100)` **only when the selected training
+profile byte for that skill is nonzero**, and it visits skill slots strictly
+0 through 16. Zero-weight skills consume no RNG; they only participate in the
+countdown-zero reversal path.
+
+Therefore an eligible player's exact primary weekly draw count is determined
+solely by method:
+
+- Rest / recovery (0): **0** draws;
+- Attacking (1): **4** draws, slots 0, 6, 8, 9;
+- Midfield (2): **4** draws, slots 2, 5, 9, 16;
+- Defensive (3): **5** draws, slots 3, 7, 8, 11, 16;
+- Goalkeeper (4): **5** draws, slots 5, 9, 12, 13, 16;
+- Fitness (5): **6** draws, slots 0, 1, 2, 3, 11, 12;
+- Technique (6): **5** draws, slots 8, 10, 14, 15, 16.
+
+The condition/fatigue/injury code immediately following `0x4EAEA2` belongs to
+a different function and is not part of this weekly updater. This removes the
+previous concern that attaching the primary weekly transition would silently
+consume additional condition/injury RNG.
+
+The remaining automatic-integration dependency is the live quality multiplier:
+`0x4EACE0` derives it from Youth Team Coach, Assistant Manager and Training
+Centre state. Those owners are not yet materialized in the modern GameState, so
+the transition should first be implemented as an exact primitive with an
+explicit quality input rather than pretending those facilities/staff are absent.
