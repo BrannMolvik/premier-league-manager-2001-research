@@ -308,7 +308,14 @@ class HumanGameplayControllerTests(unittest.TestCase):
             state.advance_one_day(),
             date(2000, 7, 1),
         )
-        self.assertEqual(state.current_cash(1), 250_000)
+        # 1 July 2000 is Saturday. The due transfer executes first in the
+        # current reconstructed ordering, then the recovered weekly payroll
+        # debits the newly registered player's negotiated wage (category 101).
+        self.assertEqual(state.current_cash(1), 248_000)
+        self.assertEqual(
+            [(posting.amount, posting.category) for posting in state.finance_balances[1].ledger],
+            [(-500_000, 1000), (-2_000, 101)],
+        )
 
         self.assertEqual(state.players[target_id].club_id, 1)
         self.assertIn(target_id, state.club_roster_order[1])
