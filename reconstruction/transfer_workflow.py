@@ -250,6 +250,16 @@ def _complete_ordinary_cash_transfer(state, proposal: TransferProposal) -> Playe
             f"buyer roster already contains player {player_id}"
         )
 
+    # 0x404B30/0x404BB0 post the completed-transfer amount through the active
+    # Balance before/alongside the club switch. Only materialized controlled
+    # club Balances are mutated; AI clubs follow the original bypass.
+    if hasattr(state, "post_transfer_cash"):
+        state.post_transfer_cash(
+            buyer_club_id=buyer_id,
+            seller_club_id=seller_id,
+            amount=int(proposal.cash_fee),
+        )
+
     movement = PlayerMovement(
         player_id=player_id,
         from_club_id=seller_id,
@@ -294,7 +304,6 @@ def execute_due_ordinary_cash_transfers(
     state,
     *,
     user_controlled_club_id: int | None = None,
-    can_afford=None,
 ) -> tuple[ScheduledTransferExecution, ...]:
     """Execute due MPMTransferPlayer mode-0/1 objects.
 
@@ -302,12 +311,10 @@ def execute_due_ordinary_cash_transfers(
     - buyer roster count >= 40: mode 0 is rescheduled +7 days as mode 1;
     - buyer roster count >= 40 in mode 1 ends negotiations;
     - otherwise the normal completion path can run;
-    - a user-controlled buyer must pass the current-cash affordability gate.
+    - a user-controlled buyer must pass the live Balance current-cash gate.
 
-    Gate 10 has not yet materialized Balance state, so controlled-buyer
-    affordability is supplied explicitly as a callback:
-        can_afford(buying_club_id, cash_fee) -> bool
-    AI/non-user buyers follow the executable bypass and need no callback.
+    AI/non-user buyers follow the executable bypass. Starting current cash is
+    not guessed: a controlled club must have a materialized Balance state.
     """
     now = state.calendar.current_date
     remaining = []
@@ -354,12 +361,17 @@ def execute_due_ordinary_cash_transfers(
             user_controlled_club_id is not None
             and buyer_id == int(user_controlled_club_id)
         ):
-            if can_afford is None:
+            if not hasattr(state, "can_afford_current_cash"):
                 raise RuntimeError(
-                    "controlled-buyer transfer execution requires explicit "
-                    "current-cash affordability until Gate 10"
+                    "controlled-buyer transfer execution requires live "
+                    "Balance current cash"
                 )
-            if not bool(can_afford(buyer_id, int(proposal.cash_fee))):
+            if not bool(
+                state.can_afford_current_cash(
+                    buyer_id,
+                    int(proposal.cash_fee),
+                )
+            ):
                 remaining.append(scheduled)
                 results.append(
                     ScheduledTransferExecution(
