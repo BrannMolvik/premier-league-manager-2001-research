@@ -39,13 +39,13 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-10 **code** checkpoint:
 
 ```text
-02ce20502b3a80e62c9485ac2d7fdb7e8b9b5200
-Test exact visiting section allocation
+ad31b680f07f2a5ff552e22a76a37efccfb9cc4f
+Test gate receipt Balance postings
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **514 tests passed**;
+- reconstruction suite: **523 tests passed**;
 - repository asset-policy workflow: **passed**.
 
 Current internal save schema: **9**.
@@ -181,14 +181,12 @@ Existing reverse engineering already establishes:
    category-101 Balance postings. The first-of-month support-staff path is
    recovered as category 102 but concrete amounts remain deferred until the
    original CSupportStaff cost state is materialized.
-7. **Active:** the minimum original stadium/ticket source is now materialized
-   in code and verified: per-club MAP grid, recovered building-capacity records,
-   26 section anchors/flags, fresh ticket state and exact visiting allocation.
-   The source-independent gate-demand/price-response/truncation/RNG body is also
-   implemented. Attach the recovered fresh terrace/seating price initialization
-   and remaining source-backed club/competition inputs, then integrate the
-   complete attendance/revenue producer into normal matchday progression with
-   deterministic ledger regressions.
+7. **Active:** the minimum stadium/ticket source, lazy ticket-price behavior,
+   complete four-cell gate calculator and category-1/category-2 Balance posting
+   slice are now implemented and verified. Derive the remaining live supporter
+   inputs/ordinary league side modifier from current GameState/source fields,
+   consume the four RNG draws in recovered order, then invoke the receipt
+   posting exactly once in normal matchday progression.
 8. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
    300 on day-of-month 1, but `0x5E5330` never appends its generated stack
