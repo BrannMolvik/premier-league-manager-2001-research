@@ -10,9 +10,9 @@ Recovered executable behavior represented here:
 - transfer postings use accounting category 1000 on both buyer and seller
   sides.
 
-The original constructor inputs that establish starting cash are not yet
-resolved. Callers therefore initialize current cash explicitly rather than
-silently inventing a starting balance.
+Fresh controlled-club starting cash is sourced from the original Master.dat
+club float64 at packed +165, copied to DBRClub +0xD0/+0xD4 and then written
+to active Balance +0x10 during DBRUser startup.
 """
 
 from __future__ import annotations
