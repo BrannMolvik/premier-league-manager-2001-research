@@ -6,6 +6,11 @@ from stadium_state import (
     MAP_HEADER_SIZE,
     MAP_TRAILING_SIZE,
     SECTION_ANCHORS,
+    StadiumBuildingDefinition,
+    StadiumBuildingInstance,
+    StadiumSourceState,
+    TicketRuntimeState,
+    VISITING_SECTION_ORDER,
     parse_buildings_dat,
     parse_stadium_map,
 )
@@ -120,6 +125,80 @@ class StadiumSourceStateTests(unittest.TestCase):
         self.assertEqual(stadium.initial_section_states[4], -1)
         self.assertEqual(stadium.initial_home_capacity.terrace, 0)
         self.assertEqual(stadium.initial_home_capacity.seating, 1000)
+
+
+class TicketRuntimeStateTests(unittest.TestCase):
+    @staticmethod
+    def stadium_with_section_capacities(capacities):
+        buildings = []
+        instances = []
+        section_instances = [None] * 26
+        for section_index, capacity in capacities.items():
+            building_id = len(buildings)
+            buildings.append(
+                StadiumBuildingDefinition(
+                    building_id=building_id,
+                    first_extent=1,
+                    second_extent=1,
+                    terrace_capacity=0,
+                    auxiliary_capacity=0,
+                    seating_capacity=int(capacity),
+                )
+            )
+            instance = StadiumBuildingInstance(
+                first_min=0,
+                second_min=0,
+                first_max=1,
+                second_max=1,
+                building_id=building_id,
+                rotation=0,
+                flags=0,
+                section_index=section_index,
+            )
+            instances.append(instance)
+            section_instances[section_index] = instance
+        return StadiumSourceState(
+            buildings=tuple(buildings),
+            instances=instances,
+            section_instances=tuple(section_instances),
+            initial_section_states=(0,) * 26,
+            map_state=bytes(MAP_HEADER_SIZE),
+            trailing_state=bytes(MAP_TRAILING_SIZE),
+        )
+
+    def test_visiting_order_preserves_duplicate_section_24(self):
+        self.assertEqual(VISITING_SECTION_ORDER[0], 24)
+        self.assertEqual(VISITING_SECTION_ORDER[-1], 24)
+        self.assertEqual(len(VISITING_SECTION_ORDER), 26)
+
+    def test_visiting_allocator_uses_exact_order_and_ten_percent_target(self):
+        stadium = self.stadium_with_section_capacities({
+            24: 1000,
+            10: 2000,
+            9: 1500,
+        })
+        tickets = TicketRuntimeState.from_stadium(stadium)
+        accumulated = tickets.allocate_visiting_sections(stadium, 30000)
+        self.assertEqual(accumulated, 3000)
+        self.assertEqual(tickets.section_states[24], 1)
+        self.assertEqual(tickets.section_states[10], 1)
+        self.assertEqual(tickets.section_states[9], 0)
+        self.assertEqual(tickets.capacity(stadium, 1).seating, 3000)
+
+    def test_visiting_allocator_clears_old_visiting_and_skips_season_ticket_state(self):
+        stadium = self.stadium_with_section_capacities({
+            24: 1000,
+            10: 2000,
+            9: 1500,
+        })
+        tickets = TicketRuntimeState.from_stadium(stadium)
+        tickets.section_states[24] = 1
+        tickets.section_states[10] = 2
+        tickets.allocate_visiting_sections(stadium, 20000)
+        self.assertEqual(tickets.section_states[24], 1)
+        self.assertEqual(tickets.section_states[10], 2)
+        self.assertEqual(tickets.section_states[9], 1)
+        self.assertEqual(tickets.capacity(stadium, 1).seating, 2500)
 
 
 if __name__ == "__main__":
