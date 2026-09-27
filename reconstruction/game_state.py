@@ -13,7 +13,18 @@ from finance_state import (
     PLAYER_COST_ACCOUNT_CATEGORY,
     TRANSFER_ACCOUNT_CATEGORY,
 )
-from gate_receipts import GateReceiptResult
+from gate_receipts import (
+    FRESH_CONTROLLED_FACILITY_FACTOR,
+    PREMIER_LEAGUE_SEATING_REFERENCE,
+    PREMIER_LEAGUE_TERRACE_REFERENCE,
+    PREMIER_LEAGUE_TIER_FACTOR,
+    GateReceiptResult,
+    calculate_matchday_gate_receipts,
+    league_end_play_factor,
+    league_importance_factor,
+    league_position_factor,
+    ordinary_league_side_modifier,
+)
 from match_condition import ConditionInjurySettings
 from match_environment import (
     MatchEnvironment,
@@ -36,6 +47,7 @@ from match_postmatch import (
     sync_post_match_conditions,
 )
 from match_orders import TeamOrderPriorities
+from match_role_rating import best_preferred_role_rating
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
 from match_team_setup import TeamTacticalState
 from runtime_state import RuntimePlayer, derive_non_eu_status
@@ -493,6 +505,183 @@ class GameState:
                 posting_date=self.calendar.current_date,
             )
 
+    def _premier_league_gate_fan_base_raw(self, club_id: int) -> float:
+        """Resolve DBRAccessFanBase +0x08 from the club's +0x70 table index."""
+        club = self.clubs.get(int(club_id))
+        if club is None:
+            raise RuntimeError(f"club definition {int(club_id)} is not loaded")
+        index = int(getattr(club, "fan_base_index"))
+        if not 0 <= index < len(self.access_fan_bases):
+            raise RuntimeError(f"fan-base row {index} is unavailable")
+        row = self.access_fan_bases[index]
+        if int(getattr(row, "id", index)) != index:
+            raise RuntimeError("AccessFanBase rows are not indexed by club fan-base ID")
+        values = tuple(getattr(row, "values"))
+        if not values:
+            raise RuntimeError(f"fan-base row {index} has no +0x08 scalar")
+        return float(values[0])
+
+    def _premier_league_importance_factor(self) -> float:
+        """Resolve the exact 0x4FA670 hierarchy term from parsed competitions."""
+        competition = self.competitions.get(0)
+        if competition is None:
+            raise RuntimeError("Premier League competition definition is not loaded")
+        region_id = int(getattr(competition, "country_region_id"))
+        roots = tuple(
+            candidate
+            for candidate in self.competitions.values()
+            if getattr(candidate, "parent_competition_id", None) is None
+            and int(getattr(candidate, "country_region_id", -1)) == region_id
+        )
+        if not roots:
+            raise RuntimeError("Premier League country root-competition list is unavailable")
+        runtime_orders = tuple(
+            -int(getattr(candidate, "initialization_order_value"))
+            for candidate in roots
+        )
+        return league_importance_factor(
+            current_runtime_order=-int(getattr(competition, "initialization_order_value")),
+            first_runtime_order=min(runtime_orders),
+            competition_count=len(roots),
+        )
+
+    def _premier_league_gate_side_modifier(
+        self,
+        club_id: int,
+        participants,
+    ) -> float:
+        """Resolve the ordinary 0x5DBA60 side modifier from live PL state."""
+        if self.premier_league is None:
+            raise RuntimeError("Premier League state is not loaded")
+        table = self.premier_league.table()
+        club_id = int(club_id)
+        try:
+            table_index = next(
+                index for index, row in enumerate(table)
+                if int(row.club_id) == club_id
+            )
+        except StopIteration as exc:
+            raise RuntimeError(f"club {club_id} is absent from the Premier League table") from exc
+        row = table[table_index]
+        team_count = len(table)
+        competition = self.competitions.get(0)
+        total_matches = int(getattr(competition, "scheduled_matchday_count", 38))
+        if total_matches <= 0:
+            total_matches = 38
+        games_remaining = total_matches - int(row.played)
+        position = league_position_factor(
+            table_index=table_index,
+            team_count=team_count,
+            games_played=int(row.played),
+            games_remaining=games_remaining,
+        )
+
+        # The shipped Premier League has no upward promotion/playoff boundary
+        # and three direct relegation places. 0x4F8C50 therefore exposes the
+        # title gap first, followed (when positive/reachable) by the safety gap
+        # to the last non-relegation row.
+        leader_gap = int(table[0].points) - int(row.points)
+        safety_index = max(0, team_count - 3 - 1)
+        safety_gap = int(table[safety_index].points) - int(row.points)
+        end_play = league_end_play_factor(
+            games_remaining=games_remaining,
+            objective_gaps=(
+                (True, leader_gap, 1.0),
+                (team_count >= 4, safety_gap, 0.3),
+            ),
+        )
+
+        starters = tuple(
+            player for player in participants if bool(getattr(player, "match_active", False))
+        )
+        if len(starters) != 11:
+            raise RuntimeError(
+                f"club {club_id} must have exactly 11 active starters for gate prestige"
+            )
+        ratings = tuple(
+            best_preferred_role_rating(player.current_raw, player.positions)
+            for player in starters
+        )
+        return ordinary_league_side_modifier(
+            first_xi_ratings=ratings,
+            end_play_factor=end_play,
+            position_factor=position,
+            importance_factor=self._premier_league_importance_factor(),
+        )
+
+    def _prepare_premier_league_gate_inputs(
+        self,
+        home_club_id: int,
+        away_club_id: int,
+        home_participants,
+        away_participants,
+        *,
+        controlled_club_id: int | None,
+    ) -> dict[str, object] | None:
+        """Snapshot all non-RNG gate inputs before the current result is recorded."""
+        home_club_id = int(home_club_id)
+        away_club_id = int(away_club_id)
+        if controlled_club_id is None or home_club_id != int(controlled_club_id):
+            return None
+        if home_club_id not in self.finance_balances:
+            return None
+        stadium = self.stadium_sources.get(home_club_id)
+        tickets = self.ticket_states.get(home_club_id)
+        if stadium is None or tickets is None:
+            return None
+
+        home_capacity = tickets.capacity(stadium, 0)
+        visiting_capacity = tickets.capacity(stadium, 1)
+        return {
+            "home_fan_base_raw": self._premier_league_gate_fan_base_raw(home_club_id),
+            "visiting_fan_base_raw": self._premier_league_gate_fan_base_raw(away_club_id),
+            "home_tier_factor": PREMIER_LEAGUE_TIER_FACTOR,
+            "visiting_tier_factor": PREMIER_LEAGUE_TIER_FACTOR,
+            "home_side_modifier": self._premier_league_gate_side_modifier(
+                home_club_id, home_participants
+            ),
+            "visiting_side_modifier": self._premier_league_gate_side_modifier(
+                away_club_id, away_participants
+            ),
+            "seating_reference": PREMIER_LEAGUE_SEATING_REFERENCE,
+            "terrace_reference": PREMIER_LEAGUE_TERRACE_REFERENCE,
+            "home_seating_price_delta": float(tickets.seating_price) - PREMIER_LEAGUE_SEATING_REFERENCE,
+            # Uncontrolled supporters take the original reference-price branch.
+            "visiting_seating_price_delta": 0.0,
+            "home_terrace_price_delta": float(tickets.terrace_price) - PREMIER_LEAGUE_TERRACE_REFERENCE,
+            "visiting_terrace_price_delta": 0.0,
+            "home_seating_capacity": int(home_capacity.seating),
+            "visiting_seating_capacity": int(visiting_capacity.seating),
+            "home_terrace_capacity": int(home_capacity.terrace),
+            "visiting_terrace_capacity": int(visiting_capacity.terrace),
+            "host_seating_price": int(tickets.seating_price),
+            "host_terrace_price": int(tickets.terrace_price),
+            # Fresh DBRUser +0x65C contains no facilities. 0x42B0E0 therefore
+            # returns its exact 0.90 base until the later building system adds
+            # Hotel/Club House/Parking levels.
+            "home_facility_factor": FRESH_CONTROLLED_FACILITY_FACTOR,
+            "visiting_facility_factor": 1.0,
+            "season_ticket_quantity": int(tickets.season_ticket_quantity),
+            "cup_special": False,
+        }
+
+    def _finish_premier_league_gate_receipts(
+        self,
+        home_club_id: int,
+        prepared_inputs: dict[str, object] | None,
+        rng,
+    ) -> GateReceiptResult | None:
+        """Consume the four post-calculator gate draws and post when materialized."""
+        rand15_values = tuple(int(rng.randbelow(32768)) for _ in range(4))
+        if prepared_inputs is None:
+            return None
+        receipts = calculate_matchday_gate_receipts(
+            **prepared_inputs,
+            rand15_values=rand15_values,
+        )
+        self.post_gate_receipts(int(home_club_id), receipts)
+        return receipts
+
     def post_gate_receipts(
         self,
         home_club_id: int,
@@ -930,6 +1119,13 @@ class GameState:
         pitch_wear_before = int(self.pitch_wear.get(home_club_id, 0))
         environment = self.prepared_match_environments[int(fixture_id)]
 
+        gate_inputs = self._prepare_premier_league_gate_inputs(
+            home_club_id,
+            int(fixture.away_club_id),
+            home.preparation.selection.participants,
+            away.preparation.selection.participants,
+            controlled_club_id=self.user_controlled_club_id,
+        )
         result = self.simulate_premier_league_fixture(
             fixture_id,
             home.match_side,
@@ -941,6 +1137,10 @@ class GameState:
                 environment_byte=pitch_wear_before,
             ),
         )
+        # 0x513252 -> 0x5DA2F0 runs after MatchCalculator and before
+        # 0x5127A0 incident persistence / later Form RNG. Every normal League
+        # fixture consumes these four draws even when no user Balance is posted.
+        self._finish_premier_league_gate_receipts(home_club_id, gate_inputs, rng)
 
         fixture_date = self.calendar.current_date
         away_club_id = int(fixture.away_club_id)
@@ -1121,6 +1321,13 @@ class GameState:
             away_user_controlled = True
 
         pitch_wear_before = int(self.pitch_wear.get(home_club_id, 0))
+        gate_inputs = self._prepare_premier_league_gate_inputs(
+            home_club_id,
+            away_club_id,
+            home_participants,
+            away_participants,
+            controlled_club_id=human_club_id,
+        )
         result = self.simulate_premier_league_fixture(
             fixture_id,
             home_side,
@@ -1132,6 +1339,7 @@ class GameState:
                 environment_byte=pitch_wear_before,
             ),
         )
+        self._finish_premier_league_gate_receipts(home_club_id, gate_inputs, rng)
 
         fixture_date = self.calendar.current_date
         home_next = self.premier_league.next_club_match_date(
