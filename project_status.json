@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "fda4105e75ee14a265e81a862cd12614c3fd5367",
-  "last_verified_reconstruction_ci_head": "5d626f0fda83d3f7b8ca09d82061002017b68b37",
-  "last_verified_test_count": 550,
-  "asset_policy_validated_head": "5d626f0fda83d3f7b8ca09d82061002017b68b37",
+  "last_verified_reconstruction_ci_head": "3f7bec072a66437361a908128ea45de9e95b418d",
+  "last_verified_test_count": 555,
+  "asset_policy_validated_head": "3f7bec072a66437361a908128ea45de9e95b418d",
   "asset_policy_status": "passed",
-  "active_task": "Audit Gate-11 management-system targets against current implementation/research and choose the shortest source-backed path to one additional meaningful human management workflow.",
+  "active_task": "Translate the mandatory weekly 0x4EACE0 training profile/counter/countdown transition and exact shared RNG order, separating specialist-coach, condition/injury and timed-effect branches before calendar integration.",
   "next_gate": 12,
   "next_gate_name": "Other competitions",
   "blocked": false,
@@ -192,5 +192,6 @@
   "gate_10_status": "complete",
   "gate10_closure_checkpoint": "5d626f0fda83d3f7b8ca09d82061002017b68b37",
   "gate10_verified_test_count": 550,
-  "gate10_evidence": "research/GATE10_FINANCES_AND_BOARD.md"
+  "gate10_evidence": "research/GATE10_FINANCES_AND_BOARD.md",
+  "internal_save_schema": 13
 }
