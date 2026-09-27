@@ -8,6 +8,8 @@ from typing import Callable, Iterable
 from competition_state import PremierLeagueState
 from finance_state import (
     BalanceRuntimeState,
+    FinancialObjectiveEvaluation,
+    FinancialObjectiveState,
     GATE_HOME_ACCOUNT_CATEGORY,
     GATE_VISITING_ACCOUNT_CATEGORY,
     PLAYER_COST_ACCOUNT_CATEGORY,
@@ -461,10 +463,90 @@ class GameState:
                 f"club {club_id} has no source-backed starting cash"
             )
         amount = float(getattr(club, "starting_cash"))
-        balance = BalanceRuntimeState(current_cash=amount)
+        objective = None
+        if self.premier_league is not None:
+            league_club_ids = tuple(int(value) for value in self.premier_league.club_ids)
+            if club_id in league_club_ids and hasattr(club, "fan_base_index"):
+                target_fan_base_index = int(getattr(club, "fan_base_index"))
+                rank_count = sum(
+                    int(getattr(self.clubs[candidate_id], "fan_base_index"))
+                    <= target_fan_base_index
+                    for candidate_id in league_club_ids
+                )
+                objective = FinancialObjectiveState(
+                    base_cash=amount,
+                    candidate_ids=FinancialObjectiveState.premier_league_candidates(
+                        rank_count,
+                        len(league_club_ids),
+                    ),
+                )
+        balance = BalanceRuntimeState(
+            current_cash=amount,
+            financial_objective=objective,
+        )
         self.finance_balances[club_id] = balance
         self.user_controlled_club_id = club_id
         return balance
+
+    def financial_objective_candidates(self, club_id: int) -> tuple[int, int, int]:
+        """Return the recovered fresh candidate IDs for a controlled PL club."""
+        club_id = int(club_id)
+        balance = self.finance_balances.get(club_id)
+        if balance is None or balance.financial_objective is None:
+            raise RuntimeError(f"financial objective is not initialized for club {club_id}")
+        return balance.financial_objective.candidate_ids
+
+    def select_financial_objective(
+        self,
+        club_id: int,
+        candidate_index: int,
+    ) -> int | float:
+        """Choose one chairman objective and replace live cash as 0x5DFB90 does."""
+        club_id = int(club_id)
+        balance = self.finance_balances.get(club_id)
+        if balance is None or balance.financial_objective is None:
+            raise RuntimeError(f"financial objective is not initialized for club {club_id}")
+        replacement_cash = balance.financial_objective.select(
+            int(candidate_index),
+            self.calendar.current_date,
+        )
+        balance.current_cash = replacement_cash
+        return replacement_cash
+
+    def set_financial_objective_progression_gate(
+        self,
+        club_id: int,
+        reached: bool = True,
+    ) -> None:
+        """Set the recovered objective +0x68 progression gate explicitly.
+
+        The original flips this during later competition/season progression,
+        not during objective selection. Keeping it explicit prevents an invented
+        early reason-5 evaluation until that broader transition is integrated.
+        """
+        club_id = int(club_id)
+        balance = self.finance_balances.get(club_id)
+        if balance is None or balance.financial_objective is None:
+            raise RuntimeError(f"financial objective is not initialized for club {club_id}")
+        balance.financial_objective.progression_gate_reached = bool(reached)
+        if reached:
+            balance.financial_objective.progression_state = (
+                int(balance.financial_objective.progression_state) + 1
+            ) & 0xFF
+
+    def evaluate_financial_objective(
+        self,
+        club_id: int,
+    ) -> FinancialObjectiveEvaluation | None:
+        """Evaluate the recovered chairman objective against current Balance cash."""
+        club_id = int(club_id)
+        balance = self.finance_balances.get(club_id)
+        if balance is None or balance.financial_objective is None:
+            raise RuntimeError(f"financial objective is not initialized for club {club_id}")
+        return balance.financial_objective.evaluate(
+            balance.current_cash,
+            self.calendar.current_date,
+        )
 
     def set_current_cash(self, club_id: int, amount: int) -> BalanceRuntimeState:
         """Materialize/update the active Balance current-cash qword for a club."""
