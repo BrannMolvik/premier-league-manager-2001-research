@@ -22,9 +22,14 @@ Evidence: `research/GATE9_TRANSFERS_AND_CONTRACTS.md`.
 ## Porting mission
 
 This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc
-contents are authorized for project use. Preserve and reuse original data,
-music, sounds, interface graphics, strings, and other resources wherever
-technically practical while replacing incompatible legacy runtime/game logic.
+contents are authorized for project use. Original FM2001 resources and
+recoverable original behavior are the default source of truth. Use them
+directly, convert them, or wrap them as needed; do not replace or redesign them
+for convenience. Replacement is only justified when the original is
+technically incompatible with the Windows 11 runtime after reasonable
+adaptation, or genuinely inaccessible/unrecoverable from the authorized source.
+Legacy runtime/game code may be reimplemented where direct execution is
+incompatible, while preserving recovered original behavior.
 
 Authorized original resources belong under `original_assets/` with provenance
 tracked according to `research/ASSET_POLICY.md`.
