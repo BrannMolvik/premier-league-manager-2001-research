@@ -4223,3 +4223,33 @@ was inferred from string order alone.
 Exact next target: tie category 1/2 to home/visiting supporters and state
 0/1 plus `+0x08/+0x0C` to terrace/seating, while continuing the four-count
 attendance pipeline and exact rounding trace.
+
+
+## Gate 10 home/visiting receipt split checkpoint — 28 September 2026
+
+The live gate producer is narrowed further without introducing a guessed
+attendance model.
+
+Instruction-locked results:
+
+- category **2** is home-supporter ordinary match-day ticket revenue;
+- category **1** is visiting-supporter ordinary match-day ticket revenue;
+- category **3** remains season-ticket revenue;
+- the category-2 supporter count is the only match-day group to which the
+  controlled host's season-ticket quantity is added before attendance output;
+- match output `+0xD84` = total attendance, `+0xD8C` = home attendance
+  including season tickets, and `+0xD90` = visiting attendance;
+- section state **1** is rebuilt/enforced as the visiting allocation with exact
+  minimum `10 * floor(stadium_capacity / 100)`;
+- section state **0** is the remaining ordinary home allocation;
+- state **2** remains season-ticket reserved and `-1` unavailable;
+- match-day price `+0x08` is paired with stadium-entry capacity field
+  `+0x1C`; price `+0x0C` is paired with field `+0x28`.
+
+The terrace-versus-seating identity of entry fields `+0x1C/+0x28` remains
+open and is not guessed from UI order.
+
+Exact next target: resolve that final terrace/seating field mapping, then finish
+the two parallel attendance-demand calculations and exact caps/conversion/
+rounding before materializing stadium state and writing deterministic finance
+regressions.
