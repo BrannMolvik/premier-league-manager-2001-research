@@ -184,10 +184,10 @@ Existing reverse engineering already establishes:
 7. **Active:** the recovered live gate-receipt producer is formula-complete and
    its minimum original stadium source is now mapped: per-club `.MAP` grid,
    26 fixed section anchors, per-instance flags and `Lists\\Buildings.dat`.
-   Close the fresh ordinary terrace/seating ticket-price initialization, then
-   add parser/runtime materialization for only this required original state and
-   implement deterministic attendance/revenue regressions before normal
-   matchday integration.
+   Fresh ordinary terrace/seating price initialization is now exact as well.
+   Add parser/runtime materialization for only this required original state,
+   implement the complete attendance/revenue path and add deterministic
+   regressions before normal matchday integration.
 8. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
    300 on day-of-month 1, but `0x5E5330` never appends its generated stack
@@ -210,8 +210,8 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
   both-clubs path is identified as cup/knockout attendance, and the complete
   side-modifier plus four-cell demand/cap/truncation/RNG formula is now
   instruction-locked; the required original stadium source format is now mapped
-  but not yet materialized by the modern runtime, and fresh ordinary ticket-price
-  initialization still needs closure before integration; category 1/2 and
+  but not yet materialized by the modern runtime; fresh ordinary ticket-price
+  initialization is also recovered. Category 1/2 and
   section state 0/1 are resolved as visiting/home supporter sides;
 - concession payout is intentionally not integrated into ordinary progression:
   its category-300 monthly credit path is exact, but the fresh-game generator
