@@ -153,13 +153,16 @@ Several target systems already have substantial research or backend behavior:
 5. **Weekly transition implemented and verified:** the explicit-quality
    primitive reproduces exact profile draws, +8 gains, countdown-zero -8
    reversals and eligibility skips without altering calendar progression.
-6. **Active dependency:** recover/materialize the fresh-game Youth Team Coach /
-   Assistant Manager quality source used by the support-staff subsystem, plus
-   Training Centre presence when source-backed. Fresh startup demonstrably
-   creates and assigns support staff, so quality must not default silently to
-   1.0.
-7. Attach Saturday calendar execution only after that quality bridge is
-   deterministic and source-backed.
+6. **Active dependency:** fresh staff types, ratings, employed-list ownership
+   and Training Centre absence are resolved and the exact training-quality
+   primitive is implemented. The remaining blocker is shared-CRT placement:
+   lock the secondary schedule-container `0x947AF0 -> 0x616620` RNG stream.
+   Its completion state is now proven to be exactly the state entering the
+   fresh 200-person support-staff pool generator. Then replay the known pool /
+   user-assignment draws through the first `0x425680 -> 0x4D1760` fixed-staff
+   initialization.
+7. Attach Saturday calendar execution only after that startup quality bridge is
+   deterministic on the shared RNG and source-backed.
 8. After live weekly training is verified, audit the next Gate-11 management
    workflow rather than broadening training with guessed UI behavior.
 
