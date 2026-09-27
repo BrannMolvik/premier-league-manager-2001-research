@@ -4601,3 +4601,23 @@ Verified results:
 Exact next target: translate `0x5DFD30` far enough to generate the authentic
 three candidate objective IDs for a Premier League club, then materialize and
 persist the selected objective state without inventing chairman policy.
+
+
+## Gate 10 Premier League objective candidates resolved — 28 September 2026
+
+Recovery generation 34 continued only candidate generator `0x5DFD30`.
+
+Fresh objective state is `+0x9C = 0`. The Premier League's two hierarchy
+predicates are both false, and its top-side promotion/playoff allocation count
+is zero, so fresh PL candidate generation consumes no RNG. The exact candidate
+triples are:
+
+- fan-base rank count >= half the league: **13, 1, 5**;
+- fan-base rank count < half the league: **1, 5, 6**.
+
+Arsenal's fan-base index yields rank count 19/20, so its authentic new-manager
+financial objectives are IDs **13, 1, 5**.
+
+Next task: materialize the Balance-owned objective state, selection cash/target
+replacement and three-year deadline evaluation in the clean-room runtime, with
+save persistence and deterministic reason-5 dismissal tests.
