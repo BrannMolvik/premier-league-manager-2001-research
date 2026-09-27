@@ -169,6 +169,7 @@ class CompetitionDefinition:
     enumerated_club_reference_1: int = -1
     runtime_instance_count: int = 1
     scheduled_matchday_count: int = 0
+    valuation_division_category: int = 5
 
     @property
     def runtime_kind(self) -> str:
@@ -436,6 +437,7 @@ class FM2001Database:
                 enumerated_club_reference_1=struct.unpack_from('<i', r, 23)[0],
                 runtime_instance_count=struct.unpack_from('<I', r, 8)[0],
                 scheduled_matchday_count=r[18],
+                valuation_division_category=r[31],
             ))
 
     def _parse_rounds(self):
