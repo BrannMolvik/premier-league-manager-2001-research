@@ -11,6 +11,9 @@ const runtimeStateUrl = () =>
 const handoffUrl = () =>
   `https://raw.githubusercontent.com/${REPO}/${MAIN_BRANCH}/research/HANDOFF_PROMPT.md?ts=${Date.now()}`;
 
+const branchFeedUrl = (branch) =>
+  `https://github.com/${REPO}/commits/${branch}.atom?ts=${Date.now()}`;
+
 async function fetchJson(url) {
   const response = await fetch(url, {
     cache: "no-store",
@@ -35,14 +38,16 @@ async function getRuntimeState() {
 }
 
 async function getBranchActivity(branch) {
-  const data = await fetchJson(
-    `https://api.github.com/repos/${REPO}/branches/${branch}?ts=${Date.now()}`
-  );
-  const dateText =
-    data?.commit?.commit?.committer?.date ||
-    data?.commit?.commit?.author?.date ||
-    null;
-  return dateText ? Date.parse(dateText) : 0;
+  const atom = await fetchText(branchFeedUrl(branch));
+  const match = atom.match(/<updated>([^<]+)<\/updated>/i);
+  if (!match) {
+    throw new Error(`No <updated> timestamp in commit feed for ${branch}`);
+  }
+  const timestamp = Date.parse(match[1]);
+  if (!Number.isFinite(timestamp)) {
+    throw new Error(`Invalid commit-feed timestamp for ${branch}: ${match[1]}`);
+  }
+  return timestamp;
 }
 
 function shouldMonitor(state) {
