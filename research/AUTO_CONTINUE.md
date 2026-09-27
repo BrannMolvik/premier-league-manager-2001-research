@@ -117,6 +117,7 @@ While a ChatGPT page is open, the content script watches newly inserted
 non-message UI elements for interruption/length-limit signals such as:
 
 - connection interruption;
+- Retry / Try again / response-generation failure;
 - conversation too long / maximum conversation length;
 - prompts to start a new chat to continue.
 
@@ -128,7 +129,8 @@ When such a signal appears while runtime status is `working`, recovery may start
 ### 2. Repository inactivity lease
 
 Every few minutes both the Windows watchdog and, while Chrome is running, the
-browser extension read:
+browser extension read the runtime state plus GitHub's commit Atom feeds (not
+the rate-limited REST branch endpoint) for:
 
 - runtime state from `agent-runtime`;
 - latest commit time on `agent-runtime`;
@@ -205,10 +207,15 @@ last local UI step needs repair.
 
 ## Same-chat recovery rule
 
-From extension version 0.3.0 onward:
+From extension version 0.3.1 onward:
 
-- Connection interruption, timeout, stalled response, or stale repository heartbeat: **reuse the existing worker chat**.
+- Connection interruption, timeout, Retry / Try again, stalled response, or stale repository heartbeat: **reuse the existing worker chat**.
 - If ChatGPT is still generating, click the visible Stop / Stop generating control first.
 - True conversation-length / maximum-length exhaustion: create a fresh background chat and use the canonical GitHub handoff.
 - Missing or closed worker tab: a fresh background chat is an allowed fallback.
 - Do not create a new chat merely because one response stalled.
+
+
+### Retry-state handling
+
+Version 0.3.1 treats an explicit ChatGPT `Retry` / `Try again` control as a transient failure. It also scans already-rendered error controls when the content script starts. If Retry has left the composer unavailable, the extension may activate Retry only long enough for ChatGPT to expose a Stop control, cancel that generation, and then submit the continuation prompt in the same conversation. Heartbeat checks use commit Atom feeds so the Windows watchdog and browser extension do not collectively exhaust GitHub's unauthenticated REST branch-request allowance.
