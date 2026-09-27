@@ -4621,3 +4621,43 @@ financial objectives are IDs **13, 1, 5**.
 Next task: materialize the Balance-owned objective state, selection cash/target
 replacement and three-year deadline evaluation in the clean-room runtime, with
 save persistence and deterministic reason-5 dismissal tests.
+
+
+## Gate 10 financial objective runtime integrated — 28 September 2026
+
+The source-backed Premier League chairman objective is now a persisted part of
+the clean-room Balance runtime.
+
+Implemented behavior:
+
+- fresh PL controlled-club Balance state materializes the exact three candidate
+  IDs from the recovered fan-base-rank branch;
+- Arsenal/high-half clubs receive `13,1,5`; lower-half clubs receive `1,5,6`;
+- selecting an objective uses the recovered ID-specific starting-funds and
+  target percentages and immediately replaces live Balance cash;
+- selection stores the start date and exact three-calendar-year deadline;
+- deadline evaluation matches `0x5E1D90`'s **year comparison**, not a daily
+  full-date comparison;
+- once the separately recovered `+0x68` progression gate is set, cash above
+  target is success, cash strictly above 95% of target is a non-sacking near
+  miss, and cash at/below 95% returns dismissal reason 5;
+- if the deadline-year check occurs while `+0x68` is still clear, the original
+  branch returns dismissal reason 4 rather than silently treating it as the
+  financial-target path;
+- the progression gate is deliberately not auto-enabled at objective selection;
+  the executable sets it later from season/competition progression;
+- internal save schema advanced to **11** and preserves the complete implemented
+  objective state.
+
+Implementation commits include `75a23365`, `f39e63c1`, `d9cedba2`,
+`00dda8ac`, `86ab1e95`, `7e5cdefd`, and `cf59d6dd`.
+
+GitHub Actions at `cf59d6ddef3034ac5ea96b91605fd2641f67d3a3`:
+
+- reconstruction suite: **541 tests passed**;
+- repository asset-policy workflow: **passed**.
+
+Exact next task: translate and attach the later season/competition transition
+that sets objective `+0x68 = 1` (and updates `+0x9C`) so deadline evaluation
+can be invoked automatically at the correct lifecycle point rather than through
+the explicit clean-room gate setter.
