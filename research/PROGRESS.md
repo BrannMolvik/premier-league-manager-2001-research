@@ -4878,3 +4878,28 @@ Manager and Training Centre owners consumed by `0x4EACE0`.
 Next implementation boundary: add the exact weekly state transition as an
 explicit-quality primitive with deterministic RNG tests. Keep calendar wiring
 disabled until the quality inputs become source-backed.
+
+
+## Gate 11 exact weekly training primitive verified — 28 September 2026
+
+Checkpoint `efe8a3039536cda6e7470d0237262d859c6cad03` passed:
+
+- **559 reconstruction tests**;
+- repository asset-policy workflow.
+
+The modern RuntimePlayer now has an exact explicit-quality implementation of the
+primary `0x4EACE0` weekly transition. Deterministic tests lock:
+
+- six Fitness RNG(100) draws and the exact resulting MSVC RNG state;
+- successful +8 skill/counter/method-result progression;
+- Rest countdown-zero reversal with zero RNG draws;
+- ineligible injury/selection-exclusion weeks consuming neither RNG nor
+  countdown;
+- nonzero profile slots consuming RNG even when the skill is already at target.
+
+Automatic Saturday execution remains disabled. Fresh-game startup demonstrably
+creates a global support-staff pool and assigns staff to each user before play,
+so using quality 1.0 as an implicit fallback would erase original state. The
+active trace is now the minimum support-staff type/rating state required to
+source Youth Team Coach / Assistant Manager quality, with Training Centre
+presence handled only when its original owner is materialized.
