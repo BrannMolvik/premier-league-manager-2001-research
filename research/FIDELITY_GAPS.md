@@ -17,7 +17,7 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | Player negotiation residual branches | The proven ordinary money path handles accepted, low-wage, counter-offer, already-signed and recently-joined outcomes; unresolved 0x422803 / invalid-duration 0x423340 branches return explicit deferred states | Remaining refusal/status and duration-revision policy is not guessed | 15 or earlier if a broader negotiation case blocks play |
 | Due-transfer same-day ordering | Scheduled MPMTransferPlayer objects execute in reconstructed day maintenance after the date's fixture block | Exact original ordering relative to a fixture on the same due date is not yet instruction-locked | 15 or earlier if same-day transfer availability matters |
 | Chairman legacy budget-event family | Modern port does not invent a live transfer/wage-budget scalar; ordinary play uses proven Balance/accounting paths | A0/A1/settings/warning payloads are persistence-loadable, but no ordinary fresh-game producer or Finance/Transfer UI consumer is mapped in the shipped executable | 15 or earlier if new evidence appears |
-| Match-day / recurring commercial income | Normal Premier League gate income is integrated for source-backed controlled-home state; fresh-game concession income stays disabled | Ordinary PL categories, source stadium/ticket state, FanFactor, prices, side modifiers, four-cell demand and post-calculator four-draw RNG placement are recovered and integrated. Cup/knockout gate branches and later facility-upgrade bonuses remain broader fidelity work; concession category-300 payout is exact but fresh games do not activate records | 10 |\n| Finance/board | Source-backed starting cash, transfer/gate postings, category-1600 debit and weekly payroll are implemented; the finance-linked chairman objective/sacking path remains active | Financial-objective tolerance and reason-5 sacking are identified but not yet integrated | 10 |
+| Match-day / recurring commercial income | Normal Premier League gate income is integrated for source-backed controlled-home state; fresh-game concession income stays disabled | Ordinary PL categories, source stadium/ticket state, FanFactor, prices, side modifiers, four-cell demand and post-calculator four-draw RNG placement are recovered and integrated. Cup/knockout gate branches and later facility-upgrade bonuses remain broader fidelity work; concession category-300 payout is exact but fresh games do not activate records | 10 |\n| Finance/board residuals | Gate-10 ordinary Premier League finance and recovered board/job-security behavior are integrated | Remaining items are legacy chairman budget-event fidelity, support-staff amount materialization, broader cup gate/facility behavior, and unresolved EA-facing category labels | 15 or owning later system |
 | Broader competitions | Core structures known, full behavior incomplete | Premier League is the strongest reconstructed competition | 12 |
 | Original front-end presentation | Temporary Tk prototype now has a functional Play tab, but it is intentionally not the original FM2001 presentation | Authorized original screen/audio resources should be inventoried, reused, and converted where needed | 13-14 |
 | UI fidelity | Minimum human gameplay controls exist; original FM2001 screen structure/workflow is still unreconstructed | Original screen/workflow restoration incomplete | 13 |
@@ -116,12 +116,10 @@ A deterministic fallback is allowed while a subsystem is being reconstructed, bu
 
 ## Financial-objective lifecycle / dismissal side effect
 
-The fresh Premier League candidate set, selection cash/target mutation,
-three-year deadline, sporting `+0x68` progression for same-PL IDs 13/1/5/6,
-95% reason-5 threshold, and save persistence are implemented. The remaining
-board/job-security gap is the concrete original side effect after the objective
-path emits manager-sacking reason 4 or 5. The modern runtime currently returns
-the recovered reason code but does not invent control removal or replacement.
+**Resolved for Gate 10.** The fresh Premier League candidate set, selection
+cash/target mutation, three-year deadline, sporting `+0x68` progression for
+same-PL IDs 13/1/5/6, 95% reason-5 threshold, persistent DBRUser-equivalent
+sacking reason, and single-user control exit are integrated and save-persistent.
 
 A separate narrow approximation remains at exact Premier League table ties: the
 original equal-points fallback after points/goal difference/goals scored is
