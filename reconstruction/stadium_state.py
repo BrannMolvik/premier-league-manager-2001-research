@@ -205,6 +205,40 @@ class TicketRuntimeState:
     ) -> StadiumSectionCapacity:
         return stadium.capacity_for_section_state(self.section_states, selector)
 
+    def initialize_ordinary_prices(
+        self,
+        *,
+        seating_reference: float,
+        terrace_reference: float,
+        fan_base_rank_count: int,
+        league_team_count: int,
+    ) -> tuple[int, int]:
+        """Reproduce lazy 0x5DE160 ordinary-price initialization.
+
+        The two reference inputs are the already converted outputs from the
+        original 0x40CBC0 -> money-conversion path. Existing nonzero user-set
+        prices are preserved exactly.
+        """
+        team_count = int(league_team_count)
+        rank_count = int(fan_base_rank_count)
+        if team_count <= 0:
+            raise ValueError("league_team_count must be positive")
+        if not 0 <= rank_count <= team_count:
+            raise ValueError("fan_base_rank_count must be in 0..league_team_count")
+
+        if rank_count <= team_count // 2:
+            multiplier = 0.90
+        elif rank_count < team_count - 5:
+            multiplier = 0.95
+        else:
+            multiplier = 1.00
+
+        if self.seating_price == 0:
+            self.seating_price = int(float(seating_reference) * multiplier)
+        if self.terrace_price == 0:
+            self.terrace_price = int(float(terrace_reference) * multiplier)
+        return self.terrace_price, self.seating_price
+
 
 def parse_buildings_dat(
     source: bytes | bytearray | memoryview | str | Path,
