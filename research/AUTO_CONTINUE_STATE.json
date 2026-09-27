@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Complete the secondary 0x947AF0 -> 0x616620 RNG replay (secondary competition initialization, 0x4FA790 international fixtures, final bucket shuffle), then continue exact shared CRT state into fresh support-staff generation.",
-  "last_known_main_head": "b963cb20d3839ece18e14e3d870d14a116308546",
+  "active_task": "Complete source-backed 0x4FA790 international-fixture replay and the final secondary 0x615BE0 bucket shuffle from secondary state 0x492DC9DC, then continue the exact shared CRT state into fresh support-staff generation.",
+  "last_known_main_head": "45443af8f22a43d41e90c734de6d56f1050d9630",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 36,
+  "recovery_generation": 37,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation advanced from main b963cb20. InternationalFixture table is parsed and 0x4FA790 fields are resolved. Continue only the complete secondary schedule RNG replay; do not reopen support-staff semantics.",
+  "note": "Recovery resumed from canonical main 45443af8. Gate 10 is complete. Secondary competition initialization is already locked at 334 draws -> 0x492DC9DC; continue only international fixture replay and final secondary bucket shuffle.",
   "same_chat_fallback_minutes": 30
 }
