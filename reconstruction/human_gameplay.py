@@ -72,7 +72,6 @@ class HumanGameplayController:
         self.pending_fixture_id: int | None = None
         self._pending_prior_results: tuple[tuple[int, object], ...] = ()
         self._pending_after_fixture_ids: tuple[int, ...] = ()
-        self.transfer_can_afford: Callable[[int, int], bool] | None = None
         self.last_transfer_executions: tuple[object, ...] = ()
 
     @classmethod
@@ -147,12 +146,11 @@ class HumanGameplayController:
             raise RuntimeError("select a human club first")
         self.human.team_orders = orders
 
-    def set_transfer_affordability_check(
-        self,
-        callback: Callable[[int, int], bool] | None,
-    ) -> None:
-        """Attach the Gate-10 current-cash check used at transfer completion."""
-        self.transfer_can_afford = callback
+    def set_current_cash(self, amount: int):
+        """Initialize/update the selected club's live Balance current cash."""
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        return self.state.set_current_cash(self.human.club_id, int(amount))
 
     def submit_cash_bid(
         self,
@@ -239,7 +237,6 @@ class HumanGameplayController:
         results = execute_due_ordinary_cash_transfers(
             self.state,
             user_controlled_club_id=int(self.human.club_id),
-            can_afford=self.transfer_can_afford,
         )
         self.last_transfer_executions = tuple(results)
         return self.last_transfer_executions
@@ -461,7 +458,6 @@ class HumanGameplayController:
                 self.attack_matrix,
                 self.defence_matrix,
                 self.match_rng,
-                transfer_can_afford=self.transfer_can_afford,
             )
 
         if self.state.calendar.current_date < target_date:
@@ -546,7 +542,6 @@ class HumanGameplayController:
         self.last_transfer_executions = tuple(
             self.state.run_due_transfer_maintenance(
                 user_controlled_club_id=self.human.club_id,
-                can_afford=self.transfer_can_afford,
             )
         )
         self.state.run_weekly_ai_transfer_maintenance(
