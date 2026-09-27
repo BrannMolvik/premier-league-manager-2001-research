@@ -32,7 +32,7 @@ tracked according to `ASSET_POLICY.md`.
   `reconstruction/canonical_internal_save_audit.py`.
 - Internal save implementation: `reconstruction/internal_save.py`.
   Historical Gate-8 checkpoint used schema 2; current Gate-9 transfer runtime
-  uses schema **4**, gzip `.fm2k` files.
+  uses schema **7**, gzip `.fm2k` files.
 - Reconstruction GitHub Actions at
   `72c21e8f07bf9bf57f6dc3cbaba83809cdd06414`: **413 tests passed**.
 - Repository asset-policy workflow at that checkpoint: **passed**.
@@ -157,13 +157,13 @@ Completion requires:
    0x4EF600(proposal,0), which schedules MPMTransferPlayer for +1 day.
    Ordinary cash does not require an invented CDealInProgress 0->1 promotion;
    0x422920/0x50E760 belongs to swap/try-execute paths.
-10. Implement the normal MPMTransferPlayer completion slice over the modern
-    runtime: persisted +1-day scheduled transfer, exact contract application,
-    safe club-roster movement, join-date/signing-bit reset and movement history.
-    Keep the unresolved Gate-10 cash/budget posting as an explicit external
-    affordability dependency rather than inventing finance state.
-11. Then add AI transfer progression and synthetic/canonical regressions before
-    re-auditing every Gate-9 criterion.
+10. **Completed:** normal MPMTransferPlayer completion slice is implemented
+    with persisted +1-day scheduling, exact contract application, safe roster
+    movement, join-date/signing-bit cleanup, movement history, the 40-player
+    +7-day retry, and explicit Gate-10 affordability dependency. Schema 7
+    persists the full completion state. CI at `de175a60`: **477 tests passed**.
+11. Add AI transfer activity during calendar progression, then build canonical
+    transfer regressions and re-audit every Gate-9 criterion.
 
 ## Gate 9 completion criteria
 
@@ -171,8 +171,8 @@ Completion requires:
 - [x] Full negotiated contract terms / proposal/deal/bid-log/movement state are represented and saved.
 - [x] Ordinary cash-only bids can be submitted and evaluated end-to-end from live runtime inputs.
 - [x] Core clubs accept/refuse decision/reason logic is reconstructed and tested.
-- [ ] Player negotiations, wages, duration, and transfer completion work.
-- [ ] Player movement updates squads safely.
+- [x] Player negotiations, wages, duration, and ordinary cash transfer completion work for the reconstructed path.
+- [x] Player movement updates squads safely.
 - [ ] AI transfer activity can occur during calendar progression.
 
 ## Known live fidelity boundaries
