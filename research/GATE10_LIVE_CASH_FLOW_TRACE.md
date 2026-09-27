@@ -427,19 +427,168 @@ side-modifier producers `0x5DBA60` (ordinary competition path) and
 `0x5DBCD0` (the alternate type-6 paired path) sufficiently to reproduce their
 inputs without semantic invention.
 
+### Upstream side modifiers resolved
+
+The two remaining attendance modifiers are now translated instruction-for-
+instruction. This closes the formula dependency that remained above the
+four-cell home/visiting × terrace/seating demand body.
+
+#### Ordinary league path: `0x5DBA60(club, match)`
+
+The match supplies its league/competition object at `match +0x4C`. The helper
+first sorts/refreshes the league table as required and finds the supplied club's
+current league-table index.
+
+The following components are then calculated.
+
+**League-importance factor.** `0x4FA670` resolves the league's country/region
+object and returns:
+
+```text
+league_importance = 1.0 - signed_integer_division(
+    country_competition_list[0].order_value - league.order_value,
+    country_competition_count
+)
+```
+
+The referenced order field is runtime competition `+0x18`; the country list is
+at `+0x48` with count at `+0x4C`. The integer division occurs before the
+conversion to floating point.
+
+**League-position factor.** For the selected table row:
+
+```text
+games_played    = row +0x10
+games_remaining = league +0x5C - games_played
+
+if games_remaining < 4 or games_played < 5:
+    league_position = 1.0
+else:
+    league_position = 1.0 - table_index / league_team_count
+```
+
+Thus position is deliberately neutral during the first four played matches and
+again for the final three remaining matches.
+
+**End-of-season opportunity factor.** This begins at 0. It is considered only
+when:
+
+```text
+games_remaining < ATTLeagueEndPlay
+```
+
+(default 5).
+
+`0x4F8C50` derives five flag/gap pairs from the current sorted table. Points are
+exactly `3*wins + draws`. Its four competition-boundary counts correspond to
+direct promotion, promotion playoff, direct relegation, and relegation playoff.
+The five candidate gaps are, in order:
+
+1. win/title gap when no direct-promotion boundary exists;
+2. direct-promotion gap;
+3. promotion-playoff gap;
+4. direct-relegation/safety gap;
+5. relegation-playoff/safety gap.
+
+A candidate is accepted only when its flag is present, its points gap is
+positive, and:
+
+```text
+gap / games_remaining <= 3.0
+```
+
+The first accepted candidate supplies:
+
+```text
+win/title          -> 1.0
+direct promotion   -> ATTLeagueEndPlayCanGoUp        / ATTLeagueEndPlayCanWin
+promotion playoff  -> ATTLeagueEndPlayCanPlayOffUp   / ATTLeagueEndPlayCanWin
+direct relegation  -> ATTLeagueEndPlayCanGoDw        / ATTLeagueEndPlayCanWin
+relegation playoff -> ATTLeagueEndPlayCanPlayOffDw   / ATTLeagueEndPlayCanWin
+```
+
+With shipped defaults these are respectively `1.0, 0.8, 0.6, 0.3, 0.2`.
+
+**Starting-XI rating factor.** When the club roster is present, the helper walks
+exactly the first 11 player IDs at club `+0x244`. For each player,
+`0x41E1D0` returns the maximum overall rating across the player's three
+preferred-role entries. The 11 values are summed and scaled by the exact double
+constant `0.00125`:
+
+```text
+xi_rating = sum(first_11_overall_ratings) * 0.00125
+          = sum(first_11_overall_ratings) / 800
+```
+
+Finally `0x5DBA60` returns the weighted average:
+
+```text
+numerator = ATTPrestigeBoost        * xi_rating
+          + ATTLeagueEndPlayBoost  * end_play_factor
+          + ATTLeaguePosBoost      * league_position
+          + ATTLeagueImportanceBoost * league_importance
+
+denominator = ATTPrestigeBoost
+            + ATTLeagueEndPlayBoost
+            + ATTLeaguePosBoost
+            + ATTLeagueImportanceBoost
+
+side_modifier = numerator / denominator
+```
+
+The shipped defaults are 10 for all four weights.
+
+#### Alternate type-6 path: `0x5DBCD0(primary_club, other_club)`
+
+This path has no league-position/end-play/importance terms. It computes the same
+11-player `sum/800` rating factor for each club and returns:
+
+```text
+side_modifier = 0.2 * (
+    ATTPrestigeBoost      * primary_xi_rating
+  + ATTOtherPrestigeBoost * other_xi_rating
+) / (ATTPrestigeBoost + ATTOtherPrestigeBoost)
+```
+
+The shipped defaults are `ATTPrestigeBoost=10` and
+`ATTOtherPrestigeBoost=5`, so the primary side is weighted 2:1 over its
+opponent before the final exact `0.2` multiplier. The caller invokes this
+helper in both argument orders to obtain one modifier per side.
+
+#### Tuning identities used by the side-modifier path
+
+The executable's named tuning loader maps the relevant globals exactly:
+
+- `ATTLeagueImportanceBoost = 10`;
+- `ATTLeaguePosBoost = 10`;
+- `ATTLeagueEndPlayBoost = 10`;
+- `ATTPrestigeBoost = 10`;
+- `ATTOtherPrestigeBoost = 5`;
+- `ATTLeagueEndPlay = 5`;
+- `ATTLeagueEndPlayCanWin = 10`;
+- `ATTLeagueEndPlayCanGoUp = 8`;
+- `ATTLeagueEndPlayCanPlayOffUp = 6`;
+- `ATTLeagueEndPlayCanGoDw = 3`;
+- `ATTLeagueEndPlayCanPlayOffDw = 2`.
+
+The live attendance producer is therefore formula-complete at the instruction
+level. The next Gate-10 dependency is no longer attendance algebra; it is
+materializing the minimum original-compatible ticket/section and stadium state
+needed to feed that formula in the modern runtime.
+
 ### Remaining formula work
 
 The producer, supporter-side categories and section ownership are now known,
 but implementation remains intentionally blocked until these details are
 closed:
 
-1. finish translating the upstream side-attendance modifiers at `0x5DBA60`
-   and `0x5DBCD0` that feed the now-exact four-way demand body;
-2. materialize only the required original ticket/section and stadium source
+1. materialize only the required original ticket/section and stadium source
    state at `+0x694/+0x6B0`;
-3. add deterministic regressions covering price response, capacity/fan-base
-   caps, truncation, RNG subtraction, home/visiting revenue and season-ticket
-   attendance before normal matchday integration.
+2. implement the now-complete side-modifier plus four-cell attendance formula;
+3. add deterministic regressions covering position/end-play modifiers, price
+   response, capacity/fan-base caps, truncation, RNG subtraction,
+   home/visiting revenue and season-ticket attendance before normal matchday
+   integration.
 
 ## Monthly income report is not a producer
 
