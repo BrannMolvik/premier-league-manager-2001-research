@@ -39,16 +39,16 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-10 **code** checkpoint:
 
 ```text
-0d3010df0dbbb60ab147d40dedd1ad83ff533965
-Test live gate input and RNG integration
+3fc54ed8524fabade0f37be7017f84d5e967a279
+Test gate secondary debits as doubles
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **531 tests passed**;
+- reconstruction suite: **533 tests passed**;
 - repository asset-policy workflow: **passed**.
 
-Current internal save schema: **9**.
+Current internal save schema: **10**.
 
 Gate 10 now has a clean-room Balance/current-cash runtime slice:
 - current cash is represented explicitly;
@@ -165,9 +165,12 @@ Existing reverse engineering already establishes:
   and four gate RNG draws are consumed after MatchCalculator but before
   incident/Form RNG for every normal league fixture; category 1/2 receipts are
   posted when the controlled home club has a materialized Balance/ticket state;
-- original Balance credit `0x5DC510` also constructs a category-1600 debit of
-  0.2% of incoming money, but its exact money conversion/rounding and category
-  label remain unresolved.
+- original Balance credit `0x5DC510` constructs a category-1600 debit at
+  exact floating amount `incoming * 0.002`, with no integer conversion before
+  debit; the clean-room Balance now preserves this fractional posting and
+  schema-10 saves preserve fractional cash/ledger state. Finance Overview
+  queries category 1600, but its user-facing label remains deliberately
+  unresolved.
 
 ## Exact next task
 
@@ -191,21 +194,26 @@ Existing reverse engineering already establishes:
    the recovered source-backed stadium/ticket state, FanFactor, reference
    prices, side modifiers, four-draw RNG ordering and category-1/category-2
    Balance postings. CI at `0d3010df` passed **531 tests**.
-8. **Active:** recover the exact numeric conversion/rounding and semantic
-   evidence for Balance credit `0x5DC510`'s secondary category-1600 debit
-   (known rate = incoming credit × 0.002), then add a rounding-sensitive
-   regression before integrating it.
-9. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
+8. **Completed:** Balance credit `0x5DC510`'s secondary
+   category-1600 debit is integrated as an exact floating
+   `incoming * 0.002` posting, with debit-before-primary ledger order and a
+   rounding-sensitive regression. Internal save schema 10 preserves fractional
+   finance values. CI at `3fc54ed8` passed **533 tests**.
+9. **Active:** trace Balance constructor `0x5DC400` and its ordinary
+   fresh-game callers to recover the authoritative source of initial current
+   cash. The modern runtime must continue requiring explicit starting cash
+   until that source is proven.
+10. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
    300 on day-of-month 1, but `0x5E5330` never appends its generated stack
    candidate or increments the fresh-game active count. Leave normal concession
    income disabled unless a genuine activation writer is later recovered.
-10. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
+11. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
    because the table is already parsed. The original 26-section stadium state
    and stadium capacity/entry model are separate dependencies.
-11. Starting Balance cash initialization remains deliberately explicit until
-    the original `0x5DC400` constructor-input source is recovered; do not
-    invent a default cash value.
+12. Starting Balance cash initialization remains deliberately explicit until
+    the active `0x5DC400` constructor-input trace is closed; do not invent a
+    default cash value.
 
 ## Known live fidelity boundaries
 
@@ -221,8 +229,9 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
 - concession payout is intentionally not integrated into ordinary progression:
   its category-300 monthly credit path is exact, but the fresh-game generator
   does not create active records in the recovered executable;
-- Balance credit's secondary category-1600 debit is not integrated until its
-  exact conversion/rounding is recovered;
+- Balance credit's secondary category-1600 debit is integrated exactly at the
+  recovered floating 0.2% rate; only its EA-facing display label remains
+  unresolved;
 - broader player-negotiation refusal/duration branches remain explicit deferred
   states;
 - exact due-transfer ordering relative to same-day fixtures is not yet
