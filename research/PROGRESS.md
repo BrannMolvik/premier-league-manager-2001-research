@@ -4928,3 +4928,24 @@ initial +0.25 contribution is exactly absent.
 Next trace: map the three DBRUser support-list headers and the `0x4C9E90`
 assignment result far enough to determine whether a fresh user begins with a
 type-3 or type-2 staff member in the list scanned by training.
+
+
+## Gate 11 fresh training staff list resolved — 28 September 2026
+
+Fresh DBRUser initialization now proves the training quality is always
+staff-backed:
+
+- `0x425680 -> 0x4D1760` creates initial support types 1,2,3,4,5,13;
+- `0x4CA070` routes types 1..5 into the `+0x5B8/+0x5BC` list scanned by
+  training;
+- type 3 Youth Team Coach therefore exists in the fresh training list;
+- types 1..5 bypass the special compatibility cases in `0x4CAF80`, so their
+  status becomes 1 and their real rating is used;
+- `0x4C9D40(type)` consumes exactly two draws per fixed initial staff:
+  `RNG(25)` for age-like state, then `RNG(2)` for rating;
+- the Premier League tier yields rating 1 or 2, hence fresh Q is exactly
+  **1.25 or 1.30**; fresh Training Centre remains absent.
+
+The active blocker is now only startup RNG placement: locate the exact CRT state
+entering the one-shot `0x4D1760` user initialization so the Youth Coach
+rating can be reproduced without corrupting the post-schedule/match RNG ledger.
