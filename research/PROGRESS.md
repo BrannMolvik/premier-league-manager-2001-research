@@ -4280,3 +4280,35 @@ No runtime behavior changed in this checkpoint. Exact next target: finish the
 two parallel attendance-demand, cap, conversion and randomized-rounding
 pipelines inside `0x5DA2F0` before materializing the minimum stadium state and
 adding deterministic finance regressions.
+
+
+## Gate 10 attendance demand/RNG body resolved — 28 September 2026
+
+Recovery generation 27 continued inside the already-mapped gate producer
+`0x513252 -> 0x5DA2F0` and closed the four repeated ordinary-attendance
+calculations without changing runtime behavior.
+
+Instruction-level results now persisted in the focused Gate-10 trace:
+
+- four separate cells are computed: home/visiting × terrace/seating;
+- `0x40CBC0` supplies the seating reference price and an exact 0.75 terrace
+  reference price;
+- `0x5DA250` supplies the original piecewise ticket-price demand response;
+- demand combines AccessFanBase scalar, an indexed 0.9..0.5 factor, the
+  side-specific upstream modifier, price response and, for controlled clubs,
+  the recovered Hotel/Club House/Parking attendance multiplier;
+- ordinary demand is capped to fan base outside the cup-special path and always
+  capped to the allocated class capacity;
+- `0x668350` is truncation toward zero, not conventional rounding;
+- `0x64D540(n)` is exact MSVC-15-bit randomized subtraction
+  `floor(rand15*n/32768)`;
+- the random span is exactly 1% of demand when price response <= 1, or
+  `demand/(100+1000*(p-1))` when response > 1, truncated with minimum 1;
+- final home and visiting counts sum terrace+seating separately, with season
+  tickets added to home attendance only after ordinary home ticket revenue.
+
+The class-demand body is closed, but the full producer is not yet declared
+complete. Exact next target is the two upstream side-modifier helpers
+`0x5DBA60` and `0x5DBCD0`; once those are translated, materialize only the
+minimum original-compatible ticket/stadium state and add deterministic finance
+regressions.
