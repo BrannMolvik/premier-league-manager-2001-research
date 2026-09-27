@@ -4964,3 +4964,17 @@ Thus the exact state entering staff-pool generation equals the **post-secondary
 schedule** RNG state. The next trace is now specifically the secondary
 `0x616620` RNG stream, not the already-complete primary schedule replay or the
 already-resolved staff generator.
+
+
+## Gate 11 secondary Euro-seed RNG checkpoint — 28 September 2026
+
+The six mode-1 Euro seed DummyLeagues (IDs 182..187) are now tied directly to
+Master.dat historical-allocation fields. Canonical membership is 9/9/9/9/9/6,
+exactly partitioning the 51 Europe national teams. Their first lazy sort is one
+CRT draw per participant, so the secondary Cup special paths contribute a fixed
+**51 draws** from these seed sorts. Repeated `0x4F4940` calls do not add draws
+after a seed's sorted flag is set.
+
+Next: compose the remaining mode-1 Cup/child-League schedule RNG, then replay
+`0x4FA790` from the newly parsed InternationalFixture table and finally the
+secondary schedule-bucket shuffle.
