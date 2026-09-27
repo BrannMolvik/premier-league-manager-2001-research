@@ -603,7 +603,6 @@ class GameState:
         rng=None,
         *,
         fixture_order: Iterable[int] | None = None,
-        transfer_can_afford=None,
     ) -> tuple[tuple[int, NormalMatchResult], ...]:
         """Advance one day using the recovered fast-calendar phase order.
 
@@ -623,7 +622,6 @@ class GameState:
         self.calendar.run_post_fixture_maintenance()
         self.run_due_transfer_maintenance(
             user_controlled_club_id=self.user_controlled_club_id,
-            can_afford=transfer_can_afford,
         )
         self.run_weekly_ai_transfer_maintenance(
             rng,
