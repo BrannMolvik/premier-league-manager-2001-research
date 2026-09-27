@@ -199,10 +199,13 @@ class GameState:
         countries_by_id = {
             int(country.id): country
             for country in getattr(database, "countries", ())
+            if hasattr(country, "id")
         }
+        # Player position bytes are source-table indices, not Position.id
+        # semantic codes. 0x4EA310 indexes the runtime Position array directly.
         positions_by_id = {
-            int(position.id): position
-            for position in getattr(database, "positions", ())
+            int(index): position
+            for index, position in enumerate(getattr(database, "positions", ()))
         }
         known_club_ids = set(roster_order) | set(clubs_by_id)
         team_tactics = {
