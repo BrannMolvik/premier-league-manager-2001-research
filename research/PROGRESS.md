@@ -4743,3 +4743,34 @@ Next implementation: persist the sacking reason in GameState/save state and end
 active human control only after the current season-finalization/matchday
 maintenance completes, preserving the original separation between persistent
 reason state and front-end control transition.
+
+
+## Gate 10 closure audit and Gate 11 transition — 28 September 2026
+
+Gate 10 was audited against its roadmap completion criteria after the
+manager-sacking control transition landed.
+
+Verified closure checkpoint:
+
+`5d626f0fda83d3f7b8ca09d82061002017b68b37`
+
+GitHub Actions for that exact SHA passed:
+
+- **550 reconstruction tests**;
+- repository asset-policy workflow.
+
+The audit found all Gate-10 criteria satisfied without inventing unsupported
+finance systems. In particular, the legacy chairman transfer/wage-budget event
+family is not treated as a live scalar because no ordinary fresh-game producer
+or normal Finance/Transfer UI consumer has been recovered; the demonstrably live
+constraint is Balance/current cash plus recovered accounting and board-objective
+paths.
+
+A dedicated closure record is now stored in
+`research/GATE10_FINANCES_AND_BOARD.md`. ROADMAP and CURRENT_STATE have
+advanced to **Gate 11 - Broader management systems**.
+
+Gate-11 first task: audit training/development, scouting, youth, morale,
+medical/injury, discipline, messages/news and recurring manager tasks against
+the existing human gameplay loop, then choose the shortest original-backed path
+to another meaningful human management workflow.
