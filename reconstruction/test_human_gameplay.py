@@ -1,12 +1,17 @@
 import unittest
 from dataclasses import dataclass
 from datetime import date
+from types import SimpleNamespace
 
 from game_state import GameState
 from human_gameplay import HumanGameplayController
 from match_lineup import AI_FORMATIONS
 from match_schedule import MsvcCrtRng
 from match_team_setup import TeamTacticalState
+from transfer_decision import SellingClubDecision
+from transfer_negotiation import OrdinaryMoneyResponse
+from transfer_state import ContractTerms
+from transfer_workflow import ScheduledTransferOutcome
 
 
 @dataclass(frozen=True)
@@ -235,6 +240,85 @@ class HumanGameplayControllerTests(unittest.TestCase):
                 for player in controller.squad()
             )
         )
+
+    def test_human_cash_transfer_controller_path_moves_player_safely(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+        state = controller.state
+
+        # Add the source-backed tables required by Gate-9 valuation/contract
+        # helpers without changing the existing Gate-7 fixture test database.
+        state.clubs = {
+            club_id: SimpleNamespace(
+                index=club_id,
+                name=f"Club {club_id}",
+                manager_id=club_id,
+                competition_id=0,
+                country_id=0,
+                team_category_code=0,
+                fan_base_index=22,
+                related_club_id_0=-1,
+                related_club_id_1=-1,
+                related_club_id_2=-1,
+            )
+            for club_id in state.club_roster_order
+        }
+        state.countries = {
+            0: SimpleNamespace(
+                id=0,
+                financial_multiplier_percent=100,
+                eu_status_flag=1,
+            )
+        }
+        state.positions = {
+            role: SimpleNamespace(lineup_group=0)
+            for role in range(20)
+        }
+        state.access_skill_financial_values = tuple(
+            SimpleNamespace(
+                id=i,
+                field_08=100_000,
+                field_0c=100_000,
+                weekly_wage_base=1_000,
+                weekly_wage_random_range=100,
+                field_18=1_000,
+                field_1c=100,
+            )
+            for i in range(100)
+        )
+
+        target_id = 2000
+        bid = controller.submit_cash_bid(target_id, 500_000)
+        self.assertEqual(bid.decision, SellingClubDecision.ACCEPTED)
+
+        response = controller.offer_player_contract(
+            target_id,
+            ContractTerms(
+                weekly_wage=2_000,
+                signing_on_fee=2_000,
+                contract_length_months=36,
+            ),
+        )
+        self.assertEqual(response.outcome, OrdinaryMoneyResponse.ACCEPTED)
+        self.assertEqual(len(state.transfers.scheduled_transfers), 1)
+
+        scheduled = state.transfers.scheduled_transfers[0]
+        state.calendar.current_date = scheduled.due_date
+        controller.set_transfer_affordability_check(
+            lambda club_id, fee: club_id == 1 and fee == 500_000
+        )
+        executions = controller.process_due_transfers()
+
+        self.assertEqual(len(executions), 1)
+        self.assertEqual(
+            executions[0].outcome,
+            ScheduledTransferOutcome.COMPLETED,
+        )
+        self.assertEqual(state.players[target_id].club_id, 1)
+        self.assertIn(target_id, state.club_roster_order[1])
+        self.assertNotIn(target_id, state.club_roster_order[2])
+        self.assertEqual(state.players[target_id].weekly_wage, 2_000)
+        self.assertEqual(len(state.transfers.movements), 1)
 
     def test_autofill_produces_persistent_legal_11_plus_5(self):
         controller = self.build_controller()
