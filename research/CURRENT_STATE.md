@@ -149,9 +149,13 @@ Existing reverse engineering already establishes:
   separate ticket/season-ticket sale path;
 - ticket `+0x08` paired with stadium-entry `+0x1C` is the terrace class,
   while ticket `+0x0C` paired with stadium-entry `+0x28` is seating;
-- the exact attendance/count formula still depends on the 26-section state at
-  DBRUser `+0x694` and the stadium model at `+0x6B0`, neither of which is
-  currently materialized by the clean-room runtime;
+- the four home/visiting × terrace/seating demand cells, ticket-price response,
+  fan-base/capacity caps, truncation and randomized subtraction inside
+  `0x5DA2F0` are now instruction-locked; the remaining formula dependency is
+  the upstream side-modifier helpers `0x5DBA60/0x5DBCD0`;
+- the producer still depends on the 26-section state at DBRUser `+0x694` and
+  stadium model at `+0x6B0`, neither of which is currently materialized by
+  the modern runtime;
 - original Balance credit `0x5DC510` also constructs a category-1600 debit of
   0.2% of incoming money, but its exact money conversion/rounding and category
   label remain unresolved.
@@ -175,15 +179,13 @@ Existing reverse engineering already establishes:
    recovered as category 102 but concrete amounts remain deferred until the
    original CSupportStaff cost state is materialized.
 7. **Active:** finish the recovered live gate-receipt producer
-   `0x513252 -> 0x5DA2F0`. Category 2 is home-supporter match-day revenue,
-   category 1 visiting-supporter revenue; section states 0/1 are home/visiting
-   allocation and state 2 is season-ticket reserved. The final physical class
-   mapping is now proven: ticket `+0x08` / stadium-entry `+0x1C` are
-   **terrace**, while ticket `+0x0C` / stadium-entry `+0x28` are
-   **seating**. Finish the two parallel attendance-demand, cap, conversion and
-   randomized-rounding pipelines. After that materialize only required
-   `+0x694/+0x6B0` stadium state and add deterministic regressions before
-   normal matchday integration.
+   `0x513252 -> 0x5DA2F0`. The four home/visiting × terrace/seating demand
+   calculations are now exact, including reference ticket prices, piecewise
+   price response, fan-base/capacity caps, controlled-club facility multiplier,
+   truncation toward zero and the MSVC-15-bit randomized subtraction. Close the
+   remaining upstream side-modifier producers `0x5DBA60` and `0x5DBCD0`.
+   Then materialize only required `+0x694/+0x6B0` ticket/stadium state and add
+   deterministic regressions before normal matchday integration.
 8. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
    300 on day-of-month 1, but `0x5E5330` never appends its generated stack
@@ -204,10 +206,11 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
   state, but no ordinary fresh-game producer/consumer is mapped;
 - match-day/gate posting categories and producer are recovered, the special
   both-clubs path is identified as cup/knockout attendance, and terrace/seating
-  capacity classes are now instruction-locked; income is still intentionally
-  not approximated while the exact attendance-count calculation and required
-  original stadium-section/capacity state remain unresolved; category 1/2 and
-  section state 0/1 are resolved as visiting/home supporter sides;
+  capacity classes and the four-cell demand/cap/truncation/RNG body are now
+  instruction-locked; income is still intentionally not integrated while the
+  upstream side-modifier helpers and required original stadium-section/capacity
+  state remain unresolved; category 1/2 and section state 0/1 are resolved as
+  visiting/home supporter sides;
 - concession payout is intentionally not integrated into ordinary progression:
   its category-300 monthly credit path is exact, but the fresh-game generator
   does not create active records in the recovered executable;
