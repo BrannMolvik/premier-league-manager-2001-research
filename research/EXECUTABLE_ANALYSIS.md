@@ -7406,3 +7406,41 @@ The generator has broader competition/state branches, including RNG-selected
 alternatives such as 5/8, 11/12 and 13/14. Those are not needed to integrate
 the normal fresh Premier League controlled-club path and remain outside this
 Gate-10 implementation slice.
+
+
+## Gate 10 Premier League sporting-objective progression bridge
+
+The remaining objective `+0x68` transition is now identified as the **sporting
+objective success gate** paired with the three-year financial target.
+
+Routine `0x5E0310` is a 17-way switch keyed directly by selected objective ID
+at objective `+0x64`. It is called by `0x5E1C00`, which skips progression when
+there is no selected objective, when the current year still equals the selection
+year, or when `+0x68` is already nonzero.
+
+Season finalization around `0x4A8628` calls this progression path for every
+DBRUser twice: first with pass flag **1**, then after `0x4F9010`, with pass flag
+**0**. The normal same-league Premier League finishing-position branches use the
+first pass. When a branch succeeds, `0x5E0310` writes `+0x68 = 1`; the common
+tail then increments objective byte `+0x9C`.
+
+For the only fresh Premier League objective IDs currently reachable through the
+source-backed candidate generator, the same-league ranking tests are exact:
+
+- objective **13**: `table_index < 1` -> finish **1st**;
+- objective **1**: `table_index <= 1` -> finish in the **top two**;
+- objective **5**: `table_index <= team_count / 2` using signed integer
+  division before comparison.
+
+The last condition is an executable quirk worth preserving. With 20 clubs and a
+zero-based table index it accepts indices 0..10 inclusive; do not modernize it
+to a strict mathematical top-half test.
+
+All three branches also contain broader competition-classification/promotion
+success routes. Those are outside the normal same-Premier-League slice and are
+left research-only until broader competition season transitions enter scope.
+
+This resolves the semantic relationship with `0x5E1D90`: at the deadline year,
+if `+0x68` was never achieved the manager takes reason **4**; only after the
+sporting objective gate succeeds does the cash target determine clear success,
+near miss, or reason **5** dismissal.
