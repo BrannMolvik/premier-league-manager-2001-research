@@ -93,6 +93,7 @@ class Player:
     target_raw: tuple[int, ...]
     eu_status_code: int = 2
     initial_flags: int = 0
+    joined_current_club_date: date | None = None
 
     @property
     def full_name(self):
@@ -308,6 +309,9 @@ class FM2001Database:
             positions = tuple(r[21:24])
             current = tuple(r[24:41])
             target = tuple(r[41:58])
+            joined_current_club_date = ole_date(
+                struct.unpack_from('<I', r, 76)[0]
+            )
             eu_status_code = r[96]
             self.players.append(Player(
                 player_id,
@@ -324,6 +328,7 @@ class FM2001Database:
                 target,
                 eu_status_code,
                 initial_flags,
+                joined_current_club_date,
             ))
 
         manager_count = struct.unpack_from('<I', d, player_end)[0]
