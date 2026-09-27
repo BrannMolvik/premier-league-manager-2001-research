@@ -3797,3 +3797,44 @@ Before implementation, finish mapping the `0x41EFB0` fee/contract constants
 and the remaining `0x40DC90` eligibility predicates; then wire the proven
 weekly path into GameState calendar maintenance and regression-test actual AI
 movement.
+
+
+## 27 September Gate 9 - weekly AI acquisition core resolved
+
+Recovered the canonical disc archive from the ChatGPT Library, converted the
+raw MODE1/2352 image locally, extracted only the temporary executable, and
+reverified canonical `FOOTBAL.EXE` SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+No original binary/data was added to Git.
+
+Fresh direct disassembly closes most of the previously open weekly AI
+acquisition mechanics:
+
+- the `(current_date_integer + 5) % 7 == 0` phase maps to Saturday in the
+  2000/01 calendar;
+- buyer gate uses `BigClubFanBase` at `0x822408` and
+  `BigClubBuyChance` at `0x82240C`; their built-in executable defaults are
+  21 and 50 respectively;
+- the three parser-exposed related-club IDs are exactly the fields consumed by
+  `0x4079A0`; each matching direction requires an independent RNG(100) <= 10
+  to permit the seller candidate;
+- `0x40DB90` proves the seller retained-roster threshold is
+  `AccessFanBase.field_48 - 4`;
+- weekly target selection requires >26 completed weeks at the current club,
+  while `0x41EFB0` independently guards at >=12 weeks;
+- `0x41EFB0` ordinary valuation pricing is:
+  - below 500,000: 0.98 * value + RNG(trunc(0.30 * value));
+  - 500,000 or above: 1.10 * value + RNG(trunc(0.20 * value));
+- movement consideration 1 and 2 remain the already-mapped free/Bosman
+  sentinels;
+- autonomous wage generation reuses the recovered skill-financial-value wage
+  machinery;
+- autonomous contract length comes from the embedded age/category table in
+  `0x423340` and is applied as months through `0x4192B0`;
+- successful direct acquisition reaches the existing CPlayerMovement and
+  `0x422B80 -> 0x422F40/0x422F70` club-switch path.
+
+Detailed instruction evidence is in `research/EXECUTABLE_ANALYSIS.md`.
+Next: finish the remaining buyer/seller/candidate predicate semantics needed by
+the clean-room data model, then implement the Saturday calendar path and run
+canonical Gate-9 integration.
