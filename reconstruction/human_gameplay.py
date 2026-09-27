@@ -137,6 +137,21 @@ class HumanGameplayController:
             self.state.user_controlled_club_id = club_id
         return self.human
 
+    def financial_objective_candidates(self) -> tuple[int, int, int]:
+        """Return the three recovered chairman objective choices."""
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        return self.state.financial_objective_candidates(self.human.club_id)
+
+    def select_financial_objective(self, candidate_index: int) -> int | float:
+        """Accept one chairman objective and apply its immediate starting funds."""
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        return self.state.select_financial_objective(
+            self.human.club_id,
+            int(candidate_index),
+        )
+
     def squad(self) -> tuple[object, ...]:
         if self.human is None:
             raise RuntimeError("select a human club first")
