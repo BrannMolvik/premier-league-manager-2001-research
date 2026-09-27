@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Finish the two parallel attendance-demand, cap, conversion and randomized-rounding pipelines inside 0x5DA2F0 now that terrace/seating is resolved; then identify the minimum +0x694/+0x6B0 stadium state needed for deterministic gate-receipt regressions.",
-  "last_known_main_head": "01a2f1513f4b774d9cc757a649dcc2a7fb25e298",
+  "active_task": "Close the remaining Gate-10 attendance side-modifier producers 0x5DBA60 and 0x5DBCD0 feeding the now-exact four-way demand body; then materialize minimum +0x694/+0x6B0 ticket/stadium state and deterministic gate-receipt regressions.",
+  "last_known_main_head": "ad9c826fbcb5d332254ee84d860a783589d2811e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 27,
   "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "Recovery generation 27 resolved terrace/seating exactly: ticket +0x08 / stadium-entry +0x1C are terrace; ticket +0x0C / +0x28 are seating. Continue only the exact attendance formula and rounding trace.",
+  "note": "Recovery generation 27: terrace/seating plus four-cell demand/caps/truncation/MSVC random subtraction are persisted. Only upstream side modifiers 0x5DBA60/0x5DBCD0 remain before stadium-state implementation.",
   "same_chat_fallback_minutes": 30
 }
