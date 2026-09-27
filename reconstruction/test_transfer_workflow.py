@@ -186,14 +186,14 @@ class ScheduledTransferCompletionTests(unittest.TestCase):
         self.assertNotIn(1, state.transfers.deals)
 
         self.assertEqual(state.current_cash(11), 250_000)
-        self.assertEqual(state.current_cash(10), 1_000_000)
+        self.assertEqual(state.current_cash(10), 998_500)
         self.assertEqual(
             [(p.amount, p.category) for p in state.finance_balances[11].ledger],
             [(-750_000, TRANSFER_ACCOUNT_CATEGORY)],
         )
         self.assertEqual(
             [(p.amount, p.category) for p in state.finance_balances[10].ledger],
-            [(750_000, TRANSFER_ACCOUNT_CATEGORY)],
+            [(-1_500, 1600), (750_000, TRANSFER_ACCOUNT_CATEGORY)],
         )
 
     def test_forty_player_buyer_reschedules_mode_zero_plus_seven_days(self):
