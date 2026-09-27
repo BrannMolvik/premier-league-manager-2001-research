@@ -80,6 +80,9 @@ class GameState:
     clubs: dict[int, object] = field(default_factory=dict)
     managers: dict[int, object] = field(default_factory=dict)
     competitions: dict[int, object] = field(default_factory=dict)
+    countries: dict[int, object] = field(default_factory=dict)
+    positions: dict[int, object] = field(default_factory=dict)
+    access_skill_financial_values: tuple[object, ...] = ()
     team_tactics: dict[int, TeamTacticalState] = field(default_factory=dict)
     pitch_wear: dict[int, int] = field(default_factory=dict)
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
@@ -193,6 +196,14 @@ class GameState:
             int(competition.id): competition
             for competition in getattr(database, "competitions", ())
         }
+        countries_by_id = {
+            int(country.id): country
+            for country in getattr(database, "countries", ())
+        }
+        positions_by_id = {
+            int(position.id): position
+            for position in getattr(database, "positions", ())
+        }
         known_club_ids = set(roster_order) | set(clubs_by_id)
         team_tactics = {
             club_id: TeamTacticalState()
@@ -211,6 +222,9 @@ class GameState:
             clubs=clubs_by_id,
             managers=managers_by_id,
             competitions=competitions_by_id,
+            countries=countries_by_id,
+            positions=positions_by_id,
+            access_skill_financial_values=financial_values,
             team_tactics=team_tactics,
             pitch_wear=pitch_wear,
             rng=rng,
