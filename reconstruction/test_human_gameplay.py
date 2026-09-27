@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from datetime import date
 from types import SimpleNamespace
 
+from finance_state import BalanceRuntimeState, FinancialObjectiveState
 from game_state import GameState
 from human_gameplay import HumanGameplayController
 from match_lineup import AI_FORMATIONS
@@ -239,6 +240,32 @@ class HumanGameplayControllerTests(unittest.TestCase):
                 for player in controller.squad()
             )
         )
+
+    def test_final_human_matchday_runs_objective_season_transition(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+        objective = FinancialObjectiveState(
+            base_cash=1_000_000,
+            candidate_ids=(1, 5, 6),
+        )
+        objective.select(2, date(1999, 8, 1))
+        controller.state.finance_balances[1] = BalanceRuntimeState(
+            current_cash=objective.starting_funds,
+            financial_objective=objective,
+        )
+
+        for expected_fixture_id in (0, 10, 20):
+            self.set_available_lineup(controller)
+            fixture = controller.advance_to_next_user_fixture()
+            self.assertEqual(fixture.id, expected_fixture_id)
+            controller.play_user_fixture()
+
+        self.assertEqual(
+            len(controller.state.premier_league.results),
+            len(controller.state.premier_league.fixtures),
+        )
+        self.assertTrue(objective.progression_gate_reached)
+        self.assertEqual(objective.progression_state, 1)
 
     def test_human_cash_transfer_controller_path_moves_player_safely(self):
         controller = self.build_controller()
