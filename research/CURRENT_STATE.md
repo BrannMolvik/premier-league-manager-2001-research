@@ -8,16 +8,16 @@ topic-specific research files.
 
 ## Current gate
 
-**Gate 10 - Finances and board systems**
+**Gate 11 - Broader management systems**
 
-Gates 1 through 9 are complete.
+Gates 1 through 10 are complete.
 
-Gate 9 closed after the modern runtime gained persistent contract/transfer
-state, live human cash bids and player terms, safe scheduled transfer
-completion, a callable human transfer workflow, and the recovered Saturday AI
-acquisition path.
+Gate 10 closed after source-backed cash/Balance, transfer and payroll postings,
+normal Premier League gate receipts, exact Balance-credit secondary debit,
+financial board objectives, persistent dismissal reasons, and the authentic
+single-user control exit were integrated and regression-tested.
 
-Evidence: `research/GATE9_TRANSFERS_AND_CONTRACTS.md`.
+Evidence: `research/GATE10_FINANCES_AND_BOARD.md`.
 
 ## Porting mission
 
@@ -36,19 +36,19 @@ tracked according to `research/ASSET_POLICY.md`.
 
 ## Verified repository state
 
-Latest verified Gate-10 **code** checkpoint:
+Latest verified Gate-10 closure checkpoint:
 
 ```text
-eabe0838d3f8a2d235d72b05e71a7f61f40761af
-Test objective hook on final human matchday
+5d626f0fda83d3f7b8ca09d82061002017b68b37
+Test single-user dismissal control exit
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **548 tests passed**;
+- reconstruction suite: **550 tests passed**;
 - repository asset-policy workflow: **passed**.
 
-Current internal save schema: **11**.
+Current internal save schema: **12**.
 
 Gate 10 now has a clean-room Balance/current-cash runtime slice:
 - current cash is represented explicitly and fresh controlled-club Balance cash
@@ -105,139 +105,47 @@ Evidence:
 
 Gate-10 live cash-flow trace: `research/GATE10_LIVE_CASH_FLOW_TRACE.md`.
 
-## Gate 10 goal
+## Gate 11 goal
 
-Make money and board constraints materially affect management.
+Complete the core management-game loop around the stable Premier League
+simulation, finance, transfer, save/load, and human-matchday backend.
 
-Roadmap completion requires:
+Targets include:
 
-- club cash/balance represented;
-- wage and transfer budgets represented;
-- match and recurring income/cost paths integrated;
-- player wages and transfer spending/income persisted;
-- board expectations/job-security behavior integrated where recovered;
-- remaining approximations explicitly labeled.
+- training/development workflows;
+- scouting;
+- youth;
+- morale;
+- medical/injury management;
+- discipline;
+- messages/news;
+- recurring manager tasks.
 
-## Gate 10 strongest known evidence
+## Gate 11 strongest starting position
 
-Existing reverse engineering already establishes:
+Several target systems already have substantial research or backend behavior:
 
-- DBRUser owns six Balance pointers at `+0x670..+0x684`;
-- current cash is the qword at active Balance `+0x10`;
-- transfer buyer debit is `0x404B30 -> 0x5DC650`;
-- transfer seller credit is `0x404BB0 -> 0x5DC510`;
-- controlled-club affordability check `0x404AE0` compares against the same
-  current-cash value;
-- transfer postings use accounting category 1000;
-- current cash and the legacy chairman transfer-budget message concept are
-  separate;
-- `EAMchairbudgetsettings +0x58` is the displayed transfer-budget payload
-  field, but the A0/A1/settings/warning budget-event family has no mapped
-  ordinary fresh-game producer;
-- its generic factory route is DBRUser save/load deserialization only;
-- named budget-default globals have loader writes but no recovered live
-  consumer;
-- normal Finance Overview and Transfer UI have no reference to this chairman
-  budget family and instead use live Balance/accounting state;
-- the concession subsystem contains an exact monthly category-300 Balance
-  credit path, but the recovered fresh-game generator never activates a
-  persistent record, so it is dormant/legacy state rather than an ordinary
-  live income producer;
-- live match-day receipts are now instruction-located at
-  `0x513252 -> 0x5DA2F0 -> 0x5DC510`: categories 1 and 2 combine the two
-  DBRUser `+0x694 +0x08/+0x0C` ticket prices with recovered attendance-count
-  components; high-level category 0 sums categories 1+2+3 and category 3 is the
-  separate ticket/season-ticket sale path;
-- ticket `+0x08` paired with stadium-entry `+0x1C` is the terrace class,
-  while ticket `+0x0C` paired with stadium-entry `+0x28` is seating;
-- the four home/visiting × terrace/seating demand cells, ticket-price response,
-  fan-base/capacity caps, truncation and randomized subtraction inside
-  `0x5DA2F0` are instruction-locked, and the ordinary/type-6 upstream
-  side-modifier helpers `0x5DBA60/0x5DBCD0` are now translated as well;
-- the source formats behind `+0x694/+0x6B0` are instruction-locked and
-  materialized by the modern runtime: the original per-club `.MAP` supplies
-  the 40×40 building grid and per-instance flags, 26 fixed stadium anchors
-  recover the ticket sections, and the original WAD member
-  `Lists\\Buildings.dat` supplies the 3,000×0x74 live building records used
-  by capacity helpers;
-- normal Premier League gate integration is now live: PL FanFactor is 0.5,
-  EPBase gives 30.0 seating / 22.5 terrace reference prices, fresh controlled
-  facility factor is exactly 0.90, pre-result side modifiers are source-backed,
-  and four gate RNG draws are consumed after MatchCalculator but before
-  incident/Form RNG for every normal league fixture; category 1/2 receipts are
-  posted when the controlled home club has a materialized Balance/ticket state;
-- original Balance credit `0x5DC510` constructs a category-1600 debit at
-  exact floating amount `incoming * 0.002`, with no integer conversion before
-  debit; the clean-room Balance now preserves this fractional posting and
-  schema-10 saves preserve fractional cash/ledger state. Finance Overview
-  queries category 1600, but its user-facing label remains deliberately
-  unresolved.
-- fresh DBRUser Balance objects are constructed at zero, then initializer
-  `0x425680` copies the controlled club's `Master.dat` float64 at packed
-  +165 through runtime `DBRClub +0xD0/+0xD4` into active Balance +0x10;
-  the modern canonical human-club selection path now mirrors this source-backed
-  initialization;
-- fresh Premier League chairman-objective candidate generation, selection and
-  annual progression are now integrated. High fan-base-rank half -> `13,1,5`,
-  lower half -> `1,5,6`; IDs 13/1/5/6 use their recovered same-PL sporting
-  success branches at the completed-season boundary, setting `+0x68` and
-  advancing `+0x9C` before the three-year financial evaluation. Save schema 11
-  preserves the lifecycle. The concrete manager-dismissal side effect of returned
-  reasons 4/5 remains the next board/job-security dependency;
+- player monthly development/aging and the seven training profiles are deeply
+  reconstructed and tested, but the human-facing training workflow has not yet
+  been audited as a complete management loop;
+- injury generation/return and discipline/suspensions already function through
+  full Premier League seasons;
+- youth generation is part of the recovered startup RNG chain;
+- scouting has identified deterministic search RNG behavior but is not yet a
+  complete human workflow;
+- messages/news and recurring management tasks are much less integrated.
 
 ## Exact next task
 
-1. **Completed:** clean-room Balance/current-cash runtime object.
-2. **Completed:** Gate-9 affordability callback removed; controlled purchases
-   now test live current cash.
-3. **Completed:** completed transfer buyer debit / seller credit posts category
-   1000 and persists through internal save schema 9.
-4. **Completed:** deterministic insufficient-funds and equal debit/credit
-   regressions; CI at `80bc0313` passed **492 tests**.
-5. **Completed research boundary:** no mapped ordinary fresh-game producer or
-   Finance/Transfer UI consumer exists for the separate chairman
-   transfer/wage-budget event family. Treat it as legacy/persistence-compatible
-   unless new executable evidence proves an active store; do not invent one.
-6. **Completed:** weekly player payroll is integrated on the recovered
-   Saturday cadence using stored weekly wages, loaned-in exclusion and
-   category-101 Balance postings. The first-of-month support-staff path is
-   recovered as category 102 but concrete amounts remain deferred until the
-   original CSupportStaff cost state is materialized.
-7. **Completed:** normal Premier League gate receipts are integrated through
-   the recovered source-backed stadium/ticket state, FanFactor, reference
-   prices, side modifiers, four-draw RNG ordering and category-1/category-2
-   Balance postings. CI at `0d3010df` passed **531 tests**.
-8. **Completed:** Balance credit `0x5DC510`'s secondary
-   category-1600 debit is integrated as an exact floating
-   `incoming * 0.002` posting, with debit-before-primary ledger order and a
-   rounding-sensitive regression. Internal save schema 10 preserves fractional
-   finance values. CI at `3fc54ed8` passed **533 tests**.
-9. **Completed:** fresh controlled-club starting cash is sourced from
-   `Master.dat` club +165 (runtime DBRClub +0xD0/+0xD4) and materialized when
-   canonical human club control is selected. Arsenal starts at 28,000,000 and
-   Manchester United at 34,000,000 in the shipped data. The explicit cash setter
-   remains only as a deliberate override/test hook.
-10. **Completed implementation slice:** the Balance-owned financial objective
-   now materializes the recovered PL candidate IDs, applies objective-specific
-   opening cash/target percentages, stores the three-year deadline, persists in
-   save schema 11, and reproduces the exact >target / >95% / <=95% evaluation
-   branches including reasons 4/5. CI at `cf59d6dd` passed **541 tests**.
-11. **Completed:** the same-Premier-League objective progression bridge now
-   runs automatically on the completed-season boundary for fresh PL candidate
-   IDs 13/1/5/6, sets `+0x68`, advances `+0x9C`, and invokes the recovered
-   year-gated deadline evaluation. CI at `eabe0838` passed **548 tests**.
-12. **Active:** trace and integrate the minimum authentic gameplay side effect
-   of the reason-4/reason-5 manager-sacking events emitted by the objective
-   path. Do not turn the returned reason code into an invented game-over flag;
-   identify the original manager/control-state mutation first.
-13. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
-   returns the active record's `+0x160` qword, `0x5E5640` posts category
-   300 on day-of-month 1, but `0x5E5330` never appends its generated stack
-   candidate or increments the fresh-game active count. Leave normal concession
-   income disabled unless a genuine activation writer is later recovered.
-14. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
-   because the table is already parsed. The original 26-section stadium state
-   and stadium capacity/entry model are separate dependencies.
+1. **Gate 10 COMPLETE:** see `research/GATE10_FINANCES_AND_BOARD.md`.
+2. Audit Gate-11 targets against current implementation and research so the next
+   implementation block is chosen from actual missing gameplay capability, not
+   from stale assumptions.
+3. Prefer the shortest path that makes a human manager meaningfully use an
+   additional original management system during the existing playable Premier
+   League season.
+4. Keep broader competitions, original front-end restoration and FastView/3D in
+   their later gates unless a Gate-11 dependency requires them.
 
 ## Known live fidelity boundaries
 
