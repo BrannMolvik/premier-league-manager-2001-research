@@ -8,6 +8,7 @@ from typing import Callable, Iterable
 from competition_state import PremierLeagueState
 from finance_state import (
     BalanceRuntimeState,
+    PLAYER_COST_ACCOUNT_CATEGORY,
     TRANSFER_ACCOUNT_CATEGORY,
 )
 from match_condition import ConditionInjurySettings
@@ -429,6 +430,66 @@ class GameState:
                 posting_date=self.calendar.current_date,
             )
 
+    def run_weekly_player_payroll(self) -> dict[int, int]:
+        """Apply the recovered Saturday category-101 player payroll debit.
+
+        Original 0x4A8070 -> 0x40BAD0 -> 0x403C70 runs on the same
+        (date + 5) % 7 == 0 phase already mapped to Saturday. Only clubs with
+        a materialized/user Balance can produce a cash posting in the original
+        wrappers, so the clean-room runtime likewise limits postings to
+        finance_balances.
+
+        The ordinary fresh-game DBRUser wage-suppression state at +0xCC starts
+        clear. Therefore the standard mapped path charges all registered
+        players except loaned-in players. A parent club still pays a player who
+        is loaned out because registered club ownership remains with the parent.
+        """
+        if self.calendar.current_date.weekday() != 5:
+            return {}
+
+        debited: dict[int, int] = {}
+        for club_id, balance in tuple(self.finance_balances.items()):
+            club_id = int(club_id)
+            total = 0
+            for player_id in self.club_roster_order.get(club_id, ()):
+                player = self.players.get(int(player_id))
+                if player is None:
+                    continue
+
+                # 0x41FA50 excludes the loaned-in shape: registered/contract
+                # club differs from this club while the temporary/current club
+                # is this club. In the clean-room model, club_id remains the
+                # registered club and loan_club_id carries the temporary club.
+                if int(player.club_id) != club_id:
+                    if (
+                        player.loan_club_id is not None
+                        and int(player.loan_club_id) == club_id
+                    ):
+                        continue
+                    # Synthetic/corrupt roster mismatch is not a source-backed
+                    # wage obligation for this club.
+                    continue
+
+                total += max(0, int(player.weekly_wage))
+
+            if total <= 0:
+                continue
+
+            # Balance debit 0x5DC650 refuses a debit above current cash. The
+            # original payroll caller does not invent overdraft state, so leave
+            # cash/ledger unchanged when the debit cannot be accepted.
+            if not balance.can_afford(total):
+                continue
+
+            balance.debit(
+                total,
+                category=PLAYER_COST_ACCOUNT_CATEGORY,
+                posting_date=self.calendar.current_date,
+            )
+            debited[club_id] = total
+
+        return debited
+
     def run_due_transfer_maintenance(
         self,
         *,
@@ -448,6 +509,7 @@ class GameState:
         self.calendar.increment_one_day()
         self.calendar.run_post_fixture_maintenance()
         self.run_due_transfer_maintenance()
+        self.run_weekly_player_payroll()
         self.run_weekly_ai_transfer_maintenance()
         return self.calendar.current_date
 
@@ -623,6 +685,7 @@ class GameState:
         self.run_due_transfer_maintenance(
             user_controlled_club_id=self.user_controlled_club_id,
         )
+        self.run_weekly_player_payroll()
         self.run_weekly_ai_transfer_maintenance(
             rng,
             user_controlled_club_id=self.user_controlled_club_id,
