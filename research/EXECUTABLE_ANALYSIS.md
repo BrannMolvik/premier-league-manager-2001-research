@@ -7789,3 +7789,47 @@ The remaining problem is no longer the staff data model or quality formula. It
 is the exact startup CRT state entering `0x4D1760`, so the Youth Coach's
 single `RNG(2)` result can be reproduced without shifting the canonical match
 RNG stream.
+
+
+## Gate 11 fresh support-staff RNG boundary narrowed to secondary schedule completion
+
+The exact shared-CRT boundary entering new-game support-staff generation is now
+located in the TeamSelect startup sequence.
+
+After the already-recovered generated-name/youth block at `0x4C4304 ->
+0x413830`, startup calls `0x4F7C00` at `0x4C4381`. The tail of
+`0x4F7C00` executes, in this exact order:
+
+```text
+0x4F7F0F -> 0x616620(primary schedule container 0x947AD8, arg 1)
+0x4F7F1B -> 0x616620(secondary schedule container 0x947AF0, arg 1)
+return
+```
+
+Back in TeamSelect startup, the very next support-staff operations are:
+
+```text
+0x4C4386 count existing global support staff
+0x4C4399 compute 200 - existing_count
+0x4C43A6 repeat 0x4C98B0 until global pool reaches 200
+```
+
+There is no intervening call to `0x64D530/0x64D540/0x64D5B0` or any known
+CRT-random wrapper between the return from the secondary `0x616620` pass and
+the first `0x4C98B0` pool-generation call.
+
+Therefore the RNG state entering fresh generic support-staff generation is
+**exactly the state after secondary schedule initialization/finalization**. The
+existing canonical primary post-shuffle state is not sufficient by itself.
+
+This narrows the remaining training startup problem to:
+
+1. replay/lock the secondary `0x947AF0` `0x616620` RNG stream after the
+   already-verified primary pass;
+2. advance the known support-pool generation and the two `0x4C9E90` calls per
+   user;
+3. continue through the bounded remaining startup draws to the first
+   `0x425680 -> 0x4D1760` pending-user initialization;
+4. then reproduce the six fixed staff draws on the same shared CRT stream.
+
+No support-staff semantic uncertainty remains at this boundary.
