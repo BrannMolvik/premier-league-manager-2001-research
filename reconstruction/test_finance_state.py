@@ -173,5 +173,88 @@ class FinancialObjectiveGameStateTests(unittest.TestCase):
         )
 
 
+class PremierLeagueObjectiveProgressionTests(unittest.TestCase):
+    @staticmethod
+    def state_for(objective_id, table_index, *, complete=True):
+        controlled_id = 100
+        table = [SimpleNamespace(club_id=1000 + index) for index in range(20)]
+        table[int(table_index)] = SimpleNamespace(club_id=controlled_id)
+        league = SimpleNamespace(
+            fixtures={0: object()},
+            results=({0: object()} if complete else {}),
+            table=lambda: tuple(table),
+        )
+        objective = FinancialObjectiveState(
+            base_cash=1_000_000,
+            candidate_ids=(13, 1, 5) if objective_id != 6 else (1, 5, 6),
+        )
+        candidate_index = objective.candidate_ids.index(objective_id)
+        objective.select(candidate_index, date(2000, 8, 18))
+        balance = BalanceRuntimeState(
+            current_cash=objective.starting_funds,
+            financial_objective=objective,
+        )
+        state = GameState(
+            calendar=GameCalendar(date(2001, 5, 20)),
+            players={},
+            clubs={controlled_id: SimpleNamespace()},
+            premier_league=league,
+            finance_balances={controlled_id: balance},
+            user_controlled_club_id=controlled_id,
+        )
+        return state, objective
+
+    def test_id13_requires_champion(self):
+        champion, objective = self.state_for(13, 0)
+        self.assertIsNone(
+            champion.run_premier_league_financial_objective_season_transition()
+        )
+        self.assertTrue(objective.progression_gate_reached)
+        self.assertEqual(objective.progression_state, 1)
+
+        runner_up, objective = self.state_for(13, 1)
+        runner_up.run_premier_league_financial_objective_season_transition()
+        self.assertFalse(objective.progression_gate_reached)
+        self.assertEqual(objective.progression_state, 0)
+
+    def test_id1_requires_top_two(self):
+        second, objective = self.state_for(1, 1)
+        second.run_premier_league_financial_objective_season_transition()
+        self.assertTrue(objective.progression_gate_reached)
+
+        third, objective = self.state_for(1, 2)
+        third.run_premier_league_financial_objective_season_transition()
+        self.assertFalse(objective.progression_gate_reached)
+
+    def test_id5_preserves_inclusive_midpoint_quirk(self):
+        eleventh, objective = self.state_for(5, 10)
+        eleventh.run_premier_league_financial_objective_season_transition()
+        self.assertTrue(objective.progression_gate_reached)
+
+        twelfth, objective = self.state_for(5, 11)
+        twelfth.run_premier_league_financial_objective_season_transition()
+        self.assertFalse(objective.progression_gate_reached)
+
+    def test_id6_succeeds_when_club_remains_in_current_pl_slice(self):
+        state, objective = self.state_for(6, 19)
+        state.run_premier_league_financial_objective_season_transition()
+        self.assertTrue(objective.progression_gate_reached)
+        self.assertEqual(objective.progression_state, 1)
+
+    def test_progression_waits_for_completed_league(self):
+        state, objective = self.state_for(13, 0, complete=False)
+        self.assertIsNone(
+            state.run_premier_league_financial_objective_season_transition()
+        )
+        self.assertFalse(objective.progression_gate_reached)
+
+    def test_progression_skips_selection_year(self):
+        state, objective = self.state_for(13, 0)
+        state.calendar.current_date = date(2000, 12, 31)
+        state.run_premier_league_financial_objective_season_transition()
+        self.assertFalse(objective.progression_gate_reached)
+
+
+
 if __name__ == "__main__":
     unittest.main()
