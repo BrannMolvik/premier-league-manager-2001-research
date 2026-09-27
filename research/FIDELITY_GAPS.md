@@ -10,8 +10,10 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | --- | --- | --- | --- |
 | League-table final tie fallback | Club ID after points / GD / goals scored | Exact original fallback after the first three keys is unresolved | 15 or earlier if standings behavior requires it |
 | Persistent-injury availability count | Approximation around the inputs to helper `0x405080` | Injury generation/persistence is substantially recovered, but this availability helper is not exact | 15 |
-| Original FM2001 save compatibility | Modern port now has a complete internal schema-2 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
-| Transfers/contracts | Research substantially ahead of implementation | Not yet a complete playable system | 9 |
+| Original FM2001 save compatibility | Modern port now has a versioned internal schema-8 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
+| Autonomous transfer-window lifecycle | Fresh-game country gates start at the proven enabled value; later dated toggles are not yet driven from source boundary data | Runtime country +0x54 consumer/toggle behavior is known, but the complete source boundary mapping is unresolved | 15 or earlier if season transfer timing requires it |
+| Autonomous contract category helper | The exact 0x423340 age/category month table is used; the current port labels a clamped competition valuation category as an approximation for the unresolved 0x4FA510 category source | Exact 0x4FA510 category-source mapping remains unresolved | 15 or earlier if contract-term fidelity requires it |
+| Autonomous buy-counter lifecycle | The recovered >28-player buyer gate and 3/8 thresholds are represented with a persisted neutral counter, incremented on AI purchase | Exact club +0x1ED update/reset lifecycle remains unresolved | 15 or earlier if long-season transfer frequency requires it |
 | Finance/board | Research substantially ahead of implementation | Not yet a complete playable system | 10 |
 | Broader competitions | Core structures known, full behavior incomplete | Premier League is the strongest reconstructed competition | 12 |
 | Original front-end presentation | Temporary Tk prototype now has a functional Play tab, but it is intentionally not the original FM2001 presentation | Authorized original screen/audio resources should be inventoried, reused, and converted where needed | 13-14 |
