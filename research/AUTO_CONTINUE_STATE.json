@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Audit Gate-11 management-system targets against current implementation and research; choose and begin the shortest source-backed human workflow integration.",
-  "last_known_main_head": "c78498d057fedaebc3d55c76270c6b1140d1b8ca",
+  "active_task": "Finish original training method-change semantics, then materialize persistent per-player training method/countdown/counters with human selection and save support before weekly Saturday activation.",
+  "last_known_main_head": "8222c710dd67eda4826fd20b020a278769004afc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 34,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate 10 closed after 550-test/asset-policy green checkpoint 5d626f0f. ROADMAP and CURRENT_STATE now point to Gate 11. Begin with implementation-vs-research audit, not new reverse engineering by default.",
+  "note": "Gate 11 training cadence/state checkpoint is on main 8222c710. Weekly eligibility is now rechecked as injury bit0 OR separate selection-exclusion bit2. Method setter trace remains active.",
   "same_chat_fallback_minutes": 30
 }
