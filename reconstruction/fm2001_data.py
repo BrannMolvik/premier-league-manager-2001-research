@@ -23,6 +23,8 @@ CUP_ALLOCATION_TABLE_OFFSET = 0xE337
 CUP_ALLOCATION_RECORD_SIZE = 28
 REAL_FIXTURE_TABLE_OFFSET = 0x10057
 REAL_FIXTURE_RECORD_SIZE = 16
+ACCESS_FAN_BASE_TABLE_OFFSET = 0x13C95
+ACCESS_FAN_BASE_RECORD_SIZE = 78
 ACCESS_SKILL_FINANCIAL_TABLE_OFFSET = 0x14965
 ACCESS_SKILL_FINANCIAL_RECORD_SIZE = 26
 
@@ -76,6 +78,7 @@ class Club:
     team_category_code: int = 0
     historical_competition_id: int = 0
     historical_slot_index: int = 0
+    fan_base_index: int = 0
 
 @dataclass(frozen=True)
 class Player:
@@ -136,6 +139,17 @@ class CountryDefinition:
     eu_status_flag: int
     continent_id: int
     financial_multiplier_percent: int = 100
+
+@dataclass(frozen=True)
+class AccessFanBase:
+    id: int
+    values: tuple[int, ...]
+
+    @property
+    def field_48(self) -> int:
+        # Runtime DBRAccessFanBase +0x48 is packed dword #17, i.e. file +66.
+        return int(self.values[16])
+
 
 @dataclass(frozen=True)
 class AccessSkillFinancialValue:
@@ -251,6 +265,7 @@ class FM2001Database:
         self.rounds = []
         self.cup_allocation_instructions = []
         self.real_fixtures = []
+        self.access_fan_bases = []
         self.access_skill_financial_values = []
         self._parse_master()
         if self.static:
@@ -260,6 +275,7 @@ class FM2001Database:
             self._parse_rounds()
             self._parse_cup_allocation_instructions()
             self._parse_real_fixtures()
+            self._parse_access_fan_bases()
             self._parse_access_skill_financial_values()
 
     def _parse_master(self):
@@ -278,6 +294,7 @@ class FM2001Database:
             historical_competition_id = struct.unpack_from('<i', r, 32)[0]
             historical_slot_index = struct.unpack_from('<i', r, 36)[0]
             manager_id = struct.unpack_from('<I', r, 48)[0]
+            fan_base_index = struct.unpack_from('<I', r, 94)[0]
             team_category_code = r[98]
             self.clubs.append(Club(
                 i,
@@ -291,6 +308,7 @@ class FM2001Database:
                 team_category_code,
                 historical_competition_id,
                 historical_slot_index,
+                fan_base_index,
             ))
 
         player_count = struct.unpack_from('<I', d, club_end)[0]
@@ -509,6 +527,33 @@ class FM2001Database:
             )
             self.real_fixtures.append(RealFixture(fixture_id, round_index, home, away))
 
+    def _parse_access_fan_bases(self):
+        off = ACCESS_FAN_BASE_TABLE_OFFSET
+        if off + 4 > len(self.static):
+            return
+        count = struct.unpack_from('<I', self.static, off)[0]
+        base = off + 4
+        end = base + count * ACCESS_FAN_BASE_RECORD_SIZE
+        if end > len(self.static):
+            raise ValueError('Static.dat access-fan-base table exceeds file size')
+        for i in range(count):
+            r = self.static[
+                base + i * ACCESS_FAN_BASE_RECORD_SIZE:
+                base + (i + 1) * ACCESS_FAN_BASE_RECORD_SIZE
+            ]
+            record_id = struct.unpack_from('<H', r, 0)[0]
+            values = struct.unpack_from('<19I', r, 2)
+            self.access_fan_bases.append(AccessFanBase(record_id, values))
+
+    def access_fan_base(self, index: int):
+        index = int(index)
+        if not 0 <= index < len(self.access_fan_bases):
+            raise IndexError(index)
+        value = self.access_fan_bases[index]
+        if int(value.id) != index:
+            raise ValueError('access-fan-base table IDs are not index-aligned')
+        return value
+
     def _parse_access_skill_financial_values(self):
         off = ACCESS_SKILL_FINANCIAL_TABLE_OFFSET
         if off + 4 > len(self.static):
@@ -559,5 +604,6 @@ class FM2001Database:
             'rounds': len(self.rounds),
             'cup_allocation_instructions': len(self.cup_allocation_instructions),
             'real_fixtures': len(self.real_fixtures),
+            'access_fan_bases': len(self.access_fan_bases),
             'access_skill_financial_values': len(self.access_skill_financial_values),
         }
