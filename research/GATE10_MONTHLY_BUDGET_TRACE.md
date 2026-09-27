@@ -210,3 +210,80 @@ The generic A0/A1 factory path remains the binary event deserializer. The next
 useful target is the higher-level source that supplies serialized/generated EAM
 records to that deserializer during new-game/calendar operation, rather than
 more direct-constructor searches.
+
+
+## Business Consultant generic factory is persistence-only in the mapped runtime
+
+The remaining apparent A0/A1 generation route has now been structurally
+classified.
+
+### MPMEAMail wrapper serializer/deserializer
+
+Vtable `0x7BD564` is the already-identified `MPMEAMail` wrapper. Its
+relevant virtual methods are:
+
+- vtable +0x08 -> `0x5CE530`: binary **read/deserialization**;
+- vtable +0x0C -> `0x5CE5E0`: binary **write/serialization**.
+
+`0x5CE530` has no direct call sites because it is invoked virtually by the
+generic queue/list persistence machinery. On load it reads the wrapped event
+kind, resolves the owning DBRUser/event list and calls either:
+
+- generic EAM factory `0x538DE0`; or
+- alternate subtype factory `0x534520`;
+
+then invokes the event's own binary read method.
+
+This explains the previously puzzling `0x5CE588 -> 0x538DE0` reference
+without requiring a hidden gameplay producer.
+
+### Global mail queue load/save pair
+
+Global mail queue `0x947AA8` has a matched persistence pair:
+
+- `0x613F80` loads queued wrapper objects;
+- `0x614000` saves queued wrapper objects.
+
+`0x613F80` reads a wrapper subtype, creates that wrapper through the small
+0..14 factory at `0x6139E0`, then invokes its virtual read method. For an
+`MPMEAMail` wrapper this reaches `0x5CE530` and, from there, the generic EAM
+factory.
+
+The executable contains only one direct call to `0x613F80`:
+`0x50E108`. Its enclosing state-load routine is reached from the save/load
+manager at `0x4C4D26` and `0x4C5183`. The matching state-write routine
+calls `0x614000` at `0x50DDA4`.
+
+Separately, DBRUser event-list loader `0x5CF840` has only one direct caller,
+`0x42744C`, inside the DBRUser serialization/load path.
+
+### Consequence for A0/A1
+
+The only direct executable calls to generic EAM factory `0x538DE0` remain:
+
+- `0x5CE588`: wrapped-mail deserialization;
+- `0x5CF8A7`: DBRUser event-list deserialization.
+
+Both are now bounded to persistence/load machinery.
+
+Together with the existing negative evidence that
+`EAMbcstartseasonmail`/A0 and `EAMbcmonthlybudget`/A1 have no direct typed
+construction, no inlined vtable construction, no static constructor pointer
+dispatch and no ordinary typed `MPMEAMail -> 0x613EC0` enqueue site, the
+generic factory is **not a fresh-game budget producer** in the mapped
+executable.
+
+This does not prove that the event classes are globally unreachable under every
+possible legacy/save-state condition. It does prove that continuing to search
+the generic deserializer for the authoritative live transfer-budget
+calculation is the wrong route.
+
+### Revised next target
+
+Return to live board state itself:
+
+1. identify remaining persistent/scalar DBRUser fields not yet classified;
+2. prioritize values written/read around quarterly/monthly board processing;
+3. look for arithmetic involving the known operating-budget ledger categories
+   and building/transfer reserve values rather than presentation-event
+   construction.
