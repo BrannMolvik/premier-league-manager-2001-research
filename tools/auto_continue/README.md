@@ -4,8 +4,8 @@ This folder contains the local recovery layer for long-running FM2001 work.
 
 It has two parts:
 
-- `watchdog.ps1`: Windows-side lease monitor. It checks GitHub every three minutes through Task Scheduler, logs stale sessions, and deliberately never launches or focuses Chrome.
-- `chrome-extension/`: checks GitHub every three minutes while Chrome is running, watches ChatGPT for explicit interruption / conversation-length errors, and submits the canonical repository handoff into a fresh **background** tab.
+- `watchdog.ps1`: Windows-side lease monitor. It checks GitHub commit Atom feeds every three minutes through Task Scheduler, logs stale sessions, and deliberately never launches or focuses Chrome.
+- `chrome-extension/`: checks the same non-REST commit feeds every three minutes while Chrome is running, watches ChatGPT for explicit interruption / Retry / conversation-length errors, and performs same-chat or background recovery according to the failure type.
 
 GitHub remains the source of truth. The recovery system does not try to scrape the previous conversation transcript.
 
@@ -22,7 +22,7 @@ First pull the latest `main` branch in the local repository.
    `tools\auto_continue\chrome-extension`
 5. Leave the extension enabled.
 
-The extension only has access to `chatgpt.com`, the public GitHub API/raw files, local extension storage, alarms, and tabs. Recovery tabs are created inactive so Chrome does not intentionally take foreground focus.
+The extension only has access to `chatgpt.com`, GitHub commit pages/Atom feeds, raw GitHub files, local extension storage, alarms, and tabs. It does not depend on the rate-limited public GitHub REST branch endpoint for heartbeat checks. Recovery tabs are created inactive so Chrome does not intentionally take foreground focus.
 
 ### 2. Install the Windows watchdog
 
@@ -76,7 +76,7 @@ Automatic recovery occurs only when:
 
 Normal project commits on `main` act as heartbeats. The default checkpoint target is 10 minutes and stale threshold is 15 minutes.
 
-If ChatGPT explicitly displays a transient connection interruption/stall, the extension first recovers **in the same worker chat**: it clicks the visible Stop/Stop generating control if present, waits for the composer, and submits a short continuation prompt. A new chat is reserved for a confirmed conversation-length/max-length condition.
+If ChatGPT explicitly displays a transient connection interruption/stall or **Retry / Try again** state, the extension first recovers **in the same worker chat**. It stops a live generation if present. If the page is stuck on Retry and the composer is unavailable, it briefly activates Retry only to expose the Stop control, cancels that generation, then submits the canonical continuation prompt. A new chat is reserved for a confirmed conversation-length/max-length condition.
 
 If the page disappears silently while Chrome is running, the extension notices the missing repository heartbeat and first reuses its recorded worker tab. It stops any still-running generation and submits a continuation prompt in that same conversation. Only if no usable worker tab remains does it create a new ChatGPT recovery tab with `active: false`.
 
@@ -106,10 +106,13 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\auto_continue\In
 Then remove the unpacked extension from `chrome://extensions/` if desired.
 
 
-## Recovery policy from version 0.3.0
+## Recovery policy from version 0.3.1
 
-- Transient timeout / connection interruption: reuse the existing worker conversation.
+- Transient timeout / connection interruption / Retry / Try again: reuse the existing worker conversation.
 - Silent stale repository heartbeat: reuse the recorded worker conversation first.
 - True conversation-length / maximum-length limit: create a fresh background conversation using the canonical GitHub handoff.
 - Missing/closed worker tab: a fresh background conversation is an allowed fallback.
 - Extension reload/update clears any stale pending recovery prompt from the previous version.
+
+
+Version 0.3.1 also scans already-rendered error controls on page load, so reloading a ChatGPT tab that is already sitting on Retry can trigger recovery without waiting for a new DOM mutation. Heartbeat polling uses GitHub commit Atom feeds instead of repeated REST branch calls to avoid unauthenticated API throttling.
