@@ -4152,3 +4152,41 @@ Exact next target: return fully to the match-day/gate receipt producer through
 the DBRUser +0x694/+0x6B0 stadium/ticketing state and the bounded
 `0x429904`, `0x429BB4`, `0x42A111`, `0x42A5D2`, `0x42C1F2`
 family toward Balance credit `0x5DC510`.
+
+
+## Gate 10 match-day gate producer checkpoint — 28 September 2026
+
+A complete Balance-credit scan recovered the live gate-receipt producer outside
+the earlier monthly/history trace:
+
+`0x513252 -> 0x5DA2F0 -> 0x5DC510`.
+
+Verified instruction behavior:
+
+- DBRUser `+0x694 +0x08/+0x0C` supply two ticket-price inputs;
+- category **1** credits
+  `price_08 * count_A0 + price_0C * count_A1`;
+- category **2** credits the same two prices against a second count pair;
+- duplicate branches can make the same two postings for another controlled club;
+- Balance high-level category **0** explicitly aggregates categories
+  **1 + 2 + 3**;
+- category **3** is independently produced by the season-ticket/ticket-sale
+  path at `0x5D0FF4/0x5D1684`;
+- therefore categories 1 and 2 are live match-day ticket components in the
+  category-0 gate/ticket family;
+- the producer directly consumes DBRUser `+0x694` 26-section ticket state and
+  DBRUser `+0x6B0` stadium state through `0x618E00` and the
+  `0x65Dxxx` stadium helpers.
+
+The producer is now identified, but normal gate income remains unimplemented:
+the four attendance/count values, exact subcategory semantics, two ticket-price
+classes, special both-clubs flag and final conversion details still need to be
+instruction-locked. The clean-room runtime also does not yet materialize the
+required original stadium/section state.
+
+No runtime behavior changed in this checkpoint.
+
+Exact next target: finish translating `0x5DA2F0`, especially
+`0x5DA5CF..0x5DA705` and the attendance/count pipeline feeding
+`0x5DB3CB..`, then materialize only the required stadium source state and add
+deterministic finance regressions.
