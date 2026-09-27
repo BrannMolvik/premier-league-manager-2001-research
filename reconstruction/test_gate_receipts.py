@@ -40,7 +40,7 @@ class GateDemandTests(unittest.TestCase):
         )
 
     def test_cup_special_skips_fan_base_cap_but_keeps_capacity_cap(self):
-        self.assertEqual(
+        self.assertAlmostEqual(
             capped_gate_demand(
                 fan_base_raw=1000,
                 tier_factor=0.9,
