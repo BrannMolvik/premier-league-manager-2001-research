@@ -10,9 +10,13 @@ from player_contract import contract_expiry_from_month_span, initial_weekly_wage
 from player_development import (
     DevelopmentState,
     PeakAges,
+    TRAINING_PROFILES,
+    active_training_step,
     choose_peak_age,
     displayed_skill,
     recalculate_monthly_skills,
+    reverse_training_step,
+    training_roll_succeeds,
 )
 
 
@@ -399,6 +403,62 @@ class RuntimePlayer:
     def weekly_training_excluded(self) -> bool:
         """Exact 0x61C520 eligibility gate for the active-training update."""
         return bool(self.injured or self.selection_excluded)
+
+    def run_weekly_training_primary(self, rng: BoundedRng, quality_multiplier: float) -> int:
+        """Apply the exact primary state transition in 0x4EACE0.
+
+        The separate date-gated timed-effect region at training+0x88 is not
+        represented here. Fresh original records initialize that region to zero,
+        and its expiry prepass consumes no RNG. This method therefore reproduces
+        the source-backed profile/counter/countdown transition and returns the
+        exact number of RNG(100) draws consumed.
+        """
+        if self.weekly_training_excluded:
+            return 0
+        if not hasattr(rng, "randbelow"):
+            raise TypeError("rng must provide randbelow(bound)")
+
+        profile = TRAINING_PROFILES[int(self.training_method_id)]
+        self.training_countdown -= 1
+        draws = 0
+
+        for slot, weight in enumerate(profile):
+            if int(weight) > 0:
+                roll = int(rng.randbelow(100))
+                draws += 1
+                if (
+                    training_roll_succeeds(weight, quality_multiplier, roll)
+                    and int(self.current_raw[slot]) < int(self.target_raw[slot])
+                ):
+                    self.training_modifiers[slot] = (
+                        int(self.training_modifiers[slot]) + 1
+                    ) & 0xFF
+                    self.training_skill_states[slot] = 1
+                    self.training_active_count += 1
+                    self.current_raw[slot] = active_training_step(
+                        self.current_raw[slot],
+                        self.target_raw[slot],
+                    )
+                    method = int(self.training_method_id)
+                    self.training_method_results[method] = (
+                        int(self.training_method_results[method]) + 1
+                    ) & 0xFFFFFFFF
+            elif (
+                int(self.training_countdown) == 0
+                and int(self.training_modifiers[slot]) > 0
+            ):
+                self.training_modifiers[slot] = (
+                    int(self.training_modifiers[slot]) - 1
+                ) & 0xFF
+                self.training_skill_states[slot] = 0
+                self.training_active_count -= 1
+                self.current_raw[slot] = reverse_training_step(
+                    self.current_raw[slot]
+                )
+
+        if int(self.training_countdown) == 0:
+            self.training_countdown = DEFAULT_TRAINING_COUNTDOWN
+        return draws
 
     def monthly_development_update(self, on_date: date) -> bool:
         """Run the verified first-of-month 17-skill development reconstruction.
