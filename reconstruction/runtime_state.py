@@ -147,6 +147,8 @@ class RuntimePlayer:
     startup_month_span: int = 0
     weekly_wage: int = 0
     contract_expiry_date: date | None = None
+    transfer_listed: bool = False
+    loan_club_id: int | None = None
 
     @classmethod
     def from_database_player(
@@ -250,6 +252,21 @@ class RuntimePlayer:
     def base_match_unavailable(self) -> bool:
         """Exact low-three-bit exclusion state consumed by 0x418050."""
         return bool(self.injured or self.suspended or self.selection_excluded)
+
+    @property
+    def on_loan(self) -> bool:
+        """DBRPlayer+0x14 bit 6 / temporary-club state from 0x41A9D0."""
+        return self.loan_club_id is not None
+
+    @property
+    def selling_squad_count_excluded(self) -> bool:
+        """Exact four exclusions consumed by DBRClub helper 0x405080."""
+        return bool(
+            self.transfer_listed
+            or self.injured
+            or self.on_loan
+            or self.suspended
+        )
 
     @property
     def skills(self) -> tuple[int, ...]:
