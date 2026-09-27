@@ -4391,3 +4391,39 @@ truncation-toward-zero helper before writing seating `+0x0C` and terrace
 The match-day gate producer now has no remaining research prerequisite for the
 minimum Premier League implementation. Next: add the exact original stadium
 source parser/runtime state and deterministic gate-receipt regressions.
+
+
+## Gate 10 stadium/ticket implementation checkpoint — 28 September 2026
+
+The first runtime implementation slice for live gate receipts is now verified.
+
+Committed behavior through `02ce20502b3a80e62c9485ac2d7fdb7e8b9b5200`:
+
+- `reconstruction/stadium_state.py` parses the recovered original 3,000-record
+  `Buildings.dat` layout and per-club `FM\0` MAP grid without storing source
+  game data in Git;
+- `Master.dat +16` is exposed as each club's original MAP path;
+- MAP rotation, row-major instance flags and the original descending section
+  anchor overwrite behavior are preserved;
+- the minimum `DBRUser +0x694`-equivalent ticket runtime state is represented;
+- fresh unavailable-section state and the exact visiting-supporter allocation
+  use the recovered fixed section order, including its duplicate section-24
+  quirk and the exact 10% capacity threshold;
+- `reconstruction/gate_receipts.py` implements the instruction-locked ticket
+  price response, four-cell floating demand caps, x87-equivalent truncation and
+  15-bit MSVC randomized subtraction as source-independent primitives.
+
+Two initially failing new tests were corrected at the test layer only: original
+MAP flag bytes are consumed in row-major grid order, and a floating demand
+assertion now uses tolerance rather than introducing rounding absent from the
+executable.
+
+GitHub Actions at `02ce2050`:
+
+- reconstruction suite: **514 tests passed**;
+- repository asset-policy workflow: **passed**.
+
+Exact next task: attach recovered fresh terrace/seating price initialization and
+source-backed club/competition inputs to the ticket runtime state, then integrate
+the complete gate attendance/revenue producer into normal matchday progression
+with deterministic ledger regressions.
