@@ -4978,3 +4978,21 @@ after a seed's sorted flag is set.
 Next: compose the remaining mode-1 Cup/child-League schedule RNG, then replay
 `0x4FA790` from the newly parsed InternationalFixture table and finally the
 secondary schedule-bucket shuffle.
+
+
+## Gate 11 secondary competition RNG state locked — 28 September 2026
+
+Mode-1 competition initialization is now replayed exactly from post-primary
+state `0xD25DFFE6` to **`0x492DC9DC`** in **334 CRT draws**. The ledger is:
+139 first-access regional/Euro-seed DummyLeague draws, 93 full Cup-round
+Fisher-Yates draws, 72 draws from twelve 4-team child League instances, and 30
+draws from two 6-team qualifiers.
+
+Child competition 188 is explicitly disabled by `0x4F59A0(6)`: its five-team
+count does not match the selected six-team qualifier size, bit 0x02 is set, and
+`0x4F5150` skips its procedural builder. It consumes no fresh-start RNG.
+
+Exact next boundary: replay the 108 source-backed `0x4FA790` international
+fixtures from `0x492DC9DC`, preserving regional sorted-team identities because
+same-team avoidance can alter cursor exhaustion, then perform secondary
+`0x615BE0` bucket shuffling.
