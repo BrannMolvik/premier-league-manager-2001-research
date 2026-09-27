@@ -149,6 +149,7 @@ class RuntimePlayer:
     contract_expiry_date: date | None = None
     transfer_listed: bool = False
     loan_club_id: int | None = None
+    signed_for_other_club: bool = False
 
     @classmethod
     def from_database_player(
