@@ -37,13 +37,14 @@ from transfer_state import (
     DealInProgress,
     PlayerBidLogEntry,
     PlayerMovement,
+    ScheduledTransfer,
     TransferProposal,
     TransferRuntimeState,
 )
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 6
+SAVE_SCHEMA_VERSION = 7
 
 
 def _iso(value: date | None) -> str | None:
@@ -236,6 +237,13 @@ PLAYER_RECORD_FIELDS = (
     "contract_expiry_date",
     "loan_club_id",
     "current_club_join_date",
+    "promotion_bonus",
+    "appearance_fee",
+    "relegation_transfer_request_clause",
+    "big_club_offer_clause",
+    "big_money_offer_clause",
+    "house",
+    "car",
 )
 
 
@@ -286,6 +294,13 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         _iso(player.contract_expiry_date),
         None if player.loan_club_id is None else int(player.loan_club_id),
         _iso(player.current_club_join_date),
+        int(player.promotion_bonus),
+        int(player.appearance_fee),
+        bool(player.relegation_transfer_request_clause),
+        bool(player.big_club_offer_clause),
+        bool(player.big_money_offer_clause),
+        bool(player.house),
+        bool(player.car),
     ]
 
 
@@ -335,6 +350,13 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
             flags & _PLAYER_FLAG_SIGNED_FOR_OTHER_CLUB
         ),
         current_club_join_date=_date(value[25]),
+        promotion_bonus=int(value[26]),
+        appearance_fee=int(value[27]),
+        relegation_transfer_request_clause=bool(value[28]),
+        big_club_offer_clause=bool(value[29]),
+        big_money_offer_clause=bool(value[30]),
+        house=bool(value[31]),
+        car=bool(value[32]),
         discipline_yellow_total=int(value[12]),
         discipline_yellow_cycle=int(value[13]),
         suspension_matches_remaining=int(value[14]),
@@ -549,6 +571,43 @@ def _snapshot_transfer_state(value: TransferRuntimeState) -> dict[str, Any]:
             }
             for movement in value.movements
         ],
+        "scheduled_transfers": [
+            {
+                "due_date": scheduled.due_date.isoformat(),
+                "mode": int(scheduled.mode),
+                "proposal": {
+                    "target_player_id": int(scheduled.proposal.target_player_id),
+                    "buying_club_id": int(scheduled.proposal.buying_club_id),
+                    "cash_fee": int(scheduled.proposal.cash_fee),
+                    "exchange_player_ids": [
+                        int(player_id)
+                        for player_id in scheduled.proposal.exchange_player_ids
+                    ],
+                    "negotiation_state_14": int(
+                        scheduled.proposal.negotiation_state_14
+                    ),
+                    "negotiation_state_15": int(
+                        scheduled.proposal.negotiation_state_15
+                    ),
+                    "contract_terms": _snapshot_contract_terms(
+                        scheduled.proposal.contract_terms
+                    ),
+                    "previous_wage_offer": int(
+                        scheduled.proposal.previous_wage_offer
+                    ),
+                    "previous_signing_on_fee_offer": int(
+                        scheduled.proposal.previous_signing_on_fee_offer
+                    ),
+                    "field_40": int(scheduled.proposal.field_40),
+                    "field_44": int(scheduled.proposal.field_44),
+                    "previous_total_value": int(
+                        scheduled.proposal.previous_total_value
+                    ),
+                    "field_4c": int(scheduled.proposal.field_4c),
+                },
+            }
+            for scheduled in value.scheduled_transfers
+        ],
     }
 
 
@@ -622,6 +681,38 @@ def _restore_transfer_state(value: dict[str, Any] | None) -> TransferRuntimeStat
                 movement_date=date.fromisoformat(
                     movement_value["movement_date"]
                 ),
+            )
+        )
+
+    for scheduled_value in value.get("scheduled_transfers", ()):
+        proposal_value = scheduled_value["proposal"]
+        proposal = TransferProposal(
+            target_player_id=int(proposal_value["target_player_id"]),
+            buying_club_id=int(proposal_value["buying_club_id"]),
+            cash_fee=int(proposal_value["cash_fee"]),
+            exchange_player_ids=tuple(
+                int(player_id)
+                for player_id in proposal_value["exchange_player_ids"]
+            ),
+            negotiation_state_14=int(proposal_value["negotiation_state_14"]),
+            negotiation_state_15=int(proposal_value["negotiation_state_15"]),
+            contract_terms=_restore_contract_terms(
+                proposal_value["contract_terms"]
+            ),
+            previous_wage_offer=int(proposal_value["previous_wage_offer"]),
+            previous_signing_on_fee_offer=int(
+                proposal_value["previous_signing_on_fee_offer"]
+            ),
+            field_40=int(proposal_value["field_40"]),
+            field_44=int(proposal_value["field_44"]),
+            previous_total_value=int(proposal_value["previous_total_value"]),
+            field_4c=int(proposal_value["field_4c"]),
+        )
+        runtime.scheduled_transfers.append(
+            ScheduledTransfer(
+                proposal=proposal,
+                due_date=date.fromisoformat(scheduled_value["due_date"]),
+                mode=int(scheduled_value["mode"]),
             )
         )
     return runtime
