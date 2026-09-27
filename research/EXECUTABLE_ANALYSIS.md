@@ -5996,3 +5996,74 @@ Important branch confirmations from `0x422470`:
 
 This mapping should be used by the modern negotiation layer rather than
 invented generic refusal labels.
+
+
+## Ordinary cash post-accept conclusion and MPM handoff (Gate 9)
+
+**Confirmed 27 September 2026 from canonical FOOTBAL.EXE.**
+
+The ordinary cash-transfer path after DBRPlayer::0x422470 response code 2 is now
+ordered through the conclusion event and Movement Process Manager without
+inventing a CDealInProgress state-1 promotion.
+
+### Player accepts -> conclusion
+
+0x4F0D40 dispatches code 2 to 0x4F0660 -> 0x4EE490. The normal event created
+there is the already-identified EAMTransferPlayerAcceptsMsub.
+
+0x4EE490 can immediately re-enter 0x4EEB80 when no blocking queued event
+prevents progress. For the ordinary cash path, 0x4EEB80 performs the buyer
+current-cash affordability gate and then reaches 0x4EF170.
+
+0x4EF170 has two conclusion contexts:
+
+- user-controlled buying club: queues
+  EAMConfirmConcludeTransferDealsub (vtable 0x7C9008) for current date + 1;
+- non-controlled buying club: constructs EAMTransferDealConcludedsub
+  (vtable 0x7C8FAC) and immediately invokes its action.
+
+The action path for the automatic Deal Concluded event reaches 0x5EADB0, which
+calls 0x4EF600(proposal, 0). The corresponding user-confirmation event action
+at 0x5EAF40 likewise calls 0x4EF600(proposal, 0). Thus automatic and
+user-confirmed ordinary conclusions converge on the same transfer-specific
+handoff.
+
+### 0x4EF600 -> MPMTransferPlayer
+
+0x4EF600 performs post-conclusion eligibility/work-permit/event checks and then
+allocates a 0x60-byte object through constructor 0x61B270.
+
+RTTI proves vtable 0x7D7DF4 is MPMTransferPlayer. Constructor 0x61B270:
+
+- schedules the object for current date + 1;
+- stores the target player pointer/id;
+- copies the 0x50-byte transfer proposal;
+- sets DBRPlayer+0x174 bit 7 (already signed elsewhere);
+- sets MPMTransferPlayer mode byte +0x5C to 0.
+
+A second constructor at 0x61B300 schedules current date + 7 and sets mode 1.
+
+MPMTransferPlayer::Execute at 0x61B4A0 either completes through
+DBRPlayer::0x4229B0 or, for a blocking buyer-side constraint, mode 0 can
+reschedule itself through the +7-day/mode-1 constructor. The controlled-club
+path also performs a current-cash/financial check before completion.
+
+### Important deal-state correction
+
+For an ordinary cash transfer, code-2 player acceptance does **not** need
+0x422920 / 0x50E760 to promote CDealInProgress 0 -> 1 before the normal
+MPMTransferPlayer path is scheduled.
+
+0x422920 remains directly relevant to exchange/swap/try-execute paths reached
+from 0x4EEB80 when the target is already in the swap state family or the
+proposal contains exchange players. Therefore the modern ordinary-cash path
+must not invent a state-1 transition merely because the player accepted terms.
+
+### Work-permit event
+
+One 0x4EF600 branch constructs vtable 0x7D1218. MSVC RTTI resolves this exactly
+as EAMWorkPermitGranted. This is a post-conclusion permit/event branch, not the
+medical event previously suspected from allocation size alone.
+
+Medical pass/fail event classes remain separately identified in the executable,
+but they are not the direct 0x4EF600 object at 0x582AD0.
