@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Finish the recovered live gate-receipt producer 0x513252 -> 0x5DA2F0: translate the attendance/count pipeline feeding category-1/category-2 credits, identify DBRUser +0x694 +0x08/+0x0C ticket classes, decode the special branch that can post for both controlled clubs, and preserve exact conversion/rounding before materializing required stadium state.",
-  "last_known_main_head": "adfdc14d732081def1565240cbc9dbe72345519d",
+  "active_task": "Finish Gate 10 live gate receipts: resolve stadium-entry +0x1C versus +0x28 as terrace/seating, then translate the two parallel home/visiting attendance-demand, cap, conversion and randomized-rounding pipelines before materializing required +0x694/+0x6B0 state.",
+  "last_known_main_head": "6439945cf7b1956be0f7905bda53dd93758399b3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 26,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 26 resumed from main adfdc14d732081def1565240cbc9dbe72345519d. Gate 10 active task remains the attendance/count pipeline into 0x513252 -> 0x5DA2F0 categories 1/2, including +0x694 ticket-class semantics, both-controlled-clubs branch, and exact conversion/rounding.",
+  "note": "Recovery generation 26 heartbeat at main 6439945cf7b1956be0f7905bda53dd93758399b3. Home/visiting accounting and section allocation are resolved; immediate target is the final +0x1C/+0x28 terrace/seating mapping, followed by exact attendance formula translation.",
   "same_chat_fallback_minutes": 30
 }
