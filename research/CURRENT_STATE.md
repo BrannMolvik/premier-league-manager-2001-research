@@ -140,17 +140,22 @@ Completion requires:
    bound to live source-backed GameState tables. **Completed:** `0x405080`
    excludes transfer-listed, injured, loaned-out and suspended players; both
    formerly-unknown bits are proven and schema-4 saves persist them.
-6. Verify the proposal-total helper for cash-only bids, then implement the
-   smallest end-to-end human transfer path: bid -> club decision -> player
-   negotiation -> completion -> roster movement.
-7. Add AI transfer progression only after the human path/state model is stable.
-8. Build synthetic and canonical regressions and re-audit every Gate-9 criterion.
+6. **Completed:** ordinary cash-only proposal setup uses +0x14/+0x15 = 0/0;
+   canonical 0x4EFA20 then equals the cash fee exactly. A live cash bid now
+   creates proposal/deal/bid-log state first and evaluates the seller decision
+   from current valuation/age/squad inputs.
+7. Recover and implement the accepted-bid **player contract negotiation** path:
+   wage/signing fee/duration counter-offer logic and player accept/reject state
+   transitions, without inventing Gate-10 finance behavior.
+8. After contract acceptance is stable, implement completion + safe roster
+   movement and then AI transfer progression.
+9. Build synthetic and canonical regressions and re-audit every Gate-9 criterion.
 
 ## Gate 9 completion criteria
 
 - [x] Initial player weekly wage and contract expiry are represented and saved.
 - [x] Full negotiated contract terms / proposal/deal/bid-log/movement state are represented and saved.
-- [ ] Bids can be made and evaluated end-to-end from live runtime inputs.
+- [x] Ordinary cash-only bids can be submitted and evaluated end-to-end from live runtime inputs.
 - [x] Core clubs accept/refuse decision/reason logic is reconstructed and tested.
 - [ ] Player negotiations, wages, duration, and transfer completion work.
 - [ ] Player movement updates squads safely.
