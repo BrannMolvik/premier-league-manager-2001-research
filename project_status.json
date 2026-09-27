@@ -14,7 +14,7 @@
   "last_verified_test_count": 497,
   "asset_policy_validated_head": "5dc29a072d6e4f91744b882251df16f980c82f55",
   "asset_policy_status": "passed",
-  "active_task": "Materialize minimum original-compatible +0x694/+0x6B0 ticket/section and stadium state, then implement the now-complete Gate-10 matchday attendance/revenue formula with deterministic regressions.",
+  "active_task": "Derive live gate-attendance inputs from GameState/source data and integrate the verified category-1/2 receipt slice into normal matchday progression.",
   "next_gate": 11,
   "next_gate_name": "Broader management systems",
   "blocked": false,
