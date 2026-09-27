@@ -31,8 +31,8 @@ tracked according to `ASSET_POLICY.md`.
 - Gate-8 canonical audit runner:
   `reconstruction/canonical_internal_save_audit.py`.
 - Internal save implementation: `reconstruction/internal_save.py`.
-  Historical Gate-8 checkpoint used schema 2; current Gate-9 contract runtime
-  uses schema **3**, gzip `.fm2k` files.
+  Historical Gate-8 checkpoint used schema 2; current Gate-9 transfer runtime
+  uses schema **4**, gzip `.fm2k` files.
 - Reconstruction GitHub Actions at
   `72c21e8f07bf9bf57f6dc3cbaba83809cdd06414`: **413 tests passed**.
 - Repository asset-policy workflow at that checkpoint: **passed**.
@@ -136,12 +136,15 @@ Completion requires:
    fewer than 17 `0x405080` count reject as Too Small Squad; otherwise
    Offer Accepted. Exact RTTI reason events are mapped and the pure decision
    is implemented/tested.
-5. Recover/adapt `0x4205A0` player valuation and the four-bit `0x405080`
-   count into live runtime inputs, then implement the smallest end-to-end human
-   transfer path: bid -> club decision
-   -> player negotiation -> completion -> roster movement.
-6. Add AI transfer progression only after the human path/state model is stable.
-7. Build synthetic and canonical regressions and re-audit every Gate-9 criterion.
+5. **Completed:** `0x4205A0/0x4205F0` player valuation is reconstructed and
+   bound to live source-backed GameState tables. **Completed:** `0x405080`
+   excludes transfer-listed, injured, loaned-out and suspended players; both
+   formerly-unknown bits are proven and schema-4 saves persist them.
+6. Verify the proposal-total helper for cash-only bids, then implement the
+   smallest end-to-end human transfer path: bid -> club decision -> player
+   negotiation -> completion -> roster movement.
+7. Add AI transfer progression only after the human path/state model is stable.
+8. Build synthetic and canonical regressions and re-audit every Gate-9 criterion.
 
 ## Gate 9 completion criteria
 
