@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from competition_state import MatchResult, PremierLeagueState
+from finance_state import BalanceRuntimeState, FinancePosting
 from game_state import GameCalendar, GameState
 from human_gameplay import HumanGameplayController, HumanManagerState
 from match_environment import MatchEnvironment
@@ -44,7 +45,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 8
+SAVE_SCHEMA_VERSION = 9
 
 
 def _iso(value: date | None) -> str | None:
@@ -786,6 +787,20 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             for round_index, values in sorted(state.premier_league_scheduler_order.items())
         },
         "transfers": _snapshot_transfer_state(state.transfers),
+        "finance_balances": {
+            str(int(club_id)): {
+                "current_cash": int(balance.current_cash),
+                "ledger": [
+                    {
+                        "amount": int(posting.amount),
+                        "category": int(posting.category),
+                        "posting_date": posting.posting_date.isoformat(),
+                    }
+                    for posting in balance.ledger
+                ],
+            }
+            for club_id, balance in sorted(state.finance_balances.items())
+        },
         "ai_transfer_buy_counter": {
             str(int(club_id)): int(value)
             for club_id, value in sorted(state.ai_transfer_buy_counter.items())
@@ -935,6 +950,20 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             for round_index, values in snapshot["premier_league_scheduler_order"].items()
         },
         transfers=_restore_transfer_state(snapshot.get("transfers")),
+        finance_balances={
+            int(club_id): BalanceRuntimeState(
+                current_cash=int(value["current_cash"]),
+                ledger=[
+                    FinancePosting(
+                        amount=int(posting["amount"]),
+                        category=int(posting["category"]),
+                        posting_date=date.fromisoformat(posting["posting_date"]),
+                    )
+                    for posting in value["ledger"]
+                ],
+            )
+            for club_id, value in snapshot["finance_balances"].items()
+        },
         rng=(
             None
             if snapshot["rng_state"] is None
