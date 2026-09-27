@@ -51,7 +51,8 @@ GitHub Actions at that checkpoint:
 Current internal save schema: **10**.
 
 Gate 10 now has a clean-room Balance/current-cash runtime slice:
-- current cash is represented explicitly;
+- current cash is represented explicitly and fresh controlled-club Balance cash
+  is source-backed from Master.dat club +165;
 - controlled-buyer affordability uses that live cash instead of a callback;
 - completed transfer purchases debit and sales credit materialized Balance
   objects through category-1000 ledger postings;
@@ -171,6 +172,11 @@ Existing reverse engineering already establishes:
   schema-10 saves preserve fractional cash/ledger state. Finance Overview
   queries category 1600, but its user-facing label remains deliberately
   unresolved.
+- fresh DBRUser Balance objects are constructed at zero, then initializer
+  `0x425680` copies the controlled club's `Master.dat` float64 at packed
+  +165 through runtime `DBRClub +0xD0/+0xD4` into active Balance +0x10;
+  the modern canonical human-club selection path now mirrors this source-backed
+  initialization;
 
 ## Exact next task
 
@@ -199,21 +205,25 @@ Existing reverse engineering already establishes:
    `incoming * 0.002` posting, with debit-before-primary ledger order and a
    rounding-sensitive regression. Internal save schema 10 preserves fractional
    finance values. CI at `3fc54ed8` passed **533 tests**.
-9. **Active:** trace Balance constructor `0x5DC400` and its ordinary
-   fresh-game callers to recover the authoritative source of initial current
-   cash. The modern runtime must continue requiring explicit starting cash
-   until that source is proven.
-10. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
+9. **Completed:** fresh controlled-club starting cash is sourced from
+   `Master.dat` club +165 (runtime DBRClub +0xD0/+0xD4) and materialized when
+   canonical human club control is selected. Arsenal starts at 28,000,000 and
+   Manchester United at 34,000,000 in the shipped data. The explicit cash setter
+   remains only as a deliberate override/test hook.
+10. **Active:** close the finance-linked board/job-security path at
+   `0x5E1D90`: recover the stored Balance financial-objective target,
+   `ChairmanPercentBudgetMiss` tolerance, evaluation cadence/state transition,
+   and reason-5 sacking outcome that feeds `EAMManagerSackedFailedBudget`.
+   Implement only the proven financial-objective behavior; do not substitute the
+   dormant chairman quarterly-budget message family.
+11. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
    300 on day-of-month 1, but `0x5E5330` never appends its generated stack
    candidate or increments the fresh-game active count. Leave normal concession
    income disabled unless a genuine activation writer is later recovered.
-11. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
+12. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
    because the table is already parsed. The original 26-section stadium state
    and stadium capacity/entry model are separate dependencies.
-12. Starting Balance cash initialization remains deliberately explicit until
-    the active `0x5DC400` constructor-input trace is closed; do not invent a
-    default cash value.
 
 ## Known live fidelity boundaries
 
