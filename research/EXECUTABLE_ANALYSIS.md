@@ -7355,3 +7355,54 @@ family.
 The remaining implementation dependency is candidate generation: translate
 `0x5DFD30` sufficiently to reproduce the three source-backed objective IDs for
 the controlled Premier League club before materializing objective state.
+
+
+## Gate 10 financial-objective candidate generator: Premier League branch
+
+The remaining fresh Premier League candidate-generation branch at `0x5DFD30`
+is now translated far enough to reproduce its three objective IDs without
+inventing board choices.
+
+The helper is called three times with slot argument 0, 1, then 2. Its second
+argument is the active DBRUser/session object. For the controlled club it:
+
+1. resolves the current League;
+2. calls `0x4F88C0` for the League allocation boundary counts;
+3. computes a fan-base rank count through `0x4F40E0`, which counts league
+   clubs whose `DBRClub +0x70` fan-base index is <= the controlled club's;
+4. compares that count against half the league team count;
+5. evaluates `0x4FA570` and `0x4FA590`, two competition-hierarchy predicates;
+6. branches on the objective-state byte at objective `+0x9C`.
+
+The objective constructor at `0x427BE5` initializes `+0x9C = 0`, so the fresh
+new-club path starts in state zero.
+
+For Premier League competition 0, the already-recovered England root order
+places the league at hierarchy index 6. `0x4FA520` therefore returns 6;
+`0x4FA570` is false. `0x4FA590` compares that classification with the last
+stored England root classification; it is also false for the Premier League.
+
+`0x4F8C50` independently exposes the relevant `0x4F88C0` counts as the
+league's top-side promotion / playoff boundaries. The Premier League has no
+higher league and no promotion playoff, so the specific count tested by
+`0x5DFD30` slot 1/2 is zero. Therefore the fresh Premier League path consumes
+**no RNG** in candidate generation.
+
+The resulting fresh candidate triples are exact:
+
+```text
+fan_base_rank_count >= floor(team_count / 2): (13, 1, 5)
+fan_base_rank_count <  floor(team_count / 2): ( 1, 5, 6)
+```
+
+The executable comparison is `>=`. For the shipped 20-team Premier League the
+threshold is therefore 10.
+
+Arsenal's packed fan-base index is 31. Nineteen of the 20 Premier League clubs
+have fan-base index <= 31, so Arsenal takes the first branch and receives
+objective IDs **13, 1, 5**.
+
+The generator has broader competition/state branches, including RNG-selected
+alternatives such as 5/8, 11/12 and 13/14. Those are not needed to integrate
+the normal fresh Premier League controlled-club path and remain outside this
+Gate-10 implementation slice.
