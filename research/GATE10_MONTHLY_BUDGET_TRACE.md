@@ -696,3 +696,66 @@ The known persistent finance-adjacent DBRUser owners from `+0x688` through
 `+0x6B0` are now all semantically bounded. The chairman reserve trace should
 move away from this pointer cluster and toward the board/accounting arithmetic
 that calculates quarterly budget outcomes or toward other non-DBRUser owners.
+
+
+## DBRUser +0x5DC is a support-staff selector/controller, not budget state
+
+A remaining finance-adjacent field at `DBRUser +0x5DC` was audited because
+the financial-objective path loads it immediately before checking whether the
+user has a Business Consultant.
+
+The accessor family at `0x4D0B10..0x4D1290` now establishes the semantics.
+
+### Exact typed staff lookup family
+
+The functions take the DBRUser as an explicit argument and walk its linked
+support-staff lists. Each candidate's virtual method at vtable +0x14 returns a
+small staff-type ID.
+
+The first lookups are exact:
+
+- `0x4D0B10` -> staff type 1;
+- `0x4D0B90` -> type 2;
+- `0x4D0C10` -> type 3;
+- `0x4D0C90` -> type 4;
+- `0x4D0D10` -> type 5;
+- `0x4D0D90` -> type 6;
+
+and the family continues through the higher staff-type values. The generic
+dispatcher `0x4D13D0` accepts values 1..16 and routes to these exact typed
+lookup helpers.
+
+The type-4 lookup at `0x4D0C90` is the already-observed Business Consultant
+presence test used by the Balance financial-objective routine at
+`0x5E130F -> 0x4D0C90`.
+
+### The +0x5DC object does not hold the returned staff list or budget data
+
+Callers conventionally load:
+
+`ECX = [DBRUser+0x5DC]`
+
+and pass the DBRUser itself on the stack. The typed lookup implementations use
+the DBRUser argument's support-staff list heads such as `+0x5BC` and
+`+0x5C8`; they do not read monetary fields from the `this` object.
+
+`0x4D1320`, another method reached through the same `+0x5DC` owner,
+iterates the same staff lists and applies staff/user maintenance through
+`0x4CB0B0`.
+
+Therefore `+0x5DC` is a support-staff lookup/controller/service object used
+to query and maintain the user's support staff. It is not a persistent
+chairman staff/wage/building/transfer budget store.
+
+### Consequence
+
+The entire `+0x5B8..+0x5E8` neighborhood is now finance-irrelevant for live
+budget storage:
+
+- the linked structures at `+0x5B8/+0x5C4/+0x5D0/+0x5E0` are support-staff
+  containers/state;
+- `+0x5DC` is the support-staff selector/controller used to retrieve typed
+  staff such as the Business Consultant;
+- `+0x5EC` begins the separately classified scouting-state array.
+
+The chairman reserve search should no longer revisit this region.
