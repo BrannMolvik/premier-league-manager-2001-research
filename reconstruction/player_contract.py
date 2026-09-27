@@ -233,3 +233,23 @@ def live_player_signing_on_fee_expectation(
     if signing_fee_doubling_eligible(state, int(player.index)):
         scaled *= 2
     return round_transfer_signing_fee_amount(scaled)
+
+
+def live_player_signing_on_fee_floor(
+    state,
+    player_id: int,
+    buying_club_id: int,
+) -> int:
+    """Reproduce DBRPlayer::0x420340 for the canonical currency mode.
+
+    This uses AccessSkillFinancialValues +0x18 only (0x423AB0), applies the
+    same expired-EU doubling predicate as 0x4202A0, then the exact -2 money
+    rounding ladder.
+    """
+    player, row, multiplier = _live_financial_contract_inputs(
+        state, player_id, buying_club_id
+    )
+    scaled = _scaled_financial_value(int(row.field_18), multiplier)
+    if signing_fee_doubling_eligible(state, int(player.index)):
+        scaled *= 2
+    return round_transfer_signing_fee_amount(scaled)
