@@ -23,6 +23,10 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 
 from match_schedule import BoundedRng
+from player_contract import (
+    live_player_signing_on_fee_expectation,
+    live_player_wage_expectation,
+)
 from transfer_state import TransferProposal
 
 
@@ -150,4 +154,49 @@ def adjust_player_counter_offer(
         desired_signing_on_fee=desired_signing,
         wage_was_raised=wage_was_raised,
         signing_fee_was_raised=signing_was_raised,
+    )
+
+
+def adjust_live_player_counter_offer(
+    state,
+    proposal: TransferProposal,
+    rng: BoundedRng | None = None,
+) -> CounterOfferAdjustment:
+    """Apply the exact counter-offer transform from current runtime state.
+
+    Fresh expectations use the proposal's buying club exactly as 0x4EDB10
+    passes proposal +0x34 into 0x420180 / 0x4202A0. The present player wage is
+    the reconstructed DBRPlayer+0xC4 value.
+
+    The same-club renewal branch is retained for completeness even though the
+    Gate-9 human transfer workflow currently rejects bids for a club's own
+    player.
+    """
+    player_id = int(proposal.target_player_id)
+    buying_club_id = int(proposal.buying_club_id)
+    try:
+        player = state.players[player_id]
+    except KeyError as exc:
+        raise KeyError(f"unknown target player {player_id}") from exc
+
+    if rng is None:
+        rng = state._resolve_rng()
+
+    wage = live_player_wage_expectation(
+        state,
+        player_id,
+        buying_club_id,
+    )
+    signing = live_player_signing_on_fee_expectation(
+        state,
+        player_id,
+        buying_club_id,
+    )
+    return adjust_player_counter_offer(
+        proposal,
+        fresh_wage_expectation=wage,
+        fresh_signing_on_fee_expectation=signing,
+        current_player_weekly_wage=int(player.weekly_wage),
+        renewing_same_club=int(player.club_id) == buying_club_id,
+        rng=rng,
     )
