@@ -6826,3 +6826,49 @@ until tied to instructions rather than positional string order.
 Exact next trace: translate the attendance-count pipeline inside
 `0x5DA2F0`, tie states 0/1 to terrace/seating, and tie categories 1/2 to
 home/visiting supporter sales before implementing match-day income.
+
+
+## Gate-receipt supporter and section split refinement
+
+Follow-up instruction tracing of `0x5DA2F0`, `0x618A20` and
+`0x618B60` resolves the supporter-side accounting split.
+
+At `0x5DB37C..0x5DB3AA`, one rounded count pair is accumulated in EBX and
+the complementary pair in EDI. Category-2 revenue uses the EBX pair at
+`0x5DB46E..0x5DB493`; category-1 revenue uses the other pair at
+`0x5DB40B..0x5DB430`. After revenue posting, the ordinary controlled-primary
+branch at `0x5DB4BE` adds `DBRUser +0x694 +0x00`, the proven
+season-ticket quantity, only to EBX. Final match output then stores:
+
+- `+0xD84 = EBX + EDI` total attendance;
+- `+0xD8C = EBX` home-side attendance including season tickets;
+- `+0xD90 = EDI` visiting-side attendance.
+
+Thus accounting category **2** is home-supporter match-day ticket sales,
+category **1** is visiting-supporter match-day ticket sales, and category **3**
+is season-ticket sales. Season-ticket holders augment the home attendance count
+after category-2 revenue has already been calculated.
+
+The 26-section state has now also been separated by supporter ownership.
+`0x618A20` clears prior state-1 assignments, skips unavailable and state-2
+season-ticket sections, then walks its fixed section order and assigns state 1
+until capacity reaches exactly:
+
+`10 * floor(club +0x1C stadium_capacity / 100)`.
+
+`0x618B60(..., 1)` validates the same threshold after interactive ticket-screen
+section changes. Combined with the home/away supporter accounting split, this
+identifies state **1** as the mandatory visiting/away allocation, state **0**
+as the remaining ordinary home allocation, state **2** as season-ticket
+allocation, and `-1` as unavailable.
+
+The two ticket-price capacity classes are structurally paired but not yet
+user-label-resolved:
+
+- price `+0x08` <-> stadium-entry field `+0x1C`
+  (`0x65DA60/0x65DAB0`);
+- price `+0x0C` <-> stadium-entry field `+0x28`
+  (`0x65D9B0/0x65DA00`).
+
+The remaining ticket-class task is only to prove which field is terrace and
+which is seating, then finish translating the demand/capping/rounding pipeline.
