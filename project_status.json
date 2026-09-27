@@ -25,7 +25,7 @@
   "project_mode": "authorized_original_asset_reuse",
   "asset_policy": "research/ASSET_POLICY.md",
   "original_assets_path": "original_assets/",
-  "mission": "Preserve and reuse as much of the original FM2001 game as practical while replacing incompatible legacy runtime/code for Windows 11",
+  "mission": "Preserve and reuse accessible original FM2001 resources and recovered original behavior by default; adapt/convert/wrap for Windows 11 compatibility, and replace only when the original is technically incompatible after reasonable adaptation or genuinely inaccessible/unrecoverable.",
   "canonical_footbal_exe_sha256": "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3",
   "canonical_source_available_in_session": false,
   "procedural_league_rng_confirmed": true,
