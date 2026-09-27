@@ -544,6 +544,7 @@ class HumanGameplayController:
                 user_controlled_club_id=self.human.club_id,
             )
         )
+        self.state.run_weekly_player_payroll()
         self.state.run_weekly_ai_transfer_maintenance(
             self.match_rng,
             user_controlled_club_id=self.human.club_id,
