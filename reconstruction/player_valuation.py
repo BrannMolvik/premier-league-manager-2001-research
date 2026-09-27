@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Sequence
 
+from match_role_rating import best_preferred_role_rating
+
 
 @dataclass(frozen=True)
 class PlayerValuationTuning:
@@ -166,3 +168,96 @@ def player_transfer_value(
     value *= country_factor
     value *= tuning.position_values[position_group]
     return value
+
+
+def live_player_transfer_value(
+    state,
+    player_id: int,
+    *,
+    appearance_count: int = 0,
+    recent_ratings: Sequence[int] = (),
+    tuning: PlayerValuationTuning = DEFAULT_PLAYER_VALUATION_TUNING,
+) -> float:
+    """Resolve 0x4205A0 inputs from the current reconstructed runtime.
+
+    Source-backed inputs:
+    - 0x41E1D0 max preferred-role rating -> financial row;
+    - player+0x248 current position state -> Position lineup_group;
+    - player age on the current game date;
+    - current club -> competition -> DBRCompetition+0x28 category,
+      with the exact 0x405500 clamp (>5 -> 5);
+    - current club country -> DBRCountry+0x18 EU-status flag.
+
+    The modern match backend does not yet persist FM2001's six-byte recent
+    player-rating history / +0x188 appearance counter. Until that is added,
+    callers must supply those two inputs explicitly when reconstructing a
+    player beyond the four-appearance neutral-valuation period.
+    """
+
+    player_id = int(player_id)
+    try:
+        player = state.players[player_id]
+    except KeyError as exc:
+        raise KeyError(f"unknown player {player_id}") from exc
+
+    rating = best_preferred_role_rating(
+        player.current_raw,
+        player.positions,
+    )
+    rows = tuple(state.access_skill_financial_values)
+    if not 0 <= rating < len(rows):
+        raise ValueError(
+            f"financial-value row {rating} is unavailable for player {player_id}"
+        )
+    financial_row = rows[rating]
+    if int(getattr(financial_row, "id", rating)) != rating:
+        raise ValueError("financial-value table is not rating-indexed")
+
+    role = int(player.current_position)
+    position = state.positions.get(role)
+    if position is None:
+        raise ValueError(
+            f"position metadata for runtime role {role} is unavailable"
+        )
+    position_group = int(position.lineup_group)
+    if not 0 <= position_group < 4:
+        raise ValueError(
+            f"runtime role {role} has no transfer-valuation position group"
+        )
+
+    age = player.age(state.calendar.current_date)
+    if age is None:
+        raise ValueError(f"player {player_id} has no usable date of birth")
+
+    club = state.clubs.get(int(player.club_id))
+    if club is None:
+        raise ValueError(f"player {player_id} has no resolved current club")
+
+    competition = state.competitions.get(int(club.competition_id))
+    if competition is None:
+        raise ValueError(
+            f"club {player.club_id} has no resolved competition definition"
+        )
+    division_raw = int(
+        getattr(competition, "valuation_division_category", 5)
+    )
+    division_category = 5 if division_raw > 5 else division_raw
+    if division_category < 0:
+        raise ValueError("valuation division category must not be negative")
+
+    country = state.countries.get(int(club.country_id))
+    if country is None:
+        raise ValueError(
+            f"club {player.club_id} has no resolved country definition"
+        )
+
+    return player_transfer_value(
+        financial_row,
+        position_group=position_group,
+        age=age,
+        division_category=division_category,
+        club_country_eu_status_flag=int(country.eu_status_flag),
+        appearance_count=int(appearance_count),
+        recent_ratings=recent_ratings,
+        tuning=tuning,
+    )
