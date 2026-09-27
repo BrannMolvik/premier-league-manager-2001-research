@@ -417,3 +417,82 @@ region are now removed from the chairman-budget search:
 
 The next chairman-budget trace should move to the remaining larger
 serialized/scalar DBRUser regions rather than revisiting these objects.
+
+
+## Chairman budget-warning payload and tuning-default boundaries
+
+Two remaining apparent routes to the live reserve have now been bounded.
+
+### EAMchairbudgetwarning does not contain a hidden 0x400-byte budget array
+
+RTTI identifies `EAMchairbudgetwarning` vtable `0x7CDC10`, event ID
+`0x4A`. Its binary serializer is `0x55BA10`.
+
+The serializer persists:
+
+- inherited event state;
+- one dword at `+0x38`;
+- a **0x400-byte block** beginning at `+0x3C`;
+- dwords at `+0x43C`, `+0x440`, `+0x444`, and `+0x448`.
+
+The 0x400-byte region is not a 256-dword chairman-budget array. Formatter
+`0x55B650` passes `event+0x3C` through the generic **STRING** substitution
+path. The same formatter:
+
+- converts `event+0x43C` to a numeric value and binds it to the EA-authored
+  **DEFICIT** key;
+- binds the fixed **OVERSPENTBUDGET** text key;
+- resolves club/chairman/user-name substitutions separately.
+
+Thus this large warning object mainly carries a prebuilt 1,024-byte text
+payload plus deficit/context fields. The actual decision about how operating
+overspending affects building/transfer reserves has already happened before
+this presentation object exists.
+
+This also explains why the object's size, 0x44C, is not evidence of an
+embedded seven-budget store.
+
+### Named budget tuning globals are loader-only in the shipped executable
+
+The tuning-loader block maps the expected budget defaults to globals:
+
+- `0x821D94` = `StaffWageBudget2K`;
+- `0x821D98` = `PlayerWageBudget2K`;
+- `0x821D9C` = `FacilitiesBudget2K`;
+- `0x821DA0` = `MiscBudget2K`;
+- `0x821DA4` = `StadiumBudget2K`;
+- `0x821DA8` = `TransferBudget2K`;
+- `0x821DAC` = `StaffWageBudget`;
+- `0x821DB0` = `PlayerWageBudget`;
+- `0x821DB4` = `FacilitiesBudget`;
+- `0x821DB8` = `StadiumBudget`;
+- `0x821DBC` = `MiscBudget`;
+- `0x821DC0` = `TransferBudget`.
+
+`ChairBudgetProfit` at `0x821D80` and the adjacent profit-pool defaults
+show the same pattern.
+
+For each exact budget-global address above, a complete image scan finds only
+its tuning-loader write and no ordinary later absolute-address consumer.
+A separate check for a shared `0x821000`-style indexed/base access covering
+the block also found no static runtime reference.
+
+The heavily consumed globals immediately before this block
+(`0x821D00..`) are a separate support-staff star-threshold family
+(`DefCoach5Star`, `MidCoach*Star`, `AttCoach*Star`, Doctor/Scout
+thresholds, etc.); they must not be mistaken for budget values merely because
+they are adjacent.
+
+Therefore the named `TransferBudget` / `*Budget2K` globals are
+configuration defaults with no recovered direct runtime consumption in this
+build. They are not the authoritative mutable transfer/building reserve.
+
+A dynamically computed or external use cannot be disproven solely by static
+absolute-address scanning, so this conclusion is deliberately limited to the
+mapped executable's ordinary static consumers.
+
+### Revised producer signature
+
+The quarterly producer must now be sought through live accounting/board
+arithmetic or another generated-data path. Presentation objects and named
+default globals no longer provide a credible storage location.
