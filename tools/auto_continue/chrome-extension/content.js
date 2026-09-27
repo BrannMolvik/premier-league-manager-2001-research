@@ -10,7 +10,11 @@ const TRANSIENT_FAILURE_PATTERNS = [
   /connection interrupted/i,
   /network error/i,
   /something went wrong/i,
-  /response interrupted/i
+  /response interrupted/i,
+  /there was an error generating (?:a )?response/i,
+  /failed to generate/i,
+  /^\s*retry\s*$/i,
+  /^\s*try again\s*$/i
 ];
 
 const COMPOSER_SELECTORS = [
@@ -30,7 +34,13 @@ const SEND_SELECTORS = [
 const STOP_SELECTORS = [
   "button[data-testid='stop-button']",
   "button[aria-label='Stop streaming']",
-  "button[aria-label='Stop generating']"
+  "button[aria-label='Stop generating']",
+  "button[aria-label='Stop response']"
+];
+
+const RETRY_BUTTON_PATTERNS = [
+  /^\s*retry\s*$/i,
+  /^\s*try again\s*$/i
 ];
 
 const reportedFailures = new Set();
@@ -158,6 +168,19 @@ function findFirstVisible(selectors) {
       if (isVisible(element)) {
         return element;
       }
+    }
+  }
+  return null;
+}
+
+function findVisibleRetryButton() {
+  for (const button of document.querySelectorAll("button")) {
+    if (!isVisible(button) || button.disabled) {
+      continue;
+    }
+    const text = (button.innerText || button.textContent || "").trim();
+    if (RETRY_BUTTON_PATTERNS.some((pattern) => pattern.test(text))) {
+      return button;
     }
   }
   return null;
@@ -295,6 +318,31 @@ async function stopCurrentGenerationIfNeeded() {
   return true;
 }
 
+async function clearRetryStateIfNeeded() {
+  const retryButton = findVisibleRetryButton();
+  if (!retryButton) {
+    return false;
+  }
+
+  // ChatGPT's Retry state can leave the composer unavailable. Restart the
+  // failed request only long enough to expose Stop, then cancel it before
+  // submitting the canonical continuation prompt.
+  retryButton.click();
+
+  const started = Date.now();
+  while (Date.now() - started < 5000) {
+    const stopButton = findFirstVisible(STOP_SELECTORS);
+    if (stopButton && !stopButton.disabled) {
+      stopButton.click();
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      return true;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+
+  return true;
+}
+
 async function submitPendingResume() {
   if (resumeSubmitting) {
     return;
@@ -308,7 +356,11 @@ async function submitPendingResume() {
   resumeSubmitting = true;
   try {
     if (pending.stopFirst) {
-      await stopCurrentGenerationIfNeeded();
+      const stopped = await stopCurrentGenerationIfNeeded();
+      if (!stopped) {
+        await clearRetryStateIfNeeded();
+        await stopCurrentGenerationIfNeeded();
+      }
     }
 
     const composer = await waitForComposer();
