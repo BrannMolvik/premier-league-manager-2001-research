@@ -121,11 +121,16 @@ Existing reverse engineering already establishes:
 - controlled-club affordability check `0x404AE0` compares against the same
   current-cash value;
 - transfer postings use accounting category 1000;
-- current cash and chairman transfer budget are separate concepts;
-- `EAMchairbudgetsettings +0x58` is the displayed transfer-budget value;
-- start-season/monthly chairman budget event layouts and default budget globals
-  are mapped;
-- the authoritative persisted/derived transfer-budget store remains unresolved.
+- current cash and the legacy chairman transfer-budget message concept are
+  separate;
+- `EAMchairbudgetsettings +0x58` is the displayed transfer-budget payload
+  field, but the A0/A1/settings/warning budget-event family has no mapped
+  ordinary fresh-game producer;
+- its generic factory route is DBRUser save/load deserialization only;
+- named budget-default globals have loader writes but no recovered live
+  consumer;
+- normal Finance Overview and Transfer UI have no reference to this chairman
+  budget family and instead use live Balance/accounting state.
 
 ## Exact next task
 
@@ -136,11 +141,14 @@ Existing reverse engineering already establishes:
    1000 and persists through internal save schema 9.
 4. **Completed:** deterministic insufficient-funds and equal debit/credit
    regressions; CI at `80bc0313` passed **492 tests**.
-5. **Active:** resume the chairman-budget trace and locate the authoritative
-   persisted/derived transfer-budget store, prioritizing the quarterly
-   overspending/rebudget producer that takes money from building/transfer
-   reserves.
-6. Starting Balance cash initialization remains deliberately explicit until the
+5. **Completed research boundary:** no mapped ordinary fresh-game producer or
+   Finance/Transfer UI consumer exists for the separate chairman
+   transfer/wage-budget event family. Treat it as legacy/persistence-compatible
+   unless new executable evidence proves an active store; do not invent one.
+6. **Active:** recover and integrate live recurring cash flows, beginning with
+   the proven first-of-month support-staff debit at `0x4CA0F0`, then player
+   wages and match/recurring income.
+7. Starting Balance cash initialization remains deliberately explicit until the
    original `0x5DC400` constructor-input source is recovered; do not invent a
    default cash value.
 
@@ -148,7 +156,8 @@ Existing reverse engineering already establishes:
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
 
-- authoritative transfer-budget storage is unresolved;
+- chairman budget-message payloads remain loadable from legacy event/save
+  state, but no ordinary fresh-game producer/consumer is mapped;
 - broader player-negotiation refusal/duration branches remain explicit deferred
   states;
 - exact due-transfer ordering relative to same-day fixtures is not yet
