@@ -144,12 +144,19 @@ Completion requires:
    canonical 0x4EFA20 then equals the cash fee exactly. A live cash bid now
    creates proposal/deal/bid-log state first and evaluates the seller decision
    from current valuation/age/squad inputs.
-7. Recover and implement the accepted-bid **player contract negotiation** path:
-   wage/signing fee/duration counter-offer logic and player accept/reject state
-   transitions, without inventing Gate-10 finance behavior.
-8. After contract acceptance is stable, implement completion + safe roster
-   movement and then AI transfer progression.
-9. Build synthetic and canonical regressions and re-audit every Gate-9 criterion.
+7. **Partially completed:** exact 0x4EDB10/0x4EE180 player counter-offer
+   transform is implemented and tested: 110% tolerance, anchor midpoint/current
+   wage floor, same-club signing-fee skip, and RNG(3) -> 24/36/48 months.
+   Response code 1 is proven Counter Offer; code 2 is proven Player Accepts.
+8. Promote the live 0x420180 wage expectation and 0x4202A0 signing-fee
+   expectation helpers from AccessSkillFinancialValues/current club context,
+   then reconstruct the remaining ordinary 0x422470 accept/counter/refuse
+   policy needed to drive those response codes from live state.
+9. Trace the post-accept conclude/medical path before changing deal state:
+   ordinary cash code-2 acceptance does not directly call 0x422920/0x50E760.
+10. After that lifecycle is stable, implement completion + safe roster movement
+    and then AI transfer progression.
+11. Build synthetic and canonical regressions and re-audit every Gate-9 criterion.
 
 ## Gate 9 completion criteria
 
