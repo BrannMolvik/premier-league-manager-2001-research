@@ -287,3 +287,68 @@ Return to live board state itself:
 3. look for arithmetic involving the known operating-budget ledger categories
    and building/transfer reserve values rather than presentation-event
    construction.
+
+
+## DBRUser +0x6A4 and +0x6AC ruled out as chairman budget owners
+
+The remaining small serialized DBRUser objects immediately before stadium state
+have now been classified far enough to remove two more false budget candidates.
+
+### DBRUser +0x6A4 is out-of-game/injury state
+
+The object at `DBRUser +0x6A4` is a linked container persisted by:
+
+- read: `0x5E3E50`;
+- write: `0x5E3F20`;
+- rebuild/initialization: `0x5E3FD0`;
+- periodic routines: `0x5E4190` and `0x5E4210`.
+
+Its subtype factory is `0x5E2710`, switching over values 0..0x24. RTTI from
+the factory-created vtables identifies the family directly as out-of-game /
+injury records. Representative types include:
+
+- `AogVirus`;
+- `AogFluWeak`;
+- `AogFluOut`;
+- `AogBrokenLegHeavy`;
+- `AogBrokenFootSerious`;
+- `AogDamagedAnkle`;
+- `AogDamagedShoulder`;
+- `AogAchillesMild`;
+- `AogShinSerious`;
+- `AogCalfMild`;
+- `AogThighSerious`;
+- `AogKneeModerate`.
+
+The periodic paths compare/update record dates and active/status bits. This is
+consistent with the injury/out-of-game subsystem and not with a chairman
+operating/building/transfer budget store.
+
+### DBRUser +0x6AC is monthly-summary message state
+
+The object at `DBRUser +0x6AC` is a small persisted state block:
+
+- read: `0x617DE0`;
+- write: `0x617E30`;
+- monthly/update routine: `0x617E80`, called from DBRUser monthly maintenance
+  around `0x42AE91`.
+
+Its state includes two qwords and two status bytes. The update routine checks
+the mail/message queue for existing relevant wrapper kinds and can create
+monthly-summary EAM objects. RTTI identifies the concrete event constructors
+used there as:
+
+- vtable `0x7D024C`: `EAMsmmonthlysummarytwo`;
+- vtable `0x7D32E4`: `EAMsmmonthlysummaryfour`.
+
+Those events are then wrapped in `MPMEAMail` and enqueued through the normal
+`0x613EC0` path.
+
+Therefore `+0x6AC` is monthly-summary/message bookkeeping, not live chairman
+budget storage.
+
+### Remaining compact candidate
+
+Among the small serialized objects in this DBRUser region, `+0x6A0` remains
+unclassified. It is a linked-list owner persisted by `0x61C290/0x61C230`
+and should be classified next before moving to larger scalar blocks.
