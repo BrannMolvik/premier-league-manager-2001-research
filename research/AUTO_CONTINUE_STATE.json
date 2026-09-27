@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Implement Gate-10 stadium/ticket source materialization from the already-mapped per-club .MAP + Lists\\\\Buildings.dat sources, then add deterministic attendance/revenue regressions and normal matchday integration.",
-  "last_known_main_head": "8a8d43eff9cdfccc184f274942504980853abd9c",
+  "active_task": "Continue Gate-10 runtime implementation from verified 514-test stadium/ticket checkpoint: add exact fresh ticket-price initialization/source adapter, then integrate the complete attendance/revenue path into matchday progression.",
+  "last_known_main_head": "02ce20502b3a80e62c9485ac2d7fdb7e8b9b5200",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 30,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 30 resumed from main 8a8d43ef. Research is closed through fresh ticket-price initialization; continue with parser/runtime code only, not more source rediscovery unless implementation exposes a dependency.",
+  "note": "Recovery generation 30: main 02ce2050 is verified green (514 tests + asset policy). Stadium MAP/Buildings parser, exact fresh ticket state and visiting-section allocator, and pure gate attendance core are committed. Continue runtime adapters/integration only.",
   "same_chat_fallback_minutes": 30
 }
