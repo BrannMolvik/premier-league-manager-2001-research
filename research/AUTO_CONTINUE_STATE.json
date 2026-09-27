@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Continue Gate-10 source-state materialization from the decoded Stadium Data.wad / per-club .MAP boundary: finish exact map section/building interpretation needed for DBRUser +0x6B0 and 26-section +0x694 state, then implement deterministic gate-receipt regressions.",
-  "last_known_main_head": "3bb6b90f9aea5a3eb2842faf70ce7246ed90f0d4",
+  "active_task": "Implement Gate-10 stadium/ticket source materialization from the already-mapped per-club .MAP + Lists\\\\Buildings.dat sources, then add deterministic attendance/revenue regressions and normal matchday integration.",
+  "last_known_main_head": "8a8d43eff9cdfccc184f274942504980853abd9c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 29,
+  "recovery_generation": 30,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 29 resumed without restarting. Persisted main is 3bb6b90f; local trace had already established Buildings.dat 3000x0xD0 with 0x74 live record + 0x5C duplicate tail and Arsenal .MAP FM header / grid / per-nonempty flags. Continue from that exact boundary.",
+  "note": "Recovery generation 30 resumed from main 8a8d43ef. Research is closed through fresh ticket-price initialization; continue with parser/runtime code only, not more source rediscovery unless implementation exposes a dependency.",
   "same_chat_fallback_minutes": 30
 }
