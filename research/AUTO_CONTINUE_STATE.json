@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 10,
   "active_task": "Derive remaining live Gate-10 supporter/tier and ordinary league side-modifier inputs from GameState/source state, then consume four RNG draws in recovered order and post category-1/2 receipts once per normal home fixture.",
-  "last_known_main_head": "ad31b680f07f2a5ff552e22a76a37efccfb9cc4f",
+  "last_known_main_head": "75c3401d12286d8a8c2ce09740c3c6cbd18a3f69",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 30,
+  "recovery_generation": 31,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 30: Gate source/ticket state, lazy prices, four-cell aggregate and Balance category postings verified green at ad31b680 (523 tests + asset policy). Continue only live input derivation and normal matchday hook.",
+  "note": "Recovery generation 31 resumed from main 75c3401. Gate source/ticket state, lazy prices, four-cell calculator, category postings, and Premier League FanFactor are already persisted. Continue only live supporter/tier and ordinary league side-modifier inputs plus the single normal-matchday posting hook.",
   "same_chat_fallback_minutes": 30
 }
