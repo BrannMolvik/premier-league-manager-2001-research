@@ -36,19 +36,19 @@ tracked according to `research/ASSET_POLICY.md`.
 
 ## Verified repository state
 
-Latest verified Gate-10 closure checkpoint:
+Latest verified Gate-11 code checkpoint:
 
 ```text
-5d626f0fda83d3f7b8ca09d82061002017b68b37
-Test single-user dismissal control exit
+3f7bec072a66437361a908128ea45de9e95b418d
+Test player training state persistence
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **550 tests passed**;
+- reconstruction suite: **555 tests passed**;
 - repository asset-policy workflow: **passed**.
 
-Current internal save schema: **12**.
+Current internal save schema: **13**.
 
 Gate 10 now has a clean-room Balance/current-cash runtime slice:
 - current cash is represented explicitly and fresh controlled-club Balance cash
@@ -138,20 +138,23 @@ Several target systems already have substantial research or backend behavior:
 ## Exact next task
 
 1. **Gate 10 COMPLETE:** see `research/GATE10_FINANCES_AND_BOARD.md`.
-2. **Gate 11 first workflow selected: training.** Monthly development and the
-   seven profiles were already implemented; active training is now proven to
-   run on the Saturday phase through `0x42AE40 -> 0x61CBA0 -> 0x61C520 ->
-   0x4EACE0`.
-3. **Weekly eligibility resolved:** active training skips injured players and
-   the separate selection-exclusion bit 2. Recover only the exact human
-   method-change mutation before implementation.
-4. Materialize the minimum persistent per-player training record: method
-   (fresh default Fitness/5), eight-week countdown, 17 skill counters and the
-   result counters needed by the weekly transition.
-5. Add a human training-method action and save persistence, then attach the
-   exact weekly shared-RNG update before broadening to another Gate-11 system.
-6. Keep broader competitions, original front-end restoration and FastView/3D in
-   their later gates unless a Gate-11 dependency requires them.
+2. **Gate 11 training slice verified:** RuntimePlayer now persists the original
+   fresh method (**5 = Fitness**), eight-week countdown, active count, 17
+   per-skill counters/states and seven method result counters. Human managers
+   can change a player method without resetting accumulated state, and save
+   schema 13 preserves the training record.
+3. **Weekly eligibility resolved:** Saturday active training skips injured
+   players and the separate selection-exclusion bit 2; ordinary suspension does
+   not block this path.
+4. Continue translating `0x4EACE0` only far enough to separate the mandatory
+   weekly profile/counter/countdown/RNG transition from specialist-coach,
+   condition/injury and timed-effect branches.
+5. Instruction-lock the exact number/order of shared RNG calls for the minimum
+   weekly transition before adding it to calendar progression. Do not wire a
+   partial updater that changes global match RNG ordering.
+6. After weekly training is live and deterministic, audit the next Gate-11
+   management workflow rather than broadening training with guessed staff or UI
+   behavior.
 
 ## Known live fidelity boundaries
 
