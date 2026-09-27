@@ -4019,3 +4019,55 @@ the Business Consultant lookup used by the financial-objective path.
 The methods do not read monetary/budget fields from the +0x5DC object.
 Together with the prior support-staff/scouting classifications, this closes the
 `+0x5B8..+0x5EC` neighborhood as a live chairman-budget candidate.
+
+
+## 27 September 2026 - Gate 10 weekly player payroll integrated
+
+The first recurring player-cost path is now implemented from the recovered
+calendar and Balance evidence.
+
+Instruction-level recovery established:
+
+- weekly payroll phase:
+  `0x4A8070 -> 0x40BAD0 -> 0x403C70 -> 0x404390`;
+- cadence: `(date + 5) % 7 == 0`, mapped to **Saturday**;
+- player amount: stored `DBRPlayer +0xC4` weekly wage;
+- loaned-in players are excluded by exact helper `0x41FA50`;
+- normal fresh-game DBRUser `+0xCC` starts clear, so the special
+  human-only injured-wage suppression branch is inactive by default;
+- accounting category **101** is posted through Balance debit `0x5DC650`;
+- category 101 is a broader player-cost category and also receives
+  appearance-fee postings;
+- first-of-month support-staff cost path `0x4CA0F0` is separately recovered
+  as category **102**, with each staff cost scaled by `1000 / 12`.
+
+Modern implementation now:
+
+- exposes recovered finance categories 101 and 102;
+- runs weekly payroll for materialized Balance clubs;
+- sums registered players' weekly wages while excluding loaned-in roster
+  entries;
+- preserves parent-club wage responsibility for registered players;
+- leaves cash and ledger unchanged when Balance refuses an unaffordable debit;
+- runs payroll on ordinary day advancement, autonomous fixture-day advancement,
+  and human matchday completion;
+- deliberately leaves concrete category-102 staff amounts unimplemented until
+  the original CSupportStaff cost state is materialized.
+
+The existing Saturday human transfer regression now proves the current
+reconstructed same-day ordering explicitly: the due transfer posts category
+1000 first, then the newly registered player's 2,000 wage posts category 101.
+
+Verified code checkpoint:
+
+`5dc29a072d6e4f91744b882251df16f980c82f55`
+
+GitHub Actions:
+
+- reconstruction suite: **497 tests passed**;
+- repository asset-policy workflow: **passed**.
+
+Next Gate-10 target: recover the next ordinary live cash-flow producer,
+prioritizing match-day income / attendance receipts and other recurring
+income before returning to support-staff amounts that require a broader staff
+runtime dependency.
