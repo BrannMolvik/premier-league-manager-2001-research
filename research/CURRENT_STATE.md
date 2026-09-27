@@ -39,13 +39,13 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-10 **code** checkpoint:
 
 ```text
-5dc29a072d6e4f91744b882251df16f980c82f55
-Account for Saturday payroll after transfer
+02ce20502b3a80e62c9485ac2d7fdb7e8b9b5200
+Test exact visiting section allocation
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **497 tests passed**;
+- reconstruction suite: **514 tests passed**;
 - repository asset-policy workflow: **passed**.
 
 Current internal save schema: **9**.
@@ -181,13 +181,14 @@ Existing reverse engineering already establishes:
    category-101 Balance postings. The first-of-month support-staff path is
    recovered as category 102 but concrete amounts remain deferred until the
    original CSupportStaff cost state is materialized.
-7. **Active:** the recovered live gate-receipt producer is formula-complete and
-   its minimum original stadium source is now mapped: per-club `.MAP` grid,
-   26 fixed section anchors, per-instance flags and `Lists\\Buildings.dat`.
-   Fresh ordinary terrace/seating price initialization is now exact as well.
-   Add parser/runtime materialization for only this required original state,
-   implement the complete attendance/revenue path and add deterministic
-   regressions before normal matchday integration.
+7. **Active:** the minimum original stadium/ticket source is now materialized
+   in code and verified: per-club MAP grid, recovered building-capacity records,
+   26 section anchors/flags, fresh ticket state and exact visiting allocation.
+   The source-independent gate-demand/price-response/truncation/RNG body is also
+   implemented. Attach the recovered fresh terrace/seating price initialization
+   and remaining source-backed club/competition inputs, then integrate the
+   complete attendance/revenue producer into normal matchday progression with
+   deterministic ledger regressions.
 8. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
    300 on day-of-month 1, but `0x5E5330` never appends its generated stack
