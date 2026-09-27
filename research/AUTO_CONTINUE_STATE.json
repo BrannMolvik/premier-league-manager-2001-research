@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Recover Balance credit 0x5DC510 secondary category-1600 debit conversion/rounding and integrate it with a rounding-sensitive regression.",
-  "last_known_main_head": "affe06737a6701164656828292214c9c25624e70",
+  "active_task": "Trace Balance constructor 0x5DC400 and ordinary fresh-game callers to recover the authoritative source of initial current cash; do not invent a default amount.",
+  "last_known_main_head": "24b1e70af7748de7faf997282aee330b150b7a34",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 32,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 32: normal Premier League gate path is integrated and CI-green at 0d3010df (531 tests + asset policy). Canonical main advanced through affe0673. Continue only category-1600 Balance credit conversion/rounding; do not reopen gate attendance.",
+  "note": "Recovery generation 32: category-1600 secondary debit integrated exactly and CI-green at 3fc54ed8 (533 tests + asset policy), schema 10. Main canonical docs/status advanced through 24b1e70a. Continue only starting Balance cash source trace.",
   "same_chat_fallback_minutes": 30
 }
