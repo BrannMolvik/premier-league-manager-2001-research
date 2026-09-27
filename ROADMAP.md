@@ -18,7 +18,7 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 6. Update `research/CURRENT_STATE.md` whenever the exact next task changes.
 7. Preserve old research as historical evidence; do not silently rewrite chronology.
 8. Mark every fidelity claim as confirmed, probable, hypothesis, fallback, or approximation as appropriate.
-9. Reuse authorized original FM2001 resources deliberately under `original_assets/`, with provenance. Keep raw disc images, duplicate archives, temporary dumps, and unrelated binary noise out of Git.
+9. Use accessible original FM2001 resources and recovered original behavior by default. Do not recreate or substitute them for convenience, implementation speed, aesthetics, or modernization preference. Replace only when the original is technically incompatible with the Windows 11 runtime after reasonable adaptation/conversion, or genuinely inaccessible/unrecoverable from the authorized source; document that boundary. Store intentionally reused resources under `original_assets/` with provenance. Keep raw disc images, duplicate archives, temporary dumps, and unrelated binary noise out of Git.
 10. Before moving to the next gate, verify the gate's completion criteria.
 
 ## Current roadmap status
@@ -260,7 +260,7 @@ Completion criteria:
 
 ## Gate 13 - Restore original management presentation
 
-Goal: restore the original FM2001 interaction flow and visual identity after gameplay is stable, reusing authorized original UI assets wherever practical rather than recreating them unnecessarily.
+Goal: restore the original FM2001 interaction flow and visual identity after gameplay is stable. Reuse the original UI assets, screen/layout data, strings, navigation/timing data, and other recoverable presentation resources by default; reconstruct only the incompatible or inaccessible portions needed to drive them on the modern runtime.
 
 Suggested screen order:
 
@@ -280,13 +280,13 @@ Suggested screen order:
 Completion criteria:
 
 - [ ] Simulation logic remains separated from presentation code.
-- [ ] Original UI graphics/resources are inventoried and reused or converted where practical.
+- [ ] Accessible original UI graphics/resources and recoverable screen/layout/navigation data are inventoried and reused or converted; replacements exist only for documented incompatible or inaccessible source material.
 - [ ] Main-menu/login presentation, screen structure, navigation, and timing closely follow the original.
 - [ ] Normal play feels recognizably like FM2001 rather than a generic replacement UI.
 
 ## Gate 14 - Original audio and match presentation
 
-Goal: restore FM2001's player-visible audio/match presentation on top of the stable event/state stream, using authorized original music, sound effects, graphics, and presentation resources wherever practical.
+Goal: restore FM2001's player-visible audio/match presentation on top of the stable event/state stream, using the original music, sound effects, graphics, video, timing, and presentation resources wherever accessible; adapt/convert them for compatibility and replace only what is genuinely incompatible or inaccessible.
 
 Completion criteria:
 
