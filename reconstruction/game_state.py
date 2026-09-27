@@ -82,6 +82,7 @@ class GameState:
     competitions: dict[int, object] = field(default_factory=dict)
     countries: dict[int, object] = field(default_factory=dict)
     positions: dict[int, object] = field(default_factory=dict)
+    access_fan_bases: tuple[object, ...] = ()
     access_skill_financial_values: tuple[object, ...] = ()
     team_tactics: dict[int, TeamTacticalState] = field(default_factory=dict)
     pitch_wear: dict[int, int] = field(default_factory=dict)
@@ -114,6 +115,7 @@ class GameState:
         source_players = tuple(database.players)
         clubs = tuple(getattr(database, "clubs", ()))
         countries = tuple(getattr(database, "countries", ()))
+        fan_bases = tuple(getattr(database, "access_fan_bases", ()))
         financial_values = tuple(
             getattr(database, "access_skill_financial_values", ())
         )
@@ -227,6 +229,7 @@ class GameState:
             competitions=competitions_by_id,
             countries=countries_by_id,
             positions=positions_by_id,
+            access_fan_bases=fan_bases,
             access_skill_financial_values=financial_values,
             team_tactics=team_tactics,
             pitch_wear=pitch_wear,
