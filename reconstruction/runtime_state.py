@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 from typing import Protocol, Sequence
 
 from match_schedule import BoundedRng
@@ -71,6 +71,7 @@ class PlayerSource(Protocol):
     current_raw: tuple[int, ...]
     target_raw: tuple[int, ...]
     eu_status_code: int
+    joined_current_club_date: date | None
 
 
 PHYSICAL_PEAK_RANGE = (25, 26)
@@ -79,6 +80,27 @@ LATE_PEAK_RANGE = (30, 32)
 DEFAULT_MAXIMUM_MORALE = 100
 INITIAL_MORALE_RANDOM_RANGE = 15
 POST_LOAD_MONTH_SPAN_RANDOM_RANGE = 5
+JOIN_DATE_TOO_OLD_DAYS = 0x3A98
+JOIN_DATE_FALLBACK_DAYS = 200
+
+
+def normalize_current_club_join_date(
+    joined_date: date | None,
+    current_date: date,
+) -> date:
+    """Reproduce DBRPlayer startup helper 0x4172E0 for +0x158.
+
+    Compact-player +76 is copied to runtime +0x58 and then +0x158. Values
+    older than current-15000 days, later than current, or invalid/negative are
+    replaced by current-200 days before transfer policy uses 0x419390.
+    """
+    if (
+        joined_date is None
+        or joined_date < current_date - timedelta(days=JOIN_DATE_TOO_OLD_DAYS)
+        or joined_date > current_date
+    ):
+        return current_date - timedelta(days=JOIN_DATE_FALLBACK_DAYS)
+    return joined_date
 
 
 def bounded_draw(rng: BoundedRng, bound: int) -> int:
@@ -150,6 +172,7 @@ class RuntimePlayer:
     transfer_listed: bool = False
     loan_club_id: int | None = None
     signed_for_other_club: bool = False
+    current_club_join_date: date | None = None
 
     @classmethod
     def from_database_player(
@@ -215,6 +238,10 @@ class RuntimePlayer:
         contract_expiry_date = contract_expiry_from_month_span(
             as_of, startup_month_span
         )
+        current_club_join_date = normalize_current_club_join_date(
+            getattr(source, "joined_current_club_date", None),
+            as_of,
+        )
 
         return cls(
             index=source.index,
@@ -242,6 +269,7 @@ class RuntimePlayer:
             startup_month_span=startup_month_span,
             weekly_wage=int(weekly_wage),
             contract_expiry_date=contract_expiry_date,
+            current_club_join_date=current_club_join_date,
         )
 
     @property
