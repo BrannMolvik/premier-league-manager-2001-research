@@ -5944,3 +5944,55 @@ Thus ordinary cash-only code-2 acceptance emits the Player Accepts event but
 does **not** directly invoke the 1/4 ready-state promotion at that point.
 The later conclude/medical/execution path must remain separate in the modern
 runtime rather than marking every accepted cash proposal immediately ready.
+
+
+## DBRPlayer::0x422470 refusal-code strings (Gate 9)
+
+**Confirmed 27 September 2026 from canonical FOOTBAL.EXE and English.str.**
+
+The response factory `0x4EC780` handles DBRPlayer::`0x422470` codes
+3..18. Codes 4..17 dispatch through the 14-entry jump table at `0x4ED160`,
+loading globals `0x981FF0` down through `0x981FBC`.
+
+The corresponding English.str block contains exactly 14 consecutive player
+refusal strings, which gives this code mapping:
+
+| Code | Recovered reason text / semantic |
+| ---: | --- |
+| 4 | offer does not match player's expectations |
+| 5 | player has a better offer from another club |
+| 6 | buying club's ambitions do not match player's ambitions |
+| 7 | player does not want to play in the buying club's country |
+| 8 | player wants a club closer to home |
+| 9 | player wants a move abroad |
+| 10 | player wants a club offering major European competition |
+| 11 | player is settled and does not want to move abroad |
+| 12 | player does not want to join a club struggling against relegation |
+| 13 | player has decided to retire |
+| 14 | player wants to stay for an upcoming testimonial |
+| 15 | player has accepted a strong new offer from his current club |
+| 16 | player has already signed for another club |
+| 17 | player has only recently joined his current club |
+
+The canonical strings begin at English.str offset 277845 and run through
+279428 in that exact order.
+
+Code 1 is already proven `EAMTransferUserPlayerCounterOfferMsub` and code 2
+is proven `EAMTransferPlayerAcceptsMsub`. Codes 3 and 18 use special/default
+factory paths rather than one of the 14 localized reason globals and remain
+separate mapping targets.
+
+Important branch confirmations from `0x422470`:
+
+- code 17 is reached when the buying club differs from the player's relevant
+  club and helper `0x419390` reports fewer than 8 elapsed weeks;
+- code 16 is reached from player runtime `+0x174` bit 7;
+- code 12 is reached from buying-club helper `0x407E80 == 1`;
+- code 11 is reached when the buying club's `+0x14` country/context field
+  differs from the comparison club;
+- code 9 is a 40% (`RNG(10) < 4`) same-country rejection for a sufficiently
+  highly rated player, matching the localized “move abroad” reason;
+- code 6 is returned when buying-club helper `0x40D4A0 > 13`.
+
+This mapping should be used by the modern negotiation layer rather than
+invented generic refusal labels.
