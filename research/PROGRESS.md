@@ -3745,3 +3745,33 @@ Canonical disassembly resolves the normal post-accept lifecycle further.
   rescheduled +7 days as mode 1.
 - The 0x48-byte 0x4EF600 event at vtable 0x7D1218 is RTTI-proven
   EAMWorkPermitGranted, not a medical event.
+
+
+## 27 September Gate 9 - ordinary cash transfer completion core
+
+The modern runtime now reproduces the evidence-backed ordinary
+MPMTransferPlayer completion slice without inventing Gate-10 finance state.
+
+Implemented and verified:
+
+- persistent ScheduledTransfer mirrors MPMTransferPlayer mode 0/1;
+- normal conclusion schedules mode 0 for current date +1;
+- buyer roster count >= 40 reschedules mode 0 to +7 days as mode 1;
+- controlled-buyer execution requires an explicit current-cash affordability
+  callback until the Balance subsystem is materialized in Gate 10;
+- successful completion records CPlayerMovement-equivalent history, safely
+  removes/adds the player between club rosters, stamps the new-club join date,
+  clears signed/transfer-listed/loan state, and removes proposal/deal state;
+- negotiated weekly wage, current-date-plus-months expiry, promotion bonus,
+  appearance fee, three clauses, house, and car persist on RuntimePlayer;
+- internal save schema **7** persists those contract fields and scheduled
+  transfer objects;
+- due transfer / save-reload regressions cover successful movement, exact
+  movement consideration, no duplicate roster membership, and the 40-player
+  +7-day retry.
+
+GitHub Actions at `de175a605755da951a36fab3699831083f52de94`:
+**477 tests passed**; asset-policy workflow passed.
+
+The remaining Gate-9 implementation criterion is AI transfer activity during
+calendar progression, followed by canonical integration/audit.
