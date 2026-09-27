@@ -552,7 +552,15 @@ Class identity is confirmed as `DBTInternationalFixtures` from the actual loader
 - +8 uint32
 - +12 uint32
 
-Observed values strongly indicate scheduling/routing information for international competition regions. The final two fields reference international competition/region IDs such as Europe (170), South America (177), North America (178), Africa (179), Asia (180), and Oceania (181). Exact semantic names for all five fields remain under investigation.
+Secondary scheduler `0x4FA790` now fixes the runtime meaning of every packed field:
+
+- +0 uint32: fixture record ID;
+- +4 uint16: scheduled week;
+- +6 uint16: scheduled weekday;
+- +8 uint32: competition ID resolved through the general `Competition` RTTI path;
+- +12 uint32: competition ID required to dynamic-cast to `DummyLeague`.
+
+The scheduler copies/shuffles the participant vectors from those two competition objects, selects one participant from each, avoids a same-club pairing when necessary, and inserts the resulting international match into secondary schedule container `0x947AF0`. Values such as Europe (170), South America (177), North America (178), Africa (179), Asia (180), and Oceania (181) are therefore live participant-pool competition IDs rather than merely presentation regions.
 
 ### Previous international score table
 
