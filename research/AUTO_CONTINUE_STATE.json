@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 9,
-  "active_task": "Verify 0x4EFA20 proposal total for cash-only bids, then connect live TransferProposal submission to seller decision and player negotiation",
+  "active_task": "Verify 0x4EFA20/0x4EFA70 proposal total for cash-only bids, then connect live proposal submission to seller evaluation and player negotiation",
   "last_known_main_head": "b5d4bff4c21eedaca78a30b0d1c005bd04005871",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 15,
+  "recovery_generation": 16,
   "last_recovery_reason": "stale-repository-activity",
   "note": "Gate 9 seller chairman core decision is complete on main. Current worker owns valuation/count live adapters; avoid repeating the 0x4EF940 seller-decision trace.",
   "same_chat_fallback_minutes": 30
