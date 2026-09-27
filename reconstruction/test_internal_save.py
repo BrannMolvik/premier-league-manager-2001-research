@@ -5,6 +5,7 @@ from dataclasses import replace
 from datetime import date
 from pathlib import Path
 
+from finance_state import FinancialObjectiveState
 from game_state import GameState
 from human_gameplay import HumanGameplayController
 from internal_save import (
@@ -313,6 +314,42 @@ class InternalSaveTests(unittest.TestCase):
                 (300_000, 1000, date(2000, 6, 30)),
             ],
         )
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
+    def test_financial_objective_state_survives_roundtrip(self):
+        original = self.build_controller()
+        balance = original.state.set_current_cash(1, 28_000_000)
+        balance.financial_objective = FinancialObjectiveState(
+            base_cash=28_000_000,
+            candidate_ids=(13, 1, 5),
+        )
+        replacement = original.state.select_financial_objective(1, 0)
+        self.assertEqual(replacement, 47_600_000)
+        original.state.set_financial_objective_progression_gate(1)
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        restored_balance = restored.state.finance_balances[1]
+        objective = restored_balance.financial_objective
+        self.assertIsNotNone(objective)
+        self.assertEqual(objective.candidate_ids, (13, 1, 5))
+        self.assertEqual(objective.selected_objective_id, 13)
+        self.assertEqual(objective.starting_funds, 47_600_000)
+        self.assertEqual(objective.target_cash, 51_800_000)
+        self.assertEqual(objective.selected_on, date(2000, 6, 30))
+        self.assertEqual(objective.deadline, date(2003, 6, 30))
+        self.assertTrue(objective.active)
+        self.assertTrue(objective.progression_gate_reached)
+        self.assertEqual(objective.progression_state, 1)
+        self.assertEqual(restored_balance.current_cash, 47_600_000)
         self.assertEqual(
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),
