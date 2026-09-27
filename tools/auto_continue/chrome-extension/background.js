@@ -154,7 +154,7 @@ Before substantive work:
 5. Mark the runtime state as mode=continuous and status=working, increment recovery_generation, and record the latest main HEAD.
 6. Continue the exact current task from the repository and checkpoint at the normal persistence boundaries.
 
-A new conversation was created because the previous conversation reached a true chat-length limit or no usable worker tab remained. Do not restart already-persisted investigation.
+A new conversation was created because the previous conversation reached a true chat-length limit, no usable worker tab remained, or an in-place recovery produced no repository progress for the configured fallback interval. Do not restart already-persisted investigation.
 
 Latest standard handoff follows:
 
