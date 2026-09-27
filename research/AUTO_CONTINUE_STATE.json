@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 10,
   "active_task": "Finish Gate 10 live gate receipts: resolve stadium-entry +0x1C versus +0x28 as terrace/seating, then translate the two parallel home/visiting attendance-demand, cap, conversion and randomized-rounding pipelines before materializing required +0x694/+0x6B0 state.",
-  "last_known_main_head": "6439945cf7b1956be0f7905bda53dd93758399b3",
+  "last_known_main_head": "14eb06dc4f60fabafe1524dbceb0f096d7be20a3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 26,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 26 heartbeat at main 6439945cf7b1956be0f7905bda53dd93758399b3. Home/visiting accounting and section allocation are resolved; immediate target is the final +0x1C/+0x28 terrace/seating mapping, followed by exact attendance formula translation.",
+  "recovery_generation": 27,
+  "last_recovery_reason": "stale-repository-activity-no-worker-tab",
+  "note": "Recovery generation 27 resumed from main 14eb06dc4f60fabafe1524dbceb0f096d7be20a3. Gate 10 live gate receipts remain active; immediate target is the final +0x1C/+0x28 terrace/seating mapping, followed by exact attendance formula translation.",
   "same_chat_fallback_minutes": 30
 }
