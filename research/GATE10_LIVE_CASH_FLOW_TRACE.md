@@ -702,33 +702,57 @@ income posting:
 Neither path currently has a persisted instruction-level bridge from those
 values to an exact Balance posting amount/category.
 
-## Balance-credit fidelity issue to preserve
+## Balance-credit category-1600 secondary debit resolved
 
-The original `Balance::credit` path at `0x5DC510` also constructs a
-secondary debit with accounting category 1600. The recovered amount is:
+The original `Balance::credit` path at `0x5DC510` constructs a second
+finance posting for every incoming credit.
+
+Instruction order is exact:
+
+1. convert the incoming finance value to a double through `0x5E48D0` with
+   conversion argument 0;
+2. add the full incoming amount to Balance current cash;
+3. multiply that same double by literal `0.01`;
+4. multiply by literal `0.2`;
+5. construct a second finance value from that floating result through
+   `0x5E43B0` with conversion flags zero;
+6. invoke `Balance::debit 0x5DC650` with accounting category **1600** and
+   flag **1**;
+7. append the original primary-credit transaction.
+
+Thus the exact secondary amount is:
 
 ```text
 incoming_amount * 0.01 * 0.2
 = incoming_amount * 0.002
 ```
 
-The category's user-facing semantic label and the exact integer/conversion
-behavior are not yet proven. The clean-room `BalanceRuntimeState.credit()`
-currently only records the primary credit.
+There is **no integer conversion or x87 `0x668350` truncation** before this
+secondary debit. A primary credit of `1.0` therefore generates a
+category-1600 debit of `0.002`, not zero.
 
-Do not silently add a guessed rounded/truncated category-1600 debit. Recover the
-conversion behavior first, then add a regression that covers an amount where
-rounding matters.
+The finance representation must consequently retain fractional double values.
+The clean-room Balance slice now does so, inserts the category-1600 debit before
+the primary credit in ledger order, and internal save schema 10 preserves those
+fractional amounts.
+
+Finance Overview independently queries category 1600 through its normal
+credit/debit/net aggregate family, proving this is a real ledger category. A
+trustworthy EA-facing human-readable label has still not been recovered, so the
+implementation deliberately keeps the neutral category-number name.
+
+GitHub Actions at `3fc54ed8524fabade0f37be7017f84d5e967a279` passed
+**533 reconstruction tests** and the repository asset-policy workflow.
 
 ## Exact next binary-backed trace
 
-Do not restart the now-closed normal Premier League gate-receipt trace.
+Do not restart the now-closed normal Premier League gate-receipt or
+category-1600 traces.
 
-Continue with the remaining Balance-credit fidelity issue at `0x5DC510`:
-recover the exact numeric conversion/rounding and semantic evidence for the
-secondary **category 1600** debit generated from each incoming credit. Add a
-regression using an incoming amount for which truncation/rounding changes the
-result before integrating that secondary debit.
+Continue from Balance construction at `0x5DC400` and its fresh-game callers to
+recover the authoritative source of initial Balance current cash. The modern
+runtime still requires callers to supply starting cash explicitly; do not
+invent a default amount.
 
 Concession generation remains intentionally disabled on fresh games for the
 separate dormant-path reason documented above.
