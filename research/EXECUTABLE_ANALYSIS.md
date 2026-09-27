@@ -5833,3 +5833,42 @@ competition and country inputs directly from source-backed GameState tables.
 The modern match backend does not yet persist the original six-byte rating
 history, so callers must still supply appearance/history inputs once that
 modifier becomes relevant.
+
+
+## Cash-only proposal total at 0x4EFA20
+
+Gate-9 tracing against the canonical FOOTBAL.EXE resolves the ordinary cash-only
+proposal total used by the seller-chairman decision.
+
+`0x4EFA20` computes four additive components:
+
+1. `0x6596A0`;
+2. integer result of `0x4EFE10`;
+3. `0x4F0E00` exchange-player value;
+4. proposal cash field `+0x10`.
+
+The canonical executable proves:
+
+- `0x6596A0` is exactly `xor eax,eax; ret`, so component 1 is zero;
+- `0x4F0E00` starts from double constant `0x7BD5F8 == 0.0` and sums only
+  valid exchange-player slots, so it is zero for `(-1,-1,-1)`;
+- ordinary proposal setup calls `0x4EFE80(0,0)`, which writes proposal bytes
+  `+0x14 = 0` and `+0x15 = 0`;
+- `0x4EFE10` selects a multiplier table from proposal byte `+0x14`; selector
+  0 maps to integer multiplier 0, so its entire add-on term is zero.
+
+Therefore for the normal human **cash-only** proposal mode:
+
+```text
+0x4EFA20(proposal) == proposal.cash_fee
+```
+
+exactly. There is no hidden surcharge, multiplier, or exchange-value term in
+that path.
+
+Nonzero `+0x14` modes are deliberately not generalized yet; they route through
+the recovered `0x4EFE10` percentage/add-on table and need separate semantic
+mapping before use.
+
+The live reconstruction now exposes this exact default path in
+`transfer_workflow.cash_only_proposal_total_value()`.
