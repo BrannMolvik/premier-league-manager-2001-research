@@ -8,9 +8,12 @@ from typing import Callable, Iterable
 from competition_state import PremierLeagueState
 from finance_state import (
     BalanceRuntimeState,
+    GATE_HOME_ACCOUNT_CATEGORY,
+    GATE_VISITING_ACCOUNT_CATEGORY,
     PLAYER_COST_ACCOUNT_CATEGORY,
     TRANSFER_ACCOUNT_CATEGORY,
 )
+from gate_receipts import GateReceiptResult
 from match_condition import ConditionInjurySettings
 from match_environment import (
     MatchEnvironment,
@@ -489,6 +492,42 @@ class GameState:
                 category=TRANSFER_ACCOUNT_CATEGORY,
                 posting_date=self.calendar.current_date,
             )
+
+    def post_gate_receipts(
+        self,
+        home_club_id: int,
+        receipts: GateReceiptResult,
+    ) -> dict[int, int]:
+        """Credit recovered category-1/2 match-day gate revenue to the host.
+
+        Original finance wrappers post only when the host has a materialized
+        user Balance. Category 1 is visiting-supporter ordinary ticket income;
+        category 2 is home-supporter ordinary ticket income. Season-ticket
+        quantity is attendance-only here because category 3 is a separate sale
+        producer.
+        """
+        home_club_id = int(home_club_id)
+        balance = self.finance_balances.get(home_club_id)
+        if balance is None:
+            return {}
+        posted: dict[int, int] = {}
+        visiting = max(0, int(receipts.visiting_revenue))
+        home = max(0, int(receipts.home_revenue))
+        if visiting:
+            balance.credit(
+                visiting,
+                category=GATE_VISITING_ACCOUNT_CATEGORY,
+                posting_date=self.calendar.current_date,
+            )
+            posted[GATE_VISITING_ACCOUNT_CATEGORY] = visiting
+        if home:
+            balance.credit(
+                home,
+                category=GATE_HOME_ACCOUNT_CATEGORY,
+                posting_date=self.calendar.current_date,
+            )
+            posted[GATE_HOME_ACCOUNT_CATEGORY] = home
+        return posted
 
     def run_weekly_player_payroll(self) -> dict[int, int]:
         """Apply the recovered Saturday category-101 player payroll debit.
