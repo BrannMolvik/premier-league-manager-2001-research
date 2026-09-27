@@ -240,6 +240,81 @@ class RuntimePlayerTests(unittest.TestCase):
         player.selection_excluded = True
         self.assertTrue(player.weekly_training_excluded)
 
+    def test_weekly_fitness_training_consumes_exact_six_draws_and_applies_success(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1)
+        )
+        # Use a fresh RNG here so the weekly stream is easy to assert exactly.
+        rng = MsvcCrtRng(1)
+
+        draws = player.run_weekly_training_primary(rng, 1.0)
+
+        self.assertEqual(draws, 6)
+        self.assertEqual(rng.state, 0x3D6C1037)
+        self.assertEqual(player.training_countdown, 7)
+        self.assertEqual(player.current_raw[0], 108)
+        self.assertEqual(player.training_modifiers[0], 1)
+        self.assertEqual(player.training_active_count, 1)
+        self.assertEqual(player.training_method_results[5], 1)
+        self.assertEqual(
+            [i for i, value in enumerate(player.training_modifiers) if value],
+            [0],
+        )
+
+    def test_rest_countdown_boundary_reverses_without_consuming_rng(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1)
+        )
+        player.set_training_method(0)
+        player.training_countdown = 1
+        player.training_modifiers[0] = 1
+        player.training_skill_states[0] = 1
+        player.training_active_count = 1
+        player.current_raw[0] = 108
+        rng = MsvcCrtRng(0x12345678)
+        before = rng.state
+
+        draws = player.run_weekly_training_primary(rng, 1.0)
+
+        self.assertEqual(draws, 0)
+        self.assertEqual(rng.state, before)
+        self.assertEqual(player.training_countdown, 8)
+        self.assertEqual(player.training_modifiers[0], 0)
+        self.assertEqual(player.training_skill_states[0], 0)
+        self.assertEqual(player.training_active_count, 0)
+        self.assertEqual(player.current_raw[0], 100)
+
+    def test_ineligible_weekly_training_consumes_no_rng_or_countdown(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1)
+        )
+        player.injured = True
+        rng = MsvcCrtRng(0x12345678)
+        before = rng.state
+
+        draws = player.run_weekly_training_primary(rng, 1.0)
+
+        self.assertEqual(draws, 0)
+        self.assertEqual(rng.state, before)
+        self.assertEqual(player.training_countdown, 8)
+
+    def test_nonzero_weight_consumes_rng_even_when_skill_is_already_at_target(self):
+        subject = FakePlayer(
+            current_raw=(180,) * 17,
+            target_raw=(180,) * 17,
+        )
+        player = RuntimePlayer.from_database_player(
+            subject, date(2000, 7, 1), MsvcCrtRng(1)
+        )
+        rng = MsvcCrtRng(1)
+
+        draws = player.run_weekly_training_primary(rng, 1.0)
+
+        self.assertEqual(draws, 6)
+        self.assertEqual(rng.state, 0x3D6C1037)
+        self.assertEqual(player.training_active_count, 0)
+        self.assertEqual(player.training_modifiers, [0] * 17)
+
 
 class CalendarTests(unittest.TestCase):
     def test_monthly_hook_fires_when_entering_first_day(self):
