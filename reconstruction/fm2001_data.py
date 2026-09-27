@@ -23,6 +23,8 @@ CUP_ALLOCATION_TABLE_OFFSET = 0xE337
 CUP_ALLOCATION_RECORD_SIZE = 28
 REAL_FIXTURE_TABLE_OFFSET = 0x10057
 REAL_FIXTURE_RECORD_SIZE = 16
+INTERNATIONAL_FIXTURE_TABLE_OFFSET = 0x1181B
+INTERNATIONAL_FIXTURE_RECORD_SIZE = 16
 ACCESS_FAN_BASE_TABLE_OFFSET = 0x13C95
 ACCESS_FAN_BASE_RECORD_SIZE = 78
 ACCESS_SKILL_FINANCIAL_TABLE_OFFSET = 0x14965
@@ -253,6 +255,18 @@ class RealFixture:
     home_club_id: int
     away_club_id: int
 
+
+@dataclass(frozen=True)
+class InternationalFixture:
+    """Packed DBRInternationalFixture fields consumed by secondary scheduling."""
+
+    id: int
+    scheduled_week: int
+    scheduled_weekday: int
+    competition_id: int
+    dummy_league_id: int
+
+
 class FM2001Database:
     def __init__(self, game_dir: str | Path):
         self.game_dir = Path(game_dir)
@@ -270,6 +284,7 @@ class FM2001Database:
         self.rounds = []
         self.cup_allocation_instructions = []
         self.real_fixtures = []
+        self.international_fixtures = []
         self.access_fan_bases = []
         self.access_skill_financial_values = []
         self._parse_master()
@@ -280,6 +295,7 @@ class FM2001Database:
             self._parse_rounds()
             self._parse_cup_allocation_instructions()
             self._parse_real_fixtures()
+            self._parse_international_fixtures()
             self._parse_access_fan_bases()
             self._parse_access_skill_financial_values()
 
@@ -541,6 +557,34 @@ class FM2001Database:
                 '<IIII', self.static, base + i * REAL_FIXTURE_RECORD_SIZE
             )
             self.real_fixtures.append(RealFixture(fixture_id, round_index, home, away))
+
+    def _parse_international_fixtures(self):
+        """Parse the 108 records consumed by secondary scheduler 0x4FA790."""
+        off = INTERNATIONAL_FIXTURE_TABLE_OFFSET
+        if off + 4 > len(self.static):
+            return
+        count = struct.unpack_from('<I', self.static, off)[0]
+        base = off + 4
+        end = base + count * INTERNATIONAL_FIXTURE_RECORD_SIZE
+        if end > len(self.static):
+            raise ValueError('Static.dat international-fixture table exceeds file size')
+        for i in range(count):
+            fixture_id, week, weekday, competition_id, dummy_league_id = (
+                struct.unpack_from(
+                    '<IHHII',
+                    self.static,
+                    base + i * INTERNATIONAL_FIXTURE_RECORD_SIZE,
+                )
+            )
+            self.international_fixtures.append(
+                InternationalFixture(
+                    id=fixture_id,
+                    scheduled_week=week,
+                    scheduled_weekday=weekday,
+                    competition_id=competition_id,
+                    dummy_league_id=dummy_league_id,
+                )
+            )
 
     def _parse_access_fan_bases(self):
         off = ACCESS_FAN_BASE_TABLE_OFFSET
