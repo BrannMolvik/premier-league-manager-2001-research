@@ -3872,3 +3872,67 @@ runtime inputs and proceed with implementation.
 Next: wire these predicates into a Saturday calendar AI-acquisition pass,
 exercise it deterministically, then run the full Gate-9 transfer suite and
 audit the final criterion.
+
+## 27 September 2026 - Gate 9 complete: transfers and contracts
+
+Gate 9 closed after the remaining transfer work was integrated into the live
+human/controller and calendar paths.
+
+Final implementation added:
+
+- evidence-backed Saturday AI acquisition maintenance through
+  `0x40DD70 -> 0x40DC90 -> 0x40DBB0 -> 0x41EFB0`;
+- exact recovered buyer/seller/candidate gates where mapped;
+- direct AI acquisition pricing, wage and contract application;
+- schema-8 persistence for AI-transfer runtime inputs and neutral predicate
+  state;
+- `HumanGameplayController.submit_cash_bid` and
+  `offer_player_contract`;
+- automatic +1-day scheduling after code-2 player acceptance;
+- due MPMTransferPlayer execution during normal GameState day maintenance;
+- an explicit controlled-buyer affordability callback retained as the Gate-10
+  finance dependency instead of inventing cash state early;
+- safe roster movement and contract application through the existing transfer
+  completion core.
+
+The final human regression starts with a controlled Premier League club,
+submits a cash bid for another club's player, negotiates accepted terms,
+advances the calendar one day, and verifies that the scheduled transfer moves
+the player exactly once into the buyer squad with the negotiated contract.
+
+Final Gate-9 code checkpoint:
+
+`c8b6d4e71fa9464e4d7f002c69213aad2f5ff196`
+
+GitHub Actions: **486 tests passed**; repository asset-policy workflow passed.
+
+Formal evidence is in
+`research/GATE9_TRANSFERS_AND_CONTRACTS.md`.
+
+Remaining transfer approximations were not hidden. The live fidelity tracker
+now explicitly retains the broader `0x422803/0x423340` player-response
+branches, due-transfer same-day ordering, later country-window toggling, the
+autonomous contract-category source and buy-counter lifecycle.
+
+## 27 September 2026 - Gate 10 begins: current cash first
+
+Gate 10 starts from already recovered finance evidence rather than a fresh
+search.
+
+The immediate implementation target is the Balance/current-cash object:
+
+- DBRUser owns Balance pointers at `+0x670..+0x684`;
+- active Balance current cash is qword `+0x10`;
+- controlled transfer affordability is club
+  `0x404AE0` against that value;
+- buyer transfer posting is `0x404B30 -> 0x5DC650` debit;
+- seller transfer posting is `0x404BB0 -> 0x5DC510` credit;
+- transfer accounting category is 1000;
+- chairman transfer budget is a separate value and must not be conflated with
+  current cash.
+
+Next implementation block: materialize live cash, connect Gate-9 transfer
+completion to debit/credit and insufficient-funds behavior, persist it in the
+next internal save schema, then resume the separate authoritative
+transfer-budget-store trace.
+
