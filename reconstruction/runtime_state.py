@@ -80,6 +80,9 @@ LATE_PEAK_RANGE = (30, 32)
 DEFAULT_MAXIMUM_MORALE = 100
 INITIAL_MORALE_RANDOM_RANGE = 15
 POST_LOAD_MONTH_SPAN_RANDOM_RANGE = 5
+TRAINING_METHOD_COUNT = 7
+DEFAULT_TRAINING_METHOD = 5
+DEFAULT_TRAINING_COUNTDOWN = 8
 JOIN_DATE_TOO_OLD_DAYS = 0x3A98
 JOIN_DATE_FALLBACK_DAYS = 200
 
@@ -144,7 +147,15 @@ class RuntimePlayer:
     current_raw: list[int]
     target_raw: tuple[int, ...]
     development: DevelopmentState | None
+    # Original embedded training object at owner record +0x24. The 17-byte
+    # training_modifiers array is the persistent per-skill counter block used
+    # by monthly development as well as the weekly +8/-8 training lifecycle.
     training_modifiers: list[int] = field(default_factory=lambda: [0] * 17)
+    training_method_id: int = DEFAULT_TRAINING_METHOD
+    training_countdown: int = DEFAULT_TRAINING_COUNTDOWN
+    training_active_count: int = 0
+    training_skill_states: list[int] = field(default_factory=lambda: [1] * 17)
+    training_method_results: list[int] = field(default_factory=lambda: [0] * 7)
     match_active: bool = False
     match_substitute_available: bool = False
     condition: int = 80
@@ -371,6 +382,23 @@ class RuntimePlayer:
         if len(values) != 17:
             raise ValueError("FM2001 training modifiers require exactly 17 values")
         self.training_modifiers[:] = [max(0, min(255, int(v))) for v in values]
+
+    def set_training_method(self, method_id: int) -> None:
+        """Set only the recovered training-method byte.
+
+        Original method mutations write the embedded +0x00 byte independently
+        of the countdown and accumulated per-skill/method counters. Preserving
+        those arrays is essential to the original eight-week reversal cycle.
+        """
+        method_id = int(method_id)
+        if not 0 <= method_id < TRAINING_METHOD_COUNT:
+            raise ValueError("training method must be in 0..6")
+        self.training_method_id = method_id
+
+    @property
+    def weekly_training_excluded(self) -> bool:
+        """Exact 0x61C520 eligibility gate for the active-training update."""
+        return bool(self.injured or self.selection_excluded)
 
     def monthly_development_update(self, on_date: date) -> bool:
         """Run the verified first-of-month 17-skill development reconstruction.
