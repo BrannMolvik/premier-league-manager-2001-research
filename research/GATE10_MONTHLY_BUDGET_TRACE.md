@@ -157,3 +157,56 @@ The next trace should focus on either:
    vtables, especially methods shared by the 0x9F/0xA0/0xA1 family; or
 2. unidentified persistent/scalar DBRUser save-state that could hold the
    chairman operating/building/transfer allocations and feed generated events.
+
+
+## DBRUser history owners and false 0x4F event lead resolved
+
+A systematic pass over the remaining serialized DBRUser history containers now
+identifies their element families:
+
+- `DBRUser +0x6C4` = `CMatchHistory` list (vtable `0x7BE0FC`);
+- `+0x6DC` = `CMonthHistory`;
+- `+0x6E8` = `CWeekHistory` (vtable `0x7BE1E4`);
+- `+0x6F4` = `CDayHistory` (vtable `0x7BE258`);
+- `+0x6D0` is another capped twelve-record reporting/history series using
+  non-polymorphic 0x28-byte records populated from attendance/stadium/business
+  values.
+
+These containers are reporting histories, not a compact persistent
+staff/wage/maintenance/building/transfer budget array.
+
+### Correction: the `0x42AD3C cmp eax,0x4F` branch is not chairman event ID 0x4F
+
+The DBRUser list at `+0x6B4` is indeed an EAM/event list. However, event IDs
+for normal EAM vtables are returned by vtable slot **+0x0C**. For example:
+
+- `EAMbcmonthlybudget` vtable +0x0C -> `0x541B50` -> ID 0xA1;
+- `EAMchairextratransferfail` vtable +0x0C -> `0x540C40` -> ID 0x4F.
+
+The branch at `0x42AD35..0x42AD3C` instead calls vtable slot **+0x14**
+before comparing the result with 0x4F. Therefore that comparison is not an
+EAM ID comparison.
+
+The large event objects seen in that list are legitimate EAM objects. A
+representative 0x1C44-byte object is constructed by `0x54B610`, which writes
+vtable `0x7CF028`; RTTI identifies it as
+`EAMFAInternationalSquadAnnounceM`. Its large embedded text/state payload
+explains offsets such as +0x1C54 in adjacent event variants.
+
+Consequently the earlier apparent link between the `0x42ADxx` cleanup branch
+and `EAMchairextratransferfail` was a numeric/vtable-slot coincidence and is
+discarded.
+
+### Remaining producer problem
+
+The A0/A1 Business Consultant budget events still have:
+
+- no direct or inlined gameplay construction;
+- no static constructor/factory function-pointer dispatch;
+- no producer in another shipped runtime module;
+- no direct ordinary `MPMEAMail -> 0x613EC0` typed enqueue site.
+
+The generic A0/A1 factory path remains the binary event deserializer. The next
+useful target is the higher-level source that supplies serialized/generated EAM
+records to that deserializer during new-game/calendar operation, rather than
+more direct-constructor searches.
