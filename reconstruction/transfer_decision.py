@@ -13,6 +13,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 
+from match_role_rating import best_preferred_role_rating
+
 
 class SellingClubDecision(str, Enum):
     ACCEPTED = "accepted"
@@ -84,3 +86,39 @@ def evaluate_selling_club_bid(
         return SellingClubDecision.SQUAD_TOO_SMALL
 
     return SellingClubDecision.ACCEPTED
+
+
+def higher_rated_squadmate_count(state, player_id: int) -> int:
+    """Reproduce club helper 0x408860 used by player predicate 0x4212F0."""
+
+    player_id = int(player_id)
+    target = state.players[player_id]
+    target_rating = best_preferred_role_rating(
+        target.current_raw,
+        target.positions,
+    )
+    count = 0
+    for squadmate in state.ordered_club_roster(int(target.club_id)):
+        if int(squadmate.index) == player_id:
+            continue
+        rating = best_preferred_role_rating(
+            squadmate.current_raw,
+            squadmate.positions,
+        )
+        if rating > target_rating:
+            count += 1
+    return count
+
+
+def eligible_selling_squad_count(state, club_id: int) -> int:
+    """Reproduce DBRClub helper 0x405080.
+
+    The original starts from the club roster count and excludes players with
+    DBRPlayer+0x14 bit 8, 0, 6, or 1 respectively:
+    transfer-listed, injured, loaned out, or suspended.
+    """
+
+    return sum(
+        not player.selling_squad_count_excluded
+        for player in state.ordered_club_roster(int(club_id))
+    )
