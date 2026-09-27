@@ -7490,3 +7490,88 @@ Implementation consequence for the current single-user clean-room scope:
 - after the current matchday/annual maintenance has completed, end active human
   club control, matching the original return to Start Menu;
 - keep multi-user cycling deferred until multi-user management is in scope.
+
+
+## Gate 11 active-training cadence and minimum per-player state
+
+The first Gate-11 management workflow audit selected training as the shortest
+source-backed path because the monthly development model and profile mathematics
+already exist in the modern runtime, while the original active-training state
+was not yet attached to calendar progression or human management.
+
+Direct tracing now fixes the minimum original training-record semantics needed
+for that integration.
+
+### Weekly active-training call chain
+
+The club/user weekly path checks the same recovered Saturday phase used
+elsewhere in management maintenance:
+
+```text
+(current_date_integer + 5) % 7 == 0
+```
+
+At `0x42ADEC..0x42AE03`, a zero remainder calls `0x42AE40`.
+That routine obtains the owner's 40-record training array at `+0x6B8` and
+calls `0x61CBA0`.
+
+`0x61CBA0` walks exactly **40 × 0xC8-byte** records. For every active record
+(player ID != `0xFFFF`) it invokes `0x61C520`. That helper resolves the
+player and, unless either of its two player-eligibility predicates excludes the
+record, calls:
+
+```text
+0x61C520
+  -> ECX = training_record + 0x24
+  -> 0x4EACE0(training_object, owner/user, player)
+```
+
+The two eligibility predicates remain neutrally named here until their exact
+user-facing semantics are rechecked; no unsupported labels are introduced.
+
+### Embedded training state
+
+Constructor `0x4EAB80` establishes these exact defaults in the embedded
+training object at whole-record `+0x24`:
+
+- `+0x00` byte = **5**, and `0x4EA9A0` proves method ID 5 = **Fitness**;
+- `+0x04` dword = **8**;
+- `+0x08` dword = 0;
+- `+0x0C..+0x1C` = 17 one-byte per-skill training counters, initially 0;
+- `+0x20..` = corresponding per-skill dword state array, initialized to 1;
+- `+0x64..` = seven per-method result counters, initially 0;
+- the later date/timed-effect fields are initialized separately and remain
+  outside the minimum current integration slice.
+
+Copy routine `0x4EAC40` copies `+0x00/+0x04/+0x08` and the skill/counter
+arrays, confirming they are persistent training-record state rather than
+temporary stack values.
+
+### Eight-week decay/reversal cycle
+
+At the start of every `0x4EACE0` weekly update, `training+0x04` is
+decremented.
+
+For a skill whose current method profile weight is nonzero, a successful roll
+against the already-proven threshold can increment the skill's
+`training+0x0C+slot` byte, mark its paired dword state 1, increment
+`training+0x08`, call player `0x41A870` for the exact +8 raw-skill step,
+and increment the current method's counter at `training+0x64+4*method`.
+
+For a zero-weight skill, reversal occurs only when the countdown has reached
+zero and that skill's training counter is nonzero: its counter decrements, the
+paired state is cleared, total active-count `+0x08` decrements, and
+`0x41A9A0` applies the exact -8 reversal.
+
+After all 17 skills, if the countdown is zero, the executable resets it to
+**8**. Therefore `+0x04` is an exact repeating eight-week training
+decay/reversal countdown.
+
+### Implementation boundary
+
+The modern runtime should not collapse this system into a permanent
+`training_modifiers` vector. The next implementation step is to represent the
+minimum per-player method/counter/countdown state, recover the method-change
+setter semantics, and then schedule the weekly state transition with the shared
+MSVC RNG. Existing first-of-month age/development recalculation can consume the
+resulting per-skill counters through its already implemented modifier path.
