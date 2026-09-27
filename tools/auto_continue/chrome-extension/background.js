@@ -4,6 +4,7 @@ const RUNTIME_BRANCH = "agent-runtime";
 const CHAT_URL = "https://chatgpt.com/";
 const STALE_CHECK_ALARM = "fm2001-stale-check";
 const STALE_CHECK_MINUTES = 3;
+const DEFAULT_SAME_CHAT_FALLBACK_MINUTES = 30;
 
 const runtimeStateUrl = () =>
   `https://raw.githubusercontent.com/${REPO}/${RUNTIME_BRANCH}/research/AUTO_CONTINUE_STATE.json?ts=${Date.now()}`;
@@ -48,6 +49,45 @@ async function getBranchActivity(branch) {
     throw new Error(`Invalid commit-feed timestamp for ${branch}: ${match[1]}`);
   }
   return timestamp;
+}
+
+async function getLatestRepositoryActivity() {
+  const [runtimeActivity, mainActivity] = await Promise.all([
+    getBranchActivity(RUNTIME_BRANCH),
+    getBranchActivity(MAIN_BRANCH)
+  ]);
+  return Math.max(runtimeActivity, mainActivity);
+}
+
+async function getSameChatRecoveryWindow() {
+  const stored = await chrome.storage.local.get(["sameChatRecoveryWindow"]);
+  return stored.sameChatRecoveryWindow || null;
+}
+
+async function beginSameChatRecoveryWindow(latestActivity) {
+  const now = Date.now();
+  const existing = await getSameChatRecoveryWindow();
+
+  // A later repository heartbeat proves the previous recovery succeeded, so
+  // a future stall starts a fresh fallback window. Otherwise keep the first
+  // attempt time; repeated same-chat attempts must not postpone fallback.
+  if (
+    !existing ||
+    Number(latestActivity || 0) > Number(existing.baselineActivity || 0)
+  ) {
+    const window = {
+      startedAt: now,
+      baselineActivity: Number(latestActivity || 0)
+    };
+    await chrome.storage.local.set({ sameChatRecoveryWindow: window });
+    return window;
+  }
+
+  return existing;
+}
+
+async function clearSameChatRecoveryWindow() {
+  await chrome.storage.local.remove("sameChatRecoveryWindow");
 }
 
 function shouldMonitor(state) {
@@ -267,13 +307,18 @@ async function checkForStaleSession() {
       return;
     }
 
-    const [runtimeActivity, mainActivity] = await Promise.all([
-      getBranchActivity(RUNTIME_BRANCH),
-      getBranchActivity(MAIN_BRANCH)
-    ]);
-    const latestActivity = Math.max(runtimeActivity, mainActivity);
+    const latestActivity = await getLatestRepositoryActivity();
     if (!latestActivity) {
       return;
+    }
+
+    let sameChatWindow = await getSameChatRecoveryWindow();
+    if (
+      sameChatWindow &&
+      latestActivity > Number(sameChatWindow.baselineActivity || 0)
+    ) {
+      await clearSameChatRecoveryWindow();
+      sameChatWindow = null;
     }
 
     const staleAfterMinutes = Number(state.stale_after_minutes || 15);
@@ -287,19 +332,52 @@ async function checkForStaleSession() {
       source: "chrome-extension-background-alarm"
     };
 
+    if (sameChatWindow) {
+      const fallbackMinutes = Number(
+        state.same_chat_fallback_minutes ||
+        DEFAULT_SAME_CHAT_FALLBACK_MINUTES
+      );
+      const fallbackAgeMinutes = Math.floor(
+        (Date.now() - Number(sameChatWindow.startedAt || 0)) / 60000
+      );
+
+      if (fallbackAgeMinutes >= fallbackMinutes) {
+        const opened = await triggerNewChatRecovery(
+          "same-chat-recovery-no-progress",
+          state,
+          {
+            ...details,
+            same_chat_recovery_age_minutes: fallbackAgeMinutes,
+            fallback_after_minutes: fallbackMinutes
+          }
+        );
+        if (opened) {
+          await clearSameChatRecoveryWindow();
+        }
+        return;
+      }
+
+      // The first same-chat recovery has not had its full grace period yet.
+      // Do not keep retrying the same tab and accidentally reset the clock.
+      return;
+    }
+
     const reused = await recoverExistingWorker(
       "stale-repository-activity",
       state,
       details
     );
 
-    if (!reused) {
-      await triggerNewChatRecovery(
-        "stale-repository-activity-no-worker-tab",
-        state,
-        details
-      );
+    if (reused) {
+      await beginSameChatRecoveryWindow(latestActivity);
+      return;
     }
+
+    await triggerNewChatRecovery(
+      "stale-repository-activity-no-worker-tab",
+      state,
+      details
+    );
   } catch (error) {
     console.warn("FM2001 stale-session background check failed", error);
   }
@@ -314,7 +392,8 @@ function ensureStaleAlarm() {
 chrome.runtime.onInstalled.addListener(async () => {
   await chrome.storage.local.remove([
     "pendingResume",
-    "recoveryInFlightAt"
+    "recoveryInFlightAt",
+    "sameChatRecoveryWindow"
   ]);
   ensureStaleAlarm();
 });
@@ -354,10 +433,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           return;
         }
 
+        const latestActivity = await getLatestRepositoryActivity();
         const accepted = await recoverInPlace(tabId, reason, state, {
           page: sender?.tab?.url || "unknown",
           failure_kind: failureKind
         });
+        if (accepted) {
+          await beginSameChatRecoveryWindow(latestActivity);
+        }
         sendResponse({ ok: accepted, action: "in-place" });
       } catch (error) {
         console.warn("FM2001 UI-failure recovery failed", error);
@@ -382,12 +465,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           return;
         }
 
+        const latestActivity = await getLatestRepositoryActivity();
         const accepted = await recoverInPlace(
           tabId,
           message.reason || "local recovery request",
           state,
           message.details || {}
         );
+        if (accepted) {
+          await beginSameChatRecoveryWindow(latestActivity);
+        }
         sendResponse({ ok: accepted });
       } catch (error) {
         console.warn("FM2001 local recovery failed", error);
