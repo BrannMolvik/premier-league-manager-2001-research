@@ -632,20 +632,45 @@ index; indices 0..3 select 0.9/0.8/0.7/0.6, while index 4 and later/default use
 England's recovered root order places Premier League competition 0 at index 6,
 so normal Premier League gate demand uses exact `tier_factor = 0.5`.
 
-### Remaining formula work
+### Normal Premier League integration closed
 
-The producer, supporter-side categories and section ownership are now known,
-but implementation remains intentionally blocked until these details are
-closed:
+The minimum normal Premier League gate path is now integrated and regression
+tested.
 
-1. materialize the now-mapped original ticket/section and stadium source state
-   at `+0x694/+0x6B0` in the modern runtime;
-2. implement the complete side-modifier, lazy ticket-price initialization and
-   four-cell attendance formula;
-3. add deterministic regressions covering source parsing, initial prices,
-   position/end-play modifiers, price response, capacity/fan-base caps,
-   truncation, RNG subtraction, home/visiting revenue and season-ticket
-   attendance before normal matchday integration.
+Additional instruction-level inputs closed during integration:
+
+- `EPBase` loads as exact double **30.0**. For Premier League competition 0,
+  `0x40CBC0` therefore supplies **30.0 seating** and exact **22.5 terrace**
+  reference prices.
+- Controlled-club facility helper `0x42B0E0` begins at **0.90** and adds:
+  - `0.08 * (hotel_level + 1)` when Hotel exists;
+  - `0.04 * (club_house_level + 1)` when Club House exists;
+  - `0.05 * (parking_level + 1)` when Parking exists.
+  The fresh `DBRUser +0x65C` facility collection starts empty, so a fresh
+  controlled club uses exactly **0.90** until later building gameplay creates
+  those facilities.
+- `0x513252 -> 0x5DA2F0` executes after MatchCalculator has finished and
+  before LeagueMatch virtual `+0x3C -> 0x5132E0 -> 0x511370`, which reaches
+  `0x5127A0` incident persistence and the later Form pass. Thus the four gate
+  RNG draws occur **after match calculation but before red-card, persistent
+  injury, and Form RNG**.
+- That call is part of the normal LeagueMatch path itself. Every ordinary league
+  fixture consumes the four gate draws even when no controlled Balance receives
+  a category-1/2 posting.
+
+The modern Premier League path now snapshots the table/selected-XI inputs before
+the result mutates league state, simulates the match, consumes four 15-bit draws
+in exact home-seating / visiting-seating / home-terrace / visiting-terrace
+order, then performs any materialized category-1/2 posting before incident/Form
+persistence.
+
+GitHub Actions at `0d3010df0dbbb60ab147d40dedd1ad83ff533965` passed
+**531 reconstruction tests** and the repository asset-policy workflow.
+
+For normal Premier League play, the remaining Gate-10 work is therefore no
+longer gate-receipt algebra or RNG placement. Broader finance fidelity remains,
+including Balance credit's secondary category-1600 debit and later facility
+upgrades beyond the exact fresh-game 0.90 baseline.
 
 ## Monthly income report is not a producer
 
@@ -697,15 +722,13 @@ rounding matters.
 
 ## Exact next binary-backed trace
 
-Do not restart the already-closed producer search. Continue inside
-`0x5DA2F0` from the current instruction map:
+Do not restart the now-closed normal Premier League gate-receipt trace.
 
-1. translate the remaining upstream side-modifier producers `0x5DBA60` and
-   `0x5DBCD0` without assigning unsupported labels to their inputs;
-2. identify the minimum original stadium/ticket source data needed to
-   materialize `+0x694/+0x6B0` state in the modern runtime;
-3. implement the now-locked four-cell demand/price/cap/truncation/RNG path and
-   add deterministic finance regressions before normal match-day integration.
+Continue with the remaining Balance-credit fidelity issue at `0x5DC510`:
+recover the exact numeric conversion/rounding and semantic evidence for the
+secondary **category 1600** debit generated from each incoming credit. Add a
+regression using an incoming amount for which truncation/rounding changes the
+result before integrating that secondary debit.
 
 Concession generation remains intentionally disabled on fresh games for the
 separate dormant-path reason documented above.
