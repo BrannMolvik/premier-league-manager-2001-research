@@ -253,11 +253,26 @@ class OrdinaryMoneyResponseTests(unittest.TestCase):
         self.assertEqual(result.response_code, 2)
         self.assertEqual(rng.bounds, [])
 
+    def test_duration_above_84_returns_chairman_terms_too_high_without_rng(self):
+        rng = RecordingRng([])
+        result = evaluate_ordinary_money_response(
+            self.state(player_wage=900),
+            self.proposal(wage=1200, months=85),
+            rng,
+        )
+        self.assertEqual(
+            result.outcome,
+            OrdinaryMoneyResponse.PLAYER_TERMS_TOO_HIGH,
+        )
+        self.assertEqual(result.response_code, 18)
+        self.assertFalse(result.requires_duration_adjustment_423340)
+        self.assertEqual(rng.bounds, [])
+
     def test_invalid_duration_stops_at_unmapped_423340_counter_path(self):
         rng = RecordingRng([])
         result = evaluate_ordinary_money_response(
             self.state(player_wage=900),
-            self.proposal(wage=1200, months=73),
+            self.proposal(wage=1200, months=84),
             rng,
         )
         self.assertEqual(
