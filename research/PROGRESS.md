@@ -3694,3 +3694,32 @@ Implemented `reconstruction/transfer_workflow.py`:
 
 Accepted bids remain pending; player negotiation and completion are intentionally
 not invented in this checkpoint.
+
+
+## 27 September Gate 9 player counter-offer checkpoint
+
+The canonical executable now proves the normal player counter-offer transform.
+
+`0x4EDB10` stores the submitted wage/signing fee in proposal anchors +0x38
+and +0x3C. Fresh expectations come from player helpers `0x420180` and
+`0x4202A0`; repeated negotiations use the midpoint of previous/current
+offers, with wage floored to current player wage. Constant `0x7BDCC0` is
+exactly 1.1, so a money field is raised only if desired > 110% of the submitted
+amount.
+
+`0x4EE180` then consumes exactly one RNG(3) and writes a 24/36/48-month
+contract duration.
+
+Implemented `transfer_negotiation.adjust_player_counter_offer()` and focused
+boundary tests. GitHub Actions at `516788df7308e51a369aeb0d1e9886b933d4ae8b`:
+**456 tests passed**; asset policy passed.
+
+RTTI also resolves player-response codes:
+- code 1 -> `EAMTransferUserPlayerCounterOfferMsub`;
+- code 2 -> `EAMTransferPlayerAcceptsMsub`.
+
+Crucially, normal cash code-2 acceptance is not the same as immediate
+CDealInProgress ready-state promotion. The sole 0x50E760 promotion path runs
+through `0x422920` and is reached here for swap/exchange-family handling.
+The ordinary conclude/medical path still needs to be traced before marking
+accepted cash deals ready.
