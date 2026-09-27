@@ -4117,3 +4117,38 @@ parallel shortest route to an implementable concession posting.
 No runtime behavior changed in this checkpoint. The correct current behavior is
 to leave gate/concession income unimplemented until the exact producer inputs,
 category and money conversion are recovered.
+
+
+## Gate 10 concession payout correction checkpoint — 28 September 2026
+
+Recovery generation 25 rematerialized the authorized source disc from the
+ChatGPT Library, converted the raw MODE1/2352 image locally, extracted the root
+`FOOTBAL.EXE`, and reverified its canonical SHA-256:
+
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+
+The concession trace is now instruction-level exact:
+
+- `0x5E56F0` returns each 0x168-byte active record's qword at `+0x160`;
+- `0x5E5640` pays only on decoded day-of-month **1**;
+- each payment uses accounting category **300 (0x12C)**;
+- each payment is credited through Balance `0x5DC510`.
+
+This also corrected the previous classification of concessions as an ordinary
+fresh-game recurring producer. New concession state starts with active count 0.
+The periodic generator `0x5E5330` builds a full candidate record only on the
+stack, writes the candidate financial offer to `+0x158` and expiry/date to
+`+0x164`, but never appends it to the persistent +0x690 object or increments
+the active count. The `0x5E5710` active-record date pass likewise performs no
+activation mutation. A complete direct DBRUser +0x690 reference scan found no
+ordinary activation writer.
+
+The correct implementation consequence is to keep normal concession income
+disabled. Category-300 payout remains a faithful dormant/legacy path for
+nonzero persisted records, not evidence that a new game should manufacture
+concession revenue.
+
+Exact next target: return fully to the match-day/gate receipt producer through
+the DBRUser +0x694/+0x6B0 stadium/ticketing state and the bounded
+`0x429904`, `0x429BB4`, `0x42A111`, `0x42A5D2`, `0x42C1F2`
+family toward Balance credit `0x5DC510`.
