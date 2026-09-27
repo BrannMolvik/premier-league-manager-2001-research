@@ -4685,3 +4685,43 @@ when it is set.
 Next implementation block: run this PL-specific sporting check once at the
 completed-season boundary, then invoke the already-tested year-gated financial
 objective evaluator from the same annual lifecycle.
+
+
+## Gate 10 automatic financial-objective season bridge integrated — 28 September 2026
+
+The previously explicit objective progression gate is now attached to the
+completed Premier League season lifecycle.
+
+Implemented same-PL behavior:
+
+- objective 13: champion only (`table_index < 1`);
+- objective 1: top two (`table_index <= 1`);
+- objective 5: exact executable midpoint quirk
+  `table_index <= team_count // 2`;
+- objective 6: succeeds in the current same-Premier-League/no-relegation slice
+  because its executable branch accepts an unchanged or improved competition
+  classification.
+
+The progression check runs only when the Premier League fixture set has just
+become complete, both in the autonomous all-AI day path and after the trailing
+fixtures of the human-controlled final matchday. It skips the objective-selection
+year, sets `+0x68` and increments `+0x9C` on sporting success, then invokes the
+already-recovered year-gated three-year financial evaluation.
+
+The broader promotion/relegation classification branches remain deferred to the
+later broader-competition season transition. Also, the already-known unresolved
+Premier League equal-points fallback can affect a club exactly on an objective
+cutoff if the original game would order a perfect statistical tie differently.
+
+Implementation commits: `3648845f`, `72fceee0`, `4857764c`,
+`7d9ad94b`, and `eabe0838`.
+
+GitHub Actions at `eabe0838d3f8a2d235d72b05e71a7f61f40761af`:
+
+- reconstruction suite: **548 tests passed**;
+- repository asset-policy workflow: **passed**.
+
+Next Gate-10 target: trace the concrete gameplay side effect of the reason-4 and
+reason-5 manager-sacking events and materialize the minimum authentic
+job-security/control state. The objective evaluator currently returns the exact
+reason but must not invent how FM2001 removes or reassigns the manager.
