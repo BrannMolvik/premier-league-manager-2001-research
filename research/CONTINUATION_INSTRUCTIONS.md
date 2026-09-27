@@ -96,7 +96,7 @@ A chat conclusion is provisional until it is persisted with enough evidence that
 
 The project owner has confirmed authorization to reuse the contents of the supplied FM2001 archive/disc image.
 
-Prefer original resources when they can be used directly or converted for Windows 11 compatibility. Intentionally imported source assets belong under `original_assets/` and should be provenance-tracked according to `research/ASSET_POLICY.md`.
+Original FM2001 resources and recovered original behavior are the default source of truth. If an original asset, layout, string, audio/video resource, data value, timing/navigation rule, or behavior is accessible, use it directly or through the minimum compatibility/conversion/wrapper layer required for Windows 11. Do not substitute or redesign original material merely for convenience, implementation speed, aesthetics, or modernization preference. Replacement is allowed only when the original is technically incompatible after reasonable adaptation or genuinely inaccessible/unrecoverable; document that boundary in the appropriate research/fidelity file. Intentionally imported source assets belong under `original_assets/` and should be provenance-tracked according to `research/ASSET_POLICY.md`.
 
 Do not commit raw full-disc images, duplicate archive copies, temporary extraction dumps, reverse-engineering databases, or cache/build noise. The repository asset-policy CI check enforces placement/hygiene rules; it is not a ban on authorized original resources.
 
