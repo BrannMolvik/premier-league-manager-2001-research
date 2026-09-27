@@ -31,6 +31,18 @@ SUPPORT_STAFF_COST_ACCOUNT_CATEGORY = 102
 TRANSFER_ACCOUNT_CATEGORY = 1000
 CREDIT_SECONDARY_DEBIT_ACCOUNT_CATEGORY = 1600
 CREDIT_SECONDARY_DEBIT_RATE = 0.002
+CHAIRMAN_PERCENT_BUDGET_MISS = 95
+
+OBJECTIVE_STARTING_PERCENT = {
+    1: 155, 2: 135, 3: 100, 4: 135, 5: 125, 6: 100,
+    7: 125, 8: 125, 9: 100, 10: 200, 11: 190, 12: 180,
+    13: 170, 14: 165, 15: 145, 16: 150, 17: 100,
+}
+OBJECTIVE_TARGET_PERCENT = {
+    1: 170, 2: 150, 3: 110, 4: 155, 5: 135, 6: 110,
+    7: 150, 8: 135, 9: 110, 10: 220, 11: 205, 12: 195,
+    13: 185, 14: 180, 15: 155, 16: 180, 17: 105,
+}
 
 
 def _money(value: Money) -> Money:
@@ -55,6 +67,111 @@ class FinancePosting:
             raise ValueError("finance posting amount must be non-zero")
 
 
+@dataclass(frozen=True)
+class FinancialObjectiveEvaluation:
+    """Result of the recovered three-year chairman objective check."""
+
+    outcome: str
+    sacking_reason: int | None = None
+
+
+@dataclass
+class FinancialObjectiveState:
+    """Recovered Balance+0x30 chairman financial-objective slice.
+
+    The original object carries additional bookkeeping fields. This slice keeps
+    only the fields whose behavior is instruction-locked for the fresh Premier
+    League path and three-year evaluation.
+    """
+
+    base_cash: Money
+    candidate_ids: tuple[int, int, int]
+    selected_objective_id: int = 0
+    starting_funds: Money = 0
+    target_cash: Money = 0
+    starting_funds_snapshot: Money = 0
+    selected_on: date | None = None
+    deadline: date | None = None
+    active: bool = False
+    progression_gate_reached: bool = False  # original relative +0x68 == 1
+    progression_state: int = 0  # original byte +0x9C
+
+    def __post_init__(self):
+        self.base_cash = _money(self.base_cash)
+        self.candidate_ids = tuple(int(value) for value in self.candidate_ids)
+        if len(self.candidate_ids) != 3:
+            raise ValueError("financial objective requires exactly three candidates")
+        for objective_id in self.candidate_ids:
+            if objective_id not in OBJECTIVE_STARTING_PERCENT:
+                raise ValueError(f"unknown financial objective ID {objective_id}")
+        self.starting_funds = _money(self.starting_funds)
+        self.target_cash = _money(self.target_cash)
+        self.starting_funds_snapshot = _money(self.starting_funds_snapshot)
+
+    @staticmethod
+    def premier_league_candidates(
+        fan_base_rank_count: int,
+        league_team_count: int,
+    ) -> tuple[int, int, int]:
+        """Exact fresh 0x5DFD30 candidate branch for Premier League clubs."""
+        rank_count = int(fan_base_rank_count)
+        team_count = int(league_team_count)
+        if team_count <= 0:
+            raise ValueError("league_team_count must be positive")
+        if not 0 <= rank_count <= team_count:
+            raise ValueError("fan_base_rank_count must be in 0..league_team_count")
+        if rank_count >= team_count // 2:
+            return (13, 1, 5)
+        return (1, 5, 6)
+
+    def select(self, candidate_index: int, selected_on: date) -> Money:
+        """Apply 0x5DFB90 selection and return the replacement current cash."""
+        index = int(candidate_index)
+        if not 0 <= index < 3:
+            raise ValueError("candidate_index must be 0, 1, or 2")
+        objective_id = int(self.candidate_ids[index])
+        start_percent = OBJECTIVE_STARTING_PERCENT[objective_id]
+        target_percent = OBJECTIVE_TARGET_PERCENT[objective_id]
+        self.selected_objective_id = objective_id
+        self.starting_funds = _money(float(self.base_cash) * start_percent * 0.01)
+        self.target_cash = _money(float(self.base_cash) * target_percent * 0.01)
+        self.starting_funds_snapshot = self.starting_funds
+        self.selected_on = selected_on
+        try:
+            self.deadline = selected_on.replace(year=selected_on.year + 3)
+        except ValueError:
+            # OLE date conversion keeps the three-year calendar intent for the
+            # only awkward Gregorian edge (29 February).
+            self.deadline = selected_on.replace(year=selected_on.year + 3, day=28)
+        self.active = True
+        # 0x5DFB90 resets +0x68; later season/competition progression sets it.
+        self.progression_gate_reached = False
+        return self.starting_funds
+
+    def evaluate(self, current_cash: Money, on_date: date) -> FinancialObjectiveEvaluation | None:
+        """Reproduce the 0x5E1D90 year-gated objective outcome.
+
+        The original routine compares decoded years, not the full deadline date.
+        If the later progression gate (+0x68) has not been reached, the same
+        branch produces sacking reason 4. The finance-target path uses reason 5.
+        """
+        if not self.active or self.selected_objective_id == 0 or self.deadline is None:
+            return None
+        if int(on_date.year) != int(self.deadline.year):
+            return None
+        if not self.progression_gate_reached:
+            return FinancialObjectiveEvaluation("dismissed", 4)
+
+        cash = float(_money(current_cash))
+        target = float(self.target_cash)
+        if cash > target:
+            return FinancialObjectiveEvaluation("success", None)
+        tolerance = target * CHAIRMAN_PERCENT_BUDGET_MISS * 0.01
+        if cash > tolerance:
+            return FinancialObjectiveEvaluation("near_miss", None)
+        return FinancialObjectiveEvaluation("dismissed", 5)
+
+
 @dataclass
 class BalanceRuntimeState:
     """Minimal clean-room slice of the FM2001 Balance object.
@@ -69,6 +186,7 @@ class BalanceRuntimeState:
 
     current_cash: Money
     ledger: list[FinancePosting] = field(default_factory=list)
+    financial_objective: FinancialObjectiveState | None = None
 
     def __post_init__(self):
         self.current_cash = _money(self.current_cash)
