@@ -1,12 +1,112 @@
 import unittest
 
 from gate_receipts import (
+    FRESH_CONTROLLED_FACILITY_FACTOR,
+    PREMIER_LEAGUE_SEATING_REFERENCE,
+    PREMIER_LEAGUE_TERRACE_REFERENCE,
+    PREMIER_LEAGUE_TIER_FACTOR,
     calculate_gate_cell,
     calculate_matchday_gate_receipts,
     capped_gate_demand,
+    first_xi_rating_factor,
+    league_end_play_factor,
+    league_importance_factor,
+    league_position_factor,
+    ordinary_league_side_modifier,
     randomized_gate_count,
+    signed_trunc_division,
     ticket_price_response,
 )
+
+
+class GateLiveInputTests(unittest.TestCase):
+    def test_premier_league_source_constants(self):
+        self.assertEqual(PREMIER_LEAGUE_TIER_FACTOR, 0.5)
+        self.assertEqual(PREMIER_LEAGUE_SEATING_REFERENCE, 30.0)
+        self.assertEqual(PREMIER_LEAGUE_TERRACE_REFERENCE, 22.5)
+        self.assertEqual(FRESH_CONTROLLED_FACILITY_FACTOR, 0.9)
+
+    def test_signed_division_and_importance_preserve_integer_step(self):
+        self.assertEqual(signed_trunc_division(-10, 3), -3)
+        self.assertEqual(signed_trunc_division(10, 3), 3)
+        self.assertEqual(
+            league_importance_factor(
+                current_runtime_order=-7,
+                first_runtime_order=-12,
+                competition_count=11,
+            ),
+            1.0,
+        )
+        self.assertEqual(
+            league_importance_factor(
+                current_runtime_order=10,
+                first_runtime_order=-12,
+                competition_count=11,
+            ),
+            3.0,
+        )
+
+    def test_position_factor_uses_original_early_and_final_match_neutral_bands(self):
+        self.assertEqual(
+            league_position_factor(
+                table_index=9, team_count=20, games_played=4, games_remaining=34
+            ),
+            1.0,
+        )
+        self.assertEqual(
+            league_position_factor(
+                table_index=9, team_count=20, games_played=35, games_remaining=3
+            ),
+            1.0,
+        )
+        self.assertAlmostEqual(
+            league_position_factor(
+                table_index=9, team_count=20, games_played=20, games_remaining=18
+            ),
+            0.55,
+        )
+
+    def test_end_play_uses_first_positive_reachable_objective(self):
+        self.assertEqual(
+            league_end_play_factor(
+                games_remaining=4,
+                objective_gaps=(
+                    (True, 13, 1.0),
+                    (True, 8, 0.3),
+                ),
+            ),
+            0.3,
+        )
+        self.assertEqual(
+            league_end_play_factor(
+                games_remaining=4,
+                objective_gaps=(
+                    (True, 12, 1.0),
+                    (True, 8, 0.3),
+                ),
+            ),
+            1.0,
+        )
+        self.assertEqual(
+            league_end_play_factor(
+                games_remaining=5,
+                objective_gaps=((True, 1, 1.0),),
+            ),
+            0.0,
+        )
+
+    def test_first_xi_and_weighted_side_modifier(self):
+        ratings = (80,) * 11
+        self.assertAlmostEqual(first_xi_rating_factor(ratings), 1.1)
+        self.assertAlmostEqual(
+            ordinary_league_side_modifier(
+                first_xi_ratings=ratings,
+                end_play_factor=0.0,
+                position_factor=0.75,
+                importance_factor=1.0,
+            ),
+            (1.1 + 0.0 + 0.75 + 1.0) / 4.0,
+        )
 
 
 class TicketPriceResponseTests(unittest.TestCase):
