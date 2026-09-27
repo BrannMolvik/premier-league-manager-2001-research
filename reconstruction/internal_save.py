@@ -45,7 +45,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 12
+SAVE_SCHEMA_VERSION = 13
 
 
 def _iso(value: date | None) -> str | None:
@@ -249,6 +249,11 @@ PLAYER_RECORD_FIELDS = (
     "car",
     "ai_transfer_block_value_64",
     "ai_transfer_status_bit_9",
+    "training_method_id",
+    "training_countdown",
+    "training_active_count",
+    "training_skill_states_or_null",
+    "training_method_results_or_null",
 )
 
 
@@ -308,6 +313,19 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         bool(player.car),
         int(player.ai_transfer_block_value_64),
         bool(player.ai_transfer_status_bit_9),
+        int(player.training_method_id),
+        int(player.training_countdown),
+        int(player.training_active_count),
+        (
+            None
+            if player.training_skill_states == [1] * 17
+            else [int(v) for v in player.training_skill_states]
+        ),
+        (
+            None
+            if not any(player.training_method_results)
+            else [int(v) for v in player.training_method_results]
+        ),
     ]
 
 
@@ -366,6 +384,15 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         car=bool(value[32]),
         ai_transfer_block_value_64=int(value[33]),
         ai_transfer_status_bit_9=bool(value[34]),
+        training_method_id=int(value[35]),
+        training_countdown=int(value[36]),
+        training_active_count=int(value[37]),
+        training_skill_states=(
+            [1] * 17 if value[38] is None else [int(v) for v in value[38]]
+        ),
+        training_method_results=(
+            [0] * 7 if value[39] is None else [int(v) for v in value[39]]
+        ),
         discipline_yellow_total=int(value[12]),
         discipline_yellow_cycle=int(value[13]),
         suspension_matches_remaining=int(value[14]),
