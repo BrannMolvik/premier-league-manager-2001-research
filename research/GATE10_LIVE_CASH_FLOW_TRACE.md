@@ -796,3 +796,41 @@ stored unchanged as active current cash.
 This resolves the final Gate-10 starting-cash source. No guessed default is
 needed: a controlled club's Balance should be materialized from its parsed
 `Master.dat +165` double when that DBRUser-equivalent control state is created.
+
+
+## Chairman financial objective and job-security path
+
+Gate 10's board/job-security dependency is now separated from the dormant
+quarterly budget-message family.
+
+The live financial objective belongs to the active Balance subobject at
+`Balance +0x30`. Chairman selection generates three objective IDs. Choosing one:
+
+1. computes an immediate starting-funds amount from the current/base club cash;
+2. **replaces active current cash** with that amount;
+3. stores a separate formal target;
+4. stores a deadline exactly three years from selection.
+
+Objective IDs 1..17 have exact starting-funds / target percentage pairs:
+
+```text
+1  155/170   2  135/150   3  100/110
+4  135/155   5  125/135   6  100/110
+7  125/150   8  125/135   9  100/110
+10 200/220   11 190/205   12 180/195
+13 170/185   14 165/180   15 145/155
+16 150/180   17 100/105
+```
+
+(percent of the objective base cash).
+
+At deadline, `0x5E1D90` applies named tuning
+`ChairmanPercentBudgetMiss = 95`:
+
+- above target: clear success;
+- above 95% but not above target: non-sacking near miss;
+- **at or below 95% of target: sacking reason 5**.
+
+Reason 5 produces `EAMManagerSackedFailedBudget`. The remaining source-backed
+step is the three-candidate ID generator `0x5DFD30`; do not invent objective
+choices before that branch is translated for the Premier League path.
