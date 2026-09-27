@@ -210,14 +210,14 @@ Existing reverse engineering already establishes:
    canonical human club control is selected. Arsenal starts at 28,000,000 and
    Manchester United at 34,000,000 in the shipped data. The explicit cash setter
    remains only as a deliberate override/test hook.
-10. **Active:** the Balance-owned financial-objective lifecycle is now mapped:
-   three candidates, objective selection, immediate cash replacement, exact
-   three-year deadline, all 17 starting-funds/target percentages, and the
-   `ChairmanPercentBudgetMiss=95` reason-5 dismissal threshold are recovered.
-   Translate candidate generator `0x5DFD30` sufficiently to reproduce the
-   authentic three candidate IDs for a Premier League controlled club, then
-   materialize/persist selected objective state and its deadline evaluation.
-   Do not substitute the dormant chairman quarterly-budget message family.
+10. **Active:** the Balance-owned financial-objective lifecycle and fresh
+   Premier League candidate generation are now mapped. Candidate IDs are
+   `13,1,5` for clubs whose recovered fan-base rank count is at least half the
+   league (Arsenal is 19/20), otherwise `1,5,6`; the fresh PL branch consumes
+   no RNG. Materialize/persist selected objective state, immediate cash/target
+   replacement and exact three-year deadline evaluation with the recovered
+   `ChairmanPercentBudgetMiss=95` reason-5 dismissal threshold. Do not
+   substitute the dormant chairman quarterly-budget message family.
 11. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
    300 on day-of-month 1, but `0x5E5330` never appends its generated stack
