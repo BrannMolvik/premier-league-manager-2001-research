@@ -4774,3 +4774,37 @@ Gate-11 first task: audit training/development, scouting, youth, morale,
 medical/injury, discipline, messages/news and recurring manager tasks against
 the existing human gameplay loop, then choose the shortest original-backed path
 to another meaningful human management workflow.
+
+
+## Gate 11 training workflow selected and weekly state bounded — 28 September 2026
+
+The Gate-11 implementation audit compared training/development, scouting, youth,
+morale, medical/injury, discipline, messages/news and recurring tasks against
+the current human gameplay loop. Training is the shortest high-value next
+workflow: monthly age/development already runs live, exact seven training
+profiles and training probabilities are implemented, while the original
+per-player training method and weekly active-training state were not.
+
+New instruction-level findings:
+
+- active training runs on the recovered Saturday phase
+  `(date_integer + 5) % 7 == 0`;
+- `0x42AE40 -> 0x61CBA0` walks the owner's 40 × 0xC8 player-training
+  records and `0x61C520 -> 0x4EACE0` updates eligible players;
+- embedded training byte `+0x00` is the method ID and fresh records default to
+  **5 = Fitness**;
+- dword `+0x04` starts at 8, decrements once per weekly training update and
+  resets to 8 when it reaches zero;
+- `+0x0C..+0x1C` are the 17 persistent per-skill counters used by monthly
+  development and by exact +8/-8 active-training changes;
+- `+0x08` tracks active increments and `+0x64..` holds seven per-method
+  result counters;
+- zero-profile reversals occur only at the countdown boundary, preserving the
+  original eight-week decay cycle.
+
+No modern runtime behavior changed in this checkpoint.
+
+Exact next target: recover the method-change setter semantics and the two
+weekly eligibility predicates, then materialize the minimum persistent
+per-player training state and human method-selection workflow before attaching
+Saturday updates.
