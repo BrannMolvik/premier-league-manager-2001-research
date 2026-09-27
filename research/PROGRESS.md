@@ -4341,3 +4341,37 @@ level. No runtime behavior changed in this checkpoint.
 Exact next task: recover/materialize the minimum original-compatible stadium and
 26-section ticket state needed by `+0x694/+0x6B0`, then implement the recovered
 attendance/revenue path with deterministic regressions.
+
+
+## Gate 10 stadium source-state checkpoint — 28 September 2026
+
+Recovery generation 29 resumed from main `3bb6b90f` and continued only the
+source-state dependency beneath the already-complete gate-receipt formula.
+
+New instruction/source-format results:
+
+- `DBRUser +0x6B0` is an owned 0x1BC4-byte stadium runtime object created by
+  `0x65CB20` on the fresh path and on demand during load;
+- original per-club `.MAP` data supplies the stadium grid. The exact valid-map
+  read is `FM\\0 + 0x1A0 bytes + 40x40 dwords + one byte per non-empty grid
+  building + 0x10 bytes`;
+- Arsenal's original map is an exact validation case: 1,355 non-empty cells and
+  8,190 total bytes;
+- 26 hard-coded constructor anchors map the original stadium buildings to the
+  26 ticket-section IDs used by Gate 10;
+- `DBRUser +0x694` is exactly a 0x7C-byte ticket object: five header dwords
+  followed by 26 section-state dwords;
+- fresh section bootstrap writes -1 only for mapped stadium instances carrying
+  flag bit 0x02 and 0 otherwise, before the previously recovered season-ticket
+  and visiting allocation passes;
+- the 3,000×0x74 global building table used by ticket capacities is loaded from
+  the original WAD member `Lists\\Buildings.dat` by `0x660A80`;
+- the extracted original member is exactly 3,000×0xD0 serialized bytes, with
+  each entry read by the original path as 0x74 plus a 0x5C overlay at live
+  record+8.
+
+This removes the need to approximate stadium capacity from fan-base fields or
+to reconstruct the legacy stadium renderer for Gate 10. Remaining source-state
+work is to lock the fresh ordinary ticket-price initialization and package the
+minimum original WAD/map resources or an exact parser-backed representation,
+then implement deterministic gate-receipt tests.
