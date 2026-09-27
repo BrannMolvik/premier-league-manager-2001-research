@@ -39,13 +39,13 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-10 **code** checkpoint:
 
 ```text
-ad31b680f07f2a5ff552e22a76a37efccfb9cc4f
-Test gate receipt Balance postings
+0d3010df0dbbb60ab147d40dedd1ad83ff533965
+Test live gate input and RNG integration
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **523 tests passed**;
+- reconstruction suite: **531 tests passed**;
 - repository asset-policy workflow: **passed**.
 
 Current internal save schema: **9**.
@@ -153,12 +153,18 @@ Existing reverse engineering already establishes:
   fan-base/capacity caps, truncation and randomized subtraction inside
   `0x5DA2F0` are instruction-locked, and the ordinary/type-6 upstream
   side-modifier helpers `0x5DBA60/0x5DBCD0` are now translated as well;
-- the source formats behind `+0x694/+0x6B0` are now instruction-locked:
-  the original per-club `.MAP` supplies the 40×40 building grid and per-instance
-  flags, 26 fixed stadium anchors recover the ticket sections, and the original
-  WAD member `Lists\\Buildings.dat` supplies the 3,000×0x74 live building
-  records used by capacity helpers; these are not yet materialized by the
-  modern runtime;
+- the source formats behind `+0x694/+0x6B0` are instruction-locked and
+  materialized by the modern runtime: the original per-club `.MAP` supplies
+  the 40×40 building grid and per-instance flags, 26 fixed stadium anchors
+  recover the ticket sections, and the original WAD member
+  `Lists\\Buildings.dat` supplies the 3,000×0x74 live building records used
+  by capacity helpers;
+- normal Premier League gate integration is now live: PL FanFactor is 0.5,
+  EPBase gives 30.0 seating / 22.5 terrace reference prices, fresh controlled
+  facility factor is exactly 0.90, pre-result side modifiers are source-backed,
+  and four gate RNG draws are consumed after MatchCalculator but before
+  incident/Form RNG for every normal league fixture; category 1/2 receipts are
+  posted when the controlled home club has a materialized Balance/ticket state;
 - original Balance credit `0x5DC510` also constructs a category-1600 debit of
   0.2% of incoming money, but its exact money conversion/rounding and category
   label remain unresolved.
@@ -181,21 +187,23 @@ Existing reverse engineering already establishes:
    category-101 Balance postings. The first-of-month support-staff path is
    recovered as category 102 but concrete amounts remain deferred until the
    original CSupportStaff cost state is materialized.
-7. **Active:** the minimum stadium/ticket source, lazy ticket-price behavior,
-   complete four-cell gate calculator and category-1/category-2 Balance posting
-   slice are now implemented and verified. Derive the remaining live supporter
-   inputs/ordinary league side modifier from current GameState/source fields,
-   consume the four RNG draws in recovered order, then invoke the receipt
-   posting exactly once in normal matchday progression.
-8. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
+7. **Completed:** normal Premier League gate receipts are integrated through
+   the recovered source-backed stadium/ticket state, FanFactor, reference
+   prices, side modifiers, four-draw RNG ordering and category-1/category-2
+   Balance postings. CI at `0d3010df` passed **531 tests**.
+8. **Active:** recover the exact numeric conversion/rounding and semantic
+   evidence for Balance credit `0x5DC510`'s secondary category-1600 debit
+   (known rate = incoming credit × 0.002), then add a rounding-sensitive
+   regression before integrating it.
+9. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
    300 on day-of-month 1, but `0x5E5330` never appends its generated stack
    candidate or increments the fresh-game active count. Leave normal concession
    income disabled unless a genuine activation writer is later recovered.
-9. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
+10. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
    because the table is already parsed. The original 26-section stadium state
    and stadium capacity/entry model are separate dependencies.
-10. Starting Balance cash initialization remains deliberately explicit until
+11. Starting Balance cash initialization remains deliberately explicit until
     the original `0x5DC400` constructor-input source is recovered; do not
     invent a default cash value.
 
@@ -205,13 +213,11 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
 
 - chairman budget-message payloads remain loadable from legacy event/save
   state, but no ordinary fresh-game producer/consumer is mapped;
-- match-day/gate posting categories and producer are recovered, the special
-  both-clubs path is identified as cup/knockout attendance, and the complete
-  side-modifier plus four-cell demand/cap/truncation/RNG formula is now
-  instruction-locked; the required original stadium source format is now mapped
-  but not yet materialized by the modern runtime; fresh ordinary ticket-price
-  initialization is also recovered. Category 1/2 and
-  section state 0/1 are resolved as visiting/home supporter sides;
+- normal Premier League match-day gate income is integrated through the
+  source-backed stadium/ticket state, exact fresh prices, side modifiers and
+  recovered four-draw RNG placement. The special both-controlled-clubs
+  cup/knockout path remains research-only and broader facility-upgrade
+  attendance bonuses await the later building system;
 - concession payout is intentionally not integrated into ordinary progression:
   its category-300 monthly credit path is exact, but the fresh-game generator
   does not create active records in the recovered executable;
