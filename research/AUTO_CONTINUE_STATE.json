@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Close finance-linked chairman financial-objective/job-security path at 0x5E1D90, including target source, ChairmanPercentBudgetMiss tolerance, cadence/state transition and reason-5 sacking.",
-  "last_known_main_head": "8c8487475b24cdb228698f36a517eb58a063ac03",
+  "active_task": "Translate chairman financial-objective candidate generator 0x5DFD30 sufficiently to reproduce authentic three candidate IDs for a Premier League controlled club, then materialize/persist selected objective state and deadline evaluation.",
+  "last_known_main_head": "0633454c17c551cd40d6b4a3d23a4c92dffc8d23",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 33,
+  "recovery_generation": 34,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 33: starting cash is source-backed and implemented through Master.dat club +165. Main is 8c848747. Continue only the 0x5E1D90 financial-objective/job-security trace; latest starting-cash code commits are not yet CI-verified through the available connector.",
+  "note": "Recovery generation 34 resumed from main 0633454c. Gate receipts, source-backed starting cash, and category-1600 debit are complete. Continue only 0x5DFD30 financial-objective candidate generation and then objective state integration.",
   "same_chat_fallback_minutes": 30
 }
