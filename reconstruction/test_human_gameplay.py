@@ -303,15 +303,12 @@ class HumanGameplayControllerTests(unittest.TestCase):
 
         scheduled = state.transfers.scheduled_transfers[0]
         self.assertEqual(scheduled.due_date, date(2000, 7, 1))
-        controller.set_transfer_affordability_check(
-            lambda club_id, fee: club_id == 1 and fee == 500_000
-        )
+        controller.set_current_cash(750_000)
         self.assertEqual(
-            state.advance_one_day(
-                transfer_can_afford=controller.transfer_can_afford,
-            ),
+            state.advance_one_day(),
             date(2000, 7, 1),
         )
+        self.assertEqual(state.current_cash(1), 250_000)
 
         self.assertEqual(state.players[target_id].club_id, 1)
         self.assertIn(target_id, state.club_roster_order[1])
