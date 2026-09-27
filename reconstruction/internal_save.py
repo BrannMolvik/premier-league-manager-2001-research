@@ -45,7 +45,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 11
+SAVE_SCHEMA_VERSION = 12
 
 
 def _iso(value: date | None) -> str | None:
@@ -841,6 +841,11 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             if state.user_controlled_club_id is None
             else int(state.user_controlled_club_id)
         ),
+        "user_sacking_reason": (
+            None
+            if state.user_sacking_reason is None
+            else int(state.user_sacking_reason)
+        ),
         "rng_state": None if state.rng is None else int(state.rng.state),
     }
 
@@ -950,6 +955,11 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             None
             if snapshot["user_controlled_club_id"] is None
             else int(snapshot["user_controlled_club_id"])
+        ),
+        user_sacking_reason=(
+            None
+            if snapshot.get("user_sacking_reason") is None
+            else int(snapshot["user_sacking_reason"])
         ),
         team_tactics={
             int(club_id): TeamTacticalState(
