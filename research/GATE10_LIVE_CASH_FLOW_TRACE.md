@@ -834,3 +834,27 @@ At deadline, `0x5E1D90` applies named tuning
 Reason 5 produces `EAMManagerSackedFailedBudget`. The remaining source-backed
 step is the three-candidate ID generator `0x5DFD30`; do not invent objective
 choices before that branch is translated for the Premier League path.
+
+
+## Premier League chairman-objective candidates resolved
+
+Fresh objective state starts with byte `+0x9C = 0`. For Premier League
+competition 0, both hierarchy predicates inside `0x5DFD30` are false and the
+League allocation count used by the remaining random branch is zero. Candidate
+generation therefore consumes no RNG for a fresh Premier League manager.
+
+The three generated IDs are selected only by the recovered fan-base rank-half
+comparison:
+
+```text
+rank_count >= team_count / 2 -> 13, 1, 5
+rank_count <  team_count / 2 ->  1, 5, 6
+```
+
+`rank_count` is exactly `0x4F40E0`: the count of league clubs whose fan-base
+index is <= the controlled club's index. Arsenal has rank count 19/20 and thus
+gets **13, 1, 5**.
+
+This closes the source-backed candidate dependency for normal Premier League
+objective integration. Broader objective-generator branches remain deferred
+until broader competitions are in scope.
