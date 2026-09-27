@@ -2872,6 +2872,39 @@ game/session **+0x690 is the food/concession commercial-offer subsystem**, not c
 The eight-record persistent layout, text buffers, offer timing and cash-credit behavior are fully consistent with concession/commercial offers and inconsistent with a compact chairman budget array.
 
 
+### Exact concession payout and dormant fresh-game activation
+
+Follow-up disassembly against the canonical executable SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+resolves the payout path and corrects the earlier implication that this is an
+ordinary fresh-game recurring producer.
+
+`0x5E56F0` indexes the 0x168-byte records and returns the qword at record
+`+0x160` as the payout amount. `0x5E5640` first decodes the current serial
+date through `0x64CCD0`, requires decoded day-of-month 1, then loops the
+active prefix and constructs each posting with category **0x12C = 300** before
+calling Balance credit `0x5DC510`.
+
+The activation side is materially different. New construction sets object
+count `+0x00 = 0` and initializes record `+0x160/+0x164` to all-ones
+sentinels. `0x5E5330` creates a candidate 0x168-byte record on the stack,
+fills its strings/type fields, computes a financial value into candidate
+`+0x158`, computes an expiry/date into candidate `+0x164`, resets the offer
+wait state, and returns. It does not append the candidate to the persistent
+object and does not increment the active count. The `0x5E5710` pass walks
+active records and decodes their dates but likewise does not mutate the set.
+
+A complete direct-reference scan of DBRUser `+0x690` in this executable found
+only construction/destruction, save/load, the periodic
+`0x5E5640/0x5E5330` calls, and the `0x5E5710` date pass as relevant
+DBRUser uses. No ordinary activation writer was found.
+
+Therefore category-300 monthly concession credits are **exact but dormant for
+the recovered fresh-game path**. They can operate on nonzero records restored
+from persisted state, but must not be wired into the reconstruction as normal
+recurring income unless a real activation path is later found.
+
+
 ## game/session +0x69C is the sponsor-offer subsystem
 
 The persistent object at game/session `+0x69C` is now identified from its live tuning inputs and periodic logic.
