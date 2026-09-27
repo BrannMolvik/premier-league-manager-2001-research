@@ -114,11 +114,16 @@ A deterministic fallback is allowed while a subsystem is being reconstructed, bu
 3. be removed or explicitly accepted before Gate 17.
 
 
-## Financial-objective automatic lifecycle
+## Financial-objective lifecycle / dismissal side effect
 
-The fresh Premier League candidate set, selection cash/target mutation, three-year
-deadline, 95% reason-5 threshold, and save persistence are implemented. The
-remaining fidelity gap is automatic derivation of the objective `+0x68`
-progression gate from the later competition/season transition. Until that bridge
-is translated, the clean-room exposes the gate explicitly and does not invent
-when it becomes true.
+The fresh Premier League candidate set, selection cash/target mutation,
+three-year deadline, sporting `+0x68` progression for same-PL IDs 13/1/5/6,
+95% reason-5 threshold, and save persistence are implemented. The remaining
+board/job-security gap is the concrete original side effect after the objective
+path emits manager-sacking reason 4 or 5. The modern runtime currently returns
+the recovered reason code but does not invent control removal or replacement.
+
+A separate narrow approximation remains at exact Premier League table ties: the
+original equal-points fallback after points/goal difference/goals scored is
+still unresolved, so a perfect tie exactly across an objective cutoff can use
+the modern deterministic club-ID fallback.
