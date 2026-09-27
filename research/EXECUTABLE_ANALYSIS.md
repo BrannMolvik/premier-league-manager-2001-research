@@ -7221,3 +7221,28 @@ The clean-room Balance now preserves fractional money, implements the nested
 secondary debit, and schema-10 internal saves preserve fractional cash/ledger
 values. CI at `3fc54ed8524fabade0f37be7017f84d5e967a279` passed 533 tests
 plus asset policy.
+
+
+## Gate 10 source-backed starting Balance cash
+
+Direct tracing of `0x5DC400`, its three constructor call sites, DBRUser startup
+`0x425680`, compact-club parser `0x4022D0`, and runtime copier `0x403660`
+resolves fresh-game current cash.
+
+Fresh Balance objects themselves are constructed from zero-valued finance
+objects. Later in `0x425680`, the controlled club's qword at
+`DBRClub +0xD0/+0xD4` is passed through the finance-value conversion path and
+written directly to active Balance `+0x10`.
+
+The compact parser reads temporary `+0xD0` as one direct 8-byte file field.
+Summing the exact preceding packed reads places it at club-record file offset
+`+165`; `0x403660` copies the temporary record from `+0x04` through this field
+straight into the runtime DBRClub. The source bytes decode as little-endian
+IEEE-754 double starting cash. Arsenal stores 28,000,000.0 and Manchester United
+34,000,000.0 in the canonical database.
+
+The standard build's currency factor is 1.0 (`0x6596A0 == 0`), and the startup
+round-trip does not divide it back through a display conversion, so the packed
+value becomes current cash unchanged. The modern runtime can now initialize a
+controlled club Balance from original source data instead of requiring an
+invented/external default.
