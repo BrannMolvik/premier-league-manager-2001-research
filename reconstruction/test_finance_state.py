@@ -1,6 +1,8 @@
 from datetime import date
 import unittest
+from types import SimpleNamespace
 
+from game_state import GameCalendar, GameState
 from finance_state import (
     BalanceRuntimeState,
     CREDIT_SECONDARY_DEBIT_ACCOUNT_CATEGORY,
@@ -136,6 +138,39 @@ class FinancialObjectiveStateTests(unittest.TestCase):
         objective.select(0, date(2000, 8, 18))
         result = objective.evaluate(100_000_000, date(2003, 6, 1))
         self.assertEqual((result.outcome, result.sacking_reason), ("dismissed", 4))
+
+
+class FinancialObjectiveGameStateTests(unittest.TestCase):
+    def test_controlled_club_initialization_materializes_pl_candidates(self):
+        clubs = {
+            club_id: SimpleNamespace(
+                starting_cash=28_000_000 if club_id == 0 else 1_000_000,
+                fan_base_index=(31 if club_id == 0 else club_id),
+            )
+            for club_id in range(20)
+        }
+        state = GameState(
+            calendar=GameCalendar(date(2000, 8, 18)),
+            players={},
+            clubs=clubs,
+            premier_league=SimpleNamespace(club_ids=tuple(range(20))),
+        )
+        balance = state.initialize_controlled_club_balance(0)
+        self.assertEqual(balance.current_cash, 28_000_000)
+        self.assertEqual(state.financial_objective_candidates(0), (13, 1, 5))
+
+        replacement = state.select_financial_objective(0, 0)
+        self.assertEqual(replacement, 47_600_000)
+        self.assertEqual(balance.current_cash, 47_600_000)
+
+        state.calendar.current_date = date(2003, 1, 1)
+        state.set_financial_objective_progression_gate(0)
+        balance.current_cash = 49_210_000
+        evaluation = state.evaluate_financial_objective(0)
+        self.assertEqual(
+            (evaluation.outcome, evaluation.sacking_reason),
+            ("dismissed", 5),
+        )
 
 
 if __name__ == "__main__":
