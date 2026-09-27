@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 9,
-  "active_task": "Recover seller-club accept/refuse decision from canonical executable handlers 0x4F01A0/0x4EFF30/0x4F0EA0, then implement human bid evaluation",
-  "last_known_main_head": "3c99701c41219499c91aba1b28b3c9876daaa4d2",
+  "active_task": "Integrate exact 0x4205A0 player valuation and 0x405080 available-squad count into live GameState inputs, then connect human bid evaluation",
+  "last_known_main_head": "afc4188966baee3bc1dd7b9a4915eee1d9ef7a1e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 14,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Auto-continue v0.3.2 policy: transient/Retry failures recover in place first; if the first same-chat recovery produces no main or agent-runtime commit for 30 minutes, one fresh inactive recovery tab is allowed even if the old worker tab still exists. GitHub heartbeat polling uses commit Atom feeds to avoid REST rate limits.",
+  "note": "Gate 9 seller chairman core decision is complete on main. Current worker owns valuation/count live adapters; avoid repeating the 0x4EF940 seller-decision trace.",
   "same_chat_fallback_minutes": 30
 }
