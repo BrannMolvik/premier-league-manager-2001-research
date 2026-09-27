@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Integrate source-backed normal Premier League gate receipts: derive AccessFanBase raw value, exact ordinary league side modifiers and fresh controlled-club 0.9 facility factor, consume four rand15 draws immediately after MatchCalculator and before incident/Form RNG, then post category 1/2 once for a controlled home fixture.",
-  "last_known_main_head": "75c3401d12286d8a8c2ce09740c3c6cbd18a3f69",
+  "active_task": "Recover Balance credit 0x5DC510 secondary category-1600 debit conversion/rounding and integrate it with a rounding-sensitive regression.",
+  "last_known_main_head": "affe06737a6701164656828292214c9c25624e70",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 32,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 32. Main remains 75c3401. New verified trace: EPBase=30.0 -> PL seating reference 30 / terrace 22.5; fresh facility collection is empty so controlled-club factor starts 0.9; gate RNG executes after calculator and before 0x5127A0 incidents / Form.",
+  "note": "Recovery generation 32: normal Premier League gate path is integrated and CI-green at 0d3010df (531 tests + asset policy). Canonical main advanced through affe0673. Continue only category-1600 Balance credit conversion/rounding; do not reopen gate attendance.",
   "same_chat_fallback_minutes": 30
 }
