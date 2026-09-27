@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Recover minimal fresh-game support-staff type/rating state for training quality and source-backed Training Centre presence, then wire verified Saturday training.",
-  "last_known_main_head": "0f39bf71e1fb3449e21d861ae4337e6f8a9c1726",
+  "active_task": "Lock the exact shared CRT RNG state/order at fresh support-staff generation/assignment, attach source-backed support staff and initial no-Training-Centre state to GameState, then enable verified Saturday training.",
+  "last_known_main_head": "d99db25671d271223e07b3828d2bc744d113fb26",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 34,
+  "recovery_generation": 35,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Exact weekly training primitive verified at efe8a303: 559 tests + asset policy. Fresh startup assigns support staff, so do not default quality to 1.0; trace minimal Youth Team Coach/Assistant Manager source next.",
+  "note": "Recovery resumed from main d99db256. Fresh staff generator, rating tiers and training quality multiplier are implemented/tested; remaining blocker is startup RNG/order integration, not staff semantics.",
   "same_chat_fallback_minutes": 30
 }
