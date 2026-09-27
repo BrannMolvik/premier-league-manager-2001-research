@@ -83,6 +83,7 @@ class Club:
     related_club_id_1: int = -1
     related_club_id_2: int = -1
     map_file: str = ""
+    starting_cash: float = 0.0
 
 @dataclass(frozen=True)
 class Player:
@@ -304,6 +305,7 @@ class FM2001Database:
             related_club_id_0 = struct.unpack_from('<i', r, 99)[0]
             related_club_id_1 = struct.unpack_from('<i', r, 103)[0]
             related_club_id_2 = struct.unpack_from('<i', r, 107)[0]
+            starting_cash = struct.unpack_from('<d', r, 165)[0]
             self.clubs.append(Club(
                 i,
                 self.english.get(name_id),
@@ -321,6 +323,7 @@ class FM2001Database:
                 related_club_id_1,
                 related_club_id_2,
                 self.english.get(map_file_id),
+                starting_cash,
             ))
 
         player_count = struct.unpack_from('<I', d, club_end)[0]
