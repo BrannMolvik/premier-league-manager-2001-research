@@ -255,9 +255,13 @@ class GateLiveIntegrationTests(unittest.TestCase):
         self.assertEqual(receipts.visiting_revenue, 28400)
         self.assertAlmostEqual(balance.current_cash, 70261.2)
         self.assertEqual(
-            [(entry.category, entry.amount) for entry in balance.ledger],
-            [(1600, -56.8), (1, 28400), (1600, -82), (2, 41000)],
+            [entry.category for entry in balance.ledger],
+            [1600, 1, 1600, 2],
         )
+        self.assertAlmostEqual(balance.ledger[0].amount, -56.8)
+        self.assertEqual(balance.ledger[1].amount, 28400)
+        self.assertEqual(balance.ledger[2].amount, -82)
+        self.assertEqual(balance.ledger[3].amount, 41000)
 
 
 class GateLedgerPostingTests(unittest.TestCase):
@@ -298,9 +302,13 @@ class GateLedgerPostingTests(unittest.TestCase):
         self.assertEqual(posted, {1: 28400, 2: 41000})
         self.assertAlmostEqual(balance.current_cash, 169261.2)
         self.assertEqual(
-            [(entry.category, entry.amount) for entry in balance.ledger],
-            [(1600, -56.8), (1, 28400), (1600, -82), (2, 41000)],
+            [entry.category for entry in balance.ledger],
+            [1600, 1, 1600, 2],
         )
+        self.assertAlmostEqual(balance.ledger[0].amount, -56.8)
+        self.assertEqual(balance.ledger[1].amount, 28400)
+        self.assertEqual(balance.ledger[2].amount, -82)
+        self.assertEqual(balance.ledger[3].amount, 41000)
         # Season-ticket holders affect attendance only; category 3 is separate.
         self.assertEqual(balance.ledger[-1].amount, 41000)
         self.assertEqual(self.receipts(250).home_attendance, 1750)
