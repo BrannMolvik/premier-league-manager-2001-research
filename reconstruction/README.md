@@ -33,27 +33,30 @@ Current tested implementation includes:
 - persistent human club, formation, XI/bench, tactics and Team Orders workflow;
 - scheduler-aware advance-to-user-fixture behavior while other PL matches continue;
 - temporary Tkinter controls for club, lineup, tactics, advance/play, result and table;
-- schema-2 internal save/load with source-database binding, gzip `.fm2k` files, mid-matchday continuation, and Play-tab Save/Load controls.
+- schema-8 internal save/load with source-database binding, gzip `.fm2k` files, mid-matchday continuation, transfer state, and Play-tab Save/Load controls;
+- evidence-backed human cash bids, player contract terms, scheduled transfer completion and safe roster movement;
+- recurring Saturday autonomous AI acquisitions integrated into calendar progression.
 
 Canonical real-data evidence now includes:
 
 - three-round autonomous integration: `../research/GATE5_REAL_MATCHDAY_INTEGRATION.md`;
 - three deterministic full seasons: `../research/GATE6_FULL_SEASON.md`;
 - six human-controlled Arsenal fixtures over more than a month: `../research/GATE7_HUMAN_GAMEPLAY.md`;
-- canonical mid-matchday save/reload branch equivalence through that same six-fixture span: `../research/GATE8_INTERNAL_SAVE.md`.
+- canonical mid-matchday save/reload branch equivalence through that same six-fixture span: `../research/GATE8_INTERNAL_SAVE.md`;
+- transfer/contract completion with human and AI calendar paths: `../research/GATE9_TRANSFERS_AND_CONTRACTS.md`.
 
-The current reconstruction suite contains **413 passing tests**. Gate-8 canonical save/reload audit digest: `69a91dbce914be2fe5babdf8a8c71ad77bad5653c9cac09468520330f7c7b413`.
+The final Gate-9 reconstruction checkpoint contains **486 passing tests**. Gate-8 historical canonical save/reload evidence remains in `../research/GATE8_INTERNAL_SAVE.md`.
 
 ## Current development boundary
 
-The minimum human gameplay loop and internal resumable save/load are complete. The active roadmap gate is **Gate 9: transfers and contracts**, making squad building part of the playable season.
+The minimum human gameplay loop, internal resumable save/load, and Gate-9 transfer/contract runtime are complete. The active roadmap gate is **Gate 10: finances and board systems**, beginning with live Balance/current-cash state and transfer debit/credit integration.
 
 Known remaining fidelity boundaries include:
 
 - exact final league-table tie fallback beyond points / goal difference / goals scored;
 - the remaining approximation around persistent-injury availability helper `0x405080`;
 - original FM2001 save-file compatibility;
-- transfers/contracts and AI transfer activity;
+- residual transfer-negotiation / same-day ordering fidelity gaps tracked explicitly;
 - finances/board and broader management systems;
 - broader competition season transitions;
 - faithful original FM2001 front-end presentation;
