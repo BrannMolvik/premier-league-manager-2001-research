@@ -1,6 +1,6 @@
 # Current State
 
-_Last reconciled: 27 September 2026_
+_Last reconciled: 28 September 2026_
 
 This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
@@ -31,7 +31,7 @@ tracked according to `research/ASSET_POLICY.md`.
 
 ## Verified repository state
 
-Latest verified Gate-10 checkpoint:
+Latest verified Gate-10 **code** checkpoint:
 
 ```text
 5dc29a072d6e4f91744b882251df16f980c82f55
@@ -97,6 +97,8 @@ Evidence:
 - `research/GATE8_INTERNAL_SAVE.md`
 - `research/GATE9_TRANSFERS_AND_CONTRACTS.md`
 
+Gate-10 live cash-flow trace: `research/GATE10_LIVE_CASH_FLOW_TRACE.md`.
+
 ## Gate 10 goal
 
 Make money and board constraints materially affect management.
@@ -130,7 +132,15 @@ Existing reverse engineering already establishes:
 - named budget-default globals have loader writes but no recovered live
   consumer;
 - normal Finance Overview and Transfer UI have no reference to this chairman
-  budget family and instead use live Balance/accounting state.
+  budget family and instead use live Balance/accounting state;
+- concession offers are a confirmed live income producer through
+  `0x42A9FD -> 0x5E5640 -> 0x5E56F0 -> 0x5DC510`;
+- match-day/ticketing calculations depend on stadium-section state at DBRUser
+  `+0x694` and the stadium model at `+0x6B0`, neither of which is currently
+  materialized by the clean-room runtime;
+- original Balance credit `0x5DC510` also constructs a category-1600 debit of
+  0.2% of incoming money, but its exact money conversion/rounding and category
+  label remain unresolved.
 
 ## Exact next task
 
@@ -150,11 +160,22 @@ Existing reverse engineering already establishes:
    category-101 Balance postings. The first-of-month support-staff path is
    recovered as category 102 but concrete amounts remain deferred until the
    original CSupportStaff cost state is materialized.
-7. **Active:** recover the next ordinary live cash-flow producer, prioritizing
-   match-day income / attendance receipts and other recurring income.
-8. Starting Balance cash initialization remains deliberately explicit until the
-   original `0x5DC400` constructor-input source is recovered; do not invent a
-   default cash value.
+7. **Active:** continue the bounded live-income trace in
+   `research/GATE10_LIVE_CASH_FLOW_TRACE.md`. Priority is the actual
+   match-day/gate receipt producer: trace `0x429904`, `0x429BB4`,
+   `0x42A111`, `0x42A5D2` and `0x42C1F2` through DBRUser
+   `+0x694/+0x6B0` stadium inputs toward Balance credit `0x5DC510`, and
+   recover cadence, home/away behavior, attendance/capacity inputs, ticket-price
+   input, ledger category and exact money conversion.
+8. **Parallel shortest income trace:** recover `0x5E56F0` concession offer
+   source fields, posting category and payment-state conditions. The cash-credit
+   path itself is already proven; do not invent missing amount/category values.
+9. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
+   because the table is already parsed. The original 26-section stadium state
+   and stadium capacity/entry model are separate dependencies.
+10. Starting Balance cash initialization remains deliberately explicit until
+    the original `0x5DC400` constructor-input source is recovered; do not
+    invent a default cash value.
 
 ## Known live fidelity boundaries
 
@@ -162,6 +183,12 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
 
 - chairman budget-message payloads remain loadable from legacy event/save
   state, but no ordinary fresh-game producer/consumer is mapped;
+- match-day/gate income is intentionally not approximated while the original
+  stadium-section/capacity inputs and exact posting formula remain unresolved;
+- concession income has a proven Balance-credit path but is not integrated
+  until its exact offer amount/category/state behavior is recovered;
+- Balance credit's secondary category-1600 debit is not integrated until its
+  exact conversion/rounding is recovered;
 - broader player-negotiation refusal/duration branches remain explicit deferred
   states;
 - exact due-transfer ordering relative to same-day fixtures is not yet
