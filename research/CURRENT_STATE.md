@@ -31,19 +31,26 @@ tracked according to `research/ASSET_POLICY.md`.
 
 ## Verified repository state
 
-Final Gate-9 code checkpoint:
+Latest verified Gate-10 checkpoint:
 
 ```text
-c8b6d4e71fa9464e4d7f002c69213aad2f5ff196
-Verify human transfer completion on calendar advance
+80bc03134ec21a890ef87727a9272ed1e40ee3f6
+Test schema 9 Balance save roundtrip
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **486 tests passed**;
+- reconstruction suite: **492 tests passed**;
 - repository asset-policy workflow: **passed**.
 
-Current internal save schema: **8**.
+Current internal save schema: **9**.
+
+Gate 10 now has a clean-room Balance/current-cash runtime slice:
+- current cash is represented explicitly;
+- controlled-buyer affordability uses that live cash instead of a callback;
+- completed transfer purchases debit and sales credit materialized Balance
+  objects through category-1000 ledger postings;
+- Balance cash and ledger state survive save/reload.
 
 Canonical executable SHA-256:
 
@@ -122,17 +129,20 @@ Existing reverse engineering already establishes:
 
 ## Exact next task
 
-1. Materialize a clean-room **Balance/current-cash runtime object** from the
-   already-proven DBRUser/Balance layout.
-2. Replace Gate-9's controlled-buyer affordability callback with that live cash
-   state.
-3. Post completed transfer purchases/sales through the reconstructed
-   buyer-debit / seller-credit paths and persist them in save schema 9.
-4. Add deterministic tests proving insufficient cash blocks a controlled
-   purchase and successful completion debits buyer / credits seller by the same
-   amount.
-5. Then resume the existing chairman-budget trace to resolve the authoritative
-   live transfer-budget store before modeling the other operating budgets.
+1. **Completed:** clean-room Balance/current-cash runtime object.
+2. **Completed:** Gate-9 affordability callback removed; controlled purchases
+   now test live current cash.
+3. **Completed:** completed transfer buyer debit / seller credit posts category
+   1000 and persists through internal save schema 9.
+4. **Completed:** deterministic insufficient-funds and equal debit/credit
+   regressions; CI at `80bc0313` passed **492 tests**.
+5. **Active:** resume the chairman-budget trace and locate the authoritative
+   persisted/derived transfer-budget store, prioritizing the quarterly
+   overspending/rebudget producer that takes money from building/transfer
+   reserves.
+6. Starting Balance cash initialization remains deliberately explicit until the
+   original `0x5DC400` constructor-input source is recovered; do not invent a
+   default cash value.
 
 ## Known live fidelity boundaries
 
