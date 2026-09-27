@@ -152,11 +152,18 @@ Completion requires:
    expectation helpers from AccessSkillFinancialValues/current club context,
    then reconstruct the remaining ordinary 0x422470 accept/counter/refuse
    policy needed to drive those response codes from live state.
-9. Trace the post-accept conclude/medical path before changing deal state:
-   ordinary cash code-2 acceptance does not directly call 0x422920/0x50E760.
-10. After that lifecycle is stable, implement completion + safe roster movement
-    and then AI transfer progression.
-11. Build synthetic and canonical regressions and re-audit every Gate-9 criterion.
+9. **Completed for ordinary cash conclusion handoff:** code-2 acceptance
+   reaches Player Accepts -> Confirm Conclude/Deal Concluded -> shared
+   0x4EF600(proposal,0), which schedules MPMTransferPlayer for +1 day.
+   Ordinary cash does not require an invented CDealInProgress 0->1 promotion;
+   0x422920/0x50E760 belongs to swap/try-execute paths.
+10. Implement the normal MPMTransferPlayer completion slice over the modern
+    runtime: persisted +1-day scheduled transfer, exact contract application,
+    safe club-roster movement, join-date/signing-bit reset and movement history.
+    Keep the unresolved Gate-10 cash/budget posting as an explicit external
+    affordability dependency rather than inventing finance state.
+11. Then add AI transfer progression and synthetic/canonical regressions before
+    re-auditing every Gate-9 criterion.
 
 ## Gate 9 completion criteria
 
