@@ -168,12 +168,14 @@ Existing reverse engineering already establishes:
    recovered as category 102 but concrete amounts remain deferred until the
    original CSupportStaff cost state is materialized.
 7. **Active:** finish the recovered live gate-receipt producer
-   `0x513252 -> 0x5DA2F0`. Translate the attendance/count pipeline feeding
-   the category-1/category-2 postings, identify the two `+0x08/+0x0C`
-   ticket-price/section classes, decode the special branch that can post for
-   both controlled clubs, and preserve exact conversion/rounding. Then
-   materialize only the required `+0x694/+0x6B0` stadium state and add
-   deterministic regressions before normal matchday integration.
+   `0x513252 -> 0x5DA2F0`. The special both-clubs condition is now proven
+   to be the cup/knockout attendance branch, and `+0x694 +0x00/+0x04` plus
+   section state 2 are proven season-ticket quantity/price/reserved allocation.
+   Continue the four-count attendance pipeline, tie category 1/2 exactly to
+   home/visiting supporter sales, tie states 0/1 and `+0x08/+0x0C` exactly
+   to terrace/seating, and preserve exact conversion/rounding. Then materialize
+   only the required `+0x694/+0x6B0` stadium state and add deterministic
+   regressions before normal matchday integration.
 8. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
    300 on day-of-month 1, but `0x5E5330` never appends its generated stack
@@ -192,10 +194,12 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
 
 - chairman budget-message payloads remain loadable from legacy event/save
   state, but no ordinary fresh-game producer/consumer is mapped;
-- match-day/gate posting categories and producer are recovered, but income is
-  intentionally not approximated while the exact attendance-count calculation,
-  ticket-class semantics, special both-clubs condition and required original
-  stadium-section/capacity state remain unresolved;
+- match-day/gate posting categories and producer are recovered, and the
+  special both-clubs path is now identified as cup/knockout attendance; income
+  is still intentionally not approximated while the exact attendance-count
+  calculation, category-1/category-2 home/visiting mapping, terrace/seating
+  class mapping and required original stadium-section/capacity state remain
+  unresolved;
 - concession payout is intentionally not integrated into ordinary progression:
   its category-300 monthly credit path is exact, but the fresh-game generator
   does not create active records in the recovered executable;
