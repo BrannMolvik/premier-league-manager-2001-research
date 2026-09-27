@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Recover the next ordinary live cash-flow producer, prioritizing match-day income / attendance receipts and other recurring income; keep Balance starting cash explicit until the original 0x5DC400 constructor input source is recovered.",
-  "last_known_main_head": "c67c7db6ccb2e16e461d53855be413ec73260599",
+  "active_task": "Recover the actual match-day/gate receipt producer from DBRUser +0x694/+0x6B0 stadium state via 0x429904/0x429BB4/0x42A111/0x42A5D2/0x42C1F2 toward Balance credit 0x5DC510; in parallel trace 0x5E56F0 for exact concession amount/category/state. Do not infer attendance from unmapped AccessFanBase fields or invent formulas.",
+  "last_known_main_head": "fb9cd2028fd9c0d9e7360cc0f9ddb5fe0f9a398c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 24,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovered from GitHub canonical state at main c67c7db6. Gate 10 payroll integration is already complete; resume with match-day income / attendance receipts and other recurring live cash-flow producers. Do not repeat prior Balance/payroll work.",
+  "note": "Recovery generation 24 reconciled Gate 10 recurring-income state. Main now has research/GATE10_LIVE_CASH_FLOW_TRACE.md and exact stadium/concession trace targets. Verified code baseline remains 5dc29a with 497 tests; later commits are research/status only and asset-policy checks passed.",
   "same_chat_fallback_minutes": 30
 }
