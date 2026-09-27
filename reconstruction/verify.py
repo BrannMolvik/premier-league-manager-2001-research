@@ -498,6 +498,14 @@ def verify_database(db: FM2001Database) -> None:
 
     require(db.clubs[0].name == "Arsenal", f"Club 0 mismatch: {db.clubs[0].name!r}")
     require(
+        db.clubs[0].starting_cash == 28_000_000.0,
+        f"Arsenal starting cash mismatch: {db.clubs[0].starting_cash!r}",
+    )
+    require(
+        db.clubs[10].starting_cash == 34_000_000.0,
+        f"Manchester United starting cash mismatch: {db.clubs[10].starting_cash!r}",
+    )
+    require(
         db.players[0].full_name == "David Seaman",
         f"Player 0 mismatch: {db.players[0].full_name!r}",
     )
