@@ -23,8 +23,9 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Current roadmap status
 
-- **Active gate:** Gate 10 - Finances and board systems
-- **Next gate:** Gate 11 - Broader management systems
+- **Active gate:** Gate 11 - Broader management systems
+- **Next gate:** Gate 12 - Other competitions
+- **Gate 10 completed:** 28 September 2026
 - **Gate 9 completed:** 27 September 2026
 - **Gate 8 completed:** 27 September 2026
 - **Gate 7 completed:** 27 September 2026
@@ -212,16 +213,23 @@ Evidence: `research/GATE9_TRANSFERS_AND_CONTRACTS.md`.
 
 ## Gate 10 - Finances and board systems
 
+**Status: COMPLETE (28 September 2026)**
+
 Goal: make money and board constraints materially affect management.
 
 Completion criteria:
 
-- [ ] Club cash/balance is represented.
-- [ ] Wage and transfer budgets are represented.
-- [ ] Match and recurring income/cost paths are integrated.
-- [ ] Player wages and transfer spending/income persist.
-- [ ] Board expectations/job-security behavior is integrated where recovered.
-- [ ] Approximations remain explicitly labeled.
+- [x] Club cash/balance is represented.
+- [x] Wage and transfer budgets are represented according to recovered shipped
+  behavior: live Balance/cash is authoritative, while the unproven legacy
+  chairman-budget event family is not invented as a second runtime constraint.
+- [x] Match and recurring income/cost paths are integrated for the ordinary
+  recovered Premier League slice.
+- [x] Player wages and transfer spending/income persist.
+- [x] Board expectations/job-security behavior is integrated where recovered.
+- [x] Approximations remain explicitly labeled.
+
+Evidence: `research/GATE10_FINANCES_AND_BOARD.md`.
 
 ## Gate 11 - Broader management systems
 
