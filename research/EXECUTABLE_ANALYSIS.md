@@ -6067,3 +6067,89 @@ medical event previously suspected from allocation size alone.
 
 Medical pass/fail event classes remain separately identified in the executable,
 but they are not the direct 0x4EF600 object at 0x582AD0.
+
+
+## Recurring autonomous club transfer hook at 0x40DD70 (Gate 9)
+
+**Confirmed 27 September 2026 from canonical FOOTBAL.EXE.**
+
+The remaining Gate-9 AI-transfer criterion has a recurring executable-backed
+entry point rather than requiring an invented calendar policy.
+
+Club maintenance routine `0x40DD70` is called across the club table by the
+season/calendar path. Near its tail it reads the global current-date integer at
+`0x9847FC`, computes:
+
+```text
+(current_date_integer + 5) % 7
+```
+
+and, when the remainder is zero, calls **`0x40DC90`** on that club. Therefore
+`0x40DC90` is a weekly autonomous club transfer/acquisition pass.
+
+### 0x40DC90 high-level flow
+
+The routine keeps the input club as the prospective **buying club**, applies
+club eligibility/status predicates, and then:
+
+1. selects another club from the global club table;
+2. applies inter-club/country/status relationship checks in both directions;
+3. calls `0x40DBB0` on that second club to choose a target player;
+4. when a target is returned, calls **DBRPlayer::`0x41EFB0`** with the
+   original buying club.
+
+Thus the relation is proven:
+
+```text
+0x40DD70 weekly hook
+    -> 0x40DC90(buying club)
+        -> 0x40DBB0(selling club) -> target player
+        -> 0x41EFB0(target player, buying club)
+```
+
+### 0x40DBB0 target-selection evidence
+
+`0x40DBB0` operates on a source/selling club roster. Its checks include:
+
+- club-status predicates including `0x4037B0` / `0x403E10`;
+- a minimum roster-count condition through `0x40DB90`;
+- randomized candidate sampling from that club's roster;
+- candidate eligibility through `0x4088E0`;
+- a current-club tenure guard using player helper `0x419390 > 26`.
+
+It returns either a target DBRPlayer pointer or zero.
+
+### 0x41EFB0 autonomous acquisition handoff
+
+The selected target is passed to `0x41EFB0(player, buyingClub)`. Direct
+disassembly confirms this routine is an autonomous signing/acquisition path,
+not a UI-only helper. It rejects several pending/signed/recently-joined states,
+constructs transfer/contract values, records a movement, and reaches the same
+player club-switch family used by the reconstructed ordinary transfer
+completion path.
+
+This establishes an evidence-backed minimum AI-transfer implementation target:
+the modern calendar should reproduce the weekly `0x40DD70 -> 0x40DC90`
+cadence and route successful AI selections through the already-safe runtime
+roster/contract movement layer. Exact `0x41EFB0` pricing/terms and the
+remaining `0x40DC90` predicates must be mapped before code claims fidelity.
+
+### Related tuning defaults
+
+Canonical executable tuning defaults used by this subsystem include:
+
+- `MAX_TRANSFERS_PER_WEEK` = 80;
+- `MAX_PLAYERS_ON_TRANSFER_LIST` = 50;
+- `perc_value_diff_for_unsolicited_bid` = 25;
+- `perc_chance_per_week_of_unsolicited_bid` = 200;
+- `BigClubBuyChance`-named global = 21;
+- `MaxPlayersSellSeason` = 8;
+- `MaxPlayersBuySeason` = 3;
+- `MaxPlayersSellMonthly` = 3;
+- `MaxPlayersBuyMonthly` = 20;
+- `ChanceCounterBid` = 0.9.
+
+These names come from the original tuning-key loader, but several consumers
+show that the stored values are thresholds/counters rather than necessarily
+literal probabilities. Modern code must follow the actual consumer branch,
+not infer semantics from the key name alone.
