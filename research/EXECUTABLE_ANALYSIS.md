@@ -7632,3 +7632,97 @@ The remaining automatic-integration dependency is the live quality multiplier:
 Centre state. Those owners are not yet materialized in the modern GameState, so
 the transition should first be implemented as an exact primitive with an
 explicit quality input rather than pretending those facilities/staff are absent.
+
+
+## Gate 11 support-staff source for training quality
+
+The remaining automatic-training dependency has now been reduced to concrete
+CSupportStaff fields and the fresh global staff generator.
+
+### Training staff lookup
+
+The weekly training quality path searches the DBRUser support-staff linked list
+through two helpers:
+
+- `0x4D0C10`: first staff whose virtual type getter returns **3**, the Youth
+  Team Coach used by training;
+- `0x4D0B10`: fallback staff whose virtual type getter returns **2**, the
+  Assistant Manager path used when no Youth Team Coach is present.
+
+Both helpers traverse the linked list whose first-node pointer is stored in the
+DBRUser support-list header around `+0x5B8/+0x5BC/+0x5C0`. The precise
+higher-level names of the sibling list headers remain under trace; only the list
+actually consumed by the training lookups is relied upon here.
+
+### CSupportStaff fields needed by training
+
+Constructor `0x4CA2F0` writes four core dwords:
+
+```text
+staff +0x04 = arg1
+staff +0x08 = arg2
+staff +0x0C = arg3
+staff +0x10 = arg4
+staff +0x18 = 0
+```
+
+The class vtable proves:
+
+- virtual `+0x14 -> 0x42CB40` returns `staff+0x04` exactly, so **+0x04 is
+  staff type**;
+- the training-quality virtual at `+0x40` returns `staff+0x10` normally,
+  except when status `staff+0x18 == 2`, where it returns **1** instead.
+
+Therefore the minimum staff state needed by active training is:
+
+- type at `+0x04`;
+- 1..5 training rating at `+0x10`;
+- status at `+0x18`, because status 2 forces effective rating 1.
+
+### Fresh global support-staff generator 0x4C98B0
+
+The new-game global staff generator constructs a 0x218-byte CSupportStaff and
+consumes these bounded CRT draws:
+
+1. `RNG(25) + 25` -> age-like value 25..49;
+2. derive base rating bucket from that value:
+   - <=30 -> 1;
+   - 31..40 -> 2;
+   - >40 -> 3;
+3. `RNG(4) - 1` is added to that bucket, then clamped to 1..5;
+4. `RNG(16) + 1` -> staff type 1..16.
+
+The constructor call order maps those generated values to:
+
+- `staff+0x04` = generated type;
+- `staff+0x08` = 0;
+- `staff+0x0C` = generated age-like value;
+- `staff+0x10` = generated 1..5 rating.
+
+The object is then appended to the global support-staff pool.
+
+### Fresh pool and user rebuild
+
+New-game startup grows the global support-staff pool to **200** generated
+objects, then invokes `0x4C9E90(user_index)` twice for each DBRUser before
+normal play. A separate rebuild path also regenerates/grows the pool and calls
+`0x4C9E90(-1)`.
+
+Thus fresh training quality cannot safely be hard-coded to 1.0 merely because
+the modern runtime does not yet materialize support staff. The original new-game
+path creates staff and runs a per-user assignment/rebuild process before the
+first weekly training update.
+
+`0x4C9E90` also works with three adjacent support-list headers near
+`+0x5B8/+0x5C4/+0x5D0`, can select candidates randomly from the global pool,
+and delegates final staff/user status updates through `0x4D1320` /
+`0x4CB0B0`. The exact list ownership and fresh employed-staff result remain
+the active trace before calendar training can be enabled.
+
+### Facility side
+
+Training Centre is feature ID **5** in the already-proven DBRUser `+0x65C`
+facility collection. Gate-10 work independently established that this facility
+collection starts empty in fresh controlled-club state. Therefore the initial
+Training Centre contribution is **0.0** until later building gameplay creates
+that feature. Future facility changes still need the owning building system.
