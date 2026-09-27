@@ -1,0 +1,94 @@
+name: Feasibility build 0.1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/feasibility-build-0.1
+    paths:
+      - "reconstruction/**"
+      - "tools/feasibility_build/**"
+      - ".github/workflows/feasibility-build.yml"
+
+jobs:
+  windows-portable:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out feasibility branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          architecture: "x64"
+
+      - name: Install PyInstaller
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller
+
+      - name: Compile native intro player
+        shell: pwsh
+        run: |
+          $csc = Join-Path $env:WINDIR "Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+          if (-not (Test-Path $csc)) {
+            throw "64-bit .NET Framework C# compiler not found at $csc"
+          }
+          & $csc /nologo /target:winexe /optimize+ `
+            /reference:PresentationCore.dll `
+            /reference:PresentationFramework.dll `
+            /reference:WindowsBase.dll `
+            /out:IntroPlayer.exe `
+            tools\feasibility_build\IntroPlayer.cs
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+
+      - name: Build portable FM2001 runtime
+        shell: pwsh
+        run: |
+          python -m PyInstaller `
+            --noconfirm `
+            --clean `
+            --onedir `
+            --windowed `
+            --name FM2001 `
+            --paths reconstruction `
+            reconstruction\portable_launcher.py
+
+          Copy-Item IntroPlayer.exe dist\FM2001\IntroPlayer.exe
+          New-Item -ItemType Directory -Force dist\FM2001\Assets | Out-Null
+          New-Item -ItemType Directory -Force dist\FM2001\GameData | Out-Null
+          New-Item -ItemType Directory -Force dist\FM2001\Saves | Out-Null
+          Copy-Item tools\feasibility_build\README_FIRST.txt dist\FM2001\README_FIRST.txt
+
+      - name: Smoke-test executable startup parser
+        shell: pwsh
+        run: |
+          $process = Start-Process `
+            -FilePath ".\dist\FM2001\FM2001.exe" `
+            -ArgumentList "--help" `
+            -PassThru `
+            -Wait
+          if ($process.ExitCode -ne 0) {
+            throw "FM2001.exe --help exited with $($process.ExitCode)"
+          }
+
+      - name: Create runtime ZIP
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path dist\FM2001\* `
+            -DestinationPath FM2001-Feasibility-0.1-runtime.zip `
+            -CompressionLevel Optimal
+
+      - name: Upload Windows runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: FM2001-Feasibility-0.1-runtime
+          path: FM2001-Feasibility-0.1-runtime.zip
+          if-no-files-found: error
+          retention-days: 7
