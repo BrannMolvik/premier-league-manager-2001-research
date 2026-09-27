@@ -33,6 +33,7 @@ class CompetitionParserTests(unittest.TestCase):
         data[first + 14] = 1
         struct.pack_into("<h", data, first + 15, 9)
         data[first + 18] = 38
+        data[first + 31] = 1
         data[first + 34] = 3
         struct.pack_into("<I", data, first + 27, 26)
         struct.pack_into("<I", data, first + 45, 1)
@@ -45,6 +46,7 @@ class CompetitionParserTests(unittest.TestCase):
         data[second + 14] = 2
         struct.pack_into("<h", data, second + 15, -3)
         data[second + 18] = 6
+        data[second + 31] = 255
         data[second + 34] = 99
         struct.pack_into("<I", data, second + 27, 123)
         struct.pack_into("<I", data, second + 45, 2)
@@ -68,6 +70,7 @@ class CompetitionParserTests(unittest.TestCase):
         self.assertEqual(db.competitions[0].country_region_id, 26)
         self.assertEqual(db.competitions[0].runtime_instance_count, 1)
         self.assertEqual(db.competitions[0].scheduled_matchday_count, 38)
+        self.assertEqual(db.competitions[0].valuation_division_category, 1)
         self.assertEqual(db.competitions[1].id, 25)
         self.assertEqual(db.competitions[1].max_non_eu_players, 99)
         self.assertEqual(db.competitions[1].schedule_container_code, 2)
@@ -79,6 +82,7 @@ class CompetitionParserTests(unittest.TestCase):
         self.assertEqual(db.competitions[1].country_region_id, 123)
         self.assertEqual(db.competitions[1].runtime_instance_count, 8)
         self.assertEqual(db.competitions[1].scheduled_matchday_count, 6)
+        self.assertEqual(db.competitions[1].valuation_division_category, 255)
 
 
 class AccessSkillFinancialParserTests(unittest.TestCase):
