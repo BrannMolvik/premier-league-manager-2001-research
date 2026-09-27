@@ -128,7 +128,13 @@ class HumanGameplayController:
             raise ValueError(f"club {club_id} has no runtime squad")
 
         self.human = HumanManagerState(club_id=club_id)
-        self.state.user_controlled_club_id = club_id
+        club = self.state.clubs.get(club_id)
+        if club is not None and hasattr(club, "starting_cash"):
+            self.state.initialize_controlled_club_balance(club_id)
+        else:
+            # Lightweight synthetic databases may intentionally omit original
+            # finance source fields.
+            self.state.user_controlled_club_id = club_id
         return self.human
 
     def squad(self) -> tuple[object, ...]:
