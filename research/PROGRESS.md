@@ -3723,3 +3723,25 @@ CDealInProgress ready-state promotion. The sole 0x50E760 promotion path runs
 through `0x422920` and is reached here for swap/exchange-family handling.
 The ordinary conclude/medical path still needs to be traced before marking
 accepted cash deals ready.
+
+
+## 27 September Gate 9 - ordinary cash conclusion handoff
+
+Canonical disassembly resolves the normal post-accept lifecycle further.
+
+- Player response code 2 -> 0x4EE490 Player Accepts.
+- 0x4EEB80 applies the buyer cash gate and reaches 0x4EF170.
+- User-controlled buyers receive Confirm Conclude Transfer Deal; AI/non-user
+  buyers use Transfer Deal Concluded automatically.
+- Both paths converge on 0x4EF600(proposal, 0).
+- 0x4EF600 schedules MPMTransferPlayer through constructor 0x61B270 for the
+  next day, preserving the proposal and setting the player's signed-elsewhere
+  bit.
+- Ordinary cash transfers therefore do not require a synthetic deal-state
+  0->1 promotion before scheduling. The previously recovered 0x422920/0x50E760
+  promotion belongs to swap/try-execute paths.
+- MPMTransferPlayer::Execute 0x61B4A0 ultimately calls 0x4229B0 when its
+  buyer-side constraints permit completion; a blocked mode-0 object may be
+  rescheduled +7 days as mode 1.
+- The 0x48-byte 0x4EF600 event at vtable 0x7D1218 is RTTI-proven
+  EAMWorkPermitGranted, not a medical event.
