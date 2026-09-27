@@ -353,17 +353,39 @@ class GameState:
             user_controlled_club_id=user_controlled_club_id,
         )
 
-    def advance_one_day(self) -> date:
+    def run_due_transfer_maintenance(
+        self,
+        *,
+        user_controlled_club_id: int | None = None,
+        can_afford=None,
+    ):
+        """Execute due recovered MPMTransferPlayer objects.
+
+        The controlled-buyer cash check remains an explicit Gate-10 dependency.
+        Callers with a human buying club must supply can_afford(club_id, fee).
+        """
+        from transfer_workflow import execute_due_ordinary_cash_transfers
+
+        if user_controlled_club_id is None:
+            user_controlled_club_id = self.user_controlled_club_id
+        return execute_due_ordinary_cash_transfers(
+            self,
+            user_controlled_club_id=user_controlled_club_id,
+            can_afford=can_afford,
+        )
+
+    def advance_one_day(self, *, transfer_can_afford=None) -> date:
         self.calendar.increment_one_day()
         self.calendar.run_post_fixture_maintenance()
+        self.run_due_transfer_maintenance(can_afford=transfer_can_afford)
         self.run_weekly_ai_transfer_maintenance()
         return self.calendar.current_date
 
-    def advance(self, days: int) -> date:
+    def advance(self, days: int, *, transfer_can_afford=None) -> date:
         if days < 0:
             raise ValueError("days must be non-negative")
         for _ in range(days):
-            self.advance_one_day()
+            self.advance_one_day(transfer_can_afford=transfer_can_afford)
         return self.calendar.current_date
 
     def install_premier_league_scheduler_order(
@@ -511,6 +533,7 @@ class GameState:
         rng=None,
         *,
         fixture_order: Iterable[int] | None = None,
+        transfer_can_afford=None,
     ) -> tuple[tuple[int, NormalMatchResult], ...]:
         """Advance one day using the recovered fast-calendar phase order.
 
@@ -528,6 +551,10 @@ class GameState:
             fixture_order=fixture_order,
         )
         self.calendar.run_post_fixture_maintenance()
+        self.run_due_transfer_maintenance(
+            user_controlled_club_id=self.user_controlled_club_id,
+            can_afford=transfer_can_afford,
+        )
         self.run_weekly_ai_transfer_maintenance(
             rng,
             user_controlled_club_id=self.user_controlled_club_id,
