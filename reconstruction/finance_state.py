@@ -20,6 +20,8 @@ from dataclasses import dataclass, field
 from datetime import date
 
 
+PLAYER_COST_ACCOUNT_CATEGORY = 101
+SUPPORT_STAFF_COST_ACCOUNT_CATEGORY = 102
 TRANSFER_ACCOUNT_CATEGORY = 1000
 
 
