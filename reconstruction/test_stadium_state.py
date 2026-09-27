@@ -201,5 +201,48 @@ class TicketRuntimeStateTests(unittest.TestCase):
         self.assertEqual(tickets.capacity(stadium, 1).seating, 2500)
 
 
+    def test_lazy_ticket_prices_use_exact_rank_bands_and_truncation(self):
+        cases = (
+            (10, 20, 0.90),
+            (11, 20, 0.95),
+            (14, 20, 0.95),
+            (15, 20, 1.00),
+        )
+        for rank_count, team_count, multiplier in cases:
+            with self.subTest(rank_count=rank_count):
+                tickets = TicketRuntimeState()
+                terrace, seating = tickets.initialize_ordinary_prices(
+                    seating_reference=21.9,
+                    terrace_reference=16.425,
+                    fan_base_rank_count=rank_count,
+                    league_team_count=team_count,
+                )
+                self.assertEqual(seating, int(21.9 * multiplier))
+                self.assertEqual(terrace, int(16.425 * multiplier))
+
+    def test_lazy_ticket_prices_preserve_existing_nonzero_user_values(self):
+        tickets = TicketRuntimeState(terrace_price=17, seating_price=23)
+        result = tickets.initialize_ordinary_prices(
+            seating_reference=100,
+            terrace_reference=75,
+            fan_base_rank_count=1,
+            league_team_count=20,
+        )
+        self.assertEqual(result, (17, 23))
+        self.assertEqual((tickets.terrace_price, tickets.seating_price), (17, 23))
+
+    def test_lazy_ticket_prices_initialize_only_zero_destination(self):
+        tickets = TicketRuntimeState(terrace_price=0, seating_price=23)
+        tickets.initialize_ordinary_prices(
+            seating_reference=100,
+            terrace_reference=75,
+            fan_base_rank_count=1,
+            league_team_count=20,
+        )
+        self.assertEqual(tickets.terrace_price, 67)
+        self.assertEqual(tickets.seating_price, 23)
+
+
+
 if __name__ == "__main__":
     unittest.main()
