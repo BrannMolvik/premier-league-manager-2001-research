@@ -3969,3 +3969,22 @@ GitHub Actions: **492 tests passed**; repository asset-policy workflow passed.
 Next: resume the existing chairman quarterly overspending/rebudget trace to
 locate the authoritative live transfer/building budget reserve before modeling
 the other operating budgets.
+
+
+## 27 September 2026 - Gate 10 chairman-budget trace checkpoint
+
+Canonical disc re-materialized; extracted `FOOTBAL.EXE` again matches SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+Two additional false storage/producer routes are now closed:
+
+- full disc inventory contains no separate chairman/board budget-rule script or
+  budget data file outside already-known localization, match-data and
+  presentation resources;
+- DBRUser `+0x5EC` is an array of four 0x1C scouting/list-state records,
+  selected through `0x42B8A0 -> 0x42BCE0/0x42BD10` and heavily consumed by
+  the `PScouting2K` family around `0x4ADxxx..0x4AFxxx`.
+
+Next: classify the remaining large serialized/raw DBRUser region beginning at
+`+0x700/+0x704/+0x708/+0x70C` and continue looking for finance/monthly
+arithmetic feeding the chairman reserve.
