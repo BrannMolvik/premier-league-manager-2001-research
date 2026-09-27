@@ -4190,3 +4190,36 @@ Exact next target: finish translating `0x5DA2F0`, especially
 `0x5DA5CF..0x5DA705` and the attendance/count pipeline feeding
 `0x5DB3CB..`, then materialize only the required stadium source state and add
 deterministic finance regressions.
+
+
+## Gate 10 cup/ticket-state refinement checkpoint — 28 September 2026
+
+Recovery generation 26 resumed from main
+`adfdc14d732081def1565240cbc9dbe72345519d` and continued the already
+recovered `0x513252 -> 0x5DA2F0` gate-receipt producer.
+
+New instruction-locked results:
+
+- the special both-controlled-clubs flag is set at `0x5DA705` inside the
+  explicit cup/knockout attendance branch;
+- that branch consumes `ATTCupFianlBoost`, `ATTCupSemiFinalBoost`,
+  `ATTCupQuarterFinalBoot`, and `ATTCupDiv` at
+  `0x821088/0x82108C/0x821090/0x821094`;
+- this proves cup/knockout applicability but does not yet prove a narrower
+  revenue-sharing or neutral-ground policy label;
+- DBRUser `+0x694 +0x00` is season-ticket quantity and `+0x04` is
+  season-ticket price;
+- category 3 is exactly season-ticket quantity multiplied by season-ticket
+  price before Balance credit;
+- helper `0x618820` marks section state 2 as the season-ticket-reserved
+  allocation;
+- section states 0 and 1 remain the two ordinary match-day classes feeding
+  `+0x08/+0x0C` ticket pricing.
+
+The English string table contains explicit home-supporter, visiting-supporter,
+season-ticket, terrace and seating labels, but no category or section mapping
+was inferred from string order alone.
+
+Exact next target: tie category 1/2 to home/visiting supporters and state
+0/1 plus `+0x08/+0x0C` to terrace/seating, while continuing the four-count
+attendance pipeline and exact rounding trace.
