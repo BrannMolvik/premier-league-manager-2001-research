@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Finish Gate 10 live gate receipts: resolve stadium-entry +0x1C versus +0x28 as terrace/seating, then translate the two parallel home/visiting attendance-demand, cap, conversion and randomized-rounding pipelines before materializing required +0x694/+0x6B0 state.",
-  "last_known_main_head": "14eb06dc4f60fabafe1524dbceb0f096d7be20a3",
+  "active_task": "Finish the two parallel attendance-demand, cap, conversion and randomized-rounding pipelines inside 0x5DA2F0 now that terrace/seating is resolved; then identify the minimum +0x694/+0x6B0 stadium state needed for deterministic gate-receipt regressions.",
+  "last_known_main_head": "01a2f1513f4b774d9cc757a649dcc2a7fb25e298",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 27,
   "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "Recovery generation 27 resumed from main 14eb06dc4f60fabafe1524dbceb0f096d7be20a3. Gate 10 live gate receipts remain active; immediate target is the final +0x1C/+0x28 terrace/seating mapping, followed by exact attendance formula translation.",
+  "note": "Recovery generation 27 resolved terrace/seating exactly: ticket +0x08 / stadium-entry +0x1C are terrace; ticket +0x0C / +0x28 are seating. Continue only the exact attendance formula and rounding trace.",
   "same_chat_fallback_minutes": 30
 }
