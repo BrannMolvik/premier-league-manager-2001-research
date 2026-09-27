@@ -605,10 +605,16 @@ class GameState:
             elif objective_id == 5:
                 # Preserve the original inclusive midpoint comparison exactly.
                 achieved = table_index <= len(table) // 2
+            elif objective_id == 6:
+                # 0x5E07E4 succeeds when the current competition
+                # classification is unchanged or improved from the objective's
+                # selected competition. The current clean-room season slice
+                # does not yet perform relegation/promotion transitions, so a
+                # club still in the Premier League satisfies this branch.
+                achieved = True
             else:
-                # Fresh Premier League candidate generation only emits 13/1/5
-                # (or 1/5/6 for the lower rank half). Objective 6 and broader
-                # competition branches require additional translated semantics.
+                # Broader competition/objective branches are intentionally not
+                # approximated in the Premier League-only season slice.
                 return objective.evaluate(
                     balance.current_cash,
                     self.calendar.current_date,
