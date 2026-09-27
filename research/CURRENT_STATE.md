@@ -39,16 +39,16 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-10 **code** checkpoint:
 
 ```text
-3fc54ed8524fabade0f37be7017f84d5e967a279
-Test gate secondary debits as doubles
+cf59d6ddef3034ac5ea96b91605fd2641f67d3a3
+Test GameState financial objective lifecycle
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **533 tests passed**;
+- reconstruction suite: **541 tests passed**;
 - repository asset-policy workflow: **passed**.
 
-Current internal save schema: **10**.
+Current internal save schema: **11**.
 
 Gate 10 now has a clean-room Balance/current-cash runtime slice:
 - current cash is represented explicitly and fresh controlled-club Balance cash
@@ -177,6 +177,11 @@ Existing reverse engineering already establishes:
   +165 through runtime `DBRClub +0xD0/+0xD4` into active Balance +0x10;
   the modern canonical human-club selection path now mirrors this source-backed
   initialization;
+- fresh Premier League chairman-objective candidate generation is now exact and
+  implemented: high fan-base-rank half -> `13,1,5`, lower half -> `1,5,6`;
+  selection immediately replaces Balance cash, stores the target/deadline and
+  persists through schema 11. The later `+0x68` progression transition remains
+  the only unresolved automatic lifecycle bridge before the deadline check;
 
 ## Exact next task
 
@@ -210,20 +215,23 @@ Existing reverse engineering already establishes:
    canonical human club control is selected. Arsenal starts at 28,000,000 and
    Manchester United at 34,000,000 in the shipped data. The explicit cash setter
    remains only as a deliberate override/test hook.
-10. **Active:** the Balance-owned financial-objective lifecycle and fresh
-   Premier League candidate generation are now mapped. Candidate IDs are
-   `13,1,5` for clubs whose recovered fan-base rank count is at least half the
-   league (Arsenal is 19/20), otherwise `1,5,6`; the fresh PL branch consumes
-   no RNG. Materialize/persist selected objective state, immediate cash/target
-   replacement and exact three-year deadline evaluation with the recovered
-   `ChairmanPercentBudgetMiss=95` reason-5 dismissal threshold. Do not
-   substitute the dormant chairman quarterly-budget message family.
-11. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
+10. **Completed implementation slice:** the Balance-owned financial objective
+   now materializes the recovered PL candidate IDs, applies objective-specific
+   opening cash/target percentages, stores the three-year deadline, persists in
+   save schema 11, and reproduces the exact >target / >95% / <=95% evaluation
+   branches including reasons 4/5. CI at `cf59d6dd` passed **541 tests**.
+11. **Active:** attach the later season/competition progression path that sets
+   objective `+0x68 = 1` and advances `+0x9C`, then invoke the already-
+   implemented deadline evaluation at the authentic lifecycle point. The
+   clean-room currently exposes this gate explicitly rather than inventing an
+   automatic transition. Do not substitute the dormant chairman quarterly-
+   budget message family.
+12. **Concession trace resolved for current Gate-10 purposes:** `0x5E56F0`
    returns the active record's `+0x160` qword, `0x5E5640` posts category
    300 on day-of-month 1, but `0x5E5330` never appends its generated stack
    candidate or increments the fresh-game active count. Leave normal concession
    income disabled unless a genuine activation writer is later recovered.
-12. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
+13. Do not infer attendance from unmapped `DBTAccessFanBase` fields merely
    because the table is already parsed. The original 26-section stadium state
    and stadium capacity/entry model are separate dependencies.
 
