@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 10,
-  "active_task": "Trace the quarterly chairman overspending/rebudget producer to locate the authoritative live transfer/building budget reserve; keep Balance starting cash explicit until the original 0x5DC400 constructor input source is recovered.",
-  "last_known_main_head": "c82517436fd88116ad1b4a302cbab69c7907e214",
+  "active_task": "Recover the next ordinary live cash-flow producer, prioritizing match-day income / attendance receipts and other recurring income; keep Balance starting cash explicit until the original 0x5DC400 constructor input source is recovered.",
+  "last_known_main_head": "c67c7db6ccb2e16e461d53855be413ec73260599",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 23,
+  "recovery_generation": 24,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Audit confirmed Gate 9 closed cleanly with documented evidence and green CI before Gate 10. agent/gate10-finances has been fast-forwarded to current main c8251743. Resume Gate 10 from research/CURRENT_STATE.md; do not repeat the already-completed Balance/current-cash integration.",
+  "note": "Recovered from GitHub canonical state at main c67c7db6. Gate 10 payroll integration is already complete; resume with match-day income / attendance receipts and other recurring live cash-flow producers. Do not repeat prior Balance/payroll work.",
   "same_chat_fallback_minutes": 30
 }
