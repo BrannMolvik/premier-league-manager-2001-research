@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from competition_state import MatchResult, PremierLeagueState
-from finance_state import BalanceRuntimeState, FinancePosting
+from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from game_state import GameCalendar, GameState
 from human_gameplay import HumanGameplayController, HumanManagerState
 from match_environment import MatchEnvironment
@@ -45,7 +45,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 10
+SAVE_SCHEMA_VERSION = 11
 
 
 def _iso(value: date | None) -> str | None:
@@ -790,6 +790,33 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
         "finance_balances": {
             str(int(club_id)): {
                 "current_cash": balance.current_cash,
+                "financial_objective": (
+                    None
+                    if balance.financial_objective is None
+                    else {
+                        "base_cash": balance.financial_objective.base_cash,
+                        "candidate_ids": [
+                            int(value) for value in balance.financial_objective.candidate_ids
+                        ],
+                        "selected_objective_id": int(
+                            balance.financial_objective.selected_objective_id
+                        ),
+                        "starting_funds": balance.financial_objective.starting_funds,
+                        "target_cash": balance.financial_objective.target_cash,
+                        "starting_funds_snapshot": (
+                            balance.financial_objective.starting_funds_snapshot
+                        ),
+                        "selected_on": _iso(balance.financial_objective.selected_on),
+                        "deadline": _iso(balance.financial_objective.deadline),
+                        "active": bool(balance.financial_objective.active),
+                        "progression_gate_reached": bool(
+                            balance.financial_objective.progression_gate_reached
+                        ),
+                        "progression_state": int(
+                            balance.financial_objective.progression_state
+                        ),
+                    }
+                ),
                 "ledger": [
                     {
                         "amount": posting.amount,
@@ -953,6 +980,34 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         finance_balances={
             int(club_id): BalanceRuntimeState(
                 current_cash=value["current_cash"],
+                financial_objective=(
+                    None
+                    if value.get("financial_objective") is None
+                    else FinancialObjectiveState(
+                        base_cash=value["financial_objective"]["base_cash"],
+                        candidate_ids=tuple(
+                            int(candidate_id)
+                            for candidate_id in value["financial_objective"]["candidate_ids"]
+                        ),
+                        selected_objective_id=int(
+                            value["financial_objective"]["selected_objective_id"]
+                        ),
+                        starting_funds=value["financial_objective"]["starting_funds"],
+                        target_cash=value["financial_objective"]["target_cash"],
+                        starting_funds_snapshot=(
+                            value["financial_objective"]["starting_funds_snapshot"]
+                        ),
+                        selected_on=_date(value["financial_objective"]["selected_on"]),
+                        deadline=_date(value["financial_objective"]["deadline"]),
+                        active=bool(value["financial_objective"]["active"]),
+                        progression_gate_reached=bool(
+                            value["financial_objective"]["progression_gate_reached"]
+                        ),
+                        progression_state=int(
+                            value["financial_objective"]["progression_state"]
+                        ),
+                    )
+                ),
                 ledger=[
                     FinancePosting(
                         amount=posting["amount"],
