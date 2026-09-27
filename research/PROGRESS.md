@@ -3638,3 +3638,28 @@ The pure evidence-backed decision is implemented in
 `reconstruction/transfer_decision.py` with boundary tests. The adapter for
 `0x4205A0` valuation and the full four-bit `0x405080` eligibility count
 remain separate so no unresolved semantics are guessed.
+
+
+## 27 September Gate 9 - live seller inputs completed
+
+The two remaining live inputs to the recovered seller-chairman decision are now
+mapped and implemented.
+
+`0x405080` is exact: seller squad count excludes transfer-listed
+(`DBRPlayer+0x14 bit 8`), injured (bit 0), loaned-out (bit 6), and suspended
+(bit 1) players. Bit 6 was proven through `MPMLoanPlayer -> 0x41A9D0`, and
+bit 8 through `EAMAcceptTransferRequestsub -> 0x41B530 -> 0x420A10`.
+
+RuntimePlayer now persists `transfer_listed` and `loan_club_id`; internal
+save schema is **4**.
+
+The `0x4205A0/0x4205F0` transfer-value formula is also reconstructed,
+including AccessSkillFinancialValues base value, position/age/division
+multipliers, club-country EU factor, and the post-five-appearance recent-rating
+modifier. Static.dat competition byte +31 is now parsed as the valuation
+division category and GameState carries the immutable source tables required by
+the live valuation adapter.
+
+Next: verify the proposal-total helper for cash-only bids, then connect
+`TransferProposal.submit` -> live seller inputs -> seller decision -> accepted
+player-negotiation state.
