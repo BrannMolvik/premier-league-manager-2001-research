@@ -138,13 +138,18 @@ Several target systems already have substantial research or backend behavior:
 ## Exact next task
 
 1. **Gate 10 COMPLETE:** see `research/GATE10_FINANCES_AND_BOARD.md`.
-2. Audit Gate-11 targets against current implementation and research so the next
-   implementation block is chosen from actual missing gameplay capability, not
-   from stale assumptions.
-3. Prefer the shortest path that makes a human manager meaningfully use an
-   additional original management system during the existing playable Premier
-   League season.
-4. Keep broader competitions, original front-end restoration and FastView/3D in
+2. **Gate 11 first workflow selected: training.** Monthly development and the
+   seven profiles were already implemented; active training is now proven to
+   run on the Saturday phase through `0x42AE40 -> 0x61CBA0 -> 0x61C520 ->
+   0x4EACE0`.
+3. Recover the exact method-change setter and recheck the two weekly
+   player-eligibility predicates.
+4. Materialize the minimum persistent per-player training record: method
+   (fresh default Fitness/5), eight-week countdown, 17 skill counters and the
+   result counters needed by the weekly transition.
+5. Add a human training-method action and save persistence, then attach the
+   exact weekly shared-RNG update before broadening to another Gate-11 system.
+6. Keep broader competitions, original front-end restoration and FastView/3D in
    their later gates unless a Gate-11 dependency requires them.
 
 ## Known live fidelity boundaries
@@ -176,9 +181,9 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
 
 ## Do not work on yet
 
-Unless required to unblock Gate 10, defer:
+Unless required to unblock Gate 11, defer:
 
-- broader management systems beyond finance/board dependencies;
+- systems outside the active Gate-11 management-workflow slice;
 - broader competition season-transition behavior;
 - original save-file compatibility;
 - full original UI fidelity;
