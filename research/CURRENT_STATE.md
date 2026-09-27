@@ -142,8 +142,9 @@ Several target systems already have substantial research or backend behavior:
    seven profiles were already implemented; active training is now proven to
    run on the Saturday phase through `0x42AE40 -> 0x61CBA0 -> 0x61C520 ->
    0x4EACE0`.
-3. Recover the exact method-change setter and recheck the two weekly
-   player-eligibility predicates.
+3. **Weekly eligibility resolved:** active training skips injured players and
+   the separate selection-exclusion bit 2. Recover only the exact human
+   method-change mutation before implementation.
 4. Materialize the minimum persistent per-player training record: method
    (fresh default Fitness/5), eight-week countdown, 17 skill counters and the
    result counters needed by the weekly transition.
