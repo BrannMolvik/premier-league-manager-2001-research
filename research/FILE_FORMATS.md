@@ -42,6 +42,7 @@ For each entry, the decoded byte position is `8 + relative_offset`. Strings deco
 | +44 | uint16 | English.str badge-file ID | confirmed |
 | +46 | uint16 | English.str sponsor ID | confirmed |
 | +48 | uint32 | manager-record ID | confirmed |
+| +165 | float64 | fresh-game controlled-club starting cash; copied to runtime DBRClub +0xD0/+0xD4 and then active Balance +0x10 | confirmed |
 
 Unmapped fields remain.
 
