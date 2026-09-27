@@ -253,6 +253,28 @@ class OrdinaryMoneyResponseTests(unittest.TestCase):
         self.assertEqual(result.response_code, 2)
         self.assertEqual(rng.bounds, [])
 
+    def test_direct_acceptance_marks_player_signed_elsewhere(self):
+        state = self.state(player_wage=900)
+        rng = RecordingRng([])
+        result = evaluate_ordinary_money_response(
+            state,
+            self.proposal(wage=1200, sign=1000, months=36),
+            rng,
+        )
+        self.assertEqual(result.outcome, OrdinaryMoneyResponse.ACCEPTED)
+        self.assertTrue(state.players[1].signed_for_other_club)
+
+        second = evaluate_ordinary_money_response(
+            state,
+            self.proposal(wage=5000, sign=5000, months=36),
+            RecordingRng([]),
+        )
+        self.assertEqual(
+            second.outcome,
+            OrdinaryMoneyResponse.ALREADY_SIGNED_ELSEWHERE,
+        )
+        self.assertEqual(second.response_code, 16)
+
     def test_duration_above_84_returns_chairman_terms_too_high_without_rng(self):
         rng = RecordingRng([])
         result = evaluate_ordinary_money_response(
