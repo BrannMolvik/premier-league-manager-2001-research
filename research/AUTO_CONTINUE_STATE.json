@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 25,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 25. Main adfdc14d732081def1565240cbc9dbe72345519d now persists the recovered match-day producer: categories 1/2 in 0x5DA2F0, category-0 family sums 1+2+3, category 3 ticket/season-ticket sales. Continue attendance formula trace.",
+  "recovery_generation": 26,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery generation 26 resumed from main adfdc14d732081def1565240cbc9dbe72345519d. Gate 10 active task remains the attendance/count pipeline into 0x513252 -> 0x5DA2F0 categories 1/2, including +0x694 ticket-class semantics, both-controlled-clubs branch, and exact conversion/rounding.",
   "same_chat_fallback_minutes": 30
 }
