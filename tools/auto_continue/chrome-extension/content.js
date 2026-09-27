@@ -113,6 +113,12 @@ if (document.documentElement) {
   });
 }
 
+function scanExistingFailureUi() {
+  for (const element of document.querySelectorAll("[role='alert'], button")) {
+    detectFailureInNode(element);
+  }
+}
+
 function requestRecoveryFromUrl() {
   if (localRecoveryRequested) {
     return;
@@ -400,6 +406,7 @@ chrome.runtime.onMessage.addListener((message) => {
 });
 
 requestRecoveryFromUrl();
+scanExistingFailureUi();
 
 // Allow a newly created background recovery tab time to load its composer.
 // Long-lived in-place recovery is event-driven by the background service worker.
