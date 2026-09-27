@@ -598,3 +598,58 @@ search.
 Next target remains the adjacent raw 0x9CC-byte block at `DBRUser +0x70C`
 through just before +0x10D8, plus any scalar finance/monthly consumers elsewhere
 in DBRUser.
+
+
+## DBRUser +0x70C..+0x10D7 is PFormation2k preset state
+
+The previously opaque 0x9CC-byte DBRUser save block is now identified from a
+direct runtime consumer and MSVC RTTI.
+
+### Exact block shape
+
+DBRUser save/load copies exactly 0x9CC bytes beginning at `+0x70C`.
+Formation-screen initialization at `0x46583B` obtains the active DBRUser
+through `0x4139D0` and checks:
+
+`[DBRUser+0x70C] == 0x074A3216`.
+
+When the magic differs it writes that value and initializes five records
+beginning at `DBRUser+0x714`. Record stride is exactly **0x1F4 (500) bytes**:
+
+`+0x714 + slot * 0x1F4`, for slots 0..4.
+
+Five records plus the 8-byte header account exactly for the serialized size:
+
+`8 + 5 * 0x1F4 = 0x9CC`.
+
+### RTTI and player/role contents prove formation ownership
+
+The surrounding screen object's vtable `0x7C1AB4` resolves through MSVC RTTI
+to **`PFormation2k`**.
+
+The same PFormation2k routines access each DBRUser record and:
+
+- maintain a text/name field at the record base;
+- append a slot digit to a localized default label;
+- iterate the current club roster;
+- store player identifiers beginning at record `+0x10`;
+- obtain each player's current assigned role through `0x4EA3C0`;
+- store role data beginning around record `+0xB0`;
+- use the byte at record `+0x1F0` as record/status state.
+
+Additional PFormation2k methods around `0x465E..`, `0x4674..`,
+`0x4675..`, `0x467A..`, `0x467B..` and `0x467D..` address the same
+five records through the exact `+0x714 + slot*0x1F4` layout.
+
+Therefore the entire raw DBRUser region `+0x70C..+0x10D7` is persisted
+formation/team-sheet preset state, not chairman financial state.
+
+### Consequence for the Gate-10 search
+
+Together with the already-classified +0x700 managed-club history, this removes
+the final large raw save block immediately before the known +0x10D8 sacking
+reason from the transfer/building-budget search.
+
+Next trace should focus on remaining DBRUser scalar fields and board/monthly
+arithmetic outside the now-classified serialized containers, rather than
+continuing to search the +0x700..+0x10D8 save region.
