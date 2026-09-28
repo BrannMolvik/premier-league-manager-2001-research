@@ -150,6 +150,9 @@ class HumanGameplayControllerTests(unittest.TestCase):
             seed=1,
             season_year=2000,
         )
+        state.positions.update(
+            {role: SimpleNamespace(lineup_group=0) for role in range(20)}
+        )
         # Put the human club-1 fixture in the middle of each same-day list so
         # the controller must execute AI matches both before and after it.
         state.install_premier_league_scheduler_order(
