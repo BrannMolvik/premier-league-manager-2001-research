@@ -6925,3 +6925,49 @@ is not attached to fresh ordinary progression. The next live morale dependency
 is `DangerMoraleLevel`: `0x404E25` calls `0x41B580` from the existing
 controlled-club post-match roster pass, so that consumer is demonstrably
 reachable and is now the active trace.
+
+
+## Gate 11 danger-morale transfer-request lifecycle closed - 29 September 2026
+
+Recovery generation 58 resumed from main
+`454c118ae4369daf488d69d12680d7aaa1ef0cc1` and re-materialized the same
+authorized FM2001 disc archive from the ChatGPT Library. The raw MODE1/2352
+image was converted only in the temporary working container, and the extracted
+root `FOOTBAL.EXE` reverified canonical SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+Direct executable tracing closes the controlled-club post-match low-morale
+request path:
+
+- `0x404E25 -> 0x41B580` runs from the existing club roster pass after each
+  player's ordinary morale/Form handling;
+- the player's active club must resolve to a human user;
+- morale must be strictly below shipped `DangerMoraleLevel = 15`;
+- the branch then consumes one shared scaled
+  `RNG(ChanceAskForTransfer)` with shipped bound **30**, and only result 2
+  continues;
+- only after that draw does `0x41B7B0` reject status bit 8
+  (**Transfer listed**) or bit 10 (**Wanted**), so blocked low-morale players
+  still advance the shared CRT stream;
+- success queues `EAMPlayerAskTransferListsub` inside `MPMEAMail` for
+  current date + 1;
+- action 0 produces `EAMAcceptTransferRequestsub`; action 1 produces
+  `EAMRefuseTransferRequestsub`;
+- accepted follow-up reaches `0x41B530 -> 0x420A10`, setting Transfer-listed
+  bit 8, refreshing transfer value and setting Wanted bit 10;
+- refusal only cleans up the request chain, without changing player morale or
+  those status bits.
+
+A separate whole-PE reference audit finds `UnhappyWonTrophy` global
+`0x821C23` exactly once: its tuning-loader write at `0x505801`. It has no
+live executable consumer and is therefore dormant/loader-only tuning in the
+canonical executable. No trophy morale effect will be invented.
+
+Evidence is persisted in `research/GATE11_MORALE_LIFECYCLE.md` and
+`research/EXECUTABLE_ANALYSIS.md`.
+
+Exact next implementation task: integrate the source-backed delayed
+low-morale transfer-request state into the existing post-match/manager-event
+runtime with exact roster/RNG order and accept/refuse consequences, including a
+minimal persistent representation of status bit 10 only where required by the
+proven blocker/lifecycle.
