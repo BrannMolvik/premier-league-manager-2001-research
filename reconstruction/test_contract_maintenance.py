@@ -61,6 +61,7 @@ class FakePlayer:
         self.contract_renewal_suggestion_pending = False
         self.previous_club_id_74 = None
         self.club_id = 10
+        self.morale = 50
 
     def age(self, _on_date):
         return self.age_value
@@ -115,7 +116,7 @@ class ContractMaintenanceTests(unittest.TestCase):
         player.out_of_contract = True
         player.signed_for_other_club = True
         player.contract_renewal_suggestion_pending = True
-        rng = ScriptedRng([8, 0])
+        rng = ScriptedRng([8, 0, 0])
 
         outcome = run_ai_monthly_contract_maintenance(
             player,
@@ -125,8 +126,9 @@ class ContractMaintenanceTests(unittest.TestCase):
         )
 
         self.assertEqual(outcome, AiContractMaintenanceOutcome.RENEWED)
-        self.assertEqual(rng.bounds, [100, 100])
+        self.assertEqual(rng.bounds, [100, 100, 2])
         self.assertEqual(player.contract_expiry_date, date(2001, 7, 21))
+        self.assertEqual(player.morale, 82)
         self.assertFalse(player.out_of_contract)
         self.assertFalse(player.signed_for_other_club)
         self.assertFalse(player.contract_renewal_suggestion_pending)
@@ -147,7 +149,7 @@ class ContractMaintenanceTests(unittest.TestCase):
 
     def test_failed_release_eligibility_renews_without_an_extra_draw(self):
         player = FakePlayer(on_date=self.on_date, high_rating=False)
-        rng = ScriptedRng([0])
+        rng = ScriptedRng([0, 0])
 
         outcome = run_ai_monthly_contract_maintenance(
             player,
@@ -157,8 +159,9 @@ class ContractMaintenanceTests(unittest.TestCase):
         )
 
         self.assertEqual(outcome, AiContractMaintenanceOutcome.RENEWED)
-        self.assertEqual(rng.bounds, [100])
+        self.assertEqual(rng.bounds, [100, 2])
         self.assertEqual(player.contract_expiry_date, date(2001, 7, 21))
+        self.assertEqual(player.morale, 82)
 
     def test_417580_equivalent_block_and_loan_gates_force_renewal(self):
         for blocked, loan_club_id in ((0, None), (-1, 9)):
@@ -166,7 +169,7 @@ class ContractMaintenanceTests(unittest.TestCase):
                 player = FakePlayer(on_date=self.on_date, high_rating=False)
                 player.ai_transfer_block_value_64 = blocked
                 player.loan_club_id = loan_club_id
-                rng = ScriptedRng([0])
+                rng = ScriptedRng([0, 0])
 
                 outcome = run_ai_monthly_contract_maintenance(
                     player,
@@ -176,7 +179,7 @@ class ContractMaintenanceTests(unittest.TestCase):
                 )
 
                 self.assertEqual(outcome, AiContractMaintenanceOutcome.RENEWED)
-                self.assertEqual(rng.bounds, [100])
+                self.assertEqual(rng.bounds, [100, 2])
 
     def test_controlled_more_than_112_days_before_expiry_consumes_no_rng(self):
         player = FakePlayer(
