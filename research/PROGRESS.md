@@ -6467,3 +6467,66 @@ Exact next task: return to the two intentionally neutral scouting first-stage
 inputs: status bit 7 and the auxiliary `0x876868 + player + 0x1D` byte behind
 `ScoutStrengthMin`. Trace producers and UI/resource evidence; do not guess
 labels.
+
+
+## Gate 11 scouting final neutral inputs resolved — 28 September 2026
+
+Recovery generation 52 re-materialized the authorized FM2001 disc archive and
+re-extracted the root `FOOTBAL.EXE`. SHA-256 reverified exactly as
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+before accepting new disassembly evidence.
+
+### DBRPlayer +0x14 bit 7 = Out of contract
+
+The formerly neutral scouting status bit now has converging direct evidence:
+
+- `0x4177C0` contains the player-detachment path. On its successful branch it
+  clears player `+0x14`, immediately sets bit 7 with `or al,0x80`, and writes
+  `-1` into both registered/current club IDs `+0x10` and `+0x72`;
+- `0x4185B0` clears bit 7 with mask `0xFFFFFF7F` during player-state
+  reinitialization;
+- the status-display path at `0x4E1FEB` maps bit 7 to status code **7** and
+  bit 8 to status code **8**;
+- the original English status sequence is ordered
+  `Injured, Banned, International, Cup Tied, First Team, Subsitute, On loan,
+  Out of contract, Transfer listed, Bid in, Wanted, Non EU`. This agrees with
+  the independently recovered bit-6 **On loan**, bit-8 **Transfer listed**, and
+  bit-11 **Non EU** mappings;
+- `0x420570`, the player-valuation path already used by scouting, returns the
+  zero-value branch when bit 7 is set, consistent with an out-of-contract
+  player.
+
+Bit 7 can therefore be materialized as **out_of_contract** rather than kept as
+an unnamed callback.
+
+### 0x876868 is a selected raw-skill ID, not an auxiliary table pointer
+
+Exhaustive executable xrefs show only three references to global `0x876868`:
+
+1. `0x4AD8E8`: initialize it to zero;
+2. `0x4AE0ED`: assign the scouting selector value;
+3. `0x4AE862`: read it in the first-stage filter.
+
+The producer is fully bounded by the scouting panel constructor/event path:
+
+- `0x4AD4F8..0x4AD51C` walks exactly 17 entries at
+  `0x822538..0x822578` and builds selector records whose IDs are **1..17**;
+- the selector object starts at panel `+0x7580`; its field at `+0x50`
+  (panel `+0x75D0`) is initialized to zero at `0x4AD532`;
+- `0x4AE0DA` reads that field, ignores sentinel `0xFFFF`, stores the selected
+  ID at panel `+0x64E4`, and copies it to global `0x876868`;
+- the filter at `0x4AE86B` then reads
+  `BYTE PTR [player + selected_id + 0x1D]`.
+
+Because valid selector IDs are 1..17, the address range is exactly
+`player+0x1E..player+0x2E`, the reconstructed 17-byte current raw-skill
+array. The previously described "auxiliary per-player scouting byte" is
+therefore superseded: this gate selects one ordinary current raw skill, scales
+that byte with `floor((30*raw + 128)/255)`, and compares it with the shipped
+`ScoutStrengthMin` threshold. Selector value zero disables the gate.
+
+This closes both intentionally neutral first-stage scouting inputs. The next
+implementation step is to replace `status_bit_7` / `threshold_passes`
+plumbing with source-named out-of-contract and selected-skill state while
+preserving compatibility for callers that still use the neutral low-level
+predicate.
