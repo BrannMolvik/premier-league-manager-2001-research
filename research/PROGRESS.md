@@ -6032,3 +6032,37 @@ Saturday, and its `0x5E5330` expiry path contains nested RNG through
 `0x5E5170` / `0x5E5230`. Exact next dependency: replay that first
 concession expiry (and the no-sponsor expiry at day 13) on the shared stream
 before claiming multi-week calendar RNG fidelity.
+
+
+## Gate 11 calendar-integrated user training checkpoint — 28 September 2026
+
+Normal GameState day progression now has an opt-in source-backed training hook.
+
+- `b62665d8ccc3245426c636e210409f06b02c543f` adds
+  `configure_user_training_calendar()` and calls configured DBRUser training
+  maintenance from `GameState.advance_one_day()` after calendar post-fixture
+  maintenance and before later global transfer/payroll/AI-transfer maintenance.
+- The hook preserves the proven original order: daily `0x61CA60/0x61C580`
+  recovery first, then Saturday `0x42AE40 -> 0x4EACE0`.
+- Training remains disabled unless recovery threshold and quality are explicitly
+  configured. This avoids silently inventing staff/facility/commercial scheduler
+  state outside the already-source-backed interval.
+- `ddab924af5fc336db74dc08d3c154a7334b6b0e0` adds regressions proving
+  Saturday calendar progression consumes the same 6-daily + 12-weekly draws for
+  two synthetic Fitness players as the explicit orchestration primitive, while
+  an unconfigured day consumes no training RNG.
+
+GitHub Actions at `ddab924a`:
+- repository asset policy: **passed**;
+- both new calendar-training tests: **passed**;
+- full reconstruction suite: **576 tests run, 2 failures**, both the same
+  pre-existing secondary-schedule assertions already recorded at `6809b70f`
+  (secondary root order and 262-vs-280 secondary bucket count).
+
+No new Gate-11 training failure was introduced.
+
+The next dependency is the commercial/event RNG interleaving already mapped
+through the third training Saturday in commit
+`6822e7ea666749ba01ef0245ba858da009a420e4`. Materialize only the minimum
+fresh concession/sponsor timer state needed to preserve those shared-RNG
+checkpoints before enabling recurring multi-week training by default.
