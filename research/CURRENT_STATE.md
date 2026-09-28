@@ -182,15 +182,13 @@ Several target systems already have substantial research or backend behavior:
    **`805, 610, 140, 862, 362, 757, 507, 214, ...`**. The prior selector
    spot replays for clubs 118/750/510/1216/430/622/877 are not canonical
    startup-stream evidence and must not be continued. Restart the exact
-   selector stream from **`0xBD5CC00F`** at club **805**. The corrected selector replay now closes the first **20 canonical
-   reverse visits**, through club **232 (Benfica)**. The exact shared CRT state
-   is **`0x2C98D672`**. The deterministic replay helper reproduces every
-   earlier hand-verified selector state, and the fresh final `0x403F10` gate
-   is proven non-branching: `0x4F32C0` seeds its roster floor from the
-   initial roster count and fresh sell counters are zero. Exact next task:
-   regenerate the remainder of the corrected 895-club permutation from literal
-   `0x668DA4` plus the two Fisher-Yates passes, then resume visit 21 from
-   **`0x2C98D672`**. After all 894 visits, carry the resulting shared CRT state
+   selector stream from **`0xBD5CC00F`** at club **805**. The literal qsort/shuffle replay now regenerates the full corrected
+   895-club vector, and the first **40 canonical reverse visits** are exact.
+   Visit 40, club **740 (FC Copenhagen)**, leaves the shared CRT state
+   **`0x80A6458E`**. The replay helper regression-matches all earlier
+   hand-audited selector states, including random roster indices and
+   deterministic no-rating-RNG paths. Continue canonical visit **41** from
+   **`0x80A6458E`**. After all 894 visits, carry the resulting shared CRT state
    through loan maintenance into
    `0x425680 -> 0x4D1760` fixed-staff initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
