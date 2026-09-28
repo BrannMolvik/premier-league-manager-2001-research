@@ -8,6 +8,7 @@ from typing import Callable, Iterable
 from competition_state import PremierLeagueState
 from commercial_timers import UserCommercialTimerState
 from concession_offer import (
+    ConcessionRuntimeSource,
     choose_concession_local_value,
     concession_candidate_value,
     select_fresh_concession_candidate,
@@ -140,6 +141,7 @@ class GameState:
     user_training_recovery_threshold: int | None = None
     user_training_quality_multiplier: float | None = None
     user_commercial_timers: UserCommercialTimerState | None = None
+    user_concession_source: ConcessionRuntimeSource | None = None
     # DBRUser +0x10D8: persistent manager-sacking reason. The original
     # objective evaluator writes this first; the outer manager loop later
     # consumes it to show the reason-specific message and leave management.
@@ -388,11 +390,24 @@ class GameState:
             raise RuntimeError("source-backed stadium state is required")
         if club_id not in self.clubs:
             raise RuntimeError("source-backed club state is required")
+        access_row = self.access_fan_bases[int(getattr(self.clubs[club_id], "fan_base_index"))]
+        values = tuple(getattr(access_row, "values"))
+        stadium = self.stadium_sources[club_id]
+        self.user_concession_source = ConcessionRuntimeSource(
+            selector_capacities=tuple(
+                int(stadium.concession_capacity_for_selector(selector))
+                for selector in range(8)
+            ),
+            stadium_total=int(stadium.concession_capacity_total),
+            club_metric=int(getattr(self.clubs[club_id], "runtime_value_1c_source")),
+            access_metric=int(values[0]),
+        )
         self.user_commercial_timers = UserCommercialTimerState()
 
     def disable_user_commercial_calendar(self) -> None:
         """Disable automatic commercial timing without mutating other state."""
         self.user_commercial_timers = None
+        self.user_concession_source = None
 
     def _attempt_user_concession_offer(self, rng) -> bool:
         """Consume the mapped fresh 0x5E5330 concession-offer RNG body.
@@ -400,39 +415,21 @@ class GameState:
         The current slice reproduces selection/timing RNG and intentionally
         stops short of inventing presentation/event payload state.
         """
-        if self.user_controlled_club_id is None:
-            return False
-        club_id = int(self.user_controlled_club_id)
-        stadium = self.stadium_sources.get(club_id)
-        club = self.clubs.get(club_id)
-        if stadium is None or club is None:
+        source = self.user_concession_source
+        if source is None:
             return False
 
-        total_capacity = int(stadium.concession_capacity_total)
-        if total_capacity <= 0:
-            return False
-
-        fan_base_index = int(getattr(club, "fan_base_index"))
-        if not 0 <= fan_base_index < len(self.access_fan_bases):
-            raise ValueError("controlled club fan-base index is out of range")
-        access_row = self.access_fan_bases[fan_base_index]
-        values = tuple(getattr(access_row, "values"))
-        if not values:
-            raise ValueError("access-fan-base row has no values")
-
-        club_metric = int(getattr(club, "runtime_value_1c_source"))
-        access_metric = int(values[0])
-
-        for selector in range(8):
-            capacity = int(stadium.concession_capacity_for_selector(selector))
+        for selector, capacity in enumerate(source.selector_capacities):
+            capacity = int(capacity)
             if capacity <= 0:
                 continue
 
             candidate_value = concession_candidate_value(
                 rng,
-                club_metric=club_metric,
-                access_metric=access_metric,
-                stadium_total=total_capacity,
+                club_metric=source.club_metric,
+                access_metric=source.access_metric,
+                stadium_total=source.stadium_total,
+                adjustment_percent=source.adjustment_percent,
             )
             candidate_index, _ = select_fresh_concession_candidate(
                 rng,
