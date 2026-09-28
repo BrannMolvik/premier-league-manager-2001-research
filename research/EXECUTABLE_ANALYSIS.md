@@ -8714,3 +8714,67 @@ This closes the `0x4AEEA0` comparator mechanics. The remaining scouting
 dependency is UI attribution: tie the still-neutral panel fields and especially
 the `0x41FB60` result column to original control labels/strings where direct
 evidence exists, then expose the minimum UI-independent human scouting action.
+
+
+## Gate 11 scouting first-stage numeric/class/status gates and valuation source correction
+
+Direct canonical `0x4AE680` / `0x4EA310` / `0x4205F0` tracing closes the
+source-backed portion of the scouting first-stage filter.
+
+### 0x4AE680 mapped gates
+
+After the already-established rejection of players whose registered or
+temporary/current club is the active user's club, the mapped numeric/class
+portion is:
+
+- age is bounded inclusively by panel `+0x64D8..+0x64DC`;
+- page/mode return code **15** adds a literal inclusive **15..18** clamp on top
+  of those configured age bounds;
+- player value from `0x420570` is bounded inclusively by panel doubles
+  `+0x64C8..+0x64D0`;
+- `panel+0x64C0` class selector maps exactly
+  **0 -> class 3, 1 -> class 0, 2 -> class 1, 3 -> class 2**;
+- the comparison at `0x4AE7FE` uses unsigned `ja`, so selector values
+  outside 0..3 **bypass the class restriction** rather than reject the player;
+- the later optional-position and threshold predicates remain semantically
+  neutral until their panel/global controls are named.
+
+The final status-control block is OR-composed:
+
+- control `+0x76B8` -> player status bit 8 = already-proven
+  **transfer-listed**;
+- control `+0x76F8` -> player status bit 7, user-facing meaning still
+  unresolved;
+- control `+0x7738` -> player status bit 12 plus
+  `0x41E450(player, active_user_club) == 1`.
+
+If none of the three controls is active the status block passes
+unconditionally. If any are active, at least one corresponding condition must
+succeed.
+
+### 0x4EA310 class source
+
+`0x4EA310` calls `0x4EA300(0)`, therefore it reads only preferred-position
+entry **0** from the structure at player `+0x248`, indexes the Position table,
+and returns that Position record's broad class byte. The clean-room
+`Position.lineup_group` is the corresponding source-backed value.
+
+### 0x4205F0 live valuation source distinction
+
+The same trace corrects the clean-room live valuation adapter:
+
+- broad position group comes from preferred-position entry 0 through
+  `0x4EA310`, not the temporary match `current_position`;
+- division category comes from the player's temporary/current club
+  (`player+0x72`) before `0x405500`;
+- the country/EU factor later resolves the player's registered club
+  (`player+0x10`).
+
+This matters directly to scouting because `0x4AE680` applies `0x420570`
+before result construction.
+
+The runtime now exposes these mapped gates through
+`scouting_first_stage_passes()` and
+`HumanGameplayController.search_scouting_players_mapped()`. Genuinely
+unmaterialized selectors/statuses remain explicit callbacks rather than guessed
+state.
