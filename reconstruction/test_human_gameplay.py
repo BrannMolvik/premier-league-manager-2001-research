@@ -40,6 +40,17 @@ class Club:
 
 
 @dataclass(frozen=True)
+class Country:
+    id: int = 0
+    name: str = "Testland"
+    nationality_id: int = 0
+    european_index: int = 1
+    eu_status_flag: int = 1
+    continent_id: int = 0
+    financial_multiplier_percent: int = 100
+
+
+@dataclass(frozen=True)
 class Manager:
     index: int
     formation_default: int = 0
@@ -107,7 +118,7 @@ class Database:
     clubs = tuple(Club(club_id, club_id) for club_id in range(1, 21))
     managers = tuple(Manager(club_id) for club_id in range(1, 21))
     competitions = (Competition(),)
-    countries = ()
+    countries = (Country(),)
     real_fixtures = tuple(
         round_fixtures(0, 0)
         + round_fixtures(1, 10)
@@ -273,6 +284,63 @@ class HumanGameplayControllerTests(unittest.TestCase):
             tuple(int(player.index) for player in result),
             (4000, 2000),
         )
+
+    def test_mapped_human_scouting_uses_live_country_context_and_preferred_position(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+
+        # Club 2 shares the active club country. Club 3 is moved to a second
+        # European country so panel mode 1 can select it from live metadata.
+        controller.state.countries[1] = Country(
+            id=1,
+            name="Otherland",
+            nationality_id=1,
+            european_index=1,
+        )
+        club3 = controller.state.clubs[3]
+        controller.state.clubs[3] = type(club3)(
+            index=club3.index,
+            manager_id=club3.manager_id,
+            country_id=1,
+        )
+
+        player2 = controller.state.players[2000]
+        player3 = controller.state.players[3000]
+        player2.positions = (1, 7, 11)
+        player3.positions = (1, 7, 11)
+        controller.state.positions[1] = SimpleNamespace(lineup_group=0)
+
+        panel = ScoutingReseedState(
+            age_low_64d8=0,
+            age_high_64dc=99,
+            value_low_64c8=0.0,
+            value_high_64d0=1000.0,
+            class_selector_64c0=1,
+            field_64e0=1,
+        )
+        result = controller.search_scouting_players_mapped(
+            panel,
+            page_mode=16,
+            valuation_resolver=lambda _player: 100.0,
+            threshold_predicate=lambda _player: True,
+            selected_position_id=7,
+            sort_mode=0,
+        )
+
+        ids = tuple(int(player.index) for player in result)
+        self.assertIn(3000, ids)
+        self.assertNotIn(2000, ids)
+
+        player3.positions = (1, 5, 11)
+        result = controller.search_scouting_players_mapped(
+            panel,
+            page_mode=16,
+            valuation_resolver=lambda _player: 100.0,
+            threshold_predicate=lambda _player: True,
+            selected_position_id=7,
+            sort_mode=0,
+        )
+        self.assertNotIn(3000, tuple(int(player.index) for player in result))
 
     def test_mapped_human_scouting_requires_resolvers_for_unmaterialized_statuses(self):
         controller = self.build_controller()
