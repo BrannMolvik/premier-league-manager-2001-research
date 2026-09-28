@@ -39,13 +39,15 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-11 code checkpoint:
 
 ```text
-efe8a3039536cda6e7470d0237262d859c6cad03
-Test exact weekly training RNG transition
+c767083a522a9a5b0bb580ffe31c302d9879147a
+Fix live performance history fixture hooks
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **559 tests passed**;
+- reconstruction suite: **629 tests run, 2 failures**, both the unchanged
+  pre-existing secondary-schedule assertions;
+- all new scouting/performance/history/RNG/live-fixture tests passed;
 - repository asset-policy workflow: **passed**.
 
 Current internal save schema: **14**.
@@ -312,15 +314,23 @@ Several target systems already have substantial research or backend behavior:
    the exact clamp sequence, prior-history continuity clamp, shared-CRT draws,
    and the distinct MatchEngine-RNG low-rating lift. Focused tests at
    `c9c1b948` pass.
-20. **Active scouting dependency:** integrate that exact target rating into
-   normal match finalization so real fixture participants append their
-   `+0x30` ratings to the six-match history in original order. Preserve the
-   distinct MatchEngine RNG rather than deriving it from the shared CRT. First
-   finish the remaining event-data bridge needed by the rating: expose the
-   source-backed secondary goal-attribution player for goal-family records
-   (set-piece taker is already proven for delivered free kicks/corners; open
-   play still needs exact instruction confirmation). Then wire history append
-   before the later post-match Form pass, matching `0x630FC0 -> 0x41F9C0`.
+20. **Live performance history verified:** all active goal-family secondary
+   attribution is instruction-mapped and preserved in ChanceRecord. Open play
+   uses finisher primary / carrier secondary; delivered free kicks/corners use
+   receiver primary / taker secondary; direct free kicks and penalties use the
+   taker in both slots. The exact `0x6309D0 -> 0x630FC0 -> 0x41F9C0`
+   finalizer now appends ratings for appeared players before gate/incident/Form
+   processing whenever an explicit distinct MatchEngine RNG is supplied.
+   `match_engine_rng.py` implements the canonical `0x981BF0` ran1 stream.
+   Legacy callers remain unchanged and never alias the shared CRT as that
+   separate generator. CI at `c767083a` ran **629 tests** with only the two
+   unchanged secondary-schedule assertion failures; asset policy passed.
+21. **Active scouting dependency:** resolve the remaining neutral first-stage
+   inputs without inventing labels: status bit 7 and the producer/ownership of
+   the auxiliary per-player byte at `0x876868 + player + 0x1D` used by
+   `ScoutStrengthMin`. Prefer tracing writers and original UI/resource strings.
+   If one remains semantically unnameable after exhaustive direct references,
+   keep it neutral and move to the next Gate-11 workflow rather than guessing.
 
 ## Known live fidelity boundaries
 
