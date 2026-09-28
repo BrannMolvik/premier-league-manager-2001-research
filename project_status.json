@@ -9,12 +9,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "1bbc75dfd55fb65852945d696f16b2752922c7bd",
-  "last_verified_reconstruction_ci_head": "20300c8bf031c958488e0ce77cc4934b7933e7c7",
-  "last_verified_test_count": 662,
-  "asset_policy_validated_head": "20300c8bf031c958488e0ce77cc4934b7933e7c7",
+  "latest_reverse_engineering_checkpoint": "eda0545613f1f13c5c9da5908aeeccafc979d305",
+  "last_verified_reconstruction_ci_head": "130a929fe1e5505a77951b7c190b1d9e374f1b57",
+  "last_verified_test_count": 668,
+  "asset_policy_validated_head": "130a929fe1e5505a77951b7c190b1d9e374f1b57",
   "asset_policy_status": "passed",
-  "active_task": "Gate 11 youth: resolve the 0x425680 -> 0x61DE40 two-cohort youth initializer lifetime/cadence and exact final state/RNG order, then integrate only after the 0x4A8070 caller chain is instruction-closed.",
+  "active_task": "Gate 11 morale: instruction-close ordinary signing/loan morale callers 0x419210 and 0x41A9D0 and integrate their exact RNG(2) placement into existing transfer/contract runtime; defer request-new-contract/trophy paths until producer ownership is bounded.",
   "next_gate": 12,
   "next_gate_name": "Other competitions",
   "blocked": false,
@@ -267,5 +267,16 @@
   "gate11_youth_verified_head": "20300c8bf031c958488e0ce77cc4934b7933e7c7",
   "gate11_youth_verified_test_count": 662,
   "gate11_youth_evidence": "research/GATE11_YOUTH_WORKFLOW.md",
-  "gate11_youth_second_initializer": "active_trace_0x425680_to_0x61DE40"
+  "gate11_youth_second_initializer": "implemented_activation_two_cohort",
+  "gate11_youth_activation_head": "c783d0d16251d6c9bf17566b4aff393d5fa4794e",
+  "gate11_youth_rng_bridge_head": "bb3788d3fcc9044d0477b63a089faca25f287de9",
+  "gate11_postmatch_morale_integrated": true,
+  "gate11_postmatch_morale_head": "0b567986ec8b51b9f66c8e038de7aa9726088535",
+  "gate11_morale_verified_head": "130a929fe1e5505a77951b7c190b1d9e374f1b57",
+  "gate11_morale_verified_test_count": 668,
+  "gate11_morale_ci_known_failures": [
+    "secondary root order assertion",
+    "secondary bucket count 262 vs 280"
+  ],
+  "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md"
 }
