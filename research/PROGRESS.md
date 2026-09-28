@@ -6198,3 +6198,30 @@ ordering independent of the incoming global gameplay RNG state.
 Exact next task: finish `0x4AEAE0` secondary score construction and the
 `0x4AEEA0/0x4AF330` result-mode dispatch before implementing a clean-room
 human scouting action.
+
+
+## Gate 11 deterministic scouting core verified — 28 September 2026
+
+The first clean-room scouting primitive is now regression-tested.
+
+Implementation:
+- `c0dc94ff268e96a2cb3ba0765eccea5a71ef23c7` adds the exact
+  `0x4AF7F0` panel-state XOR seed, CRT reseed and descending Fisher-Yates
+  result shuffle plus source-backed shortlist caps;
+- `c80e3d2401171fb40b143e98a36f43c43536b626` fixes the test module to
+  the repository's `unittest` discovery convention.
+
+GitHub Actions at `c80e3d24`:
+- repository asset policy: **passed**;
+- all four new scouting tests: **passed**;
+- full reconstruction suite: **590 tests run, 2 failures**, both the same
+  pre-existing secondary-schedule assertions already recorded before scouting
+  (secondary root order and 262-vs-280 secondary bucket count).
+
+The verified scouting core now covers deterministic primary ordering and the
+secondary 50-candidate / 20-result cap-and-shuffle stage without assigning
+unsupported UI labels to neutral panel controls.
+
+Exact next task: finish the six `0x4AEEA0` result-sort semantics and tie
+scouting panel fields to original UI labels/control strings where source-backed,
+then expose the minimum human scouting action over existing RuntimePlayer state.
