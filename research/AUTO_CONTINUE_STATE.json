@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Continue Gate 11 transfer-list selector replay from shared CRT state 0x6A346701 at reverse visit club 750; lock fresh roster ordering for 0x4050F0, replay remaining 893 selectors, then loan maintenance into fixed-staff initialization.",
-  "last_known_main_head": "eb8a68b7bce3762a09b730244940f63e81aff826",
+  "active_task": "Audit Gate 11 exact 0x668DA4 qsort permutation before extending transfer-list selector replay; prior shuffle-state checkpoints validate draw count but not club order.",
+  "last_known_main_head": "e145d0707b7c883ca8696ed4273c890a70393e39",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 41,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "First exact selector persisted on main at eb8a68b: Carlisle 118 -> Steve Soley 7748, RNG(100)=88, state 0x6A346701. Next dependency is exact fresh roster ordering used by 0x4050F0.",
+  "note": "Compact player +88 -> runtime +0x64 audit preserves all committed selector RNG results through club 877. A literal executable qsort translation disagrees with the documented 895-club permutation; resolving this before further selector replay.",
   "same_chat_fallback_minutes": 30
 }
