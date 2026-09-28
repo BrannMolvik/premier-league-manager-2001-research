@@ -415,12 +415,21 @@ Several target systems already have substantial research or backend behavior:
    Accept reaches `0x41B530 -> 0x420A10`, setting Transfer listed and Wanted;
    refusal only cleans up the request chain. `UnhappyWonTrophy` is confirmed
    loader-only/dormant with no executable consumer.
-31. **Active morale implementation task:** integrate that delayed low-morale
-   transfer-request lifecycle into the existing post-match/manager-event runtime
-   with exact roster/RNG order and accept/refuse consequences. Materialize only
-   the proven status-bit-10 state needed by this lifecycle, preserve it through
-   internal save/reload, and add regressions before advancing to another
-   Gate-11 management subsystem.
+31. **Low-morale transfer request integrated and verified:** the delayed
+   `PlayerAskTransferList` lifecycle now runs inside the existing controlled
+   Premier League per-player post-match pass with exact `RNG(30)` placement
+   before the Transfer-listed/Wanted blocker. RuntimePlayer materializes Wanted
+   bit 10; next-day request mail and accept/refuse consequences are persistent
+   through internal save schema **22**. CI at `12bf9ac2` ran **675 tests**
+   with only the same two pre-existing secondary-schedule failures; asset
+   policy passed.
+32. **Active Gate-11 task: completion audit.** Audit the roadmap criterion that
+   a human manager can complete a Premier League season using the core
+   management systems. Verify the existing human-season path and inventory
+   training/development, scouting, youth, morale, medical/injury, discipline,
+   messages/news and recurring manager-task coverage. If the criterion is
+   already satisfied, persist a Gate-11 closure audit before moving to Gate 12;
+   otherwise make the audit's first concrete blocking workflow the next task.
 
 ## Known live fidelity boundaries
 
