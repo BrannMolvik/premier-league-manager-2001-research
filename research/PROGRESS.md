@@ -6811,3 +6811,40 @@ Corrected `tools/replay_gate11_transfer_list.py` to include the missing 24 share
 Replayed the commercial-timer / seven-day training bridge from `0xA2FEE1E1`. Fresh concession wait is now 19 days and no-sponsor wait 10 days, so neither re-fires before first active Saturday. The corrected pre-first-`0x4EACE0` CRT state is `0x4C745924`; final seven-day Condition sum remains 3342.
 
 Next: verify GitHub Actions and the canonical data-backed replay, then update the exact Gate-11 active dependency from the completed youth initializer to the next reachable unresolved management lifecycle.
+
+## Gate 11 post-match morale verified and advanced — 29 September 2026
+
+Recovery generation 56 resumed from the newest canonical `main` rather than the
+stale youth handoff. Commit `0b567986ec8b51b9f66c8e038de7aa9726088535`
+had already integrated Premier League post-match morale into both AI and human
+fixture completion.
+
+The first CI run exposed one new morale regression in addition to the two known
+secondary-schedule failures. Direct reinspection of canonical `FOOTBAL.EXE`
+(`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+proved the implementation was correct and the test expectation was one point
+low: `0x41BB10` includes an explicit final `+1` after base amount,
+`RNG(2)`, leadership and age modifiers. Commit
+`130a929fe1e5505a77951b7c190b1d9e374f1b57` corrected the regression.
+
+GitHub Actions at `130a929f`:
+
+- reconstruction suite: **668 tests run, 2 failures**;
+- both failures are the unchanged secondary root-order / bucket-count
+  assertions;
+- all morale tests pass;
+- repository asset policy passes.
+
+The original tuning-loader names were also bounded for the next lifecycle:
+`unhappynessrequestnewcontract`, `unhappynesslostmatch`,
+`unhappynesswonmatch`, `unhappynesswontrophy`,
+`unhappynessnotplayed`, `maximummorale`, `loanmorale`,
+`signednewcontactmorale`, and `dangermoralelevel`.
+
+Detailed evidence is now in `research/GATE11_MORALE_LIFECYCLE.md`.
+Exact next task: trace the ordinary signing and loan callers
+`0x419210 -> 0x41BB10(SignedNewContactMorale)` and
+`0x41A9D0 -> 0x41BB10(LoanMorale)`, then integrate their exact `RNG(2)`
+placement into the already-materialized transfer/contract runtime. The
+request-new-contract event and trophy path remain deferred until their producer
+ownership is independently closed.
