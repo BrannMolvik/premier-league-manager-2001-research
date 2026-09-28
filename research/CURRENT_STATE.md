@@ -401,11 +401,18 @@ Several target systems already have substantial research or backend behavior:
    `7e798a03` ran **670 tests** with only the same two pre-existing
    secondary-schedule failures; asset policy passed. Evidence:
    `research/GATE11_MORALE_LIFECYCLE.md`.
-29. **Active morale dependency:** independently bound the event/action producer
-   around `0x5D8430 -> 0x41BA80(UnhappyRequestNewContract)` and establish
-   whether it is reachable in the ordinary fresh-game management loop before
-   integrating any decrease. Keep trophy morale and `DangerMoraleLevel`
-   deferred until their own producer/consumer ownership is proven.
+29. **Request-new-contract morale bounded as compatibility-only:** RTTI and
+   exhaustive constructor/factory xrefs identify type-10
+   `MPMNewContractRequest` as loadable through the MPM deserialization
+   factory only. Its `0x5D8430` action would consume
+   `UnhappyRequestNewContract RNG(2)`, but no ordinary fresh-game producer is
+   present, so no fresh runtime decrease is synthesized.
+30. **Active morale dependency:** instruction-close the reachable controlled-club
+   post-match danger-morale path `0x404E25 -> 0x41B580`, including
+   `DangerMoraleLevel`, `ChanceAskForTransfer`, duplicate/status gates and
+   the `EAMPlayerAskTransferListsub` response lifecycle before integrating any
+   new event/RNG behavior. Independently verify whether `UnhappyWonTrophy`
+   has a live consumer or is tuning-only.
 
 ## Known live fidelity boundaries
 
