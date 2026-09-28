@@ -382,9 +382,22 @@ Several target systems already have substantial research or backend behavior:
    the missing 24 youth draws: post-youth `0xFA1C595E`, post-selector
    `0x7470CA25`, post-fixed-staff `0xA2FEE1E1`. The corrected commercial /
    daily-training bridge reaches first active Saturday at `0x4C745924`.
-   **Exact next task:** verify CI and canonical replay output, then resume the
-   Gate-11 audit at the next reachable unresolved management lifecycle rather
-   than revisiting the closed youth initializer.
+27. **Premier League post-match morale verified:** `DBRPlayer+0x18E` is now
+   updated through the source-backed loss/win/not-played paths. Exact
+   `0x41BA80` decrease and `0x41BB10` increase arithmetic, GoodLeadership
+   and age modifiers, the explicit final increase `+1`, roster-order
+   morale/Form interleaving, and non-appearance `RNG(10)` gating are integrated
+   for both AI and human fixtures. CI at `130a929f` ran **668 tests** with
+   only the same two pre-existing secondary-schedule failures; all morale tests
+   pass and asset policy passes. Evidence:
+   `research/GATE11_MORALE_LIFECYCLE.md`.
+28. **Active morale dependency:** instruction-close the ordinary
+   signing/loan morale callers before adding more state changes:
+   `0x419210 -> 0x41BB10(SignedNewContactMorale)` and
+   `0x41A9D0 -> 0x41BB10(LoanMorale)`. Place their single `RNG(2)` draws
+   at the exact point in the existing transfer/contract runtime. Keep the
+   request-new-contract event at `0x5D8430`, trophy morale and danger-threshold
+   behavior deferred until their producers/consumers are independently bounded.
 
 ## Known live fidelity boundaries
 
