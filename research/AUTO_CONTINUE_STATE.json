@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Continue corrected scaled 0x64D540 transfer-list selector replay at canonical reverse visit 2 (club 750) from shared CRT state 0x6A346701; revalidate all later selector visits before loan maintenance and fixed-staff initialization.",
-  "last_known_main_head": "c122f14d26b4a8a807ba57e952ad63d47ceb2d70",
+  "active_task": "Continue exact scaled 0x64D540 transfer-list selector replay from canonical reverse visit 41 (club 742 Herfølge) at shared CRT state 0x1EBAE4F5; first make the validated replay helper durable/reproducible, then verify remaining visits before loan maintenance and fixed-staff initialization.",
+  "last_known_main_head": "54009bfc7fdc43a0dddc11491102cf28c59ffcbb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 42,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 42 found and persisted a critical correction: recent qsort/selector scratch replay used modulo bounds, but 0x619DC0 and 0x61991F call scaled 0x64D540. Canonical vector returns to club 118/750/...; visit 1 Carlisle remains two draws and leaves 0x6A346701, with scaled rating roll 82. Resume visit 2 club 750.",
+  "note": "Generation 42 corrected the modulo RNG bug. Scaled visits 1-40 are now persisted; visit 40 club 620 leaves 0x1EBAE4F5. The rebuilt helper reproduces all 40 old modulo visits/states when only RNG mapping is switched back, strongly validating selector mechanics. A provisional full scaled 894-visit sanity run reaches 0x126CF137, but do not promote it until the helper is durable and later visits are checkpointed.",
   "same_chat_fallback_minutes": 30
 }
