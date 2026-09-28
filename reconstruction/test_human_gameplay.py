@@ -13,6 +13,7 @@ from match_team_setup import TeamTacticalState
 from transfer_decision import SellingClubDecision
 from transfer_negotiation import OrdinaryMoneyResponse
 from transfer_state import ContractTerms
+from youth_state import YouthRecord, YouthTeamState
 
 
 @dataclass(frozen=True)
@@ -437,6 +438,48 @@ class HumanGameplayControllerTests(unittest.TestCase):
             **common,
         )
         self.assertIn(2000, tuple(int(value.index) for value in result))
+
+    def test_human_youth_controller_promotes_and_releases_from_separate_list(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+
+        promoted = controller.state.players[2000]
+        promoted.club_id = 1
+        promoted.status_bit_3 = True
+        released = controller.state.players[3000]
+        released.club_id = 1
+        released.status_bit_3 = True
+        controller.state.user_youth = YouthTeamState(
+            [
+                YouthRecord(player_id=2000, source_roster_club_id=2),
+                YouthRecord(player_id=3000, source_roster_club_id=3),
+            ]
+        )
+
+        self.assertEqual(
+            tuple(player.index for player in controller.youth_players()),
+            (2000, 3000),
+        )
+        self.assertNotIn(2000, controller.state.club_roster_order[1])
+
+        controller.promote_youth_player(
+            2000,
+            weekly_wage=1500.0,
+            contract_months=24,
+        )
+        self.assertIn(2000, controller.state.club_roster_order[1])
+        self.assertNotIn(2000, controller.state.club_roster_order[2])
+        self.assertFalse(controller.state.players[2000].status_bit_3)
+        self.assertEqual(controller.state.players[2000].weekly_wage, 1500)
+
+        self.assertTrue(controller.release_youth_player(3000))
+        self.assertNotIn(3000, controller.state.club_roster_order[3])
+        self.assertEqual(controller.state.players[3000].club_id, -1)
+        self.assertTrue(controller.state.players[3000].out_of_contract)
+        self.assertEqual(
+            tuple(player.index for player in controller.youth_players()),
+            (),
+        )
 
     def test_human_manager_can_change_training_method_for_own_player_only(self):
         controller = self.build_controller()
