@@ -5710,3 +5710,57 @@ before the state is carried into loan maintenance.
 
 Exact durable continuation: reverse visit **41, club 742 (Herfølge)** from
 shared state **`0x1EBAE4F5`**.
+
+
+## Gate 11 full fresh transfer-list population replay locked — 28 September 2026
+
+The exact replay helper is now durable in
+`tools/replay_gate11_transfer_list.py` rather than existing only in chat
+scratch state.
+
+The committed Git blob SHA is:
+
+```text
+c5fd82d7eef72841c87a8d67b14d9df0eb5f9f7f
+```
+
+A byte-for-byte Git-blob hash of the locally executed helper is identical.
+Before commit, that exact file passed three source-backed runs against the
+authorized canonical FM2001 database:
+
+```text
+scaled, visits 1-40, prefix validation:
+  state_after = 0x1EBAE4F5
+  listed = 28
+
+diagnostic modulo, visits 1-40, prefix validation:
+  state_after = 0x80A6458E
+  listed = 32
+
+scaled, complete 894 visits, prefix validation:
+  state_after = 0x126CF137
+  listed = 625
+```
+
+The diagnostic modulo mode is intentionally retained only as a regression
+oracle for the superseded scratch trace. Normal/default replay uses the exact
+`0x64D540 = floor(rand15 * bound / 32768)` mapping.
+
+Because the source-driven helper is now persisted and reproduces both the
+known corrected scaled prefix and all 40 historical modulo checkpoints under
+the diagnostic mapping, the complete scaled result is promoted from
+provisional to the canonical **post-`0x61991F` fresh transfer-list
+population boundary**:
+
+- reverse club visits: **894**;
+- players newly transfer-listed: **625**;
+- shared CRT state after visit 894: **`0x126CF137`**.
+
+The final visit is club **Stavoartikl Brno**. Its positional selector reaches
+Jan Polak, best-preferred rating 60; scaled RNG(100)=14 fails the >=33
+threshold and the loop exits at **`0x126CF137`**.
+
+Exact next dependency: continue the same shared CRT stream from
+**`0x126CF137`** through the loan-maintenance remainder of `0x6194D0`,
+then into `0x425680 -> 0x4D1760` fixed-support-staff initialization. Do not
+attach live Saturday training until that startup quality bridge is complete.
