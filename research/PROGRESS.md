@@ -6424,3 +6424,46 @@ Exact next task: build the post-match target-rating/history finalizer from these
 semantic counters and the already-mapped card/Form/history state. Keep the
 MatchEngine low-rating RNG separate from the shared CRT stream; do not seed or
 alias the two streams.
+
+
+## Gate 11 live scouting performance history verified — 28 September 2026
+
+The exact six-match scouting-performance producer is now live behind an
+explicit separate MatchEngine RNG input.
+
+Verified implementation chain:
+
+- `2bf8169e` / `30a7eeb6` expose and populate event `+0x0C` secondary
+  attribution for instruction-proven open-play and delivered set-piece paths;
+- `0428277b` completes direct free-kick and penalty duplicate-taker
+  attribution, matching `0x62EE20/0x62EEA0`;
+- `1c57a032` exposes exact latest-history access corresponding to
+  `0x41FA20`;
+- `8c2f2fa8` / `e97425ff` add and test the
+  `0x6309D0 -> 0x630FC0 -> 0x41F9C0` post-match target/history finalizer;
+- `46fd7781` / `5d1f4722` implement and reference-test the distinct
+  `0x981BF0` Numerical-Recipes/Park-Miller ran1 MatchEngine RNG;
+- `0618910d` preserves secondary attribution across internal-save event
+  serialization;
+- `067a262f`, `b374a365` and `c767083a` integrate and verify the live
+  AI/human fixture hook while preserving legacy callers when no explicit
+  MatchEngine RNG is supplied.
+
+CI initially exposed two integration defects: a historical test file had literal
+backslash-n text, and new ChanceRecord secondary metadata was not serialized.
+Those were fixed in `119a2130` and `0618910d`. A duplicated AI/human hook
+block was then caught by the new high-level regression and fixed in
+`c767083a`.
+
+GitHub Actions at `c767083a`:
+- **629 tests run, 2 failures**;
+- both failures are the same pre-existing secondary-schedule assertions
+  (root order 170/181 and 280-vs-262 bucket count);
+- all new goal-attribution, performance-rating, history, MatchEngine-RNG,
+  save-continuity and live-fixture tests pass;
+- repository asset policy passes.
+
+Exact next task: return to the two intentionally neutral scouting first-stage
+inputs: status bit 7 and the auxiliary `0x876868 + player + 0x1D` byte behind
+`ScoutStrengthMin`. Trace producers and UI/resource evidence; do not guess
+labels.
