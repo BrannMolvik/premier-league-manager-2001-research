@@ -8030,3 +8030,13 @@ The latter zeros only for the exact age/EU-status/expired-contract condition.
 Fresh contracts are future-dated; the unresolved ordering question is limited
 to whether `0x4205A0` changes relative to cached `+0xB8` during the startup
 calendar alignment.
+
+## Gate 11 exact transfer-club qsort replay
+
+The `0x619CF0` club qsort can now be reproduced exactly rather than treated as an unknown tie-order boundary.
+
+`0x4205F0` valuation is calendar-sensitive on this fresh path only through integer age. July 1 to July 4 changes valuation age bands for nine source players; one belongs to non-European Cerro Porteño, so eight clubs in the canonical 895-club vector receive non-neutral live/cached ratios. Six ratios are below 1.0, two above 1.0, and the other 887 clubs are exactly 1.0.
+
+Executable qsort `0x668DA4` was translated including its short-sort, middle-pivot partition and equal-key swap behavior. With the real comparator keys it places Levski/Neftchi/Anorthosis/Slavia/Sileks/Kidderminster at indices 0..5, Albion Rovers at 893 and Torquay at 894, while permuting the equal-key block as the original non-stable CRT implementation does.
+
+Two subsequent exact Fisher-Yates passes reproduce `0xC6B73181` and `0xBD5CC00F`, validating the qsort/order model independently. The reverse selector loop starts with clubs 118, 750, 510, 1216, 430, 622, 877, 243, ...; its first RNG(10) result is 3, selecting `0x61A9A0` for club 118.
