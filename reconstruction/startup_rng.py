@@ -413,6 +413,58 @@ def replay_startup_youth_generation_for_country(
     )
 
 
+def replay_activation_youth_generation_for_country(
+    rng: BoundedRng,
+    players: Iterable[StartupPlayerSource],
+    source_club_id: int,
+    option_mode: int | None,
+    country_id: int,
+    countries: Iterable[GeneratedNameCountrySource],
+    *,
+    runtime_excluded_ids: Iterable[int] = (),
+) -> tuple[tuple[int, int], tuple[tuple[int, ...], tuple[int, ...]]]:
+    """Replay the two 0x61DF90 cohorts inside 0x61DE40.
+
+    0x61DE40 clears the youth-record list but does not undo DBRPlayer status
+    bit 3. Each cohort therefore rescans the complete source player table,
+    excluding all previously generated youth before applying the fixed
+    512-entry candidate cap. The second cohort also sees the first cohort's
+    newly set status bits.
+
+    The returned pair contains the two requested target counts and the exact
+    source-player IDs selected for each cohort.
+    """
+    player_list = tuple(players)
+    country_list = tuple(countries)
+    excluded = {int(value) for value in runtime_excluded_ids}
+    targets: list[int] = []
+    selections: list[tuple[int, ...]] = []
+    destination_count = 0
+
+    for _ in range(2):
+        candidates = startup_youth_candidate_ids(
+            player_list,
+            int(source_club_id),
+            runtime_excluded_ids=excluded,
+        )
+        target, selected = replay_startup_youth_generation_for_country(
+            rng,
+            candidates,
+            option_mode,
+            int(country_id),
+            country_list,
+            player_list,
+            destination_count=destination_count,
+        )
+        selected = tuple(int(value) for value in selected)
+        excluded.update(selected)
+        destination_count += len(selected)
+        targets.append(int(target))
+        selections.append(selected)
+
+    return (targets[0], targets[1]), (selections[0], selections[1])
+
+
 def replay_precompetition_startup_rng(
     rng: StatefulStartupRng,
     clubs: Iterable[StartupClubSource],

@@ -24,6 +24,7 @@ from startup_rng import (
 
 YOUTH_LIST_CAP = 20
 YOUTH_CANDIDATE_CAP = 0x200
+YOUTH_INITIAL_AGE = 15
 YOUTH_FINAL_AGE = 17
 YOUTH_FINAL_CONTRACT_MONTHS = 12
 
@@ -296,6 +297,69 @@ def generate_fresh_user_youth(
             )
         )
 
+    return youth
+
+
+def _next_june_30(on_date: date) -> date:
+    """Return the common 0x61DE40 player+0x154 date."""
+    target_year = int(on_date.year) if int(on_date.month) < 7 else int(on_date.year) + 1
+    return date(target_year, 6, 30)
+
+
+def initialize_user_youth_for_club_activation(
+    state,
+    youth: YouthTeamState,
+    *,
+    user_club_id: int,
+    option_mode: int | None,
+    rng,
+) -> YouthTeamState:
+    """Materialize the full 0x61DE40 pending-club youth initializer.
+
+    Clearing the youth records deliberately leaves the old generated players'
+    status-bit-3 mutations intact. The first 0x61DF90 cohort is then
+    post-processed to age 17 by 0x61DD30. The second cohort remains at the
+    age-15 state produced by 0x41E510. Finally all records receive the same
+    next-30-June player+0x154 date and freshly reset training state.
+    """
+
+    youth.clear()
+
+    first = generate_fresh_user_youth(
+        state,
+        user_club_id=int(user_club_id),
+        option_mode=option_mode,
+        rng=rng,
+    )
+    second = generate_fresh_user_youth(
+        state,
+        user_club_id=int(user_club_id),
+        option_mode=option_mode,
+        rng=rng,
+    )
+
+    # generate_fresh_user_youth materializes the startup path through 0x61DD30,
+    # so undo only that post-process for the second 0x61DE40 cohort. The
+    # selection/name/status work remains exactly the shared 0x61DF90 behavior.
+    for record in second.records:
+        player = state.players[int(record.player_id)]
+        player.date_of_birth = _birth_date_for_age(
+            player,
+            state.calendar.current_date,
+            YOUTH_INITIAL_AGE,
+        )
+
+    combined = [*first.records, *second.records]
+    if len(combined) > YOUTH_LIST_CAP:
+        combined = combined[:YOUTH_LIST_CAP]
+
+    common_date = _next_june_30(state.calendar.current_date)
+    for record in combined:
+        player = state.players[int(record.player_id)]
+        player.contract_expiry_date = common_date
+        record.training = YouthTrainingState()
+
+    youth.records[:] = combined
     return youth
 
 

@@ -12,6 +12,7 @@ from startup_rng import (
     generated_name_rng_bound,
     generated_name_source_eligible,
     generated_name_source_ids,
+    replay_activation_youth_generation_for_country,
     replay_precompetition_startup_rng,
     replay_startup_youth_generation,
     replay_startup_youth_generation_for_country,
@@ -327,6 +328,46 @@ class StartupReplayTests(unittest.TestCase):
                 (5, 1, 11, 0),
                 (8, 4, 23, 21, 2, 3, 20, 9),
             ),
+        )
+
+    def test_activation_youth_replay_rescans_before_each_512_cap(self):
+        players = tuple(
+            FullStartupPlayer(i, 332, "Alan", f"Smith{i}", 26)
+            for i in range(520)
+        )
+        countries = (Country(26, 26),)
+        rng = RecordingRng([0] * 24)
+
+        targets, selections = replay_activation_youth_generation_for_country(
+            rng,
+            players,
+            332,
+            99,
+            26,
+            countries,
+            runtime_excluded_ids=(0, 1, 5),
+        )
+
+        self.assertEqual(targets, (4, 4))
+        self.assertEqual(
+            selections,
+            (
+                (2, 514, 513, 512),
+                (3, 518, 517, 516),
+            ),
+        )
+        self.assertEqual(
+            rng.calls,
+            [
+                512, 520, 520,
+                511, 520, 520,
+                510, 520, 520,
+                509, 520, 520,
+                512, 520, 520,
+                511, 520, 520,
+                510, 520, 520,
+                509, 520, 520,
+            ],
         )
 
     def test_consume_rng_bounds_preserves_order(self):

@@ -6,6 +6,7 @@ from youth_state import (
     YouthRecord,
     YouthTeamState,
     generate_fresh_user_youth,
+    initialize_user_youth_for_club_activation,
     promote_youth_player,
     release_youth_player,
 )
@@ -146,6 +147,59 @@ class YouthStateTests(unittest.TestCase):
         # 0x41E510 does not append the player to the first-team roster.
         self.assertNotIn(0, state.club_roster_order[1])
         self.assertIn(0, state.club_roster_order[332])
+
+    def test_club_activation_replaces_list_with_age_17_and_age_15_cohorts(self):
+        players = [Player(i) for i in range(20)]
+        state = State(players)
+        state.players[0].status_bit_3 = True
+        youth = YouthTeamState(
+            [YouthRecord(player_id=0, source_roster_club_id=332)]
+        )
+        rng = ScriptedRng([0] * 24)
+
+        result = initialize_user_youth_for_club_activation(
+            state,
+            youth,
+            user_club_id=1,
+            option_mode=99,
+            rng=rng,
+        )
+
+        self.assertIs(result, youth)
+        self.assertEqual(
+            youth.player_ids(),
+            (1, 19, 18, 17, 2, 16, 15, 14),
+        )
+        self.assertEqual(
+            rng.bounds,
+            [
+                19, 20, 20,
+                18, 20, 20,
+                17, 20, 20,
+                16, 20, 20,
+                15, 20, 20,
+                14, 20, 20,
+                13, 20, 20,
+                12, 20, 20,
+            ],
+        )
+        for player_id in youth.player_ids()[:4]:
+            self.assertEqual(
+                state.players[player_id].age(state.calendar.current_date),
+                17,
+            )
+        for player_id in youth.player_ids()[4:]:
+            self.assertEqual(
+                state.players[player_id].age(state.calendar.current_date),
+                15,
+            )
+        for record in youth.records:
+            player = state.players[record.player_id]
+            self.assertEqual(player.contract_expiry_date, date(2001, 6, 30))
+            self.assertEqual(record.training.method_id, 5)
+            self.assertEqual(record.training.countdown, 8)
+        self.assertTrue(state.players[0].status_bit_3)
+        self.assertNotIn(0, youth.player_ids())
 
     def test_youth_list_has_hard_twenty_record_cap_and_compacts_on_remove(self):
         youth = YouthTeamState()
