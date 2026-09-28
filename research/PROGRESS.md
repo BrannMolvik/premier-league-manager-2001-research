@@ -5949,3 +5949,42 @@ the intervening daily maintenance, replay every mandatory draw from
 **`0xFA1C595E`** to the first `0x4EACE0` entry, and only then attach the
 already-verified quality-1.30 weekly training primitive to calendar progression.
 
+
+
+## Gate 11 exact pre-first-training RNG replay closed — 28 September 2026
+
+Commit `45d03793b95e45f56e54802f4aa059a45c2a61d2` closes the mandatory
+fresh daily RNG interval between corrected post-fixed-staff state
+**`0xFA1C595E`** and the first active Saturday `0x4EACE0` entry.
+
+Canonical executable evidence now fixes:
+
+- first concession wait: `RNG(14)=4` -> **11 days**, state
+  **`0xA5A88AA9`**;
+- first no-sponsor wait: `RNG(7)=6` -> **13 days**, state
+  **`0x73FCE2C8`**;
+- neither timer repeats before first training Saturday;
+- Arsenal has **37 active** fresh training records;
+- all 37 take the same fresh `0x61C580` daily recovery branch, starting
+  Condition **80** and threshold **50**;
+- `0x41B7B0` is false for all 37 on this boundary, so the later 60-percent
+  side branch does not consume RNG;
+- fresh training `+0x99 = 0`, so the post-recovery event branch is skipped;
+- seven daily recovery passes consume exact draw counts
+  **111, 111, 111, 111, 111, 126, 142** and end at
+  **`0x216C6081`**;
+- final fresh Condition range is **86..93**, sum **3342**.
+
+The remaining same-day calls before the weekly test were audited RNG-clean or
+fresh-empty. In particular DBRUser construction initializes
+`[user+0x6BC object +0x1800] = 0`, making `0x61D710` a no-op here.
+
+Data-free replay helper `tools/replay_gate11_training_bridge.py` was added in
+commit `169784d0e9be50571d32f27b135ed3c7bfd4e944` and locally asserted every
+checkpoint above.
+
+The startup-quality/RNG bridge is therefore closed. Exact next implementation
+task: attach the already-verified weekly training primitive to normal Saturday
+calendar progression with the source-backed fresh quality **1.30**, while also
+preserving the recovered daily Condition-maintenance RNG ordering that now
+precedes it.
