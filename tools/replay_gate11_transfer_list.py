@@ -431,17 +431,36 @@ def replay_canonical_loan_tail():
  if len(loan_listed)!=200 or last_cid!=866 or r.state!=0x472F4DFF or eligible_visits!=292:
   raise AssertionError((len(loan_listed),last_cid,hex(r.state),eligible_visits))
 
- # One exact RNG(10) in 0x425680 precedes fixed-support-staff creation.
+ # One exact RNG(10) in 0x425680 precedes the user-owned 37-way
+ # selector at 0x5E3FD0 and only then fixed-support-staff creation.
  pre_staff=r.draw(10,'user-init-rng10')
  if pre_staff!=2 or r.state!=0xA54D70C6:
   raise AssertionError((pre_staff,hex(r.state)))
+
+ # Fresh 0x5E3FD0 starts from an empty list and fills 12 entries. Factory
+ # 0x5E2710's complete 37-way switch leaves +0x0C != 1 and status bit
+ # +0x08&1 clear for every fresh candidate, so the only rejection here is
+ # an immediate repeat of the most recently accepted selector value.
+ selector=[]
+ selector_attempts=0
+ previous=37
+ while len(selector)<12:
+  value=r.draw(37,'user-init-selector37')
+  selector_attempts+=1
+  if value==previous:
+   continue
+  selector.append(value)
+  previous=value
+ expected_selector=[33,8,12,22,2,3,27,5,0,23,28,18]
+ if selector!=expected_selector or selector_attempts!=12 or r.state!=0x418CAA72:
+  raise AssertionError((selector,selector_attempts,hex(r.state)))
 
  staff=[]
  for staff_type in (1,2,3,4,5,13):
   age_roll=r.draw(25,f'staff-{staff_type}-age')
   rating_roll=r.draw(2,f'staff-{staff_type}-rating')
   staff.append((staff_type,age_roll,rating_roll+1,r.state))
- if staff[2][2]!=1 or r.state!=0x418CAA72:
+ if staff[2][2]!=2 or r.state!=0xFA1C595E:
   raise AssertionError((staff,hex(r.state)))
  return {
   'post_transfer_state':'0x126CF137',
@@ -454,6 +473,9 @@ def replay_canonical_loan_tail():
   'last_final_club':last_cid,
   'post_final_loan_list_state':'0x472F4DFF',
   'pre_staff_rng10':pre_staff,
+  'user_init_selector37':selector,
+  'user_init_selector37_attempts':selector_attempts,
+  'post_user_init_selector_state':'0x418CAA72',
   'staff':[(t,a,rt,f"0x{s:08X}") for t,a,rt,s in staff],
   'youth_team_coach_rating':staff[2][2],
   'post_fixed_staff_state':f"0x{r.state:08X}",
