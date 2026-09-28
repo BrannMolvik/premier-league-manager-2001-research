@@ -171,17 +171,7 @@ Several target systems already have substantial research or backend behavior:
    performs up to 20 attempts with RNG(10) + one roster-index draw per attempt
    plus the optional rating draw. The source-backed `0x619CF0` qsort and both
    club shuffles are now reproduced exactly and independently regenerate
-   **`0xC6B73181 -> 0xBD5CC00F`**. The first three reverse visits are now exact. Club 118 (Carlisle Utd)
-   transfer-lists Steve Soley and leaves **`0x6A346701`**. Fresh roster
-   ordering is now executable-proven: `0x4217E0` walks players in table order
-   and `0x40D4F0` appends IDs directly, so `0x4050F0` uses canonical
-   player-table order. Club 750 (Dunaferr) then transfer-lists Norbert Mitring
-   and leaves **`0x31D39583`**. Club 510 (Rot-Weiß Essen) takes the random
-   selector, picks roster index 15 / player 11588 R. da Silva Cerqueria on its
-   first attempt, and leaves **`0xF0AD5F37`**. Club 1216's mandatory
-   dispatch is already consumed as RNG(10)=8, leaving **`0x590E1D1E`** and
-   entering `0x4050F0`. Continue from that exact state through the remaining
-   891 selectors, then carry the shared CRT state through loan maintenance into
+   **`0xC6B73181 -> 0xBD5CC00F`**. The exact reverse-selector replay now reaches club 877. Fresh roster ordering is executable-proven as canonical player-table order. Closed visits are: club 118 -> Steve Soley, state **`0x6A346701`**; club 750 -> Norbert Mitring, **`0x31D39583`**; club 510 -> R. da Silva Cerqueria, **`0xF0AD5F37`**; club 1216 -> Panagiotis Gitsis after one failed random attempt, **`0xEC30AACC`**; club 430 -> roster-threshold early exit with no nested RNG, **`0x2956CE5F`**; club 622 -> Steven de Geest, **`0xB28F67D1`**. Club 877's mandatory dispatch is already consumed as RNG(10)=6, leaving **`0x377EEB50`** and entering `0x61A9A0`. Continue from that exact state through the remaining reverse selectors, then carry the shared CRT state through loan maintenance into
    `0x425680 -> 0x4D1760` fixed-staff initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
