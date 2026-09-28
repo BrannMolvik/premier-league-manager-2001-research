@@ -7,6 +7,7 @@ from scouting import (
     MAX_NUM_USED2,
     SCOUT_ONE_AGE_BIAS,
     ScoutingReseedState,
+    scouting_rank_score,
     primary_scouting_results,
     scouting_shuffle,
     secondary_scouting_results,
@@ -63,6 +64,50 @@ class ScoutingOrderingTests(unittest.TestCase):
                 expected[selected],
             )
         self.assertEqual(first, tuple(expected))
+
+    def test_plain_scouting_rank_uses_best_preferred_role_rating(self):
+        skills = [128] * 17
+        preferred = (1, 2, 3)
+        plain = scouting_rank_score(skills, preferred, age=25, mode=16)
+        from match_role_rating import best_preferred_role_rating
+        self.assertEqual(
+            plain,
+            best_preferred_role_rating(skills, preferred),
+        )
+
+    def test_age_biased_scouting_rank_uses_exact_integer_factor(self):
+        skills = [160] * 17
+        preferred = (9, 10, 11)
+        from match_role_rating import best_preferred_role_rating
+        base = best_preferred_role_rating(skills, preferred)
+
+        self.assertEqual(
+            scouting_rank_score(skills, preferred, age=31, mode=5),
+            base * 60 // 100,
+        )
+        self.assertEqual(
+            scouting_rank_score(skills, preferred, age=36, mode=5),
+            base * 80 // 100,
+        )
+
+    def test_skill_biased_scouting_rank_wraps_temporary_bytes_like_executable(self):
+        skills = [250] * 17
+        preferred = (9, 10, 11)
+        transformed = list(skills)
+        for slot, percent in ((1, 120), (2, 130), (3, 120), (9, 120)):
+            transformed[slot] = (transformed[slot] * percent // 100) & 0xFF
+
+        from match_role_rating import best_preferred_role_rating
+        self.assertEqual(
+            scouting_rank_score(skills, preferred, age=25, mode=15),
+            best_preferred_role_rating(transformed, preferred),
+        )
+        self.assertEqual(skills, [250] * 17)
+
+    def test_unhandled_scouting_mode_does_not_append_score(self):
+        self.assertIsNone(
+            scouting_rank_score([128] * 17, (1, 2, 3), age=25, mode=7)
+        )
 
     def test_secondary_scouting_applies_used_and_found_caps_around_shuffle(self):
         state = ScoutingReseedState(field_64e4=9, age_low_64d8=16)
