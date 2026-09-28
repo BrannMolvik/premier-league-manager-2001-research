@@ -172,10 +172,11 @@ class WeeklyAiTransferTests(unittest.TestCase):
         # Buyer 1: first draw == 3 bypasses the capacity branch.
         # Seller draw 1 selects club 2 from [1,2].
         # Candidate draw 0 selects player 20.
-        # Fee random add 0; wage random add 0.
-        # Buyer 2 later fails its first buyer roll (0) because its startup
-        # roster capacity check is false after player 20 moved.
-        rng = ScriptedRng([3, 1, 0, 0, 0, 0])
+        # Fee random add 0; wage random add 0; completed-transfer
+        # SignedNewContactMorale consumes RNG(2)=0. Buyer 2 then fails its
+        # first buyer roll (0) because its startup roster capacity check is
+        # false after player 20 moved.
+        rng = ScriptedRng([3, 1, 0, 0, 0, 0, 0])
         results = run_weekly_ai_acquisitions(state, rng)
 
         self.assertEqual(len(results), 1)
@@ -194,7 +195,7 @@ class WeeklyAiTransferTests(unittest.TestCase):
 
     def test_calendar_progression_runs_saturday_ai_transfer_pass(self):
         source = build_state(date(2000, 8, 18))
-        rng = ScriptedRng([3, 1, 0, 0, 0, 0])
+        rng = ScriptedRng([3, 1, 0, 0, 0, 0, 0])
         state = GameState(
             calendar=source.calendar,
             players=source.players,
