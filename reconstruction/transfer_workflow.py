@@ -222,6 +222,59 @@ def schedule_ordinary_cash_transfer(
     return scheduled
 
 
+def complete_player_loan_assignment(
+    state,
+    *,
+    player_id: int,
+    destination_club_id: int,
+    rng,
+):
+    """Apply the materialized DBRPlayer::0x41A9D0 loan-assignment slice.
+
+    MPMLoanPlayer::Execute (0x61B620) converges on 0x41A9D0. The canonical
+    executable installs the temporary club and loan status, clears the
+    loan-list state, performs its remaining club/user bookkeeping, and only
+    then calls 0x41BB10(LoanMorale). Neutral status fields that are not yet
+    materialized by RuntimePlayer are intentionally not guessed here.
+    """
+    player_id = int(player_id)
+    destination_club_id = int(destination_club_id)
+    if destination_club_id not in state.clubs:
+        raise KeyError(f"unknown loan destination club {destination_club_id}")
+    player = state.players[player_id]
+
+    # DBRPlayer+0x10 becomes the temporary club while +0x72 (represented by
+    # RuntimePlayer.club_id) remains the registered/parent club. Setting
+    # loan_club_id therefore materializes the proven +0x14 bit-6 state too.
+    player.loan_club_id = destination_club_id
+
+    # 0x41A9D0 calls 0x41EDF0 before setting bit 6. The materialized part of
+    # that helper is the recovered DBRPlayer+0x14 bit-12 loan-list clear.
+    player.loan_listed = False
+
+    # 0x41AA3A..0x41AA43 is the final operation in 0x41A9D0:
+    # 0x41BB10(LoanMorale), consuming exactly one shared RNG(2) after the
+    # loan state above has already been installed.
+    from match_postmatch import MoraleSettings, increase_player_morale
+
+    age = player.age(state.calendar.current_date)
+    if age is None:
+        raise ValueError(f"player {player_id} has no usable age")
+    current_raw = tuple(int(value) for value in player.current_raw)
+    if len(current_raw) <= 15:
+        raise ValueError(f"player {player_id} has no leadership skill")
+    morale_settings = MoraleSettings()
+    player.morale = increase_player_morale(
+        int(player.morale),
+        int(morale_settings.loan),
+        int(age),
+        int(current_raw[15]),
+        rng,
+        morale_settings,
+    )
+    return player
+
+
 def _complete_ordinary_cash_transfer(
     state,
     proposal: TransferProposal,
@@ -300,25 +353,15 @@ def _complete_ordinary_cash_transfer(
         player.clear_match_selection(reset_position=True)
 
     # 0x422F70 finishes an ordinary completed transfer by calling
-    # 0x4192B0 -> 0x419210. That common signed-contract finalizer applies
-    # SignedNewContactMorale through 0x41BB10, consuming exactly one RNG(2)
-    # after the destination club and contract fields have been installed.
-    from match_postmatch import MoraleSettings, increase_player_morale
+    # 0x4192B0 -> 0x419210 after the destination club and contract fields
+    # have been installed. The common finalizer consumes SignedNewContactMorale
+    # RNG(2) and only then clears DBRPlayer+0x164.
+    from match_postmatch import apply_signed_contract_finalizer_morale
 
-    age = player.age(state.calendar.current_date)
-    if age is None:
-        raise ValueError("completed transfer morale requires a player age")
-    current_raw = tuple(int(value) for value in player.current_raw)
-    if len(current_raw) <= 15:
-        raise ValueError("completed transfer morale requires skill index 15")
-    morale_settings = MoraleSettings()
-    player.morale = increase_player_morale(
-        int(player.morale),
-        int(morale_settings.signed_new_contract),
-        int(age),
-        int(current_raw[15]),
+    apply_signed_contract_finalizer_morale(
+        player,
+        state.calendar.current_date,
         rng,
-        morale_settings,
     )
 
     state.transfers.clear_deals_for(proposal)
