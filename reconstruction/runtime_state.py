@@ -164,6 +164,12 @@ class RuntimePlayer:
     match_substitute_available: bool = False
     condition: int = 80
     form_state: int = 2
+    # DBRPlayer +0x79..+0x80: six-entry circular match-performance history.
+    # 0x41F9C0 appends positive target ratings; 0x41FB60 averages the
+    # populated prefix (all six entries once full) for scouting/result display.
+    match_performance_history: list[int] = field(default_factory=lambda: [0] * 6)
+    match_performance_history_count: int = 0
+    match_performance_history_write_index: int = 0
     current_position: int = 0
     position_aux_code: int = 0
     balance_position_code: int = 10
@@ -334,6 +340,40 @@ class RuntimePlayer:
     def preferred_positions(self) -> tuple[int, int, int]:
         """Exact three preferred runtime roles loaded from the database."""
         return self.positions
+
+    def append_match_performance(self, value: int) -> int:
+        """Mirror DBRPlayer::0x41F9C0's six-entry circular rating history.
+
+        Non-positive values are returned unchanged and do not mutate history.
+        Positive values are stored as the low byte, the populated count caps at
+        six, and the write index advances modulo six.
+        """
+        value = int(value)
+        if value <= 0:
+            return value
+        if len(self.match_performance_history) != 6:
+            raise ValueError("match performance history requires exactly six entries")
+        index = int(self.match_performance_history_write_index)
+        if not 0 <= index < 6:
+            raise ValueError("match performance write index must be in 0..5")
+        count = int(self.match_performance_history_count)
+        if not 0 <= count <= 6:
+            raise ValueError("match performance history count must be in 0..6")
+
+        self.match_performance_history[index] = value & 0xFF
+        if count < 6:
+            self.match_performance_history_count = count + 1
+        self.match_performance_history_write_index = (index + 1) % 6
+        return value
+
+    def match_performance_average(self) -> float:
+        """Mirror 0x41FB60's average over the populated six-byte history."""
+        count = int(self.match_performance_history_count)
+        if count <= 0:
+            return 0.0
+        if count > 6 or len(self.match_performance_history) != 6:
+            raise ValueError("invalid match performance history state")
+        return float(sum(int(v) & 0xFF for v in self.match_performance_history[:count])) / count
 
     def assign_match_position(self, role: int, auxiliary_code: int) -> None:
         """Mirror the low-bit writes of 0x4EA330 / 0x4EA350."""
