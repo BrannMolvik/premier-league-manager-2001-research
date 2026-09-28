@@ -5016,3 +5016,39 @@ CRT boundary required for fresh support-staff generation is therefore closed.
 Exact next task: replay the already-recovered 200-person support-staff pool and
 user-assignment draws from `0x61D6DFA2` through the first
 `0x425680 -> 0x4D1760` fixed-staff initialization.
+
+
+## Gate 11 fresh support-staff pool and candidate replay — 28 September 2026
+
+The post-secondary staff boundary is now replayed through the two immediate
+TeamSelect candidate-list rebuilds.
+
+New-game branch `0x4C37C7` explicitly clears the global support-staff list at
+`0x875600/+0x04/+0x08` before the later fill-to-200 loop. Starting from the
+exact post-secondary state `0x61D6DFA2`:
+
+- 200 calls to generic generator `0x4C98B0` consume exactly **600 CRT
+  draws** (`RNG(25), RNG(4), RNG(16)` per object) and leave
+  **`0x2992DEFA`**;
+- the first `0x4C9E90(user 0)` starts from an empty candidate list, consumes
+  **8 draws**, selects seven pool indices
+  `110,106,5,39,74,65,192`, and leaves **`0x7B3EA402`**;
+- the second immediate `0x4C9E90(user 0)` consumes **17 draws**, prunes pool
+  entries 110 and 5, performs 11 selection attempts (including one duplicate
+  selection of 172), reaches the 15-candidate list
+  `106,39,74,65,192,125,172,69,20,133,129,140,2,139,45`, and leaves
+  **`0x1D1A278D`**.
+
+Fresh generic staff types are always 1..16, so the type-zero repair branch
+`RNG(16)` inside `0x4C9E90` is unreachable on this path.
+
+Data-free replay helpers and a canonical regression were added in
+`reconstruction/support_staff_startup.py` and
+`test_support_staff_startup.py`.
+
+The next RNG boundary is now narrower but not yet closed: the first
+`0x4A8070` calendar-maintenance pass executes before `0x425680`. Its
+weekly branch includes RNG-bearing `0x6194D0`, and the day-one branch invokes
+another `0x4C9E90` before fixed staff creation. These intervening calls must
+be replayed before the Youth Team Coach's fixed `RNG(2)` rating can be
+declared deterministic.
