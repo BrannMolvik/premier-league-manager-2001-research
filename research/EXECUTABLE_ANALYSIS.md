@@ -9226,3 +9226,61 @@ post-fixed-staff CRT state: 0xA2FEE1E1
 ```
 
 Type 3 (Youth Team Coach) still has rating 2, so the already-recovered training-quality multiplier remains **1.30**. However the old `0xFA1C595E` post-staff anchor is invalid: that state is now the **pre-selector state immediately after the missing youth block**. All later canonical timer/training RNG checkpoints must be replayed from `0xA2FEE1E1`.
+
+
+## Gate 11 controlled-club danger-morale request lifecycle - 29 September 2026
+
+Canonical `FOOTBAL.EXE` SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+was re-extracted from the authorized disc archive before this trace.
+
+The ordinary club post-match roster pass reaches `0x404E25 -> 0x41B580`
+only after that player's existing appeared/not-played morale and Form handling,
+and only when `0x4037B0` identifies the club as human-controlled.
+
+Inside `0x41B580` the exact gate order is:
+
+```text
+0x4172D0(player) -> controlling user; null exits
+player+0x18E < [0x821C28] DangerMoraleLevel; shipped 15
+0x64D540([0x821C2C] ChanceAskForTransfer); shipped bound 30
+result must equal 2
+0x41B7B0(player) must be false
+```
+
+`0x41B7B0` tests `DBRPlayer+0x14` bit 8 and bit 10. Existing original
+status-table evidence names these **Transfer listed** and **Wanted**. Because
+this blocker occurs after `0x64D540`, already-blocked low-morale players
+still consume the `RNG(30)` draw.
+
+On success the routine allocates `EAMPlayerAskTransferListsub`
+(vtable `0x7BDB1C`, RTTI-confirmed, literal event name
+`PlayerAskTransferList`) and wraps it in `MPMEAMail`
+(vtable `0x7BD564`). The wrapper is dated current date + 1, the event flags
+are ORed with `0x6`, and the pair is queued through `0x613EC0` on
+`0x947AA8`.
+
+The request action factory `0x5D0360` maps action 0 to
+`EAMAcceptTransferRequestsub` (vtable `0x7CBEEC`) and action 1 to
+`EAMRefuseTransferRequestsub` (vtable `0x7CBF48`).
+
+The accepted follow-up handler `0x5D0440`, on its committed action, resolves
+the player and calls `0x41B530`. `0x41B530` first calls `0x420A10`,
+which sets Transfer-listed bit 8 and refreshes the transfer-value cache, then
+sets status bit 10 (Wanted). The refused handler `0x5D0480` only clears the
+request chain through `0x5CE3F0`; it does not change morale or those status
+bits.
+
+The trigger `RNG(30)` is the only newly identified shared-CRT draw in this
+direct request/response slice.
+
+### UnhappyWonTrophy consumer audit
+
+The little-endian address `0x821C23` occurs exactly once in the canonical PE,
+at the tuning-loader store `0x505801`. No executable read of that global
+exists. By comparison, `0x821C28` (DangerMoraleLevel) and `0x821C2C`
+(ChanceAskForTransfer) each have a loader write plus the live read in
+`0x41B580`.
+
+Therefore `UnhappyWonTrophy` is dormant/loader-only tuning in this executable
+and must not be given an invented runtime producer.
