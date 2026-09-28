@@ -182,11 +182,17 @@ Several target systems already have substantial research or backend behavior:
    **`805, 610, 140, 862, 362, 757, 507, 214, ...`**. The prior selector
    spot replays for clubs 118/750/510/1216/430/622/877 are not canonical
    startup-stream evidence and must not be continued. Restart the exact
-   selector stream from **`0xBD5CC00F`** at club **805**. The first
-   mandatory dispatch remains RNG(10)=3 and advances to
-   **`0xAB415A96`**, entering `0x61A9A0(club 805,0)`.
-   Continue the corrected 894-visit sequence, then carry the resulting shared
-   CRT state through loan maintenance into
+   selector stream from **`0xBD5CC00F`** at club **805**. The corrected selector replay now reaches **club 867**. Canonical
+   closed visits are: 805 -> Marek Holmik (**`0x6A346701`**), 610 -> Volkan
+   Kahraman (**`0x31D39583`**), 140 -> Martin Gray (**`0xF0AD5F37`**),
+   862 -> Vitas Rimkus after one failed attempt (**`0x7647CFCC`**), 362 ->
+   Mark Hine (**`0xABE8BCA6`**), 757 -> no listing after Paddy Geraghty
+   fails (**`0xFF61A050`**), 507 -> F. Weber (**`0x6076B14A`**), 214 ->
+   David Charrieras (**`0x1931DA14`**), 611 -> Arno Schaap
+   (**`0x2130592E`**), and 166 -> Ljubica Nikolic after two failed random
+   attempts (**`0x458226E0`**). Continue reverse visit **club 867** from
+   exact state **`0x458226E0`**, then carry the resulting shared CRT state
+   through loan maintenance into
    `0x425680 -> 0x4D1760` fixed-staff initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
