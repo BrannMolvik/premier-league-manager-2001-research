@@ -297,14 +297,30 @@ Several target systems already have substantial research or backend behavior:
    three preferred-position IDs. `ScoutStrengthMin` compares against
    `floor((30*byte+128)/255)` from the still-unowned auxiliary per-player
    scouting byte behind `0x876868`.
-17. **Active scouting dependency:** materialize the now-source-backed
-   country/preferred-position filters and RuntimePlayer bit-12 loan-list state.
-   On the scouting path, bit 12 plus `0x41E450` reduces to different club
-   competition IDs, plus Non-EU exclusion when transfer-list bit 8 is clear.
-   Keep status bit 7 and the auxiliary `0x876868` byte neutral until their
-   producers/labels are proven. Then audit whether the six-byte `0x41FB60`
-   recent-rating history should be persisted to remove the remaining mode-2
-   resolver dependency.
+17. **Scouting materialization completed:** the source-backed country and
+   preferred-position filters are live, RuntimePlayer persists bit-12 loan-list
+   state, and scouting uses the exact `0x41E450` eligibility reduction. The
+   unresolved status bit 7 and auxiliary `0x876868` scouting byte remain
+   deliberately neutral rather than guessed.
+18. **Six-match performance history completed:** RuntimePlayer persists the
+   exact six-byte circular `0x41FB60` history plus count/write index, internal
+   saves preserve it, and scouting sort mode 2 now reads the live history
+   average instead of requiring a resolver.
+19. **Exact match-performance target implemented:** `match_performance.py`
+   reproduces the `0x6309D0` target-rating arithmetic, including the three
+   runtime-role bands, scorer/secondary-attribution terms, card/Form effects,
+   the exact clamp sequence, prior-history continuity clamp, shared-CRT draws,
+   and the distinct MatchEngine-RNG low-rating lift. Focused tests at
+   `c9c1b948` pass.
+20. **Active scouting dependency:** integrate that exact target rating into
+   normal match finalization so real fixture participants append their
+   `+0x30` ratings to the six-match history in original order. Preserve the
+   distinct MatchEngine RNG rather than deriving it from the shared CRT. First
+   finish the remaining event-data bridge needed by the rating: expose the
+   source-backed secondary goal-attribution player for goal-family records
+   (set-piece taker is already proven for delivered free kicks/corners; open
+   play still needs exact instruction confirmation). Then wire history append
+   before the later post-match Form pass, matching `0x630FC0 -> 0x41F9C0`.
 
 ## Known live fidelity boundaries
 
