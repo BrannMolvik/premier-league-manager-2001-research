@@ -131,6 +131,8 @@ class PenaltyResolverTests(unittest.TestCase):
         self.assertEqual(event.outcome, ChanceOutcome.GOAL)
         self.assertEqual(event.raw_outcome, 0)
         self.assertEqual(event.credited_side, 0)
+        self.assertEqual(event.secondary_player_side, self.taker.side)
+        self.assertEqual(event.secondary_player_index, self.taker.player_index)
         self.assertEqual(rng.calls, [3, 800, 10, 100])
 
     def test_goal_presentation_variant(self):
@@ -362,6 +364,8 @@ class SetPieceResolverTests(unittest.TestCase):
         self.assertEqual(result.event.source, ChanceSource.FREE_KICK)
         self.assertEqual(result.event.outcome, ChanceOutcome.GOAL)
         self.assertEqual(result.event.finish_mode, FinishMode.SHOOTING)
+        self.assertEqual(result.event.secondary_player_side, taker.side)
+        self.assertEqual(result.event.secondary_player_index, taker.player_index)
         self.assertEqual(result.attacking_possession_increment,1)
 
     def test_cached_receiver_forces_headed_free_kick_delivery(self):
