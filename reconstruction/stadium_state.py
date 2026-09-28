@@ -36,6 +36,17 @@ MAP_GRID_SIZE = MAP_GRID_DWORDS * 4
 MAP_TRAILING_SIZE = 0x10
 EMPTY_MAP_CELL = 0xFFFFFFFF
 
+CONCESSION_SECTION_RANGES: tuple[tuple[int, int], ...] = (
+    (23, 23),
+    (0, 3),
+    (22, 22),
+    (15, 21),
+    (25, 25),
+    (11, 14),
+    (24, 24),
+    (4, 10),
+)
+
 SECTION_ANCHORS: tuple[tuple[int, int], ...] = (
     (21, 15), (20, 15), (19, 15), (18, 15), (17, 16), (17, 17),
     (17, 18), (17, 19), (17, 20), (17, 21), (17, 22), (18, 23),
@@ -64,6 +75,7 @@ class StadiumBuildingDefinition:
     terrace_capacity: int
     auxiliary_capacity: int
     seating_capacity: int
+    concession_capacity: int = 0
 
 
 @dataclass
@@ -132,6 +144,35 @@ class StadiumSourceState:
     @property
     def initial_home_capacity(self) -> StadiumSectionCapacity:
         return self.capacity_for_section_state(self.initial_section_states, 0)
+
+    def concession_capacity_for_selector(self, selector: int) -> int:
+        """Reproduce 0x65DBC0(selector, 0) for the commercial-offer path."""
+        selector = int(selector)
+        if not 0 <= selector < len(CONCESSION_SECTION_RANGES):
+            raise ValueError("concession selector must be in 0..7")
+        start, end = CONCESSION_SECTION_RANGES[selector]
+        total = 0
+        for section_index in range(start, end + 1):
+            instance = self.section_instances[section_index]
+            if instance is None:
+                continue
+            flags = int(instance.flags)
+            if flags & 0x02 or flags & 0x08:
+                continue
+            definition = self.buildings[int(instance.building_id)]
+            total += int(definition.concession_capacity)
+        return total
+
+    @property
+    def concession_capacity_total(self) -> int:
+        """Reproduce 0x65DB70's all-section commercial denominator."""
+        total = 0
+        for instance in self.section_instances:
+            if instance is None or (int(instance.flags) & 0x02):
+                continue
+            definition = self.buildings[int(instance.building_id)]
+            total += int(definition.concession_capacity)
+        return total
 
 
 @dataclass
@@ -270,6 +311,7 @@ def parse_buildings_dat(
         # hence serialized live-layer offsets +0x14 and +0x20.
         terrace_capacity = struct.unpack_from("<I", live, 0x14)[0]
         auxiliary_capacity = struct.unpack_from("<I", live, 0x18)[0]
+        concession_capacity = struct.unpack_from("<I", live, 0x1C)[0]
         seating_capacity = struct.unpack_from("<I", live, 0x20)[0]
         records.append(
             StadiumBuildingDefinition(
@@ -279,6 +321,7 @@ def parse_buildings_dat(
                 terrace_capacity=int(terrace_capacity),
                 auxiliary_capacity=int(auxiliary_capacity),
                 seating_capacity=int(seating_capacity),
+                concession_capacity=int(concession_capacity),
             )
         )
     return tuple(records)
