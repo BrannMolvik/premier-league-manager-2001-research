@@ -180,6 +180,9 @@ def run_ai_monthly_contract_maintenance(
     # 0x419190 converges on 0x419210.
     player.out_of_contract = False
     player.signed_for_other_club = False
+    # 0x419190 converges on 0x419210, whose final mapped byte write clears
+    # the controlled-renewal suggestion latch at DBRPlayer+0x164.
+    player.contract_renewal_suggestion_pending = False
     return AiContractMaintenanceOutcome.RENEWED
 
 
