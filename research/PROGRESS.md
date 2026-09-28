@@ -6615,3 +6615,72 @@ path. Direct tracing already proves it is not the AI rule: at least one branch
 sets Out of contract only after a 21-day post-expiry grace interval, while
 other expired branches can alter roster/club state. Preserve that event-driven
 lifecycle rather than folding it into the non-user producer.
+
+
+## 28 September 2026 - Gate 11 controlled contract expiry and renewal suggestions
+
+Canonical `0x41BEE0` tracing closes the ordinary user-controlled contract
+maintenance branch separately from the already implemented non-user
+`0x41ABC0` rule.
+
+Source-backed behavior now persisted in
+`research/GATE11_CONTROLLED_CONTRACT_EXPIRY.md`:
+
+- ordinary controlled players set **Out of contract** from exactly 21 days
+  before expiry;
+- the assistant-manager renewal-suggestion window opens 112 days before
+  expiry and consumes exactly one shared `RNG(10)` when the `+0x164`
+  suggestion latch is clear;
+- rolls 0..3 continue through the exact pending-deal suppression shape;
+- age >=24 plus EU/exempt code 2 selects
+  `EAMAssManSuggestBosmanPlayerContractRenewalMsub`; other players use
+  `EAMAssManSuggestPlayerContractRenewalMsub`;
+- both are queued through the original MPMEAMail family and accepting either
+  enters `EAMAmendContractsub`; suggestion creation itself does not renew the
+  contract;
+- `player+0x178` is now writer-bounded: deal creation increments it,
+  `0x417870` removes the deal/decrements it, and club assignment resets it.
+  Under the current one-deal-per-player runtime invariant,
+  `deal exists && state in {3,4,5}` exactly represents the
+  `0x41C6F0` suppression condition;
+- at expiry, an active loan is returned before common mapped status cleanup;
+- ordinary players remain attached through a 21-day post-expiry grace period;
+- at exactly 21 days past expiry, `0x41EF00` removes the player's club
+  training assignment, purges player-linked manager mail, removes the player
+  from the club roster, stores the old club ID at `+0x74`, sets both club IDs
+  to -1 and leaves Out-of-contract set;
+- renewal path `0x419190 -> 0x419210` clears Out-of-contract, the
+  signed-for-another-club state and the `+0x164` renewal-suggestion latch.
+
+Implementation checkpoints:
+
+- `a1035b91` adds neutral persistent `+0x138`, the `+0x164` suggestion
+  latch and old-club `+0x74` state;
+- `d915034b` / `fb9d6d63` advance internal save through schema 18 and
+  preserve both player contract state and queued renewal suggestions;
+- `bf1f1c2d` implements the ordinary controlled state machine;
+- `3f6a156d` materializes the two exact suggestion event kinds;
+- `8c8d3170` integrates AI and controlled contract maintenance in one
+  first-of-month club/roster-order pass, using active loan club for branch
+  ownership;
+- `07c4e134` / `76790695` add live integration and save-continuity
+  regressions;
+- `f05d3e15` corrects a synthetic test fixture whose player registered club
+  did not match its roster owner;
+- `4fe32070` / `391d0845` mirror and test the original renewal-latch clear.
+
+Validation at `391d0845`:
+
+- **654 tests run, 2 failures**;
+- both failures are the unchanged secondary-schedule assertions already tracked
+  before this contract work;
+- all new controlled-contract, mail, save/reload and scouting tests pass;
+- repository asset policy passes.
+
+The remaining `0x41BEE0` branch is the neutral
+`player+0x138 >= 0xFE` `0xFE/0xFF` special state. Direct behavior strongly
+connects it to the existing !Spare player recycle machinery, but the semantic
+label has not yet been promoted from inference. Exact next task: trace the
+producer/consumer link from the already mapped transfer-refusal reasons
+“player has decided to retire” / “upcoming testimonial” and other direct
+writers before naming or implementing that branch.
