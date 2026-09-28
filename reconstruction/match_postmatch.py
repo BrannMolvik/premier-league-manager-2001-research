@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, timedelta
-from typing import Protocol, Sequence
+from typing import Callable, Protocol, Sequence
 
 from match_events import ChanceRecord, IncidentKind, IncidentRecord, SubstitutionRecord
 from match_performance import target_match_performance_rating
@@ -22,6 +22,8 @@ DEFAULT_UNHAPPY_NOT_PLAYED = 8
 DEFAULT_MAXIMUM_MORALE = 100
 DEFAULT_LOAN_MORALE = 10
 DEFAULT_SIGNED_NEW_CONTRACT_MORALE = 30
+DEFAULT_DANGER_MORALE_LEVEL = 15
+DEFAULT_CHANCE_ASK_FOR_TRANSFER = 30
 
 
 class BoundedRng(Protocol):
@@ -46,6 +48,8 @@ class MutablePostMatchMoralePlayer(Protocol):
     selection_excluded: bool
     date_of_birth: date | None
     current_raw: Sequence[int]
+    transfer_listed: bool
+    wanted: bool
 
 
 class MutableLeagueDisciplinePlayer(Protocol):
@@ -67,6 +71,8 @@ class MoraleSettings:
     maximum: int = DEFAULT_MAXIMUM_MORALE
     loan: int = DEFAULT_LOAN_MORALE
     signed_new_contract: int = DEFAULT_SIGNED_NEW_CONTRACT_MORALE
+    danger_morale_level: int = DEFAULT_DANGER_MORALE_LEVEL
+    chance_ask_for_transfer: int = DEFAULT_CHANCE_ASK_FOR_TRANSFER
 
     def __post_init__(self) -> None:
         for name in (
@@ -77,10 +83,38 @@ class MoraleSettings:
             "maximum",
             "loan",
             "signed_new_contract",
+            "danger_morale_level",
         ):
             value = int(getattr(self, name))
             if not 0 <= value <= 255:
                 raise ValueError(name + " must fit the original unsigned byte")
+        if int(self.chance_ask_for_transfer) <= 2:
+            raise ValueError("chance_ask_for_transfer must be greater than success roll 2")
+
+
+@dataclass(frozen=True)
+class PlayerTransferRequest:
+    """Delayed MPMEAMail created by the low-morale 0x41B580 path."""
+
+    player_id: int
+    queued_on: date
+    due_on: date
+
+    @property
+    def event_class(self) -> str:
+        return "EAMPlayerAskTransferListsub"
+
+    @property
+    def original_key(self) -> str:
+        return "PlayerAskTransferList"
+
+    @property
+    def accepted_action_class(self) -> str:
+        return "EAMAcceptTransferRequestsub"
+
+    @property
+    def refused_action_class(self) -> str:
+        return "EAMRefuseTransferRequestsub"
 
 
 @dataclass(frozen=True)
@@ -231,6 +265,66 @@ def _post_match_unavailable(player: MutablePostMatchMoralePlayer) -> bool:
     return bool(player.injured or player.suspended or player.selection_excluded)
 
 
+def maybe_queue_player_transfer_request(
+    player: MutablePostMatchMoralePlayer,
+    fixture_date: date,
+    rng: BoundedRng,
+    *,
+    club_user_controlled: bool,
+    active_club_user_controlled: bool,
+    request_sink: Callable[[PlayerTransferRequest], None] | None,
+    settings: MoraleSettings = MoraleSettings(),
+) -> bool:
+    """Replay DBRPlayer::0x41B580 without inventing UI-side behavior.
+
+    The status duplicate gate is deliberately after RNG(ChanceAskForTransfer),
+    matching the canonical executable. A successful trigger queues only the
+    source-backed next-day MPMEAMail payload; it does not transfer-list the
+    player until the later accepted response is applied.
+    """
+    if not bool(club_user_controlled) or not bool(active_club_user_controlled):
+        return False
+    if int(player.morale) >= int(settings.danger_morale_level):
+        return False
+
+    if int(rng.randbelow(int(settings.chance_ask_for_transfer))) != 2:
+        return False
+
+    # 0x41B7B0: bit 8 Transfer listed, then bit 10 Wanted. This gate is after
+    # the trigger draw, so a blocked low-morale player has already advanced RNG.
+    if bool(player.transfer_listed) or bool(player.wanted):
+        return False
+
+    if request_sink is None:
+        return False
+    request_sink(
+        PlayerTransferRequest(
+            player_id=int(player.index),
+            queued_on=fixture_date,
+            due_on=fixture_date + timedelta(days=1),
+        )
+    )
+    return True
+
+
+def apply_player_transfer_request_response(
+    player: MutablePostMatchMoralePlayer,
+    *,
+    accept: bool,
+) -> None:
+    """Apply the direct EAMAccept/RefuseTransferRequest player-state slice.
+
+    Acceptance reaches 0x41B530 -> 0x420A10 and sets Transfer-listed bit 8,
+    then Wanted bit 10. Refusal does not mutate morale or these status bits.
+    The original 0x420A10 transfer-value cache is not duplicated here because
+    the modern runtime resolves transfer value live through the already-mapped
+    0x4205A0 equivalent.
+    """
+    if bool(accept):
+        player.transfer_listed = True
+        player.wanted = True
+
+
 def persist_premier_league_morale_and_form(
     roster: Sequence[MutablePostMatchMoralePlayer],
     side: PreparedMatchSide,
@@ -241,13 +335,23 @@ def persist_premier_league_morale_and_form(
     *,
     morale_settings: MoraleSettings = MoraleSettings(),
     form_settings: FormTransitionSettings = FormTransitionSettings(),
+    club_user_controlled: bool = False,
+    active_club_user_controlled: Callable[
+        [MutablePostMatchMoralePlayer], bool
+    ] | None = None,
+    transfer_request_sink: Callable[[PlayerTransferRequest], None] | None = None,
 ) -> frozenset[int]:
-    """Replay detailed 0x404CE0 roster-order morale and Form persistence.
+    """Replay detailed 0x404CE0 roster-order morale, Form and danger morale.
 
     Appeared players execute loss or win morale first and then 0x41B870 Form
     immediately. Eligible non-appeared players execute RNG(10); values below
     four apply the not-played morale decrease. Unavailable non-appeared players
-    consume no morale RNG.
+    consume no not-played RNG.
+
+    For a human-controlled club, the same roster iteration then invokes the
+    recovered 0x41B580 low-morale request path for that player. Its RNG(30)
+    therefore remains interleaved after that player's ordinary morale/Form
+    handling rather than becoming a separate whole-roster phase.
     """
     participants = tuple(runtime_participants)
     prepared = tuple(side.players)
@@ -298,22 +402,33 @@ def persist_premier_league_morale_and_form(
                 rng,
                 form_settings,
             )
-            continue
+        elif not _post_match_unavailable(player):
+            if int(rng.randbelow(10)) < 4:
+                player.morale = decrease_player_morale(
+                    int(player.morale),
+                    int(morale_settings.not_played),
+                    _post_match_age(player, fixture_date),
+                    _post_match_leadership(player),
+                    rng,
+                    morale_settings,
+                )
 
-        if _post_match_unavailable(player):
-            continue
-        if int(rng.randbelow(10)) < 4:
-            player.morale = decrease_player_morale(
-                int(player.morale),
-                int(morale_settings.not_played),
-                _post_match_age(player, fixture_date),
-                _post_match_leadership(player),
-                rng,
-                morale_settings,
-            )
+        active_controlled = (
+            bool(active_club_user_controlled(player))
+            if active_club_user_controlled is not None
+            else bool(club_user_controlled)
+        )
+        maybe_queue_player_transfer_request(
+            player,
+            fixture_date,
+            rng,
+            club_user_controlled=bool(club_user_controlled),
+            active_club_user_controlled=active_controlled,
+            request_sink=transfer_request_sink,
+            settings=morale_settings,
+        )
 
     return frozenset(appeared_ids)
-
 
 def appeared_player_indices(
     side: PreparedMatchSide,
