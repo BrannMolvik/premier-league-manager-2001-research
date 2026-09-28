@@ -8407,3 +8407,35 @@ The previous `6822e7ea` states
 
 Durable data-free replay:
 `tools/replay_gate11_commercial_training.py`.
+
+
+## Gate 11 sponsor timer 0x617C80 is complete and RNG-bounded
+
+Direct disassembly closes the previously suspected sponsor-offer dependency.
+
+`0x617C80` first calls `0x617AB0` only to determine whether a sponsor
+record currently exists. It selects one of two tuning ranges:
+
+- no sponsor: `FSNoSponsorMinWait..FSNoSponsorMaxWait`;
+- sponsor present: `FSHaveSponsorMinWait..FSHaveSponsorMaxWait`.
+
+If timer dword `+0x0C` is zero, it consumes exactly one
+`RNG(max-min)`, adds the selected minimum, and stores the wait. It then
+compares current date minus stored date `+0x10` against that wait.
+
+When the wait expires, the routine only:
+
+```text
+timer +0x0C = 0
+date  +0x10 = current_date
+return
+```
+
+There is no sponsor-offer constructor, selector, event allocation, or additional
+RNG in `0x617C80`. A new wait is drawn on the following daily invocation
+because the timer is then zero.
+
+Therefore `UserCommercialTimerState` already represents the complete
+shared-RNG behavior of this routine for its modeled sponsor-presence mode.
+The previously stated need to recover a hidden sponsor-offer RNG body is
+superseded.
