@@ -8533,3 +8533,133 @@ Exact next scouting task: finish the `0x4AEAE0` score construction and the
 panel-mode dispatch around `0x4AEEA0/0x4AF330`, then implement only the
 minimum UI-independent search action once candidate/filter/result semantics are
 fully source-backed.
+
+
+## Gate 11 scouting secondary ranking/shortlist path
+
+The nested `0x4AEAE0` path is now bounded far enough to explain how the
+secondary scouting results are ranked and capped.
+
+The routine receives an input player-pointer vector and only constructs scored
+records for three active panel-mode return codes from the selected panel object:
+
+- mode **5**;
+- mode **15**;
+- mode **16**.
+
+Other mode values do not append a scored record in this loop.
+
+Each appended record is exactly two dwords:
+
+```text
++0x00  DBRPlayer pointer
++0x04  integer score
+```
+
+### Base score 0x41E1D0
+
+`DBRPlayer::0x41E1D0` loops exactly three preferred-position/role entries
+through `player+0x248 -> 0x4EA300(index 0..2)`. For each non-null position it
+calls `0x41C7E0(player, position)` and returns the **maximum** rating across
+those three entries. This is the base scouting rank score used by all three
+accepted modes.
+
+### Mode-specific score handling
+
+Mode **16** stores the unmodified `0x41E1D0` maximum rating.
+
+Mode **5** stores the same maximum rating after applying the exact age factor:
+
+```text
+age_penalty_term = max(0, (age - 31) * SCOUT_ONE_AGE_BIAS)
+score = base_score * (60 + age_penalty_term) / 100
+```
+
+The multiplication/division is integer arithmetic. The shipped default loaded
+from tuning key **SCOUT_ONE_AGE_BIAS** into `0x821804` is **4**.
+
+Mode **15** temporarily scales four raw player bytes before calling
+`0x41E1D0`:
+
+```text
+raw byte +0x1E+1  *= 120 / 100
+raw byte +0x1E+2  *= 130 / 100
+raw byte +0x1E+3  *= 120 / 100
+raw byte +0x1E+9  *= 120 / 100
+```
+
+Helper `0x4E3060` performs those byte writes. The original four bytes are
+saved first and restored immediately after the score is calculated, so this is
+a ranking-only transform and does **not** permanently mutate the player.
+
+### Sort and limits
+
+The scored vector is sorted with `qsort` comparator `0x4AEE00`.
+
+Its primary comparison is the score dword and produces **descending score
+order**. Score ties are broken by two player string fields, first the string
+reached from player `+0x0C`, then the one reached from player `+0x08`.
+Those are retained neutrally here until the exact first-name/surname pointer
+ordering is rechecked against the DBRPlayer runtime layout.
+
+After that score/name sort:
+
+1. the list is capped by tuning global `0x82180C`;
+2. player pointers only are copied into a temporary vector;
+3. `0x4AF7F0(caller_argument)` reseeds CRT deterministically;
+4. the temporary vector is descending-Fisher-Yates shuffled through
+   `0x64D540`;
+5. the shuffled count is capped by tuning global `0x821810`;
+6. the active user's result object is replaced with that final list.
+
+The original loader resolves the relevant shipped tuning names/defaults:
+
+```text
+0x821804  SCOUT_ONE_AGE_BIAS = 4
+0x821808  MAX_NUM_USED1      = 80
+0x82180C  MAX_NUM_USED2      = 50
+0x821810  MAX_NUM_FOUND      = 20
+```
+
+`MAX_NUM_USED1` is loaded by the executable but is not consumed in the
+`0x4AEAE0` block above; no use is inferred here.
+
+The final published user-result records are also 8 bytes each. This path writes
+the selected player pointer at +0x00 and zero at +0x04 for each result.
+
+### Result sorting after search
+
+After primary/secondary result construction, `0x4AE970` calls
+`0x4AEEA0`. If the active result list is non-empty, panel field
+`+0x64EC` selects one of six qsort comparators. The six comparator addresses
+are:
+
+```text
+0 -> 0x4AF020
+1 -> 0x4AF0B0
+2 -> 0x4AF200
+3 -> 0x4AF270
+4 -> 0x4AF0F0
+5 -> 0x4AF190
+```
+
+Known comparator semantics from direct calls include:
+
+- `0x4AF190`: compares `DBRPlayer::0x420570` monetary/value result,
+  falling back to `0x4AF020` on equality;
+- `0x4AF200`: compares `DBRPlayer::0x41FB60` result, falling back to
+  `0x4AF020` on equality;
+- `0x4AF270`: compares the string returned by
+  `player+0x248 -> 0x4EA800`, falling back to `0x4AF020` on equality;
+- `0x4AF020`: compares the two player string fields used by the result
+  name-order path.
+
+The remaining comparator labels are not guessed yet.
+
+Implementation consequence: the clean-room scouting core may safely implement
+deterministic reseed/shuffle and shortlist caps now, while player scoring/filter
+labels that still lack exact UI names remain neutral.
+
+Exact next task: tie the remaining six result-sort modes and first-stage neutral
+panel fields to original UI control labels/strings where possible, then expose
+a minimal human scouting action over existing RuntimePlayer state.
