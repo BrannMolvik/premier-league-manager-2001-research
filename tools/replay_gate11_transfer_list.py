@@ -12,6 +12,7 @@ parser.add_argument("--limit", type=int, default=40, help="Number of reverse clu
 parser.add_argument("--mode", choices=("scaled","modulo"), default="scaled", help="Bounded RNG mapping; modulo is diagnostic only")
 parser.add_argument("--summary-only", action="store_true", help="Suppress per-visit JSON output")
 parser.add_argument("--validate-prefix", action="store_true", help="Validate known 40-visit prefix for the selected mode")
+parser.add_argument("--loan-tail", action="store_true", help="Replay the canonical fresh post-transfer loan-list tail through the 200-player cap")
 ARGS=parser.parse_args()
 if not ARGS.game_dir:
  raise SystemExit("--game-dir or FM2001_GAME_DIR is required")
@@ -210,7 +211,8 @@ visits=list(reversed(arr[1:]))
 
 # fresh state helpers
 transfer_listed=set(p.id for p in players if (p.flags>>8)&1)
-def runtime_flags(p): return p.flags | ((1<<8) if p.id in transfer_listed else 0)
+loan_listed=set()
+def runtime_flags(p): return p.flags | ((1<<8) if p.id in transfer_listed else 0) | ((1<<12) if p.id in loan_listed else 0)
 def effective_roster_count(cid):
  n=0
  for pid in rosters[cid]:
@@ -345,6 +347,121 @@ SCALED_FIRST40_STATES=(0x6A346701,0x7B490815,0xF0AD5F37,0x0C123F69,0x7302C488,0x
 MODULO_FIRST40_CLUBS=(805,610,140,862,362,757,507,214,611,166,867,698,399,68,209,234,779,719,1211,232,79,742,775,624,409,118,681,23,179,67,643,514,664,469,131,761,355,248,662,740)
 MODULO_FIRST40_STATES=(0x6A346701,0x31D39583,0xF0AD5F37,0x7647CFCC,0xABE8BCA6,0xFF61A050,0x6076B14A,0x1931DA14,0x2130592E,0x458226E0,0x9405EC5A,0xCCF96DA4,0xA11011A8,0x969F09CB,0x98446D62,0xAC8D5E9D,0x97342071,0x03BB2D4E,0x60EBD638,0x2C98D672,0x20DD687C,0xEE729AD6,0xBFBDF000,0x4554FE7A,0x1F9E10C4,0x5675C55E,0x5701AEC8,0xF117F382,0x37534713,0x8E9AC492,0x5D58F2F6,0xBFA0E09A,0xF7A603E4,0xFA5F9BE8,0x633A49A2,0xB695F52C,0xD8570D06,0xDE6973B0,0x8959BB74,0x80A6458E)
 
+
+def final_loan_club_eligible(c):
+ # 0x619B8A..0x619C1D: valid manager, not user-controlled, 0x403E70,
+ # and fresh 0x403F50 + club+0x1A4 < 5. Fresh country windows are enabled,
+ # +0x1A4 is zeroed at 0x404166, and no actual loan has executed yet.
+ if c.id==0 or c.name=='FREE TRANSFER' or c.name.startswith('!') or c.category in (2,3):
+  return False
+ if c.manager<0 or c.manager>=len(managers) or managers[c.manager].club is None:
+  return False
+ return c.country in countries
+
+def replay_canonical_loan_tail():
+ global transfer_listed,loan_listed
+ if ARGS.mode!='scaled':
+  raise AssertionError("--loan-tail is canonical only with --mode scaled")
+
+ # Rebuild the already-locked 894-visit transfer-list state and mutations.
+ _,r=replay(894,False)
+ if r.state!=0x126CF137 or len(transfer_listed)!=625:
+  raise AssertionError((hex(r.state),len(transfer_listed)))
+
+ # Fresh Arsenal/user scan: all 37 source players reach RNG(200); only Upson
+ # passes the <5 gate. No fresh player has bit 12 / selected / substitute /
+ # injury / loan state here.
+ user_hits=[]
+ for idx,pid in enumerate(rosters[0]):
+  roll=r.draw(200,'loan-user-candidate')
+  if roll<5:
+   user_hits.append((idx,pid,player_by_id[pid].name,roll))
+ if user_hits!=[(12,1422,'Matthew Upson',4)] or r.state!=0x1AB5D762:
+  raise AssertionError((user_hits,hex(r.state)))
+
+ # 0x619DC0 resorts the 895-club vector before the two 0x619EB0 passes.
+ loan_clubs=[c.id for c in clubs if eligible_club(c)]
+ qsort(loan_clubs)
+ for rem in range(len(loan_clubs),1,-1):
+  k=r.draw(rem,'loan-shuffle-1');loan_clubs[k],loan_clubs[rem-1]=loan_clubs[rem-1],loan_clubs[k]
+ if r.state!=0x8B83FB28 or loan_clubs[:5]!=[777,358,304,127,875]:
+  raise AssertionError((hex(r.state),loan_clubs[:5]))
+ # Mode-1 first pass exits deterministically on the neutral first club.
+ for rem in range(len(loan_clubs),1,-1):
+  k=r.draw(rem,'loan-shuffle-2');loan_clubs[k],loan_clubs[rem-1]=loan_clubs[rem-1],loan_clubs[k]
+ if r.state!=0xB609BA3E or loan_clubs[:8]!=[862,481,317,256,373,1240,233,107]:
+  raise AssertionError((hex(r.state),loan_clubs[:8]))
+
+ # The one-player second pass rejects the first seven destinations
+ # deterministically. Watford (107) accepts Upson's exact rating 65 in its
+ # source-backed 42..66 band; RNG(10)<3 removes him from the candidate list.
+ if r.draw(10,'watford-loan-selector')!=2 or r.state!=0xA23BE809:
+  raise AssertionError(hex(r.state))
+ # User-owned player routes to 0x409240, whose proposal timing consumes RNG(5).
+ if r.draw(5,'user-loan-proposal')!=2 or r.state!=0xBB304AA8:
+  raise AssertionError(hex(r.state))
+
+ # Final 0x619B5C reverse physical-club loop. Dynamic bit 12 is part of the
+ # same runtime flags consumed by positional/random selectors.
+ loan_listed=set()
+ records=[]
+ eligible_visits=0
+ last_cid=None
+ for cid in range(len(clubs)-1,0,-1):
+  club=clubs[cid]
+  if not final_loan_club_eligible(club):
+   continue
+  eligible_visits+=1
+  before=r.state
+  dispatch=r.draw(10,'loan-list-dispatch')
+  if dispatch<7:
+   player,detail=positional(cid,r);kind='pos'
+  else:
+   player,detail=randomsel(cid,r);kind='rand'
+  if player:
+   loan_listed.add(player.id)
+   records.append({
+    'club':cid,'clubname':club.name,'dispatch':dispatch,'kind':kind,
+    'player':player.id,'player_name':player.name,'rating':best_rating(player),
+    'before':before,'state':r.state,'detail':detail,
+   })
+  last_cid=cid
+  if len(loan_listed)>=200:
+   break
+ if len(loan_listed)!=200 or last_cid!=866 or r.state!=0x472F4DFF or eligible_visits!=292:
+  raise AssertionError((len(loan_listed),last_cid,hex(r.state),eligible_visits))
+
+ # One exact RNG(10) in 0x425680 precedes fixed-support-staff creation.
+ pre_staff=r.draw(10,'user-init-rng10')
+ if pre_staff!=2 or r.state!=0xA54D70C6:
+  raise AssertionError((pre_staff,hex(r.state)))
+
+ staff=[]
+ for staff_type in (1,2,3,4,5,13):
+  age_roll=r.draw(25,f'staff-{staff_type}-age')
+  rating_roll=r.draw(2,f'staff-{staff_type}-rating')
+  staff.append((staff_type,age_roll,rating_roll+1,r.state))
+ if staff[2][2]!=1 or r.state!=0x418CAA72:
+  raise AssertionError((staff,hex(r.state)))
+ return {
+  'post_transfer_state':'0x126CF137',
+  'post_user_scan_state':'0x1AB5D762',
+  'post_first_loan_shuffle':'0x8B83FB28',
+  'post_second_loan_shuffle':'0xB609BA3E',
+  'post_user_loan_proposal':'0xBB304AA8',
+  'loan_list_count':len(loan_listed),
+  'eligible_final_visits':eligible_visits,
+  'last_final_club':last_cid,
+  'post_final_loan_list_state':'0x472F4DFF',
+  'pre_staff_rng10':pre_staff,
+  'staff':[(t,a,rt,f"0x{s:08X}") for t,a,rt,s in staff],
+  'youth_team_coach_rating':staff[2][2],
+  'post_fixed_staff_state':f"0x{r.state:08X}",
+  'first_final_listings':[(x['club'],x['player'],x['player_name']) for x in records[:10]],
+  'last_final_listings':[(x['club'],x['player'],x['player_name']) for x in records[-10:]],
+ }
+
+
 def validate_prefix(out):
  clubs_expected=SCALED_FIRST40_CLUBS if ARGS.mode=='scaled' else MODULO_FIRST40_CLUBS
  states_expected=SCALED_FIRST40_STATES if ARGS.mode=='scaled' else MODULO_FIRST40_STATES
@@ -355,6 +472,9 @@ def validate_prefix(out):
  return True
 
 if __name__=='__main__':
+ if ARGS.loan_tail:
+  print(json.dumps(replay_canonical_loan_tail(),ensure_ascii=False,sort_keys=True))
+  raise SystemExit(0)
  out,r=replay(ARGS.limit,False)
  if ARGS.validate_prefix:
   validate_prefix(out)
