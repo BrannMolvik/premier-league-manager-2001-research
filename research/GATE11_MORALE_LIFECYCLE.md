@@ -241,6 +241,41 @@ No additional shared CRT draw is introduced by request construction or the
 direct accept/refuse handlers. The trigger's `RNG(30)` is therefore the
 new mandatory random boundary for this recovered slice.
 
+## Clean-room low-morale request integration
+
+The instruction-closed request lifecycle is now integrated through the existing
+post-match and manager-event state rather than as a detached approximation.
+
+Implementation checkpoints:
+
+- `b4bfc81d`: adds the shipped danger/request tuning, the delayed
+  `PlayerTransferRequest` mail record, exact trigger/status-gate ordering and
+  direct accept/refuse consequence primitive;
+- `db592412`: materializes persistent DBRPlayer status bit 10 as
+  `wanted`;
+- `99bbf3be`: wires the request trigger into the existing per-player
+  Premier League post-match roster pass, resolves active-club control including
+  loan state, exposes due next-day mail and applies/clears responses;
+- `46e73142`: bumps the internal save format to schema **22** and persists
+  both Wanted state and queued transfer-request mail;
+- `12bf9ac2`: verifies save/reload -> due mail -> accepted response -> queue
+  cleanup -> Transfer-listed/Wanted state end to end.
+
+The implementation preserves the executable's critical random boundary:
+`RNG(30)` occurs after the same player's ordinary morale/Form work and before
+the Transfer-listed/Wanted duplicate gate. Refusal leaves morale and those
+status bits unchanged. Acceptance sets Transfer listed and Wanted; the modern
+runtime continues to resolve transfer value live through the already mapped
+`0x4205A0` equivalent rather than introducing an otherwise unused duplicate
+cache.
+
+Latest verification at `12bf9ac2fa145958cde06ee41f0e954b99fd1e08`:
+
+- reconstruction suite: **675 tests run, 2 failures**;
+- both failures are the unchanged pre-existing secondary-schedule assertions;
+- no new morale/request/save errors;
+- repository asset policy: **passed**.
+
 ## `UnhappyWonTrophy` is dormant tuning data
 
 The `0x821C23` global has exactly one literal address reference in the
@@ -265,10 +300,15 @@ morale work is deliberately narrower:
   serialized/load-only `MPMNewContractRequest` compatibility path with no
   proven fresh producer;
 - the controlled-club `DangerMoraleLevel` / `ChanceAskForTransfer` request
-  lifecycle is instruction-closed through delayed mail and accept/refuse
-  consequences; clean-room integration is the next implementation step;
+  lifecycle is instruction-closed **and integrated** through delayed mail,
+  save/reload and accept/refuse consequences;
 - `UnhappyWonTrophy` is loader-only/dormant in the canonical executable and
   must not be synthesized as live trophy morale.
+
+No additional ordinary fresh-game morale producer remains as an active Gate-11
+dependency in this note. Load-only legacy process compatibility and the
+special-state contract branch remain intentionally deferred unless another
+source-backed producer is found.
 
 Regression coverage now observes state at the instant `RNG(2)` is requested:
 the signing latch is still set during the draw, while loan temporary-club and
