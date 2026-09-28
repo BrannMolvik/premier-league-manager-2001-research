@@ -261,10 +261,29 @@ Several target systems already have substantial research or backend behavior:
    the exact reseed/shuffle and 50-candidate / 20-result caps. CI at
    `c80e3d24` ran **590 tests**; all four new scouting tests passed and only
    the two unchanged secondary-schedule assertions failed.
-13. **Active scouting dependency:** finish the six `0x4AEEA0` result-sort
-   semantics and tie remaining neutral PScouting2K panel fields to original UI
-   labels/controls where evidence permits. Then expose the minimum
-   UI-independent human scouting search action over existing RuntimePlayer state.
+13. **Scouting result ordering closed:** all six `0x4AEEA0` qsort
+   modes are now instruction-mapped and implemented. Modes are surname/first-name
+   ascending, age ascending, neutral six-byte-history average descending,
+   preferred-position display descending, club name ascending, and player value
+   descending. Exact ties fall back to surname/first-name ordering. Original
+   labels directly support Name/Age/Position/Club/Value; the mode-2 display label
+   remains neutral.
+14. **Human scouting action verified:** `run_scouting_search()` composes the
+   proven primary filter-output shuffle, optional secondary score/cap/reseed
+   stage, and final six-mode sort. `HumanGameplayController.search_scouting_players()`
+   exposes that pipeline over live RuntimePlayer state while keeping unresolved
+   first-stage panel semantics as an explicit predicate and requiring explicit
+   resolvers for the unmaterialized history-average/position-display/value
+   inputs only when those sort modes are used. CI at `a859299f` ran **601
+   tests**; all new scouting tests passed and only the two unchanged
+   secondary-schedule assertions failed. Asset policy passed.
+15. **Active scouting dependency:** materialize the source-backed portions of
+   the `0x4AE680` first-stage predicate directly over RuntimePlayer/GameState
+   (age/value/class/status gates and registered/current-club exclusion) while
+   keeping genuinely unresolved panel selectors explicit. In particular,
+   preserve bit 8 = transfer-listed and bit 12 = loan-list; do not label status
+   bit 7 until its original meaning is proven. Then reduce the human action's
+   caller-supplied predicate to only the remaining neutral controls.
 
 ## Known live fidelity boundaries
 
