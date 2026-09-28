@@ -228,12 +228,20 @@ Several target systems already have substantial research or backend behavior:
    `0x61D710` is fresh-empty, `0x6596D0` is a no-op, and the other
    audited pre-weekly calls add no RNG on this boundary. Durable regression:
    `tools/replay_gate11_training_bridge.py`.
-7. **Active dependency:** attach the recovered daily Condition-maintenance path
-   and the already-verified weekly training primitive to normal calendar
-   progression without changing shared RNG order. Fresh canonical training
-   quality is **1.30** with no Training Centre.
-8. After live weekly training is verified, audit the next Gate-11 management
-   workflow rather than broadening training with guessed UI behavior.
+7. **Calendar integration checkpoint:** configured user training is now part of
+   normal `GameState.advance_one_day()` progression. The hook preserves the
+   proven daily-recovery-before-Saturday-training order and remains opt-in so
+   unresolved neighboring scheduler state cannot silently alter the shared RNG.
+   Commits `b62665d8` / `ddab924a`; both new calendar-integration tests pass.
+   Full CI at `ddab924a` ran 576 tests and still has only the two pre-existing
+   secondary-schedule assertion failures already recorded at `6809b70f`.
+8. **Active dependency:** materialize the minimum fresh concession/sponsor timer
+   runtime needed to preserve the exact shared-RNG interleaving already mapped
+   through the third training Saturday in `6822e7ea`. Do not enable recurring
+   multi-week training by default until those commercial draws are represented.
+9. After live multi-week training is source-backed and verified, audit the next
+   Gate-11 management workflow rather than broadening training with guessed UI
+   behavior.
 
 ## Known live fidelity boundaries
 
