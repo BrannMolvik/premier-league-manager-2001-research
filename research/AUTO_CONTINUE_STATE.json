@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Resolve DBRPlayer+0x138 special 0xFE/0xFF branch from direct producer/consumer evidence, starting with mapped retire/testimonial transfer-refusal paths; then materialize special pre-expiry promotion and expired !Spare recycle behavior without guessing the field label.",
-  "last_known_main_head": "2db061f68d8f9d7edb46bad3a81f97c88019bb75",
+  "active_task": "Materialize fresh human youth generation from 0x413980 -> 0x61DF90 -> 0x41E510: trace 24-byte youth-list initializer/promote/remove semantics, preserve exact candidate/name RNG, then integrate separate 20-slot youth state and save continuity.",
+  "last_known_main_head": "1006587771a4db3436004cfd031e9cb83611514f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 53,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Generation 53 closed ordinary controlled 0x41BEE0 contract lifecycle through live monthly integration, exact renewal suggestion events, save schema 18 and CI at 391d0845 (654 tests; only two unchanged secondary-schedule failures). Active task is the remaining neutral +0x138 FE/FF special branch.",
+  "note": "Special DBRPlayer+0x138 FE/FF state is bounded but deferred: no proven fresh-game producer. Active Gate-11 task is reachable fresh user youth workflow.",
   "same_chat_fallback_minutes": 30
 }
