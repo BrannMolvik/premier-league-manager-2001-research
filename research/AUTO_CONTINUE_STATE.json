@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Materialize the exact Out-of-contract status lifecycle: trace 0x4177C0/0x41ABC0 setters, 0x4185B0/0x419210 clearers and callers, preserving exact date/club/tenure/age gates and shared-CRT consumption; remove mapped scouting resolver only when lifecycle is source-backed.",
-  "last_known_main_head": "5bb451f7603781a1460ec7cbd958b62177a0ef28",
+  "active_task": "Reconstruct the user-controlled DBRPlayer 0x41BEE0 contract-expiry/grace/event lifecycle: map expiry branches, 21-day grace, roster/loan/club transitions, event actions/callers, and any shared-RNG consumption; keep 0x4177C0 explicit release separate unless a proven caller requires it.",
+  "last_known_main_head": "168d4b6c4bc0f66d969c28191d6b3e3e60d91a55",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 52,
   "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "Generation 52 reconciled concurrent main progress through 5bb451f. Strengths and bit-7 semantics are closed; continue exact out-of-contract lifecycle without simplifying to expiry_date <= current_date.",
+  "note": "Generation 52 closed the non-user 0x41ABC0 Out-of-contract lifecycle through live scouting/save state. CI at 69e42cdf ran 639 tests with only the two unchanged secondary-schedule failures. Continue the separate controlled-player 0x41BEE0 path.",
   "same_chat_fallback_minutes": 30
 }
