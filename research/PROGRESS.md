@@ -6133,3 +6133,35 @@ represented by reusable production primitives. The next commercial dependency
 for longer exact progression is the sponsor-offer body behind `0x617C80`;
 the current timer model intentionally preserves only the already-proven
 no-sponsor wait/reset behavior.
+
+
+## Gate 11 training/commercial slice reload-safe; sponsor timer closed — 28 September 2026
+
+Direct `0x617C80` disassembly proves the sponsor routine contains no hidden
+offer-selection body. It only chooses the sponsor-present/no-sponsor wait range,
+draws one wait when its timer is zero, and resets timer/date without RNG at
+expiry. The existing commercial timer model therefore covers its shared-RNG
+behavior for the modeled sponsor-presence mode.
+
+The live Gate-11 calendar state is now reload-safe:
+- `efb6043d61cc68d72016b05a2ede07c6a961c09e` adds a compact
+  eight-selector concession source snapshot;
+- `024a3c027c76cea14a6a5ea6dcdd06523acf5b98` decouples concession RNG
+  from retaining original stadium assets after configuration;
+- `939b89b92bd6668cedcf21c3cbfcda88b51d37fd` bumps internal save schema
+  to **14** and persists training recovery/quality, concession/sponsor timer
+  progress, and the compact concession source inputs;
+- `6f2c66caa66fac773a16d3ad9cd94daa42d98293` verifies round-trip state;
+- `c7650cf3723664ca5d1fcaf5cbde089240a12892` verifies commercial RNG
+  still precedes training after the source-snapshot refactor.
+
+GitHub Actions at `c7650cf3`:
+- asset policy: **passed**;
+- new Gate-11 tests: **passed**;
+- full suite: **586 tests run, 2 failures**, both unchanged pre-existing
+  secondary-schedule assertions.
+
+The training/commercial management slice is now sufficiently integrated to move
+to the next Gate-11 workflow. Scouting is next because the executable already
+has a bounded `PScouting2K -> 0x4AE970 -> 0x4AF7F0` deterministic reseed and
+candidate-shuffle path.
