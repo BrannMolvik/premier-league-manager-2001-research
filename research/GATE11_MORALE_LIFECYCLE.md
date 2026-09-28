@@ -169,6 +169,30 @@ LoanMorale draw for the Matthew Upson/Watford candidate. The user-controlled
 Arsenal branch at `0x41AAE0` queues the loan proposal/event and consumes its
 separate `RNG(5)`; it does not execute `0x41A9D0` at that point.
 
+## Request-new-contract morale is load-only on the fresh path
+
+RTTI identifies vtable `0x7D7D74` as `MPMNewContractRequest`. Its virtual
+action at `0x5D8430` resolves the stored player ID from object `+0x08`, loads
+`UnhappyRequestNewContract` from `0x821C20`, and calls `0x41BA80`.
+Therefore an executing legacy object consumes exactly one morale `RNG(2)`.
+
+The producer audit found no ordinary fresh-game constructor:
+
+- the generic MPM factory at `0x6139E0` maps type ID **10** to the
+  `MPMNewContractRequest` vtable;
+- the only literal write of vtable `0x7D7D74` is that factory case;
+- exhaustive rel32 xrefs show the only call to `0x6139E0` is from
+  `0x613FC0` inside the MPM deserialization loop `0x613F80`;
+- `0x613F80` itself is reached from the broader save-load routine at
+  `0x50E108`;
+- `0x5D8430` has no direct code callers, only its vtable slot.
+
+So the shipped executable can **load and execute** an existing serialized
+new-contract-request process, but no fresh-game producer has been found.
+Gate 11 must not manufacture this morale decrease in ordinary progression.
+It remains a save/compatibility boundary, analogous to other loadable legacy
+event state.
+
 ## Remaining ordinary morale xrefs
 
 The signing/loan RNG-placement dependency is closed. Remaining source-backed
@@ -177,10 +201,11 @@ morale work is deliberately narrower:
 - special contract cleanup at `0x41C052` also calls
   `0x41BB10(SignedNewContactMorale)`, but the `+0x138` special-state
   producer is already bounded as legacy/compatibility-only for the fresh path;
-- `0x5D8430 -> 0x41BA80(UnhappyRequestNewContract)` belongs to a separate
-  request/event object and must not be attached until that producer is bounded;
-- `UnhappyWonTrophy` and `DangerMoraleLevel` have source tuning but their
-  ordinary producer/consumer lifecycle is not yet integrated.
+- `0x5D8430 -> 0x41BA80(UnhappyRequestNewContract)` is now bounded as a
+  serialized/load-only `MPMNewContractRequest` compatibility path with no
+  proven fresh producer;
+- `UnhappyWonTrophy` and `DangerMoraleLevel` remain to be closed; the latter
+  already has a reachable post-match consumer and is the next active slice.
 
 Regression coverage now observes state at the instant `RNG(2)` is requested:
 the signing latch is still set during the draw, while loan temporary-club and
