@@ -1,8 +1,17 @@
 import unittest
 from dataclasses import dataclass
 from datetime import date, timedelta
+from types import SimpleNamespace
+from commercial_timers import UserCommercialTimerState
 from game_state import GameCalendar, GameState
 from match_schedule import MsvcCrtRng
+from stadium_state import (
+    MAP_HEADER_SIZE,
+    MAP_TRAILING_SIZE,
+    StadiumBuildingDefinition,
+    StadiumBuildingInstance,
+    StadiumSourceState,
+)
 from runtime_state import (
     RuntimePlayer,
     age_on,
@@ -355,6 +364,18 @@ class RuntimePlayerTests(unittest.TestCase):
         self.assertEqual(player.training_modifiers, [0] * 17)
 
 
+class RecordingRng:
+    def __init__(self):
+        self.calls = []
+
+    def randbelow(self, bound):
+        bound = int(bound)
+        self.calls.append(bound)
+        if bound == 800:
+            return 150
+        return 0
+
+
 class UserTrainingDayTests(unittest.TestCase):
     def _state_with_two_players(self, on_date):
         players = [
@@ -407,6 +428,69 @@ class UserTrainingDayTests(unittest.TestCase):
 
         self.assertEqual(state.calendar.current_date, date(2000, 7, 8))
         self.assertEqual(state.rng.state, 0xAEA69ED3)
+        self.assertEqual(
+            [player.training_countdown for player in state.ordered_club_roster(0)],
+            [7, 7],
+        )
+
+    def test_commercial_rng_precedes_training_rng_in_normal_progression(self):
+        state = self._state_with_two_players(date(2000, 7, 7))
+        rng = RecordingRng()
+        state.rng = rng
+        state.configure_user_training_calendar(
+            recovery_threshold=50,
+            quality_multiplier=1.30,
+        )
+
+        building = StadiumBuildingDefinition(
+            building_id=0,
+            first_extent=1,
+            second_extent=1,
+            terrace_capacity=0,
+            auxiliary_capacity=0,
+            seating_capacity=0,
+            concession_capacity=20,
+        )
+        instance = StadiumBuildingInstance(
+            first_min=0,
+            second_min=0,
+            first_max=1,
+            second_max=1,
+            building_id=0,
+            rotation=0,
+            flags=0,
+            section_index=0,
+        )
+        sections = [None] * 26
+        sections[0] = instance
+        state.stadium_sources[0] = StadiumSourceState(
+            buildings=(building,),
+            instances=[instance],
+            section_instances=tuple(sections),
+            initial_section_states=(0,) * 26,
+            map_state=bytes(MAP_HEADER_SIZE),
+            trailing_state=bytes(MAP_TRAILING_SIZE),
+        )
+        state.clubs[0] = SimpleNamespace(
+            fan_base_index=0,
+            runtime_value_1c_source=200,
+        )
+        state.access_fan_bases = (SimpleNamespace(values=(400,)),)
+        state.user_commercial_timers = UserCommercialTimerState(
+            concession_wait_days=1,
+            concession_elapsed_days=1,
+            sponsor_wait_days=99,
+            sponsor_elapsed_days=1,
+        )
+
+        state.advance_one_day()
+
+        # Expired concession: RNG(800), accepted RNG(25), offer-lifetime RNG(3).
+        # Only then may the two-player daily/weekly training path consume RNG(100).
+        self.assertEqual(rng.calls[:3], [800, 25, 3])
+        self.assertEqual(rng.calls[3:21], [100] * 18)
+        self.assertEqual(state.calendar.current_date, date(2000, 7, 8))
+        self.assertEqual(state.user_commercial_timers.concession_wait_days, 0)
         self.assertEqual(
             [player.training_countdown for player in state.ordered_club_roster(0)],
             [7, 7],
