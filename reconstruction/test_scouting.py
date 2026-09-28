@@ -8,9 +8,11 @@ from scouting import (
     SCOUT_ONE_AGE_BIAS,
     ScoutingReseedState,
     ScoutingSortValues,
+    ScoutingRankValues,
     scouting_rank_score,
     scouting_result_compare,
     sort_scouting_results,
+    run_scouting_search,
     primary_scouting_results,
     scouting_shuffle,
     secondary_scouting_results,
@@ -150,6 +152,80 @@ class ScoutingOrderingTests(unittest.TestCase):
         values = ScoutingSortValues("A", "B", 20, 1.0, "GK", "Club", 1.0)
         with self.assertRaises(ValueError):
             scouting_result_compare(values, values, 6)
+
+
+    def test_composed_scouting_search_preserves_primary_secondary_then_final_sort(self):
+        state = ScoutingReseedState(field_64e4=7, age_low_64d8=18)
+        items = tuple(range(12))
+
+        def sort_values(item):
+            return ScoutingSortValues(
+                name_primary=f"S{item:02d}",
+                name_secondary=f"F{item:02d}",
+                age=20 + item,
+                history_average=float(item),
+                position_label=f"P{item:02d}",
+                club_name=f"C{item:02d}",
+                valuation=float(item * 100),
+            )
+
+        def rank_values(item):
+            return ScoutingRankValues(
+                current_raw=(128 + item,) * 17,
+                preferred_positions=(9, 10, 11),
+                age=20 + item,
+            )
+
+        result = run_scouting_search(
+            items,
+            state,
+            candidate_predicate=lambda item: item % 2 == 0,
+            sort_mode=0,
+            sort_values=sort_values,
+            secondary_score_mode=16,
+            secondary_caller_argument=3,
+            rank_values=rank_values,
+        )
+
+        primary = primary_scouting_results(
+            tuple(item for item in items if item % 2 == 0),
+            state,
+        )
+        scored = sorted(
+            primary,
+            key=lambda item: (
+                -scouting_rank_score(
+                    (128 + item,) * 17,
+                    (9, 10, 11),
+                    age=20 + item,
+                    mode=16,
+                ),
+                f"S{item:02d}",
+                f"F{item:02d}",
+            ),
+        )
+        secondary = secondary_scouting_results(
+            scored,
+            state,
+            caller_argument=3,
+        )
+        expected = tuple(sorted(secondary, key=lambda item: (f"S{item:02d}", f"F{item:02d}")))
+        self.assertEqual(result, expected)
+
+    def test_composed_secondary_search_requires_rank_values(self):
+        state = ScoutingReseedState()
+        values = lambda item: ScoutingSortValues(
+            str(item), "", 0, 0.0, "", "", 0.0
+        )
+        with self.assertRaisesRegex(ValueError, "rank_values"):
+            run_scouting_search(
+                (1, 2),
+                state,
+                candidate_predicate=lambda _item: True,
+                sort_mode=0,
+                sort_values=values,
+                secondary_score_mode=16,
+            )
 
     def test_secondary_scouting_applies_used_and_found_caps_around_shuffle(self):
         state = ScoutingReseedState(field_64e4=9, age_low_64d8=16)
