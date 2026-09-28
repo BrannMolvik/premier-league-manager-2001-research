@@ -154,6 +154,40 @@ class HumanGameplayController:
             self.state.user_controlled_club_id = club_id
         return self.human
 
+    def initialize_fresh_youth(self, option_mode: int | None = None):
+        """Materialize the original separate fresh user youth list."""
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        return self.state.initialize_fresh_user_youth(option_mode)
+
+    def youth_players(self) -> tuple[object, ...]:
+        """Return the current separate youth-list players in record order."""
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        return self.state.user_youth_players()
+
+    def promote_youth_player(
+        self,
+        player_id: int,
+        *,
+        weekly_wage: float,
+        contract_months: int,
+    ):
+        """Apply the mapped EAMyouthpromoteplayer roster/contract transition."""
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        return self.state.promote_user_youth_player(
+            int(player_id),
+            weekly_wage=float(weekly_wage),
+            contract_months=int(contract_months),
+        )
+
+    def release_youth_player(self, player_id: int) -> bool:
+        """Apply the mapped youth-list removal and free-player transition."""
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        return self.state.release_user_youth_player(int(player_id))
+
     def financial_objective_candidates(self) -> tuple[int, int, int]:
         """Return the three recovered chairman objective choices."""
         if self.human is None:
