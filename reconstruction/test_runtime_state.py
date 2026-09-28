@@ -395,6 +395,36 @@ class UserTrainingDayTests(unittest.TestCase):
         self.assertEqual((daily_draws, weekly_draws), (6, 0))
         self.assertEqual(rng.state, 0x3D6C1037)
 
+    def test_configured_training_runs_inside_normal_day_progression(self):
+        state = self._state_with_two_players(date(2000, 7, 7))
+        state.rng = MsvcCrtRng(1)
+        state.configure_user_training_calendar(
+            recovery_threshold=50,
+            quality_multiplier=1.30,
+        )
+
+        state.advance_one_day()
+
+        self.assertEqual(state.calendar.current_date, date(2000, 7, 8))
+        self.assertEqual(state.rng.state, 0xAEA69ED3)
+        self.assertEqual(
+            [player.training_countdown for player in state.ordered_club_roster(0)],
+            [7, 7],
+        )
+
+    def test_unconfigured_normal_day_progression_does_not_consume_training_rng(self):
+        state = self._state_with_two_players(date(2000, 7, 2))
+        state.rng = MsvcCrtRng(1)
+
+        state.advance_one_day()
+
+        self.assertEqual(state.calendar.current_date, date(2000, 7, 3))
+        self.assertEqual(state.rng.state, 1)
+        self.assertEqual(
+            [player.condition for player in state.ordered_club_roster(0)],
+            [80, 80],
+        )
+
 class CalendarTests(unittest.TestCase):
     def test_monthly_hook_fires_when_entering_first_day(self):
         calls = []
