@@ -337,12 +337,23 @@ Several target systems already have substantial research or backend behavior:
    two pre-existing secondary-schedule failures; all new scouting regressions
    pass and asset policy passes. Evidence:
    `research/GATE11_SCOUTING_STATUS_AND_STRENGTH.md`.
-22. **Active scouting dependency:** materialize the exact **Out of contract**
-   status lifecycle so mapped human scouting no longer needs an external
-   resolver. Start from setters `0x4177C0` and contract maintenance
-   `0x41ABC0`, clearers `0x4185B0` / `0x419210`, and their callers.
-   Preserve exact date/club/tenure/age gates and shared-CRT consumption; do not
-   substitute the simpler rule `contract_expiry_date <= current_date`.
+22. **Live Out-of-contract scouting state completed:** the ordinary non-user
+   first-of-month `0x41ABC0` lifecycle is source-backed and implemented with
+   its exact 30-day window, one/two `RNG(100)` ordering, rating branches,
+   roster/tenure/age/`0x417580` eligibility gates, 12-month renewal and
+   mapped state clears. RuntimePlayer persists `out_of_contract`, internal
+   save schema 16 preserves it, and mapped scouting now consumes that live
+   state without requiring an external resolver. CI at `69e42cdf` ran
+   **639 tests**; only the same two pre-existing secondary-schedule assertions
+   fail and asset policy passes. Evidence:
+   `research/GATE11_OUT_OF_CONTRACT_LIFECYCLE.md`.
+23. **Active contract-management dependency:** reconstruct the separate
+   user-controlled `0x41BEE0` expiry/grace/event path and its callers/actions.
+   Preserve the proven 21-day post-expiry branch, loan/roster/club transitions,
+   event scheduling and any shared-CRT effects. Do not reuse the non-user
+   `0x41ABC0` random release rule for controlled players. Keep explicit
+   release helper `0x4177C0` separate unless a source-backed caller requires
+   it.
 
 ## Known live fidelity boundaries
 
