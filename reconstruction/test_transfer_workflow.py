@@ -10,6 +10,7 @@ from transfer_state import ContractTerms, TransferProposal, TransferRuntimeState
 from transfer_workflow import (
     ScheduledTransferOutcome,
     cash_only_proposal_total_value,
+    complete_player_loan_assignment,
     evaluate_live_cash_bid,
     execute_due_ordinary_cash_transfers,
     schedule_ordinary_cash_transfer,
@@ -109,6 +110,8 @@ def build_completion_state(*, buyer_roster_count=5):
         signed_for_other_club=False,
         transfer_listed=True,
         loan_club_id=99,
+        loan_listed=True,
+        contract_renewal_suggestion_pending=True,
         current_club_join_date=date(1999, 7, 1),
         morale=50,
         current_raw=[20] * 17,
@@ -123,6 +126,45 @@ def build_completion_state(*, buyer_roster_count=5):
         club_roster_order={10: seller_roster, 11: buyer_roster},
         transfers=TransferRuntimeState(),
     )
+
+
+class PlayerLoanAssignmentTests(unittest.TestCase):
+    def test_41a9d0_materialized_state_precedes_loan_morale_rng(self):
+        state = build_completion_state()
+        player = state.players[1]
+        player.loan_club_id = None
+        player.loan_listed = True
+        player.morale = 50
+
+        class ObservingRng:
+            def __init__(self):
+                self.calls = []
+
+            def randbelow(self, bound):
+                self.calls.append(int(bound))
+                if int(bound) != 2:
+                    raise AssertionError(f"unexpected RNG({bound})")
+                if player.loan_club_id != 11:
+                    raise AssertionError("temporary club not installed before LoanMorale")
+                if player.loan_listed:
+                    raise AssertionError("loan-list state not cleared before LoanMorale")
+                return 0
+
+        rng = ObservingRng()
+        result = complete_player_loan_assignment(
+            state,
+            player_id=1,
+            destination_club_id=11,
+            rng=rng,
+        )
+
+        self.assertIs(result, player)
+        self.assertEqual(player.club_id, 10)
+        self.assertEqual(player.loan_club_id, 11)
+        self.assertFalse(player.loan_listed)
+        # Base 10 + age>15 + explicit final +1.
+        self.assertEqual(player.morale, 62)
+        self.assertEqual(rng.calls, [2])
 
 
 class ScheduledTransferCompletionTests(unittest.TestCase):
@@ -191,6 +233,7 @@ class ScheduledTransferCompletionTests(unittest.TestCase):
         # 0x422F70 -> 0x4192B0 -> 0x419210 applies the signed-contract
         # morale increase last. Base 30 + age>15 + final +1 = +32 here.
         self.assertEqual(player.morale, 82)
+        self.assertFalse(player.contract_renewal_suggestion_pending)
         self.assertEqual(rng.calls, [2])
 
         self.assertEqual(len(state.transfers.movements), 1)
