@@ -18,6 +18,10 @@ from typing import Any
 from commercial_timers import UserCommercialTimerState
 from concession_offer import ConcessionRuntimeSource
 from competition_state import MatchResult, PremierLeagueState
+from contract_maintenance import (
+    ContractRenewalSuggestion,
+    ContractRenewalSuggestionKind,
+)
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from game_state import GameCalendar, GameState
 from human_gameplay import HumanGameplayController, HumanManagerState
@@ -47,7 +51,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 17
+SAVE_SCHEMA_VERSION = 18
 
 
 def _iso(value: date | None) -> str | None:
@@ -873,6 +877,14 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             for round_index, values in sorted(state.premier_league_scheduler_order.items())
         },
         "transfers": _snapshot_transfer_state(state.transfers),
+        "contract_renewal_suggestions": [
+            {
+                "player_id": int(value.player_id),
+                "queued_on": value.queued_on.isoformat(),
+                "kind": str(value.kind.value),
+            }
+            for value in state.contract_renewal_suggestions
+        ],
         "finance_balances": {
             str(int(club_id)): {
                 "current_cash": balance.current_cash,
@@ -1151,6 +1163,14 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             for round_index, values in snapshot["premier_league_scheduler_order"].items()
         },
         transfers=_restore_transfer_state(snapshot.get("transfers")),
+        contract_renewal_suggestions=[
+            ContractRenewalSuggestion(
+                player_id=int(value["player_id"]),
+                queued_on=date.fromisoformat(value["queued_on"]),
+                kind=ContractRenewalSuggestionKind(str(value["kind"])),
+            )
+            for value in snapshot.get("contract_renewal_suggestions", ())
+        ],
         finance_balances={
             int(club_id): BalanceRuntimeState(
                 current_cash=value["current_cash"],
@@ -1202,6 +1222,7 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
     state.calendar.daily_hooks.append(state._run_daily_injury_returns)
     state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
     state.calendar.monthly_hooks.append(state._run_monthly_player_development)
+    state.calendar.monthly_hooks.append(state._run_monthly_contract_maintenance)
     return state
 
 
