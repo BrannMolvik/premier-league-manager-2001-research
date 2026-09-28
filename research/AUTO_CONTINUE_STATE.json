@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Reproduce eligible-club qsort and two known shuffles, then replay all 894 0x61991F selector steps using exact nested RNG rules and transfer-list mutations; continue through loan maintenance to fixed-staff initialization.",
-  "last_known_main_head": "960e3e00899364254c830b1bd6ee50b4c65012dd",
+  "active_task": "Translate/replay club 118 first 0x61A9A0 selector from shared state 0xAB415A96, then continue all 894 exact transfer-list selectors and carry CRT state through loan maintenance into fixed-staff initialization.",
+  "last_known_main_head": "6e85263b92a11212c1334749e95add36bbf45208",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 40,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 40 checkpoint at main 960e3e00: selector RNG rules and qsort key are persisted. Immediate dependency is cached +0xB8 versus live 0x4205A0 date sensitivity / exact club ordering.",
+  "note": "Recovery generation 40: exact qsort/two shuffle ordering persisted through main 6e85263; reverse selector begins club 118, dispatch RNG(10)=3, state now 0xAB415A96.",
   "same_chat_fallback_minutes": 30
 }
