@@ -7965,3 +7965,38 @@ The remaining secondary-startup RNG work is now only `0x4FA790` itself and the
 final secondary `0x615BE0` bucket shuffle. Exact national-team ordering still
 matters for `0x4FA790` because same-team avoidance can accelerate a pool cursor
 and trigger a reshuffle earlier.
+
+
+## Gate 11 0x61991F reverse transfer-list population
+
+The fresh weekly-maintenance transfer-list population loop is now bounded at
+instruction level.
+
+Loader global `0x821610` is written from the literal tuning key
+`MAX_PLAYERS_ON_TRANSFER_LIST`; its shipped default is **1000**.
+
+After the two previously recovered 895-club shuffles, `0x61991F` starts with
+candidate count 0 and club-vector index 895, decrements the index before body
+execution, and stops at index 0. Thus it processes exactly indices 894..1, or
+**894 club visits**. Each visit executes one `0x64D540(10)` dispatch draw.
+The earlier vector filter uses `0x403E70`, whose success path itself requires
+`0x403E10` manager validity, so the repeated `0x403E10` gate inside this
+loop is already satisfied for every fresh vector entry.
+
+A loop iteration can add no more than one player and starts from zero; therefore
+894 maximum additions cannot reach the 1000-player stop threshold. The loop
+cannot terminate early from `MAX_PLAYERS_ON_TRANSFER_LIST` on this fresh path.
+
+Dispatch mapping is exact:
+
+- draw 0..6 -> `0x61A9A0(club, 0)`;
+- draw 7..9 -> `0x4050F0(club)`;
+- non-null result -> `0x420A10(player)`.
+
+`0x420A10` sets DBRPlayer `+0x14` bit 8 before refreshing player value state,
+confirming this loop is the fresh transfer-list population pass.
+
+The 894 dispatch draws are mandatory, but the final RNG state is not yet known:
+`0x61A9A0` reaches the RNG-bearing eligibility helper `0x417470`, and
+`0x4050F0` performs additional rejection-sampling RNG. Those nested paths are
+the immediate continuation target.
