@@ -6903,3 +6903,25 @@ around `0x5D8430 -> 0x41BA80(UnhappyRequestNewContract)`. Do not attach this
 decrease to ordinary progression until the event/action ownership and reachability
 are proven. Trophy morale and `DangerMoraleLevel` remain deferred behind the
 same evidence rule.
+
+
+## Gate 11 request-new-contract morale bounded as load-only — 29 September 2026
+
+Canonical `FOOTBAL.EXE` RTTI identifies vtable `0x7D7D74` as
+`MPMNewContractRequest`. Its action `0x5D8430` resolves the stored player,
+loads `UnhappyRequestNewContract` from `0x821C20`, and calls the exact
+`0x41BA80` morale-decrease primitive, so a serialized object that executes
+would consume one shared `RNG(2)`.
+
+An exhaustive constructor/factory xref audit found no ordinary fresh-game
+producer. Type ID 10 in generic MPM factory `0x6139E0` constructs this class,
+but the only call into that factory is the MPM deserialization loop at
+`0x613F80`, itself reached from the save-load path at `0x50E108`. The
+`MPMNewContractRequest` vtable is written only in that factory case and
+`0x5D8430` has no direct code callers.
+
+Therefore this morale decrease is retained as a load/compatibility boundary and
+is not attached to fresh ordinary progression. The next live morale dependency
+is `DangerMoraleLevel`: `0x404E25` calls `0x41B580` from the existing
+controlled-club post-match roster pass, so that consumer is demonstrably
+reachable and is now the active trace.
