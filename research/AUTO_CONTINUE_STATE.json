@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Materialize the exact Out-of-contract player-status lifecycle used by Gate 11 scouting: trace 0x4177C0/0x41ABC0 setters, 0x4185B0/0x419210 clearers, callers, date/club/tenure/age gates and shared-CRT use; remove the mapped scouting resolver only after live state is source-backed.",
+  "active_task": "Materialize the exact Out-of-contract status lifecycle: trace 0x4177C0/0x41ABC0 setters, 0x4185B0/0x419210 clearers and callers, preserving exact date/club/tenure/age gates and shared-CRT consumption; remove mapped scouting resolver only when lifecycle is source-backed.",
   "last_known_main_head": "5bb451f7603781a1460ec7cbd958b62177a0ef28",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 52,
   "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "Scouting bit 7 is proven Out of contract and Strengths selector 0..17 is materialized against current_raw with shipped ScoutStrengthMin 20. CI at dcff0e50: 632 tests, only two pre-existing schedule failures; asset policy passed. Continue exact out-of-contract lifecycle; do not derive it from expiry date alone.",
+  "note": "Generation 52 reconciled concurrent main progress through 5bb451f. Strengths and bit-7 semantics are closed; continue exact out-of-contract lifecycle without simplifying to expiry_date <= current_date.",
   "same_chat_fallback_minutes": 30
 }
