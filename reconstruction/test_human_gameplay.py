@@ -386,7 +386,7 @@ class HumanGameplayControllerTests(unittest.TestCase):
         self.assertIn(2000, tuple(int(player.index) for player in result))
         self.assertNotIn(4000, tuple(int(player.index) for player in result))
 
-    def test_mapped_human_scouting_requires_resolver_for_out_of_contract_status(self):
+    def test_mapped_human_scouting_uses_live_out_of_contract_status(self):
         controller = self.build_controller()
         controller.select_club(1)
         panel = ScoutingReseedState(
@@ -404,13 +404,25 @@ class HumanGameplayControllerTests(unittest.TestCase):
             threshold_predicate=lambda _player: True,
         )
 
-        with self.assertRaisesRegex(ValueError, "out-of-contract"):
-            controller.search_scouting_players_mapped(
-                panel,
-                status_controls=ScoutingFilterControls(out_of_contract=True),
-                **common,
-            )
         player = controller.state.players[2000]
+        player.out_of_contract = True
+        result = controller.search_scouting_players_mapped(
+            panel,
+            status_controls=ScoutingFilterControls(out_of_contract=True),
+            **common,
+        )
+        self.assertIn(2000, tuple(int(value.index) for value in result))
+
+        # The compatibility resolver can still explicitly override live state.
+        result = controller.search_scouting_players_mapped(
+            panel,
+            status_controls=ScoutingFilterControls(out_of_contract=True),
+            out_of_contract_resolver=lambda _player: False,
+            **common,
+        )
+        self.assertNotIn(2000, tuple(int(value.index) for value in result))
+
+        player.out_of_contract = False
         player.loan_listed = True
         club2 = controller.state.clubs[2]
         controller.state.clubs[2] = type(club2)(
