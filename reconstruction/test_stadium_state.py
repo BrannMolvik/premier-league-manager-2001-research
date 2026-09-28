@@ -23,11 +23,13 @@ def building_record(
     terrace=0,
     seating=0,
     auxiliary=0,
+    concession=0,
 ):
     live = bytearray(0x74)
     struct.pack_into("<II", live, 0, first_extent, second_extent)
     struct.pack_into("<I", live, 0x14, terrace)
     struct.pack_into("<I", live, 0x18, auxiliary)
+    struct.pack_into("<I", live, 0x1C, concession)
     struct.pack_into("<I", live, 0x20, seating)
     return bytes(live) + bytes(live[0x08:0x64])
 
@@ -55,6 +57,7 @@ class StadiumSourceStateTests(unittest.TestCase):
             terrace=1200,
             seating=3400,
             auxiliary=77,
+            concession=62,
         )
         records = parse_buildings_dat(data)
         self.assertEqual(len(records), 1)
@@ -63,6 +66,7 @@ class StadiumSourceStateTests(unittest.TestCase):
         self.assertEqual(records[0].terrace_capacity, 1200)
         self.assertEqual(records[0].seating_capacity, 3400)
         self.assertEqual(records[0].auxiliary_capacity, 77)
+        self.assertEqual(records[0].concession_capacity, 62)
 
     def test_building_parser_rejects_wrong_overlay_layout(self):
         data = bytearray(building_record())
@@ -126,6 +130,50 @@ class StadiumSourceStateTests(unittest.TestCase):
         self.assertEqual(stadium.initial_home_capacity.terrace, 0)
         self.assertEqual(stadium.initial_home_capacity.seating, 1000)
 
+
+    def test_concession_capacity_uses_recovered_selector_ranges_and_flags(self):
+        buildings = parse_buildings_dat(
+            building_record(concession=5)
+            + building_record(concession=7)
+            + building_record(concession=11)
+        )
+        section_instances = [None] * 26
+        instances = []
+        for section_index, building_id, flags in (
+            (0, 0, 0),
+            (1, 1, 0x08),
+            (15, 1, 0),
+            (23, 2, 0),
+        ):
+            instance = StadiumBuildingInstance(
+                first_min=0,
+                second_min=0,
+                first_max=1,
+                second_max=1,
+                building_id=building_id,
+                rotation=0,
+                flags=flags,
+                section_index=section_index,
+            )
+            instances.append(instance)
+            section_instances[section_index] = instance
+        stadium = StadiumSourceState(
+            buildings=buildings,
+            instances=instances,
+            section_instances=tuple(section_instances),
+            initial_section_states=(0,) * 26,
+            map_state=bytes(MAP_HEADER_SIZE),
+            trailing_state=bytes(MAP_TRAILING_SIZE),
+        )
+
+        # Selector 1 spans sections 0..3 but commercial 0x65DBC0(..., 0)
+        # excludes flag bit 0x08, so only section 0 contributes.
+        self.assertEqual(stadium.concession_capacity_for_selector(1), 5)
+        self.assertEqual(stadium.concession_capacity_for_selector(3), 7)
+        self.assertEqual(stadium.concession_capacity_for_selector(0), 11)
+        # 0x65DB70 excludes only bit 0x02, so the bit-0x08 section remains
+        # part of the all-section denominator.
+        self.assertEqual(stadium.concession_capacity_total, 30)
 
 class TicketRuntimeStateTests(unittest.TestCase):
     @staticmethod
