@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Validate and persist the canonical Gate 11 loan-tail/fixed-staff replay at main 70068a0f, then continue the shared startup RNG from post-fixed-staff state 0x418CAA72 to the first source-backed training-quality boundary before attaching Saturday training.",
+  "active_task": "Instruction-audit the post-0x4D1760 path and first training caller using the re-materialized canonical FOOTBAL.EXE; identify every RNG consumer between 0x418CAA72 and the first 0x4EACE0 execution before wiring Saturday training.",
   "last_known_main_head": "64619fd8283957d0a932a6a6eb9a8876d20458e9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 45,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Source archive re-materialized from Library for exact post-0x4D1760 call-chain audit. Main is recovery-safe through post-fixed-staff state 0x418CAA72 and fresh training quality 1.25.",
+  "note": "Canonical FOOTBAL.EXE re-extracted and SHA-256 reverified as 833bf95e... Direct disassembly shows 0x425680 calls 0x4D1760 at 0x4257B6, then deterministic-looking post-staff initialization through return; weekly training reaches 0x4EACE0 via 0x61C520 <- 0x61CBA0 <- 0x42AE40. Continuing caller/order audit.",
   "same_chat_fallback_minutes": 30
 }
