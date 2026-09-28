@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Trace and integrate the ordinary DBRPlayer morale lifecycle at +0x18E, starting with the source-backed post-match won/lost/not-played paths through 0x41B7E0/0x41BA00/0x41BA80/0x41BB10; preserve exact RNG order and defer unrelated correspondence until producer semantics are bounded.",
-  "last_known_main_head": "bb3788d3fcc9044d0477b63a089faca25f287de9",
+  "active_task": "Verify the 0b567986 Premier League post-match morale integration and exact RNG/order regressions; persist morale research/status, then continue the ordinary DBRPlayer morale lifecycle from the next unresolved producer/consumer without revisiting closed youth work.",
+  "last_known_main_head": "0b567986ec8b51b9f66c8e038de7aa9726088535",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 55,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Youth activation cadence/state implementation and corrected RNG bridge are committed. CI ran 664 tests with only the two known secondary-schedule failures; new youth tests passed and asset policy passed. Next Gate 11 slice is morale.",
+  "recovery_generation": 56,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery generation 56: main advanced to post-match morale integration. Reconcile/verify that checkpoint first, then continue the next unresolved morale lifecycle.",
   "same_chat_fallback_minutes": 30
 }
