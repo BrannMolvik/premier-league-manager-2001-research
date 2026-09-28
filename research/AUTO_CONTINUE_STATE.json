@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Trace mandatory shared-RNG consumers after fixed-support-staff initialization at 0x4D1760 from corrected state 0xFA1C595E to the first Saturday 0x4EACE0 training execution; post-staff interval is known non-clean and daily pre-training consumers are being instruction-replayed.",
-  "last_known_main_head": "007315c1b0c5d7619957258a4f62befc2ed2d07f",
+  "active_task": "Materialize and integrate the minimum fresh concession/sponsor commercial timer runtime. Wait scheduling/expiry/reset semantics are now implemented and tested; next close the concession expiry offer-selection body needed for exact shared-RNG continuation through the second and third training Saturdays.",
+  "last_known_main_head": "27db39797de762010ba3502347f4d64b0b435ebd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 48,
+  "recovery_generation": 49,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 48 resumes main 007315c1. Authorized FOOTBAL.EXE was re-materialized and canonical SHA-256 reverified. Direct trace shows the post-0x4D1760 interval is not RNG-clean: the initial startup weekly tick precedes user registration/training materialization, while later daily DBRUser maintenance consumes shared RNG before the first active Saturday 0x4EACE0. Persist this boundary, then replay the daily consumers exactly.",
+  "note": "Recovered past the first-training RNG bridge. Calendar-integrated user training is committed at ddab924a. Commercial timer wait state is implemented at c32d9d50 with lifecycle tests at 27db3979. Continue only the concession expiry offer-selection body; do not reopen fixed-staff or pre-first-training replay.",
   "same_chat_fallback_minutes": 30
 }
