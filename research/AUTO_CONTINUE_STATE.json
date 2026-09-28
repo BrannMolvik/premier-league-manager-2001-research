@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Resolve 0x425680 -> 0x61DE40 two-cohort youth initializer lifetime/cadence and exact final state/RNG order; bound the 0x4A8070/0x4A83D0 caller chain before integration.",
-  "last_known_main_head": "ffc12a8e785d0ac1e9acf71e07e5349cea3d32df",
+  "active_task": "Implement the 0x61DE40 activation-specific two-cohort youth state, correct the startup/support-staff RNG replay for the missing 24 youth draws, and replay downstream commercial-timer/training RNG from post-fixed-staff state 0xA2FEE1E1.",
+  "last_known_main_head": "7b9085194863fdd4eb5ad47943ff477d4e12f405",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 55,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovered from ffc12a8e. Resume only the persisted Gate 11 two-cohort youth initializer/caller-chain trace; do not redo verified fresh-youth-list work.",
+  "note": "Caller/cadence and two-cohort final state resolved at main 7b908519. Continue implementation and corrected downstream RNG; do not revisit completed lifetime trace.",
   "same_chat_fallback_minutes": 30
 }
