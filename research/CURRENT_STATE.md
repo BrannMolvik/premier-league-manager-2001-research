@@ -287,14 +287,24 @@ Several target systems already have substantial research or backend behavior:
    explicit resolvers. CI at `664eb6ab` ran **610 tests**; all new scouting
    and valuation tests passed and only the two unchanged secondary-schedule
    assertions failed. Asset policy passed.
-16. **Active scouting dependency:** resolve/materialize the remaining neutral
-   `0x4AE680` inputs where direct evidence permits: the team/context selector,
-   optional preferred-position selector, global threshold gate, status bit 7,
-   and the bit-12 + `0x41E450` loan-list condition. Bit 8 is already
-   transfer-listed. Do not assign user-facing labels to bit 7 or other controls
-   without direct executable/resource evidence. After that, audit whether the
-   six-byte `0x41FB60` recent-rating history should be persisted to remove the
-   remaining mode-2/value resolver dependency.
+16. **Scouting first-stage semantics narrowed:** direct executable tracing now
+   resolves the country-context selector, preferred-position membership gate,
+   `ScoutStrengthMin` threshold identity and the scouting-specific
+   `0x41E450` loan eligibility shape. Country selector mode 0 requires the
+   active club country; mode 1 requires a different country with runtime country
+   `+0x18 != 0`; other nonzero modes require a different country with
+   `+0x18 == 0`. The optional selector is exact membership in the player's
+   three preferred-position IDs. `ScoutStrengthMin` compares against
+   `floor((30*byte+128)/255)` from the still-unowned auxiliary per-player
+   scouting byte behind `0x876868`.
+17. **Active scouting dependency:** materialize the now-source-backed
+   country/preferred-position filters and RuntimePlayer bit-12 loan-list state.
+   On the scouting path, bit 12 plus `0x41E450` reduces to different club
+   competition IDs, plus Non-EU exclusion when transfer-list bit 8 is clear.
+   Keep status bit 7 and the auxiliary `0x876868` byte neutral until their
+   producers/labels are proven. Then audit whether the six-byte `0x41FB60`
+   recent-rating history should be persisted to remove the remaining mode-2
+   resolver dependency.
 
 ## Known live fidelity boundaries
 
