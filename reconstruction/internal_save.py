@@ -47,7 +47,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 14
+SAVE_SCHEMA_VERSION = 15
 
 
 def _iso(value: date | None) -> str | None:
@@ -257,6 +257,9 @@ PLAYER_RECORD_FIELDS = (
     "training_active_count",
     "training_skill_states_or_null",
     "training_method_results_or_null",
+    "match_performance_history_or_null",
+    "match_performance_history_count",
+    "match_performance_history_write_index",
 )
 
 
@@ -331,6 +334,14 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
             if not any(player.training_method_results)
             else [int(v) for v in player.training_method_results]
         ),
+        (
+            None
+            if int(player.match_performance_history_count) == 0
+            and not any(player.match_performance_history)
+            else [int(v) & 0xFF for v in player.match_performance_history]
+        ),
+        int(player.match_performance_history_count),
+        int(player.match_performance_history_write_index),
     ]
 
 
@@ -399,6 +410,11 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         training_method_results=(
             [0] * 7 if value[39] is None else [int(v) for v in value[39]]
         ),
+        match_performance_history=(
+            [0] * 6 if value[40] is None else [int(v) & 0xFF for v in value[40]]
+        ),
+        match_performance_history_count=int(value[41]),
+        match_performance_history_write_index=int(value[42]),
         discipline_yellow_total=int(value[12]),
         discipline_yellow_cycle=int(value[13]),
         suspension_matches_remaining=int(value[14]),
