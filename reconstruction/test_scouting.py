@@ -327,6 +327,27 @@ class ScoutingOrderingTests(unittest.TestCase):
                 )
             )
 
+    def test_first_stage_out_of_range_class_selector_bypasses_class_gate(self):
+        for selector in (-1, 4, 99):
+            panel = ScoutingReseedState(
+                age_low_64d8=0,
+                age_high_64dc=99,
+                value_low_64c8=0.0,
+                value_high_64d0=1000.0,
+                class_selector_64c0=selector,
+            )
+            self.assertTrue(
+                scouting_first_stage_passes(
+                    panel,
+                    ScoutingFilterValues(
+                        age=25,
+                        valuation=100.0,
+                        player_class=2,
+                    ),
+                    page_mode=16,
+                )
+            )
+
     def test_first_stage_status_controls_or_together_and_loan_requires_extra_gate(self):
         panel = ScoutingReseedState(
             age_low_64d8=0,
