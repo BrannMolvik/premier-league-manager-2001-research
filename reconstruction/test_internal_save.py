@@ -376,6 +376,13 @@ class InternalSaveTests(unittest.TestCase):
                 )
             ],
         )
+        request = restored.state.player_transfer_requests[0]
+        restored.state.calendar.current_date = date(2000, 7, 2)
+        self.assertEqual(restored.state.due_player_transfer_requests(), (request,))
+        restored.state.respond_to_player_transfer_request(request, accept=True)
+        self.assertEqual(restored.state.player_transfer_requests, [])
+        self.assertTrue(restored.state.players[1000].transfer_listed)
+        self.assertTrue(restored.state.players[1000].wanted)
 
     def test_controlled_contract_state_and_renewal_mail_survive_roundtrip(self):
         original = self.build_controller()
