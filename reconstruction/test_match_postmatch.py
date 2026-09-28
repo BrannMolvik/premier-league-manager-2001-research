@@ -2,11 +2,19 @@ import unittest
 from dataclasses import dataclass
 from datetime import date, timedelta
 
-from match_events import IncidentKind, IncidentRecord, SubstitutionRecord
+from match_events import (
+    ChanceRecord,
+    ChanceSource,
+    FinishMode,
+    IncidentKind,
+    IncidentRecord,
+    SubstitutionRecord,
+)
 from match_postmatch import (
     FormTransitionSettings,
     appeared_player_indices,
     apply_league_match_discipline,
+    persist_match_performance_history,
     persist_post_match_form,
     persist_post_match_side,
     persist_premier_league_discipline,
@@ -55,6 +63,29 @@ class RuntimePlayer:
     injury_source_mode: int | None = None
     injury_severity_code: int | None = None
     injury_history_weight: int = 0
+    match_performance_history: list[int] = None
+    match_performance_history_count: int = 0
+    match_performance_history_write_index: int = 0
+
+    def __post_init__(self):
+        if self.match_performance_history is None:
+            self.match_performance_history = [0] * 6
+
+    def latest_match_performance(self):
+        if self.match_performance_history_count <= 0:
+            return 0
+        return self.match_performance_history[
+            (self.match_performance_history_write_index - 1) % 6
+        ]
+
+    def append_match_performance(self, value):
+        index = self.match_performance_history_write_index
+        self.match_performance_history[index] = int(value) & 0xFF
+        self.match_performance_history_count = min(
+            6, self.match_performance_history_count + 1
+        )
+        self.match_performance_history_write_index = (index + 1) % 6
+        return int(value)
 
 
 def prepared_player(index, *, active=True, bench=False, condition=80):
@@ -394,6 +425,50 @@ class ExactIncidentOrderingTests(unittest.TestCase):
         form_rng = ScriptedRng([99, 99])
         persist_post_match_form(side, participants, result, form_rng)
         self.assertEqual(participants[0].condition, 64)
+
+
+class MatchPerformancePersistenceTests(unittest.TestCase):
+    def test_exact_history_finalizer_uses_goal_attribution_cards_and_two_rng_streams(self):
+        side = prepared_side()
+        result = NormalMatchResult(events=(
+            TimedMatchEvent(
+                10,
+                ChanceRecord(
+                    ChanceSource.OPEN_PLAY,
+                    0,
+                    0,
+                    0,
+                    finish_mode=FinishMode.SHOOTING,
+                    secondary_player_side=0,
+                    secondary_player_index=1,
+                ),
+            ),
+            TimedMatchEvent(20, IncidentRecord(IncidentKind.BOOKED, 0, 1)),
+            TimedMatchEvent(60, SubstitutionRecord(0, 1, 2)),
+            TimedMatchEvent(75, IncidentRecord(IncidentKind.SENT_OFF, 0, 2)),
+        ))
+        runtime = [RuntimePlayer() for _ in range(4)]
+        runtime[0].match_performance_history[0] = 10
+        runtime[0].match_performance_history_count = 1
+        runtime[0].match_performance_history_write_index = 1
+
+        shared = ScriptedRng([1, 1, 0, 0])
+        engine = ScriptedRng([1])
+        ratings = persist_match_performance_history(
+            side,
+            runtime,
+            result,
+            shared,
+            engine,
+        )
+
+        self.assertEqual(ratings, (9, 8, 6))
+        self.assertEqual(shared.calls, [2, 2, 2, 2])
+        self.assertEqual(engine.calls, [2])
+        self.assertEqual(runtime[0].match_performance_history[:2], [10, 9])
+        self.assertEqual(runtime[1].match_performance_history[0], 8)
+        self.assertEqual(runtime[2].match_performance_history[0], 6)
+        self.assertEqual(runtime[3].match_performance_history_count, 0)
 
 
 class PostMatchPersistenceTests(unittest.TestCase):
