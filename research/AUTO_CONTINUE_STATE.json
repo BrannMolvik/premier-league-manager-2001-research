@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Continue the canonical corrected transfer-list selector replay at reverse visit 41 from shared CRT state 0x80A6458E, carrying the exact stream through all 894 visits before loan maintenance and fixed-staff initialization.",
-  "last_known_main_head": "c44c1769b4dc3ed0ee09f23d500c91ac994066ee",
+  "active_task": "Continue corrected scaled 0x64D540 transfer-list selector replay at canonical reverse visit 2 (club 750) from shared CRT state 0x6A346701; revalidate all later selector visits before loan maintenance and fixed-staff initialization.",
+  "last_known_main_head": "c122f14d26b4a8a807ba57e952ad63d47ceb2d70",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 42,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Corrected 0x668DA4 qsort semantics are now persisted. The literal qsort/shuffle replay regenerates the canonical 895-club vector; reverse visits 1-40 have been replayed exactly. Visit 40 (club 740, FC Copenhagen) leaves shared CRT state 0x80A6458E. Resume at visit 41.",
+  "note": "Recovery generation 42 found and persisted a critical correction: recent qsort/selector scratch replay used modulo bounds, but 0x619DC0 and 0x61991F call scaled 0x64D540. Canonical vector returns to club 118/750/...; visit 1 Carlisle remains two draws and leaves 0x6A346701, with scaled rating roll 82. Resume visit 2 club 750.",
   "same_chat_fallback_minutes": 30
 }
