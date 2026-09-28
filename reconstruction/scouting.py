@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import cmp_to_key
-from typing import Callable, Generic, Iterable, Sequence, TypeVar
+from typing import Callable, Iterable, Sequence, TypeVar
 
 from match_role_rating import best_preferred_role_rating
 from match_schedule import MsvcCrtRng
@@ -231,3 +231,74 @@ def sort_scouting_results(
         return scouting_result_compare(values(left), values(right), mode)
 
     return tuple(sorted(items, key=cmp_to_key(compare_items)))
+
+
+@dataclass(frozen=True)
+class ScoutingRankValues:
+    """Runtime inputs consumed by the three exact 0x4AEAE0 score modes."""
+
+    current_raw: Sequence[int]
+    preferred_positions: Sequence[int]
+    age: int
+
+
+def run_scouting_search(
+    candidates: Iterable[T],
+    panel_state: ScoutingReseedState,
+    *,
+    candidate_predicate: Callable[[T], bool],
+    sort_mode: int,
+    sort_values: Callable[[T], ScoutingSortValues],
+    secondary_score_mode: int | None = None,
+    secondary_caller_argument: int = 0,
+    rank_values: Callable[[T], ScoutingRankValues] | None = None,
+) -> tuple[T, ...]:
+    """Compose the recovered UI-independent PScouting2K result pipeline.
+
+    candidate_predicate represents the already-instruction-mapped 0x4AE680
+    first-stage predicate. It remains explicit because several panel controls
+    are not yet safely named in the clean-room runtime.
+
+    When secondary_score_mode is supplied, this reproduces the optional
+    0x4AEAE0 stage before the final 0x4AEEA0 result sort.
+    """
+
+    filtered = tuple(item for item in candidates if candidate_predicate(item))
+    result = primary_scouting_results(filtered, panel_state)
+
+    if secondary_score_mode is not None:
+        if rank_values is None:
+            raise ValueError(
+                "rank_values is required when secondary_score_mode is enabled"
+            )
+
+        scored: list[tuple[T, int]] = []
+        for item in result:
+            values = rank_values(item)
+            score = scouting_rank_score(
+                values.current_raw,
+                values.preferred_positions,
+                age=values.age,
+                mode=int(secondary_score_mode),
+            )
+            if score is not None:
+                scored.append((item, int(score)))
+
+        def compare_scored(left: tuple[T, int], right: tuple[T, int]) -> int:
+            score_cmp = _cmp_scalar(int(right[1]), int(left[1]))
+            if score_cmp != 0:
+                return score_cmp
+            return scouting_result_compare(
+                sort_values(left[0]),
+                sort_values(right[0]),
+                SCOUTING_SORT_MODE_NAME,
+            )
+
+        scored.sort(key=cmp_to_key(compare_scored))
+        result = secondary_scouting_results(
+            tuple(item for item, _score in scored),
+            panel_state,
+            caller_argument=int(secondary_caller_argument),
+        )
+
+    return sort_scouting_results(result, int(sort_mode), sort_values)
