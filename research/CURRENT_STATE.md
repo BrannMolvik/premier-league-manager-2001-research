@@ -216,13 +216,22 @@ Several target systems already have substantial research or backend behavior:
    state is **`0xFA1C595E`**. The earlier interpretation of
    `0x418CAA72` as post-fixed-staff state is superseded.
 
-   **Active dependency:** trace the mandatory shared-RNG interval after
-   `0x4D1760` from **`0xFA1C595E`** to the first Saturday `0x4EACE0`
-   training execution. If the interval is RNG-clean, attach the verified weekly
-   training primitive using source-backed fresh quality **1.30** and no fresh
-   Training Centre; otherwise replay every mandatory draw first.
-7. Attach Saturday calendar execution only after that startup quality bridge is
-   deterministic on the shared RNG and source-backed.
+   **Post-staff daily bridge CLOSED:** the interval is RNG-bearing but now
+   replayed exactly. Fresh concession and no-sponsor timers consume
+   `RNG(14)=4` and `RNG(7)=6`, producing waits 11 and 13. The fresh
+   Arsenal user has 37 active training records; all begin Condition 80 and take
+   the source-backed `0x61C580` recovery path for seven daily passes before
+   first active Saturday training. Daily draw counts are
+   **111, 111, 111, 111, 111, 126, 142**. The exact shared CRT state entering
+   the first `0x42AE40 -> 0x61CBA0 -> 0x61C520 -> 0x4EACE0` is
+   **`0x216C6081`**; final Condition range is **86..93**, sum **3342**.
+   `0x61D710` is fresh-empty, `0x6596D0` is a no-op, and the other
+   audited pre-weekly calls add no RNG on this boundary. Durable regression:
+   `tools/replay_gate11_training_bridge.py`.
+7. **Active dependency:** attach the recovered daily Condition-maintenance path
+   and the already-verified weekly training primitive to normal calendar
+   progression without changing shared RNG order. Fresh canonical training
+   quality is **1.30** with no Training Centre.
 8. After live weekly training is verified, audit the next Gate-11 management
    workflow rather than broadening training with guessed UI behavior.
 
