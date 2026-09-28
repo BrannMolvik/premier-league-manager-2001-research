@@ -440,6 +440,16 @@ def _snapshot_event(event) -> dict[str, Any]:
             "player_index": int(event.player_index),
             "side_inversion": bool(event.side_inversion),
             "finish_mode": int(event.finish_mode),
+            "secondary_player_side": (
+                None
+                if event.secondary_player_side is None
+                else int(event.secondary_player_side)
+            ),
+            "secondary_player_index": (
+                None
+                if event.secondary_player_index is None
+                else int(event.secondary_player_index)
+            ),
         }
     if isinstance(event, IncidentRecord):
         return {
@@ -477,6 +487,16 @@ def _restore_event(value: dict[str, Any]):
             player_index=int(value["player_index"]),
             side_inversion=bool(value["side_inversion"]),
             finish_mode=int(value["finish_mode"]),
+            secondary_player_side=(
+                None
+                if value.get("secondary_player_side") is None
+                else int(value["secondary_player_side"])
+            ),
+            secondary_player_index=(
+                None
+                if value.get("secondary_player_index") is None
+                else int(value["secondary_player_index"])
+            ),
         )
     if kind == "incident":
         return IncidentRecord(
