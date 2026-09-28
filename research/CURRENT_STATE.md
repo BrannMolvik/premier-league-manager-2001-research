@@ -48,7 +48,7 @@ GitHub Actions at that checkpoint:
 - reconstruction suite: **559 tests passed**;
 - repository asset-policy workflow: **passed**.
 
-Current internal save schema: **13**.
+Current internal save schema: **14**.
 
 Gate 10 now has a clean-room Balance/current-cash runtime slice:
 - current cash is represented explicitly and fresh controlled-club Balance cash
@@ -247,12 +247,17 @@ Several target systems already have substantial research or backend behavior:
    club and AccessFanBase state for concession selection and runs commercial
    maintenance before daily/weekly training. CI at `4c560cb3` runs 585 tests
    with only the same two pre-existing secondary-schedule failures.
-10. **Active dependency:** recover the sponsor-offer body behind `0x617C80`
-   far enough to preserve its shared-RNG behavior after the already-modeled
-   no-sponsor wait expires. Do not invent sponsor presentation/contract payloads.
-11. After live multi-week training is source-backed beyond that timer boundary,
-   audit the next Gate-11 management workflow rather than broadening training
-   with guessed UI behavior.
+10. **Sponsor timer closed:** `0x617C80` contains no hidden offer-selection
+   RNG. It only selects the sponsor/no-sponsor wait range, draws a wait when
+   zero, and resets timer/date without RNG on expiry.
+11. **Save continuity verified:** internal save schema **14** persists the
+   configured training inputs, concession/sponsor timers and compact
+   concession source snapshot. CI at `c7650cf3` runs 586 tests with only the
+   two unchanged secondary-schedule failures.
+12. **Active workflow: scouting.** Start from the already-proven
+   `PScouting2K -> 0x4AE970 -> 0x4AF7F0` deterministic CRT reseed and
+   candidate shuffle. Recover the minimum human search/filter/result workflow
+   before implementing UI-independent scouting actions.
 
 ## Known live fidelity boundaries
 
