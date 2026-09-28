@@ -21,6 +21,26 @@ SCOUT_ONE_AGE_BIAS = 4
 MAX_NUM_USED1 = 80
 MAX_NUM_USED2 = 50
 MAX_NUM_FOUND = 20
+SCOUT_STRENGTH_MIN_DEFAULT = 20
+SCOUTING_STRENGTH_LABELS = (
+    "Speed",
+    "Strength",
+    "Stamina",
+    "Determ.",
+    "Injury Proneness",
+    "Passing",
+    "Shooting",
+    "Tackling",
+    "Heading",
+    "Control",
+    "Technique",
+    "Awareness",
+    "Agility",
+    "Keeping",
+    "Confidence",
+    "Leadership",
+    "Set Piece",
+)
 
 
 @dataclass(frozen=True)
@@ -32,6 +52,8 @@ class ScoutingReseedState:
     status_control_76b8: int = 0
     value_high_64d0: float = 0.0
     value_low_64c8: float = 0.0
+    # PScouting2K Strengths selector: 0 = All, 1..17 = current_raw slot + 1.
+    # The exact numeric value remains in the reseed hash at 0x4AF7F0.
     field_64e4: int = 0
     age_high_64dc: int = 0
     field_64e0: int = 0
@@ -175,6 +197,34 @@ def scouting_loan_list_user_match(
     if bool(transfer_listed):
         return True
     return not bool(non_eu)
+
+
+def scouting_strength_threshold_passes(
+    current_raw: Sequence[int],
+    selected_strength: int,
+    scout_strength_min: int = SCOUT_STRENGTH_MIN_DEFAULT,
+) -> bool:
+    """Reproduce the Strengths / ScoutStrengthMin gate in 0x4AE862.
+
+    The original selector stores 0 for "All" and 1..17 for the current-skill
+    byte at player +0x1E..+0x2E. A selected byte is converted to its displayed
+    0..30 value with floor((30*raw + 128) / 255) and must be greater than or
+    equal to ScoutStrengthMin. The shipped default threshold is 20.
+    """
+
+    selected_strength = int(selected_strength)
+    if selected_strength == 0:
+        return True
+    if not 1 <= selected_strength <= len(SCOUTING_STRENGTH_LABELS):
+        raise ValueError("selected_strength must be 0 (All) or 1..17")
+    if len(current_raw) != len(SCOUTING_STRENGTH_LABELS):
+        raise ValueError("current_raw must contain exactly 17 raw skill bytes")
+
+    raw = int(current_raw[selected_strength - 1])
+    if not 0 <= raw <= 255:
+        raise ValueError("selected raw skill must be in 0..255")
+    displayed = (30 * raw + 128) // 255
+    return displayed >= int(scout_strength_min)
 
 
 def scouting_rank_score(
@@ -371,7 +421,7 @@ class ScoutingFilterControls:
     """Checked-state inputs for the three final 0x4AE680 status controls."""
 
     transfer_listed: bool = False
-    status_bit_7: bool = False
+    out_of_contract: bool = False
     loan_listed: bool = False
 
 
@@ -383,7 +433,7 @@ class ScoutingFilterValues:
     valuation: float
     player_class: int
     transfer_listed: bool = False
-    status_bit_7: bool = False
+    out_of_contract: bool = False
     loan_listed: bool = False
     loan_list_user_match: bool = False
     team_selector_passes: bool = True
@@ -439,14 +489,14 @@ def scouting_first_stage_passes(
     controls = status_controls
     if not (
         bool(controls.transfer_listed)
-        or bool(controls.status_bit_7)
+        or bool(controls.out_of_contract)
         or bool(controls.loan_listed)
     ):
         return True
 
     if bool(controls.transfer_listed) and bool(values.transfer_listed):
         return True
-    if bool(controls.status_bit_7) and bool(values.status_bit_7):
+    if bool(controls.out_of_contract) and bool(values.out_of_contract):
         return True
     if (
         bool(controls.loan_listed)
