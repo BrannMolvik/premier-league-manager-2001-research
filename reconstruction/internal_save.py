@@ -51,7 +51,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 18
+SAVE_SCHEMA_VERSION = 19
 
 
 def _iso(value: date | None) -> str | None:
@@ -215,6 +215,7 @@ _PLAYER_FLAG_TRANSFER_LISTED = 1 << 6
 _PLAYER_FLAG_SIGNED_FOR_OTHER_CLUB = 1 << 7
 _PLAYER_FLAG_LOAN_LISTED = 1 << 8
 _PLAYER_FLAG_OUT_OF_CONTRACT = 1 << 9
+_PLAYER_FLAG_STATUS_BIT_3 = 1 << 10
 
 # Schema-2 player records intentionally use positional arrays. With roughly 30k
 # players, repeating descriptive JSON keys for every player dominated the save
@@ -293,6 +294,8 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         flags |= _PLAYER_FLAG_LOAN_LISTED
     if player.out_of_contract:
         flags |= _PLAYER_FLAG_OUT_OF_CONTRACT
+    if player.status_bit_3:
+        flags |= _PLAYER_FLAG_STATUS_BIT_3
 
     training = [int(v) for v in player.training_modifiers]
     return [
@@ -400,6 +403,7 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         injured=bool(flags & _PLAYER_FLAG_INJURED),
         suspended=bool(flags & _PLAYER_FLAG_SUSPENDED),
         selection_excluded=bool(flags & _PLAYER_FLAG_SELECTION_EXCLUDED),
+        status_bit_3=bool(flags & _PLAYER_FLAG_STATUS_BIT_3),
         non_eu=bool(flags & _PLAYER_FLAG_NON_EU),
         eu_status_code=int(getattr(source, "eu_status_code", 2)),
         transfer_listed=bool(flags & _PLAYER_FLAG_TRANSFER_LISTED),
