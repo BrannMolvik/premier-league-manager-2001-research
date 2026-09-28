@@ -450,7 +450,10 @@ def complete_autonomous_acquisition(state, player_id: int, buyer_club_id: int, r
             contract_length_months=int(months),
         ),
     )
-    movement = _complete_ordinary_cash_transfer(state, proposal)
+    # 0x41EFB0 funnels the successful autonomous acquisition through
+    # 0x422B80 -> 0x422F40 -> 0x422F70, so it reaches the same final
+    # signed-contract morale RNG(2) as an ordinary human transfer.
+    movement = _complete_ordinary_cash_transfer(state, proposal, rng)
 
     counters = getattr(state, "ai_transfer_buy_counter", None)
     if counters is not None:
