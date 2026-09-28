@@ -5402,3 +5402,34 @@ Therefore the selector replays previously recorded for Carlisle 118, Dunaferr 75
 A separate source-offset audit also confirmed that runtime player `+0x64` comes from compact player offset **+88**. Rechecking all players used by the superseded spot replays showed `+88 == 0xFFFFFFFF`; this offset correction does not create an additional RNG discrepancy in those isolated selector tests.
 
 Exact next target: replay the corrected first reverse visit, club 805, from shared state `0xBD5CC00F`, then continue the corrected 894-visit sequence in order.
+
+
+## Gate 11 corrected first canonical transfer-list selector — 28 September 2026
+
+The corrected 0x668DA4 club permutation makes club **805 (FK Baník Prievidza)**
+the first reverse 0x61991F visit. From the proven post-shuffle state
+**0xBD5CC00F**, dispatch RNG(10)=3 advances the shared CRT state to
+**0xAB415A96** and enters 0x61A9A0.
+
+Club 805 has 21 fresh roster entries and manager 928 Vladimir Rusnak, whose
+stored formations are default 0, class-3 2, class-1 1. Replaying
+0x61A380/0x61A900 over the source roster makes role 15 (Attacking Midfield)
+the largest positive-supply role with zero combined formation demand. Its
+weighted supply is 71, ahead of the other zero-demand populated roles 5=36 and
+7=35. Comparator 0x61A520 then orders the two primary role-15 players by
+role rating, selecting **Marek Holmik (player 17608, rating 36)** ahead of
+Milos Krsko (35).
+
+Fresh player +0xB0/+0xB4 are still zero, so the 0x41EE60/rating candidate ratio
+leaves the first sorted role-15 player selected. Holmik has flags 0,
+registered/current club 805, source +88 = 0xFFFFFFFF -> runtime +0x64, and his
+1950 source join date is normalized by the startup rule to current-date minus
+200 days, clearing the >=26-week 0x419390 gate. The roster-category minimum for
+his midfielder group is also satisfied (9 midfielders vs threshold 5).
+
+His best-preferred rating 36 reaches the <=50 0x417470 branch. The next
+RNG(100)=88 passes the >=25 threshold and advances the shared CRT state to
+**0x6A346701**. The final fresh-club 0x403F10 predicate passes, so
+0x61A9A0 returns Holmik and outer 0x420A10 marks player 17608 transfer-listed.
+
+Exact continuation: reverse visit **club 610** from state **0x6A346701**.
