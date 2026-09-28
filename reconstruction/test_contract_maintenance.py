@@ -514,7 +514,9 @@ class ContractMaintenanceTests(unittest.TestCase):
         controlled = FakePlayer(index=1, on_date=self.on_date, high_rating=False)
         ai_player = FakePlayer(index=2, on_date=self.on_date, high_rating=False)
         ai_player.club_id = 20
-        rng = ScriptedRng([8, 50])
+        # AI renewal reaches 0x419190 -> 0x419210 after its two
+        # release-decision draws, so SignedNewContactMorale adds RNG(2).
+        rng = ScriptedRng([8, 50, 0])
         state = GameState(
             calendar=GameCalendar(self.on_date),
             players={1: controlled, 2: ai_player},
@@ -525,7 +527,7 @@ class ContractMaintenanceTests(unittest.TestCase):
 
         state._run_monthly_ai_contract_maintenance(self.on_date)
 
-        self.assertEqual(rng.bounds, [100, 100])
+        self.assertEqual(rng.bounds, [100, 100, 2])
         self.assertEqual(
             controlled.contract_expiry_date,
             self.on_date + timedelta(days=20),
