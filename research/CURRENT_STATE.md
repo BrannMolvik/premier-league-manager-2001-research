@@ -243,14 +243,16 @@ Several target systems already have substantial research or backend behavior:
    second weekly pre/post states are **0x509630B6 -> 0xA3C5013C** and third
    weekly states **0x7B8D5F58 -> 0xE176B24E**. Durable replay:
    `tools/replay_gate11_commercial_training.py`.
-9. **Active dependency:** connect `UserCommercialTimerState` and the recovered
-   concession candidate mechanics to GameState day progression, using live
-   stadium source state rather than Arsenal-specific constants. Preserve
-   commercial-before-training RNG order and keep unresolved sponsor-offer body
-   behavior neutral.
-10. After live multi-week training is source-backed and verified, audit the next
-   Gate-11 management workflow rather than broadening training with guessed UI
-   behavior.
+9. **Commercial integration verified:** GameState now uses live stadium,
+   club and AccessFanBase state for concession selection and runs commercial
+   maintenance before daily/weekly training. CI at `4c560cb3` runs 585 tests
+   with only the same two pre-existing secondary-schedule failures.
+10. **Active dependency:** recover the sponsor-offer body behind `0x617C80`
+   far enough to preserve its shared-RNG behavior after the already-modeled
+   no-sponsor wait expires. Do not invent sponsor presentation/contract payloads.
+11. After live multi-week training is source-backed beyond that timer boundary,
+   audit the next Gate-11 management workflow rather than broadening training
+   with guessed UI behavior.
 
 ## Known live fidelity boundaries
 
