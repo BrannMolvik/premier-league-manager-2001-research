@@ -331,6 +331,12 @@ class HumanGameplayController:
         on_date = self.state.calendar.current_date
 
         def mapped_predicate(player) -> bool:
+            # 0x4AE680 applies this still-neutral team/context selector before
+            # age, valuation and position-class work. Preserve that order so a
+            # rejected candidate cannot require later metadata.
+            if not bool(team_selector_predicate(player)):
+                return False
+
             age = player.age(on_date)
             if age is None:
                 return False
@@ -369,7 +375,7 @@ class HumanGameplayController:
                         if loan_list_user_match_resolver is not None
                         else False
                     ),
-                    team_selector_passes=bool(team_selector_predicate(player)),
+                    team_selector_passes=True,
                     optional_position_passes=bool(
                         optional_position_predicate(player)
                     ),
