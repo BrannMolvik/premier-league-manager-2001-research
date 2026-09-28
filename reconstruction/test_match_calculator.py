@@ -309,6 +309,8 @@ class FullOpenPlayResolverTests(unittest.TestCase):
         self.assertEqual(result.event.outcome,ChanceOutcome.GOAL)
         self.assertEqual(result.event.finish_mode,FinishMode.SHOOTING)
         self.assertFalse(result.event.is_own_goal)
+        self.assertEqual(result.event.secondary_player_side, 0)
+        self.assertEqual(result.event.secondary_player_index, 1)
         self.assertEqual((result.neutral_increment,result.attacking_possession_increment),(1,2))
 
     def test_goal_can_be_attributed_as_own_goal(self):
@@ -368,6 +370,9 @@ class SetPieceResolverTests(unittest.TestCase):
         result=resolve_free_kick(taker,attack,defend,0,rng,receiver_override=receiver)
         self.assertIsNotNone(result.event)
         self.assertEqual(result.event.finish_mode,FinishMode.HEADED)
+        self.assertEqual(result.event.player_index, receiver.player_index)
+        self.assertEqual(result.event.secondary_player_side, taker.side)
+        self.assertEqual(result.event.secondary_player_index, taker.player_index)
         self.assertEqual(result.attacking_possession_increment,2)
 
     def test_force_direct_free_kick_skips_source_choice(self):
