@@ -185,6 +185,8 @@ class RuntimePlayer:
     weekly_wage: int = 0
     contract_expiry_date: date | None = None
     transfer_listed: bool = False
+    # DBRPlayer+0x14 bit 12: recovered weekly loan-list candidate state.
+    loan_listed: bool = False
     loan_club_id: int | None = None
     signed_for_other_club: bool = False
     current_club_join_date: date | None = None
