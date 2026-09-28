@@ -86,6 +86,28 @@ def build_and_shuffle_schedule_bucket(
 
 
 
+def advance_schedule_bucket_shuffle_state(
+    bucket_sizes: Iterable[int],
+    rng: BoundedRng,
+) -> int:
+    """Advance only the exact 0x615BE0 per-bucket shuffle RNG calls.
+
+    Each schedule bucket containing N nodes consumes N-1 bounded draws with
+    bounds N..2. Empty/singleton buckets consume none. The returned value is the
+    total number of draws consumed; callers with MsvcCrtRng can inspect the
+    resulting shared CRT state directly.
+    """
+    draw_count = 0
+    for raw_size in bucket_sizes:
+        size = int(raw_size)
+        if size < 0:
+            raise ValueError("bucket size must be non-negative")
+        for remaining in range(size, 1, -1):
+            rng.randbelow(remaining)
+            draw_count += 1
+    return draw_count
+
+
 def ordinary_league_matches_conflict(
     existing: OrdinaryLeagueMatchSource,
     candidate: OrdinaryLeagueMatchSource,
