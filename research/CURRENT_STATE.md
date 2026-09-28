@@ -358,13 +358,19 @@ Several target systems already have substantial research or backend behavior:
    state and queued renewal mail. CI at `391d0845` ran **654 tests** with
    only the same two pre-existing secondary-schedule failures; asset policy
    passed. Evidence: `research/GATE11_CONTROLLED_CONTRACT_EXPIRY.md`.
-24. **Active contract-management dependency:** resolve the remaining neutral
-   `DBRPlayer+0x138` special `0xFE/0xFF` branch used by `0x41BEE0`.
-   Direct behavior moves expired special-state players through canonical
-   `!Spare` recycle machinery, but do not name the field from inference.
-   Start from direct producers and the already mapped transfer-refusal reasons
-   “player has decided to retire” / “upcoming testimonial”; only then
-   materialize the special pre-expiry promotion and expired recycle path.
+24. **Special contract sentinel bounded/deferred:** exhaustive DBRPlayer xrefs
+   found no proven fresh-game writer that sets `player+0x138 = 0xFE`.
+   Constructor zero, save/load serialization and `0x41BEE0`'s own
+   `0xFE -> 0xFF -> 0` transitions are direct; the retire/testimonial
+   transfer-refusal paths do not access the byte. The special expired branch
+   is instruction-bounded to canonical `!Spare` recycle behavior but remains
+   neutrally named and compatibility-only until a producer is proven.
+25. **Active youth dependency:** materialize the reachable fresh-game
+   `0x413980 -> 0x61DF90 -> 0x41E510` human youth workflow. Preserve the
+   existing exact candidate/name RNG order, model the separate 20-slot user
+   youth list rather than appending players directly to the first-team roster,
+   and trace its record initializer/promote/remove actions before integrating
+   GameState/save continuity.
 
 ## Known live fidelity boundaries
 
