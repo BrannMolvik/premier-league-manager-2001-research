@@ -6098,3 +6098,38 @@ Commercial runtime work now has:
 - source-backed wait/reset state in `commercial_timers.py`;
 - generic 25-rule candidate selection in `concession_offer.py`;
 - corrected canonical selector regressions.
+
+
+## Gate 11 live commercial-before-training integration — 28 September 2026
+
+The corrected commercial mechanics are now connected to normal GameState day
+progression without Arsenal-specific production constants.
+
+Implementation:
+- `ba7119876b489e0b7b300da22ba67e802e97338a` exposes the serialized
+  `Buildings.dat +0x1C` concession-capacity field, exact eight
+  `0x65DBC0` section ranges, bit-0x08 selector exclusion, and `0x65DB70`
+  all-section denominator through `StadiumSourceState`;
+- `86108af55487b147964eff6e94a4c20392db31ee` tests those stadium helpers;
+- `90e789a4daf08a75d0ce5719b5e44f554855ef51` integrates
+  `UserCommercialTimerState` into GameState and consumes live club
+  `+0x1C`, AccessFanBase `+0x08`, stadium selector capacities,
+  `RNG(800)`, `RNG(25)`, candidate-local RNG, and final `RNG(3)`;
+- normal `advance_one_day()` now preserves the original DBRUser order:
+  commercial timing/offer selection **before** daily recovery and Saturday
+  active training;
+- `4c560cb30f5ba7301c005bd39a83de346f75971d` fixes and verifies the
+  synthetic ordering regression.
+
+GitHub Actions at `4c560cb3`:
+- repository asset policy: **passed**;
+- commercial-before-training ordering regression: **passed**;
+- full reconstruction suite: **585 tests run, 2 failures**, both unchanged
+  pre-existing secondary-schedule assertions (root order and 262-vs-280 bucket
+  count).
+
+The first three-week fresh Arsenal commercial/training stream is therefore
+represented by reusable production primitives. The next commercial dependency
+for longer exact progression is the sponsor-offer body behind `0x617C80`;
+the current timer model intentionally preserves only the already-proven
+no-sponsor wait/reset behavior.
