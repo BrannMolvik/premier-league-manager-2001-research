@@ -365,12 +365,23 @@ Several target systems already have substantial research or backend behavior:
    transfer-refusal paths do not access the byte. The special expired branch
    is instruction-bounded to canonical `!Spare` recycle behavior but remains
    neutrally named and compatibility-only until a producer is proven.
-25. **Active youth dependency:** materialize the reachable fresh-game
-   `0x413980 -> 0x61DF90 -> 0x41E510` human youth workflow. Preserve the
-   existing exact candidate/name RNG order, model the separate 20-slot user
-   youth list rather than appending players directly to the first-team roster,
-   and trace its record initializer/promote/remove actions before integrating
-   GameState/save continuity.
+25. **Fresh human youth slice verified:** the separate DBRUser youth list
+   is materialized with its 20-record cap, exact candidate/name RNG ordering,
+   live generated player identity, neutral status bit 3, promotion/release
+   roster transitions and youth training-state copy. Multi-user candidate scans
+   now exclude prior users' bit-3 youth before the 512-entry cap. Internal save
+   schema **21** preserves both mutable generated identity and immutable source
+   identity plus the youth records/training state. CI at `20300c8b` ran
+   **662 tests** with only the same two pre-existing secondary-schedule
+   failures; asset policy passed. Evidence:
+   `research/GATE11_YOUTH_WORKFLOW.md`.
+26. **Active youth dependency:** resolve the lifetime and exact final state of
+   the second initializer `0x425680 -> 0x61DE40`. It clears the youth list,
+   generates a first cohort, applies `0x61DD30`, generates a second cohort,
+   assigns a common `player+0x154` date and resets each record's training
+   state. Bound the `0x4A8070/0x425680` caller chain before classifying this
+   as one-shot/seasonal/recurring, then integrate only the source-backed cadence
+   and two-cohort RNG/state transitions.
 
 ## Known live fidelity boundaries
 
