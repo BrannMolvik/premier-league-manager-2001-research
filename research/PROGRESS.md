@@ -5161,3 +5161,75 @@ branches can consume additional nested RNG, notably through player eligibility
 Exact next target: replay the nested `0x61A9A0 / 0x4050F0 -> 0x417470` RNG
 against fresh roster/player state, then continue into the loan-maintenance
 segment of `0x6194D0`.
+
+
+## Gate 11 nested transfer selector RNG map — 28 September 2026
+
+The two branch-local selectors underneath the 894 mandatory dispatch draws are
+now instruction-mapped sufficiently to replay without inventing RNG calls.
+
+### Player eligibility 0x417470(player, mode)
+
+The transfer-list population loop always calls this with mode 0. Before any RNG,
+the player must have active/current club equal registered club and must pass the
+mode-0 flag/status gates. It then requires `0x419390(player) >= 26`, rejects
+players for whom `0x417460` is true, and obtains the maximum preferred-role
+overall rating through `0x41E1D0`.
+
+The rating gate consumes either zero or one `RNG(100)`:
+
+- overall >= 70: **no RNG**, passes the rating gate directly;
+- 61..69: one RNG(100), passes when result >= 50;
+- 51..60: one RNG(100), passes when result >= 33;
+- <=50: one RNG(100), passes when result >= 25.
+
+A successful rating gate still requires the final club predicate
+`0x417270(player) -> 0x403F10(club)`.
+
+### Random selector 0x4050F0(club)
+
+This selector first rejects the user-controlled club and requires its effective
+roster count `0x405080` to exceed the existing AccessFanBase threshold
+`0x40DB90`. If that deterministic gate fails, it consumes **no RNG**.
+
+Otherwise it performs at most 20 rejection-sampling attempts. Every attempt
+consumes:
+
+1. `RNG(10)`;
+2. exactly one roster-index draw chosen by that result;
+3. then the selected player's `0x417470(player,0)`, which contributes the
+   optional rating RNG above only if the earlier player gates are reached.
+
+The first RNG(10) result selects between two roster regions: result <3 uses the
+first branch, otherwise the second branch. The selector returns immediately on
+the first player accepted by `0x417470`, otherwise it stops after 20 attempts.
+
+### Positional selector 0x61A9A0(club,0)
+
+No direct `0x64D540` call exists inside this function. It performs its club,
+manager, roster-threshold and positional construction deterministically through
+`0x61A380/0x61A900`, selects its candidate, and calls
+`0x417470(candidate,0)`. Therefore its only possible RNG is the single
+rating-dependent `RNG(100)` inherited from that final eligibility check.
+
+### Club qsort key narrowed
+
+The pre-shuffle club comparator `0x619CF0` compares
+`club+0x2A0 / club+0x1B8`. The two fields are now structurally identified:
+
+- `0x405470` builds `+0x2A0` from live `0x4205A0` player valuations;
+- `0x404E60` builds `+0x1B8` from `0x41FB30`, which normally returns the
+  player's cached `+0xB8` valuation.
+
+`0x41FB30` returns zero instead only when the exact age/EU-status test in
+`0x41E5A0` is true and contract expiry `+0x154` is at/before the current
+calendar date. Fresh startup contract expiries are future-dated, so that zero
+branch is not expected for normal fresh club players. The remaining qsort
+replay question is whether the live `0x4205A0` value can differ from cached
+`+0xB8` across the three-day startup calendar alignment; do not assume all
+qsort keys are equal until that date sensitivity is proven or numerically
+replayed.
+
+Exact next target: reproduce the eligible-club qsort and both already-bounded
+Fisher-Yates shuffles from source state, then execute the 894 dispatch/selector
+steps with the now-exact nested RNG rules and transfer-list bit-8 mutations.
