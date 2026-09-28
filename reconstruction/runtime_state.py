@@ -220,6 +220,10 @@ class RuntimePlayer:
     # 0x41ABC0 can set it while club/roster context still exists.
     out_of_contract: bool = False
     transfer_listed: bool = False
+    # DBRPlayer+0x14 bit 10: original status-table label "Wanted". The
+    # recovered low-morale transfer-request blocker tests this after bit 8, and
+    # accepted EAMAcceptTransferRequestsub sets it through 0x41B530.
+    wanted: bool = False
     # DBRPlayer+0x14 bit 12: recovered weekly loan-list candidate state.
     loan_listed: bool = False
     loan_club_id: int | None = None
