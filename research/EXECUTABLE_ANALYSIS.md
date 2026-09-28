@@ -8439,3 +8439,97 @@ Therefore `UserCommercialTimerState` already represents the complete
 shared-RNG behavior of this routine for its modeled sponsor-presence mode.
 The previously stated need to recover a hidden sponsor-offer RNG body is
 superseded.
+
+
+## Gate 11 scouting first-stage filter and deterministic reseed hash
+
+Direct disassembly of canonical `FOOTBAL.EXE`
+(SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+now bounds the first human scouting result pass at `0x4AE970`.
+
+### Primary candidate population
+
+`0x4AE970` walks the complete global player table at `0x875640`, one
+`0x250`-byte runtime player at a time. For every player it calls
+`0x4AE680(panel, player)` and stores that boolean at player `+0x228`.
+Only players for which the byte becomes **1** are copied into the temporary
+pointer vector. Thus `0x4AE680` is the authoritative first-stage scouting
+candidate predicate, not a later presentation-only filter.
+
+The proven predicate order is:
+
+1. resolve the active human DBRUser and controlled club;
+2. reject a player whose registered club `player+0x10` or temporary/current
+   club `player+0x72` equals the controlled club;
+3. resolve the player's current club/team-class object through `0x4AE610`
+   and apply the panel selector represented by `panel+0x64E0` together with
+   the active-user club context;
+4. apply the current scouting-page mode from the active panel object;
+5. apply age bounds from `panel+0x64D8/+0x64DC` through
+   `DBRPlayer::0x4173B0`;
+6. apply the two monetary/value bounds stored as doubles at
+   `panel+0x64C8/+0x64D0` through `DBRPlayer::0x420570`;
+7. classify the player through `player+0x248 -> 0x4EA310` and, when
+   `panel+0x64C0` is 0..3, require this exact mapping:
+   - selector 0 -> class 3;
+   - selector 1 -> class 0;
+   - selector 2 -> class 1;
+   - selector 3 -> class 2;
+8. if `panel+0x766C > 0`, resolve the selected entry from the
+   `panel+0x761C` list and require `0x4EA410(player+0x248, selected)`;
+9. when global scouting table `0x876868` is present, transform its
+   player-specific byte at `+0x1D` and require the result to be at least
+   tuning global `0x8223F4`;
+10. finally apply the three checkbox/control states at
+    `panel+0x76B8`, `+0x76F8`, and `+0x7738`.
+
+The three final toggles are exact and status-specific:
+
+- `+0x76B8` accepts the player when runtime status **bit 8** is set;
+- `+0x76F8` accepts the player when runtime status **bit 7** is set;
+- `+0x7738` requires status **bit 12** and then
+  `0x41E450(player, active_user_club)` to return 1.
+
+If **none** of those three controls is active, the status block passes
+unconditionally. If one or more are active, at least one corresponding status
+condition must succeed.
+
+Several panel controls above remain deliberately neutral until their UI labels
+are tied to original strings/control IDs. Their executable semantics and order
+are now fixed without inventing names.
+
+### Exact reseed hash
+
+After candidate collection, `0x4AE970` calls `0x4AF7F0(-1)`.
+`0x4AF7F0` computes one 32-bit XOR seed from:
+
+- byte/control value from `0x652F80(panel+0x7738)`;
+- byte/control value from `0x652F80(panel+0x76F8)`;
+- byte/control value from `0x652F80(panel+0x76B8)`;
+- integerized double at `panel+0x64D0` via `0x668350`;
+- integerized double at `panel+0x64C8` via `0x668350`;
+- dwords `panel+0x64E4`, `+0x64DC`, `+0x64E0`,
+  `+0x64D8`, and `+0x64C0`;
+- the caller-supplied argument.
+
+It then passes that XOR directly to CRT `srand` at `0x66950F`.
+
+For the primary result vector the caller argument is **-1**. Immediately after
+the reseed, `0x4AE970` performs descending Fisher-Yates over the filtered
+pointer vector using exact bounded `0x64D540(count)` draws. Search-result
+ordering is therefore deterministic for an identical panel state and identical
+candidate population.
+
+### Secondary/nested result path
+
+If the active user object reached from the panel has its checked field at
+`+0x14 == 0`, `0x4AE970` also enters `0x4AEAE0`. That path builds a
+second scored vector, sorts it through comparator `0x4AEE00`, caps it by
+global `0x82180C`, calls `0x4AF7F0` again using the caller's nonnegative
+argument, and shuffles that capped pointer vector with the same descending
+bounded-RNG algorithm.
+
+Exact next scouting task: finish the `0x4AEAE0` score construction and the
+panel-mode dispatch around `0x4AEEA0/0x4AF330`, then implement only the
+minimum UI-independent search action once candidate/filter/result semantics are
+fully source-backed.
