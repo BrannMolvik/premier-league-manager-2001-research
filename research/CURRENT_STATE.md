@@ -391,13 +391,21 @@ Several target systems already have substantial research or backend behavior:
    only the same two pre-existing secondary-schedule failures; all morale tests
    pass and asset policy passes. Evidence:
    `research/GATE11_MORALE_LIFECYCLE.md`.
-28. **Active morale dependency:** instruction-close the ordinary
-   signing/loan morale callers before adding more state changes:
-   `0x419210 -> 0x41BB10(SignedNewContactMorale)` and
-   `0x41A9D0 -> 0x41BB10(LoanMorale)`. Place their single `RNG(2)` draws
-   at the exact point in the existing transfer/contract runtime. Keep the
-   request-new-contract event at `0x5D8430`, trophy morale and danger-threshold
-   behavior deferred until their producers/consumers are independently bounded.
+28. **Signing/loan morale ordering completed:** canonical executable
+   reinspection proves `0x419210` consumes
+   `SignedNewContactMorale RNG(2)` before clearing the `+0x164` renewal
+   latch, while `0x41A9D0` installs temporary-club/on-loan state and clears
+   loan-list state before its final `LoanMorale RNG(2)`. The clean-room uses
+   one shared signed-contract finalizer and a narrow source-backed loan
+   assignment primitive; state-at-RNG regressions lock both orders. CI at
+   `7e798a03` ran **670 tests** with only the same two pre-existing
+   secondary-schedule failures; asset policy passed. Evidence:
+   `research/GATE11_MORALE_LIFECYCLE.md`.
+29. **Active morale dependency:** independently bound the event/action producer
+   around `0x5D8430 -> 0x41BA80(UnhappyRequestNewContract)` and establish
+   whether it is reachable in the ordinary fresh-game management loop before
+   integrating any decrease. Keep trophy morale and `DangerMoraleLevel`
+   deferred until their own producer/consumer ownership is proven.
 
 ## Known live fidelity boundaries
 
