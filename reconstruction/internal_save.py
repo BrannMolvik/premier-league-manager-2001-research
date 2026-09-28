@@ -34,6 +34,7 @@ from match_events import (
     SubstitutionRecord,
 )
 from match_orders import TeamOrderPriorities
+from match_postmatch import PlayerTransferRequest
 from match_schedule import MsvcCrtRng
 from match_simulation import NormalMatchResult, SegmentPossession, TimedMatchEvent
 from match_team_setup import TeamTacticalState
@@ -52,7 +53,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 21
+SAVE_SCHEMA_VERSION = 22
 
 
 def _iso(value: date | None) -> str | None:
@@ -260,6 +261,7 @@ _PLAYER_FLAG_SIGNED_FOR_OTHER_CLUB = 1 << 7
 _PLAYER_FLAG_LOAN_LISTED = 1 << 8
 _PLAYER_FLAG_OUT_OF_CONTRACT = 1 << 9
 _PLAYER_FLAG_STATUS_BIT_3 = 1 << 10
+_PLAYER_FLAG_WANTED = 1 << 11
 
 # Schema-2 player records intentionally use positional arrays. With roughly 30k
 # players, repeating descriptive JSON keys for every player dominated the save
@@ -344,6 +346,8 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         flags |= _PLAYER_FLAG_OUT_OF_CONTRACT
     if player.status_bit_3:
         flags |= _PLAYER_FLAG_STATUS_BIT_3
+    if player.wanted:
+        flags |= _PLAYER_FLAG_WANTED
 
     training = [int(v) for v in player.training_modifiers]
     return [
@@ -463,6 +467,7 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         non_eu=bool(flags & _PLAYER_FLAG_NON_EU),
         eu_status_code=int(getattr(source, "eu_status_code", 2)),
         transfer_listed=bool(flags & _PLAYER_FLAG_TRANSFER_LISTED),
+        wanted=bool(flags & _PLAYER_FLAG_WANTED),
         out_of_contract=bool(flags & _PLAYER_FLAG_OUT_OF_CONTRACT),
         loan_listed=bool(flags & _PLAYER_FLAG_LOAN_LISTED),
         loan_club_id=(None if value[24] is None else int(value[24])),
@@ -995,6 +1000,14 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             }
             for value in state.contract_renewal_suggestions
         ],
+        "player_transfer_requests": [
+            {
+                "player_id": int(value.player_id),
+                "queued_on": value.queued_on.isoformat(),
+                "due_on": value.due_on.isoformat(),
+            }
+            for value in state.player_transfer_requests
+        ],
         "finance_balances": {
             str(int(club_id)): {
                 "current_cash": balance.current_cash,
@@ -1282,6 +1295,14 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
                 kind=ContractRenewalSuggestionKind(str(value["kind"])),
             )
             for value in snapshot.get("contract_renewal_suggestions", ())
+        ],
+        player_transfer_requests=[
+            PlayerTransferRequest(
+                player_id=int(value["player_id"]),
+                queued_on=date.fromisoformat(value["queued_on"]),
+                due_on=date.fromisoformat(value["due_on"]),
+            )
+            for value in snapshot.get("player_transfer_requests", ())
         ],
         finance_balances={
             int(club_id): BalanceRuntimeState(
