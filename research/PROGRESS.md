@@ -6971,3 +6971,41 @@ low-morale transfer-request state into the existing post-match/manager-event
 runtime with exact roster/RNG order and accept/refuse consequences, including a
 minimal persistent representation of status bit 10 only where required by the
 proven blocker/lifecycle.
+
+
+## Gate 11 low-morale transfer-request integration verified - 29 September 2026
+
+The instruction-closed controlled-club danger-morale lifecycle is now live in
+the clean-room runtime.
+
+Implemented and verified behavior:
+
+- the existing per-player post-match roster pass checks the controlled-club
+  danger path only after that same player's ordinary morale/Form work;
+- active-club ownership respects temporary loan club state;
+- morale below shipped threshold **15** consumes exactly one shared
+  `RNG(30)`, and only result 2 can create a request;
+- Transfer-listed/Wanted duplicate blocking occurs after that draw, preserving
+  shared CRT advancement even for blocked low-morale players;
+- success queues persistent next-day `PlayerAskTransferList` manager mail
+  rather than immediately mutating transfer status;
+- accepted response sets Transfer-listed and Wanted; refusal leaves those bits
+  and morale unchanged;
+- RuntimePlayer now materializes original status bit 10 as `wanted`;
+- internal save schema **22** persists Wanted and queued transfer-request mail;
+- save/reload regression covers due-mail exposure, accepted response, queue
+  cleanup and final Transfer-listed/Wanted state.
+
+Implementation checkpoints: `b4bfc81d`, `db592412`, `99bbf3be`,
+`46e73142`, `6318e345`, `53c76ef2`, `15ee8f43`, `b0c94556`,
+`12bf9ac2`.
+
+GitHub Actions at `12bf9ac2fa145958cde06ee41f0e954b99fd1e08`
+ran **675 reconstruction tests**. The only two failures are the same known
+secondary-schedule assertions already present before this slice; there are no
+new morale/request/save failures. Repository asset policy passed.
+
+The morale slice is therefore no longer the active Gate-11 dependency. The next
+step is a Gate-11 completion audit against the roadmap criterion, "A human
+manager can complete a Premier League season using the core management
+systems," so the project advances only if that criterion is actually satisfied.
