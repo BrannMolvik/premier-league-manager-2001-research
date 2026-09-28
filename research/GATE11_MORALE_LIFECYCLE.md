@@ -30,7 +30,8 @@ DBRPlayer byte `+0x18E` is the live morale value. The tuning loader around
 | `0x821C25` | `maximummorale` | upper morale cap |
 | `0x821C26` | `loanmorale` | increase used by `0x41A9D0` |
 | `0x821C27` | `signednewcontactmorale` | increase used by contract/signing paths |
-| `0x821C28` | `dangermoralelevel` | threshold consumer; not yet integrated |
+| `0x821C28` | `dangermoralelevel` | controlled-club post-match transfer-request threshold |
+| `0x821C2C` | `chanceaskfortransfer` | bounded trigger used by the same request path |
 
 The shipped values used by the current post-match slice are:
 
@@ -40,6 +41,8 @@ UnhappyLostMatch      7
 UnhappyWonMatch      10
 UnhappyNotPlayed      8
 MaximumMorale       100
+DangerMoraleLevel    15
+ChanceAskForTransfer 30
 ```
 
 ## Exact primitive arithmetic
@@ -193,6 +196,63 @@ Gate 11 must not manufacture this morale decrease in ordinary progression.
 It remains a save/compatibility boundary, analogous to other loadable legacy
 event state.
 
+## Low-morale transfer-request lifecycle: `0x404E25 -> 0x41B580`
+
+Direct reinspection of the canonical executable closes the reachable
+controlled-club danger-morale branch.
+
+The ordinary club post-match pass reaches `0x404E25 -> 0x41B580` only for a
+human-controlled club, in the same roster-order loop that has already applied
+that player's appeared/not-played morale and Form transition. Inside
+`0x41B580`:
+
+1. `0x4172D0` resolves the player's active club to its controlling user. No
+   user means immediate return.
+2. `DBRPlayer+0x18E` must be strictly below `DangerMoraleLevel`. The shipped
+   threshold is **15**.
+3. The routine consumes exactly one shared scaled
+   `RNG(ChanceAskForTransfer)`. The shipped bound is **30** and only result
+   **2** continues.
+4. Only after that draw does `0x41B7B0` apply the duplicate/status blocker.
+   It rejects status bit 8 (**Transfer listed**) and status bit 10
+   (**Wanted**). Therefore a low-morale player who is already blocked still
+   consumes the trigger draw before returning.
+5. A successful trigger creates `EAMPlayerAskTransferListsub`
+   (vtable `0x7BDB1C`, literal event key `PlayerAskTransferList`), wraps it
+   in `MPMEAMail` (vtable `0x7BD564`), schedules the wrapper for
+   **current date + 1 day**, sets event flags `|= 0x6`, and enqueues it on
+   the ordinary manager/mail queue.
+
+The request event's action factory at `0x5D0360` is exact:
+
+- action 0 constructs `EAMAcceptTransferRequestsub`;
+- action 1 constructs `EAMRefuseTransferRequestsub`;
+- other actions return no response object.
+
+The follow-up handlers close the player-state consequence. The accepted
+response handler at `0x5D0440` resolves the player and calls `0x41B530`.
+That routine calls `0x420A10`, which sets status bit 8
+(**Transfer listed**) and refreshes the cached transfer value, then
+`0x41B530` sets status bit 10 (**Wanted**). The refusal handler at
+`0x5D0480` only removes/cleans the request chain through `0x5CE3F0`; it
+does not change morale or these player status bits.
+
+No additional shared CRT draw is introduced by request construction or the
+direct accept/refuse handlers. The trigger's `RNG(30)` is therefore the
+new mandatory random boundary for this recovered slice.
+
+## `UnhappyWonTrophy` is dormant tuning data
+
+The `0x821C23` global has exactly one literal address reference in the
+canonical PE: the tuning-loader store at `0x505801`. There is no executable
+read/consumer. This differs from `DangerMoraleLevel` and
+`ChanceAskForTransfer`, which each have both their loader write and the live
+`0x41B580` read.
+
+Accordingly, `UnhappyWonTrophy` remains a shipped tuning value but has no
+live behavior to synthesize in the supported runtime. A trophy-morale producer
+must not be invented without contradictory source evidence.
+
 ## Remaining ordinary morale xrefs
 
 The signing/loan RNG-placement dependency is closed. Remaining source-backed
@@ -204,8 +264,11 @@ morale work is deliberately narrower:
 - `0x5D8430 -> 0x41BA80(UnhappyRequestNewContract)` is now bounded as a
   serialized/load-only `MPMNewContractRequest` compatibility path with no
   proven fresh producer;
-- `UnhappyWonTrophy` and `DangerMoraleLevel` remain to be closed; the latter
-  already has a reachable post-match consumer and is the next active slice.
+- the controlled-club `DangerMoraleLevel` / `ChanceAskForTransfer` request
+  lifecycle is instruction-closed through delayed mail and accept/refuse
+  consequences; clean-room integration is the next implementation step;
+- `UnhappyWonTrophy` is loader-only/dormant in the canonical executable and
+  must not be synthesized as live trophy morale.
 
 Regression coverage now observes state at the instant `RNG(2)` is requested:
 the signing latch is still set during the draw, while loan temporary-club and
