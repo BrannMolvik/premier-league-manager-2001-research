@@ -508,6 +508,7 @@ class ContractMaintenanceTests(unittest.TestCase):
     def test_game_state_monthly_ai_pass_skips_controlled_club(self):
         controlled = FakePlayer(index=1, on_date=self.on_date, high_rating=False)
         ai_player = FakePlayer(index=2, on_date=self.on_date, high_rating=False)
+        ai_player.club_id = 20
         rng = ScriptedRng([8, 50])
         state = GameState(
             calendar=GameCalendar(self.on_date),
