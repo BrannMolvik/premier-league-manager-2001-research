@@ -6293,3 +6293,43 @@ Exact next task: move source-backed parts of `0x4AE680` into a reusable
 RuntimePlayer/GameState predicate, including age/value/class and known status
 gates. Keep status bit 7 and other unresolved panel selectors neutral until
 their original labels/semantics are proven.
+
+
+## Gate 11 mapped scouting first-stage filter verified — 28 September 2026
+
+The source-backed portion of `0x4AE680` is now reusable in the runtime.
+
+Implementation checkpoints:
+- `7e7eb2f5577a3c17f856739b0b0d4ea15c20caac` adds exact inclusive
+  age/value gates, mode-15 age 15..18 clamp, class mapping and status-control OR
+  semantics;
+- `bc7ab3de36bcfbda746fbb4f1fa8103d62bee1cc` adds focused first-stage
+  tests;
+- `a04cf1970dd699e2b39e5cdaa543d2bdf47370b7` corrects live
+  `0x4205F0` valuation input ownership: preferred-position-0 class,
+  temporary/current-club division and registered-club country;
+- `868118ef4eb42dd9d01f35dd71ba8371f8a18ce7` regression-locks those
+  valuation distinctions;
+- `056cfc2b0c364b5a00cce646f81509c1efa83543` integrates the mapped
+  filter into the human scouting action;
+- `2b2ff90638f63196966ee2f8feae69d00b4f7c42` adds mapped-action tests;
+- `3723512b7aa2e31203785e75fa967ad880f0990e` corrects the exact
+  out-of-range class-selector behavior: values outside 0..3 bypass the class
+  gate;
+- `e414455e32d9d06fa00fd4fcad38a22d8aa3cb82` preserves the executable
+  team-selector-before-later-metadata gate order;
+- `664eb6abbaf5b609bad54b5cda37729ff1971cf7` regression-tests the
+  selector-bypass edge case.
+
+GitHub Actions at `664eb6ab`:
+- asset policy: **passed**;
+- full reconstruction suite: **610 tests run, 2 failures**;
+- all new scouting, mapped-human-scouting and valuation tests passed;
+- the only failures are the same two pre-existing secondary-schedule
+  assertions.
+
+The remaining scouting filter inputs are now narrow: the neutral team/context
+selector, optional preferred-position selector, global threshold gate, status
+bit 7 meaning/state, and the bit-12 + `0x41E450` loan-list condition. Exact
+next task is to resolve/materialize those where direct executable/UI evidence
+permits, without inventing labels.
