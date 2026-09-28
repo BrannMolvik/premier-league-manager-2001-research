@@ -372,6 +372,13 @@ class HumanGameplayControllerTests(unittest.TestCase):
             )
         player = controller.state.players[2000]
         player.loan_listed = True
+        club2 = controller.state.clubs[2]
+        controller.state.clubs[2] = type(club2)(
+            index=club2.index,
+            manager_id=club2.manager_id,
+            country_id=club2.country_id,
+            competition_id=1,
+        )
         result = controller.search_scouting_players_mapped(
             panel,
             status_controls=ScoutingFilterControls(loan_listed=True),
