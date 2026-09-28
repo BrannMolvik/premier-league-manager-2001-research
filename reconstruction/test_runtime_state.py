@@ -476,6 +476,7 @@ class UserTrainingDayTests(unittest.TestCase):
             runtime_value_1c_source=20,
         )
         state.access_fan_bases = (SimpleNamespace(values=(40,)),)
+        state.configure_user_commercial_calendar()
         state.user_commercial_timers = UserCommercialTimerState(
             concession_wait_days=1,
             concession_elapsed_days=1,
