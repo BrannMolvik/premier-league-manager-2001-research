@@ -432,6 +432,7 @@ class GameState:
             target_club_id=int(self.user_controlled_club_id),
             weekly_wage=float(weekly_wage),
             contract_months=int(contract_months),
+            rng=self._resolve_rng(),
         )
 
     def release_user_youth_player(self, player_id: int) -> bool:
