@@ -355,6 +355,7 @@ def replay_startup_youth_generation(
     Exact order per generated player is:
 
         RNG(current_candidate_count)
+        RNG(2)  # 0x61E540 -> 0x419190 -> 0x419210 signed-contract morale
         RNG(name_bound)
         RNG(name_bound)
 
@@ -380,6 +381,11 @@ def replay_startup_youth_generation(
     selected: list[int] = []
     for _ in range(draw_count):
         selected.append(select_startup_youth_candidate(candidate_list, rng))
+        # 0x61DF90 calls 0x61E540 before 0x41E510. 0x61E540 adjusts the
+        # temporary 24-month contract through 0x419190, which converges on
+        # 0x419210 and therefore always consumes SignedNewContactMorale
+        # RNG(2), even when the morale increase later caps.
+        rng.randbelow(2)
         rng.randbelow(name_bound)
         rng.randbelow(name_bound)
 
