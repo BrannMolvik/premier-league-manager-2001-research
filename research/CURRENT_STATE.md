@@ -193,10 +193,21 @@ Several target systems already have substantial research or backend behavior:
    from `0xBD5CC00F` is scaled RNG(10)=3; Carlisle/Steve Soley's subsequent
    rating draw is scaled RNG(100)=82 (not modulo-derived 88), still passes
    the <=50 threshold, and leaves **`0x6A346701`** after visit 1.
-   Continue canonical visit **2, club 750**, from **`0x6A346701`** using
-   scaled bounded draws throughout. Revalidate every later selector result
-   before carrying the final 894-visit state through loan maintenance into
-   `0x425680 -> 0x4D1760` fixed-staff initialization.
+   The rebuilt selector helper has now been cross-validated by switching only
+   its bounded mapping back to the old modulo bug: it reproduces all 40
+   superseded visit identities and all 40 raw CRT end states exactly. With the
+   real scaled mapping restored, canonical visits **1 through 40** are
+   replayed and persisted. Visit 40, club **620 (Germinal Beerschot)**, leaves
+   shared state **`0x1EBAE4F5`**. A provisional complete 894-visit sanity run
+   reaches **`0x126CF137`** with no unmodeled selector branch, but do not yet
+   promote that as the post-loop canonical boundary until the helper is made
+   durable/reproducible and the later replay is checkpointed.
+
+   Continue canonical visit **41, club 742 (Herfølge)** from
+   **`0x1EBAE4F5`** using scaled bounded draws throughout. Make the replay
+   helper durable enough to survive chat recovery, then verify the remaining
+   visits before carrying the final 894-visit state through loan maintenance
+   into `0x425680 -> 0x4D1760` fixed-staff initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
 8. After live weekly training is verified, audit the next Gate-11 management
