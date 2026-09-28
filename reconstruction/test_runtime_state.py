@@ -449,7 +449,7 @@ class UserTrainingDayTests(unittest.TestCase):
             terrace_capacity=0,
             auxiliary_capacity=0,
             seating_capacity=0,
-            concession_capacity=20,
+            concession_capacity=2,
         )
         instance = StadiumBuildingInstance(
             first_min=0,
@@ -473,9 +473,9 @@ class UserTrainingDayTests(unittest.TestCase):
         )
         state.clubs[0] = SimpleNamespace(
             fan_base_index=0,
-            runtime_value_1c_source=200,
+            runtime_value_1c_source=20,
         )
-        state.access_fan_bases = (SimpleNamespace(values=(400,)),)
+        state.access_fan_bases = (SimpleNamespace(values=(40,)),)
         state.user_commercial_timers = UserCommercialTimerState(
             concession_wait_days=1,
             concession_elapsed_days=1,
