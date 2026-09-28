@@ -34,6 +34,7 @@ from scouting import (
     scouting_first_stage_passes,
     scouting_loan_list_user_match,
     scouting_preferred_position_passes,
+    scouting_strength_threshold_passes,
 )
 from transfer_decision import SellingClubDecision
 from transfer_negotiation import (
@@ -293,12 +294,13 @@ class HumanGameplayController:
         *,
         page_mode: int,
         valuation_resolver: Callable[[object], float],
-        threshold_predicate: Callable[[object], bool],
+        scout_strength_min: int = 20,
+        threshold_predicate: Callable[[object], bool] | None = None,
         selected_position_id: int | None = None,
         team_selector_predicate: Callable[[object], bool] | None = None,
         optional_position_predicate: Callable[[object], bool] | None = None,
         status_controls: ScoutingFilterControls = ScoutingFilterControls(),
-        status_bit_7_resolver: Callable[[object], bool] | None = None,
+        out_of_contract_resolver: Callable[[object], bool] | None = None,
         loan_listed_resolver: Callable[[object], bool] | None = None,
         loan_list_user_match_resolver: Callable[[object], bool] | None = None,
         sort_mode: int = 0,
@@ -309,18 +311,20 @@ class HumanGameplayController:
     ) -> tuple[object, ...]:
         """Apply the mapped 0x4AE680 gates before the recovered result pipeline.
 
-        Country-context mode and preferred-position membership now come from
-        live RuntimePlayer/GameState state. threshold_predicate remains explicit
-        because the auxiliary per-player byte behind 0x876868 is not yet owned
-        by the clean-room runtime. The optional selector callbacks are retained
-        only as additional caller constraints for compatibility.
+        Country-context mode, preferred-position membership and the Strengths
+        threshold now come from live RuntimePlayer/GameState state. The original
+        Strengths selector stores 0 for All and 1..17 for current_raw slots;
+        scout_strength_min defaults to the shipped value 20. The optional
+        predicate callbacks are retained only as additional caller constraints
+        for compatibility. Out-of-contract status has an exact UI/bit meaning,
+        but its full contract-maintenance producer is not yet materialized.
         """
 
         if self.human is None:
             raise RuntimeError("select a human club first")
-        if bool(status_controls.status_bit_7) and status_bit_7_resolver is None:
+        if bool(status_controls.out_of_contract) and out_of_contract_resolver is None:
             raise ValueError(
-                "active status-bit-7 scouting control requires a resolver"
+                "active out-of-contract scouting control requires a resolver"
             )
 
         on_date = self.state.calendar.current_date
@@ -396,9 +400,9 @@ class HumanGameplayController:
                     valuation=float(valuation_resolver(player)),
                     player_class=player_class,
                     transfer_listed=bool(player.transfer_listed),
-                    status_bit_7=(
-                        bool(status_bit_7_resolver(player))
-                        if status_bit_7_resolver is not None
+                    out_of_contract=(
+                        bool(out_of_contract_resolver(player))
+                        if out_of_contract_resolver is not None
                         else False
                     ),
                     loan_listed=(
@@ -432,7 +436,17 @@ class HumanGameplayController:
                             or bool(optional_position_predicate(player))
                         )
                     ),
-                    threshold_passes=bool(threshold_predicate(player)),
+                    threshold_passes=(
+                        scouting_strength_threshold_passes(
+                            player.current_raw,
+                            int(panel_state.field_64e4),
+                            int(scout_strength_min),
+                        )
+                        and (
+                            threshold_predicate is None
+                            or bool(threshold_predicate(player))
+                        )
+                    ),
                 ),
                 page_mode=int(page_mode),
                 status_controls=status_controls,
