@@ -366,6 +366,88 @@ class GameState:
             for player in self.players.values()
         )
 
+    def run_user_daily_training_condition_recovery(
+        self,
+        rng=None,
+        *,
+        recovery_threshold: int,
+        user_controlled_club_id: int | None = None,
+    ) -> int:
+        """Run the source-backed primary 0x61CA60/0x61C580 recovery slice.
+
+        Training storage is exactly 40 records in the original DBRUser. The
+        current clean-room roster order is source-table order at fresh startup,
+        so only the first 40 controlled-club records participate here.
+
+        This intentionally excludes the later low-Condition/event branches in
+        0x61C580 and 0x61C6C0; callers must supply a threshold whose source
+        state is already proven. The fresh first-week threshold is 50.
+        """
+        if user_controlled_club_id is None:
+            user_controlled_club_id = self.user_controlled_club_id
+        if user_controlled_club_id is None:
+            return 0
+        rng = self._resolve_rng(rng)
+
+        draws = 0
+        for player in self.ordered_club_roster(int(user_controlled_club_id))[:40]:
+            draws += player.run_daily_training_condition_recovery(
+                rng,
+                int(recovery_threshold),
+            )
+        return draws
+
+    def run_user_weekly_training_primary(
+        self,
+        rng=None,
+        *,
+        quality_multiplier: float,
+        user_controlled_club_id: int | None = None,
+    ) -> int:
+        """Run the exact primary 0x4EACE0 transition on the Saturday phase."""
+        if self.calendar.current_date.weekday() != 5:
+            return 0
+        if user_controlled_club_id is None:
+            user_controlled_club_id = self.user_controlled_club_id
+        if user_controlled_club_id is None:
+            return 0
+        rng = self._resolve_rng(rng)
+
+        draws = 0
+        for player in self.ordered_club_roster(int(user_controlled_club_id))[:40]:
+            draws += player.run_weekly_training_primary(
+                rng,
+                float(quality_multiplier),
+            )
+        return draws
+
+    def run_user_training_primary_day(
+        self,
+        rng=None,
+        *,
+        recovery_threshold: int,
+        quality_multiplier: float,
+        user_controlled_club_id: int | None = None,
+    ) -> tuple[int, int]:
+        """Run daily recovery before the optional same-day weekly transition.
+
+        This mirrors the proven 0x42A9E0 ordering:
+        0x61CA60 daily recovery precedes the Saturday
+        0x42AE40 -> 0x4EACE0 training transition.
+        """
+        rng = self._resolve_rng(rng)
+        daily_draws = self.run_user_daily_training_condition_recovery(
+            rng,
+            recovery_threshold=int(recovery_threshold),
+            user_controlled_club_id=user_controlled_club_id,
+        )
+        weekly_draws = self.run_user_weekly_training_primary(
+            rng,
+            quality_multiplier=float(quality_multiplier),
+            user_controlled_club_id=user_controlled_club_id,
+        )
+        return daily_draws, weekly_draws
+
     def run_weekly_ai_transfer_maintenance(
         self,
         rng=None,
