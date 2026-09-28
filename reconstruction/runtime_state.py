@@ -76,6 +76,7 @@ class PlayerSource(Protocol):
     target_raw: tuple[int, ...]
     eu_status_code: int
     joined_current_club_date: date | None
+    initial_flags: int
 
 
 PHYSICAL_PEAK_RANGE = (25, 26)
@@ -176,6 +177,10 @@ class RuntimePlayer:
     injured: bool = False
     suspended: bool = False
     selection_excluded: bool = False
+    # Raw DBRPlayer+0x14 bit 3. Fresh youth conversion through 0x4185B0
+    # sets this bit, and 0x61DF90 excludes it from later youth candidate scans.
+    # Keep the field neutral rather than assigning a broader status label.
+    status_bit_3: bool = False
     non_eu: bool = False
     eu_status_code: int = PLAYER_EU_STATUS_EU
     discipline_yellow_total: int = 0
@@ -312,6 +317,7 @@ class RuntimePlayer:
             current_position=int(source.positions[0]),
             position_aux_code=0,
             balance_position_code=10,
+            status_bit_3=bool(int(getattr(source, "initial_flags", 0)) & 0x08),
             eu_status_code=int(
                 getattr(source, "eu_status_code", PLAYER_EU_STATUS_EU)
             ),
