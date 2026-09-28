@@ -6066,3 +6066,35 @@ through the third training Saturday in commit
 `6822e7ea666749ba01ef0245ba858da009a420e4`. Materialize only the minimum
 fresh concession/sponsor timer state needed to preserve those shared-RNG
 checkpoints before enabling recurring multi-week training by default.
+
+
+## Gate 11 commercial replay correction — 28 September 2026
+
+Direct executable re-audit supersedes the multi-week states from
+`6822e7ea666749ba01ef0245ba858da009a420e4`.
+
+The Arsenal `0x65DBC0` selector capacities remain source-backed as
+`0,16,0,20,0,12,0,14`, but `0x5E5330` tests that return value before
+calling either `0x5E5170` or `0x5E5230`. Zero-capacity selectors therefore
+consume no RNG.
+
+Corrected replay:
+- day 11 concession: **104 draws**, no success, state **0x2D3FF8E7**;
+- day 11 recovery: **182 draws**, state **0xD4E2341D**;
+- day 12 concession: **53 draws**, selector 3 / candidate 19 succeeds,
+  state **0x03CA80A0**;
+- day 12 recovery: **191 draws**, state **0x50CB6921**;
+- day 13 concession wait: RNG(14)=8 -> 15 days, state **0x51142760**;
+- day 14 sponsor wait: RNG(7)=1 -> 8 days, state **0x9533F463**;
+- second weekly pre/post: **0x509630B6 -> 0xA3C5013C**;
+- third weekly pre/post: **0x7B8D5F58 -> 0xE176B24E**.
+
+Durable replay: `tools/replay_gate11_commercial_training.py`.
+
+The earlier day-11 208-draw, day-12 188-draw and second/third-Saturday states
+from `6822e7ea` are historical and must not be resumed.
+
+Commercial runtime work now has:
+- source-backed wait/reset state in `commercial_timers.py`;
+- generic 25-rule candidate selection in `concession_offer.py`;
+- corrected canonical selector regressions.
