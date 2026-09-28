@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Trace mandatory shared-RNG consumers after fixed-support-staff initialization at 0x4D1760 from corrected state 0xFA1C595E to the first Saturday 0x4EACE0 training execution; attach live weekly training only after this interval is exact.",
+  "active_task": "Trace mandatory shared-RNG consumers after fixed-support-staff initialization at 0x4D1760 from corrected state 0xFA1C595E to the first Saturday 0x4EACE0 training execution; post-staff interval is known non-clean and daily pre-training consumers are being instruction-replayed.",
   "last_known_main_head": "007315c1b0c5d7619957258a4f62befc2ed2d07f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 47,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovered in a fresh chat from main 007315c1. Resume exact Gate 11 dependency after corrected fixed-staff boundary: Youth Team Coach rating=2, training quality=1.30, post-0x4D1760 CRT state=0xFA1C595E. Trace all mandatory shared RNG to first Saturday 0x4EACE0 before attaching live weekly training.",
+  "recovery_generation": 48,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 48 resumes main 007315c1. Authorized FOOTBAL.EXE was re-materialized and canonical SHA-256 reverified. Direct trace shows the post-0x4D1760 interval is not RNG-clean: the initial startup weekly tick precedes user registration/training materialization, while later daily DBRUser maintenance consumes shared RNG before the first active Saturday 0x4EACE0. Persist this boundary, then replay the daily consumers exactly.",
   "same_chat_fallback_minutes": 30
 }
