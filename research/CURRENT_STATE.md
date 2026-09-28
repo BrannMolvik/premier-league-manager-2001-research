@@ -163,10 +163,13 @@ Several target systems already have substantial research or backend behavior:
    `0x6194D0` consumes exactly 38 draws and leaves **`0xDFCED283`**.
    The global player scan then leaves the fresh transfer-candidate list empty;
    the 895-club vector is source-backed, so the first two `0x619DC0` calls
-   consume exactly 894 draws each and leave **`0xBD5CC00F`**. Continue at
-   the reverse club transfer-list population loop at `0x61991F`, then carry
-   the exact shared CRT state through loan maintenance into
-   `0x425680 -> 0x4D1760` fixed-staff initialization.
+   consume exactly 894 draws each and leave **`0xBD5CC00F`**. The reverse
+   `0x61991F` transfer-list loop is now bounded to exactly **894 club visits**
+   and therefore 894 mandatory RNG(10) dispatch draws; its 1000-player cap
+   cannot stop the fresh loop early. Continue by replaying nested selector RNG
+   in `0x61A9A0/0x4050F0 -> 0x417470`, then carry the exact shared CRT state
+   through loan maintenance into `0x425680 -> 0x4D1760` fixed-staff
+   initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
 8. After live weekly training is verified, audit the next Gate-11 management
