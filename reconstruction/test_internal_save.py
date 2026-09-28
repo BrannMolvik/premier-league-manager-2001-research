@@ -5,6 +5,8 @@ from dataclasses import replace
 from datetime import date
 from pathlib import Path
 
+from commercial_timers import UserCommercialTimerState
+from concession_offer import ConcessionRuntimeSource
 from finance_state import FinancialObjectiveState
 from game_state import GameState
 from human_gameplay import HumanGameplayController
@@ -201,6 +203,43 @@ class InternalSaveTests(unittest.TestCase):
         self.assertFalse(restored_player.big_money_offer_clause)
         self.assertTrue(restored_player.house)
         self.assertTrue(restored_player.car)
+
+    def test_gate11_training_commercial_calendar_survives_roundtrip(self):
+        original = self.build_controller()
+        original.state.configure_user_training_calendar(
+            recovery_threshold=50,
+            quality_multiplier=1.30,
+        )
+        original.state.user_commercial_timers = UserCommercialTimerState(
+            concession_wait_days=15,
+            concession_elapsed_days=4,
+            sponsor_wait_days=8,
+            sponsor_elapsed_days=2,
+        )
+        original.state.user_concession_source = ConcessionRuntimeSource(
+            selector_capacities=(0, 16, 0, 20, 0, 12, 0, 14),
+            stadium_total=62,
+            club_metric=38500,
+            access_metric=80000,
+        )
+
+        restored = restore_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            snapshot_human_gameplay(original),
+        )
+
+        self.assertEqual(restored.state.user_training_recovery_threshold, 50)
+        self.assertEqual(restored.state.user_training_quality_multiplier, 1.30)
+        self.assertEqual(
+            restored.state.user_commercial_timers,
+            original.state.user_commercial_timers,
+        )
+        self.assertEqual(
+            restored.state.user_concession_source,
+            original.state.user_concession_source,
+        )
 
     def test_original_training_state_survives_roundtrip(self):
         original = self.build_controller()
