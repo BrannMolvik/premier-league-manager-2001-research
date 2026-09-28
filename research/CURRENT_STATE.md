@@ -172,24 +172,30 @@ Several target systems already have substantial research or backend behavior:
    plus the optional rating draw. Fresh roster order used by `0x4050F0` is
    executable-proven as canonical player-table order.
 
-   **Corrected qsort boundary:** the earlier reverse sequence beginning club
-   118 was superseded by an instruction-level `0x668DA4` audit. The exact
-   partition scans continue on comparator <=0 / >=0, so equal neutral keys do
-   not stop for exchange. Matching Fisher-Yates states
-   **`0xC6B73181 -> 0xBD5CC00F`** validate draw counts only, not element
-   order. The corrected twice-shuffled vector begins
-   `488, 439, 509, 646, 1217, 623, 239, 548, ...`; reverse visits begin
-   **`805, 610, 140, 862, 362, 757, 507, 214, ...`**. The prior selector
-   spot replays for clubs 118/750/510/1216/430/622/877 are not canonical
-   startup-stream evidence and must not be continued. Restart the exact
-   selector stream from **`0xBD5CC00F`** at club **805**. The literal qsort/shuffle replay now regenerates the full corrected
-   895-club vector, and the first **40 canonical reverse visits** are exact.
-   Visit 40, club **740 (FC Copenhagen)**, leaves the shared CRT state
-   **`0x80A6458E`**. The replay helper regression-matches all earlier
-   hand-audited selector states, including random roster indices and
-   deterministic no-rating-RNG paths. Continue canonical visit **41** from
-   **`0x80A6458E`**. After all 894 visits, carry the resulting shared CRT state
-   through loan maintenance into
+   **Bounded-RNG correction:** the instruction-level qsort semantics remain
+   correct, but the selector replay committed after that audit accidentally
+   used Python-style modulo for bounded CRT draws. This is not FM2001
+   behavior. Direct executable inspection proves both `0x619DC0` and
+   `0x61991F` call `0x64D540`, whose exact result is
+   `floor(rand15 * bound / 32768)`; the repository's
+   `MsvcCrtRng.randbelow()` already implements that formula correctly.
+   Consequently the modulo-derived twice-shuffled vector beginning
+   `488, 439, 509, ...`, the reverse sequence beginning club 805, and all
+   selector visits/states subsequently derived from those bounded values are
+   **superseded and must not be continued**.
+
+   Replaying the corrected literal `0x668DA4` qsort with the exact scaled
+   `0x64D540` shuffle from `0xDFCED283` still reaches the draw-count
+   checkpoints **`0xC6B73181 -> 0xBD5CC00F`**, but the twice-shuffled
+   vector instead begins **`25, 738, 783, 262, 812, 2, 397, 819, ...`**.
+   Canonical reverse visits therefore restart
+   **`118, 750, 510, 1216, 430, 622, 877, 243, ...`**. The first dispatch
+   from `0xBD5CC00F` is scaled RNG(10)=3; Carlisle/Steve Soley's subsequent
+   rating draw is scaled RNG(100)=82 (not modulo-derived 88), still passes
+   the <=50 threshold, and leaves **`0x6A346701`** after visit 1.
+   Continue canonical visit **2, club 750**, from **`0x6A346701`** using
+   scaled bounded draws throughout. Revalidate every later selector result
+   before carrying the final 894-visit state through loan maintenance into
    `0x425680 -> 0x4D1760` fixed-staff initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
