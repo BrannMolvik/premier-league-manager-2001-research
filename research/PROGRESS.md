@@ -6258,3 +6258,38 @@ Exact next task: expose the minimum UI-independent human scouting search action
 over existing RuntimePlayer state using the already-mapped filter, deterministic
 reseed/shuffle, score/shortlist path and result sorting. Keep unresolved panel
 controls and the mode-2 display label neutral rather than inventing semantics.
+
+
+## Gate 11 human scouting action verified — 28 September 2026
+
+The recovered result pipeline is now exposed as a backend human-manager action
+without assigning unsupported UI semantics.
+
+Implementation:
+- `07645d340447b2fc20ae840ecb227ec7d77ad863` composes first-stage
+  filtered candidates, deterministic primary reseed/shuffle, optional
+  `0x4AEAE0` score/shortlist/reseed stage and final `0x4AEEA0` sorting;
+- `bee6b6caebefaa8e108092bd2774729922b6ea14` regression-tests that
+  exact stage order;
+- `42c251c4c20f43982fdec69b9bf1eff3fbba142c` exposes
+  `HumanGameplayController.search_scouting_players()` over RuntimePlayer
+  state;
+- `a859299f093a18517fde256f64fe20d1813c4ebb` verifies controlled-club
+  exclusion, runtime secondary scoring, and strict resolver requirements for
+  still-unmaterialized sort inputs.
+
+The controller does not substitute `form_state` for `0x41FB60` and does
+not invent the preferred-position display formatter or a post-appearance
+valuation history. Those values are required explicitly only for sort modes
+that consume them.
+
+GitHub Actions at `a859299f`:
+- asset policy: **passed**;
+- all new scouting and human-scouting tests: **passed**;
+- full reconstruction suite: **601 tests run, 2 failures**, both unchanged
+  pre-existing secondary-schedule assertions.
+
+Exact next task: move source-backed parts of `0x4AE680` into a reusable
+RuntimePlayer/GameState predicate, including age/value/class and known status
+gates. Keep status bit 7 and other unresolved panel selectors neutral until
+their original labels/semantics are proven.
