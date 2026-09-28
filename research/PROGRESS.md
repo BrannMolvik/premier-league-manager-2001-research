@@ -6717,3 +6717,67 @@ Gate-11 audit then identified the next reachable fresh-game gap: the startup
 `0x61DF90 -> 0x41E510` youth path is fully represented in the RNG replay but
 not yet materialized in GameState as the user's separate 20-slot youth list and
 generated-player transformation. That youth workflow is the next active task.
+
+
+## Gate 11 fresh human youth list materialized — 29 September 2026
+
+Canonical executable tracing closed the first reachable human-youth slice and
+proved that youth-list membership is distinct from first-team roster membership.
+
+Evidence is in `research/GATE11_YOUTH_WORKFLOW.md`. The recovered structure is:
+
+- DBRUser owns a separate youth list at `+0x6BC`;
+- the list has a hard cap of **20** inline **0x18-byte** records;
+- record `+0x00` is player ID, `+0x04` points to the already-known
+  **0xA4-byte training-state object**, `+0x08/+0x0C/+0x10` initialize to 1
+  and neutral byte `+0x14` initializes to zero;
+- `0x61E100/0x61E170` remove and compact records, while
+  `0x61E1B0/0x61E1F0` set/read the neutral `+0x14` byte;
+- `0x41E510` rewrites the selected !Spare DBRPlayer's age/name/country and
+  registered-club field but **does not insert it into the first-team roster**;
+- `0x61DD30` immediately produces the final fresh age-17 cohort state;
+- named youth-promotion path `0x61E3D0 -> 0x417700` removes the youth record,
+  moves the player between roster containers, copies the youth training state,
+  applies the promoted wage and contract;
+- youth release through `0x4177C0` removes the youth record and source roster
+  entry before the normal free-player / Out-of-contract detachment.
+
+A further writer trace corrected the multi-user startup replay: `0x4185B0`
+sets DBRPlayer status bit 3, and `0x61DF90` excludes that bit on every fresh
+candidate scan. Each user therefore rescans the player table after prior users'
+selected candidates became ineligible, *before* the fixed 512-entry cap. Commit
+`cac1e45b` implements this; `515d27ba` regression-locks the changed
+second-user selection while preserving the same final synthetic CRT checkpoint
+`0x4B68DE28`.
+
+Implementation checkpoints:
+
+- `43d4df83` / `205ba9c9`: persist neutral live status bit 3;
+- `c681b338`: add separate `YouthTeamState`, exact generation/name ordering,
+  promotion and release;
+- `07237a9d`: focused youth-list/generation/promotion/release regressions;
+- `c6c2e472` / `7062b76c`: preserve immutable player source identity so
+  youth-mutated live names/DOB/nationality do not invalidate source-database
+  save verification;
+- `221587b1` / `d223457a`: expose explicit GameState/controller youth
+  actions without silently consuming the already-verified post-schedule RNG;
+- `5ff60b02`: persist the separate youth list and training state;
+- `1d6b7a32`: internal save schema **21** persists mutable generated player
+  identity separately from immutable source identity;
+- `f42e6e2a` / `20300c8b`: save/reload and public controller regressions.
+
+GitHub Actions at `20300c8b`:
+
+- reconstruction suite: **662 tests run, 2 failures**;
+- both failures are the same pre-existing secondary-schedule assertions
+  (secondary root 170/181 order and 280-vs-262 bucket count);
+- all new youth, save-continuity and controller tests pass;
+- repository asset policy passes.
+
+The first youth slice is therefore implemented and reload-safe, but direct
+follow-up tracing found a second initializer `0x61DE40` used from
+`0x425680`. It clears the youth list, generates a first cohort, runs
+`0x61DD30`, then generates a second cohort before assigning a common date.
+Its caller/cadence must be resolved before claiming the complete in-season youth
+lifecycle. Exact next task: bound `0x425680 -> 0x61DE40` lifetime and map the
+two-cohort final state/RNG ordering.
