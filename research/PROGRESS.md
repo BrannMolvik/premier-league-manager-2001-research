@@ -5805,3 +5805,46 @@ Exact next dependency: replay the two `0x619EB0` loan passes and the final
 reverse-club loan-list population from **0x1AB5D762**, preserving the already
 materialized transfer-list bit-8 mutations, then carry the resulting shared CRT
 state into `0x425680 -> 0x4D1760` fixed-support-staff creation.
+
+
+## Gate 11 first two loan passes replayed — 28 September 2026
+
+Continuing the exact post-transfer loan-list stream from the prior
+**0x1AB5D762** checkpoint closes both calls to `0x619EB0` before the final
+reverse-club loan-list population.
+
+### First 0x619EB0 pass
+
+The first pass Fisher-Yates shuffles the canonical 895-club vector with exactly
+894 scaled bounded draws and leaves **0x8B83FB28**. The shuffled vector begins
+club 777. This call's mode flag is 1; the executable's early live-vs-cached club
+value test exits the function immediately for the neutral first club, so this
+pass consumes no nested selector RNG after its shuffle.
+
+### Second 0x619EB0 pass
+
+The second pass reshuffles the same vector with another 894 scaled draws and
+leaves **0xB609BA3E**. Its club prefix begins:
+
+`862, 481, 317, 256, 373, 1240, 233, 107, ...`
+
+The one-player candidate array still contains Arsenal defender **Matthew Upson
+(player 1422)**. The first seven destinations reject him deterministically
+before a selector draw. Club **107 Watford** is the first destination to clear
+the domestic/competition and club gates.
+
+Upson's exact preferred-role rating is **65**. Watford's source-backed
+AccessFanBase/competition inputs produce the exact `0x405590` acceptance band
+**42..66**, so rating 65 passes. The next `RNG(10)` is **2**, advancing the
+shared CRT state to **0xA23BE809**. Because it is below 3, `0x61ABF0` removes
+Upson from the shared candidate array and returns him.
+
+The handoff `0x41AAE0(Upson, Watford)` detects that Upson belongs to the
+user-controlled club and routes to the loan-proposal/event path rather than
+immediately assigning the temporary club. That path consumes one `RNG(5)`;
+its result is **2**, leaving **0xBB304AA8**.
+
+The shared loan-candidate array is now empty. Exact continuation is therefore
+the final reverse-club loan-list population loop from **0xBB304AA8**. This
+loop sets player status bit 12 for accepted candidates until it exhausts the
+club traversal or reaches the shipped **MAX_PLAYERS_ON_LOAN_LIST = 200** cap.
