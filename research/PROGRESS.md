@@ -5910,3 +5910,42 @@ quality 1.25 is superseded.
 `tools/replay_gate11_transfer_list.py --loan-tail` now includes the missing
 selector, asserts its exact sequence/state, and asserts the corrected fixed-staff
 ratings and final state.
+
+## Gate 11 post-fixed-staff interval proven RNG-bearing — 28 September 2026
+
+Recovery generation 48 re-materialized the authorized FM2001 disc archive and
+reverified root `FOOTBAL.EXE` as
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+before accepting new instruction-level evidence.
+
+The active dependency after corrected fixed-staff state **`0xFA1C595E`** is
+now structurally bounded:
+
+- `0x4A8070` dispatches existing DBRUsers through
+  `0x4138E0 -> 0x42A9E0` before its Saturday `0x6194D0` pass;
+- the pending/new DBRUser does not reach `0x425680` until later in that same
+  `0x4A8070` routine;
+- `0x425680` materializes the user's 40 training records through
+  `0x61C9C0` only after `0x4D1760`;
+- therefore the already-replayed startup Saturday `0x6194D0` work happens
+  before active user training exists and is already outside the remaining
+  bridge;
+- on subsequent dates, `0x42A9E0` runs concession/sponsor timer updates and
+  `0x61CA60` daily training-record maintenance before its Saturday
+  `0x42AE40 -> 0x61CBA0 -> 0x61C520 -> 0x4EACE0` call;
+- the containing `0x4A8070` does not reach the next global Saturday
+  `0x6194D0` until after the DBRUser dispatcher returns.
+
+The bridge is therefore definitively **not RNG-clean**. Fresh zero-wait
+concession/sponsor scheduling reaches bounded CRT draws, and active
+`0x61CA60 -> 0x61C6C0 -> 0x61C580` training maintenance consumes shared
+RNG before the first weekly training transition.
+
+Commit `6c591da42026ffe09310d23bae621e7aed2080f9` preserves the detailed
+call-order evidence in `research/EXECUTABLE_ANALYSIS.md`.
+
+Exact next task: close fresh-state branch conditions and tuning bounds inside
+the intervening daily maintenance, replay every mandatory draw from
+**`0xFA1C595E`** to the first `0x4EACE0` entry, and only then attach the
+already-verified quality-1.30 weekly training primitive to calendar progression.
+
