@@ -161,8 +161,11 @@ Several target systems already have substantial research or backend behavior:
    weekly-aligns July 1 forward before the first `0x4A8070`, so its
    day-of-month-1 branch is skipped. The first Arsenal/user phase of
    `0x6194D0` consumes exactly 38 draws and leaves **`0xDFCED283`**.
-   Continue only the later global transfer/loan-maintenance phases of
-   `0x6194D0`, then carry the exact shared CRT state into
+   The global player scan then leaves the fresh transfer-candidate list empty;
+   the 895-club vector is source-backed, so the first two `0x619DC0` calls
+   consume exactly 894 draws each and leave **`0xBD5CC00F`**. Continue at
+   the reverse club transfer-list population loop at `0x61991F`, then carry
+   the exact shared CRT state through loan maintenance into
    `0x425680 -> 0x4D1760` fixed-staff initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
