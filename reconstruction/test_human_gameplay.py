@@ -355,7 +355,38 @@ class HumanGameplayControllerTests(unittest.TestCase):
         )
         self.assertNotIn(3000, tuple(int(player.index) for player in result))
 
-    def test_mapped_human_scouting_requires_resolvers_for_unmaterialized_statuses(self):
+    def test_mapped_human_scouting_uses_live_strengths_selector_without_callback(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+
+        target_ids = {2000, 4000}
+        for player_id in target_ids:
+            player = controller.state.players[player_id]
+            preferred = int(player.positions[0])
+            controller.state.positions[preferred] = SimpleNamespace(lineup_group=0)
+            player.current_raw[0] = 170
+        controller.state.players[4000].current_raw[0] = 169
+
+        panel = ScoutingReseedState(
+            age_low_64d8=0,
+            age_high_64dc=99,
+            value_low_64c8=0.0,
+            value_high_64d0=1000.0,
+            class_selector_64c0=1,
+            field_64e4=1,
+        )
+        result = controller.search_scouting_players_mapped(
+            panel,
+            page_mode=16,
+            valuation_resolver=lambda _player: 100.0,
+            team_selector_predicate=lambda player: int(player.index) in target_ids,
+            sort_mode=0,
+        )
+
+        self.assertIn(2000, tuple(int(player.index) for player in result))
+        self.assertNotIn(4000, tuple(int(player.index) for player in result))
+
+    def test_mapped_human_scouting_requires_resolver_for_out_of_contract_status(self):
         controller = self.build_controller()
         controller.select_club(1)
         panel = ScoutingReseedState(
@@ -373,10 +404,10 @@ class HumanGameplayControllerTests(unittest.TestCase):
             threshold_predicate=lambda _player: True,
         )
 
-        with self.assertRaisesRegex(ValueError, "status-bit-7"):
+        with self.assertRaisesRegex(ValueError, "out-of-contract"):
             controller.search_scouting_players_mapped(
                 panel,
-                status_controls=ScoutingFilterControls(status_bit_7=True),
+                status_controls=ScoutingFilterControls(out_of_contract=True),
                 **common,
             )
         player = controller.state.players[2000]
