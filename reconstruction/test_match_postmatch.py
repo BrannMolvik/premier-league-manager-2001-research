@@ -13,6 +13,8 @@ from match_events import (
 from match_postmatch import (
     FormTransitionSettings,
     MoraleSettings,
+    PlayerTransferRequest,
+    apply_player_transfer_request_response,
     apply_signed_contract_finalizer_morale,
     decrease_player_morale,
     increase_player_morale,
@@ -24,6 +26,7 @@ from match_postmatch import (
     persist_premier_league_discipline,
     persist_premier_league_match_incidents,
     persist_premier_league_morale_and_form,
+    maybe_queue_player_transfer_request,
     refresh_league_suspension_for_next_fixture,
     sync_post_match_conditions,
     serve_league_suspension_after_fixture,
@@ -76,6 +79,8 @@ class RuntimePlayer:
     match_performance_history_count: int = 0
     match_performance_history_write_index: int = 0
     contract_renewal_suggestion_pending: bool = True
+    transfer_listed: bool = False
+    wanted: bool = False
 
     def __post_init__(self):
         if self.match_performance_history is None:
@@ -251,6 +256,105 @@ class MoraleTransitionTests(unittest.TestCase):
         self.assertEqual([player.morale for player in roster], [62, 43, 63, 50])
         self.assertEqual([player.form_state for player in roster], [2, 2, 2, 2])
         self.assertEqual(rng.calls, [2, 100, 10, 2, 2, 100])
+
+
+    def test_danger_morale_trigger_queues_next_day_mail(self):
+        player = RuntimePlayer(index=77, morale=14)
+        rng = ScriptedRng([2])
+        queued = []
+
+        self.assertTrue(
+            maybe_queue_player_transfer_request(
+                player,
+                date(2000, 8, 20),
+                rng,
+                club_user_controlled=True,
+                active_club_user_controlled=True,
+                request_sink=queued.append,
+            )
+        )
+
+        self.assertEqual(rng.calls, [30])
+        self.assertEqual(
+            queued,
+            [
+                PlayerTransferRequest(
+                    player_id=77,
+                    queued_on=date(2000, 8, 20),
+                    due_on=date(2000, 8, 21),
+                )
+            ],
+        )
+
+    def test_danger_morale_status_gate_is_after_rng30(self):
+        player = RuntimePlayer(index=77, morale=14, transfer_listed=True)
+        rng = ScriptedRng([2])
+        queued = []
+
+        self.assertFalse(
+            maybe_queue_player_transfer_request(
+                player,
+                date(2000, 8, 20),
+                rng,
+                club_user_controlled=True,
+                active_club_user_controlled=True,
+                request_sink=queued.append,
+            )
+        )
+        self.assertEqual(rng.calls, [30])
+        self.assertEqual(queued, [])
+
+        player.transfer_listed = False
+        player.wanted = True
+        rng = ScriptedRng([2])
+        self.assertFalse(
+            maybe_queue_player_transfer_request(
+                player,
+                date(2000, 8, 20),
+                rng,
+                club_user_controlled=True,
+                active_club_user_controlled=True,
+                request_sink=queued.append,
+            )
+        )
+        self.assertEqual(rng.calls, [30])
+
+    def test_danger_morale_draw_follows_same_player_form_draw(self):
+        side = prepared_side()
+        participants = [
+            RuntimePlayer(index=10, morale=14),
+            RuntimePlayer(index=11, morale=50),
+        ]
+        roster = (participants[0],)
+        rng = ScriptedRng([99, 2])
+        queued = []
+
+        persist_premier_league_morale_and_form(
+            roster,
+            side,
+            participants,
+            NormalMatchResult(events=()),
+            date(2000, 8, 20),
+            rng,
+            club_user_controlled=True,
+            active_club_user_controlled=lambda player: True,
+            transfer_request_sink=queued.append,
+        )
+
+        self.assertEqual(rng.calls, [100, 30])
+        self.assertEqual([value.player_id for value in queued], [10])
+
+    def test_transfer_request_response_accept_sets_status_refuse_does_not(self):
+        accepted = RuntimePlayer(index=1, morale=10)
+        refused = RuntimePlayer(index=2, morale=10)
+
+        apply_player_transfer_request_response(accepted, accept=True)
+        apply_player_transfer_request_response(refused, accept=False)
+
+        self.assertTrue(accepted.transfer_listed)
+        self.assertTrue(accepted.wanted)
+        self.assertFalse(refused.transfer_listed)
+        self.assertFalse(refused.wanted)
 
 
 class FormTransitionTests(unittest.TestCase):
