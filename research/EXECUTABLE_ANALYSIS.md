@@ -8663,3 +8663,54 @@ labels that still lack exact UI names remain neutral.
 Exact next task: tie the remaining six result-sort modes and first-stage neutral
 panel fields to original UI control labels/strings where possible, then expose
 a minimal human scouting action over existing RuntimePlayer state.
+
+
+## Gate 11 scouting result-sort dispatch fully mapped
+
+Direct canonical-executable disassembly closes all six qsort modes selected by
+`PScouting2K +0x64EC` in `0x4AEEA0`.
+
+The exact dispatch table is:
+
+```text
+mode 0 -> 0x4AF020
+mode 1 -> 0x4AF0B0
+mode 2 -> 0x4AF200
+mode 3 -> 0x4AF270
+mode 4 -> 0x4AF0F0
+mode 5 -> 0x4AF190
+```
+
+Exact comparator semantics:
+
+- **mode 0 / 0x4AF020**: ascending lexical player-name order. The comparator
+  first compares the string reached through player `+0x0C`; ties compare the
+  string reached through player `+0x08`.
+- **mode 1 / 0x4AF0B0**: ascending `DBRPlayer::0x4173B0` age. Exact age
+  ties fall back to mode-0 name ordering.
+- **mode 2 / 0x4AF200**: descending `DBRPlayer::0x41FB60` floating result.
+  `0x41FB60` averages the active prefix of the six-byte circular history at
+  player `+0x79..+0x7E`, using count byte `+0x7F`; a zero count returns
+  0.0. Its user-facing scouting column label remains neutral until tied to an
+  original control/string. Exact numeric ties fall back to mode-0 name order.
+- **mode 3 / 0x4AF270**: descending lexical string returned by
+  `player+0x248 -> 0x4EA800`. The `+0x248` object is the already-mapped
+  three-entry preferred-position structure; `0x4EA800` formats its stored
+  position labels into one display string. Exact string ties fall back to
+  mode-0 name order.
+- **mode 4 / 0x4AF0F0**: ascending current/registered-club display name.
+  The player club ID at `+0x10` resolves the club object, including the
+  negative-ID spare path; club display text is obtained through
+  `DBRClub::0x40DA70`. Exact club-name ties fall back to mode-0 name order.
+- **mode 5 / 0x4AF190**: descending `DBRPlayer::0x420570` monetary/value
+  result. Exact value ties fall back to mode-0 name order.
+
+The direction is not inferred from UI convention. It follows the exact sign
+returned to the CRT qsort comparator: age/name/club paths compare left-minus-
+right or left lexical right, while modes 2/3/5 deliberately reverse the
+operands and therefore sort descending.
+
+This closes the `0x4AEEA0` comparator mechanics. The remaining scouting
+dependency is UI attribution: tie the still-neutral panel fields and especially
+the `0x41FB60` result column to original control labels/strings where direct
+evidence exists, then expose the minimum UI-independent human scouting action.
