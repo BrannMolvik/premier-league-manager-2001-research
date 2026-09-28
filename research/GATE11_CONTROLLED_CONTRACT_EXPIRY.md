@@ -180,6 +180,36 @@ but the exact semantic name of `+0x138` is not promoted from inference.
 It must remain neutral until a direct event/string/accessor link proves the
 label.
 
+## Pending/deal count +0x178 closed for the supported runtime
+
+Direct writer tracing closes the second half of `0x41C6F0` sufficiently for
+the existing clean-room deal model.
+
+- fresh DBRPlayer construction initializes `player+0x178 = 0`;
+- successful deal/workflow creation paths including `0x41FBD0` increment
+  `player+0x178`;
+- remover `0x417870` first removes the matching entry from global deal list
+  `0x8774A8`, then decrements `player+0x178` only when it is positive;
+- final club assignment `0x422F70` resets `player+0x178 = 0`.
+
+The lookup half of `0x41C6F0` is also exact: `0x422950 -> 0x50E790 ->
+0x50E590` returns true only for a matching global deal record whose state
+dword is **3, 4, or 5**.
+
+The modern `TransferRuntimeState` currently permits at most one
+`DealInProgress` per player. Within that supported invariant, a matching live
+deal record proves the original count is positive, so the controlled renewal
+suppression can be represented exactly as:
+
+```text
+deal exists for player
+AND deal.state in {3,4,5}
+```
+
+without inventing a second unsynchronized count field. If later work adds
+multiple simultaneous deal records for one player, the explicit `+0x178`
+count must be materialized at that time.
+
 ## Renewal clear path
 
 Existing `0x419190(12) -> 0x419210` evidence remains applicable.
