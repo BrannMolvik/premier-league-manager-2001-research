@@ -5095,3 +5095,34 @@ This user-club phase therefore costs exactly **38 CRT draws** and leaves
 The remaining pre-fixed-staff uncertainty is now wholly inside the later
 global transfer/loan-maintenance phases of `0x6194D0`. The day-one calendar
 branch is no longer part of this startup boundary.
+
+
+## Gate 11 empty fresh transfer-candidate shuffles — 28 September 2026
+
+The next `0x6194D0` segment is now bounded exactly from fresh source state.
+
+Across all 30,064 compact Master.dat player records, initial runtime flag source
+`+0x14` contains neither bit 7 nor transfer-list bit 8. The fresh startup
+paths before the first weekly maintenance do not set either state. Therefore the
+global player scan at `0x6196CD..0x6197FF` refreshes cached `+0x230`
+valuations but appends **zero** players to the shared transfer-candidate array
+and consumes no RNG.
+
+The fresh eligible-club list at `0x6197FF..0x6198B4` contains exactly
+**895** non-user European clubs after the source-backed name/category,
+country-European-index, transfer-window and valid-manager gates.
+
+Both immediately following calls to `0x619DC0` always Fisher-Yates shuffle
+that 895-club vector before checking whether the transfer-candidate array is
+empty. Since the candidate count is zero, each call exits directly after its
+shuffle:
+
+```text
+0xDFCED283
+  -- 894 draws, first 0x619DC0 --> 0xC6B73181
+  -- 894 draws, second 0x619DC0 -> 0xBD5CC00F
+```
+
+No acquisition fee/wage or target-selection RNG is reachable in these two
+calls on fresh startup. The active boundary is now the reverse 895-club
+transfer-list population loop beginning at `0x61991F`.
