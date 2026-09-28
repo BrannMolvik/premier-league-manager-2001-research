@@ -1616,22 +1616,6 @@ class GameState:
         # 0x513252 -> 0x5DA2F0 runs after MatchCalculator and before
         # 0x5127A0 incident persistence / later Form RNG. Every normal League
         # fixture consumes these four draws even when no user Balance is posted.
-        if match_engine_rng is not None:
-            persist_match_performance_history(
-                home_side,
-                home_participants,
-                result,
-                rng,
-                match_engine_rng,
-            )
-            persist_match_performance_history(
-                away_side,
-                away_participants,
-                result,
-                rng,
-                match_engine_rng,
-            )
-
         self._finish_premier_league_gate_receipts(home_club_id, gate_inputs, rng)
 
         fixture_date = self.calendar.current_date
@@ -1832,6 +1816,21 @@ class GameState:
                 environment_byte=pitch_wear_before,
             ),
         )
+        if match_engine_rng is not None:
+            persist_match_performance_history(
+                home_side,
+                home_participants,
+                result,
+                rng,
+                match_engine_rng,
+            )
+            persist_match_performance_history(
+                away_side,
+                away_participants,
+                result,
+                rng,
+                match_engine_rng,
+            )
         self._finish_premier_league_gate_receipts(home_club_id, gate_inputs, rng)
 
         fixture_date = self.calendar.current_date
