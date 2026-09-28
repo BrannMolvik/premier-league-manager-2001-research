@@ -182,11 +182,11 @@ def live_player_transfer_value(
 
     Source-backed inputs:
     - 0x41E1D0 max preferred-role rating -> financial row;
-    - player+0x248 current position state -> Position lineup_group;
+    - player+0x248 preferred-position entry 0 -> Position lineup_group;
     - player age on the current game date;
-    - current club -> competition -> DBRCompetition+0x28 category,
-      with the exact 0x405500 clamp (>5 -> 5);
-    - current club country -> DBRCountry+0x18 EU-status flag.
+    - temporary/current club (+0x72) -> competition -> DBRCompetition+0x28
+      category, with the exact 0x405500 clamp (>5 -> 5);
+    - registered club (+0x10) country -> DBRCountry+0x18 EU-status flag.
 
     The modern match backend does not yet persist FM2001's six-byte recent
     player-rating history / +0x188 appearance counter. Until that is added,
@@ -213,30 +213,40 @@ def live_player_transfer_value(
     if int(getattr(financial_row, "id", rating)) != rating:
         raise ValueError("financial-value table is not rating-indexed")
 
-    role = int(player.current_position)
-    position = state.positions.get(role)
+    preferred_role = int(player.positions[0])
+    position = state.positions.get(preferred_role)
     if position is None:
         raise ValueError(
-            f"position metadata for runtime role {role} is unavailable"
+            f"position metadata for preferred role {preferred_role} is unavailable"
         )
     position_group = int(position.lineup_group)
     if not 0 <= position_group < 4:
         raise ValueError(
-            f"runtime role {role} has no transfer-valuation position group"
+            f"preferred role {preferred_role} has no transfer-valuation position group"
         )
 
     age = player.age(state.calendar.current_date)
     if age is None:
         raise ValueError(f"player {player_id} has no usable date of birth")
 
-    club = state.clubs.get(int(player.club_id))
-    if club is None:
+    registered_club = state.clubs.get(int(player.club_id))
+    if registered_club is None:
+        raise ValueError(f"player {player_id} has no resolved registered club")
+
+    temporary_club_id = getattr(player, "loan_club_id", None)
+    active_club_id = (
+        int(temporary_club_id)
+        if temporary_club_id is not None
+        else int(player.club_id)
+    )
+    active_club = state.clubs.get(active_club_id)
+    if active_club is None:
         raise ValueError(f"player {player_id} has no resolved current club")
 
-    competition = state.competitions.get(int(club.competition_id))
+    competition = state.competitions.get(int(active_club.competition_id))
     if competition is None:
         raise ValueError(
-            f"club {player.club_id} has no resolved competition definition"
+            f"club {active_club_id} has no resolved competition definition"
         )
     division_raw = int(
         getattr(competition, "valuation_division_category", 5)
@@ -245,7 +255,7 @@ def live_player_transfer_value(
     if division_category < 0:
         raise ValueError("valuation division category must not be negative")
 
-    country = state.countries.get(int(club.country_id))
+    country = state.countries.get(int(registered_club.country_id))
     if country is None:
         raise ValueError(
             f"club {player.club_id} has no resolved country definition"
