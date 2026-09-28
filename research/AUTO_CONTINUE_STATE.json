@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Translate/replay club 118 first 0x61A9A0 selector from shared state 0xAB415A96, then continue all 894 exact transfer-list selectors and carry CRT state through loan maintenance into fixed-staff initialization.",
-  "last_known_main_head": "6e85263b92a11212c1334749e95add36bbf45208",
+  "active_task": "Continue Gate 11 transfer-list selector replay from shared CRT state 0x6A346701 at reverse visit club 750; lock fresh roster ordering for 0x4050F0, replay remaining 893 selectors, then loan maintenance into fixed-staff initialization.",
+  "last_known_main_head": "eb8a68b7bce3762a09b730244940f63e81aff826",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 41,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 41: resumed canonical Gate 11 selector replay from main 6e85263b; next exact state is club 118 first 0x61A9A0 selector from 0xAB415A96.",
+  "note": "First exact selector persisted on main at eb8a68b: Carlisle 118 -> Steve Soley 7748, RNG(100)=88, state 0x6A346701. Next dependency is exact fresh roster ordering used by 0x4050F0.",
   "same_chat_fallback_minutes": 30
 }
