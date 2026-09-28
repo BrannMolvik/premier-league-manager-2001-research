@@ -8,7 +8,8 @@ It implements only mechanics proven from FOOTBAL.EXE 0x4AF7F0 and the
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Sequence, TypeVar
+from functools import cmp_to_key
+from typing import Callable, Generic, Iterable, Sequence, TypeVar
 
 from match_role_rating import best_preferred_role_rating
 from match_schedule import MsvcCrtRng
@@ -158,3 +159,75 @@ def scouting_rank_score(
         score = score * (60 + age_term) // 100
 
     return int(score)
+
+
+SCOUTING_SORT_MODE_NAME = 0
+SCOUTING_SORT_MODE_AGE = 1
+SCOUTING_SORT_MODE_HISTORY_AVERAGE = 2
+SCOUTING_SORT_MODE_POSITION_LABEL = 3
+SCOUTING_SORT_MODE_CLUB_NAME = 4
+SCOUTING_SORT_MODE_VALUE = 5
+
+
+@dataclass(frozen=True)
+class ScoutingSortValues:
+    """Neutral values consumed by the six exact 0x4AEEA0 comparators."""
+
+    name_primary: str
+    name_secondary: str
+    age: int
+    history_average: float
+    position_label: str
+    club_name: str
+    valuation: float
+
+
+def _cmp_scalar(left, right) -> int:
+    return (left > right) - (left < right)
+
+
+def scouting_result_compare(
+    left: ScoutingSortValues,
+    right: ScoutingSortValues,
+    mode: int,
+) -> int:
+    """Reproduce the sign/order of the six 0x4AEEA0 qsort comparators.
+
+    The neutral name fields correspond, in order, to the strings reached through
+    DBRPlayer +0x0C and +0x08. history_average is DBRPlayer::0x41FB60.
+    """
+
+    mode = int(mode)
+    name_cmp = _cmp_scalar(str(left.name_primary), str(right.name_primary))
+    if name_cmp == 0:
+        name_cmp = _cmp_scalar(str(left.name_secondary), str(right.name_secondary))
+
+    if mode == SCOUTING_SORT_MODE_NAME:
+        return name_cmp
+    if mode == SCOUTING_SORT_MODE_AGE:
+        primary = _cmp_scalar(int(left.age), int(right.age))
+    elif mode == SCOUTING_SORT_MODE_HISTORY_AVERAGE:
+        primary = _cmp_scalar(float(right.history_average), float(left.history_average))
+    elif mode == SCOUTING_SORT_MODE_POSITION_LABEL:
+        primary = _cmp_scalar(str(right.position_label), str(left.position_label))
+    elif mode == SCOUTING_SORT_MODE_CLUB_NAME:
+        primary = _cmp_scalar(str(left.club_name), str(right.club_name))
+    elif mode == SCOUTING_SORT_MODE_VALUE:
+        primary = _cmp_scalar(float(right.valuation), float(left.valuation))
+    else:
+        raise ValueError("scouting sort mode must be in 0..5")
+
+    return primary if primary != 0 else name_cmp
+
+
+def sort_scouting_results(
+    items: Iterable[T],
+    mode: int,
+    values: Callable[[T], ScoutingSortValues],
+) -> tuple[T, ...]:
+    """Sort result items with the exact 0x4AEEA0 comparator selected by mode."""
+
+    def compare_items(left: T, right: T) -> int:
+        return scouting_result_compare(values(left), values(right), mode)
+
+    return tuple(sorted(items, key=cmp_to_key(compare_items)))
