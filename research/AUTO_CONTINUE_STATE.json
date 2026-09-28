@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 11,
   "active_task": "Validate and persist the canonical Gate 11 loan-tail/fixed-staff replay at main 70068a0f, then continue the shared startup RNG from post-fixed-staff state 0x418CAA72 to the first source-backed training-quality boundary before attaching Saturday training.",
-  "last_known_main_head": "70068a0f509f7ab00d3bfea32ea298826e95246c",
+  "last_known_main_head": "64619fd8283957d0a932a6a6eb9a8876d20458e9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 44,
+  "recovery_generation": 45,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Main has advanced beyond the stale runtime handoff. Commit 70068a0f extends the durable replay through the final 200-player loan-list cap and six fixed support staff, asserting post-fixed-staff CRT state 0x418CAA72 and youth-team-coach rating 1. First reconcile/validate this result, then trace only the immediately following startup RNG needed for live training quality.",
+  "note": "Source archive re-materialized from Library for exact post-0x4D1760 call-chain audit. Main is recovery-safe through post-fixed-staff state 0x418CAA72 and fresh training quality 1.25.",
   "same_chat_fallback_minutes": 30
 }
