@@ -144,6 +144,8 @@ class MoraleTransitionTests(unittest.TestCase):
                 won_match=10,
                 not_played=8,
                 maximum=100,
+                loan=10,
+                signed_new_contract=30,
             ),
         )
 
