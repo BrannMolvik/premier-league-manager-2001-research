@@ -266,6 +266,28 @@ class InternalSaveTests(unittest.TestCase):
         self.assertEqual(restored_player.training_skill_states[1], 0)
         self.assertEqual(restored_player.training_method_results[3], 6)
 
+    def test_match_performance_history_survives_roundtrip(self):
+        original = self.build_controller()
+        player = original.state.players[1000]
+        for value in (6, 7, 8, 9, 10, 5, 4):
+            player.append_match_performance(value)
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        restored_player = restored.state.players[1000]
+        self.assertEqual(
+            restored_player.match_performance_history,
+            [4, 7, 8, 9, 10, 5],
+        )
+        self.assertEqual(restored_player.match_performance_history_count, 6)
+        self.assertEqual(restored_player.match_performance_history_write_index, 1)
+        self.assertAlmostEqual(restored_player.match_performance_average(), 43 / 6)
+
     def test_current_club_join_date_survives_roundtrip(self):
         original = self.build_controller()
         original.state.players[1000].current_club_join_date = date(2000, 5, 1)
