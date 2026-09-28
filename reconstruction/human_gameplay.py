@@ -30,7 +30,9 @@ from scouting import (
     ScoutingReseedState,
     ScoutingSortValues,
     run_scouting_search,
+    scouting_country_context_passes,
     scouting_first_stage_passes,
+    scouting_preferred_position_passes,
 )
 from transfer_decision import SellingClubDecision
 from transfer_negotiation import (
@@ -294,9 +296,10 @@ class HumanGameplayController:
         *,
         page_mode: int,
         valuation_resolver: Callable[[object], float],
-        team_selector_predicate: Callable[[object], bool],
-        optional_position_predicate: Callable[[object], bool],
         threshold_predicate: Callable[[object], bool],
+        selected_position_id: int | None = None,
+        team_selector_predicate: Callable[[object], bool] | None = None,
+        optional_position_predicate: Callable[[object], bool] | None = None,
         status_controls: ScoutingFilterControls = ScoutingFilterControls(),
         status_bit_7_resolver: Callable[[object], bool] | None = None,
         loan_listed_resolver: Callable[[object], bool] | None = None,
@@ -309,9 +312,11 @@ class HumanGameplayController:
     ) -> tuple[object, ...]:
         """Apply the mapped 0x4AE680 gates before the recovered result pipeline.
 
-        Only the still-unmaterialized panel/global predicates remain callbacks.
-        Age, preferred-position broad class, controlled-club exclusion and
-        transfer-listed status come from live RuntimePlayer/GameState state.
+        Country-context mode and preferred-position membership now come from
+        live RuntimePlayer/GameState state. threshold_predicate remains explicit
+        because the auxiliary per-player byte behind 0x876868 is not yet owned
+        by the clean-room runtime. The optional selector callbacks are retained
+        only as additional caller constraints for compatibility.
         """
 
         if self.human is None:
@@ -329,12 +334,52 @@ class HumanGameplayController:
             )
 
         on_date = self.state.calendar.current_date
+        human_club = self.state.clubs.get(int(self.human.club_id))
+        if human_club is None:
+            raise ValueError("human-controlled club metadata is unavailable")
+        active_country_id = int(getattr(human_club, "country_id"))
+        countries_by_nationality = {
+            int(getattr(country, "nationality_id")): country
+            for country in self.state.countries.values()
+        }
 
         def mapped_predicate(player) -> bool:
-            # 0x4AE680 applies this still-neutral team/context selector before
-            # age, valuation and position-class work. Preserve that order so a
-            # rejected candidate cannot require later metadata.
-            if not bool(team_selector_predicate(player)):
+            # 0x4AE610 uses registered-club country whenever the player has
+            # club context; only unattached players fall back to nationality.
+            if int(player.club_id) >= 0:
+                registered_club = self.state.clubs.get(int(player.club_id))
+                if registered_club is None:
+                    raise ValueError(
+                        f"club metadata for player {int(player.index)} is unavailable"
+                    )
+                candidate_country_id = int(getattr(registered_club, "country_id"))
+                candidate_country = self.state.countries.get(candidate_country_id)
+            else:
+                candidate_country = countries_by_nationality.get(
+                    int(player.nationality_id)
+                )
+                candidate_country_id = (
+                    int(getattr(candidate_country, "id"))
+                    if candidate_country is not None
+                    else -1
+                )
+            if candidate_country is None:
+                raise ValueError(
+                    f"country metadata for player {int(player.index)} is unavailable"
+                )
+            if not scouting_country_context_passes(
+                int(panel_state.field_64e0),
+                candidate_country_id=candidate_country_id,
+                candidate_european_index=int(
+                    getattr(candidate_country, "european_index")
+                ),
+                active_club_country_id=active_country_id,
+            ):
+                return False
+            if (
+                team_selector_predicate is not None
+                and not bool(team_selector_predicate(player))
+            ):
                 return False
 
             age = player.age(on_date)
@@ -376,8 +421,15 @@ class HumanGameplayController:
                         else False
                     ),
                     team_selector_passes=True,
-                    optional_position_passes=bool(
-                        optional_position_predicate(player)
+                    optional_position_passes=(
+                        scouting_preferred_position_passes(
+                            player.positions,
+                            selected_position_id,
+                        )
+                        and (
+                            optional_position_predicate is None
+                            or bool(optional_position_predicate(player))
+                        )
                     ),
                     threshold_passes=bool(threshold_predicate(player)),
                 ),
