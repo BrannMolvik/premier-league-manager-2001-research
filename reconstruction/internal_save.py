@@ -52,7 +52,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 20
+SAVE_SCHEMA_VERSION = 21
 
 
 def _iso(value: date | None) -> str | None:
@@ -313,6 +313,10 @@ PLAYER_RECORD_FIELDS = (
     "contract_special_state_138",
     "contract_renewal_suggestion_pending",
     "previous_club_id_74",
+    "live_first_name",
+    "live_surname",
+    "live_nationality_id",
+    "live_date_of_birth",
 )
 
 
@@ -406,6 +410,10 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
             if player.previous_club_id_74 is None
             else int(player.previous_club_id_74)
         ),
+        str(player.first_name),
+        str(player.surname),
+        int(player.nationality_id),
+        _iso(player.date_of_birth),
     ]
 
 
@@ -422,11 +430,11 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
     training = value[5]
     return RuntimePlayer(
         index=int(source.index),
-        first_name=str(source.first_name),
-        surname=str(source.surname),
+        first_name=str(value[46]),
+        surname=str(value[47]),
         club_id=int(value[1]),
-        nationality_id=int(source.nationality_id),
-        date_of_birth=source.date_of_birth,
+        nationality_id=int(value[48]),
+        date_of_birth=_date(value[49]),
         shirt_number=int(value[2]),
         height_cm=int(source.height_cm),
         weight_kg=int(source.weight_kg),
