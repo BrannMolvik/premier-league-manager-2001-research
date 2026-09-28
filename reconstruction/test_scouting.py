@@ -129,6 +129,40 @@ class ScoutingOrderingTests(unittest.TestCase):
         self.assertTrue(scouting_preferred_position_passes(positions, 7))
         self.assertFalse(scouting_preferred_position_passes(positions, 9))
 
+    def test_scouting_loan_list_user_match_matches_bit12_callsite_reduction(self):
+        self.assertFalse(
+            scouting_loan_list_user_match(
+                transfer_listed=True,
+                non_eu=True,
+                registered_club_competition_id=4,
+                active_club_competition_id=4,
+            )
+        )
+        self.assertTrue(
+            scouting_loan_list_user_match(
+                transfer_listed=True,
+                non_eu=True,
+                registered_club_competition_id=4,
+                active_club_competition_id=7,
+            )
+        )
+        self.assertFalse(
+            scouting_loan_list_user_match(
+                transfer_listed=False,
+                non_eu=True,
+                registered_club_competition_id=4,
+                active_club_competition_id=7,
+            )
+        )
+        self.assertTrue(
+            scouting_loan_list_user_match(
+                transfer_listed=False,
+                non_eu=False,
+                registered_club_competition_id=4,
+                active_club_competition_id=7,
+            )
+        )
+
     def test_plain_scouting_rank_uses_best_preferred_role_rating(self):
         skills = [128] * 17
         preferred = (1, 2, 3)
