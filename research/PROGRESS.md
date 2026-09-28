@@ -5309,3 +5309,35 @@ Exact next target: continue from **`0x6A346701`** with reverse visit club 750,
 replay all remaining 893 dispatch/selector paths including transfer-list
 mutations, then continue through loan maintenance before fixed support-staff
 initialization.
+
+
+## Gate 11 fresh roster order and next exact selectors — 28 September 2026
+
+The remaining fresh-roster ordering dependency under `0x4050F0` is now closed from the executable.
+
+Post-load routine `0x4217E0` walks runtime DBRPlayer records in table order. For each ordinary current-club assignment it calls `0x40D4F0`, which appends the player's WORD ID at `club+0x244 + 2*club+0x294` and increments `club+0x294`. No sort occurs on this fresh path. Therefore the initial roster array for every club is the original Master.dat player-table order, equivalently ascending canonical player-record ID in the shipped data.
+
+Continuing from the first closed visit state `0x6A346701`:
+
+- reverse visit club 750 is Dunaferr, 18-player roster, manager Zoltán Varga with formations 2/5/0;
+- its mandatory dispatch `RNG(10)=4` advances to `0xE1E8ADC0` and enters `0x61A9A0`;
+- role 15 is the largest positive-supply / zero-demand role (four AM-capable players);
+- `0x61A520` ordering places primary-AM Norbert Mitring (player 21416, role-15 rating 34) first;
+- Dunaferr's AccessFanBase threshold is 16 and roster count is 18, so the selector enters eligibility;
+- Mitring has flags 0, runtime +0x64 = -1, and passes the residence gate; `RNG(100)=55` passes the <=50 threshold and leaves `0x31D39583`;
+- the fresh `club+0x1E0` constructor zeros the fields consumed by `0x4F3330`, so the final club predicate passes and Mitring is transfer-listed.
+
+Next reverse visit club 510 is Rot-Weiß Essen, roster count 22. Its mandatory dispatch is `RNG(10)=9`, leaving `0x5EEBAA3A` and entering `0x4050F0`.
+
+The first rejection-sampling attempt is exact:
+
+- `RNG(10)=1` -> first roster region;
+- `RNG(21)=14` -> fresh roster index 15;
+- index 15 is R. da Silva Cerqueria (player 11588), preferred roles 14/15, best-preferred rating 35;
+- his deterministic eligibility gates pass and `RNG(100)=45` passes the shipped >=25 threshold;
+- he is accepted on attempt one and transfer-listed;
+- shared state after club 510 is **`0xF0AD5F37`**.
+
+The next mandatory dispatch for club 1216 is already fixed at **`RNG(10)=8`**, advancing the shared stream to **`0x590E1D1E`** and selecting `0x4050F0`.
+
+Exact next target: replay club 1216's random selector from `0x590E1D1E`, then continue the remaining reverse visits with transfer-list mutations applied in-order.
