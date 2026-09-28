@@ -3,7 +3,9 @@ from datetime import date, timedelta
 
 from contract_maintenance import (
     AiContractMaintenanceOutcome,
+    ControlledContractMaintenanceOutcome,
     run_ai_monthly_contract_maintenance,
+    run_controlled_monthly_contract_maintenance,
 )
 from game_state import GameCalendar, GameState
 
@@ -48,6 +50,14 @@ class FakePlayer:
         self.out_of_contract = False
         self.startup_month_span = 12
         self.signed_for_other_club = False
+        self.suspended = False
+        self.loan_listed = False
+        self.ai_transfer_status_bit_9 = False
+        self.eu_status_code = 2
+        self.contract_special_state_138 = 0
+        self.contract_renewal_suggestion_pending = False
+        self.previous_club_id_74 = None
+        self.club_id = 10
 
     def age(self, _on_date):
         return self.age_value
@@ -162,6 +172,221 @@ class ContractMaintenanceTests(unittest.TestCase):
 
                 self.assertEqual(outcome, AiContractMaintenanceOutcome.RENEWED)
                 self.assertEqual(rng.bounds, [100])
+
+    def test_controlled_more_than_112_days_before_expiry_consumes_no_rng(self):
+        player = FakePlayer(
+            on_date=self.on_date,
+            expiry=self.on_date + timedelta(days=113),
+        )
+        rng = ScriptedRng([])
+
+        outcome = run_controlled_monthly_contract_maintenance(
+            player,
+            on_date=self.on_date,
+            rng=rng,
+        )
+
+        self.assertEqual(
+            outcome,
+            ControlledContractMaintenanceOutcome.PRE_EXPIRY_NO_SUGGESTION,
+        )
+        self.assertFalse(player.out_of_contract)
+        self.assertEqual(rng.bounds, [])
+
+    def test_controlled_21_day_pre_expiry_sets_status_and_uses_one_suggestion_draw(self):
+        player = FakePlayer(
+            on_date=self.on_date,
+            expiry=self.on_date + timedelta(days=21),
+        )
+        rng = ScriptedRng([9])
+
+        outcome = run_controlled_monthly_contract_maintenance(
+            player,
+            on_date=self.on_date,
+            rng=rng,
+        )
+
+        self.assertEqual(
+            outcome,
+            ControlledContractMaintenanceOutcome.PRE_EXPIRY_NO_SUGGESTION,
+        )
+        self.assertTrue(player.out_of_contract)
+        self.assertEqual(rng.bounds, [10])
+
+    def test_controlled_112_day_window_queues_bosman_suggestion_and_latches(self):
+        player = FakePlayer(
+            on_date=self.on_date,
+            expiry=self.on_date + timedelta(days=112),
+            age=24,
+        )
+        player.eu_status_code = 2
+        rng = ScriptedRng([3])
+
+        outcome = run_controlled_monthly_contract_maintenance(
+            player,
+            on_date=self.on_date,
+            rng=rng,
+        )
+
+        self.assertEqual(
+            outcome,
+            ControlledContractMaintenanceOutcome.SUGGEST_BOSMAN_RENEWAL,
+        )
+        self.assertTrue(player.contract_renewal_suggestion_pending)
+        self.assertEqual(rng.bounds, [10])
+
+    def test_controlled_non_bosman_suggestion_uses_same_single_draw(self):
+        player = FakePlayer(
+            on_date=self.on_date,
+            expiry=self.on_date + timedelta(days=100),
+            age=23,
+        )
+        rng = ScriptedRng([0])
+
+        outcome = run_controlled_monthly_contract_maintenance(
+            player,
+            on_date=self.on_date,
+            rng=rng,
+        )
+
+        self.assertEqual(
+            outcome,
+            ControlledContractMaintenanceOutcome.SUGGEST_ORDINARY_RENEWAL,
+        )
+        self.assertTrue(player.contract_renewal_suggestion_pending)
+        self.assertEqual(rng.bounds, [10])
+
+    def test_controlled_existing_suggestion_latch_consumes_no_rng(self):
+        player = FakePlayer(
+            on_date=self.on_date,
+            expiry=self.on_date + timedelta(days=50),
+        )
+        player.contract_renewal_suggestion_pending = True
+        rng = ScriptedRng([])
+
+        outcome = run_controlled_monthly_contract_maintenance(
+            player,
+            on_date=self.on_date,
+            rng=rng,
+        )
+
+        self.assertEqual(
+            outcome,
+            ControlledContractMaintenanceOutcome.PRE_EXPIRY_NO_SUGGESTION,
+        )
+        self.assertEqual(rng.bounds, [])
+
+    def test_controlled_pending_workflow_suppression_occurs_after_rng(self):
+        player = FakePlayer(
+            on_date=self.on_date,
+            expiry=self.on_date + timedelta(days=50),
+        )
+        rng = ScriptedRng([2])
+
+        outcome = run_controlled_monthly_contract_maintenance(
+            player,
+            on_date=self.on_date,
+            rng=rng,
+            pending_contract_workflow=True,
+        )
+
+        self.assertEqual(
+            outcome,
+            ControlledContractMaintenanceOutcome
+            .SUGGESTION_SUPPRESSED_PENDING_WORKFLOW,
+        )
+        self.assertFalse(player.contract_renewal_suggestion_pending)
+        self.assertEqual(rng.bounds, [10])
+
+    def test_controlled_expired_grace_cleans_mapped_status_without_rng(self):
+        expiry = self.on_date - timedelta(days=20)
+        player = FakePlayer(on_date=self.on_date, expiry=expiry)
+        player.loan_club_id = 30
+        player.suspended = True
+        player.out_of_contract = True
+        player.transfer_listed = True
+        player.ai_transfer_status_bit_9 = True
+        player.loan_listed = True
+        rng = ScriptedRng([])
+
+        outcome = run_controlled_monthly_contract_maintenance(
+            player,
+            on_date=self.on_date,
+            rng=rng,
+        )
+
+        self.assertEqual(
+            outcome,
+            ControlledContractMaintenanceOutcome.EXPIRED_GRACE,
+        )
+        self.assertEqual(player.club_id, 10)
+        self.assertIsNone(player.loan_club_id)
+        self.assertFalse(player.suspended)
+        self.assertFalse(player.out_of_contract)
+        self.assertFalse(player.transfer_listed)
+        self.assertFalse(player.ai_transfer_status_bit_9)
+        self.assertFalse(player.loan_listed)
+        self.assertEqual(rng.bounds, [])
+
+    def test_controlled_exact_21_days_past_expiry_detaches_free_player(self):
+        expiry = self.on_date - timedelta(days=21)
+        player = FakePlayer(on_date=self.on_date, expiry=expiry)
+        rng = ScriptedRng([])
+
+        outcome = run_controlled_monthly_contract_maintenance(
+            player,
+            on_date=self.on_date,
+            rng=rng,
+        )
+
+        self.assertEqual(
+            outcome,
+            ControlledContractMaintenanceOutcome.DETACHED_OUT_OF_CONTRACT,
+        )
+        self.assertTrue(player.out_of_contract)
+        self.assertEqual(player.previous_club_id_74, 10)
+        self.assertEqual(player.club_id, -1)
+        self.assertEqual(rng.bounds, [])
+
+    def test_controlled_not_in_registered_roster_exits_before_cleanup(self):
+        player = FakePlayer(
+            on_date=self.on_date,
+            expiry=self.on_date - timedelta(days=30),
+        )
+        player.transfer_listed = True
+        rng = ScriptedRng([])
+
+        outcome = run_controlled_monthly_contract_maintenance(
+            player,
+            on_date=self.on_date,
+            rng=rng,
+            in_registered_roster=False,
+        )
+
+        self.assertEqual(
+            outcome,
+            ControlledContractMaintenanceOutcome.NOT_IN_REGISTERED_ROSTER,
+        )
+        self.assertTrue(player.transfer_listed)
+        self.assertEqual(player.club_id, 10)
+        self.assertEqual(rng.bounds, [])
+
+    def test_controlled_special_state_remains_explicitly_deferred(self):
+        player = FakePlayer(on_date=self.on_date)
+        player.contract_special_state_138 = 0xFE
+        rng = ScriptedRng([])
+
+        outcome = run_controlled_monthly_contract_maintenance(
+            player,
+            on_date=self.on_date,
+            rng=rng,
+        )
+
+        self.assertEqual(
+            outcome,
+            ControlledContractMaintenanceOutcome.SPECIAL_STATE_DEFERRED,
+        )
+        self.assertEqual(rng.bounds, [])
 
     def test_game_state_monthly_ai_pass_skips_controlled_club(self):
         controlled = FakePlayer(index=1, on_date=self.on_date, high_rating=False)
