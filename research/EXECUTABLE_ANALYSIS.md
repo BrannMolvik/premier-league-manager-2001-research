@@ -8778,3 +8778,75 @@ The runtime now exposes these mapped gates through
 `HumanGameplayController.search_scouting_players_mapped()`. Genuinely
 unmaterialized selectors/statuses remain explicit callbacks rather than guessed
 state.
+
+
+## Gate 11 remaining scouting first-stage gates: country context, preferred position and ScoutStrengthMin
+
+Direct tracing of canonical `FOOTBAL.EXE` at `0x4AE610`,
+`0x4AE680..0x4AE89C` and the tuning loader at `0x50B44A..0x50B480`
+resolves three previously neutral first-stage inputs without assigning unsupported
+screen labels.
+
+### Country-context selector at panel +0x64E0
+
+Helper `0x4AE610(player)` returns a runtime DBRCountry record:
+
+- when player temporary/current club `+0x72 >= 0`, it resolves the player's
+  registered club at `+0x10`, reads that club's country ID at runtime
+  `DBRClub+0x14`, then indexes the 108-byte country table at `0x874BE0`;
+- when temporary/current club `+0x72 < 0`, it indexes the same country table
+  from player byte `+0x12` (the existing nationality/country source).
+
+`0x4AE680` compares that country record against the active user's club-country
+record. Panel dword `+0x64E0` selects the exact relationship gate:
+
+- value **0**: require the same country record;
+- value **1**: require a different country and require country word
+  `+0x18 != 0`;
+- other nonzero values: require a different country and require country word
+  `+0x18 == 0`.
+
+The runtime country `+0x18` field is already source-mapped to Static.dat
+country word `+16`; its user-facing scouting label remains deliberately
+neutral here.
+
+### Optional preferred-position selector
+
+When panel count `+0x766C > 0`, `0x4AE680` obtains the selected item from
+the panel collection at `+0x761C` and passes its ID to
+`0x4EA410(player+0x248, selected_id)`.
+
+`0x4EA410` scans exactly the player's three preferred-position bytes and
+returns true iff the selected ID is present. Therefore this gate is now exactly
+a preferred-position membership filter; no callback is needed when the selected
+position ID is available.
+
+### Global threshold is ScoutStrengthMin
+
+The gate at `0x4AE862..0x4AE89A` is controlled by global pointer/state
+`0x876868`. When nonzero it reads the auxiliary byte at
+`[0x876868 + player + 0x1D]`, scales it as:
+
+```text
+floor((30 * byte + 128) / 255)
+```
+
+and rejects values below global `0x8223F4`.
+
+The tuning loader at `0x50B44A` passes literal key string
+**ScoutStrengthMin** and stores the parsed integer into exactly
+`0x8223F4` at `0x50B480`. The threshold is therefore source-named, though
+the ownership/meaning of the auxiliary per-player byte behind `0x876868`
+still needs tracing before materializing this gate in RuntimePlayer.
+
+### Remaining unresolved first-stage semantics
+
+The first-stage filter is now reduced to:
+
+- ownership/source of the `0x876868` auxiliary per-player scouting byte;
+- user-facing meaning and runtime producer for player status bit 7;
+- exact semantic label of the bit-12 + `0x41E450(player, active_user_club)`
+  branch.
+
+Do not re-open the already-resolved age/value/class/country/preferred-position
+mechanics unless contradictory executable evidence appears.
