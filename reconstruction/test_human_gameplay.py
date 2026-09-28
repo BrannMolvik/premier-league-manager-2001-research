@@ -207,17 +207,26 @@ class HumanGameplayControllerTests(unittest.TestCase):
         )
         self.assertNotIn(1000, tuple(int(player.index) for player in result))
 
-    def test_human_scouting_requires_unmaterialized_sort_values_only_when_used(self):
+    def test_human_scouting_uses_live_history_and_requires_only_unmaterialized_sort_values(self):
         controller = self.build_controller()
         controller.select_club(1)
         state = ScoutingReseedState()
 
-        with self.assertRaisesRegex(ValueError, "history_average_resolver"):
-            controller.search_scouting_players(
-                state,
-                candidate_predicate=lambda _player: True,
-                sort_mode=2,
-            )
+        controller.state.players[2000].append_match_performance(5)
+        controller.state.players[3000].append_match_performance(9)
+        controller.state.players[4000].append_match_performance(7)
+        result = controller.search_scouting_players(
+            state,
+            candidate_predicate=lambda player: int(player.index) in {
+                2000, 3000, 4000
+            },
+            sort_mode=2,
+        )
+        self.assertEqual(
+            tuple(int(player.index) for player in result),
+            (3000, 4000, 2000),
+        )
+
         with self.assertRaisesRegex(ValueError, "position_label_resolver"):
             controller.search_scouting_players(
                 state,
