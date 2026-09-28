@@ -190,6 +190,18 @@ class RuntimePlayer:
     startup_month_span: int = 0
     weekly_wage: int = 0
     contract_expiry_date: date | None = None
+    # DBRPlayer+0x138 is initialized to zero by 0x4178D0. Values 0xFE/0xFF
+    # enter a separate recycle/retirement-adjacent contract path whose exact
+    # semantic label remains intentionally neutral.
+    contract_special_state_138: int = 0
+    # DBRPlayer+0x164 is the one-byte latch set when 0x41BEE0 queues an
+    # assistant-manager contract-renewal suggestion and cleared by renewal/
+    # contract-application paths.
+    contract_renewal_suggestion_pending: bool = False
+    # DBRPlayer+0x74 receives the old registered/current club ID when 0x41EF00
+    # detaches an ordinary expired controlled player; special recycle paths set
+    # it to -1. Keep the offset in the name until broader consumers are mapped.
+    previous_club_id_74: int | None = None
     # DBRPlayer+0x14 bit 7: original "Out of contract" status. This is
     # persistent state rather than a computed expiry predicate: monthly
     # 0x41ABC0 can set it while club/roster context still exists.
