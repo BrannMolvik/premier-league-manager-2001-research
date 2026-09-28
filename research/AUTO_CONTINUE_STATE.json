@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 42,
+  "recovery_generation": 43,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Generation 42 fully corrected and locked the fresh transfer-list population replay. tools/replay_gate11_transfer_list.py is byte-identical to the source-backed validated helper. All 894 visits complete, 625 players are listed, and the canonical post-0x61991F state is 0x126CF137. Active dependency is now the remaining loan-maintenance tail of 0x6194D0.",
+  "note": "Recovery generation 43: main already completed the full corrected 894-visit transfer-list replay. Canonical post-0x61991F state is 0x126CF137. Continue only the loan-maintenance tail of 0x6194D0 and then 0x425680 -> 0x4D1760 fixed-support-staff initialization.",
   "same_chat_fallback_minutes": 30
 }
