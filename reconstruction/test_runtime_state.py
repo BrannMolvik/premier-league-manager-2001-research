@@ -355,6 +355,46 @@ class RuntimePlayerTests(unittest.TestCase):
         self.assertEqual(player.training_modifiers, [0] * 17)
 
 
+class UserTrainingDayTests(unittest.TestCase):
+    def _state_with_two_players(self, on_date):
+        players = [
+            RuntimePlayer.from_database_player(
+                FakePlayer(index=10), on_date, MsvcCrtRng(10)
+            ),
+            RuntimePlayer.from_database_player(
+                FakePlayer(index=11), on_date, MsvcCrtRng(11)
+            ),
+        ]
+        state = GameState.from_players(players, on_date)
+        state.user_controlled_club_id = 0
+        return state
+
+    def test_user_training_day_preserves_daily_before_weekly_rng_order(self):
+        state = self._state_with_two_players(date(2000, 7, 1))
+        rng = MsvcCrtRng(1)
+
+        daily_draws, weekly_draws = state.run_user_training_primary_day(
+            rng,
+            recovery_threshold=50,
+            quality_multiplier=1.30,
+        )
+
+        self.assertEqual((daily_draws, weekly_draws), (6, 12))
+        self.assertEqual(rng.state, 0xAEA69ED3)
+
+    def test_user_training_day_non_saturday_runs_only_daily_recovery(self):
+        state = self._state_with_two_players(date(2000, 7, 2))
+        rng = MsvcCrtRng(1)
+
+        daily_draws, weekly_draws = state.run_user_training_primary_day(
+            rng,
+            recovery_threshold=50,
+            quality_multiplier=1.30,
+        )
+
+        self.assertEqual((daily_draws, weekly_draws), (6, 0))
+        self.assertEqual(rng.state, 0x3D6C1037)
+
 class CalendarTests(unittest.TestCase):
     def test_monthly_hook_fires_when_entering_first_day(self):
         calls = []
