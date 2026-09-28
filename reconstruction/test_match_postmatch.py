@@ -158,8 +158,10 @@ class MoraleTransitionTests(unittest.TestCase):
     def test_increase_uses_leadership_age_and_caps_at_maximum(self):
         low = ScriptedRng([1])
         high = ScriptedRng([1])
-        self.assertEqual(increase_player_morale(80, 10, 20, 20, low), 92)
-        self.assertEqual(increase_player_morale(80, 10, 20, 30, high), 94)
+        # 0x41BB10 adds an explicit final +1 after the base amount,
+        # RNG(2), leadership, and age modifiers.
+        self.assertEqual(increase_player_morale(80, 10, 20, 20, low), 93)
+        self.assertEqual(increase_player_morale(80, 10, 20, 30, high), 95)
         self.assertEqual(
             increase_player_morale(99, 10, 20, 30, ScriptedRng([0])),
             100,
