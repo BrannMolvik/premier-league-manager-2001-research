@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 40,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 40: exact qsort/two shuffle ordering persisted through main 6e85263; reverse selector begins club 118, dispatch RNG(10)=3, state now 0xAB415A96.",
+  "recovery_generation": 41,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery generation 41: resumed canonical Gate 11 selector replay from main 6e85263b; next exact state is club 118 first 0x61A9A0 selector from 0xAB415A96.",
   "same_chat_fallback_minutes": 30
 }
