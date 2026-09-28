@@ -6403,3 +6403,24 @@ already proven, while the open-play secondary slot remains to be confirmed.
 
 The low-rating lift must continue to use a distinct MatchEngine RNG. It must not
 be charged to or seeded from the shared MSVC CRT stream.
+
+
+## Gate 11 goal secondary-attribution bridge checkpoint — 28 September 2026
+
+Canonical `0x62C740 -> 0x62ECF0 -> 0x62F0C0` tracing resolves the last
+open-play input needed by the exact target match-performance rating:
+
+- open-play `record+0x08` = selected finisher;
+- open-play `record+0x0C` = earlier attacking carrier;
+- delivered free-kick/corner `record+0x08` = receiver/finisher;
+- delivered free-kick/corner `record+0x0C` = set-piece taker.
+
+Commits `2bf8169e` and `30a7eeb6` expose that optional secondary player
+metadata in `ChanceRecord` and populate only the instruction-proven paths.
+The event extension changes no scoring or RNG behavior. A focused regression
+locks the open-play and delivered-free-kick attribution identities.
+
+Exact next task: build the post-match target-rating/history finalizer from these
+semantic counters and the already-mapped card/Form/history state. Keep the
+MatchEngine low-rating RNG separate from the shared CRT stream; do not seed or
+alias the two streams.
