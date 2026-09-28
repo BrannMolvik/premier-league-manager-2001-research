@@ -43,6 +43,12 @@ class MsvcCrtRngTests(unittest.TestCase):
             [0, 2, 0, 1],
         )
 
+    def test_zero_bound_still_consumes_one_crt_draw(self):
+        rng = MsvcCrtRng(1)
+        self.assertEqual(rng.randbelow(0), 0)
+        self.assertEqual(rng.state, 0x0029E2C0)
+        self.assertEqual(rng.rand15(), 18467)
+
     def test_seed_is_stored_as_32_bit_state(self):
         rng = MsvcCrtRng(0x1_0000_0001)
         self.assertEqual(rng.state, 1)
