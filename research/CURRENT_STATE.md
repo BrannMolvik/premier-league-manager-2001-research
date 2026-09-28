@@ -156,13 +156,14 @@ Several target systems already have substantial research or backend behavior:
 6. **Active dependency:** fresh staff types, ratings, employed-list ownership
    and Training Centre absence are resolved and the exact training-quality
    primitive is implemented. The full secondary schedule leaves
-   **`0x61D6DFA2`**. The cleared 200-person generic staff pool then consumes
-   600 draws to `0x2992DEFA`; the two immediate `0x4C9E90(user 0)` rebuilds
-   consume 8 and 17 draws and leave **`0x1D1A278D`** with 15 candidates.
-   Continue through the first `0x4A8070` maintenance pass: replay its
-   RNG-bearing weekly `0x6194D0` path and day-one `0x4C9E90`, then carry
-   the exact shared CRT state into `0x425680 -> 0x4D1760` fixed-staff
-   initialization.
+   **`0x61D6DFA2`**. The cleared 200-person generic staff pool plus two
+   immediate candidate rebuilds leave **`0x1D1A278D`**. Fresh startup
+   weekly-aligns July 1 forward before the first `0x4A8070`, so its
+   day-of-month-1 branch is skipped. The first Arsenal/user phase of
+   `0x6194D0` consumes exactly 38 draws and leaves **`0xDFCED283`**.
+   Continue only the later global transfer/loan-maintenance phases of
+   `0x6194D0`, then carry the exact shared CRT state into
+   `0x425680 -> 0x4D1760` fixed-staff initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
 8. After live weekly training is verified, audit the next Gate-11 management
