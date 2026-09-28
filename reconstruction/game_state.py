@@ -70,6 +70,12 @@ from match_team_setup import TeamTacticalState
 from runtime_state import RuntimePlayer, derive_non_eu_status
 from stadium_state import StadiumSourceState, TicketRuntimeState
 from transfer_state import TransferRuntimeState
+from youth_state import (
+    YouthTeamState,
+    generate_fresh_user_youth,
+    promote_youth_player,
+    release_youth_player,
+)
 
 
 DateHook = Callable[[date], None]
@@ -148,6 +154,9 @@ class GameState:
     ai_transfer_buy_counter: dict[int, int] = field(default_factory=dict)
     country_transfer_window_open: dict[int, bool] = field(default_factory=dict)
     user_controlled_club_id: int | None = None
+    # DBRUser+0x6BC separate 20-slot youth list. Membership is intentionally
+    # independent of club_roster_order until 0x61E3D0 promotion.
+    user_youth: YouthTeamState | None = None
     # Gate-11 DBRUser daily/weekly training integration. These remain opt-in
     # until the neighboring commercial/event scheduler is fully materialized;
     # once configured, advance_one_day() preserves the proven 0x42A9E0 order
@@ -371,6 +380,68 @@ class GameState:
             self.players[player_id]
             for player_id in ids
             if player_id in self.players
+        )
+
+    def initialize_fresh_user_youth(
+        self,
+        option_mode: int | None,
+        rng=None,
+    ) -> YouthTeamState:
+        """Run the mapped fresh 0x61DF90 -> 0x61DD30 user youth pass.
+
+        This is explicit rather than automatic because the original call sits
+        in the pre-schedule startup RNG sequence. Existing reconstructed startup
+        callers can invoke it at that exact boundary without silently changing
+        established fixture RNG state.
+        """
+        if self.user_controlled_club_id is None:
+            raise RuntimeError("user-controlled club is required")
+        if self.user_youth is not None and self.user_youth.records:
+            raise RuntimeError("fresh user youth has already been initialized")
+        rng = self._resolve_rng(rng)
+        self.user_youth = generate_fresh_user_youth(
+            self,
+            user_club_id=int(self.user_controlled_club_id),
+            option_mode=option_mode,
+            rng=rng,
+        )
+        return self.user_youth
+
+    def user_youth_players(self) -> tuple[RuntimePlayer, ...]:
+        if self.user_youth is None:
+            return ()
+        return tuple(
+            self.players[int(record.player_id)]
+            for record in self.user_youth.records
+            if int(record.player_id) in self.players
+        )
+
+    def promote_user_youth_player(
+        self,
+        player_id: int,
+        *,
+        weekly_wage: float,
+        contract_months: int,
+    ) -> RuntimePlayer:
+        if self.user_controlled_club_id is None or self.user_youth is None:
+            raise RuntimeError("initialized user youth state is required")
+        return promote_youth_player(
+            self,
+            self.user_youth,
+            player_id=int(player_id),
+            target_club_id=int(self.user_controlled_club_id),
+            weekly_wage=float(weekly_wage),
+            contract_months=int(contract_months),
+        )
+
+    def release_user_youth_player(self, player_id: int) -> bool:
+        if self.user_controlled_club_id is None or self.user_youth is None:
+            return False
+        return release_youth_player(
+            self,
+            self.user_youth,
+            player_id=int(player_id),
+            user_club_id=int(self.user_controlled_club_id),
         )
 
     def set_team_tactics(self, club_id: int, state: TeamTacticalState) -> None:
