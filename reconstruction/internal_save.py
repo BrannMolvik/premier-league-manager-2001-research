@@ -47,7 +47,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 15
+SAVE_SCHEMA_VERSION = 16
 
 
 def _iso(value: date | None) -> str | None:
@@ -210,6 +210,7 @@ _PLAYER_FLAG_NON_EU = 1 << 5
 _PLAYER_FLAG_TRANSFER_LISTED = 1 << 6
 _PLAYER_FLAG_SIGNED_FOR_OTHER_CLUB = 1 << 7
 _PLAYER_FLAG_LOAN_LISTED = 1 << 8
+_PLAYER_FLAG_OUT_OF_CONTRACT = 1 << 9
 
 # Schema-2 player records intentionally use positional arrays. With roughly 30k
 # players, repeating descriptive JSON keys for every player dominated the save
@@ -283,6 +284,8 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         flags |= _PLAYER_FLAG_SIGNED_FOR_OTHER_CLUB
     if player.loan_listed:
         flags |= _PLAYER_FLAG_LOAN_LISTED
+    if player.out_of_contract:
+        flags |= _PLAYER_FLAG_OUT_OF_CONTRACT
 
     training = [int(v) for v in player.training_modifiers]
     return [
@@ -386,6 +389,7 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         non_eu=bool(flags & _PLAYER_FLAG_NON_EU),
         eu_status_code=int(getattr(source, "eu_status_code", 2)),
         transfer_listed=bool(flags & _PLAYER_FLAG_TRANSFER_LISTED),
+        out_of_contract=bool(flags & _PLAYER_FLAG_OUT_OF_CONTRACT),
         loan_listed=bool(flags & _PLAYER_FLAG_LOAN_LISTED),
         loan_club_id=(None if value[24] is None else int(value[24])),
         signed_for_other_club=bool(
