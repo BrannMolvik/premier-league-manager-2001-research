@@ -184,3 +184,31 @@ The next implementation slice can now safely:
 The `+0x04` 0xA4-byte subobject can remain neutral unless the promote helper
 `0x417700` requires specific fields for behavior visible in the currently
 active Gate-11 slice. Do not invent labels for it.
+
+
+## Follow-up boundary: 0x61DE40 two-cohort initializer
+
+After the first implementation was verified, direct xref tracing found a
+distinct call `0x425680 -> 0x61DE40(user+0x6BC, user)`.
+
+`0x61DE40` is materially different from the already implemented single
+`0x61DF90 -> 0x61DD30` slice:
+
+1. it clears every existing youth record;
+2. obtains the active user club country;
+3. calls `0x61DF90` once;
+4. calls `0x61DD30` over that first cohort;
+5. calls `0x61DF90` a second time;
+6. computes a calendar date and writes it to every youth player's
+   `DBRPlayer+0x154`;
+7. resets every record's `+0x04` training state through `0x61E7A0`.
+
+Therefore the final list can contain two generated cohorts and its contract-date
+handling supersedes the simple single-cohort final-date model when this caller
+is active.
+
+The only direct `0x61DE40` xref found so far is inside `0x425680`.
+`0x425680` is reached from the `0x4A8070` family, but that surrounding
+routine also performs broad user/staff initialization. Do **not** classify
+`0x61DE40` as daily, monthly, annual or one-shot until the lifetime/caller
+chain is instruction-closed. This is the next active youth trace.
