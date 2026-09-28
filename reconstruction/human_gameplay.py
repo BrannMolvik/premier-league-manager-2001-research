@@ -24,10 +24,13 @@ from scouting import (
     SCOUTING_SORT_MODE_HISTORY_AVERAGE,
     SCOUTING_SORT_MODE_POSITION_LABEL,
     SCOUTING_SORT_MODE_VALUE,
+    ScoutingFilterControls,
+    ScoutingFilterValues,
     ScoutingRankValues,
     ScoutingReseedState,
     ScoutingSortValues,
     run_scouting_search,
+    scouting_first_stage_passes,
 )
 from transfer_decision import SellingClubDecision
 from transfer_negotiation import (
@@ -283,6 +286,112 @@ class HumanGameplayController:
             secondary_score_mode=secondary_score_mode,
             secondary_caller_argument=int(secondary_caller_argument),
             rank_values=rank_values_for if secondary_score_mode is not None else None,
+        )
+
+    def search_scouting_players_mapped(
+        self,
+        panel_state: ScoutingReseedState,
+        *,
+        page_mode: int,
+        valuation_resolver: Callable[[object], float],
+        team_selector_predicate: Callable[[object], bool],
+        optional_position_predicate: Callable[[object], bool],
+        threshold_predicate: Callable[[object], bool],
+        status_controls: ScoutingFilterControls = ScoutingFilterControls(),
+        status_bit_7_resolver: Callable[[object], bool] | None = None,
+        loan_listed_resolver: Callable[[object], bool] | None = None,
+        loan_list_user_match_resolver: Callable[[object], bool] | None = None,
+        sort_mode: int = 0,
+        secondary_score_mode: int | None = None,
+        secondary_caller_argument: int = 0,
+        history_average_resolver: Callable[[object], float] | None = None,
+        position_label_resolver: Callable[[object], str] | None = None,
+    ) -> tuple[object, ...]:
+        """Apply the mapped 0x4AE680 gates before the recovered result pipeline.
+
+        Only the still-unmaterialized panel/global predicates remain callbacks.
+        Age, preferred-position broad class, controlled-club exclusion and
+        transfer-listed status come from live RuntimePlayer/GameState state.
+        """
+
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        if bool(status_controls.status_bit_7) and status_bit_7_resolver is None:
+            raise ValueError(
+                "active status-bit-7 scouting control requires a resolver"
+            )
+        if bool(status_controls.loan_listed) and (
+            loan_listed_resolver is None
+            or loan_list_user_match_resolver is None
+        ):
+            raise ValueError(
+                "active loan-list scouting control requires loan-list resolvers"
+            )
+
+        on_date = self.state.calendar.current_date
+
+        def mapped_predicate(player) -> bool:
+            age = player.age(on_date)
+            if age is None:
+                return False
+
+            preferred_role = int(player.positions[0])
+            position = self.state.positions.get(preferred_role)
+            if position is None:
+                raise ValueError(
+                    f"position metadata for preferred role {preferred_role} is unavailable"
+                )
+            player_class = int(position.lineup_group)
+            if not 0 <= player_class < 4:
+                raise ValueError(
+                    f"preferred role {preferred_role} has no scouting class"
+                )
+
+            return scouting_first_stage_passes(
+                panel_state,
+                ScoutingFilterValues(
+                    age=int(age),
+                    valuation=float(valuation_resolver(player)),
+                    player_class=player_class,
+                    transfer_listed=bool(player.transfer_listed),
+                    status_bit_7=(
+                        bool(status_bit_7_resolver(player))
+                        if status_bit_7_resolver is not None
+                        else False
+                    ),
+                    loan_listed=(
+                        bool(loan_listed_resolver(player))
+                        if loan_listed_resolver is not None
+                        else False
+                    ),
+                    loan_list_user_match=(
+                        bool(loan_list_user_match_resolver(player))
+                        if loan_list_user_match_resolver is not None
+                        else False
+                    ),
+                    team_selector_passes=bool(team_selector_predicate(player)),
+                    optional_position_passes=bool(
+                        optional_position_predicate(player)
+                    ),
+                    threshold_passes=bool(threshold_predicate(player)),
+                ),
+                page_mode=int(page_mode),
+                status_controls=status_controls,
+            )
+
+        return self.search_scouting_players(
+            panel_state,
+            candidate_predicate=mapped_predicate,
+            sort_mode=int(sort_mode),
+            secondary_score_mode=secondary_score_mode,
+            secondary_caller_argument=int(secondary_caller_argument),
+            history_average_resolver=history_average_resolver,
+            position_label_resolver=position_label_resolver,
+            valuation_resolver=(
+                valuation_resolver
+                if int(sort_mode) == SCOUTING_SORT_MODE_VALUE
+                else None
+            ),
         )
 
     def set_player_training_method(self, player_id: int, method_id: int) -> None:
