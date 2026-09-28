@@ -301,6 +301,7 @@ class InternalSaveTests(unittest.TestCase):
         original = self.build_controller()
         player = original.state.players[1000]
         player.transfer_listed = True
+        player.loan_listed = True
         player.loan_club_id = 2
 
         restored = loads_human_gameplay(
@@ -312,6 +313,7 @@ class InternalSaveTests(unittest.TestCase):
 
         restored_player = restored.state.players[1000]
         self.assertTrue(restored_player.transfer_listed)
+        self.assertTrue(restored_player.loan_listed)
         self.assertEqual(restored_player.loan_club_id, 2)
         self.assertTrue(restored_player.selling_squad_count_excluded)
 
