@@ -5456,3 +5456,33 @@ Continuing from the corrected first canonical visit:
 
 The next reverse visit is club **362**. Its mandatory dispatch RNG(10)=5 is
 already consumed, leaving **0x1FE55F5F** and entering 0x61A9A0.
+
+
+## Gate 11 corrected selector replay through club 166 — 28 September 2026
+
+Continuing the corrected reverse order from club 862:
+
+- club **362 (Gateshead)**: the already-consumed dispatch state was
+  **0x1FE55F5F**. Positional selector chooses role 15 and **Mark Hine
+  (player 2713, rating 33)**. RNG(100)=40 passes the >=25 threshold, Hine is
+  transfer-listed, state **0xABE8BCA6**.
+- club **757 (Bray Wanderers)**: dispatch RNG(10)=6 -> 0x61A9A0. Role 15
+  selects **Paddy Geraghty (player 18406, rating 54)**. RNG(100)=9 fails the
+  >=33 threshold, so no player is listed. State **0xFF61A050**.
+- club **507 (1. FC Saarbrücken)**: dispatch RNG(10)=0 -> 0x61A9A0. Role 5
+  selects **F. Weber (player 10721)**; his best-preferred rating is 55.
+  RNG(100)=94 passes >=33, Weber is listed, state **0x6076B14A**.
+- club **214 (Le Mans UC)**: dispatch RNG(10)=0 -> 0x61A9A0. Role 7 selects
+  **David Charrieras (player 1889, rating 56)**. RNG(100)=49 passes >=33,
+  Charrieras is listed, state **0x1931DA14**.
+- club **611 (Dordrecht '90)**: dispatch RNG(10)=6 -> 0x61A9A0. Role 15
+  selects **Arno Schaap (player 16244)**; best-preferred rating 49.
+  RNG(100)=96 passes >=25, Schaap is listed, state **0x2130592E**.
+- club **166 (KFC Verbroedering)**: dispatch RNG(10)=9 -> 0x4050F0. Random
+  attempt 1 selects Rachid Yusuph (player 26981, rating 52), RNG(100)=17 fails.
+  Attempt 2 selects Gudmunder Benediktsson (player 3748, rating 48), RNG(100)=18
+  fails. Attempt 3 selects **Ljubica Nikolic (player 3759, rating 50)**,
+  RNG(100)=94 passes. Nikolic is listed and the shared state becomes
+  **0x458226E0**.
+
+Exact continuation: reverse visit **club 867** from state **0x458226E0**.
