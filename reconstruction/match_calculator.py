@@ -618,18 +618,18 @@ def resolve_free_kick(
         finish_mode = FinishMode.SHOOTING
         if not shooting_attempt_on_target(taker, rng):
             return SetPieceResolution(
-                event=_set_piece_record(ChanceSource.FREE_KICK, taker, 1, finish_mode, rng),
+                event=_set_piece_record(ChanceSource.FREE_KICK, taker, 1, finish_mode, rng, secondary_player=taker),
                 attacking_possession_increment=possession,
             )
         if defending.goalkeeper is None:
             raise ValueError("free-kick resolution requires a defending goalkeeper")
         if goalkeeper_stops_open_play(defending.goalkeeper, current_attacking_score, rng):
             return SetPieceResolution(
-                event=_set_piece_record(ChanceSource.FREE_KICK, taker, 2, finish_mode, rng),
+                event=_set_piece_record(ChanceSource.FREE_KICK, taker, 2, finish_mode, rng, secondary_player=taker),
                 attacking_possession_increment=possession,
             )
         return SetPieceResolution(
-            event=_set_piece_record(ChanceSource.FREE_KICK, taker, 0, finish_mode, rng),
+            event=_set_piece_record(ChanceSource.FREE_KICK, taker, 0, finish_mode, rng, secondary_player=taker),
             attacking_possession_increment=possession,
         )
 
@@ -770,6 +770,8 @@ def resolve_penalty(
                 taker.side,
                 taker.player_index,
                 finish_mode=FinishMode.SHOOTING,
+                secondary_player_side=taker.side,
+                secondary_player_index=taker.player_index,
             )
 
     goalkeeping_strength = effective_match_skill(
@@ -787,6 +789,8 @@ def resolve_penalty(
             taker.side,
             taker.player_index,
             finish_mode=FinishMode.SHOOTING,
+            secondary_player_side=taker.side,
+            secondary_player_index=taker.player_index,
         )
 
     if rng.randbelow(10) >= 10 - score:
@@ -798,4 +802,6 @@ def resolve_penalty(
         taker.side,
         taker.player_index,
         finish_mode=FinishMode.SHOOTING,
+        secondary_player_side=taker.side,
+        secondary_player_index=taker.player_index,
     )
