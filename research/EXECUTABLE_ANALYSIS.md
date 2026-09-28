@@ -8050,3 +8050,82 @@ The shared CRT checkpoints are unchanged because shuffle state depends on draw c
 These states validate the two 894-draw shuffle counts only. They do not independently validate the qsort permutation.
 
 The corrected twice-shuffled vector begins `488, 439, 509, 646, 1217, 623, 239, 548, ...`. The reverse selector loop begins `805, 610, 140, 862, 362, 757, 507, 214, ...`. From `0xBD5CC00F`, the first RNG(10) is still 3, but it now dispatches `0x61A9A0` for club **805**, not club 118.
+
+## Gate 11 post-fixed-staff to first-training RNG boundary — 28 September 2026
+
+Direct reinspection of canonical `FOOTBAL.EXE`
+(SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+proves that the interval after fixed support-staff creation is **not RNG-clean**.
+
+The startup/calendar ordering is decisive:
+
+```text
+0x4A8070
+  -> 0x4138E0          ; dispatch existing DBRUsers via 0x42A9E0
+  -> Saturday check
+     -> 0x6194D0       ; global transfer/loan maintenance
+     -> 0x40BAD0       ; weekly payroll
+  ...
+  -> 0x425680          ; initialize pending/new DBRUser
+```
+
+Inside `0x425680`, the already-corrected support-staff boundary is followed by:
+
+```text
+0x4257B1 -> 0x5E3FD0
+0x4257B6 -> 0x4D1760   ; corrected exit state 0xFA1C595E
+0x4257C9 -> 0x42CAD0
+0x4257DA -> 0x409BF0
+0x4257E6 -> 0x61C9C0  ; materialize 40 training records / roster assignments
+```
+
+Therefore the startup Saturday pass that consumed the already-replayed
+`0x6194D0` stream occurs **before** the new user's training records are
+materialized. It cannot be the first active weekly-training execution.
+
+On later dates, each existing DBRUser reaches `0x42A9E0`. Its relevant order
+is:
+
+```text
+0x5E5640  concession payout pass
+0x5E5330  concession-offer timer/update
+0x617C40  sponsor state pass
+0x617C80  sponsor-offer timer/update
+0x5E4210
+0x5E4190
+...
+0x61CA60  daily 40-record training maintenance
+0x61D710
+0x6596D0
+Saturday check
+  -> 0x42AE40
+     -> 0x61CBA0
+        -> 0x61C520
+           -> 0x4EACE0
+```
+
+Thus the first active Saturday `0x4EACE0` call is preceded on that same date by
+the daily `0x61CA60` training-record maintenance. The containing
+`0x4A8070` global Saturday `0x6194D0` call happens only **after**
+`0x4138E0/0x42A9E0` returns, so that later transfer/loan maintenance is
+outside the pre-first-training interval.
+
+Two additional fresh-state timer paths are demonstrably RNG-bearing before that
+first training Saturday. Fresh concession construction `0x5E5050` sets its
+wait field `+0xB48` to zero and date `+0xB4C` to the current date;
+`0x5E5330` therefore reaches bounded `0x64D540` when first updated.
+The sponsor subsystem follows the same zero-wait scheduling shape through
+`0x617C80`. Their exact first-week repeat behavior still depends on the
+source tuning bounds and is not yet asserted here.
+
+Most importantly, `0x61CA60` is not a bookkeeping-only pass. Active training
+records reach `0x61C6C0 -> 0x61C580`, whose fresh recovery path consumes
+shared CRT `RNG(100)` draws before the weekly `0x4EACE0` transition.
+Consequently live Saturday training must **not** be attached at
+`0xFA1C595E` directly.
+
+Exact next replay boundary: finish the fresh `0x61CA60 -> 0x61C6C0 /
+0x61C580` branch state, close the concession/sponsor first-week timer bounds,
+and replay every mandatory daily draw from corrected post-staff state
+`0xFA1C595E` through the first `0x42AE40 -> 0x4EACE0` entry.
+
