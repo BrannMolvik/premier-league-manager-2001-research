@@ -64,6 +64,7 @@ class Player:
         self.training_method_results = [8] * 7
         self.current_raw = [20] * 17
         self.morale = 50
+        self.contract_renewal_suggestion_pending = True
 
     def age(self, on_date):
         return on_date.year - self.date_of_birth.year - (
@@ -142,6 +143,7 @@ class YouthStateTests(unittest.TestCase):
         self.assertEqual(state.players[0].contract_expiry_date, date(2001, 7, 1))
         self.assertEqual(state.players[0].club_id, 1)
         self.assertEqual(state.players[0].morale, 82)
+        self.assertFalse(state.players[0].contract_renewal_suggestion_pending)
         self.assertTrue(state.players[0].status_bit_3)
         self.assertFalse(state.players[0].injured)
         self.assertFalse(state.players[0].suspended)
