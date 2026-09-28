@@ -6848,3 +6848,58 @@ Exact next task: trace the ordinary signing and loan callers
 placement into the already-materialized transfer/contract runtime. The
 request-new-contract event and trophy path remain deferred until their producer
 ownership is independently closed.
+
+
+## Gate 11 signing and loan morale ordering closed — 29 September 2026
+
+Recovery generation 57 reconciled the post-`130a929f` morale commits against
+canonical `main`, then re-materialized the authorized disc image and
+reverified `FOOTBAL.EXE` SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+Direct executable inspection instruction-closed both active morale callers.
+
+For `0x419210`, `SignedNewContactMorale` is loaded at `0x419283` and
+`0x41BB10` is called at `0x419289`; only afterwards does `0x41928E`
+clear the `DBRPlayer+0x164` renewal-suggestion latch. The clean-room now
+centralizes that exact trailing order in
+`apply_signed_contract_finalizer_morale`, shared by completed transfers, AI
+renewals and youth contract paths.
+
+For loans, RTTI-backed `MPMLoanPlayer::Execute` (`0x61B620`) converges on
+`0x41A9D0`. That routine installs the temporary club at player `+0x10`,
+performs club/status bookkeeping, clears the recovered loan-list state before
+setting on-loan bit 6, and only as its final operation at
+`0x41AA3A..0x41AA43` calls `0x41BB10(LoanMorale)`. The clean-room
+`complete_player_loan_assignment` therefore installs the already-materialized
+loan state first and consumes exactly one `RNG(2)` last. Unmapped neutral
+status bits remain deliberately unguessed.
+
+The same trace proves the fresh startup Matthew Upson/Watford loan-list path
+must not gain a LoanMorale draw: the user-controlled Arsenal branch queues the
+loan proposal/event and consumes its separate `RNG(5)`; it has not yet
+executed `0x41A9D0`.
+
+Implementation/test checkpoints:
+- `5abaef3b`: shared signed-contract finalizer;
+- `2c5e3e30`: correct AI-renewal latch/morale ordering;
+- `ef319092`: materialized loan-assignment + LoanMorale-last slice;
+- `1e2940da`: route youth contract paths through the same finalizer;
+- `3d5ff419`, `72be50c8`, `1a545d1c`: state-at-RNG regression coverage;
+- `7e798a03`: repair a stale AI-renewal test fixture that had not accounted
+  for the already-implemented signed-contract `RNG(2)`.
+
+GitHub Actions at `7e798a03`:
+- reconstruction suite: **670 tests run, 2 failures**;
+- both failures are the unchanged secondary root-order / bucket-count
+  assertions;
+- the new signing, loan, renewal and youth morale regressions pass;
+- repository asset policy passes.
+
+Detailed evidence is in `research/GATE11_MORALE_LIFECYCLE.md`.
+
+Exact next task: independently bound the request-new-contract morale producer
+around `0x5D8430 -> 0x41BA80(UnhappyRequestNewContract)`. Do not attach this
+decrease to ordinary progression until the event/action ownership and reachability
+are proven. Trophy morale and `DangerMoraleLevel` remain deferred behind the
+same evidence rule.
