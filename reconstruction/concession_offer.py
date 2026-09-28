@@ -25,8 +25,8 @@ class ConcessionRuntimeSource:
     def __post_init__(self) -> None:
         if len(self.selector_capacities) != 8:
             raise ValueError("concession source requires exactly eight selector capacities")
-        if int(self.stadium_total) <= 0:
-            raise ValueError("concession source stadium_total must be positive")
+        if int(self.stadium_total) < 0:
+            raise ValueError("concession source stadium_total must be non-negative")
 
 
 @dataclass(frozen=True)
