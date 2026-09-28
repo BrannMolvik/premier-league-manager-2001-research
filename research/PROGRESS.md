@@ -7009,3 +7009,34 @@ The morale slice is therefore no longer the active Gate-11 dependency. The next
 step is a Gate-11 completion audit against the roadmap criterion, "A human
 manager can complete a Premier League season using the core management
 systems," so the project advances only if that criterion is actually satisfied.
+
+
+## Gate 11 complete; Gate 12 activated - 29 September 2026
+
+Gate 11 is closed against its explicit roadmap criterion rather than by target
+count alone.
+
+Commit `22027de93df54fe7a83151ba642f6d0f86ecc93f` added a deterministic
+38-round / 380-fixture human-manager season regression. It keeps the human
+controller active through every round, completes all ten fixtures each
+matchday, enables the recovered user training calendar, preserves legal
+selection availability, and reaches 380 stored Premier League results / 760
+table appearances with the human club on 38 played.
+
+GitHub Actions at that checkpoint ran **676 reconstruction tests**. The only
+two failures are the same long-standing secondary-schedule assertions; the new
+full-season management regression passes. Repository asset policy passes.
+
+The target-by-target audit in `research/GATE11_COMPLETION_AUDIT.md` records
+live core-loop coverage for training/development, scouting, youth, morale,
+injury/availability, discipline, actionable manager-event state and recurring
+manager tasks. Full original management presentation remains correctly deferred
+to Gate 13.
+
+`ROADMAP.md` now marks Gate 11 complete and activates **Gate 12 - Other
+competitions**.
+
+Exact next task: audit the recovered generic competition/cup runtime against the
+canonical English domestic cups (FA Cup and League Cup first) and identify the
+first source-backed missing behavior required to connect them to the human
+Premier League season.
