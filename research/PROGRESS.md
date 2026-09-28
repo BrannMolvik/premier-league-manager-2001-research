@@ -5341,3 +5341,21 @@ The first rejection-sampling attempt is exact:
 The next mandatory dispatch for club 1216 is already fixed at **`RNG(10)=8`**, advancing the shared stream to **`0x590E1D1E`** and selecting `0x4050F0`.
 
 Exact next target: replay club 1216's random selector from `0x590E1D1E`, then continue the remaining reverse visits with transfer-list mutations applied in-order.
+
+
+## Gate 11 selector replay through club 622 — 28 September 2026
+
+Continuing from club 1216's already-consumed dispatch state `0x590E1D1E`:
+
+- Panahaiki (club 1216, roster 24) enters `0x4050F0`.
+- Attempt 1: RNG(10)=0, RNG(23)=2 -> roster index 3, Dusan Jiovanovic (player 14220), best rating 41. RNG(100)=22 fails the <=50 rating threshold.
+- Attempt 2: RNG(10)=0, RNG(23)=9 -> roster index 10, Panagiotis Gitsis (player 17751), best rating 59. RNG(100)=96 passes the 51..60 threshold.
+- Gitsis is transfer-listed; shared state becomes **`0xEC30AACC`**.
+
+Club 430 (Carmarthen Town) then dispatches RNG(10)=2 -> **`0x2956CE5F`**, entering `0x61A9A0`. Its roster count is exactly 16 and its AccessFanBase threshold is also 16, so the `roster <= threshold` early exit fires before any nested RNG. No player is listed.
+
+Club 622 (KSC Lokeren) next dispatches RNG(10)=2 -> **`0xFE106FA6`**. Its 26-player roster exceeds threshold 16. Manager formations 0/2/1 leave roles 5, 8 and 15 at zero demand; roles 5 and 15 each have supply 3, and the strict greater-than zero-demand tie logic keeps lower role ID 5. Comparator `0x61A520` places primary role-5 Steven de Geest (player 18005) first with rating 51. The defender-group count is 11, above the required four-player group floor. His deterministic eligibility gates pass; RNG(100)=43 passes the 51..60 threshold and leaves **`0xB28F67D1`**. De Geest is transfer-listed.
+
+Club 877's mandatory dispatch is already fixed as **RNG(10)=6**, advancing to **`0x377EEB50`** and selecting `0x61A9A0`.
+
+Exact next target: replay club 877 from `0x377EEB50`, then continue the remaining reverse selector visits in order.
