@@ -6566,3 +6566,52 @@ producer is still intentionally not synthesized from contract expiry alone.
 `0x419210` clear it. Exact next task: reconstruct those transitions and
 their scheduling/RNG boundary sufficiently to materialize live
 `out_of_contract` state and remove the mapped-sc-predicate resolver.
+
+
+## 28 September 2026 - Gate 11 live Out-of-contract lifecycle
+
+Recovery generation 52 closed the remaining mapped-scouting status dependency
+without replacing FM2001's contract logic with a simple expiry comparison.
+
+Canonical executable tracing established the ordinary non-user monthly
+`0x41ABC0` path and its caller/order:
+
+- day-of-month 1 only through `0x4A81A0 -> 0x40BB10 -> 0x4042E0`;
+- club-table then roster order;
+- monthly player development runs immediately before contract maintenance;
+- more than 30 days before expiry consumes no contract RNG;
+- rating below 50 releases only on first `RNG(100) < 8`; that successful
+  branch consumes one draw, while the non-release path consumes a second draw;
+- rating 50 or above always consumes two draws and releases only when the
+  second `RNG(100) < 2`;
+- release additionally requires roster count >18, tenure >104 completed weeks,
+  age >23, neutral `player+0x64 <= -1`, and no temporary/loan-club mismatch;
+- successful release calls the transfer-list transition, sets DBRPlayer
+  `+0x14` bit 7 (Out of contract), and clears `+0xC0` without directly
+  detaching club IDs;
+- every other due branch adds exactly 12 calendar months through
+  `0x419190 -> 0x419210`, clearing Out-of-contract and the mapped
+  signed-for-another-club bit.
+
+Implementation now persists `RuntimePlayer.out_of_contract`, runs the
+non-user monthly transition through the shared CRT stream, uses the live flag
+in mapped human scouting without requiring an external resolver, and preserves
+the flag in internal save schema 16. The compatibility resolver remains an
+explicit override rather than a required producer substitute.
+
+Focused regressions cover the exact one-vs-two draw boundary, both rating
+bands, failed eligibility without an extra draw, the `0x417580` blocker/loan
+shape, controlled-club skip, live scouting and save/reload continuity.
+
+GitHub Actions at `69e42cdf0ca8a65b724d81d37b76e7bd0a34294c` ran **639
+tests**. The only failures are the same two pre-existing secondary-schedule
+assertions (secondary root order and 262-vs-280 bucket count); all new Gate-11
+tests passed. Repository asset policy passed.
+
+Evidence: `research/GATE11_OUT_OF_CONTRACT_LIFECYCLE.md`.
+
+Next: reconstruct the separate user-controlled `0x41BEE0` expiry/grace/event
+path. Direct tracing already proves it is not the AI rule: at least one branch
+sets Out of contract only after a 21-day post-expiry grace interval, while
+other expired branches can alter roster/club state. Preserve that event-driven
+lifecycle rather than folding it into the non-user producer.
