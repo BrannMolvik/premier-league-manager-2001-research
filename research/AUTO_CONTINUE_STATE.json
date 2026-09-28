@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Replay the two 0x619EB0 loan passes and final reverse-club loan-list population from shared CRT state 0x1AB5D762, preserving the canonical 625 transfer-list mutations, then continue into 0x425680 -> 0x4D1760 fixed staff.",
-  "last_known_main_head": "09fdad2b8625fb14a8d98f8016bf3e376137b233",
+  "active_task": "Validate and persist the canonical Gate 11 loan-tail/fixed-staff replay at main 70068a0f, then continue the shared startup RNG from post-fixed-staff state 0x418CAA72 to the first source-backed training-quality boundary before attaching Saturday training.",
+  "last_known_main_head": "70068a0f509f7ab00d3bfea32ea298826e95246c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 43,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Instruction-level post-0x61991F tail is confirmed as loan-list maintenance. Fresh Arsenal's 37 RNG(200) candidate draws leave 0x1AB5D762 with Matthew Upson as the only <5 candidate; non-user fresh bit-12 scans consume no RNG before their gate. Main checkpoint 006f5a9/09fdad2.",
+  "recovery_generation": 44,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Main has advanced beyond the stale runtime handoff. Commit 70068a0f extends the durable replay through the final 200-player loan-list cap and six fixed support staff, asserting post-fixed-staff CRT state 0x418CAA72 and youth-team-coach rating 1. First reconcile/validate this result, then trace only the immediately following startup RNG needed for live training quality.",
   "same_chat_fallback_minutes": 30
 }
