@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 52,
-  "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "Generation 52 closed the non-user 0x41ABC0 Out-of-contract lifecycle through live scouting/save state. CI at 69e42cdf ran 639 tests with only the two unchanged secondary-schedule failures. Continue the separate controlled-player 0x41BEE0 path.",
+  "recovery_generation": 53,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovered at main 168d4b6c after the non-user 0x41ABC0 lifecycle was completed and verified. Continue only the controlled-player 0x41BEE0 expiry/grace/event path.",
   "same_chat_fallback_minutes": 30
 }
