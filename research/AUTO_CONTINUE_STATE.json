@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Instruction-audit the post-0x4D1760 path and first training caller using the re-materialized canonical FOOTBAL.EXE; identify every RNG consumer between 0x418CAA72 and the first 0x4EACE0 execution before wiring Saturday training.",
-  "last_known_main_head": "64619fd8283957d0a932a6a6eb9a8876d20458e9",
+  "active_task": "Trace mandatory shared-RNG consumers after fixed-support-staff initialization at 0x4D1760 from corrected state 0xFA1C595E to the first Saturday 0x4EACE0 training execution; attach live weekly training only after this interval is exact.",
+  "last_known_main_head": "007315c1b0c5d7619957258a4f62befc2ed2d07f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 45,
+  "recovery_generation": 46,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Canonical FOOTBAL.EXE re-extracted and SHA-256 reverified as 833bf95e... Direct disassembly shows 0x425680 calls 0x4D1760 at 0x4257B6, then deterministic-looking post-staff initialization through return; weekly training reaches 0x4EACE0 via 0x61C520 <- 0x61CBA0 <- 0x42AE40. Continuing caller/order audit.",
+  "note": "Recovery resumes after corrected fixed-staff boundary. Fresh Youth Team Coach rating=2, training quality=1.30, post-0x4D1760 CRT state=0xFA1C595E. Need exact RNG interval to first Saturday training.",
   "same_chat_fallback_minutes": 30
 }
