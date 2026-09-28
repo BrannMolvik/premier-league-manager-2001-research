@@ -62,6 +62,8 @@ class Player:
         self.training_modifiers = [9] * 17
         self.training_skill_states = [0] * 17
         self.training_method_results = [8] * 7
+        self.current_raw = [20] * 17
+        self.morale = 50
 
     def age(self, on_date):
         return on_date.year - self.date_of_birth.year - (
@@ -114,12 +116,12 @@ class YouthStateTests(unittest.TestCase):
     def test_fresh_generation_materializes_names_and_keeps_separate_roster(self):
         state = State([Player(i) for i in range(12)])
         # Unknown option => deterministic target 4. For each youth: candidate,
-        # first-name source, surname source.
+        # signed-contract morale, first-name source, surname source.
         rng = ScriptedRng([
-            0, 1, 2,
-            0, 3, 4,
-            0, 5, 6,
-            0, 7, 8,
+            0, 0, 1, 2,
+            0, 0, 3, 4,
+            0, 0, 5, 6,
+            0, 0, 7, 8,
         ])
 
         youth = generate_fresh_user_youth(
@@ -132,13 +134,14 @@ class YouthStateTests(unittest.TestCase):
         self.assertEqual(youth.player_ids(), (0, 11, 10, 9))
         self.assertEqual(
             rng.bounds,
-            [12, 12, 12, 11, 12, 12, 10, 12, 12, 9, 12, 12],
+            [12, 2, 12, 12, 11, 2, 12, 12, 10, 2, 12, 12, 9, 2, 12, 12],
         )
         self.assertEqual(state.players[0].first_name, "Alan1")
         self.assertEqual(state.players[0].surname, "Smith2")
         self.assertEqual(state.players[0].age(state.calendar.current_date), 17)
         self.assertEqual(state.players[0].contract_expiry_date, date(2001, 7, 1))
         self.assertEqual(state.players[0].club_id, 1)
+        self.assertEqual(state.players[0].morale, 82)
         self.assertTrue(state.players[0].status_bit_3)
         self.assertFalse(state.players[0].injured)
         self.assertFalse(state.players[0].suspended)
@@ -155,7 +158,7 @@ class YouthStateTests(unittest.TestCase):
         youth = YouthTeamState(
             [YouthRecord(player_id=0, source_roster_club_id=332)]
         )
-        rng = ScriptedRng([0] * 24)
+        rng = ScriptedRng([0] * 32)
 
         result = initialize_user_youth_for_club_activation(
             state,
@@ -173,14 +176,14 @@ class YouthStateTests(unittest.TestCase):
         self.assertEqual(
             rng.bounds,
             [
-                19, 20, 20,
-                18, 20, 20,
-                17, 20, 20,
-                16, 20, 20,
-                15, 20, 20,
-                14, 20, 20,
-                13, 20, 20,
-                12, 20, 20,
+                19, 2, 20, 20,
+                18, 2, 20, 20,
+                17, 2, 20, 20,
+                16, 2, 20, 20,
+                15, 2, 20, 20,
+                14, 2, 20, 20,
+                13, 2, 20, 20,
+                12, 2, 20, 20,
             ],
         )
         for player_id in youth.player_ids()[:4]:
@@ -250,6 +253,7 @@ class YouthStateTests(unittest.TestCase):
             target_club_id=1,
             weekly_wage=1234.9,
             contract_months=24,
+            rng=ScriptedRng([0]),
         )
 
         self.assertIs(promoted, player)
@@ -259,6 +263,7 @@ class YouthStateTests(unittest.TestCase):
         self.assertEqual(player.club_id, 1)
         self.assertEqual(player.weekly_wage, 1234)
         self.assertEqual(player.contract_expiry_date, date(2002, 7, 1))
+        self.assertEqual(player.morale, 82)
         self.assertFalse(player.status_bit_3)
         self.assertFalse(player.out_of_contract)
         self.assertEqual(player.training_method_id, 1)
