@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Protocol, Sequence
 
-from match_events import IncidentKind, IncidentRecord, SubstitutionRecord
+from match_events import ChanceRecord, IncidentKind, IncidentRecord, SubstitutionRecord
+from match_performance import target_match_performance_rating
 from match_injury_persistence import generate_persistent_match_injury
 from match_simulation import NormalMatchResult, PreparedMatchSide
 
@@ -23,6 +24,9 @@ class MutablePostMatchPlayer(Protocol):
     condition: int
     form_state: int
     injured: bool
+
+    def latest_match_performance(self) -> int: ...
+    def append_match_performance(self, value: int) -> int: ...
 
 
 class MutableLeagueDisciplinePlayer(Protocol):
@@ -131,6 +135,89 @@ def sync_post_match_conditions(
                 "prepared participants must use contiguous side-local indices"
             )
         runtime[local_index].condition = int(player.condition)
+
+
+def persist_match_performance_history(
+    side: PreparedMatchSide,
+    runtime_participants: Sequence[MutablePostMatchPlayer],
+    result: NormalMatchResult,
+    shared_rng: BoundedRng,
+    match_engine_rng: BoundedRng,
+) -> tuple[int, ...]:
+    """Compute and append exact 0x6309D0 -> 0x630FC0 performance ratings.
+
+    Only players who appeared are processed, matching the original +0x18F
+    active/appearance guard. Ratings are computed in participant-array order.
+    Goal-family +0x40/+0x44 counters are reconstructed only from non-own goals:
+    primary attribution is ChanceRecord.player_index and the separately mapped
+    secondary attribution is ChanceRecord.secondary_player_index.
+    """
+    runtime = tuple(runtime_participants)
+    prepared = tuple(side.players)
+    if len(prepared) != len(runtime):
+        raise ValueError(
+            "runtime participant count must match prepared participant count"
+        )
+
+    side_id = int(side.side)
+    appeared = appeared_player_indices(side, result)
+    primary: dict[int, int] = {}
+    secondary: dict[int, int] = {}
+    booked: set[int] = set()
+    sent_off: set[int] = set()
+
+    for timed in result.events:
+        event = timed.event
+        if isinstance(event, ChanceRecord):
+            if not event.is_goal or event.side_inversion:
+                continue
+            if int(event.player_side) == side_id:
+                index = int(event.player_index)
+                primary[index] = primary.get(index, 0) + 1
+            if (
+                event.secondary_player_side is not None
+                and int(event.secondary_player_side) == side_id
+            ):
+                index = int(event.secondary_player_index)
+                secondary[index] = secondary.get(index, 0) + 1
+        elif isinstance(event, IncidentRecord) and int(event.player_side) == side_id:
+            index = int(event.player_index)
+            if event.kind is IncidentKind.BOOKED:
+                booked.add(index)
+            elif event.kind is IncidentKind.SENT_OFF:
+                sent_off.add(index)
+
+    score0, score1 = result.score
+    own_score, opponent_score = (
+        (score0, score1) if side_id == 0 else (score1, score0)
+    )
+
+    ratings: list[int] = []
+    for local_index, player in enumerate(runtime):
+        if local_index not in appeared:
+            continue
+        prepared_player = prepared[local_index]
+        if int(prepared_player.player_index) != local_index:
+            raise ValueError(
+                "prepared participants must use contiguous side-local indices"
+            )
+        rating = target_match_performance_rating(
+            current_role=int(prepared_player.current_position),
+            own_score=own_score,
+            opponent_score=opponent_score,
+            primary_goal_count=primary.get(local_index, 0),
+            secondary_goal_count=secondary.get(local_index, 0),
+            booked=local_index in booked,
+            sent_off=local_index in sent_off,
+            form_state=int(player.form_state),
+            previous_rating=int(player.latest_match_performance()),
+            shared_rng=shared_rng,
+            match_engine_rng=match_engine_rng,
+        )
+        player.append_match_performance(rating)
+        ratings.append(int(rating))
+
+    return tuple(ratings)
 
 
 def persist_post_match_form(
