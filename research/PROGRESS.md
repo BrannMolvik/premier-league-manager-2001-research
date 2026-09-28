@@ -5126,3 +5126,38 @@ shuffle:
 No acquisition fee/wage or target-selection RNG is reachable in these two
 calls on fresh startup. The active boundary is now the reverse 895-club
 transfer-list population loop beginning at `0x61991F`.
+
+
+## Gate 11 reverse transfer-list population boundary — 28 September 2026
+
+Recovery generation 40 resumed from main `61119f758d3ac8cb5a428650b37dc101f9e8152e`
+and continued only the active `0x61991F` startup-maintenance boundary.
+
+The reverse club population loop is now structurally exact:
+
+- named tuning global `0x821610` is **MAX_PLAYERS_ON_TRANSFER_LIST**;
+- shipped default is **1000**;
+- the twice-shuffled eligible club vector has the already-proven fresh count
+  **895**;
+- the loop decrements its index before the first body execution and exits when
+  the index reaches zero, so it visits vector indices **894 down through 1**
+  exactly once and never processes index 0;
+- every vector member already passed `0x403E70`, whose success path requires
+  `0x403E10` manager validity, so the repeated manager check at `0x619935`
+  cannot skip a fresh vector member absent intervening mutation;
+- fresh transfer-candidate count entering the loop is zero and each iteration
+  can append at most one player, so the 1000-player cap cannot terminate the
+  894-visit loop early;
+- therefore the loop executes exactly **894 mandatory RNG(10) dispatch draws**;
+- dispatch result <7 enters `0x61A9A0(club,0)`; 7..9 enters `0x4050F0(club)`;
+- when either selector returns a player, `0x420A10` sets DBRPlayer flag bit 8,
+  the already-mapped transfer-list state, and increments the running populated
+  count by one.
+
+This does **not** yet give the final shared CRT state because both selector
+branches can consume additional nested RNG, notably through player eligibility
+`0x417470`, and `0x4050F0` also contains its own rejection-sampling draws.
+
+Exact next target: replay the nested `0x61A9A0 / 0x4050F0 -> 0x417470` RNG
+against fresh roster/player state, then continue into the loan-maintenance
+segment of `0x6194D0`.
