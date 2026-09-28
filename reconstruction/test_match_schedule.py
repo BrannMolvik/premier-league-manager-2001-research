@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 from match_schedule import (
     MsvcCrtRng,
+    advance_schedule_bucket_shuffle_state,
     build_and_shuffle_schedule_bucket,
     choose_ordinary_league_schedule_bucket,
     first_ordinary_league_conflict_near,
@@ -77,6 +78,19 @@ class ScheduleBucketShuffleTests(unittest.TestCase):
             build_and_shuffle_schedule_bucket([0, 1, 2, 3, 4], rng),
             (1, 3, 0, 2, 4),
         )
+
+    def test_secondary_container_bucket_counts_reach_canonical_staff_seed(self):
+        bucket_sizes = (
+            6, 10, 6, 6, 6, 6, 10, 6, 10, 10, 16, 12, 4,
+            24, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 2, 1,
+            48, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8, 4, 2, 1,
+            6, 6, 6,
+        )
+        self.assertEqual(sum(bucket_sizes), 262)
+        self.assertEqual(len(bucket_sizes), 45)
+        rng = MsvcCrtRng(0xCAB0B953)
+        self.assertEqual(advance_schedule_bucket_shuffle_state(bucket_sizes, rng), 217)
+        self.assertEqual(rng.state, 0x61D6DFA2)
 
     def test_zero_or_one_entry_consumes_no_rng(self):
         rng = RecordingRng([])
