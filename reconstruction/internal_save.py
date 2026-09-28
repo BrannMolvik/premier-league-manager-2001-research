@@ -47,7 +47,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 16
+SAVE_SCHEMA_VERSION = 17
 
 
 def _iso(value: date | None) -> str | None:
@@ -261,6 +261,9 @@ PLAYER_RECORD_FIELDS = (
     "match_performance_history_or_null",
     "match_performance_history_count",
     "match_performance_history_write_index",
+    "contract_special_state_138",
+    "contract_renewal_suggestion_pending",
+    "previous_club_id_74",
 )
 
 
@@ -345,6 +348,13 @@ def _snapshot_player(player: RuntimePlayer) -> list[Any]:
         ),
         int(player.match_performance_history_count),
         int(player.match_performance_history_write_index),
+        int(player.contract_special_state_138),
+        bool(player.contract_renewal_suggestion_pending),
+        (
+            None
+            if player.previous_club_id_74 is None
+            else int(player.previous_club_id_74)
+        ),
     ]
 
 
@@ -419,6 +429,9 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         ),
         match_performance_history_count=int(value[41]),
         match_performance_history_write_index=int(value[42]),
+        contract_special_state_138=int(value[43]),
+        contract_renewal_suggestion_pending=bool(value[44]),
+        previous_club_id_74=(None if value[45] is None else int(value[45])),
         discipline_yellow_total=int(value[12]),
         discipline_yellow_cycle=int(value[13]),
         suspension_matches_remaining=int(value[14]),
