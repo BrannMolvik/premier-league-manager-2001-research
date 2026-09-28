@@ -38,15 +38,16 @@ class MsvcCrtRng:
         return (self.state >> 16) & 0x7FFF
 
     def randbelow(self, bound: int) -> int:
-        """Reproduce 0x64D540 for a positive bound.
+        """Reproduce 0x64D540, including the original zero-bound behavior.
 
-        FOOTBAL.EXE computes floor(rand15 * bound / 32768).  Integer
-        arithmetic is equivalent for the positive schedule/list counts used
-        by the original routine and avoids introducing host-FPU differences.
+        FOOTBAL.EXE always consumes one CRT rand() value, then computes
+        floor(rand15 * bound / 32768). A zero bound therefore advances the
+        shared RNG state and returns zero. Negative bounds are not used by the
+        recovered callers and remain rejected here.
         """
         bound = int(bound)
-        if bound <= 0:
-            raise ValueError("bound must be positive")
+        if bound < 0:
+            raise ValueError("bound must be non-negative")
         return (self.rand15() * bound) // 32768
 
 
