@@ -88,8 +88,8 @@ class MoraleSettings:
             value = int(getattr(self, name))
             if not 0 <= value <= 255:
                 raise ValueError(name + " must fit the original unsigned byte")
-        if int(self.chance_ask_for_transfer) <= 2:
-            raise ValueError("chance_ask_for_transfer must be greater than success roll 2")
+        if int(self.chance_ask_for_transfer) <= 0:
+            raise ValueError("chance_ask_for_transfer must be positive")
 
 
 @dataclass(frozen=True)
