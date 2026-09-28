@@ -367,10 +367,11 @@ def scouting_first_stage_passes(
         return False
 
     selector = int(panel_state.class_selector_64c0)
-    if not 0 <= selector < len(SCOUTING_CLASS_BY_SELECTOR):
-        return False
-    if int(values.player_class) != int(SCOUTING_CLASS_BY_SELECTOR[selector]):
-        return False
+    # 0x4AE7FE uses an unsigned "ja 0x4AE831": selector values outside 0..3
+    # bypass the four-way class check and continue to the later gates.
+    if 0 <= selector < len(SCOUTING_CLASS_BY_SELECTOR):
+        if int(values.player_class) != int(SCOUTING_CLASS_BY_SELECTOR[selector]):
+            return False
 
     if not bool(values.optional_position_passes):
         return False
