@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 51,
-  "last_recovery_reason": "conversation-length-limit",
-  "note": "Gate 11 live scouting performance history is verified through c767083a/e677c84e. Continue only the two intentionally neutral first-stage scouting inputs; do not guess labels and do not reopen completed training/performance work.",
+  "recovery_generation": 52,
+  "last_recovery_reason": "stale-repository-activity-no-worker-tab",
+  "note": "Recovered from stale repository activity with no usable worker tab at main e677c84e. Continue only the two intentionally neutral first-stage scouting inputs; do not guess labels and do not reopen completed training/performance work.",
   "same_chat_fallback_minutes": 30
 }
