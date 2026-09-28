@@ -190,6 +190,10 @@ class RuntimePlayer:
     startup_month_span: int = 0
     weekly_wage: int = 0
     contract_expiry_date: date | None = None
+    # DBRPlayer+0x14 bit 7: original "Out of contract" status. This is
+    # persistent state rather than a computed expiry predicate: monthly
+    # 0x41ABC0 can set it while club/roster context still exists.
+    out_of_contract: bool = False
     transfer_listed: bool = False
     # DBRPlayer+0x14 bit 12: recovered weekly loan-list candidate state.
     loan_listed: bool = False
