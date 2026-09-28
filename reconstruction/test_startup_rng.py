@@ -157,6 +157,20 @@ class StartupYouthRngTests(unittest.TestCase):
         )[:512]
         self.assertEqual(startup_youth_candidate_ids(players, 332), expected)
 
+    def test_runtime_youth_exclusions_are_applied_before_the_512_entry_cap(self):
+        players = tuple(Player(i, 332, 0) for i in range(520))
+        result = startup_youth_candidate_ids(
+            players,
+            332,
+            runtime_excluded_ids=(0, 1, 5),
+        )
+        self.assertEqual(len(result), 512)
+        self.assertEqual(result[:4], (2, 3, 4, 6))
+        self.assertEqual(result[-1], 514)
+        self.assertNotIn(0, result)
+        self.assertNotIn(1, result)
+        self.assertNotIn(5, result)
+
     def test_selection_bounds_descend_from_actual_candidate_count(self):
         self.assertEqual(
             startup_youth_selection_bounds(512, 5),
@@ -311,7 +325,7 @@ class StartupReplayTests(unittest.TestCase):
             replay.youth_source_ids,
             (
                 (5, 1, 11, 0),
-                (6, 2, 23, 21, 0, 1, 20, 8),
+                (8, 4, 23, 21, 2, 3, 20, 9),
             ),
         )
 
