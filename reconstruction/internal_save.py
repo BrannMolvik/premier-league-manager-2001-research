@@ -137,14 +137,57 @@ def _source_payload_from_database(database) -> dict[str, Any]:
 
 
 def _source_payload_from_state(state: GameState) -> dict[str, Any]:
+    """Build source validation from immutable database identity.
+
+    Fresh youth generation mutates live first/surname, nationality and DOB
+    through 0x41E510/0x61DD30. RuntimePlayer keeps immutable mirrors for those
+    source fields so a valid youth save still hashes against the supplied
+    original database.
+    """
     league = state.premier_league
-    return _source_payload(
-        tuple(state.players.values()),
-        tuple(state.clubs.values()),
-        tuple(state.managers.values()),
-        tuple(state.competitions.values()),
-        () if league is None else tuple(league.fixtures.values()),
-    )
+
+    player_records = []
+    for player in state.players.values():
+        values = []
+        for field_name in _PLAYER_SIGNATURE_FIELDS:
+            mirror_name = {
+                "first_name": "source_first_name",
+                "surname": "source_surname",
+                "nationality_id": "source_nationality_id",
+                "date_of_birth": "source_date_of_birth",
+            }.get(field_name)
+            if mirror_name is not None:
+                mirror = getattr(player, mirror_name, None)
+                value = (
+                    mirror
+                    if mirror is not None
+                    else getattr(player, field_name, None)
+                )
+            else:
+                value = getattr(player, field_name, None)
+            values.append(_stable_source_value(value))
+        player_records.append(values)
+
+    return {
+        "players": sorted(player_records),
+        "clubs": _source_records(tuple(state.clubs.values()), _CLUB_SIGNATURE_FIELDS),
+        "managers": _source_records(tuple(state.managers.values()), _MANAGER_SIGNATURE_FIELDS),
+        "competitions": _source_records(
+            tuple(state.competitions.values()),
+            _COMPETITION_SIGNATURE_FIELDS,
+        ),
+        "fixtures": sorted(
+            [
+                int(fixture.id),
+                int(fixture.round_index),
+                int(fixture.home_club_id),
+                int(fixture.away_club_id),
+            ]
+            for fixture in (
+                () if league is None else tuple(league.fixtures.values())
+            )
+        ),
+    }
 
 
 def _source_signature(payload: dict[str, Any]) -> str:
@@ -390,6 +433,10 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         current_raw=[int(v) for v in value[3]],
         target_raw=tuple(int(v) for v in source.target_raw),
         development=_restore_development(value[4], source.target_raw),
+        source_first_name=str(source.first_name),
+        source_surname=str(source.surname),
+        source_nationality_id=int(source.nationality_id),
+        source_date_of_birth=source.date_of_birth,
         training_modifiers=(
             [0] * 17 if training is None else [int(v) for v in training]
         ),
