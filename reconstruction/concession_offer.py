@@ -15,6 +15,21 @@ class BoundedRng(Protocol):
 
 
 @dataclass(frozen=True)
+class ConcessionRuntimeSource:
+    selector_capacities: tuple[int, ...]
+    stadium_total: int
+    club_metric: int
+    access_metric: int
+    adjustment_percent: float = 20.0
+
+    def __post_init__(self) -> None:
+        if len(self.selector_capacities) != 8:
+            raise ValueError("concession source requires exactly eight selector capacities")
+        if int(self.stadium_total) <= 0:
+            raise ValueError("concession source stadium_total must be positive")
+
+
+@dataclass(frozen=True)
 class ConcessionCandidateRule:
     family: int
     tier: int
