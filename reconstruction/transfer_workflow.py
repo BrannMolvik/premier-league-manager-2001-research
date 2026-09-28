@@ -222,7 +222,11 @@ def schedule_ordinary_cash_transfer(
     return scheduled
 
 
-def _complete_ordinary_cash_transfer(state, proposal: TransferProposal) -> PlayerMovement:
+def _complete_ordinary_cash_transfer(
+    state,
+    proposal: TransferProposal,
+    rng,
+) -> PlayerMovement:
     """Apply the recovered 0x4229B0 -> 0x422AA0/0x422F70 core state changes.
 
     Finance posting remains outside this helper until Gate 10 supplies the live
@@ -295,6 +299,28 @@ def _complete_ordinary_cash_transfer(state, proposal: TransferProposal) -> Playe
     if hasattr(player, "clear_match_selection"):
         player.clear_match_selection(reset_position=True)
 
+    # 0x422F70 finishes an ordinary completed transfer by calling
+    # 0x4192B0 -> 0x419210. That common signed-contract finalizer applies
+    # SignedNewContactMorale through 0x41BB10, consuming exactly one RNG(2)
+    # after the destination club and contract fields have been installed.
+    from match_postmatch import MoraleSettings, increase_player_morale
+
+    age = player.age(state.calendar.current_date)
+    if age is None:
+        raise ValueError("completed transfer morale requires a player age")
+    current_raw = tuple(int(value) for value in player.current_raw)
+    if len(current_raw) <= 15:
+        raise ValueError("completed transfer morale requires skill index 15")
+    morale_settings = MoraleSettings()
+    player.morale = increase_player_morale(
+        int(player.morale),
+        int(morale_settings.signed_new_contract),
+        int(age),
+        int(current_raw[15]),
+        rng,
+        morale_settings,
+    )
+
     state.transfers.clear_deals_for(proposal)
     state.transfers.clear_proposal(player_id, buyer_id)
     return movement
@@ -304,6 +330,7 @@ def execute_due_ordinary_cash_transfers(
     state,
     *,
     user_controlled_club_id: int | None = None,
+    rng=None,
 ) -> tuple[ScheduledTransferExecution, ...]:
     """Execute due MPMTransferPlayer mode-0/1 objects.
 
@@ -381,7 +408,18 @@ def execute_due_ordinary_cash_transfers(
                 )
                 continue
 
-        movement = _complete_ordinary_cash_transfer(state, proposal)
+        completion_rng = rng
+        if completion_rng is None:
+            if not hasattr(state, "_resolve_rng"):
+                raise RuntimeError(
+                    "completed transfer requires the shared game RNG"
+                )
+            completion_rng = state._resolve_rng()
+        movement = _complete_ordinary_cash_transfer(
+            state,
+            proposal,
+            completion_rng,
+        )
         results.append(
             ScheduledTransferExecution(
                 scheduled=scheduled,
