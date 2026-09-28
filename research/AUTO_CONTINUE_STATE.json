@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Replay the first 0x4A8070 maintenance RNG from 0x1D1A278D, beginning with weekly 0x6194D0, then day-one 0x4C9E90 and other proven RNG sites before 0x425680 -> 0x4D1760 fixed staff.",
-  "last_known_main_head": "4d804bfb5045252547e925eed30d69c5e54359bb",
+  "active_task": "Continue exact Gate-11 startup RNG replay at reverse club transfer-list population loop 0x61991F, then carry shared CRT state through loan maintenance into 0x425680 -> 0x4D1760 fixed-staff initialization.",
+  "last_known_main_head": "61119f758d3ac8cb5a428650b37dc101f9e8152e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 39,
+  "recovery_generation": 40,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 39. Main 4d804bfb is canonical. Staff pool and two immediate candidate rebuilds are closed through 0x1D1A278D; continue only first calendar-maintenance RNG before fixed Youth Coach initialization.",
+  "note": "Recovery generation 40 resumed from main 61119f75. Do not revisit completed staff-pool or empty transfer-shuffle work.",
   "same_chat_fallback_minutes": 30
 }
