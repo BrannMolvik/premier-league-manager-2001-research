@@ -5620,3 +5620,93 @@ All recently committed modulo-derived visit sequences beginning club 805 and
 their visit-1..40 selector outcomes are superseded. Exact continuation is
 canonical reverse visit **2, club 750**, from **`0x6A346701`**, using
 scaled `0x64D540` bounded draws throughout.
+
+
+## Gate 11 scaled selector replay verified through visit 40 — 28 September 2026
+
+The selector helper was rebuilt against the canonical source after the
+`0x64D540` bounded-RNG correction and given an independent regression check
+before advancing the shared stream.
+
+The validation is deliberately stronger than comparing one or two selected
+players. With every selector mechanic held fixed but the bounded mapping
+temporarily switched back to the erroneous `rand15 % bound`, the rebuilt
+helper reproduces **all 40** superseded modulo-derived reverse visits and
+**all 40** previously committed raw CRT end states exactly. That includes the
+positional and random selector branches, roster-index draws, eligibility
+failures, no-rating-RNG paths, and multi-attempt random selections. This
+isolates the prior discrepancy to the bounded-RNG mapping itself; the rebuilt
+selector mechanics agree with the earlier instruction-level audits.
+
+Returning to FM2001's real scaled `0x64D540`, canonical reverse visits 1-40
+are:
+
+```text
+ 1  118 Carlisle Utd           -> 0x6A346701  Steve Soley
+ 2  750 Dunaferr               -> 0x7B490815  Goran Mosanovic
+ 3  510 Rot-Weiß Essen         -> 0xF0AD5F37  O. Skok
+ 4 1216 Panahaiki              -> 0x0C123F69  no listing
+ 5  430 Carmarthen Town        -> 0x7302C488  no listing
+ 6  622 KSC Lokeren            -> 0x86F7B742  no listing
+ 7  877 Trisen                 -> 0xABE8BCA6  Dieter Krainz
+ 8  243 Ajax                   -> 0x047A80D1  - Dani
+ 9  404 Coleraine              -> 0x79B832E5  Simon Smyth
+10  500 Babelsberg             -> 0x80BA6087  no listing
+11  717 Lokomotiv Sofia        -> 0x7FCFCB39  Sasha Angelov
+12  597 Emmen                  -> 0x145D6118  no listing
+13  616 KSC Eendracht Aalst    -> 0x3081B852  Christophe Kestens
+14  842 Rostel'mash            -> 0x1850595C  no listing
+15  413 Petrolul Ploiesti      -> 0x4FD812B6  Octavian Grigore
+16   89 Crystal Palace         -> 0x458226E0  Steve Thomson
+17  822 Newtown                -> 0x9405EC5A  no listing
+18  804 SCP Ruzomberok         -> 0xCCF96DA4  Rastislav Zihlavnik
+19  484 FC St Pauli Am.        -> 0xD8E7093E  M. Niemann
+20    1 Aston Villa            -> 0x651BA9FF  Daniel West
+21  470 Sevilla F.C.           -> 0x97342071  no listing
+22  215 FC Lorient             -> 0x60EBD638  Laurent Bourmaud
+23  818 Young Boys Berne       -> 0x2C98D672  Andre Allenbach
+24  680 Zeljenicar Sarajevo    -> 0x20DD687C  - Zeric
+25  213 Stade Lavallois        -> 0xEE729AD6  Anthony Braizat
+26  165 Hertha BSC Berlin      -> 0x4554FE7A  Michael Hartmann
+27   23 Eintracht Frankfurt    -> 0x1F9E10C4  no listing
+28  237 Lierse SK              -> 0x5675C55E  Luc Struyven
+29  630 KV Mechelen            -> 0x5701AEC8  Gunther Vets
+30  144 Gillingham             -> 0xD8E3EE0C  James Pinnock
+31  549 Barcelona B            -> 0x96AFCCE6  no listing
+32  556 Dortmund Amateure      -> 0x5DFB3290  T. Stock
+33  780 Nistru Otaci           -> 0x4E46D58A  Nikolai Kapusteanschi
+34  496 Elgin City             -> 0xC71FD16E  H. Berg
+35  145 Hartlepool Utd         -> 0xD1A29B58  Graeme Lee
+36  173 SG Wattenscheid 09     -> 0x8E9AC492  no listing
+37  103 Southend Utd           -> 0xE32BC79C  Scott Houghton
+38  803 MSK Zilina             -> 0x5D58F2F6  Branislav Labant
+39  538 Litex Lovech           -> 0xBFA0E09A  Koicho Ivanov
+40  620 Germinal Beerschot     -> 0x1EBAE4F5  no listing
+```
+
+Selected instruction-sensitive examples on the corrected stream:
+
+- visit 2 Dunaferr dispatches scaled RNG(10)=7 into `0x4050F0`; its first
+  random attempt selects Goran Mosanovic and the rating-49 scaled RNG(100)=96
+  passes, leaving **`0x7B490815`**;
+- visit 3 Rot-Weiß Essen dispatches 0 into `0x61A9A0`, selects O. Skok,
+  and rating 55 passes scaled RNG(100)=88, leaving
+  **`0xF0AD5F37`**;
+- visit 5 Carmarthen consumes only its dispatch because effective roster count
+  16 equals the AccessFanBase threshold 16;
+- visit 8 Ajax lists Dani with best rating 81 and therefore consumes no
+  rating RNG;
+- visit 20 Aston Villa's random selector rejects Mark Draper on the first
+  attempt and accepts Daniel West on the second, closing the first twenty at
+  **`0x651BA9FF`**.
+
+As an additional sanity run, the exact same scaled helper traverses all
+**894** bounded club visits without reaching an unmodeled selector branch.
+That full run currently ends at raw CRT state **`0x126CF137`** with 625
+players listed. Treat that final state as a **provisional full-run
+checkpoint**, not yet the next canonical boundary: the replay helper itself
+must be made durable/reproducible and the later prefix should be checkpointed
+before the state is carried into loan maintenance.
+
+Exact durable continuation: reverse visit **41, club 742 (Herfølge)** from
+shared state **`0x1EBAE4F5`**.
