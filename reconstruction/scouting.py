@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Iterable, Sequence, TypeVar
 
+from match_role_rating import best_preferred_role_rating
 from match_schedule import MsvcCrtRng
 
 
@@ -110,3 +111,50 @@ def secondary_scouting_results(
         caller_argument=caller_argument,
     )
     return shuffled[: max(0, int(max_num_found))]
+
+
+SCOUTING_SCORE_MODE_AGE_BIAS = 5
+SCOUTING_SCORE_MODE_SKILL_BIAS = 15
+SCOUTING_SCORE_MODE_PLAIN = 16
+
+
+def scouting_rank_score(
+    current_raw: Sequence[int],
+    preferred_positions: Sequence[int],
+    *,
+    age: int,
+    mode: int,
+    age_bias: int = SCOUT_ONE_AGE_BIAS,
+) -> int | None:
+    """Reproduce the score appended by PScouting2K::0x4AEAE0.
+
+    Only panel mode return codes 5, 15 and 16 append a scored record.
+    The mode-15 boosts are byte writes in the original, so values above 255
+    intentionally wrap before the temporary rating calculation.
+    """
+
+    mode = int(mode)
+    if mode not in (
+        SCOUTING_SCORE_MODE_AGE_BIAS,
+        SCOUTING_SCORE_MODE_SKILL_BIAS,
+        SCOUTING_SCORE_MODE_PLAIN,
+    ):
+        return None
+
+    if len(current_raw) != 17:
+        raise ValueError("current_raw must contain exactly 17 raw skill bytes")
+    skills = [int(value) for value in current_raw]
+    if any(not 0 <= value <= 255 for value in skills):
+        raise ValueError("current_raw values must be in 0..255")
+
+    if mode == SCOUTING_SCORE_MODE_SKILL_BIAS:
+        for slot, percent in ((1, 120), (2, 130), (3, 120), (9, 120)):
+            skills[slot] = (skills[slot] * percent // 100) & 0xFF
+
+    score = best_preferred_role_rating(skills, preferred_positions)
+
+    if mode == SCOUTING_SCORE_MODE_AGE_BIAS:
+        age_term = max(0, (int(age) - 31) * int(age_bias))
+        score = score * (60 + age_term) // 100
+
+    return int(score)
