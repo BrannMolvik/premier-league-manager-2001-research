@@ -20,6 +20,8 @@ DEFAULT_UNHAPPY_LOST_MATCH = 7
 DEFAULT_UNHAPPY_WON_MATCH = 10
 DEFAULT_UNHAPPY_NOT_PLAYED = 8
 DEFAULT_MAXIMUM_MORALE = 100
+DEFAULT_LOAN_MORALE = 10
+DEFAULT_SIGNED_NEW_CONTRACT_MORALE = 30
 
 
 class BoundedRng(Protocol):
@@ -63,6 +65,8 @@ class MoraleSettings:
     won_match: int = DEFAULT_UNHAPPY_WON_MATCH
     not_played: int = DEFAULT_UNHAPPY_NOT_PLAYED
     maximum: int = DEFAULT_MAXIMUM_MORALE
+    loan: int = DEFAULT_LOAN_MORALE
+    signed_new_contract: int = DEFAULT_SIGNED_NEW_CONTRACT_MORALE
 
     def __post_init__(self) -> None:
         for name in (
@@ -71,6 +75,8 @@ class MoraleSettings:
             "won_match",
             "not_played",
             "maximum",
+            "loan",
+            "signed_new_contract",
         ):
             value = int(getattr(self, name))
             if not 0 <= value <= 255:
