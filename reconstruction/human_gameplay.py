@@ -316,16 +316,14 @@ class HumanGameplayController:
         Strengths selector stores 0 for All and 1..17 for current_raw slots;
         scout_strength_min defaults to the shipped value 20. The optional
         predicate callbacks are retained only as additional caller constraints
-        for compatibility. Out-of-contract status has an exact UI/bit meaning,
-        but its full contract-maintenance producer is not yet materialized.
+        for compatibility. Out-of-contract status now comes from persistent
+        RuntimePlayer state produced by the mapped monthly contract lifecycle;
+        out_of_contract_resolver remains only as an explicit compatibility
+        override.
         """
 
         if self.human is None:
             raise RuntimeError("select a human club first")
-        if bool(status_controls.out_of_contract) and out_of_contract_resolver is None:
-            raise ValueError(
-                "active out-of-contract scouting control requires a resolver"
-            )
 
         on_date = self.state.calendar.current_date
         human_club = self.state.clubs.get(int(self.human.club_id))
@@ -403,7 +401,7 @@ class HumanGameplayController:
                     out_of_contract=(
                         bool(out_of_contract_resolver(player))
                         if out_of_contract_resolver is not None
-                        else False
+                        else bool(player.out_of_contract)
                     ),
                     loan_listed=(
                         bool(loan_listed_resolver(player))
