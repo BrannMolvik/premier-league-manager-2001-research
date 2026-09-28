@@ -9046,3 +9046,27 @@ is separately proven.
 Clean-room consequence: `ChanceRecord` now carries optional secondary
 player side/index metadata. This is semantic event data only and consumes no
 additional RNG.
+
+
+### Direct free-kick and penalty duplicate-player attribution
+
+The remaining direct goal-family constructors are now instruction-closed.
+
+Type-2 direct free-kick paths at `0x62D0AB`, `0x62D0C7` and
+`0x62D0FE` call `0x62EE20` with the same taker pointer in both player
+arguments. `0x62EE20` writes those arguments independently to record
+`+0x08` and `+0x0C`.
+
+Type-4 penalty paths at `0x62D796`, `0x62D892` and `0x62D90D` likewise
+call `0x62EEA0` with the same penalty taker in both player arguments.
+`0x62EEA0` uses the same two `0x62F0C0` writes to event
+`+0x08/+0x0C`.
+
+The later goal-accounting routine `0x6302F0` increments participant
+`+0x40` and `+0x44` independently; it does not suppress the second
+increment when both event player slots identify the same player. Therefore a
+non-own direct free-kick or penalty goal credits both target-rating counters to
+the taker.
+
+The clean-room direct-free-kick and penalty ChanceRecords now preserve this
+duplicate attribution without consuming additional RNG.
