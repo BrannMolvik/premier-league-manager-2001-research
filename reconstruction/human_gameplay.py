@@ -191,19 +191,15 @@ class HumanGameplayController:
         user-facing labels are still intentionally neutral. candidate_predicate
         is therefore explicit rather than replaced with guessed UI semantics.
 
-        Sort modes 2, 3 and 5 require their source values only when selected.
-        In particular, the existing form_state is not substituted for the
-        original six-byte 0x41FB60 history average.
+        Sort modes 3 and 5 require their source values only when selected.
+        Sort mode 2 reads RuntimePlayer's exact six-byte 0x41FB60 history by
+        default; history_average_resolver remains available only as an explicit
+        compatibility override. The five-state form_state is never substituted.
         """
         if self.human is None:
             raise RuntimeError("select a human club first")
 
         sort_mode = int(sort_mode)
-        if (
-            sort_mode == SCOUTING_SORT_MODE_HISTORY_AVERAGE
-            and history_average_resolver is None
-        ):
-            raise ValueError("sort mode 2 requires history_average_resolver")
         if (
             sort_mode == SCOUTING_SORT_MODE_POSITION_LABEL
             and position_label_resolver is None
@@ -253,7 +249,7 @@ class HumanGameplayController:
                 history_average=(
                     float(history_average_resolver(player))
                     if history_average_resolver is not None
-                    else 0.0
+                    else float(player.match_performance_average())
                 ),
                 position_label=(
                     str(position_label_resolver(player))
