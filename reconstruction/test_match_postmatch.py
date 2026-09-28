@@ -12,6 +12,9 @@ from match_events import (
 )
 from match_postmatch import (
     FormTransitionSettings,
+    MoraleSettings,
+    decrease_player_morale,
+    increase_player_morale,
     appeared_player_indices,
     apply_league_match_discipline,
     persist_match_performance_history,
@@ -19,6 +22,7 @@ from match_postmatch import (
     persist_post_match_side,
     persist_premier_league_discipline,
     persist_premier_league_match_incidents,
+    persist_premier_league_morale_and_form,
     refresh_league_suspension_for_next_fixture,
     sync_post_match_conditions,
     serve_league_suspension_after_fixture,
@@ -50,6 +54,10 @@ class ScriptedRng:
 
 @dataclass
 class RuntimePlayer:
+    index: int = 0
+    morale: int = 50
+    date_of_birth: date | None = date(1980, 1, 1)
+    current_raw: tuple[int, ...] = (20,) * 17
     condition: int = 80
     form_state: int = 2
     injured: bool = False
@@ -124,6 +132,83 @@ def prepared_side():
         free_kick_taker_priority=(),
         starting_player_indices=(0, 1),
     )
+
+
+class MoraleTransitionTests(unittest.TestCase):
+    def test_shipped_settings_match_original_tuning_bytes(self):
+        self.assertEqual(
+            MoraleSettings(),
+            MoraleSettings(
+                good_leadership=25,
+                lost_match=7,
+                won_match=10,
+                not_played=8,
+                maximum=100,
+            ),
+        )
+
+    def test_decrease_uses_leadership_age_and_one_rng2(self):
+        low = ScriptedRng([1])
+        high = ScriptedRng([1])
+        self.assertEqual(decrease_player_morale(80, 7, 20, 20, low), 74)
+        self.assertEqual(decrease_player_morale(80, 7, 20, 30, high), 76)
+        self.assertEqual(low.calls, [2])
+        self.assertEqual(high.calls, [2])
+
+    def test_increase_uses_leadership_age_and_caps_at_maximum(self):
+        low = ScriptedRng([1])
+        high = ScriptedRng([1])
+        self.assertEqual(increase_player_morale(80, 10, 20, 20, low), 92)
+        self.assertEqual(increase_player_morale(80, 10, 20, 30, high), 94)
+        self.assertEqual(
+            increase_player_morale(99, 10, 20, 30, ScriptedRng([0])),
+            100,
+        )
+
+    def test_roster_pass_interleaves_morale_form_and_not_played_rng(self):
+        side = prepared_side()
+        result = NormalMatchResult(
+            events=(
+                TimedMatchEvent(
+                    10,
+                    ChanceRecord(
+                        ChanceSource.OPEN_PLAY,
+                        0,
+                        0,
+                        0,
+                        finish_mode=FinishMode.SHOOTING,
+                    ),
+                ),
+            )
+        )
+        participants = [
+            RuntimePlayer(index=10),
+            RuntimePlayer(index=11),
+            RuntimePlayer(index=12),
+            RuntimePlayer(index=13),
+        ]
+        unavailable = RuntimePlayer(index=15, injured=True)
+        roster = (
+            participants[0],
+            RuntimePlayer(index=14),
+            participants[1],
+            unavailable,
+        )
+        rng = ScriptedRng([0, 99, 0, 1, 1, 99])
+
+        appeared = persist_premier_league_morale_and_form(
+            roster,
+            side,
+            participants,
+            result,
+            date(2000, 7, 1),
+            rng,
+        )
+
+        self.assertEqual(appeared, frozenset((10, 11)))
+        self.assertEqual([player.morale for player in roster], [62, 43, 63, 50])
+        self.assertEqual([player.form_state for player in roster], [2, 2, 2, 2])
+        self.assertEqual(rng.calls, [2, 100, 10, 2, 2, 100])
 
 
 class FormTransitionTests(unittest.TestCase):

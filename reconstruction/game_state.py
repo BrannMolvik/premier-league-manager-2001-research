@@ -59,7 +59,7 @@ from match_preparation import (
 )
 from match_postmatch import (
     persist_match_performance_history,
-    persist_post_match_form,
+    persist_premier_league_morale_and_form,
     persist_premier_league_match_incidents,
     sync_post_match_conditions,
 )
@@ -1906,18 +1906,23 @@ class GameState:
             environment.weather_code,
         )
 
-        # The later player pass runs Form only. It must not re-copy Condition,
-        # which would erase the persistent injury finalizer's Condition loss.
-        persist_post_match_form(
+        # 0x404CE0 runs after incident persistence and interleaves each
+        # roster player's morale handling with that same player's Form update.
+        # It must not re-copy Condition, which would erase injury Condition loss.
+        persist_premier_league_morale_and_form(
+            self.ordered_club_roster(home_club_id),
             home.match_side,
             home.preparation.selection.participants,
             result,
+            fixture_date,
             rng,
         )
-        persist_post_match_form(
+        persist_premier_league_morale_and_form(
+            self.ordered_club_roster(away_club_id),
             away.match_side,
             away.preparation.selection.participants,
             result,
+            fixture_date,
             rng,
         )
         return result
@@ -2106,16 +2111,20 @@ class GameState:
             environment.weather_code,
         )
 
-        persist_post_match_form(
+        persist_premier_league_morale_and_form(
+            self.ordered_club_roster(home_club_id),
             home_side,
             home_participants,
             result,
+            fixture_date,
             rng,
         )
-        persist_post_match_form(
+        persist_premier_league_morale_and_form(
+            self.ordered_club_roster(away_club_id),
             away_side,
             away_participants,
             result,
+            fixture_date,
             rng,
         )
         return result

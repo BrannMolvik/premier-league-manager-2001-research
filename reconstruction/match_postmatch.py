@@ -15,6 +15,12 @@ DEFAULT_IN_FORM_CHANGE_PROB = 20
 DEFAULT_OUT_OF_FORM_CHANGE_PROB = 20
 DEFAULT_FORM_INCREASE_PROB = 50
 
+DEFAULT_GOOD_LEADERSHIP = 25
+DEFAULT_UNHAPPY_LOST_MATCH = 7
+DEFAULT_UNHAPPY_WON_MATCH = 10
+DEFAULT_UNHAPPY_NOT_PLAYED = 8
+DEFAULT_MAXIMUM_MORALE = 100
+
 
 class BoundedRng(Protocol):
     def randbelow(self, bound: int) -> int: ...
@@ -29,12 +35,46 @@ class MutablePostMatchPlayer(Protocol):
     def append_match_performance(self, value: int) -> int: ...
 
 
+class MutablePostMatchMoralePlayer(Protocol):
+    index: int
+    morale: int
+    form_state: int
+    injured: bool
+    suspended: bool
+    selection_excluded: bool
+    date_of_birth: date | None
+    current_raw: Sequence[int]
+
+
 class MutableLeagueDisciplinePlayer(Protocol):
     suspended: bool
     discipline_yellow_total: int
     discipline_yellow_cycle: int
     suspension_matches_remaining: int
     suspension_effective_date: date | None
+
+
+@dataclass(frozen=True)
+class MoraleSettings:
+    """Shipped DBRPlayer morale tuning for 0x41BA80 and 0x41BB10."""
+
+    good_leadership: int = DEFAULT_GOOD_LEADERSHIP
+    lost_match: int = DEFAULT_UNHAPPY_LOST_MATCH
+    won_match: int = DEFAULT_UNHAPPY_WON_MATCH
+    not_played: int = DEFAULT_UNHAPPY_NOT_PLAYED
+    maximum: int = DEFAULT_MAXIMUM_MORALE
+
+    def __post_init__(self) -> None:
+        for name in (
+            "good_leadership",
+            "lost_match",
+            "won_match",
+            "not_played",
+            "maximum",
+        ):
+            value = int(getattr(self, name))
+            if not 0 <= value <= 255:
+                raise ValueError(name + " must fit the original unsigned byte")
 
 
 @dataclass(frozen=True)
@@ -87,6 +127,154 @@ def update_post_match_form(
     if rng.randbelow(100) < int(settings.form_increase_prob):
         return min(4, state + 1)
     return max(0, state - 1)
+
+
+def decrease_player_morale(
+    morale: int,
+    base_amount: int,
+    age: int,
+    leadership: int,
+    rng: BoundedRng,
+    settings: MoraleSettings = MoraleSettings(),
+) -> int:
+    """Exact DBRPlayer::0x41BA80 clamped morale decrease."""
+    current = int(morale) & 0xFF
+    modifier = -1
+    if int(leadership) >= int(settings.good_leadership):
+        modifier -= 2
+    if int(age) > 15:
+        modifier -= 1
+    if int(age) < 11:
+        modifier -= 1
+    amount = int(base_amount) + int(rng.randbelow(2)) + modifier
+    if amount <= 0:
+        return current
+    return max(0, current - amount)
+
+
+def increase_player_morale(
+    morale: int,
+    base_amount: int,
+    age: int,
+    leadership: int,
+    rng: BoundedRng,
+    settings: MoraleSettings = MoraleSettings(),
+) -> int:
+    """Exact DBRPlayer::0x41BB10 morale increase capped at MaximumMorale."""
+    current = int(morale) & 0xFF
+    modifier = 1 if int(leadership) >= int(settings.good_leadership) else 0
+    modifier = modifier * 2 + (1 if int(age) > 15 else 0)
+    if int(age) < 11:
+        modifier += 1
+    amount = int(base_amount) + int(rng.randbelow(2)) + modifier + 1
+    return min(int(settings.maximum), current + amount)
+
+
+def _post_match_age(player: MutablePostMatchMoralePlayer, on_date: date) -> int:
+    dob = player.date_of_birth
+    if dob is None:
+        raise ValueError("post-match morale requires a date of birth")
+    if on_date < dob:
+        raise ValueError("fixture date precedes player date of birth")
+    return int(on_date.year) - int(dob.year) - (
+        (int(on_date.month), int(on_date.day))
+        < (int(dob.month), int(dob.day))
+    )
+
+
+def _post_match_leadership(player: MutablePostMatchMoralePlayer) -> int:
+    raw = tuple(int(value) for value in player.current_raw)
+    if len(raw) <= 15:
+        raise ValueError("post-match morale requires current skill index 15")
+    return raw[15]
+
+
+def _post_match_unavailable(player: MutablePostMatchMoralePlayer) -> bool:
+    return bool(player.injured or player.suspended or player.selection_excluded)
+
+
+def persist_premier_league_morale_and_form(
+    roster: Sequence[MutablePostMatchMoralePlayer],
+    side: PreparedMatchSide,
+    runtime_participants: Sequence[MutablePostMatchMoralePlayer],
+    result: NormalMatchResult,
+    fixture_date: date,
+    rng: BoundedRng,
+    *,
+    morale_settings: MoraleSettings = MoraleSettings(),
+    form_settings: FormTransitionSettings = FormTransitionSettings(),
+) -> frozenset[int]:
+    """Replay detailed 0x404CE0 roster-order morale and Form persistence.
+
+    Appeared players execute loss or win morale first and then 0x41B870 Form
+    immediately. Eligible non-appeared players execute RNG(10); values below
+    four apply the not-played morale decrease. Unavailable non-appeared players
+    consume no morale RNG.
+    """
+    participants = tuple(runtime_participants)
+    prepared = tuple(side.players)
+    if len(prepared) != len(participants):
+        raise ValueError(
+            "runtime participant count must match prepared participant count"
+        )
+
+    appeared_local = appeared_player_indices(side, result)
+    appeared_ids: set[int] = set()
+    for local_index in appeared_local:
+        if not 0 <= int(local_index) < len(participants):
+            raise IndexError("appeared player index outside participant array")
+        appeared_ids.add(int(participants[int(local_index)].index))
+
+    score0, score1 = result.score
+    own_score, opponent_score = (
+        (score0, score1) if int(side.side) == 0 else (score1, score0)
+    )
+    won = int(own_score) > int(opponent_score)
+    lost = int(own_score) < int(opponent_score)
+
+    for player in roster:
+        player_id = int(player.index)
+        if player_id in appeared_ids:
+            age = _post_match_age(player, fixture_date)
+            leadership = _post_match_leadership(player)
+            if lost:
+                player.morale = decrease_player_morale(
+                    int(player.morale),
+                    int(morale_settings.lost_match),
+                    age,
+                    leadership,
+                    rng,
+                    morale_settings,
+                )
+            if won:
+                player.morale = increase_player_morale(
+                    int(player.morale),
+                    int(morale_settings.won_match),
+                    age,
+                    leadership,
+                    rng,
+                    morale_settings,
+                )
+            player.form_state = update_post_match_form(
+                int(player.form_state),
+                rng,
+                form_settings,
+            )
+            continue
+
+        if _post_match_unavailable(player):
+            continue
+        if int(rng.randbelow(10)) < 4:
+            player.morale = decrease_player_morale(
+                int(player.morale),
+                int(morale_settings.not_played),
+                _post_match_age(player, fixture_date),
+                _post_match_leadership(player),
+                rng,
+                morale_settings,
+            )
+
+    return frozenset(appeared_ids)
 
 
 def appeared_player_indices(

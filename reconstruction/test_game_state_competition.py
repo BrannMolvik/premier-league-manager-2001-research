@@ -247,6 +247,11 @@ class IntegratedGameStateTests(unittest.TestCase):
             season_year=2000,
         )
         rng = MidpointRng()
+        morale_before = {
+            player.index: player.morale
+            for club_id in (1, 2)
+            for player in state.ordered_club_roster(club_id)
+        }
         result = state.simulate_premier_league_ai_fixture(
             0,
             coefficient_matrix(),
@@ -262,16 +267,42 @@ class IntegratedGameStateTests(unittest.TestCase):
         # the exact normal PitchWear increment of 16.
         self.assertEqual(state.pitch_wear[1], 16)
         self.assertEqual(state.pitch_wear[2], 0)
-        # With midpoint RNG, neutral-form starters fail the 5% transition on
-        # their first post-match draw. Eleven starters per side therefore add
-        # exactly 22 trailing RNG(100) calls after the calculator finishes.
-        self.assertEqual(rng.calls[-22:], [100] * 22)
+        # Detailed post-match persistence mirrors 0x404CE0 roster order.
+        # Midpoint RNG makes neutral Form fail on RNG(100)=50 and makes every
+        # eligible non-appeared player skip the not-played penalty on RNG(10)=5.
+        # A non-draw adds one RNG(2) morale draw before each appeared Form draw.
+        home_goals, away_goals = result.score
+        result_has_winner = home_goals != away_goals
+        expected_tail = []
+        for _side in (0, 1):
+            for _ in range(11):
+                if result_has_winner:
+                    expected_tail.append(2)
+                expected_tail.append(100)
+            expected_tail.extend([10] * 5)
+        self.assertEqual(rng.calls[-len(expected_tail):], expected_tail)
         self.assertTrue(
             all(player.form_state == 2 for player in state.ordered_club_roster(1))
         )
         self.assertTrue(
             all(player.form_state == 2 for player in state.ordered_club_roster(2))
         )
+
+        for club_id, own_goals, opponent_goals in (
+            (1, home_goals, away_goals),
+            (2, away_goals, home_goals),
+        ):
+            roster = state.ordered_club_roster(club_id)
+            for player in roster[:11]:
+                before = morale_before[player.index]
+                if own_goals > opponent_goals:
+                    self.assertEqual(player.morale, min(100, before + 15))
+                elif own_goals < opponent_goals:
+                    self.assertEqual(player.morale, max(0, before - 4))
+                else:
+                    self.assertEqual(player.morale, before)
+            for player in roster[11:]:
+                self.assertEqual(player.morale, morale_before[player.index])
     def test_explicit_match_engine_rng_populates_live_performance_history(self):
         legacy = GameState.from_database(
             AutonomousDatabase(),
