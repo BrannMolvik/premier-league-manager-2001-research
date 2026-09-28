@@ -5988,3 +5988,47 @@ task: attach the already-verified weekly training primitive to normal Saturday
 calendar progression with the source-backed fresh quality **1.30**, while also
 preserving the recovered daily Condition-maintenance RNG ordering that now
 precedes it.
+
+
+## Gate 11 daily/weekly training runtime primitives — 28 September 2026
+
+The closed pre-first-training RNG bridge is now represented by reusable runtime
+primitives without prematurely wiring unresolved later-week commercial RNG into
+normal calendar progression.
+
+Implementation checkpoints:
+
+- `7ec8d3dd935fda7f4dff75de9a84c03b7c4967aa` adds
+  `RuntimePlayer.run_daily_training_condition_recovery`, reproducing the
+  exact three-iteration `0x61C580` Condition-recovery RNG core with an
+  explicit source-backed threshold;
+- `82ee9ad492bd42f2c02f296810e0ba1a779c0aa1` adds deterministic tests for
+  fresh recovery, the >90 two-stage extra-draw branch, and injured-player
+  zero-draw exclusion;
+- `6c863a039b8570b425bd550240135afee8c3b3b2` adds explicit GameState
+  orchestration for controlled-club daily recovery, Saturday primary training,
+  and their proven daily-before-weekly order using one caller-supplied shared
+  RNG;
+- `6809b70f0a77fcd4e87d6fe80ac139de25ea0141` adds GameState ordering tests.
+
+The five new training tests all report **ok** in GitHub Actions. Repository
+asset-policy validation also passed.
+
+The complete reconstruction run at `6809b70f` executed **574 tests** but
+finished with two failures in existing secondary-schedule assertions:
+
+- secondary root order expected competition 181 before 170, while current code
+  returns 170 before 181;
+- secondary bucket-count test expects 262 nodes while current materialization
+  returns 280.
+
+Neither failing assertion is in the new training code. No reconstruction run
+exists on the immediately preceding research-only checkpoints, so this note does
+not claim when those scheduler expectations first became stale.
+
+Automatic recurring calendar training remains intentionally disabled. The first
+concession timer expires after 11 days, before the second active training
+Saturday, and its `0x5E5330` expiry path contains nested RNG through
+`0x5E5170` / `0x5E5230`. Exact next dependency: replay that first
+concession expiry (and the no-sponsor expiry at day 13) on the shared stream
+before claiming multi-week calendar RNG fidelity.
