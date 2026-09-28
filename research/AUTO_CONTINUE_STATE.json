@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Materialize the reachable fresh-game human youth workflow 0x413980 -> 0x61DF90 -> 0x41E510: preserve exact candidate/name RNG order, model the separate 20-slot user youth list, and trace record initializer/promote/remove actions before GameState/save integration.",
-  "last_known_main_head": "dc0c95aedf8a88e8145564949e6bf10fe40ee12b",
+  "active_task": "Resolve 0x425680 -> 0x61DE40 two-cohort youth initializer lifetime/cadence and exact final state/RNG order; bound the 0x4A8070/0x4A83D0 caller chain before integration.",
+  "last_known_main_head": "ffc12a8e785d0ac1e9acf71e07e5349cea3d32df",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 54,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered at main dc0c95ae. Contract lifecycle is already complete/bounded. Continue only the active fresh youth workflow from CURRENT_STATE.md.",
+  "note": "Fresh youth list slice verified at 20300c8b (662 tests, only two known schedule failures). Continue second initializer trace only.",
   "same_chat_fallback_minutes": 30
 }
