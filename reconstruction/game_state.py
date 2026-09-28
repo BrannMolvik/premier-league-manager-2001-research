@@ -58,6 +58,8 @@ from match_preparation import (
     prepare_premier_league_ai_selection,
 )
 from match_postmatch import (
+    PlayerTransferRequest,
+    apply_player_transfer_request_response,
     persist_match_performance_history,
     persist_premier_league_morale_and_form,
     persist_premier_league_match_incidents,
@@ -137,6 +139,11 @@ class GameState:
     # auto-renewing the contract. Keep the source event kind/date/player
     # persistently so save/reload and later Amend Contract UI can resume it.
     contract_renewal_suggestions: list[ContractRenewalSuggestion] = field(
+        default_factory=list
+    )
+    # 0x404E25 -> 0x41B580 queues next-day PlayerAskTransferList MPMEAMail
+    # records after the controlled club's per-player morale/Form work.
+    player_transfer_requests: list[PlayerTransferRequest] = field(
         default_factory=list
     )
     # Original DBRUser owns Balance pointers rather than club-wide finance
@@ -382,6 +389,81 @@ class GameState:
             if player_id in self.players
         )
 
+    def _player_active_club_is_user_controlled(
+        self,
+        player: RuntimePlayer,
+    ) -> bool:
+        controlled = self.user_controlled_club_id
+        if controlled is None:
+            return False
+        active_club_id = (
+            int(player.loan_club_id)
+            if player.loan_club_id is not None
+            else int(player.club_id)
+        )
+        return active_club_id == int(controlled)
+
+    def _persist_premier_league_morale_form_and_requests(
+        self,
+        club_id: int,
+        side: PreparedMatchSide,
+        participants,
+        result: NormalMatchResult,
+        fixture_date: date,
+        rng,
+    ) -> frozenset[int]:
+        """Run the source-ordered 0x404CE0 morale/Form/danger-morale slice."""
+        club_id = int(club_id)
+        club_user_controlled = bool(
+            self.user_controlled_club_id is not None
+            and club_id == int(self.user_controlled_club_id)
+        )
+        return persist_premier_league_morale_and_form(
+            self.ordered_club_roster(club_id),
+            side,
+            participants,
+            result,
+            fixture_date,
+            rng,
+            club_user_controlled=club_user_controlled,
+            active_club_user_controlled=self._player_active_club_is_user_controlled,
+            transfer_request_sink=self.player_transfer_requests.append,
+        )
+
+    def due_player_transfer_requests(
+        self,
+        on_date: date | None = None,
+    ) -> tuple[PlayerTransferRequest, ...]:
+        """Return queued PlayerAskTransferList mail whose MPM date is due."""
+        if on_date is None:
+            on_date = self.calendar.current_date
+        return tuple(
+            request
+            for request in self.player_transfer_requests
+            if request.due_on <= on_date
+        )
+
+    def respond_to_player_transfer_request(
+        self,
+        request: PlayerTransferRequest,
+        *,
+        accept: bool,
+    ) -> PlayerTransferRequest:
+        """Apply the recovered accept/refuse response and clear the mail chain."""
+        try:
+            stored_index = self.player_transfer_requests.index(request)
+        except ValueError as exc:
+            raise ValueError("transfer request is not queued") from exc
+        if self.calendar.current_date < request.due_on:
+            raise ValueError("transfer request is not due yet")
+
+        player = self.players.get(int(request.player_id))
+        if player is None:
+            raise KeyError(int(request.player_id))
+        apply_player_transfer_request_response(player, accept=bool(accept))
+        del self.player_transfer_requests[stored_index]
+        return request
+
     def initialize_fresh_user_youth(
         self,
         option_mode: int | None,
@@ -534,11 +616,16 @@ class GameState:
         )
 
     def _purge_contract_mail_for_player(self, player_id: int) -> None:
-        """Materialized subset of 0x5CE460 for renewal-mail records."""
+        """Materialized player-linked MPMEAMail subset of original 0x5CE460."""
         player_id = int(player_id)
         self.contract_renewal_suggestions[:] = [
             value
             for value in self.contract_renewal_suggestions
+            if int(value.player_id) != player_id
+        ]
+        self.player_transfer_requests[:] = [
+            value
+            for value in self.player_transfer_requests
             if int(value.player_id) != player_id
         ]
 
@@ -1910,16 +1997,16 @@ class GameState:
         # 0x404CE0 runs after incident persistence and interleaves each
         # roster player's morale handling with that same player's Form update.
         # It must not re-copy Condition, which would erase injury Condition loss.
-        persist_premier_league_morale_and_form(
-            self.ordered_club_roster(home_club_id),
+        self._persist_premier_league_morale_form_and_requests(
+            home_club_id,
             home.match_side,
             home.preparation.selection.participants,
             result,
             fixture_date,
             rng,
         )
-        persist_premier_league_morale_and_form(
-            self.ordered_club_roster(away_club_id),
+        self._persist_premier_league_morale_form_and_requests(
+            away_club_id,
             away.match_side,
             away.preparation.selection.participants,
             result,
@@ -2112,16 +2199,16 @@ class GameState:
             environment.weather_code,
         )
 
-        persist_premier_league_morale_and_form(
-            self.ordered_club_roster(home_club_id),
+        self._persist_premier_league_morale_form_and_requests(
+            home_club_id,
             home_side,
             home_participants,
             result,
             fixture_date,
             rng,
         )
-        persist_premier_league_morale_and_form(
-            self.ordered_club_roster(away_club_id),
+        self._persist_premier_league_morale_form_and_requests(
+            away_club_id,
             away_side,
             away_participants,
             result,
