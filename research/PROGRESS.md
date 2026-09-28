@@ -5433,3 +5433,26 @@ RNG(100)=88 passes the >=25 threshold and advances the shared CRT state to
 0x61A9A0 returns Holmik and outer 0x420A10 marks player 17608 transfer-listed.
 
 Exact continuation: reverse visit **club 610** from state **0x6A346701**.
+
+
+## Gate 11 corrected selector replay through club 862 — 28 September 2026
+
+Continuing from the corrected first canonical visit:
+
+- club **610 (Excelsior)**: dispatch RNG(10)=4 -> 0x61A9A0. Role 15 is the
+  sole populated zero-demand role. Volkan Kahraman (player 14011) is selected;
+  best rating 56 consumes RNG(100)=55, passes the >=33 threshold, and leaves
+  **0x31D39583** with Kahraman transfer-listed.
+- club **140 (Darlington)**: dispatch RNG(10)=9 -> 0x4050F0. First attempt
+  RNG(10)=1 uses the broad branch; RNG(30)=8 selects roster index 9,
+  Martin Gray (player 2379). Rating 45 consumes RNG(100)=45, passes the >=25
+  threshold, and leaves **0xF0AD5F37** with Gray transfer-listed.
+- club **862 (FK Valmeira)**: dispatch RNG(10)=8 -> 0x4050F0. Attempt one
+  RNG(10)=0 plus RNG(31)=23 selects roster index 24, Ainars Matvejevs; his
+  rating-23 RNG(100)=22 fails. Attempt two RNG(10)=3 plus RNG(21)=5 selects
+  roster index 16, Vitas Rimkus (player 18012); rating 38 then consumes
+  RNG(100)=79 and passes. Rimkus is transfer-listed and the state becomes
+  **0x7647CFCC**.
+
+The next reverse visit is club **362**. Its mandatory dispatch RNG(10)=5 is
+already consumed, leaving **0x1FE55F5F** and entering 0x61A9A0.
