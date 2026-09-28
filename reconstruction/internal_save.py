@@ -15,6 +15,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from commercial_timers import UserCommercialTimerState
+from concession_offer import ConcessionRuntimeSource
 from competition_state import MatchResult, PremierLeagueState
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from game_state import GameCalendar, GameState
@@ -45,7 +47,7 @@ from transfer_state import (
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 13
+SAVE_SCHEMA_VERSION = 14
 
 
 def _iso(value: date | None) -> str | None:
@@ -873,6 +875,40 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             if state.user_sacking_reason is None
             else int(state.user_sacking_reason)
         ),
+        "user_training_calendar": (
+            None
+            if (
+                state.user_training_recovery_threshold is None
+                or state.user_training_quality_multiplier is None
+            )
+            else {
+                "recovery_threshold": int(state.user_training_recovery_threshold),
+                "quality_multiplier": float(state.user_training_quality_multiplier),
+            }
+        ),
+        "user_commercial_timers": (
+            None
+            if state.user_commercial_timers is None
+            else {
+                "concession_wait_days": int(state.user_commercial_timers.concession_wait_days),
+                "concession_elapsed_days": int(state.user_commercial_timers.concession_elapsed_days),
+                "sponsor_wait_days": int(state.user_commercial_timers.sponsor_wait_days),
+                "sponsor_elapsed_days": int(state.user_commercial_timers.sponsor_elapsed_days),
+            }
+        ),
+        "user_concession_source": (
+            None
+            if state.user_concession_source is None
+            else {
+                "selector_capacities": [
+                    int(value) for value in state.user_concession_source.selector_capacities
+                ],
+                "stadium_total": int(state.user_concession_source.stadium_total),
+                "club_metric": int(state.user_concession_source.club_metric),
+                "access_metric": int(state.user_concession_source.access_metric),
+                "adjustment_percent": float(state.user_concession_source.adjustment_percent),
+            }
+        ),
         "rng_state": None if state.rng is None else int(state.rng.state),
     }
 
@@ -987,6 +1023,50 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             None
             if snapshot.get("user_sacking_reason") is None
             else int(snapshot["user_sacking_reason"])
+        ),
+        user_training_recovery_threshold=(
+            None
+            if snapshot.get("user_training_calendar") is None
+            else int(snapshot["user_training_calendar"]["recovery_threshold"])
+        ),
+        user_training_quality_multiplier=(
+            None
+            if snapshot.get("user_training_calendar") is None
+            else float(snapshot["user_training_calendar"]["quality_multiplier"])
+        ),
+        user_commercial_timers=(
+            None
+            if snapshot.get("user_commercial_timers") is None
+            else UserCommercialTimerState(
+                concession_wait_days=int(
+                    snapshot["user_commercial_timers"]["concession_wait_days"]
+                ),
+                concession_elapsed_days=int(
+                    snapshot["user_commercial_timers"]["concession_elapsed_days"]
+                ),
+                sponsor_wait_days=int(
+                    snapshot["user_commercial_timers"]["sponsor_wait_days"]
+                ),
+                sponsor_elapsed_days=int(
+                    snapshot["user_commercial_timers"]["sponsor_elapsed_days"]
+                ),
+            )
+        ),
+        user_concession_source=(
+            None
+            if snapshot.get("user_concession_source") is None
+            else ConcessionRuntimeSource(
+                selector_capacities=tuple(
+                    int(value)
+                    for value in snapshot["user_concession_source"]["selector_capacities"]
+                ),
+                stadium_total=int(snapshot["user_concession_source"]["stadium_total"]),
+                club_metric=int(snapshot["user_concession_source"]["club_metric"]),
+                access_metric=int(snapshot["user_concession_source"]["access_metric"]),
+                adjustment_percent=float(
+                    snapshot["user_concession_source"]["adjustment_percent"]
+                ),
+            )
         ),
         team_tactics={
             int(club_id): TeamTacticalState(
