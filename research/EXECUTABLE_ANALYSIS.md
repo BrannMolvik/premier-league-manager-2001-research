@@ -8033,10 +8033,20 @@ calendar alignment.
 
 ## Gate 11 exact transfer-club qsort replay
 
-The `0x619CF0` club qsort can now be reproduced exactly rather than treated as an unknown tie-order boundary.
+The `0x619CF0` club qsort is instruction-replayed from CRT routine `0x668DA4`.
 
 `0x4205F0` valuation is calendar-sensitive on this fresh path only through integer age. July 1 to July 4 changes valuation age bands for nine source players; one belongs to non-European Cerro Porteño, so eight clubs in the canonical 895-club vector receive non-neutral live/cached ratios. Six ratios are below 1.0, two above 1.0, and the other 887 clubs are exactly 1.0.
 
-Executable qsort `0x668DA4` was translated including its short-sort, middle-pivot partition and equal-key swap behavior. With the real comparator keys it places Levski/Neftchi/Anorthosis/Slavia/Sileks/Kidderminster at indices 0..5, Albion Rovers at 893 and Torquay at 894, while permuting the equal-key block as the original non-stable CRT implementation does.
+The corrected `0x668DA4` translation preserves the executable's exact equal-key scan conditions: the low partition scan continues for comparator results <=0 and the high scan continues for results >=0. Equal neutral keys therefore do not stop both scans for an exchange. The helper `0x668EF8` short-sort is also replayed exactly.
 
-Two subsequent exact Fisher-Yates passes reproduce `0xC6B73181` and `0xBD5CC00F`, validating the qsort/order model independently. The reverse selector loop starts with clubs 118, 750, 510, 1216, 430, 622, 877, 243, ...; its first RNG(10) result is 3, selecting `0x61A9A0` for club 118.
+With the real comparator keys, Levski/Neftchi/Anorthosis/Slavia/Sileks/Kidderminster remain at sorted indices 0..5 and Albion Rovers/Torquay at 893..894. The corrected neutral-block permutation then receives the two exact 895-club Fisher-Yates passes.
+
+The shared CRT checkpoints are unchanged because shuffle state depends on draw count, not element order:
+
+```text
+0xDFCED283 -> 0xC6B73181 -> 0xBD5CC00F
+```
+
+These states validate the two 894-draw shuffle counts only. They do not independently validate the qsort permutation.
+
+The corrected twice-shuffled vector begins `488, 439, 509, 646, 1217, 623, 239, 548, ...`. The reverse selector loop begins `805, 610, 140, 862, 362, 757, 507, 214, ...`. From `0xBD5CC00F`, the first RNG(10) is still 3, but it now dispatches `0x61A9A0` for club **805**, not club 118.
