@@ -48,10 +48,11 @@ from transfer_state import (
     TransferProposal,
     TransferRuntimeState,
 )
+from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 19
+SAVE_SCHEMA_VERSION = 20
 
 
 def _iso(value: date | None) -> str | None:
@@ -868,6 +869,56 @@ def _restore_transfer_state(value: dict[str, Any] | None) -> TransferRuntimeStat
     return runtime
 
 
+def _snapshot_youth_state(value: YouthTeamState | None):
+    if value is None:
+        return None
+    return [
+        {
+            "player_id": int(record.player_id),
+            "source_roster_club_id": int(record.source_roster_club_id),
+            "field_08": int(record.field_08),
+            "field_0c": int(record.field_0c),
+            "field_10": int(record.field_10),
+            "status_14": bool(record.status_14),
+            "training": {
+                "method_id": int(record.training.method_id),
+                "countdown": int(record.training.countdown),
+                "active_count": int(record.training.active_count),
+                "modifiers": [int(v) for v in record.training.modifiers],
+                "skill_states": [int(v) for v in record.training.skill_states],
+                "method_results": [int(v) for v in record.training.method_results],
+            },
+        }
+        for record in value.records
+    ]
+
+
+def _restore_youth_state(value) -> YouthTeamState | None:
+    if value is None:
+        return None
+    return YouthTeamState(
+        records=[
+            YouthRecord(
+                player_id=int(record["player_id"]),
+                source_roster_club_id=int(record["source_roster_club_id"]),
+                field_08=int(record["field_08"]),
+                field_0c=int(record["field_0c"]),
+                field_10=int(record["field_10"]),
+                status_14=bool(record["status_14"]),
+                training=YouthTrainingState(
+                    method_id=int(record["training"]["method_id"]),
+                    countdown=int(record["training"]["countdown"]),
+                    active_count=int(record["training"]["active_count"]),
+                    modifiers=[int(v) for v in record["training"]["modifiers"]],
+                    skill_states=[int(v) for v in record["training"]["skill_states"]],
+                    method_results=[int(v) for v in record["training"]["method_results"]],
+                ),
+            )
+            for record in value
+        ]
+    )
+
+
 def snapshot_game_state(state: GameState) -> dict[str, Any]:
     league = state.premier_league
     league_snapshot = None
@@ -990,6 +1041,7 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             if state.user_controlled_club_id is None
             else int(state.user_controlled_club_id)
         ),
+        "user_youth": _snapshot_youth_state(state.user_youth),
         "user_sacking_reason": (
             None
             if state.user_sacking_reason is None
@@ -1139,6 +1191,7 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             if snapshot["user_controlled_club_id"] is None
             else int(snapshot["user_controlled_club_id"])
         ),
+        user_youth=_restore_youth_state(snapshot.get("user_youth")),
         user_sacking_reason=(
             None
             if snapshot.get("user_sacking_reason") is None
