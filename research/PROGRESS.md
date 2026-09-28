@@ -5848,3 +5848,23 @@ The shared loan-candidate array is now empty. Exact continuation is therefore
 the final reverse-club loan-list population loop from **0xBB304AA8**. This
 loop sets player status bit 12 for accepted candidates until it exhausts the
 club traversal or reaches the shipped **MAX_PLAYERS_ON_LOAN_LIST = 200** cap.
+
+
+## Gate 11 loan-list cap and fixed-support-staff replay checkpoint — 28 September 2026
+
+Commit `70068a0f509f7ab00d3bfea32ea298826e95246c` extends the durable source-backed replay helper through the remainder of the fresh `0x6194D0` loan-list maintenance and into `0x425680 -> 0x4D1760` fixed-support-staff creation.
+
+The canonical fresh path now reproduces these shared CRT boundaries:
+
+- post-transfer-list population: **`0x126CF137`**;
+- after Arsenal's 37 RNG(200) loan-candidate scan: **`0x1AB5D762`**;
+- after first 895-club loan shuffle: **`0x8B83FB28`**;
+- after second 895-club loan shuffle: **`0xB609BA3E`**;
+- after Watford selects Matthew Upson and the user-loan proposal timing draw: **`0xBB304AA8`**;
+- final reverse-club loan-list population reaches the shipped **200-player cap** after **292 eligible club visits**, ending on club **866** at **`0x472F4DFF`**;
+- the one pre-staff RNG(10) in `0x425680` returns 2 and leaves **`0xA54D70C6`**;
+- six fixed support-staff records of types **1, 2, 3, 4, 5, 13** each consume RNG(25) for age and RNG(2) for rating;
+- the fresh Youth Team Coach (type 3) receives rating **1**;
+- the shared CRT state after fixed-support-staff creation is **`0x418CAA72`**.
+
+This closes the startup-quality bridge through the staff rating needed by the already-recovered active-training multiplier. The exact next dependency is to trace any mandatory shared-RNG consumers after `0x4D1760` and before the first Saturday `0x4EACE0` training execution. Do not attach live Saturday training until that remaining interval is proven RNG-clean or replayed exactly.
