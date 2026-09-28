@@ -6,6 +6,10 @@ from datetime import date
 from pathlib import Path
 
 from commercial_timers import UserCommercialTimerState
+from contract_maintenance import (
+    ContractRenewalSuggestion,
+    ContractRenewalSuggestionKind,
+)
 from concession_offer import ConcessionRuntimeSource
 from finance_state import FinancialObjectiveState
 from game_state import GameState
@@ -340,6 +344,41 @@ class InternalSaveTests(unittest.TestCase):
         self.assertTrue(restored_player.loan_listed)
         self.assertEqual(restored_player.loan_club_id, 2)
         self.assertTrue(restored_player.selling_squad_count_excluded)
+
+    def test_controlled_contract_state_and_renewal_mail_survive_roundtrip(self):
+        original = self.build_controller()
+        player = original.state.players[1000]
+        player.contract_special_state_138 = 7
+        player.contract_renewal_suggestion_pending = True
+        player.previous_club_id_74 = 2
+        original.state.contract_renewal_suggestions.append(
+            ContractRenewalSuggestion(
+                player_id=1000,
+                queued_on=date(2000, 7, 1),
+                kind=ContractRenewalSuggestionKind.BOSMAN,
+            )
+        )
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        restored_player = restored.state.players[1000]
+        self.assertEqual(restored_player.contract_special_state_138, 7)
+        self.assertTrue(restored_player.contract_renewal_suggestion_pending)
+        self.assertEqual(restored_player.previous_club_id_74, 2)
+        self.assertEqual(len(restored.state.contract_renewal_suggestions), 1)
+        suggestion = restored.state.contract_renewal_suggestions[0]
+        self.assertEqual(suggestion.player_id, 1000)
+        self.assertEqual(suggestion.queued_on, date(2000, 7, 1))
+        self.assertEqual(suggestion.kind, ContractRenewalSuggestionKind.BOSMAN)
+        self.assertIn(
+            restored.state._run_monthly_contract_maintenance,
+            restored.state.calendar.monthly_hooks,
+        )
 
     def test_weekly_ai_transfer_runtime_state_survives_roundtrip(self):
         original = self.build_controller()
