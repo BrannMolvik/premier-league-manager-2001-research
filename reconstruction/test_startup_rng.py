@@ -315,18 +315,18 @@ class StartupReplayTests(unittest.TestCase):
         self.assertEqual(replay.after_loader444_state, 0xC526B5BC)
         self.assertEqual(replay.after_players_state, 0xC6A1E94A)
         self.assertEqual(replay.after_team_names_state, 0x9936CABA)
-        self.assertEqual(replay.after_youth_state, 0x4B68DE28)
+        self.assertEqual(replay.after_youth_state, 0x7CF7EB6C)
         self.assertEqual(rng.state, replay.after_youth_state)
 
         self.assertEqual(replay.loader444_draw_count, 260)
         self.assertEqual(replay.player_draw_count, 150)
         self.assertEqual(replay.team_name_draw_count, 112)
-        self.assertEqual(replay.youth_targets, (4, 8))
+        self.assertEqual(replay.youth_targets, (4, 6))
         self.assertEqual(
             replay.youth_source_ids,
             (
-                (5, 1, 11, 0),
-                (8, 4, 23, 21, 2, 3, 20, 9),
+                (5, 17, 7, 20),
+                (12, 19, 0, 24, 15, 2),
             ),
         )
 
@@ -336,7 +336,7 @@ class StartupReplayTests(unittest.TestCase):
             for i in range(520)
         )
         countries = (Country(26, 26),)
-        rng = RecordingRng([0] * 24)
+        rng = RecordingRng([0] * 32)
 
         targets, selections = replay_activation_youth_generation_for_country(
             rng,
@@ -359,14 +359,14 @@ class StartupReplayTests(unittest.TestCase):
         self.assertEqual(
             rng.calls,
             [
-                512, 520, 520,
-                511, 520, 520,
-                510, 520, 520,
-                509, 520, 520,
-                512, 520, 520,
-                511, 520, 520,
-                510, 520, 520,
-                509, 520, 520,
+                512, 2, 520, 520,
+                511, 2, 520, 520,
+                510, 2, 520, 520,
+                509, 2, 520, 520,
+                512, 2, 520, 520,
+                511, 2, 520, 520,
+                510, 2, 520, 520,
+                509, 2, 520, 520,
             ],
         )
 
@@ -404,7 +404,7 @@ class StartupReplayTests(unittest.TestCase):
     def test_youth_replay_interleaves_selection_and_two_name_draws(self):
         # option mode 0 first draws RNG(2)=1, requesting five players. Only
         # four candidates exist, so all four are consumed.
-        rng = RecordingRng([1] + [0] * 12)
+        rng = RecordingRng([1] + [0] * 16)
         target, selected = replay_startup_youth_generation(
             rng,
             (10, 20, 30, 40),
@@ -416,7 +416,7 @@ class StartupReplayTests(unittest.TestCase):
         self.assertEqual(selected, (10, 40, 30, 20))
         self.assertEqual(
             rng.calls,
-            [2, 4, 13, 13, 3, 13, 13, 2, 13, 13, 1, 13, 13],
+            [2, 4, 2, 13, 13, 3, 2, 13, 13, 2, 2, 13, 13, 1, 2, 13, 13],
         )
 
     def test_country_wrapper_uses_exact_generated_name_bound(self):
@@ -426,8 +426,8 @@ class StartupReplayTests(unittest.TestCase):
         )
         countries = (Country(26, 26), Country(31, 31))
         # Unknown option value gives deterministic target 4, so the only
-        # calls are candidate/name/name repeated four times.
-        rng = RecordingRng([0] * 12)
+        # calls are candidate/morale/name/name repeated four times.
+        rng = RecordingRng([0] * 16)
         target, selected = replay_startup_youth_generation_for_country(
             rng,
             (10, 20, 30, 40),
@@ -441,7 +441,7 @@ class StartupReplayTests(unittest.TestCase):
         self.assertEqual(selected, (10, 40, 30, 20))
         self.assertEqual(
             rng.calls,
-            [4, 13, 13, 3, 13, 13, 2, 13, 13, 1, 13, 13],
+            [4, 2, 13, 13, 3, 2, 13, 13, 2, 2, 13, 13, 1, 2, 13, 13],
         )
 
 
