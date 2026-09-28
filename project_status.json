@@ -9,12 +9,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "c1c330fe8332eb268315f2f0303e3b96800d4dec",
+  "latest_reverse_engineering_checkpoint": "36da25d494264a9bed2aa766c1079ede809c7517",
   "last_verified_reconstruction_ci_head": "391d0845efb9831bf0b7a293e29ae6127902d2b6",
   "last_verified_test_count": 654,
   "asset_policy_validated_head": "391d0845efb9831bf0b7a293e29ae6127902d2b6",
   "asset_policy_status": "passed",
-  "active_task": "Gate 11 contract management: resolve DBRPlayer+0x138 special 0xFE/0xFF branch from direct producer/consumer evidence, starting with mapped retire/testimonial refusal paths; then materialize the special pre-expiry promotion and expired !Spare recycle path without guessing the field label.",
+  "active_task": "Gate 11 youth: materialize fresh 0x413980 -> 0x61DF90 -> 0x41E510 user youth generation as the separate 20-slot youth list, preserving exact candidate/name RNG and tracing record promote/remove semantics before GameState/save integration.",
   "next_gate": 12,
   "next_gate_name": "Other competitions",
   "blocked": false,
@@ -259,5 +259,8 @@
   "gate11_controlled_contract_renewal_mail": true,
   "gate11_controlled_contract_evidence": "research/GATE11_CONTROLLED_CONTRACT_EXPIRY.md",
   "gate11_controlled_contract_verified_head": "391d0845efb9831bf0b7a293e29ae6127902d2b6",
-  "gate11_controlled_contract_verified_test_count": 654
+  "gate11_controlled_contract_verified_test_count": 654,
+  "gate11_contract_special_state_status": "deferred_no_proven_fresh_producer",
+  "gate11_contract_special_state_field": "contract_special_state_138",
+  "gate11_youth_active": true
 }
