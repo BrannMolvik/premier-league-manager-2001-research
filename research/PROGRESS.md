@@ -6530,3 +6530,39 @@ implementation step is to replace `status_bit_7` / `threshold_passes`
 plumbing with source-named out-of-contract and selected-skill state while
 preserving compatibility for callers that still use the neutral low-level
 predicate.
+
+
+## Gate 11 scouting Strengths/status materialization verified — 28 September 2026
+
+The final neutral first-stage inputs are now reflected in clean-room runtime
+code as well as research evidence.
+
+Implementation checkpoints:
+
+- `5660ff4e` adds the exact Strengths selector gate to
+  `reconstruction/scouting.py`, with shipped `ScoutStrengthMin = 20`,
+  selector 0 = All and selector 1..17 mapped to `current_raw[0..16]`;
+- `cd1352cc` makes `search_scouting_players_mapped()` derive that gate
+  directly from live RuntimePlayer skills, leaving the old threshold callback
+  optional only as an additional compatibility constraint;
+- the first-stage status data model now uses the source name
+  `out_of_contract` rather than the neutral `status_bit_7`;
+- `7156d286` / `e6bb3197` add focused pure/mapped regressions;
+- CI exposed a test-fixture boundary error: raw 169 also displays as 20.
+  The exact raw cutoff for displayed 20 is **166**; raw 165 displays 19.
+  `867db284` / `dcff0e50` correct those regressions.
+
+Validation at `dcff0e50`:
+
+- **632 tests run, 2 failures**;
+- both are the same pre-existing secondary-schedule assertions already tracked
+  before this scouting work;
+- all new scouting status/Strengths tests pass;
+- repository asset policy passes.
+
+The Out-of-contract checkbox now has exact meaning, but the ordinary runtime
+producer is still intentionally not synthesized from contract expiry alone.
+`0x4177C0` and `0x41ABC0` set bit 7, while `0x4185B0` and
+`0x419210` clear it. Exact next task: reconstruct those transitions and
+their scheduling/RNG boundary sufficiently to materialize live
+`out_of_contract` state and remove the mapped-sc-predicate resolver.
