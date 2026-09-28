@@ -272,6 +272,57 @@ class IntegratedGameStateTests(unittest.TestCase):
         self.assertTrue(
             all(player.form_state == 2 for player in state.ordered_club_roster(2))
         )
+    def test_explicit_match_engine_rng_populates_live_performance_history(self):
+        legacy = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 1),
+            seed=1,
+            season_year=2000,
+        )
+        legacy.simulate_premier_league_ai_fixture(
+            0,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MidpointRng(),
+        )
+        self.assertEqual(
+            sum(
+                player.match_performance_history_count
+                for club_id in (1, 2)
+                for player in legacy.ordered_club_roster(club_id)
+            ),
+            0,
+        )
+
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 1),
+            seed=1,
+            season_year=2000,
+        )
+        shared = MidpointRng()
+        engine = MidpointRng()
+        state.simulate_premier_league_ai_fixture(
+            0,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            shared,
+            match_engine_rng=engine,
+        )
+        populated = [
+            player
+            for club_id in (1, 2)
+            for player in state.ordered_club_roster(club_id)
+            if player.match_performance_history_count
+        ]
+        self.assertGreaterEqual(len(populated), 22)
+        self.assertTrue(
+            all(player.match_performance_history_count == 1 for player in populated)
+        )
+        self.assertTrue(
+            all(4 <= player.latest_match_performance() <= 10 for player in populated)
+        )
+
     def test_daily_injury_return_clears_exact_persistent_state(self):
         state = GameState.from_database(
             AutonomousDatabase(),
