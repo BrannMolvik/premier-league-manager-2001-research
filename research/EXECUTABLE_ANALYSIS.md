@@ -8914,3 +8914,107 @@ resolver only after either:
 
 The next fidelity task is to recover the `+0x30` match-performance producer
 far enough to integrate this history without changing unrelated match behavior.
+
+
+## Gate 11 scouting history producer: exact MatchCalculator target-rating core
+
+Direct tracing of canonical `FOOTBAL.EXE` now resolves the source of the
+participant-record byte at `+0x30` that is later appended by
+`0x630FC0 -> 0x41F9C0` into the six-match DBRPlayer performance history.
+
+### Target rating is written before the 24-step presentation trajectory
+
+`0x6309D0` walks the two MatchCalculator participant arrays. For every player
+accepted by `0x41B7D0`, it computes one bounded target rating and writes the
+result directly to participant record `+0x30` at `0x630C3D`.
+
+Only afterwards does the loop at `0x630CEC..` build the per-minute / FastView
+rating trajectory. Therefore scouting mode 2 depends on the target-rating
+formula, not on reconstructing that later display trajectory first.
+
+### Goal-family counters consumed by the rating
+
+The MatchCalculator reset at `0x630180` clears participant dwords
+`+0x40/+0x44` and incident bytes `+0x48/+0x49/+0x4A`.
+
+Goal-event processing at `0x6302F0` updates the two dwords only for a
+goal-family record whose outcome is a goal and whose own-goal inversion flag is
+clear:
+
+- event primary player index (`record+0x08`, accessor `0x6335F0`) increments
+  participant `+0x40`;
+- event secondary player index (`record+0x0C`, accessor `0x633520`) increments
+  participant `+0x44`.
+
+Existing goal-family tracing proves the primary slot is the scorer/finisher on
+ordinary delivered records while, for delivered free kicks/corners, the set-piece
+taker occupies the secondary raw player slot. Until all goal-family sources are
+named consistently, `+0x44` remains neutrally described as the secondary
+goal-attribution counter rather than being over-labeled as a universal assist.
+
+The already-proven incident bytes are reused directly by the rating:
+`+0x48` booked and `+0x49` sent off.
+
+### Position bands
+
+The target formula uses current assigned runtime role from `0x4EA3C0`:
+
+- `0x62E580`: roles 8..15;
+- `0x62E5B0`: roles >=16;
+- all other active roles use the remaining branch.
+
+This is runtime-role numbering, not one-based Static.dat position IDs.
+
+### Rating arithmetic recovered so far
+
+The routine starts from rating 6. A nonzero primary goal counter can replace the
+base with `8 + floor(primary_goals/2)`. The three role bands then apply
+different team-score adjustments; the roles-8..15 branch penalizes opposing
+goals by `floor(goals/2)`, the >=16 branch by `floor(goals/3)`, and the
+remaining branch uses the paired score plus an `RNG(2)` term.
+
+After that:
+
+- secondary counter 1 adds `RNG(2)`; any other value adds
+  `floor(secondary_count/2)`;
+- a sending-off subtracts 1;
+- otherwise a booking subtracts `RNG(2)`;
+- Form byte `player+0x192` applies the exact five-state adjustment:
+  - 0: -1
+  - 1: -`RNG(2)`
+  - 2: unchanged
+  - 3: +`RNG(2)`
+  - 4: +1;
+- rating 10 is first forced to 9; values >10 are capped to 10; values <4 are
+  raised to 4;
+- ratings below 6 then receive a bounded lift from the separate MatchEngine RNG
+  described below.
+
+The final target is continuity-clamped against `0x41FA20(player)`, which
+returns the most recently written six-match-history value: when previous history
+exists, the new target cannot move by more than one point from that previous
+value.
+
+This proves the six-match history is gameplay state, not merely a scouting
+display field: it feeds the next match's target rating.
+
+### Separate MatchEngine RNG at 0x981BF0
+
+The low-rating lift does **not** use the shared MSVC CRT `0x64D540`.
+It calls `0x64D5B0` with object `0x981BF0`.
+
+Direct disassembly identifies `0x64D5D0` as the classic Park-Miller /
+Numerical-Recipes `ran1` generator with the 32-entry shuffle table
+(IA=16807, IM=2147483647, NTAB=32). `0x64D5B0(bound)` returns the truncated
+product of that generator's [0,1) value and the supplied bound.
+
+The same separate RNG object is used throughout MatchCalculator chance and
+presentation code. It must therefore remain distinct from the shared game CRT
+stream. The clean-room performance-rating implementation should accept/model
+both RNG streams explicitly rather than charging every draw to
+`MsvcCrtRng`.
+
+Exact next trace: finish the three role-band team-score equations and confirm
+the remaining secondary goal-attribution semantics needed by the clean-room
+event stream. Then implement the target-rating primitive plus persistent
+six-entry circular history without substituting the existing five-state Form.
