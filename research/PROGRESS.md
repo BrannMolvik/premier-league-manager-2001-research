@@ -5359,3 +5359,46 @@ Club 622 (KSC Lokeren) next dispatches RNG(10)=2 -> **`0xFE106FA6`**. Its 26-pla
 Club 877's mandatory dispatch is already fixed as **RNG(10)=6**, advancing to **`0x377EEB50`** and selecting `0x61A9A0`.
 
 Exact next target: replay club 877 from `0x377EEB50`, then continue the remaining reverse selector visits in order.
+
+
+## Gate 11 transfer-club qsort permutation correction — 28 September 2026
+
+The previously recorded 895-club permutation has been **superseded** after an instruction-level audit of CRT qsort `0x668DA4`.
+
+The earlier model correctly recovered the eight non-neutral comparator keys and their extreme sorted positions, but it did not reproduce the executable's equal-key scan semantics inside the 887-club neutral block. In the real partition loop:
+
+- the low scan continues while comparator result is **<= 0**;
+- the high scan continues while comparator result is **>= 0**;
+- equal keys therefore do **not** stop both scans for an exchange.
+
+A second, literal byte-address translation of `0x668DA4` plus its `0x668EF8` short-sort independently matches the first translation when those exact branch conditions are used. The exact fresh eligible input is also now locked: the `0x6197FF` loop walks DBRClub records in table order, and the already-recovered user/category/name/European/manager filters yield the same 895 source-backed records in ascending runtime-record/club-ID order.
+
+The eight age-sensitive ratios remain unchanged, and the corrected qsort still places Levski/Neftchi/Anorthosis/Slavia/Sileks/Kidderminster at positions 0..5 and Albion Rovers/Torquay at 893..894. What changes is the neutral-block permutation.
+
+The two Fisher-Yates passes still consume exactly 894 draws apiece and therefore still leave the same shared states:
+
+```text
+0xDFCED283 -> 0xC6B73181 -> 0xBD5CC00F
+```
+
+Those RNG states validate the shuffle **draw counts only**, not the element permutation. The former statement that they independently validated the qsort ordering was incorrect.
+
+With the corrected qsort output, the twice-shuffled club vector begins:
+
+```text
+488, 439, 509, 646, 1217, 623, 239, 548, ...
+```
+
+and the reverse `0x61991F` visits begin:
+
+```text
+805, 610, 140, 862, 362, 757, 507, 214,
+611, 166, 867, 698, 399, 68, 209, 234,
+779, 719, 1211, 232, ...
+```
+
+Therefore the selector replays previously recorded for Carlisle 118, Dunaferr 750, Rot-Weiß Essen 510, Panahaiki 1216, Carmarthen 430, KSC Lokeren 622 and Trisen 877 were performed against a superseded club order and must **not** be used as canonical startup RNG evidence. Their local selector mechanics remain useful spot checks, and the separate fresh-roster-order finding remains valid, but the shared stream must restart at the proven post-shuffle state **`0xBD5CC00F`** with club **805**.
+
+A separate source-offset audit also confirmed that runtime player `+0x64` comes from compact player offset **+88**. Rechecking all players used by the superseded spot replays showed `+88 == 0xFFFFFFFF`; this offset correction does not create an additional RNG discrepancy in those isolated selector tests.
+
+Exact next target: replay the corrected first reverse visit, club 805, from shared state `0xBD5CC00F`, then continue the corrected 894-visit sequence in order.
