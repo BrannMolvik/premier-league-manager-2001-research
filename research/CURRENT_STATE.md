@@ -423,13 +423,18 @@ Several target systems already have substantial research or backend behavior:
    through internal save schema **22**. CI at `12bf9ac2` ran **675 tests**
    with only the same two pre-existing secondary-schedule failures; asset
    policy passed.
-32. **Active Gate-11 task: completion audit.** Audit the roadmap criterion that
-   a human manager can complete a Premier League season using the core
-   management systems. Verify the existing human-season path and inventory
-   training/development, scouting, youth, morale, medical/injury, discipline,
-   messages/news and recurring manager-task coverage. If the criterion is
-   already satisfied, persist a Gate-11 closure audit before moving to Gate 12;
-   otherwise make the audit's first concrete blocking workflow the next task.
+32. **Gate 11 complete:** the direct 38-round / 380-fixture human-season
+   regression at `22027de9` passes, exercising active user training and the
+   normal recurring management/calendar paths. GitHub Actions ran **676 tests**
+   with only the same two pre-existing secondary-schedule failures; asset
+   policy passed. The target-by-target closure audit is
+   `research/GATE11_COMPLETION_AUDIT.md`.
+33. **Active Gate 12 task:** audit the already-recovered generic competition
+   runtime against the canonical English domestic cups, starting with the FA
+   Cup and League Cup. Identify the first source-backed missing behavior needed
+   to connect those competitions to the human Premier League season without
+   weakening deterministic competition tests. Do not start presentation work;
+   Gate 13 remains responsible for original management screens.
 
 ## Known live fidelity boundaries
 
