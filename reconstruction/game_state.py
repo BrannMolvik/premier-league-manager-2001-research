@@ -51,6 +51,7 @@ from match_preparation import (
     prepare_premier_league_ai_selection,
 )
 from match_postmatch import (
+    persist_match_performance_history,
     persist_post_match_form,
     persist_premier_league_match_incidents,
     sync_post_match_conditions,
@@ -1354,6 +1355,7 @@ class GameState:
         rng=None,
         *,
         fixture_order: Iterable[int] | None = None,
+        match_engine_rng=None,
     ) -> tuple[tuple[int, NormalMatchResult], ...]:
         """Simulate every unplayed Premier League fixture due on the current date.
 
@@ -1385,6 +1387,7 @@ class GameState:
                     attack_matrix,
                     defence_matrix,
                     rng,
+                    match_engine_rng=match_engine_rng,
                 ),
             )
             for fixture_id in ordered_ids
@@ -1397,6 +1400,7 @@ class GameState:
         rng=None,
         *,
         fixture_order: Iterable[int] | None = None,
+        match_engine_rng=None,
     ) -> tuple[tuple[int, NormalMatchResult], ...]:
         """Advance one day using the recovered fast-calendar phase order.
 
@@ -1412,6 +1416,7 @@ class GameState:
             defence_matrix,
             rng,
             fixture_order=fixture_order,
+            match_engine_rng=match_engine_rng,
         )
         # The original chairman sporting-objective transition is annual, not
         # daily. Invoke it only on the matchday that actually completes the PL.
@@ -1559,6 +1564,8 @@ class GameState:
         attack_matrix,
         defence_matrix,
         rng=None,
+        *,
+        match_engine_rng=None,
     ) -> NormalMatchResult:
         """Prepare two AI clubs, simulate the due fixture, and store its result."""
         rng = self._resolve_rng(rng)
@@ -1586,9 +1593,45 @@ class GameState:
                 environment_byte=pitch_wear_before,
             ),
         )
+        # MatchCalculator 0x630FC0 appends the just-computed +0x30 target
+        # ratings before returning to the later gate/incident/Form pipeline.
+        # Keep this opt-in until a distinct MatchEngine RNG is explicitly
+        # supplied; never alias the shared CRT stream as a substitute.
+        if match_engine_rng is not None:
+            persist_match_performance_history(
+                home.match_side,
+                home.preparation.selection.participants,
+                result,
+                rng,
+                match_engine_rng,
+            )
+            persist_match_performance_history(
+                away.match_side,
+                away.preparation.selection.participants,
+                result,
+                rng,
+                match_engine_rng,
+            )
+
         # 0x513252 -> 0x5DA2F0 runs after MatchCalculator and before
         # 0x5127A0 incident persistence / later Form RNG. Every normal League
         # fixture consumes these four draws even when no user Balance is posted.
+        if match_engine_rng is not None:
+            persist_match_performance_history(
+                home_side,
+                home_participants,
+                result,
+                rng,
+                match_engine_rng,
+            )
+            persist_match_performance_history(
+                away_side,
+                away_participants,
+                result,
+                rng,
+                match_engine_rng,
+            )
+
         self._finish_premier_league_gate_receipts(home_club_id, gate_inputs, rng)
 
         fixture_date = self.calendar.current_date
@@ -1671,6 +1714,7 @@ class GameState:
         rng=None,
         *,
         team_orders: TeamOrderPriorities | None = None,
+        match_engine_rng=None,
     ) -> NormalMatchResult:
         """Simulate one human-vs-AI PL fixture through the shared backend.
 
