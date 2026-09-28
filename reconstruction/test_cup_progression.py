@@ -1,7 +1,67 @@
 import unittest
 
 from competition_startup import CupClubRefDescriptor
-from cup_progression import CupResultRegistry
+from cup_progression import CupMatchResolutionSnapshot, CupResultRegistry
+
+
+class CupMatchResolutionTests(unittest.TestCase):
+    def test_incomplete_or_drawn_single_match_has_no_result_club(self):
+        self.assertIsNone(
+            CupMatchResolutionSnapshot(1, 2, 2, 1, complete=False).result_club_id()
+        )
+        self.assertIsNone(
+            CupMatchResolutionSnapshot(1, 2, 1, 1).result_club_id()
+        )
+
+    def test_single_match_returns_higher_scoring_side(self):
+        self.assertEqual(
+            CupMatchResolutionSnapshot(1, 2, 3, 1).result_club_id(),
+            1,
+        )
+        self.assertEqual(
+            CupMatchResolutionSnapshot(1, 2, 0, 2).result_club_id(),
+            2,
+        )
+
+    def test_linked_match_uses_reversed_aggregate_totals(self):
+        first_leg = CupMatchResolutionSnapshot(1, 2, 2, 0)
+        second_leg = CupMatchResolutionSnapshot(
+            2,
+            1,
+            1,
+            0,
+            previous=first_leg,
+        )
+
+        self.assertEqual(second_leg.result_club_id(), 1)
+
+    def test_tied_aggregate_uses_shared_virtual_secondary_comparison(self):
+        # Leg 1: club 1 beats club 2 2-1.
+        # Leg 2 reverses participants: club 2 beats club 1 1-0.
+        # Aggregate is 2-2. current score_1 (club 1 away) is 0 while
+        # previous score_1 (club 2 away) is 1, so 0x514000 returns club 2.
+        first_leg = CupMatchResolutionSnapshot(1, 2, 2, 1)
+        second_leg = CupMatchResolutionSnapshot(
+            2,
+            1,
+            1,
+            0,
+            previous=first_leg,
+        )
+
+        self.assertEqual(second_leg.result_club_id(), 2)
+
+    def test_exact_linked_tie_remains_unresolved(self):
+        first_leg = CupMatchResolutionSnapshot(1, 2, 1, 1)
+        second_leg = CupMatchResolutionSnapshot(
+            2,
+            1,
+            1,
+            1,
+            previous=first_leg,
+        )
+
+        self.assertIsNone(second_leg.result_club_id())
 
 
 class CupResultRegistryTests(unittest.TestCase):
