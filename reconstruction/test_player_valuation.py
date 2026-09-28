@@ -145,6 +145,46 @@ class PlayerValuationTests(unittest.TestCase):
         # 255 is clamped by 0x405500 to DIV6 category 5.
         self.assertAlmostEqual(value, 1000 * 1.10 * 1.05)
 
+    def test_live_adapter_uses_preferred_position_active_division_and_registered_country(self):
+        player = SimpleNamespace(
+            current_raw=[200] * 17,
+            positions=(4, 0, 0),
+            current_position=9,
+            club_id=10,
+            loan_club_id=11,
+            age=lambda on_date: 25,
+        )
+        from match_role_rating import best_preferred_role_rating
+        rating = best_preferred_role_rating(player.current_raw, player.positions)
+        rows = [Row(1000, 0, id=i) for i in range(rating + 1)]
+        state = SimpleNamespace(
+            players={1: player},
+            access_skill_financial_values=tuple(rows),
+            positions={
+                4: SimpleNamespace(lineup_group=0),
+                9: SimpleNamespace(lineup_group=2),
+            },
+            clubs={
+                10: SimpleNamespace(competition_id=20, country_id=30),
+                11: SimpleNamespace(competition_id=21, country_id=31),
+            },
+            competitions={
+                20: SimpleNamespace(valuation_division_category=0),
+                21: SimpleNamespace(valuation_division_category=2),
+            },
+            countries={
+                30: SimpleNamespace(eu_status_flag=0),
+                31: SimpleNamespace(eu_status_flag=1),
+            },
+            calendar=SimpleNamespace(current_date=date(2000, 8, 18)),
+        )
+
+        value = live_player_transfer_value(state, 1)
+
+        # Preferred role 4 => defender 1.05; active loan club competition => 1.50;
+        # registered club country is non-EU => 0.70.
+        self.assertAlmostEqual(value, 1000 * 1.50 * 0.70 * 1.05)
+
     def test_live_adapter_applies_explicit_recent_rating_inputs(self):
         player = SimpleNamespace(
             current_raw=[200] * 17,
