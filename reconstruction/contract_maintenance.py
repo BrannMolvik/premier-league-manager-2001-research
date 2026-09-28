@@ -8,6 +8,7 @@ collapsed into this routine.
 from __future__ import annotations
 
 from datetime import date, timedelta
+from dataclasses import dataclass
 from enum import Enum
 
 from match_role_rating import best_preferred_role_rating
@@ -36,6 +37,40 @@ CONTROLLED_DETACH_GRACE_DAYS = 21
 CONTROLLED_SUGGESTION_ROLL_BOUND = 10
 CONTROLLED_SUGGESTION_ROLL_SUCCESS = 4
 CONTROLLED_SPECIAL_STATE_MIN = 0xFE
+
+
+class ContractRenewalSuggestionKind(str, Enum):
+    ORDINARY = "ordinary"
+    BOSMAN = "bosman"
+
+
+@dataclass(frozen=True)
+class ContractRenewalSuggestion:
+    """Materialized MPMEAMail payload produced by controlled 0x41BEE0."""
+
+    player_id: int
+    queued_on: date
+    kind: ContractRenewalSuggestionKind
+
+    @property
+    def message_id(self) -> int:
+        return 0x1B7 if self.kind is ContractRenewalSuggestionKind.BOSMAN else 0x0E
+
+    @property
+    def event_class(self) -> str:
+        if self.kind is ContractRenewalSuggestionKind.BOSMAN:
+            return "EAMAssManSuggestBosmanPlayerContractRenewalMsub"
+        return "EAMAssManSuggestPlayerContractRenewalMsub"
+
+    @property
+    def original_key(self) -> str:
+        if self.kind is ContractRenewalSuggestionKind.BOSMAN:
+            return "AssManSuggestBosmanPlayerContractRenewalM"
+        return "AssManSuggestPlayerContractRenewalM"
+
+    @property
+    def accepted_action_class(self) -> str:
+        return "EAMAmendContractsub"
 
 
 class ControlledContractMaintenanceOutcome(str, Enum):
