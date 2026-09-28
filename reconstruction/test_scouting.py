@@ -509,9 +509,9 @@ class ScoutingOrderingTests(unittest.TestCase):
 
     def test_strengths_selector_indexes_current_skills_and_uses_shipped_minimum(self):
         raw = [0] * 17
-        # raw 170 converts exactly to displayed 20: (30*170 + 128)//255 = 20.
-        raw[0] = 170
-        raw[16] = 169
+        # The exact raw cutoff for displayed 20 is 166; raw 165 displays 19.
+        raw[0] = 166
+        raw[16] = 165
 
         self.assertTrue(
             scouting_strength_threshold_passes(raw, 0, SCOUT_STRENGTH_MIN_DEFAULT)
@@ -522,7 +522,7 @@ class ScoutingOrderingTests(unittest.TestCase):
         self.assertFalse(
             scouting_strength_threshold_passes(raw, 17, SCOUT_STRENGTH_MIN_DEFAULT)
         )
-        raw[16] = 170
+        raw[16] = 166
         self.assertTrue(
             scouting_strength_threshold_passes(raw, 17, SCOUT_STRENGTH_MIN_DEFAULT)
         )
