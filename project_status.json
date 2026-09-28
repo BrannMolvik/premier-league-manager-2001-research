@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Independently bound the request-new-contract morale producer around 0x5D8430 -> 0x41BA80(UnhappyRequestNewContract), prove ordinary fresh-game reachability before integration, and keep trophy/DangerMoraleLevel paths deferred until ownership is closed.",
+  "current_task": "Instruction-close the reachable controlled-club post-match danger-morale path 0x404E25 -> 0x41B580, including DangerMoraleLevel, ChanceAskForTransfer, duplicate/status gates and EAMPlayerAskTransferListsub response lifecycle before integrating any new event/RNG behavior; independently verify whether UnhappyWonTrophy has a live consumer or is tuning-only.",
   "last_verified_reconstruction_failures": 2,
   "last_verified_asset_policy_head": "7e798a030d5195388624613b1ccc36bc318b96d5"
 }
