@@ -254,10 +254,17 @@ Several target systems already have substantial research or backend behavior:
    configured training inputs, concession/sponsor timers and compact
    concession source snapshot. CI at `c7650cf3` runs 586 tests with only the
    two unchanged secondary-schedule failures.
-12. **Active workflow: scouting.** Start from the already-proven
-   `PScouting2K -> 0x4AE970 -> 0x4AF7F0` deterministic CRT reseed and
-   candidate shuffle. Recover the minimum human search/filter/result workflow
-   before implementing UI-independent scouting actions.
+12. **Scouting workflow in progress:** the first-stage `0x4AE680` filter,
+   exact `0x4AF7F0` deterministic reseed hash, primary Fisher-Yates ordering,
+   secondary score/cap/shuffle structure and shipped scouting limits are now
+   instruction-mapped. A data-free `reconstruction/scouting.py` core implements
+   the exact reseed/shuffle and 50-candidate / 20-result caps. CI at
+   `c80e3d24` ran **590 tests**; all four new scouting tests passed and only
+   the two unchanged secondary-schedule assertions failed.
+13. **Active scouting dependency:** finish the six `0x4AEEA0` result-sort
+   semantics and tie remaining neutral PScouting2K panel fields to original UI
+   labels/controls where evidence permits. Then expose the minimum
+   UI-independent human scouting search action over existing RuntimePlayer state.
 
 ## Known live fidelity boundaries
 
