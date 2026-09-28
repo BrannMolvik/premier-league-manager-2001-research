@@ -9018,3 +9018,31 @@ Exact next trace: finish the three role-band team-score equations and confirm
 the remaining secondary goal-attribution semantics needed by the clean-room
 event stream. Then implement the target-rating primitive plus persistent
 six-entry circular history without substituting the existing five-state Form.
+
+
+## Gate 11 goal-family secondary attribution bridge
+
+Direct canonical disassembly of the type-1 record creator closes the remaining
+open-play source for participant match counter `+0x44`.
+
+`0x62ECF0` writes its second player argument through `0x62F0C0` to event
+record `+0x08` and its third player argument to event record `+0x0C`.
+On the normal open-play path, `0x62C740` passes:
+
+- the selected finisher as the second player argument, therefore primary
+  `record+0x08`;
+- the earlier attacking carrier as the third player argument, therefore
+  secondary `record+0x0C`.
+
+This matches the later `0x6302F0` goal-family accounting already mapped:
+non-own goals increment participant `+0x40` for the `+0x08` player and
+participant `+0x44` for the `+0x0C` player.
+
+Delivered free-kick/corner construction already proves the corresponding pair
+as receiver/finisher primary plus set-piece taker secondary. Direct set pieces
+are intentionally not assigned a secondary player until their constructor path
+is separately proven.
+
+Clean-room consequence: `ChanceRecord` now carries optional secondary
+player side/index metadata. This is semantic event data only and consumes no
+additional RNG.
