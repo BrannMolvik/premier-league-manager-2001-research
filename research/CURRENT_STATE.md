@@ -375,16 +375,16 @@ Several target systems already have substantial research or backend behavior:
    **662 tests** with only the same two pre-existing secondary-schedule
    failures; asset policy passed. Evidence:
    `research/GATE11_YOUTH_WORKFLOW.md`.
-26. **Activation youth dependency resolved:** `0x425680 -> 0x61DE40` is a
-   pending controlled-club activation/switch initializer, gated by
-   `DBRUser+0x10E0 != -1` and self-clearing that marker. Its ordinary fresh
-   path clears the previous list, generates four age-17 youth plus four age-15
-   youth, assigns all eight the next 30-June `player+0x154` date, and resets
-   youth training. The two `0x61DF90` cohorts add 24 mandatory shared CRT
-   draws before support-staff selection. **Exact next task:** implement this
-   activation-specific two-cohort materializer/replay, correct the old
-   startup/support-staff checkpoint, and replay downstream commercial-timer /
-   training RNG from corrected post-fixed-staff state `0xA2FEE1E1`.
+26. **Activation youth initializer implemented:** the clean-room now models
+   the pending controlled-club `0x61DE40` two-cohort path, including preserved
+   status-bit-3 exclusions, the age-17 / age-15 split, common next-30-June date,
+   and youth-training reset. The canonical transfer-list replay now includes
+   the missing 24 youth draws: post-youth `0xFA1C595E`, post-selector
+   `0x7470CA25`, post-fixed-staff `0xA2FEE1E1`. The corrected commercial /
+   daily-training bridge reaches first active Saturday at `0x4C745924`.
+   **Exact next task:** verify CI and canonical replay output, then resume the
+   Gate-11 audit at the next reachable unresolved management lifecycle rather
+   than revisiting the closed youth initializer.
 
 ## Known live fidelity boundaries
 

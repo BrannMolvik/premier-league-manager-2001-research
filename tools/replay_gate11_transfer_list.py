@@ -431,11 +431,26 @@ def replay_canonical_loan_tail():
  if len(loan_listed)!=200 or last_cid!=866 or r.state!=0x472F4DFF or eligible_visits!=292:
   raise AssertionError((len(loan_listed),last_cid,hex(r.state),eligible_visits))
 
- # One exact RNG(10) in 0x425680 precedes the user-owned 37-way
- # selector at 0x5E3FD0 and only then fixed-support-staff creation.
+ # One exact RNG(10) in 0x425680 precedes the two-cohort
+ # 0x61DE40 youth initializer, then the user-owned 37-way selector at
+ # 0x5E3FD0 and fixed-support-staff creation.
  pre_staff=r.draw(10,'user-init-rng10')
  if pre_staff!=2 or r.state!=0xA54D70C6:
   raise AssertionError((pre_staff,hex(r.state)))
+
+ # Ordinary fresh 0x61DE40 has no category-3 facility, so both 0x61DF90
+ # cohorts request exactly four players with no target-size draw. The shipped
+ # !Spare source refills the fixed 512-entry buffer on each rescan. Exact name
+ # bounds are data-dependent but each positive bounded call advances the same
+ # CRT state once, so RNG(1) is a state-only surrogate for the two name calls.
+ for cohort in range(2):
+  for candidate_bound in (512,511,510,509):
+   r.draw(candidate_bound,f'user-init-youth-{cohort+1}-candidate')
+   r.draw(1,f'user-init-youth-{cohort+1}-first-name-state-only')
+   r.draw(1,f'user-init-youth-{cohort+1}-surname-state-only')
+ if r.state!=0xFA1C595E:
+  raise AssertionError(hex(r.state))
+ post_youth_state=r.state
 
  # Fresh 0x5E3FD0 starts from an empty list and fills 12 entries. Factory
  # 0x5E2710's complete 37-way switch leaves +0x0C != 1 and status bit
@@ -451,8 +466,8 @@ def replay_canonical_loan_tail():
    continue
   selector.append(value)
   previous=value
- expected_selector=[33,8,12,22,2,3,27,5,0,23,28,18]
- if selector!=expected_selector or selector_attempts!=12 or r.state!=0x418CAA72:
+ expected_selector=[10,33,34,14,9,23,3,10,3,27,34,33]
+ if selector!=expected_selector or selector_attempts!=13 or r.state!=0x7470CA25:
   raise AssertionError((selector,selector_attempts,hex(r.state)))
 
  staff=[]
@@ -460,7 +475,15 @@ def replay_canonical_loan_tail():
   age_roll=r.draw(25,f'staff-{staff_type}-age')
   rating_roll=r.draw(2,f'staff-{staff_type}-rating')
   staff.append((staff_type,age_roll,rating_roll+1,r.state))
- if staff[2][2]!=2 or r.state!=0xFA1C595E:
+ expected_staff=[
+  (1,23,2,0x71A9B1C7),
+  (2,16,2,0x6C3BA679),
+  (3,1,2,0xE7FD90BB),
+  (4,16,1,0x33F19D0D),
+  (5,20,2,0x473F5BEF),
+  (13,3,1,0xA2FEE1E1),
+ ]
+ if staff!=expected_staff or r.state!=0xA2FEE1E1:
   raise AssertionError((staff,hex(r.state)))
  return {
   'post_transfer_state':'0x126CF137',
@@ -473,9 +496,10 @@ def replay_canonical_loan_tail():
   'last_final_club':last_cid,
   'post_final_loan_list_state':'0x472F4DFF',
   'pre_staff_rng10':pre_staff,
+  'post_user_init_youth_state':f"0x{post_youth_state:08X}",
   'user_init_selector37':selector,
   'user_init_selector37_attempts':selector_attempts,
-  'post_user_init_selector_state':'0x418CAA72',
+  'post_user_init_selector_state':'0x7470CA25',
   'staff':[(t,a,rt,f"0x{s:08X}") for t,a,rt,s in staff],
   'youth_team_coach_rating':staff[2][2],
   'post_fixed_staff_state':f"0x{r.state:08X}",

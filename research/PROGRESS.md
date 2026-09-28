@@ -6794,3 +6794,20 @@ Resolved the two-cohort final youth state: ordinary fresh activation clears the 
 Found a material RNG omission in the prior startup/training bridge. The two fresh four-player cohorts consume 24 mandatory shared CRT draws between the known `RNG(10)` and `0x5E3FD0`: `0xA54D70C6 -> 0xFA1C595E`. The corrected 37-way support-staff selector takes 13 attempts and the fixed-staff block ends at `0xA2FEE1E1`. Youth Team Coach rating stays 2, preserving training-quality multiplier 1.30.
 
 Next: implement the activation-specific two-cohort youth materializer/replay, correct the transfer-list/startup replay checkpoint, then recompute the commercial-timer and first-training bridge from `0xA2FEE1E1`.
+
+
+## Gate 11 activation youth implementation and corrected training bridge — 29 September 2026
+
+Implemented the resolved `0x61DE40` activation path in clean-room code. `replay_activation_youth_generation_for_country` now performs the two global candidate rescans with prior status-bit-3 exclusions applied before each 512-entry cap. `initialize_user_youth_for_club_activation` preserves old player mutations while replacing the youth records, materializes the age-17 then age-15 cohorts, applies the common next-30-June date, and resets youth training state. Focused regressions cover both the 512-cap refill behavior and the final two-age-band state.
+
+Corrected `tools/replay_gate11_transfer_list.py` to include the missing 24 shared CRT youth draws after the `0x425680` RNG(10). The exact corrected checkpoints are:
+
+- post-youth / pre-selector: `0xFA1C595E`;
+- 37-way selector: 13 attempts, accepted values `10,33,34,14,9,23,3,10,3,27,34,33`;
+- post-selector: `0x7470CA25`;
+- post-fixed-support-staff: `0xA2FEE1E1`;
+- Youth Team Coach rating remains 2.
+
+Replayed the commercial-timer / seven-day training bridge from `0xA2FEE1E1`. Fresh concession wait is now 19 days and no-sponsor wait 10 days, so neither re-fires before first active Saturday. The corrected pre-first-`0x4EACE0` CRT state is `0x4C745924`; final seven-day Condition sum remains 3342.
+
+Next: verify GitHub Actions and the canonical data-backed replay, then update the exact Gate-11 active dependency from the completed youth initializer to the next reachable unresolved management lifecycle.
