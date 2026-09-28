@@ -3,11 +3,14 @@ from datetime import date, timedelta
 
 from contract_maintenance import (
     AiContractMaintenanceOutcome,
+    ContractRenewalSuggestion,
+    ContractRenewalSuggestionKind,
     ControlledContractMaintenanceOutcome,
     run_ai_monthly_contract_maintenance,
     run_controlled_monthly_contract_maintenance,
 )
 from game_state import GameCalendar, GameState
+from transfer_state import ContractTerms, DealInProgress
 
 
 class ScriptedRng:
@@ -387,6 +390,120 @@ class ContractMaintenanceTests(unittest.TestCase):
             ControlledContractMaintenanceOutcome.SPECIAL_STATE_DEFERRED,
         )
         self.assertEqual(rng.bounds, [])
+
+    def test_unified_monthly_pass_queues_live_controlled_suggestion(self):
+        player = FakePlayer(
+            index=1,
+            on_date=self.on_date,
+            expiry=self.on_date + timedelta(days=50),
+            age=24,
+        )
+        rng = ScriptedRng([0])
+        state = GameState(
+            calendar=GameCalendar(self.on_date),
+            players={1: player},
+            club_roster_order={10: [1]},
+            user_controlled_club_id=10,
+            rng=rng,
+        )
+
+        state._run_monthly_contract_maintenance(self.on_date)
+
+        self.assertEqual(rng.bounds, [10])
+        self.assertTrue(player.contract_renewal_suggestion_pending)
+        self.assertEqual(len(state.contract_renewal_suggestions), 1)
+        suggestion = state.contract_renewal_suggestions[0]
+        self.assertEqual(suggestion.player_id, 1)
+        self.assertEqual(suggestion.queued_on, self.on_date)
+        self.assertEqual(suggestion.kind, ContractRenewalSuggestionKind.BOSMAN)
+        self.assertEqual(suggestion.message_id, 0x1B7)
+        self.assertEqual(
+            suggestion.event_class,
+            "EAMAssManSuggestBosmanPlayerContractRenewalMsub",
+        )
+        self.assertEqual(suggestion.accepted_action_class, "EAMAmendContractsub")
+
+    def test_unified_monthly_pass_suppresses_swap_family_deal_after_rng(self):
+        player = FakePlayer(
+            index=1,
+            on_date=self.on_date,
+            expiry=self.on_date + timedelta(days=50),
+        )
+        rng = ScriptedRng([0])
+        state = GameState(
+            calendar=GameCalendar(self.on_date),
+            players={1: player},
+            club_roster_order={10: [1]},
+            user_controlled_club_id=10,
+            rng=rng,
+        )
+        state.transfers.deals[1] = DealInProgress(
+            player_id=1,
+            buying_club_id=20,
+            selling_club_id=10,
+            state=3,
+            contract_terms=ContractTerms(),
+            created_date=self.on_date,
+        )
+
+        state._run_monthly_contract_maintenance(self.on_date)
+
+        self.assertEqual(rng.bounds, [10])
+        self.assertFalse(player.contract_renewal_suggestion_pending)
+        self.assertEqual(state.contract_renewal_suggestions, [])
+
+    def test_unified_monthly_detachment_removes_roster_and_player_mail(self):
+        player = FakePlayer(
+            index=1,
+            on_date=self.on_date,
+            expiry=self.on_date - timedelta(days=21),
+        )
+        rng = ScriptedRng([])
+        state = GameState(
+            calendar=GameCalendar(self.on_date),
+            players={1: player},
+            club_roster_order={10: [1]},
+            user_controlled_club_id=10,
+            rng=rng,
+            contract_renewal_suggestions=[
+                ContractRenewalSuggestion(
+                    player_id=1,
+                    queued_on=self.on_date - timedelta(days=30),
+                    kind=ContractRenewalSuggestionKind.ORDINARY,
+                )
+            ],
+        )
+
+        state._run_monthly_contract_maintenance(self.on_date)
+
+        self.assertEqual(rng.bounds, [])
+        self.assertEqual(state.club_roster_order[10], [])
+        self.assertEqual(player.club_id, -1)
+        self.assertTrue(player.out_of_contract)
+        self.assertEqual(player.previous_club_id_74, 10)
+        self.assertEqual(state.contract_renewal_suggestions, [])
+
+    def test_unified_monthly_dispatch_uses_active_loan_club_for_control(self):
+        player = FakePlayer(
+            index=1,
+            on_date=self.on_date,
+            expiry=self.on_date + timedelta(days=50),
+        )
+        player.club_id = 20
+        player.loan_club_id = 10
+        rng = ScriptedRng([9])
+        state = GameState(
+            calendar=GameCalendar(self.on_date),
+            players={1: player},
+            club_roster_order={20: [1]},
+            user_controlled_club_id=10,
+            rng=rng,
+        )
+
+        state._run_monthly_contract_maintenance(self.on_date)
+
+        # Controlled 0x41BEE0 uses RNG(10); the AI branch would use RNG(100).
+        self.assertEqual(rng.bounds, [10])
 
     def test_game_state_monthly_ai_pass_skips_controlled_club(self):
         controlled = FakePlayer(index=1, on_date=self.on_date, high_rating=False)
