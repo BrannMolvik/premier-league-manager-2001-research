@@ -347,13 +347,24 @@ Several target systems already have substantial research or backend behavior:
    **639 tests**; only the same two pre-existing secondary-schedule assertions
    fail and asset policy passes. Evidence:
    `research/GATE11_OUT_OF_CONTRACT_LIFECYCLE.md`.
-23. **Active contract-management dependency:** reconstruct the separate
-   user-controlled `0x41BEE0` expiry/grace/event path and its callers/actions.
-   Preserve the proven 21-day post-expiry branch, loan/roster/club transitions,
-   event scheduling and any shared-CRT effects. Do not reuse the non-user
-   `0x41ABC0` random release rule for controlled players. Keep explicit
-   release helper `0x4177C0` separate unless a source-backed caller requires
-   it.
+23. **Controlled-player ordinary contract lifecycle completed:** source-backed
+   `0x41BEE0` ordinary handling is live. Controlled players set Out of
+   contract from 21 days before expiry, enter the 112-day assistant-manager
+   renewal-suggestion window with exact single `RNG(10)` placement, preserve
+   the `+0x164` suggestion latch and exact ordinary/Bosman event kinds, run
+   mapped expiry cleanup, and detach only at 21 days past expiry. The unified
+   first-of-month contract pass preserves club/roster RNG order and active-loan
+   branch ownership. Internal save schema 18 preserves controlled contract
+   state and queued renewal mail. CI at `391d0845` ran **654 tests** with
+   only the same two pre-existing secondary-schedule failures; asset policy
+   passed. Evidence: `research/GATE11_CONTROLLED_CONTRACT_EXPIRY.md`.
+24. **Active contract-management dependency:** resolve the remaining neutral
+   `DBRPlayer+0x138` special `0xFE/0xFF` branch used by `0x41BEE0`.
+   Direct behavior moves expired special-state players through canonical
+   `!Spare` recycle machinery, but do not name the field from inference.
+   Start from direct producers and the already mapped transfer-refusal reasons
+   “player has decided to retire” / “upcoming testimonial”; only then
+   materialize the special pre-expiry promotion and expired recycle path.
 
 ## Known live fidelity boundaries
 
