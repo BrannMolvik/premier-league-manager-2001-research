@@ -171,11 +171,14 @@ Several target systems already have substantial research or backend behavior:
    performs up to 20 attempts with RNG(10) + one roster-index draw per attempt
    plus the optional rating draw. The source-backed `0x619CF0` qsort and both
    club shuffles are now reproduced exactly and independently regenerate
-   **`0xC6B73181 -> 0xBD5CC00F`**; reverse visits begin club 118, whose first
-   dispatch is RNG(10)=3 into `0x61A9A0`. Translate/replay that deterministic
-   selector and continue all 894 selectors, then carry the shared CRT state
-   through loan maintenance into `0x425680 -> 0x4D1760` fixed-staff
-   initialization.
+   **`0xC6B73181 -> 0xBD5CC00F`**. The first reverse visit is now exact:
+   club 118 (Carlisle Utd) dispatches RNG(10)=3, `0x61A900` selects the
+   uniquely oversupplied role 15, `0x61A9A0` chooses Steve Soley (player
+   7748), and his rating-34 `0x417470` check consumes RNG(100)=88. Soley is
+   accepted and transfer-listed; the shared CRT state is **`0x6A346701`**.
+   Continue from club 750 through the remaining 893 selectors, then carry the
+   shared CRT state through loan maintenance into
+   `0x425680 -> 0x4D1760` fixed-staff initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
 8. After live weekly training is verified, audit the next Gate-11 management
