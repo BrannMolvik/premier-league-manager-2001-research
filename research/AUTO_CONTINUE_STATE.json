@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 54,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Fresh youth list slice verified at 20300c8b (662 tests, only two known schedule failures). Continue second initializer trace only.",
+  "recovery_generation": 55,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovered from ffc12a8e. Resume only the persisted Gate 11 two-cohort youth initializer/caller-chain trace; do not redo verified fresh-youth-list work.",
   "same_chat_fallback_minutes": 30
 }
