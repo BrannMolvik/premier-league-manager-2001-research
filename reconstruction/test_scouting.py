@@ -7,7 +7,10 @@ from scouting import (
     MAX_NUM_USED2,
     SCOUT_ONE_AGE_BIAS,
     ScoutingReseedState,
+    ScoutingSortValues,
     scouting_rank_score,
+    scouting_result_compare,
+    sort_scouting_results,
     primary_scouting_results,
     scouting_shuffle,
     secondary_scouting_results,
@@ -108,6 +111,45 @@ class ScoutingOrderingTests(unittest.TestCase):
         self.assertIsNone(
             scouting_rank_score([128] * 17, (1, 2, 3), age=25, mode=7)
         )
+
+
+    def test_scouting_sort_modes_match_exact_direction_and_name_ties(self):
+        rows = (
+            ("a", ScoutingSortValues("Smith", "Alan", 30, 7.5, "ST", "Arsenal", 200.0)),
+            ("b", ScoutingSortValues("Brown", "Ben", 20, 6.0, "GK", "Chelsea", 500.0)),
+            ("c", ScoutingSortValues("Smith", "Aaron", 30, 9.0, "DC", "Arsenal", 300.0)),
+        )
+        lookup = dict(rows)
+
+        self.assertEqual(
+            sort_scouting_results(("a", "b", "c"), 0, lookup.__getitem__),
+            ("b", "c", "a"),
+        )
+        self.assertEqual(
+            sort_scouting_results(("a", "b", "c"), 1, lookup.__getitem__),
+            ("b", "c", "a"),
+        )
+        self.assertEqual(
+            sort_scouting_results(("a", "b", "c"), 2, lookup.__getitem__),
+            ("c", "a", "b"),
+        )
+        self.assertEqual(
+            sort_scouting_results(("a", "b", "c"), 3, lookup.__getitem__),
+            ("a", "b", "c"),
+        )
+        self.assertEqual(
+            sort_scouting_results(("a", "b", "c"), 4, lookup.__getitem__),
+            ("c", "a", "b"),
+        )
+        self.assertEqual(
+            sort_scouting_results(("a", "b", "c"), 5, lookup.__getitem__),
+            ("b", "c", "a"),
+        )
+
+    def test_scouting_sort_compare_rejects_unknown_mode(self):
+        values = ScoutingSortValues("A", "B", 20, 1.0, "GK", "Club", 1.0)
+        with self.assertRaises(ValueError):
+            scouting_result_compare(values, values, 6)
 
     def test_secondary_scouting_applies_used_and_found_caps_around_shuffle(self):
         state = ScoutingReseedState(field_64e4=9, age_low_64d8=16)
