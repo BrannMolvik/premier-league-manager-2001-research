@@ -6225,3 +6225,36 @@ unsupported UI labels to neutral panel controls.
 Exact next task: finish the six `0x4AEEA0` result-sort semantics and tie
 scouting panel fields to original UI labels/control strings where source-backed,
 then expose the minimum human scouting action over existing RuntimePlayer state.
+
+
+## Gate 11 scouting sort modes closed — 28 September 2026
+
+Direct `0x4AEEA0` disassembly closes the six result-list qsort modes:
+
+- mode 0: ascending player name (`+0x0C` string, then `+0x08`);
+- mode 1: ascending age via `0x4173B0`, then name;
+- mode 2: descending `0x41FB60` average of the active six-byte
+  `+0x79..+0x7E` circular history, then name;
+- mode 3: descending preferred-position display string from
+  `player+0x248 -> 0x4EA800`, then name;
+- mode 4: ascending club display name via `0x40DA70`, then name;
+- mode 5: descending player value via `0x420570`, then name.
+
+The original English string table contains exact scouting/list labels
+`Name`, `Age`, `Position`, `Club`, and `Value`, matching modes
+0/1/3/4/5. The mode-2 user-facing label remains deliberately neutral because
+both `Form` and `Performance` exist in the original resources and a direct
+control binding has not yet been proven.
+
+Implementation commits:
+- `69882a753c32b10bc6313ea4a59c749e45d3ba3b` adds the neutral exact
+  six-mode comparator/sort primitive;
+- `e00c62361d43f803e8135ca8faa370c75ecde14a` adds direction/tie tests.
+
+Asset-policy CI at `e00c6236` passed; the reconstruction workflow was still
+running when this checkpoint was written.
+
+Exact next task: expose the minimum UI-independent human scouting search action
+over existing RuntimePlayer state using the already-mapped filter, deterministic
+reseed/shuffle, score/shortlist path and result sorting. Keep unresolved panel
+controls and the mode-2 display label neutral rather than inventing semantics.
