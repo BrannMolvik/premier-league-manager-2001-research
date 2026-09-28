@@ -19,6 +19,16 @@ from match_participants import collect_match_participants
 from match_preparation import PreparedAiMatchSelection, prepare_ai_match_selection
 from match_schedule import MsvcCrtRng
 from match_team_setup import TeamTacticalState, resolved_substitute_quota
+from scouting import (
+    SCOUTING_SORT_MODE_CLUB_NAME,
+    SCOUTING_SORT_MODE_HISTORY_AVERAGE,
+    SCOUTING_SORT_MODE_POSITION_LABEL,
+    SCOUTING_SORT_MODE_VALUE,
+    ScoutingRankValues,
+    ScoutingReseedState,
+    ScoutingSortValues,
+    run_scouting_search,
+)
 from transfer_decision import SellingClubDecision
 from transfer_negotiation import (
     OrdinaryMoneyResponse,
@@ -156,6 +166,124 @@ class HumanGameplayController:
         if self.human is None:
             raise RuntimeError("select a human club first")
         return self.state.ordered_club_roster(self.human.club_id)
+
+    def search_scouting_players(
+        self,
+        panel_state: ScoutingReseedState,
+        *,
+        candidate_predicate: Callable[[object], bool],
+        sort_mode: int = 0,
+        secondary_score_mode: int | None = None,
+        secondary_caller_argument: int = 0,
+        history_average_resolver: Callable[[object], float] | None = None,
+        position_label_resolver: Callable[[object], str] | None = None,
+        valuation_resolver: Callable[[object], float] | None = None,
+    ) -> tuple[object, ...]:
+        """Run the recovered UI-independent PScouting2K result pipeline.
+
+        The original first-stage predicate contains several panel controls whose
+        user-facing labels are still intentionally neutral. candidate_predicate
+        is therefore explicit rather than replaced with guessed UI semantics.
+
+        Sort modes 2, 3 and 5 require their source values only when selected.
+        In particular, the existing form_state is not substituted for the
+        original six-byte 0x41FB60 history average.
+        """
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+
+        sort_mode = int(sort_mode)
+        if (
+            sort_mode == SCOUTING_SORT_MODE_HISTORY_AVERAGE
+            and history_average_resolver is None
+        ):
+            raise ValueError("sort mode 2 requires history_average_resolver")
+        if (
+            sort_mode == SCOUTING_SORT_MODE_POSITION_LABEL
+            and position_label_resolver is None
+        ):
+            raise ValueError("sort mode 3 requires position_label_resolver")
+        if sort_mode == SCOUTING_SORT_MODE_VALUE and valuation_resolver is None:
+            raise ValueError("sort mode 5 requires valuation_resolver")
+
+        human_club_id = int(self.human.club_id)
+        on_date = self.state.calendar.current_date
+
+        # 0x4AE680 rejects either registered-club or current/temporary-club
+        # membership in the controlled club before applying the panel filters.
+        candidates = tuple(
+            player
+            for player in self.state.players.values()
+            if int(player.club_id) != human_club_id
+            and (
+                player.loan_club_id is None
+                or int(player.loan_club_id) != human_club_id
+            )
+        )
+
+        def values_for(player) -> ScoutingSortValues:
+            age = player.age(on_date)
+            if age is None:
+                if sort_mode == 1 or secondary_score_mode is not None:
+                    raise ValueError(
+                        f"player {player.index} has no usable date of birth"
+                    )
+                age = 0
+
+            club_name = ""
+            if sort_mode == SCOUTING_SORT_MODE_CLUB_NAME:
+                club = self.state.clubs.get(int(player.club_id))
+                if club is None or not hasattr(club, "name"):
+                    raise ValueError(
+                        f"player {player.index} has no source-backed club name"
+                    )
+                club_name = str(club.name)
+
+            return ScoutingSortValues(
+                # FILE_FORMATS.md maps runtime +0x0C=surname and +0x08=first.
+                name_primary=str(player.surname),
+                name_secondary=str(player.first_name),
+                age=int(age),
+                history_average=(
+                    float(history_average_resolver(player))
+                    if history_average_resolver is not None
+                    else 0.0
+                ),
+                position_label=(
+                    str(position_label_resolver(player))
+                    if position_label_resolver is not None
+                    else ""
+                ),
+                club_name=club_name,
+                valuation=(
+                    float(valuation_resolver(player))
+                    if valuation_resolver is not None
+                    else 0.0
+                ),
+            )
+
+        def rank_values_for(player) -> ScoutingRankValues:
+            age = player.age(on_date)
+            if age is None:
+                raise ValueError(
+                    f"player {player.index} has no usable date of birth"
+                )
+            return ScoutingRankValues(
+                current_raw=tuple(player.current_raw),
+                preferred_positions=tuple(player.positions),
+                age=int(age),
+            )
+
+        return run_scouting_search(
+            candidates,
+            panel_state,
+            candidate_predicate=candidate_predicate,
+            sort_mode=sort_mode,
+            sort_values=values_for,
+            secondary_score_mode=secondary_score_mode,
+            secondary_caller_argument=int(secondary_caller_argument),
+            rank_values=rank_values_for if secondary_score_mode is not None else None,
+        )
 
     def set_player_training_method(self, player_id: int, method_id: int) -> None:
         """Assign one of the seven original per-player training methods."""
