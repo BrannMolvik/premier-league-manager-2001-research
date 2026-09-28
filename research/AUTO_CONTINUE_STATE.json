@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Finish Gate-11 source-backed international fixture replay and the final secondary 0x615BE0 bucket shuffle from the post-international RNG state, then carry the exact shared CRT state into fresh support-staff pool generation.",
-  "last_known_main_head": "6af46f73e3cafb68a7f9dcbd74c4392148f66f8e",
+  "active_task": "Replay the source-backed 200-person support-staff pool and user-assignment RNG from exact shared CRT state 0x61D6DFA2 through the first 0x425680 -> 0x4D1760 fixed-staff initialization.",
+  "last_known_main_head": "c0b23e250d28a863b24c0f39298ac25f5f58ae3a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 38,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 38 resumed from main 6af46f73. International-fixture RNG replay code is now persisted; continue only final secondary bucket shuffle and shared-CRT bridge into support-staff startup.",
+  "note": "Recovery generation 38 closed international fixture replay (245 draws -> 0xCAB0B953) and final secondary 217-draw bucket shuffle -> 0x61D6DFA2. Continue only support-staff pool/user assignment.",
   "same_chat_fallback_minutes": 30
 }
