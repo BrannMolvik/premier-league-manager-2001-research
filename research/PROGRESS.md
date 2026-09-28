@@ -5569,3 +5569,54 @@ remain **0xC6B73181 -> 0xBD5CC00F**. Visits 21-40 replay as follows:
   shared state **0x80A6458E**.
 
 Exact continuation is canonical reverse visit 41 from **0x80A6458E**.
+
+
+## Gate 11 bounded-RNG selector correction — 28 September 2026
+
+Recovery generation 42 re-materialized the authorized canonical executable and
+database and audited the newly committed transfer-list replay before continuing
+visit 41.
+
+A critical replay bug was found in the scratch helper used for the recent
+qsort/selector checkpoints: it used `rand15 % bound` for bounded CRT values.
+That is **not** FM2001's `0x64D540` behavior.
+
+Direct disassembly of canonical `FOOTBAL.EXE` proves:
+
+- `0x619DC0` calls `0x64D540` once for each descending Fisher-Yates
+  bound;
+- `0x61991F` calls the same `0x64D540` for every RNG(10) selector
+  dispatch;
+- `0x64D540` calls the MSVC CRT `rand()`, multiplies the 15-bit result by
+  the supplied bound, multiplies by the embedded double **1/32768**, and
+  truncates toward zero;
+- therefore the exact bounded result is
+  **`floor(rand15 * bound / 32768)`**, matching the already-implemented
+  `MsvcCrtRng.randbelow()` in `reconstruction/match_schedule.py`.
+
+The corrected instruction-level `0x668DA4` qsort itself remains valid. When
+that qsort output is passed through the two exact **scaled** `0x619DC0`
+shuffles from `0xDFCED283`, the shared states remain
+**`0xC6B73181 -> 0xBD5CC00F`** because those checkpoints depend on draw
+count, not bounded outputs. The resulting element order is different from the
+modulo replay:
+
+```text
+twice-shuffled prefix:
+25, 738, 783, 262, 812, 2, 397, 819, 626, 146, ...
+
+reverse 0x61991F prefix:
+118, 750, 510, 1216, 430, 622, 877, 243, 404, 500, ...
+```
+
+This restores the earlier club-118 prefix, but the earlier hand replay also
+used modulo for nested bounded values and therefore is not canonical evidence.
+For visit 1, scaled RNG(10) still returns 3 and selects the positional path for
+Carlisle. Steve Soley remains the source-backed candidate; the subsequent
+scaled RNG(100) is **82**, not 88, still passes the <=50 rating threshold, and
+leaves shared state **`0x6A346701`** after the same two raw CRT draws.
+
+All recently committed modulo-derived visit sequences beginning club 805 and
+their visit-1..40 selector outcomes are superseded. Exact continuation is
+canonical reverse visit **2, club 750**, from **`0x6A346701`**, using
+scaled `0x64D540` bounded draws throughout.
