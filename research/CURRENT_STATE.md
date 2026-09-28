@@ -164,12 +164,15 @@ Several target systems already have substantial research or backend behavior:
    The global player scan then leaves the fresh transfer-candidate list empty;
    the 895-club vector is source-backed, so the first two `0x619DC0` calls
    consume exactly 894 draws each and leave **`0xBD5CC00F`**. The reverse
-   `0x61991F` transfer-list loop is now bounded to exactly **894 club visits**
-   and therefore 894 mandatory RNG(10) dispatch draws; its 1000-player cap
-   cannot stop the fresh loop early. Continue by replaying nested selector RNG
-   in `0x61A9A0/0x4050F0 -> 0x417470`, then carry the exact shared CRT state
-   through loan maintenance into `0x425680 -> 0x4D1760` fixed-staff
-   initialization.
+   `0x61991F` transfer-list loop is bounded to exactly **894 club visits**
+   and 894 mandatory RNG(10) dispatch draws; its 1000-player cap cannot stop
+   the fresh loop early. Nested RNG is now mapped: `0x61A9A0` has no direct
+   RNG beyond its final rating-dependent `0x417470` check, while
+   `0x4050F0` performs up to 20 attempts with RNG(10) + one roster-index draw
+   per attempt plus the optional `0x417470` rating draw. Reproduce the club
+   qsort/two shuffles and replay those 894 selectors exactly, then carry the
+   shared CRT state through loan maintenance into `0x425680 -> 0x4D1760`
+   fixed-staff initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
 8. After live weekly training is verified, audit the next Gate-11 management
