@@ -157,6 +157,26 @@ def scouting_preferred_position_passes(
     )
 
 
+def scouting_loan_list_user_match(
+    *,
+    transfer_listed: bool,
+    non_eu: bool,
+    registered_club_competition_id: int,
+    active_club_competition_id: int,
+) -> bool:
+    """Reproduce 0x41E450 after the scouting caller has proven bit 12.
+
+    On this call site the player's loan-list bit is already set, so the
+    function's separate bit-4/not-bit-12 rejection is unreachable.
+    """
+
+    if int(registered_club_competition_id) == int(active_club_competition_id):
+        return False
+    if bool(transfer_listed):
+        return True
+    return not bool(non_eu)
+
+
 def scouting_rank_score(
     current_raw: Sequence[int],
     preferred_positions: Sequence[int],
