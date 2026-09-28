@@ -6165,3 +6165,36 @@ The training/commercial management slice is now sufficiently integrated to move
 to the next Gate-11 workflow. Scouting is next because the executable already
 has a bounded `PScouting2K -> 0x4AE970 -> 0x4AF7F0` deterministic reseed and
 candidate-shuffle path.
+
+
+## Gate 11 scouting filter/reseed checkpoint — 28 September 2026
+
+Commit `9c0087dbff23890a8a511ed9315a3511f11fafd3` starts the scouting
+workflow audit from the canonical `PScouting2K` path instead of inventing a
+generic search UI.
+
+Verified directly from canonical `FOOTBAL.EXE`:
+
+- `0x4AE970` walks the full player table and calls `0x4AE680` once per
+  player; the returned boolean is stored at player `+0x228`;
+- only players marked 1 become the primary temporary result vector;
+- the predicate excludes the controlled club's registered/current players,
+  then applies source-backed panel selectors, age bounds, valuation bounds,
+  a four-way player classification selector, an optional list predicate,
+  a threshold gate, and three exact status toggles;
+- those final toggles correspond to player status bits 8, 7 and 12, with bit 12
+  additionally requiring `0x41E450(player, active_user_club) == 1`;
+- if none of the three status toggles is active, this final status block passes
+  unconditionally;
+- `0x4AF7F0` XOR-hashes three control bytes, two integerized double fields,
+  five dword panel fields and its caller argument, then passes the result
+  directly to CRT `srand`;
+- the primary call uses argument **-1**, followed immediately by exact
+  descending Fisher-Yates through `0x64D540`.
+
+This proves that identical scouting panel state produces deterministic result
+ordering independent of the incoming global gameplay RNG state.
+
+Exact next task: finish `0x4AEAE0` secondary score construction and the
+`0x4AEEA0/0x4AF330` result-mode dispatch before implementing a clean-room
+human scouting action.
