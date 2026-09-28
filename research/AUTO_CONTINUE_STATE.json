@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 11,
   "active_task": "Verify the 0b567986 Premier League post-match morale integration and exact RNG/order regressions; persist morale research/status, then continue the ordinary DBRPlayer morale lifecycle from the next unresolved producer/consumer without revisiting closed youth work.",
-  "last_known_main_head": "5330e42e1dd1fd6b402db77b2c81b8e7710205e7",
+  "last_known_main_head": "454c118ae4369daf488d69d12680d7aaa1ef0cc1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 57,
+  "recovery_generation": 58,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 57: recovered against main 5330e42e1dd1fd6b402db77b2c81b8e7710205e7; reconcile current main checkpoint and continue the exact active Gate 11 morale task without revisiting persisted work.",
+  "note": "Recovery generation 58: recovered against main 454c118ae4369daf488d69d12680d7aaa1ef0cc1; continue the exact active Gate 11 morale task from the persisted danger-morale lifecycle checkpoint without revisiting closed work.",
   "same_chat_fallback_minutes": 30
 }
