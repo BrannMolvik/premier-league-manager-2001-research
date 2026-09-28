@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Trace and replay the loan-maintenance remainder of 0x6194D0 from canonical shared CRT state 0x126CF137, then carry the resulting exact state into 0x425680 -> 0x4D1760 fixed-support-staff initialization.",
-  "last_known_main_head": "6985386b9c9840aebf7b9109ac49103e95fed103",
+  "active_task": "Replay the two 0x619EB0 loan passes and final reverse-club loan-list population from shared CRT state 0x1AB5D762, preserving the canonical 625 transfer-list mutations, then continue into 0x425680 -> 0x4D1760 fixed staff.",
+  "last_known_main_head": "09fdad2b8625fb14a8d98f8016bf3e376137b233",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 43,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 43: main already completed the full corrected 894-visit transfer-list replay. Canonical post-0x61991F state is 0x126CF137. Continue only the loan-maintenance tail of 0x6194D0 and then 0x425680 -> 0x4D1760 fixed-support-staff initialization.",
+  "note": "Instruction-level post-0x61991F tail is confirmed as loan-list maintenance. Fresh Arsenal's 37 RNG(200) candidate draws leave 0x1AB5D762 with Matthew Upson as the only <5 candidate; non-user fresh bit-12 scans consume no RNG before their gate. Main checkpoint 006f5a9/09fdad2.",
   "same_chat_fallback_minutes": 30
 }
