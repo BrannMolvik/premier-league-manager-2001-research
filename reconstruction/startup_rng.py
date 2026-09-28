@@ -114,11 +114,23 @@ def startup_youth_target_count(option_mode: int | None, rng: BoundedRng) -> int:
 def startup_youth_candidate_ids(
     players: Iterable[PlayerSource],
     source_club_id: int,
+    *,
+    runtime_excluded_ids: Iterable[int] = (),
 ) -> tuple[int, ...]:
-    """Reproduce the 0x61DF90 source filter and fixed 512-WORD buffer."""
+    """Reproduce the 0x61DF90 source filter and fixed 512-WORD buffer.
+
+    runtime_excluded_ids represents players whose live DBRPlayer status bit 3
+    has become set since database load. 0x4185B0 sets that bit when a Spare
+    candidate is converted into a youth player, so a later human user's
+    0x61DF90 scan must skip earlier users' selected candidates before applying
+    the 512-entry cap.
+    """
     source_club_id = int(source_club_id)
+    excluded = {int(value) for value in runtime_excluded_ids}
     result: list[int] = []
     for player in players:
+        if int(player.index) in excluded:
+            continue
         if int(player.club_id) != source_club_id:
             continue
         if int(player.initial_flags) & 0x08:
@@ -444,11 +456,20 @@ def replay_precompetition_startup_rng(
     after_team_names_state = int(rng.state) & 0xFFFFFFFF
 
     spare_club_id = startup_spare_club_id(club_list)
-    candidates = startup_youth_candidate_ids(player_list, spare_club_id)
 
     youth_targets: list[int] = []
     youth_source_ids: list[tuple[int, ...]] = []
+    runtime_youth_ids: set[int] = set()
     for user in user_list:
+        # 0x61DF90 rescans DBRPlayers for every linked user. Each selected
+        # candidate is passed through 0x4185B0, which sets status bit 3, so the
+        # next user's scan excludes those IDs before filling its 512-WORD
+        # candidate buffer. This can pull later !Spare players into the cap.
+        candidates = startup_youth_candidate_ids(
+            player_list,
+            spare_club_id,
+            runtime_excluded_ids=runtime_youth_ids,
+        )
         target, selected = replay_startup_youth_generation_for_country(
             rng,
             candidates,
@@ -458,6 +479,7 @@ def replay_precompetition_startup_rng(
             player_list,
             destination_count=int(user.destination_count),
         )
+        runtime_youth_ids.update(int(value) for value in selected)
         youth_targets.append(int(target))
         youth_source_ids.append(tuple(int(value) for value in selected))
 
