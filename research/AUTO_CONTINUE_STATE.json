@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Verify the 0b567986 Premier League post-match morale integration and exact RNG/order regressions; persist morale research/status, then continue the ordinary DBRPlayer morale lifecycle from the next unresolved producer/consumer without revisiting closed youth work.",
-  "last_known_main_head": "454c118ae4369daf488d69d12680d7aaa1ef0cc1",
+  "active_task": "Gate 11 completion audit: persist target coverage and full 38-round human-season regression; close Gate 11 if the roadmap criterion is satisfied, then advance canonical state to Gate 12.",
+  "last_known_main_head": "22027de93df54fe7a83151ba642f6d0f86ecc93f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 58,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 58: recovered against main 454c118ae4369daf488d69d12680d7aaa1ef0cc1; continue the exact active Gate 11 morale task from the persisted danger-morale lifecycle checkpoint without revisiting closed work.",
+  "note": "Recovery generation 58 continuing: full 38-round human season regression at 22027de9 passed with only the two unchanged secondary-schedule baseline failures; persist Gate 11 closure audit and advance if criterion satisfied.",
   "same_chat_fallback_minutes": 30
 }
