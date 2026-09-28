@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "1ed6cedb46c5e70345a6ceef69c0a02d017ee895",
-  "last_verified_reconstruction_ci_head": "4c560cb30f5ba7301c005bd39a83de346f75971d",
-  "last_verified_test_count": 585,
-  "asset_policy_validated_head": "4c560cb30f5ba7301c005bd39a83de346f75971d",
+  "last_verified_reconstruction_ci_head": "c7650cf3723664ca5d1fcaf5cbde089240a12892",
+  "last_verified_test_count": 586,
+  "asset_policy_validated_head": "c7650cf3723664ca5d1fcaf5cbde089240a12892",
   "asset_policy_status": "passed",
-  "active_task": "Recover sponsor-offer routine 0x617C80 far enough to preserve shared-RNG behavior after no-sponsor wait expiry; commercial-before-training GameState integration is verified at 4c560cb3.",
+  "active_task": "Gate 11 scouting: recover the minimum PScouting2K human search/filter/result workflow from 0x4AE970/0x4AF7F0, including deterministic reseed hash inputs and candidate filtering/shuffle semantics.",
   "next_gate": 12,
   "next_gate_name": "Other competitions",
   "blocked": false,
@@ -193,7 +193,7 @@
   "gate10_closure_checkpoint": "5d626f0fda83d3f7b8ca09d82061002017b68b37",
   "gate10_verified_test_count": 550,
   "gate10_evidence": "research/GATE10_FINANCES_AND_BOARD.md",
-  "internal_save_schema": 13,
+  "internal_save_schema": 14,
   "gate11_post_transfer_list_state": "0x126CF137",
   "gate11_post_user_loan_scan_state": "0x1AB5D762",
   "gate11_post_loan_pass1_shuffle_state": "0x8B83FB28",
@@ -238,5 +238,7 @@
   "gate11_day12_candidate_index": 19,
   "gate11_day12_post_concession_state": "0x03CA80A0",
   "gate11_commercial_replay_supersedes": "6822e7ea666749ba01ef0245ba858da009a420e4",
-  "gate11_commercial_integration_head": "4c560cb30f5ba7301c005bd39a83de346f75971d"
+  "gate11_commercial_integration_head": "4c560cb30f5ba7301c005bd39a83de346f75971d",
+  "gate11_training_commercial_status": "integrated_reload_safe",
+  "gate11_training_commercial_verified_head": "c7650cf3723664ca5d1fcaf5cbde089240a12892"
 }
