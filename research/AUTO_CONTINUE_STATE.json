@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 11,
   "active_task": "Recover minimum PScouting2K human scouting search/filter/result workflow from 0x4AE970 and deterministic reseed helper 0x4AF7F0; training/commercial slice is integrated and reload-safe.",
-  "last_known_main_head": "da62306d2056932d26ec551e25e928e8d32a436f",
+  "last_known_main_head": "b374a365e970d98c5e8f845fdff814cf0745bbdd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 50,
-  "last_recovery_reason": "stale-repository-activity",
+  "recovery_generation": 51,
+  "last_recovery_reason": "conversation-length-limit",
   "note": "Gate 11 training/commercial slice closed through schema 14 at c7650cf3 verification. Corrected 6822e7ea commercial replay is superseded by db09371d/01364daf. Continue scouting only; do not reopen training RNG.",
   "same_chat_fallback_minutes": 30
 }
