@@ -46,6 +46,70 @@ class CupKnockoutOutcome:
         return int(self.participant_0_club_id)
 
 
+
+
+@dataclass(frozen=True)
+class CupMatchResolutionSnapshot:
+    """Minimal state consumed by shared Cup virtual +0x44 at 0x514000.
+
+    score_0/score_1 are the already-composed virtual +0x48/+0x4C totals for
+    this match object. A linked previous match uses the opposite participant
+    direction, matching Replay/SecondLeg construction.
+    """
+
+    participant_0_club_id: int
+    participant_1_club_id: int
+    score_0: int
+    score_1: int
+    complete: bool = True
+    previous: "CupMatchResolutionSnapshot | None" = None
+
+    def __post_init__(self) -> None:
+        if int(self.participant_0_club_id) == int(self.participant_1_club_id):
+            raise ValueError("Cup match requires two distinct clubs")
+        if int(self.score_0) < 0 or int(self.score_1) < 0:
+            raise ValueError("Cup match scores must be non-negative")
+        if self.previous is not None:
+            current = {
+                int(self.participant_0_club_id),
+                int(self.participant_1_club_id),
+            }
+            previous = {
+                int(self.previous.participant_0_club_id),
+                int(self.previous.participant_1_club_id),
+            }
+            if current != previous:
+                raise ValueError("linked Cup matches must contain the same clubs")
+
+    def result_club_id(self) -> int | None:
+        """Reproduce the shared CupMatch virtual +0x44 at 0x514000."""
+        if not bool(self.complete):
+            return None
+
+        left_total = int(self.score_0)
+        right_total = int(self.score_1)
+        previous = self.previous
+        if previous is not None:
+            left_total += int(previous.score_1)
+            right_total += int(previous.score_0)
+
+        if left_total > right_total:
+            return int(self.participant_0_club_id)
+        if left_total < right_total:
+            return int(self.participant_1_club_id)
+
+        if previous is None or not bool(previous.complete):
+            return None
+
+        # 0x514062..0x51409B compares current +0x4C to previous +0x4C.
+        # Because linked match participants are reversed, this is the
+        # executable's secondary/away-side comparison on tied aggregate.
+        if int(self.score_1) > int(previous.score_1):
+            return int(self.participant_1_club_id)
+        if int(self.score_1) < int(previous.score_1):
+            return int(self.participant_0_club_id)
+        return None
+
 @dataclass
 class CupResultRegistry:
     """Persistent semantic counterpart of referenced CupMatch result objects."""
