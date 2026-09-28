@@ -413,12 +413,43 @@ def _failed_final_duel_transition(close_defender: MatchSkillPlayer | None, rng: 
         return ChanceSource.PENALTY if rng.randbelow(100) < 20 else ChanceSource.FREE_KICK
     return ChanceSource.CORNER if rng.randbelow(2) == 0 else None
 
-def _open_play_record(finisher: MatchSkillPlayer, base_outcome: int, minute: int, finish_mode: FinishMode, rng: BoundedRng, own_goal_defender: MatchSkillPlayer | None = None) -> ChanceRecord | None:
+def _open_play_record(
+    finisher: MatchSkillPlayer,
+    base_outcome: int,
+    minute: int,
+    finish_mode: FinishMode,
+    rng: BoundedRng,
+    own_goal_defender: MatchSkillPlayer | None = None,
+    secondary_player: MatchSkillPlayer | None = None,
+) -> ChanceRecord | None:
     raw=encode_open_play_outcome(base_outcome, minute, rng)
     if raw is None: return None
+    secondary_kwargs = (
+        {}
+        if secondary_player is None
+        else {
+            "secondary_player_side": secondary_player.side,
+            "secondary_player_index": secondary_player.player_index,
+        }
+    )
     if own_goal_defender is not None:
-        return ChanceRecord(ChanceSource.OPEN_PLAY, raw, own_goal_defender.side, own_goal_defender.player_index, side_inversion=True, finish_mode=finish_mode)
-    return ChanceRecord(ChanceSource.OPEN_PLAY, raw, finisher.side, finisher.player_index, finish_mode=finish_mode)
+        return ChanceRecord(
+            ChanceSource.OPEN_PLAY,
+            raw,
+            own_goal_defender.side,
+            own_goal_defender.player_index,
+            side_inversion=True,
+            finish_mode=finish_mode,
+            **secondary_kwargs,
+        )
+    return ChanceRecord(
+        ChanceSource.OPEN_PLAY,
+        raw,
+        finisher.side,
+        finisher.player_index,
+        finish_mode=finish_mode,
+        **secondary_kwargs,
+    )
 
 def resolve_open_play_attempt(attacking_players: Sequence[MatchSkillPlayer], defending_players: Sequence[MatchSkillPlayer], minute: int, current_attacking_score: int, rng: BoundedRng) -> OpenPlayResolution:
     """Assemble the verified outer flow of 0x62C740 without inventing type-2/3 outcomes.
@@ -462,7 +493,7 @@ def resolve_open_play_attempt(attacking_players: Sequence[MatchSkillPlayer], def
         if not duel_won:
             return OpenPlayResolution(transition=_failed_final_duel_transition(close_defender, rng), neutral_increment=neutral, attacking_possession_increment=side_control)
         if not heading_attempt_on_target(finisher, rng):
-            return OpenPlayResolution(event=_open_play_record(finisher,1,minute,finish_mode,rng), neutral_increment=neutral, attacking_possession_increment=side_control)
+            return OpenPlayResolution(event=_open_play_record(finisher,1,minute,finish_mode,rng, secondary_player=carrier), neutral_increment=neutral, attacking_possession_increment=side_control)
     else:
         duel_won=control_tackle_duel_won(finisher, close_defender, rng)
         if not duel_won:
@@ -473,10 +504,10 @@ def resolve_open_play_attempt(attacking_players: Sequence[MatchSkillPlayer], def
     if defend.goalkeeper is None:
         raise ValueError("open-play resolution requires a defending goalkeeper")
     if goalkeeper_stops_open_play(defend.goalkeeper, current_attacking_score, rng):
-        return OpenPlayResolution(event=_open_play_record(finisher,2,minute,finish_mode,rng), neutral_increment=neutral, attacking_possession_increment=side_control)
+        return OpenPlayResolution(event=_open_play_record(finisher,2,minute,finish_mode,rng, secondary_player=carrier), neutral_increment=neutral, attacking_possession_increment=side_control)
 
     own_goal = close_defender if (close_defender is not None and rng.randbelow(20) == 0) else None
-    return OpenPlayResolution(event=_open_play_record(finisher,0,minute,finish_mode,rng,own_goal), neutral_increment=neutral, attacking_possession_increment=side_control)
+    return OpenPlayResolution(event=_open_play_record(finisher,0,minute,finish_mode,rng,own_goal, secondary_player=carrier), neutral_increment=neutral, attacking_possession_increment=side_control)
 
 
 @dataclass(frozen=True)
@@ -494,6 +525,8 @@ def _set_piece_record(
     base_outcome: int,
     finish_mode: FinishMode,
     rng: BoundedRng,
+    *,
+    secondary_player: MatchSkillPlayer | None = None,
 ) -> ChanceRecord:
     return ChanceRecord(
         source,
@@ -501,6 +534,12 @@ def _set_piece_record(
         player.side,
         player.player_index,
         finish_mode=finish_mode,
+        secondary_player_side=(
+            None if secondary_player is None else secondary_player.side
+        ),
+        secondary_player_index=(
+            None if secondary_player is None else secondary_player.player_index
+        ),
     )
 
 
@@ -529,7 +568,7 @@ def _resolve_delivered_set_piece_finish(
             )
         if not heading_attempt_on_target(receiver, rng):
             return SetPieceResolution(
-                event=_set_piece_record(source, receiver, 1, finish_mode, rng)
+                event=_set_piece_record(source, receiver, 1, finish_mode, rng, secondary_player=taker)
             )
     else:
         if not control_tackle_duel_won(receiver, close_defender, rng):
@@ -538,17 +577,17 @@ def _resolve_delivered_set_piece_finish(
             )
         if not shooting_attempt_on_target(receiver, rng):
             return SetPieceResolution(
-                event=_set_piece_record(source, receiver, 1, finish_mode, rng)
+                event=_set_piece_record(source, receiver, 1, finish_mode, rng, secondary_player=taker)
             )
 
     if defending.goalkeeper is None:
         raise ValueError("set-piece resolution requires a defending goalkeeper")
     if goalkeeper_stops_open_play(defending.goalkeeper, current_attacking_score, rng):
         return SetPieceResolution(
-            event=_set_piece_record(source, receiver, 2, finish_mode, rng)
+            event=_set_piece_record(source, receiver, 2, finish_mode, rng, secondary_player=taker)
         )
     return SetPieceResolution(
-        event=_set_piece_record(source, receiver, 0, finish_mode, rng)
+        event=_set_piece_record(source, receiver, 0, finish_mode, rng, secondary_player=taker)
     )
 
 
