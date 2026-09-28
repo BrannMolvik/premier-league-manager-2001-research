@@ -212,3 +212,33 @@ The only direct `0x61DE40` xref found so far is inside `0x425680`.
 routine also performs broad user/staff initialization. Do **not** classify
 `0x61DE40` as daily, monthly, annual or one-shot until the lifetime/caller
 chain is instruction-closed. This is the next active youth trace.
+
+
+## Club-activation initializer resolved — 29 September 2026
+
+The follow-up `0x425680 -> 0x61DE40` dependency is now instruction-bounded.
+
+### Cadence
+
+This is not an annual youth refresh. The unique direct caller chain reaches `0x425680` from the normal calendar-advance wrapper, but `0x4A8070` gates the call on `DBRUser +0x10E0 != -1`. `+0x10E0` is a pending runtime club index (DBRClub stride `0x2A8`); `0x425680` clears it back to `-1` before returning. A separate user-selection callback `0x60DBD0` is the identified re-arm writer.
+
+The youth reset therefore runs once when a pending controlled-club selection/switch is activated.
+
+### Two-cohort final state
+
+`0x61DE40`:
+
+- clears the separate youth list without reverting the DBRPlayers previously selected into it;
+- generates one `0x61DF90` cohort;
+- post-processes that cohort through `0x61DD30` to age 17;
+- generates a second `0x61DF90` cohort, which remains at the age-15 state produced by `0x41E510`;
+- assigns every final youth player's `+0x154` to the next 30 June;
+- resets every youth training subobject.
+
+On the ordinary fresh path category-3 facilities are absent, so both target counts are exactly four with no size RNG draw. Final activation state is therefore **eight youth players: four age 17 followed by four age 15**.
+
+The clear operation preserves the original quirk that old selected DBRPlayers retain status bit 3. Consequently the first new cohort rescans past the earlier startup cohort, and the second new cohort rescans past both the earlier startup cohort and the first activation cohort before applying the 512-candidate cap.
+
+### RNG consequence
+
+Each four-player cohort consumes 12 draws (candidate + first-name + surname for each player), so `0x61DE40` adds 24 mandatory draws before `0x5E3FD0`. From the canonical fresh post-loan state this moves the shared CRT from `0xA54D70C6` to `0xFA1C595E` before support-staff selection. The corrected post-fixed-staff state is `0xA2FEE1E1`; Youth Team Coach rating remains 2.

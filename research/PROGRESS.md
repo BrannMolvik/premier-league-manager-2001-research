@@ -6781,3 +6781,16 @@ follow-up tracing found a second initializer `0x61DE40` used from
 Its caller/cadence must be resolved before claiming the complete in-season youth
 lifecycle. Exact next task: bound `0x425680 -> 0x61DE40` lifetime and map the
 two-cohort final state/RNG ordering.
+
+
+## Gate 11 pending-club youth initializer resolved — 29 September 2026
+
+Re-extracted canonical `FOOTBAL.EXE` from the authorized disc image and verified SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+Closed the `0x425680 -> 0x61DE40` caller/lifetime boundary. The only direct chain is `0x4320BD -> 0x4A83F0 -> 0x4A83D0 -> 0x4A8070 -> 0x425680`. `0x4A8070` calls only while DBRUser `+0x10E0 != -1`; `0x425680` consumes and clears that pending club index. This is club activation/switch initialization, not seasonal youth cadence.
+
+Resolved the two-cohort final youth state: ordinary fresh activation clears the prior list, creates four youth, post-processes those four to age 17, creates four more that remain age 15, assigns all eight the next 30-June `+0x154` date, and resets their training objects. Record clearing does not undo DBRPlayer status bit 3, so previous generated players remain excluded from later 512-entry candidate rescans.
+
+Found a material RNG omission in the prior startup/training bridge. The two fresh four-player cohorts consume 24 mandatory shared CRT draws between the known `RNG(10)` and `0x5E3FD0`: `0xA54D70C6 -> 0xFA1C595E`. The corrected 37-way support-staff selector takes 13 attempts and the fixed-staff block ends at `0xA2FEE1E1`. Youth Team Coach rating stays 2, preserving training-quality multiplier 1.30.
+
+Next: implement the activation-specific two-cohort youth materializer/replay, correct the transfer-list/startup replay checkpoint, then recompute the commercial-timer and first-training bridge from `0xA2FEE1E1`.

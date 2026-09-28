@@ -375,13 +375,16 @@ Several target systems already have substantial research or backend behavior:
    **662 tests** with only the same two pre-existing secondary-schedule
    failures; asset policy passed. Evidence:
    `research/GATE11_YOUTH_WORKFLOW.md`.
-26. **Active youth dependency:** resolve the lifetime and exact final state of
-   the second initializer `0x425680 -> 0x61DE40`. It clears the youth list,
-   generates a first cohort, applies `0x61DD30`, generates a second cohort,
-   assigns a common `player+0x154` date and resets each record's training
-   state. Bound the `0x4A8070/0x425680` caller chain before classifying this
-   as one-shot/seasonal/recurring, then integrate only the source-backed cadence
-   and two-cohort RNG/state transitions.
+26. **Activation youth dependency resolved:** `0x425680 -> 0x61DE40` is a
+   pending controlled-club activation/switch initializer, gated by
+   `DBRUser+0x10E0 != -1` and self-clearing that marker. Its ordinary fresh
+   path clears the previous list, generates four age-17 youth plus four age-15
+   youth, assigns all eight the next 30-June `player+0x154` date, and resets
+   youth training. The two `0x61DF90` cohorts add 24 mandatory shared CRT
+   draws before support-staff selection. **Exact next task:** implement this
+   activation-specific two-cohort materializer/replay, correct the old
+   startup/support-staff checkpoint, and replay downstream commercial-timer /
+   training RNG from corrected post-fixed-staff state `0xA2FEE1E1`.
 
 ## Known live fidelity boundaries
 

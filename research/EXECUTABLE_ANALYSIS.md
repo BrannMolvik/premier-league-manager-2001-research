@@ -9133,3 +9133,96 @@ implementation step is to replace `status_bit_7` / `threshold_passes`
 plumbing with source-named out-of-contract and selected-skill state while
 preserving compatibility for callers that still use the neutral low-level
 predicate.
+
+
+## Gate 11 pending-club initializer cadence and two-cohort youth correction — 29 September 2026
+
+Canonical `FOOTBAL.EXE` SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3` was re-extracted from the authorized disc image and the unresolved `0x425680 -> 0x61DE40` path was re-disassembled directly.
+
+### Exact caller/lifetime boundary
+
+The direct-call chain is unique in the executable:
+
+```text
+0x4320BD -> 0x4A83F0
+0x4A8506 -> 0x4A83D0
+0x4A83E4 -> 0x4A8070
+0x4A8247 -> 0x425680
+0x42571D -> 0x61DE40
+```
+
+`0x4A83F0` is the calendar-advance loop. `0x4A8070` iterates human users on each reached day, but it calls `0x425680` only when `DBRUser +0x10E0 != -1`:
+
+```text
+4A8230 cmp [user+0x10E0], -1
+4A8237 je  4A824C
+...
+4A8247 call 425680
+```
+
+`0x425680` consumes that pending marker and writes `DBRUser +0x10E0 = -1` before returning. The non-negative marker indexes the runtime club array at `0x874B90` with exact stride `0x2A8`, matching the runtime DBRClub object size. The only identified non-reset direct writer in the DBRUser path is `0x60DBD0`, which resolves a user through `0x413B10` and stores its supplied club index into `+0x10E0`. Other directly identified DBRUser writes at `0x425F63` and `0x427B2A` reset it to `-1`.
+
+Therefore `0x425680` is a **pending controlled-club activation / club-switch initializer**. The surrounding calendar wrapper is recurring, but this initializer is one-shot per re-arm of `+0x10E0`. It is not an annual/monthly youth-regeneration cadence.
+
+### Exact `0x61DE40` final youth state
+
+`0x61DE40` is intentionally a two-cohort initializer:
+
+1. decompose the current date;
+2. choose **30 June** of the current year when the current month is before July, otherwise 30 June of the following year;
+3. remove every existing youth record through `0x61E100`;
+4. call `0x61DF90` for the first cohort;
+5. call `0x61DD30` over that first cohort;
+6. call `0x61DF90` again for the second cohort;
+7. write the common 30-June date to DBRPlayer `+0x154` for every final youth record;
+8. reset every record's training object through `0x61E7A0 -> 0x4EAB80`.
+
+The two cohorts deliberately finish at different ages:
+
+- `0x41E510`, reached by every `0x61DF90` selection, rewrites the source player to **age 15**;
+- `0x61DD30` subsequently rewrites only the first cohort to **age 17**;
+- the second cohort is not passed through `0x61DD30`, so it remains age 15.
+
+On the ordinary fresh controlled-club path the facilities collection has no category-3 entry, so `0x42C3A0` returns zero without consuming RNG and `0x61DF90` adds four. The activation initializer therefore creates **4 age-17 + 4 age-15 players**, all with the same next 30-June `+0x154` date and freshly reset youth-training state.
+
+A legacy quirk is now also bounded: `0x61E100` compacts/removes youth records but does not undo the selected DBRPlayer mutation. Resetting the vacated record through `0x61E540(..., 0xFFFF, ...)` does not clear DBRPlayer status bit 3. Thus players selected by the earlier `0x413980 -> 0x61DF90 -> 0x61DD30` startup cohort remain ineligible to later candidate scans even after `0x61DE40` clears that earlier youth list. The first activation cohort likewise becomes ineligible before the second `0x61DF90` rescans the global player table.
+
+### Corrected shared-CRT order before support staff
+
+Each ordinary four-player `0x61DF90` cohort consumes exactly 12 shared CRT draws:
+
+```text
+RNG(candidate_count)
+RNG(name_bound)
+RNG(name_bound)
+(repeated four times)
+```
+
+The 2,048-player shipped `!Spare` source is large enough that every fresh rescan refills the fixed 512-WORD local buffer after excluding already-mutated status-bit-3 players. Therefore each activation cohort uses candidate bounds `512, 511, 510, 509`; the country-specific name bound is consumed twice per player.
+
+The two activation cohorts therefore add **24 mandatory draws** between the already-recovered `0x425680` `RNG(10)` and `0x5E3FD0`. This corrects the previous post-loan startup bridge:
+
+```text
+post final loan-list state       0x472F4DFF
+0x425680 RNG(10) -> 2            0xA54D70C6
+two 0x61DF90 cohorts, 24 draws   0xFA1C595E
+0x5E3FD0 37-way selector          13 attempts
+accepted selectors                10,33,34,14,9,23,3,10,3,27,34,33
+post selector state               0x7470CA25
+```
+
+The selector needs 13 rather than 12 draws because the penultimate `34` immediately repeats the previous accepted `34` and is rejected.
+
+The six fixed support-staff pairs then become:
+
+```text
+type 1:  age-roll 23, rating 2
+type 2:  age-roll 16, rating 2
+type 3:  age-roll  1, rating 2
+type 4:  age-roll 16, rating 1
+type 5:  age-roll 20, rating 2
+type 13: age-roll  3, rating 1
+post-fixed-staff CRT state: 0xA2FEE1E1
+```
+
+Type 3 (Youth Team Coach) still has rating 2, so the already-recovered training-quality multiplier remains **1.30**. However the old `0xFA1C595E` post-staff anchor is invalid: that state is now the **pre-selector state immediately after the missing youth block**. All later canonical timer/training RNG checkpoints must be replayed from `0xA2FEE1E1`.
