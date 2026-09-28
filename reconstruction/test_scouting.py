@@ -73,6 +73,62 @@ class ScoutingOrderingTests(unittest.TestCase):
             )
         self.assertEqual(first, tuple(expected))
 
+    def test_country_context_selector_modes_match_executable(self):
+        self.assertTrue(
+            scouting_country_context_passes(
+                0,
+                candidate_country_id=26,
+                candidate_european_index=1,
+                active_club_country_id=26,
+            )
+        )
+        self.assertFalse(
+            scouting_country_context_passes(
+                0,
+                candidate_country_id=33,
+                candidate_european_index=1,
+                active_club_country_id=26,
+            )
+        )
+        self.assertTrue(
+            scouting_country_context_passes(
+                1,
+                candidate_country_id=33,
+                candidate_european_index=1,
+                active_club_country_id=26,
+            )
+        )
+        self.assertFalse(
+            scouting_country_context_passes(
+                1,
+                candidate_country_id=40,
+                candidate_european_index=0,
+                active_club_country_id=26,
+            )
+        )
+        self.assertTrue(
+            scouting_country_context_passes(
+                2,
+                candidate_country_id=40,
+                candidate_european_index=0,
+                active_club_country_id=26,
+            )
+        )
+        self.assertFalse(
+            scouting_country_context_passes(
+                -1,
+                candidate_country_id=33,
+                candidate_european_index=1,
+                active_club_country_id=26,
+            )
+        )
+
+    def test_optional_preferred_position_gate_scans_three_ids(self):
+        positions = (3, 7, 11)
+        self.assertTrue(scouting_preferred_position_passes(positions, None))
+        self.assertTrue(scouting_preferred_position_passes(positions, 7))
+        self.assertFalse(scouting_preferred_position_passes(positions, 9))
+
     def test_plain_scouting_rank_uses_best_preferred_role_rating(self):
         skills = [128] * 17
         preferred = (1, 2, 3)
