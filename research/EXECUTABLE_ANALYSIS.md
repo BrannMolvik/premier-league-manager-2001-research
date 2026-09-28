@@ -8222,3 +8222,109 @@ The data-free regression helper is
 `tools/replay_gate11_training_bridge.py`; it asserts both timer draws, every
 daily draw/state checkpoint, the final Condition sum, and the final pre-training
 CRT state.
+
+
+## Gate 11 fresh commercial-timer replay through third training Saturday — 28 September 2026
+
+The first post-training concession/sponsor interval is now instruction-bounded
+from the original stadium WAD rather than from nominal club capacity.
+
+The authorized `STADIUM/DATA.WAD` uses EA RefPack compression
+(`0x10FB`). Temporary extraction of the canonical original resources gives:
+
+- `Lists\\Buildings.dat`: 3000 × 0xD0 records;
+- `Maps\\arsenal.MAP`: the exact fresh Arsenal stadium map.
+
+No extracted EA file is committed.
+
+For the eight `0x65DBC0` concession selectors, the exact fresh Arsenal sums
+of building field class `+0x24` (serialized live record `+0x1C`) are:
+
+```text
+selector 0:  0   (section 23)
+selector 1: 16   (sections 0..3)
+selector 2:  0   (section 22)
+selector 3: 20   (sections 15..21)
+selector 4:  0   (section 25)
+selector 5: 12   (sections 11..14)
+selector 6:  0   (section 24)
+selector 7: 14   (sections 4..10)
+```
+
+The all-section `0x65DB70` denominator used by `0x5E5170` is **62**.
+Fresh DBRClub inputs are `+0x1C = 38500` and
+`+0x12C = 80000` (the latter copied from Arsenal AccessFanBase row +0x08).
+Therefore the comparison inside `0x5E5170` takes the add branch. Constants
+`0x7BD600 = 0.01` and `0x821278 = 20.0` make the returned candidate value:
+
+```text
+base  = 850 + RNG(800)
+value = base + trunc(base * 0.20)
+```
+
+`0x668350` is only the x87-to-integer truncation helper; it consumes no RNG.
+
+The `0x5E5230` candidate selector consumes `RNG(25)` up to 25 times and
+checks the candidate's source-backed value and selector-capacity ranges. With
+fresh active concession count zero, its duplicate-name predicate
+`0x5E52B0` is always successful. A surviving candidate can then consume the
+candidate-local bounded range at `0x5E54AC` when its endpoints differ and
+one final `RNG(3)` at `0x5E55A7`. Audits of the successful tail helpers
+(`0x4F3B10`, `0x4FA510`, `0x5E43B0`, `0x5E48D0`,
+`0x616A30`) found no additional CRT-random call on this path.
+
+Crucially, the first Saturday weekly Fitness update must be included before
+continuing the daily stream. All 37 fresh Arsenal player flags are zero for the
+weekly injury/selection-exclusion predicates, so the first weekly transition
+consumes exactly **37 × 6 = 222 RNG(100)** calls:
+
+```text
+pre first weekly   0x216C6081
+post first weekly  0xF68CAFEF
+```
+
+From there:
+
+```text
+day 8 recovery   174 draws -> 0x5759E5FD
+day 9 recovery   199 draws -> 0xE625870A
+day 10 recovery  187 draws -> 0xDB610BDF
+```
+
+On day 11 the original 11-day concession wait expires. All eight offer slots
+fail candidate selection and consume **208 draws** total
+(8 × RNG(800) plus 8 × 25 RNG(25)), leaving **0x78B0AEEF**. Because no
+candidate survives, the concession wait/date are not reset. Day-11 recovery
+then consumes 193 draws and leaves **0x60842EB6**.
+
+The expired concession path therefore retries on day 12. This time it consumes
+**188 draws**. Slots 0..6 fail; selector slot 7 succeeds on attempt 4 with
+candidate index 8. Its candidate-local range is fixed at 3, so no draw occurs
+there; the final `RNG(3)` yields 1 before the executable adds one, producing
+stored value **2**. The shared state after the concession path is
+**0x4451F912**. Day-12 recovery leaves **0xA19086AE**.
+
+That success resets the concession wait/date. On day 13 the fresh wait draw is
+`RNG(14)=2`, so the new concession wait is **9 days**, leaving
+**0x134542B9**. The initial 13-day no-sponsor timer expires the same day; its
+expiry itself consumes no RNG and resets the sponsor wait/date to zero.
+
+On day 14 the sponsor timer therefore draws a new no-sponsor wait:
+`RNG(7)=6` -> **13 days**, leaving **0xF588E958** before daily recovery.
+The exact state entering the second Saturday weekly training update is then:
+
+```text
+pre second weekly  0xF20D31B6
+post 222 draws      0x5A93BA3C
+```
+
+Neither new commercial timer expires before the third Saturday. Continuing the
+same exact daily recovery stream gives:
+
+```text
+pre third weekly   0x7315D62D
+post 222 draws     0xB890CD3B
+```
+
+These checkpoints supersede any continuation that omitted the first weekly
+222-draw transition when deriving the day-11 commercial stream.
