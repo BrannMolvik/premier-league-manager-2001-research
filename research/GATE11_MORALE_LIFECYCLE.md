@@ -111,21 +111,77 @@ GitHub Actions at `130a929f`:
 - all morale tests pass;
 - repository asset policy passes.
 
+## Signed-contract finalizer: `0x419210`
+
+Direct reinspection of the canonical executable closes the exact trailing order
+of the common signed-contract finalizer.
+
+After its status/event work, `0x419210` does:
+
+```text
+0x41927F xor eax,eax
+0x419281 mov ecx,esi
+0x419283 mov al,[0x821C27]      ; SignedNewContactMorale
+0x419288 push eax
+0x419289 call 0x41BB10          ; exactly one RNG(2)
+0x41928E mov byte [esi+0x164],0 ; renewal-suggestion latch
+```
+
+So the morale draw occurs **before** the final `DBRPlayer+0x164` clear. This
+matters to deterministic state observers even though the latch does not alter
+the arithmetic itself.
+
+The clean-room now centralizes this exact trailing slice in
+`apply_signed_contract_finalizer_morale`. Ordinary completed transfers, AI
+renewals, and both youth contract paths use it. The destination/contract state
+is installed by each caller first; the helper then consumes
+`SignedNewContactMorale RNG(2)` and clears the renewal-suggestion latch.
+
+## Loan assignment: `MPMLoanPlayer -> 0x41A9D0`
+
+RTTI already identified vtable `0x7D7D54` as `MPMLoanPlayer`. Its
+constructor at `0x61B5E0` schedules execution for current date **+2 days**
+and stores the player/destination identifiers at object `+0x08/+0x0C`.
+`MPMLoanPlayer::Execute` at `0x61B620` eventually resolves those records and
+calls `0x41A9D0`.
+
+The exact materialized ordering inside `0x41A9D0` is now bounded:
+
+1. write the temporary/loan club ID to player `+0x10` while registered club
+   `+0x72` remains unchanged;
+2. perform destination-club bookkeeping;
+3. update the recovered loan/status state, including calling `0x41EDF0`
+   before setting `DBRPlayer+0x14 bit 6`;
+4. perform the remaining controlled-club bookkeeping;
+5. only at `0x41AA3A..0x41AA43`, load `LoanMorale` from `0x821C26` and call
+   `0x41BB10`.
+
+Therefore **LoanMorale is the final operation in `0x41A9D0`** and consumes
+exactly one `RNG(2)` after the loan state has already been installed.
+
+The clean-room function `complete_player_loan_assignment` materializes only
+the already-understood state slice: `loan_club_id`, the proven loan-list
+clear, then `LoanMorale`. Status bits whose runtime meaning is still neutral
+are deliberately not guessed.
+
+This also proves that the fresh startup loan-list replay must **not** add a
+LoanMorale draw for the Matthew Upson/Watford candidate. The user-controlled
+Arsenal branch at `0x41AAE0` queues the loan proposal/event and consumes its
+separate `RNG(5)`; it does not execute `0x41A9D0` at that point.
+
 ## Remaining ordinary morale xrefs
 
-The next source-backed morale slice should follow the already-materialized
-transfer/contract state rather than inventing passive drift:
+The signing/loan RNG-placement dependency is closed. Remaining source-backed
+morale work is deliberately narrower:
 
-- `0x419210 -> 0x41BB10(SignedNewContactMorale)`;
-- `0x41A9D0 -> 0x41BB10(LoanMorale)`;
 - special contract cleanup at `0x41C052` also calls
-  `0x41BB10(SignedNewContactMorale)`;
+  `0x41BB10(SignedNewContactMorale)`, but the `+0x138` special-state
+  producer is already bounded as legacy/compatibility-only for the fresh path;
 - `0x5D8430 -> 0x41BA80(UnhappyRequestNewContract)` belongs to a separate
   request/event object and must not be attached until that producer is bounded;
 - `UnhappyWonTrophy` and `DangerMoraleLevel` have source tuning but their
   ordinary producer/consumer lifecycle is not yet integrated.
 
-Exact next task: instruction-close the ordinary signing/loan caller chains and
-place their one `RNG(2)` morale draw at the correct point in the existing
-transfer/contract runtime. Defer the request-new-contract event and trophy path
-until their producers are independently bounded.
+Regression coverage now observes state at the instant `RNG(2)` is requested:
+the signing latch is still set during the draw, while loan temporary-club and
+loan-list state are already installed/cleared during the draw.
