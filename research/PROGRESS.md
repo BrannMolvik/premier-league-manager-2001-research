@@ -6333,3 +6333,46 @@ selector, optional preferred-position selector, global threshold gate, status
 bit 7 meaning/state, and the bit-12 + `0x41E450` loan-list condition. Exact
 next task is to resolve/materialize those where direct executable/UI evidence
 permits, without inventing labels.
+
+
+## Gate 11 scouting country/position/threshold and loan-eligibility checkpoint — 28 September 2026
+
+Commit `7b106a777c5d194045bb2bfe02835d632701fafe` resolves three
+previously neutral `0x4AE680` gates from canonical `FOOTBAL.EXE`:
+
+- `0x4AE610` resolves a DBRCountry context from the player's registered
+  club country when club context exists, otherwise from the player's
+  nationality/country source;
+- panel `+0x64E0` selects same-country, different-country with
+  country `+0x18 != 0`, or different-country with `+0x18 == 0`;
+- the optional selector at `+0x761C/+0x766C` is exactly membership in the
+  player's three preferred-position IDs through `0x4EA410`;
+- the global threshold at `0x8223F4` is loaded from the literal tuning key
+  **ScoutStrengthMin**;
+- the compared auxiliary value is
+  `floor((30 * byte + 128) / 255)` from
+  `[0x876868 + player + 0x1D]`.
+
+Follow-up instruction tracing closes the exact `0x41E450` shape used by the
+scouting bit-12 control. `0x41B490` proves player status bit 11 is the already
+mapped **Non-EU** state, and `0x405500` proves club `+0x10` is the
+competition/division ID source.
+
+Because scouting calls `0x41E450` only after confirming status bit 12
+(the recovered loan-list state), its bit-4/not-bit-12 rejection cannot fire on
+this path. The scouting-specific eligibility therefore reduces to:
+
+- if transfer-listed bit 8 is also set: require the player's registered club
+  competition ID to differ from the active user's club competition ID;
+- otherwise: require different competition IDs **and** Non-EU bit 11 clear.
+
+The remaining first-stage unknowns are now:
+1. ownership/producer of the auxiliary per-player scouting byte behind
+   `0x876868`;
+2. status bit 7 user-facing meaning/producer.
+
+RuntimePlayer does not yet persist the recovered bit-12 loan-list state, so the
+loan-list scouting control still requires a callback despite its predicate now
+being source-backed. Exact next implementation decision is to materialize that
+state and the resolved country/preferred-position predicates without inventing
+bit-7 semantics.
