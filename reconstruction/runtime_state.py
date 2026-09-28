@@ -152,6 +152,14 @@ class RuntimePlayer:
     current_raw: list[int]
     target_raw: tuple[int, ...]
     development: DevelopmentState | None
+    # Immutable source identity mirrors used by internal-save database
+    # validation. Youth generation mutates the live name/DOB/nationality fields
+    # in the original executable, so the source signature cannot be rebuilt
+    # from those mutable runtime values after 0x41E510.
+    source_first_name: str | None = None
+    source_surname: str | None = None
+    source_nationality_id: int | None = None
+    source_date_of_birth: date | None = None
     # Original embedded training object at owner record +0x24. The 17-byte
     # training_modifiers array is the persistent per-skill counter block used
     # by monthly development as well as the weekly +8/-8 training lifecycle.
@@ -312,6 +320,10 @@ class RuntimePlayer:
             current_raw=current,
             target_raw=target,
             development=development,
+            source_first_name=str(source.first_name),
+            source_surname=str(source.surname),
+            source_nationality_id=int(source.nationality_id),
+            source_date_of_birth=source.date_of_birth,
             condition=80,
             form_state=2,
             current_position=int(source.positions[0]),
