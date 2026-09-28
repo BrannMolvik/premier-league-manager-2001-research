@@ -8850,3 +8850,67 @@ The first-stage filter is now reduced to:
 
 Do not re-open the already-resolved age/value/class/country/preferred-position
 mechanics unless contradictory executable evidence appears.
+
+
+## Gate 11 scouting mode-2 source: six-match circular performance history
+
+Direct tracing of canonical `FOOTBAL.EXE` resolves the player state consumed by
+scouting sort mode 2 at `0x41FB60`.
+
+### Persistent player layout
+
+Fresh DBRPlayer construction initializes:
+
+- `player+0x7F = 0`: populated-history count;
+- `player+0x80 = 0`: circular write index.
+
+The six one-byte history slots are `player+0x79..+0x7E`.
+
+`0x41FB60(player)` returns zero when count is zero. Otherwise it sums exactly
+the first `count` history bytes and divides by count as a floating-point
+average. Once count reaches six, all six slots participate regardless of the
+circular write index.
+
+### Writer 0x41F9C0
+
+`0x41F9C0(player, value)` mutates the history only when `value > 0`:
+
+1. write value into `history[write_index]`;
+2. increment count up to a hard cap of **6**;
+3. advance write index modulo **6**;
+4. return the supplied value.
+
+Thus this is an exact six-entry rolling/circular performance history, distinct
+from the separate five-state DBRPlayer Form value already reconstructed.
+
+### Match source
+
+The normal match post-processing routine at `0x630FC0` walks each side's
+participant pointers. For a qualifying participant it reads byte
+`participant_match_record+0x30` and calls `0x41F9C0` with that byte.
+
+The per-match records are **0x4C bytes** each:
+
+- side 0 records start at MatchCalculator `+0x4C`;
+- side 1 records start at MatchCalculator `+0x5FC`.
+
+Immediately preceding code builds a 1..10 bounded per-player value sequence
+across the record and leaves the final byte at `+0x30`; this final byte is
+the value appended to the DBRPlayer six-match history.
+
+### Clean-room consequence
+
+The clean-room runtime should persist this six-byte history plus count/write
+index, but it must **not** populate it from `form_state` or an invented
+performance formula. The current simulator does not yet expose the original
+MatchCalculator per-player `+0x30` value.
+
+Therefore scouting sort mode 2 can stop requiring an external history-average
+resolver only after either:
+
+- the original per-match `+0x30` producer is reconstructed; or
+- an explicit caller supplies the source-backed match-performance value to the
+  exact circular-history primitive.
+
+The next fidelity task is to recover the `+0x30` match-performance producer
+far enough to integrate this history without changing unrelated match behavior.
