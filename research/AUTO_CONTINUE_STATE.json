@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Replay nested selector RNG in 0x61A9A0/0x4050F0 -> 0x417470 across the 894-club reverse transfer-list population loop, then carry exact CRT state through loan maintenance into fixed-staff initialization.",
-  "last_known_main_head": "a7ebee70c115b86b5e2fb8d72fa2abf878fe4060",
+  "active_task": "Reproduce eligible-club qsort and two known shuffles, then replay all 894 0x61991F selector steps using exact nested RNG rules and transfer-list mutations; continue through loan maintenance to fixed-staff initialization.",
+  "last_known_main_head": "960e3e00899364254c830b1bd6ee50b4c65012dd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 40,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 40 checkpoint: reverse 0x61991F loop is exactly 894 visits and 894 mandatory RNG(10) dispatch draws; 1000-player cap unreachable. Main a7ebee70.",
+  "note": "Recovery generation 40 checkpoint at main 960e3e00: selector RNG rules and qsort key are persisted. Immediate dependency is cached +0xB8 versus live 0x4205A0 date sensitivity / exact club ordering.",
   "same_chat_fallback_minutes": 30
 }
