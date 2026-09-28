@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Iterable
 
-from match_postmatch import MoraleSettings, increase_player_morale
+from match_postmatch import apply_signed_contract_finalizer_morale
 from player_contract import contract_expiry_from_month_span
 from startup_rng import (
     generated_name_source_eligible,
@@ -260,20 +260,10 @@ def generate_fresh_user_youth(
         candidates.pop()
 
         player = players_by_id[player_id]
-        age = player.age(state.calendar.current_date)
-        if age is None:
-            raise ValueError(f"player {player_id} has no usable age")
-        current_raw = tuple(int(value) for value in player.current_raw)
-        if len(current_raw) <= 15:
-            raise ValueError(f"player {player_id} has no leadership skill")
-        morale_settings = MoraleSettings()
-        player.morale = increase_player_morale(
-            int(player.morale),
-            int(morale_settings.signed_new_contract),
-            int(age),
-            int(current_raw[15]),
+        apply_signed_contract_finalizer_morale(
+            player,
+            state.calendar.current_date,
             rng,
-            morale_settings,
         )
 
         first_source = _select_name_source(
@@ -440,20 +430,10 @@ def promote_youth_player(
     # 0x417700 calls 0x4192B0 only after installing the promoted club,
     # wage and contract state. 0x4192B0 converges on 0x419210, so promotion
     # consumes the same signed-contract morale RNG(2) as a normal signing.
-    age = player.age(state.calendar.current_date)
-    if age is None:
-        raise ValueError(f"player {player_id} has no usable age")
-    current_raw = tuple(int(value) for value in player.current_raw)
-    if len(current_raw) <= 15:
-        raise ValueError(f"player {player_id} has no leadership skill")
-    morale_settings = MoraleSettings()
-    player.morale = increase_player_morale(
-        int(player.morale),
-        int(morale_settings.signed_new_contract),
-        int(age),
-        int(current_raw[15]),
+    apply_signed_contract_finalizer_morale(
+        player,
+        state.calendar.current_date,
         rng,
-        morale_settings,
     )
 
     player.reset_match_position()
