@@ -17,6 +17,21 @@ from transfer_workflow import (
 )
 
 
+class ScriptedRng:
+    def __init__(self, values):
+        self.values = list(values)
+        self.calls = []
+
+    def randbelow(self, bound):
+        self.calls.append(int(bound))
+        if not self.values:
+            raise AssertionError("unexpected RNG call")
+        value = int(self.values.pop(0))
+        if not 0 <= value < int(bound):
+            raise AssertionError((value, bound))
+        return value
+
+
 class Row:
     def __init__(self, id, field_08=1000, field_0c=0):
         self.id = id
@@ -95,6 +110,9 @@ def build_completion_state(*, buyer_roster_count=5):
         transfer_listed=True,
         loan_club_id=99,
         current_club_join_date=date(1999, 7, 1),
+        morale=50,
+        current_raw=[20] * 17,
+        age=lambda on_date: 25,
     )
     seller_roster = [1, *range(2, 20)]
     buyer_roster = list(range(100, 100 + buyer_roster_count))
@@ -143,9 +161,11 @@ class ScheduledTransferCompletionTests(unittest.TestCase):
         state.set_current_cash(11, 1_000_000)
         state.set_current_cash(10, 250_000)
         state.calendar.current_date = date(2000, 8, 19)
+        rng = ScriptedRng([0])
         result = execute_due_ordinary_cash_transfers(
             state,
             user_controlled_club_id=11,
+            rng=rng,
         )
 
         self.assertEqual(len(result), 1)
@@ -168,6 +188,10 @@ class ScheduledTransferCompletionTests(unittest.TestCase):
         self.assertFalse(player.big_money_offer_clause)
         self.assertTrue(player.house)
         self.assertFalse(player.car)
+        # 0x422F70 -> 0x4192B0 -> 0x419210 applies the signed-contract
+        # morale increase last. Base 30 + age>15 + final +1 = +32 here.
+        self.assertEqual(player.morale, 82)
+        self.assertEqual(rng.calls, [2])
 
         self.assertEqual(len(state.transfers.movements), 1)
         movement = state.transfers.movements[0]
