@@ -32,6 +32,7 @@ from scouting import (
     run_scouting_search,
     scouting_country_context_passes,
     scouting_first_stage_passes,
+    scouting_loan_list_user_match,
     scouting_preferred_position_passes,
 )
 from transfer_decision import SellingClubDecision
@@ -325,19 +326,13 @@ class HumanGameplayController:
             raise ValueError(
                 "active status-bit-7 scouting control requires a resolver"
             )
-        if bool(status_controls.loan_listed) and (
-            loan_listed_resolver is None
-            or loan_list_user_match_resolver is None
-        ):
-            raise ValueError(
-                "active loan-list scouting control requires loan-list resolvers"
-            )
 
         on_date = self.state.calendar.current_date
         human_club = self.state.clubs.get(int(self.human.club_id))
         if human_club is None:
             raise ValueError("human-controlled club metadata is unavailable")
         active_country_id = int(getattr(human_club, "country_id"))
+        active_competition_id = int(getattr(human_club, "competition_id"))
         countries_by_nationality = {
             int(getattr(country, "nationality_id")): country
             for country in self.state.countries.values()
@@ -413,12 +408,22 @@ class HumanGameplayController:
                     loan_listed=(
                         bool(loan_listed_resolver(player))
                         if loan_listed_resolver is not None
-                        else False
+                        else bool(player.loan_listed)
                     ),
                     loan_list_user_match=(
                         bool(loan_list_user_match_resolver(player))
                         if loan_list_user_match_resolver is not None
-                        else False
+                        else (
+                            registered_club is not None
+                            and scouting_loan_list_user_match(
+                                transfer_listed=bool(player.transfer_listed),
+                                non_eu=bool(player.non_eu),
+                                registered_club_competition_id=int(
+                                    getattr(registered_club, "competition_id")
+                                ),
+                                active_club_competition_id=active_competition_id,
+                            )
+                        )
                     ),
                     team_selector_passes=True,
                     optional_position_passes=(
