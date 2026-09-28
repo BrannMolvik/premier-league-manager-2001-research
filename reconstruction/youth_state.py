@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Iterable
 
+from match_postmatch import MoraleSettings, increase_player_morale
 from player_contract import contract_expiry_from_month_span
 from startup_rng import (
     generated_name_source_eligible,
@@ -220,8 +221,8 @@ def generate_fresh_user_youth(
     """Materialize one fresh 0x61DF90 -> 0x61DD30 human youth pass.
 
     The exact RNG order is option-size draw (when applicable), then for every
-    generated player: candidate draw, first-name source draw, surname source
-    draw. Candidate removal uses swap-with-last.
+    generated player: candidate draw, signed-contract morale RNG(2), first-name
+    source draw, surname source draw. Candidate removal uses swap-with-last.
 
     The selected global RuntimePlayer is rewritten into the final immediately
     post-0x61DD30 state (age 17 and 12 months remaining) but remains in the
@@ -258,6 +259,23 @@ def generate_fresh_user_youth(
         candidates[selected_index] = candidates[-1]
         candidates.pop()
 
+        player = players_by_id[player_id]
+        age = player.age(state.calendar.current_date)
+        if age is None:
+            raise ValueError(f"player {player_id} has no usable age")
+        current_raw = tuple(int(value) for value in player.current_raw)
+        if len(current_raw) <= 15:
+            raise ValueError(f"player {player_id} has no leadership skill")
+        morale_settings = MoraleSettings()
+        player.morale = increase_player_morale(
+            int(player.morale),
+            int(morale_settings.signed_new_contract),
+            int(age),
+            int(current_raw[15]),
+            rng,
+            morale_settings,
+        )
+
         first_source = _select_name_source(
             player_order,
             players_by_id,
@@ -273,7 +291,6 @@ def generate_fresh_user_youth(
             rng,
         )
 
-        player = players_by_id[player_id]
         player.date_of_birth = _birth_date_for_age(player, state.calendar.current_date, YOUTH_FINAL_AGE)
         player.shirt_number = 0
         player.nationality_id = country_id
@@ -371,6 +388,7 @@ def promote_youth_player(
     target_club_id: int,
     weekly_wage: float,
     contract_months: int,
+    rng,
 ):
     """Reproduce the mapped state effects of 0x61E3D0 -> 0x417700."""
 
@@ -418,6 +436,26 @@ def promote_youth_player(
         state.calendar.current_date,
         int(contract_months),
     )
+
+    # 0x417700 calls 0x4192B0 only after installing the promoted club,
+    # wage and contract state. 0x4192B0 converges on 0x419210, so promotion
+    # consumes the same signed-contract morale RNG(2) as a normal signing.
+    age = player.age(state.calendar.current_date)
+    if age is None:
+        raise ValueError(f"player {player_id} has no usable age")
+    current_raw = tuple(int(value) for value in player.current_raw)
+    if len(current_raw) <= 15:
+        raise ValueError(f"player {player_id} has no leadership skill")
+    morale_settings = MoraleSettings()
+    player.morale = increase_player_morale(
+        int(player.morale),
+        int(morale_settings.signed_new_contract),
+        int(age),
+        int(current_raw[15]),
+        rng,
+        morale_settings,
+    )
+
     player.reset_match_position()
     record.training.copy_to_player(player)
     return player
