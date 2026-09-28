@@ -235,11 +235,20 @@ Several target systems already have substantial research or backend behavior:
    Commits `b62665d8` / `ddab924a`; both new calendar-integration tests pass.
    Full CI at `ddab924a` ran 576 tests and still has only the two pre-existing
    secondary-schedule assertion failures already recorded at `6809b70f`.
-8. **Active dependency:** materialize the minimum fresh concession/sponsor timer
-   runtime needed to preserve the exact shared-RNG interleaving already mapped
-   through the third training Saturday in `6822e7ea`. Do not enable recurring
-   multi-week training by default until those commercial draws are represented.
-9. After live multi-week training is source-backed and verified, audit the next
+8. **Commercial replay corrected:** `6822e7ea` incorrectly charged RNG to
+   Arsenal selector slots whose `0x65DBC0` capacity is zero. Direct
+   `0x5E5330` audit proves those slots jump to the next selector before
+   `0x5E5170/0x5E5230`. Corrected day-11 concession cost is **104 draws**;
+   day 12 succeeds on selector 3 / candidate 19 after **53 draws**. Corrected
+   second weekly pre/post states are **0x509630B6 -> 0xA3C5013C** and third
+   weekly states **0x7B8D5F58 -> 0xE176B24E**. Durable replay:
+   `tools/replay_gate11_commercial_training.py`.
+9. **Active dependency:** connect `UserCommercialTimerState` and the recovered
+   concession candidate mechanics to GameState day progression, using live
+   stadium source state rather than Arsenal-specific constants. Preserve
+   commercial-before-training RNG order and keep unresolved sponsor-offer body
+   behavior neutral.
+10. After live multi-week training is source-backed and verified, audit the next
    Gate-11 management workflow rather than broadening training with guessed UI
    behavior.
 
