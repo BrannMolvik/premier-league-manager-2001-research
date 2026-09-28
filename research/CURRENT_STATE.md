@@ -325,12 +325,24 @@ Several target systems already have substantial research or backend behavior:
    Legacy callers remain unchanged and never alias the shared CRT as that
    separate generator. CI at `c767083a` ran **629 tests** with only the two
    unchanged secondary-schedule assertion failures; asset policy passed.
-21. **Active scouting dependency:** resolve the remaining neutral first-stage
-   inputs without inventing labels: status bit 7 and the producer/ownership of
-   the auxiliary per-player byte at `0x876868 + player + 0x1D` used by
-   `ScoutStrengthMin`. Prefer tracing writers and original UI/resource strings.
-   If one remains semantically unnameable after exhaustive direct references,
-   keep it neutral and move to the next Gate-11 workflow rather than guessing.
+21. **Scouting status/Strengths dependency closed:** canonical
+   localization/control bindings prove panel `+0x76F8` / `player+0x14`
+   bit 7 is exactly **Out of contract**. The former `0x876868` "auxiliary
+   byte" is the Strengths selector value, where 0 = All and 1..17 address
+   `current_raw[0..16]` through `[player + selector + 0x1D]`. The displayed
+   conversion is `floor((30*raw+128)/255)`, values below
+   `ScoutStrengthMin` reject, and the shipped default at `0x8223F4` is
+   **20**. The mapped human scouting action now derives this gate directly from
+   live player skills. CI at `dcff0e50` ran **632 tests** with only the same
+   two pre-existing secondary-schedule failures; all new scouting regressions
+   pass and asset policy passes. Evidence:
+   `research/GATE11_SCOUTING_STATUS_AND_STRENGTH.md`.
+22. **Active scouting dependency:** materialize the exact **Out of contract**
+   status lifecycle so mapped human scouting no longer needs an external
+   resolver. Start from setters `0x4177C0` and contract maintenance
+   `0x41ABC0`, clearers `0x4185B0` / `0x419210`, and their callers.
+   Preserve exact date/club/tenure/age gates and shared-CRT consumption; do not
+   substitute the simpler rule `contract_expiry_date <= current_date`.
 
 ## Known live fidelity boundaries
 
