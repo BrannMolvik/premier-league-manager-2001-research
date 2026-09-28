@@ -176,6 +176,38 @@ def increase_player_morale(
     return min(int(settings.maximum), current + amount)
 
 
+def apply_signed_contract_finalizer_morale(
+    player,
+    on_date: date,
+    rng: BoundedRng,
+    settings: MoraleSettings = MoraleSettings(),
+) -> int:
+    """Replay the trailing morale/latch slice of DBRPlayer::0x419210.
+
+    Direct canonical-executable inspection proves 0x419210 calls
+    0x41BB10(SignedNewContactMorale) first and only then clears the
+    DBRPlayer+0x164 contract-renewal-suggestion latch. Callers are responsible
+    for the earlier contract/status/event mutations that converge on this
+    common finalizer.
+    """
+    age = player.age(on_date)
+    if age is None:
+        raise ValueError(f"player {int(player.index)} has no usable age")
+    current_raw = tuple(int(value) for value in player.current_raw)
+    if len(current_raw) <= 15:
+        raise ValueError(f"player {int(player.index)} has no leadership skill")
+    player.morale = increase_player_morale(
+        int(player.morale),
+        int(settings.signed_new_contract),
+        int(age),
+        int(current_raw[15]),
+        rng,
+        settings,
+    )
+    player.contract_renewal_suggestion_pending = False
+    return int(player.morale)
+
+
 def _post_match_age(player: MutablePostMatchMoralePlayer, on_date: date) -> int:
     dob = player.date_of_birth
     if dob is None:
