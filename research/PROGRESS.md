@@ -5868,3 +5868,45 @@ The canonical fresh path now reproduces these shared CRT boundaries:
 - the shared CRT state after fixed-support-staff creation is **`0x418CAA72`**.
 
 This closes the startup-quality bridge through the staff rating needed by the already-recovered active-training multiplier. The exact next dependency is to trace any mandatory shared-RNG consumers after `0x4D1760` and before the first Saturday `0x4EACE0` training execution. Do not attach live Saturday training until that remaining interval is proven RNG-clean or replayed exactly.
+
+
+## Gate 11 pre-staff selector correction — 28 September 2026
+
+A direct re-audit of canonical `FOOTBAL.EXE`
+(`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+found that the prior `0x425680 -> 0x4D1760` replay omitted the mandatory
+`0x5E3FD0` call immediately before fixed support-staff creation.
+
+Instruction-level `0x5E3FD0` behavior on the fresh empty list:
+
+- it repeatedly consumes exact scaled `RNG(37)`;
+- factory `0x5E2710` covers all 37 selector values;
+- all fresh factory products leave dword `+0x0C != 1` and status bit
+  `+0x08 & 1 == 0`, so neither the duplicate-key path nor status rejection
+  can fire;
+- the only possible retry is drawing the immediately previous accepted selector;
+- the canonical stream from **`0xA54D70C6`** accepts
+  **33, 8, 12, 22, 2, 3, 27, 5, 0, 23, 28, 18** in exactly 12 draws, with no
+  retry, and leaves **`0x418CAA72`**.
+
+Therefore the 12 draws previously attributed to the six fixed staff were
+mis-labeled. Fixed staff starts at `0x418CAA72` and yields:
+
+```text
+type 1:  RNG(25)=4,  RNG(2)=0 -> rating 1, state 0x9B8FDC7C
+type 2:  RNG(25)=23, RNG(2)=1 -> rating 2, state 0xEDD8AED6
+type 3:  RNG(25)=15, RNG(2)=1 -> rating 2, state 0xE274A400
+type 4:  RNG(25)=12, RNG(2)=1 -> rating 2, state 0xE6E1527A
+type 5:  RNG(25)=5,  RNG(2)=1 -> rating 2, state 0x7FAD04C4
+type 13: RNG(25)=0,  RNG(2)=1 -> rating 2, state 0xFA1C595E
+```
+
+The corrected fresh Youth Team Coach rating is **2**, so with no fresh Training
+Centre the source-backed training quality is **1.30**. The true post-fixed-staff
+shared CRT state is **`0xFA1C595E`**. The previously committed claim that
+`0x418CAA72` was post-fixed-staff and implied Youth Team Coach rating 1 /
+quality 1.25 is superseded.
+
+`tools/replay_gate11_transfer_list.py --loan-tail` now includes the missing
+selector, asserts its exact sequence/state, and asserts the corrected fixed-staff
+ratings and final state.
