@@ -277,13 +277,24 @@ Several target systems already have substantial research or backend behavior:
    inputs only when those sort modes are used. CI at `a859299f` ran **601
    tests**; all new scouting tests passed and only the two unchanged
    secondary-schedule assertions failed. Asset policy passed.
-15. **Active scouting dependency:** materialize the source-backed portions of
-   the `0x4AE680` first-stage predicate directly over RuntimePlayer/GameState
-   (age/value/class/status gates and registered/current-club exclusion) while
-   keeping genuinely unresolved panel selectors explicit. In particular,
-   preserve bit 8 = transfer-listed and bit 12 = loan-list; do not label status
-   bit 7 until its original meaning is proven. Then reduce the human action's
-   caller-supplied predicate to only the remaining neutral controls.
+15. **Mapped first-stage scouting filter verified:** the runtime now reproduces
+   the exact inclusive age/value gates, mode-15 15..18 age clamp, preferred-
+   position-0 broad class mapping, out-of-range class-selector bypass and final
+   status-control OR structure. Live `0x4205F0` valuation was corrected to use
+   preferred-position-0 class, temporary/current-club division and registered-
+   club country. `search_scouting_players_mapped()` derives the source-backed
+   player state directly while retaining only genuinely unresolved gates as
+   explicit resolvers. CI at `664eb6ab` ran **610 tests**; all new scouting
+   and valuation tests passed and only the two unchanged secondary-schedule
+   assertions failed. Asset policy passed.
+16. **Active scouting dependency:** resolve/materialize the remaining neutral
+   `0x4AE680` inputs where direct evidence permits: the team/context selector,
+   optional preferred-position selector, global threshold gate, status bit 7,
+   and the bit-12 + `0x41E450` loan-list condition. Bit 8 is already
+   transfer-listed. Do not assign user-facing labels to bit 7 or other controls
+   without direct executable/resource evidence. After that, audit whether the
+   six-byte `0x41FB60` recent-rating history should be persisted to remove the
+   remaining mode-2/value resolver dependency.
 
 ## Known live fidelity boundaries
 
