@@ -13,6 +13,7 @@ from match_events import (
 from match_postmatch import (
     FormTransitionSettings,
     MoraleSettings,
+    apply_signed_contract_finalizer_morale,
     decrease_player_morale,
     increase_player_morale,
     appeared_player_indices,
@@ -74,10 +75,19 @@ class RuntimePlayer:
     match_performance_history: list[int] = None
     match_performance_history_count: int = 0
     match_performance_history_write_index: int = 0
+    contract_renewal_suggestion_pending: bool = True
 
     def __post_init__(self):
         if self.match_performance_history is None:
             self.match_performance_history = [0] * 6
+
+    def age(self, on_date):
+        if self.date_of_birth is None:
+            return None
+        return on_date.year - self.date_of_birth.year - (
+            (on_date.month, on_date.day)
+            < (self.date_of_birth.month, self.date_of_birth.day)
+        )
 
     def latest_match_performance(self):
         if self.match_performance_history_count <= 0:
@@ -168,6 +178,34 @@ class MoraleTransitionTests(unittest.TestCase):
             increase_player_morale(99, 10, 20, 30, ScriptedRng([0])),
             100,
         )
+
+    def test_signed_contract_finalizer_draw_precedes_latch_clear(self):
+        player = RuntimePlayer(contract_renewal_suggestion_pending=True)
+
+        class ObservingRng:
+            def __init__(self):
+                self.calls = []
+
+            def randbelow(self, bound):
+                self.calls.append(int(bound))
+                self.assert_latch()
+                return 0
+
+            def assert_latch(self):
+                if not player.contract_renewal_suggestion_pending:
+                    raise AssertionError("0x164 latch cleared before morale RNG(2)")
+
+        rng = ObservingRng()
+        result = apply_signed_contract_finalizer_morale(
+            player,
+            date(2000, 7, 1),
+            rng,
+        )
+
+        self.assertEqual(result, 82)
+        self.assertEqual(player.morale, 82)
+        self.assertFalse(player.contract_renewal_suggestion_pending)
+        self.assertEqual(rng.calls, [2])
 
     def test_roster_pass_interleaves_morale_form_and_not_played_rng(self):
         side = prepared_side()
