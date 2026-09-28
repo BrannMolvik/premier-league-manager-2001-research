@@ -5534,3 +5534,38 @@ The corrected reverse-order prefix through the first 20 visits is therefore
 closed. Next dependency: regenerate the remainder of the corrected 895-club
 vector from the literal `0x668DA4` qsort plus the two exact Fisher-Yates
 passes, then resume visit 21 from **0x2C98D672**.
+
+
+## Gate 11 corrected selector replay visits 21-40 — 28 September 2026
+
+The literal qsort implementation now regenerates the full 895-club vector. It
+reproduces the corrected documented prefixes exactly and the two shuffle states
+remain **0xC6B73181 -> 0xBD5CC00F**. Visits 21-40 replay as follows:
+
+- 79 Hearts: Thomas Flögel fails RNG(100)=13; **0x20DD687C**.
+- 742 Herfølge: Steven Lustü passes 74; **0xEE729AD6**.
+- 775 Pietá Hotspurs: David Goodlip fails 17; **0xBFBDF000**.
+- 624 RWD Molenbeek: Fabio Giuntini passes 48; **0x4554FE7A**.
+- 409 Gornik Zabrze: Jacek Wisniewski passes 94; **0x1F9E10C4**.
+- 118 Carlisle Utd: Steve Soley passes 33 on the corrected stream;
+  **0x5675C55E**.
+- 681 Joieries Aurum: Agustus Corominas passes 73; **0x5701AEC8**.
+- 23 Eintracht Frankfurt: Alexander Rosen passes 51; **0xF117F382**.
+- 179 Dundee U: random attempt one David Worrell fails 7; attempt two
+  Anansasios Benstis passes 63; **0x37534713**.
+- 67 FC Metz: random Arnaud Ribas fails 9, Farid Mondragón fails the 26-week
+  residence gate without a rating draw, Nasredine Kraouche then passes 38;
+  **0x8E9AC492**.
+- 643 Elfsborg: random Andres Nicklasson passes 96; **0x5D58F2F6**.
+- 514 KVK Tienen: random Ahmed Biga passes 88; **0xBFA0E09A**.
+- 664 Panionios: Antonis Nikalaou passes 30; **0xF7A603E4**.
+- 469 Rayo Vallecano: random David Clotet passes 27; **0xFA5F9BE8**.
+- 131 Wrexham: Stephen Roberts fails 2; **0x633A49A2**.
+- 761 Banga Gargzdai: Mindaugas Vijeikas passes 73; **0xB695F52C**.
+- 355 Welling: Danny Chapman fails 15; **0xD8570D06**.
+- 248 Partizan Tirana: Redi Jupi passes 69; **0xDE6973B0**.
+- 662 Iraklis: random Alexander Brandic passes 93; **0x8959BB74**.
+- 740 FC Copenhagen: Carsten Hemmingsen, best rating 67, passes RNG(100)=66;
+  shared state **0x80A6458E**.
+
+Exact continuation is canonical reverse visit 41 from **0x80A6458E**.
