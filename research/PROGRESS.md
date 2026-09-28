@@ -6684,3 +6684,36 @@ label has not yet been promoted from inference. Exact next task: trace the
 producer/consumer link from the already mapped transfer-refusal reasons
 “player has decided to retire” / “upcoming testimonial” and other direct
 writers before naming or implementing that branch.
+
+
+## +0x138 special controlled-contract state bounded as non-fresh compatibility path — 28 September 2026
+
+Follow-up after the ordinary `0x41BEE0` lifecycle audited the remaining neutral
+`DBRPlayer+0x138` `0xFE/0xFF` branch without assigning a speculative label.
+
+Direct xref result inside the DBRPlayer code region:
+
+- fresh construction writes `+0x138 = 0`;
+- save/load serialization reads/writes the byte;
+- `0x41BEE0` reads it, promotes `0xFE -> 0xFF`, and later clears it;
+- no separate fresh-game writer that sets `+0x138 = 0xFE` was found;
+- the already mapped transfer-refusal reasons “player has decided to retire”
+  and “player wants to stay for an upcoming testimonial” do not directly read
+  or write `+0x138`.
+
+The special expired branch itself is still instruction-bounded: it clears
+additional player state, removes the player from the old roster, moves both club
+IDs to the canonical `!Spare` parking team, then clears `+0x138/+0x164`.
+That strongly places it beside player recycle/retirement machinery, but it does
+not prove the field's semantic name.
+
+Because no proven fresh-game producer exists, the clean-room keeps
+`contract_special_state_138` neutral and returns
+`SPECIAL_STATE_DEFERRED` for nonzero special states. This is recorded as a
+legacy/original-save/recycle compatibility boundary rather than inventing a
+fresh-game producer. It does not block the Gate-11 fresh core-management loop.
+
+Gate-11 audit then identified the next reachable fresh-game gap: the startup
+`0x61DF90 -> 0x41E510` youth path is fully represented in the RNG replay but
+not yet materialized in GameState as the user's separate 20-slot youth list and
+generated-player transformation. That youth workflow is the next active task.
