@@ -155,12 +155,11 @@ Several target systems already have substantial research or backend behavior:
    reversals and eligibility skips without altering calendar progression.
 6. **Active dependency:** fresh staff types, ratings, employed-list ownership
    and Training Centre absence are resolved and the exact training-quality
-   primitive is implemented. Secondary competition initialization is now exact:
-   334 shared-CRT draws take post-primary state `0xD25DFFE6` to
-   `0x492DC9DC`. Finish the source-backed `0x4FA790` international-fixture
-   replay and final secondary `0x615BE0` bucket shuffle. That completion state
-   is proven to enter the fresh 200-person support-staff pool generator; then
-   replay the known pool/user-assignment draws through the first
+   primitive is implemented. The complete secondary startup RNG tail is now
+   exact: 334 competition draws reach `0x492DC9DC`, `0x4FA790` consumes 245
+   draws to `0xCAB0B953`, and the 262-node/45-bucket secondary `0x615BE0`
+   consumes 217 draws to **`0x61D6DFA2`**. Replay the known 200-person
+   support-staff pool/user-assignment draws from that state through the first
    `0x425680 -> 0x4D1760` fixed-staff initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
