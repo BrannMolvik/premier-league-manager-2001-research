@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "1ed6cedb46c5e70345a6ceef69c0a02d017ee895",
-  "last_verified_reconstruction_ci_head": "c7650cf3723664ca5d1fcaf5cbde089240a12892",
-  "last_verified_test_count": 586,
-  "asset_policy_validated_head": "c7650cf3723664ca5d1fcaf5cbde089240a12892",
+  "last_verified_reconstruction_ci_head": "c80e3d2401171fb40b143e98a36f43c43536b626",
+  "last_verified_test_count": 590,
+  "asset_policy_validated_head": "c80e3d2401171fb40b143e98a36f43c43536b626",
   "asset_policy_status": "passed",
-  "active_task": "Gate 11 scouting: recover the minimum PScouting2K human search/filter/result workflow from 0x4AE970/0x4AF7F0, including deterministic reseed hash inputs and candidate filtering/shuffle semantics.",
+  "active_task": "Gate 11 scouting: finish 0x4AEEA0 result-sort semantics and source-bind remaining PScouting2K controls, then expose the minimum UI-independent human scouting action.",
   "next_gate": 12,
   "next_gate_name": "Other competitions",
   "blocked": false,
@@ -240,5 +240,8 @@
   "gate11_commercial_replay_supersedes": "6822e7ea666749ba01ef0245ba858da009a420e4",
   "gate11_commercial_integration_head": "4c560cb30f5ba7301c005bd39a83de346f75971d",
   "gate11_training_commercial_status": "integrated_reload_safe",
-  "gate11_training_commercial_verified_head": "c7650cf3723664ca5d1fcaf5cbde089240a12892"
+  "gate11_training_commercial_verified_head": "c7650cf3723664ca5d1fcaf5cbde089240a12892",
+  "gate11_scouting_reseed_core": true,
+  "gate11_scouting_verified_head": "c80e3d2401171fb40b143e98a36f43c43536b626",
+  "gate11_scouting_verified_test_count": 590
 }
