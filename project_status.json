@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "1ed6cedb46c5e70345a6ceef69c0a02d017ee895",
-  "last_verified_reconstruction_ci_head": "ddab924af5fc336db74dc08d3c154a7334b6b0e0",
-  "last_verified_test_count": 576,
-  "asset_policy_validated_head": "ddab924af5fc336db74dc08d3c154a7334b6b0e0",
+  "last_verified_reconstruction_ci_head": "4c560cb30f5ba7301c005bd39a83de346f75971d",
+  "last_verified_test_count": 585,
+  "asset_policy_validated_head": "4c560cb30f5ba7301c005bd39a83de346f75971d",
   "asset_policy_status": "passed",
-  "active_task": "Integrate source-backed commercial timer and concession candidate mechanics into GameState day progression using live stadium source state, preserving commercial-before-training RNG order. Corrected canonical second/third weekly states are 0x509630B6/0xA3C5013C and 0x7B8D5F58/0xE176B24E.",
+  "active_task": "Recover sponsor-offer routine 0x617C80 far enough to preserve shared-RNG behavior after no-sponsor wait expiry; commercial-before-training GameState integration is verified at 4c560cb3.",
   "next_gate": 12,
   "next_gate_name": "Other competitions",
   "blocked": false,
@@ -237,5 +237,6 @@
   "gate11_day12_concession_draws": 53,
   "gate11_day12_candidate_index": 19,
   "gate11_day12_post_concession_state": "0x03CA80A0",
-  "gate11_commercial_replay_supersedes": "6822e7ea666749ba01ef0245ba858da009a420e4"
+  "gate11_commercial_replay_supersedes": "6822e7ea666749ba01ef0245ba858da009a420e4",
+  "gate11_commercial_integration_head": "4c560cb30f5ba7301c005bd39a83de346f75971d"
 }
