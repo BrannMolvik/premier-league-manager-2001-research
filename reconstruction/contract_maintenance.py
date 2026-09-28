@@ -11,6 +11,7 @@ from datetime import date, timedelta
 from dataclasses import dataclass
 from enum import Enum
 
+from match_postmatch import MoraleSettings, increase_player_morale
 from match_role_rating import best_preferred_role_rating
 from player_contract import contract_expiry_from_month_span
 
@@ -181,8 +182,24 @@ def run_ai_monthly_contract_maintenance(
     player.out_of_contract = False
     player.signed_for_other_club = False
     # 0x419190 converges on 0x419210, whose final mapped byte write clears
-    # the controlled-renewal suggestion latch at DBRPlayer+0x164.
+    # the controlled-renewal suggestion latch at DBRPlayer+0x164 and then
+    # applies SignedNewContactMorale through one shared RNG(2).
     player.contract_renewal_suggestion_pending = False
+    age = player.age(on_date)
+    if age is None:
+        raise ValueError(f"player {int(player.index)} has no usable age")
+    current_raw = tuple(int(value) for value in player.current_raw)
+    if len(current_raw) <= 15:
+        raise ValueError(f"player {int(player.index)} has no leadership skill")
+    morale_settings = MoraleSettings()
+    player.morale = increase_player_morale(
+        int(player.morale),
+        int(morale_settings.signed_new_contract),
+        int(age),
+        int(current_raw[15]),
+        rng,
+        morale_settings,
+    )
     return AiContractMaintenanceOutcome.RENEWED
 
 
