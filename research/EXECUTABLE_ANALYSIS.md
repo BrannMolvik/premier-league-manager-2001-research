@@ -8000,3 +8000,33 @@ The 894 dispatch draws are mandatory, but the final RNG state is not yet known:
 `0x61A9A0` reaches the RNG-bearing eligibility helper `0x417470`, and
 `0x4050F0` performs additional rejection-sampling RNG. Those nested paths are
 the immediate continuation target.
+
+
+## Gate 11 transfer-list selector RNG details
+
+The branch-local RNG under `0x61991F` is now separated exactly.
+
+`0x417470(player, 0)` has deterministic active-club, status/flag,
+`0x419390 >= 26`, `0x417460 == false`, and final `0x403F10` club gates.
+Its overall-rating branch uses `0x41E1D0` and consumes no draw at rating >=70;
+ratings 61..69 consume RNG(100) with threshold 50, ratings 51..60 threshold 33,
+and ratings <=50 threshold 25.
+
+`0x4050F0(club)` first performs deterministic user/roster-threshold tests. On
+entry to its rejection sampler it allows at most 20 attempts. Each attempt
+always consumes RNG(10), then one roster-index RNG selected by the RNG(10)
+branch, then evaluates `0x417470`; the latter adds at most one RNG(100).
+The first accepted player returns immediately.
+
+`0x61A9A0(club,0)` contains no direct RNG call. Its candidate construction is
+deterministic and the only possible RNG is the optional one inside its final
+`0x417470(candidate,0)` call.
+
+The pre-shuffle club comparator `0x619CF0` is also narrowed: it compares live
+roster valuation `club+0x2A0` divided by cached active-roster valuation
+`club+0x1B8`. `0x405470` builds the numerator with `0x4205A0`;
+`0x404E60` builds the denominator from `0x41FB30`, normally player `+0xB8`.
+The latter zeros only for the exact age/EU-status/expired-contract condition.
+Fresh contracts are future-dated; the unresolved ordering question is limited
+to whether `0x4205A0` changes relative to cached `+0xB8` during the startup
+calendar alignment.
