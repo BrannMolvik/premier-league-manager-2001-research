@@ -399,6 +399,53 @@ class RuntimePlayer:
             raise ValueError("training method must be in 0..6")
         self.training_method_id = method_id
 
+    def run_daily_training_condition_recovery(
+        self,
+        rng: BoundedRng,
+        recovery_threshold: int,
+    ) -> int:
+        """Apply the RNG-bearing Condition-recovery loop from 0x61C580.
+
+        The caller supplies the source-backed threshold because the original
+        derives it from training method and timed/date state that is not yet
+        fully materialized here. Fresh active training records use 50. This
+        method intentionally covers only the three-iteration recovery loop;
+        the later low-Condition event branch in 0x61C580 remains separate.
+
+        Returns the exact number of shared bounded-RNG calls consumed.
+        """
+        if self.injured:
+            return 0
+        if not hasattr(rng, "randbelow"):
+            raise TypeError("rng must provide randbelow(bound)")
+        recovery_threshold = int(recovery_threshold)
+        if not 0 <= recovery_threshold <= 100:
+            raise ValueError("recovery_threshold must be in 0..100")
+
+        draws = 0
+        for _ in range(3):
+            roll = int(rng.randbelow(100))
+            draws += 1
+            if roll >= recovery_threshold:
+                continue
+
+            condition = int(self.condition)
+            if condition <= 90:
+                self.condition = condition + 1
+                continue
+
+            first_extra = int(rng.randbelow(10))
+            draws += 1
+            if first_extra >= 99 - condition:
+                continue
+
+            second_extra = int(rng.randbelow(10))
+            draws += 1
+            if second_extra >= 5:
+                self.condition = condition + 1
+
+        return draws
+
     @property
     def weekly_training_excluded(self) -> bool:
         """Exact 0x61C520 eligibility gate for the active-training update."""
