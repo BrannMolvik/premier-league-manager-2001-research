@@ -119,6 +119,44 @@ SCOUTING_SCORE_MODE_SKILL_BIAS = 15
 SCOUTING_SCORE_MODE_PLAIN = 16
 
 
+def scouting_country_context_passes(
+    selector_mode: int,
+    *,
+    candidate_country_id: int,
+    candidate_european_index: int,
+    active_club_country_id: int,
+) -> bool:
+    """Reproduce panel+0x64E0 country-context gating from 0x4AE680.
+
+    Mode 0 requires the active club's country. Mode 1 requires a different
+    country whose runtime DBRCountry+0x18 value is nonzero. Any other nonzero
+    mode requires a different country whose +0x18 value is zero.
+    """
+
+    selector_mode = int(selector_mode)
+    same_country = int(candidate_country_id) == int(active_club_country_id)
+    if selector_mode == 0:
+        return same_country
+    if same_country:
+        return False
+    if selector_mode == 1:
+        return int(candidate_european_index) != 0
+    return int(candidate_european_index) == 0
+
+
+def scouting_preferred_position_passes(
+    preferred_positions: Sequence[int],
+    selected_position_id: int | None,
+) -> bool:
+    """Reproduce the optional 0x4EA410 three-position membership gate."""
+
+    if selected_position_id is None:
+        return True
+    return int(selected_position_id) in tuple(
+        int(value) for value in tuple(preferred_positions)[:3]
+    )
+
+
 def scouting_rank_score(
     current_raw: Sequence[int],
     preferred_positions: Sequence[int],
