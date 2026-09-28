@@ -23,8 +23,8 @@ class ScriptedRng:
 
 
 class ConcessionOfferTests(unittest.TestCase):
-    def test_arsenal_day12_value_branch_reproduces_1510(self):
-        rng = ScriptedRng([409])
+    def test_corrected_day12_slot3_value_branch_reproduces_1290(self):
+        rng = ScriptedRng([225])
 
         value = concession_candidate_value(
             rng,
@@ -34,30 +34,34 @@ class ConcessionOfferTests(unittest.TestCase):
             adjustment_percent=20.0,
         )
 
-        self.assertEqual(value, 1510)
+        self.assertEqual(value, 1290)
         self.assertEqual(rng.calls, [800])
 
-    def test_day12_slot7_selects_candidate_8_on_fourth_attempt(self):
-        rng = ScriptedRng([24, 12, 2, 8])
+    def test_corrected_day12_slot3_selects_candidate_19(self):
+        sequence = [
+            9, 10, 9, 15, 13, 21, 11, 8, 21, 10, 2, 10,
+            6, 7, 20, 8, 1, 8, 7, 16, 13, 21, 7, 19,
+        ]
+        rng = ScriptedRng(sequence)
 
         selected, draws = select_fresh_concession_candidate(
             rng,
-            capacity=14,
-            candidate_value=1510,
+            capacity=20,
+            candidate_value=1290,
         )
 
-        self.assertEqual(selected, 8)
-        self.assertEqual(draws, 4)
-        self.assertEqual(rng.calls, [25, 25, 25, 25])
+        self.assertEqual(selected, 19)
+        self.assertEqual(draws, 24)
+        self.assertEqual(rng.calls, [25] * 24)
 
-    def test_candidate_8_local_value_is_fixed_and_rng_clean(self):
-        rng = ScriptedRng([])
+    def test_candidate_19_local_range_consumes_rng1(self):
+        rng = ScriptedRng([0])
 
-        value, draws = choose_concession_local_value(rng, 8)
+        value, draws = choose_concession_local_value(rng, 19)
 
         self.assertEqual(value, 3)
-        self.assertEqual(draws, 0)
-        self.assertEqual(rng.calls, [])
+        self.assertEqual(draws, 1)
+        self.assertEqual(rng.calls, [1])
 
     def test_selector_stops_after_25_rejections(self):
         rng = ScriptedRng([0] * 25)
