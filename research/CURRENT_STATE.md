@@ -202,21 +202,25 @@ Several target systems already have substantial research or backend behavior:
    CRT state **`0x126CF137`**. This is now the canonical post-`0x61991F`
    fresh transfer-list population boundary.
 
-   **Startup quality bridge advanced:** the loan tail is now replayed through
-   the shipped **200-player loan-list cap**. The final reverse-club population
-   ends after **292 eligible club visits** at club **866**, leaving
-   **`0x472F4DFF`**. The following `0x425680` RNG(10) returns 2 and leaves
-   **`0xA54D70C6`**. Six fixed support-staff records (types 1, 2, 3, 4, 5,
-   13) then consume exact RNG(25)/RNG(2) age/rating pairs; the fresh Youth Team
-   Coach (type 3) has rating **1**, and `0x4D1760` leaves the shared CRT state
-   **`0x418CAA72`**.
+   **Startup quality bridge corrected:** the loan tail reaches the shipped
+   **200-player loan-list cap** after **292 eligible club visits**, ending club
+   **866** at **`0x472F4DFF`**. The following `0x425680` RNG(10) returns
+   2 and leaves **`0xA54D70C6`**. Direct canonical-executable audit then
+   revealed a previously omitted mandatory call to **`0x5E3FD0`** before
+   `0x4D1760`. On the fresh empty list its 37-way factory accepts 12 selector
+   values **33, 8, 12, 22, 2, 3, 27, 5, 0, 23, 28, 18** with no retry and
+   leaves **`0x418CAA72`**. Only after that do the six fixed support-staff
+   records (types 1, 2, 3, 4, 5, 13) consume RNG(25)/RNG(2) age/rating pairs.
+   The fresh Youth Team Coach (type 3) therefore has rating **2**, fresh
+   training quality is **1.30**, and the true post-`0x4D1760` shared CRT
+   state is **`0xFA1C595E`**. The earlier interpretation of
+   `0x418CAA72` as post-fixed-staff state is superseded.
 
    **Active dependency:** trace the mandatory shared-RNG interval after
-   `0x4D1760` from **`0x418CAA72`** to the first Saturday `0x4EACE0`
+   `0x4D1760` from **`0xFA1C595E`** to the first Saturday `0x4EACE0`
    training execution. If the interval is RNG-clean, attach the verified weekly
-   training primitive using source-backed fresh quality **1.25** from Youth Team
-   Coach rating 1 and no fresh Training Centre; otherwise replay every mandatory
-   draw first.
+   training primitive using source-backed fresh quality **1.30** and no fresh
+   Training Centre; otherwise replay every mandatory draw first.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
 8. After live weekly training is verified, audit the next Gate-11 management
