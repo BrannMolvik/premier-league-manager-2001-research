@@ -227,6 +227,45 @@ class RuntimePlayerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "0..6"):
             player.set_training_method(7)
 
+    def test_daily_training_condition_recovery_fresh_threshold(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1)
+        )
+        rng = MsvcCrtRng(0x73FCE2C8)
+
+        draws = player.run_daily_training_condition_recovery(rng, 50)
+
+        self.assertEqual(draws, 3)
+        self.assertEqual(player.condition, 82)
+        self.assertEqual(rng.state, 0x2284D03D)
+
+    def test_daily_training_condition_recovery_high_condition_extra_draws(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1)
+        )
+        player.condition = 91
+        rng = MsvcCrtRng(1)
+
+        draws = player.run_daily_training_condition_recovery(rng, 50)
+
+        self.assertEqual(draws, 5)
+        self.assertEqual(player.condition, 91)
+        self.assertEqual(rng.state, 0xCAE1DF84)
+
+    def test_daily_training_condition_recovery_injury_skips_rng(self):
+        player = RuntimePlayer.from_database_player(
+            FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1)
+        )
+        player.injured = True
+        rng = MsvcCrtRng(0x12345678)
+        before = rng.state
+
+        draws = player.run_daily_training_condition_recovery(rng, 50)
+
+        self.assertEqual(draws, 0)
+        self.assertEqual(player.condition, 80)
+        self.assertEqual(rng.state, before)
+
     def test_weekly_training_exclusion_uses_injury_and_selection_bit_not_suspension(self):
         player = RuntimePlayer.from_database_player(
             FakePlayer(), date(2000, 7, 1), MsvcCrtRng(1)
