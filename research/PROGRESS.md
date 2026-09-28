@@ -6376,3 +6376,30 @@ loan-list scouting control still requires a callback despite its predicate now
 being source-backed. Exact next implementation decision is to materialize that
 state and the resolved country/preferred-position predicates without inventing
 bit-7 semantics.
+
+
+## Gate 11 recovery reconciliation: scouting history target implemented — 28 September 2026
+
+Recovery audit found `research/CURRENT_STATE.md` lagging behind newer verified
+main commits. The repository history proves the formerly active scouting
+materialization task is already complete:
+
+- `15fdc51e` / `cbb71d02` add and test exact country/preferred-position gates;
+- `37d0478e` / `6fe13dca` materialize those gates in the live human scouting path;
+- `25fe03dd` / `60ec5ab3` add and test exact scouting loan eligibility;
+- `8dec7edb` / `f4e597a9` use live RuntimePlayer loan-list state;
+- `d1baae91` through `3471644b` persist and verify the exact six-entry circular
+  match-performance history and use it for scouting sort mode 2;
+- `d616ba62` / `c9c1b948` implement and test the exact `0x6309D0` target
+  match-performance rating with shared-CRT and separate MatchEngine RNG inputs.
+
+The true next fidelity edge is therefore live history production after matches,
+not any earlier scouting filter. Normal fixture finalization must compute the
+target rating for each qualifying participant and append it through the exact
+six-entry history primitive in original order. Before doing so, the semantic
+match event stream must expose the source-backed secondary goal-attribution
+player consumed by participant `+0x44`; delivered free-kick/corner takers are
+already proven, while the open-play secondary slot remains to be confirmed.
+
+The low-rating lift must continue to use a distinct MatchEngine RNG. It must not
+be charged to or seeded from the shared MSVC CRT stream.
