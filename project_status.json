@@ -14,7 +14,7 @@
   "last_verified_test_count": 576,
   "asset_policy_validated_head": "ddab924af5fc336db74dc08d3c154a7334b6b0e0",
   "asset_policy_status": "passed",
-  "active_task": "Materialize minimum fresh concession/sponsor timer runtime so the exact shared-RNG interleaving mapped through the third training Saturday can be preserved before enabling recurring multi-week user training by default.",
+  "active_task": "Integrate source-backed commercial timer and concession candidate mechanics into GameState day progression using live stadium source state, preserving commercial-before-training RNG order. Corrected canonical second/third weekly states are 0x509630B6/0xA3C5013C and 0x7B8D5F58/0xE176B24E.",
   "next_gate": 12,
   "next_gate_name": "Other competitions",
   "blocked": false,
@@ -228,8 +228,14 @@
   ],
   "gate11_pre_first_training_state": "0x216C6081",
   "gate11_first_weekly_post_state": "0xF68CAFEF",
-  "gate11_second_weekly_pre_state": "0xF20D31B6",
-  "gate11_second_weekly_post_state": "0x5A93BA3C",
-  "gate11_third_weekly_pre_state": "0x7315D62D",
-  "gate11_third_weekly_post_state": "0xB890CD3B"
+  "gate11_second_weekly_pre_state": "0x509630B6",
+  "gate11_second_weekly_post_state": "0xA3C5013C",
+  "gate11_third_weekly_pre_state": "0x7B8D5F58",
+  "gate11_third_weekly_post_state": "0xE176B24E",
+  "gate11_day11_concession_draws": 104,
+  "gate11_day11_post_concession_state": "0x2D3FF8E7",
+  "gate11_day12_concession_draws": 53,
+  "gate11_day12_candidate_index": 19,
+  "gate11_day12_post_concession_state": "0x03CA80A0",
+  "gate11_commercial_replay_supersedes": "6822e7ea666749ba01ef0245ba858da009a420e4"
 }
