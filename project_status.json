@@ -10,8 +10,8 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "eda0545613f1f13c5c9da5908aeeccafc979d305",
-  "last_verified_reconstruction_ci_head": "130a929fe1e5505a77951b7c190b1d9e374f1b57",
-  "last_verified_test_count": 668,
+  "last_verified_reconstruction_ci_head": "7e798a030d5195388624613b1ccc36bc318b96d5",
+  "last_verified_test_count": 670,
   "asset_policy_validated_head": "130a929fe1e5505a77951b7c190b1d9e374f1b57",
   "asset_policy_status": "passed",
   "active_task": "Gate 11 morale: instruction-close ordinary signing/loan morale callers 0x419210 and 0x41A9D0 and integrate their exact RNG(2) placement into existing transfer/contract runtime; defer request-new-contract/trophy paths until producer ownership is bounded.",
@@ -278,5 +278,8 @@
     "secondary root order assertion",
     "secondary bucket count 262 vs 280"
   ],
-  "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md"
+  "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
+  "current_task": "Independently bound the request-new-contract morale producer around 0x5D8430 -> 0x41BA80(UnhappyRequestNewContract), prove ordinary fresh-game reachability before integration, and keep trophy/DangerMoraleLevel paths deferred until ownership is closed.",
+  "last_verified_reconstruction_failures": 2,
+  "last_verified_asset_policy_head": "7e798a030d5195388624613b1ccc36bc318b96d5"
 }
