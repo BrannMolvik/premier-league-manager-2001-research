@@ -8328,3 +8328,82 @@ post 222 draws     0xB890CD3B
 
 These checkpoints supersede any continuation that omitted the first weekly
 222-draw transition when deriving the day-11 commercial stream.
+
+
+## Gate 11 commercial replay correction: zero-capacity selector slots are RNG-clean
+
+A direct re-audit of canonical `FOOTBAL.EXE` corrects the commercial replay
+recorded in commit `6822e7ea666749ba01ef0245ba858da009a420e4`.
+
+`0x65DBC0(selector, 0)` sums global building-table dword
+`[0x988E08 + building*0x74 + 0x1C]` across the selector's stadium-section
+range. Loader `0x660A80` writes the 0x74-byte serialized building prefix
+directly at `0x988E08` and then overlays the duplicated 0x5C bytes at +0x08,
+so this consumer corresponds to serialized `Buildings.dat +0x1C`.
+The previously extracted Arsenal selector totals are therefore valid:
+
+```text
+selector 0:  0
+selector 1: 16
+selector 2:  0
+selector 3: 20
+selector 4:  0
+selector 5: 12
+selector 6:  0
+selector 7: 14
+all-section 0x65DB70 total: 62
+```
+
+The prior replay mistake was after that lookup. At `0x5E53ED..0x5E53F1`,
+`0x5E5330` tests the `0x65DBC0` result and jumps directly to the next
+selector when it is zero. Such a selector consumes **no** `RNG(800)` and no
+`0x5E5230` candidate-selection draws.
+
+Therefore only Arsenal selectors **1, 3, 5 and 7** are RNG-bearing on this
+fresh path.
+
+Starting from the already-verified day-10 post-recovery state
+**`0xDB610BDF`**:
+
+- day 11 tries the four nonzero selectors;
+- each consumes one `RNG(800)` and 25 rejected `RNG(25)` candidate draws;
+- exact total = **104 draws**;
+- no candidate survives;
+- post-concession state = **`0x2D3FF8E7`**;
+- day-11 recovery consumes **182 draws**, leaving **`0xD4E2341D`**.
+
+The expired wait therefore retries on day 12. Corrected day-12 behavior:
+
+- selector 1: capacity 16, `RNG(800)=322`, candidate value 1406,
+  25 rejected candidate draws;
+- selector 3: capacity 20, `RNG(800)=225`, candidate value 1290;
+- its exact `RNG(25)` candidate sequence is
+  `9,10,9,15,13,21,11,8,21,10,2,10,6,7,20,8,1,8,7,16,13,21,7,19`;
+- candidate **19** is accepted on attempt 24;
+- its local range 3..4 consumes `RNG(1)=0`, yielding 3;
+- final `RNG(3)=0`;
+- day-12 concession total = **53 draws**;
+- post-concession state = **`0x03CA80A0`**;
+- day-12 recovery consumes **191 draws**, leaving **`0x50CB6921`**.
+
+The success resets the concession timer. Day 13 draws
+`RNG(14)=8` -> **15 days**, leaving **`0x51142760`** before recovery.
+The initial sponsor timer expires without RNG that day. Day 14 then draws
+`RNG(7)=1` -> **8 days**, leaving **`0x9533F463`** before recovery.
+
+Corrected training checkpoints are:
+
+```text
+pre second Saturday weekly   0x509630B6
+post 222 weekly draws        0xA3C5013C
+
+pre third Saturday weekly    0x7B8D5F58
+post 222 weekly draws        0xE176B24E
+```
+
+The previous `6822e7ea` states
+`0x78B0AEEF`, `0x4451F912`, `0xF20D31B6`,
+`0x5A93BA3C`, `0x7315D62D`, and `0xB890CD3B` are superseded.
+
+Durable data-free replay:
+`tools/replay_gate11_commercial_training.py`.
