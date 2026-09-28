@@ -5233,3 +5233,35 @@ replayed.
 Exact next target: reproduce the eligible-club qsort and both already-bounded
 Fisher-Yates shuffles from source state, then execute the 894 dispatch/selector
 steps with the now-exact nested RNG rules and transfer-list bit-8 mutations.
+
+## Gate 11 exact eligible-club qsort and shuffle order — 28 September 2026
+
+The remaining club-order dependency before the 894-selector replay is now source-backed and independently validated against the already-known RNG states.
+
+`0x4205F0` transfer valuation is calendar-sensitive here only through integer player age. Between July 1 and the weekly-aligned July 4 startup date, nine of 30,064 source players cross a valuation age band. Cerro Porteño is outside the 895-club European vector, leaving eight eligible clubs whose live/cached qsort ratio differs from 1.0:
+
+```text
+Levski Sofia          0.960813673436702
+Neftchi Baku          0.964986144313222
+Anorthosis Famagusta  0.965667451667081
+Slavia Sofia          0.993094744577438
+Sileks Kratovo        0.996253483716185
+Kidderminster         0.997707747535481
+Albion Rovers         1.001184026457622
+Torquay Utd           1.007371177945545
+```
+
+All other 887 eligible clubs have neutral ratio 1.0 on this fresh boundary.
+
+The static CRT qsort at `0x668DA4` was translated from the executable, including its <=8 short-sort path, middle-pivot partition, explicit swaps and non-stable equal-key handling. With the real `0x619CF0` keys it places Levski/Neftchi/Anorthosis/Slavia/Sileks/Kidderminster at indices 0..5, Albion Rovers at 893 and Torquay at 894.
+
+Running the two recovered `0x619DC0` Fisher-Yates passes over that exact qsort output from `0xDFCED283` reproduces both canonical checkpoints:
+
+```text
+first shuffle  -> 0xC6B73181
+second shuffle -> 0xBD5CC00F
+```
+
+This independently validates the pre-selector club ordering model. The final twice-shuffled vector begins `25, 738, 783, 262, 812, 2, 397, 819, ...`; reverse `0x61991F` visits begin `118, 750, 510, 1216, 430, 622, 877, 243, ...`.
+
+The first dispatch draw from `0xBD5CC00F` is RNG(10)=3, so club 118 enters deterministic selector `0x61A9A0(club,0)`. Exact next target: translate/replay `0x61A380/0x61A900` sufficiently to obtain that candidate, then continue the mapped `0x417470` eligibility RNG and subsequent clubs.
