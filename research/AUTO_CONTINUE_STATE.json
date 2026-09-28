@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 46,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery resumes after corrected fixed-staff boundary. Fresh Youth Team Coach rating=2, training quality=1.30, post-0x4D1760 CRT state=0xFA1C595E. Need exact RNG interval to first Saturday training.",
+  "recovery_generation": 47,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovered in a fresh chat from main 007315c1. Resume exact Gate 11 dependency after corrected fixed-staff boundary: Youth Team Coach rating=2, training quality=1.30, post-0x4D1760 CRT state=0xFA1C595E. Trace all mandatory shared RNG to first Saturday 0x4EACE0 before attaching live weekly training.",
   "same_chat_fallback_minutes": 30
 }
