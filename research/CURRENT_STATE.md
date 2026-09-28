@@ -169,9 +169,24 @@ Several target systems already have substantial research or backend behavior:
    the fresh loop early. Nested RNG is mapped: `0x61A9A0` has no direct RNG
    beyond its final rating-dependent `0x417470` check, while `0x4050F0`
    performs up to 20 attempts with RNG(10) + one roster-index draw per attempt
-   plus the optional rating draw. The source-backed `0x619CF0` qsort and both
-   club shuffles are now reproduced exactly and independently regenerate
-   **`0xC6B73181 -> 0xBD5CC00F`**. The exact reverse-selector replay now reaches club 877. Fresh roster ordering is executable-proven as canonical player-table order. Closed visits are: club 118 -> Steve Soley, state **`0x6A346701`**; club 750 -> Norbert Mitring, **`0x31D39583`**; club 510 -> R. da Silva Cerqueria, **`0xF0AD5F37`**; club 1216 -> Panagiotis Gitsis after one failed random attempt, **`0xEC30AACC`**; club 430 -> roster-threshold early exit with no nested RNG, **`0x2956CE5F`**; club 622 -> Steven de Geest, **`0xB28F67D1`**. Club 877's mandatory dispatch is already consumed as RNG(10)=6, leaving **`0x377EEB50`** and entering `0x61A9A0`. Continue from that exact state through the remaining reverse selectors, then carry the shared CRT state through loan maintenance into
+   plus the optional rating draw. Fresh roster order used by `0x4050F0` is
+   executable-proven as canonical player-table order.
+
+   **Corrected qsort boundary:** the earlier reverse sequence beginning club
+   118 was superseded by an instruction-level `0x668DA4` audit. The exact
+   partition scans continue on comparator <=0 / >=0, so equal neutral keys do
+   not stop for exchange. Matching Fisher-Yates states
+   **`0xC6B73181 -> 0xBD5CC00F`** validate draw counts only, not element
+   order. The corrected twice-shuffled vector begins
+   `488, 439, 509, 646, 1217, 623, 239, 548, ...`; reverse visits begin
+   **`805, 610, 140, 862, 362, 757, 507, 214, ...`**. The prior selector
+   spot replays for clubs 118/750/510/1216/430/622/877 are not canonical
+   startup-stream evidence and must not be continued. Restart the exact
+   selector stream from **`0xBD5CC00F`** at club **805**. The first
+   mandatory dispatch remains RNG(10)=3 and advances to
+   **`0xAB415A96`**, entering `0x61A9A0(club 805,0)`.
+   Continue the corrected 894-visit sequence, then carry the resulting shared
+   CRT state through loan maintenance into
    `0x425680 -> 0x4D1760` fixed-staff initialization.
 7. Attach Saturday calendar execution only after that startup quality bridge is
    deterministic on the shared RNG and source-backed.
