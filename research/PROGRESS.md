@@ -5052,3 +5052,46 @@ weekly branch includes RNG-bearing `0x6194D0`, and the day-one branch invokes
 another `0x4C9E90` before fixed staff creation. These intervening calls must
 be replayed before the Youth Team Coach's fixed `RNG(2)` rating can be
 declared deterministic.
+
+
+## Gate 11 first-calendar staff boundary correction — 28 September 2026
+
+The first maintenance call before fixed support-staff creation has now been
+narrowed substantially.
+
+### Startup date is weekly-aligned, not day 1
+
+Date initializer `0x64CC70` constructs **July 1** for the supplied startup
+year, then computes `(serial_date + 5) % 7`. When the remainder is nonzero it
+adds `7 - remainder` to the serial date before returning it. The fresh
+TeamSelect path stores that aligned value as the global current date before
+calling `0x4A8070`.
+
+For the 2000/01 start this advances the July-1 value by three calendar days.
+Consequently the first `0x4A8070` call enters its weekly branch but its later
+decoded day-of-month test is **not 1**. The day-one block is therefore skipped
+before `0x425680`: there is no third `0x4C9E90`, monthly-history update or
+`0x4E2840` on this boundary.
+
+### First 0x6194D0 user-club phase
+
+Starting from the already-locked state **`0x1D1A278D`**, the first
+`0x6194D0` phase scans Arsenal's 37 fresh roster entries.
+
+- fresh player transfer-list bit 8 is clear;
+- every Arsenal player resolves to the user-controlled active club;
+- each therefore consumes one `RNG(10)`;
+- player `+0xB8` was initialized from the same `0x4205A0` transfer
+  valuation, so the value-difference candidate path has zero difference and
+  does not append a player;
+- after the 37 draws the CRT state is **`0x6400EEC0`**;
+- because no candidate was appended, the fallback `RNG(100)` runs;
+- its canonical result is **74**, above the shipped 25% unsolicited-bid
+  threshold, so no roster-index draw follows.
+
+This user-club phase therefore costs exactly **38 CRT draws** and leaves
+**`0xDFCED283`**.
+
+The remaining pre-fixed-staff uncertainty is now wholly inside the later
+global transfer/loan-maintenance phases of `0x6194D0`. The day-one calendar
+branch is no longer part of this startup boundary.
