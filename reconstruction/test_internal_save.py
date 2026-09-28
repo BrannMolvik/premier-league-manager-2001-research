@@ -31,6 +31,7 @@ from transfer_state import (
     ScheduledTransfer,
     TransferProposal,
 )
+from youth_state import YouthRecord, YouthTeamState
 
 
 SCHEDULER_ORDER = (
@@ -379,6 +380,69 @@ class InternalSaveTests(unittest.TestCase):
             restored.state._run_monthly_contract_maintenance,
             restored.state.calendar.monthly_hooks,
         )
+
+    def test_youth_list_and_generated_identity_survive_roundtrip(self):
+        original = self.build_controller()
+        player = original.state.players[2000]
+        source_first_name = player.first_name
+        source_surname = player.surname
+        source_nationality = player.nationality_id
+        source_dob = player.date_of_birth
+
+        # Mirror 0x41E510/0x61DD30 live identity mutation without changing the
+        # immutable source mirrors used by database validation.
+        player.first_name = "Generated"
+        player.surname = "Youth"
+        player.nationality_id = 26
+        player.date_of_birth = date(1983, 7, 1)
+        player.club_id = 1
+        player.status_bit_3 = True
+
+        original.state.user_youth = YouthTeamState(
+            [YouthRecord(player_id=2000, source_roster_club_id=2)]
+        )
+        record = original.state.user_youth.records[0]
+        record.field_08 = 4
+        record.field_0c = 5
+        record.field_10 = 6
+        record.status_14 = True
+        record.training.method_id = 1
+        record.training.countdown = 6
+        record.training.modifiers[0] = 7
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        restored_player = restored.state.players[2000]
+        self.assertEqual(restored_player.first_name, "Generated")
+        self.assertEqual(restored_player.surname, "Youth")
+        self.assertEqual(restored_player.nationality_id, 26)
+        self.assertEqual(restored_player.date_of_birth, date(1983, 7, 1))
+        self.assertTrue(restored_player.status_bit_3)
+
+        # Immutable mirrors still identify the original supplied database.
+        self.assertEqual(restored_player.source_first_name, source_first_name)
+        self.assertEqual(restored_player.source_surname, source_surname)
+        self.assertEqual(restored_player.source_nationality_id, source_nationality)
+        self.assertEqual(restored_player.source_date_of_birth, source_dob)
+
+        youth = restored.state.user_youth
+        self.assertIsNotNone(youth)
+        self.assertEqual(youth.player_ids(), (2000,))
+        restored_record = youth.records[0]
+        self.assertEqual(restored_record.source_roster_club_id, 2)
+        self.assertEqual(
+            (restored_record.field_08, restored_record.field_0c, restored_record.field_10),
+            (4, 5, 6),
+        )
+        self.assertTrue(restored_record.status_14)
+        self.assertEqual(restored_record.training.method_id, 1)
+        self.assertEqual(restored_record.training.countdown, 6)
+        self.assertEqual(restored_record.training.modifiers[0], 7)
 
     def test_weekly_ai_transfer_runtime_state_survives_roundtrip(self):
         original = self.build_controller()
