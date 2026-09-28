@@ -127,6 +127,12 @@ class GameState:
     ai_transfer_buy_counter: dict[int, int] = field(default_factory=dict)
     country_transfer_window_open: dict[int, bool] = field(default_factory=dict)
     user_controlled_club_id: int | None = None
+    # Gate-11 DBRUser daily/weekly training integration. These remain opt-in
+    # until the neighboring commercial/event scheduler is fully materialized;
+    # once configured, advance_one_day() preserves the proven 0x42A9E0 order
+    # of daily 0x61CA60 recovery before optional Saturday 0x4EACE0 training.
+    user_training_recovery_threshold: int | None = None
+    user_training_quality_multiplier: float | None = None
     # DBRUser +0x10D8: persistent manager-sacking reason. The original
     # objective evaluator writes this first; the outer manager loop later
     # consumes it to show the reason-specific message and leave management.
@@ -364,6 +370,50 @@ class GameState:
         self.monthly_player_updates += sum(
             int(player.monthly_development_update(on_date))
             for player in self.players.values()
+        )
+
+    def configure_user_training_calendar(
+        self,
+        *,
+        recovery_threshold: int,
+        quality_multiplier: float,
+    ) -> None:
+        """Enable source-backed user training in normal day progression.
+
+        The first fresh Arsenal interval is proven with threshold 50 and
+        quality 1.30. Callers may provide other values only when their source
+        state has been independently materialized.
+        """
+        recovery_threshold = int(recovery_threshold)
+        quality_multiplier = float(quality_multiplier)
+        if not 0 <= recovery_threshold <= 100:
+            raise ValueError("training recovery threshold must be in 0..100")
+        if quality_multiplier <= 0.0:
+            raise ValueError("training quality multiplier must be positive")
+        self.user_training_recovery_threshold = recovery_threshold
+        self.user_training_quality_multiplier = quality_multiplier
+
+    def disable_user_training_calendar(self) -> None:
+        """Disable automatic user training without mutating player state."""
+        self.user_training_recovery_threshold = None
+        self.user_training_quality_multiplier = None
+
+    def run_configured_user_training_day(self, rng=None) -> tuple[int, int]:
+        """Run configured DBRUser training maintenance for the current date.
+
+        A missing configuration intentionally consumes no RNG. This prevents
+        unresolved staff/facility or commercial scheduler state from being
+        silently replaced with guessed defaults.
+        """
+        if (
+            self.user_training_recovery_threshold is None
+            or self.user_training_quality_multiplier is None
+        ):
+            return 0, 0
+        return self.run_user_training_primary_day(
+            rng,
+            recovery_threshold=self.user_training_recovery_threshold,
+            quality_multiplier=self.user_training_quality_multiplier,
         )
 
     def run_user_daily_training_condition_recovery(
@@ -1096,6 +1146,13 @@ class GameState:
     def advance_one_day(self) -> date:
         self.calendar.increment_one_day()
         self.calendar.run_post_fixture_maintenance()
+
+        # Original 0x4A8070 dispatches DBRUser daily maintenance before its
+        # later global Saturday maintenance. Keep the user training RNG stream
+        # ahead of payroll/AI-transfer work when the source-backed training
+        # inputs have been explicitly enabled.
+        self.run_configured_user_training_day()
+
         self.run_due_transfer_maintenance()
         self.run_weekly_player_payroll()
         self.run_weekly_ai_transfer_maintenance()
