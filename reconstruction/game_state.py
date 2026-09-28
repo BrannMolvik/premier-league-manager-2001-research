@@ -6,6 +6,12 @@ from time import time
 from typing import Callable, Iterable
 
 from competition_state import PremierLeagueState
+from commercial_timers import UserCommercialTimerState
+from concession_offer import (
+    choose_concession_local_value,
+    concession_candidate_value,
+    select_fresh_concession_candidate,
+)
 from finance_state import (
     BalanceRuntimeState,
     FinancialObjectiveEvaluation,
@@ -133,6 +139,7 @@ class GameState:
     # of daily 0x61CA60 recovery before optional Saturday 0x4EACE0 training.
     user_training_recovery_threshold: int | None = None
     user_training_quality_multiplier: float | None = None
+    user_commercial_timers: UserCommercialTimerState | None = None
     # DBRUser +0x10D8: persistent manager-sacking reason. The original
     # objective evaluator writes this first; the outer manager loop later
     # consumes it to show the reason-specific message and leave management.
@@ -370,6 +377,89 @@ class GameState:
         self.monthly_player_updates += sum(
             int(player.monthly_development_update(on_date))
             for player in self.players.values()
+        )
+
+    def configure_user_commercial_calendar(self) -> None:
+        """Enable the recovered fresh DBRUser concession/sponsor wait state."""
+        if self.user_controlled_club_id is None:
+            raise RuntimeError("user-controlled club is required")
+        club_id = int(self.user_controlled_club_id)
+        if club_id not in self.stadium_sources:
+            raise RuntimeError("source-backed stadium state is required")
+        if club_id not in self.clubs:
+            raise RuntimeError("source-backed club state is required")
+        self.user_commercial_timers = UserCommercialTimerState()
+
+    def disable_user_commercial_calendar(self) -> None:
+        """Disable automatic commercial timing without mutating other state."""
+        self.user_commercial_timers = None
+
+    def _attempt_user_concession_offer(self, rng) -> bool:
+        """Consume the mapped fresh 0x5E5330 concession-offer RNG body.
+
+        The current slice reproduces selection/timing RNG and intentionally
+        stops short of inventing presentation/event payload state.
+        """
+        if self.user_controlled_club_id is None:
+            return False
+        club_id = int(self.user_controlled_club_id)
+        stadium = self.stadium_sources.get(club_id)
+        club = self.clubs.get(club_id)
+        if stadium is None or club is None:
+            return False
+
+        total_capacity = int(stadium.concession_capacity_total)
+        if total_capacity <= 0:
+            return False
+
+        fan_base_index = int(getattr(club, "fan_base_index"))
+        if not 0 <= fan_base_index < len(self.access_fan_bases):
+            raise ValueError("controlled club fan-base index is out of range")
+        access_row = self.access_fan_bases[fan_base_index]
+        values = tuple(getattr(access_row, "values"))
+        if not values:
+            raise ValueError("access-fan-base row has no values")
+
+        club_metric = int(getattr(club, "runtime_value_1c_source"))
+        access_metric = int(values[0])
+
+        for selector in range(8):
+            capacity = int(stadium.concession_capacity_for_selector(selector))
+            if capacity <= 0:
+                continue
+
+            candidate_value = concession_candidate_value(
+                rng,
+                club_metric=club_metric,
+                access_metric=access_metric,
+                stadium_total=total_capacity,
+            )
+            candidate_index, _ = select_fresh_concession_candidate(
+                rng,
+                capacity=capacity,
+                candidate_value=candidate_value,
+            )
+            if candidate_index is None:
+                continue
+
+            # 0x5E5495 consumes the candidate-local range when non-degenerate.
+            choose_concession_local_value(rng, candidate_index)
+
+            # The later fresh offer-lifetime branch uses the recovered
+            # 0x8212C8..0x8212CC range of three values.
+            rng.randbelow(3)
+            return True
+
+        return False
+
+    def run_user_commercial_day(self, rng=None) -> tuple[int, bool]:
+        """Run commercial timing before the DBRUser training maintenance."""
+        if self.user_commercial_timers is None:
+            return 0, False
+        rng = self._resolve_rng(rng)
+        return self.user_commercial_timers.run_daily(
+            rng,
+            concession_attempt=self._attempt_user_concession_offer,
         )
 
     def configure_user_training_calendar(
@@ -1147,10 +1237,10 @@ class GameState:
         self.calendar.increment_one_day()
         self.calendar.run_post_fixture_maintenance()
 
-        # Original 0x4A8070 dispatches DBRUser daily maintenance before its
-        # later global Saturday maintenance. Keep the user training RNG stream
-        # ahead of payroll/AI-transfer work when the source-backed training
-        # inputs have been explicitly enabled.
+        # Original 0x42A9E0 processes commercial timing before its daily
+        # training-record maintenance. Preserve that shared-RNG order before
+        # the later global Saturday maintenance in 0x4A8070.
+        self.run_user_commercial_day()
         self.run_configured_user_training_day()
 
         self.run_due_transfer_maintenance()
