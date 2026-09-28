@@ -8,6 +8,7 @@ from game_state import GameState
 from human_gameplay import HumanGameplayController
 from match_lineup import AI_FORMATIONS
 from match_schedule import MsvcCrtRng
+from scouting import ScoutingReseedState
 from match_team_setup import TeamTacticalState
 from transfer_decision import SellingClubDecision
 from transfer_negotiation import OrdinaryMoneyResponse
@@ -165,6 +166,74 @@ class HumanGameplayControllerTests(unittest.TestCase):
             available[:11],
             available[11:16],
         )
+
+    def test_human_scouting_search_excludes_controlled_club_and_sorts_by_name(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+
+        controller.state.players[2000].surname = "Zulu"
+        controller.state.players[3000].surname = "Alpha"
+        controller.state.players[4000].surname = "Mike"
+        controller.state.players[2000].first_name = "A"
+        controller.state.players[3000].first_name = "B"
+        controller.state.players[4000].first_name = "C"
+
+        result = controller.search_scouting_players(
+            ScoutingReseedState(field_64e4=3),
+            candidate_predicate=lambda player: int(player.index) in {
+                1000, 2000, 3000, 4000
+            },
+            sort_mode=0,
+        )
+
+        self.assertEqual(
+            tuple(int(player.index) for player in result),
+            (3000, 4000, 2000),
+        )
+        self.assertNotIn(1000, tuple(int(player.index) for player in result))
+
+    def test_human_scouting_requires_unmaterialized_sort_values_only_when_used(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+        state = ScoutingReseedState()
+
+        with self.assertRaisesRegex(ValueError, "history_average_resolver"):
+            controller.search_scouting_players(
+                state,
+                candidate_predicate=lambda _player: True,
+                sort_mode=2,
+            )
+        with self.assertRaisesRegex(ValueError, "position_label_resolver"):
+            controller.search_scouting_players(
+                state,
+                candidate_predicate=lambda _player: True,
+                sort_mode=3,
+            )
+        with self.assertRaisesRegex(ValueError, "valuation_resolver"):
+            controller.search_scouting_players(
+                state,
+                candidate_predicate=lambda _player: True,
+                sort_mode=5,
+            )
+
+    def test_human_scouting_secondary_score_uses_runtime_player_state(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+
+        target_ids = {2000, 3000, 4000}
+        result = controller.search_scouting_players(
+            ScoutingReseedState(age_low_64d8=18, field_64e4=5),
+            candidate_predicate=lambda player: int(player.index) in target_ids,
+            sort_mode=0,
+            secondary_score_mode=16,
+            secondary_caller_argument=4,
+        )
+
+        self.assertEqual(
+            {int(player.index) for player in result},
+            target_ids,
+        )
+        self.assertEqual(len(result), 3)
 
     def test_human_manager_can_change_training_method_for_own_player_only(self):
         controller = self.build_controller()
