@@ -72,6 +72,14 @@ class DummyLeagueRatingPlayerSource(Protocol):
     positions: tuple[int, int, int]
 
 
+class InternationalFixtureSource(Protocol):
+    id: int
+    scheduled_week: int
+    scheduled_weekday: int
+    competition_id: int
+    dummy_league_id: int
+
+
 @dataclass(frozen=True)
 class DummyLeagueSortEntry:
     club_id: int
@@ -86,6 +94,34 @@ class DummyLeagueRankedEntry:
     rng_bound: int
     roll: int
     randomized_score: int
+
+
+@dataclass(frozen=True)
+class InternationalFixtureSelection:
+    fixture_id: int
+    scheduled_week: int
+    scheduled_weekday: int
+    competition_id: int
+    dummy_league_id: int
+    club_0_id: int
+    club_1_id: int
+
+
+@dataclass(frozen=True)
+class InternationalPoolShuffleEvent:
+    competition_id: int
+    reason: str
+    bounds: tuple[int, ...]
+    state_after: int | None
+
+
+@dataclass(frozen=True)
+class InternationalFixtureRngReplay:
+    selections: tuple[InternationalFixtureSelection, ...]
+    shuffle_events: tuple[InternationalPoolShuffleEvent, ...]
+    total_draw_count: int
+    same_team_skip_count: int
+    state_after: int | None
 
 
 @dataclass(frozen=True)
@@ -724,10 +760,6 @@ def initial_dummy_league_sort_entries(
             for player in roster[:11]
         )
         bound = score // 20
-        if bound <= 0:
-            raise ValueError(
-                f"DummyLeague club {club_id} produced non-positive RNG bound {bound}"
-            )
         result.append(
             DummyLeagueSortEntry(
                 club_id=club_id,
@@ -738,76 +770,261 @@ def initial_dummy_league_sort_entries(
     return tuple(result)
 
 
+def _dummy_league_entry_before(
+    left: DummyLeagueRankedEntry,
+    right: DummyLeagueRankedEntry,
+) -> bool:
+    """Comparator 0x4F4930 used by DummyLeague's temporary score array."""
+
+    return int(left.randomized_score) > int(right.randomized_score)
+
+
+def _legacy_dummy_league_sort(
+    entries: Iterable[DummyLeagueRankedEntry],
+) -> tuple[DummyLeagueRankedEntry, ...]:
+    """Reproduce 0x4FD4B0 + 0x4FD700/0x4FD6A0 for 8-byte entries.
+
+    0x4F4750 uses insertion sort directly for <=16 records. Larger arrays
+    first run the VC-era quicksort partition loop until every partition has at
+    most 16 records, then finish with insertion sort. The comparator is strict
+    greater-than on randomized score, so equal keys keep whatever permutation
+    the partition phase created.
+    """
+
+    values = list(entries)
+
+    def before(left, right) -> bool:
+        return _dummy_league_entry_before(left, right)
+
+    def median_of_three(left, middle, right):
+        if before(left, middle):
+            if before(middle, right):
+                return middle
+            if before(left, right):
+                return right
+            return left
+        if before(left, right):
+            return left
+        if before(middle, right):
+            return right
+        return middle
+
+    def partition(first: int, last: int, pivot) -> int:
+        left = first
+        right = last
+        while True:
+            while before(values[left], pivot):
+                left += 1
+            right -= 1
+            while before(pivot, values[right]):
+                right -= 1
+            if right <= left:
+                return left
+            values[left], values[right] = values[right], values[left]
+            left += 1
+
+    def partition_sort(first: int, last: int) -> None:
+        while last - first > 16:
+            middle = first + (last - first) // 2
+            pivot = median_of_three(
+                values[first],
+                values[middle],
+                values[last - 1],
+            )
+            cut = partition(first, last, pivot)
+            left_count = cut - first
+            right_count = last - cut
+            # 0x4FD4B0 recurses into the smaller half and iterates the larger.
+            if right_count > left_count:
+                partition_sort(first, cut)
+                first = cut
+            else:
+                partition_sort(cut, last)
+                last = cut
+
+    def insertion_sort() -> None:
+        for index in range(1, len(values)):
+            candidate = values[index]
+            insert_at = index
+            while insert_at > 0 and before(candidate, values[insert_at - 1]):
+                values[insert_at] = values[insert_at - 1]
+                insert_at -= 1
+            values[insert_at] = candidate
+
+    if len(values) > 16:
+        partition_sort(0, len(values))
+    insertion_sort()
+    return tuple(values)
+
+
 def rank_dummy_league_for_type5(
     entries: Iterable[DummyLeagueSortEntry],
     rng: BoundedRng,
     quantity: int,
 ) -> tuple[DummyLeagueRankedEntry, ...]:
-    """Return the exact prefix consumed by canonical type-5 Cup allocation.
+    """Return the exact prefix consumed after DummyLeague lazy sorting.
 
-    0x4F4750 consumes one bounded draw per DummyLeague participant and sorts
-    temporary (LeagueClub*, score-roll) entries descending by randomized score.
-
-    For arrays of <=16 elements the analyzed old-MSVC STL path is insertion
-    sort; equal scores retain source order. Canonical multi-club type-5 reads
-    all use such arrays.
-
-    Canonical >16 DummyLeague sources are only read with quantity==1. For those
-    sources the corrected startup replay produces a unique maximum, so the top
-    club is exact without claiming the unresolved remainder of the old STL
-    introsort order.
+    0x4F4750 consumes one bounded CRT draw per participant, including
+    RNG(0), stores score-roll, and sorts the complete temporary array with the
+    recovered VC-era 8-byte-entry sort. The caller may request any prefix of
+    that exact resulting order.
     """
+
     entry_list = tuple(entries)
     quantity = int(quantity)
     if quantity < 0 or quantity > len(entry_list):
         raise ValueError("quantity must be within the DummyLeague entry count")
 
-    scored: list[DummyLeagueRankedEntry] = []
-    for entry in entry_list:
-        roll = int(rng.randbelow(int(entry.rng_bound)))
-        scored.append(
-            DummyLeagueRankedEntry(
-                club_id=int(entry.club_id),
-                base_score=int(entry.base_score),
-                rng_bound=int(entry.rng_bound),
-                roll=roll,
-                randomized_score=int(entry.base_score) - roll,
+    scored = tuple(
+        DummyLeagueRankedEntry(
+            club_id=int(entry.club_id),
+            base_score=int(entry.base_score),
+            rng_bound=int(entry.rng_bound),
+            roll=int(rng.randbelow(int(entry.rng_bound))),
+            randomized_score=0,  # replaced below to preserve the one draw
+        )
+        for entry in entry_list
+    )
+    scored = tuple(
+        DummyLeagueRankedEntry(
+            club_id=entry.club_id,
+            base_score=entry.base_score,
+            rng_bound=entry.rng_bound,
+            roll=entry.roll,
+            randomized_score=entry.base_score - entry.roll,
+        )
+        for entry in scored
+    )
+    return _legacy_dummy_league_sort(scored)[:quantity]
+
+
+def _international_fixture_compare(
+    left: InternationalFixtureSource,
+    right: InternationalFixtureSource,
+) -> int:
+    """Comparator 0x4FA760: signed week, then signed weekday."""
+
+    left_week = int(left.scheduled_week)
+    right_week = int(right.scheduled_week)
+    if left_week != right_week:
+        return -1 if left_week < right_week else 1
+    left_day = int(left.scheduled_weekday)
+    right_day = int(right.scheduled_weekday)
+    return (left_day > right_day) - (left_day < right_day)
+
+
+def replay_international_fixture_rng(
+    rng: BoundedRng,
+    fixtures: Iterable[InternationalFixtureSource],
+    participant_ids_by_competition: dict[int, tuple[int, ...]],
+) -> InternationalFixtureRngReplay:
+    """Reproduce the RNG-bearing selection core of 0x4FA790.
+
+    The routine CRT-qsorts InternationalFixture pointers by week/day, lazily
+    copies each referenced competition's current +0x34 participant array, and
+    Fisher-Yates shuffles that copied pool on first use and every time its
+    cursor is exhausted. It then takes one club from each fixture pool.
+    Identical clubs are avoided by advancing the second pool cursor once more;
+    that extra cursor advance consumes no RNG.
+    """
+
+    ordered_fixtures = msvc_crt_qsort(
+        tuple(fixtures),
+        _international_fixture_compare,
+    )
+    pools: dict[int, list[int]] = {}
+    cursors: dict[int, int] = {}
+    shuffle_events: list[InternationalPoolShuffleEvent] = []
+    selections: list[InternationalFixtureSelection] = []
+    total_draw_count = 0
+    same_team_skip_count = 0
+
+    def current_state() -> int | None:
+        state = getattr(rng, "state", None)
+        return None if state is None else int(state) & 0xFFFFFFFF
+
+    def shuffle_pool(competition_id: int, reason: str) -> None:
+        nonlocal total_draw_count
+        values = pools[competition_id]
+        bounds: list[int] = []
+        for remaining in range(len(values), 1, -1):
+            selected = int(rng.randbelow(remaining))
+            last = remaining - 1
+            values[selected], values[last] = values[last], values[selected]
+            bounds.append(remaining)
+            total_draw_count += 1
+        cursors[competition_id] = 0
+        shuffle_events.append(
+            InternationalPoolShuffleEvent(
+                competition_id=competition_id,
+                reason=reason,
+                bounds=tuple(bounds),
+                state_after=current_state(),
             )
         )
 
-    if len(scored) <= 16:
-        # Exact old-STL insertion-sort semantics: move earlier elements only
-        # while candidate score is strictly greater. Equal scores are stable.
-        ordered: list[DummyLeagueRankedEntry] = []
-        for candidate in scored:
-            insert_at = len(ordered)
-            while (
-                insert_at > 0
-                and candidate.randomized_score
-                > ordered[insert_at - 1].randomized_score
-            ):
-                insert_at -= 1
-            ordered.insert(insert_at, candidate)
-        return tuple(ordered[:quantity])
+    def ensure_pool(competition_id: int) -> None:
+        competition_id = int(competition_id)
+        if competition_id in pools:
+            return
+        source = participant_ids_by_competition.get(competition_id)
+        if source is None:
+            raise ValueError(
+                f"missing participant pool for competition {competition_id}"
+            )
+        if not source:
+            raise ValueError(
+                f"competition {competition_id} has an empty participant pool"
+            )
+        pools[competition_id] = [int(value) for value in source]
+        shuffle_pool(competition_id, "first_use")
 
-    if quantity == 0:
-        return ()
-    if quantity != 1:
-        raise ValueError(
-            "exact >16 DummyLeague ordering beyond the unique top entry "
-            "requires the full legacy STL introsort"
+    def take_one(competition_id: int) -> int:
+        competition_id = int(competition_id)
+        ensure_pool(competition_id)
+        if cursors[competition_id] == len(pools[competition_id]):
+            shuffle_pool(competition_id, "exhausted")
+        cursor = cursors[competition_id]
+        cursors[competition_id] = cursor + 1
+        return pools[competition_id][cursor]
+
+    for fixture in ordered_fixtures:
+        first_pool = int(fixture.competition_id)
+        second_pool = int(fixture.dummy_league_id)
+        first_club = take_one(first_pool)
+        second_club = take_one(second_pool)
+
+        if second_club == first_club:
+            # 0x4FAAF4 advances the already-shuffled second pool once more
+            # without an intervening exhaustion test or random call.
+            cursor = cursors[second_pool]
+            if cursor >= len(pools[second_pool]):
+                raise ValueError(
+                    "canonical same-team avoidance exhausted its second pool"
+                )
+            cursors[second_pool] = cursor + 1
+            second_club = pools[second_pool][cursor]
+            same_team_skip_count += 1
+
+        selections.append(
+            InternationalFixtureSelection(
+                fixture_id=int(fixture.id),
+                scheduled_week=int(fixture.scheduled_week),
+                scheduled_weekday=int(fixture.scheduled_weekday),
+                competition_id=first_pool,
+                dummy_league_id=second_pool,
+                club_0_id=first_club,
+                club_1_id=second_club,
+            )
         )
 
-    best_score = max(entry.randomized_score for entry in scored)
-    best = tuple(
-        entry for entry in scored if entry.randomized_score == best_score
+    return InternationalFixtureRngReplay(
+        selections=tuple(selections),
+        shuffle_events=tuple(shuffle_events),
+        total_draw_count=total_draw_count,
+        same_team_skip_count=same_team_skip_count,
+        state_after=current_state(),
     )
-    if len(best) != 1:
-        raise ValueError(
-            "top DummyLeague randomized score is tied; legacy >16 sort "
-            "tie behavior must be reproduced before selecting quantity 1"
-        )
-    return best
 
 
 def replay_primary_mode0_ordered_competition_rng(
