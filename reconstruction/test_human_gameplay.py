@@ -37,6 +37,7 @@ class Club:
     index: int
     manager_id: int
     country_id: int = 0
+    competition_id: int = 0
 
 
 @dataclass(frozen=True)
@@ -366,12 +367,14 @@ class HumanGameplayControllerTests(unittest.TestCase):
                 status_controls=ScoutingFilterControls(status_bit_7=True),
                 **common,
             )
-        with self.assertRaisesRegex(ValueError, "loan-list"):
-            controller.search_scouting_players_mapped(
-                panel,
-                status_controls=ScoutingFilterControls(loan_listed=True),
-                **common,
-            )
+        player = controller.state.players[2000]
+        player.loan_listed = True
+        result = controller.search_scouting_players_mapped(
+            panel,
+            status_controls=ScoutingFilterControls(loan_listed=True),
+            **common,
+        )
+        self.assertIn(2000, tuple(int(value.index) for value in result))
 
     def test_human_manager_can_change_training_method_for_own_player_only(self):
         controller = self.build_controller()
