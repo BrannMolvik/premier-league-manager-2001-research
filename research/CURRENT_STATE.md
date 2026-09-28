@@ -407,12 +407,20 @@ Several target systems already have substantial research or backend behavior:
    factory only. Its `0x5D8430` action would consume
    `UnhappyRequestNewContract RNG(2)`, but no ordinary fresh-game producer is
    present, so no fresh runtime decrease is synthesized.
-30. **Active morale dependency:** instruction-close the reachable controlled-club
-   post-match danger-morale path `0x404E25 -> 0x41B580`, including
-   `DangerMoraleLevel`, `ChanceAskForTransfer`, duplicate/status gates and
-   the `EAMPlayerAskTransferListsub` response lifecycle before integrating any
-   new event/RNG behavior. Independently verify whether `UnhappyWonTrophy`
-   has a live consumer or is tuning-only.
+30. **Danger-morale transfer request instruction-closed:** the reachable
+   controlled-club post-match path `0x404E25 -> 0x41B580` requires morale
+   below **15**, consumes shared `RNG(30)` and continues only on result 2,
+   then applies Transfer-listed/Wanted duplicate gates. Success queues
+   `EAMPlayerAskTransferListsub` inside `MPMEAMail` for the next day.
+   Accept reaches `0x41B530 -> 0x420A10`, setting Transfer listed and Wanted;
+   refusal only cleans up the request chain. `UnhappyWonTrophy` is confirmed
+   loader-only/dormant with no executable consumer.
+31. **Active morale implementation task:** integrate that delayed low-morale
+   transfer-request lifecycle into the existing post-match/manager-event runtime
+   with exact roster/RNG order and accept/refuse consequences. Materialize only
+   the proven status-bit-10 state needed by this lifecycle, preserve it through
+   internal save/reload, and add regressions before advancing to another
+   Gate-11 management subsystem.
 
 ## Known live fidelity boundaries
 
