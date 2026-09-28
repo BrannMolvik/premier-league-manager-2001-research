@@ -5265,3 +5265,47 @@ second shuffle -> 0xBD5CC00F
 This independently validates the pre-selector club ordering model. The final twice-shuffled vector begins `25, 738, 783, 262, 812, 2, 397, 819, ...`; reverse `0x61991F` visits begin `118, 750, 510, 1216, 430, 622, 877, 243, ...`.
 
 The first dispatch draw from `0xBD5CC00F` is RNG(10)=3, so club 118 enters deterministic selector `0x61A9A0(club,0)`. Exact next target: translate/replay `0x61A380/0x61A900` sufficiently to obtain that candidate, then continue the mapped `0x417470` eligibility RNG and subsequent clubs.
+
+
+## Gate 11 first exact transfer-list selector replay — 28 September 2026
+
+The first reverse `0x61991F` visit is now closed through its nested positional
+selector.
+
+From the proven post-shuffle state `0xBD5CC00F`, the mandatory dispatch
+`RNG(10)` returns **3** and advances the MSVC CRT state to
+**`0xAB415A96`**, selecting `0x61A9A0(club 118, 0)`.
+
+Club 118 is source-backed **Carlisle Utd** with 20 players and manager 153,
+**Ian Atkins**. The manager's stored formations are default **0**, class-3
+**2**, class-1 **1**. `0x61A380/0x61A900` combines those three formation
+demands against the roster's three preferred-position entries. Role **15
+(Attacking Midfield)** is the only role with positive Carlisle supply and zero
+combined formation demand, so `0x61A900` selects role 15.
+
+The role-15 player vector contains Steve Soley as a primary AM and Stuart
+Whitehead/Lubomir Lapsansky as secondary AMs. Comparator `0x61A520` sorts
+preferred-position slot index ascending before role rating, therefore
+**Steve Soley (player 7748)** is first. Fresh DBRPlayer load explicitly zeros
+runtime `+0xB0/+0xB4`; no pre-maintenance transfer-move path has populated
+that field. Consequently every `0x41EE60 / role-rating` ratio is zero and
+the first role-15 entry remains the selector candidate.
+
+Soley's exact role-15 / best-preferred-role rating is **34**. His source state
+also has flags 0, registered/current club 118, runtime-+0x64 source
+`0xFFFFFFFF`, and a 1 July 1999 join date, giving well above the
+`0x419390 >= 26` residence gate on 4 July 2000. `0x417470` therefore
+reaches its <=50 rating branch. The next `RNG(100)` returns **88**, passes
+the shipped >=25 threshold, and advances the shared CRT state to
+**`0x6A346701`**.
+
+The final `0x403F10 -> 0x4F3330` club predicate also passes on this fresh
+boundary: Carlisle's 20-player roster exceeds its fan-base threshold 16, while
+the embedded fresh club-form counters `+0x0C/+0x0E` are zero and the
+roster lower bound is satisfied. Thus `0x61A9A0` returns Soley and the
+outer loop's `0x420A10` marks player 7748 transfer-listed.
+
+Exact next target: continue from **`0x6A346701`** with reverse visit club 750,
+replay all remaining 893 dispatch/selector paths including transfer-list
+mutations, then continue through loan maintenance before fixed support-staff
+initialization.
