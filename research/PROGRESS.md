@@ -5486,3 +5486,51 @@ Continuing the corrected reverse order from club 862:
   **0x458226E0**.
 
 Exact continuation: reverse visit **club 867** from state **0x458226E0**.
+
+
+## Gate 11 corrected selector replay through club 232 — 28 September 2026
+
+The deterministic replay helper was regression-checked from the canonical
+post-shuffle state through every hand-verified visit 805..166 and reproduced
+all dispatch values, random roster indices, eligibility draws and shared CRT
+states exactly.
+
+A final-gate audit also closes the remaining fresh-loop retry concern:
+`0x4042C0..0x4042CD` passes the club's current roster count as the first
+argument to `0x4F32C0`, which stores it in embedded club-transfer byte +0x08.
+Fresh +0x0C/+0x0E sell counters are zero. Therefore `0x403F10 -> 0x4F3330`
+sees current roster count >= initial roster count - 4 and the zero counters,
+so the final club predicate passes throughout this fresh transfer-list
+population loop. It cannot create an unmodeled random-selector retry.
+
+Continuing from **0x458226E0**:
+
+- **867 FC Valga**: dispatch 1; Juri Pereverzev (15623), best rating 48,
+  RNG(100)=25 passes; state **0x9405EC5A**.
+- **698 Tomori Berat**: dispatch 6; Klodian Arberi (19281), best rating 49,
+  RNG(100)=5 fails; no listing; state **0xCCF96DA4**.
+- **399 Kareda Siauliai**: dispatch 9 -> random selector. First attempt
+  branch RNG(10)=9 selects roster index 12, Irmantas Stumbrys (8799), rating
+  52; RNG(100)=64 passes; state **0xA11011A8**.
+- **68 AS Monaco**: dispatch 1; Marcelo Gallardo (10173), rating 76 passes
+  with no rating RNG; state **0x969F09CB**.
+- **209 Dinamo Zagreb**: dispatch 2; Robert Prosinecki (20345), rating 74
+  passes with no rating RNG; state **0x98446D62**.
+- **234 FC Porto**: dispatch 5; Ljubinko Drulovic (5054), rating 76 passes
+  with no rating RNG; state **0xAC8D5E9D**.
+- **779 Olimpia Balti**: dispatch 9 -> random selector. First attempt branch 3
+  selects roster index 13, Nicolai Reaboi (17061), rating 46; RNG(100)=40
+  passes; state **0x97342071**.
+- **719 Spartak Varna**: dispatch 9 -> random selector. Attempt one branch 8
+  selects roster index 28, Anto Valchanov (18449), rating 59; RNG(100)=29
+  fails. Attempt two branch 1 selects roster index 16, Troian Diankov (15463),
+  rating 57; RNG(100)=55 passes; state **0x03BB2D4E**.
+- **1211 Siena**: dispatch 3; Omar Maffeis (26208), rating 56; RNG(100)=11
+  fails; no listing; state **0x60EBD638**.
+- **232 Benfica**: dispatch 5; - Lúis Carlos (6497), rating 66; RNG(100)=16
+  fails the >=50 threshold; no listing; state **0x2C98D672**.
+
+The corrected reverse-order prefix through the first 20 visits is therefore
+closed. Next dependency: regenerate the remainder of the corrected 895-club
+vector from the literal `0x668DA4` qsort plus the two exact Fisher-Yates
+passes, then resume visit 21 from **0x2C98D672**.
