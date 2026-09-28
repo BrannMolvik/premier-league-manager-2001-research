@@ -5764,3 +5764,44 @@ Exact next dependency: continue the same shared CRT stream from
 **`0x126CF137`** through the loan-maintenance remainder of `0x6194D0`,
 then into `0x425680 -> 0x4D1760` fixed-support-staff initialization. Do not
 attach live Saturday training until that startup quality bridge is complete.
+
+
+## Gate 11 post-transfer loan-list tail mapped — 28 September 2026
+
+Recovery generation 43 resumed from the canonical post-transfer-list boundary
+**0x126CF137** and re-materialized the authorized FM2001 disc archive. The root
+`FOOTBAL.EXE` was re-extracted and SHA-256 reverified as
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3` before
+new disassembly evidence was accepted.
+
+The remainder of `0x6194D0` after `0x61991F` is now bounded as the original
+**loan-list** maintenance system rather than an unspecified transfer tail:
+
+- tuning-loader target `0x821618` is fed by the literal key
+  `MAX_PLAYERS_ON_LOAN_LIST`; its shipped executable default is **200**;
+- the post-loop phase clears the shared candidate count and scans clubs/players;
+- the user-controlled-club path reaches a bounded `RNG(200)` gate only for
+  players not already carrying status bit 12 and not currently selected or
+  substitute-active for that club;
+- non-user eligible clubs call `0x618F80`, whose candidate append path requires
+  player status **bit 12** before reaching its later eligibility checks;
+- after sorting, the same club-vector machinery is handed to `0x619EB0`, which
+  uses the separate `MAX_LOANS_PER_WEEK` limit and `0x61ABF0 -> 0x41AAE0`
+  loan-selection/execution path;
+- the later reverse-club population loop stops when the shared loan-list count
+  reaches `MAX_PLAYERS_ON_LOAN_LIST`; successful selectors set player status
+  **bit 12 (0x1000)** and increment club `+0x1A8`.
+
+Fresh source state also resolves the first candidate scan enough to advance the
+RNG ledger. Fresh players have no status bit 12, no injury/loan state, and the
+pre-match selected/substitute bits tested by `0x417EE0/0x417F00` are clear.
+Therefore Arsenal's 37-player user roster consumes exactly **37 RNG(200)**
+draws from `0x126CF137`. Exactly one draw is below 5: zero-based roster entry
+12, **Matthew Upson (player 1422)**, with draw value 4. The state after those
+37 draws is **0x1AB5D762**. Non-user `0x618F80` scans append no source-fresh
+bit-12 players on this boundary and consume no RNG before their bit-12 gate.
+
+Exact next dependency: replay the two `0x619EB0` loan passes and the final
+reverse-club loan-list population from **0x1AB5D762**, preserving the already
+materialized transfer-list bit-8 mutations, then carry the resulting shared CRT
+state into `0x425680 -> 0x4D1760` fixed-support-staff creation.
