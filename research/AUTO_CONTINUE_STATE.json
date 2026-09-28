@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 11,
-  "active_task": "Continue exact scaled 0x64D540 transfer-list selector replay from canonical reverse visit 41 (club 742 Herfølge) at shared CRT state 0x1EBAE4F5; first make the validated replay helper durable/reproducible, then verify remaining visits before loan maintenance and fixed-staff initialization.",
-  "last_known_main_head": "54009bfc7fdc43a0dddc11491102cf28c59ffcbb",
+  "active_task": "Trace and replay the loan-maintenance remainder of 0x6194D0 from canonical shared CRT state 0x126CF137, then carry the resulting exact state into 0x425680 -> 0x4D1760 fixed-support-staff initialization.",
+  "last_known_main_head": "6985386b9c9840aebf7b9109ac49103e95fed103",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 42,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Generation 42 corrected the modulo RNG bug. Scaled visits 1-40 are now persisted; visit 40 club 620 leaves 0x1EBAE4F5. The rebuilt helper reproduces all 40 old modulo visits/states when only RNG mapping is switched back, strongly validating selector mechanics. A provisional full scaled 894-visit sanity run reaches 0x126CF137, but do not promote it until the helper is durable and later visits are checkpointed.",
+  "note": "Generation 42 fully corrected and locked the fresh transfer-list population replay. tools/replay_gate11_transfer_list.py is byte-identical to the source-backed validated helper. All 894 visits complete, 625 players are listed, and the canonical post-0x61991F state is 0x126CF137. Active dependency is now the remaining loan-maintenance tail of 0x6194D0.",
   "same_chat_fallback_minutes": 30
 }
