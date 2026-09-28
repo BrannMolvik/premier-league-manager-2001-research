@@ -8,7 +8,7 @@ from game_state import GameState
 from human_gameplay import HumanGameplayController
 from match_lineup import AI_FORMATIONS
 from match_schedule import MsvcCrtRng
-from scouting import ScoutingReseedState
+from scouting import ScoutingFilterControls, ScoutingReseedState
 from match_team_setup import TeamTacticalState
 from transfer_decision import SellingClubDecision
 from transfer_negotiation import OrdinaryMoneyResponse
@@ -234,6 +234,76 @@ class HumanGameplayControllerTests(unittest.TestCase):
             target_ids,
         )
         self.assertEqual(len(result), 3)
+
+    def test_mapped_human_scouting_applies_runtime_age_class_value_and_transfer_status(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+
+        target_ids = {2000, 3000, 4000}
+        for player_id in target_ids:
+            player = controller.state.players[player_id]
+            preferred = int(player.positions[0])
+            controller.state.positions[preferred] = SimpleNamespace(lineup_group=0)
+        controller.state.players[2000].surname = "Zulu"
+        controller.state.players[3000].surname = "Alpha"
+        controller.state.players[4000].surname = "Mike"
+        controller.state.players[2000].transfer_listed = True
+        controller.state.players[3000].transfer_listed = False
+        controller.state.players[4000].transfer_listed = True
+
+        panel = ScoutingReseedState(
+            age_low_64d8=18,
+            age_high_64dc=30,
+            value_low_64c8=50.0,
+            value_high_64d0=150.0,
+            class_selector_64c0=1,
+        )
+        result = controller.search_scouting_players_mapped(
+            panel,
+            page_mode=16,
+            valuation_resolver=lambda player: 100.0,
+            team_selector_predicate=lambda player: int(player.index) in target_ids,
+            optional_position_predicate=lambda _player: True,
+            threshold_predicate=lambda _player: True,
+            status_controls=ScoutingFilterControls(transfer_listed=True),
+            sort_mode=0,
+        )
+
+        self.assertEqual(
+            tuple(int(player.index) for player in result),
+            (4000, 2000),
+        )
+
+    def test_mapped_human_scouting_requires_resolvers_for_unmaterialized_statuses(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+        panel = ScoutingReseedState(
+            age_low_64d8=0,
+            age_high_64dc=99,
+            value_low_64c8=0.0,
+            value_high_64d0=1000.0,
+            class_selector_64c0=1,
+        )
+        common = dict(
+            page_mode=16,
+            valuation_resolver=lambda _player: 100.0,
+            team_selector_predicate=lambda _player: True,
+            optional_position_predicate=lambda _player: True,
+            threshold_predicate=lambda _player: True,
+        )
+
+        with self.assertRaisesRegex(ValueError, "status-bit-7"):
+            controller.search_scouting_players_mapped(
+                panel,
+                status_controls=ScoutingFilterControls(status_bit_7=True),
+                **common,
+            )
+        with self.assertRaisesRegex(ValueError, "loan-list"):
+            controller.search_scouting_players_mapped(
+                panel,
+                status_controls=ScoutingFilterControls(loan_listed=True),
+                **common,
+            )
 
     def test_human_manager_can_change_training_method_for_own_player_only(self):
         controller = self.build_controller()
