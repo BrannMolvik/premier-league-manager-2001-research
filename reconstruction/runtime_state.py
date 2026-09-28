@@ -375,6 +375,16 @@ class RuntimePlayer:
             raise ValueError("invalid match performance history state")
         return float(sum(int(v) & 0xFF for v in self.match_performance_history[:count])) / count
 
+    def latest_match_performance(self) -> int:
+        """Mirror DBRPlayer::0x41FA20's most recently written rating."""
+        count = int(self.match_performance_history_count)
+        if count <= 0:
+            return 0
+        if count > 6 or len(self.match_performance_history) != 6:
+            raise ValueError("invalid match performance history state")
+        index = (int(self.match_performance_history_write_index) - 1) % 6
+        return int(self.match_performance_history[index]) & 0xFF
+
     def assign_match_position(self, role: int, auxiliary_code: int) -> None:
         """Mirror the low-bit writes of 0x4EA330 / 0x4EA350."""
         role = int(role)
