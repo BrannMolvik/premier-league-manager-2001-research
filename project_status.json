@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "1ed6cedb46c5e70345a6ceef69c0a02d017ee895",
-  "last_verified_reconstruction_ci_head": "efe8a3039536cda6e7470d0237262d859c6cad03",
-  "last_verified_test_count": 559,
-  "asset_policy_validated_head": "efe8a3039536cda6e7470d0237262d859c6cad03",
+  "last_verified_reconstruction_ci_head": "ddab924af5fc336db74dc08d3c154a7334b6b0e0",
+  "last_verified_test_count": 576,
+  "asset_policy_validated_head": "ddab924af5fc336db74dc08d3c154a7334b6b0e0",
   "asset_policy_status": "passed",
-  "active_task": "Trace mandatory shared-RNG consumers after fixed-support-staff initialization at 0x4D1760 from corrected state 0xFA1C595E to the first Saturday 0x4EACE0 training execution; attach live weekly training only after this interval is exact.",
+  "active_task": "Materialize minimum fresh concession/sponsor timer runtime so the exact shared-RNG interleaving mapped through the third training Saturday can be preserved before enabling recurring multi-week user training by default.",
   "next_gate": 12,
   "next_gate_name": "Other competitions",
   "blocked": false,
@@ -219,5 +219,17 @@
     23,
     28,
     18
-  ]
+  ],
+  "gate11_calendar_training_opt_in": true,
+  "gate11_calendar_training_checkpoint": "ddab924af5fc336db74dc08d3c154a7334b6b0e0",
+  "gate11_calendar_training_ci_failures": [
+    "secondary root order assertion",
+    "secondary bucket count 262 vs 280"
+  ],
+  "gate11_pre_first_training_state": "0x216C6081",
+  "gate11_first_weekly_post_state": "0xF68CAFEF",
+  "gate11_second_weekly_pre_state": "0xF20D31B6",
+  "gate11_second_weekly_post_state": "0x5A93BA3C",
+  "gate11_third_weekly_pre_state": "0x7315D62D",
+  "gate11_third_weekly_post_state": "0xB890CD3B"
 }
