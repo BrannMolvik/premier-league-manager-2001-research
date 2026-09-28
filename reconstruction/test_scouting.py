@@ -9,7 +9,10 @@ from scouting import (
     ScoutingReseedState,
     ScoutingSortValues,
     ScoutingRankValues,
+    ScoutingFilterControls,
+    ScoutingFilterValues,
     scouting_rank_score,
+    scouting_first_stage_passes,
     scouting_result_compare,
     sort_scouting_results,
     run_scouting_search,
@@ -225,6 +228,194 @@ class ScoutingOrderingTests(unittest.TestCase):
                 sort_mode=0,
                 sort_values=values,
                 secondary_score_mode=16,
+            )
+
+
+    def test_first_stage_numeric_age_value_and_class_gates_are_inclusive(self):
+        panel = ScoutingReseedState(
+            age_low_64d8=18,
+            age_high_64dc=30,
+            value_low_64c8=100.0,
+            value_high_64d0=500.0,
+            class_selector_64c0=2,
+        )
+        base = ScoutingFilterValues(
+            age=18,
+            valuation=100.0,
+            player_class=1,
+        )
+        self.assertTrue(
+            scouting_first_stage_passes(panel, base, page_mode=16)
+        )
+        self.assertTrue(
+            scouting_first_stage_passes(
+                panel,
+                ScoutingFilterValues(age=30, valuation=500.0, player_class=1),
+                page_mode=16,
+            )
+        )
+        self.assertFalse(
+            scouting_first_stage_passes(
+                panel,
+                ScoutingFilterValues(age=17, valuation=100.0, player_class=1),
+                page_mode=16,
+            )
+        )
+        self.assertFalse(
+            scouting_first_stage_passes(
+                panel,
+                ScoutingFilterValues(age=18, valuation=500.01, player_class=1),
+                page_mode=16,
+            )
+        )
+
+    def test_first_stage_special_mode_15_adds_literal_age_15_to_18_clamp(self):
+        panel = ScoutingReseedState(
+            age_low_64d8=10,
+            age_high_64dc=40,
+            value_low_64c8=0.0,
+            value_high_64d0=1000.0,
+            class_selector_64c0=0,
+        )
+        self.assertTrue(
+            scouting_first_stage_passes(
+                panel,
+                ScoutingFilterValues(age=15, valuation=0.0, player_class=3),
+                page_mode=15,
+            )
+        )
+        self.assertTrue(
+            scouting_first_stage_passes(
+                panel,
+                ScoutingFilterValues(age=18, valuation=1000.0, player_class=3),
+                page_mode=15,
+            )
+        )
+        self.assertFalse(
+            scouting_first_stage_passes(
+                panel,
+                ScoutingFilterValues(age=14, valuation=100.0, player_class=3),
+                page_mode=15,
+            )
+        )
+        self.assertFalse(
+            scouting_first_stage_passes(
+                panel,
+                ScoutingFilterValues(age=19, valuation=100.0, player_class=3),
+                page_mode=15,
+            )
+        )
+
+    def test_first_stage_class_selector_mapping_is_3_0_1_2(self):
+        for selector, expected_class in enumerate((3, 0, 1, 2)):
+            panel = ScoutingReseedState(
+                age_low_64d8=0,
+                age_high_64dc=99,
+                value_low_64c8=0.0,
+                value_high_64d0=1000.0,
+                class_selector_64c0=selector,
+            )
+            self.assertTrue(
+                scouting_first_stage_passes(
+                    panel,
+                    ScoutingFilterValues(
+                        age=25,
+                        valuation=100.0,
+                        player_class=expected_class,
+                    ),
+                    page_mode=16,
+                )
+            )
+
+    def test_first_stage_status_controls_or_together_and_loan_requires_extra_gate(self):
+        panel = ScoutingReseedState(
+            age_low_64d8=0,
+            age_high_64dc=99,
+            value_low_64c8=0.0,
+            value_high_64d0=1000.0,
+            class_selector_64c0=1,
+        )
+        neutral = ScoutingFilterValues(age=25, valuation=100.0, player_class=0)
+        self.assertTrue(scouting_first_stage_passes(panel, neutral, page_mode=16))
+
+        transfer_control = ScoutingFilterControls(transfer_listed=True)
+        self.assertFalse(
+            scouting_first_stage_passes(
+                panel, neutral, page_mode=16, status_controls=transfer_control
+            )
+        )
+        self.assertTrue(
+            scouting_first_stage_passes(
+                panel,
+                ScoutingFilterValues(
+                    age=25,
+                    valuation=100.0,
+                    player_class=0,
+                    transfer_listed=True,
+                ),
+                page_mode=16,
+                status_controls=transfer_control,
+            )
+        )
+
+        loan_control = ScoutingFilterControls(loan_listed=True)
+        self.assertFalse(
+            scouting_first_stage_passes(
+                panel,
+                ScoutingFilterValues(
+                    age=25,
+                    valuation=100.0,
+                    player_class=0,
+                    loan_listed=True,
+                    loan_list_user_match=False,
+                ),
+                page_mode=16,
+                status_controls=loan_control,
+            )
+        )
+        self.assertTrue(
+            scouting_first_stage_passes(
+                panel,
+                ScoutingFilterValues(
+                    age=25,
+                    valuation=100.0,
+                    player_class=0,
+                    loan_listed=True,
+                    loan_list_user_match=True,
+                ),
+                page_mode=16,
+                status_controls=loan_control,
+            )
+        )
+
+    def test_first_stage_neutral_gates_fail_independently(self):
+        panel = ScoutingReseedState(
+            age_low_64d8=0,
+            age_high_64dc=99,
+            value_low_64c8=0.0,
+            value_high_64d0=1000.0,
+            class_selector_64c0=1,
+        )
+        for field in (
+            "team_selector_passes",
+            "optional_position_passes",
+            "threshold_passes",
+        ):
+            kwargs = dict(
+                age=25,
+                valuation=100.0,
+                player_class=0,
+                team_selector_passes=True,
+                optional_position_passes=True,
+                threshold_passes=True,
+            )
+            kwargs[field] = False
+            self.assertFalse(
+                scouting_first_stage_passes(
+                    panel,
+                    ScoutingFilterValues(**kwargs),
+                    page_mode=16,
+                )
             )
 
     def test_secondary_scouting_applies_used_and_found_caps_around_shuffle(self):
