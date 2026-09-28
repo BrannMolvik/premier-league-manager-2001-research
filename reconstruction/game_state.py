@@ -6,6 +6,7 @@ from time import time
 from typing import Callable, Iterable
 
 from competition_state import PremierLeagueState
+from contract_maintenance import run_ai_monthly_contract_maintenance
 from commercial_timers import UserCommercialTimerState
 from concession_offer import (
     ConcessionRuntimeSource,
@@ -311,6 +312,7 @@ class GameState:
         state.calendar.daily_hooks.append(state._run_daily_injury_returns)
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
+        state.calendar.monthly_hooks.append(state._run_monthly_ai_contract_maintenance)
         return state
 
     @classmethod
@@ -381,6 +383,42 @@ class GameState:
             int(player.monthly_development_update(on_date))
             for player in self.players.values()
         )
+
+    def _run_monthly_ai_contract_maintenance(self, on_date: date) -> None:
+        """Run the non-user 0x41ABC0 contract pass in club/roster order.
+
+        The executable invokes this immediately after each player's deterministic
+        monthly development. The clean-room calendar currently performs the
+        deterministic development pass first, then this pass; because development
+        consumes no shared CRT RNG, contract RNG order is preserved.
+
+        User-controlled players are deliberately skipped here because their
+        separate 0x41BEE0 expiry/event lifecycle is not this AI routine.
+        """
+        rng = self._resolve_rng()
+        controlled = (
+            None
+            if self.user_controlled_club_id is None
+            else int(self.user_controlled_club_id)
+        )
+
+        for club_id, player_ids in self.club_roster_order.items():
+            club_id = int(club_id)
+            if controlled is not None and club_id == controlled:
+                continue
+
+            roster_ids = tuple(int(player_id) for player_id in player_ids)
+            roster_count = len(roster_ids)
+            for player_id in roster_ids:
+                player = self.players.get(player_id)
+                if player is None:
+                    continue
+                run_ai_monthly_contract_maintenance(
+                    player,
+                    on_date=on_date,
+                    roster_count=roster_count,
+                    rng=rng,
+                )
 
     def configure_user_commercial_calendar(self) -> None:
         """Enable the recovered fresh DBRUser concession/sponsor wait state."""
