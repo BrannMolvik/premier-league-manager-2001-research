@@ -114,6 +114,7 @@ class ContractMaintenanceTests(unittest.TestCase):
         )
         player.out_of_contract = True
         player.signed_for_other_club = True
+        player.contract_renewal_suggestion_pending = True
         rng = ScriptedRng([8, 0])
 
         outcome = run_ai_monthly_contract_maintenance(
@@ -128,6 +129,7 @@ class ContractMaintenanceTests(unittest.TestCase):
         self.assertEqual(player.contract_expiry_date, date(2001, 7, 21))
         self.assertFalse(player.out_of_contract)
         self.assertFalse(player.signed_for_other_club)
+        self.assertFalse(player.contract_renewal_suggestion_pending)
 
     def test_high_rating_release_is_decided_by_second_draw(self):
         player = FakePlayer(on_date=self.on_date, high_rating=True)
