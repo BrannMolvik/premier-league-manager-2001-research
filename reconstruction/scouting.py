@@ -302,3 +302,97 @@ def run_scouting_search(
         )
 
     return sort_scouting_results(result, int(sort_mode), sort_values)
+
+
+SCOUTING_SPECIAL_AGE_MODE = 15
+SCOUTING_CLASS_BY_SELECTOR = (3, 0, 1, 2)
+
+
+@dataclass(frozen=True)
+class ScoutingFilterControls:
+    """Checked-state inputs for the three final 0x4AE680 status controls."""
+
+    transfer_listed: bool = False
+    status_bit_7: bool = False
+    loan_listed: bool = False
+
+
+@dataclass(frozen=True)
+class ScoutingFilterValues:
+    """Candidate-specific values consumed by the mapped 0x4AE680 gates."""
+
+    age: int
+    valuation: float
+    player_class: int
+    transfer_listed: bool = False
+    status_bit_7: bool = False
+    loan_listed: bool = False
+    loan_list_user_match: bool = False
+    team_selector_passes: bool = True
+    optional_position_passes: bool = True
+    threshold_passes: bool = True
+
+
+def scouting_first_stage_passes(
+    panel_state: ScoutingReseedState,
+    values: ScoutingFilterValues,
+    *,
+    page_mode: int,
+    status_controls: ScoutingFilterControls = ScoutingFilterControls(),
+) -> bool:
+    """Reproduce the source-backed portion of PScouting2K::0x4AE680.
+
+    Registered/current controlled-club exclusion is performed by the caller
+    because it depends on the active DBRUser. The still-neutral team selector,
+    optional-position list and global threshold gates are represented by exact
+    booleans rather than assigned unsupported UI labels.
+    """
+
+    if not bool(values.team_selector_passes):
+        return False
+
+    age = int(values.age)
+    low_age = int(panel_state.age_low_64d8)
+    high_age = int(panel_state.age_high_64dc)
+    if int(page_mode) == SCOUTING_SPECIAL_AGE_MODE:
+        if age < 15 or age < low_age or age > 18 or age > high_age:
+            return False
+    elif age < low_age or age > high_age:
+        return False
+
+    valuation = float(values.valuation)
+    if valuation < float(panel_state.value_low_64c8):
+        return False
+    if valuation > float(panel_state.value_high_64d0):
+        return False
+
+    selector = int(panel_state.class_selector_64c0)
+    if not 0 <= selector < len(SCOUTING_CLASS_BY_SELECTOR):
+        return False
+    if int(values.player_class) != int(SCOUTING_CLASS_BY_SELECTOR[selector]):
+        return False
+
+    if not bool(values.optional_position_passes):
+        return False
+    if not bool(values.threshold_passes):
+        return False
+
+    controls = status_controls
+    if not (
+        bool(controls.transfer_listed)
+        or bool(controls.status_bit_7)
+        or bool(controls.loan_listed)
+    ):
+        return True
+
+    if bool(controls.transfer_listed) and bool(values.transfer_listed):
+        return True
+    if bool(controls.status_bit_7) and bool(values.status_bit_7):
+        return True
+    if (
+        bool(controls.loan_listed)
+        and bool(values.loan_listed)
+        and bool(values.loan_list_user_match)
+    ):
+        return True
+    return False
