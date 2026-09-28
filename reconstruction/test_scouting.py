@@ -5,6 +5,8 @@ from scouting import (
     MAX_NUM_FOUND,
     MAX_NUM_USED1,
     MAX_NUM_USED2,
+    SCOUT_STRENGTH_MIN_DEFAULT,
+    SCOUTING_STRENGTH_LABELS,
     SCOUT_ONE_AGE_BIAS,
     ScoutingReseedState,
     ScoutingSortValues,
@@ -14,6 +16,7 @@ from scouting import (
     scouting_country_context_passes,
     scouting_loan_list_user_match,
     scouting_preferred_position_passes,
+    scouting_strength_threshold_passes,
     scouting_rank_score,
     scouting_first_stage_passes,
     scouting_result_compare,
@@ -31,6 +34,8 @@ class ScoutingOrderingTests(unittest.TestCase):
         self.assertEqual(MAX_NUM_USED1, 80)
         self.assertEqual(MAX_NUM_USED2, 50)
         self.assertEqual(MAX_NUM_FOUND, 20)
+        self.assertEqual(SCOUT_STRENGTH_MIN_DEFAULT, 20)
+        self.assertEqual(len(SCOUTING_STRENGTH_LABELS), 17)
 
     def test_exact_scouting_seed_xors_neutral_panel_fields(self):
         state = ScoutingReseedState(
@@ -499,6 +504,60 @@ class ScoutingOrderingTests(unittest.TestCase):
                 ),
                 page_mode=16,
                 status_controls=loan_control,
+            )
+        )
+
+    def test_strengths_selector_indexes_current_skills_and_uses_shipped_minimum(self):
+        raw = [0] * 17
+        # raw 170 converts exactly to displayed 20: (30*170 + 128)//255 = 20.
+        raw[0] = 170
+        raw[16] = 169
+
+        self.assertTrue(
+            scouting_strength_threshold_passes(raw, 0, SCOUT_STRENGTH_MIN_DEFAULT)
+        )
+        self.assertTrue(
+            scouting_strength_threshold_passes(raw, 1, SCOUT_STRENGTH_MIN_DEFAULT)
+        )
+        self.assertFalse(
+            scouting_strength_threshold_passes(raw, 17, SCOUT_STRENGTH_MIN_DEFAULT)
+        )
+        raw[16] = 170
+        self.assertTrue(
+            scouting_strength_threshold_passes(raw, 17, SCOUT_STRENGTH_MIN_DEFAULT)
+        )
+
+        with self.assertRaisesRegex(ValueError, "0 \\(All\\) or 1..17"):
+            scouting_strength_threshold_passes(raw, 18)
+
+    def test_out_of_contract_status_control_uses_exact_bit7_semantic_branch(self):
+        panel = ScoutingReseedState(
+            age_low_64d8=0,
+            age_high_64dc=99,
+            value_low_64c8=0.0,
+            value_high_64d0=1000.0,
+            class_selector_64c0=1,
+        )
+        control = ScoutingFilterControls(out_of_contract=True)
+        self.assertFalse(
+            scouting_first_stage_passes(
+                panel,
+                ScoutingFilterValues(age=25, valuation=100.0, player_class=0),
+                page_mode=16,
+                status_controls=control,
+            )
+        )
+        self.assertTrue(
+            scouting_first_stage_passes(
+                panel,
+                ScoutingFilterValues(
+                    age=25,
+                    valuation=100.0,
+                    player_class=0,
+                    out_of_contract=True,
+                ),
+                page_mode=16,
+                status_controls=control,
             )
         )
 
