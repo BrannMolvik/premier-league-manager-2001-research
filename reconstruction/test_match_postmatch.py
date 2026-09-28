@@ -324,6 +324,8 @@ class MoraleTransitionTests(unittest.TestCase):
         participants = [
             RuntimePlayer(index=10, morale=14),
             RuntimePlayer(index=11, morale=50),
+            RuntimePlayer(index=12, morale=50),
+            RuntimePlayer(index=13, morale=50),
         ]
         roster = (participants[0],)
         rng = ScriptedRng([99, 2])
