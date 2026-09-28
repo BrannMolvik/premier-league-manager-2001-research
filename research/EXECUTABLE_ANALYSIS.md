@@ -8129,3 +8129,96 @@ Exact next replay boundary: finish the fresh `0x61CA60 -> 0x61C6C0 /
 and replay every mandatory daily draw from corrected post-staff state
 `0xFA1C595E` through the first `0x42AE40 -> 0x4EACE0` entry.
 
+
+
+## Gate 11 exact fresh daily RNG bridge to first active training — 28 September 2026
+
+The post-fixed-staff interval identified above is now replayed exactly from
+shared CRT state **`0xFA1C595E`** to the first active Saturday
+`0x4EACE0` entry.
+
+### Fresh commercial timers
+
+The shipped executable defaults read directly from the canonical PE data image
+are:
+
+- `FCConcessionOfferMinWait` = **7**;
+- `FCConcessionOfferMaxWait` = **21**;
+- `FSNoSponsorMinWait` = **7**;
+- `FSNoSponsorMaxWait` = **14**.
+
+Fresh concession state has wait `+0xB48 = 0`, so the first later
+`0x5E5330` update executes `RNG(14)+7`. Starting from
+`0xFA1C595E`, the draw is **4**, producing wait **11** and state
+**`0xA5A88AA9`**.
+
+Fresh sponsor state has no active sponsor and wait `+0x0C = 0`, so
+`0x617C80` selects the no-sponsor bounds and executes `RNG(7)+7`.
+The draw is **6**, producing wait **13** and state
+**`0x73FCE2C8`**.
+
+Both waits exceed the seven daily intervals before the first active weekly
+training update, so neither timer consumes a second draw inside this bridge.
+
+### Fresh daily training-maintenance branch
+
+`0x61C9C0` materializes the controlled Arsenal roster into the 40-record
+training array. The canonical fresh roster has **37 active records**; the
+remaining records retain player ID `0xFFFF` and are skipped by
+`0x61CA60`.
+
+Every fresh Arsenal source player has the relevant initial `+0x14` bits used
+by `0x41B7B0` clear. Therefore after `0x61C580`,
+`0x61C6C0` skips its later 60-percent side branch. Fresh training byte
+`+0x99` is also zero, so the later post-recovery event branch is skipped.
+
+The exact ordinary fresh path is therefore `0x61C580` only. Initial player
+Condition is **80** from `0x417930`. The fresh date sentinel makes
+`0x4EBA70` true, fixing the recovery threshold at **50**. For each active
+record, `0x61C580` performs three iterations:
+
+1. always consume `RNG(100)`;
+2. if the roll is below 50 and Condition is at most 90, increment Condition;
+3. above 90, consume `RNG(10)`; require it to be below
+   `99 - Condition`; if so consume another `RNG(10)` and require that
+   second draw to be at least 5 before incrementing.
+
+The later low-condition event check cannot fire because fresh Condition begins
+at 80 and this path only increases it.
+
+### Seven-day exact replay
+
+The seven daily `0x61CA60` passes before the first active Saturday training
+produce:
+
+```text
+day 1  draws 111  extra  0  gains 52  state 0xC9A8C159  Condition 80..83
+day 2  draws 111  extra  0  gains 54  state 0xF9743E3E  Condition 81..85
+day 3  draws 111  extra  0  gains 50  state 0x5A4D5407  Condition 82..87
+day 4  draws 111  extra  0  gains 64  state 0x4C9DC084  Condition 83..89
+day 5  draws 111  extra  0  gains 54  state 0x0FDA05C5  Condition 84..91
+day 6  draws 126  extra 15  gains 62  state 0x1111C433  Condition 85..92
+day 7  draws 142  extra 31  gains 46  state 0x216C6081  Condition 86..93
+```
+
+The final sum of the 37 Condition bytes is **3342**.
+
+The other calls before the Saturday check do not alter this stream:
+
+- FA transfer-window event constructors `0x56D9A0/0x56DC10/0x56DE00`
+  contain no CRT-random calls;
+- `0x5E5640`, `0x617C40` and `0x5E4190` are RNG-clean;
+- `0x5E4210` can draw only on decoded day-of-month 1, outside this
+  seven-day interval;
+- the DBRUser constructor explicitly initializes the object at `+0x6BC`
+  with `[object+0x1800] = 0`, so `0x61D710` skips its loop;
+- `0x6596D0` is a no-op return.
+
+Therefore the exact shared CRT state **entering the first active
+`0x42AE40 -> 0x61CBA0 -> 0x61C520 -> 0x4EACE0` call is
+`0x216C6081`**.
+
+The data-free regression helper is
+`tools/replay_gate11_training_bridge.py`; it asserts both timer draws, every
+daily draw/state checkpoint, the final Condition sum, and the final pre-training
+CRT state.
