@@ -23,8 +23,9 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Current roadmap status
 
-- **Active gate:** Gate 11 - Broader management systems
-- **Next gate:** Gate 12 - Other competitions
+- **Active gate:** Gate 12 - Other competitions
+- **Next gate:** Gate 13 - Restore original management presentation
+- **Gate 11 completed:** 29 September 2026
 - **Gate 10 completed:** 28 September 2026
 - **Gate 9 completed:** 27 September 2026
 - **Gate 8 completed:** 27 September 2026
@@ -233,6 +234,8 @@ Evidence: `research/GATE10_FINANCES_AND_BOARD.md`.
 
 ## Gate 11 - Broader management systems
 
+**Status: COMPLETE (29 September 2026)**
+
 Goal: complete the core management-game loop.
 
 Targets include:
@@ -248,9 +251,11 @@ Targets include:
 
 Completion criteria:
 
-- [ ] A human manager can complete a Premier League season using the core management systems.
+- [x] A human manager can complete a Premier League season using the core management systems. Verified by the 38-round / 380-fixture regression in `reconstruction/test_gate11_management_season.py`; see `research/GATE11_COMPLETION_AUDIT.md`.
 
 ## Gate 12 - Other competitions
+
+**Status: ACTIVE (29 September 2026)**
 
 Goal: expand outward from the Premier League without losing tested generic competition behavior.
 
