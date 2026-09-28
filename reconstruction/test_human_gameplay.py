@@ -364,8 +364,8 @@ class HumanGameplayControllerTests(unittest.TestCase):
             player = controller.state.players[player_id]
             preferred = int(player.positions[0])
             controller.state.positions[preferred] = SimpleNamespace(lineup_group=0)
-            player.current_raw[0] = 170
-        controller.state.players[4000].current_raw[0] = 169
+            player.current_raw[0] = 166
+        controller.state.players[4000].current_raw[0] = 165
 
         panel = ScoutingReseedState(
             age_low_64d8=0,
