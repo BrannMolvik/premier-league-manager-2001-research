@@ -4996,3 +4996,23 @@ Exact next boundary: replay the 108 source-backed `0x4FA790` international
 fixtures from `0x492DC9DC`, preserving regional sorted-team identities because
 same-team avoidance can alter cursor exhaustion, then perform secondary
 `0x615BE0` bucket shuffling.
+
+
+## Gate 11 secondary schedule RNG tail closed — 28 September 2026
+
+The source-backed 108-row InternationalFixture replay and final mode-1 schedule
+bucket shuffle are now deterministic.
+
+- `0x4FA790` starts from `0x492DC9DC`;
+- it consumes **245** CRT draws in **18** participant-pool shuffles;
+- one same-team avoidance advances a pool cursor without consuming RNG;
+- post-`0x4FA790` state is **`0xCAB0B953`**;
+- the secondary container contains **262 schedule nodes** in **45 non-empty buckets**;
+- final `0x615BE0` therefore consumes **217** Fisher-Yates draws;
+- exact post-secondary state is **`0x61D6DFA2`**.
+
+A clean-room helper/test now locks the final bucket-state transition. The shared
+CRT boundary required for fresh support-staff generation is therefore closed.
+Exact next task: replay the already-recovered 200-person support-staff pool and
+user-assignment draws from `0x61D6DFA2` through the first
+`0x425680 -> 0x4D1760` fixed-staff initialization.
