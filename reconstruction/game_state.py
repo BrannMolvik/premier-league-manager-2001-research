@@ -6,7 +6,13 @@ from time import time
 from typing import Callable, Iterable
 
 from competition_state import PremierLeagueState
-from contract_maintenance import run_ai_monthly_contract_maintenance
+from contract_maintenance import (
+    ContractRenewalSuggestion,
+    ContractRenewalSuggestionKind,
+    ControlledContractMaintenanceOutcome,
+    run_ai_monthly_contract_maintenance,
+    run_controlled_monthly_contract_maintenance,
+)
 from commercial_timers import UserCommercialTimerState
 from concession_offer import (
     ConcessionRuntimeSource,
@@ -121,6 +127,12 @@ class GameState:
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
     premier_league_scheduler_order: dict[int, tuple[int, ...]] = field(default_factory=dict)
     transfers: TransferRuntimeState = field(default_factory=TransferRuntimeState)
+    # Controlled 0x41BEE0 queues MPMEAMail renewal suggestions rather than
+    # auto-renewing the contract. Keep the source event kind/date/player
+    # persistently so save/reload and later Amend Contract UI can resume it.
+    contract_renewal_suggestions: list[ContractRenewalSuggestion] = field(
+        default_factory=list
+    )
     # Original DBRUser owns Balance pointers rather than club-wide finance
     # scalars. The clean-room runtime keys materialized Balance objects by the
     # controlled club they belong to. Fresh controlled-club cash comes from
@@ -312,7 +324,7 @@ class GameState:
         state.calendar.daily_hooks.append(state._run_daily_injury_returns)
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
-        state.calendar.monthly_hooks.append(state._run_monthly_ai_contract_maintenance)
+        state.calendar.monthly_hooks.append(state._run_monthly_contract_maintenance)
         return state
 
     @classmethod
@@ -385,15 +397,10 @@ class GameState:
         )
 
     def _run_monthly_ai_contract_maintenance(self, on_date: date) -> None:
-        """Run the non-user 0x41ABC0 contract pass in club/roster order.
+        """Compatibility helper for the non-user 0x41ABC0 branch only.
 
-        The executable invokes this immediately after each player's deterministic
-        monthly development. The clean-room calendar currently performs the
-        deterministic development pass first, then this pass; because development
-        consumes no shared CRT RNG, contract RNG order is preserved.
-
-        User-controlled players are deliberately skipped here because their
-        separate 0x41BEE0 expiry/event lifecycle is not this AI routine.
+        Normal database-backed calendar progression uses the unified method
+        below so AI and controlled-player RNG calls retain club/roster order.
         """
         rng = self._resolve_rng()
         controlled = (
@@ -403,15 +410,18 @@ class GameState:
         )
 
         for club_id, player_ids in self.club_roster_order.items():
-            club_id = int(club_id)
-            if controlled is not None and club_id == controlled:
-                continue
-
             roster_ids = tuple(int(player_id) for player_id in player_ids)
             roster_count = len(roster_ids)
             for player_id in roster_ids:
                 player = self.players.get(player_id)
                 if player is None:
+                    continue
+                active_club_id = (
+                    int(player.loan_club_id)
+                    if player.loan_club_id is not None
+                    else int(player.club_id)
+                )
+                if controlled is not None and active_club_id == controlled:
                     continue
                 run_ai_monthly_contract_maintenance(
                     player,
@@ -419,6 +429,121 @@ class GameState:
                     roster_count=roster_count,
                     rng=rng,
                 )
+
+    def _controlled_contract_has_suppressing_deal(self, player_id: int) -> bool:
+        """Reproduce 0x422950/0x50E590 plus the positive +0x178 gate.
+
+        The clean-room transfer runtime permits one live DealInProgress per
+        player. Direct executable writer tracing proves +0x178 is incremented
+        when a deal entry is created and decremented when it is removed, so
+        existence of this supported record supplies the positive-count half.
+        """
+        deal = self.transfers.deals.get(int(player_id))
+        return bool(deal is not None and 3 <= int(deal.state) <= 5)
+
+    def _queue_contract_renewal_suggestion(
+        self,
+        player_id: int,
+        on_date: date,
+        outcome: ControlledContractMaintenanceOutcome,
+    ) -> None:
+        if outcome is ControlledContractMaintenanceOutcome.SUGGEST_BOSMAN_RENEWAL:
+            kind = ContractRenewalSuggestionKind.BOSMAN
+        elif outcome is ControlledContractMaintenanceOutcome.SUGGEST_ORDINARY_RENEWAL:
+            kind = ContractRenewalSuggestionKind.ORDINARY
+        else:
+            return
+        self.contract_renewal_suggestions.append(
+            ContractRenewalSuggestion(
+                player_id=int(player_id),
+                queued_on=on_date,
+                kind=kind,
+            )
+        )
+
+    def _purge_contract_mail_for_player(self, player_id: int) -> None:
+        """Materialized subset of 0x5CE460 for renewal-mail records."""
+        player_id = int(player_id)
+        self.contract_renewal_suggestions[:] = [
+            value
+            for value in self.contract_renewal_suggestions
+            if int(value.player_id) != player_id
+        ]
+
+    def _run_monthly_contract_maintenance(self, on_date: date) -> None:
+        """Run 0x41ABC0/0x41BEE0 in exact club/roster RNG order.
+
+        Monthly player development remains the preceding calendar hook. It is
+        deterministic and consumes no shared CRT RNG, so completing that whole
+        pass first does not alter the contract-maintenance RNG sequence.
+
+        Branch ownership follows 0x417360: a loaned player's active/current
+        club controls whether the user or non-user contract path runs.
+        """
+        rng = self._resolve_rng()
+        controlled = (
+            None
+            if self.user_controlled_club_id is None
+            else int(self.user_controlled_club_id)
+        )
+
+        for club_id, player_ids in tuple(self.club_roster_order.items()):
+            club_id = int(club_id)
+            roster_ids = tuple(int(player_id) for player_id in player_ids)
+            roster_count = len(roster_ids)
+
+            for player_id in roster_ids:
+                player = self.players.get(player_id)
+                if player is None:
+                    continue
+
+                active_club_id = (
+                    int(player.loan_club_id)
+                    if player.loan_club_id is not None
+                    else int(player.club_id)
+                )
+                is_controlled = bool(
+                    controlled is not None and active_club_id == controlled
+                )
+
+                if not is_controlled:
+                    run_ai_monthly_contract_maintenance(
+                        player,
+                        on_date=on_date,
+                        roster_count=roster_count,
+                        rng=rng,
+                    )
+                    continue
+
+                in_registered_roster = bool(
+                    int(player.club_id) == club_id
+                    and player_id in self.club_roster_order.get(club_id, ())
+                )
+                outcome = run_controlled_monthly_contract_maintenance(
+                    player,
+                    on_date=on_date,
+                    rng=rng,
+                    in_registered_roster=in_registered_roster,
+                    pending_contract_workflow=(
+                        self._controlled_contract_has_suppressing_deal(player_id)
+                    ),
+                )
+                self._queue_contract_renewal_suggestion(
+                    player_id,
+                    on_date,
+                    outcome,
+                )
+
+                if (
+                    outcome
+                    is ControlledContractMaintenanceOutcome.DETACHED_OUT_OF_CONTRACT
+                ):
+                    roster = self.club_roster_order.get(club_id, [])
+                    if player_id in roster:
+                        roster.remove(player_id)
+                    # 0x41EF00 -> 0x5CE460 removes player-linked queued mail
+                    # before the training-record/roster detachment.
+                    self._purge_contract_mail_for_player(player_id)
 
     def configure_user_commercial_calendar(self) -> None:
         """Enable the recovered fresh DBRUser concession/sponsor wait state."""
