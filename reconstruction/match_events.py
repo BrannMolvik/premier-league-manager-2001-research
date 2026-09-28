@@ -54,8 +54,10 @@ class ChanceRecord:
     source corresponds to calculator record +0x28 for active types 1..4.
     raw_outcome corresponds to +0x24 and is one of 0..5. Values 3..5 are
     presentation variants of the same base results as 0..2.
-    player_side/player_index correspond to the involved player's actual side
-    and side-local index. side_inversion corresponds to +0x20 and changes a
+    player_side/player_index correspond to record +0x08's primary player's
+    actual side and side-local index. secondary_player_side/index correspond to
+    record +0x0C when that source has been instruction-mapped. side_inversion
+    corresponds to +0x20 and changes a
     scored chance into an own-goal attribution for the opposing side.
 
     finish_mode corresponds to calculator record +0x2C:
@@ -70,6 +72,8 @@ class ChanceRecord:
     player_index: int
     side_inversion: bool = False
     finish_mode: FinishMode = FinishMode.HEADED
+    secondary_player_side: int | None = None
+    secondary_player_index: int | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.source, ChanceSource):
@@ -83,6 +87,15 @@ class ChanceRecord:
         object.__setattr__(self, "side_inversion", bool(self.side_inversion))
         if not isinstance(self.finish_mode, FinishMode):
             object.__setattr__(self, "finish_mode", FinishMode(int(self.finish_mode)))
+        if (self.secondary_player_side is None) != (self.secondary_player_index is None):
+            raise ValueError(
+                "secondary player side/index must either both be set or both be None"
+            )
+        if self.secondary_player_side is not None:
+            if int(self.secondary_player_side) not in (0, 1):
+                raise ValueError("secondary_player_side must be 0 or 1")
+            if int(self.secondary_player_index) < 0:
+                raise ValueError("secondary_player_index must be non-negative")
 
     @property
     def outcome(self) -> ChanceOutcome:
