@@ -23,6 +23,7 @@ from internal_save import (
     load_human_gameplay,
     snapshot_human_gameplay,
 )
+from match_postmatch import PlayerTransferRequest
 from match_schedule import MsvcCrtRng
 from test_human_gameplay import Database, coefficient_matrix
 from transfer_state import (
@@ -328,6 +329,7 @@ class InternalSaveTests(unittest.TestCase):
         original = self.build_controller()
         player = original.state.players[1000]
         player.transfer_listed = True
+        player.wanted = True
         player.out_of_contract = True
         player.loan_listed = True
         player.loan_club_id = 2
@@ -341,10 +343,39 @@ class InternalSaveTests(unittest.TestCase):
 
         restored_player = restored.state.players[1000]
         self.assertTrue(restored_player.transfer_listed)
+        self.assertTrue(restored_player.wanted)
         self.assertTrue(restored_player.out_of_contract)
         self.assertTrue(restored_player.loan_listed)
         self.assertEqual(restored_player.loan_club_id, 2)
         self.assertTrue(restored_player.selling_squad_count_excluded)
+
+    def test_low_morale_transfer_request_mail_survives_roundtrip(self):
+        original = self.build_controller()
+        original.state.player_transfer_requests.append(
+            PlayerTransferRequest(
+                player_id=1000,
+                queued_on=date(2000, 7, 1),
+                due_on=date(2000, 7, 2),
+            )
+        )
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.player_transfer_requests,
+            [
+                PlayerTransferRequest(
+                    player_id=1000,
+                    queued_on=date(2000, 7, 1),
+                    due_on=date(2000, 7, 2),
+                )
+            ],
+        )
 
     def test_controlled_contract_state_and_renewal_mail_survive_roundtrip(self):
         original = self.build_controller()
