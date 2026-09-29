@@ -443,6 +443,9 @@ class CupResultRegistry:
     competition_rankings: dict[tuple[int, int], tuple[int, ...]] = field(
         default_factory=dict
     )
+    group_position_rankings: dict[tuple[int, int], tuple[int, ...]] = field(
+        default_factory=dict
+    )
 
     def record_competition_ranking(
         self,
@@ -494,6 +497,36 @@ class CupResultRegistry:
             None,
         )
 
+    def replace_group_position_ranking(
+        self,
+        competition_id: int,
+        position_index: int,
+        club_ids,
+    ) -> tuple[int, ...]:
+        """Publish the globally sorted ClubRef type-3 candidate pool.
+
+        The executable encodes type 3 as instance_count * position + ordinal,
+        then takes that position from every sibling League instance, sorts the
+        cross-group candidates, and selects by ordinal.  The clean descriptor
+        already stores position in selector and ordinal in competition_context.
+        """
+        key = (int(competition_id), int(position_index))
+        ranking = tuple(int(club_id) for club_id in club_ids)
+        if len(ranking) != len(set(ranking)):
+            raise ValueError("group-position ranking contains duplicate clubs")
+        self.group_position_rankings[key] = ranking
+        return ranking
+
+    def clear_group_position_ranking(
+        self,
+        competition_id: int,
+        position_index: int,
+    ) -> tuple[int, ...] | None:
+        return self.group_position_rankings.pop(
+            (int(competition_id), int(position_index)),
+            None,
+        )
+
     def record_match_resolution(
         self,
         result_token: CupResultToken,
@@ -537,18 +570,18 @@ class CupResultRegistry:
         return outcome
 
     def resolve_club_ref(self, ref: CupClubRefDescriptor) -> int | None:
-        """Resolve the instruction-closed type-0/type-1/type-2 subset.
+        """Resolve the instruction-backed type-0/type-1/type-2/type-3 subset.
 
         Type 1 selector 0 returns the match virtual +0x44 result club. Any
         nonzero selector follows 0x513FB0 and returns the opposite side.
 
-        Type 2 references the sorted eligible position array of another
-        competition/runtime context. The selector is its zero-based position.
-        Until that live ranking has been published, resolution remains pending.
+        Type 2 references one runtime competition/context ranking directly.
 
-        Type 3 MiniLeague transfer references and type 4 Scottish scheduling
-        references remain deliberately unsupported here because their distinct
-        resolver semantics have not yet been integrated into live state.
+        Type 3 is different: selector is the same table position taken from
+        every sibling League instance and competition_context is the ordinal
+        into the globally sorted cross-group candidate pool published here.
+
+        Type 4 Scottish scheduling references remain unsupported.
         """
         ref_type = int(ref.type_code)
         if ref_type == 0:
@@ -578,6 +611,18 @@ class CupResultRegistry:
             if ranking is None or selector < 0 or selector >= len(ranking):
                 return None
             return int(ranking[selector])
+
+        if ref_type == 3:
+            if ref.competition_id is None:
+                return None
+            position_index = int(ref.selector)
+            ordinal = int(ref.competition_context)
+            ranking = self.group_position_rankings.get(
+                (int(ref.competition_id), position_index)
+            )
+            if ranking is None or ordinal < 0 or ordinal >= len(ranking):
+                return None
+            return int(ranking[ordinal])
 
         return None
 
