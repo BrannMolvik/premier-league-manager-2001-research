@@ -57,7 +57,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 30
+SAVE_SCHEMA_VERSION = 31
 
 
 def _iso(value: date | None) -> str | None:
@@ -958,6 +958,14 @@ def _snapshot_cup_result_registry(registry: CupResultRegistry) -> dict[str, Any]
             }
             for key, ranking in sorted(registry.competition_rankings.items())
         ],
+        "group_position_rankings": [
+            {
+                "competition_id": int(key[0]),
+                "position_index": int(key[1]),
+                "club_ids": [int(club_id) for club_id in ranking],
+            }
+            for key, ranking in sorted(registry.group_position_rankings.items())
+        ],
     }
 
 
@@ -968,10 +976,12 @@ def _restore_cup_result_registry(value) -> CupResultRegistry:
     if isinstance(value, list):
         outcomes = value
         rankings = ()
+        group_position_rankings = ()
     else:
         value = value or {}
         outcomes = value.get("outcomes", ())
         rankings = value.get("competition_rankings", ())
+        group_position_rankings = value.get("group_position_rankings", ())
 
     for record in outcomes:
         registry.record_knockout_outcome(
@@ -985,6 +995,12 @@ def _restore_cup_result_registry(value) -> CupResultRegistry:
             int(record["competition_id"]),
             tuple(int(club_id) for club_id in record["club_ids"]),
             competition_context=int(record.get("competition_context", 0)),
+        )
+    for record in group_position_rankings:
+        registry.replace_group_position_ranking(
+            int(record["competition_id"]),
+            int(record["position_index"]),
+            tuple(int(club_id) for club_id in record["club_ids"]),
         )
     return registry
 
