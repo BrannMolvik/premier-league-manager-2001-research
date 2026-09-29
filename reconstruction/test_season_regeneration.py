@@ -335,6 +335,7 @@ class AnnualPrimaryRegenerationTests(unittest.TestCase):
             cup_results=registry,
             domestic_cups=domestic,
             european_cups=DomesticCupScheduleState(),
+            qualification_cups=DomesticCupScheduleState(),
         )
 
         snapshot = capture_annual_type3_qualification_snapshot(
@@ -362,6 +363,7 @@ class AnnualPrimaryRegenerationTests(unittest.TestCase):
             cup_results=CupResultRegistry(),
             domestic_cups=DomesticCupScheduleState(),
             european_cups=DomesticCupScheduleState(),
+            qualification_cups=DomesticCupScheduleState(),
         )
 
         with self.assertRaisesRegex(
@@ -405,6 +407,7 @@ class AnnualPrimaryRegenerationTests(unittest.TestCase):
             cup_results=CupResultRegistry(),
             domestic_cups=domestic,
             european_cups=DomesticCupScheduleState(),
+            qualification_cups=DomesticCupScheduleState(),
         )
 
         with self.assertRaisesRegex(
