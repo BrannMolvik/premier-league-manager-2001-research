@@ -29,6 +29,7 @@ from internal_save import (
 )
 from match_postmatch import PlayerTransferRequest
 from procedural_league_state import LiveProceduralLeagueState
+from primary_schedule_shadow import PrimaryScheduleShadowState
 from match_schedule import MsvcCrtRng
 from test_human_gameplay import Database, coefficient_matrix
 from transfer_state import (
@@ -586,9 +587,12 @@ class InternalSaveTests(unittest.TestCase):
             season_year=2000,
             competition_ids=(9, 10),
         )
-        original.state.primary_schedule_shadow.days = {
-            date(2000, 7, 8): (uefa_node,),
-        }
+        original.state.primary_schedule_shadow = (
+            PrimaryScheduleShadowState.from_primary_schedule_buckets(
+                ((uefa_node,),),
+                season_year=2000,
+            )
+        )
 
         group_nodes = (
             StartupScheduleNode(
