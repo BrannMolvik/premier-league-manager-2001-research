@@ -5,8 +5,11 @@ only the source-backed runtime bridge proven by ClubRef::Resolve at 0x4F28E0:
 type-0 refs resolve directly, while type-1 refs resolve a referenced match
 winner (selector 0) or its opposite/loser (selector != 0).
 
-Score, replay and two-leg aggregate production deliberately remain outside this
-module until their CupMatch subclasses are instruction-closed.
+Score production and class-specific replay/second-leg scheduling deliberately
+remain outside this module until their CupMatch subclasses are instruction-closed.
+The shared result virtual itself is modeled here so a completed match snapshot
+can populate the persistent result-token registry without a manually supplied
+winner.
 """
 
 from __future__ import annotations
@@ -115,6 +118,27 @@ class CupResultRegistry:
     """Persistent semantic counterpart of referenced CupMatch result objects."""
 
     outcomes: dict[CupResultToken, CupKnockoutOutcome] = field(default_factory=dict)
+
+    def record_match_resolution(
+        self,
+        result_token: CupResultToken,
+        snapshot: CupMatchResolutionSnapshot,
+    ) -> CupKnockoutOutcome | None:
+        """Record a result only when shared Cup virtual +0x44 resolves a club.
+
+        Drawn/incomplete snapshots remain unresolved and deliberately do not
+        consume the token, allowing a later Replay/SecondLeg object to supply
+        the definitive result for the same pairing.
+        """
+        winner_club_id = snapshot.result_club_id()
+        if winner_club_id is None:
+            return None
+        return self.record_knockout_outcome(
+            result_token,
+            snapshot.participant_0_club_id,
+            snapshot.participant_1_club_id,
+            winner_club_id,
+        )
 
     def record_knockout_outcome(
         self,

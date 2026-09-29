@@ -65,6 +65,60 @@ class CupMatchResolutionTests(unittest.TestCase):
 
 
 class CupResultRegistryTests(unittest.TestCase):
+    def test_match_snapshot_records_definitive_result_without_manual_winner(self):
+        registry = CupResultRegistry()
+        token = ("cup_result", 1, 38, 0)
+        snapshot = CupMatchResolutionSnapshot(10, 20, 2, 0)
+
+        outcome = registry.record_match_resolution(token, snapshot)
+
+        self.assertIsNotNone(outcome)
+        self.assertEqual(outcome.winner_club_id, 10)
+        self.assertEqual(registry.outcomes[token].loser_club_id, 20)
+
+    def test_unresolved_snapshot_leaves_result_token_available(self):
+        registry = CupResultRegistry()
+        token = ("cup_result", 1, 38, 0)
+
+        self.assertIsNone(
+            registry.record_match_resolution(
+                token,
+                CupMatchResolutionSnapshot(10, 20, 1, 1),
+            )
+        )
+        self.assertNotIn(token, registry.outcomes)
+
+        recorded = registry.record_match_resolution(
+            token,
+            CupMatchResolutionSnapshot(
+                20,
+                10,
+                2,
+                0,
+                previous=CupMatchResolutionSnapshot(10, 20, 1, 1),
+            ),
+        )
+        self.assertIsNotNone(recorded)
+        self.assertEqual(recorded.winner_club_id, 20)
+
+    def test_linked_two_leg_snapshot_records_shared_virtual_result(self):
+        registry = CupResultRegistry()
+        token = ("cup_result", 5, 185, 4)
+        first_leg = CupMatchResolutionSnapshot(1, 2, 2, 1)
+        second_leg = CupMatchResolutionSnapshot(
+            2,
+            1,
+            1,
+            0,
+            previous=first_leg,
+        )
+
+        outcome = registry.record_match_resolution(token, second_leg)
+
+        self.assertIsNotNone(outcome)
+        self.assertEqual(outcome.winner_club_id, 2)
+        self.assertEqual(outcome.loser_club_id, 1)
+
     def test_direct_club_ref_resolves_without_result_state(self):
         registry = CupResultRegistry()
         ref = CupClubRefDescriptor(type_code=0, direct_club_id=123)
