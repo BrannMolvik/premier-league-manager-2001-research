@@ -157,19 +157,22 @@ Do not rebuild solved Cup startup RNG/draw behavior.
    values into scheduled Cup nodes; `4eb97457` keeps older synthetic schedule
    stubs compatible. Do not reopen this trace unless new contradictory evidence
    appears.
-3. Reconcile the fixed-League versus Cup source-week convention before claiming
-   a single global PL/Cup bucket-to-date mapping. The concrete contradiction is
-   now narrow: current live PL conversion maps packed round `8/3` to
-   **23 August 2000**, while the source-exact Cup conversion maps League Cup
-   round `7/3` to that same Gregorian day, yet raw `0x615950` primary
-   bucket indices differ by seven. One primary container cannot map both raw
-   indices to the same day. Trace the actual week/day values supplied by fixed
-   builder `0x6173D0` to `0x615950` (including any pre-call adjustment);
-   do not alter the already instruction-closed Cup anchor to make them fit.
-4. Once that fixed-League date argument is instruction-closed, merge due
-   FA Cup / League Cup matches into the shared AI/human calendar path and add
-   deterministic AI-only, human-involved, Replay and TwoLeg save/reload
-   regressions.
+3. The fixed-League date argument is now instruction-closed. `0x4F4500`
+   copies packed DBRRound week unchanged and weekday-1 into `League+0x60`;
+   `0x6173D0` passes the selected 8-byte entry directly to `0x615950`.
+   There is no hidden week decrement. `0x6169F0 -> 0x64CC70` gives the
+   primary container the first Monday on or after July 1 as its anchor.
+   Therefore the older clean-room Premier League helper is seven days early
+   in 2000/01 and must be corrected to the same primary-container convention
+   already used by Cups.
+4. Correct the shared PL date conversion and the canonical Christmas-Day
+   placement boundary before merging execution. With the executable anchor,
+   Christmas 2000 is source `25/1`, not `26/1`. Re-run the canonical
+   primary schedule audit after this correction and refresh any affected
+   bucket digest/order checkpoint before enabling shared PL/Cup matchdays.
+5. Then merge due FA Cup / League Cup matches into the shared AI/human calendar
+   path and add deterministic AI-only, human-involved, Replay and TwoLeg
+   save/reload regressions.
 
 ## Known live fidelity boundaries
 
@@ -179,7 +182,7 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   GameState/save safe. Automatic constructor-policy derivation and actual
   shared human/AI Cup execution remain open. The constructor-policy producer
   is closed; the remaining calendar blocker is the exact fixed-League
-  `0x6173D0 -> 0x615950` date argument.
+  primary-container calendar correction and its Christmas placement audit.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:

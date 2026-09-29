@@ -7275,3 +7275,30 @@ week/day arguments supplied by fixed-League builder `0x6173D0` to
 `0x615950`, including any pre-call week adjustment. The Cup-specific anchor
 is already instruction-closed and must not be changed merely to reconcile the
 older PL helper.
+
+
+## Gate 12 fixed-League date argument closed - 29 September 2026
+
+Using the re-materialized authorized disc image, the canonical root executable
+was reverified at SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+Direct disassembly closed the exact boundary that remained after
+`e3335627`:
+
+- `0x4F4500` stores DBRRound packed week unchanged and weekday-1 into the
+  8-byte `League+0x60` date array;
+- `0x6173D0` pushes the selected `League+0x60` entry directly to
+  `0x615950`;
+- no week decrement or normalization exists at the fixed-League call site;
+- `0x6169F0 -> 0x64CC70` anchors primary mode 0 to the first Monday on or
+  after July 1, which is 3 July 2000 for the shipped season.
+
+This resolves the former PL/Cup source-week contradiction in favor of one
+primary-container convention. The older clean-room PL date helper is seven days
+early for 2000/01. It also means the executable's Christmas-Day exception
+falls on packed `25/1`, not the current clean-room `26/1`.
+
+The next checkpoint must correct those two implementation assumptions and
+rerun the canonical primary schedule reconstruction before shared PL/Cup
+execution is enabled.

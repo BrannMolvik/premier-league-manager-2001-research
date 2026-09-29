@@ -485,3 +485,52 @@ Exact next trace: inspect `0x6173D0` at its `0x615950` call site and prove
 the two date arguments, including any week decrement/normalization performed
 before the call. Preserve the Cup anchor and the verified post-shuffle bucket
 order while this is unresolved.
+
+
+## Fixed-League date argument closure
+
+Recovery generation 63 re-materialized the authorized disc image and verified
+the canonical root `FOOTBAL.EXE` SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+The previously-open fixed-League date transform is now instruction-closed.
+
+At `0x4F4500` (League::AddRound):
+
+- runtime DBRRound byte `+0x18` is copied unchanged into the first dword of
+  the 8-byte `League+0x60` date entry;
+- runtime DBRRound byte `+0x19` is decremented once and stored as the second
+  dword, i.e. source weekday becomes zero-based;
+- no week decrement occurs.
+
+At fixed builder `0x6173D0`:
+
+- the outer round index is multiplied by 8;
+- `League+0x60 + 8*round_index` is pushed directly;
+- `0x4F3B50` selects the schedule container;
+- `0x615950` is called with that exact date-entry pointer.
+
+Therefore a Premier League packed date `8/3` reaches `0x615950` as
+`(8,2)`; the clean-room's older Monday-containing-July-1 convention cannot
+be an executable transformation hidden inside the fixed builder.
+
+The primary container anchor is independently confirmed at
+`0x6169F0 -> 0x64CC70`. Mode 0 passes year code 100 (2000) and constructs
+July 1 before advancing to the next date satisfying the helper's Monday
+alignment. For 2000 this is Monday **3 July 2000**.
+
+Consequences:
+
+- primary-container source `7/3` -> Wednesday **23 August 2000**;
+- primary-container source `7/6` -> Saturday **26 August 2000**;
+- primary-container source `8/3` -> Wednesday **30 August 2000**;
+- the existing Premier League `season_weekday_date` helper is seven days
+  early for the shipped 2000/01 season;
+- the same correction moves the actual 2000 Christmas-Day source pair from
+  the clean-room hard-coded `26/1` to **`25/1`** for the
+  `0x615950` Christmas skip.
+
+Next implementation step: unify the live Premier League date conversion with
+the proven primary-container anchor, correct the Christmas placement constant,
+then rerun the canonical primary schedule audit before enabling shared PL/Cup
+execution.

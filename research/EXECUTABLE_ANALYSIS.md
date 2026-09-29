@@ -9284,3 +9284,47 @@ exists. By comparison, `0x821C28` (DangerMoraleLevel) and `0x821C2C`
 
 Therefore `UnhappyWonTrophy` is dormant/loader-only tuning in this executable
 and must not be given an invented runtime producer.
+
+
+## Fixed League date-entry and primary-anchor closure
+
+**Confirmed 29 September 2026 from canonical FOOTBAL.EXE SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.**
+
+The exact fixed League schedule date path is:
+
+```text
+DBRRound +0x18/+0x19
+    -> 0x4F4500 League::AddRound
+    -> League+0x60 8-byte [week, weekday_zero_based] array
+    -> 0x4F4580 qsort
+    -> 0x6173D0 fixed builder
+    -> direct pointer to selected League+0x60 entry
+    -> 0x615950
+```
+
+At `0x4F4545..0x4F4558`, byte `+0x18` is zero-extended and stored
+unchanged as the week dword; byte `+0x19` is decremented once and stored as
+the zero-based weekday dword.
+
+At `0x617495..0x6174B4`, the builder computes only
+`League+0x60 + 8*outer_round_index`, pushes that pointer, selects the
+container through `0x4F3B50`, and calls `0x615950`. No week adjustment
+occurs.
+
+Primary ScheduleContainer initialization `0x6169F0` calls `0x64CC70`
+with year code 100 for mode 0. The helper constructs July 1 and advances
+forward to its Monday alignment, producing 3 July 2000. Thus the executable
+primary date formula is:
+
+```text
+first Monday on/after July 1
++ 7 * packed_week
++ (packed_weekday - 1)
+```
+
+for both fixed League and Cup schedule nodes in primary mode 0.
+
+This supersedes the clean-room assumption that fixed Premier League fixtures
+use the Monday containing July 1. It also moves the canonical 2000 Christmas
+exception under `0x615950` to packed `25/1`.
