@@ -7439,3 +7439,26 @@ Direct executable tracing in the same slice also confirmed that primary Cup
 matches reach the shared `0x404CE0` morale/Form/danger-morale routine after
 the shared `0x5127A0` incident branch. Preserve that RNG order when wiring
 post-match persistence.
+
+
+## Gate 12 Cup gate-RNG ordering verified - 29 September 2026
+
+Commit `5ad669d5c0569aafa75f3b190c2d71935ccd9c66` fixes a cross-system RNG
+ordering boundary in live domestic-Cup execution.
+
+- `0x513252 -> 0x5DA2F0` is after MatchCalculator and before the
+  class-specific Cup completion virtual.
+- AI and human Cup paths now consume the exact four `RNG(32768)` gate draws
+  before `complete_scheduled_match()`.
+- This prevents Cup decisive-fallback/replay completion RNG from overtaking the
+  gate producer.
+- Regression spies verify the four-draw suffix at the precise Cup-completion
+  entry for both AI and human execution.
+- GitHub Actions ran **741 tests with 2 failures**, both the unchanged known
+  secondary root-order / secondary bucket-count assertions.
+- Repository asset policy passed.
+
+Special Cup revenue posting is still intentionally not guessed. Next: use the
+verified full-primary schedule shadow as an all-or-nothing preflight before
+shared `0x5127A0` incident persistence, then run `0x404CE0` morale/Form
+only when both next-team dates are exact.

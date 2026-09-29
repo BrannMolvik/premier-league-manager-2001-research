@@ -646,3 +646,28 @@ shared match completion
 
 Do not run morale/Form ahead of a pending incident lookup because that would
 consume RNG out of executable order.
+
+
+### Cup gate RNG placement verified
+
+Commit `5ad669d5c0569aafa75f3b190c2d71935ccd9c66` closes the RNG-order
+boundary between MatchCalculator and class-specific Cup completion.
+
+Direct executable evidence already placed `0x513252 -> 0x5DA2F0` after the
+calculator and before the match `+0x3C` completion virtual. This matters for
+knockout matches because the Cup completion path can consume its own decisive
+fallback RNG. The clean-room AI and human Cup paths now consume exactly four
+`RNG(32768)` values in home-seating, visiting-seating, home-terrace,
+visiting-terrace order before invoking `complete_scheduled_match()`.
+
+Regression instrumentation records the RNG suffix at the exact
+`complete_scheduled_match()` entry for both AI and human Cup execution.
+
+GitHub Actions at `5ad669d5` ran **741 reconstruction tests** with only the
+two unchanged secondary-schedule failures. Repository asset policy passed.
+
+This checkpoint deliberately does **not** invent the remaining Cup revenue
+posting semantics. The special both-controlled-clubs posting branch remains a
+separate trace. The next source-backed persistence slice is the all-or-nothing
+full-primary next-match preflight before shared `0x5127A0` incident RNG,
+followed by shared `0x404CE0` morale/Form when both next dates are exact.
