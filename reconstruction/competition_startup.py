@@ -664,6 +664,44 @@ def primary_mode0_root_initialization_order(
     return tuple(ordered)
 
 
+def primary_mode0_root_finalization_order(
+    competitions: Iterable[OrderedCompetitionSource],
+    country_ids_in_source_order: Iterable[int],
+) -> tuple[OrderedCompetitionSource, ...]:
+    """Return 0x616A70 -> 0x411150 primary root finalization order.
+
+    Country runtime objects are visited in source-table order. 0x411150 walks
+    each country's already-qsorted root array forward, while 0x411020 annual/
+    startup initialization walks the same array backward. The per-country
+    finalization order is therefore the exact reverse traversal of
+    primary_mode0_root_initialization_order().
+    """
+    competition_list = tuple(competitions)
+    roots_by_country: dict[int, list[OrderedCompetitionSource]] = {}
+    for competition in competition_list:
+        if competition.parent_competition_id is None:
+            roots_by_country.setdefault(
+                int(competition.country_region_id),
+                [],
+            ).append(competition)
+
+    ordered: list[OrderedCompetitionSource] = []
+    for country_id in country_ids_in_source_order:
+        roots = roots_by_country.get(int(country_id), [])
+        if not roots:
+            continue
+        qsorted = _msvc_qsort_by_key(
+            roots,
+            lambda competition: -int(competition.initialization_order_value),
+        )
+        ordered.extend(
+            competition
+            for competition in qsorted
+            if int(competition.schedule_container_code) not in (2, 3)
+        )
+    return tuple(ordered)
+
+
 def secondary_mode1_root_initialization_order(
     competitions: Iterable[OrderedCompetitionSource],
     country_ids_in_source_order: Iterable[int],
