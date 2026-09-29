@@ -7103,3 +7103,37 @@ Exact next task: implement this now-instruction-closed Cup match lifecycle in
 the clean-room runtime, add deterministic FA Cup replay and League Cup
 two-leg/tied-aggregate progression tests, then use those resolved outcomes as
 the prerequisite for GameState calendar integration.
+
+
+## Gate 12 Cup lifecycle implemented and persistent result state attached - 29 September 2026
+
+Recovery generation 60 reconciled canonical `main` after the stale-session
+handoff. The repository had already advanced beyond the producer-trace
+checkpoint through:
+
+- `e524e306`: clean-room NormalRound Replay and FirstLeg/SecondLeg lifecycle;
+- `aecc94aa`: source-ordered decisive fallback after the SecondLeg away-goal
+  comparison;
+- `fa5af011`: decisive-score naming/tests aligned with executable ordering.
+
+The next integration boundary has now started without rebuilding solved Cup
+startup RNG/draw behavior:
+
+- `6eca6fee` attaches a persistent `CupResultRegistry` to `GameState`;
+- `7f775f7b` advances the modern internal save schema from **22** to **23**
+  and serializes/restores definitive Cup outcomes;
+- `5c5cc1d5` adds a full controller save/reload regression for a Cup result
+  token.
+
+GitHub Actions at `5c5cc1d50ead46fe3a83c9dc35fd8c67498f74e4`
+ran **698 reconstruction tests**. The new Cup save/reload regression passed.
+The only failures remain the two known secondary-schedule assertions:
+`test_secondary_root_order_uses_same_crt_qsort_then_mode_filter` and
+`test_secondary_container_bucket_counts_reach_canonical_staff_seed`.
+Repository asset policy passed.
+
+Exact next task: attach the already-materialized FA Cup/League Cup schedule
+nodes to live GameState state, persist active per-node first-match/first-leg
+state, resolve symbolic participants lazily from the Cup registry, and verify
+date/due-node behavior before merging Cup fixtures into the human/AI matchday
+loop.
