@@ -55,6 +55,7 @@ class PrimaryCupRuntimeMaterialization:
     champions_league_club_id: int | None
     uefa_cup_club_id: int | None
     type2_injected_ref_count: int
+    ranked_source_club_ids: tuple[tuple[int, tuple[int, ...]], ...]
     participant_sha256: str
     pairing_sha256: str
     cup_schedule_nodes: tuple[StartupScheduleNode, ...]
@@ -505,6 +506,10 @@ def materialize_primary_cup_runtime(
         champions_league_club_id=champions_league_club_id,
         uefa_cup_club_id=uefa_cup_club_id,
         type2_injected_ref_count=type2_injected_ref_count,
+        ranked_source_club_ids=tuple(
+            (int(source_id), tuple(int(club_id) for club_id in ranking))
+            for source_id, ranking in sorted(ranked_club_ids_by_source.items())
+        ),
         participant_sha256=participant_digest,
         pairing_sha256=pairing_digest,
         cup_schedule_nodes=cup_schedule_nodes,
