@@ -148,6 +148,14 @@ class HumanGameplayController:
         state.install_premier_league_scheduler_order(
             primary_schedule.premier_league_order
         )
+        startup_rankings = dict(primary_schedule.ranked_source_club_ids)
+        conference_two_ranking = startup_rankings.get(89)
+        if conference_two_ranking is None:
+            raise RuntimeError("canonical Conference 2 ranking was not materialized")
+        state.cup_results.replace_competition_ranking(
+            89,
+            conference_two_ranking,
+        )
         state.install_domestic_cup_primary_schedule(
             primary_schedule.buckets,
             season_year=2000,
