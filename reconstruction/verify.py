@@ -85,6 +85,36 @@ def verify_database(db: FM2001Database) -> None:
             f"{len(db.league_allocation_records)}"
         ),
     )
+    english_league_allocations = tuple(
+        (
+            int(record.id),
+            int(record.competition_a_id),
+            int(record.competition_a_start),
+            int(record.competition_a_end),
+            int(record.competition_b_id),
+            int(record.competition_b_start),
+            int(record.competition_b_end),
+        )
+        for record in db.league_allocation_records
+        if int(record.competition_a_id) in (0, 2, 3, 4, 7)
+    )
+    require(
+        english_league_allocations
+        == (
+            (0, 0, 18, 19, 2, 0, 1),
+            (1, 0, 17, 17, 11, 0, 0),
+            (2, 2, 22, 23, 3, 0, 1),
+            (3, 2, 21, 21, 12, 0, 0),
+            (4, 3, 21, 23, 4, 0, 2),
+            (5, 3, 20, 20, 13, 0, 0),
+            (6, 4, 23, 23, 7, 0, 0),
+            (25, 7, 19, 21, 89, 0, 2),
+        ),
+        (
+            "Canonical English LeagueAllocation slot exchanges changed: "
+            f"{english_league_allocations}"
+        ),
+    )
     allocation_type_counts = Counter(
         int(instruction.instruction_type)
         for instruction in db.cup_allocation_instructions
