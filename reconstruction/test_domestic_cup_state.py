@@ -4,7 +4,7 @@ from datetime import date, timedelta
 from competition_schedule import StartupScheduleNode, direct_club_ref
 from competition_startup import CupClubRefDescriptor
 from cup_progression import CupResultRegistry, complete_cup_match
-from domestic_cup_state import DomesticCupScheduleState
+from domestic_cup_state import DomesticCupScheduleState, EUROPEAN_CUP_IDS
 from primary_schedule import place_primary_schedule_nodes
 
 
@@ -76,6 +76,41 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
         self.assertEqual(len(state.nodes), 1)
         self.assertEqual(state.nodes[0].scheduled_date, date(2000, 11, 18))
         self.assertEqual(state.nodes[0].node_token, ("cup_result", 1, 38, 0))
+
+    def test_explicit_european_filter_materializes_champions_league_only(self):
+        domestic = cup_node(
+            node_kind="cup_match",
+            competition_id=1,
+            round_id=38,
+            pair_index=0,
+            week=0,
+            weekday=6,
+            left=direct_club_ref(10),
+            right=direct_club_ref(20),
+            token=("cup_result", 1, 38, 0),
+        )
+        europe = cup_node(
+            node_kind="cup_match",
+            competition_id=9,
+            round_id=200,
+            pair_index=0,
+            week=0,
+            weekday=6,
+            left=direct_club_ref(30),
+            right=direct_club_ref(40),
+            token=("cup_result", 9, 200, 0),
+        )
+
+        state = DomesticCupScheduleState.from_startup_nodes(
+            (domestic, europe),
+            season_year=2000,
+            competition_ids=EUROPEAN_CUP_IDS,
+        )
+
+        self.assertEqual(
+            tuple(node.node_token for node in state.nodes),
+            (("cup_result", 9, 200, 0),),
+        )
 
     def test_primary_buckets_apply_conflict_displacement_to_cup_date(self):
         blocker = cup_node(
