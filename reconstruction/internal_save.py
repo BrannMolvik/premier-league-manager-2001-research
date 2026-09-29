@@ -19,6 +19,7 @@ from commercial_timers import UserCommercialTimerState
 from concession_offer import ConcessionRuntimeSource
 from competition_state import MatchResult, PremierLeagueState
 from cup_progression import CupResultRegistry
+from domestic_cup_state import DomesticCupScheduleState
 from contract_maintenance import (
     ContractRenewalSuggestion,
     ContractRenewalSuggestionKind,
@@ -54,7 +55,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 23
+SAVE_SCHEMA_VERSION = 24
 
 
 def _iso(value: date | None) -> str | None:
@@ -992,6 +993,7 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
         },
         "premier_league": league_snapshot,
         "cup_results": _snapshot_cup_result_registry(state.cup_results),
+        "domestic_cups": state.domestic_cups.snapshot(),
         "team_tactics": {
             str(int(club_id)): {
                 "play_style": int(value.play_style),
@@ -1213,6 +1215,7 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         players=players,
         premier_league=league,
         cup_results=_restore_cup_result_registry(snapshot.get("cup_results")),
+        domestic_cups=DomesticCupScheduleState.restore(snapshot.get("domestic_cups")),
         monthly_player_updates=int(snapshot["monthly_player_updates"]),
         club_roster_order={
             int(club_id): [int(v) for v in values]
