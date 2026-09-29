@@ -184,6 +184,46 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
             (("cup_result", 1, 38, 1), ("cup_result", 1, 38, 0)),
         )
 
+    def test_competition_winner_uses_unique_completed_final(self):
+        semi = cup_node(
+            node_kind="cup_match",
+            competition_id=11,
+            round_id=218,
+            pair_index=0,
+            week=46,
+            weekday=2,
+            left=direct_club_ref(10),
+            right=direct_club_ref(20),
+            token=("cup_result", 11, 218, 0),
+            round_number=1,
+        )
+        final = cup_node(
+            node_kind="cup_match",
+            competition_id=11,
+            round_id=219,
+            pair_index=0,
+            week=48,
+            weekday=1,
+            left=direct_club_ref(10),
+            right=direct_club_ref(30),
+            token=("cup_result", 11, 219, 0),
+            round_number=2,
+        )
+        state = DomesticCupScheduleState.from_startup_nodes(
+            (semi, final),
+            season_year=2000,
+        )
+        registry = CupResultRegistry()
+        self.assertIsNone(state.competition_winner(11, registry))
+
+        registry.record_knockout_outcome(
+            ("cup_result", 11, 219, 0),
+            10,
+            30,
+            30,
+        )
+        self.assertEqual(state.competition_winner(11, registry), 30)
+
     def test_scheduled_node_preserves_constructor_policy_through_roundtrip(self):
         scheduled = cup_node(
             node_kind="cup_match",
