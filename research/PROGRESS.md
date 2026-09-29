@@ -7203,3 +7203,22 @@ Exact next task: close the remaining NormalRound replay scheduling input at
 `selected_date_anchor[+8]`, map round `+0x28/+0x2C`, and prove conversion
 to the season date before dynamically inserting a replay. Do not replace this
 with an assumed fixed delay or unproven direct use of the packed replay week/day.
+
+
+### 2026-09-29 - Gate 12 dynamic FA Cup replay checkpoint reconciled
+
+- Recovered the exact `0x51392A..0x5139BA` replay-date producer and corrected
+  domestic-Cup primary-container date anchoring to the first Monday on or after
+  1 July.
+- Canonical FA Cup replay-producing rounds use current match-completion day
+  plus 14 days; the packed replay-floor branch is unreachable for those shipped
+  rounds.
+- Implemented reversed linked dynamic `CupMatchReplay` insertion and verified
+  the replay node/match linkage survives controller save/reload.
+- Verified main `a41feea2c51bc40d614c59c606467b59680bc040` in GitHub Actions:
+  707 reconstruction tests ran with only the two unchanged known secondary
+  schedule failures; repository asset-policy workflow passed.
+- Next Gate-12 slice: bind domestic Cup execution to the post-placement,
+  post-shuffle primary schedule so conflict-moved dates and global
+  `0x615C10` head-to-tail ordering are preserved before human/AI matchday
+  execution is enabled.
