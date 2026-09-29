@@ -417,6 +417,47 @@ class Gate12PrimaryMatchdayOrderTests(unittest.TestCase):
         )
 
 
+    def test_gate12_order_tags_european_knockout_without_losing_interleaving(self):
+        european = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=9,
+            competition_context=0,
+            round_id=200,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=7,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(7),
+            participant_1_ref=direct_club_ref(8),
+            node_token=("cup_result", 9, 200, 0),
+        )
+        domestic = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=5,
+            competition_context=0,
+            round_id=187,
+            pair_index=2,
+            schedule_index=None,
+            scheduled_week=7,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(3),
+            participant_1_ref=direct_club_ref(4),
+            node_token=("cup_result", 5, 187, 2),
+        )
+        buckets = [() for _ in range(55)]
+        buckets[54] = (european, domestic)
+
+        self.assertEqual(
+            gate12_primary_matchday_order(buckets, season_year=2000),
+            ((
+                date(2000, 8, 26),
+                (
+                    ("european_cup", ("cup_result", 9, 200, 0)),
+                    ("domestic_cup", ("cup_result", 5, 187, 2)),
+                ),
+            ),),
+        )
+
     def test_gate12_order_preserves_european_group_between_cup_and_pl(self):
         pl = StartupScheduleNode(
             node_kind="fixed_league_match",
