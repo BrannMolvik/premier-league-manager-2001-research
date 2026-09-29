@@ -2010,6 +2010,41 @@ class GameState:
                 self.procedural_leagues[key] = live
         return self.procedural_leagues
 
+    def procedural_league_advancement_places(
+        self,
+        competition_id: int,
+        competition_context: int,
+    ) -> int:
+        """Derive the canonical advancement cut from emitted type-2 ClubRefs.
+
+        MiniLeague startup already materializes later competition-position refs.
+        Their zero-based selectors are the exact positions consumed by later
+        phases, so no separate Champions League policy constant is needed here.
+        Type-3 UEFA-transfer refs are deliberately excluded.
+        """
+        competition_id = int(competition_id)
+        competition_context = int(competition_context)
+        selectors: set[int] = set()
+        for entries in self.primary_schedule_shadow.days.values():
+            for entry in entries:
+                for ref in (entry.participant_0_ref, entry.participant_1_ref):
+                    if (
+                        int(ref.type_code) == 2
+                        and int(ref.competition_id) == competition_id
+                        and int(ref.competition_context) == competition_context
+                    ):
+                        selectors.add(int(ref.selector))
+        if not selectors:
+            return 0
+        maximum = max(selectors)
+        expected = set(range(maximum + 1))
+        if selectors != expected:
+            raise RuntimeError(
+                "non-contiguous competition-position selectors cannot define "
+                "a League advancement boundary"
+            )
+        return maximum + 1
+
     def record_procedural_league_result(
         self,
         node_token: tuple,
