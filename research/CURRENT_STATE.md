@@ -1,6 +1,6 @@
 # Current State
 
-_Last reconciled: 29 September 2026_
+_Last reconciled: 30 September 2026_
 
 This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
@@ -45,14 +45,15 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 code checkpoint:
 
 ```text
-39d8e4ec4bfccea35671ca30c8dfee3505bcf1b9
-Complete qualification snapshot test owners
+e0a69e8e0d65b9549363e90ace8ee6e68fe74e67
+Test qualification Cup primary due routing
 ```
 
-GitHub Actions at that checkpoint ran **817 tests with 2 failures**, exactly
-the unchanged known secondary-schedule assertions; the annual qualification
-Cup/runtime, source-continuity, and state/RNG transaction regressions passed,
-and repository asset policy passed. The European runtime bridge is now covered end-to-end: live child
+GitHub Actions at that checkpoint ran **818 tests with 2 failures**, exactly
+the unchanged known secondary-schedule assertions. Qualification-only Cup
+entries now participate in the autonomous primary due-entry router; annual
+source-continuity and state/RNG transaction regressions also pass, and
+repository asset policy passed. The European runtime bridge is now covered end-to-end: live child
 groups publish type-2 standings and source-backed type-3 cross-group pools,
 Champions League / UEFA Cup knockout nodes execute through the shared CupMatch
 runtime in canonical primary order for AI and human control, and a real
@@ -170,12 +171,18 @@ Do not rebuild solved Cup startup RNG/draw behavior.
    `(1, 5, 9, 10, 19, 23, 33, 91, 98, 101)` in their live domestic,
    European, or qualification-Cup owners through their finals. Their exact
    `(winner, loser)` final pair is now exposed without rebuilding draw logic.
-5. Run the real canonical primary season until every required played-League
-   ranking and Cup final pair is live, capture the complete qualification
-   snapshot, then execute promotion/relegation -> annual materialization ->
-   atomic replacement. Verify the regenerated year-two primary runtime keeps
-   all played annual qualification-source Leagues live. Missing qualification
-   sources must remain an explicit failure, never a shipped historical fallback.
+5. Close the remaining autonomous-season scheduler boundary for dynamically
+   inserted FA Cup replays. The exact replay date and `0x615A60` insertion
+   call are source-backed, but the repository does not yet prove same-day
+   insertion order after the initial primary bucket shuffle. Do not invent
+   append/prepend ordering.
+6. Once replay insertion order is source-closed, run the real canonical primary
+   season until every required played-League ranking and Cup final pair is live,
+   capture the complete qualification snapshot, then execute promotion/relegation
+   -> annual materialization -> atomic replacement. Verify the regenerated
+   year-two primary runtime keeps all played annual qualification-source Leagues
+   live. Missing qualification sources must remain an explicit failure, never a
+   shipped historical fallback.
 
 ## Known live fidelity boundaries
 
@@ -199,10 +206,13 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   timing, primary-root finalization order, and the positional Cup final pair
   are source-backed. Annual primary state replacement is now atomic and
   controller-CRT-owned. All required startup DummyLeague rankings and all ten annual Cup source owners
-  are now wired, and annual regeneration preserves every played qualification
-  League into the following season. The active Gate-12 gap is the **real
-  canonical end-to-end proof**: finish the live primary season, capture the
-  complete qualification snapshot, and execute the atomic year-two rollover.
+  are now wired, qualification-only Cups participate in autonomous primary-day
+  routing, and annual regeneration preserves every played qualification League
+  into the following season. The remaining scheduler blocker is dynamic FA Cup
+  Replay insertion into the post-shuffle primary execution order: replay date
+  and construction are exact, but `0x615A60` same-day insertion order is not
+  yet documented. After that is closed, the active Gate-12 proof is the real
+  canonical full-season qualification snapshot and atomic year-two rollover.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
