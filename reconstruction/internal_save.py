@@ -18,6 +18,7 @@ from typing import Any
 from commercial_timers import UserCommercialTimerState
 from concession_offer import ConcessionRuntimeSource
 from competition_state import MatchResult, PremierLeagueState
+from cup_progression import CupResultRegistry
 from contract_maintenance import (
     ContractRenewalSuggestion,
     ContractRenewalSuggestionKind,
@@ -53,7 +54,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 22
+SAVE_SCHEMA_VERSION = 23
 
 
 def _iso(value: date | None) -> str | None:
@@ -932,6 +933,30 @@ def _restore_youth_state(value) -> YouthTeamState | None:
     )
 
 
+def _snapshot_cup_result_registry(registry: CupResultRegistry) -> list[dict[str, Any]]:
+    return [
+        {
+            "result_token": list(outcome.result_token),
+            "participant_0_club_id": int(outcome.participant_0_club_id),
+            "participant_1_club_id": int(outcome.participant_1_club_id),
+            "winner_club_id": int(outcome.winner_club_id),
+        }
+        for _, outcome in sorted(registry.outcomes.items(), key=lambda item: repr(item[0]))
+    ]
+
+
+def _restore_cup_result_registry(value) -> CupResultRegistry:
+    registry = CupResultRegistry()
+    for record in value or ():
+        registry.record_knockout_outcome(
+            tuple(record["result_token"]),
+            int(record["participant_0_club_id"]),
+            int(record["participant_1_club_id"]),
+            int(record["winner_club_id"]),
+        )
+    return registry
+
+
 def snapshot_game_state(state: GameState) -> dict[str, Any]:
     league = state.premier_league
     league_snapshot = None
@@ -966,6 +991,7 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             for club_id, values in sorted(state.club_roster_order.items())
         },
         "premier_league": league_snapshot,
+        "cup_results": _snapshot_cup_result_registry(state.cup_results),
         "team_tactics": {
             str(int(club_id)): {
                 "play_style": int(value.play_style),
@@ -1186,6 +1212,7 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         calendar=GameCalendar(date.fromisoformat(snapshot["calendar_date"])),
         players=players,
         premier_league=league,
+        cup_results=_restore_cup_result_registry(snapshot.get("cup_results")),
         monthly_player_updates=int(snapshot["monthly_player_updates"]),
         club_roster_order={
             int(club_id): [int(v) for v in values]
