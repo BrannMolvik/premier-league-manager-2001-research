@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Gate 12 annual qualification finalization: prove positional semantics of Cup+0x40/Cup+0x44 written by 0x4F8F80, expose exact live end-of-season qualification snapshot, then atomically replace prior-season GameState competition runtime.",
-  "last_known_main_head": "4d2cf1a5dd37b7d06dd69d7a071c9e43d28ae921",
+  "active_task": "Gate 12 live annual qualification coverage: preserve/publish every required DummyLeague ranking without extra RNG, execute required Cup sources 1/5/9/10/19/23/33/91/98/101 through finals, then run real canonical atomic rollover.",
+  "last_known_main_head": "0eca71feb84da798e41d59202e3badcc707c0dc2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 72,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered from current main 4d2cf1a5. Annual membership transition, primary regeneration primitive, type-3 dependencies and primary-root finalization order are already persisted. Continue only Cup+0x40/+0x44 positional trace and live qualification snapshot wiring.",
+  "note": "Atomic annual GameState replacement and controller match_rng transaction verified at 3e571f6b: 812 tests, only two unchanged secondary-schedule failures, asset policy passed. Continue live qualification source coverage only.",
   "same_chat_fallback_minutes": 30
 }
