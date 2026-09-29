@@ -717,6 +717,110 @@ class InternalSaveTests(unittest.TestCase):
             original.state.european_cups.snapshot(),
         )
 
+    def test_english_divisional_live_set_executes_across_save_reload(self):
+        original = self.build_controller()
+        competition_ids = (2, 3, 4, 7)
+        club_pairs = ((1, 2), (3, 4), (5, 6), (7, 8))
+        first_date = date(2000, 7, 1)
+        second_date = date(2000, 7, 8)
+        first_entries = []
+        second_entries = []
+
+        for competition_id, (home_club_id, away_club_id) in zip(
+            competition_ids,
+            club_pairs,
+        ):
+            original.state.competitions[competition_id] = SimpleNamespace(
+                id=competition_id,
+                substitute_quota=5,
+                max_non_eu_players=10,
+            )
+            first_token = ("league_match", competition_id, 0, 0)
+            second_token = ("league_match", competition_id, 0, 1)
+            nodes = (
+                StartupScheduleNode(
+                    node_kind="league_match",
+                    competition_id=competition_id,
+                    competition_context=0,
+                    round_id=None,
+                    pair_index=0,
+                    schedule_index=0,
+                    scheduled_week=0,
+                    scheduled_weekday=6,
+                    participant_0_ref=direct_club_ref(home_club_id),
+                    participant_1_ref=direct_club_ref(away_club_id),
+                    node_token=first_token,
+                ),
+                StartupScheduleNode(
+                    node_kind="league_match",
+                    competition_id=competition_id,
+                    competition_context=0,
+                    round_id=None,
+                    pair_index=1,
+                    schedule_index=1,
+                    scheduled_week=1,
+                    scheduled_weekday=6,
+                    participant_0_ref=direct_club_ref(away_club_id),
+                    participant_1_ref=direct_club_ref(home_club_id),
+                    node_token=second_token,
+                ),
+            )
+            live = LiveProceduralLeagueState.from_schedule_nodes(
+                nodes,
+                original.state.cup_results.resolve_club_ref,
+            )
+            self.assertIsNotNone(live)
+            original.state.procedural_leagues[(competition_id, 0)] = live
+            original.state.record_procedural_league_result(first_token, 2, 1)
+            first_entries.append(("procedural_league", first_token))
+            second_entries.append(("procedural_league", second_token))
+
+        original.state.primary_matchday_order = {
+            first_date: tuple(first_entries),
+            second_date: tuple(second_entries),
+        }
+        original.state.calendar.current_date = first_date
+
+        reload_database = Database()
+        reload_database.competitions = Database.competitions + tuple(
+            SimpleNamespace(
+                id=competition_id,
+                substitute_quota=5,
+                max_non_eu_players=10,
+            )
+            for competition_id in competition_ids
+        )
+        restored = loads_human_gameplay(
+            reload_database,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        for competition_id in competition_ids:
+            live = restored.state.procedural_leagues[(competition_id, 0)]
+            self.assertEqual(len(live.results), 1)
+            self.assertEqual(sum(row.played for row in live.table()), 2)
+
+        restored.state.calendar.current_date = second_date
+        self.assertEqual(
+            restored.state.primary_entries_due_today(),
+            tuple(second_entries),
+        )
+        outcomes = restored.state.simulate_due_primary_ai_entries(
+            coefficient_matrix(),
+            coefficient_matrix(),
+            restored.match_rng,
+        )
+        self.assertEqual(
+            tuple(entry for entry, _result in outcomes),
+            tuple(second_entries),
+        )
+        for competition_id in competition_ids:
+            live = restored.state.procedural_leagues[(competition_id, 0)]
+            self.assertEqual(len(live.results), 2)
+            self.assertEqual(sum(row.played for row in live.table()), 4)
+
     def test_live_procedural_league_state_survives_roundtrip(self):
         original = self.build_controller()
         node = StartupScheduleNode(
