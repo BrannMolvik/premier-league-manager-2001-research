@@ -7405,3 +7405,37 @@ policy passed.
 The controller no longer needs to coerce Cup identities into integer PL fixture
 IDs. Pending primary matches are tagged as `premier_league` or
 `domestic_cup`, and save schema 27 preserves those identities.
+
+
+## Gate 12 full-primary next-match shadow verified - 29 September 2026
+
+Commit `3291b7e1d27e3617293670ccb547bf3661c1e302` verifies the
+save-persistent semantic shadow needed by the shared `0x615D10` next-team
+match search.
+
+The shadow retains every post-placement/post-shuffle primary schedule node but
+does not execute unrelated competitions. It stores both ClubRefs and derives
+source-backed candidate-club sets:
+
+- type 0 direct refs are exact singleton clubs;
+- type 1 winner/loser refs inherit the possible participants of their referenced
+  Cup match;
+- types 2/3/4 conservatively inherit possible participants from their source
+  competition/context.
+
+The date scan starts strictly after the just-played date, returns an exact next
+date when a participant resolves to the target, and raises
+`PrimaryScheduleResolutionPending` when an earlier unresolved symbolic node
+could still contain that club. It therefore never skips a potentially earlier
+primary-container fixture merely because that competition is not live yet.
+
+Internal save schema is now **28**, and the full-primary shadow survives
+roundtrip.
+
+Verification: **735 tests, 2 failures**, both the unchanged known secondary
+scheduler assertions; repository asset policy passed.
+
+Direct executable tracing in the same slice also confirmed that primary Cup
+matches reach the shared `0x404CE0` morale/Form/danger-morale routine after
+the shared `0x5127A0` incident branch. Preserve that RNG order when wiring
+post-match persistence.

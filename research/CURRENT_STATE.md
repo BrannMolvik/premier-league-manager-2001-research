@@ -41,15 +41,15 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 implementation checkpoint:
 
 ```text
-c7583cfd4079e9bb58b4d93dd8efc5bd3b3282f4
-Regress Cup replay and second-leg reload
+3291b7e1d27e3617293670ccb547bf3661c1e302
+Fix primary shadow scan regressions
 ```
 
-GitHub Actions at that checkpoint ran **730 tests with 2 failures**, exactly
+GitHub Actions at that checkpoint ran **735 tests with 2 failures**, exactly
 the unchanged known secondary-schedule assertions; repository asset policy
-passed. This verifies AI and human domestic-Cup score execution, shared
-PL/Cup matchday interleaving, schema-27 tagged pending state, human mid-matchday
-save/reload, and Replay/SecondLeg post-reload continuation.
+passed. This adds a save-persistent full-primary ScheduleContainer shadow
+(schema **28**) for the shared `0x615D10` next-team-match lookup while
+retaining all previously verified domestic-Cup execution/save behavior.
 
 GitHub Actions at that checkpoint:
 
@@ -188,23 +188,26 @@ Do not rebuild solved Cup startup RNG/draw behavior.
    `0x510300` selects the match's schedule container and `0x615D10` scans
    that container from current schedule day + 1 for the same team before
    suspension refresh.
-9. Do not yet reduce that next-match lookup to PL + domestic Cups globally:
-   the executable searches the whole primary container, including other
-   competitions not yet live in the clean-room. Continue Gate 12 by expanding
-   primary competition coverage or proving a safe bounded subset before
-   enabling Cup discipline/injury suspension dates. Separately trace the
-   shared post-match morale/Form and Cup gate-receipt paths.
+9. The whole-primary lookup representation is now implemented and verified.
+   The full post-shuffle primary schedule is retained as a semantic shadow;
+   direct refs resolve exactly, symbolic type-1/2/3/4 refs carry conservative
+   source-backed candidate-club sets, and the lookup raises rather than skipping
+   an earlier unresolved node that could contain the target club.
+10. Use this exact-or-pending preflight before domestic-Cup incident persistence.
+    Do not partially consume `0x5127A0` RNG if either side's next primary
+    match is still unresolved. Once both next dates are exact, apply the shared
+    card/injury routine, then the now-proven shared `0x404CE0` morale/Form
+    path in executable order.
+11. Continue decoding the Cup/knockout gate-receipt branch separately.
 
 ## Known live fidelity boundaries
 
-- Gate 12: FA Cup/League Cup nodes, outcomes, constructor policy, AI/human
-  scoring, extra time, dynamic Replay, TwoLeg linkage, shared PL/Cup order,
-  tagged controller pending state and schema-27 save/reload are source-backed
-  and verified. Remaining domestic-Cup fidelity work is post-match persistence:
-  shared `0x5127A0` discipline/injury handling is proven, but its exact next
-  match search spans the whole primary schedule container, including
-  competitions not yet integrated. Cup gate receipts and the shared
-  morale/Form path also remain to be closed.
+- Gate 12: FA Cup/League Cup execution and save state are source-backed and
+  verified, and schema **28** now persists a semantic shadow of every shuffled
+  primary-container node needed by `0x615D10`. Shared `0x5127A0`
+  discipline/injury and `0x404CE0` morale/Form are instruction-closed.
+  Remaining integration work is to run those routines only when the shadow can
+  prove both next-match dates, plus finish the Cup gate-receipt branch.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:

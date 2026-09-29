@@ -617,3 +617,32 @@ Therefore the remaining clean-room blocker is not Cup-specific discipline
 rules. It is faithful representation of the **whole primary container** when
 computing the next team fixture. Restricting that lookup to PL + domestic Cups
 would be incomplete for clubs participating in other primary competitions.
+
+
+### Full-primary next-match shadow
+
+`3291b7e1` closes the clean-room representation problem behind
+`0x510300 -> 0x615D10` without prematurely implementing European gameplay.
+
+Canonical startup already reconstructs every one of the 9,346 shuffled primary
+nodes. The live runtime now retains those nodes as a semantic shadow whose
+ClubRefs preserve enough information to answer next-team-match date queries
+exactly when possible.
+
+For unresolved type-1/2/3/4 ClubRefs, the shadow stores conservative
+source-backed candidate-club sets. If an unresolved earlier node could contain
+the target club, lookup reports a pending-resolution boundary instead of
+skipping it. This is the required fidelity guard before applying Cup suspension
+refresh.
+
+The executable post-match ordering is also now clear for primary Cups:
+
+```text
+shared match completion
+  -> 0x5127A0 cards/injuries + next-container-match suspension refresh
+  -> shared later post-match work
+  -> 0x404CE0 morale/Form/danger-morale for both sides
+```
+
+Do not run morale/Form ahead of a pending incident lookup because that would
+consume RNG out of executable order.
