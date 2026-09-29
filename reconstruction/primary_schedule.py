@@ -270,6 +270,7 @@ def gate12_primary_matchday_order(
     premier_league_competition_id: int = 0,
     domestic_cup_ids: tuple[int, ...] = (1, 5, 11, 12, 13),
     european_cup_ids: tuple[int, ...] = (9, 10),
+    qualification_cup_ids: tuple[int, ...] = (19, 23, 33, 91, 98, 101),
     procedural_league_ids: tuple[int, ...] = (14, 167),
 ) -> tuple[tuple[date, tuple[tuple, ...]], ...]:
     """Retain exact shuffled live Gate-12 interleaving by Gregorian date.
@@ -284,6 +285,7 @@ def gate12_primary_matchday_order(
     anchor = season_weekday_date(int(season_year), 0, 1)
     domestic_ids = {int(value) for value in domestic_cup_ids}
     european_ids = {int(value) for value in european_cup_ids}
+    qualification_ids = {int(value) for value in qualification_cup_ids}
     procedural_ids = {int(value) for value in procedural_league_ids}
     league_id = int(premier_league_competition_id)
     result: list[tuple[date, tuple[tuple, ...]]] = []
@@ -313,6 +315,12 @@ def gate12_primary_matchday_order(
                 in ("cup_match", "first_leg_match", "second_leg_match")
             ):
                 entries.append(("european_cup", tuple(node.node_token)))
+            if (
+                int(node.competition_id) in qualification_ids
+                and node.node_kind
+                in ("cup_match", "first_leg_match", "second_leg_match")
+            ):
+                entries.append(("qualification_cup", tuple(node.node_token)))
             if (
                 node.node_kind == "league_match"
                 and int(node.competition_id) in procedural_ids
