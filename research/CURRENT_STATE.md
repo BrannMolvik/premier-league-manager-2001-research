@@ -41,19 +41,21 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 implementation checkpoint:
 
 ```text
-5ad669d5c0569aafa75f3b190c2d71935ccd9c66
-Order Cup gate RNG before completion
+6bfb60055938f3ad4bed5545c6cc100be0cf13bd
+Preflight shared Cup post-match persistence
 ```
 
-GitHub Actions at that checkpoint ran **741 tests with 2 failures**, exactly
+GitHub Actions at that checkpoint ran **745 tests with 2 failures**, exactly
 the unchanged known secondary-schedule assertions; repository asset policy
-passed. The verified Cup path now consumes `0x5DA2F0`'s four 15-bit gate
-draws immediately after MatchCalculator and before the class-specific Cup
-completion virtual, preserving decisive-tie/replay RNG order while special Cup
-revenue posting remains a separate source-closure task.
+passed. The Cup path retains the verified four `0x5DA2F0` draws before
+class-specific completion and now uses the full-primary shadow as an
+all-or-nothing preflight before shared post-match RNG.
 
-The previously verified schema-28 full-primary ScheduleContainer shadow and
-all domestic-Cup execution/save behavior remain intact.
+When both clubs' next primary-container dates are exact, domestic-Cup execution
+runs shared `0x5127A0` incidents first and shared `0x404CE0` morale/Form
+second. If either lookup reaches an unresolved symbolic node, neither
+RNG-consuming branch runs. MatchCalculator Condition sync and RNG-clean home
+pitch wear remain live on both paths.
 
 The active Cup slice now has:
 
@@ -192,11 +194,10 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 10. Gate RNG placement is now verified through `5ad669d5`: both AI and human
     Cup paths consume the four `0x5DA2F0` draws after MatchCalculator and
     before Cup completion, so decisive fallback RNG cannot overtake them.
-11. Use the exact-or-pending full-primary preflight before domestic-Cup incident
-    persistence. Do not partially consume `0x5127A0` RNG if either side's
-    next primary match is still unresolved. Once both next dates are exact,
-    apply the shared card/injury routine, then the proven shared `0x404CE0`
-    morale/Form path in executable order.
+11. The exact-or-pending preflight is now implemented through `6bfb6005`.
+    Exact pairs run shared incidents then morale/Form; pending pairs consume
+    neither branch's RNG. Preserve this guard until broader primary competitions
+    can resolve the remaining symbolic shadow entries.
 12. Continue the special Cup/knockout revenue-posting trace separately; do not
     infer the both-controlled-clubs policy beyond instruction-closed evidence.
 
@@ -206,9 +207,10 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   verified, and schema **28** now persists a semantic shadow of every shuffled
   primary-container node needed by `0x615D10`. Shared `0x5127A0`
   discipline/injury and `0x404CE0` morale/Form are instruction-closed.
-  The four Cup gate RNG draws are now in exact pre-completion order. Remaining
-  integration work is to run shared incident/morale routines only when the
-  shadow can prove both next-match dates, plus finish the special Cup revenue
+  The four Cup gate RNG draws are in exact pre-completion order, and shared
+  incident/morale persistence now runs only after an exact two-club shadow
+  preflight. Pending symbolic primary nodes still defer those RNG-consuming
+  branches. The remaining domestic-Cup-specific gap is the special Cup revenue
   posting branch without guessing its both-controlled-clubs semantics.
 
 

@@ -671,3 +671,37 @@ posting semantics. The special both-controlled-clubs posting branch remains a
 separate trace. The next source-backed persistence slice is the all-or-nothing
 full-primary next-match preflight before shared `0x5127A0` incident RNG,
 followed by shared `0x404CE0` morale/Form when both next dates are exact.
+
+
+### Shared Cup post-match preflight verified
+
+Commit `6bfb60055938f3ad4bed5545c6cc100be0cf13bd` integrates the
+instruction-closed `0x5127A0 -> 0x404CE0` post-match sequence without
+crossing the unresolved full-primary shadow boundary.
+
+The new preflight resolves both clubs' `0x615D10` next-match dates before
+either side enters any incident RNG. If either side hits
+`PrimaryScheduleResolutionPending`, the preflight collapses to one pending
+result and neither incident nor morale/Form persistence runs.
+
+When both dates are exact, the runtime order is:
+
+```text
+MatchCalculator Condition sync
+  -> home 0x5127A0 incidents
+  -> away 0x5127A0 incidents
+  -> RNG-clean home pitch wear
+  -> home 0x404CE0 morale/Form
+  -> away 0x404CE0 morale/Form
+```
+
+This uses the same already-recovered helpers as Premier League matches.
+Condition synchronization and pitch wear remain active even while a symbolic
+shadow dependency defers the RNG-consuming branches.
+
+GitHub Actions at `6bfb6005` ran **745 reconstruction tests** with only the
+two unchanged secondary-schedule failures. Repository asset policy passed.
+
+The special Cup gate-revenue posting branch remains separate and unresolved at
+the business-policy level; do not infer revenue-sharing semantics from the
+special flag alone.

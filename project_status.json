@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate 12: use the verified full-primary shadow as an all-or-nothing preflight before shared Cup 0x5127A0 incident persistence, then run shared 0x404CE0 morale/Form when both next dates are exact; keep special Cup revenue posting as a separate source-closure task.",
+  "current_task": "Gate 12: close the special domestic-Cup gate-revenue posting semantics without guessing the both-controlled-clubs policy; preserve the verified exact-or-pending 0x5127A0/0x404CE0 preflight.",
   "last_verified_reconstruction_failures": 2,
   "last_verified_asset_policy_head": "3291b7e1d27e3617293670ccb547bf3661c1e302",
   "gate11_danger_morale_request_integrated": true,
@@ -296,8 +296,8 @@
   "gate12_cup_result_registry": true,
   "gate12_shared_match_result_virtual": true,
   "gate12_snapshot_registry_bridge": true,
-  "gate12_verified_head": "5ad669d5c0569aafa75f3b190c2d71935ccd9c66",
-  "gate12_verified_test_count": 741,
+  "gate12_verified_head": "6bfb60055938f3ad4bed5545c6cc100be0cf13bd",
+  "gate12_verified_test_count": 745,
   "gate12_known_ci_failures": [
     "secondary root order assertion",
     "secondary bucket count 262 vs 280"
@@ -340,7 +340,7 @@
   "gate12_constructor_policy_inputs_closed": true,
   "gate12_global_pl_cup_calendar_order_closed": true,
   "gate12_fixed_league_schedule_date_argument_closed": true,
-  "gate12_latest_implementation_head": "5ad669d5c0569aafa75f3b190c2d71935ccd9c66",
+  "gate12_latest_implementation_head": "6bfb60055938f3ad4bed5545c6cc100be0cf13bd",
   "gate12_primary_calendar_anchor_corrected": true,
   "gate12_christmas_boundary_corrected": true,
   "gate12_christmas_correction_startup_neutral": true,
@@ -360,5 +360,8 @@
   "gate12_primary_schedule_shadow_verified": true,
   "gate12_shared_morale_form_branch_closed": true,
   "gate12_cup_gate_rng_order_verified": true,
-  "gate12_cup_gate_rng_order_head": "5ad669d5c0569aafa75f3b190c2d71935ccd9c66"
+  "gate12_cup_gate_rng_order_head": "5ad669d5c0569aafa75f3b190c2d71935ccd9c66",
+  "gate12_cup_postmatch_preflight_verified": true,
+  "gate12_cup_postmatch_preflight_head": "6bfb60055938f3ad4bed5545c6cc100be0cf13bd",
+  "gate12_cup_incident_morale_exact_date_guard": true
 }

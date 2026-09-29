@@ -7462,3 +7462,26 @@ Special Cup revenue posting is still intentionally not guessed. Next: use the
 verified full-primary schedule shadow as an all-or-nothing preflight before
 shared `0x5127A0` incident persistence, then run `0x404CE0` morale/Form
 only when both next-team dates are exact.
+
+
+## Gate 12 shared Cup post-match preflight verified - 29 September 2026
+
+Commit `6bfb60055938f3ad4bed5545c6cc100be0cf13bd` adds the safe
+full-primary next-match preflight required before domestic-Cup incident RNG.
+
+- both next-team dates are resolved before either side enters `0x5127A0`;
+- if either side reaches an unresolved symbolic primary node, neither
+  incident nor morale/Form RNG is consumed;
+- when both dates are exact, home/away incidents run first, then home/away
+  `0x404CE0` morale/Form in executable order;
+- MatchCalculator Condition synchronization remains live in both cases;
+- home pitch wear remains live because that branch is RNG-clean;
+- the earlier four `0x5DA2F0` gate draws still precede Cup completion.
+
+GitHub Actions ran **745 tests with 2 failures**, both the unchanged known
+secondary scheduler assertions. Repository asset policy passed.
+
+Next domestic-Cup-specific target: close the special gate-revenue posting
+semantics without guessing the both-controlled-clubs policy. Broader primary
+competition support will later reduce pending shadow lookups and allow the
+shared post-match branch to execute universally.
