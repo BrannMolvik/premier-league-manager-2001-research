@@ -1,9 +1,10 @@
 """Live English domestic-Cup schedule state for Gate 12.
 
 Startup competition materialization already owns Cup allocation, pairing and
-symbolic ClubRef construction. This module only carries the already-materialized
-FA Cup / League Cup schedule nodes into dated live state. It deliberately does
-not recreate draw RNG or invent match-engine completion rules.
+symbolic ClubRef construction. This module carries the already-materialized
+English FA Cup, League Cup, and divisional playoff schedule nodes into dated
+live state. It deliberately does not recreate draw RNG or invent match-engine
+completion rules.
 """
 
 from __future__ import annotations
@@ -24,7 +25,7 @@ from cup_progression import (
 )
 
 
-ENGLISH_DOMESTIC_CUP_IDS = frozenset((1, 5))
+ENGLISH_DOMESTIC_CUP_IDS = frozenset((1, 5, 11, 12, 13))
 EUROPEAN_CUP_IDS = frozenset((9, 10))
 
 
@@ -210,7 +211,7 @@ class DomesticCupScheduledNode:
 
 @dataclass
 class DomesticCupScheduleState:
-    """Persistent schedule identity and completion state for FA/League Cups."""
+    """Persistent schedule identity/completion state for live English Cups."""
 
     nodes: tuple[DomesticCupScheduledNode, ...] = ()
     completed_node_tokens: set[tuple] = field(default_factory=set)
