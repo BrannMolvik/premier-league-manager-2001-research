@@ -601,6 +601,51 @@ class IntegratedGameStateTests(unittest.TestCase):
         self.assertIn(token, state.cup_results.outcomes)
         self.assertIn(0, state.premier_league.results)
 
+    def test_primary_ai_entry_executes_procedural_league_and_records_result(self):
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 8),
+            seed=1,
+            season_year=2000,
+        )
+        state.competitions[14] = SimpleNamespace(
+            id=14,
+            substitute_quota=5,
+            max_non_eu_players=3,
+        )
+        token = ("league_match", 14, 0, 0)
+        node = StartupScheduleNode(
+            node_kind="league_match",
+            competition_id=14,
+            competition_context=0,
+            round_id=None,
+            pair_index=0,
+            schedule_index=0,
+            scheduled_week=0,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=token,
+        )
+        state.install_primary_schedule_shadow(((node,),), season_year=2000)
+        state.primary_matchday_order = {
+            date(2000, 7, 8): (("procedural_league", token),)
+        }
+        state.refresh_european_procedural_leagues()
+
+        result = state.simulate_primary_ai_entry(
+            ("procedural_league", token),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MidpointRng(),
+        )
+
+        live = state.procedural_leagues[(14, 0)]
+        stored = live.results[token]
+        self.assertEqual((stored.home_goals, stored.away_goals), result.score)
+        self.assertEqual(sum(row.played for row in live.table()), 2)
+        self.assertEqual(state.procedural_league_nodes_due_today(), ())
+
     def test_decisive_domestic_cup_human_node_uses_shared_backend(self):
         state = GameState.from_database(
             AutonomousDatabase(),
