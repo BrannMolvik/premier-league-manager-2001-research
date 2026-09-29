@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 from finance_state import BalanceRuntimeState, FinancialObjectiveState
 from competition_schedule import StartupScheduleNode, direct_club_ref
+from domestic_cup_state import DomesticCupScheduleState
 from game_state import GameState
 from human_gameplay import HumanGameplayController
 from match_lineup import AI_FORMATIONS
