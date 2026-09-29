@@ -688,7 +688,7 @@ class IntegratedGameStateTests(unittest.TestCase):
             round_id=None,
             pair_index=0,
             schedule_index=0,
-            scheduled_week=0,
+            scheduled_week=1,
             scheduled_weekday=6,
             participant_0_ref=direct_club_ref(1),
             participant_1_ref=direct_club_ref(2),
