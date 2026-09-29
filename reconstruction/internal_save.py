@@ -1301,6 +1301,10 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         clubs=clubs,
         managers=managers,
         competitions=competitions,
+        round_definitions=tuple(getattr(database, "rounds", ())),
+        cup_allocation_instructions=tuple(
+            getattr(database, "cup_allocation_instructions", ())
+        ),
         league_allocation_records=tuple(
             getattr(database, "league_allocation_records", ())
         ),
