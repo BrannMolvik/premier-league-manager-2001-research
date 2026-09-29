@@ -25,6 +25,7 @@ from cup_progression import (
 
 
 ENGLISH_DOMESTIC_CUP_IDS = frozenset((1, 5))
+EUROPEAN_CUP_IDS = frozenset((9, 10))
 
 
 def domestic_cup_source_date(season_year: int, week: int, weekday: int) -> date:
@@ -108,9 +109,11 @@ class DomesticCupScheduledNode:
         node: StartupScheduleNode,
         *,
         season_year: int,
+        competition_ids: Iterable[int] = ENGLISH_DOMESTIC_CUP_IDS,
     ) -> "DomesticCupScheduledNode":
-        if int(node.competition_id) not in ENGLISH_DOMESTIC_CUP_IDS:
-            raise ValueError("node is not an English domestic Cup match")
+        allowed = {int(value) for value in competition_ids}
+        if int(node.competition_id) not in allowed:
+            raise ValueError("node is outside the requested Cup competitions")
         if node.node_kind not in ("cup_match", "first_leg_match", "second_leg_match"):
             raise ValueError(f"unsupported domestic Cup node kind {node.node_kind}")
         if node.round_id is None:
@@ -219,14 +222,17 @@ class DomesticCupScheduleState:
         nodes: Iterable[StartupScheduleNode],
         *,
         season_year: int,
+        competition_ids: Iterable[int] = ENGLISH_DOMESTIC_CUP_IDS,
     ) -> "DomesticCupScheduleState":
+        allowed = frozenset(int(value) for value in competition_ids)
         materialized = tuple(
             DomesticCupScheduledNode.from_startup_node(
                 node,
                 season_year=int(season_year),
+                competition_ids=allowed,
             )
             for node in nodes
-            if int(node.competition_id) in ENGLISH_DOMESTIC_CUP_IDS
+            if int(node.competition_id) in allowed
             and node.node_kind in ("cup_match", "first_leg_match", "second_leg_match")
         )
         tokens = [node.node_token for node in materialized]
@@ -240,8 +246,9 @@ class DomesticCupScheduleState:
         buckets: Iterable[Iterable[StartupScheduleNode]],
         *,
         season_year: int,
+        competition_ids: Iterable[int] = ENGLISH_DOMESTIC_CUP_IDS,
     ) -> "DomesticCupScheduleState":
-        """Attach domestic Cups after exact 0x615950 placement / 0x615AE0 shuffle.
+        """Attach requested Cups after exact 0x615950 placement / 0x615AE0 shuffle.
 
         The Cup source-date conversion has its own recovered calendar anchor,
         so a primary bucket index must not be treated as a universal Gregorian
@@ -254,11 +261,12 @@ class DomesticCupScheduleState:
         chosen bucket is compared with the pre-exception raw relative day.
         """
 
+        allowed = frozenset(int(value) for value in competition_ids)
         materialized: list[DomesticCupScheduledNode] = []
         for bucket_index, bucket in enumerate(buckets):
             for node in bucket:
                 if (
-                    int(node.competition_id) not in ENGLISH_DOMESTIC_CUP_IDS
+                    int(node.competition_id) not in allowed
                     or node.node_kind
                     not in ("cup_match", "first_leg_match", "second_leg_match")
                 ):
@@ -266,6 +274,7 @@ class DomesticCupScheduleState:
                 live = DomesticCupScheduledNode.from_startup_node(
                     node,
                     season_year=int(season_year),
+                    competition_ids=allowed,
                 )
                 raw_bucket = primary_schedule_source_bucket(
                     int(node.scheduled_week),
