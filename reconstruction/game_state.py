@@ -1727,6 +1727,85 @@ class GameState:
             for fixture_id in ordered_ids
         )
 
+    def simulate_due_primary_ai_entries(
+        self,
+        attack_matrix,
+        defence_matrix,
+        rng=None,
+        *,
+        entry_order: Iterable[tuple] | None = None,
+    ) -> tuple[tuple[tuple, object], ...]:
+        """Simulate today's PL/domestic-Cup entries in one scheduler order.
+
+        This is the Gate-12 counterpart of the PL-only due-fixture walker.
+        Entries come from the post-shuffle primary linked-list order retained
+        by install_primary_matchday_order().
+        """
+        rng = self._resolve_rng(rng)
+        due = self.primary_entries_due_today()
+        if entry_order is None:
+            ordered = due
+        else:
+            ordered = tuple(tuple(entry) for entry in entry_order)
+            if len(ordered) != len(set(ordered)) or set(ordered) != set(due):
+                raise ValueError(
+                    "entry_order must contain each due primary entry exactly once"
+                )
+
+        results: list[tuple[tuple, object]] = []
+        for entry in ordered:
+            kind = entry[0]
+            if kind == "premier_league":
+                result = self.simulate_premier_league_ai_fixture(
+                    int(entry[1]),
+                    attack_matrix,
+                    defence_matrix,
+                    rng,
+                )
+            elif kind == "domestic_cup":
+                result = self.simulate_domestic_cup_ai_node(
+                    tuple(entry[1]),
+                    attack_matrix,
+                    defence_matrix,
+                    rng,
+                )
+            else:
+                raise ValueError(f"unsupported primary match entry {entry!r}")
+            results.append((entry, result))
+        return tuple(results)
+
+    def advance_one_day_with_primary_ai_matches(
+        self,
+        attack_matrix,
+        defence_matrix,
+        rng=None,
+    ) -> tuple[tuple[tuple, object], ...]:
+        """Advance one day and execute PL/Cup matches in shared primary order."""
+        rng = self._resolve_rng(rng)
+        self.calendar.increment_one_day()
+        results = self.simulate_due_primary_ai_entries(
+            attack_matrix,
+            defence_matrix,
+            rng,
+        )
+        if (
+            results
+            and self.premier_league is not None
+            and len(self.premier_league.results) == len(self.premier_league.fixtures)
+        ):
+            self.run_premier_league_financial_objective_season_transition()
+        self.calendar.run_post_fixture_maintenance()
+        self.run_due_transfer_maintenance(
+            user_controlled_club_id=self.user_controlled_club_id,
+        )
+        self.run_weekly_player_payroll()
+        self.run_weekly_ai_transfer_maintenance(
+            rng,
+            user_controlled_club_id=self.user_controlled_club_id,
+        )
+        self.finalize_single_user_sacking_control()
+        return results
+
     def advance_one_day_with_premier_league_ai_fixtures(
         self,
         attack_matrix,

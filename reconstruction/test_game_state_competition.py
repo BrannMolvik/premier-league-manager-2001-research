@@ -306,6 +306,66 @@ class IntegratedGameStateTests(unittest.TestCase):
         self.assertIn(token, state.domestic_cups.completed_node_tokens)
         self.assertIn(token, state.cup_results.outcomes)
 
+    def test_shared_primary_ai_day_interleaves_cup_before_league(self):
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 7),
+            seed=1,
+            season_year=2000,
+        )
+        state.competitions[1] = SimpleNamespace(
+            id=1,
+            substitute_quota=5,
+            max_non_eu_players=10,
+            scheduled_matchday_count=8,
+            initialization_order_value=6,
+        )
+        token = ("cup_result", 1, 43, 2)
+        state.install_domestic_cup_schedule_nodes(
+            (
+                StartupScheduleNode(
+                    node_kind="cup_match",
+                    competition_id=1,
+                    competition_context=0,
+                    round_id=43,
+                    pair_index=2,
+                    schedule_index=None,
+                    scheduled_week=0,
+                    scheduled_weekday=6,
+                    participant_0_ref=direct_club_ref(1),
+                    participant_1_ref=direct_club_ref(2),
+                    node_token=token,
+                    round_number=8,
+                    extra_time_capable=True,
+                    decisive_tiebreak=True,
+                    auxiliary_flag=False,
+                ),
+            ),
+            season_year=2000,
+        )
+        state.primary_matchday_order = {
+            date(2000, 7, 8): (
+                ("domestic_cup", token),
+                ("premier_league", 0),
+            )
+        }
+
+        results = state.advance_one_day_with_primary_ai_matches(
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MidpointRng(),
+        )
+
+        self.assertEqual(
+            tuple(entry for entry, _result in results),
+            (
+                ("domestic_cup", token),
+                ("premier_league", 0),
+            ),
+        )
+        self.assertIn(token, state.cup_results.outcomes)
+        self.assertIn(0, state.premier_league.results)
+
     def test_decisive_domestic_cup_human_node_uses_shared_backend(self):
         state = GameState.from_database(
             AutonomousDatabase(),
