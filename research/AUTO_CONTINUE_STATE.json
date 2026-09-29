@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Gate 12 Europe: verify save/reload and real type-3 cross-competition progression through live Champions League/UEFA Cup knockout execution, preserving canonical primary order and shared CupMatch behavior.",
-  "last_known_main_head": "437c69fa81b41976d5551a3adb3e373e038bd973",
+  "active_task": "Gate 12 English divisions: prove exact competition IDs and primary/secondary container ownership from canonical materializer evidence, then attach the first source-backed divisional set to the verified generic LeagueMatch bridge.",
+  "last_known_main_head": "4d6a715797032c27530ca7257ab28dd4549e9c10",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 68,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered at main 437c69f. European knockout shared CupMatch execution and human primary flow are already verified; continue with save/reload and real type-3 cross-competition progression verification rather than repeating attachment work.",
+  "recovery_generation": 69,
+  "last_recovery_reason": "stale-repository-activity-no-worker-tab",
+  "note": "Recovered at main 4d6a715. Generic primary LeagueMatch bridge is already verified; continue with the English divisional source/container audit and do not repeat solved European or domestic-cup work.",
   "same_chat_fallback_minutes": 30
 }
