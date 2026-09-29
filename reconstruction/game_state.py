@@ -2234,6 +2234,127 @@ class GameState:
         self.club_competition_membership = dict(result.memberships)
         return result
 
+    def install_annual_primary_regeneration(
+        self,
+        regeneration,
+        *,
+        club_competition_membership,
+        procedural_league_ids,
+    ):
+        """Atomically replace prior-season primary competition runtime state.
+
+        The annual materializer has already consumed qualification state and
+        the controller-owned competition/match CRT stream. Construct every new
+        runtime object first; only after all projections validate do we replace
+        the old season's fixtures, results, Cup outcomes, rankings, shadow and
+        execution order.
+        """
+        from domestic_cup_state import (
+            ENGLISH_DOMESTIC_CUP_IDS,
+            EUROPEAN_CUP_IDS,
+        )
+        from primary_schedule import (
+            gate12_primary_matchday_order,
+            premier_league_fixture_order_by_round,
+        )
+
+        season_year = int(regeneration.season_year)
+        buckets = tuple(
+            tuple(bucket) for bucket in regeneration.shuffle.buckets
+        )
+        schedule_nodes = tuple(regeneration.competition.schedule_nodes)
+        allowed_procedural = {
+            int(value)
+            for value in procedural_league_ids
+            if int(value) != 0
+        }
+
+        new_premier = PremierLeagueState.from_procedural_schedule_nodes(
+            schedule_nodes,
+            season_year=season_year,
+            competition_id=0,
+        )
+        new_registry = CupResultRegistry()
+        for source_id, ranking in (
+            regeneration.competition.cup_runtime.ranked_source_club_ids
+        ):
+            new_registry.replace_competition_ranking(
+                int(source_id),
+                tuple(int(club_id) for club_id in ranking),
+                competition_context=0,
+            )
+
+        new_domestic = DomesticCupScheduleState.from_primary_schedule_buckets(
+            buckets,
+            season_year=season_year,
+            competition_ids=ENGLISH_DOMESTIC_CUP_IDS,
+        )
+        new_european = DomesticCupScheduleState.from_primary_schedule_buckets(
+            buckets,
+            season_year=season_year,
+            competition_ids=EUROPEAN_CUP_IDS,
+        )
+        new_shadow = PrimaryScheduleShadowState.from_primary_schedule_buckets(
+            buckets,
+            season_year=season_year,
+        )
+        new_primary_order = dict(
+            gate12_primary_matchday_order(
+                buckets,
+                season_year=season_year,
+                procedural_league_ids=tuple(sorted(allowed_procedural)),
+            )
+        )
+        new_scheduler_order = dict(
+            premier_league_fixture_order_by_round(
+                buckets,
+                competition_id=0,
+            )
+        )
+
+        grouped: dict[tuple[int, int], list[object]] = {}
+        for on_date in sorted(new_shadow.days):
+            for entry in new_shadow.days[on_date]:
+                if (
+                    entry.node_kind == "league_match"
+                    and int(entry.competition_id) in allowed_procedural
+                ):
+                    grouped.setdefault(
+                        (
+                            int(entry.competition_id),
+                            int(entry.competition_context),
+                        ),
+                        [],
+                    ).append(entry)
+
+        new_procedural: dict[
+            tuple[int, int],
+            LiveProceduralLeagueState,
+        ] = {}
+        for key, entries in grouped.items():
+            live = LiveProceduralLeagueState.from_schedule_nodes(
+                entries,
+                new_registry.resolve_club_ref,
+            )
+            if live is not None:
+                new_procedural[key] = live
+
+        # Assignment boundary: nothing above mutates the existing season.
+        self.club_competition_membership = {
+            int(club_id): int(competition_id)
+            for club_id, competition_id in club_competition_membership.items()
+        }
+        self.premier_league = new_premier
+        self.cup_results = new_registry
+        self.domestic_cups = new_domestic
+        self.european_cups = new_european
+        self.procedural_leagues = new_procedural
+        self.primary_schedule_shadow = new_shadow
+        self.primary_matchday_order = new_primary_order
+        self.premier_league_scheduler_order = new_scheduler_order
+        self.prepared_match_environments = {}
+        return regeneration
+
     def refresh_primary_procedural_leagues(
         self,
         competition_ids,
