@@ -77,3 +77,43 @@ type 2.
 
 Only after those position dependencies are live should European knockout nodes
 be attached to the existing shared CupMatch execution/controller path.
+
+
+## Live procedural-League state verified
+
+Commits `17250101` through `867262db` attach Champions League child
+competitions **14** and **167** to live `GameState` without rebuilding their
+already-canonical startup groups or schedule nodes.
+
+The persisted full-primary schedule shadow is reused as the source of each
+`league_match` fixture and symbolic participant reference. A child
+competition/context materializes only when every participant ref can resolve;
+phase 2 therefore remains pending until the required phase-1 type-2 positions
+exist.
+
+Group results update the existing 3/1/0 `LeagueRow` state. Progression
+rankings are published to `CupResultRegistry` only when:
+
+1. every fixture in that group has a result; and
+2. points, goal difference and goals scored uniquely order every club.
+
+The clean-room club-ID display fallback is never published as gameplay truth.
+If a complete group is still tied on all proven keys, any stale ranking is
+withdrawn and the dependent ClubRef remains unresolved.
+
+Internal save schema **30** preserves the live procedural-League
+fixtures/results plus the type-2 ranking registry.
+
+Verification at `867262db`:
+
+- reconstruction suite: **762 tests**, with only the two unchanged known
+  secondary-schedule failures;
+- repository asset policy: **passed**.
+
+## Exact next target
+
+Expose child competition 14/167 `league_match` nodes in the post-shuffle
+primary matchday order and execute due group fixtures through the shared
+MatchCalculator. Record those scores into the verified live procedural-League
+state, preserving schedule order and save/reload. Keep ClubRef type 3 separate
+until its resolver path is source-backed.
