@@ -1,5 +1,5 @@
 import unittest
-from datetime import date
+from datetime import date, timedelta
 
 from competition_schedule import StartupScheduleNode, direct_club_ref
 from competition_startup import CupClubRefDescriptor
@@ -413,6 +413,141 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
             (10, 30),
         )
         self.assertFalse(match.uses_extra_time)
+
+    def test_scheduled_lifecycle_completes_decisive_normal_match(self):
+        token = ("cup_result", 1, 43, 0)
+        scheduled = cup_node(
+            node_kind="cup_match",
+            competition_id=1,
+            round_id=43,
+            pair_index=0,
+            week=38,
+            weekday=6,
+            left=direct_club_ref(10),
+            right=direct_club_ref(20),
+            token=token,
+            extra_time_capable=True,
+            decisive_tiebreak=True,
+        )
+        state = DomesticCupScheduleState.from_startup_nodes(
+            (scheduled,),
+            season_year=2000,
+        )
+        registry = CupResultRegistry()
+        on_date = state.node(token).scheduled_date
+
+        completion = state.complete_scheduled_match(
+            token,
+            registry,
+            2,
+            1,
+            current_date=on_date,
+        )
+
+        self.assertEqual(completion.outcome.winner_club_id, 10)
+        self.assertIn(token, state.completed_node_tokens)
+        self.assertEqual(registry.outcomes[token].winner_club_id, 10)
+
+    def test_scheduled_lifecycle_links_and_completes_two_leg_pair(self):
+        first_token = ("cup_first_leg", 5, 185, 3)
+        result_token = ("cup_result", 5, 185, 3)
+        first = cup_node(
+            node_kind="first_leg_match",
+            competition_id=5,
+            round_id=185,
+            pair_index=3,
+            week=7,
+            weekday=3,
+            left=direct_club_ref(1),
+            right=direct_club_ref(2),
+            token=first_token,
+        )
+        second = cup_node(
+            node_kind="second_leg_match",
+            competition_id=5,
+            round_id=185,
+            pair_index=3,
+            week=9,
+            weekday=3,
+            left=direct_club_ref(2),
+            right=direct_club_ref(1),
+            token=result_token,
+            extra_time_capable=True,
+            decisive_tiebreak=True,
+        )
+        state = DomesticCupScheduleState.from_startup_nodes(
+            (first, second),
+            season_year=2000,
+        )
+        registry = CupResultRegistry()
+
+        first_completion = state.complete_scheduled_match(
+            first_token,
+            registry,
+            1,
+            0,
+            current_date=state.node(first_token).scheduled_date,
+        )
+        self.assertIsNone(first_completion.outcome)
+        self.assertIn(first_token, state.completed_node_tokens)
+        self.assertIsNotNone(state.match_state(result_token))
+
+        second_completion = state.complete_scheduled_match(
+            result_token,
+            registry,
+            0,
+            0,
+            current_date=state.node(result_token).scheduled_date,
+        )
+        self.assertEqual(second_completion.outcome.winner_club_id, 1)
+        self.assertIn(result_token, state.completed_node_tokens)
+        self.assertEqual(registry.outcomes[result_token].winner_club_id, 1)
+
+    def test_scheduled_lifecycle_inserts_and_completes_replay(self):
+        result_token = ("cup_result", 1, 38, 0)
+        scheduled = cup_node(
+            node_kind="cup_match",
+            competition_id=1,
+            round_id=38,
+            pair_index=0,
+            week=19,
+            weekday=6,
+            left=direct_club_ref(10),
+            right=direct_club_ref(20),
+            token=result_token,
+            extra_time_capable=True,
+            decisive_tiebreak=False,
+        )
+        state = DomesticCupScheduleState.from_startup_nodes(
+            (scheduled,),
+            season_year=2000,
+        )
+        registry = CupResultRegistry()
+        first_date = state.node(result_token).scheduled_date
+
+        first_completion = state.complete_scheduled_match(
+            result_token,
+            registry,
+            1,
+            1,
+            current_date=first_date,
+        )
+        self.assertIsNotNone(first_completion.replay)
+        replay_token = ("cup_replay", 1, 38, 0)
+        replay_node = state.node(replay_token)
+        self.assertEqual(replay_node.scheduled_date, first_date + timedelta(days=14))
+        self.assertIn(result_token, state.completed_node_tokens)
+
+        replay_completion = state.complete_scheduled_match(
+            replay_token,
+            registry,
+            2,
+            1,
+            current_date=replay_node.scheduled_date,
+        )
+        self.assertEqual(replay_completion.outcome.winner_club_id, 20)
+        self.assertIn(replay_token, state.completed_node_tokens)
+        self.assertEqual(registry.outcomes[result_token].winner_club_id, 20)
 
     def test_drawn_fa_cup_match_inserts_reversed_replay_fourteen_days_later(self):
         result_token = ("cup_result", 1, 38, 0)

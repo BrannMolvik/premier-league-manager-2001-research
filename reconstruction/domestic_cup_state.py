@@ -20,6 +20,7 @@ from cup_progression import (
     CupMatchCompletion,
     CupMatchRuntimeState,
     CupResultRegistry,
+    complete_cup_match,
 )
 
 
@@ -379,6 +380,89 @@ class DomesticCupScheduleState:
 
     def match_state(self, node_token: tuple) -> CupMatchRuntimeState | None:
         return self.match_states.get(tuple(node_token))
+
+    def materialize_scheduled_match(
+        self,
+        node_token: tuple,
+        registry: CupResultRegistry,
+    ) -> CupMatchRuntimeState:
+        """Materialize one scheduled node from its persisted constructor policy.
+
+        Normal/FirstLeg nodes create their runtime state on first use. TwoLeg
+        construction creates both linked objects when the FirstLeg becomes
+        playable, so SecondLeg and Replay nodes must already have a registered
+        runtime object by the time they become due.
+        """
+        token = tuple(node_token)
+        node = self.node(token)
+        existing = self.match_states.get(token)
+        if existing is not None:
+            return existing
+
+        if node.node_kind == "cup_match":
+            return self.materialize_normal_match(token, registry)
+
+        if node.node_kind == "first_leg_match":
+            first, _second = self.materialize_two_leg_pair(token, registry)
+            return first
+
+        if node.node_kind in ("second_leg_match", "replay_match"):
+            raise ValueError(
+                f"{node.node_kind} requires its previously linked Cup match state"
+            )
+
+        raise ValueError(f"unsupported domestic Cup node kind {node.node_kind}")
+
+    def complete_scheduled_match(
+        self,
+        node_token: tuple,
+        registry: CupResultRegistry,
+        score_0: int,
+        score_1: int,
+        *,
+        current_date: date,
+        rng=None,
+        decisive_event_score_0: int = 0,
+        decisive_event_score_1: int = 0,
+    ) -> CupMatchCompletion:
+        """Complete one due node through the recovered CupMatch lifecycle.
+
+        The caller supplies the match-engine score only. This method owns
+        constructor-policy materialization, FirstLeg/SecondLeg linkage,
+        definitive result-token recording, completion identity, and dynamic
+        FA Cup replay insertion.
+        """
+        token = tuple(node_token)
+        node = self.node(token)
+        if node.scheduled_date != current_date:
+            raise ValueError(
+                f"domestic Cup node {token!r} is not due on {current_date}"
+            )
+        if token in self.completed_node_tokens:
+            raise ValueError("domestic Cup schedule node is already complete")
+        if not self.is_playable(node, registry):
+            raise ValueError("domestic Cup schedule node is not playable")
+
+        match = self.materialize_scheduled_match(token, registry)
+        completion = complete_cup_match(
+            match,
+            registry,
+            int(score_0),
+            int(score_1),
+            rng=rng,
+            decisive_event_score_0=int(decisive_event_score_0),
+            decisive_event_score_1=int(decisive_event_score_1),
+        )
+
+        if completion.replay is not None:
+            self.insert_replay_from_completion(
+                token,
+                completion,
+                current_date=current_date,
+            )
+        else:
+            self.mark_completed(token)
+        return completion
 
     def insert_replay_from_completion(
         self,
