@@ -548,6 +548,43 @@ class InternalSaveTests(unittest.TestCase):
         )
         self.assertEqual(restored.state.cup_results.resolve_club_ref(ref), 804)
 
+    def test_european_cup_schedule_state_survives_roundtrip(self):
+        original = self.build_controller()
+        node = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=9,
+            competition_context=0,
+            round_id=200,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=10,
+            scheduled_weekday=3,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("cup_result", 9, 200, 0),
+            round_number=1,
+            extra_time_capable=True,
+            decisive_tiebreak=True,
+            auxiliary_flag=False,
+        )
+        original.state.european_cups = DomesticCupScheduleState.from_startup_nodes(
+            (node,),
+            season_year=2000,
+            competition_ids=(9, 10),
+        )
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.european_cups.snapshot(),
+            original.state.european_cups.snapshot(),
+        )
+
     def test_live_procedural_league_state_survives_roundtrip(self):
         original = self.build_controller()
         node = StartupScheduleNode(
