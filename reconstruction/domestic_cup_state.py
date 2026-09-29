@@ -27,6 +27,7 @@ from cup_progression import (
 
 ENGLISH_DOMESTIC_CUP_IDS = frozenset((1, 5, 11, 12, 13))
 EUROPEAN_CUP_IDS = frozenset((9, 10))
+ANNUAL_QUALIFICATION_CUP_IDS = frozenset((19, 23, 33, 91, 98, 101))
 
 
 def domestic_cup_source_date(season_year: int, week: int, weekday: int) -> date:
