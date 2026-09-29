@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Gate 12 next-season regeneration: instruction-close annual mode-0 club-slot repopulation and fresh bucket shuffle after verified English membership swaps, then map that exact lifecycle onto clean-room season rebuild.",
-  "last_known_main_head": "e059d7c27b0ae292b4d4e0795adcf7755ceef7de",
+  "active_task": "Gate 12 annual Cup source refresh: trace cross-season Cup qualification/enumeration and DummyLeague refresh semantics before live GameState season replacement.",
+  "last_known_main_head": "07bc80f766b8f8769d5baf8f77ebf63973903383",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 70,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered at main e059d7c. Continue GATE12_NEXT_SEASON_REGENERATION.md exact next trace: 0x41ACA0 club-slot effects, 0x615AE0 annual bucket RNG, DummyLeague timing. Do not reopen verified transition.",
+  "note": "Annual primary regeneration primitive verified at 09a5c269: 797 tests, only two unchanged secondary-schedule failures, asset policy passed. Year-two PL procedural and dynamic Christmas placement are closed. Continue Cup/DummyLeague annual source refresh.",
   "same_chat_fallback_minutes": 30
 }
