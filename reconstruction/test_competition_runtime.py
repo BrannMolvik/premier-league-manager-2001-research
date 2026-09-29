@@ -1,7 +1,10 @@
 import unittest
 from dataclasses import dataclass
 
-from competition_runtime import replay_primary_mode0_complete_competition_rng
+from competition_runtime import (
+    partition_root_procedural_league_ids,
+    replay_primary_mode0_complete_competition_rng,
+)
 from match_schedule import MsvcCrtRng
 
 
@@ -125,6 +128,32 @@ class CompleteCompetitionRuntimeReplayTests(unittest.TestCase):
 
         self.assertEqual(replay.events, ())
         self.assertEqual(replay.total_draw_count, 0)
+
+
+    def test_root_procedural_leagues_partition_by_exact_container_predicate(self):
+        competitions = (
+            Competition(0, 1, schedule_container_code=1, country_region_id=26),
+            Competition(2, 1, schedule_container_code=1, country_region_id=26),
+            Competition(3, 1, schedule_container_code=0, country_region_id=26),
+            Competition(4, 1, schedule_container_code=2, country_region_id=26),
+            Competition(7, 1, schedule_container_code=3, country_region_id=26),
+            Competition(8, 2, schedule_container_code=1, country_region_id=26),
+            Competition(
+                14,
+                1,
+                schedule_container_code=1,
+                parent_competition_id=9,
+                country_region_id=123,
+            ),
+        )
+
+        primary, secondary = partition_root_procedural_league_ids(
+            competitions,
+            country_region_id=26,
+        )
+
+        self.assertEqual(primary, (2, 3))
+        self.assertEqual(secondary, (4, 7))
 
 
 if __name__ == "__main__":
