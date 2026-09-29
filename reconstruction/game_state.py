@@ -2215,6 +2215,107 @@ class GameState:
             )
         return maximum + 1
 
+    def refresh_procedural_league_group_position_rankings(
+        self,
+        competition_id: int,
+    ) -> dict[tuple[int, int], tuple[int, ...]]:
+        """Publish exact numeric portion of ClubRef type-3 cross-group ordering.
+
+        0x4F2992 takes one equal table position from every runtime League
+        instance, qsorts those candidates with 0x4F45E0 and indexes the result
+        by the decoded ordinal.  The final comparator key is the source club
+        name.  Until that byte-string fallback is represented here exactly,
+        an equality across all recovered numeric keys deliberately stays
+        unresolved rather than falling back to clean-room club ID.
+        """
+        competition_id = int(competition_id)
+        selectors: set[int] = set()
+        for entries in self.primary_schedule_shadow.days.values():
+            for entry in entries:
+                for ref in (entry.participant_0_ref, entry.participant_1_ref):
+                    if (
+                        int(ref.type_code) == 3
+                        and ref.competition_id is not None
+                        and int(ref.competition_id) == competition_id
+                    ):
+                        selectors.add(int(ref.selector))
+        if not selectors:
+            return self.cup_results.group_position_rankings
+
+        competition = self.competitions.get(competition_id)
+        instance_count = int(
+            getattr(competition, "runtime_instance_count", 0)
+            if competition is not None
+            else 0
+        )
+        expected_contexts = set(range(instance_count)) if instance_count > 0 else set()
+        groups = {
+            int(context): live
+            for (candidate_id, context), live in self.procedural_leagues.items()
+            if int(candidate_id) == competition_id
+        }
+
+        def withdraw_all():
+            for position_index in selectors:
+                self.cup_results.clear_group_position_ranking(
+                    competition_id,
+                    position_index,
+                )
+
+        if not expected_contexts or set(groups) != expected_contexts:
+            withdraw_all()
+            return self.cup_results.group_position_rankings
+        if any(not live.is_complete for live in groups.values()):
+            withdraw_all()
+            return self.cup_results.group_position_rankings
+
+        def numeric_key(row):
+            return (
+                -int(row.points),
+                int(row.played),
+                -int(row.goal_difference),
+                -int(row.goals_for),
+                int(row.goals_against),
+            )
+
+        group_rankings: dict[int, tuple] = {}
+        for context in range(instance_count):
+            rows = tuple(groups[context].table())
+            keys = tuple(numeric_key(row) for row in rows)
+            if len(keys) != len(set(keys)):
+                withdraw_all()
+                return self.cup_results.group_position_rankings
+            group_rankings[context] = tuple(sorted(rows, key=numeric_key))
+
+        for position_index in selectors:
+            if position_index < 0 or any(
+                position_index >= len(group_rankings[context])
+                for context in range(instance_count)
+            ):
+                self.cup_results.clear_group_position_ranking(
+                    competition_id,
+                    position_index,
+                )
+                continue
+            candidates = tuple(
+                group_rankings[context][position_index]
+                for context in range(instance_count)
+            )
+            candidate_keys = tuple(numeric_key(row) for row in candidates)
+            if len(candidate_keys) != len(set(candidate_keys)):
+                self.cup_results.clear_group_position_ranking(
+                    competition_id,
+                    position_index,
+                )
+                continue
+            ordered = tuple(sorted(candidates, key=numeric_key))
+            self.cup_results.replace_group_position_ranking(
+                competition_id,
+                position_index,
+                tuple(int(row.club_id) for row in ordered),
+            )
+        return self.cup_results.group_position_rankings
+
     def record_procedural_league_result(
         self,
         node_token: tuple,
@@ -2235,6 +2336,9 @@ class GameState:
         live = owners[0]
         result = live.record_result(token, int(home_goals), int(away_goals))
         live.publish_exact_ranking(self.cup_results)
+        self.refresh_procedural_league_group_position_rankings(
+            int(live.competition_id)
+        )
         # A newly published phase-1 ranking can make phase-2 groups resolvable.
         self.refresh_european_procedural_leagues()
         return result
