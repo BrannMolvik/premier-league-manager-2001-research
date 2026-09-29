@@ -38,17 +38,16 @@ tracked according to `research/ASSET_POLICY.md`.
 
 ## Verified repository state
 
-Latest Gate-12 implementation checkpoint:
+Latest verified Gate-12 implementation checkpoint:
 
 ```text
-4eb97457d0e4b6a00cd9a2e85d342e218670e675
-Keep synthetic Cup schedule stubs compatible
+1b388b66eaa635eafcc8344a205c12a021c54f18
+Refresh scheduler calendar regressions
 ```
 
-The last fully recorded CI checkpoint remains `ccac3ba2` (710 tests, two
-known secondary-schedule failures). Commits `71d1d65f` and `4eb97457`
-close the previously-open Cup constructor-policy input without changing the
-primary schedule RNG/placement model.
+GitHub Actions at that checkpoint ran **710 tests with 2 failures**, exactly
+the unchanged known secondary-schedule assertions; repository asset policy
+passed. The shared primary-container calendar correction is therefore verified.
 
 GitHub Actions at that checkpoint:
 
@@ -165,14 +164,16 @@ Do not rebuild solved Cup startup RNG/draw behavior.
    Therefore the older clean-room Premier League helper is seven days early
    in 2000/01 and must be corrected to the same primary-container convention
    already used by Cups.
-4. Correct the shared PL date conversion and the canonical Christmas-Day
-   placement boundary before merging execution. With the executable anchor,
-   Christmas 2000 is source `25/1`, not `26/1`. Re-run the canonical
-   primary schedule audit after this correction and refresh any affected
-   bucket digest/order checkpoint before enabling shared PL/Cup matchdays.
-5. Then merge due FA Cup / League Cup matches into the shared AI/human calendar
-   path and add deterministic AI-only, human-involved, Replay and TwoLeg
-   save/reload regressions.
+4. The shared primary-container date conversion and Christmas boundary are now
+   corrected and verified through `1b388b66`. Shipped Static.dat contains no
+   scheduled or replay/second-leg round at `25/1` or `26/1`, so this
+   Christmas correction is startup-neutral for the canonical 9,346-node
+   schedule and does not change the proven primary RNG/placement checkpoint.
+5. Merge due FA Cup / League Cup matches into the shared AI/human calendar
+   path. First preserve the recovered constructor-policy booleans on persistent
+   `DomesticCupScheduledNode` state so due nodes can materialize without
+   caller-supplied guesses. Then add deterministic AI-only, human-involved,
+   Replay and TwoLeg save/reload regressions.
 
 ## Known live fidelity boundaries
 
@@ -182,7 +183,7 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   GameState/save safe. Automatic constructor-policy derivation and actual
   shared human/AI Cup execution remain open. The constructor-policy producer
   is closed; the remaining calendar blocker is the exact fixed-League
-  primary-container calendar correction and its Christmas placement audit.
+  shared human/AI Cup execution; the primary calendar transform is closed.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:

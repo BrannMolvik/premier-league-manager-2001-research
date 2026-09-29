@@ -7302,3 +7302,27 @@ falls on packed `25/1`, not the current clean-room `26/1`.
 The next checkpoint must correct those two implementation assumptions and
 rerun the canonical primary schedule reconstruction before shared PL/Cup
 execution is enabled.
+
+
+## Gate 12 shared primary calendar correction verified - 29 September 2026
+
+Commits `572fdd95` and `1b388b66` correct the clean-room calendar to the
+instruction-closed primary ScheduleContainer convention and refresh every
+affected synthetic date-sensitive regression.
+
+Verification at `1b388b66eaa635eafcc8344a205c12a021c54f18`:
+
+- GitHub Actions reconstruction suite: **710 tests run, 2 failures**;
+- both failures are the unchanged known secondary root-order / secondary
+  bucket-count assertions;
+- repository asset policy: **passed**.
+
+A direct canonical Static.dat audit found no round whose scheduled date or
+replay/second-leg date is `25/1` or `26/1`. Therefore moving the
+`0x615950` Christmas-Day source pair from the old clean-room `26/1` to
+the executable-backed `25/1` does not move any shipped startup node. The
+canonical 9,346-node primary placement and its established RNG checkpoint stay
+valid.
+
+The PL/Cup calendar transform is now closed. Gate 12 can proceed to actual
+shared domestic-Cup execution.

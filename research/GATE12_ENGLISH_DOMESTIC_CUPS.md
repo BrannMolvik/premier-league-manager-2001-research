@@ -534,3 +534,18 @@ Next implementation step: unify the live Premier League date conversion with
 the proven primary-container anchor, correct the Christmas placement constant,
 then rerun the canonical primary schedule audit before enabling shared PL/Cup
 execution.
+
+
+### Calendar correction validation
+
+The clean-room implementation now uses the same executable-backed primary
+calendar for fixed League and Cup nodes. Commit `1b388b66` restored the
+suite to its prior baseline: 710 tests with only the two known secondary
+scheduler failures, while asset policy passed.
+
+Canonical Static.dat contains no round with scheduled or replay/second-leg
+pair `25/1` or `26/1`. The corrected Christmas-Day branch is therefore
+startup-neutral for the shipped primary schedule: no one of the 9,346 nodes
+changes bucket because of this correction.
+
+The remaining Gate-12 work is execution, not date reconstruction.
