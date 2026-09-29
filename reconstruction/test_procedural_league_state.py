@@ -202,6 +202,40 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
         self.assertIn((167, 0), state.procedural_leagues)
         self.assertEqual(state.procedural_leagues[(167, 0)].club_ids, (40, 50))
 
+    def test_due_group_entry_is_exposed_and_blocks_unimplemented_execution(self):
+        node = league_node(0, 10, 20, competition_id=14, context=2)
+        state = GameState(calendar=GameCalendar(date(2000, 8, 26)), players={})
+        state.primary_matchday_order = {
+            date(2000, 8, 26): (
+                ("procedural_league", node.node_token),
+            )
+        }
+        live = LiveProceduralLeagueState.from_schedule_nodes(
+            (node,),
+            state.cup_results.resolve_club_ref,
+        )
+        state.procedural_leagues[(14, 2)] = live
+
+        self.assertEqual(
+            state.procedural_league_nodes_due_today(),
+            (node.node_token,),
+        )
+        self.assertEqual(
+            state.primary_entries_due_today(),
+            (("procedural_league", node.node_token),),
+        )
+        with self.assertRaisesRegex(RuntimeError, "do not skip or reorder"):
+            state.simulate_primary_ai_entry(
+                ("procedural_league", node.node_token),
+                (),
+                (),
+                object(),
+            )
+
+        state.record_procedural_league_result(node.node_token, 2, 0)
+        self.assertEqual(state.procedural_league_nodes_due_today(), ())
+        self.assertEqual(state.primary_entries_due_today(), ())
+
     def test_refresh_preserves_existing_group_results(self):
         nodes = (
             league_node(0, 10, 20, competition_id=14, context=1),
