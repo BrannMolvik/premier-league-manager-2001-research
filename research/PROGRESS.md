@@ -7385,3 +7385,23 @@ unchanged known secondary-schedule assertions. Repository asset policy passed.
 Still explicitly open before full shared gameplay: human-controlled Cup
 execution, cross-competition incident/suspension date persistence, Cup gate
 receipts, and post-match morale/Form.
+
+
+## Gate 12 shared human PL/Cup controller verified - 29 September 2026
+
+The live execution slice advanced through:
+
+- `9a59dffe`: human-controlled Cup MatchCalculator/lifecycle backend;
+- `fc47ab8b`: shared AI PL/Cup day execution in post-shuffle order;
+- `097b0007`: tagged human pending state and schema-27 PL/Cup controller flow;
+- `33111724`: deterministic mid-matchday human Cup save/reload;
+- `c7583cfd`: deterministic FA Cup Replay and League Cup SecondLeg
+  post-reload execution.
+
+Verification at `c7583cfd4079e9bb58b4d93dd8efc5bd3b3282f4`: **730 tests,
+2 failures**, both the unchanged known secondary-schedule assertions; asset
+policy passed.
+
+The controller no longer needs to coerce Cup identities into integer PL fixture
+IDs. Pending primary matches are tagged as `premier_league` or
+`domestic_cup`, and save schema 27 preserves those identities.

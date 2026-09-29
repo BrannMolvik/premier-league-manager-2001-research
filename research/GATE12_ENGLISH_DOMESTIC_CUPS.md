@@ -585,3 +585,35 @@ This bridge is intentionally not mislabeled as full post-match integration.
 The current method syncs MatchCalculator Condition and home pitch wear, but
 PL-specific incident/suspension scheduling, gate receipts and morale/Form are
 still separate follow-on work.
+
+
+### Shared post-match incident branch
+
+Direct tracing of canonical `FOOTBAL.EXE` closes an important post-match
+boundary.
+
+The shared match execution routine at `0x511370` calls `0x5127A0` when:
+
+- match flag byte `+0x44` does not carry the separate `0x20` suppression
+  bit; and
+- `0x5112E0` returns false.
+
+`0x5112E0` calls the owning competition virtual `+0x30`, already mapped as
+the primary/secondary schedule-container selector. English FA Cup and League
+Cup use the primary container, and `CupMatch` constructor `0x510520` does
+not set the `0x20` suppression bit. Domestic Cup matches therefore enter the
+same `0x5127A0` card/injury persistence routine as primary League matches.
+
+Inside `0x5127A0`, the next-fixture source is also shared:
+
+1. global current relative schedule day is incremented by one;
+2. `0x510300` selects the match's primary/secondary schedule container from
+   match state;
+3. `0x615D10` scans that container forward for a matching team;
+4. the resulting match/date context is passed to player routine `0x419680`
+   when suspension state is refreshed.
+
+Therefore the remaining clean-room blocker is not Cup-specific discipline
+rules. It is faithful representation of the **whole primary container** when
+computing the next team fixture. Restricting that lookup to PL + domestic Cups
+would be incomplete for clubs participating in other primary competitions.

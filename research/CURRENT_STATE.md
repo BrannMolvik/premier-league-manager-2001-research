@@ -41,14 +41,15 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 implementation checkpoint:
 
 ```text
-e45c02da5461bc67196e0fe86aeef53f51da304f
-Regress AI Cup extra-time completion
+c7583cfd4079e9bb58b4d93dd8efc5bd3b3282f4
+Regress Cup replay and second-leg reload
 ```
 
-GitHub Actions at that checkpoint ran **723 tests with 2 failures**, exactly
+GitHub Actions at that checkpoint ran **730 tests with 2 failures**, exactly
 the unchanged known secondary-schedule assertions; repository asset policy
-passed. This verifies the source-backed Cup strategy context, shared extra-time
-phase plan, and the first live AI domestic-Cup score/completion path.
+passed. This verifies AI and human domestic-Cup score execution, shared
+PL/Cup matchday interleaving, schema-27 tagged pending state, human mid-matchday
+save/reload, and Replay/SecondLeg post-reload continuation.
 
 GitHub Actions at that checkpoint:
 
@@ -178,22 +179,32 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 6. The shared match simulator now accepts the recovered extra-time phase plan
    through `25c4e5ce`, and `e45c02da` verifies a decisive AI Cup node
    through 120 minutes into a definitive result token.
-7. Add the human-controlled Cup equivalent, then merge due FA Cup / League Cup
-   nodes into the shared controller matchday loop. Preserve the currently
-   explicit boundary: Cup cards/injury suspension dates, gate receipts and
-   post-match morale/Form are not yet generalized from the PL-only helpers.
-8. Add deterministic human-involved, Replay and TwoLeg save/reload regressions,
-   then close the remaining cross-competition post-match persistence gaps.
+7. Human Cup execution and tagged shared-controller PL/Cup order are now
+   verified. Internal save schema **27** preserves tagged pending identities;
+   human mid-matchday Cup save/reload and Replay/SecondLeg continuation are
+   deterministic through `c7583cfd`.
+8. The card/injury persistence branch is now instruction-closed as shared:
+   primary-container Cup and League matches both enter `0x5127A0`.
+   `0x510300` selects the match's schedule container and `0x615D10` scans
+   that container from current schedule day + 1 for the same team before
+   suspension refresh.
+9. Do not yet reduce that next-match lookup to PL + domestic Cups globally:
+   the executable searches the whole primary container, including other
+   competitions not yet live in the clean-room. Continue Gate 12 by expanding
+   primary competition coverage or proving a safe bounded subset before
+   enabling Cup discipline/injury suspension dates. Separately trace the
+   shared post-match morale/Form and Cup gate-receipt paths.
 
 ## Known live fidelity boundaries
 
-- Gate 12: FA Cup/League Cup nodes, definitive outcomes, completed-node
-  identities, constructor policy, persisted Cup match-score/link state,
-  dynamic FA Cup Replay insertion, shared PL/Cup post-shuffle order, and Cup
-  AI strategy context are now source-backed. Actual shared human/AI Cup
-  execution remains open at one concrete backend boundary: decisive Cup
-  matches require the recovered extra-time phase plan, while the current
-  normal simulator is fixed to 90 minutes.
+- Gate 12: FA Cup/League Cup nodes, outcomes, constructor policy, AI/human
+  scoring, extra time, dynamic Replay, TwoLeg linkage, shared PL/Cup order,
+  tagged controller pending state and schema-27 save/reload are source-backed
+  and verified. Remaining domestic-Cup fidelity work is post-match persistence:
+  shared `0x5127A0` discipline/injury handling is proven, but its exact next
+  match search spans the whole primary schedule container, including
+  competitions not yet integrated. Cup gate receipts and the shared
+  morale/Form path also remain to be closed.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:

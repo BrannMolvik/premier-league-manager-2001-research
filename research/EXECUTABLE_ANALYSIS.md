@@ -9360,3 +9360,33 @@ rounds_from_final = scheduled_matchday_count - round_number + 1
 Competition runtime `+0x18` remains the negated packed word +15, whose packed
 value is parsed as `initialization_order_value`; the clean-room precedence
 input is consequently `-initialization_order_value`.
+
+
+## Shared primary-match incident persistence
+
+**Confirmed 29 September 2026 from canonical FOOTBAL.EXE SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.**
+
+Routine `0x511370`, the shared match execution/post-match path, reaches
+`0x5127A0` unless match `+0x44` has suppression bit `0x20` or
+`0x5112E0` reports a secondary-container competition.
+
+`0x5112E0` resolves match `+0x4C` and calls virtual `+0x30`; this is the
+already-mapped competition schedule-container predicate. `CupMatch`
+constructor `0x510520` only rewrites its constructor-policy bits in the low
+nibble of `+0x44` and does not set `0x20`. Thus primary FA Cup / League Cup
+objects take the same `0x5127A0` branch as primary LeagueMatch objects.
+
+The next-match lookup inside `0x5127A0` is:
+
+```text
+current relative day + 1
+    -> 0x510300 (select primary/secondary ScheduleContainer from match flags)
+    -> 0x615D10 (scan forward for the same team)
+    -> 0x419680 suspension refresh
+```
+
+This proves suspension refresh is schedule-container-wide rather than
+Premier-League-table-specific. A faithful clean-room implementation must search
+all live matches in that container. Until the remaining primary competitions
+are represented, a PL + domestic-Cup-only approximation must stay explicit.
