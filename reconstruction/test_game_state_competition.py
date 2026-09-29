@@ -1,10 +1,13 @@
 import unittest
 from dataclasses import dataclass
 from datetime import date
+from types import SimpleNamespace
 
+from competition_schedule import StartupScheduleNode, direct_club_ref
 from game_state import GameState
 from match_calculator import PositionRole
 from match_lineup import AI_FORMATIONS
+from match_events import BoundaryRecord, BoundaryType
 from match_simulation import PreparedMatchPlayer, PreparedMatchSide
 from match_strength import TeamStrengthContext
 
@@ -238,6 +241,69 @@ class IntegratedGameStateTests(unittest.TestCase):
         self.assertTrue(
             all(player.condition == 95 for player in state.ordered_club_roster(2))
         )
+
+    def test_decisive_domestic_cup_ai_node_uses_shared_extra_time_backend(self):
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 8),
+            seed=1,
+            season_year=2000,
+        )
+        state.competitions[1] = SimpleNamespace(
+            id=1,
+            substitute_quota=5,
+            max_non_eu_players=10,
+            scheduled_matchday_count=8,
+            initialization_order_value=6,
+        )
+        token = ("cup_result", 1, 43, 0)
+        state.install_domestic_cup_schedule_nodes(
+            (
+                StartupScheduleNode(
+                    node_kind="cup_match",
+                    competition_id=1,
+                    competition_context=0,
+                    round_id=43,
+                    pair_index=0,
+                    schedule_index=None,
+                    scheduled_week=0,
+                    scheduled_weekday=6,
+                    participant_0_ref=direct_club_ref(1),
+                    participant_1_ref=direct_club_ref(2),
+                    node_token=token,
+                    round_number=8,
+                    extra_time_capable=True,
+                    decisive_tiebreak=True,
+                    auxiliary_flag=False,
+                ),
+            ),
+            season_year=2000,
+        )
+
+        result, completion = state.simulate_domestic_cup_ai_node(
+            token,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MidpointRng(),
+        )
+
+        boundaries = [
+            (timed.minute, timed.event.kind)
+            for timed in result.events
+            if isinstance(timed.event, BoundaryRecord)
+        ]
+        self.assertEqual(
+            boundaries,
+            [
+                (45, BoundaryType.HALF_TIME),
+                (90, BoundaryType.EXTRA_TIME),
+                (105, BoundaryType.EXTRA_TIME),
+                (120, BoundaryType.FULL_TIME),
+            ],
+        )
+        self.assertIsNotNone(completion.outcome)
+        self.assertIn(token, state.domestic_cups.completed_node_tokens)
+        self.assertIn(token, state.cup_results.outcomes)
 
     def test_due_ai_fixture_can_prepare_simulate_and_store_result(self):
         state = GameState.from_database(
