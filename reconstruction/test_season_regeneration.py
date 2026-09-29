@@ -52,6 +52,17 @@ class Country:
     eu_status_flag: int = 0
 
 
+@dataclass(frozen=True)
+class Allocation:
+    id: int
+    destination_competition_id: int
+    sequence_index: int
+    instruction_type: int
+    source_reference: int
+    quantity: int
+    auxiliary: int = 0
+
+
 class AnnualPrimaryRegenerationTests(unittest.TestCase):
     def _fixture(self):
         competition = Competition(0, 1)
@@ -117,6 +128,87 @@ class AnnualPrimaryRegenerationTests(unittest.TestCase):
         }
         self.assertEqual(direct_ids, {10, 11, 12, 20})
         self.assertNotIn(13, direct_ids)
+
+    def test_annual_type3_requires_finished_season_qualification_ranking(self):
+        competitions = (
+            Competition(20, 1, initialization_order_value=0),
+            Competition(50, 2, initialization_order_value=1),
+        )
+        rounds = tuple(
+            Round(index, 20, 4, 4, 0, index + 1, 1)
+            for index in range(3)
+        ) + (
+            Round(100, 50, 1, 2, 2, 7, 1),
+        )
+        clubs = (
+            Club(10, "A", 20, 99, 3),
+            Club(11, "B", 20, 99, 2),
+            Club(12, "C", 20, 99, 1),
+            Club(13, "Relegated", 20, 99, 0),
+            Club(20, "Promoted", 2, 2, 0),
+        )
+        allocations = (Allocation(1, 50, 1, 3, 20, 2),)
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "annual type-3 League/Dummy qualification rankings",
+        ):
+            materialize_annual_primary_schedule(
+                MsvcCrtRng(0x12345678),
+                competitions,
+                rounds,
+                clubs,
+                (Country(1),),
+                allocations,
+                (),
+                club_competition_membership={13: 2, 20: 20},
+                season_year=2001,
+            )
+
+    def test_annual_type3_uses_finished_ranking_not_post_swap_membership(self):
+        competitions = (
+            Competition(20, 1, initialization_order_value=0),
+            Competition(50, 2, initialization_order_value=1),
+        )
+        rounds = tuple(
+            Round(index, 20, 4, 4, 0, index + 1, 1)
+            for index in range(3)
+        ) + (
+            Round(100, 50, 1, 2, 2, 7, 1),
+        )
+        clubs = (
+            Club(10, "A", 20, 99, 3),
+            Club(11, "B", 20, 99, 2),
+            Club(12, "C", 20, 99, 1),
+            Club(13, "Relegated", 20, 99, 0),
+            Club(20, "Promoted", 2, 2, 0),
+        )
+        allocations = (Allocation(1, 50, 1, 3, 20, 2),)
+
+        result = materialize_annual_primary_schedule(
+            MsvcCrtRng(0x12345678),
+            competitions,
+            rounds,
+            clubs,
+            (Country(1),),
+            allocations,
+            (),
+            club_competition_membership={13: 2, 20: 20},
+            season_year=2001,
+            qualification_rankings_by_competition={
+                20: (13, 10, 11, 12),
+            },
+        )
+
+        live_by_id = {club.index: club for club in result.live_clubs}
+        self.assertEqual(live_by_id[13].competition_id, 2)
+        self.assertEqual(live_by_id[13].historical_competition_id, 20)
+        self.assertEqual(live_by_id[13].historical_slot_index, 0)
+        self.assertEqual(live_by_id[20].competition_id, 20)
+        self.assertEqual(
+            result.competition.cup_runtime.cups[0].selected_direct_club_ids,
+            (13, 10),
+        )
 
     def test_same_crt_stream_continues_through_fresh_bucket_shuffle(self):
         competitions, rounds, clubs, countries = self._fixture()
