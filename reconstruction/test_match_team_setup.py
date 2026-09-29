@@ -246,8 +246,8 @@ class FormationStrategyClassifierTests(unittest.TestCase):
             Row(4, 4, 2),
         )
         # Two games remain in a six-match group. Club 3 is three points below
-        # the second-place advancement cut: 3/2 -> rounded pressure 2 plus the
-        # shipped promotion base 1 = 3.
+        # the second-place advancement cut: 3/2 + 0.499 truncates to 1, then
+        # the shipped promotion base 1 yields 2.
         self.assertEqual(
             league_strategy_bias(
                 rows,
@@ -255,7 +255,7 @@ class FormationStrategyClassifierTests(unittest.TestCase):
                 total_matches=6,
                 automatic_promotion_places=2,
             ),
-            3,
+            2,
         )
 
     def test_premier_league_bias_uses_title_then_relegation_cut(self):
