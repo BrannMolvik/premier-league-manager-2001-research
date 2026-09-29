@@ -197,6 +197,28 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
         self.assertIn((167, 0), state.procedural_leagues)
         self.assertEqual(state.procedural_leagues[(167, 0)].club_ids, (40, 50))
 
+    def test_refresh_preserves_existing_group_results(self):
+        nodes = (
+            league_node(0, 10, 20, competition_id=14, context=1),
+            league_node(1, 30, 40, competition_id=14, context=1),
+        )
+        state = GameState(calendar=GameCalendar(date(2000, 7, 1)), players={})
+        state.install_primary_schedule_shadow(
+            tuple((node,) for node in nodes),
+            season_year=2000,
+        )
+        state.refresh_european_procedural_leagues()
+        live = state.procedural_leagues[(14, 1)]
+        state.record_procedural_league_result(nodes[0].node_token, 1, 0)
+
+        state.refresh_european_procedural_leagues()
+
+        self.assertIs(state.procedural_leagues[(14, 1)], live)
+        self.assertEqual(
+            live.results[nodes[0].node_token].home_goals,
+            1,
+        )
+
     def test_duplicate_result_is_rejected(self):
         registry = CupResultRegistry()
         node = league_node(0, 10, 20)
