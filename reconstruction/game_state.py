@@ -152,6 +152,8 @@ class GameState:
     clubs: dict[int, object] = field(default_factory=dict)
     managers: dict[int, object] = field(default_factory=dict)
     competitions: dict[int, object] = field(default_factory=dict)
+    league_allocation_records: tuple[object, ...] = ()
+    club_competition_membership: dict[int, int] = field(default_factory=dict)
     countries: dict[int, object] = field(default_factory=dict)
     positions: dict[int, object] = field(default_factory=dict)
     access_fan_bases: tuple[object, ...] = ()
@@ -356,6 +358,13 @@ class GameState:
             clubs=clubs_by_id,
             managers=managers_by_id,
             competitions=competitions_by_id,
+            league_allocation_records=tuple(
+                getattr(database, "league_allocation_records", ())
+            ),
+            club_competition_membership={
+                int(club.index): int(club.competition_id)
+                for club in clubs
+            },
             countries=countries_by_id,
             positions=positions_by_id,
             access_fan_bases=fan_bases,
@@ -2161,6 +2170,62 @@ class GameState:
     def resolve_cup_club_ref(self, ref):
         """Resolve a Cup ClubRef against live GameState result state."""
         return self.cup_results.resolve_club_ref(ref)
+
+    def season_transition_ranking(
+        self,
+        competition_id: int,
+    ) -> tuple[int, ...] | None:
+        """Resolve one instruction-backed annual allocation ranking endpoint."""
+        competition_id = int(competition_id)
+        if competition_id in (11, 12, 13):
+            winner = self.domestic_cups.competition_winner(
+                competition_id,
+                self.cup_results,
+            )
+            return None if winner is None else (int(winner),)
+        ranking = self.cup_results.competition_rankings.get((competition_id, 0))
+        if ranking is None:
+            return None
+        return tuple(int(club_id) for club_id in ranking)
+
+    def apply_english_season_transition(self):
+        """Apply the recovered annual English LeagueAllocation exchanges.
+
+        Every endpoint must already expose an exact final ranking. This refuses
+        to use display-only tie fallbacks or incomplete playoff state.
+        """
+        from league_transition import (
+            apply_league_allocation_exchanges,
+            ordered_english_league_allocations,
+        )
+
+        records = ordered_english_league_allocations(
+            self.league_allocation_records
+        )
+        endpoint_ids = {
+            int(record.competition_a_id)
+            for record in records
+        } | {
+            int(record.competition_b_id)
+            for record in records
+        }
+        rankings: dict[int, tuple[int, ...]] = {}
+        for competition_id in sorted(endpoint_ids):
+            ranking = self.season_transition_ranking(competition_id)
+            if ranking is None:
+                raise RuntimeError(
+                    "English season transition ranking is unresolved for "
+                    f"competition {competition_id}"
+                )
+            rankings[competition_id] = ranking
+
+        result = apply_league_allocation_exchanges(
+            records,
+            rankings,
+            self.club_competition_membership,
+        )
+        self.club_competition_membership = dict(result.memberships)
+        return result
 
     def refresh_primary_procedural_leagues(
         self,
