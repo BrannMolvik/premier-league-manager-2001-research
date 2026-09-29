@@ -12,7 +12,7 @@ from contract_maintenance import (
 )
 from concession_offer import ConcessionRuntimeSource
 from competition_schedule import StartupScheduleNode, direct_club_ref
-from cup_progression import CupMatchResolutionSnapshot
+from cup_progression import CupMatchResolutionSnapshot, complete_cup_match
 from finance_state import FinancialObjectiveState
 from game_state import GameState
 from human_gameplay import HumanGameplayController
@@ -151,7 +151,14 @@ class InternalSaveTests(unittest.TestCase):
             ),
             season_year=2000,
         )
+        first, second = original.state.domestic_cups.materialize_two_leg_pair(
+            first_token,
+            original.state.cup_results,
+            second_leg_extra_time_capable=True,
+        )
+        complete_cup_match(first, original.state.cup_results, 2, 1)
         original.state.domestic_cups.mark_completed(first_token)
+        self.assertIs(second.prior_match, first)
 
         restored = loads_human_gameplay(
             Database(),
@@ -160,7 +167,18 @@ class InternalSaveTests(unittest.TestCase):
             dumps_human_gameplay(original),
         )
 
-        self.assertEqual(restored.state.domestic_cups, original.state.domestic_cups)
+        self.assertEqual(
+            restored.state.domestic_cups.snapshot(),
+            original.state.domestic_cups.snapshot(),
+        )
+        restored_first = restored.state.domestic_cups.match_state(first_token)
+        restored_second = restored.state.domestic_cups.match_state(result_token)
+        self.assertEqual(
+            (restored_first.base_score_0, restored_first.base_score_1),
+            (2, 1),
+        )
+        self.assertIs(restored_second.prior_match, restored_first)
+        self.assertIs(restored_first.following_match, restored_second)
         self.assertEqual(
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),
