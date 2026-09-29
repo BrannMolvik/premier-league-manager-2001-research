@@ -190,6 +190,43 @@ round scheduling can therefore be reused for annual mode provided their
 **source club memberships and live player/team inputs are updated** and the
 same global CRT stream is used.
 
+## Verified annual primary construction primitive
+
+The first bounded clean-room annual primitive is now implemented without
+mutating live GameState.
+
+- `primary_schedule.nominal_primary_schedule_bucket(..., season_year=...)`
+  now derives the 25-December skip from the actual Gregorian date. The shipped
+  2000/01 coordinate remains week 25 / weekday 1, while 2001/02 correctly
+  moves week 25 / weekday 2 instead.
+- `season_regeneration.clubs_with_live_competition_memberships()` overlays
+  the post-LeagueAllocation live membership map on immutable source Club rows.
+- `materialize_annual_primary_schedule()` calls the recovered primary
+  competition materializer with **no fixed-fixture League IDs**, so Premier
+  League ID 0 follows the proven annual procedural path.
+- The same caller-owned CRT object then continues directly through
+  `place_primary_schedule_nodes(..., season_year=...)` and
+  `shuffle_primary_schedule_buckets()`.
+- No shipped 2000/01 real-fixture rows are supplied to the annual path.
+- A synthetic promotion/relegation regression proves a newly promoted club
+  enters the year-two Premier League schedule while the relegated club does
+  not, and every Premier node is `league_match`, not
+  `fixed_league_match`.
+
+Verified code checkpoint:
+
+```text
+09a5c269e82da597f114b66e71b1416de7f14f2b
+Test annual primary schedule regeneration
+```
+
+GitHub Actions ran **797 tests with 2 failures**, exactly the unchanged known
+secondary-schedule assertions. Repository asset policy passed.
+
+This primitive intentionally stops before GameState replacement. It proves the
+annual primary generation mechanics while keeping unresolved cross-season Cup
+qualification/finalization state from being silently guessed.
+
 ## Current implementation boundary
 
 Already verified and preserved:
@@ -207,12 +244,14 @@ may duplicate startup RNG.
 
 ## Exact next trace
 
-1. prove the annual League participant source after the already-verified
-   membership swaps and map it to the live `club_competition_membership` view;
-2. preserve one global CRT stream through annual competition initialization and
-   the now-closed `0x615AE0` bucket shuffle;
-3. determine the next season's DummyLeague/Conference 2 ranking regeneration
-   timing and ensure live player ratings, not immutable startup ratings, feed it;
-4. map annual mode-0 output onto new `PremierLeagueState`, procedural League,
-   Cup/playoff, ranking, primary-shadow and primary-order state, clearing all
-   prior-season results without replaying first-season-only real fixtures.
+1. instruction-close cross-season Cup qualification/enumeration state so the
+   annual Cup materializer does not reuse stale first-season historical slots;
+2. determine the next season's DummyLeague/Conference 2 ranking regeneration
+   timing and ensure the annual path uses the correct live-season club/player
+   inputs without an extra RNG pass;
+3. then replace GameState's prior-season Premier/procedural League/Cup/ranking/
+   primary-shadow/order objects atomically from the verified annual
+   materialization;
+4. preserve the controller's competition/match CRT stream across that rebuild
+   and keep the separately persisted GameState maintenance RNG split explicit
+   rather than silently conflating the two.
