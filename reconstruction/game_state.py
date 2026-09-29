@@ -6,7 +6,11 @@ from time import time
 from typing import Callable, Iterable
 
 from competition_state import PremierLeagueState
-from cup_progression import CupMatchResolutionSnapshot, CupResultRegistry
+from cup_progression import (
+    CupMatchCompletion,
+    CupMatchResolutionSnapshot,
+    CupResultRegistry,
+)
 from domestic_cup_state import DomesticCupScheduleState
 from contract_maintenance import (
     ContractRenewalSuggestion,
@@ -57,6 +61,7 @@ from match_preparation import (
     PreparedPremierLeagueAiSide,
     build_prepared_match_side_from_selection,
     build_premier_league_ai_match_side,
+    prepare_cup_ai_selection,
     prepare_premier_league_ai_selection,
 )
 from match_postmatch import (
@@ -70,7 +75,7 @@ from match_postmatch import (
 from match_orders import TeamOrderPriorities
 from match_role_rating import best_preferred_role_rating
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
-from match_team_setup import TeamTacticalState
+from match_team_setup import TeamTacticalState, initialize_ai_roster_condition
 from runtime_state import RuntimePlayer, derive_non_eu_status
 from stadium_state import StadiumSourceState, TicketRuntimeState
 from transfer_state import TransferRuntimeState
@@ -1872,6 +1877,156 @@ class GameState:
             self.calendar.current_date,
             self.cup_results,
         )
+
+    def simulate_domestic_cup_ai_node(
+        self,
+        node_token: tuple,
+        attack_matrix,
+        defence_matrix,
+        rng=None,
+    ) -> tuple[NormalMatchResult, CupMatchCompletion]:
+        """Run one due AI-vs-AI domestic Cup node through the shared backend.
+
+        This closes score production and the Cup lifecycle only. It preserves
+        the proven pre-match order (both selections, weather, side-0 Condition,
+        side-1 Condition), uses the Cup runtime extra-time policy, syncs
+        MatchCalculator Condition back to runtime players, and updates the home
+        pitch. Cross-competition suspension/injury dates, Cup gate receipts and
+        post-match morale/Form remain separate Gate-12 persistence work.
+        """
+        rng = self._resolve_rng(rng)
+        token = tuple(node_token)
+        node = self.domestic_cups.node(token)
+        if node.scheduled_date != self.calendar.current_date:
+            raise ValueError(
+                f"domestic Cup node {token!r} is not due on "
+                f"{self.calendar.current_date}"
+            )
+        if node.round_number is None:
+            raise RuntimeError("domestic Cup node has no source round number")
+
+        match = self.domestic_cups.materialize_scheduled_match(
+            token,
+            self.cup_results,
+        )
+        home_club_id = int(match.participant_0_club_id)
+        away_club_id = int(match.participant_1_club_id)
+        competition = self.competitions.get(int(node.competition_id))
+        if competition is None:
+            raise RuntimeError(
+                f"Cup competition definition {int(node.competition_id)} is not loaded"
+            )
+
+        def club_inputs(club_id: int):
+            club = self.clubs.get(int(club_id))
+            if club is None:
+                raise RuntimeError(f"club definition {int(club_id)} is not loaded")
+            manager = self.managers.get(int(club.manager_id))
+            if manager is None:
+                raise RuntimeError(
+                    f"manager {int(club.manager_id)} for club {int(club_id)} "
+                    "is not loaded"
+                )
+            roster = self.ordered_club_roster(int(club_id))
+            if not roster:
+                raise RuntimeError(f"club {int(club_id)} has no runtime roster")
+            return manager, roster
+
+        home_manager, home_roster = club_inputs(home_club_id)
+        away_manager, away_roster = club_inputs(away_club_id)
+
+        home_deficit = 0
+        away_deficit = 0
+        if match.prior_match is not None:
+            prior = match.prior_match
+            # Linked Replay/SecondLeg participants are reversed. Before the
+            # current match, aggregate side 0 owns prior score_1 and side 1
+            # owns prior score_0.
+            home_deficit = max(
+                0,
+                int(prior.composed_score_0) - int(prior.composed_score_1),
+            )
+            away_deficit = max(
+                0,
+                int(prior.composed_score_1) - int(prior.composed_score_0),
+            )
+
+        home_preparation = prepare_cup_ai_selection(
+            home_club_id,
+            home_roster,
+            away_roster,
+            home_manager,
+            competition,
+            round_number=int(node.round_number),
+            is_home=True,
+            aggregate_goals_behind=home_deficit,
+        )
+        away_preparation = prepare_cup_ai_selection(
+            away_club_id,
+            away_roster,
+            home_roster,
+            away_manager,
+            competition,
+            round_number=int(node.round_number),
+            is_home=False,
+            aggregate_goals_behind=away_deficit,
+        )
+
+        environment = generate_match_environment(
+            self.calendar.current_date,
+            rng,
+        )
+        initialize_ai_roster_condition(home_roster, rng)
+        initialize_ai_roster_condition(away_roster, rng)
+        home_side = build_prepared_match_side_from_selection(
+            home_preparation.selection,
+            0,
+            self.team_tactics.get(home_club_id, TeamTacticalState()),
+            user_controlled=False,
+            team_orders=TeamOrderPriorities(),
+        )
+        away_side = build_prepared_match_side_from_selection(
+            away_preparation.selection,
+            1,
+            self.team_tactics.get(away_club_id, TeamTacticalState()),
+            user_controlled=False,
+            team_orders=TeamOrderPriorities(),
+        )
+
+        pitch_wear_before = int(self.pitch_wear.get(home_club_id, 0))
+        result = simulate_normal_match(
+            home_side,
+            away_side,
+            attack_matrix,
+            defence_matrix,
+            rng,
+            condition_injury_settings=ConditionInjurySettings(
+                environment_byte=pitch_wear_before,
+            ),
+            extra_time=bool(match.uses_extra_time),
+        )
+        completion = self.domestic_cups.complete_scheduled_match(
+            token,
+            self.cup_results,
+            result.score[0],
+            result.score[1],
+            current_date=self.calendar.current_date,
+            rng=rng,
+        )
+
+        sync_post_match_conditions(
+            home_side,
+            home_preparation.selection.participants,
+        )
+        sync_post_match_conditions(
+            away_side,
+            away_preparation.selection.participants,
+        )
+        self.pitch_wear[home_club_id] = pitch_wear_after_match(
+            pitch_wear_before,
+            environment.weather_code,
+        )
+        return result, completion
 
     def premier_league_table(self):
         if self.premier_league is None:
