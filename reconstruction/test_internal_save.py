@@ -13,6 +13,7 @@ from contract_maintenance import (
 from concession_offer import ConcessionRuntimeSource
 from competition_schedule import StartupScheduleNode, direct_club_ref
 from cup_progression import CupMatchResolutionSnapshot, complete_cup_match
+from domestic_cup_state import DomesticCupScheduleState
 from finance_state import FinancialObjectiveState
 from game_state import GameState
 from human_gameplay import HumanGameplayController
