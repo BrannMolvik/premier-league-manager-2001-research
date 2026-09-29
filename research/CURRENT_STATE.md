@@ -12,16 +12,17 @@ topic-specific research files.
 
 Gates 1 through 11 are complete. Gate 11 closed on 29 September 2026 after the
 deterministic 38-round / 380-fixture human-manager season regression and its
-completion audit. Gate 12 has completed the main live English domestic-cup bridge and is now
-expanding the same recovered generic competition runtime into Europe. The
-remaining special domestic-Cup ticket-posting branch is explicitly deferred as
-a fidelity/source-access gap rather than guessed.
+completion audit. Gate 12 has completed the main live English domestic-cup and European bridges
+and now has the source-backed English regular-season divisional LeagueMatch set
+live as well. The remaining special domestic-Cup ticket-posting branch is
+explicitly deferred as a fidelity/source-access gap rather than guessed.
 
 Evidence:
 
 - `research/GATE11_COMPLETION_AUDIT.md`
 - `research/GATE12_ENGLISH_DOMESTIC_CUPS.md`
 - `research/GATE12_EUROPEAN_COMPETITIONS.md`
+- `research/GATE12_ENGLISH_DIVISIONS.md`
 
 ## Porting mission
 
@@ -40,16 +41,16 @@ tracked according to `research/ASSET_POLICY.md`.
 
 ## Verified repository state
 
-Latest verified Gate-12 implementation checkpoint:
+Latest verified Gate-12 code checkpoint:
 
 ```text
-30bba781d568098c2cd28ba8153a57710ea70f34
-Use canonical bucket date in generic LeagueMatch test
+91008587337fd53dc55023a2a1a6508505928639
+Test English divisional save-reload execution
 ```
 
-GitHub Actions at that checkpoint ran **781 tests with 2 failures**, exactly
-the unchanged known secondary-schedule assertions; repository asset policy
-passed. The European runtime bridge is now covered end-to-end: live child
+GitHub Actions at that checkpoint ran **783 tests with 2 failures**, exactly
+the unchanged known secondary-schedule assertions; both new English-divisional
+regressions passed and repository asset policy passed. The European runtime bridge is now covered end-to-end: live child
 groups publish type-2 standings and source-backed type-3 cross-group pools,
 Champions League / UEFA Cup knockout nodes execute through the shared CupMatch
 runtime in canonical primary order for AI and human control, and a real
@@ -149,23 +150,22 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 
 ## Exact next task
 
-1. Preserve all verified English domestic-Cup and European execution,
-   ClubRef progression, shared primary-order, human-controller and save/reload
-   behavior. Do not reopen solved draw/allocation work.
-2. Gate 12's generic primary `league_match` bridge is now verified at
-   `30bba781`: callers can supply source-backed competition IDs to both the
-   primary-order view and live procedural-League materializer without changing
-   the verified Champions League defaults.
-3. Continue the **English league/divisional audit** by proving from canonical
-   source/materializer evidence which English divisions use this primary
-   procedural-League path and which belong to the secondary schedule container.
-   Do not hard-code guessed competition IDs.
-4. Once the exact English IDs/container ownership are proven, attach the first
-   required divisional set to the generic bridge and verify execution plus
-   save/reload deterministically.
+1. Preserve all verified English domestic-Cup, European, and English
+   regular-season divisional execution, ClubRef progression, shared primary
+   order, human-controller and save/reload behavior.
+2. English root procedural-League identity/container ownership is now
+   source-backed: country/region 26 yields primary IDs **2, 3, 4, 7** and no
+   secondary root procedural League after excluding fixed Premier League ID 0.
+   Do not reopen this identity audit without conflicting source evidence.
+3. Audit the **English cross-division season transition** from canonical
+   competition/allocation structures: promotion, relegation, and any playoff
+   competitions linking Premier League, Divisions 1/2/3, and Conference.
+4. Do not mutate club competition membership until exact movement counts,
+   playoff dependencies, and execution order are source-backed. Do not import
+   modern football rules as assumptions.
 5. Keep the special English domestic-Cup category-1/category-2 posting policy
-   as a separate deferred fidelity gap unless it directly blocks the new
-   divisional runtime slice.
+   as a separate deferred fidelity gap unless it directly blocks this
+   cross-division transition slice.
 
 ## Known live fidelity boundaries
 
@@ -179,8 +179,10 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   remains deferred. European startup is canonical; group standings, primary-order group execution,
   type-2 progression, type-3 cross-group transfers, Champions League / UEFA Cup
   knockout execution, human routing and save/reload are live and regression
-  covered. The active Gate-12 gap has moved to other required English
-  league/divisional structures.
+  covered. The regular-season English divisional LeagueMatch set (2/3/4/7) is now live,
+  ordered and reload-safe. The active Gate-12 gap is the source-backed
+  cross-division season transition: promotion, relegation and playoff
+  dependencies.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
@@ -211,9 +213,8 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
 
 ## Do not work on yet
 
-Unless required to unblock the active Gate-12 European slice, defer:
+Unless required to unblock the active Gate-12 cross-division transition, defer:
 
-- remaining English league/divisional structures after the active European bridge;
 - original save-file compatibility;
 - Gate-13 original management presentation;
 - Gate-14 audio/match presentation and FastView/3D;
