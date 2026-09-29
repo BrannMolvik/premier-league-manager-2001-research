@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Gate 12 Europe: build live child/procedural-League group standings that publish type-2 competition-position rankings, while separately closing ClubRef type-3 MiniLeague group-position resolution. Preserve solved European startup scheduling/allocation.",
-  "last_known_main_head": "f2fde35023afbfcaa7b552231da4eb7b0408611a",
+  "active_task": "Gate 12 Europe: integrate LiveProceduralLeagueState from main ebcbaee into GameState/primary scheduling, publish exact type-2 rankings as European group matches complete, and keep ClubRef type-3 separate until its resolver is source-backed.",
+  "last_known_main_head": "ebcbaeeacd04fe6bfbd581feb494e08448c1ac9a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 65,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Europe is canonical active Gate-12 slice. Verified code head 0feb1278: 752 tests with only two known secondary-schedule failures; asset policy passed. Main f2fde350 records handoff and source-access deferral for the special domestic Cup posting branch. Save schema 29 persists competition-position rankings.",
+  "recovery_generation": 66,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovered at main ebcbaee. New exact-or-pending procedural League state already exists; continue by integrating it into live European GameState/scheduling rather than rebuilding it. ClubRef type 3 remains a separate trace.",
   "same_chat_fallback_minutes": 30
 }
