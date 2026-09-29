@@ -159,7 +159,7 @@ def clubs_with_live_competition_memberships(
     return tuple(result)
 
 
-def _required_annual_type3_sources(
+def required_annual_type3_sources(
     competitions: Iterable[object],
     allocation_instructions: Iterable[object],
 ) -> tuple[tuple[int, ...], tuple[int, ...]]:
@@ -238,7 +238,7 @@ def materialize_annual_primary_schedule(
     season_year = int(season_year)
     competition_list = tuple(competitions)
     allocation_list = tuple(allocation_instructions)
-    required_league_sources, required_cup_sources = _required_annual_type3_sources(
+    required_league_sources, required_cup_sources = required_annual_type3_sources(
         competition_list,
         allocation_list,
     )
