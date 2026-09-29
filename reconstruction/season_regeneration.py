@@ -34,13 +34,35 @@ from primary_schedule import (
 
 
 class LiveCompetitionClubView:
-    """Read-only source club view with live competition membership overlaid."""
+    """Read-only source club view with annual live/qualification state overlaid."""
 
-    __slots__ = ("_source", "competition_id")
+    __slots__ = (
+        "_source",
+        "competition_id",
+        "historical_competition_id",
+        "historical_slot_index",
+    )
 
-    def __init__(self, source, competition_id: int):
+    def __init__(
+        self,
+        source,
+        competition_id: int,
+        *,
+        historical_competition_id: int | None = None,
+        historical_slot_index: int | None = None,
+    ):
         self._source = source
         self.competition_id = int(competition_id)
+        self.historical_competition_id = int(
+            getattr(source, "historical_competition_id", -1)
+            if historical_competition_id is None
+            else historical_competition_id
+        )
+        self.historical_slot_index = int(
+            getattr(source, "historical_slot_index", -1)
+            if historical_slot_index is None
+            else historical_slot_index
+        )
 
     def __getattr__(self, name):
         return getattr(self._source, name)
@@ -77,13 +99,39 @@ class AnnualPrimaryScheduleRegeneration:
 def clubs_with_live_competition_memberships(
     clubs: Iterable[object],
     memberships: Mapping[int, int],
+    *,
+    qualification_rankings_by_competition: Mapping[
+        int, tuple[int, ...]
+    ] | None = None,
 ) -> tuple[LiveCompetitionClubView, ...]:
-    """Overlay live competition membership without mutating source Club rows."""
+    """Overlay annual membership plus finished-season qualification slots.
+
+    0x4F7F70 writes each root League's sorted final table index to club+0x30;
+    0x4F9010 then copies the club's finished competition ID to club+0x2C
+    before LeagueAllocation swaps update current membership at club+0x10.
+    The source DB fields have the same startup representation, so reuse that
+    interface with annual values rather than mutating immutable Club records.
+    """
 
     membership_map = {
         int(club_id): int(competition_id)
         for club_id, competition_id in memberships.items()
     }
+    qualification_by_club: dict[int, tuple[int, int]] = {}
+    for competition_id, ranking in (
+        {} if qualification_rankings_by_competition is None
+        else qualification_rankings_by_competition
+    ).items():
+        competition_id = int(competition_id)
+        for slot_index, club_id in enumerate(ranking):
+            club_id = int(club_id)
+            previous = qualification_by_club.get(club_id)
+            if previous is not None and previous != (competition_id, slot_index):
+                raise ValueError(
+                    f"club {club_id} appears in multiple annual qualification rankings"
+                )
+            qualification_by_club[club_id] = (competition_id, slot_index)
+
     result: list[LiveCompetitionClubView] = []
     for club in clubs:
         club_id = int(getattr(club, "index"))
@@ -95,8 +143,58 @@ def clubs_with_live_competition_memberships(
             raise ValueError(
                 f"club {club_id} has no source or live competition membership"
             )
-        result.append(LiveCompetitionClubView(club, competition_id))
+        qualification = qualification_by_club.get(club_id)
+        result.append(
+            LiveCompetitionClubView(
+                club,
+                competition_id,
+                historical_competition_id=(
+                    None if qualification is None else qualification[0]
+                ),
+                historical_slot_index=(
+                    None if qualification is None else qualification[1]
+                ),
+            )
+        )
     return tuple(result)
+
+
+def _required_annual_type3_sources(
+    competitions: Iterable[object],
+    allocation_instructions: Iterable[object],
+) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """Return primary type-3 League/Dummy and Cup source IDs."""
+
+    competition_by_id = {
+        int(competition.id): competition
+        for competition in competitions
+    }
+    league_sources: set[int] = set()
+    cup_sources: set[int] = set()
+    for instruction in allocation_instructions:
+        if int(getattr(instruction, "instruction_type")) != 3:
+            continue
+        destination = competition_by_id.get(
+            int(getattr(instruction, "destination_competition_id"))
+        )
+        if (
+            destination is None
+            or int(getattr(destination, "runtime_kind_code", 0)) != 2
+            or int(getattr(destination, "schedule_container_code", 0)) in (2, 3)
+        ):
+            continue
+        source_id = int(getattr(instruction, "source_reference"))
+        source = competition_by_id.get(source_id)
+        if source is None:
+            raise ValueError(
+                f"annual type-3 allocation references missing competition {source_id}"
+            )
+        runtime_kind = int(getattr(source, "runtime_kind_code", 0))
+        if runtime_kind in (1, 3):
+            league_sources.add(source_id)
+        elif runtime_kind == 2:
+            cup_sources.add(source_id)
+    return tuple(sorted(league_sources)), tuple(sorted(cup_sources))
 
 
 def materialize_annual_primary_schedule(
@@ -110,6 +208,9 @@ def materialize_annual_primary_schedule(
     *,
     club_competition_membership: Mapping[int, int],
     season_year: int,
+    qualification_rankings_by_competition: Mapping[
+        int, tuple[int, ...]
+    ] | None = None,
     cup_enumerated_club_ids_by_source: dict[
         int, tuple[int | None, ...]
     ] | None = None,
@@ -123,28 +224,78 @@ def materialize_annual_primary_schedule(
     The caller's RNG is consumed in place. The state leaving competition
     initialization is therefore exactly the state entering 0x615BE0, and the
     same stream immediately continues through each bucket's 0x615AE0 shuffle.
+
+    Annual type-3 qualification state is mandatory when referenced: League and
+    DummyLeague sources receive the finished-season competition/ranking slots
+    written by 0x4F7F70/0x4F9010, while Cup sources must provide the completed
+    Cup+0x40/+0x44 result pair written by Cup::finalize 0x4F8F80. The annual
+    path never falls back to shipped first-season historical references.
     """
 
     state_before = getattr(rng, "state", None)
     if state_before is None:
         raise TypeError("annual regeneration requires an RNG with CRT state")
     season_year = int(season_year)
+    competition_list = tuple(competitions)
+    allocation_list = tuple(allocation_instructions)
+    required_league_sources, required_cup_sources = _required_annual_type3_sources(
+        competition_list,
+        allocation_list,
+    )
+    qualification_rankings = (
+        {}
+        if qualification_rankings_by_competition is None
+        else {
+            int(key): tuple(int(club_id) for club_id in value)
+            for key, value in qualification_rankings_by_competition.items()
+        }
+    )
+    cup_enumerations = (
+        {}
+        if cup_enumerated_club_ids_by_source is None
+        else {
+            int(key): tuple(value)
+            for key, value in cup_enumerated_club_ids_by_source.items()
+        }
+    )
+    missing_league = tuple(
+        source_id
+        for source_id in required_league_sources
+        if source_id not in qualification_rankings
+    )
+    missing_cup = tuple(
+        source_id
+        for source_id in required_cup_sources
+        if source_id not in cup_enumerations
+    )
+    if missing_league:
+        raise ValueError(
+            "annual type-3 League/Dummy qualification rankings are missing for "
+            f"{missing_league}"
+        )
+    if missing_cup:
+        raise ValueError(
+            "annual type-3 Cup result enumerations are missing for "
+            f"{missing_cup}"
+        )
+
     live_clubs = clubs_with_live_competition_memberships(
         tuple(clubs),
         club_competition_membership,
+        qualification_rankings_by_competition=qualification_rankings,
     )
 
     competition = materialize_primary_rng_driven_schedule(
         rng,
-        competitions,
+        competition_list,
         rounds,
         live_clubs,
         countries,
-        allocation_instructions,
+        allocation_list,
         players,
         fixed_fixture_competition_ids=(),
         real_fixtures=(),
-        cup_enumerated_club_ids_by_source=cup_enumerated_club_ids_by_source,
+        cup_enumerated_club_ids_by_source=cup_enumerations,
     )
     placement = place_primary_schedule_nodes(
         competition.schedule_nodes,
