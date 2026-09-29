@@ -26,6 +26,7 @@ from internal_save import (
     snapshot_human_gameplay,
 )
 from match_postmatch import PlayerTransferRequest
+from procedural_league_state import LiveProceduralLeagueState
 from match_schedule import MsvcCrtRng
 from test_human_gameplay import Database, coefficient_matrix
 from transfer_state import (
@@ -515,6 +516,48 @@ class InternalSaveTests(unittest.TestCase):
             competition_context=6,
         )
         self.assertEqual(restored.state.cup_results.resolve_club_ref(ref), 303)
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
+    def test_live_procedural_league_state_survives_roundtrip(self):
+        original = self.build_controller()
+        node = StartupScheduleNode(
+            node_kind="league_match",
+            competition_id=14,
+            competition_context=2,
+            round_id=None,
+            pair_index=0,
+            schedule_index=0,
+            scheduled_week=10,
+            scheduled_weekday=3,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("league_match", 14, 2, 0),
+        )
+        live = LiveProceduralLeagueState.from_schedule_nodes(
+            (node,),
+            original.state.cup_results.resolve_club_ref,
+        )
+        original.state.procedural_leagues[(14, 2)] = live
+        original.state.record_procedural_league_result(node.node_token, 2, 0)
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.procedural_leagues[(14, 2)].snapshot(),
+            original.state.procedural_leagues[(14, 2)].snapshot(),
+        )
+        self.assertEqual(
+            restored.state.cup_results.competition_rankings[(14, 2)],
+            (1, 2),
+        )
         self.assertEqual(
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),
