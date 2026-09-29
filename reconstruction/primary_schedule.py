@@ -263,7 +263,7 @@ def gate12_primary_matchday_order(
     *,
     season_year: int,
     premier_league_competition_id: int = 0,
-    domestic_cup_ids: tuple[int, ...] = (1, 5),
+    domestic_cup_ids: tuple[int, ...] = (1, 5, 11, 12, 13),
     european_cup_ids: tuple[int, ...] = (9, 10),
     procedural_league_ids: tuple[int, ...] = (14, 167),
 ) -> tuple[tuple[date, tuple[tuple, ...]], ...]:
@@ -271,8 +271,10 @@ def gate12_primary_matchday_order(
 
     Bucket index is the primary-container relative day. Now that the mode-0
     calendar anchor is instruction-closed, bucket 0 is the shared week-0
-    Monday and each subsequent bucket is one calendar day later. Other
-    competitions remain outside this Gate-12 view.
+    Monday and each subsequent bucket is one calendar day later. English
+    divisional playoffs 11/12/13 share the same generic Cup runtime and are
+    tagged with the domestic-Cup execution path. Other competitions remain
+    outside this Gate-12 view.
     """
     anchor = season_weekday_date(int(season_year), 0, 1)
     domestic_ids = {int(value) for value in domestic_cup_ids}
