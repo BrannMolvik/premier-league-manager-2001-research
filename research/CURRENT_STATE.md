@@ -41,16 +41,16 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 code checkpoint:
 
 ```text
-0d6b1ff30f60241e0a038447ee06d90a60e599f3
-Test domestic Cup schedule save roundtrip
+e934dff5ccaa72066e666070201271b72dda74be
+Test Cup match state through controller save
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **703 tests run, 2 failures**, both the unchanged
+- reconstruction suite: **705 tests run, 2 failures**, both the unchanged
   pre-existing secondary-schedule assertions;
-- all new domestic-Cup schedule/date/symbolic-resolution/save regressions
-  passed;
+- the persistent FirstLeg score/link state and full controller save/reload
+  regressions passed;
 - repository asset-policy workflow: **passed**.
 
 The active Cup slice now has:
@@ -68,11 +68,14 @@ The active Cup slice now has:
 - lazy due-node resolution through the live Cup result registry;
 - `GameState.domestic_cups` plus install/due-node helpers that consume no draw
   RNG;
-- internal save schema **24**, which serializes/restores definitive Cup outcomes
-  and live domestic schedule/completion state.
+- persistent `CupMatchRuntimeState` objects behind scheduled nodes, including
+  completed FirstLeg scores and reconstructed bidirectional FirstLeg/SecondLeg
+  linkage after reload;
+- internal save schema **25**, which serializes/restores definitive Cup outcomes,
+  live domestic schedule/completion state and Cup match score/link state.
 
-Replay nodes are still dynamically absent, and scheduled nodes do not yet own
-persisted `CupMatchRuntimeState` objects/scores. The normal human/AI matchday
+Dynamic NormalRound Replay nodes are still absent because the exact
+`0x51392A` replay-date inputs remain to be mapped. The normal human/AI matchday
 loop therefore still remains Premier-League-only.
 
 ## Stable startup / scheduler checkpoint
@@ -131,16 +134,19 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 
 1. Preserve the verified live schedule/save bridge through `0d6b1ff3`; do
    not rebuild solved Cup allocation, draw or startup schedule RNG.
-2. Attach persistent `CupMatchRuntimeState` objects to playable scheduled
-   nodes so a completed FirstLeg can carry its score into the later SecondLeg
-   across save/reload.
-3. Add dynamic Replay schedule entries only from a completed replay-eligible
-   NormalRound draw. Preserve the traced reversed participants/linkage and
-   source replay-date semantics; do not substitute a generic fixed delay.
-4. Verify match-state serialization/link reconstruction and replay/second-leg
-   readiness with deterministic regressions.
-5. Then merge live domestic Cup matches into the normal AI/human matchday
-   execution order while preserving global source schedule ordering.
+2. Preserve the verified `CupMatchRuntimeState` score/link persistence through
+   `e934dff5`.
+3. Reopen only the `0x51392A` replay-date producer and identify
+   `selected_date_anchor[+8]`, the meaning of round `+0x28/+0x2C`, and the
+   exact conversion from its integer schedule day to the clean-room season
+   date. Do not substitute `RoundDefinition.replay_week/replay_weekday`
+   without proving that mapping.
+4. Once closed, dynamically insert a persisted `CupMatchReplay` entry on a
+   replay-eligible NormalRound draw, with reversed participants and the already
+   implemented decisive lifecycle.
+5. Verify replay save/reload and only then merge live domestic Cup matches into
+   normal AI/human matchday execution while preserving global source schedule
+   ordering.
 
 ## Known live fidelity boundaries
 
