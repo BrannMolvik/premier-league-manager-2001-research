@@ -16,7 +16,62 @@ from gate_receipts import (
     randomized_gate_count,
     signed_trunc_division,
     ticket_price_response,
+    cup_round_attendance_modifier,
+    fan_factor_for_root_competition_index,
 )
+
+
+class CupGatePrimitiveTests(unittest.TestCase):
+    def test_fan_factor_uses_exact_root_index_table(self):
+        self.assertEqual(
+            tuple(fan_factor_for_root_competition_index(i) for i in range(7)),
+            (0.9, 0.8, 0.7, 0.6, 0.5, 0.5, 0.5),
+        )
+
+    def test_cup_round_modifier_matches_shipped_tuning(self):
+        total = 8
+        self.assertEqual(
+            cup_round_attendance_modifier(
+                total_round_count=total,
+                zero_based_round_index=7,
+            ),
+            3.0,
+        )
+        self.assertEqual(
+            cup_round_attendance_modifier(
+                total_round_count=total,
+                zero_based_round_index=6,
+            ),
+            2.0,
+        )
+        self.assertEqual(
+            cup_round_attendance_modifier(
+                total_round_count=total,
+                zero_based_round_index=5,
+            ),
+            1.5,
+        )
+        self.assertEqual(
+            cup_round_attendance_modifier(
+                total_round_count=total,
+                zero_based_round_index=4,
+            ),
+            1.4,
+        )
+        self.assertEqual(
+            cup_round_attendance_modifier(
+                total_round_count=total,
+                zero_based_round_index=0,
+            ),
+            1.4,
+        )
+
+    def test_cup_round_modifier_rejects_invalid_runtime_index(self):
+        with self.assertRaises(ValueError):
+            cup_round_attendance_modifier(
+                total_round_count=8,
+                zero_based_round_index=8,
+            )
 
 
 class GateLiveInputTests(unittest.TestCase):

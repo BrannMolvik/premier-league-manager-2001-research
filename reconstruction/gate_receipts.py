@@ -15,6 +15,10 @@ PREMIER_LEAGUE_TIER_FACTOR = 0.5
 PREMIER_LEAGUE_SEATING_REFERENCE = 30.0
 PREMIER_LEAGUE_TERRACE_REFERENCE = 22.5
 FRESH_CONTROLLED_FACILITY_FACTOR = 0.9
+CUP_FINAL_ATTENDANCE_BOOST = 30
+CUP_SEMIFINAL_ATTENDANCE_BOOST = 20
+CUP_QUARTERFINAL_ATTENDANCE_BOOST = 15
+CUP_ATTENDANCE_DIVISOR = 10
 
 
 @dataclass(frozen=True)
@@ -23,6 +27,61 @@ class GateAttendanceCell:
     price_response: float
     random_span: int
     count: int
+
+
+def fan_factor_for_root_competition_index(index: int) -> float:
+    """Exact 0x5DA2F0 FanFactor1..5 selection by country-root array index.
+
+    0x410FF0 supplies the owning competition's stored index in its country /
+    region root-competition array. Indices 0..3 select 0.9/0.8/0.7/0.6;
+    index 4 and every later/default case use 0.5.
+    """
+    index = int(index)
+    if index < 0:
+        raise ValueError("root competition index must be non-negative")
+    if index == 0:
+        return 0.9
+    if index == 1:
+        return 0.8
+    if index == 2:
+        return 0.7
+    if index == 3:
+        return 0.6
+    return 0.5
+
+
+def cup_round_attendance_modifier(
+    *,
+    total_round_count: int,
+    zero_based_round_index: int,
+) -> float:
+    """Reproduce the Cup branch at 0x5DA5FF..0x5DA744.
+
+    The executable compares Cup+0x3C (total runtime rounds) with match virtual
+    +0x60 (zero-based current round index). Remaining-round values 1/2/3 use
+    ATTCupFianlBoost / ATTCupSemiFinalBoost / ATTCupQuarterFinalBoot.
+    Earlier rounds use quarter-final boost minus one. All are divided by
+    ATTCupDiv.
+
+    Shipped tuning values are 30 / 20 / 15 / 10 respectively.
+    """
+    total_round_count = int(total_round_count)
+    zero_based_round_index = int(zero_based_round_index)
+    if total_round_count <= 0:
+        raise ValueError("total_round_count must be positive")
+    if not 0 <= zero_based_round_index < total_round_count:
+        raise ValueError("zero_based_round_index is outside the Cup")
+
+    rounds_from_final = total_round_count - zero_based_round_index
+    if rounds_from_final == 1:
+        boost = CUP_FINAL_ATTENDANCE_BOOST
+    elif rounds_from_final == 2:
+        boost = CUP_SEMIFINAL_ATTENDANCE_BOOST
+    elif rounds_from_final == 3:
+        boost = CUP_QUARTERFINAL_ATTENDANCE_BOOST
+    else:
+        boost = CUP_QUARTERFINAL_ATTENDANCE_BOOST - 1
+    return float(boost) / float(CUP_ATTENDANCE_DIVISOR)
 
 
 def signed_trunc_division(numerator: int, denominator: int) -> int:
