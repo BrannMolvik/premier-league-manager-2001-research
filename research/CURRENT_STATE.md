@@ -43,22 +43,21 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 implementation checkpoint:
 
 ```text
-867262db85c2955eea56e277718df13773d847cc
-Verify completed-group ranking publication
+474086bb26fe7185b0022ea84568653b443d8e0f
+Match European source identity in save regression
 ```
 
-GitHub Actions at that checkpoint ran **762 tests with 2 failures**, exactly
+GitHub Actions at that checkpoint ran **780 tests with 2 failures**, exactly
 the unchanged known secondary-schedule assertions; repository asset policy
-passed. Live Champions League child/procedural-League state now materializes
-from the persisted full-primary schedule shadow, records group results, and
-publishes source-backed ClubRef type-2 rankings only after the complete group
-schedule has finished and the proven points / goal-difference / goals-for keys
-produce an unambiguous order.
+passed. The European runtime bridge is now covered end-to-end: live child
+groups publish type-2 standings and source-backed type-3 cross-group pools,
+Champions League / UEFA Cup knockout nodes execute through the shared CupMatch
+runtime in canonical primary order for AI and human control, and a real
+type-3 Champions-League-group -> UEFA knockout dependency survives save/reload.
 
-Internal save schema is now **30** and preserves those live procedural-League
-fixtures/results alongside the ranking registry. ClubRef type 3, used by the
-Champions-League-group-to-UEFA transfer path, remains deliberately unresolved
-until its distinct MiniLeague group-position resolver is source-backed.
+Internal save schema is now **32** and preserves the European Cup schedule,
+live procedural-League fixtures/results, type-2 rankings and type-3
+cross-group rankings.
 
 The active Cup slice now has:
 
@@ -150,35 +149,20 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 
 ## Exact next task
 
-1. Preserve all verified English domestic-Cup execution and the completed
-   European child-group execution/type-2/type-3 progression work. Do not reopen
-   solved draw, replay, TwoLeg, extra-time, calendar, primary-shadow or
-   MatchCalculator ordering.
-2. European child competition **14/167** LeagueMatch nodes now execute in the
-   shuffled primary order through the shared MatchCalculator. The live group
-   state records those scores and publishes type-2 positions only after a
-   complete exact ranking.
-3. ClubRef type 3 is now instruction-closed and integrated. It is **not** a
-   type-2 alias: the executable takes one equal position from every sibling
-   child League/group, globally sorts those clubs with the League comparator,
-   then selects by the decoded ordinal. The clean runtime publishes this
-   cross-group pool only when the recovered numeric comparator keys are exact;
-   ties that would require the final source-name byte comparison remain pending.
-4. Internal save schema **31** persists type-3 cross-group ranking pools.
-   Verification at `0864839`: **774 tests**, with only the same two known
-   secondary-schedule failures; repository asset policy passes.
-5. The active Gate-12 boundary is now to attach European competition **9**
-   (Champions League) and **10** (UEFA Cup) knockout CupMatch nodes to the
-   existing shared CupMatch runtime and primary matchday controller. Preserve
-   their already-canonical symbolic cross-competition refs and post-shuffle
-   order; do not reconstruct their startup draw/allocation.
-6. After European knockout execution is live, verify save/reload and
-   cross-competition progression through a real type-3 UEFA transfer dependency
-   before moving to broader competitions.
-7. The special English domestic-Cup category-1/category-2 posting policy remains
-   a separate fidelity gap. The canonical executable is now available for
-   direct tracing, but do not let that side branch displace the active European
-   knockout slice.
+1. Preserve all verified English domestic-Cup and European execution,
+   ClubRef progression, shared primary-order, human-controller and save/reload
+   behavior. Do not reopen solved draw/allocation work.
+2. Move to Gate 12's next roadmap slice: **other required English
+   league/divisional structures**.
+3. Audit the already-materialized English non-Premier-League competition nodes
+   and runtime formats first. Identify which structures already map onto the
+   generic League/Cup machinery and the first format whose live state,
+   progression, calendar execution, or save/reload bridge is still missing.
+4. Add deterministic regression coverage for that first missing runtime bridge
+   before expanding to later competition formats.
+5. Keep the special English domestic-Cup category-1/category-2 posting policy
+   as a separate deferred fidelity gap unless it directly blocks the new
+   divisional runtime slice.
 
 ## Known live fidelity boundaries
 
@@ -189,10 +173,11 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   discipline/injury and `0x404CE0` morale/Form are integrated behind the
   exact-or-pending shadow guard. English Cup attendance policy inputs are
   source-backed; only the special both-controlled-participants posting policy
-  remains deferred. European startup is already canonical; group standings, primary-order group
-  execution, type-2 progression and type-3 cross-group transfer resolution are
-  live. The active gap is European knockout attachment to the shared CupMatch
-  controller.
+  remains deferred. European startup is canonical; group standings, primary-order group execution,
+  type-2 progression, type-3 cross-group transfers, Champions League / UEFA Cup
+  knockout execution, human routing and save/reload are live and regression
+  covered. The active Gate-12 gap has moved to other required English
+  league/divisional structures.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
