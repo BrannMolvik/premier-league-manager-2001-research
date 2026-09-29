@@ -51,6 +51,20 @@ class QualificationCupRuntimeTests(unittest.TestCase):
             ),),
         )
 
+    def test_primary_due_entries_include_qualification_cup(self):
+        node = cup_node()
+        on_date = date(2000, 8, 26)
+        state = GameState.from_players((), on_date)
+        state.qualification_cups = DomesticCupScheduleState.from_startup_nodes(
+            (node,),
+            season_year=2000,
+            competition_ids=ANNUAL_QUALIFICATION_CUP_IDS,
+        )
+        entry = ("qualification_cup", tuple(node.node_token))
+        state.primary_matchday_order = {on_date: (entry,)}
+
+        self.assertEqual(state.primary_entries_due_today(), (entry,))
+
     def test_generic_ai_wrapper_uses_separate_qualification_owner(self):
         state = GameState.from_players((), date(2000, 8, 26))
         sentinel = (object(), object())
