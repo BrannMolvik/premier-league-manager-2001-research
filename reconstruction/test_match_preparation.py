@@ -7,6 +7,7 @@ from match_preparation import (
     build_prepared_match_side_from_selection,
     prepare_ai_match_selection,
     prepare_cup_ai_selection,
+    prepare_league_ai_selection,
     prepare_premier_league_ai_match_side,
     prepare_premier_league_ai_selection,
 )
@@ -492,6 +493,54 @@ class AiMatchPreparationTests(unittest.TestCase):
         self.assertEqual(result.substitute_quota, 5)
         self.assertEqual(len(result.selection.lineup.starters), 11)
         self.assertEqual(len(result.selection.lineup.substitutes), 5)
+
+    def test_generic_league_ai_selection_uses_advancement_pressure(self):
+        @dataclass(frozen=True)
+        class Manager:
+            formation_default: int = 0
+            formation_class3: int = 2
+            formation_class1: int = 1
+
+        @dataclass(frozen=True)
+        class Competition:
+            substitute_quota: int = 5
+            max_non_eu_players: int = 3
+
+        @dataclass(frozen=True)
+        class Row:
+            club_id: int
+            played: int
+            points: int
+
+        roster = formation_zero_roster(club=7)
+        roster.extend(
+            player(11 + i, 7, role, 150)
+            for i, role in enumerate((12, 19, 4, 1, 10))
+        )
+        opponent = formation_zero_roster(club=8)
+        table = (
+            Row(1, 4, 10),
+            Row(2, 4, 8),
+            Row(7, 4, 5),
+            Row(8, 4, 2),
+        )
+
+        result = prepare_league_ai_selection(
+            7,
+            roster,
+            opponent,
+            Manager(),
+            Competition(),
+            table,
+            total_matches=6,
+            automatic_promotion_places=2,
+            is_home=True,
+        )
+
+        # +2 group advancement pressure plus +1 home reaches GSAttPerc=3.
+        self.assertEqual(result.strategy_score, 3)
+        self.assertEqual(int(result.selection_class), 1)
+        self.assertEqual(result.formation_id, 1)
 
     def test_premier_league_ai_selection_uses_normal_formation_early_season(self):
         @dataclass(frozen=True)
