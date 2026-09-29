@@ -152,6 +152,8 @@ class GameState:
     clubs: dict[int, object] = field(default_factory=dict)
     managers: dict[int, object] = field(default_factory=dict)
     competitions: dict[int, object] = field(default_factory=dict)
+    round_definitions: tuple[object, ...] = ()
+    cup_allocation_instructions: tuple[object, ...] = ()
     league_allocation_records: tuple[object, ...] = ()
     club_competition_membership: dict[int, int] = field(default_factory=dict)
     countries: dict[int, object] = field(default_factory=dict)
@@ -358,6 +360,10 @@ class GameState:
             clubs=clubs_by_id,
             managers=managers_by_id,
             competitions=competitions_by_id,
+            round_definitions=tuple(getattr(database, "rounds", ())),
+            cup_allocation_instructions=tuple(
+                getattr(database, "cup_allocation_instructions", ())
+            ),
             league_allocation_records=tuple(
                 getattr(database, "league_allocation_records", ())
             ),
@@ -2189,12 +2195,8 @@ class GameState:
             return None
         return tuple(int(club_id) for club_id in ranking)
 
-    def apply_english_season_transition(self):
-        """Apply the recovered annual English LeagueAllocation exchanges.
-
-        Every endpoint must already expose an exact final ranking. This refuses
-        to use display-only tie fallbacks or incomplete playoff state.
-        """
+    def preview_english_season_transition(self):
+        """Compute the recovered English annual swaps without mutating state."""
         from league_transition import (
             apply_league_allocation_exchanges,
             ordered_english_league_allocations,
@@ -2220,11 +2222,15 @@ class GameState:
                 )
             rankings[competition_id] = ranking
 
-        result = apply_league_allocation_exchanges(
+        return apply_league_allocation_exchanges(
             records,
             rankings,
             self.club_competition_membership,
         )
+
+    def apply_english_season_transition(self):
+        """Apply the already-validated English annual membership exchanges."""
+        result = self.preview_english_season_transition()
         self.club_competition_membership = dict(result.memberships)
         return result
 
