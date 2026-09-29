@@ -267,3 +267,31 @@ class PremierLeagueState:
             rows.values(),
             key=lambda row: (-row.points, -row.goal_difference, -row.goals_for, row.club_id),
         ))
+
+    @property
+    def is_complete(self) -> bool:
+        return len(self.results) == len(self.fixtures)
+
+    def exact_ranking(self) -> tuple[int, ...] | None:
+        """Return a gameplay ranking only when recovered League keys are unique."""
+        if not self.is_complete:
+            return None
+        rows = self.table()
+        keys = tuple(
+            (int(row.points), int(row.goal_difference), int(row.goals_for))
+            for row in rows
+        )
+        if len(keys) != len(set(keys)):
+            return None
+        return tuple(int(row.club_id) for row in rows)
+
+    def publish_exact_ranking(self, registry) -> tuple[int, ...] | None:
+        ranking = self.exact_ranking()
+        if ranking is None:
+            registry.clear_competition_ranking(0, competition_context=0)
+            return None
+        return registry.replace_competition_ranking(
+            0,
+            ranking,
+            competition_context=0,
+        )
