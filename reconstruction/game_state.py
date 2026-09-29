@@ -1830,6 +1830,11 @@ class GameState:
                 rng,
             )
             return result
+        if kind == "procedural_league":
+            raise RuntimeError(
+                "European procedural LeagueMatch execution is the active Gate-12 "
+                "boundary; do not skip or reorder this primary entry"
+            )
         raise ValueError(f"unsupported primary match entry {entry!r}")
 
     def simulate_due_primary_ai_entries(
@@ -1840,7 +1845,7 @@ class GameState:
         *,
         entry_order: Iterable[tuple] | None = None,
     ) -> tuple[tuple[tuple, object], ...]:
-        """Simulate today's PL/domestic-Cup entries in one scheduler order.
+        """Simulate today's live primary entries in one scheduler order.
 
         This is the Gate-12 counterpart of the PL-only due-fixture walker.
         Entries come from the post-shuffle primary linked-list order retained
@@ -1876,7 +1881,7 @@ class GameState:
         defence_matrix,
         rng=None,
     ) -> tuple[tuple[tuple, object], ...]:
-        """Advance one day and execute PL/Cup matches in shared primary order."""
+        """Advance one day and execute live matches in shared primary order."""
         rng = self._resolve_rng(rng)
         self.calendar.increment_one_day()
         results = self.simulate_due_primary_ai_entries(
@@ -2028,6 +2033,25 @@ class GameState:
         # A newly published phase-1 ranking can make phase-2 groups resolvable.
         self.refresh_european_procedural_leagues()
         return result
+
+    def procedural_league_nodes_due_today(self) -> tuple[tuple, ...]:
+        """Return unresolved live European group fixtures due on the current date."""
+        entries = self.primary_matchday_order.get(self.calendar.current_date, ())
+        due: list[tuple] = []
+        for entry in entries:
+            if entry[0] != "procedural_league":
+                continue
+            token = tuple(entry[1])
+            owners = tuple(
+                live
+                for live in self.procedural_leagues.values()
+                if token in live.fixtures
+            )
+            if len(owners) != 1:
+                continue
+            if token not in owners[0].results:
+                due.append(token)
+        return tuple(due)
 
     def install_primary_schedule_shadow(
         self,
@@ -2183,7 +2207,7 @@ class GameState:
         *,
         season_year: int,
     ) -> dict[date, tuple[tuple, ...]]:
-        """Persist exact shuffled PL/domestic-Cup order for Gate-12 dates."""
+        """Persist exact shuffled live Gate-12 primary order by date."""
         from primary_schedule import gate12_primary_matchday_order
 
         self.primary_matchday_order = dict(
@@ -2195,7 +2219,7 @@ class GameState:
         return self.primary_matchday_order
 
     def primary_entries_due_today(self) -> tuple[tuple, ...]:
-        """Return uncompleted/playable PL/Cup entries in global scheduler order."""
+        """Return all currently materialized due entries in global scheduler order."""
         entries = self.primary_matchday_order.get(self.calendar.current_date, ())
         if not entries:
             return ()
@@ -2208,6 +2232,7 @@ class GameState:
             tuple(node.node_token)
             for node in self.domestic_cup_nodes_due_today()
         }
+        due_procedural = set(self.procedural_league_nodes_due_today())
 
         due: list[tuple] = []
         for entry in entries:
@@ -2215,6 +2240,11 @@ class GameState:
             if kind == "premier_league" and int(entry[1]) in due_pl:
                 due.append(entry)
             elif kind == "domestic_cup" and tuple(entry[1]) in due_cup:
+                due.append(entry)
+            elif (
+                kind == "procedural_league"
+                and tuple(entry[1]) in due_procedural
+            ):
                 due.append(entry)
         return tuple(due)
 
