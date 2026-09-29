@@ -117,3 +117,38 @@ primary matchday order and execute due group fixtures through the shared
 MatchCalculator. Record those scores into the verified live procedural-League
 state, preserving schedule order and save/reload. Keep ClubRef type 3 separate
 until its resolver path is source-backed.
+
+
+## Primary group execution and ClubRef type 3 closed
+
+Commits `3742a7e` / `9ac3da0` / `da31e5b` execute due child competition
+14/167 LeagueMatch nodes in the already-shuffled primary order through the
+shared MatchCalculator. The bridge preserves both-AI-selection -> weather ->
+side-0 Condition -> side-1 Condition ordering, records the score into the live
+procedural-League state, preserves the shared four post-calculator gate draws,
+and applies the existing exact-or-pending shared post-match persistence.
+
+Verification at `da31e5b` is **769 tests** with only the same two known
+secondary-schedule failures; repository asset policy passes.
+
+Direct canonical-executable tracing now also closes ClubRef type 3:
+
+- constructor `0x4F2D40` encodes
+  `runtime_instance_count * position_index + instance_ordinal`;
+- resolver `0x4F2992..0x4F2A73` divides that selector back into position and
+  ordinal with `0x66A518`;
+- it takes that same position from every linked child League/group, after each
+  group is refreshed through `0x4F4940`;
+- it globally sorts those cross-group candidates with League comparator
+  `0x4F45E0` and selects by the decoded instance ordinal.
+
+So the Champions-League-to-UEFA type-3 transfer is a globally ranked pool of
+same-position group finishers, not a direct per-group position lookup and not a
+type-2 alias.
+
+### Next implementation boundary
+
+Publish that source-backed cross-group ranking into the live result registry so
+the existing decoded type-3 descriptors resolve, persist it through internal
+save/load, and then attach the now-resolvable European knockout nodes to the
+shared CupMatch runtime/controller path.
