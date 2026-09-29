@@ -588,6 +588,71 @@ class HumanGameplayControllerTests(unittest.TestCase):
         self.assertIn(6, controller.state.premier_league.results)
         self.assertIsNone(controller.pending_primary_entry)
 
+    def test_shared_primary_controller_stops_for_human_european_knockout(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+        self.set_available_lineup(controller)
+        controller.state.competitions[9] = SimpleNamespace(
+            id=9,
+            substitute_quota=5,
+            max_non_eu_players=10,
+            scheduled_matchday_count=8,
+            initialization_order_value=6,
+        )
+        token = ("cup_result", 9, 200, 4)
+        node = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=9,
+            competition_context=0,
+            round_id=200,
+            pair_index=4,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=token,
+            round_number=1,
+            extra_time_capable=True,
+            decisive_tiebreak=True,
+            auxiliary_flag=False,
+        )
+        controller.state.european_cups = DomesticCupScheduleState.from_startup_nodes(
+            (node,),
+            season_year=2000,
+            competition_ids=(9, 10),
+        )
+        controller.state.primary_matchday_order = {
+            date(2000, 7, 8): (
+                ("premier_league", 5),
+                ("european_cup", token),
+                ("premier_league", 6),
+            )
+        }
+
+        pending = controller.advance_to_next_user_primary_match()
+
+        self.assertEqual(pending, ("european_cup", token))
+        self.assertIn(5, controller.state.premier_league.results)
+        self.assertNotIn(6, controller.state.premier_league.results)
+        self.assertNotIn(token, controller.state.cup_results.outcomes)
+
+        outcome = controller.play_user_primary_match()
+
+        self.assertEqual(outcome.match_entry, ("european_cup", token))
+        self.assertEqual(
+            tuple(entry for entry, _result in outcome.matchday_results),
+            (
+                ("premier_league", 5),
+                ("european_cup", token),
+                ("premier_league", 6),
+            ),
+        )
+        self.assertIn(token, controller.state.cup_results.outcomes)
+        self.assertIn(token, controller.state.european_cups.completed_node_tokens)
+        self.assertIn(6, controller.state.premier_league.results)
+        self.assertIsNone(controller.pending_primary_entry)
+
     def test_advance_stops_before_human_fixture_then_shared_backend_finishes_day(self):
         controller = self.build_controller()
         controller.select_club(1)
