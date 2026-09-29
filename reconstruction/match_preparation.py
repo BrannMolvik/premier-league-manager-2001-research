@@ -18,6 +18,7 @@ from match_team_setup import (
     initialize_ai_roster_condition,
     manager_formation_for_selection_class,
     play_style_to_strategy_code,
+    league_strategy_bias,
     premier_league_strategy_bias,
     resolved_substitute_quota,
     strategy_team_rating,
@@ -386,6 +387,67 @@ def prepare_cup_ai_selection(
     )
 
 
+def prepare_league_ai_selection(
+    team_club_id: int,
+    ordered_roster: Sequence[PlayerT],
+    opponent_roster: Sequence[PlayerT],
+    manager: ManagerFormationInput,
+    competition: CompetitionSelectionInput,
+    table_rows: Sequence[LeagueTableInput],
+    *,
+    total_matches: int,
+    automatic_promotion_places: int = 0,
+    playoff_places: int = 0,
+    relegation_places: int = 0,
+    is_home: bool,
+    additional_eligible: Callable[[PlayerT], bool] | None = None,
+    preserve_existing_selection: Callable[[PlayerT], bool] | None = None,
+    require_complete_xi: bool = True,
+) -> PreparedPremierLeagueAiSelection:
+    """Prepare an AI ordinary-League XI from the generic 0x409680 inputs."""
+    current_rating = strategy_team_rating(ordered_roster)
+    opponent_rating = strategy_team_rating(opponent_roster)
+    context_bias = league_strategy_bias(
+        table_rows,
+        team_club_id,
+        total_matches=int(total_matches),
+        automatic_promotion_places=int(automatic_promotion_places),
+        playoff_places=int(playoff_places),
+        relegation_places=int(relegation_places),
+    )
+    strategy_score = game_strategy_score(
+        is_home=bool(is_home),
+        current_rating=current_rating,
+        opponent_rating=opponent_rating,
+        competition_context_bias=context_bias,
+    )
+    selection_class = formation_selection_class_from_score(strategy_score)
+    formation_id = manager_formation_for_selection_class(
+        manager,
+        selection_class,
+    )
+    substitute_quota = resolved_substitute_quota(
+        int(competition.substitute_quota)
+    )
+    selection = prepare_ai_match_selection(
+        int(team_club_id),
+        ordered_roster,
+        formation_id=formation_id,
+        substitute_quota=substitute_quota,
+        additional_eligible=additional_eligible,
+        preserve_existing_selection=preserve_existing_selection,
+        require_complete_xi=require_complete_xi,
+        non_eu_limit=int(competition.max_non_eu_players),
+    )
+    return PreparedPremierLeagueAiSelection(
+        strategy_score=strategy_score,
+        selection_class=selection_class,
+        formation_id=formation_id,
+        substitute_quota=substitute_quota,
+        selection=selection,
+    )
+
+
 def prepare_premier_league_ai_selection(
     team_club_id: int,
     ordered_roster: Sequence[PlayerT],
@@ -399,50 +461,24 @@ def prepare_premier_league_ai_selection(
     preserve_existing_selection: Callable[[PlayerT], bool] | None = None,
     require_complete_xi: bool = True,
 ) -> PreparedPremierLeagueAiSelection:
-    """Prepare an AI Premier League XI without caller-supplied formation/quota.
-
-    The formation path mirrors 0x409500 -> 0x409B50: home/away base, exact
-    first-eleven roster rating, live late-season Premier League table pressure,
-    then the manager attacking/normal/defensive formation preference. The
-    substitute quota and Non-EU limit come directly from DBRCompetition fields
-    parsed from Static.dat (+17 and +34 respectively).
-    """
-    current_rating = strategy_team_rating(ordered_roster)
-    opponent_rating = strategy_team_rating(opponent_roster)
-    league_bias = premier_league_strategy_bias(table_rows, team_club_id)
-    strategy_score = game_strategy_score(
-        is_home=bool(is_home),
-        current_rating=current_rating,
-        opponent_rating=opponent_rating,
-        competition_context_bias=league_bias,
-    )
-    selection_class = formation_selection_class_from_score(strategy_score)
-    formation_id = manager_formation_for_selection_class(
-        manager,
-        selection_class,
-    )
-    substitute_quota = resolved_substitute_quota(
-        int(competition.substitute_quota)
-    )
-
-    selection = prepare_ai_match_selection(
-        int(team_club_id),
+    """Premier League specialization of the generic ordinary-League selector."""
+    return prepare_league_ai_selection(
+        team_club_id,
         ordered_roster,
-        formation_id=formation_id,
-        substitute_quota=substitute_quota,
+        opponent_roster,
+        manager,
+        competition,
+        table_rows,
+        total_matches=38,
+        automatic_promotion_places=0,
+        playoff_places=0,
+        relegation_places=3,
+        is_home=is_home,
         additional_eligible=additional_eligible,
         preserve_existing_selection=preserve_existing_selection,
         require_complete_xi=require_complete_xi,
-        non_eu_limit=int(competition.max_non_eu_players),
     )
 
-    return PreparedPremierLeagueAiSelection(
-        strategy_score=strategy_score,
-        selection_class=selection_class,
-        formation_id=formation_id,
-        substitute_quota=substitute_quota,
-        selection=selection,
-    )
 
 def build_premier_league_ai_match_side(
     preparation: PreparedPremierLeagueAiSelection,
