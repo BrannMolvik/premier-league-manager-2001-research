@@ -158,27 +158,55 @@ Do not model Conference 2 as a played League or invent fixtures.
 - `1e8cd6f1`: add playoff IDs 11/12/13 to live English Cup state.
 - `97184e81`: include those playoff Cups in the shared primary order.
 - `fcb23448`: regression-lock playoff primary-order tagging.
+- `eb582e7f`: correct the canonical playoff source-date regression to
+  23 May 2001.
+- `e78d10c9` / `505561ea` / `79e59cbc`: preserve canonical ranked
+  Cup-source state through primary reconstruction and publish the already-drawn
+  Conference 2 ranking without consuming additional RNG.
+- `c3d321d8`: regression-lock preserved DummyLeague source ranking.
+- `8272f4f1` / `f38eb6cf`: expose/publish a gameplay-safe exact Premier
+  League final ranking only when the recovered points / goal-difference /
+  goals-scored keys uniquely determine every position.
+- `d76f2e8c` / `d3572bf0`: expose and test the unique completed playoff
+  final winner.
+- `85b786c8` / `802a15d0`: implement and test the exact paired
+  LeagueAllocation membership swaps, including all 14 English slot exchanges
+  and the playoff-winner parent-membership behavior.
+- `85420011`: add source allocation rows plus a separate mutable live
+  club-competition-membership map to GameState and integrate the English annual
+  transition.
+- `3aafce9f` / `d02639af`: advance internal save schema to **33** and
+  preserve changed club competition memberships across save/reload.
+- `618a223a`: end-to-end GameState regression for exact rankings, playoff
+  winners, Conference 2, and all 14 annual exchanges.
+- `3a699c17` / `64baafb8`: keep lightweight synthetic club sources
+  compatible while preserving real source memberships.
 
-At `41f19e3e10cd356dc1f0448213ed881dbffebf8d`, GitHub Actions ran
-**784 tests** with only the two unchanged known secondary-schedule failures;
+At `64baafb8772cc7d6a003ed92c6df41eec41c33a9`, GitHub Actions ran
+**792 tests** with only the two unchanged known secondary-schedule failures;
 repository asset policy passed.
 
-## Remaining transition work
+## Verified live transition boundary
 
-Before applying membership swaps in live GameState:
+The annual English membership transition is now live, source-backed and
+save-persistent:
 
-1. verify the latest playoff-live-state commits in CI;
-2. expose/preserve the canonical Conference 2 DummyLeague ranking through the
-   live season boundary;
-3. provide one exact ranking accessor per allocation endpoint:
-   - fixed Premier table,
-   - procedural League final rankings,
-   - playoff Cup winners,
-   - Conference 2 DummyLeague ranking;
-4. add a separate mutable live club-competition-membership map rather than
-   mutating immutable source Club records;
-5. apply the sorted LeagueAllocation exchanges and persist them across
-   save/reload;
-6. only then regenerate next-season competition state from those memberships.
+1. regular-season Leagues publish exact final rankings;
+2. playoff Cups 11/12/13 run in the shared primary Cup stream and expose their
+   resolved final winners;
+3. Conference 2 reuses the exact startup DummyLeague ranking already produced
+   by canonical RNG, with no second sort;
+4. GameState resolves every LeagueAllocation endpoint and refuses to run if any
+   exact ranking is unresolved;
+5. the eight English source rows execute in recovered top-down order and
+   perform **14 paired current-membership swaps**;
+6. immutable source Club records remain untouched; the live membership map is
+   persisted under internal save schema **33**.
+
+The remaining Gate-12 transition boundary is **next-season regeneration**:
+rebuild Premier League, procedural League, playoff/Cup, ranking, and primary
+schedule state from the post-transition live memberships in the original
+season-rollover order. Do not reuse the old season's schedule objects or
+re-materialize Conference 2 with a second RNG pass.
 
 Do not substitute modern football rules for any missing source behavior.
