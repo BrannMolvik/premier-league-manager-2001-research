@@ -7740,3 +7740,19 @@ now-verified procedural-League state.
   positional slot, `Cup+0x40` or `Cup+0x44`, receives the completed result
   club versus the opposite/finalist path at `0x4F8F80`. That ordering will
   not be guessed.
+
+
+### 2026-09-29 - Atomic annual primary runtime replacement verified
+
+- Closed the remaining positional Cup finalization ambiguity from canonical executable evidence: 0x4F8F80 writes the completed result/winner club to Cup+0x40, then stores the opposite final participant at Cup+0x44. 0x4F5770 enumerates those slots as (winner, loser).
+- Concurrent Gate-12 work added a strict live annual qualification snapshot: required League/Dummy rankings and required Cup final pairs must be present; missing live state raises rather than falling back to shipped historical qualification values.
+- Added a year-two Premier League compatibility projection: annual procedural competition-0 league_match nodes are converted into a fresh PremierLeagueState using emission identity plus schedule-index matchdays, so the human/AI/table interface continues without reusing 2000/01 fixed fixture rows.
+- The shared primary-order bridge now tags both first-season fixed PL nodes and annual procedural PL nodes as premier_league, and reconstructs exact shuffled per-matchday PL scheduler order from either representation.
+- Added a non-mutating English membership-transition preview, so annual qualification capture, promotion/relegation, materialization and state replacement can validate before live membership is changed.
+- GameState.install_annual_primary_regeneration() constructs a fresh Premier League, Cup registry/schedules, procedural-League set, full primary shadow, matchday order and PL scheduler order before one assignment boundary. Old results, Cup outcomes/rankings, schedule state and prepared match environments are not retained.
+- HumanGameplayController.regenerate_annual_primary_season() captures qualification before membership exchange, materializes on a cloned controller match_rng, installs the season atomically, and commits the CRT state only after success. A failed preview/materialization consumes neither live state nor live competition/match RNG.
+- Source round/allocation definitions are reattached from the verified database after save/reload rather than duplicated in the save payload.
+- Verified checkpoint: 3e571f6b3cc4273e7542c96577522f2435b94699.
+- GitHub Actions ran **812 tests with 2 failures**, exactly the two unchanged known secondary-schedule assertions. Repository asset policy passed.
+- Canonical annual qualification source classes are now bounded: played Leagues (0, 17, 21, 27, 31, 40, 50, 54) and 44 DummyLeague sources. Canonical startup already makes the played sources live.
+- Next: make the complete annual qualification snapshot available in a real canonical season. Preserve/publish every required DummyLeague ranking with no extra RNG, then make required Cup sources (1, 5, 9, 10, 19, 23, 33, 91, 98, 101) live through their finals so the rollover transaction can run without a shipped-data fallback.
