@@ -357,7 +357,28 @@ def complete_cup_match(
         tiebreak_1,
     )
     used_fallback = False
-    if match.decisive_tiebreak and provisional.result_club_id() is None:
+    previous = provisional.previous
+    left_total = int(provisional.score_0)
+    right_total = int(provisional.score_1)
+    if previous is not None:
+        left_total += int(previous.score_1)
+        right_total += int(previous.score_0)
+
+    needs_decisive_fallback = (
+        bool(match.decisive_tiebreak)
+        and left_total == right_total
+    )
+    if (
+        needs_decisive_fallback
+        and match.match_kind == CUP_MATCH_SECOND_LEG
+        and previous is not None
+        and int(provisional.score_1) != int(previous.score_1)
+    ):
+        # 0x51367D..0x513695: SecondLegMatch alone lets the recovered
+        # away-goal comparison settle a tied aggregate before the fallback.
+        needs_decisive_fallback = False
+
+    if needs_decisive_fallback:
         if rng is None:
             raise ValueError("unresolved decisive Cup tie requires RNG(2)")
         draw = int(rng.randbelow(2))

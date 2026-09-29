@@ -123,6 +123,35 @@ class CupMatchLifecycleTests(unittest.TestCase):
         self.assertEqual(replay_completion.outcome.winner_club_id, 20)
         self.assertEqual(registry.outcomes[token].winner_club_id, 20)
 
+    def test_drawn_replay_uses_decisive_fallback_not_away_goal_comparison(self):
+        registry = CupResultRegistry()
+        token = ("cup_result", 1, 38, 1)
+        first = CupMatchRuntimeState.normal(
+            token,
+            10,
+            20,
+            extra_time_capable=True,
+            decisive_tiebreak=False,
+        )
+        replay = complete_cup_match(first, registry, 2, 2).replay
+        rng = FixedRng(1)
+
+        completion = complete_cup_match(
+            replay,
+            registry,
+            1,
+            1,
+            rng=rng,
+            tiebreak_event_score_0=4,
+            tiebreak_event_score_1=4,
+        )
+
+        self.assertEqual(rng.calls, [2])
+        self.assertTrue(completion.used_rng_tiebreak_fallback)
+        self.assertEqual(replay.tiebreak_score_0, 5)
+        self.assertEqual(replay.tiebreak_score_1, 4)
+        self.assertEqual(completion.outcome.winner_club_id, 20)
+
     def test_two_leg_pair_reverses_second_leg_and_waits_for_it(self):
         registry = CupResultRegistry()
         token = ("cup_result", 5, 185, 3)
