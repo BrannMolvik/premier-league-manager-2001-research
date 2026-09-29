@@ -140,6 +140,7 @@ class GameState:
     pitch_wear: dict[int, int] = field(default_factory=dict)
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
     premier_league_scheduler_order: dict[int, tuple[int, ...]] = field(default_factory=dict)
+    primary_matchday_order: dict[date, tuple[tuple, ...]] = field(default_factory=dict)
     transfers: TransferRuntimeState = field(default_factory=TransferRuntimeState)
     # Controlled 0x41BEE0 queues MPMEAMail renewal suggestions rather than
     # auto-renewing the contract. Keep the source event kind/date/player
@@ -1788,6 +1789,47 @@ class GameState:
     def resolve_cup_club_ref(self, ref):
         """Resolve a Cup ClubRef against live GameState result state."""
         return self.cup_results.resolve_club_ref(ref)
+
+    def install_primary_matchday_order(
+        self,
+        buckets,
+        *,
+        season_year: int,
+    ) -> dict[date, tuple[tuple, ...]]:
+        """Persist exact shuffled PL/domestic-Cup order for Gate-12 dates."""
+        from primary_schedule import gate12_primary_matchday_order
+
+        self.primary_matchday_order = dict(
+            gate12_primary_matchday_order(
+                buckets,
+                season_year=int(season_year),
+            )
+        )
+        return self.primary_matchday_order
+
+    def primary_entries_due_today(self) -> tuple[tuple, ...]:
+        """Return uncompleted/playable PL/Cup entries in global scheduler order."""
+        entries = self.primary_matchday_order.get(self.calendar.current_date, ())
+        if not entries:
+            return ()
+
+        due_pl = {
+            int(fixture.id)
+            for fixture in self.fixtures_due_today()
+        }
+        due_cup = {
+            tuple(node.node_token)
+            for node in self.domestic_cup_nodes_due_today()
+        }
+
+        due: list[tuple] = []
+        for entry in entries:
+            kind = entry[0]
+            if kind == "premier_league" and int(entry[1]) in due_pl:
+                due.append(entry)
+            elif kind == "domestic_cup" and tuple(entry[1]) in due_cup:
+                due.append(entry)
+        return tuple(due)
 
     def install_domestic_cup_schedule_nodes(
         self,

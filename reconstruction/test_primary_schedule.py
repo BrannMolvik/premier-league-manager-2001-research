@@ -1,9 +1,11 @@
 import unittest
+from datetime import date
 
 from competition_schedule import StartupScheduleNode, direct_club_ref
 from match_schedule import MsvcCrtRng
 from primary_schedule import (
     fixed_league_fixture_order_by_round,
+    gate12_primary_matchday_order,
     nominal_primary_schedule_bucket,
     primary_schedule_source_bucket,
     place_primary_schedule_nodes,
@@ -126,6 +128,53 @@ class PrimaryScheduleExecutionOrderTests(unittest.TestCase):
             (
                 (10, (101, 100)),
                 (11, (102,)),
+            ),
+        )
+
+
+class Gate12PrimaryMatchdayOrderTests(unittest.TestCase):
+    def test_shared_date_order_preserves_pl_cup_interleaving(self):
+        pl = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=1,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=7,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("fixed_league_match", 0, 0, 77),
+        )
+        cup = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=5,
+            competition_context=0,
+            round_id=187,
+            pair_index=2,
+            schedule_index=None,
+            scheduled_week=7,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(3),
+            participant_1_ref=direct_club_ref(4),
+            node_token=("cup_result", 5, 187, 2),
+        )
+        buckets = [() for _ in range(55)]
+        buckets[54] = (cup, pl)
+
+        order = gate12_primary_matchday_order(buckets, season_year=2000)
+
+        self.assertEqual(
+            order,
+            (
+                (
+                    date(2000, 8, 26),
+                    (
+                        ("domestic_cup", ("cup_result", 5, 187, 2)),
+                        ("premier_league", 77),
+                    ),
+                ),
             ),
         )
 

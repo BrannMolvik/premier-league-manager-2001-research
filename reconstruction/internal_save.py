@@ -55,7 +55,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 25
+SAVE_SCHEMA_VERSION = 26
 
 
 def _iso(value: date | None) -> str | None:
@@ -1019,6 +1019,17 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             str(int(round_index)): [int(v) for v in values]
             for round_index, values in sorted(state.premier_league_scheduler_order.items())
         },
+        "primary_matchday_order": {
+            on_date.isoformat(): [
+                (
+                    [str(entry[0]), int(entry[1])]
+                    if entry[0] == "premier_league"
+                    else [str(entry[0]), list(entry[1])]
+                )
+                for entry in entries
+            ]
+            for on_date, entries in sorted(state.primary_matchday_order.items())
+        },
         "transfers": _snapshot_transfer_state(state.transfers),
         "contract_renewal_suggestions": [
             {
@@ -1316,6 +1327,18 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         premier_league_scheduler_order={
             int(round_index): tuple(int(v) for v in values)
             for round_index, values in snapshot["premier_league_scheduler_order"].items()
+        },
+        primary_matchday_order={
+            date.fromisoformat(on_date): tuple(
+                (
+                    str(entry[0]),
+                    int(entry[1])
+                    if entry[0] == "premier_league"
+                    else tuple(entry[1]),
+                )
+                for entry in entries
+            )
+            for on_date, entries in snapshot.get("primary_matchday_order", {}).items()
         },
         transfers=_restore_transfer_state(snapshot.get("transfers")),
         contract_renewal_suggestions=[

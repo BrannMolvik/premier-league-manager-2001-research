@@ -17,9 +17,11 @@ Christmas Day and is advanced by one bucket before conflict placement.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date, timedelta
 from typing import Iterable
 
 from competition_schedule import StartupScheduleNode, schedule_nodes_conflict
+from competition_state import season_weekday_date
 from match_schedule import BoundedRng, shuffle_schedule_bucket
 
 
@@ -254,6 +256,54 @@ def shuffle_primary_schedule_buckets(
         draw_count=draw_count,
         state_after=None if state is None else int(state) & 0xFFFFFFFF,
     )
+
+
+def gate12_primary_matchday_order(
+    buckets: Iterable[Iterable[StartupScheduleNode]],
+    *,
+    season_year: int,
+    premier_league_competition_id: int = 0,
+    domestic_cup_ids: tuple[int, ...] = (1, 5),
+) -> tuple[tuple[date, tuple[tuple, ...]], ...]:
+    """Retain exact shuffled PL/domestic-Cup interleaving by Gregorian date.
+
+    Bucket index is the primary-container relative day. Now that the mode-0
+    calendar anchor is instruction-closed, bucket 0 is the shared week-0
+    Monday and each subsequent bucket is one calendar day later. Other
+    competitions remain outside this Gate-12 view.
+    """
+    anchor = season_weekday_date(int(season_year), 0, 1)
+    domestic_ids = {int(value) for value in domestic_cup_ids}
+    league_id = int(premier_league_competition_id)
+    result: list[tuple[date, tuple[tuple, ...]]] = []
+
+    for bucket_index, bucket in enumerate(buckets):
+        entries: list[tuple] = []
+        for node in bucket:
+            if (
+                node.node_kind == "fixed_league_match"
+                and int(node.competition_id) == league_id
+            ):
+                if not node.node_token:
+                    raise ValueError("fixed League schedule node has no fixture token")
+                entries.append(("premier_league", int(node.node_token[-1])))
+                continue
+
+            if (
+                int(node.competition_id) in domestic_ids
+                and node.node_kind
+                in ("cup_match", "first_leg_match", "second_leg_match")
+            ):
+                entries.append(("domestic_cup", tuple(node.node_token)))
+
+        if entries:
+            result.append(
+                (
+                    anchor + timedelta(days=int(bucket_index)),
+                    tuple(entries),
+                )
+            )
+    return tuple(result)
 
 
 def fixed_league_fixture_order_by_round(

@@ -88,6 +88,31 @@ class InternalSaveTests(unittest.TestCase):
             snapshot_human_gameplay(original),
         )
 
+    def test_primary_matchday_order_survives_roundtrip(self):
+        original = self.build_controller()
+        original.state.primary_matchday_order = {
+            date(2000, 7, 8): (
+                ("domestic_cup", ("cup_result", 1, 38, 0)),
+                ("premier_league", 0),
+            )
+        }
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.primary_matchday_order,
+            original.state.primary_matchday_order,
+        )
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
     def test_cup_result_registry_survives_roundtrip(self):
         original = self.build_controller()
         token = ("cup_result", 1, 38, 0)
