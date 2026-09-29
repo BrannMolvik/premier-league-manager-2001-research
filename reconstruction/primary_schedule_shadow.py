@@ -175,7 +175,9 @@ class PrimaryScheduleShadowState:
 
         FA Cup Replay objects are inserted after startup. Their participants
         are already direct resolved clubs, so no fixed-point propagation is
-        required. Preserve 0x615950 head-insertion order within the date.
+        required. The shadow only answers next-match-date reachability; its
+        tuple position is not evidence for the still-unclosed 0x615A60
+        execution-order insertion used by the primary scheduler.
         """
         def candidates(ref: CupClubRefDescriptor) -> frozenset[int]:
             if ref.direct_club_id is None:
