@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Continue the English domestic Cup gate-receipt branch from main 020e020: compose the now-mapped English pricing/root-order/attendance primitives into source-backed Cup gate attendance and receipt integration, then persist verified regressions and handoff state.",
-  "last_known_main_head": "020e02021530cd89bea6b005a4cbb24d7f43d9f2",
+  "active_task": "Integrate the source-backed all-or-nothing full-primary next-match preflight for domestic Cup post-match persistence, then apply shared 0x5127A0 incidents and 0x404CE0 morale/Form only when both next dates are exact. Keep special Cup revenue posting separate.",
+  "last_known_main_head": "63556ba0bb56da51ae662fccb45f7f42e50a34f7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 65,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovered at main 020e020 (Map English Cup gate source inputs). Gate 12 remains active. Latest commits add exact Cup gate attendance primitives plus English division ticket references and country-root storage order; continue by integrating these mapped inputs into the live Cup gate-receipt path without reopening solved schedule/incident work.",
+  "note": "Verified Cup gate RNG ordering at 5ad669d5: 741 tests, only two known secondary-schedule failures; asset policy passed. Main 63556ba0 persists the checkpoint. Next implement exact-or-pending Cup post-match preflight without consuming incident/morale RNG on unresolved primary-shadow dates.",
   "same_chat_fallback_minutes": 30
 }
