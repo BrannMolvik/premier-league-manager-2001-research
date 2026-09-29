@@ -23,6 +23,7 @@ from competition_startup import (
     primary_mode0_dummy_league_sort_source_ids,
     country_root_competition_storage_order,
     primary_mode0_root_initialization_order,
+    primary_mode0_root_finalization_order,
     secondary_mode1_root_initialization_order,
     prepare_cup_knockout_round,
     prepare_cup_minileague_round,
@@ -273,6 +274,34 @@ class OrderedCompetitionRngTests(unittest.TestCase):
         self.assertEqual(
             tuple(competition.id for competition in stored),
             (11, 12, 10, 9),
+        )
+
+    def test_primary_root_finalization_reverses_each_country_initialization_chunk(self):
+        competitions = (
+            Competition(10, 2, 1, None, 1, 123),
+            Competition(9, 2, 1, None, 0, 123),
+            Competition(11, 1, 1, None, 3, 123),
+            Competition(12, 1, 2, None, 2, 123),
+            Competition(31, 1, 1, None, 7, 73),
+            Competition(33, 2, 1, None, 5, 73),
+        )
+
+        initialized = primary_mode0_root_initialization_order(
+            competitions,
+            (123, 73),
+        )
+        finalized = primary_mode0_root_finalization_order(
+            competitions,
+            (123, 73),
+        )
+
+        self.assertEqual(
+            tuple(competition.id for competition in initialized),
+            (9, 10, 11, 33, 31),
+        )
+        self.assertEqual(
+            tuple(competition.id for competition in finalized),
+            (11, 10, 9, 31, 33),
         )
 
     def test_small_country_root_qsort_resolves_spanish_equal_key_order(self):
