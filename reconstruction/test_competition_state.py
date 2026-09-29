@@ -1,6 +1,7 @@
 import unittest
 from dataclasses import dataclass
 
+from competition_schedule import StartupScheduleNode, direct_club_ref
 from competition_state import PremierLeagueState
 
 
@@ -128,6 +129,63 @@ class LeagueStateTests(unittest.TestCase):
             league.fixed_fixture_pre_shuffle_ids_on(on_date),
             (7, 40),
         )
+
+    def test_annual_procedural_nodes_project_to_fresh_premier_state(self):
+        nodes = (
+            StartupScheduleNode(
+                node_kind="league_match",
+                competition_id=0,
+                competition_context=0,
+                round_id=None,
+                pair_index=0,
+                schedule_index=0,
+                scheduled_week=7,
+                scheduled_weekday=6,
+                participant_0_ref=direct_club_ref(20),
+                participant_1_ref=direct_club_ref(10),
+                node_token=("league_match", 0, 0, 41),
+            ),
+            StartupScheduleNode(
+                node_kind="league_match",
+                competition_id=0,
+                competition_context=0,
+                round_id=None,
+                pair_index=1,
+                schedule_index=0,
+                scheduled_week=7,
+                scheduled_weekday=6,
+                participant_0_ref=direct_club_ref(11),
+                participant_1_ref=direct_club_ref(12),
+                node_token=("league_match", 0, 0, 42),
+            ),
+            StartupScheduleNode(
+                node_kind="league_match",
+                competition_id=0,
+                competition_context=0,
+                round_id=None,
+                pair_index=0,
+                schedule_index=1,
+                scheduled_week=8,
+                scheduled_weekday=3,
+                participant_0_ref=direct_club_ref(10),
+                participant_1_ref=direct_club_ref(11),
+                node_token=("league_match", 0, 0, 43),
+            ),
+        )
+
+        league = PremierLeagueState.from_procedural_schedule_nodes(
+            nodes,
+            season_year=2001,
+        )
+
+        self.assertEqual(league.fixture_source_order, (41, 42, 43))
+        self.assertEqual(league.round_source_order, (0, 1))
+        self.assertEqual(
+            (league.fixtures[41].home_club_id, league.fixtures[41].away_club_id),
+            (20, 10),
+        )
+        self.assertEqual(league.round_date(0).year, 2001)
+        self.assertEqual(league.results, {})
 
     def test_duplicate_result_is_rejected(self):
         self.league.record_result(0, 1, 0)
