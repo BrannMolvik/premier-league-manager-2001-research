@@ -125,6 +125,36 @@ class PrimaryCupRuntimeTests(unittest.TestCase):
             },
         )
 
+    def test_dummy_league_ranking_is_preserved_in_materialization(self):
+        class ZeroRng:
+            def randbelow(self, bound):
+                return 0
+
+        competitions = (
+            Competition(89, 3, initialization_order_value=-1),
+            Competition(90, 2, initialization_order_value=0),
+        )
+        rounds = (Round(300, 90, 1, 2, 2, 1, 1),)
+        allocations = (Allocation(3, 90, 1, 5, 89, 2),)
+        clubs = (
+            Club(70, "A", 89, 89, 0),
+            Club(71, "B", 89, 89, 1),
+        )
+
+        result = materialize_primary_cup_runtime(
+            ZeroRng(),
+            competitions,
+            rounds,
+            clubs,
+            (Country(1),),
+            allocations,
+        )
+
+        self.assertEqual(
+            result.ranked_source_club_ids,
+            ((89, (70, 71)),),
+        )
+
     def test_participant_and_pairing_digests_are_repeatable(self):
         fixture = self._fixture()
         first = materialize_primary_cup_runtime(
