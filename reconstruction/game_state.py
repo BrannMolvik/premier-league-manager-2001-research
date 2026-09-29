@@ -1441,6 +1441,11 @@ class GameState:
             "cup_special": False,
         }
 
+    @staticmethod
+    def _draw_matchday_gate_rand15_values(rng) -> tuple[int, int, int, int]:
+        """Consume 0x5DA2F0's four randomized-subtraction draws in source order."""
+        return tuple(int(rng.randbelow(32768)) for _ in range(4))
+
     def _finish_premier_league_gate_receipts(
         self,
         home_club_id: int,
@@ -1448,7 +1453,7 @@ class GameState:
         rng,
     ) -> GateReceiptResult | None:
         """Consume the four post-calculator gate draws and post when materialized."""
-        rand15_values = tuple(int(rng.randbelow(32768)) for _ in range(4))
+        rand15_values = self._draw_matchday_gate_rand15_values(rng)
         if prepared_inputs is None:
             return None
         receipts = calculate_matchday_gate_receipts(
@@ -2135,6 +2140,14 @@ class GameState:
             ),
             extra_time=bool(match.uses_extra_time),
         )
+
+        # Shared match execution calls 0x513252 -> 0x5DA2F0 after the
+        # MatchCalculator returns and before the class-specific +0x3C
+        # completion virtual. Cup completion can itself consume decisive
+        # fallback RNG, so preserve these four draws ahead of that boundary
+        # even while special Cup revenue posting remains a separate slice.
+        self._draw_matchday_gate_rand15_values(rng)
+
         completion = self.domestic_cups.complete_scheduled_match(
             token,
             self.cup_results,
@@ -2296,6 +2309,11 @@ class GameState:
             match_mode_code=1,
             extra_time=bool(match.uses_extra_time),
         )
+
+        # The human Cup path shares the same post-calculator gate producer and
+        # therefore the same four-draw boundary before Cup completion.
+        self._draw_matchday_gate_rand15_values(rng)
+
         completion = self.domestic_cups.complete_scheduled_match(
             token,
             self.cup_results,

@@ -281,13 +281,23 @@ class IntegratedGameStateTests(unittest.TestCase):
             season_year=2000,
         )
 
+        rng = MidpointRng()
+        completion_gate_suffix = []
+        complete_scheduled_match = state.domestic_cups.complete_scheduled_match
+
+        def traced_complete_scheduled_match(*args, **kwargs):
+            completion_gate_suffix[:] = rng.calls[-4:]
+            return complete_scheduled_match(*args, **kwargs)
+
+        state.domestic_cups.complete_scheduled_match = traced_complete_scheduled_match
         result, completion = state.simulate_domestic_cup_ai_node(
             token,
             coefficient_matrix(),
             coefficient_matrix(),
-            MidpointRng(),
+            rng,
         )
 
+        self.assertEqual(completion_gate_suffix, [32768, 32768, 32768, 32768])
         boundaries = [
             (timed.minute, timed.event.kind)
             for timed in result.events
@@ -411,15 +421,25 @@ class IntegratedGameStateTests(unittest.TestCase):
             non_eu_limit=10,
         )
 
+        rng = MidpointRng()
+        completion_gate_suffix = []
+        complete_scheduled_match = state.domestic_cups.complete_scheduled_match
+
+        def traced_complete_scheduled_match(*args, **kwargs):
+            completion_gate_suffix[:] = rng.calls[-4:]
+            return complete_scheduled_match(*args, **kwargs)
+
+        state.domestic_cups.complete_scheduled_match = traced_complete_scheduled_match
         result, completion = state.simulate_domestic_cup_human_node(
             token,
             1,
             human_selection,
             coefficient_matrix(),
             coefficient_matrix(),
-            MidpointRng(),
+            rng,
         )
 
+        self.assertEqual(completion_gate_suffix, [32768, 32768, 32768, 32768])
         boundaries = [
             (timed.minute, timed.event.kind)
             for timed in result.events
