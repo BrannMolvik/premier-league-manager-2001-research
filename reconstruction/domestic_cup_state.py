@@ -9,12 +9,11 @@ not recreate draw RNG or invent match-engine completion rules.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 from typing import Iterable
 
 from competition_schedule import StartupScheduleNode
 from competition_startup import CupClubRefDescriptor
-from competition_state import season_weekday_date
 from cup_progression import (
     CupMatchRuntimeState,
     CupResultRegistry,
@@ -22,6 +21,27 @@ from cup_progression import (
 
 
 ENGLISH_DOMESTIC_CUP_IDS = frozenset((1, 5))
+
+
+def domestic_cup_source_date(season_year: int, week: int, weekday: int) -> date:
+    """Convert primary-container Cup week/day through 0x6169F0/0x615950.
+
+    The primary schedule container anchor is the first Monday on or after
+    July 1. Runtime round construction copies the packed week unchanged and
+    stores packed weekday - 1, then 0x615950 inserts at
+    anchor + 7 * week + (weekday - 1).
+
+    This is intentionally separate from Premier League season_weekday_date(),
+    whose recovered league fixture convention uses the Monday containing
+    July 1.
+    """
+    weekday = int(weekday)
+    if not 1 <= weekday <= 7:
+        raise ValueError("FM2001 Cup scheduled weekday must be 1..7")
+    july_first = date(int(season_year), 7, 1)
+    days_to_monday = (-july_first.weekday()) % 7
+    anchor = july_first + timedelta(days=days_to_monday)
+    return anchor + timedelta(weeks=int(week), days=weekday - 1)
 
 
 def _tuple_tree(value):
@@ -106,7 +126,7 @@ class DomesticCupScheduledNode:
             competition_context=int(node.competition_context),
             round_id=int(node.round_id),
             pair_index=int(node.pair_index),
-            scheduled_date=season_weekday_date(
+            scheduled_date=domestic_cup_source_date(
                 int(season_year),
                 int(node.scheduled_week),
                 int(node.scheduled_weekday),
