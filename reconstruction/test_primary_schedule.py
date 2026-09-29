@@ -189,7 +189,11 @@ class PrimaryScheduleShadowTests(unittest.TestCase):
         )
 
         self.assertEqual(
-            shadow.next_match_date(1, date(2000, 7, 2), lambda _ref: None),
+            shadow.next_match_date(
+                1,
+                date(2000, 7, 3),
+                lambda ref: ref.direct_club_id,
+            ),
             date(2000, 7, 5),
         )
 
@@ -243,7 +247,11 @@ class PrimaryScheduleShadowTests(unittest.TestCase):
         )
 
         with self.assertRaises(PrimaryScheduleResolutionPending) as caught:
-            shadow.next_match_date(1, date(2000, 7, 2), lambda _ref: None)
+            shadow.next_match_date(
+                1,
+                date(2000, 7, 3),
+                lambda ref: ref.direct_club_id,
+            )
         self.assertEqual(caught.exception.on_date, date(2000, 7, 4))
 
     def test_resolved_symbolic_ref_proves_same_date(self):
@@ -286,7 +294,7 @@ class PrimaryScheduleShadowTests(unittest.TestCase):
         self.assertEqual(
             shadow.next_match_date(
                 1,
-                date(2000, 7, 2),
+                date(2000, 7, 3),
                 lambda ref: (
                     1
                     if ref.reference_token == token and int(ref.type_code) == 1
