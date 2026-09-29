@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Close shared Cup post-match persistence: represent the full primary-container next-fixture search needed by 0x5127A0, then trace Cup gate receipts and shared morale/Form.",
-  "last_known_main_head": "3c73b3b059c5c5957e6eac87e834c4d6f86322f3",
+  "active_task": "Continue the English domestic Cup gate-receipt branch from main 020e020: compose the now-mapped English pricing/root-order/attendance primitives into source-backed Cup gate attendance and receipt integration, then persist verified regressions and handoff state.",
+  "last_known_main_head": "020e02021530cd89bea6b005a4cbb24d7f43d9f2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 64,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate 12 live domestic Cup execution now includes AI/human scoring, extra time, shared PL/Cup ordering, tagged schema-27 controller state, human mid-matchday reload, and Replay/TwoLeg reload continuation. Verified implementation head c7583cfd: 730 tests, only two known secondary-schedule failures. Main 3c73b3b0 records direct proof that primary Cup/League matches share 0x5127A0 and that next-fixture suspension refresh scans the whole selected schedule container via 0x510300 -> 0x615D10.",
+  "recovery_generation": 65,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovered at main 020e020 (Map English Cup gate source inputs). Gate 12 remains active. Latest commits add exact Cup gate attendance primitives plus English division ticket references and country-root storage order; continue by integrating these mapped inputs into the live Cup gate-receipt path without reopening solved schedule/incident work.",
   "same_chat_fallback_minutes": 30
 }
