@@ -45,15 +45,15 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 code checkpoint:
 
 ```text
-e0a69e8e0d65b9549363e90ace8ee6e68fe74e67
-Test qualification Cup primary due routing
+70307af0549f6bacd4bc1951e3cdb6ef63df0c5b
+Add canonical annual rollover audit
 ```
 
-GitHub Actions at that checkpoint ran **818 tests with 2 failures**, exactly
+GitHub Actions at that checkpoint ran **819 tests with 2 failures**, exactly
 the unchanged known secondary-schedule assertions. Qualification-only Cup
-entries now participate in the autonomous primary due-entry router; annual
-source-continuity and state/RNG transaction regressions also pass, and
-repository asset policy passed. The European runtime bridge is now covered end-to-end: live child
+entries participate in the autonomous primary due-entry router; annual
+source-continuity and state/RNG transaction regressions pass; the explicit
+unordered-dynamic-replay guard passes; and repository asset policy passed. The European runtime bridge is now covered end-to-end: live child
 groups publish type-2 standings and source-backed type-3 cross-group pools,
 Champions League / UEFA Cup knockout nodes execute through the shared CupMatch
 runtime in canonical primary order for AI and human control, and a real
@@ -175,14 +175,16 @@ Do not rebuild solved Cup startup RNG/draw behavior.
    inserted FA Cup replays. The exact replay date and `0x615A60` insertion
    call are source-backed, but the repository does not yet prove same-day
    insertion order after the initial primary bucket shuffle. Do not invent
-   append/prepend ordering.
-6. Once replay insertion order is source-closed, run the real canonical primary
-   season until every required played-League ranking and Cup final pair is live,
-   capture the complete qualification snapshot, then execute promotion/relegation
-   -> annual materialization -> atomic replacement. Verify the regenerated
-   year-two primary runtime keeps all played annual qualification-source Leagues
-   live. Missing qualification sources must remain an explicit failure, never a
-   shipped historical fallback.
+   append/prepend ordering. A due replay with no source-ordered primary entry
+   now fails loudly rather than being silently skipped.
+6. Run `reconstruction/canonical_annual_rollover_audit.py` against the
+   authorized canonical game directory once the replay-order boundary is
+   source-closed. The audit already uses only the shared primary scheduler,
+   requires the complete live qualification snapshot plus English transition,
+   performs the atomic annual regeneration, and validates that the year-two
+   runtime retains all played annual qualification-source Leagues. Missing
+   qualification sources remain an explicit failure, never a shipped historical
+   fallback.
 
 ## Known live fidelity boundaries
 
@@ -211,8 +213,9 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   into the following season. The remaining scheduler blocker is dynamic FA Cup
   Replay insertion into the post-shuffle primary execution order: replay date
   and construction are exact, but `0x615A60` same-day insertion order is not
-  yet documented. After that is closed, the active Gate-12 proof is the real
-  canonical full-season qualification snapshot and atomic year-two rollover.
+  yet documented. The runtime now refuses to cross a due unordered replay, and
+  the canonical annual-rollover audit is committed and ready to execute once
+  that source boundary and access to the authorized game directory are available.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
