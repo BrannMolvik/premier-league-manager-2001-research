@@ -521,6 +521,33 @@ class InternalSaveTests(unittest.TestCase):
             snapshot_human_gameplay(original),
         )
 
+    def test_group_position_rankings_survive_roundtrip(self):
+        original = self.build_controller()
+        original.state.cup_results.replace_group_position_ranking(
+            14,
+            2,
+            (801, 802, 803, 804),
+        )
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.cup_results.group_position_rankings,
+            original.state.cup_results.group_position_rankings,
+        )
+        ref = __import__("competition_startup").CupClubRefDescriptor(
+            type_code=3,
+            selector=2,
+            competition_id=14,
+            competition_context=3,
+        )
+        self.assertEqual(restored.state.cup_results.resolve_club_ref(ref), 804)
+
     def test_live_procedural_league_state_survives_roundtrip(self):
         original = self.build_controller()
         node = StartupScheduleNode(
