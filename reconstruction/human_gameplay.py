@@ -813,6 +813,20 @@ class HumanGameplayController:
         if entry[0] == "domestic_cup":
             node = self.state.domestic_cups.node(tuple(entry[1]))
             return node.resolve_pair(self.state.cup_results)
+        if entry[0] == "european_cup":
+            node = self.state.european_cups.node(tuple(entry[1]))
+            return node.resolve_pair(self.state.cup_results)
+        if entry[0] == "procedural_league":
+            token = tuple(entry[1])
+            owners = tuple(
+                live
+                for live in self.state.procedural_leagues.values()
+                if token in live.fixtures
+            )
+            if len(owners) != 1:
+                return None
+            fixture = owners[0].fixtures[token]
+            return int(fixture.home_club_id), int(fixture.away_club_id)
         raise ValueError(f"unsupported primary match entry {entry!r}")
 
     def _finish_shared_primary_day(self, had_results: bool) -> None:
@@ -855,6 +869,12 @@ class HumanGameplayController:
                 node.scheduled_date
                 for node in self.state.domestic_cups.nodes
                 if node.node_token not in self.state.domestic_cups.completed_node_tokens
+                and node.scheduled_date > self.state.calendar.current_date
+            )
+            future_dates.extend(
+                node.scheduled_date
+                for node in self.state.european_cups.nodes
+                if node.node_token not in self.state.european_cups.completed_node_tokens
                 and node.scheduled_date > self.state.calendar.current_date
             )
             if not future_dates:
@@ -933,8 +953,18 @@ class HumanGameplayController:
                 self.match_rng,
                 team_orders=self.human.team_orders,
             )
+        elif entry[0] == "european_cup":
+            user_result, _completion = self.state.simulate_european_cup_human_node(
+                tuple(entry[1]),
+                self.human.club_id,
+                selection,
+                self.attack_matrix,
+                self.defence_matrix,
+                self.match_rng,
+                team_orders=self.human.team_orders,
+            )
         else:
-            raise ValueError(f"unsupported primary match entry {entry!r}")
+            raise ValueError(f"unsupported human primary match entry {entry!r}")
 
         trailing = tuple(
             (
