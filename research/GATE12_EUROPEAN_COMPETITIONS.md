@@ -152,3 +152,48 @@ Publish that source-backed cross-group ranking into the live result registry so
 the existing decoded type-3 descriptors resolve, persist it through internal
 save/load, and then attach the now-resolvable European knockout nodes to the
 shared CupMatch runtime/controller path.
+
+
+## Type-3 UEFA transfer dependency verified end-to-end
+
+Checkpoint `474086bb26fe7185b0022ea84568653b443d8e0f` closes the active
+European knockout dependency boundary with a deterministic regression that
+uses live procedural-League state rather than a hand-injected final club ID.
+
+The regression:
+
+- materializes two child competition-14 groups;
+- completes both groups with distinct source-backed numeric table keys;
+- lets `record_procedural_league_result()` publish the recovered ClubRef type-3
+  cross-group second-place pool;
+- verifies the pool order as `(4, 2)`;
+- resolves a UEFA Cup competition-10 knockout participant through the symbolic
+  type-3 descriptor to club 4;
+- verifies that the resulting UEFA knockout node is playable against club 5;
+- saves and reloads the game;
+- verifies that the same type-3 pool and symbolic UEFA pairing still resolve
+  after reload.
+
+The first version of the regression exposed a test-fixture source-identity
+mismatch rather than a runtime bug. The corrected test supplies the same
+competition-14 source identity on reload and builds the primary shadow through
+the canonical `PrimaryScheduleShadowState` constructor.
+
+Verification at `474086bb`:
+
+- reconstruction suite: **780 tests**, with only the two unchanged known
+  secondary-schedule failures;
+- repository asset policy: **passed**.
+
+This closes the planned Champions-League-group -> type-3 -> UEFA knockout
+save/reload bridge. European group execution, type-2 progression, type-3
+cross-group progression, shared CupMatch knockout execution, primary-order AI
+and human routing, and save/reload are now all covered.
+
+## Next Gate-12 boundary
+
+Move to the roadmap's next slice: **other required English league/divisional
+structures**. Start with an audit of the already-canonical startup
+materialization and identify the first runtime format/state bridge that is not
+yet covered. Do not reopen solved European draw, group, ClubRef, knockout,
+primary-order, human-controller, or save/reload behavior.
