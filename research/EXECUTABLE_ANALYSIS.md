@@ -9449,3 +9449,33 @@ The recovered `0x4F45E0` ordering is:
 The clean room may conservatively leave a type-3 ranking unresolved when all
 numeric keys tie until the final source-string comparison is represented
 exactly; it must never substitute club ID for this gameplay ordering.
+
+
+## Annual Cup result-enumeration slot order
+
+**Confirmed 29 September 2026 from the canonical hash-locked executable.**
+
+Canonical `FOOTBAL.EXE` SHA-256:
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+Cup finalizer `0x4F8F80` writes its persistent two-club enumeration in exact
+result/opposite order:
+
+- `0x4F8F89` loads the final match at Cup+0x30;
+- `0x4F8F8E` dispatches match virtual `+0x44`, the shared
+  `0x514000` result-club accessor;
+- `0x4F8F91` writes that returned club pointer to **Cup+0x40**;
+- `0x4F8F94..0x4F8F9D` resolves the first final participant;
+- `0x4F8FA2` writes that participant to **Cup+0x44**;
+- if it equals Cup+0x40, `0x4F8FA9..0x4F8FB4` resolves the other participant
+  and overwrites Cup+0x44.
+
+Thus the later `0x4F5770` type-3 source enumeration is:
+
+```text
+slot 0 (Cup+0x40) = result club / winner
+slot 1 (Cup+0x44) = opposite final participant / loser
+```
+
+This closes the positional dependency needed to construct annual Cup
+qualification state from live completed Cup outcomes.
