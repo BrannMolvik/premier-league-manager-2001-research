@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 12,
   "active_task": "Implement the instruction-closed Cup match lifecycle: FA Cup NormalRound replay creation, League Cup FirstLeg/SecondLeg linkage, and exact aggregate+away-goal decisive tie-break finalization; add deterministic progression tests before GameState integration.",
-  "last_known_main_head": "69f413002a056ad8a0183ea160072172e79d150b",
+  "last_known_main_head": "fa5af0115631f6d7802ed38644fe584847c04faa",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 59,
-  "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "Recovery generation 59 has closed and persisted the replay/second-leg completion producer trace at main 69f41300. Implement the bounded clean-room lifecycle next; do not retrace solved startup or result-virtual work.",
+  "recovery_generation": 60,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery generation 60 resumed from actual main HEAD fa5af011 after stale same-chat escalation. Reconcile the post-69f413 Cup lifecycle implementation/test commits before continuing; do not redo already-persisted work.",
   "same_chat_fallback_minutes": 30
 }
