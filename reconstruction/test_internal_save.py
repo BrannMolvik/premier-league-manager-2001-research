@@ -717,6 +717,21 @@ class InternalSaveTests(unittest.TestCase):
             original.state.european_cups.snapshot(),
         )
 
+    def test_live_club_competition_membership_survives_roundtrip(self):
+        original = self.build_controller()
+        original.state.club_competition_membership[1] = 2
+        original.state.club_competition_membership[2] = 0
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(restored.state.club_competition_membership[1], 2)
+        self.assertEqual(restored.state.club_competition_membership[2], 0)
+
     def test_english_divisional_live_set_executes_across_save_reload(self):
         original = self.build_controller()
         competition_ids = (2, 3, 4, 7)
