@@ -7570,3 +7570,20 @@ Exact next target after CI reconciliation: expose due European `league_match`
 entries from the shuffled primary order and run them through the shared
 MatchCalculator without guessing ClubRef type-3 semantics or the still-untraced
 equal-key ranking fallback.
+
+
+### European group ranking lifecycle correction verified
+
+The first CI pass on the live group integration exposed that publishing a
+currently-unique mid-group table could resolve phase-2 type-2 refs before the
+source group schedule was complete. `f81b1b61` corrects that lifecycle:
+position rankings are now progression-visible only after every group fixture is
+finished. `867262db` verifies the corrected behavior.
+
+GitHub Actions at `867262db85c2955eea56e277718df13773d847cc` ran
+**762 reconstruction tests with 2 failures**, exactly the two unchanged known
+secondary-schedule assertions. Repository asset policy passed.
+
+Exact next target: add European child `league_match` entries to the exact
+post-shuffle primary execution order and connect their scored results to the
+now-verified procedural-League state.
