@@ -549,3 +549,23 @@ startup-neutral for the shipped primary schedule: no one of the 9,346 nodes
 changes bucket because of this correction.
 
 The remaining Gate-12 work is execution, not date reconstruction.
+
+
+### Cup AI strategy context
+
+The `0x409500 -> 0x409680` Cup formation context is now instruction-closed.
+
+- `Cup+0x3C` = total runtime round count.
+- `CupMatch+0x50` = zero-based current round index.
+- Thus `rounds_from_final = total_rounds - zero_based_round_index`.
+- With one-based Static.dat round numbers this becomes
+  `scheduled_matchday_count - round_number + 1`.
+- Runtime competition precedence is `-initialization_order_value`.
+
+This feeds the existing exact `cup_round_strategy_bias()` helper. Linked
+Replay/SecondLeg objects can additionally use the already-recovered aggregate
+deficit term.
+
+The next execution blocker is not strategy. It is match duration:
+`simulate_normal_match()` currently hard-codes the 90-minute phase plan, while
+decisive Cup runtime objects may require extra time.

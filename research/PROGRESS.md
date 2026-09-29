@@ -7326,3 +7326,36 @@ valid.
 
 The PL/Cup calendar transform is now closed. Gate 12 can proceed to actual
 shared domestic-Cup execution.
+
+
+## Gate 12 Cup AI strategy context closed - 29 September 2026
+
+Direct executable tracing closed the remaining formation-strategy inputs for
+Cup matches:
+
+- `Cup+0x3C` is the total runtime round count. `0x4F6D60` appends each
+  created round and increments this count.
+- the Cup round initializer receives the zero-based round index and passes that
+  same value into `CupMatch` constructor `0x510520`, which stores it at
+  `CupMatch+0x50`;
+- `0x409680` therefore receives
+  `rounds_from_final = Cup+0x3C - CupMatch+0x50`, yielding 1 final,
+  2 semifinal, 3 quarterfinal;
+- Static.dat uses one-based `round_number`, so the clean-room equivalent is
+  `scheduled_matchday_count - round_number + 1`;
+- runtime competition `+0x18` is the negated packed competition word +15,
+  already parsed as `initialization_order_value`, so Cup precedence is
+  `-initialization_order_value`.
+
+Canonical data cross-check: FA Cup is 8 rounds with packed precedence +6;
+League Cup is 7 rounds with packed precedence +5.
+
+Commit `ce419c02` carries source round number through scheduled/live Cup state
+and adds `prepare_cup_ai_selection()` using the already-recovered
+`cup_round_strategy_bias()`, team-rating, home/away and aggregate-deficit
+components.
+
+A separate backend boundary remains: `simulate_normal_match()` hard-codes
+`build_match_phase_plan(extra_time=False, penalties=False)`. Decisive Cup
+objects must not be wired through that 90-minute path until Cup
+`uses_extra_time` can select the recovered extra-time phase plan.

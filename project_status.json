@@ -14,7 +14,7 @@
   "last_verified_test_count": 710,
   "asset_policy_validated_head": "1b388b66eaa635eafcc8344a205c12a021c54f18",
   "asset_policy_status": "passed",
-  "active_task": "Gate 12: preserve Cup constructor policy in live scheduled nodes, then execute due FA Cup/League Cup matches through the shared calendar.",
+  "active_task": "Gate 12: extend MatchCalculator phase execution for Cup extra time, then wire source-backed Cup AI/human execution into the shared PL/Cup matchday order.",
   "next_gate": 13,
   "next_gate_name": "Restore original management presentation",
   "blocked": false,
@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate 12: preserve Cup constructor policy in live scheduled nodes, then execute due FA Cup/League Cup matches through the shared calendar.",
+  "current_task": "Gate 12: extend MatchCalculator phase execution for Cup extra time, then wire source-backed Cup AI/human execution into the shared PL/Cup matchday order.",
   "last_verified_reconstruction_failures": 2,
   "last_verified_asset_policy_head": "1b388b66eaa635eafcc8344a205c12a021c54f18",
   "gate11_danger_morale_request_integrated": true,
@@ -343,5 +343,9 @@
   "gate12_latest_implementation_head": "4eb97457d0e4b6a00cd9a2e85d342e218670e675",
   "gate12_primary_calendar_anchor_corrected": true,
   "gate12_christmas_boundary_corrected": true,
-  "gate12_christmas_correction_startup_neutral": true
+  "gate12_christmas_correction_startup_neutral": true,
+  "gate12_shared_primary_matchday_order_head": "7650cdd2e9ca7ea3191b59ed5745ad5d8afa390f",
+  "gate12_cup_ai_strategy_context_head": "ce419c025c6ca6df4e8686471980559b715982b7",
+  "gate12_cup_ai_strategy_context_closed": true,
+  "gate12_decisive_cup_extra_time_backend_open": true
 }

@@ -38,16 +38,18 @@ tracked according to `research/ASSET_POLICY.md`.
 
 ## Verified repository state
 
-Latest verified Gate-12 implementation checkpoint:
+Latest verified Gate-12 implementation checkpoint before the active strategy
+patch:
 
 ```text
-1b388b66eaa635eafcc8344a205c12a021c54f18
-Refresh scheduler calendar regressions
+7650cdd2e9ca7ea3191b59ed5745ad5d8afa390f
+Persist shared PL Cup matchday order
 ```
 
-GitHub Actions at that checkpoint ran **710 tests with 2 failures**, exactly
+GitHub Actions at that checkpoint ran **718 tests with 2 failures**, exactly
 the unchanged known secondary-schedule assertions; repository asset policy
-passed. The shared primary-container calendar correction is therefore verified.
+passed. Commit `ce419c02` is the current unverified head and adds the
+source-backed Cup AI strategy context.
 
 GitHub Actions at that checkpoint:
 
@@ -75,7 +77,7 @@ The active Cup slice now has:
 - persistent `CupMatchRuntimeState` objects behind scheduled nodes, including
   completed FirstLeg scores and reconstructed bidirectional FirstLeg/SecondLeg
   linkage after reload;
-- internal save schema **25**, which serializes/restores definitive Cup outcomes,
+- internal save schema **26**, which serializes/restores definitive Cup outcomes,
   live domestic schedule/completion state and Cup match score/link state;
 - the exact `0x51392A` NormalRound replay-date producer, including the primary
   schedule-container anchor and shipped FA Cup +14-day replay arithmetic;
@@ -88,12 +90,11 @@ The active Cup slice now has:
   skip, while same-day Cup order is preserved from shuffled bucket
   head-to-tail traversal.
 
-The normal human/AI matchday loop still remains Premier-League-only. One
-important boundary remains explicit: the repository currently has different
-recovered source-week conventions for fixed Premier League fixtures and Cup
-rounds even though both occupy the primary container. Therefore a universal
-primary-bucket-to-Gregorian-date mapping must not be invented merely to merge
-their same-day order.
+The normal human/AI matchday loop still remains Premier-League-only, but the
+calendar/order blocker is closed: canonical startup now persists one shared
+post-shuffle PL/domestic-Cup order by Gregorian date. The current execution
+blocker is match duration for decisive Cup objects because
+`simulate_normal_match()` still hard-codes the 90-minute phase plan.
 
 ## Stable startup / scheduler checkpoint
 
@@ -169,21 +170,29 @@ Do not rebuild solved Cup startup RNG/draw behavior.
    scheduled or replay/second-leg round at `25/1` or `26/1`, so this
    Christmas correction is startup-neutral for the canonical 9,346-node
    schedule and does not change the proven primary RNG/placement checkpoint.
-5. Merge due FA Cup / League Cup matches into the shared AI/human calendar
-   path. First preserve the recovered constructor-policy booleans on persistent
-   `DomesticCupScheduledNode` state so due nodes can materialize without
-   caller-supplied guesses. Then add deterministic AI-only, human-involved,
-   Replay and TwoLeg save/reload regressions.
+5. Constructor policy, scheduled lifecycle and cross-competition matchday
+   order are now implemented through `fb3b5b3b`, `9b8e2888` and
+   `7650cdd2`. `ce419c02` carries the source round number and adds the
+   exact Cup AI strategy wrapper: rounds-from-final is
+   `scheduled_matchday_count - round_number + 1`, and competition precedence
+   is `-initialization_order_value`.
+6. Before wiring decisive League Cup/Replay/SecondLeg score production, extend
+   the shared match simulator so Cup runtime `uses_extra_time` can select the
+   recovered extra-time phase plan. Do not run decisive Cup objects through the
+   current hard-coded 90-minute `simulate_normal_match()`.
+7. Then merge due FA Cup / League Cup nodes into the shared AI/human matchday
+   loop and add deterministic AI-only, human-involved, Replay and TwoLeg
+   save/reload regressions.
 
 ## Known live fidelity boundaries
 
 - Gate 12: FA Cup/League Cup nodes, definitive outcomes, completed-node
-  identities, persisted Cup match-score/link state, dynamic FA Cup Replay
-  insertion and the post-placement/post-shuffle domestic schedule bridge are
-  GameState/save safe. Automatic constructor-policy derivation and actual
-  shared human/AI Cup execution remain open. The constructor-policy producer
-  is closed; the remaining calendar blocker is the exact fixed-League
-  shared human/AI Cup execution; the primary calendar transform is closed.
+  identities, constructor policy, persisted Cup match-score/link state,
+  dynamic FA Cup Replay insertion, shared PL/Cup post-shuffle order, and Cup
+  AI strategy context are now source-backed. Actual shared human/AI Cup
+  execution remains open at one concrete backend boundary: decisive Cup
+  matches require the recovered extra-time phase plan, while the current
+  normal simulator is fixed to 90 minutes.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:

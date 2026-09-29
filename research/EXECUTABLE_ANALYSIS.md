@@ -9328,3 +9328,35 @@ for both fixed League and Cup schedule nodes in primary mode 0.
 This supersedes the clean-room assumption that fixed Premier League fixtures
 use the Monday containing July 1. It also moves the canonical 2000 Christmas
 exception under `0x615950` to packed `25/1`.
+
+
+## Cup strategy runtime field closure
+
+**Confirmed 29 September 2026 from canonical FOOTBAL.EXE.**
+
+Cup construction/strategy tracing identifies the exact round-position fields
+consumed by `0x409680`.
+
+`0x4F6D60` appends each initialized Cup round to the runtime round vector and
+increments `Cup+0x3C`. This field is therefore the total runtime round count.
+
+The Cup initialization loop passes its zero-based round index into the round
+initializer. NormalRound/TwoLeg construction forwards that same index into
+`CupMatch` constructor `0x510520`, which stores it at `CupMatch+0x50`.
+
+The Cup path in `0x409680` starts from:
+
+```text
+Cup+0x3C - CupMatch+0x50
+```
+
+and maps values 1/2/3 to final/semi-final/quarter-final biases. Therefore for
+the one-based Static.dat `round_number`:
+
+```text
+rounds_from_final = scheduled_matchday_count - round_number + 1
+```
+
+Competition runtime `+0x18` remains the negated packed word +15, whose packed
+value is parsed as `initialization_order_value`; the clean-room precedence
+input is consequently `-initialization_order_value`.
