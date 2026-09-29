@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 12,
   "active_task": "Gate 12 annual Cup source refresh: trace cross-season Cup qualification/enumeration and DummyLeague refresh semantics before live GameState season replacement.",
-  "last_known_main_head": "07bc80f766b8f8769d5baf8f77ebf63973903383",
+  "last_known_main_head": "17cdca03bcda376df8acaf807763c386bcb8cc1c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 70,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Annual primary regeneration primitive verified at 09a5c269: 797 tests, only two unchanged secondary-schedule failures, asset policy passed. Year-two PL procedural and dynamic Christmas placement are closed. Continue Cup/DummyLeague annual source refresh.",
+  "recovery_generation": 71,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovered at main 17cdca03. Continue from repository evidence; inspect commits newer than CURRENT_STATE baseline before changing the active Gate-12 task.",
   "same_chat_fallback_minutes": 30
 }
