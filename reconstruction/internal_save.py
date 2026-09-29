@@ -57,7 +57,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 31
+SAVE_SCHEMA_VERSION = 32
 
 
 def _iso(value: date | None) -> str | None:
@@ -1041,6 +1041,7 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
         "premier_league": league_snapshot,
         "cup_results": _snapshot_cup_result_registry(state.cup_results),
         "domestic_cups": state.domestic_cups.snapshot(),
+        "european_cups": state.european_cups.snapshot(),
         "procedural_leagues": [
             live.snapshot()
             for _, live in sorted(state.procedural_leagues.items())
@@ -1279,6 +1280,7 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         premier_league=league,
         cup_results=_restore_cup_result_registry(snapshot.get("cup_results")),
         domestic_cups=DomesticCupScheduleState.restore(snapshot.get("domestic_cups")),
+        european_cups=DomesticCupScheduleState.restore(snapshot.get("european_cups")),
         procedural_leagues={
             (
                 int(raw["competition_id"]),
