@@ -391,8 +391,8 @@ class AiMatchPreparationTests(unittest.TestCase):
         )
 
         # League Cup runtime precedence -5 => trunc(7/3)=2. Semi bias 2 and
-        # aggregate deficit 5 produce score 9 for the away side.
-        self.assertEqual(result.strategy_score, 9)
+        # aggregate deficit 5, plus the recovered away base -1, produce 8.
+        self.assertEqual(result.strategy_score, 8)
         self.assertEqual(int(result.selection_class), 1)
 
     def test_cup_ai_selection_rejects_round_outside_runtime_count(self):
