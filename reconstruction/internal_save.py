@@ -57,7 +57,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 32
+SAVE_SCHEMA_VERSION = 33
 
 
 def _iso(value: date | None) -> str | None:
@@ -1038,6 +1038,11 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             str(int(club_id)): [int(v) for v in values]
             for club_id, values in sorted(state.club_roster_order.items())
         },
+        "club_competition_membership": {
+            str(int(club_id)): int(competition_id)
+            for club_id, competition_id
+            in sorted(state.club_competition_membership.items())
+        },
         "premier_league": league_snapshot,
         "cup_results": _snapshot_cup_result_registry(state.cup_results),
         "domestic_cups": state.domestic_cups.snapshot(),
@@ -1296,6 +1301,19 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         clubs=clubs,
         managers=managers,
         competitions=competitions,
+        league_allocation_records=tuple(
+            getattr(database, "league_allocation_records", ())
+        ),
+        club_competition_membership={
+            int(club_id): int(competition_id)
+            for club_id, competition_id in snapshot.get(
+                "club_competition_membership",
+                {
+                    str(int(club.index)): int(club.competition_id)
+                    for club in getattr(database, "clubs", ())
+                },
+            ).items()
+        },
         countries=countries,
         positions=positions,
         access_fan_bases=access_fan_bases,
