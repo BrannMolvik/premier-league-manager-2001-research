@@ -3,7 +3,7 @@ from datetime import date
 
 from competition_schedule import StartupScheduleNode, direct_club_ref
 from competition_startup import CupClubRefDescriptor
-from cup_progression import CupResultRegistry
+from cup_progression import CupResultRegistry, complete_cup_match
 from domestic_cup_state import DomesticCupScheduleState
 
 
@@ -139,6 +139,101 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
 
         self.assertEqual(tuple(node.node_token for node in due), (result_token,))
         self.assertEqual(due[0].resolve_pair(registry), (2, 1))
+
+    def test_two_leg_match_scores_and_links_survive_state_roundtrip(self):
+        first_token = ("cup_first_leg", 5, 185, 3)
+        result_token = ("cup_result", 5, 185, 3)
+        first_node = cup_node(
+            node_kind="first_leg_match",
+            competition_id=5,
+            round_id=185,
+            pair_index=3,
+            week=2,
+            weekday=3,
+            left=direct_club_ref(1),
+            right=direct_club_ref(2),
+            token=first_token,
+        )
+        second_node = cup_node(
+            node_kind="second_leg_match",
+            competition_id=5,
+            round_id=185,
+            pair_index=3,
+            week=3,
+            weekday=3,
+            left=direct_club_ref(2),
+            right=direct_club_ref(1),
+            token=result_token,
+        )
+        state = DomesticCupScheduleState.from_startup_nodes(
+            (first_node, second_node),
+            season_year=2000,
+        )
+        registry = CupResultRegistry()
+        first, second = state.materialize_two_leg_pair(
+            first_token,
+            registry,
+            second_leg_extra_time_capable=True,
+        )
+        complete_cup_match(first, registry, 2, 1)
+        state.mark_completed(first_token)
+
+        restored = DomesticCupScheduleState.restore(state.snapshot())
+        restored_first = restored.match_state(first_token)
+        restored_second = restored.match_state(result_token)
+
+        self.assertTrue(restored_first.complete)
+        self.assertEqual((restored_first.base_score_0, restored_first.base_score_1), (2, 1))
+        self.assertIs(restored_second.prior_match, restored_first)
+        self.assertIs(restored_first.following_match, restored_second)
+        self.assertFalse(restored_second.complete)
+        self.assertTrue(restored_second.extra_time_capable)
+
+    def test_normal_match_materialization_waits_for_symbolic_participant(self):
+        prior = ("cup_result", 1, 38, 0)
+        token = ("cup_result", 1, 39, 0)
+        scheduled = cup_node(
+            node_kind="cup_match",
+            competition_id=1,
+            round_id=39,
+            pair_index=0,
+            week=1,
+            weekday=6,
+            left=CupClubRefDescriptor(
+                type_code=1,
+                selector=0,
+                reference_token=prior,
+            ),
+            right=direct_club_ref(30),
+            token=token,
+        )
+        state = DomesticCupScheduleState.from_startup_nodes(
+            (scheduled,),
+            season_year=2000,
+        )
+        registry = CupResultRegistry()
+
+        with self.assertRaisesRegex(ValueError, "unresolved"):
+            state.materialize_normal_match(
+                token,
+                registry,
+                extra_time_capable=True,
+                decisive_tiebreak=False,
+            )
+
+        registry.record_knockout_outcome(prior, 10, 20, 10)
+        match = state.materialize_normal_match(
+            token,
+            registry,
+            extra_time_capable=True,
+            decisive_tiebreak=False,
+        )
+
+        self.assertEqual(
+            (match.participant_0_club_id, match.participant_1_club_id),
+            (10, 30),
+        )
+        self.assertFalse(match.uses_extra_time)
 
     def test_snapshot_roundtrip_preserves_symbolic_refs_and_completion(self):
         first_token = ("cup_first_leg", 5, 185, 3)
