@@ -113,6 +113,36 @@ class InternalSaveTests(unittest.TestCase):
             snapshot_human_gameplay(original),
         )
 
+    def test_tagged_primary_pending_state_survives_roundtrip(self):
+        original = self.build_controller()
+        original.pending_primary_entry = (
+            "domestic_cup",
+            ("cup_result", 1, 43, 4),
+        )
+        original._pending_after_primary_entries = (
+            ("premier_league", 6),
+        )
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.pending_primary_entry,
+            original.pending_primary_entry,
+        )
+        self.assertEqual(
+            restored._pending_after_primary_entries,
+            original._pending_after_primary_entries,
+        )
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
     def test_cup_result_registry_survives_roundtrip(self):
         original = self.build_controller()
         token = ("cup_result", 1, 38, 0)

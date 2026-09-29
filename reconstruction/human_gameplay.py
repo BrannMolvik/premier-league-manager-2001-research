@@ -62,6 +62,14 @@ class HumanManagerState:
 
 
 @dataclass(frozen=True)
+class HumanPrimaryMatchdayOutcome:
+    match_entry: tuple
+    user_result: object
+    matchday_results: tuple[tuple[tuple, object], ...]
+    table: tuple[object, ...]
+
+
+@dataclass(frozen=True)
 class HumanMatchdayOutcome:
     fixture_id: int
     user_result: object
@@ -89,6 +97,9 @@ class HumanGameplayController:
         self.pending_fixture_id: int | None = None
         self._pending_prior_results: tuple[tuple[int, object], ...] = ()
         self._pending_after_fixture_ids: tuple[int, ...] = ()
+        self.pending_primary_entry: tuple | None = None
+        self._pending_prior_primary_results: tuple[tuple[tuple, object], ...] = ()
+        self._pending_after_primary_entries: tuple[tuple, ...] = ()
         self.last_transfer_executions: tuple[object, ...] = ()
 
     @classmethod
@@ -784,6 +795,167 @@ class HumanGameplayController:
             self.human.formation_id,
             self.human.starter_ids,
             self.human.substitute_ids,
+        )
+
+    def _primary_entry_clubs(self, entry: tuple) -> tuple[int, int] | None:
+        entry = tuple(entry)
+        if entry[0] == "premier_league":
+            fixture = self.state.premier_league.fixtures[int(entry[1])]
+            return int(fixture.home_club_id), int(fixture.away_club_id)
+        if entry[0] == "domestic_cup":
+            node = self.state.domestic_cups.node(tuple(entry[1]))
+            return node.resolve_pair(self.state.cup_results)
+        raise ValueError(f"unsupported primary match entry {entry!r}")
+
+    def _finish_shared_primary_day(self, had_results: bool) -> None:
+        if (
+            had_results
+            and self.state.premier_league is not None
+            and len(self.state.premier_league.results)
+            == len(self.state.premier_league.fixtures)
+        ):
+            self.state.run_premier_league_financial_objective_season_transition()
+        self.state.calendar.run_post_fixture_maintenance()
+        controlled = None if self.human is None else self.human.club_id
+        self.last_transfer_executions = tuple(
+            self.state.run_due_transfer_maintenance(
+                user_controlled_club_id=controlled,
+            )
+        )
+        self.state.run_weekly_player_payroll()
+        self.state.run_weekly_ai_transfer_maintenance(
+            self.match_rng,
+            user_controlled_club_id=controlled,
+        )
+        if self.state.finalize_single_user_sacking_control() is not None:
+            self.human = None
+
+    def advance_to_next_user_primary_match(self):
+        """Advance until a tagged PL/Cup match involving the human is pending."""
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        if self.pending_primary_entry is not None:
+            return self.pending_primary_entry
+
+        while True:
+            future_dates = [
+                on_date
+                for on_date in self.state.primary_matchday_order
+                if on_date > self.state.calendar.current_date
+            ]
+            future_dates.extend(
+                node.scheduled_date
+                for node in self.state.domestic_cups.nodes
+                if node.node_token not in self.state.domestic_cups.completed_node_tokens
+                and node.scheduled_date > self.state.calendar.current_date
+            )
+            if not future_dates:
+                return None
+
+            self.state.calendar.increment_one_day()
+            due_order = self.state.primary_entries_due_today()
+            human_due = []
+            for entry in due_order:
+                pair = self._primary_entry_clubs(entry)
+                if pair is not None and self.human.club_id in pair:
+                    human_due.append(entry)
+
+            if len(human_due) > 1:
+                raise RuntimeError(
+                    f"expected at most one human primary match on "
+                    f"{self.state.calendar.current_date}, got {human_due}"
+                )
+
+            if not human_due:
+                results = self.state.simulate_due_primary_ai_entries(
+                    self.attack_matrix,
+                    self.defence_matrix,
+                    self.match_rng,
+                )
+                self._finish_shared_primary_day(bool(results))
+                if self.human is None:
+                    return None
+                continue
+
+            human_entry = human_due[0]
+            split = due_order.index(human_entry)
+            prior = tuple(
+                (
+                    entry,
+                    self.state.simulate_primary_ai_entry(
+                        entry,
+                        self.attack_matrix,
+                        self.defence_matrix,
+                        self.match_rng,
+                    ),
+                )
+                for entry in due_order[:split]
+            )
+            self.pending_primary_entry = human_entry
+            self._pending_prior_primary_results = prior
+            self._pending_after_primary_entries = tuple(due_order[split + 1 :])
+            return human_entry
+
+    def play_user_primary_match(self) -> HumanPrimaryMatchdayOutcome:
+        """Play the pending tagged PL/Cup match and finish its shared matchday."""
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        if self.pending_primary_entry is None:
+            raise RuntimeError("advance to a user primary match first")
+
+        entry = self.pending_primary_entry
+        selection = self.current_selection()
+        if entry[0] == "premier_league":
+            user_result = self.state.simulate_premier_league_human_fixture(
+                int(entry[1]),
+                self.human.club_id,
+                selection,
+                self.attack_matrix,
+                self.defence_matrix,
+                self.match_rng,
+                team_orders=self.human.team_orders,
+            )
+        elif entry[0] == "domestic_cup":
+            user_result, _completion = self.state.simulate_domestic_cup_human_node(
+                tuple(entry[1]),
+                self.human.club_id,
+                selection,
+                self.attack_matrix,
+                self.defence_matrix,
+                self.match_rng,
+                team_orders=self.human.team_orders,
+            )
+        else:
+            raise ValueError(f"unsupported primary match entry {entry!r}")
+
+        trailing = tuple(
+            (
+                trailing_entry,
+                self.state.simulate_primary_ai_entry(
+                    trailing_entry,
+                    self.attack_matrix,
+                    self.defence_matrix,
+                    self.match_rng,
+                ),
+            )
+            for trailing_entry in self._pending_after_primary_entries
+        )
+        all_results = (
+            self._pending_prior_primary_results
+            + ((entry, user_result),)
+            + trailing
+        )
+        self._finish_shared_primary_day(bool(all_results))
+
+        self.pending_primary_entry = None
+        self._pending_prior_primary_results = ()
+        self._pending_after_primary_entries = ()
+
+        return HumanPrimaryMatchdayOutcome(
+            match_entry=entry,
+            user_result=user_result,
+            matchday_results=all_results,
+            table=tuple(self.state.premier_league_table()),
         )
 
     def next_user_fixture(self):

@@ -55,7 +55,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 26
+SAVE_SCHEMA_VERSION = 27
 
 
 def _iso(value: date | None) -> str | None:
@@ -1412,6 +1412,27 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
     return state
 
 
+def _snapshot_primary_entry(entry: tuple | None):
+    if entry is None:
+        return None
+    entry = tuple(entry)
+    if entry[0] == "premier_league":
+        return ["premier_league", int(entry[1])]
+    if entry[0] == "domestic_cup":
+        return ["domestic_cup", list(entry[1])]
+    raise ValueError(f"unsupported primary match entry {entry!r}")
+
+
+def _restore_primary_entry(value):
+    if value is None:
+        return None
+    if value[0] == "premier_league":
+        return ("premier_league", int(value[1]))
+    if value[0] == "domestic_cup":
+        return ("domestic_cup", tuple(value[1]))
+    raise ValueError(f"unsupported saved primary match entry {value!r}")
+
+
 def snapshot_human_gameplay(controller: HumanGameplayController) -> dict[str, Any]:
     rng_state = getattr(controller.match_rng, "state", None)
     if rng_state is None:
@@ -1450,6 +1471,20 @@ def snapshot_human_gameplay(controller: HumanGameplayController) -> dict[str, An
             ],
             "pending_after_fixture_ids": [
                 int(v) for v in controller._pending_after_fixture_ids
+            ],
+            "pending_primary_entry": _snapshot_primary_entry(
+                controller.pending_primary_entry
+            ),
+            "pending_prior_primary_results": [
+                {
+                    "entry": _snapshot_primary_entry(entry),
+                    "result": _snapshot_normal_match_result(result),
+                }
+                for entry, result in controller._pending_prior_primary_results
+            ],
+            "pending_after_primary_entries": [
+                _snapshot_primary_entry(entry)
+                for entry in controller._pending_after_primary_entries
             ],
             "match_rng_state": int(rng_state),
         },
@@ -1508,6 +1543,20 @@ def restore_human_gameplay(
     )
     controller._pending_after_fixture_ids = tuple(
         int(v) for v in control["pending_after_fixture_ids"]
+    )
+    controller.pending_primary_entry = _restore_primary_entry(
+        control.get("pending_primary_entry")
+    )
+    controller._pending_prior_primary_results = tuple(
+        (
+            _restore_primary_entry(value["entry"]),
+            _restore_normal_match_result(value["result"]),
+        )
+        for value in control.get("pending_prior_primary_results", ())
+    )
+    controller._pending_after_primary_entries = tuple(
+        _restore_primary_entry(value)
+        for value in control.get("pending_after_primary_entries", ())
     )
     return controller
 

@@ -1727,6 +1727,34 @@ class GameState:
             for fixture_id in ordered_ids
         )
 
+    def simulate_primary_ai_entry(
+        self,
+        entry: tuple,
+        attack_matrix,
+        defence_matrix,
+        rng=None,
+    ) -> NormalMatchResult:
+        """Simulate one tagged primary PL/Cup entry as AI-vs-AI."""
+        rng = self._resolve_rng(rng)
+        entry = tuple(entry)
+        kind = entry[0]
+        if kind == "premier_league":
+            return self.simulate_premier_league_ai_fixture(
+                int(entry[1]),
+                attack_matrix,
+                defence_matrix,
+                rng,
+            )
+        if kind == "domestic_cup":
+            result, _completion = self.simulate_domestic_cup_ai_node(
+                tuple(entry[1]),
+                attack_matrix,
+                defence_matrix,
+                rng,
+            )
+            return result
+        raise ValueError(f"unsupported primary match entry {entry!r}")
+
     def simulate_due_primary_ai_entries(
         self,
         attack_matrix,
@@ -1752,27 +1780,18 @@ class GameState:
                     "entry_order must contain each due primary entry exactly once"
                 )
 
-        results: list[tuple[tuple, object]] = []
-        for entry in ordered:
-            kind = entry[0]
-            if kind == "premier_league":
-                result = self.simulate_premier_league_ai_fixture(
-                    int(entry[1]),
+        return tuple(
+            (
+                entry,
+                self.simulate_primary_ai_entry(
+                    entry,
                     attack_matrix,
                     defence_matrix,
                     rng,
-                )
-            elif kind == "domestic_cup":
-                result = self.simulate_domestic_cup_ai_node(
-                    tuple(entry[1]),
-                    attack_matrix,
-                    defence_matrix,
-                    rng,
-                )
-            else:
-                raise ValueError(f"unsupported primary match entry {entry!r}")
-            results.append((entry, result))
-        return tuple(results)
+                ),
+            )
+            for entry in ordered
+        )
 
     def advance_one_day_with_primary_ai_matches(
         self,
