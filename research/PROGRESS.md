@@ -7171,3 +7171,35 @@ behind scheduled nodes and then implement source-exact dynamic FA Cup Replay
 insertion. Do not use a guessed generic replay delay; the recovered replay-date
 arithmetic must be preserved before Cup fixtures enter the normal human/AI
 matchday loop.
+
+
+## Gate 12 persistent Cup match score/link state verified - 29 September 2026
+
+The live domestic-Cup layer now preserves actual Cup match objects, not only
+schedule/completion identity.
+
+Implementation checkpoints:
+
+- `b317d4aa`: `DomesticCupScheduleState` can materialize source-class
+  NormalRound and TwoLeg match objects with explicit constructor policy inputs,
+  keeps FirstLeg/SecondLeg objects keyed to their schedule nodes, and
+  serializes completed scores plus linked-match identity;
+- `c69793e4`: deterministic tests prove a completed 2-1 FirstLeg survives
+  state round-trip and still links into the pending reversed SecondLeg; a
+  symbolic NormalRound cannot materialize before its referenced winner resolves;
+- `d0383991`: internal save schema advances to **25** for live Cup match
+  score/link state;
+- `e934dff5`: the full human-controller save/reload path preserves the same
+  completed FirstLeg score and reconstructs the pending SecondLeg link.
+
+GitHub Actions at
+`e934dff5ccaa72066e666070201271b72dda74be` ran **705 reconstruction
+tests**. All new Cup state/save tests passed. The only two failures remain the
+known secondary root-order and secondary bucket-count assertions. Repository
+asset policy passed.
+
+Exact next task: close the remaining NormalRound replay scheduling input at
+`0x51392A`. The clean-room must identify the source of
+`selected_date_anchor[+8]`, map round `+0x28/+0x2C`, and prove conversion
+to the season date before dynamically inserting a replay. Do not replace this
+with an assumed fixed delay or unproven direct use of the packed replay week/day.
