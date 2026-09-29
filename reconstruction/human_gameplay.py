@@ -196,6 +196,10 @@ class HumanGameplayController:
             primary_schedule.buckets,
             season_year=2000,
         )
+        state.install_qualification_cup_primary_schedule(
+            primary_schedule.buckets,
+            season_year=2000,
+        )
         state.install_primary_matchday_order(
             primary_schedule.buckets,
             season_year=2000,
@@ -992,6 +996,9 @@ class HumanGameplayController:
         if entry[0] == "european_cup":
             node = self.state.european_cups.node(tuple(entry[1]))
             return node.resolve_pair(self.state.cup_results)
+        if entry[0] == "qualification_cup":
+            node = self.state.qualification_cups.node(tuple(entry[1]))
+            return node.resolve_pair(self.state.cup_results)
         if entry[0] == "procedural_league":
             token = tuple(entry[1])
             owners = tuple(
@@ -1051,6 +1058,13 @@ class HumanGameplayController:
                 node.scheduled_date
                 for node in self.state.european_cups.nodes
                 if node.node_token not in self.state.european_cups.completed_node_tokens
+                and node.scheduled_date > self.state.calendar.current_date
+            )
+            future_dates.extend(
+                node.scheduled_date
+                for node in self.state.qualification_cups.nodes
+                if node.node_token
+                not in self.state.qualification_cups.completed_node_tokens
                 and node.scheduled_date > self.state.calendar.current_date
             )
             if not future_dates:
@@ -1138,6 +1152,18 @@ class HumanGameplayController:
                 self.defence_matrix,
                 self.match_rng,
                 team_orders=self.human.team_orders,
+            )
+        elif entry[0] == "qualification_cup":
+            user_result, _completion = (
+                self.state.simulate_qualification_cup_human_node(
+                    tuple(entry[1]),
+                    self.human.club_id,
+                    selection,
+                    self.attack_matrix,
+                    self.defence_matrix,
+                    self.match_rng,
+                    team_orders=self.human.team_orders,
+                )
             )
         else:
             raise ValueError(f"unsupported human primary match entry {entry!r}")
