@@ -7254,3 +7254,24 @@ recovered date conventions despite sharing the primary container. The next
 slice must not collapse those conventions without proving the missing transform.
 It must also recover the static producer of the already-understood CupMatch
 constructor policy bits before due Cup nodes can materialize automatically.
+
+
+## Gate 12 constructor-policy closure reconciled - 29 September 2026
+
+Recovery generation 62 resumed at main `4eb97457` and verified that the
+constructor-policy task named in the previous handoff had already advanced:
+
+- `71d1d65f` parses the packed DBRRound policy fields at +28..+31 and carries
+  the recovered extra-time / decisive inputs into Cup schedule nodes;
+- `4eb97457` keeps legacy synthetic schedule stubs compatible without
+  affecting canonical startup RNG or placement behavior.
+
+The remaining calendar gap was narrowed to one executable boundary rather than
+a generic "PL/Cup date transform." The current clean-room maps PL packed
+`8/3` and League Cup packed `7/3` to the same Gregorian date
+(23 August 2000), while raw primary-container indices differ by seven. Because
+both use the same primary container, the next trace must prove the actual
+week/day arguments supplied by fixed-League builder `0x6173D0` to
+`0x615950`, including any pre-call week adjustment. The Cup-specific anchor
+is already instruction-closed and must not be changed merely to reconcile the
+older PL helper.

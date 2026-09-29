@@ -439,3 +439,49 @@ creates the replay; a source-configured decisive normal match resolves instead.
 This closes the date/input dependency required for clean-room dynamic FA Cup
 Replay insertion without treating packed `replay_week/replay_weekday` as a
 generic replay date.
+
+
+## Constructor-policy closure and fixed-League calendar boundary
+
+Commits `71d1d65ffb62f10d8e80a6cd30bf30422a11880d` and
+`4eb97457d0e4b6a00cd9a2e85d342e218670e675` close the previously-open
+CupMatch constructor-policy producer.
+
+The packed DBRRound fields now materialized by the clean-room are:
+
+- packed word +28 -> runtime round +0x24 source / extra-time-capability input;
+- packed byte +30 -> the auxiliary input ORed into the same recovered
+  constructor capability;
+- packed byte +31 -> decisive tie-break input.
+
+The scheduled Cup node carries those recovered values directly. FirstLeg
+forces all three policy booleans false; SecondLeg inherits the round's
+extra-time capability and forces the decisive bit, matching the constructor
+trace already recorded above. Synthetic round stubs that predate these fields
+default them to false only for isolated compatibility tests.
+
+### Remaining calendar contradiction
+
+The remaining pre-execution blocker is no longer a Cup date conversion question.
+It is the exact date pair passed by the fixed-League builder
+`0x6173D0` into `0x615950`.
+
+Current source-backed/live facts conflict if one assumes that builder passes the
+raw DBRRound week unchanged:
+
+- live Premier League conversion maps packed round `8/3` to
+  **Wednesday 23 August 2000**;
+- source-exact League Cup conversion maps packed round `7/3` to the same
+  Gregorian date;
+- raw primary-container arithmetic gives different indices:
+  `7*8+3-1 = 58` versus `7*7+3-1 = 51`.
+
+A single primary schedule container cannot make bucket 58 and bucket 51 the
+same day. Therefore at least one additional fixed-League transformation or
+argument adjustment exists between DBRRound state and `0x615950`, or the
+older live PL date helper encodes a non-executable calendar convention.
+
+Exact next trace: inspect `0x6173D0` at its `0x615950` call site and prove
+the two date arguments, including any week decrement/normalization performed
+before the call. Preserve the Cup anchor and the verified post-shuffle bucket
+order while this is unresolved.

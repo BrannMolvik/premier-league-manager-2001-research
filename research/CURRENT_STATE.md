@@ -38,12 +38,17 @@ tracked according to `research/ASSET_POLICY.md`.
 
 ## Verified repository state
 
-Latest verified Gate-12 code checkpoint:
+Latest Gate-12 implementation checkpoint:
 
 ```text
-ccac3ba2ff6b92269574e2c4bbeebbe514cdaf22
-Bind domestic Cups to shuffled primary schedule
+4eb97457d0e4b6a00cd9a2e85d342e218670e675
+Keep synthetic Cup schedule stubs compatible
 ```
+
+The last fully recorded CI checkpoint remains `ccac3ba2` (710 tests, two
+known secondary-schedule failures). Commits `71d1d65f` and `4eb97457`
+close the previously-open Cup constructor-policy input without changing the
+primary schedule RNG/placement model.
 
 GitHub Actions at that checkpoint:
 
@@ -147,19 +152,24 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 
 1. Preserve the verified post-shuffle domestic-Cup schedule bridge through
    `ccac3ba2`; do not reopen solved Cup draw, replay-date or placement work.
-2. Close the remaining **match-constructor policy input** needed to materialize
-   due Cup nodes automatically. The completion semantics for bits `0x2`
-   (120-minute capability) and `0x4` (decisive tie-break) are proven, but the
-   packed/static producer of those booleans was not persisted and must not be
-   guessed. Reuse canonical domestic-round facts only where they are already
-   source-backed.
-3. In parallel, reconcile the fixed-League versus Cup source-week convention
-   before claiming a single global PL/Cup bucket-to-date mapping. Preserve the
-   already-verified PL dates and Cup dates independently until that transform
-   is proven.
-4. Once those two inputs are closed, merge due FA Cup / League Cup matches into
-   the shared AI/human calendar path and add deterministic AI-only,
-   human-involved, Replay and TwoLeg save/reload regressions.
+2. The match-constructor policy input is now closed. `71d1d65f` parses the
+   packed round fields at offsets 28..31 and carries their recovered policy
+   values into scheduled Cup nodes; `4eb97457` keeps older synthetic schedule
+   stubs compatible. Do not reopen this trace unless new contradictory evidence
+   appears.
+3. Reconcile the fixed-League versus Cup source-week convention before claiming
+   a single global PL/Cup bucket-to-date mapping. The concrete contradiction is
+   now narrow: current live PL conversion maps packed round `8/3` to
+   **23 August 2000**, while the source-exact Cup conversion maps League Cup
+   round `7/3` to that same Gregorian day, yet raw `0x615950` primary
+   bucket indices differ by seven. One primary container cannot map both raw
+   indices to the same day. Trace the actual week/day values supplied by fixed
+   builder `0x6173D0` to `0x615950` (including any pre-call adjustment);
+   do not alter the already instruction-closed Cup anchor to make them fit.
+4. Once that fixed-League date argument is instruction-closed, merge due
+   FA Cup / League Cup matches into the shared AI/human calendar path and add
+   deterministic AI-only, human-involved, Replay and TwoLeg save/reload
+   regressions.
 
 ## Known live fidelity boundaries
 
@@ -167,7 +177,9 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   identities, persisted Cup match-score/link state, dynamic FA Cup Replay
   insertion and the post-placement/post-shuffle domestic schedule bridge are
   GameState/save safe. Automatic constructor-policy derivation and actual
-  shared human/AI Cup execution remain open.
+  shared human/AI Cup execution remain open. The constructor-policy producer
+  is closed; the remaining calendar blocker is the exact fixed-League
+  `0x6173D0 -> 0x615950` date argument.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
