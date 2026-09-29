@@ -65,6 +65,7 @@ from match_preparation import (
     build_prepared_match_side_from_selection,
     build_premier_league_ai_match_side,
     prepare_cup_ai_selection,
+    prepare_league_ai_selection,
     prepare_premier_league_ai_selection,
 )
 from match_postmatch import (
@@ -1804,6 +1805,173 @@ class GameState:
             for fixture_id in ordered_ids
         )
 
+    def simulate_procedural_league_ai_node(
+        self,
+        node_token: tuple,
+        attack_matrix,
+        defence_matrix,
+        rng=None,
+    ) -> NormalMatchResult:
+        """Run one due European procedural-League fixture through MatchCalculator.
+
+        Startup/group materialization and primary ordering are already canonical.
+        This bridge therefore consumes the resolved live fixture in place: both
+        AI selections are prepared before weather, side-0/side-1 Condition is
+        initialized in source order, the shared calculator produces the score,
+        and the existing live group state records/publishes progression from it.
+        """
+        rng = self._resolve_rng(rng)
+        token = tuple(node_token)
+        owners = tuple(
+            live
+            for live in self.procedural_leagues.values()
+            if token in live.fixtures
+        )
+        if len(owners) != 1:
+            if not owners:
+                raise KeyError(token)
+            raise RuntimeError("procedural League node belongs to multiple live groups")
+        live = owners[0]
+        if token in live.results:
+            raise ValueError("procedural League match already has a result")
+        if ("procedural_league", token) not in self.primary_matchday_order.get(
+            self.calendar.current_date,
+            (),
+        ):
+            raise ValueError(
+                f"procedural League node {token!r} is not due on "
+                f"{self.calendar.current_date}"
+            )
+
+        fixture = live.fixtures[token]
+        home_club_id = int(fixture.home_club_id)
+        away_club_id = int(fixture.away_club_id)
+        competition = self.competitions.get(int(live.competition_id))
+        if competition is None:
+            raise RuntimeError(
+                f"League competition definition {int(live.competition_id)} is not loaded"
+            )
+
+        def club_inputs(club_id: int):
+            club = self.clubs.get(int(club_id))
+            if club is None:
+                raise RuntimeError(f"club definition {int(club_id)} is not loaded")
+            manager = self.managers.get(int(club.manager_id))
+            if manager is None:
+                raise RuntimeError(
+                    f"manager {int(club.manager_id)} for club {int(club_id)} "
+                    "is not loaded"
+                )
+            roster = self.ordered_club_roster(int(club_id))
+            if not roster:
+                raise RuntimeError(f"club {int(club_id)} has no runtime roster")
+            return manager, roster
+
+        home_manager, home_roster = club_inputs(home_club_id)
+        away_manager, away_roster = club_inputs(away_club_id)
+        table = live.table()
+
+        def scheduled_matches_for(club_id: int) -> int:
+            return sum(
+                1
+                for item in live.fixtures.values()
+                if int(club_id) in (
+                    int(item.home_club_id),
+                    int(item.away_club_id),
+                )
+            )
+
+        home_total = scheduled_matches_for(home_club_id)
+        away_total = scheduled_matches_for(away_club_id)
+        if home_total <= 0 or home_total != away_total:
+            raise RuntimeError(
+                "procedural League fixture has inconsistent per-club schedule length"
+            )
+        advancement_places = self.procedural_league_advancement_places(
+            int(live.competition_id),
+            int(live.competition_context),
+        )
+
+        home_preparation = prepare_league_ai_selection(
+            home_club_id,
+            home_roster,
+            away_roster,
+            home_manager,
+            competition,
+            table,
+            total_matches=home_total,
+            automatic_promotion_places=advancement_places,
+            is_home=True,
+        )
+        away_preparation = prepare_league_ai_selection(
+            away_club_id,
+            away_roster,
+            home_roster,
+            away_manager,
+            competition,
+            table,
+            total_matches=away_total,
+            automatic_promotion_places=advancement_places,
+            is_home=False,
+        )
+
+        environment = generate_match_environment(
+            self.calendar.current_date,
+            rng,
+        )
+        initialize_ai_roster_condition(home_roster, rng)
+        initialize_ai_roster_condition(away_roster, rng)
+        home_side = build_prepared_match_side_from_selection(
+            home_preparation.selection,
+            0,
+            self.team_tactics.get(home_club_id, TeamTacticalState()),
+            user_controlled=False,
+            team_orders=TeamOrderPriorities(),
+        )
+        away_side = build_prepared_match_side_from_selection(
+            away_preparation.selection,
+            1,
+            self.team_tactics.get(away_club_id, TeamTacticalState()),
+            user_controlled=False,
+            team_orders=TeamOrderPriorities(),
+        )
+
+        pitch_wear_before = int(self.pitch_wear.get(home_club_id, 0))
+        result = simulate_normal_match(
+            home_side,
+            away_side,
+            attack_matrix,
+            defence_matrix,
+            rng,
+            condition_injury_settings=ConditionInjurySettings(
+                environment_byte=pitch_wear_before,
+            ),
+            extra_time=False,
+        )
+        self.record_procedural_league_result(
+            token,
+            int(result.score[0]),
+            int(result.score[1]),
+        )
+
+        # LeagueMatch shares the post-calculator gate path. European attendance
+        # posting policy is not yet integrated, but these four source-ordered
+        # draws must not disappear from the shared RNG stream.
+        self._draw_matchday_gate_rand15_values(rng)
+        self._persist_domestic_cup_shared_post_match(
+            home_club_id=home_club_id,
+            away_club_id=away_club_id,
+            home_side=home_side,
+            away_side=away_side,
+            home_participants=home_preparation.selection.participants,
+            away_participants=away_preparation.selection.participants,
+            result=result,
+            environment=environment,
+            pitch_wear_before=pitch_wear_before,
+            rng=rng,
+        )
+        return result
+
     def simulate_primary_ai_entry(
         self,
         entry: tuple,
@@ -1831,9 +1999,11 @@ class GameState:
             )
             return result
         if kind == "procedural_league":
-            raise RuntimeError(
-                "European procedural LeagueMatch execution is the active Gate-12 "
-                "boundary; do not skip or reorder this primary entry"
+            return self.simulate_procedural_league_ai_node(
+                tuple(entry[1]),
+                attack_matrix,
+                defence_matrix,
+                rng,
             )
         raise ValueError(f"unsupported primary match entry {entry!r}")
 
