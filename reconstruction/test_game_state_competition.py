@@ -242,7 +242,7 @@ class IntegratedGameStateTests(unittest.TestCase):
     def test_due_ai_fixture_can_prepare_simulate_and_store_result(self):
         state = GameState.from_database(
             AutonomousDatabase(),
-            date(2000, 7, 1),
+            date(2000, 7, 8),
             seed=1,
             season_year=2000,
         )
@@ -263,7 +263,7 @@ class IntegratedGameStateTests(unittest.TestCase):
         stored = state.premier_league.results[0]
         self.assertEqual((stored.home_goals, stored.away_goals), result.score)
         self.assertEqual(sum(row.played for row in state.premier_league_table()), 2)
-        # July 1 is a hot/non-rain weather state, so the home pitch receives
+        # The July fixture is a hot/non-rain weather state, so the home pitch receives
         # the exact normal PitchWear increment of 16.
         self.assertEqual(state.pitch_wear[1], 16)
         self.assertEqual(state.pitch_wear[2], 0)
@@ -306,7 +306,7 @@ class IntegratedGameStateTests(unittest.TestCase):
     def test_explicit_match_engine_rng_populates_live_performance_history(self):
         legacy = GameState.from_database(
             AutonomousDatabase(),
-            date(2000, 7, 1),
+            date(2000, 7, 8),
             seed=1,
             season_year=2000,
         )
@@ -327,7 +327,7 @@ class IntegratedGameStateTests(unittest.TestCase):
 
         state = GameState.from_database(
             AutonomousDatabase(),
-            date(2000, 7, 1),
+            date(2000, 7, 8),
             seed=1,
             season_year=2000,
         )
@@ -430,7 +430,7 @@ class IntegratedGameStateTests(unittest.TestCase):
     def test_due_fixture_can_be_simulated_and_written_to_table(self):
         state = GameState.from_database(
             FakeDatabase(),
-            date(2000, 7, 1),
+            date(2000, 7, 8),
             seed=1,
             season_year=2000,
         )

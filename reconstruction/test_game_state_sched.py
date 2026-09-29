@@ -99,20 +99,20 @@ class GameScheduleIntegrationTests(unittest.TestCase):
             state._resolve_rng()
 
     def test_next_match_date_and_due_fixtures_follow_calendar(self):
-        state = GameState.from_database(Database(), date(2000, 8, 18), seed=1, season_year=2000)
-        self.assertEqual(state.next_match_date(), date(2000, 8, 19))
+        state = GameState.from_database(Database(), date(2000, 8, 25), seed=1, season_year=2000)
+        self.assertEqual(state.next_match_date(), date(2000, 8, 26))
         self.assertEqual(state.fixtures_due_today(), ())
         state.advance_one_day()
         self.assertEqual([f.id for f in state.fixtures_due_today()], [0])
         state.record_premier_league_result(0, 2, 1)
         self.assertEqual(state.fixtures_due_today(), ())
-        self.assertEqual(state.next_match_date(), date(2000, 8, 23))
+        self.assertEqual(state.next_match_date(), date(2000, 8, 30))
 
 
     def test_installed_scheduler_order_becomes_default_due_order(self):
         state = GameState.from_database(
             SameDayDatabase(),
-            date(2000, 8, 18),
+            date(2000, 8, 25),
             seed=1,
             season_year=2000,
         )
@@ -140,7 +140,7 @@ class GameScheduleIntegrationTests(unittest.TestCase):
     def test_missing_installed_round_keeps_stable_fixture_id_fallback(self):
         state = GameState.from_database(
             SameDayDatabase(),
-            date(2000, 8, 18),
+            date(2000, 8, 25),
             seed=1,
             season_year=2000,
         )

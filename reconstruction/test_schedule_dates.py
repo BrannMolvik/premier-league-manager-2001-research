@@ -32,10 +32,10 @@ class ScheduleDateTests(unittest.TestCase):
         fixtures = [Fixture(0, 0, 1, 2), Fixture(1, 1, 2, 1)]
         rounds = [Round(1, 7, 6), Round(2, 8, 3)]
         league = PremierLeagueState(fixtures, rounds, 2000)
-        self.assertEqual([f.id for f in league.fixtures_on(date(2000, 8, 19))], [0])
-        self.assertEqual(league.next_match_date(date(2000, 7, 1)), date(2000, 8, 19))
+        self.assertEqual([f.id for f in league.fixtures_on(date(2000, 8, 26))], [0])
+        self.assertEqual(league.next_match_date(date(2000, 7, 1)), date(2000, 8, 26))
         league.record_result(0, 1, 0)
-        self.assertEqual(league.next_match_date(date(2000, 8, 19)), date(2000, 8, 23))
+        self.assertEqual(league.next_match_date(date(2000, 8, 26)), date(2000, 8, 30))
 
 
 if __name__ == "__main__":

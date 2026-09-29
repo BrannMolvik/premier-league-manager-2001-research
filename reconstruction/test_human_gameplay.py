@@ -530,7 +530,7 @@ class HumanGameplayControllerTests(unittest.TestCase):
 
         fixture = controller.advance_to_next_user_fixture()
         self.assertEqual(fixture.id, 0)
-        self.assertEqual(controller.state.calendar.current_date, date(2000, 7, 1))
+        self.assertEqual(controller.state.calendar.current_date, date(2000, 7, 8))
         self.assertNotIn(0, controller.state.premier_league.results)
         self.assertEqual(controller.pending_fixture_id, 0)
         self.assertEqual(

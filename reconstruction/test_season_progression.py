@@ -92,7 +92,7 @@ class TwoRoundDatabase:
             for offset in range(9)
         ],
     ]
-    # 2000-01: round week/day 7/6 = Aug 19; 8/3 = Aug 23.
+    # Executable primary calendar: 7/6 = Aug 26; 8/3 = Aug 30.
     premier_league_rounds = [
         Round(1, 7, 6),
         Round(2, 8, 3),
@@ -126,13 +126,13 @@ class SeasonProgressionTests(unittest.TestCase):
     def test_fast_day_step_runs_fixture_before_return_and_daily_maintenance(self):
         state = GameState.from_database(
             TwoRoundDatabase(),
-            date(2000, 8, 18),
+            date(2000, 8, 25),
             seed=1,
             season_year=2000,
         )
         returning = state.players[100]
         returning.injured = True
-        returning.injury_return_date = date(2000, 8, 19)
+        returning.injury_return_date = date(2000, 8, 26)
         returning.injury_source_mode = 0
         returning.injury_severity_code = 1
 
@@ -142,12 +142,12 @@ class SeasonProgressionTests(unittest.TestCase):
             MidpointRng(),
         )
 
-        self.assertEqual(state.calendar.current_date, date(2000, 8, 19))
+        self.assertEqual(state.calendar.current_date, date(2000, 8, 26))
         self.assertEqual([fixture_id for fixture_id, _ in results], [0])
         self.assertIn(0, state.premier_league.results)
 
         # MPMInjuryReverse runs after the dated-match scheduler. The player is
-        # therefore absent from the Aug 19 selection, then cleared afterward.
+        # therefore absent from the Aug 26 selection, then cleared afterward.
         self.assertFalse(returning.injured)
         self.assertIsNone(returning.injury_return_date)
         self.assertFalse(returning.match_active)
@@ -161,7 +161,7 @@ class SeasonProgressionTests(unittest.TestCase):
     def test_repeated_fast_day_steps_reach_and_persist_next_fixture(self):
         state = GameState.from_database(
             TwoRoundDatabase(),
-            date(2000, 8, 18),
+            date(2000, 8, 25),
             seed=1,
             season_year=2000,
         )
@@ -177,9 +177,9 @@ class SeasonProgressionTests(unittest.TestCase):
         self.assertEqual([fixture_id for fixture_id, _ in first], [0])
 
         for expected_date in (
-            date(2000, 8, 20),
-            date(2000, 8, 21),
-            date(2000, 8, 22),
+            date(2000, 8, 27),
+            date(2000, 8, 28),
+            date(2000, 8, 29),
         ):
             self.assertEqual(
                 state.advance_one_day_with_premier_league_ai_fixtures(
@@ -196,21 +196,21 @@ class SeasonProgressionTests(unittest.TestCase):
             defence,
             rng,
         )
-        self.assertEqual(state.calendar.current_date, date(2000, 8, 23))
+        self.assertEqual(state.calendar.current_date, date(2000, 8, 30))
         self.assertEqual([fixture_id for fixture_id, _ in second], [1])
         self.assertEqual(set(state.premier_league.results), {0, 1})
         self.assertEqual(sum(row.played for row in state.premier_league_table()), 4)
         self.assertIsNone(state.next_match_date())
 
-        # Club 1: Aug 19 +16-2, then four further daily recoveries.
-        # Club 2: Aug 23 home wear +16 followed by that day's -2 recovery.
+        # Club 1: Aug 26 +16-2, then four further daily recoveries.
+        # Club 2: Aug 30 home wear +16 followed by that day's -2 recovery.
         self.assertEqual(state.pitch_wear[1], 6)
         self.assertEqual(state.pitch_wear[2], 14)
 
     def test_explicit_same_day_order_must_cover_due_set_exactly_once(self):
         state = GameState.from_database(
             TwoRoundDatabase(),
-            date(2000, 8, 19),
+            date(2000, 8, 26),
             seed=1,
             season_year=2000,
         )
