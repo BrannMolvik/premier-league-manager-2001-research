@@ -292,11 +292,12 @@ def gate12_primary_matchday_order(
         entries: list[tuple] = []
         for node in bucket:
             if (
-                node.node_kind == "fixed_league_match"
+                node.node_kind in ("fixed_league_match", "league_match")
                 and int(node.competition_id) == league_id
+                and int(node.competition_context) == 0
             ):
                 if not node.node_token:
-                    raise ValueError("fixed League schedule node has no fixture token")
+                    raise ValueError("Premier League schedule node has no fixture token")
                 entries.append(("premier_league", int(node.node_token[-1])))
                 continue
 
@@ -371,3 +372,46 @@ def fixed_league_fixture_order_by_round(
         (round_id, tuple(by_round[round_id]))
         for round_id in round_order
     )
+
+def premier_league_fixture_order_by_round(
+    buckets: Iterable[Iterable[StartupScheduleNode]],
+    *,
+    competition_id: int = 0,
+) -> tuple[tuple[int, tuple[int, ...]], ...]:
+    """Extract shuffled PL fixture order for fixed or annual procedural seasons.
+
+    First-season fixed nodes use round_id, while annual mode-0 LeagueMatch nodes
+    use schedule_index as the matchday index. Both are walked in exact shuffled
+    bucket head-to-tail order.
+    """
+    competition_id = int(competition_id)
+    by_round: dict[int, list[int]] = {}
+    round_order: list[int] = []
+
+    for bucket in buckets:
+        for node in bucket:
+            if int(node.competition_id) != competition_id:
+                continue
+            if node.node_kind == "fixed_league_match":
+                if node.round_id is None:
+                    continue
+                round_index = int(node.round_id)
+            elif node.node_kind == "league_match":
+                if int(node.competition_context) != 0 or node.schedule_index is None:
+                    continue
+                round_index = int(node.schedule_index)
+            else:
+                continue
+
+            if not node.node_token:
+                raise ValueError("Premier League schedule node has no fixture token")
+            if round_index not in by_round:
+                by_round[round_index] = []
+                round_order.append(round_index)
+            by_round[round_index].append(int(node.node_token[-1]))
+
+    return tuple(
+        (round_index, tuple(by_round[round_index]))
+        for round_index in round_order
+    )
+
