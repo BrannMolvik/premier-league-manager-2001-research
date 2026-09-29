@@ -7,6 +7,7 @@ from typing import Callable, Iterable
 
 from competition_state import PremierLeagueState
 from cup_progression import CupMatchResolutionSnapshot, CupResultRegistry
+from domestic_cup_state import DomesticCupScheduleState
 from contract_maintenance import (
     ContractRenewalSuggestion,
     ContractRenewalSuggestionKind,
@@ -123,6 +124,9 @@ class GameState:
     players: dict[int, RuntimePlayer]
     premier_league: PremierLeagueState | None = None
     cup_results: CupResultRegistry = field(default_factory=CupResultRegistry)
+    domestic_cups: DomesticCupScheduleState = field(
+        default_factory=DomesticCupScheduleState
+    )
     monthly_player_updates: int = 0
     club_roster_order: dict[int, list[int]] = field(default_factory=dict)
     clubs: dict[int, object] = field(default_factory=dict)
@@ -1784,6 +1788,30 @@ class GameState:
     def resolve_cup_club_ref(self, ref):
         """Resolve a Cup ClubRef against live GameState result state."""
         return self.cup_results.resolve_club_ref(ref)
+
+    def install_domestic_cup_schedule_nodes(
+        self,
+        nodes,
+        *,
+        season_year: int,
+    ) -> DomesticCupScheduleState:
+        """Attach already-materialized FA/League Cup nodes to live state.
+
+        The caller supplies Gate-3/Gate-4 schedule nodes. This method never
+        redraws participants or consumes RNG.
+        """
+        self.domestic_cups = DomesticCupScheduleState.from_startup_nodes(
+            nodes,
+            season_year=int(season_year),
+        )
+        return self.domestic_cups
+
+    def domestic_cup_nodes_due_today(self):
+        """Return source-dated domestic Cup nodes whose refs now resolve."""
+        return self.domestic_cups.due_nodes(
+            self.calendar.current_date,
+            self.cup_results,
+        )
 
     def premier_league_table(self):
         if self.premier_league is None:
