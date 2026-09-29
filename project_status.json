@@ -9,12 +9,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "39d8e4ec4bfccea35671ca30c8dfee3505bcf1b9",
-  "last_verified_reconstruction_ci_head": "39d8e4ec4bfccea35671ca30c8dfee3505bcf1b9",
-  "last_verified_test_count": 817,
-  "asset_policy_validated_head": "39d8e4ec4bfccea35671ca30c8dfee3505bcf1b9",
+  "latest_reverse_engineering_checkpoint": "e0a69e8e0d65b9549363e90ace8ee6e68fe74e67",
+  "last_verified_reconstruction_ci_head": "e0a69e8e0d65b9549363e90ace8ee6e68fe74e67",
+  "last_verified_test_count": 818,
+  "asset_policy_validated_head": "e0a69e8e0d65b9549363e90ace8ee6e68fe74e67",
   "asset_policy_status": "passed",
-  "active_task": "Gate 12 annual rollover: run a real canonical primary season through every required played-League ranking and Cup final, capture the complete live qualification snapshot, then execute and verify the atomic year-two rollover.",
+  "active_task": "Gate 12 annual rollover: close source-backed 0x615A60 dynamic FA Cup replay insertion order in the autonomous primary scheduler, then run the real canonical qualification snapshot and atomic year-two rollover.",
   "next_gate": 13,
   "next_gate_name": "Restore original management presentation",
   "blocked": false,
@@ -279,9 +279,9 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate 12 annual rollover: run a real canonical primary season through every required played-League ranking and Cup final, capture the complete live qualification snapshot, then execute and verify the atomic year-two rollover.",
+  "current_task": "Gate 12 annual rollover: close source-backed 0x615A60 dynamic FA Cup replay insertion order in the autonomous primary scheduler, then run the real canonical qualification snapshot and atomic year-two rollover.",
   "last_verified_reconstruction_failures": 2,
-  "last_verified_asset_policy_head": "39d8e4ec4bfccea35671ca30c8dfee3505bcf1b9",
+  "last_verified_asset_policy_head": "e0a69e8e0d65b9549363e90ace8ee6e68fe74e67",
   "gate11_danger_morale_request_integrated": true,
   "gate11_danger_morale_request_verified_head": "12bf9ac2fa145958cde06ee41f0e954b99fd1e08",
   "gate11_danger_morale_request_verified_test_count": 675,
@@ -297,7 +297,7 @@
   "gate12_shared_match_result_virtual": true,
   "gate12_snapshot_registry_bridge": true,
   "gate12_verified_head": "0feb1278ec2cfebc07379732a19ef8ab2f733777",
-  "gate12_verified_test_count": 781,
+  "gate12_verified_test_count": 818,
   "gate12_known_ci_failures": [
     "secondary root order assertion",
     "secondary bucket count 262 vs 280"
@@ -451,5 +451,8 @@
   "gate12_annual_qualification_cup_runtime": true,
   "gate12_annual_played_source_continuity": true,
   "gate12_annual_played_source_continuity_verified_head": "39d8e4ec4bfccea35671ca30c8dfee3505bcf1b9",
-  "gate12_annual_played_source_continuity_verified_test_count": 817
+  "gate12_annual_played_source_continuity_verified_test_count": 817,
+  "gate12_qualification_cup_primary_due_routing": true,
+  "gate12_qualification_cup_primary_due_routing_verified_head": "e0a69e8e0d65b9549363e90ace8ee6e68fe74e67",
+  "gate12_dynamic_replay_primary_order_integrated": false
 }
