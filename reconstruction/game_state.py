@@ -6,6 +6,7 @@ from time import time
 from typing import Callable, Iterable
 
 from competition_state import PremierLeagueState
+from cup_progression import CupMatchResolutionSnapshot, CupResultRegistry
 from contract_maintenance import (
     ContractRenewalSuggestion,
     ContractRenewalSuggestionKind,
@@ -121,6 +122,7 @@ class GameState:
     calendar: GameCalendar
     players: dict[int, RuntimePlayer]
     premier_league: PremierLeagueState | None = None
+    cup_results: CupResultRegistry = field(default_factory=CupResultRegistry)
     monthly_player_updates: int = 0
     club_roster_order: dict[int, list[int]] = field(default_factory=dict)
     clubs: dict[int, object] = field(default_factory=dict)
@@ -1770,6 +1772,18 @@ class GameState:
         if self.premier_league is None:
             raise RuntimeError("Premier League state is not loaded")
         return self.premier_league.record_result(fixture_id, home_goals, away_goals)
+
+    def record_cup_match_resolution(
+        self,
+        result_token: tuple,
+        snapshot: CupMatchResolutionSnapshot,
+    ):
+        """Persist a definitive Cup outcome in the live GameState registry."""
+        return self.cup_results.record_match_resolution(result_token, snapshot)
+
+    def resolve_cup_club_ref(self, ref):
+        """Resolve a Cup ClubRef against live GameState result state."""
+        return self.cup_results.resolve_club_ref(ref)
 
     def premier_league_table(self):
         if self.premier_league is None:
