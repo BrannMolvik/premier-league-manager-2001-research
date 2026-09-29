@@ -79,6 +79,7 @@ from match_orders import TeamOrderPriorities
 from match_role_rating import best_preferred_role_rating
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
 from match_team_setup import TeamTacticalState, initialize_ai_roster_condition
+from procedural_league_state import LiveProceduralLeagueState
 from primary_schedule_shadow import (
     PrimaryScheduleResolutionPending,
     PrimaryScheduleShadowState,
@@ -138,6 +139,9 @@ class GameState:
     cup_results: CupResultRegistry = field(default_factory=CupResultRegistry)
     domestic_cups: DomesticCupScheduleState = field(
         default_factory=DomesticCupScheduleState
+    )
+    procedural_leagues: dict[tuple[int, int], LiveProceduralLeagueState] = field(
+        default_factory=dict
     )
     monthly_player_updates: int = 0
     club_roster_order: dict[int, list[int]] = field(default_factory=dict)
@@ -1965,6 +1969,65 @@ class GameState:
     def resolve_cup_club_ref(self, ref):
         """Resolve a Cup ClubRef against live GameState result state."""
         return self.cup_results.resolve_club_ref(ref)
+
+    def refresh_european_procedural_leagues(
+        self,
+        competition_ids: tuple[int, ...] = (14, 167),
+    ) -> dict[tuple[int, int], LiveProceduralLeagueState]:
+        """Materialize any now-resolvable Champions League child groups.
+
+        The full-primary shadow is the persisted source of schedule identity.
+        Phase-2 groups can remain pending until phase-1 type-2 positions are
+        published, so this method is intentionally safe to call repeatedly.
+        Existing live group state/results are never rebuilt.
+        """
+        allowed = {int(value) for value in competition_ids}
+        grouped: dict[tuple[int, int], list[object]] = {}
+        for on_date in sorted(self.primary_schedule_shadow.days):
+            for entry in self.primary_schedule_shadow.days[on_date]:
+                if (
+                    entry.node_kind == "league_match"
+                    and int(entry.competition_id) in allowed
+                ):
+                    grouped.setdefault(
+                        (int(entry.competition_id), int(entry.competition_context)),
+                        [],
+                    ).append(entry)
+
+        for key, entries in grouped.items():
+            if key in self.procedural_leagues:
+                continue
+            live = LiveProceduralLeagueState.from_schedule_nodes(
+                entries,
+                self.cup_results.resolve_club_ref,
+            )
+            if live is not None:
+                self.procedural_leagues[key] = live
+        return self.procedural_leagues
+
+    def record_procedural_league_result(
+        self,
+        node_token: tuple,
+        home_goals: int,
+        away_goals: int,
+    ):
+        """Record one live group result and refresh its exact type-2 ranking."""
+        token = tuple(node_token)
+        owners = tuple(
+            live
+            for live in self.procedural_leagues.values()
+            if token in live.fixtures
+        )
+        if len(owners) != 1:
+            if not owners:
+                raise KeyError(token)
+            raise RuntimeError("procedural League node belongs to multiple live groups")
+        live = owners[0]
+        result = live.record_result(token, int(home_goals), int(away_goals))
+        live.publish_exact_ranking(self.cup_results)
+        # A newly published phase-1 ranking can make phase-2 groups resolvable.
+        self.refresh_european_procedural_leagues()
+        return result
 
     def install_primary_schedule_shadow(
         self,

@@ -482,6 +482,18 @@ class CupResultRegistry:
         self.competition_rankings[key] = ranking
         return ranking
 
+    def clear_competition_ranking(
+        self,
+        competition_id: int,
+        *,
+        competition_context: int = 0,
+    ) -> tuple[int, ...] | None:
+        """Withdraw a ranking when the proven live sort keys are ambiguous."""
+        return self.competition_rankings.pop(
+            (int(competition_id), int(competition_context)),
+            None,
+        )
+
     def record_match_resolution(
         self,
         result_token: CupResultToken,

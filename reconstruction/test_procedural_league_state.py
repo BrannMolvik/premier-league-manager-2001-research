@@ -1,8 +1,10 @@
 import unittest
+from datetime import date
 
 from competition_schedule import StartupScheduleNode, direct_club_ref
 from competition_startup import CupClubRefDescriptor
 from cup_progression import CupResultRegistry
+from game_state import GameCalendar, GameState
 from procedural_league_state import LiveProceduralLeagueState
 
 
@@ -124,6 +126,76 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
             competition_context=3,
         )
         self.assertEqual(registry.resolve_club_ref(ref), 30)
+
+    def test_published_ranking_is_withdrawn_when_later_result_makes_keys_ambiguous(self):
+        registry = CupResultRegistry()
+        nodes = (
+            league_node(0, 10, 20),
+            league_node(1, 30, 40),
+        )
+        state = LiveProceduralLeagueState.from_schedule_nodes(
+            nodes,
+            registry.resolve_club_ref,
+        )
+        state.record_result(nodes[0].node_token, 2, 0)
+        self.assertEqual(state.publish_exact_ranking(registry), (10, 30, 40, 20))
+        state.record_result(nodes[1].node_token, 2, 0)
+        self.assertIsNone(state.publish_exact_ranking(registry))
+        self.assertEqual(registry.competition_rankings, {})
+
+    def test_snapshot_roundtrip_preserves_fixtures_and_results(self):
+        registry = CupResultRegistry()
+        nodes = (league_node(0, 10, 20), league_node(1, 30, 40))
+        state = LiveProceduralLeagueState.from_schedule_nodes(
+            nodes,
+            registry.resolve_club_ref,
+        )
+        state.record_result(nodes[0].node_token, 3, 1)
+        restored = LiveProceduralLeagueState.restore(state.snapshot())
+        self.assertEqual(restored.competition_id, 14)
+        self.assertEqual(restored.competition_context, 3)
+        self.assertEqual(restored.club_ids, state.club_ids)
+        self.assertEqual(restored.fixtures, state.fixtures)
+        self.assertEqual(restored.results, state.results)
+
+    def test_game_state_materializes_phase2_after_phase1_ranking_is_published(self):
+        phase1 = (
+            league_node(0, 10, 20, competition_id=14, context=0),
+            league_node(1, 30, 40, competition_id=14, context=0),
+            league_node(2, 10, 30, competition_id=14, context=0),
+            league_node(3, 20, 40, competition_id=14, context=0),
+        )
+        phase2_ref = CupClubRefDescriptor(
+            type_code=2,
+            selector=1,
+            competition_id=14,
+            competition_context=0,
+        )
+        phase2 = league_node(
+            0,
+            phase2_ref,
+            50,
+            competition_id=167,
+            context=0,
+        )
+        state = GameState(calendar=GameCalendar(date(2000, 7, 1)), players={})
+        buckets = tuple((node,) for node in phase1 + (phase2,))
+        state.install_primary_schedule_shadow(buckets, season_year=2000)
+
+        state.refresh_european_procedural_leagues()
+        self.assertIn((14, 0), state.procedural_leagues)
+        self.assertNotIn((167, 0), state.procedural_leagues)
+
+        scores = ((3, 0), (1, 0), (2, 1), (0, 2))
+        for node, score in zip(phase1, scores):
+            state.record_procedural_league_result(node.node_token, *score)
+
+        self.assertEqual(
+            state.cup_results.competition_rankings[(14, 0)],
+            (10, 40, 30, 20),
+        )
+        self.assertIn((167, 0), state.procedural_leagues)
+        self.assertEqual(state.procedural_leagues[(167, 0)].club_ids, (40, 50))
 
     def test_duplicate_result_is_rejected(self):
         registry = CupResultRegistry()

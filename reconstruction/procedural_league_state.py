@@ -163,9 +163,71 @@ class LiveProceduralLeagueState:
     def publish_exact_ranking(self, registry) -> tuple[int, ...] | None:
         ranking = self.exact_ranking()
         if ranking is None:
+            registry.clear_competition_ranking(
+                self.competition_id,
+                competition_context=self.competition_context,
+            )
             return None
         return registry.replace_competition_ranking(
             self.competition_id,
             ranking,
             competition_context=self.competition_context,
         )
+
+    def snapshot(self) -> dict:
+        return {
+            "competition_id": int(self.competition_id),
+            "competition_context": int(self.competition_context),
+            "club_ids": [int(club_id) for club_id in self.club_ids],
+            "fixtures": [
+                {
+                    "node_token": list(fixture.node_token),
+                    "home_club_id": int(fixture.home_club_id),
+                    "away_club_id": int(fixture.away_club_id),
+                }
+                for _, fixture in sorted(
+                    self.fixtures.items(),
+                    key=lambda item: repr(item[0]),
+                )
+            ],
+            "results": [
+                {
+                    "node_token": list(result.node_token),
+                    "home_goals": int(result.home_goals),
+                    "away_goals": int(result.away_goals),
+                }
+                for _, result in sorted(
+                    self.results.items(),
+                    key=lambda item: repr(item[0]),
+                )
+            ],
+        }
+
+    @classmethod
+    def restore(cls, value: dict) -> "LiveProceduralLeagueState":
+        def tup(raw):
+            if isinstance(raw, list):
+                return tuple(tup(item) for item in raw)
+            return raw
+
+        fixtures = {}
+        for raw in value.get("fixtures", ()):
+            token = tup(raw["node_token"])
+            fixtures[token] = ProceduralLeagueFixture(
+                token,
+                int(raw["home_club_id"]),
+                int(raw["away_club_id"]),
+            )
+        state = cls(
+            competition_id=int(value["competition_id"]),
+            competition_context=int(value.get("competition_context", 0)),
+            fixtures=fixtures,
+            club_ids=tuple(int(v) for v in value.get("club_ids", ())),
+        )
+        for raw in value.get("results", ()):
+            state.record_result(
+                tup(raw["node_token"]),
+                int(raw["home_goals"]),
+                int(raw["away_goals"]),
+            )
+        return state
