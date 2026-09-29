@@ -21,6 +21,8 @@ ROUND_TABLE_OFFSET = 0x4F1F
 ROUND_RECORD_SIZE = 36
 CUP_ALLOCATION_TABLE_OFFSET = 0xE337
 CUP_ALLOCATION_RECORD_SIZE = 28
+LEAGUE_ALLOCATION_TABLE_OFFSET = 0xFD43
+LEAGUE_ALLOCATION_RECORD_SIZE = 28
 REAL_FIXTURE_TABLE_OFFSET = 0x10057
 REAL_FIXTURE_RECORD_SIZE = 16
 INTERNATIONAL_FIXTURE_TABLE_OFFSET = 0x1181B
@@ -262,6 +264,19 @@ class CupAllocationInstruction:
 
 
 @dataclass(frozen=True)
+class LeagueAllocationRecord:
+    """Lossless packed DBRLeagueAllocation row; field semantics pending trace."""
+
+    field_00: int
+    field_04: int
+    field_08: int
+    field_0c: int
+    field_10: int
+    field_14: int
+    field_18: int
+
+
+@dataclass(frozen=True)
 class RealFixture:
     id: int
     round_index: int
@@ -296,6 +311,7 @@ class FM2001Database:
         self.competitions = []
         self.rounds = []
         self.cup_allocation_instructions = []
+        self.league_allocation_records = []
         self.real_fixtures = []
         self.international_fixtures = []
         self.access_fan_bases = []
@@ -307,6 +323,7 @@ class FM2001Database:
             self._parse_competitions()
             self._parse_rounds()
             self._parse_cup_allocation_instructions()
+            self._parse_league_allocation_records()
             self._parse_real_fixtures()
             self._parse_international_fixtures()
             self._parse_access_fan_bases()
@@ -562,6 +579,31 @@ class FM2001Database:
                 )
             )
 
+    def _parse_league_allocation_records(self):
+        """Parse the RTTI-backed DBTLeagueAllocations table losslessly.
+
+        The canonical table begins at Static.dat 0xFD43 and contains 28-byte
+        DBRLeagueAllocation rows.  Field semantics are intentionally left
+        neutral until the season-transition consumers are instruction-closed.
+        """
+        off = LEAGUE_ALLOCATION_TABLE_OFFSET
+        if off + 4 > len(self.static):
+            return
+        count = struct.unpack_from('<I', self.static, off)[0]
+        base = off + 4
+        end = base + count * LEAGUE_ALLOCATION_RECORD_SIZE
+        if end > len(self.static):
+            raise ValueError('Static.dat League allocation table exceeds file size')
+        for i in range(count):
+            values = struct.unpack_from(
+                '<7I',
+                self.static,
+                base + i * LEAGUE_ALLOCATION_RECORD_SIZE,
+            )
+            self.league_allocation_records.append(
+                LeagueAllocationRecord(*values)
+            )
+
     def _parse_real_fixtures(self):
         off = REAL_FIXTURE_TABLE_OFFSET
         if off + 4 > len(self.static):
@@ -702,6 +744,7 @@ class FM2001Database:
             'competitions': len(self.competitions),
             'rounds': len(self.rounds),
             'cup_allocation_instructions': len(self.cup_allocation_instructions),
+            'league_allocation_records': len(self.league_allocation_records),
             'real_fixtures': len(self.real_fixtures),
             'access_fan_bases': len(self.access_fan_bases),
             'access_skill_financial_values': len(self.access_skill_financial_values),
