@@ -23,6 +23,7 @@ Evidence:
 - `research/GATE12_ENGLISH_DOMESTIC_CUPS.md`
 - `research/GATE12_EUROPEAN_COMPETITIONS.md`
 - `research/GATE12_ENGLISH_DIVISIONS.md`
+- `research/GATE12_ENGLISH_SEASON_TRANSITION.md`
 
 ## Porting mission
 
@@ -44,21 +45,22 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 code checkpoint:
 
 ```text
-91008587337fd53dc55023a2a1a6508505928639
-Test English divisional save-reload execution
+64baafb8772cc7d6a003ed92c6df41eec41c33a9
+Guard membership restore for lightweight club sources
 ```
 
-GitHub Actions at that checkpoint ran **783 tests with 2 failures**, exactly
-the unchanged known secondary-schedule assertions; both new English-divisional
+GitHub Actions at that checkpoint ran **792 tests with 2 failures**, exactly
+the unchanged known secondary-schedule assertions; English season-transition
 regressions passed and repository asset policy passed. The European runtime bridge is now covered end-to-end: live child
 groups publish type-2 standings and source-backed type-3 cross-group pools,
 Champions League / UEFA Cup knockout nodes execute through the shared CupMatch
 runtime in canonical primary order for AI and human control, and a real
 type-3 Champions-League-group -> UEFA knockout dependency survives save/reload.
 
-Internal save schema is now **32** and preserves the European Cup schedule,
-live procedural-League fixtures/results, type-2 rankings and type-3
-cross-group rankings.
+Internal save schema is now **33** and preserves the European Cup schedule,
+live procedural-League fixtures/results, type-2/type-3 rankings, and the new
+live club-competition-membership map used by source-backed annual
+promotion/relegation exchanges.
 
 The active Cup slice now has:
 
@@ -150,22 +152,24 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 
 ## Exact next task
 
-1. Preserve all verified English domestic-Cup, European, and English
-   regular-season divisional execution, ClubRef progression, shared primary
-   order, human-controller and save/reload behavior.
-2. English root procedural-League identity/container ownership is now
-   source-backed: country/region 26 yields primary IDs **2, 3, 4, 7** and no
-   secondary root procedural League after excluding fixed Premier League ID 0.
-   Do not reopen this identity audit without conflicting source evidence.
-3. Audit the **English cross-division season transition** from canonical
-   competition/allocation structures: promotion, relegation, and any playoff
-   competitions linking Premier League, Divisions 1/2/3, and Conference.
-4. Do not mutate club competition membership until exact movement counts,
-   playoff dependencies, and execution order are source-backed. Do not import
-   modern football rules as assumptions.
+1. Preserve the verified English annual membership transition. The canonical
+   `DBRLeagueAllocation` rows, playoff entrants/winners, Conference 2 ranking,
+   14 membership swaps, and save schema 33 are now source-backed. Do not reopen
+   those rules without conflicting executable/data evidence.
+2. Trace the **original next-season regeneration order** after annual
+   finalization and apply the post-transition `club_competition_membership`
+   map when constructing the new season's Premier League, Divisions 1/2/3,
+   Conference, playoff Cups, and other dependent English competition state.
+3. Prove which prior-season runtime objects/rankings/schedules are cleared,
+   rebuilt, or carried forward, and where the new season's competition RNG
+   begins. Do not reuse stale prior-season schedule nodes merely because they
+   are convenient.
+4. Preserve the canonical Conference 2/DummyLeague RNG lifecycle. The current
+   season transition reuses the startup ranking already generated for that
+   season; next-season work must not introduce an extra sort or duplicate RNG
+   pass.
 5. Keep the special English domestic-Cup category-1/category-2 posting policy
-   as a separate deferred fidelity gap unless it directly blocks this
-   cross-division transition slice.
+   as a separate deferred fidelity gap unless it blocks next-season rebuild.
 
 ## Known live fidelity boundaries
 
@@ -179,10 +183,11 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   remains deferred. European startup is canonical; group standings, primary-order group execution,
   type-2 progression, type-3 cross-group transfers, Champions League / UEFA Cup
   knockout execution, human routing and save/reload are live and regression
-  covered. The regular-season English divisional LeagueMatch set (2/3/4/7) is now live,
-  ordered and reload-safe. The active Gate-12 gap is the source-backed
-  cross-division season transition: promotion, relegation and playoff
-  dependencies.
+  covered. The regular-season English divisional LeagueMatch set (2/3/4/7) is live,
+  ordered and reload-safe. The cross-division annual membership transition is
+  also now live and save-persistent: exact source rankings, playoff winners,
+  Conference 2, and all 14 English allocation swaps are covered. The active
+  Gate-12 gap is next-season regeneration from those new memberships.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
@@ -213,7 +218,7 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
 
 ## Do not work on yet
 
-Unless required to unblock the active Gate-12 cross-division transition, defer:
+Unless required to unblock the active Gate-12 next-season regeneration, defer:
 
 - original save-file compatibility;
 - Gate-13 original management presentation;
