@@ -105,6 +105,45 @@ def _procedural_league_team_count(
     return int(rounds[0].team_count)
 
 
+def partition_root_procedural_league_ids(
+    competitions: Iterable[object],
+    *,
+    country_region_id: int,
+    fixed_fixture_competition_ids: Iterable[int] = (0,),
+) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """Partition source-backed root League IDs by schedule-container ownership.
+
+    The executable's container predicate is packed DBRCompetition +0x38:
+    schedule-container codes 2/3 belong to the secondary container and every
+    other code belongs to the primary pass.  This helper deliberately derives
+    IDs from the parsed competition records instead of maintaining a guessed
+    competition-ID list.
+    """
+    country_region_id = int(country_region_id)
+    fixed_ids = {int(value) for value in fixed_fixture_competition_ids}
+    primary: list[int] = []
+    secondary: list[int] = []
+
+    for competition in competitions:
+        if getattr(competition, "parent_competition_id", None) is not None:
+            continue
+        if int(getattr(competition, "country_region_id", -1)) != country_region_id:
+            continue
+        if int(getattr(competition, "runtime_kind_code", 0)) != 1:
+            continue
+
+        competition_id = int(getattr(competition, "id"))
+        if competition_id in fixed_ids:
+            continue
+
+        if int(getattr(competition, "schedule_container_code", 0)) in (2, 3):
+            secondary.append(competition_id)
+        else:
+            primary.append(competition_id)
+
+    return tuple(primary), tuple(secondary)
+
+
 def replay_primary_mode0_complete_competition_rng(
     rng,
     competitions: Iterable[object],
