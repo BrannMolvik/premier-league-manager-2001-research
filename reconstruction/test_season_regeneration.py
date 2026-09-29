@@ -1,0 +1,150 @@
+import unittest
+from dataclasses import dataclass
+
+from match_schedule import MsvcCrtRng
+from season_regeneration import (
+    clubs_with_live_competition_memberships,
+    materialize_annual_primary_schedule,
+)
+
+
+@dataclass(frozen=True)
+class Competition:
+    id: int
+    runtime_kind_code: int
+    schedule_container_code: int = 0
+    parent_competition_id: int | None = None
+    initialization_order_value: int = 0
+    country_region_id: int = 1
+    runtime_instance_count: int = 1
+    scheduled_matchday_count: int = 3
+
+
+@dataclass(frozen=True)
+class Round:
+    id: int
+    competition_id: int
+    type_code: int
+    team_count: int
+    new_entrants: int
+    scheduled_week: int
+    scheduled_weekday: int
+    replay_week: int = 0
+    replay_weekday: int = 1
+    source_competition_reference: int = 0xFFFFFFFF
+
+
+@dataclass(frozen=True)
+class Club:
+    index: int
+    short_name: str
+    competition_id: int
+    historical_competition_id: int
+    historical_slot_index: int
+    country_id: int = 1
+    runtime_value_1c_source: int = 0
+    team_category_code: int = 1
+
+
+@dataclass(frozen=True)
+class Country:
+    id: int
+    eu_status_flag: int = 0
+
+
+class AnnualPrimaryRegenerationTests(unittest.TestCase):
+    def _fixture(self):
+        competition = Competition(0, 1)
+        rounds = tuple(
+            Round(
+                id=index,
+                competition_id=0,
+                type_code=4,
+                team_count=4,
+                new_entrants=0,
+                scheduled_week=index + 7,
+                scheduled_weekday=6,
+            )
+            for index in range(3)
+        )
+        clubs = (
+            Club(10, "A", 0, 0, 0),
+            Club(11, "B", 0, 0, 1),
+            Club(12, "C", 0, 0, 2),
+            Club(13, "D", 0, 0, 3),
+            Club(20, "Promoted", 2, 2, 0),
+        )
+        return (competition,), rounds, clubs, (Country(1),)
+
+    def test_live_membership_overlay_does_not_mutate_source_clubs(self):
+        _competitions, _rounds, clubs, _countries = self._fixture()
+        live = clubs_with_live_competition_memberships(
+            clubs,
+            {13: 2, 20: 0},
+        )
+
+        self.assertEqual(
+            tuple((club.index, club.competition_id) for club in live),
+            ((10, 0), (11, 0), (12, 0), (13, 2), (20, 0)),
+        )
+        self.assertEqual(clubs[3].competition_id, 0)
+        self.assertEqual(clubs[4].competition_id, 2)
+
+    def test_year_two_premier_league_is_procedural_from_live_memberships(self):
+        competitions, rounds, clubs, countries = self._fixture()
+        rng = MsvcCrtRng(0x12345678)
+
+        result = materialize_annual_primary_schedule(
+            rng,
+            competitions,
+            rounds,
+            clubs,
+            countries,
+            (),
+            (),
+            club_competition_membership={13: 2, 20: 0},
+            season_year=2001,
+        )
+
+        nodes = result.competition.schedule_nodes
+        self.assertTrue(nodes)
+        self.assertTrue(all(node.node_kind == "league_match" for node in nodes))
+        direct_ids = {
+            int(ref.direct_club_id)
+            for node in nodes
+            for ref in (node.participant_0_ref, node.participant_1_ref)
+            if ref.direct_club_id is not None
+        }
+        self.assertEqual(direct_ids, {10, 11, 12, 20})
+        self.assertNotIn(13, direct_ids)
+
+    def test_same_crt_stream_continues_through_fresh_bucket_shuffle(self):
+        competitions, rounds, clubs, countries = self._fixture()
+        rng = MsvcCrtRng(0x12345678)
+
+        result = materialize_annual_primary_schedule(
+            rng,
+            competitions,
+            rounds,
+            clubs,
+            countries,
+            (),
+            (),
+            club_competition_membership={13: 2, 20: 0},
+            season_year=2001,
+        )
+
+        self.assertEqual(result.state_after, rng.state)
+        self.assertEqual(
+            result.state_entering_shuffle,
+            result.competition.state_entering_primary_shuffle,
+        )
+        self.assertGreater(result.competition_draw_count, 0)
+        self.assertGreater(result.bucket_shuffle_draw_count, 0)
+        self.assertGreater(result.total_draw_count, result.competition_draw_count)
+        self.assertNotEqual(result.state_before, result.state_entering_shuffle)
+        self.assertNotEqual(result.state_entering_shuffle, result.state_after)
+
+
+if __name__ == "__main__":
+    unittest.main()
