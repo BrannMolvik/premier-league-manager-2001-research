@@ -7137,3 +7137,37 @@ nodes to live GameState state, persist active per-node first-match/first-leg
 state, resolve symbolic participants lazily from the Cup registry, and verify
 date/due-node behavior before merging Cup fixtures into the human/AI matchday
 loop.
+
+
+## Gate 12 live domestic Cup schedule state verified - 29 September 2026
+
+The first calendar-facing domestic-Cup state layer is now live without
+replaying any solved startup draw RNG.
+
+Implementation checkpoints:
+
+- `359dbad4`: new `DomesticCupScheduleState` materializes only competition
+  1 (FA Cup) and 5 (League Cup) from existing `StartupScheduleNode` objects,
+  maps source week/weekday through the established season-date conversion,
+  preserves symbolic ClubRefs, and tracks completed schedule-node identity;
+- `f405a5b3`: deterministic regressions cover domestic filtering/date mapping,
+  lazy type-1 winner resolution, SecondLeg blocking until its FirstLeg node is
+  complete, and schedule-state snapshot round-trip;
+- `a070aa73`: `GameState` now owns the domestic-Cup schedule and exposes
+  install/due-node helpers without consuming RNG;
+- `3a35be7a`: internal save schema advances from **23** to **24** and persists
+  the live schedule/completion state;
+- `0d6b1ff3`: full controller save/reload regression preserves a completed
+  League Cup FirstLeg with its SecondLeg still pending.
+
+GitHub Actions at
+`0d6b1ff30f60241e0a038447ee06d90a60e599f3` ran **703 reconstruction
+tests**. All new domestic-Cup tests passed. The only two failures are the
+unchanged secondary root-order and secondary bucket-count assertions.
+Repository asset policy passed.
+
+Exact next task: persist the actual `CupMatchRuntimeState` score/link objects
+behind scheduled nodes and then implement source-exact dynamic FA Cup Replay
+insertion. Do not use a guessed generic replay delay; the recovered replay-date
+arithmetic must be preserved before Cup fixtures enter the normal human/AI
+matchday loop.
