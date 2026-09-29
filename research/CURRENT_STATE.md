@@ -45,13 +45,13 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 code checkpoint:
 
 ```text
-09a5c269e82da597f114b66e71b1416de7f14f2b
-Test annual primary schedule regeneration
+cb4f8abd41c0ac5ff3cf7df03d0295393ab7b8ec
+Test primary root finalization order
 ```
 
-GitHub Actions at that checkpoint ran **797 tests with 2 failures**, exactly
-the unchanged known secondary-schedule assertions; annual primary-regeneration
-regressions passed and repository asset policy passed. The European runtime bridge is now covered end-to-end: live child
+GitHub Actions at that checkpoint ran **802 tests with 2 failures**, exactly
+the unchanged known secondary-schedule assertions; the new annual
+primary-root-finalization regression passed and repository asset policy passed. The European runtime bridge is now covered end-to-end: live child
 groups publish type-2 standings and source-backed type-3 cross-group pools,
 Champions League / UEFA Cup knockout nodes execute through the shared CupMatch
 runtime in canonical primary order for AI and human control, and a real
@@ -152,21 +152,20 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 
 ## Exact next task
 
-1. Preserve the verified English annual membership transition and the bounded
-   annual primary regeneration primitive. Year-two Premier League is now proven
-   procedural, the new season's actual 25-December slot is honored, and one CRT
-   stream continues through annual competition generation and fresh bucket
-   shuffle.
-2. Trace **cross-season Cup qualification/enumeration state** so annual Cup
-   allocation uses current prior-season outcomes/memberships rather than stale
-   shipped historical slots or first-season-only selectors.
-3. Trace next-season DummyLeague/Conference 2 regeneration timing and inputs,
-   especially whether the current-season ranking is invalidated and re-sorted
-   before any type-5 allocation consumes it.
-4. Only after those sources are closed, atomically replace GameState's
-   prior-season Premier/procedural League/Cup/ranking/primary-shadow/order state
-   from the annual materialization. Do not retain old results or shipped
-   2000/01 fixed fixtures.
+1. Preserve the verified English annual membership transition, bounded annual
+   primary regeneration primitive, mandatory refreshed type-3 qualification
+   inputs, and the recovered per-country primary-root finalization order.
+2. Instruction-close the **positional** Cup finalization pair written by
+   `0x4F8F80`: prove which of `Cup+0x40` / `Cup+0x44` receives the
+   completed result club and which receives the opposite/finalist path. Do not
+   assume winner/runner-up ordering.
+3. Expose a live end-of-season qualification snapshot that supplies exact
+   League/Dummy rankings plus the proven Cup pair for every annual primary
+   type-3 source. Missing live sources must fail explicitly rather than falling
+   back to shipped historical values.
+4. Then atomically replace GameState's prior-season Premier/procedural
+   League/Cup/ranking/primary-shadow/order state from the annual materialization.
+   Do not retain old results or shipped 2000/01 fixed fixtures.
 5. Preserve explicit RNG ownership. The controller competition/match CRT stream
    is the annual materializer input; do not silently substitute the separately
    persisted GameState maintenance RNG.
@@ -189,8 +188,11 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   Conference 2, and all 14 English allocation swaps are covered. The annual primary regeneration primitive is also verified: year-two Premier
   League is procedural, current live memberships feed participant selection,
   later-season Christmas placement is calendar-derived, and bucket order is
-  freshly shuffled. The active Gate-12 gap is cross-season Cup qualification
-  and DummyLeague refresh before live GameState season replacement.
+  freshly shuffled. Cross-season League/Cup qualification requirements, DummyLeague invalidation
+  and lazy re-sort timing, and primary-root finalization order are now
+  source-backed. The active Gate-12 gap is the exact positional
+  `Cup+0x40/+0x44` finalization pair plus live qualification snapshot wiring
+  before GameState season replacement.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
