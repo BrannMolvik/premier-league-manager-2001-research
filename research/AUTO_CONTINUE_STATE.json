@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Gate 12 Europe: resume from current main HEAD 00ed667 by reconciling commits newer than the CURRENT_STATE baseline, then continue the exact European group-match/ClubRef progression task without reopening solved domestic-Cup work.",
-  "last_known_main_head": "00ed66719c339368b128105d6e3f31e3c3afebe3",
+  "active_task": "Gate 12 Europe: attach Champions League/UEFA Cup knockout nodes to the existing CupMatch runtime and shared primary controller; preserve canonical type-2/type-3 dependencies, primary order, and save/reload.",
+  "last_known_main_head": "8a12e2bea08f5c70a92886235d663b42e96dfdeb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 67,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered at main 00ed667. CURRENT_STATE is behind recent main commits, so first reconcile the post-baseline European work, then continue the exact active Gate-12 slice.",
+  "note": "European group execution and source-backed ClubRef type-3 cross-group progression verified at 0864839 (774 tests, only two known secondary-schedule failures). CURRENT_STATE checkpoint advanced; next boundary is European knockout CupMatch attachment.",
   "same_chat_fallback_minutes": 30
 }
