@@ -45,12 +45,12 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 code checkpoint:
 
 ```text
-64baafb8772cc7d6a003ed92c6df41eec41c33a9
-Guard membership restore for lightweight club sources
+09a5c269e82da597f114b66e71b1416de7f14f2b
+Test annual primary schedule regeneration
 ```
 
-GitHub Actions at that checkpoint ran **792 tests with 2 failures**, exactly
-the unchanged known secondary-schedule assertions; English season-transition
+GitHub Actions at that checkpoint ran **797 tests with 2 failures**, exactly
+the unchanged known secondary-schedule assertions; annual primary-regeneration
 regressions passed and repository asset policy passed. The European runtime bridge is now covered end-to-end: live child
 groups publish type-2 standings and source-backed type-3 cross-group pools,
 Champions League / UEFA Cup knockout nodes execute through the shared CupMatch
@@ -152,24 +152,24 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 
 ## Exact next task
 
-1. Preserve the verified English annual membership transition. The canonical
-   `DBRLeagueAllocation` rows, playoff entrants/winners, Conference 2 ranking,
-   14 membership swaps, and save schema 33 are now source-backed. Do not reopen
-   those rules without conflicting executable/data evidence.
-2. Trace the **original next-season regeneration order** after annual
-   finalization and apply the post-transition `club_competition_membership`
-   map when constructing the new season's Premier League, Divisions 1/2/3,
-   Conference, playoff Cups, and other dependent English competition state.
-3. Prove which prior-season runtime objects/rankings/schedules are cleared,
-   rebuilt, or carried forward, and where the new season's competition RNG
-   begins. Do not reuse stale prior-season schedule nodes merely because they
-   are convenient.
-4. Preserve the canonical Conference 2/DummyLeague RNG lifecycle. The current
-   season transition reuses the startup ranking already generated for that
-   season; next-season work must not introduce an extra sort or duplicate RNG
-   pass.
-5. Keep the special English domestic-Cup category-1/category-2 posting policy
-   as a separate deferred fidelity gap unless it blocks next-season rebuild.
+1. Preserve the verified English annual membership transition and the bounded
+   annual primary regeneration primitive. Year-two Premier League is now proven
+   procedural, the new season's actual 25-December slot is honored, and one CRT
+   stream continues through annual competition generation and fresh bucket
+   shuffle.
+2. Trace **cross-season Cup qualification/enumeration state** so annual Cup
+   allocation uses current prior-season outcomes/memberships rather than stale
+   shipped historical slots or first-season-only selectors.
+3. Trace next-season DummyLeague/Conference 2 regeneration timing and inputs,
+   especially whether the current-season ranking is invalidated and re-sorted
+   before any type-5 allocation consumes it.
+4. Only after those sources are closed, atomically replace GameState's
+   prior-season Premier/procedural League/Cup/ranking/primary-shadow/order state
+   from the annual materialization. Do not retain old results or shipped
+   2000/01 fixed fixtures.
+5. Preserve explicit RNG ownership. The controller competition/match CRT stream
+   is the annual materializer input; do not silently substitute the separately
+   persisted GameState maintenance RNG.
 
 ## Known live fidelity boundaries
 
@@ -186,8 +186,11 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   covered. The regular-season English divisional LeagueMatch set (2/3/4/7) is live,
   ordered and reload-safe. The cross-division annual membership transition is
   also now live and save-persistent: exact source rankings, playoff winners,
-  Conference 2, and all 14 English allocation swaps are covered. The active
-  Gate-12 gap is next-season regeneration from those new memberships.
+  Conference 2, and all 14 English allocation swaps are covered. The annual primary regeneration primitive is also verified: year-two Premier
+  League is procedural, current live memberships feed participant selection,
+  later-season Christmas placement is calendar-derived, and bucket order is
+  freshly shuffled. The active Gate-12 gap is cross-season Cup qualification
+  and DummyLeague refresh before live GameState season replacement.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
