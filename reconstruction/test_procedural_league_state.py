@@ -246,7 +246,7 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "non-contiguous"):
             state.procedural_league_advancement_places(14, 3)
 
-    def test_due_group_entry_is_exposed_and_blocks_unimplemented_execution(self):
+    def test_due_group_entry_is_exposed_and_execution_requires_loaded_competition(self):
         node = league_node(0, 10, 20, competition_id=14, context=2)
         state = GameState(calendar=GameCalendar(date(2000, 8, 26)), players={})
         state.primary_matchday_order = {
@@ -268,7 +268,7 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
             state.primary_entries_due_today(),
             (("procedural_league", node.node_token),),
         )
-        with self.assertRaisesRegex(RuntimeError, "do not skip or reorder"):
+        with self.assertRaisesRegex(RuntimeError, "competition definition 14 is not loaded"):
             state.simulate_primary_ai_entry(
                 ("procedural_league", node.node_token),
                 (),
