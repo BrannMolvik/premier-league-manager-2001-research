@@ -41,15 +41,16 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 code checkpoint:
 
 ```text
-5c5cc1d50ead46fe3a83c9dc35fd8c67498f74e4
-Test Cup result save roundtrip
+0d6b1ff30f60241e0a038447ee06d90a60e599f3
+Test domestic Cup schedule save roundtrip
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **698 tests run, 2 failures**, both the unchanged
+- reconstruction suite: **703 tests run, 2 failures**, both the unchanged
   pre-existing secondary-schedule assertions;
-- the new Cup result-registry save/reload regression passed;
+- all new domestic-Cup schedule/date/symbolic-resolution/save regressions
+  passed;
 - repository asset-policy workflow: **passed**.
 
 The active Cup slice now has:
@@ -61,11 +62,18 @@ The active Cup slice now has:
 - the instruction-closed NormalRound replay and TwoLeg first/second-leg
   lifecycle, including exact decisive fallback ordering;
 - `GameState.cup_results` as the live persistent registry;
-- internal save schema **23**, which serializes and restores definitive Cup
-  outcomes without changing the established Premier League continuation path.
+- a live `DomesticCupScheduleState` over the already-materialized FA Cup and
+  League Cup nodes, preserving source date conversion, symbolic ClubRefs and
+  first-leg completion identity;
+- lazy due-node resolution through the live Cup result registry;
+- `GameState.domestic_cups` plus install/due-node helpers that consume no draw
+  RNG;
+- internal save schema **24**, which serializes/restores definitive Cup outcomes
+  and live domestic schedule/completion state.
 
-Domestic Cup schedule nodes and active per-node match state are not yet attached
-to the normal calendar/human-fixture loop. That is the active dependency.
+Replay nodes are still dynamically absent, and scheduled nodes do not yet own
+persisted `CupMatchRuntimeState` objects/scores. The normal human/AI matchday
+loop therefore still remains Premier-League-only.
 
 ## Stable startup / scheduler checkpoint
 
@@ -121,25 +129,22 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 
 ## Exact next task
 
-1. Preserve the verified replay/two-leg lifecycle through `fa5af011` and the
-   persistent GameState/save bridge through `5c5cc1d5`.
-2. Introduce a live domestic-Cup schedule state for competition 1 (FA Cup) and
-   competition 5 (League Cup) using the already-materialized
-   `StartupScheduleNode` objects. Do not rebuild Cup allocation or draw RNG.
-3. Persist enough per-node state to distinguish unplayed NormalRound,
-   Replay, FirstLeg and SecondLeg objects across save/reload, including a
-   completed first leg whose definitive result token is intentionally still
-   unresolved.
-4. Resolve symbolic participants lazily from `GameState.cup_results` when a
-   node becomes playable, map source week/weekday through the existing
-   season-date conversion, and add deterministic due-node tests.
-5. Only then merge domestic Cup fixtures into the normal AI/human matchday
-   execution order, preserving the existing Premier League path and source
-   schedule ordering.
+1. Preserve the verified live schedule/save bridge through `0d6b1ff3`; do
+   not rebuild solved Cup allocation, draw or startup schedule RNG.
+2. Attach persistent `CupMatchRuntimeState` objects to playable scheduled
+   nodes so a completed FirstLeg can carry its score into the later SecondLeg
+   across save/reload.
+3. Add dynamic Replay schedule entries only from a completed replay-eligible
+   NormalRound draw. Preserve the traced reversed participants/linkage and
+   source replay-date semantics; do not substitute a generic fixed delay.
+4. Verify match-state serialization/link reconstruction and replay/second-leg
+   readiness with deterministic regressions.
+5. Then merge live domestic Cup matches into the normal AI/human matchday
+   execution order while preserving global source schedule ordering.
 
 ## Known live fidelity boundaries
 
-- Gate 12: Replay/SecondLeg production and exact tied-knockout completion are implemented and tested, and definitive Cup outcomes are save/reload safe; Cup schedule nodes and active first-match/first-leg state still remain outside normal GameState progression.
+- Gate 12: scheduled FA Cup/League Cup nodes, definitive outcomes and completed-node identities are now GameState/save safe; dynamic Replay insertion and persisted Cup match-score/link state still need integration before Cup fixtures can join normal matchday progression.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
