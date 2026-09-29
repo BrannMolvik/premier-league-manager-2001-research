@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Gate 12 annual Cup source refresh: trace cross-season Cup qualification/enumeration and DummyLeague refresh semantics before live GameState season replacement.",
-  "last_known_main_head": "17cdca03bcda376df8acaf807763c386bcb8cc1c",
+  "active_task": "Gate 12 annual qualification finalization: prove positional semantics of Cup+0x40/Cup+0x44 written by 0x4F8F80, expose exact live end-of-season qualification snapshot, then atomically replace prior-season GameState competition runtime.",
+  "last_known_main_head": "4d2cf1a5dd37b7d06dd69d7a071c9e43d28ae921",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 71,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovered at main 17cdca03. Continue from repository evidence; inspect commits newer than CURRENT_STATE baseline before changing the active Gate-12 task.",
+  "recovery_generation": 72,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovered from current main 4d2cf1a5. Annual membership transition, primary regeneration primitive, type-3 dependencies and primary-root finalization order are already persisted. Continue only Cup+0x40/+0x44 positional trace and live qualification snapshot wiring.",
   "same_chat_fallback_minutes": 30
 }
