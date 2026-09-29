@@ -73,6 +73,14 @@ class LiveCompetitionClubView:
 
 
 @dataclass(frozen=True)
+class AnnualType3QualificationSnapshot:
+    """Exact finished-season sources consumed by annual primary type-3 allocation."""
+
+    qualification_rankings_by_competition: dict[int, tuple[int, ...]]
+    cup_enumerated_club_ids_by_source: dict[int, tuple[int, int]]
+
+
+@dataclass(frozen=True)
 class AnnualPrimaryScheduleRegeneration:
     season_year: int
     live_clubs: tuple[LiveCompetitionClubView, ...]
@@ -94,6 +102,91 @@ class AnnualPrimaryScheduleRegeneration:
     @property
     def total_draw_count(self) -> int:
         return self.competition_draw_count + self.bucket_shuffle_draw_count
+
+
+def capture_annual_type3_qualification_snapshot(
+    state,
+    competitions: Iterable[object],
+    allocation_instructions: Iterable[object],
+) -> AnnualType3QualificationSnapshot:
+    """Capture exact live type-3 sources before annual membership replacement.
+
+    Competition-position rankings published in CupResultRegistry are withheld
+    by the live Premier/procedural League owners until their schedules are
+    complete and the recovered ranking keys are unambiguous. Cup sources are
+    accepted only when one installed live Cup schedule exposes a uniquely
+    resolved highest-round outcome.
+
+    Missing state is an explicit rollover blocker. The shipped startup
+    historical fields are never used as an annual fallback.
+    """
+
+    competition_list = tuple(competitions)
+    allocation_list = tuple(allocation_instructions)
+    required_leagues, required_cups = required_annual_type3_sources(
+        competition_list,
+        allocation_list,
+    )
+
+    rankings: dict[int, tuple[int, ...]] = {}
+    missing_leagues: list[int] = []
+    for competition_id in required_leagues:
+        ranking = state.cup_results.competition_rankings.get(
+            (int(competition_id), 0)
+        )
+        if ranking is None:
+            missing_leagues.append(int(competition_id))
+            continue
+        rankings[int(competition_id)] = tuple(
+            int(club_id) for club_id in ranking
+        )
+
+    if missing_leagues:
+        raise RuntimeError(
+            "annual type-3 live League/Dummy qualification rankings are "
+            f"unresolved for {tuple(missing_leagues)}"
+        )
+
+    cup_pairs: dict[int, tuple[int, int]] = {}
+    missing_cups: list[int] = []
+    for competition_id in required_cups:
+        resolved = tuple(
+            pair
+            for pair in (
+                state.domestic_cups.competition_final_pair(
+                    int(competition_id),
+                    state.cup_results,
+                ),
+                state.european_cups.competition_final_pair(
+                    int(competition_id),
+                    state.cup_results,
+                ),
+            )
+            if pair is not None
+        )
+        if not resolved:
+            missing_cups.append(int(competition_id))
+            continue
+        if len(resolved) != 1:
+            raise RuntimeError(
+                "annual type-3 Cup source is present in multiple live schedule "
+                f"owners: {competition_id}"
+            )
+        cup_pairs[int(competition_id)] = (
+            int(resolved[0][0]),
+            int(resolved[0][1]),
+        )
+
+    if missing_cups:
+        raise RuntimeError(
+            "annual type-3 live Cup final enumerations are unresolved for "
+            f"{tuple(missing_cups)}"
+        )
+
+    return AnnualType3QualificationSnapshot(
+        qualification_rankings_by_competition=rankings,
+        cup_enumerated_club_ids_by_source=cup_pairs,
+    )
 
 
 def clubs_with_live_competition_memberships(
