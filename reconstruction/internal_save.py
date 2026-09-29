@@ -57,7 +57,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 33
+SAVE_SCHEMA_VERSION = 34
 
 
 def _iso(value: date | None) -> str | None:
@@ -1047,6 +1047,7 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
         "cup_results": _snapshot_cup_result_registry(state.cup_results),
         "domestic_cups": state.domestic_cups.snapshot(),
         "european_cups": state.european_cups.snapshot(),
+        "qualification_cups": state.qualification_cups.snapshot(),
         "procedural_leagues": [
             live.snapshot()
             for _, live in sorted(state.procedural_leagues.items())
@@ -1286,6 +1287,9 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         cup_results=_restore_cup_result_registry(snapshot.get("cup_results")),
         domestic_cups=DomesticCupScheduleState.restore(snapshot.get("domestic_cups")),
         european_cups=DomesticCupScheduleState.restore(snapshot.get("european_cups")),
+        qualification_cups=DomesticCupScheduleState.restore(
+            snapshot.get("qualification_cups")
+        ),
         procedural_leagues={
             (
                 int(raw["competition_id"]),
@@ -1505,8 +1509,13 @@ def _snapshot_primary_entry(entry: tuple | None):
     entry = tuple(entry)
     if entry[0] == "premier_league":
         return ["premier_league", int(entry[1])]
-    if entry[0] == "domestic_cup":
-        return ["domestic_cup", list(entry[1])]
+    if entry[0] in (
+        "domestic_cup",
+        "european_cup",
+        "qualification_cup",
+        "procedural_league",
+    ):
+        return [str(entry[0]), list(entry[1])]
     raise ValueError(f"unsupported primary match entry {entry!r}")
 
 
@@ -1515,8 +1524,13 @@ def _restore_primary_entry(value):
         return None
     if value[0] == "premier_league":
         return ("premier_league", int(value[1]))
-    if value[0] == "domestic_cup":
-        return ("domestic_cup", tuple(value[1]))
+    if value[0] in (
+        "domestic_cup",
+        "european_cup",
+        "qualification_cup",
+        "procedural_league",
+    ):
+        return (str(value[0]), tuple(value[1]))
     raise ValueError(f"unsupported saved primary match entry {value!r}")
 
 
