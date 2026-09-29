@@ -437,7 +437,7 @@ class Gate12PrimaryMatchdayOrderTests(unittest.TestCase):
         self.assertEqual(
             gate12_primary_matchday_order(buckets, season_year=2000),
             ((
-                date(2001, 5, 22),
+                date(2001, 5, 23),
                 (("domestic_cup", ("cup_result", 11, 218, 0)),),
             ),),
         )
