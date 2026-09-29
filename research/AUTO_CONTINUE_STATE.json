@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Implement the instruction-closed Cup match lifecycle: FA Cup NormalRound replay creation, League Cup FirstLeg/SecondLeg linkage, and exact aggregate+away-goal decisive tie-break finalization; add deterministic progression tests before GameState integration.",
-  "last_known_main_head": "fa5af0115631f6d7802ed38644fe584847c04faa",
+  "active_task": "Attach already-materialized FA Cup and League Cup schedule nodes to live GameState state, persist active per-node replay/first-leg lifecycle state, resolve symbolic participants lazily, and verify due-node date behavior before human/AI matchday integration.",
+  "last_known_main_head": "b13e0e7e5a3d2f03f381591b2efc9c1c891d83ce",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 60,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 60 resumed from actual main HEAD fa5af011 after stale same-chat escalation. Reconcile the post-69f413 Cup lifecycle implementation/test commits before continuing; do not redo already-persisted work.",
+  "note": "Recovery generation 60 reconciled Cup lifecycle implementation and verified GameState/save result-registry bridge. Continue live domestic-Cup schedule-state integration from main b13e0e7e.",
   "same_chat_fallback_minutes": 30
 }
