@@ -7538,3 +7538,35 @@ scheduler assertions; repository asset policy passed.
 
 Next: live child/procedural-League group state and the distinct ClubRef type-3
 Champions-League-group-to-UEFA resolver.
+
+
+## Gate 12 European live group-state integration checkpoint - 29 September 2026
+
+Recovery generation 66 resumed at main `ebcbaee` without rebuilding the
+already-added exact-or-pending procedural League model.
+
+Two implementation commits advance the live European bridge:
+
+- `17250101` attaches Champions League child procedural-League state to
+  `GameState` from the persisted full-primary schedule shadow. Child
+  competition IDs 14 and 167 are retried independently, so phase 1 can
+  materialize while phase 2 remains pending on symbolic type-2 positions.
+- Recording a live group result refreshes the exact
+  `(competition_id, competition_context)` ranking in `CupResultRegistry`.
+  If the proven points / goal-difference / goals-for keys become ambiguous, the
+  previously published ranking is withdrawn instead of leaving a stale type-2
+  resolution.
+- A newly exact phase-1 ranking immediately retries pending phase-2 group
+  materialization without consuming startup/draw RNG.
+- `0d50d17` advances the internal save schema to **30** and persists live
+  procedural-League fixtures/results alongside the already-persistent type-2
+  ranking registry.
+
+The full-primary shadow remains the canonical persisted source of European
+schedule identity; startup allocation, MiniLeague construction and schedule
+placement are unchanged.
+
+Exact next target after CI reconciliation: expose due European `league_match`
+entries from the shuffled primary order and run them through the shared
+MatchCalculator without guessing ClubRef type-3 semantics or the still-untraced
+equal-key ranking fallback.
