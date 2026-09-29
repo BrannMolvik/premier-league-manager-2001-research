@@ -118,7 +118,7 @@ class HumanGameplayController:
         from competition_runtime import partition_root_procedural_league_ids
         from fm2001_data import FM2001Database
         from match_coefficients import MatchCoefficientMatrices
-        from season_regeneration import required_annual_type3_sources
+        from season_regeneration import partition_annual_type3_league_sources
         from verify import verify_canonical_files
 
         game_dir = Path(game_dir)
@@ -135,19 +135,16 @@ class HumanGameplayController:
                 "canonical English procedural League ownership changed: "
                 f"secondary={english_secondary_leagues}"
             )
-        annual_league_sources, _annual_cup_sources = required_annual_type3_sources(
-            database.competitions,
-            database.cup_allocation_instructions,
+        annual_played_league_sources, _annual_dummy_league_sources = (
+            partition_annual_type3_league_sources(
+                database.competitions,
+                database.cup_allocation_instructions,
+            )
         )
-        competition_by_id = {
-            int(competition.id): competition
-            for competition in database.competitions
-        }
         annual_played_league_ids = tuple(
             int(competition_id)
-            for competition_id in annual_league_sources
+            for competition_id in annual_played_league_sources
             if int(competition_id) != 0
-            and int(competition_by_id[int(competition_id)].runtime_kind_code) == 1
         )
         # Keep the already-live English promotion chain and Champions League
         # child phases, then add every played root League whose completed table
