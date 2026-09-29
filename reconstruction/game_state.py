@@ -2142,7 +2142,13 @@ class GameState:
     def record_premier_league_result(self, fixture_id: int, home_goals: int, away_goals: int):
         if self.premier_league is None:
             raise RuntimeError("Premier League state is not loaded")
-        return self.premier_league.record_result(fixture_id, home_goals, away_goals)
+        result = self.premier_league.record_result(
+            fixture_id,
+            home_goals,
+            away_goals,
+        )
+        self.premier_league.publish_exact_ranking(self.cup_results)
+        return result
 
     def record_cup_match_resolution(
         self,
@@ -3515,7 +3521,7 @@ class GameState:
             condition_injury_settings=condition_injury_settings,
         )
         home_goals, away_goals = result.score
-        self.premier_league.record_result(
+        self.record_premier_league_result(
             fixture_id,
             home_goals,
             away_goals,
