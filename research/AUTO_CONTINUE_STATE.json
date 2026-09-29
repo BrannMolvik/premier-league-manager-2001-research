@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Integrate the source-backed all-or-nothing full-primary next-match preflight for domestic Cup post-match persistence, then apply shared 0x5127A0 incidents and 0x404CE0 morale/Form only when both next dates are exact. Keep special Cup revenue posting separate.",
-  "last_known_main_head": "63556ba0bb56da51ae662fccb45f7f42e50a34f7",
+  "active_task": "Close the special domestic-Cup category-1/category-2 posting policy now that Cup gate RNG ordering, exact-or-pending incident/morale persistence, and English Cup attendance policy inputs are source-backed. Search authorized project sources before making any new posting claim.",
+  "last_known_main_head": "54c7396246d6746ee587a7364332b8a66e59ba31",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 65,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Verified Cup gate RNG ordering at 5ad669d5: 741 tests, only two known secondary-schedule failures; asset policy passed. Main 63556ba0 persists the checkpoint. Next implement exact-or-pending Cup post-match preflight without consuming incident/morale RNG on unresolved primary-shadow dates.",
+  "note": "Latest main checkpoint 54c73962 persists verified code head f2abbff4. CI at f2abbff4: 747 tests with only the two known secondary-schedule failures; asset policy passed. Remaining Cup-specific finance gap is the special both-controlled-participants category-1/category-2 posting semantics.",
   "same_chat_fallback_minutes": 30
 }
