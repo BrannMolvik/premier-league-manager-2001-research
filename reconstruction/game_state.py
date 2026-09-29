@@ -364,6 +364,7 @@ class GameState:
             club_competition_membership={
                 int(club.index): int(club.competition_id)
                 for club in clubs
+                if hasattr(club, "competition_id")
             },
             countries=countries_by_id,
             positions=positions_by_id,
