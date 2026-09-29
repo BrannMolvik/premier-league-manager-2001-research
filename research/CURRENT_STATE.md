@@ -12,14 +12,16 @@ topic-specific research files.
 
 Gates 1 through 11 are complete. Gate 11 closed on 29 September 2026 after the
 deterministic 38-round / 380-fixture human-manager season regression and its
-completion audit. Gate 12 is now connecting the already-recovered generic
-competition runtime to live English domestic cups before expanding to Europe
-or the remaining league/divisional structures.
+completion audit. Gate 12 has completed the main live English domestic-cup bridge and is now
+expanding the same recovered generic competition runtime into Europe. The
+remaining special domestic-Cup ticket-posting branch is explicitly deferred as
+a fidelity/source-access gap rather than guessed.
 
 Evidence:
 
 - `research/GATE11_COMPLETION_AUDIT.md`
 - `research/GATE12_ENGLISH_DOMESTIC_CUPS.md`
+- `research/GATE12_EUROPEAN_COMPETITIONS.md`
 
 ## Porting mission
 
@@ -41,20 +43,20 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 implementation checkpoint:
 
 ```text
-f2abbff45dc95aab6eb0ecc93db0e5db4c2d4f3f
-Compose English Cup gate policy inputs
+0feb1278ec2cfebc07379732a19ef8ab2f733777
+Persist competition-position ClubRef resolution
 ```
 
-GitHub Actions at that checkpoint ran **747 tests with 2 failures**, exactly
+GitHub Actions at that checkpoint ran **752 tests with 2 failures**, exactly
 the unchanged known secondary-schedule assertions; repository asset policy
-passed. In addition to the verified gate-RNG ordering and exact-or-pending
-post-match preflight, the runtime now composes the instruction-closed English
-Cup attendance policy inputs without posting revenue.
+passed. The first live European progression bridge is now persistent:
+`CupResultRegistry` stores per-competition/per-context rankings and resolves
+instruction-closed ClubRef type 2 selectors as zero-based competition positions.
 
-The adapter derives the match competition's country-root FanFactor, the Cup
-round attendance modifier, and the host club's English division-category
-seating/terrace references from live source data. The special
-both-controlled-clubs revenue posting policy remains deliberately unimplemented.
+Internal save schema is now **29** and preserves those live rankings. ClubRef
+type 3, used by the Champions-League-group-to-UEFA transfer path, remains
+deliberately unresolved until its distinct MiniLeague group-position semantics
+are attached to live child-league standings.
 
 The active Cup slice now has:
 
@@ -87,11 +89,10 @@ The active Cup slice now has:
   skip, while same-day Cup order is preserved from shuffled bucket
   head-to-tail traversal.
 
-The normal human/AI matchday loop still remains Premier-League-only, but the
-calendar/order blocker is closed: canonical startup now persists one shared
-post-shuffle PL/domestic-Cup order by Gregorian date. The current execution
-blocker is match duration for decisive Cup objects because
-`simulate_normal_match()` still hard-codes the 90-minute phase plan.
+Premier League and English domestic-Cup human/AI execution now share the
+post-shuffle primary matchday order, decisive Cup extra time, save/reload,
+post-match persistence, and result-token progression. The next live-world
+boundary is European group/competition ranking state, not Cup match duration.
 
 ## Stable startup / scheduler checkpoint
 
@@ -147,75 +148,46 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 
 ## Exact next task
 
-1. Preserve the verified post-shuffle domestic-Cup schedule bridge through
-   `ccac3ba2`; do not reopen solved Cup draw, replay-date or placement work.
-2. The match-constructor policy input is now closed. `71d1d65f` parses the
-   packed round fields at offsets 28..31 and carries their recovered policy
-   values into scheduled Cup nodes; `4eb97457` keeps older synthetic schedule
-   stubs compatible. Do not reopen this trace unless new contradictory evidence
-   appears.
-3. The fixed-League date argument is now instruction-closed. `0x4F4500`
-   copies packed DBRRound week unchanged and weekday-1 into `League+0x60`;
-   `0x6173D0` passes the selected 8-byte entry directly to `0x615950`.
-   There is no hidden week decrement. `0x6169F0 -> 0x64CC70` gives the
-   primary container the first Monday on or after July 1 as its anchor.
-   Therefore the older clean-room Premier League helper is seven days early
-   in 2000/01 and must be corrected to the same primary-container convention
-   already used by Cups.
-4. The shared primary-container date conversion and Christmas boundary are now
-   corrected and verified through `1b388b66`. Shipped Static.dat contains no
-   scheduled or replay/second-leg round at `25/1` or `26/1`, so this
-   Christmas correction is startup-neutral for the canonical 9,346-node
-   schedule and does not change the proven primary RNG/placement checkpoint.
-5. Constructor policy, scheduled lifecycle and cross-competition matchday
-   order are now implemented through `fb3b5b3b`, `9b8e2888` and
-   `7650cdd2`. `ce419c02` carries the source round number and adds the
-   exact Cup AI strategy wrapper: rounds-from-final is
-   `scheduled_matchday_count - round_number + 1`, and competition precedence
-   is `-initialization_order_value`.
-6. The shared match simulator now accepts the recovered extra-time phase plan
-   through `25c4e5ce`, and `e45c02da` verifies a decisive AI Cup node
-   through 120 minutes into a definitive result token.
-7. Human Cup execution and tagged shared-controller PL/Cup order are now
-   verified. Internal save schema **27** preserves tagged pending identities;
-   human mid-matchday Cup save/reload and Replay/SecondLeg continuation are
-   deterministic through `c7583cfd`.
-8. The card/injury persistence branch is now instruction-closed as shared:
-   primary-container Cup and League matches both enter `0x5127A0`.
-   `0x510300` selects the match's schedule container and `0x615D10` scans
-   that container from current schedule day + 1 for the same team before
-   suspension refresh.
-9. The whole-primary lookup representation is now implemented and verified.
-   The full post-shuffle primary schedule is retained as a semantic shadow;
-   direct refs resolve exactly, symbolic type-1/2/3/4 refs carry conservative
-   source-backed candidate-club sets, and the lookup raises rather than skipping
-   an earlier unresolved node that could contain the target club.
-10. Gate RNG placement is now verified through `5ad669d5`: both AI and human
-    Cup paths consume the four `0x5DA2F0` draws after MatchCalculator and
-    before Cup completion, so decisive fallback RNG cannot overtake them.
-11. The exact-or-pending preflight is now implemented through `6bfb6005`.
-    Exact pairs run shared incidents then morale/Form; pending pairs consume
-    neither branch's RNG. Preserve this guard until broader primary competitions
-    can resolve the remaining symbolic shadow entries.
-12. The source-backed English Cup gate policy adapter is now verified through
-    `f2abbff4`: root FanFactor, round attendance modifier and host owning-
-    division ticket references are live. Continue the special Cup/knockout
-    revenue-posting trace separately; do not infer the both-controlled-clubs
-    policy beyond instruction-closed evidence.
+1. Preserve all verified English domestic-Cup execution through `f2abbff4`
+   and the post-match/RNG checkpoints before it. Do not reopen solved Cup draw,
+   replay, TwoLeg, extra-time, calendar, shadow, or post-match work.
+2. The remaining special domestic-Cup category-1/category-2 posting branch is
+   source-access blocked in this session: the authorized executable/disc source
+   was not found in connected Drive, Dropbox, or the ChatGPT file library.
+   Keep the branch as a fidelity gap rather than assigning an unproven
+   "revenue sharing" or neutral-ground policy.
+3. Continue Gate 12 with Europe. Champions League is competition **9** and UEFA
+   Cup competition **10**. Their canonical startup allocation, shared RNG,
+   MiniLeague/procedural-league construction, cross-Cup transfers, schedule
+   nodes, and post-shuffle primary placement are already reconstructed. Do not
+   rebuild them.
+4. ClubRef type 2 is now live and save-persistent through `0feb1278`. Its
+   selector is a zero-based position in the referenced
+   `(competition_id, competition_context)` ranking. Publish source-backed
+   live child-league rankings into that registry as European group matches
+   progress.
+5. Trace and integrate ClubRef type 3 separately. It is emitted by the
+   Champions-League MiniLeague branch when group-position clubs transfer into
+   the UEFA Cup. Do not alias type 3 to type 2 until the resolver path proves
+   that equivalence.
+6. Build the minimum live European group/procedural-league state needed to
+   execute already-materialized `league_match` nodes, update standings in the
+   original ranking order, and expose the exact positions consumed by type 2
+   and later type 3 refs.
+7. Once the group-position bridge is verified, attach European knockout nodes
+   to the existing CupMatch runtime and shared primary matchday controller,
+   preserving cross-competition result/ref dependencies and save/reload.
 
 ## Known live fidelity boundaries
 
 - Gate 12: FA Cup/League Cup execution and save state are source-backed and
-  verified, and schema **28** now persists a semantic shadow of every shuffled
-  primary-container node needed by `0x615D10`. Shared `0x5127A0`
-  discipline/injury and `0x404CE0` morale/Form are instruction-closed.
-  The four Cup gate RNG draws are in exact pre-completion order, and shared
-  incident/morale persistence now runs only after an exact two-club shadow
-  preflight. Pending symbolic primary nodes still defer those RNG-consuming
-  branches. English Cup FanFactor, round modifier and host division ticket
-  references are also source-backed. The remaining domestic-Cup-specific gap
-  is the special Cup revenue posting branch without guessing its
-  both-controlled-clubs semantics.
+  verified. Schema **29** preserves the full-primary shadow, Cup outcomes and
+  the new per-competition/context position rankings. Shared `0x5127A0`
+  discipline/injury and `0x404CE0` morale/Form are integrated behind the
+  exact-or-pending shadow guard. English Cup attendance policy inputs are
+  source-backed; only the special both-controlled-participants posting policy
+  remains deferred. European startup is already canonical, and the active live
+  gap is group/procedural-league standings plus ClubRef type-3 resolution.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
@@ -224,9 +196,10 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
   state, but no ordinary fresh-game producer/consumer is mapped;
 - normal Premier League match-day gate income is integrated through the
   source-backed stadium/ticket state, exact fresh prices, side modifiers and
-  recovered four-draw RNG placement. The special both-controlled-clubs
-  cup/knockout path remains research-only and broader facility-upgrade
-  attendance bonuses await the later building system;
+  recovered four-draw RNG placement. English Cup attendance policy inputs and
+  RNG placement are integrated, but the special both-controlled-participants
+  posting policy remains unresolved because the canonical binary source is not
+  currently accessible through connected storage;
 - concession payout is intentionally not integrated into ordinary progression:
   its category-300 monthly credit path is exact, but the fresh-game generator
   does not create active records in the recovered executable;
@@ -245,9 +218,9 @@ See `research/FIDELITY_GAPS.md`. Most relevant now:
 
 ## Do not work on yet
 
-Unless required to unblock the active Gate-12 domestic-cup slice, defer:
+Unless required to unblock the active Gate-12 European slice, defer:
 
-- European competitions and remaining English league/divisional structures;
+- remaining English league/divisional structures after the active European bridge;
 - original save-file compatibility;
 - Gate-13 original management presentation;
 - Gate-14 audio/match presentation and FastView/3D;

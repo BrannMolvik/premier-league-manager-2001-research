@@ -7507,3 +7507,34 @@ scheduler assertions; asset policy passed.
 The remaining domestic-Cup-specific finance boundary is now narrowly the
 special category-1/category-2 posting policy when the Cup flag allows both
 controlled participants to receive postings.
+
+
+## Gate 12 Europe position-reference bridge verified - 29 September 2026
+
+The English domestic-Cup execution slice is no longer allowed to hold the whole
+gate behind one inaccessible binary detail. The remaining special Cup
+category-1/category-2 both-controlled-participants posting policy is recorded as
+an explicit fidelity/source-access gap: repository evidence proves the Cup
+branch and independent postings, but the canonical executable/disc source was
+not found in connected Google Drive, Dropbox, or ChatGPT Library during this
+session, so no business-policy label is invented.
+
+Gate 12 therefore advanced to Europe, starting from the already-canonical
+startup materialization rather than rebuilding draws.
+
+Commit `0feb1278ec2cfebc07379732a19ef8ab2f733777` implements the first
+live European progression primitive:
+
+- `CupResultRegistry` now persists rankings by
+  `(competition_id, competition_context)`;
+- ClubRef type 2 resolves its zero-based competition-position selector from that
+  live ranking;
+- missing rankings remain unresolved rather than falling back;
+- rankings can be refreshed after table changes;
+- internal save schema advances to **29** and roundtrips the ranking registry.
+
+Verification: **752 tests, 2 failures**, both the unchanged known secondary
+scheduler assertions; repository asset policy passed.
+
+Next: live child/procedural-League group state and the distinct ClubRef type-3
+Champions-League-group-to-UEFA resolver.
