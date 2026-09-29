@@ -38,18 +38,17 @@ tracked according to `research/ASSET_POLICY.md`.
 
 ## Verified repository state
 
-Latest verified Gate-12 implementation checkpoint before the active strategy
-patch:
+Latest verified Gate-12 implementation checkpoint:
 
 ```text
-7650cdd2e9ca7ea3191b59ed5745ad5d8afa390f
-Persist shared PL Cup matchday order
+e45c02da5461bc67196e0fe86aeef53f51da304f
+Regress AI Cup extra-time completion
 ```
 
-GitHub Actions at that checkpoint ran **718 tests with 2 failures**, exactly
+GitHub Actions at that checkpoint ran **723 tests with 2 failures**, exactly
 the unchanged known secondary-schedule assertions; repository asset policy
-passed. Commit `ce419c02` is the current unverified head and adds the
-source-backed Cup AI strategy context.
+passed. This verifies the source-backed Cup strategy context, shared extra-time
+phase plan, and the first live AI domestic-Cup score/completion path.
 
 GitHub Actions at that checkpoint:
 
@@ -176,13 +175,15 @@ Do not rebuild solved Cup startup RNG/draw behavior.
    exact Cup AI strategy wrapper: rounds-from-final is
    `scheduled_matchday_count - round_number + 1`, and competition precedence
    is `-initialization_order_value`.
-6. Before wiring decisive League Cup/Replay/SecondLeg score production, extend
-   the shared match simulator so Cup runtime `uses_extra_time` can select the
-   recovered extra-time phase plan. Do not run decisive Cup objects through the
-   current hard-coded 90-minute `simulate_normal_match()`.
-7. Then merge due FA Cup / League Cup nodes into the shared AI/human matchday
-   loop and add deterministic AI-only, human-involved, Replay and TwoLeg
-   save/reload regressions.
+6. The shared match simulator now accepts the recovered extra-time phase plan
+   through `25c4e5ce`, and `e45c02da` verifies a decisive AI Cup node
+   through 120 minutes into a definitive result token.
+7. Add the human-controlled Cup equivalent, then merge due FA Cup / League Cup
+   nodes into the shared controller matchday loop. Preserve the currently
+   explicit boundary: Cup cards/injury suspension dates, gate receipts and
+   post-match morale/Form are not yet generalized from the PL-only helpers.
+8. Add deterministic human-involved, Replay and TwoLeg save/reload regressions,
+   then close the remaining cross-competition post-match persistence gaps.
 
 ## Known live fidelity boundaries
 

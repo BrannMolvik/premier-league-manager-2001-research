@@ -569,3 +569,19 @@ deficit term.
 The next execution blocker is not strategy. It is match duration:
 `simulate_normal_match()` currently hard-codes the 90-minute phase plan, while
 decisive Cup runtime objects may require extra time.
+
+
+### First live AI Cup execution
+
+`e45c02da` verifies the first domestic-Cup match that is actually scored by
+the shared reconstructed MatchCalculator and completed into the Cup result
+registry.
+
+Decisive Cup objects now use the existing recovered extra-time phase plan
+through minute 120. Replay/SecondLeg tie resolution continues to use the
+already-closed Cup completion lifecycle.
+
+This bridge is intentionally not mislabeled as full post-match integration.
+The current method syncs MatchCalculator Condition and home pitch wear, but
+PL-specific incident/suspension scheduling, gate receipts and morale/Form are
+still separate follow-on work.

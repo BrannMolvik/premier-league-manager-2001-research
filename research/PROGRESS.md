@@ -7359,3 +7359,29 @@ A separate backend boundary remains: `simulate_normal_match()` hard-codes
 `build_match_phase_plan(extra_time=False, penalties=False)`. Decisive Cup
 objects must not be wired through that 90-minute path until Cup
 `uses_extra_time` can select the recovered extra-time phase plan.
+
+
+## Gate 12 first live AI Cup execution verified - 29 September 2026
+
+Commit `e45c02da5461bc67196e0fe86aeef53f51da304f` is the first verified
+live AI domestic-Cup match path.
+
+It composes:
+
+- source-backed Cup AI strategy context from `ce419c02`;
+- synthetic compatibility correction `6e023260`;
+- the shared extra-time MatchCalculator phase plan from `25c4e5ce`;
+- live scheduled Cup materialization/completion;
+- both AI selections before weather;
+- weather before side-0/side-1 Condition initialization;
+- normal or 120-minute shared MatchCalculator execution according to
+  `CupMatchRuntimeState.uses_extra_time`;
+- definitive result-token completion, replay/TwoLeg lifecycle reuse;
+- post-calculator Condition synchronization and home-pitch wear.
+
+Verification: GitHub Actions ran **723 tests with 2 failures**, both the
+unchanged known secondary-schedule assertions. Repository asset policy passed.
+
+Still explicitly open before full shared gameplay: human-controlled Cup
+execution, cross-competition incident/suspension date persistence, Cup gate
+receipts, and post-match morale/Form.
