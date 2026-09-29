@@ -2156,16 +2156,16 @@ class GameState:
         """Resolve a Cup ClubRef against live GameState result state."""
         return self.cup_results.resolve_club_ref(ref)
 
-    def refresh_european_procedural_leagues(
+    def refresh_primary_procedural_leagues(
         self,
-        competition_ids: tuple[int, ...] = (14, 167),
+        competition_ids,
     ) -> dict[tuple[int, int], LiveProceduralLeagueState]:
-        """Materialize any now-resolvable Champions League child groups.
+        """Materialize selected primary-container LeagueMatch competitions.
 
-        The full-primary shadow is the persisted source of schedule identity.
-        Phase-2 groups can remain pending until phase-1 type-2 positions are
-        published, so this method is intentionally safe to call repeatedly.
-        Existing live group state/results are never rebuilt.
+        Gate 12 first used this bridge for Champions League child groups, but
+        the underlying LeagueMatch state is generic.  Callers supply the exact
+        source-backed competition IDs they want live; this method never guesses
+        competition identity, redraws participants, or consumes RNG.
         """
         allowed = {int(value) for value in competition_ids}
         grouped: dict[tuple[int, int], list[object]] = {}
@@ -2190,6 +2190,13 @@ class GameState:
             if live is not None:
                 self.procedural_leagues[key] = live
         return self.procedural_leagues
+
+    def refresh_european_procedural_leagues(
+        self,
+        competition_ids: tuple[int, ...] = (14, 167),
+    ) -> dict[tuple[int, int], LiveProceduralLeagueState]:
+        """Compatibility wrapper for the verified Champions League groups."""
+        return self.refresh_primary_procedural_leagues(competition_ids)
 
     def procedural_league_advancement_places(
         self,
@@ -2526,6 +2533,7 @@ class GameState:
         buckets,
         *,
         season_year: int,
+        procedural_league_ids: tuple[int, ...] = (14, 167),
     ) -> dict[date, tuple[tuple, ...]]:
         """Persist exact shuffled live Gate-12 primary order by date."""
         from primary_schedule import gate12_primary_matchday_order
@@ -2534,6 +2542,9 @@ class GameState:
             gate12_primary_matchday_order(
                 buckets,
                 season_year=int(season_year),
+                procedural_league_ids=tuple(
+                    int(value) for value in procedural_league_ids
+                ),
             )
         )
         return self.primary_matchday_order
