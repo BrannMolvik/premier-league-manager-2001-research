@@ -2001,6 +2001,14 @@ class GameState:
                 rng,
             )
             return result
+        if kind == "european_cup":
+            result, _completion = self.simulate_european_cup_ai_node(
+                tuple(entry[1]),
+                attack_matrix,
+                defence_matrix,
+                rng,
+            )
+            return result
         if kind == "procedural_league":
             return self.simulate_procedural_league_ai_node(
                 tuple(entry[1]),
@@ -2544,6 +2552,10 @@ class GameState:
             tuple(node.node_token)
             for node in self.domestic_cup_nodes_due_today()
         }
+        due_european = {
+            tuple(node.node_token)
+            for node in self.european_cup_nodes_due_today()
+        }
         due_procedural = set(self.procedural_league_nodes_due_today())
 
         due: list[tuple] = []
@@ -2552,6 +2564,8 @@ class GameState:
             if kind == "premier_league" and int(entry[1]) in due_pl:
                 due.append(entry)
             elif kind == "domestic_cup" and tuple(entry[1]) in due_cup:
+                due.append(entry)
+            elif kind == "european_cup" and tuple(entry[1]) in due_european:
                 due.append(entry)
             elif (
                 kind == "procedural_league"
@@ -2631,6 +2645,9 @@ class GameState:
         attack_matrix,
         defence_matrix,
         rng=None,
+        *,
+        _schedule_state: DomesticCupScheduleState | None = None,
+        _schedule_label: str = "domestic Cup",
     ) -> tuple[NormalMatchResult, CupMatchCompletion]:
         """Run one due AI-vs-AI domestic Cup node through the shared backend.
 
@@ -2643,17 +2660,18 @@ class GameState:
         order. Special Cup revenue posting remains separate Gate-12 work.
         """
         rng = self._resolve_rng(rng)
+        schedule_state = self.domestic_cups if _schedule_state is None else _schedule_state
         token = tuple(node_token)
-        node = self.domestic_cups.node(token)
+        node = schedule_state.node(token)
         if node.scheduled_date != self.calendar.current_date:
             raise ValueError(
-                f"domestic Cup node {token!r} is not due on "
+                f"{_schedule_label} node {token!r} is not due on "
                 f"{self.calendar.current_date}"
             )
         if node.round_number is None:
-            raise RuntimeError("domestic Cup node has no source round number")
+            raise RuntimeError(f"{_schedule_label} node has no source round number")
 
-        match = self.domestic_cups.materialize_scheduled_match(
+        match = schedule_state.materialize_scheduled_match(
             token,
             self.cup_results,
         )
@@ -2761,7 +2779,7 @@ class GameState:
         # even while special Cup revenue posting remains a separate slice.
         self._draw_matchday_gate_rand15_values(rng)
 
-        completion = self.domestic_cups.complete_scheduled_match(
+        completion = schedule_state.complete_scheduled_match(
             token,
             self.cup_results,
             result.score[0],
@@ -2770,7 +2788,7 @@ class GameState:
             rng=rng,
         )
         if completion.replay is not None and self.primary_schedule_shadow.days:
-            replay_node = self.domestic_cups.node(completion.replay.node_token)
+            replay_node = schedule_state.node(completion.replay.node_token)
             self.primary_schedule_shadow.insert_dynamic_node(
                 replay_node,
                 on_date=replay_node.scheduled_date,
@@ -2791,6 +2809,23 @@ class GameState:
         )
         return result, completion
 
+    def simulate_european_cup_ai_node(
+        self,
+        node_token: tuple,
+        attack_matrix,
+        defence_matrix,
+        rng=None,
+    ) -> tuple[NormalMatchResult, CupMatchCompletion]:
+        """Run one due Champions League/UEFA Cup knockout through CupMatch."""
+        return self.simulate_domestic_cup_ai_node(
+            node_token,
+            attack_matrix,
+            defence_matrix,
+            rng,
+            _schedule_state=self.european_cups,
+            _schedule_label="European Cup",
+        )
+
     def simulate_domestic_cup_human_node(
         self,
         node_token: tuple,
@@ -2801,6 +2836,8 @@ class GameState:
         rng=None,
         *,
         team_orders: TeamOrderPriorities | None = None,
+        _schedule_state: DomesticCupScheduleState | None = None,
+        _schedule_label: str = "domestic Cup",
     ) -> tuple[NormalMatchResult, CupMatchCompletion]:
         """Run one due human-vs-AI domestic Cup node through the shared backend.
 
@@ -2810,17 +2847,18 @@ class GameState:
         full-primary shadow proves both next-match dates exactly.
         """
         rng = self._resolve_rng(rng)
+        schedule_state = self.domestic_cups if _schedule_state is None else _schedule_state
         token = tuple(node_token)
-        node = self.domestic_cups.node(token)
+        node = schedule_state.node(token)
         if node.scheduled_date != self.calendar.current_date:
             raise ValueError(
-                f"domestic Cup node {token!r} is not due on "
+                f"{_schedule_label} node {token!r} is not due on "
                 f"{self.calendar.current_date}"
             )
         if node.round_number is None:
-            raise RuntimeError("domestic Cup node has no source round number")
+            raise RuntimeError(f"{_schedule_label} node has no source round number")
 
-        match = self.domestic_cups.materialize_scheduled_match(
+        match = schedule_state.materialize_scheduled_match(
             token,
             self.cup_results,
         )
@@ -2927,7 +2965,7 @@ class GameState:
         # therefore the same four-draw boundary before Cup completion.
         self._draw_matchday_gate_rand15_values(rng)
 
-        completion = self.domestic_cups.complete_scheduled_match(
+        completion = schedule_state.complete_scheduled_match(
             token,
             self.cup_results,
             result.score[0],
@@ -2936,7 +2974,7 @@ class GameState:
             rng=rng,
         )
         if completion.replay is not None and self.primary_schedule_shadow.days:
-            replay_node = self.domestic_cups.node(completion.replay.node_token)
+            replay_node = schedule_state.node(completion.replay.node_token)
             self.primary_schedule_shadow.insert_dynamic_node(
                 replay_node,
                 on_date=replay_node.scheduled_date,
@@ -2956,6 +2994,30 @@ class GameState:
             rng=rng,
         )
         return result, completion
+
+    def simulate_european_cup_human_node(
+        self,
+        node_token: tuple,
+        human_club_id: int,
+        human_selection: PreparedAiMatchSelection,
+        attack_matrix,
+        defence_matrix,
+        rng=None,
+        *,
+        team_orders: TeamOrderPriorities | None = None,
+    ) -> tuple[NormalMatchResult, CupMatchCompletion]:
+        """Run one human Champions League/UEFA Cup knockout through CupMatch."""
+        return self.simulate_domestic_cup_human_node(
+            node_token,
+            human_club_id,
+            human_selection,
+            attack_matrix,
+            defence_matrix,
+            rng,
+            team_orders=team_orders,
+            _schedule_state=self.european_cups,
+            _schedule_label="European Cup",
+        )
 
     def premier_league_table(self):
         if self.premier_league is None:
