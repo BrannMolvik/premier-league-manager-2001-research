@@ -15,6 +15,7 @@ from match_team_setup import (
     game_strategy_score,
     late_season_league_strategy_bias,
     league_objective_gaps_from_sorted_points,
+    league_strategy_bias,
     league_objective_pressure,
     manager_formation_for_game_strategy,
     manager_formation_for_selection_class,
@@ -229,6 +230,32 @@ class FormationStrategyClassifierTests(unittest.TestCase):
         self.assertEqual(
             strategy_team_rating(players + [extra]),
             expected_one * 11,
+        )
+
+    def test_generic_league_bias_accepts_group_advancement_cut(self):
+        @dataclass(frozen=True)
+        class Row:
+            club_id: int
+            played: int
+            points: int
+
+        rows = (
+            Row(1, 4, 10),
+            Row(2, 4, 8),
+            Row(3, 4, 5),
+            Row(4, 4, 2),
+        )
+        # Two games remain in a six-match group. Club 3 is three points below
+        # the second-place advancement cut: 3/2 -> rounded pressure 2 plus the
+        # shipped promotion base 1 = 3.
+        self.assertEqual(
+            league_strategy_bias(
+                rows,
+                3,
+                total_matches=6,
+                automatic_promotion_places=2,
+            ),
+            3,
         )
 
     def test_premier_league_bias_uses_title_then_relegation_cut(self):
