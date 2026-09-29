@@ -53,8 +53,20 @@ class CupCompetition:
     initialization_order_value: int = 6
 
 
+@dataclass(frozen=True)
+class LeagueCupCompetition:
+    id: int = 5
+    substitute_quota: int = 5
+    max_non_eu_players: int = 10
+    scheduled_matchday_count: int = 7
+    initialization_order_value: int = 5
+
+
 class CupDatabase(Database):
-    competitions = Database.competitions + (CupCompetition(),)
+    competitions = Database.competitions + (
+        CupCompetition(),
+        LeagueCupCompetition(),
+    )
 
 
 
@@ -245,6 +257,172 @@ class InternalSaveTests(unittest.TestCase):
         self.assertEqual(
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),
+        )
+
+    def test_reloaded_fa_cup_replay_executes_identically(self):
+        original, _token = self.build_cup_controller()
+        token = ("cup_result", 1, 38, 9)
+        original.state.domestic_cups = original.state.install_domestic_cup_schedule_nodes(
+            (
+                StartupScheduleNode(
+                    node_kind="cup_match",
+                    competition_id=1,
+                    competition_context=0,
+                    round_id=38,
+                    pair_index=9,
+                    schedule_index=None,
+                    scheduled_week=0,
+                    scheduled_weekday=6,
+                    participant_0_ref=direct_club_ref(1),
+                    participant_1_ref=direct_club_ref(2),
+                    node_token=token,
+                    round_number=3,
+                    extra_time_capable=True,
+                    decisive_tiebreak=False,
+                    auxiliary_flag=False,
+                ),
+            ),
+            season_year=2000,
+        )
+        original.state.calendar.current_date = date(2000, 7, 8)
+        first = original.state.domestic_cups.materialize_normal_match(
+            token,
+            original.state.cup_results,
+        )
+        first_completion = complete_cup_match(
+            first,
+            original.state.cup_results,
+            1,
+            1,
+        )
+        replay = original.state.domestic_cups.insert_replay_from_completion(
+            token,
+            first_completion,
+            current_date=original.state.calendar.current_date,
+        )
+        original.state.calendar.current_date = replay.scheduled_date
+
+        restored = loads_human_gameplay(
+            CupDatabase(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        original_result, original_completion = original.state.simulate_domestic_cup_ai_node(
+            replay.node_token,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            original.match_rng,
+        )
+        restored_result, restored_completion = restored.state.simulate_domestic_cup_ai_node(
+            replay.node_token,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            restored.match_rng,
+        )
+
+        self.assertEqual(original_result.score, restored_result.score)
+        self.assertEqual(
+            original_completion.outcome.winner_club_id,
+            restored_completion.outcome.winner_club_id,
+        )
+        self.assertEqual(original.match_rng.state, restored.match_rng.state)
+        self.assertEqual(
+            original.state.domestic_cups.snapshot(),
+            restored.state.domestic_cups.snapshot(),
+        )
+        self.assertEqual(
+            original.state.cup_results.outcomes,
+            restored.state.cup_results.outcomes,
+        )
+
+    def test_reloaded_league_cup_second_leg_executes_identically(self):
+        original, _token = self.build_cup_controller()
+        first_token = ("cup_first_leg", 5, 185, 10)
+        result_token = ("cup_result", 5, 185, 10)
+        original.state.install_domestic_cup_schedule_nodes(
+            (
+                StartupScheduleNode(
+                    node_kind="first_leg_match",
+                    competition_id=5,
+                    competition_context=0,
+                    round_id=185,
+                    pair_index=10,
+                    schedule_index=None,
+                    scheduled_week=0,
+                    scheduled_weekday=3,
+                    participant_0_ref=direct_club_ref(1),
+                    participant_1_ref=direct_club_ref(2),
+                    node_token=first_token,
+                    round_number=6,
+                    extra_time_capable=False,
+                    decisive_tiebreak=False,
+                    auxiliary_flag=False,
+                ),
+                StartupScheduleNode(
+                    node_kind="second_leg_match",
+                    competition_id=5,
+                    competition_context=0,
+                    round_id=185,
+                    pair_index=10,
+                    schedule_index=None,
+                    scheduled_week=1,
+                    scheduled_weekday=3,
+                    participant_0_ref=direct_club_ref(2),
+                    participant_1_ref=direct_club_ref(1),
+                    node_token=result_token,
+                    round_number=6,
+                    extra_time_capable=True,
+                    decisive_tiebreak=True,
+                    auxiliary_flag=False,
+                ),
+            ),
+            season_year=2000,
+        )
+        first, _second = original.state.domestic_cups.materialize_two_leg_pair(
+            first_token,
+            original.state.cup_results,
+        )
+        complete_cup_match(first, original.state.cup_results, 2, 1)
+        original.state.domestic_cups.mark_completed(first_token)
+        original.state.calendar.current_date = original.state.domestic_cups.node(
+            result_token
+        ).scheduled_date
+
+        restored = loads_human_gameplay(
+            CupDatabase(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        original_result, original_completion = original.state.simulate_domestic_cup_ai_node(
+            result_token,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            original.match_rng,
+        )
+        restored_result, restored_completion = restored.state.simulate_domestic_cup_ai_node(
+            result_token,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            restored.match_rng,
+        )
+
+        self.assertEqual(original_result.score, restored_result.score)
+        self.assertEqual(
+            original_completion.outcome.winner_club_id,
+            restored_completion.outcome.winner_club_id,
+        )
+        self.assertEqual(original.match_rng.state, restored.match_rng.state)
+        self.assertEqual(
+            original.state.domestic_cups.snapshot(),
+            restored.state.domestic_cups.snapshot(),
+        )
+        self.assertEqual(
+            original.state.cup_results.outcomes,
+            restored.state.cup_results.outcomes,
         )
 
     def test_cup_result_registry_survives_roundtrip(self):
