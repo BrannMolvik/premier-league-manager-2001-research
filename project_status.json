@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate 12 English divisions: prove exact competition IDs and primary/secondary container ownership from canonical materializer evidence, then attach the first source-backed divisional set to the verified generic LeagueMatch bridge.",
+  "current_task": "Gate 12 annual rollover: prove positional Cup+0x40/+0x44 finalization order, then expose the exact live annual qualification snapshot before atomic GameState season replacement.",
   "last_verified_reconstruction_failures": 2,
   "last_verified_asset_policy_head": "3291b7e1d27e3617293670ccb547bf3661c1e302",
   "gate11_danger_morale_request_integrated": true,
@@ -412,5 +412,13 @@
   "gate12_year_two_premier_league_procedural": true,
   "gate12_annual_primary_christmas_calendar_dynamic": true,
   "gate12_annual_primary_bucket_shuffle_rng_fresh": true,
-  "gate12_next_season_evidence": "research/GATE12_NEXT_SEASON_REGENERATION.md"
+  "gate12_next_season_evidence": "research/GATE12_NEXT_SEASON_REGENERATION.md",
+  "gate12_annual_type3_source_requirements_closed": true,
+  "gate12_annual_type3_required_source_sets_verified_head": "bbd8dc715eed4c2a4d8cf80901ac374c7a55f276",
+  "gate12_annual_dummy_refresh_semantics_closed": true,
+  "gate12_primary_root_finalization_order_recovered": true,
+  "gate12_primary_root_finalization_order_verified_head": "cb4f8abd41c0ac5ff3cf7df03d0295393ab7b8ec",
+  "gate12_primary_root_finalization_order_verified_test_count": 802,
+  "gate12_annual_cup_final_pair_slot_order_closed": false,
+  "gate12_annual_qualification_live_snapshot": false
 }
