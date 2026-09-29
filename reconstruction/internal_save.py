@@ -1311,6 +1311,7 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
                 {
                     str(int(club.index)): int(club.competition_id)
                     for club in getattr(database, "clubs", ())
+                    if hasattr(club, "competition_id")
                 },
             ).items()
         },
