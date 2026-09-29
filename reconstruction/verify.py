@@ -19,6 +19,7 @@ from competition_startup import (
 from competition_state import PremierLeagueState
 from fm2001_data import FM2001Database
 from match_schedule import MsvcCrtRng
+from season_regeneration import required_annual_type3_sources
 
 
 CANONICAL_HASHES = {
@@ -113,6 +114,32 @@ def verify_database(db: FM2001Database) -> None:
         (
             "Canonical English LeagueAllocation slot exchanges changed: "
             f"{english_league_allocations}"
+        ),
+    )
+    annual_type3_league_sources, annual_type3_cup_sources = (
+        required_annual_type3_sources(
+            db.competitions,
+            db.cup_allocation_instructions,
+        )
+    )
+    require(
+        annual_type3_league_sources
+        == (
+            0, 17, 21, 27, 31, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44,
+            45, 46, 47, 48, 49, 50, 52, 53, 54, 55, 56, 57, 58, 59, 60,
+            61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75,
+            76, 77, 78, 79, 80, 100, 102,
+        ),
+        (
+            "Canonical annual primary type-3 League/Dummy source set changed: "
+            f"{annual_type3_league_sources}"
+        ),
+    )
+    require(
+        annual_type3_cup_sources == (1, 5, 9, 10, 19, 23, 33, 91, 98, 101),
+        (
+            "Canonical annual primary type-3 Cup source set changed: "
+            f"{annual_type3_cup_sources}"
         ),
     )
     allocation_type_counts = Counter(
