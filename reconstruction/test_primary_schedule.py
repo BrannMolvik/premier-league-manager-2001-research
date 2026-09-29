@@ -52,6 +52,33 @@ class PrimarySchedulePlacementTests(unittest.TestCase):
         self.assertEqual(primary_schedule_source_bucket(25, 1), 175)
         self.assertEqual(primary_schedule_source_bucket(19, 6), 138)
 
+    def test_year_two_christmas_skip_uses_actual_calendar_date(self):
+        self.assertEqual(
+            nominal_primary_schedule_bucket(25, 1, season_year=2001),
+            175,
+        )
+        self.assertEqual(
+            nominal_primary_schedule_bucket(25, 2, season_year=2001),
+            177,
+        )
+
+    def test_year_two_placement_moves_december_25_source_slot(self):
+        christmas = node(
+            "christmas-2001",
+            1,
+            2,
+            week=25,
+            weekday=2,
+        )
+
+        placed = place_primary_schedule_nodes(
+            (christmas,),
+            season_year=2001,
+        )
+
+        self.assertEqual(placed.nominal_bucket_indices, (177,))
+        self.assertEqual(placed.chosen_bucket_indices, (177,))
+
     def test_non_conflicting_same_day_nodes_head_insert(self):
         first = node("first", 1, 2)
         second = node("second", 3, 4)
