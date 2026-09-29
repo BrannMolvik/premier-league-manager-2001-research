@@ -227,6 +227,19 @@ class RoundDefinition:
     team_count: int
     new_entrants: int
     source_competition_reference: int = 0xFFFFFFFF
+    cup_extra_time_flag: int = 0
+    cup_auxiliary_flag: int = 0
+    cup_decisive_flag: int = 0
+
+    @property
+    def cup_extra_time_capable(self) -> bool:
+        """Constructor bit 0x2 source recovered through 0x4F5420/0x510520."""
+        return bool(int(self.cup_extra_time_flag) | int(self.cup_auxiliary_flag))
+
+    @property
+    def cup_decisive_tiebreak(self) -> bool:
+        """Constructor bit 0x4 source recovered through 0x4F5420/0x510520."""
+        return bool(int(self.cup_decisive_flag))
 
     @property
     def source_competition_id(self) -> int | None:
@@ -516,6 +529,12 @@ class FM2001Database:
                 team_count=struct.unpack_from('<H', r, 24)[0],
                 new_entrants=struct.unpack_from('<H', r, 26)[0],
                 source_competition_reference=struct.unpack_from('<I', r, 20)[0],
+                # DBRRound expands these packed fields to +0x24/+0x26/+0x27.
+                # Runtime Round construction at 0x4F5420 ORs the first two
+                # into +0x30 and carries the latter two to +0x34/+0x32.
+                cup_extra_time_flag=struct.unpack_from('<H', r, 28)[0],
+                cup_auxiliary_flag=r[30],
+                cup_decisive_flag=r[31],
             ))
 
     def _parse_cup_allocation_instructions(self):

@@ -30,6 +30,9 @@ class CompetitionScheduleTests(unittest.TestCase):
             scheduled_weekday=6,
             replay_week=13,
             replay_weekday=3,
+            cup_extra_time_capable=True,
+            cup_decisive_tiebreak=False,
+            cup_auxiliary_flag=True,
         )
 
     def _pairing(self, round_type):
@@ -69,6 +72,9 @@ class CompetitionScheduleTests(unittest.TestCase):
         self.assertEqual(nodes[0].participant_0_ref.direct_club_id, 10)
         self.assertEqual(nodes[0].participant_1_ref.direct_club_id, 20)
         self.assertEqual(nodes[0].node_token, ("cup_result", 5, 77, 0))
+        self.assertTrue(nodes[0].extra_time_capable)
+        self.assertFalse(nodes[0].decisive_tiebreak)
+        self.assertTrue(nodes[0].auxiliary_flag)
 
     def test_two_leg_round_reverses_second_leg_refs(self):
         pairing = self._pairing(2)
@@ -105,6 +111,22 @@ class CompetitionScheduleTests(unittest.TestCase):
             ],
         )
         self.assertEqual(nodes[1].node_token, ("cup_result", 5, 77, 0))
+        self.assertEqual(
+            (
+                nodes[0].extra_time_capable,
+                nodes[0].decisive_tiebreak,
+                nodes[0].auxiliary_flag,
+            ),
+            (False, False, False),
+        )
+        self.assertEqual(
+            (
+                nodes[1].extra_time_capable,
+                nodes[1].decisive_tiebreak,
+                nodes[1].auxiliary_flag,
+            ),
+            (True, True, True),
+        )
 
     def test_minileague_parent_round_emits_no_match_nodes(self):
         runtime_round = MaterializedCupRound(

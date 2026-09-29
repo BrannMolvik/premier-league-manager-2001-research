@@ -138,6 +138,9 @@ class RoundParserTests(unittest.TestCase):
         struct.pack_into("<I", data, first + 20, 14)
         struct.pack_into("<H", data, first + 24, 8)
         struct.pack_into("<H", data, first + 26, 8)
+        struct.pack_into("<H", data, first + 28, 1)
+        data[first + 30] = 1
+        data[first + 31] = 0
 
         second = base + ROUND_RECORD_SIZE
         struct.pack_into("<I", data, second + 0, 202)
@@ -146,6 +149,9 @@ class RoundParserTests(unittest.TestCase):
         struct.pack_into("<H", data, second + 10, 5)
         struct.pack_into("<H", data, second + 14, 501)
         struct.pack_into("<I", data, second + 20, 0x0002FFFF)
+        struct.pack_into("<H", data, second + 28, 0)
+        data[second + 30] = 0
+        data[second + 31] = 1
 
         db = FM2001Database.__new__(FM2001Database)
         db.static = bytes(data)
@@ -159,6 +165,14 @@ class RoundParserTests(unittest.TestCase):
         self.assertEqual(db.rounds[1].source_competition_reference, 0x0002FFFF)
         self.assertIsNone(db.rounds[1].source_competition_id)
         self.assertEqual(db.rounds[1].source_child_code, 2)
+        self.assertEqual(db.rounds[0].cup_extra_time_flag, 1)
+        self.assertEqual(db.rounds[0].cup_auxiliary_flag, 1)
+        self.assertFalse(db.rounds[0].cup_decisive_tiebreak)
+        self.assertTrue(db.rounds[0].cup_extra_time_capable)
+        self.assertEqual(db.rounds[1].cup_extra_time_flag, 0)
+        self.assertEqual(db.rounds[1].cup_auxiliary_flag, 0)
+        self.assertTrue(db.rounds[1].cup_decisive_tiebreak)
+        self.assertFalse(db.rounds[1].cup_extra_time_capable)
 
 
 if __name__ == "__main__":

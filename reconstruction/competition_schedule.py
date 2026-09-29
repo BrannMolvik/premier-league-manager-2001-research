@@ -35,6 +35,9 @@ class StartupScheduleNode:
     participant_0_ref: CupClubRefDescriptor
     participant_1_ref: CupClubRefDescriptor
     node_token: tuple
+    extra_time_capable: bool | None = None
+    decisive_tiebreak: bool | None = None
+    auxiliary_flag: bool | None = None
 
 
 def direct_club_ref(club_id: int) -> CupClubRefDescriptor:
@@ -136,6 +139,9 @@ def materialize_cup_round_schedule_nodes(
 
     primary_week = int(round_definition.scheduled_week)
     primary_weekday = int(round_definition.scheduled_weekday)
+    round_extra_time = bool(round_definition.cup_extra_time_capable)
+    round_decisive = bool(round_definition.cup_decisive_tiebreak)
+    round_auxiliary = bool(round_definition.cup_auxiliary_flag)
     second_week = (
         int(round_definition.replay_week)
         if round_type == 2
@@ -167,6 +173,9 @@ def materialize_cup_round_schedule_nodes(
                     participant_0_ref=left_ref,
                     participant_1_ref=right_ref,
                     node_token=tuple(pairing.result_token),
+                    extra_time_capable=round_extra_time,
+                    decisive_tiebreak=round_decisive,
+                    auxiliary_flag=round_auxiliary,
                 )
             )
             continue
@@ -190,6 +199,9 @@ def materialize_cup_round_schedule_nodes(
                 participant_0_ref=left_ref,
                 participant_1_ref=right_ref,
                 node_token=first_leg_token,
+                extra_time_capable=False,
+                decisive_tiebreak=False,
+                auxiliary_flag=False,
             )
         )
         nodes.append(
@@ -205,6 +217,9 @@ def materialize_cup_round_schedule_nodes(
                 participant_0_ref=right_ref,
                 participant_1_ref=left_ref,
                 node_token=tuple(pairing.result_token),
+                extra_time_capable=round_extra_time,
+                decisive_tiebreak=True,
+                auxiliary_flag=round_auxiliary,
             )
         )
 
