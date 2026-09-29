@@ -115,6 +115,7 @@ class HumanGameplayController:
         # Local imports keep the lightweight/synthetic controller independent
         # from canonical-file verification and FOOTBAL.EXE coefficient loading.
         from canonical_matchday_audit import reconstruct_canonical_primary_schedule
+        from competition_runtime import partition_root_procedural_league_ids
         from fm2001_data import FM2001Database
         from match_coefficients import MatchCoefficientMatrices
         from verify import verify_canonical_files
@@ -122,6 +123,18 @@ class HumanGameplayController:
         game_dir = Path(game_dir)
         verify_canonical_files(game_dir)
         database = FM2001Database(game_dir)
+        english_primary_leagues, english_secondary_leagues = (
+            partition_root_procedural_league_ids(
+                database.competitions,
+                country_region_id=26,
+            )
+        )
+        if english_secondary_leagues:
+            raise RuntimeError(
+                "canonical English procedural League ownership changed: "
+                f"secondary={english_secondary_leagues}"
+            )
+        live_procedural_league_ids = tuple(english_primary_leagues) + (14, 167)
         matrices = MatchCoefficientMatrices.from_executable(
             game_dir / "FOOTBAL.EXE"
         )
@@ -146,11 +159,13 @@ class HumanGameplayController:
         state.install_primary_matchday_order(
             primary_schedule.buckets,
             season_year=2000,
+            procedural_league_ids=live_procedural_league_ids,
         )
         state.install_primary_schedule_shadow(
             primary_schedule.buckets,
             season_year=2000,
         )
+        state.refresh_primary_procedural_leagues(live_procedural_league_ids)
         return cls(
             state,
             matrices.attack,
