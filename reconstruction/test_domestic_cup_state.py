@@ -41,7 +41,7 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
             competition_id=1,
             round_id=38,
             pair_index=0,
-            week=0,
+            week=19,
             weekday=6,
             left=direct_club_ref(10),
             right=direct_club_ref(20),
@@ -65,7 +65,7 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
         )
 
         self.assertEqual(len(state.nodes), 1)
-        self.assertEqual(state.nodes[0].scheduled_date, date(2000, 7, 1))
+        self.assertEqual(state.nodes[0].scheduled_date, date(2000, 11, 18))
         self.assertEqual(state.nodes[0].node_token, ("cup_result", 1, 38, 0))
 
     def test_symbolic_participant_becomes_playable_only_after_prior_result(self):
@@ -90,7 +90,7 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
             season_year=2000,
         )
         registry = CupResultRegistry()
-        due_date = date(2000, 7, 8)
+        due_date = date(2000, 7, 15)
 
         self.assertEqual(state.due_nodes(due_date, registry), ())
 
@@ -130,7 +130,7 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
             season_year=2000,
         )
         registry = CupResultRegistry()
-        second_date = date(2000, 7, 19)
+        second_date = date(2000, 7, 26)
 
         self.assertEqual(state.due_nodes(second_date, registry), ())
 
