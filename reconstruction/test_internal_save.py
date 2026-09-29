@@ -11,6 +11,7 @@ from contract_maintenance import (
     ContractRenewalSuggestionKind,
 )
 from concession_offer import ConcessionRuntimeSource
+from cup_progression import CupMatchResolutionSnapshot
 from finance_state import FinancialObjectiveState
 from game_state import GameState
 from human_gameplay import HumanGameplayController
@@ -81,6 +82,34 @@ class InternalSaveTests(unittest.TestCase):
             coefficient_matrix(),
             text,
         )
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
+    def test_cup_result_registry_survives_roundtrip(self):
+        original = self.build_controller()
+        token = ("cup_result", 1, 38, 0)
+        outcome = original.state.record_cup_match_resolution(
+            token,
+            CupMatchResolutionSnapshot(
+                participant_0_club_id=1,
+                participant_1_club_id=2,
+                score_0=2,
+                score_1=1,
+            ),
+        )
+        self.assertIsNotNone(outcome)
+        self.assertEqual(outcome.winner_club_id, 1)
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(restored.state.cup_results.outcomes, original.state.cup_results.outcomes)
         self.assertEqual(
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),
