@@ -668,6 +668,58 @@ class IntegratedGameStateTests(unittest.TestCase):
             (int(match.base_score_0), int(match.base_score_1)),
         )
 
+    def test_generic_primary_procedural_league_bridge_executes_selected_competition(self):
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 8),
+            seed=1,
+            season_year=2000,
+        )
+        state.competitions[2] = SimpleNamespace(
+            id=2,
+            substitute_quota=5,
+            max_non_eu_players=3,
+        )
+        token = ("league_match", 2, 0, 0)
+        node = StartupScheduleNode(
+            node_kind="league_match",
+            competition_id=2,
+            competition_context=0,
+            round_id=None,
+            pair_index=0,
+            schedule_index=0,
+            scheduled_week=0,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=token,
+        )
+        buckets = ((node,),)
+        state.install_primary_schedule_shadow(buckets, season_year=2000)
+        state.install_primary_matchday_order(
+            buckets,
+            season_year=2000,
+            procedural_league_ids=(2,),
+        )
+        state.refresh_primary_procedural_leagues((2,))
+
+        self.assertEqual(
+            state.primary_entries_due_today(),
+            (("procedural_league", token),),
+        )
+        result = state.simulate_primary_ai_entry(
+            ("procedural_league", token),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MidpointRng(),
+        )
+
+        live = state.procedural_leagues[(2, 0)]
+        stored = live.results[token]
+        self.assertEqual((stored.home_goals, stored.away_goals), result.score)
+        self.assertEqual(sum(row.played for row in live.table()), 2)
+        self.assertEqual(state.procedural_league_nodes_due_today(), ())
+
     def test_primary_ai_entry_executes_procedural_league_and_records_result(self):
         state = GameState.from_database(
             AutonomousDatabase(),
