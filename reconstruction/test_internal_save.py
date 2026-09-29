@@ -658,8 +658,12 @@ class InternalSaveTests(unittest.TestCase):
             (4, 5),
         )
 
+        reload_database = Database()
+        reload_database.competitions = Database.competitions + (
+            SimpleNamespace(id=14, runtime_instance_count=2),
+        )
         restored = loads_human_gameplay(
-            Database(),
+            reload_database,
             coefficient_matrix(),
             coefficient_matrix(),
             dumps_human_gameplay(original),
