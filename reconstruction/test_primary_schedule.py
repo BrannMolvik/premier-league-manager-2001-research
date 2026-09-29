@@ -417,6 +417,62 @@ class Gate12PrimaryMatchdayOrderTests(unittest.TestCase):
         )
 
 
+    def test_gate12_order_preserves_european_group_between_cup_and_pl(self):
+        pl = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=0,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=7,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("fixed_league_match", 0, 0, 77),
+        )
+        group = StartupScheduleNode(
+            node_kind="league_match",
+            competition_id=14,
+            competition_context=3,
+            round_id=None,
+            pair_index=0,
+            schedule_index=0,
+            scheduled_week=7,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(5),
+            participant_1_ref=direct_club_ref(6),
+            node_token=("league_match", 14, 3, 0),
+        )
+        cup = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=5,
+            competition_context=0,
+            round_id=187,
+            pair_index=2,
+            schedule_index=None,
+            scheduled_week=7,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(3),
+            participant_1_ref=direct_club_ref(4),
+            node_token=("cup_result", 5, 187, 2),
+        )
+        buckets = [() for _ in range(55)]
+        buckets[54] = (cup, group, pl)
+
+        self.assertEqual(
+            gate12_primary_matchday_order(buckets, season_year=2000),
+            ((
+                date(2000, 8, 26),
+                (
+                    ("domestic_cup", ("cup_result", 5, 187, 2)),
+                    ("procedural_league", ("league_match", 14, 3, 0)),
+                    ("premier_league", 77),
+                ),
+            ),),
+        )
+
+
 class CanonicalFirstMatchdayShuffleRegressionTests(unittest.TestCase):
     def test_corrected_gate3_state_produces_first_pl_order(self):
         # Canonical complete-node placement at Gate 4:
