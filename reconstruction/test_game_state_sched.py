@@ -2,6 +2,8 @@ import unittest
 from dataclasses import dataclass
 from datetime import date
 
+from competition_schedule import direct_club_ref
+from domestic_cup_state import DomesticCupScheduleState, DomesticCupScheduledNode
 from game_state import GameState
 from match_schedule import MsvcCrtRng
 
@@ -107,6 +109,30 @@ class GameScheduleIntegrationTests(unittest.TestCase):
         state.record_premier_league_result(0, 2, 1)
         self.assertEqual(state.fixtures_due_today(), ())
         self.assertEqual(state.next_match_date(), date(2000, 8, 30))
+
+
+    def test_due_dynamic_replay_without_primary_order_fails_loudly(self):
+        on_date = date(2000, 12, 2)
+        replay_token = ("cup_replay", 1, 38, 0)
+        state = GameState.from_players([], on_date)
+        state.domestic_cups = DomesticCupScheduleState(
+            nodes=(
+                DomesticCupScheduledNode(
+                    node_kind="replay_match",
+                    competition_id=1,
+                    competition_context=0,
+                    round_id=38,
+                    pair_index=0,
+                    scheduled_date=on_date,
+                    participant_0_ref=direct_club_ref(2),
+                    participant_1_ref=direct_club_ref(1),
+                    node_token=replay_token,
+                ),
+            ),
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "0x615A60"):
+            state.primary_entries_due_today()
 
 
     def test_installed_scheduler_order_becomes_default_due_order(self):
