@@ -1,7 +1,16 @@
 import unittest
 
 from competition_startup import CupClubRefDescriptor
-from cup_progression import CupMatchResolutionSnapshot, CupResultRegistry
+from cup_progression import (
+    CUP_MATCH_FIRST_LEG,
+    CUP_MATCH_NORMAL,
+    CUP_MATCH_REPLAY,
+    CUP_MATCH_SECOND_LEG,
+    CupMatchResolutionSnapshot,
+    CupMatchRuntimeState,
+    CupResultRegistry,
+    complete_cup_match,
+)
 
 
 class CupMatchResolutionTests(unittest.TestCase):
@@ -62,6 +71,165 @@ class CupMatchResolutionTests(unittest.TestCase):
         )
 
         self.assertIsNone(second_leg.result_club_id())
+
+
+
+
+class FixedRng:
+    def __init__(self, value):
+        self.value = int(value)
+        self.calls = []
+
+    def randbelow(self, bound):
+        self.calls.append(int(bound))
+        return self.value
+
+
+class CupMatchLifecycleTests(unittest.TestCase):
+    def test_fa_cup_draw_creates_reversed_decisive_replay_without_rng(self):
+        registry = CupResultRegistry()
+        token = ("cup_result", 1, 38, 0)
+        first = CupMatchRuntimeState.normal(
+            token,
+            10,
+            20,
+            extra_time_capable=True,
+            decisive_tiebreak=False,
+        )
+
+        self.assertEqual(first.match_kind, CUP_MATCH_NORMAL)
+        self.assertFalse(first.uses_extra_time)
+
+        completion = complete_cup_match(first, registry, 1, 1)
+
+        self.assertIsNone(completion.outcome)
+        self.assertFalse(completion.used_rng_tiebreak_fallback)
+        self.assertEqual(registry.outcomes, {})
+        replay = completion.replay
+        self.assertIsNotNone(replay)
+        self.assertEqual(replay.match_kind, CUP_MATCH_REPLAY)
+        self.assertEqual(
+            (replay.participant_0_club_id, replay.participant_1_club_id),
+            (20, 10),
+        )
+        self.assertTrue(replay.extra_time_capable)
+        self.assertTrue(replay.uses_extra_time)
+        self.assertTrue(replay.decisive_tiebreak)
+        self.assertIs(replay.prior_match, first)
+        self.assertIs(first.following_match, replay)
+
+        replay_completion = complete_cup_match(replay, registry, 2, 1)
+        self.assertIsNone(replay_completion.replay)
+        self.assertEqual(replay_completion.outcome.winner_club_id, 20)
+        self.assertEqual(registry.outcomes[token].winner_club_id, 20)
+
+    def test_two_leg_pair_reverses_second_leg_and_waits_for_it(self):
+        registry = CupResultRegistry()
+        token = ("cup_result", 5, 185, 3)
+        first, second = CupMatchRuntimeState.two_leg_pair(
+            token,
+            1,
+            2,
+            second_leg_extra_time_capable=True,
+        )
+
+        self.assertEqual(first.match_kind, CUP_MATCH_FIRST_LEG)
+        self.assertEqual(second.match_kind, CUP_MATCH_SECOND_LEG)
+        self.assertEqual(
+            (first.participant_0_club_id, first.participant_1_club_id),
+            (1, 2),
+        )
+        self.assertEqual(
+            (second.participant_0_club_id, second.participant_1_club_id),
+            (2, 1),
+        )
+        self.assertFalse(first.uses_extra_time)
+        self.assertTrue(second.uses_extra_time)
+        self.assertTrue(second.decisive_tiebreak)
+        self.assertIs(first.following_match, second)
+        self.assertIs(second.prior_match, first)
+
+        first_completion = complete_cup_match(first, registry, 2, 1)
+        self.assertIsNone(first_completion.outcome)
+        self.assertEqual(registry.outcomes, {})
+
+        second_completion = complete_cup_match(second, registry, 1, 0)
+        self.assertEqual(second_completion.outcome.winner_club_id, 2)
+        self.assertFalse(second_completion.used_rng_tiebreak_fallback)
+
+    def test_exact_two_leg_tie_consumes_one_rng2_after_event_tiebreak_ties(self):
+        registry = CupResultRegistry()
+        token = ("cup_result", 5, 190, 0)
+        first, second = CupMatchRuntimeState.two_leg_pair(
+            token,
+            1,
+            2,
+            second_leg_extra_time_capable=True,
+        )
+        complete_cup_match(first, registry, 1, 1)
+        rng = FixedRng(0)
+
+        completion = complete_cup_match(
+            second,
+            registry,
+            1,
+            1,
+            rng=rng,
+            tiebreak_event_score_0=4,
+            tiebreak_event_score_1=4,
+        )
+
+        self.assertEqual(rng.calls, [2])
+        self.assertTrue(completion.used_rng_tiebreak_fallback)
+        self.assertEqual(second.tiebreak_score_0, 4)
+        self.assertEqual(second.tiebreak_score_1, 5)
+        self.assertEqual(completion.outcome.winner_club_id, 1)
+
+    def test_event_tiebreak_that_already_resolves_match_consumes_no_rng(self):
+        registry = CupResultRegistry()
+        token = ("cup_result", 5, 190, 1)
+        first, second = CupMatchRuntimeState.two_leg_pair(
+            token,
+            1,
+            2,
+            second_leg_extra_time_capable=True,
+        )
+        complete_cup_match(first, registry, 1, 1)
+        rng = FixedRng(1)
+
+        completion = complete_cup_match(
+            second,
+            registry,
+            1,
+            1,
+            rng=rng,
+            tiebreak_event_score_0=5,
+            tiebreak_event_score_1=4,
+        )
+
+        self.assertEqual(rng.calls, [])
+        self.assertFalse(completion.used_rng_tiebreak_fallback)
+        self.assertEqual(completion.outcome.winner_club_id, 2)
+
+    def test_decisive_single_match_exact_tie_uses_same_rng2_fallback(self):
+        registry = CupResultRegistry()
+        token = ("cup_result", 1, 43, 0)
+        match = CupMatchRuntimeState.normal(
+            token,
+            10,
+            20,
+            extra_time_capable=True,
+            decisive_tiebreak=True,
+        )
+        rng = FixedRng(1)
+
+        completion = complete_cup_match(match, registry, 0, 0, rng=rng)
+
+        self.assertTrue(match.uses_extra_time)
+        self.assertEqual(rng.calls, [2])
+        self.assertEqual(match.tiebreak_score_0, 1)
+        self.assertEqual(match.tiebreak_score_1, 0)
+        self.assertEqual(completion.outcome.winner_club_id, 10)
 
 
 class CupResultRegistryTests(unittest.TestCase):
