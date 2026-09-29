@@ -43,11 +43,11 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 implementation checkpoint:
 
 ```text
-474086bb26fe7185b0022ea84568653b443d8e0f
-Match European source identity in save regression
+30bba781d568098c2cd28ba8153a57710ea70f34
+Use canonical bucket date in generic LeagueMatch test
 ```
 
-GitHub Actions at that checkpoint ran **780 tests with 2 failures**, exactly
+GitHub Actions at that checkpoint ran **781 tests with 2 failures**, exactly
 the unchanged known secondary-schedule assertions; repository asset policy
 passed. The European runtime bridge is now covered end-to-end: live child
 groups publish type-2 standings and source-backed type-3 cross-group pools,
@@ -152,14 +152,17 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 1. Preserve all verified English domestic-Cup and European execution,
    ClubRef progression, shared primary-order, human-controller and save/reload
    behavior. Do not reopen solved draw/allocation work.
-2. Move to Gate 12's next roadmap slice: **other required English
-   league/divisional structures**.
-3. Audit the already-materialized English non-Premier-League competition nodes
-   and runtime formats first. Identify which structures already map onto the
-   generic League/Cup machinery and the first format whose live state,
-   progression, calendar execution, or save/reload bridge is still missing.
-4. Add deterministic regression coverage for that first missing runtime bridge
-   before expanding to later competition formats.
+2. Gate 12's generic primary `league_match` bridge is now verified at
+   `30bba781`: callers can supply source-backed competition IDs to both the
+   primary-order view and live procedural-League materializer without changing
+   the verified Champions League defaults.
+3. Continue the **English league/divisional audit** by proving from canonical
+   source/materializer evidence which English divisions use this primary
+   procedural-League path and which belong to the secondary schedule container.
+   Do not hard-code guessed competition IDs.
+4. Once the exact English IDs/container ownership are proven, attach the first
+   required divisional set to the generic bridge and verify execution plus
+   save/reload deterministically.
 5. Keep the special English domestic-Cup category-1/category-2 posting policy
    as a separate deferred fidelity gap unless it directly blocks the new
    divisional runtime slice.
