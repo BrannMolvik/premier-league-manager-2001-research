@@ -227,6 +227,116 @@ This primitive intentionally stops before GameState replacement. It proves the
 annual primary generation mechanics while keeping unresolved cross-season Cup
 qualification/finalization state from being silently guessed.
 
+## Annual qualification and DummyLeague source refresh
+
+The two DBRClub fields originally loaded from Master.dat as startup
+historical/qualification state are also rewritten by the executable at every
+season boundary.
+
+### League/DummyLeague qualification enumeration
+
+League vtable `0x7C9AC0` maps virtual `+0x0C` to `0x4F8000`.
+After end-of-season ranking work, `0x4F8000` calls `0x4F7F70`.
+
+`0x4F7F70`:
+
+1. finalizes child competitions through `0x4F7F40`;
+2. walks the sorted current League array at `+0x34`;
+3. copies each resolved club pointer into the dedicated qualification
+   enumeration array at `+0x30` at the same zero-based index;
+4. for root Leagues (parent pointer `+0x04 == 0`), writes that same index to
+   **club+0x30**.
+
+Then annual finalizer `0x4F9010`, immediately after
+`0x616A70` and **before** LeagueAllocation promotion/relegation swaps, walks
+clubs in the finalized schedule container and writes:
+
+```text
+club+0x2C = low byte of club+0x10
+```
+
+Thus the next-season type-3 qualification pair is exactly:
+
+```text
+club+0x2C = competition the club just finished
+club+0x30 = zero-based final position in that competition
+```
+
+LeagueAllocation later changes current membership at club+0x10 through
+`0x405700` but does not overwrite +0x2C/+0x30. A promoted or relegated club
+therefore enters the new season with separate values for **new membership** and
+**prior-season qualification source/slot**.
+
+This maps directly onto the clean-room startup-compatible fields
+`historical_competition_id` / `historical_slot_index`; annual code must
+overlay them from exact final rankings rather than reuse the shipped
+Master.dat values.
+
+### Cup qualification enumeration
+
+Cup vtable `0x7C9B58` maps virtual `+0x0C` to `0x4F8F80` and virtual
+`+0x1C` to enumerator `0x4F5770`.
+
+During the same `0x616A70` finalization pass, `0x4F8F80` finalizes the
+Cup, resolves the completed result club and opposite/finalist path, and stores
+the two persistent enumeration pointers at:
+
+```text
+Cup+0x40
+Cup+0x44
+```
+
+`0x4F5770` is the later type-3 source accessor for exactly those two values.
+Annual Cup-to-Cup type-3 allocation must therefore use the just-finished Cup
+result pair and must not fall back to the two shipped first-season
+DBRCompetition club references.
+
+### DummyLeague annual re-sort
+
+DummyLeague vtable `0x7C9A80` maps annual init virtual `+0x00` to
+`0x4F5130`. Every call clears bit 0 of byte `+0x40` before common child
+initialization.
+
+`League::EnsureSorted 0x4F4940` tests that same bit. If clear, it dispatches
+virtual `+0x38`; DummyLeague maps that slot to RNG-bearing `0x4F4750`, then
+sets the bit again.
+
+This proves a reused DummyLeague runtime object receives a **fresh one-time
+lazy ranking each new season**. Canonical primary Cup allocation makes this
+immediately relevant: FA Cup allocation instruction **ID 3** is type 5 from
+Conference 2 (competition 89), quantity 10. Therefore annual FA Cup
+construction is the legitimate first next-season consumer that can re-sort
+Conference 2 after its membership has changed.
+
+The clean-room annual materializer must feed that sort:
+
+- post-LeagueAllocation current Conference 2 membership;
+- current live player ratings/club rosters at the annual construction point;
+- the same annual competition CRT stream.
+
+It must not carry the prior season's cached Conference 2 ranking into the new
+FA Cup draw.
+
+### Annual materializer safeguards
+
+`materialize_annual_primary_schedule()` now separates current membership from
+finished-season qualification state:
+
+- `competition_id` comes from the post-swap live membership map;
+- annual League/Dummy type-3 sources require an explicit exact
+  `qualification_rankings_by_competition`;
+- those rankings overlay the source-compatible
+  `historical_competition_id/historical_slot_index` fields;
+- annual Cup type-3 sources require explicit
+  `cup_enumerated_club_ids_by_source`;
+- missing refreshed type-3 state raises instead of silently reusing shipped
+  startup references.
+
+A regression deliberately relegates a club after it finished first in a source
+League. The club remains selected by annual type-3 Cup allocation from its
+finished-season ranking while its new current membership is already the lower
+League, reproducing the executable's separated +0x10 versus +0x2C/+0x30 state.
+
 ## Current implementation boundary
 
 Already verified and preserved:
