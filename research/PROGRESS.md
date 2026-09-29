@@ -7606,3 +7606,21 @@ now-verified procedural-League state.
 - Repository asset policy passed.
 - Gate 12 now advances to the roadmap's next slice: other required English
   league/divisional structures.
+
+
+### 2026-09-29 - Generic primary LeagueMatch bridge verified
+
+- Generalized the Europe-specific live procedural-League materializer into
+  `refresh_primary_procedural_leagues(competition_ids)`, retaining the
+  Champions League wrapper and defaults.
+- Parameterized `install_primary_matchday_order()` so source-backed
+  procedural-League IDs can be exposed in canonical shuffled bucket order.
+- Added a non-European synthetic competition regression proving selected
+  `league_match` nodes can materialize, become due in bucket order, execute
+  through the shared MatchCalculator path, and persist their live table result.
+- Verified checkpoint:
+  `30bba781d568098c2cd28ba8153a57710ea70f34`.
+- GitHub Actions ran **781 tests** with only the two unchanged known
+  secondary-schedule failures; repository asset policy passed.
+- Next: prove exact English division IDs and primary/secondary schedule-container
+  ownership from source evidence before wiring real divisional competitions.
