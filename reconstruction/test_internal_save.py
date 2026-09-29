@@ -161,6 +161,42 @@ class InternalSaveTests(unittest.TestCase):
             snapshot_human_gameplay(original),
         )
 
+    def test_primary_schedule_shadow_survives_roundtrip(self):
+        original = self.build_controller()
+        node = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=1,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=1,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("fixed_league_match", 0, 0, 99),
+        )
+        original.state.install_primary_schedule_shadow(
+            ((node,),),
+            season_year=2000,
+        )
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.primary_schedule_shadow,
+            original.state.primary_schedule_shadow,
+        )
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
     def test_primary_matchday_order_survives_roundtrip(self):
         original = self.build_controller()
         original.state.primary_matchday_order = {

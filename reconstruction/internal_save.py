@@ -27,6 +27,7 @@ from contract_maintenance import (
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from game_state import GameCalendar, GameState
 from human_gameplay import HumanGameplayController, HumanManagerState
+from primary_schedule_shadow import PrimaryScheduleShadowState
 from match_environment import MatchEnvironment
 from match_events import (
     BoundaryRecord,
@@ -55,7 +56,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 27
+SAVE_SCHEMA_VERSION = 28
 
 
 def _iso(value: date | None) -> str | None:
@@ -1019,6 +1020,7 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             str(int(round_index)): [int(v) for v in values]
             for round_index, values in sorted(state.premier_league_scheduler_order.items())
         },
+        "primary_schedule_shadow": state.primary_schedule_shadow.snapshot(),
         "primary_matchday_order": {
             on_date.isoformat(): [
                 (
@@ -1328,6 +1330,9 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             int(round_index): tuple(int(v) for v in values)
             for round_index, values in snapshot["premier_league_scheduler_order"].items()
         },
+        primary_schedule_shadow=PrimaryScheduleShadowState.restore(
+            snapshot.get("primary_schedule_shadow", {})
+        ),
         primary_matchday_order={
             date.fromisoformat(on_date): tuple(
                 (

@@ -143,6 +143,10 @@ class HumanGameplayController:
             primary_schedule.buckets,
             season_year=2000,
         )
+        state.install_primary_schedule_shadow(
+            primary_schedule.buckets,
+            season_year=2000,
+        )
         return cls(
             state,
             matrices.attack,

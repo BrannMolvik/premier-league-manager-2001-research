@@ -76,6 +76,7 @@ from match_orders import TeamOrderPriorities
 from match_role_rating import best_preferred_role_rating
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
 from match_team_setup import TeamTacticalState, initialize_ai_roster_condition
+from primary_schedule_shadow import PrimaryScheduleShadowState
 from runtime_state import RuntimePlayer, derive_non_eu_status
 from stadium_state import StadiumSourceState, TicketRuntimeState
 from transfer_state import TransferRuntimeState
@@ -146,6 +147,9 @@ class GameState:
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
     premier_league_scheduler_order: dict[int, tuple[int, ...]] = field(default_factory=dict)
     primary_matchday_order: dict[date, tuple[tuple, ...]] = field(default_factory=dict)
+    primary_schedule_shadow: PrimaryScheduleShadowState = field(
+        default_factory=lambda: PrimaryScheduleShadowState(days={})
+    )
     transfers: TransferRuntimeState = field(default_factory=TransferRuntimeState)
     # Controlled 0x41BEE0 queues MPMEAMail renewal suggestions rather than
     # auto-renewing the contract. Keep the source event kind/date/player
@@ -1892,6 +1896,34 @@ class GameState:
     def resolve_cup_club_ref(self, ref):
         """Resolve a Cup ClubRef against live GameState result state."""
         return self.cup_results.resolve_club_ref(ref)
+
+    def install_primary_schedule_shadow(
+        self,
+        buckets,
+        *,
+        season_year: int,
+    ) -> PrimaryScheduleShadowState:
+        """Retain all primary-container participants for 0x615D10 lookups."""
+        self.primary_schedule_shadow = (
+            PrimaryScheduleShadowState.from_primary_schedule_buckets(
+                buckets,
+                season_year=int(season_year),
+            )
+        )
+        return self.primary_schedule_shadow
+
+    def next_primary_match_date_for_club(
+        self,
+        club_id: int,
+        *,
+        after_date: date | None = None,
+    ) -> date | None:
+        """Return the exact next primary-container match date when resolvable."""
+        return self.primary_schedule_shadow.next_match_date(
+            int(club_id),
+            self.calendar.current_date if after_date is None else after_date,
+            self.cup_results.resolve_club_ref,
+        )
 
     def install_primary_matchday_order(
         self,

@@ -1,8 +1,13 @@
 import unittest
 from datetime import date
 
+from competition_startup import CupClubRefDescriptor
 from competition_schedule import StartupScheduleNode, direct_club_ref
 from match_schedule import MsvcCrtRng
+from primary_schedule_shadow import (
+    PrimaryScheduleResolutionPending,
+    PrimaryScheduleShadowState,
+)
 from primary_schedule import (
     fixed_league_fixture_order_by_round,
     gate12_primary_matchday_order,
@@ -129,6 +134,189 @@ class PrimaryScheduleExecutionOrderTests(unittest.TestCase):
                 (10, (101, 100)),
                 (11, (102,)),
             ),
+        )
+
+
+class PrimaryScheduleShadowTests(unittest.TestCase):
+    def test_next_match_scan_ignores_unrelated_symbolic_candidate(self):
+        source = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=9,
+            competition_context=0,
+            round_id=90,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=1,
+            participant_0_ref=direct_club_ref(7),
+            participant_1_ref=direct_club_ref(8),
+            node_token=("cup_result", 9, 90, 0),
+        )
+        symbolic = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=9,
+            competition_context=0,
+            round_id=91,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=2,
+            participant_0_ref=CupClubRefDescriptor(
+                type_code=1,
+                selector=0,
+                reference_token=("cup_result", 9, 90, 0),
+            ),
+            participant_1_ref=direct_club_ref(10),
+            node_token=("cup_result", 9, 91, 0),
+        )
+        target = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=1,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=3,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("fixed_league_match", 0, 0, 1),
+        )
+        buckets = [(source,), (symbolic,), (target,)]
+        shadow = PrimaryScheduleShadowState.from_primary_schedule_buckets(
+            buckets,
+            season_year=2000,
+        )
+
+        self.assertEqual(
+            shadow.next_match_date(1, date(2000, 7, 2), lambda _ref: None),
+            date(2000, 7, 5),
+        )
+
+    def test_next_match_scan_refuses_earlier_unresolved_possible_participant(self):
+        source = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=9,
+            competition_context=0,
+            round_id=90,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=1,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(8),
+            node_token=("cup_result", 9, 90, 0),
+        )
+        symbolic = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=9,
+            competition_context=0,
+            round_id=91,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=2,
+            participant_0_ref=CupClubRefDescriptor(
+                type_code=1,
+                selector=0,
+                reference_token=("cup_result", 9, 90, 0),
+            ),
+            participant_1_ref=direct_club_ref(10),
+            node_token=("cup_result", 9, 91, 0),
+        )
+        target = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=1,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=3,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("fixed_league_match", 0, 0, 1),
+        )
+        shadow = PrimaryScheduleShadowState.from_primary_schedule_buckets(
+            [(source,), (symbolic,), (target,)],
+            season_year=2000,
+        )
+
+        with self.assertRaises(PrimaryScheduleResolutionPending) as caught:
+            shadow.next_match_date(1, date(2000, 7, 2), lambda _ref: None)
+        self.assertEqual(caught.exception.on_date, date(2000, 7, 4))
+
+    def test_resolved_symbolic_ref_proves_same_date(self):
+        token = ("cup_result", 1, 1, 0)
+        source = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=1,
+            competition_context=0,
+            round_id=1,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=1,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=token,
+        )
+        future = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=1,
+            competition_context=0,
+            round_id=2,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=2,
+            participant_0_ref=CupClubRefDescriptor(
+                type_code=1,
+                selector=0,
+                reference_token=token,
+            ),
+            participant_1_ref=direct_club_ref(3),
+            node_token=("cup_result", 1, 2, 0),
+        )
+        shadow = PrimaryScheduleShadowState.from_primary_schedule_buckets(
+            [(source,), (future,)],
+            season_year=2000,
+        )
+
+        self.assertEqual(
+            shadow.next_match_date(
+                1,
+                date(2000, 7, 2),
+                lambda ref: (
+                    1
+                    if ref.reference_token == token and int(ref.type_code) == 1
+                    else ref.direct_club_id
+                ),
+            ),
+            date(2000, 7, 4),
+        )
+
+    def test_shadow_snapshot_roundtrip_preserves_candidate_graph(self):
+        node = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=1,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=1,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("fixed_league_match", 0, 0, 1),
+        )
+        shadow = PrimaryScheduleShadowState.from_primary_schedule_buckets(
+            [(node,)],
+            season_year=2000,
+        )
+        self.assertEqual(
+            PrimaryScheduleShadowState.restore(shadow.snapshot()),
+            shadow,
         )
 
 
