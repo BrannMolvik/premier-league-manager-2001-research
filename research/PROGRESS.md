@@ -7040,3 +7040,28 @@ Exact next task: audit the recovered generic competition/cup runtime against the
 canonical English domestic cups (FA Cup and League Cup first) and identify the
 first source-backed missing behavior required to connect them to the human
 Premier League season.
+
+
+## Gate 12 Cup result registry bridged to shared match virtual - 29 September 2026
+
+Recovery generation 59 resumed canonical `main` at
+`64c4f24c0e448f11f40c49a301b05b9e35e67fc0` after the English domestic-cup
+startup audit and the initial Cup result-reference work.
+
+The already-persisted sequence had established a result-token registry, exact
+winner/loser ClubRef resolution, and the shared CupMatch result virtual
+`0x514000`. Commit `87d3c2b0b92da0cd2441455b1ac4d8811b84f457`
+now removes the remaining manual-winner handoff at that boundary:
+`CupResultRegistry.record_match_resolution()` records only when the shared
+virtual resolves a definitive club. A drawn/incomplete snapshot leaves the
+token unconsumed so a later Replay/SecondLeg object can provide the definitive
+outcome.
+
+GitHub Actions at that checkpoint ran **690 tests**. The only two failures are
+the same pre-existing secondary root-order and bucket-count assertions. All new
+Cup result/progression tests pass, and repository asset policy passes.
+
+Exact next task: trace the class-specific Cup completion producer path,
+starting with FA Cup NormalRound Replay creation/completion and League Cup
+TwoLeg SecondLeg linkage plus the exact tied-aggregate continuation. Do not
+attach Cup nodes to GameState until this path is source-backed.

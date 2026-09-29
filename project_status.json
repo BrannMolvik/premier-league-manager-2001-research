@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate 12: audit the recovered generic competition runtime against canonical English domestic cups, starting with the FA Cup and League Cup, and identify the first source-backed missing integration needed to connect them to the human Premier League season.",
+  "current_task": "Gate 12: trace the class-specific Cup completion producer path after the verified shared 0x514000 result virtual, starting with FA Cup NormalRound Replay creation/completion and League Cup TwoLeg SecondLeg/tied-aggregate continuation. Do not attach Cup nodes to GameState until definitive outcomes are source-backed.",
   "last_verified_reconstruction_failures": 2,
   "last_verified_asset_policy_head": "22027de93df54fe7a83151ba642f6d0f86ecc93f",
   "gate11_danger_morale_request_integrated": true,
@@ -291,5 +291,16 @@
   "gate11_closure_checkpoint": "d0c66fca49dd38067558b0f99dbb13611f14fced",
   "gate11_completion_audit": "research/GATE11_COMPLETION_AUDIT.md",
   "gate11_full_human_season_head": "22027de93df54fe7a83151ba642f6d0f86ecc93f",
-  "gate11_full_human_season_test_count": 676
+  "gate11_full_human_season_test_count": 676,
+  "gate12_english_domestic_cup_audit": true,
+  "gate12_cup_result_registry": true,
+  "gate12_shared_match_result_virtual": true,
+  "gate12_snapshot_registry_bridge": true,
+  "gate12_verified_head": "87d3c2b0b92da0cd2441455b1ac4d8811b84f457",
+  "gate12_verified_test_count": 690,
+  "gate12_known_ci_failures": [
+    "secondary root order assertion",
+    "secondary bucket count 262 vs 280"
+  ],
+  "gate12_evidence": "research/GATE12_ENGLISH_DOMESTIC_CUPS.md"
 }

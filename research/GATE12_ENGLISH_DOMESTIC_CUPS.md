@@ -159,3 +159,43 @@ that unlocks domestic-cup progression without guessing score/replay rules.
 
 This sequencing preserves the solved startup RNG stream and avoids inventing
 domestic-cup result semantics.
+
+
+## Live result-resolution checkpoint
+
+The first live-runtime bridge is now implemented and verified.
+
+Checkpoints:
+
+- `9f6e39f7`: persistent Cup result-token registry and exact type-0/type-1
+  ClubRef resolution;
+- `4167244b`: deterministic winner/loser selector and next-round resolution
+  tests;
+- `c2334465`: shared CupMatch virtual `+0x44` / `0x514000` modeled from
+  match-state snapshots, including linked reversed-leg aggregate totals;
+- `64c4f24c`: single-match, two-leg and exact-tie virtual-semantics tests;
+- `87d3c2b0`: definitive snapshots can populate the persistent registry
+  directly; unresolved draws do not consume the result token and can therefore
+  be superseded by a later Replay/SecondLeg object.
+
+GitHub Actions at `87d3c2b0b92da0cd2441455b1ac4d8811b84f457`
+ran **690 reconstruction tests**. The only two failures are the unchanged
+secondary root-order and secondary bucket-count assertions already present
+before Gate 12. All new Cup tests pass. Repository asset policy passes.
+
+### Active trace
+
+The shared result virtual is no longer the missing piece. The next dependency is
+the class-specific producer path that makes a knockout result definitive:
+
+1. trace NormalRound draw handling into FA Cup Replay object creation,
+   linkage, schedule insertion and completion;
+2. trace TwoLegRound first-leg state into the reversed SecondLeg object;
+3. for an exact tied aggregate where `0x514000` still returns no club, trace
+   the source-backed continuation/tie-break path rather than guessing
+   extra-time or penalties;
+4. only after those paths are instruction-closed should the clean-room
+   construct a definitive `CupMatchResolutionSnapshot` and record it.
+
+Domestic Cup nodes remain deliberately outside `GameState` until this
+producer path is source-backed.
