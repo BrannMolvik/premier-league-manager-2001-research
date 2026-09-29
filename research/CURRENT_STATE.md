@@ -45,22 +45,23 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 code checkpoint:
 
 ```text
-3e571f6b3cc4273e7542c96577522f2435b94699
-Test atomic annual controller regeneration
+39d8e4ec4bfccea35671ca30c8dfee3505bcf1b9
+Complete qualification snapshot test owners
 ```
 
-GitHub Actions at that checkpoint ran **812 tests with 2 failures**, exactly
-the unchanged known secondary-schedule assertions; the annual state/RNG
-transaction regressions passed and repository asset policy passed. The European runtime bridge is now covered end-to-end: live child
+GitHub Actions at that checkpoint ran **817 tests with 2 failures**, exactly
+the unchanged known secondary-schedule assertions; the annual qualification
+Cup/runtime, source-continuity, and state/RNG transaction regressions passed,
+and repository asset policy passed. The European runtime bridge is now covered end-to-end: live child
 groups publish type-2 standings and source-backed type-3 cross-group pools,
 Champions League / UEFA Cup knockout nodes execute through the shared CupMatch
 runtime in canonical primary order for AI and human control, and a real
 type-3 Champions-League-group -> UEFA knockout dependency survives save/reload.
 
-Internal save schema is now **33** and preserves the European Cup schedule,
-live procedural-League fixtures/results, type-2/type-3 rankings, and the new
-live club-competition-membership map used by source-backed annual
-promotion/relegation exchanges.
+Internal save schema is now **34** and additionally preserves the separate
+annual-qualification Cup owner. European Cup schedules, live procedural-League
+fixtures/results, type-2/type-3 rankings, club-competition membership, domestic
+Cup state, and qualification-Cup state all survive reload.
 
 The active Cup slice now has:
 
@@ -162,18 +163,19 @@ Do not rebuild solved Cup startup RNG/draw behavior.
    into played Leagues `(0, 17, 21, 27, 31, 40, 50, 54)` and 44
    DummyLeagues. The played sources are already included in canonical live
    procedural-League coverage.
-3. Preserve/publish every required startup/current-season DummyLeague ranking
-   from the already-materialized lazy-sort output. Do not consume extra RNG or
-   re-sort a DummyLeague merely to populate rollover state. The new startup
-   guard must verify the required set exists before it is treated as closed.
-4. Make every required annual Cup source
-   `(1, 5, 9, 10, 19, 23, 33, 91, 98, 101)` live through its final and expose
-   its exact `(winner, loser)` pair. Reuse the existing generic CupMatch
-   backend and primary schedule; do not rebuild draw logic.
-5. Once all required live sources can complete, run a real canonical
-   end-of-season snapshot -> promotion/relegation -> annual materialization ->
-   atomic replacement regression. Missing qualification sources must remain an
-   explicit failure, never a shipped historical fallback.
+3. Preserve the verified startup/current-season DummyLeague rankings already
+   published from lazy-sort output. Do not consume extra RNG or re-sort a
+   DummyLeague merely to populate rollover state.
+4. Preserve all ten required annual Cup sources
+   `(1, 5, 9, 10, 19, 23, 33, 91, 98, 101)` in their live domestic,
+   European, or qualification-Cup owners through their finals. Their exact
+   `(winner, loser)` final pair is now exposed without rebuilding draw logic.
+5. Run the real canonical primary season until every required played-League
+   ranking and Cup final pair is live, capture the complete qualification
+   snapshot, then execute promotion/relegation -> annual materialization ->
+   atomic replacement. Verify the regenerated year-two primary runtime keeps
+   all played annual qualification-source Leagues live. Missing qualification
+   sources must remain an explicit failure, never a shipped historical fallback.
 
 ## Known live fidelity boundaries
 
@@ -196,10 +198,11 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   freshly shuffled. Cross-season qualification requirements, DummyLeague invalidation/lazy-sort
   timing, primary-root finalization order, and the positional Cup final pair
   are source-backed. Annual primary state replacement is now atomic and
-  controller-CRT-owned. The active Gate-12 gap is complete **live** canonical
-  qualification coverage: all required DummyLeague rankings and all ten annual
-  Cup final pairs must be available before the real rollover transaction can
-  execute.
+  controller-CRT-owned. All required startup DummyLeague rankings and all ten annual Cup source owners
+  are now wired, and annual regeneration preserves every played qualification
+  League into the following season. The active Gate-12 gap is the **real
+  canonical end-to-end proof**: finish the live primary season, capture the
+  complete qualification snapshot, and execute the atomic year-two rollover.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
