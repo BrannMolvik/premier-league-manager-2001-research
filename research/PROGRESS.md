@@ -7814,3 +7814,40 @@ now-verified procedural-League state.
 - Next: close `0x615A60` dynamic replay insertion ordering from source-backed
   evidence, integrate that exact order, then run the real canonical annual
   qualification + atomic rollover audit.
+
+
+### 2026-09-30 - Canonical annual rollover audit staged behind replay-order guard
+
+- Traced the autonomous primary-season path far enough to expose one remaining
+  scheduler-fidelity boundary: runtime FA Cup Replays are created through
+  `0x51392A..0x5139BA -> 0x615A60` after the startup primary bucket shuffle,
+  while persisted Gate-4 evidence proves head insertion only for the different
+  startup routine `0x615950` before `0x615AE0`. No persisted instruction
+  trace proves the post-shuffle same-day insertion position of `0x615A60`.
+- Corrected the full-primary shadow documentation so its tuple prepend is not
+  misrepresented as scheduler-order evidence.
+- Searched repository research/history, connected Dropbox, connected Google
+  Drive, and the current execution workspace for the authorized canonical
+  executable or a saved `0x615A60` trace. None was accessible in this session.
+- Added an explicit fidelity guard: if a dynamic FA Cup Replay reaches its due
+  date without a source-ordered primary scheduler entry,
+  `GameState.primary_entries_due_today()` raises instead of silently skipping
+  the replay or guessing append/prepend semantics.
+- Added regression coverage for that guard.
+- Added `reconstruction/canonical_annual_rollover_audit.py`. It constructs the
+  canonical runtime from the authorized game directory, advances only through
+  the shared primary AI scheduler, waits for both the complete live annual
+  qualification snapshot and English transition, then performs the existing
+  atomic regeneration and validates year-two membership, RNG, Premier League,
+  primary-order, and played annual-source continuity.
+- Verified code checkpoint:
+  `70307af0549f6bacd4bc1951e3cdb6ef63df0c5b`.
+- GitHub Actions ran **819 tests with 2 failures**, exactly the two unchanged
+  secondary-container assertions. The new replay guard passed; repository asset
+  policy passed.
+- The audit has not been run against canonical game data because the authorized
+  FM2001 files are not currently accessible through GitHub, Drive, Dropbox, or
+  the execution workspace.
+- Next: recover/source-close exact `0x615A60` dynamic replay insertion order,
+  then run the canonical annual audit against the authorized game directory and
+  close the year-two Gate-12 proof if it passes.
