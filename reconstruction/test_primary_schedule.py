@@ -304,6 +304,48 @@ class PrimaryScheduleShadowTests(unittest.TestCase):
             date(2000, 7, 4),
         )
 
+    def test_dynamic_replay_insert_becomes_next_primary_match(self):
+        later = StartupScheduleNode(
+            node_kind="fixed_league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=1,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=4,
+            scheduled_weekday=1,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("fixed_league_match", 0, 0, 1),
+        )
+        shadow = PrimaryScheduleShadowState.from_primary_schedule_buckets(
+            [(), (), (), (), (later,)],
+            season_year=2000,
+        )
+        replay = StartupScheduleNode(
+            node_kind="replay_match",
+            competition_id=1,
+            competition_context=0,
+            round_id=38,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=None,
+            scheduled_weekday=None,
+            participant_0_ref=direct_club_ref(2),
+            participant_1_ref=direct_club_ref(1),
+            node_token=("cup_replay", 1, 38, 0),
+        )
+        shadow.insert_dynamic_node(replay, on_date=date(2000, 7, 5))
+
+        self.assertEqual(
+            shadow.next_match_date(
+                1,
+                date(2000, 7, 3),
+                lambda ref: ref.direct_club_id,
+            ),
+            date(2000, 7, 5),
+        )
+
     def test_shadow_snapshot_roundtrip_preserves_candidate_graph(self):
         node = StartupScheduleNode(
             node_kind="fixed_league_match",

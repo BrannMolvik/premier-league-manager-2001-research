@@ -165,6 +165,36 @@ class PrimaryScheduleShadowState:
             )
         return cls(days=days)
 
+    def insert_dynamic_node(
+        self,
+        node,
+        *,
+        on_date: date,
+    ) -> PrimaryScheduleShadowEntry:
+        """Insert a runtime-created match into the live primary shadow.
+
+        FA Cup Replay objects are inserted after startup. Their participants
+        are already direct resolved clubs, so no fixed-point propagation is
+        required. Preserve 0x615950 head-insertion order within the date.
+        """
+        def candidates(ref: CupClubRefDescriptor) -> frozenset[int]:
+            if ref.direct_club_id is None:
+                return frozenset()
+            return frozenset((int(ref.direct_club_id),))
+
+        entry = PrimaryScheduleShadowEntry(
+            node_kind=str(node.node_kind),
+            competition_id=int(node.competition_id),
+            competition_context=int(node.competition_context),
+            node_token=tuple(node.node_token),
+            participant_0_ref=node.participant_0_ref,
+            participant_1_ref=node.participant_1_ref,
+            participant_0_candidates=candidates(node.participant_0_ref),
+            participant_1_candidates=candidates(node.participant_1_ref),
+        )
+        self.days[on_date] = (entry,) + tuple(self.days.get(on_date, ()))
+        return entry
+
     def next_match_date(
         self,
         club_id: int,

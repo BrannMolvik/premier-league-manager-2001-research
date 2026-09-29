@@ -2143,6 +2143,13 @@ class GameState:
             current_date=self.calendar.current_date,
             rng=rng,
         )
+        if completion.replay is not None and self.primary_schedule_shadow.days:
+            replay_node = self.domestic_cups.node(completion.replay.node_token)
+            self.primary_schedule_shadow.insert_dynamic_node(
+                replay_node,
+                on_date=replay_node.scheduled_date,
+            )
+
 
         sync_post_match_conditions(
             home_side,
@@ -2297,6 +2304,13 @@ class GameState:
             current_date=self.calendar.current_date,
             rng=rng,
         )
+        if completion.replay is not None and self.primary_schedule_shadow.days:
+            replay_node = self.domestic_cups.node(completion.replay.node_token)
+            self.primary_schedule_shadow.insert_dynamic_node(
+                replay_node,
+                on_date=replay_node.scheduled_date,
+            )
+
 
         sync_post_match_conditions(home_side, home_participants)
         sync_post_match_conditions(away_side, away_participants)
