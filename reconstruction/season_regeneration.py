@@ -192,6 +192,10 @@ def capture_annual_type3_qualification_snapshot(
                     int(competition_id),
                     state.cup_results,
                 ),
+                state.qualification_cups.competition_final_pair(
+                    int(competition_id),
+                    state.cup_results,
+                ),
             )
             if pair is not None
         )
