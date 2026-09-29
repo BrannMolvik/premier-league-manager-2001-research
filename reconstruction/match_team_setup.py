@@ -393,16 +393,20 @@ def strategy_team_rating(players: Sequence[StrategyRatingPlayer]) -> int:
     )
 
 
-def premier_league_strategy_bias(
+def league_strategy_bias(
     table_rows: Sequence[LeagueStrategyRow],
     club_id: int,
     *,
-    total_matches: int = 38,
+    total_matches: int,
+    automatic_promotion_places: int = 0,
+    playoff_places: int = 0,
+    relegation_places: int = 0,
 ) -> int:
-    """Reconstruct the 0x409680 league-position bias for the Premier League.
+    """Reproduce the generic League branch of 0x409680 from proven cut lines.
 
-    The shipped top division has no promotion/playoff cut and three relegation
-    places, so only title and avoid-relegation objectives can become active.
+    0x4F8C50 supplies title/promotion/playoff/relegation gaps from the live
+    sorted League table. The competition-specific boundary counts are explicit
+    inputs here so callers cannot silently inherit Premier League policy.
     """
     rows = tuple(table_rows)
     target = int(club_id)
@@ -418,11 +422,28 @@ def premier_league_strategy_bias(
     gaps = league_objective_gaps_from_sorted_points(
         [int(item.points) for item in rows],
         rank,
+        automatic_promotion_places=int(automatic_promotion_places),
+        playoff_places=int(playoff_places),
+        relegation_places=int(relegation_places),
+    )
+    return late_season_league_strategy_bias(gaps, matches_remaining)
+
+
+def premier_league_strategy_bias(
+    table_rows: Sequence[LeagueStrategyRow],
+    club_id: int,
+    *,
+    total_matches: int = 38,
+) -> int:
+    """Premier League specialization of the generic 0x409680 League branch."""
+    return league_strategy_bias(
+        table_rows,
+        club_id,
+        total_matches=int(total_matches),
         automatic_promotion_places=0,
         playoff_places=0,
         relegation_places=3,
     )
-    return late_season_league_strategy_bias(gaps, matches_remaining)
 
 class ManagerFormationSource(Protocol):
     formation_default: int
