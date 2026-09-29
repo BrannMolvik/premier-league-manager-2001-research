@@ -7686,3 +7686,33 @@ now-verified procedural-League state.
 - Next: trace and implement original next-season regeneration from the
   post-transition memberships. Do not reuse stale prior-season schedule state
   or rerun Conference 2 startup ranking outside the original rollover order.
+
+
+### 2026-09-29 - Annual primary season regeneration primitive verified
+
+- Continued Gate 12 from the verified English membership-transition checkpoint.
+- Corrected an annual calendar fidelity issue: primary `0x615950` skips the
+  actual Gregorian **25 December**, not a permanently hard-coded
+  week-25/weekday-1 coordinate. The 2001/02 season therefore moves
+  week 25 / weekday 2.
+- Direct annual/startup tracing proves `League::init 0x4F5150` uses shipped
+  real fixtures only on mode-1 first-season setup. Annual mode 0 always takes
+  procedural builder `0x6170F0`, including Premier League ID 0.
+- Instruction-closed `0x615AE0` as the same per-bucket Fisher-Yates already
+  modeled by `shuffle_primary_schedule_buckets()`; annual rebuild consumes a
+  fresh bucket-order RNG stream after competition initialization.
+- Added `reconstruction/season_regeneration.py`, a non-mutating annual primary
+  materializer that overlays live post-promotion club memberships, treats all
+  Leagues procedurally, uses the new season calendar, and carries one caller
+  CRT stream through competition construction and bucket shuffle.
+- Synthetic regression proves a promoted club replaces a relegated club in the
+  year-two Premier League schedule and no `fixed_league_match` nodes are
+  reused.
+- Verified code checkpoint:
+  `09a5c269e82da597f114b66e71b1416de7f14f2b`.
+- GitHub Actions ran **797 tests with 2 failures**, exactly the unchanged known
+  secondary-schedule assertions. Repository asset policy passed.
+- Evidence: `research/GATE12_NEXT_SEASON_REGENERATION.md`.
+- Next: close cross-season Cup qualification/enumeration and DummyLeague
+  regeneration semantics before atomically replacing live GameState season
+  objects.
