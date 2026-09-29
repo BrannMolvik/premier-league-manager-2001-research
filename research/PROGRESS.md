@@ -7222,3 +7222,35 @@ with an assumed fixed delay or unproven direct use of the packed replay week/day
   post-shuffle primary schedule so conflict-moved dates and global
   `0x615C10` head-to-tail ordering are preserved before human/AI matchday
   execution is enabled.
+
+
+## Gate 12 shuffled-primary domestic Cup bridge verified - 29 September 2026
+
+Commit `ccac3ba2ff6b92269574e2c4bbeebbe514cdaf22` now carries the
+calendar-facing FA Cup / League Cup state from the exact Gate-4 primary
+schedule result rather than the pre-placement startup node list.
+
+The bridge deliberately separates two proven concepts instead of inventing one
+global date formula:
+
+- `0x615950` raw primary relative-day arithmetic is exposed separately from
+  its Christmas exception;
+- each domestic Cup's already-recovered Gregorian source date receives only the
+  actual chosen-bucket displacement, so conflict moves and the Christmas skip
+  survive;
+- post-`0x615AE0` bucket order is retained head-to-tail for same-day domestic
+  Cup execution;
+- canonical `HumanGameplayController` construction now installs both the
+  recovered PL fixture ordering and domestic Cup state from the same verified
+  shuffled primary buckets.
+
+GitHub Actions at `ccac3ba2` ran **710 reconstruction tests**. The only
+failures are the same two pre-existing secondary root-order / bucket-count
+assertions, and repository asset policy passed.
+
+A fidelity boundary remains explicit before global PL/Cup execution: fixed
+Premier League source weeks and Cup source weeks currently use separately
+recovered date conventions despite sharing the primary container. The next
+slice must not collapse those conventions without proving the missing transform.
+It must also recover the static producer of the already-understood CupMatch
+constructor policy bits before due Cup nodes can materialize automatically.

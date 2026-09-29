@@ -41,16 +41,16 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 code checkpoint:
 
 ```text
-a41feea2c51bc40d614c59c606467b59680bc040
-Test dynamic replay controller save roundtrip
+ccac3ba2ff6b92269574e2c4bbeebbe514cdaf22
+Bind domestic Cups to shuffled primary schedule
 ```
 
 GitHub Actions at that checkpoint:
 
-- reconstruction suite: **707 tests run, 2 failures**, both the unchanged
+- reconstruction suite: **710 tests run, 2 failures**, both the unchanged
   pre-existing secondary-schedule assertions;
-- the source-dated dynamic FA Cup replay insertion and controller save/reload
-  regressions passed;
+- the post-placement/post-shuffle domestic-Cup date/order bridge regressions
+  passed;
 - repository asset-policy workflow: **passed**.
 
 The active Cup slice now has:
@@ -76,13 +76,20 @@ The active Cup slice now has:
 - the exact `0x51392A` NormalRound replay-date producer, including the primary
   schedule-container anchor and shipped FA Cup +14-day replay arithmetic;
 - dynamic reversed `CupMatchReplay` insertion after unresolved FA Cup
-  NormalRound completion, including controller save/reload persistence.
+  NormalRound completion, including controller save/reload persistence;
+- canonical controller construction now retains the verified post-shuffle
+  primary buckets and installs FA Cup / League Cup live state from them;
+- Cup dates now apply the exact `0x615950` placement displacement to the
+  separately recovered Cup source-date convention, including the Christmas
+  skip, while same-day Cup order is preserved from shuffled bucket
+  head-to-tail traversal.
 
-The normal human/AI matchday loop still remains Premier-League-only. The next
-bridge must consume domestic Cup nodes from the **post-placement, post-shuffle
-primary schedule container**, because conflict placement can move a node away
-from its packed source date and the shuffled bucket order is the executable's
-same-day execution order.
+The normal human/AI matchday loop still remains Premier-League-only. One
+important boundary remains explicit: the repository currently has different
+recovered source-week conventions for fixed Premier League fixtures and Cup
+rounds even though both occupy the primary container. Therefore a universal
+primary-bucket-to-Gregorian-date mapping must not be invented merely to merge
+their same-day order.
 
 ## Stable startup / scheduler checkpoint
 
@@ -138,27 +145,29 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 
 ## Exact next task
 
-1. Preserve the verified Cup startup/draw, persistent match-state, replay-date
-   and dynamic replay work through `a41feea2`; do not reopen those solved
-   paths.
-2. Bridge the already-reconstructed **post-placement/post-shuffle primary
-   schedule buckets** into live domestic Cup state so conflict-moved dates and
-   head-to-tail `0x615C10` execution order are retained rather than inferred
-   from raw packed round dates.
-3. Merge due FA Cup / League Cup matches into the normal AI/human calendar
-   execution path using the existing shared match backend and
-   `CupMatchRuntimeState` completion lifecycle.
-4. Cover AI-only, human-involved, replay and TwoLeg progression with
-   deterministic save/reload regressions before expanding Gate 12 beyond
-   English domestic cups.
+1. Preserve the verified post-shuffle domestic-Cup schedule bridge through
+   `ccac3ba2`; do not reopen solved Cup draw, replay-date or placement work.
+2. Close the remaining **match-constructor policy input** needed to materialize
+   due Cup nodes automatically. The completion semantics for bits `0x2`
+   (120-minute capability) and `0x4` (decisive tie-break) are proven, but the
+   packed/static producer of those booleans was not persisted and must not be
+   guessed. Reuse canonical domestic-round facts only where they are already
+   source-backed.
+3. In parallel, reconcile the fixed-League versus Cup source-week convention
+   before claiming a single global PL/Cup bucket-to-date mapping. Preserve the
+   already-verified PL dates and Cup dates independently until that transform
+   is proven.
+4. Once those two inputs are closed, merge due FA Cup / League Cup matches into
+   the shared AI/human calendar path and add deterministic AI-only,
+   human-involved, Replay and TwoLeg save/reload regressions.
 
 ## Known live fidelity boundaries
 
-- Gate 12: FA Cup/League Cup nodes, definitive outcomes, completed-node identities,
-  persisted Cup match-score/link state and dynamic FA Cup Replay insertion are
-  GameState/save safe. Domestic Cup nodes still need to be bound to the
-  post-placement/post-shuffle primary container and then executed through the
-  shared human/AI matchday loop.
+- Gate 12: FA Cup/League Cup nodes, definitive outcomes, completed-node
+  identities, persisted Cup match-score/link state, dynamic FA Cup Replay
+  insertion and the post-placement/post-shuffle domestic schedule bridge are
+  GameState/save safe. Automatic constructor-policy derivation and actual
+  shared human/AI Cup execution remain open.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
