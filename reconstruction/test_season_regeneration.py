@@ -346,7 +346,7 @@ class AnnualPrimaryRegenerationTests(unittest.TestCase):
 
         with self.assertRaisesRegex(
             RuntimeError,
-            r"League/Dummy qualification rankings are unresolved for \\(20,\\)",
+            r"League/Dummy qualification rankings are unresolved for \(20,\)",
         ):
             capture_annual_type3_qualification_snapshot(
                 state,
@@ -389,7 +389,7 @@ class AnnualPrimaryRegenerationTests(unittest.TestCase):
 
         with self.assertRaisesRegex(
             RuntimeError,
-            r"Cup final enumerations are unresolved for \\(40,\\)",
+            r"Cup final enumerations are unresolved for \(40,\)",
         ):
             capture_annual_type3_qualification_snapshot(
                 state,
