@@ -202,6 +202,127 @@ class HumanGameplayController:
             MsvcCrtRng(primary_schedule.state_after),
         )
 
+    def regenerate_annual_primary_season(
+        self,
+        *,
+        season_year: int | None = None,
+        procedural_league_ids: Iterable[int] | None = None,
+    ):
+        """Atomically roll the primary competition runtime into a new season.
+
+        Qualification is captured from the completed old season before any
+        membership exchange. English LeagueAllocation swaps are previewed
+        without mutation. Annual competition construction and bucket shuffle
+        then consume a cloned controller match_rng; only after the complete
+        replacement validates are both GameState and the controller CRT state
+        committed.
+        """
+        from competition_runtime import partition_root_procedural_league_ids
+        from season_regeneration import (
+            capture_annual_type3_qualification_snapshot,
+            materialize_annual_primary_schedule,
+        )
+
+        if (
+            self.pending_fixture_id is not None
+            or self.pending_primary_entry is not None
+            or self._pending_prior_results
+            or self._pending_after_fixture_ids
+            or self._pending_prior_primary_results
+            or self._pending_after_primary_entries
+        ):
+            raise RuntimeError("cannot regenerate a season with a pending matchday")
+
+        if season_year is None:
+            season_year = int(self.state.calendar.current_date.year)
+        season_year = int(season_year)
+
+        competitions = tuple(self.state.competitions.values())
+        rounds = tuple(self.state.round_definitions)
+        clubs = tuple(self.state.clubs.values())
+        countries = tuple(self.state.countries.values())
+        allocations = tuple(self.state.cup_allocation_instructions)
+
+        qualification = capture_annual_type3_qualification_snapshot(
+            self.state,
+            competitions,
+            allocations,
+        )
+        transition = self.state.preview_english_season_transition()
+
+        # DummyLeague rating reads runtime team roster order. Preserve each
+        # club's current live order after transfers instead of falling back to
+        # immutable Master.dat player ownership.
+        ordered_players: list[object] = []
+        seen_players: set[int] = set()
+        for club_id in self.state.clubs:
+            for player_id in self.state.club_roster_order.get(int(club_id), ()):
+                player_id = int(player_id)
+                player = self.state.players.get(player_id)
+                if player is None or player_id in seen_players:
+                    continue
+                ordered_players.append(player)
+                seen_players.add(player_id)
+        for player_id, player in self.state.players.items():
+            player_id = int(player_id)
+            if player_id not in seen_players:
+                ordered_players.append(player)
+                seen_players.add(player_id)
+
+        if procedural_league_ids is None:
+            english_primary, english_secondary = (
+                partition_root_procedural_league_ids(
+                    competitions,
+                    country_region_id=26,
+                )
+            )
+            if english_secondary:
+                raise RuntimeError(
+                    "canonical English procedural League ownership changed: "
+                    f"secondary={english_secondary}"
+                )
+            procedural_league_ids = tuple(english_primary) + (14, 167)
+        else:
+            procedural_league_ids = tuple(
+                int(value) for value in procedural_league_ids
+            )
+
+        current_rng_state = getattr(self.match_rng, "state", None)
+        if current_rng_state is None:
+            raise TypeError("annual regeneration requires serializable match RNG state")
+        trial_rng = MsvcCrtRng(int(current_rng_state))
+        regeneration = materialize_annual_primary_schedule(
+            trial_rng,
+            competitions,
+            rounds,
+            clubs,
+            countries,
+            allocations,
+            tuple(ordered_players),
+            club_competition_membership=transition.memberships,
+            season_year=season_year,
+            qualification_rankings_by_competition=(
+                qualification.qualification_rankings_by_competition
+            ),
+            cup_enumerated_club_ids_by_source=(
+                qualification.cup_enumerated_club_ids_by_source
+            ),
+        )
+
+        self.state.install_annual_primary_regeneration(
+            regeneration,
+            club_competition_membership=transition.memberships,
+            procedural_league_ids=procedural_league_ids,
+        )
+        self.match_rng.seed(int(trial_rng.state))
+        self.pending_fixture_id = None
+        self._pending_prior_results = ()
+        self._pending_after_fixture_ids = ()
+        self.pending_primary_entry = None
+        self._pending_prior_primary_results = ()
+        self._pending_after_primary_entries = ()
+        return regeneration
+
     def select_club(self, club_id: int) -> HumanManagerState:
         """Select one Premier League club for human control."""
 
