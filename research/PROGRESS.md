@@ -7787,3 +7787,30 @@ now-verified procedural-League state.
   played-League ranking and Cup final, capture the complete live qualification
   snapshot, then perform the atomic year-two regeneration and verify the new
   primary runtime end to end.
+
+
+### 2026-09-30 - Qualification Cup autonomous primary routing verified
+
+- Traced the live primary AI-day path after the annual qualification-Cup owner
+  work. The scheduler already tagged qualification-Cup entries and the generic
+  match dispatcher could execute them, but
+  `GameState.primary_entries_due_today()` omitted the qualification owner.
+  A calendar-driven season therefore would have silently skipped Cup sources
+  19/23/33/91/98/101.
+- Added the missing due-owner projection and a focused regression proving a
+  scheduled qualification-Cup entry becomes due through the global primary
+  matchday order.
+- Verified checkpoint:
+  `e0a69e8e0d65b9549363e90ace8ee6e68fe74e67`.
+- GitHub Actions ran **818 tests with 2 failures**, exactly the two unchanged
+  secondary-container assertions. The new qualification-Cup routing test
+  passed; repository asset policy passed.
+- Full-season tracing exposed the next narrow scheduler boundary: dynamic FA
+  Cup replays are inserted into the live Cup owner and full-primary shadow, but
+  not yet into `primary_matchday_order`. Source evidence proves
+  `0x5139BA -> 0x615A60` inserts the replay and proves its date, but the
+  repository does not yet prove same-day linked-list insertion order after the
+  initial bucket shuffle. Do not guess append/prepend semantics.
+- Next: close `0x615A60` dynamic replay insertion ordering from source-backed
+  evidence, integrate that exact order, then run the real canonical annual
+  qualification + atomic rollover audit.
