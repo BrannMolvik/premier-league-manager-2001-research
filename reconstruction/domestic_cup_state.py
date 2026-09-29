@@ -293,16 +293,20 @@ class DomesticCupScheduleState:
             raise ValueError("domestic Cup schedule contains duplicate node tokens")
         return cls(nodes=tuple(materialized))
 
-    def competition_winner(
+    def competition_final_pair(
         self,
         competition_id: int,
         registry: CupResultRegistry,
-    ) -> int | None:
-        """Return the unique completed final winner for one live Cup.
+    ) -> tuple[int, int] | None:
+        """Return the unique completed final as the annual Cup enumeration pair.
 
-        The source-backed English divisional playoffs each have one highest
-        round-number Final node. Refuse to synthesize a ranking if the final is
-        absent, ambiguous, or unresolved.
+        Canonical Cup finalizer 0x4F8F80 stores the shared +0x44 result club at
+        Cup+0x40 and the opposite final participant at Cup+0x44. 0x4F5770 then
+        enumerates those slots as index 0/index 1, so the live pair is exactly
+        (winner, loser).
+
+        Refuse to synthesize the pair when the highest round is absent,
+        ambiguous, or unresolved.
         """
         competition_id = int(competition_id)
         nodes = tuple(
@@ -323,7 +327,19 @@ class DomesticCupScheduleState:
         outcome = registry.outcomes.get(tuple(final.node_token))
         if outcome is None:
             return None
-        return int(outcome.winner_club_id)
+        return (
+            int(outcome.winner_club_id),
+            int(outcome.loser_club_id),
+        )
+
+    def competition_winner(
+        self,
+        competition_id: int,
+        registry: CupResultRegistry,
+    ) -> int | None:
+        """Return the unique completed final winner for one live Cup."""
+        pair = self.competition_final_pair(competition_id, registry)
+        return None if pair is None else int(pair[0])
 
     def node(self, node_token: tuple) -> DomesticCupScheduledNode:
         token = tuple(node_token)
