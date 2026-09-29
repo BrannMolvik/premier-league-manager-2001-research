@@ -10,6 +10,7 @@ from season_regeneration import (
     capture_annual_type3_qualification_snapshot,
     clubs_with_live_competition_memberships,
     materialize_annual_primary_schedule,
+    partition_annual_type3_league_sources,
 )
 
 
@@ -276,6 +277,25 @@ class AnnualPrimaryRegenerationTests(unittest.TestCase):
             dict(result.competition.cup_runtime.ranked_source_club_ids).keys(),
             {89},
         )
+
+    def test_annual_type3_ranking_sources_partition_played_and_dummy(self):
+        competitions = (
+            Competition(20, 1),
+            Competition(30, 3),
+            Competition(50, 2),
+        )
+        allocations = (
+            Allocation(1, 50, 1, 3, 20, 1),
+            Allocation(2, 50, 2, 3, 30, 1),
+        )
+
+        played, dummy = partition_annual_type3_league_sources(
+            competitions,
+            allocations,
+        )
+
+        self.assertEqual(played, (20,))
+        self.assertEqual(dummy, (30,))
 
     def test_live_annual_snapshot_preserves_binary_cup_winner_loser_order(self):
         competitions = (
