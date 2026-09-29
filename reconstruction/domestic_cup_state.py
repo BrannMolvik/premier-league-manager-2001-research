@@ -13,6 +13,7 @@ from datetime import date, timedelta
 from typing import Iterable
 
 from competition_schedule import StartupScheduleNode, direct_club_ref
+from competition_state import season_weekday_date
 from competition_startup import CupClubRefDescriptor
 from primary_schedule import primary_schedule_source_bucket
 from cup_progression import (
@@ -26,24 +27,14 @@ ENGLISH_DOMESTIC_CUP_IDS = frozenset((1, 5))
 
 
 def domestic_cup_source_date(season_year: int, week: int, weekday: int) -> date:
-    """Convert primary-container Cup week/day through 0x6169F0/0x615950.
+    """Convert Cup week/day through the shared primary-container calendar.
 
-    The primary schedule container anchor is the first Monday on or after
-    July 1. Runtime round construction copies the packed week unchanged and
-    stores packed weekday - 1, then 0x615950 inserts at
-    anchor + 7 * week + (weekday - 1).
-
-    This is intentionally separate from Premier League season_weekday_date(),
-    whose recovered league fixture convention uses the Monday containing
-    July 1.
+    Cup and fixed League nodes both reach primary 0x615950 with packed week
+    unchanged and weekday converted to zero-based form. Keep this named helper
+    for the domestic-Cup boundary while delegating the date arithmetic to the
+    shared executable-backed conversion.
     """
-    weekday = int(weekday)
-    if not 1 <= weekday <= 7:
-        raise ValueError("FM2001 Cup scheduled weekday must be 1..7")
-    july_first = date(int(season_year), 7, 1)
-    days_to_monday = (-july_first.weekday()) % 7
-    anchor = july_first + timedelta(days=days_to_monday)
-    return anchor + timedelta(weeks=int(week), days=weekday - 1)
+    return season_weekday_date(int(season_year), int(week), int(weekday))
 
 
 def _tuple_tree(value):

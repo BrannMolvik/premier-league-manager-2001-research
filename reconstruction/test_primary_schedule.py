@@ -35,14 +35,14 @@ class PrimarySchedulePlacementTests(unittest.TestCase):
         )
 
     def test_christmas_day_is_advanced_one_bucket(self):
-        # 7*26 + 1 - 1 = 182 before 0x615950's 25-December skip.
+        # 7*25 + 1 - 1 = 175 before 0x615950's 25-December skip.
         self.assertEqual(
-            nominal_primary_schedule_bucket(26, 1),
-            183,
+            nominal_primary_schedule_bucket(25, 1),
+            176,
         )
 
     def test_raw_source_bucket_precedes_christmas_adjustment(self):
-        self.assertEqual(primary_schedule_source_bucket(26, 1), 182)
+        self.assertEqual(primary_schedule_source_bucket(25, 1), 175)
         self.assertEqual(primary_schedule_source_bucket(19, 6), 138)
 
     def test_non_conflicting_same_day_nodes_head_insert(self):

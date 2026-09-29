@@ -23,15 +23,17 @@ class RoundSource(Protocol):
 def season_weekday_date(season_year: int, week: int, weekday: int) -> date:
     """Convert FM2001 round week/day to a Gregorian date.
 
-    Static.dat uses weekday 1..7 = Monday..Sunday. Week 0 is the Monday-led
-    week containing July 1 of the season start year. This reproduces the
-    shipped 2000-01 PL dates (e.g. 7/6 -> 19 Aug 2000, 26/2 -> Boxing Day,
-    27/1 -> New Year's Day, and 46/7 -> 20 May 2001).
+    Static.dat uses weekday 1..7 = Monday..Sunday. The primary schedule
+    container initializes week 0 to the first Monday on or after July 1 of the
+    season start year (0x6169F0 -> 0x64CC70). League::AddRound copies the
+    packed week unchanged and weekday-1 into League+0x60, and fixed builder
+    0x6173D0 passes that entry directly to 0x615950.
     """
     if not 1 <= int(weekday) <= 7:
         raise ValueError("FM2001 scheduled weekday must be 1..7")
     july_first = date(int(season_year), 7, 1)
-    week_zero_monday = july_first - timedelta(days=july_first.weekday())
+    days_to_monday = (-july_first.weekday()) % 7
+    week_zero_monday = july_first + timedelta(days=days_to_monday)
     return week_zero_monday + timedelta(weeks=int(week), days=int(weekday) - 1)
 
 

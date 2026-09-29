@@ -10,7 +10,7 @@ Recovered from FOOTBAL.EXE:
 - 0x615C10 later traverses the bucket linked list head-to-tail.
 
 The primary FM2001 season has one explicit Christmas-Day skip inside 0x615950.
-For the canonical 2000/01 primary schedule, week 26 / weekday 1 maps to
+For the canonical 2000/01 primary schedule, week 25 / weekday 1 maps to
 Christmas Day and is advanced by one bucket before conflict placement.
 """
 
@@ -25,7 +25,7 @@ from match_schedule import BoundedRng, shuffle_schedule_bucket
 
 PRIMARY_SCHEDULE_BUCKET_COUNT = 373
 PRIMARY_SCHEDULE_BASE_OFFSET = -1
-PRIMARY_CHRISTMAS_WEEK = 26
+PRIMARY_CHRISTMAS_WEEK = 25
 PRIMARY_CHRISTMAS_WEEKDAY = 1
 
 
@@ -81,7 +81,7 @@ def nominal_primary_schedule_bucket(
     and primary ScheduleContainer construction initializes offset to -1.
     It then advances one bucket when the corresponding calendar date is
     25 December. In the canonical 2000/01 primary schedule that date is
-    week 26 / weekday 1.
+    week 25 / weekday 1.
     """
 
     week = int(scheduled_week)
