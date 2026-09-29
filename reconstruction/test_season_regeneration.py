@@ -1,8 +1,13 @@
 import unittest
 from dataclasses import dataclass
+from types import SimpleNamespace
 
+from competition_schedule import StartupScheduleNode, direct_club_ref
+from cup_progression import CupResultRegistry
+from domestic_cup_state import DomesticCupScheduleState
 from match_schedule import MsvcCrtRng
 from season_regeneration import (
+    capture_annual_type3_qualification_snapshot,
     clubs_with_live_competition_memberships,
     materialize_annual_primary_schedule,
 )
@@ -271,6 +276,126 @@ class AnnualPrimaryRegenerationTests(unittest.TestCase):
             dict(result.competition.cup_runtime.ranked_source_club_ids).keys(),
             {89},
         )
+
+    def test_live_annual_snapshot_preserves_binary_cup_winner_loser_order(self):
+        competitions = (
+            Competition(20, 1, initialization_order_value=0),
+            Competition(40, 2, initialization_order_value=1),
+            Competition(50, 2, initialization_order_value=2),
+        )
+        allocations = (
+            Allocation(1, 50, 1, 3, 20, 1),
+            Allocation(2, 50, 2, 3, 40, 1),
+        )
+        registry = CupResultRegistry()
+        registry.replace_competition_ranking(20, (10, 11, 12))
+        token = ("cup_result", 40, 100, 0)
+        registry.record_knockout_outcome(token, 30, 31, 31)
+        domestic = DomesticCupScheduleState.from_startup_nodes(
+            (
+                StartupScheduleNode(
+                    node_kind="cup_match",
+                    competition_id=40,
+                    competition_context=0,
+                    round_id=100,
+                    pair_index=0,
+                    schedule_index=None,
+                    scheduled_week=30,
+                    scheduled_weekday=6,
+                    participant_0_ref=direct_club_ref(30),
+                    participant_1_ref=direct_club_ref(31),
+                    node_token=token,
+                    round_number=9,
+                ),
+            ),
+            season_year=2000,
+            competition_ids=(40,),
+        )
+        state = SimpleNamespace(
+            cup_results=registry,
+            domestic_cups=domestic,
+            european_cups=DomesticCupScheduleState(),
+        )
+
+        snapshot = capture_annual_type3_qualification_snapshot(
+            state,
+            competitions,
+            allocations,
+        )
+
+        self.assertEqual(
+            snapshot.qualification_rankings_by_competition,
+            {20: (10, 11, 12)},
+        )
+        self.assertEqual(
+            snapshot.cup_enumerated_club_ids_by_source,
+            {40: (31, 30)},
+        )
+
+    def test_live_annual_snapshot_rejects_missing_league_source(self):
+        competitions = (
+            Competition(20, 1),
+            Competition(50, 2),
+        )
+        allocations = (Allocation(1, 50, 1, 3, 20, 1),)
+        state = SimpleNamespace(
+            cup_results=CupResultRegistry(),
+            domestic_cups=DomesticCupScheduleState(),
+            european_cups=DomesticCupScheduleState(),
+        )
+
+        with self.assertRaisesRegex(
+            RuntimeError,
+            r"League/Dummy qualification rankings are unresolved for \\(20,\\)",
+        ):
+            capture_annual_type3_qualification_snapshot(
+                state,
+                competitions,
+                allocations,
+            )
+
+    def test_live_annual_snapshot_rejects_unresolved_cup_final(self):
+        competitions = (
+            Competition(40, 2),
+            Competition(50, 2),
+        )
+        allocations = (Allocation(1, 50, 1, 3, 40, 1),)
+        token = ("cup_result", 40, 100, 0)
+        domestic = DomesticCupScheduleState.from_startup_nodes(
+            (
+                StartupScheduleNode(
+                    node_kind="cup_match",
+                    competition_id=40,
+                    competition_context=0,
+                    round_id=100,
+                    pair_index=0,
+                    schedule_index=None,
+                    scheduled_week=30,
+                    scheduled_weekday=6,
+                    participant_0_ref=direct_club_ref(30),
+                    participant_1_ref=direct_club_ref(31),
+                    node_token=token,
+                    round_number=9,
+                ),
+            ),
+            season_year=2000,
+            competition_ids=(40,),
+        )
+        state = SimpleNamespace(
+            cup_results=CupResultRegistry(),
+            domestic_cups=domestic,
+            european_cups=DomesticCupScheduleState(),
+        )
+
+        with self.assertRaisesRegex(
+            RuntimeError,
+            r"Cup final enumerations are unresolved for \\(40,\\)",
+        ):
+            capture_annual_type3_qualification_snapshot(
+                state,
+                competitions,
+                allocations,
+            )
 
     def test_same_crt_stream_continues_through_fresh_bucket_shuffle(self):
         competitions, rounds, clubs, countries = self._fixture()
