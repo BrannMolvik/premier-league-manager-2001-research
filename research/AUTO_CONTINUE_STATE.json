@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Gate 12 English divisions: prove exact competition IDs and primary/secondary container ownership from canonical materializer evidence, then attach the first source-backed divisional set to the verified generic LeagueMatch bridge.",
-  "last_known_main_head": "4d6a715797032c27530ca7257ab28dd4549e9c10",
+  "active_task": "Gate 12 English cross-division season transition: prove source-backed promotion, relegation, and playoff dependencies linking Premier League, Divisions 1/2/3, and Conference before mutating club competition membership.",
+  "last_known_main_head": "ab83995b62d1fa59dc82b041f884bdb3370fe60d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 69,
   "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "Recovered at main 4d6a715. Generic primary LeagueMatch bridge is already verified; continue with the English divisional source/container audit and do not repeat solved European or domestic-cup work.",
+  "note": "English root procedural League IDs/container ownership and four-division execution/save-reload are verified. Continue with cross-division season transition; do not reopen solved Cup, Europe, or regular-season LeagueMatch work.",
   "same_chat_fallback_minutes": 30
 }
