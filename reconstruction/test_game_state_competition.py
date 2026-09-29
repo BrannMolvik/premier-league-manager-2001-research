@@ -1053,5 +1053,93 @@ class IntegratedGameStateTests(unittest.TestCase):
         self.assertEqual({row.club_id: row.points for row in table}, {1: 1, 2: 1})
 
 
+
+
+@dataclass(frozen=True)
+class LeagueAllocation:
+    id: int
+    competition_a_id: int
+    competition_a_start: int
+    competition_a_end: int
+    competition_b_id: int
+    competition_b_start: int
+    competition_b_end: int
+
+
+class EnglishSeasonTransitionIntegrationTests(unittest.TestCase):
+    def test_exact_rankings_and_playoff_winners_drive_live_membership_swaps(self):
+        state = GameState.from_players((), date(2001, 6, 1))
+        state.league_allocation_records = (
+            LeagueAllocation(0, 0, 18, 19, 2, 0, 1),
+            LeagueAllocation(1, 0, 17, 17, 11, 0, 0),
+            LeagueAllocation(2, 2, 22, 23, 3, 0, 1),
+            LeagueAllocation(3, 2, 21, 21, 12, 0, 0),
+            LeagueAllocation(4, 3, 21, 23, 4, 0, 2),
+            LeagueAllocation(5, 3, 20, 20, 13, 0, 0),
+            LeagueAllocation(6, 4, 23, 23, 7, 0, 0),
+            LeagueAllocation(25, 7, 19, 21, 89, 0, 2),
+        )
+        rankings = {
+            0: tuple(range(100, 120)),
+            2: tuple(range(200, 224)),
+            3: tuple(range(300, 324)),
+            4: tuple(range(400, 424)),
+            7: tuple(range(700, 722)),
+            89: tuple(range(890, 905)),
+        }
+        for competition_id, ranking in rankings.items():
+            state.cup_results.replace_competition_ranking(
+                competition_id,
+                ranking,
+            )
+
+        playoff_winners = {11: 205, 12: 305, 13: 405}
+        final_nodes = []
+        for competition_id, winner in playoff_winners.items():
+            token = ("cup_result", competition_id, 1000 + competition_id, 0)
+            final_nodes.append(
+                StartupScheduleNode(
+                    node_kind="cup_match",
+                    competition_id=competition_id,
+                    competition_context=0,
+                    round_id=1000 + competition_id,
+                    pair_index=0,
+                    schedule_index=None,
+                    scheduled_week=47,
+                    scheduled_weekday=6,
+                    participant_0_ref=direct_club_ref(winner),
+                    participant_1_ref=direct_club_ref(winner + 1000),
+                    node_token=token,
+                    round_number=2,
+                )
+            )
+            state.cup_results.record_knockout_outcome(
+                token,
+                winner,
+                winner + 1000,
+                winner,
+            )
+        state.domestic_cups = DomesticCupScheduleState.from_startup_nodes(
+            final_nodes,
+            season_year=2000,
+        )
+
+        memberships = {}
+        for competition_id, ranking in rankings.items():
+            for club_id in ranking:
+                memberships[club_id] = competition_id
+        state.club_competition_membership = memberships
+
+        result = state.apply_english_season_transition()
+
+        self.assertEqual(len(result.exchanges), 14)
+        self.assertEqual(state.club_competition_membership[117], 2)
+        self.assertEqual(state.club_competition_membership[205], 0)
+        self.assertEqual(state.club_competition_membership[423], 7)
+        self.assertEqual(state.club_competition_membership[700], 4)
+        self.assertEqual(state.club_competition_membership[719], 89)
+        self.assertEqual(state.club_competition_membership[890], 7)
+
+
 if __name__ == '__main__':
     unittest.main()
