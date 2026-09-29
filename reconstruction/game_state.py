@@ -76,7 +76,10 @@ from match_orders import TeamOrderPriorities
 from match_role_rating import best_preferred_role_rating
 from match_simulation import PreparedMatchSide, NormalMatchResult, simulate_normal_match
 from match_team_setup import TeamTacticalState, initialize_ai_roster_condition
-from primary_schedule_shadow import PrimaryScheduleShadowState
+from primary_schedule_shadow import (
+    PrimaryScheduleResolutionPending,
+    PrimaryScheduleShadowState,
+)
 from runtime_state import RuntimePlayer, derive_non_eu_status
 from stadium_state import StadiumSourceState, TicketRuntimeState
 from transfer_state import TransferRuntimeState
@@ -1930,6 +1933,126 @@ class GameState:
             self.cup_results.resolve_club_ref,
         )
 
+    def _preflight_domestic_cup_post_match_dates(
+        self,
+        home_club_id: int,
+        away_club_id: int,
+        fixture_date: date,
+    ) -> tuple[bool, date | None, date | None]:
+        """Resolve both 0x615D10 dates before any shared incident RNG is consumed.
+
+        A nonempty primary shadow is required for the source-backed Cup path.
+        If either lookup reaches an unresolved earlier symbolic node, return a
+        single pending result rather than exposing one exact side and allowing
+        partial 0x5127A0 persistence.
+        """
+        if not self.primary_schedule_shadow.days:
+            return False, None, None
+
+        try:
+            home_next = self.next_primary_match_date_for_club(
+                int(home_club_id),
+                after_date=fixture_date,
+            )
+            away_next = self.next_primary_match_date_for_club(
+                int(away_club_id),
+                after_date=fixture_date,
+            )
+        except PrimaryScheduleResolutionPending:
+            return False, None, None
+
+        return True, home_next, away_next
+
+    def _persist_domestic_cup_shared_post_match(
+        self,
+        *,
+        home_club_id: int,
+        away_club_id: int,
+        home_side: PreparedMatchSide,
+        away_side: PreparedMatchSide,
+        home_participants,
+        away_participants,
+        result: NormalMatchResult,
+        environment: MatchEnvironment,
+        pitch_wear_before: int,
+        rng,
+    ) -> bool:
+        """Apply shared Cup post-match state only after an exact two-side preflight.
+
+        MatchCalculator Condition is always synchronized because the original
+        mutates DBRPlayer in place. Pitch wear is RNG-clean and likewise remains
+        live. The RNG-consuming 0x5127A0 incident and 0x404CE0 morale/Form
+        branches run only when both clubs' next primary-container dates are
+        provably exact.
+        """
+        home_club_id = int(home_club_id)
+        away_club_id = int(away_club_id)
+        fixture_date = self.calendar.current_date
+
+        sync_post_match_conditions(home_side, home_participants)
+        sync_post_match_conditions(away_side, away_participants)
+
+        exact, home_next, away_next = self._preflight_domestic_cup_post_match_dates(
+            home_club_id,
+            away_club_id,
+            fixture_date,
+        )
+
+        if exact:
+            home_user_controlled = bool(
+                self.user_controlled_club_id is not None
+                and home_club_id == int(self.user_controlled_club_id)
+            )
+            away_user_controlled = bool(
+                self.user_controlled_club_id is not None
+                and away_club_id == int(self.user_controlled_club_id)
+            )
+            persist_premier_league_match_incidents(
+                self.ordered_club_roster(home_club_id),
+                home_participants,
+                0,
+                result,
+                fixture_date,
+                home_next,
+                rng,
+                user_controlled=home_user_controlled,
+            )
+            persist_premier_league_match_incidents(
+                self.ordered_club_roster(away_club_id),
+                away_participants,
+                1,
+                result,
+                fixture_date,
+                away_next,
+                rng,
+                user_controlled=away_user_controlled,
+            )
+
+        self.pitch_wear[home_club_id] = pitch_wear_after_match(
+            int(pitch_wear_before),
+            environment.weather_code,
+        )
+
+        if exact:
+            self._persist_premier_league_morale_form_and_requests(
+                home_club_id,
+                home_side,
+                home_participants,
+                result,
+                fixture_date,
+                rng,
+            )
+            self._persist_premier_league_morale_form_and_requests(
+                away_club_id,
+                away_side,
+                away_participants,
+                result,
+                fixture_date,
+                rng,
+            )
+
+        return exact
+
     def install_primary_matchday_order(
         self,
         buckets,
@@ -2026,8 +2149,9 @@ class GameState:
         the proven pre-match order (both selections, weather, side-0 Condition,
         side-1 Condition), uses the Cup runtime extra-time policy, syncs
         MatchCalculator Condition back to runtime players, and updates the home
-        pitch. Cross-competition suspension/injury dates, Cup gate receipts and
-        post-match morale/Form remain separate Gate-12 persistence work.
+        pitch. When the full-primary shadow proves both clubs' next match dates,
+        the shared incident and morale/Form branches also run in executable
+        order. Special Cup revenue posting remains separate Gate-12 work.
         """
         rng = self._resolve_rng(rng)
         token = tuple(node_token)
@@ -2164,17 +2288,17 @@ class GameState:
             )
 
 
-        sync_post_match_conditions(
-            home_side,
-            home_preparation.selection.participants,
-        )
-        sync_post_match_conditions(
-            away_side,
-            away_preparation.selection.participants,
-        )
-        self.pitch_wear[home_club_id] = pitch_wear_after_match(
-            pitch_wear_before,
-            environment.weather_code,
+        self._persist_domestic_cup_shared_post_match(
+            home_club_id=home_club_id,
+            away_club_id=away_club_id,
+            home_side=home_side,
+            away_side=away_side,
+            home_participants=home_preparation.selection.participants,
+            away_participants=away_preparation.selection.participants,
+            result=result,
+            environment=environment,
+            pitch_wear_before=pitch_wear_before,
+            rng=rng,
         )
         return result, completion
 
@@ -2193,8 +2317,8 @@ class GameState:
 
         Human selection/Condition/tactics remain persistent runtime state. The
         opponent uses the source-backed Cup AI strategy path. As with the AI
-        bridge, this currently closes score/lifecycle, Condition sync and home
-        pitch wear; broader Cup post-match persistence remains a separate slice.
+        bridge, shared incident and morale/Form persistence runs only when the
+        full-primary shadow proves both next-match dates exactly.
         """
         rng = self._resolve_rng(rng)
         token = tuple(node_token)
@@ -2330,11 +2454,17 @@ class GameState:
             )
 
 
-        sync_post_match_conditions(home_side, home_participants)
-        sync_post_match_conditions(away_side, away_participants)
-        self.pitch_wear[home_club_id] = pitch_wear_after_match(
-            pitch_wear_before,
-            environment.weather_code,
+        self._persist_domestic_cup_shared_post_match(
+            home_club_id=home_club_id,
+            away_club_id=away_club_id,
+            home_side=home_side,
+            away_side=away_side,
+            home_participants=home_participants,
+            away_participants=away_participants,
+            result=result,
+            environment=environment,
+            pitch_wear_before=pitch_wear_before,
+            rng=rng,
         )
         return result, completion
 

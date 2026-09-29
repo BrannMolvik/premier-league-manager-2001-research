@@ -4,13 +4,15 @@ from datetime import date
 from types import SimpleNamespace
 
 from competition_schedule import StartupScheduleNode, direct_club_ref
+import game_state as game_state_module
 from game_state import GameState
 from match_calculator import PositionRole
 from match_lineup import AI_FORMATIONS
 from match_events import BoundaryRecord, BoundaryType
 from match_preparation import prepare_ai_match_selection
-from match_simulation import PreparedMatchPlayer, PreparedMatchSide
+from match_simulation import NormalMatchResult, PreparedMatchPlayer, PreparedMatchSide
 from match_strength import TeamStrengthContext
+from primary_schedule_shadow import PrimaryScheduleResolutionPending
 
 
 @dataclass(frozen=True)
@@ -175,6 +177,168 @@ def prepared_side(side_id):
         corner_taker_priority=(10,),
         free_kick_taker_priority=(10,),
     )
+
+
+class DomesticCupPostMatchPreflightTests(unittest.TestCase):
+    def test_preflight_returns_both_exact_dates_as_one_atomic_result(self):
+        state = GameState(
+            calendar=__import__("game_state").GameCalendar(date(2000, 8, 19)),
+            players={},
+        )
+        state.primary_schedule_shadow.days = {date(2000, 8, 20): ()}
+        expected = {
+            1: date(2000, 8, 23),
+            2: date(2000, 8, 26),
+        }
+
+        def lookup(club_id, *, after_date):
+            self.assertEqual(after_date, date(2000, 8, 19))
+            return expected[int(club_id)]
+
+        state.next_primary_match_date_for_club = lookup
+        self.assertEqual(
+            state._preflight_domestic_cup_post_match_dates(
+                1,
+                2,
+                date(2000, 8, 19),
+            ),
+            (True, date(2000, 8, 23), date(2000, 8, 26)),
+        )
+
+    def test_preflight_collapses_either_pending_side_without_partial_result(self):
+        state = GameState(
+            calendar=__import__("game_state").GameCalendar(date(2000, 8, 19)),
+            players={},
+        )
+        state.primary_schedule_shadow.days = {date(2000, 8, 20): ()}
+
+        def lookup(club_id, *, after_date):
+            if int(club_id) == 1:
+                return date(2000, 8, 23)
+            raise PrimaryScheduleResolutionPending(2, date(2000, 8, 21))
+
+        state.next_primary_match_date_for_club = lookup
+        self.assertEqual(
+            state._preflight_domestic_cup_post_match_dates(
+                1,
+                2,
+                date(2000, 8, 19),
+            ),
+            (False, None, None),
+        )
+
+    def test_shared_cup_postmatch_orders_incidents_before_morale_when_exact(self):
+        state = GameState(
+            calendar=__import__("game_state").GameCalendar(date(2000, 8, 19)),
+            players={},
+        )
+        state.primary_schedule_shadow.days = {date(2000, 8, 20): ()}
+        state.next_primary_match_date_for_club = lambda club_id, *, after_date: (
+            date(2000, 8, 23) if int(club_id) == 1 else date(2000, 8, 26)
+        )
+        state.pitch_wear[1] = 0
+
+        home_side = prepared_side(0)
+        away_side = prepared_side(1)
+        home_participants = [
+            SimpleNamespace(index=i, condition=0) for i in range(11)
+        ]
+        away_participants = [
+            SimpleNamespace(index=100 + i, condition=0) for i in range(11)
+        ]
+        calls = []
+        original_incidents = game_state_module.persist_premier_league_match_incidents
+        original_morale = game_state_module.persist_premier_league_morale_and_form
+
+        def record_incidents(roster, participants, side, result, fixture_date,
+                             next_fixture_date, rng, **kwargs):
+            calls.append(("incidents", int(side), next_fixture_date))
+            return None
+
+        def record_morale(roster, side, participants, result, fixture_date, rng,
+                          **kwargs):
+            calls.append(("morale", int(side.side)))
+            return frozenset()
+
+        game_state_module.persist_premier_league_match_incidents = record_incidents
+        game_state_module.persist_premier_league_morale_and_form = record_morale
+        try:
+            exact = state._persist_domestic_cup_shared_post_match(
+                home_club_id=1,
+                away_club_id=2,
+                home_side=home_side,
+                away_side=away_side,
+                home_participants=home_participants,
+                away_participants=away_participants,
+                result=NormalMatchResult(events=()),
+                environment=SimpleNamespace(weather_code=0),
+                pitch_wear_before=0,
+                rng=MidpointRng(),
+            )
+        finally:
+            game_state_module.persist_premier_league_match_incidents = original_incidents
+            game_state_module.persist_premier_league_morale_and_form = original_morale
+
+        self.assertTrue(exact)
+        self.assertEqual(
+            calls,
+            [
+                ("incidents", 0, date(2000, 8, 23)),
+                ("incidents", 1, date(2000, 8, 26)),
+                ("morale", 0),
+                ("morale", 1),
+            ],
+        )
+        self.assertTrue(all(player.condition == 100 for player in home_participants))
+        self.assertTrue(all(player.condition == 100 for player in away_participants))
+
+    def test_shared_cup_postmatch_consumes_no_incident_or_morale_rng_when_pending(self):
+        state = GameState(
+            calendar=__import__("game_state").GameCalendar(date(2000, 8, 19)),
+            players={},
+        )
+        state.primary_schedule_shadow.days = {date(2000, 8, 20): ()}
+
+        def lookup(club_id, *, after_date):
+            if int(club_id) == 1:
+                return date(2000, 8, 23)
+            raise PrimaryScheduleResolutionPending(2, date(2000, 8, 21))
+
+        state.next_primary_match_date_for_club = lookup
+        state.pitch_wear[1] = 0
+        calls = []
+        original_incidents = game_state_module.persist_premier_league_match_incidents
+        original_morale = game_state_module.persist_premier_league_morale_and_form
+
+        def unexpected(*args, **kwargs):
+            calls.append("unexpected")
+            raise AssertionError("pending preflight must not enter RNG-consuming persistence")
+
+        game_state_module.persist_premier_league_match_incidents = unexpected
+        game_state_module.persist_premier_league_morale_and_form = unexpected
+        try:
+            exact = state._persist_domestic_cup_shared_post_match(
+                home_club_id=1,
+                away_club_id=2,
+                home_side=prepared_side(0),
+                away_side=prepared_side(1),
+                home_participants=[
+                    SimpleNamespace(index=i, condition=0) for i in range(11)
+                ],
+                away_participants=[
+                    SimpleNamespace(index=100 + i, condition=0) for i in range(11)
+                ],
+                result=NormalMatchResult(events=()),
+                environment=SimpleNamespace(weather_code=0),
+                pitch_wear_before=0,
+                rng=MidpointRng(),
+            )
+        finally:
+            game_state_module.persist_premier_league_match_incidents = original_incidents
+            game_state_module.persist_premier_league_morale_and_form = original_morale
+
+        self.assertFalse(exact)
+        self.assertEqual(calls, [])
 
 
 class IntegratedGameStateTests(unittest.TestCase):
