@@ -32,6 +32,16 @@ class GateAttendanceCell:
 ENGLISH_DIVISION_SEATING_REFERENCES = (30.0, 20.0, 16.0, 12.0, 9.0)
 
 
+@dataclass(frozen=True)
+class DomesticCupGatePolicyInputs:
+    """Instruction-closed non-stadium inputs for the English Cup gate branch."""
+
+    tier_factor: float
+    round_attendance_modifier: float
+    seating_reference: float
+    terrace_reference: float
+
+
 def english_ticket_reference_prices(
     valuation_division_category: int,
 ) -> tuple[float, float]:
@@ -46,6 +56,36 @@ def english_ticket_reference_prices(
         raise ValueError("English division valuation category must be 0..4")
     seating = ENGLISH_DIVISION_SEATING_REFERENCES[category]
     return seating, seating * 0.75
+
+
+def english_domestic_cup_gate_policy_inputs(
+    *,
+    root_competition_index: int,
+    host_valuation_division_category: int,
+    total_round_count: int,
+    zero_based_round_index: int,
+) -> DomesticCupGatePolicyInputs:
+    """Compose the source-backed English Cup gate policy inputs.
+
+    0x410FF0 selects the match competition's country-root FanFactor.
+    0x40CBC0's English branch selects reference prices from the owning host
+    club competition's valuation/division category. The Cup round relationship
+    supplies the separately recovered round attendance modifier.
+    """
+    seating, terrace = english_ticket_reference_prices(
+        int(host_valuation_division_category)
+    )
+    return DomesticCupGatePolicyInputs(
+        tier_factor=fan_factor_for_root_competition_index(
+            int(root_competition_index)
+        ),
+        round_attendance_modifier=cup_round_attendance_modifier(
+            total_round_count=int(total_round_count),
+            zero_based_round_index=int(zero_based_round_index),
+        ),
+        seating_reference=seating,
+        terrace_reference=terrace,
+    )
 
 
 def fan_factor_for_root_competition_index(index: int) -> float:

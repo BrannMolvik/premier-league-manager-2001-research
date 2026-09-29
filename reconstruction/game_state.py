@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from time import time
 from typing import Callable, Iterable
 
+from competition_startup import country_root_competition_storage_order
 from competition_state import PremierLeagueState
 from cup_progression import (
     CupMatchCompletion,
@@ -40,8 +41,10 @@ from gate_receipts import (
     PREMIER_LEAGUE_SEATING_REFERENCE,
     PREMIER_LEAGUE_TERRACE_REFERENCE,
     PREMIER_LEAGUE_TIER_FACTOR,
+    DomesticCupGatePolicyInputs,
     GateReceiptResult,
     calculate_matchday_gate_receipts,
+    english_domestic_cup_gate_policy_inputs,
     league_end_play_factor,
     league_importance_factor,
     league_position_factor,
@@ -1386,6 +1389,64 @@ class GameState:
             end_play_factor=end_play,
             position_factor=position,
             importance_factor=self._premier_league_importance_factor(),
+        )
+
+    def domestic_cup_gate_policy_inputs(
+        self,
+        competition_id: int,
+        round_number: int,
+        host_club_id: int,
+    ) -> DomesticCupGatePolicyInputs:
+        """Resolve the instruction-closed non-stadium English Cup gate inputs."""
+        competition_id = int(competition_id)
+        host_club_id = int(host_club_id)
+        round_number = int(round_number)
+
+        competition = self.competitions.get(competition_id)
+        if competition is None:
+            raise RuntimeError(
+                f"Cup competition definition {competition_id} is not loaded"
+            )
+        region_id = int(getattr(competition, "country_region_id"))
+        roots = country_root_competition_storage_order(
+            tuple(self.competitions.values()),
+            region_id,
+        )
+        try:
+            root_index = next(
+                index
+                for index, candidate in enumerate(roots)
+                if int(getattr(candidate, "id")) == competition_id
+            )
+        except StopIteration as exc:
+            raise RuntimeError(
+                f"Cup competition {competition_id} is not a stored root "
+                f"competition for region {region_id}"
+            ) from exc
+
+        club = self.clubs.get(host_club_id)
+        if club is None:
+            raise RuntimeError(f"host club definition {host_club_id} is not loaded")
+        owning_competition_id = int(getattr(club, "competition_id"))
+        owning_competition = self.competitions.get(owning_competition_id)
+        if owning_competition is None:
+            raise RuntimeError(
+                f"host club competition {owning_competition_id} is not loaded"
+            )
+
+        total_round_count = int(
+            getattr(competition, "scheduled_matchday_count")
+        )
+        if not 1 <= round_number <= total_round_count:
+            raise ValueError("Cup round_number is outside the competition")
+
+        return english_domestic_cup_gate_policy_inputs(
+            root_competition_index=root_index,
+            host_valuation_division_category=int(
+                getattr(owning_competition, "valuation_division_category")
+            ),
+            total_round_count=total_round_count,
+            zero_based_round_index=round_number - 1,
         )
 
     def _prepare_premier_league_gate_inputs(

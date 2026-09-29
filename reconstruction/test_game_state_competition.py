@@ -179,6 +179,67 @@ def prepared_side(side_id):
     )
 
 
+class DomesticCupGatePolicyAdapterTests(unittest.TestCase):
+    def test_adapter_uses_cup_root_index_and_host_owning_division(self):
+        competitions = {
+            0: SimpleNamespace(
+                id=0,
+                parent_competition_id=None,
+                initialization_order_value=10,
+                country_region_id=26,
+                valuation_division_category=2,
+            ),
+            90: SimpleNamespace(
+                id=90,
+                parent_competition_id=None,
+                initialization_order_value=9,
+                country_region_id=26,
+            ),
+            89: SimpleNamespace(
+                id=89,
+                parent_competition_id=None,
+                initialization_order_value=8,
+                country_region_id=26,
+            ),
+            7: SimpleNamespace(
+                id=7,
+                parent_competition_id=None,
+                initialization_order_value=7,
+                country_region_id=26,
+            ),
+            4: SimpleNamespace(
+                id=4,
+                parent_competition_id=None,
+                initialization_order_value=6,
+                country_region_id=26,
+            ),
+            1: SimpleNamespace(
+                id=1,
+                parent_competition_id=None,
+                initialization_order_value=5,
+                country_region_id=26,
+                scheduled_matchday_count=8,
+            ),
+        }
+        state = GameState(
+            calendar=__import__("game_state").GameCalendar(date(2000, 8, 19)),
+            players={},
+            clubs={10: SimpleNamespace(competition_id=0)},
+            competitions=competitions,
+        )
+
+        policy = state.domestic_cup_gate_policy_inputs(
+            1,
+            round_number=8,
+            host_club_id=10,
+        )
+
+        self.assertEqual(policy.tier_factor, 0.5)
+        self.assertEqual(policy.round_attendance_modifier, 3.0)
+        self.assertEqual(policy.seating_reference, 16.0)
+        self.assertEqual(policy.terrace_reference, 12.0)
+
+
 class DomesticCupPostMatchPreflightTests(unittest.TestCase):
     def test_preflight_returns_both_exact_dates_as_one_atomic_result(self):
         state = GameState(

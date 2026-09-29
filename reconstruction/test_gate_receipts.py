@@ -18,11 +18,29 @@ from gate_receipts import (
     ticket_price_response,
     cup_round_attendance_modifier,
     fan_factor_for_root_competition_index,
+    DomesticCupGatePolicyInputs,
+    english_domestic_cup_gate_policy_inputs,
     english_ticket_reference_prices,
 )
 
 
 class CupGatePrimitiveTests(unittest.TestCase):
+    def test_english_domestic_cup_policy_composes_closed_inputs(self):
+        self.assertEqual(
+            english_domestic_cup_gate_policy_inputs(
+                root_competition_index=9,
+                host_valuation_division_category=2,
+                total_round_count=8,
+                zero_based_round_index=7,
+            ),
+            DomesticCupGatePolicyInputs(
+                tier_factor=0.5,
+                round_attendance_modifier=3.0,
+                seating_reference=16.0,
+                terrace_reference=12.0,
+            ),
+        )
+
     def test_english_division_ticket_references_match_40cbc0(self):
         self.assertEqual(
             tuple(english_ticket_reference_prices(i) for i in range(5)),
