@@ -264,8 +264,9 @@ def gate12_primary_matchday_order(
     season_year: int,
     premier_league_competition_id: int = 0,
     domestic_cup_ids: tuple[int, ...] = (1, 5),
+    procedural_league_ids: tuple[int, ...] = (14, 167),
 ) -> tuple[tuple[date, tuple[tuple, ...]], ...]:
-    """Retain exact shuffled PL/domestic-Cup interleaving by Gregorian date.
+    """Retain exact shuffled live Gate-12 interleaving by Gregorian date.
 
     Bucket index is the primary-container relative day. Now that the mode-0
     calendar anchor is instruction-closed, bucket 0 is the shared week-0
@@ -274,6 +275,7 @@ def gate12_primary_matchday_order(
     """
     anchor = season_weekday_date(int(season_year), 0, 1)
     domestic_ids = {int(value) for value in domestic_cup_ids}
+    procedural_ids = {int(value) for value in procedural_league_ids}
     league_id = int(premier_league_competition_id)
     result: list[tuple[date, tuple[tuple, ...]]] = []
 
@@ -295,6 +297,13 @@ def gate12_primary_matchday_order(
                 in ("cup_match", "first_leg_match", "second_leg_match")
             ):
                 entries.append(("domestic_cup", tuple(node.node_token)))
+            if (
+                node.node_kind == "league_match"
+                and int(node.competition_id) in procedural_ids
+            ):
+                entries.append(("procedural_league", tuple(node.node_token)))
+                continue
+
 
         if entries:
             result.append(
