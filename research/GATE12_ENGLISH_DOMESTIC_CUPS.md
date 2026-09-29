@@ -730,3 +730,58 @@ both-controlled-clubs branches distribute or post categories 1/2.
 
 GitHub Actions at `f2abbff4` ran **747 reconstruction tests** with only the
 two unchanged secondary-schedule failures. Repository asset policy passed.
+
+
+## Dynamic replay primary-order boundary
+
+The annual full-season audit exposed one scheduler integration distinction that
+the earlier dynamic-replay implementation did not close.
+
+The replay producer is source-backed:
+
+```text
+0x51392A..0x5139BA
+  -> reversed CupMatchReplay construction
+  -> 0x615A60(container, replay, candidate_relative_day)
+```
+
+The replay date is exact for shipped FA Cup replay-producing rounds: current
+match-completion date + 14 days. Replay state, reversed participants, linkage,
+completion, persistence, and the full-primary next-match shadow are also live.
+
+However, startup placement and runtime replay insertion are **not the same
+entry point**. Gate 4 proves that `0x615950` chooses/conflict-adjusts a startup
+bucket and head-inserts before `0x615AE0` shuffles that bucket. The dynamic
+replay path calls `0x615A60` directly after that startup shuffle has already
+happened. No persisted instruction trace currently proves whether `0x615A60`
+places the new node at the head, tail, or another linked-list position within
+an already-shuffled same-day bucket.
+
+An older clean-room shadow helper incorrectly described its local tuple
+prepend as preserving `0x615950` replay order. Commit
+`3c200593fd15b264ebef6fb05497d2dc5ff0482f` corrects that comment: the shadow
+position is only for next-match-date reachability and is not evidence for
+scheduler execution order.
+
+Recovery generation 73 checked:
+
+- repository research and replay-recovery commit history;
+- connected Dropbox;
+- connected Google Drive;
+- the current execution workspace.
+
+None contained the authorized canonical executable or a saved `0x615A60`
+instruction trace. The routine therefore remains a source-access fidelity
+boundary rather than a guessed implementation.
+
+To prevent silent corruption, commit
+`75e3072e482afad4c88796331ad1b040e98265c4` makes
+`GameState.primary_entries_due_today()` raise explicitly if a dynamic replay
+reaches its due date without a source-ordered primary entry. Regression
+`ece4da469943cf477788be00f537af61f019edc7` locks that behavior.
+
+`reconstruction/canonical_annual_rollover_audit.py` now drives the entire
+canonical primary season through the existing runtime and atomic annual
+regeneration path. Until `0x615A60` is traced, the audit may deliberately stop
+at this replay guard. It must never append/prepend a replay merely to force the
+annual audit to pass.
