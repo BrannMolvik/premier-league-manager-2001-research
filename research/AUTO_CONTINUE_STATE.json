@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Close the exact 0x51392A NormalRound replay-date producer, then dynamically insert persisted FA Cup replays before human/AI matchday integration.",
-  "last_known_main_head": "dbae602069ae693a337fc743d5e438faf6c66201",
+  "active_task": "Reconcile the newly committed dynamic FA Cup replay scheduling/save-roundtrip work at main a41feea2, then continue the exact next Gate 12 domestic-cup integration task.",
+  "last_known_main_head": "a41feea2c51bc40d614c59c606467b59680bc040",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 60,
+  "recovery_generation": 61,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 60 verified persistent CupMatch score/link state at e934dff5 (705 tests, only two known secondary-schedule failures) and canonical docs through main dbae6020. Reopen exact 0x51392A replay-date producer from authorized source media.",
+  "note": "Recovery generation 61 found main advanced through a41feea2 with source-dated dynamic FA Cup replay insertion plus scheduling/controller-save tests. CURRENT_STATE is stale relative to these commits; reconcile them before advancing the Gate 12 integration boundary.",
   "same_chat_fallback_minutes": 30
 }
