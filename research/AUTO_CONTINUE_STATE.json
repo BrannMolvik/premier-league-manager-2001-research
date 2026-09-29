@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Gate 12 Europe: attach Champions League/UEFA Cup knockout nodes to the existing CupMatch runtime and shared primary controller; preserve canonical type-2/type-3 dependencies, primary order, and save/reload.",
-  "last_known_main_head": "8a12e2bea08f5c70a92886235d663b42e96dfdeb",
+  "active_task": "Gate 12 Europe: verify save/reload and real type-3 cross-competition progression through live Champions League/UEFA Cup knockout execution, preserving canonical primary order and shared CupMatch behavior.",
+  "last_known_main_head": "437c69fa81b41976d5551a3adb3e373e038bd973",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 67,
+  "recovery_generation": 68,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "European group execution and source-backed ClubRef type-3 cross-group progression verified at 0864839 (774 tests, only two known secondary-schedule failures). CURRENT_STATE checkpoint advanced; next boundary is European knockout CupMatch attachment.",
+  "note": "Recovered at main 437c69f. European knockout shared CupMatch execution and human primary flow are already verified; continue with save/reload and real type-3 cross-competition progression verification rather than repeating attachment work.",
   "same_chat_fallback_minutes": 30
 }
