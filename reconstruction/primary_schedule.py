@@ -73,6 +73,8 @@ def primary_schedule_source_bucket(
 def nominal_primary_schedule_bucket(
     scheduled_week: int,
     scheduled_weekday: int,
+    *,
+    season_year: int = 2000,
 ) -> int:
     """Reproduce the primary 0x615950 nominal bucket calculation.
 
@@ -81,18 +83,17 @@ def nominal_primary_schedule_bucket(
         7 * week + weekday + container.offset
 
     and primary ScheduleContainer construction initializes offset to -1.
-    It then advances one bucket when the corresponding calendar date is
-    25 December. In the canonical 2000/01 primary schedule that date is
-    week 25 / weekday 1.
+    It then advances one bucket when the corresponding Gregorian calendar date
+    is 25 December. In the canonical 2000/01 primary schedule that happens to
+    be week 25 / weekday 1; later seasons must derive the slot from the actual
+    season-year calendar rather than reuse that first-season coordinate.
     """
 
     week = int(scheduled_week)
     weekday = int(scheduled_weekday)
     bucket = primary_schedule_source_bucket(week, weekday)
-    if (
-        week == PRIMARY_CHRISTMAS_WEEK
-        and weekday == PRIMARY_CHRISTMAS_WEEKDAY
-    ):
+    on_date = season_weekday_date(int(season_year), week, weekday)
+    if (on_date.month, on_date.day) == (12, 25):
         bucket += 1
     return bucket
 
@@ -187,6 +188,7 @@ def choose_primary_schedule_bucket(
 def place_primary_schedule_nodes(
     nodes: Iterable[StartupScheduleNode],
     *,
+    season_year: int = 2000,
     bucket_count: int = PRIMARY_SCHEDULE_BUCKET_COUNT,
 ) -> PrimarySchedulePlacement:
     """Place startup nodes through exact primary 0x615950 semantics.
@@ -194,6 +196,8 @@ def place_primary_schedule_nodes(
     Nodes must be supplied in original construction/insertion order. Each
     accepted node is head-inserted into its chosen bucket, so the returned
     bucket tuples are already in the linked-list order seen by 0x615AE0.
+    season_year is required for the executable's Gregorian 25-December skip;
+    its default preserves the shipped 2000/01 startup path.
     """
 
     bucket_count = int(bucket_count)
@@ -213,6 +217,7 @@ def place_primary_schedule_nodes(
         nominal = nominal_primary_schedule_bucket(
             int(node.scheduled_week),
             int(node.scheduled_weekday),
+            season_year=int(season_year),
         )
         if not 0 <= nominal < bucket_count:
             raise ValueError(
