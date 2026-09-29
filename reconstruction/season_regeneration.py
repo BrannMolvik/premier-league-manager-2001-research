@@ -104,6 +104,37 @@ class AnnualPrimaryScheduleRegeneration:
         return self.competition_draw_count + self.bucket_shuffle_draw_count
 
 
+def partition_annual_type3_league_sources(
+    competitions: Iterable[object],
+    allocation_instructions: Iterable[object],
+) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    """Split required annual type-3 ranking sources into League and DummyLeague IDs."""
+
+    competition_list = tuple(competitions)
+    competition_by_id = {
+        int(competition.id): competition
+        for competition in competition_list
+    }
+    league_sources, _cup_sources = required_annual_type3_sources(
+        competition_list,
+        allocation_instructions,
+    )
+    played: list[int] = []
+    dummy: list[int] = []
+    for competition_id in league_sources:
+        kind = int(competition_by_id[int(competition_id)].runtime_kind_code)
+        if kind == 1:
+            played.append(int(competition_id))
+        elif kind == 3:
+            dummy.append(int(competition_id))
+        else:
+            raise RuntimeError(
+                "annual type-3 League/Dummy source has unsupported runtime kind: "
+                f"{competition_id} -> {kind}"
+            )
+    return tuple(played), tuple(dummy)
+
+
 def capture_annual_type3_qualification_snapshot(
     state,
     competitions: Iterable[object],
