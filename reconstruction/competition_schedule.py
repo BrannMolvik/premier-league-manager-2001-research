@@ -139,9 +139,18 @@ def materialize_cup_round_schedule_nodes(
 
     primary_week = int(round_definition.scheduled_week)
     primary_weekday = int(round_definition.scheduled_weekday)
-    round_extra_time = bool(round_definition.cup_extra_time_capable)
-    round_decisive = bool(round_definition.cup_decisive_tiebreak)
-    round_auxiliary = bool(round_definition.cup_auxiliary_flag)
+    # Lightweight/synthetic Round stubs used by isolated startup tests predate
+    # these recovered fields. Missing policy metadata has no startup-RNG or
+    # placement effect, so only canonical RoundDefinition objects supply it.
+    round_extra_time = bool(
+        getattr(round_definition, "cup_extra_time_capable", False)
+    )
+    round_decisive = bool(
+        getattr(round_definition, "cup_decisive_tiebreak", False)
+    )
+    round_auxiliary = bool(
+        getattr(round_definition, "cup_auxiliary_flag", False)
+    )
     second_week = (
         int(round_definition.replay_week)
         if round_type == 2
