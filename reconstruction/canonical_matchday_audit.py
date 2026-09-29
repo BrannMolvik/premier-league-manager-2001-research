@@ -50,6 +50,7 @@ class CanonicalPrimaryScheduleReconstruction:
 
     buckets: tuple[tuple[object, ...], ...]
     premier_league_order: tuple[tuple[int, tuple[int, ...]], ...]
+    ranked_source_club_ids: tuple[tuple[int, tuple[int, ...]], ...]
     state_after: int
 
 
@@ -121,6 +122,7 @@ def reconstruct_canonical_primary_schedule(
     return CanonicalPrimaryScheduleReconstruction(
         buckets=tuple(tuple(bucket) for bucket in shuffled.buckets),
         premier_league_order=order,
+        ranked_source_club_ids=competition.cup_runtime.ranked_source_club_ids,
         state_after=int(shuffled.state_after),
     )
 
