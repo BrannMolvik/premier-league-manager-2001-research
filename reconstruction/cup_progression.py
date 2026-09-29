@@ -1,9 +1,10 @@
 """Live Cup ClubRef result resolution for Gate 12.
 
 Startup already materializes Cup pairings symbolically. This module supplies
-only the source-backed runtime bridge proven by ClubRef::Resolve at 0x4F28E0:
-type-0 refs resolve directly, while type-1 refs resolve a referenced match
-winner (selector 0) or its opposite/loser (selector != 0).
+the source-backed runtime bridges proven by ClubRef::Resolve at 0x4F28E0:
+type-0 refs resolve directly, type-1 refs resolve a referenced match winner
+(selector 0) or its opposite/loser (selector != 0), and type-2 refs resolve a
+ranked position from a referenced competition/context once that ranking exists.
 
 The shared result virtual and the class-specific NormalRound Replay /
 FirstLeg / SecondLeg completion lifecycle are instruction-closed and modeled
@@ -436,9 +437,50 @@ def complete_cup_match(
 
 @dataclass
 class CupResultRegistry:
-    """Persistent semantic counterpart of referenced CupMatch result objects."""
+    """Persistent semantic result/position state consumed by Cup ClubRefs."""
 
     outcomes: dict[CupResultToken, CupKnockoutOutcome] = field(default_factory=dict)
+    competition_rankings: dict[tuple[int, int], tuple[int, ...]] = field(
+        default_factory=dict
+    )
+
+    def record_competition_ranking(
+        self,
+        competition_id: int,
+        club_ids,
+        *,
+        competition_context: int = 0,
+    ) -> tuple[int, ...]:
+        """Persist the sorted eligible ranking consumed by ClubRef type 2.
+
+        The selector stored in the 16-byte ClubRef is a zero-based index into
+        the referenced runtime competition/context ranking. The ranking owner
+        remains responsible for applying that competition's original sorting
+        and eligibility rules before publishing it here.
+        """
+        key = (int(competition_id), int(competition_context))
+        ranking = tuple(int(club_id) for club_id in club_ids)
+        if len(ranking) != len(set(ranking)):
+            raise ValueError("competition ranking contains duplicate clubs")
+        if key in self.competition_rankings:
+            raise ValueError("competition ranking has already been recorded")
+        self.competition_rankings[key] = ranking
+        return ranking
+
+    def replace_competition_ranking(
+        self,
+        competition_id: int,
+        club_ids,
+        *,
+        competition_context: int = 0,
+    ) -> tuple[int, ...]:
+        """Refresh a live competition ranking after its table changes."""
+        key = (int(competition_id), int(competition_context))
+        ranking = tuple(int(club_id) for club_id in club_ids)
+        if len(ranking) != len(set(ranking)):
+            raise ValueError("competition ranking contains duplicate clubs")
+        self.competition_rankings[key] = ranking
+        return ranking
 
     def record_match_resolution(
         self,
@@ -483,15 +525,18 @@ class CupResultRegistry:
         return outcome
 
     def resolve_club_ref(self, ref: CupClubRefDescriptor) -> int | None:
-        """Resolve the instruction-closed type-0/type-1 ClubRef subset.
+        """Resolve the instruction-closed type-0/type-1/type-2 subset.
 
         Type 1 selector 0 returns the match virtual +0x44 result club. Any
         nonzero selector follows 0x513FB0 and returns the opposite side.
 
-        An unresolved referenced result returns None, matching the fact that
-        startup may schedule later rounds before the source match has played.
-        Unsupported type tags return None rather than borrowing semantics from
-        League-position or MiniLeague resolvers.
+        Type 2 references the sorted eligible position array of another
+        competition/runtime context. The selector is its zero-based position.
+        Until that live ranking has been published, resolution remains pending.
+
+        Type 3 MiniLeague transfer references and type 4 Scottish scheduling
+        references remain deliberately unsupported here because their distinct
+        resolver semantics have not yet been integrated into live state.
         """
         ref_type = int(ref.type_code)
         if ref_type == 0:
@@ -500,17 +545,29 @@ class CupResultRegistry:
                 if ref.direct_club_id is None
                 else int(ref.direct_club_id)
             )
-        if ref_type != 1:
-            return None
-        if ref.reference_token is None:
-            return None
 
-        outcome = self.outcomes.get(tuple(ref.reference_token))
-        if outcome is None:
-            return None
-        if int(ref.selector) == 0:
-            return int(outcome.winner_club_id)
-        return int(outcome.loser_club_id)
+        if ref_type == 1:
+            if ref.reference_token is None:
+                return None
+            outcome = self.outcomes.get(tuple(ref.reference_token))
+            if outcome is None:
+                return None
+            if int(ref.selector) == 0:
+                return int(outcome.winner_club_id)
+            return int(outcome.loser_club_id)
+
+        if ref_type == 2:
+            if ref.competition_id is None:
+                return None
+            ranking = self.competition_rankings.get(
+                (int(ref.competition_id), int(ref.competition_context))
+            )
+            selector = int(ref.selector)
+            if ranking is None or selector < 0 or selector >= len(ranking):
+                return None
+            return int(ranking[selector])
+
+        return None
 
     def resolve_pair(
         self,

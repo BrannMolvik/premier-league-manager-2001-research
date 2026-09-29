@@ -365,6 +365,67 @@ class CupResultRegistryTests(unittest.TestCase):
         self.assertEqual(registry.resolve_club_ref(winner_ref), 20)
         self.assertEqual(registry.resolve_club_ref(loser_ref), 10)
 
+    def test_competition_position_ref_resolves_zero_based_rank(self):
+        registry = CupResultRegistry()
+        registry.record_competition_ranking(
+            14,
+            (101, 202, 303, 404),
+            competition_context=3,
+        )
+        ref = CupClubRefDescriptor(
+            type_code=2,
+            selector=2,
+            competition_id=14,
+            competition_context=3,
+            reference_token=("group_position", 14, 3, 2),
+        )
+
+        self.assertEqual(registry.resolve_club_ref(ref), 303)
+
+    def test_competition_position_ref_waits_for_live_ranking(self):
+        registry = CupResultRegistry()
+        ref = CupClubRefDescriptor(
+            type_code=2,
+            selector=1,
+            competition_id=14,
+            competition_context=7,
+        )
+
+        self.assertIsNone(registry.resolve_club_ref(ref))
+        registry.replace_competition_ranking(
+            14,
+            (900, 901, 902),
+            competition_context=7,
+        )
+        self.assertEqual(registry.resolve_club_ref(ref), 901)
+
+    def test_competition_ranking_refresh_changes_position_resolution(self):
+        registry = CupResultRegistry()
+        ref = CupClubRefDescriptor(
+            type_code=2,
+            selector=0,
+            competition_id=14,
+            competition_context=1,
+        )
+        registry.record_competition_ranking(
+            14,
+            (10, 20, 30),
+            competition_context=1,
+        )
+        self.assertEqual(registry.resolve_club_ref(ref), 10)
+
+        registry.replace_competition_ranking(
+            14,
+            (20, 10, 30),
+            competition_context=1,
+        )
+        self.assertEqual(registry.resolve_club_ref(ref), 20)
+
+    def test_competition_ranking_rejects_duplicate_clubs(self):
+        registry = CupResultRegistry()
+        with self.assertRaises(ValueError):
+            registry.record_competition_ranking(14, (1, 1), competition_context=0)
+
     def test_unplayed_match_result_ref_remains_unresolved(self):
         registry = CupResultRegistry()
         ref = CupClubRefDescriptor(

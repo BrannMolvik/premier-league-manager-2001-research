@@ -489,6 +489,37 @@ class InternalSaveTests(unittest.TestCase):
             snapshot_human_gameplay(original),
         )
 
+    def test_competition_position_rankings_survive_roundtrip(self):
+        original = self.build_controller()
+        original.state.cup_results.record_competition_ranking(
+            14,
+            (101, 202, 303, 404),
+            competition_context=6,
+        )
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.cup_results.competition_rankings,
+            original.state.cup_results.competition_rankings,
+        )
+        ref = __import__("competition_startup").CupClubRefDescriptor(
+            type_code=2,
+            selector=2,
+            competition_id=14,
+            competition_context=6,
+        )
+        self.assertEqual(restored.state.cup_results.resolve_club_ref(ref), 303)
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
     def test_domestic_cup_schedule_state_survives_roundtrip(self):
         original = self.build_controller()
         first_token = ("cup_first_leg", 5, 185, 3)

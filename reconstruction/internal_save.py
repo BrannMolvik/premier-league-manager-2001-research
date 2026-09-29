@@ -56,7 +56,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 28
+SAVE_SCHEMA_VERSION = 29
 
 
 def _iso(value: date | None) -> str | None:
@@ -935,26 +935,55 @@ def _restore_youth_state(value) -> YouthTeamState | None:
     )
 
 
-def _snapshot_cup_result_registry(registry: CupResultRegistry) -> list[dict[str, Any]]:
-    return [
-        {
-            "result_token": list(outcome.result_token),
-            "participant_0_club_id": int(outcome.participant_0_club_id),
-            "participant_1_club_id": int(outcome.participant_1_club_id),
-            "winner_club_id": int(outcome.winner_club_id),
-        }
-        for _, outcome in sorted(registry.outcomes.items(), key=lambda item: repr(item[0]))
-    ]
+def _snapshot_cup_result_registry(registry: CupResultRegistry) -> dict[str, Any]:
+    return {
+        "outcomes": [
+            {
+                "result_token": list(outcome.result_token),
+                "participant_0_club_id": int(outcome.participant_0_club_id),
+                "participant_1_club_id": int(outcome.participant_1_club_id),
+                "winner_club_id": int(outcome.winner_club_id),
+            }
+            for _, outcome in sorted(
+                registry.outcomes.items(),
+                key=lambda item: repr(item[0]),
+            )
+        ],
+        "competition_rankings": [
+            {
+                "competition_id": int(key[0]),
+                "competition_context": int(key[1]),
+                "club_ids": [int(club_id) for club_id in ranking],
+            }
+            for key, ranking in sorted(registry.competition_rankings.items())
+        ],
+    }
 
 
 def _restore_cup_result_registry(value) -> CupResultRegistry:
     registry = CupResultRegistry()
-    for record in value or ():
+    # Tolerate the pre-schema-29 helper shape for direct GameState restore
+    # callers even though normal save loading remains schema-version strict.
+    if isinstance(value, list):
+        outcomes = value
+        rankings = ()
+    else:
+        value = value or {}
+        outcomes = value.get("outcomes", ())
+        rankings = value.get("competition_rankings", ())
+
+    for record in outcomes:
         registry.record_knockout_outcome(
             tuple(record["result_token"]),
             int(record["participant_0_club_id"]),
             int(record["participant_1_club_id"]),
             int(record["winner_club_id"]),
+        )
+    for record in rankings:
+        registry.record_competition_ranking(
+            int(record["competition_id"]),
+            tuple(int(club_id) for club_id in record["club_ids"]),
+            competition_context=int(record.get("competition_context", 0)),
         )
     return registry
 
