@@ -160,8 +160,15 @@ class LiveProceduralLeagueState:
             return None
         return tuple(int(row.club_id) for row in rows)
 
+    @property
+    def is_complete(self) -> bool:
+        return len(self.results) == len(self.fixtures)
+
     def publish_exact_ranking(self, registry) -> tuple[int, ...] | None:
-        ranking = self.exact_ranking()
+        # Competition-position ClubRefs feed later rounds/phases. Do not expose
+        # a transient mid-group table merely because its currently proven sort
+        # keys happen to be unique.
+        ranking = self.exact_ranking() if self.is_complete else None
         if ranking is None:
             registry.clear_competition_ranking(
                 self.competition_id,
