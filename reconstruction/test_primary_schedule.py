@@ -10,6 +10,7 @@ from primary_schedule_shadow import (
 )
 from primary_schedule import (
     fixed_league_fixture_order_by_round,
+    premier_league_fixture_order_by_round,
     gate12_primary_matchday_order,
     nominal_primary_schedule_bucket,
     primary_schedule_source_bucket,
@@ -108,6 +109,62 @@ class PrimarySchedulePlacementTests(unittest.TestCase):
 
 
 class PrimaryScheduleExecutionOrderTests(unittest.TestCase):
+    def test_annual_procedural_premier_order_uses_schedule_index(self):
+        first = StartupScheduleNode(
+            node_kind="league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=None,
+            pair_index=0,
+            schedule_index=0,
+            scheduled_week=7,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=("league_match", 0, 0, 100),
+        )
+        second = StartupScheduleNode(
+            node_kind="league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=None,
+            pair_index=1,
+            schedule_index=0,
+            scheduled_week=7,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(3),
+            participant_1_ref=direct_club_ref(4),
+            node_token=("league_match", 0, 0, 101),
+        )
+        later = StartupScheduleNode(
+            node_kind="league_match",
+            competition_id=0,
+            competition_context=0,
+            round_id=None,
+            pair_index=0,
+            schedule_index=1,
+            scheduled_week=8,
+            scheduled_weekday=3,
+            participant_0_ref=direct_club_ref(5),
+            participant_1_ref=direct_club_ref(6),
+            node_token=("league_match", 0, 0, 102),
+        )
+        buckets = [() for _ in range(60)]
+        buckets[54] = (second, first)
+        buckets[58] = (later,)
+
+        self.assertEqual(
+            premier_league_fixture_order_by_round(buckets),
+            ((0, (101, 100)), (1, (102,))),
+        )
+        self.assertEqual(
+            gate12_primary_matchday_order(buckets, season_year=2001),
+            (
+                (date(2001, 8, 25), (("premier_league", 101), ("premier_league", 100))),
+                (date(2001, 8, 29), (("premier_league", 102),)),
+            ),
+        )
+
     def test_fixed_league_order_follows_bucket_then_head_to_tail(self):
         first = StartupScheduleNode(
             node_kind="fixed_league_match",
