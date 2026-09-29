@@ -403,8 +403,9 @@ def simulate_normal_match(
     condition_injury_settings: ConditionInjurySettings | None = None,
     discipline_enabled: bool = True,
     match_mode_code: int | None = None,
+    extra_time: bool = False,
 ) -> NormalMatchResult:
-    """Run the verified normal-time scoring/chance backbone through minute 90.
+    """Run the verified scoring/chance backbone through normal or extra time.
 
     This runs the recovered strength builders, 0x62B1A0 attack scheduler,
     type-1/2/3/4 chance resolvers, the exact RNG(7)-gated AI substitution path,
@@ -429,7 +430,7 @@ def simulate_normal_match(
     scores = [0, 0]
     condition_state = ConditionInjuryState()
     discipline_state = DisciplineState()
-    plan = build_match_phase_plan(extra_time=False, penalties=False)
+    plan = build_match_phase_plan(extra_time=bool(extra_time), penalties=False)
     boundaries = {boundary.minute: boundary.kind for boundary in plan.boundaries}
 
     for segment_start in plan.segment_minutes:

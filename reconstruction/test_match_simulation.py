@@ -313,5 +313,38 @@ class FullNormalMatchTests(unittest.TestCase):
         )
 
 
+    def test_extra_time_runs_same_backend_through_minute_120(self):
+        home = side(0, self.lineup(0), 10)
+        away = side(1, self.lineup(1), 10)
+
+        result = simulate_normal_match(
+            home,
+            away,
+            matrix(),
+            matrix(),
+            MidpointRng(),
+            extra_time=True,
+        )
+
+        boundaries = [
+            timed for timed in result.events
+            if isinstance(timed.event, BoundaryRecord)
+        ]
+        self.assertEqual(
+            [(item.minute, item.event.kind) for item in boundaries],
+            [
+                (45, BoundaryType.HALF_TIME),
+                (90, BoundaryType.EXTRA_TIME),
+                (105, BoundaryType.EXTRA_TIME),
+                (120, BoundaryType.FULL_TIME),
+            ],
+        )
+        self.assertEqual(len(result.possession_segments), 20)
+        self.assertEqual(
+            [slot.calculation_minute for slot in result.possession_segments[-4:]],
+            [95, 100, 110, 115],
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
