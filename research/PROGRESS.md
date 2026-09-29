@@ -7624,3 +7624,29 @@ now-verified procedural-League state.
   secondary-schedule failures; repository asset policy passed.
 - Next: prove exact English division IDs and primary/secondary schedule-container
   ownership from source evidence before wiring real divisional competitions.
+
+
+### 2026-09-29 - English divisional LeagueMatch runtime verified
+
+- Canonical competition data and the recovered DBRCompetition +0x38 schedule
+  selector prove that England's root procedural Leagues are IDs **2, 3, 4, 7**
+  (Division 1, Division 2, Division 3, Conference), all in the **primary**
+  schedule container. No English root procedural League belongs to the
+  secondary container.
+- Added `partition_root_procedural_league_ids()` so container ownership is
+  derived from parsed source records rather than a guessed English ID list.
+- Canonical verification now asserts primary `(2, 3, 4, 7)` and secondary
+  `()` for country/region 26.
+- Canonical gameplay construction now includes those source-derived IDs in the
+  exact primary matchday view and materializes them through the already-verified
+  generic `LiveProceduralLeagueState` bridge alongside European IDs 14/167.
+- Added deterministic four-division save/reload continuation coverage.
+- Verified code checkpoint:
+  `91008587337fd53dc55023a2a1a6508505928639`.
+- GitHub Actions ran **783 tests with 2 failures**, exactly the two unchanged
+  known secondary-schedule assertions. Both new English-divisional tests
+  passed; repository asset policy passed.
+- Evidence: `research/GATE12_ENGLISH_DIVISIONS.md`.
+- Next: audit the source-backed English cross-division season transition,
+  including promotion, relegation, and any playoff competitions, before
+  changing club competition membership.
