@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Gate 12 English cross-division season transition: prove source-backed promotion, relegation, and playoff dependencies linking Premier League, Divisions 1/2/3, and Conference before mutating club competition membership.",
-  "last_known_main_head": "ab83995b62d1fa59dc82b041f884bdb3370fe60d",
+  "active_task": "Gate 12 next-season regeneration: trace original rollover order after verified English LeagueAllocation membership swaps, then rebuild Premier League/divisional/playoff runtime from post-transition memberships without stale schedules or duplicate DummyLeague RNG.",
+  "last_known_main_head": "216a3dcea045d789057f3c138bfad10dc8402bb2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 69,
   "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "English root procedural League IDs/container ownership and four-division execution/save-reload are verified. Continue with cross-division season transition; do not reopen solved Cup, Europe, or regular-season LeagueMatch work.",
+  "note": "English annual transition is verified at 64baafb: 792 tests, only two unchanged secondary-schedule failures, asset policy passed. Membership swaps and save schema 33 are complete. Continue next-season regeneration only.",
   "same_chat_fallback_minutes": 30
 }
