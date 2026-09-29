@@ -235,6 +235,73 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
         )
         self.assertFalse(match.uses_extra_time)
 
+    def test_drawn_fa_cup_match_inserts_reversed_replay_fourteen_days_later(self):
+        result_token = ("cup_result", 1, 38, 0)
+        scheduled = cup_node(
+            node_kind="cup_match",
+            competition_id=1,
+            round_id=38,
+            pair_index=0,
+            week=19,
+            weekday=6,
+            left=direct_club_ref(10),
+            right=direct_club_ref(20),
+            token=result_token,
+        )
+        state = DomesticCupScheduleState.from_startup_nodes(
+            (scheduled,),
+            season_year=2000,
+        )
+        registry = CupResultRegistry()
+        original = state.materialize_normal_match(
+            result_token,
+            registry,
+            extra_time_capable=True,
+            decisive_tiebreak=False,
+        )
+        completion = complete_cup_match(original, registry, 1, 1)
+
+        replay_node = state.insert_replay_from_completion(
+            result_token,
+            completion,
+            current_date=date(2000, 11, 18),
+        )
+        replay_token = ("cup_replay", 1, 38, 0)
+
+        self.assertEqual(replay_node.node_token, replay_token)
+        self.assertEqual(replay_node.scheduled_date, date(2000, 12, 2))
+        self.assertEqual(replay_node.resolve_pair(registry), (20, 10))
+        self.assertIn(result_token, state.completed_node_tokens)
+        self.assertNotIn(replay_token, state.completed_node_tokens)
+        self.assertEqual(
+            tuple(node.node_token for node in state.due_nodes(
+                date(2000, 12, 2),
+                registry,
+            )),
+            (replay_token,),
+        )
+        self.assertIs(state.match_state(replay_token), completion.replay)
+        self.assertIs(completion.replay.prior_match, original)
+        self.assertIs(original.following_match, completion.replay)
+
+        restored = DomesticCupScheduleState.restore(state.snapshot())
+        restored_original = restored.match_state(result_token)
+        restored_replay = restored.match_state(replay_token)
+
+        self.assertEqual(restored.node(replay_token).scheduled_date, date(2000, 12, 2))
+        self.assertIs(restored_replay.prior_match, restored_original)
+        self.assertIs(restored_original.following_match, restored_replay)
+
+        replay_completion = complete_cup_match(
+            restored_replay,
+            registry,
+            2,
+            1,
+        )
+        restored.mark_completed(replay_token)
+        self.assertEqual(replay_completion.outcome.winner_club_id, 20)
+        self.assertEqual(registry.outcomes[result_token].winner_club_id, 20)
+
     def test_snapshot_roundtrip_preserves_symbolic_refs_and_completion(self):
         first_token = ("cup_first_leg", 5, 185, 3)
         first = cup_node(
