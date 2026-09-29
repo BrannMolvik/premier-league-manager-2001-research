@@ -141,6 +141,9 @@ class GameState:
     domestic_cups: DomesticCupScheduleState = field(
         default_factory=DomesticCupScheduleState
     )
+    european_cups: DomesticCupScheduleState = field(
+        default_factory=DomesticCupScheduleState
+    )
     procedural_leagues: dict[tuple[int, int], LiveProceduralLeagueState] = field(
         default_factory=dict
     )
@@ -2591,6 +2594,29 @@ class GameState:
             season_year=int(season_year),
         )
         return self.domestic_cups
+
+    def install_european_cup_primary_schedule(
+        self,
+        buckets,
+        *,
+        season_year: int,
+    ) -> DomesticCupScheduleState:
+        """Attach canonical Champions League/UEFA Cup knockout nodes."""
+        from domestic_cup_state import EUROPEAN_CUP_IDS
+
+        self.european_cups = DomesticCupScheduleState.from_primary_schedule_buckets(
+            buckets,
+            season_year=int(season_year),
+            competition_ids=EUROPEAN_CUP_IDS,
+        )
+        return self.european_cups
+
+    def european_cup_nodes_due_today(self):
+        """Return placed European Cup nodes whose symbolic refs now resolve."""
+        return self.european_cups.due_nodes(
+            self.calendar.current_date,
+            self.cup_results,
+        )
 
     def domestic_cup_nodes_due_today(self):
         """Return placed/shuffled domestic Cup nodes whose refs now resolve."""
