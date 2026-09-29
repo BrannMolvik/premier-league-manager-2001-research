@@ -662,7 +662,11 @@ class IntegratedGameStateTests(unittest.TestCase):
             (1, 2),
         )
         self.assertIn(outcome.winner_club_id, (1, 2))
-        self.assertEqual(tuple(result.score), tuple(state.european_cups.match_state(token).base_score))
+        match = state.european_cups.match_state(token)
+        self.assertEqual(
+            tuple(result.score),
+            (int(match.base_score_0), int(match.base_score_1)),
+        )
 
     def test_primary_ai_entry_executes_procedural_league_and_records_result(self):
         state = GameState.from_database(
