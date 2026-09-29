@@ -135,7 +135,7 @@ class HumanGameplayController:
                 "canonical English procedural League ownership changed: "
                 f"secondary={english_secondary_leagues}"
             )
-        annual_played_league_sources, _annual_dummy_league_sources = (
+        annual_played_league_sources, annual_dummy_league_sources = (
             partition_annual_type3_league_sources(
                 database.competitions,
                 database.cup_allocation_instructions,
@@ -170,13 +170,24 @@ class HumanGameplayController:
             primary_schedule.premier_league_order
         )
         startup_rankings = dict(primary_schedule.ranked_source_club_ids)
-        conference_two_ranking = startup_rankings.get(89)
-        if conference_two_ranking is None:
-            raise RuntimeError("canonical Conference 2 ranking was not materialized")
-        state.cup_results.replace_competition_ranking(
-            89,
-            conference_two_ranking,
+        required_startup_dummy_ids = tuple(dict.fromkeys(
+            tuple(int(value) for value in annual_dummy_league_sources) + (89,)
+        ))
+        missing_startup_dummy_ids = tuple(
+            competition_id
+            for competition_id in required_startup_dummy_ids
+            if competition_id not in startup_rankings
         )
+        if missing_startup_dummy_ids:
+            raise RuntimeError(
+                "canonical startup did not materialize required DummyLeague "
+                f"rankings {missing_startup_dummy_ids}"
+            )
+        for competition_id in required_startup_dummy_ids:
+            state.cup_results.replace_competition_ranking(
+                competition_id,
+                startup_rankings[competition_id],
+            )
         state.install_domestic_cup_primary_schedule(
             primary_schedule.buckets,
             season_year=2000,
