@@ -7587,3 +7587,22 @@ secondary-schedule assertions. Repository asset policy passed.
 Exact next target: add European child `league_match` entries to the exact
 post-shuffle primary execution order and connect their scored results to the
 now-verified procedural-League state.
+
+
+### 2026-09-29 - Gate 12 European type-3 UEFA dependency closed
+
+- Resumed from current GitHub state after stale-worker recovery; main had
+  already advanced through European knockout AI execution, human primary
+  routing and generic European schedule save/reload.
+- Added an end-to-end regression using two live competition-14 child groups to
+  derive the ClubRef type-3 second-place pool and feed it into a competition-10
+  UEFA knockout.
+- Corrected the regression to use the canonical primary schedule shadow and a
+  matching source competition identity on reload.
+- Verified checkpoint:
+  `474086bb26fe7185b0022ea84568653b443d8e0f`.
+- GitHub Actions reconstruction suite ran **780 tests** with only the two
+  unchanged known secondary-schedule failures.
+- Repository asset policy passed.
+- Gate 12 now advances to the roadmap's next slice: other required English
+  league/divisional structures.
