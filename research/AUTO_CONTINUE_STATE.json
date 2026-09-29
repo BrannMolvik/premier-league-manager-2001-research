@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Gate 12 live annual qualification coverage: preserve/publish every required DummyLeague ranking without extra RNG, execute required Cup sources 1/5/9/10/19/23/33/91/98/101 through finals, then run real canonical atomic rollover.",
-  "last_known_main_head": "3c90bd77d074c65e53dc373d1033c6225413fb1c",
+  "active_task": "Gate 12 annual rollover: close source-backed 0x615A60 dynamic FA Cup replay insertion order in the autonomous primary scheduler, then run the real canonical qualification snapshot and atomic year-two rollover.",
+  "last_known_main_head": "72f36de51bf1c097de35096cdc352942b61c6ab4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 73,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovered at main 3c90bd77 after persisted annual qualification Cup runtime work. Continue from the repository without redoing completed Cup source integration.",
+  "note": "Recovery generation 73 verified qualification-Cup primary due routing at e0a69e8e (818 tests, only two known secondary failures). Handoff metadata is reconciled through main 72f36de5. Next source boundary is 0x615A60 dynamic replay insertion order.",
   "same_chat_fallback_minutes": 30
 }
