@@ -2784,6 +2784,10 @@ class GameState:
             tuple(node.node_token)
             for node in self.european_cup_nodes_due_today()
         }
+        due_qualification = {
+            tuple(node.node_token)
+            for node in self.qualification_cup_nodes_due_today()
+        }
         due_procedural = set(self.procedural_league_nodes_due_today())
 
         due: list[tuple] = []
@@ -2794,6 +2798,11 @@ class GameState:
             elif kind == "domestic_cup" and tuple(entry[1]) in due_cup:
                 due.append(entry)
             elif kind == "european_cup" and tuple(entry[1]) in due_european:
+                due.append(entry)
+            elif (
+                kind == "qualification_cup"
+                and tuple(entry[1]) in due_qualification
+            ):
                 due.append(entry)
             elif (
                 kind == "procedural_league"
