@@ -331,3 +331,111 @@ The next implementation slice may now model:
 The MatchEngine event-level presentation of penalties can remain deferred; the
 Gate-12 requirement is the source-backed competition outcome lifecycle needed
 to advance the human season.
+
+
+## Replay date and domestic schedule anchor closure
+
+Recovery generation 60 reopened only the replay-date producer around
+`0x51392A` against the canonical executable and canonical Static.dat. This
+also corrected an inherited date-conversion assumption in the first live
+domestic-Cup schedule bridge.
+
+### Exact schedule-container selector
+
+`CupMatch::GetScheduleContainer` at `0x510300` is:
+
+```text
+510300  mov ecx,[match+0x0C]
+510303  mov eax,0x947AF0
+510308  test byte [ecx+0x0C],0x02
+51030C  jne 0x510313
+51030E  mov eax,0x947AD8
+510313  ret
+```
+
+The two global schedule containers are constructed through `0x615700`.
+The primary container `0x947AD8` is initialized with the 2000-season anchor;
+`0x947AF0` is the secondary/older-season container.
+
+Canonical Static.dat gives schedule-container code **1** for both competition
+1 (FA Cup) and competition 5 (League Cup). They therefore use the primary
+2000-season calendar path.
+
+### Primary Cup source-date conversion
+
+Container initialization `0x6169F0` constructs July 1 of the season year and
+aligns **forward** to the first Monday on or after July 1. Round constructor
+`0x4F5420` then copies the packed source fields exactly as:
+
+```text
+runtime +0x20 = packed scheduled_week
+runtime +0x24 = packed scheduled_weekday - 1
+runtime +0x28 = packed replay_week
+runtime +0x2C = packed replay_weekday - 1
+```
+
+Insertion routine `0x615950` forms the relative schedule day as:
+
+```text
+7 * runtime_week + runtime_zero_based_weekday
+```
+
+and adds the selected container's `+0x08` anchor.
+
+This differs from the previously reused Premier League helper, whose recovered
+league convention anchors to the Monday containing July 1. The first
+`DomesticCupScheduleState` implementation therefore placed domestic Cup
+nodes one week early and is superseded by the source-exact Cup-specific
+conversion.
+
+Canonical examples:
+
+```text
+FA Cup round 1      packed 19/6 -> Saturday 18 November 2000
+League Cup round 1  packed  7/3 -> Wednesday 23 August 2000
+```
+
+### Exact NormalRound replay arithmetic
+
+The live replay branch at `0x51392A..0x5139BA` is now closed:
+
+```text
+container = match->GetScheduleContainer()        ; 0x510300
+relative_current = global_current_day - container[+0x08]
+candidate = relative_current + 14
+
+round = owning_cup_round_vector[current_round_index]
+if round[+0x2C] > 6:
+    floor = 7 * round[+0x28] + round[+0x2C]
+    candidate = max(candidate, floor)
+
+construct reversed linked CupMatchReplay
+insert through 0x615A60(container, replay, candidate)
+```
+
+The `round[+0x28/+0x2C]` fields are the packed replay week and
+`replay_weekday - 1`, not an unrelated date object.
+
+Canonical FA Cup replay-capable rounds 38-42 all have packed
+`replay_weekday = 3`, so runtime `+0x2C = 2`. The `> 6` floor branch is
+therefore never taken for shipped FA Cup replays. Their exact live replay date
+is simply **the current match-completion day plus 14 days**.
+
+The later FA Cup rounds have packed replay `0/0` and are decisive rather than
+replay-producing. League Cup one-off NormalRounds are likewise decisive, while
+its TwoLeg rounds already use the packed replay week/day as the startup
+SecondLeg date.
+
+### Replay trigger
+
+At `0x51391B`, an unlinked normal `CupMatch` calls its shared result virtual
+`+0x44 -> 0x514000`. A non-null club follows the resolved-round path. A null
+result falls directly into the replay constructor path.
+
+There is therefore no additional guessed replay-eligibility switch at
+completion time. A source-configured normal match that remains unresolved
+creates the replay; a source-configured decisive normal match resolves instead.
+
+This closes the date/input dependency required for clean-room dynamic FA Cup
+Replay insertion without treating packed `replay_week/replay_weekday` as a
+generic replay date.
