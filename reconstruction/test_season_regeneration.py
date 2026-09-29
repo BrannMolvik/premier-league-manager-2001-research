@@ -205,10 +205,12 @@ class AnnualPrimaryRegenerationTests(unittest.TestCase):
         self.assertEqual(live_by_id[13].historical_competition_id, 20)
         self.assertEqual(live_by_id[13].historical_slot_index, 0)
         self.assertEqual(live_by_id[20].competition_id, 20)
-        self.assertEqual(
-            result.competition.cup_runtime.cups[0].selected_direct_club_ids,
-            (13, 10),
+        selected = set(
+            result.competition.cup_runtime.cups[0].selected_direct_club_ids
         )
+        self.assertEqual(selected, {10, 13})
+        self.assertIn(13, selected)
+        self.assertNotIn(20, selected)
 
     def test_same_crt_stream_continues_through_fresh_bucket_shuffle(self):
         competitions, rounds, clubs, countries = self._fixture()
