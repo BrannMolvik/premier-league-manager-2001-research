@@ -11,6 +11,7 @@ from contract_maintenance import (
     ContractRenewalSuggestionKind,
 )
 from concession_offer import ConcessionRuntimeSource
+from competition_schedule import StartupScheduleNode, direct_club_ref
 from cup_progression import CupMatchResolutionSnapshot
 from finance_state import FinancialObjectiveState
 from game_state import GameState
@@ -110,6 +111,56 @@ class InternalSaveTests(unittest.TestCase):
         )
 
         self.assertEqual(restored.state.cup_results.outcomes, original.state.cup_results.outcomes)
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
+    def test_domestic_cup_schedule_state_survives_roundtrip(self):
+        original = self.build_controller()
+        first_token = ("cup_first_leg", 5, 185, 3)
+        result_token = ("cup_result", 5, 185, 3)
+        original.state.install_domestic_cup_schedule_nodes(
+            (
+                StartupScheduleNode(
+                    node_kind="first_leg_match",
+                    competition_id=5,
+                    competition_context=0,
+                    round_id=185,
+                    pair_index=3,
+                    schedule_index=None,
+                    scheduled_week=2,
+                    scheduled_weekday=3,
+                    participant_0_ref=direct_club_ref(1),
+                    participant_1_ref=direct_club_ref(2),
+                    node_token=first_token,
+                ),
+                StartupScheduleNode(
+                    node_kind="second_leg_match",
+                    competition_id=5,
+                    competition_context=0,
+                    round_id=185,
+                    pair_index=3,
+                    schedule_index=None,
+                    scheduled_week=3,
+                    scheduled_weekday=3,
+                    participant_0_ref=direct_club_ref(2),
+                    participant_1_ref=direct_club_ref(1),
+                    node_token=result_token,
+                ),
+            ),
+            season_year=2000,
+        )
+        original.state.domestic_cups.mark_completed(first_token)
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(restored.state.domestic_cups, original.state.domestic_cups)
         self.assertEqual(
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),
