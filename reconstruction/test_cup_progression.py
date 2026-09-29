@@ -142,14 +142,14 @@ class CupMatchLifecycleTests(unittest.TestCase):
             1,
             1,
             rng=rng,
-            tiebreak_event_score_0=4,
-            tiebreak_event_score_1=4,
+            decisive_event_score_0=4,
+            decisive_event_score_1=4,
         )
 
         self.assertEqual(rng.calls, [2])
         self.assertTrue(completion.used_rng_tiebreak_fallback)
-        self.assertEqual(replay.tiebreak_score_0, 5)
-        self.assertEqual(replay.tiebreak_score_1, 4)
+        self.assertEqual(replay.decisive_score_0, 5)
+        self.assertEqual(replay.decisive_score_1, 4)
         self.assertEqual(completion.outcome.winner_club_id, 20)
 
     def test_two_leg_pair_reverses_second_leg_and_waits_for_it(self):
@@ -204,14 +204,38 @@ class CupMatchLifecycleTests(unittest.TestCase):
             1,
             1,
             rng=rng,
-            tiebreak_event_score_0=4,
-            tiebreak_event_score_1=4,
         )
 
         self.assertEqual(rng.calls, [2])
         self.assertTrue(completion.used_rng_tiebreak_fallback)
-        self.assertEqual(second.tiebreak_score_0, 4)
-        self.assertEqual(second.tiebreak_score_1, 5)
+        self.assertEqual(second.decisive_score_0, 0)
+        self.assertEqual(second.decisive_score_1, 1)
+        self.assertEqual(completion.outcome.winner_club_id, 1)
+
+    def test_second_leg_secondary_comparison_precedes_rng_after_decisive_events(self):
+        registry = CupResultRegistry()
+        token = ("cup_result", 5, 190, 2)
+        first, second = CupMatchRuntimeState.two_leg_pair(
+            token,
+            1,
+            2,
+            second_leg_extra_time_capable=True,
+        )
+        complete_cup_match(first, registry, 1, 1)
+        rng = FixedRng(0)
+
+        completion = complete_cup_match(
+            second,
+            registry,
+            1,
+            1,
+            rng=rng,
+            decisive_event_score_0=4,
+            decisive_event_score_1=4,
+        )
+
+        self.assertEqual(rng.calls, [])
+        self.assertFalse(completion.used_rng_tiebreak_fallback)
         self.assertEqual(completion.outcome.winner_club_id, 1)
 
     def test_event_tiebreak_that_already_resolves_match_consumes_no_rng(self):
@@ -232,8 +256,8 @@ class CupMatchLifecycleTests(unittest.TestCase):
             1,
             1,
             rng=rng,
-            tiebreak_event_score_0=5,
-            tiebreak_event_score_1=4,
+            decisive_event_score_0=5,
+            decisive_event_score_1=4,
         )
 
         self.assertEqual(rng.calls, [])
@@ -256,8 +280,8 @@ class CupMatchLifecycleTests(unittest.TestCase):
 
         self.assertTrue(match.uses_extra_time)
         self.assertEqual(rng.calls, [2])
-        self.assertEqual(match.tiebreak_score_0, 1)
-        self.assertEqual(match.tiebreak_score_1, 0)
+        self.assertEqual(match.decisive_score_0, 1)
+        self.assertEqual(match.decisive_score_1, 0)
         self.assertEqual(completion.outcome.winner_club_id, 10)
 
 

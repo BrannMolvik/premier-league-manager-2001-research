@@ -149,8 +149,8 @@ class CupMatchRuntimeState:
     following_match: "CupMatchRuntimeState | None" = None
     base_score_0: int = 0
     base_score_1: int = 0
-    tiebreak_score_0: int = 0
-    tiebreak_score_1: int = 0
+    decisive_score_0: int = 0
+    decisive_score_1: int = 0
     complete: bool = False
 
     def __post_init__(self) -> None:
@@ -168,8 +168,8 @@ class CupMatchRuntimeState:
         for value in (
             self.base_score_0,
             self.base_score_1,
-            self.tiebreak_score_0,
-            self.tiebreak_score_1,
+            self.decisive_score_0,
+            self.decisive_score_1,
         ):
             if int(value) < 0:
                 raise ValueError("Cup match scores must be non-negative")
@@ -183,11 +183,11 @@ class CupMatchRuntimeState:
 
     @property
     def composed_score_0(self) -> int:
-        return int(self.base_score_0) + int(self.tiebreak_score_0)
+        return int(self.base_score_0) + int(self.decisive_score_0)
 
     @property
     def composed_score_1(self) -> int:
-        return int(self.base_score_1) + int(self.tiebreak_score_1)
+        return int(self.base_score_1) + int(self.decisive_score_1)
 
     def resolution_snapshot(self) -> CupMatchResolutionSnapshot:
         previous = (
@@ -295,8 +295,8 @@ def _completion_snapshot(
     match: CupMatchRuntimeState,
     base_score_0: int,
     base_score_1: int,
-    tiebreak_score_0: int,
-    tiebreak_score_1: int,
+    decisive_score_0: int,
+    decisive_score_1: int,
 ) -> CupMatchResolutionSnapshot:
     previous = (
         None
@@ -306,8 +306,8 @@ def _completion_snapshot(
     return CupMatchResolutionSnapshot(
         participant_0_club_id=match.participant_0_club_id,
         participant_1_club_id=match.participant_1_club_id,
-        score_0=int(base_score_0) + int(tiebreak_score_0),
-        score_1=int(base_score_1) + int(tiebreak_score_1),
+        score_0=int(base_score_0) + int(decisive_score_0),
+        score_1=int(base_score_1) + int(decisive_score_1),
         complete=True,
         previous=previous,
     )
@@ -320,8 +320,8 @@ def complete_cup_match(
     score_1: int,
     *,
     rng=None,
-    tiebreak_event_score_0: int = 0,
-    tiebreak_event_score_1: int = 0,
+    decisive_event_score_0: int = 0,
+    decisive_event_score_1: int = 0,
 ) -> CupMatchCompletion:
     """Complete one CupMatch using the recovered 0x5136E0 lifecycle.
 
@@ -339,8 +339,8 @@ def complete_cup_match(
 
     score_0 = int(score_0)
     score_1 = int(score_1)
-    tiebreak_0 = int(tiebreak_event_score_0)
-    tiebreak_1 = int(tiebreak_event_score_1)
+    tiebreak_0 = int(decisive_event_score_0)
+    tiebreak_1 = int(decisive_event_score_1)
     if min(score_0, score_1, tiebreak_0, tiebreak_1) < 0:
         raise ValueError("Cup match scores must be non-negative")
     if (tiebreak_0 or tiebreak_1) and not match.decisive_tiebreak:
@@ -399,8 +399,8 @@ def complete_cup_match(
 
     match.base_score_0 = score_0
     match.base_score_1 = score_1
-    match.tiebreak_score_0 = tiebreak_0
-    match.tiebreak_score_1 = tiebreak_1
+    match.decisive_score_0 = tiebreak_0
+    match.decisive_score_1 = tiebreak_1
     match.complete = True
 
     if match.match_kind == CUP_MATCH_FIRST_LEG:
