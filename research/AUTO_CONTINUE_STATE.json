@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Reconcile the newly committed dynamic FA Cup replay scheduling/save-roundtrip work at main a41feea2, then continue the exact next Gate 12 domestic-cup integration task.",
-  "last_known_main_head": "a41feea2c51bc40d614c59c606467b59680bc040",
+  "active_task": "Close domestic Cup constructor policy inputs and reconcile the PL/Cup source-week transform before shared matchday execution.",
+  "last_known_main_head": "e22b48fd5f023c73af3167ecc6e90e7922ec6fc4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 61,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 61 found main advanced through a41feea2 with source-dated dynamic FA Cup replay insertion plus scheduling/controller-save tests. CURRENT_STATE is stale relative to these commits; reconcile them before advancing the Gate 12 integration boundary.",
+  "note": "Recovery generation 61 verified the post-placement/post-shuffle domestic Cup bridge: ccac3ba2 ran 710 tests with only the two known secondary-container failures; asset policy passed. Checkpoint docs are at e22b48fd. Next: recover constructor-policy producers and fixed-League/Cup calendar transform without guessing.",
   "same_chat_fallback_minutes": 30
 }
