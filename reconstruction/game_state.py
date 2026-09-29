@@ -2767,8 +2767,35 @@ class GameState:
         return self.primary_matchday_order
 
     def primary_entries_due_today(self) -> tuple[tuple, ...]:
-        """Return all currently materialized due entries in global scheduler order."""
+        """Return all currently materialized due entries in global scheduler order.
+
+        Runtime-created FA Cup replays are source-backed through construction and
+        date assignment, but their post-shuffle 0x615A60 insertion order is not
+        yet instruction-closed. Never silently skip such a due replay: fail at
+        the calendar boundary until its exact primary-order insertion is known.
+        """
         entries = self.primary_matchday_order.get(self.calendar.current_date, ())
+        due_dynamic_replays = tuple(
+            node
+            for node in self.domestic_cup_nodes_due_today()
+            if str(node.node_kind) == "replay_match"
+        )
+        scheduled_tokens = {
+            tuple(entry[1])
+            for entry in entries
+            if entry and entry[0] == "domestic_cup"
+        }
+        unscheduled_replays = tuple(
+            tuple(node.node_token)
+            for node in due_dynamic_replays
+            if tuple(node.node_token) not in scheduled_tokens
+        )
+        if unscheduled_replays:
+            raise RuntimeError(
+                "dynamic FA Cup replay reached its due date before source-backed "
+                "0x615A60 primary insertion order was recovered: "
+                f"{unscheduled_replays!r}"
+            )
         if not entries:
             return ()
 
