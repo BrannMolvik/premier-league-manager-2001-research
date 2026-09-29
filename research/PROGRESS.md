@@ -7485,3 +7485,25 @@ Next domestic-Cup-specific target: close the special gate-revenue posting
 semantics without guessing the both-controlled-clubs policy. Broader primary
 competition support will later reduce pending shadow lookups and allow the
 shared post-match branch to execute universally.
+
+
+## Gate 12 English Cup gate-policy adapter verified - 29 September 2026
+
+Commit `f2abbff45dc95aab6eb0ecc93db0e5db4c2d4f3f` composes the
+already-recovered English Cup attendance source inputs into one runtime policy
+adapter.
+
+- country-root storage order feeds the exact FanFactor selector;
+- Cup round index feeds the recovered final/semi/quarter/earlier modifier;
+- the host club's owning competition supplies the English valuation/division
+  category;
+- category selects seating reference 30/20/16/12/9 and exact 0.75 terrace
+  reference;
+- no special Cup revenue is posted yet.
+
+Verification: **747 tests, 2 failures**, both the unchanged known secondary
+scheduler assertions; asset policy passed.
+
+The remaining domestic-Cup-specific finance boundary is now narrowly the
+special category-1/category-2 posting policy when the Cup flag allows both
+controlled participants to receive postings.

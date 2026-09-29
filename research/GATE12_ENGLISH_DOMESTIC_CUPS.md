@@ -705,3 +705,28 @@ two unchanged secondary-schedule failures. Repository asset policy passed.
 The special Cup gate-revenue posting branch remains separate and unresolved at
 the business-policy level; do not infer revenue-sharing semantics from the
 special flag alone.
+
+
+### English Cup gate policy inputs composed
+
+Commit `f2abbff45dc95aab6eb0ecc93db0e5db4c2d4f3f` wires the
+instruction-closed non-stadium Cup attendance inputs into a reusable runtime
+adapter without crossing the unresolved posting-policy boundary.
+
+For a live domestic Cup match the adapter now derives:
+
+- the match competition's exact country-root array index through the recovered
+  qsorted stored-root order;
+- `FanFactor1..5` from that root index;
+- the Cup round attendance modifier from total round count and zero-based round
+  index;
+- the host club's owning competition and its packed valuation/division
+  category;
+- English seating references `30/20/16/12/9` plus the exact 0.75 terrace
+  derivative.
+
+The pure policy object deliberately does not decide how the special
+both-controlled-clubs branches distribute or post categories 1/2.
+
+GitHub Actions at `f2abbff4` ran **747 reconstruction tests** with only the
+two unchanged secondary-schedule failures. Repository asset policy passed.

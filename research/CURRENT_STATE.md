@@ -41,21 +41,20 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 implementation checkpoint:
 
 ```text
-6bfb60055938f3ad4bed5545c6cc100be0cf13bd
-Preflight shared Cup post-match persistence
+f2abbff45dc95aab6eb0ecc93db0e5db4c2d4f3f
+Compose English Cup gate policy inputs
 ```
 
-GitHub Actions at that checkpoint ran **745 tests with 2 failures**, exactly
+GitHub Actions at that checkpoint ran **747 tests with 2 failures**, exactly
 the unchanged known secondary-schedule assertions; repository asset policy
-passed. The Cup path retains the verified four `0x5DA2F0` draws before
-class-specific completion and now uses the full-primary shadow as an
-all-or-nothing preflight before shared post-match RNG.
+passed. In addition to the verified gate-RNG ordering and exact-or-pending
+post-match preflight, the runtime now composes the instruction-closed English
+Cup attendance policy inputs without posting revenue.
 
-When both clubs' next primary-container dates are exact, domestic-Cup execution
-runs shared `0x5127A0` incidents first and shared `0x404CE0` morale/Form
-second. If either lookup reaches an unresolved symbolic node, neither
-RNG-consuming branch runs. MatchCalculator Condition sync and RNG-clean home
-pitch wear remain live on both paths.
+The adapter derives the match competition's country-root FanFactor, the Cup
+round attendance modifier, and the host club's English division-category
+seating/terrace references from live source data. The special
+both-controlled-clubs revenue posting policy remains deliberately unimplemented.
 
 The active Cup slice now has:
 
@@ -198,8 +197,11 @@ Do not rebuild solved Cup startup RNG/draw behavior.
     Exact pairs run shared incidents then morale/Form; pending pairs consume
     neither branch's RNG. Preserve this guard until broader primary competitions
     can resolve the remaining symbolic shadow entries.
-12. Continue the special Cup/knockout revenue-posting trace separately; do not
-    infer the both-controlled-clubs policy beyond instruction-closed evidence.
+12. The source-backed English Cup gate policy adapter is now verified through
+    `f2abbff4`: root FanFactor, round attendance modifier and host owning-
+    division ticket references are live. Continue the special Cup/knockout
+    revenue-posting trace separately; do not infer the both-controlled-clubs
+    policy beyond instruction-closed evidence.
 
 ## Known live fidelity boundaries
 
@@ -210,8 +212,10 @@ Do not rebuild solved Cup startup RNG/draw behavior.
   The four Cup gate RNG draws are in exact pre-completion order, and shared
   incident/morale persistence now runs only after an exact two-club shadow
   preflight. Pending symbolic primary nodes still defer those RNG-consuming
-  branches. The remaining domestic-Cup-specific gap is the special Cup revenue
-  posting branch without guessing its both-controlled-clubs semantics.
+  branches. English Cup FanFactor, round modifier and host division ticket
+  references are also source-backed. The remaining domestic-Cup-specific gap
+  is the special Cup revenue posting branch without guessing its
+  both-controlled-clubs semantics.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
