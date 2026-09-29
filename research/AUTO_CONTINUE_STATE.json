@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Close domestic Cup constructor policy inputs and reconcile the PL/Cup source-week transform before shared matchday execution.",
-  "last_known_main_head": "4eb97457d0e4b6a00cd9a2e85d342e218670e675",
+  "active_task": "Trace the exact fixed-League 0x6173D0 -> 0x615950 date argument, then merge PL/Cup execution.",
+  "last_known_main_head": "e33356274d780106359829a0478d703f406cd7d0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 62,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 62 synchronized to main 4eb97457 after constructor-policy recovery and synthetic Cup schedule compatibility commits. Resume from CURRENT_STATE.md; do not repeat persisted Cup investigation.",
+  "recovery_generation": 63,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery synchronized to main e3335627. Constructor policy is closed; continue only the fixed-League 0x6173D0 -> 0x615950 date-argument trace.",
   "same_chat_fallback_minutes": 30
 }
