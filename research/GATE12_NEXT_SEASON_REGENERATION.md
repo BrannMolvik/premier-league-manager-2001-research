@@ -317,6 +317,27 @@ The clean-room annual materializer must feed that sort:
 It must not carry the prior season's cached Conference 2 ranking into the new
 FA Cup draw.
 
+### Primary root finalization order
+
+The annual qualification snapshot is produced through the separate
+`0x616A70 -> 0x411150` finalization walk before LeagueAllocation membership
+swaps. Direct traversal reconciliation closes its outer ordering:
+
+- countries remain in source-table order;
+- each country's root array is the already-qsorted runtime array;
+- `0x411150` walks that array **forward**;
+- `0x411020` initialization walks the same array **backward**.
+
+Finalization is therefore the reverse of initialization **within each country
+chunk**, not a global reversal across countries.
+`primary_mode0_root_finalization_order()` models this explicitly and
+`cb4f8abd41c0ac5ff3cf7df03d0295393ab7b8ec` adds a regression covering
+the per-country reversal.
+
+GitHub Actions at that checkpoint ran **802 tests with 2 failures**, exactly
+the unchanged known secondary-schedule assertions. Repository asset policy
+passed.
+
 ### Annual materializer safeguards
 
 `materialize_annual_primary_schedule()` now separates current membership from
@@ -346,7 +367,18 @@ Already verified and preserved:
 - playoff winners;
 - Conference 2 current-season DummyLeague ranking;
 - all 14 English membership exchanges;
+- annual League/Dummy type-3 qualification source requirements;
+- annual Cup type-3 requirement for the just-finished `Cup+0x40/+0x44` pair;
+- annual DummyLeague invalidation and first-consumer lazy re-sort semantics;
+- per-country primary-root finalization order;
 - internal save schema 33.
+
+One source detail is still intentionally open. The executable-backed research
+proves that `0x4F8F80` writes the completed result club and the opposite/finalist
+path into the two persistent enumeration slots, and `0x4F5770` later returns
+`Cup+0x40` as index 0 and `Cup+0x44` as index 1. The repository does **not**
+yet record which semantic value owns which slot. Because type-3 allocation is
+positional, annual live-state extraction must not guess that ordering.
 
 Do **not** implement next-season schedule rebuilding by rerunning the canonical
 startup materializer. That would incorrectly replay mode-1-only behavior and
@@ -354,13 +386,14 @@ may duplicate startup RNG.
 
 ## Exact next trace
 
-1. instruction-close cross-season Cup qualification/enumeration state so the
-   annual Cup materializer does not reuse stale first-season historical slots;
-2. determine the next season's DummyLeague/Conference 2 ranking regeneration
-   timing and ensure the annual path uses the correct live-season club/player
-   inputs without an extra RNG pass;
-3. then replace GameState's prior-season Premier/procedural League/Cup/ranking/
-   primary-shadow/order objects atomically from the verified annual
+1. instruction-close the positional writes in `0x4F8F80`: prove which of
+   `Cup+0x40` / `Cup+0x44` receives the completed result club and which
+   receives the opposite/finalist path;
+2. expose one live end-of-season qualification snapshot containing every
+   required League/Dummy ranking plus each proven ordered Cup pair, with
+   explicit failure for missing sources;
+3. atomically replace GameState's prior-season Premier/procedural
+   League/Cup/ranking/primary-shadow/order objects from the verified annual
    materialization;
 4. preserve the controller's competition/match CRT stream across that rebuild
    and keep the separately persisted GameState maintenance RNG split explicit
