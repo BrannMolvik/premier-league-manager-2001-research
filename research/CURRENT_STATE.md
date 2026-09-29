@@ -43,20 +43,22 @@ tracked according to `research/ASSET_POLICY.md`.
 Latest verified Gate-12 implementation checkpoint:
 
 ```text
-0feb1278ec2cfebc07379732a19ef8ab2f733777
-Persist competition-position ClubRef resolution
+867262db85c2955eea56e277718df13773d847cc
+Verify completed-group ranking publication
 ```
 
-GitHub Actions at that checkpoint ran **752 tests with 2 failures**, exactly
+GitHub Actions at that checkpoint ran **762 tests with 2 failures**, exactly
 the unchanged known secondary-schedule assertions; repository asset policy
-passed. The first live European progression bridge is now persistent:
-`CupResultRegistry` stores per-competition/per-context rankings and resolves
-instruction-closed ClubRef type 2 selectors as zero-based competition positions.
+passed. Live Champions League child/procedural-League state now materializes
+from the persisted full-primary schedule shadow, records group results, and
+publishes source-backed ClubRef type-2 rankings only after the complete group
+schedule has finished and the proven points / goal-difference / goals-for keys
+produce an unambiguous order.
 
-Internal save schema is now **29** and preserves those live rankings. ClubRef
-type 3, used by the Champions-League-group-to-UEFA transfer path, remains
-deliberately unresolved until its distinct MiniLeague group-position semantics
-are attached to live child-league standings.
+Internal save schema is now **30** and preserves those live procedural-League
+fixtures/results alongside the ranking registry. ClubRef type 3, used by the
+Champions-League-group-to-UEFA transfer path, remains deliberately unresolved
+until its distinct MiniLeague group-position resolver is source-backed.
 
 The active Cup slice now has:
 
@@ -161,33 +163,34 @@ Do not rebuild solved Cup startup RNG/draw behavior.
    MiniLeague/procedural-league construction, cross-Cup transfers, schedule
    nodes, and post-shuffle primary placement are already reconstructed. Do not
    rebuild them.
-4. ClubRef type 2 is now live and save-persistent through `0feb1278`. Its
-   selector is a zero-based position in the referenced
-   `(competition_id, competition_context)` ranking. Publish source-backed
-   live child-league rankings into that registry as European group matches
-   progress.
-5. Trace and integrate ClubRef type 3 separately. It is emitted by the
+4. ClubRef type 2 and live Champions League child-group standings are now
+   integrated and save-persistent through `867262db`. Do not publish transient
+   mid-group rankings: progression positions become available only after every
+   fixture in the group is complete and the proven sort keys are unambiguous.
+5. Expose child competition 14/167 `league_match` nodes in the shuffled primary
+   matchday order and execute them through the shared MatchCalculator, recording
+   results into the existing live procedural-League state without rebuilding
+   startup materialization.
+6. Trace and integrate ClubRef type 3 separately. It is emitted by the
    Champions-League MiniLeague branch when group-position clubs transfer into
    the UEFA Cup. Do not alias type 3 to type 2 until the resolver path proves
    that equivalence.
-6. Build the minimum live European group/procedural-league state needed to
-   execute already-materialized `league_match` nodes, update standings in the
-   original ranking order, and expose the exact positions consumed by type 2
-   and later type 3 refs.
-7. Once the group-position bridge is verified, attach European knockout nodes
+7. Once the group match execution and type-3 bridge are verified, attach European knockout nodes
    to the existing CupMatch runtime and shared primary matchday controller,
    preserving cross-competition result/ref dependencies and save/reload.
 
 ## Known live fidelity boundaries
 
 - Gate 12: FA Cup/League Cup execution and save state are source-backed and
-  verified. Schema **29** preserves the full-primary shadow, Cup outcomes and
-  the new per-competition/context position rankings. Shared `0x5127A0`
+  verified. Schema **30** preserves the full-primary shadow, Cup outcomes,
+  live procedural-League fixtures/results and per-competition/context position
+  rankings. Shared `0x5127A0`
   discipline/injury and `0x404CE0` morale/Form are integrated behind the
   exact-or-pending shadow guard. English Cup attendance policy inputs are
   source-backed; only the special both-controlled-participants posting policy
-  remains deferred. European startup is already canonical, and the active live
-  gap is group/procedural-league standings plus ClubRef type-3 resolution.
+  remains deferred. European startup is already canonical; group standings are now live, and the
+  active gap is primary-order group-match execution plus ClubRef type-3
+  resolution.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:
