@@ -139,6 +139,10 @@ class HumanGameplayController:
             primary_schedule.buckets,
             season_year=2000,
         )
+        state.install_european_cup_primary_schedule(
+            primary_schedule.buckets,
+            season_year=2000,
+        )
         state.install_primary_matchday_order(
             primary_schedule.buckets,
             season_year=2000,
