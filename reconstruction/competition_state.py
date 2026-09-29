@@ -38,6 +38,25 @@ def season_weekday_date(season_year: int, week: int, weekday: int) -> date:
 
 
 @dataclass(frozen=True)
+class ProceduralPremierFixture:
+    """Year-two Premier League fixture projected from a LeagueMatch node."""
+
+    id: int
+    round_index: int
+    home_club_id: int
+    away_club_id: int
+
+
+@dataclass(frozen=True)
+class ProceduralPremierRound:
+    """One procedural Premier League matchday/date entry."""
+
+    round_number: int
+    scheduled_week: int
+    scheduled_weekday: int
+
+
+@dataclass(frozen=True)
 class MatchResult:
     fixture_id: int
     home_goals: int
@@ -78,7 +97,83 @@ class LeagueRow:
 
 
 class PremierLeagueState:
-    """Mutable results/table state over FM2001's verified real PL schedule."""
+    """Mutable results/table state for fixed or annual procedural PL fixtures."""
+
+    @classmethod
+    def from_procedural_schedule_nodes(
+        cls,
+        nodes,
+        *,
+        season_year: int,
+        competition_id: int = 0,
+    ) -> "PremierLeagueState":
+        """Project annual procedural LeagueMatch nodes into the live PL API.
+
+        Annual mode 0 rebuilds Premier League competition 0 procedurally rather
+        than reusing shipped 2000/01 DBRRealFixture rows. The procedural node's
+        emission token supplies stable fixture identity and schedule_index is
+        the League round/matchday index. Root-League participants are direct
+        ClubRefs after annual live membership has been applied.
+        """
+        competition_id = int(competition_id)
+        selected = tuple(
+            node
+            for node in nodes
+            if str(getattr(node, "node_kind", "")) == "league_match"
+            and int(getattr(node, "competition_id")) == competition_id
+            and int(getattr(node, "competition_context", 0)) == 0
+        )
+        if not selected:
+            raise ValueError("annual Premier League schedule contains no LeagueMatch nodes")
+
+        fixtures: list[ProceduralPremierFixture] = []
+        round_dates: dict[int, tuple[int, int]] = {}
+        fixture_ids: set[int] = set()
+        for node in selected:
+            if node.schedule_index is None:
+                raise ValueError("annual Premier League node has no schedule index")
+            if node.scheduled_week is None or node.scheduled_weekday is None:
+                raise ValueError("annual Premier League node has no source date")
+            home = getattr(node.participant_0_ref, "direct_club_id", None)
+            away = getattr(node.participant_1_ref, "direct_club_id", None)
+            if home is None or away is None:
+                raise ValueError(
+                    "annual Premier League root participants must be direct ClubRefs"
+                )
+            if not node.node_token:
+                raise ValueError("annual Premier League node has no fixture token")
+            fixture_id = int(node.node_token[-1])
+            if fixture_id in fixture_ids:
+                raise ValueError("annual Premier League fixture token is duplicated")
+            fixture_ids.add(fixture_id)
+            round_index = int(node.schedule_index)
+            source_date = (
+                int(node.scheduled_week),
+                int(node.scheduled_weekday),
+            )
+            previous = round_dates.setdefault(round_index, source_date)
+            if previous != source_date:
+                raise ValueError(
+                    "annual Premier League matchday uses inconsistent source dates"
+                )
+            fixtures.append(
+                ProceduralPremierFixture(
+                    id=fixture_id,
+                    round_index=round_index,
+                    home_club_id=int(home),
+                    away_club_id=int(away),
+                )
+            )
+
+        ordered_rounds = tuple(
+            ProceduralPremierRound(
+                round_number=round_index + 1,
+                scheduled_week=round_dates[round_index][0],
+                scheduled_weekday=round_dates[round_index][1],
+            )
+            for round_index in sorted(round_dates)
+        )
+        return cls(fixtures, ordered_rounds, int(season_year))
 
     def __init__(
         self,
