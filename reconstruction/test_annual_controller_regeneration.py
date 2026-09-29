@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import Mock, patch
 from dataclasses import dataclass
 from datetime import date
 
@@ -138,6 +139,32 @@ class AnnualControllerRegenerationTests(unittest.TestCase):
             controller.state.club_competition_membership,
             {10: 0, 11: 0, 12: 0, 13: 0},
         )
+
+    def test_default_rollover_keeps_all_played_annual_sources_live(self):
+        controller, _old = self.build_controller()
+        original_install = controller.state.install_annual_primary_regeneration
+        controller.state.install_annual_primary_regeneration = Mock(
+            wraps=original_install
+        )
+
+        with patch(
+            "season_regeneration.partition_annual_type3_league_sources",
+            return_value=((0, 77, 88), ()),
+        ):
+            controller.regenerate_annual_primary_season(
+                season_year=2001,
+            )
+
+        installed_ids = (
+            controller.state.install_annual_primary_regeneration.call_args.kwargs[
+                "procedural_league_ids"
+            ]
+        )
+        self.assertIn(77, installed_ids)
+        self.assertIn(88, installed_ids)
+        self.assertIn(14, installed_ids)
+        self.assertIn(167, installed_ids)
+        self.assertEqual(len(installed_ids), len(set(installed_ids)))
 
     def test_failed_preview_consumes_neither_state_nor_controller_rng(self):
         controller, old = self.build_controller()
