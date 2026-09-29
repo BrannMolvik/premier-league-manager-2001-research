@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Verify live AI domestic-Cup execution at e45c02da, then add human-controlled Cup path and shared post-match persistence.",
-  "last_known_main_head": "e45c02da5461bc67196e0fe86aeef53f51da304f",
+  "active_task": "Close shared Cup post-match persistence: represent the full primary-container next-fixture search needed by 0x5127A0, then trace Cup gate receipts and shared morale/Form.",
+  "last_known_main_head": "3c73b3b059c5c5957e6eac87e834c4d6f86322f3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 64,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered at main 7650cdd2. Continued Cup strategy trace through ce419c02, fixed synthetic compatibility at 6e023260, exposed shared extra-time backend at 25c4e5ce, and added AI Cup score/lifecycle bridge plus regression through e45c02da. CI pending for e45c02da.",
+  "note": "Gate 12 live domestic Cup execution now includes AI/human scoring, extra time, shared PL/Cup ordering, tagged schema-27 controller state, human mid-matchday reload, and Replay/TwoLeg reload continuation. Verified implementation head c7583cfd: 730 tests, only two known secondary-schedule failures. Main 3c73b3b0 records direct proof that primary Cup/League matches share 0x5127A0 and that next-fixture suspension refresh scans the whole selected schedule container via 0x510300 -> 0x615D10.",
   "same_chat_fallback_minutes": 30
 }
