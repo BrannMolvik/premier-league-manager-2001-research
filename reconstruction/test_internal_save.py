@@ -4,6 +4,7 @@ import unittest
 from dataclasses import dataclass, replace
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
 
 from commercial_timers import UserCommercialTimerState
 from contract_maintenance import (
@@ -548,6 +549,128 @@ class InternalSaveTests(unittest.TestCase):
             competition_context=3,
         )
         self.assertEqual(restored.state.cup_results.resolve_club_ref(ref), 804)
+
+    def test_type3_uefa_dependency_survives_roundtrip_and_resolves(self):
+        original = self.build_controller()
+        original.state.competitions[14] = SimpleNamespace(
+            id=14,
+            runtime_instance_count=2,
+        )
+
+        type3_ref = __import__("competition_startup").CupClubRefDescriptor(
+            type_code=3,
+            selector=1,
+            competition_id=14,
+            competition_context=0,
+        )
+        uefa_token = ("cup_result", 10, 210, 0)
+        uefa_node = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=10,
+            competition_context=0,
+            round_id=210,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=6,
+            participant_0_ref=type3_ref,
+            participant_1_ref=direct_club_ref(5),
+            node_token=uefa_token,
+            round_number=1,
+            extra_time_capable=True,
+            decisive_tiebreak=True,
+            auxiliary_flag=False,
+        )
+        original.state.european_cups = DomesticCupScheduleState.from_startup_nodes(
+            (uefa_node,),
+            season_year=2000,
+            competition_ids=(9, 10),
+        )
+        original.state.primary_schedule_shadow.days = {
+            date(2000, 7, 8): (uefa_node,),
+        }
+
+        group_nodes = (
+            StartupScheduleNode(
+                node_kind="league_match",
+                competition_id=14,
+                competition_context=0,
+                round_id=None,
+                pair_index=0,
+                schedule_index=0,
+                scheduled_week=0,
+                scheduled_weekday=3,
+                participant_0_ref=direct_club_ref(1),
+                participant_1_ref=direct_club_ref(2),
+                node_token=("league_match", 14, 0, 0),
+            ),
+            StartupScheduleNode(
+                node_kind="league_match",
+                competition_id=14,
+                competition_context=1,
+                round_id=None,
+                pair_index=0,
+                schedule_index=0,
+                scheduled_week=0,
+                scheduled_weekday=3,
+                participant_0_ref=direct_club_ref(3),
+                participant_1_ref=direct_club_ref(4),
+                node_token=("league_match", 14, 1, 0),
+            ),
+        )
+        for node in group_nodes:
+            live = LiveProceduralLeagueState.from_schedule_nodes(
+                (node,),
+                original.state.cup_results.resolve_club_ref,
+            )
+            self.assertIsNotNone(live)
+            original.state.procedural_leagues[
+                (node.competition_id, node.competition_context)
+            ] = live
+
+        original.state.record_procedural_league_result(
+            ("league_match", 14, 0, 0),
+            2,
+            0,
+        )
+        original.state.record_procedural_league_result(
+            ("league_match", 14, 1, 0),
+            1,
+            0,
+        )
+        self.assertEqual(
+            original.state.cup_results.group_position_rankings[(14, 1)],
+            (4, 2),
+        )
+        self.assertEqual(
+            original.state.cup_results.resolve_club_ref(type3_ref),
+            4,
+        )
+        original.state.calendar.current_date = date(2000, 7, 8)
+        due = original.state.european_cup_nodes_due_today()
+        self.assertEqual(len(due), 1)
+        self.assertEqual(
+            due[0].resolve_pair(original.state.cup_results),
+            (4, 5),
+        )
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.cup_results.group_position_rankings[(14, 1)],
+            (4, 2),
+        )
+        restored_due = restored.state.european_cup_nodes_due_today()
+        self.assertEqual(len(restored_due), 1)
+        self.assertEqual(
+            restored_due[0].resolve_pair(restored.state.cup_results),
+            (4, 5),
+        )
 
     def test_european_cup_schedule_state_survives_roundtrip(self):
         original = self.build_controller()
