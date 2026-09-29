@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Continue the canonical English domestic-cup audit from the latest main checkpoint, preserving the new Cup result-reference/winner semantics and identifying the next source-backed human-season integration gap.",
-  "last_known_main_head": "64c4f24c0e448f11f40c49a301b05b9e35e67fc0",
+  "active_task": "Implement the instruction-closed Cup match lifecycle: FA Cup NormalRound replay creation, League Cup FirstLeg/SecondLeg linkage, and exact aggregate+away-goal decisive tie-break finalization; add deterministic progression tests before GameState integration.",
+  "last_known_main_head": "69f413002a056ad8a0183ea160072172e79d150b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 59,
   "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "Recovery generation 59 resumed Gate 12 at main 64c4f24 after the persisted FA Cup/League Cup audit and Cup result-reference/winner semantics checkpoints. Continue from repository evidence; do not restart completed domestic-cup investigation.",
+  "note": "Recovery generation 59 has closed and persisted the replay/second-leg completion producer trace at main 69f41300. Implement the bounded clean-room lifecycle next; do not retrace solved startup or result-virtual work.",
   "same_chat_fallback_minutes": 30
 }
