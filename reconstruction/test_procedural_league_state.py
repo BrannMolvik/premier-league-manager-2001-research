@@ -202,6 +202,50 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
         self.assertIn((167, 0), state.procedural_leagues)
         self.assertEqual(state.procedural_leagues[(167, 0)].club_ids, (40, 50))
 
+    def test_advancement_places_follow_canonical_type2_selectors_only(self):
+        source0 = CupClubRefDescriptor(
+            type_code=2,
+            selector=0,
+            competition_id=14,
+            competition_context=3,
+        )
+        source1 = CupClubRefDescriptor(
+            type_code=2,
+            selector=1,
+            competition_id=14,
+            competition_context=3,
+        )
+        uefa_third = CupClubRefDescriptor(
+            type_code=3,
+            selector=2,
+            competition_id=14,
+            competition_context=3,
+        )
+        nodes = (
+            league_node(0, source0, 50, competition_id=167, context=0),
+            league_node(1, source1, 51, competition_id=167, context=0),
+            league_node(2, uefa_third, 52, competition_id=10, context=0),
+        )
+        state = GameState(calendar=GameCalendar(date(2000, 7, 1)), players={})
+        state.install_primary_schedule_shadow(
+            tuple((node,) for node in nodes),
+            season_year=2000,
+        )
+        self.assertEqual(state.procedural_league_advancement_places(14, 3), 2)
+
+    def test_non_contiguous_advancement_selectors_are_rejected(self):
+        source = CupClubRefDescriptor(
+            type_code=2,
+            selector=2,
+            competition_id=14,
+            competition_context=3,
+        )
+        node = league_node(0, source, 50, competition_id=167, context=0)
+        state = GameState(calendar=GameCalendar(date(2000, 7, 1)), players={})
+        state.install_primary_schedule_shadow(((node,),), season_year=2000)
+        with self.assertRaisesRegex(RuntimeError, "non-contiguous"):
+            state.procedural_league_advancement_places(14, 3)
+
     def test_due_group_entry_is_exposed_and_blocks_unimplemented_execution(self):
         node = league_node(0, 10, 20, competition_id=14, context=2)
         state = GameState(calendar=GameCalendar(date(2000, 8, 26)), players={})
