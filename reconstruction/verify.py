@@ -78,6 +78,13 @@ def verify_database(db: FM2001Database) -> None:
         == tuple(range(238)),
         "Cup allocation instruction IDs are not canonical source order 0..237",
     )
+    require(
+        len(db.league_allocation_records) == 28,
+        (
+            "Expected 28 League allocation records, got "
+            f"{len(db.league_allocation_records)}"
+        ),
+    )
     allocation_type_counts = Counter(
         int(instruction.instruction_type)
         for instruction in db.cup_allocation_instructions
