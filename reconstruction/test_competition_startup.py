@@ -21,6 +21,7 @@ from competition_startup import (
     primary_mode0_cup_round_team_counts,
     primary_mode0_dummy_league_sort_draw_count,
     primary_mode0_dummy_league_sort_source_ids,
+    country_root_competition_storage_order,
     primary_mode0_root_initialization_order,
     secondary_mode1_root_initialization_order,
     prepare_cup_knockout_round,
@@ -255,6 +256,25 @@ class PrimaryCupSchedulerStateTests(unittest.TestCase):
         self.assertEqual(rng.state, 0x44D2B546)
 
 class OrderedCompetitionRngTests(unittest.TestCase):
+    def test_country_root_storage_order_is_qsorted_but_not_reversed(self):
+        competitions = (
+            Competition(10, 2, 1, None, 1, 123),
+            Competition(9, 2, 1, None, 0, 123),
+            Competition(11, 1, 1, None, 3, 123),
+            Competition(12, 1, 2, None, 2, 123),
+            Competition(99, 1, 1, 10, 9, 123),
+        )
+
+        stored = country_root_competition_storage_order(
+            competitions,
+            123,
+        )
+
+        self.assertEqual(
+            tuple(competition.id for competition in stored),
+            (11, 12, 10, 9),
+        )
+
     def test_small_country_root_qsort_resolves_spanish_equal_key_order(self):
         competitions = (
             Competition(31, 1, 1, None, 7, 73),

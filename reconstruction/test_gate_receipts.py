@@ -18,10 +18,25 @@ from gate_receipts import (
     ticket_price_response,
     cup_round_attendance_modifier,
     fan_factor_for_root_competition_index,
+    english_ticket_reference_prices,
 )
 
 
 class CupGatePrimitiveTests(unittest.TestCase):
+    def test_english_division_ticket_references_match_40cbc0(self):
+        self.assertEqual(
+            tuple(english_ticket_reference_prices(i) for i in range(5)),
+            (
+                (30.0, 22.5),
+                (20.0, 15.0),
+                (16.0, 12.0),
+                (12.0, 9.0),
+                (9.0, 6.75),
+            ),
+        )
+        with self.assertRaises(ValueError):
+            english_ticket_reference_prices(5)
+
     def test_fan_factor_uses_exact_root_index_table(self):
         self.assertEqual(
             tuple(fan_factor_for_root_competition_index(i) for i in range(7)),

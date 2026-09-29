@@ -29,6 +29,25 @@ class GateAttendanceCell:
     count: int
 
 
+ENGLISH_DIVISION_SEATING_REFERENCES = (30.0, 20.0, 16.0, 12.0, 9.0)
+
+
+def english_ticket_reference_prices(
+    valuation_division_category: int,
+) -> tuple[float, float]:
+    """Reproduce England's 0x40CBC0 division-category price table.
+
+    The English branch indexes the owning club competition's 0x4FA520 value.
+    Categories 0..4 select EP-style seating references 30/20/16/12/9. Terrace
+    reference is the exact executable 0.75 multiple.
+    """
+    category = int(valuation_division_category)
+    if not 0 <= category < len(ENGLISH_DIVISION_SEATING_REFERENCES):
+        raise ValueError("English division valuation category must be 0..4")
+    seating = ENGLISH_DIVISION_SEATING_REFERENCES[category]
+    return seating, seating * 0.75
+
+
 def fan_factor_for_root_competition_index(index: int) -> float:
     """Exact 0x5DA2F0 FanFactor1..5 selection by country-root array index.
 

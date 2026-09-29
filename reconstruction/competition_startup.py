@@ -582,6 +582,32 @@ def _competition_subtree_has_primary_cup(
     )
 
 
+def country_root_competition_storage_order(
+    competitions: Iterable[OrderedCompetitionSource],
+    country_region_id: int,
+) -> tuple[OrderedCompetitionSource, ...]:
+    """Return the exact stored root-competition array scanned by 0x410FF0.
+
+    Country construction appends root competitions in DBTCompetition source
+    order, then qsorts the pointer array by runtime +0x18, which is the negated
+    packed initialization_order_value. Unlike initialization traversal, this
+    helper does not reverse the qsorted array and does not filter by schedule
+    container because 0x410FF0 scans the stored country vector itself.
+    """
+    roots = tuple(
+        competition
+        for competition in competitions
+        if competition.parent_competition_id is None
+        and int(competition.country_region_id) == int(country_region_id)
+    )
+    return tuple(
+        _msvc_qsort_by_key(
+            roots,
+            lambda competition: -int(competition.initialization_order_value),
+        )
+    )
+
+
 def primary_mode0_root_initialization_order(
     competitions: Iterable[OrderedCompetitionSource],
     country_ids_in_source_order: Iterable[int],
