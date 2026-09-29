@@ -1,5 +1,6 @@
 import unittest
 from datetime import date
+from types import SimpleNamespace
 
 from competition_schedule import StartupScheduleNode, direct_club_ref
 from competition_startup import CupClubRefDescriptor
@@ -201,6 +202,78 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
         )
         self.assertIn((167, 0), state.procedural_leagues)
         self.assertEqual(state.procedural_leagues[(167, 0)].club_ids, (40, 50))
+
+    def test_game_state_publishes_type3_cross_group_pool_in_global_order(self):
+        group0 = (
+            league_node(0, 10, 20, competition_id=14, context=0),
+        )
+        group1 = (
+            league_node(0, 30, 40, competition_id=14, context=1),
+        )
+        type3 = CupClubRefDescriptor(
+            type_code=3,
+            selector=0,
+            competition_id=14,
+            competition_context=0,
+        )
+        consumer = league_node(
+            0,
+            type3,
+            50,
+            competition_id=10,
+            context=0,
+        )
+        state = GameState(calendar=GameCalendar(date(2000, 7, 1)), players={})
+        state.competitions[14] = SimpleNamespace(runtime_instance_count=2)
+        state.install_primary_schedule_shadow(
+            tuple((node,) for node in group0 + group1 + (consumer,)),
+            season_year=2000,
+        )
+        state.refresh_european_procedural_leagues()
+
+        # Group 0 leader: club 10, 3 pts, +1 GD.
+        state.record_procedural_league_result(group0[0].node_token, 1, 0)
+        self.assertNotIn((14, 0), state.cup_results.group_position_rankings)
+
+        # Group 1 leader: club 30, 3 pts, +4 GD.  Type 3 ordinal 0 therefore
+        # resolves club 30, even though direct type-2 group-context 0 would
+        # resolve club 10.
+        state.record_procedural_league_result(group1[0].node_token, 4, 0)
+        self.assertEqual(
+            state.cup_results.group_position_rankings[(14, 0)],
+            (30, 10),
+        )
+        self.assertEqual(state.cup_results.resolve_club_ref(type3), 30)
+        type2 = CupClubRefDescriptor(
+            type_code=2,
+            selector=0,
+            competition_id=14,
+            competition_context=0,
+        )
+        self.assertEqual(state.cup_results.resolve_club_ref(type2), 10)
+
+    def test_type3_cross_group_pool_stays_pending_on_unresolved_numeric_tie(self):
+        group0 = (league_node(0, 10, 20, competition_id=14, context=0),)
+        group1 = (league_node(0, 30, 40, competition_id=14, context=1),)
+        type3 = CupClubRefDescriptor(
+            type_code=3,
+            selector=0,
+            competition_id=14,
+            competition_context=1,
+        )
+        consumer = league_node(0, type3, 50, competition_id=10, context=0)
+        state = GameState(calendar=GameCalendar(date(2000, 7, 1)), players={})
+        state.competitions[14] = SimpleNamespace(runtime_instance_count=2)
+        state.install_primary_schedule_shadow(
+            tuple((node,) for node in group0 + group1 + (consumer,)),
+            season_year=2000,
+        )
+        state.refresh_european_procedural_leagues()
+        state.record_procedural_league_result(group0[0].node_token, 1, 0)
+        state.record_procedural_league_result(group1[0].node_token, 1, 0)
+
+        self.assertNotIn((14, 0), state.cup_results.group_position_rankings)
+        self.assertIsNone(state.cup_results.resolve_club_ref(type3))
 
     def test_advancement_places_follow_canonical_type2_selectors_only(self):
         source0 = CupClubRefDescriptor(
