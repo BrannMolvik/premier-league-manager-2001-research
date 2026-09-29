@@ -7650,3 +7650,39 @@ now-verified procedural-League state.
 - Next: audit the source-backed English cross-division season transition,
   including promotion, relegation, and any playoff competitions, before
   changing club competition membership.
+
+
+### 2026-09-29 - English cross-division season transition verified
+
+- Recovered the 28-row `DBTLeagueAllocations / DBRLeagueAllocation` table
+  directly from canonical `Static.dat` and instruction-closed its seven-dword
+  packed layout against `FOOTBAL.EXE`.
+- Proved annual finalization iterates the sorted allocation rows and exchanges
+  the selected clubs' **current competition memberships** one slot pair at a
+  time. This is the real promotion/relegation mechanism, not advisory metadata.
+- Canonical English rows prove the exact PL/D1/D2/D3/Conference/Conference 2
+  movement rules plus the Division 1/2/3 playoff-winner exchanges. The English
+  chain performs **14 paired membership swaps**.
+- Added playoff competitions 11/12/13 to the existing live primary Cup runtime.
+  Their source allocation instructions resolve entrants as D1 3rd-6th, D2
+  3rd-6th, and D3 4th-7th.
+- Preserved the canonical Conference 2 DummyLeague ranking produced during
+  startup and published it to live ranking state without a second RNG pass.
+- Added gameplay-safe exact Premier final ranking publication. If the recovered
+  points / goal-difference / goals-scored keys leave an unresolved tie, the
+  transition remains blocked rather than using the display-only club-ID
+  fallback.
+- Added a pure `LeagueAllocation` exchange engine, live GameState integration,
+  and a separate mutable club-competition-membership map so immutable source
+  Club records remain unchanged.
+- Internal save schema is now **33** and preserves live club competition
+  memberships across save/reload; source allocation definitions are reloaded
+  from the verified database.
+- Verified checkpoint:
+  `64baafb8772cc7d6a003ed92c6df41eec41c33a9`.
+- GitHub Actions ran **792 tests with 2 failures**, exactly the two unchanged
+  known secondary-schedule assertions. Repository asset policy passed.
+- Evidence: `research/GATE12_ENGLISH_SEASON_TRANSITION.md`.
+- Next: trace and implement original next-season regeneration from the
+  post-transition memberships. Do not reuse stale prior-season schedule state
+  or rerun Conference 2 startup ranking outside the original rollover order.
