@@ -7065,3 +7065,41 @@ Exact next task: trace the class-specific Cup completion producer path,
 starting with FA Cup NormalRound Replay creation/completion and League Cup
 TwoLeg SecondLeg linkage plus the exact tied-aggregate continuation. Do not
 attach Cup nodes to GameState until this path is source-backed.
+
+
+## Gate 12 replay and two-leg completion producer closed - 29 September 2026
+
+Recovery generation 59 re-materialized the authorized FM2001 disc archive from
+the ChatGPT Library, converted the MODE1/2352 image only in the temporary
+analysis container, extracted the root `FOOTBAL.EXE`, and reverified canonical
+SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+Direct executable tracing closes the class-specific Cup producer that had
+blocked live domestic-cup progression:
+
+- `CupMatchReplay` is constructed live at
+  `0x51399E -> 0x510600` only after an unlinked NormalRound match's shared
+  `0x514000` result returns null;
+- the replay reverses ClubRefs, links the first match, forces the 120-minute and
+  decisive tie-break flags, and is inserted through `0x615A60`;
+- `FirstLegMatch` / `SecondLegMatch` are constructed by the TwoLeg builder
+  at `0x4F6A02` / `0x4F6A64`; second leg reverses the participants, links
+  the first leg, inherits 120-minute capability and forces the decisive flag;
+- the match setup at `0x510DD7` and `0x510E06` maps Cup flags into the
+  engine's 90/120-minute and decisive penalty/tie-break states;
+- on a tied two-leg aggregate, `0x514000` applies the recovered away-goal
+  comparison first;
+- only when aggregate and away goals remain equal does
+  `0x51367D..0x5136B3` execute the final tie-break, including
+  `RNG(2)` fallback `0x64D540(2)` if event-derived tie-break totals still
+  tie;
+- score virtuals include the tie-break bytes, making the result definitive.
+
+The detailed addresses, constructor semantics and replay-date arithmetic are
+now persisted in `research/GATE12_ENGLISH_DOMESTIC_CUPS.md`.
+
+Exact next task: implement this now-instruction-closed Cup match lifecycle in
+the clean-room runtime, add deterministic FA Cup replay and League Cup
+two-leg/tied-aggregate progression tests, then use those resolved outcomes as
+the prerequisite for GameState calendar integration.

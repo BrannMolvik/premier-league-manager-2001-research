@@ -199,3 +199,135 @@ the class-specific producer path that makes a knockout result definitive:
 
 Domestic Cup nodes remain deliberately outside `GameState` until this
 producer path is source-backed.
+
+
+## CupMatch completion producer trace
+
+Recovery generation 59 re-materialized the authorized disc image and reverified
+the canonical root executable:
+
+```text
+FOOTBAL.EXE
+833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3
+```
+
+The live class-specific knockout completion path is now instruction-closed far
+enough to implement without inventing replay, extra-time or two-leg semantics.
+
+### Match subclasses and constructors
+
+Canonical RTTI/vtables and constructors are:
+
+| Runtime class | Type virtual | Vtable | Constructor |
+|---|---:|---:|---:|
+| `CupMatch` | 2 | `0x7C9D9C` | `0x510520` |
+| `CupMatchReplay` | 3 | `0x7C9E80` | `0x510600` |
+| `FirstLegMatch` | 4 | `0x7C9EF8` | `0x510640` |
+| `SecondLegMatch` | 5 | `0x7C9F70` | `0x510680` |
+
+All four expose the shared result virtual `+0x44 -> 0x514000`.
+
+`CupMatch+0x54` is the linked-match pointer. `0x510520` stores the supplied
+link and, when non-null, writes the reverse link back into the other match.
+The first/replay or first-leg/second-leg pair is therefore bidirectionally
+linked even though the decisive second object consumes the first object's
+completed score.
+
+The constructor also packs three boolean inputs into `CupMatch+0x44` bits
+`0x2`, `0x4`, and `0x8`. The first two have now been bounded by their
+actual MatchEngine consumers:
+
+- bit `0x2` supplies the engine's 90-vs-120-minute capability at
+  `0x510DD7 -> MatchEngine+0xD0C`; `0x63173E` passes 90 when clear and
+  120 when set;
+- bit `0x4` supplies the decisive tie-break/penalty path at
+  `0x510E06 -> MatchEngine+0xD10`.
+
+For a base type-2 `CupMatch`, `0x510DC2..0x510DD5` explicitly suppresses
+the 120-minute path when bit `0x4` is clear. This is how the same round data
+can carry extra-time capability while an ordinary replay-eligible first match
+still stops at 90 minutes.
+
+Canonical domestic-round state confirms the interpretation:
+
+- FA Cup rounds 1-5 have replay dates and the decisive flag clear;
+- FA Cup quarterfinal, semifinal and final have no replay date and the decisive
+  flag set;
+- League Cup one-off rounds likewise carry the decisive flag;
+- `FirstLegMatch` forces all three flags clear;
+- `SecondLegMatch` inherits the round's 120-minute capability and forces the
+  decisive flag set.
+
+### NormalRound draw -> Replay
+
+The ordinary completion virtual is `0x5136E0`.
+
+At `0x51391B`, a completed unlinked `CupMatch` calls shared result virtual
+`0x514000`. A non-null club continues the resolved-round path. A null result
+creates the replay:
+
+1. `0x51392A..` computes the replay schedule date;
+2. `0x513967` allocates a 0x5C-byte match object;
+3. `0x51399E -> 0x510600` constructs `CupMatchReplay`;
+4. the constructor reverses the two ClubRefs, links the original match, forces
+   both bit `0x2` and bit `0x4`, and preserves bit `0x8`;
+5. `0x5139BA -> 0x615A60` inserts the replay into the schedule.
+
+This is the only fresh runtime constructor call for `CupMatchReplay`; the
+other constructor reference is the load/deserialization path.
+
+Replay date arithmetic is retained in raw executable form rather than
+over-interpreting field names:
+
+```text
+candidate = global_current_day - selected_date_anchor[+8] + 14
+round = current_round_vector[pair_index]
+if round[+0x2C] > 6:
+    floor = round[+0x2C] + 7 * round[+0x28]
+    candidate = max(candidate, floor)
+```
+
+The linked replay is decisive, so an unresolved first match does not recursively
+spawn another replay.
+
+### Two-leg completion and exact aggregate tie
+
+`FirstLegMatch` is built by the TwoLeg round builder at `0x4F6A02`.
+`SecondLegMatch` is built at `0x4F6A64` with reversed ClubRefs and the
+first leg as its linked match.
+
+During completion:
+
+- aggregate side 0 is current score 0 + linked score 1;
+- aggregate side 1 is current score 1 + linked score 0;
+- on tied aggregate, shared `0x514000` compares current score 1 with linked
+  score 1, which is the recovered away-goal secondary comparison;
+- if those values differ, the shared result virtual is already definitive;
+- if they are equal too, `SecondLegMatch` has
+  `MatchEngine+0xD14 = 1`, and `0x51367D..0x513695` allows the decisive
+  tie-break path only when the same away-goal comparison is equal.
+
+The tie-break path first consumes penalty/tie-break events through
+`0x632940`, incrementing `CupMatch+0x5A/+0x5B`. If the totals are still
+equal, `0x513697 -> 0x64D540(2)` chooses a side and increments one of those
+bytes. Score virtuals `0x513E90/0x513EB0` include those bytes, so the next
+`0x514000` result is definitive.
+
+This closes the previously deferred exact-tied-aggregate continuation without
+guessing a generic penalty implementation.
+
+### Clean-room implementation boundary
+
+The next implementation slice may now model:
+
+- the four Cup match kinds;
+- constructor-derived flags and linked/reversed participants;
+- NormalRound replay creation after an unresolved first match;
+- TwoLeg first/second-leg linkage;
+- a decisive tie-break score adjustment supplied by the recovered RNG/event
+  path;
+- registry finalization only after the decisive match resolves.
+
+The MatchEngine event-level presentation of penalties can remain deferred; the
+Gate-12 requirement is the source-backed competition outcome lifecycle needed
+to advance the human season.

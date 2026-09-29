@@ -119,28 +119,26 @@ Do not rebuild solved Cup startup RNG/draw behavior.
 
 ## Exact next task
 
-1. Preserve the verified result-token and shared `0x514000` result semantics
-   through checkpoint `87d3c2b0`.
-2. Trace the **class-specific Cup completion producer path** that creates the
-   definitive linked match state consumed by that shared virtual:
-   - NormalRound draw -> FA Cup Replay creation/scheduling/completion;
-   - TwoLegRound first-leg -> reversed SecondLeg linkage;
-   - exact aggregate tie -> whatever source-backed continuation/tie-break path
-     makes the result definitive.
-3. Persist the constructor/action addresses and object-field semantics before
-   implementing them. Do not guess extra-time, penalties, replay policy, or
-   score mutation.
-4. Once a Cup pairing can produce a definitive source-backed snapshot, feed it
-   through `CupResultRegistry.record_match_resolution()` and add deterministic
-   FA Cup + League Cup progression regressions.
-5. Only then attach domestic Cup nodes/results to normal `GameState` calendar,
-   human-fixture, and save/load progression.
+1. Preserve the verified Cup result-token/shared-result semantics through
+   `87d3c2b0` and the executable producer trace documented in
+   `research/GATE12_ENGLISH_DOMESTIC_CUPS.md`.
+2. Implement the now instruction-closed Cup lifecycle in clean-room code:
+   - NormalRound unresolved first match -> reversed linked
+     `CupMatchReplay`;
+   - replay forces the recovered 120-minute + decisive tie-break flags;
+   - TwoLegRound first leg -> reversed linked `SecondLegMatch`;
+   - aggregate uses the existing shared `0x514000` semantics;
+   - exact aggregate + away-goal tie receives the recovered decisive tie-break
+     score adjustment before registry finalization.
+3. Add deterministic FA Cup replay and League Cup two-leg/tied-aggregate
+   regressions, including exact `RNG(2)` fallback placement where the
+   event-derived tie-break remains tied.
+4. After this slice is verified, attach domestic Cup nodes/results to normal
+   `GameState` calendar/human-fixture/save progression.
 
 ## Known live fidelity boundaries
 
-- Gate 12: Cup result-reference resolution is live, but Replay/SecondLeg
-  production and exact tied-knockout completion are not yet instruction-closed;
-  Cup nodes therefore remain outside normal GameState progression.
+- Gate 12: Replay/SecondLeg production and exact tied-knockout completion are now instruction-closed, but their clean-room lifecycle is not yet implemented; Cup nodes therefore remain outside normal GameState progression.
 
 
 See `research/FIDELITY_GAPS.md`. Most relevant now:

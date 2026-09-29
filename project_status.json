@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate 12: trace the class-specific Cup completion producer path after the verified shared 0x514000 result virtual, starting with FA Cup NormalRound Replay creation/completion and League Cup TwoLeg SecondLeg/tied-aggregate continuation. Do not attach Cup nodes to GameState until definitive outcomes are source-backed.",
+  "current_task": "Gate 12: implement the instruction-closed Cup match lifecycle: FA Cup NormalRound replay creation, League Cup FirstLeg/SecondLeg linkage, and exact aggregate+away-goal tie-break finalization; add deterministic progression tests before GameState integration.",
   "last_verified_reconstruction_failures": 2,
   "last_verified_asset_policy_head": "22027de93df54fe7a83151ba642f6d0f86ecc93f",
   "gate11_danger_morale_request_integrated": true,
@@ -302,5 +302,19 @@
     "secondary root order assertion",
     "secondary bucket count 262 vs 280"
   ],
-  "gate12_evidence": "research/GATE12_ENGLISH_DOMESTIC_CUPS.md"
+  "gate12_evidence": "research/GATE12_ENGLISH_DOMESTIC_CUPS.md",
+  "gate12_replay_completion_trace": true,
+  "gate12_two_leg_completion_trace": true,
+  "gate12_decisive_tiebreak_trace": true,
+  "gate12_canonical_exe_reverified_sha256": "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3",
+  "gate12_trace_addresses": {
+    "cup_match_ctor": "0x510520",
+    "replay_ctor": "0x510600",
+    "first_leg_ctor": "0x510640",
+    "second_leg_ctor": "0x510680",
+    "completion": "0x5136E0",
+    "replay_spawn": "0x51399E",
+    "shared_result": "0x514000",
+    "decisive_fallback": "0x513697"
+  }
 }
