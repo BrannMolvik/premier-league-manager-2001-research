@@ -184,6 +184,77 @@ class InternalSaveTests(unittest.TestCase):
             snapshot_human_gameplay(original),
         )
 
+    def test_dynamic_fa_cup_replay_survives_controller_roundtrip(self):
+        original = self.build_controller()
+        result_token = ("cup_result", 1, 38, 0)
+        original.state.install_domestic_cup_schedule_nodes(
+            (
+                StartupScheduleNode(
+                    node_kind="cup_match",
+                    competition_id=1,
+                    competition_context=0,
+                    round_id=38,
+                    pair_index=0,
+                    schedule_index=None,
+                    scheduled_week=19,
+                    scheduled_weekday=6,
+                    participant_0_ref=direct_club_ref(1),
+                    participant_1_ref=direct_club_ref(2),
+                    node_token=result_token,
+                ),
+            ),
+            season_year=2000,
+        )
+        first = original.state.domestic_cups.materialize_normal_match(
+            result_token,
+            original.state.cup_results,
+            extra_time_capable=True,
+            decisive_tiebreak=False,
+        )
+        completion = complete_cup_match(
+            first,
+            original.state.cup_results,
+            1,
+            1,
+        )
+        replay_node = original.state.domestic_cups.insert_replay_from_completion(
+            result_token,
+            completion,
+            current_date=date(2000, 11, 18),
+        )
+        replay_token = replay_node.node_token
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.domestic_cups.snapshot(),
+            original.state.domestic_cups.snapshot(),
+        )
+        restored_first = restored.state.domestic_cups.match_state(result_token)
+        restored_replay = restored.state.domestic_cups.match_state(replay_token)
+        self.assertEqual(
+            restored.state.domestic_cups.node(replay_token).scheduled_date,
+            date(2000, 12, 2),
+        )
+        self.assertEqual(
+            (
+                restored_replay.participant_0_club_id,
+                restored_replay.participant_1_club_id,
+            ),
+            (2, 1),
+        )
+        self.assertIs(restored_replay.prior_match, restored_first)
+        self.assertIs(restored_first.following_match, restored_replay)
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
     def test_save_reload_branch_continues_identically_across_multiple_matchdays(self):
         original = self.build_controller()
         original.advance_to_next_user_fixture()
