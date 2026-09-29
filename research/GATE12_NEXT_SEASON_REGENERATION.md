@@ -278,17 +278,31 @@ Cup vtable `0x7C9B58` maps virtual `+0x0C` to `0x4F8F80` and virtual
 `+0x1C` to enumerator `0x4F5770`.
 
 During the same `0x616A70` finalization pass, `0x4F8F80` finalizes the
-Cup, resolves the completed result club and opposite/finalist path, and stores
-the two persistent enumeration pointers at:
+Cup and writes the two persistent enumeration pointers in an exact positional
+order.
+
+A fresh canonical disassembly from hash-locked `FOOTBAL.EXE`
+(`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+closes that order:
+
+- `0x4F8F89..0x4F8F91` calls the final CupMatch virtual `+0x44`
+  (`0x514000`, the already-modeled result-club accessor) and stores its return
+  at **Cup+0x40**;
+- `0x4F8F94..0x4F8FA2` resolves participant 0 and provisionally stores it at
+  **Cup+0x44**;
+- `0x4F8FA5..0x4F8FB4` compares that participant with Cup+0x40 and, when they
+  are equal, resolves participant 1 instead.
+
+Therefore the annual Cup enumeration pair is exactly:
 
 ```text
-Cup+0x40
-Cup+0x44
+index 0 / Cup+0x40 = completed result club (winner)
+index 1 / Cup+0x44 = opposite final participant (loser/finalist)
 ```
 
-`0x4F5770` is the later type-3 source accessor for exactly those two values.
-Annual Cup-to-Cup type-3 allocation must therefore use the just-finished Cup
-result pair and must not fall back to the two shipped first-season
+`0x4F5770` later exposes those slots in that same index order. Annual
+Cup-to-Cup type-3 allocation must therefore use the just-finished ordered
+`(winner, loser)` pair and must not fall back to the two shipped first-season
 DBRCompetition club references.
 
 ### DummyLeague annual re-sort
@@ -373,12 +387,11 @@ Already verified and preserved:
 - per-country primary-root finalization order;
 - internal save schema 33.
 
-One source detail is still intentionally open. The executable-backed research
-proves that `0x4F8F80` writes the completed result club and the opposite/finalist
-path into the two persistent enumeration slots, and `0x4F5770` later returns
-`Cup+0x40` as index 0 and `Cup+0x44` as index 1. The repository does **not**
-yet record which semantic value owns which slot. Because type-3 allocation is
-positional, annual live-state extraction must not guess that ordering.
+The Cup pair is now fully positional as well as semantic:
+`Cup+0x40`/index 0 is the completed result club and
+`Cup+0x44`/index 1 is the opposite final participant. Annual live-state
+extraction may therefore publish the ordered `(winner, loser)` pair without a
+startup-data fallback.
 
 Do **not** implement next-season schedule rebuilding by rerunning the canonical
 startup materializer. That would incorrectly replay mode-1-only behavior and
@@ -386,12 +399,11 @@ may duplicate startup RNG.
 
 ## Exact next trace
 
-1. instruction-close the positional writes in `0x4F8F80`: prove which of
-   `Cup+0x40` / `Cup+0x44` receives the completed result club and which
-   receives the opposite/finalist path;
-2. expose one live end-of-season qualification snapshot containing every
-   required League/Dummy ranking plus each proven ordered Cup pair, with
-   explicit failure for missing sources;
+1. expose one live end-of-season qualification snapshot containing every
+   required League/Dummy ranking plus each ordered `(winner, loser)` Cup pair,
+   with explicit failure for missing or unresolved live sources;
+2. use that snapshot to identify and close any primary type-3 source competition
+   that Gate 12 has not yet made live through a complete season;
 3. atomically replace GameState's prior-season Premier/procedural
    League/Cup/ranking/primary-shadow/order objects from the verified annual
    materialization;
