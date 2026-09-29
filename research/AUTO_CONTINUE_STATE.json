@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Close the special domestic-Cup category-1/category-2 posting policy now that Cup gate RNG ordering, exact-or-pending incident/morale persistence, and English Cup attendance policy inputs are source-backed. Search authorized project sources before making any new posting claim.",
-  "last_known_main_head": "54c7396246d6746ee587a7364332b8a66e59ba31",
+  "active_task": "Gate 12 Europe: build live child/procedural-League group standings that publish type-2 competition-position rankings, while separately closing ClubRef type-3 MiniLeague group-position resolution. Preserve solved European startup scheduling/allocation.",
+  "last_known_main_head": "f2fde35023afbfcaa7b552231da4eb7b0408611a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 65,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Latest main checkpoint 54c73962 persists verified code head f2abbff4. CI at f2abbff4: 747 tests with only the two known secondary-schedule failures; asset policy passed. Remaining Cup-specific finance gap is the special both-controlled-participants category-1/category-2 posting semantics.",
+  "note": "Europe is canonical active Gate-12 slice. Verified code head 0feb1278: 752 tests with only two known secondary-schedule failures; asset policy passed. Main f2fde350 records handoff and source-access deferral for the special domestic Cup posting branch. Save schema 29 persists competition-position rankings.",
   "same_chat_fallback_minutes": 30
 }
