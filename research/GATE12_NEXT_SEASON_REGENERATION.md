@@ -118,36 +118,77 @@ For applicable competition kinds, the mode-1 branch can:
 
 This path is not executed by the annual mode-0 branch.
 
-### mode = 0: annual reuse
+### mode = 0: annual team reuse
 
-The annual branch instead:
+Correction after direct object-layout reconciliation: `0x404110` is a
+**team** annual routine, not a competition object. Its `+0x244` array /
+`+0x294` count is the team's player list, and global `0x875640` is the
+0x250-byte runtime player table.
 
-1. walks the competition's existing club-slot list at `+0x244` in reverse;
-2. calls `0x41ACA0` for each referenced club/source object;
-3. skips the startup-only `0x409B50 / 0x4F3240` path;
-4. converges on the same `0x4F32C0` season-state reset.
+The annual branch therefore:
 
-This is the strongest evidence so far that year two **reuses the existing
-competition runtime objects after the membership swaps**, rather than rebuilding
-them from scratch through the initial materializer.
+1. walks the team's existing player list at `+0x244` in reverse;
+2. calls player annual helper `0x41ACA0` for every referenced player;
+3. skips the startup-only team setup `0x409B50 / 0x4F3240` path;
+4. converges on the same `0x4F32C0` team-season reset.
 
-`0x41ACA0` itself performs annual club/source maintenance and consults the
-club's current competition relation before additional reset work. Its exact
-effect on the competition's club-slot ordering still needs to be
-instruction-closed before implementing the clean-room annual roster rebuild.
+This branch does **not** repopulate League membership. Post-promotion
+competition regeneration occurs earlier through country helper `0x411020`,
+which invokes each competition object's virtual `+0x00` with the same
+startup/annual flag.
 
-## Bucket finalization
+## Bucket finalization and annual ordering RNG
 
 `0x615BE0` iterates every schedule-container bucket and calls `0x615AE0`
 on each.
 
-The body immediately preceding `0x615BE0` contains an RNG shuffle over an
-array followed by linked-list relinking; the exact relationship between that
-helper and `0x615AE0` still needs to be named precisely.
+`0x615AE0` is now instruction-closed:
 
-This is now the leading boundary for proving whether next-season primary
-matchday ordering consumes fresh RNG after per-competition annual
-reinitialization.
+1. count the bucket's linked-list nodes;
+2. copy each node pointer into a temporary array in current linked-list order;
+3. for remaining sizes `N, N-1, ... 2`, call `0x64D540(remaining)`;
+4. swap the selected array entry with the current tail entry;
+5. relink the bucket list from that shuffled array and terminate the final
+   node with null;
+6. free the temporary array.
+
+This is the same Fisher-Yates ordering layer modeled by
+`shuffle_primary_schedule_buckets()`. Annual `0x616620(0)` therefore
+consumes a **fresh per-bucket shuffle stream after annual competition
+initialization**, rather than preserving the prior season's matchday order.
+
+## Annual competition virtuals
+
+### League::init 0x4F5150
+
+The mode flag passed by `0x411020` has a direct schedule-construction effect.
+
+- `mode=1` (first season): when shipped real fixtures are available,
+  `League::init` can call fixed builder `0x6173D0`; otherwise it calls
+  procedural builder `0x6170F0`.
+- `mode=0` (annual rollover): it bypasses the real-fixture test and calls
+  `0x6170F0` directly.
+
+Therefore competition **0, F.A. Premier League, becomes procedurally generated
+from year two onward**. The 2000-01 shipped real-fixture list is a first-season
+input only and must not be reused after promotion/relegation.
+
+The existing clean-room primary materializer already has this representational
+split: passing an empty `fixed_fixture_competition_ids` set makes competition
+0 follow the procedural-League path and derives its participant count from
+current club membership.
+
+### Cup::init 0x4F5A30
+
+Direct stack-argument tracing shows the startup/annual argument is not read by
+the Cup draw/schedule construction body. The sole argument read is at the final
+`0x4F632D -> 0x4F3DE0` base-state call after Cup rounds/matches have already
+been created.
+
+The recovered Cup allocation, participant shuffle/qsort, symbolic ClubRefs and
+round scheduling can therefore be reused for annual mode provided their
+**source club memberships and live player/team inputs are updated** and the
+same global CRT stream is used.
 
 ## Current implementation boundary
 
@@ -166,12 +207,12 @@ may duplicate startup RNG.
 
 ## Exact next trace
 
-1. instruction-close `0x41ACA0` enough to prove how clubs with newly swapped
-   competition memberships repopulate/reorder the existing League runtime;
-2. trace `0x615AE0` and the surrounding shuffle helper to prove annual bucket
-   insertion/order RNG;
-3. determine when the next season's DummyLeague/Conference 2 ranking is
-   regenerated relative to `0x616620(0)`;
-4. map the above annual mode-0 behavior onto the clean-room
-   `PremierLeagueState`, procedural League state, Cup/playoff state, and
-   shared primary-order structures without reusing stale prior-season results.
+1. prove the annual League participant source after the already-verified
+   membership swaps and map it to the live `club_competition_membership` view;
+2. preserve one global CRT stream through annual competition initialization and
+   the now-closed `0x615AE0` bucket shuffle;
+3. determine the next season's DummyLeague/Conference 2 ranking regeneration
+   timing and ensure live player ratings, not immutable startup ratings, feed it;
+4. map annual mode-0 output onto new `PremierLeagueState`, procedural League,
+   Cup/playoff, ranking, primary-shadow and primary-order state, clearing all
+   prior-season results without replaying first-season-only real fixtures.
