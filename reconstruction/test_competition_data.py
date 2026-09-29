@@ -118,28 +118,30 @@ class LeagueAllocationParserTests(unittest.TestCase):
         self.assertEqual(len(db.league_allocation_records), 2)
         self.assertEqual(
             (
-                db.league_allocation_records[0].field_00,
-                db.league_allocation_records[0].field_04,
-                db.league_allocation_records[0].field_08,
-                db.league_allocation_records[0].field_0c,
-                db.league_allocation_records[0].field_10,
-                db.league_allocation_records[0].field_14,
-                db.league_allocation_records[0].field_18,
+                db.league_allocation_records[0].id,
+                db.league_allocation_records[0].competition_a_id,
+                db.league_allocation_records[0].competition_a_start,
+                db.league_allocation_records[0].competition_a_end,
+                db.league_allocation_records[0].competition_b_id,
+                db.league_allocation_records[0].competition_b_start,
+                db.league_allocation_records[0].competition_b_end,
             ),
             first,
         )
         self.assertEqual(
             (
-                db.league_allocation_records[1].field_00,
-                db.league_allocation_records[1].field_04,
-                db.league_allocation_records[1].field_08,
-                db.league_allocation_records[1].field_0c,
-                db.league_allocation_records[1].field_10,
-                db.league_allocation_records[1].field_14,
-                db.league_allocation_records[1].field_18,
+                db.league_allocation_records[1].id,
+                db.league_allocation_records[1].competition_a_id,
+                db.league_allocation_records[1].competition_a_start,
+                db.league_allocation_records[1].competition_a_end,
+                db.league_allocation_records[1].competition_b_id,
+                db.league_allocation_records[1].competition_b_start,
+                db.league_allocation_records[1].competition_b_end,
             ),
             second,
         )
+        self.assertEqual(db.league_allocation_records[0].exchange_count, 11)
+        self.assertEqual(db.league_allocation_records[1].exchange_count, 11)
 
 
 class AccessSkillFinancialParserTests(unittest.TestCase):
