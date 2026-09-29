@@ -293,6 +293,38 @@ class DomesticCupScheduleState:
             raise ValueError("domestic Cup schedule contains duplicate node tokens")
         return cls(nodes=tuple(materialized))
 
+    def competition_winner(
+        self,
+        competition_id: int,
+        registry: CupResultRegistry,
+    ) -> int | None:
+        """Return the unique completed final winner for one live Cup.
+
+        The source-backed English divisional playoffs each have one highest
+        round-number Final node. Refuse to synthesize a ranking if the final is
+        absent, ambiguous, or unresolved.
+        """
+        competition_id = int(competition_id)
+        nodes = tuple(
+            node for node in self.nodes
+            if int(node.competition_id) == competition_id
+            and node.round_number is not None
+        )
+        if not nodes:
+            return None
+        final_round = max(int(node.round_number) for node in nodes)
+        finals = tuple(
+            node for node in nodes
+            if int(node.round_number) == final_round
+        )
+        if len(finals) != 1:
+            return None
+        final = finals[0]
+        outcome = registry.outcomes.get(tuple(final.node_token))
+        if outcome is None:
+            return None
+        return int(outcome.winner_club_id)
+
     def node(self, node_token: tuple) -> DomesticCupScheduledNode:
         token = tuple(node_token)
         for node in self.nodes:
