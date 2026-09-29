@@ -702,6 +702,7 @@ class IntegratedGameStateTests(unittest.TestCase):
             procedural_league_ids=(2,),
         )
         state.refresh_primary_procedural_leagues((2,))
+        state.calendar.current_date = next(iter(state.primary_matchday_order))
 
         self.assertEqual(
             state.primary_entries_due_today(),
