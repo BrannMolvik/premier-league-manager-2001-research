@@ -144,6 +144,9 @@ class GameState:
     european_cups: DomesticCupScheduleState = field(
         default_factory=DomesticCupScheduleState
     )
+    qualification_cups: DomesticCupScheduleState = field(
+        default_factory=DomesticCupScheduleState
+    )
     procedural_leagues: dict[tuple[int, int], LiveProceduralLeagueState] = field(
         default_factory=dict
     )
@@ -2025,6 +2028,14 @@ class GameState:
                 rng,
             )
             return result
+        if kind == "qualification_cup":
+            result, _completion = self.simulate_qualification_cup_ai_node(
+                tuple(entry[1]),
+                attack_matrix,
+                defence_matrix,
+                rng,
+            )
+            return result
         if kind == "procedural_league":
             return self.simulate_procedural_league_ai_node(
                 tuple(entry[1]),
@@ -2250,6 +2261,7 @@ class GameState:
         execution order.
         """
         from domestic_cup_state import (
+            ANNUAL_QUALIFICATION_CUP_IDS,
             ENGLISH_DOMESTIC_CUP_IDS,
             EUROPEAN_CUP_IDS,
         )
@@ -2293,6 +2305,11 @@ class GameState:
             buckets,
             season_year=season_year,
             competition_ids=EUROPEAN_CUP_IDS,
+        )
+        new_qualification = DomesticCupScheduleState.from_primary_schedule_buckets(
+            buckets,
+            season_year=season_year,
+            competition_ids=ANNUAL_QUALIFICATION_CUP_IDS,
         )
         new_shadow = PrimaryScheduleShadowState.from_primary_schedule_buckets(
             buckets,
@@ -2348,6 +2365,7 @@ class GameState:
         self.cup_results = new_registry
         self.domestic_cups = new_domestic
         self.european_cups = new_european
+        self.qualification_cups = new_qualification
         self.procedural_leagues = new_procedural
         self.primary_schedule_shadow = new_shadow
         self.primary_matchday_order = new_primary_order
@@ -2835,6 +2853,30 @@ class GameState:
         )
         return self.european_cups
 
+    def install_qualification_cup_primary_schedule(
+        self,
+        buckets,
+        *,
+        season_year: int,
+    ) -> DomesticCupScheduleState:
+        """Attach Cups required solely as annual type-3 qualification sources."""
+        from domestic_cup_state import ANNUAL_QUALIFICATION_CUP_IDS
+
+        self.qualification_cups = (
+            DomesticCupScheduleState.from_primary_schedule_buckets(
+                buckets,
+                season_year=int(season_year),
+                competition_ids=ANNUAL_QUALIFICATION_CUP_IDS,
+            )
+        )
+        return self.qualification_cups
+
+    def qualification_cup_nodes_due_today(self):
+        return self.qualification_cups.due_nodes(
+            self.calendar.current_date,
+            self.cup_results,
+        )
+
     def european_cup_nodes_due_today(self):
         """Return placed European Cup nodes whose symbolic refs now resolve."""
         return self.european_cups.due_nodes(
@@ -3036,6 +3078,23 @@ class GameState:
             _schedule_label="European Cup",
         )
 
+    def simulate_qualification_cup_ai_node(
+        self,
+        node_token: tuple,
+        attack_matrix,
+        defence_matrix,
+        rng=None,
+    ) -> tuple[NormalMatchResult, CupMatchCompletion]:
+        """Run one annual-qualification Cup node through the shared Cup backend."""
+        return self.simulate_domestic_cup_ai_node(
+            node_token,
+            attack_matrix,
+            defence_matrix,
+            rng,
+            _schedule_state=self.qualification_cups,
+            _schedule_label="qualification Cup",
+        )
+
     def simulate_domestic_cup_human_node(
         self,
         node_token: tuple,
@@ -3227,6 +3286,29 @@ class GameState:
             team_orders=team_orders,
             _schedule_state=self.european_cups,
             _schedule_label="European Cup",
+        )
+
+    def simulate_qualification_cup_human_node(
+        self,
+        node_token: tuple,
+        human_club_id: int,
+        human_selection: PreparedAiMatchSelection,
+        attack_matrix,
+        defence_matrix,
+        rng=None,
+        *,
+        team_orders: TeamOrderPriorities | None = None,
+    ) -> tuple[NormalMatchResult, CupMatchCompletion]:
+        return self.simulate_domestic_cup_human_node(
+            node_token,
+            human_club_id,
+            human_selection,
+            attack_matrix,
+            defence_matrix,
+            rng,
+            team_orders=team_orders,
+            _schedule_state=self.qualification_cups,
+            _schedule_label="qualification Cup",
         )
 
     def premier_league_table(self):
