@@ -15,7 +15,10 @@ from typing import Iterable
 from competition_schedule import StartupScheduleNode
 from competition_startup import CupClubRefDescriptor
 from competition_state import season_weekday_date
-from cup_progression import CupResultRegistry
+from cup_progression import (
+    CupMatchRuntimeState,
+    CupResultRegistry,
+)
 
 
 ENGLISH_DOMESTIC_CUP_IDS = frozenset((1, 5))
@@ -167,6 +170,7 @@ class DomesticCupScheduleState:
 
     nodes: tuple[DomesticCupScheduledNode, ...] = ()
     completed_node_tokens: set[tuple] = field(default_factory=set)
+    match_states: dict[tuple, CupMatchRuntimeState] = field(default_factory=dict)
 
     @classmethod
     def from_startup_nodes(
@@ -203,6 +207,82 @@ class DomesticCupScheduleState:
             raise ValueError("domestic Cup schedule node is already complete")
         self.completed_node_tokens.add(token)
 
+    def _paired_second_leg_node(
+        self,
+        first: DomesticCupScheduledNode,
+    ) -> DomesticCupScheduledNode:
+        for node in self.nodes:
+            if (
+                node.node_kind == "second_leg_match"
+                and node.competition_id == first.competition_id
+                and node.round_id == first.round_id
+                and node.pair_index == first.pair_index
+            ):
+                return node
+        raise KeyError("FirstLeg schedule node has no paired SecondLeg node")
+
+    def materialize_normal_match(
+        self,
+        node_token: tuple,
+        registry: CupResultRegistry,
+        *,
+        extra_time_capable: bool,
+        decisive_tiebreak: bool,
+        auxiliary_flag: bool = False,
+    ) -> CupMatchRuntimeState:
+        token = tuple(node_token)
+        node = self.node(token)
+        if node.node_kind != "cup_match":
+            raise ValueError("normal Cup match requires a cup_match schedule node")
+        if token in self.match_states:
+            raise ValueError("domestic Cup match state already materialized")
+        pair = node.resolve_pair(registry)
+        if pair is None:
+            raise ValueError("domestic Cup node participants are unresolved")
+        match = CupMatchRuntimeState.normal(
+            node.node_token,
+            pair[0],
+            pair[1],
+            extra_time_capable=bool(extra_time_capable),
+            decisive_tiebreak=bool(decisive_tiebreak),
+            auxiliary_flag=bool(auxiliary_flag),
+        )
+        self.match_states[token] = match
+        return match
+
+    def materialize_two_leg_pair(
+        self,
+        first_leg_token: tuple,
+        registry: CupResultRegistry,
+        *,
+        second_leg_extra_time_capable: bool,
+        second_leg_auxiliary_flag: bool = False,
+    ) -> tuple[CupMatchRuntimeState, CupMatchRuntimeState]:
+        first_token = tuple(first_leg_token)
+        first_node = self.node(first_token)
+        if first_node.node_kind != "first_leg_match":
+            raise ValueError("two-leg materialization must start from FirstLeg node")
+        second_node = self._paired_second_leg_node(first_node)
+        if first_token in self.match_states or second_node.node_token in self.match_states:
+            raise ValueError("domestic Cup two-leg state already materialized")
+        pair = first_node.resolve_pair(registry)
+        if pair is None:
+            raise ValueError("domestic Cup node participants are unresolved")
+
+        first, second = CupMatchRuntimeState.two_leg_pair(
+            second_node.node_token,
+            pair[0],
+            pair[1],
+            second_leg_extra_time_capable=bool(second_leg_extra_time_capable),
+            second_leg_auxiliary_flag=bool(second_leg_auxiliary_flag),
+        )
+        self.match_states[first_token] = first
+        self.match_states[second_node.node_token] = second
+        return first, second
+
+    def match_state(self, node_token: tuple) -> CupMatchRuntimeState | None:
+        return self.match_states.get(tuple(node_token))
+
     def is_playable(
         self,
         node: DomesticCupScheduledNode,
@@ -228,6 +308,44 @@ class DomesticCupScheduleState:
             and self.is_playable(node, registry)
         )
 
+    def _match_token_for_identity(
+        self,
+        match: CupMatchRuntimeState | None,
+    ) -> tuple | None:
+        if match is None:
+            return None
+        for token, candidate in self.match_states.items():
+            if candidate is match:
+                return token
+        raise ValueError("linked Cup match is not registered in schedule state")
+
+    def _snapshot_match_states(self) -> list[dict]:
+        records = []
+        for token, match in sorted(self.match_states.items(), key=lambda item: repr(item[0])):
+            records.append(
+                {
+                    "node_token": list(token),
+                    "result_token": list(match.result_token),
+                    "match_kind": int(match.match_kind),
+                    "participant_0_club_id": int(match.participant_0_club_id),
+                    "participant_1_club_id": int(match.participant_1_club_id),
+                    "extra_time_capable": bool(match.extra_time_capable),
+                    "decisive_tiebreak": bool(match.decisive_tiebreak),
+                    "auxiliary_flag": bool(match.auxiliary_flag),
+                    "base_score_0": int(match.base_score_0),
+                    "base_score_1": int(match.base_score_1),
+                    "decisive_score_0": int(match.decisive_score_0),
+                    "decisive_score_1": int(match.decisive_score_1),
+                    "complete": bool(match.complete),
+                    "prior_node_token": (
+                        None
+                        if match.prior_match is None
+                        else list(self._match_token_for_identity(match.prior_match))
+                    ),
+                }
+            )
+        return records
+
     def snapshot(self) -> dict:
         return {
             "nodes": [node.snapshot() for node in self.nodes],
@@ -235,6 +353,7 @@ class DomesticCupScheduleState:
                 list(token)
                 for token in sorted(self.completed_node_tokens, key=repr)
             ],
+            "match_states": self._snapshot_match_states(),
         }
 
     @classmethod
@@ -255,4 +374,44 @@ class DomesticCupScheduleState:
         unknown = state.completed_node_tokens - known
         if unknown:
             raise ValueError("saved domestic Cup completion references unknown nodes")
+
+        pending_links: list[tuple[tuple, tuple | None]] = []
+        for record in value.get("match_states", ()):
+            token = _tuple_tree(record["node_token"])
+            if token not in known:
+                raise ValueError("saved Cup match state references unknown schedule node")
+            if token in state.match_states:
+                raise ValueError("saved Cup match state contains duplicate node token")
+            match = CupMatchRuntimeState(
+                result_token=_tuple_tree(record["result_token"]),
+                match_kind=int(record["match_kind"]),
+                participant_0_club_id=int(record["participant_0_club_id"]),
+                participant_1_club_id=int(record["participant_1_club_id"]),
+                extra_time_capable=bool(record["extra_time_capable"]),
+                decisive_tiebreak=bool(record["decisive_tiebreak"]),
+                auxiliary_flag=bool(record["auxiliary_flag"]),
+                base_score_0=int(record["base_score_0"]),
+                base_score_1=int(record["base_score_1"]),
+                decisive_score_0=int(record["decisive_score_0"]),
+                decisive_score_1=int(record["decisive_score_1"]),
+                complete=bool(record["complete"]),
+            )
+            state.match_states[token] = match
+            prior_token = record.get("prior_node_token")
+            pending_links.append(
+                (
+                    token,
+                    None if prior_token is None else _tuple_tree(prior_token),
+                )
+            )
+
+        for token, prior_token in pending_links:
+            if prior_token is None:
+                continue
+            prior = state.match_states.get(prior_token)
+            if prior is None:
+                raise ValueError("saved Cup match link references unknown match state")
+            current = state.match_states[token]
+            current.prior_match = prior
+            prior.following_match = current
         return state
