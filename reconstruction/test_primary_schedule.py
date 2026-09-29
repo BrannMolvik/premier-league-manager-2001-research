@@ -5,6 +5,7 @@ from match_schedule import MsvcCrtRng
 from primary_schedule import (
     fixed_league_fixture_order_by_round,
     nominal_primary_schedule_bucket,
+    primary_schedule_source_bucket,
     place_primary_schedule_nodes,
     shuffle_primary_schedule_buckets,
 )
@@ -39,6 +40,10 @@ class PrimarySchedulePlacementTests(unittest.TestCase):
             nominal_primary_schedule_bucket(26, 1),
             183,
         )
+
+    def test_raw_source_bucket_precedes_christmas_adjustment(self):
+        self.assertEqual(primary_schedule_source_bucket(26, 1), 182)
+        self.assertEqual(primary_schedule_source_bucket(19, 6), 138)
 
     def test_non_conflicting_same_day_nodes_head_insert(self):
         first = node("first", 1, 2)

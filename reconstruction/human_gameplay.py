@@ -103,7 +103,7 @@ class HumanGameplayController:
 
         # Local imports keep the lightweight/synthetic controller independent
         # from canonical-file verification and FOOTBAL.EXE coefficient loading.
-        from canonical_matchday_audit import reconstruct_canonical_pl_scheduler_order
+        from canonical_matchday_audit import reconstruct_canonical_primary_schedule
         from fm2001_data import FM2001Database
         from match_coefficients import MatchCoefficientMatrices
         from verify import verify_canonical_files
@@ -114,21 +114,25 @@ class HumanGameplayController:
         matrices = MatchCoefficientMatrices.from_executable(
             game_dir / "FOOTBAL.EXE"
         )
-        scheduler_order, post_schedule_state = (
-            reconstruct_canonical_pl_scheduler_order(database)
-        )
+        primary_schedule = reconstruct_canonical_primary_schedule(database)
         state = GameState.from_database(
             database,
             start_date,
             seed=int(player_seed),
             season_year=2000,
         )
-        state.install_premier_league_scheduler_order(scheduler_order)
+        state.install_premier_league_scheduler_order(
+            primary_schedule.premier_league_order
+        )
+        state.install_domestic_cup_primary_schedule(
+            primary_schedule.buckets,
+            season_year=2000,
+        )
         return cls(
             state,
             matrices.attack,
             matrices.defence,
-            MsvcCrtRng(post_schedule_state),
+            MsvcCrtRng(primary_schedule.state_after),
         )
 
     def select_club(self, club_id: int) -> HumanManagerState:

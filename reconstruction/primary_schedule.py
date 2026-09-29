@@ -55,28 +55,38 @@ class PrimaryScheduleShuffle:
         return sum(len(bucket) for bucket in self.buckets)
 
 
+def primary_schedule_source_bucket(
+    scheduled_week: int,
+    scheduled_weekday: int,
+) -> int:
+    """Return 0x615950's raw relative day before calendar exceptions."""
+
+    week = int(scheduled_week)
+    weekday = int(scheduled_weekday)
+    if weekday < 1 or weekday > 7:
+        raise ValueError("scheduled_weekday must be in 1..7")
+    return 7 * week + weekday + PRIMARY_SCHEDULE_BASE_OFFSET
+
+
 def nominal_primary_schedule_bucket(
     scheduled_week: int,
     scheduled_weekday: int,
 ) -> int:
     """Reproduce the primary 0x615950 nominal bucket calculation.
 
-    0x615950 computes:
+    0x615950 first computes:
 
         7 * week + weekday + container.offset
 
     and primary ScheduleContainer construction initializes offset to -1.
-    The function then constructs the corresponding calendar date and advances
-    one bucket when that date is 25 December. In the canonical 2000/01
-    primary schedule that date is week 26 / weekday 1.
+    It then advances one bucket when the corresponding calendar date is
+    25 December. In the canonical 2000/01 primary schedule that date is
+    week 26 / weekday 1.
     """
 
     week = int(scheduled_week)
     weekday = int(scheduled_weekday)
-    if weekday < 1 or weekday > 7:
-        raise ValueError("scheduled_weekday must be in 1..7")
-
-    bucket = 7 * week + weekday + PRIMARY_SCHEDULE_BASE_OFFSET
+    bucket = primary_schedule_source_bucket(week, weekday)
     if (
         week == PRIMARY_CHRISTMAS_WEEK
         and weekday == PRIMARY_CHRISTMAS_WEEKDAY

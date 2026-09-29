@@ -1806,8 +1806,26 @@ class GameState:
         )
         return self.domestic_cups
 
+    def install_domestic_cup_primary_schedule(
+        self,
+        buckets,
+        *,
+        season_year: int,
+    ) -> DomesticCupScheduleState:
+        """Attach post-placement/post-shuffle primary Cup nodes to live state.
+
+        The supplied buckets must already reflect Gate-4 0x615950 conflict
+        placement and 0x615BE0/0x615AE0 shuffle. No draw or schedule RNG is
+        consumed here.
+        """
+        self.domestic_cups = DomesticCupScheduleState.from_primary_schedule_buckets(
+            buckets,
+            season_year=int(season_year),
+        )
+        return self.domestic_cups
+
     def domestic_cup_nodes_due_today(self):
-        """Return source-dated domestic Cup nodes whose refs now resolve."""
+        """Return placed/shuffled domestic Cup nodes whose refs now resolve."""
         return self.domestic_cups.due_nodes(
             self.calendar.current_date,
             self.cup_results,

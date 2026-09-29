@@ -5,6 +5,7 @@ from competition_schedule import StartupScheduleNode, direct_club_ref
 from competition_startup import CupClubRefDescriptor
 from cup_progression import CupResultRegistry, complete_cup_match
 from domestic_cup_state import DomesticCupScheduleState
+from primary_schedule import place_primary_schedule_nodes
 
 
 def cup_node(
@@ -67,6 +68,78 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
         self.assertEqual(len(state.nodes), 1)
         self.assertEqual(state.nodes[0].scheduled_date, date(2000, 11, 18))
         self.assertEqual(state.nodes[0].node_token, ("cup_result", 1, 38, 0))
+
+    def test_primary_buckets_apply_conflict_displacement_to_cup_date(self):
+        blocker = cup_node(
+            node_kind="cup_match",
+            competition_id=9,
+            round_id=200,
+            pair_index=0,
+            week=19,
+            weekday=6,
+            left=direct_club_ref(10),
+            right=direct_club_ref(30),
+            token=("cup_result", 9, 200, 0),
+        )
+        domestic = cup_node(
+            node_kind="cup_match",
+            competition_id=1,
+            round_id=38,
+            pair_index=0,
+            week=19,
+            weekday=6,
+            left=direct_club_ref(10),
+            right=direct_club_ref(20),
+            token=("cup_result", 1, 38, 0),
+        )
+
+        placed = place_primary_schedule_nodes((blocker, domestic))
+        self.assertEqual(placed.chosen_bucket_indices, (138, 140))
+
+        state = DomesticCupScheduleState.from_primary_schedule_buckets(
+            placed.buckets,
+            season_year=2000,
+        )
+
+        self.assertEqual(len(state.nodes), 1)
+        self.assertEqual(state.nodes[0].scheduled_date, date(2000, 11, 20))
+
+    def test_primary_buckets_preserve_supplied_head_to_tail_cup_order(self):
+        first = cup_node(
+            node_kind="cup_match",
+            competition_id=1,
+            round_id=38,
+            pair_index=0,
+            week=19,
+            weekday=6,
+            left=direct_club_ref(10),
+            right=direct_club_ref(20),
+            token=("cup_result", 1, 38, 0),
+        )
+        second = cup_node(
+            node_kind="cup_match",
+            competition_id=1,
+            round_id=38,
+            pair_index=1,
+            week=19,
+            weekday=6,
+            left=direct_club_ref(30),
+            right=direct_club_ref(40),
+            token=("cup_result", 1, 38, 1),
+        )
+        buckets = [() for _ in range(139)]
+        buckets[138] = (second, first)
+
+        state = DomesticCupScheduleState.from_primary_schedule_buckets(
+            buckets,
+            season_year=2000,
+        )
+        due = state.due_nodes(date(2000, 11, 18), CupResultRegistry())
+
+        self.assertEqual(
+            tuple(node.node_token for node in due),
+            (("cup_result", 1, 38, 1), ("cup_result", 1, 38, 0)),
+        )
 
     def test_symbolic_participant_becomes_playable_only_after_prior_result(self):
         prior = ("cup_result", 1, 38, 0)

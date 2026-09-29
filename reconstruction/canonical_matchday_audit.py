@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+from dataclasses import dataclass
 from datetime import date
 from hashlib import sha256
 import json
@@ -43,13 +44,24 @@ EXPECTED_BUCKET_COUNT_SHA256 = (
 )
 
 
+@dataclass(frozen=True)
+class CanonicalPrimaryScheduleReconstruction:
+    """Verified Gate-3/4 primary-container state after bucket shuffle."""
+
+    buckets: tuple[tuple[object, ...], ...]
+    premier_league_order: tuple[tuple[int, tuple[int, ...]], ...]
+    state_after: int
+
+
 def _require(condition: bool, message: str) -> None:
     if not condition:
         raise RuntimeError(message)
 
 
-def reconstruct_canonical_pl_scheduler_order(database: FM2001Database):
-    """Return exact PL fixture order by round plus the final shuffle state."""
+def reconstruct_canonical_primary_schedule(
+    database: FM2001Database,
+) -> CanonicalPrimaryScheduleReconstruction:
+    """Return verified post-shuffle primary buckets plus PL order/state."""
 
     competition = materialize_primary_rng_driven_schedule(
         MsvcCrtRng(COMPETITION_START_STATE),
@@ -106,7 +118,18 @@ def reconstruct_canonical_pl_scheduler_order(database: FM2001Database):
         competition_id=0,
     )
     _require(len(order) == 38, f"expected 38 PL round orders, got {len(order)}")
-    return order, int(shuffled.state_after)
+    return CanonicalPrimaryScheduleReconstruction(
+        buckets=tuple(tuple(bucket) for bucket in shuffled.buckets),
+        premier_league_order=order,
+        state_after=int(shuffled.state_after),
+    )
+
+
+def reconstruct_canonical_pl_scheduler_order(database: FM2001Database):
+    """Compatibility wrapper returning PL order plus final shuffle state."""
+
+    schedule = reconstruct_canonical_primary_schedule(database)
+    return schedule.premier_league_order, schedule.state_after
 
 
 def run_canonical_matchday_audit(

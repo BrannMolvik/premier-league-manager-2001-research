@@ -8,12 +8,13 @@ not recreate draw RNG or invent match-engine completion rules.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 from typing import Iterable
 
 from competition_schedule import StartupScheduleNode, direct_club_ref
 from competition_startup import CupClubRefDescriptor
+from primary_schedule import primary_schedule_source_bucket
 from cup_progression import (
     CupMatchCompletion,
     CupMatchRuntimeState,
@@ -213,6 +214,55 @@ class DomesticCupScheduleState:
         if len(tokens) != len(set(tokens)):
             raise ValueError("domestic Cup schedule contains duplicate node tokens")
         return cls(nodes=materialized)
+
+    @classmethod
+    def from_primary_schedule_buckets(
+        cls,
+        buckets: Iterable[Iterable[StartupScheduleNode]],
+        *,
+        season_year: int,
+    ) -> "DomesticCupScheduleState":
+        """Attach domestic Cups after exact 0x615950 placement / 0x615AE0 shuffle.
+
+        The Cup source-date conversion has its own recovered calendar anchor,
+        so a primary bucket index must not be treated as a universal Gregorian
+        date. What placement proves exactly is the displacement from the
+        node's raw 0x615950 relative day. Apply that displacement to the
+        source-exact Cup date, then retain the supplied bucket/head-to-tail
+        order as the domestic-Cup execution order.
+
+        This also carries 0x615950's Christmas-day +1 adjustment because the
+        chosen bucket is compared with the pre-exception raw relative day.
+        """
+
+        materialized: list[DomesticCupScheduledNode] = []
+        for bucket_index, bucket in enumerate(buckets):
+            for node in bucket:
+                if (
+                    int(node.competition_id) not in ENGLISH_DOMESTIC_CUP_IDS
+                    or node.node_kind
+                    not in ("cup_match", "first_leg_match", "second_leg_match")
+                ):
+                    continue
+                live = DomesticCupScheduledNode.from_startup_node(
+                    node,
+                    season_year=int(season_year),
+                )
+                raw_bucket = primary_schedule_source_bucket(
+                    int(node.scheduled_week),
+                    int(node.scheduled_weekday),
+                )
+                live = replace(
+                    live,
+                    scheduled_date=live.scheduled_date
+                    + timedelta(days=int(bucket_index) - int(raw_bucket)),
+                )
+                materialized.append(live)
+
+        tokens = [node.node_token for node in materialized]
+        if len(tokens) != len(set(tokens)):
+            raise ValueError("domestic Cup schedule contains duplicate node tokens")
+        return cls(nodes=tuple(materialized))
 
     def node(self, node_token: tuple) -> DomesticCupScheduledNode:
         token = tuple(node_token)
