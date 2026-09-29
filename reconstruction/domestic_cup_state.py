@@ -96,6 +96,9 @@ class DomesticCupScheduledNode:
     participant_0_ref: CupClubRefDescriptor
     participant_1_ref: CupClubRefDescriptor
     node_token: tuple
+    extra_time_capable: bool = False
+    decisive_tiebreak: bool = False
+    auxiliary_flag: bool = False
 
     @classmethod
     def from_startup_node(
@@ -127,6 +130,9 @@ class DomesticCupScheduledNode:
             participant_0_ref=node.participant_0_ref,
             participant_1_ref=node.participant_1_ref,
             node_token=tuple(node.node_token),
+            extra_time_capable=bool(node.extra_time_capable),
+            decisive_tiebreak=bool(node.decisive_tiebreak),
+            auxiliary_flag=bool(node.auxiliary_flag),
         )
 
     @property
@@ -160,6 +166,9 @@ class DomesticCupScheduledNode:
             "participant_0_ref": _snapshot_ref(self.participant_0_ref),
             "participant_1_ref": _snapshot_ref(self.participant_1_ref),
             "node_token": list(self.node_token),
+            "extra_time_capable": bool(self.extra_time_capable),
+            "decisive_tiebreak": bool(self.decisive_tiebreak),
+            "auxiliary_flag": bool(self.auxiliary_flag),
         }
 
     @classmethod
@@ -174,6 +183,12 @@ class DomesticCupScheduledNode:
             participant_0_ref=_restore_ref(value["participant_0_ref"]),
             participant_1_ref=_restore_ref(value["participant_1_ref"]),
             node_token=_tuple_tree(value["node_token"]),
+            # Schema-25 saves created before Gate-12 policy persistence did not
+            # include these keys. Preserve load compatibility with false
+            # defaults; canonical fresh schedules now always carry them.
+            extra_time_capable=bool(value.get("extra_time_capable", False)),
+            decisive_tiebreak=bool(value.get("decisive_tiebreak", False)),
+            auxiliary_flag=bool(value.get("auxiliary_flag", False)),
         )
 
 
@@ -288,9 +303,9 @@ class DomesticCupScheduleState:
         node_token: tuple,
         registry: CupResultRegistry,
         *,
-        extra_time_capable: bool,
-        decisive_tiebreak: bool,
-        auxiliary_flag: bool = False,
+        extra_time_capable: bool | None = None,
+        decisive_tiebreak: bool | None = None,
+        auxiliary_flag: bool | None = None,
     ) -> CupMatchRuntimeState:
         token = tuple(node_token)
         node = self.node(token)
@@ -305,9 +320,21 @@ class DomesticCupScheduleState:
             node.node_token,
             pair[0],
             pair[1],
-            extra_time_capable=bool(extra_time_capable),
-            decisive_tiebreak=bool(decisive_tiebreak),
-            auxiliary_flag=bool(auxiliary_flag),
+            extra_time_capable=(
+                bool(node.extra_time_capable)
+                if extra_time_capable is None
+                else bool(extra_time_capable)
+            ),
+            decisive_tiebreak=(
+                bool(node.decisive_tiebreak)
+                if decisive_tiebreak is None
+                else bool(decisive_tiebreak)
+            ),
+            auxiliary_flag=(
+                bool(node.auxiliary_flag)
+                if auxiliary_flag is None
+                else bool(auxiliary_flag)
+            ),
         )
         self.match_states[token] = match
         return match
@@ -317,8 +344,8 @@ class DomesticCupScheduleState:
         first_leg_token: tuple,
         registry: CupResultRegistry,
         *,
-        second_leg_extra_time_capable: bool,
-        second_leg_auxiliary_flag: bool = False,
+        second_leg_extra_time_capable: bool | None = None,
+        second_leg_auxiliary_flag: bool | None = None,
     ) -> tuple[CupMatchRuntimeState, CupMatchRuntimeState]:
         first_token = tuple(first_leg_token)
         first_node = self.node(first_token)
@@ -335,8 +362,16 @@ class DomesticCupScheduleState:
             second_node.node_token,
             pair[0],
             pair[1],
-            second_leg_extra_time_capable=bool(second_leg_extra_time_capable),
-            second_leg_auxiliary_flag=bool(second_leg_auxiliary_flag),
+            second_leg_extra_time_capable=(
+                bool(second_node.extra_time_capable)
+                if second_leg_extra_time_capable is None
+                else bool(second_leg_extra_time_capable)
+            ),
+            second_leg_auxiliary_flag=(
+                bool(second_node.auxiliary_flag)
+                if second_leg_auxiliary_flag is None
+                else bool(second_leg_auxiliary_flag)
+            ),
         )
         self.match_states[first_token] = first
         self.match_states[second_node.node_token] = second
@@ -399,6 +434,9 @@ class DomesticCupScheduleState:
             participant_0_ref=direct_club_ref(replay.participant_0_club_id),
             participant_1_ref=direct_club_ref(replay.participant_1_club_id),
             node_token=replay_token,
+            extra_time_capable=bool(replay.extra_time_capable),
+            decisive_tiebreak=bool(replay.decisive_tiebreak),
+            auxiliary_flag=bool(replay.auxiliary_flag),
         )
         self.nodes += (replay_node,)
         self.match_states[replay_token] = replay

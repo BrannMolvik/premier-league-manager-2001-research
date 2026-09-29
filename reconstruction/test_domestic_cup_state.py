@@ -19,6 +19,9 @@ def cup_node(
     left,
     right,
     token,
+    extra_time_capable=False,
+    decisive_tiebreak=False,
+    auxiliary_flag=False,
 ):
     return StartupScheduleNode(
         node_kind=node_kind,
@@ -32,6 +35,9 @@ def cup_node(
         participant_0_ref=left,
         participant_1_ref=right,
         node_token=token,
+        extra_time_capable=extra_time_capable,
+        decisive_tiebreak=decisive_tiebreak,
+        auxiliary_flag=auxiliary_flag,
     )
 
 
@@ -140,6 +146,106 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
             tuple(node.node_token for node in due),
             (("cup_result", 1, 38, 1), ("cup_result", 1, 38, 0)),
         )
+
+    def test_scheduled_node_preserves_constructor_policy_through_roundtrip(self):
+        scheduled = cup_node(
+            node_kind="cup_match",
+            competition_id=1,
+            round_id=43,
+            pair_index=0,
+            week=38,
+            weekday=6,
+            left=direct_club_ref(10),
+            right=direct_club_ref(20),
+            token=("cup_result", 1, 43, 0),
+            extra_time_capable=True,
+            decisive_tiebreak=True,
+            auxiliary_flag=True,
+        )
+        state = DomesticCupScheduleState.from_startup_nodes(
+            (scheduled,),
+            season_year=2000,
+        )
+
+        node = state.nodes[0]
+        self.assertTrue(node.extra_time_capable)
+        self.assertTrue(node.decisive_tiebreak)
+        self.assertTrue(node.auxiliary_flag)
+
+        restored = DomesticCupScheduleState.restore(state.snapshot())
+        self.assertEqual(restored.nodes[0], node)
+
+    def test_normal_materialization_defaults_to_scheduled_constructor_policy(self):
+        token = ("cup_result", 1, 43, 0)
+        scheduled = cup_node(
+            node_kind="cup_match",
+            competition_id=1,
+            round_id=43,
+            pair_index=0,
+            week=38,
+            weekday=6,
+            left=direct_club_ref(10),
+            right=direct_club_ref(20),
+            token=token,
+            extra_time_capable=True,
+            decisive_tiebreak=True,
+            auxiliary_flag=True,
+        )
+        state = DomesticCupScheduleState.from_startup_nodes(
+            (scheduled,),
+            season_year=2000,
+        )
+
+        match = state.materialize_normal_match(token, CupResultRegistry())
+
+        self.assertTrue(match.extra_time_capable)
+        self.assertTrue(match.decisive_tiebreak)
+        self.assertTrue(match.auxiliary_flag)
+        self.assertTrue(match.uses_extra_time)
+
+    def test_two_leg_materialization_defaults_to_second_leg_policy(self):
+        first_token = ("cup_first_leg", 5, 185, 3)
+        result_token = ("cup_result", 5, 185, 3)
+        first = cup_node(
+            node_kind="first_leg_match",
+            competition_id=5,
+            round_id=185,
+            pair_index=3,
+            week=7,
+            weekday=3,
+            left=direct_club_ref(1),
+            right=direct_club_ref(2),
+            token=first_token,
+        )
+        second = cup_node(
+            node_kind="second_leg_match",
+            competition_id=5,
+            round_id=185,
+            pair_index=3,
+            week=9,
+            weekday=3,
+            left=direct_club_ref(2),
+            right=direct_club_ref(1),
+            token=result_token,
+            extra_time_capable=True,
+            decisive_tiebreak=True,
+            auxiliary_flag=True,
+        )
+        state = DomesticCupScheduleState.from_startup_nodes(
+            (first, second),
+            season_year=2000,
+        )
+
+        first_match, second_match = state.materialize_two_leg_pair(
+            first_token,
+            CupResultRegistry(),
+        )
+
+        self.assertFalse(first_match.extra_time_capable)
+        self.assertFalse(first_match.decisive_tiebreak)
+        self.assertTrue(second_match.extra_time_capable)
+        self.assertTrue(second_match.decisive_tiebreak)
+        self.assertTrue(second_match.auxiliary_flag)
 
     def test_symbolic_participant_becomes_playable_only_after_prior_result(self):
         prior = ("cup_result", 1, 38, 0)
@@ -354,6 +460,9 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
             (replay_token,),
         )
         self.assertIs(state.match_state(replay_token), completion.replay)
+        self.assertTrue(replay_node.extra_time_capable)
+        self.assertTrue(replay_node.decisive_tiebreak)
+        self.assertEqual(replay_node.auxiliary_flag, original.auxiliary_flag)
         self.assertIs(completion.replay.prior_match, original)
         self.assertIs(original.following_match, completion.replay)
 
