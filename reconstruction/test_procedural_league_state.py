@@ -127,7 +127,7 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
         )
         self.assertEqual(registry.resolve_club_ref(ref), 30)
 
-    def test_published_ranking_is_withdrawn_when_later_result_makes_keys_ambiguous(self):
+    def test_ambiguous_complete_group_withdraws_any_stale_ranking(self):
         registry = CupResultRegistry()
         nodes = (
             league_node(0, 10, 20),
@@ -137,9 +137,14 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
             nodes,
             registry.resolve_club_ref,
         )
-        state.record_result(nodes[0].node_token, 2, 0)
-        self.assertEqual(state.publish_exact_ranking(registry), (10, 30, 40, 20))
-        state.record_result(nodes[1].node_token, 2, 0)
+        registry.record_competition_ranking(
+            14,
+            (10, 20, 30, 40),
+            competition_context=3,
+        )
+        state.record_result(nodes[0].node_token, 1, 0)
+        state.record_result(nodes[1].node_token, 1, 0)
+        self.assertTrue(state.is_complete)
         self.assertIsNone(state.publish_exact_ranking(registry))
         self.assertEqual(registry.competition_rankings, {})
 
