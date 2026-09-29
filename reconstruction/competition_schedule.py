@@ -35,6 +35,7 @@ class StartupScheduleNode:
     participant_0_ref: CupClubRefDescriptor
     participant_1_ref: CupClubRefDescriptor
     node_token: tuple
+    round_number: int | None = None
     extra_time_capable: bool | None = None
     decisive_tiebreak: bool | None = None
     auxiliary_flag: bool | None = None
@@ -182,6 +183,7 @@ def materialize_cup_round_schedule_nodes(
                     participant_0_ref=left_ref,
                     participant_1_ref=right_ref,
                     node_token=tuple(pairing.result_token),
+                    round_number=int(round_definition.round_number),
                     extra_time_capable=round_extra_time,
                     decisive_tiebreak=round_decisive,
                     auxiliary_flag=round_auxiliary,
@@ -208,6 +210,7 @@ def materialize_cup_round_schedule_nodes(
                 participant_0_ref=left_ref,
                 participant_1_ref=right_ref,
                 node_token=first_leg_token,
+                round_number=int(round_definition.round_number),
                 extra_time_capable=False,
                 decisive_tiebreak=False,
                 auxiliary_flag=False,
@@ -226,6 +229,7 @@ def materialize_cup_round_schedule_nodes(
                 participant_0_ref=right_ref,
                 participant_1_ref=left_ref,
                 node_token=tuple(pairing.result_token),
+                round_number=int(round_definition.round_number),
                 extra_time_capable=round_extra_time,
                 decisive_tiebreak=True,
                 auxiliary_flag=round_auxiliary,

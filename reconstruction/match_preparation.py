@@ -12,6 +12,7 @@ from match_strength import TeamStrengthContext
 from match_team_setup import (
     FormationSelectionClass,
     TeamTacticalState,
+    cup_round_strategy_bias,
     formation_selection_class_from_score,
     game_strategy_score,
     initialize_ai_roster_condition,
@@ -55,6 +56,11 @@ class CompetitionSelectionInput(Protocol):
     max_non_eu_players: int
 
 
+class CupCompetitionSelectionInput(CompetitionSelectionInput, Protocol):
+    scheduled_matchday_count: int
+    initialization_order_value: int
+
+
 class LeagueTableInput(Protocol):
     club_id: int
     played: int
@@ -71,6 +77,17 @@ class PreparedPremierLeagueAiSelection:
     formation_id: int
     substitute_quota: int
     selection: "PreparedAiMatchSelection"
+
+@dataclass(frozen=True)
+class PreparedCupAiSelection:
+    """Autonomous Cup AI team-selection result."""
+
+    strategy_score: int
+    selection_class: FormationSelectionClass
+    formation_id: int
+    substitute_quota: int
+    selection: "PreparedAiMatchSelection"
+
 
 @dataclass(frozen=True)
 class PreparedPremierLeagueAiSide:
@@ -305,6 +322,69 @@ def build_prepared_match_side_from_selection(
         team_orders=local_orders,
         starting_player_indices=starting_player_indices,
     )
+
+def prepare_cup_ai_selection(
+    team_club_id: int,
+    ordered_roster: Sequence[PlayerT],
+    opponent_roster: Sequence[PlayerT],
+    manager: ManagerFormationInput,
+    competition: CupCompetitionSelectionInput,
+    *,
+    round_number: int,
+    is_home: bool,
+    aggregate_goals_behind: int = 0,
+    additional_eligible: Callable[[PlayerT], bool] | None = None,
+    preserve_existing_selection: Callable[[PlayerT], bool] | None = None,
+    require_complete_xi: bool = True,
+) -> PreparedCupAiSelection:
+    """Prepare an AI Cup XI from the recovered generic strategy inputs.
+
+    Cup+0x3C is the total runtime round count and CupMatch+0x50 receives the
+    zero-based round index. The 0x409680 final/semi/quarter selector therefore
+    receives total_rounds - zero_based_round_index, which is
+    scheduled_matchday_count - round_number + 1 for Static.dat's one-based
+    round_number. Runtime competition +0x18 is -packed(+15), while the parser
+    stores packed +15 as initialization_order_value.
+    """
+    total_rounds = int(competition.scheduled_matchday_count)
+    round_number = int(round_number)
+    if total_rounds <= 0:
+        raise ValueError("Cup competition must define a positive round count")
+    if not 1 <= round_number <= total_rounds:
+        raise ValueError("Cup round_number is outside the competition")
+
+    context_bias = cup_round_strategy_bias(
+        total_rounds - round_number + 1,
+        -int(competition.initialization_order_value),
+    )
+    strategy_score = game_strategy_score(
+        is_home=bool(is_home),
+        current_rating=strategy_team_rating(ordered_roster),
+        opponent_rating=strategy_team_rating(opponent_roster),
+        aggregate_goals_behind=int(aggregate_goals_behind),
+        competition_context_bias=context_bias,
+    )
+    selection_class = formation_selection_class_from_score(strategy_score)
+    formation_id = manager_formation_for_selection_class(manager, selection_class)
+    substitute_quota = resolved_substitute_quota(int(competition.substitute_quota))
+    selection = prepare_ai_match_selection(
+        int(team_club_id),
+        ordered_roster,
+        formation_id=formation_id,
+        substitute_quota=substitute_quota,
+        additional_eligible=additional_eligible,
+        preserve_existing_selection=preserve_existing_selection,
+        require_complete_xi=require_complete_xi,
+        non_eu_limit=int(competition.max_non_eu_players),
+    )
+    return PreparedCupAiSelection(
+        strategy_score=strategy_score,
+        selection_class=selection_class,
+        formation_id=formation_id,
+        substitute_quota=substitute_quota,
+        selection=selection,
+    )
+
 
 def prepare_premier_league_ai_selection(
     team_club_id: int,

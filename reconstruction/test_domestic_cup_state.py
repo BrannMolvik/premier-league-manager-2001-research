@@ -22,6 +22,7 @@ def cup_node(
     extra_time_capable=False,
     decisive_tiebreak=False,
     auxiliary_flag=False,
+    round_number=None,
 ):
     return StartupScheduleNode(
         node_kind=node_kind,
@@ -38,6 +39,7 @@ def cup_node(
         extra_time_capable=extra_time_capable,
         decisive_tiebreak=decisive_tiebreak,
         auxiliary_flag=auxiliary_flag,
+        round_number=round_number,
     )
 
 
@@ -161,6 +163,7 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
             extra_time_capable=True,
             decisive_tiebreak=True,
             auxiliary_flag=True,
+            round_number=8,
         )
         state = DomesticCupScheduleState.from_startup_nodes(
             (scheduled,),
@@ -171,6 +174,7 @@ class DomesticCupScheduleStateTests(unittest.TestCase):
         self.assertTrue(node.extra_time_capable)
         self.assertTrue(node.decisive_tiebreak)
         self.assertTrue(node.auxiliary_flag)
+        self.assertEqual(node.round_number, 8)
 
         restored = DomesticCupScheduleState.restore(state.snapshot())
         self.assertEqual(restored.nodes[0], node)

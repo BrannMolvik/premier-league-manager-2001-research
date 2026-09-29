@@ -97,6 +97,7 @@ class DomesticCupScheduledNode:
     participant_0_ref: CupClubRefDescriptor
     participant_1_ref: CupClubRefDescriptor
     node_token: tuple
+    round_number: int | None = None
     extra_time_capable: bool = False
     decisive_tiebreak: bool = False
     auxiliary_flag: bool = False
@@ -131,6 +132,9 @@ class DomesticCupScheduledNode:
             participant_0_ref=node.participant_0_ref,
             participant_1_ref=node.participant_1_ref,
             node_token=tuple(node.node_token),
+            round_number=(
+                None if node.round_number is None else int(node.round_number)
+            ),
             extra_time_capable=bool(node.extra_time_capable),
             decisive_tiebreak=bool(node.decisive_tiebreak),
             auxiliary_flag=bool(node.auxiliary_flag),
@@ -167,6 +171,9 @@ class DomesticCupScheduledNode:
             "participant_0_ref": _snapshot_ref(self.participant_0_ref),
             "participant_1_ref": _snapshot_ref(self.participant_1_ref),
             "node_token": list(self.node_token),
+            "round_number": (
+                None if self.round_number is None else int(self.round_number)
+            ),
             "extra_time_capable": bool(self.extra_time_capable),
             "decisive_tiebreak": bool(self.decisive_tiebreak),
             "auxiliary_flag": bool(self.auxiliary_flag),
@@ -184,7 +191,12 @@ class DomesticCupScheduledNode:
             participant_0_ref=_restore_ref(value["participant_0_ref"]),
             participant_1_ref=_restore_ref(value["participant_1_ref"]),
             node_token=_tuple_tree(value["node_token"]),
-            # Schema-25 saves created before Gate-12 policy persistence did not
+            round_number=(
+                None
+                if value.get("round_number") is None
+                else int(value["round_number"])
+            ),
+            # Older saves created before Gate-12 policy persistence did not
             # include these keys. Preserve load compatibility with false
             # defaults; canonical fresh schedules now always carry them.
             extra_time_capable=bool(value.get("extra_time_capable", False)),
@@ -518,6 +530,7 @@ class DomesticCupScheduleState:
             participant_0_ref=direct_club_ref(replay.participant_0_club_id),
             participant_1_ref=direct_club_ref(replay.participant_1_club_id),
             node_token=replay_token,
+            round_number=original_node.round_number,
             extra_time_capable=bool(replay.extra_time_capable),
             decisive_tiebreak=bool(replay.decisive_tiebreak),
             auxiliary_flag=bool(replay.auxiliary_flag),

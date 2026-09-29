@@ -6,6 +6,7 @@ from match_orders import TeamOrderPriorities
 from match_preparation import (
     build_prepared_match_side_from_selection,
     prepare_ai_match_selection,
+    prepare_cup_ai_selection,
     prepare_premier_league_ai_match_side,
     prepare_premier_league_ai_selection,
 )
@@ -325,6 +326,99 @@ class AiMatchPreparationTests(unittest.TestCase):
             team_orders=TeamOrderPriorities(captain=(999, 0)),
         )
         self.assertEqual(prepared.attack_context.captain_priority, (0,))
+
+    def test_cup_ai_selection_uses_exact_final_bias_and_runtime_precedence(self):
+        @dataclass(frozen=True)
+        class Manager:
+            formation_default: int = 0
+            formation_class3: int = 2
+            formation_class1: int = 1
+
+        @dataclass(frozen=True)
+        class Competition:
+            substitute_quota: int = 5
+            max_non_eu_players: int = 10
+            scheduled_matchday_count: int = 8
+            initialization_order_value: int = 6
+
+        roster = formation_zero_roster(club=7)
+        roster.extend(
+            player(11 + i, 7, role, 150)
+            for i, role in enumerate((12, 19, 4, 1, 10))
+        )
+        opponent = formation_zero_roster(club=8)
+
+        result = prepare_cup_ai_selection(
+            7,
+            roster,
+            opponent,
+            Manager(),
+            Competition(),
+            round_number=8,
+            is_home=True,
+        )
+
+        # FA Cup runtime precedence is -6. Final bias 3 plus
+        # trunc((-6 + 12) / 3) == 2, plus home base 1 => 6.
+        self.assertEqual(result.strategy_score, 6)
+        self.assertEqual(int(result.selection_class), 1)
+        self.assertEqual(result.formation_id, 1)
+        self.assertEqual(result.substitute_quota, 5)
+
+    def test_cup_ai_selection_includes_linked_aggregate_deficit_pressure(self):
+        @dataclass(frozen=True)
+        class Manager:
+            formation_default: int = 0
+            formation_class3: int = 2
+            formation_class1: int = 1
+
+        @dataclass(frozen=True)
+        class Competition:
+            substitute_quota: int = 0
+            max_non_eu_players: int = 10
+            scheduled_matchday_count: int = 7
+            initialization_order_value: int = 5
+
+        result = prepare_cup_ai_selection(
+            7,
+            formation_zero_roster(club=7),
+            formation_zero_roster(club=8),
+            Manager(),
+            Competition(),
+            round_number=6,
+            is_home=False,
+            aggregate_goals_behind=2,
+        )
+
+        # League Cup runtime precedence -5 => trunc(7/3)=2. Semi bias 2 and
+        # aggregate deficit 5 produce score 9 for the away side.
+        self.assertEqual(result.strategy_score, 9)
+        self.assertEqual(int(result.selection_class), 1)
+
+    def test_cup_ai_selection_rejects_round_outside_runtime_count(self):
+        @dataclass(frozen=True)
+        class Competition:
+            substitute_quota: int = 0
+            max_non_eu_players: int = 10
+            scheduled_matchday_count: int = 7
+            initialization_order_value: int = 5
+
+        @dataclass(frozen=True)
+        class Manager:
+            formation_default: int = 0
+            formation_class3: int = 2
+            formation_class1: int = 1
+
+        with self.assertRaises(ValueError):
+            prepare_cup_ai_selection(
+                7,
+                formation_zero_roster(club=7),
+                formation_zero_roster(club=8),
+                Manager(),
+                Competition(),
+                round_number=8,
+                is_home=True,
+            )
 
     def test_premier_league_ai_selection_derives_formation_quota_and_non_eu_limit(self):
         @dataclass(frozen=True)
