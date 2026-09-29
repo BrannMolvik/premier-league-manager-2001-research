@@ -9390,3 +9390,62 @@ This proves suspension refresh is schedule-container-wide rather than
 Premier-League-table-specific. A faithful clean-room implementation must search
 all live matches in that container. Until the remaining primary competitions
 are represented, a PL + domestic-Cup-only approximation must stay explicit.
+
+
+## ClubRef type-3 MiniLeague cross-group resolver
+
+**Confirmed 29 September 2026 from canonical FOOTBAL.EXE SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.**
+
+Direct tracing closes the Gate-12 ClubRef type-3 ambiguity. Type 3 is **not**
+a type-2 alias and does not directly mean “position N from group M”.
+
+Constructor `0x4F2D40` stores the referenced competition object at ClubRef
+`+0x08`, type 3 at `+0x0C`, and derives the 16-bit selector at `+0x0E` as:
+
+```text
+raw_selector = DBRCompetition.runtime_instance_count * position_index
+             + instance_ordinal
+```
+
+The multiplier comes from the referenced competition DBR record word at runtime
+`+0x0C`, which the clean-room parser already exposes as
+`CompetitionDefinition.runtime_instance_count` (packed competition offset +8).
+For Champions League child competition 14 this is the number of group instances.
+
+The MiniLeague-to-UEFA construction path at `0x4F6078..0x4F60D9` supplies the
+third-place zero-based position and walks the child-instance ordinal in reverse,
+matching the already-materialized clean descriptors emitted by
+`expand_champions_league_to_uefa_transfer`.
+
+Resolver `0x4F2992..0x4F2A73` performs the inverse operation. Helper
+`0x66A518` divides the stored selector by runtime-instance count, yielding:
+
+```text
+position_index  = raw_selector // runtime_instance_count
+instance_ordinal = raw_selector % runtime_instance_count
+```
+
+The resolver then walks every linked child League instance. For each group it
+calls `0x4F4940` to refresh/sort the League ranking and takes the club at the
+same `position_index`. It collects one candidate from every group, qsorts that
+cross-group candidate array with League comparator `0x4F45E0`, and returns the
+candidate at `instance_ordinal`.
+
+Therefore the eight Champions-League-third-place refs transferred to the UEFA
+Cup collectively enumerate a **globally ranked pool of all third-place clubs**.
+They do not independently point at “third place from group 0”, “third place from
+group 1”, etc.
+
+The recovered `0x4F45E0` ordering is:
+
+1. points (`wins*3 + draws`) descending;
+2. played ascending;
+3. goal difference descending;
+4. goals for descending;
+5. goals against ascending;
+6. club-name byte-string lexical comparison.
+
+The clean room may conservatively leave a type-3 ranking unresolved when all
+numeric keys tie until the final source-string comparison is represented
+exactly; it must never substitute club ID for this gameplay ordering.
