@@ -6,6 +6,9 @@ from fm2001_data import (
     COMPETITION_TABLE_OFFSET,
     ROUND_RECORD_SIZE,
     ROUND_TABLE_OFFSET,
+    LEAGUE_ALLOCATION_TABLE_OFFSET,
+    LEAGUE_ALLOCATION_RECORD_SIZE,
+    REAL_FIXTURE_TABLE_OFFSET,
     ACCESS_SKILL_FINANCIAL_TABLE_OFFSET,
     ACCESS_SKILL_FINANCIAL_RECORD_SIZE,
     FM2001Database,
@@ -83,6 +86,60 @@ class CompetitionParserTests(unittest.TestCase):
         self.assertEqual(db.competitions[1].runtime_instance_count, 8)
         self.assertEqual(db.competitions[1].scheduled_matchday_count, 6)
         self.assertEqual(db.competitions[1].valuation_division_category, 255)
+
+
+class LeagueAllocationParserTests(unittest.TestCase):
+    def test_table_boundary_and_rows_are_lossless(self):
+        self.assertEqual(
+            LEAGUE_ALLOCATION_TABLE_OFFSET
+            + 4
+            + 28 * LEAGUE_ALLOCATION_RECORD_SIZE,
+            REAL_FIXTURE_TABLE_OFFSET,
+        )
+
+        data = bytearray(REAL_FIXTURE_TABLE_OFFSET)
+        struct.pack_into("<I", data, LEAGUE_ALLOCATION_TABLE_OFFSET, 2)
+        base = LEAGUE_ALLOCATION_TABLE_OFFSET + 4
+        first = (10, 20, 30, 40, 50, 60, 70)
+        second = (11, 21, 31, 41, 51, 61, 71)
+        struct.pack_into("<7I", data, base, *first)
+        struct.pack_into(
+            "<7I",
+            data,
+            base + LEAGUE_ALLOCATION_RECORD_SIZE,
+            *second,
+        )
+
+        db = FM2001Database.__new__(FM2001Database)
+        db.static = bytes(data)
+        db.league_allocation_records = []
+        db._parse_league_allocation_records()
+
+        self.assertEqual(len(db.league_allocation_records), 2)
+        self.assertEqual(
+            (
+                db.league_allocation_records[0].field_00,
+                db.league_allocation_records[0].field_04,
+                db.league_allocation_records[0].field_08,
+                db.league_allocation_records[0].field_0c,
+                db.league_allocation_records[0].field_10,
+                db.league_allocation_records[0].field_14,
+                db.league_allocation_records[0].field_18,
+            ),
+            first,
+        )
+        self.assertEqual(
+            (
+                db.league_allocation_records[1].field_00,
+                db.league_allocation_records[1].field_04,
+                db.league_allocation_records[1].field_08,
+                db.league_allocation_records[1].field_0c,
+                db.league_allocation_records[1].field_10,
+                db.league_allocation_records[1].field_14,
+                db.league_allocation_records[1].field_18,
+            ),
+            second,
+        )
 
 
 class AccessSkillFinancialParserTests(unittest.TestCase):
