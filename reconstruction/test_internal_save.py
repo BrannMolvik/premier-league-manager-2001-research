@@ -1,7 +1,7 @@
 import json
 import tempfile
 import unittest
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from datetime import date
 from pathlib import Path
 
@@ -44,6 +44,20 @@ SCHEDULER_ORDER = (
 )
 
 
+@dataclass(frozen=True)
+class CupCompetition:
+    id: int = 1
+    substitute_quota: int = 5
+    max_non_eu_players: int = 10
+    scheduled_matchday_count: int = 8
+    initialization_order_value: int = 6
+
+
+class CupDatabase(Database):
+    competitions = Database.competitions + (CupCompetition(),)
+
+
+
 class InternalSaveTests(unittest.TestCase):
     def build_controller(self):
         state = GameState.from_database(
@@ -62,6 +76,53 @@ class InternalSaveTests(unittest.TestCase):
         controller.select_club(1)
         controller.autofill_lineup(0)
         return controller
+
+    def build_cup_controller(self):
+        state = GameState.from_database(
+            CupDatabase(),
+            date(2000, 7, 7),
+            seed=1,
+            season_year=2000,
+        )
+        controller = HumanGameplayController(
+            state,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MsvcCrtRng(0x12345678),
+        )
+        controller.select_club(1)
+        controller.autofill_lineup(0)
+        token = ("cup_result", 1, 43, 7)
+        state.install_domestic_cup_schedule_nodes(
+            (
+                StartupScheduleNode(
+                    node_kind="cup_match",
+                    competition_id=1,
+                    competition_context=0,
+                    round_id=43,
+                    pair_index=7,
+                    schedule_index=None,
+                    scheduled_week=0,
+                    scheduled_weekday=6,
+                    participant_0_ref=direct_club_ref(1),
+                    participant_1_ref=direct_club_ref(2),
+                    node_token=token,
+                    round_number=8,
+                    extra_time_capable=True,
+                    decisive_tiebreak=True,
+                    auxiliary_flag=False,
+                ),
+            ),
+            season_year=2000,
+        )
+        state.primary_matchday_order = {
+            date(2000, 7, 8): (
+                ("premier_league", 5),
+                ("domestic_cup", token),
+                ("premier_league", 6),
+            )
+        }
+        return controller, token
 
     def test_json_roundtrip_preserves_mid_matchday_controller_state(self):
         original = self.build_controller()
@@ -138,6 +199,49 @@ class InternalSaveTests(unittest.TestCase):
             restored._pending_after_primary_entries,
             original._pending_after_primary_entries,
         )
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
+    def test_mid_matchday_human_cup_save_reload_continues_identically(self):
+        original, token = self.build_cup_controller()
+        pending = original.advance_to_next_user_primary_match()
+        self.assertEqual(pending, ("domestic_cup", token))
+        self.assertIn(5, original.state.premier_league.results)
+        self.assertNotIn(6, original.state.premier_league.results)
+
+        restored = loads_human_gameplay(
+            CupDatabase(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
+        original_outcome = original.play_user_primary_match()
+        restored_outcome = restored.play_user_primary_match()
+
+        self.assertEqual(
+            original_outcome.user_result.score,
+            restored_outcome.user_result.score,
+        )
+        self.assertEqual(
+            tuple(entry for entry, _result in original_outcome.matchday_results),
+            tuple(entry for entry, _result in restored_outcome.matchday_results),
+        )
+        self.assertEqual(
+            original.state.cup_results.outcomes,
+            restored.state.cup_results.outcomes,
+        )
+        self.assertEqual(
+            original.state.premier_league.results,
+            restored.state.premier_league.results,
+        )
+        self.assertEqual(original.match_rng.state, restored.match_rng.state)
         self.assertEqual(
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),
