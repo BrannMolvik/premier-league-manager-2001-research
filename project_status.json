@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate 12 Europe: build live child/procedural-League group standings that publish competition-position rankings, while separately closing ClubRef type-3 MiniLeague group-position resolution. Do not rebuild solved European startup allocation/scheduling.",
+  "current_task": "Gate 12 English divisions: audit already-materialized non-Premier-League English competition structures, identify the first missing live runtime/progression/save bridge, and add deterministic coverage without reopening solved Europe.",
   "last_verified_reconstruction_failures": 2,
   "last_verified_asset_policy_head": "3291b7e1d27e3617293670ccb547bf3661c1e302",
   "gate11_danger_morale_request_integrated": true,
@@ -297,7 +297,7 @@
   "gate12_shared_match_result_virtual": true,
   "gate12_snapshot_registry_bridge": true,
   "gate12_verified_head": "0feb1278ec2cfebc07379732a19ef8ab2f733777",
-  "gate12_verified_test_count": 752,
+  "gate12_verified_test_count": 780,
   "gate12_known_ci_failures": [
     "secondary root order assertion",
     "secondary bucket count 262 vs 280"
@@ -321,7 +321,7 @@
   "gate12_two_leg_lifecycle_implemented": true,
   "gate12_decisive_tiebreak_implemented": true,
   "gate12_game_state_result_registry": true,
-  "gate12_internal_save_schema": 28,
+  "gate12_internal_save_schema": 32,
   "gate12_result_save_reload": true,
   "gate12_domestic_schedule_state": true,
   "gate12_domestic_schedule_game_state": true,
@@ -340,7 +340,7 @@
   "gate12_constructor_policy_inputs_closed": true,
   "gate12_global_pl_cup_calendar_order_closed": true,
   "gate12_fixed_league_schedule_date_argument_closed": true,
-  "gate12_latest_implementation_head": "0feb1278ec2cfebc07379732a19ef8ab2f733777",
+  "gate12_latest_implementation_head": "474086bb26fe7185b0022ea84568653b443d8e0f",
   "gate12_primary_calendar_anchor_corrected": true,
   "gate12_christmas_boundary_corrected": true,
   "gate12_christmas_correction_startup_neutral": true,
@@ -371,6 +371,11 @@
   "gate12_competition_position_registry": true,
   "gate12_competition_position_registry_head": "0feb1278ec2cfebc07379732a19ef8ab2f733777",
   "gate12_type2_clubref_live": true,
-  "gate12_type3_clubref_live": false,
-  "gate12_domestic_cup_special_posting_status": "deferred_source_access_blocked"
+  "gate12_type3_clubref_live": true,
+  "gate12_domestic_cup_special_posting_status": "deferred_source_access_blocked",
+  "gate12_european_knockout_runtime_live": true,
+  "gate12_european_knockout_human_flow_verified": true,
+  "gate12_european_save_reload_verified": true,
+  "gate12_type3_uefa_dependency_verified": true,
+  "gate12_europe_verified_head": "474086bb26fe7185b0022ea84568653b443d8e0f"
 }
