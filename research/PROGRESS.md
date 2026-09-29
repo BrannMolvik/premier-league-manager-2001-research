@@ -7756,3 +7756,34 @@ now-verified procedural-League state.
 - GitHub Actions ran **812 tests with 2 failures**, exactly the two unchanged known secondary-schedule assertions. Repository asset policy passed.
 - Canonical annual qualification source classes are now bounded: played Leagues (0, 17, 21, 27, 31, 40, 50, 54) and 44 DummyLeague sources. Canonical startup already makes the played sources live.
 - Next: make the complete annual qualification snapshot available in a real canonical season. Preserve/publish every required DummyLeague ranking with no extra RNG, then make required Cup sources (1, 5, 9, 10, 19, 23, 33, 91, 98, 101) live through their finals so the rollover transaction can run without a shipped-data fallback.
+
+
+### 2026-09-30 - Annual qualification-source continuity verified
+
+- Recovery generation 73 resumed from main
+  `3c90bd77d074c65e53dc373d1033c6225413fb1c` and preserved the already
+  persisted qualification-Cup and DummyLeague work.
+- Confirmed all required startup DummyLeague rankings were already published
+  from the one canonical lazy-sort pass, and the additional annual Cup sources
+  now have live runtime ownership, human/AI routing, final-pair extraction, and
+  schema-34 persistence.
+- Found and fixed a cross-season continuity defect in
+  `HumanGameplayController.regenerate_annual_primary_season()`: canonical
+  startup kept every played annual type-3 League source live, but the default
+  year-two installation retained only English roots plus Champions League child
+  groups. Annual regeneration now derives the played qualification-source set
+  from the canonical allocation requirements and keeps those Leagues live
+  without duplicate IDs.
+- Added regression coverage proving the default rollover carries played annual
+  sources into the new primary runtime. Also completed the synthetic
+  qualification-snapshot fixtures with the separate qualification-Cup owner
+  introduced by schema 34.
+- Verified code checkpoint:
+  `39d8e4ec4bfccea35671ca30c8dfee3505bcf1b9`.
+- GitHub Actions ran **817 tests with 2 failures**, exactly the two unchanged
+  known secondary-schedule assertions. The new annual continuity and
+  qualification-snapshot tests passed; repository asset policy passed.
+- Next: execute a real canonical primary season through every required
+  played-League ranking and Cup final, capture the complete live qualification
+  snapshot, then perform the atomic year-two regeneration and verify the new
+  primary runtime end to end.
