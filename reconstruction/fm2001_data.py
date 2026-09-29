@@ -265,15 +265,29 @@ class CupAllocationInstruction:
 
 @dataclass(frozen=True)
 class LeagueAllocationRecord:
-    """Lossless packed DBRLeagueAllocation row; field semantics pending trace."""
+    """Packed DBRLeagueAllocation season-transition slot exchange.
 
-    field_00: int
-    field_04: int
-    field_08: int
-    field_0c: int
-    field_10: int
-    field_14: int
-    field_18: int
+    Static.dat stores seven dwords. Runtime construction inserts the vtable
+    before them, so executable offsets +0x08/+0x14 are the two competition
+    endpoints and +0x0C..+0x10 / +0x18..+0x1C are inclusive zero-based
+    ranking ranges. Season finalization at 0x4F948F -> 0x4F4BD0 exchanges
+    the paired clubs one slot at a time.
+    """
+
+    id: int
+    competition_a_id: int
+    competition_a_start: int
+    competition_a_end: int
+    competition_b_id: int
+    competition_b_start: int
+    competition_b_end: int
+
+    @property
+    def exchange_count(self) -> int:
+        """0x4F83D0: smaller inclusive endpoint range length."""
+        a_count = abs(int(self.competition_a_end) - int(self.competition_a_start)) + 1
+        b_count = abs(int(self.competition_b_end) - int(self.competition_b_start)) + 1
+        return min(a_count, b_count)
 
 
 @dataclass(frozen=True)
@@ -580,11 +594,11 @@ class FM2001Database:
             )
 
     def _parse_league_allocation_records(self):
-        """Parse the RTTI-backed DBTLeagueAllocations table losslessly.
+        """Parse the RTTI-backed DBTLeagueAllocations season-transition table.
 
-        The canonical table begins at Static.dat 0xFD43 and contains 28-byte
-        DBRLeagueAllocation rows.  Field semantics are intentionally left
-        neutral until the season-transition consumers are instruction-closed.
+        The canonical table begins at Static.dat 0xFD43. Each 28-byte row
+        links two competitions and two inclusive ranking ranges; annual
+        finalization swaps the selected clubs between those competitions.
         """
         off = LEAGUE_ALLOCATION_TABLE_OFFSET
         if off + 4 > len(self.static):
