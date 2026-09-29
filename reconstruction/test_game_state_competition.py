@@ -4,6 +4,7 @@ from datetime import date
 from types import SimpleNamespace
 
 from competition_schedule import StartupScheduleNode, direct_club_ref
+from domestic_cup_state import DomesticCupScheduleState
 import game_state as game_state_module
 from game_state import GameState
 from match_calculator import PositionRole
@@ -600,6 +601,70 @@ class IntegratedGameStateTests(unittest.TestCase):
         )
         self.assertIn(token, state.cup_results.outcomes)
         self.assertIn(0, state.premier_league.results)
+
+    def test_primary_ai_entry_executes_european_knockout_and_records_result(self):
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 8),
+            seed=1,
+            season_year=2000,
+        )
+        state.competitions[9] = SimpleNamespace(
+            id=9,
+            substitute_quota=5,
+            max_non_eu_players=10,
+            scheduled_matchday_count=8,
+            initialization_order_value=6,
+        )
+        token = ("cup_result", 9, 200, 0)
+        node = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=9,
+            competition_context=0,
+            round_id=200,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=0,
+            scheduled_weekday=6,
+            participant_0_ref=direct_club_ref(1),
+            participant_1_ref=direct_club_ref(2),
+            node_token=token,
+            round_number=1,
+            extra_time_capable=True,
+            decisive_tiebreak=True,
+            auxiliary_flag=False,
+        )
+        state.european_cups = DomesticCupScheduleState.from_startup_nodes(
+            (node,),
+            season_year=2000,
+            competition_ids=(9, 10),
+        )
+        state.primary_matchday_order = {
+            date(2000, 7, 8): (("european_cup", token),)
+        }
+
+        self.assertEqual(
+            state.primary_entries_due_today(),
+            (("european_cup", token),),
+        )
+        result = state.simulate_primary_ai_entry(
+            ("european_cup", token),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MidpointRng(),
+        )
+
+        self.assertIn(token, state.european_cups.completed_node_tokens)
+        self.assertIn(token, state.cup_results.outcomes)
+        outcome = state.cup_results.outcomes[token]
+        self.assertEqual(
+            (outcome.participant_0_club_id, outcome.participant_1_club_id),
+            (1, 2),
+        )
+        self.assertEqual(
+            outcome.winner_club_id,
+            1 if result.score[0] > result.score[1] else 2,
+        )
 
     def test_primary_ai_entry_executes_procedural_league_and_records_result(self):
         state = GameState.from_database(
