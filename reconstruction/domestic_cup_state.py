@@ -12,9 +12,10 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import Iterable
 
-from competition_schedule import StartupScheduleNode
+from competition_schedule import StartupScheduleNode, direct_club_ref
 from competition_startup import CupClubRefDescriptor
 from cup_progression import (
+    CupMatchCompletion,
     CupMatchRuntimeState,
     CupResultRegistry,
 )
@@ -302,6 +303,66 @@ class DomesticCupScheduleState:
 
     def match_state(self, node_token: tuple) -> CupMatchRuntimeState | None:
         return self.match_states.get(tuple(node_token))
+
+    def insert_replay_from_completion(
+        self,
+        original_node_token: tuple,
+        completion: CupMatchCompletion,
+        *,
+        current_date: date,
+    ) -> DomesticCupScheduledNode:
+        """Insert the canonical shipped domestic-Cup replay after a draw.
+
+        Source 0x51392A schedules the replay at current relative schedule day
+        + 14 unless runtime round +0x2C exceeds 6. Canonical shipped FA Cup
+        replay-producing rounds all carry replay_weekday=3, so that floor
+        branch is never taken. League Cup normal rounds are decisive and do
+        not reach this path.
+        """
+        original_token = tuple(original_node_token)
+        original_node = self.node(original_token)
+        if original_node.node_kind != "cup_match":
+            raise ValueError("Cup replay can only follow a normal Cup schedule node")
+
+        original_match = self.match_states.get(original_token)
+        if original_match is None:
+            raise ValueError("Cup replay requires materialized original match state")
+        replay = completion.replay
+        if replay is None:
+            raise ValueError("Cup completion did not produce a replay")
+        if replay.prior_match is not original_match:
+            raise ValueError("Cup replay is not linked to the scheduled original match")
+        if not original_match.complete:
+            raise ValueError("Cup replay requires a completed original match")
+
+        replay_token = (
+            "cup_replay",
+            int(original_node.competition_id),
+            int(original_node.round_id),
+            int(original_node.pair_index),
+        )
+        if any(node.node_token == replay_token for node in self.nodes):
+            raise ValueError("Cup replay schedule node already exists")
+        if replay_token in self.match_states:
+            raise ValueError("Cup replay match state already exists")
+        if original_token in self.completed_node_tokens:
+            raise ValueError("original Cup schedule node is already complete")
+
+        replay_node = DomesticCupScheduledNode(
+            node_kind="replay_match",
+            competition_id=int(original_node.competition_id),
+            competition_context=int(original_node.competition_context),
+            round_id=int(original_node.round_id),
+            pair_index=int(original_node.pair_index),
+            scheduled_date=current_date + timedelta(days=14),
+            participant_0_ref=direct_club_ref(replay.participant_0_club_id),
+            participant_1_ref=direct_club_ref(replay.participant_1_club_id),
+            node_token=replay_token,
+        )
+        self.nodes += (replay_node,)
+        self.match_states[replay_token] = replay
+        self.completed_node_tokens.add(original_token)
+        return replay_node
 
     def is_playable(
         self,
