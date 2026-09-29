@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Persist CupMatchRuntimeState score/link objects behind live domestic schedule nodes; then implement source-exact dynamic FA Cup Replay insertion before human/AI matchday integration.",
-  "last_known_main_head": "b887ba39bd75b2a89e16115ef6397529fe39d1f1",
+  "active_task": "Close the exact 0x51392A NormalRound replay-date producer, then dynamically insert persisted FA Cup replays before human/AI matchday integration.",
+  "last_known_main_head": "dbae602069ae693a337fc743d5e438faf6c66201",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 60,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 60 verified live domestic schedule/GameState/save state at 0d6b1ff3 (703 tests, only two known failures). Continue persistent CupMatch runtime score/link state from main b887ba39.",
+  "note": "Recovery generation 60 verified persistent CupMatch score/link state at e934dff5 (705 tests, only two known secondary-schedule failures) and canonical docs through main dbae6020. Reopen exact 0x51392A replay-date producer from authorized source media.",
   "same_chat_fallback_minutes": 30
 }
