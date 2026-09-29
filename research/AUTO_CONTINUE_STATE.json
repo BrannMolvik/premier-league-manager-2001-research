@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Audit the recovered generic competition runtime against canonical English domestic cups, starting with FA Cup and League Cup, and identify the first source-backed missing human-season integration.",
-  "last_known_main_head": "2f86d683730a8ea7936a25744294545f09f902a7",
+  "active_task": "Continue the canonical English domestic-cup audit from the latest main checkpoint, preserving the new Cup result-reference/winner semantics and identifying the next source-backed human-season integration gap.",
+  "last_known_main_head": "64c4f24c0e448f11f40c49a301b05b9e35e67fc0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 58,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 58: Gate 11 closed after 38-round/380-fixture human-season regression; Gate 12 active. Audit canonical FA Cup and League Cup against existing generic competition runtime before implementing the first missing integration.",
+  "recovery_generation": 59,
+  "last_recovery_reason": "stale-repository-activity-no-worker-tab",
+  "note": "Recovery generation 59 resumed Gate 12 at main 64c4f24 after the persisted FA Cup/League Cup audit and Cup result-reference/winner semantics checkpoints. Continue from repository evidence; do not restart completed domestic-cup investigation.",
   "same_chat_fallback_minutes": 30
 }
