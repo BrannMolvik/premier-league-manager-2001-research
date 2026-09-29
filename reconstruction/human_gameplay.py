@@ -236,6 +236,7 @@ class HumanGameplayController:
         from season_regeneration import (
             capture_annual_type3_qualification_snapshot,
             materialize_annual_primary_schedule,
+            partition_annual_type3_league_sources,
         )
 
         if (
@@ -296,7 +297,20 @@ class HumanGameplayController:
                     "canonical English procedural League ownership changed: "
                     f"secondary={english_secondary}"
                 )
-            procedural_league_ids = tuple(english_primary) + (14, 167)
+            annual_played, _annual_dummy = partition_annual_type3_league_sources(
+                competitions,
+                allocations,
+            )
+            annual_played_ids = tuple(
+                int(competition_id)
+                for competition_id in annual_played
+                if int(competition_id) != 0
+            )
+            procedural_league_ids = tuple(dict.fromkeys(
+                tuple(int(value) for value in english_primary)
+                + annual_played_ids
+                + (14, 167)
+            ))
         else:
             procedural_league_ids = tuple(
                 int(value) for value in procedural_league_ids
