@@ -417,6 +417,31 @@ class Gate12PrimaryMatchdayOrderTests(unittest.TestCase):
         )
 
 
+    def test_gate12_order_tags_english_divisional_playoff_as_live_cup(self):
+        playoff = StartupScheduleNode(
+            node_kind="cup_match",
+            competition_id=11,
+            competition_context=0,
+            round_id=218,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=46,
+            scheduled_weekday=2,
+            participant_0_ref=direct_club_ref(3),
+            participant_1_ref=direct_club_ref(4),
+            node_token=("cup_result", 11, 218, 0),
+        )
+        buckets = [() for _ in range(327)]
+        buckets[324] = (playoff,)
+
+        self.assertEqual(
+            gate12_primary_matchday_order(buckets, season_year=2000),
+            ((
+                date(2001, 5, 22),
+                (("domestic_cup", ("cup_result", 11, 218, 0)),),
+            ),),
+        )
+
     def test_gate12_order_tags_european_knockout_without_losing_interleaving(self):
         european = StartupScheduleNode(
             node_kind="cup_match",
