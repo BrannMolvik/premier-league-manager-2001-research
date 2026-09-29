@@ -7716,3 +7716,27 @@ now-verified procedural-League state.
 - Next: close cross-season Cup qualification/enumeration and DummyLeague
   regeneration semantics before atomically replacing live GameState season
   objects.
+
+
+### 2026-09-29 - Annual qualification recovery reconciliation
+
+- Recovery generation 71 resumed from main
+  `17cdca03bcda376df8acaf807763c386bcb8cc1c` without replaying the already
+  persisted annual Cup/DummyLeague source work.
+- The recovered branch already proved that annual type-3 League/Dummy sources
+  require finished-season rankings, annual Cup sources require the just-finished
+  two-slot Cup enumeration, and Conference 2 is invalidated and lazily re-sorted
+  from post-swap membership when the new FA Cup first consumes it.
+- Added a regression for the new
+  `primary_mode0_root_finalization_order()` helper. It proves
+  `0x616A70 -> 0x411150` preserves country source order while reversing the
+  per-country root initialization chunk.
+- Verified code checkpoint:
+  `cb4f8abd41c0ac5ff3cf7df03d0295393ab7b8ec`.
+- GitHub Actions ran **802 tests with 2 failures**, exactly the two unchanged
+  secondary-schedule assertions. Repository asset policy passed.
+- The remaining source-level blocker before a live annual qualification
+  snapshot is deliberately narrower: the repository does not yet record which
+  positional slot, `Cup+0x40` or `Cup+0x44`, receives the completed result
+  club versus the opposite/finalist path at `0x4F8F80`. That ordering will
+  not be guessed.
