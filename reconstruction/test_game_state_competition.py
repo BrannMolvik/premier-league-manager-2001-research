@@ -8,6 +8,7 @@ from game_state import GameState
 from match_calculator import PositionRole
 from match_lineup import AI_FORMATIONS
 from match_events import BoundaryRecord, BoundaryType
+from match_preparation import prepare_ai_match_selection
 from match_simulation import PreparedMatchPlayer, PreparedMatchSide
 from match_strength import TeamStrengthContext
 
@@ -301,6 +302,70 @@ class IntegratedGameStateTests(unittest.TestCase):
                 (120, BoundaryType.FULL_TIME),
             ],
         )
+        self.assertIsNotNone(completion.outcome)
+        self.assertIn(token, state.domestic_cups.completed_node_tokens)
+        self.assertIn(token, state.cup_results.outcomes)
+
+    def test_decisive_domestic_cup_human_node_uses_shared_backend(self):
+        state = GameState.from_database(
+            AutonomousDatabase(),
+            date(2000, 7, 8),
+            seed=1,
+            season_year=2000,
+        )
+        state.competitions[1] = SimpleNamespace(
+            id=1,
+            substitute_quota=5,
+            max_non_eu_players=10,
+            scheduled_matchday_count=8,
+            initialization_order_value=6,
+        )
+        token = ("cup_result", 1, 43, 1)
+        state.install_domestic_cup_schedule_nodes(
+            (
+                StartupScheduleNode(
+                    node_kind="cup_match",
+                    competition_id=1,
+                    competition_context=0,
+                    round_id=43,
+                    pair_index=1,
+                    schedule_index=None,
+                    scheduled_week=0,
+                    scheduled_weekday=6,
+                    participant_0_ref=direct_club_ref(1),
+                    participant_1_ref=direct_club_ref(2),
+                    node_token=token,
+                    round_number=8,
+                    extra_time_capable=True,
+                    decisive_tiebreak=True,
+                    auxiliary_flag=False,
+                ),
+            ),
+            season_year=2000,
+        )
+        human_selection = prepare_ai_match_selection(
+            1,
+            state.ordered_club_roster(1),
+            formation_id=0,
+            substitute_quota=5,
+            non_eu_limit=10,
+        )
+
+        result, completion = state.simulate_domestic_cup_human_node(
+            token,
+            1,
+            human_selection,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MidpointRng(),
+        )
+
+        boundaries = [
+            (timed.minute, timed.event.kind)
+            for timed in result.events
+            if isinstance(timed.event, BoundaryRecord)
+        ]
+        self.assertEqual(boundaries[-1], (120, BoundaryType.FULL_TIME))
         self.assertIsNotNone(completion.outcome)
         self.assertIn(token, state.domestic_cups.completed_node_tokens)
         self.assertIn(token, state.cup_results.outcomes)

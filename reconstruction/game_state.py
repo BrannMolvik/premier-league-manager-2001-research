@@ -2028,6 +2028,154 @@ class GameState:
         )
         return result, completion
 
+    def simulate_domestic_cup_human_node(
+        self,
+        node_token: tuple,
+        human_club_id: int,
+        human_selection: PreparedAiMatchSelection,
+        attack_matrix,
+        defence_matrix,
+        rng=None,
+        *,
+        team_orders: TeamOrderPriorities | None = None,
+    ) -> tuple[NormalMatchResult, CupMatchCompletion]:
+        """Run one due human-vs-AI domestic Cup node through the shared backend.
+
+        Human selection/Condition/tactics remain persistent runtime state. The
+        opponent uses the source-backed Cup AI strategy path. As with the AI
+        bridge, this currently closes score/lifecycle, Condition sync and home
+        pitch wear; broader Cup post-match persistence remains a separate slice.
+        """
+        rng = self._resolve_rng(rng)
+        token = tuple(node_token)
+        node = self.domestic_cups.node(token)
+        if node.scheduled_date != self.calendar.current_date:
+            raise ValueError(
+                f"domestic Cup node {token!r} is not due on "
+                f"{self.calendar.current_date}"
+            )
+        if node.round_number is None:
+            raise RuntimeError("domestic Cup node has no source round number")
+
+        match = self.domestic_cups.materialize_scheduled_match(
+            token,
+            self.cup_results,
+        )
+        home_club_id = int(match.participant_0_club_id)
+        away_club_id = int(match.participant_1_club_id)
+        human_club_id = int(human_club_id)
+        if human_club_id not in (home_club_id, away_club_id):
+            raise ValueError("human club does not participate in this Cup match")
+
+        competition = self.competitions.get(int(node.competition_id))
+        if competition is None:
+            raise RuntimeError(
+                f"Cup competition definition {int(node.competition_id)} is not loaded"
+            )
+
+        human_is_home = human_club_id == home_club_id
+        ai_club_id = away_club_id if human_is_home else home_club_id
+        ai_club = self.clubs.get(ai_club_id)
+        if ai_club is None:
+            raise RuntimeError(f"club definition {ai_club_id} is not loaded")
+        ai_manager = self.managers.get(int(ai_club.manager_id))
+        if ai_manager is None:
+            raise RuntimeError(
+                f"manager {int(ai_club.manager_id)} for club {ai_club_id} "
+                "is not loaded"
+            )
+
+        human_roster = self.ordered_club_roster(human_club_id)
+        ai_roster = self.ordered_club_roster(ai_club_id)
+        if not human_roster or not ai_roster:
+            raise RuntimeError("human/AI Cup match requires both runtime rosters")
+
+        home_deficit = 0
+        away_deficit = 0
+        if match.prior_match is not None:
+            prior = match.prior_match
+            home_deficit = max(
+                0,
+                int(prior.composed_score_0) - int(prior.composed_score_1),
+            )
+            away_deficit = max(
+                0,
+                int(prior.composed_score_1) - int(prior.composed_score_0),
+            )
+        ai_deficit = away_deficit if human_is_home else home_deficit
+
+        ai_preparation = prepare_cup_ai_selection(
+            ai_club_id,
+            ai_roster,
+            human_roster,
+            ai_manager,
+            competition,
+            round_number=int(node.round_number),
+            is_home=not human_is_home,
+            aggregate_goals_behind=ai_deficit,
+        )
+
+        environment = generate_match_environment(
+            self.calendar.current_date,
+            rng,
+        )
+        initialize_ai_roster_condition(ai_roster, rng)
+        ai_side = build_prepared_match_side_from_selection(
+            ai_preparation.selection,
+            1 if human_is_home else 0,
+            self.team_tactics.get(ai_club_id, TeamTacticalState()),
+            user_controlled=False,
+            team_orders=TeamOrderPriorities(),
+        )
+        human_side = build_prepared_match_side_from_selection(
+            human_selection,
+            0 if human_is_home else 1,
+            self.team_tactics.get(human_club_id, TeamTacticalState()),
+            user_controlled=True,
+            team_orders=team_orders or TeamOrderPriorities(),
+        )
+
+        if human_is_home:
+            home_side = human_side
+            away_side = ai_side
+            home_participants = human_selection.participants
+            away_participants = ai_preparation.selection.participants
+        else:
+            home_side = ai_side
+            away_side = human_side
+            home_participants = ai_preparation.selection.participants
+            away_participants = human_selection.participants
+
+        pitch_wear_before = int(self.pitch_wear.get(home_club_id, 0))
+        result = simulate_normal_match(
+            home_side,
+            away_side,
+            attack_matrix,
+            defence_matrix,
+            rng,
+            condition_injury_settings=ConditionInjurySettings(
+                environment_byte=pitch_wear_before,
+            ),
+            match_mode_code=1,
+            extra_time=bool(match.uses_extra_time),
+        )
+        completion = self.domestic_cups.complete_scheduled_match(
+            token,
+            self.cup_results,
+            result.score[0],
+            result.score[1],
+            current_date=self.calendar.current_date,
+            rng=rng,
+        )
+
+        sync_post_match_conditions(home_side, home_participants)
+        sync_post_match_conditions(away_side, away_participants)
+        self.pitch_wear[home_club_id] = pitch_wear_after_match(
+            pitch_wear_before,
+            environment.weather_code,
+        )
+        return result, completion
+
     def premier_league_table(self):
         if self.premier_league is None:
             return ()
