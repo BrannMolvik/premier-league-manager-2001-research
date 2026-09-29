@@ -426,6 +426,46 @@ class CupResultRegistryTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             registry.record_competition_ranking(14, (1, 1), competition_context=0)
 
+    def test_type3_resolves_from_cross_group_position_pool_not_type2_group(self):
+        registry = CupResultRegistry()
+        registry.record_competition_ranking(
+            14,
+            (100, 101, 102, 103),
+            competition_context=0,
+        )
+        registry.replace_group_position_ranking(
+            14,
+            2,
+            (700, 600, 500, 400),
+        )
+        ref = CupClubRefDescriptor(
+            type_code=3,
+            selector=2,
+            competition_id=14,
+            competition_context=1,
+        )
+
+        self.assertEqual(registry.resolve_club_ref(ref), 600)
+        self.assertNotEqual(registry.resolve_club_ref(ref), 102)
+
+    def test_type3_waits_until_cross_group_pool_is_published(self):
+        registry = CupResultRegistry()
+        ref = CupClubRefDescriptor(
+            type_code=3,
+            selector=2,
+            competition_id=14,
+            competition_context=7,
+        )
+        self.assertIsNone(registry.resolve_club_ref(ref))
+        registry.replace_group_position_ranking(
+            14,
+            2,
+            tuple(range(800, 808)),
+        )
+        self.assertEqual(registry.resolve_club_ref(ref), 807)
+        registry.clear_group_position_ranking(14, 2)
+        self.assertIsNone(registry.resolve_club_ref(ref))
+
     def test_unplayed_match_result_ref_remains_unresolved(self):
         registry = CupResultRegistry()
         ref = CupClubRefDescriptor(
