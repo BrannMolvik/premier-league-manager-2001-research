@@ -212,6 +212,66 @@ class AnnualPrimaryRegenerationTests(unittest.TestCase):
         self.assertIn(13, selected)
         self.assertNotIn(20, selected)
 
+    def test_annual_type3_cup_source_requires_completed_result_pair(self):
+        competitions = (
+            Competition(40, 2, initialization_order_value=0),
+            Competition(50, 2, initialization_order_value=1),
+        )
+        allocations = (Allocation(1, 50, 1, 3, 40, 1),)
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "annual type-3 Cup result enumerations",
+        ):
+            materialize_annual_primary_schedule(
+                MsvcCrtRng(0x12345678),
+                competitions,
+                (),
+                (),
+                (Country(1),),
+                allocations,
+                (),
+                club_competition_membership={},
+                season_year=2001,
+            )
+
+    def test_annual_dummy_type5_uses_post_swap_membership(self):
+        competitions = (
+            Competition(89, 3, initialization_order_value=0),
+            Competition(1, 2, initialization_order_value=1),
+        )
+        rounds = (
+            Round(100, 1, 1, 2, 2, 7, 1),
+        )
+        clubs = (
+            Club(70, "Stayed", 89, 89, 0),
+            Club(71, "Moved Out", 89, 89, 1),
+            Club(72, "Moved In", 7, 7, 0),
+        )
+        allocations = (Allocation(1, 1, 1, 5, 89, 2),)
+
+        result = materialize_annual_primary_schedule(
+            MsvcCrtRng(0x12345678),
+            competitions,
+            rounds,
+            clubs,
+            (Country(1),),
+            allocations,
+            (),
+            club_competition_membership={71: 7, 72: 89},
+            season_year=2001,
+        )
+
+        selected = set(
+            result.competition.cup_runtime.cups[0].selected_direct_club_ids
+        )
+        self.assertEqual(selected, {70, 72})
+        self.assertNotIn(71, selected)
+        self.assertEqual(
+            dict(result.competition.cup_runtime.ranked_source_club_ids).keys(),
+            {89},
+        )
+
     def test_same_crt_stream_continues_through_fresh_bucket_shuffle(self):
         competitions, rounds, clubs, countries = self._fixture()
         rng = MsvcCrtRng(0x12345678)
