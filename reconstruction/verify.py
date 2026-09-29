@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 
 from competition_materializer import materialize_primary_rng_driven_schedule
+from competition_runtime import partition_root_procedural_league_ids
 from competition_startup import (
     primary_mode0_cup_pairing_draw_count,
     primary_mode0_cup_round_team_counts,
@@ -190,6 +191,27 @@ def verify_database(db: FM2001Database) -> None:
     require(
         spanish_root_order == (33, 34, 31, 32, 95),
         f"Unexpected canonical Spain root initialization order: {spanish_root_order}",
+    )
+
+    english_primary_leagues, english_secondary_leagues = (
+        partition_root_procedural_league_ids(
+            db.competitions,
+            country_region_id=26,
+        )
+    )
+    require(
+        english_primary_leagues == (2, 3, 4, 7),
+        (
+            "Unexpected canonical English primary procedural Leagues: "
+            f"{english_primary_leagues}"
+        ),
+    )
+    require(
+        english_secondary_leagues == (),
+        (
+            "Unexpected canonical English secondary procedural Leagues: "
+            f"{english_secondary_leagues}"
+        ),
     )
 
     ordered_competition_rng = replay_primary_mode0_ordered_competition_rng(
