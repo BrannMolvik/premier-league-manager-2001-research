@@ -8745,3 +8745,38 @@ keeping presentation separate from the stable simulation backend.
   complete hierarchy interaction, other management screens and Gate 13
   audit are still outstanding. This is a development-only visual bridge,
   not a verified replacement/release UI.
+
+
+## Gate 13 new original Button trace candidates and strict firsthand-source audit - 30 September 2026 UTC
+
+- Startup confirmed main `4fb9221cf4701d3dcc65cfd939d346700d0933eb`,
+  the predecessor worker's original-pixel live developer viewer milestone,
+  and current Gate 13. The newly added debug viewer/exporter were
+  already merged; did not repeat them.
+- Direct execution of trivial shell commands returned `ClientError`
+  twice, so no new native executable disassembly or original first-screen
+  licensed-asset run was claimed. Previous private Library archive
+  retention remains the source recovery route.
+- PR #17 merged `4f98316c2be65e0e42925006dbfa045d410483f6`:
+  added bounded first-screen **class-vtable** raw-pointer candidates and
+  optional Capstone candidate-only near-direct CALL/JMP leads to known
+  code and plausible class-vtable text targets. Updated the canonical
+  private executable source-trace CLI and analyst instructions. All
+  generated edges are labeled unconfirmed; vtable identity, native
+  Button@ease frame state and Zurich text semantics are NOT claimed.
+  Focused Gate-13 run `36739026011` and asset-policy run
+  `36739026154` both passed, with Capstone installed in focused CI.
+- PR #18 merged `9682a50d0d670b41eb77dc643a293085be4043b2`:
+  provides a single private, fail-closed first-hand audit for the
+  canonical actual original ZIP, the precise ten staged Joliet resources,
+  verified exact original executable, decoded first-screen background
+  pixels, four recovered original Zurich masks, both original 23-frame
+  action atlas families and original hierarchy art. It writes a small
+  private source-evidence receipt only when the *actual files* validate.
+  Hosted synthetic rejection tests passed focused run `36739577933`;
+  asset-policy run `36739577928` passed. **No real licensed-original
+  audit was run in this recovery.**
+- Updated `research/CURRENT_STATE.md` with exact native source-trace,
+  real-disc audit, provenance import, and remaining Gate 13-17 actions.
+  This is source-ready tooling, not a Gate 13 closure or verified
+  Windows 11 release.
