@@ -33,6 +33,26 @@ for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
 
+## Current recovery's source-exact private pixel diagnostics
+
+- PR #15, squash commit `addc1f2dab50fdccdf7e7517ab22bdf1fbd1a35b`,
+  adds `reconstruction/gate13_original_pixel_preview.py`.
+  It losslessly exports both original first-screen decoded/background
+  RGBA layers as RGBA8 PNGs, the actual menu/TeamSelect/hierarchy atlas
+  frames separately in source order, and the authentic Zurich glyph
+  alpha as uncolored PGM. Diagnostic JSON records previously
+  source-proven control rectangles and string-index associations;
+  unknown native interaction states, caption alignment/color and
+  timing remain explicitly unset.
+- Synthetic pixel-exact PNG/PGM roundtrip, private-directory and
+  attribution/regression coverage passed focused GitHub Gate-13 CI
+  run `36735502617` and asset-policy run `36735502710`.
+  The actual licensed-source exporter remains an opt-in first-hand
+  operation pending execution access. The exact private command is
+  now recorded in `research/GATE13_FIRST_SCREEN_RESOURCE_PLAN.md`.
+  No complete original visual fidelity claim follows from this
+  synthetic evidence.
+
 ## Current recovery's canonical original Button executable-trace preparation
 
 - PR #14, squash commit `a42782047e6cfa673ef88f36773b37bf9be63e04`,
