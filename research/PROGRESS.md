@@ -9169,3 +9169,34 @@ invent original visual or control semantics.
 - Next source-backed fallback task is the manager-home / remaining-screen
   evidence-and-blocker inventory. The native Button/Zurich/ten-resource path
   regains priority immediately if private execution recovers.
+
+
+## Gate 13 management-screen evidence ledger and catalog audit verified - 1 October 2026 KST
+
+- Added `research/GATE13_MANAGEMENT_SCREEN_EVIDENCE_LEDGER.md`, replacing
+  the vague manager-home/remaining-screen blocker with a per-surface evidence
+  matrix.
+- The ledger distinguishes proven presentation classes from backend/event-only
+  identities and feature-family leads. In particular, no persisted original
+  Manager Home panel identity is currently proven.
+- Added a reproducible whole-disc query plan for every named Gate-13 management
+  surface and a strict correlation-before-import rule.
+- Merged PR #46 as
+  `ca7f6cfd9c5fae01ac9c454ad14603076979262b`.
+- Added `gate13_management_catalog_audit.py`, which groups saved catalog
+  path candidates by screen family while explicitly keeping
+  `binding_proven = false`; the default nested-disc layer avoids the outer
+  ZIP wrapper's Football Manager name creating false manager-home hits.
+- Focused Gate-13 run `36781127596`: **243 tests / 19 expected skips /
+  0 failures**.
+- Asset-policy run `36781127819` passed.
+- No full reconstruction run was launched for this isolated catalog/reporting
+  tool because the workflow intentionally excludes it; PR #45 remains the
+  latest full integration baseline at **1,074 tests / 21 expected skips /
+  0 failures**.
+- Post-merge private shell execution still returns `ClientError` even for a
+  trivial stat of the already materialized canonical ZIP. Source availability
+  is confirmed; execution is the blocker.
+- No further screen semantics will be invented. The exact next action remains
+  TeamSelect RTTI canary -> Button 23-frame state mapping -> Zurich text trace
+  -> strict ten-resource audit/import as soon as private execution works.
