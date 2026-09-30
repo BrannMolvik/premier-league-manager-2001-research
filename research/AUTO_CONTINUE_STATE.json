@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: resolve native Button@ease_2001 23-source-frame state transitions and original caption alignment using verified executable; while local runtime ClientError persists, assemble source-backed TeamSelect original presentation resources and opt-in source tests, then full first-screen fidelity and remaining management screens. Full Gates 13-17 mission remains active.",
-  "last_known_main_head": "2d6ecaf685d937113fc8ab26a8d1e4163dd51a7e",
+  "active_task": "Gate 13 source-critical next task: reaccess canonical original executable from the confirmed private Library ZIP once shell/Python execution recovers; disassemble Button@ease_2001 0x652FD0/setup 0x5F4500/draw-hover-click and caption alignment, verify native 23-frame state mapping; run exact ten-asset source selection/firsthand opt-in tests/import, complete authentic first-screen and remaining Gate 13, then Gates 14-17 and verified Windows 11 release.",
+  "last_known_main_head": "cb70119caf8421703781e92766f77fd4805ff4c9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 93,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Verified merged PRs #7-9 and focused CI, reconciled CURRENT_STATE/PROGRESS to main 2d6ecaf685d937113fc8ab26a8d1e4163dd51a7e. Original disc archived privately; tool shell/Python ClientError blocked new disassembly, so use safe verified TeamSelect inputs rather than invent state mapping. No gate audit passed yet.",
+  "note": "This worker merged six source-backed Gate 13 PRs #7-#12 with passing focused and asset-policy CI, reconciled CURRENT_STATE/PROGRESS, and corrected stale project_status.json at 70f45a5. Main checkpoint cb70119caf8421703781e92766f77fd4805ff4c9. Original 511,121,336-byte ZIP confirmed by Files listing. Actual container.exec/python.exec still fail on trivial commands with ClientError; no new native disassembly, raw asset staging or real-byte opt-in run claimed. Continue automatic recovery; do not ask for reupload, do not claim Gate 13 closed, full mission through Gate 17 remains active.",
   "same_chat_fallback_minutes": 30
 }
