@@ -33,6 +33,43 @@ for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
 
+## Most recent Gate 13 verified native-trace preparation and firsthand-audit boundary
+
+- PR #17, squash commit `4f98316c2be65e0e42925006dbfa045d410483f6`,
+  extends the exact-hash-gated original PE trace helper with bounded,
+  unverified raw PStartMenu/TeamSelect class-vtable pointer candidates.
+  Its optional Capstone stage independently flags LINEAR near direct
+  CALL/JMP leads into previously source-established code entry points
+  and candidate class-vtable text targets. It explicitly cannot establish
+  shared Button@ease vtable identity, executable control-flow reachability,
+  native frame transitions, indirect dispatch or glyph alignment.
+  Focused run `36739026011` and asset-policy run `36739026154` passed.
+  Private command and evidence limitations are recorded in
+  `research/GATE13_BUTTON_STATE_TRACE_PROCEDURE.md`.
+- PR #18, squash commit `9682a50d0d670b41eb77dc643a293085be4043b2`,
+  adds `reconstruction/gate13_original_source_audit.py`, a strict
+  PRIVATE first-hand audit for the already selected ten-resource slice.
+  It independently hashes the physical 511,121,336-byte canonical ZIP,
+  checks the source receipt/ZIP path and all ten staged SHA-pinned original
+  Joliet files, verifies the exact canonical PE32 executable, then loads
+  both decoded source-backed opening screens. The audit fails if known
+  first-hand RGBA background hashes, all four original Zurich font-mask
+  dimensions/digests, both 23-frame action atlases or both original
+  TeamSelect hierarchy art resources disagree. It writes only a small
+  private JSON result OUTSIDE Git and only after every check succeeds;
+  the native button/caption/hierarchy behaviors explicitly remain unset.
+  Focused synthetic CI `36739577933` and asset-policy CI
+  `36739577928` passed.
+- **Important verification limit:** both CI results above are synthetic
+  (plus an optional installed Capstone test). The private actual-source
+  executable scan and the new first-hand source-byte audit have NOT run
+  in this recovery. The original ZIP was verified in the private Library
+  by previous workers; it has not been lost. In this recovery, two fresh
+  trivial container execution calls also returned `ClientError`. This
+  is an execution-infrastructure blocker specifically for NEW original
+  binary analysis and original-pixel validation, not evidence of missing
+  original source or successful native UI fidelity.
+
 ## Current recovery's developer-only live original-pixel inspection
 
 - PR #16, squash commit `7fc92fedd6f660a878348a34a02055027b63c9cb`,
@@ -427,31 +464,39 @@ recovers. Other source-backed GitHub development and focused CI succeeded.
 
 ## Exact next task within the full Gate-17 mission
 
-1. Recover the canonical original executable's **actual**
-   Button@ease_2001 source-frame/state transitions and label placement/color.
-   Begin with shared button constructor `0x652FD0`, atlas setup
-   `0x5F4500`, primary PStartMenu construction/dispatch
-   `0x4C1BA0`/`0x4C3770`, and TeamSelect button setup
-   `0x4D885F..0x4D8921`. Use the private verified executable
-   SHA `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`;
-   inspect vtable paths that determine draw/hover/down/up source-frame
-   indices and text baseline/color. Do NOT pick frames by visual guess.
-   See `research/GATE13_PSTARTMENU_LAYOUT.md`.
-2. When local byte-execution tools recover, materialize the same authorized
-   Library ZIP from `research/ORIGINAL_SOURCE_LOCATOR.md`, execute the
-   exact 10-path source-inventory command in
-   `research/GATE13_FIRST_SCREEN_RESOURCE_PLAN.md`, then run the new
-   `reconstruction/gate13_first_screen_selection.py` fail-closed
-   source/hash validator. Opt into the original-byte font, language, menu,
-   TeamSelect and atlas regressions using the documented environment paths.
-3. Only after the original bytes match the source receipts, import them
-   deliberately under `original_assets/` using the existing provenance
-   importer. Finish authentic menu/TeamSelect button/caption/hierarchy
-   visual behavior and integrate it into the modern front-end without
-   substituting original artwork or guessing native interaction semantics.
-4. Continue Gate 13's remaining management screens, audit all gate criteria,
-   then advance through Gates 14, 15, 16 and 17. The project is not complete
-   until the full tested, cleanly installable Windows 11 release audit passes.
+1. Retry one trivial shell or alternate Python execution command. If byte
+   execution is restored, rematerialize the exact private original FM2001
+   Library ZIP and separately extract its canonical `footballmanager.exe`.
+   Independently recheck the executable SHA:
+   `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+   Do not ask Daniel to re-upload an archive already preserved in Library.
+2. Execute the PRIVATE expanded original Button trace documented in
+   `research/GATE13_BUTTON_STATE_TRACE_PROCEDURE.md` against the actual
+   verified original executable. Start with `0x652FD0`, `0x5F4500`,
+   `0x4C1BA0`/`0x4C3770`, `0x4D885F..0x4D8921` and font handle
+   `0x9197E0`. Adjudicate proposed direct edges, actual shared Button
+   vtable and inherited virtual dispatch through native x86 CFG/RTTI
+   evidence. Recover **actual** idle/hover/down/up/disabled atlas-row
+   selection and Zurich glyph origin, pair spacing, baseline, colors and
+   clipping. A class-vtable pointer or raw direct-call match alone is NOT
+   a verified native state transition or font measurement.
+3. Run the precise private ten-asset extraction and fail-closed source
+   receipt validator in `research/GATE13_FIRST_SCREEN_RESOURCE_PLAN.md`.
+   Then execute the newly added `reconstruction/gate13_original_source_audit.py`
+   for direct canonical ZIP, executable, decoded first-screen pixels,
+   original Zurich masks and original hierarchy art evidence. Keep its
+   receipt and source-pixel diagnostic output private and outside Git.
+   Do not claim source-byte tests ran based solely on hosted synthetic CI.
+4. Once actual source bytes and native frame/caption/hierarchy behavior
+   are VERIFIED, intentionally provenance-import only correlated authorized
+   first-screen original bytes under `original_assets/`, complete authentic
+   PStartMenu and TeamSelect presentation and their Windows graphical
+   source-backed smoke tests. No guessed button states or typography.
+5. Continue Gate 13 manager home, squad, tactics, fixtures, table,
+   profile, transfers, finances, messages/news, training/scouting and
+   remaining original screens. Audit all Gate-13 criteria; then proceed
+   through Gates 14, 15, 16 and 17. The mission is complete only upon
+   a genuinely verified installable Windows 11 release audit.
 
 ## Known live fidelity boundaries
 
