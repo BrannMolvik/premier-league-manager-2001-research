@@ -20,6 +20,9 @@ from original_first_screen_presenter import OriginalFirstScreenPresenter
 from original_live_debug_view import (
     OriginalLiveDebugError, build_original_debug_frame,
 )
+from original_hierarchy_debug_inspector import (
+    OriginalHierarchyDebugError, inspect_original_hierarchy_source_frames,
+)
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from original_teamselect_resources import load_verified_original_teamselect_inputs
 
@@ -33,6 +36,10 @@ class OriginalFirstScreenTkDebug:
         self.tk = tk
         self.ttk = ttk
         self.source_frame_index = 0
+        # Independent source indices: the two original hierarchy strips do
+        # not have to contain the same number of frames as action atlases.
+        self.hierarchy_animation_source_index = 0
+        self.hierarchy_bars_source_index = 0
         self._photos = []
 
         self.root.title("FM2001 verified original pixels: DEVELOPER PREVIEW ONLY")
@@ -66,6 +73,40 @@ class OriginalFirstScreenTkDebug:
         self.events_label = ttk.Label(sidebar, text="", wraplength=300,
                                       justify=tk.LEFT)
         self.events_label.pack(anchor="w", pady=8)
+
+        ttk.Label(
+            sidebar, text="Original hierarchy source art OFF-CANVAS ONLY. "
+            "Native sprite placement, country/club labels and all hierarchy "
+            "hover/selection states are unresolved.", wraplength=300,
+        ).pack(anchor="w")
+        anim_controls = ttk.Frame(sidebar)
+        anim_controls.pack(anchor="w")
+        ttk.Button(
+            anim_controls, text="Previous hierarchy animation source",
+            command=lambda: self.step_hierarchy_source_frame("animation", -1),
+        ).pack(side=tk.LEFT)
+        ttk.Button(
+            anim_controls, text="Next",
+            command=lambda: self.step_hierarchy_source_frame("animation", 1),
+        ).pack(side=tk.LEFT)
+        self.hierarchy_anim_label = ttk.Label(
+            sidebar, text="Animation source frame unavailable"
+        )
+        self.hierarchy_anim_label.pack(anchor="w")
+        bars_controls = ttk.Frame(sidebar)
+        bars_controls.pack(anchor="w")
+        ttk.Button(
+            bars_controls, text="Previous hierarchy bars source",
+            command=lambda: self.step_hierarchy_source_frame("bars", -1),
+        ).pack(side=tk.LEFT)
+        ttk.Button(
+            bars_controls, text="Next",
+            command=lambda: self.step_hierarchy_source_frame("bars", 1),
+        ).pack(side=tk.LEFT)
+        self.hierarchy_bars_label = ttk.Label(
+            sidebar, text="Bars source frame unavailable"
+        )
+        self.hierarchy_bars_label.pack(anchor="w")
 
         ttk.Label(
             sidebar,
@@ -131,6 +172,63 @@ class OriginalFirstScreenTkDebug:
                 "source-backed row origins; row events/items NOT recovered."
             )
         self.events_label.configure(text="\n".join(actions))
+        try:
+            hierarchy = inspect_original_hierarchy_source_frames(
+                view,
+                animation_source_index=self.hierarchy_animation_source_index,
+                bars_source_index=self.hierarchy_bars_source_index,
+            )
+        except OriginalHierarchyDebugError:
+            self.hierarchy_animation_source_index = 0
+            self.hierarchy_bars_source_index = 0
+            hierarchy = inspect_original_hierarchy_source_frames(view)
+        if hierarchy is None:
+            self.hierarchy_anim_label.configure(
+                text="Hierarchy animation source not present on this view", image=""
+            )
+            self.hierarchy_bars_label.configure(
+                text="Hierarchy bars source not present on this view", image=""
+            )
+        else:
+            anim_photo = self._photo(hierarchy.animation.source_frame_png)
+            bar_photo = self._photo(hierarchy.bars.source_frame_png)
+            self.hierarchy_anim_label.configure(
+                text=(
+                    "Animation source frame "
+                    f"{hierarchy.animation.source_frame_index_only}/"
+                    f"{hierarchy.animation.source_frame_count - 1}: "
+                    "NOT original screen placement"
+                ),
+                image=anim_photo, compound="top",
+            )
+            self.hierarchy_bars_label.configure(
+                text=(
+                    "Bars source frame "
+                    f"{hierarchy.bars.source_frame_index_only}/"
+                    f"{hierarchy.bars.source_frame_count - 1}: "
+                    "NOT original screen placement"
+                ),
+                image=bar_photo, compound="top",
+            )
+
+    def step_hierarchy_source_frame(self, kind: str, delta: int):
+        view = self.presenter.snapshot()
+        if view.screen is not FrontEndScreen.TEAM_SELECT or view.hierarchy_art is None:
+            self.status.set("No original hierarchy strip available for source inspection")
+            return
+        if kind == "animation":
+            count = len(view.hierarchy_art.animation.frames)
+            attr = "hierarchy_animation_source_index"
+        elif kind == "bars":
+            count = len(view.hierarchy_art.bars.frames)
+            attr = "hierarchy_bars_source_index"
+        else:
+            raise ValueError("Unknown original hierarchy source family")
+        if count <= 0:
+            self.status.set("Original hierarchy source strip has no frames")
+            return
+        setattr(self, attr, (getattr(self, attr) + delta) % count)
+        self.redraw()
 
     def step_source_frame(self, delta: int):
         view = self.presenter.snapshot()
