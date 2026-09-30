@@ -161,6 +161,7 @@ def _source_payload_from_state(state: GameState) -> dict[str, Any]:
                 "surname": "source_surname",
                 "nationality_id": "source_nationality_id",
                 "date_of_birth": "source_date_of_birth",
+                "joined_current_club_date": "source_joined_current_club_date",
             }.get(field_name)
             if mirror_name is not None:
                 mirror = getattr(player, mirror_name, None)
@@ -454,6 +455,9 @@ def _restore_player(value: list[Any], source) -> RuntimePlayer:
         source_surname=str(source.surname),
         source_nationality_id=int(source.nationality_id),
         source_date_of_birth=source.date_of_birth,
+        source_joined_current_club_date=getattr(
+            source, "joined_current_club_date", None
+        ),
         training_modifiers=(
             [0] * 17 if training is None else [int(v) for v in training]
         ),

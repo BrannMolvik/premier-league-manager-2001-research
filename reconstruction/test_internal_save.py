@@ -1107,6 +1107,50 @@ class InternalSaveTests(unittest.TestCase):
                 snapshot,
             )
 
+    def test_source_signature_preserves_raw_join_date_across_live_changes(self):
+        joined_date = date(1999, 1, 2)
+
+        class JoinedDatabase(Database):
+            players = [
+                replace(player, joined_current_club_date=joined_date)
+                if player.index == 1000
+                else player
+                for player in Database.players
+            ]
+
+        state = GameState.from_database(
+            JoinedDatabase(),
+            date(2000, 6, 30),
+            seed=1,
+            season_year=2000,
+        )
+        controller = HumanGameplayController(
+            state,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MsvcCrtRng(0x12345678),
+        )
+        player = controller.state.players[1000]
+        self.assertEqual(player.source_joined_current_club_date, joined_date)
+
+        player.current_club_join_date = date(2000, 6, 29)
+        snapshot = snapshot_human_gameplay(controller)
+        restored = restore_human_gameplay(
+            JoinedDatabase(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            snapshot,
+        )
+
+        self.assertEqual(
+            restored.state.players[1000].source_joined_current_club_date,
+            joined_date,
+        )
+        self.assertEqual(
+            restored.state.players[1000].current_club_join_date,
+            date(2000, 6, 29),
+        )
+
     def test_contract_wage_and_expiry_survive_roundtrip(self):
         original = self.build_controller()
         player = original.state.players[1000]

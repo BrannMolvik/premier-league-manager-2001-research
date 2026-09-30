@@ -160,6 +160,7 @@ class RuntimePlayer:
     source_surname: str | None = None
     source_nationality_id: int | None = None
     source_date_of_birth: date | None = None
+    source_joined_current_club_date: date | None = None
     # Original embedded training object at owner record +0x24. The 17-byte
     # training_modifiers array is the persistent per-skill counter block used
     # by monthly development as well as the weekly +8/-8 training lifecycle.
@@ -328,6 +329,9 @@ class RuntimePlayer:
             source_surname=str(source.surname),
             source_nationality_id=int(source.nationality_id),
             source_date_of_birth=source.date_of_birth,
+            source_joined_current_club_date=getattr(
+                source, "joined_current_club_date", None
+            ),
             condition=80,
             form_state=2,
             current_position=int(source.positions[0]),

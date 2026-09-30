@@ -33,6 +33,7 @@ class Player:
     current_raw: tuple[int, ...] = (160,) * 17
     target_raw: tuple[int, ...] = (180,) * 17
     eu_status_code: int = 2
+    joined_current_club_date: date | None = None
 
 
 @dataclass(frozen=True)
