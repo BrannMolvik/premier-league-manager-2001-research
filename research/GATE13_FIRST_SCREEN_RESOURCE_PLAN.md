@@ -215,3 +215,30 @@ and the absence of invented row-click selection. This is a synthetic test of
 the source-backed diagnostic plumbing; the canonical original licensed
 graphics still require the separate private ZIP/executable audit, actual
 source-byte load, and Windows viewer smoke test described above.
+
+## Post-import completeness guard
+
+Source extraction and per-file import are not sufficient by themselves to call
+the first-screen slice complete. After all ten pinned originals have been
+intentionally imported, run:
+
+```text
+python reconstruction/gate13_first_screen_manifest_readiness.py
+```
+
+The audit fails closed unless every `FIRST_SCREEN_ORIGINALS` entry is:
+
+1. present in `original_assets/MANIFEST.md` under its exact original source
+   path;
+2. mapped to the canonical `original_assets/source/<source path>` repository
+   path;
+3. recorded as byte-identical `original`, not silently substituted by a
+   converted/recreated file;
+4. recorded with the independently pinned source SHA-256; and
+5. still present in Git with bytes hashing to that same SHA-256.
+
+Converted runtime derivatives may be added separately with provenance, but they
+do not replace the required source originals in this readiness check. The
+current repository is expected to fail this audit until the blocked physical
+ten-resource import is actually completed.
+
