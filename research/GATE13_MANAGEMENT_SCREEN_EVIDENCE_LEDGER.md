@@ -113,6 +113,29 @@ For every candidate screen family:
 The existing `gate13_asset_import.py` and manifest policy remain the import
 guard. Resource-name similarity alone is never sufficient.
 
+## Automated catalog-audit implementation
+
+PR #46 was squash-merged as
+`ca7f6cfd9c5fae01ac9c454ad14603076979262b`.
+
+`reconstruction/gate13_management_catalog_audit.py` implements the query
+families above against a saved Gate-13 source report. Its output deliberately
+marks every group `binding_proven = false`, preserves the source layer and
+uses the nested-disc layer by default so the outer ZIP wrapper name
+`F.A. Premier League Football Manager 2001` does not create false
+manager-home matches.
+
+Verification on PR head
+`4cae5ca3821a9a536fab8176720fad2f11debc01`:
+
+- focused Gate-13 run `36781127596`: **243 tests, 19 expected
+  original-source-gated skips, zero failures**;
+- repository asset-policy run `36781127819`: passed;
+- the full reconstruction workflow was intentionally **not triggered** because
+  this isolated catalog/reporting tool is outside its narrow integration path
+  filter. PR #45 remains the latest full-integration baseline at **1,074 tests,
+  21 expected skips, zero failures**.
+
 ## Current blocker and exact next action
 
 Recovery 104 successfully re-listed and materialized the canonical
