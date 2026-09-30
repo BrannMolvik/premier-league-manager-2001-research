@@ -1,9 +1,20 @@
 name: Repository asset policy
 
+# Routine research commits deliberately do not trigger Actions.
+# Validate proposed integrations on pull requests or explicitly on demand.
 on:
-  push:
   pull_request:
+    paths:
+      - ".github/workflows/asset-policy.yml"
+      - "original_assets/**"
+      - "tools/check_repository_assets.py"
+      - "reconstruction/**"
+      - "extracted/**"
   workflow_dispatch:
+
+concurrency:
+  group: asset-policy-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -13,8 +24,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Validate authorized asset placement and repository hygiene
