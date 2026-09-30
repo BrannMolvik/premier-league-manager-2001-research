@@ -52,6 +52,21 @@ from transfer_workflow import (
 )
 
 
+def _annual_cup_child_procedural_ids(
+    competitions: Iterable[object],
+    cup_source_ids: Iterable[int],
+) -> tuple[int, ...]:
+    """Return procedural League children required by annual Cup sources."""
+    cup_sources = {int(value) for value in cup_source_ids}
+    return tuple(
+        int(competition.id)
+        for competition in competitions
+        if int(getattr(competition, "runtime_kind_code", 0)) == 1
+        and getattr(competition, "parent_competition_id", None) is not None
+        and int(competition.parent_competition_id) in cup_sources
+    )
+
+
 @dataclass
 class HumanManagerState:
     club_id: int
@@ -108,7 +123,7 @@ class HumanGameplayController:
         game_dir: str | Path,
         *,
         player_seed: int = 1,
-        start_date: date = date(2000, 8, 18),
+        start_date: date = date(2000, 7, 4),
     ) -> "HumanGameplayController":
         """Create the same canonical shipped-data runtime used by Gates 5/6."""
 
@@ -118,7 +133,10 @@ class HumanGameplayController:
         from competition_runtime import partition_root_procedural_league_ids
         from fm2001_data import FM2001Database
         from match_coefficients import MatchCoefficientMatrices
-        from season_regeneration import partition_annual_type3_league_sources
+        from season_regeneration import (
+            partition_annual_type3_league_sources,
+            required_annual_type3_sources,
+        )
         from verify import verify_canonical_files
 
         game_dir = Path(game_dir)
@@ -141,20 +159,27 @@ class HumanGameplayController:
                 database.cup_allocation_instructions,
             )
         )
+        _annual_league_sources, annual_cup_sources = required_annual_type3_sources(
+            database.competitions,
+            database.cup_allocation_instructions,
+        )
         annual_played_league_ids = tuple(
             int(competition_id)
             for competition_id in annual_played_league_sources
             if int(competition_id) != 0
         )
-        # Keep the already-live English promotion chain and Champions League
-        # child phases, then add every played root League whose completed table
-        # is a source for next-season primary type-3 allocation. DummyLeagues
-        # are intentionally excluded: they have zero matchdays and use their
-        # separate lazy-sort lifecycle.
+        annual_cup_child_league_ids = _annual_cup_child_procedural_ids(
+            database.competitions,
+            annual_cup_sources,
+        )
+        # Keep the English promotion chain, every played annual ranking source,
+        # and every procedural League child needed to resolve an annual Cup
+        # source. Shipped data derives Champions League phases 14/167 and WCC
+        # Group Phase 192 here. DummyLeagues remain on their separate sorter.
         live_procedural_league_ids = tuple(dict.fromkeys(
             tuple(english_primary_leagues)
             + annual_played_league_ids
-            + (14, 167)
+            + annual_cup_child_league_ids
         ))
         matrices = MatchCoefficientMatrices.from_executable(
             game_dir / "FOOTBAL.EXE"
@@ -230,6 +255,7 @@ class HumanGameplayController:
             finalize_annual_dummy_league_rankings,
             materialize_annual_primary_schedule,
             partition_annual_type3_league_sources,
+            required_annual_type3_sources,
         )
 
         if (
@@ -287,15 +313,23 @@ class HumanGameplayController:
                 competitions,
                 allocations,
             )
+            _annual_leagues, annual_cups = required_annual_type3_sources(
+                competitions,
+                allocations,
+            )
             annual_played_ids = tuple(
                 int(competition_id)
                 for competition_id in annual_played
                 if int(competition_id) != 0
             )
+            annual_cup_child_ids = _annual_cup_child_procedural_ids(
+                competitions,
+                annual_cups,
+            )
             procedural_league_ids = tuple(dict.fromkeys(
                 tuple(int(value) for value in english_primary)
                 + annual_played_ids
-                + (14, 167)
+                + annual_cup_child_ids
             ))
         else:
             procedural_league_ids = tuple(
