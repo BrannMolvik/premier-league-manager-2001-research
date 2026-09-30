@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 original management presentation: retry the durable Library source in a working execution container, run the native ZIP -> MODE1/2352 -> ISO9660/Joliet inventory, record exact PStartMenu/TeamSelect resources, provenance-import the minimum slice, then bind them to the verified presentation-only navigation boundary.",
-  "last_known_main_head": "20677e2133e4944c27b19d50fbbfc0fe62c8b581",
+  "active_task": "Gate 13 original management presentation: retry byte access to the successfully materialized durable Library source in a functional execution container, run the verified native ZIP -> MODE1/2352 -> ISO9660/Joliet inventory, record exact PStartMenu/TeamSelect resources, provenance-import the minimum slice, then bind it to the presentation-only navigation boundary.",
+  "last_known_main_head": "dba0db1abcf200074aa9cd5192e81f4562340236",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 77,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Durable Library source locator is confirmed and materialization succeeds, but CAAS/container byte access still raises ClientError. main now includes repository-native ISO9660/Joliet inventory integration and nested MODE1 regression tests (784a909, 971bea6), plus canonical checkpoint 20677e2. CI has not yet reported status for the newest implementation commits.",
+  "note": "Recovered after stale heartbeat. Native ISO integration is now CI-verified at 971bea6: 851 tests, only the two known secondary-schedule failures; both new ISO tests passed. Library source listing/materialization again succeeds, but container.exec, analysis Python, and user-visible Python all still fail with CAAS ClientError before reading the materialized ZIP. Exact next task remains real-disc inventory when execution byte access is available.",
   "same_chat_fallback_minutes": 30
 }
