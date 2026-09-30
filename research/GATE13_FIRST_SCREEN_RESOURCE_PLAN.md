@@ -155,3 +155,36 @@ for trivial commands. This selection and its source-hash validator can be
 committed and tested independently, but no new real ZIP staging/import or
 first-hand disassembly is claimed until execution access genuinely recovers.
 The full Gate 13 through Gate 17 mission remains active.
+
+## Single fail-closed first-hand source audit after staging
+
+The complete first-screen byte-check and real decoded-pixel validation can now
+be run as one deliberately private **original-source audit**, rather than
+relying on an accidentally skipped opt-in test or calling synthetic CI an
+original-disc verification. Run it only after the ten-file extraction report
+and source staging steps above succeed. The canonical executable must also
+have been extracted independently from the *same authorized source disc*.
+
+```text
+python reconstruction/gate13_original_source_audit.py --original-zip "<same-private-canonical-source>.zip" --selection-report "<private-selection>.json" --staging-root "<private-staging>" --original-exe "<private-verified-original-footballmanager.exe>" --output-receipt "<new-private-folder-outside-Git>/original-source-audit.json"
+```
+
+The command verifies the **actual physical ZIP again**, checking its
+511,121,336-byte size and independently pinned SHA-256 instead of trusting the
+inventory JSON alone. It ensures the selection report refers to that ZIP,
+checks all ten chosen original Joliet files and separately validates the exact
+canonical PE32 executable SHA. It then loads both original presentation
+bundles with their own source SHA validation; verifies the known exact
+composed-background RGBA digests, **all four independently observed original
+Zurich glyph-mask dimensions and hashes**, both 23-frame original action
+atlases and the two original hierarchy-art strips. It writes only a bounded
+small JSON measurement receipt outside Git, never the original executable
+or source pixels. Previous audit receipts cannot be overwritten.
+
+**This is not the Gate 13 audit and not a Windows 11 release smoke test.**
+Original Button@ease idle/hover/down/disabled source-frame meanings, native
+Zurich caption origin/color, TeamSelect selection mapping, and the remaining
+manager screens are explicitly represented as unresolved fields. Hosted
+Gate-13 CI has small synthetic assertions that the first-hand audit fails
+closed. Because the licensed ZIP/executable are never placed in hosted CI,
+do not count hosted success as the real-source audit passing.
