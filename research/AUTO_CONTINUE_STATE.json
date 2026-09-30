@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: original Button@ease_2001 frame-state/caption source trace and verified original ten-asset staging/import; shell still ClientError on trivial command in this recovery, so immediately pursue independently verifiable source-backed Gate 13 work through GitHub CI while testing alternate execution access. Do not promote headless tests to original-byte fidelity; full Gate 17 mission remains active.",
-  "last_known_main_head": "cb70119caf8421703781e92766f77fd4805ff4c9",
+  "active_task": "Recover Button@ease_2001 native frame-state/caption behavior from verified original executable and complete original ten-asset staged-byte tests/import; meanwhile source-backed hierarchy graphic strips have been integrated and next useful step is a bounded original-PE trace harness (synthetic validation only while local execution ClientError persists). Continue Gate 13 remaining screens then Gates 14-17 including Windows 11 release audit.",
+  "last_known_main_head": "942ffd327452a1d27c1b4553da80977e28af9dcd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 94,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "This worker merged six source-backed Gate 13 PRs #7-#12 with passing focused and asset-policy CI, reconciled CURRENT_STATE/PROGRESS, and corrected stale project_status.json at 70f45a5. Main checkpoint cb70119caf8421703781e92766f77fd4805ff4c9. Original 511,121,336-byte ZIP confirmed by Files listing. Actual container.exec/python.exec still fail on trivial commands with ClientError; no new native disassembly, raw asset staging or real-byte opt-in run claimed. Continue automatic recovery; do not ask for reupload, do not claim Gate 13 closed, full mission through Gate 17 remains active.",
+  "note": "Current recovery merged PR #13 1edb4deb1 with successful focused GitHub CI run 36734520993 and repository policy 36734520580; CURRENT_STATE.md and PROGRESS.md checkpointed at 942ffd327452a1d27c1b4553da80977e28af9dcd. Both container.exec and python_user_visible trivial operations raised ClientError: original source bytes cannot currently be inspected, do not fabricate executable trace. Maintain full mission.",
   "same_chat_fallback_minutes": 30
 }
