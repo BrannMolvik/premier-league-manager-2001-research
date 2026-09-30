@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date, timedelta
-from typing import Iterable, Protocol
+from typing import Callable, Iterable, Protocol
 
 from match_schedule import schedule_bucket_pre_shuffle_order
 
@@ -349,39 +349,113 @@ class PremierLeagueState:
                 return round_index
         return None
 
-    def table(self) -> tuple[LeagueRow, ...]:
+    @staticmethod
+    def _original_numeric_table_key(row: LeagueRow) -> tuple[int, ...]:
+        """Already recovered original League comparator at native 0x4F45E0."""
+        return (
+            -int(row.points),
+            int(row.played),
+            -int(row.goal_difference),
+            -int(row.goals_for),
+            int(row.goals_against),
+        )
+
+    @classmethod
+    def _source_table_sort_keys(
+        cls,
+        rows: tuple[LeagueRow, ...],
+        club_name_key: Callable[[int], bytes | None],
+    ) -> tuple[tuple[int | bytes, ...], ...]:
+        """Require original DBRClub short-name byte values, never invented text.
+
+        The executable uses CP1252 source short-name bytes for its final
+        comparison, not Python Unicode collation or club-id order.
+        """
+        result = []
+        for row in rows:
+            raw = club_name_key(int(row.club_id))
+            if not isinstance(raw, bytes):
+                raise ValueError(
+                    "Exact original League table requires CP1252 short-name bytes "
+                    "for every club"
+                )
+            result.append(cls._original_numeric_table_key(row) + (raw,))
+        return tuple(result)
+
+    def table(
+        self,
+        club_name_key: Callable[[int], bytes | None] | None = None,
+    ) -> tuple[LeagueRow, ...]:
+        """Return the original League display order when names are available.
+
+        Without a caller-supplied source short-name resolver, retain a
+        deterministic *explicit fallback* only for exact numeric ties. Do
+        not mistake that ID fallback for canonical original behavior.
+        """
         rows = {club_id: LeagueRow(club_id) for club_id in self.club_ids}
         for fixture_id, result in self.results.items():
             fixture = self.fixtures[fixture_id]
             rows[fixture.home_club_id].record(result.home_goals, result.away_goals)
             rows[fixture.away_club_id].record(result.away_goals, result.home_goals)
 
-        # Isolated because the exact FM2001 equal-points fallback beyond
-        # points / goal difference / goals scored has not yet been traced.
+        records = tuple(rows.values())
+        if club_name_key is not None:
+            original_keys = self._source_table_sort_keys(records, club_name_key)
+            return tuple(
+                row for _key, row in sorted(
+                    zip(original_keys, records),
+                    key=lambda item: item[0],
+                )
+            )
         return tuple(sorted(
-            rows.values(),
-            key=lambda row: (-row.points, -row.goal_difference, -row.goals_for, row.club_id),
+            records,
+            key=lambda row: self._original_numeric_table_key(row)
+            + (int(row.club_id),),
         ))
 
     @property
     def is_complete(self) -> bool:
         return len(self.results) == len(self.fixtures)
 
-    def exact_ranking(self) -> tuple[int, ...] | None:
-        """Return a gameplay ranking only when recovered League keys are unique."""
+    def exact_ranking(
+        self,
+        club_name_key: Callable[[int], bytes | None] | None = None,
+    ) -> tuple[int, ...] | None:
+        """Only publish a proven complete source comparator classification.
+
+        The exact numeric comparator may separate equal points/GD/GF using
+        played or GA. Numeric ties need source CP1252 names. Identical
+        full source keys are still ambiguous under native qsort tie order.
+        """
         if not self.is_complete:
             return None
-        rows = self.table()
-        keys = tuple(
-            (int(row.points), int(row.goal_difference), int(row.goals_for))
-            for row in rows
-        )
+        rows = tuple(self.table())
+        numeric_keys = tuple(self._original_numeric_table_key(row) for row in rows)
+        if len(numeric_keys) == len(set(numeric_keys)):
+            return tuple(
+                int(row.club_id)
+                for row in sorted(rows, key=self._original_numeric_table_key)
+            )
+        if club_name_key is None:
+            return None
+        try:
+            keys = self._source_table_sort_keys(rows, club_name_key)
+        except ValueError:
+            return None
         if len(keys) != len(set(keys)):
             return None
-        return tuple(int(row.club_id) for row in rows)
+        return tuple(
+            int(row.club_id)
+            for _key, row in sorted(zip(keys, rows), key=lambda item: item[0])
+        )
 
-    def publish_exact_ranking(self, registry) -> tuple[int, ...] | None:
-        ranking = self.exact_ranking()
+
+    def publish_exact_ranking(
+        self,
+        registry,
+        club_name_key: Callable[[int], bytes | None] | None = None,
+    ) -> tuple[int, ...] | None:
+        ranking = self.exact_ranking(club_name_key)
         if ranking is None:
             registry.clear_competition_ranking(0, competition_context=0)
             return None
