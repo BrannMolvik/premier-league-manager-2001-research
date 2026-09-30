@@ -80,6 +80,20 @@ class OriginalPStartMenuResources:
             )
         if self.button_atlas.spec != PSTARTMENU_BUTTON_ATLAS:
             raise OriginalPStartMenuResourceError("Wrong original menu button atlas")
+        if len(self.button_atlas.frames) != PSTARTMENU_BUTTON_ATLAS.frame_count:
+            raise OriginalPStartMenuResourceError(
+                "Original menu button atlas is missing source frames"
+            )
+        if any(
+            (frame.width, frame.height) != (
+                PSTARTMENU_BUTTON_ATLAS.frame_width,
+                PSTARTMENU_BUTTON_ATLAS.frame_height,
+            )
+            for frame in self.button_atlas.frames
+        ):
+            raise OriginalPStartMenuResourceError(
+                "Original menu button source frames have incorrect geometry"
+            )
         if tuple((caption.event, caption.source_idx_position, caption.control_rect)
                  for caption in self.captions) != tuple(
             (action.event, action.language_index, action.rect)
