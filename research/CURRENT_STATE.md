@@ -36,18 +36,19 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-9a6bd853010e6492f3f96f89e68dc0f0dea68e3a
-Reproduce MODE1 source conversion for Gate 13
+971bea6ce8caffa778cd713d1e0718907154f32d
+Test native Gate 13 ISO inventory path
 ```
 
-GitHub Actions ran **847 tests with 2 failures**, exactly the two long-standing
+GitHub Actions ran **851 tests with 2 failures**, exactly the two long-standing
 secondary-schedule assertions:
 
 - secondary root-order assertion;
 - secondary bucket-count assertion (262 expected vs 280 recovered).
 
-All new Gate-13 navigation, source-inventory, MODE1-conversion, and
-provenance-import tests passed. GitHub repository asset policy passed.
+All Gate-13 navigation, source-inventory, MODE1-conversion, native
+ISO9660/Joliet inventory/extraction, and provenance-import tests passed.
+Repository asset policy passed.
 
 ## Gate 12 closure checkpoint
 
@@ -116,9 +117,9 @@ Repository-native ISO9660/Joliet inventory is now implemented in commits
 `971bea6ce8caffa778cd713d1e0718907154f32d`. After raw MODE1/2352 conversion,
 Gate-13 filesystem enumeration and candidate extraction no longer require
 7-Zip. Focused tests cover direct Joliet extraction and nested
-ZIP -> MODE1/2352 -> ISO9660/Joliet inventory. CI status for these newest
-commits was not yet available at the checkpoint, so the latest CI-verified
-baseline above remains unchanged.
+ZIP -> MODE1/2352 -> ISO9660/Joliet inventory. GitHub Actions run
+`36679027696` verified both new tests while the full suite remained at only
+the two known secondary-schedule failures.
 
 Secondary visual evidence is now bounded in
 `research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
