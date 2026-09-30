@@ -32,6 +32,24 @@ class Gate13SourceInventoryTests(unittest.TestCase):
             "FM2001_Art/Generic/bground.444",
         )
 
+    def test_rejects_parent_and_drive_prefixed_archive_paths(self):
+        with self.assertRaisesRegex(ValueError, "Parent traversal"):
+            normalize_member("../outside.bin")
+        with self.assertRaisesRegex(ValueError, "Parent traversal"):
+            normalize_member(r"Folder\\..\\outside.bin")
+        with self.assertRaisesRegex(ValueError, "Drive-prefixed"):
+            normalize_member(r"C:\\outside.bin")
+
+    def test_nested_zip_path_traversal_fails_before_staging(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            source = root / "bad-source.zip"
+            with zipfile.ZipFile(source, "w") as archive:
+                archive.writestr("../../escaped.bin", b"bad")
+            with self.assertRaisesRegex(ValueError, "Parent traversal"):
+                report_for_source(source, deep=True)
+            self.assertFalse((root.parent / "escaped.bin").exists())
+
     def test_known_background_is_always_candidate(self):
         self.assertEqual(
             candidate_reason(EXPECTED_BGROUND_PATH),
