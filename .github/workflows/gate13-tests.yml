@@ -52,6 +52,7 @@ on:
       - "reconstruction/gate13_management_source_data.py"
       - "reconstruction/app.py"
       - "reconstruction/test_app_presentation_boundary.py"
+      - "reconstruction/test_gate13_presentation_separation.py"
       - "reconstruction/test_gate13_management_source_data.py"
       - "reconstruction/test_original_first_screen_presenter.py"
       - "reconstruction/gate13_first_screen_selection.py"
@@ -127,6 +128,7 @@ jobs:
             test_gate13_original_first_screen_viewer \
             test_gate13_management_source_data \
             test_app_presentation_boundary \
+            test_gate13_presentation_separation \
             test_original_hierarchy_debug_inspector \
             test_gate13_catalog_query \
             test_gate13_source_inventory \
