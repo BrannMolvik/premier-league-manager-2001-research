@@ -25,6 +25,7 @@ from gate13_source_inventory import (
     normalize_member,
     parse_7z_slt,
     report_for_source,
+    verify_mode1_2352_image,
 )
 
 from test_iso9660_reader import build_joliet_iso
@@ -525,7 +526,11 @@ Packed Size = 99
             with zipfile.ZipFile(archive, "w") as zf:
                 zf.writestr("disc/game.bin", raw)
 
-            report = report_for_source(archive, deep=True)
+            with patch(
+                "gate13_source_inventory.convert_mode1_2352_to_iso",
+                side_effect=AssertionError("Do not create a full temporary ISO"),
+            ):
+                report = report_for_source(archive, deep=True)
 
             self.assertEqual(report["nested_disc_images"], ["disc/game.bin"])
             self.assertEqual(report["disc_file_count"], 1)
@@ -549,6 +554,38 @@ Packed Size = 99
             self.assertFalse(
                 any("7-Zip was not found" in warning for warning in report["warnings"])
             )
+
+    def test_raw_track_validator_checks_all_sectors_before_virtual_inventory(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            iso = root / "fixture.iso"
+            build_joliet_iso(iso)
+            iso_bytes = iso.read_bytes()
+            raw = bytearray(b"".join(
+                self._mode1_sector(
+                    iso_bytes[offset:offset + ISO9660_SECTOR_BYTES]
+                )
+                for offset in range(0, len(iso_bytes), ISO9660_SECTOR_BYTES)
+            ))
+            path = root / "original.bin"
+            path.write_bytes(raw)
+            self.assertEqual(verify_mode1_2352_image(path), 24)
+
+            # Corrupt a sector outside the ISO directory tree. Reading only
+            # requested files would miss this; the full validation must not.
+            raw[5 * MODE1_RAW_SECTOR_BYTES + 15] = 2
+            path.write_bytes(raw)
+            with self.assertRaisesRegex(ValueError, "sector 5"):
+                verify_mode1_2352_image(path)
+
+            archive = root / "source.zip"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("disc/original.bin", raw)
+            report = report_for_source(archive, deep=True)
+            self.assertEqual(report["disc_file_count"], 0)
+            self.assertTrue(any(
+                "sector 5" in message for message in report["warnings"]
+            ))
 
     def test_explicit_opaque_iso_path_can_be_selected_and_extracted(self):
         with tempfile.TemporaryDirectory() as temp_name:
