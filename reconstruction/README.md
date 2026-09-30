@@ -164,6 +164,7 @@ python gate13_source_inventory.py <source.zip> --deep \
   --extract-path-file gate13-selected-paths.txt \
   --only-explicit \
   --require-all-explicit \
+  --hash-source \
   --extract-candidates-to <staging-directory> \
   --output gate13-source-selected.json
 ```
@@ -199,7 +200,8 @@ strict known-hash/header check for `bground.444`. With
 staged file. An unresolved/partial selection report prevents import.
 Opaque UI `.bin` resources require this provenance report and must be
 distinguishable from a raw disc image; they are not categorically banned
-merely because of their filename extension. If the selected report includes
-the source archive's SHA-256, it is retained in the import manifest notes.
+merely because of their filename extension. Run the selected staging pass with `--hash-source` to record the outer
+archive's SHA-256 in the selected report; the importer retains that digest
+in the provenance notes without claiming a digest for unverified source bytes.
 The repository's `original_assets/MANIFEST.md` and asset-policy check remain
 mandatory.
