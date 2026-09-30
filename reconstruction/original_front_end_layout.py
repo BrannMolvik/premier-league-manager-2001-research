@@ -49,6 +49,32 @@ PSTARTMENU_BACKGROUND_RECT = OriginalRect(134, 34, 532, 532)
 TEAMSELECT_ROOT_RECT = OriginalRect(0, 0, 800, 600)
 TEAMSELECT_BACKGROUND_RECT = OriginalRect(0, 0, 800, 558)
 
+# PStartMenu 0x4C1BA0 constructs four primary Button@ease_2001 controls.
+# 0x946590 is initialized at 0x5F4500 from the exact original
+# GenericButtonsAndBars/button_type_1.444 (169x575) with 169x25 frames.
+# The label globals are filled sequentially from English.idx by 0x635F30:
+# 0x9847F8=IDX 0 Continue, 0x9847F4=IDX 1 Start New Game,
+# 0x9847F0=IDX 2 Load Game, 0x9847E0=IDX 6 Quit to Windows.
+PSTARTMENU_ACTION_ATLAS_PATH = (
+    "FM2001_Art/Generic/GenericButtonsAndBars/button_type_1.444"
+)
+PSTARTMENU_ACTION_FRAME_SIZE = (169, 25)
+
+
+@dataclass(frozen=True)
+class OriginalMenuAction:
+    event: int
+    language_index: int
+    rect: OriginalRect
+
+
+PSTARTMENU_ACTIONS = (
+    OriginalMenuAction(1, 0, OriginalRect(181, 478, 169, 25)),
+    OriginalMenuAction(2, 1, OriginalRect(7, 478, 169, 25)),
+    OriginalMenuAction(3, 2, OriginalRect(355, 478, 169, 25)),
+    OriginalMenuAction(4, 6, OriginalRect(181, 508, 169, 25)),
+)
+
 # 0x4D7D82..0x4D80BF constructs sixteen hierarchy rows by repeatedly
 # calling 0x4D8C60 with x=20 and y=78+30*i. 0x4D8C60 in turn binds the
 # original choice_league animation/bar resources.
