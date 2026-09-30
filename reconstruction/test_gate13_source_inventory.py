@@ -4,6 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 import zipfile
+from unittest.mock import patch
 
 from gate13_source_inventory import (
     EXPECTED_BGROUND_PATH,
@@ -137,13 +138,18 @@ class Gate13SourceInventoryTests(unittest.TestCase):
             with zipfile.ZipFile(archive, "w") as zf:
                 zf.writestr("UI/opaque.dat", b"staged-original-fixture")
                 zf.writestr("disc/game.bin", raw)
-            report = report_for_source(
-                archive,
-                deep=True,
-                only_explicit=True,
-                explicit_paths={"UI/opaque.dat"},
-                extract_candidates_to=staged,
-            )
+            with patch(
+                "gate13_source_inventory.inventory_zip", wraps=inventory_zip
+            ) as zip_spy:
+                report = report_for_source(
+                    archive,
+                    deep=True,
+                    only_explicit=True,
+                    explicit_paths={"UI/opaque.dat"},
+                    extract_candidates_to=staged,
+                )
+            zip_spy.assert_called_once()
+            self.assertEqual(report["nested_disc_images"], ["disc/game.bin"])
             self.assertEqual(report["disc_file_count"], 1)
             self.assertEqual(
                 [item["path"] for item in report["candidates"]],
