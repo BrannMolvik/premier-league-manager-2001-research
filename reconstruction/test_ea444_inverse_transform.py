@@ -1,4 +1,5 @@
 import hashlib
+from fractions import Fraction
 import os
 from pathlib import Path
 import struct
@@ -9,6 +10,7 @@ from ea444_coefficients import read_coefficient_block
 from ea444_inverse_transform import (
     EA444InverseTransformError,
     EA444TransformConstants,
+    _round_nearest_even_ratio,
     inverse_8x8,
     inverse_first_pass_1d,
     inverse_second_pass_1d,
@@ -63,6 +65,38 @@ class EA444InverseTransformTests(unittest.TestCase):
             ),
             (-52, -52, -72, -72, -162, -162, -1314, 2686),
         )
+
+    def test_integer_dyadic_odd_part_matches_exact_fraction_reference(self):
+        # Includes sums outside signed-int32 to prove a+b is intentionally
+        # evaluated in the x87 domain rather than wrapped before multiplication.
+        pairs = (
+            (0, 0),
+            (1, -1),
+            (123456789, -987654321),
+            (0x7FFFFFFF, 0x7FFFFFFF),
+            (-0x80000000, -0x80000000),
+            (0x7FFFFFFF, -0x80000000),
+            (-1234567890, 1987654321),
+        )
+        denominator = 1 << 25
+        for a, b in pairs:
+            mix = a + b
+            actual_a = _round_nearest_even_ratio(
+                a * 18_159_528 + mix * 12_840_725, denominator
+            )
+            actual_b = _round_nearest_even_ratio(
+                b * 43_840_980 - mix * 12_840_725, denominator
+            )
+            expected_a = round(
+                Fraction(a) * self.constants.odd_1
+                + Fraction(mix) * self.constants.odd_3
+            )
+            expected_b = round(
+                Fraction(b) * self.constants.odd_2
+                - Fraction(mix) * self.constants.odd_3
+            )
+            self.assertEqual(actual_a, expected_a)
+            self.assertEqual(actual_b, expected_b)
 
     def test_rejects_wrong_sizes_and_noncanonical_constants(self):
         with self.assertRaises(EA444InverseTransformError):
