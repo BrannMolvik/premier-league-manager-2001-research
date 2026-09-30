@@ -7,9 +7,9 @@
   "mode": "continuous",
   "status": "working",
   "work_owner": "chatgpt",
-  "active_gate": 12,
-  "active_task": "Gate 12 annual rollover: rerun the canonical July-4 real-data season after source-backed startup-date, WCC child-League, two-leg final, and save-source-identity fixes; close any remaining qualification-Cup lifecycle blocker and complete the annual rollover audit.",
-  "last_known_main_head": "1f6f9978a05b563baca8019aad6e7e1c56fff8d5",
+  "active_gate": 13,
+  "active_task": "Gate 13 original management presentation: inventory authorized original main-menu / TeamSelect graphics, strings, layout/navigation/timing resources and implement the first recognizably original presentation slice while keeping simulation logic separate.",
+  "last_known_main_head": "980318b86228f12e286f6896e6ca835dc7ec2d29",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 74,
   "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "User explicitly checked whether work is continuing. Runtime heartbeat refreshed; resume canonical real-data annual audit from current main without redoing closed replay-order work.",
+  "note": "Gate 12 canonical annual rollover passed and was marked complete. Resume Gate 13 from main-menu / TeamSelect original-resource inventory; do not return to Gate 12 unless a presentation dependency exposes a regression.",
   "same_chat_fallback_minutes": 30
 }
