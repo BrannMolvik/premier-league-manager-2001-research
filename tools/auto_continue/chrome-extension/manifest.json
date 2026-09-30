@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "FM2001 ChatGPT Auto Continue",
-  "version": "0.3.7",
-  "description": "Stops stale content scripts after unpacked-extension reload; worker-specific recovery and diagnostics.",
+  "version": "0.3.8",
+  "description": "FM2001 worker recovery with safe manual start, independent liveness and diagnostics.",
   "permissions": [
     "storage",
     "tabs",

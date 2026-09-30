@@ -1,5 +1,7 @@
 "use strict";
 const button=document.getElementById("refresh");
+const startButton=document.getElementById("start-now");
+const startResult=document.getElementById("start-result");
 const summary=document.getElementById("summary");
 const checks=document.getElementById("checks");
 const details=document.getElementById("details");
@@ -26,4 +28,18 @@ async function run(){
   }catch(error){summary.textContent="Diagnostics failed: "+String(error);}
   finally{button.disabled=false;}
 }
+startButton.addEventListener("click", async()=>{
+  startButton.disabled=true;
+  startResult.textContent="Checking the registered worker tab...";
+  try {
+    const result=await chrome.runtime.sendMessage({type:"fm2001-start-now"});
+    startResult.textContent=result?.message || result?.reason ||
+      "The extension did not return a result.";
+    if (result?.ok) await run();
+  } catch(error) {
+    startResult.textContent="Could not start worker: "+String(error);
+  } finally {
+    startButton.disabled=false;
+  }
+});
 button.addEventListener("click",run);run();

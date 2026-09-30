@@ -9,7 +9,10 @@
 <body><main>
 <h1>FM2001 watchdog diagnostics</h1>
 <p>Read-only: running these checks does not start or interrupt ChatGPT.</p>
-<button id="refresh">Run health checks</button> <span id="checked"></span>
+<button id="refresh">Run health checks</button>
+<button id="start-now" type="button">Start FM2001 worker now</button>
+<span id="checked"></span>
+<p id="start-result" role="status" aria-live="polite"></p>
 <h2 id="summary">Checking...</h2><ul id="checks"></ul>
 <h2>Details</h2><pre id="details"></pre>
 <h2>Before leaving it overnight</h2>

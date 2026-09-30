@@ -215,3 +215,18 @@ observer after detecting context loss.
 already-open ChatGPT tabs, including the FM2001 worker tab. On that tab click
 the FM2001 toolbar icon to register it again. Only then clear historical
 errors from Chrome's extension Errors page. If new errors appear, capture them.
+
+## 0.3.8 Manual start without waiting for staleness
+
+Open the extension's **Details → Extension options**, which includes
+**Start FM2001 worker now**. This is a direct user request that bypasses the
+15-minute stale threshold and automatic recovery cooldown, with a 90-second
+local click throttle. It only targets the previously registered worker tab.
+It never stops an actively generating worker and avoids creating duplicate
+prompts when a recovery is already pending.
+
+After clicking, look at the actual FM2001 ChatGPT tab to verify the
+continuation message has appeared and that the worker produces a real
+`agent-runtime` checkpoint. A successful message request is not proof that
+work has progressed, and browser automation cannot bypass ChatGPT limits or
+the source-byte execution-container outage.

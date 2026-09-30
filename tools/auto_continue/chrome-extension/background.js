@@ -629,7 +629,95 @@ if (typeof self !== "undefined" && self && typeof self.addEventListener === "fun
   }
 }
 
+// Explicit human action from the extension options page. Manual recovery
+// skips the stale timer and automatic cooldown but never interrupts an
+// actively generating response. The local throttle guards repeated clicks.
+async function startRegisteredWorkerNow() {
+  const now = Date.now();
+  const stored = await chrome.storage.local.get([
+    "workerTabId", "pendingResume", "lastManualStartAt", "recoveryHistory"
+  ]);
+  if (stored.lastManualStartAt && now-stored.lastManualStartAt < 90*1000) {
+    return { ok: false, reason: "manual-throttle",
+      message: "Manual recovery was requested recently. Check the worker tab before trying again." };
+  }
+  const state = await getRuntimeState();
+  if (!shouldMonitor(state)) {
+    return {ok:false,reason:"runtime-not-working",
+      message:"Runtime is not enabled/continuous/working. Review its status before starting."};
+  }
+  const tabId = stored.workerTabId;
+  if (!tabId) {
+    return {ok:false,reason:"no-worker-tab",
+      message:"Open the FM2001 ChatGPT chat and click the extension toolbar icon to register it."};
+  }
+  let tab;
+  try {
+    tab = await chrome.tabs.get(tabId);
+  } catch (_error) {
+    return {ok:false,reason:"worker-tab-missing",
+      message:"The registered worker tab no longer exists. Register the correct FM2001 ChatGPT tab."};
+  }
+  if (!/^https:\/\/chatgpt\.com(?:\/|$)/.test(tab?.url||"")) {
+    return {ok:false,reason:"worker-url-invalid",
+      message:"Registered tab is not ChatGPT. Select the correct FM2001 chat and click the extension icon."};
+  }
+  let current;
+  try {
+    current = await chrome.tabs.sendMessage(tabId, {type:"fm2001-query-generation"});
+  } catch (_error) {
+    return {ok:false,reason:"content-script-unreachable",
+      message:"Refresh the FM2001 ChatGPT tab, re-register it, and retry. The extension could not contact the tab."};
+  }
+  if (current?.generating === true) {
+    return {ok:true,reason:"already-running",
+      message:"The FM2001 worker is already generating. No extra prompt was submitted."};
+  }
+  const pending = stored.pendingResume;
+  if (pending?.tabId===tabId && pending.expiresAt>now) {
+    // Re-notify the same pending job, never create an overlapping second one.
+    try {
+      await chrome.tabs.sendMessage(tabId, {type:"fm2001-run-pending-resume"});
+      return {ok:true,reason:"existing-pending",
+        message:"An earlier recovery prompt was already queued. Re-sent its notification to the worker tab."};
+    } catch (_error) {
+      return {ok:false,reason:"notify-failed",
+        message:"Could not deliver the already-queued prompt. Refresh and re-register the worker tab."};
+    }
+  }
+  const recent=(stored.recoveryHistory||[]).filter(t=>now-t<3600000);
+  // An explicit user action overrides automatic 20-minute cooldown, but
+  // keeps durable recovery records and a separate short manual throttle.
+  const accepted=await savePendingRecovery("manual-start",state,tabId,
+    {source:"extension-options",requested_by:"user"},
+    {now,history:recent},{inPlace:true,stopFirst:false});
+  if (!accepted) {
+    return {ok:false,reason:"prepare-failed",
+      message:"Could not prepare the continuation prompt. Check the extension service-worker error log."};
+  }
+  await chrome.storage.local.set({lastManualStartAt:now});
+  try {
+    await chrome.tabs.sendMessage(tabId,{type:"fm2001-run-pending-resume"});
+    return {ok:true,reason:"manual-recovery-requested",
+      message:"Continuation requested in the FM2001 worker tab. Check that the message actually appears and the worker makes a new checkpoint."};
+  } catch (_error) {
+    return {ok:false,reason:"notify-failed",
+      message:"The prompt was prepared, but its notification could not reach the worker tab. Refresh that tab, then use Start now again."};
+  }
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.type === "fm2001-start-now") {
+    // Only the extension's own options page can request this action.
+    if (!sender?.url?.startsWith(chrome.runtime.getURL("diagnostics.html"))) {
+      sendResponse({ok:false,reason:"invalid-sender",message:"Open the extension's own diagnostics page."});
+      return false;
+    }
+    startRegisteredWorkerNow().then(sendResponse,error=>sendResponse({
+      ok:false,reason:"unexpected-error",message:String(error)
+    }));
+    return true;
+  }
   if (message?.type === "fm2001-diagnostics") {
     collectDiagnostics().then(
       info => sendResponse({ok:true,report:info}),

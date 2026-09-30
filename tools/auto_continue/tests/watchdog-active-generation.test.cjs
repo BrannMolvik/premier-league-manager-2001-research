@@ -63,7 +63,8 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
     runtime: {
       onInstalled: { addListener() {} },
       onStartup: { addListener() {} },
-      onMessage: { addListener(fn) { onMessage = fn; } }
+      onMessage: { addListener(fn) { onMessage = fn; } },
+      getURL(path) {return "chrome-extension://extension-id/" + path;}
     }
   };
   const fetch = async url => {
@@ -119,6 +120,9 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
     },
     badge(tabId) { return badges.get(tabId); },
     async diagnostic() { return new Promise(resolve => onMessage({type:"fm2001-diagnostics"},{tab:{id:9}},resolve)); },
+    async startNow(url = "chrome-extension://extension-id/diagnostics.html") {
+      return new Promise(resolve => onMessage({type:"fm2001-start-now"},{url},resolve));
+    },
     newChatPrompt() {
       return vm.runInContext(
         'buildNewChatRecoveryPrompt("conversation-length-limit", "Standard handoff")',
@@ -246,4 +250,41 @@ test("diagnostics are read-only and use worker heartbeat",async()=>{
   assert.equal(result.report.workerTabId,9);
   assert.equal(result.report.workerStaleMinutes>=44,true);
   assert.equal(h.store.pendingResume,undefined);
+});
+
+test("manual start requests recovery immediately without stale delay",async()=>{
+  const h=harness({generating:false,staleMinutes:0});
+  const result=await h.startNow();
+  assert.equal(result.ok,true);
+  assert.equal(result.reason,"manual-recovery-requested");
+  assert.equal(h.store.pendingResume.inPlace,true);
+  assert.equal(h.store.pendingResume.stopFirst,false);
+  assert.equal(h.resumeMessages,1);
+});
+test("manual start never interrupts an actively generating response",async()=>{
+  const h=harness({generating:true,staleMinutes:30});
+  const result=await h.startNow();
+  assert.equal(result.reason,"already-running");
+  assert.equal(h.store.pendingResume,undefined);
+  assert.equal(h.resumeMessages,0);
+});
+test("manual start requires the extension options page",async()=>{
+  const h=harness({generating:false});
+  const result=await h.startNow("https://unrelated.example/");
+  assert.equal(result.ok,false);
+  assert.equal(result.reason,"invalid-sender");
+});
+test("manual duplicate clicks respect the throttle and do not stack prompts",async()=>{
+  const h=harness({generating:false});
+  const first=await h.startNow();
+  const next=await h.startNow();
+  assert.equal(first.ok,true);
+  assert.equal(next.reason,"manual-throttle");
+  assert.equal(h.resumeMessages,1);
+});
+test("unregistered worker cannot be started manually",async()=>{
+  const h=harness({initialStorage:{workerTabId:null}});
+  const result=await h.startNow();
+  assert.equal(result.reason,"no-worker-tab");
+  assert.equal(h.createdTabs,0);
 });
