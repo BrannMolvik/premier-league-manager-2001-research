@@ -1,6 +1,6 @@
 # Current State
 
-_Last reconciled: 30 September 2026_
+_Last reconciled: 1 October 2026 KST_
 
 This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
@@ -32,6 +32,39 @@ directly, convert them, or wrap them as needed; do not replace or redesign them
 for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
+
+## Independent release-readiness progress while licensed byte execution is blocked
+
+- PR #23, squash `3ed8661faee4a73496ffb3674a7f97d0ddb24fa6`,
+  retired two **unsupported historical secondary-scheduler test
+  assumptions** without inventing a native fixture order or per-date
+  bucket distribution. The exact executable research supports the
+  reverse traversal of each qsorted country-root array and World
+  Cup 174 before European Championship 171; it does NOT independently
+  pin the equal-key relative ordering of roots 170/181. Existing
+  Gate11 original-source evidence supports **262 total secondary nodes
+  in 45 nonempty buckets**, hence 217 raw CRT shuffle draws from
+  `0xCAB0B953` to `0x61D6DFA2`, but the old handwritten 45-bucket
+  test vector mistakenly summed to 280 and was NOT original-verified
+  per bucket. Tests now assert only independently established
+  navigation/RNG aggregates with an EXPLICIT synthetic bucket
+  partition. The **remaining actual secondary per-date distribution
+  and exact equal-key original qsort permutation stay open** in
+  `research/FIDELITY_GAPS.md`; refer to
+  `research/SECONDARY_SCHEDULE_TEST_CONTRACT_AUDIT.md`.
+- The full reconstruction GitHub Actions run `36747022836`
+  passed **1,019 tests with 21 expected original-source-gated skips**
+  on verified PR #23 HEAD `18fa7120e489fd191675f12d0e5899a928352c12`.
+  Asset-policy run `36747022951` passed.
+  The previous source-doc'd 899-test run with exactly two legacy
+  failures is historical; DO NOT report it as the current full-suite
+  outcome. This newly passing hosted test suite is important but
+  **does not** execute original licensed-byte audits, native Button
+  interaction tests or an actual Windows 11 installable release.
+- Gate13 ORIGINAL presentation and native executable analysis remain
+  the current active critical path. This secondary test repair is
+  preparation for the later Gate15/17 fidelity and full-suite audits,
+  not advancement past the incomplete Gate13 audit.
 
 ## Latest Gate 13 source-grounded Button RTTI work and limits
 
@@ -581,8 +614,10 @@ recovers. Other source-backed GitHub development and focused CI succeeded.
 
 ## Known live fidelity boundaries
 
-See `research/FIDELITY_GAPS.md`. The two existing secondary-schedule
-assertions, original save compatibility, residual transfer/finance branches,
+See `research/FIDELITY_GAPS.md`. The old secondary test assertions are now bounded to established
+aggregate evidence and passed a full hosted suite; exact native
+secondary date-bucket composition/equal-key tie order, original save
+compatibility, residual transfer/finance branches,
 special both-controlled-participants Cup revenue, and presentation/audio
 fidelity remain explicit later work. Do not promote historical synthetic
 tooling verification as original-screen visual fidelity.

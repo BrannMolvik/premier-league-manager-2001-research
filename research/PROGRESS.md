@@ -8851,3 +8851,40 @@ keeping presentation separate from the stable simulation backend.
   frame-index or Zurich text-placement fact.
 - Full mission remains Gate13→Gate17, with a genuinely tested
   clean Windows11 install required for completion.
+
+ 
+## Source-evidence-limited secondary test contracts and newly passing full suite — 1 October 2026 KST
+
+- After Gate13's original-byte shell remained unavailable, examined
+  legacy full reconstruction CI run `36699473326`: exactly two
+  longstanding secondary-schedule assertions failed across 899 tests.
+  `research/EXECUTABLE_ANALYSIS.md` independently supports reverse
+  qsorted country-root traversal and World Cup 174 before Euro 171,
+  but explicitly warns not to assume exact relative order of
+  equal-key Other-country roots.
+- A separate pre-existing firsthand Gate11 checkpoint in
+  `research/PROGRESS.md` establishes **262** mode-1 schedule
+  nodes, **45** nonempty buckets, **217** raw
+  `0x615BE0/0x615AE0` shuffle draws after
+  `0xCAB0B953`, finishing at **`0x61D6DFA2`**.
+  The old handwritten test vector purported to contain those
+  counts but in fact summed to **280**, and had never been
+  independently verified per-bucket against original bytes.
+- PR #23 squash `3ed8661faee4a73496ffb3674a7f97d0ddb24fa6`
+  corrects both TEST EVIDENCE BOUNDARIES, not original simulation
+  behavior: root traversal test checks reverse sorted array
+  and proven World Cup before Euro; RNG test explicitly uses
+  a SYNTHETIC 262/45 aggregate partition with mathematically
+  known 217 raw draws. It records the unproven exact tie
+  permutation and actual per-date secondary bucket vector
+  in `research/FIDELITY_GAPS.md`, documented with precise
+  provenance in `research/SECONDARY_SCHEDULE_TEST_CONTRACT_AUDIT.md`.
+- Narrow PR-only full reconstruction CI was enabled for changes
+  to these two vulnerable test modules; ordinary main commits
+  still do not dispatch the full suite. This PR passed the
+  **FULL** reconstruction run `36747022836`: **1,019 tests,
+  21 expected source-gated skips, no failures**.
+  Repository asset-policy run `36747022951` passed.
+  Passing synthetic tests do NOT validate original per-bucket
+  fidelity, original gated visual-source checks, native Button
+  transitions or clean Windows 11 release behavior.

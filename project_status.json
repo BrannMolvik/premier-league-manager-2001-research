@@ -10,9 +10,9 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "70307af0549f6bacd4bc1951e3cdb6ef63df0c5b",
-  "last_verified_reconstruction_ci_head": "70307af0549f6bacd4bc1951e3cdb6ef63df0c5b",
-  "last_verified_test_count": 819,
-  "asset_policy_validated_head": "70307af0549f6bacd4bc1951e3cdb6ef63df0c5b",
+  "last_verified_reconstruction_ci_head": "18fa7120e489fd191675f12d0e5899a928352c12",
+  "last_verified_test_count": 1019,
+  "asset_policy_validated_head": "18fa7120e489fd191675f12d0e5899a928352c12",
   "asset_policy_status": "passed",
   "active_task": "Gate13: regain original byte execution, run canonical original PE32 Button RTTI search with known-positive TeamSelect TypeDescriptor 0x81EC10/vtable 0x7C7650 calibration, then corroborate actual Button vtable draw/update, state-bit-to-23-source-atlas frame data flow and original Zurich placement; run real canonical ZIP + ten-file staged asset pixel audit, provenance import and remaining native management UI, audit Gate13 then Gates14-17 and verified Windows11 release.",
   "next_gate": 14,
@@ -515,5 +515,11 @@
   "gate13_button_rtti_candidate_inspector_main_head": "6e2e67564486d9578f109106f28bb22f05a7049c",
   "gate13_button_rtti_known_teamselect_calibration_merged": true,
   "gate13_button_rtti_known_teamselect_calibration_main_head": "9931c289cce45e957a5b1dd178f06acae01576b7",
-  "gate13_original_button_rtti_calibrated_on_real_source": false
+  "gate13_original_button_rtti_calibrated_on_real_source": false,
+  "last_verified_test_skips": 21,
+  "latest_full_reconstruction_ci_run": 36747022836,
+  "latest_full_reconstruction_ci_result": "passed_with_21_intentional_source_gated_skips",
+  "gate15_preparatory_secondary_test_contract_repair_merged": true,
+  "gate15_preparatory_secondary_test_contract_repair_main_head": "3ed8661faee4a73496ffb3674a7f97d0ddb24fa6",
+  "secondary_schedule_exact_tie_and_date_bucket_fidelity_open": true
 }
