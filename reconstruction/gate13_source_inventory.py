@@ -107,6 +107,25 @@ class ZipFileRecord:
     is_disc_image: bool
 
 
+class StagingCollisionError(ValueError):
+    """Two source members target the same path in a staging extraction."""
+
+
+def _stage_destination(root: Path, member: str, staged: set[str]) -> Path:
+    """Reject overwrites and case-insensitive duplicates across source layers."""
+    normalized = normalize_member(member)
+    key = normalized.casefold()
+    output = Path(root).joinpath(*PurePosixPath(normalized).parts)
+    if key in staged or output.exists():
+        raise StagingCollisionError(
+            f"Duplicate Gate-13 staging path: {normalized}; "
+            "isolate the archive layer or use a fresh staging directory."
+        )
+    staged.add(key)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    return output
+
+
 def normalize_member(path: str) -> str:
     """Keep archive paths source-relative before any staging extraction."""
     text = path.replace("\\", "/").lstrip("/")
@@ -314,6 +333,7 @@ def inventory_zip(
     explicit_paths: set[str] | None = None,
     only_explicit: bool = False,
     zip_files: list[ZipFileRecord] | None = None,
+    staged_paths: set[str] | None = None,
 ) -> tuple[list[AssetRecord], list[str], list[str]]:
     """Include source-relative loose ZIP assets alongside nested-disc resources.
 
@@ -325,6 +345,7 @@ def inventory_zip(
     nested_images: list[str] = []
     warnings: list[str] = []
     requested = {_lower(item) for item in (explicit_paths or set())}
+    staged = staged_paths if staged_paths is not None else set()
 
     with zipfile.ZipFile(path) as archive:
         for info in archive.infolist():
@@ -347,13 +368,18 @@ def inventory_zip(
             if reason is None or (only_explicit and reason != "explicit-path"):
                 continue
 
+            if disc_image and _lower(member) in requested:
+                raise ValueError(
+                    f"Disc-image containers cannot be selected as UI assets: {member}"
+                )
+            output = (
+                _stage_destination(extract_candidates_to, member, staged)
+                if extract_candidates_to is not None
+                else None
+            )
             with archive.open(info) as stream:
                 data = stream.read()
-            if extract_candidates_to is not None:
-                output = Path(extract_candidates_to).joinpath(
-                    *PurePosixPath(member).parts
-                )
-                output.parent.mkdir(parents=True, exist_ok=True)
+            if output is not None:
                 output.write_bytes(data)
             records.append(_record_from_bytes(
                 path=member,
@@ -521,11 +547,13 @@ def inventory_iso_image(
     extract_candidates_to: Path | None = None,
     explicit_paths: set[str] | None = None,
     only_explicit: bool = False,
+    staged_paths: set[str] | None = None,
 ) -> tuple[list[AssetRecord], list[str]]:
     records: list[AssetRecord] = []
     warnings: list[str] = []
     volume = IsoImage(image)
     requested = {_lower(path) for path in (explicit_paths or set())}
+    staged = staged_paths if staged_paths is not None else set()
 
     for entry in volume.files():
         member = normalize_member(entry.path)
@@ -544,11 +572,8 @@ def inventory_iso_image(
         )
 
         if extract_candidates_to is not None:
+            output = _stage_destination(extract_candidates_to, member, staged)
             data = volume.read_file(entry)
-            output = Path(extract_candidates_to).joinpath(
-                *PurePosixPath(member).parts
-            )
-            output.parent.mkdir(parents=True, exist_ok=True)
             output.write_bytes(data)
             record = _record_from_bytes(
                 path=member,
@@ -625,12 +650,14 @@ def deep_inventory_zip(
     only_explicit: bool = False,
     zip_files: list[ZipFileRecord] | None = None,
 ) -> tuple[list[AssetRecord], list[str], list[str]]:
+    staged = set()
     direct, nested_images, warnings = inventory_zip(
         archive,
         extract_candidates_to=extract_candidates_to,
         explicit_paths=explicit_paths,
         only_explicit=only_explicit,
         zip_files=zip_files,
+        staged_paths=staged,
     )
     records = list(direct)
     if not nested_images:
@@ -659,6 +686,7 @@ def deep_inventory_zip(
                         extract_candidates_to,
                         explicit_paths,
                         only_explicit,
+                        staged,
                     )
                 elif seven_zip is not None and only_explicit:
                     raise ValueError(
@@ -676,6 +704,8 @@ def deep_inventory_zip(
                         "handles ISO9660/Joliet and MODE1/2352 images."
                     )
                     continue
+            except StagingCollisionError:
+                raise
             except (RuntimeError, ValueError, Iso9660Error) as exc:
                 warnings.append(str(exc))
                 continue
