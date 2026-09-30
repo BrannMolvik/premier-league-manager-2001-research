@@ -8780,3 +8780,40 @@ keeping presentation separate from the stable simulation backend.
   real-disc audit, provenance import, and remaining Gate 13-17 actions.
   This is source-ready tooling, not a Gate 13 closure or verified
   Windows 11 release.
+
+ 
+## Gate 13 recovery: source-order hierarchy diagnostics and original Button input-anchor consolidation - 1 October 2026 KST
+
+- Canonical starting main `40660eee5487a21d35e377e7040a0f638d6c3d56`, Gate 13
+  active; recovery generation 96 on `agent-runtime`.
+- Again tested trivial direct shell execution: `container.exec` returned
+  `ClientError`. Original source ZIP remained listed at the exact
+  private Library `/FM2001/Original Source/` path. Therefore NO new
+  actual executable disassembly, original ZIP staging or first-hand
+  real-asset pixel audit is claimed in this recovery.
+- PR #19 `b488bf5380b5ef65bc833832b0a8e97acbeb5690` adds private
+  developer-only independent, lossless, source-indexed inspection of
+  original TeamSelect hierarchy animation and bars in a separate
+  sidebar. Native image positions, frame-state meanings, country/team
+  labels and click behavior remain unresolved. Initial focused CI
+  `36742266401` found a mocked-Tk image-clearing assertion error;
+  after correcting it, focused CI `36742383607` and asset policy
+  `36742383367` passed. Only the corrected branch was merged.
+- Previous canonical-executable research already recorded
+  `Button@ease_2001::input` at `0x64F7A0` and a real TeamSelect
+  owner click path, with state-bit helpers at `0x64F3E0`,
+  `0x64F710` and `0x64F750`. The recent source inspector had
+  been missing these **existing original-byte facts**. PR #20
+  `38b6f3a65ed567fd2f33846d6bace7669b62c90c` now feeds
+  them to bounded canonical-code windows and optional direct-call
+  candidate scans, and consolidates the concrete owner/bit-state
+  graph in `research/GATE13_BUTTON_STATE_TRACE_PROCEDURE.md`.
+  Focused CI `36742776548` and asset policy `36742776481`
+  passed.
+- Exact next source-critical step: restore original binary execution
+  access; inspect the already confirmed Button input/state code and
+  separately resolve the true native **draw frame selection** and
+  Zurich caption origin/colors, followed by strict physical canonical
+  ten-asset source-byte/pixel audit, deliberate provenance import,
+  completed original management presentation, Gate 13 audit and
+  Gates 14-17 through a real Windows 11 release.
