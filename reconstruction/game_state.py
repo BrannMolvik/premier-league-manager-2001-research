@@ -2206,7 +2206,7 @@ class GameState:
             return None
         return tuple(int(club_id) for club_id in ranking)
 
-    def preview_english_season_transition(self):
+    def preview_english_season_transition(self, *, ranking_overrides=None):
         """Compute the recovered English annual swaps without mutating state."""
         from league_transition import (
             apply_league_allocation_exchanges,
@@ -2223,9 +2223,17 @@ class GameState:
             int(record.competition_b_id)
             for record in records
         }
+        overrides = {
+            int(competition_id): tuple(int(club_id) for club_id in ranking)
+            for competition_id, ranking in (
+                {} if ranking_overrides is None else ranking_overrides
+            ).items()
+        }
         rankings: dict[int, tuple[int, ...]] = {}
         for competition_id in sorted(endpoint_ids):
-            ranking = self.season_transition_ranking(competition_id)
+            ranking = overrides.get(int(competition_id))
+            if ranking is None:
+                ranking = self.season_transition_ranking(competition_id)
             if ranking is None:
                 raise RuntimeError(
                     "English season transition ranking is unresolved for "
@@ -2429,6 +2437,32 @@ class GameState:
         """
         competition_id = int(competition_id)
         competition_context = int(competition_context)
+
+        # Root domestic Leagues encode automatic promotion through the exact
+        # LeagueAllocation exchange table, not through Cup ClubRef type-2
+        # selectors. For example Championship selectors 2..5 are playoff
+        # positions, while LeagueAllocation ID 0 moves positions 0..1
+        # automatically into the Premier League.
+        if competition_context == 0:
+            automatic_ranges = {
+                (int(record.competition_b_start), int(record.competition_b_end))
+                for record in self.league_allocation_records
+                if int(record.competition_b_id) == competition_id
+                and int(record.competition_b_start) == 0
+            }
+            if automatic_ranges:
+                if len(automatic_ranges) != 1:
+                    raise RuntimeError(
+                        "multiple automatic-promotion LeagueAllocation ranges "
+                        "exist for one procedural League"
+                    )
+                start, end = next(iter(automatic_ranges))
+                if end < start:
+                    raise RuntimeError(
+                        "invalid automatic-promotion LeagueAllocation range"
+                    )
+                return end - start + 1
+
         selectors: set[int] = set()
         for entries in self.primary_schedule_shadow.days.values():
             for entry in entries:
@@ -2441,12 +2475,18 @@ class GameState:
                         selectors.add(int(ref.selector))
         if not selectors:
             return 0
+        minimum = min(selectors)
+        if minimum > 0:
+            # A selector range that begins below the top of the table describes
+            # a later cut (for example domestic playoff places), not automatic
+            # advancement from rank zero.
+            return 0
         maximum = max(selectors)
         expected = set(range(maximum + 1))
         if selectors != expected:
             raise RuntimeError(
-                "non-contiguous competition-position selectors cannot define "
-                "a League advancement boundary"
+                "non-contiguous top competition-position selectors cannot "
+                "define a League advancement boundary"
             )
         return maximum + 1
 
@@ -2936,7 +2976,10 @@ class GameState:
         if replay is None:
             return None
 
-        replay_token = tuple(replay.node_token)
+        replay_token = schedule_state._match_token_for_identity(replay)
+        if replay_token is None:
+            raise RuntimeError("dynamic Replay has no registered schedule token")
+        replay_token = tuple(replay_token)
         replay_node = schedule_state.node(replay_token)
         chosen_date = replay_node.scheduled_date
         if self.primary_schedule_shadow.days:
