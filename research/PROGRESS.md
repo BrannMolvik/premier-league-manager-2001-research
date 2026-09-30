@@ -8187,3 +8187,28 @@ keeping presentation separate from the stable simulation backend.
   functioning container -> deep inventory once -> query the saved full catalog
   iteratively -> exact-path stage the minimum PStartMenu/TeamSelect resource
   slice -> provenance import.
+
+
+## Gate 13 query-to-staging and search-plan checkpoint - 30 September 2026
+
+- Extended the saved-catalog workflow so `gate13_catalog_query.py --paths-only`
+  emits exact source-relative paths, one per line.
+- Extended `gate13_source_inventory.py` with repeatable
+  `--extract-path-file` support. UTF-8 path lists ignore blank lines and
+  `#` comments, normalize separators, and merge with direct
+  `--extract-path` selections.
+- Added focused regressions for both path-list emission and path-list loading.
+- GitHub Actions run `36685946489` ran **860 tests with 2 failures**, exactly
+  the two unchanged secondary-schedule assertions. The new query-to-staging
+  tests passed.
+- Updated `reconstruction/README.md` with the reproducible sequence:
+  query saved full catalog -> emit paths-only shortlist -> feed shortlist back
+  through `--extract-path-file` -> stage only selected resources.
+- Added `research/GATE13_CATALOG_SEARCH_PLAN.md`, which records the first
+  evidence-bounded real-catalog search sequence. It separates confirmed source
+  anchors and executable identities from screenshot-only UI labels, so visible
+  strings are used as search hints rather than guessed filenames.
+- Current container status is unchanged: a trivial control command still
+  returns CAAS `ClientError`, while the durable Library ZIP remains resolvable
+  and materializable. Therefore real-disc byte inventory is still the exact
+  external dependency; no source re-upload is required.
