@@ -204,6 +204,37 @@ player-profile UI showed them. Likewise the bridge does not assign the 17 raw
 skill bytes to visual columns/icons until original player-profile presentation
 evidence establishes that mapping.
 
+### Source-backed manager-mail presentation contract
+
+The bridge now exposes an immutable contract for the manager-mail families that
+have already been recovered end-to-end from the original executable and
+materialized by the clean-room runtime.
+
+The contract preserves the common `MPMEAMail` queue-container family plus:
+
+- ordinary assistant-manager contract-renewal suggestion:
+  message ID `0x0E`, key `AssManSuggestPlayerContractRenewalM`,
+  event `EAMAssManSuggestPlayerContractRenewalMsub`, accepted action
+  `EAMAmendContractsub`;
+- Bosman renewal suggestion:
+  message ID `0x1B7`, key
+  `AssManSuggestBosmanPlayerContractRenewalM`, event
+  `EAMAssManSuggestBosmanPlayerContractRenewalMsub`, accepted action
+  `EAMAmendContractsub`;
+- low-morale player transfer-list request:
+  key `PlayerAskTransferList`, event `EAMPlayerAskTransferListsub`,
+  accepted action `EAMAcceptTransferRequestsub`, refused action
+  `EAMRefuseTransferRequestsub`.
+
+The existing research does not pin an independent numeric message ID for the
+transfer-list request, so the contract stores none rather than inferring one.
+It also keeps `global_interleave_proven = False`: the runtime's renewal and
+transfer-request queues must not be merged into a guessed inbox order.
+
+No inbox screen ID, row sorting, visual caption binding, row geometry, artwork
+or navigation is assigned. See
+`research/GATE13_MESSAGES_PRESENTATION_CONTRACT.md`.
+
 ### Manager-mail source queues
 
 The bridge now exposes the two manager-mail families that the clean-room

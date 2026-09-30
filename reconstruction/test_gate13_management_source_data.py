@@ -5,6 +5,7 @@ import unittest
 
 from gate13_management_source_data import (
     FINANCE_OVERVIEW_PRESENTATION_CONTRACT,
+    MESSAGES_PRESENTATION_CONTRACT,
     ManagementPresentationError,
     ManagementSourceDataBridge,
     SCOUTING_PRESENTATION_CONTRACT,
@@ -854,6 +855,60 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         controller.state.transfers.scheduled_transfers.append(item)
         with self.assertRaisesRegex(ManagementPresentationError, "ambiguous"):
             ManagementSourceDataBridge(controller).transfer_proposal_rows()
+
+    def test_messages_presentation_contract_preserves_only_recovered_mail_families(self):
+        contract = ManagementSourceDataBridge.messages_presentation_contract()
+
+        self.assertIs(contract, MESSAGES_PRESENTATION_CONTRACT)
+        self.assertEqual(contract.queue_container_family, "MPMEAMail")
+        self.assertFalse(contract.global_interleave_proven)
+        self.assertEqual(
+            [
+                (
+                    item.semantic_key,
+                    item.message_id,
+                    item.original_key,
+                    item.event_class,
+                    item.accepted_action_class,
+                    item.refused_action_class,
+                )
+                for item in contract.families
+            ],
+            [
+                (
+                    "ordinary_contract_renewal_suggestion",
+                    0x0E,
+                    "AssManSuggestPlayerContractRenewalM",
+                    "EAMAssManSuggestPlayerContractRenewalMsub",
+                    "EAMAmendContractsub",
+                    None,
+                ),
+                (
+                    "bosman_contract_renewal_suggestion",
+                    0x1B7,
+                    "AssManSuggestBosmanPlayerContractRenewalM",
+                    "EAMAssManSuggestBosmanPlayerContractRenewalMsub",
+                    "EAMAmendContractsub",
+                    None,
+                ),
+                (
+                    "player_transfer_list_request",
+                    None,
+                    "PlayerAskTransferList",
+                    "EAMPlayerAskTransferListsub",
+                    "EAMAcceptTransferRequestsub",
+                    "EAMRefuseTransferRequestsub",
+                ),
+            ],
+        )
+        for unsupported in (
+            "screen_id",
+            "sort_key",
+            "row_rectangle",
+            "art_path",
+            "navigation_id",
+        ):
+            self.assertFalse(hasattr(contract, unsupported))
 
     def test_message_source_queues_preserve_separate_runtime_order_and_exact_events(self):
         controller = FakeController()

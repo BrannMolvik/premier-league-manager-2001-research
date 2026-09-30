@@ -432,6 +432,55 @@ class TransferProposalView:
 
 
 @dataclass(frozen=True)
+class MessageFamilyPresentationContract:
+    semantic_key: str
+    message_id: int | None
+    original_key: str
+    event_class: str
+    accepted_action_class: str | None
+    refused_action_class: str | None
+
+
+@dataclass(frozen=True)
+class MessagesPresentationContract:
+    queue_container_family: str
+    global_interleave_proven: bool
+    families: tuple[MessageFamilyPresentationContract, ...]
+
+
+MESSAGES_PRESENTATION_CONTRACT = MessagesPresentationContract(
+    queue_container_family="MPMEAMail",
+    global_interleave_proven=False,
+    families=(
+        MessageFamilyPresentationContract(
+            semantic_key="ordinary_contract_renewal_suggestion",
+            message_id=0x0E,
+            original_key="AssManSuggestPlayerContractRenewalM",
+            event_class="EAMAssManSuggestPlayerContractRenewalMsub",
+            accepted_action_class="EAMAmendContractsub",
+            refused_action_class=None,
+        ),
+        MessageFamilyPresentationContract(
+            semantic_key="bosman_contract_renewal_suggestion",
+            message_id=0x1B7,
+            original_key="AssManSuggestBosmanPlayerContractRenewalM",
+            event_class="EAMAssManSuggestBosmanPlayerContractRenewalMsub",
+            accepted_action_class="EAMAmendContractsub",
+            refused_action_class=None,
+        ),
+        MessageFamilyPresentationContract(
+            semantic_key="player_transfer_list_request",
+            message_id=None,
+            original_key="PlayerAskTransferList",
+            event_class="EAMPlayerAskTransferListsub",
+            accepted_action_class="EAMAcceptTransferRequestsub",
+            refused_action_class="EAMRefuseTransferRequestsub",
+        ),
+    ),
+)
+
+
+@dataclass(frozen=True)
 class ContractRenewalMessageView:
     queue_index: int
     player_id: int
@@ -1100,6 +1149,11 @@ class ManagementSourceDataBridge:
                 scheduled_mode=mode,
             ))
         return tuple(rows)
+
+    @staticmethod
+    def messages_presentation_contract() -> MessagesPresentationContract:
+        """Return only source-proven manager-mail family identities/actions."""
+        return MESSAGES_PRESENTATION_CONTRACT
 
     def message_source_queues(self) -> MessageSourceQueuesView:
         """Expose only the two manager-mail families materialized by GameState.
