@@ -101,3 +101,43 @@ new first-hand executable bytes, full original navigation timing, hover-state
 index, label baseline, or opt-in original-byte pass is claimed by this
 helper's synthetic CI. It exists to make the **next actual executable
 inspection** reproducible once execution access returns.
+
+## Additional bounded source leads for exact Button state recovery
+
+`reconstruction/gate13_button_vtable_xref_candidates.py` adds two strictly
+candidate-only inspection stages to the exact-hash-gated original PE32
+inspector. Its seed addresses are the already established **PStartMenu and
+TeamSelect class** vtables; these are **not** asserted to be the
+`Button@ease_2001` shared vtable. The first stage reads at most 12 raw
+file-backed uint32 slots per class vtable, identifies pointers mapping to
+PE `.text`, and stops at the section boundary rather than interpreting
+adjacent data as additional entries. No slot meanings are inferred.
+
+The second stage uses optional Capstone 5 to scan original `.text` for
+candidate **direct** near CALL/JMP branch destinations matching the previously
+established code entry points and any plausible class-vtable code pointers.
+This is a *linear-disassembly byte lead only*. Embedded source data,
+misaligned instructions, missed indirect/vtable calls, cross-function
+fall-through, and unreachable branches can invalidate results. Only
+independent original CFG/manual control/data-flow analysis can promote a
+candidate to a native button-state or font-layout fact.
+
+With the same private, exact-SHA-verified original executable:
+
+```text
+python reconstruction/gate13_button_source_trace.py "<verified-private-footballmanager.exe>" --inspect-class-vtable-candidates --scan-direct-control-transfer-candidates --output "<private-folder-outside-repository>/button-trace-expanded.json"
+```
+
+The `--scan-direct-control-transfer-candidates` flag also enables the
+bounded class-vtable stage automatically. The existing `--disassemble`
+flag may independently include linear instruction windows. Keep all raw
+instruction reports **outside the tracked repository**. Cross-check the
+plausible pointers with manual Ghidra RTTI/vtable inheritance evidence,
+follow candidate draw/hover/update paths and recover actual atlas row
+changes and Zurich baseline/color before changing the user-facing
+renderer.
+
+Synthetic host CI installs only Capstone and checks the bounded vtable
+parsing, edge candidate classification, true direct near CALL/JMP test
+fixtures, and source classification boundaries. No native original
+Button@ease state mapping is claimed by these synthetic tests.
