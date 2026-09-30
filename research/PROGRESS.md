@@ -8234,3 +8234,30 @@ keeping presentation separate from the stable simulation backend.
   exact-only Gate 13 tests passed; repository asset policy passed.
 - Exact next task remains real source-disc byte inventory and evidence-driven
   PStartMenu/TeamSelect asset selection, not another speculative UI design.
+
+
+## Gate 13 source-access recovery and safe staging checkpoint - 30 September 2026
+
+- Recovered canonical `main` from `5eca3ee3009e6352e567c7bea708a8f8b51e4dee` and
+  reread `CURRENT_STATE.md`, continuation protocol, and the durable Library
+  locator rather than restarting completed investigation.
+- The exact 511,121,336-byte authorized Library ZIP still lists and
+  materializes successfully. A direct file-size check still encounters
+  container-level `ClientError` before byte access; the Library text
+  reader does not parse this binary ZIP. No real original assets have
+  been inspected or imported in this recovery.
+- Found that source-path normalization retained `..` components, permitting
+  unintended extraction outside a staging root for crafted nested ZIP paths.
+  Reject parent traversal and drive-prefix paths before staging; this does
+  not change known canonical FM2001 resource paths.
+- Commits `60776deba2ed600889427fddf58ded1562ee2560` (guard) and
+  `03bc53b7bb71d3af6f1452727e9857ccbb328c29` (regressions).
+- GitHub Actions run `36690708130`: **865 tests, 2 failures**;
+  both new source-path tests passed, and the only failures are the
+  two long-standing secondary-schedule assertions. The repository
+  asset-policy workflow also passed.
+- Continue the exact Gate-13 dependency when executable byte access returns:
+  run the native deep ZIP -> MODE1/2352 -> ISO9660/Joliet inventory;
+  follow `research/GATE13_CATALOG_SEARCH_PLAN.md`; stage only the
+  evidence-backed PStartMenu/TeamSelect slice with
+  `--extract-path-file --only-explicit`; provenance-import the originals.
