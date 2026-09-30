@@ -168,6 +168,25 @@ Verification on PR head `0b3e0bc3090dd763e2a8a889ee391419a7ba4c81`:
 Original Training controls, visible bindings, geometry, artwork and navigation
 remain open.
 
+### Verified League-table presentation contract
+
+PR #42 was merged at `bffa017331788958344b598ea44f3f6b5e002477`.
+The Gate-13 presentation seam now explicitly preserves the recovered native
+`League::0x4F45E0` six-field ranking contract, including strict original
+DBRClub short-name CP1252 bytes on numeric ties and the unresolved relative
+order of fully equal CRT-qsort keys.
+
+Verification on PR head `ebb84f8ab7539b5654d488153aeace0153caf523`:
+
+- focused Gate-13 run `36773050542`: **235 tests, 19 expected
+  original-source-gated skips, zero failures**;
+- full reconstruction run `36773050532`: **1,071 tests, 21 expected
+  original-source-gated skips, zero failures**;
+- repository asset-policy run `36773050761`: passed.
+
+No original League-table screen class, artwork, header/column geometry, controls
+or navigation is claimed.
+
 ## Porting mission
 
 This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc

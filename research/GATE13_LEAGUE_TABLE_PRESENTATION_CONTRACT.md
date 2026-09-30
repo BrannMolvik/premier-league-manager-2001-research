@@ -74,6 +74,19 @@ The contract contains no:
 
 Those remain open Gate-13 presentation work.
 
+## Hosted verification
+
+PR #42 head `ebb84f8ab7539b5654d488153aeace0153caf523` passed:
+
+- focused Gate-13 run `36773050542`: **235 tests**, **19 expected
+  original-source-gated skips**, zero failures;
+- full reconstruction run `36773050532`: **1,071 tests**, **21 expected
+  original-source-gated skips**, zero failures;
+- repository asset-policy run `36773050761`: passed.
+
+It was squash-merged to main as
+`bffa017331788958344b598ea44f3f6b5e002477`.
+
 ## Gate 13 consequence
 
 The League table now has an explicit source-proven presentation ordering

@@ -9101,3 +9101,18 @@ invent original visual or control semantics.
 - Asset-policy run `36772718259` passed.
 - Gate 13 remains ACTIVE; original Training visual resources/layout/navigation
   and the private Button/Zurich/source-import critical path remain open.
+
+## Gate 13 League-table presentation contract verified - 1 October 2026 KST
+
+- Merged PR #42 as `bffa017331788958344b598ea44f3f6b5e002477`.
+- Promoted native League comparator `0x4F45E0` into immutable presentation
+  metadata: points DESC, played ASC, goal difference DESC, goals for DESC,
+  goals against ASC, source short-name CP1252 bytes ASC.
+- Preserved the fail-closed boundary for identical full original keys instead
+  of inventing a stable qsort tie order.
+- Focused Gate-13 run `36773050542`: **235 tests, 19 expected skips, zero
+  failures**.
+- Full reconstruction run `36773050532`: **1,071 tests, 21 expected skips,
+  zero failures**.
+- Asset-policy run `36773050761` passed.
+- Original League-table art/layout/controls/navigation remain open.
