@@ -300,10 +300,23 @@ def inventory_directory(root: Path) -> tuple[list[AssetRecord], list[str]]:
     return records, warnings
 
 
-def inventory_zip(path: Path) -> tuple[list[AssetRecord], list[str], list[str]]:
+def inventory_zip(
+    path: Path,
+    *,
+    extract_candidates_to: Path | None = None,
+    explicit_paths: set[str] | None = None,
+    only_explicit: bool = False,
+) -> tuple[list[AssetRecord], list[str], list[str]]:
+    """Include source-relative loose ZIP assets alongside nested-disc resources.
+
+    The same strict exact-path selection applies at both archive layers: an
+    authorized source may package a loose art directory as well as a disc
+    image. Never lose a deliberately selected loose resource in --deep mode.
+    """
     records: list[AssetRecord] = []
     nested_images: list[str] = []
     warnings: list[str] = []
+    requested = {_lower(item) for item in (explicit_paths or set())}
 
     with zipfile.ZipFile(path) as archive:
         for info in archive.infolist():
@@ -314,20 +327,27 @@ def inventory_zip(path: Path) -> tuple[list[AssetRecord], list[str], list[str]]:
                 nested_images.append(member)
 
             reason = candidate_reason(member)
-            if reason is None:
+            if _lower(member) in requested:
+                reason = "explicit-path"
+            if reason is None or (only_explicit and reason != "explicit-path"):
                 continue
 
             with archive.open(info) as stream:
                 data = stream.read()
-            record = _record_from_bytes(
+            if extract_candidates_to is not None:
+                output = Path(extract_candidates_to).joinpath(
+                    *PurePosixPath(member).parts
+                )
+                output.parent.mkdir(parents=True, exist_ok=True)
+                output.write_bytes(data)
+            records.append(_record_from_bytes(
                 path=member,
                 data=data,
-                source_layer="zip",
+                source_layer="zip-extracted" if extract_candidates_to else "zip",
                 reason=reason,
-            )
-            records.append(record)
+            ))
 
-    if not records and nested_images:
+    if not records and nested_images and not only_explicit:
         warnings.append(
             "No Gate-13 resources are direct ZIP members; nested disc image "
             "inspection is required."
@@ -589,8 +609,13 @@ def deep_inventory_zip(
     explicit_paths: set[str] | None = None,
     only_explicit: bool = False,
 ) -> tuple[list[AssetRecord], list[str]]:
-    direct, nested_images, warnings = inventory_zip(archive)
-    records = [] if only_explicit else list(direct)
+    direct, nested_images, warnings = inventory_zip(
+        archive,
+        extract_candidates_to=extract_candidates_to,
+        explicit_paths=explicit_paths,
+        only_explicit=only_explicit,
+    )
+    records = list(direct)
     if not nested_images:
         return records, warnings
 
@@ -677,7 +702,12 @@ def report_for_source(
             )
             _, nested_images, _ = inventory_zip(source)
         else:
-            records, nested_images, warnings = inventory_zip(source)
+            records, nested_images, warnings = inventory_zip(
+                source,
+                extract_candidates_to=extract_candidates_to,
+                explicit_paths=explicit_paths,
+                only_explicit=only_explicit,
+            )
     elif source.suffix.lower() in DISC_IMAGE_SUFFIXES:
         kind = "disc-image"
         command = _seven_zip_command(seven_zip)
