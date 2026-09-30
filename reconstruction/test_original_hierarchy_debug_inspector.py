@@ -118,7 +118,8 @@ class HierarchyPrivateDebugTests(unittest.TestCase):
         root = FakeRoot()
         window = OriginalFirstScreenTkDebug(live, root, FakeTk, FakeTtk)
         self.assertEqual(len(window.canvas.images), 5)
-        self.assertNotIn("image", window.hierarchy_anim_label.values)
+        self.assertEqual(window.hierarchy_anim_label.values.get("image"), "")
+        self.assertEqual(window.hierarchy_bars_label.values.get("image"), "")
         window.on_original_click(SimpleNamespace(x=7, y=478))
         # Only proven Back/Start geometry reaches original 800x600 canvas.
         self.assertEqual(len(window.canvas.images), 3)
