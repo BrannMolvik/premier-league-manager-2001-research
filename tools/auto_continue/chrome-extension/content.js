@@ -65,11 +65,18 @@ function reportFailure(kind, text, pattern) {
   }
   reportedFailures.add(signature);
 
-  chrome.runtime.sendMessage({
-    type: "fm2001-ui-failure",
-    failureKind: kind,
-    reason: text.slice(0, 300)
-  });
+  // Open ChatGPT tabs can retain an old content script after an extension
+  // reload. Do not throw an unhandled context-invalidated message error.
+  try {
+    const pending = chrome.runtime.sendMessage({
+      type: "fm2001-ui-failure",
+      failureKind: kind,
+      reason: text.slice(0, 300)
+    });
+    if (pending && typeof pending.catch === "function") {
+      pending.catch(() => {});
+    }
+  } catch (_error) {}
 }
 
 function detectFailureInNode(node) {
@@ -261,20 +268,32 @@ function fillComposer(composer, prompt) {
 }
 
 async function requestPendingResume() {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage(
-      { type: "fm2001-get-pending-resume" },
-      (response) => resolve(response?.pending || null)
-    );
+  return new Promise(resolve => {
+    try {
+      chrome.runtime.sendMessage(
+        { type: "fm2001-get-pending-resume" },
+        response => {
+          try {
+            if (chrome.runtime.lastError) return resolve(null);
+            resolve(response?.pending || null);
+          } catch (_error) { resolve(null); }
+        }
+      );
+    } catch (_error) { resolve(null); }
   });
 }
 
 async function markResumeConsumed() {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage(
-      { type: "fm2001-resume-consumed" },
-      () => resolve()
-    );
+  return new Promise(resolve => {
+    try {
+      chrome.runtime.sendMessage(
+        { type: "fm2001-resume-consumed" },
+        () => {
+          try { void chrome.runtime.lastError; } catch (_error) {}
+          resolve();
+        }
+      );
+    } catch (_error) { resolve(); }
   });
 }
 

@@ -13,6 +13,7 @@ const source = fs.readFileSync(
 function harness({ generating = false, staleMinutes = 20, initialStorage = {} } = {}) {
   const now = Date.now();
   let activity = now - staleMinutes * 60 * 1000;
+  let unrelatedMainActivity = now;
   let activeGeneration = generating;
   let createdTabs = 0;
   let resumeMessages = 0;
@@ -86,7 +87,7 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
       return {
         ok: true,
         async text() {
-          return "<feed><updated>" + new Date(activity).toISOString() + "</updated></feed>";
+          return "<feed><updated>" + new Date(url.includes("/commits/main.atom") ? unrelatedMainActivity : activity).toISOString() + "</updated></feed>";
         }
       };
     }
@@ -99,6 +100,7 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
     async check() { return vm.runInContext("checkForStaleSession()", context); },
     setGenerating(value) { activeGeneration = value; },
     setHeartbeatAge(minutes) { activity = Date.now() - minutes * 60000; },
+    setUnrelatedMainHeartbeatAge(minutes) { unrelatedMainActivity = Date.now() - minutes * 60000; },
     async sendUiFailure(tabId = 9) {
       return new Promise(resolve => {
         onMessage(
@@ -116,6 +118,7 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
       return onActionClick(tab);
     },
     badge(tabId) { return badges.get(tabId); },
+    async diagnostic() { return new Promise(resolve => onMessage({type:"fm2001-diagnostics"},{tab:{id:9}},resolve)); },
     newChatPrompt() {
       return vm.runInContext(
         'buildNewChatRecoveryPrompt("conversation-length-limit", "Standard handoff")',
@@ -228,4 +231,19 @@ test("toolbar action cannot register a non-ChatGPT tab", async () => {
   const h = harness();
   await h.clickAction({ id: 34, url: "https://github.com/" });
   assert.equal(h.store.workerTabId, 9);
+});
+
+test("recent unrelated main commits cannot hide a stale worker",async()=>{
+  const h=harness({generating:false,staleMinutes:45});
+  h.setUnrelatedMainHeartbeatAge(0);
+  await h.check();
+  assert.equal(h.store.pendingResume.inPlace,true);
+});
+test("diagnostics are read-only and use worker heartbeat",async()=>{
+  const h=harness({generating:true,staleMinutes:45});
+  const result=await h.diagnostic();
+  assert.equal(result.ok,true);
+  assert.equal(result.report.workerTabId,9);
+  assert.equal(result.report.workerStaleMinutes>=44,true);
+  assert.equal(h.store.pendingResume,undefined);
 });

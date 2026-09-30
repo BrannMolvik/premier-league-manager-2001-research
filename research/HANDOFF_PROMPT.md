@@ -50,6 +50,7 @@ Record unrelated useful leads in research/BACKLOG.md.
 Persistence rules:
 - commit every meaningful verified result;
 - if roughly 10 minutes pass during an unresolved investigation, make a checkpoint;
+- update the worker-owned `agent-runtime` branch after each meaningful `main` checkpoint; unrelated `main` changes must not count as proof of worker activity;
 - update research/PROGRESS.md with chronological evidence;
 - update research/CURRENT_STATE.md whenever the exact next task or active gate changes;
 - never leave substantial useful work only in chat;

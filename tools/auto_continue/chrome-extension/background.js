@@ -54,12 +54,10 @@ async function getBranchActivity(branch) {
   return timestamp;
 }
 
+// Only agent-runtime is an authorized worker heartbeat. Any other chat can
+// commit on main, so a fresh main HEAD must not conceal a stalled worker.
 async function getLatestRepositoryActivity() {
-  const [runtimeActivity, mainActivity] = await Promise.all([
-    getBranchActivity(RUNTIME_BRANCH),
-    getBranchActivity(MAIN_BRANCH)
-  ]);
-  return Math.max(runtimeActivity, mainActivity);
+  return getBranchActivity(RUNTIME_BRANCH);
 }
 
 async function getSameChatRecoveryWindow() {
@@ -473,8 +471,17 @@ chrome.runtime.onInstalled.addListener(async () => {
   ensureStaleAlarm();
 });
 
-chrome.runtime.onStartup.addListener(() => {
+chrome.runtime.onStartup.addListener(async () => {
   ensureStaleAlarm();
+  try {
+    const {workerTabId} = await chrome.storage.local.get(["workerTabId"]);
+    if (workerTabId) {
+      const tab = await chrome.tabs.get(workerTabId);
+      if (/^https:\/\/chatgpt\.com(?:\/|$)/.test(tab.url || "")) {
+        await chrome.action.setBadgeText({tabId:workerTabId,text:"FM"});
+      }
+    }
+  } catch (_error) {}
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
@@ -524,7 +531,112 @@ chrome.action.onClicked.addListener(async (tab) => {
   console.info("FM2001 worker tab registered", { tabId: tab.id });
 });
 
+// Read-only health checks: no prompt submission, job dispatch or recovery.
+async function collectDiagnostics() {
+  const info = {
+    checkedAt: new Date().toISOString(),
+    runtimeStatus: "unavailable", runtimeEnabled: false,
+    workerHeartbeat: null, workerStaleMinutes: null,
+    workerTabId: null, workerTabPresent: false, workerGenerating: null,
+    contentScript: "not-checked", lastRecoveryAt: null,
+    recoveryCooldownMinutes: 20, pendingRecovery: false,
+    recentExtensionError: null, checks: []
+  };
+  const local = await chrome.storage.local.get([
+    "workerTabId", "lastRecoveryAt", "pendingResume", "lastExtensionError"
+  ]);
+  info.workerTabId = local.workerTabId || null;
+  info.lastRecoveryAt = local.lastRecoveryAt ?
+    new Date(local.lastRecoveryAt).toISOString() : null;
+  info.pendingRecovery = Boolean(
+    local.pendingResume && local.pendingResume.expiresAt > Date.now()
+  );
+  info.recentExtensionError = local.lastExtensionError || null;
+  let runtime = null;
+  try {
+    runtime = await getRuntimeState();
+    info.runtimeStatus = runtime.status || "unknown";
+    info.runtimeEnabled = shouldMonitor(runtime);
+    info.recoveryCooldownMinutes = Number(runtime.recovery_cooldown_minutes || 20);
+    info.checks.push({name: "GitHub runtime", ok: true});
+  } catch(error) {
+    info.checks.push({name: "GitHub runtime", ok: false, detail: String(error)});
+  }
+  try {
+    const activity = await getLatestRepositoryActivity();
+    info.workerHeartbeat = new Date(activity).toISOString();
+    info.workerStaleMinutes = Math.max(0, Math.floor((Date.now()-activity)/60000));
+    info.checks.push({
+      name: "Independent worker heartbeat", ok: true,
+      detail: info.workerStaleMinutes+" minutes old"
+    });
+  } catch(error) {
+    info.checks.push({name:"Independent worker heartbeat",ok:false,detail:String(error)});
+  }
+  if (info.workerTabId) {
+    try {
+      const tab = await chrome.tabs.get(info.workerTabId);
+      info.workerTabPresent = /^https:\/\/chatgpt\.com(?:\/|$)/.test(tab.url || "");
+      info.checks.push({
+        name: "Registered worker tab", ok: info.workerTabPresent,
+        detail: info.workerTabPresent ? "ChatGPT worker tab exists" :
+          "Recorded tab is not a ChatGPT page"
+      });
+      if (info.workerTabPresent) {
+        try {
+          const state = await chrome.tabs.sendMessage(info.workerTabId, {
+            type: "fm2001-query-generation"
+          });
+          info.contentScript = "responding";
+          info.workerGenerating = state?.generating === true;
+          info.checks.push({name:"Worker content script",ok:true});
+        } catch(error) {
+          info.contentScript = "unreachable";
+          info.checks.push({
+            name:"Worker content script",ok:false,
+            detail:"Refresh the worker ChatGPT tab after extension reload. "+String(error)
+          });
+        }
+      }
+    } catch(error) {
+      info.checks.push({name:"Registered worker tab",ok:false,detail:String(error)});
+    }
+  } else {
+    info.checks.push({name:"Registered worker tab",ok:false,
+      detail:"On the FM2001 worker ChatGPT tab, click the extension toolbar icon."});
+  }
+  info.recoveryPermitted = info.runtimeEnabled && (!info.lastRecoveryAt ||
+    Date.now()-Date.parse(info.lastRecoveryAt)>=info.recoveryCooldownMinutes*60000);
+  const stale = runtime && info.workerStaleMinutes!==null &&
+    info.workerStaleMinutes>=Number(runtime.stale_after_minutes||15);
+  info.summary = !info.checks.every(c=>c.ok)
+    ? "A health check failed. Review each line below."
+    : stale
+      ? "The worker heartbeat is stale. Recovery should occur unless cooldown or active generation prevents it."
+      : "Checks passed. Recovery is configured, but uninterrupted overnight work is not guaranteed.";
+  return info;
+}
+
+if (typeof self !== "undefined" && self && typeof self.addEventListener === "function") {
+  for (const name of ["error", "unhandledrejection"]) {
+    self.addEventListener(name, event => {
+      const err = event.reason || event.error || event.message;
+      chrome.storage.local.set({lastExtensionError:{
+        at:new Date().toISOString(), source:name,
+        message:String(err?.stack || err || "Unknown error").slice(0,3000)
+      }}).catch(() => {});
+    });
+  }
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message?.type === "fm2001-diagnostics") {
+    collectDiagnostics().then(
+      info => sendResponse({ok:true,report:info}),
+      error => sendResponse({ok:false,error:String(error)})
+    );
+    return true;
+  }
   if (message?.type === "fm2001-ui-failure") {
     (async () => {
       try {
@@ -642,6 +754,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       ) {
         await chrome.storage.local.set({ workerTabId: sender.tab.id });
         await chrome.storage.local.remove("pendingResume");
+        try { await chrome.action.setBadgeText({tabId:sender.tab.id,text:"FM"}); }
+        catch (_error) {}
       }
       sendResponse({ ok: true });
     })();

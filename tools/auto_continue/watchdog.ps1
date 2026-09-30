@@ -153,13 +153,9 @@ function Invoke-WatchdogCheck {
             return
         }
 
+        # Main can change without the worker running.
         $runtimeActivity = Get-BranchActivity $RuntimeBranch
-        $mainActivity = Get-BranchActivity $MainBranch
-        $latest = if ($runtimeActivity.Timestamp -gt $mainActivity.Timestamp) {
-            $runtimeActivity.Timestamp
-        } else {
-            $mainActivity.Timestamp
-        }
+        $latest = $runtimeActivity.Timestamp
 
         $staleAfter = Get-ConfigInt $runtime "stale_after_minutes" 15
         $staleMinutes = [int][Math]::Floor(([DateTimeOffset]::UtcNow - $latest).TotalMinutes)

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "FM2001 ChatGPT Auto Continue",
-  "version": "0.3.5",
-  "description": "Resumes only the designated FM2001 worker tab; protects active generations and preserves the full Gate-17 mission.",
+  "version": "0.3.6",
+  "description": "Independent worker heartbeat, tab-scoped recovery, and read-only health diagnostics.",
   "permissions": [
     "storage",
     "tabs",
@@ -29,5 +29,6 @@
   ],
   "action": {
     "default_title": "FM2001 Auto Continue"
-  }
+  },
+  "options_page": "diagnostics.html"
 }

@@ -5,7 +5,7 @@ This folder contains the local recovery layer for long-running FM2001 work.
 It has two parts:
 
 - `watchdog.ps1`: Windows-side lease monitor. It checks GitHub commit Atom feeds every three minutes through Task Scheduler, logs stale sessions, and deliberately never launches or focuses Chrome.
-- `chrome-extension/`: checks the same non-REST commit feeds every three minutes while Chrome is running, watches ChatGPT for explicit interruption / Retry / conversation-length errors, and performs same-chat or background recovery according to the failure type.
+- `chrome-extension/`: checks the independent worker-owned `agent-runtime` commit feed every three minutes while Chrome is running, and handles recovery of the designated ChatGPT worker.
 
 GitHub remains the source of truth. The recovery system does not try to scrape the previous conversation transcript.
 
@@ -181,3 +181,24 @@ recorded worker or initiate an FM2001 recovery.
 If Chrome's extension details show a red **Errors** indicator, open its error
 details to see the exact message/stack trace. Historical errors may remain
 visible even after updating; do not infer the cause from the indicator alone.
+
+## Version 0.3.6: actual worker health diagnostics
+
+Unrelated `main` commits no longer count as a live-worker heartbeat. The
+worker must update the `agent-runtime` branch after meaningful `main` checkpoints
+and normally within ten minutes while active. The Windows watchdog now agrees.
+
+After pulling `main`, reload the extension and **refresh the actual ChatGPT
+worker tab** so stale content scripts do not keep running. On that tab, click
+the extension toolbar icon to register it. Open the extension **Details** page,
+choose **Extension options**, then **Run health checks** to see GitHub connectivity,
+worker liveness, registered tab connectivity and recovery cooldown. No billable
+GitHub Actions or ChatGPT prompts are triggered by diagnostics.
+
+A red Chrome Errors indicator can contain historical entries. Click it to view
+the exact message; the new diagnostics page can capture future background
+service-worker errors but cannot read old Chrome Errors records.
+
+Keep Chrome running, the PC awake and ChatGPT signed in. Browser recovery remains
+best-effort and cannot guarantee progress through service outages or unavailable
+original source-byte execution.

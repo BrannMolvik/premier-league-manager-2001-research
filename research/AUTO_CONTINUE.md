@@ -88,10 +88,10 @@ a genuine unresolved investigation to save; avoid commit spam.
 
 ## What counts as a heartbeat
 
-The watchdog treats either of these as recent activity:
-
-1. a new commit on `agent-runtime` (for example a state transition); or
-2. a new commit on `main` (normal project checkpoint).
+The watchdog treats only the worker-owned `agent-runtime` branch as a liveness
+heartbeat. An unrelated `main` commit is not proof the worker is alive. After
+meaningful verified `main` checkpoints, the worker must also update its
+`agent-runtime` checkpoint within the normal ten-minute interval.
 
 This intentionally reuses the repository's existing persistence rule: during
 active investigation, commit every meaningful verified result and checkpoint
@@ -177,8 +177,10 @@ browser extension read the runtime state plus GitHub's commit Atom feeds (not
 the rate-limited REST branch endpoint) for:
 
 - runtime state from `agent-runtime`;
-- latest commit time on `agent-runtime`;
-- latest commit time on `main`.
+- latest worker heartbeat commit time on `agent-runtime` only.
+
+The `main` branch remains the canonical technical project state, but is not a
+live-worker heartbeat because unrelated work can change it.
 
 If the state is `working` and neither branch has activity within `stale_after_minutes`, the browser extension treats the previous work session as stalled even when the ChatGPT UI never displayed an explicit error. It first reuses the recorded worker tab, stops any still-running generation, and re-prompts in the same conversation. Only when that worker tab no longer exists may it create a replacement ChatGPT tab with `active: false`.
 
