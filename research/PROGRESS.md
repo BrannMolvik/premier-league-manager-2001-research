@@ -8537,3 +8537,35 @@ keeping presentation separate from the stable simulation backend.
   executable. Test actual images before claiming visual fidelity or
   declaring Gate 13 complete. Continue Gates 14–17 only after
   preceding audit.
+
+
+## Gate 13 exact PStartMenu primary action recovery - 30 September 2026
+
+- Continued after source access and EA444 pixel recovery; did not restart prior
+  work. Canonical source/executable remain the verified originals.
+- Recovered PStartMenu screen-specific setup `0x4C1BA0` and dispatch
+  `0x4C3770`. Primary visible controls are events 1–4:
+  Continue, Start New Game, Load Game and Quit to Windows.
+- Direct language loader `0x635F30` proves the exact English.idx positions
+  used by those four controls are 0, 1, 2 and 6 respectively.
+- Exact Button@ease_2001 positions are:
+  Continue `(181,478)`, Start New Game `(7,478)`, Load Game
+  `(355,478)`, Quit `(181,508)`.
+- Runtime atlas handle `0x946590` is initialized from original
+  `GenericButtonsAndBars/button_type_1.444`; source geometry 169x575 and
+  runtime initializer width/height 169x25 prove all four visible rectangles
+  are 169x25.
+- Common button font handle `0x9197E0` is loaded from original
+  `Fonts/Zurich_BdXCn_BT_20pixel.fnt`.
+- Added exact layout/action metadata and tests, recovered all four
+  PStartMenu commands in `front_end_state.py`, and recorded address-level
+  proof in `research/GATE13_PSTARTMENU_LAYOUT.md`.
+- Separately optimized the exact EA444 inverse transform using an equivalent
+  2^25 integer denominator rather than per-row Fraction allocation.
+  100,000 randomized local differential cases matched the former exact
+  Fraction calculation; source-backed main-menu/TeamSelect decoder tests
+  remained bit-identical and completed locally in ~13 seconds for the
+  inverse+decoder test modules.
+- Next work continues immediately with the original Zurich 20-pixel font and
+  Button@ease_2001 frame-state behavior, then full authentic PStartMenu
+  composition and TeamSelect.
