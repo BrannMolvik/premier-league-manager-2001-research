@@ -12,6 +12,7 @@ from gate13_button_rtti_candidates import (
     KNOWN_TEAMSELECT_TYPE_DESCRIPTOR_VA, KNOWN_TEAMSELECT_VFTABLE_VA,
     button_rtti_candidate_report, calibrate_against_known_rtti,
     discover_msvc_button_vftables,
+    require_known_positive_teamselect_calibration,
 )
 
 
@@ -133,6 +134,37 @@ class MSVCRTTILeadTests(unittest.TestCase):
                 expected_vftable_va=0x402124,
             )["expected_pair_recovered_by_same_pattern_decoder"]
         )
+
+    def test_known_original_canary_guard_rejects_missing_wrong_and_false_evidence(self):
+        baseline = {
+            "known_original_teamselect_rtti_calibration": {
+                "known_reference_decorated_name": KNOWN_TEAMSELECT_TYPE_NAME.decode("ascii"),
+                "previously_proven_type_descriptor_va": KNOWN_TEAMSELECT_TYPE_DESCRIPTOR_VA,
+                "previously_proven_vftable_va": KNOWN_TEAMSELECT_VFTABLE_VA,
+                "expected_pair_recovered_by_same_pattern_decoder": True,
+            },
+            "candidates_not_validated_vtables": [],
+        }
+        self.assertIsNone(require_known_positive_teamselect_calibration(baseline))
+        cases = [
+            {},
+            {"known_original_teamselect_rtti_calibration": None},
+            {"known_original_teamselect_rtti_calibration": {}},
+        ]
+        for k, v in (
+            ("known_reference_decorated_name", "invented class"),
+            ("previously_proven_type_descriptor_va", 0x402010),
+            ("previously_proven_vftable_va", 0x402104),
+            ("expected_pair_recovered_by_same_pattern_decoder", False),
+            ("expected_pair_recovered_by_same_pattern_decoder", 1),
+        ):
+            broken = dict(baseline["known_original_teamselect_rtti_calibration"])
+            broken[k] = v
+            cases.append({"known_original_teamselect_rtti_calibration": broken})
+        for invalid in cases:
+            with self.subTest(invalid=invalid):
+                with self.assertRaisesRegex(OriginalPETraceError, "did not recover"):
+                    require_known_positive_teamselect_calibration(invalid)
 
     def test_rejects_broken_name_locator_hierarchy_vftable_and_alignment(self):
         for label, offset, value in (

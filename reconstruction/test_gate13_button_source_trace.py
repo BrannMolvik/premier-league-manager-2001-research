@@ -3,6 +3,9 @@
 Hosted CI intentionally never bundles or downloads the original executable.
 """
 from hashlib import sha256
+import json
+import sys
+from unittest.mock import patch
 from importlib.util import find_spec
 import os
 from pathlib import Path
@@ -19,6 +22,7 @@ from gate13_button_source_trace import (
     button_trace_report,
     disassemble_window,
     require_private_output_path,
+    main as tracer_cli_main,
 )
 
 
@@ -151,6 +155,61 @@ class CanonicalButtonTraceTests(unittest.TestCase):
             [(x["va"], x["mnemonic"]) for x in lines],
             [(0x401000, "nop"), (0x401001, "ret")],
         )
+
+    def test_cli_refuses_uncalibrated_button_candidates_before_writing_report(self):
+        from gate13_button_rtti_candidates import (
+            KNOWN_TEAMSELECT_TYPE_NAME,
+            KNOWN_TEAMSELECT_TYPE_DESCRIPTOR_VA,
+            KNOWN_TEAMSELECT_VFTABLE_VA,
+        )
+        baseline = {
+            "known_original_teamselect_rtti_calibration": {
+                "known_reference_decorated_name": KNOWN_TEAMSELECT_TYPE_NAME.decode("ascii"),
+                "previously_proven_type_descriptor_va": KNOWN_TEAMSELECT_TYPE_DESCRIPTOR_VA,
+                "previously_proven_vftable_va": KNOWN_TEAMSELECT_VFTABLE_VA,
+                "expected_pair_recovered_by_same_pattern_decoder": True,
+            },
+            "candidates_not_validated_vtables": [],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            inp = Path(directory) / "synthetic-test.exe"
+            inp.write_bytes(synthetic_pe())
+            out = Path(directory) / "private-candidates.json"
+            argv = [
+                "gate13_button_source_trace.py", str(inp),
+                "--inspect-button-rtti-candidates", "--output", str(out),
+            ]
+            with (
+                patch.object(OriginalPE32, "parse", return_value=parse_fixture()),
+                patch("gate13_button_source_trace.button_trace_report",
+                      return_value={"synthetic_window_test_only": True}),
+                patch("sys.argv", argv),
+                patch("gate13_button_rtti_candidates.button_rtti_candidate_report",
+                      return_value={
+                          **baseline,
+                          "known_original_teamselect_rtti_calibration": {
+                              **baseline["known_original_teamselect_rtti_calibration"],
+                              "expected_pair_recovered_by_same_pattern_decoder": False,
+                          },
+                      }),
+            ):
+                with self.assertRaisesRegex(OriginalPETraceError, "did not recover"):
+                    tracer_cli_main()
+            self.assertFalse(out.exists())
+            with (
+                patch.object(OriginalPE32, "parse", return_value=parse_fixture()),
+                patch("gate13_button_source_trace.button_trace_report",
+                      return_value={"synthetic_window_test_only": True}),
+                patch("sys.argv", argv),
+                patch("gate13_button_rtti_candidates.button_rtti_candidate_report",
+                      return_value=baseline),
+            ):
+                self.assertEqual(tracer_cli_main(), 0)
+            emitted = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual(
+                emitted["button_rtti_vftable_candidate_only"], baseline
+            )
+            self.assertTrue(emitted["synthetic_window_test_only"])
 
     @unittest.skipUnless(
         os.environ.get("FM2001_ORIGINAL_EXE"),
