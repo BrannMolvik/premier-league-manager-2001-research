@@ -45,6 +45,8 @@ on:
       - "reconstruction/test_original_teamselect_hierarchy_art.py"
       - "reconstruction/original_first_screen_presenter.py"
       - "reconstruction/original_live_debug_view.py"
+      - "reconstruction/original_hierarchy_debug_inspector.py"
+      - "reconstruction/test_original_hierarchy_debug_inspector.py"
       - "reconstruction/gate13_original_first_screen_viewer.py"
       - "reconstruction/test_gate13_original_first_screen_viewer.py"
       - "reconstruction/test_original_first_screen_presenter.py"
@@ -114,6 +116,7 @@ jobs:
             test_gate13_original_source_audit \
             test_gate13_original_pixel_preview \
             test_gate13_original_first_screen_viewer \
+            test_original_hierarchy_debug_inspector \
             test_gate13_catalog_query \
             test_gate13_source_inventory \
             test_iso9660_reader
