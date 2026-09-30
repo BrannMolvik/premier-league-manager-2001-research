@@ -544,11 +544,13 @@ class DomesticCupScheduleState:
     ) -> DomesticCupScheduledNode:
         """Insert the canonical shipped domestic-Cup replay after a draw.
 
-        Source 0x51392A schedules the replay at current relative schedule day
-        + 14 unless runtime round +0x2C exceeds 6. Canonical shipped FA Cup
-        replay-producing rounds all carry replay_weekday=3, so that floor
-        branch is never taken. League Cup normal rounds are decisive and do
-        not reach this path.
+        Source 0x51392A produces the replay candidate at current relative
+        schedule day + 14 unless runtime round +0x2C exceeds 6. Canonical
+        shipped FA Cup replay-producing rounds all carry replay_weekday=3, so
+        that floor branch is never taken. The owning GameState then applies
+        ScheduleContainer::insert 0x615A60 conflict displacement before the
+        replay enters the live primary order. League Cup normal rounds are
+        decisive and do not reach this path.
         """
         original_token = tuple(original_node_token)
         original_node = self.node(original_token)
@@ -598,6 +600,28 @@ class DomesticCupScheduleState:
         self.match_states[replay_token] = replay
         self.completed_node_tokens.add(original_token)
         return replay_node
+
+    def reschedule_dynamic_node(
+        self,
+        node_token: tuple,
+        *,
+        scheduled_date: date,
+    ) -> DomesticCupScheduledNode:
+        """Move one runtime-created Replay to its 0x615A60 chosen date."""
+
+        token = tuple(node_token)
+        current = self.node(token)
+        if current.node_kind != "replay_match":
+            raise ValueError("only a runtime Replay may be dynamically rescheduled")
+        updated = replace(
+            current,
+            scheduled_date=date.fromisoformat(scheduled_date.isoformat()),
+        )
+        self.nodes = tuple(
+            updated if tuple(node.node_token) == token else node
+            for node in self.nodes
+        )
+        return updated
 
     def is_playable(
         self,
