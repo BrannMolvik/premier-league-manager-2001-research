@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13: resource-coverage audit is persisted at main 039ba95dc907ac626fdf3e7d023a9b3fc975b357. Native source ZIP is present/materialized but shell/Python byte execution still returns ClientError. Continue only already-firsthand source-backed presentation recovery while blocked; next bounded task is formalize the recovered PScouting2K event/sort presentation contract without inventing labels/layout, validate it in focused CI, then resume canonical Button/Zurich/ten-resource audit immediately when byte execution returns. Gate13 then Gates14-17 and verified Windows11 release remain mandatory.",
-  "last_known_main_head": "039ba95dc907ac626fdf3e7d023a9b3fc975b357",
+  "active_task": "Gate13 main is d3c912ab6641438900ec80a21546e20229b941e1 with verified PScouting2K presentation contract (full suite 1055/21 skips/0 failures). Native source ZIP is materialized but shell/Python remains ClientError. While blocked, add a fail-closed first-screen provenance-completeness audit so Gate13 cannot be promoted until all ten pinned original resources are present with exact source hashes; then validate in focused/asset-policy CI. Resume Button/Zurich/ten-resource physical source audit immediately if byte execution returns. Gates14-17 and verified Windows11 release remain mandatory.",
+  "last_known_main_head": "d3c912ab6641438900ec80a21546e20229b941e1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 101,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 101 now checkpointed through main 039ba95dc907ac626fdf3e7d023a9b3fc975b357. Added Gate13 resource-coverage audit; resource criterion remains open. Canonical ZIP materialized successfully but execution still ClientError. Continuing source-backed PScouting2K presentation contract work; full hosted baseline remains run 36760160986 (1050 tests, 21 expected source-gated skips, zero failures).",
+  "note": "Recovery101 checkpoint main d3c912ab includes resource coverage audit plus verified PScouting2K contract. Full run 36767384882: 1055 tests, 21 expected source-gated skips, zero failures. Container retry still ClientError. Continuing only fail-closed source-backed Gate13 readiness tooling.",
   "same_chat_fallback_minutes": 30
 }
