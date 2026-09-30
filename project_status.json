@@ -279,8 +279,8 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate13 FIRST: restore native byte execution and run canonical PE32 Button RTTI trace with required TeamSelect 0x81EC10/0x7C7650 canary; manually prove Button draw/update state-to-23-frame mapping and Zurich render placement/color, then run exact ten-resource original ZIP/executable/pixel audit and provenance import. While byte execution is unavailable, continue only already-source-backed read-only management presentation seams (next messages/training/scouting) without inventing original UI. Finish all Gate13 screens/audit, then Gates14-17 and verified clean Windows11 release.",
-  "last_verified_reconstruction_failures": 2,
+  "current_task": "Gate13 FIRST: restore byte execution and run the canonical PE32 TeamSelect RTTI canary -> Button draw/update state-to-23-frame mapping -> Zurich placement/color trace -> strict ten-resource original-source audit -> provenance import. Resource coverage audit now confirms manager-home through remaining screens still need original resource/layout/navigation correlation after the first-screen path. Then complete Gate13 criteria, Gates14-17, and verified clean Windows11 release.",
+  "last_verified_reconstruction_failures": 0,
   "last_verified_asset_policy_head": "70307af0549f6bacd4bc1951e3cdb6ef63df0c5b",
   "gate11_danger_morale_request_integrated": true,
   "gate11_danger_morale_request_verified_head": "12bf9ac2fa145958cde06ee41f0e954b99fd1e08",
@@ -477,7 +477,7 @@
   "gate12_exact_league_name_tiebreaker": true,
   "last_verified_reconstruction_test_count": 828,
   "canonical_source_private_library_confirmed": true,
-  "source_execution_blocker": "Recovery99: trivial container shell still returns ClientError; canonical source ZIP retained in private Library. No real original executable RTTI/pixel audit or Windows graphical validation.",
+  "source_execution_blocker": "Recovery101: canonical 511121336-byte Library ZIP re-resolved and materialized successfully, but trivial container.exec and trivial Python execution both return ClientError. Source is present; no new original-byte trace/audit/import executed.",
   "gate13_first_screen_headless_presenter_integrated": true,
   "gate13_exact_source_selection_verified": true,
   "gate13_latest_verified_integration_main_head": "7fc92fedd6f660a878348a34a02055027b63c9cb",
@@ -486,12 +486,9 @@
   "gate13_source_material_import_completed": false,
   "gate13_native_button_state_recovered": false,
   "full_mission_complete": false,
-  "last_full_suite_run": 36699473326,
-  "last_full_suite_executed_tests": 899,
-  "last_full_suite_known_failures": [
-    "secondary root-order assertion",
-    "secondary bucket count 262 expected versus 280 recovered"
-  ],
+  "last_full_suite_run": 36760160986,
+  "last_full_suite_executed_tests": 1050,
+  "last_full_suite_known_failures": [],
   "gate13_exact_button_trace_tool_implemented": true,
   "gate13_original_button_state_recovered": false,
   "gate13_button_trace_procedure": "research/GATE13_BUTTON_STATE_TRACE_PROCEDURE.md",
@@ -517,7 +514,7 @@
   "gate13_button_rtti_known_teamselect_calibration_main_head": "9931c289cce45e957a5b1dd178f06acae01576b7",
   "gate13_original_button_rtti_calibrated_on_real_source": false,
   "last_verified_test_skips": 21,
-  "latest_full_reconstruction_ci_run": 36751321715,
+  "latest_full_reconstruction_ci_run": 36760160986,
   "latest_full_reconstruction_ci_result": "passed_with_21_original_source_gated_skips",
   "gate15_preparatory_secondary_test_contract_repair_merged": true,
   "gate15_preparatory_secondary_test_contract_repair_main_head": "3ed8661faee4a73496ffb3674a7f97d0ddb24fa6",
@@ -537,5 +534,9 @@
   "gate13_player_profile_source_data_bridge_main_head": "1d2bce7a1b22c9112b3a19b2e4e454c771557992",
   "gate13_finance_transfer_source_data_bridge_merged": true,
   "gate13_finance_transfer_source_data_bridge_main_head": "6c0abb541bc7b8badec9793a10c687f710897e50",
-  "gate13_latest_focused_test_count": 206
+  "gate13_latest_focused_test_count": 206,
+  "gate13_presentation_separation_audited": true,
+  "gate13_presentation_separation_evidence": "research/GATE13_PRESENTATION_SEPARATION_AUDIT.md",
+  "gate13_resource_coverage_audit": "research/GATE13_RESOURCE_COVERAGE_AUDIT.md",
+  "gate13_resource_criterion_status": "open_first_screen_import_and_management_screen_resource_layout_navigation_incomplete"
 }

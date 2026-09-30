@@ -8970,3 +8970,29 @@ ZIP/executable/pixel audit -> provenance import -> authentic management
 presentation. If byte execution is still unavailable, continue only additional
 already-recovered management data seams (messages/training/scouting), never
 invent original visual or control semantics.
+
+## Recovery 101 Gate13 resource coverage audit - 1 October 2026 KST
+
+- Verified canonical main `9bb117f9403821982c112d649305cb0121cd1c4d`; did not
+  repeat the already merged PR #33 full-suite integration or presentation /
+  simulation separation audit.
+- Re-resolved the durable Library source ZIP and materialized the expected
+  511,121,336-byte file successfully. Trivial `container.exec` and trivial
+  Python execution immediately returned `ClientError`, so no source-byte
+  trace, import or native graphical claim was made.
+- Audited Gate 13's original-resource criterion against
+  `GATE13_REAL_DISC_INVENTORY.md`,
+  `GATE13_FIRST_SCREEN_EXACT_PATHS.txt`,
+  `GATE13_MANAGEMENT_SOURCE_DATA_BRIDGE.md`,
+  `GATE13_PSTARTMENU_LAYOUT.md` and `original_assets/MANIFEST.md`.
+  The authorized disc contains broad original presentation material, and
+  backend presentation data exists for most roadmap screens, but only the
+  PStartMenu/TeamSelect family has a pinned exact resource slice. Normal-play
+  management screen resource/layout/navigation correlation is still open.
+- Added `research/GATE13_RESOURCE_COVERAGE_AUDIT.md` with a per-screen coverage
+  matrix and explicit non-closure boundary. The Gate 13 resource criterion
+  remains unchecked; this prevents data-seam progress from being mistaken for
+  original UI completion.
+- Latest full hosted integration evidence remains run `36760160986`: 1,050
+  tests, 21 expected original-source-gated skips, zero failures. Gate 13 remains
+  ACTIVE and the Gates 13-17 mission is not complete.

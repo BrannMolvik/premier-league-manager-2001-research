@@ -23,6 +23,29 @@ Evidence:
 - `research/GATE12_ENGLISH_SEASON_TRANSITION.md`
 - `research/GATE12_NEXT_SEASON_REGENERATION.md`
 
+## Recovery 101: Gate 13 resource-coverage audit and execution blocker
+
+- Resumed from canonical main `9bb117f9403821982c112d649305cb0121cd1c4d`.
+- Reconciled the newer PR #33 full hosted integration baseline: run
+  `36760160986` passed **1,050 tests with 21 expected original-source-gated
+  skips and zero failures** on `818e91033ba0cb7f2c912c67badf58f06f38f098`.
+- The presentation/simulation separation criterion is already independently
+  audited and checked in `ROADMAP.md`.
+- Re-resolved and materialized the canonical private 511,121,336-byte source
+  ZIP from the durable Library location. The source is present, but both a
+  trivial shell command and a trivial Python command still fail with
+  `ClientError`; no new original-byte execution is claimed.
+- Added `research/GATE13_RESOURCE_COVERAGE_AUDIT.md`. It confirms that the
+  resource criterion remains OPEN: first-screen source evidence is strong, but
+  the ten pinned first-screen files are not yet a completed provenance import,
+  and manager-home through remaining screens still lack completed original
+  resource/layout/navigation correlation.
+- Exact next task remains the canonical original-byte Button/Zurich/ten-resource
+  path as soon as execution works. While it does not, only source-backed
+  Gate-13 audits/data/presentation preparation may continue; do not invent
+  screen semantics. Gates 14-17 and the clean Windows 11 release remain
+  mandatory after Gate 13 closes.
+
 ## Porting mission
 
 This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc
