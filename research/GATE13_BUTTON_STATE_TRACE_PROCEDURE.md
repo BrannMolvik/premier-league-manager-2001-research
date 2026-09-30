@@ -196,3 +196,55 @@ Synthetic host CI installs only Capstone and checks the bounded vtable
 parsing, edge candidate classification, true direct near CALL/JMP test
 fixtures, and source classification boundaries. No native original
 Button@ease state mapping is claimed by these synthetic tests.
+
+## Candidate MSVC RTTI path to the actual shared Button virtual table
+
+Previous firsthand analysis already identifies the embedded TeamSelect
+`Button@ease_2001` class and confirms that this executable has 32-bit
+MSVC type descriptors, Complete Object Locators (COL), class hierarchy
+descriptors (CHD) and vftables (for example TeamSelect's type descriptor
+`0x81EC10` and known class vftable `0x7C7650`). These findings
+justify a narrower **source-analysis method**, not a guess at the
+actual Button vftable address or virtual method numbering.
+
+`reconstruction/gate13_button_rtti_candidates.py` searches the exact
+hash-gated canonical PE32 image's *file-backed non-code sections* for
+the decorated `Button@ease_2001` type name, candidate 8-byte-prefix
+TypeDescriptors, aligned x86 COL references with signature zero,
+readable CHD/base array pointers, and potential `vftable[-1]`
+COL pointers with executable-section-valued first virtual slots.
+The bounded report retains every plausible distinct vftable
+candidate; multiple inheritance/subobject offset is not discarded.
+These are **byte-pattern candidates** only, not dynamically validated
+RTTI ownership or virtual draw/update roles. No source frame
+assignment, original caption placement or timeline is recovered
+by the scanner.
+
+After re-extracting and SHA-verifying only the canonical original
+executable into a PRIVATE location, run:
+
+```text
+python reconstruction/gate13_button_source_trace.py "<verified-private-original-footballmanager.exe>" --inspect-button-rtti-candidates --inspect-class-vtable-candidates --scan-direct-control-transfer-candidates --output "<private-folder-outside-repository>/button-rtti-and-input-candidates.json"
+```
+
+`--inspect-button-rtti-candidates` adds potentially relevant
+indirect-method *entry addresses* to the optional near-direct
+CALL/JMP candidate-target scan. Those extra code pointers are explicitly
+`UNVERIFIED`; the linear scan cannot resolve **indirect** virtual
+calls or prove CFG reachability. Compare the resulting candidate COL,
+CHD and table addresses with actual Ghidra MSVC RTTI and constructor
+vftable writes. Independently establish the shared Button draw,
+input and update virtual slots before following the already documented
+real input/state-bit path `0x64F7A0`,
+`0x64F3E0`, `0x64F710/0x64F750` to the 23 atlas
+source-frame state transitions. Confirm Zurich glyph layout/color
+through the true original render path separately.
+
+The synthetic mini-PE tests verify field offsets, file-backed section
+checks, null pointers, corrupted RTTI/CHD, alignment, multiple candidate
+subobjects and explicit candidate-only classifications; hosted CI does
+**not** prove that this decorated spelling exists in the private
+licensed original or that any candidate is a genuine original
+Button vftable. If the actual canonical original yields zero candidates,
+inspect its real RTTI decorated name and inheritance encoding in Ghidra
+instead of silently inventing a different class address.
