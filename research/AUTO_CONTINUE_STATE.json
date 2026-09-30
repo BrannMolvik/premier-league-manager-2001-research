@@ -5,10 +5,10 @@
   "main_branch": "main",
   "enabled": true,
   "mode": "continuous",
-  "status": "waiting_for_user",
+  "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Gate 12 annual rollover: recover exact 0x615A60 dynamic FA Cup replay insertion order from the authorized canonical FOOTBAL.EXE, then run reconstruction/canonical_annual_rollover_audit.py against the canonical game directory and verify atomic year-two rollover.",
+  "active_task": "Gate 12 annual rollover: rematerialize the authorized canonical disc archive from ChatGPT Library, recover exact 0x615A60 dynamic FA Cup replay insertion order from FOOTBAL.EXE, integrate it, then run the canonical annual rollover audit.",
   "last_known_main_head": "65c3e9a6c2a729aff7b6e8a28cd016620fab802e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 73,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery generation 73 exhausted accessible source paths for 0x615A60: repository/history, historical Actions runs, Dropbox, Google Drive, and execution workspace contain no authorized executable or saved trace. Verified code remains 70307af0 at 819 tests with only two known secondary failures and passing asset policy; canonical audit is staged. Waiting for access to the authorized canonical FOOTBAL.EXE/game directory rather than guessing replay insertion order.",
+  "note": "User confirmed continuation after recovery of source access. The canonical disc archive remains available in ChatGPT Library and will be rematerialized; resume exact 0x615A60 trace without asking for re-upload.",
   "same_chat_fallback_minutes": 30
 }
