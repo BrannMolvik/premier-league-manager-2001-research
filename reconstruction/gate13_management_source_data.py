@@ -65,6 +65,46 @@ class FixtureRowView:
 
 
 @dataclass(frozen=True)
+class LeagueTableSortFieldContract:
+    semantic_key: str
+    direction: str
+    source_encoding: str | None
+
+
+@dataclass(frozen=True)
+class LeagueTablePresentationContract:
+    backend_class_name: str
+    backend_vtable_va: int
+    comparator_va: int
+    screen_class_name: str | None
+    strict_source_name_required_on_numeric_tie: bool
+    equal_full_key_relative_order_proven: bool
+    fields: tuple[LeagueTableSortFieldContract, ...]
+
+
+LEAGUE_TABLE_PRESENTATION_CONTRACT = LeagueTablePresentationContract(
+    backend_class_name="League",
+    backend_vtable_va=0x7C9AC0,
+    comparator_va=0x4F45E0,
+    screen_class_name=None,
+    strict_source_name_required_on_numeric_tie=True,
+    equal_full_key_relative_order_proven=False,
+    fields=(
+        LeagueTableSortFieldContract("points", "descending", None),
+        LeagueTableSortFieldContract("played", "ascending", None),
+        LeagueTableSortFieldContract("goal_difference", "descending", None),
+        LeagueTableSortFieldContract("goals_for", "descending", None),
+        LeagueTableSortFieldContract("goals_against", "ascending", None),
+        LeagueTableSortFieldContract(
+            "club_short_name_bytes",
+            "ascending",
+            "CP1252",
+        ),
+    ),
+)
+
+
+@dataclass(frozen=True)
 class LeagueTableRowView:
     position: int
     club_id: int
@@ -1599,6 +1639,11 @@ class ManagementSourceDataBridge:
                 f"Pending fixture {pending} is absent or ambiguous in source fixtures"
             )
         return matches[0]
+
+    @staticmethod
+    def league_table_presentation_contract() -> LeagueTablePresentationContract:
+        """Return source-proven League ordering metadata without UI guesses."""
+        return LEAGUE_TABLE_PRESENTATION_CONTRACT
 
     def league_table_rows(self) -> tuple[LeagueTableRowView, ...]:
         table = getattr(self.state, "premier_league_table", None)

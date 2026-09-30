@@ -5,6 +5,7 @@ import unittest
 
 from gate13_management_source_data import (
     FINANCE_OVERVIEW_PRESENTATION_CONTRACT,
+    LEAGUE_TABLE_PRESENTATION_CONTRACT,
     MESSAGES_PRESENTATION_CONTRACT,
     ManagementPresentationError,
     ManagementSourceDataBridge,
@@ -435,6 +436,39 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         self.assertTrue(first.out_of_contract)
         self.assertTrue(first.loan_listed)
         self.assertTrue(first.wanted)
+
+    def test_league_table_presentation_contract_preserves_native_comparator(self):
+        contract = ManagementSourceDataBridge.league_table_presentation_contract()
+
+        self.assertIs(contract, LEAGUE_TABLE_PRESENTATION_CONTRACT)
+        self.assertEqual(contract.backend_class_name, "League")
+        self.assertEqual(contract.backend_vtable_va, 0x7C9AC0)
+        self.assertEqual(contract.comparator_va, 0x4F45E0)
+        self.assertIsNone(contract.screen_class_name)
+        self.assertTrue(contract.strict_source_name_required_on_numeric_tie)
+        self.assertFalse(contract.equal_full_key_relative_order_proven)
+        self.assertEqual(
+            [
+                (item.semantic_key, item.direction, item.source_encoding)
+                for item in contract.fields
+            ],
+            [
+                ("points", "descending", None),
+                ("played", "ascending", None),
+                ("goal_difference", "descending", None),
+                ("goals_for", "descending", None),
+                ("goals_against", "ascending", None),
+                ("club_short_name_bytes", "ascending", "CP1252"),
+            ],
+        )
+        for unsupported in (
+            "screen_id",
+            "control_id",
+            "column_rectangle",
+            "art_path",
+            "navigation_id",
+        ):
+            self.assertFalse(hasattr(contract, unsupported))
 
     def test_table_projection_does_not_resort_native_comparator_output(self):
         controller = FakeController()

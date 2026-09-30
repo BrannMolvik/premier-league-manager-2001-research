@@ -352,6 +352,34 @@ future original presentation layer until its own comparator/navigation logic is
 recovered. The bridge intentionally refuses to substitute an ID/date sort when
 `fixture_source_order` is absent.
 
+### Source-backed League-table presentation contract
+
+The bridge now exposes the already recovered native `League::0x4F45E0`
+ordering contract as immutable presentation metadata.
+
+The comparator orders rows by:
+
+1. points descending;
+2. played ascending;
+3. goal difference descending;
+4. goals for descending;
+5. goals against ascending;
+6. original DBRClub short-name **CP1252 bytes** ascending.
+
+The backend `League` vtable anchor is `0x7C9AC0`. The presentation
+contract deliberately leaves the actual League-table screen class unknown
+because persisted primary evidence identifies the competition backend, not a
+specific presentation panel.
+
+Numeric ties require strict source short-name bytes before the bridge may call
+the result original ordering. If every recovered comparator field is identical,
+the original CRT qsort's relative ordering remains unproven and the contract
+records that explicitly instead of inventing a stable tie-breaker.
+
+No original table column geometry, header captions, art resources, control IDs
+or navigation are assigned. See
+`research/GATE13_LEAGUE_TABLE_PRESENTATION_CONTRACT.md`.
+
 ### League table
 
 `GameState.premier_league_table()` now uses the firsthand recovered
