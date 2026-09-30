@@ -94,6 +94,34 @@ class TacticsSelectionView:
 
 
 @dataclass(frozen=True)
+class PlayerProfileView:
+    player_id: int
+    first_name: str
+    surname: str
+    club_id: int
+    club_name: str
+    nationality_id: int
+    date_of_birth: date | None
+    shirt_number: int
+    height_cm: int
+    weight_kg: int
+    positions: tuple[int, int, int]
+    current_skill_bytes: tuple[int, ...]
+    condition: int
+    form_state: int
+    morale: int
+    weekly_wage: int
+    contract_expiry_date: date | None
+    injured: bool
+    suspended: bool
+    out_of_contract: bool
+    transfer_listed: bool
+    loan_listed: bool
+    wanted: bool
+    loan_club_id: int | None
+
+
+@dataclass(frozen=True)
 class ManagementSourceDataSnapshot:
     club: ClubHeaderView
     squad: tuple[SquadRowView, ...]
@@ -264,6 +292,94 @@ class ManagementSourceDataBridge:
             penalty_priority=tuple(int(v) for v in orders.penalty),
             corner_priority=tuple(int(v) for v in orders.corner),
             free_kick_priority=tuple(int(v) for v in orders.free_kick),
+        )
+
+    def player_profile(self, player_id: int) -> PlayerProfileView:
+        """Expose recovered runtime/source player data without invented UI labels.
+
+        The current 17-byte skill vector is the live DBRPlayer state already
+        reconstructed by the backend. Development target bytes are deliberately
+        NOT exposed here because they are not established as player-profile UI.
+        """
+        if type(player_id) is not int:
+            raise ManagementPresentationError("Player profile ID must be an integer")
+        players = getattr(self.state, "players", None)
+        if not hasattr(players, "get"):
+            raise ManagementPresentationError("Runtime player table is unavailable")
+        player = players.get(player_id)
+        if player is None:
+            raise ManagementPresentationError(f"Unknown runtime player {player_id}")
+        first = getattr(player, "first_name", None)
+        surname = getattr(player, "surname", None)
+        if not isinstance(first, str) or not isinstance(surname, str):
+            raise ManagementPresentationError(
+                f"Player {player_id} lacks recovered source name fields"
+            )
+        club_id = getattr(player, "club_id", None)
+        nationality_id = getattr(player, "nationality_id", None)
+        if type(club_id) is not int or type(nationality_id) is not int:
+            raise ManagementPresentationError(
+                f"Player {player_id} lacks recovered club/nationality IDs"
+            )
+        club = self._source_club(club_id)
+        positions = getattr(player, "positions", None)
+        if (
+            not isinstance(positions, tuple)
+            or len(positions) != 3
+            or any(type(value) is not int for value in positions)
+        ):
+            raise ManagementPresentationError(
+                f"Player {player_id} has no recovered three-position tuple"
+            )
+        current = getattr(player, "current_raw", None)
+        if (
+            not isinstance(current, (list, tuple))
+            or len(current) != 17
+            or any(type(value) is not int for value in current)
+        ):
+            raise ManagementPresentationError(
+                f"Player {player_id} has no recovered 17-byte current-skill vector"
+            )
+        dob = getattr(player, "date_of_birth", None)
+        if dob is not None and not isinstance(dob, date):
+            raise ManagementPresentationError(
+                f"Player {player_id} has invalid recovered date of birth"
+            )
+        expiry = getattr(player, "contract_expiry_date", None)
+        if expiry is not None and not isinstance(expiry, date):
+            raise ManagementPresentationError(
+                f"Player {player_id} has invalid recovered contract expiry"
+            )
+        loan_club = getattr(player, "loan_club_id", None)
+        if loan_club is not None and type(loan_club) is not int:
+            raise ManagementPresentationError(
+                f"Player {player_id} has invalid recovered loan club ID"
+            )
+        return PlayerProfileView(
+            player_id=player_id,
+            first_name=first,
+            surname=surname,
+            club_id=club_id,
+            club_name=club.name,
+            nationality_id=nationality_id,
+            date_of_birth=dob,
+            shirt_number=int(getattr(player, "shirt_number")),
+            height_cm=int(getattr(player, "height_cm")),
+            weight_kg=int(getattr(player, "weight_kg")),
+            positions=positions,
+            current_skill_bytes=tuple(current),
+            condition=int(getattr(player, "condition")),
+            form_state=int(getattr(player, "form_state")),
+            morale=int(getattr(player, "morale")),
+            weekly_wage=int(getattr(player, "weekly_wage")),
+            contract_expiry_date=expiry,
+            injured=bool(getattr(player, "injured")),
+            suspended=bool(getattr(player, "suspended")),
+            out_of_contract=bool(getattr(player, "out_of_contract")),
+            transfer_listed=bool(getattr(player, "transfer_listed")),
+            loan_listed=bool(getattr(player, "loan_listed")),
+            wanted=bool(getattr(player, "wanted")),
+            loan_club_id=loan_club,
         )
 
     def fixture_rows(self) -> tuple[FixtureRowView, ...]:
