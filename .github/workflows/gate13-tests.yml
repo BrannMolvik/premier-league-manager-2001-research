@@ -1,17 +1,8 @@
 name: Gate 13 presentation source tests
 
+# Run on explicit verified milestones, or when integration is proposed.
+# Normal main-branch checkpoints must not launch duplicate CI.
 on:
-  push:
-    paths:
-      - ".github/workflows/gate13-tests.yml"
-      - "reconstruction/front_end_state.py"
-      - "reconstruction/front_end_session.py"
-      - "reconstruction/test_front_end_session.py"
-      - "reconstruction/gate13_*.py"
-      - "reconstruction/iso9660_reader.py"
-      - "reconstruction/test_front_end_state.py"
-      - "reconstruction/test_gate13_*.py"
-      - "reconstruction/test_iso9660_reader.py"
   pull_request:
     paths:
       - ".github/workflows/gate13-tests.yml"
@@ -25,6 +16,10 @@ on:
       - "reconstruction/test_iso9660_reader.py"
   workflow_dispatch:
 
+concurrency:
+  group: gate13-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -33,8 +28,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Run focused Gate 13 tests
