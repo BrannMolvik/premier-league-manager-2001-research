@@ -8158,3 +8158,32 @@ keeping presentation separate from the stable simulation backend.
   (1) materialize the durable Library ZIP, (2) emit the full disc catalog,
   (3) identify PStartMenu/TeamSelect resources, and (4) selectively stage only
   those exact resources for provenance import.
+
+
+## Gate 13 saved-catalog query checkpoint - 30 September 2026
+
+- The CAAS execution container remains globally unavailable: even a control
+  command containing only `printf 'container-health'` returns the same
+  container-level `ClientError`. The authorized Library ZIP still resolves and
+  materializes successfully, so this remains an execution-environment outage,
+  not a lost-source condition.
+- Added `reconstruction/gate13_catalog_query.py` so a successfully generated
+  full-disc Gate-13 report can be searched repeatedly without re-reading or
+  reconverting the 511 MB source archive.
+- The utility filters the persisted `disc_files` catalog by case-insensitive
+  substring, extension, top-level directory, and regex, and can summarize
+  top-level directory and suffix counts to expose likely UI/layout/string
+  resource families.
+- Added four regression tests covering combined filters, regex selection, and
+  catalog summaries. Updated `reconstruction/README.md` with the query and
+  exact-path selection workflow.
+- Implementation/test commits:
+  `f40564b486e612169099f30fbd3ed5e35dc09178` and
+  `964d9389454109f9abf498d5b7d6cb5a97696908`.
+- GitHub Actions run `36685634820` ran **858 tests with 2 failures**, exactly
+  the two unchanged secondary-schedule assertions. All four new catalog-query
+  tests passed and repository asset policy passed.
+- Next real-source sequence remains: materialize the durable Library ZIP in a
+  functioning container -> deep inventory once -> query the saved full catalog
+  iteratively -> exact-path stage the minimum PStartMenu/TeamSelect resource
+  slice -> provenance import.
