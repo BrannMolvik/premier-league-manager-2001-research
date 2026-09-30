@@ -13,6 +13,8 @@ on:
       - "original_assets/source/reused_art/generic/main_menu_windows_buttons.png"
       - "original_assets/source/FM2001_Art/Generic/GenericButtonsAndBars/*scroll_end.444"
       - "reconstruction/ea444_header.py"
+      - "reconstruction/ea444_bits.py"
+      - "reconstruction/test_ea444_bits.py"
       - "reconstruction/test_ea444_header.py"
       - "reconstruction/original_menu_assets.py"
       - "reconstruction/test_original_menu_assets.py"
@@ -48,6 +50,7 @@ jobs:
             test_front_end_session \
             test_ea_language_strings \
             test_ea444_header \
+            test_ea444_bits \
             test_original_menu_assets \
             test_gate13_asset_import \
             test_gate13_catalog_query \
