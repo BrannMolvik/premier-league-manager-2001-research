@@ -11,6 +11,9 @@ on:
       - ".github/workflows/reconstruction-tests.yml"
       - "reconstruction/test_competition_startup.py"
       - "reconstruction/test_match_schedule.py"
+      - "reconstruction/competition_state.py"
+      - "reconstruction/test_competition_state.py"
+      - "reconstruction/game_state.py"
   workflow_dispatch:
 
 concurrency:
