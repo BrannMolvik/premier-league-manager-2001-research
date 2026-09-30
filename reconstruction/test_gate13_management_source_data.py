@@ -11,6 +11,7 @@ from gate13_management_source_data import (
     SCOUTING_PRESENTATION_CONTRACT,
     TACTICS_PRESENTATION_CONTRACT,
     TICKETS_PRESENTATION_CONTRACT,
+    TRAINING_PRESENTATION_CONTRACT,
     TRANSFER_PRESENTATION_CONTRACT,
 )
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
@@ -957,6 +958,74 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         # resorted, because their global manager-mail interleave is unproven.
         self.assertEqual(ordinary.queue_index, 0)
         self.assertEqual(due.queue_index, 0)
+
+    def test_training_presentation_contract_preserves_native_record_and_method_map(self):
+        contract = ManagementSourceDataBridge.training_presentation_contract()
+
+        self.assertIs(contract, TRAINING_PRESENTATION_CONTRACT)
+        self.assertEqual(
+            contract.source_module_path,
+            r"D:\Projects\FM2001\Applications\FootballManager\Training.cpp",
+        )
+        self.assertIsNone(contract.screen_class_name)
+        self.assertEqual((contract.record_count, contract.record_size), (40, 0xC8))
+        self.assertEqual(contract.player_id_offset, 0x08)
+        self.assertEqual(contract.embedded_training_offset, 0x24)
+        self.assertEqual(contract.method_id_offset, 0x00)
+        self.assertEqual(contract.countdown_offset, 0x04)
+        self.assertEqual(contract.active_count_offset, 0x08)
+        self.assertEqual(
+            (contract.skill_counter_offset, contract.skill_counter_count),
+            (0x0C, 17),
+        )
+        self.assertEqual(
+            (contract.skill_state_offset, contract.skill_state_count),
+            (0x20, 17),
+        )
+        self.assertEqual(
+            (contract.method_result_offset, contract.method_result_count),
+            (0x64, 7),
+        )
+        self.assertEqual(
+            (contract.fresh_method_id, contract.fresh_countdown, contract.fresh_active_count),
+            (5, 8, 0),
+        )
+        self.assertEqual(contract.profile_selector_va, 0x4EA9A0)
+        self.assertEqual(contract.profile_builder_va, 0x4EAA00)
+        self.assertEqual(contract.coach_dispatcher_va, 0x42C240)
+        self.assertEqual(contract.weekly_user_dispatch_va, 0x42AE40)
+        self.assertEqual(contract.record_walker_va, 0x61CBA0)
+        self.assertEqual(contract.eligible_record_va, 0x61C520)
+        self.assertEqual(contract.weekly_update_va, 0x4EACE0)
+        self.assertEqual(contract.daily_maintenance_va, 0x61CA60)
+        self.assertEqual(
+            [
+                (
+                    item.method_id,
+                    item.semantic_key,
+                    item.profile_vector_index,
+                    item.weekly_rng_draw_count,
+                )
+                for item in contract.methods
+            ],
+            [
+                (0, "rest_recovery", 4, 0),
+                (1, "attacking", 0, 4),
+                (2, "midfield", 2, 4),
+                (3, "defensive", 1, 4),
+                (4, "goalkeeper", 3, 4),
+                (5, "fitness", 5, 6),
+                (6, "technique", 6, 4),
+            ],
+        )
+        for unsupported in (
+            "screen_id",
+            "control_id",
+            "rectangle",
+            "art_path",
+            "navigation_id",
+        ):
+            self.assertFalse(hasattr(contract, unsupported))
 
     def test_training_rows_preserve_roster_order_and_raw_recovered_training_state(self):
         controller = FakeController()
