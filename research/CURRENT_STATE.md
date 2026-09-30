@@ -36,11 +36,11 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-964d9389454109f9abf498d5b7d6cb5a97696908
-Test Gate 13 catalog query utility
+eaa738de9f6cb16acee99462f8bfa740a1c9a0ee
+Test Gate 13 path-list query output
 ```
 
-GitHub Actions ran **858 tests with 2 failures**, exactly the two long-standing
+GitHub Actions ran **860 tests with 2 failures**, exactly the two long-standing
 secondary-schedule assertions:
 
 - secondary root-order assertion;
@@ -121,12 +121,14 @@ complete disc file catalog (path, byte size, ISO extent) plus the smaller
 presentation shortlist. Opaque resources discovered from that catalog can be
 selected with repeatable exact `--extract-path` arguments and staged without
 dumping unrelated disc contents; missing requested paths fail loud via report
-warnings. GitHub Actions run `36685634820` verified the current source-analysis tooling
-at `964d9389454109f9abf498d5b7d6cb5a97696908`: 858 tests, with only the two
-known secondary-schedule failures. A saved full-disc report can now be queried
+warnings. GitHub Actions run `36685946489` verified the current source-analysis tooling
+at `eaa738de9f6cb16acee99462f8bfa740a1c9a0ee`: 860 tests, with only the two
+known secondary-schedule failures. A saved full-disc report can be queried
 offline with `gate13_catalog_query.py` by substring, suffix, top-level
-directory, or regex, avoiding repeated 511 MB source conversion while narrowing
-opaque PStartMenu/TeamSelect leads.
+directory, or regex. Query results can be emitted as a reusable path-list file
+and fed back to `gate13_source_inventory.py --extract-path-file`, avoiding
+repeated 511 MB conversion while narrowing and staging opaque
+PStartMenu/TeamSelect leads.
 
 Secondary visual evidence is now bounded in
 `research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
@@ -144,12 +146,15 @@ pixel coordinates and non-authoritative for shipped asset bytes.
    this documented source path, and emits the complete disc file catalog plus
    targeted Gate-13 candidates. Use `--extract-path <exact-disc-path>` with
    `--extract-candidates-to` for deliberately selected opaque resources.
-2. Once the real full-disc report exists, use
+2. Once the real full-disc report exists, follow
+   `research/GATE13_CATALOG_SEARCH_PLAN.md` and use
    `reconstruction/gate13_catalog_query.py` to narrow directories/extensions
-   and opaque path leads without re-reading the source archive. Inventory the
-   exact original graphics, strings, rectangles/layout data and other resources
-   required by PStartMenu and TeamSelect, using the bounded secondary
-   screenshots only as a visual cross-check.
+   and opaque path leads without re-reading the source archive. Emit a
+   reproducible `--paths-only` shortlist and feed it back through
+   `--extract-path-file`. Inventory the exact original graphics, strings,
+   rectangles/layout data and other resources required by PStartMenu and
+   TeamSelect, using the bounded secondary screenshots only as a visual
+   cross-check.
 3. Identify source paths/hashes and import only the minimum intentional first
    slice with `reconstruction/gate13_asset_import.py`, which writes under
    `original_assets/source/` with manifest provenance.
