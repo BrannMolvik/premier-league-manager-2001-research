@@ -15,20 +15,72 @@ import json
 from pathlib import Path
 
 from human_gameplay import HumanGameplayController
+from match_schedule import MsvcCrtRng
 from season_regeneration import (
     capture_annual_type3_qualification_snapshot,
+    finalize_annual_dummy_league_rankings,
     partition_annual_type3_league_sources,
     required_annual_type3_sources,
 )
 
 
+def _ordered_live_players(state) -> tuple[object, ...]:
+    ordered: list[object] = []
+    seen: set[int] = set()
+    for club_id in state.clubs:
+        for player_id in state.club_roster_order.get(int(club_id), ()):
+            player_id = int(player_id)
+            player = state.players.get(player_id)
+            if player is None or player_id in seen:
+                continue
+            ordered.append(player)
+            seen.add(player_id)
+    for player_id, player in state.players.items():
+        player_id = int(player_id)
+        if player_id not in seen:
+            ordered.append(player)
+            seen.add(player_id)
+    return tuple(ordered)
+
+
 def _qualification_if_complete(controller: HumanGameplayController):
     state = controller.state
-    return capture_annual_type3_qualification_snapshot(
-        state,
-        tuple(state.competitions.values()),
-        tuple(state.cup_allocation_instructions),
+    competitions = tuple(state.competitions.values())
+    allocations = tuple(state.cup_allocation_instructions)
+    played_sources, _dummy_sources = partition_annual_type3_league_sources(
+        competitions,
+        allocations,
     )
+    missing_played = tuple(
+        int(competition_id)
+        for competition_id in played_sources
+        if (int(competition_id), 0) not in state.cup_results.competition_rankings
+    )
+    if missing_played:
+        raise RuntimeError(
+            "annual type-3 live played-League qualification rankings are "
+            f"unresolved for {missing_played}"
+        )
+
+    trial_rng = MsvcCrtRng(int(controller.match_rng.state))
+    dummy_rankings = finalize_annual_dummy_league_rankings(
+        trial_rng,
+        competitions,
+        tuple(state.countries.values()),
+        tuple(state.clubs.values()),
+        _ordered_live_players(state),
+        state.club_competition_membership,
+    )
+    qualification = capture_annual_type3_qualification_snapshot(
+        state,
+        competitions,
+        allocations,
+        ranking_overrides=dummy_rankings,
+    )
+    transition = state.preview_english_season_transition(
+        ranking_overrides=dummy_rankings,
+    )
+    return qualification, transition, int(trial_rng.state)
 
 
 def run_canonical_annual_rollover_audit(
@@ -63,18 +115,19 @@ def run_canonical_annual_rollover_audit(
 
     for days_advanced in range(int(max_days) + 1):
         try:
-            qualification = _qualification_if_complete(controller)
+            qualification, transition, _preview_finalized_rng = (
+                _qualification_if_complete(controller)
+            )
         except RuntimeError as exc:
-            last_qualification_error = str(exc)
+            message = str(exc)
+            if "season transition ranking is unresolved" in message:
+                last_transition_error = message
+            else:
+                last_qualification_error = message
         else:
             last_qualification_error = None
-            try:
-                transition = state.preview_english_season_transition()
-            except RuntimeError as exc:
-                last_transition_error = str(exc)
-            else:
-                last_transition_error = None
-                break
+            last_transition_error = None
+            break
 
         if days_advanced == int(max_days):
             raise RuntimeError(
