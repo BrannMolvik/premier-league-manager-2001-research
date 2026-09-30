@@ -9085,3 +9085,19 @@ invent original visual or control semantics.
 - Asset-policy run `36772292765` passed.
 - Gate 13 remains ACTIVE; original Messages/News visual resources, layout,
   controls and navigation are still open.
+
+## Gate 13 Training presentation contract verified - 1 October 2026 KST
+
+- Merged PR #41 as `22254782bf396f192c9db38b1b518628177ece65`.
+- Added immutable Training.cpp presentation metadata for the 40 × 0xC8 record
+  family, embedded training offsets, fresh defaults, seven method/profile
+  mappings and source daily/weekly update chain.
+- Deliberately kept the original Training screen class unknown because persisted
+  primary evidence does not pin one.
+- Focused Gate-13 run `36772718356`: **234 tests, 19 expected source-gated
+  skips, zero failures**.
+- Full reconstruction run `36772718243`: **1,070 tests, 21 expected
+  source-gated skips, zero failures**.
+- Asset-policy run `36772718259` passed.
+- Gate 13 remains ACTIVE; original Training visual resources/layout/navigation
+  and the private Button/Zurich/source-import critical path remain open.

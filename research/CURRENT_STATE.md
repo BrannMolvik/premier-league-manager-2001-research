@@ -148,6 +148,26 @@ Verification on PR head `3076119018c8bdd5ca23a82e73c499f5b5ec8588`:
 No Messages/News screen ID, global row order, geometry, artwork, typography or
 navigation is claimed. The visual/resource part of the screen remains open.
 
+### Verified Training presentation contract
+
+PR #41 was merged at `22254782bf396f192c9db38b1b518628177ece65`.
+The Gate-13 presentation seam now preserves the recovered `Training.cpp`
+record layout, fresh defaults, seven exact method/profile identities and the
+daily/weekly update chain. Because no original Training screen RTTI class is
+independently pinned in persisted evidence, the contract explicitly leaves the
+screen class unknown rather than inventing one.
+
+Verification on PR head `0b3e0bc3090dd763e2a8a889ee391419a7ba4c81`:
+
+- focused Gate-13 run `36772718356`: **234 tests, 19 expected
+  original-source-gated skips, zero failures**;
+- full reconstruction run `36772718243`: **1,070 tests, 21 expected
+  original-source-gated skips, zero failures**;
+- repository asset-policy run `36772718259`: passed.
+
+Original Training controls, visible bindings, geometry, artwork and navigation
+remain open.
+
 ## Porting mission
 
 This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc

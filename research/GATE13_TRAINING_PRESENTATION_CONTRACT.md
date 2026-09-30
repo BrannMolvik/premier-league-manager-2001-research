@@ -108,6 +108,22 @@ The contract contains no:
 
 Those remain open Gate-13 presentation work.
 
+## Hosted verification
+
+PR #41 head `0b3e0bc3090dd763e2a8a889ee391419a7ba4c81` passed:
+
+- focused Gate-13 run `36772718356`: **234 tests**, **19 expected
+  original-source-gated skips**, zero failures;
+- full reconstruction run `36772718243`: **1,070 tests**, **21 expected
+  original-source-gated skips**, zero failures;
+- repository asset-policy run `36772718259`: passed.
+
+It was squash-merged to main as
+`22254782bf396f192c9db38b1b518628177ece65`.
+
+These runs verify only the clean-room contract/integration boundary and do not
+constitute original Training-screen visual validation.
+
 ## Gate 13 consequence
 
 Training now has a source-proven method/record presentation contract attached to
