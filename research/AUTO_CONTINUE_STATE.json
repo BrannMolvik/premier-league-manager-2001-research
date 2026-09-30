@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 main e317ee0d has verified Squad backend presentation contract (PR45: focused 238/19 skips, full 1074/21 skips, asset policy passed). Canonical private source ZIP was successfully re-listed/materialized in recovery104, but subsequent shell/Python execution remains ClientError, so native Button/Zurich/ten-resource work is still blocked by execution, not source availability. Current bounded fallback task: inventory manager-home and remaining-screen source evidence/blockers from persisted executable/RTTI/string/resource research, explicitly separating confirmed panel identity from unproven layout/navigation. Resume TeamSelect Button RTTI -> 23-frame state trace -> Zurich -> ten-resource audit/import immediately if private execution recovers. Gate13 then Gates14-17 remain mandatory.",
-  "last_known_main_head": "e317ee0d34334dfd93a17bb0830ac0532065f167",
+  "active_task": "Gate13 remains active but is now genuinely infrastructure-blocked on private byte/Windows graphical execution. Recovery104 confirmed the canonical 511,121,336-byte source ZIP exists and materialized it; latest trivial stat probe still returns ClientError. Safe fallback preparation is complete: PR45 verified/merged Squad runtime presentation contract (full 1074/21 expected skips); GATE13_MANAGEMENT_SCREEN_EVIDENCE_LEDGER.md enumerates panel/backend/feature evidence and exact resource queries; PR46 merged fail-closed management catalog audit (focused 243/19 expected skips, asset policy passed, full suite intentionally not triggered). Exact next action when execution recovers: TeamSelect 0x81EC10/0x7C7650 RTTI canary -> native Button 23-frame state mapping -> Zurich caption placement/color -> strict ten-resource audit/import -> whole-disc management catalog audit/correlation -> remaining Gate13 resources/layout/navigation -> Windows graphical audit -> Gate13 closure -> Gates14-17 and verified clean Windows11 release. Do not invent presentation semantics while blocked.",
+  "last_known_main_head": "c36b7047dbcfc1f99a916a9997debb706ec08eb0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 104,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery104 Squad contract merged at de3091f7; canonical live-state checkpoint advanced through e317ee0d. Source materialization succeeded, byte execution still ClientError. Continuing manager-home/remaining-screen evidence inventory.",
+  "note": "Recovery104 canonical main advanced to c36b7047. Squad and management-screen catalog fallback work are complete and verified. Source is present/materialized; execution remains ClientError even for trivial stat. Preserve status=working for automatic recovery; no user action is currently required.",
   "same_chat_fallback_minutes": 30
 }
