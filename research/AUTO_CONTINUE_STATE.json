@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: when container access returns, materialize the durable authorized Library ZIP, run native deep disc inventory, query saved catalog using GATE13_CATALOG_SEARCH_PLAN.md, then stage only the exact confirmed PStartMenu/TeamSelect slice via --extract-path-file --only-explicit for provenance import.",
-  "last_known_main_head": "5eca3ee3009e6352e567c7bea708a8f8b51e4dee",
+  "active_task": "Gate 13: private Library ZIP resolves/materializes but container commands return CAAS ClientError. Retry byte access in a working execution runtime; run native deep ZIP -> MODE1/2352 -> ISO/Joliet inventory; follow GATE13_CATALOG_SEARCH_PLAN.md; exact-only stage, hash, provenance-import minimum PStartMenu/TeamSelect originals and bind to verified navigation flow.",
+  "last_known_main_head": "c6e2aa387b1150e847bef9f5cb26f5954a496137",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 81,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Native Gate 13 tooling CI baseline 114336a: 863 tests, only the two established secondary-schedule failures. Exact-only source staging is verified; current shell/Python container still raises CAAS ClientError even on trivial control commands. Do not redo completed tooling; next actual gate work is original-disc byte inventory once execution is available.",
+  "note": "Recovered main 5eca3ee. Gate 13 latest CI-verified implementation 03bc53b (865 tests, only two established secondary-schedule failures, all new staging path guard tests pass). Updated main CURRENT_STATE and PROGRESS through c6e2aa3. Original ZIP materializes successfully, but execution runtime still fails even trivial operations; no game assets extracted this turn.",
   "same_chat_fallback_minutes": 30
 }
