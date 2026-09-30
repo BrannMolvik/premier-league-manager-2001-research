@@ -176,6 +176,33 @@ def is_disc_image(path: str) -> bool:
     return PurePosixPath(normalize_member(path)).suffix.lower() in DISC_IMAGE_SUFFIXES
 
 
+def _zip_member_is_disc_image(
+    member: str, info: zipfile.ZipInfo, archive: zipfile.ZipFile
+) -> bool:
+    """Identify raw BIN/IMG tracks by their Mode-1 sector header, not suffix alone.
+
+    A named UI/layout resource may also use .bin; treating it as a full disc
+    both misclassifies the archive catalog and blocks exact-path staging.
+    Other disc-image extensions retain their existing container classification.
+    """
+    suffix = PurePosixPath(member).suffix.lower()
+    if suffix not in DISC_IMAGE_SUFFIXES:
+        return False
+    if suffix not in {".bin", ".img"}:
+        return True
+    if info.file_size < 17 * MODE1_RAW_SECTOR_BYTES:
+        return False
+    if info.file_size % MODE1_RAW_SECTOR_BYTES:
+        return False
+    with archive.open(info) as stream:
+        prefix = stream.read(MODE1_RAW_SECTOR_BYTES)
+    try:
+        _validate_mode1_raw_sector(prefix, 0)
+    except ValueError:
+        return False
+    return True
+
+
 def sha256_stream(stream: BinaryIO, chunk_size: int = 1024 * 1024) -> str:
     digest = hashlib.sha256()
     while True:
@@ -352,7 +379,7 @@ def inventory_zip(
             if info.is_dir():
                 continue
             member = normalize_member(info.filename)
-            disc_image = is_disc_image(member)
+            disc_image = _zip_member_is_disc_image(member, info, archive)
             if disc_image:
                 nested_images.append(member)
             if zip_files is not None:
