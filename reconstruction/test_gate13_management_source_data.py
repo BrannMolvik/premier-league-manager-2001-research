@@ -4,11 +4,13 @@ from types import SimpleNamespace
 import unittest
 
 from gate13_management_source_data import (
+    FINANCE_OVERVIEW_PRESENTATION_CONTRACT,
     ManagementPresentationError,
     ManagementSourceDataBridge,
     SCOUTING_PRESENTATION_CONTRACT,
     TACTICS_PRESENTATION_CONTRACT,
     TICKETS_PRESENTATION_CONTRACT,
+    TRANSFER_PRESENTATION_CONTRACT,
 )
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from contract_maintenance import ContractRenewalSuggestion, ContractRenewalSuggestionKind
@@ -664,6 +666,101 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
             ManagementPresentationError, "unmapped native value"
         ):
             ManagementSourceDataBridge(controller).ticket_state_view()
+
+    def test_finance_overview_contract_preserves_only_proven_category_1000_path(self):
+        contract = ManagementSourceDataBridge.finance_overview_presentation_contract()
+
+        self.assertIs(contract, FINANCE_OVERVIEW_PRESENTATION_CONTRACT)
+        self.assertEqual(contract.panel_class_name, "PFinanceOverview")
+        self.assertTrue(contract.balance_accounting_driven)
+        self.assertEqual(contract.transfer_account_category_id, 1000)
+        self.assertEqual(contract.transfer_credit_aggregate_va, 0x5DC890)
+        self.assertEqual(contract.transfer_debit_aggregate_va, 0x5DD650)
+        self.assertEqual(contract.transfer_net_helper_va, 0x43F1E0)
+        self.assertEqual(
+            contract.transfer_query_call_sites,
+            (0x43E08B, 0x43E0DB, 0x43E115),
+        )
+        self.assertEqual(contract.transfer_panel_state_anchor_offset, 0xAC0)
+        self.assertFalse(contract.dormant_budget_event_live_consumer_proven)
+        for unsupported in (
+            "transfer_account_label",
+            "control_id",
+            "rectangle",
+            "art_path",
+            "navigation_id",
+        ):
+            self.assertFalse(hasattr(contract, unsupported))
+
+    def test_transfer_contract_preserves_native_event_and_deal_state_semantics(self):
+        contract = ManagementSourceDataBridge.transfer_presentation_contract()
+
+        self.assertIs(contract, TRANSFER_PRESENTATION_CONTRACT)
+        self.assertEqual(contract.panel_class_name, "PTransfer2K")
+        self.assertEqual(
+            [
+                (item.semantic_key, item.class_name, item.vtable_va, item.player_response_code)
+                for item in contract.events
+            ],
+            [
+                ("end_negotiations", "EAMTPUserEndNegotiationssub", 0x7C8F50, None),
+                (
+                    "confirm_conclude_transfer",
+                    "EAMConfirmConcludeTransferDealsub",
+                    0x7C9008,
+                    None,
+                ),
+                (
+                    "transfer_deal_concluded",
+                    "EAMTransferDealConcludedsub",
+                    0x7C8FAC,
+                    None,
+                ),
+                (
+                    "player_counter_offer",
+                    "EAMTransferUserPlayerCounterOfferMsub",
+                    None,
+                    1,
+                ),
+                (
+                    "player_accepts_terms",
+                    "EAMTransferPlayerAcceptsMsub",
+                    0x7C8EFC,
+                    2,
+                ),
+                (
+                    "player_rejects_terms",
+                    "EAMTPUserPlayerRejectsMsub",
+                    0x7C8AB8,
+                    3,
+                ),
+                (
+                    "deadline_passed",
+                    "EAMEndNegotiationsTransferDeadLinePassed",
+                    0x7CE3CC,
+                    None,
+                ),
+                (
+                    "offer_not_enough",
+                    "EAMTPUserEndNegotiationsOfferNotEnoughM",
+                    0x7D5C38,
+                    None,
+                ),
+            ],
+        )
+        self.assertEqual(
+            [
+                (item.ordinary_state, item.swap_state, item.semantic_key)
+                for item in contract.deal_states
+            ],
+            [
+                (0, 3, "pending_or_unresolved"),
+                (1, 4, "cleared_for_execution"),
+                (2, 5, "player_rejected_contract_terms"),
+            ],
+        )
+        for unsupported in ("sort_key", "control_id", "rectangle", "art_path"):
+            self.assertFalse(hasattr(contract, unsupported))
 
     def test_finance_view_preserves_balance_ledger_order_and_neutral_categories(self):
         controller = FakeController()
