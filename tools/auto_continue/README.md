@@ -157,3 +157,27 @@ have finite execution windows, the watchdog still depends on Chrome being
 available, and legitimate execution-environment outages must be reported.
 After pulling the new branch/main changes, reload the extension in
 `chrome://extensions/` and verify version `0.3.4`.
+
+
+## Register the designated worker tab (version 0.3.5)
+
+The content script is present on all ChatGPT pages, but only the designated
+FM2001 worker conversation can trigger an interruption/recovery. This prevents
+unrelated ChatGPT conversations from being mistaken for failed FM2001 workers.
+
+1. Pull the newest `main` and click **Reload** on the unpacked extension in
+   `chrome://extensions/`. Confirm version **0.3.5**.
+2. Open the actual FM2001 worker conversation and select its tab.
+3. Click the **FM2001 ChatGPT Auto Continue** icon in Chrome's toolbar
+   (pin the extension from the puzzle-piece menu if necessary).
+4. An **FM** badge appears on the extension icon for that tab. This records
+   the intended worker tab persistently. A replacement chat launched by the
+   watchdog is also registered automatically once its recovery prompt is sent.
+
+Clicking the icon from an unrelated website does not register that tab.
+Errors on other ChatGPT conversations are ignored; they cannot replace the
+recorded worker or initiate an FM2001 recovery.
+
+If Chrome's extension details show a red **Errors** indicator, open its error
+details to see the exact message/stack trace. Historical errors may remain
+visible even after updating; do not infer the cause from the indicator alone.
