@@ -82,3 +82,13 @@ If the ZIP contains a nested disc image, deep mode uses 7-Zip (`7z`,
 `--extract-candidates-to <staging-directory>` only for a deliberate staging
 extract; imported originals still require `original_assets/MANIFEST.md`
 provenance and the repository asset-policy check.
+
+
+After staging an intentionally selected original file, import it with provenance:
+
+```text
+python gate13_asset_import.py <staging-dir> FM2001_Art/Generic/<asset> --repo-root ..
+```
+
+The importer refuses raw ZIP/BIN/ISO-style containers and performs the strict
+known-hash/header check for `bground.444`.

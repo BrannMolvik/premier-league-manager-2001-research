@@ -122,7 +122,8 @@ pixel coordinates and non-authoritative for shipped asset bytes.
    other resources required by PStartMenu and TeamSelect, using the bounded
    secondary screenshots only as a visual cross-check.
 3. Identify source paths/hashes and import only the minimum intentional first
-   slice under `original_assets/` with manifest provenance.
+   slice with `reconstruction/gate13_asset_import.py`, which writes under
+   `original_assets/source/` with manifest provenance.
 4. Bind the already-verified presentation/navigation boundary to the recovered
    original resources without moving simulation logic into presentation code.
 5. Regression-test the first recognizably original main-menu -> TeamSelect flow

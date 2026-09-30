@@ -7988,3 +7988,20 @@ keeping presentation separate from the stable simulation backend.
 - Repository asset policy passed.
 - The Gate-13 source-inventory utility is therefore verified independently of
   the current source-ZIP mount limitation.
+
+
+## Gate 13 provenance-safe asset importer - 30 September 2026
+
+- Added `reconstruction/gate13_asset_import.py` for the deliberate import step
+  after source inventory/staging.
+- The importer rejects archive/disc containers and path traversal, enforces the
+  repository's 95 MiB tracked-file limit, preserves the original source-relative
+  path under `original_assets/source/`, computes SHA-256, and updates
+  `original_assets/MANIFEST.md`.
+- The known `bground.444` path receives stricter validation: the import must
+  match the already-recorded canonical SHA-256 and 800x600 header before any
+  repository copy is made.
+- Added five tests covering destination/provenance layout, container rejection,
+  manifest insertion, byte-identical copying and bad-background rejection.
+- No original asset has been imported yet because source ZIP bytes remain
+  inaccessible to this ChatGPT execution runtime.
