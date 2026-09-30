@@ -991,7 +991,7 @@ class ManagementSourceDataBridge:
                 player_id=player_id,
                 player_name=self._player_name(player),
                 club_id=club_id,
-                club_name=club.name,
+                club_name=(None if club is None else club.name),
                 nationality_id=nationality_id,
                 positions=positions,
                 current_skill_bytes=tuple(current),
