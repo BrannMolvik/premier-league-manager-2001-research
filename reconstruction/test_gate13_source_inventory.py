@@ -12,6 +12,7 @@ from gate13_source_inventory import (
     ISO9660_SECTOR_BYTES,
     MODE1_RAW_SECTOR_BYTES,
     MODE1_SYNC,
+    StagingCollisionError,
     candidate_reason,
     catalog_iso_image,
     convert_mode1_2352_to_iso,
@@ -225,6 +226,89 @@ class Gate13SourceInventoryTests(unittest.TestCase):
             self.assertEqual(report["zip_files"][1]["path"], "disc/game.bin")
             self.assertTrue(report["zip_files"][1]["is_disc_image"])
             self.assertEqual(report["disc_file_count"], 1)
+
+    def test_case_insensitive_duplicate_zip_paths_fail_before_overwrite(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            archive = root / "source.zip"
+            staged = root / "staged"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("UI/Panel.dat", b"first")
+                zf.writestr("ui/panel.dat", b"SECOND")
+            with self.assertRaisesRegex(
+                StagingCollisionError, "Duplicate Gate-13 staging path"
+            ):
+                report_for_source(
+                    archive,
+                    explicit_paths={"UI/Panel.dat"},
+                    extract_candidates_to=staged,
+                    only_explicit=True,
+                )
+            self.assertEqual((staged / "UI/Panel.dat").read_bytes(), b"first")
+            self.assertFalse((staged / "ui/panel.dat").exists())
+
+    def test_selected_loose_and_nested_disc_path_collision_is_fatal(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            iso = root / "fixture.iso"
+            build_joliet_iso(iso)
+            iso_bytes = iso.read_bytes()
+            raw = b"".join(
+                self._mode1_sector(
+                    iso_bytes[offset:offset + ISO9660_SECTOR_BYTES]
+                )
+                for offset in range(0, len(iso_bytes), ISO9660_SECTOR_BYTES)
+            )
+            archive = root / "source.zip"
+            staged = root / "staged"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("FM2001_Art/Generic/bground.444", b"outer-layer")
+                zf.writestr("disc/game.bin", raw)
+            with self.assertRaisesRegex(
+                StagingCollisionError, "Duplicate Gate-13 staging path"
+            ):
+                report_for_source(
+                    archive,
+                    deep=True,
+                    only_explicit=True,
+                    explicit_paths={"FM2001_Art/Generic/bground.444"},
+                    extract_candidates_to=staged,
+                )
+            self.assertEqual(
+                (staged / "FM2001_Art/Generic/bground.444").read_bytes(),
+                b"outer-layer",
+            )
+
+    def test_preexisting_staged_file_is_never_overwritten(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            archive = root / "source.zip"
+            staged = root / "staged"
+            target = staged / "UI" / "Panel.dat"
+            target.parent.mkdir(parents=True)
+            target.write_bytes(b"prior-work")
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("UI/Panel.dat", b"new-content")
+            with self.assertRaises(StagingCollisionError):
+                report_for_source(
+                    archive,
+                    only_explicit=True,
+                    explicit_paths={"UI/Panel.dat"},
+                    extract_candidates_to=staged,
+                )
+            self.assertEqual(target.read_bytes(), b"prior-work")
+
+    def test_nested_image_cannot_be_selected_as_menu_asset(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            archive = Path(temp_name) / "source.zip"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("disc/game.bin", b"raw-disc-placeholder")
+            with self.assertRaisesRegex(ValueError, "Disc-image containers"):
+                report_for_source(
+                    archive,
+                    explicit_paths={"disc/game.bin"},
+                    only_explicit=True,
+                )
 
     def test_original_background_expected_byte_count_is_recorded(self):
         with tempfile.TemporaryDirectory() as temp_name:
