@@ -182,6 +182,25 @@ The neutral negotiation bytes remain neutral. Missing DealInProgress identity
 or multiple schedule records for the same active proposal fail closed rather
 than being silently normalized into a modern UI state.
 
+### Source-backed DBRPlayer profile contract
+
+The bridge now exposes a bounded backend identity contract for player-profile
+data. Persisted RTTI research identifies `DBTPlayers` around vtable
+`0x7BDA78`, global `0x875638`, and `DBRPlayer` around vtable
+`0x7BDEDC`. Because those RTTI addresses were recorded as approximate, the
+contract names them `*_anchor_va` rather than silently upgrading them to exact
+canaries.
+
+The runtime record is exactly `0x250` bytes. The known current-skill vector is
+17 bytes at `+0x1E..+0x2E`; the adjacent 17-byte development-target vector is
+at `+0x2F..+0x3F`. The existing player-profile view intentionally exposes the
+current vector but not development targets because their original profile-screen
+visibility is unproven.
+
+No original profile screen class, attribute-column labels/icons, geometry, art
+or navigation is assigned. See
+`research/GATE13_PLAYER_PROFILE_PRESENTATION_CONTRACT.md`.
+
 ### Player profile source/runtime projection
 
 The bridge can now project one runtime player into a profile data record using

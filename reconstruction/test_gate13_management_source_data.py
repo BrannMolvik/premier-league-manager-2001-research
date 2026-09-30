@@ -8,6 +8,7 @@ from gate13_management_source_data import (
     FIXTURES_PRESENTATION_CONTRACT,
     LEAGUE_TABLE_PRESENTATION_CONTRACT,
     MESSAGES_PRESENTATION_CONTRACT,
+    PLAYER_PROFILE_PRESENTATION_CONTRACT,
     ManagementPresentationError,
     ManagementSourceDataBridge,
     SCOUTING_PRESENTATION_CONTRACT,
@@ -609,6 +610,28 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
             self.assertFalse(hasattr(item, "control_id"))
             self.assertFalse(hasattr(item, "rectangle"))
             self.assertFalse(hasattr(item, "art_path"))
+
+    def test_player_profile_presentation_contract_preserves_runtime_identity_boundaries(self):
+        contract = ManagementSourceDataBridge.player_profile_presentation_contract()
+        self.assertIs(contract, PLAYER_PROFILE_PRESENTATION_CONTRACT)
+        self.assertEqual(contract.table_class_name, "DBTPlayers")
+        self.assertEqual(contract.table_vtable_anchor_va, 0x7BDA78)
+        self.assertEqual(contract.table_global_va, 0x875638)
+        self.assertEqual(contract.record_class_name, "DBRPlayer")
+        self.assertEqual(contract.record_vtable_anchor_va, 0x7BDEDC)
+        self.assertEqual(contract.runtime_record_size, 0x250)
+        self.assertEqual(contract.record_accessor_anchor_va, 0x416F90)
+        self.assertEqual(contract.binary_reader_anchor_va, 0x416210)
+        self.assertEqual(contract.compact_importer_va, 0x418B90)
+        self.assertEqual((contract.current_skill_offset, contract.current_skill_count), (0x1E, 17))
+        self.assertEqual((contract.development_target_offset, contract.development_target_count), (0x2F, 17))
+        self.assertFalse(contract.development_targets_proven_visible_on_profile)
+        self.assertIsNone(contract.screen_class_name)
+        for unsupported in (
+            "screen_id", "control_id", "skill_column_labels",
+            "row_rectangle", "art_path", "navigation_id",
+        ):
+            self.assertFalse(hasattr(contract, unsupported))
 
     def test_player_profile_projects_only_recovered_runtime_source_fields(self):
         controller = FakeController()

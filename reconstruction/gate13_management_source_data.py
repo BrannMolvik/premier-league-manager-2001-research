@@ -262,6 +262,44 @@ TACTICS_PRESENTATION_CONTRACT = TacticsPresentationContract(
 
 
 @dataclass(frozen=True)
+class PlayerProfilePresentationContract:
+    table_class_name: str
+    table_vtable_anchor_va: int
+    table_global_va: int
+    record_class_name: str
+    record_vtable_anchor_va: int
+    runtime_record_size: int
+    record_accessor_anchor_va: int
+    binary_reader_anchor_va: int
+    compact_importer_va: int
+    current_skill_offset: int
+    current_skill_count: int
+    development_target_offset: int
+    development_target_count: int
+    development_targets_proven_visible_on_profile: bool
+    screen_class_name: str | None
+
+
+PLAYER_PROFILE_PRESENTATION_CONTRACT = PlayerProfilePresentationContract(
+    table_class_name="DBTPlayers",
+    table_vtable_anchor_va=0x7BDA78,
+    table_global_va=0x875638,
+    record_class_name="DBRPlayer",
+    record_vtable_anchor_va=0x7BDEDC,
+    runtime_record_size=0x250,
+    record_accessor_anchor_va=0x416F90,
+    binary_reader_anchor_va=0x416210,
+    compact_importer_va=0x418B90,
+    current_skill_offset=0x1E,
+    current_skill_count=17,
+    development_target_offset=0x2F,
+    development_target_count=17,
+    development_targets_proven_visible_on_profile=False,
+    screen_class_name=None,
+)
+
+
+@dataclass(frozen=True)
 class PlayerProfileView:
     player_id: int
     first_name: str
@@ -959,6 +997,11 @@ class ManagementSourceDataBridge:
         remain intentionally absent until independently recovered.
         """
         return TACTICS_PRESENTATION_CONTRACT
+
+    @staticmethod
+    def player_profile_presentation_contract() -> PlayerProfilePresentationContract:
+        """Return DBTPlayers/DBRPlayer identity without inventing profile UI."""
+        return PLAYER_PROFILE_PRESENTATION_CONTRACT
 
     def player_profile(self, player_id: int) -> PlayerProfileView:
         """Expose recovered runtime/source player data without invented UI labels.
