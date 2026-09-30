@@ -135,7 +135,7 @@ class HumanGameplayController:
                 "canonical English procedural League ownership changed: "
                 f"secondary={english_secondary_leagues}"
             )
-        annual_played_league_sources, annual_dummy_league_sources = (
+        annual_played_league_sources, _annual_dummy_league_sources = (
             partition_annual_type3_league_sources(
                 database.competitions,
                 database.cup_allocation_instructions,
@@ -170,23 +170,15 @@ class HumanGameplayController:
             primary_schedule.premier_league_order
         )
         startup_rankings = dict(primary_schedule.ranked_source_club_ids)
-        required_startup_dummy_ids = tuple(dict.fromkeys(
-            tuple(int(value) for value in annual_dummy_league_sources) + (89,)
-        ))
-        missing_startup_dummy_ids = tuple(
-            competition_id
-            for competition_id in required_startup_dummy_ids
-            if competition_id not in startup_rankings
-        )
-        if missing_startup_dummy_ids:
+        conference_two_ranking = startup_rankings.get(89)
+        if conference_two_ranking is None:
             raise RuntimeError(
-                "canonical startup did not materialize required DummyLeague "
-                f"rankings {missing_startup_dummy_ids}"
+                "canonical Conference 2 ranking was not materialized"
             )
-        for competition_id in required_startup_dummy_ids:
+        for competition_id, ranking in startup_rankings.items():
             state.cup_results.replace_competition_ranking(
-                competition_id,
-                startup_rankings[competition_id],
+                int(competition_id),
+                tuple(int(club_id) for club_id in ranking),
             )
         state.install_domestic_cup_primary_schedule(
             primary_schedule.buckets,
@@ -235,6 +227,7 @@ class HumanGameplayController:
         from competition_runtime import partition_root_procedural_league_ids
         from season_regeneration import (
             capture_annual_type3_qualification_snapshot,
+            finalize_annual_dummy_league_rankings,
             materialize_annual_primary_schedule,
             partition_annual_type3_league_sources,
         )
@@ -258,13 +251,6 @@ class HumanGameplayController:
         clubs = tuple(self.state.clubs.values())
         countries = tuple(self.state.countries.values())
         allocations = tuple(self.state.cup_allocation_instructions)
-
-        qualification = capture_annual_type3_qualification_snapshot(
-            self.state,
-            competitions,
-            allocations,
-        )
-        transition = self.state.preview_english_season_transition()
 
         # DummyLeague rating reads runtime team roster order. Preserve each
         # club's current live order after transfers instead of falling back to
@@ -320,6 +306,29 @@ class HumanGameplayController:
         if current_rng_state is None:
             raise TypeError("annual regeneration requires serializable match RNG state")
         trial_rng = MsvcCrtRng(int(current_rng_state))
+
+        # 0x616A70 finalizes primary roots before LeagueAllocation movement.
+        # DummyLeague +0x0C (0x4F7FE0) unconditionally invokes its RNG sorter,
+        # so reproduce every primary DummyLeague finalization on the cloned CRT
+        # stream before capturing qualification or previewing membership swaps.
+        finalized_dummy_rankings = finalize_annual_dummy_league_rankings(
+            trial_rng,
+            competitions,
+            countries,
+            clubs,
+            tuple(ordered_players),
+            self.state.club_competition_membership,
+        )
+        qualification = capture_annual_type3_qualification_snapshot(
+            self.state,
+            competitions,
+            allocations,
+            ranking_overrides=finalized_dummy_rankings,
+        )
+        transition = self.state.preview_english_season_transition(
+            ranking_overrides=finalized_dummy_rankings,
+        )
+
         regeneration = materialize_annual_primary_schedule(
             trial_rng,
             competitions,
