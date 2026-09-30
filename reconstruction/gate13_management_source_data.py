@@ -96,6 +96,72 @@ class TacticsSelectionView:
 
 
 @dataclass(frozen=True)
+class TeamOrderPriorityPresentationContract:
+    category: int
+    semantic_key: str
+    corroborating_original_strings: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class TacticsPresentationContract:
+    formation_panel_class_name: str
+    formation_vtable_va: int
+    formation_user_region_offset: int
+    formation_user_region_size: int
+    formation_magic: int
+    formation_records_offset: int
+    formation_record_count: int
+    formation_record_size: int
+    team_orders_panel_class_name: str
+    team_orders_vtable_anchor_va: int
+    team_orders_type_descriptor_anchor_va: int
+    team_orders_source_path: str
+    priority_categories: tuple[TeamOrderPriorityPresentationContract, ...]
+
+
+# Firsthand executable/RTTI and MatchCalculator evidence only. The Team Orders
+# addresses are retained as the RTTI neighborhood anchors recorded by the
+# existing analysis, not as a substitute for a fresh PE canary while private
+# byte execution is unavailable.
+TACTICS_PRESENTATION_CONTRACT = TacticsPresentationContract(
+    formation_panel_class_name="PFormation2k",
+    formation_vtable_va=0x7C1AB4,
+    formation_user_region_offset=0x70C,
+    formation_user_region_size=0x9CC,
+    formation_magic=0x074A3216,
+    formation_records_offset=0x714,
+    formation_record_count=5,
+    formation_record_size=0x1F4,
+    team_orders_panel_class_name="PTeamOrders2K",
+    team_orders_vtable_anchor_va=0x7C6FE0,
+    team_orders_type_descriptor_anchor_va=0x81DE68,
+    team_orders_source_path=r"Applications\FootballManager\SquadPan.cpp",
+    priority_categories=(
+        TeamOrderPriorityPresentationContract(
+            0,
+            "captaincy_order",
+            ("Captains", "Click for captaincy order", "CAPTAIN"),
+        ),
+        TeamOrderPriorityPresentationContract(
+            1,
+            "penalty_taker_order",
+            ("Penalty Takers", "Click for penalties order", "PENALTIES"),
+        ),
+        TeamOrderPriorityPresentationContract(
+            2,
+            "corner_kick_order",
+            ("Corner Kicks (Left)", "Corner Kicks (Right)"),
+        ),
+        TeamOrderPriorityPresentationContract(
+            3,
+            "free_kick_order",
+            ("Free Kicks (Left)", "Free Kicks (Right)"),
+        ),
+    ),
+)
+
+
+@dataclass(frozen=True)
 class PlayerProfileView:
     player_id: int
     first_name: str
@@ -478,6 +544,15 @@ class ManagementSourceDataBridge:
             corner_priority=tuple(int(v) for v in orders.corner),
             free_kick_priority=tuple(int(v) for v in orders.free_kick),
         )
+
+    @staticmethod
+    def tactics_presentation_contract() -> TacticsPresentationContract:
+        """Return source-proven formation/team-orders identity and semantics.
+
+        Original control IDs, geometry, graphics, click behavior and navigation
+        remain intentionally absent until independently recovered.
+        """
+        return TACTICS_PRESENTATION_CONTRACT
 
     def player_profile(self, player_id: int) -> PlayerProfileView:
         """Expose recovered runtime/source player data without invented UI labels.

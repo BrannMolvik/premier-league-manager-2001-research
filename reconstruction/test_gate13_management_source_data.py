@@ -7,6 +7,7 @@ from gate13_management_source_data import (
     ManagementPresentationError,
     ManagementSourceDataBridge,
     SCOUTING_PRESENTATION_CONTRACT,
+    TACTICS_PRESENTATION_CONTRACT,
 )
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from contract_maintenance import ContractRenewalSuggestion, ContractRenewalSuggestionKind
@@ -480,6 +481,58 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         controller.human.starter_ids = [202, 101]
         with self.assertRaisesRegex(ManagementPresentationError, "lineup"):
             ManagementSourceDataBridge(controller).tactics_selection()
+
+    def test_tactics_presentation_contract_preserves_native_panel_and_order_evidence(self):
+        contract = ManagementSourceDataBridge.tactics_presentation_contract()
+
+        self.assertIs(contract, TACTICS_PRESENTATION_CONTRACT)
+        self.assertEqual(contract.formation_panel_class_name, "PFormation2k")
+        self.assertEqual(contract.formation_vtable_va, 0x7C1AB4)
+        self.assertEqual(contract.formation_user_region_offset, 0x70C)
+        self.assertEqual(contract.formation_user_region_size, 0x9CC)
+        self.assertEqual(contract.formation_magic, 0x074A3216)
+        self.assertEqual(contract.formation_records_offset, 0x714)
+        self.assertEqual(contract.formation_record_count, 5)
+        self.assertEqual(contract.formation_record_size, 0x1F4)
+        self.assertEqual(contract.team_orders_panel_class_name, "PTeamOrders2K")
+        self.assertEqual(contract.team_orders_vtable_anchor_va, 0x7C6FE0)
+        self.assertEqual(contract.team_orders_type_descriptor_anchor_va, 0x81DE68)
+        self.assertEqual(
+            contract.team_orders_source_path,
+            r"Applications\FootballManager\SquadPan.cpp",
+        )
+        self.assertEqual(
+            [
+                (item.category, item.semantic_key)
+                for item in contract.priority_categories
+            ],
+            [
+                (0, "captaincy_order"),
+                (1, "penalty_taker_order"),
+                (2, "corner_kick_order"),
+                (3, "free_kick_order"),
+            ],
+        )
+        self.assertIn(
+            "Click for captaincy order",
+            contract.priority_categories[0].corroborating_original_strings,
+        )
+        self.assertIn(
+            "Penalty Takers",
+            contract.priority_categories[1].corroborating_original_strings,
+        )
+        self.assertEqual(
+            contract.priority_categories[2].corroborating_original_strings,
+            ("Corner Kicks (Left)", "Corner Kicks (Right)"),
+        )
+        self.assertEqual(
+            contract.priority_categories[3].corroborating_original_strings,
+            ("Free Kicks (Left)", "Free Kicks (Right)"),
+        )
+        for item in contract.priority_categories:
+            self.assertFalse(hasattr(item, "control_id"))
+            self.assertFalse(hasattr(item, "rectangle"))
+            self.assertFalse(hasattr(item, "art_path"))
 
     def test_player_profile_projects_only_recovered_runtime_source_fields(self):
         controller = FakeController()
