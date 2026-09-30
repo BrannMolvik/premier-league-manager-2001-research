@@ -190,6 +190,12 @@ class FakeController:
             transfer_listed=True,
         )
         self.state.players[scout_other.index] = scout_other
+        unattached = FakePlayer(
+            406, "Free", "Agent", 0, (1, 2, 0),
+            80, 2, 70, club_id=-1, nationality_id=4,
+            out_of_contract=True,
+        )
+        self.state.players[unattached.index] = unattached
         self.state.contract_renewal_suggestions = [
             ContractRenewalSuggestion(
                 player_id=202,
@@ -291,6 +297,7 @@ class FakeController:
         self.last_scout_panel_state = panel_state
         self.last_scout_kwargs = kwargs
         return (
+            self.state.players[406],
             self.state.players[405],
             self.state.players[404],
         )
@@ -701,15 +708,19 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         self.assertEqual(controller.last_scout_kwargs["secondary_score_mode"], 16)
         self.assertEqual(controller.last_scout_kwargs["secondary_caller_argument"], 7)
         self.assertNotIn("status_controls", controller.last_scout_kwargs)
-        self.assertEqual([row.player_id for row in rows], [405, 404])
-        self.assertEqual([row.result_index for row in rows], [0, 1])
-        self.assertEqual(rows[0].player_name, "Scout Result")
-        self.assertEqual(rows[0].club_name, "Beta City")
-        self.assertEqual(rows[0].positions, (2, 3, 0))
-        self.assertEqual(len(rows[0].current_skill_bytes), 17)
-        self.assertEqual(rows[0].age, 20)
-        self.assertEqual(rows[0].history_average, 5.5)
-        self.assertTrue(rows[0].transfer_listed)
+        self.assertEqual([row.player_id for row in rows], [406, 405, 404])
+        self.assertEqual([row.result_index for row in rows], [0, 1, 2])
+        self.assertEqual(rows[0].player_name, "Free Agent")
+        self.assertEqual(rows[0].club_id, -1)
+        self.assertIsNone(rows[0].club_name)
+        self.assertTrue(rows[0].out_of_contract)
+        self.assertEqual(rows[1].player_name, "Scout Result")
+        self.assertEqual(rows[1].club_name, "Beta City")
+        self.assertEqual(rows[1].positions, (2, 3, 0))
+        self.assertEqual(len(rows[1].current_skill_bytes), 17)
+        self.assertEqual(rows[1].age, 20)
+        self.assertEqual(rows[1].history_average, 5.5)
+        self.assertTrue(rows[1].transfer_listed)
 
     def test_scouting_backend_error_is_fail_closed_presentation_error(self):
         controller = FakeController()
