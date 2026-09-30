@@ -8261,3 +8261,34 @@ keeping presentation separate from the stable simulation backend.
   follow `research/GATE13_CATALOG_SEARCH_PLAN.md`; stage only the
   evidence-backed PStartMenu/TeamSelect slice with
   `--extract-path-file --only-explicit`; provenance-import the originals.
+
+
+## Gate 13 verified background metadata and independent CI - 30 September 2026
+
+- Resumed from canonical `main` checkpoint `c6e2aa387b1150e847bef9f5cb26f5954a496137`.
+  The private original 511,121,336-byte Library ZIP still resolves and
+  materializes, but even a trivial execution-container command fails with
+  CAAS `ClientError`. No original resource bytes were inspected or imported.
+- Verified from existing original-disc evidence in `EXECUTABLE_ANALYSIS.md`:
+  `FM2001_Art/Generic/bground.444` is exactly **222,616 bytes**, 800x600,
+  SHA-256 `9db0d71daf70d77b4f5f2307304bb8c5eac4ee3a07a85f2828b570fbbf3b7fb9`.
+  Its size was not previously enforced at the initial unextracted inventory
+  boundary. Added an expected-size field to the source report and a warning
+  for any size mismatch visible directly from disc metadata, plus a regression.
+- Added a separate Gate-13-only GitHub Actions workflow, allowing presentation
+  work to report genuinely green without hiding the two known unrelated
+  secondary-schedule failures in the full suite.
+- Code/test/workflow commits:
+  `8dd88575a0d9b0310c423704ca42f80064654abb`,
+  `174136760703e3300feb3432abf526afda6f28dd`,
+  `5635215678b11459b07203ee4bf2606593505a70`.
+- CI: focused Gate-13 run `36693094247` **38/38 passed**;
+  repository asset-policy run `36693094248` **passed**.
+  Full-suite run `36693078539`: **866 tests, 2 failures**, only the
+  long-standing secondary root-order and bucket-count assertions.
+- Updated `GATE13_CATALOG_SEARCH_PLAN.md` with the canonical background size
+  and exact-only staging flag (`4bfad7ec1564b573df54198482aa94fda3b8be42`).
+- Exact next task remains the same: regain byte-level source access in a
+  functioning container, run the full original-disc catalog, then identify,
+  hash, selectively stage, provenance-import and bind the original
+  PStartMenu/TeamSelect resources. Do not redesign substitute graphics.
