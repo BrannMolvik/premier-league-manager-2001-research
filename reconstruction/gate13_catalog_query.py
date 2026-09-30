@@ -51,6 +51,55 @@ def query_disc_files(
     return sorted(matches, key=lambda item: _lower(item["path"]))
 
 
+def query_source_files(
+    report: dict,
+    *,
+    layer: str = "both",
+    contains: Iterable[str] = (),
+    suffixes: Iterable[str] = (),
+    regex: str | None = None,
+    top_level: Iterable[str] = (),
+) -> list[dict]:
+    """Query every source-archive layer; preserve the layer for provenance.
+
+    Original disc and outer ZIP members may share source-relative names.
+    Exposing rather than collapsing the layer allows collision detection
+    before creating a reusable exact-path staging list.
+    """
+    if layer not in {"both", "disc", "zip"}:
+        raise ValueError(f"Unsupported source catalog layer: {layer}")
+    matches: list[dict] = []
+    for kind, records in (("disc", "disc_files"), ("zip", "zip_files")):
+        if layer not in {"both", kind}:
+            continue
+        filtered = query_disc_files(
+            {"disc_files": report.get(records, [])},
+            contains=contains,
+            suffixes=suffixes,
+            regex=regex,
+            top_level=top_level,
+        )
+        matches.extend({"source_layer": kind, **entry} for entry in filtered)
+    return sorted(matches, key=lambda item: (_lower(item["path"]), item["source_layer"]))
+
+
+def summarize_source_files(report: dict) -> dict:
+    """Keep outer-ZIP and nested-disc counts distinct for audit purposes."""
+    disc = summarize_disc_files(report)
+    zipped = summarize_disc_files({"disc_files": report.get("zip_files", [])})
+    return {
+        "disc": disc,
+        "zip": {
+            "zip_file_count": zipped["disc_file_count"],
+            "top_level_counts": zipped["top_level_counts"],
+            "suffix_counts": zipped["suffix_counts"],
+            "nested_disc_image_count": sum(
+                bool(item.get("is_disc_image")) for item in report.get("zip_files", [])
+            ),
+        },
+    }
+
+
 def summarize_disc_files(report: dict) -> dict:
     roots: dict[str, int] = {}
     suffixes: dict[str, int] = {}
@@ -79,8 +128,8 @@ def summarize_disc_files(report: dict) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Query a saved Gate-13 full-disc catalog without re-reading or "
-            "reconverting the authorized source archive."
+            "Query saved Gate-13 outer-ZIP and nested-disc catalogs without "
+            "re-reading or reconverting the authorized source archive."
         )
     )
     parser.add_argument("report")
@@ -88,6 +137,12 @@ def main() -> int:
     parser.add_argument("--suffix", action="append", default=[])
     parser.add_argument("--regex")
     parser.add_argument("--top-level", action="append", default=[])
+    parser.add_argument(
+        "--layer",
+        choices=("both", "disc", "zip"),
+        default="both",
+        help="Query the outer ZIP, nested disc, or both catalogs (default).",
+    )
     parser.add_argument("--summary", action="store_true")
     parser.add_argument(
         "--paths-only",
@@ -102,17 +157,24 @@ def main() -> int:
     if args.summary:
         if args.paths_only:
             parser.error("--paths-only cannot be combined with --summary")
-        result = summarize_disc_files(report)
+        result = summarize_source_files(report)
         print(json.dumps(result, indent=2, sort_keys=True))
     else:
-        matches = query_disc_files(
+        matches = query_source_files(
             report,
+            layer=args.layer,
             contains=args.contains,
             suffixes=args.suffix,
             regex=args.regex,
             top_level=args.top_level,
         )
         if args.paths_only:
+            paths = [_lower(item["path"]) for item in matches]
+            if len(set(paths)) != len(paths):
+                parser.error(
+                    "Matching paths occur multiple times across source layers or "
+                    "within a layer; disambiguate before exact-path staging."
+                )
             for item in matches:
                 print(item["path"])
         else:
