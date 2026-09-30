@@ -40,6 +40,8 @@ on:
       - "reconstruction/original_pstartmenu_labels.py"
       - "reconstruction/original_button_frames.py"
       - "reconstruction/original_pstartmenu_resources.py"
+      - "reconstruction/original_teamselect_resources.py"
+      - "reconstruction/test_original_teamselect_resources.py"
       - "reconstruction/test_original_pstartmenu_resources.py"
       - "reconstruction/test_original_button_frames.py"
       - "reconstruction/test_original_pstartmenu_labels.py"
@@ -77,6 +79,7 @@ jobs:
             test_original_pstartmenu_labels \
             test_original_button_frames \
             test_original_pstartmenu_resources \
+            test_original_teamselect_resources \
             test_ea444_header \
             test_ea444_bits \
             test_ea444_tables \
