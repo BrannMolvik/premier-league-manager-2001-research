@@ -145,6 +145,19 @@ KNOWN_BUTTON_WINDOWS = (
     ("Original button atlas initialization", 0x5F4500, 0x120),
     ("Shared Button@ease_2001 setup", 0x652FD0, 0x200),
     ("Zurich bitmap font source loader", 0x657650, 0x120),
+    # PREVIOUS FIRST-HAND reverse-engineering evidence in
+    # research/EXECUTABLE_ANALYSIS.md ("TeamSelect start-button dispatch").
+    # These are raw bounded inspection windows, not complete function bodies.
+    ("Generic control callback/state-mask setup", 0x64F380, 0x40),
+    ("Button control event+owner setup", 0x64F3C0, 0x20),
+    ("Generic control bit-state toggle", 0x64F3E0, 0x70),
+    ("Control state-enable forwarding virtual", 0x64F510, 0x10),
+    ("Control refresh forwarding virtual", 0x64F520, 0x30),
+    ("Control state notification", 0x64F710, 0x40),
+    ("Control complementary state update", 0x64F750, 0x50),
+    ("Button@ease actual input handler", 0x64F7A0, 0xC0),
+    ("TeamSelect owner event virtual", 0x4DA480, 0x80),
+    ("TeamSelect owner acceptance predicate", 0x5CFA50, 0x30),
 )
 
 # These values are established by earlier source research, not new vtables.

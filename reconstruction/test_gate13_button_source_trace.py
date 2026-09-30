@@ -54,7 +54,12 @@ class CanonicalButtonTraceTests(unittest.TestCase):
     def test_pin_existing_exact_code_windows_without_claiming_frame_states(self):
         self.assertEqual(
             tuple(va for _, va, _ in KNOWN_BUTTON_WINDOWS),
-            (0x4C1BA0, 0x4C3770, 0x4D885F, 0x5F4500, 0x652FD0, 0x657650),
+            (
+                0x4C1BA0, 0x4C3770, 0x4D885F, 0x5F4500, 0x652FD0,
+                0x657650, 0x64F380, 0x64F3C0, 0x64F3E0, 0x64F510,
+                0x64F520, 0x64F710, 0x64F750, 0x64F7A0, 0x4DA480,
+                0x5CFA50,
+            ),
         )
         self.assertIn(("PStartMenu button atlas global", 0x946590),
                       CANDIDATE_GLOBAL_TARGETS)
