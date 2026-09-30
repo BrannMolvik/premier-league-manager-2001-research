@@ -9,6 +9,7 @@ from gate13_management_source_data import (
     LEAGUE_TABLE_PRESENTATION_CONTRACT,
     MESSAGES_PRESENTATION_CONTRACT,
     PLAYER_PROFILE_PRESENTATION_CONTRACT,
+    SQUAD_PRESENTATION_CONTRACT,
     ManagementPresentationError,
     ManagementSourceDataBridge,
     SCOUTING_PRESENTATION_CONTRACT,
@@ -474,6 +475,35 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         self.assertTrue(first.out_of_contract)
         self.assertTrue(first.loan_listed)
         self.assertTrue(first.wanted)
+
+    def test_squad_presentation_contract_preserves_native_roster_selection_state(self):
+        contract = ManagementSourceDataBridge.squad_presentation_contract()
+
+        self.assertIs(contract, SQUAD_PRESENTATION_CONTRACT)
+        self.assertEqual(contract.team_roster_ids_offset, 0x244)
+        self.assertEqual(contract.team_roster_count_offset, 0x294)
+        self.assertEqual(contract.team_roster_player_id_size, 2)
+        self.assertEqual(contract.participant_collector_va, 0x510CD0)
+        self.assertEqual(contract.active_predicate_va, 0x417F50)
+        self.assertEqual(contract.substitute_predicate_va, 0x417F60)
+        self.assertEqual(contract.active_setter_va, 0x4182F0)
+        self.assertEqual(contract.substitute_setter_va, 0x4182C0)
+        self.assertEqual(contract.removal_helper_va, 0x4181B0)
+        self.assertEqual(contract.current_club_selection_flags_offset, 0x14)
+        self.assertEqual(contract.active_flag_mask, 0x10)
+        self.assertEqual(contract.substitute_flag_mask, 0x20)
+        self.assertTrue(contract.participant_order_preserves_team_roster_order)
+        self.assertFalse(contract.original_screen_sort_proven)
+        self.assertIsNone(contract.screen_class_name)
+        for unsupported in (
+            "screen_id",
+            "control_id",
+            "column_labels",
+            "row_rectangle",
+            "art_path",
+            "navigation_id",
+        ):
+            self.assertFalse(hasattr(contract, unsupported))
 
     def test_league_table_presentation_contract_preserves_native_comparator(self):
         contract = ManagementSourceDataBridge.league_table_presentation_contract()

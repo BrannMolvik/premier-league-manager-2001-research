@@ -44,6 +44,29 @@ Projected fields are already recovered runtime state only:
 No positional label names, status icons, colors, sorting or screen-specific
 visibility rules are assigned here.
 
+### Source-backed Squad runtime presentation contract
+
+Canonical executable research additionally pins the ordered backend roster and
+match-selection state that the Squad-facing presentation may consume without
+inventing a screen:
+
+- team roster IDs are 16-bit player IDs beginning at team `+0x244`, with
+  count at `+0x294`;
+- match participant collector `0x510CD0` resolves those IDs in roster order;
+- active predicate `0x417F50` and substitute predicate `0x417F60`
+  decide which roster members enter the participant array;
+- for the player's current club, DBRPlayer `+0x14` bit `0x10` is
+  active/on-field and bit `0x20` is substitute-available;
+- setter `0x4182F0` sets active and clears substitute state;
+- setter `0x4182C0` sets substitute and clears active state;
+- removal helper `0x4181B0` clears both and resets position state;
+- included participants preserve team-roster iteration order.
+
+This is a backend/runtime contract only. No distinct original Squad screen class,
+screen sort, visible columns, control IDs, geometry, artwork or navigation has
+been proven by this checkpoint. See
+`research/GATE13_SQUAD_PRESENTATION_CONTRACT.md`.
+
 ### Source-backed formation / Team Orders presentation contract
 
 Existing canonical-executable, RTTI and MatchCalculator research now supplies a

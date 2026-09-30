@@ -50,6 +50,47 @@ class SquadRowView:
 
 
 @dataclass(frozen=True)
+class SquadPresentationContract:
+    team_roster_ids_offset: int
+    team_roster_count_offset: int
+    team_roster_player_id_size: int
+    participant_collector_va: int
+    active_predicate_va: int
+    substitute_predicate_va: int
+    active_setter_va: int
+    substitute_setter_va: int
+    removal_helper_va: int
+    current_club_selection_flags_offset: int
+    active_flag_mask: int
+    substitute_flag_mask: int
+    participant_order_preserves_team_roster_order: bool
+    original_screen_sort_proven: bool
+    screen_class_name: str | None
+
+
+# Firsthand canonical-executable evidence only. These values describe the
+# ordered DBRTeam/DBRPlayer backend state consumed by match preparation; they
+# do not identify an original Squad screen class, row sort or visual layout.
+SQUAD_PRESENTATION_CONTRACT = SquadPresentationContract(
+    team_roster_ids_offset=0x244,
+    team_roster_count_offset=0x294,
+    team_roster_player_id_size=2,
+    participant_collector_va=0x510CD0,
+    active_predicate_va=0x417F50,
+    substitute_predicate_va=0x417F60,
+    active_setter_va=0x4182F0,
+    substitute_setter_va=0x4182C0,
+    removal_helper_va=0x4181B0,
+    current_club_selection_flags_offset=0x14,
+    active_flag_mask=0x10,
+    substitute_flag_mask=0x20,
+    participant_order_preserves_team_roster_order=True,
+    original_screen_sort_proven=False,
+    screen_class_name=None,
+)
+
+
+@dataclass(frozen=True)
 class FixturesPresentationContract:
     table_class_name: str
     table_vtable_va: int
@@ -894,6 +935,11 @@ class ManagementSourceDataBridge:
             short_name=club.short_name,
             current_date=current_date,
         )
+
+    @staticmethod
+    def squad_presentation_contract() -> SquadPresentationContract:
+        """Return proven ordered-roster/selection backend metadata only."""
+        return SQUAD_PRESENTATION_CONTRACT
 
     def squad_rows(self) -> tuple[SquadRowView, ...]:
         self._human_club_id()
