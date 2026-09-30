@@ -156,6 +156,7 @@ python gate13_source_inventory.py <source.zip> --deep \
   --extract-path-file gate13-selected-paths.txt \
   --only-explicit \
   --require-all-explicit \
+  --hash-source \
   --extract-candidates-to <staging-directory> \
   --output gate13-source-selected.json
 ```
