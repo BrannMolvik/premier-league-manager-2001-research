@@ -161,3 +161,42 @@ class IsoImage:
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_bytes(self.read_file(entry))
         return output
+
+
+class RawMode1IsoImage(IsoImage):
+    """Expose a raw 2352-byte MODE1 track as a read-only virtual ISO image.
+
+    The directory reader sees only the original 2048-byte user-data portion of
+    each physical sector. This avoids writing a second hundreds-of-MB ISO
+    copy when the authorized source ZIP is recovered. Callers performing a
+    provenance audit must still validate every raw sector once before using it.
+    """
+
+    RAW_SECTOR = 2352
+    DATA_OFFSET = 16
+    RAW_SYNC = b"\\x00" + (b"\\xff" * 10) + b"\\x00"
+
+    def _read(self, offset: int, size: int) -> bytes:
+        if offset < 0 or size < 0:
+            raise Iso9660Error("negative virtual ISO read")
+        if size == 0:
+            return b""
+        first = offset // SECTOR
+        last = (offset + size - 1) // SECTOR
+        chunks = []
+        with self.path.open("rb") as source:
+            source.seek(first * self.RAW_SECTOR)
+            for sector_index in range(first, last + 1):
+                raw = source.read(self.RAW_SECTOR)
+                if len(raw) != self.RAW_SECTOR:
+                    raise Iso9660Error(
+                        f"short raw MODE1/2352 read at sector {sector_index}"
+                    )
+                if raw[:12] != self.RAW_SYNC or raw[15] != 1:
+                    raise Iso9660Error(
+                        f"invalid raw MODE1/2352 header at sector {sector_index}"
+                    )
+                chunks.append(raw[self.DATA_OFFSET:self.DATA_OFFSET + SECTOR])
+        within_first = offset % SECTOR
+        return b"".join(chunks)[within_first:within_first + size]
+
