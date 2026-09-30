@@ -277,3 +277,29 @@ continuing. Even a passing known-positive calibration only validates the
 pattern against one independently proven class; each new Button vftable
 candidate still requires constructor/vftable-write/CFG adjudication and
 separate authentic animation-frame/font positioning proof.
+
+## Enforced CLI known-positive reference (not just a report flag)
+
+The real-source `--inspect-button-rtti-candidates` CLI now **fails closed
+before writing an output report** if the MSVC RTTI locator cannot
+recover both independently previously proven original TeamSelect
+anchors: decorated `.?AVPMain@TeamSelect@@` TypeDescriptor at
+`0x81EC10` and vftable `0x7C7650`. It also refuses
+missing, malformed or mismatched calibration metadata. Previously the
+opt-in unit test required this canary, but the CLI itself still
+saved and could cross-reference *uncalibrated* Button candidates;
+that unsafe gap has been closed.
+
+A failure does **not** mean the original game lacks the class; it
+means the current RTTI pattern parser has not earned confidence
+against a known firsthand control. Preserve the original executable,
+inspect the actual RTTI structure/descriptor and compiler-specific
+layout in Ghidra, and correct the parser or decorated spelling
+using original-byte evidence. Until that happens, rerun the plain
+original-byte window trace without `--inspect-button-rtti-candidates`
+and manually adjudicate its evidence instead of bypassing the canary.
+
+Synthetic hosted tests exercise both positive and negative CLI
+paths and assert that a negative canary creates **no private report**.
+Only a later exact-hash original executable run can prove that the
+positive-control match actually succeeds on original bytes.
