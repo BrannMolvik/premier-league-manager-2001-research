@@ -8487,3 +8487,53 @@ keeping presentation separate from the stable simulation backend.
   health checks still fail. The authentic UI resource catalog, byte
   inspection and minimal visual import are therefore **not yet done**.
   This must remain the first step in the next workable execution context.
+
+
+## Gate 13 original EA444 compressed coefficient / quantization recovery - 30 September 2026
+
+- Recovered from canonical main `8a7ab48ebda52d494324e36b4b64c253e86fc8e8`
+  after an extension stale-activity interruption. Reused the actual
+  original source archive, original hash-verified executable, staged
+  original UI assets and previous work; no reconstruction restart.
+  Incremented `agent-runtime` recovery generation to **88**.
+- Verified all **12/12 local source-backed tests** across the
+  original `.444` compressed bitstream, exact original embedded
+  `TQIA_DAT` Huffman/zigzag tables, and original sparse run/signed
+  amplitude/escape coefficient parsing. Separate first-component scans
+  succeeded against all **17** real first-slice original graphic assets.
+- Implemented and committed
+  `reconstruction/ea444_bits.py`,
+  `ea444_tables.py`, `ea444_coefficients.py`,
+  `ea444_quantization.py` and `ea444_quantized_block.py`
+  with companion standard CI and opt-in real-source regressions;
+  focused Gate-13 workflow includes all of those test modules.
+- Directly recovered 64 original quantization seeds from `.rdata`
+  VA `0x7DABF0` and SHA
+  `6fb2af66cb6a51e4b3fa7da9bacab417fa40f180aa0c18c85adb2550c04c89eb`.
+  Reconstructed exact signed x86 `IMUL/SHL/SHR/ADC` conversion from
+  source values into the live fixed-point coefficient scales.
+  Verified actual `main_menu_bground.444` first component has
+  eight-bit DC scale 15, 14 nonzero AC, 93-bit entropy length,
+  original signed grid DC 983040 and grid SHA
+  `d074fa03f380438bfccbdf88dc2375f700434891889399e4750fc7bc2c75c2d7`.
+- Bounded the original inverse 8×8 path: caller `0x7B95D0`
+  performs eight first-pass `0x7B9360` transforms over source
+  contiguous 8-element arrays into 36-byte-stride scratch rows,
+  then eight second-pass `0x7B94C0` transforms. The first pass
+  has an explicit DC-only shortcut at `0x7B948E`.
+- Detailed firsthand address-level research and pending pixel-color
+  boundaries are in `research/GATE13_EA444_DECODER_TRACE.md`.
+  The private original full-disc catalog remains in the current
+  execution workspace; two attempts to save a Library copy failed
+  with `container_session_expired`, but the original source ZIP is
+  persistently available via `ORIGINAL_SOURCE_LOCATOR.md`.
+- Hosted GitHub Actions were **not** dispatched in this continuation:
+  the workflow was intentionally converted to manual/PR to conserve
+  included minutes. Do not present newest module tests as hosted-CI
+  certified until a real run is checked.
+- Exact next work: recover verified initialized inverse-transform
+  constants and both original x87 8-point passes and then post-IDCT
+  conditional channel/color conversion from the hash-verified original
+  executable. Test actual images before claiming visual fidelity or
+  declaring Gate 13 complete. Continue Gates 14–17 only after
+  preceding audit.
