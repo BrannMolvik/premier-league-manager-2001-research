@@ -91,7 +91,20 @@ The JSON report deliberately contains two views:
   bytes were intentionally extracted.
 
 Use the full catalog to identify opaque layout/string resources rather than
-guessing filenames. Once an exact path is known, stage only that resource:
+guessing filenames. Query a saved report without re-reading or reconverting the
+source archive:
+
+```text
+python gate13_catalog_query.py gate13-source.json --summary
+python gate13_catalog_query.py gate13-source.json --contains menu
+python gate13_catalog_query.py gate13-source.json --suffix dat --top-level Data
+python gate13_catalog_query.py gate13-source.json --regex "(team|start|layout)"
+```
+
+Multiple `--contains` filters are ANDed. `--suffix`, `--top-level`, and
+`--regex` can be combined to narrow opaque presentation leads.
+
+Once an exact path is known, stage only that resource:
 
 ```text
 python gate13_source_inventory.py <source.zip> --deep \
