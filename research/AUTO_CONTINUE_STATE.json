@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Resume exact open Gate13 PR #38 PTickets presentation contract from head 92d9d0322fd2ff0a9403a66190591438d025527f. Wait only for already-running Gate13/full/asset CI, merge if all green, checkpoint main/runtime, then continue the next source-backed Gate13 management-panel task. Private source ZIP remains materialized but direct byte execution is ClientError; resume Button/Zurich/ten-resource physical audit immediately if execution returns. Gates13-17 and verified Windows11 release remain mandatory.",
-  "last_known_main_head": "f04841716f6ce3a897b9ab6b2fc33a53def6fbad",
+  "active_task": "Gate13 main 24f51f1 includes verified scouting, tactics/Team Orders, PTickets presentation contracts and first-screen provenance readiness guard. Private source ZIP is materialized but direct shell/Python byte execution has been ClientError. Retry source execution now; if still blocked, inspect PFinanceOverview/PTransfer2K and other already-firsthand panel identities for bounded contracts without inventing visuals. Resume Button/Zurich/ten-resource audit immediately when execution works. Gate13 then Gates14-17 and verified Windows11 release remain mandatory.",
+  "last_known_main_head": "24f51f112f72c0c2ef080ef25bbc01e11998ee25",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 102,
   "last_recovery_reason": "transient-connection-interrupted",
-  "note": "Recovery102 after transient connection interruption. Main remains f0484171; PR38 is open with CI already in progress. Do not restart tactics/scouting/readiness work.",
+  "note": "Recovery102 checkpoint after PR38 merge. Full run 36769405053 passed 1066 tests/21 expected skips/0 failures; focused 36769405085 passed 230/19 skips; asset policy 36769404960 passed.",
   "same_chat_fallback_minutes": 30
 }
