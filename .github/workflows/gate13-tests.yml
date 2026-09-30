@@ -103,6 +103,7 @@ jobs:
             test_gate13_asset_import \
             test_gate13_first_screen_selection \
             test_gate13_button_source_trace \
+            test_gate13_original_pixel_preview \
             test_gate13_catalog_query \
             test_gate13_source_inventory \
             test_iso9660_reader
