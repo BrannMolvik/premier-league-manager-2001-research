@@ -102,6 +102,7 @@ jobs:
             test_original_front_end_input \
             test_gate13_asset_import \
             test_gate13_first_screen_selection \
+            test_gate13_button_source_trace \
             test_gate13_catalog_query \
             test_gate13_source_inventory \
             test_iso9660_reader
