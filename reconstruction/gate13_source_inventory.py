@@ -479,6 +479,7 @@ def inventory_iso_image(
     image: Path,
     extract_candidates_to: Path | None = None,
     explicit_paths: set[str] | None = None,
+    only_explicit: bool = False,
 ) -> tuple[list[AssetRecord], list[str]]:
     records: list[AssetRecord] = []
     warnings: list[str] = []
@@ -490,7 +491,7 @@ def inventory_iso_image(
         reason = candidate_reason(member)
         if _lower(member) in requested:
             reason = "explicit-path"
-        if reason is None:
+        if (only_explicit and reason != "explicit-path") or reason is None:
             continue
 
         record = AssetRecord(
@@ -580,9 +581,10 @@ def deep_inventory_zip(
     extract_candidates_to: Path | None = None,
     disc_files: list[DiscFileRecord] | None = None,
     explicit_paths: set[str] | None = None,
+    only_explicit: bool = False,
 ) -> tuple[list[AssetRecord], list[str]]:
     direct, nested_images, warnings = inventory_zip(archive)
-    records = list(direct)
+    records = [] if only_explicit else list(direct)
     if not nested_images:
         return records, warnings
 
@@ -608,6 +610,11 @@ def deep_inventory_zip(
                         listing_image,
                         extract_candidates_to,
                         explicit_paths,
+                        only_explicit,
+                    )
+                elif seven_zip is not None and only_explicit:
+                    raise ValueError(
+                        "Exact-only staging requires an ISO9660/Joliet disc image."
                     )
                 elif seven_zip is not None:
                     image_records, image_warnings = inventory_disc_image(
@@ -638,7 +645,10 @@ def report_for_source(
     extract_candidates_to: Path | None = None,
     hash_source: bool = False,
     explicit_paths: set[str] | None = None,
+    only_explicit: bool = False,
 ) -> dict:
+    if only_explicit and not explicit_paths:
+        raise ValueError("--only-explicit requires at least one explicit path")
     source = source.resolve()
     warnings: list[str] = []
     nested_images: list[str] = []
@@ -657,6 +667,7 @@ def report_for_source(
                 extract_candidates_to,
                 disc_files,
                 explicit_paths,
+                only_explicit,
             )
             _, nested_images, _ = inventory_zip(source)
         else:
@@ -676,6 +687,11 @@ def report_for_source(
                     listing_image,
                     extract_candidates_to,
                     explicit_paths,
+                    only_explicit,
+                )
+            elif command is not None and only_explicit:
+                raise ValueError(
+                    "Exact-only staging requires an ISO9660/Joliet disc image."
                 )
             elif command is not None:
                 records, warnings = inventory_disc_image(
@@ -747,6 +763,7 @@ def report_for_source(
         },
         "nested_disc_images": nested_images,
         "explicit_paths": sorted(normalize_member(path) for path in (explicit_paths or set())),
+        "only_explicit": only_explicit,
         "disc_file_count": len(disc_files),
         "disc_files": [asdict(record) for record in disc_files],
         "candidates": [asdict(record) for record in records],
@@ -785,6 +802,11 @@ def main() -> int:
             "line. Blank lines and # comments are ignored. Repeatable."
         ),
     )
+    parser.add_argument(
+        "--only-explicit",
+        action="store_true",
+        help="Only include/stage explicitly selected source paths; requires --extract-path or --extract-path-file.",
+    )
     parser.add_argument("--hash-source", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
@@ -800,6 +822,7 @@ def main() -> int:
         extract_candidates_to=args.extract_candidates_to,
         hash_source=args.hash_source,
         explicit_paths=explicit_paths,
+        only_explicit=args.only_explicit,
     )
     rendered = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if args.output:
