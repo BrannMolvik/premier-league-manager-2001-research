@@ -5,6 +5,7 @@ import unittest
 
 from gate13_management_source_data import (
     FINANCE_OVERVIEW_PRESENTATION_CONTRACT,
+    FIXTURES_PRESENTATION_CONTRACT,
     LEAGUE_TABLE_PRESENTATION_CONTRACT,
     MESSAGES_PRESENTATION_CONTRACT,
     ManagementPresentationError,
@@ -370,6 +371,42 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         self.assertEqual(snapshot.tactics.corner_priority, (202,))
         self.assertEqual(snapshot.tactics.free_kick_priority, (101, 202))
         self.assertEqual(controller.squad_calls, 1)
+
+    def test_fixtures_presentation_contract_preserves_fixed_real_fixture_path(self):
+        contract = ManagementSourceDataBridge.fixtures_presentation_contract()
+        self.assertIs(contract, FIXTURES_PRESENTATION_CONTRACT)
+        self.assertEqual(
+            (contract.table_class_name, contract.table_vtable_va, contract.table_global_va),
+            ("DBTRealFixtures", 0x7C9884, 0x876C18),
+        )
+        self.assertEqual(
+            (contract.record_class_name, contract.record_vtable_va, contract.record_size),
+            ("DBRRealFixture", 0x7C9898, 0x14),
+        )
+        self.assertEqual(
+            (contract.static_table_offset, contract.shipped_fixture_count,
+             contract.shipped_round_count, contract.fixtures_per_round),
+            (0x10057, 380, 38, 10),
+        )
+        self.assertEqual(
+            (contract.round_table_class_name, contract.round_table_vtable_va,
+             contract.round_table_global_va, contract.round_record_class_name,
+             contract.round_record_vtable_va),
+            ("DBTRounds", 0x7C99C4, 0x876BD0, "DBRRound", 0x7C99D8),
+        )
+        self.assertEqual(contract.round_attach_va, 0x4F72D0)
+        self.assertEqual((contract.fixture_attach_start_va, contract.fixture_attach_end_va),
+                         (0x4F76A4, 0x4F770D))
+        self.assertEqual(contract.fixed_builder_va, 0x6173D0)
+        self.assertEqual(contract.league_add_round_va, 0x4F4500)
+        self.assertEqual(contract.league_match_constructor_va, 0x5104F0)
+        self.assertEqual(contract.schedule_insert_va, 0x615950)
+        self.assertTrue(contract.source_order_preserved_before_schedule_insertion)
+        self.assertFalse(contract.rng_before_fixed_schedule_insertion)
+        self.assertFalse(contract.original_screen_sort_proven)
+        self.assertIsNone(contract.screen_class_name)
+        for unsupported in ("control_id", "row_rectangle", "art_path", "navigation_id"):
+            self.assertFalse(hasattr(contract, unsupported))
 
     def test_fixture_projection_uses_recovered_dates_names_and_result_only(self):
         bridge = ManagementSourceDataBridge(FakeController())
