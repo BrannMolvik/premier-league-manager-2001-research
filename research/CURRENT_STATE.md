@@ -102,10 +102,23 @@ The first front-end contract is now bounded in
 - TeamSelect object/activation path is already recovered and remains separate
   from gameplay simulation.
 
-The authorized source archive is available again, but this recovery runtime
-cannot currently inspect the materialized ZIP bytes. No visual asset has been
-guessed or substituted; `original_assets/MANIFEST.md` remains intentionally
-empty.
+The authorized source archive now has a durable private locator in
+`research/ORIGINAL_SOURCE_LOCATOR.md`. This recovery resolved the exact
+511,121,336-byte Library file and materialization reported success, but the
+current CAAS/container still returns a container-level `ClientError` even for
+a simple read/list operation on the materialized path. Persistent source
+recovery is therefore working; execution-container byte access is the remaining
+infrastructure blocker. No visual asset has been guessed or substituted;
+`original_assets/MANIFEST.md` remains intentionally empty.
+
+Repository-native ISO9660/Joliet inventory is now implemented in commits
+`784a9095f072f25c6980fe0ffc346e9d8db67576` and
+`971bea6ce8caffa778cd713d1e0718907154f32d`. After raw MODE1/2352 conversion,
+Gate-13 filesystem enumeration and candidate extraction no longer require
+7-Zip. Focused tests cover direct Joliet extraction and nested
+ZIP -> MODE1/2352 -> ISO9660/Joliet inventory. CI status for these newest
+commits was not yet available at the checkpoint, so the latest CI-verified
+baseline above remains unchanged.
 
 Secondary visual evidence is now bounded in
 `research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
@@ -114,13 +127,13 @@ pixel coordinates and non-authoritative for shipped asset bytes.
 
 ## Exact next task
 
-1. Run the now-implemented historically proven source-access path in
-   `reconstruction/gate13_source_inventory.py`: materialize the authorized
-   archive, extract its raw MODE1/2352 disc image, convert it to temporary
-   ISO9660, then inventory the disc filesystem. The current recovery container
-   itself is returning a container-level `ClientError`, so retry execution
-   when a working container is available rather than repeating front-end
-   research.
+1. Retry byte access in a working execution container using the durable source
+   locator in `research/ORIGINAL_SOURCE_LOCATOR.md`. Materialization has
+   already been proven to succeed; do not ask for a re-upload. Run
+   `reconstruction/gate13_source_inventory.py --deep` against the recovered
+   ZIP. The tool now performs ZIP -> raw MODE1/2352 -> temporary ISO9660/Joliet
+   inventory using the repository-native reader, without requiring 7-Zip for
+   this documented source path.
 2. Inventory the exact original graphics, strings, rectangles/layout data and
    other resources required by PStartMenu and TeamSelect, using the bounded
    secondary screenshots only as a visual cross-check.
