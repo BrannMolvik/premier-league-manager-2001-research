@@ -8292,3 +8292,47 @@ keeping presentation separate from the stable simulation backend.
   functioning container, run the full original-disc catalog, then identify,
   hash, selectively stage, provenance-import and bind the original
   PStartMenu/TeamSelect resources. Do not redesign substitute graphics.
+
+
+## Gate 13 menu-to-gameplay application handoff - 30 September 2026
+
+- Resumed from canonical `main` checkpoint
+  `6e804c23dd12b9d11538b7e8937fc7ac48fc6996`. Verified the private
+  authorized original archive still cannot be opened by the local execution
+  container: a basic container-health command immediately failed with CAAS
+  `ClientError`.
+- Implemented `reconstruction/front_end_session.py`, an isolated headless
+  application seam linking the recovered `FrontEndState` control IDs to the
+  existing `HumanGameplayController` without rendering substitute graphics
+  or importing simulation from the presentation-state module.
+- Confirmed PStartMenu New Game event `2` constructs a new gameplay backend
+  before leaving the menu; backend-construction failure keeps PStartMenu
+  active. Team choice remains presentation state until the confirmed
+  TeamSelect Start/Continue event `0x2A` invokes backend
+  `select_club`. Rejected choices remain retryable; Back `0x29`
+  clears the presentation choice without synthesizing a backend reset.
+  The implementation currently supports only the Premier League backend
+  subset, **not** the original complete country hierarchy.
+- Added 9 targeted regression tests covering dispatch order, lazy
+  production factory wiring, unsupported controls, missing and rejected
+  choices, duplicate-start prevention and Back behavior.
+- Source/test/workflow commits:
+  `8c07cc004fb1e0bd6344ed9714ee32db20dfbe9f`,
+  `91c02c17d72066e01e5d40dbaef46f1dbbd0a2be`,
+  `240b08374ec42d46b33816aa907dcad7aaa6c9d8`.
+  Updated focused CI path filters in
+  `9154b720373125172fe3e6cc8cfa8ae22b2c35b2` so future session
+  edits trigger Gate-13 checks.
+- Dedicated GitHub Actions run `36694601308`: **47 of 47 focused Gate-13
+  tests passed**. Asset policy run `36694601279` also passed.
+  Full reconstruction run `36694465472`: **875 tests, only the two
+  established secondary-schedule failures**, and all nine new bridge
+  regressions passed.
+- Documented the new headless seam and its current boundaries in
+  `research/GATE13_FRONTEND_FOUNDATION.md` and
+  `reconstruction/README.md`.
+- The missing next dependency remains unchanged: open the original
+  authorized disc archive in a functioning execution container, run the
+  native Gate-13 inventory, extract/hash original graphics and layout,
+  provenance-import the minimal first slice, and bind those resources to
+  the now-tested session/navigation seam.
