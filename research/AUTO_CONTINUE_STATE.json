@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 92,
-  "last_recovery_reason": "manual-start",
-  "note": "Verified Gate 13 PR #5 and #6 merged, tests passed. Canonical next task: first-hand original Zurich font/ Button@ease_2001 recovery, then render/compose PStartMenu and TeamSelect. Cost bug corrected: asset-policy.yml on agent-runtime now has no push trigger (runtime commit 2d48b1a); main protocol documented in 2ef1d249. Original private ZIP confirmed in Library; this worker's container/Python ClientError blocks only new first-hand local-byte analysis, not the mission. Keep full Gates 13-17 assignment active.",
+  "recovery_generation": 93,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Resumed at main 2ef1d249. Newly persisted EAUK original font parser commits 08228e/d58a57/995a52 identified beyond old CURRENT_STATE checkpoint; inspect and verify rather than repeat. Container trivial echo still raises ClientError in current session. Continue Gate 13 source-backed tasks; full Gates 13-17 remains active.",
   "same_chat_fallback_minutes": 30
 }
