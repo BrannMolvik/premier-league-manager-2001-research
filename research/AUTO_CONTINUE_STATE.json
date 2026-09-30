@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recover Button@ease_2001 native frame-state/caption behavior from verified original executable and complete original ten-asset staged-byte tests/import; meanwhile source-backed hierarchy graphic strips have been integrated and next useful step is a bounded original-PE trace harness (synthetic validation only while local execution ClientError persists). Continue Gate 13 remaining screens then Gates 14-17 including Windows 11 release audit.",
-  "last_known_main_head": "942ffd327452a1d27c1b4553da80977e28af9dcd",
+  "active_task": "Gate 13: actual canonical Button@ease_2001 frame-state and original caption layout trace from the privately archived executable; execute the new checksum-gated PE inspection tool when shell becomes usable. Run ten-file exact original source staging, SHA validator and opt-in licensed-byte image/font/str tests, import provenance-backed originals, complete both screens and remaining Gate 13 presentation, then audit Gates 14–17 through verified Windows 11 release.",
+  "last_known_main_head": "88aac0270b84e78d7d9f054d82cc805840b4f475",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 94,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Current recovery merged PR #13 1edb4deb1 with successful focused GitHub CI run 36734520993 and repository policy 36734520580; CURRENT_STATE.md and PROGRESS.md checkpointed at 942ffd327452a1d27c1b4553da80977e28af9dcd. Both container.exec and python_user_visible trivial operations raised ClientError: original source bytes cannot currently be inspected, do not fabricate executable trace. Maintain full mission.",
+  "note": "Recovered at cb70119 and merged PR #13 1edb4deb (source-hash-gated TeamSelect hierarchy source art; focused CI 36734520993, asset guard 36734520580) and PR #14 a427820 (canonical PE32 bounded original Button executable trace harness; CI 36735030753, guard 36735030926). Synced CURRENT_STATE, PROGRESS and project_status to main 88aac0270b84e78d7d9f054d82cc805840b4f475. This session's native container exec and alternate visible Python trivial commands returned ClientError, so actual original-executable state mapping and real licensed bytes remain unverified. Do not declare Gate 13 done; continuous mission through Gate 17 active.",
   "same_chat_fallback_minutes": 30
 }
