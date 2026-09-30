@@ -10,6 +10,8 @@ on:
       - "reconstruction/front_end_session.py"
       - "reconstruction/test_front_end_session.py"
       - "reconstruction/gate13_*.py"
+      - "reconstruction/ea_language_strings.py"
+      - "reconstruction/test_ea_language_strings.py"
       - "reconstruction/iso9660_reader.py"
       - "reconstruction/test_front_end_state.py"
       - "reconstruction/test_gate13_*.py"
@@ -38,6 +40,7 @@ jobs:
           python -m unittest -v \
             test_front_end_state \
             test_front_end_session \
+            test_ea_language_strings \
             test_gate13_asset_import \
             test_gate13_catalog_query \
             test_gate13_source_inventory \
