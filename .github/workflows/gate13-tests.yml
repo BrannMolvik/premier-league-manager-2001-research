@@ -38,6 +38,7 @@ jobs:
         run: |
           python -m unittest -v \
             test_front_end_state \
+            test_front_end_session \
             test_gate13_asset_import \
             test_gate13_catalog_query \
             test_gate13_source_inventory \
