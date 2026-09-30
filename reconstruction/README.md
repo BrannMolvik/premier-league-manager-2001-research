@@ -105,8 +105,11 @@ python gate13_source_inventory.py <source.zip> --deep --hash-source --output gat
 For the historically observed source path, deep mode extracts the nested raw
 MODE1/2352 BIN image, validates every raw sector, converts only the 2048-byte
 Mode-1 user-data payload to a temporary ISO, and reads the ISO9660/Joliet
-filesystem with the repository-native reader. 7-Zip is only an optional
-fallback for other supported disc-image formats.
+filesystem with the repository-native reader. It also inventories any loose
+presentation resources directly packaged in the outer ZIP, including opaque
+resources chosen via `--extract-path` or `--extract-path-file`. The loose
+ZIP layer is scanned once; its disc-member list is retained for the nested
+pass. 7-Zip is only an optional fallback for other supported disc-image formats.
 
 The JSON report deliberately contains two views:
 
@@ -153,6 +156,7 @@ Once an exact path is known, stage only that resource:
 ```text
 python gate13_source_inventory.py <source.zip> --deep \
   --extract-path FM2001_Art/Generic/<exact-path> \
+  --only-explicit \
   --extract-candidates-to <staging-directory> \
   --output gate13-source-selected.json
 ```
