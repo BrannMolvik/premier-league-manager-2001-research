@@ -305,7 +305,7 @@ Cup-to-Cup type-3 allocation must therefore use the just-finished ordered
 `(winner, loser)` pair and must not fall back to the two shipped first-season
 DBRCompetition club references.
 
-### DummyLeague annual re-sort
+### DummyLeague annual re-sort and finalization
 
 DummyLeague vtable `0x7C9A80` maps annual init virtual `+0x00` to
 `0x4F5130`. Every call clears bit 0 of byte `+0x40` before common child
@@ -313,23 +313,42 @@ initialization.
 
 `League::EnsureSorted 0x4F4940` tests that same bit. If clear, it dispatches
 virtual `+0x38`; DummyLeague maps that slot to RNG-bearing `0x4F4750`, then
-sets the bit again.
+sets the bit again. This remains the exact lazy-sort mechanism for ordinary
+in-season consumers such as type-5 Cup allocations.
 
-This proves a reused DummyLeague runtime object receives a **fresh one-time
-lazy ranking each new season**. Canonical primary Cup allocation makes this
-immediately relevant: FA Cup allocation instruction **ID 3** is type 5 from
-Conference 2 (competition 89), quantity 10. Therefore annual FA Cup
-construction is the legitimate first next-season consumer that can re-sort
-Conference 2 after its membership has changed.
+Canonical annual finalization is stronger than the earlier clean-room
+assumption. DummyLeague virtual `+0x0C` maps to `0x4F7FE0`, and
+`0x4F7FE0` unconditionally invokes the DummyLeague `+0x38` sorter before
+common League finalization. Therefore **every primary root DummyLeague is
+freshly sorted during `0x616A70` season finalization**, whether or not that
+DummyLeague happened to be consumed lazily during the just-finished season.
 
-The clean-room annual materializer must feed that sort:
+This distinction was exposed by the first real canonical annual-rollover audit.
+The annual type-3 source set contains 44 DummyLeagues, but only competition 102
+among those 44 is naturally sorted by a fresh-startup primary type-5 consumer.
+Requiring all 44 rankings to exist at startup was therefore incorrect.
 
-- post-LeagueAllocation current Conference 2 membership;
-- current live player ratings/club rosters at the annual construction point;
-- the same annual competition CRT stream.
+The annual clean-room sequence is now:
 
-It must not carry the prior season's cached Conference 2 ranking into the new
-FA Cup draw.
+1. clone the live controller CRT state so failure remains atomic;
+2. walk `primary_mode0_root_finalization_order()`;
+3. for every primary root DummyLeague, rebuild its current member/rating stream
+   from live club membership and current roster order;
+4. execute one exact `0x4F4750` random sort per participant on that cloned
+   annual CRT stream;
+5. expose those freshly finalized rankings as the season-ending qualification
+   overlay;
+6. preview LeagueAllocation movement from that exact old-season state;
+7. continue annual primary materialization on the **same** cloned CRT stream.
+
+Conference 2 competition 89 therefore also receives the correct freshly
+finalized old-season ranking before promotion/relegation. The next season may
+later invalidate and lazily re-sort it again when the new FA Cup's type-5
+instruction first consumes the post-swap membership.
+
+Fresh startup now publishes only rankings that were actually materialized by
+startup consumers; annual qualification no longer pretends that all later
+type-3 DummyLeague rankings existed at new-game creation.
 
 ### Primary root finalization order
 
