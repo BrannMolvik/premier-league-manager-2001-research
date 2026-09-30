@@ -127,6 +127,19 @@ def candidate_reason(path: str) -> str | None:
     return None
 
 
+
+
+def load_explicit_path_file(path: Path) -> set[str]:
+    paths: set[str] = set()
+    for raw in path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        normalized = normalize_member(line)
+        if normalized:
+            paths.add(normalized)
+    return paths
+
 def is_disc_image(path: str) -> bool:
     return PurePosixPath(normalize_member(path)).suffix.lower() in DISC_IMAGE_SUFFIXES
 
@@ -762,9 +775,23 @@ def main() -> int:
             "stage only exact opaque resources discovered from the full catalog."
         ),
     )
+    parser.add_argument(
+        "--extract-path-file",
+        action="append",
+        type=Path,
+        default=[],
+        help=(
+            "Read exact source-relative paths from a UTF-8 text file, one per "
+            "line. Blank lines and # comments are ignored. Repeatable."
+        ),
+    )
     parser.add_argument("--hash-source", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
+
+    explicit_paths = set(args.extract_path)
+    for path_file in args.extract_path_file:
+        explicit_paths.update(load_explicit_path_file(path_file))
 
     report = report_for_source(
         args.source,
@@ -772,7 +799,7 @@ def main() -> int:
         seven_zip=args.seven_zip,
         extract_candidates_to=args.extract_candidates_to,
         hash_source=args.hash_source,
-        explicit_paths=set(args.extract_path),
+        explicit_paths=explicit_paths,
     )
     rendered = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if args.output:
