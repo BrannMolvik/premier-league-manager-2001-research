@@ -62,6 +62,37 @@ formations graphics, player-slot coordinates, style labels, colors or drag/drop
 behavior. Missing tactical state, lineup tuple or one of the four Team Orders
 lists fails closed instead of silently injecting modern defaults.
 
+### Finances and transfer runtime data
+
+The bridge now exposes the already recovered user-owned `Balance` slice
+without assigning unresolved EA-facing finance labels:
+
+- current cash;
+- ledger postings **in runtime append order**;
+- each posting's signed amount, numeric category ID and posting date;
+- the three recovered financial-objective candidates plus selected objective,
+  start/target values, dates and proven progression fields.
+
+Category IDs stay numeric because several original Finance screen labels are
+still unresolved. The bridge does not turn category 1600 or any other account
+into a guessed human-facing caption.
+
+For active transfer negotiations, the bridge preserves `TransferRuntimeState`
+proposal dictionary insertion order as a **runtime order only**, not a claim
+about the original Transfers screen sort. Each row exposes the recovered
+proposal/deal structures:
+
+- target player plus buying/selling clubs using source names;
+- cash fee and three exchange-player slots;
+- still-neutral negotiation bytes `+0x14/+0x15` and prior offer values;
+- exact reconstructed contract-term fields/clauses;
+- raw DealInProgress state, base state, swap-variant flag and creation date;
+- one scheduled MPMTransferPlayer due date/mode when present.
+
+The neutral negotiation bytes remain neutral. Missing DealInProgress identity
+or multiple schedule records for the same active proposal fail closed rather
+than being silently normalized into a modern UI state.
+
 ### Player profile source/runtime projection
 
 The bridge can now project one runtime player into a profile data record using
@@ -144,6 +175,9 @@ backend contract to lock:
   bytes and all four original Team Orders priority lists;
 - player-profile source identity, current 17-byte runtime skill state,
   contract/status fields, and explicit exclusion of unsupported target values;
+- Balance current cash, ledger append order, financial-objective runtime state;
+- active TransferProposal/DealInProgress/ContractTerms records and unambiguous
+  scheduled-transfer metadata without naming unresolved negotiation bytes;
 - fixture source insertion order even when fixture IDs/dates could tempt a
   modern resort;
 - recorded/unplayed result projection;
