@@ -16,6 +16,7 @@ from gate13_source_inventory import (
     inventory_iso_image,
     inventory_zip,
     is_mode1_2352_image,
+    load_explicit_path_file,
     normalize_member,
     parse_7z_slt,
     report_for_source,
@@ -270,6 +271,27 @@ Packed Size = 99
                     in warning
                     for warning in report["warnings"]
                 )
+            )
+
+    def test_explicit_path_file_ignores_comments_and_normalizes(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            path = Path(temp_name) / "paths.txt"
+            path.write_text(
+                "# selected Gate 13 resources\n"
+                "\\FM2001_Art\\Generic\\bground.444\n"
+                "\n"
+                "Data/UI/PStartMenu.dat\n",
+                encoding="utf-8",
+            )
+
+            paths = load_explicit_path_file(path)
+
+            self.assertEqual(
+                paths,
+                {
+                    "FM2001_Art/Generic/bground.444",
+                    "Data/UI/PStartMenu.dat",
+                },
             )
 
     def test_mode1_detector_rejects_nonintegral_or_bad_sync_image(self):
