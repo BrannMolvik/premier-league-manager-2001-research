@@ -85,6 +85,27 @@ class Gate13SourceInventoryTests(unittest.TestCase):
         self.assertEqual(nested, ["disc/game.iso"])
         self.assertEqual(warnings, [])
 
+    def test_opaque_bin_ui_file_is_not_confused_with_raw_disc_image(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            archive = root / "source.zip"
+            staged = root / "staged"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("UI/OpaquePanel.bin", b"layout-data")
+            report = report_for_source(
+                archive,
+                deep=True,
+                only_explicit=True,
+                explicit_paths={"UI/OpaquePanel.bin"},
+                extract_candidates_to=staged,
+            )
+            self.assertEqual(report["nested_disc_images"], [])
+            self.assertEqual(report["zip_file_count"], 1)
+            self.assertFalse(report["zip_files"][0]["is_disc_image"])
+            self.assertEqual(
+                (staged / "UI/OpaquePanel.bin").read_bytes(), b"layout-data"
+            )
+
     def test_loose_zip_exact_only_stages_only_requested_opaque_path(self):
         with tempfile.TemporaryDirectory() as temp_name:
             root = Path(temp_name)
@@ -189,7 +210,7 @@ class Gate13SourceInventoryTests(unittest.TestCase):
             with zipfile.ZipFile(archive, "w") as zf:
                 zf.writestr("FM2001_Art/Generic/logo.png", b"front-end")
                 zf.writestr("Opaque/A.dat", b"not-a-hint")
-                zf.writestr("disc/game.bin", b"raw-disc-placeholder")
+                zf.writestr("disc/game.iso", b"raw-disc-placeholder")
             report = report_for_source(archive)
             self.assertEqual(report["zip_file_count"], 3)
             self.assertEqual(
@@ -198,7 +219,7 @@ class Gate13SourceInventoryTests(unittest.TestCase):
                 [
                     ("FM2001_Art/Generic/logo.png", 9, False),
                     ("Opaque/A.dat", 10, False),
-                    ("disc/game.bin", 20, True),
+                    ("disc/game.iso", 20, True),
                 ],
             )
             self.assertEqual(report["disc_file_count"], 0)
@@ -302,11 +323,11 @@ class Gate13SourceInventoryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_name:
             archive = Path(temp_name) / "source.zip"
             with zipfile.ZipFile(archive, "w") as zf:
-                zf.writestr("disc/game.bin", b"raw-disc-placeholder")
+                zf.writestr("disc/game.iso", b"raw-disc-placeholder")
             with self.assertRaisesRegex(ValueError, "Disc-image containers"):
                 report_for_source(
                     archive,
-                    explicit_paths={"disc/game.bin"},
+                    explicit_paths={"disc/game.iso"},
                     only_explicit=True,
                 )
 
@@ -329,7 +350,10 @@ class Gate13SourceInventoryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_name:
             path = Path(temp_name) / "source.zip"
             with zipfile.ZipFile(path, "w") as archive:
-                archive.writestr("disc/game.bin", b"disc")
+                archive.writestr(
+                    "disc/game.bin",
+                    self._mode1_sector(bytes(ISO9660_SECTOR_BYTES)) * 17,
+                )
 
             report = report_for_source(path)
 
