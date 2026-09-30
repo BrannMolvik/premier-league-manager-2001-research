@@ -8594,3 +8594,31 @@ keeping presentation separate from the stable simulation backend.
   the materialization service reported the complete archive, but local
   execution tools returned `ClientError` even on trivial echo/print. Do
   not reinterpret this temporary tooling failure as unavailable source.
+
+
+## Gate 13 original font, button-atlas and menu-source integration - 30 September 2026
+
+- Resumed from exact `main` head `2ef1d249`; found that a predecessor
+  worker already committed the original EAUK 224-glyph bitmap font parser and
+  original Zurich glyph-mask tests. Did not redo that first-hand recovery.
+- Merged PR #7 as `973e082`: binds four executable-proven PStartMenu
+  event/language indices to exact EAUK font raster masks. Corrected the
+  focused workflow, which previously included `test_ea_font.py` in path
+  filters but omitted it from the actual unittest invocation. Hosted
+  workflow `36729337643` and asset policy `36729337666` passed.
+- Merged PR #8 as `0a999a1`: checksums the original PStartMenu and
+  TeamSelect button source atlases and preserves their exact 23 vertical
+  RGBA frames without assigning speculative input-state semantics.
+  Hosted workflow `36729704209` and asset policy `36729704079` passed.
+- Merged PR #9 as `0425d80`: checksum-verified original source loader for
+  global/PStartMenu backgrounds, original executable image tables,
+  button atlas, Zurich font, English STR/IDX and four caption masks.
+  Reuses the independently verified full 800x600 base-composition SHA
+  without claiming complete source-faithful button placement/rendering.
+  Hosted Gate-13 workflow `36730124709` and policy `36730124841` passed.
+- Local shell/Python execution was checked again and both trivial calls
+  returned `ClientError`. Opt-in first-hand licensed-source integration
+  remains unrun here; canonical Library archive is still recorded for
+  rematerialization. Next source-bound research is exact Button@ease_2001
+  frame-state/caption alignment; meanwhile useful TeamSelect bundle work
+  does not require inventing native state transitions.
