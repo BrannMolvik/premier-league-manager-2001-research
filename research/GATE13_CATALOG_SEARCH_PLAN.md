@@ -93,8 +93,11 @@ Assume the deep source inventory has been saved as `gate13-source.json`.
 python gate13_catalog_query.py gate13-source.json --summary
 ```
 
-Record the top-level roots and suffix counts in the Gate-13 research note
-before extracting anything.
+Record the top-level roots and suffix counts **for both the outer ZIP and
+nested-disc layers** in the Gate-13 research note before extracting anything.
+The `gate13_catalog_query.py` default searches both layers and marks each
+match `zip` or `disc`. Use `--layer zip` and `--layer disc` to investigate
+them separately. Do not discard outer-ZIP leads without inspecting them.
 
 ### 2. Enumerate the known front-end art family
 
@@ -141,7 +144,10 @@ python gate13_catalog_query.py gate13-source.json \
 ```
 
 Edit that path list only to remove unrelated files. Do not add paths not present
-in the catalog.
+in the catalog. If a normalized path is duplicated within or between
+archive layers, `--paths-only` refuses an ambiguous list. Layer filters
+narrow the **search** but are not per-layer extraction selectors: isolate
+the intended original resource before staging an ambiguous path.
 
 ### 5. Stage only the selected source files
 
@@ -153,7 +159,10 @@ python gate13_source_inventory.py <source.zip> --deep \
   --output gate13-source-selected.json
 ```
 
-The report must warn if any selected path no longer exists. Use `--only-explicit`
+The report must warn if any selected path no longer exists. Source extraction
+refuses to overwrite existing files, case-insensitive duplicate names, and
+cross-layer staging collisions. Raw BIN disc images are signature-detected
+so unrelated opaque interface `.bin` resources remain searchable. Use `--only-explicit`
 to exclude any other heuristic candidates from staging. The size of the
 known background is checked even from the catalog, prior to hashing its bytes.
 
