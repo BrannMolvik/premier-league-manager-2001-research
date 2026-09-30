@@ -16,6 +16,12 @@ from original_front_end_layout import (
     TEAMSELECT_HIERARCHY_BARS_FRAME_SIZE,
     TEAMSELECT_HIERARCHY_ANIM_PATH,
     TEAMSELECT_HIERARCHY_BARS_PATH,
+    TEAMSELECT_ACTION_ATLAS_PATH,
+    TEAMSELECT_ACTION_FRAME_SIZE,
+    TEAMSELECT_BACK_RECT,
+    TEAMSELECT_START_RECT,
+    TEAMSELECT_BACK_EVENT,
+    TEAMSELECT_START_EVENT,
     OriginalFrontEndLayoutError,
     compose_pstartmenu_background,
     compose_teamselect_background,
@@ -57,6 +63,20 @@ class OriginalFrontEndLayoutTests(unittest.TestCase):
         self.assertTrue(TEAMSELECT_HIERARCHY_BARS_PATH.endswith(
             "choice_league_but_bars.444"
         ))
+        self.assertEqual(TEAMSELECT_ACTION_FRAME_SIZE, (150, 32))
+        self.assertTrue(
+            TEAMSELECT_ACTION_ATLAS_PATH.endswith("choice_start_anim.444")
+        )
+        self.assertEqual(
+            TEAMSELECT_BACK_RECT,
+            type(TEAMSELECT_BACK_RECT)(225, 301, 150, 32),
+        )
+        self.assertEqual(
+            TEAMSELECT_START_RECT,
+            type(TEAMSELECT_START_RECT)(426, 301, 150, 32),
+        )
+        self.assertEqual(TEAMSELECT_BACK_EVENT, 0x29)
+        self.assertEqual(TEAMSELECT_START_EVENT, 0x2A)
 
     def test_compositor_preserves_global_margin_and_exact_overlay(self):
         base = solid(800, 600, (1, 2, 3, 255))
