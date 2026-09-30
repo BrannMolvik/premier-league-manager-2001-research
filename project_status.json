@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "project": "FM2001 Windows 11 modernization/port",
-  "updated": "2026-09-30",
+  "updated": "2026-10-01",
   "current_gate": 13,
   "current_gate_name": "Restore original management presentation",
   "status": "in_progress",
@@ -14,7 +14,7 @@
   "last_verified_test_count": 819,
   "asset_policy_validated_head": "70307af0549f6bacd4bc1951e3cdb6ef63df0c5b",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13: rematerialize canonical private ZIP once byte-execution tools recover, run exact PE class-vtable/direct-call candidate trace with manual CFG adjudication to recover original Button@ease states and Zurich caption placement, then run strict physical ZIP/staged asset/executable/original pixel audit, import proven original resources, finish all management screens and gate audit; continue Gates 14-17 and Windows 11 release.",
+  "active_task": "Gate13: regain original-byte execution, inspect prior proven Button input 0x64F7A0 and state helpers 0x64F3E0/0x64F710/0x64F750, follow actual original draw/update to identify atlas frame states and Zurich caption layout; validate/extract/import ten canonical opening resources, finish native management UI and audit; continue Gates14-17 and verified Windows11 release.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate 13: rematerialize canonical private ZIP once byte-execution tools recover, run exact PE class-vtable/direct-call candidate trace with manual CFG adjudication to recover original Button@ease states and Zurich caption placement, then run strict physical ZIP/staged asset/executable/original pixel audit, import proven original resources, finish all management screens and gate audit; continue Gates 14-17 and Windows 11 release.",
+  "current_task": "Gate13: regain original-byte execution, inspect prior proven Button input 0x64F7A0 and state helpers 0x64F3E0/0x64F710/0x64F750, follow actual original draw/update to identify atlas frame states and Zurich caption layout; validate/extract/import ten canonical opening resources, finish native management UI and audit; continue Gates14-17 and verified Windows11 release.",
   "last_verified_reconstruction_failures": 2,
   "last_verified_asset_policy_head": "70307af0549f6bacd4bc1951e3cdb6ef63df0c5b",
   "gate11_danger_morale_request_integrated": true,
@@ -477,12 +477,12 @@
   "gate12_exact_league_name_tiebreaker": true,
   "last_verified_reconstruction_test_count": 828,
   "canonical_source_private_library_confirmed": true,
-  "source_execution_blocker": "Trivial shell/container commands in latest 2026-09-30 UTC recovery still return ClientError; private source ZIP retained in Library. Strict firsthand original-byte audit and original native Button/Zurich tracing remain unexecuted.",
+  "source_execution_blocker": "Trivial container.exec still returns ClientError on 1 October 2026 KST; canonical original ZIP verified in private Library. Native original-byte Button draw-state trace and strict licensed-source pixel audit NOT RUN.",
   "gate13_first_screen_headless_presenter_integrated": true,
   "gate13_exact_source_selection_verified": true,
   "gate13_latest_verified_integration_main_head": "7fc92fedd6f660a878348a34a02055027b63c9cb",
-  "gate13_latest_focused_ci_run": 36739577933,
-  "gate13_latest_asset_policy_ci_run": 36739577928,
+  "gate13_latest_focused_ci_run": 36742776548,
+  "gate13_latest_asset_policy_ci_run": 36742776481,
   "gate13_source_material_import_completed": false,
   "gate13_native_button_state_recovered": false,
   "full_mission_complete": false,
@@ -506,5 +506,9 @@
   "gate13_private_original_source_audit_main_head": "9682a50d0d670b41eb77dc643a293085be4043b2",
   "gate13_original_byte_audit_executed": false,
   "gate13_native_text_placement_verified": false,
-  "gate13_native_hierarchy_mapping_verified": false
+  "gate13_native_hierarchy_mapping_verified": false,
+  "gate13_hierarchy_source_debug_inspector_merged": true,
+  "gate13_hierarchy_source_debug_inspector_main_head": "b488bf5380b5ef65bc833832b0a8e97acbeb5690",
+  "gate13_original_button_prior_input_state_anchors_integrated": true,
+  "gate13_original_button_prior_input_state_anchors_main_head": "38b6f3a65ed567fd2f33846d6bace7669b62c90c"
 }
