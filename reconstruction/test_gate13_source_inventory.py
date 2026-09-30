@@ -12,12 +12,15 @@ from gate13_source_inventory import (
     MODE1_SYNC,
     candidate_reason,
     convert_mode1_2352_to_iso,
+    inventory_iso_image,
     inventory_zip,
     is_mode1_2352_image,
     normalize_member,
     parse_7z_slt,
     report_for_source,
 )
+
+from test_iso9660_reader import build_joliet_iso
 
 
 class Gate13SourceInventoryTests(unittest.TestCase):
@@ -140,6 +143,61 @@ Packed Size = 99
             self.assertTrue(is_mode1_2352_image(raw))
             with self.assertRaises(ValueError):
                 convert_mode1_2352_to_iso(raw, iso)
+
+    def test_builtin_iso_reader_inventories_and_extracts_candidate(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            iso = root / "fixture.iso"
+            payload = build_joliet_iso(iso)
+            out = root / "out"
+
+            records, warnings = inventory_iso_image(iso, out)
+
+            self.assertEqual(warnings, [])
+            self.assertEqual(
+                [record.path for record in records],
+                ["FM2001_Art/Generic/bground.444"],
+            )
+            self.assertEqual(records[0].source_layer, "iso9660-extracted")
+            self.assertEqual(records[0].sha256, __import__("hashlib").sha256(payload).hexdigest())
+            self.assertEqual(
+                (out / "FM2001_Art" / "Generic" / "bground.444").read_bytes(),
+                payload,
+            )
+
+    def test_deep_zip_mode1_inventory_no_longer_requires_7zip(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            iso = root / "fixture.iso"
+            build_joliet_iso(iso)
+            iso_bytes = iso.read_bytes()
+            raw = b"".join(
+                self._mode1_sector(
+                    iso_bytes[offset:offset + ISO9660_SECTOR_BYTES]
+                )
+                for offset in range(0, len(iso_bytes), ISO9660_SECTOR_BYTES)
+            )
+            archive = root / "source.zip"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("disc/game.bin", raw)
+
+            report = report_for_source(archive, deep=True)
+
+            self.assertEqual(report["nested_disc_images"], ["disc/game.bin"])
+            self.assertEqual(
+                [record["path"] for record in report["candidates"]],
+                ["FM2001_Art/Generic/bground.444"],
+            )
+            self.assertEqual(
+                report["candidates"][0]["source_layer"],
+                "iso9660-listing",
+            )
+            self.assertTrue(
+                any("MODE1/2352" in warning for warning in report["warnings"])
+            )
+            self.assertFalse(
+                any("7-Zip was not found" in warning for warning in report["warnings"])
+            )
 
     def test_mode1_detector_rejects_nonintegral_or_bad_sync_image(self):
         with tempfile.TemporaryDirectory() as temp_name:
