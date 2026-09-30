@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 main da23cf50 checkpoints verified Player Profile contract; source execution still ClientError. Next bounded task: Squad backend/runtime-state contract from ordered team roster IDs at +0x244/count +0x294, participant collector 0x510CD0, active/substitute predicates 0x417F50/0x417F60, active setter 0x4182F0, substitute setter 0x4182C0, removal 0x4181B0, DBRPlayer flags +0x14 bits 4/5. Treat these as backend state only; distinct original Squad screen class/sort/layout/art/navigation remain unknown. After Squad, inventory manager-home/remaining-screen source evidence and blockers. Resume Button/Zurich path immediately when private execution works.",
-  "last_known_main_head": "da23cf50e3a250dbe3c43a5c97533fd7f2537741",
+  "active_task": "Gate13 main e317ee0d has verified Squad backend presentation contract (PR45: focused 238/19 skips, full 1074/21 skips, asset policy passed). Canonical private source ZIP was successfully re-listed/materialized in recovery104, but subsequent shell/Python execution remains ClientError, so native Button/Zurich/ten-resource work is still blocked by execution, not source availability. Current bounded fallback task: inventory manager-home and remaining-screen source evidence/blockers from persisted executable/RTTI/string/resource research, explicitly separating confirmed panel identity from unproven layout/navigation. Resume TeamSelect Button RTTI -> 23-frame state trace -> Zurich -> ten-resource audit/import immediately if private execution recovers. Gate13 then Gates14-17 remain mandatory.",
+  "last_known_main_head": "e317ee0d34334dfd93a17bb0830ac0532065f167",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 104,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery104 resumed canonical main da23cf50 from fresh fallback chat; continuing persisted Squad backend/runtime-state Gate13 contract. Native Button/Zurich execution remains blocked by ClientError.",
+  "note": "Recovery104 Squad contract merged at de3091f7; canonical live-state checkpoint advanced through e317ee0d. Source materialization succeeded, byte execution still ClientError. Continuing manager-home/remaining-screen evidence inventory.",
   "same_chat_fallback_minutes": 30
 }
