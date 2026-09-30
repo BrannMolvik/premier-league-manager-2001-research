@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 95,
+  "recovery_generation": 96,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "This recovery resumed at 4fb9221, merged PR #17 as 4f98316 (focused Gate13 run 36739026011, asset policy 36739026154), PR #18 as 9682a50 (focused Gate13 run 36739577933, asset policy 36739577928). CURRENT_STATE/PROGRESS/project_status reconciled to 40660eee5487a21d35e377e7040a0f638d6c3d56. The private original ZIP remains visible at its exact Library path (listed again); trivial shell calls still fail with ClientError, so real executable disassembly and the new private direct-file audit remain unexecuted. Do not fabricate button-frame states or mark Gate13 closed. Full mission through Gate17 remains active.",
+  "note": "New recovery at 40660eee5487a21d35e377e7040a0f638d6c3d56 confirmed Gate 13 native Button@ease source trace and real original source-byte audit active. Trivial container shell remains ClientError. Investigating source-backed TeamSelect hierarchy developer preview paths and existing verified source evidence while preserving the original executable next action. No stage promoted to native fidelity.",
   "same_chat_fallback_minutes": 30
 }
