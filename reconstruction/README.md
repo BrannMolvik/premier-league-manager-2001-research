@@ -102,7 +102,23 @@ python gate13_catalog_query.py gate13-source.json --regex "(team|start|layout)"
 ```
 
 Multiple `--contains` filters are ANDed. `--suffix`, `--top-level`, and
-`--regex` can be combined to narrow opaque presentation leads.
+`--regex` can be combined to narrow opaque presentation leads. To turn a
+query directly into a reproducible staging selection, emit paths only:
+
+```text
+python gate13_catalog_query.py gate13-source.json \
+  --regex "(team|start|layout)" --paths-only > gate13-selected-paths.txt
+```
+
+Then feed that list back into the source inventory. Blank lines and `#`
+comments are allowed in path-list files:
+
+```text
+python gate13_source_inventory.py <source.zip> --deep \
+  --extract-path-file gate13-selected-paths.txt \
+  --extract-candidates-to <staging-directory> \
+  --output gate13-source-selected.json
+```
 
 Once an exact path is known, stage only that resource:
 
