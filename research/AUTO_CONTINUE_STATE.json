@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 81,
+  "recovery_generation": 82,
   "last_recovery_reason": "stale-repository-activity",
   "note": "Recovered main 5eca3ee. Gate 13 latest CI-verified implementation 03bc53b (865 tests, only two established secondary-schedule failures, all new staging path guard tests pass). Updated main CURRENT_STATE and PROGRESS through c6e2aa3. Original ZIP materializes successfully, but execution runtime still fails even trivial operations; no game assets extracted this turn.",
   "same_chat_fallback_minutes": 30
