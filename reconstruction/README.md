@@ -103,9 +103,11 @@ python gate13_source_inventory.py <source.zip> --deep --hash-source --output gat
 ```
 
 For the historically observed source path, deep mode extracts the nested raw
-MODE1/2352 BIN image, validates every raw sector, converts only the 2048-byte
-Mode-1 user-data payload to a temporary ISO, and reads the ISO9660/Joliet
-filesystem with the repository-native reader. It also inventories any loose
+MODE1/2352 BIN image, **validates every physical sector**, then exposes the
+original track through a read-only **virtual ISO9660/Joliet view**. Only
+requested 2048-byte user-data sectors are read; it no longer needs to create a
+second hundreds-of-MB temporary ISO file. The original separate conversion
+helper remains available for manual/compatibility checks. It also inventories any loose
 presentation resources directly packaged in the outer ZIP, including opaque
 resources chosen via `--extract-path` or `--extract-path-file`. The loose
 ZIP layer is scanned once; its disc-member list is retained for the nested
@@ -132,7 +134,7 @@ one original with another. Isolate the correct source layer before staging
 ambiguous assets; never pretend an unqualified path identifies both uniquely.
 
 Use the full catalog to identify opaque layout/string resources rather than
-guessing filenames. Query a saved report without re-reading or reconverting the
+guessing filenames. Query a saved report without reopening the
 source archive:
 
 ```text
@@ -161,6 +163,7 @@ comments are allowed in path-list files:
 python gate13_source_inventory.py <source.zip> --deep \
   --extract-path-file gate13-selected-paths.txt \
   --only-explicit \
+  --require-all-explicit \
   --extract-candidates-to <staging-directory> \
   --output gate13-source-selected.json
 ```
@@ -175,8 +178,11 @@ python gate13_source_inventory.py <source.zip> --deep \
   --output gate13-source-selected.json
 ```
 
-Repeat `--extract-path` for multiple exact files. A requested path that is not
-present is reported as a warning rather than silently ignored.
+Repeat `--extract-path` for multiple exact files. By default, unresolved
+requests are recorded as `unresolved_explicit_paths` and also produce warnings
+in the JSON report. Add `--require-all-explicit` when staging: it saves that
+report for audit but returns a failing exit code if any selected resource is
+missing, preventing partial imports from being accepted accidentally.
 
 After staging an intentionally selected original file, import it with
 provenance:
