@@ -8726,3 +8726,22 @@ keeping presentation separate from the stable simulation backend.
   direct original Button@ease control-flow trace remain outstanding;
   this implementation is deliberately a first-screen diagnostic,
   not a verified Windows 11 frontend/release.
+
+
+## Gate 13 source-pixel live developer diagnostics - 1 October 2026 (KST)
+
+- PR #16 merged `7fc92fedd6f660a878348a34a02055027b63c9cb`:
+  a pure source-pixel/known-coordinate preview model and developer-only
+  Tk live viewer now display the checksum-pinned original first-screen
+  backgrounds and manually selected source atlas frames, route known
+  control clicks through the existing original first-screen presenter,
+  and isolate explicit numeric team-ID testing in an external diagnostic
+  sidebar rather than inventing original TeamSelect hierarchy semantics.
+  Labels remain diagnostic metadata, not visually positioned original
+  glyphs. Focused mocked-Tk/synthetic CI `36736154217` and asset-policy
+  check `36736154071` passed.
+- The actual original licensed graphics/Windows desktop smoke test,
+  original idle/hover/pressed atlas-frame mapping, font baseline/color,
+  complete hierarchy interaction, other management screens and Gate 13
+  audit are still outstanding. This is a development-only visual bridge,
+  not a verified replacement/release UI.
