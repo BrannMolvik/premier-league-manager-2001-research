@@ -21,6 +21,7 @@ EXPECTED_BGROUND_SHA256 = (
     "9db0d71daf70d77b4f5f2307304bb8c5eac4ee3a07a85f2828b570fbbf3b7fb9"
 )
 EXPECTED_BGROUND_SIZE = (800, 600)
+EXPECTED_BGROUND_BYTES = 222_616  # Existing verified original-disc evidence.
 
 KNOWN_GATE13_PATHS = {
     "fm2001_art/generic/bground.444",
@@ -740,6 +741,11 @@ def report_for_source(
     ]
     if bground:
         record = bground[0]
+        if record.size is not None and record.size != EXPECTED_BGROUND_BYTES:
+            warnings.append(
+                f"Recovered bground.444 size is {record.size} bytes, expected "
+                f"{EXPECTED_BGROUND_BYTES} bytes from the original disc."
+            )
         if record.sha256 is not None and record.sha256 != EXPECTED_BGROUND_SHA256:
             warnings.append(
                 "Recovered bground.444 does not match the canonical source-disc "
@@ -763,6 +769,7 @@ def report_for_source(
         "expected_bground": {
             "path": EXPECTED_BGROUND_PATH,
             "sha256": EXPECTED_BGROUND_SHA256,
+            "size_bytes": EXPECTED_BGROUND_BYTES,
             "width": EXPECTED_BGROUND_SIZE[0],
             "height": EXPECTED_BGROUND_SIZE[1],
         },
