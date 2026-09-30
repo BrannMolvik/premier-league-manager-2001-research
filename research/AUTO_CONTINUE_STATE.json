@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 main 34c8a5c checkpoints verified League-table contract. Direct private-byte execution remains ClientError. Next: Fixtures/Results presentation contract from already-firsthand DBTRealFixtures/DBRRealFixture/DBTRounds identities and fixed League construction path, preserving source-order backend facts while explicitly leaving original fixture-screen sort/layout/navigation unknown. Resume Button/Zurich/ten-resource path immediately when byte execution works.",
-  "last_known_main_head": "34c8a5c783fb97045aef6d6b2db524b69da36af8",
+  "active_task": "Gate13 main 5cb235ff checkpoints verified Fixtures/Results contract. Private byte execution remains ClientError. Next bounded task: Player-profile backend contract from firsthand DBTPlayers/DBRPlayer runtime identity: approximate RTTI/vtable addresses retained as anchors only, runtime stride 0x250, accessor ~0x416F90, save reader ~0x416210, current skill vector +0x1E..+0x2E, development target vector +0x2F..+0x3F; expose no target bytes in profile view and make no original profile-column/icon binding claims. Resume Button/Zurich/ten-resource path immediately when execution works.",
+  "last_known_main_head": "5cb235ff817f32edc6f325f75a2331762919b1a8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 103,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery103 latest full integration run 36773050532 passed 1071 tests/21 expected skips/0 failures; focused 36773050542 passed 235/19; asset policy passed.",
+  "note": "Recovery103 main 5cb235ff. PR43 full 1072 tests/21 expected skips/0 failures; focused 236/19; asset policy passed.",
   "same_chat_fallback_minutes": 30
 }
