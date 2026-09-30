@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 76,
-  "last_recovery_reason": "transient-network-error",
+  "recovery_generation": 77,
+  "last_recovery_reason": "stale-repository-activity",
   "note": "Durable Library source locator is confirmed and materialization succeeds, but CAAS/container byte access still raises ClientError. main now includes repository-native ISO9660/Joliet inventory integration and nested MODE1 regression tests (784a909, 971bea6), plus canonical checkpoint 20677e2. CI has not yet reported status for the newest implementation commits.",
   "same_chat_fallback_minutes": 30
 }
