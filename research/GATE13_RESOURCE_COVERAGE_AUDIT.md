@@ -70,7 +70,7 @@ The existing `original_assets/MANIFEST.md` contains three imported original asse
 | Transfers | Proposal/deal/contract runtime records available | **Open.** Original screen sort, captions for unresolved negotiation bytes, resource/layout and navigation remain unresolved. |
 | Finances | Cash, ledger and objective runtime state available | **Open.** Several original account/category labels plus screen resources/layout/navigation remain unresolved. |
 | Messages/news | Two recovered mail families with source event identities available | **Open.** Complete inbox family/interleave/order plus original screen resources/layout/navigation remain incomplete. |
-| Training/scouting | Training arrays and mapped scouting results available | **Open.** Proprietary controls, graphics, layout, labels and interaction/navigation remain unresolved. |
+| Training/scouting | Training arrays and mapped scouting results available; PScouting2K event 31 and six native result-sort modes now have a verified presentation contract | **Open.** Proprietary graphics, layout, visible captions, control geometry and navigation remain unresolved. |
 | Remaining screens | Not a single complete inventory | **Open.** Must be enumerated and correlated before Gate 13 can close. |
 
 The read-only bridge is important architecture and data work, but it must not be counted as original visual/presentation completion.

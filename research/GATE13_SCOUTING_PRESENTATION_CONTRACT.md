@@ -87,6 +87,24 @@ At recovery 101, the canonical private source ZIP materializes successfully,
 but trivial shell and Python execution still fail with `ClientError`.
 Therefore this checkpoint makes **no new disassembly claim**.
 
+## Hosted verification
+
+The contract was verified on PR #35 head
+`96cf4c7fbf95cb86af261f4e0289104493db7b85`:
+
+- Gate-13 focused workflow `36767384902`: **219 tests**, **19 expected
+  original-source-gated skips**, zero failures;
+- full reconstruction workflow `36767384882`: **1,055 tests**, **21 expected
+  original-source-gated skips**, zero failures;
+- repository asset-policy workflow `36767384938`: passed.
+
+PR #35 was then squash-merged to main as
+`5a4224e651b4b4a7051eb3afe1e5f4b8d8aff44e`.
+
+These hosted runs verify reconstruction integration and the fail-closed
+presentation contract. They do not execute the private licensed original bytes
+or constitute a Windows graphical smoke test.
+
 ## Gate 13 consequence
 
 This narrows the remaining Scouting presentation gap, but does not close the

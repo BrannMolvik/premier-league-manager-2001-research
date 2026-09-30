@@ -8996,3 +8996,23 @@ invent original visual or control semantics.
 - Latest full hosted integration evidence remains run `36760160986`: 1,050
   tests, 21 expected original-source-gated skips, zero failures. Gate 13 remains
   ACTIVE and the Gates 13-17 mission is not complete.
+
+## Gate 13 PScouting2K presentation contract verified - 1 October 2026 KST
+
+- Merged PR #35 as `5a4224e651b4b4a7051eb3afe1e5f4b8d8aff44e`.
+- Added immutable source-backed `PScouting2K` presentation metadata for the
+  already-proven RTTI/vtable identity, event-31 search chain, deterministic
+  reseed anchor and six native result-sort modes/directions.
+- Explicitly kept original captions, screen/control IDs, geometry, artwork,
+  font placement and navigation absent rather than guessing them.
+- Focused Gate-13 run `36767384902` passed **219 tests with 19 expected
+  source-gated skips**.
+- Full reconstruction run `36767384882` passed **1,055 tests with 21 expected
+  source-gated skips** and zero failures.
+- Asset-policy run `36767384938` passed.
+- Retried trivial container execution after CI; it still returned
+  `ClientError`. The private original source is materialized but direct byte
+  execution remains blocked, so no new Button/Zurich/physical-source claim is
+  made.
+- Gate 13 remains ACTIVE; Gates 14-17 and the Windows 11 release audit remain
+  mandatory.

@@ -46,6 +46,27 @@ Evidence:
   screen semantics. Gates 14-17 and the clean Windows 11 release remain
   mandatory after Gate 13 closes.
 
+### Verified PScouting2K presentation contract
+
+PR #35 was merged at `5a4224e651b4b4a7051eb3afe1e5f4b8d8aff44e`.
+It promotes only prior firsthand canonical-executable evidence into the
+read-only Gate-13 presentation seam: `PScouting2K` RTTI/vtable identity,
+search event **31**, the deterministic panel-state reseed path, and all six
+native result-sort comparator modes/directions. It deliberately defines no
+original on-screen captions, screen/control IDs, rectangles, artwork, font
+placement or navigation that have not been recovered.
+
+Verification on the PR head `96cf4c7fbf95cb86af261f4e0289104493db7b85`:
+
+- focused Gate-13 run `36767384902`: **219 tests, 19 expected
+  original-source-gated skips, zero failures**;
+- full reconstruction run `36767384882`: **1,055 tests, 21 expected
+  original-source-gated skips, zero failures**;
+- repository asset-policy run `36767384938`: passed.
+
+This narrows Scouting interaction/sort fidelity but does not close Gate 13's
+resource, first-screen fidelity, or normal-play visual criteria.
+
 ## Porting mission
 
 This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc
