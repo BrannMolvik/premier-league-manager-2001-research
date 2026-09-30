@@ -8707,3 +8707,22 @@ keeping presentation separate from the stable simulation backend.
   The critical actual native state mapping and font placement were not
   inferred from the scanner. Source access still awaits a usable
   container/shell after reproducible trivial `ClientError` failures.
+
+
+## Gate 13 lossless original-pixel diagnostics preparation - 1 October 2026 (KST)
+
+- PR #15 merged `addc1f2dab50fdccdf7e7517ab22bdf1fbd1a35b`:
+  standard-library lossless original RGBA PNG reference exporter,
+  separate source-order button/hierarchy atlas frames, uncolored
+  original Zurich glyph-alpha PGM exports and JSON of recovered
+  source-bound control geometry/string indices. No native animation
+  frame order or baseline/color was invented. Synthetic exact-pixel
+  roundtrip/private output tests passed focused CI `36735502617`
+  and asset-policy run `36735502710`.
+- Updated `research/GATE13_FIRST_SCREEN_RESOURCE_PLAN.md` with the
+  exact private licensed-source export invocation for when the
+  canonical executable and ten original first-screen files can be
+  executed/staged again. The actual private original-byte export and
+  direct original Button@ease control-flow trace remain outstanding;
+  this implementation is deliberately a first-screen diagnostic,
+  not a verified Windows 11 frontend/release.
