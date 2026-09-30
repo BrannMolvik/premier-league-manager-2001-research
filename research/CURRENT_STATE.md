@@ -33,6 +33,28 @@ for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
 
+## Current recovery's verified TeamSelect hierarchy-art integration
+
+- Rechecked canonical main at `cb70119caf8421703781e92766f77fd4805ff4c9`.
+  The original executable/button-state and ten-asset staging tasks were
+  still active; neither original-byte analysis nor Gate 13 gate audit had
+  been completed.
+- PR #13, squash commit `1edb4deb1063613a92bab08c7aea9153002d76f5`,
+  preserves the two already source-correlated TeamSelect hierarchy
+  resources `choice_league_but_anim.444` and
+  `choice_league_but_bars.444` as checksum-gated, source-order strips.
+  It adds their decoded-source interface to the TeamSelect resource
+  loader and first-screen presenter while deliberately leaving
+  source-frame state, row item mapping and artwork placement unresolved.
+  Synthetic focused Gate-13 run `36734520993` and repository asset-policy
+  run `36734520580` both passed. Opt-in original-byte hierarchy
+  geometry/pixel tests are present but not claimed to have run.
+- Both `container.exec` and the alternate visible Python execution
+  route returned `ClientError` on trivial tests in this recovery.
+  The confirmed original Library ZIP has not been lost; genuinely new
+  original-executable disassembly remains dependent on restoring
+  byte-execution access.
+
 ## Most recent Gate 13 two-screen and original-source recovery checkpoint
 
 - PR #10, squash `96cafb5ae60148dfc7e0ba98c2886abaafe8db46`, added
