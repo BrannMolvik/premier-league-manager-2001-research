@@ -52,9 +52,25 @@ class FrontEndSessionTests(unittest.TestCase):
     def test_unsupported_start_menu_event_does_not_construct_backend(self):
         session, backends = self.new_session()
         with self.assertRaises(UnsupportedFrontEndControl):
-            session.dispatch(1)
+            session.dispatch(5)
         self.assertEqual(backends, [])
         self.assertIs(session.navigation.screen, FrontEndScreen.START_MENU)
+
+    def test_recovered_non_new_menu_events_return_commands_without_loading_backend(self):
+        for event, command in (
+            (StartMenuControl.CONTINUE, FrontEndCommand.CONTINUE_GAME),
+            (StartMenuControl.LOAD_GAME, FrontEndCommand.LOAD_GAME),
+            (StartMenuControl.QUIT_TO_WINDOWS, FrontEndCommand.QUIT_TO_WINDOWS),
+        ):
+            with self.subTest(event=event):
+                session, backends = self.new_session()
+                outcome = session.dispatch(event)
+                self.assertIs(outcome.transition.screen, FrontEndScreen.START_MENU)
+                self.assertIs(outcome.transition.command, command)
+                self.assertIsNone(outcome.selected_manager)
+                self.assertEqual(backends, [])
+                self.assertIsNone(session.gameplay)
+                self.assertFalse(session.started)
 
     def test_choosing_team_does_not_mutate_gameplay_until_start(self):
         session, backends = self.new_session()
