@@ -8,22 +8,32 @@ Historical uncertainty that has since been resolved should be moved to the resol
 
 | Gap | Current reconstruction behavior | Original status | Planned gate |
 | --- | --- | --- | --- |
-| League-table final tie fallback | Club ID after points / GD / goals scored | Exact original fallback after the first three keys is unresolved | 15 or earlier if standings behavior requires it |
+| League-table final tie fallback | PremierLeagueState display still uses club ID after points / GD / goals scored, while procedural European League gameplay now uses the exact comparator | Original 0x4F45E0 is recovered as points, played, GD, GF, GA, then CP1252 short-name bytes; the remaining gap is wiring that exact fallback into the standalone Premier League display/state path | 15 |
 | Persistent-injury availability count | Approximation around the inputs to helper `0x405080` | Injury generation/persistence is substantially recovered, but this availability helper is not exact | 15 |
-| Original FM2001 save compatibility | Modern port now has a versioned internal schema-10 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
+| Original FM2001 save compatibility | Modern port now has a versioned internal schema-34 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
 | Autonomous transfer-window lifecycle | Fresh-game country gates start at the proven enabled value; later dated toggles are not yet driven from source boundary data | Runtime country +0x54 consumer/toggle behavior is known, but the complete source boundary mapping is unresolved | 15 or earlier if season transfer timing requires it |
 | Autonomous contract category helper | The exact 0x423340 age/category month table is used; the current port labels a clamped competition valuation category as an approximation for the unresolved 0x4FA510 category source | Exact 0x4FA510 category-source mapping remains unresolved | 15 or earlier if contract-term fidelity requires it |
 | Autonomous buy-counter lifecycle | The recovered >28-player buyer gate and 3/8 thresholds are represented with a persisted neutral counter, incremented on AI purchase | Exact club +0x1ED update/reset lifecycle remains unresolved | 15 or earlier if long-season transfer frequency requires it |
 | Player negotiation residual branches | The proven ordinary money path handles accepted, low-wage, counter-offer, already-signed and recently-joined outcomes; unresolved 0x422803 / invalid-duration 0x423340 branches return explicit deferred states | Remaining refusal/status and duration-revision policy is not guessed | 15 or earlier if a broader negotiation case blocks play |
 | Due-transfer same-day ordering | Scheduled MPMTransferPlayer objects execute in reconstructed day maintenance after the date's fixture block | Exact original ordering relative to a fixture on the same due date is not yet instruction-locked | 15 or earlier if same-day transfer availability matters |
 | Chairman legacy budget-event family | Modern port does not invent a live transfer/wage-budget scalar; ordinary play uses proven Balance/accounting paths | A0/A1/settings/warning payloads are persistence-loadable, but no ordinary fresh-game producer or Finance/Transfer UI consumer is mapped in the shipped executable | 15 or earlier if new evidence appears |
-| Match-day / recurring commercial income | Normal Premier League gate income is integrated; English Cup gate RNG and policy inputs are integrated but the special both-controlled-participants category-1/category-2 posting branch is not | The Cup/knockout applicability flag and independent controlled-participant posting branches are proven, but the exact business-policy split has not yet been instruction-closed. The authorized canonical executable is accessible again from the ChatGPT Library, so this is now a pending trace rather than a source-access blocker. Do not infer revenue sharing. Fresh-game concession income remains disabled because its generator does not activate records | 15 or earlier when canonical binary source is accessible |\n| Finance/board residuals | Gate-10 ordinary Premier League finance and recovered board/job-security behavior are integrated | Remaining items are legacy chairman budget-event fidelity, support-staff amount materialization, broader cup gate/facility behavior, and unresolved EA-facing category labels | 15 or owning later system |
-| Broader competitions | Core structures known, full behavior incomplete | Premier League is the strongest reconstructed competition | 12 |
+| Match-day / recurring commercial income | Normal Premier League gate income is integrated; English Cup gate RNG and policy inputs are integrated but the special both-controlled-participants category-1/category-2 posting branch is not | The Cup/knockout applicability flag and independent controlled-participant posting branches are proven, but the exact business-policy split has not yet been instruction-closed. The authorized canonical executable is accessible again from the ChatGPT Library, so this is now a pending trace rather than a source-access blocker. Do not infer revenue sharing. Fresh-game concession income remains disabled because its generator does not activate records | 15 |
+| Finance/board residuals | Gate-10 ordinary Premier League finance and recovered board/job-security behavior are integrated | Remaining items are legacy chairman budget-event fidelity, support-staff amount materialization, broader cup gate/facility behavior, and unresolved EA-facing category labels | 15 or owning later system |
 | Original front-end presentation | Temporary Tk prototype now has a functional Play tab, but it is intentionally not the original FM2001 presentation | Authorized original screen/audio resources should be inventoried, reused, and converted where needed | 13-14 |
 | UI fidelity | Minimum human gameplay controls exist; original FM2001 screen structure/workflow is still unreconstructed | Original screen/workflow restoration incomplete | 13 |
 | FastView/3D | Largely unreconstructed | Intentionally low priority until gameplay is stable | 14 |
 
 ## Resolved or superseded gaps
+
+### Broader competitions / connected annual world
+
+**Resolved in Gate 12.** The canonical real-data runtime now connects English
+Cups, European groups/knockouts, required English divisions, qualification-only
+Cup owners, annual League/DummyLeague qualification, promotion/relegation, and
+atomic next-season primary regeneration. The 4 July 2000 -> 4 June 2001 audit
+captured every required annual source and produced a fresh 380-fixture year-two
+Premier League while retaining all played qualification-source Leagues. See
+`research/GATE12_COMPLETION_AUDIT.md`.
 
 
 ### Dynamic FA Cup replay primary order
