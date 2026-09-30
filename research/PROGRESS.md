@@ -8130,3 +8130,31 @@ keeping presentation separate from the stable simulation backend.
   inventory test passed, and repository asset policy passed.
 - The remaining external dependency is still CAAS byte access to the already
   resolvable/materializable private Library ZIP; no source re-upload is needed.
+
+
+## Gate 13 exact source-selection checkpoint - 30 September 2026
+
+- Added repeatable `--extract-path <source-relative-path>` support to the
+  Gate-13 source inventory so opaque files discovered from the complete disc
+  catalog can be selected intentionally without extracting unrelated contents.
+- Exact path selections are recorded in the JSON report for reproducibility.
+- A selected exact path overrides heuristic classification with
+  `candidate_reason = "explicit-path"`.
+- Missing requested disc paths now emit an explicit warning instead of silently
+  producing an empty staging set.
+- Cleaned duplicated/stale Gate-13 source-inventory documentation in
+  `reconstruction/README.md`; the documented MODE1/2352 -> ISO9660/Joliet
+  path now correctly uses the repository-native reader, with 7-Zip described
+  only as an optional fallback for other image formats.
+- Implementation/test commits:
+  `14e0986da1f8dd385eac1dd34a62ef9f5f69482c`,
+  `cdf8b622ae736437a745dfbb1de30cfee7482f02`,
+  `57cf974f81c999f308a3930dae967efc32caac36`, and
+  `657065478a9edf3ce930b1cd2e15e28b93baee28`.
+- GitHub Actions run `36683324250` ran **854 tests with 2 failures**, exactly
+  the two unchanged secondary-schedule assertions. All three new exact-path
+  tests passed, and repository asset policy passed.
+- The source toolchain is now ready for a working execution container to:
+  (1) materialize the durable Library ZIP, (2) emit the full disc catalog,
+  (3) identify PStartMenu/TeamSelect resources, and (4) selectively stage only
+  those exact resources for provenance import.
