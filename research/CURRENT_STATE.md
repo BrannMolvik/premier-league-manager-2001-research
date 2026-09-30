@@ -36,11 +36,11 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-03bc53b7bb71d3af6f1452727e9857ccbb328c29
-Test Gate 13 ZIP path traversal guard
+5635215678b11459b07203ee4bf2606593505a70
+Add independent Gate 13 regression check
 ```
 
-GitHub Actions ran **865 tests with 2 failures**, exactly the two long-standing
+GitHub Actions ran **866 tests with 2 failures**, exactly the two long-standing
 secondary-schedule assertions:
 
 - secondary root-order assertion;
@@ -150,6 +150,24 @@ was resolved and materialized again, but container commands (including the
 materialized-file stat operation) still fail with a general CAAS `ClientError`.
 The Files text reader returns no readable text for this binary ZIP. No claim
 is made that its internal disc files were inventoried.
+
+Further Gate-13 source validation uses the original-disc-confirmed
+`FM2001_Art/Generic/bground.444` length of **222,616 bytes** in addition to
+the already-enforced header dimensions and SHA-256. Inventory now records that
+expected length and warns on a mismatched listing even before extraction.
+A dedicated `.github/workflows/gate13-tests.yml` isolates the presentation,
+source-inventory, import and ISO reader regressions from unrelated simulation
+tests. GitHub Actions run `36693094247`: **38 focused Gate-13 tests passed**;
+repository asset-policy run `36693094248` passed. Full reconstruction run
+`36693078539`: **866 tests, 2 failures**, exactly the same two known
+secondary-schedule assertions.
+
+In this recovery the durable 511,121,336-byte private Library ZIP resolved and
+materialized successfully again, but a trivial container health operation
+still returned CAAS `ClientError`. No source asset contents were read and
+`original_assets/MANIFEST.md` remains unmodified. The catalog search plan
+now explicitly includes the verified background size and `--only-explicit`
+for intentional staging.
 
 Secondary visual evidence is now bounded in
 `research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
