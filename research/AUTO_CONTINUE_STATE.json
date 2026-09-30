@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 critical original-byte trace/pixel audit remains first when native execution returns. Recovery99 fallback has now merged PR31 manager-mail/training/scouting source-data bridge; next enforce Gate13 presentation/simulation separation by routing temporary Play UI reads through ManagementSourceDataBridge, without claiming prototype visual fidelity. Then resume actual original PE/Button/Zurich/ten-asset audit as soon as execution works; complete Gate13 and Gates14-17.",
-  "last_known_main_head": "39adf49d8366b2dc3b70cd2172c97303f03a38c3",
+  "active_task": "Gate13: PR32 merged temporary Play presentation read separation. Next perform a full hosted integration audit of accumulated PR27-32 source-data/presentation seam changes, while native original-byte execution remains ClientError. After full-suite verification, continue source-backed Gate13 work only where semantics are already recovered; immediately resume private canonical PE Button/Zurich/ten-asset audit when execution returns. Gate13 audit then Gates14-17 and verified Windows11 release remain mandatory.",
+  "last_known_main_head": "0318a155032f463de997ff25640ce8c55c7bab51",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 99,
+  "recovery_generation": 100,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery99 now includes PR31 squash 39adf49d8366b2dc3b70cd2172c97303f03a38c3 after corrected unattached-scouting support; Gate13 run36757488868 passed211 tests, asset36757488928 passed. Initial run36757387384 failed one useful regression (unattached club None dereference), fixed before merge. No original byte/native Windows execution available.",
+  "note": "Recovery generation 100 verified main 0318a155032f463de997ff25640ce8c55c7bab51 after PR32 squash. container.exec trivial probe still ClientError. PR32 focused Gate13 run 36758171225 and asset policy 36758171210 passed. Full hosted suite is still stale at PR26 (1029 tests/21 gated skips), so next action is one batch integration run covering PR27-32 rather than falsely promoting focused tests.",
   "same_chat_fallback_minutes": 30
 }
