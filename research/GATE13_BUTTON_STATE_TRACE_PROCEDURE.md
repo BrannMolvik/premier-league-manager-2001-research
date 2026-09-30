@@ -64,6 +64,61 @@ xref work: menu atlas handle `0x946590`, button-font global
 instruction, actual global load, vtable slot, dynamic control call, or
 data-flow edge.
 
+## Newly consolidated PRIOR firsthand Button input and state path
+
+This section uses **pre-existing real-original-executable findings** in
+`research/EXECUTABLE_ANALYSIS.md` ("TeamSelect start-button dispatch is
+RNG-clean") and the concrete source-code anchors already tied to the
+canonical executable SHA. It is a closer existing-evidence starting point,
+**not** a fresh disassembly run and **not** proof of any atlas source-frame
+index, hover timing, caption origin or common Button vtable layout.
+
+The earlier trace already proved that TeamSelect's embedded control at
+`+0x3690` is RTTI `Button@ease_2001`, has event `+0x20=0x2A`
+and owner `+0x24=TeamSelect` (assigned by `0x64F3C0`). The actual
+existing documented click path is:
+
+```text
+Button@ease_2001 input 0x64F7A0
+  -> owner virtual +0x0C = TeamSelect 0x5CFA50 (returns 1)
+  -> optional UI/sound callback (0x984810 -> 0x5DBFC0)
+  -> Button state update (0x64F710 is a prior verified state helper)
+  -> owner virtual +0x10 = TeamSelect event handler 0x4DA480
+  -> reads [button+0x20] == 0x2A
+  -> 0x4DA4A5 calls 0x4C41C0 (new-game construction)
+```
+
+The generic Button setup chain
+`0x652FD0 -> 0x651E30 -> 0x651BA0 -> 0x64F380`
+passes a NULL optional callback pointer for this specific
+TeamSelect Start control at `+0x28`, eliminating that optional
+notification on its normal click path. The existing control-state
+findings independently name `0x64F3E0` as a *state-bit* toggle,
+`0x64F710/0x64F750` as state-bit helpers,
+`0x64F510` as the state-enable forwarding virtual and
+`0x64F520` as the refresh forwarding virtual. The `+0x1C`
+control callback mask distinguishes optional callback selection.
+For the proven control-refresh branch in prior research, argument
+`1` to `0x64F3E0` requests *state bit 1*; **bit 1 MUST NOT
+be interpreted as original animation atlas source frame 1.**
+
+The updated private trace helper now also captures bounded windows
+at `0x64F380`, `0x64F3C0`, `0x64F3E0`,
+`0x64F510`, `0x64F520`, `0x64F710`,
+`0x64F750`, `0x64F7A0`, `0x4DA480`
+and `0x5CFA50`. The candidate direct-call scan includes the
+most relevant of those endpoints. This is a narrower source-backed
+route than searching arbitrary class-vtable raw pointer bytes.
+
+**First original-byte question once execution returns:** identify the
+shared `Button@ease_2001` virtual **draw/update** entry points and
+which struct field references actual per-frame atlas index.
+Establish the data-flow from the verified state-bit updates through
+those true draw/update methods to the 23 source atlas rows. Then
+independently recover the Zurich font glyph render x/y/baseline,
+color and clipping. Do not infer draw behavior or native text
+placement from the known TeamSelect owner-event path alone.
+
 ## Manual adjudication after collecting bytes
 
 1. Use the canonical Ghidra analysis (or a second independently verified
