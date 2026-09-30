@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: retry byte access to the existing private original ZIP in a functioning execution container; run now-verified dual-layer outer ZIP plus nested raw MODE1/ISO9660 full inventory; use GATE13_CATALOG_SEARCH_PLAN.md to identify exact original PStartMenu/TeamSelect assets, --extract-path-file --only-explicit stage only required files, hash and provenance-import, then attach to already-tested front_end_session.py visual integration seam.",
-  "last_known_main_head": "fc4ff776ae2f86c549eb1c1381e33a3937e9cdb0",
+  "active_task": "Gate 13: source archive still materializes but execution runtime fails. Use verified full outer-ZIP + nested ISO/Joliet catalog and strict staging once byte access returns; identify genuine PStartMenu/TeamSelect layouts, images and strings, hash/provenance-import minimal first slice, connect to already-verified front_end_session headless integration.",
+  "last_known_main_head": "b3576268682429e59f4168eceb9b6f69739f5ebc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 84,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Main fc4ff77 includes CI-verified direct loose-ZIP plus nested-disc exact-path staging and single-pass outer-ZIP inventory. Focused Gate13 run 36697061364 passed 50/50 tests; full reconstruction run 36697061476 ran 878 tests with only two established secondary-schedule failures; asset policy passed. Library 511,121,336-byte ZIP still lists/materializes; basic shell and Python exec still return global CAAS ClientError. Do not re-upload or redesign art; resume actual original source byte inventory as soon as container works.",
+  "recovery_generation": 85,
+  "last_recovery_reason": "user-requested-continue",
+  "note": "Checkpoint in active session: main b357626... and code test baseline 19e599f; focused Gate13 61/61 passed run 36698353585; full suite 889 only known 2 failures run 36698353568; asset policy passed. Complete zip_files plus disc_files catalogs, provenance layer queries, collision-safe exact staging, content-based Mode1 .bin detection now tested. Source ZIP not yet byte-accessible because global CAAS shell/Python ClientError. Next is actual authorized archive inventory, not new placeholder art.",
   "same_chat_fallback_minutes": 30
 }
