@@ -7,6 +7,14 @@ from gate13_management_source_data import (
     ManagementPresentationError,
     ManagementSourceDataBridge,
 )
+from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
+from transfer_state import (
+    ContractTerms,
+    DealInProgress,
+    ScheduledTransfer,
+    TransferProposal,
+    TransferRuntimeState,
+)
 
 
 @dataclass
@@ -145,6 +153,79 @@ class FakeController:
             ),
         )
         self.state.players = {player.index: player for player in self._squad}
+        target = FakePlayer(
+            404, "Target", "Player", 18, (3, 4, 0),
+            84, 2, 76, club_id=11, nationality_id=2,
+        )
+        self.state.players[target.index] = target
+
+        objective = FinancialObjectiveState(
+            base_cash=100000,
+            candidate_ids=(13, 1, 5),
+        )
+        objective.selected_objective_id = 13
+        objective.starting_funds = 60000
+        objective.target_cash = 120000
+        objective.selected_on = date(2000, 7, 4)
+        objective.deadline = date(2003, 7, 4)
+        objective.active = True
+        objective.progression_gate_reached = True
+        objective.progression_state = 2
+        self.state.finance_balances = {
+            10: BalanceRuntimeState(
+                current_cash=50000.5,
+                ledger=[
+                    FinancePosting(1000, 42, date(2000, 8, 18)),
+                    FinancePosting(-25, 1600, date(2000, 8, 19)),
+                ],
+                financial_objective=objective,
+            )
+        }
+
+        terms = ContractTerms(
+            weekly_wage=750,
+            signing_on_fee=5000,
+            promotion_bonus=250,
+            contract_length_months=36,
+            appearance_fee=50,
+            relegation_transfer_request_clause=True,
+            big_club_offer_clause=True,
+            big_money_offer_clause=False,
+            house=True,
+            car=False,
+        )
+        proposal = TransferProposal(
+            target_player_id=404,
+            buying_club_id=10,
+            cash_fee=250000,
+            exchange_player_ids=(202, -1, -1),
+            negotiation_state_14=7,
+            negotiation_state_15=8,
+            contract_terms=terms,
+            previous_wage_offer=700,
+            previous_signing_on_fee_offer=4000,
+            previous_total_value=240000,
+        )
+        self.state.transfers = TransferRuntimeState(
+            proposals={(404, 10): proposal},
+            deals={
+                404: DealInProgress(
+                    player_id=404,
+                    buying_club_id=10,
+                    selling_club_id=11,
+                    state=4,
+                    contract_terms=terms,
+                    created_date=date(2000, 8, 20),
+                )
+            },
+            scheduled_transfers=[
+                ScheduledTransfer(
+                    proposal=proposal,
+                    due_date=date(2000, 8, 23),
+                    mode=0,
+                )
+            ],
+        )
 
     def squad(self):
         self.squad_calls += 1
@@ -355,6 +436,99 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         controller.state.players[202].contract_expiry_date = "unknown"
         with self.assertRaisesRegex(ManagementPresentationError, "contract expiry"):
             ManagementSourceDataBridge(controller).player_profile(202)
+
+    def test_finance_view_preserves_balance_ledger_order_and_neutral_categories(self):
+        controller = FakeController()
+        view = ManagementSourceDataBridge(controller).finance_view()
+
+        self.assertEqual(view.current_cash, 50000.5)
+        self.assertEqual(
+            [
+                (posting.amount, posting.category_id, posting.posting_date)
+                for posting in view.ledger_in_runtime_order
+            ],
+            [
+                (1000, 42, date(2000, 8, 18)),
+                (-25, 1600, date(2000, 8, 19)),
+            ],
+        )
+        self.assertIsNotNone(view.objective)
+        self.assertEqual(view.objective.candidate_ids, (13, 1, 5))
+        self.assertEqual(view.objective.selected_objective_id, 13)
+        self.assertEqual(view.objective.starting_funds, 60000)
+        self.assertEqual(view.objective.target_cash, 120000)
+        self.assertEqual(view.objective.selected_on, date(2000, 7, 4))
+        self.assertEqual(view.objective.deadline, date(2003, 7, 4))
+        self.assertTrue(view.objective.active)
+        self.assertTrue(view.objective.progression_gate_reached)
+        self.assertEqual(view.objective.progression_state, 2)
+
+    def test_transfer_view_projects_recovered_proposal_deal_terms_and_schedule(self):
+        controller = FakeController()
+        rows = ManagementSourceDataBridge(controller).transfer_proposal_rows()
+
+        self.assertEqual(len(rows), 1)
+        row = rows[0]
+        self.assertEqual(
+            (
+                row.runtime_order_index,
+                row.target_player_id,
+                row.target_player_name,
+                row.buying_club_id,
+                row.buying_club_name,
+                row.selling_club_id,
+                row.selling_club_name,
+                row.cash_fee,
+                row.exchange_player_ids,
+            ),
+            (
+                0, 404, "Target Player", 10, "Alpha FC",
+                11, "Beta City", 250000, (202, -1, -1),
+            ),
+        )
+        self.assertEqual((row.negotiation_state_14, row.negotiation_state_15), (7, 8))
+        self.assertEqual(row.previous_wage_offer, 700)
+        self.assertEqual(row.previous_signing_on_fee_offer, 4000)
+        self.assertEqual(row.previous_total_value, 240000)
+        self.assertEqual(row.contract_terms.weekly_wage, 750)
+        self.assertEqual(row.contract_terms.signing_on_fee, 5000)
+        self.assertEqual(row.contract_terms.promotion_bonus, 250)
+        self.assertEqual(row.contract_terms.contract_length_months, 36)
+        self.assertEqual(row.contract_terms.appearance_fee, 50)
+        self.assertTrue(row.contract_terms.relegation_transfer_request_clause)
+        self.assertTrue(row.contract_terms.big_club_offer_clause)
+        self.assertFalse(row.contract_terms.big_money_offer_clause)
+        self.assertTrue(row.contract_terms.house)
+        self.assertFalse(row.contract_terms.car)
+        self.assertEqual((row.deal_state, row.deal_base_state), (4, 1))
+        self.assertTrue(row.deal_is_swap_variant)
+        self.assertEqual(row.deal_created_date, date(2000, 8, 20))
+        self.assertEqual(row.scheduled_due_date, date(2000, 8, 23))
+        self.assertEqual(row.scheduled_mode, 0)
+
+    def test_finance_and_transfer_missing_or_ambiguous_state_fails_closed(self):
+        controller = FakeController()
+        controller.state.finance_balances = {}
+        with self.assertRaisesRegex(ManagementPresentationError, "Balance"):
+            ManagementSourceDataBridge(controller).finance_view()
+
+        controller = FakeController()
+        controller.state.transfers.deals.pop(404)
+        with self.assertRaisesRegex(ManagementPresentationError, "DealInProgress"):
+            ManagementSourceDataBridge(controller).transfer_proposal_rows()
+
+        controller = FakeController()
+        controller.state.transfers.proposals[(999, 10)] = next(
+            iter(controller.state.transfers.proposals.values())
+        )
+        with self.assertRaisesRegex(ManagementPresentationError, "dictionary key"):
+            ManagementSourceDataBridge(controller).transfer_proposal_rows()
+
+        controller = FakeController()
+        item = controller.state.transfers.scheduled_transfers[0]
+        controller.state.transfers.scheduled_transfers.append(item)
+        with self.assertRaisesRegex(ManagementPresentationError, "ambiguous"):
+            ManagementSourceDataBridge(controller).transfer_proposal_rows()
 
     def test_missing_human_or_source_identity_fails_closed(self):
         controller = FakeController()
