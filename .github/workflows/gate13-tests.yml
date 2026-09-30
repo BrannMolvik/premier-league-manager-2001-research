@@ -18,6 +18,12 @@ on:
       - "reconstruction/ea444_coefficients.py"
       - "reconstruction/ea444_quantization.py"
       - "reconstruction/test_ea444_quantization.py"
+      - "reconstruction/ea444_quantized_block.py"
+      - "reconstruction/test_ea444_quantized_block.py"
+      - "reconstruction/ea444_inverse_transform.py"
+      - "reconstruction/test_ea444_inverse_transform.py"
+      - "reconstruction/ea444_decoder.py"
+      - "reconstruction/test_ea444_decoder.py"
       - "reconstruction/test_ea444_coefficients.py"
       - "reconstruction/test_ea444_tables.py"
       - "reconstruction/test_ea444_bits.py"
@@ -60,6 +66,9 @@ jobs:
             test_ea444_tables \
             test_ea444_coefficients \
             test_ea444_quantization \
+            test_ea444_quantized_block \
+            test_ea444_inverse_transform \
+            test_ea444_decoder \
             test_original_menu_assets \
             test_gate13_asset_import \
             test_gate13_catalog_query \
