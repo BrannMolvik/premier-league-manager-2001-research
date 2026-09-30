@@ -14,6 +14,10 @@ from original_button_frames import (
     split_original_button_atlas,
 )
 from original_first_screen_presenter import OriginalFirstScreenPresenter
+from original_teamselect_hierarchy_art import (
+    HIERARCHY_ANIM_SPEC, HIERARCHY_BARS_SPEC,
+    OriginalTeamSelectHierarchyArt, split_hierarchy_source_strip,
+)
 from original_front_end_layout import (
     PSTARTMENU_ACTIONS,
     TEAMSELECT_BACK_EVENT,
@@ -68,8 +72,21 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
         cls.menu = assemble_original_pstartmenu_inputs(
             global_bg, menu_bg, menu_atlas, captions
         )
+        anim = split_hierarchy_source_strip(
+            solid(HIERARCHY_ANIM_SPEC.frame_width,
+                  HIERARCHY_ANIM_SPEC.frame_height,
+                  (18, 19, 20, 255)),
+            HIERARCHY_ANIM_SPEC,
+        )
+        bars = split_hierarchy_source_strip(
+            solid(HIERARCHY_BARS_SPEC.frame_width,
+                  HIERARCHY_BARS_SPEC.frame_height,
+                  (21, 22, 23, 255)),
+            HIERARCHY_BARS_SPEC,
+        )
         cls.team = assemble_original_teamselect_inputs(
-            global_bg, team_bg, team_atlas
+            global_bg, team_bg, team_atlas,
+            OriginalTeamSelectHierarchyArt(anim, bars),
         )
 
     def presenter(self):
@@ -131,6 +148,9 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
              (TEAMSELECT_START_EVENT, TEAMSELECT_START_RECT)),
         )
         self.assertEqual(view.hierarchy_row_origins, TEAMSELECT_HIERARCHY_ROW_ORIGINS)
+        self.assertIs(view.hierarchy_art, self.team.hierarchy_art)
+        self.assertEqual(view.hierarchy_art.animation.source_frame(0).width, 30)
+        self.assertEqual(view.hierarchy_art.bars.source_frame(0).width, 168)
         self.assertEqual(view.controls[0].exact_source_frame(22).width, 150)
         self.assertTrue(all(x.caption is None for x in view.controls))
         # Row IDs/content remain unproven. A click does not silently pick a club.
