@@ -96,6 +96,22 @@ from youth_state import (
 )
 
 
+def _original_pl_short_name_bytes(clubs, club_id: int) -> bytes | None:
+    """Recover original DBRClub short-name byte key for League::0x4F45E0.
+
+    Never infer a source-name key from club ID, modern display names or
+    Unicode replacement. A missing/unrepresentable name is unresolved.
+    """
+    club = clubs.get(int(club_id))
+    short_name = getattr(club, "short_name", None)
+    if not isinstance(short_name, str):
+        return None
+    try:
+        return short_name.encode("cp1252")
+    except UnicodeEncodeError:
+        return None
+
+
 DateHook = Callable[[date], None]
 
 
@@ -2174,7 +2190,15 @@ class GameState:
             home_goals,
             away_goals,
         )
-        self.premier_league.publish_exact_ranking(self.cup_results)
+        # A complete Premier League table with equal numeric comparator
+        # keys needs the original short-name byte fallback before its
+        # competition-position ranking can be published for the next round.
+        # Without authentic names, the underlying source-conservative
+        # publisher still declines to invent an equal-key ordering.
+        self.premier_league.publish_exact_ranking(
+            self.cup_results,
+            lambda club_id: _original_pl_short_name_bytes(self.clubs, club_id),
+        )
         return result
 
     def record_cup_match_resolution(
@@ -3473,14 +3497,10 @@ class GameState:
 
         names: dict[int, bytes] = {}
         for club_id in club_ids:
-            club = self.clubs.get(int(club_id))
-            short_name = getattr(club, "short_name", None)
-            if not isinstance(short_name, str):
+            source_name = _original_pl_short_name_bytes(self.clubs, club_id)
+            if source_name is None:
                 return self.premier_league.table()
-            try:
-                names[int(club_id)] = short_name.encode("cp1252")
-            except UnicodeEncodeError:
-                return self.premier_league.table()
+            names[int(club_id)] = source_name
         try:
             return self.premier_league.table(names.get)
         except ValueError:
