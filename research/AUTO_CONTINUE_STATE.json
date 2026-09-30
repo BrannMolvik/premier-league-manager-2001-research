@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 13,
   "active_task": "Gate13: native original-byte Button/Zurich/source-pixel audit remains first critical action once execution recovers. While container execution is ClientError, continue source-backed presentation separation only: current worker is validating a read-only management source-data bridge preserving recovered roster order, fixture source insertion order, and native League comparator output without inventing screen IDs/layout. After merge, resume actual original PE RTTI + ten-asset audit immediately when byte execution works; finish Gate13 screens/audit, then Gates14-17 and verified Windows11 release.",
-  "last_known_main_head": "c4a8603992935ee800fd06ddadd4c2f6de899593",
+  "last_known_main_head": "6ecf5fbde6a2c4c473bc37cd5d2a250e2690b1c7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 99,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 99 started from verified main c4a8603992935ee800fd06ddadd4c2f6de899593. Trivial container shell still ClientError; canonical original ZIP remains retained in Library from prior verification. Productive fallback in progress on branch gate13/management-source-data-bridge: immutable management data projection from already recovered source/backend semantics only, explicitly not native UI fidelity.",
+  "note": "Recovery99 verified checkpoint 6ecf5fbde6a2c4c473bc37cd5d2a250e2690b1c7 includes merged PR27 0ecf3258 (management roster/fixture/table source data; Gate13 36754613939 199 passed, asset 36754613931), PR28 278916e4 (tactics/Team Orders; 36754954095 201 passed, asset36754954127), PR29 1d2bce7a (player profile current runtime state only; 36755334639 203 passed, asset36755334392), PR30 6c0abb54 (neutral finance/transfers; 36755982345 206 passed, asset36755982172). Native container remains ClientError; no original PE/pixel/Windows native audit. Continue only source-backed seams if blocked.",
   "same_chat_fallback_minutes": 30
 }
