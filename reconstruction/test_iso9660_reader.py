@@ -2,7 +2,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from iso9660_reader import Iso9660Error, IsoImage, SECTOR
+from iso9660_reader import Iso9660Error, IsoImage, RawMode1IsoImage, SECTOR
 
 
 def _both16(value):
@@ -95,6 +95,59 @@ class Iso9660ReaderTests(unittest.TestCase):
 
             extracted = image.extract_file(files[0], root / "out")
             self.assertEqual(extracted.read_bytes(), payload)
+
+    def test_reads_original_iso_directly_from_raw_mode1_track(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            iso = root / "original.iso"
+            payload = build_joliet_iso(iso)
+            original = iso.read_bytes()
+            raw_path = root / "raw.bin"
+            physical = []
+            for offset in range(0, len(original), SECTOR):
+                sector = original[offset:offset + SECTOR]
+                physical.append(
+                    RawMode1IsoImage.RAW_SYNC
+                    + b"\\x00\\x02\\x00"
+                    + b"\\x01"
+                    + sector
+                    + b"\\x00" * (2352 - 16 - SECTOR)
+                )
+            raw_path.write_bytes(b"".join(physical))
+
+            virtual = RawMode1IsoImage(raw_path)
+            self.assertTrue(virtual.uses_joliet)
+            self.assertEqual(virtual.joliet_level, 3)
+            self.assertEqual(
+                [entry.path for entry in virtual.files()],
+                ["FM2001_Art/Generic/bground.444"],
+            )
+            self.assertEqual(virtual.read_file(virtual.files()[0]), payload)
+            self.assertEqual(virtual._read(2035, 40), original[2035:2075])
+            self.assertEqual(virtual._read(100, 0), b"")
+
+    def test_virtual_raw_reader_detects_corrupted_file_sector(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            iso = root / "original.iso"
+            build_joliet_iso(iso)
+            original = iso.read_bytes()
+            raw_path = root / "raw.bin"
+            data = bytearray()
+            for offset in range(0, len(original), SECTOR):
+                sector = original[offset:offset + SECTOR]
+                mode = b"\\x02" if offset // SECTOR == 23 else b"\\x01"
+                data.extend(
+                    RawMode1IsoImage.RAW_SYNC
+                    + b"\\x00\\x02\\x00"
+                    + mode
+                    + sector
+                    + b"\\x00" * (2352 - 16 - SECTOR)
+                )
+            raw_path.write_bytes(data)
+            virtual = RawMode1IsoImage(raw_path)
+            with self.assertRaisesRegex(Iso9660Error, "sector 23"):
+                virtual.read_file(virtual.files()[0])
 
     def test_rejects_non_iso_image(self):
         with tempfile.TemporaryDirectory() as temp_name:
