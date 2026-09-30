@@ -36,11 +36,11 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-114336aceb5d0bc7a844dbd7c7d3b439ee84d50f
-Regression-test exact-only Gate 13 staging
+03bc53b7bb71d3af6f1452727e9857ccbb328c29
+Test Gate 13 ZIP path traversal guard
 ```
 
-GitHub Actions ran **863 tests with 2 failures**, exactly the two long-standing
+GitHub Actions ran **865 tests with 2 failures**, exactly the two long-standing
 secondary-schedule assertions:
 
 - secondary root-order assertion;
@@ -136,6 +136,20 @@ complete disc catalog. An empty exact-path selection fails immediately.
 GitHub Actions run `36688232893` verified all three new tests; full-suite
 results remain 863 tests with only the same two known secondary-schedule failures.
 The repository asset-policy workflow also passed.
+
+Gate-13 staging path normalization now rejects parent traversal (`..`) and
+drive-prefixed archive paths rather than letting an unexpected source member
+escape the temporary extraction root. This is tested through both direct
+normalization and a malicious nested ZIP fixture. GitHub Actions run
+`36690708130` verified both new tests and ran 865 tests in total, with
+only the same two known secondary-schedule failures; the repository
+asset-policy workflow also passed.
+
+Latest source-access retry: the exact private 511,121,336-byte Library ZIP
+was resolved and materialized again, but container commands (including the
+materialized-file stat operation) still fail with a general CAAS `ClientError`.
+The Files text reader returns no readable text for this binary ZIP. No claim
+is made that its internal disc files were inventoried.
 
 Secondary visual evidence is now bounded in
 `research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
