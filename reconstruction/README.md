@@ -67,6 +67,7 @@ Known remaining fidelity boundaries include:
 The live list is maintained in `../research/FIDELITY_GAPS.md`. Research evidence, addresses, confidence levels, and gate status live under `../research/` and `../ROADMAP.md`.
 
 
+
 ## Gate 13 source inventory
 
 When the authorized source archive is available as local bytes, inventory it
@@ -76,21 +77,40 @@ without committing the raw archive:
 python gate13_source_inventory.py <source.zip> --deep --hash-source --output gate13-source.json
 ```
 
-If the ZIP contains the historically observed raw MODE1/2352 BIN image, deep
-mode first validates and converts each 2352-byte sector to its 2048-byte Mode-1
-user-data payload in a temporary ISO file. It then uses 7-Zip (`7z`, `7zz`,
-or `7za`) to list the ISO9660/Joliet filesystem. Pass
-`--seven-zip <path>` when it is not on PATH. Use
-`--extract-candidates-to <staging-directory>` only for a deliberate staging
-extract; imported originals still require `original_assets/MANIFEST.md`
-provenance and the repository asset-policy check.
+For the historically observed source path, deep mode extracts the nested raw
+MODE1/2352 BIN image, validates every raw sector, converts only the 2048-byte
+Mode-1 user-data payload to a temporary ISO, and reads the ISO9660/Joliet
+filesystem with the repository-native reader. 7-Zip is only an optional
+fallback for other supported disc-image formats.
 
+The JSON report deliberately contains two views:
 
-After staging an intentionally selected original file, import it with provenance:
+- `disc_files`: the complete source-disc file catalog with normalized path,
+  byte size, and ISO extent;
+- `candidates`: the smaller Gate-13 presentation shortlist, with hashes when
+  bytes were intentionally extracted.
+
+Use the full catalog to identify opaque layout/string resources rather than
+guessing filenames. Once an exact path is known, stage only that resource:
+
+```text
+python gate13_source_inventory.py <source.zip> --deep \
+  --extract-path FM2001_Art/Generic/<exact-path> \
+  --extract-candidates-to <staging-directory> \
+  --output gate13-source-selected.json
+```
+
+Repeat `--extract-path` for multiple exact files. A requested path that is not
+present is reported as a warning rather than silently ignored.
+
+After staging an intentionally selected original file, import it with
+provenance:
 
 ```text
 python gate13_asset_import.py <staging-dir> FM2001_Art/Generic/<asset> --repo-root ..
 ```
 
 The importer refuses raw ZIP/BIN/ISO-style containers and performs the strict
-known-hash/header check for `bground.444`.
+known-hash/header check for `bground.444`. Imported originals still require
+`original_assets/MANIFEST.md` provenance and the repository asset-policy
+check.
