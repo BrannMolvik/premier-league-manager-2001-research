@@ -38,6 +38,8 @@ on:
       - "reconstruction/ea_font.py"
       - "reconstruction/test_ea_font.py"
       - "reconstruction/original_pstartmenu_labels.py"
+      - "reconstruction/original_button_frames.py"
+      - "reconstruction/test_original_button_frames.py"
       - "reconstruction/test_original_pstartmenu_labels.py"
       - "reconstruction/test_ea_language_strings.py"
       - "reconstruction/iso9660_reader.py"
@@ -71,6 +73,7 @@ jobs:
             test_ea_language_strings \
             test_ea_font \
             test_original_pstartmenu_labels \
+            test_original_button_frames \
             test_ea444_header \
             test_ea444_bits \
             test_ea444_tables \
