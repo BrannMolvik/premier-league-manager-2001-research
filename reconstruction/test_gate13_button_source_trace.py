@@ -6,6 +6,7 @@ from hashlib import sha256
 from importlib.util import find_spec
 import os
 from pathlib import Path
+import tempfile
 import struct
 import unittest
 
@@ -17,6 +18,7 @@ from gate13_button_source_trace import (
     OriginalPETraceError,
     button_trace_report,
     disassemble_window,
+    require_private_output_path,
 )
 
 
@@ -124,6 +126,18 @@ class CanonicalButtonTraceTests(unittest.TestCase):
         struct.pack_into("<I", corrupted, 0x178 + 20, 0xFFFF)
         with self.assertRaisesRegex(OriginalPETraceError, "section"):
             parse_fixture(bytes(corrupted))
+
+    def test_disassembly_report_must_remain_outside_tracked_repository(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "repo"
+            root.mkdir()
+            with self.assertRaisesRegex(OriginalPETraceError, "outside"):
+                require_private_output_path(
+                    root / "research/private-trace.json", repository_root=root
+                )
+            require_private_output_path(
+                Path(directory) / "private-result.json", repository_root=root
+            )
 
     @unittest.skipUnless(find_spec("capstone"), "Capstone optional in hosted CI")
     def test_optional_linear_x86_instruction_list(self):
