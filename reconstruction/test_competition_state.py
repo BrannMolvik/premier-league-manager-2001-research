@@ -1,8 +1,11 @@
 import unittest
 from dataclasses import dataclass
+from types import SimpleNamespace
 
 from competition_schedule import StartupScheduleNode, direct_club_ref
-from competition_state import PremierLeagueState
+from competition_state import LeagueRow, PremierLeagueState
+from cup_progression import CupResultRegistry
+from game_state import GameState
 
 
 @dataclass(frozen=True)
@@ -48,6 +51,111 @@ class LeagueStateTests(unittest.TestCase):
         self.assertEqual((club3.draws, club3.points), (1, 1))
         club2 = next(r for r in table if r.club_id == 2)
         self.assertEqual(club2.goal_difference, -2)
+
+    def test_original_numeric_league_comparator_precedes_goal_difference_with_played(self):
+        # Two wins + two heavy losses vs six draws, both 6 points.
+        # Source native 0x4F45E0 prioritizes fewer matches played even
+        # though the higher-ranked club has a much worse goal difference.
+        first = LeagueRow(
+            club_id=10, played=4, wins=2, losses=2,
+            goals_for=2, goals_against=9, points=6,
+        )
+        second = LeagueRow(
+            club_id=30, played=6, draws=6,
+            goals_for=0, goals_against=0, points=6,
+        )
+        self.assertLess(
+            PremierLeagueState._original_numeric_table_key(first),
+            PremierLeagueState._original_numeric_table_key(second),
+        )
+        self.assertEqual(
+            PremierLeagueState._original_numeric_table_key(first),
+            (-6, 4, 7, -2, 9),
+        )
+
+    def test_exact_premier_ranking_uses_original_short_name_bytes_not_club_id(self):
+        league = PremierLeagueState((
+            Fixture(0, 0, 10, 20),
+            Fixture(1, 0, 30, 40),
+        ))
+        league.record_result(0, 1, 0)
+        league.record_result(1, 1, 0)
+        names = {10: b"Zulu", 20: b"Beta", 30: b"Alpha", 40: b"Gamma"}
+        self.assertEqual(
+            tuple(row.club_id for row in league.table()), (10, 30, 20, 40)
+        )
+        self.assertEqual(
+            tuple(row.club_id for row in league.table(names.get)),
+            (30, 10, 20, 40),
+        )
+        self.assertIsNone(league.exact_ranking())
+        self.assertEqual(league.exact_ranking(names.get), (30, 10, 20, 40))
+        registry = CupResultRegistry()
+        self.assertEqual(
+            league.publish_exact_ranking(registry, names.get),
+            (30, 10, 20, 40),
+        )
+        self.assertEqual(registry.competition_rankings[0], (30, 10, 20, 40))
+
+    def test_unproven_full_source_key_ties_cannot_be_published(self):
+        league = PremierLeagueState((
+            Fixture(0, 0, 10, 20),
+            Fixture(1, 0, 30, 40),
+        ))
+        league.record_result(0, 1, 0)
+        league.record_result(1, 1, 0)
+        tied = {10: b"Same", 30: b"Same", 20: b"Beta", 40: b"Gamma"}
+        with self.assertRaisesRegex(ValueError, "qsort tie order"):
+            league.table(tied.get)
+        self.assertIsNone(league.exact_ranking(tied.get))
+        self.assertIsNone(league.exact_ranking(lambda _club: None))
+        registry = CupResultRegistry()
+        self.assertIsNone(league.publish_exact_ranking(registry, tied.get))
+        self.assertEqual(registry.competition_rankings, {})
+
+    def test_gamestate_table_adapts_canonical_club_short_names_and_fallbacks(self):
+        league = PremierLeagueState((
+            Fixture(0, 0, 10, 20),
+            Fixture(1, 0, 30, 40),
+        ))
+        league.record_result(0, 1, 0)
+        league.record_result(1, 1, 0)
+        names = {10: "Zulu", 20: "Beta", 30: "Alpha", 40: "Gamma"}
+        fake = SimpleNamespace(
+            premier_league=league,
+            clubs={k: SimpleNamespace(short_name=v) for k, v in names.items()},
+        )
+        self.assertEqual(
+            tuple(r.club_id for r in GameState.premier_league_table(fake)),
+            (30, 10, 20, 40),
+        )
+        fake.clubs[30] = SimpleNamespace()  # Missing source byte name.
+        self.assertEqual(
+            tuple(r.club_id for r in GameState.premier_league_table(fake)),
+            (10, 30, 20, 40),
+        )
+        fake.clubs[30] = SimpleNamespace(short_name="Zulu")
+        self.assertEqual(
+            tuple(r.club_id for r in GameState.premier_league_table(fake)),
+            (10, 30, 20, 40),
+        )
+
+    def test_original_short_name_byte_order_differs_from_unicode_order(self):
+        league = PremierLeagueState((
+            Fixture(0, 0, 10, 20),
+            Fixture(1, 0, 30, 40),
+        ))
+        league.record_result(0, 1, 0)
+        league.record_result(1, 1, 0)
+        # CP1252 0x9F (Ÿ) sorts before 0xC0 (À), even though the
+        # Python Unicode codepoint order is the opposite.
+        names = {10: b"\xc0", 30: b"\x9f", 20: b"Beta", 40: b"Gamma"}
+        self.assertEqual(
+            tuple(row.club_id for row in league.table(names.get))[:2],
+            (30, 10),
+        )
+        with self.assertRaisesRegex(ValueError, "CP1252"):
+            league.table(lambda _club: "not original source bytes")
 
     def test_next_club_match_date_is_strictly_after_current_fixture(self):
         league = PremierLeagueState(
