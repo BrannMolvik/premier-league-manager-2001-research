@@ -188,3 +188,30 @@ manager screens are explicitly represented as unresolved fields. Hosted
 Gate-13 CI has small synthetic assertions that the first-hand audit fails
 closed. Because the licensed ZIP/executable are never placed in hosted CI,
 do not count hosted success as the real-source audit passing.
+
+## Off-canvas native hierarchy-source strip inspection
+
+The existing live developer viewer now offers two independently cycled,
+lossless original source-frame previews from the separately SHA-pinned
+`choice_league_but_anim.444` (30×29-per-frame) and
+`choice_league_but_bars.444` (168×29-per-frame) resources. These are
+**off-canvas** in the diagnostic sidebar and display their explicit source
+frame indices. Native animations, frame-to-hover/selection mapping, sprite
+draw placement relative to row-construction origins, row labels and
+country/league/club hit semantics remain **unproven**, so none of those
+assumptions are rendered onto the original game canvas.
+
+Unlike the source-ordered PNG/PGM exporter, the developer viewer allows
+side-by-side inspection of the two hierarchy source-strip families while
+stepping through the verified menu→TeamSelect control flow. The two strips
+may have different frame counts and their indices cannot be conflated.
+On the native 800×600 canvas, only previously source-proven opening
+backgrounds and action-control source frames are shown. A click on a
+hierarchy row remains a no-op pending native control-to-club evidence.
+
+Hosted CI exercises lossless fixture roundtrips, exact source path/geometry
+identity, independent frame indices, bounded indices, off-canvas Tk display
+and the absence of invented row-click selection. This is a synthetic test of
+the source-backed diagnostic plumbing; the canonical original licensed
+graphics still require the separate private ZIP/executable audit, actual
+source-byte load, and Windows viewer smoke test described above.
