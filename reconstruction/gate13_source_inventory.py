@@ -465,14 +465,18 @@ def catalog_iso_image(image: Path) -> list[DiscFileRecord]:
 def inventory_iso_image(
     image: Path,
     extract_candidates_to: Path | None = None,
+    explicit_paths: set[str] | None = None,
 ) -> tuple[list[AssetRecord], list[str]]:
     records: list[AssetRecord] = []
     warnings: list[str] = []
     volume = IsoImage(image)
+    requested = {_lower(path) for path in (explicit_paths or set())}
 
     for entry in volume.files():
         member = normalize_member(entry.path)
         reason = candidate_reason(member)
+        if _lower(member) in requested:
+            reason = "explicit-path"
         if reason is None:
             continue
 
@@ -562,6 +566,7 @@ def deep_inventory_zip(
     seven_zip: str | None,
     extract_candidates_to: Path | None = None,
     disc_files: list[DiscFileRecord] | None = None,
+    explicit_paths: set[str] | None = None,
 ) -> tuple[list[AssetRecord], list[str]]:
     direct, nested_images, warnings = inventory_zip(archive)
     records = list(direct)
@@ -589,6 +594,7 @@ def deep_inventory_zip(
                     image_records, image_warnings = inventory_iso_image(
                         listing_image,
                         extract_candidates_to,
+                        explicit_paths,
                     )
                 elif seven_zip is not None:
                     image_records, image_warnings = inventory_disc_image(
@@ -618,6 +624,7 @@ def report_for_source(
     seven_zip: str | None = None,
     extract_candidates_to: Path | None = None,
     hash_source: bool = False,
+    explicit_paths: set[str] | None = None,
 ) -> dict:
     source = source.resolve()
     warnings: list[str] = []
@@ -636,6 +643,7 @@ def report_for_source(
                 command,
                 extract_candidates_to,
                 disc_files,
+                explicit_paths,
             )
             _, nested_images, _ = inventory_zip(source)
         else:
@@ -654,6 +662,7 @@ def report_for_source(
                 records, warnings = inventory_iso_image(
                     listing_image,
                     extract_candidates_to,
+                    explicit_paths,
                 )
             elif command is not None:
                 records, warnings = inventory_disc_image(
@@ -709,6 +718,7 @@ def report_for_source(
             "height": EXPECTED_BGROUND_SIZE[1],
         },
         "nested_disc_images": nested_images,
+        "explicit_paths": sorted(normalize_member(path) for path in (explicit_paths or set())),
         "disc_file_count": len(disc_files),
         "disc_files": [asdict(record) for record in disc_files],
         "candidates": [asdict(record) for record in records],
@@ -727,6 +737,16 @@ def main() -> int:
     parser.add_argument("--deep", action="store_true")
     parser.add_argument("--seven-zip")
     parser.add_argument("--extract-candidates-to", type=Path)
+    parser.add_argument(
+        "--extract-path",
+        action="append",
+        default=[],
+        help=(
+            "Treat an exact source-relative disc path as a Gate-13 candidate. "
+            "Repeat for multiple paths; use with --extract-candidates-to to "
+            "stage only exact opaque resources discovered from the full catalog."
+        ),
+    )
     parser.add_argument("--hash-source", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
@@ -737,6 +757,7 @@ def main() -> int:
         seven_zip=args.seven_zip,
         extract_candidates_to=args.extract_candidates_to,
         hash_source=args.hash_source,
+        explicit_paths=set(args.extract_path),
     )
     rendered = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if args.output:
