@@ -36,12 +36,12 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-e66ae4eb39785cd0f5478921258250ecc9dd9a4e
-Prove deep Gate 13 inventory scans ZIP candidates only once
+19e599f34c3330a5d258902d5311649f62271ecb
+Test content-based raw BIN disc detection without excluding UI binary resources
 ```
 
-Dedicated GitHub Actions Gate 13 run `36697061364` passed **50/50 focused
-tests**. Full reconstruction run `36697061476` ran **878 tests with 2 failures**,
+Dedicated GitHub Actions Gate 13 run `36698353585` passed **61/61 focused
+tests**. Full reconstruction run `36698353568` ran **889 tests with 2 failures**,
 exactly the two long-standing secondary-schedule assertions:
 
 - secondary root-order assertion;
@@ -198,6 +198,24 @@ and materialized successfully. However, even a trivial local container
 health/file-stat command still raises a general CAAS `ClientError`;
 therefore the actual 511 MB disc has **not** been byte-inventoried here.
 No real source asset has been imported or substituted.
+
+Both outer ZIP and nested-disc **complete catalogs** are now saved in each
+deep source-inventory report. Catalog queries search both layers and annotate
+their provenance, with optional layer filters for investigation. Matching
+duplicate paths fail closed during `--paths-only` export; exact-path staging
+also refuses case-insensitive duplicate paths, collisions between archive
+layers, and overwriting preexisting staged files. Most importantly, raw
+`.bin` disc images are now identified by valid MODE1 sector signatures rather
+than file extension: opaque `.bin` files containing ordinary UI data are
+still eligible as original interface resources.
+
+Latest focused GitHub Actions run `36698353585` passed all **61** Gate-13
+tests; full suite run `36698353568` ran **889** tests with only the same
+two existing secondary-schedule failures; asset-policy run `36698353633`
+passed. None of those tests involves the actual authorized 511 MB archive.
+The global container and both Python execution environments still returned
+CAAS `ClientError` on trivial health commands. The actual source-disc
+catalog and visual resources remain the first unfulfilled Gate-13 dependency.
 
 Secondary visual evidence is now bounded in
 `research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
