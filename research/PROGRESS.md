@@ -7912,3 +7912,26 @@ keeping presentation separate from the stable simulation backend.
   TeamSelect graphics, strings and layout resources, then import the minimum
   original slice with provenance before implementing recognizably original
   rendering.
+
+
+## Gate 13 navigation boundary CI checkpoint - 30 September 2026
+
+- Added `reconstruction/front_end_state.py` as a presentation-only state
+  boundary for the first recovered original front-end slice.
+- Preserved the confirmed original identifiers literally:
+  PStartMenu screen `0x323`, New Game control `2`, TeamSelect Back
+  `0x29`, and TeamSelect Start/Continue `0x2A`.
+- Unknown controls fail closed rather than receiving invented behavior.
+- TeamSelect Start/Continue emits a presentation/application command and does
+  not import or execute gameplay/simulation code.
+- Added five focused unit tests in `reconstruction/test_front_end_state.py`.
+- GitHub Actions at checkpoint
+  `ffcbbccfd0601b91a19415e7f1b4503de0785bd5` ran **833 tests with 2
+  failures**, exactly the two unchanged secondary-schedule assertions:
+  `test_secondary_root_order_uses_same_crt_qsort_then_mode_filter` and
+  `test_secondary_container_bucket_counts_reach_canonical_staff_seed`
+  (280 recovered vs 262 expected). The new Gate-13 tests passed.
+- Repository asset policy passed.
+- No original graphic/layout resource has yet been imported or replaced. The
+  next fidelity task remains byte-level inventory of the authorized PStartMenu /
+  TeamSelect source resources.

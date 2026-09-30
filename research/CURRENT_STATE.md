@@ -36,17 +36,17 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-6a966c022b68680dca5c950fa950ee586ba6f062
-Use exact League name tie-breaker in European groups
+ffcbbccfd0601b91a19415e7f1b4503de0785bd5
+Add recovered front-end navigation boundary
 ```
 
-The full reconstruction suite ran **828 tests with 2 failures**, exactly the
-two long-standing secondary-schedule assertions:
+GitHub Actions ran **833 tests with 2 failures**, exactly the two long-standing
+secondary-schedule assertions:
 
 - secondary root-order assertion;
 - secondary bucket-count assertion (262 expected vs 280 recovered).
 
-No new Gate-12 regression failed. GitHub repository asset policy passed.
+All new Gate-13 navigation tests passed. GitHub repository asset policy passed.
 
 ## Gate 12 closure checkpoint
 
@@ -113,8 +113,8 @@ empty.
    other resources required by PStartMenu and TeamSelect.
 3. Identify source paths/hashes and import only the minimum intentional first
    slice under `original_assets/` with manifest provenance.
-4. Introduce the presentation/navigation boundary around the already-proven
-   control IDs while leaving simulation logic in the existing backend.
+4. Bind the already-verified presentation/navigation boundary to the recovered
+   original resources without moving simulation logic into presentation code.
 5. Regression-test the first recognizably original main-menu -> TeamSelect flow
    before moving to manager home.
 
