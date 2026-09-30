@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 main f0484171 includes verified scouting, tactics/Team Orders presentation contracts and first-screen provenance readiness guard. Private source ZIP is materialized but direct shell/Python remains ClientError. Continue mining already-firsthand original management panel evidence; next inspect PTickets/stadium presentation identity and exact terrace/seating field/recommendation semantics for a bounded contract if sufficiently proven. Resume Button/Zurich/ten-resource physical audit immediately when execution returns. Gate13 then Gates14-17 and clean Windows11 release remain mandatory.",
+  "active_task": "Resume exact open Gate13 PR #38 PTickets presentation contract from head 92d9d0322fd2ff0a9403a66190591438d025527f. Wait only for already-running Gate13/full/asset CI, merge if all green, checkpoint main/runtime, then continue the next source-backed Gate13 management-panel task. Private source ZIP remains materialized but direct byte execution is ClientError; resume Button/Zurich/ten-resource physical audit immediately if execution returns. Gates13-17 and verified Windows11 release remain mandatory.",
   "last_known_main_head": "f04841716f6ce3a897b9ab6b2fc33a53def6fbad",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 101,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery101 persisted through main f0484171. Latest full run 36768744640 passed 1063 tests, 21 expected source-gated skips, zero failures; focused run 36768744626 passed 227/19 skips. Tactics visual/layout/navigation remains open.",
+  "recovery_generation": 102,
+  "last_recovery_reason": "transient-connection-interrupted",
+  "note": "Recovery102 after transient connection interruption. Main remains f0484171; PR38 is open with CI already in progress. Do not restart tactics/scouting/readiness work.",
   "same_chat_fallback_minutes": 30
 }
