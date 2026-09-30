@@ -33,6 +33,27 @@ for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
 
+## Current recovery's canonical original Button executable-trace preparation
+
+- PR #14, squash commit `a42782047e6cfa673ef88f36773b37bf9be63e04`,
+  adds `reconstruction/gate13_button_source_trace.py`: a strict canonical-
+  hash-gated PE32 i386 VA reader for the *previously recovered* exact
+  Button@ease, PStartMenu, TeamSelect and font call-site neighborhoods.
+  It reports raw pointer-byte occurrences only as **unvalidated
+  candidates**, with optional Capstone linear-disassembly output for
+  independent human CFG/vtable adjudication. It refuses private
+  original-code reports under the tracked repository.
+- Synthetic PE32 address/boundary/candidate regression tests and an opt-in
+  original-executable smoke test are in
+  `reconstruction/test_gate13_button_source_trace.py`. Focused Gate-13
+  run `36735030753` and asset policy `36735030926` both passed.
+  The precise original-executable follow-up is in
+  `research/GATE13_BUTTON_STATE_TRACE_PROCEDURE.md`.
+- These tests **do not** recover or verify original native frame/state
+  mappings. Tracing Button@ease's actual draw/update/hover/down/up
+  paths and glyph origin/baseline/color with the original executable
+  remains the active source-critical task.
+
 ## Current recovery's verified TeamSelect hierarchy-art integration
 
 - Rechecked canonical main at `cb70119caf8421703781e92766f77fd4805ff4c9`.
