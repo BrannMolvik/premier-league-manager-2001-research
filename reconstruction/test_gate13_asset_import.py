@@ -3,6 +3,9 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import zipfile
+
+from gate13_source_inventory import report_for_source
 
 from gate13_asset_import import (
     AssetImportError,
@@ -224,6 +227,47 @@ class Gate13AssetImportTests(unittest.TestCase):
                     staged_sha256=hashlib.sha256(b"abc").hexdigest(),
                     staged_size=3,
                 )
+
+    def test_real_inventory_report_feeds_original_bin_import_end_to_end(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            archive = root / "source.zip"
+            staging = root / "staging"
+            repo = root / "repo"
+            selected = "UI/opaque.bin"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr(selected, b"synthetic-original-ui")
+                zf.writestr("FM2001_Art/Generic/unrelated.png", b"not-selected")
+            report = report_for_source(
+                archive,
+                only_explicit=True,
+                explicit_paths={selected},
+                extract_candidates_to=staging,
+                hash_source=True,
+            )
+            self.assertEqual(report["unresolved_explicit_paths"], [])
+            self.assertEqual(len(report["candidates"]), 1)
+            self.assertFalse(
+                (staging / "FM2001_Art/Generic/unrelated.png").exists()
+            )
+            receipt = root / "selected.json"
+            receipt.write_text(json.dumps(report), encoding="utf-8")
+            manifest = repo / "original_assets" / "MANIFEST.md"
+            manifest.parent.mkdir(parents=True)
+            manifest.write_text(MANIFEST, encoding="utf-8")
+
+            dest, digest = import_original_asset(
+                staging_root=staging, source_relative=selected,
+                repo_root=repo, notes="End-to-end original report proof.",
+                inventory_report=receipt,
+            )
+
+            self.assertEqual((repo / dest).read_bytes(), b"synthetic-original-ui")
+            self.assertEqual(digest, report["candidates"][0]["sha256"])
+            self.assertIn(
+                "Source archive SHA-256: " + report["source_sha256"],
+                manifest.read_text(encoding="utf-8"),
+            )
 
     def test_wrong_bground_is_rejected_before_copy(self):
         with tempfile.TemporaryDirectory() as temp_name:
