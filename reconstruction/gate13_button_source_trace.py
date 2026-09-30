@@ -266,8 +266,14 @@ def main() -> int:
     report = button_trace_report(pe, with_disassembly=args.disassemble)
     rtti_code_seeds = ()
     if args.inspect_button_rtti_candidates:
-        from gate13_button_rtti_candidates import button_rtti_candidate_report
+        from gate13_button_rtti_candidates import (
+            button_rtti_candidate_report,
+            require_known_positive_teamselect_calibration,
+        )
         button_rtti = button_rtti_candidate_report(pe)
+        # Do not save a possibly misleading private candidate report or
+        # feed its targets to the cross-reference scanner on canary failure.
+        require_known_positive_teamselect_calibration(button_rtti)
         report["button_rtti_vftable_candidate_only"] = button_rtti
         rtti_code_seeds = tuple(
             (
