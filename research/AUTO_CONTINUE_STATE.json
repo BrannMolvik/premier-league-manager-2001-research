@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 13,
   "active_task": "Gate 13 original management presentation: run the verified authorized-source pipeline (ZIP -> raw MODE1/2352 -> temporary ISO9660/Joliet), inventory exact PStartMenu/TeamSelect resources, import the minimum provenance-tracked slice, then bind those assets to the verified presentation-only navigation boundary.",
-  "last_known_main_head": "ef91f255d1eeb90fec20cc035584278466ed52b3",
+  "last_known_main_head": "8780207e0dbbd057ce456d6638763a6d92a90d52",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 75,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Gate 13 navigation boundary, source inventory, provenance importer, and historical MODE1/2352 conversion path are committed and CI-verified. Full suite 847 tests with only the two known secondary-schedule failures; asset policy passes. Current ChatGPT container still returns ClientError on the materialized 511 MB ZIP. Next source-tooling dependency is ISO9660/Joliet enumeration/extraction; do not redo front-end/control research.",
+  "recovery_generation": 76,
+  "last_recovery_reason": "transient-network-error",
+  "note": "Recovered after transient network interruption. main already contains the new read-only ISO9660/Joliet reader and its test (ee3f623, 8780207). Continue Gate 13 by integrating/testing source inventory against that reader, then inventory and provenance-import the minimum original PStartMenu/TeamSelect slice.",
   "same_chat_fallback_minutes": 30
 }
