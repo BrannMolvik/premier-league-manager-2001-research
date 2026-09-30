@@ -36,19 +36,18 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-ffcbbccfd0601b91a19415e7f1b4503de0785bd5
-Add recovered front-end navigation boundary
+70f81a041eb372b902cbeb8087979882d66d7233
+Add provenance-safe Gate 13 asset importer
 ```
 
-GitHub Actions ran **833 tests with 2 failures**, exactly the two long-standing
+GitHub Actions ran **844 tests with 2 failures**, exactly the two long-standing
 secondary-schedule assertions:
 
 - secondary root-order assertion;
 - secondary bucket-count assertion (262 expected vs 280 recovered).
 
-All new Gate-13 navigation and source-inventory tests passed. The latest full
-run contains **839 tests with the same 2 known failures**. GitHub repository
-asset policy passed.
+All new Gate-13 navigation, source-inventory, and provenance-import tests
+passed. GitHub repository asset policy passed.
 
 ## Gate 12 closure checkpoint
 
@@ -115,9 +114,13 @@ pixel coordinates and non-authoritative for shipped asset bytes.
 
 ## Exact next task
 
-1. Regain byte-level access to the authorized archive/disc contents and run
-   `reconstruction/gate13_source_inventory.py` against it (deep mode when the
-   ZIP contains a nested disc image).
+1. Reproduce the historically proven source-access path in
+   `reconstruction/gate13_source_inventory.py`: materialize the authorized
+   archive, extract its raw MODE1/2352 disc image, convert it to temporary
+   ISO9660, then inventory the disc filesystem. The current recovery container
+   itself is returning a container-level `ClientError`, so retry execution
+   when a working container is available rather than repeating front-end
+   research.
 2. Inventory the exact original graphics, strings, rectangles/layout data and
    other resources required by PStartMenu and TeamSelect, using the bounded
    secondary screenshots only as a visual cross-check.

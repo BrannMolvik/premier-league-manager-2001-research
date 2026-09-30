@@ -8005,3 +8005,22 @@ keeping presentation separate from the stable simulation backend.
   manifest insertion, byte-identical copying and bad-background rejection.
 - No original asset has been imported yet because source ZIP bytes remain
   inaccessible to this ChatGPT execution runtime.
+
+
+## Gate 13 asset-import CI checkpoint - 30 September 2026
+
+- GitHub Actions verified `70f81a041eb372b902cbeb8087979882d66d7233`.
+- All five new `test_gate13_asset_import` tests passed.
+- The full reconstruction suite ran **844 tests with 2 failures**, still exactly
+  the unchanged secondary root-order and secondary bucket-count assertions.
+- Repository asset policy passed.
+- The navigation boundary, source-inventory utility, and provenance-safe asset
+  importer are now all independently regression-covered. No original asset has
+  yet been imported because this recovery session's container/Python runtime
+  returns a container-level `ClientError` when opening the materialized
+  511 MB source ZIP.
+- Historical project evidence confirms the prior successful source-access path:
+  materialize the same Library archive, extract the raw disc image, convert its
+  MODE1/2352 sectors to temporary ISO9660, then inspect/extract the authorized
+  files. The next source tooling should reproduce that proven conversion path
+  rather than re-investigate the already-bounded front-end contract.
