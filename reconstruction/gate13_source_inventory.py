@@ -92,6 +92,13 @@ class AssetRecord:
     expected_hash_match: bool | None = None
 
 
+@dataclass(frozen=True)
+class DiscFileRecord:
+    path: str
+    size: int
+    extent: int
+
+
 def normalize_member(path: str) -> str:
     text = path.replace("\\", "/").lstrip("/")
     parts = [part for part in text.split("/") if part not in ("", ".")]
@@ -443,6 +450,18 @@ def _prepare_disc_image_for_listing(
     return image, None
 
 
+def catalog_iso_image(image: Path) -> list[DiscFileRecord]:
+    volume = IsoImage(image)
+    return [
+        DiscFileRecord(
+            path=normalize_member(entry.path),
+            size=entry.size,
+            extent=entry.extent,
+        )
+        for entry in volume.files()
+    ]
+
+
 def inventory_iso_image(
     image: Path,
     extract_candidates_to: Path | None = None,
@@ -542,6 +561,7 @@ def deep_inventory_zip(
     archive: Path,
     seven_zip: str | None,
     extract_candidates_to: Path | None = None,
+    disc_files: list[DiscFileRecord] | None = None,
 ) -> tuple[list[AssetRecord], list[str]]:
     direct, nested_images, warnings = inventory_zip(archive)
     records = list(direct)
@@ -564,6 +584,8 @@ def deep_inventory_zip(
                 if conversion_note is not None:
                     warnings.append(conversion_note)
                 if listing_image.suffix.lower() == ".iso":
+                    if disc_files is not None:
+                        disc_files.extend(catalog_iso_image(listing_image))
                     image_records, image_warnings = inventory_iso_image(
                         listing_image,
                         extract_candidates_to,
@@ -600,6 +622,7 @@ def report_for_source(
     source = source.resolve()
     warnings: list[str] = []
     nested_images: list[str] = []
+    disc_files: list[DiscFileRecord] = []
 
     if source.is_dir():
         records, warnings = inventory_directory(source)
@@ -612,6 +635,7 @@ def report_for_source(
                 source,
                 command,
                 extract_candidates_to,
+                disc_files,
             )
             _, nested_images, _ = inventory_zip(source)
         else:
@@ -626,6 +650,7 @@ def report_for_source(
                 temp,
             )
             if listing_image.suffix.lower() == ".iso":
+                disc_files.extend(catalog_iso_image(listing_image))
                 records, warnings = inventory_iso_image(
                     listing_image,
                     extract_candidates_to,
@@ -684,6 +709,8 @@ def report_for_source(
             "height": EXPECTED_BGROUND_SIZE[1],
         },
         "nested_disc_images": nested_images,
+        "disc_file_count": len(disc_files),
+        "disc_files": [asdict(record) for record in disc_files],
         "candidates": [asdict(record) for record in records],
         "warnings": warnings,
     }
