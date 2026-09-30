@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 live original-source work: real 2456-file Joliet disc catalog and original asset hashes recovered, archive SHA verified. Continue source-backed English.str/English.idx parsing and .444 decoder research, then provenance-import correlated authentic visuals and connect to front_end_session. Full mission remains gates 13-17 through Windows 11 release.",
-  "last_known_main_head": "e9e51bb422dde539a4e9ecf1186fefbca12704fb",
+  "active_task": "Gate13 actual EA444 decoding and screen binding using recovered private original raw disc. Keep exact original header geometry, source-provenance imports and original string parser. Recover actual compressed tile pixel decoder via confirmed executable 0x7B95D0/0x7BB960, then import original first-slice backgrounds and wire to tested front_end_session; continue gates 13 through 17 on audit.",
+  "last_known_main_head": "8a7ab48ebda52d494324e36b4b64c253e86fc8e8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 87,
-  "last_recovery_reason": "manual-start",
-  "note": "Container restored; verified 268549/268549 MODE1 sectors, 2456 files/211 folders, 0 path collisions; original archive SHA and 15 asset hashes persisted research/GATE13_REAL_DISC_INVENTORY.md. Staged real bytes local /mnt/data/fm2001-work; README prior blocker is superseded by CURRENT_STATE at main e9e51bb. Newly identified English.str header as u32 blob length 282212, u32 string count 21856, NUL-terminated cp1252 blob, trailing u32 offset array; English.idx first IDs map exactly to menu strings; next implement parser and tests. Continue working; do not treat checkpoint as finish.",
+  "recovery_generation": 88,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "User-interruption recovery, original raw disc and extracted verified assets still available under /mnt/data/fm2001-work. main HEAD 8a7ab48 includes first 3 original provenance imports, EA language parser/tests, EA444 header/test, PNG frame slicing fix. Full Gate13 CI not yet verified for newest files. Next original compressed .444 decoder via executable; avoid failed superficial TGQ repack as fidelity.",
   "same_chat_fallback_minutes": 30
 }
