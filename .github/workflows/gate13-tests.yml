@@ -16,6 +16,8 @@ on:
       - "reconstruction/ea444_bits.py"
       - "reconstruction/ea444_tables.py"
       - "reconstruction/ea444_coefficients.py"
+      - "reconstruction/ea444_quantization.py"
+      - "reconstruction/test_ea444_quantization.py"
       - "reconstruction/test_ea444_coefficients.py"
       - "reconstruction/test_ea444_tables.py"
       - "reconstruction/test_ea444_bits.py"
@@ -57,6 +59,7 @@ jobs:
             test_ea444_bits \
             test_ea444_tables \
             test_ea444_coefficients \
+            test_ea444_quantization \
             test_original_menu_assets \
             test_gate13_asset_import \
             test_gate13_catalog_query \
