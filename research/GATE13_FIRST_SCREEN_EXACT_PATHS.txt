@@ -1,0 +1,14 @@
+# Exact, source-backed first-screen extraction set.
+# Used with gate13_source_inventory.py --extract-path-file and
+# --only-explicit --require-all-explicit. These are original disc-relative
+# paths, NOT a request to commit the original executable or full disc image.
+FM2001_Art/Generic/bground.444
+FM2001_Art/Generic/main_menu/main_menu_bground.444
+FM2001_Art/Generic/team_choice/background.444
+FM2001_Art/Generic/GenericButtonsAndBars/button_type_1.444
+FM2001_Art/Generic/GenericButtonsAndBars/choice_start_anim.444
+FM2001_Art/Generic/GenericButtonsAndBars/choice_league_but_anim.444
+FM2001_Art/Generic/GenericButtonsAndBars/choice_league_but_bars.444
+Fonts/Zurich_BdXCn_BT_20pixel.fnt
+English.str
+English.idx
