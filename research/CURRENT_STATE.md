@@ -187,6 +187,26 @@ Verification on PR head `ebb84f8ab7539b5654d488153aeace0153caf523`:
 No original League-table screen class, artwork, header/column geometry, controls
 or navigation is claimed.
 
+### Verified Fixtures / Results presentation contract
+
+PR #43 was merged at `a346762f0fcfc54cdb17fbd0d1787a539dfa8fd7`.
+The Gate-13 presentation seam now preserves the recovered
+`DBTRealFixtures` / `DBRRealFixture` and `DBTRounds` backend identities,
+the shipped 380-fixture table and fixed source-order construction path. The
+contract explicitly keeps the original Fixtures/Results **screen sort** unknown
+rather than promoting backend source order into a UI claim.
+
+Verification on PR head `8551d9774353f1b44af8c8c2e62da07b89cfd088`:
+
+- focused Gate-13 run `36773557317`: **236 tests, 19 expected
+  original-source-gated skips, zero failures**;
+- full reconstruction run `36773557140`: **1,072 tests, 21 expected
+  original-source-gated skips, zero failures**;
+- repository asset-policy run `36773557226`: passed.
+
+Original fixture-screen class/sort, artwork, geometry, controls and navigation
+remain open.
+
 ## Porting mission
 
 This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc

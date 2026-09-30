@@ -9116,3 +9116,16 @@ invent original visual or control semantics.
   zero failures**.
 - Asset-policy run `36773050761` passed.
 - Original League-table art/layout/controls/navigation remain open.
+
+## Gate 13 Fixtures / Results presentation contract verified - 1 October 2026 KST
+
+- Merged PR #43 as `a346762f0fcfc54cdb17fbd0d1787a539dfa8fd7`.
+- Promoted DBTRealFixtures/DBRRealFixture/DBTRounds identities and fixed League
+  source-order construction into immutable presentation metadata.
+- Preserved the key non-claim that backend source order is not the recovered
+  original Fixtures/Results screen sort.
+- Focused Gate-13 run `36773557317`: **236 tests, 19 expected skips, zero
+  failures**.
+- Full reconstruction run `36773557140`: **1,072 tests, 21 expected skips,
+  zero failures**.
+- Asset-policy run `36773557226` passed.

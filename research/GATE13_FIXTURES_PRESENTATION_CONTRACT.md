@@ -60,6 +60,19 @@ comparator/navigation is recovered.
 No original screen ID/class, visible column/header binding, row geometry,
 artwork, control ID, screen sort, click target or navigation edge is claimed.
 
+## Hosted verification
+
+PR #43 head `8551d9774353f1b44af8c8c2e62da07b89cfd088` passed:
+
+- focused Gate-13 run `36773557317`: **236 tests**, **19 expected
+  original-source-gated skips**, zero failures;
+- full reconstruction run `36773557140`: **1,072 tests**, **21 expected
+  original-source-gated skips**, zero failures;
+- repository asset-policy run `36773557226`: passed.
+
+It was squash-merged to main as
+`a346762f0fcfc54cdb17fbd0d1787a539dfa8fd7`.
+
 ## Gate 13 consequence
 
 Fixtures/Results now has an explicit source-backed backend identity/construction
