@@ -212,6 +212,47 @@ Packed Size = 99
                 any("7-Zip was not found" in warning for warning in report["warnings"])
             )
 
+    def test_explicit_opaque_iso_path_can_be_selected_and_extracted(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            iso = root / "fixture.iso"
+            payload = build_joliet_iso(iso)
+            out = root / "out"
+
+            records, warnings = inventory_iso_image(
+                iso,
+                out,
+                {"FM2001_Art/Generic/bground.444"},
+            )
+
+            self.assertEqual(warnings, [])
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0].candidate_reason, "explicit-path")
+            self.assertEqual(
+                (out / "FM2001_Art" / "Generic" / "bground.444").read_bytes(),
+                payload,
+            )
+
+    def test_report_records_explicit_paths_for_reproducibility(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            iso = root / "fixture.iso"
+            build_joliet_iso(iso)
+
+            report = report_for_source(
+                iso,
+                explicit_paths={"FM2001_Art/Generic/bground.444"},
+            )
+
+            self.assertEqual(
+                report["explicit_paths"],
+                ["FM2001_Art/Generic/bground.444"],
+            )
+            self.assertEqual(
+                report["candidates"][0]["candidate_reason"],
+                "explicit-path",
+            )
+
     def test_mode1_detector_rejects_nonintegral_or_bad_sync_image(self):
         with tempfile.TemporaryDirectory() as temp_name:
             root = Path(temp_name)
