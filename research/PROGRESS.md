@@ -8109,3 +8109,24 @@ keeping presentation separate from the stable simulation backend.
   tooling: the persistent Library file resolves and materializes successfully,
   while the current CAAS execution container still raises `ClientError`
   before it can read the materialized bytes.
+
+
+## Gate 13 complete disc-catalog checkpoint - 30 September 2026
+
+- Extended the native ISO9660/Joliet source inventory so a deep source run now
+  records **every file on the recovered disc filesystem**, not only files that
+  match Gate-13 presentation-name heuristics.
+- Each catalog entry records normalized source path, exact byte size, and ISO
+  extent. Candidate classification remains separate, preserving the distinction
+  between complete source evidence and heuristic prioritization.
+- This is required for opaque screen/layout/string resources whose filenames may
+  not include terms such as menu, team, start, or button.
+- Added regression assertions proving that the synthetic nested
+  ZIP -> MODE1/2352 -> ISO9660/Joliet path reports the full disc catalog.
+- Implementation/test commits: `608fadd34cedd0759992e0decf143e05cc3032ac`
+  and `a07d23d7bb2014078bcc82ca5cf2c360b94a0aca`.
+- GitHub Actions run `36683075430` ran **851 tests with 2 failures**, exactly
+  the two unchanged secondary-schedule assertions. The deep Gate-13 source
+  inventory test passed, and repository asset policy passed.
+- The remaining external dependency is still CAAS byte access to the already
+  resolvable/materializable private Library ZIP; no source re-upload is needed.
