@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 actual EA444 decoding and screen binding using recovered private original raw disc. Keep exact original header geometry, source-provenance imports and original string parser. Recover actual compressed tile pixel decoder via confirmed executable 0x7B95D0/0x7BB960, then import original first-slice backgrounds and wire to tested front_end_session; continue gates 13 through 17 on audit.",
-  "last_known_main_head": "8a7ab48ebda52d494324e36b4b64c253e86fc8e8",
+  "active_task": "Gate 13 original image decoder: byte-accurate original packed little-endian dword / MSB-first EA444 compressed bit reader now implemented, with 8x8 tile rendering directly evidenced at 0x6868E0; continue compressed coefficient/dequantization reconstruction from 0x7B91C7 and 0x7B95D0. Original 20-byte scroll end fixtures and all 1354 headers verified. Correct incorrect old 150x224 animation geometry to actual 150x736. Continue original visuals and gates 13-17.",
+  "last_known_main_head": "ba284620e65b30cf8f85d85c923c114d08795d10",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 88,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "User-interruption recovery, original raw disc and extracted verified assets still available under /mnt/data/fm2001-work. main HEAD 8a7ab48 includes first 3 original provenance imports, EA language parser/tests, EA444 header/test, PNG frame slicing fix. Full Gate13 CI not yet verified for newest files. Next original compressed .444 decoder via executable; avoid failed superficial TGQ repack as fidelity.",
+  "note": "Recovered main after interruption; verified original recovered bytes and imported Git blobs sha1 match actual private source. Implemented ea444_bits.py and original-fixture tests on main through ba284620e65b30cf8f85d85c923c114d08795d10. Local true-source four-test suite passes including all 1354 dword-aligned payloads. Original exec 0x686949/0x686AC1 selects 16-bit and alternative 8x8 renderers. Further actual decoder required.",
   "same_chat_fallback_minutes": 30
 }
