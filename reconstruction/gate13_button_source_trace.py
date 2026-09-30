@@ -214,6 +214,18 @@ def button_trace_report(
     }
 
 
+def require_private_output_path(
+    output: Path, *, repository_root: Path | None = None
+) -> None:
+    """Do not accidentally persist proprietary disassembly in the repository."""
+    if repository_root is None:
+        repository_root = Path(__file__).resolve().parent.parent
+    if Path(output).resolve().is_relative_to(Path(repository_root).resolve()):
+        raise OriginalPETraceError(
+            "Trace output must be outside the repository and remain private"
+        )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("original_executable", type=Path)
@@ -222,6 +234,7 @@ def main() -> int:
     parser.add_argument("--disassemble", action="store_true",
                         help="Include candidate linear Capstone disassembly")
     args = parser.parse_args()
+    require_private_output_path(args.output)
     pe = OriginalPE32.parse(args.original_executable.read_bytes())
     report = button_trace_report(pe, with_disassembly=args.disassemble)
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
