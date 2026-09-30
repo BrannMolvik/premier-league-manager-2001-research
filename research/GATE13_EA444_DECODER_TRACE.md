@@ -1,6 +1,6 @@
 # Gate 13: original EAUK `.444` compressed graphics decoder trace
 
-_30 September 2026. Direct disassembly of the actual authorized `footballmanager.exe` whose SHA-256 matches `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`; original on-disc graphic bytes independently verified. This trace does **not** claim that final pixels have been decoded or visually validated._
+_30 September 2026. Direct disassembly of the actual authorized `footballmanager.exe` whose SHA-256 matches `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`; original on-disc graphic bytes independently verified. This trace now includes a source-backed full RGB decoder and first-hand visual validation of original PStartMenu and TeamSelect backgrounds. Remaining uncertainty is limited to the conditional fourth-component/alternate-output branches not exercised by the original first-slice assets._
 
 ## Actual source header and census
 
@@ -152,11 +152,69 @@ Direct disassembly now also bounds the next transformation:
   intermediate fixed-point numbers must not be misrepresented
   as final pixel values.
 
+## Verified full inverse transform and original RGB tile output
+
+The original two-pass inverse transform is now reconstructed in
+`reconstruction/ea444_inverse_transform.py` from the canonical
+`0x7B9360` / `0x7B94C0` routines.
+
+The initialized `TQIA_DAT +0x10..+0x1F` constants are exactly:
+
+- fixed Q31 `0x5A82799A` (sqrt(1/2));
+- float32 `0.5411961078643799`;
+- float32 `1.3065630197525024`;
+- float32 `0.3826834261417389`.
+
+The implementation preserves signed 32-bit x86 wrap, the original
+`IMUL/ADD/ADC` fixed-point multiply, the first-pass DC-only shortcut, x87
+round-to-nearest/even stores and the 36-byte scratch-row stride. An independent
+native x86-64 C reference compiled with x87 arithmetic reproduced the Python
+transcription exactly, including the real main-menu first-component 8x8 output
+SHA-256:
+
+`26123d428acd76002b78c70ce21f66f44c9e06b3e57f30c02385c1d1acf8e0e7`.
+
+The remaining `0x7B95D0` path was then recovered sufficiently to establish
+the original tile color model:
+
+- three compressed/transformed 8x8 component blocks are direct **R/G/B** planes,
+  not YUV420;
+- each signed fixed-point sample is arithmetic-shifted right 16 and clamped to
+  0..255 before the legacy destination-mask table is applied;
+- descriptor byte +4 controls optional branches; all 1,354 real source assets
+  use `0x64`, so the fourth-component branch is not exercised by the current
+  original asset corpus;
+- after the three planes the stream may carry a 64-bit per-tile color-key
+  mask. Masked pixels use header bytes +5..+7, which are `FF 00 FF` on the
+  original corpus. The modern decoder represents this legacy magenta-key pixel
+  as the same RGB with alpha 0.
+
+`reconstruction/ea444_decoder.py` implements this source-backed path. The
+following real original files decode successfully without FFmpeg or guessed
+format substitutions:
+
+| Original source | Geometry | Consumed bits | Transparent pixels | Raw RGBA SHA-256 |
+| --- | ---: | ---: | ---: | --- |
+| `Generic/main_menu/main_menu_bground.444` | 532x532 | 1,649,222 | 0 | `d67036a03a5138f0789f429209c154ec67c1ee7b690a42b5e72fb90335fb21cd` |
+| `Generic/team_choice/background.444` | 800x558 | 1,437,951 | 0 | `65346a785e9470b32dbdf7dc5858a4c5e3f7c4b49920fc811ffc599dfdc16acf` |
+
+Both were rendered locally from the actual authorized source bytes and visually
+inspected. The main-menu decode cleanly shows the original EA SPORTS
+**Football Manager 2001** identity/background; the TeamSelect decode cleanly
+shows the original four-panel blue selection background. This closes the
+previous failure of generic FFmpeg TQI conversion for the ordinary original
+management-art path.
+
+Local source-backed decoder tests cover exact RGBA hashes. The focused GitHub
+workflow now includes the quantized-block, inverse-transform and full-decoder
+test modules, but those original-source tests remain opt-in because licensed
+assets/executable bytes are intentionally not bundled into CI.
+
 ## Key remaining decoding tasks
 
-1. Transcribe the complete signed amplitude, run-skip, and escape control flow at `0x7B91C7..0x7B9354`, applying recovered per-component quantization coefficients from original source constants at `0x7DABF0`.
-2. Determine precise per-tile component-block ordering and conditional fourth channel from `0x7B95D0` and `0x7BB960`. **Do not assume** a generic 16×16/YUV420 EA TQI frame layout; the actual .444 conversion calls are 8×8 tiles and different output paths.
-3. Reproduce the original inverse-transform routines `0x7B9360` and `0x7B94C0`, channel packing at `0x6868E0`, clipping, transparency and dither semantics.
-4. Validate fully decoded first-slice original backgrounds and animations against bounded screenshots, then import only original verified assets / faithful converted derivatives and connect to `front_end_session.py`. No speculative UI redesign.
+1. Recover the exact PStartMenu and TeamSelect composition/layout/control rectangles and original string bindings from the canonical executable and source resources.
+2. Provenance-import the minimum authentic first-slice original assets and, where needed for the modern renderer, deterministic converted derivatives produced by the source-backed decoder.
+3. Bind that renderer to `front_end_state.py` / `front_end_session.py` and regression-test the recognizable original main-menu -> TeamSelect flow.
+4. Only if later Gate-13/14 assets exercise them, recover the descriptor bit-7 fourth-component path or alternate `0x7BB960` output path rather than speculatively implementing unused branches.
 
 **Important fidelity boundary:** Attempts to wrap these `.444` bytes as EA TGQ and decode them with FFmpeg's general EA TQI video decoder produced invalid/corrupted images, so they are *not* valid original-asset conversions. The original per-tile decoder should be reconstructed from the verified executable rather than promoting those speculative images.
