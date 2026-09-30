@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13: PR32 merged temporary Play presentation read separation. Next perform a full hosted integration audit of accumulated PR27-32 source-data/presentation seam changes, while native original-byte execution remains ClientError. After full-suite verification, continue source-backed Gate13 work only where semantics are already recovered; immediately resume private canonical PE Button/Zurich/ten-asset audit when execution returns. Gate13 audit then Gates14-17 and verified Windows11 release remain mandatory.",
-  "last_known_main_head": "0318a155032f463de997ff25640ce8c55c7bab51",
+  "active_task": "Gate13: presentation/simulation separation criterion is audited on main 9bb117f9403821982c112d649305cb0121cd1c4d after full hosted integration run 36760160986 passed 1050 tests with 21 expected original-source-gated skips. Next resume the source-critical path: test whether private byte execution is available; if so run the canonical PE32 TeamSelect RTTI canary then Button draw/update state-to-23-frame and Zurich placement/color trace, followed by the strict ten-resource original-source audit and provenance import. If byte execution remains unavailable, continue only source-backed Gate13 presentation work and criterion audits without inventing original UI semantics. Gate13 then Gates14-17 and verified Windows11 release remain mandatory.",
+  "last_known_main_head": "9bb117f9403821982c112d649305cb0121cd1c4d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 100,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 100 verified main 0318a155032f463de997ff25640ce8c55c7bab51 after PR32 squash. container.exec trivial probe still ClientError. PR32 focused Gate13 run 36758171225 and asset policy 36758171210 passed. Full hosted suite is still stale at PR26 (1029 tests/21 gated skips), so next action is one batch integration run covering PR27-32 rather than falsely promoting focused tests.",
+  "recovery_generation": 101,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery generation 101 reconciled stale agent-runtime state from 0318a155 to current main 9bb117f. PR33 full hosted integration run 36760160986 passed 1050 tests with 21 expected original-source-gated skips; main then audited Gate13 presentation/simulation separation as satisfied. Remaining Gate13 visual/resource/navigation criteria are still open; no Windows11 release claim.",
   "same_chat_fallback_minutes": 30
 }
