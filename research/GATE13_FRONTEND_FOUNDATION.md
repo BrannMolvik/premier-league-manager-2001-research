@@ -69,6 +69,39 @@ Confirmed executable evidence:
 This establishes the navigation contract needed by a modern presentation layer
 without duplicating any simulation code.
 
+## Application handoff implementation
+
+`reconstruction/front_end_session.py` now owns the application boundary
+between the existing presentation-only `FrontEndState` and the stable
+`HumanGameplayController` backend. It does **not** implement or substitute
+the missing original artwork, layout, or TeamSelect hierarchy.
+
+- Confirmed PStartMenu New Game control `2` runs the gameplay factory
+  **before** leaving the start menu. Failed canonical database loading
+  leaves PStartMenu active so the failure remains recoverable.
+- Team selection is initially presentation state. It does not mutate
+  the backend merely because a user highlights a club.
+- Confirmed TeamSelect Start/Continue `0x2A` delegates to
+  `HumanGameplayController.select_club` with the explicit choice and
+  returns the backend-selected manager plus the proven navigation command.
+  Backend rejection leaves TeamSelect active with a retryable choice.
+- Confirmed TeamSelect Back `0x29` navigates to PStartMenu and clears the
+  presentation choice, without synthesizing an undocumented gameplay reset.
+  A subsequent New Game event creates a new backend via the factory.
+- Duplicate Start cannot submit the selected club twice within one
+  handoff. Unrecovered control IDs still fail closed.
+- The `FrontEndSession.for_canonical_game_dir(...)` factory connects
+  the actual canonical backend lazily, avoiding simulation imports into
+  the screen-state module. Tests also inject a lightweight backend.
+- Only the Premier League club subset currently supported by the
+  reconstructed backend is usable at this boundary. This **does not**
+  claim the original multi-country TeamSelect hierarchy is complete.
+
+This is a tested *headless application seam*, not an original-looking
+presentation. Do not declare the first visual slice complete until original
+assets have been inventoried, decoded/rendered and correlated with the
+recovered button IDs.
+
 ## Presentation/runtime separation
 
 The current `reconstruction/app.py` is still a temporary Tk prototype. It
