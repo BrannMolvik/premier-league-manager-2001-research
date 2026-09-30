@@ -14,7 +14,7 @@
   "last_verified_test_count": 1074,
   "asset_policy_validated_head": "db7c463dcfb482bdea938798ba9e545888a53bf4",
   "asset_policy_status": "passed",
-  "active_task": "Gate13 FIRST when private execution works: run TeamSelect 0x81EC10/0x7C7650 RTTI canary -> native Button draw/update state-to-23-frame mapping -> Zurich caption placement/color -> strict ten-resource original ZIP/executable/pixel audit and provenance import. While execution remains ClientError, continue already-source-backed Gate13 evidence work. Squad runtime presentation contract is merged/verified; current bounded fallback task is manager-home and remaining-screen source evidence/blocker inventory, without inventing screen classes/layout/navigation. Then complete all Gate13 screens/audit, Gates14-17, and the verified clean Windows11 release.",
+  "active_task": "Gate13 is infrastructure-blocked on original presentation bytes, not source availability. Recovery104 successfully re-listed/materialized the canonical 511,121,336-byte private source ZIP, but the latest shell probe still returns ClientError before stat and private Python also fails. Safe fallback preparation is complete: Squad presentation contract is verified, management-screen evidence ledger is persisted, and PR46 merged a fail-closed catalog audit tool (focused 243 tests/19 expected skips, asset policy passed; PR45 remains latest full baseline at 1074/21). Exact next action when execution works: TeamSelect 0x81EC10/0x7C7650 RTTI canary -> native Button state-to-23-frame mapping -> Zurich caption placement/color -> strict ten-resource audit/import -> run saved whole-disc catalog through management screen audit -> correlate resources/layout/navigation through normal play -> Gate13 audit -> Gates14-17 -> verified clean Windows11 release. Do not invent UI while execution remains blocked.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate13 FIRST when private execution works: run TeamSelect 0x81EC10/0x7C7650 RTTI canary -> native Button draw/update state-to-23-frame mapping -> Zurich caption placement/color -> strict ten-resource original ZIP/executable/pixel audit and provenance import. While execution remains ClientError, continue already-source-backed Gate13 evidence work. Squad runtime presentation contract is merged/verified; current bounded fallback task is manager-home and remaining-screen source evidence/blocker inventory, without inventing screen classes/layout/navigation. Then complete all Gate13 screens/audit, Gates14-17, and the verified clean Windows11 release.",
+  "current_task": "Gate13 is infrastructure-blocked on original presentation bytes, not source availability. Recovery104 successfully re-listed/materialized the canonical 511,121,336-byte private source ZIP, but the latest shell probe still returns ClientError before stat and private Python also fails. Safe fallback preparation is complete: Squad presentation contract is verified, management-screen evidence ledger is persisted, and PR46 merged a fail-closed catalog audit tool (focused 243 tests/19 expected skips, asset policy passed; PR45 remains latest full baseline at 1074/21). Exact next action when execution works: TeamSelect 0x81EC10/0x7C7650 RTTI canary -> native Button state-to-23-frame mapping -> Zurich caption placement/color -> strict ten-resource audit/import -> run saved whole-disc catalog through management screen audit -> correlate resources/layout/navigation through normal play -> Gate13 audit -> Gates14-17 -> verified clean Windows11 release. Do not invent UI while execution remains blocked.",
   "last_verified_reconstruction_failures": 0,
   "last_verified_asset_policy_head": "db7c463dcfb482bdea938798ba9e545888a53bf4",
   "gate11_danger_morale_request_integrated": true,
@@ -579,5 +579,13 @@
   "gate13_squad_contract_full_test_count": 1074,
   "gate13_squad_contract_evidence": "research/GATE13_SQUAD_PRESENTATION_CONTRACT.md",
   "gate13_private_source_materialized_recovery_104": true,
-  "gate13_private_execution_status": "blocked_ClientError_after_materialization"
+  "gate13_private_execution_status": "blocked_ClientError_after_materialization_and_post_merge_probe",
+  "gate13_management_screen_evidence_ledger": true,
+  "gate13_management_screen_evidence": "research/GATE13_MANAGEMENT_SCREEN_EVIDENCE_LEDGER.md",
+  "gate13_management_catalog_audit": true,
+  "gate13_management_catalog_audit_checkpoint": "ca7f6cfd9c5fae01ac9c454ad14603076979262b",
+  "gate13_management_catalog_audit_ci_head": "4cae5ca3821a9a536fab8176720fad2f11debc01",
+  "gate13_management_catalog_audit_focused_test_count": 243,
+  "gate13_management_catalog_audit_focused_expected_skips": 19,
+  "gate13_management_catalog_audit_full_suite_triggered": false
 }
