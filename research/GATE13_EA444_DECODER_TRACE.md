@@ -59,6 +59,99 @@ The canonical executable has a **raw, initialized, named `TQIA_DAT` section** at
 
 The first 8-bit symbol of the actual original `hscroll_end.444` image is `0` under the executable's dword/MSB ordering. The next 17-bit prefix is `0x10040`; the tiered lookup selects `TQIA_DAT` entry `0xADB1B0`, whose packed `uint32` is `0x00024100`, i.e. a **2-bit end-of-block symbol**. This is a directly reproducible original-data trace of the first coefficient block, not a guessed decoded pixel color.
 
+## Verified partial sparse coefficients and original quantization
+
+The canonical original `0x7B9040` writes the leading eight-bit
+scale/DC code into coefficient grid element 0, multiplied (signed low DWORD)
+by quantization table element 0, and zeroes the other 63 grid slots.
+The decoder `0x7B91C7..0x7B9354` then parses the original Huffman
+run-length, signed amplitude and 14-bit escape codes, remaps decoded
+positions through the original coefficient permutation at `0xADB0A0`,
+and multiplies each AC amplitude by the corresponding original
+`0x9FBD80` quantization value before storing it into its 8×8 grid.
+
+Source-backed `reconstruction/ea444_coefficients.py` has regression
+coverage for signed and extended escape codes and end markers. All
+**17** independently hashed first-slice `.444` assets successfully
+yielded their first sparse coefficient blocks. The actual original
+`Generic/main_menu/main_menu_bground.444` first component has eight-bit
+scale code **15**, **14 nonzero AC entries** and consumed exactly
+**93 compressed bits**; its signed sparse coefficient data and end
+marker are test-asserted in `test_ea444_coefficients.py`.
+
+### Exact `0x7DABF0` quantization matrix
+
+The actual canonical executable's `.rdata` stores **64 little-endian
+signed 32-bit values at VA `0x7DABF0` (raw file offset `0x3DABF0`)**.
+The original image initialization loop
+`0x6864CF..0x6864FE` converts each source entry to live quantization
+`0x9FBD80`, using:
+
+```asm
+MOV EAX, [0x7DABF0 + i*4]
+MOV EDX, 0x80000
+IMUL EDX
+SHL EDX, 16
+SHR EAX, 16
+ADC EAX, EDX
+MOV [0x9FBD80 + i*4], EAX
+```
+
+The shift-out carry from `SHR` is explicitly reproduced. All 64
+**actual source values are positive integers**, making the resulting
+16.16 fixed-point coefficient simply `source_value * 8`; signed
+32-bit arithmetic and wrap are retained in the reconstructed helper
+for exact x86 behavior.
+
+- Directly SHA-256-verified original 256-byte source matrix:
+  `6fb2af66cb6a51e4b3fa7da9bacab417fa40f180aa0c18c85adb2550c04c89eb`.
+- First eight original values:
+  `8192, 5906, 6270, 6967, 8192, 10426, 15137, 29692`.
+- First eight live values:
+  `65536, 47248, 50160, 55736, 65536, 83408, 121096, 237536`.
+- Across all 64 original values: minimum fixed-point scale
+  **34064**, maximum **860952**.
+- A direct real-main-menu first component transforms DC
+  `15 × 65536 = 983040`. The first original signed AC
+  values become `(position, signed fixed-point)`:
+  `(8,47248), (1,47248), (9,34064), (3,55736), (18,-76784)`.
+- The full 64-position quantized first-component grid has **15**
+  nonzero values, with SHA-256 of packed little-endian 64×signed-int32:
+  `d074fa03f380438bfccbdf88dc2375f700434891889399e4750fc7bc2c75c2d7`.
+
+`reconstruction/ea444_quantization.py` reads the original table from
+the exact checked executable SHA, original `.rdata` section and
+expected source matrix SHA. `reconstruction/ea444_quantized_block.py`
+joins it to the source-backed entropy output while refusing duplicate
+or out-of-range grid assignments. Their synthetic and opt-in actual-source
+regressions are in the corresponding `test_ea444_*.py` files.
+A local first-hand verification used the real original executable and
+the real 532×532 source image, not generic/JPEG quantization tables.
+
+### Original two-pass inverse transform boundary
+
+Direct disassembly now also bounds the next transformation:
+
+- `0x7B95D0` (the 16-bit output tile path) calls `0x7B9040`
+  for three component blocks in sequence before its conditional
+  channel handling.
+- Each coefficient block undergoes **eight consecutive
+  `0x7B9360` column-like 1D passes**, over eight-element source
+  arrays with source stride 32 bytes, into a scratch buffer with
+  **36-byte destination row stride**.
+- It then performs **eight `0x7B94C0` row-like 1D passes**
+  across that scratch buffer, writing contiguous eight-value groups
+  to another intermediate component buffer.
+- The `0x7B9360` routine has an explicitly verified
+  all-seven-AC-zero shortcut at `0x7B948E`: it writes the
+  identical DC input to eight output positions at 0x24-byte
+  offsets. The general path uses original x87 coefficients
+  in the initialized `TQIA_DAT` section.
+- The original pixel conversion/packing after the 2D transform and
+  conditional fourth component are **not yet reconstructed**;
+  intermediate fixed-point numbers must not be misrepresented
+  as final pixel values.
+
 ## Key remaining decoding tasks
 
 1. Transcribe the complete signed amplitude, run-skip, and escape control flow at `0x7B91C7..0x7B9354`, applying recovered per-component quantization coefficients from original source constants at `0x7DABF0`.
