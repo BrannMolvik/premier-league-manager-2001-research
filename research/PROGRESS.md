@@ -9052,3 +9052,20 @@ invent original visual or control semantics.
 - Asset-policy run `36768744578` passed.
 - Gate 13 remains ACTIVE; original tactics art/layout/interaction/navigation and
   the source-critical Button/Zurich/import path are still open.
+
+## Gate 13 PTickets presentation contract verified - 1 October 2026 KST
+
+- Merged PR #38 as `cca08a22f33aebfab230afd6ced70e28bf552c10`.
+- Promoted already instruction-locked `PTickets` evidence into immutable
+  presentation metadata: DBRUser ticket object `+0x694`, size `0x7C`,
+  season-ticket fields, terrace/seating prices, 26 section states and exact
+  terrace/seating recommendation/helper attribution.
+- Added a fail-closed controlled-club ticket-state presentation view over the
+  existing runtime without introducing simulation or finance mutation.
+- Focused Gate-13 run `36769405085`: **230 tests, 19 expected source-gated
+  skips, zero failures**.
+- Full reconstruction run `36769405053`: **1,066 tests, 21 expected
+  source-gated skips, zero failures**.
+- Asset-policy run `36769404960` passed.
+- Original PTickets visual resources, widget bindings, layout and navigation
+  remain unresolved, so Gate 13 remains ACTIVE.

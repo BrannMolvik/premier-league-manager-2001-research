@@ -68,7 +68,7 @@ The existing `original_assets/MANIFEST.md` contains three imported original asse
 | League table | Native League comparator-aware rows available | **Open.** Original table artwork/layout/navigation remains unrecovered. |
 | Player profile | Source/runtime profile projection available | **Open.** Original field-to-column/icon mapping, resource/layout and visibility rules remain unresolved. |
 | Transfers | Proposal/deal/contract runtime records available | **Open.** Original screen sort, captions for unresolved negotiation bytes, resource/layout and navigation remain unresolved. |
-| Finances | Cash, ledger and objective runtime state available | **Open.** Several original account/category labels plus screen resources/layout/navigation remain unresolved. |
+| Finances | Cash, ledger and objective runtime state available; PTickets exact ticket object / terrace-seating / section-state presentation contract now verified | **Open.** PFinanceOverview account/category labels plus Finance/PTickets screen resources, control bindings, layout and navigation remain unresolved. |
 | Messages/news | Two recovered mail families with source event identities available | **Open.** Complete inbox family/interleave/order plus original screen resources/layout/navigation remain incomplete. |
 | Training/scouting | Training arrays and mapped scouting results available; PScouting2K event 31 and six native result-sort modes now have a verified presentation contract | **Open.** Proprietary graphics, layout, visible captions, control geometry and navigation remain unresolved. |
 | Remaining screens | Not a single complete inventory | **Open.** Must be enumerated and correlated before Gate 13 can close. |

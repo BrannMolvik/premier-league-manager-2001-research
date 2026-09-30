@@ -87,6 +87,22 @@ This contract contains no:
 Those remain Gate-13 presentation work and must be recovered from original
 source evidence before use.
 
+## Hosted verification
+
+PR #38 head `92d9d0322fd2ff0a9403a66190591438d025527f` passed:
+
+- focused Gate-13 run `36769405085`: **230 tests**, **19 expected
+  original-source-gated skips**, zero failures;
+- full reconstruction run `36769405053`: **1,066 tests**, **21 expected
+  original-source-gated skips**, zero failures;
+- repository asset-policy run `36769404960`: passed.
+
+It was squash-merged to main as
+`cca08a22f33aebfab230afd6ced70e28bf552c10`.
+
+These runs verify the read-only contract and integration boundary. They do not
+constitute an original Windows graphical PTickets test.
+
 ## Gate 13 consequence
 
 The ticket/finance-adjacent screen is no longer data-anonymous: PTickets'

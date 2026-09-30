@@ -107,6 +107,27 @@ Verification on PR head `eaf5bb05578eed482ba353ce3924f2fb7d89ed4a`:
 No original tactics control IDs, geometry, art paths, gestures or navigation
 are claimed. The tactics visual/resource part of Gate 13 remains open.
 
+### Verified PTickets presentation contract
+
+PR #38 was merged at `cca08a22f33aebfab230afd6ced70e28bf552c10`.
+The read-only Gate-13 presentation seam now preserves the already instruction-
+locked `PTickets` state identity, exact ticket-object layout, terrace/seating
+price attribution, recommendation helpers/comparison sites, and all 26 native
+section-state values. The controlled club's existing `TicketRuntimeState`
+is exposed through a fail-closed read-only view.
+
+Verification on PR head `92d9d0322fd2ff0a9403a66190591438d025527f`:
+
+- focused Gate-13 run `36769405085`: **230 tests, 19 expected
+  original-source-gated skips, zero failures**;
+- full reconstruction run `36769405053`: **1,066 tests, 21 expected
+  original-source-gated skips, zero failures**;
+- repository asset-policy run `36769404960`: passed.
+
+No original PTickets widget IDs, visible caption bindings, geometry, artwork,
+font/color rules or navigation are claimed. The visual/resource part of the
+screen remains open.
+
 ## Porting mission
 
 This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc
