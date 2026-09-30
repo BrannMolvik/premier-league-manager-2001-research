@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 original management presentation: when execution container access returns, run one deep inventory of the durable Library ZIP, save the complete disc catalog, query it with gate13_catalog_query.py to identify PStartMenu/TeamSelect resources, exact-path stage the minimum slice, then provenance-import and bind it to the presentation-only navigation boundary.",
-  "last_known_main_head": "c8404042caaf59f25df877e0431b7729c44dc3ac",
+  "active_task": "Gate 13 original management presentation: when execution container access returns, run one deep inventory of the durable Library ZIP, follow research/GATE13_CATALOG_SEARCH_PLAN.md against the saved full-disc report, emit a paths-only shortlist, exact-path-file stage the minimum PStartMenu/TeamSelect slice, then provenance-import and bind it to the presentation-only navigation boundary.",
+  "last_known_main_head": "42f9f7ad2487af9d33e416470ffae3b3347a0f66",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 79,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered after stale heartbeat. CAAS remains globally unavailable even for a trivial control command, while Library source resolution/materialization succeeds. Gate 13 tooling now CI-verifies full catalog, exact-path staging, and saved-catalog querying (858 tests; only the two known secondary-schedule failures). Next work is real-disc inventory immediately when container execution returns.",
+  "note": "Recovered after stale heartbeat. CAAS remains globally unavailable even for trivial control commands, while Library source resolution/materialization succeeds. Gate 13 source tooling now CI-verifies full catalog, exact-path staging, saved-catalog querying, and query-to-path-list staging (860 tests; only the two known secondary-schedule failures). Evidence-bounded real-catalog search plan is persisted in research/GATE13_CATALOG_SEARCH_PLAN.md.",
   "same_chat_fallback_minutes": 30
 }
