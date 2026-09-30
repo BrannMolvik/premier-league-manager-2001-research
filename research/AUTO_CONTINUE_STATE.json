@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 main 6b8c71d1 checkpoints verified Messages/News contract. Direct container execution remains ClientError. Next bounded source-backed task: Training presentation contract from firsthand Training.cpp/system evidence: 40x0xC8 per-user records, embedded object at +0x24, exact method map 0 rest / 1 attacking / 2 midfield / 3 defensive / 4 goalkeeper / 5 fitness / 6 technique, fresh method/countdown/active-state defaults, daily/weekly chain and exact array shapes. Do not invent a Training screen class, visual labels/bindings, geometry, art or navigation. Resume Button/Zurich/ten-resource source audit immediately when byte execution works. Gate13 then Gates14-17 and Windows11 release remain mandatory.",
-  "last_known_main_head": "6b8c71d1e475dfb3ebfcb7e8388116e8c7a8e194",
+  "active_task": "Gate13 main 52089e93 checkpoints verified Training contract. Direct private-byte execution remains ClientError. Next source-backed task: League-table presentation contract from canonical League comparator 0x4F45E0: points DESC, played ASC, goal difference DESC, goals for DESC, goals against ASC, original DBRClub short-name CP1252 bytes ASC; preserve full-key tie/qsort ambiguity and leave original League-table screen class/art/layout/navigation unresolved. Then continue remaining Gate13 presentation evidence; immediately resume Button/Zurich/ten-resource source path when execution works.",
+  "last_known_main_head": "52089e937946b746e163ed711826b69e98920014",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 103,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery103 checkpoint main 6b8c71d1. PR40 verified focused 233/19 expected skips, full 1069/21 expected skips/0 failures, asset policy passed. Continuing Training contract while private-byte execution is blocked.",
+  "note": "Recovery103 main 52089e93. PR41 full 1070 tests/21 expected skips/0 failures; focused 234/19 skips; asset policy passed.",
   "same_chat_fallback_minutes": 30
 }
