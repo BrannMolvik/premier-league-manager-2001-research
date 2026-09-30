@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Run the authorized original 511 MB archive through Gate 13 deep dual-layer source inventory in the recovered working container, select PStartMenu/TeamSelect assets based on real source evidence, and commit provenance-aware results and minimal confirmed import.",
-  "last_known_main_head": "a9bef0cf87f97ea7b800c8cc9186eff389829328",
+  "active_task": "Gate 13: run first-hand inventory of private authorized 511MB Library ZIP once execution container works, now using validated virtual raw MODE1 ISO reader and combined ZIP/ISO catalog. Identify PStartMenu/TeamSelect authentic graphics/layout/strings, require strict complete exact-path staging, validate source provenance on import, and integrate with verified front_end_session handoff.",
+  "last_known_main_head": "4f01dfc15ff7ea73a631e4c2840c149132241d8c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 86,
   "last_recovery_reason": "user-requested-transient-recovery",
-  "note": "Recovery verified actual source materialization and healthy container on 2026-09-30; follow current main and avoid repeating established synthetic inventory work.",
+  "note": "Verified mid-session main 4f01dfc: 66 focused Gate13 tests passed run 36698841038, full 894 tests only two long-standing secondary schedule failures run 36698840900, asset policy 36698841075 passed. Complete ZIP+disc catalogs, collision-safe staging, strict unresolved-path failure, and sector-validated virtual MODE1 ISO with no full temporary ISO copy are implemented. Private original ZIP still materializes (511121336 bytes) but global CAAS container health commands fail; no real UI assets imported. Continue real source retrieval or meaningful Gate13 provenance work without placeholders.",
   "same_chat_fallback_minutes": 30
 }
