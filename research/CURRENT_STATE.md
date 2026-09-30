@@ -92,217 +92,99 @@ Internal save schema remains **34**.
 - state after primary schedule shuffle: **`0xD25DFFE6`**;
 - first PL fixture order: **0, 6, 8, 5, 1, 9, 3, 2, 4, 7**.
 
-## Gate 13 presentation checkpoint
+## Gate 13 live checkpoint: original source access restored
 
-The first front-end contract is now bounded in
-`research/GATE13_FRONTEND_FOUNDATION.md`:
+**Confirmed firsthand 30 September 2026:** the execution container now reads
+the actual authorized original archive and raw disc bytes. Earlier container
+`ClientError` notes in historical `PROGRESS.md` no longer describe the
+current source-access state.
 
-- initial PStartMenu screen identity: `0x323`;
-- PStartMenu New Game control/event: `2`;
-- TeamSelect Back control/event: `0x29`;
-- TeamSelect Start/Continue control/event: `0x2A`;
-- TeamSelect object/activation path is already recovered and remains separate
-  from gameplay simulation.
+- Authoritative original ZIP is 511,121,336 bytes; directly calculated
+  SHA-256: `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`.
+- ZIP contains the original 631,627,248-byte raw `famg2001.bin`
+  MODE1/2352 CD track (CUE independently confirms its sector mode).
+- All **268,549 physical sectors** were verified with zero invalid sectors.
+- The original **Joliet level-3** filesystem was enumerated firsthand:
+  **2,456 files, 211 folders, zero case-insensitive path collisions**.
+  There are 1,354 `.444` image resources and 1,403
+  `FM2001_Art` files. Refer to
+  `research/GATE13_REAL_DISC_INVENTORY.md` for detailed counts, exact
+  first-slice paths, sizes, independently calculated resource SHA-256 hashes,
+  and a reproducible recovery procedure.
+- Canonical `FM2001_Art/Generic/bground.444` was directly extracted and
+  independently SHA-256-verified against prior research:
+  **222,616 bytes, 800×600**, hash
+  `9db0d71daf70d77b4f5f2307304bb8c5eac4ee3a07a85f2828b570fbbf3b7fb9`.
+- Exact extracted originals also include
+  `FM2001_Art/Generic/main_menu/main_menu_bground.444` (532×532),
+  `FM2001_Art/Generic/team_choice/background.444` (800×558),
+  TeamSelect choice animations, Premiership division graphics, original
+  English text/index data, and several related first-slice resources.
+  All targeted hashes are recorded in the first-hand inventory note.
+- The actual original `footballmanager.exe` and copy under `crack/`
+  were extracted independently and have identical SHA-256
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`,
+  matching the prior verified executable used in reverse-engineering.
+- Private current execution workspace contains the full derived catalog at
+  `/mnt/data/fm2001-work/real_disc_catalog.json`, staged first-slice bytes
+  at `/mnt/data/fm2001-work/staging/`, and the full selected hash receipt
+  `/mnt/data/fm2001-work/first_slice_receipt.json`. These are **temporary
+  workspace paths**. If unavailable in a future chat, regenerate them from
+  the canonical private Library ZIP using the repository's native inventory,
+  rather than requesting a re-upload. The detailed confirmed research note
+  and ZIP SHA are durable in GitHub. An attempted Library backup upload
+  of the complete catalog failed with `container_session_expired`, so do
+  **not** incorrectly assume that complete report is already persistently
+  saved outside this container.
 
-A tested, headless Gate-13 application boundary now exists in
-`reconstruction/front_end_session.py`. Confirmed PStartMenu New Game event 2
-constructs the gameplay backend before entering TeamSelect, failures leave
-PStartMenu active, choosing a club remains presentation-only until confirmed
-TeamSelect Start/Continue event `0x2A` delegates to the existing
-`HumanGameplayController.select_club`, and Back event `0x29` returns to
-PStartMenu without an invented gameplay reset. The current implementation is
-limited to the existing Premier League gameplay subset. It is **not** a visual
-renderer and does not imply that source assets have been recovered.
-See `research/GATE13_FRONTEND_FOUNDATION.md`.
+Existing architectural boundary remains verified:
 
-The authorized source archive now has a durable private locator in
-`research/ORIGINAL_SOURCE_LOCATOR.md`. This recovery resolved the exact
-511,121,336-byte Library file and materialization reported success, but the
-current CAAS/container still returns a container-level `ClientError`. A
-control test consisting only of `printf 'container-health'` fails the same
-way, proving this is a general execution-container outage rather than a
-511 MB ZIP or source-file-specific failure. Persistent source recovery is
-working; execution-container availability is the remaining infrastructure
-blocker. No visual asset has been guessed or substituted;
-`original_assets/MANIFEST.md` remains intentionally empty.
+- `front_end_state.py` preserves recovered original controls: PStartMenu
+  ID `0x323`, New Game event `2`, TeamSelect Back `0x29`,
+  Start/Continue `0x2A`.
+- `front_end_session.py` connects that recovered control contract to
+  the working Premier League backend without moving simulation logic
+  into the presentation layer.
+- Prior dedicated Gate-13 CI run `36699473176` passed 71/71 synthetic
+  focused tests; full suite run `36699473326` had 899 tests and only
+  the two already documented secondary-schedule failures. These tests
+  predate the first real-disc inspection and do not independently validate
+  the new original `.444` images.
 
-Repository-native ISO9660/Joliet inventory is implemented and CI-verified.
-After raw MODE1/2352 conversion, Gate-13 filesystem enumeration and extraction
-no longer require 7-Zip for the documented source path. Reports contain the
-complete disc file catalog (path, byte size, ISO extent) plus the smaller
-presentation shortlist. Opaque resources discovered from that catalog can be
-selected with repeatable exact `--extract-path` arguments and staged without
-dumping unrelated disc contents; missing requested paths fail loud via report
-warnings. GitHub Actions run `36685946489` verified the current source-analysis tooling
-at `eaa738de9f6cb16acee99462f8bfa740a1c9a0ee`: 860 tests, with only the two
-known secondary-schedule failures. A saved full-disc report can be queried
-offline with `gate13_catalog_query.py` by substring, suffix, top-level
-directory, or regex. Query results can be emitted as a reusable path-list file
-and fed back to `gate13_source_inventory.py --extract-path-file --only-explicit`, avoiding
-repeated source-archive scanning while narrowing and staging opaque
-PStartMenu/TeamSelect leads.
+## Exact next task within the full Gate-17 mission
 
-Exact-path staging now supports `--only-explicit`, which deliberately
-excludes unrelated heuristic candidates from extraction while retaining the
-complete disc catalog. An empty exact-path selection fails immediately.
-GitHub Actions run `36688232893` verified all three new tests; full-suite
-results remain 863 tests with only the same two known secondary-schedule failures.
-The repository asset-policy workflow also passed.
-
-Gate-13 staging path normalization now rejects parent traversal (`..`) and
-drive-prefixed archive paths rather than letting an unexpected source member
-escape the temporary extraction root. This is tested through both direct
-normalization and a malicious nested ZIP fixture. GitHub Actions run
-`36690708130` verified both new tests and ran 865 tests in total, with
-only the same two known secondary-schedule failures; the repository
-asset-policy workflow also passed.
-
-Latest source-access retry: the exact private 511,121,336-byte Library ZIP
-was resolved and materialized again, but container commands (including the
-materialized-file stat operation) still fail with a general CAAS `ClientError`.
-The Files text reader returns no readable text for this binary ZIP. No claim
-is made that its internal disc files were inventoried.
-
-Further Gate-13 source validation uses the original-disc-confirmed
-`FM2001_Art/Generic/bground.444` length of **222,616 bytes** in addition to
-the already-enforced header dimensions and SHA-256. Inventory now records that
-expected length and warns on a mismatched listing even before extraction.
-A dedicated `.github/workflows/gate13-tests.yml` isolates the presentation,
-source-inventory, import and ISO reader regressions from unrelated simulation
-tests. GitHub Actions run `36693094247`: **38 focused Gate-13 tests passed**;
-repository asset-policy run `36693094248` passed. Full reconstruction run
-`36693078539`: **866 tests, 2 failures**, exactly the same two known
-secondary-schedule assertions.
-
-In this recovery the durable 511,121,336-byte private Library ZIP resolved and
-materialized successfully again, but a trivial container health operation
-still returned CAAS `ClientError`. No source asset contents were read and
-`original_assets/MANIFEST.md` remains unmodified. The catalog search plan
-now explicitly includes the verified background size and `--only-explicit`
-for intentional staging.
-
-Outer-ZIP Gate-13 inventory now supports explicit selection and extraction
-of **loose resources** alongside the already-supported nested ISO/Joliet
-selection. `--only-explicit` excludes unrelated heuristic candidates at both
-archive layers. The deep ZIP pass retains its nested-disc names from its
-first enumeration rather than re-reading and hashing loose files a second
-time. Synthetic mixed-ZIP regression tests verify that an explicitly selected
-loose UI file is staged, the nested ISO catalog remains intact, unrelated
-nested artwork is not staged, and the outer ZIP is inventoried exactly once.
-GitHub Actions run `36697061364` passed all 50 focused Gate-13 tests and
-the full suite `36697061476` reached 878 tests with only the two existing
-secondary-schedule failures. Repository asset policy passed.
-
-The original 511,121,336-byte private Library source was confirmed again
-and materialized successfully. However, even a trivial local container
-health/file-stat command still raises a general CAAS `ClientError`;
-therefore the actual 511 MB disc has **not** been byte-inventoried here.
-No real source asset has been imported or substituted.
-
-Both outer ZIP and nested-disc **complete catalogs** are now saved in each
-deep source-inventory report. Catalog queries search both layers and annotate
-their provenance, with optional layer filters for investigation. Matching
-duplicate paths fail closed during `--paths-only` export; exact-path staging
-also refuses case-insensitive duplicate paths, collisions between archive
-layers, and overwriting preexisting staged files. Most importantly, raw
-`.bin` disc images are now identified by valid MODE1 sector signatures rather
-than file extension: opaque `.bin` files containing ordinary UI data are
-still eligible as original interface resources.
-
-Latest focused GitHub Actions run `36698353585` passed all **61** Gate-13
-tests; full suite run `36698353568` ran **889** tests with only the same
-two existing secondary-schedule failures; asset-policy run `36698353633`
-passed. None of those tests involves the actual authorized 511 MB archive.
-The global container and both Python execution environments still returned
-CAAS `ClientError` on trivial health commands. The actual source-disc
-catalog and visual resources remain the first unfulfilled Gate-13 dependency.
-
-The raw-disc source path has been further simplified: it now validates
-**every physical MODE1/2352 sector** and uses a read-only virtual
-ISO9660/Joliet reader directly over the original raw track. The previous
-full-size temporary ISO conversion is no longer required; the standalone
-conversion helper is retained as a manual verification route. Synthetic
-fixtures prove direct Joliet listing/extraction, cross-sector reads, corrupt
-file-sector refusal, and full-track validation even when corruption lies
-outside the inspected file tree.
-
-The staging CLI now emits typed `unresolved_explicit_paths` alongside warning
-messages. `--require-all-explicit` preserves its audit report but exits with
-failure if a requested file is absent, avoiding acceptance of a partially
-staged original screen. Focused run `36698841038` passed **66 tests** and
-full run `36698840900` ran **894 tests**, with exactly the two unrelated
-known secondary-schedule failures. Asset-policy run `36698841075` passed.
-The private original source was listed/materialized again at **511,121,336
-bytes**, but basic execution-container commands still fail with CAAS
-`ClientError`. No real graphics have been extracted or imported.
-
-The original-asset importer now verifies an optional selected-source JSON
-receipt before import, rejecting unknown or ambiguous extracted candidates,
-different staged SHA-256/size, and any partial exact-path selection. This is
-**required for legitimate opaque UI `.bin` files**, which are now distinguished
-from forbidden raw BIN disc containers using the earlier source-catalog
-signature evidence. If the receipt contains the full original source-archive
-SHA-256, that digest is retained in provenance notes. The source-inventory
-and importer are tested together end-to-end with synthetic ZIP data; no
-actual copyrighted resource is checked into the repository.
-
-Latest dedicated Gate-13 run `36699473176`: **71/71 passing**; full-suite
-run `36699473326`: **899 tests and exactly the same two known
-secondary-schedule failures**. Asset-policy run `36699473263` passed.
-Execution-container access to the real authorized source remains the
-only blocker for original PStartMenu/TeamSelect artwork and layout inventory.
-
-Secondary visual evidence is now bounded in
-`research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
-TeamSelect compositions/labels while explicitly remaining non-canonical for
-pixel coordinates and non-authoritative for shipped asset bytes.
-
-## Exact next task
-
-1. Retry byte access in a working execution container using the durable source
-   locator in `research/ORIGINAL_SOURCE_LOCATOR.md`. Materialization has
-   already been proven to succeed; do not ask for a re-upload. Run
-   `reconstruction/gate13_source_inventory.py --deep` against the recovered
-   ZIP. The tool now performs ZIP -> raw MODE1/2352 sector validation ->
-   virtual ISO9660/Joliet inventory using the repository-native reader,
-   without a second full-size ISO copy or requiring 7-Zip, and emits the complete disc file catalog plus
-   targeted Gate-13 candidates. Use `--extract-path <exact-disc-path>` with
-   `--extract-candidates-to` for deliberately selected opaque resources.
-2. Once the real full-disc report exists, follow
-   `research/GATE13_CATALOG_SEARCH_PLAN.md` and use
-   `reconstruction/gate13_catalog_query.py` to narrow directories/extensions
-   and opaque path leads without re-reading the source archive. Emit a
-   reproducible `--paths-only` shortlist and feed it back through
-   `--extract-path-file --only-explicit`. Inventory the exact original graphics, strings,
-   rectangles/layout data and other resources required by PStartMenu and
-   TeamSelect, using the bounded secondary screenshots only as a visual
-   cross-check.
-3. Identify source paths/hashes and import only the minimum intentional first
-   slice with `reconstruction/gate13_asset_import.py --inventory-report
-   <selected-report.json>`. The importer must verify matching extracted
-   SHA-256, byte count, unique source path/layer and complete selection before
-   writing under `original_assets/source/` with manifest provenance.
-4. Connect the verified `front_end_session.py` application boundary to the
-   source-derived PStartMenu/TeamSelect visual renderer. Keep simulation
-   separate; reuse the established headless New Game, Back, and
-   Start/Continue handoff rather than recreating those rules.
-5. Regression-test the first recognizably original main-menu -> TeamSelect flow
-   before moving to manager home.
-
-The priority is **original look and interaction flow**, not redesign.
+1. **Decode and inspect the now-recovered original `.444` resources**,
+   starting with the directly verified main-menu and TeamSelect backgrounds.
+   The proprietary image header's first two little-endian words give dimensions;
+   the exact compressed pixel/animation data format still requires reverse
+   engineering from `footballmanager.exe` or a proven compatible decoder.
+   Recovered Loader444 paths include decode entry `0x68598A`, its
+   initialization `0x6864A0`, color conversion `0x6868E0`, and
+   low-level stream/decoder functions in `CSEG` at `0x7B9000`,
+   `0x7B95D0` and `0x7BB960`. The **original executable is now present
+   and hash-verified** in the private current workspace.
+2. Correlate exact source graphics/layout/control references with the
+   recovered executable PStartMenu and TeamSelect construction path. Do
+   not infer control bindings solely from asset filenames.
+3. Use `gate13_source_inventory.py --deep --hash-source
+   --extract-path-file --only-explicit --require-all-explicit` to emit an
+   independently reproducible selected-source receipt, then
+   `gate13_asset_import.py --inventory-report` to import only the
+   proven first-slice original resources into `original_assets/` with
+   manifest hashes and original archive provenance.
+4. Bind the authentic decoded resources to the already-tested
+   `front_end_session.py` navigation/application seam; verify the
+   recognizably original PStartMenu → TeamSelect UI before tackling the
+   next management presentation screen. Keep original music and match
+   presentation in Gate 14 unless needed as a Gate-13 dependency.
+5. Continue Gate 13's remaining screens and audit; on passing its
+   roadmap criteria, advance through Gates 14–17 automatically, with
+   verified checkpoints and no speculative gate completion.
 
 ## Known live fidelity boundaries
 
-See `research/FIDELITY_GAPS.md`. The two known secondary-schedule assertions,
-original FM2001 save compatibility, residual transfer/finance branches, the
-special both-controlled-participants Cup revenue policy, and presentation/audio
-fidelity remain explicit later work.
-
-## Do not work on yet
-
-Unless required to support the active Gate-13 presentation slice, defer:
-
-- Gate-14 FastView/3D and audio/match presentation;
-- Gate-15 broad fidelity sweep;
-- Gate-16 destructive multi-season testing;
-- Gate-17 release audit.
+See `research/FIDELITY_GAPS.md`. The two existing secondary-schedule
+assertions, original save compatibility, residual transfer/finance branches,
+special both-controlled-participants Cup revenue, and presentation/audio
+fidelity remain explicit later work. Do not promote historical synthetic
+tooling verification as original-screen visual fidelity.
