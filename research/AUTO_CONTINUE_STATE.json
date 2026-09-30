@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 original management presentation: retry byte access to the successfully materialized durable Library source in a functional execution container, run the verified native ZIP -> MODE1/2352 -> ISO9660/Joliet inventory, record exact PStartMenu/TeamSelect resources, provenance-import the minimum slice, then bind it to the presentation-only navigation boundary.",
-  "last_known_main_head": "9c108c5bf8a58d07bb5dc421304676f25f605a58",
+  "active_task": "Gate 13 original management presentation: when execution container access returns, run one deep inventory of the durable Library ZIP, save the complete disc catalog, query it with gate13_catalog_query.py to identify PStartMenu/TeamSelect resources, exact-path stage the minimum slice, then provenance-import and bind it to the presentation-only navigation boundary.",
+  "last_known_main_head": "c8404042caaf59f25df877e0431b7729c44dc3ac",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 79,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate 13 source tooling now CI-verifies full disc catalog plus exact --extract-path selection (854 tests; only the two known secondary-schedule failures). Durable Library ZIP continues to resolve/materialize. A control container command containing only printf also fails with CAAS ClientError, proving the remaining blocker is a general execution-container outage, not the 511 MB source file. Continue real-disc inventory immediately when container execution returns.",
+  "note": "Recovered after stale heartbeat. CAAS remains globally unavailable even for a trivial control command, while Library source resolution/materialization succeeds. Gate 13 tooling now CI-verifies full catalog, exact-path staging, and saved-catalog querying (858 tests; only the two known secondary-schedule failures). Next work is real-disc inventory immediately when container execution returns.",
   "same_chat_fallback_minutes": 30
 }
