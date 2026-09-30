@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: original Zurich font/STR-IDX labels and hash-verified 23-frame PStartMenu/TeamSelect atlas extraction merged. Build first-screen verified original asset loading/composition, then resolve Button@ease_2001 frame-state semantics and exact caption alignment from canonical executable; continue remaining Gate 13 and Gates 14-17.",
-  "last_known_main_head": "0a999a16d17850613c0c7451b972b44e3d99d987",
+  "active_task": "Gate 13: resolve native Button@ease_2001 23-source-frame state transitions and original caption alignment using verified executable; while local runtime ClientError persists, assemble source-backed TeamSelect original presentation resources and opt-in source tests, then full first-screen fidelity and remaining management screens. Full Gates 13-17 mission remains active.",
+  "last_known_main_head": "2d6ecaf685d937113fc8ab26a8d1e4163dd51a7e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 93,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #7 -> 973e082 and PR #8 -> 0a999a1 merged with passing focused Gate 13 and asset-policy checks. Container/Python trivial operations still ClientError, so first-hand new source extraction cannot be asserted; existing original source hashes and scripts remain canonical. Continue source-backed GitHub integration without speculative visual frame-state mapping.",
+  "note": "Verified merged PRs #7-9 and focused CI, reconciled CURRENT_STATE/PROGRESS to main 2d6ecaf685d937113fc8ab26a8d1e4163dd51a7e. Original disc archived privately; tool shell/Python ClientError blocked new disassembly, so use safe verified TeamSelect inputs rather than invent state mapping. No gate audit passed yet.",
   "same_chat_fallback_minutes": 30
 }
