@@ -7956,3 +7956,24 @@ keeping presentation separate from the stable simulation backend.
   `FM2001_Art/Generic/bground.444`: 800x600 and SHA-256
   `9db0d71daf70d77b4f5f2307304bb8c5eac4ee3a07a85f2828b570fbbf3b7fb9`.
 - Exact shipped UI asset extraction remains the next dependency.
+
+
+## Gate 13 source-inventory dependency tooling - 30 September 2026
+
+- Added `reconstruction/gate13_source_inventory.py` so the authorized source
+  archive can be inventoried deterministically as soon as byte-level access is
+  available.
+- The tool supports extracted directories, direct ZIP members, supported disc
+  images, and optional nested-disc inspection through 7-Zip without placing raw
+  disc images in Git.
+- It carries the already-proven `FM2001_Art/Generic/bground.444` path,
+  SHA-256 and 800x600 header as a provenance check.
+- Candidate discovery deliberately includes the complete
+  `FM2001_Art/Generic/` directory plus conservative presentation-name hints;
+  it does not invent final asset identity from screenshot appearance.
+- Added six unit tests covering path normalization, generic front-end
+  inventory, direct ZIP hashing, nested-disc dependency reporting and 7-Zip
+  listing parsing.
+- The current ChatGPT execution container still cannot open the materialized
+  511 MB source ZIP, so the tool has not yet been run against Daniel's
+  authorized archive in this session.

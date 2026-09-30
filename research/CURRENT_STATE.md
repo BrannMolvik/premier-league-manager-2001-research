@@ -113,7 +113,9 @@ pixel coordinates and non-authoritative for shipped asset bytes.
 
 ## Exact next task
 
-1. Regain byte-level access to the authorized archive/disc contents.
+1. Regain byte-level access to the authorized archive/disc contents and run
+   `reconstruction/gate13_source_inventory.py` against it (deep mode when the
+   ZIP contains a nested disc image).
 2. Inventory the exact original graphics, strings, rectangles/layout data and
    other resources required by PStartMenu and TeamSelect, using the bounded
    secondary screenshots only as a visual cross-check.

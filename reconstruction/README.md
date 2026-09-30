@@ -65,3 +65,20 @@ Known remaining fidelity boundaries include:
 - original match presentation / FastView / 3D.
 
 The live list is maintained in `../research/FIDELITY_GAPS.md`. Research evidence, addresses, confidence levels, and gate status live under `../research/` and `../ROADMAP.md`.
+
+
+## Gate 13 source inventory
+
+When the authorized source archive is available as local bytes, inventory it
+without committing the raw archive:
+
+```text
+python gate13_source_inventory.py <source.zip> --deep --hash-source --output gate13-source.json
+```
+
+If the ZIP contains a nested disc image, deep mode uses 7-Zip (`7z`,
+`7zz`, or `7za`) to list the disc filesystem. Pass
+`--seven-zip <path>` when it is not on PATH. Use
+`--extract-candidates-to <staging-directory>` only for a deliberate staging
+extract; imported originals still require `original_assets/MANIFEST.md`
+provenance and the repository asset-policy check.
