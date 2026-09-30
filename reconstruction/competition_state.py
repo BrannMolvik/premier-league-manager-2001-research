@@ -401,6 +401,11 @@ class PremierLeagueState:
         records = tuple(rows.values())
         if club_name_key is not None:
             original_keys = self._source_table_sort_keys(records, club_name_key)
+            if len(original_keys) != len(set(original_keys)):
+                raise ValueError(
+                    "Native original League qsort tie order is unresolved for "
+                    "clubs with identical full source keys"
+                )
             return tuple(
                 row for _key, row in sorted(
                     zip(original_keys, records),
