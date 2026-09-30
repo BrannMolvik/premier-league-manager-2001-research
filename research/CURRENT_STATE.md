@@ -36,12 +36,13 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-5635215678b11459b07203ee4bf2606593505a70
-Add independent Gate 13 regression check
+9154b720373125172fe3e6cc8cfa8ae22b2c35b2
+Trigger focused Gate 13 CI on application bridge changes
 ```
 
-GitHub Actions ran **866 tests with 2 failures**, exactly the two long-standing
-secondary-schedule assertions:
+Dedicated GitHub Actions Gate 13 run `36694601308` passed **47/47 focused
+tests**. Full reconstruction run `36694465472` ran **875 tests with 2 failures**,
+exactly the two long-standing secondary-schedule assertions:
 
 - secondary root-order assertion;
 - secondary bucket-count assertion (262 expected vs 280 recovered).
@@ -102,6 +103,17 @@ The first front-end contract is now bounded in
 - TeamSelect Start/Continue control/event: `0x2A`;
 - TeamSelect object/activation path is already recovered and remains separate
   from gameplay simulation.
+
+A tested, headless Gate-13 application boundary now exists in
+`reconstruction/front_end_session.py`. Confirmed PStartMenu New Game event 2
+constructs the gameplay backend before entering TeamSelect, failures leave
+PStartMenu active, choosing a club remains presentation-only until confirmed
+TeamSelect Start/Continue event `0x2A` delegates to the existing
+`HumanGameplayController.select_club`, and Back event `0x29` returns to
+PStartMenu without an invented gameplay reset. The current implementation is
+limited to the existing Premier League gameplay subset. It is **not** a visual
+renderer and does not imply that source assets have been recovered.
+See `research/GATE13_FRONTEND_FOUNDATION.md`.
 
 The authorized source archive now has a durable private locator in
 `research/ORIGINAL_SOURCE_LOCATOR.md`. This recovery resolved the exact
@@ -197,8 +209,10 @@ pixel coordinates and non-authoritative for shipped asset bytes.
 3. Identify source paths/hashes and import only the minimum intentional first
    slice with `reconstruction/gate13_asset_import.py`, which writes under
    `original_assets/source/` with manifest provenance.
-4. Bind the already-verified presentation/navigation boundary to the recovered
-   original resources without moving simulation logic into presentation code.
+4. Connect the verified `front_end_session.py` application boundary to the
+   source-derived PStartMenu/TeamSelect visual renderer. Keep simulation
+   separate; reuse the established headless New Game, Back, and
+   Start/Continue handoff rather than recreating those rules.
 5. Regression-test the first recognizably original main-menu -> TeamSelect flow
    before moving to manager home.
 
