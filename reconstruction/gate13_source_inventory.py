@@ -684,6 +684,21 @@ def report_for_source(
             "disc image."
         )
 
+    requested_paths = {
+        _lower(path): normalize_member(path)
+        for path in (explicit_paths or set())
+    }
+    found_explicit = {
+        _lower(record.path)
+        for record in records
+        if record.candidate_reason == "explicit-path"
+    }
+    for requested_key, requested_path in sorted(requested_paths.items()):
+        if requested_key not in found_explicit:
+            warnings.append(
+                f"Explicit disc path was not found: {requested_path}"
+            )
+
     bground = [
         record
         for record in records
