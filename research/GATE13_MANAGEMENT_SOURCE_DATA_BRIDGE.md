@@ -115,6 +115,62 @@ player-profile UI showed them. Likewise the bridge does not assign the 17 raw
 skill bytes to visual columns/icons until original player-profile presentation
 evidence establishes that mapping.
 
+### Manager-mail source queues
+
+The bridge now exposes the two manager-mail families that the clean-room
+runtime has actually materialized, and keeps them as **separate queues** rather
+than inventing a global interleave:
+
+- controlled-player assistant-manager contract-renewal suggestions;
+- low-morale `PlayerAskTransferList` requests.
+
+For contract-renewal suggestions the event identity is already source-locked:
+ordinary message ID `0x0E`, Bosman message ID `0x1B7`, their original
+resource keys/event RTTI class names, and the shared
+`EAMAmendContractsub` accepted action. Transfer requests retain the exact
+`PlayerAskTransferList` original key, `EAMPlayerAskTransferListsub` event
+class and mapped accept/refuse action classes. Queue index and dates are
+preserved from runtime storage.
+
+Because `GameState` currently stores these two recovered families in separate
+lists, the bridge deliberately does **not** sort them together by date or claim
+the complete original Messages/News inbox ordering.
+
+### Training source/runtime projection
+
+For each controlled-club player, in live roster order, the bridge exposes the
+already mapped embedded training state:
+
+- numeric method ID;
+- countdown and active-count values;
+- the 17-entry persistent per-skill modifier block;
+- the 17-entry skill-state block;
+- the seven per-method result counters.
+
+These arrays are exact reconstructed runtime structures. The bridge does not
+assign proprietary Training-screen graphics, coordinates, control IDs or any
+additional labels beyond semantics already independently recovered. Invalid
+array shapes fail closed.
+
+### Scouting result projection
+
+The bridge delegates search execution to
+`HumanGameplayController.search_scouting_players_mapped()`, the existing
+source-backed `PScouting2K` pipeline, instead of reimplementing search logic
+inside presentation code.
+
+The caller must still supply the mapped panel state and valuation resolver, and
+may supply the same optional source-value resolvers/predicates already accepted
+by the backend. Result order is preserved exactly as returned by that pipeline.
+Each result exposes source/runtime identity, current 17-byte skill state,
+preferred-position tuple, age, exact six-entry-history average, and mapped
+Transfer Listed / Out of Contract / Loan Listed state.
+
+An unattached player remains club ID `-1` with **no invented club name**.
+The bridge does not manufacture a "Free Agent" club label or substitute a
+previous club. Unresolved PScouting2K UI controls remain unresolved rather than
+being renamed at the presentation seam.
+
 ### Fixtures/results
 
 `PremierLeagueState.fixture_source_order` is constructed directly from the
@@ -178,6 +234,11 @@ backend contract to lock:
 - Balance current cash, ledger append order, financial-objective runtime state;
 - active TransferProposal/DealInProgress/ContractTerms records and unambiguous
   scheduled-transfer metadata without naming unresolved negotiation bytes;
+- exact recovered renewal/transfer-request event identities while preserving
+  their separate runtime queues;
+- controlled-squad training method/countdown plus exact 17/17/7 state-array
+  shapes in roster order;
+- mapped PScouting2K result delegation/order and unattached-player neutrality;
 - fixture source insertion order even when fixture IDs/dates could tempt a
   modern resort;
 - recorded/unplayed result projection;
@@ -201,7 +262,9 @@ The primary critical path remains unchanged:
 5. provenance-import only proven source assets;
 6. complete authentic PStartMenu/TeamSelect and then manager-home, squad,
    tactics, fixtures/results, league table, player profile, transfers,
-   finances, messages/news, training/scouting and remaining original screens;
+   finances, messages/news, training/scouting and remaining original screens.
+   The read-only data seams for these areas do not substitute for recovering
+   their original presentation/navigation;
 7. audit Gate 13 before advancing to Gate 14.
 
 This bridge supplies source-faithful management data to those future screens;
