@@ -190,6 +190,74 @@ class PlayerProfileView:
 
 
 @dataclass(frozen=True)
+class TicketSectionStatePresentationContract:
+    value: int
+    semantic_key: str
+
+
+@dataclass(frozen=True)
+class TicketsPresentationContract:
+    panel_class_name: str
+    update_routine_va: int
+    user_ticket_state_offset: int
+    ticket_state_size: int
+    season_ticket_quantity_offset: int
+    season_ticket_price_offset: int
+    terrace_price_offset: int
+    seating_price_offset: int
+    section_states_offset: int
+    section_state_count: int
+    terrace_recommendation_helper_va: int
+    seating_recommendation_helper_va: int
+    terrace_compare_va: int
+    seating_compare_va: int
+    terrace_reference_factor: float
+    stadium_terrace_capacity_offset: int
+    stadium_seating_capacity_offset: int
+    section_states: tuple[TicketSectionStatePresentationContract, ...]
+
+
+@dataclass(frozen=True)
+class TicketStateView:
+    club_id: int
+    season_ticket_quantity: int
+    season_ticket_price: int
+    terrace_price: int
+    seating_price: int
+    section_states: tuple[int, ...]
+
+
+# Firsthand original ticket-screen / stadium-consumer evidence only. No visible
+# control binding, label placement, screen geometry, artwork, or navigation is
+# inferred from these state offsets and instruction addresses.
+TICKETS_PRESENTATION_CONTRACT = TicketsPresentationContract(
+    panel_class_name="PTickets",
+    update_routine_va=0x45FF10,
+    user_ticket_state_offset=0x694,
+    ticket_state_size=0x7C,
+    season_ticket_quantity_offset=0x00,
+    season_ticket_price_offset=0x04,
+    terrace_price_offset=0x08,
+    seating_price_offset=0x0C,
+    section_states_offset=0x14,
+    section_state_count=26,
+    terrace_recommendation_helper_va=0x461340,
+    seating_recommendation_helper_va=0x4615B0,
+    terrace_compare_va=0x4605AD,
+    seating_compare_va=0x460753,
+    terrace_reference_factor=0.75,
+    stadium_terrace_capacity_offset=0x1C,
+    stadium_seating_capacity_offset=0x28,
+    section_states=(
+        TicketSectionStatePresentationContract(-1, "unavailable"),
+        TicketSectionStatePresentationContract(0, "home"),
+        TicketSectionStatePresentationContract(1, "visiting"),
+        TicketSectionStatePresentationContract(2, "season_ticket_reserved"),
+    ),
+)
+
+
+@dataclass(frozen=True)
 class FinancePostingView:
     amount: int | float
     category_id: int
@@ -647,6 +715,66 @@ class ManagementSourceDataBridge:
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise ManagementPresentationError(f"{label} is not a recovered finance value")
         return value
+
+    @staticmethod
+    def tickets_presentation_contract() -> TicketsPresentationContract:
+        """Return the source-proven PTickets state/instruction contract."""
+        return TICKETS_PRESENTATION_CONTRACT
+
+    def ticket_state_view(self) -> TicketStateView:
+        """Expose the controlled club's recovered ticket state without UI guesses."""
+        club_id = self._human_club_id()
+        states = getattr(self.state, "ticket_states", None)
+        if not hasattr(states, "get"):
+            raise ManagementPresentationError(
+                "Recovered ticket runtime state is unavailable"
+            )
+        ticket = states.get(club_id)
+        if ticket is None:
+            raise ManagementPresentationError(
+                f"Controlled club {club_id} has no materialized ticket state"
+            )
+
+        names = (
+            "season_ticket_quantity",
+            "season_ticket_price",
+            "terrace_price",
+            "seating_price",
+        )
+        values = {}
+        for name in names:
+            value = getattr(ticket, name, None)
+            if type(value) is not int:
+                raise ManagementPresentationError(
+                    f"Recovered ticket field {name} is unavailable"
+                )
+            values[name] = value
+
+        section_states = getattr(ticket, "section_states", None)
+        if (
+            not isinstance(section_states, (list, tuple))
+            or len(section_states) != TICKETS_PRESENTATION_CONTRACT.section_state_count
+            or any(type(value) is not int for value in section_states)
+        ):
+            raise ManagementPresentationError(
+                "Recovered ticket section-state vector is unavailable"
+            )
+        allowed = {
+            item.value for item in TICKETS_PRESENTATION_CONTRACT.section_states
+        }
+        if any(value not in allowed for value in section_states):
+            raise ManagementPresentationError(
+                "Recovered ticket section state has an unmapped native value"
+            )
+
+        return TicketStateView(
+            club_id=club_id,
+            season_ticket_quantity=values["season_ticket_quantity"],
+            season_ticket_price=values["season_ticket_price"],
+            terrace_price=values["terrace_price"],
+            seating_price=values["seating_price"],
+            section_states=tuple(section_states),
+        )
 
     def finance_view(self) -> FinanceView:
         """Expose Balance cash/ledger/objective state without guessed labels."""

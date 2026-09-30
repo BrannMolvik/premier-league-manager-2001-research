@@ -92,6 +92,34 @@ formations graphics, player-slot coordinates, style labels, colors or drag/drop
 behavior. Missing tactical state, lineup tuple or one of the four Team Orders
 lists fails closed instead of silently injecting modern defaults.
 
+### PTickets source-backed presentation contract and runtime state
+
+The original ticket/stadium research is sufficiently instruction-locked to
+expose a bounded Finance-adjacent presentation seam without recreating the
+screen.
+
+The immutable contract preserves:
+
+- panel family `PTickets` and update routine `0x45FF10`;
+- DBRUser ticket object at `+0x694`, exact size `0x7C`;
+- `+0x00` season-ticket quantity, `+0x04` season-ticket price,
+  `+0x08` terrace price and `+0x0C` seating price;
+- 26 section-state dwords at `+0x14`, with native states
+  -1 unavailable / 0 home / 1 visiting / 2 season-ticket reserved;
+- terrace recommendation helper `0x461340`, its exact 0.75 reference factor,
+  and comparison site `0x4605AD`;
+- seating recommendation helper `0x4615B0` and comparison site
+  `0x460753`;
+- stadium capacity fields `+0x1C` terrace and `+0x28` seating.
+
+`ticket_state_view()` reads the controlled club's already materialized
+`TicketRuntimeState` only. Missing state, wrong vector length or an unmapped
+section-state value fails closed.
+
+No original PTickets widget IDs, visible captions, coordinates, artwork,
+font/color rules or navigation are assigned. See
+`research/GATE13_TICKETS_PRESENTATION_CONTRACT.md`.
+
 ### Finances and transfer runtime data
 
 The bridge now exposes the already recovered user-owned `Balance` slice
