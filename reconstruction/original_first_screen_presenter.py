@@ -30,6 +30,7 @@ from original_front_end_layout import (
 from original_pstartmenu_labels import PStartMenuCaption
 from original_pstartmenu_resources import OriginalPStartMenuResources
 from original_teamselect_resources import OriginalTeamSelectResources
+from original_teamselect_hierarchy_art import OriginalTeamSelectHierarchyArt
 
 
 @dataclass(frozen=True)
@@ -50,6 +51,7 @@ class OriginalFirstScreenSnapshot:
     background_rgba: bytes
     controls: tuple[OriginalActionPresentation, ...]
     hierarchy_row_origins: tuple[tuple[int, int], ...] = ()
+    hierarchy_art: OriginalTeamSelectHierarchyArt | None = None
 
 
 @dataclass
@@ -91,6 +93,7 @@ class OriginalFirstScreenPresenter:
                 self.team_select.background_rgba,
                 controls,
                 self.team_select.hierarchy_row_origins,
+                self.team_select.hierarchy_art,
             )
         raise RuntimeError(f"Original renderer not yet recovered for {screen!r}")
 

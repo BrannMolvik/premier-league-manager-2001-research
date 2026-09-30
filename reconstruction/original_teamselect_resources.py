@@ -20,6 +20,12 @@ from original_button_frames import (
     TEAMSELECT_BUTTON_ATLAS,
     decode_verified_original_button_atlas,
 )
+from original_teamselect_hierarchy_art import (
+    HIERARCHY_ANIM_SPEC,
+    HIERARCHY_BARS_SPEC,
+    OriginalTeamSelectHierarchyArt,
+    decode_verified_hierarchy_art,
+)
 from original_front_end_layout import (
     GLOBAL_BACKGROUND_PATH,
     TEAMSELECT_BACKGROUND_PATH,
@@ -55,6 +61,7 @@ class OriginalTeamSelectResources:
     background_rgba: bytes
     action_atlas: OriginalButtonAtlas
     hierarchy_row_origins: tuple[tuple[int, int], ...]
+    hierarchy_art: OriginalTeamSelectHierarchyArt | None = None
 
     def __post_init__(self) -> None:
         if len(self.background_rgba) != SCREEN_SIZE[0] * SCREEN_SIZE[1] * 4:
@@ -77,6 +84,10 @@ class OriginalTeamSelectResources:
             raise OriginalTeamSelectResourceError(
                 "TeamSelect hierarchy row origins differ from executable"
             )
+        if self.hierarchy_art is not None and not isinstance(
+            self.hierarchy_art, OriginalTeamSelectHierarchyArt
+        ):
+            raise OriginalTeamSelectResourceError("Unverified hierarchy source art")
 
     @property
     def proven_actions(self) -> tuple[tuple[int, object], ...]:
@@ -90,12 +101,14 @@ def assemble_original_teamselect_inputs(
     global_background: EA444DecodedImage,
     team_background: EA444DecodedImage,
     action_atlas: OriginalButtonAtlas,
+    hierarchy_art: OriginalTeamSelectHierarchyArt | None = None,
 ) -> OriginalTeamSelectResources:
     """Compose only the two proven background layers and original atlas."""
     return OriginalTeamSelectResources(
         compose_teamselect_background(global_background, team_background),
         action_atlas,
         TEAMSELECT_HIERARCHY_ROW_ORIGINS,
+        hierarchy_art,
     )
 
 
@@ -144,7 +157,21 @@ def load_verified_original_teamselect_inputs(
         tables=tables,
         quant=quant,
     )
-    result = assemble_original_teamselect_inputs(base, team, buttons)
+    hierarchy_art = decode_verified_hierarchy_art(
+        _read_verified_art(
+            original_art_dir, HIERARCHY_ANIM_SPEC.path,
+            HIERARCHY_ANIM_SPEC.source_sha256,
+        ),
+        _read_verified_art(
+            original_art_dir, HIERARCHY_BARS_SPEC.path,
+            HIERARCHY_BARS_SPEC.source_sha256,
+        ),
+        tables=tables,
+        quant=quant,
+    )
+    result = assemble_original_teamselect_inputs(
+        base, team, buttons, hierarchy_art,
+    )
     if sha256(result.background_rgba).hexdigest() != (
         TEAMSELECT_COMPOSED_BACKGROUND_RGBA_SHA256
     ):

@@ -19,6 +19,12 @@ from original_front_end_layout import (
     TEAMSELECT_BACK_RECT,
     TEAMSELECT_START_RECT,
 )
+from original_teamselect_hierarchy_art import (
+    HIERARCHY_ANIM_SPEC,
+    HIERARCHY_BARS_SPEC,
+    OriginalTeamSelectHierarchyArt,
+    split_hierarchy_source_strip,
+)
 from original_teamselect_resources import (
     OriginalTeamSelectResourceError,
     TEAMSELECT_COMPOSED_BACKGROUND_RGBA_SHA256,
@@ -74,6 +80,27 @@ class OriginalTeamSelectResourceTests(unittest.TestCase):
                 with self.assertRaises(OriginalTeamSelectResourceError):
                     assemble_original_teamselect_inputs(base, team, invalid)
 
+    def test_original_hierarchy_strips_are_exposed_without_guessing_row_content(self):
+        base, team, action_atlas = fixture()
+        def source_strip(spec, color):
+            return split_hierarchy_source_strip(
+                solid(spec.frame_width, spec.frame_height, color), spec
+            )
+        art = OriginalTeamSelectHierarchyArt(
+            source_strip(HIERARCHY_ANIM_SPEC, (9, 8, 7, 255)),
+            source_strip(HIERARCHY_BARS_SPEC, (4, 3, 2, 255)),
+        )
+        resources = assemble_original_teamselect_inputs(
+            base, team, action_atlas, art
+        )
+        self.assertIs(resources.hierarchy_art, art)
+        self.assertEqual(resources.hierarchy_row_origins[0], (20, 78))
+        self.assertEqual(resources.hierarchy_art.animation.source_frame(0).width, 30)
+        self.assertEqual(resources.hierarchy_art.bars.source_frame(0).width, 168)
+        self.assertIsNone(assemble_original_teamselect_inputs(
+            base, team, action_atlas
+        ).hierarchy_art)
+
     def test_wrong_source_bytes_fail_closed(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -104,6 +131,9 @@ class OriginalTeamSelectResourceTests(unittest.TestCase):
             TEAMSELECT_COMPOSED_BACKGROUND_RGBA_SHA256,
         )
         self.assertEqual(len(original.action_atlas.frames), 23)
+        self.assertIsNotNone(original.hierarchy_art)
+        self.assertGreater(len(original.hierarchy_art.animation.frames), 0)
+        self.assertGreater(len(original.hierarchy_art.bars.frames), 0)
         self.assertEqual(
             original.hierarchy_row_origins,
             TEAMSELECT_HIERARCHY_ROW_ORIGINS,
