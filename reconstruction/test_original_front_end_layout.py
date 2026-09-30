@@ -8,6 +8,9 @@ from ea444_quantization import quantization_from_verified_exe_path
 from ea444_tables import tables_from_verified_exe_path
 from original_front_end_layout import (
     PSTARTMENU_BACKGROUND_RECT,
+    PSTARTMENU_ACTION_ATLAS_PATH,
+    PSTARTMENU_ACTION_FRAME_SIZE,
+    PSTARTMENU_ACTIONS,
     SCREEN_SIZE,
     TEAMSELECT_BACKGROUND_RECT,
     TEAMSELECT_ROOT_RECT,
@@ -40,6 +43,20 @@ class OriginalFrontEndLayoutTests(unittest.TestCase):
         self.assertEqual(
             PSTARTMENU_BACKGROUND_RECT,
             type(PSTARTMENU_BACKGROUND_RECT)(134, 34, 532, 532),
+        )
+        self.assertEqual(PSTARTMENU_ACTION_FRAME_SIZE, (169, 25))
+        self.assertTrue(
+            PSTARTMENU_ACTION_ATLAS_PATH.endswith("button_type_1.444")
+        )
+        self.assertEqual(
+            tuple((action.event, action.language_index, action.rect)
+                  for action in PSTARTMENU_ACTIONS),
+            (
+                (1, 0, type(PSTARTMENU_BACKGROUND_RECT)(181, 478, 169, 25)),
+                (2, 1, type(PSTARTMENU_BACKGROUND_RECT)(7, 478, 169, 25)),
+                (3, 2, type(PSTARTMENU_BACKGROUND_RECT)(355, 478, 169, 25)),
+                (4, 6, type(PSTARTMENU_BACKGROUND_RECT)(181, 508, 169, 25)),
+            ),
         )
         self.assertEqual(
             TEAMSELECT_ROOT_RECT,
