@@ -202,3 +202,16 @@ service-worker errors but cannot read old Chrome Errors records.
 Keep Chrome running, the PC awake and ChatGPT signed in. Browser recovery remains
 best-effort and cannot guarantee progress through service outages or unavailable
 original source-byte execution.
+
+## 0.3.7 content-script invalidation hardening
+
+An unpacked extension reload does not replace content scripts in already-open
+ChatGPT tabs. Old scripts can report `content.js:402` / `onMessage` undefined
+and repeated `Extension context invalidated` errors. Version 0.3.7 guards
+listener registration and stops the old script's polling interval and
+observer after detecting context loss.
+
+**Deployment:** pull `main`, reload the extension, then refresh *all*
+already-open ChatGPT tabs, including the FM2001 worker tab. On that tab click
+the FM2001 toolbar icon to register it again. Only then clear historical
+errors from Chrome's extension Errors page. If new errors appear, capture them.

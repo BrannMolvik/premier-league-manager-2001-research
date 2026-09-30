@@ -46,6 +46,25 @@ const RETRY_BUTTON_PATTERNS = [
 const reportedFailures = new Set();
 let resumeSubmitting = false;
 let localRecoveryRequested = false;
+let contextInvalidated = false;
+let startupInterval = null;
+
+function contextAlive() {
+  try {
+    return !contextInvalidated && Boolean(chrome?.runtime?.id &&
+      chrome.runtime?.onMessage?.addListener && chrome.runtime?.sendMessage);
+  } catch (_error) { return false; }
+}
+function stopStaleScript() {
+  if (contextInvalidated) return;
+  contextInvalidated = true;
+  try { observer.disconnect(); } catch (_error) {}
+  if (startupInterval !== null) {
+    clearInterval(startupInterval);
+    startupInterval = null;
+  }
+}
+
 
 function elementFromNode(node) {
   if (node?.nodeType === Node.ELEMENT_NODE) {
@@ -59,6 +78,7 @@ function isConversationMessage(element) {
 }
 
 function reportFailure(kind, text, pattern) {
+  if (!contextAlive()) { stopStaleScript(); return; }
   const signature = `${kind}:${pattern.source}:${text.slice(0, 180)}`;
   if (reportedFailures.has(signature)) {
     return;
@@ -74,7 +94,7 @@ function reportFailure(kind, text, pattern) {
       reason: text.slice(0, 300)
     });
     if (pending && typeof pending.catch === "function") {
-      pending.catch(() => {});
+      pending.catch(() => { if (!contextAlive()) stopStaleScript(); });
     }
   } catch (_error) {}
 }
@@ -268,6 +288,7 @@ function fillComposer(composer, prompt) {
 }
 
 async function requestPendingResume() {
+  if (!contextAlive()) { stopStaleScript(); return null; }
   return new Promise(resolve => {
     try {
       chrome.runtime.sendMessage(
@@ -279,11 +300,15 @@ async function requestPendingResume() {
           } catch (_error) { resolve(null); }
         }
       );
-    } catch (_error) { resolve(null); }
+    } catch (_error) {
+      if (!contextAlive()) stopStaleScript();
+      resolve(null);
+    }
   });
 }
 
 async function markResumeConsumed() {
+  if (!contextAlive()) { stopStaleScript(); return; }
   return new Promise(resolve => {
     try {
       chrome.runtime.sendMessage(
@@ -369,12 +394,14 @@ async function clearRetryStateIfNeeded() {
 }
 
 async function submitPendingResume() {
+  if (!contextAlive()) { stopStaleScript(); return; }
   if (resumeSubmitting) {
     return;
   }
 
   const pending = await requestPendingResume();
-  if (!pending?.prompt) {
+  if (!pending?.prompt || !contextAlive()) {
+    if (!contextAlive()) stopStaleScript();
     return;
   }
 
@@ -400,6 +427,7 @@ async function submitPendingResume() {
 
     await new Promise((resolve) => setTimeout(resolve, 700));
 
+    if (!contextAlive()) { stopStaleScript(); return; }
     const sendButton = findFirstVisible(SEND_SELECTORS);
     if (sendButton && !sendButton.disabled) {
       sendButton.click();
@@ -418,24 +446,42 @@ async function submitPendingResume() {
   }
 }
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message?.type === "fm2001-query-generation") {
-    // Only a live, visible Stop control is evidence that ChatGPT is actively
-    // generating. Do not rely on the absence of a new repository commit.
-    sendResponse({ generating: Boolean(findFirstVisible(STOP_SELECTORS)) });
-    return false;
+// An old content script can survive a local extension reload, leaving its
+// runtime undefined. Never register handlers or keep retrying in that state.
+if (contextAlive()) {
+  try {
+    chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+      if (!contextAlive()) { stopStaleScript(); return false; }
+      if (message?.type === "fm2001-query-generation") {
+        sendResponse({ generating: Boolean(findFirstVisible(STOP_SELECTORS)) });
+        return false;
+      }
+      if (message?.type === "fm2001-run-pending-resume") {
+        submitPendingResume().catch(() => {
+          if (!contextAlive()) stopStaleScript();
+        });
+      }
+      return false;
+    });
+    requestRecoveryFromUrl();
+    scanExistingFailureUi();
+    if (contextAlive()) {
+      startupInterval = setInterval(() => {
+        submitPendingResume().catch(() => {
+          if (!contextAlive()) stopStaleScript();
+        });
+      }, 2000);
+      setTimeout(() => {
+        if (startupInterval !== null) clearInterval(startupInterval);
+        startupInterval = null;
+      }, 2 * 60 * 1000);
+      submitPendingResume().catch(() => {
+        if (!contextAlive()) stopStaleScript();
+      });
+    }
+  } catch (_error) {
+    if (!contextAlive()) stopStaleScript();
   }
-  if (message?.type === "fm2001-run-pending-resume") {
-    submitPendingResume();
-  }
-  return false;
-});
-
-requestRecoveryFromUrl();
-scanExistingFailureUi();
-
-// Allow a newly created background recovery tab time to load its composer.
-// Long-lived in-place recovery is event-driven by the background service worker.
-const startupResumeInterval = setInterval(submitPendingResume, 2000);
-setTimeout(() => clearInterval(startupResumeInterval), 2 * 60 * 1000);
-submitPendingResume();
+} else {
+  stopStaleScript();
+}
