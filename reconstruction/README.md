@@ -111,12 +111,25 @@ resources chosen via `--extract-path` or `--extract-path-file`. The loose
 ZIP layer is scanned once; its disc-member list is retained for the nested
 pass. 7-Zip is only an optional fallback for other supported disc-image formats.
 
-The JSON report deliberately contains two views:
+The JSON report preserves both archive layers:
 
-- `disc_files`: the complete source-disc file catalog with normalized path,
-  byte size, and ISO extent;
+- `zip_files`: **every** outer-ZIP member, normalized path, byte size and
+  whether it is a recognized nested disc container (raw BIN tracks are
+  recognized by their Mode-1 sector signature, not the `.bin` suffix alone);
+- `disc_files`: the complete nested ISO9660/Joliet disc catalog with normalized
+  path, byte size and ISO extent;
 - `candidates`: the smaller Gate-13 presentation shortlist, with hashes when
   bytes were intentionally extracted.
+
+The catalog-query CLI searches **both** archive layers by default and annotates
+result records as `zip` or `disc`. Use `--layer zip` or `--layer disc`
+when investigating one layer. Layer filtering is analytical only: the
+source-inventory exact-path staging CLI still matches source-relative paths
+across both layers. If the same path is present more than once,
+`--paths-only` refuses to emit an ambiguous list, and the extractor rejects
+cross-layer and case-insensitive staging collisions instead of overwriting
+one original with another. Isolate the correct source layer before staging
+ambiguous assets; never pretend an unqualified path identifies both uniquely.
 
 Use the full catalog to identify opaque layout/string resources rather than
 guessing filenames. Query a saved report without re-reading or reconverting the
@@ -124,6 +137,7 @@ source archive:
 
 ```text
 python gate13_catalog_query.py gate13-source.json --summary
+python gate13_catalog_query.py gate13-source.json --layer zip --contains menu
 python gate13_catalog_query.py gate13-source.json --contains menu
 python gate13_catalog_query.py gate13-source.json --suffix dat --top-level Data
 python gate13_catalog_query.py gate13-source.json --regex "(team|start|layout)"
