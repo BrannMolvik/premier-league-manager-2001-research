@@ -177,8 +177,15 @@ For each staged resource record:
 2. inspect header/format metadata;
 3. correlate it with the PStartMenu or TeamSelect evidence boundary;
 4. reject unrelated resources from the first slice;
-5. only then use `gate13_asset_import.py` to copy the minimal confirmed set
-   under `original_assets/source/` with provenance.
+5. use `gate13_asset_import.py --inventory-report gate13-source-selected.json`
+   to verify that the staged size and SHA-256 match exactly one extracted
+   candidate with a known source layer. A missing selected resource or a
+   partial report must prevent import;
+6. only then copy the minimal confirmed set under `original_assets/source/`
+   with manifest provenance. If the original selected source report includes
+   the source archive SHA-256, retain it in the manifest notes.
+   A legitimate opaque UI `.bin` must have a provenance-verified
+   non-disc-image identity before import.
 
 ## Raw-disc efficiency and integrity
 
