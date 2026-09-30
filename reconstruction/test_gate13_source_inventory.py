@@ -11,6 +11,7 @@ from gate13_source_inventory import (
     MODE1_RAW_SECTOR_BYTES,
     MODE1_SYNC,
     candidate_reason,
+    catalog_iso_image,
     convert_mode1_2352_to_iso,
     inventory_iso_image,
     inventory_zip,
@@ -151,9 +152,14 @@ Packed Size = 99
             payload = build_joliet_iso(iso)
             out = root / "out"
 
+            catalog = catalog_iso_image(iso)
             records, warnings = inventory_iso_image(iso, out)
 
             self.assertEqual(warnings, [])
+            self.assertEqual(
+                [(record.path, record.size) for record in catalog],
+                [("FM2001_Art/Generic/bground.444", len(payload))],
+            )
             self.assertEqual(
                 [record.path for record in records],
                 ["FM2001_Art/Generic/bground.444"],
@@ -184,6 +190,13 @@ Packed Size = 99
             report = report_for_source(archive, deep=True)
 
             self.assertEqual(report["nested_disc_images"], ["disc/game.bin"])
+            self.assertEqual(report["disc_file_count"], 1)
+            self.assertEqual(
+                [record["path"] for record in report["disc_files"]],
+                ["FM2001_Art/Generic/bground.444"],
+            )
+            self.assertEqual(report["disc_files"][0]["size"], len(b"\x20\x03\x58\x02gate13-joliet"))
+            self.assertGreater(report["disc_files"][0]["extent"], 0)
             self.assertEqual(
                 [record["path"] for record in report["candidates"]],
                 ["FM2001_Art/Generic/bground.444"],
