@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 original image decoder: byte-accurate original packed little-endian dword / MSB-first EA444 compressed bit reader now implemented, with 8x8 tile rendering directly evidenced at 0x6868E0; continue compressed coefficient/dequantization reconstruction from 0x7B91C7 and 0x7B95D0. Original 20-byte scroll end fixtures and all 1354 headers verified. Correct incorrect old 150x224 animation geometry to actual 150x736. Continue original visuals and gates 13-17.",
-  "last_known_main_head": "ba284620e65b30cf8f85d85c923c114d08795d10",
+  "active_task": "Gate13 genuine EA444 original image decoder: source-backed original bit ordering, 64-entry Huffman permutation, canonical 160-entry VLC, signed sparse coeff decoding, exact original quantization and 64-position pre-IDCT grid now persisted. Continue direct disassembly and faithful two-pass x87 IDCT at 0x7B9360/0x7B94C0 including TQIA_DAT coefficients, then true pixel conversion; import original visuals and resume original 12-screen Gate13 restoration. Full mission remains Gates13-17 through audited Windows11 release.",
+  "last_known_main_head": "5fc5378b6a6c05e9fb98e0a0dcec48b762491b83",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 88,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered main after interruption; verified original recovered bytes and imported Git blobs sha1 match actual private source. Implemented ea444_bits.py and original-fixture tests on main through ba284620e65b30cf8f85d85c923c114d08795d10. Local true-source four-test suite passes including all 1354 dword-aligned payloads. Original exec 0x686949/0x686AC1 selects 16-bit and alternative 8x8 renderers. Further actual decoder required.",
+  "note": "Live source verified and preserved. Latest main 5fc5378. 12/12 local original-backed decoder tests passed; actual first original main-menu component raw DC15,14AC 93bits quantized grid SHA d074fa... . Full source decoder research in GATE13_EA444_DECODER_TRACE.md; original .444 actual backgrounds available in staging; derived catalog Library copy still failing container_session_expired. CI focused workflow intentionally manual/PR, newest tests committed but no new hosted run claimed. Continue first-pass DC-only shortcut and inverse x87 constants, not synthetic scaffolding.",
   "same_chat_fallback_minutes": 30
 }
