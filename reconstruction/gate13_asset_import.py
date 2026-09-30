@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 from pathlib import Path, PurePosixPath
 import shutil
 import struct
@@ -46,18 +47,30 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def validate_source_relative(source_relative: str) -> str:
+def validate_source_relative(
+    source_relative: str, *, allow_verified_ui_bin: bool = False
+) -> str:
     normalized = normalize_member(source_relative)
     pure = PurePosixPath(normalized)
     if not normalized or pure.is_absolute() or ".." in pure.parts:
         raise AssetImportError("Source asset path must stay inside the staging root.")
-    if pure.suffix.lower() in FORBIDDEN_SUFFIXES:
+    if pure.suffix.lower() == ".bin" and not allow_verified_ui_bin:
+        raise AssetImportError(
+            "Opaque .bin UI resources require a verified extraction report."
+        )
+    if pure.suffix.lower() in FORBIDDEN_SUFFIXES and not (
+        pure.suffix.lower() == ".bin" and allow_verified_ui_bin
+    ):
         raise AssetImportError("Raw archive/disc-image containers must not be imported.")
     return normalized
 
 
-def destination_relative(source_relative: str) -> Path:
-    normalized = validate_source_relative(source_relative)
+def destination_relative(
+    source_relative: str, *, allow_verified_ui_bin: bool = False
+) -> Path:
+    normalized = validate_source_relative(
+        source_relative, allow_verified_ui_bin=allow_verified_ui_bin
+    )
     return ORIGINAL_ASSET_PREFIX.joinpath(*PurePosixPath(normalized).parts)
 
 
@@ -86,6 +99,63 @@ def validate_asset_bytes(source_relative: str, source_path: Path) -> str:
                 "expected 800x600."
             )
     return digest
+
+
+def verify_selection_inventory(
+    inventory_report: Path,
+    *,
+    source_relative: str,
+    staged_sha256: str,
+    staged_size: int,
+) -> dict:
+    """Prove this staged file equals exactly one intentionally extracted original.
+
+    A report may include several catalog entries, but the importer accepts
+    only one hashed *extracted candidate* for the requested path. Disc-image
+    containers themselves are never importable, including raw .bin archives.
+    """
+    report = json.loads(Path(inventory_report).read_text(encoding="utf-8"))
+    if report.get("unresolved_explicit_paths"):
+        raise AssetImportError(
+            "Selected-source report has unresolved exact paths; do not import "
+            "a partial source selection."
+        )
+    key = normalize_member(source_relative).casefold()
+    candidates = [
+        item for item in report.get("candidates", [])
+        if isinstance(item.get("path"), str)
+        and normalize_member(item["path"]).casefold() == key
+    ]
+    if len(candidates) != 1:
+        raise AssetImportError(
+            "Selection inventory must identify exactly one source-layer "
+            f"candidate for {source_relative}."
+        )
+    record = candidates[0]
+    if record.get("source_layer") not in {
+        "zip-extracted", "iso9660-extracted", "disc-image-extracted"
+    }:
+        raise AssetImportError(
+            "Source report lists this asset but does not verify extracted bytes."
+        )
+    if record.get("sha256") != staged_sha256 or record.get("size") != staged_size:
+        raise AssetImportError(
+            "Staged asset bytes differ from the selected source report."
+        )
+    if PurePosixPath(source_relative).suffix.lower() == ".bin":
+        # Loose .bin UI data is possible, but its container identity must be
+        # distinguishable from a nested raw BIN disc image.
+        if record["source_layer"] == "zip-extracted":
+            entries = [
+                item for item in report.get("zip_files", [])
+                if isinstance(item.get("path"), str)
+                and normalize_member(item["path"]).casefold() == key
+            ]
+            if len(entries) != 1 or entries[0].get("is_disc_image") is not False:
+                raise AssetImportError(
+                    "Cannot establish that the loose .bin is UI data, not a disc image."
+                )
+    return report
 
 
 def _manifest_header_and_rows(text: str) -> tuple[list[str], list[str]]:
@@ -137,8 +207,12 @@ def import_original_asset(
     source_relative: str,
     repo_root: Path,
     notes: str,
+    inventory_report: Path | None = None,
 ) -> tuple[Path, str]:
-    normalized = validate_source_relative(source_relative)
+    normalized = validate_source_relative(
+        source_relative,
+        allow_verified_ui_bin=inventory_report is not None,
+    )
     staging_root = staging_root.resolve()
     source = (staging_root / Path(*PurePosixPath(normalized).parts)).resolve()
 
@@ -148,7 +222,22 @@ def import_original_asset(
         raise AssetImportError("Resolved source escapes the staging root.") from exc
 
     digest = validate_asset_bytes(normalized, source)
-    destination_rel = destination_relative(normalized)
+    if inventory_report is not None:
+        report = verify_selection_inventory(
+            inventory_report,
+            source_relative=normalized,
+            staged_sha256=digest,
+            staged_size=source.stat().st_size,
+        )
+        source_digest = report.get("source_sha256")
+        if isinstance(source_digest, str) and len(source_digest) == 64:
+            notes += f" Source archive SHA-256: {source_digest}."
+        else:
+            notes += " Hash-verified against selected source-inventory report."
+    destination_rel = destination_relative(
+        normalized,
+        allow_verified_ui_bin=inventory_report is not None,
+    )
     destination = (repo_root.resolve() / destination_rel).resolve()
     manifest = repo_root.resolve() / MANIFEST_RELATIVE
 
@@ -185,6 +274,15 @@ def main() -> int:
     parser.add_argument("source_relative")
     parser.add_argument("--repo-root", type=Path, default=Path(".."))
     parser.add_argument(
+        "--inventory-report",
+        type=Path,
+        help=(
+            "Verify staged bytes, source layer and complete exact-path "
+            "selection against the JSON extraction report; required for "
+            "opaque .bin UI assets and recommended for all imported originals."
+        ),
+    )
+    parser.add_argument(
         "--notes",
         default="Byte-identical authorized source asset imported for Gate 13.",
     )
@@ -195,6 +293,7 @@ def main() -> int:
         source_relative=args.source_relative,
         repo_root=args.repo_root,
         notes=args.notes,
+        inventory_report=args.inventory_report,
     )
     print(f"Imported {destination.as_posix()} SHA-256 {digest}")
     return 0
