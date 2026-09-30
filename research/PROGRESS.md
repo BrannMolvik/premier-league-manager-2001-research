@@ -8212,3 +8212,25 @@ keeping presentation separate from the stable simulation backend.
   returns CAAS `ClientError`, while the durable Library ZIP remains resolvable
   and materializable. Therefore real-disc byte inventory is still the exact
   external dependency; no source re-upload is required.
+
+
+## Gate 13 exact-only asset staging - 30 September 2026
+
+- The active source inventory still cannot run against the authorized ZIP because
+  both the container shell and Python kernels return CAAS `ClientError` even
+  for trivial control operations. GitHub source and CI remain available.
+- Corrected a discrepancy in the prior exact-path workflow: `--extract-path`
+  previously selected named files **in addition to** all heuristic candidates.
+  A new opt-in `--only-explicit` mode limits ISO/Joliet candidate reporting and
+  extraction to the selected paths while retaining the complete disc-file
+  catalog. It rejects empty path selections.
+- Added three regression tests for selection-only staging, rejection of an
+  empty selection, and preservation of the full catalog in the report.
+- Code/test commits: `943ba45d132ecd1aea242ec5c1f3bf6589b9bc50`
+  and `114336aceb5d0bc7a844dbd7c7d3b439ee84d50f`.
+  Documentation updated in `8e87401867b36230c5b194235f89f9c26b8dee4a`.
+- GitHub Actions run `36688232893`: **863 tests, 2 failures**, exactly the
+  same secondary root-order and bucket-count assertions. All three new
+  exact-only Gate 13 tests passed; repository asset policy passed.
+- Exact next task remains real source-disc byte inventory and evidence-driven
+  PStartMenu/TeamSelect asset selection, not another speculative UI design.
