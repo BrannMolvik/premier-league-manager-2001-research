@@ -140,6 +140,18 @@ class LeagueStateTests(unittest.TestCase):
             (10, 30, 20, 40),
         )
 
+    def test_standalone_synthetic_table_only_stub_keeps_original_legacy_api(self):
+        # Financial objective synthetic fixtures supply only .table(),
+        # rather than a source-derived PremierLeagueState.club_ids vector.
+        # The adapter must leave those existing tests and their ordering alone.
+        fake = SimpleNamespace(
+            premier_league=SimpleNamespace(table=lambda: ("fixture-only",)),
+            clubs={},
+        )
+        self.assertEqual(
+            GameState.premier_league_table(fake), ("fixture-only",)
+        )
+
     def test_original_short_name_byte_order_differs_from_unicode_order(self):
         league = PremierLeagueState((
             Fixture(0, 0, 10, 20),
