@@ -76,8 +76,10 @@ without committing the raw archive:
 python gate13_source_inventory.py <source.zip> --deep --hash-source --output gate13-source.json
 ```
 
-If the ZIP contains a nested disc image, deep mode uses 7-Zip (`7z`,
-`7zz`, or `7za`) to list the disc filesystem. Pass
+If the ZIP contains the historically observed raw MODE1/2352 BIN image, deep
+mode first validates and converts each 2352-byte sector to its 2048-byte Mode-1
+user-data payload in a temporary ISO file. It then uses 7-Zip (`7z`, `7zz`,
+or `7za`) to list the ISO9660/Joliet filesystem. Pass
 `--seven-zip <path>` when it is not on PATH. Use
 `--extract-candidates-to <staging-directory>` only for a deliberate staging
 extract; imported originals still require `original_assets/MANIFEST.md`

@@ -7,8 +7,13 @@ import zipfile
 
 from gate13_source_inventory import (
     EXPECTED_BGROUND_PATH,
+    ISO9660_SECTOR_BYTES,
+    MODE1_RAW_SECTOR_BYTES,
+    MODE1_SYNC,
     candidate_reason,
+    convert_mode1_2352_to_iso,
     inventory_zip,
+    is_mode1_2352_image,
     normalize_member,
     parse_7z_slt,
     report_for_source,
@@ -96,6 +101,56 @@ Packed Size = 99
                 "FMV/PREMINTRO.TGQ",
             ],
         )
+
+
+    @staticmethod
+    def _mode1_sector(payload: bytes, mode: int = 1) -> bytes:
+        if len(payload) != ISO9660_SECTOR_BYTES:
+            raise ValueError("payload must be exactly one ISO sector")
+        header = MODE1_SYNC + b"\x00\x02\x00" + bytes([mode])
+        tail = b"\x00" * (MODE1_RAW_SECTOR_BYTES - len(header) - len(payload))
+        return header + payload + tail
+
+    def test_mode1_2352_conversion_extracts_exact_2048_payloads(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            raw = root / "game.bin"
+            iso = root / "game.iso"
+            first = bytes((index % 251 for index in range(ISO9660_SECTOR_BYTES)))
+            second = bytes(((index + 17) % 251 for index in range(ISO9660_SECTOR_BYTES)))
+            raw.write_bytes(self._mode1_sector(first) + self._mode1_sector(second))
+
+            self.assertTrue(is_mode1_2352_image(raw))
+            sectors = convert_mode1_2352_to_iso(raw, iso)
+
+            self.assertEqual(sectors, 2)
+            self.assertEqual(iso.read_bytes(), first + second)
+
+    def test_mode1_2352_conversion_rejects_non_mode1_sector(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            raw = root / "game.bin"
+            iso = root / "game.iso"
+            payload = b"X" * ISO9660_SECTOR_BYTES
+            raw.write_bytes(
+                self._mode1_sector(payload)
+                + self._mode1_sector(payload, mode=2)
+            )
+
+            self.assertTrue(is_mode1_2352_image(raw))
+            with self.assertRaises(ValueError):
+                convert_mode1_2352_to_iso(raw, iso)
+
+    def test_mode1_detector_rejects_nonintegral_or_bad_sync_image(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            nonintegral = root / "short.bin"
+            nonintegral.write_bytes(b"not-a-sector")
+            self.assertFalse(is_mode1_2352_image(nonintegral))
+
+            bad_sync = root / "bad.bin"
+            bad_sync.write_bytes(b"\x00" * MODE1_RAW_SECTOR_BYTES)
+            self.assertFalse(is_mode1_2352_image(bad_sync))
 
 
 if __name__ == "__main__":

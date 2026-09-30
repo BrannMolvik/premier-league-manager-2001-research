@@ -114,7 +114,7 @@ pixel coordinates and non-authoritative for shipped asset bytes.
 
 ## Exact next task
 
-1. Reproduce the historically proven source-access path in
+1. Run the now-implemented historically proven source-access path in
    `reconstruction/gate13_source_inventory.py`: materialize the authorized
    archive, extract its raw MODE1/2352 disc image, convert it to temporary
    ISO9660, then inventory the disc filesystem. The current recovery container

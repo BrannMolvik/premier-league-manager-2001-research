@@ -8024,3 +8024,21 @@ keeping presentation separate from the stable simulation backend.
   MODE1/2352 sectors to temporary ISO9660, then inspect/extract the authorized
   files. The next source tooling should reproduce that proven conversion path
   rather than re-investigate the already-bounded front-end contract.
+
+
+## Gate 13 raw MODE1/2352 source conversion tooling - 30 September 2026
+
+- Historical project evidence repeatedly records that the authorized Library
+  archive contains a raw **MODE1/2352** disc image and that successful earlier
+  source recovery converted it transiently to ISO9660 before file extraction.
+- Extended `reconstruction/gate13_source_inventory.py` to reproduce that
+  exact representation boundary instead of assuming 7-Zip can read the raw
+  BIN directly.
+- The converter validates each 2352-byte Mode-1 sector's standard sync pattern
+  and mode byte, then writes only the 2048-byte user-data payload beginning at
+  offset 16. The raw source is never modified or committed.
+- Deep ZIP inventory now extracts nested disc-image members with Python's ZIP
+  reader, detects raw Mode-1 BIN images, converts them to a temporary ISO, and
+  then hands that ISO to the existing filesystem inventory path.
+- Added three focused conversion/detection tests in addition to the existing
+  Gate-13 source-inventory tests.

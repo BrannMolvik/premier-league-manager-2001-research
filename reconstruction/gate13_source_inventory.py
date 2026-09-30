@@ -72,6 +72,11 @@ DISC_IMAGE_SUFFIXES = {
     ".nrg",
 }
 
+MODE1_RAW_SECTOR_BYTES = 2352
+MODE1_USER_DATA_OFFSET = 16
+ISO9660_SECTOR_BYTES = 2048
+MODE1_SYNC = b"\x00" + (b"\xFF" * 10) + b"\x00"
+
 
 @dataclass(frozen=True)
 class AssetRecord:
@@ -130,6 +135,72 @@ def sha256_stream(stream: BinaryIO, chunk_size: int = 1024 * 1024) -> str:
 def sha256_file(path: Path) -> str:
     with path.open("rb") as handle:
         return sha256_stream(handle)
+
+
+def _validate_mode1_raw_sector(sector: bytes, sector_index: int) -> None:
+    if len(sector) != MODE1_RAW_SECTOR_BYTES:
+        raise ValueError(
+            f"MODE1/2352 sector {sector_index} has {len(sector)} bytes; "
+            f"expected {MODE1_RAW_SECTOR_BYTES}."
+        )
+    if sector[:12] != MODE1_SYNC:
+        raise ValueError(
+            f"MODE1/2352 sector {sector_index} has an invalid sync pattern."
+        )
+    if sector[15] != 1:
+        raise ValueError(
+            f"MODE1/2352 sector {sector_index} has mode {sector[15]}; expected 1."
+        )
+
+
+def is_mode1_2352_image(path: Path) -> bool:
+    if not path.is_file():
+        return False
+    size = path.stat().st_size
+    if size == 0 or size % MODE1_RAW_SECTOR_BYTES:
+        return False
+    with path.open("rb") as handle:
+        first = handle.read(MODE1_RAW_SECTOR_BYTES)
+    try:
+        _validate_mode1_raw_sector(first, 0)
+    except ValueError:
+        return False
+    return True
+
+
+def convert_mode1_2352_to_iso(raw_path: Path, iso_path: Path) -> int:
+    """Convert a raw Mode-1 2352-byte-sector data track to 2048-byte ISO sectors.
+
+    Historical FM2001 source recovery used this exact representation boundary:
+    the Library archive contained a raw MODE1/2352 disc image which was
+    converted transiently to ISO9660 before files were inspected. This helper
+    reproduces that container conversion without altering payload bytes.
+    """
+
+    raw_path = raw_path.resolve()
+    if not raw_path.is_file():
+        raise FileNotFoundError(raw_path)
+    size = raw_path.stat().st_size
+    if size == 0 or size % MODE1_RAW_SECTOR_BYTES:
+        raise ValueError(
+            f"{raw_path.name} is not an integral MODE1/2352 image: "
+            f"{size} bytes."
+        )
+
+    sector_count = size // MODE1_RAW_SECTOR_BYTES
+    iso_path.parent.mkdir(parents=True, exist_ok=True)
+    with raw_path.open("rb") as source, iso_path.open("wb") as target:
+        for sector_index in range(sector_count):
+            sector = source.read(MODE1_RAW_SECTOR_BYTES)
+            _validate_mode1_raw_sector(sector, sector_index)
+            target.write(
+                sector[
+                    MODE1_USER_DATA_OFFSET:
+                    MODE1_USER_DATA_OFFSET + ISO9660_SECTOR_BYTES
+                ]
+            )
+
+    return sector_count
 
 
 def _dimensions_from_prefix(prefix: bytes) -> tuple[int | None, int | None]:
@@ -290,6 +361,34 @@ def list_with_7z(container: Path, seven_zip: str) -> list[dict[str, str]]:
     return parse_7z_slt(process.stdout)
 
 
+def _extract_zip_member(
+    archive: Path,
+    member: str,
+    destination: Path,
+) -> Path:
+    normalized = normalize_member(member)
+    destination.mkdir(parents=True, exist_ok=True)
+    output = destination / Path(*PurePosixPath(normalized).parts)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(archive) as source:
+        try:
+            info = source.getinfo(member)
+        except KeyError:
+            matches = [
+                candidate
+                for candidate in source.infolist()
+                if normalize_member(candidate.filename) == normalized
+            ]
+            if len(matches) != 1:
+                raise FileNotFoundError(
+                    f"ZIP member was not found uniquely: {member}"
+                )
+            info = matches[0]
+        with source.open(info) as input_stream, output.open("wb") as output_stream:
+            shutil.copyfileobj(input_stream, output_stream)
+    return output
+
+
 def _extract_member(
     container: Path,
     member: str,
@@ -325,6 +424,21 @@ def _extract_member(
     raise FileNotFoundError(
         f"7-Zip reported success but extracted member was not found: {member}"
     )
+
+
+def _prepare_disc_image_for_listing(
+    image: Path,
+    temporary_directory: Path,
+) -> tuple[Path, str | None]:
+    if image.suffix.lower() == ".bin" and is_mode1_2352_image(image):
+        converted = temporary_directory / f"{image.stem}.mode1.iso"
+        sectors = convert_mode1_2352_to_iso(image, converted)
+        return (
+            converted,
+            f"Converted {image.name} from MODE1/2352 to temporary ISO9660 "
+            f"payload ({sectors} sectors).",
+        )
+    return image, None
 
 
 def inventory_disc_image(
@@ -391,19 +505,24 @@ def deep_inventory_zip(
     with tempfile.TemporaryDirectory(prefix="fm2001-gate13-") as temp_name:
         temp = Path(temp_name)
         for member in nested_images:
-            extracted_image = _extract_member(
+            extracted_image = _extract_zip_member(
                 archive,
                 member,
                 temp,
-                seven_zip,
             )
             try:
-                image_records, image_warnings = inventory_disc_image(
+                listing_image, conversion_note = _prepare_disc_image_for_listing(
                     extracted_image,
+                    temp,
+                )
+                if conversion_note is not None:
+                    warnings.append(conversion_note)
+                image_records, image_warnings = inventory_disc_image(
+                    listing_image,
                     seven_zip,
                     extract_candidates_to,
                 )
-            except RuntimeError as exc:
+            except (RuntimeError, ValueError) as exc:
                 warnings.append(str(exc))
                 continue
             records.extend(image_records)
@@ -456,11 +575,19 @@ def report_for_source(
                 "--seven-zip."
             ]
         else:
-            records, warnings = inventory_disc_image(
-                source,
-                command,
-                extract_candidates_to,
-            )
+            with tempfile.TemporaryDirectory(prefix="fm2001-gate13-disc-") as temp_name:
+                temp = Path(temp_name)
+                listing_image, conversion_note = _prepare_disc_image_for_listing(
+                    source,
+                    temp,
+                )
+                records, warnings = inventory_disc_image(
+                    listing_image,
+                    command,
+                    extract_candidates_to,
+                )
+                if conversion_note is not None:
+                    warnings.insert(0, conversion_note)
     else:
         raise ValueError(
             "Source must be an extracted directory, ZIP archive, or supported "
