@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: actual canonical Button@ease_2001 frame-state and original caption layout trace from the privately archived executable; execute the new checksum-gated PE inspection tool when shell becomes usable. Run ten-file exact original source staging, SHA validator and opt-in licensed-byte image/font/str tests, import provenance-backed originals, complete both screens and remaining Gate 13 presentation, then audit Gates 14–17 through verified Windows 11 release.",
-  "last_known_main_head": "88aac0270b84e78d7d9f054d82cc805840b4f475",
+  "active_task": "Actual source-critical Gate 13 remains native Button@ease_2001 frame state and Zurich caption trace using verified private original executable. The exact-source pixel export is merged; once byte execution recovers, stage the ten pinned resources, run opt-in original-byte tests and private pixel export, then finish first-screen fidelity and subsequent management UI, audit Gate 13 and continue Gates 14-17 to Windows 11 release. Meanwhile continue source-backed debug viewing/navigation work without inventing native state.",
+  "last_known_main_head": "dd78de898993b195c8dbd4cece8ef637a2a391cf",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 94,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered at cb70119 and merged PR #13 1edb4deb (source-hash-gated TeamSelect hierarchy source art; focused CI 36734520993, asset guard 36734520580) and PR #14 a427820 (canonical PE32 bounded original Button executable trace harness; CI 36735030753, guard 36735030926). Synced CURRENT_STATE, PROGRESS and project_status to main 88aac0270b84e78d7d9f054d82cc805840b4f475. This session's native container exec and alternate visible Python trivial commands returned ClientError, so actual original-executable state mapping and real licensed bytes remain unverified. Do not declare Gate 13 done; continuous mission through Gate 17 active.",
+  "note": "Current worker merged PRs #13-15: hierarchy art 1edb4de (CI 36734520993), bounded source trace tool a427820 (CI 36735030753), and lossless pixel preview addc1f2 (CI 36735502617), all with passing asset policy. CURRENT_STATE/PROGRESS/project_status synced at dd78de898993b195c8dbd4cece8ef637a2a391cf. A fresh trivial container.exec still raises ClientError, so no actual private original executable disassembly or source-pixel export has run. Keep recovery working, full mission incomplete.",
   "same_chat_fallback_minutes": 30
 }
