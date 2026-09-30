@@ -106,11 +106,17 @@ cannot currently inspect the materialized ZIP bytes. No visual asset has been
 guessed or substituted; `original_assets/MANIFEST.md` remains intentionally
 empty.
 
+Secondary visual evidence is now bounded in
+`research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
+TeamSelect compositions/labels while explicitly remaining non-canonical for
+pixel coordinates and non-authoritative for shipped asset bytes.
+
 ## Exact next task
 
 1. Regain byte-level access to the authorized archive/disc contents.
 2. Inventory the exact original graphics, strings, rectangles/layout data and
-   other resources required by PStartMenu and TeamSelect.
+   other resources required by PStartMenu and TeamSelect, using the bounded
+   secondary screenshots only as a visual cross-check.
 3. Identify source paths/hashes and import only the minimum intentional first
    slice under `original_assets/` with manifest provenance.
 4. Bind the already-verified presentation/navigation boundary to the recovered

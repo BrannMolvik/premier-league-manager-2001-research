@@ -7935,3 +7935,24 @@ keeping presentation separate from the stable simulation backend.
 - No original graphic/layout resource has yet been imported or replaced. The
   next fidelity task remains byte-level inventory of the authorized PStartMenu /
   TeamSelect source resources.
+
+
+## Gate 13 secondary visual-reference checkpoint - 30 September 2026
+
+- Located a public screenshot of the original PC PStartMenu showing the blue
+  technical-grid/wireframe presentation, central FOOTBALL MANAGER 2001 mark,
+  and visible `START NEW GAME`, `CONTINUE`, `LOAD GAME`, and
+  `QUIT TO WINDOWS` buttons.
+- Located the corresponding team-selection screenshot showing the blue
+  competition hierarchy, yellow selected row, Premier League identity panel,
+  `MAIN MENU`, `START GAME`, and original pointer-instruction callouts.
+- Cross-checked the visuals against the already-proven PStartMenu screen
+  `0x323`, New Game ID `2`, TeamSelect Back `0x29`, and
+  Start/Continue `0x2A`.
+- Recorded the screenshots only as secondary visual evidence in
+  `research/GATE13_VISUAL_REFERENCE.md`. They are not imported assets and
+  their 512x512 web representations are not treated as canonical coordinates.
+- Reconfirmed primary source-disc evidence for
+  `FM2001_Art/Generic/bground.444`: 800x600 and SHA-256
+  `9db0d71daf70d77b4f5f2307304bb8c5eac4ee3a07a85f2828b570fbbf3b7fb9`.
+- Exact shipped UI asset extraction remains the next dependency.
