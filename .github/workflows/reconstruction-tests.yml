@@ -1,8 +1,7 @@
 name: Reconstruction test suite
 
 # The full suite is intentionally manual for gate audits and release
-# verification. A PR may opt in by changing this workflow only;
-# do not charge each small reverse-engineering checkpoint.
+# verification. Do not charge each small reverse-engineering checkpoint.
 on:
   workflow_dispatch:
 
