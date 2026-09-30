@@ -46,7 +46,9 @@ secondary-schedule assertions:
 - secondary root-order assertion;
 - secondary bucket-count assertion (262 expected vs 280 recovered).
 
-All new Gate-13 navigation tests passed. GitHub repository asset policy passed.
+All new Gate-13 navigation and source-inventory tests passed. The latest full
+run contains **839 tests with the same 2 known failures**. GitHub repository
+asset policy passed.
 
 ## Gate 12 closure checkpoint
 

@@ -7977,3 +7977,14 @@ keeping presentation separate from the stable simulation backend.
 - The current ChatGPT execution container still cannot open the materialized
   511 MB source ZIP, so the tool has not yet been run against Daniel's
   authorized archive in this session.
+
+
+## Gate 13 source-inventory CI checkpoint - 30 September 2026
+
+- GitHub Actions verified `4067b9a05ebe35b585e70b682fbf9e958e1dce87`.
+- All six new `test_gate13_source_inventory` tests passed.
+- The full reconstruction suite ran **839 tests with 2 failures**, still exactly
+  the unchanged secondary root-order and secondary bucket-count assertions.
+- Repository asset policy passed.
+- The Gate-13 source-inventory utility is therefore verified independently of
+  the current source-ZIP mount limitation.
