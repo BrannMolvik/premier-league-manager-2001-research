@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: actual original Button@ease state-frame/Zurich caption trace and original ten-resource staging/audit when byte-execution access returns; while shell and Python both ClientError, implement synthetic-CI-tested canonical PE MSVC Button RTTI/vftable candidate locator grounded in previously original-executable documented class name, then direct original-byte RTTI/CFG trace at first restored access; finish Gate 13 audit, Gates14-17 and Windows11 release.",
-  "last_known_main_head": "a0b978fc53a0bff2e596105f36831f576a2ad12b",
+  "active_task": "Gate13 original-byte critical path: rematerialize already-retained private canonical 511121336-byte ZIP once byte execution works, run expanded private Button MSVC RTTI candidate trace, REQUIRE known-positive original TeamSelect type descriptor 0x81EC10 and vtable 0x7C7650 calibration, independently adjudicate true Button@ease virtual draw/update/input paths, state-bit-to-23-original-atlas-row mapping and Zurich render origin/color. Run exact ten-resource original disc SHA/pixel audit, provenance import and real Windows graphic smoke test; finish all original management screens, Gate13 audit then Gates14-17 and clean verified Windows11 release.",
+  "last_known_main_head": "2742797a4eaf7fea38c874c15e0798476071d396",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 97,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery generation 96 started at main 40660ee. Merged PR19 b488bf5 (source-order hierarchy art independent offcanvas inspector; focused CI 36742383607 and asset 36742383367 passed) and PR20 38b6f3a (prior firsthand 0x64F7A0 Button input and state-bit helper chain targeted in binary trace; focused CI 36742776548 and asset 36742776481 passed). CURRENT_STATE, PROGRESS, project_status reconciled through a0b978fc53a0bff2e596105f36831f576a2ad12b. The exact source ZIP remains confirmed in private Library (511121336 bytes); fresh shell probe STILL fails ClientError. No current native source executable disassembly, 10-source audit, Windows 11 graphical run or gate closure claimed. Keep continuous/working and carry complete mission through Gate17.",
+  "note": "Recovery generation 97 resumed at main a0b978f and merged PR21 6e2e675 (new canonical-PE32 MSVC Button RTTI/COL/CHD/vftable candidate scanner; focused Gate13 CI 36745808069 passed, asset 36745808627 passed) and PR22 9931c289 (same scanner calibrated against prior firsthand TeamSelect descriptor 0x81EC10 + class vtable 0x7C7650; focused run 36746061863 passed 191 synthetic tests, asset 36746061738 passed). One batched main technical checkpoint 2742797a4eaf7fea38c874c15e0798476071d396 reconciled CURRENT_STATE, PROGRESS, project_status. Shell, alternate Python, and fresh named root-workdir container shell probe ALL returned ClientError; private source archive separately listed in Library and retained intact. No real original executable RTTI scan, real source pixel audit, native Button animation/caption mapping or Windows11 release check. Historical secondary schedule full-suite failures (root ordering and 262 vs 280 bucket sum) remain explicit separate later fidelity gaps. Maintain full mission active.",
   "same_chat_fallback_minutes": 30
 }
