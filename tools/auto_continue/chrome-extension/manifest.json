@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "FM2001 ChatGPT Auto Continue",
-  "version": "0.3.3",
-  "description": "Prevents stale-heartbeat recovery from interrupting actively generating ChatGPT workers; keeps bounded recovery for real stalls and errors.",
+  "version": "0.3.4",
+  "description": "Recovers interrupted FM2001 sessions without truncating live work, preserving the all-17-gate project objective.",
   "permissions": [
     "storage",
     "tabs",
