@@ -297,7 +297,7 @@ Suggested screen order:
 
 Completion criteria:
 
-- [ ] Simulation logic remains separated from presentation code.
+- [x] Simulation logic remains separated from presentation code. See `research/GATE13_PRESENTATION_SEPARATION_AUDIT.md`.
 - [ ] Accessible original UI graphics/resources and recoverable screen/layout/navigation data are inventoried and reused or converted; replacements exist only for documented incompatible or inaccessible source material.
 - [ ] Main-menu/login presentation, screen structure, navigation, and timing closely follow the original.
 - [ ] Normal play feels recognizably like FM2001 rather than a generic replacement UI.
