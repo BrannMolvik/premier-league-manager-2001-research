@@ -254,6 +254,51 @@ Packed Size = 99
                 "explicit-path",
             )
 
+    def test_only_explicit_stages_no_other_heuristic_candidates(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            iso = root / "fixture.iso"
+            payload = build_joliet_iso(iso)
+            selected = root / "selected"
+            none = root / "none"
+
+            records, warnings = inventory_iso_image(
+                iso, selected,
+                {"FM2001_Art/Generic/bground.444"},
+                only_explicit=True,
+            )
+            self.assertEqual(warnings, [])
+            self.assertEqual([item.path for item in records],
+                             ["FM2001_Art/Generic/bground.444"])
+            self.assertEqual((selected / "FM2001_Art/Generic/bground.444").read_bytes(), payload)
+
+            records, _ = inventory_iso_image(
+                iso, none, {"Unrelated/unknown.dat"}, only_explicit=True
+            )
+            self.assertEqual(records, [])
+            self.assertFalse(none.exists())
+
+    def test_only_explicit_requires_a_nonempty_selection(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            iso = Path(temp_name) / "fixture.iso"
+            build_joliet_iso(iso)
+            with self.assertRaisesRegex(ValueError, "requires at least one"):
+                report_for_source(iso, only_explicit=True)
+
+    def test_only_explicit_report_retains_catalog_but_limits_candidates(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            iso = Path(temp_name) / "fixture.iso"
+            build_joliet_iso(iso)
+            report = report_for_source(
+                iso, explicit_paths={"Unrelated/unknown.dat"},
+                only_explicit=True,
+            )
+            self.assertEqual(report["disc_file_count"], 1)
+            self.assertEqual(report["candidates"], [])
+            self.assertTrue(report["only_explicit"])
+            self.assertTrue(any("Explicit disc path was not found" in x
+                                for x in report["warnings"]))
+
     def test_missing_explicit_disc_path_warns(self):
         with tempfile.TemporaryDirectory() as temp_name:
             root = Path(temp_name)
