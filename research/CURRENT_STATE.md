@@ -67,6 +67,25 @@ Verification on the PR head `96cf4c7fbf95cb86af261f4e0289104493db7b85`:
 This narrows Scouting interaction/sort fidelity but does not close Gate 13's
 resource, first-screen fidelity, or normal-play visual criteria.
 
+### Verified first-screen provenance readiness guard
+
+PR #36 was merged at `947fc7d26e6383a7da15113994baf858a44dd609`.
+The new fail-closed end-state audit requires all ten pinned first-screen source
+originals to be present at their canonical `original_assets/source/` paths,
+manifested as byte-identical originals with the independent source SHA-256, and
+still hashing to those same bytes.
+
+Focused Gate-13 run `36768095800` passed **226 tests with 19 expected
+original-source-gated skips and zero failures**. Repository asset-policy run
+`36768095889` passed. The immediately preceding full integration baseline
+remains run `36767384882`: **1,055 tests, 21 expected source-gated skips,
+zero failures**.
+
+The actual current repository is intentionally **not** declared first-screen
+provenance-ready: the private-byte execution blocker still prevents the strict
+physical ten-resource audit/import, and the manifest is therefore incomplete
+for this guard.
+
 ## Porting mission
 
 This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc

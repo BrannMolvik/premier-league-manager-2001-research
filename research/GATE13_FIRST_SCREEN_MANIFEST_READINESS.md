@@ -47,6 +47,22 @@ Unit tests use tiny synthetic bytes solely to prove pass/fail behavior. Hosted
 CI cannot turn those fixtures into evidence that the licensed originals were
 physically audited or imported.
 
+## Hosted verification
+
+PR #36 head `ec50eafb9bd323af3c301752dc739762b3c7bce5` was validated by:
+
+- focused Gate-13 run `36768095800`: **226 tests**, **19 expected
+  original-source-gated skips**, zero failures;
+- repository asset-policy run `36768095889`: passed.
+
+It was squash-merged to main as
+`947fc7d26e6383a7da15113994baf858a44dd609`.
+
+The previous full reconstruction integration baseline, run `36767384882`,
+remains green at **1,055 tests with 21 expected source-gated skips** and zero
+failures. This PR did not touch the fragile runtime paths configured to trigger
+that full suite.
+
 ## Completion use
 
 After private byte execution returns:

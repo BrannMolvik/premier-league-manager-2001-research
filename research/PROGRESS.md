@@ -9016,3 +9016,19 @@ invent original visual or control semantics.
   made.
 - Gate 13 remains ACTIVE; Gates 14-17 and the Windows 11 release audit remain
   mandatory.
+
+## Gate 13 first-screen manifest readiness guard verified - 1 October 2026 KST
+
+- Merged PR #36 as `947fc7d26e6383a7da15113994baf858a44dd609`.
+- Added `gate13_first_screen_manifest_readiness.py`, a fail-closed post-import
+  audit for all ten pinned PStartMenu/TeamSelect source originals.
+- The guard validates exact manifest source paths, canonical repository
+  destinations, `original` form, pinned source SHA-256 values and current
+  tracked-file hashes. Partial provenance cannot pass.
+- Focused Gate-13 run `36768095800` passed **226 tests with 19 expected
+  source-gated skips** and zero failures.
+- Repository asset-policy run `36768095889` passed.
+- Prior full reconstruction baseline remains `36767384882`: **1,055 tests,
+  21 expected source-gated skips, zero failures**.
+- The real manifest remains incomplete for the ten-file slice because direct
+  private byte execution is still blocked; no import completion is claimed.

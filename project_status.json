@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate13 FIRST: restore byte execution and run canonical TeamSelect RTTI canary -> Button draw/update state-to-23-frame mapping -> Zurich placement/color trace -> strict ten-resource original-source audit -> provenance import. While execution remains ClientError, continue only already-firsthand source-backed presentation contracts/audits without inventing UI. PScouting2K search/sort presentation contract is now merged and verified. Then complete all Gate13 screens/criteria, Gates14-17, and verified clean Windows11 release.",
+  "current_task": "Gate13 FIRST: restore private byte execution and run TeamSelect RTTI canary -> Button draw/update state-to-23-frame mapping -> Zurich placement/color trace -> strict ten-resource source audit -> provenance import -> first-screen manifest readiness CLI -> graphical first-screen smoke. While execution remains ClientError, continue only prior-firsthand source-backed presentation/navigation/readiness work. Then complete remaining Gate13 management screens and criteria, Gates14-17, and verified clean Windows11 release.",
   "last_verified_reconstruction_failures": 0,
   "last_verified_asset_policy_head": "70307af0549f6bacd4bc1951e3cdb6ef63df0c5b",
   "gate11_danger_morale_request_integrated": true,
@@ -481,7 +481,7 @@
   "gate13_first_screen_headless_presenter_integrated": true,
   "gate13_exact_source_selection_verified": true,
   "gate13_latest_verified_integration_main_head": "7fc92fedd6f660a878348a34a02055027b63c9cb",
-  "gate13_latest_focused_ci_run": 36767384902,
+  "gate13_latest_focused_ci_run": 36768095800,
   "gate13_latest_asset_policy_ci_run": 36755982172,
   "gate13_source_material_import_completed": false,
   "gate13_native_button_state_recovered": false,
@@ -539,10 +539,16 @@
   "gate13_presentation_separation_evidence": "research/GATE13_PRESENTATION_SEPARATION_AUDIT.md",
   "gate13_resource_coverage_audit": "research/GATE13_RESOURCE_COVERAGE_AUDIT.md",
   "gate13_resource_criterion_status": "open_first_screen_import_and_management_screen_resource_layout_navigation_incomplete",
-  "gate13_latest_focused_executed_tests": 219,
+  "gate13_latest_focused_executed_tests": 226,
   "gate13_latest_focused_skips": 19,
   "gate13_latest_focused_result": "passed",
   "gate13_scouting_presentation_contract_verified": true,
   "gate13_scouting_presentation_contract_evidence": "research/GATE13_SCOUTING_PRESENTATION_CONTRACT.md",
-  "gate13_scouting_presentation_contract_merge": "5a4224e651b4b4a7051eb3afe1e5f4b8d8aff44e"
+  "gate13_scouting_presentation_contract_merge": "5a4224e651b4b4a7051eb3afe1e5f4b8d8aff44e",
+  "gate13_first_screen_manifest_readiness_guard_verified": true,
+  "gate13_first_screen_manifest_readiness_guard_evidence": "research/GATE13_FIRST_SCREEN_MANIFEST_READINESS.md",
+  "gate13_first_screen_manifest_readiness_guard_merge": "947fc7d26e6383a7da15113994baf858a44dd609",
+  "gate13_first_screen_manifest_readiness_guard_current_state": "expected_incomplete_until_physical_ten_resource_import",
+  "gate13_latest_asset_policy_run": 36768095889,
+  "gate13_latest_asset_policy_result": "passed"
 }
