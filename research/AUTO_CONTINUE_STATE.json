@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 main 24f51f1 includes verified scouting, tactics/Team Orders, PTickets presentation contracts and first-screen provenance readiness guard. Private source ZIP is materialized but direct shell/Python byte execution has been ClientError. Retry source execution now; if still blocked, inspect PFinanceOverview/PTransfer2K and other already-firsthand panel identities for bounded contracts without inventing visuals. Resume Button/Zurich/ten-resource audit immediately when execution works. Gate13 then Gates14-17 and verified Windows11 release remain mandatory.",
-  "last_known_main_head": "24f51f112f72c0c2ef080ef25bbc01e11998ee25",
+  "active_task": "Gate13 main d0f4ac08 has verified scouting, tactics/Team Orders, PTickets, Finance Overview and Transfer presentation contracts plus first-screen provenance readiness guard. Retry canonical private-byte execution now; if available immediately resume TeamSelect RTTI canary -> Button draw/update state-to-23-frame mapping -> Zurich placement/color trace -> strict ten-resource audit/import/readiness. If still blocked, continue only already-firsthand source-backed management presentation contracts/audits for remaining screens without inventing visuals. Gate13 then Gates14-17 and verified Windows11 release remain mandatory.",
+  "last_known_main_head": "d0f4ac082abfbae2673384ffabdad2fd37cc8112",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 102,
-  "last_recovery_reason": "transient-connection-interrupted",
-  "note": "Recovery102 checkpoint after PR38 merge. Full run 36769405053 passed 1066 tests/21 expected skips/0 failures; focused 36769405085 passed 230/19 skips; asset policy 36769404960 passed.",
+  "recovery_generation": 103,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery after stale repository activity. Canonical main d0f4ac08 already includes Finance/Transfer presentation contracts; do not repeat them. Latest merged commit reports focused Gate13 232 tests/19 expected skips and full reconstruction 1068 tests/21 expected skips, zero failures.",
   "same_chat_fallback_minutes": 30
 }
