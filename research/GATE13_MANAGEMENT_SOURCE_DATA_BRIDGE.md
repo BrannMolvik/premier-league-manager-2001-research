@@ -205,6 +205,34 @@ Unicode ordering at this seam.
 See `research/GATE13_SOURCE_LEAGUE_COMPARATOR.md` for the comparator evidence
 and remaining native equal-key qsort boundary.
 
+## Temporary prototype integration boundary
+
+The existing Tk `reconstruction/app.py` remains a **development prototype**,
+not the Gate-13 fidelity target. Its Play tab previously read
+`controller.state` and `controller.human` directly for roster/table/tactics
+and pending-fixture display, which weakened the presentation/simulation seam
+even though the backend logic itself was already separated.
+
+The prototype now routes those presentation reads through
+`ManagementSourceDataBridge`:
+
+- controlled-club header/date;
+- roster rows and source-backed match-availability/current-position state;
+- league table;
+- persisted formation/tactics/selection;
+- pending fixture source names/date.
+
+Controller calls remain only for intended commands/actions such as selecting a
+club, setting lineup/tactics, advancing to a fixture, playing a match, and
+save/load orchestration. This does **not** make the Tk prototype an original
+FM2001 UI; it prevents that temporary surface from becoming an alternate
+simulation reader while the authentic resource-driven presentation is built.
+
+`test_app_presentation_boundary.py` rejects future direct Play-surface reads
+through `controller.state`, `controller.human`,
+`self.gameplay.state` or `self.gameplay.human`, and focused Gate13 CI also
+compiles the prototype after boundary changes.
+
 ## Architectural boundary
 
 The bridge never:
@@ -224,6 +252,11 @@ logic stay separated from presentation code.
 
 `reconstruction/test_gate13_management_source_data.py` uses a synthetic
 backend contract to lock:
+
+`reconstruction/test_app_presentation_boundary.py` separately locks the
+temporary Play UI behind this read seam so future prototype changes cannot
+silently reintroduce direct simulation-state reads.
+
 
 - controlled-club source names/date;
 - live source-roster ordering;
