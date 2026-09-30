@@ -152,6 +152,55 @@ class LeagueStateTests(unittest.TestCase):
             GameState.premier_league_table(fake), ("fixture-only",)
         )
 
+    def test_game_state_final_ranking_publication_consumes_original_name_bytes(self):
+        league = PremierLeagueState((
+            Fixture(0, 0, 10, 20),
+            Fixture(1, 0, 30, 40),
+        ))
+        state = SimpleNamespace(
+            premier_league=league,
+            cup_results=CupResultRegistry(),
+            clubs={
+                10: SimpleNamespace(short_name="À"),
+                20: SimpleNamespace(short_name="Beta"),
+                30: SimpleNamespace(short_name="Ÿ"),
+                40: SimpleNamespace(short_name="Gamma"),
+            },
+        )
+        GameState.record_premier_league_result(state, 0, 1, 0)
+        # Incomplete tables must never publish competition-position ranks.
+        self.assertEqual(state.cup_results.competition_rankings, {})
+        GameState.record_premier_league_result(state, 1, 1, 0)
+        # CP1252: Ÿ=0x9F sorts before À=0xC0, reversing their club IDs
+        # and the ordering Python would assign to the Unicode codepoints.
+        self.assertEqual(
+            state.cup_results.competition_rankings[(0, 0)],
+            (30, 10, 20, 40),
+        )
+
+    def test_ranking_publication_refuses_unknown_or_indistinguishable_source_names(self):
+        for source_name in (None, "🙂", "Zulu"):
+            with self.subTest(source_name=source_name):
+                league = PremierLeagueState((
+                    Fixture(0, 0, 10, 20),
+                    Fixture(1, 0, 30, 40),
+                ))
+                state = SimpleNamespace(
+                    premier_league=league,
+                    cup_results=CupResultRegistry(),
+                    clubs={
+                        10: SimpleNamespace(short_name="Zulu"),
+                        20: SimpleNamespace(short_name="Beta"),
+                        30: SimpleNamespace(short_name=source_name),
+                        40: SimpleNamespace(short_name="Gamma"),
+                    },
+                )
+                GameState.record_premier_league_result(state, 0, 1, 0)
+                GameState.record_premier_league_result(state, 1, 1, 0)
+                # No guessed order on genuine source-key equality or
+                # when canonical short-name bytes are unavailable.
+                self.assertEqual(state.cup_results.competition_rankings, {})
+
     def test_original_short_name_byte_order_differs_from_unicode_order(self):
         league = PremierLeagueState((
             Fixture(0, 0, 10, 20),
