@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "FM2001 ChatGPT Auto Continue",
-  "version": "0.3.2",
-  "description": "Recovers FM2001 work in-place after transient stalls/Retry states, with a timed background-chat fallback when same-chat recovery makes no progress.",
+  "version": "0.3.3",
+  "description": "Prevents stale-heartbeat recovery from interrupting actively generating ChatGPT workers; keeps bounded recovery for real stalls and errors.",
   "permissions": [
     "storage",
     "tabs",
