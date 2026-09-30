@@ -53,6 +53,32 @@ The first two little-endian unsigned words of extracted `.444` images decode as 
 - `choice_start_anim.444` **150 × 224**.
 - All sampled `.444` images share bytes `64 FF 00 FF` immediately following the dimensions; the compressed pixel stream still needs confirmed decoding, including transparency and frame/animation handling. Do not relabel image dimensions as UI coordinates.
 
+## Additional independently verified source facts
+
+The disc's root `footballmanager.exe` and `crack/footballmanager.exe`
+both independently hash to the prior canonical
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+They are byte-identical PE32 i386 binaries. The previously researched
+Loader444 and PStartMenu virtual addresses are therefore valid against the
+now-extracted original executable, rather than an unverified alternate build.
+
+A full **1,354-of-1,354 `.444` header census** found that every original
+image uses `64 FF 00 FF` at byte positions 4–7, after its little-endian
+width/height pair. These bytes resemble a color-key or transparency
+configuration, but the precise semantics are not yet proven; do not
+hardcode that interpretation in a replacement decoder. One tall animation
+atlas is 30×4,845 pixels; the renderer must not reject legitimate tall
+atlases as corrupted images. The two 20-byte
+`GenericButtonsAndBars/hscroll_end.444` and `vscroll_end.444`
+files use the *same 12-byte compressed payload* after the 8-byte header
+but have 1×18 and 18×1 dimensions respectively. This gives a useful
+layout-independent differential test for the eventual decoder.
+
+The original language resources are **fully structurally decoded**:
+see `research/GATE13_LANGUAGE_RESOURCES.md` for the independently verified
+English/EnglishEAM STR and IDX grammar, exact string counts and original
+first-nine menu-label mappings.
+
 ## Next verified Gate 13 work
 
 1. Persist a reproducible full catalog plus source checksum outside the volatile container if possible; the real-disc inventory result above is already durable here.
