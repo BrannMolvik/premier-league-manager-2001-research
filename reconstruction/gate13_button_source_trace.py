@@ -251,6 +251,11 @@ def main() -> int:
         help="Read bounded PStartMenu/TeamSelect class vtable pointer leads only"
     )
     parser.add_argument(
+        "--inspect-button-rtti-candidates", action="store_true",
+        help="Inspect bounded MSVC x86 Button@ease RTTI/COL/vftable leads; "
+             "all virtual slot roles remain unverified"
+    )
+    parser.add_argument(
         "--scan-direct-control-transfer-candidates", action="store_true",
         help="Also linearly scan .text for Capstone direct-branch leads to "
              "previously identified code addresses and candidate vtable slots"
@@ -259,6 +264,20 @@ def main() -> int:
     require_private_output_path(args.output)
     pe = OriginalPE32.parse(args.original_executable.read_bytes())
     report = button_trace_report(pe, with_disassembly=args.disassemble)
+    rtti_code_seeds = ()
+    if args.inspect_button_rtti_candidates:
+        from gate13_button_rtti_candidates import button_rtti_candidate_report
+        button_rtti = button_rtti_candidate_report(pe)
+        report["button_rtti_vftable_candidate_only"] = button_rtti
+        rtti_code_seeds = tuple(
+            (
+                f"UNVERIFIED {candidate['decorated_type_name']} RTTI "
+                f"candidate slot {slot['index_unconfirmed']}",
+                slot["target_va_unconfirmed"],
+            )
+            for candidate in button_rtti["candidates_not_validated_vtables"]
+            for slot in candidate["candidate_code_slots"]
+        )
     if (
         args.inspect_class_vtable_candidates
         or args.scan_direct_control_transfer_candidates
@@ -272,6 +291,7 @@ def main() -> int:
                 search_direct_branches=(
                     args.scan_direct_control_transfer_candidates
                 ),
+                additional_code_seeds=rtti_code_seeds,
             )
         )
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

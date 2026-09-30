@@ -166,6 +166,7 @@ def extended_button_candidate_report(
     code_seeds: tuple[tuple[str, int], ...] = SOURCE_CODE_SEEDS,
     entries_per_seed: int = 12,
     search_direct_branches: bool = False,
+    additional_code_seeds: tuple[tuple[str, int], ...] = (),
 ) -> dict:
     """Prepare one bounded private analysis aid with explicit evidentiary limits."""
     slots = screen_vtable_candidates(
@@ -204,6 +205,7 @@ def extended_button_candidate_report(
         result["linear_direct_branch_candidates"] = list(
             linear_direct_branch_candidates(
                 pe, targets=tuple(code_seeds) + tuple(plausible)
+                + tuple(additional_code_seeds)
             )
         )
     return result

@@ -62,6 +62,7 @@ on:
       - "reconstruction/test_front_end_state.py"
       - "reconstruction/test_gate13_*.py"
       - "reconstruction/gate13_button_vtable_xref_candidates.py"
+      - "reconstruction/gate13_button_rtti_candidates.py"
       - "reconstruction/gate13_original_source_audit.py"
       - "reconstruction/test_iso9660_reader.py"
   workflow_dispatch:
@@ -113,6 +114,7 @@ jobs:
             test_gate13_first_screen_selection \
             test_gate13_button_source_trace \
             test_gate13_button_vtable_xref_candidates \
+            test_gate13_button_rtti_candidates \
             test_gate13_original_source_audit \
             test_gate13_original_pixel_preview \
             test_gate13_original_first_screen_viewer \
