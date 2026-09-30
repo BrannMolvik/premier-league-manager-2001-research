@@ -14,7 +14,32 @@ python verify.py C:\Games\FM2001
 
 `RUN_PROTOTYPE.cmd` opens the current Tkinter prototype. Its **Play** tab is a minimum human-manager gameplay surface, not the final presentation layer.
 
-Gate 13 presentation work now starts in `front_end_state.py`, which isolates the recovered PStartMenu / TeamSelect navigation contract from simulation code. Rendering remains intentionally unimplemented there until the authorized original UI resources are inventoried and imported.
+Gate 13 presentation work starts in `front_end_state.py`, which isolates
+the recovered PStartMenu / TeamSelect navigation contract from simulation.
+`front_end_session.py` is the separate **application boundary** connecting
+those proven controls to the existing `HumanGameplayController` without
+putting simulation rules into the presentation module.
+
+The headless integration sequence is:
+
+```python
+from front_end_session import FrontEndSession
+from front_end_state import StartMenuControl, TeamSelectControl
+
+session = FrontEndSession.for_canonical_game_dir(game_dir)
+session.dispatch(StartMenuControl.NEW_GAME)  # event 2: load backend, enter TeamSelect
+session.choose_club(selected_club_id)         # presentation choice; no game mutation
+outcome = session.dispatch(TeamSelectControl.START_CONTINUE)  # event 0x2A
+# outcome.selected_manager is returned by the real backend.
+# outcome.transition.command instructs the future original-asset renderer to
+# hand off to the manager screen. No replacement screen has been designed.
+```
+
+TeamSelect Back (event `0x29`) returns to PStartMenu without synthesizing
+an unverified backend reset. The current backend is limited to Premier League
+teams; it does not yet implement the original multi-country selection UI.
+The original visual renderer remains deliberately unimplemented until the
+authorized graphics, labels and layout resources are inventoried and imported.
 
 ## Implemented modernized systems
 
