@@ -71,6 +71,21 @@ Automatic recovery is allowed only when all are true:
 No restart should occur while the state says `waiting_for_user`, `paused`, or
 `completed`.
 
+## CI and billing policy
+
+A GitHub `main` or `agent-runtime` commit remains a watchdog heartbeat and
+durable progress checkpoint. It does **not** need to start an Actions runner.
+CI is intentionally cost-controlled: focused Gate 13 checks are manually
+dispatched at meaningful milestones (or run on integration pull requests), the
+full reconstruction suite runs manually at gate audits, and unrelated
+watchdog/asset checks run on relevant pull requests or manual request.
+
+Never dispatch extra workflows merely as heartbeat signals. If GitHub Actions
+included minutes are exhausted, use available local tests and preserve the
+unverified CI boundary until another authorized verification opportunity.
+Preserve 10-minute checkpoint guidance only when there is useful evidence or
+a genuine unresolved investigation to save; avoid commit spam.
+
 ## What counts as a heartbeat
 
 The watchdog treats either of these as recent activity:
