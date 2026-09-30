@@ -8622,3 +8622,32 @@ keeping presentation separate from the stable simulation backend.
   rematerialization. Next source-bound research is exact Button@ease_2001
   frame-state/caption alignment; meanwhile useful TeamSelect bundle work
   does not require inventing native state transitions.
+
+
+## Gate 13 two-screen resource integration and exact original-file recovery plan - 30 September 2026
+
+- PR #10 merged as `96cafb5`: original TeamSelect background overlay,
+  23-frame original action atlas and 16 source-backed row origins now have
+  a dedicated hash-verified resource bundle. Focused run `36730496426`
+  and asset policy `36730496711` passed.
+- PR #11 merged as `fccb8c2`: new first-screen presenter binds the already
+  tested PStartMenu/TeamSelect source bundles to the existing session and
+  original rectangle click translator. Headless tests cover original
+  geometry/control resources and proven multi-screen navigation, but do not
+  assign unproven native button animation frames or hierarchy team IDs.
+  Focused run `36730750307` and policy `36730750418` passed.
+- PR #12 merged as `4220259`: selected only ten source-backed first-screen
+  original asset paths, pinned the prior first-hand source SHA-256s, and
+  implemented a fail-closed canonical source ZIP/inventory/staged-byte
+  validator. `research/GATE13_FIRST_SCREEN_RESOURCE_PLAN.md` contains exact
+  extraction, verification and intentional provenance-import commands.
+  Synthetic/report regressions passed focused run `36731158020` and
+  asset policy `36731158181`. No source files were silently imported.
+- The original 511,121,336-byte private ZIP was located again via Library
+  listing at its canonical recorded path/ID. Trivial local shell and Python
+  execution repeatedly produced `ClientError`, including a fresh shell
+  retry after these merges. This blocks new original executable disassembly
+  and licensed source-byte staging/real-pixel tests, not source availability
+  or the already verified GitHub changes. Runtime remains working for
+  normal recovery; exact next original addresses/commands are reconciled
+  in CURRENT_STATE.md.
