@@ -36,12 +36,12 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-9154b720373125172fe3e6cc8cfa8ae22b2c35b2
-Trigger focused Gate 13 CI on application bridge changes
+e66ae4eb39785cd0f5478921258250ecc9dd9a4e
+Prove deep Gate 13 inventory scans ZIP candidates only once
 ```
 
-Dedicated GitHub Actions Gate 13 run `36694601308` passed **47/47 focused
-tests**. Full reconstruction run `36694465472` ran **875 tests with 2 failures**,
+Dedicated GitHub Actions Gate 13 run `36697061364` passed **50/50 focused
+tests**. Full reconstruction run `36697061476` ran **878 tests with 2 failures**,
 exactly the two long-standing secondary-schedule assertions:
 
 - secondary root-order assertion;
@@ -180,6 +180,24 @@ still returned CAAS `ClientError`. No source asset contents were read and
 `original_assets/MANIFEST.md` remains unmodified. The catalog search plan
 now explicitly includes the verified background size and `--only-explicit`
 for intentional staging.
+
+Outer-ZIP Gate-13 inventory now supports explicit selection and extraction
+of **loose resources** alongside the already-supported nested ISO/Joliet
+selection. `--only-explicit` excludes unrelated heuristic candidates at both
+archive layers. The deep ZIP pass retains its nested-disc names from its
+first enumeration rather than re-reading and hashing loose files a second
+time. Synthetic mixed-ZIP regression tests verify that an explicitly selected
+loose UI file is staged, the nested ISO catalog remains intact, unrelated
+nested artwork is not staged, and the outer ZIP is inventoried exactly once.
+GitHub Actions run `36697061364` passed all 50 focused Gate-13 tests and
+the full suite `36697061476` reached 878 tests with only the two existing
+secondary-schedule failures. Repository asset policy passed.
+
+The original 511,121,336-byte private Library source was confirmed again
+and materialized successfully. However, even a trivial local container
+health/file-stat command still raises a general CAAS `ClientError`;
+therefore the actual 511 MB disc has **not** been byte-inventoried here.
+No real source asset has been imported or substituted.
 
 Secondary visual evidence is now bounded in
 `research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
