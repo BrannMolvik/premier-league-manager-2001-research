@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: source archive still materializes but execution runtime fails. Use verified full outer-ZIP + nested ISO/Joliet catalog and strict staging once byte access returns; identify genuine PStartMenu/TeamSelect layouts, images and strings, hash/provenance-import minimal first slice, connect to already-verified front_end_session headless integration.",
-  "last_known_main_head": "b3576268682429e59f4168eceb9b6f69739f5ebc",
+  "active_task": "Run the authorized original 511 MB archive through Gate 13 deep dual-layer source inventory in the recovered working container, select PStartMenu/TeamSelect assets based on real source evidence, and commit provenance-aware results and minimal confirmed import.",
+  "last_known_main_head": "a9bef0cf87f97ea7b800c8cc9186eff389829328",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 85,
-  "last_recovery_reason": "user-requested-continue",
-  "note": "Checkpoint in active session: main b357626... and code test baseline 19e599f; focused Gate13 61/61 passed run 36698353585; full suite 889 only known 2 failures run 36698353568; asset policy passed. Complete zip_files plus disc_files catalogs, provenance layer queries, collision-safe exact staging, content-based Mode1 .bin detection now tested. Source ZIP not yet byte-accessible because global CAAS shell/Python ClientError. Next is actual authorized archive inventory, not new placeholder art.",
+  "recovery_generation": 86,
+  "last_recovery_reason": "user-requested-transient-recovery",
+  "note": "Recovery verified actual source materialization and healthy container on 2026-09-30; follow current main and avoid repeating established synthetic inventory work.",
   "same_chat_fallback_minutes": 30
 }
