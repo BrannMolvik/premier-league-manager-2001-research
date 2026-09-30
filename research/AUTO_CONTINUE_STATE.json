@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 13,
   "active_task": "Gate 13 original management presentation: retry byte access to the successfully materialized durable Library source in a functional execution container, run the verified native ZIP -> MODE1/2352 -> ISO9660/Joliet inventory, record exact PStartMenu/TeamSelect resources, provenance-import the minimum slice, then bind it to the presentation-only navigation boundary.",
-  "last_known_main_head": "a07d23d7bb2014078bcc82ca5cf2c360b94a0aca",
+  "last_known_main_head": "9c108c5bf8a58d07bb5dc421304676f25f605a58",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 78,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate 13 source bytes remain blocked by CAAS ClientError despite successful Library materialization. To avoid stalling, main now adds complete ISO disc filesystem cataloging (608fadd) plus regression coverage (a07d23d) so the next real source run records every path/size/extent, not only heuristic candidates. CI is currently in progress for a07d23d.",
+  "note": "Gate 13 source tooling now CI-verifies full disc catalog plus exact --extract-path selection (854 tests; only the two known secondary-schedule failures). Durable Library ZIP continues to resolve/materialize. A control container command containing only printf also fails with CAAS ClientError, proving the remaining blocker is a general execution-container outage, not the 511 MB source file. Continue real-disc inventory immediately when container execution returns.",
   "same_chat_fallback_minutes": 30
 }
