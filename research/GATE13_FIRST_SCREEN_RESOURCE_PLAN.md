@@ -77,6 +77,40 @@ unit tests locally. Hosted synthetic CI does **not** prove the newly extracted
 licensed art pixels. Preserve the original menu/TeamSelect background RGBA
 hash regressions and inspect the resulting original images directly.
 
+## Private exact-pixel reference export once source staging succeeds
+
+The renderer inputs now have a lossless standard-library PNG export for
+comparing exact source pixels with the old game's screen references. This is
+**not** a reconstruction of the unrecovered native button frame selection,
+caption coordinates/colors, hierarchy row contents or original timing.
+
+After the canonical source archive passes the exact-path validator above,
+the complete 10-file staging root and separately verified canonical
+original executable can drive the preview (paths here are examples only):
+
+```text
+python reconstruction/gate13_original_pixel_preview.py --original-exe "<private-executable>" --original-art-root "<private-staging>/FM2001_Art" --original-language-root "<private-staging>" --original-font20 "<private-staging>/Fonts/Zurich_BdXCn_BT_20pixel.fnt" --output-dir "<new-private-folder-outside-Git>"
+```
+
+Both screen background images are composed from the exact decoded originals
+and retain pixelwise RGBA through lossless PNG encoding. Each 23-frame
+PStartMenu/TeamSelect action atlas is exported once in **unmapped source
+order**; available hierarchy animation/bar frames are also exported
+separately. Original Zurich menu glyph **alpha masks** are exported as
+uncolored PGM to avoid inventing native font color or placement. The
+accompanying JSON lists previously source-backed event rectangles, exact
+language IDX positions, original asset SHA identities and per-frame RGBA
+digests. Unresolved native interaction state and glyph appearance are null,
+not invented visual defaults.
+
+The exporter rejects output inside Git and refuses overwriting previous
+private diagnostics. Ordinary CI validates synthetic RGBA/PNG bit-preserving
+roundtrips; only opt-in tests with the canonical original assets can prove
+the actual first-screen background/image hashes. Review the exported
+original pixel previews alongside original gameplay references, then
+continue the executable Button@ease trace before promoting interactive
+screen fidelity.
+
 ## Open source-recovery boundary
 
 Native Button@ease_2001 23-frame state selection, Zurich caption
