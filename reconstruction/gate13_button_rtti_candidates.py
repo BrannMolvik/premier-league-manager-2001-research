@@ -214,6 +214,34 @@ def calibrate_against_known_rtti(
     }
 
 
+def require_known_positive_teamselect_calibration(report: dict) -> None:
+    """Refuse to publish class candidates if the known original anchor fails.
+
+    A parser that cannot find both previously FIRSTHAND-proven TeamSelect
+    addresses is not trustworthy for the still-unrecovered Button table.
+    This is an additional fail-closed gate, not independent proof that a
+    positive Button candidate is a real dynamic virtual table.
+    """
+    calibration = report.get("known_original_teamselect_rtti_calibration")
+    if (
+        not isinstance(calibration, dict)
+        or calibration.get("known_reference_decorated_name")
+        != KNOWN_TEAMSELECT_TYPE_NAME.decode("ascii")
+        or calibration.get("previously_proven_type_descriptor_va")
+        != KNOWN_TEAMSELECT_TYPE_DESCRIPTOR_VA
+        or calibration.get("previously_proven_vftable_va")
+        != KNOWN_TEAMSELECT_VFTABLE_VA
+        or calibration.get("expected_pair_recovered_by_same_pattern_decoder")
+        is not True
+    ):
+        raise OriginalPETraceError(
+            "Native MSVC RTTI discovery did not recover both canonical "
+            "TeamSelect reference addresses; inspect original RTTI and "
+            "decoder assumptions before accepting Button vftable leads"
+        )
+
+
+
 def button_rtti_candidate_report(
     pe: OriginalPE32, *,
     decorated_name: bytes = BUTTON_TYPE_NAME,
