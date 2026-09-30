@@ -6,6 +6,7 @@ import unittest
 from gate13_management_source_data import (
     ManagementPresentationError,
     ManagementSourceDataBridge,
+    SCOUTING_PRESENTATION_CONTRACT,
 )
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from contract_maintenance import ContractRenewalSuggestion, ContractRenewalSuggestionKind
@@ -704,6 +705,42 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         controller._squad[0].training_method_results = [0] * 6
         with self.assertRaisesRegex(ManagementPresentationError, "seven-method"):
             ManagementSourceDataBridge(controller).training_rows()
+
+    def test_scouting_presentation_contract_preserves_firsthand_native_identity(self):
+        contract = ManagementSourceDataBridge.scouting_presentation_contract()
+
+        self.assertIs(contract, SCOUTING_PRESENTATION_CONTRACT)
+        self.assertEqual(contract.panel_class_name, "PScouting2K")
+        self.assertEqual(contract.type_descriptor_va, 0x81C9C0)
+        self.assertEqual(contract.complete_object_locator_va, 0x7E3D20)
+        self.assertEqual(contract.vtable_va, 0x7C2E6C)
+        self.assertEqual(contract.event_handler_va, 0x4ADB50)
+        self.assertEqual(contract.search_event_code, 31)
+        self.assertEqual(contract.search_dispatch_va, 0x4AE0FB)
+        self.assertEqual(contract.search_build_va, 0x4AE970)
+        self.assertEqual(contract.reseed_va, 0x4AF7F0)
+        self.assertEqual(
+            contract.source_path,
+            r"D:\Projects\FM2001\Applications\FootballManager\MenuPan.cpp",
+        )
+        self.assertEqual(
+            [
+                (entry.mode, entry.semantic_key, entry.direction, entry.comparator_va)
+                for entry in contract.sort_modes
+            ],
+            [
+                (0, "player_name", "ascending", 0x4AF020),
+                (1, "age", "ascending", 0x4AF0B0),
+                (2, "history_average", "descending", 0x4AF200),
+                (3, "position_display_string", "descending", 0x4AF270),
+                (4, "club_display_name", "ascending", 0x4AF0F0),
+                (5, "monetary_value", "descending", 0x4AF190),
+            ],
+        )
+        for entry in contract.sort_modes:
+            self.assertFalse(hasattr(entry, "display_label"))
+            self.assertFalse(hasattr(entry, "control_id"))
+            self.assertFalse(hasattr(entry, "rectangle"))
 
     def test_scouting_search_delegates_to_mapped_backend_and_preserves_result_order(self):
         controller = FakeController()
