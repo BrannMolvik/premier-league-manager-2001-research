@@ -8690,3 +8690,20 @@ keeping presentation separate from the stable simulation backend.
   and alternate visible Python trivial commands returned `ClientError`.
   Native Button@ease frame-state and caption baseline remain the exact
   critical next source trace; the Gates 13–17 mission is not complete.
+
+
+## Gate 13 bounded canonical Button executable tracing preparation - 1 October 2026 (KST)
+
+- PR #14 merged `a42782047e6cfa673ef88f36773b37bf9be63e04`:
+  canonical SHA-verified PE32 i386 mapping of six previously sourced
+  button/menu/font code neighborhoods, deliberately unvalidated
+  raw-pointer candidate scanning, optional bounded linear disassembly,
+  and private-output guard. Synthetic PE tests and opt-in original-source
+  smoke tests were added; no copyrighted executable bytes or trace dump
+  were imported. Focused CI `36735030753` and asset policy
+  `36735030926` passed.
+- Exact execution instructions and manual CFG/vtable adjudication
+  procedure are in `research/GATE13_BUTTON_STATE_TRACE_PROCEDURE.md`.
+  The critical actual native state mapping and font placement were not
+  inferred from the scanner. Source access still awaits a usable
+  container/shell after reproducible trivial `ClientError` failures.
