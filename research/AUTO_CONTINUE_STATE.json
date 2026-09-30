@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 source-critical next task: reaccess canonical original executable from the confirmed private Library ZIP once shell/Python execution recovers; disassemble Button@ease_2001 0x652FD0/setup 0x5F4500/draw-hover-click and caption alignment, verify native 23-frame state mapping; run exact ten-asset source selection/firsthand opt-in tests/import, complete authentic first-screen and remaining Gate 13, then Gates 14-17 and verified Windows 11 release.",
+  "active_task": "Gate 13: original Button@ease_2001 frame-state/caption source trace and verified original ten-asset staging/import; shell still ClientError on trivial command in this recovery, so immediately pursue independently verifiable source-backed Gate 13 work through GitHub CI while testing alternate execution access. Do not promote headless tests to original-byte fidelity; full Gate 17 mission remains active.",
   "last_known_main_head": "cb70119caf8421703781e92766f77fd4805ff4c9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 93,
+  "recovery_generation": 94,
   "last_recovery_reason": "stale-repository-activity",
   "note": "This worker merged six source-backed Gate 13 PRs #7-#12 with passing focused and asset-policy CI, reconciled CURRENT_STATE/PROGRESS, and corrected stale project_status.json at 70f45a5. Main checkpoint cb70119caf8421703781e92766f77fd4805ff4c9. Original 511,121,336-byte ZIP confirmed by Files listing. Actual container.exec/python.exec still fail on trivial commands with ClientError; no new native disassembly, raw asset staging or real-byte opt-in run claimed. Continue automatic recovery; do not ask for reupload, do not claim Gate 13 closed, full mission through Gate 17 remains active.",
   "same_chat_fallback_minutes": 30
