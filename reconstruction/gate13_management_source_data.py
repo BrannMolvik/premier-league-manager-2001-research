@@ -252,6 +252,59 @@ class ScoutingResultView:
 
 
 @dataclass(frozen=True)
+class ScoutingSortPresentationContract:
+    mode: int
+    semantic_key: str
+    direction: str
+    comparator_va: int
+
+
+@dataclass(frozen=True)
+class ScoutingPresentationContract:
+    panel_class_name: str
+    type_descriptor_va: int
+    complete_object_locator_va: int
+    vtable_va: int
+    event_handler_va: int
+    search_event_code: int
+    search_dispatch_va: int
+    search_build_va: int
+    reseed_va: int
+    source_path: str
+    sort_modes: tuple[ScoutingSortPresentationContract, ...]
+
+
+# Firsthand canonical-executable evidence only. semantic_key values are neutral
+# reconstruction identifiers, NOT claims about original on-screen captions.
+SCOUTING_PRESENTATION_CONTRACT = ScoutingPresentationContract(
+    panel_class_name="PScouting2K",
+    type_descriptor_va=0x81C9C0,
+    complete_object_locator_va=0x7E3D20,
+    vtable_va=0x7C2E6C,
+    event_handler_va=0x4ADB50,
+    search_event_code=31,
+    search_dispatch_va=0x4AE0FB,
+    search_build_va=0x4AE970,
+    reseed_va=0x4AF7F0,
+    source_path=r"D:\Projects\FM2001\Applications\FootballManager\MenuPan.cpp",
+    sort_modes=(
+        ScoutingSortPresentationContract(0, "player_name", "ascending", 0x4AF020),
+        ScoutingSortPresentationContract(1, "age", "ascending", 0x4AF0B0),
+        ScoutingSortPresentationContract(
+            2, "history_average", "descending", 0x4AF200
+        ),
+        ScoutingSortPresentationContract(
+            3, "position_display_string", "descending", 0x4AF270
+        ),
+        ScoutingSortPresentationContract(
+            4, "club_display_name", "ascending", 0x4AF0F0
+        ),
+        ScoutingSortPresentationContract(5, "monetary_value", "descending", 0x4AF190),
+    ),
+)
+
+
+@dataclass(frozen=True)
 class ManagementSourceDataSnapshot:
     club: ClubHeaderView
     squad: tuple[SquadRowView, ...]
@@ -882,6 +935,16 @@ class ManagementSourceDataBridge:
                 method_results=tuple(results),
             ))
         return tuple(rows)
+
+    @staticmethod
+    def scouting_presentation_contract() -> ScoutingPresentationContract:
+        """Return only the source-proven PScouting2K interaction contract.
+
+        The semantic keys describe recovered comparator inputs for clean-room
+        code. They are deliberately not original UI captions, control IDs,
+        geometry, or artwork bindings.
+        """
+        return SCOUTING_PRESENTATION_CONTRACT
 
     def scouting_search_rows(
         self,

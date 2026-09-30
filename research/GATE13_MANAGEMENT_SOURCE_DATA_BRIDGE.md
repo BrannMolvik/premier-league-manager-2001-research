@@ -152,6 +152,28 @@ assign proprietary Training-screen graphics, coordinates, control IDs or any
 additional labels beyond semantics already independently recovered. Invalid
 array shapes fail closed.
 
+### Source-backed PScouting2K interaction contract
+
+Prior canonical-executable research already identifies the actual scouting panel
+class and a bounded interaction/sort contract. Gate 13 now exposes that evidence
+as immutable presentation metadata rather than leaving future screen code to
+rediscover or guess it:
+
+- class `PScouting2K`, TypeDescriptor `0x81C9C0`, COL
+  `0x7E3D20`, vtable `0x7C2E6C`;
+- event handler `0x4ADB50`;
+- event code **31** dispatches through `0x4AE0FB` into result-vector
+  construction at `0x4AE970`;
+- panel-state deterministic reseed `0x4AF7F0`;
+- exact result-sort comparator modes 0..5 and their native comparator entry
+  points.
+
+The contract uses neutral semantic keys such as `history_average` and
+`club_display_name` only to identify already recovered comparator inputs.
+They are **not** claimed original column captions. No screen ID, control ID,
+rectangle, artwork, color, font placement, click target, or navigation edge is
+invented. See `research/GATE13_SCOUTING_PRESENTATION_CONTRACT.md`.
+
 ### Scouting result projection
 
 The bridge delegates search execution to
