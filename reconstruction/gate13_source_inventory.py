@@ -834,6 +834,11 @@ def report_for_source(
         for record in records
         if record.candidate_reason == "explicit-path"
     }
+    unresolved_explicit = [
+        requested_path
+        for requested_key, requested_path in sorted(requested_paths.items())
+        if requested_key not in found_explicit
+    ]
     for requested_key, requested_path in sorted(requested_paths.items()):
         if requested_key not in found_explicit:
             warnings.append(
@@ -881,6 +886,7 @@ def report_for_source(
         },
         "nested_disc_images": nested_images,
         "explicit_paths": sorted(normalize_member(path) for path in (explicit_paths or set())),
+        "unresolved_explicit_paths": unresolved_explicit,
         "only_explicit": only_explicit,
         "disc_file_count": len(disc_files),
         "disc_files": [asdict(record) for record in disc_files],
@@ -927,6 +933,14 @@ def main() -> int:
         action="store_true",
         help="Only include/stage explicitly selected source paths; requires --extract-path or --extract-path-file.",
     )
+    parser.add_argument(
+        "--require-all-explicit",
+        action="store_true",
+        help=(
+            "Return failure after writing the JSON report if any requested "
+            "exact source path is unresolved; recommended for asset staging."
+        ),
+    )
     parser.add_argument("--hash-source", action="store_true")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
@@ -949,6 +963,13 @@ def main() -> int:
         args.output.write_text(rendered, encoding="utf-8")
     else:
         print(rendered, end="")
+    if args.require_all_explicit and report["unresolved_explicit_paths"]:
+        parser.exit(
+            2,
+            "Unresolved exact source paths: "
+            + ", ".join(report["unresolved_explicit_paths"])
+            + "\n",
+        )
     return 0
 
 
