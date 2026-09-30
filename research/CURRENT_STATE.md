@@ -36,11 +36,11 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-a07d23d7bb2014078bcc82ca5cf2c360b94a0aca
-Test full Gate 13 disc catalog
+657065478a9edf3ce930b1cd2e15e28b93baee28
+Test missing exact Gate 13 source path
 ```
 
-GitHub Actions ran **851 tests with 2 failures**, exactly the two long-standing
+GitHub Actions ran **854 tests with 2 failures**, exactly the two long-standing
 secondary-schedule assertions:
 
 - secondary root-order assertion;
@@ -113,14 +113,15 @@ infrastructure blocker. No visual asset has been guessed or substituted;
 `original_assets/MANIFEST.md` remains intentionally empty.
 
 Repository-native ISO9660/Joliet inventory is implemented and CI-verified.
-After raw MODE1/2352 conversion, Gate-13 filesystem enumeration and candidate
-extraction no longer require 7-Zip. The report now also records the complete
-disc file catalog (path, byte size, and ISO extent), not only heuristic
-presentation candidates, so opaque layout/string resources can be discovered
-from the real source without guessing names. GitHub Actions run
-`36683075430` verified the catalog checkpoint at
-`a07d23d7bb2014078bcc82ca5cf2c360b94a0aca`; the full suite remains at only
-the two known secondary-schedule failures.
+After raw MODE1/2352 conversion, Gate-13 filesystem enumeration and extraction
+no longer require 7-Zip for the documented source path. Reports contain the
+complete disc file catalog (path, byte size, ISO extent) plus the smaller
+presentation shortlist. Opaque resources discovered from that catalog can be
+selected with repeatable exact `--extract-path` arguments and staged without
+dumping unrelated disc contents; missing requested paths fail loud via report
+warnings. GitHub Actions run `36683324250` verified this workflow at
+`657065478a9edf3ce930b1cd2e15e28b93baee28`: 854 tests, with only the two
+known secondary-schedule failures.
 
 Secondary visual evidence is now bounded in
 `research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
@@ -136,7 +137,8 @@ pixel coordinates and non-authoritative for shipped asset bytes.
    ZIP. The tool now performs ZIP -> raw MODE1/2352 -> temporary ISO9660/Joliet
    inventory using the repository-native reader, without requiring 7-Zip for
    this documented source path, and emits the complete disc file catalog plus
-   targeted Gate-13 candidates.
+   targeted Gate-13 candidates. Use `--extract-path <exact-disc-path>` with
+   `--extract-candidates-to` for deliberately selected opaque resources.
 2. Inventory the exact original graphics, strings, rectangles/layout data and
    other resources required by PStartMenu and TeamSelect, using the bounded
    secondary screenshots only as a visual cross-check.
