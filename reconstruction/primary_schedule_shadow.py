@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import Callable, Iterable
 
+from competition_schedule import club_refs_conflict
 from competition_startup import CupClubRefDescriptor
 from competition_state import season_weekday_date
 
@@ -165,19 +166,72 @@ class PrimaryScheduleShadowState:
             )
         return cls(days=days)
 
+    @staticmethod
+    def _dynamic_node_conflicts_entry(node, entry: PrimaryScheduleShadowEntry) -> bool:
+        return any(
+            club_refs_conflict(existing_ref, candidate_ref)
+            for existing_ref in entry.refs
+            for candidate_ref in (
+                node.participant_0_ref,
+                node.participant_1_ref,
+            )
+        )
+
+    def first_dynamic_conflict_near(
+        self,
+        node,
+        center_date: date,
+    ) -> date | None:
+        """Reproduce the 0x615890 three-day probe for a runtime-created match."""
+
+        center_date = date.fromisoformat(center_date.isoformat())
+        for on_date in (
+            center_date - timedelta(days=1),
+            center_date,
+            center_date + timedelta(days=1),
+        ):
+            for entry in self.days.get(on_date, ()):
+                if self._dynamic_node_conflicts_entry(node, entry):
+                    return on_date
+        return None
+
+    def choose_dynamic_insertion_date(
+        self,
+        node,
+        *,
+        requested_date: date,
+        current_date: date,
+    ) -> date:
+        """Reproduce runtime ScheduleContainer::insert at 0x615A60.
+
+        0x615A60 clamps the requested relative day to at least current+1,
+        probes candidate-1/candidate/candidate+1 through 0x615890, and when
+        a conflicting match is found resumes from conflict+2. The accepted
+        node is then head-inserted into that already-shuffled day bucket.
+        """
+
+        candidate = max(
+            date.fromisoformat(requested_date.isoformat()),
+            date.fromisoformat(current_date.isoformat()) + timedelta(days=1),
+        )
+        while True:
+            conflict = self.first_dynamic_conflict_near(node, candidate)
+            if conflict is None:
+                return candidate
+            candidate = conflict + timedelta(days=2)
+
     def insert_dynamic_node(
         self,
         node,
         *,
         on_date: date,
     ) -> PrimaryScheduleShadowEntry:
-        """Insert a runtime-created match into the live primary shadow.
+        """Head-insert a runtime-created match into one live primary day.
 
-        FA Cup Replay objects are inserted after startup. Their participants
-        are already direct resolved clubs, so no fixed-point propagation is
-        required. The shadow only answers next-match-date reachability; its
-        tuple position is not evidence for the still-unclosed 0x615A60
-        execution-order insertion used by the primary scheduler.
+        Runtime 0x615A60 writes the new match's next pointer to the prior bucket
+        head and then stores the new match as the head. choose_dynamic_insertion_date()
+        owns the preceding conflict displacement; this method applies only the
+        final linked-list insertion order.
         """
         def candidates(ref: CupClubRefDescriptor) -> frozenset[int]:
             if ref.direct_club_id is None:
