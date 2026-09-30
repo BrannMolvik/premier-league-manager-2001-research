@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 original management presentation: inventory authorized original main-menu / TeamSelect graphics, strings, layout/navigation/timing resources and implement the first recognizably original presentation slice while keeping simulation logic separate.",
-  "last_known_main_head": "980318b86228f12e286f6896e6ca835dc7ec2d29",
+  "active_task": "Gate 13 original management presentation: regain byte-level source access, inventory exact PStartMenu / TeamSelect original resources, import the minimum provenance-tracked slice, and bind it to the verified presentation-only navigation boundary.",
+  "last_known_main_head": "97d09f29e63fcacf0e1a630cf835c4f454a8c5b3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 75,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovered from stale same-chat session at main 980318b86228f12e286f6896e6ca835dc7ec2d29. Continue Gate 13 main-menu / TeamSelect original-resource inventory; do not redo completed Gate 12 work.",
+  "note": "Gate 13 front-end navigation boundary is committed and CI-verified at main 97d09f29e63fcacf0e1a630cf835c4f454a8c5b3. 833 tests ran with only the two known secondary-schedule failures; asset policy passed. Next dependency is byte-level inventory of authorized PStartMenu / TeamSelect resources.",
   "same_chat_fallback_minutes": 30
 }
