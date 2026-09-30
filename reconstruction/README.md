@@ -12,7 +12,9 @@ Verify the shipped files before canonical integration work:
 python verify.py C:\Games\FM2001
 ```
 
-`RUN_PROTOTYPE.cmd` opens the current Tkinter prototype. Its **Play** tab is now a minimum human-manager gameplay surface, not just a data browser.
+`RUN_PROTOTYPE.cmd` opens the current Tkinter prototype. Its **Play** tab is a minimum human-manager gameplay surface, not the final presentation layer.
+
+Gate 13 presentation work now starts in `front_end_state.py`, which isolates the recovered PStartMenu / TeamSelect navigation contract from simulation code. Rendering remains intentionally unimplemented there until the authorized original UI resources are inventoried and imported.
 
 ## Implemented modernized systems
 
@@ -49,7 +51,7 @@ The final Gate-9 reconstruction checkpoint contains **486 passing tests**. Gate-
 
 ## Current development boundary
 
-The minimum human gameplay loop, internal resumable save/load, and Gate-9 transfer/contract runtime are complete. The active roadmap gate is **Gate 10: finances and board systems**, beginning with live Balance/current-cash state and transfer debit/credit integration.
+Gates 1 through 12 are complete. The active roadmap gate is **Gate 13: restore original management presentation**, beginning with the original PStartMenu / TeamSelect flow while preserving the stable simulation backend.
 
 Known remaining fidelity boundaries include:
 
