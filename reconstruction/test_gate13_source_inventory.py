@@ -253,6 +253,25 @@ Packed Size = 99
                 "explicit-path",
             )
 
+    def test_missing_explicit_disc_path_warns(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            iso = root / "fixture.iso"
+            build_joliet_iso(iso)
+
+            report = report_for_source(
+                iso,
+                explicit_paths={"FM2001_Art/Unknown/layout.bin"},
+            )
+
+            self.assertTrue(
+                any(
+                    "Explicit disc path was not found: FM2001_Art/Unknown/layout.bin"
+                    in warning
+                    for warning in report["warnings"]
+                )
+            )
+
     def test_mode1_detector_rejects_nonintegral_or_bad_sync_image(self):
         with tempfile.TemporaryDirectory() as temp_name:
             root = Path(temp_name)
