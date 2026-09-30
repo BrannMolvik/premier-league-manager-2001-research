@@ -61,6 +61,31 @@ If an unrelated but useful lead appears:
 
 Do not begin a new subsystem merely because its code or executable path is interesting.
 
+## Cost-controlled validation
+
+GitHub commit checkpoints and GitHub Actions runs are separate. Preserve useful
+recoverable research/code checkpoints roughly every ten minutes during active
+investigations, but do not dispatch Actions for each small commit.
+
+- Run relevant quick tests locally whenever execution tools are available.
+- For direct main-branch work, request the focused workflow
+  `.github/workflows/gate13-tests.yml` manually at a verified Gate 13
+  integration milestone rather than after each commit.
+- Request the complete `.github/workflows/reconstruction-tests.yml` manually
+  at gate-completion audits, when a relevant regression warrants it, and before
+  releases. Do not invoke the known-failing full suite repeatedly merely to
+  reproduce the same two established secondary-schedule failures.
+- Pull requests validate impacted focused workflows and applicable asset
+  policy, with concurrent superseded runs cancelled.
+- If monthly GitHub Actions billing limits block CI, run available local tests,
+  record the exact unverified boundary, and defer cloud CI rather than consume
+  paid Actions minutes without explicit authorization.
+- Do not reduce technical-quality gates or label an unexecuted test as passed.
+  Record the last *verified* test commit and workflow run in `CURRENT_STATE.md`.
+
+Don't make empty or artificial commits to create heartbeats; checkpoint
+real evidence and leave clear continuation state.
+
 ## Persistence requirement
 
 Do not keep important discoveries only in conversational reasoning.

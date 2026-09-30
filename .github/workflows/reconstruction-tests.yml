@@ -1,15 +1,13 @@
 name: Reconstruction test suite
 
+# The full suite is intentionally manual for gate audits and release
+# verification. Do not charge each small reverse-engineering checkpoint.
 on:
-  push:
-    paths:
-      - ".github/workflows/reconstruction-tests.yml"
-      - "reconstruction/**"
-  pull_request:
-    paths:
-      - ".github/workflows/reconstruction-tests.yml"
-      - "reconstruction/**"
   workflow_dispatch:
+
+concurrency:
+  group: reconstruction-suite-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -19,8 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Run reconstruction tests
