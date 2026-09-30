@@ -8450,3 +8450,40 @@ keeping presentation separate from the stable simulation backend.
   search plan with the virtual-reader workflow and strict staging requirement.
 - Next required Gate-13 dependency remains first-hand original-source
   discovery and evidence-backed PStartMenu/TeamSelect visual asset import.
+
+
+## Gate 13 verified source-to-original asset provenance - 30 September 2026
+
+- Closed a previously unguarded source-provenance transition:
+  `gate13_asset_import.py --inventory-report <selected-report.json>` now
+  accepts exactly one hashed extracted candidate with matching normalized
+  path, staged byte size and SHA-256. It rejects ambiguous/colliding
+  candidates, inventory listings without extracted bytes, tampered staged
+  data, and any selected report with unresolved exact paths. Where
+  `--hash-source` recorded the original outer archive's SHA-256, the
+  importer retains that digest in manifest provenance notes.
+- Earlier format work established that some legitimate UI data may have
+  opaque `.bin` filenames. The importer now permits these **only when**
+  a selected-source receipt proves the expected data is not a nested raw
+  BIN disc-image container. The default source-relative validator still
+  rejects `.bin` imports without this proof, and other raw containers
+  stay forbidden.
+- Integrated synthetic end-to-end regression covers
+  `ZIP -> exact-only source inventory -> selected JSON report ->
+  hash-verified opaque UI .bin import -> original_assets manifest`.
+  No actual copyrighted resource was committed.
+- Commits: importer `532959f2bec8e2fda31bc11d52753715ef42b016`,
+  provenance/fail-closed tests `3de9ea3163e125106e74b79ae787290efc3826b7`,
+  end-to-end source receipt regression
+  `1cf7af7ebccba34c6f414d1c3df2f82fb2346686`.
+  Updated both the reconstruction README and Gate-13 catalog plan for
+  `--inventory-report` and `--hash-source`.
+- CI: focused Gate-13 run `36699473176`: **71/71 passed**;
+  full reconstruction run `36699473326`: **899 tests, only the same
+  two established secondary-schedule failures**;
+  repository asset policy `36699473263`: passed.
+- The private original ZIP continues to list/materialize at the
+  expected 511,121,336-byte size; global CAAS shell and Python execution
+  health checks still fail. The authentic UI resource catalog, byte
+  inspection and minimal visual import are therefore **not yet done**.
+  This must remain the first step in the next workable execution context.
