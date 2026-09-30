@@ -33,6 +33,46 @@ for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
 
+## Latest source-backed Gate 13 hierarchy inspection and recovered Button path
+
+- PR #19, squash `b488bf5380b5ef65bc833832b0a8e97acbeb5690`,
+  extends the private Tk first-screen developer preview with **two
+  independently cyclable, unmodified original TeamSelect hierarchy source
+  strips**. Their RGBA8 PNGs appear in the diagnostic sidebar ONLY; no
+  speculative screen positions, text labels, animation states or click-to-club
+  semantics are drawn on the 800×600 native canvas. Exact source art paths
+  and per-frame dimensions were established in prior executable/source
+  research. Focused synthetic CI `36742383607` and asset-policy
+  `36742383367` passed; an earlier focused attempt caught and repaired
+  one mocked-Tk empty-image assertion before the final verified merge.
+- Reexamining the **prior first-hand canonical executable research** in
+  `research/EXECUTABLE_ANALYSIS.md` revealed a directly documented
+  `Button@ease_2001` input and state-control chain that the newer
+  native source-trace helper had not yet captured:
+  input `0x64F7A0`, setup `0x64F380/0x64F3C0`, state-bit
+  toggle `0x64F3E0`, forwarders `0x64F510/0x64F520`,
+  state helpers `0x64F710/0x64F750`, TeamSelect owner
+  predicate `0x5CFA50` and event handler `0x4DA480`.
+  Earlier source research already proves TeamSelect Start embedded
+  `Button@ease` has event ID `0x2A` at offset `+0x20`,
+  owner pointer `+0x24`, and an absent optional callback at
+  `+0x28`; it **does not** prove animation atlas rows or font
+  alignment. Do not misread "state bit 1" as "atlas frame 1."
+- PR #20, squash `38b6f3a65ed567fd2f33846d6bace7669b62c90c`,
+  binds these already verified code anchors into the canonical-SHA
+  executable-trace windows and optional direct-call candidate search.
+  Its source provenance, click/owner graph, and exact follow-up tracing
+  question are consolidated in
+  `research/GATE13_BUTTON_STATE_TRACE_PROCEDURE.md`.
+  Focused regression run `36742776548` and asset policy
+  `36742776481` both passed.
+- No fresh original executable static bytes or licensed original
+  source-pixel audit is claimed in this recovery; another direct
+  `container.exec` shell probe again failed `ClientError`.
+  The original archive remains confirmed in private Library.
+  This source-execution blocker must not be mistaken for a need to
+  redesign or for permission to promote Gate 13 prematurely.
+
 ## Most recent Gate 13 verified native-trace preparation and firsthand-audit boundary
 
 - PR #17, squash commit `4f98316c2be65e0e42925006dbfa045d410483f6`,
@@ -472,14 +512,18 @@ recovers. Other source-backed GitHub development and focused CI succeeded.
    Do not ask Daniel to re-upload an archive already preserved in Library.
 2. Execute the PRIVATE expanded original Button trace documented in
    `research/GATE13_BUTTON_STATE_TRACE_PROCEDURE.md` against the actual
-   verified original executable. Start with `0x652FD0`, `0x5F4500`,
-   `0x4C1BA0`/`0x4C3770`, `0x4D885F..0x4D8921` and font handle
-   `0x9197E0`. Adjudicate proposed direct edges, actual shared Button
-   vtable and inherited virtual dispatch through native x86 CFG/RTTI
-   evidence. Recover **actual** idle/hover/down/up/disabled atlas-row
-   selection and Zurich glyph origin, pair spacing, baseline, colors and
-   clipping. A class-vtable pointer or raw direct-call match alone is NOT
-   a verified native state transition or font measurement.
+   verified original executable. Prioritize already source-confirmed
+   `Button@ease_2001` input `0x64F7A0`, state bits
+   `0x64F3E0/0x64F710/0x64F750`, source atlas init
+   `0x5F4500`, shared setup `0x652FD0`, screen control
+   constructors `0x4C1BA0` and `0x4D885F`, and TeamSelect
+   owner event `0x4DA480`. Trace the **actual native draw/update
+   data-flow from control state bits to numbered 23-frame original
+   atlas rows**, including idle/hover/down/up/disabled. Independently
+   recover Zurich glyph origin, pair spacing, baseline, colors and
+   clipping from the font renderer reached by the true draw path.
+   A previously proven "state bit 1", raw class-vtable pointer or
+   candidate CALL is NOT proof of atlas-frame 1 or native text placement.
 3. Run the precise private ten-asset extraction and fail-closed source
    receipt validator in `research/GATE13_FIRST_SCREEN_RESOURCE_PLAN.md`.
    Then execute the newly added `reconstruction/gate13_original_source_audit.py`
