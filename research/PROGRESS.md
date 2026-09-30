@@ -8817,3 +8817,37 @@ keeping presentation separate from the stable simulation backend.
   ten-asset source-byte/pixel audit, deliberate provenance import,
   completed original management presentation, Gate 13 audit and
   Gates 14-17 through a real Windows 11 release.
+
+ 
+## Gate 13: calibrated original Button RTTI/vftable inspection - 1 October 2026 KST
+
+- Recovery started at main `a0b978fc53a0bff2e596105f36831f576a2ad12b`;
+  canonical `CURRENT_STATE.md`, `CONTINUATION_INSTRUCTIONS.md`,
+  `AUTO_CONTINUE.md`, current runtime and Gate13–17 roadmap checked.
+- Reattempted basic `container.exec` and `python.exec`: both still
+  returned `ClientError`. No new private original executable bytes
+  or original-disc verification happened.
+- PR #21 merged as `6e2e67564486d9578f109106f28bb22f05a7049c`:
+  adds a bounded source-grounded 32-bit MSVC class RTTI→COL→CHD→
+  vftable candidate locator for the previously established original
+  `Button@ease_2001` class. Its unconfirmed code pointer slots
+  can augment existing optional near-direct-edge searches, but
+  NOTHING equates these leads to original virtual draw/update
+  methods or native state-to-frame mapping. Hosted focused CI
+  `36745808069` and asset-policy `36745808627` both passed.
+- PR #22 merged as `9931c289cce45e957a5b1dd178f06acae01576b7`:
+  grounds this new parser against an independently known original
+  TeamSelect decorated TypeDescriptor `0x81EC10` and class
+  vftable `0x7C7650`. Its private opt-in test requires the
+  exact known-positive source reference to be recovered before
+  accepting any extrapolation to the unknown Button class table;
+  hosted synthetic tests verify positive and tamper/wrong-address
+  rejection. Focused `36746061863` passed 191 tests with
+  source-gated tests skipped as expected; asset policy
+  `36746061738` passed.
+- Actual canonical-original RTTI calibration and source-byte scan
+  remain UNEXECUTED due to tool infrastructure. Do not infer that
+  passing hosted synthetic CI establishes any native Button
+  frame-index or Zurich text-placement fact.
+- Full mission remains Gate13→Gate17, with a genuinely tested
+  clean Windows11 install required for completion.

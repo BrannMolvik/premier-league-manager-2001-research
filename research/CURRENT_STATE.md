@@ -33,6 +33,43 @@ for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
 
+## Latest Gate 13 source-grounded Button RTTI work and limits
+
+- PR #21, squash `6e2e67564486d9578f109106f28bb22f05a7049c`,
+  adds a tightly bounded **MSVC 32-bit RTTI class-vftable candidate
+  locator** for the pre-existing firsthand `Button@ease_2001` type.
+  From the exact canonical executable PE sections it tests the decorated
+  class string, possible TypeDescriptor, COL, CHD and vftable[-1] pointer
+  chain, preserving separate multiple-inheritance subobject candidates.
+  It expands the private binary trace CLI; optional direct-call scanning
+  can also target candidate vftable code-pointer slots. These remain
+  UNVERIFIED byte-pattern leads, not recovered Button virtual methods
+  or 23-frame animation states. Gate13 focused CI `36745808069`
+  and asset-policy check `36745808627` both passed.
+- PR #22, squash `9931c289cce45e957a5b1dd178f06acae01576b7`,
+  calibrates the same RTTI parser against the ALREADY firsthand-proven
+  exact TeamSelect MSVC TypeDescriptor `0x81EC10` and class vftable
+  `0x7C7650`. Its real-original opt-in test now REQUIRES that
+  known-positive calibration before trusting new candidate output.
+  Synthetic positive, incorrect-address and tampered-hierarchy
+  regressions passed alongside the full Gate13 focused
+  `36746061863` (191 tests, hosted synthetic; optional tests
+  skip without licensed original bytes); asset policy
+  `36746061738` passed. See
+  `research/GATE13_BUTTON_STATE_TRACE_PROCEDURE.md`.
+- The shell and alternate Python execution mechanisms in this worker
+  both failed `ClientError` even for trivial commands. Consequently
+  NO actual original executable RTTI scan, real disc ten-asset staging,
+  opt-in original-pixel proof, native hover/pressed frame mapping,
+  Zurich caption coordinates/color, Windows 11 UI smoke test, or
+  Gate13 closure is claimed here. The original 511MB ZIP remains
+  preserved in the private Library and verified in previous recoveries.
+  The **next source-critical action** is to run the expanded private
+  original-executable scanner and validate TeamSelect's known-positive
+  RTTI calibration; then MANUALLY corroborate actual Button draw/update
+  slots and frame-state data-flow. Complete genuine source-byte
+  asset verification and management screens before the Gate13 audit.
+
 ## Latest source-backed Gate 13 hierarchy inspection and recovered Button path
 
 - PR #19, squash `b488bf5380b5ef65bc833832b0a8e97acbeb5690`,
