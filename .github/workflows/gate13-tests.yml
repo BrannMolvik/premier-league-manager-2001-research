@@ -134,5 +134,6 @@ jobs:
             test_gate13_presentation_separation \
             test_original_hierarchy_debug_inspector \
             test_gate13_catalog_query \
+            test_gate13_management_catalog_audit \
             test_gate13_source_inventory \
             test_iso9660_reader
