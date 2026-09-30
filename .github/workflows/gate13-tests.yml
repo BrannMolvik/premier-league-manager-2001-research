@@ -5,6 +5,8 @@ on:
     paths:
       - ".github/workflows/gate13-tests.yml"
       - "reconstruction/front_end_state.py"
+      - "reconstruction/front_end_session.py"
+      - "reconstruction/test_front_end_session.py"
       - "reconstruction/gate13_*.py"
       - "reconstruction/iso9660_reader.py"
       - "reconstruction/test_front_end_state.py"
@@ -14,6 +16,8 @@ on:
     paths:
       - ".github/workflows/gate13-tests.yml"
       - "reconstruction/front_end_state.py"
+      - "reconstruction/front_end_session.py"
+      - "reconstruction/test_front_end_session.py"
       - "reconstruction/gate13_*.py"
       - "reconstruction/iso9660_reader.py"
       - "reconstruction/test_front_end_state.py"
