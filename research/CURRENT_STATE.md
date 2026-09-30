@@ -36,12 +36,12 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-19e599f34c3330a5d258902d5311649f62271ecb
-Test content-based raw BIN disc detection without excluding UI binary resources
+bf49cb5130acf450c5a578c6af9a8387332ff6f0
+Correct Python hex escape literals in raw MODE1 virtual reader
 ```
 
-Dedicated GitHub Actions Gate 13 run `36698353585` passed **61/61 focused
-tests**. Full reconstruction run `36698353568` ran **889 tests with 2 failures**,
+Dedicated GitHub Actions Gate 13 run `36698841038` passed **66/66 focused
+tests**. Full reconstruction run `36698840900` ran **894 tests with 2 failures**,
 exactly the two long-standing secondary-schedule assertions:
 
 - secondary root-order assertion;
@@ -139,7 +139,7 @@ known secondary-schedule failures. A saved full-disc report can be queried
 offline with `gate13_catalog_query.py` by substring, suffix, top-level
 directory, or regex. Query results can be emitted as a reusable path-list file
 and fed back to `gate13_source_inventory.py --extract-path-file --only-explicit`, avoiding
-repeated 511 MB conversion while narrowing and staging opaque
+repeated source-archive scanning while narrowing and staging opaque
 PStartMenu/TeamSelect leads.
 
 Exact-path staging now supports `--only-explicit`, which deliberately
@@ -217,6 +217,25 @@ The global container and both Python execution environments still returned
 CAAS `ClientError` on trivial health commands. The actual source-disc
 catalog and visual resources remain the first unfulfilled Gate-13 dependency.
 
+The raw-disc source path has been further simplified: it now validates
+**every physical MODE1/2352 sector** and uses a read-only virtual
+ISO9660/Joliet reader directly over the original raw track. The previous
+full-size temporary ISO conversion is no longer required; the standalone
+conversion helper is retained as a manual verification route. Synthetic
+fixtures prove direct Joliet listing/extraction, cross-sector reads, corrupt
+file-sector refusal, and full-track validation even when corruption lies
+outside the inspected file tree.
+
+The staging CLI now emits typed `unresolved_explicit_paths` alongside warning
+messages. `--require-all-explicit` preserves its audit report but exits with
+failure if a requested file is absent, avoiding acceptance of a partially
+staged original screen. Focused run `36698841038` passed **66 tests** and
+full run `36698840900` ran **894 tests**, with exactly the two unrelated
+known secondary-schedule failures. Asset-policy run `36698841075` passed.
+The private original source was listed/materialized again at **511,121,336
+bytes**, but basic execution-container commands still fail with CAAS
+`ClientError`. No real graphics have been extracted or imported.
+
 Secondary visual evidence is now bounded in
 `research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
 TeamSelect compositions/labels while explicitly remaining non-canonical for
@@ -228,9 +247,9 @@ pixel coordinates and non-authoritative for shipped asset bytes.
    locator in `research/ORIGINAL_SOURCE_LOCATOR.md`. Materialization has
    already been proven to succeed; do not ask for a re-upload. Run
    `reconstruction/gate13_source_inventory.py --deep` against the recovered
-   ZIP. The tool now performs ZIP -> raw MODE1/2352 -> temporary ISO9660/Joliet
-   inventory using the repository-native reader, without requiring 7-Zip for
-   this documented source path, and emits the complete disc file catalog plus
+   ZIP. The tool now performs ZIP -> raw MODE1/2352 sector validation ->
+   virtual ISO9660/Joliet inventory using the repository-native reader,
+   without a second full-size ISO copy or requiring 7-Zip, and emits the complete disc file catalog plus
    targeted Gate-13 candidates. Use `--extract-path <exact-disc-path>` with
    `--extract-candidates-to` for deliberately selected opaque resources.
 2. Once the real full-disc report exists, follow
