@@ -3463,8 +3463,16 @@ class GameState:
         if self.premier_league is None:
             return ()
 
+        # Financial-objective and other lightweight synthetic tests use a
+        # minimal table-providing stand-in, not a PremierLeagueState with a
+        # source club vector. Do not force source presentation semantics on
+        # fixtures that do not even have identifiable original club records.
+        club_ids = getattr(self.premier_league, "club_ids", None)
+        if club_ids is None:
+            return self.premier_league.table()
+
         names: dict[int, bytes] = {}
-        for club_id in self.premier_league.club_ids:
+        for club_id in club_ids:
             club = self.clubs.get(int(club_id))
             short_name = getattr(club, "short_name", None)
             if not isinstance(short_name, str):
