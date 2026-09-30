@@ -5,7 +5,10 @@ from datetime import date
 
 from competition_state import PremierLeagueState
 from game_state import GameState
-from human_gameplay import HumanGameplayController
+from human_gameplay import (
+    HumanGameplayController,
+    _annual_cup_child_procedural_ids,
+)
 from match_schedule import MsvcCrtRng
 
 
@@ -117,6 +120,21 @@ class AnnualControllerRegenerationTests(unittest.TestCase):
         )
         return controller, old
 
+    def test_annual_cup_child_procedural_ids_follow_parent_relationships(self):
+        competitions = (
+            Competition(id=9, runtime_kind_code=2),
+            Competition(id=14, parent_competition_id=9),
+            Competition(id=167, parent_competition_id=9),
+            Competition(id=101, runtime_kind_code=2),
+            Competition(id=192, parent_competition_id=101),
+            Competition(id=500, parent_competition_id=400),
+        )
+
+        self.assertEqual(
+            _annual_cup_child_procedural_ids(competitions, (9, 101)),
+            (14, 167, 192),
+        )
+
     def test_success_commits_state_and_controller_rng_together(self):
         controller, old = self.build_controller()
         rng_before = controller.match_rng.state
@@ -162,8 +180,8 @@ class AnnualControllerRegenerationTests(unittest.TestCase):
         )
         self.assertIn(77, installed_ids)
         self.assertIn(88, installed_ids)
-        self.assertIn(14, installed_ids)
-        self.assertIn(167, installed_ids)
+        self.assertNotIn(14, installed_ids)
+        self.assertNotIn(167, installed_ids)
         self.assertEqual(len(installed_ids), len(set(installed_ids)))
 
     def test_failed_preview_consumes_neither_state_nor_controller_rng(self):
