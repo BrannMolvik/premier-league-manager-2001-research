@@ -8,7 +8,10 @@ import unittest
 from ea444_tables import CANONICAL_EXE_SHA256
 from gate13_button_source_trace import OriginalPE32, OriginalPETraceError
 from gate13_button_rtti_candidates import (
-    BUTTON_TYPE_NAME, button_rtti_candidate_report, discover_msvc_button_vftables,
+    BUTTON_TYPE_NAME, KNOWN_TEAMSELECT_TYPE_NAME,
+    KNOWN_TEAMSELECT_TYPE_DESCRIPTOR_VA, KNOWN_TEAMSELECT_VFTABLE_VA,
+    button_rtti_candidate_report, calibrate_against_known_rtti,
+    discover_msvc_button_vftables,
 )
 
 
@@ -82,6 +85,55 @@ class MSVCRTTILeadTests(unittest.TestCase):
         self.assertNotIn("verified_vftables", report)
         self.assertEqual(len(discover_msvc_button_vftables(pe, max_slots=1)[0].candidate_code_slots), 1)
 
+    def test_same_rtti_parser_recovers_independently_pinned_reference_class(self):
+        self.assertEqual(KNOWN_TEAMSELECT_TYPE_NAME, b".?AVPMain@TeamSelect@@")
+        self.assertEqual(KNOWN_TEAMSELECT_TYPE_DESCRIPTOR_VA, 0x81EC10)
+        self.assertEqual(KNOWN_TEAMSELECT_VFTABLE_VA, 0x7C7650)
+        # A separate known-reference chain coexists with synthetic Button;
+        # miniature fixture VAs are test-only, never original executable VA.
+        data = make_pe()
+        name = KNOWN_TEAMSELECT_TYPE_NAME + b"\x00"
+        data[0x348:0x348 + len(name)] = name
+        struct.pack_into("<IIIII", data, 0x3A0,
+                         0, 0, 0, 0x402040, 0x4020C0)
+        struct.pack_into("<III", data, 0x420,
+                         0x4020A0, 0x401040, 0)
+        pe = as_pe(data)
+        synthetic_calibration = calibrate_against_known_rtti(
+            pe,
+            expected_type_descriptor_va=0x402040,
+            expected_vftable_va=0x402124,
+        )
+        self.assertTrue(
+            synthetic_calibration["expected_pair_recovered_by_same_pattern_decoder"]
+        )
+        self.assertEqual(synthetic_calibration["candidate_count"], 1)
+        report = button_rtti_candidate_report(pe)
+        self.assertEqual(report["candidate_count"], 1)
+        self.assertFalse(
+            report["known_original_teamselect_rtti_calibration"]
+                  ["expected_pair_recovered_by_same_pattern_decoder"]
+        )
+        wrong_descriptor = calibrate_against_known_rtti(
+            pe, expected_type_descriptor_va=0x402080,
+            expected_vftable_va=0x402124,
+        )
+        wrong_vftable = calibrate_against_known_rtti(
+            pe, expected_type_descriptor_va=0x402040,
+            expected_vftable_va=0x402104,
+        )
+        self.assertFalse(wrong_descriptor["expected_pair_recovered_by_same_pattern_decoder"])
+        self.assertFalse(wrong_vftable["expected_pair_recovered_by_same_pattern_decoder"])
+        # Tampering the known-positive CHD prevents a false calibration.
+        struct.pack_into("<I", data, 0x3C8, 0)
+        self.assertFalse(
+            calibrate_against_known_rtti(
+                as_pe(data),
+                expected_type_descriptor_va=0x402040,
+                expected_vftable_va=0x402124,
+            )["expected_pair_recovered_by_same_pattern_decoder"]
+        )
+
     def test_rejects_broken_name_locator_hierarchy_vftable_and_alignment(self):
         for label, offset, value in (
             ("wrong class literal", 0x31B, b"z"),
@@ -136,6 +188,16 @@ class MSVCRTTILeadTests(unittest.TestCase):
         report = button_rtti_candidate_report(pe)
         self.assertEqual(report["source_sha256"], CANONICAL_EXE_SHA256)
         self.assertIn("manual", report["evidence_limit"].lower())
+        calibration = report["known_original_teamselect_rtti_calibration"]
+        self.assertEqual(calibration["previously_proven_type_descriptor_va"],
+                         KNOWN_TEAMSELECT_TYPE_DESCRIPTOR_VA)
+        self.assertEqual(calibration["previously_proven_vftable_va"],
+                         KNOWN_TEAMSELECT_VFTABLE_VA)
+        # This must genuinely recover the previously proven original
+        # reference pair before any new Button candidate is promoted.
+        self.assertTrue(
+            calibration["expected_pair_recovered_by_same_pattern_decoder"]
+        )
         for candidate in report["candidates_not_validated_vtables"]:
             self.assertTrue(candidate["candidate_code_slots"])
             self.assertIn("candidate", candidate["classification"])
