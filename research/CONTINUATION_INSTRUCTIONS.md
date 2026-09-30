@@ -17,6 +17,7 @@ Use these files for different purposes:
 5. `research/PROGRESS.md` - chronological historical log, including old status statements that may have been superseded.
 6. `research/BACKLOG.md` - useful work deliberately deferred.
 7. `research/FIDELITY_GAPS.md` - known observable deviations/fallbacks.
+8. `research/ORIGINAL_SOURCE_LOCATOR.md` - durable private-source locator and mandatory recovery procedure for the authorized original FM2001 archive/disc image.
 
 When an old milestone in `PROGRESS.md` conflicts with `CURRENT_STATE.md`, treat the old milestone as historical unless later evidence re-establishes it.
 
@@ -31,7 +32,8 @@ Before doing new work:
 5. Inspect commits newer than the technical baseline recorded in `CURRENT_STATE.md`.
 6. Read only the relevant `FINDINGS.md`, topic-specific research, and historical `PROGRESS.md` sections needed for the active task.
 7. Check the relevant test/CI state before claiming that current code passes.
-8. State the active gate and exact next task, then continue from there.
+8. If the active task needs `FOOTBAL.EXE`, canonical game files, disc-image evidence, or another original binary resource, read `research/ORIGINAL_SOURCE_LOCATOR.md` and attempt its private Library recovery procedure before reporting that source material is unavailable.
+9. State the active gate and exact next task, then continue from there.
 
 Do **not** read the entire multi-thousand-line `PROGRESS.md` as a prerequisite unless a task genuinely requires the full chronology.
 
@@ -99,6 +101,19 @@ The project owner has confirmed authorization to reuse the contents of the suppl
 Original FM2001 resources and recovered original behavior are the default source of truth. If an original asset, layout, string, audio/video resource, data value, timing/navigation rule, or behavior is accessible, use it directly or through the minimum compatibility/conversion/wrapper layer required for Windows 11. Do not substitute or redesign original material merely for convenience, implementation speed, aesthetics, or modernization preference. Replacement is allowed only when the original is technically incompatible after reasonable adaptation or genuinely inaccessible/unrecoverable; document that boundary in the appropriate research/fidelity file. Intentionally imported source assets belong under `original_assets/` and should be provenance-tracked according to `research/ASSET_POLICY.md`.
 
 Do not commit raw full-disc images, duplicate archive copies, temporary extraction dumps, reverse-engineering databases, or cache/build noise. The repository asset-policy CI check enforces placement/hygiene rules; it is not a ban on authorized original resources.
+
+### Durable original-source recovery
+
+The authorized original disc-image archive has a durable private locator in `research/ORIGINAL_SOURCE_LOCATOR.md`. A missing temporary extraction, expired sandbox, lost local shortcut, new worker, or new chat is not evidence that the original source is unavailable.
+
+Before any worker pauses for or asks the user to re-upload `FOOTBAL.EXE` or the original FM2001 source archive:
+
+1. read `research/ORIGINAL_SOURCE_LOCATOR.md`;
+2. if ChatGPT Files/Library access is available, resolve and materialize the exact Library source recorded there;
+3. recover the required canonical files into the current temporary workspace using the repository's source-access tooling;
+4. only declare an external source blocker if that documented recovery route was attempted and failed, or if the current execution environment genuinely has no access to the recorded private source.
+
+Never guess source behavior merely to avoid performing this recovery step.
 
 ## Gate completion procedure
 
