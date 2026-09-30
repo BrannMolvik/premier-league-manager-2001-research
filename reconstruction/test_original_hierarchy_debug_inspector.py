@@ -5,6 +5,8 @@ Canonical original license-gated bundle decoding is tested separately and
 must never be conflated with this synthetic GUI exercise.
 """
 from hashlib import sha256
+from pathlib import Path
+import tempfile
 from types import SimpleNamespace
 import unittest
 
@@ -77,7 +79,10 @@ class HierarchyPrivateDebugTests(unittest.TestCase):
             (bundle.animation, bytes((44, 55, 66, 88)), HIERARCHY_ANIM_SPEC),
             (bundle.bars, bytes((103, 104, 105, 200)), HIERARCHY_BARS_SPEC),
         ):
-            width, height, rgba = read_png_rgba(source.source_frame_png)
+            with tempfile.TemporaryDirectory() as temp:
+                png_file = Path(temp) / "diagnostic.png"
+                png_file.write_bytes(source.source_frame_png)
+                width, height, rgba = read_png_rgba(png_file)
             expected = pixels * (spec.frame_width * spec.frame_height)
             self.assertEqual((width, height), (spec.frame_width, spec.frame_height))
             self.assertEqual(rgba, expected)
