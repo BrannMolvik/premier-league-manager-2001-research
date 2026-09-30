@@ -322,12 +322,14 @@ class DomesticCupScheduleState:
             node for node in nodes
             if int(node.round_number) == final_round
         )
-        if len(finals) != 1:
+        decisive = tuple(
+            (node, registry.outcomes.get(tuple(node.node_token)))
+            for node in finals
+            if registry.outcomes.get(tuple(node.node_token)) is not None
+        )
+        if len(decisive) != 1:
             return None
-        final = finals[0]
-        outcome = registry.outcomes.get(tuple(final.node_token))
-        if outcome is None:
-            return None
+        _final, outcome = decisive[0]
         return (
             int(outcome.winner_club_id),
             int(outcome.loser_club_id),

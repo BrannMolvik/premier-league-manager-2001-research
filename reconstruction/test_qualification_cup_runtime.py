@@ -87,6 +87,50 @@ class QualificationCupRuntimeTests(unittest.TestCase):
             _schedule_label="qualification Cup",
         )
 
+    def test_two_leg_final_uses_only_decisive_second_leg_outcome(self):
+        first = StartupScheduleNode(
+            node_kind="first_leg_match",
+            competition_id=19,
+            competition_context=0,
+            round_id=777,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=40,
+            scheduled_weekday=3,
+            participant_0_ref=direct_club_ref(10),
+            participant_1_ref=direct_club_ref(20),
+            node_token=("cup_first_leg", 19, 777, 0),
+            round_number=6,
+        )
+        second = StartupScheduleNode(
+            node_kind="second_leg_match",
+            competition_id=19,
+            competition_context=0,
+            round_id=777,
+            pair_index=0,
+            schedule_index=None,
+            scheduled_week=42,
+            scheduled_weekday=3,
+            participant_0_ref=direct_club_ref(20),
+            participant_1_ref=direct_club_ref(10),
+            node_token=("cup_result", 19, 777, 0),
+            round_number=6,
+        )
+        schedule = DomesticCupScheduleState.from_startup_nodes(
+            (first, second),
+            season_year=2000,
+            competition_ids=ANNUAL_QUALIFICATION_CUP_IDS,
+        )
+        registry = CupResultRegistry()
+        registry.record_knockout_outcome(
+            tuple(second.node_token),
+            20,
+            10,
+            20,
+        )
+
+        self.assertEqual(schedule.competition_final_pair(19, registry), (20, 10))
+
     def test_final_pair_uses_shared_winner_loser_semantics(self):
         final = cup_node(19, round_number=2)
         schedule = DomesticCupScheduleState.from_startup_nodes(
