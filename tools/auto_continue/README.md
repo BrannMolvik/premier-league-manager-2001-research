@@ -142,3 +142,18 @@ repeatedly restarting the same blocked task.
 To activate the change on a PC with an unpacked extension, pull the updated
 repository and click **Reload** for the extension at `chrome://extensions/`.
 The new version should read `0.3.3`. The Windows watchdog itself is unchanged.
+
+## Full-mission handoff (version 0.3.4)
+
+Both short same-chat and full new-chat watchdog recovery prompts now explicitly
+state the durable objective: complete all remaining gates through Gate 17 and
+its final Windows 11 release audit. The active Gate-13 subtask is just the
+immediate next action. Neither a successful checkpoint nor a finished worker
+response marks the mission complete. Continue successive useful work within
+each feasible session and preserve the next action for later recoveries.
+
+This does not create an indefinitely running ChatGPT process: sessions still
+have finite execution windows, the watchdog still depends on Chrome being
+available, and legitimate execution-environment outages must be reported.
+After pulling the new branch/main changes, reload the extension in
+`chrome://extensions/` and verify version `0.3.4`.
