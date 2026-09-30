@@ -33,6 +33,29 @@ for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
 
+## Current recovery's developer-only live original-pixel inspection
+
+- PR #16, squash commit `7fc92fedd6f660a878348a34a02055027b63c9cb`,
+  provides a headless, original-coordinate frame-view model plus an
+  opt-in Tk developer inspection surface. It consumes **only the already
+  checksum-gated original first-screen resource bundles**, displays
+  original 800x600 decoded backgrounds and a **manually chosen numeric
+  original button atlas source frame**, and sends clicks to the recovered
+  PStartMenu/TeamSelect session boundary. All developer diagnostics,
+  source frame controls and explicit numeric club-ID input remain
+  **outside native FM2001 UI fidelity**; labels are off-canvas instead
+  of being rendered at invented positions.
+- Focused Gate-13 synthetic/mocked-Tk CI `36736154217` and repository
+  asset-policy CI `36736154071` passed. Actual Windows/Tk startup
+  with the canonical licensed executable and disc graphics has **not**
+  been run because source byte execution still returns `ClientError`.
+  Instructions and limitations were appended to
+  `research/GATE13_FIRST_SCREEN_RESOURCE_PLAN.md`.
+- The native Button@ease_2001 state/frame and Zurich placement trace
+  remains the primary exact next source-critical task, followed by the
+  ten-asset source-byte validation, provenance import, firsthand pixel
+  checks and complete original management-screen reconstruction.
+
 ## Current recovery's source-exact private pixel diagnostics
 
 - PR #15, squash commit `addc1f2dab50fdccdf7e7517ab22bdf1fbd1a35b`,
