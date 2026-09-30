@@ -100,8 +100,13 @@ class DiscFileRecord:
 
 
 def normalize_member(path: str) -> str:
+    """Keep archive paths source-relative before any staging extraction."""
     text = path.replace("\\", "/").lstrip("/")
     parts = [part for part in text.split("/") if part not in ("", ".")]
+    if any(part == ".." for part in parts):
+        raise ValueError(f"Parent traversal in source path: {path!r}")
+    if parts and parts[0].endswith(":"):
+        raise ValueError(f"Drive-prefixed source path: {path!r}")
     return "/".join(parts)
 
 
