@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 main 5cb235ff checkpoints verified Fixtures/Results contract. Private byte execution remains ClientError. Next bounded task: Player-profile backend contract from firsthand DBTPlayers/DBRPlayer runtime identity: approximate RTTI/vtable addresses retained as anchors only, runtime stride 0x250, accessor ~0x416F90, save reader ~0x416210, current skill vector +0x1E..+0x2E, development target vector +0x2F..+0x3F; expose no target bytes in profile view and make no original profile-column/icon binding claims. Resume Button/Zurich/ten-resource path immediately when execution works.",
-  "last_known_main_head": "5cb235ff817f32edc6f325f75a2331762919b1a8",
+  "active_task": "Gate13 main da23cf50 checkpoints verified Player Profile contract; source execution still ClientError. Next bounded task: Squad backend/runtime-state contract from ordered team roster IDs at +0x244/count +0x294, participant collector 0x510CD0, active/substitute predicates 0x417F50/0x417F60, active setter 0x4182F0, substitute setter 0x4182C0, removal 0x4181B0, DBRPlayer flags +0x14 bits 4/5. Treat these as backend state only; distinct original Squad screen class/sort/layout/art/navigation remain unknown. After Squad, inventory manager-home/remaining-screen source evidence and blockers. Resume Button/Zurich path immediately when private execution works.",
+  "last_known_main_head": "da23cf50e3a250dbe3c43a5c97533fd7f2537741",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 103,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery103 main 5cb235ff. PR43 full 1072 tests/21 expected skips/0 failures; focused 236/19; asset policy passed.",
+  "note": "Recovery103 main da23cf50. PR44 full 1073/21 expected skips/0 failures; focused 237/19; asset policy passed. Native shell retry still ClientError.",
   "same_chat_fallback_minutes": 30
 }
