@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 12,
-  "active_task": "Gate 12 annual rollover: rematerialize the authorized canonical disc archive from ChatGPT Library, recover exact 0x615A60 dynamic FA Cup replay insertion order from FOOTBAL.EXE, integrate it, then run the canonical annual rollover audit.",
-  "last_known_main_head": "909f9ec2644ff8159e0a41871a3a5bb9844b297f",
+  "active_task": "Gate 12 annual rollover: rerun the canonical July-4 real-data season after source-backed startup-date, WCC child-League, two-leg final, and save-source-identity fixes; close any remaining qualification-Cup lifecycle blocker and complete the annual rollover audit.",
+  "last_known_main_head": "1f6f9978a05b563baca8019aad6e7e1c56fff8d5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 74,
   "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "Automatic recovery resumed from canonical GitHub state at main 909f9ec2644ff8159e0a41871a3a5bb9844b297f. Continue the exact active Gate 12 annual-rollover task; verify the recent replay-order and DummyLeague lifecycle commits before any new changes.",
+  "note": "User explicitly checked whether work is continuing. Runtime heartbeat refreshed; resume canonical real-data annual audit from current main without redoing closed replay-order work.",
   "same_chat_fallback_minutes": 30
 }
