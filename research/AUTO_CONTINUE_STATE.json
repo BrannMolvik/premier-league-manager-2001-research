@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 remains execution-infrastructure-blocked. Recovery106 confirmed canonical main is still c36b7047, the private Library ZIP is healthy and was re-materialized successfully at 511,121,336 bytes, but direct container execution still returns ClientError even for a stat/sha256 command against that exact materialized path; private Python also fails at process start. Therefore no native PE/Button/Zurich/pixel claim is safe. Exact next action when execution returns: independently hash canonical ZIP/extract+hash footballmanager.exe; TeamSelect 0x81EC10/0x7C7650 RTTI canary; trace Button state bits to numbered 23-frame atlas rows; recover Zurich glyph placement/color/clipping; strict ten-resource audit/import; management-screen catalog correlation; remaining Gate13 presentation/navigation; Windows graphical audit; then Gates14-17 and verified clean Windows11 release.",
+  "active_task": "Gate13 remains blocked specifically on execution infrastructure. Recovery107 verified canonical main c36b7047 and CURRENT_STATE unchanged, then retried both execution backends: container.exec failed immediately with ClientError on a trivial printf/uname/pwd command, and private python.exec failed immediately with ClientError on a one-line print. No original source bytes can be safely inspected despite the already verified healthy Library/materialization route. Exact next action on the first working execution recovery: hash the canonical ZIP; extract/hash footballmanager.exe; run TeamSelect 0x81EC10/0x7C7650 RTTI canary; trace Button state bits through native draw/update to numbered 23-frame atlas rows; recover Zurich glyph origin/pair spacing/baseline/colors/clipping; strict ten-resource audit/import; run saved management catalog correlation; complete remaining Gate13 original presentation/navigation; Windows graphical audit; then Gates14-17 and verified clean Windows11 release.",
   "last_known_main_head": "c36b7047dbcfc1f99a916a9997debb706ec08eb0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 106,
+  "recovery_generation": 107,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery106 distinguishes healthy source storage/materialization from broken execution. files.list and files.materialize succeeded for the exact canonical 511,121,336-byte ZIP; container shell stat/hash and private Python still return ClientError. No further source-backed Gate13 UI work is safe without byte execution. No user action required; keep automatic recovery enabled.",
+  "note": "Recovery107: no new main work is safe because both local execution backends still fail before process start. Preserve continuous/working; source storage is not the blocker. Do not manufacture UI semantics or a heartbeat-only main commit. No user action required.",
   "same_chat_fallback_minutes": 30
 }
