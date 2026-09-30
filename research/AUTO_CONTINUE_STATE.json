@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: verified PStartMenu/TeamSelect control and layout tests are merged. Next integrate the original decoded first-screen backgrounds and exact hit-test geometry with the front-end session boundary; original-byte import remains outstanding. Full mission through Gate 17 remains active.",
-  "last_known_main_head": "f3be9f60753f13afdb0a02ec790c6da052ef831f",
+  "active_task": "Gate 13: recover original Zurich 20-pixel FNT glyph/metrics and Button@ease_2001 frame-state behavior from the authorized original executable and disc; compose verified authentic PStartMenu then TeamSelect; continue remaining screens and Gates 14-17 after audits.",
+  "last_known_main_head": "d6b8cfd9363830099534ac20307a72e58c1c1964",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 92,
   "last_recovery_reason": "manual-start",
-  "note": "Focused Gate 13 PR #5 passed CI run 36725002444 and merged at b204d011. Private original ZIP located/materialized by Files service, but this session's execution container and Python both returned ClientError even for trivial echo/print; continue source-backed GitHub changes and retry original-byte tests only if execution recovers.",
+  "note": "PR #5 and PR #6 merged with successful focused CI (36725002444,36725905158) and asset checks; research/CURRENT_STATE.md and PROGRESS.md reconciled. The private canonical source ZIP remains available in Library; this worker's container and Python commands both returned ClientError, so do not claim a new original-byte validation. Continue active Gate 13 and preserve Gates 14-17 mission.",
   "same_chat_fallback_minutes": 30
 }
