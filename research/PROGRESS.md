@@ -8336,3 +8336,40 @@ keeping presentation separate from the stable simulation backend.
   native Gate-13 inventory, extract/hash original graphics and layout,
   provenance-import the minimal first slice, and bind those resources to
   the now-tested session/navigation seam.
+
+
+## Gate 13 loose-ZIP + nested-disc source staging - 30 September 2026
+
+- Resumed from current `main` HEAD `b714ad82ab642a5b2417062ed846898f98ba72aa`.
+  Confirmed `CURRENT_STATE.md` and incremented the runtime recovery
+  generation to 84 rather than restarting completed Gate-13 work.
+- A control container command and a control Python-kernel command still
+  returned global CAAS `ClientError`. The canonical private Library ZIP was
+  listed and materialized again at its known 511,121,336-byte size.
+  No original source bytes were accessible through the execution runtime.
+- Fixed a real source-ingestion gap: the earlier `--only-explicit` and
+  `--extract-path` implementation correctly selected resources inside nested
+  ISO/Joliet disc images but could not select or stage **loose, opaque
+  resources directly inside the outer source ZIP**. `inventory_zip` now
+  applies the same exact-path filter and byte staging for the loose layer,
+  while still discovering nested disc images.
+- Avoided a redundant second read/hash pass of the ZIP's loose candidates.
+  The deep inventory now returns its original nested-image list from the
+  first pass; a mixed ZIP regression explicitly proves the outer ZIP
+  inventory is called once.
+- Implementation/test commits:
+  `2de3e846bfd5db0d05674d8e3467d5f7a9216bbe`,
+  `0531c81089536d6fa028fdf69f6555b66c7ce1f0`,
+  `da79bc53077255a91e657583761f426c1977065c`,
+  `e66ae4eb39785cd0f5478921258250ecc9dd9a4e`.
+  Documentation corrected in `86d67332f3fd7356275ec58ff5199023728b4200`.
+- CI: focused Gate-13 run `36697061364` **50/50 tests passed**;
+  repository asset-policy run `36697061327` **passed**.
+  Full reconstruction run `36697061476`: **878 tests, only the two
+  long-standing secondary-schedule failures**. No new failures.
+- Next: execute the native deep inventory against the real authorized ZIP
+  as soon as the global execution environment becomes available. Inspect
+  both its direct ZIP candidates and its nested disc catalog, then follow
+  `GATE13_CATALOG_SEARCH_PLAN.md` to select, hash, source-import and render
+  the original PStartMenu/TeamSelect assets through the verified front-end
+  session boundary. Do not recreate substitute game art.
