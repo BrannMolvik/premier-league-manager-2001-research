@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Actual source-critical Gate 13 remains native Button@ease_2001 frame state and Zurich caption trace using verified private original executable. The exact-source pixel export is merged; once byte execution recovers, stage the ten pinned resources, run opt-in original-byte tests and private pixel export, then finish first-screen fidelity and subsequent management UI, audit Gate 13 and continue Gates 14-17 to Windows 11 release. Meanwhile continue source-backed debug viewing/navigation work without inventing native state.",
-  "last_known_main_head": "dd78de898993b195c8dbd4cece8ef637a2a391cf",
+  "active_task": "Critical Gate 13: recover actual original Button@ease_2001 source-frame hover/idle/down/disabled transitions, native Zurich caption alignment/color and TeamSelect hierarchy behavior using canonical original executable once shell execution recovers. Source archive is verified in private Library; then execute ten-asset hash-gated staging, real original-byte pixel tests and private exporter, Windows source debug viewer smoke test, deliberate provenance import, remaining source-faithful management screens and gate audit. Advance after audit through Gates 14–17 and the verified Windows 11 release.",
+  "last_known_main_head": "4fb9221cf4701d3dcc65cfd939d346700d0933eb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 94,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Current worker merged PRs #13-15: hierarchy art 1edb4de (CI 36734520993), bounded source trace tool a427820 (CI 36735030753), and lossless pixel preview addc1f2 (CI 36735502617), all with passing asset policy. CURRENT_STATE/PROGRESS/project_status synced at dd78de898993b195c8dbd4cece8ef637a2a391cf. A fresh trivial container.exec still raises ClientError, so no actual private original executable disassembly or source-pixel export has run. Keep recovery working, full mission incomplete.",
+  "note": "Current recovery merged PRs #13-#16: original hierarchy art 1edb4de (CI 36734520993), canonical PE32 Button inspector a427820 (CI 36735030753), exact source-pixel exporter addc1f2 (CI 36735502617), and live source-pixel debug viewer 7fc92fe (CI 36736154217), all associated asset-policy checks passed. CURRENT_STATE, PROGRESS and project_status reconciled through 4fb9221cf4701d3dcc65cfd939d346700d0933eb. Original Library ZIP file size 511121336 confirmed again. Both container and alternate Python returned ClientError on trivial calls; a fresh final container probe still failed. No actual new original executable disassembly, real asset pixel export or Windows GUI smoke test claimed; Gates 13-17 still outstanding.",
   "same_chat_fallback_minutes": 30
 }
