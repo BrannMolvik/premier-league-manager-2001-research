@@ -8569,3 +8569,28 @@ keeping presentation separate from the stable simulation backend.
 - Next work continues immediately with the original Zurich 20-pixel font and
   Button@ease_2001 frame-state behavior, then full authentic PStartMenu
   composition and TeamSelect.
+
+
+## Gate 13 first-screen regression and pointer integration - 30 September 2026
+
+- Reconciled recovered original PStartMenu event 1 with the older session
+  regression test: Continue, Load and Quit now have explicitly tested
+  command-only dispatch, without implicit New Game backend construction.
+  Added existing original menu and TeamSelect layout tests to Gate 13 CI.
+  PR #5 passed focused workflow `36725002444` and asset checks, then merged
+  on `main` as `b204d01189dbfa6de5a624f5f4769ffb27ea37f7`.
+- PR #6, exact first-screen pointer input, adds headless mapping from the
+  confirmed four PStartMenu action rectangles and two TeamSelect Back/Start
+  rectangles to the existing session boundary. Background clicks and
+  unrecovered hierarchy rows produce no invented event. Regression tests
+  cover half-open rectangle edges, all four menu commands, and TeamSelect
+  New Game/Back/Start semantics. Focused workflow `36725905158` and asset
+  policy `36725904605` both passed; squash-merged as
+  `bf643d3ac6a7869842770174a6d7b3477689e895`.
+- Both checkpoints remain Gate 13; original font glyph metrics, button
+  atlas animation-state binding, complete original graphic composition and
+  hierarchy selection remain next. No new whole-suite pass is claimed.
+- Authorized private source ZIP was found under its canonical Library path;
+  the materialization service reported the complete archive, but local
+  execution tools returned `ClientError` even on trivial echo/print. Do
+  not reinterpret this temporary tooling failure as unavailable source.
