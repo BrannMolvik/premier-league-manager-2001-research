@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 genuine EA444 original image decoder: source-backed original bit ordering, 64-entry Huffman permutation, canonical 160-entry VLC, signed sparse coeff decoding, exact original quantization and 64-position pre-IDCT grid now persisted. Continue direct disassembly and faithful two-pass x87 IDCT at 0x7B9360/0x7B94C0 including TQIA_DAT coefficients, then true pixel conversion; import original visuals and resume original 12-screen Gate13 restoration. Full mission remains Gates13-17 through audited Windows11 release.",
-  "last_known_main_head": "5fc5378b6a6c05e9fb98e0a0dcec48b762491b83",
+  "active_task": "Gate 13 genuine EA444 decoder: exact original 0x7B9360/0x7B94C0 two-pass inverse transform now implemented and independently matched by native C/x87 reference on original main-menu component (hash 26123d42...). Continue 0x7B95D0 channel traversal and 0x6868E0 output packing/clipping/transparency/dither; decode real PStartMenu/TeamSelect assets, provenance-import and integrate. Then continue Gate13 remaining screens and Gates14-17.",
+  "last_known_main_head": "7542e4de58d5cc8e252b3f6c0a94340012e582e6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 88,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Live source verified and preserved. Latest main 5fc5378. 12/12 local original-backed decoder tests passed; actual first original main-menu component raw DC15,14AC 93bits quantized grid SHA d074fa... . Full source decoder research in GATE13_EA444_DECODER_TRACE.md; original .444 actual backgrounds available in staging; derived catalog Library copy still failing container_session_expired. CI focused workflow intentionally manual/PR, newest tests committed but no new hosted run claimed. Continue first-pass DC-only shortcut and inverse x87 constants, not synthetic scaffolding.",
+  "recovery_generation": 89,
+  "last_recovery_reason": "manual-start",
+  "note": "Container/source access restored. Current session verified actual 511MB archive and first-hand disc evidence, then followed newer canonical decoder state. Commits 007bc010 + 7542e4d implement/test exact two-pass inverse transform; local Python source-backed output independently matched native C/x87 harness. Do not stop at checkpoint; next is true channel/pixel output path.",
   "same_chat_fallback_minutes": 30
 }
