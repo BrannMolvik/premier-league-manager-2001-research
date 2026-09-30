@@ -1,6 +1,12 @@
+import contextlib
+import io
+import json
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
-from gate13_catalog_query import query_disc_files, summarize_disc_files
+from gate13_catalog_query import main, query_disc_files, summarize_disc_files
 
 
 REPORT = {
@@ -45,6 +51,32 @@ class Gate13CatalogQueryTests(unittest.TestCase):
             [item["path"] for item in matches],
             ["Language/English.str"],
         )
+
+    def test_paths_only_cli_emits_source_relative_paths(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            report_path = Path(temp_name) / "report.json"
+            report_path.write_text(json.dumps(REPORT), encoding="utf-8")
+            output = io.StringIO()
+            with patch(
+                "sys.argv",
+                [
+                    "gate13_catalog_query.py",
+                    str(report_path),
+                    "--contains",
+                    "fm2001_art",
+                    "--paths-only",
+                ],
+            ):
+                with contextlib.redirect_stdout(output):
+                    self.assertEqual(main(), 0)
+
+            self.assertEqual(
+                output.getvalue().splitlines(),
+                [
+                    "FM2001_Art/Buttons/start.pcx",
+                    "FM2001_Art/Generic/bground.444",
+                ],
+            )
 
     def test_summary_counts_roots_and_suffixes(self):
         summary = summarize_disc_files(REPORT)
