@@ -204,6 +204,10 @@ function buildNewChatRecoveryPrompt(reason, handoff, details = {}) {
 
   return `AUTO-RECOVERY: the previous FM2001 ChatGPT work session can no longer continue in its existing conversation.
 
+The standing objective is to finish every remaining roadmap gate through Gate 17
+and its Windows 11 release audit. The immediate active task is only the next
+step; completing one response, subtask, or gate does not finish the assignment.
+
 Recovery reason: ${reason}
 ${detailText ? `${detailText}\n` : ""}
 Do not ask Daniel to reconstruct the previous chat. GitHub is canonical.
@@ -232,7 +236,7 @@ function buildInPlaceRecoveryPrompt(reason, details = {}) {
 
 Recovery reason: ${reason}
 ${detailText ? `${detailText}\n` : ""}
-Do not restart completed work. Check the current main HEAD and research/CURRENT_STATE.md, then continue the exact active task. Keep working through consecutive source-backed steps, rather than ending after one small checkpoint, while tools and meaningful next steps remain available. Keep committing meaningful verified progress and checkpoint roughly every 10 minutes during unresolved work. If a genuine infrastructure failure prevents all productive work, report the blocker accurately instead of fabricating progress.`;
+The standing mission is to complete all remaining roadmap gates through Gate 17 and the verified Windows 11 release, not just the current subtask or response. Do not restart completed work. Check the current main HEAD and research/CURRENT_STATE.md, then continue the exact active task as the next step in that mission. Once that subtask is verified, continue the next source-backed step in the same session if feasible; checkpoint roughly every 10 minutes without treating a checkpoint as a stopping point. Advance through gates after their audits, without asking Daniel to say continue. If a genuine infrastructure failure prevents all productive work, record the precise blocker and next action instead of inventing work; only report the entire mission complete after Gate 17 passes.`;
 }
 
 async function savePendingRecovery(

@@ -6,6 +6,16 @@ This repository is designed so that work can continue safely across ChatGPT, Cod
 
 A conversation timeout is not a reason to restart the investigation. **GitHub is the project memory.**
 
+**Permanent assignment:** finish the entire FM2001 modernization through
+Gate 17, not merely the current gate or the next item in `CURRENT_STATE.md`.
+Each gate's exact next task is the next action within this larger mission.
+When a verified subtask finishes, take the next available source-backed step
+in the same session if possible. When a gate passes its audit, advance to the
+next roadmap gate without waiting for another user instruction. End the
+runtime with `completed` only after Gate 17 passes; otherwise preserve the
+exact next action and allow normal recovery across finite sessions.
+
+
 ## Source-of-truth hierarchy
 
 Use these files for different purposes:

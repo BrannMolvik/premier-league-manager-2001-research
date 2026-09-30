@@ -106,6 +106,12 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
         );
       });
     },
+    newChatPrompt() {
+      return vm.runInContext(
+        'buildNewChatRecoveryPrompt("conversation-length-limit", "Standard handoff")',
+        context
+      );
+    },
     get createdTabs() { return createdTabs; },
     get resumeMessages() { return resumeMessages; }
   };
@@ -173,4 +179,15 @@ test("explicit transient UI errors still recover immediately", async () => {
   assert.equal(result.action, "in-place");
   assert.equal(h.store.pendingResume.stopFirst, true);
   assert.equal(h.resumeMessages, 1);
+});
+
+test("both recovery paths preserve the entire Gate-17 mission", async () => {
+  const h = harness({ generating: false });
+  await h.check();
+  const inPlace = h.store.pendingResume.prompt;
+  const fresh = h.newChatPrompt();
+  assert.match(inPlace, /Gate 17/);
+  assert.match(inPlace, /not just the current subtask/i);
+  assert.match(fresh, /Gate 17/);
+  assert.match(fresh, /immediate active task is only the next/i);
 });

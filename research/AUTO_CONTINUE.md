@@ -6,6 +6,29 @@ on the dead conversation.
 
 GitHub remains the project memory.
 
+## Persistent mission and turn boundaries
+
+The autonomous assignment is **finish every remaining roadmap gate through
+Gate 17**, including the verified Windows 11 release audit. A currently active
+gate or task narrows *what the next action should be*; it never narrows the
+assignment's completion condition. Closing a gate, making a commit, passing a
+focused test, or completing one ChatGPT response is not project completion.
+
+While meaningful source-backed work remains feasible in a worker response,
+continue to the next step without asking the user for another "continue".
+Checkpoint roughly every ten minutes, not once per response or as a reason
+to end a response. A finite chat/tool session cannot guarantee indefinite
+execution; persist the exact next action and keep the runtime in `working`
+when a session ends but Gate 17 is not finished. The local recovery extension
+may then resume after its normal health/lease checks.
+
+Do not generate unnecessary commits, fabricate recovered source behavior, or
+repeatedly run an impossible task merely to keep a session active. If genuine
+infrastructure failure blocks all productive work, document the specific
+failed operation and preserve the next executable action. Use
+`waiting_for_user` only when user intervention is genuinely required, not
+simply because a sandbox or tool is temporarily unavailable.
+
 ## Architecture
 
 Two branches have different responsibilities:
@@ -72,8 +95,10 @@ When the user asks to continue sustained project work:
 2. read `research/CURRENT_STATE.md`;
 3. read this protocol and the runtime state from `agent-runtime`;
 4. set runtime `status` to `working` and `mode` to `continuous`;
-5. continue the exact active task;
-6. checkpoint to `main` at the normal persistence boundaries.
+5. continue the exact active task as the next step of the full Gate-17 mission;
+6. after each verified task, continue to the next canonical source-backed
+   task while the current session can still do useful work;
+7. checkpoint to `main` at the normal persistence boundaries.
 
 ### During autonomous work
 
@@ -85,13 +110,16 @@ a fresh session to continue. If the live resume point changes, update
 
 ### Intentionally stopping
 
-Before intentionally stopping because user input is required, update the
-runtime state to `waiting_for_user`.
+Before intentionally stopping because a specific user input/action is
+required, update the runtime state to `waiting_for_user` and state precisely
+what is required. A temporary tool outage or ordinary end of a worker response
+does not by itself meet that condition.
 
 If the user explicitly pauses work, use `paused`.
 
-If the relevant autonomous project/task is genuinely finished, use
-`completed`.
+Only when Gate 17's final release criteria have actually been verified,
+use `completed`. Completing a narrower task or intermediate gate is not
+sufficient.
 
 If the session dies before making this transition, it will remain `working`,
 which is exactly what lets the watchdog recover it.
