@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: private Library ZIP resolves/materializes but container commands return CAAS ClientError. Retry byte access in a working execution runtime; run native deep ZIP -> MODE1/2352 -> ISO/Joliet inventory; follow GATE13_CATALOG_SEARCH_PLAN.md; exact-only stage, hash, provenance-import minimum PStartMenu/TeamSelect originals and bind to verified navigation flow.",
-  "last_known_main_head": "c6e2aa387b1150e847bef9f5cb26f5954a496137",
+  "active_task": "Gate 13: retry source-byte access to existing authorized private Library ZIP in a functioning execution container; run verified deep ZIP -> MODE1 -> ISO/Joliet full-disc inventory, follow GATE13_CATALOG_SEARCH_PLAN.md, select original PStartMenu/TeamSelect resources, hash and provenance-import minimum exact-only asset slice, then bind original UI/navigation.",
+  "last_known_main_head": "6e804c23dd12b9d11538b7e8937fc7ac48fc6996",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 82,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered main 5eca3ee. Gate 13 latest CI-verified implementation 03bc53b (865 tests, only two established secondary-schedule failures, all new staging path guard tests pass). Updated main CURRENT_STATE and PROGRESS through c6e2aa3. Original ZIP materializes successfully, but execution runtime still fails even trivial operations; no game assets extracted this turn.",
+  "note": "Latest current main checkpoint 6e804c2; focused Gate13 CI run 36693094247 passes all 38 tests; full suite 866 tests with only two established secondary-schedule failures; asset policy passes. Original bground.444 metadata now validates 222,616 byte size as well as hash/header when extracted. Original ZIP successfully materializes, but container trivial commands still return CAAS ClientError; next task is real-disc byte access and extraction, not repeated tooling.",
   "same_chat_fallback_minutes": 30
 }
