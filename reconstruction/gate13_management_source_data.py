@@ -99,7 +99,7 @@ class PlayerProfileView:
     first_name: str
     surname: str
     club_id: int
-    club_name: str
+    club_name: str | None
     nationality_id: int
     date_of_birth: date | None
     shirt_number: int
@@ -238,7 +238,7 @@ class ScoutingResultView:
     player_id: int
     player_name: str
     club_id: int
-    club_name: str
+    club_name: str | None
     nationality_id: int
     positions: tuple[int, int, int]
     current_skill_bytes: tuple[int, ...]
@@ -449,7 +449,7 @@ class ManagementSourceDataBridge:
             raise ManagementPresentationError(
                 f"Player {player_id} lacks recovered club/nationality IDs"
             )
-        club = self._source_club(club_id)
+        club = self._source_club(club_id) if club_id >= 0 else None
         positions = getattr(player, "positions", None)
         if (
             not isinstance(positions, tuple)
@@ -488,7 +488,7 @@ class ManagementSourceDataBridge:
             first_name=first,
             surname=surname,
             club_id=club_id,
-            club_name=club.name,
+            club_name=(None if club is None else club.name),
             nationality_id=nationality_id,
             date_of_birth=dob,
             shirt_number=int(getattr(player, "shirt_number")),
@@ -972,7 +972,7 @@ class ManagementSourceDataBridge:
                 raise ManagementPresentationError(
                     f"Scouting result {player_id} lacks current 17-byte skill state"
                 )
-            club = self._source_club(club_id)
+            club = self._source_club(club_id) if club_id >= 0 else None
             age_method = getattr(player, "age", None)
             if not callable(age_method):
                 raise ManagementPresentationError(
@@ -1065,7 +1065,7 @@ class ManagementSourceDataBridge:
             rows.append(LeagueTableRowView(
                 position=position,
                 club_id=club_id,
-                club_name=club.name,
+                club_name=(None if club is None else club.name),
                 short_name=club.short_name,
                 played=int(row.played),
                 wins=int(row.wins),
