@@ -111,6 +111,38 @@ original pixel previews alongside original gameplay references, then
 continue the executable Button@ease trace before promoting interactive
 screen fidelity.
 
+## Developer-only live source-pixel front-end inspection
+
+After the same original ten-path staging and SHA validation succeeds, the
+new diagnostic viewer can display the actual source-composed original
+800x600 first-screen backgrounds. It overlays only **manually selected,
+numeric, top-to-bottom original atlas frames** at the executable-proven
+PStartMenu and TeamSelect action coordinates. Original text is listed
+off-canvas for developer identification, never drawn at unproven native
+baseline/size/color. No substitute art is introduced.
+
+```text
+python reconstruction/gate13_original_first_screen_viewer.py --original-exe "<private-executable>" --original-art-root "<private-staging>/FM2001_Art" --original-language-root "<private-staging>" --original-font20 "<private-staging>/Fonts/Zurich_BdXCn_BT_20pixel.fnt" --canonical-game-dir "<verified-installed-game-data-directory>"
+```
+
+The viewer requires the existing live canonical human-manager backend only
+upon the source-proven New Game click. The fixed-size canvas uses the original
+unscaled 800x600 click coordinates, sends clicks through
+`original_first_screen_presenter.py`, and preserves the established
+backend/application separation. A **separate diagnostic sidebar** allows
+source-frame cycling, displays proven event labels/coordinates, and exposes
+an explicitly artificial numeric club-ID input until the source-backed
+country/league/club hierarchy is recovered. Normal user-facing FM2001
+cannot ship this debug-only shortcut or invented frame selection.
+
+This path is a source-pixel/navigation smoke test, **not** an original
+interactive-screen fidelity claim. Recover the native Button@ease_2001
+state machine, Zurich caption placement, and actual TeamSelect hierarchy
+selection from the original executable before building/promoting
+the release-facing frontend. Hosted CI uses mocked Tk and synthetic
+source-format fixtures; the actual original asset/runtime graphical
+smoke test must be run after private byte-execution access is restored.
+
 ## Open source-recovery boundary
 
 Native Button@ease_2001 23-frame state selection, Zurich caption

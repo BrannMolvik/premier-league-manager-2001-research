@@ -1,0 +1,222 @@
+"""Private Windows/Tk developer viewer for the recovered FM2001 opening screens.
+
+Only source-hash-verified assets are loaded. The user can manually cycle all
+23 original atlas source frames to inspect artwork and click already-proven
+action rectangles. This is intentionally NOT the game's final UI: native
+frame-state selection, caption baseline/color, TeamSelect hierarchy content,
+and manager-home screen still require recovered executable evidence.
+
+Tk is imported only when this developer viewer is actually launched.
+"""
+from __future__ import annotations
+
+import argparse
+from base64 import b64encode
+from pathlib import Path
+
+from front_end_session import FrontEndSession
+from front_end_state import FrontEndCommand, FrontEndScreen
+from original_first_screen_presenter import OriginalFirstScreenPresenter
+from original_live_debug_view import (
+    OriginalLiveDebugError, build_original_debug_frame,
+)
+from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
+from original_teamselect_resources import load_verified_original_teamselect_inputs
+
+
+class OriginalFirstScreenTkDebug:
+    """Fixed, unscaled 800x600 original-pixel diagnostic with external controls."""
+
+    def __init__(self, presenter: OriginalFirstScreenPresenter, root, tk, ttk):
+        self.presenter = presenter
+        self.root = root
+        self.tk = tk
+        self.ttk = ttk
+        self.source_frame_index = 0
+        self._photos = []
+
+        self.root.title("FM2001 verified original pixels: DEVELOPER PREVIEW ONLY")
+        self.root.resizable(False, False)
+        self.canvas = tk.Canvas(root, width=800, height=600,
+                                highlightthickness=0, borderwidth=0)
+        self.canvas.pack(side=tk.LEFT)
+        self.canvas.bind("<Button-1>", self.on_original_click)
+
+        sidebar = ttk.Frame(root, width=330)
+        sidebar.pack(side=tk.RIGHT, fill=tk.Y, padx=8, pady=8)
+        ttk.Label(
+            sidebar, wraplength=300,
+            text="SOURCE PIXEL DIAGNOSTIC, NOT ORIGINAL FM2001 UI. "
+                 "Frame selection below is MANUAL; native hover/down/disabled "
+                 "semantics and text alignment are not recovered.",
+        ).pack(anchor="w")
+
+        buttons = ttk.Frame(sidebar)
+        buttons.pack(anchor="w", pady=8)
+        ttk.Button(
+            buttons, text="Previous source frame",
+            command=lambda: self.step_source_frame(-1),
+        ).pack(side=tk.LEFT)
+        ttk.Button(
+            buttons, text="Next",
+            command=lambda: self.step_source_frame(1),
+        ).pack(side=tk.LEFT)
+        self.frame_label = ttk.Label(sidebar, text="")
+        self.frame_label.pack(anchor="w")
+        self.events_label = ttk.Label(sidebar, text="", wraplength=300,
+                                      justify=tk.LEFT)
+        self.events_label.pack(anchor="w", pady=8)
+
+        ttk.Label(
+            sidebar,
+            text="Developer-only explicit club ID (NOT original hierarchy):"
+        ).pack(anchor="w")
+        self.club_id_text = tk.StringVar()
+        ttk.Entry(sidebar, textvariable=self.club_id_text,
+                  width=14).pack(anchor="w")
+        ttk.Button(
+            sidebar, text="Set explicit backend club",
+            command=self.choose_debug_club,
+        ).pack(anchor="w", pady=4)
+
+        self.status = tk.StringVar(value="Original source-pixel diagnostic ready")
+        ttk.Label(sidebar, textvariable=self.status,
+                  wraplength=300).pack(anchor="w", pady=8)
+        root.bind("<Left>", lambda _: self.step_source_frame(-1))
+        root.bind("<Right>", lambda _: self.step_source_frame(1))
+        self.redraw()
+
+    def _photo(self, png: bytes):
+        # Tk 8.6 PhotoImage accepts base64 PNG. Do not use Pillow or synthesize art.
+        photo = self.tk.PhotoImage(
+            data=b64encode(png).decode("ascii"), format="png"
+        )
+        self._photos.append(photo)
+        return photo
+
+    def redraw(self):
+        view = self.presenter.snapshot()
+        try:
+            frame = build_original_debug_frame(
+                view, self.source_frame_index
+            )
+        except OriginalLiveDebugError:
+            # This viewer exposes a global manual source index for both
+            # original atlases, but never wraps a bad frame silently.
+            self.source_frame_index = 0
+            frame = build_original_debug_frame(view, 0)
+        self.canvas.delete("all")
+        self._photos = []
+        background = self._photo(frame.background_png)
+        self.canvas.create_image(0, 0, image=background, anchor=self.tk.NW)
+        for overlay in frame.original_source_frame_overlays:
+            art = self._photo(overlay.source_frame_png)
+            self.canvas.create_image(
+                overlay.rect.x, overlay.rect.y,
+                image=art, anchor=self.tk.NW
+            )
+        self.frame_label.configure(
+            text=f"Manually selected original source frame: "
+                 f"{self.source_frame_index} (NOT idle/hover semantics)"
+        )
+        actions = [
+            f"Event {overlay.event}: "
+            f"{overlay.source_label_not_positioned or '[native label unresolved]'} "
+            f"@ ({overlay.rect.x},{overlay.rect.y})"
+            for overlay in frame.original_source_frame_overlays
+        ]
+        if frame.screen is FrontEndScreen.TEAM_SELECT:
+            actions.append(
+                f"Hierarchy: {len(frame.hierarchy_row_origins_not_interactive)} "
+                "source-backed row origins; row events/items NOT recovered."
+            )
+        self.events_label.configure(text="\n".join(actions))
+
+    def step_source_frame(self, delta: int):
+        view = self.presenter.snapshot()
+        count = min(len(item.atlas.frames) for item in view.controls)
+        if count <= 0:
+            self.status.set("Original action atlas has no available source frames")
+            return
+        self.source_frame_index = (self.source_frame_index + delta) % count
+        self.redraw()
+
+    def on_original_click(self, event):
+        """Canvas uses fixed original 800x600 unscaled source coordinates."""
+        try:
+            result = self.presenter.pointer(int(event.x), int(event.y))
+            if result is None:
+                self.status.set(
+                    "No executable-proven click action here; "
+                    "TeamSelect hierarchy row IDs remain unresolved."
+                )
+            elif result.transition.command is FrontEndCommand.TEAMSELECT_START_CONTINUE:
+                self.status.set(
+                    f"Backend selection returned {result.selected_manager!r}; "
+                    "native manager-home presentation is not yet reconstructed."
+                )
+            elif result.transition.command is not None:
+                self.status.set(
+                    f"Recovered event command: {result.transition.command.name}; "
+                    "non-New-Game host routing remains unfinished."
+                )
+            else:
+                self.status.set(
+                    f"Recovered navigation: {result.transition.screen.name}"
+                )
+        except Exception as exc:
+            # Developer preview only. Preserve active original screen so a
+            # failed database load or missing club can be diagnosed/retried.
+            self.status.set(f"Action was rejected: {type(exc).__name__}: {exc}")
+        self.redraw()
+
+    def choose_debug_club(self):
+        if self.presenter.session.navigation.screen is not FrontEndScreen.TEAM_SELECT:
+            self.status.set("Explicit debug club selection requires TeamSelect")
+            return
+        try:
+            value = int(self.club_id_text.get())
+            self.presenter.choose_club(value)
+            self.status.set(
+                f"Developer-only explicit club ID {value} selected; "
+                "original hierarchy mapping has not been inferred."
+            )
+        except (ValueError, TypeError, RuntimeError) as exc:
+            self.status.set(f"Explicit club selection rejected: {exc}")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--original-exe", type=Path, required=True)
+    parser.add_argument("--original-art-root", type=Path, required=True)
+    parser.add_argument("--original-language-root", type=Path, required=True)
+    parser.add_argument("--original-font20", type=Path, required=True)
+    parser.add_argument("--canonical-game-dir", type=Path, required=True)
+    args = parser.parse_args()
+
+    # Fail closed on source mismatch before opening a diagnostic window.
+    menu = load_verified_english_pstartmenu_inputs(
+        original_art_dir=args.original_art_root,
+        original_language_dir=args.original_language_root,
+        original_zurich_font20=args.original_font20,
+        original_executable=args.original_exe,
+    )
+    team = load_verified_original_teamselect_inputs(
+        original_art_dir=args.original_art_root,
+        original_executable=args.original_exe,
+    )
+    presenter = OriginalFirstScreenPresenter(
+        FrontEndSession.for_canonical_game_dir(args.canonical_game_dir),
+        menu, team,
+    )
+    import tkinter as tk
+    from tkinter import ttk
+
+    root = tk.Tk()
+    OriginalFirstScreenTkDebug(presenter, root, tk, ttk)
+    root.mainloop()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
