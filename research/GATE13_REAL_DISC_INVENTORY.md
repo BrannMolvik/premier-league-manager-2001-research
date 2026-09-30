@@ -50,7 +50,7 @@ The first two little-endian unsigned words of extracted `.444` images decode as 
 - `bground.444` **800 × 600** and checksum exactly matches the project's earlier first-hand expected source (independent confirmation).
 - `main_menu_bground.444` **532 × 532**.
 - `team_choice/background.444` **800 × 558**.
-- `choice_start_anim.444` **150 × 224**.
+- `choice_start_anim.444` **150 × 736**, verified again from the exact 55,128-byte original asset's little-endian header. The earlier 150 × 224 entry was a transcription error, not an alternate source image.
 - All sampled `.444` images share bytes `64 FF 00 FF` immediately following the dimensions; the compressed pixel stream still needs confirmed decoding, including transparency and frame/animation handling. Do not relabel image dimensions as UI coordinates.
 
 ## Additional independently verified source facts
