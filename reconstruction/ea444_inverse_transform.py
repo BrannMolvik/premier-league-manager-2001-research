@@ -63,6 +63,19 @@ def _float32_fraction(raw: bytes) -> Fraction:
     return result * (1 << power) if power >= 0 else result / (1 << -power)
 
 
+def _round_nearest_even_ratio(numerator: int, denominator: int) -> int:
+    """Round one exact signed integer ratio using x87 nearest/even semantics."""
+    if denominator <= 0:
+        raise ValueError("denominator must be positive")
+    sign = -1 if numerator < 0 else 1
+    numerator = abs(numerator)
+    quotient, remainder = divmod(numerator, denominator)
+    twice = remainder * 2
+    if twice > denominator or (twice == denominator and quotient & 1):
+        quotient += 1
+    return sign * quotient
+
+
 def _round_nearest_even(value: Fraction) -> int:
     numerator, denominator = value.numerator, value.denominator
     sign = -1 if numerator < 0 else 1
@@ -131,15 +144,39 @@ def _inverse_1d_general(
     odd_total = _add(odd35_sum, odd17_sum)
     odd_difference = _sub(odd17_sum, odd35_sum)
 
-    mix = Fraction(a + b)
-    fp_a = Fraction(a) * constants.odd_1 + mix * constants.odd_3
-    fp_b = Fraction(b) * constants.odd_2 - mix * constants.odd_3
+    # The three original float32 constants are exact dyadic rationals. Their
+    # common denominator is 2^25, so this is the exact same x87 arithmetic up
+    # to the final nearest/even FISTP without allocating Fraction objects for
+    # every row. Do not wrap a+b: the x87 path receives the already-sign-extended
+    # int32 values and adds them in extended precision.
+    mix = a + b
+    denominator = 1 << 25
+    fp_a_numerator = a * 18_159_528 + mix * 12_840_725
+    fp_b_numerator = b * 43_840_980 - mix * 12_840_725
+    rounded_a_raw = _round_nearest_even_ratio(fp_a_numerator, denominator)
+    rounded_b_raw = _round_nearest_even_ratio(fp_b_numerator, denominator)
     if second_pass:
-        rounded_a = _fistp_i64_low_i32(fp_a)
-        rounded_b = _fistp_i64_low_i32(fp_b)
+        rounded_a = _i32(
+            rounded_a_raw
+            if -(1 << 63) <= rounded_a_raw < (1 << 63)
+            else -(1 << 63)
+        )
+        rounded_b = _i32(
+            rounded_b_raw
+            if -(1 << 63) <= rounded_b_raw < (1 << 63)
+            else -(1 << 63)
+        )
     else:
-        rounded_a = _fistp_i32(fp_a)
-        rounded_b = _fistp_i32(fp_b)
+        rounded_a = (
+            rounded_a_raw
+            if -(1 << 31) <= rounded_a_raw < (1 << 31)
+            else -(1 << 31)
+        )
+        rounded_b = (
+            rounded_b_raw
+            if -(1 << 31) <= rounded_b_raw < (1 << 31)
+            else -(1 << 31)
+        )
 
     odd_rot = _imul_sqrt_half(odd_difference)
     odd_a = _add(rounded_a, odd_rot)
