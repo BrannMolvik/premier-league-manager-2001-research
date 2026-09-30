@@ -64,6 +64,19 @@ TEAMSELECT_HIERARCHY_BARS_PATH = (
 TEAMSELECT_HIERARCHY_FRAME_SIZE = (30, 29)
 TEAMSELECT_HIERARCHY_BARS_FRAME_SIZE = (168, 29)
 
+# TeamSelect action controls at 0x4D885F..0x4D8921. The final two arguments
+# passed into Button@ease_2001 setup 0x652FD0 are x then y: event 0x29 is
+# (225,301), event 0x2A is (426,301). Both bind 0x941630, the recovered
+# choice_start_anim.444 family, whose atlas is 150x736 with 150x32 frames.
+TEAMSELECT_ACTION_ATLAS_PATH = (
+    "FM2001_Art/Generic/GenericButtonsAndBars/choice_start_anim.444"
+)
+TEAMSELECT_ACTION_FRAME_SIZE = (150, 32)
+TEAMSELECT_BACK_RECT = OriginalRect(225, 301, 150, 32)
+TEAMSELECT_START_RECT = OriginalRect(426, 301, 150, 32)
+TEAMSELECT_BACK_EVENT = 0x29
+TEAMSELECT_START_EVENT = 0x2A
+
 
 class OriginalFrontEndLayoutError(ValueError):
     pass
