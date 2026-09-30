@@ -181,6 +181,51 @@ class Gate13SourceInventoryTests(unittest.TestCase):
                 )
             )
 
+    def test_report_captures_entire_outer_zip_catalog_not_only_candidates(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            archive = root / "source.zip"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("FM2001_Art/Generic/logo.png", b"front-end")
+                zf.writestr("Opaque/A.dat", b"not-a-hint")
+                zf.writestr("disc/game.bin", b"raw-disc-placeholder")
+            report = report_for_source(archive)
+            self.assertEqual(report["zip_file_count"], 3)
+            self.assertEqual(
+                [(item["path"], item["size"], item["is_disc_image"])
+                 for item in report["zip_files"]],
+                [
+                    ("FM2001_Art/Generic/logo.png", 9, False),
+                    ("Opaque/A.dat", 10, False),
+                    ("disc/game.bin", 20, True),
+                ],
+            )
+            self.assertEqual(report["disc_file_count"], 0)
+            self.assertEqual(len(report["candidates"]), 1)
+
+    def test_deep_outer_zip_catalog_does_not_duplicate_disc_member_listing(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            iso = root / "fixture.iso"
+            build_joliet_iso(iso)
+            iso_bytes = iso.read_bytes()
+            raw = b"".join(
+                self._mode1_sector(
+                    iso_bytes[offset:offset + ISO9660_SECTOR_BYTES]
+                )
+                for offset in range(0, len(iso_bytes), ISO9660_SECTOR_BYTES)
+            )
+            archive = root / "source.zip"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("Data/opaque", b"fixture")
+                zf.writestr("disc/game.bin", raw)
+            report = report_for_source(archive, deep=True)
+            self.assertEqual(report["zip_file_count"], 2)
+            self.assertEqual(report["zip_files"][0]["path"], "Data/opaque")
+            self.assertEqual(report["zip_files"][1]["path"], "disc/game.bin")
+            self.assertTrue(report["zip_files"][1]["is_disc_image"])
+            self.assertEqual(report["disc_file_count"], 1)
+
     def test_original_background_expected_byte_count_is_recorded(self):
         with tempfile.TemporaryDirectory() as temp_name:
             iso = Path(temp_name) / "fixture.iso"
