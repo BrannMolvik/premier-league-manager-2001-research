@@ -95,7 +95,7 @@ class LeagueStateTests(unittest.TestCase):
             league.publish_exact_ranking(registry, names.get),
             (30, 10, 20, 40),
         )
-        self.assertEqual(registry.competition_rankings[0], (30, 10, 20, 40))
+        self.assertEqual(registry.competition_rankings[(0, 0)], (30, 10, 20, 40))
 
     def test_unproven_full_source_key_ties_cannot_be_published(self):
         league = PremierLeagueState((
