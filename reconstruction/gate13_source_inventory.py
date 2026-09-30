@@ -608,7 +608,7 @@ def deep_inventory_zip(
     disc_files: list[DiscFileRecord] | None = None,
     explicit_paths: set[str] | None = None,
     only_explicit: bool = False,
-) -> tuple[list[AssetRecord], list[str]]:
+) -> tuple[list[AssetRecord], list[str], list[str]]:
     direct, nested_images, warnings = inventory_zip(
         archive,
         extract_candidates_to=extract_candidates_to,
@@ -617,7 +617,7 @@ def deep_inventory_zip(
     )
     records = list(direct)
     if not nested_images:
-        return records, warnings
+        return records, nested_images, warnings
 
     with tempfile.TemporaryDirectory(prefix="fm2001-gate13-") as temp_name:
         temp = Path(temp_name)
@@ -665,7 +665,7 @@ def deep_inventory_zip(
             records.extend(image_records)
             warnings.extend(image_warnings)
 
-    return records, warnings
+    return records, nested_images, warnings
 
 
 def report_for_source(
@@ -692,7 +692,7 @@ def report_for_source(
         kind = "zip"
         if deep:
             command = _seven_zip_command(seven_zip)
-            records, warnings = deep_inventory_zip(
+            records, nested_images, warnings = deep_inventory_zip(
                 source,
                 command,
                 extract_candidates_to,
@@ -700,7 +700,6 @@ def report_for_source(
                 explicit_paths,
                 only_explicit,
             )
-            _, nested_images, _ = inventory_zip(source)
         else:
             records, nested_images, warnings = inventory_zip(
                 source,
