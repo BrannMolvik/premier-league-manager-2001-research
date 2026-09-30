@@ -306,18 +306,38 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
         )
         self.assertEqual(state.procedural_league_advancement_places(14, 3), 2)
 
-    def test_non_contiguous_advancement_selectors_are_rejected(self):
-        source = CupClubRefDescriptor(
+    def test_non_contiguous_top_advancement_selectors_are_rejected(self):
+        source0 = CupClubRefDescriptor(
+            type_code=2,
+            selector=0,
+            competition_id=14,
+            competition_context=3,
+        )
+        source2 = CupClubRefDescriptor(
             type_code=2,
             selector=2,
             competition_id=14,
             competition_context=3,
         )
-        node = league_node(0, source, 50, competition_id=167, context=0)
+        nodes = (
+            league_node(0, source0, 50, competition_id=167, context=0),
+            league_node(1, source2, 51, competition_id=167, context=0),
+        )
         state = GameState(calendar=GameCalendar(date(2000, 7, 1)), players={})
-        state.install_primary_schedule_shadow(((node,),), season_year=2000)
-        with self.assertRaisesRegex(RuntimeError, "non-contiguous"):
+        state.install_primary_schedule_shadow(tuple((node,) for node in nodes), season_year=2000)
+        with self.assertRaisesRegex(RuntimeError, "non-contiguous top"):
             state.procedural_league_advancement_places(14, 3)
+
+    def test_domestic_automatic_promotion_comes_from_league_allocation(self):
+        state = GameState(calendar=GameCalendar(date(2000, 7, 1)), players={})
+        state.league_allocation_records = (
+            SimpleNamespace(
+                competition_b_id=2,
+                competition_b_start=0,
+                competition_b_end=1,
+            ),
+        )
+        self.assertEqual(state.procedural_league_advancement_places(2, 0), 2)
 
     def test_due_group_entry_is_exposed_and_execution_requires_loaded_competition(self):
         node = league_node(0, 10, 20, competition_id=14, context=2)
