@@ -188,10 +188,18 @@ After staging an intentionally selected original file, import it with
 provenance:
 
 ```text
-python gate13_asset_import.py <staging-dir> FM2001_Art/Generic/<asset> --repo-root ..
+python gate13_asset_import.py <staging-dir> FM2001_Art/Generic/<asset> \
+  --inventory-report gate13-source-selected.json --repo-root ..
 ```
 
-The importer refuses raw ZIP/BIN/ISO-style containers and performs the strict
-known-hash/header check for `bground.444`. Imported originals still require
-`original_assets/MANIFEST.md` provenance and the repository asset-policy
-check.
+The importer refuses full raw ZIP/ISO-style containers and performs the
+strict known-hash/header check for `bground.444`. With
+`--inventory-report`, it also verifies the source path is represented by
+**exactly one extracted candidate**, whose SHA-256 and byte count match the
+staged file. An unresolved/partial selection report prevents import.
+Opaque UI `.bin` resources require this provenance report and must be
+distinguishable from a raw disc image; they are not categorically banned
+merely because of their filename extension. If the selected report includes
+the source archive's SHA-256, it is retained in the import manifest notes.
+The repository's `original_assets/MANIFEST.md` and asset-policy check remain
+mandatory.
