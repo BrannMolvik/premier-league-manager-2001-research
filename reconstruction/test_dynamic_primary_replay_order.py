@@ -92,9 +92,9 @@ class DynamicPrimaryReplayOrderTests(unittest.TestCase):
         )
         old_entry = ("premier_league", 999)
         state.primary_matchday_order = {chosen: (old_entry,)}
-        completion = SimpleNamespace(
-            replay=SimpleNamespace(node_token=replay.node_token)
-        )
+        replay_state = SimpleNamespace()
+        state.domestic_cups.match_states[replay.node_token] = replay_state
+        completion = SimpleNamespace(replay=replay_state)
 
         integrated = state._integrate_dynamic_cup_replay(
             state.domestic_cups,
