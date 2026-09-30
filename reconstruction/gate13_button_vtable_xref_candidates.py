@@ -34,6 +34,14 @@ SOURCE_CODE_SEEDS = (
     ("Button atlas initialization", 0x5F4500),
     ("Button@ease setup", 0x652FD0),
     ("Zurich bitmap font loader", 0x657650),
+    # Prior independently documented firsthand executable RTTI/control path;
+    # a recovered state-BIT change is not a proven atlas-row meaning.
+    ("Button@ease input", 0x64F7A0),
+    ("Button callback/owner setup", 0x64F3C0),
+    ("Common button state-bit toggle", 0x64F3E0),
+    ("Button state-notify helper", 0x64F710),
+    ("Button state-clear helper", 0x64F750),
+    ("TeamSelect owner click event", 0x4DA480),
 )
 
 
