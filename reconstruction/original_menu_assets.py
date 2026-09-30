@@ -27,7 +27,7 @@ SOURCE_SHA256 = (
 SOURCE_SIZE = 2775
 SOURCE_DIMENSIONS = (136, 19)
 FRAME_COUNT = 4
-PNG_SIGNATURE = b"\\x89PNG\\r\\n\\x1a\\n"
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
 class OriginalMenuAssetError(ValueError):
