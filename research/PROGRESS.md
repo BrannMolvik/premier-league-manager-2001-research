@@ -8055,3 +8055,37 @@ keeping presentation separate from the stable simulation backend.
 - The historically documented raw-disc conversion dependency is now
   regression-covered. Remaining source-access tooling can focus on the
   resulting ISO9660/Joliet filesystem rather than raw-sector interpretation.
+
+
+## Gate 13 durable-source recovery and native ISO integration checkpoint - 30 September 2026
+
+- Read the new durable source locator and resolved the canonical private Library
+  archive at
+  `/FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip`.
+- Library metadata matched the recorded identity exactly:
+  `file_00000000010c8209961739423e78473b`,
+  `libfile_0ce96709612c81919f30acce4b4bdfbd`, and
+  **511,121,336 bytes**.
+- Materialization itself succeeded and reported the raw ZIP at
+  `/mnt/data/fm2001-source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip`.
+- The current CAAS/container runtime still fails with a container-level
+  `ClientError` even for a simple existence/listing operation on that
+  materialized path. This distinguishes a working persistent source locator and
+  successful Library materialization from the remaining execution-container
+  byte-access failure.
+- Added a read-only repository-native ISO9660/Joliet path to
+  `reconstruction/gate13_source_inventory.py`. ISO filesystem inventory and
+  candidate extraction no longer require 7-Zip after MODE1/2352 conversion.
+- Deep ZIP inspection can now extract a nested raw MODE1/2352 BIN, convert it
+  to temporary 2048-byte ISO sectors, and pass the result to the native
+  `IsoImage` reader. Non-ISO container formats retain 7-Zip as an optional
+  fallback.
+- Added regression coverage for direct native Joliet inventory/extraction and
+  for nested ZIP -> MODE1/2352 -> ISO9660/Joliet inventory without 7-Zip.
+- Implementation commits:
+  `784a9095f072f25c6980fe0ffc346e9d8db67576` and
+  `971bea6ce8caffa778cd713d1e0718907154f32d`.
+- GitHub Actions had not yet reported workflow runs/statuses for those two
+  commits at checkpoint time, so this entry does **not** promote them to the
+  latest CI-verified baseline. The prior verified baseline remains the
+  847-test MODE1 checkpoint until CI evidence is available.
