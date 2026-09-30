@@ -8651,3 +8651,23 @@ keeping presentation separate from the stable simulation backend.
   or the already verified GitHub changes. Runtime remains working for
   normal recovery; exact next original addresses/commands are reconciled
   in CURRENT_STATE.md.
+
+
+## Machine-readable Gate 13 status-mirror correction - 30 September 2026
+
+- After the six verified Gate-13 source-backed integration pull requests and
+  exact ten-asset source selection plan, found a stale top-level machine
+  status discrepancy: `project_status.json` still said `current_gate=12`
+  and named a superseded Gate-12 task, despite its lower-level
+  `active_gate=13`, the authoritative ROADMAP and CURRENT_STATE correctly
+  indicating Gate 13.
+- Corrected `project_status.json` at `70f45a5348ac69172011f5231a4db5ef24839cae`
+  to mark Gate 13 active, Gate 14 next, Gate 17 the sole full-mission
+  completion boundary. Explicitly separated confirmed private Library
+  source availability from the current execution environment's repeatable
+  `ClientError` on trivial shell/Python calls. Recorded newest passing
+  Gate-13 and repository policy workflow IDs and retained the last known
+  full-suite two secondary-schedule failures without implying a new full
+  reconstruction pass.
+- This is a canonical status-consistency correction, not a Gate-13 closure,
+  native-executable trace or new licensed-source run.
