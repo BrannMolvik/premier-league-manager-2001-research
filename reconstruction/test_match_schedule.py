@@ -79,13 +79,14 @@ class ScheduleBucketShuffleTests(unittest.TestCase):
             (1, 3, 0, 2, 4),
         )
 
-    def test_secondary_container_bucket_counts_reach_canonical_staff_seed(self):
-        bucket_sizes = (
-            6, 10, 6, 6, 6, 6, 10, 6, 10, 10, 16, 12, 4,
-            24, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 2, 1,
-            48, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 8, 4, 2, 1,
-            6, 6, 6,
-        )
+    def test_secondary_documented_aggregate_draw_count_reaches_staff_seed(self):
+        # Firsthand Gate11 research establishes exactly 262 mode-1 nodes,
+        # 45 nonempty buckets, 217 Fisher-Yates draws and this final CRT
+        # state. The prior handwritten distribution mistakenly summed to
+        # 280; it was NEVER independently source-locked per date. This
+        # explicitly synthetic partition tests only the proven aggregate
+        # draw-state invariant, not original per-bucket placement/order.
+        bucket_sizes = (6,) * 37 + (5,) * 8
         self.assertEqual(sum(bucket_sizes), 262)
         self.assertEqual(len(bucket_sizes), 45)
         rng = MsvcCrtRng(0xCAB0B953)

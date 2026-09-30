@@ -344,14 +344,25 @@ class OrderedCompetitionRngTests(unittest.TestCase):
             (116,),
         )
 
+        # Firsthand research proves the SAME qsorted country-root array is
+        # traversed backwards, with WC 174 before Euro 171. The comparator
+        # returns equality for the remaining mode-1 roots, and the exact
+        # equal-key permutation has NOT been source-independently verified.
+        # Do not freeze an invented strict order for 170 versus 181.
         self.assertEqual(
-            tuple(competition.id for competition in ordered),
-            (
-                187, 186, 185, 184, 183, 182,
-                181, 180, 179, 178, 177,
-                174, 171, 170,
-            ),
+            ordered,
+            tuple(reversed(country_root_competition_storage_order(
+                competitions, 116
+            ))),
         )
+        ids = tuple(competition.id for competition in ordered)
+        self.assertEqual(
+            set(ids),
+            {170, 171, 174, 177, 178, 179, 180, 181,
+             182, 183, 184, 185, 186, 187},
+        )
+        self.assertEqual(len(ids), 14)
+        self.assertLess(ids.index(174), ids.index(171))
 
     def test_cup_round_qsort_uses_child_league_date_for_minileague(self):
         rounds = (

@@ -3,6 +3,14 @@ name: Reconstruction test suite
 # The full suite is intentionally manual for gate audits and release
 # verification. Do not charge each small reverse-engineering checkpoint.
 on:
+  # Run the full suite only for a PR changing the fragile historical
+  # secondary schedule assertions or this gate-specific CI policy.
+  # Keep routine main checkpoints manual to avoid duplicate CI charges.
+  pull_request:
+    paths:
+      - ".github/workflows/reconstruction-tests.yml"
+      - "reconstruction/test_competition_startup.py"
+      - "reconstruction/test_match_schedule.py"
   workflow_dispatch:
 
 concurrency:
