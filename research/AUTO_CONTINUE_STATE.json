@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: recover original Zurich 20-pixel FNT glyph/metrics and Button@ease_2001 frame-state behavior from the authorized original executable and disc; compose verified authentic PStartMenu then TeamSelect; continue remaining screens and Gates 14-17 after audits.",
-  "last_known_main_head": "2ef1d249e6c97b1b73263b1872fb7c511990226f",
+  "active_task": "Gate 13: original Zurich font/STR-IDX labels and hash-verified 23-frame PStartMenu/TeamSelect atlas extraction merged. Build first-screen verified original asset loading/composition, then resolve Button@ease_2001 frame-state semantics and exact caption alignment from canonical executable; continue remaining Gate 13 and Gates 14-17.",
+  "last_known_main_head": "0a999a16d17850613c0c7451b972b44e3d99d987",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 93,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Resumed at main 2ef1d249. Newly persisted EAUK original font parser commits 08228e/d58a57/995a52 identified beyond old CURRENT_STATE checkpoint; inspect and verify rather than repeat. Container trivial echo still raises ClientError in current session. Continue Gate 13 source-backed tasks; full Gates 13-17 remains active.",
+  "note": "PR #7 -> 973e082 and PR #8 -> 0a999a1 merged with passing focused Gate 13 and asset-policy checks. Container/Python trivial operations still ClientError, so first-hand new source extraction cannot be asserted; existing original source hashes and scripts remain canonical. Continue source-backed GitHub integration without speculative visual frame-state mapping.",
   "same_chat_fallback_minutes": 30
 }
