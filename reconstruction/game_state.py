@@ -2927,6 +2927,47 @@ class GameState:
             self.cup_results,
         )
 
+    def _integrate_dynamic_cup_replay(
+        self,
+        schedule_state: DomesticCupScheduleState,
+        completion: CupMatchCompletion,
+    ):
+        replay = completion.replay
+        if replay is None:
+            return None
+
+        replay_token = tuple(replay.node_token)
+        replay_node = schedule_state.node(replay_token)
+        chosen_date = replay_node.scheduled_date
+        if self.primary_schedule_shadow.days:
+            chosen_date = self.primary_schedule_shadow.choose_dynamic_insertion_date(
+                replay_node,
+                requested_date=replay_node.scheduled_date,
+                current_date=self.calendar.current_date,
+            )
+            if chosen_date != replay_node.scheduled_date:
+                replay_node = schedule_state.reschedule_dynamic_node(
+                    replay_token, scheduled_date=chosen_date
+                )
+            self.primary_schedule_shadow.insert_dynamic_node(
+                replay_node, on_date=chosen_date
+            )
+
+        if schedule_state is self.domestic_cups:
+            entry_kind = "domestic_cup"
+        elif schedule_state is self.european_cups:
+            entry_kind = "european_cup"
+        elif schedule_state is self.qualification_cups:
+            entry_kind = "qualification_cup"
+        else:
+            raise ValueError("unknown Cup schedule owner")
+        entry = (entry_kind, replay_token)
+        existing = tuple(self.primary_matchday_order.get(chosen_date, ()))
+        if entry in existing:
+            raise ValueError("dynamic Replay is already present in primary order")
+        self.primary_matchday_order[chosen_date] = (entry,) + existing
+        return replay_node
+
     def simulate_domestic_cup_ai_node(
         self,
         node_token: tuple,
@@ -3075,12 +3116,7 @@ class GameState:
             current_date=self.calendar.current_date,
             rng=rng,
         )
-        if completion.replay is not None and self.primary_schedule_shadow.days:
-            replay_node = schedule_state.node(completion.replay.node_token)
-            self.primary_schedule_shadow.insert_dynamic_node(
-                replay_node,
-                on_date=replay_node.scheduled_date,
-            )
+        self._integrate_dynamic_cup_replay(schedule_state, completion)
 
 
         self._persist_domestic_cup_shared_post_match(
@@ -3278,12 +3314,7 @@ class GameState:
             current_date=self.calendar.current_date,
             rng=rng,
         )
-        if completion.replay is not None and self.primary_schedule_shadow.days:
-            replay_node = schedule_state.node(completion.replay.node_token)
-            self.primary_schedule_shadow.insert_dynamic_node(
-                replay_node,
-                on_date=replay_node.scheduled_date,
-            )
+        self._integrate_dynamic_cup_replay(schedule_state, completion)
 
 
         self._persist_domestic_cup_shared_post_match(
