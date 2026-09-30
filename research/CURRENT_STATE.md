@@ -89,20 +89,34 @@ Internal save schema remains **34**.
 - state after primary schedule shuffle: **`0xD25DFFE6`**;
 - first PL fixture order: **0, 6, 8, 5, 1, 9, 3, 2, 4, 7**.
 
+## Gate 13 presentation checkpoint
+
+The first front-end contract is now bounded in
+`research/GATE13_FRONTEND_FOUNDATION.md`:
+
+- initial PStartMenu screen identity: `0x323`;
+- PStartMenu New Game control/event: `2`;
+- TeamSelect Back control/event: `0x29`;
+- TeamSelect Start/Continue control/event: `0x2A`;
+- TeamSelect object/activation path is already recovered and remains separate
+  from gameplay simulation.
+
+The authorized source archive is available again, but this recovery runtime
+cannot currently inspect the materialized ZIP bytes. No visual asset has been
+guessed or substituted; `original_assets/MANIFEST.md` remains intentionally
+empty.
+
 ## Exact next task
 
-Gate 13 starts with the **original main-menu / TeamSelect presentation**.
-
-1. Inventory the authorized original graphics, strings, screen/layout data,
-   controls, navigation/timing, and other resources required for the first
-   visible front-end screen.
-2. Re-read only the existing TeamSelect/front-end executable evidence relevant
-   to that screen; do not redo solved gameplay or Gate-12 competition work.
-3. Import intentionally reused original UI resources under `original_assets/`
-   with provenance according to `research/ASSET_POLICY.md`.
-4. Keep the presentation layer separate from simulation logic.
-5. Implement and regression-test the first recognizably original FM2001
-   main-menu / TeamSelect slice before moving to manager home.
+1. Regain byte-level access to the authorized archive/disc contents.
+2. Inventory the exact original graphics, strings, rectangles/layout data and
+   other resources required by PStartMenu and TeamSelect.
+3. Identify source paths/hashes and import only the minimum intentional first
+   slice under `original_assets/` with manifest provenance.
+4. Introduce the presentation/navigation boundary around the already-proven
+   control IDs while leaving simulation logic in the existing backend.
+5. Regression-test the first recognizably original main-menu -> TeamSelect flow
+   before moving to manager home.
 
 The priority is **original look and interaction flow**, not redesign.
 

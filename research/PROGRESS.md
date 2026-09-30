@@ -7886,3 +7886,29 @@ See `research/GATE12_COMPLETION_AUDIT.md`.
 Gate 13 is now active. Exact next slice: inventory and restore the original
 main-menu / TeamSelect presentation using authorized original resources while
 keeping presentation separate from the stable simulation backend.
+
+
+## Gate 13 front-end foundation checkpoint - 30 September 2026
+
+- Re-read only the persisted front-end/TeamSelect executable evidence needed by
+  the active gate.
+- Confirmed the ordinary initial PStartMenu is constructed inline immediately
+  after `PREMINTRO.TGQ`; later navigation identifies it as screen `0x323`.
+- Confirmed PStartMenu event/control ID `2` is the New Game path into
+  TeamSelect.
+- Confirmed TeamSelect control `0x29` returns to PStartMenu and control
+  `0x2A` enters the recovered Start/Continue path `0x4C41C0`; the latter is
+  the embedded `Button@ease_2001` at TeamSelect `+0x3690`.
+- Confirmed the current Tk prototype still couples widgets directly to
+  `HumanGameplayController`; Gate 13 will introduce a presentation/navigation
+  boundary instead of duplicating simulation logic.
+- The authorized 511 MB FM2001 source archive is available again. The current
+  file service can materialize it, but this recovery execution runtime cannot
+  inspect the mounted ZIP bytes and the file service itself does not parse ZIP
+  contents. No original UI asset was guessed or imported.
+- Added `research/GATE13_FRONTEND_FOUNDATION.md` as the canonical first
+  Gate-13 presentation checkpoint.
+- Next: regain byte-level archive access, inventory the exact PStartMenu /
+  TeamSelect graphics, strings and layout resources, then import the minimum
+  original slice with provenance before implementing recognizably original
+  rendering.
