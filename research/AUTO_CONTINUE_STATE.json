@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 12,
   "active_task": "Gate 12 annual rollover: rematerialize the authorized canonical disc archive from ChatGPT Library, recover exact 0x615A60 dynamic FA Cup replay insertion order from FOOTBAL.EXE, integrate it, then run the canonical annual rollover audit.",
-  "last_known_main_head": "65c3e9a6c2a729aff7b6e8a28cd016620fab802e",
+  "last_known_main_head": "909f9ec2644ff8159e0a41871a3a5bb9844b297f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 73,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "User confirmed continuation after recovery of source access. The canonical disc archive remains available in ChatGPT Library and will be rematerialized; resume exact 0x615A60 trace without asking for re-upload.",
+  "recovery_generation": 74,
+  "last_recovery_reason": "stale-repository-activity-no-worker-tab",
+  "note": "Automatic recovery resumed from canonical GitHub state at main 909f9ec2644ff8159e0a41871a3a5bb9844b297f. Continue the exact active Gate 12 annual-rollover task; verify the recent replay-order and DummyLeague lifecycle commits before any new changes.",
   "same_chat_fallback_minutes": 30
 }
