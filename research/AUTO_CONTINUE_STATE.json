@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 exact TeamSelect control/layout recovery: continue canonical executable trace for Back/Main Menu event 0x29 and Start Game event 0x2A using choice_start_anim.444; resolve exact rectangles, then integrate source-backed PStartMenu/TeamSelect renderer and continue remaining Gate 13 screens. Full mission remains Gates 13-17.",
-  "last_known_main_head": "8ca771116fd56ca63d9333856980195cc541cfc3",
+  "active_task": "Gate 13: recover original Fonts/Zurich_BdXCn_BT_20pixel.fnt glyph format/metrics and Button@ease_2001 frame-state selection; compose authentic source-backed PStartMenu using exact four controls, original EA444 background/button atlas and STR/IDX labels; then complete TeamSelect and remaining Gate13 screens, automatically continue Gates14-17.",
+  "last_known_main_head": "f3be9f60753f13afdb0a02ec790c6da052ef831f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 91,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovered main at 8ca771116fd56ca63d9333856980195cc541cfc3; checking latest post-1cf Gate 13 implementation before resuming. Full Gate 17 mission remains active.",
+  "recovery_generation": 92,
+  "last_recovery_reason": "manual-start",
+  "note": "Main f3be9f6 checkpoints exact PStartMenu actions: events 1 Continue,2 New Game,3 Load,4 Quit; exact language IDX 0,1,2,6; button_type_1.444 169x25 frame rectangles at x/y 181/478,7/478,355/478,181/508. Common font handle 0x9197E0 = Fonts/Zurich_BdXCn_BT_20pixel.fnt. EA444 dyadic transform optimized exactly and source-backed decoder tests remain bit-identical. Continue immediately; checkpoint is not stop.",
   "same_chat_fallback_minutes": 30
 }
