@@ -62,6 +62,28 @@ formations graphics, player-slot coordinates, style labels, colors or drag/drop
 behavior. Missing tactical state, lineup tuple or one of the four Team Orders
 lists fails closed instead of silently injecting modern defaults.
 
+### Player profile source/runtime projection
+
+The bridge can now project one runtime player into a profile data record using
+only already reconstructed fields:
+
+- source first/surname and player/club/nationality IDs;
+- date of birth, shirt number, height and weight;
+- original three-position tuple;
+- the live **17-byte current skill vector** loaded into DBRPlayer/runtime state;
+- condition, form state and morale;
+- weekly wage and contract-expiry date;
+- injury/suspension plus Out of Contract, Transfer Listed, Loan Listed and
+  Wanted runtime states;
+- current loan-club ID when present.
+
+The backend also carries development-target bytes, peak/development state and
+other internal values. Those are intentionally **not** exposed here merely
+because they exist in memory: no claim has been made that the original
+player-profile UI showed them. Likewise the bridge does not assign the 17 raw
+skill bytes to visual columns/icons until original player-profile presentation
+evidence establishes that mapping.
+
 ### Fixtures/results
 
 `PremierLeagueState.fixture_source_order` is constructed directly from the
@@ -120,6 +142,8 @@ backend contract to lock:
 - live source-roster ordering;
 - exact persisted human formation, starter/bench ordering, four runtime tactical
   bytes and all four original Team Orders priority lists;
+- player-profile source identity, current 17-byte runtime skill state,
+  contract/status fields, and explicit exclusion of unsupported target values;
 - fixture source insertion order even when fixture IDs/dates could tempt a
   modern resort;
 - recorded/unplayed result projection;
