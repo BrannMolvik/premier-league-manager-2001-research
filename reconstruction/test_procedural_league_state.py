@@ -99,6 +99,25 @@ class LiveProceduralLeagueStateTests(unittest.TestCase):
         self.assertIsNone(state.publish_exact_ranking(registry))
         self.assertEqual(registry.competition_rankings, {})
 
+    def test_equal_numeric_keys_use_source_short_name_byte_order(self):
+        registry = CupResultRegistry()
+        nodes = (
+            league_node(0, 10, 20),
+            league_node(1, 30, 40),
+        )
+        state = LiveProceduralLeagueState.from_schedule_nodes(
+            nodes,
+            registry.resolve_club_ref,
+        )
+        state.record_result(nodes[0].node_token, 1, 0)
+        state.record_result(nodes[1].node_token, 1, 0)
+        names = {10: b"Zulu", 30: b"Alpha", 20: b"Beta", 40: b"Gamma"}
+
+        self.assertEqual(
+            state.publish_exact_ranking(registry, names.__getitem__),
+            (30, 10, 20, 40),
+        )
+
     def test_unique_ranking_publishes_to_type2_registry(self):
         registry = CupResultRegistry()
         nodes = (

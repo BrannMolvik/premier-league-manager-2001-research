@@ -143,32 +143,60 @@ class LiveProceduralLeagueState:
             )
         )
 
-    def exact_ranking(self) -> tuple[int, ...] | None:
-        """Return positions only when the proven sort keys are unambiguous.
+    def exact_ranking(
+        self,
+        club_name_key: Callable[[int], bytes | None] | None = None,
+    ) -> tuple[int, ...] | None:
+        """Return the exact 0x4F45E0 League ranking when names are available.
 
-        Existing executable research establishes points, goal difference and
-        goals scored as the ranking keys before an unresolved deeper fallback.
-        If any two clubs tie on all three, do not use the clean-room club-ID
-        display fallback as gameplay truth.
+        The recovered comparator orders points descending, played ascending,
+        goal difference descending, goals for descending, goals against
+        ascending, then the DBRClub short-name byte string lexically. Callers
+        without the source-name key remain conservative on a numeric tie.
         """
-        rows = self.table()
-        keys = tuple(
-            (int(row.points), int(row.goal_difference), int(row.goals_for))
-            for row in rows
-        )
-        if len(keys) != len(set(keys)):
+        rows = tuple(self.table())
+
+        def numeric_key(row):
+            return (
+                -int(row.points),
+                int(row.played),
+                -int(row.goal_difference),
+                -int(row.goals_for),
+                int(row.goals_against),
+            )
+
+        numeric_keys = tuple(numeric_key(row) for row in rows)
+        if len(numeric_keys) == len(set(numeric_keys)):
+            return tuple(int(row.club_id) for row in sorted(rows, key=numeric_key))
+        if club_name_key is None:
             return None
-        return tuple(int(row.club_id) for row in rows)
+        named_rows = []
+        for row in rows:
+            name_key = club_name_key(int(row.club_id))
+            if name_key is None:
+                return None
+            named_rows.append((row, bytes(name_key)))
+        return tuple(
+            int(row.club_id)
+            for row, _name_key in sorted(
+                named_rows,
+                key=lambda item: numeric_key(item[0]) + (item[1],),
+            )
+        )
 
     @property
     def is_complete(self) -> bool:
         return len(self.results) == len(self.fixtures)
 
-    def publish_exact_ranking(self, registry) -> tuple[int, ...] | None:
+    def publish_exact_ranking(
+        self,
+        registry,
+        club_name_key: Callable[[int], bytes | None] | None = None,
+    ) -> tuple[int, ...] | None:
         # Competition-position ClubRefs feed later rounds/phases. Do not expose
         # a transient mid-group table merely because its currently proven sort
         # keys happen to be unique.
-        ranking = self.exact_ranking() if self.is_complete else None
+        ranking = self.exact_ranking(club_name_key) if self.is_complete else None
         if ranking is None:
             registry.clear_competition_ranking(
                 self.competition_id,

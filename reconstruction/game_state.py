@@ -2553,14 +2553,38 @@ class GameState:
                 int(row.goals_against),
             )
 
+        def club_name_key(club_id: int) -> bytes | None:
+            club = self.clubs.get(int(club_id))
+            if club is None or not hasattr(club, "short_name"):
+                return None
+            return str(getattr(club, "short_name")).encode("cp1252")
+
+        def sort_exact(rows):
+            rows = tuple(rows)
+            numeric_keys = tuple(numeric_key(row) for row in rows)
+            if len(numeric_keys) == len(set(numeric_keys)):
+                return tuple(sorted(rows, key=numeric_key))
+            named = []
+            for row in rows:
+                name_key = club_name_key(int(row.club_id))
+                if name_key is None:
+                    return None
+                named.append((row, name_key))
+            return tuple(
+                row
+                for row, _name_key in sorted(
+                    named,
+                    key=lambda item: numeric_key(item[0]) + (item[1],),
+                )
+            )
+
         group_rankings: dict[int, tuple] = {}
         for context in range(instance_count):
-            rows = tuple(groups[context].table())
-            keys = tuple(numeric_key(row) for row in rows)
-            if len(keys) != len(set(keys)):
+            ordered_rows = sort_exact(groups[context].table())
+            if ordered_rows is None:
                 withdraw_all()
                 return self.cup_results.group_position_rankings
-            group_rankings[context] = tuple(sorted(rows, key=numeric_key))
+            group_rankings[context] = ordered_rows
 
         for position_index in selectors:
             if position_index < 0 or any(
@@ -2576,14 +2600,13 @@ class GameState:
                 group_rankings[context][position_index]
                 for context in range(instance_count)
             )
-            candidate_keys = tuple(numeric_key(row) for row in candidates)
-            if len(candidate_keys) != len(set(candidate_keys)):
+            ordered = sort_exact(candidates)
+            if ordered is None:
                 self.cup_results.clear_group_position_ranking(
                     competition_id,
                     position_index,
                 )
                 continue
-            ordered = tuple(sorted(candidates, key=numeric_key))
             self.cup_results.replace_group_position_ranking(
                 competition_id,
                 position_index,
@@ -2610,7 +2633,15 @@ class GameState:
             raise RuntimeError("procedural League node belongs to multiple live groups")
         live = owners[0]
         result = live.record_result(token, int(home_goals), int(away_goals))
-        live.publish_exact_ranking(self.cup_results)
+        live.publish_exact_ranking(
+            self.cup_results,
+            lambda club_id: (
+                None
+                if int(club_id) not in self.clubs
+                or not hasattr(self.clubs[int(club_id)], "short_name")
+                else str(self.clubs[int(club_id)].short_name).encode("cp1252")
+            ),
+        )
         self.refresh_procedural_league_group_position_rankings(
             int(live.competition_id)
         )
