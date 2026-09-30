@@ -33,6 +33,56 @@ for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
 
+## Recovery 99 source-backed management presentation data bridge
+
+- Direct native execution was re-probed at recovery start and
+  `container.exec` still returned `ClientError`; the authorized
+  canonical original ZIP remains retained in the private Library.
+  Therefore the critical original PE32 Button RTTI/Zurich/pixel path is
+  still NOT executed, and no native visual claim follows from the work below.
+- PR #27, squash `0ecf3258c21f66806741807d2056008b7743c190`,
+  adds `reconstruction/gate13_management_source_data.py`, a strictly
+  read-only presentation seam over already recovered runtime/source data.
+  It preserves controlled-club source names/date, live source roster order,
+  PremierLeagueState fixture source insertion order/dates/results, and
+  `GameState.premier_league_table()` output without re-sorting the native
+  comparator result. Missing source identity/order fails closed. Focused
+  Gate13 run `36754613939` passed **199 tests**; asset policy
+  `36754613931` passed.
+- PR #28, squash `278916e4479fc5ec53d12126d31a4b1894c20b4f`,
+  extends that seam with persisted human formation, starter/substitute source
+  IDs, the four recovered `TeamTacticalState` numeric fields and all four
+  exact `TeamOrderPriorities` lists. It intentionally does NOT name or draw
+  original tactics controls/slots. Focused run `36754954095` passed
+  **201 tests**; asset policy `36754954127` passed.
+- PR #29, squash `1d2bce7a1b22c9112b3a19b2e4e454c771557992`,
+  adds a player-profile source/runtime projection: source identity, body/DOB,
+  three-position tuple, live 17-byte current skill vector, condition/form/
+  morale, wage/contract and recovered player status fields. Development target
+  bytes are explicitly excluded because their original profile visibility is
+  unproven. Focused run `36755334639` passed **203 tests**; asset policy
+  `36755334392` passed.
+- PR #30, squash `6c0abb541bc7b8badec9793a10c687f710897e50`,
+  adds read-only Finance and active Transfer runtime projections. Balance
+  ledger append order and numeric category IDs remain neutral; financial
+  objective state is preserved. TransferProposal/DealInProgress/ContractTerms
+  fields plus unambiguous scheduled-transfer metadata are exposed without
+  assigning guessed UI names to unresolved negotiation bytes or claiming
+  dictionary insertion order is original screen sorting. Focused run
+  `36755982345` passed **206 tests**; asset policy
+  `36755982172` passed.
+- Exact architecture/evidence rules are in
+  `research/GATE13_MANAGEMENT_SOURCE_DATA_BRIDGE.md`.
+  These merges advance Gate13's required presentation/simulation separation
+  and supply source-faithful data for the eventual original screens, but
+  **do not** close any missing original artwork, control IDs, layouts,
+  navigation, typography, animation state, messages-screen behavior,
+  training/scouting UI, native Windows graphical smoke test or Gate13 audit.
+- The current verified FULL hosted suite remains run `36751321715`
+  from PR #26: **1029 tests with 21 expected original-source-gated skips**.
+  Recovery-99 changes have focused Gate13 + asset-policy verification only;
+  do not silently promote focused counts to a new full-suite result.
+
 ## Most recent Gate13 native-trace safeguards and source-backed League management data
 
 - PR #24, squash `5b1bd361a922f1696e6c0fba963e9082a2e8fe55`,

@@ -8930,3 +8930,43 @@ keeping presentation separate from the stable simulation backend.
   presentation and audit are NOT complete. Do not
   infer native 23-frame Button atlas state, Zurich baseline
   or Windows11 release from green hosted synthetic tests.
+
+
+## Recovery 99 management source-data presentation seam — 1 October 2026 KST
+
+Native byte execution remained unavailable (`container.exec ClientError`) at
+the verified `c4a8603992935ee800fd06ddadd4c2f6de899593` resume point. The
+worker therefore continued only source-backed presentation/runtime separation,
+without inventing proprietary visual behavior.
+
+- PR #27 / `0ecf3258c21f66806741807d2056008b7743c190`: immutable
+  controlled-club/squad/fixture/table view data, preserving live roster source
+  order, fixture source insertion order and the already recovered native League
+  comparator output. Gate13 focused CI `36754613939`: 199 passed. Asset
+  policy `36754613931`: passed.
+- PR #28 / `278916e4479fc5ec53d12126d31a4b1894c20b4f`: human formation,
+  XI/bench IDs, exact four tactical runtime values and Captain/Penalty/Corner/
+  Free-Kick priority lists. Gate13 `36754954095`: 201 passed. Asset
+  `36754954127`: passed.
+- PR #29 / `1d2bce7a1b22c9112b3a19b2e4e454c771557992`: player-profile
+  source/runtime projection of CURRENT state only; hidden development target
+  bytes intentionally excluded. Gate13 `36755334639`: 203 passed. Asset
+  `36755334392`: passed.
+- PR #30 / `6c0abb541bc7b8badec9793a10c687f710897e50`: neutral Balance
+  ledger/objective and active transfer Proposal/Deal/Contract/Schedule data.
+  Unresolved account/negotiation labels stay numeric/neutral. Gate13
+  `36755982345`: 206 passed. Asset `36755982172`: passed.
+
+The full hosted reconstruction baseline remains `36751321715`: 1029 tests,
+21 expected source-gated skips, no failures. Recovery99 did not rerun the full
+suite because these changes are isolated read-only Gate13 presentation seams
+with dedicated focused CI; a later gate/release audit must run the full suite
+again.
+
+Exact critical next action remains actual canonical-source analysis when byte
+execution returns: hash-gated original PE32 RTTI canary -> Button draw/update
+state-to-23-atlas rows -> Zurich placement/color -> strict ten-source
+ZIP/executable/pixel audit -> provenance import -> authentic management
+presentation. If byte execution is still unavailable, continue only additional
+already-recovered management data seams (messages/training/scouting), never
+invent original visual or control semantics.
