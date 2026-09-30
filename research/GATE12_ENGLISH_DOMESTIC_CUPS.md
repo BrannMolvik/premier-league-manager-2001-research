@@ -732,12 +732,17 @@ GitHub Actions at `f2abbff4` ran **747 reconstruction tests** with only the
 two unchanged secondary-schedule failures. Repository asset policy passed.
 
 
-## Dynamic replay primary-order boundary
+## Dynamic replay primary order resolved
 
-The annual full-season audit exposed one scheduler integration distinction that
-the earlier dynamic-replay implementation did not close.
+Recovery generation 73 restored the authorized original disc archive from the
+ChatGPT Library, reconstructed the ISO-9660 data track, and re-extracted
+`FOOTBAL.EXE`. Its SHA-256 is the canonical locked project hash:
 
-The replay producer is source-backed:
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+Direct disassembly closes the previously missing runtime insertion routine.
+
+The replay producer remains:
 
 ```text
 0x51392A..0x5139BA
@@ -745,43 +750,37 @@ The replay producer is source-backed:
   -> 0x615A60(container, replay, candidate_relative_day)
 ```
 
-The replay date is exact for shipped FA Cup replay-producing rounds: current
-match-completion date + 14 days. Replay state, reversed participants, linkage,
-completion, persistence, and the full-primary next-match shadow are also live.
+`0x615A60` is now instruction-closed:
 
-However, startup placement and runtime replay insertion are **not the same
-entry point**. Gate 4 proves that `0x615950` chooses/conflict-adjusts a startup
-bucket and head-inserts before `0x615AE0` shuffles that bucket. The dynamic
-replay path calls `0x615A60` directly after that startup shuffle has already
-happened. No persisted instruction trace currently proves whether `0x615A60`
-places the new node at the head, tail, or another linked-list position within
-an already-shuffled same-day bucket.
+1. `0x615A60..0x615A76` clamps the requested relative day to at least
+   the container's current relative day + 1.
+2. `0x615A85 -> 0x615890` scans the three-day window
+   `candidate-1 .. candidate+1`.
+3. `0x615890 -> 0x615790` walks active matches in those buckets and asks
+   the match conflict virtual whether either participant conflicts with the new
+   Replay. CupMatch reaches the already-recovered ClubRef equality semantics
+   through `0x510A80/0x510A40 -> 0x4F2830`.
+4. When a conflict is returned at day `D`, `0x615A8E..0x615AA5`
+   restarts from `D + 2` and repeats the same three-day probe.
+5. Once conflict-free, `0x615AC6` writes the prior bucket head to Replay
+   `+0x04`, then `0x615ACB` writes the Replay as the new bucket head.
+   The runtime-created match is therefore **head-inserted into the already
+   shuffled day bucket**. No post-insertion shuffle occurs.
 
-An older clean-room shadow helper incorrectly described its local tuple
-prepend as preserving `0x615950` replay order. Commit
-`3c200593fd15b264ebef6fb05497d2dc5ff0482f` corrects that comment: the shadow
-position is only for next-match-date reachability and is not evidence for
-scheduler execution order.
+The clean-room implementation now applies that exact displacement using the
+retained full-primary shadow and the existing exact `club_refs_conflict()`
+helper, reschedules the live Replay node to the accepted date, head-inserts the
+Replay into both the primary shadow and `primary_matchday_order`, and uses
+the schedule owner's registered replay identity rather than confusing the
+runtime result token with the schedule node token.
 
-Recovery generation 73 checked:
+Implementation checkpoints include:
 
-- repository research and replay-recovery commit history;
-- connected Dropbox;
-- connected Google Drive;
-- the current execution workspace.
+- `9c3dbffee61cb302fb60f3ad3df9443ea940370e` — conflict/date chooser;
+- `b518d9df2cbbc994eba9a57e654745a5fb0543b3` — live replay date displacement;
+- `c391e474ceff1ca0399e9405076a1b9e92e4cd8e` — primary-order integration;
+- `b7daaab15eb3025b192c15d6150a4171113b5b67` — registered replay identity fix.
 
-None contained the authorized canonical executable or a saved `0x615A60`
-instruction trace. The routine therefore remains a source-access fidelity
-boundary rather than a guessed implementation.
-
-To prevent silent corruption, commit
-`75e3072e482afad4c88796331ad1b040e98265c4` makes
-`GameState.primary_entries_due_today()` raise explicitly if a dynamic replay
-reaches its due date without a source-ordered primary entry. Regression
-`ece4da469943cf477788be00f537af61f019edc7` locks that behavior.
-
-`reconstruction/canonical_annual_rollover_audit.py` now drives the entire
-canonical primary season through the existing runtime and atomic annual
-regeneration path. Until `0x615A60` is traced, the audit may deliberately stop
-at this replay guard. It must never append/prepend a replay merely to force the
-annual audit to pass.
+The earlier fail-loud guard remains useful as a corruption detector, but
+dynamic FA Cup Replay primary ordering is no longer a source-access fidelity
+gap.
