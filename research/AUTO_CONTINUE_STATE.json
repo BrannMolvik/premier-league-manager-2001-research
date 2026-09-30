@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: first-hand byte inventory of exact private authorized 511MB source ZIP in a working execution environment. Current code already handles complete ZIP+ISO catalogs, raw MODE1 virtual reader with full-sector validation, strict unique exact-path staging, and report-hash-verified original asset imports (including genuine opaque UI BIN data). Query full catalog to identify original PStartMenu/TeamSelect graphics/strings/layout, stage minimum assets with --require-all-explicit --hash-source, import with --inventory-report, connect authentic visuals to existing front_end_session. Do not restart or fabricate original art.",
-  "last_known_main_head": "dbdab1329e9e31ba0af86a11aaedb16084f01888",
+  "active_task": "Gate 13 live original-source work: real 2456-file Joliet disc catalog and original asset hashes recovered, archive SHA verified. Continue source-backed English.str/English.idx parsing and .444 decoder research, then provenance-import correlated authentic visuals and connect to front_end_session. Full mission remains gates 13-17 through Windows 11 release.",
+  "last_known_main_head": "e9e51bb422dde539a4e9ecf1186fefbca12704fb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 87,
   "last_recovery_reason": "manual-start",
-  "note": "Execution container is WORKING as of 2026-09-30 20:29 Korea. Verified actual 511121336-byte Library ZIP available in /mnt/data/fm2001-source and contains nested 631627248-byte famg2001.bin, CUE, NFO. Continue REAL original-disc extraction and evidence-backed asset inventory now. Do not restart completed synthetic tooling.",
+  "note": "Container restored; verified 268549/268549 MODE1 sectors, 2456 files/211 folders, 0 path collisions; original archive SHA and 15 asset hashes persisted research/GATE13_REAL_DISC_INVENTORY.md. Staged real bytes local /mnt/data/fm2001-work; README prior blocker is superseded by CURRENT_STATE at main e9e51bb. Newly identified English.str header as u32 blob length 282212, u32 string count 21856, NUL-terminated cp1252 blob, trailing u32 offset array; English.idx first IDs map exactly to menu strings; next implement parser and tests. Continue working; do not treat checkpoint as finish.",
   "same_chat_fallback_minutes": 30
 }
