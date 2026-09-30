@@ -108,10 +108,10 @@ class Iso9660ReaderTests(unittest.TestCase):
                 sector = original[offset:offset + SECTOR]
                 physical.append(
                     RawMode1IsoImage.RAW_SYNC
-                    + b"\\x00\\x02\\x00"
-                    + b"\\x01"
+                    + b"\x00\x02\x00"
+                    + b"\x01"
                     + sector
-                    + b"\\x00" * (2352 - 16 - SECTOR)
+                    + b"\x00" * (2352 - 16 - SECTOR)
                 )
             raw_path.write_bytes(b"".join(physical))
 
@@ -136,13 +136,13 @@ class Iso9660ReaderTests(unittest.TestCase):
             data = bytearray()
             for offset in range(0, len(original), SECTOR):
                 sector = original[offset:offset + SECTOR]
-                mode = b"\\x02" if offset // SECTOR == 23 else b"\\x01"
+                mode = b"\x02" if offset // SECTOR == 23 else b"\x01"
                 data.extend(
                     RawMode1IsoImage.RAW_SYNC
-                    + b"\\x00\\x02\\x00"
+                    + b"\x00\x02\x00"
                     + mode
                     + sector
-                    + b"\\x00" * (2352 - 16 - SECTOR)
+                    + b"\x00" * (2352 - 16 - SECTOR)
                 )
             raw_path.write_bytes(data)
             virtual = RawMode1IsoImage(raw_path)
