@@ -7,6 +7,7 @@ import zipfile
 
 from gate13_source_inventory import (
     EXPECTED_BGROUND_PATH,
+    EXPECTED_BGROUND_BYTES,
     ISO9660_SECTOR_BYTES,
     MODE1_RAW_SECTOR_BYTES,
     MODE1_SYNC,
@@ -81,6 +82,21 @@ class Gate13SourceInventoryTests(unittest.TestCase):
         self.assertIsNotNone(records[0].sha256)
         self.assertEqual(nested, ["disc/game.iso"])
         self.assertEqual(warnings, [])
+
+    def test_original_background_expected_byte_count_is_recorded(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            iso = Path(temp_name) / "fixture.iso"
+            build_joliet_iso(iso)
+            report = report_for_source(iso)
+
+        self.assertEqual(EXPECTED_BGROUND_BYTES, 222_616)
+        self.assertEqual(report["expected_bground"]["size_bytes"], 222_616)
+        self.assertTrue(
+            any(
+                "bground.444 size is" in warning and "222616" in warning
+                for warning in report["warnings"]
+            )
+        )
 
     def test_zip_with_only_disc_image_marks_deep_inspection_dependency(self):
         with tempfile.TemporaryDirectory() as temp_name:
