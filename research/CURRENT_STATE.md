@@ -23,6 +23,45 @@ Evidence:
 - `research/GATE12_ENGLISH_SEASON_TRANSITION.md`
 - `research/GATE12_NEXT_SEASON_REGENERATION.md`
 
+## Recovery 104: verified Squad contract; source present, byte execution still blocked
+
+- Fresh fallback recovery resumed canonical main
+  `da23cf50e3a250dbe3c43a5c97533fd7f2537741`.
+- The canonical private 511,121,336-byte authorized source ZIP was re-listed at
+  the exact durable Library location and successfully materialized into the
+  current workspace. Source availability is therefore independently confirmed
+  in this recovery.
+- Execution did **not** become reliably usable. One initial trivial shell probe
+  succeeded, but the repository clone/file-access command, subsequent trivial
+  shell probes and private Python execution all returned `ClientError`.
+  Therefore no new Button RTTI, Zurich render, ten-resource physical audit,
+  executable disassembly, pixel inspection or source import is claimed.
+- PR #45 was merged at
+  `de3091f7102d178aafb5604b3eeca2561bf04a97`. The read-only Gate-13
+  presentation seam now preserves only already-proven Squad backend state:
+  ordered team roster IDs at `+0x244` / count `+0x294`, participant
+  collector `0x510CD0`, active/substitute predicates
+  `0x417F50` / `0x417F60`, DBRPlayer `+0x14` flags
+  `0x10` / `0x20`, setters `0x4182F0` / `0x4182C0`,
+  removal helper `0x4181B0`, and preservation of live roster iteration
+  order. It deliberately claims no original Squad screen class, row sort,
+  columns, geometry, artwork, controls or navigation.
+- Verification on PR head
+  `db7c463dcfb482bdea938798ba9e545888a53bf4`:
+  - focused Gate-13 run `36780212525`: **238 tests, 19 expected
+    original-source-gated skips, zero failures**;
+  - full reconstruction run `36780212535`: **1,074 tests, 21 expected
+    original-source-gated skips, zero failures**;
+  - repository asset-policy run `36780212608`: passed.
+- Exact next bounded task while private execution remains unavailable:
+  inventory manager-home and remaining-screen source evidence/blockers from the
+  already-persisted executable/RTTI/string/resource research, keeping uncertain
+  screen identity/layout/navigation explicitly unresolved. Resume the canonical
+  TeamSelect Button RTTI -> Button state/23-frame -> Zurich placement/color ->
+  strict ten-resource audit/import path immediately if byte execution works.
+  Gate 13 remains active; Gates 14-17 and the clean Windows 11 release remain
+  mandatory afterward.
+
 ## Recovery 101: Gate 13 resource-coverage audit and execution blocker
 
 - Resumed from canonical main `9bb117f9403821982c112d649305cb0121cd1c4d`.
