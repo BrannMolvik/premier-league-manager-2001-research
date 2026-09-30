@@ -79,9 +79,25 @@ class LeagueTableRowView:
 
 
 @dataclass(frozen=True)
+class TacticsSelectionView:
+    formation_id: int
+    starter_ids: tuple[int, ...]
+    substitute_ids: tuple[int, ...]
+    play_style: int
+    without_ball_style: int
+    with_ball_style: int
+    aggression: int
+    captain_priority: tuple[int, ...]
+    penalty_priority: tuple[int, ...]
+    corner_priority: tuple[int, ...]
+    free_kick_priority: tuple[int, ...]
+
+
+@dataclass(frozen=True)
 class ManagementSourceDataSnapshot:
     club: ClubHeaderView
     squad: tuple[SquadRowView, ...]
+    tactics: TacticsSelectionView
     fixtures_in_source_order: tuple[FixtureRowView, ...]
     league_table: tuple[LeagueTableRowView, ...]
 
@@ -195,6 +211,61 @@ class ManagementSourceDataBridge:
             ))
         return tuple(rows)
 
+    def tactics_selection(self) -> TacticsSelectionView:
+        """Expose exact backend tactical/selection state without UI labels.
+
+        TeamTacticalState's four values are recovered runtime fields and
+        TeamOrderPriorities maps the four original stored priority lists.
+        Formation/player IDs are the currently persisted human selection.
+        """
+        club_id = self._human_club_id()
+        human = self.controller.human
+        team_tactics = getattr(self.state, "team_tactics", None)
+        if not hasattr(team_tactics, "get"):
+            raise ManagementPresentationError(
+                "Recovered team tactical state is unavailable"
+            )
+        tactics = team_tactics.get(club_id)
+        if tactics is None:
+            raise ManagementPresentationError(
+                f"Controlled club {club_id} has no recovered tactical state"
+            )
+        orders = getattr(human, "team_orders", None)
+        required_order_fields = ("captain", "penalty", "corner", "free_kick")
+        if orders is None or any(
+            not isinstance(getattr(orders, name, None), tuple)
+            for name in required_order_fields
+        ):
+            raise ManagementPresentationError(
+                "Recovered human Team Orders priority lists are unavailable"
+            )
+        starter_ids = getattr(human, "starter_ids", None)
+        substitute_ids = getattr(human, "substitute_ids", None)
+        if not isinstance(starter_ids, tuple) or not isinstance(substitute_ids, tuple):
+            raise ManagementPresentationError(
+                "Recovered human lineup selection is unavailable"
+            )
+        if any(type(value) is not int for value in starter_ids + substitute_ids):
+            raise ManagementPresentationError(
+                "Human lineup player IDs must remain integer source IDs"
+            )
+        formation_id = getattr(human, "formation_id", None)
+        if type(formation_id) is not int:
+            raise ManagementPresentationError("Human formation ID is unavailable")
+        return TacticsSelectionView(
+            formation_id=formation_id,
+            starter_ids=starter_ids,
+            substitute_ids=substitute_ids,
+            play_style=int(getattr(tactics, "play_style")),
+            without_ball_style=int(getattr(tactics, "without_ball_style")),
+            with_ball_style=int(getattr(tactics, "with_ball_style")),
+            aggression=int(getattr(tactics, "aggression")),
+            captain_priority=tuple(int(v) for v in orders.captain),
+            penalty_priority=tuple(int(v) for v in orders.penalty),
+            corner_priority=tuple(int(v) for v in orders.corner),
+            free_kick_priority=tuple(int(v) for v in orders.free_kick),
+        )
+
     def fixture_rows(self) -> tuple[FixtureRowView, ...]:
         league = getattr(self.state, "premier_league", None)
         if league is None:
@@ -274,6 +345,7 @@ class ManagementSourceDataBridge:
         return ManagementSourceDataSnapshot(
             club=self.club_header(),
             squad=self.squad_rows(),
+            tactics=self.tactics_selection(),
             fixtures_in_source_order=self.fixture_rows(),
             league_table=self.league_table_rows(),
         )
