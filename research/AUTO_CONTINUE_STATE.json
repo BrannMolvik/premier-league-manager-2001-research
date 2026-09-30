@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 13,
   "active_task": "Gate 13 original management presentation: retry byte access to the successfully materialized durable Library source in a functional execution container, run the verified native ZIP -> MODE1/2352 -> ISO9660/Joliet inventory, record exact PStartMenu/TeamSelect resources, provenance-import the minimum slice, then bind it to the presentation-only navigation boundary.",
-  "last_known_main_head": "dba0db1abcf200074aa9cd5192e81f4562340236",
+  "last_known_main_head": "a07d23d7bb2014078bcc82ca5cf2c360b94a0aca",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 78,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered after stale heartbeat. Native ISO integration is now CI-verified at 971bea6: 851 tests, only the two known secondary-schedule failures; both new ISO tests passed. Library source listing/materialization again succeeds, but container.exec, analysis Python, and user-visible Python all still fail with CAAS ClientError before reading the materialized ZIP. Exact next task remains real-disc inventory when execution byte access is available.",
+  "note": "Gate 13 source bytes remain blocked by CAAS ClientError despite successful Library materialization. To avoid stalling, main now adds complete ISO disc filesystem cataloging (608fadd) plus regression coverage (a07d23d) so the next real source run records every path/size/extent, not only heuristic candidates. CI is currently in progress for a07d23d.",
   "same_chat_fallback_minutes": 30
 }
