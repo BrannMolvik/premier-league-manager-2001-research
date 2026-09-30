@@ -155,11 +155,14 @@ the intended original resource before staging an ambiguous path.
 python gate13_source_inventory.py <source.zip> --deep \
   --extract-path-file gate13-selected-paths.txt \
   --only-explicit \
+  --require-all-explicit \
   --extract-candidates-to <staging-directory> \
   --output gate13-source-selected.json
 ```
 
-The report must warn if any selected path no longer exists. Source extraction
+The report must warn if any selected path no longer exists;
+`--require-all-explicit` also makes the staging command fail after writing
+its audit report if any exact resource is missing. Source extraction
 refuses to overwrite existing files, case-insensitive duplicate names, and
 cross-layer staging collisions. Raw BIN disc images are signature-detected
 so unrelated opaque interface `.bin` resources remain searchable. Use `--only-explicit`
@@ -176,6 +179,15 @@ For each staged resource record:
 4. reject unrelated resources from the first slice;
 5. only then use `gate13_asset_import.py` to copy the minimal confirmed set
    under `original_assets/source/` with provenance.
+
+## Raw-disc efficiency and integrity
+
+The documented raw MODE1/2352 BIN track is validated sector-by-sector before
+listing, then read through the repository-native virtual ISO9660/Joliet view.
+It does **not** generate a full-size temporary ISO copy. The separate
+`convert_mode1_2352_to_iso` helper is retained for independent/manual
+checks. The source ZIP, extracted raw track and selected asset staging remain
+temporary, never uncontrolled original-file Git commits.
 
 ## Acceptance boundary for the first import
 
