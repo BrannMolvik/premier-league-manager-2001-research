@@ -1,0 +1,44 @@
+name: Gate 13 presentation source tests
+
+on:
+  push:
+    paths:
+      - ".github/workflows/gate13-tests.yml"
+      - "reconstruction/front_end_state.py"
+      - "reconstruction/gate13_*.py"
+      - "reconstruction/iso9660_reader.py"
+      - "reconstruction/test_front_end_state.py"
+      - "reconstruction/test_gate13_*.py"
+      - "reconstruction/test_iso9660_reader.py"
+  pull_request:
+    paths:
+      - ".github/workflows/gate13-tests.yml"
+      - "reconstruction/front_end_state.py"
+      - "reconstruction/gate13_*.py"
+      - "reconstruction/iso9660_reader.py"
+      - "reconstruction/test_front_end_state.py"
+      - "reconstruction/test_gate13_*.py"
+      - "reconstruction/test_iso9660_reader.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate13:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Run focused Gate 13 tests
+        working-directory: reconstruction
+        run: |
+          python -m unittest -v \
+            test_front_end_state \
+            test_gate13_asset_import \
+            test_gate13_catalog_query \
+            test_gate13_source_inventory \
+            test_iso9660_reader
