@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 original management presentation: run the verified authorized-source pipeline (ZIP -> raw MODE1/2352 -> temporary ISO9660/Joliet), inventory exact PStartMenu/TeamSelect resources, import the minimum provenance-tracked slice, then bind those assets to the verified presentation-only navigation boundary.",
-  "last_known_main_head": "8780207e0dbbd057ce456d6638763a6d92a90d52",
+  "active_task": "Gate 13 original management presentation: retry the durable Library source in a working execution container, run the native ZIP -> MODE1/2352 -> ISO9660/Joliet inventory, record exact PStartMenu/TeamSelect resources, provenance-import the minimum slice, then bind them to the verified presentation-only navigation boundary.",
+  "last_known_main_head": "20677e2133e4944c27b19d50fbbfc0fe62c8b581",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 76,
   "last_recovery_reason": "transient-network-error",
-  "note": "Recovered after transient network interruption. main already contains the new read-only ISO9660/Joliet reader and its test (ee3f623, 8780207). Continue Gate 13 by integrating/testing source inventory against that reader, then inventory and provenance-import the minimum original PStartMenu/TeamSelect slice.",
+  "note": "Durable Library source locator is confirmed and materialization succeeds, but CAAS/container byte access still raises ClientError. main now includes repository-native ISO9660/Joliet inventory integration and nested MODE1 regression tests (784a909, 971bea6), plus canonical checkpoint 20677e2. CI has not yet reported status for the newest implementation commits.",
   "same_chat_fallback_minutes": 30
 }
