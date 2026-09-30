@@ -37,6 +37,8 @@ on:
       - "reconstruction/ea_language_strings.py"
       - "reconstruction/ea_font.py"
       - "reconstruction/test_ea_font.py"
+      - "reconstruction/original_pstartmenu_labels.py"
+      - "reconstruction/test_original_pstartmenu_labels.py"
       - "reconstruction/test_ea_language_strings.py"
       - "reconstruction/iso9660_reader.py"
       - "reconstruction/test_front_end_state.py"
@@ -67,6 +69,8 @@ jobs:
             test_front_end_state \
             test_front_end_session \
             test_ea_language_strings \
+            test_ea_font \
+            test_original_pstartmenu_labels \
             test_ea444_header \
             test_ea444_bits \
             test_ea444_tables \
