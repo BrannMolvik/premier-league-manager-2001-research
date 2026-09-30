@@ -25,6 +25,11 @@ from competition_materializer import (
     PrimaryRngDrivenScheduleMaterialization,
     materialize_primary_rng_driven_schedule,
 )
+from competition_startup import (
+    initial_dummy_league_sort_entries,
+    primary_mode0_root_finalization_order,
+    rank_dummy_league_for_type5,
+)
 from primary_schedule import (
     PrimarySchedulePlacement,
     PrimaryScheduleShuffle,
@@ -135,10 +140,60 @@ def partition_annual_type3_league_sources(
     return tuple(played), tuple(dummy)
 
 
+def finalize_annual_dummy_league_rankings(
+    rng,
+    competitions: Iterable[object],
+    countries: Iterable[object],
+    clubs: Iterable[object],
+    players: Iterable[object],
+    club_competition_membership: Mapping[int, int],
+) -> dict[int, tuple[int, ...]]:
+    """Run the 0x616A70 DummyLeague finalization sorts in source order.
+
+    DummyLeague virtual +0x0C is 0x4F7FE0: it calls the RNG-bearing +0x38
+    sorter unconditionally before common League finalization. Therefore every
+    primary root DummyLeague is freshly ranked at the season boundary, not
+    only DummyLeagues that happened to be consumed lazily by a type-5 Cup
+    instruction earlier in the season.
+    """
+
+    competition_list = tuple(competitions)
+    country_ids = tuple(int(country.id) for country in countries)
+    live_clubs = clubs_with_live_competition_memberships(
+        tuple(clubs),
+        club_competition_membership,
+    )
+    player_list = tuple(players)
+    rankings: dict[int, tuple[int, ...]] = {}
+    for competition in primary_mode0_root_finalization_order(
+        competition_list,
+        country_ids,
+    ):
+        if int(competition.runtime_kind_code) != 3:
+            continue
+        competition_id = int(competition.id)
+        entries = initial_dummy_league_sort_entries(
+            competition_id,
+            live_clubs,
+            player_list,
+        )
+        ranked = rank_dummy_league_for_type5(
+            entries,
+            rng,
+            len(entries),
+        )
+        rankings[competition_id] = tuple(
+            int(entry.club_id) for entry in ranked
+        )
+    return rankings
+
+
 def capture_annual_type3_qualification_snapshot(
     state,
     competitions: Iterable[object],
     allocation_instructions: Iterable[object],
+    *,
+    ranking_overrides: Mapping[int, Iterable[int]] | None = None,
 ) -> AnnualType3QualificationSnapshot:
     """Capture exact live type-3 sources before annual membership replacement.
 
@@ -159,12 +214,21 @@ def capture_annual_type3_qualification_snapshot(
         allocation_list,
     )
 
+    override_rankings = {
+        int(competition_id): tuple(int(club_id) for club_id in ranking)
+        for competition_id, ranking in (
+            {} if ranking_overrides is None else ranking_overrides
+        ).items()
+    }
     rankings: dict[int, tuple[int, ...]] = {}
     missing_leagues: list[int] = []
     for competition_id in required_leagues:
-        ranking = state.cup_results.competition_rankings.get(
-            (int(competition_id), 0)
-        )
+        competition_id = int(competition_id)
+        ranking = override_rankings.get(competition_id)
+        if ranking is None:
+            ranking = state.cup_results.competition_rankings.get(
+                (competition_id, 0)
+            )
         if ranking is None:
             missing_leagues.append(int(competition_id))
             continue
