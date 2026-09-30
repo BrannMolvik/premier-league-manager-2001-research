@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 74,
-  "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "Gate 12 canonical annual rollover passed and was marked complete. Resume Gate 13 from main-menu / TeamSelect original-resource inventory; do not return to Gate 12 unless a presentation dependency exposes a regression.",
+  "recovery_generation": 75,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovered from stale same-chat session at main 980318b86228f12e286f6896e6ca835dc7ec2d29. Continue Gate 13 main-menu / TeamSelect original-resource inventory; do not redo completed Gate 12 work.",
   "same_chat_fallback_minutes": 30
 }
