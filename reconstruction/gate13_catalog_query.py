@@ -89,25 +89,34 @@ def main() -> int:
     parser.add_argument("--regex")
     parser.add_argument("--top-level", action="append", default=[])
     parser.add_argument("--summary", action="store_true")
+    parser.add_argument(
+        "--paths-only",
+        action="store_true",
+        help="Print only matching source-relative paths, one per line.",
+    )
     args = parser.parse_args()
 
     with open(args.report, "r", encoding="utf-8") as handle:
         report = json.load(handle)
 
     if args.summary:
+        if args.paths_only:
+            parser.error("--paths-only cannot be combined with --summary")
         result = summarize_disc_files(report)
+        print(json.dumps(result, indent=2, sort_keys=True))
     else:
-        result = {
-            "matches": query_disc_files(
-                report,
-                contains=args.contains,
-                suffixes=args.suffix,
-                regex=args.regex,
-                top_level=args.top_level,
-            )
-        }
-
-    print(json.dumps(result, indent=2, sort_keys=True))
+        matches = query_disc_files(
+            report,
+            contains=args.contains,
+            suffixes=args.suffix,
+            regex=args.regex,
+            top_level=args.top_level,
+        )
+        if args.paths_only:
+            for item in matches:
+                print(item["path"])
+        else:
+            print(json.dumps({"matches": matches}, indent=2, sort_keys=True))
     return 0
 
 
