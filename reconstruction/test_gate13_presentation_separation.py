@@ -40,17 +40,27 @@ class Gate13PresentationSeparationAuditTests(unittest.TestCase):
         # or own simulation state.
         source = (ROOT / "front_end_session.py").read_text(encoding="utf-8")
         tree = ast.parse(source, filename="front_end_session.py")
-        nested_human_imports = []
+        parent_of = {}
         for parent in ast.walk(tree):
-            if not isinstance(parent, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            for child in ast.iter_child_nodes(parent):
+                parent_of[child] = parent
+
+        nearest_function_names = []
+        for node in ast.walk(tree):
+            if not (
+                isinstance(node, ast.ImportFrom)
+                and node.module == "human_gameplay"
+            ):
                 continue
-            for node in ast.walk(parent):
-                if (
-                    isinstance(node, ast.ImportFrom)
-                    and node.module == "human_gameplay"
-                ):
-                    nested_human_imports.append(parent.name)
-        self.assertEqual(nested_human_imports, ["make_gameplay"])
+            parent = parent_of.get(node)
+            while parent is not None and not isinstance(
+                parent, (ast.FunctionDef, ast.AsyncFunctionDef)
+            ):
+                parent = parent_of.get(parent)
+            nearest_function_names.append(
+                None if parent is None else parent.name
+            )
+        self.assertEqual(nearest_function_names, ["make_gameplay"])
 
     def test_original_first_screen_presenter_has_no_simulation_imports(self):
         modules = set(top_level_import_modules("original_first_screen_presenter.py"))
