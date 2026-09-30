@@ -17,6 +17,8 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
   let createdTabs = 0;
   let resumeMessages = 0;
   let onMessage;
+  let onActionClick;
+  const badges = new Map();
   const store = { workerTabId: 9, ...initialStorage };
   const chrome = {
     storage: {
@@ -51,6 +53,10 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
         createdTabs++;
         return { id: 10 };
       }
+    },
+    action: {
+      onClicked: { addListener(fn) { onActionClick = fn; } },
+      async setBadgeText({ tabId, text }) { badges.set(tabId, text); }
     },
     alarms: { create() {}, onAlarm: { addListener() {} } },
     runtime: {
@@ -93,7 +99,7 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
     async check() { return vm.runInContext("checkForStaleSession()", context); },
     setGenerating(value) { activeGeneration = value; },
     setHeartbeatAge(minutes) { activity = Date.now() - minutes * 60000; },
-    async sendUiFailure() {
+    async sendUiFailure(tabId = 9) {
       return new Promise(resolve => {
         onMessage(
           {
@@ -101,11 +107,15 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
             failureKind: "transient",
             reason: "network error"
           },
-          { tab: { id: 9, url: "https://chatgpt.com/c/example" } },
+          { tab: { id: tabId, url: "https://chatgpt.com/c/example" } },
           resolve
         );
       });
     },
+    async clickAction(tab = { id: 9, url: "https://chatgpt.com/c/fm2001" }) {
+      return onActionClick(tab);
+    },
+    badge(tabId) { return badges.get(tabId); },
     newChatPrompt() {
       return vm.runInContext(
         'buildNewChatRecoveryPrompt("conversation-length-limit", "Standard handoff")',
@@ -190,4 +200,32 @@ test("both recovery paths preserve the entire Gate-17 mission", async () => {
   assert.match(inPlace, /not just the current subtask/i);
   assert.match(fresh, /Gate 17/);
   assert.match(fresh, /immediate active task is only the next/i);
+});
+
+test("error in unrelated ChatGPT tab cannot hijack FM2001 worker", async () => {
+  const h = harness();
+  const ignored = await h.sendUiFailure(22);
+  assert.equal(ignored.ok, false);
+  assert.equal(ignored.reason, "unregistered-worker-tab");
+  assert.equal(h.store.workerTabId, 9);
+  assert.equal(h.store.pendingResume, undefined);
+  assert.equal(h.createdTabs, 0);
+});
+
+test("toolbar click explicitly registers selected FM2001 worker", async () => {
+  const h = harness();
+  await h.clickAction({ id: 22, url: "https://chatgpt.com/c/fm2001" });
+  assert.equal(h.store.workerTabId, 22);
+  assert.equal(h.badge(22), "FM");
+  const ignored = await h.sendUiFailure(9);
+  assert.equal(ignored.reason, "unregistered-worker-tab");
+  const accepted = await h.sendUiFailure(22);
+  assert.equal(accepted.ok, true);
+  assert.equal(h.store.pendingResume.tabId, 22);
+});
+
+test("toolbar action cannot register a non-ChatGPT tab", async () => {
+  const h = harness();
+  await h.clickAction({ id: 34, url: "https://github.com/" });
+  assert.equal(h.store.workerTabId, 9);
 });

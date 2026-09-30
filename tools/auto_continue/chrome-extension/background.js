@@ -485,10 +485,53 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 
 ensureStaleAlarm();
 
+// A failure on another ChatGPT tab must never hijack this project's worker.
+// Content scripts run on all chatgpt.com tabs by design; only the registered
+// worker tab is allowed to trigger UI failure or legacy recovery.
+async function isRegisteredWorkerTab(tabId) {
+  if (!tabId) return false;
+  const stored = await chrome.storage.local.get(["workerTabId"]);
+  return stored.workerTabId === tabId;
+}
+
+// Click the pinned extension icon while the intended FM2001 chat is selected
+// to designate that conversation as the worker explicitly. Automatic recovery
+// tabs still register themselves after consuming their canonical handoff.
+chrome.action.onClicked.addListener(async (tab) => {
+  if (!tab?.id || !/^https:\/\/chatgpt\.com(?:\/|$)/.test(tab.url || "")) {
+    console.warn("FM2001 worker registration requires an open chatgpt.com tab");
+    return;
+  }
+
+  const previous = await chrome.storage.local.get(["workerTabId"]);
+  await chrome.storage.local.set({ workerTabId: tab.id });
+  await chrome.storage.local.remove([
+    "pendingResume",
+    "activeGenerationGuard",
+    "sameChatRecoveryWindow"
+  ]);
+  if (previous.workerTabId && previous.workerTabId !== tab.id) {
+    try {
+      await chrome.action.setBadgeText({
+        tabId: previous.workerTabId,
+        text: ""
+      });
+    } catch (_error) {
+      // Previous tab may already have closed.
+    }
+  }
+  await chrome.action.setBadgeText({ tabId: tab.id, text: "FM" });
+  console.info("FM2001 worker tab registered", { tabId: tab.id });
+});
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "fm2001-ui-failure") {
     (async () => {
       try {
+        if (!(await isRegisteredWorkerTab(sender?.tab?.id))) {
+          sendResponse({ ok: false, reason: "unregistered-worker-tab" });
+          return;
+        }
         const state = await getRuntimeState();
         if (!shouldMonitor(state)) {
           sendResponse({ ok: false, reason: "runtime-not-working" });
@@ -528,6 +571,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "fm2001-request-recovery") {
     (async () => {
       try {
+        if (!(await isRegisteredWorkerTab(sender?.tab?.id))) {
+          sendResponse({ ok: false, reason: "unregistered-worker-tab" });
+          return;
+        }
         const state = await getRuntimeState();
         if (!shouldMonitor(state)) {
           sendResponse({ ok: false, reason: "runtime-not-working" });
