@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: run first-hand inventory of private authorized 511MB Library ZIP once execution container works, now using validated virtual raw MODE1 ISO reader and combined ZIP/ISO catalog. Identify PStartMenu/TeamSelect authentic graphics/layout/strings, require strict complete exact-path staging, validate source provenance on import, and integrate with verified front_end_session handoff.",
-  "last_known_main_head": "4f01dfc15ff7ea73a631e4c2840c149132241d8c",
+  "active_task": "Gate 13: first-hand byte inventory of exact private authorized 511MB source ZIP in a working execution environment. Current code already handles complete ZIP+ISO catalogs, raw MODE1 virtual reader with full-sector validation, strict unique exact-path staging, and report-hash-verified original asset imports (including genuine opaque UI BIN data). Query full catalog to identify original PStartMenu/TeamSelect graphics/strings/layout, stage minimum assets with --require-all-explicit --hash-source, import with --inventory-report, connect authentic visuals to existing front_end_session. Do not restart or fabricate original art.",
+  "last_known_main_head": "e3bb7e9a0624af3a73d275c698dc0e98ab354a9f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 86,
   "last_recovery_reason": "user-requested-transient-recovery",
-  "note": "Verified mid-session main 4f01dfc: 66 focused Gate13 tests passed run 36698841038, full 894 tests only two long-standing secondary schedule failures run 36698840900, asset policy 36698841075 passed. Complete ZIP+disc catalogs, collision-safe staging, strict unresolved-path failure, and sector-validated virtual MODE1 ISO with no full temporary ISO copy are implemented. Private original ZIP still materializes (511121336 bytes) but global CAAS container health commands fail; no real UI assets imported. Continue real source retrieval or meaningful Gate13 provenance work without placeholders.",
+  "note": "Checkpoint main e3bb7e9... dedicated Gate13 run 36699473176 passed 71/71; full run 36699473326 899 tests only two established secondary-schedule failures; asset policy 36699473263 passed. Source ZIP available in private Library and materializes 511121336 bytes; CAAS shell/Python still fail even trivial health check so no real graphics extracted. Core extraction, catalog, validation and headless navigation tooling verified; next productive unblocked work is actual original asset inventory, not more speculative placeholder UI.",
   "same_chat_fallback_minutes": 30
 }
