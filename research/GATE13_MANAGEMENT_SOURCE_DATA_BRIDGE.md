@@ -44,6 +44,36 @@ Projected fields are already recovered runtime state only:
 No positional label names, status icons, colors, sorting or screen-specific
 visibility rules are assigned here.
 
+### Source-backed formation / Team Orders presentation contract
+
+Existing canonical-executable, RTTI and MatchCalculator research now supplies a
+bounded tactics-facing presentation contract without inventing the original
+screen surface.
+
+For `PFormation2k`, the proven vtable `0x7C1AB4` owns the exact persisted
+DBRUser formation region at `+0x70C`, magic `0x074A3216`, with five
+`0x1F4` records beginning at `+0x714`. Those records hold formation /
+team-sheet names plus current-club player IDs and assigned-role data.
+
+For `PTeamOrders2K`, existing RTTI/source analysis identifies the screen
+family in `Applications\\FootballManager\\SquadPan.cpp`, with recorded RTTI
+anchors around vtable `0x7C6FE0` / TypeDescriptor `0x81DE68`. Independent
+MatchCalculator selectors prove the four ordered categories:
+
+- 0 = captaincy order;
+- 1 = penalty-taker order;
+- 2 = corner-kick order;
+- 3 = free-kick order.
+
+Original English resources independently corroborate those semantics with
+`Captains`, `Penalty Takers`, corner-left/right and free-kick-left/right
+string families. These strings are corroborating source evidence, **not**
+claimed control bindings or screen coordinates.
+
+The immutable contract exposes none of the still-unrecovered original control
+IDs, geometry, artwork paths, click/drag behavior or navigation. See
+`research/GATE13_TACTICS_PRESENTATION_CONTRACT.md`.
+
 ### Tactics/team selection
 
 The bridge also exposes the controlled user's already persisted
