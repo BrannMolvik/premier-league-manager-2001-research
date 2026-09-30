@@ -207,6 +207,24 @@ Verification on PR head `8551d9774353f1b44af8c8c2e62da07b89cfd088`:
 Original fixture-screen class/sort, artwork, geometry, controls and navigation
 remain open.
 
+### Verified Player Profile presentation contract
+
+PR #44 was merged at `0e2d9e03b61f691be5f63ebbb7b57018cbfdbf45`.
+The Gate-13 seam now preserves DBTPlayers/DBRPlayer runtime identity, keeps
+historically approximate RTTI/accessor addresses explicitly as anchors, and
+locks the current-skill versus development-target vector boundary without
+claiming that development targets were visible on the original profile screen.
+
+Verification on PR head `133facd4e8cdd6973d19affda7b6abf5b13e5dd7`:
+
+- focused Gate-13 run `36773922844`: **237 tests, 19 expected skips, zero failures**;
+- full reconstruction run `36773922864`: **1,073 tests, 21 expected skips, zero failures**;
+- repository asset-policy run `36773922713`: passed.
+
+A fresh trivial shell retry after CI still returned `ClientError`; the native
+Button/Zurich path remains blocked. Original Player Profile class, columns,
+icons, art, geometry and navigation remain open.
+
 ## Porting mission
 
 This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc

@@ -9129,3 +9129,16 @@ invent original visual or control semantics.
 - Full reconstruction run `36773557140`: **1,072 tests, 21 expected skips,
   zero failures**.
 - Asset-policy run `36773557226` passed.
+
+## Gate 13 Player Profile presentation contract verified - 1 October 2026 KST
+
+- Merged PR #44 as `0e2d9e03b61f691be5f63ebbb7b57018cbfdbf45`.
+- Added DBTPlayers/DBRPlayer backend identity metadata, retaining approximate
+  RTTI/accessor addresses as anchors rather than exact canaries.
+- Locked current skills at +0x1E..+0x2E versus development targets at
+  +0x2F..+0x3F, with development targets deliberately not exposed as proven
+  original profile UI.
+- Focused run `36773922844`: **237 tests / 19 expected skips / 0 failures**.
+- Full run `36773922864`: **1,073 tests / 21 expected skips / 0 failures**.
+- Asset policy `36773922713` passed.
+- Direct shell retry still failed immediately with `ClientError`.

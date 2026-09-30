@@ -62,6 +62,14 @@ The contract contains no:
 - font/color/alignment rules;
 - click targets or navigation edges.
 
+## Hosted verification
+
+PR #44 head `133facd4e8cdd6973d19affda7b6abf5b13e5dd7` passed focused
+Gate-13 run `36773922844` (**237 tests / 19 expected skips**), full
+reconstruction run `36773922864` (**1,073 tests / 21 expected skips**), and
+asset-policy run `36773922713`. It was squash-merged as
+`0e2d9e03b61f691be5f63ebbb7b57018cbfdbf45`.
+
 ## Gate 13 consequence
 
 Player-profile presentation now has a source-backed runtime identity and a clear
