@@ -35,6 +35,8 @@ on:
       - "reconstruction/test_original_front_end_layout.py"
       - "reconstruction/test_original_menu_assets.py"
       - "reconstruction/ea_language_strings.py"
+      - "reconstruction/ea_font.py"
+      - "reconstruction/test_ea_font.py"
       - "reconstruction/test_ea_language_strings.py"
       - "reconstruction/iso9660_reader.py"
       - "reconstruction/test_front_end_state.py"
