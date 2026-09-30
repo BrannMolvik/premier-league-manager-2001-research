@@ -80,6 +80,25 @@ dispatched at meaningful milestones (or run on integration pull requests), the
 full reconstruction suite runs manually at gate audits, and unrelated
 watchdog/asset checks run on relevant pull requests or manual request.
 
+### Branch-specific workflow guard
+
+GitHub evaluates workflow triggers from the ref being pushed, not from the
+latest workflow copy on `main`. The long-lived `agent-runtime` branch
+originally retained an older `.github/workflows/asset-policy.yml` with
+unconditional `on: push`, so every otherwise cost-controlled worker
+heartbeat incorrectly launched an Actions runner despite newer `main`
+settings. This was confirmed by GitHub run `36725611674`
+(event `push`, branch `agent-runtime`) and corrected on the runtime
+branch in commit `2d48b1a3edaf80c782a17ad67bc2a4d16157d9af`.
+Its asset-policy workflow now matches the cost-controlled `main` blob
+`a01ae95ac39812dc2a740bce0060ce7cfb9a0cd8` and has **no push trigger**.
+
+If recreating or resetting `agent-runtime`, compare its own workflow files
+against the current cost-controlled equivalents before starting heartbeats.
+Do not assume changes on `main` automatically replace existing workflows
+on the runtime branch. Only the runtime state file belongs in ordinary
+heartbeat commits.
+
 Never dispatch extra workflows merely as heartbeat signals. If GitHub Actions
 included minutes are exhausted, use available local tests and preserve the
 unverified CI boundary until another authorized verification opportunity.
