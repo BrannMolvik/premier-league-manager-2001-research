@@ -23,8 +23,9 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Current roadmap status
 
-- **Active gate:** Gate 12 - Other competitions
-- **Next gate:** Gate 13 - Restore original management presentation
+- **Active gate:** Gate 13 - Restore original management presentation
+- **Next gate:** Gate 14 - Original audio and match presentation
+- **Gate 12 completed:** 30 September 2026
 - **Gate 11 completed:** 29 September 2026
 - **Gate 10 completed:** 28 September 2026
 - **Gate 9 completed:** 27 September 2026
@@ -255,7 +256,7 @@ Completion criteria:
 
 ## Gate 12 - Other competitions
 
-**Status: ACTIVE (29 September 2026)**
+**Status: COMPLETE (30 September 2026)**
 
 Goal: expand outward from the Premier League without losing tested generic competition behavior.
 
@@ -268,10 +269,14 @@ Suggested order:
 
 Completion criteria:
 
-- [ ] Each newly supported competition format has deterministic regression coverage.
-- [ ] The Premier League no longer behaves as an isolated world.
+- [x] Each newly supported competition format has deterministic regression coverage.
+- [x] The Premier League no longer behaves as an isolated world.
+
+Evidence: `research/GATE12_COMPLETION_AUDIT.md`.
 
 ## Gate 13 - Restore original management presentation
+
+**Status: ACTIVE (30 September 2026)**
 
 Goal: restore the original FM2001 interaction flow and visual identity after gameplay is stable. Reuse the original UI assets, screen/layout data, strings, navigation/timing data, and other recoverable presentation resources by default; reconstruct only the incompatible or inaccessible portions needed to drive them on the modern runtime.
 
