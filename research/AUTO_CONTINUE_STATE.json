@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 main is d3c912ab6641438900ec80a21546e20229b941e1 with verified PScouting2K presentation contract (full suite 1055/21 skips/0 failures). Native source ZIP is materialized but shell/Python remains ClientError. While blocked, add a fail-closed first-screen provenance-completeness audit so Gate13 cannot be promoted until all ten pinned original resources are present with exact source hashes; then validate in focused/asset-policy CI. Resume Button/Zurich/ten-resource physical source audit immediately if byte execution returns. Gates14-17 and verified Windows11 release remain mandatory.",
-  "last_known_main_head": "d3c912ab6641438900ec80a21546e20229b941e1",
+  "active_task": "Gate13 main d39e372f includes verified scouting presentation contract and fail-closed ten-original manifest readiness guard. Source ZIP remains materialized but direct shell/Python byte execution is ClientError. Continue mining already-firsthand executable/research evidence for management-screen control/navigation attribution that can be safely promoted without new bytes; do not invent labels/layout. Retry canonical Button/Zurich/source-audit path when execution returns. Gate13 then Gates14-17 and Windows11 release remain mandatory.",
+  "last_known_main_head": "d39e372f5e085bb66a11c1db82571befd123cf2b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 101,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery101 checkpoint main d3c912ab includes resource coverage audit plus verified PScouting2K contract. Full run 36767384882: 1055 tests, 21 expected source-gated skips, zero failures. Container retry still ClientError. Continuing only fail-closed source-backed Gate13 readiness tooling.",
+  "note": "Recovery101 persisted through main d39e372f. PR36 focused Gate13 run 36768095800 passed 226 tests/19 expected skips; asset policy 36768095889 passed. Prior full run 36767384882 remains 1055/21 skips/0 failures. Current ten-file manifest readiness remains intentionally incomplete pending physical import.",
   "same_chat_fallback_minutes": 30
 }
