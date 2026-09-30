@@ -18,6 +18,7 @@ inventory proves that relationship.
 ### Source paths already proven elsewhere in the repository
 
 - `FM2001_Art/Generic/bground.444`
+  - **222,616 bytes** according to verified original-disc research;
   - 800x600;
   - SHA-256
     `9db0d71daf70d77b4f5f2307304bb8c5eac4ee3a07a85f2828b570fbbf3b7fb9`.
@@ -147,11 +148,14 @@ in the catalog.
 ```text
 python gate13_source_inventory.py <source.zip> --deep \
   --extract-path-file gate13-selected-paths.txt \
+  --only-explicit \
   --extract-candidates-to <staging-directory> \
   --output gate13-source-selected.json
 ```
 
-The report must warn if any selected path no longer exists.
+The report must warn if any selected path no longer exists. Use `--only-explicit`
+to exclude any other heuristic candidates from staging. The size of the
+known background is checked even from the catalog, prior to hashing its bytes.
 
 ### 6. Correlate before import
 
