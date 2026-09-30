@@ -188,6 +188,68 @@ class TransferProposalView:
 
 
 @dataclass(frozen=True)
+class ContractRenewalMessageView:
+    queue_index: int
+    player_id: int
+    player_name: str
+    queued_on: date
+    message_id: int
+    original_key: str
+    event_class: str
+    accepted_action_class: str
+
+
+@dataclass(frozen=True)
+class PlayerTransferRequestMessageView:
+    queue_index: int
+    player_id: int
+    player_name: str
+    queued_on: date
+    due_on: date
+    due: bool
+    original_key: str
+    event_class: str
+    accepted_action_class: str
+    refused_action_class: str
+
+
+@dataclass(frozen=True)
+class MessageSourceQueuesView:
+    contract_renewal_in_runtime_order: tuple[ContractRenewalMessageView, ...]
+    transfer_requests_in_runtime_order: tuple[PlayerTransferRequestMessageView, ...]
+
+
+@dataclass(frozen=True)
+class TrainingPlayerView:
+    source_roster_index: int
+    player_id: int
+    player_name: str
+    method_id: int
+    countdown: int
+    active_count: int
+    skill_modifiers: tuple[int, ...]
+    skill_states: tuple[int, ...]
+    method_results: tuple[int, ...]
+
+
+@dataclass(frozen=True)
+class ScoutingResultView:
+    result_index: int
+    player_id: int
+    player_name: str
+    club_id: int
+    club_name: str
+    nationality_id: int
+    positions: tuple[int, int, int]
+    current_skill_bytes: tuple[int, ...]
+    age: int | None
+    history_average: float
+    transfer_listed: bool
+    out_of_contract: bool
+    loan_listed: bool
+
+
+@dataclass(frozen=True)
 class ManagementSourceDataSnapshot:
     club: ClubHeaderView
     squad: tuple[SquadRowView, ...]
@@ -658,6 +720,286 @@ class ManagementSourceDataBridge:
                 deal_created_date=created,
                 scheduled_due_date=due,
                 scheduled_mode=mode,
+            ))
+        return tuple(rows)
+
+    def message_source_queues(self) -> MessageSourceQueuesView:
+        """Expose only the two manager-mail families materialized by GameState.
+
+        They remain separate queues because the clean-room runtime currently
+        stores them separately; merging by date would invent a global mail-list
+        ordering that has not been reconstructed.
+        """
+        self._human_club_id()
+        players = getattr(self.state, "players", None)
+        renewals = getattr(self.state, "contract_renewal_suggestions", None)
+        requests = getattr(self.state, "player_transfer_requests", None)
+        calendar = getattr(self.state, "calendar", None)
+        current_date = getattr(calendar, "current_date", None)
+        if not hasattr(players, "get"):
+            raise ManagementPresentationError("Runtime player table is unavailable")
+        if not isinstance(renewals, list) or not isinstance(requests, list):
+            raise ManagementPresentationError(
+                "Recovered manager-mail source queues are unavailable"
+            )
+        if not isinstance(current_date, date):
+            raise ManagementPresentationError("Game calendar date is unavailable")
+
+        renewal_rows = []
+        for index, item in enumerate(renewals):
+            player_id = getattr(item, "player_id", None)
+            queued_on = getattr(item, "queued_on", None)
+            if type(player_id) is not int or not isinstance(queued_on, date):
+                raise ManagementPresentationError(
+                    "Contract-renewal mail identity/date is unavailable"
+                )
+            player = players.get(player_id)
+            if player is None:
+                raise ManagementPresentationError(
+                    f"Contract-renewal mail player {player_id} is missing"
+                )
+            message_id = getattr(item, "message_id", None)
+            original_key = getattr(item, "original_key", None)
+            event_class = getattr(item, "event_class", None)
+            accepted = getattr(item, "accepted_action_class", None)
+            if (
+                type(message_id) is not int
+                or not isinstance(original_key, str)
+                or not isinstance(event_class, str)
+                or not isinstance(accepted, str)
+            ):
+                raise ManagementPresentationError(
+                    f"Contract-renewal mail {player_id} lacks recovered event identity"
+                )
+            renewal_rows.append(ContractRenewalMessageView(
+                queue_index=index,
+                player_id=player_id,
+                player_name=self._player_name(player),
+                queued_on=queued_on,
+                message_id=message_id,
+                original_key=original_key,
+                event_class=event_class,
+                accepted_action_class=accepted,
+            ))
+
+        request_rows = []
+        for index, item in enumerate(requests):
+            player_id = getattr(item, "player_id", None)
+            queued_on = getattr(item, "queued_on", None)
+            due_on = getattr(item, "due_on", None)
+            if (
+                type(player_id) is not int
+                or not isinstance(queued_on, date)
+                or not isinstance(due_on, date)
+            ):
+                raise ManagementPresentationError(
+                    "Transfer-request mail identity/date is unavailable"
+                )
+            player = players.get(player_id)
+            if player is None:
+                raise ManagementPresentationError(
+                    f"Transfer-request mail player {player_id} is missing"
+                )
+            original_key = getattr(item, "original_key", None)
+            event_class = getattr(item, "event_class", None)
+            accepted = getattr(item, "accepted_action_class", None)
+            refused = getattr(item, "refused_action_class", None)
+            if any(
+                not isinstance(value, str)
+                for value in (original_key, event_class, accepted, refused)
+            ):
+                raise ManagementPresentationError(
+                    f"Transfer-request mail {player_id} lacks recovered event identity"
+                )
+            request_rows.append(PlayerTransferRequestMessageView(
+                queue_index=index,
+                player_id=player_id,
+                player_name=self._player_name(player),
+                queued_on=queued_on,
+                due_on=due_on,
+                due=due_on <= current_date,
+                original_key=original_key,
+                event_class=event_class,
+                accepted_action_class=accepted,
+                refused_action_class=refused,
+            ))
+        return MessageSourceQueuesView(
+            contract_renewal_in_runtime_order=tuple(renewal_rows),
+            transfer_requests_in_runtime_order=tuple(request_rows),
+        )
+
+    def training_rows(self) -> tuple[TrainingPlayerView, ...]:
+        """Expose recovered embedded per-player training state in roster order."""
+        self._human_club_id()
+        squad = getattr(self.controller, "squad", None)
+        if not callable(squad):
+            raise ManagementPresentationError("Controlled-club roster is unavailable")
+        rows = []
+        for source_index, player in enumerate(tuple(squad())):
+            player_id = getattr(player, "index", None)
+            modifiers = getattr(player, "training_modifiers", None)
+            states = getattr(player, "training_skill_states", None)
+            results = getattr(player, "training_method_results", None)
+            if type(player_id) is not int:
+                raise ManagementPresentationError("Runtime player ID is unavailable")
+            if (
+                not isinstance(modifiers, list)
+                or len(modifiers) != 17
+                or any(type(value) is not int for value in modifiers)
+            ):
+                raise ManagementPresentationError(
+                    f"Player {player_id} has no recovered 17-byte training modifiers"
+                )
+            if (
+                not isinstance(states, list)
+                or len(states) != 17
+                or any(type(value) is not int for value in states)
+            ):
+                raise ManagementPresentationError(
+                    f"Player {player_id} has no recovered 17-entry training state"
+                )
+            if (
+                not isinstance(results, list)
+                or len(results) != 7
+                or any(type(value) is not int for value in results)
+            ):
+                raise ManagementPresentationError(
+                    f"Player {player_id} has no recovered seven-method training result state"
+                )
+            rows.append(TrainingPlayerView(
+                source_roster_index=source_index,
+                player_id=player_id,
+                player_name=self._player_name(player),
+                method_id=int(getattr(player, "training_method_id")),
+                countdown=int(getattr(player, "training_countdown")),
+                active_count=int(getattr(player, "training_active_count")),
+                skill_modifiers=tuple(modifiers),
+                skill_states=tuple(states),
+                method_results=tuple(results),
+            ))
+        return tuple(rows)
+
+    def scouting_search_rows(
+        self,
+        panel_state,
+        *,
+        page_mode: int,
+        valuation_resolver,
+        scout_strength_min: int = 20,
+        threshold_predicate=None,
+        selected_position_id: int | None = None,
+        team_selector_predicate=None,
+        optional_position_predicate=None,
+        status_controls=None,
+        out_of_contract_resolver=None,
+        loan_listed_resolver=None,
+        loan_list_user_match_resolver=None,
+        sort_mode: int = 0,
+        secondary_score_mode: int | None = None,
+        secondary_caller_argument: int = 0,
+        history_average_resolver=None,
+        position_label_resolver=None,
+    ) -> tuple[ScoutingResultView, ...]:
+        """Delegate to the already source-mapped PScouting2K pipeline.
+
+        This method deliberately requires the caller to supply the existing
+        panel state and valuation resolver. It does not invent unresolved
+        controls. Result order is exactly the controller pipeline result.
+        """
+        self._human_club_id()
+        search = getattr(self.controller, "search_scouting_players_mapped", None)
+        if not callable(search):
+            raise ManagementPresentationError(
+                "Recovered mapped scouting search is unavailable"
+            )
+        kwargs = dict(
+            page_mode=int(page_mode),
+            valuation_resolver=valuation_resolver,
+            scout_strength_min=int(scout_strength_min),
+            threshold_predicate=threshold_predicate,
+            selected_position_id=selected_position_id,
+            team_selector_predicate=team_selector_predicate,
+            optional_position_predicate=optional_position_predicate,
+            out_of_contract_resolver=out_of_contract_resolver,
+            loan_listed_resolver=loan_listed_resolver,
+            loan_list_user_match_resolver=loan_list_user_match_resolver,
+            sort_mode=int(sort_mode),
+            secondary_score_mode=secondary_score_mode,
+            secondary_caller_argument=int(secondary_caller_argument),
+            history_average_resolver=history_average_resolver,
+            position_label_resolver=position_label_resolver,
+        )
+        if status_controls is not None:
+            kwargs["status_controls"] = status_controls
+        try:
+            players = tuple(search(panel_state, **kwargs))
+        except (TypeError, ValueError, RuntimeError, KeyError) as exc:
+            raise ManagementPresentationError(
+                f"Mapped scouting search could not be projected: {exc}"
+            ) from exc
+
+        on_date = getattr(getattr(self.state, "calendar", None), "current_date", None)
+        if not isinstance(on_date, date):
+            raise ManagementPresentationError("Game calendar date is unavailable")
+        rows = []
+        for result_index, player in enumerate(players):
+            player_id = getattr(player, "index", None)
+            club_id = getattr(player, "club_id", None)
+            nationality_id = getattr(player, "nationality_id", None)
+            positions = getattr(player, "positions", None)
+            current = getattr(player, "current_raw", None)
+            if type(player_id) is not int or type(club_id) is not int:
+                raise ManagementPresentationError(
+                    "Scouting result lacks recovered player/club identity"
+                )
+            if type(nationality_id) is not int:
+                raise ManagementPresentationError(
+                    f"Scouting result {player_id} lacks nationality identity"
+                )
+            if (
+                not isinstance(positions, tuple)
+                or len(positions) != 3
+                or any(type(value) is not int for value in positions)
+            ):
+                raise ManagementPresentationError(
+                    f"Scouting result {player_id} lacks three-position tuple"
+                )
+            if (
+                not isinstance(current, (list, tuple))
+                or len(current) != 17
+                or any(type(value) is not int for value in current)
+            ):
+                raise ManagementPresentationError(
+                    f"Scouting result {player_id} lacks current 17-byte skill state"
+                )
+            club = self._source_club(club_id)
+            age_method = getattr(player, "age", None)
+            if not callable(age_method):
+                raise ManagementPresentationError(
+                    f"Scouting result {player_id} has no recovered age accessor"
+                )
+            age = age_method(on_date)
+            if age is not None:
+                age = int(age)
+            history_method = getattr(player, "match_performance_average", None)
+            if not callable(history_method):
+                raise ManagementPresentationError(
+                    f"Scouting result {player_id} has no recovered history average"
+                )
+            rows.append(ScoutingResultView(
+                result_index=result_index,
+                player_id=player_id,
+                player_name=self._player_name(player),
+                club_id=club_id,
+                club_name=club.name,
+                nationality_id=nationality_id,
+                positions=positions,
+                current_skill_bytes=tuple(current),
+                age=age,
+                history_average=float(history_method()),
+                transfer_listed=bool(getattr(player, "transfer_listed")),
+                out_of_contract=bool(getattr(player, "out_of_contract")),
+                loan_listed=bool(getattr(player, "loan_listed")),
             ))
         return tuple(rows)
 
