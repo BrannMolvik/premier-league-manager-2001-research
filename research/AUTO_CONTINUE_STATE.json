@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 original management presentation: when execution container access returns, run one deep inventory of the durable Library ZIP, follow research/GATE13_CATALOG_SEARCH_PLAN.md against the saved full-disc report, emit a paths-only shortlist, exact-path-file stage the minimum PStartMenu/TeamSelect slice, then provenance-import and bind it to the presentation-only navigation boundary.",
-  "last_known_main_head": "42f9f7ad2487af9d33e416470ffae3b3347a0f66",
+  "active_task": "Gate 13: when container access returns, materialize the durable authorized Library ZIP, run native deep disc inventory, query saved catalog using GATE13_CATALOG_SEARCH_PLAN.md, then stage only the exact confirmed PStartMenu/TeamSelect slice via --extract-path-file --only-explicit for provenance import.",
+  "last_known_main_head": "5eca3ee3009e6352e567c7bea708a8f8b51e4dee",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 79,
+  "recovery_generation": 80,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered after stale heartbeat. CAAS remains globally unavailable even for trivial control commands, while Library source resolution/materialization succeeds. Gate 13 source tooling now CI-verifies full catalog, exact-path staging, saved-catalog querying, and query-to-path-list staging (860 tests; only the two known secondary-schedule failures). Evidence-bounded real-catalog search plan is persisted in research/GATE13_CATALOG_SEARCH_PLAN.md.",
+  "note": "Native Gate 13 tooling CI baseline 114336a: 863 tests, only the two established secondary-schedule failures. Exact-only source staging is verified; current shell/Python container still raises CAAS ClientError even on trivial control commands. Do not redo completed tooling; next actual gate work is original-disc byte inventory once execution is available.",
   "same_chat_fallback_minutes": 30
 }
