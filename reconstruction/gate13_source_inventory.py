@@ -100,6 +100,13 @@ class DiscFileRecord:
     extent: int
 
 
+@dataclass(frozen=True)
+class ZipFileRecord:
+    path: str
+    size: int
+    is_disc_image: bool
+
+
 def normalize_member(path: str) -> str:
     """Keep archive paths source-relative before any staging extraction."""
     text = path.replace("\\", "/").lstrip("/")
@@ -306,6 +313,7 @@ def inventory_zip(
     extract_candidates_to: Path | None = None,
     explicit_paths: set[str] | None = None,
     only_explicit: bool = False,
+    zip_files: list[ZipFileRecord] | None = None,
 ) -> tuple[list[AssetRecord], list[str], list[str]]:
     """Include source-relative loose ZIP assets alongside nested-disc resources.
 
@@ -323,8 +331,15 @@ def inventory_zip(
             if info.is_dir():
                 continue
             member = normalize_member(info.filename)
-            if is_disc_image(member):
+            disc_image = is_disc_image(member)
+            if disc_image:
                 nested_images.append(member)
+            if zip_files is not None:
+                zip_files.append(ZipFileRecord(
+                    path=member,
+                    size=info.file_size,
+                    is_disc_image=disc_image,
+                ))
 
             reason = candidate_reason(member)
             if _lower(member) in requested:
@@ -608,12 +623,14 @@ def deep_inventory_zip(
     disc_files: list[DiscFileRecord] | None = None,
     explicit_paths: set[str] | None = None,
     only_explicit: bool = False,
+    zip_files: list[ZipFileRecord] | None = None,
 ) -> tuple[list[AssetRecord], list[str], list[str]]:
     direct, nested_images, warnings = inventory_zip(
         archive,
         extract_candidates_to=extract_candidates_to,
         explicit_paths=explicit_paths,
         only_explicit=only_explicit,
+        zip_files=zip_files,
     )
     records = list(direct)
     if not nested_images:
@@ -684,6 +701,7 @@ def report_for_source(
     warnings: list[str] = []
     nested_images: list[str] = []
     disc_files: list[DiscFileRecord] = []
+    zip_files: list[ZipFileRecord] = []
 
     if source.is_dir():
         records, warnings = inventory_directory(source)
@@ -699,6 +717,7 @@ def report_for_source(
                 disc_files,
                 explicit_paths,
                 only_explicit,
+                zip_files,
             )
         else:
             records, nested_images, warnings = inventory_zip(
@@ -706,6 +725,7 @@ def report_for_source(
                 extract_candidates_to=extract_candidates_to,
                 explicit_paths=explicit_paths,
                 only_explicit=only_explicit,
+                zip_files=zip_files,
             )
     elif source.suffix.lower() in DISC_IMAGE_SUFFIXES:
         kind = "disc-image"
@@ -807,6 +827,8 @@ def report_for_source(
         "only_explicit": only_explicit,
         "disc_file_count": len(disc_files),
         "disc_files": [asdict(record) for record in disc_files],
+        "zip_file_count": len(zip_files),
+        "zip_files": [asdict(record) for record in zip_files],
         "candidates": [asdict(record) for record in records],
         "warnings": warnings,
     }
