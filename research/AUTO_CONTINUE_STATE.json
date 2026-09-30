@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 82,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Latest current main checkpoint 6e804c2; focused Gate13 CI run 36693094247 passes all 38 tests; full suite 866 tests with only two established secondary-schedule failures; asset policy passes. Original bground.444 metadata now validates 222,616 byte size as well as hash/header when extracted. Original ZIP successfully materializes, but container trivial commands still return CAAS ClientError; next task is real-disc byte access and extraction, not repeated tooling.",
+  "recovery_generation": 83,
+  "last_recovery_reason": "user-requested-continue",
+  "note": "Verified current main 6e804c2. Direct container commands still return CAAS ClientError. Continuing Gate 13 first-slice application boundary from established PStartMenu/TeamSelect control IDs and existing human gameplay controller without inventing or importing original assets.",
   "same_chat_fallback_minutes": 30
 }
