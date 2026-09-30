@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 original management presentation: regain byte-level source access, inventory exact PStartMenu / TeamSelect original resources, import the minimum provenance-tracked slice, and bind it to the verified presentation-only navigation boundary.",
-  "last_known_main_head": "97d09f29e63fcacf0e1a630cf835c4f454a8c5b3",
+  "active_task": "Gate 13 original management presentation: run the verified authorized-source pipeline (ZIP -> raw MODE1/2352 -> temporary ISO9660/Joliet), inventory exact PStartMenu/TeamSelect resources, import the minimum provenance-tracked slice, then bind those assets to the verified presentation-only navigation boundary.",
+  "last_known_main_head": "ef91f255d1eeb90fec20cc035584278466ed52b3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 75,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Gate 13 front-end navigation boundary is committed and CI-verified at main 97d09f29e63fcacf0e1a630cf835c4f454a8c5b3. 833 tests ran with only the two known secondary-schedule failures; asset policy passed. Next dependency is byte-level inventory of authorized PStartMenu / TeamSelect resources.",
+  "note": "Gate 13 navigation boundary, source inventory, provenance importer, and historical MODE1/2352 conversion path are committed and CI-verified. Full suite 847 tests with only the two known secondary-schedule failures; asset policy passes. Current ChatGPT container still returns ClientError on the materialized 511 MB ZIP. Next source-tooling dependency is ISO9660/Joliet enumeration/extraction; do not redo front-end/control research.",
   "same_chat_fallback_minutes": 30
 }
