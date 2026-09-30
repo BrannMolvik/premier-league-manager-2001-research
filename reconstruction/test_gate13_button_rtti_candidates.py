@@ -97,12 +97,9 @@ class MSVCRTTILeadTests(unittest.TestCase):
                 data = make_pe()
                 data[offset:offset + len(value)] = value
                 hits = discover_msvc_button_vftables(as_pe(data))
-                # The synthetic fixture has exactly one locator chain.
-                # For no code pointer, the next slot remains code; alter it too.
-                if label == "no code pointer slot":
-                    self.assertEqual(hits[0].candidate_code_slots[0]["target_va_unconfirmed"], 0x401030)
-                else:
-                    self.assertEqual(hits, ())
+                # A table whose first slot is not code is rejected, even
+                # if some later bytes happen to resemble executable pointers.
+                self.assertEqual(hits, ())
         for name in (b"", b"unqualified", b"\x00.?AVButton@@"):
             with self.subTest(decorated=name):
                 with self.assertRaisesRegex(OriginalPETraceError, "decorated"):
