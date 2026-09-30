@@ -14,6 +14,14 @@ on:
       - "reconstruction/competition_state.py"
       - "reconstruction/test_competition_state.py"
       - "reconstruction/game_state.py"
+      # Gate13 batches may touch only presentation seams yet still import
+      # large portions of the reconstructed runtime. Give those code changes
+      # one full integration suite on PR, while ordinary research/docs and
+      # main checkpoints remain outside the full-suite trigger.
+      - "reconstruction/gate13_management_source_data.py"
+      - "reconstruction/test_gate13_management_source_data.py"
+      - "reconstruction/app.py"
+      - "reconstruction/test_app_presentation_boundary.py"
   workflow_dispatch:
 
 concurrency:
