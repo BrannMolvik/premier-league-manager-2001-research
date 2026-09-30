@@ -339,6 +339,20 @@ The bridge does not manufacture a "Free Agent" club label or substitute a
 previous club. Unresolved PScouting2K UI controls remain unresolved rather than
 being renamed at the presentation seam.
 
+### Source-backed Fixtures/Results construction contract
+
+The bridge now exposes the recovered fixed-real-fixture backend identity and
+construction path as immutable presentation metadata. It records
+`DBTRealFixtures` / `DBRRealFixture`, the shipped 380-fixture table at
+`Static.dat 0x10057`, the 38-round structure, and the source-order attachment
+path through `0x4F72D0`, `0x4F76A4..0x4F770D` and fixed builder
+`0x6173D0`.
+
+This contract deliberately separates **backend source order** from the still
+unrecovered original Fixtures/Results screen sort. The original screen class,
+screen ordering/comparator, row geometry, art and navigation remain unknown.
+See `research/GATE13_FIXTURES_PRESENTATION_CONTRACT.md`.
+
 ### Fixtures/results
 
 `PremierLeagueState.fixture_source_order` is constructed directly from the

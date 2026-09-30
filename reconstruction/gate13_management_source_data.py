@@ -50,6 +50,66 @@ class SquadRowView:
 
 
 @dataclass(frozen=True)
+class FixturesPresentationContract:
+    table_class_name: str
+    table_vtable_va: int
+    table_global_va: int
+    record_class_name: str
+    record_vtable_va: int
+    record_size: int
+    static_table_offset: int
+    shipped_fixture_count: int
+    shipped_round_count: int
+    fixtures_per_round: int
+    round_table_class_name: str
+    round_table_vtable_va: int
+    round_table_global_va: int
+    round_record_class_name: str
+    round_record_vtable_va: int
+    round_attach_va: int
+    fixture_attach_start_va: int
+    fixture_attach_end_va: int
+    fixed_builder_va: int
+    league_add_round_va: int
+    league_match_constructor_va: int
+    schedule_insert_va: int
+    source_order_preserved_before_schedule_insertion: bool
+    rng_before_fixed_schedule_insertion: bool
+    original_screen_sort_proven: bool
+    screen_class_name: str | None
+
+
+FIXTURES_PRESENTATION_CONTRACT = FixturesPresentationContract(
+    table_class_name="DBTRealFixtures",
+    table_vtable_va=0x7C9884,
+    table_global_va=0x876C18,
+    record_class_name="DBRRealFixture",
+    record_vtable_va=0x7C9898,
+    record_size=0x14,
+    static_table_offset=0x10057,
+    shipped_fixture_count=380,
+    shipped_round_count=38,
+    fixtures_per_round=10,
+    round_table_class_name="DBTRounds",
+    round_table_vtable_va=0x7C99C4,
+    round_table_global_va=0x876BD0,
+    round_record_class_name="DBRRound",
+    round_record_vtable_va=0x7C99D8,
+    round_attach_va=0x4F72D0,
+    fixture_attach_start_va=0x4F76A4,
+    fixture_attach_end_va=0x4F770D,
+    fixed_builder_va=0x6173D0,
+    league_add_round_va=0x4F4500,
+    league_match_constructor_va=0x5104F0,
+    schedule_insert_va=0x615950,
+    source_order_preserved_before_schedule_insertion=True,
+    rng_before_fixed_schedule_insertion=False,
+    original_screen_sort_proven=False,
+    screen_class_name=None,
+)
+
+
+@dataclass(frozen=True)
 class FixtureRowView:
     source_fixture_index: int
     fixture_id: int
@@ -1570,6 +1630,11 @@ class ManagementSourceDataBridge:
                 loan_listed=bool(getattr(player, "loan_listed")),
             ))
         return tuple(rows)
+
+    @staticmethod
+    def fixtures_presentation_contract() -> FixturesPresentationContract:
+        """Return source-proven fixed-fixture identity/construction metadata."""
+        return FIXTURES_PRESENTATION_CONTRACT
 
     def fixture_rows(self) -> tuple[FixtureRowView, ...]:
         league = getattr(self.state, "premier_league", None)
