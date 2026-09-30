@@ -51,8 +51,8 @@ class EA444OriginalBitstreamTests(unittest.TestCase):
             EA444BitReader(b"abc")
         for value in (-1, 33):
             with self.assertRaises(EA444BitstreamError):
-                EA444BitReader(b"\\0\\0\\0\\0", bit_position=value)
-        reader = EA444BitReader(b"\\0\\0\\0\\0")
+                EA444BitReader(bytes(4), bit_position=value)
+        reader = EA444BitReader(bytes(4))
         for width in (0, 33, -1):
             with self.assertRaises(EA444BitstreamError):
                 reader.read(width)
