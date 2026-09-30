@@ -8,6 +8,7 @@ from domestic_cup_state import DomesticCupScheduleState
 from match_schedule import MsvcCrtRng
 from season_regeneration import (
     capture_annual_type3_qualification_snapshot,
+    finalize_annual_dummy_league_rankings,
     clubs_with_live_competition_memberships,
     materialize_annual_primary_schedule,
     partition_annual_type3_league_sources,
@@ -92,6 +93,49 @@ class AnnualPrimaryRegenerationTests(unittest.TestCase):
             Club(20, "Promoted", 2, 2, 0),
         )
         return (competition,), rounds, clubs, (Country(1),)
+
+    def test_annual_dummy_finalization_sorts_every_primary_root_in_order(self):
+        competitions = (
+            Competition(35, 3, initialization_order_value=10),
+            Competition(36, 3, initialization_order_value=20),
+        )
+        clubs = (
+            Club(1, "A", 35, 35, 0),
+            Club(2, "B", 35, 35, 1),
+            Club(3, "C", 36, 36, 0),
+            Club(4, "D", 36, 36, 1),
+        )
+        players = tuple(
+            SimpleNamespace(
+                club_id=club.index,
+                current_raw=(100,) * 17,
+                positions=(0, 0, 0),
+            )
+            for club in clubs
+        )
+
+        class TraceRng:
+            def __init__(self):
+                self.bounds = []
+
+            def randbelow(self, bound):
+                self.bounds.append(int(bound))
+                return 0
+
+        rng = TraceRng()
+        rankings = finalize_annual_dummy_league_rankings(
+            rng,
+            competitions,
+            (Country(1),),
+            clubs,
+            players,
+            {1: 35, 2: 35, 3: 36, 4: 36},
+        )
+
+        self.assertEqual(tuple(rankings), (36, 35))
+        self.assertEqual(rankings[36], (3, 4))
+        self.assertEqual(rankings[35], (1, 2))
+        self.assertEqual(len(rng.bounds), 4)
 
     def test_live_membership_overlay_does_not_mutate_source_clubs(self):
         _competitions, _rounds, clubs, _countries = self._fixture()
