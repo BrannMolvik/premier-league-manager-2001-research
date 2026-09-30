@@ -63,7 +63,7 @@ The existing `original_assets/MANIFEST.md` contains three imported original asse
 | Main menu / TeamSelect | Yes | **Partial.** Strongest source-backed screen family, but native atlas-state, text placement, hierarchy behavior, strict source audit and final import are still open. |
 | Manager home | Controlled-club identity/date available | **Open.** No completed original screen resource/layout/navigation correlation. |
 | Squad | Source-order roster and recovered player state available | **Open.** No completed original squad graphics, columns, icons, geometry, controls or sorting/navigation proof. |
-| Tactics/team selection | Formation, XI/bench, four tactical fields and Team Orders available | **Open.** Original control IDs, labels, graphics, player-slot geometry and interaction behavior are unresolved. |
+| Tactics/team selection | Formation, XI/bench and tactical state available; PFormation2k five-record family and PTeamOrders2K captain/penalty/corner/free-kick order semantics now have a verified presentation contract | **Open.** Original control IDs/bindings, graphics, player-slot geometry, gestures and navigation remain unresolved. |
 | Fixtures/results | Source fixture insertion order, dates and results available | **Open.** Original screen row ordering/comparator, resources, geometry and navigation are not yet recovered. |
 | League table | Native League comparator-aware rows available | **Open.** Original table artwork/layout/navigation remains unrecovered. |
 | Player profile | Source/runtime profile projection available | **Open.** Original field-to-column/icon mapping, resource/layout and visibility rules remain unresolved. |

@@ -86,6 +86,27 @@ provenance-ready: the private-byte execution blocker still prevents the strict
 physical ten-resource audit/import, and the manifest is therefore incomplete
 for this guard.
 
+### Verified tactics / Team Orders presentation contract
+
+PR #37 was merged at `c43ce7d308c187ea9ee82698abba1c82e7af5896`.
+The read-only Gate-13 presentation seam now retains the already-proven
+`PFormation2k` five-record formation family and the `PTeamOrders2K`
+captaincy / penalty / corner / free-kick priority categories with original
+English-string corroboration. Team Orders RTTI addresses that were recorded as
+neighborhood anchors remain explicitly non-canary anchors until private PE
+execution returns.
+
+Verification on PR head `eaf5bb05578eed482ba353ce3924f2fb7d89ed4a`:
+
+- focused Gate-13 run `36768744626`: **227 tests, 19 expected
+  original-source-gated skips, zero failures**;
+- full reconstruction run `36768744640`: **1,063 tests, 21 expected
+  original-source-gated skips, zero failures**;
+- repository asset-policy run `36768744578`: passed.
+
+No original tactics control IDs, geometry, art paths, gestures or navigation
+are claimed. The tactics visual/resource part of Gate 13 remains open.
+
 ## Porting mission
 
 This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc

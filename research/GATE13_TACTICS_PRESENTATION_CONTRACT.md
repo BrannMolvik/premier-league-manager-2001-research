@@ -84,6 +84,23 @@ The presentation contract deliberately contains no:
 
 Those omissions are required until source evidence recovers them.
 
+## Hosted verification
+
+PR #37 head `eaf5bb05578eed482ba353ce3924f2fb7d89ed4a` passed:
+
+- focused Gate-13 run `36768744626`: **227 tests**, **19 expected
+  original-source-gated skips**, zero failures;
+- full reconstruction run `36768744640`: **1,063 tests**, **21 expected
+  original-source-gated skips**, zero failures;
+- repository asset-policy run `36768744578`: passed.
+
+It was squash-merged to main as
+`c43ce7d308c187ea9ee82698abba1c82e7af5896`.
+
+These runs verify the reconstruction contract and integration boundary. They do
+not upgrade the recorded Team Orders RTTI neighborhood addresses into strict PE
+canaries and do not constitute an original Windows graphical test.
+
 ## Gate 13 consequence
 
 The tactics screen is no longer presentation-anonymous: its original formation

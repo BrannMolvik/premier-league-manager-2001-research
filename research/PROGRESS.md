@@ -9032,3 +9032,23 @@ invent original visual or control semantics.
   21 expected source-gated skips, zero failures**.
 - The real manifest remains incomplete for the ten-file slice because direct
   private byte execution is still blocked; no import completion is claimed.
+
+## Gate 13 tactics / Team Orders presentation contract verified - 1 October 2026 KST
+
+- Merged PR #37 as `c43ce7d308c187ea9ee82698abba1c82e7af5896`.
+- Promoted prior-firsthand `PFormation2k` and `PTeamOrders2K` evidence into
+  immutable presentation metadata without adding guessed screen controls or
+  layout.
+- Formation contract preserves vtable `0x7C1AB4`, DBRUser region
+  `+0x70C`, magic `0x074A3216`, five records at `+0x714`, and
+  `0x1F4` record size.
+- Team Orders contract preserves categories 0..3 as captaincy, penalties,
+  corners and free kicks, with original English resource strings used only as
+  corroboration rather than guessed control bindings.
+- Focused Gate-13 run `36768744626`: **227 tests, 19 expected source-gated
+  skips, zero failures**.
+- Full reconstruction run `36768744640`: **1,063 tests, 21 expected
+  source-gated skips, zero failures**.
+- Asset-policy run `36768744578` passed.
+- Gate 13 remains ACTIVE; original tactics art/layout/interaction/navigation and
+  the source-critical Button/Zurich/import path are still open.
