@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 94,
+  "recovery_generation": 95,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Current recovery merged PRs #13-#16: original hierarchy art 1edb4de (CI 36734520993), canonical PE32 Button inspector a427820 (CI 36735030753), exact source-pixel exporter addc1f2 (CI 36735502617), and live source-pixel debug viewer 7fc92fe (CI 36736154217), all associated asset-policy checks passed. CURRENT_STATE, PROGRESS and project_status reconciled through 4fb9221cf4701d3dcc65cfd939d346700d0933eb. Original Library ZIP file size 511121336 confirmed again. Both container and alternate Python returned ClientError on trivial calls; a fresh final container probe still failed. No actual new original executable disassembly, real asset pixel export or Windows GUI smoke test claimed; Gates 13-17 still outstanding.",
+  "note": "Recovery at main 4fb9221cf4701d3dcc65cfd939d346700d0933eb. Native Button@ease and Zurich placement remain blocked because even trivial container.exec fails ClientError in this recovery. Constructing bounded synthetic-tested PE vtable/direct-control-transfer candidate inspector to speed next exact original executable investigation; preserve full Gates 13-17 mission.",
   "same_chat_fallback_minutes": 30
 }
