@@ -33,6 +33,42 @@ for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
 
+## Latest verified original-font and atlas resource integration
+
+- The already committed source-backed original EAUK bitmap-font parser
+  (`reconstruction/ea_font.py`) recovers 224 CP1252 glyph records, individual
+  metrics, source alpha atlas and signed pair spacing from original font
+  loader `0x657650`. The canonical original
+  `Fonts/Zurich_BdXCn_BT_20pixel.fnt` exact hash and first-hand original
+  menu label masks are pinned in opt-in tests. Its initial source-backed
+  verification predates this checkpoint.
+- PR #7, squash commit `973e08253997f75f889b8fd35a370e58ecad40c1`,
+  binds the recovered exact PStartMenu event/IDX mapping to actual original
+  CP1252 font glyph masks without inventing caption positions or colors. It
+  also fixes Gate 13 CI to actually execute the already tracked EA font tests.
+  Hosted Gate-13 run `36729337643` and asset policy `36729337666` passed.
+- PR #8, squash commit `0a999a16d17850613c0c7451b972b44e3d99d987`,
+  provides exact-hash-gated source decoding and lossless slicing of
+  `button_type_1.444` (169x575/169x25) and
+  `choice_start_anim.444` (150x736/150x32) into 23 vertical source frames
+  each. This does NOT imply an unproven native hover/pressed frame mapping.
+  Hosted Gate-13 run `36729704209` and asset policy `36729704079` passed.
+- PR #9, squash commit `0425d80e099c26f80c409c9e0515b26799ec131b`,
+  adds a checksum-gated render-ready original English menu source loader
+  encompassing canonical executable tables, global/menu backgrounds,
+  original font/STR/IDX, and real button frames. Only the previously
+  independently measured original 800x600 background composition SHA is
+  described as visually verified. It explicitly does not invent native button
+  states or caption placement. Hosted Gate-13 run `36730124709` and
+  asset policy `36730124841` passed; original-byte integration tests remain
+  opt-in because licensed source binaries are not shipped in CI.
+- This worker's `container.exec` and `python.exec` both returned
+  `ClientError` even for trivial commands, including a renewed shell
+  attempt after these milestones. Do not treat this temporary execution
+  failure as lost original resources: the canonical private ZIP locator in
+  `research/ORIGINAL_SOURCE_LOCATOR.md` remains available. No first-hand
+  new executable disassembly or licensed-source local run is claimed here.
+
 ## Latest verified Gate 13 integration checkpoints
 
 - PR #5, squash commit `b204d01189dbfa6de5a624f5f4769ffb27ea37f7`,
@@ -271,25 +307,30 @@ recovers. Other source-backed GitHub development and focused CI succeeded.
 
 ## Exact next task within the full Gate-17 mission
 
-1. Recover the proprietary original font format used by
-   `Fonts/Zurich_BdXCn_BT_20pixel.fnt` (or prove a safe existing loader);
-   reproduce the exact glyph metrics needed by PStartMenu labels without
-   substituting a modern system font.
-2. Trace `Button@ease_2001` state/frame selection for
-   `button_type_1.444` and compose the authentic clickable PStartMenu using
-   the already-verified global/background layers, four action rectangles and
-   original STR/IDX labels. Add source-backed pixel/hit-test regressions.
-3. Finish TeamSelect composition using its already-recovered 16 hierarchy
-   rows, Back/Start rectangles, original source graphics and localized text;
-   connect both screens to `front_end_session.py`.
-4. Continue Gate 13 manager home → squad → tactics → fixtures/results →
-   table → profile → transfers → finances → messages/news →
-   training/scouting → remaining screens, reusing original resources by
-   default. Run the Gate-13 audit and advance automatically when its roadmap
-   criteria pass.
-5. Continue automatically through Gates 14, 15, 16 and 17, ending only with
-   the verified Windows 11 release audit. Intermediate presentation
-   checkpoints are not mission completion.
+1. Resolve `Button@ease_2001` source-frame/state transitions for
+   `button_type_1.444` at the canonical executable's control construction,
+   activation, drawing and mouse handlers. The previously recovered atlas has
+   **23 proven top-to-bottom source frames**, but there is not yet first-hand
+   proof mapping those frames to native idle, hover, disabled or pressed
+   states. Recover original caption alignment/color as part of the same
+   executable trace; keep the exact original Zurich font and STR/IDX masks.
+   Read `research/GATE13_PSTARTMENU_LAYOUT.md` first.
+2. While the execution-container failure prevents new local executable-byte
+   disassembly, continue source-backed structural work: assemble TeamSelect's
+   verified original background and action atlas, cautiously stage known
+   original hierarchy art/row origins without guessing hierarchy mapping, and
+   extend opt-in real-disc tests. Preserve the source-hash and CI distinction.
+3. Once the native frame/caption proof is recovered, complete authentic
+   interactive PStartMenu and TeamSelect presentation and provenance-import
+   the minimal correlated authorized original bytes under
+   `original_assets/` using the existing inventory/import tools.
+4. Continue Gate 13 manager home, squad, tactics, fixtures/results, table,
+   player profile, transfers, finances, messages/news, training/scouting and
+   remaining screens. Audit the entire gate before advancing to Gate 14.
+5. Finish Gates 14 through 17, including the full suite, original audio and
+   match presentation, fidelity sweep, destructive testing, and an externally
+   installable verified Windows 11 release. Intermediate merges are not
+   mission completion.
 
 ## Known live fidelity boundaries
 
