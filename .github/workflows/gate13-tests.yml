@@ -43,6 +43,9 @@ on:
       - "reconstruction/original_teamselect_resources.py"
       - "reconstruction/original_first_screen_presenter.py"
       - "reconstruction/test_original_first_screen_presenter.py"
+      - "reconstruction/gate13_first_screen_selection.py"
+      - "reconstruction/test_gate13_first_screen_selection.py"
+      - "research/GATE13_FIRST_SCREEN_EXACT_PATHS.txt"
       - "reconstruction/test_original_teamselect_resources.py"
       - "reconstruction/test_original_pstartmenu_resources.py"
       - "reconstruction/test_original_button_frames.py"
@@ -95,6 +98,7 @@ jobs:
             test_original_front_end_layout \
             test_original_front_end_input \
             test_gate13_asset_import \
+            test_gate13_first_screen_selection \
             test_gate13_catalog_query \
             test_gate13_source_inventory \
             test_iso9660_reader
