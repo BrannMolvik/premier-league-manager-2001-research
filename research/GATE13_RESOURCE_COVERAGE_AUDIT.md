@@ -62,7 +62,7 @@ The existing `original_assets/MANIFEST.md` contains three imported original asse
 | --- | --- | --- |
 | Main menu / TeamSelect | Yes | **Partial.** Strongest source-backed screen family, but native atlas-state, text placement, hierarchy behavior, strict source audit and final import are still open. |
 | Manager home | Controlled-club identity/date available | **Open.** No completed original screen resource/layout/navigation correlation. |
-| Squad | Source-order roster and recovered player state available | **Open.** No completed original squad graphics, columns, icons, geometry, controls or sorting/navigation proof. |
+| Squad | Source-order roster/player state plus verified ordered-roster active/substitute presentation contract available | **Open.** No completed original squad graphics, columns, icons, geometry, controls or sorting/navigation proof; no distinct general Squad panel identity is yet proven. |
 | Tactics/team selection | Formation, XI/bench and tactical state available; PFormation2k five-record family and PTeamOrders2K captain/penalty/corner/free-kick order semantics now have a verified presentation contract | **Open.** Original control IDs/bindings, graphics, player-slot geometry, gestures and navigation remain unresolved. |
 | Fixtures/results | Verified DBTRealFixtures/DBRRealFixture construction contract plus source fixture dates/results are available | **Open.** Original screen row ordering/comparator, resources, geometry and navigation are not yet recovered. |
 | League table | Native League comparator-aware rows plus a verified six-field presentation ordering contract are available | **Open.** Original table artwork/header geometry/controls/navigation remain unrecovered. |
@@ -74,6 +74,14 @@ The existing `original_assets/MANIFEST.md` contains three imported original asse
 | Remaining screens | Not a single complete inventory | **Open.** Must be enumerated and correlated before Gate 13 can close. |
 
 The read-only bridge is important architecture and data work, but it must not be counted as original visual/presentation completion.
+
+The more explicit screen-by-screen evidence boundary, including panel identity
+versus backend/event-only identity and exact whole-disc query patterns, is now
+maintained in `research/GATE13_MANAGEMENT_SCREEN_EVIDENCE_LEDGER.md`. That
+ledger confirms in particular that Manager Home currently has **no persisted
+original panel identity**, and that feature/source-module names such as
+`Support.cpp`, `Youth.cpp` or `MatchFrontEnd.cpp` must not be promoted to
+screens without executable/navigation correlation.
 
 ## Current infrastructure result
 
