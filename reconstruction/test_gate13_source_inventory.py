@@ -83,6 +83,98 @@ class Gate13SourceInventoryTests(unittest.TestCase):
         self.assertEqual(nested, ["disc/game.iso"])
         self.assertEqual(warnings, [])
 
+    def test_loose_zip_exact_only_stages_only_requested_opaque_path(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            archive = root / "source.zip"
+            staged = root / "staged"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("UI/OpaquePanel.bin", b"verified-test-only")
+                zf.writestr("FM2001_Art/Generic/other.png", b"not-selected")
+            report = report_for_source(
+                archive,
+                explicit_paths={"UI/OpaquePanel.bin"},
+                extract_candidates_to=staged,
+                only_explicit=True,
+            )
+
+            self.assertEqual(report["source_kind"], "zip")
+            self.assertEqual(
+                [item["path"] for item in report["candidates"]],
+                ["UI/OpaquePanel.bin"],
+            )
+            self.assertEqual(
+                report["candidates"][0]["candidate_reason"],
+                "explicit-path",
+            )
+            self.assertEqual(
+                report["candidates"][0]["source_layer"],
+                "zip-extracted",
+            )
+            self.assertEqual(
+                (staged / "UI/OpaquePanel.bin").read_bytes(),
+                b"verified-test-only",
+            )
+            self.assertFalse(
+                (staged / "FM2001_Art/Generic/other.png").exists()
+            )
+            self.assertFalse(report["warnings"])
+
+    def test_deep_mixed_zip_exact_only_keeps_loose_selection_and_disc_catalog(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            iso = root / "fixture.iso"
+            build_joliet_iso(iso)
+            iso_bytes = iso.read_bytes()
+            raw = b"".join(
+                self._mode1_sector(
+                    iso_bytes[offset:offset + ISO9660_SECTOR_BYTES]
+                )
+                for offset in range(0, len(iso_bytes), ISO9660_SECTOR_BYTES)
+            )
+            archive = root / "source.zip"
+            staged = root / "staged"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("UI/opaque.dat", b"staged-original-fixture")
+                zf.writestr("disc/game.bin", raw)
+            report = report_for_source(
+                archive,
+                deep=True,
+                only_explicit=True,
+                explicit_paths={"UI/opaque.dat"},
+                extract_candidates_to=staged,
+            )
+            self.assertEqual(report["disc_file_count"], 1)
+            self.assertEqual(
+                [item["path"] for item in report["candidates"]],
+                ["UI/opaque.dat"],
+            )
+            self.assertEqual(
+                (staged / "UI/opaque.dat").read_bytes(),
+                b"staged-original-fixture",
+            )
+            self.assertFalse(
+                (staged / "FM2001_Art/Generic/bground.444").exists()
+            )
+
+    def test_unmatched_loose_zip_selection_warns(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            archive = Path(temp_name) / "source.zip"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("UI/real.dat", b"test")
+            report = report_for_source(
+                archive,
+                explicit_paths={"UI/missing.dat"},
+                only_explicit=True,
+            )
+            self.assertEqual(report["candidates"], [])
+            self.assertTrue(
+                any(
+                    "Explicit disc path was not found: UI/missing.dat" in warning
+                    for warning in report["warnings"]
+                )
+            )
+
     def test_original_background_expected_byte_count_is_recorded(self):
         with tempfile.TemporaryDirectory() as temp_name:
             iso = Path(temp_name) / "fixture.iso"
