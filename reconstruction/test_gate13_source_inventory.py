@@ -1,3 +1,4 @@
+import contextlib
 import io
 import json
 from pathlib import Path
@@ -20,6 +21,7 @@ from gate13_source_inventory import (
     inventory_zip,
     is_mode1_2352_image,
     load_explicit_path_file,
+    main,
     normalize_member,
     parse_7z_slt,
     report_for_source,
@@ -330,6 +332,56 @@ class Gate13SourceInventoryTests(unittest.TestCase):
                     explicit_paths={"disc/game.iso"},
                     only_explicit=True,
                 )
+
+    def test_require_all_explicit_returns_failure_but_preserves_audit_report(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            archive = root / "source.zip"
+            output = root / "report.json"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("UI/known.dat", b"known")
+            with patch("sys.argv", [
+                "gate13_source_inventory.py",
+                str(archive),
+                "--only-explicit",
+                "--extract-path", "UI/missing.dat",
+                "--require-all-explicit",
+                "--output", str(output),
+            ]):
+                with contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit) as failed:
+                        main()
+            self.assertEqual(failed.exception.code, 2)
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(
+                report["unresolved_explicit_paths"], ["UI/missing.dat"]
+            )
+            self.assertTrue(any(
+                "Explicit disc path was not found" in warning
+                for warning in report["warnings"]
+            ))
+
+    def test_require_all_explicit_succeeds_when_all_loose_paths_exist(self):
+        with tempfile.TemporaryDirectory() as temp_name:
+            root = Path(temp_name)
+            archive = root / "source.zip"
+            output = root / "report.json"
+            staged = root / "staged"
+            with zipfile.ZipFile(archive, "w") as zf:
+                zf.writestr("UI/known.dat", b"known")
+            with patch("sys.argv", [
+                "gate13_source_inventory.py",
+                str(archive),
+                "--only-explicit",
+                "--extract-path", "UI/known.dat",
+                "--extract-candidates-to", str(staged),
+                "--require-all-explicit",
+                "--output", str(output),
+            ]):
+                self.assertEqual(main(), 0)
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(report["unresolved_explicit_paths"], [])
+            self.assertEqual((staged / "UI/known.dat").read_bytes(), b"known")
 
     def test_original_background_expected_byte_count_is_recorded(self):
         with tempfile.TemporaryDirectory() as temp_name:
