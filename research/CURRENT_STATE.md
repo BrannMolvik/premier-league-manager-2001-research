@@ -151,35 +151,77 @@ Existing architectural boundary remains verified:
   predate the first real-disc inspection and do not independently validate
   the new original `.444` images.
 
+## Latest original EA444 decoder implementation and local evidence
+
+The real-disc catalog and original checksum facts above remain canonical.
+Original graphics no longer need to be guessed or rediscovered.
+
+- `ea444_header.py` validates all 1,354 original `.444` headers.
+  `ea444_bits.py` implements original little-endian-DWORD,
+  most-significant-bit-first compressed bit ordering.
+- `ea444_tables.py` reconstructs original coefficient permutation
+  and 160-entry Huffman lookup from the exact canonical executable's
+  initialized `TQIA_DAT` PE section; its SHA is checked.
+- `ea444_coefficients.py` implements the source-backed 8-bit
+  scale/DC, variable Huffman run-length, signed AC amplitude, 14-bit
+  escape and EOB parsing for one component. All **17** real first-slice
+  graphic assets produced valid first component blocks.
+- `ea444_quantization.py` reads the 64 original `.rdata`
+  quantization seeds at VA `0x7DABF0` and reproduces the x86
+  `IMUL/SHL/SHR/ADC` 16.16 scaling and signed low-DWORD
+  multiplication. The source 256-byte table SHA is
+  `6fb2af66cb6a51e4b3fa7da9bacab417fa40f180aa0c18c85adb2550c04c89eb`.
+- `ea444_quantized_block.py` maps raw sparse coefficients to the
+  canonical 64-position, pre-inverse-transform component grid,
+  rejecting repeated or out-of-range positions.
+- Actual menu background first component: scale code **15**, **14**
+  signed AC coefficients, **93 consumed bits**, **15** nonzero
+  pre-transform fixed-point grid values and packed-grid SHA
+  `d074fa03f380438bfccbdf88dc2375f700434891889399e4750fc7bc2c75c2d7`.
+  The reproduced DC fixed-point value is **983040**.
+- Source-backed local tests: 12/12 across bitstream, original
+  executable Huffman tables and sparse coefficients. Original
+  quantization and combined-grid measurements independently verified
+  using the actual private original executable and menu bytes.
+  The newest additional quantization/grid regression files are
+  committed, but **no new hosted CI run has yet been claimed**;
+  hosted Gate-13 workflow is PR/manual only to conserve CI minutes.
+- Research, original entry points and the incomplete 2-pass IDCT
+  boundary are in `research/GATE13_EA444_DECODER_TRACE.md`.
+  Original PNG and tiny `.444` source fixtures remain provenance-
+  tracked in `original_assets/MANIFEST.md`.
+- A subsequent attempt to save the complete derived catalog to
+  private Library `/FM2001/Research/` again failed with
+  `container_session_expired`. The original ZIP is safely retained;
+  its metadata/hash research is in GitHub. Do not claim that the
+  full derived catalog was backed up to Library.
+
 ## Exact next task within the full Gate-17 mission
 
-1. **Decode and inspect the now-recovered original `.444` resources**,
-   starting with the directly verified main-menu and TeamSelect backgrounds.
-   The proprietary image header's first two little-endian words give dimensions;
-   the exact compressed pixel/animation data format still requires reverse
-   engineering from `footballmanager.exe` or a proven compatible decoder.
-   Recovered Loader444 paths include decode entry `0x68598A`, its
-   initialization `0x6864A0`, color conversion `0x6868E0`, and
-   low-level stream/decoder functions in `CSEG` at `0x7B9000`,
-   `0x7B95D0` and `0x7BB960`. The **original executable is now present
-   and hash-verified** in the private current workspace.
-2. Correlate exact source graphics/layout/control references with the
-   recovered executable PStartMenu and TeamSelect construction path. Do
-   not infer control bindings solely from asset filenames.
-3. Use `gate13_source_inventory.py --deep --hash-source
-   --extract-path-file --only-explicit --require-all-explicit` to emit an
-   independently reproducible selected-source receipt, then
-   `gate13_asset_import.py --inventory-report` to import only the
-   proven first-slice original resources into `original_assets/` with
-   manifest hashes and original archive provenance.
-4. Bind the authentic decoded resources to the already-tested
-   `front_end_session.py` navigation/application seam; verify the
-   recognizably original PStartMenu → TeamSelect UI before tackling the
-   next management presentation screen. Keep original music and match
-   presentation in Gate 14 unless needed as a Gate-13 dependency.
-5. Continue Gate 13's remaining screens and audit; on passing its
-   roadmap criteria, advance through Gates 14–17 automatically, with
-   verified checkpoints and no speculative gate completion.
+1. Reproduce the original two-pass inverse 8×8 transform. Read
+   `research/GATE13_EA444_DECODER_TRACE.md`, then disassemble
+   original `0x7B9360` (first pass including verified DC-only
+   shortcut at `0x7B948E`), `0x7B94C0` (second pass) and their
+   caller `0x7B95D0`. Recover the exact initialized x87 constants
+   at original `TQIA_DAT +0x10..+0x1F`; prove fixed-point,
+   rounding and row/column scratch strides through direct source
+   and tests before rendering final pixels.
+2. Recover the conditional fourth-channel traversal and original
+   post-transform RGB packing/clipping/transparency and dithering
+   in `0x6868E0`, plus the alternate tile path `0x7BB960`.
+   Verify pixels on small real source fixtures and one full menu
+   background. Reject speculative generic FFmpeg/TGQ conversions.
+3. Cross-reference menu/TeamSelect original image/layout loading,
+   then provenance-import the minimal source-backed original
+   `.444` resources and correct original labels using the
+   verified STR/IDX parser. Connect to the tested
+   `front_end_state.py`/`front_end_session.py` application
+   boundary for recognizably original main-menu → TeamSelect.
+4. Continue Gate 13 remaining screens and its exact roadmap
+   audit. On passing it, automatically advance through Gates 14,
+   15, 16 and 17, finishing with full automated tests and verified
+   Windows 11 release package. A successful intermediate decoder
+   commit is not a gate or mission completion.
 
 ## Known live fidelity boundaries
 
