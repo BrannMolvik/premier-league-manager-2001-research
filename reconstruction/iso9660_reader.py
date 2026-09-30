@@ -174,7 +174,7 @@ class RawMode1IsoImage(IsoImage):
 
     RAW_SECTOR = 2352
     DATA_OFFSET = 16
-    RAW_SYNC = b"\\x00" + (b"\\xff" * 10) + b"\\x00"
+    RAW_SYNC = b"\x00" + (b"\xff" * 10) + b"\x00"
 
     def _read(self, offset: int, size: int) -> bytes:
         if offset < 0 or size < 0:
