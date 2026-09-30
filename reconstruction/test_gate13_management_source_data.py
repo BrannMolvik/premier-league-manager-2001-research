@@ -54,6 +54,7 @@ class FakePlayer:
     transfer_listed: bool = False
     loan_listed: bool = False
     wanted: bool = False
+    current_position: int = 0
     training_modifiers: list[int] = field(
         default_factory=lambda: [0] * 17
     )
@@ -66,6 +67,10 @@ class FakePlayer:
     training_method_results: list[int] = field(
         default_factory=lambda: [0, 1, 2, 3, 4, 5, 6]
     )
+
+    @property
+    def base_match_unavailable(self):
+        return bool(self.injured or self.suspended)
 
     def age(self, on_date):
         if self.date_of_birth is None:
@@ -167,6 +172,7 @@ class FakeController:
             ),
         )
         self.squad_calls = 0
+        self.pending_fixture_id = 3
         self._squad = (
             FakePlayer(
                 202, "Second", "Source", 9, (4, 0, 0),
@@ -381,15 +387,35 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
              "Beta City", "Alpha FC", False, None, None),
         )
 
+    def test_pending_fixture_uses_same_source_fixture_projection(self):
+        controller = FakeController()
+        row = ManagementSourceDataBridge(controller).pending_fixture()
+
+        self.assertIsNotNone(row)
+        self.assertEqual(row.fixture_id, 3)
+        self.assertEqual(row.scheduled_date, date(2000, 8, 26))
+        self.assertEqual(row.home_club_name, "Beta City")
+        self.assertEqual(row.away_club_name, "Alpha FC")
+
+        controller.pending_fixture_id = None
+        self.assertIsNone(ManagementSourceDataBridge(controller).pending_fixture())
+
+        controller.pending_fixture_id = 999
+        with self.assertRaisesRegex(ManagementPresentationError, "absent or ambiguous"):
+            ManagementSourceDataBridge(controller).pending_fixture()
+
     def test_squad_projection_retains_recovered_neutral_runtime_fields(self):
         bridge = ManagementSourceDataBridge(FakeController())
 
         second, first = bridge.squad_rows()
 
         self.assertEqual(
-            (second.full_name, second.shirt_number, second.positions,
-             second.condition, second.form_state, second.morale),
-            ("Second Source", 9, (4, 0, 0), 91, 3, 88),
+            (
+                second.full_name, second.shirt_number, second.positions,
+                second.current_position, second.match_unavailable,
+                second.condition, second.form_state, second.morale,
+            ),
+            ("Second Source", 9, (4, 0, 0), 0, False, 91, 3, 88),
         )
         self.assertTrue(second.transfer_listed)
         self.assertFalse(second.injured)

@@ -5,6 +5,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from fm2001_data import FM2001Database, PLAYER_SKILLS
 from human_gameplay import HumanGameplayController
+from gate13_management_source_data import ManagementSourceDataBridge, ManagementPresentationError
 from internal_save import load_human_gameplay, save_human_gameplay
 from match_team_setup import TeamTacticalState
 
@@ -153,6 +154,13 @@ class App(tk.Tk):
             )
         return self.gameplay
 
+    def _play_presentation(self):
+        if self.gameplay is None:
+            raise ManagementPresentationError(
+                'Start or load a human-manager game first.'
+            )
+        return ManagementSourceDataBridge(self.gameplay)
+
     def _play(self, nb):
         f = ttk.Frame(nb, padding=8)
         nb.add(f, text='Play')
@@ -276,23 +284,27 @@ class App(tk.Tk):
 
         def refresh_roster():
             roster.delete(*roster.get_children())
-            if self.gameplay is None or self.gameplay.human is None:
+            if self.gameplay is None:
                 return
-            for player in self.gameplay.squad():
-                if player.index in selected_starters:
+            try:
+                rows = self._play_presentation().squad_rows()
+            except ManagementPresentationError:
+                return
+            for player in rows:
+                if player.player_id in selected_starters:
                     selection = 'XI'
-                elif player.index in selected_subs:
+                elif player.player_id in selected_subs:
                     selection = 'SUB'
-                elif player.base_match_unavailable:
+                elif player.match_unavailable:
                     selection = 'Unavailable'
                 else:
                     selection = ''
                 roster.insert(
                     '',
                     'end',
-                    iid=str(player.index),
+                    iid=str(player.player_id),
                     values=(
-                        player.index,
+                        player.player_id,
                         player.full_name,
                         self._position(player.current_position),
                         player.condition,
@@ -305,23 +317,17 @@ class App(tk.Tk):
             table.delete(*table.get_children())
             if self.gameplay is None:
                 return
-            clubs = self.gameplay.state.clubs
-            for position, row in enumerate(
-                self.gameplay.state.premier_league_table(),
-                start=1,
-            ):
-                club = clubs.get(int(row.club_id))
-                club_name = (
-                    getattr(club, 'name', str(row.club_id))
-                    if club is not None
-                    else str(row.club_id)
-                )
+            try:
+                rows = self._play_presentation().league_table_rows()
+            except ManagementPresentationError:
+                return
+            for row in rows:
                 table.insert(
                     '',
                     'end',
                     values=(
-                        position,
-                        club_name,
+                        row.position,
+                        row.club_name,
                         row.played,
                         row.wins,
                         row.draws,
@@ -401,8 +407,8 @@ class App(tk.Tk):
             try:
                 controller = self._ensure_gameplay()
                 squad_order = tuple(
-                    int(player.index)
-                    for player in controller.squad()
+                    row.player_id
+                    for row in ManagementSourceDataBridge(controller).squad_rows()
                 )
                 controller.set_lineup(
                     int(formation_var.get()),
@@ -458,14 +464,15 @@ class App(tk.Tk):
                 if fixture is None:
                     match_text.set('No remaining Premier League fixture.')
                     return
-                clubs = controller.state.clubs
-                home = clubs.get(int(fixture.home_club_id))
-                away = clubs.get(int(fixture.away_club_id))
-                home_name = getattr(home, 'name', str(fixture.home_club_id))
-                away_name = getattr(away, 'name', str(fixture.away_club_id))
+                presentation = ManagementSourceDataBridge(controller)
+                pending = presentation.pending_fixture()
+                header_view = presentation.club_header()
+                if pending is None:
+                    raise RuntimeError('Advanced fixture did not become pending.')
                 match_text.set(
-                    f'{controller.state.calendar.current_date}: '
-                    f'{home_name} vs {away_name}. Ready to play.'
+                    f'{header_view.current_date}: '
+                    f'{pending.home_club_name} vs {pending.away_club_name}. '
+                    'Ready to play.'
                 )
                 status.set('Advanced to the next human fixture.')
                 refresh_table()
@@ -475,19 +482,15 @@ class App(tk.Tk):
         def play_match():
             try:
                 controller = self._ensure_gameplay()
-                fixture = controller.state.premier_league.fixtures[
-                    controller.pending_fixture_id
-                ]
+                presentation = ManagementSourceDataBridge(controller)
+                pending = presentation.pending_fixture()
+                if pending is None:
+                    raise RuntimeError('No human fixture is pending.')
                 outcome = controller.play_user_fixture()
                 score = outcome.user_result.score
-                clubs = controller.state.clubs
-                home = clubs.get(int(fixture.home_club_id))
-                away = clubs.get(int(fixture.away_club_id))
-                home_name = getattr(home, 'name', str(fixture.home_club_id))
-                away_name = getattr(away, 'name', str(fixture.away_club_id))
                 match_text.set(
-                    f'{home_name} {score[0]} - {score[1]} {away_name}. '
-                    f'Matchday completed.'
+                    f'{pending.home_club_name} {score[0]} - {score[1]} '
+                    f'{pending.away_club_name}. Matchday completed.'
                 )
                 status.set('Result stored. Adjust lineup or continue.')
                 refresh_roster()
@@ -514,46 +517,44 @@ class App(tk.Tk):
             selected_starters.clear()
             selected_subs.clear()
 
-            if controller is None or controller.human is None:
+            if controller is None:
                 status.set('Save loaded. Choose a Premier League club.')
                 match_text.set('No fixture pending.')
                 refresh_roster()
                 refresh_table()
                 return
 
-            human = controller.human
-            club = controller.state.clubs.get(int(human.club_id))
-            club_name = getattr(club, 'name', str(human.club_id))
-            club_var.set(f'{human.club_id}: {club_name}')
-            formation_var.set(int(human.formation_id))
-            selected_starters.update(int(v) for v in human.starter_ids)
-            selected_subs.update(int(v) for v in human.substitute_ids)
+            presentation = ManagementSourceDataBridge(controller)
+            try:
+                header_view = presentation.club_header()
+                tactics_view = presentation.tactics_selection()
+            except ManagementPresentationError:
+                status.set('Save loaded. Choose a Premier League club.')
+                match_text.set('No fixture pending.')
+                refresh_roster()
+                refresh_table()
+                return
 
-            tactics = controller.state.team_tactics.get(
-                int(human.club_id),
-                TeamTacticalState(),
-            )
-            play_style.set(int(tactics.play_style))
-            without_ball.set(int(tactics.without_ball_style))
-            with_ball.set(int(tactics.with_ball_style))
-            aggression.set(int(tactics.aggression))
+            club_var.set(f'{header_view.club_id}: {header_view.name}')
+            formation_var.set(int(tactics_view.formation_id))
+            selected_starters.update(int(v) for v in tactics_view.starter_ids)
+            selected_subs.update(int(v) for v in tactics_view.substitute_ids)
+            play_style.set(int(tactics_view.play_style))
+            without_ball.set(int(tactics_view.without_ball_style))
+            with_ball.set(int(tactics_view.with_ball_style))
+            aggression.set(int(tactics_view.aggression))
 
-            if controller.pending_fixture_id is None:
+            pending = presentation.pending_fixture()
+            if pending is None:
                 match_text.set(
-                    f'Loaded {controller.state.calendar.current_date}. '
+                    f'Loaded {header_view.current_date}. '
                     'No fixture currently pending.'
                 )
             else:
-                fixture = controller.state.premier_league.fixtures[
-                    int(controller.pending_fixture_id)
-                ]
-                home = controller.state.clubs.get(int(fixture.home_club_id))
-                away = controller.state.clubs.get(int(fixture.away_club_id))
-                home_name = getattr(home, 'name', str(fixture.home_club_id))
-                away_name = getattr(away, 'name', str(fixture.away_club_id))
                 match_text.set(
-                    f'Loaded {controller.state.calendar.current_date}: '
-                    f'{home_name} vs {away_name}. Ready to play.'
+                    f'Loaded {header_view.current_date}: '
+                    f'{pending.home_club_name} vs {pending.away_club_name}. '
+                    'Ready to play.'
                 )
 
             status.set('Internal save loaded.')
@@ -562,8 +563,9 @@ class App(tk.Tk):
 
         def save_game():
             try:
-                if self.gameplay is None or self.gameplay.human is None:
+                if self.gameplay is None:
                     raise RuntimeError('Start or load a human-manager game first.')
+                self._play_presentation().club_header()
                 path = filedialog.asksaveasfilename(
                     title='Save FM2001 modern game',
                     defaultextension='.fm2k',

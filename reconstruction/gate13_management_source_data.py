@@ -36,6 +36,8 @@ class SquadRowView:
     full_name: str
     shirt_number: int
     positions: tuple[int, int, int]
+    current_position: int
+    match_unavailable: bool
     condition: int
     form_state: int
     morale: int
@@ -355,6 +357,8 @@ class ManagementSourceDataBridge:
                 full_name=self._player_name(player),
                 shirt_number=int(getattr(player, "shirt_number", 0)),
                 positions=positions,
+                current_position=int(getattr(player, "current_position")),
+                match_unavailable=bool(getattr(player, "base_match_unavailable")),
                 condition=int(getattr(player, "condition")),
                 form_state=int(getattr(player, "form_state")),
                 morale=int(getattr(player, "morale")),
@@ -1051,6 +1055,26 @@ class ManagementSourceDataBridge:
                 away_goals=(None if result is None else int(result.away_goals)),
             ))
         return tuple(rows)
+
+    def pending_fixture(self) -> FixtureRowView | None:
+        """Return the pending human fixture through the same source-data seam."""
+        self._human_club_id()
+        pending = getattr(self.controller, "pending_fixture_id", None)
+        if pending is None:
+            return None
+        if type(pending) is not int:
+            raise ManagementPresentationError(
+                "Pending human fixture ID is not a recovered integer identity"
+            )
+        matches = tuple(
+            row for row in self.fixture_rows()
+            if int(row.fixture_id) == pending
+        )
+        if len(matches) != 1:
+            raise ManagementPresentationError(
+                f"Pending fixture {pending} is absent or ambiguous in source fixtures"
+            )
+        return matches[0]
 
     def league_table_rows(self) -> tuple[LeagueTableRowView, ...]:
         table = getattr(self.state, "premier_league_table", None)
