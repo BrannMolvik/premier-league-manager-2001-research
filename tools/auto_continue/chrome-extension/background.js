@@ -5,6 +5,9 @@ const CHAT_URL = "https://chatgpt.com/";
 const STALE_CHECK_ALARM = "fm2001-stale-check";
 const STALE_CHECK_MINUTES = 3;
 const DEFAULT_SAME_CHAT_FALLBACK_MINUTES = 30;
+// Never stop an actively generating worker solely because GitHub is quiet.
+// Explicit ChatGPT UI errors still use their existing immediate recovery path.
+const ACTIVE_GENERATION_GRACE_MINUTES = 60;
 
 const runtimeStateUrl = () =>
   `https://raw.githubusercontent.com/${REPO}/${RUNTIME_BRANCH}/research/AUTO_CONTINUE_STATE.json?ts=${Date.now()}`;
@@ -99,6 +102,65 @@ function shouldMonitor(state) {
   );
 }
 
+// A new worker can start while the previous GitHub heartbeat is already stale.
+// Detect its live Stop control before treating silence as a dead session. Otherwise
+// the next three-minute alarm could interrupt a fresh worker after ~2-3 minutes.
+// One uninterrupted generation gets at most a bounded grace period; real UI
+// failures continue through the separate immediate error-recovery path.
+async function deferStaleRecoveryForActiveGeneration(latestActivity) {
+  const stored = await chrome.storage.local.get([
+    "workerTabId",
+    "activeGenerationGuard"
+  ]);
+  const tabId = stored.workerTabId;
+  if (!tabId) {
+    await chrome.storage.local.remove("activeGenerationGuard");
+    return false;
+  }
+
+  let status;
+  try {
+    status = await chrome.tabs.sendMessage(tabId, {
+      type: "fm2001-query-generation"
+    });
+  } catch (_error) {
+    // A closed tab, unloaded content script, or unavailable ChatGPT page is
+    // not evidence that a generation is live.
+    await chrome.storage.local.remove("activeGenerationGuard");
+    return false;
+  }
+
+  if (status?.generating !== true) {
+    await chrome.storage.local.remove("activeGenerationGuard");
+    return false;
+  }
+
+  const now = Date.now();
+  const previous = stored.activeGenerationGuard;
+  const guard = (
+    previous &&
+    previous.tabId === tabId &&
+    Number(latestActivity) <= Number(previous.baselineActivity)
+  )
+    ? previous
+    : { tabId, baselineActivity: Number(latestActivity), observedSince: now };
+
+  await chrome.storage.local.set({ activeGenerationGuard: guard });
+  if (now - Number(guard.observedSince) >= ACTIVE_GENERATION_GRACE_MINUTES * 60000) {
+    console.warn(
+      "FM2001 active generation exceeded quiet-period grace; allowing recovery",
+      { tabId, minutes: ACTIVE_GENERATION_GRACE_MINUTES }
+    );
+    return false;
+  }
+
+  console.info(
+    "FM2001 deferring stale recovery: worker response is still generating",
+    { tabId, minutesObserved: Math.floor((now - guard.observedSince) / 60000) }
+  );
+  return true;
+}
+
 async function recoveryGuard(state) {
   const now = Date.now();
   const stored = await chrome.storage.local.get([
@@ -170,7 +232,7 @@ function buildInPlaceRecoveryPrompt(reason, details = {}) {
 
 Recovery reason: ${reason}
 ${detailText ? `${detailText}\n` : ""}
-Do not restart completed work. Check the current main HEAD and research/CURRENT_STATE.md, then continue the exact active task. Keep committing meaningful verified progress and checkpoint roughly every 10 minutes during unresolved work.`;
+Do not restart completed work. Check the current main HEAD and research/CURRENT_STATE.md, then continue the exact active task. Keep working through consecutive source-backed steps, rather than ending after one small checkpoint, while tools and meaningful next steps remain available. Keep committing meaningful verified progress and checkpoint roughly every 10 minutes during unresolved work. If a genuine infrastructure failure prevents all productive work, report the blocker accurately instead of fabricating progress.`;
 }
 
 async function savePendingRecovery(
@@ -324,6 +386,15 @@ async function checkForStaleSession() {
     const staleAfterMinutes = Number(state.stale_after_minutes || 15);
     const staleMinutes = Math.floor((Date.now() - latestActivity) / 60000);
     if (staleMinutes < staleAfterMinutes) {
+      // A new repository checkpoint resets the active-generation quiet window.
+      await chrome.storage.local.remove("activeGenerationGuard");
+      return;
+    }
+
+    // Repository silence alone must not cancel a ChatGPT response that is
+    // visibly generating. This also protects a newly recovered worker whose
+    // first checkpoint has not yet landed.
+    if (await deferStaleRecoveryForActiveGeneration(latestActivity)) {
       return;
     }
 

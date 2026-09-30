@@ -1,0 +1,26 @@
+name: FM2001 auto-continue watchdog tests
+
+on:
+  push:
+    paths:
+      - "tools/auto_continue/**"
+      - ".github/workflows/auto-continue-tests.yml"
+  pull_request:
+    paths:
+      - "tools/auto_continue/**"
+      - ".github/workflows/auto-continue-tests.yml"
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check extension JavaScript syntax
+        run: |
+          node --check tools/auto_continue/chrome-extension/background.js
+          node --check tools/auto_continue/chrome-extension/content.js
+      - name: Run watchdog behavior tests
+        run: node --test tools/auto_continue/tests/*.test.cjs

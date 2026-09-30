@@ -119,3 +119,26 @@ Version 0.3.1 also scans already-rendered error controls on page load, so reload
 
 
 Version 0.3.2 adds a timed escalation guard. The first same-chat recovery starts a 30-minute progress window (configurable through `same_chat_fallback_minutes`). Repeated same-chat attempts do not reset that window. Any new `main` or `agent-runtime` commit clears it. If the window expires with no repository progress, the extension may open a fresh `active: false` ChatGPT recovery tab even when the old worker tab still exists.
+
+## Active-generation protection (version 0.3.3)
+
+A GitHub heartbeat can already be stale when a new/manual worker response begins.
+A three-minute alarm must not interpret that existing silence as permission to
+click ChatGPT's Stop button while a response is actively generating.
+
+Before *repository-inactivity* recovery, the extension now queries its tracked
+worker tab for a live Stop control. When it detects one, stale recovery is
+deferred for up to 60 minutes of continuous quiet generation. A new repository
+checkpoint resets that quiet-generation window. Explicit ChatGPT network,
+Retry, or true chat-length errors retain immediate error-specific recovery.
+When no live generation can be verified, the existing 15-minute stale threshold,
+20-minute cooldown, and 30-minute no-progress escalation remain in effect.
+
+This is a protective guard, **not a mechanism for forcing ChatGPT to keep
+generating**. A worker that voluntarily finishes early, or cannot proceed due
+to an execution-container outage, needs a task-level solution rather than
+repeatedly restarting the same blocked task.
+
+To activate the change on a PC with an unpacked extension, pull the updated
+repository and click **Reload** for the extension at `chrome://extensions/`.
+The new version should read `0.3.3`. The Windows watchdog itself is unchanged.

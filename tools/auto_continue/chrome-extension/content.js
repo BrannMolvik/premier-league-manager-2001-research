@@ -399,10 +399,17 @@ async function submitPendingResume() {
   }
 }
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message?.type === "fm2001-query-generation") {
+    // Only a live, visible Stop control is evidence that ChatGPT is actively
+    // generating. Do not rely on the absence of a new repository commit.
+    sendResponse({ generating: Boolean(findFirstVisible(STOP_SELECTORS)) });
+    return false;
+  }
   if (message?.type === "fm2001-run-pending-resume") {
     submitPendingResume();
   }
+  return false;
 });
 
 requestRecoveryFromUrl();

@@ -20,6 +20,14 @@ Before working:
 7. Verify the relevant tests/status before making a new fidelity claim.
 
 Work only on the active gate unless a dependency requires otherwise.
+Continue source-backed work through successive meaningful subtasks in the same
+session rather than stopping after a single small checkpoint when further work
+is available. Checkpoint roughly every ten minutes without treating a
+checkpoint as a reason to end the session. When all productive routes are
+blocked by infrastructure (for example, source bytes cannot be read because
+a trivial shell command also fails), record the precise blocker and do not
+simulate ongoing progress or repeatedly add speculative work.
+
 Record unrelated useful leads in research/BACKLOG.md.
 
 Persistence rules:
