@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from types import SimpleNamespace
 import unittest
@@ -8,6 +8,9 @@ from gate13_management_source_data import (
     ManagementSourceDataBridge,
 )
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
+from contract_maintenance import ContractRenewalSuggestion, ContractRenewalSuggestionKind
+from match_postmatch import PlayerTransferRequest
+from scouting import ScoutingReseedState
 from transfer_state import (
     ContractTerms,
     DealInProgress,
@@ -51,6 +54,29 @@ class FakePlayer:
     transfer_listed: bool = False
     loan_listed: bool = False
     wanted: bool = False
+    training_modifiers: list[int] = field(
+        default_factory=lambda: [0] * 17
+    )
+    training_method_id: int = 2
+    training_countdown: int = 4
+    training_active_count: int = 3
+    training_skill_states: list[int] = field(
+        default_factory=lambda: [1] * 17
+    )
+    training_method_results: list[int] = field(
+        default_factory=lambda: [0, 1, 2, 3, 4, 5, 6]
+    )
+
+    def age(self, on_date):
+        if self.date_of_birth is None:
+            return None
+        return on_date.year - self.date_of_birth.year - (
+            (on_date.month, on_date.day)
+            < (self.date_of_birth.month, self.date_of_birth.day)
+        )
+
+    def match_performance_average(self):
+        return float(self.index % 10) + 0.5
 
 
 @dataclass
@@ -158,6 +184,36 @@ class FakeController:
             84, 2, 76, club_id=11, nationality_id=2,
         )
         self.state.players[target.index] = target
+        scout_other = FakePlayer(
+            405, "Scout", "Result", 7, (2, 3, 0),
+            86, 4, 81, club_id=11, nationality_id=3,
+            transfer_listed=True,
+        )
+        self.state.players[scout_other.index] = scout_other
+        self.state.contract_renewal_suggestions = [
+            ContractRenewalSuggestion(
+                player_id=202,
+                queued_on=date(2000, 8, 18),
+                kind=ContractRenewalSuggestionKind.ORDINARY,
+            ),
+            ContractRenewalSuggestion(
+                player_id=101,
+                queued_on=date(2000, 8, 19),
+                kind=ContractRenewalSuggestionKind.BOSMAN,
+            ),
+        ]
+        self.state.player_transfer_requests = [
+            PlayerTransferRequest(
+                player_id=101,
+                queued_on=date(2000, 8, 19),
+                due_on=date(2000, 8, 20),
+            ),
+            PlayerTransferRequest(
+                player_id=202,
+                queued_on=date(2000, 8, 20),
+                due_on=date(2000, 8, 21),
+            ),
+        ]
 
         objective = FinancialObjectiveState(
             base_cash=100000,
@@ -230,6 +286,14 @@ class FakeController:
     def squad(self):
         self.squad_calls += 1
         return self._squad
+
+    def search_scouting_players_mapped(self, panel_state, **kwargs):
+        self.last_scout_panel_state = panel_state
+        self.last_scout_kwargs = kwargs
+        return (
+            self.state.players[405],
+            self.state.players[404],
+        )
 
 
 class ManagementSourceDataBridgeTests(unittest.TestCase):
@@ -529,6 +593,138 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         controller.state.transfers.scheduled_transfers.append(item)
         with self.assertRaisesRegex(ManagementPresentationError, "ambiguous"):
             ManagementSourceDataBridge(controller).transfer_proposal_rows()
+
+    def test_message_source_queues_preserve_separate_runtime_order_and_exact_events(self):
+        controller = FakeController()
+        queues = ManagementSourceDataBridge(controller).message_source_queues()
+
+        self.assertEqual(
+            [row.player_id for row in queues.contract_renewal_in_runtime_order],
+            [202, 101],
+        )
+        ordinary, bosman = queues.contract_renewal_in_runtime_order
+        self.assertEqual(
+            (
+                ordinary.player_name,
+                ordinary.queued_on,
+                ordinary.message_id,
+                ordinary.original_key,
+                ordinary.event_class,
+                ordinary.accepted_action_class,
+            ),
+            (
+                "Second Source",
+                date(2000, 8, 18),
+                0x0E,
+                "AssManSuggestPlayerContractRenewalM",
+                "EAMAssManSuggestPlayerContractRenewalMsub",
+                "EAMAmendContractsub",
+            ),
+        )
+        self.assertEqual(bosman.message_id, 0x1B7)
+        self.assertEqual(
+            bosman.original_key,
+            "AssManSuggestBosmanPlayerContractRenewalM",
+        )
+        self.assertEqual(
+            [row.player_id for row in queues.transfer_requests_in_runtime_order],
+            [101, 202],
+        )
+        due, future = queues.transfer_requests_in_runtime_order
+        self.assertTrue(due.due)
+        self.assertFalse(future.due)
+        self.assertEqual(due.original_key, "PlayerAskTransferList")
+        self.assertEqual(due.event_class, "EAMPlayerAskTransferListsub")
+        self.assertEqual(due.accepted_action_class, "EAMAcceptTransferRequestsub")
+        self.assertEqual(due.refused_action_class, "EAMRefuseTransferRequestsub")
+        # The two source queues are deliberately not merged or chronologically
+        # resorted, because their global manager-mail interleave is unproven.
+        self.assertEqual(ordinary.queue_index, 0)
+        self.assertEqual(due.queue_index, 0)
+
+    def test_training_rows_preserve_roster_order_and_raw_recovered_training_state(self):
+        controller = FakeController()
+        controller._squad[0].training_modifiers[2] = 8
+        controller._squad[0].training_skill_states[3] = 9
+        rows = ManagementSourceDataBridge(controller).training_rows()
+
+        self.assertEqual([row.player_id for row in rows], [202, 101])
+        first = rows[0]
+        self.assertEqual(first.source_roster_index, 0)
+        self.assertEqual(first.player_name, "Second Source")
+        self.assertEqual(
+            (first.method_id, first.countdown, first.active_count),
+            (2, 4, 3),
+        )
+        self.assertEqual(len(first.skill_modifiers), 17)
+        self.assertEqual(first.skill_modifiers[2], 8)
+        self.assertEqual(first.skill_states[3], 9)
+        self.assertEqual(first.method_results, (0, 1, 2, 3, 4, 5, 6))
+
+    def test_training_invalid_array_shape_fails_closed_instead_of_guessing(self):
+        controller = FakeController()
+        controller._squad[0].training_modifiers = [0] * 16
+        with self.assertRaisesRegex(ManagementPresentationError, "17-byte"):
+            ManagementSourceDataBridge(controller).training_rows()
+
+        controller = FakeController()
+        controller._squad[0].training_method_results = [0] * 6
+        with self.assertRaisesRegex(ManagementPresentationError, "seven-method"):
+            ManagementSourceDataBridge(controller).training_rows()
+
+    def test_scouting_search_delegates_to_mapped_backend_and_preserves_result_order(self):
+        controller = FakeController()
+        panel = ScoutingReseedState(
+            field_64e4=3,
+            field_64e0=1,
+            age_low_64d8=18,
+            age_high_64dc=30,
+        )
+        valuation = lambda player: float(player.index * 1000)
+        rows = ManagementSourceDataBridge(controller).scouting_search_rows(
+            panel,
+            page_mode=2,
+            valuation_resolver=valuation,
+            scout_strength_min=20,
+            selected_position_id=3,
+            sort_mode=4,
+            secondary_score_mode=16,
+            secondary_caller_argument=7,
+        )
+
+        self.assertIs(controller.last_scout_panel_state, panel)
+        self.assertEqual(controller.last_scout_kwargs["page_mode"], 2)
+        self.assertIs(controller.last_scout_kwargs["valuation_resolver"], valuation)
+        self.assertEqual(controller.last_scout_kwargs["scout_strength_min"], 20)
+        self.assertEqual(controller.last_scout_kwargs["selected_position_id"], 3)
+        self.assertEqual(controller.last_scout_kwargs["sort_mode"], 4)
+        self.assertEqual(controller.last_scout_kwargs["secondary_score_mode"], 16)
+        self.assertEqual(controller.last_scout_kwargs["secondary_caller_argument"], 7)
+        self.assertNotIn("status_controls", controller.last_scout_kwargs)
+        self.assertEqual([row.player_id for row in rows], [405, 404])
+        self.assertEqual([row.result_index for row in rows], [0, 1])
+        self.assertEqual(rows[0].player_name, "Scout Result")
+        self.assertEqual(rows[0].club_name, "Beta City")
+        self.assertEqual(rows[0].positions, (2, 3, 0))
+        self.assertEqual(len(rows[0].current_skill_bytes), 17)
+        self.assertEqual(rows[0].age, 20)
+        self.assertEqual(rows[0].history_average, 5.5)
+        self.assertTrue(rows[0].transfer_listed)
+
+    def test_scouting_backend_error_is_fail_closed_presentation_error(self):
+        controller = FakeController()
+        def broken_search(_panel, **_kwargs):
+            raise ValueError("source control metadata unavailable")
+        controller.search_scouting_players_mapped = broken_search
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "source control metadata unavailable",
+        ):
+            ManagementSourceDataBridge(controller).scouting_search_rows(
+                ScoutingReseedState(),
+                page_mode=0,
+                valuation_resolver=lambda _player: 1.0,
+            )
 
     def test_missing_human_or_source_identity_fails_closed(self):
         controller = FakeController()
