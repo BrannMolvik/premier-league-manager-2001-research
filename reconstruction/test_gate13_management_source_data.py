@@ -25,6 +25,18 @@ class FakePlayer:
     condition: int
     form_state: int
     morale: int
+    club_id: int = 10
+    nationality_id: int = 1
+    date_of_birth: date | None = date(1980, 1, 2)
+    height_cm: int = 180
+    weight_kg: int = 75
+    current_raw: tuple[int, ...] = (
+        10, 20, 30, 40, 50, 60, 70, 80, 90,
+        100, 110, 120, 130, 140, 150, 160, 170,
+    )
+    weekly_wage: int = 5000
+    contract_expiry_date: date | None = date(2002, 6, 30)
+    loan_club_id: int | None = None
     injured: bool = False
     suspended: bool = False
     out_of_contract: bool = False
@@ -132,6 +144,7 @@ class FakeController:
                 out_of_contract=True, loan_listed=True, wanted=True,
             ),
         )
+        self.state.players = {player.index: player for player in self._squad}
 
     def squad(self):
         self.squad_calls += 1
@@ -288,6 +301,60 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         controller.human.starter_ids = [202, 101]
         with self.assertRaisesRegex(ManagementPresentationError, "lineup"):
             ManagementSourceDataBridge(controller).tactics_selection()
+
+    def test_player_profile_projects_only_recovered_runtime_source_fields(self):
+        controller = FakeController()
+        view = ManagementSourceDataBridge(controller).player_profile(202)
+
+        self.assertEqual(
+            (
+                view.player_id, view.first_name, view.surname,
+                view.club_id, view.club_name, view.nationality_id,
+                view.date_of_birth, view.shirt_number,
+                view.height_cm, view.weight_kg, view.positions,
+            ),
+            (
+                202, "Second", "Source", 10, "Alpha FC", 1,
+                date(1980, 1, 2), 9, 180, 75, (4, 0, 0),
+            ),
+        )
+        self.assertEqual(
+            view.current_skill_bytes,
+            (
+                10, 20, 30, 40, 50, 60, 70, 80, 90,
+                100, 110, 120, 130, 140, 150, 160, 170,
+            ),
+        )
+        self.assertEqual(
+            (
+                view.condition, view.form_state, view.morale,
+                view.weekly_wage, view.contract_expiry_date,
+            ),
+            (91, 3, 88, 5000, date(2002, 6, 30)),
+        )
+        self.assertTrue(view.transfer_listed)
+        self.assertFalse(view.injured)
+        # Development target bytes exist in RuntimePlayer but are not
+        # established as original player-profile UI and stay outside the bridge.
+        self.assertFalse(hasattr(view, "target_raw"))
+        self.assertFalse(hasattr(view, "target_skill_bytes"))
+
+    def test_player_profile_invalid_or_unverified_runtime_fields_fail_closed(self):
+        controller = FakeController()
+        with self.assertRaisesRegex(ManagementPresentationError, "Unknown"):
+            ManagementSourceDataBridge(controller).player_profile(999)
+        with self.assertRaisesRegex(ManagementPresentationError, "integer"):
+            ManagementSourceDataBridge(controller).player_profile(True)
+
+        controller = FakeController()
+        controller.state.players[202].current_raw = (1, 2, 3)
+        with self.assertRaisesRegex(ManagementPresentationError, "17-byte"):
+            ManagementSourceDataBridge(controller).player_profile(202)
+
+        controller = FakeController()
+        controller.state.players[202].contract_expiry_date = "unknown"
+        with self.assertRaisesRegex(ManagementPresentationError, "contract expiry"):
+            ManagementSourceDataBridge(controller).player_profile(202)
 
     def test_missing_human_or_source_identity_fails_closed(self):
         controller = FakeController()
