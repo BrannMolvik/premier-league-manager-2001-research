@@ -8,6 +8,7 @@ from gate13_management_source_data import (
     ManagementSourceDataBridge,
     SCOUTING_PRESENTATION_CONTRACT,
     TACTICS_PRESENTATION_CONTRACT,
+    TICKETS_PRESENTATION_CONTRACT,
 )
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from contract_maintenance import ContractRenewalSuggestion, ContractRenewalSuggestionKind
@@ -587,6 +588,82 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         controller.state.players[202].contract_expiry_date = "unknown"
         with self.assertRaisesRegex(ManagementPresentationError, "contract expiry"):
             ManagementSourceDataBridge(controller).player_profile(202)
+
+    def test_ticket_presentation_contract_preserves_ptickets_native_state_identity(self):
+        contract = ManagementSourceDataBridge.tickets_presentation_contract()
+
+        self.assertIs(contract, TICKETS_PRESENTATION_CONTRACT)
+        self.assertEqual(contract.panel_class_name, "PTickets")
+        self.assertEqual(contract.update_routine_va, 0x45FF10)
+        self.assertEqual(contract.user_ticket_state_offset, 0x694)
+        self.assertEqual(contract.ticket_state_size, 0x7C)
+        self.assertEqual(contract.season_ticket_quantity_offset, 0x00)
+        self.assertEqual(contract.season_ticket_price_offset, 0x04)
+        self.assertEqual(contract.terrace_price_offset, 0x08)
+        self.assertEqual(contract.seating_price_offset, 0x0C)
+        self.assertEqual(contract.section_states_offset, 0x14)
+        self.assertEqual(contract.section_state_count, 26)
+        self.assertEqual(contract.terrace_recommendation_helper_va, 0x461340)
+        self.assertEqual(contract.seating_recommendation_helper_va, 0x4615B0)
+        self.assertEqual(contract.terrace_compare_va, 0x4605AD)
+        self.assertEqual(contract.seating_compare_va, 0x460753)
+        self.assertEqual(contract.terrace_reference_factor, 0.75)
+        self.assertEqual(contract.stadium_terrace_capacity_offset, 0x1C)
+        self.assertEqual(contract.stadium_seating_capacity_offset, 0x28)
+        self.assertEqual(
+            [(item.value, item.semantic_key) for item in contract.section_states],
+            [
+                (-1, "unavailable"),
+                (0, "home"),
+                (1, "visiting"),
+                (2, "season_ticket_reserved"),
+            ],
+        )
+        for unsupported in ("control_id", "rectangle", "art_path", "navigation_id"):
+            self.assertFalse(hasattr(contract, unsupported))
+
+    def test_ticket_state_view_preserves_prices_and_26_native_section_states(self):
+        controller = FakeController()
+        section_states = [-1, 0, 1, 2] + [0] * 22
+        controller.state.ticket_states = {
+            10: SimpleNamespace(
+                season_ticket_quantity=321,
+                season_ticket_price=44,
+                terrace_price=17,
+                seating_price=23,
+                section_states=section_states,
+            )
+        }
+
+        view = ManagementSourceDataBridge(controller).ticket_state_view()
+
+        self.assertEqual(view.club_id, 10)
+        self.assertEqual(view.season_ticket_quantity, 321)
+        self.assertEqual(view.season_ticket_price, 44)
+        self.assertEqual(view.terrace_price, 17)
+        self.assertEqual(view.seating_price, 23)
+        self.assertEqual(view.section_states, tuple(section_states))
+
+    def test_ticket_state_view_fails_closed_for_missing_or_unmapped_state(self):
+        controller = FakeController()
+        with self.assertRaisesRegex(
+            ManagementPresentationError, "ticket runtime state"
+        ):
+            ManagementSourceDataBridge(controller).ticket_state_view()
+
+        controller.state.ticket_states = {
+            10: SimpleNamespace(
+                season_ticket_quantity=1,
+                season_ticket_price=2,
+                terrace_price=3,
+                seating_price=4,
+                section_states=[0] * 25 + [7],
+            )
+        }
+        with self.assertRaisesRegex(
+            ManagementPresentationError, "unmapped native value"
+        ):
+            ManagementSourceDataBridge(controller).ticket_state_view()
 
     def test_finance_view_preserves_balance_ledger_order_and_neutral_categories(self):
         controller = FakeController()
