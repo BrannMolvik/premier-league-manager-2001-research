@@ -14,7 +14,7 @@
   "last_verified_test_count": 819,
   "asset_policy_validated_head": "70307af0549f6bacd4bc1951e3cdb6ef63df0c5b",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13: recover original Button@ease_2001 native state-frame and Zurich caption layout from canonical private executable using the new bounded PE32 trace tool; source-stage and SHA-validate ten original first-screen assets and run opt-in licensed-byte tests when local execution returns. Finish remaining presentation screens, then Gates 14–17 and Windows 11 release audit.",
+  "active_task": "Gate 13: restore byte-level execution access for the privately archived original FM2001 executable/disc. Run canonical Button@ease_2001 source inspection, ten-asset exact path hash staging and opt-in source pixel exporter, prove native button states and Zurich caption placement. Complete original first screens and remaining management UI, then Gates 14–17 with Windows 11 release audit.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate 13: recover original Button@ease_2001 native state-frame and Zurich caption layout from canonical private executable using the new bounded PE32 trace tool; source-stage and SHA-validate ten original first-screen assets and run opt-in licensed-byte tests when local execution returns. Finish remaining presentation screens, then Gates 14–17 and Windows 11 release audit.",
+  "current_task": "Gate 13: restore byte-level execution access for the privately archived original FM2001 executable/disc. Run canonical Button@ease_2001 source inspection, ten-asset exact path hash staging and opt-in source pixel exporter, prove native button states and Zurich caption placement. Complete original first screens and remaining management UI, then Gates 14–17 with Windows 11 release audit.",
   "last_verified_reconstruction_failures": 2,
   "last_verified_asset_policy_head": "70307af0549f6bacd4bc1951e3cdb6ef63df0c5b",
   "gate11_danger_morale_request_integrated": true,
@@ -480,9 +480,9 @@
   "source_execution_blocker": "In this ChatGPT recovery's execution environment both container.exec and python.exec return ClientError even for trivial echo/print; original source ZIP remains listed in private Library. New native executable tracing/staging/opt-in original-byte tests are unverified until execution recovers.",
   "gate13_first_screen_headless_presenter_integrated": true,
   "gate13_exact_source_selection_verified": true,
-  "gate13_latest_verified_integration_main_head": "a42782047e6cfa673ef88f36773b37bf9be63e04",
-  "gate13_latest_focused_ci_run": 36735030753,
-  "gate13_latest_asset_policy_ci_run": 36735030926,
+  "gate13_latest_verified_integration_main_head": "addc1f2dab50fdccdf7e7517ab22bdf1fbd1a35b",
+  "gate13_latest_focused_ci_run": 36735502617,
+  "gate13_latest_asset_policy_ci_run": 36735502710,
   "gate13_source_material_import_completed": false,
   "gate13_native_button_state_recovered": false,
   "full_mission_complete": false,
@@ -495,5 +495,7 @@
   "gate13_exact_button_trace_tool_implemented": true,
   "gate13_original_button_state_recovered": false,
   "gate13_button_trace_procedure": "research/GATE13_BUTTON_STATE_TRACE_PROCEDURE.md",
-  "gate13_teamselect_hierarchy_art_source_loader_integrated": true
+  "gate13_teamselect_hierarchy_art_source_loader_integrated": true,
+  "gate13_private_source_pixel_exporter_implemented": true,
+  "gate13_actual_original_pixel_export_completed": false
 }
