@@ -9142,3 +9142,30 @@ invent original visual or control semantics.
 - Full run `36773922864`: **1,073 tests / 21 expected skips / 0 failures**.
 - Asset policy `36773922713` passed.
 - Direct shell retry still failed immediately with `ClientError`.
+
+
+## Gate 13 Squad presentation contract verified - 1 October 2026 KST
+
+- Recovery 104 re-listed the canonical private 511,121,336-byte authorized
+  source ZIP from `/FM2001/Original Source/` and successfully materialized it
+  into the current workspace. The source is present.
+- Private byte execution remains an infrastructure blocker: after one trivial
+  shell probe succeeded, repository/file access, subsequent shell probes and
+  private Python all returned `ClientError`. No new native Button/Zurich,
+  pixel, ten-resource or executable claim was made.
+- Merged PR #45 as
+  `de3091f7102d178aafb5604b3eeca2561bf04a97`.
+- Added the immutable Squad backend presentation contract for team roster
+  `+0x244` / count `+0x294`, participant collector `0x510CD0`,
+  active/substitute predicates and setters, DBRPlayer `+0x14` selection
+  masks, removal helper and preserved roster iteration order.
+- Kept the original Squad screen class, row sort, columns, graphics, geometry,
+  controls and navigation explicitly unresolved.
+- Focused Gate-13 run `36780212525`: **238 tests / 19 expected skips /
+  0 failures**.
+- Full reconstruction run `36780212535`: **1,074 tests / 21 expected skips /
+  0 failures**.
+- Asset-policy run `36780212608` passed.
+- Next source-backed fallback task is the manager-home / remaining-screen
+  evidence-and-blocker inventory. The native Button/Zurich/ten-resource path
+  regains priority immediately if private execution recovers.
