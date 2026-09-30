@@ -36,11 +36,11 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-eaa738de9f6cb16acee99462f8bfa740a1c9a0ee
-Test Gate 13 path-list query output
+114336aceb5d0bc7a844dbd7c7d3b439ee84d50f
+Regression-test exact-only Gate 13 staging
 ```
 
-GitHub Actions ran **860 tests with 2 failures**, exactly the two long-standing
+GitHub Actions ran **863 tests with 2 failures**, exactly the two long-standing
 secondary-schedule assertions:
 
 - secondary root-order assertion;
@@ -126,9 +126,16 @@ at `eaa738de9f6cb16acee99462f8bfa740a1c9a0ee`: 860 tests, with only the two
 known secondary-schedule failures. A saved full-disc report can be queried
 offline with `gate13_catalog_query.py` by substring, suffix, top-level
 directory, or regex. Query results can be emitted as a reusable path-list file
-and fed back to `gate13_source_inventory.py --extract-path-file`, avoiding
+and fed back to `gate13_source_inventory.py --extract-path-file --only-explicit`, avoiding
 repeated 511 MB conversion while narrowing and staging opaque
 PStartMenu/TeamSelect leads.
+
+Exact-path staging now supports `--only-explicit`, which deliberately
+excludes unrelated heuristic candidates from extraction while retaining the
+complete disc catalog. An empty exact-path selection fails immediately.
+GitHub Actions run `36688232893` verified all three new tests; full-suite
+results remain 863 tests with only the same two known secondary-schedule failures.
+The repository asset-policy workflow also passed.
 
 Secondary visual evidence is now bounded in
 `research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
@@ -151,7 +158,7 @@ pixel coordinates and non-authoritative for shipped asset bytes.
    `reconstruction/gate13_catalog_query.py` to narrow directories/extensions
    and opaque path leads without re-reading the source archive. Emit a
    reproducible `--paths-only` shortlist and feed it back through
-   `--extract-path-file`. Inventory the exact original graphics, strings,
+   `--extract-path-file --only-explicit`. Inventory the exact original graphics, strings,
    rectangles/layout data and other resources required by PStartMenu and
    TeamSelect, using the bounded secondary screenshots only as a visual
    cross-check.
