@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 13,
   "active_task": "Gate 13: recover original Zurich 20-pixel FNT glyph/metrics and Button@ease_2001 frame-state behavior from the authorized original executable and disc; compose verified authentic PStartMenu then TeamSelect; continue remaining screens and Gates 14-17 after audits.",
-  "last_known_main_head": "d6b8cfd9363830099534ac20307a72e58c1c1964",
+  "last_known_main_head": "2ef1d249e6c97b1b73263b1872fb7c511990226f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 92,
   "last_recovery_reason": "manual-start",
-  "note": "PR #5 and PR #6 merged with successful focused CI (36725002444,36725905158) and asset checks; research/CURRENT_STATE.md and PROGRESS.md reconciled. The private canonical source ZIP remains available in Library; this worker's container and Python commands both returned ClientError, so do not claim a new original-byte validation. Continue active Gate 13 and preserve Gates 14-17 mission.",
+  "note": "Verified Gate 13 PR #5 and #6 merged, tests passed. Canonical next task: first-hand original Zurich font/ Button@ease_2001 recovery, then render/compose PStartMenu and TeamSelect. Cost bug corrected: asset-policy.yml on agent-runtime now has no push trigger (runtime commit 2d48b1a); main protocol documented in 2ef1d249. Original private ZIP confirmed in Library; this worker's container/Python ClientError blocks only new first-hand local-byte analysis, not the mission. Keep full Gates 13-17 assignment active.",
   "same_chat_fallback_minutes": 30
 }
