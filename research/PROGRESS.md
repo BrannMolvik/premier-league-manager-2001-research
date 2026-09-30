@@ -8089,3 +8089,23 @@ keeping presentation separate from the stable simulation backend.
   commits at checkpoint time, so this entry does **not** promote them to the
   latest CI-verified baseline. The prior verified baseline remains the
   847-test MODE1 checkpoint until CI evidence is available.
+
+
+## Gate 13 native ISO inventory CI verification - 30 September 2026
+
+- GitHub Actions run `36679027696` verified
+  `971bea6ce8caffa778cd713d1e0718907154f32d`.
+- The full reconstruction suite ran **851 tests with 2 failures**, exactly the
+  two unchanged secondary-schedule assertions:
+  `test_secondary_root_order_uses_same_crt_qsort_then_mode_filter` and
+  `test_secondary_container_bucket_counts_reach_canonical_staff_seed`
+  (280 recovered vs 262 expected).
+- Both newly added Gate-13 source tests passed:
+  `test_builtin_iso_reader_inventories_and_extracts_candidate` and
+  `test_deep_zip_mode1_inventory_no_longer_requires_7zip`.
+- Repository asset policy passed for the implementation checkpoint.
+- This promotes `971bea6` to the latest verified Gate-13 implementation
+  baseline. The remaining blocker is not source location or source-path
+  tooling: the persistent Library file resolves and materializes successfully,
+  while the current CAAS execution container still raises `ClientError`
+  before it can read the materialized bytes.
