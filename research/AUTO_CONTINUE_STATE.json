@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 remains active but is now genuinely infrastructure-blocked on private byte/Windows graphical execution. Recovery104 confirmed the canonical 511,121,336-byte source ZIP exists and materialized it; latest trivial stat probe still returns ClientError. Safe fallback preparation is complete: PR45 verified/merged Squad runtime presentation contract (full 1074/21 expected skips); GATE13_MANAGEMENT_SCREEN_EVIDENCE_LEDGER.md enumerates panel/backend/feature evidence and exact resource queries; PR46 merged fail-closed management catalog audit (focused 243/19 expected skips, asset policy passed, full suite intentionally not triggered). Exact next action when execution recovers: TeamSelect 0x81EC10/0x7C7650 RTTI canary -> native Button 23-frame state mapping -> Zurich caption placement/color -> strict ten-resource audit/import -> whole-disc management catalog audit/correlation -> remaining Gate13 resources/layout/navigation -> Windows graphical audit -> Gate13 closure -> Gates14-17 and verified clean Windows11 release. Do not invent presentation semantics while blocked.",
+  "active_task": "Gate13 exact active task remains blocked by execution infrastructure. Recovery105 rechecked both a trivial container shell command and private Python; both still fail immediately with ClientError before any original FM2001 bytes can be stat/read. Do not invent Button/Zurich/resource/UI behavior. Exact next action on the first recovery where execution works: rematerialize the canonical Library ZIP if needed; hash/extract canonical footballmanager.exe; run TeamSelect 0x81EC10/0x7C7650 canary; trace native Button state to the 23-frame atlas; recover Zurich placement/color; run strict ten-resource audit/import; then continue screen correlation, Windows graphical Gate13 audit, Gates14-17 and clean Windows11 release.",
   "last_known_main_head": "c36b7047dbcfc1f99a916a9997debb706ec08eb0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 104,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery104 canonical main advanced to c36b7047. Squad and management-screen catalog fallback work are complete and verified. Source is present/materialized; execution remains ClientError even for trivial stat. Preserve status=working for automatic recovery; no user action is currently required.",
+  "recovery_generation": 105,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery105 performed the canonical infrastructure recheck from main c36b7047. container.exec and python.exec both still return ClientError immediately. No safe source-backed fallback remains beyond work already persisted in main. No user action required; automatic recovery should retry execution later.",
   "same_chat_fallback_minutes": 30
 }
