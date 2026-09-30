@@ -86,6 +86,14 @@ class FakeState:
         }
         self.calendar = SimpleNamespace(current_date=date(2000, 8, 20))
         self.premier_league = FakeLeague()
+        self.team_tactics = {
+            10: SimpleNamespace(
+                play_style=2,
+                without_ball_style=3,
+                with_ball_style=1,
+                aggression=7,
+            )
+        }
         # Deliberately Beta first: represents the backend's already recovered
         # native-comparator order, which the bridge must not second-guess.
         self._table = (
@@ -100,7 +108,18 @@ class FakeState:
 class FakeController:
     def __init__(self):
         self.state = FakeState()
-        self.human = SimpleNamespace(club_id=10)
+        self.human = SimpleNamespace(
+            club_id=10,
+            formation_id=4,
+            starter_ids=(202, 101),
+            substitute_ids=(303,),
+            team_orders=SimpleNamespace(
+                captain=(202, 101),
+                penalty=(101,),
+                corner=(202,),
+                free_kick=(101, 202),
+            ),
+        )
         self.squad_calls = 0
         self._squad = (
             FakePlayer(
@@ -155,6 +174,22 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
             [row.position for row in snapshot.league_table],
             [1, 2],
         )
+        self.assertEqual(
+            (
+                snapshot.tactics.formation_id,
+                snapshot.tactics.starter_ids,
+                snapshot.tactics.substitute_ids,
+                snapshot.tactics.play_style,
+                snapshot.tactics.without_ball_style,
+                snapshot.tactics.with_ball_style,
+                snapshot.tactics.aggression,
+            ),
+            (4, (202, 101), (303,), 2, 3, 1, 7),
+        )
+        self.assertEqual(snapshot.tactics.captain_priority, (202, 101))
+        self.assertEqual(snapshot.tactics.penalty_priority, (101,))
+        self.assertEqual(snapshot.tactics.corner_priority, (202,))
+        self.assertEqual(snapshot.tactics.free_kick_priority, (101, 202))
         self.assertEqual(controller.squad_calls, 1)
 
     def test_fixture_projection_uses_recovered_dates_names_and_result_only(self):
@@ -215,6 +250,44 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
         # returned order. The bridge never substitutes ID/name sorting.
         self.assertEqual([row.club_id for row in rows], [10, 11])
         self.assertEqual([row.short_name for row in rows], ["Alpha", "Beta"])
+
+    def test_tactics_projection_preserves_exact_backend_numeric_state(self):
+        controller = FakeController()
+        view = ManagementSourceDataBridge(controller).tactics_selection()
+        self.assertEqual(view.formation_id, 4)
+        self.assertEqual(view.starter_ids, (202, 101))
+        self.assertEqual(view.substitute_ids, (303,))
+        self.assertEqual(
+            (
+                view.play_style,
+                view.without_ball_style,
+                view.with_ball_style,
+                view.aggression,
+            ),
+            (2, 3, 1, 7),
+        )
+        self.assertEqual(view.captain_priority, (202, 101))
+        self.assertEqual(view.penalty_priority, (101,))
+        self.assertEqual(view.corner_priority, (202,))
+        self.assertEqual(view.free_kick_priority, (101, 202))
+
+    def test_missing_tactics_or_team_orders_fail_closed_without_defaults(self):
+        controller = FakeController()
+        del controller.state.team_tactics[10]
+        with self.assertRaisesRegex(ManagementPresentationError, "tactical"):
+            ManagementSourceDataBridge(controller).tactics_selection()
+
+        controller = FakeController()
+        controller.human.team_orders = SimpleNamespace(
+            captain=(202,), penalty=(101,), corner=(202,),
+        )
+        with self.assertRaisesRegex(ManagementPresentationError, "Team Orders"):
+            ManagementSourceDataBridge(controller).tactics_selection()
+
+        controller = FakeController()
+        controller.human.starter_ids = [202, 101]
+        with self.assertRaisesRegex(ManagementPresentationError, "lineup"):
+            ManagementSourceDataBridge(controller).tactics_selection()
 
     def test_missing_human_or_source_identity_fails_closed(self):
         controller = FakeController()
