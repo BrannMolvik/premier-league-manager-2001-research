@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: retry source-byte access to existing authorized private Library ZIP in a functioning execution container; run verified deep ZIP -> MODE1 -> ISO/Joliet full-disc inventory, follow GATE13_CATALOG_SEARCH_PLAN.md, select original PStartMenu/TeamSelect resources, hash and provenance-import minimum exact-only asset slice, then bind original UI/navigation.",
-  "last_known_main_head": "6e804c23dd12b9d11538b7e8937fc7ac48fc6996",
+  "active_task": "Gate 13: integrate authentic original PStartMenu and TeamSelect graphics/layout into the now-tested headless front_end_session.py / front_end_state.py seam. First regain source-byte access to durable private Library ZIP in a functioning execution container; run full native ZIP -> MODE1 -> ISO/Joliet inventory, identify/hashes, intentionally stage and provenance-import minimal source assets. Do not redesign or repeat completed headless adapter work.",
+  "last_known_main_head": "b714ad82ab642a5b2417062ed846898f98ba72aa",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 83,
   "last_recovery_reason": "user-requested-continue",
-  "note": "Verified current main 6e804c2. Direct container commands still return CAAS ClientError. Continuing Gate 13 first-slice application boundary from established PStartMenu/TeamSelect control IDs and existing human gameplay controller without inventing or importing original assets.",
+  "note": "Main checkpoint b714ad8: 9-test headless application boundary introduced. Gate-13 focused CI 36694601308 passed 47/47; repository asset policy 36694601279 passed; full suite 875 tests with only two established secondary-schedule failures (36694465472). Local container still returns global CAAS ClientError even for health command, preventing actual source bytes. Private Library locator remains valid; no re-upload. Exact next step is authentic disc inventory -> rendering integration.",
   "same_chat_fallback_minutes": 30
 }
