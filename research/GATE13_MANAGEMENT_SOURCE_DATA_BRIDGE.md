@@ -256,6 +256,32 @@ Because `GameState` currently stores these two recovered families in separate
 lists, the bridge deliberately does **not** sort them together by date or claim
 the complete original Messages/News inbox ordering.
 
+### Source-backed Training.cpp presentation contract
+
+The bridge now exposes immutable training-system metadata from the already
+recovered original `Training.cpp` and canonical executable paths.
+
+The contract preserves:
+
+- exactly 40 per-user records of `0xC8` bytes;
+- player ID at record `+0x08`;
+- embedded training object at record `+0x24`;
+- method byte `+0x00`, eight-week countdown dword `+0x04`, active-count
+  dword `+0x08`;
+- 17 per-skill counters from `+0x0C`;
+- 17 paired dword states from `+0x20`;
+- seven per-method result counters from `+0x64`;
+- fresh defaults method 5 / countdown 8 / active count 0;
+- method IDs 0..6 as rest/recovery, attacking, midfield, defensive,
+  goalkeeper, fitness and technique, tied to their exact seven profile vectors;
+- source update chain `0x42AE40 -> 0x61CBA0 -> 0x61C520 -> 0x4EACE0`
+  and daily maintenance `0x61CA60`.
+
+The persisted evidence has not pinned a specific original Training screen RTTI
+class, so `screen_class_name` is deliberately `None`. No widget IDs,
+visible label bindings, player-row geometry, art resources or navigation are
+invented. See `research/GATE13_TRAINING_PRESENTATION_CONTRACT.md`.
+
 ### Training source/runtime projection
 
 For each controlled-club player, in live roster order, the bridge exposes the

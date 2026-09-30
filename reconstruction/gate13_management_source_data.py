@@ -513,6 +513,87 @@ class MessageSourceQueuesView:
 
 
 @dataclass(frozen=True)
+class TrainingMethodPresentationContract:
+    method_id: int
+    semantic_key: str
+    profile_vector_index: int
+    weekly_rng_draw_count: int
+
+
+@dataclass(frozen=True)
+class TrainingPresentationContract:
+    source_module_path: str
+    screen_class_name: str | None
+    record_count: int
+    record_size: int
+    player_id_offset: int
+    embedded_training_offset: int
+    method_id_offset: int
+    countdown_offset: int
+    active_count_offset: int
+    skill_counter_offset: int
+    skill_counter_count: int
+    skill_state_offset: int
+    skill_state_count: int
+    method_result_offset: int
+    method_result_count: int
+    fresh_method_id: int
+    fresh_countdown: int
+    fresh_active_count: int
+    profile_selector_va: int
+    profile_builder_va: int
+    coach_dispatcher_va: int
+    weekly_user_dispatch_va: int
+    record_walker_va: int
+    eligible_record_va: int
+    weekly_update_va: int
+    daily_maintenance_va: int
+    methods: tuple[TrainingMethodPresentationContract, ...]
+
+
+# Firsthand Training.cpp / canonical-executable evidence only. No Training
+# screen RTTI class has been independently pinned in the persisted research, so
+# screen_class_name remains None rather than being inferred.
+TRAINING_PRESENTATION_CONTRACT = TrainingPresentationContract(
+    source_module_path=r"D:\Projects\FM2001\Applications\FootballManager\Training.cpp",
+    screen_class_name=None,
+    record_count=40,
+    record_size=0xC8,
+    player_id_offset=0x08,
+    embedded_training_offset=0x24,
+    method_id_offset=0x00,
+    countdown_offset=0x04,
+    active_count_offset=0x08,
+    skill_counter_offset=0x0C,
+    skill_counter_count=17,
+    skill_state_offset=0x20,
+    skill_state_count=17,
+    method_result_offset=0x64,
+    method_result_count=7,
+    fresh_method_id=5,
+    fresh_countdown=8,
+    fresh_active_count=0,
+    profile_selector_va=0x4EA9A0,
+    profile_builder_va=0x4EAA00,
+    coach_dispatcher_va=0x42C240,
+    weekly_user_dispatch_va=0x42AE40,
+    record_walker_va=0x61CBA0,
+    eligible_record_va=0x61C520,
+    weekly_update_va=0x4EACE0,
+    daily_maintenance_va=0x61CA60,
+    methods=(
+        TrainingMethodPresentationContract(0, "rest_recovery", 4, 0),
+        TrainingMethodPresentationContract(1, "attacking", 0, 4),
+        TrainingMethodPresentationContract(2, "midfield", 2, 4),
+        TrainingMethodPresentationContract(3, "defensive", 1, 4),
+        TrainingMethodPresentationContract(4, "goalkeeper", 3, 4),
+        TrainingMethodPresentationContract(5, "fitness", 5, 6),
+        TrainingMethodPresentationContract(6, "technique", 6, 4),
+    ),
+)
+
+
+@dataclass(frozen=True)
 class TrainingPlayerView:
     source_roster_index: int
     player_id: int
@@ -1259,6 +1340,11 @@ class ManagementSourceDataBridge:
             contract_renewal_in_runtime_order=tuple(renewal_rows),
             transfer_requests_in_runtime_order=tuple(request_rows),
         )
+
+    @staticmethod
+    def training_presentation_contract() -> TrainingPresentationContract:
+        """Return source-proven Training.cpp state/method metadata only."""
+        return TRAINING_PRESENTATION_CONTRACT
 
     def training_rows(self) -> tuple[TrainingPlayerView, ...]:
         """Expose recovered embedded per-player training state in roster order."""
