@@ -14,8 +14,11 @@ class FrontEndScreen(Enum):
 
 
 class StartMenuControl(IntEnum):
-    # Confirmed PStartMenu event/control ID for the ordinary New Game path.
+    # Confirmed PStartMenu event/control IDs from 0x4C1BA0/0x4C3770.
+    CONTINUE = 1
     NEW_GAME = 2
+    LOAD_GAME = 3
+    QUIT_TO_WINDOWS = 4
 
 
 class TeamSelectControl(IntEnum):
@@ -25,6 +28,9 @@ class TeamSelectControl(IntEnum):
 
 
 class FrontEndCommand(Enum):
+    CONTINUE_GAME = "continue_game"
+    LOAD_GAME = "load_game"
+    QUIT_TO_WINDOWS = "quit_to_windows"
     TEAMSELECT_START_CONTINUE = "teamselect_start_continue"
 
 
@@ -58,12 +64,28 @@ class FrontEndState:
         raise RuntimeError(f"Unsupported front-end screen: {self.screen!r}")
 
     def _dispatch_start_menu(self, control_id: int) -> FrontEndTransition:
-        if int(control_id) != int(StartMenuControl.NEW_GAME):
-            raise UnsupportedFrontEndControl(
-                f"Unrecovered PStartMenu control ID: {int(control_id):#x}"
+        control_id = int(control_id)
+        if control_id == int(StartMenuControl.CONTINUE):
+            return FrontEndTransition(
+                screen=self.screen,
+                command=FrontEndCommand.CONTINUE_GAME,
             )
-        self.screen = FrontEndScreen.TEAM_SELECT
-        return FrontEndTransition(screen=self.screen)
+        if control_id == int(StartMenuControl.NEW_GAME):
+            self.screen = FrontEndScreen.TEAM_SELECT
+            return FrontEndTransition(screen=self.screen)
+        if control_id == int(StartMenuControl.LOAD_GAME):
+            return FrontEndTransition(
+                screen=self.screen,
+                command=FrontEndCommand.LOAD_GAME,
+            )
+        if control_id == int(StartMenuControl.QUIT_TO_WINDOWS):
+            return FrontEndTransition(
+                screen=self.screen,
+                command=FrontEndCommand.QUIT_TO_WINDOWS,
+            )
+        raise UnsupportedFrontEndControl(
+            f"Unrecovered PStartMenu control ID: {control_id:#x}"
+        )
 
     def _dispatch_team_select(self, control_id: int) -> FrontEndTransition:
         control_id = int(control_id)
