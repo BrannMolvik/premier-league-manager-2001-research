@@ -13,6 +13,8 @@ import tempfile
 from typing import BinaryIO, Iterable
 import zipfile
 
+from iso9660_reader import IsoImage, Iso9660Error
+
 
 EXPECTED_BGROUND_PATH = "FM2001_Art/Generic/bground.444"
 EXPECTED_BGROUND_SHA256 = (
@@ -441,6 +443,50 @@ def _prepare_disc_image_for_listing(
     return image, None
 
 
+def inventory_iso_image(
+    image: Path,
+    extract_candidates_to: Path | None = None,
+) -> tuple[list[AssetRecord], list[str]]:
+    records: list[AssetRecord] = []
+    warnings: list[str] = []
+    volume = IsoImage(image)
+
+    for entry in volume.files():
+        member = normalize_member(entry.path)
+        reason = candidate_reason(member)
+        if reason is None:
+            continue
+
+        record = AssetRecord(
+            path=member,
+            size=entry.size,
+            sha256=None,
+            source_layer="iso9660-listing",
+            candidate_reason=reason,
+        )
+
+        if extract_candidates_to is not None:
+            data = volume.read_file(entry)
+            output = Path(extract_candidates_to).joinpath(
+                *PurePosixPath(member).parts
+            )
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_bytes(data)
+            record = _record_from_bytes(
+                path=member,
+                data=data,
+                source_layer="iso9660-extracted",
+                reason=reason,
+            )
+        records.append(record)
+
+    if not records:
+        warnings.append(
+            f"No Gate-13 candidate resources were found in ISO image {image.name}."
+        )
+    return records, warnings
+
+
 def inventory_disc_image(
     image: Path,
     seven_zip: str,
@@ -494,7 +540,7 @@ def inventory_disc_image(
 
 def deep_inventory_zip(
     archive: Path,
-    seven_zip: str,
+    seven_zip: str | None,
     extract_candidates_to: Path | None = None,
 ) -> tuple[list[AssetRecord], list[str]]:
     direct, nested_images, warnings = inventory_zip(archive)
@@ -517,12 +563,24 @@ def deep_inventory_zip(
                 )
                 if conversion_note is not None:
                     warnings.append(conversion_note)
-                image_records, image_warnings = inventory_disc_image(
-                    listing_image,
-                    seven_zip,
-                    extract_candidates_to,
-                )
-            except (RuntimeError, ValueError) as exc:
+                if listing_image.suffix.lower() == ".iso":
+                    image_records, image_warnings = inventory_iso_image(
+                        listing_image,
+                        extract_candidates_to,
+                    )
+                elif seven_zip is not None:
+                    image_records, image_warnings = inventory_disc_image(
+                        listing_image,
+                        seven_zip,
+                        extract_candidates_to,
+                    )
+                else:
+                    warnings.append(
+                        f"Disc image {member} requires 7-Zip; the built-in reader "
+                        "handles ISO9660/Joliet and MODE1/2352 images."
+                    )
+                    continue
+            except (RuntimeError, ValueError, Iso9660Error) as exc:
                 warnings.append(str(exc))
                 continue
             records.extend(image_records)
@@ -550,44 +608,42 @@ def report_for_source(
         kind = "zip"
         if deep:
             command = _seven_zip_command(seven_zip)
-            if command is None:
-                records, nested_images, warnings = inventory_zip(source)
-                warnings.append(
-                    "Deep inspection requested but 7-Zip was not found. "
-                    "Install 7-Zip or pass --seven-zip."
-                )
-            else:
-                records, warnings = deep_inventory_zip(
-                    source,
-                    command,
-                    extract_candidates_to,
-                )
-                _, nested_images, _ = inventory_zip(source)
+            records, warnings = deep_inventory_zip(
+                source,
+                command,
+                extract_candidates_to,
+            )
+            _, nested_images, _ = inventory_zip(source)
         else:
             records, nested_images, warnings = inventory_zip(source)
     elif source.suffix.lower() in DISC_IMAGE_SUFFIXES:
         kind = "disc-image"
         command = _seven_zip_command(seven_zip)
-        if command is None:
-            records = []
-            warnings = [
-                "Disc image inspection requires 7-Zip. Install it or pass "
-                "--seven-zip."
-            ]
-        else:
-            with tempfile.TemporaryDirectory(prefix="fm2001-gate13-disc-") as temp_name:
-                temp = Path(temp_name)
-                listing_image, conversion_note = _prepare_disc_image_for_listing(
-                    source,
-                    temp,
+        with tempfile.TemporaryDirectory(prefix="fm2001-gate13-disc-") as temp_name:
+            temp = Path(temp_name)
+            listing_image, conversion_note = _prepare_disc_image_for_listing(
+                source,
+                temp,
+            )
+            if listing_image.suffix.lower() == ".iso":
+                records, warnings = inventory_iso_image(
+                    listing_image,
+                    extract_candidates_to,
                 )
+            elif command is not None:
                 records, warnings = inventory_disc_image(
                     listing_image,
                     command,
                     extract_candidates_to,
                 )
-                if conversion_note is not None:
-                    warnings.insert(0, conversion_note)
+            else:
+                records = []
+                warnings = [
+                    "Disc image requires 7-Zip; the built-in reader handles "
+                    "ISO9660/Joliet and MODE1/2352 images."
+                ]
+            if conversion_note is not None:
+                warnings.insert(0, conversion_note)
     else:
         raise ValueError(
             "Source must be an extracted directory, ZIP archive, or supported "
