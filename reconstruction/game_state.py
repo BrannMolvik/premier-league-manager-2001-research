@@ -1177,7 +1177,7 @@ class GameState:
             int(self.calendar.current_date.year) != int(objective.selected_on.year)
             and not objective.progression_gate_reached
         ):
-            table = tuple(self.premier_league.table())
+            table = tuple(self.premier_league_table())
             table_index = next(
                 (
                     index
@@ -1362,7 +1362,7 @@ class GameState:
         """Resolve the ordinary 0x5DBA60 side modifier from live PL state."""
         if self.premier_league is None:
             raise RuntimeError("Premier League state is not loaded")
-        table = self.premier_league.table()
+        table = self.premier_league_table()
         club_id = int(club_id)
         try:
             table_index = next(
@@ -3453,9 +3453,41 @@ class GameState:
         )
 
     def premier_league_table(self):
+        """Order the user-visible table with native 0x4F45E0 source-name bytes.
+
+        Canonical runtime clubs carry the original CP1252 short names. For
+        partial synthetic inputs without verified names, retain the clearly
+        documented stable numeric/ID display fallback. Never treat that
+        fallback as source-verified on a full numeric tie.
+        """
         if self.premier_league is None:
             return ()
-        return self.premier_league.table()
+
+        # Financial-objective and other lightweight synthetic tests use a
+        # minimal table-providing stand-in, not a PremierLeagueState with a
+        # source club vector. Do not force source presentation semantics on
+        # fixtures that do not even have identifiable original club records.
+        club_ids = getattr(self.premier_league, "club_ids", None)
+        if club_ids is None:
+            return self.premier_league.table()
+
+        names: dict[int, bytes] = {}
+        for club_id in club_ids:
+            club = self.clubs.get(int(club_id))
+            short_name = getattr(club, "short_name", None)
+            if not isinstance(short_name, str):
+                return self.premier_league.table()
+            try:
+                names[int(club_id)] = short_name.encode("cp1252")
+            except UnicodeEncodeError:
+                return self.premier_league.table()
+        try:
+            return self.premier_league.table(names.get)
+        except ValueError:
+            # A true identical-name/identical-stats tie would need the
+            # original CRT qsort's exact equal-key permutation. Do not
+            # pretend this deterministic display fallback is original.
+            return self.premier_league.table()
 
     def prepare_premier_league_ai_fixture_sides(
         self,
@@ -3481,7 +3513,7 @@ class GameState:
             )
 
         fixture = self.premier_league.fixtures[fixture_id]
-        table = self.premier_league.table()
+        table = self.premier_league_table()
 
         def inputs_for(club_id: int, opponent_id: int):
             club_id = int(club_id)
@@ -3756,7 +3788,7 @@ class GameState:
             human_roster,
             ai_manager,
             competition,
-            self.premier_league.table(),
+            self.premier_league_table(),
             is_home=not human_is_home,
         )
 

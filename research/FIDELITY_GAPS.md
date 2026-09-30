@@ -9,7 +9,7 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | Gap | Current reconstruction behavior | Original status | Planned gate |
 | --- | --- | --- | --- |
 | Secondary startup exact tie permutation and bucket shape | The startup-staff CRT boundary replays the independently recorded 262 total secondary schedule nodes / 45 nonempty buckets / 217 shuffle draws; tests use an **explicit synthetic aggregate-only bucket partition** and enforce the proven World Cup-before-European Championship ordering without pretending to know every equal-key root permutation | Original reverse qsorted country-root traversal and post-secondary CRT state are documented, but the exact per-date mode-1 bucket vector and full equal-key native qsort order have NOT been independently source-locked; resolve from the canonical executable/real input before asserting pixel-calendar-level fidelity | 15 |
-| League-table final tie fallback | PremierLeagueState display still uses club ID after points / GD / goals scored, while procedural European League gameplay now uses the exact comparator | Original 0x4F45E0 is recovered as points, played, GD, GF, GA, then CP1252 short-name bytes; the remaining gap is wiring that exact fallback into the standalone Premier League display/state path | 15 |
+| Exact fully indistinguishable PL league-table native qsort ties | PL display now uses the previously recovered numeric and CP1252 short-name source comparator when original club short names are available; if two clubs have identical complete source keys, it explicitly falls back to deterministic display and refuses to publish an "exact" ranking | All comparator fields are recovered, but native qsort's relative order for truly identical complete source keys has not been independently locked; lightweight synthetic clubs missing valid CP1252 names also receive documented display-only fallback | 15 |
 | Persistent-injury availability count | Approximation around the inputs to helper `0x405080` | Injury generation/persistence is substantially recovered, but this availability helper is not exact | 15 |
 | Original FM2001 save compatibility | Modern port now has a versioned internal schema-34 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
 | Autonomous transfer-window lifecycle | Fresh-game country gates start at the proven enabled value; later dated toggles are not yet driven from source boundary data | Runtime country +0x54 consumer/toggle behavior is known, but the complete source boundary mapping is unresolved | 15 or earlier if season transfer timing requires it |
@@ -25,6 +25,25 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | FastView/3D | Largely unreconstructed | Intentionally low priority until gameplay is stable | 14 |
 
 ## Resolved or superseded gaps
+
+### Source-exact Premier League table comparison for identifiable clubs
+
+**Resolved for source-backed club names, pending native visual presentation.**
+The original `0x4F45E0` points-descending, played-ascending, goal-difference-
+descending, goals-for-descending, goals-against-ascending, and then raw
+CP1252 short-name-byte comparison is now used by `PremierLeagueState`
+when its caller provides canonical club short-name bytes. The
+`GameState.premier_league_table()` display/management bridge
+passes real canonical club names where present, and its match/financial
+objective ranking-dependent paths use that same bridge. The standalone
+`PremierLeagueState` retains a clearly named deterministic club-ID
+display fallback only when caller source names are unavailable.
+`exact_ranking()` is withheld on unresolved full-key equal ties;
+no unproven native qsort tie permutation is invented. This improves
+the backend powering the upcoming original Gate13 league table; it
+does **not** claim the original table artwork, fonts, screen navigation,
+graphics or Windows visual smoke test has been recreated.
+
 
 ### Broader competitions / connected annual world
 
