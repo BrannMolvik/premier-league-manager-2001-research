@@ -285,6 +285,114 @@ class FinanceView:
 
 
 @dataclass(frozen=True)
+class FinanceOverviewPresentationContract:
+    panel_class_name: str
+    balance_accounting_driven: bool
+    transfer_account_category_id: int
+    transfer_credit_aggregate_va: int
+    transfer_debit_aggregate_va: int
+    transfer_net_helper_va: int
+    transfer_query_call_sites: tuple[int, int, int]
+    transfer_panel_state_anchor_offset: int
+    dormant_budget_event_live_consumer_proven: bool
+
+
+@dataclass(frozen=True)
+class TransferEventPresentationContract:
+    semantic_key: str
+    class_name: str
+    vtable_va: int | None
+    player_response_code: int | None
+
+
+@dataclass(frozen=True)
+class TransferDealStatePresentationContract:
+    ordinary_state: int
+    swap_state: int
+    semantic_key: str
+
+
+@dataclass(frozen=True)
+class TransferPresentationContract:
+    panel_class_name: str
+    events: tuple[TransferEventPresentationContract, ...]
+    deal_states: tuple[TransferDealStatePresentationContract, ...]
+
+
+FINANCE_OVERVIEW_PRESENTATION_CONTRACT = FinanceOverviewPresentationContract(
+    panel_class_name="PFinanceOverview",
+    balance_accounting_driven=True,
+    transfer_account_category_id=1000,
+    transfer_credit_aggregate_va=0x5DC890,
+    transfer_debit_aggregate_va=0x5DD650,
+    transfer_net_helper_va=0x43F1E0,
+    transfer_query_call_sites=(0x43E08B, 0x43E0DB, 0x43E115),
+    # Existing executable notes say the resulting category-1000 aggregate is
+    # stored "around +0xAC0"; keep this explicitly as an anchor, not an exact
+    # field claim.
+    transfer_panel_state_anchor_offset=0xAC0,
+    dormant_budget_event_live_consumer_proven=False,
+)
+
+
+TRANSFER_PRESENTATION_CONTRACT = TransferPresentationContract(
+    panel_class_name="PTransfer2K",
+    events=(
+        TransferEventPresentationContract(
+            "end_negotiations", "EAMTPUserEndNegotiationssub", 0x7C8F50, None
+        ),
+        TransferEventPresentationContract(
+            "confirm_conclude_transfer",
+            "EAMConfirmConcludeTransferDealsub",
+            0x7C9008,
+            None,
+        ),
+        TransferEventPresentationContract(
+            "transfer_deal_concluded",
+            "EAMTransferDealConcludedsub",
+            0x7C8FAC,
+            None,
+        ),
+        TransferEventPresentationContract(
+            "player_counter_offer",
+            "EAMTransferUserPlayerCounterOfferMsub",
+            None,
+            1,
+        ),
+        TransferEventPresentationContract(
+            "player_accepts_terms",
+            "EAMTransferPlayerAcceptsMsub",
+            0x7C8EFC,
+            2,
+        ),
+        TransferEventPresentationContract(
+            "player_rejects_terms",
+            "EAMTPUserPlayerRejectsMsub",
+            0x7C8AB8,
+            3,
+        ),
+        TransferEventPresentationContract(
+            "deadline_passed",
+            "EAMEndNegotiationsTransferDeadLinePassed",
+            0x7CE3CC,
+            None,
+        ),
+        TransferEventPresentationContract(
+            "offer_not_enough",
+            "EAMTPUserEndNegotiationsOfferNotEnoughM",
+            0x7D5C38,
+            None,
+        ),
+    ),
+    deal_states=(
+        TransferDealStatePresentationContract(0, 3, "pending_or_unresolved"),
+        TransferDealStatePresentationContract(1, 4, "cleared_for_execution"),
+        TransferDealStatePresentationContract(2, 5, "player_rejected_contract_terms"),
+    ),
+)
+
+
+@dataclass(frozen=True)
 class TransferContractTermsView:
     weekly_wage: int
     signing_on_fee: int
@@ -775,6 +883,16 @@ class ManagementSourceDataBridge:
             seating_price=values["seating_price"],
             section_states=tuple(section_states),
         )
+
+    @staticmethod
+    def finance_overview_presentation_contract() -> FinanceOverviewPresentationContract:
+        """Return only already-proven PFinanceOverview presentation-facing facts."""
+        return FINANCE_OVERVIEW_PRESENTATION_CONTRACT
+
+    @staticmethod
+    def transfer_presentation_contract() -> TransferPresentationContract:
+        """Return recovered PTransfer2K event/deal semantics without UI guesses."""
+        return TRANSFER_PRESENTATION_CONTRACT
 
     def finance_view(self) -> FinanceView:
         """Expose Balance cash/ledger/objective state without guessed labels."""

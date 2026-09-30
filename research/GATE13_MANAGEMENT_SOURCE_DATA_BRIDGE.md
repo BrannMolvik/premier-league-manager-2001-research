@@ -120,6 +120,37 @@ No original PTickets widget IDs, visible captions, coordinates, artwork,
 font/color rules or navigation are assigned. See
 `research/GATE13_TICKETS_PRESENTATION_CONTRACT.md`.
 
+### Source-backed Finance Overview and Transfer interaction contracts
+
+The bridge now exposes two immutable presentation-facing contracts from
+already-persisted canonical-executable research.
+
+For `PFinanceOverview`, the contract retains only the proven Balance/accounting
+path for transfer category **1000**:
+
+- credit aggregate `0x5DC890`, called at `0x43E08B`;
+- debit aggregate `0x5DD650`, called at `0x43E0DB`;
+- net helper `0x43F1E0`, called at `0x43E115`;
+- resulting transfer aggregate stored around panel-state anchor `+0xAC0`.
+
+The `+0xAC0` value is deliberately named an **anchor**, because the prior
+research says "around +0xAC0" rather than proving an exact C++ member offset.
+No localized Finance row caption is guessed. The contract also preserves the
+negative result that the dormant chairman budget-event family has no recovered
+ordinary fresh-game Finance/Transfer consumer; presentation must not invent a
+live budget widget from those legacy messages.
+
+For `PTransfer2K`, the contract retains source-proven EA event identities for
+End Negotiations, conclusion, counter-offer, acceptance, rejection, deadline
+and insufficient-offer paths, plus the proven CDealInProgress state families
+0/3 pending, 1/4 cleared for execution, and 2/5 player-rejected terms. Where
+the existing research did not pin an exact vtable (the counter-offer event),
+the contract stores no vtable rather than fabricating one.
+
+Neither contract assigns original screen sorting, control IDs, widget
+rectangles, art resources, visible caption bindings or navigation. See
+`research/GATE13_FINANCE_TRANSFER_PRESENTATION_CONTRACTS.md`.
+
 ### Finances and transfer runtime data
 
 The bridge now exposes the already recovered user-owned `Balance` slice
