@@ -36,12 +36,12 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-bf49cb5130acf450c5a578c6af9a8387332ff6f0
-Correct Python hex escape literals in raw MODE1 virtual reader
+1cf7af7ebccba34c6f414d1c3df2f82fb2346686
+Verify complete ZIP extraction-to-provenance import for opaque UI binary
 ```
 
-Dedicated GitHub Actions Gate 13 run `36698841038` passed **66/66 focused
-tests**. Full reconstruction run `36698840900` ran **894 tests with 2 failures**,
+Dedicated GitHub Actions Gate 13 run `36699473176` passed **71/71 focused
+tests**. Full reconstruction run `36699473326` ran **899 tests with 2 failures**,
 exactly the two long-standing secondary-schedule assertions:
 
 - secondary root-order assertion;
@@ -236,6 +236,22 @@ The private original source was listed/materialized again at **511,121,336
 bytes**, but basic execution-container commands still fail with CAAS
 `ClientError`. No real graphics have been extracted or imported.
 
+The original-asset importer now verifies an optional selected-source JSON
+receipt before import, rejecting unknown or ambiguous extracted candidates,
+different staged SHA-256/size, and any partial exact-path selection. This is
+**required for legitimate opaque UI `.bin` files**, which are now distinguished
+from forbidden raw BIN disc containers using the earlier source-catalog
+signature evidence. If the receipt contains the full original source-archive
+SHA-256, that digest is retained in provenance notes. The source-inventory
+and importer are tested together end-to-end with synthetic ZIP data; no
+actual copyrighted resource is checked into the repository.
+
+Latest dedicated Gate-13 run `36699473176`: **71/71 passing**; full-suite
+run `36699473326`: **899 tests and exactly the same two known
+secondary-schedule failures**. Asset-policy run `36699473263` passed.
+Execution-container access to the real authorized source remains the
+only blocker for original PStartMenu/TeamSelect artwork and layout inventory.
+
 Secondary visual evidence is now bounded in
 `research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
 TeamSelect compositions/labels while explicitly remaining non-canonical for
@@ -262,8 +278,10 @@ pixel coordinates and non-authoritative for shipped asset bytes.
    TeamSelect, using the bounded secondary screenshots only as a visual
    cross-check.
 3. Identify source paths/hashes and import only the minimum intentional first
-   slice with `reconstruction/gate13_asset_import.py`, which writes under
-   `original_assets/source/` with manifest provenance.
+   slice with `reconstruction/gate13_asset_import.py --inventory-report
+   <selected-report.json>`. The importer must verify matching extracted
+   SHA-256, byte count, unique source path/layer and complete selection before
+   writing under `original_assets/source/` with manifest provenance.
 4. Connect the verified `front_end_session.py` application boundary to the
    source-derived PStartMenu/TeamSelect visual renderer. Keep simulation
    separate; reuse the established headless New Game, Back, and
