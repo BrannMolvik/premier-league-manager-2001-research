@@ -8671,3 +8671,22 @@ keeping presentation separate from the stable simulation backend.
   reconstruction pass.
 - This is a canonical status-consistency correction, not a Gate-13 closure,
   native-executable trace or new licensed-source run.
+
+
+## Gate 13 original TeamSelect hierarchy art - 1 October 2026 (KST)
+
+- Started from main `cb70119`; reconciled the source-critical native
+  Button@ease trace still pending with the independent, existing
+  TeamSelect hierarchy resource hashes and frame dimensions.
+- PR #13 merged `1edb4deb1063613a92bab08c7aea9153002d76f5`:
+  source-SHA-gated original hierarchy animation and bar strips,
+  retained top-to-bottom source RGBA without invented animation/selection
+  state, carried those source assets into the TeamSelect resource loader
+  and first-screen presenter, and extended synthetic plus opt-in
+  first-hand source regressions. Focused Gate-13 run `36734520993`
+  and repository asset-policy run `36734520580` passed.
+- The actual hierarchy-source total dimensions and pixel composition
+  are still pending renewed original-byte execution. Both native shell
+  and alternate visible Python trivial commands returned `ClientError`.
+  Native Button@ease frame-state and caption baseline remain the exact
+  critical next source trace; the Gates 13–17 mission is not complete.
