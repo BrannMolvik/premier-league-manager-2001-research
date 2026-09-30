@@ -128,6 +128,26 @@ No original PTickets widget IDs, visible caption bindings, geometry, artwork,
 font/color rules or navigation are claimed. The visual/resource part of the
 screen remains open.
 
+### Verified Messages / News presentation contract
+
+PR #40 was merged at `ab51a607f9576f68179ea7c0c531d594c6b411ee`.
+The read-only Gate-13 presentation seam now preserves the recovered
+`MPMEAMail` family and three proven manager-mail identities/actions:
+ordinary renewal suggestion, Bosman renewal suggestion, and low-morale
+transfer-list request. The contract explicitly records that global inbox
+interleave/sorting remains unproven.
+
+Verification on PR head `3076119018c8bdd5ca23a82e73c499f5b5ec8588`:
+
+- focused Gate-13 run `36772292710`: **233 tests, 19 expected
+  original-source-gated skips, zero failures**;
+- full reconstruction run `36772292682`: **1,069 tests, 21 expected
+  original-source-gated skips, zero failures**;
+- repository asset-policy run `36772292765`: passed.
+
+No Messages/News screen ID, global row order, geometry, artwork, typography or
+navigation is claimed. The visual/resource part of the screen remains open.
+
 ## Porting mission
 
 This is a **Windows 11 modernization/port**. The supplied FM2001 archive/disc

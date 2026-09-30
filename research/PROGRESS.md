@@ -9069,3 +9069,19 @@ invent original visual or control semantics.
 - Asset-policy run `36769404960` passed.
 - Original PTickets visual resources, widget bindings, layout and navigation
   remain unresolved, so Gate 13 remains ACTIVE.
+
+## Gate 13 Messages / News presentation contract verified - 1 October 2026 KST
+
+- Merged PR #40 as `ab51a607f9576f68179ea7c0c531d594c6b411ee`.
+- Added immutable manager-mail presentation metadata for the already-proven
+  `MPMEAMail` family, ordinary/Bosman renewal suggestions and
+  `PlayerAskTransferList` request actions.
+- Preserved the important negative boundary that cross-family inbox interleave
+  and sorting are not yet proven.
+- Focused Gate-13 run `36772292710`: **233 tests, 19 expected source-gated
+  skips, zero failures**.
+- Full reconstruction run `36772292682`: **1,069 tests, 21 expected
+  source-gated skips, zero failures**.
+- Asset-policy run `36772292765` passed.
+- Gate 13 remains ACTIVE; original Messages/News visual resources, layout,
+  controls and navigation are still open.

@@ -84,6 +84,23 @@ The contract contains no:
 
 Those remain open Gate-13 work.
 
+## Hosted verification
+
+PR #40 head `3076119018c8bdd5ca23a82e73c499f5b5ec8588` passed:
+
+- focused Gate-13 run `36772292710`: **233 tests**, **19 expected
+  original-source-gated skips**, zero failures;
+- full reconstruction run `36772292682`: **1,069 tests**, **21 expected
+  original-source-gated skips**, zero failures;
+- repository asset-policy run `36772292765`: passed.
+
+It was squash-merged to main as
+`ab51a607f9576f68179ea7c0c531d594c6b411ee`.
+
+These hosted runs verify only the clean-room presentation contract and
+integration boundary. They do not prove the original Messages/News screen
+layout or a Windows graphical path.
+
 ## Gate 13 consequence
 
 The messages/news area now has source-proven mail family identities and actions
