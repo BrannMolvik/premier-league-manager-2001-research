@@ -33,6 +33,40 @@ for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
 
+## Most recent Gate 13 two-screen and original-source recovery checkpoint
+
+- PR #10, squash `96cafb5ae60148dfc7e0ba98c2886abaafe8db46`, added
+  the exact-source-hash TeamSelect background and action-resource bundle,
+  preserving the 16 proven hierarchy-row origins while leaving hierarchy
+  item mapping and button source-frame states unresolved. Focused Gate-13
+  run `36730496426` and asset-policy run `36730496711` passed.
+- PR #11, squash `fccb8c2ad17431b3333d4ccbc8fa69bdf9f8e2b5`, now
+  presents both original first-screen bundles through a single
+  `original_first_screen_presenter.py` view and the previously verified
+  `front_end_session.py`/pointer seam. Source atlas indices are exposed
+  explicitly, never guessed as native idle/hover states. Headless end-to-end
+  navigation (menu actions → New Game → TeamSelect → explicit club choice
+  → Start and Back without implicit reset) passed focused CI
+  `36730750307` and asset policy `36730750418`.
+- PR #12, squash `4220259d377b8431b371d7c2fe86395406690e13`,
+  records a bounded exact ten-resource original-disc extraction plan in
+  `research/GATE13_FIRST_SCREEN_EXACT_PATHS.txt`, checks every
+  source SHA against the independently verified canonical ZIP and a
+  one-per-path original-disc extraction receipt through
+  `gate13_first_screen_selection.py`, and documents the precise recovery/
+  import commands in `research/GATE13_FIRST_SCREEN_RESOURCE_PLAN.md`.
+  Focused CI `36731158020` and asset policy `36731158181` passed.
+- These are synthetic/headless/receipt-validation milestones. No newly
+  staged licensed original pixels, native Button@ease frame mapping or
+  Windows 11 installable build has been verified by this worker.
+- Private Library listing in this recovery again confirmed the canonical
+  511,121,336-byte source ZIP at the recorded original Library path and ID.
+  Multiple independent trivial `container.exec` commands and one trivial
+  `python.exec` command failed with `ClientError` in this session.
+  This is an **execution infrastructure blocker**, not a lost source archive.
+  Direct executable disassembly and real-disc staging/opt-in tests must
+  resume when an execution container is actually available.
+
 ## Latest verified original-font and atlas resource integration
 
 - The already committed source-backed original EAUK bitmap-font parser
@@ -307,30 +341,31 @@ recovers. Other source-backed GitHub development and focused CI succeeded.
 
 ## Exact next task within the full Gate-17 mission
 
-1. Resolve `Button@ease_2001` source-frame/state transitions for
-   `button_type_1.444` at the canonical executable's control construction,
-   activation, drawing and mouse handlers. The previously recovered atlas has
-   **23 proven top-to-bottom source frames**, but there is not yet first-hand
-   proof mapping those frames to native idle, hover, disabled or pressed
-   states. Recover original caption alignment/color as part of the same
-   executable trace; keep the exact original Zurich font and STR/IDX masks.
-   Read `research/GATE13_PSTARTMENU_LAYOUT.md` first.
-2. While the execution-container failure prevents new local executable-byte
-   disassembly, continue source-backed structural work: assemble TeamSelect's
-   verified original background and action atlas, cautiously stage known
-   original hierarchy art/row origins without guessing hierarchy mapping, and
-   extend opt-in real-disc tests. Preserve the source-hash and CI distinction.
-3. Once the native frame/caption proof is recovered, complete authentic
-   interactive PStartMenu and TeamSelect presentation and provenance-import
-   the minimal correlated authorized original bytes under
-   `original_assets/` using the existing inventory/import tools.
-4. Continue Gate 13 manager home, squad, tactics, fixtures/results, table,
-   player profile, transfers, finances, messages/news, training/scouting and
-   remaining screens. Audit the entire gate before advancing to Gate 14.
-5. Finish Gates 14 through 17, including the full suite, original audio and
-   match presentation, fidelity sweep, destructive testing, and an externally
-   installable verified Windows 11 release. Intermediate merges are not
-   mission completion.
+1. Recover the canonical original executable's **actual**
+   Button@ease_2001 source-frame/state transitions and label placement/color.
+   Begin with shared button constructor `0x652FD0`, atlas setup
+   `0x5F4500`, primary PStartMenu construction/dispatch
+   `0x4C1BA0`/`0x4C3770`, and TeamSelect button setup
+   `0x4D885F..0x4D8921`. Use the private verified executable
+   SHA `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`;
+   inspect vtable paths that determine draw/hover/down/up source-frame
+   indices and text baseline/color. Do NOT pick frames by visual guess.
+   See `research/GATE13_PSTARTMENU_LAYOUT.md`.
+2. When local byte-execution tools recover, materialize the same authorized
+   Library ZIP from `research/ORIGINAL_SOURCE_LOCATOR.md`, execute the
+   exact 10-path source-inventory command in
+   `research/GATE13_FIRST_SCREEN_RESOURCE_PLAN.md`, then run the new
+   `reconstruction/gate13_first_screen_selection.py` fail-closed
+   source/hash validator. Opt into the original-byte font, language, menu,
+   TeamSelect and atlas regressions using the documented environment paths.
+3. Only after the original bytes match the source receipts, import them
+   deliberately under `original_assets/` using the existing provenance
+   importer. Finish authentic menu/TeamSelect button/caption/hierarchy
+   visual behavior and integrate it into the modern front-end without
+   substituting original artwork or guessing native interaction semantics.
+4. Continue Gate 13's remaining management screens, audit all gate criteria,
+   then advance through Gates 14, 15, 16 and 17. The project is not complete
+   until the full tested, cleanly installable Windows 11 release audit passes.
 
 ## Known live fidelity boundaries
 
