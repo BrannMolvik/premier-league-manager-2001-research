@@ -7851,3 +7851,38 @@ now-verified procedural-League state.
 - Next: recover/source-close exact `0x615A60` dynamic replay insertion order,
   then run the canonical annual audit against the authorized game directory and
   close the year-two Gate-12 proof if it passes.
+
+
+## Gate 12 completion - canonical annual rollover passed (30 September 2026)
+
+Gate 12 closed after the authorized canonical real-data season completed the
+full annual qualification dependency graph and atomically generated year two.
+
+Key evidence:
+
+- fresh-game calendar corrected to the recovered 4 July 2000 startup boundary;
+- annual Cup child procedural Leagues derived from source relationships, adding
+  WCC group phase 192 alongside Champions League phases 14/167;
+- two-leg final enumeration corrected to use the unique decisive outcome in the
+  highest Cup round;
+- player source identity preserves the raw joined-current-club date across
+  internal save/reload;
+- recovered League comparator 0x4F45E0 supplies the short-name byte-string
+  tie-breaker to European group rankings;
+- complete qualification captured 4 June 2001 after 335 simulated days;
+- all ten annual Cup sources and all required played/DummyLeague rankings were
+  present;
+- atomic rollover applied 28 membership changes, consumed 15,539 annual draws,
+  moved controller RNG 0xCE9A6E40 -> 0x6F763739, produced 380 new Premier
+  League fixtures over 150 primary-order dates, and retained every played
+  qualification-source League.
+
+Full reconstruction suite at implementation checkpoint 6a966c0 ran 828 tests
+with exactly the two pre-existing secondary-schedule failures. Repository asset
+policy passed.
+
+See `research/GATE12_COMPLETION_AUDIT.md`.
+
+Gate 13 is now active. Exact next slice: inventory and restore the original
+main-menu / TeamSelect presentation using authorized original resources while
+keeping presentation separate from the stable simulation backend.
