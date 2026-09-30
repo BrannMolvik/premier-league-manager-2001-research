@@ -8042,3 +8042,16 @@ keeping presentation separate from the stable simulation backend.
   then hands that ISO to the existing filesystem inventory path.
 - Added three focused conversion/detection tests in addition to the existing
   Gate-13 source-inventory tests.
+
+
+## Gate 13 MODE1 conversion CI checkpoint - 30 September 2026
+
+- GitHub Actions verified `9a6bd853010e6492f3f96f89e68dc0f0dea68e3a`.
+- All three new MODE1/2352 conversion/detection tests passed, together with the
+  existing Gate-13 source-inventory tests.
+- The full reconstruction suite ran **847 tests with 2 failures**, still exactly
+  the unchanged secondary root-order and secondary bucket-count assertions.
+- Repository asset policy passed.
+- The historically documented raw-disc conversion dependency is now
+  regression-covered. Remaining source-access tooling can focus on the
+  resulting ISO9660/Joliet filesystem rather than raw-sector interpretation.

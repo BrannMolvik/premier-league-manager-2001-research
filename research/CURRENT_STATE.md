@@ -36,18 +36,18 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-70f81a041eb372b902cbeb8087979882d66d7233
-Add provenance-safe Gate 13 asset importer
+9a6bd853010e6492f3f96f89e68dc0f0dea68e3a
+Reproduce MODE1 source conversion for Gate 13
 ```
 
-GitHub Actions ran **844 tests with 2 failures**, exactly the two long-standing
+GitHub Actions ran **847 tests with 2 failures**, exactly the two long-standing
 secondary-schedule assertions:
 
 - secondary root-order assertion;
 - secondary bucket-count assertion (262 expected vs 280 recovered).
 
-All new Gate-13 navigation, source-inventory, and provenance-import tests
-passed. GitHub repository asset policy passed.
+All new Gate-13 navigation, source-inventory, MODE1-conversion, and
+provenance-import tests passed. GitHub repository asset policy passed.
 
 ## Gate 12 closure checkpoint
 
