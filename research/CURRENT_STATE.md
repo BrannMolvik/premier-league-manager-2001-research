@@ -196,32 +196,60 @@ Original graphics no longer need to be guessed or rediscovered.
   its metadata/hash research is in GitHub. Do not claim that the
   full derived catalog was backed up to Library.
 
+## Gate 13 exact PStartMenu action checkpoint
+
+Canonical PStartMenu control setup at `0x4C1BA0`, language loader
+`0x635F30`, shared button resource initialization `0x5F4500`, and dispatch
+`0x4C3770` now close the four primary menu actions:
+
+- event 1 = English.idx 0 **Continue**, rect `(181,478,169,25)`;
+- event 2 = English.idx 1 **Start New Game**, rect `(7,478,169,25)`;
+- event 3 = English.idx 2 **Load Game**, rect `(355,478,169,25)`;
+- event 4 = English.idx 6 **Quit to Windows**, rect `(181,508,169,25)`.
+
+All four use the original
+`FM2001_Art/Generic/GenericButtonsAndBars/button_type_1.444` atlas. Its
+source EA444 dimensions are 169×575; runtime handle `0x946590` is initialized
+with exact frame dimensions 169×25. The common label-font handle
+`0x9197E0` is independently traced to original
+`Fonts/Zurich_BdXCn_BT_20pixel.fnt`.
+
+`original_front_end_layout.py` now records the exact action atlas, language
+indices and rectangles. `front_end_state.py` exposes Continue, New Game,
+Load Game and Quit as recovered presentation commands; only New Game changes
+to TeamSelect, preserving separation from application-side load/quit behavior.
+Address-level evidence is in `research/GATE13_PSTARTMENU_LAYOUT.md`.
+
+The exact EA444 inverse-transform hot loop has also been converted from
+per-row Fraction allocation to mathematically identical common-denominator
+dyadic integer arithmetic. A first-hand 100,000-pair differential check
+against the prior exact Fraction formula matched bit-for-bit, the original
+main-menu component hash remains unchanged, and source-backed full
+main-menu/TeamSelect decode tests now finish in roughly 20 seconds rather than
+timing out. This is a performance optimization of recovered arithmetic, not
+a visual approximation.
+
 ## Exact next task within the full Gate-17 mission
 
-1. Reproduce the original two-pass inverse 8×8 transform. Read
-   `research/GATE13_EA444_DECODER_TRACE.md`, then disassemble
-   original `0x7B9360` (first pass including verified DC-only
-   shortcut at `0x7B948E`), `0x7B94C0` (second pass) and their
-   caller `0x7B95D0`. Recover the exact initialized x87 constants
-   at original `TQIA_DAT +0x10..+0x1F`; prove fixed-point,
-   rounding and row/column scratch strides through direct source
-   and tests before rendering final pixels.
-2. Recover the conditional fourth-channel traversal and original
-   post-transform RGB packing/clipping/transparency and dithering
-   in `0x6868E0`, plus the alternate tile path `0x7BB960`.
-   Verify pixels on small real source fixtures and one full menu
-   background. Reject speculative generic FFmpeg/TGQ conversions.
-3. Cross-reference menu/TeamSelect original image/layout loading,
-   then provenance-import the minimal source-backed original
-   `.444` resources and correct original labels using the
-   verified STR/IDX parser. Connect to the tested
-   `front_end_state.py`/`front_end_session.py` application
-   boundary for recognizably original main-menu → TeamSelect.
-4. Continue Gate 13 remaining screens and its exact roadmap
-   audit. On passing it, automatically advance through Gates 14,
-   15, 16 and 17, finishing with full automated tests and verified
-   Windows 11 release package. A successful intermediate decoder
-   commit is not a gate or mission completion.
+1. Recover the proprietary original font format used by
+   `Fonts/Zurich_BdXCn_BT_20pixel.fnt` (or prove a safe existing loader);
+   reproduce the exact glyph metrics needed by PStartMenu labels without
+   substituting a modern system font.
+2. Trace `Button@ease_2001` state/frame selection for
+   `button_type_1.444` and compose the authentic clickable PStartMenu using
+   the already-verified global/background layers, four action rectangles and
+   original STR/IDX labels. Add source-backed pixel/hit-test regressions.
+3. Finish TeamSelect composition using its already-recovered 16 hierarchy
+   rows, Back/Start rectangles, original source graphics and localized text;
+   connect both screens to `front_end_session.py`.
+4. Continue Gate 13 manager home → squad → tactics → fixtures/results →
+   table → profile → transfers → finances → messages/news →
+   training/scouting → remaining screens, reusing original resources by
+   default. Run the Gate-13 audit and advance automatically when its roadmap
+   criteria pass.
+5. Continue automatically through Gates 14, 15, 16 and 17, ending only with
+   the verified Windows 11 release audit. Intermediate presentation
+   checkpoints are not mission completion.
 
 ## Known live fidelity boundaries
 
