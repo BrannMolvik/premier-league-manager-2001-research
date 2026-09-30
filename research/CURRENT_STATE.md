@@ -36,11 +36,11 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-657065478a9edf3ce930b1cd2e15e28b93baee28
-Test missing exact Gate 13 source path
+964d9389454109f9abf498d5b7d6cb5a97696908
+Test Gate 13 catalog query utility
 ```
 
-GitHub Actions ran **854 tests with 2 failures**, exactly the two long-standing
+GitHub Actions ran **858 tests with 2 failures**, exactly the two long-standing
 secondary-schedule assertions:
 
 - secondary root-order assertion;
@@ -121,9 +121,12 @@ complete disc file catalog (path, byte size, ISO extent) plus the smaller
 presentation shortlist. Opaque resources discovered from that catalog can be
 selected with repeatable exact `--extract-path` arguments and staged without
 dumping unrelated disc contents; missing requested paths fail loud via report
-warnings. GitHub Actions run `36683324250` verified this workflow at
-`657065478a9edf3ce930b1cd2e15e28b93baee28`: 854 tests, with only the two
-known secondary-schedule failures.
+warnings. GitHub Actions run `36685634820` verified the current source-analysis tooling
+at `964d9389454109f9abf498d5b7d6cb5a97696908`: 858 tests, with only the two
+known secondary-schedule failures. A saved full-disc report can now be queried
+offline with `gate13_catalog_query.py` by substring, suffix, top-level
+directory, or regex, avoiding repeated 511 MB source conversion while narrowing
+opaque PStartMenu/TeamSelect leads.
 
 Secondary visual evidence is now bounded in
 `research/GATE13_VISUAL_REFERENCE.md`. It confirms the original main-menu and
@@ -141,9 +144,12 @@ pixel coordinates and non-authoritative for shipped asset bytes.
    this documented source path, and emits the complete disc file catalog plus
    targeted Gate-13 candidates. Use `--extract-path <exact-disc-path>` with
    `--extract-candidates-to` for deliberately selected opaque resources.
-2. Inventory the exact original graphics, strings, rectangles/layout data and
-   other resources required by PStartMenu and TeamSelect, using the bounded
-   secondary screenshots only as a visual cross-check.
+2. Once the real full-disc report exists, use
+   `reconstruction/gate13_catalog_query.py` to narrow directories/extensions
+   and opaque path leads without re-reading the source archive. Inventory the
+   exact original graphics, strings, rectangles/layout data and other resources
+   required by PStartMenu and TeamSelect, using the bounded secondary
+   screenshots only as a visual cross-check.
 3. Identify source paths/hashes and import only the minimum intentional first
    slice with `reconstruction/gate13_asset_import.py`, which writes under
    `original_assets/source/` with manifest provenance.
