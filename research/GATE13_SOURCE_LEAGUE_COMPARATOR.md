@@ -65,3 +65,30 @@ The same 21 opt-in original-byte tests remain intentionally
 skipped on hosted runners until the existing licensed original
 ZIP/executable can actually be accessed by a working private
 execution environment.
+
+## Completion of the source-name publication bridge
+
+The first integration applied authentic short-name sorting to the
+management-facing Premier League table and rank-dependent AI/board
+consumers, but the live `GameState.record_premier_league_result()`
+still invoked `publish_exact_ranking()` **without passing the
+source-name resolver**. A completely played league with equal numeric
+columns could therefore fail to publish the next-round competition
+classification even though the original club short-name bytes were
+already available elsewhere in that same GameState.
+
+This follow-up connects the end-of-fixture ranking publication to
+the **same shared strict CP1252 source-name extraction** as the
+Premier League table display. Complete tables with distinct native
+full keys can now publish their exact source-supported
+competition-position ranking; incomplete tables, missing or
+unrepresentable original names, and genuinely identical full keys
+remain deliberately unpublished. Existing synthetic tests cover
+realistic tied winners, actual runtime CP1252 encoding, ambiguous
+or missing names and refusal to publish until the final fixture
+has been recorded.
+
+This change **does not** claim the original CRT qsort relative
+permutation for identical full keys, solve unrelated secondary
+international scheduling ties, provide original match/league-table
+artwork, or pass a Windows 11 first-hand presentation audit.
