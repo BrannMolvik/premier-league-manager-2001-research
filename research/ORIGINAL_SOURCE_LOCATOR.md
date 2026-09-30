@@ -22,8 +22,7 @@ canonical private binary source store.
 - Owner authorization: the project owner has explicitly authorized use of the
   supplied FM2001 archive/disc-image contents for this modernization project.
 
-A SHA-256 value is intentionally not asserted here until a checksum is produced
-successfully from the persistent Library copy. Do not invent or infer one.
+- **SHA-256 of the actual authorized 511,121,336-byte Library ZIP:**\n  `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`\n  (computed from the actual materialized original ZIP on 30 September 2026).\n- Nested raw `famg2001.bin`: **631,627,248 bytes**, MODE1/2352;\n  **268,549** physical sectors validated; the Joliet level-3 catalog\n  contains **2,456 files and 211 folders**. See\n  `research/GATE13_REAL_DISC_INVENTORY.md` for independently checked paths,\n  original-asset SHA-256 values and reproduction instructions.
 
 ## Mandatory recovery procedure
 
