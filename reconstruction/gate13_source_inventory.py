@@ -13,7 +13,7 @@ import tempfile
 from typing import BinaryIO, Iterable
 import zipfile
 
-from iso9660_reader import IsoImage, Iso9660Error
+from iso9660_reader import IsoImage, Iso9660Error, RawMode1IsoImage
 
 
 EXPECTED_BGROUND_PATH = "FM2001_Art/Generic/bground.444"
@@ -247,6 +247,20 @@ def is_mode1_2352_image(path: Path) -> bool:
     except ValueError:
         return False
     return True
+
+
+def verify_mode1_2352_image(raw_path: Path) -> int:
+    """Validate every original physical sector without a temporary ISO copy."""
+    if not raw_path.is_file():
+        raise FileNotFoundError(raw_path)
+    size = raw_path.stat().st_size
+    if size == 0 or size % MODE1_RAW_SECTOR_BYTES:
+        raise ValueError(f"{raw_path.name} is not an integral MODE1/2352 track")
+    count = size // MODE1_RAW_SECTOR_BYTES
+    with raw_path.open("rb") as source:
+        for index in range(count):
+            _validate_mode1_raw_sector(source.read(MODE1_RAW_SECTOR_BYTES), index)
+    return count
 
 
 def convert_mode1_2352_to_iso(raw_path: Path, iso_path: Path) -> int:
@@ -545,20 +559,21 @@ def _extract_member(
 def _prepare_disc_image_for_listing(
     image: Path,
     temporary_directory: Path,
-) -> tuple[Path, str | None]:
-    if image.suffix.lower() == ".bin" and is_mode1_2352_image(image):
-        converted = temporary_directory / f"{image.stem}.mode1.iso"
-        sectors = convert_mode1_2352_to_iso(image, converted)
+) -> tuple[Path | IsoImage, str | None]:
+    # The temporary-directory argument remains for the optional 7-Zip
+    # fallback and compatibility with callers; raw MODE1 needs no ISO copy.
+    if image.suffix.lower() in {".bin", ".img"} and is_mode1_2352_image(image):
+        sectors = verify_mode1_2352_image(image)
         return (
-            converted,
-            f"Converted {image.name} from MODE1/2352 to temporary ISO9660 "
-            f"payload ({sectors} sectors).",
+            RawMode1IsoImage(image),
+            f"Validated {image.name} MODE1/2352 physical track and exposed "
+            f"virtual ISO9660 payload ({sectors} sectors; no converted ISO copy).",
         )
     return image, None
 
 
-def catalog_iso_image(image: Path) -> list[DiscFileRecord]:
-    volume = IsoImage(image)
+def catalog_iso_image(image: Path | IsoImage) -> list[DiscFileRecord]:
+    volume = image if isinstance(image, IsoImage) else IsoImage(image)
     return [
         DiscFileRecord(
             path=normalize_member(entry.path),
@@ -570,7 +585,7 @@ def catalog_iso_image(image: Path) -> list[DiscFileRecord]:
 
 
 def inventory_iso_image(
-    image: Path,
+    image: Path | IsoImage,
     extract_candidates_to: Path | None = None,
     explicit_paths: set[str] | None = None,
     only_explicit: bool = False,
@@ -578,7 +593,7 @@ def inventory_iso_image(
 ) -> tuple[list[AssetRecord], list[str]]:
     records: list[AssetRecord] = []
     warnings: list[str] = []
-    volume = IsoImage(image)
+    volume = image if isinstance(image, IsoImage) else IsoImage(image)
     requested = {_lower(path) for path in (explicit_paths or set())}
     staged = staged_paths if staged_paths is not None else set()
 
@@ -612,7 +627,8 @@ def inventory_iso_image(
 
     if not records:
         warnings.append(
-            f"No Gate-13 candidate resources were found in ISO image {image.name}."
+            "No Gate-13 candidate resources were found in ISO image "
+            f"{volume.path.name}."
         )
     return records, warnings
 
@@ -705,7 +721,7 @@ def deep_inventory_zip(
                 )
                 if conversion_note is not None:
                     warnings.append(conversion_note)
-                if listing_image.suffix.lower() == ".iso":
+                if isinstance(listing_image, IsoImage) or listing_image.suffix.lower() == ".iso":
                     if disc_files is not None:
                         disc_files.extend(catalog_iso_image(listing_image))
                     image_records, image_warnings = inventory_iso_image(
@@ -793,7 +809,7 @@ def report_for_source(
                 source,
                 temp,
             )
-            if listing_image.suffix.lower() == ".iso":
+            if isinstance(listing_image, IsoImage) or listing_image.suffix.lower() == ".iso":
                 disc_files.extend(catalog_iso_image(listing_image))
                 records, warnings = inventory_iso_image(
                     listing_image,
