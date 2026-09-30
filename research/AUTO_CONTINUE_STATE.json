@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 genuine EA444 decoder: exact original 0x7B9360/0x7B94C0 two-pass inverse transform now implemented and independently matched by native C/x87 reference on original main-menu component (hash 26123d42...). Continue 0x7B95D0 channel traversal and 0x6868E0 output packing/clipping/transparency/dither; decode real PStartMenu/TeamSelect assets, provenance-import and integrate. Then continue Gate13 remaining screens and Gates14-17.",
-  "last_known_main_head": "7542e4de58d5cc8e252b3f6c0a94340012e582e6",
+  "active_task": "Gate 13 exact TeamSelect control/layout recovery: continue canonical executable trace for Back/Main Menu event 0x29 and Start Game event 0x2A using choice_start_anim.444; resolve exact rectangles, then integrate source-backed PStartMenu/TeamSelect renderer and continue remaining Gate 13 screens. Full mission remains Gates 13-17.",
+  "last_known_main_head": "73750f0e73698c8a1bf68a347df60c3952669e72",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 89,
-  "last_recovery_reason": "manual-start",
+  "recovery_generation": 90,
+  "last_recovery_reason": "stale-repository-activity",
   "note": "Container/source access restored. Current session verified actual 511MB archive and first-hand disc evidence, then followed newer canonical decoder state. Commits 007bc010 + 7542e4d implement/test exact two-pass inverse transform; local Python source-backed output independently matched native C/x87 harness. Do not stop at checkpoint; next is true channel/pixel output path.",
   "same_chat_fallback_minutes": 30
 }
