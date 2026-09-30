@@ -8888,3 +8888,45 @@ keeping presentation separate from the stable simulation backend.
   Passing synthetic tests do NOT validate original per-bucket
   fidelity, original gated visual-source checks, native Button
   transitions or clean Windows 11 release behavior.
+
+
+## Recovery 98 Gate13 source-verification safety and original League comparison integration (1 October 2026 KST)
+
+- Initial verified main HEAD `76b083ac19d0e37d1175b64989f27016b129ba3e`,
+  Gate13 active; read canonical `CURRENT_STATE.md` and
+  `project_status.json` before changing code.
+- Direct shell and both private/visible Python execution probes failed
+  `ClientError` even for trivial output; a fresh direct root-workdir
+  shell attempt also failed. The exact canonical source ZIP
+  (511,121,336 bytes) was re-listed in the private Library,
+  without re-upload or counterfeit source substitution.
+- PR #24 `5b1bd361a922f1696e6c0fba963e9082a2e8fe55`
+  closes the proven RTTI CLI fail-open gap, requiring
+  prior known-positive original TeamSelect reference before
+  publishing Button vftable candidates. Focused Gate13 CI
+  `36750381283` and asset policy `36750381374` passed.
+  No real-original opt-in analysis was executed due to infra failure.
+- PR #25 `b7d30e557f5411aad4bd62431998d5ffd390faf7`
+  connects the previously verified native League 0x4F45E0
+  comparator and source CP1252 club short-name ordering to
+  PL table display and management rank-sensitive consumers.
+  Hosted first full run `36750875054` caught four legacy
+  minimal finance `.table()` stub compatibility errors;
+  all were fixed with new regression coverage. Final full
+  `36751032575` passed 1027 tests, 21 expected source
+  skips; asset `36751032716` passed.
+- PR #26 `71d235e9c4478ad08c04127d949351339a013a87`
+  uses the same actual source-name resolver for complete
+  Premier League ranking publication after last match,
+  rather than withholding provable ties because only
+  display code knew original CP1252 names. Incomplete,
+  non-CP1252 or exactly indistinguishable native keys
+  still refuse a fabricated ranking. Full reconstruction
+  `36751321715` **1029 passed (21 expected skips)**;
+  asset `36751321748` passed.
+- Exact native control and original visual resource
+  validation remain dependent on working byte-execution
+  infrastructure. Gate13 full original management
+  presentation and audit are NOT complete. Do not
+  infer native 23-frame Button atlas state, Zurich baseline
+  or Windows11 release from green hosted synthetic tests.

@@ -33,6 +33,66 @@ for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
 
+## Most recent Gate13 native-trace safeguards and source-backed League management data
+
+- PR #24, squash `5b1bd361a922f1696e6c0fba963e9082a2e8fe55`,
+  corrects a concrete original-Button RTTI CLI validation gap. The
+  existing private opt-in test required recovered canonical
+  TeamSelect TypeDescriptor `0x81EC10` and vftable
+  `0x7C7650`, but the tool itself previously still emitted
+  uncalibrated Button table candidates. It now FAILS CLOSED,
+  writes no misleading private report and passes no candidate
+  slots into direct-branch scans on known-positive failure. Hosted
+  focused Gate13 CI `36750381283` and asset-policy check
+  `36750381374` passed. A positive match against the
+  original licensed executable remains NOT YET RUN.
+- PR #25, squash `b7d30e557f5411aad4bd62431998d5ffd390faf7`,
+  wires the ALREADY firsthand-recovered original
+  `League::0x4F45E0` comparator into `PremierLeagueState`
+  and `GameState.premier_league_table()`: points DESC,
+  played ASC, goal difference DESC, goals for DESC, goals
+  against ASC, original short-name CP1252 bytes ASC.
+  Numeric ties without original names retain clearly documented
+  deterministic display fallback, while a full-key native qsort
+  tie does not pretend to have a proven source order. The
+  original proprietary League TABLE artwork and UI remain
+  unrecovered, so this is correct *management data* feeding the
+  eventual original screen, not Gate13 visual fidelity.
+  The first hosted full-suite PR run `36750875054` exposed
+  4 synthetic finance test-stub incompatibilities (1026 tests,
+  21 expected source-gated skips); those were FIXED and
+  the second run `36751032575` passed 1027 tests
+  with 21 expected gated skips, asset policy `36751032716`
+  passed. Exact evidence in
+  `research/GATE13_SOURCE_LEAGUE_COMPARATOR.md`.
+- PR #26, squash `71d235e9c4478ad08c04127d949351339a013a87`,
+  closes a real downstream integration gap: the match-result
+  publisher had still failed to supply original CP1252 name
+  bytes to the now source-aware `publish_exact_ranking()`,
+  which could withhold genuinely provable complete-season
+  classification on numeric ties. It now reuses the SAME strict
+  source-name helper for publishing and display. Incomplete
+  tables, missing/non-CP1252 names and genuinely
+  indistinguishable full original keys remain fail-closed.
+  Full hosted reconstruction run `36751321715` passed
+  **1029 tests, 21 original-source-gated skips, zero
+  failures**; asset-policy run `36751321748` passed.
+  This is the current verified FULL HOSTED suite result.
+- The critical native Gate13 source analysis was re-probed
+  in this recovery: trivial `container.exec`,
+  `python.exec`, alternate root-directory shell, and
+  visible Python execution ALL returned `ClientError`.
+  The exact canonical 511121336-byte original ZIP was
+  independently re-listed in the private Library
+  `/FM2001/Original Source/`, and is NOT lost.
+  As a result no new original executable RTTI canary,
+  native Button draw/update or atlas-frame state mapping,
+  Zurich caption placement, original ten-file pixel audit,
+  Windows 11 graphical test or Gate13 completion is claimed.
+  The exact next ORIGINAL-BYTE step remains below;
+  continue all remaining Gate13 screens and the Gate14-17
+  release mission only after appropriate source-backed audits.
+
 ## Independent release-readiness progress while licensed byte execution is blocked
 
 - PR #23, squash `3ed8661faee4a73496ffb3674a7f97d0ddb24fa6`,
@@ -52,7 +112,7 @@ for convenience. Authorized original resources belong under
   and exact equal-key original qsort permutation stay open** in
   `research/FIDELITY_GAPS.md`; refer to
   `research/SECONDARY_SCHEDULE_TEST_CONTRACT_AUDIT.md`.
-- The full reconstruction GitHub Actions run `36747022836`
+- The earlier full reconstruction GitHub Actions run `36747022836`
   passed **1,019 tests with 21 expected original-source-gated skips**
   on verified PR #23 HEAD `18fa7120e489fd191675f12d0e5899a928352c12`.
   Asset-policy run `36747022951` passed.
