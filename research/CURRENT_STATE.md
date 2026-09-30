@@ -53,14 +53,33 @@ Evidence:
   - full reconstruction run `36780212535`: **1,074 tests, 21 expected
     original-source-gated skips, zero failures**;
   - repository asset-policy run `36780212608`: passed.
-- Exact next bounded task while private execution remains unavailable:
-  inventory manager-home and remaining-screen source evidence/blockers from the
-  already-persisted executable/RTTI/string/resource research, keeping uncertain
-  screen identity/layout/navigation explicitly unresolved. Resume the canonical
-  TeamSelect Button RTTI -> Button state/23-frame -> Zurich placement/color ->
-  strict ten-resource audit/import path immediately if byte execution works.
-  Gate 13 remains active; Gates 14-17 and the clean Windows 11 release remain
-  mandatory afterward.
+- The manager-home / remaining-screen fallback inventory is now complete in
+  `research/GATE13_MANAGEMENT_SCREEN_EVIDENCE_LEDGER.md`. It records the
+  evidence level for every named roadmap surface and proves an important
+  negative boundary: Manager Home has no persisted original panel identity,
+  while several other areas have backend/event identities but not screen
+  identities. Source-module names and filename hits are not promoted to
+  screens.
+- PR #46 was merged at
+  `ca7f6cfd9c5fae01ac9c454ad14603076979262b`. The new
+  `gate13_management_catalog_audit.py` makes the ledger's whole-disc path
+  queries repeatable and marks every candidate `binding_proven = false`.
+  Focused Gate-13 run `36781127596` passed **243 tests with 19 expected
+  source-gated skips and zero failures**; asset-policy run `36781127819`
+  passed. The full reconstruction workflow was intentionally not triggered for
+  this isolated catalog/reporting tool; PR #45 remains the latest full baseline
+  at **1,074 tests / 21 expected skips / zero failures**.
+- A fresh post-merge shell probe still returned `ClientError` before it could
+  even `stat` the already materialized private ZIP. The safe source-backed
+  fallback work identified by the prior handoff is therefore exhausted.
+- Exact next Gate-13 action: when private execution works, run the canonical
+  TeamSelect RTTI canary -> native Button state/23-frame trace -> Zurich
+  placement/color trace -> strict ten-resource source audit/import, then run
+  the saved management catalog through the verified screen-family audit and
+  correlate exact resources/layout/navigation outward through normal play.
+  Until execution or Windows graphical access returns, do not invent further
+  presentation semantics. Gate 13 remains active; Gates 14-17 and the clean
+  Windows 11 release remain mandatory afterward.
 
 ## Recovery 101: Gate 13 resource-coverage audit and execution blocker
 
