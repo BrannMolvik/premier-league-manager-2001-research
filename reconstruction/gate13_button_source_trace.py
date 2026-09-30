@@ -233,10 +233,34 @@ def main() -> int:
                         help="Private JSON result outside the Git repository")
     parser.add_argument("--disassemble", action="store_true",
                         help="Include candidate linear Capstone disassembly")
+    parser.add_argument(
+        "--inspect-class-vtable-candidates", action="store_true",
+        help="Read bounded PStartMenu/TeamSelect class vtable pointer leads only"
+    )
+    parser.add_argument(
+        "--scan-direct-control-transfer-candidates", action="store_true",
+        help="Also linearly scan .text for Capstone direct-branch leads to "
+             "previously identified code addresses and candidate vtable slots"
+    )
     args = parser.parse_args()
     require_private_output_path(args.output)
     pe = OriginalPE32.parse(args.original_executable.read_bytes())
     report = button_trace_report(pe, with_disassembly=args.disassemble)
+    if (
+        args.inspect_class_vtable_candidates
+        or args.scan_direct_control_transfer_candidates
+    ):
+        from gate13_button_vtable_xref_candidates import (
+            extended_button_candidate_report,
+        )
+        report["candidate_class_vtable_and_direct_edges"] = (
+            extended_button_candidate_report(
+                pe,
+                search_direct_branches=(
+                    args.scan_direct_control_transfer_candidates
+                ),
+            )
+        )
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(f"Original Button trace windows saved to {args.output}")
     return 0
