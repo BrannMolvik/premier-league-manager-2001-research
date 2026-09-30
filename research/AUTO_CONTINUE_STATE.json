@@ -18,7 +18,7 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 80,
+  "recovery_generation": 81,
   "last_recovery_reason": "stale-repository-activity",
   "note": "Native Gate 13 tooling CI baseline 114336a: 863 tests, only the two established secondary-schedule failures. Exact-only source staging is verified; current shell/Python container still raises CAAS ClientError even on trivial control commands. Do not redo completed tooling; next actual gate work is original-disc byte inventory once execution is available.",
   "same_chat_fallback_minutes": 30
