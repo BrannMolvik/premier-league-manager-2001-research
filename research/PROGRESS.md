@@ -8411,3 +8411,42 @@ keeping presentation separate from the stable simulation backend.
 - Next: execute the real original source inventory, use both source catalogs
   to identify authentic PStartMenu/TeamSelect resources, source-verify the
   minimal asset slice and attach it to the already-tested front-end session.
+
+
+## Gate 13 direct validated MODE1/Joliet inventory - 30 September 2026
+
+- Source archive continuity rechecked: the canonical private Library ZIP
+  is still present, exactly 511,121,336 bytes and successfully
+  materializes. The execution-container health/file-stat command still
+  fails with global CAAS `ClientError`; no actual original source bytes
+  were read this session.
+- Replaced the expensive **raw MODE1/2352 -> full temporary ISO** conversion
+  on the ordinary deep-inventory path with a virtual ISO9660/Joliet reader
+  over the original extracted raw BIN. Before browsing it, the inventory
+  validates every original physical sector, including sectors that are not
+  referenced by the sampled file tree. The independent offline conversion
+  helper remains available for manual comparison.
+- Virtual reader `RawMode1IsoImage` supports directory descriptors,
+  Joliet names, cross-sector reads and exact file extraction while rejecting
+  invalid sector headers. Focused synthetic tests verify a genuine
+  MODE1/Joliet sector fixture and corrupted-sector failure.
+- Exact requested-path staging now emits `unresolved_explicit_paths` in
+  the machine-readable JSON report. With `--require-all-explicit`, missing
+  resources return a failing exit code **after the report is written**,
+  so interrupted/partial asset selection is not silently accepted.
+- Representative commits: `9ec674ce5294925eaf709a99ed1111b77a5a3876`
+  (strict staging), `8d44283fb09be4325a4a0ce7ee238dcb8a8f022e`
+  (strict regression), `d69962f275743e74cb16d6826b672c34eb43433b`
+  (virtual reader), `97abf8ae69b56eac01ccaeedc8fe19421a350e23`
+  (reader tests), `9e40bf7ad803d720e6ea277c212a2c6ec8891646`
+  (native inventory integration), `2e25d31eaaf71ec30c4575f50b591fe57aae031d`
+  (full-sector validation test), and `bf49cb5130acf450c5a578c6af9a8387332ff6f0`
+  (corrected Python fixture literals).
+- CI: focused Gate-13 run `36698841038`: **66/66 passing**;
+  full reconstruction run `36698840900`: **894 tests, exactly the two
+  already known unrelated secondary-schedule failures**;
+  asset-policy run `36698841075`: passed.
+- Updated `reconstruction/README.md` and the first-slice catalog
+  search plan with the virtual-reader workflow and strict staging requirement.
+- Next required Gate-13 dependency remains first-hand original-source
+  discovery and evidence-backed PStartMenu/TeamSelect visual asset import.
