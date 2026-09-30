@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Critical Gate 13: recover actual original Button@ease_2001 source-frame hover/idle/down/disabled transitions, native Zurich caption alignment/color and TeamSelect hierarchy behavior using canonical original executable once shell execution recovers. Source archive is verified in private Library; then execute ten-asset hash-gated staging, real original-byte pixel tests and private exporter, Windows source debug viewer smoke test, deliberate provenance import, remaining source-faithful management screens and gate audit. Advance after audit through Gates 14–17 and the verified Windows 11 release.",
-  "last_known_main_head": "4fb9221cf4701d3dcc65cfd939d346700d0933eb",
+  "active_task": "Gate 13 source-critical: when original binary execution access recovers, re-materialize retained canonical private ZIP, independently verify canonical executable, execute native Button@ease candidate vtable/direct-call trace and adjudicate real idle/hover/pressed frame transitions and Zurich caption layout; run one-shot 10-asset original-source audit, import proven art and smoke-test original screens; complete remaining Gate13, audit, continue through Gates 14-17 and Windows 11 release.",
+  "last_known_main_head": "40660eee5487a21d35e377e7040a0f638d6c3d56",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 95,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery at main 4fb9221cf4701d3dcc65cfd939d346700d0933eb. Native Button@ease and Zurich placement remain blocked because even trivial container.exec fails ClientError in this recovery. Constructing bounded synthetic-tested PE vtable/direct-control-transfer candidate inspector to speed next exact original executable investigation; preserve full Gates 13-17 mission.",
+  "note": "This recovery resumed at 4fb9221, merged PR #17 as 4f98316 (focused Gate13 run 36739026011, asset policy 36739026154), PR #18 as 9682a50 (focused Gate13 run 36739577933, asset policy 36739577928). CURRENT_STATE/PROGRESS/project_status reconciled to 40660eee5487a21d35e377e7040a0f638d6c3d56. The private original ZIP remains visible at its exact Library path (listed again); trivial shell calls still fail with ClientError, so real executable disassembly and the new private direct-file audit remain unexecuted. Do not fabricate button-frame states or mark Gate13 closed. Full mission through Gate17 remains active.",
   "same_chat_fallback_minutes": 30
 }
