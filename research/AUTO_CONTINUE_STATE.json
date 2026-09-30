@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: integrate authentic original PStartMenu and TeamSelect graphics/layout into the now-tested headless front_end_session.py / front_end_state.py seam. First regain source-byte access to durable private Library ZIP in a functioning execution container; run full native ZIP -> MODE1 -> ISO/Joliet inventory, identify/hashes, intentionally stage and provenance-import minimal source assets. Do not redesign or repeat completed headless adapter work.",
-  "last_known_main_head": "b714ad82ab642a5b2417062ed846898f98ba72aa",
+  "active_task": "Gate 13: retry byte access to the existing private original ZIP in a functioning execution container; run now-verified dual-layer outer ZIP plus nested raw MODE1/ISO9660 full inventory; use GATE13_CATALOG_SEARCH_PLAN.md to identify exact original PStartMenu/TeamSelect assets, --extract-path-file --only-explicit stage only required files, hash and provenance-import, then attach to already-tested front_end_session.py visual integration seam.",
+  "last_known_main_head": "fc4ff776ae2f86c549eb1c1381e33a3937e9cdb0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 84,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Main checkpoint b714ad8: 9-test headless application boundary introduced. Gate-13 focused CI 36694601308 passed 47/47; repository asset policy 36694601279 passed; full suite 875 tests with only two established secondary-schedule failures (36694465472). Local container still returns global CAAS ClientError even for health command, preventing actual source bytes. Private Library locator remains valid; no re-upload. Exact next step is authentic disc inventory -> rendering integration.",
+  "note": "Main fc4ff77 includes CI-verified direct loose-ZIP plus nested-disc exact-path staging and single-pass outer-ZIP inventory. Focused Gate13 run 36697061364 passed 50/50 tests; full reconstruction run 36697061476 ran 878 tests with only two established secondary-schedule failures; asset policy passed. Library 511,121,336-byte ZIP still lists/materializes; basic shell and Python exec still return global CAAS ClientError. Do not re-upload or redesign art; resume actual original source byte inventory as soon as container works.",
   "same_chat_fallback_minutes": 30
 }
