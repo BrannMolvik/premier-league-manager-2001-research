@@ -23,6 +23,13 @@ from gate13_button_source_trace import OriginalPE32, OriginalPETraceError
 # research, not a reverse-engineered vftable offset or an atlas frame index.
 BUTTON_TYPE_NAME = b".?AVButton@ease_2001@@"
 
+# Canonical first-hand research/EXECUTABLE_ANALYSIS.md independently proves
+# these exact PE32 VAs for TeamSelect, unlike the still-unrecovered Button
+# class vftable. This known-positive reference calibrates the parser itself.
+KNOWN_TEAMSELECT_TYPE_NAME = b".?AVPMain@TeamSelect@@"
+KNOWN_TEAMSELECT_TYPE_DESCRIPTOR_VA = 0x81EC10
+KNOWN_TEAMSELECT_VFTABLE_VA = 0x7C7650
+
 
 @dataclass(frozen=True)
 class MSVCRTTIVftableCandidate:
@@ -171,6 +178,42 @@ def discover_msvc_button_vftables(
     return tuple(result)
 
 
+def calibrate_against_known_rtti(
+    pe: OriginalPE32,
+    *,
+    reference_name: bytes = KNOWN_TEAMSELECT_TYPE_NAME,
+    expected_type_descriptor_va: int = KNOWN_TEAMSELECT_TYPE_DESCRIPTOR_VA,
+    expected_vftable_va: int = KNOWN_TEAMSELECT_VFTABLE_VA,
+) -> dict:
+    """Cross-check the *same pattern decoder* against a known exact-source class.
+
+    False means source layout, search assumptions, decorated type spelling,
+    or the candidate scanner must be re-examined. It does NOT mean the
+    original game's known reference addresses are disproven.
+    The override points are solely for independent miniature PE32 tests.
+    """
+    known_candidates = discover_msvc_button_vftables(
+        pe, decorated_name=reference_name,
+    )
+    matches = [
+        item for item in known_candidates
+        if item.type_descriptor_va == expected_type_descriptor_va
+        and item.vftable_va == expected_vftable_va
+    ]
+    return {
+        "known_reference_decorated_name": reference_name.decode("ascii"),
+        "previously_proven_type_descriptor_va": expected_type_descriptor_va,
+        "previously_proven_vftable_va": expected_vftable_va,
+        "candidate_count": len(known_candidates),
+        "expected_pair_recovered_by_same_pattern_decoder": len(matches) == 1,
+        "evidence_limit": (
+            "Only calibrates MSVC x86 RTTI scanning against independently "
+            "recorded canonical TeamSelect anchors. Does not establish "
+            "unknown Button class vftable ownership or virtual method roles."
+        ),
+    }
+
+
 def button_rtti_candidate_report(
     pe: OriginalPE32, *,
     decorated_name: bytes = BUTTON_TYPE_NAME,
@@ -183,6 +226,8 @@ def button_rtti_candidate_report(
     )
     return {
         "source_sha256": pe.sha256,
+        "known_original_teamselect_rtti_calibration":
+            calibrate_against_known_rtti(pe),
         "decorated_class_search": decorated_name.decode("ascii"),
         "candidate_count": len(candidates),
         "candidates_not_validated_vtables": [asdict(c) for c in candidates],
