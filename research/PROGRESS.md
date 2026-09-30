@@ -8373,3 +8373,41 @@ keeping presentation separate from the stable simulation backend.
   `GATE13_CATALOG_SEARCH_PLAN.md` to select, hash, source-import and render
   the original PStartMenu/TeamSelect assets through the verified front-end
   session boundary. Do not recreate substitute game art.
+
+
+## Gate 13 combined source-catalog and collision-safety checkpoint - 30 September 2026
+
+- Resumed canonical main at `fc4ff776ae2f86c549eb1c1381e33a3937e9cdb0`;
+  execution container and both Python runtimes still returned global CAAS
+  `ClientError` even to trivial health checks, so no source files could
+  be opened from the private Library materialization.
+- Fixed a material discovery gap: the report now records **every outer ZIP
+  member** with normalized path, byte size and disc-image classification in
+  `zip_files`, alongside the full nested `disc_files` catalog. Previous
+  reports omitted unrelated/opaque loose ZIP members from catalog queries.
+- Queries now inspect both catalogs by default, label each match's source
+  layer, support `--layer zip|disc|both`, retain compatibility with older
+  disc-only reports and refuse ambiguous duplicate paths when printing a
+  reusable `--paths-only` selection.
+- Exact-path staging refuses case-insensitive duplicates within a ZIP,
+  cross-layer ZIP-versus-ISO collisions and overwriting preexisting
+  staging files. A selected disc container cannot be staged as ordinary
+  UI art. Raw `.bin` files are now identified as nested disc images by a
+  valid MODE1 sector signature, not extension alone, so ordinary opaque
+  `.bin` interface resources remain accessible.
+- Representative commits: full ZIP catalog `e5d80792e943354fd788ba980349497342089d07`;
+  combined queries `1905a1d5636526c3979eb7542868b82489a3099b`;
+  tests `1ac9d9f40c77f4e7adcf68370d1bac7073248589` and
+  `91f800556b684f8d32c1e1bd0b245f33c81f3a46`;
+  collision checks `3885baec44b8558b7ec069ccc54b55c1c502dfbe`,
+  regression fixtures `d8019826bb2b6972d8b79f6277367276bffe6259`;
+  signature-based raw BIN identification `22c935fe93cddb37925d0615f93001393a37b817`
+  with corrected tests `19e599f34c3330a5d258902d5311649f62271ecb`.
+- CI: Gate-13 run `36698353585` **61/61 passed**;
+  full reconstruction run `36698353568` **889 tests, 2 failures** (only
+  two established unrelated secondary-schedule expectations);
+  asset-policy run `36698353633` passed. Previous intermediate run
+  caught and helped correct classification of an opaque UI `.bin`.
+- Next: execute the real original source inventory, use both source catalogs
+  to identify authentic PStartMenu/TeamSelect resources, source-verify the
+  minimal asset slice and attach it to the already-tested front-end session.
