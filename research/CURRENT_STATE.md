@@ -36,8 +36,8 @@ for convenience. Authorized original resources belong under
 ## Latest verified implementation
 
 ```text
-971bea6ce8caffa778cd713d1e0718907154f32d
-Test native Gate 13 ISO inventory path
+a07d23d7bb2014078bcc82ca5cf2c360b94a0aca
+Test full Gate 13 disc catalog
 ```
 
 GitHub Actions ran **851 tests with 2 failures**, exactly the two long-standing
@@ -112,13 +112,14 @@ recovery is therefore working; execution-container byte access is the remaining
 infrastructure blocker. No visual asset has been guessed or substituted;
 `original_assets/MANIFEST.md` remains intentionally empty.
 
-Repository-native ISO9660/Joliet inventory is now implemented in commits
-`784a9095f072f25c6980fe0ffc346e9d8db67576` and
-`971bea6ce8caffa778cd713d1e0718907154f32d`. After raw MODE1/2352 conversion,
-Gate-13 filesystem enumeration and candidate extraction no longer require
-7-Zip. Focused tests cover direct Joliet extraction and nested
-ZIP -> MODE1/2352 -> ISO9660/Joliet inventory. GitHub Actions run
-`36679027696` verified both new tests while the full suite remained at only
+Repository-native ISO9660/Joliet inventory is implemented and CI-verified.
+After raw MODE1/2352 conversion, Gate-13 filesystem enumeration and candidate
+extraction no longer require 7-Zip. The report now also records the complete
+disc file catalog (path, byte size, and ISO extent), not only heuristic
+presentation candidates, so opaque layout/string resources can be discovered
+from the real source without guessing names. GitHub Actions run
+`36683075430` verified the catalog checkpoint at
+`a07d23d7bb2014078bcc82ca5cf2c360b94a0aca`; the full suite remains at only
 the two known secondary-schedule failures.
 
 Secondary visual evidence is now bounded in
@@ -134,7 +135,8 @@ pixel coordinates and non-authoritative for shipped asset bytes.
    `reconstruction/gate13_source_inventory.py --deep` against the recovered
    ZIP. The tool now performs ZIP -> raw MODE1/2352 -> temporary ISO9660/Joliet
    inventory using the repository-native reader, without requiring 7-Zip for
-   this documented source path.
+   this documented source path, and emits the complete disc file catalog plus
+   targeted Gate-13 candidates.
 2. Inventory the exact original graphics, strings, rectangles/layout data and
    other resources required by PStartMenu and TeamSelect, using the bounded
    secondary screenshots only as a visual cross-check.
