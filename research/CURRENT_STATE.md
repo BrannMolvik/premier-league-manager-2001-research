@@ -106,10 +106,12 @@ The first front-end contract is now bounded in
 The authorized source archive now has a durable private locator in
 `research/ORIGINAL_SOURCE_LOCATOR.md`. This recovery resolved the exact
 511,121,336-byte Library file and materialization reported success, but the
-current CAAS/container still returns a container-level `ClientError` even for
-a simple read/list operation on the materialized path. Persistent source
-recovery is therefore working; execution-container byte access is the remaining
-infrastructure blocker. No visual asset has been guessed or substituted;
+current CAAS/container still returns a container-level `ClientError`. A
+control test consisting only of `printf 'container-health'` fails the same
+way, proving this is a general execution-container outage rather than a
+511 MB ZIP or source-file-specific failure. Persistent source recovery is
+working; execution-container availability is the remaining infrastructure
+blocker. No visual asset has been guessed or substituted;
 `original_assets/MANIFEST.md` remains intentionally empty.
 
 Repository-native ISO9660/Joliet inventory is implemented and CI-verified.
