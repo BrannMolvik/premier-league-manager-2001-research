@@ -33,7 +33,26 @@ for convenience. Authorized original resources belong under
 `original_assets/` with provenance tracked according to
 `research/ASSET_POLICY.md`.
 
-## Latest verified implementation
+## Latest verified Gate 13 integration checkpoints
+
+- PR #5, squash commit `b204d01189dbfa6de5a624f5f4769ffb27ea37f7`,
+  repaired the now-obsolete test that treated original PStartMenu event 1 as
+  unsupported and added source-backed original layout tests to Gate 13 CI.
+  Focused run `36725002444` and the corresponding repository asset-policy
+  check passed.
+- PR #6, squash commit `bf643d3ac6a7869842770174a6d7b3477689e895`,
+  added `original_front_end_input.py`, which translates confirmed first-screen
+  unscaled pixel rectangles into recovered menu/TeamSelect event IDs and
+  delegates them to `front_end_session.py`. It deliberately does not assign
+  events to unrecovered hierarchy controls or claim pixel-accurate hover/
+  transparency handling. Dedicated focused run `36725905158` and asset
+  policy run `36725904605` passed on PR #6.
+- These CI runs cover synthetic/headless regressions. Neither substitutes for
+  opt-in original licensed image/executable tests or a full-suite release audit.
+  The previously documented two secondary-schedule full-suite failures remain
+  an explicit separate fidelity boundary.
+
+## Earlier verified implementation baseline
 
 ```text
 1cf7af7ebccba34c6f414d1c3df2f82fb2346686
@@ -228,6 +247,27 @@ main-menu component hash remains unchanged, and source-backed full
 main-menu/TeamSelect decode tests now finish in roughly 20 seconds rather than
 timing out. This is a performance optimization of recovered arithmetic, not
 a visual approximation.
+
+## Gate 13 verified first-screen pointer bridge
+
+The original menu controls and TeamSelect action rectangles can now be
+translated into application-level pointer events without importing gameplay
+simulation into the presentation geometry. See
+`reconstruction/original_front_end_input.py` and its focused tests.
+
+The next fidelity-critical step remains the original
+`Fonts/Zurich_BdXCn_BT_20pixel.fnt` glyph/metric recovery and
+`Button@ease_2001` atlas-frame-state binding, followed by complete
+original graphic composition and TeamSelect hierarchy input recovery. The
+pointer bridge only covers the six confirmed first-screen action rectangles;
+the remaining screen and rendering details must not be invented.
+
+This worker re-resolved the authorized archive via private Files/Library and
+the materialization service returned its expected 511,121,336-byte ZIP path,
+but the execution container and Python both failed with `ClientError` on
+trivial commands, so no new first-hand original-byte test is claimed here.
+Use `research/ORIGINAL_SOURCE_LOCATOR.md` to rematerialize when execution
+recovers. Other source-backed GitHub development and focused CI succeeded.
 
 ## Exact next task within the full Gate-17 mission
 
