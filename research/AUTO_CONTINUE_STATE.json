@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13: recover original Fonts/Zurich_BdXCn_BT_20pixel.fnt glyph format/metrics and Button@ease_2001 frame-state selection; compose authentic source-backed PStartMenu using exact four controls, original EA444 background/button atlas and STR/IDX labels; then complete TeamSelect and remaining Gate13 screens, automatically continue Gates14-17.",
+  "active_task": "Gate 13: verified PStartMenu/TeamSelect control and layout tests are merged. Next integrate the original decoded first-screen backgrounds and exact hit-test geometry with the front-end session boundary; original-byte import remains outstanding. Full mission through Gate 17 remains active.",
   "last_known_main_head": "f3be9f60753f13afdb0a02ec790c6da052ef831f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 92,
   "last_recovery_reason": "manual-start",
-  "note": "Main f3be9f6 checkpoints exact PStartMenu actions: events 1 Continue,2 New Game,3 Load,4 Quit; exact language IDX 0,1,2,6; button_type_1.444 169x25 frame rectangles at x/y 181/478,7/478,355/478,181/508. Common font handle 0x9197E0 = Fonts/Zurich_BdXCn_BT_20pixel.fnt. EA444 dyadic transform optimized exactly and source-backed decoder tests remain bit-identical. Continue immediately; checkpoint is not stop.",
+  "note": "Focused Gate 13 PR #5 passed CI run 36725002444 and merged at b204d011. Private original ZIP located/materialized by Files service, but this session's execution container and Python both returned ClientError even for trivial echo/print; continue source-backed GitHub changes and retry original-byte tests only if execution recovers.",
   "same_chat_fallback_minutes": 30
 }
