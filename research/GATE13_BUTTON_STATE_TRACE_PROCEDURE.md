@@ -248,3 +248,32 @@ licensed original or that any candidate is a genuine original
 Button vftable. If the actual canonical original yields zero candidates,
 inspect its real RTTI decorated name and inheritance encoding in Ghidra
 instead of silently inventing a different class address.
+
+## Known-positive calibration: do not trust a naked Button RTTI hit
+
+The prior FIRSTHAND canonical original executable research in
+`research/EXECUTABLE_ANALYSIS.md` establishes two exact independent
+reference points for `PMain@TeamSelect`:
+
+- MSVC decorated TypeDescriptor `.?AVPMain@TeamSelect@@`
+  at **`0x81EC10`**;
+- its native class vftable at **`0x7C7650`**.
+
+The newly integrated RTTI candidate report now also runs the **exact same
+pattern parser** against this *already verified* reference. It explicitly
+records whether the resulting `TypeDescriptor -> COL -> CHD -> vftable`
+candidate chain recovers the known pair. The private opt-in canonical original
+source test now requires that check to pass. A synthetic fixture independently
+confirms positive and wrong-pair/altered-CHD rejection. The default licensed
+original is never bundled in GitHub Actions, so a hosted synthetic pass
+**does not** assert that the known-positive calibration succeeded against
+the actual original.
+
+If the original executable's known-positive reference is not recovered,
+treat all other automatically proposed RTTI/vftable relationships as
+**unvalidated and unsuitable for UI implementation**. Inspect the original
+RTTI representation, PE section mapping and source code in Ghidra before
+continuing. Even a passing known-positive calibration only validates the
+pattern against one independently proven class; each new Button vftable
+candidate still requires constructor/vftable-write/CFG adjudication and
+separate authentic animation-frame/font positioning proof.
