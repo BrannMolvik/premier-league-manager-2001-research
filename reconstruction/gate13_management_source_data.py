@@ -122,6 +122,72 @@ class PlayerProfileView:
 
 
 @dataclass(frozen=True)
+class FinancePostingView:
+    amount: int | float
+    category_id: int
+    posting_date: date
+
+
+@dataclass(frozen=True)
+class FinancialObjectiveView:
+    candidate_ids: tuple[int, int, int]
+    selected_objective_id: int
+    starting_funds: int | float
+    target_cash: int | float
+    selected_on: date | None
+    deadline: date | None
+    active: bool
+    progression_gate_reached: bool
+    progression_state: int
+
+
+@dataclass(frozen=True)
+class FinanceView:
+    current_cash: int | float
+    ledger_in_runtime_order: tuple[FinancePostingView, ...]
+    objective: FinancialObjectiveView | None
+
+
+@dataclass(frozen=True)
+class TransferContractTermsView:
+    weekly_wage: int
+    signing_on_fee: int
+    promotion_bonus: int
+    contract_length_months: int
+    appearance_fee: int
+    relegation_transfer_request_clause: bool
+    big_club_offer_clause: bool
+    big_money_offer_clause: bool
+    house: bool
+    car: bool
+
+
+@dataclass(frozen=True)
+class TransferProposalView:
+    runtime_order_index: int
+    target_player_id: int
+    target_player_name: str
+    buying_club_id: int
+    buying_club_name: str
+    selling_club_id: int
+    selling_club_name: str
+    cash_fee: int
+    exchange_player_ids: tuple[int, int, int]
+    negotiation_state_14: int
+    negotiation_state_15: int
+    previous_wage_offer: int
+    previous_signing_on_fee_offer: int
+    previous_total_value: int
+    contract_terms: TransferContractTermsView
+    deal_state: int
+    deal_base_state: int
+    deal_is_swap_variant: bool
+    deal_created_date: date
+    scheduled_due_date: date | None
+    scheduled_mode: int | None
+
+
+@dataclass(frozen=True)
 class ManagementSourceDataSnapshot:
     club: ClubHeaderView
     squad: tuple[SquadRowView, ...]
@@ -381,6 +447,219 @@ class ManagementSourceDataBridge:
             wanted=bool(getattr(player, "wanted")),
             loan_club_id=loan_club,
         )
+
+    @staticmethod
+    def _money_value(value, *, label: str) -> int | float:
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ManagementPresentationError(f"{label} is not a recovered finance value")
+        return value
+
+    def finance_view(self) -> FinanceView:
+        """Expose Balance cash/ledger/objective state without guessed labels."""
+        club_id = self._human_club_id()
+        balances = getattr(self.state, "finance_balances", None)
+        if not hasattr(balances, "get"):
+            raise ManagementPresentationError("Recovered Balance state is unavailable")
+        balance = balances.get(club_id)
+        if balance is None:
+            raise ManagementPresentationError(
+                f"Controlled club {club_id} has no materialized Balance"
+            )
+        current_cash = self._money_value(
+            getattr(balance, "current_cash", None), label="Current cash"
+        )
+        ledger = getattr(balance, "ledger", None)
+        if not isinstance(ledger, list):
+            raise ManagementPresentationError("Recovered finance ledger is unavailable")
+        postings = []
+        for posting in ledger:
+            amount = self._money_value(
+                getattr(posting, "amount", None), label="Finance posting amount"
+            )
+            category = getattr(posting, "category", None)
+            posting_date = getattr(posting, "posting_date", None)
+            if type(category) is not int or not isinstance(posting_date, date):
+                raise ManagementPresentationError(
+                    "Recovered finance posting identity/date is unavailable"
+                )
+            postings.append(FinancePostingView(
+                amount=amount,
+                category_id=category,
+                posting_date=posting_date,
+            ))
+
+        objective_state = getattr(balance, "financial_objective", None)
+        objective = None
+        if objective_state is not None:
+            candidates = getattr(objective_state, "candidate_ids", None)
+            if (
+                not isinstance(candidates, tuple)
+                or len(candidates) != 3
+                or any(type(value) is not int for value in candidates)
+            ):
+                raise ManagementPresentationError(
+                    "Recovered financial-objective candidates are unavailable"
+                )
+            selected_on = getattr(objective_state, "selected_on", None)
+            deadline = getattr(objective_state, "deadline", None)
+            if selected_on is not None and not isinstance(selected_on, date):
+                raise ManagementPresentationError(
+                    "Financial-objective selection date is invalid"
+                )
+            if deadline is not None and not isinstance(deadline, date):
+                raise ManagementPresentationError(
+                    "Financial-objective deadline is invalid"
+                )
+            objective = FinancialObjectiveView(
+                candidate_ids=candidates,
+                selected_objective_id=int(
+                    getattr(objective_state, "selected_objective_id")
+                ),
+                starting_funds=self._money_value(
+                    getattr(objective_state, "starting_funds", None),
+                    label="Objective starting funds",
+                ),
+                target_cash=self._money_value(
+                    getattr(objective_state, "target_cash", None),
+                    label="Objective target cash",
+                ),
+                selected_on=selected_on,
+                deadline=deadline,
+                active=bool(getattr(objective_state, "active")),
+                progression_gate_reached=bool(
+                    getattr(objective_state, "progression_gate_reached")
+                ),
+                progression_state=int(
+                    getattr(objective_state, "progression_state")
+                ),
+            )
+        return FinanceView(
+            current_cash=current_cash,
+            ledger_in_runtime_order=tuple(postings),
+            objective=objective,
+        )
+
+    def transfer_proposal_rows(self) -> tuple[TransferProposalView, ...]:
+        """Expose active clean-room transfer records without UI-state names."""
+        transfers = getattr(self.state, "transfers", None)
+        proposals = getattr(transfers, "proposals", None)
+        deals = getattr(transfers, "deals", None)
+        scheduled = getattr(transfers, "scheduled_transfers", None)
+        if (
+            not isinstance(proposals, dict)
+            or not isinstance(deals, dict)
+            or not isinstance(scheduled, list)
+        ):
+            raise ManagementPresentationError(
+                "Recovered transfer runtime collections are unavailable"
+            )
+        players = getattr(self.state, "players", None)
+        if not hasattr(players, "get"):
+            raise ManagementPresentationError("Runtime player table is unavailable")
+        rows = []
+        for runtime_index, (key, proposal) in enumerate(proposals.items()):
+            target_id = int(getattr(proposal, "target_player_id"))
+            buying_id = int(getattr(proposal, "buying_club_id"))
+            if key != (target_id, buying_id):
+                raise ManagementPresentationError(
+                    "Transfer proposal dictionary key differs from runtime proposal identity"
+                )
+            target = players.get(target_id)
+            if target is None:
+                raise ManagementPresentationError(
+                    f"Transfer target {target_id} is missing from runtime players"
+                )
+            deal = deals.get(target_id)
+            if deal is None:
+                raise ManagementPresentationError(
+                    f"Transfer target {target_id} has no recovered DealInProgress"
+                )
+            selling_id = int(getattr(deal, "selling_club_id"))
+            buying = self._source_club(buying_id)
+            selling = self._source_club(selling_id)
+            exchange = getattr(proposal, "exchange_player_ids", None)
+            if (
+                not isinstance(exchange, tuple)
+                or len(exchange) != 3
+                or any(type(value) is not int for value in exchange)
+            ):
+                raise ManagementPresentationError(
+                    f"Transfer target {target_id} has invalid exchange-player slots"
+                )
+            terms = getattr(proposal, "contract_terms", None)
+            if terms is None:
+                raise ManagementPresentationError(
+                    f"Transfer target {target_id} has no contract terms"
+                )
+            created = getattr(deal, "created_date", None)
+            if not isinstance(created, date):
+                raise ManagementPresentationError(
+                    f"Transfer target {target_id} has invalid deal date"
+                )
+            matching_scheduled = [
+                item for item in scheduled
+                if int(getattr(item.proposal, "target_player_id")) == target_id
+                and int(getattr(item.proposal, "buying_club_id")) == buying_id
+            ]
+            if len(matching_scheduled) > 1:
+                raise ManagementPresentationError(
+                    f"Transfer target {target_id} has ambiguous scheduled records"
+                )
+            due = None
+            mode = None
+            if matching_scheduled:
+                item = matching_scheduled[0]
+                due = getattr(item, "due_date", None)
+                mode = getattr(item, "mode", None)
+                if not isinstance(due, date) or type(mode) is not int:
+                    raise ManagementPresentationError(
+                        f"Transfer target {target_id} has invalid schedule state"
+                    )
+            rows.append(TransferProposalView(
+                runtime_order_index=runtime_index,
+                target_player_id=target_id,
+                target_player_name=self._player_name(target),
+                buying_club_id=buying_id,
+                buying_club_name=buying.name,
+                selling_club_id=selling_id,
+                selling_club_name=selling.name,
+                cash_fee=int(getattr(proposal, "cash_fee")),
+                exchange_player_ids=exchange,
+                negotiation_state_14=int(getattr(proposal, "negotiation_state_14")),
+                negotiation_state_15=int(getattr(proposal, "negotiation_state_15")),
+                previous_wage_offer=int(getattr(proposal, "previous_wage_offer")),
+                previous_signing_on_fee_offer=int(
+                    getattr(proposal, "previous_signing_on_fee_offer")
+                ),
+                previous_total_value=int(getattr(proposal, "previous_total_value")),
+                contract_terms=TransferContractTermsView(
+                    weekly_wage=int(getattr(terms, "weekly_wage")),
+                    signing_on_fee=int(getattr(terms, "signing_on_fee")),
+                    promotion_bonus=int(getattr(terms, "promotion_bonus")),
+                    contract_length_months=int(
+                        getattr(terms, "contract_length_months")
+                    ),
+                    appearance_fee=int(getattr(terms, "appearance_fee")),
+                    relegation_transfer_request_clause=bool(
+                        getattr(terms, "relegation_transfer_request_clause")
+                    ),
+                    big_club_offer_clause=bool(
+                        getattr(terms, "big_club_offer_clause")
+                    ),
+                    big_money_offer_clause=bool(
+                        getattr(terms, "big_money_offer_clause")
+                    ),
+                    house=bool(getattr(terms, "house")),
+                    car=bool(getattr(terms, "car")),
+                ),
+                deal_state=int(getattr(deal, "state")),
+                deal_base_state=int(getattr(deal, "base_state")),
+                deal_is_swap_variant=bool(getattr(deal, "is_swap_variant")),
+                deal_created_date=created,
+                scheduled_due_date=due,
+                scheduled_mode=mode,
+            ))
+        return tuple(rows)
 
     def fixture_rows(self) -> tuple[FixtureRowView, ...]:
         league = getattr(self.state, "premier_league", None)
