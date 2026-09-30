@@ -44,6 +44,24 @@ Projected fields are already recovered runtime state only:
 No positional label names, status icons, colors, sorting or screen-specific
 visibility rules are assigned here.
 
+### Tactics/team selection
+
+The bridge also exposes the controlled user's already persisted
+`HumanManagerState` selection plus the reconstructed team tactical state:
+
+- formation ID;
+- exact starter/substitute player-ID tuples in stored order;
+- runtime `TeamTacticalState` fields at the recovered team offsets:
+  Play style, Without Ball, With Ball, Aggression;
+- the four exact `TeamOrderPriorities` lists: Captain, Penalty,
+  Corner and Free Kick.
+
+These are source-backed numeric/runtime values. The bridge deliberately
+does **not** assign original tactics-screen control IDs, button captions,
+formations graphics, player-slot coordinates, style labels, colors or drag/drop
+behavior. Missing tactical state, lineup tuple or one of the four Team Orders
+lists fails closed instead of silently injecting modern defaults.
+
 ### Fixtures/results
 
 `PremierLeagueState.fixture_source_order` is constructed directly from the
@@ -100,6 +118,8 @@ backend contract to lock:
 
 - controlled-club source names/date;
 - live source-roster ordering;
+- exact persisted human formation, starter/bench ordering, four runtime tactical
+  bytes and all four original Team Orders priority lists;
 - fixture source insertion order even when fixture IDs/dates could tempt a
   modern resort;
 - recorded/unplayed result projection;
