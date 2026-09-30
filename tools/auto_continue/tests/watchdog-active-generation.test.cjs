@@ -189,5 +189,5 @@ test("both recovery paths preserve the entire Gate-17 mission", async () => {
   assert.match(inPlace, /Gate 17/);
   assert.match(inPlace, /not just the current subtask/i);
   assert.match(fresh, /Gate 17/);
-  assert.match(fresh, /current.*task.*next/i);
+  assert.match(fresh, /immediate active task is only the next/i);
 });
