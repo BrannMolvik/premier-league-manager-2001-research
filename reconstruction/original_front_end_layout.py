@@ -49,6 +49,21 @@ PSTARTMENU_BACKGROUND_RECT = OriginalRect(134, 34, 532, 532)
 TEAMSELECT_ROOT_RECT = OriginalRect(0, 0, 800, 600)
 TEAMSELECT_BACKGROUND_RECT = OriginalRect(0, 0, 800, 558)
 
+# 0x4D7D82..0x4D80BF constructs sixteen hierarchy rows by repeatedly
+# calling 0x4D8C60 with x=20 and y=78+30*i. 0x4D8C60 in turn binds the
+# original choice_league animation/bar resources.
+TEAMSELECT_HIERARCHY_ROW_ORIGINS = tuple(
+    (20, 78 + 30 * index) for index in range(16)
+)
+TEAMSELECT_HIERARCHY_ANIM_PATH = (
+    "FM2001_Art/Generic/GenericButtonsAndBars/choice_league_but_anim.444"
+)
+TEAMSELECT_HIERARCHY_BARS_PATH = (
+    "FM2001_Art/Generic/GenericButtonsAndBars/choice_league_but_bars.444"
+)
+TEAMSELECT_HIERARCHY_FRAME_SIZE = (30, 29)
+TEAMSELECT_HIERARCHY_BARS_FRAME_SIZE = (168, 29)
+
 
 class OriginalFrontEndLayoutError(ValueError):
     pass
