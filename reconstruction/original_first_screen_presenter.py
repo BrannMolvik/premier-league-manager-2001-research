@@ -6,9 +6,11 @@ masks for the currently active front-end screen. Pointer dispatch goes through
 the previously tested original rectangle translator into FrontEndSession.
 
 The original Button@ease_2001 group/frame state machine, Zurich caption
-alignment, TeamSelect population order, hierarchy state transforms and final
-club-ID write are exposed from executable evidence. A successful Start event
-produces a backend handoff command; it does not silently synthesize a recovered
+alignment, TeamSelect population order and hierarchy state transforms are
+exposed from executable evidence. The native club-row toggle is kept separate
+from the gameplay backend until the interrupted trace's selection-record payload
+identity is reconciled. A successful Start event produces a backend handoff
+command; it does not silently synthesize a recovered
 manager-home renderer.
 """
 from __future__ import annotations
@@ -165,10 +167,13 @@ class OriginalFirstScreenPresenter:
                 club = row_at_pointer(model.club_rows(), x, y)
                 if club is not None:
                     toggled = model.toggle_club_row(club.visible_index)
-                    if model.selected_club_id is None:
-                        self.session.clear_club_selection()
-                    else:
-                        self.session.choose_club(model.selected_club_id)
+                    # Recovery audit boundary: the interrupted native trace
+                    # correctly establishes row toggle/state behavior, but its
+                    # claim that DBRClub+0x40 is the canonical club ID conflicts
+                    # with an older verified field mapping (+0x40 is manager ID).
+                    # Keep the visual/native row state fail-closed from gameplay
+                    # selection until that selection-record payload is re-traced.
+                    self.session.clear_club_selection()
                     return OriginalHierarchyInteraction(
                         "club",
                         toggled.text,
