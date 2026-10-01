@@ -4,10 +4,10 @@ const RUNTIME_BRANCH = "agent-runtime";
 const CHAT_URL = "https://chatgpt.com/";
 const STALE_CHECK_ALARM = "fm2001-stale-check";
 const STALE_CHECK_MINUTES = 3;
-const DEFAULT_SAME_CHAT_FALLBACK_MINUTES = 30;
+const DEFAULT_SAME_CHAT_FALLBACK_MINUTES = 20;
 // Never stop an actively generating worker solely because GitHub is quiet.
 // Explicit ChatGPT UI errors still use their existing immediate recovery path.
-const ACTIVE_GENERATION_GRACE_MINUTES = 60;
+const DEFAULT_ACTIVE_GENERATION_GRACE_MINUTES = 10;
 
 const runtimeStateUrl = () =>
   `https://raw.githubusercontent.com/${REPO}/${RUNTIME_BRANCH}/research/AUTO_CONTINUE_STATE.json?ts=${Date.now()}`;
@@ -105,7 +105,7 @@ function shouldMonitor(state) {
 // the next three-minute alarm could interrupt a fresh worker after ~2-3 minutes.
 // One uninterrupted generation gets at most a bounded grace period; real UI
 // failures continue through the separate immediate error-recovery path.
-async function deferStaleRecoveryForActiveGeneration(latestActivity) {
+async function deferStaleRecoveryForActiveGeneration(latestActivity, state) {
   const stored = await chrome.storage.local.get([
     "workerTabId",
     "activeGenerationGuard"
@@ -134,6 +134,13 @@ async function deferStaleRecoveryForActiveGeneration(latestActivity) {
   }
 
   const now = Date.now();
+  const graceMinutes = Math.max(
+    1,
+    Number(
+      state?.active_generation_grace_minutes ||
+      DEFAULT_ACTIVE_GENERATION_GRACE_MINUTES
+    )
+  );
   const previous = stored.activeGenerationGuard;
   const guard = (
     previous &&
@@ -144,10 +151,10 @@ async function deferStaleRecoveryForActiveGeneration(latestActivity) {
     : { tabId, baselineActivity: Number(latestActivity), observedSince: now };
 
   await chrome.storage.local.set({ activeGenerationGuard: guard });
-  if (now - Number(guard.observedSince) >= ACTIVE_GENERATION_GRACE_MINUTES * 60000) {
+  if (now - Number(guard.observedSince) >= graceMinutes * 60000) {
     console.warn(
       "FM2001 active generation exceeded quiet-period grace; allowing recovery",
-      { tabId, minutes: ACTIVE_GENERATION_GRACE_MINUTES }
+      { tabId, minutes: graceMinutes }
     );
     return false;
   }
@@ -396,7 +403,7 @@ async function checkForStaleSession() {
     // Repository silence alone must not cancel a ChatGPT response that is
     // visibly generating. This also protects a newly recovered worker whose
     // first checkpoint has not yet landed.
-    if (await deferStaleRecoveryForActiveGeneration(latestActivity)) {
+    if (await deferStaleRecoveryForActiveGeneration(latestActivity, state)) {
       return;
     }
 

@@ -60,7 +60,7 @@ Relevant runtime fields:
   conclude that a `working` session died.
 - `recovery_cooldown_minutes`: minimum delay before another recovery launch.
 - `max_recoveries_per_hour`: loop guard.
-- `same_chat_fallback_minutes`: grace period after the first in-place recovery before a no-progress session may escalate to a fresh background chat.
+- `active_generation_grace_minutes`: extra protection for a visibly generating response after the repository heartbeat is already stale. The default is 10 minutes, so a stuck Stop-generating UI cannot suppress recovery for an hour.\n- `same_chat_fallback_minutes`: grace period after the first in-place recovery before a no-progress session may escalate to a fresh background chat.
 
 Automatic recovery is allowed only when all are true:
 
@@ -231,8 +231,7 @@ keeps retrying after sign-in.
 The default runtime configuration uses:
 
 - checkpoint target: 10 minutes;
-- stale threshold: 15 minutes;
-- recovery cooldown: 20 minutes;
+- stale threshold: 15 minutes;\n- active-generation grace after stale detection: 10 minutes;\n- recovery cooldown: 20 minutes;
 - maximum recoveries: 3 per hour.
 
 The extension stores recovery cooldown/history in Chrome local storage as a
@@ -278,7 +277,7 @@ From extension version 0.3.1 onward:
 - If ChatGPT is still generating, click the visible Stop / Stop generating control first.
 - True conversation-length / maximum-length exhaustion: create a fresh background chat and use the canonical GitHub handoff.
 - Missing or closed worker tab: a fresh background chat is an allowed fallback.
-- If an in-place recovery produces no `main` or `agent-runtime` heartbeat for `same_chat_fallback_minutes` (default 30), a fresh inactive background chat is also allowed even if the old tab still exists.
+- If an in-place recovery produces no `main` or `agent-runtime` heartbeat for `same_chat_fallback_minutes` (default 20), a fresh inactive background chat is also allowed even if the old tab still exists.
 - Repeated same-chat attempts must not reset that fallback clock.
 
 
@@ -289,4 +288,4 @@ Version 0.3.1 treats an explicit ChatGPT `Retry` / `Try again` control as a tran
 
 ### No-progress escalation
 
-From version 0.3.2, the first accepted same-chat recovery records the latest repository activity and starts a fallback window. Any later commit to `main` or `agent-runtime` proves forward progress and clears the window. If no commit appears for the configured interval (30 minutes by default), the extension may create one new inactive ChatGPT recovery tab using the canonical handoff. This prevents a permanently wedged Retry/stall UI from blocking unattended work indefinitely while still preferring the existing conversation first.
+From version 0.3.2, the first accepted same-chat recovery records the latest repository activity and starts a fallback window. Any later commit to `main` or `agent-runtime` proves forward progress and clears the window. If no commit appears for the configured interval (20 minutes by default), the extension may create one new inactive ChatGPT recovery tab using the canonical handoff. This prevents a permanently wedged Retry/stall UI from blocking unattended work indefinitely while still preferring the existing conversation first.

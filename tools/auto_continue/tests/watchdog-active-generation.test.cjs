@@ -79,7 +79,8 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
             stale_after_minutes: 15,
             recovery_cooldown_minutes: 20,
             max_recoveries_per_hour: 3,
-            same_chat_fallback_minutes: 30
+            active_generation_grace_minutes: 10,
+            same_chat_fallback_minutes: 20
           };
         }
       };
@@ -155,7 +156,7 @@ test("stale heartbeat recovers a stopped worker", async () => {
 test("active-generation grace is finite: a prolonged silent worker can recover", async () => {
   const h = harness({ generating: true });
   await h.check();
-  h.store.activeGenerationGuard.observedSince -= 61 * 60000;
+  h.store.activeGenerationGuard.observedSince -= 11 * 60000;
   await h.check();
   assert.equal(h.store.pendingResume.inPlace, true);
   assert.equal(h.resumeMessages, 1);

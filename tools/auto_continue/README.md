@@ -230,3 +230,19 @@ continuation message has appeared and that the worker produces a real
 `agent-runtime` checkpoint. A successful message request is not proof that
 work has progressed, and browser automation cannot bypass ChatGPT limits or
 the source-byte execution-container outage.
+
+## Version 0.3.9 automatic-stall hardening
+
+Version 0.3.9 keeps the worker unattended when the ChatGPT UI remains stuck in a
+"generating" state. A visible Stop control now protects a stale worker for at
+most 10 additional minutes after the repository heartbeat has already exceeded
+the 15-minute stale threshold, rather than 60 minutes. If no heartbeat appears,
+the extension automatically performs the existing in-place recovery. The
+no-progress same-chat fallback is 20 minutes before automatic escalation to a
+fresh background chat. Both values remain runtime-configurable through
+`active_generation_grace_minutes` and `same_chat_fallback_minutes`.
+
+This means the normal path requires no manual **Start FM2001 worker now** click.
+That button remains only an explicit override. Chrome must still be open, the
+worker tab must have been registered once, and the unpacked extension must be
+reloaded after updating its files.
