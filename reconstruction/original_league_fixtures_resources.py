@@ -145,20 +145,32 @@ LEAGUE_FIXTURE_DATE_FORMAT = "%02i.%02i"
 LEAGUE_FIXTURES_SELECTED_INDEX_OLD_OFFSET = 0x109B0
 LEAGUE_FIXTURES_SELECTED_INDEX_CURRENT_OFFSET = 0x109B4
 
+PLEAGUE_GRID_CLASS = "PLeagueGrid"
+PLEAGUE_GRID_TYPE_DESCRIPTOR_VA = 0x81C510
+PLEAGUE_GRID_VFTABLE_VA = 0x7C23D0
+PLEAGUE_GRID_CONSTRUCTOR_VA = 0x46CBD0
+PLEAGUE_GRID_OBJECT_OFFSET = 0x1CF0
+
+LEAGUE_FIXTURES_TOP_HEADER_ARRAY_OFFSET = 0x9A0
+LEAGUE_FIXTURES_SIDE_HEADER_ARRAY_OFFSET = 0x15D0
+LEAGUE_FIXTURES_HEADER_STRIDE = 0x4C
+LEAGUE_FIXTURES_HEADER_IDENTITY_OFFSET = 0x48
+LEAGUE_FIXTURES_HEADER_IDENTITY_SETTER_VA = 0x5D5490
+
 
 def league_fixture_base_box(
     *,
     fixture_present: bool,
     fixture_status_bits: int = 0,
-    empty_slot_red_predicate: bool = False,
+    same_club_diagonal: bool = False,
 ) -> OriginalLeagueFixturesResource:
     """Mirror the base box-selection rules in the recovered row/update paths.
 
     For a populated fixture, status bit 0 selects the completed score-display
     path and its original played_fixtures_box; otherwise the date path uses
-    date_fixtures_box. For an empty slot, the source compares panel-owned table
-    identities (or receives the equivalent boolean in the row helper); that
-    still-unresolved predicate selects red_fixtures_box versus date_fixtures_box.
+    date_fixtures_box. For an empty slot, the source compares the club pointers
+    stored at +0x48 in the two header controls. Equality is therefore the
+    self-fixture diagonal and selects red_fixtures_box.
     """
     if type(fixture_present) is not bool:
         raise OriginalLeagueFixturesResourceError("fixture_present must be boolean")
@@ -166,9 +178,9 @@ def league_fixture_base_box(
         raise OriginalLeagueFixturesResourceError(
             "fixture_status_bits must be a non-negative integer"
         )
-    if type(empty_slot_red_predicate) is not bool:
+    if type(same_club_diagonal) is not bool:
         raise OriginalLeagueFixturesResourceError(
-            "empty_slot_red_predicate must be boolean"
+            "same_club_diagonal must be boolean"
         )
     if fixture_present:
         return (
@@ -176,14 +188,14 @@ def league_fixture_base_box(
             if fixture_status_bits & LEAGUE_FIXTURE_STATUS_COMPLETE_BIT
             else DATE_FIXTURES_BOX
         )
-    return RED_FIXTURES_BOX if empty_slot_red_predicate else DATE_FIXTURES_BOX
+    return RED_FIXTURES_BOX if same_club_diagonal else DATE_FIXTURES_BOX
 
 
 def league_fixture_box_for_cell(
     *,
     fixture_present: bool,
     fixture_status_bits: int = 0,
-    empty_slot_red_predicate: bool = False,
+    same_club_diagonal: bool = False,
     selected: bool = False,
 ) -> OriginalLeagueFixturesResource:
     """Apply the source-proven selected-cell overlay after the base box rule."""
@@ -194,7 +206,7 @@ def league_fixture_box_for_cell(
     return league_fixture_base_box(
         fixture_present=fixture_present,
         fixture_status_bits=fixture_status_bits,
-        empty_slot_red_predicate=empty_slot_red_predicate,
+        same_club_diagonal=same_club_diagonal,
     )
 
 
