@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the active validation gate. Exact deferred local task: run the real Windows PStartMenu/TeamSelect graphical audit, then recover remaining TeamSelect hierarchy item/input/selection-state semantics and broader management-screen fidelity. Gate 16 autonomous-transfer churn is verified on main through 173388582d866c8778b400bf579afd901db29c72. Current independent cloud-safe task: add a long shared-primary scheduler stress spanning Premier League, domestic Cup, European Cup, qualification Cup, and procedural League owners while preserving the fail-closed dynamic FA Cup replay insertion boundary; verify and checkpoint without declaring Gate 16 complete.",
-  "last_known_main_head": "173388582d866c8778b400bf579afd901db29c72",
+  "active_task": "Gate 13 remains the active validation gate. Exact deferred local task: run the real Windows PStartMenu/TeamSelect graphical audit, then recover remaining TeamSelect hierarchy item/input/selection-state semantics and broader management-screen fidelity. Gate 16 mixed shared-primary scheduler stress is verified and reconciled on main through 66fc1d3c90737a7b59ef014bad3140d5a2d91361. Current independent cloud-safe task: combine repeated annual primary regeneration with internal save/reload in a bounded destructive soak, measuring serialized payload/state growth and proving replaced season-owned runtime structures do not accumulate; canonical real-data multi-season evidence remains separately required.",
+  "last_known_main_head": "66fc1d3c90737a7b59ef014bad3140d5a2d91361",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 131,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 131 claimed from canonical main HEAD 173388582d866c8778b400bf579afd901db29c72. Preserving the persisted mixed shared-primary competition stress as the exact cloud-safe continuation while Gate 13 remains the earliest incomplete validation gate.",
+  "note": "Recovery 131 merged and reconciled the mixed shared-primary Gate 16 stress: PR #58, 1,132 tests with 22 expected skips, asset policy passed. Continuing immediately with the next distinct cloud-safe Gate 16 state-growth/save-reload soak while Gate 13 remains the earliest incomplete validation gate.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
