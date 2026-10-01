@@ -214,7 +214,7 @@ def run_multiseason_controller_audit(
     snapshots: list[CanonicalSeasonRolloverSnapshot] = []
     baseline_fresh_shape: tuple[int, ...] | None = None
     previous_capture_date: date | None = None
-    retained_runtime_ids: set[int] = set()
+    retained_runtimes: list[object] = []
 
     for cycle in range(rollover_count):
         state = controller.state
@@ -263,12 +263,11 @@ def run_multiseason_controller_audit(
 
         memberships_before = dict(state.club_competition_membership)
         old_runtime = state.premier_league
-        old_runtime_id = id(old_runtime)
-        if old_runtime_id in retained_runtime_ids:
+        if any(old_runtime is previous for previous in retained_runtimes):
             raise CanonicalMultiSeasonAuditError(
                 f"cycle {cycle}: Premier League runtime object was unexpectedly reused"
             )
-        retained_runtime_ids.add(old_runtime_id)
+        retained_runtimes.append(old_runtime)
 
         rng_before = int(controller.match_rng.state) & 0xFFFFFFFF
         regeneration = controller.regenerate_annual_primary_season(
