@@ -959,7 +959,7 @@
   "gate13_league_fixtures_panel_constructor": "0x46D470",
   "gate13_league_fixtures_panel_vftable": "0x7C24B8",
   "gate13_calendar_fixtures_navigation_evidence": "research/GATE13_CALENDAR_FIXTURES_NAVIGATION.md",
-  "gate13_fixtures_results_identity_status": "league_fixtures_grid_selectors_and_populated_cell_pmatchinfo_navigation_proven_pmatchinfo_internal_presentation_nonselector_controls_asset_import_windows_validation_open",
+  "gate13_fixtures_results_identity_status": "league_fixtures_and_pmatchinfo_navigation_resource_family_source_proven_pmatchinfo_control_geometry_text_font_events_asset_import_windows_validation_open",
   "gate13_calendar_fixtures_navigation_merge": "9da4c89f67aaba7b263354591497d596ca50edd1",
   "gate13_calendar_fixtures_navigation_ci_run": 36916343766,
   "gate13_calendar_fixtures_navigation_asset_policy_run": 36916343760,
@@ -1086,5 +1086,36 @@
     760,
     500
   ],
-  "gate13_league_fixtures_match_info_requires_resolved_linked_context": true
+  "gate13_league_fixtures_match_info_requires_resolved_linked_context": true,
+  "gate13_league_fixtures_match_info_merge": "a5c0de8aff324aa6ea8481da24da725d8921ebd4",
+  "gate13_league_fixtures_match_info_ci_run": 36924435622,
+  "gate13_league_fixtures_match_info_test_count": 333,
+  "gate13_league_fixtures_match_info_expected_skips": 21,
+  "gate13_league_fixtures_match_info_asset_policy_run": 36924435665,
+  "gate13_pmatchinfo_resource_source_bound": true,
+  "gate13_pmatchinfo_resource_evidence": "research/GATE13_PMATCHINFO_RESOURCES.md",
+  "gate13_pmatchinfo_resource_contract": "reconstruction/original_pmatchinfo_resources.py",
+  "gate13_pmatchinfo_resource_count": 20,
+  "gate13_pmatchinfo_direct_consumer_resource_count": 13,
+  "gate13_pmatchinfo_unmapped_direct_consumer_resources": [
+    "name_block_1",
+    "name_block_2",
+    "name_block_3",
+    "name_block_4",
+    "poss_back",
+    "poss_blue",
+    "poss_yellow"
+  ],
+  "gate13_pmatchinfo_subpanel_base_class": "PMatchInfoSubPanelBase",
+  "gate13_pmatchinfo_subpanel_base_type_descriptor": "0x81D078",
+  "gate13_pmatchinfo_subpanel_base_vftable": "0x7C42B8",
+  "gate13_pmatchinfo_subpanel_class": "PMatchInfoSubPanel",
+  "gate13_pmatchinfo_subpanel_type_descriptor": "0x81D0A0",
+  "gate13_pmatchinfo_subpanel_vftable": "0x7C426C",
+  "gate13_pmatchinfo_popup_geometry": [
+    760,
+    500
+  ],
+  "gate13_pmatchinfo_private_source_reverified_recovery": 156,
+  "gate13_pmatchinfo_original_assets_imported": false
 }
