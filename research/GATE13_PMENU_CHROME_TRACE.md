@@ -264,3 +264,15 @@ work includes:
    screen audit.
 
 No original resource bytes are added by this checkpoint itself.
+
+## Recovery 145 private source validation
+
+Before this checkpoint was proposed for merge, the four selected files were
+re-read from the freshly staged authorized source outside Git. All four matched
+the byte lengths, SHA-256 values, source dimensions and original
+`64 ff 00 ff` EA444 descriptor recorded above. Their heights divided exactly
+into the expected 29-pixel row stacks (22, 3, 23 and 4 respectively).
+
+This private validation proves the selected bytes match the source contract; it
+does not replace hosted regressions or authorize any uncorrelated neighboring
+asset.
