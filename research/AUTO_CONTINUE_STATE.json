@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete validation gate with the real Windows PStartMenu/TeamSelect graphical audit deferred. The current cloud-safe work-ahead task remains the canonical shipped-data multi-season Gate-16 audit. Recovery 133 materialized the canonical Library archive but the execution allocation failed after one successful shell process: all subsequent shell/Python launches returned caas.internal.errors.ClientError. Next healthy allocation must sync current main, verify the source outside Git, and drive consecutive canonical seasons through annual qualification/regeneration with long-duration invariants.",
-  "last_known_main_head": "1282b5477d4cfed173cc19111a5480876178aa8b",
+  "active_task": "Gate 13 remains the earliest incomplete validation gate with the real Windows graphical audit deferred. Gate-16 cloud-safe work now has a merged canonical multi-season runner and a persistent Library runtime bootstrap. Recovery 134 confirmed every available process-execution path fails before start with caas.internal.errors.ClientError even after both canonical source and runtime ZIPs materialize successfully. Next healthy allocation must materialize those two ZIPs, re-verify pinned source hashes, and execute at least three canonical qualification/regeneration cycles with the merged runner.",
+  "last_known_main_head": "4d413fa3036ffeeaf5ad34a1bf3e140eb64bcf34",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -19,8 +19,8 @@
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 134,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 134 active: first shell process failed with caas ClientError, so work continued cloud-safe. PR #63 adds the fail-closed canonical multi-season Gate-16 runner and tests; final reconstruction CI run 36857099351 is in progress and asset-policy run 36857099441 passed. A reconstruction runtime bootstrap ZIP matching main 120400bd reconstruction code was persisted at Library /FM2001/Working Runtime/FM2001-reconstruction-runtime-120400bd.zip, removing future git-clone/DNS dependence.",
+  "last_recovery_reason": "sandbox-execution-failure",
+  "note": "Recovery 134 checkpointed main 4d413fa3036ffeeaf5ad34a1bf3e140eb64bcf34. PR #63 runner is merged; full CI 36857099351 passed 1,138 tests with 22 expected skips and asset policy 36857099441 passed. Runtime bootstrap is persisted at /FM2001/Working Runtime/FM2001-reconstruction-runtime-120400bd.zip. Both source/runtime materialization work, but shell and independent Python execution both fail before process start. Runtime stays working for automatic recovery.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
