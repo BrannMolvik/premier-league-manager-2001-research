@@ -41,9 +41,15 @@ Evidence:
   contract and read-only match-presentation event feed are foundations only;
   Gate 14 is not complete.
 - Cloud-safe Gate 16 work-ahead now includes the 30-rollover destructive annual
-  regeneration soak (`abe0876f240cdac1f3b135869a2f5b11b9c0d953`) and six-seed
-  complete-season stress (`f08a014bc73c8ca4a7e11e3f10ef79e42ca13e62`). Consecutive
-  multi-season live-world stress with broader systems remains open.
+  regeneration soak (`abe0876f240cdac1f3b135869a2f5b11b9c0d953`), six-seed
+  complete-season stress (`f08a014bc73c8ca4a7e11e3f10ef79e42ca13e62`), three
+  consecutive fully played synthetic seasons (`3d6037d71365a2ddce53d2e6b40eda9baa02cf93`),
+  and five exact save/reload round-trips across those seasons, including both
+  annual rollover boundaries (`73ca421609cc6e929156c72f5b021b02a6efca3b`).
+  The latter fixed immutable source-fixture validation after procedural annual
+  regeneration and passed 1,125 tests with 22 expected source-gated skips.
+  Canonical real-data multi-season evidence, broader competitions, autonomous
+  transfer churn, more seed coverage and remaining state-growth risks stay open.
 - Gate 17 release-readiness evidence is now fail-closed and machine-checkable at
   `9e7cb18be721ea2ae89b074991e120d3e60e4c68`; it intentionally cannot pass
   without real clean-Windows receipts, a release archive and final limitations.
