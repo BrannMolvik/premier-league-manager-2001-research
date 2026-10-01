@@ -22,6 +22,13 @@ class OriginalPMenuChromeError(ValueError):
 PMENU_LIST_CLASS = "CMenuList"
 PMENU_LIST_TYPE_DESCRIPTOR_VA = 0x81CE98
 PMENU_LIST_VFTABLE_VA = 0x7C3E34
+PMENU_SETUP_METHOD_VA = 0x47AB40
+PMENU_LIST_OBJECT_OFFSET = 0x68
+# Raw source argument order at the CMenuList setup vcall (+0x98) in PMenu's
+# setup method. The exact higher-level parameter names remain deliberately
+# unresolved, but the 201x504 and 16/29 values are preserved verbatim.
+PMENU_LIST_SETUP_ARGUMENTS = (0, 0, 201, 504, 16, 29, 0, 0, 0)
+PMENU_DIRECT_RESOURCE_BINDING_IN_OWN_METHODS = False
 
 PMENU_BASE_ROW_CLASS = "PBaseMenuRow"
 PMENU_BASE_ROW_VFTABLE_VA = 0x7C3C50
