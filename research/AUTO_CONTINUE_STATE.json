@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 140,
-  "last_recovery_reason": "codex-interrupted-work-audited-and-recovered",
-  "note": "PR #68 safely salvaged interrupted Codex work. Critical audit correction: DBRClub+0x40 club-ID interpretation is contradicted by prior verified manager-ID mapping, so backend selection remains fail-closed. Gate13 CI run 36888165831 passed 273 tests with 21 expected skips; asset policy 36888165952 passed. Upgraded real-Windows audit still pending.",
+  "recovery_generation": 141,
+  "last_recovery_reason": "manual-start",
+  "note": "Recovery 141 manually resumed from canonical main da728c91d2534bc6b19bb12231540f3a70a5f5f1. Exact active blocker remains the TeamSelect selection-record payload/Start re-trace before backend club selection can be enabled; upgraded real-Windows audit follows.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
