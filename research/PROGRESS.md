@@ -9876,3 +9876,13 @@ canonical audit.
 - All seven files are loaded and receive valid static wrapper setup, but every executable literal xref is confined to static construction/teardown plus family-wide lifetime sweeps at `0x6017xx` / `0x6029xx`. No runtime PMatchInfo/TeamInfo/Finance presentation consumer exists in the canonical executable.
 - Recorded exact xref sets in `PMATCHINFO_UNCONSUMED_RESOURCE_AUDIT` and added a fail-closed regression boundary so these resources cannot be assigned to widgets without new source evidence.
 - This closes the seven-resource mapping question as **loaded-but-unconsumed**, not as a guessed UI binding. Exact next task after CI is intentional staging/import of only source-proven Match Report assets, integration into the reconstructed presentation, then corrected Windows validation and Gate-13 audit.
+
+
+## 2 October 2026 - Recovery 159 PMatchInfo runtime asset staging
+
+- PR #91 merged as `ae324cb3ba585dff1f96ff19053e35bc62917540`; Gate-13 run `36938526562` passed 361 tests with 21 expected source-gated skips and asset-policy run `36938526517` passed.
+- Created `feature/gate13-pmatchinfo-asset-import` and imported twelve byte-identical Match Report files that have source-proven runtime presentation consumers: info_player, info_player_disabled, red/yellow card variants, substitution on/off, injured, score, match-name grid, pitch and incident grid.
+- Preserved original source path casing for `Sub_on.444`, recorded every source SHA-256 in `original_assets/MANIFEST.md`, and added a repository-side validator that rechecks SHA-256, byte size and EA444 geometry in CI.
+- Deliberately did not import the seven Recovery-159 loaded-but-unconsumed name-block/possession files into the runtime set.
+- `info_popup.444` remains the only source-proven runtime asset not yet staged. The current GitHub connector cannot safely transmit its 179,988 raw binary bytes in a single blob handoff without truncation. No substitute, conversion or guessed background is allowed. The branch explicitly tests that this missing file remains absent rather than silently replaced.
+- Exact next task: run the partial import checkpoint through Gate-13/asset-policy CI, then build the reconstructed PMatchInfo presenter so the source-proven subcomponents can integrate while the full-dialog background fails closed until its exact bytes can be transferred.
