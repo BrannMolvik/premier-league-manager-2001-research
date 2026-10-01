@@ -57,7 +57,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 34
+SAVE_SCHEMA_VERSION = 35
 
 
 def _iso(value: date | None) -> str | None:
