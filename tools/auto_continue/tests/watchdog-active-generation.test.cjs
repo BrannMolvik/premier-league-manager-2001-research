@@ -6,8 +6,9 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 
+const extensionDir = path.join(__dirname, "../chrome-extension");
 const source = fs.readFileSync(
-  path.join(__dirname, "../chrome-extension/background.js"), "utf8"
+  path.join(extensionDir, "background.js"), "utf8"
 );
 
 function harness({
