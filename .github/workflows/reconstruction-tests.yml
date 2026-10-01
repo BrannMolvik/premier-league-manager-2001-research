@@ -45,6 +45,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Install bounded original PE disassembly test dependency
+        run: python -m pip install "capstone>=5,<6"
       - name: Run reconstruction tests
         working-directory: reconstruction
         run: python -m unittest discover -v
