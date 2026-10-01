@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete validation gate. Recovery 135 canonical Gate-16 execution found a cycle-2 +2 European Cup node delta. Isolate the exact competition/round nodes, prove legitimate participant-dependent materialization versus accumulation, encode regression/fix, then rerun the canonical three-rollover audit.",
+  "active_task": "Gate 13 remains the earliest incomplete validation gate. Recovery 136 continues the verified Recovery-135 Gate-16 finding: isolate the exact cycle-2 +2 European Cup node delta and corresponding primary/shadow entries, prove legitimate participant-dependent materialization versus cross-season accumulation, encode the result as a regression/fix, then rerun the canonical three-rollover audit.",
   "last_known_main_head": "675b7170b4155597b65937ae81c71f5cf3b34dc6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 135,
-  "last_recovery_reason": "sandbox-execution-failure",
-  "note": "Recovery 135 main checkpoint 675b7170b4155597b65937ae81c71f5cf3b34dc6 records the verified canonical run failure. Sustained execution is healthy; private source hashes and full-sector validation passed. Next action is exact European node-delta isolation.",
+  "recovery_generation": 136,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 136 resumes from main 675b7170b4155597b65937ae81c71f5cf3b34dc6. Recovery 135 already verified canonical source hashes and reproduced the cycle-2 European Cup +2 structural delta. Do not rerun completed setup unless required by the focused delta trace.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
