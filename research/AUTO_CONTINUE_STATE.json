@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 156 continues from merged PR #85 at main a5c0de8aff324aa6ea8481da24da725d8921ebd4. Gate-13 run 36924435622 passed 333 tests with 21 expected skips and asset-policy run 36924435665 passed. Exact next task: source-bind PMatchInfo internal Match_report resource ownership using the freshly reverified canonical executable and authorized disc bytes, recording exact hashes/dimensions/static handles and only directly proven PMatchInfo/subpanel consumers; then continue remaining Gate-13 presentation work.",
-  "last_known_main_head": "a5c0de8aff324aa6ea8481da24da725d8921ebd4",
+  "active_task": "Recovery 157 resumes from merged PR #86 at main c304e77d81b21d1c6fde1a63b90934347926d7f1. Gate-13 run 36927729023 passed 343 tests with 21 expected skips and asset-policy run 36927729082 passed. Exact next task: recover PMatchInfo/subpanel local control geometry and typography from source-proven consumers, beginning match_name_grid, match_incid_grid, info_player/info_player_disabled, pitch_normal and info_popup; preserve exact 0x64F380 arguments and avoid inferred screen-global positions.",
+  "last_known_main_head": "c304e77d81b21d1c6fde1a63b90934347926d7f1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 156,
-  "last_recovery_reason": "post-pr85-merge-continuation",
-  "note": "Recovery 156 has private canonical source/executable access. Do not repeat League Fixtures selectors, matrix, cell state or PMatchInfo navigation identity. Raw original bytes remain private outside Git.",
+  "recovery_generation": 157,
+  "last_recovery_reason": "post-pr86-merge-continuation",
+  "note": "Recovery 157 continues beyond verified PMatchInfo resource inventory. Do not repeat source hashes/resource ownership/navigation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
