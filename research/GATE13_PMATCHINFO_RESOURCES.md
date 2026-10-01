@@ -523,3 +523,80 @@ Still open:
    if needed for final behavior parity;
 3. intentional original Match Report asset import and integrated Windows
    validation.
+
+
+## Recovery 159 final Match Report resource-consumer audit
+
+Recovery 159 revisited the seven Match Report resources that still had no
+claimed final widget consumer after the PMatchInfo text/tab work:
+
+- `name_block_1.444`
+- `name_block_2.444`
+- `name_block_3.444`
+- `name_block_4.444`
+- `poss_back.444`
+- `poss_blue.444`
+- `poss_yellow.444`
+
+The canonical `footballmanager.exe` was freshly reread from the authorized
+disc and reverified at SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+An exhaustive disassembly/reference pass covered:
+
+1. each exact raw-handle address;
+2. every aligned address inside each 0x20-byte wrapper object;
+3. the surrounding `0x9430xx..0x9433xx` resource-family address range to
+   catch base/index arithmetic candidates;
+4. the concrete `PMatchInfoSubPanel`, `PTeamInfoSubPanel`,
+   `PFinanceSubPanel`, PMatchInfo dialog and downstream runtime methods.
+
+### Result: loaded, but no source-proven runtime presentation consumer
+
+For all seven files, every literal address hit belongs only to static
+resource construction/teardown or the two family-wide lifetime sweeps around
+`0x6017xx` and `0x6029xx`. No PMatchInfo, Team Info, Finance or other
+runtime UI method references the raw handle, wrapper, or a field within the
+wrapper.
+
+Exact raw/wrapper xref sets:
+
+| Resource | Raw handle | Raw literal xrefs | Wrapper | Wrapper literal/field xrefs |
+| --- | ---: | --- | ---: | --- |
+| `name_block_1` | `0x9432F0` | `0x5FB839, 0x5FB860, 0x5FB894, 0x6017C8, 0x60296A` | `0x9432D0` | `0x5FB899`; field `+0x04` at `0x5FB89E` |
+| `name_block_2` | `0x9432B0` | `0x5FB8C9, 0x5FB8F0, 0x5FB924, 0x6017D2, 0x602975` | `0x943290` | `0x5FB929`; field `+0x04` at `0x5FB92E` |
+| `name_block_3` | `0x943270` | `0x5FB959, 0x5FB980, 0x5FB9B4, 0x6017DC, 0x602980` | `0x943250` | `0x5FB9B9`; field `+0x04` at `0x5FB9BE` |
+| `name_block_4` | `0x943230` | `0x5FB9E9, 0x5FBA10, 0x5FBA44, 0x6017E6, 0x60298B` | `0x943210` | `0x5FBA49`; field `+0x04` at `0x5FBA4E` |
+| `poss_back` | `0x9431B0` | `0x5FBB09, 0x5FBB30, 0x5FBB64, 0x6017FA, 0x6029A1` | `0x943190` | `0x5FBB69`; field `+0x04` at `0x5FBB6E` |
+| `poss_blue` | `0x943170` | `0x5FBB99, 0x5FBBC0, 0x5FBBF4, 0x601804, 0x6029AC` | `0x943150` | `0x5FBBF9`; field `+0x04` at `0x5FBBFE` |
+| `poss_yellow` | `0x943130` | `0x5FBC29, 0x5FBC50, 0x5FBC84, 0x60180E, 0x6029B7` | `0x943110` | `0x5FBC89`; field `+0x04` at `0x5FBC8E` |
+
+The four name-block loaders do build wrapper descriptors, and the possession
+assets are likewise valid original resources, but **resource existence is not
+evidence of presentation use**. No direct consumer is therefore invented.
+
+A hypothetical indirect registry/name lookup also lacks source evidence here:
+the original path literals themselves have no non-loader consumers, and the
+bounded runtime methods do not perform a lookup keyed by these resource names.
+The clean-room contract consequently classifies all seven as
+**loaded-but-unconsumed in the canonical executable**. If later evidence finds
+a genuine indirect lookup, this boundary must be reopened with that exact
+source path.
+
+### Reconstruction consequence
+
+`PMATCHINFO_UNCONSUMED_RESOURCE_AUDIT` now records the exact negative xref
+evidence and `assert_pmatchinfo_unconsumed_resource_boundary()` fails if any
+of these seven files is silently assigned a presentation consumer.
+
+This closes the final Match Report consumer-mapping question without guessing.
+
+Still open after Recovery 159:
+
+1. intentional import/staging policy for the Match Report assets that are
+   actually required by source-proven presentation paths;
+2. integration of the recovered PMatchInfo presentation into the reconstructed
+   UI;
+3. corrected real-Windows validation of that integrated path;
+4. broader Gate-13 completion/audit work after the PMatchInfo family is
+   integrated.

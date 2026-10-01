@@ -9866,3 +9866,13 @@ canonical audit.
 - Event handler `0x488B70` rewires the RTTI-proven `eCSubPanel` at `+0x17A8`, sets selected panel `+0x04=2`, panel `+0x08=host`, reapplies the host rectangle through `0x653320`, and refreshes through `0x64F600`.
 - RTTI proves the `+0x17D8` exit control is `fmCrossButton`. Its event ID 7 and key-handler value `0x1B` both call `0x6539F0(7)`; that path reaches imported `PostMessageA` with exact tuple `(WM_USER=0x400, wParam=7, lParam=0)`. Receiver-side higher-level naming is intentionally left open.
 - Exact next task after CI: recover final direct consumers for the four name-block and three possession-strip resources, then continue Match Report asset import and integrated Windows validation.
+
+
+## 2 October 2026 - Recovery 159 final PMatchInfo resource-consumer audit
+
+- Resumed from merged PR #90 at `ab39fd753e94c6ccfcea13ebbcd1d9576133efdb`; its Gate-13 run `36935848636` passed **360 tests with 21 expected source-gated skips and zero failures**, and asset-policy run `36935848660` passed.
+- Freshly reread canonical `footballmanager.exe` and exhaustively scanned the seven still-unmapped Match Report resources: `name_block_1..4`, `poss_back`, `poss_blue`, and `poss_yellow`.
+- Scanned each exact raw handle, every aligned field address in each 0x20-byte wrapper, and the surrounding `0x9430xx..0x9433xx` resource-family range. Also checked the concrete Match Info / Team Info / Finance subpanel and dialog methods.
+- All seven files are loaded and receive valid static wrapper setup, but every executable literal xref is confined to static construction/teardown plus family-wide lifetime sweeps at `0x6017xx` / `0x6029xx`. No runtime PMatchInfo/TeamInfo/Finance presentation consumer exists in the canonical executable.
+- Recorded exact xref sets in `PMATCHINFO_UNCONSUMED_RESOURCE_AUDIT` and added a fail-closed regression boundary so these resources cannot be assigned to widgets without new source evidence.
+- This closes the seven-resource mapping question as **loaded-but-unconsumed**, not as a guessed UI binding. Exact next task after CI is intentional staging/import of only source-proven Match Report assets, integration into the reconstructed presentation, then corrected Windows validation and Gate-13 audit.

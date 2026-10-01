@@ -668,6 +668,68 @@ class OriginalPMatchInfoResourceTests(unittest.TestCase):
             "Mom",
         )
 
+    def test_seven_remaining_match_report_assets_have_only_loader_lifecycle_xrefs(self):
+        expected = {
+            "name_block_1": (
+                0x9432F0, 0x9432D0,
+                (0x5FB839, 0x5FB860, 0x5FB894, 0x6017C8, 0x60296A),
+                (0x5FB899,), (0x5FB89E,),
+            ),
+            "name_block_2": (
+                0x9432B0, 0x943290,
+                (0x5FB8C9, 0x5FB8F0, 0x5FB924, 0x6017D2, 0x602975),
+                (0x5FB929,), (0x5FB92E,),
+            ),
+            "name_block_3": (
+                0x943270, 0x943250,
+                (0x5FB959, 0x5FB980, 0x5FB9B4, 0x6017DC, 0x602980),
+                (0x5FB9B9,), (0x5FB9BE,),
+            ),
+            "name_block_4": (
+                0x943230, 0x943210,
+                (0x5FB9E9, 0x5FBA10, 0x5FBA44, 0x6017E6, 0x60298B),
+                (0x5FBA49,), (0x5FBA4E,),
+            ),
+            "poss_back": (
+                0x9431B0, 0x943190,
+                (0x5FBB09, 0x5FBB30, 0x5FBB64, 0x6017FA, 0x6029A1),
+                (0x5FBB69,), (0x5FBB6E,),
+            ),
+            "poss_blue": (
+                0x943170, 0x943150,
+                (0x5FBB99, 0x5FBBC0, 0x5FBBF4, 0x601804, 0x6029AC),
+                (0x5FBBF9,), (0x5FBBFE,),
+            ),
+            "poss_yellow": (
+                0x943130, 0x943110,
+                (0x5FBC29, 0x5FBC50, 0x5FBC84, 0x60180E, 0x6029B7),
+                (0x5FBC89,), (0x5FBC8E,),
+            ),
+        }
+        self.assertEqual(
+            pmatch.PMATCHINFO_UNCONSUMED_RESOURCE_NAMES,
+            tuple(expected),
+        )
+        self.assertEqual(
+            {
+                audit.resource_name: (
+                    audit.raw_handle_va,
+                    audit.wrapper_va,
+                    audit.raw_literal_xrefs,
+                    audit.wrapper_literal_xrefs,
+                    audit.wrapper_field_literal_xrefs,
+                )
+                for audit in pmatch.PMATCHINFO_UNCONSUMED_RESOURCE_AUDIT
+            },
+            expected,
+        )
+        pmatch.assert_pmatchinfo_unconsumed_resource_boundary()
+        for name in expected:
+            self.assertEqual(
+                PMATCHINFO_RESOURCE_BY_NAME[name].direct_consumer_vas,
+                (),
+            )
+
     def test_incident_icon_family_is_exact_fourteen_square_pixels(self):
         for name in (
             "red_card",

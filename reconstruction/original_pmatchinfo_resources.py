@@ -700,6 +700,95 @@ PMATCHINFO_RESOURCES = (
 
 PMATCHINFO_RESOURCE_BY_NAME = {resource.name: resource for resource in PMATCHINFO_RESOURCES}
 
+@dataclass(frozen=True)
+class OriginalPMatchInfoUnconsumedResourceAudit:
+    resource_name: str
+    raw_handle_va: int
+    wrapper_va: int
+    raw_literal_xrefs: tuple[int, ...]
+    wrapper_literal_xrefs: tuple[int, ...]
+    wrapper_field_literal_xrefs: tuple[int, ...]
+
+
+# Recovery 159 exhaustively scanned canonical footballmanager.exe for literal
+# references to every address in the seven previously unresolved 0x20-byte
+# wrapper objects and their raw handles. No PMatchInfo/TeamInfo/Finance/runtime
+# presentation method references any of them. The exact hits below are confined
+# to static resource construction/teardown and two family-wide lifetime sweeps.
+PMATCHINFO_UNCONSUMED_RESOURCE_NAMES = (
+    "name_block_1",
+    "name_block_2",
+    "name_block_3",
+    "name_block_4",
+    "poss_back",
+    "poss_blue",
+    "poss_yellow",
+)
+
+PMATCHINFO_UNCONSUMED_RESOURCE_AUDIT = (
+    OriginalPMatchInfoUnconsumedResourceAudit(
+        "name_block_1", 0x9432F0, 0x9432D0,
+        (0x5FB839, 0x5FB860, 0x5FB894, 0x6017C8, 0x60296A),
+        (0x5FB899,), (0x5FB89E,),
+    ),
+    OriginalPMatchInfoUnconsumedResourceAudit(
+        "name_block_2", 0x9432B0, 0x943290,
+        (0x5FB8C9, 0x5FB8F0, 0x5FB924, 0x6017D2, 0x602975),
+        (0x5FB929,), (0x5FB92E,),
+    ),
+    OriginalPMatchInfoUnconsumedResourceAudit(
+        "name_block_3", 0x943270, 0x943250,
+        (0x5FB959, 0x5FB980, 0x5FB9B4, 0x6017DC, 0x602980),
+        (0x5FB9B9,), (0x5FB9BE,),
+    ),
+    OriginalPMatchInfoUnconsumedResourceAudit(
+        "name_block_4", 0x943230, 0x943210,
+        (0x5FB9E9, 0x5FBA10, 0x5FBA44, 0x6017E6, 0x60298B),
+        (0x5FBA49,), (0x5FBA4E,),
+    ),
+    OriginalPMatchInfoUnconsumedResourceAudit(
+        "poss_back", 0x9431B0, 0x943190,
+        (0x5FBB09, 0x5FBB30, 0x5FBB64, 0x6017FA, 0x6029A1),
+        (0x5FBB69,), (0x5FBB6E,),
+    ),
+    OriginalPMatchInfoUnconsumedResourceAudit(
+        "poss_blue", 0x943170, 0x943150,
+        (0x5FBB99, 0x5FBBC0, 0x5FBBF4, 0x601804, 0x6029AC),
+        (0x5FBBF9,), (0x5FBBFE,),
+    ),
+    OriginalPMatchInfoUnconsumedResourceAudit(
+        "poss_yellow", 0x943130, 0x943110,
+        (0x5FBC29, 0x5FBC50, 0x5FBC84, 0x60180E, 0x6029B7),
+        (0x5FBC89,), (0x5FBC8E,),
+    ),
+)
+
+
+def assert_pmatchinfo_unconsumed_resource_boundary() -> None:
+    """Fail if unresolved artwork is silently promoted to a UI consumer."""
+    if tuple(a.resource_name for a in PMATCHINFO_UNCONSUMED_RESOURCE_AUDIT) != (
+        PMATCHINFO_UNCONSUMED_RESOURCE_NAMES
+    ):
+        raise OriginalPMatchInfoResourceError(
+            "PMatchInfo unconsumed-resource audit order drifted"
+        )
+    for audit in PMATCHINFO_UNCONSUMED_RESOURCE_AUDIT:
+        resource = PMATCHINFO_RESOURCE_BY_NAME[audit.resource_name]
+        if resource.raw_handle_va != audit.raw_handle_va:
+            raise OriginalPMatchInfoResourceError(
+                f"Raw handle drift for {audit.resource_name}"
+            )
+        if resource.wrapper_va != audit.wrapper_va:
+            raise OriginalPMatchInfoResourceError(
+                f"Wrapper handle drift for {audit.resource_name}"
+            )
+        if resource.direct_consumer_vas:
+            raise OriginalPMatchInfoResourceError(
+                f"Unproven presentation consumer added for {audit.resource_name}"
+            )
+
+
+
 
 def pmatchinfo_dynamic_incident_resources() -> tuple[OriginalPMatchInfoResource, ...]:
     """Return the exact seven wrappers switched through the shared row icon slot."""
