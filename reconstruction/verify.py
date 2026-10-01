@@ -32,6 +32,18 @@ CANONICAL_HASHES = {
     "Core.str": "b0800475769fa087e69de989388569e5b29f495e5abe5d62687c2acb1d339e06",
 }
 
+# Source-backed 0x6169F0 -> 0x64CC70 primary-container anchor: week 0 is
+# the first Monday on or after July 1. Keep these verifier receipts separate
+# from the date conversion implementation so canonical validation can catch
+# future drift without resurrecting the superseded Monday-containing-July-1 rule.
+CANONICAL_PL_ROUND_DATE_EXPECTATIONS = {
+    0: "2000-08-26",
+    1: "2000-08-30",
+    18: "2001-01-02",
+    20: "2001-01-08",
+    37: "2001-05-27",
+}
+
 
 class VerificationError(RuntimeError):
     pass
@@ -597,14 +609,7 @@ def verify_database(db: FM2001Database) -> None:
     )
 
     league = PremierLeagueState(db.real_fixtures, db.premier_league_rounds, 2000)
-    expected_dates = {
-        0: "2000-08-19",
-        1: "2000-08-23",
-        18: "2000-12-26",
-        20: "2001-01-01",
-        37: "2001-05-20",
-    }
-    for round_index, expected in expected_dates.items():
+    for round_index, expected in CANONICAL_PL_ROUND_DATE_EXPECTATIONS.items():
         actual = league.round_date(round_index).isoformat()
         require(
             actual == expected,
