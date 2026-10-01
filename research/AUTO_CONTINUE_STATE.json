@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 remains blocked solely by execution infrastructure. Recovery117 verified canonical main c36b7047 and CURRENT_STATE unchanged, re-listed and successfully re-materialized the exact private 511,121,336-byte FM2001 ZIP, then tested a third local execution route in addition to the previously failing container/python backends. The user-visible Python backend also failed immediately with ClientError before it could stat the materialized ZIP. Thus all available local process-execution routes are currently broken while Library/materialization remains healthy. GitHub remote execution is still unsuitable because no workflow-dispatch action is exposed and hosted Actions lack the private archive. Exact next action on first working execution recovery: verify canonical ZIP hash; extract/hash footballmanager.exe; run TeamSelect 0x81EC10/0x7C7650 RTTI canary; trace Button state bits through native draw/update into numbered 23-frame atlas rows; recover Zurich glyph origin/pair spacing/baseline/colors/clipping; strict ten-resource audit/import; run saved management catalog correlation; complete remaining Gate13 presentation/navigation; Windows graphical audit; then Gates14-17 and verified clean Windows11 release.",
+  "active_task": "Gate 13 remains blocked by local process execution. Recovery 118 verified main and CURRENT_STATE unchanged. Fresh container and Python probes both returned ClientError before process start. Continue from the existing Gate 13 native trace as soon as execution works: verify source hashes, run TeamSelect RTTI canary, trace Button frame-state behavior, recover Zurich text placement and color, run the ten-resource audit/import, finish management-screen correlation and Windows graphical audit, then continue Gates 14-17 and the verified Windows 11 release.",
   "last_known_main_head": "c36b7047dbcfc1f99a916a9997debb706ec08eb0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 117,
+  "recovery_generation": 118,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery117 strengthened the blocker diagnosis: source storage/materialization succeeds, but the third available local execution backend also returns ClientError before process/file access. No safe source-backed main work can proceed without execution. Preserve continuous/working; no speculative UI semantics or heartbeat-only main commit. No user action required.",
+  "note": "Recovery 118: execution still fails before process start. Keep continuous working state. No user action required.",
   "same_chat_fallback_minutes": 30
 }
