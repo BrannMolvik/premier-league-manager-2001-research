@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 155 resumes from merged PR #84 at main 501707f396aa2af7ca66dffcd7a5ecf8189c4df7. Gate-13 run 36923762250 passed 330 tests with 21 expected skips and asset-policy run 36923762398 passed. Exact next task: source-bind League Fixtures non-null cell action 0x488C80 to PMatchInfo and recover only independently proven constructor/navigation semantics; then continue remaining League Fixtures non-selector controls if productive.",
+  "active_task": "Recovery 156 continues from main 501707f396aa2af7ca66dffcd7a5ecf8189c4df7. Private source ZIP and both shipped footballmanager.exe copies reverified; canonical executable SHA remains 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3. Exact task: persist source proof that League Fixtures non-null cell action 0x488C80 opens PMatchInfo via ctor 0x487580/vftable 0x7C41D4/TypeDescriptor 0x81D058, while keeping the secondary constructor context neutral unless independently identified; then continue remaining non-selector controls.",
   "last_known_main_head": "501707f396aa2af7ca66dffcd7a5ecf8189c4df7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 155,
-  "last_recovery_reason": "post-pr84-merge-continuation",
-  "note": "Recovery 155 continues beyond verified country/League selectors. Do not repeat selector, matrix, cell-state, resource or panel-identity work.",
+  "recovery_generation": 156,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 156 has firsthand canonical executable access. Do not repeat selector/matrix/cell-state/resource work. Raw source stays private outside Git.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
