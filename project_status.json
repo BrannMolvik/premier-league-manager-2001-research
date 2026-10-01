@@ -710,9 +710,9 @@
   "gate16_transfer_save_growth_asset_policy_run": 36849081409,
   "gate16_canonical_source_materialized_recovery_132": true,
   "gate16_canonical_root_files_hash_verified_recovery_132": true,
-  "gate16_canonical_multiseason_audit_executed": false,
-  "gate16_canonical_multiseason_audit_status": "runner_ready_all_process_execution_blocked_recovery_134",
-  "gate16_cloud_process_execution_status": "blocked_clienterror_recovery_134_all_available_process_paths",
+  "gate16_canonical_multiseason_audit_executed": true,
+  "gate16_canonical_multiseason_audit_status": "recovery_135_failed_closed_cycle_2_european_node_delta_under_investigation",
+  "gate16_cloud_process_execution_status": "healthy_recovery_135",
   "gate16_recovery_133_source_archive_materialized": true,
   "gate16_recovery_133_source_archive_hash_reverified": false,
   "gate16_recovery_133_main_head": "120400bd1ce25e449897e927e00dfa9f945076eb",
@@ -731,5 +731,36 @@
   "gate16_recovery_134_source_hash_reverified": false,
   "gate16_recovery_134_source_archive_materialized": true,
   "gate16_recovery_134_runtime_archive_materialized": true,
-  "gate16_recovery_134_independent_python_execution_failed": true
+  "gate16_recovery_134_independent_python_execution_failed": true,
+  "gate16_recovery_135_source_hash_reverified": true,
+  "gate16_recovery_135_sector_validation_count": 268549,
+  "gate16_recovery_135_runtime_zip_sha256": "9167302c608882161954109d617824422671d2999d69006bff5d662adeb2c4d6",
+  "gate16_recovery_135_runner_blob_sha": "a6a1de8782eca06291aeffefba11ff4bcd27c14b",
+  "gate16_recovery_135_failure_cycle": 2,
+  "gate16_recovery_135_fresh_shape_before": [
+    380,
+    380,
+    5735,
+    9344,
+    291,
+    371,
+    311,
+    13
+  ],
+  "gate16_recovery_135_fresh_shape_after": [
+    380,
+    380,
+    5737,
+    9346,
+    291,
+    373,
+    311,
+    13
+  ],
+  "gate16_recovery_135_failure_delta": {
+    "primary_entries": 2,
+    "shadow_entries": 2,
+    "european_cup_nodes": 2
+  },
+  "gate16_recovery_135_next_task": "isolate the two added European Cup nodes by competition/round, determine legitimate dynamic materialization vs accumulation, encode regression/fix, rerun canonical three-rollover audit"
 }
