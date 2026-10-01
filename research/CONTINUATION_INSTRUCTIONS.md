@@ -205,3 +205,32 @@ documentation of verified behavior. Do not use this policy to bypass missing
 source evidence, Windows graphical verification, or original-resource
 provenance.
 
+
+
+## Codex local/private ownership policy
+
+When `agent-runtime` names `work_owner = "codex"`, Codex owns the local/private
+Windows work queue until one of these handoff conditions is actually true:
+
+1. the next meaningful task is genuinely cloud-safe and no higher-priority
+   local/private/Windows-dependent task remains;
+2. available Codex usage has reached the reserved final 5-7% needed for tests,
+   checkpointing, state reconciliation and handoff; or
+3. a real blocker prevents further local/private progress.
+
+A successful trace, graphical audit, screen correlation, commit, or checkpoint
+is **not** by itself a handoff condition. After verifying and persisting one
+local/private subtask, Codex should immediately continue the next highest-priority
+local/private item from `CURRENT_STATE.md`, `FIDELITY_GAPS.md`, or the active
+gate's evidence ledger.
+
+Before handing back:
+
+- finish and test the current bounded task;
+- push a clean canonical `main`;
+- update `CURRENT_STATE.md` / `project_status.json` when the live boundary changed;
+- state the exact remaining local blocker and exact next cloud-safe task;
+- set runtime ownership back to `chatgpt`, `status = "working"`,
+  `mode = "continuous"`, and record the actual current main HEAD.
+
+Do not hand ownership back merely because a checkpoint is convenient.
