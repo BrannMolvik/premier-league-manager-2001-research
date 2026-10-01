@@ -132,6 +132,8 @@ def advance_msvc_schedule_shuffle_aggregate_state(
         raise ValueError("aggregate schedule counts must be non-negative")
     if bucket_count > nodes:
         raise ValueError("nonempty bucket count cannot exceed total nodes")
+    if nodes > 0 and bucket_count == 0:
+        raise ValueError("positive total nodes require at least one nonempty bucket")
 
     draw_count = nodes - bucket_count
     for _ in range(draw_count):
