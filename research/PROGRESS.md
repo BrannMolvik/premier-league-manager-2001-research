@@ -9749,3 +9749,11 @@ canonical audit.
 - Exact next task after hosted validation: downstream source-backed management panel composition/navigation or remaining PMenu text-origin/clipping details; real Windows corrected audit and binary asset-import transport remain open.
 
 - PR #78's first focused CI run `36915612026` exposed one incorrect regression expectation, not a production/source-model mismatch: a state-0/frame-10 -> state-1 transition first maps to frame 10, then the same native tick sees source bit `0x8` clear and retreats to frame 9. The test is corrected to `(1, 9)`; this preserves the recovered `0x652780` + `0x6527F0` sequence instead of changing implementation to satisfy the test.
+
+
+## 2 October 2026 - Recovery 149 Calendar, Tables and League Fixtures identities
+
+- PR #78 merged as `f61146fa5dd644ecebbf032effda10dab60d7299`. Its repaired focused run `36915849517` passed 298 tests with 21 expected source-gated skips; asset-policy run `36915849434` passed.
+- Continued directly through the canonical management panel factory `0x47AEC0` using exact PMenu IDs already recovered from the static tree.
+- Factory dispatch and RTTI now prove `0x259 Calendar -> PCalendar2k` (case `0x47C62B`, ctor `0x47CCB0`, vtable `0x7C2F04`), `0x25A League Tables -> PLeagueTables` (case `0x47C6D1`, ctor `0x448640`, vtable `0x7C00C8`), `0x25B Cup Tables -> PCupTable2000` (case `0x47C67E`, ctor `0x44EC80`, vtable `0x7C0A78`), and direct `0x25C League Fixtures -> PLeagueFixtures` (case `0x47C724`, ctor `0x46D470`, vtable `0x7C24B8`).
+- This closes the prior Fixtures/results concrete panel-identity gap for League Fixtures. Screen art, geometry, row sorting/order, date/result bindings and full navigation remain open rather than inferred from the class name.
