@@ -7,6 +7,22 @@ from original_pmatchinfo_resources import (
     PMATCHINFO_RESOURCE_BY_NAME,
     PMATCHINFO_RESOURCES,
     PMATCHINFO_RESOURCE_PLACEMENTS,
+    PMATCHINFO_SCRIPT_ROW1_CLASS,
+    PMATCHINFO_SCRIPT_ROW1_TYPE_DESCRIPTOR_VA,
+    PMATCHINFO_SCRIPT_ROW1_COL_VA,
+    PMATCHINFO_SCRIPT_ROW1_VFTABLE_VA,
+    PMATCHINFO_SCRIPT_ROW1_SETUP_VA,
+    PMATCHINFO_SCRIPT_ROW1_UPDATE_VA,
+    PMATCHINFO_SCRIPT_ROW2_CLASS,
+    PMATCHINFO_SCRIPT_ROW2_TYPE_DESCRIPTOR_VA,
+    PMATCHINFO_SCRIPT_ROW2_COL_VA,
+    PMATCHINFO_SCRIPT_ROW2_VFTABLE_VA,
+    PMATCHINFO_SCRIPT_ROW2_SETUP_VA,
+    PMATCHINFO_SCRIPT_ROW2_UPDATE_VA,
+    PMATCHINFO_DYNAMIC_INCIDENT_CONTROL_OFFSET,
+    PMATCHINFO_DYNAMIC_INCIDENT_RESOURCE_SLOT_OFFSET,
+    PMATCHINFO_DYNAMIC_INCIDENT_RECT,
+    PMATCHINFO_DYNAMIC_INCIDENT_RESOURCE_NAMES,
     PMATCHINFO_BITMAP_DESCRIPTOR_SETUP_VA,
     PMATCHINFO_CONTROL_RECT_SETUP_VA,
     PMATCHINFO_CONTROL_CALLBACK_TARGET_VA,
@@ -31,6 +47,7 @@ from original_pmatchinfo_resources import (
     OriginalPMatchInfoResourceError,
     assert_pmatchinfo_identity_contract,
     assert_pmatchinfo_placement_resources_are_bound,
+    pmatchinfo_dynamic_incident_resources,
     pmatchinfo_placements_for_resource,
     validate_original_pmatchinfo_resources,
 )
@@ -236,6 +253,68 @@ class OriginalPMatchInfoResourceTests(unittest.TestCase):
             PMATCHINFO_TEXT_PLACEMENTS[0].height,
             PMATCHINFO_TEXT_FONT_NATIVE_LINE_HEIGHT,
         )
+
+    def test_dynamic_incident_control_is_one_shared_exact_row_slot(self):
+        self.assertEqual(PMATCHINFO_SCRIPT_ROW1_CLASS, "PScriptRow1")
+        self.assertEqual(PMATCHINFO_SCRIPT_ROW1_TYPE_DESCRIPTOR_VA, 0x81CEE8)
+        self.assertEqual(PMATCHINFO_SCRIPT_ROW1_COL_VA, 0x7E4890)
+        self.assertEqual(PMATCHINFO_SCRIPT_ROW1_VFTABLE_VA, 0x7C3F34)
+        self.assertEqual(PMATCHINFO_SCRIPT_ROW1_SETUP_VA, 0x483500)
+        self.assertEqual(PMATCHINFO_SCRIPT_ROW1_UPDATE_VA, 0x4858E0)
+
+        self.assertEqual(PMATCHINFO_SCRIPT_ROW2_CLASS, "PScriptRow2")
+        self.assertEqual(PMATCHINFO_SCRIPT_ROW2_TYPE_DESCRIPTOR_VA, 0x81CF08)
+        self.assertEqual(PMATCHINFO_SCRIPT_ROW2_COL_VA, 0x7E48E0)
+        self.assertEqual(PMATCHINFO_SCRIPT_ROW2_VFTABLE_VA, 0x7C3F88)
+        self.assertEqual(PMATCHINFO_SCRIPT_ROW2_SETUP_VA, 0x483500)
+        self.assertEqual(PMATCHINFO_SCRIPT_ROW2_UPDATE_VA, 0x485F50)
+
+        self.assertEqual(PMATCHINFO_DYNAMIC_INCIDENT_CONTROL_OFFSET, 0x1C8)
+        self.assertEqual(PMATCHINFO_DYNAMIC_INCIDENT_RESOURCE_SLOT_OFFSET, 0x1F4)
+        self.assertEqual(PMATCHINFO_DYNAMIC_INCIDENT_RECT, (191, 11, 14, 14))
+        self.assertEqual(
+            PMATCHINFO_DYNAMIC_INCIDENT_RESOURCE_NAMES,
+            (
+                "score",
+                "injured",
+                "yellow_card",
+                "red_card",
+                "red_card_single",
+                "sub_on",
+                "sub_off",
+            ),
+        )
+
+        resources = pmatchinfo_dynamic_incident_resources()
+        self.assertEqual(
+            tuple(resource.name for resource in resources),
+            PMATCHINFO_DYNAMIC_INCIDENT_RESOURCE_NAMES,
+        )
+        self.assertTrue(all(resource.size == (14, 14) for resource in resources))
+
+        yellow_setup = pmatchinfo_placements_for_resource("yellow_card")
+        self.assertEqual(len(yellow_setup), 1)
+        self.assertEqual(yellow_setup[0].owner_method_va, 0x483500)
+        self.assertEqual(yellow_setup[0].rect_setup_call_va, 0x483674)
+        self.assertEqual(yellow_setup[0].rect, PMATCHINFO_DYNAMIC_INCIDENT_RECT)
+
+        row_consumers = {
+            "score": (0x4859D5, 0x486045),
+            "injured": (0x4859FD, 0x48606D),
+            "yellow_card": (0x485A24, 0x486094),
+            "red_card": (0x485A50, 0x4860C0),
+            "red_card_single": (0x485A5C, 0x4860CC),
+            "sub_on": (0x485A81, 0x4860F1),
+            "sub_off": (0x485A9E, 0x48610E),
+        }
+        for resource in resources:
+            with self.subTest(resource=resource.name):
+                row1, row2 = row_consumers[resource.name]
+                self.assertIn(row1, resource.direct_consumer_vas)
+                self.assertIn(row2, resource.direct_consumer_vas)
+                self.assertGreaterEqual(row1, PMATCHINFO_SCRIPT_ROW1_UPDATE_VA)
+                self.assertLess(row1, PMATCHINFO_SCRIPT_ROW2_UPDATE_VA)
+                self.assertGreaterEqual(row2, PMATCHINFO_SCRIPT_ROW2_UPDATE_VA)
 
     def test_incident_icon_family_is_exact_fourteen_square_pixels(self):
         for name in (
