@@ -9737,3 +9737,15 @@ canonical audit.
 - Remaining PMenu source work is narrowed to the 22-row title-arrow and 23-row child-arrow animation/state mapping, any still-unresolved clipping/text-origin behavior, and shell/background resource ownership. Four row `.444` assets are source-correlated but still await intentional provenance import because the GitHub connector only exposes UTF-8 content writes; the 16px font is already imported.
 
 - Direct binary-import transport was reprobed in Recovery 146. The GitHub connector exposes only UTF-8 contents writes, while shell `git ls-remote https://github.com/BrannMolvik/premier-league-manager-2001-research.git HEAD` failed because `github.com` could not resolve. The four proven menu-popup binaries therefore remain staged/private and unimported; this is an infrastructure/transport limitation, not missing provenance or source ownership.
+
+
+## 2 October 2026 - Recovery 148 PMenu arrow sequence/frame mapping
+
+- Resumed from merged PR #77 at `2f59e163e873051a9bc691f6d6c04033f678ad20`; the prior label/font/background-state work was not repeated. PR #77's focused Gate-13 run `36914325613` passed **291 tests with 21 expected source-gated skips and zero failures** and asset-policy run `36914325533` passed.
+- Re-read the original wrapper initializers to confirm both `menu_arrow_anim.444` and `menu_anim.444` use exact physical frame dimensions 30x29. The earlier 22- and 23-row physical stack counts are therefore correct.
+- Shared bitmap selector `0x652AE0` chooses neutral sequence 2 when bit1 `0x2` is clear, sequence 1 when bit1 is set and bit15 `0x8000` is set, otherwise sequence 0.
+- Sequence transition `0x652780` preserves animation progress with `floor(new_length * old_frame / old_length)`.
+- Animation tick `0x6527F0` first applies the selector, then increments the frame when neutral bit3 `0x8` is set and decrements it when bit3 is clear, clamped at sequence endpoints.
+- The generic child-arrow sequence-length method `0x5D62F0` returns 11/11/1 for sequence 0/1/2. Generic source-y `0x652860` therefore maps `menu_anim.444` exactly to rows 0..10, 11..21 and 22.
+- `MenuTitleArrow` vtable `0x7C3B98` overrides sequence length at `0x5D50E0` to 11/1/1 and source-y at `0x4825A0`: sequence 0 uses current rows 0..10, sequence 1 fixes row 10 and sequence 2 fixes row 0. Physical rows 11..21 exist in the source asset but are not reachable through this recovered class path; no alternate meaning is invented.
+- Exact next PMenu source task after hosted verification is shell/background ownership and any remaining clipping/text-origin behavior. The four already-correlated menu-popup binaries remain unimported only because current repository transport cannot write binary content.
