@@ -242,13 +242,13 @@ class Gate16ConsecutiveSeasonTests(unittest.TestCase):
             MsvcCrtRng(0x2468ACE0),
         )
 
-        runtime_ids = []
+        retained_runtimes = []
         season_digests = []
         rng_states = []
         completion_dates = []
 
         for season_index in range(3):
-            runtime_ids.append(id(state.premier_league))
+            retained_runtimes.append(state.premier_league)
             days = _complete_current_season(controller, max_days=370)
             self.assertLessEqual(days, 370)
             self.assertEqual(len(state.premier_league.results), 380)
@@ -316,7 +316,7 @@ class Gate16ConsecutiveSeasonTests(unittest.TestCase):
             self.assertTrue(state.primary_matchday_order)
             self.assertTrue(state.premier_league_scheduler_order)
 
-        self.assertEqual(len(set(runtime_ids)), 3)
+        self.assertEqual(len({id(runtime) for runtime in retained_runtimes}), 3)
         self.assertEqual(len(season_digests), 3)
         self.assertEqual(len(completion_dates), 3)
         self.assertLess(completion_dates[0], completion_dates[1])
