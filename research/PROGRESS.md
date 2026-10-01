@@ -9843,3 +9843,15 @@ canonical audit.
 - Source-bound shared dynamic incident control offset `+0x1C8`, switched resource slot `+0x1F4`, and owner-local rectangle `(191,11,14,14)`. The setup path seeds the same rectangle with `yellow_card.444`.
 - Both update methods directly consume the same seven exact 14x14 wrappers: score, injury, yellow card, red card, single red card, substitution on and substitution off. Regression coverage now joins those consumers to the row methods without inventing the still-unresolved selection predicates.
 - Exact next task after CI: resolve string/data producers and meanings for the six bounded Zurich text controls; then continue PMatchInfo incident predicates/events and the seven remaining name-block/possession final consumers.
+
+
+## 2 October 2026 - Recovery 158 PMatchInfo text producer source continuation
+
+- PR #88 merged as `6ae2f39caba70e8f31ec651cf98ccaff1be832a6`; Gate-13 run `36933211315` passed **352 tests with 21 expected source-gated skips and zero failures**, and asset-policy run `36933211343` passed.
+- Freshly reread the authorized 511,121,336-byte source archive and independently re-extracted both original `footballmanager.exe` copies. Both match canonical SHA-256 `833bf95e6aae1b4c5e28d07e1bef272c03b9720cdf96572fdd4a7113f5104cc3`.
+- Recovered the original `English.idx` / `English.str` pair and source-joined the complete 2,714-entry loader at `0x635F30..0x64C7D4` to the PMatchInfo globals used by the bounded text paths.
+- Both `PScriptRow1` / `PScriptRow2` populate the first 185x12 control from row buffer `+0xA0` and the second from `+0x80`. The first is the incident/event description line. The second formats `event_record+0x00` via `%d`; its higher-level gameplay meaning remains deliberately neutral.
+- Closed the exact row incident selection predicates without renaming source flags: types 0..4 select Goal/O.G./Shoot Out + score; type 5 checks event `+0x20` Injury first, then `+0x18` Booking, then `+0x1C` Sent off with the two red-card wrappers split by row `+0x74`; types 6..9 do not take a bounded incident branch; type 10 selects Sub On/Off by row `+0x74`.
+- Source-bound the 29x16 player-strip text to the selected `DBTPositions` record's string field `+0x0C` (TD `0x8182F8`, vtable `0x7BD394`, 20-byte records), using low five bits returned by helper `0x4EA3C0`.
+- Source-bound popup producer `0x4885A0`: `Attendance` (English.idx 1774) with original grouped decimal formatting and optional first/second-leg suffix, `Ref.` (2555) with dynamic source string producer `0x60BEB0` and optional `(%d-%d pen)`, and `Mom` (2128) through source format `%s: %s %s`.
+- Added a clean-room text-producer contract and regressions that preserve exact globals, loader indices, object offsets, assignment VAs and source precedence. Exact next task after CI is PMatchInfo event/tab interaction behavior and/or the seven still-unmapped name-block/possession consumers.

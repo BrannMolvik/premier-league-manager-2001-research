@@ -108,6 +108,240 @@ PMATCHINFO_DYNAMIC_INCIDENT_RESOURCE_NAMES = (
 )
 
 
+@dataclass(frozen=True)
+class OriginalPMatchInfoLanguageBinding:
+    global_va: int
+    english_index: int
+    original_text: str
+
+
+# The complete English.idx loader at 0x635F30..0x64C7D4 has exactly 2,714
+# assignments, one per English.idx entry. These are the exact globals consumed
+# by the PMatchInfo text producer paths bounded below.
+PMATCHINFO_ENGLISH_LOADER_START_VA = 0x635F30
+PMATCHINFO_ENGLISH_LOADER_END_VA = 0x64C7D4
+PMATCHINFO_ENGLISH_LOADER_ENTRY_COUNT = 2714
+PMATCHINFO_LANGUAGE_BINDINGS = (
+    OriginalPMatchInfoLanguageBinding(0x982BA4, 1813, "O.G."),
+    OriginalPMatchInfoLanguageBinding(0x982BA0, 1814, "(%d-%d pen)"),
+    OriginalPMatchInfoLanguageBinding(0x9826B8, 2128, "Mom"),
+    OriginalPMatchInfoLanguageBinding(0x9822E4, 2373, "Sent off"),
+    OriginalPMatchInfoLanguageBinding(0x982164, 2469, "Goal"),
+    OriginalPMatchInfoLanguageBinding(0x982160, 2470, "Sub Off"),
+    OriginalPMatchInfoLanguageBinding(0x98215C, 2471, "Sub On"),
+    OriginalPMatchInfoLanguageBinding(0x982158, 2472, "Booking"),
+    OriginalPMatchInfoLanguageBinding(0x982154, 2473, "Injury"),
+    OriginalPMatchInfoLanguageBinding(0x982100, 2494, "Shoot Out"),
+    OriginalPMatchInfoLanguageBinding(0x98200C, 2555, "Ref."),
+    OriginalPMatchInfoLanguageBinding(0x981EA4, 2645, "%s: %s %s"),
+    OriginalPMatchInfoLanguageBinding(0x981E98, 2648, "first leg"),
+    OriginalPMatchInfoLanguageBinding(0x981E94, 2649, "second leg"),
+    OriginalPMatchInfoLanguageBinding(0x982C40, 1774, "Attendance"),
+    OriginalPMatchInfoLanguageBinding(0x982C3C, 1775, "TEAM INFO"),
+    OriginalPMatchInfoLanguageBinding(0x982C38, 1776, "MATCH INFO"),
+)
+PMATCHINFO_LANGUAGE_BY_GLOBAL = {
+    binding.global_va: binding for binding in PMATCHINFO_LANGUAGE_BINDINGS
+}
+
+
+def pmatchinfo_original_english(global_va: int) -> str:
+    if type(global_va) is not int:
+        raise OriginalPMatchInfoResourceError(
+            "PMatchInfo language global must be an integer address"
+        )
+    try:
+        return PMATCHINFO_LANGUAGE_BY_GLOBAL[global_va].original_text
+    except KeyError as exc:
+        raise OriginalPMatchInfoResourceError(
+            f"Unbound PMatchInfo English global: {global_va:#x}"
+        ) from exc
+
+
+# PScriptRow1/2 share these two text controls. The first control receives an
+# incident/event description buffer; the second receives a decimal rendering
+# of event_record+0x00. The higher-level meaning of event_record+0x00 remains
+# deliberately neutral.
+PMATCHINFO_SCRIPT_EVENT_LABEL_CONTROL_OFFSET = 0x1F8
+PMATCHINFO_SCRIPT_EVENT_LABEL_TEXT_POINTER_OFFSET = 0x224
+PMATCHINFO_SCRIPT_EVENT_LABEL_BUFFER_OFFSET = 0xA0
+PMATCHINFO_SCRIPT_EVENT_DECIMAL_CONTROL_OFFSET = 0x238
+PMATCHINFO_SCRIPT_EVENT_DECIMAL_TEXT_POINTER_OFFSET = 0x264
+PMATCHINFO_SCRIPT_EVENT_DECIMAL_BUFFER_OFFSET = 0x80
+PMATCHINFO_SCRIPT_EVENT_DECIMAL_SOURCE_OFFSET = 0x00
+PMATCHINFO_SCRIPT_EVENT_DECIMAL_FORMAT_VA = 0x81B1A8
+PMATCHINFO_SCRIPT_EVENT_DECIMAL_FORMAT = "%d"
+PMATCHINFO_SCRIPT_ROW1_LABEL_ASSIGN_VA = 0x485AE6
+PMATCHINFO_SCRIPT_ROW1_DECIMAL_ASSIGN_VA = 0x485AEC
+PMATCHINFO_SCRIPT_ROW2_LABEL_ASSIGN_VA = 0x486156
+PMATCHINFO_SCRIPT_ROW2_DECIMAL_ASSIGN_VA = 0x48615C
+PMATCHINFO_SCRIPT_EMPTY_BUFFER_VA = 0x874BA0
+
+# Source byte table used by the event-type dispatch. Types 0..4 take the first
+# family, type 5 the second, types 6..9 the no-incident family, and type 10 the
+# substitution family.
+PMATCHINFO_SCRIPT_EVENT_TYPE_CLASS_BYTES = (0, 0, 0, 0, 0, 1, 3, 3, 3, 3, 2)
+PMATCHINFO_SCRIPT_ROW1_EVENT_CLASS_TARGETS = (
+    0x48597B,
+    0x4859E4,
+    0x485A68,
+    0x485AA8,
+)
+
+
+@dataclass(frozen=True)
+class OriginalPMatchInfoIncidentSelection:
+    label_global_va: int
+    label: str
+    resource_name: str
+
+
+def _pmatchinfo_incident(
+    label_global_va: int,
+    resource_name: str,
+) -> OriginalPMatchInfoIncidentSelection:
+    if resource_name not in PMATCHINFO_DYNAMIC_INCIDENT_RESOURCE_NAMES:
+        raise OriginalPMatchInfoResourceError(
+            f"Unbound PMatchInfo dynamic incident resource: {resource_name}"
+        )
+    return OriginalPMatchInfoIncidentSelection(
+        label_global_va,
+        pmatchinfo_original_english(label_global_va),
+        resource_name,
+    )
+
+
+def pmatchinfo_script_incident_selection(
+    event_type: int,
+    *,
+    row_field_74: int = 0,
+    row_field_78: int = 0,
+    event_field_20: int = 0,
+    event_field_18: int = 0,
+    event_field_1c: int = 0,
+) -> OriginalPMatchInfoIncidentSelection | None:
+    """Mirror the bounded PScriptRow1/2 incident label/resource predicates.
+
+    Field names intentionally preserve source offsets instead of assigning
+    unproven gameplay semantics to the backing flags.
+    """
+    values = (
+        event_type,
+        row_field_74,
+        row_field_78,
+        event_field_20,
+        event_field_18,
+        event_field_1c,
+    )
+    if any(type(value) is not int for value in values):
+        raise OriginalPMatchInfoResourceError(
+            "PMatchInfo incident selector requires integer source fields"
+        )
+    if event_type < 0:
+        raise OriginalPMatchInfoResourceError(
+            "PMatchInfo incident event type cannot be negative"
+        )
+    if event_type > 10:
+        return None
+
+    family = PMATCHINFO_SCRIPT_EVENT_TYPE_CLASS_BYTES[event_type]
+    if family == 0:
+        if row_field_74:
+            return _pmatchinfo_incident(0x982BA4, "score")
+        if row_field_78:
+            return _pmatchinfo_incident(0x982100, "score")
+        return _pmatchinfo_incident(0x982164, "score")
+
+    if family == 1:
+        if event_field_20:
+            return _pmatchinfo_incident(0x982154, "injured")
+        if event_field_18:
+            return _pmatchinfo_incident(0x982158, "yellow_card")
+        if event_field_1c:
+            return _pmatchinfo_incident(
+                0x9822E4,
+                "red_card" if row_field_74 else "red_card_single",
+            )
+        return None
+
+    if family == 2:
+        if row_field_74:
+            return _pmatchinfo_incident(0x98215C, "sub_on")
+        return _pmatchinfo_incident(0x982160, "sub_off")
+
+    return None
+
+
+# The 29x16 player-strip text call resolves a DBTPositions entry instead of an
+# English-loader string. The source chain keeps the surrounding player/context
+# table neutral but RTTI-proves the selected 20-byte table as DBTPositions.
+PMATCHINFO_PLAYER_TEXT_SETUP_CALL_VA = 0x483918
+PMATCHINFO_PLAYER_TEXT_CONTROL_OFFSET = 0xB0
+PMATCHINFO_PLAYER_CONTEXT_INDEX_OFFSET = 0x70
+PMATCHINFO_PLAYER_CONTEXT_TABLE_VA = 0x875640
+PMATCHINFO_PLAYER_CONTEXT_RECORD_SIZE = 0x250
+PMATCHINFO_PLAYER_POSITION_CONTEXT_OFFSET = 0x248
+PMATCHINFO_POSITION_SELECTOR_VA = 0x4EA3C0
+PMATCHINFO_POSITION_SELECTOR_BYTE_OFFSET = 0x03
+PMATCHINFO_POSITION_SELECTOR_MASK = 0x1F
+PMATCHINFO_POSITIONS_CLASS = "DBTPositions"
+PMATCHINFO_POSITIONS_OBJECT_VA = 0x874B60
+PMATCHINFO_POSITIONS_RECORD_BASE_VA = 0x874B68
+PMATCHINFO_POSITIONS_VFTABLE_VA = 0x7BD394
+PMATCHINFO_POSITIONS_COL_VA = 0x7DE8B8
+PMATCHINFO_POSITIONS_TYPE_DESCRIPTOR_VA = 0x8182F8
+PMATCHINFO_POSITIONS_RECORD_SIZE = 20
+PMATCHINFO_POSITIONS_STRING_FIELD_OFFSET = 0x0C
+
+
+@dataclass(frozen=True)
+class OriginalPMatchInfoPopupTextProducer:
+    setup_call_va: int
+    control_offset: int
+    text_pointer_offset: int
+    buffer_offset: int
+    assign_va: int
+    leading_global_va: int
+
+
+PMATCHINFO_POPUP_TEXT_UPDATE_VA = 0x4885A0
+PMATCHINFO_POPUP_TEXT_PRODUCERS = (
+    OriginalPMatchInfoPopupTextProducer(
+        0x485091, 0x13E4, 0x1410, 0xB8, 0x48899A, 0x982C40
+    ),
+    OriginalPMatchInfoPopupTextProducer(
+        0x4850C9, 0x1424, 0x1450, 0x140, 0x488A79, 0x98200C
+    ),
+    OriginalPMatchInfoPopupTextProducer(
+        0x485101, 0x1464, 0x1490, 0x180, 0x488AD2, 0x9826B8
+    ),
+)
+
+PMATCHINFO_POPUP_ATTENDANCE_VALUE_OFFSET = 0x30
+PMATCHINFO_POPUP_ATTENDANCE_DECIMAL_FORMAT_VA = 0x81B1A8
+PMATCHINFO_POPUP_ATTENDANCE_DECIMAL_FORMAT = "%d"
+PMATCHINFO_POPUP_ATTENDANCE_GROUP_FORMAT_VA = 0x81D140
+PMATCHINFO_POPUP_ATTENDANCE_GROUP_FORMAT = "%.3d"
+PMATCHINFO_POPUP_ATTENDANCE_COMMA_VA = 0x81D148
+PMATCHINFO_POPUP_ATTENDANCE_COMMA = ","
+PMATCHINFO_POPUP_SPACE_LITERAL_VA = 0x81AF38
+PMATCHINFO_POPUP_SPACE_LITERAL = " "
+PMATCHINFO_POPUP_FIRST_LEG_GLOBAL_VA = 0x981E98
+PMATCHINFO_POPUP_SECOND_LEG_GLOBAL_VA = 0x981E94
+
+PMATCHINFO_POPUP_REFEREE_STRING_PRODUCER_VA = 0x60BEB0
+PMATCHINFO_POPUP_PENALTY_STATE_OFFSET = 0x1C
+PMATCHINFO_POPUP_PENALTY_FORMAT_GLOBAL_VA = 0x982BA0
+
+PMATCHINFO_POPUP_MOM_INDEX_OFFSET = 0x9C
+PMATCHINFO_POPUP_MOM_ABSENT_VALUE = -1
+PMATCHINFO_POPUP_MOM_PLAYER_TABLE_VA = 0x875640
+PMATCHINFO_POPUP_MOM_PLAYER_RECORD_SIZE = 0x250
+PMATCHINFO_POPUP_MOM_PLAYER_STRING_OFFSETS = (0x08, 0x0C)
+PMATCHINFO_POPUP_MOM_FORMAT_GLOBAL_VA = 0x981EA4
+PMATCHINFO_POPUP_MOM_LABEL_GLOBAL_VA = 0x9826B8
+
+
 PMATCHINFO_TEXT_PLACEMENTS = (
     OriginalPMatchInfoTextPlacement(0x483500, 0x4836AC, 210, 2, 185, 12),
     OriginalPMatchInfoTextPlacement(0x483500, 0x4836E4, 210, 18, 185, 12),

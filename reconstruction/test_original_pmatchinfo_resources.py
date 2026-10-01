@@ -3,6 +3,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
+import original_pmatchinfo_resources as pmatch
+
 from original_pmatchinfo_resources import (
     PMATCHINFO_RESOURCE_BY_NAME,
     PMATCHINFO_RESOURCES,
@@ -315,6 +317,241 @@ class OriginalPMatchInfoResourceTests(unittest.TestCase):
                 self.assertGreaterEqual(row1, PMATCHINFO_SCRIPT_ROW1_UPDATE_VA)
                 self.assertLess(row1, PMATCHINFO_SCRIPT_ROW2_UPDATE_VA)
                 self.assertGreaterEqual(row2, PMATCHINFO_SCRIPT_ROW2_UPDATE_VA)
+
+    def test_pmatchinfo_english_globals_match_complete_loader_entries(self):
+        self.assertEqual(pmatch.PMATCHINFO_ENGLISH_LOADER_START_VA, 0x635F30)
+        self.assertEqual(pmatch.PMATCHINFO_ENGLISH_LOADER_END_VA, 0x64C7D4)
+        self.assertEqual(pmatch.PMATCHINFO_ENGLISH_LOADER_ENTRY_COUNT, 2714)
+        expected = {
+            0x982C40: (1774, "Attendance"),
+            0x982C3C: (1775, "TEAM INFO"),
+            0x982C38: (1776, "MATCH INFO"),
+            0x982BA4: (1813, "O.G."),
+            0x982BA0: (1814, "(%d-%d pen)"),
+            0x9826B8: (2128, "Mom"),
+            0x9822E4: (2373, "Sent off"),
+            0x982164: (2469, "Goal"),
+            0x982160: (2470, "Sub Off"),
+            0x98215C: (2471, "Sub On"),
+            0x982158: (2472, "Booking"),
+            0x982154: (2473, "Injury"),
+            0x982100: (2494, "Shoot Out"),
+            0x98200C: (2555, "Ref."),
+            0x981EA4: (2645, "%s: %s %s"),
+            0x981E98: (2648, "first leg"),
+            0x981E94: (2649, "second leg"),
+        }
+        self.assertEqual(
+            {
+                binding.global_va: (binding.english_index, binding.original_text)
+                for binding in pmatch.PMATCHINFO_LANGUAGE_BINDINGS
+            },
+            expected,
+        )
+        for global_va, (_, original_text) in expected.items():
+            self.assertEqual(
+                pmatch.pmatchinfo_original_english(global_va),
+                original_text,
+            )
+        for bad in (None, "0x982164", 0xDEADBEEF):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalPMatchInfoResourceError):
+                    pmatch.pmatchinfo_original_english(bad)
+
+    def test_script_row_text_producers_preserve_label_and_neutral_decimal_fields(self):
+        self.assertEqual(
+            (
+                pmatch.PMATCHINFO_SCRIPT_EVENT_LABEL_CONTROL_OFFSET,
+                pmatch.PMATCHINFO_SCRIPT_EVENT_LABEL_TEXT_POINTER_OFFSET,
+                pmatch.PMATCHINFO_SCRIPT_EVENT_LABEL_BUFFER_OFFSET,
+            ),
+            (0x1F8, 0x224, 0xA0),
+        )
+        self.assertEqual(
+            (
+                pmatch.PMATCHINFO_SCRIPT_EVENT_DECIMAL_CONTROL_OFFSET,
+                pmatch.PMATCHINFO_SCRIPT_EVENT_DECIMAL_TEXT_POINTER_OFFSET,
+                pmatch.PMATCHINFO_SCRIPT_EVENT_DECIMAL_BUFFER_OFFSET,
+                pmatch.PMATCHINFO_SCRIPT_EVENT_DECIMAL_SOURCE_OFFSET,
+            ),
+            (0x238, 0x264, 0x80, 0x00),
+        )
+        self.assertEqual(
+            (
+                pmatch.PMATCHINFO_SCRIPT_ROW1_LABEL_ASSIGN_VA,
+                pmatch.PMATCHINFO_SCRIPT_ROW1_DECIMAL_ASSIGN_VA,
+                pmatch.PMATCHINFO_SCRIPT_ROW2_LABEL_ASSIGN_VA,
+                pmatch.PMATCHINFO_SCRIPT_ROW2_DECIMAL_ASSIGN_VA,
+            ),
+            (0x485AE6, 0x485AEC, 0x486156, 0x48615C),
+        )
+        self.assertEqual(pmatch.PMATCHINFO_SCRIPT_EVENT_DECIMAL_FORMAT, "%d")
+        self.assertEqual(pmatch.PMATCHINFO_SCRIPT_EVENT_DECIMAL_FORMAT_VA, 0x81B1A8)
+        self.assertEqual(pmatch.PMATCHINFO_SCRIPT_EMPTY_BUFFER_VA, 0x874BA0)
+
+    def test_script_incident_selection_matches_source_precedence(self):
+        self.assertEqual(
+            pmatch.PMATCHINFO_SCRIPT_EVENT_TYPE_CLASS_BYTES,
+            (0, 0, 0, 0, 0, 1, 3, 3, 3, 3, 2),
+        )
+        self.assertEqual(
+            pmatch.PMATCHINFO_SCRIPT_ROW1_EVENT_CLASS_TARGETS,
+            (0x48597B, 0x4859E4, 0x485A68, 0x485AA8),
+        )
+
+        cases = [
+            ((0,), ("Goal", "score")),
+            ((4,), ("Goal", "score")),
+            ((0,), ("O.G.", "score"), {"row_field_74": 1}),
+            ((0,), ("Shoot Out", "score"), {"row_field_78": 1}),
+            ((5,), ("Injury", "injured"), {"event_field_20": 1}),
+            ((5,), ("Booking", "yellow_card"), {"event_field_18": 1}),
+            (
+                (5,),
+                ("Sent off", "red_card"),
+                {"event_field_1c": 1, "row_field_74": 1},
+            ),
+            ((5,), ("Sent off", "red_card_single"), {"event_field_1c": 1}),
+            ((10,), ("Sub On", "sub_on"), {"row_field_74": 1}),
+            ((10,), ("Sub Off", "sub_off")),
+        ]
+        for case in cases:
+            args, expected, *rest = case
+            kwargs = rest[0] if rest else {}
+            with self.subTest(args=args, kwargs=kwargs):
+                selection = pmatch.pmatchinfo_script_incident_selection(
+                    *args, **kwargs
+                )
+                self.assertIsNotNone(selection)
+                self.assertEqual(
+                    (selection.label, selection.resource_name),
+                    expected,
+                )
+
+        # Source precedence is injury -> booking -> sent-off for event type 5.
+        selection = pmatch.pmatchinfo_script_incident_selection(
+            5,
+            event_field_20=1,
+            event_field_18=1,
+            event_field_1c=1,
+        )
+        self.assertEqual(
+            (selection.label, selection.resource_name),
+            ("Injury", "injured"),
+        )
+        self.assertIsNone(pmatch.pmatchinfo_script_incident_selection(5))
+        for event_type in (6, 7, 8, 9, 11):
+            self.assertIsNone(
+                pmatch.pmatchinfo_script_incident_selection(event_type)
+            )
+        with self.assertRaises(OriginalPMatchInfoResourceError):
+            pmatch.pmatchinfo_script_incident_selection(-1)
+        with self.assertRaises(OriginalPMatchInfoResourceError):
+            pmatch.pmatchinfo_script_incident_selection("5")
+
+    def test_player_strip_text_is_source_bound_to_dbtpositions_label(self):
+        self.assertEqual(pmatch.PMATCHINFO_PLAYER_TEXT_SETUP_CALL_VA, 0x483918)
+        self.assertEqual(pmatch.PMATCHINFO_PLAYER_TEXT_CONTROL_OFFSET, 0xB0)
+        self.assertEqual(pmatch.PMATCHINFO_PLAYER_CONTEXT_INDEX_OFFSET, 0x70)
+        self.assertEqual(pmatch.PMATCHINFO_PLAYER_CONTEXT_TABLE_VA, 0x875640)
+        self.assertEqual(pmatch.PMATCHINFO_PLAYER_CONTEXT_RECORD_SIZE, 0x250)
+        self.assertEqual(pmatch.PMATCHINFO_PLAYER_POSITION_CONTEXT_OFFSET, 0x248)
+        self.assertEqual(pmatch.PMATCHINFO_POSITION_SELECTOR_VA, 0x4EA3C0)
+        self.assertEqual(pmatch.PMATCHINFO_POSITION_SELECTOR_BYTE_OFFSET, 0x03)
+        self.assertEqual(pmatch.PMATCHINFO_POSITION_SELECTOR_MASK, 0x1F)
+        self.assertEqual(pmatch.PMATCHINFO_POSITIONS_CLASS, "DBTPositions")
+        self.assertEqual(pmatch.PMATCHINFO_POSITIONS_OBJECT_VA, 0x874B60)
+        self.assertEqual(pmatch.PMATCHINFO_POSITIONS_RECORD_BASE_VA, 0x874B68)
+        self.assertEqual(pmatch.PMATCHINFO_POSITIONS_VFTABLE_VA, 0x7BD394)
+        self.assertEqual(pmatch.PMATCHINFO_POSITIONS_COL_VA, 0x7DE8B8)
+        self.assertEqual(
+            pmatch.PMATCHINFO_POSITIONS_TYPE_DESCRIPTOR_VA,
+            0x8182F8,
+        )
+        self.assertEqual(pmatch.PMATCHINFO_POSITIONS_RECORD_SIZE, 20)
+        self.assertEqual(pmatch.PMATCHINFO_POSITIONS_STRING_FIELD_OFFSET, 0x0C)
+
+    def test_popup_text_producers_bind_attendance_referee_and_mom_lines(self):
+        self.assertEqual(pmatch.PMATCHINFO_POPUP_TEXT_UPDATE_VA, 0x4885A0)
+        self.assertEqual(
+            [
+                (
+                    producer.setup_call_va,
+                    producer.control_offset,
+                    producer.text_pointer_offset,
+                    producer.buffer_offset,
+                    producer.assign_va,
+                    pmatch.pmatchinfo_original_english(
+                        producer.leading_global_va
+                    ),
+                )
+                for producer in pmatch.PMATCHINFO_POPUP_TEXT_PRODUCERS
+            ],
+            [
+                (0x485091, 0x13E4, 0x1410, 0xB8, 0x48899A, "Attendance"),
+                (0x4850C9, 0x1424, 0x1450, 0x140, 0x488A79, "Ref."),
+                (0x485101, 0x1464, 0x1490, 0x180, 0x488AD2, "Mom"),
+            ],
+        )
+        self.assertEqual(pmatch.PMATCHINFO_POPUP_ATTENDANCE_VALUE_OFFSET, 0x30)
+        self.assertEqual(
+            (
+                pmatch.PMATCHINFO_POPUP_ATTENDANCE_DECIMAL_FORMAT_VA,
+                pmatch.PMATCHINFO_POPUP_ATTENDANCE_DECIMAL_FORMAT,
+                pmatch.PMATCHINFO_POPUP_ATTENDANCE_GROUP_FORMAT_VA,
+                pmatch.PMATCHINFO_POPUP_ATTENDANCE_GROUP_FORMAT,
+                pmatch.PMATCHINFO_POPUP_ATTENDANCE_COMMA_VA,
+                pmatch.PMATCHINFO_POPUP_ATTENDANCE_COMMA,
+            ),
+            (0x81B1A8, "%d", 0x81D140, "%.3d", 0x81D148, ","),
+        )
+        self.assertEqual(pmatch.PMATCHINFO_POPUP_SPACE_LITERAL_VA, 0x81AF38)
+        self.assertEqual(pmatch.PMATCHINFO_POPUP_SPACE_LITERAL, " ")
+        self.assertEqual(
+            pmatch.pmatchinfo_original_english(
+                pmatch.PMATCHINFO_POPUP_FIRST_LEG_GLOBAL_VA
+            ),
+            "first leg",
+        )
+        self.assertEqual(
+            pmatch.pmatchinfo_original_english(
+                pmatch.PMATCHINFO_POPUP_SECOND_LEG_GLOBAL_VA
+            ),
+            "second leg",
+        )
+
+        self.assertEqual(
+            pmatch.PMATCHINFO_POPUP_REFEREE_STRING_PRODUCER_VA,
+            0x60BEB0,
+        )
+        self.assertEqual(pmatch.PMATCHINFO_POPUP_PENALTY_STATE_OFFSET, 0x1C)
+        self.assertEqual(
+            pmatch.pmatchinfo_original_english(
+                pmatch.PMATCHINFO_POPUP_PENALTY_FORMAT_GLOBAL_VA
+            ),
+            "(%d-%d pen)",
+        )
+
+        self.assertEqual(pmatch.PMATCHINFO_POPUP_MOM_INDEX_OFFSET, 0x9C)
+        self.assertEqual(pmatch.PMATCHINFO_POPUP_MOM_ABSENT_VALUE, -1)
+        self.assertEqual(pmatch.PMATCHINFO_POPUP_MOM_PLAYER_TABLE_VA, 0x875640)
+        self.assertEqual(pmatch.PMATCHINFO_POPUP_MOM_PLAYER_RECORD_SIZE, 0x250)
+        self.assertEqual(
+            pmatch.PMATCHINFO_POPUP_MOM_PLAYER_STRING_OFFSETS,
+            (0x08, 0x0C),
+        )
+        self.assertEqual(
+            pmatch.pmatchinfo_original_english(
+                pmatch.PMATCHINFO_POPUP_MOM_FORMAT_GLOBAL_VA
+            ),
+            "%s: %s %s",
+        )
+        self.assertEqual(
+            pmatch.pmatchinfo_original_english(
+                pmatch.PMATCHINFO_POPUP_MOM_LABEL_GLOBAL_VA
+            ),
+            "Mom",
+        )
 
     def test_incident_icon_family_is_exact_fourteen_square_pixels(self):
         for name in (
