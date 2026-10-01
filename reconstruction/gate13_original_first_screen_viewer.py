@@ -293,7 +293,7 @@ class OriginalFirstScreenTkDebug:
             elif isinstance(result, OriginalHierarchyInteraction):
                 if result.row_kind == "club":
                     verb = (
-                        "selected" if result.selected_club_id is not None
+                        "selected" if result.selected_club_record_index is not None
                         else "cleared"
                     )
                     self.status.set(
@@ -335,7 +335,7 @@ class OriginalFirstScreenTkDebug:
             self.presenter.choose_club(value)
             self.status.set(
                 f"Developer-only explicit club ID {value} selected; "
-                "native hierarchy selection synchronized when available."
+                "native hierarchy record remains unchanged pending payload re-trace."
             )
         except (ValueError, TypeError, RuntimeError) as exc:
             self.status.set(f"Explicit club selection rejected: {exc}")
