@@ -9632,3 +9632,28 @@ canonical audit.
 - Gate 13 remains the earliest incomplete validation gate. Recovery 137 has
   launched the same canonical three-rollover audit with player seed 2 to widen
   real-data seed coverage while the Windows graphical audit remains deferred.
+
+
+## 1 October 2026 - Recovery 137 canonical seed-2 pass and Gate 16 readiness audit
+
+- The second authorized shipped-data canonical run used player seed 2 and
+  completed three consecutive annual qualification/regeneration cycles with
+  exit code 0 in **1,440.49 seconds**, ending on **2003-06-02**.
+- Fresh shapes were
+  `(380,380,5731,9340,291,367,311,13)`,
+  `(380,380,5735,9344,291,371,311,13)`, and
+  `(380,380,5735,9344,291,371,311,13)`. Each variation projected exactly
+  from that cycle's current regeneration; no stale cross-season Cup or shared
+  schedule state accumulated.
+- Exact seed-2 evidence is stored in
+  `research/evidence/GATE16_CANONICAL_MULTISEASON_SEED2_RECOVERY137.json`.
+- `research/GATE16_READINESS_AUDIT.md` reconciles the roadmap criteria against
+  the 30-rollover soak, six-seed complete-season stress, multi-season
+  save/reload, five-year transfer churn, mixed-primary stress and the two
+  canonical three-rollover seeds.
+- All present Gate-16 criteria are prevalidated by work-ahead, but Gate 16 is
+  deliberately **not** marked complete while Gates 13-15 remain incomplete.
+- The next independent cloud-safe task moves back to Gate 15: recover the exact
+  secondary startup equal-key permutation and per-date mode-1 bucket vector
+  from the canonical executable/real input, replacing the current synthetic
+  aggregate-only partition without inventing native qsort behavior.
