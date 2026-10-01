@@ -20,10 +20,12 @@ still identifies itself as pre-release.
 - Gate 15 still contains the active fidelity gaps recorded in
   research/FIDELITY_GAPS.md, including original save compatibility and several
   bounded simulation/finance/transfer uncertainties.
-- Gate 16 now has repeated annual-regeneration soak coverage and multi-seed
-  complete-season stress, but it still lacks consecutive fully played seasons
-  in one live world with broader competitions, transfers and save/reload under
-  long-duration stress.
+- Gate 16 now has repeated annual-regeneration soak coverage, six-seed
+  complete-season stress, three consecutive fully played synthetic seasons and
+  five verified internal save/reload round-trips across those seasons. It still
+  lacks canonical real-data multi-season evidence, broader competition stress,
+  sustained autonomous transfer churn, broader deterministic-seed coverage and
+  closure of all remaining long-duration state-growth risks.
 - Gate 17 does not yet have a verified installable release archive or clean
   Windows 11 installation receipt.
 
