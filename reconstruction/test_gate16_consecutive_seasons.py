@@ -248,7 +248,7 @@ def _complete_remaining_season(controller, *, max_days):
     return days
 
 
-def _advance_to_result_count(controller, target, *, max_days=180):
+def _advance_to_result_count(controller, target, *, max_days=370):
     state = controller.state
     days = 0
     while len(state.premier_league.results) < int(target):
