@@ -1,0 +1,175 @@
+"""Synthetic tests for the fail-closed Gate-17 release evidence contract."""
+from hashlib import sha256
+import json
+from pathlib import Path
+import tempfile
+import unittest
+
+from gate17_release_readiness import (
+    ReleaseReadinessError,
+    parse_release_evidence,
+    require_path_outside_repo,
+    validate_external_receipts,
+    validate_limitations_document,
+    validate_release_archive,
+)
+
+
+COMMIT = "a" * 40
+
+
+def write_receipt(path, **flags):
+    payload = {
+        "passed": True,
+        "repository_commit": COMMIT,
+        **flags,
+    }
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return sha256(path.read_bytes()).hexdigest()
+
+
+class Gate17ReleaseReadinessTests(unittest.TestCase):
+    def fixture(self, temp):
+        temp = Path(temp)
+        repo = temp / "repo"
+        repo.mkdir()
+        limitations = repo / "research/RELEASE_LIMITATIONS.md"
+        limitations.parent.mkdir(parents=True)
+        limitations.write_text(
+            "# Release limitations\\n\\n"
+            + "Known accepted limitation. " * 20,
+            encoding="utf-8",
+        )
+
+        private = temp / "private"
+        receipts = {}
+        receipt_flags = {
+            "clean_windows_install": {
+                "windows_11": True,
+                "outside_development_environment": True,
+            },
+            "new_game_management_loop": {
+                "new_game": True,
+                "management_loop": True,
+            },
+            "season_progression": {
+                "season_progression": True,
+            },
+            "save_reload": {
+                "save_reload": True,
+            },
+        }
+        for name, flags in receipt_flags.items():
+            path = private / f"{name}.json"
+            receipts[name] = {
+                "path": str(path),
+                "sha256": write_receipt(path, **flags),
+            }
+
+        archive = private / "fm2001-port.zip"
+        archive.write_bytes(b"release bytes")
+        evidence = {
+            "schema_version": 1,
+            "release_version": "test-1",
+            "repository_commit": COMMIT,
+            "limitations_path": "research/RELEASE_LIMITATIONS.md",
+            "external_receipts": receipts,
+            "archive": {
+                "sha256": sha256(archive.read_bytes()).hexdigest(),
+                "size_bytes": archive.stat().st_size,
+            },
+        }
+        return repo, private, archive, evidence
+
+    def test_complete_external_evidence_and_archive_validate(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, archive, raw = self.fixture(temp)
+            evidence = parse_release_evidence(raw)
+            checked = validate_external_receipts(evidence, repo)
+            self.assertEqual(set(checked), set(raw["external_receipts"]))
+            archive_check = validate_release_archive(
+                archive, evidence.archive, repo
+            )
+            self.assertEqual(archive_check["size_bytes"], len(b"release bytes"))
+            limits = validate_limitations_document(
+                repo, evidence.limitations_path
+            )
+            self.assertGreater(limits["characters"], 200)
+
+    def test_missing_or_false_windows_evidence_fails_closed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            evidence = parse_release_evidence(raw)
+            descriptor = evidence.external_receipts["clean_windows_install"]
+            path = Path(descriptor.path)
+            write_receipt(
+                path,
+                windows_11=True,
+                outside_development_environment=False,
+            )
+            mutable = dict(raw)
+            mutable["external_receipts"] = dict(raw["external_receipts"])
+            mutable["external_receipts"]["clean_windows_install"] = {
+                "path": str(path),
+                "sha256": sha256(path.read_bytes()).hexdigest(),
+            }
+            evidence = parse_release_evidence(mutable)
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "outside_development_environment",
+            ):
+                validate_external_receipts(evidence, repo)
+
+    def test_receipt_for_another_commit_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            name = "save_reload"
+            path = Path(raw["external_receipts"][name]["path"])
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload["repository_commit"] = "b" * 40
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            raw["external_receipts"][name]["sha256"] = sha256(
+                path.read_bytes()
+            ).hexdigest()
+            evidence = parse_release_evidence(raw)
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "different repository commit",
+            ):
+                validate_external_receipts(evidence, repo)
+
+    def test_release_archive_and_receipts_must_stay_outside_git(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, _raw = self.fixture(temp)
+            inside = repo / "release.zip"
+            inside.write_bytes(b"x")
+            with self.assertRaisesRegex(
+                ReleaseReadinessError, "outside the Git repository"
+            ):
+                require_path_outside_repo(inside, repo, label="release archive")
+
+    def test_pre_release_limitations_document_cannot_pass_final_audit(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            path = repo / raw["limitations_path"]
+            path.write_text(
+                "# Release limitations\\n\\nPRE-RELEASE working list. "
+                + "Still pending. " * 30,
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(ReleaseReadinessError, "pre-release"):
+                validate_limitations_document(repo, raw["limitations_path"])
+
+    def test_evidence_schema_requires_exact_receipt_set_and_archive_identity(self):
+        with tempfile.TemporaryDirectory() as temp:
+            _repo, _private, _archive, raw = self.fixture(temp)
+            raw["external_receipts"].pop("save_reload")
+            with self.assertRaisesRegex(
+                ReleaseReadinessError, "receipt set mismatch"
+            ):
+                parse_release_evidence(raw)
+
+
+if __name__ == "__main__":
+    unittest.main()
