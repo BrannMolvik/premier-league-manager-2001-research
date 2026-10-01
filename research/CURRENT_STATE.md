@@ -1407,3 +1407,16 @@ Linux-oriented duplicate-ZIP-path assertion failed on Windows because
   hierarchy item identity, hit/input, selection-state, caption/content and
   navigation mapping, followed by a second Windows audit with live hierarchy
   behavior and then broader management-screen presentation fidelity.
+
+## Recovery 139: TeamSelect native hierarchy owner graph recovered
+
+- Canonical executable RTTI/disassembly resolves `PMain@TeamSelect` and its
+  `LeagueBtnGrp`/`TeamBtnGrp` child families.
+- Source-backed geometry, control IDs, and object offsets are now locked for
+  all 16 country/competition controls and all 24 club controls, together with
+  the canonical English country order.
+- Native flow is proven as country expansion -> competition selection -> club
+  population -> Start. Exact competition filtering, visual frame states, and
+  the final club selection write remain open; the live hierarchy stays inert
+  and Gate 13 remains active.
+- Evidence: `research/GATE13_TEAMSELECT_HIERARCHY_TRACE.md`.

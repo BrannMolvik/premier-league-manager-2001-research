@@ -14,7 +14,7 @@
   "last_verified_test_count": 1134,
   "asset_policy_validated_head": "dcf739a6f747fc024e4fbd1038a68a05661e08f4",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 remains active. The real Windows PStartMenu/TeamSelect graphical smoke passed in Recovery 138. Exact next task: recover TeamSelect native hierarchy item identity, hit/input, selection-state, captions/content and navigation semantics, integrate only proven behavior, then rerun the Windows audit and continue broader management-screen fidelity.",
+  "active_task": "Gate 13 remains active. Recovery 139 recovered the TeamSelect native owner graph, 16 country/competition and 24 club control layouts, English country order, and country-to-competition-to-club population path. Exact next task: close competition filtering/order, visual frame states, and club selection write; integrate only proven behavior, rerun the Windows audit, then continue broader management-screen fidelity.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,

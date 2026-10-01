@@ -9671,3 +9671,13 @@ canonical audit.
   `b61d56dde7fc3ee7d25451cc993f545c28217cb28347a05921d379efe932e9b4`.
 - Gate 13 remains open on TeamSelect hierarchy semantics and broader original
   management presentation.
+
+## 1 October 2026 - Recovery 139 TeamSelect hierarchy owner trace
+
+- Canonical executable RTTI/disassembly identifies the 16 native
+  country/competition controls and 24 club controls, including exact setup
+  coordinates, control IDs, and owner-object offsets.
+- Recovered the English country order and country -> competition -> club
+  population path without screenshot inference.
+- Focused tests lock these durable constants. Visual frame-state, exact
+  competition filtering, and club selection remain next; Gate 13 stays active.

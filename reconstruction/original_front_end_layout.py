@@ -81,6 +81,27 @@ PSTARTMENU_ACTIONS = (
 TEAMSELECT_HIERARCHY_ROW_ORIGINS = tuple(
     (20, 78 + 30 * index) for index in range(16)
 )
+# 0x4D7D82..0x4D80BF constructs these native child controls. These are
+# executable setup facts, not screenshot measurements; source-frame states
+# remain open.
+TEAMSELECT_HIERARCHY_CONTROL_IDS = tuple(range(1, 17))
+TEAMSELECT_HIERARCHY_OBJECT_OFFSETS = tuple(
+    0x2A24 + 0x4C * index for index in range(16)
+)
+TEAMSELECT_CLUB_ROW_ORIGINS = tuple(
+    (581, 78 + 20 * index) for index in range(24)
+)
+TEAMSELECT_CLUB_CONTROL_IDS = tuple(range(0x11, 0x29))
+TEAMSELECT_CLUB_OBJECT_OFFSETS = tuple(
+    0x2EE4 + 0x40 * index for index in range(24)
+)
+
+# Constructor 0x4D9290 fills the country globals in this order for the
+# default/English locale. Names are resolved from the canonical database.
+TEAMSELECT_ENGLISH_COUNTRY_ORDER = (
+    (26, "England"), (66, "Scotland"), (33, "Germany"), (40, "Italy"),
+    (73, "Spain"), (31, "France"), (24, "Holland"), (9, "Belgium"),
+)
 TEAMSELECT_HIERARCHY_ANIM_PATH = (
     "FM2001_Art/Generic/GenericButtonsAndBars/choice_league_but_anim.444"
 )

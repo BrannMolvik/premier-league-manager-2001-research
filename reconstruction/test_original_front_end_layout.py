@@ -15,6 +15,12 @@ from original_front_end_layout import (
     TEAMSELECT_BACKGROUND_RECT,
     TEAMSELECT_ROOT_RECT,
     TEAMSELECT_HIERARCHY_ROW_ORIGINS,
+    TEAMSELECT_HIERARCHY_CONTROL_IDS,
+    TEAMSELECT_HIERARCHY_OBJECT_OFFSETS,
+    TEAMSELECT_CLUB_ROW_ORIGINS,
+    TEAMSELECT_CLUB_CONTROL_IDS,
+    TEAMSELECT_CLUB_OBJECT_OFFSETS,
+    TEAMSELECT_ENGLISH_COUNTRY_ORDER,
     TEAMSELECT_HIERARCHY_FRAME_SIZE,
     TEAMSELECT_HIERARCHY_BARS_FRAME_SIZE,
     TEAMSELECT_HIERARCHY_ANIM_PATH,
@@ -72,6 +78,20 @@ class OriginalFrontEndLayoutTests(unittest.TestCase):
         )
         self.assertEqual(TEAMSELECT_HIERARCHY_ROW_ORIGINS[0], (20, 78))
         self.assertEqual(TEAMSELECT_HIERARCHY_ROW_ORIGINS[-1], (20, 528))
+        self.assertEqual(TEAMSELECT_HIERARCHY_CONTROL_IDS, tuple(range(1, 17)))
+        self.assertEqual(TEAMSELECT_HIERARCHY_OBJECT_OFFSETS,
+                         tuple(0x2A24 + 0x4C * i for i in range(16)))
+        self.assertEqual(TEAMSELECT_CLUB_ROW_ORIGINS,
+                         tuple((581, 78 + 20 * i) for i in range(24)))
+        self.assertEqual(TEAMSELECT_CLUB_CONTROL_IDS, tuple(range(0x11, 0x29)))
+        self.assertEqual(TEAMSELECT_CLUB_OBJECT_OFFSETS,
+                         tuple(0x2EE4 + 0x40 * i for i in range(24)))
+        self.assertEqual(
+            TEAMSELECT_ENGLISH_COUNTRY_ORDER,
+            ((26, "England"), (66, "Scotland"), (33, "Germany"),
+             (40, "Italy"), (73, "Spain"), (31, "France"),
+             (24, "Holland"), (9, "Belgium")),
+        )
         self.assertEqual(TEAMSELECT_HIERARCHY_FRAME_SIZE, (30, 29))
         self.assertEqual(TEAMSELECT_HIERARCHY_BARS_FRAME_SIZE, (168, 29))
         self.assertTrue(TEAMSELECT_HIERARCHY_ANIM_PATH.endswith(
