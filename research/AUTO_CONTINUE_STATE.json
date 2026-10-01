@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Resume from canonical main fab51646abac21f078fdfa6fd6bed1091010ca33. Gate 13 private priority remains TeamSelect 0x4D8E90/0x4D9240 selection-record payload and Start-resolution re-trace, followed by the upgraded real-Windows audit. Recovery 141 process execution remains blocked by caas.internal.errors.ClientError after source/runtime materialization. Completed Squad/FormationText and TeamSelect hierarchy slices are reconciled in the Gate-13 evidence ledgers and must not be repeated. Continue only genuinely independent cloud-safe work while private execution is unavailable; current work-ahead is a fail-closed Gate-14 startup TGQ conversion foundation.",
+  "active_task": "Resume from canonical main fab51646abac21f078fdfa6fd6bed1091010ca33. Gate 13 private priority remains the bounded TeamSelect 0x4D8E90/0x4D9240 selection-record payload and Start-resolution re-trace, followed by the upgraded real-Windows audit. Do not repeat reconciled Squad/FormationText or TeamSelect hierarchy work. First probe execution; if private/source execution is unavailable, continue the canonical independent cloud-safe Gate-14 startup TGQ conversion foundation without claiming playback or closing Gate 13.",
   "last_known_main_head": "fab51646abac21f078fdfa6fd6bed1091010ca33",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 141,
-  "last_recovery_reason": "recovery-141-teamselect-boundary-hardened-private-execution-blocked",
-  "note": "Heartbeat after Gate-13 ledger reconciliation. Latest canonical main fab51646abac21f078fdfa6fd6bed1091010ca33. Starting independent Gate-14 TGQ conversion foundation without claiming final playback.",
+  "recovery_generation": 142,
+  "last_recovery_reason": "recovery-142-same-chat-no-progress-resume",
+  "note": "Recovery 142 claimed the worker lease from canonical main fab51646abac21f078fdfa6fd6bed1091010ca33; probing execution, then continuing the exact private blocker or independent Gate-14 TGQ foundation per deferred-blocker policy.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
