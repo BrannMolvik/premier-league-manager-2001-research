@@ -137,8 +137,19 @@ PR #57 merged to canonical `main` as
 `71676cb9a5b5b89b60b037c8f4426dc72a58e682`.
 
 This verifies the synthetic transfer-churn/state-growth regression and the
-month-end crash repair. The later periodic-save continuation is a separate
-verification step and must pass CI before it is promoted as evidence. Neither
-path resolves the separately documented original end-of-month normalization
-semantics, transfer-window dates, or autonomous buy-counter lifecycle, and they
-do not close Gate 16.
+month-end crash repair.
+
+The periodic-save continuation was then verified on PR #60 final head
+`d851f08abfdb23806473e8fbe45adcc02f8a8d96`:
+
+- reconstruction run `36849081411`: **1,134 tests**, **22 expected
+  source-gated skips**, zero failures, 298.926 seconds;
+- repository asset-policy run `36849081409`: passed;
+- PR #60 squash-merged as
+  `c640e5cb7dad46926e67a35caa34b83deb99c2cf`.
+
+The five yearly reloads preserve exact snapshot and reserialization identity,
+and the complete five-year reloaded trajectory matches the same-seed
+never-reloaded trajectory. Neither path resolves the separately documented
+original end-of-month normalization semantics, transfer-window dates, or
+autonomous buy-counter lifecycle, and they do not close Gate 16.
