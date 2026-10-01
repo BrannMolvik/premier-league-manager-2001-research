@@ -58,6 +58,35 @@ Evidence:
   real Windows PStartMenu/TeamSelect graphical audit and wider management-
   screen correlations remain mandatory before Gate 13 closes.
 
+## Recovery 127: fresh worker cannot launch first private process
+
+- Resumed canonical `main` at
+  `9fc09f2327d4bf1a18c2690bfa97c4756d3616a2`. The only commit after Recovery
+  126 is the v0.4.1 auto-continue detector hardening; it does not supersede or
+  alter the active Gate-13 Squad source task.
+- This fresh worker attempted the required execution path immediately. The
+  **first** shell process failed before process start with
+  `caas.internal.errors.ClientError`; unlike Recovery 126, this allocation
+  never reached a usable Python/Git process.
+- The canonical private source location, executable hash, prepared
+  `reconstruction/gate13_squad_source_trace.py`, and all previously proven
+  Squad ownership/caption/geometry/transition evidence remain unchanged. No
+  `CBasePlayerList` row/column/status semantics and no `FormationText`
+  state-to-frame semantics are promoted from this recovery.
+- Safe repository-only fallback work for this exact subtask is exhausted: the
+  missing facts require private canonical-executable control/data-flow
+  adjudication, and committed evidence explicitly forbids inferring them from
+  resource dimensions, filenames, or visual guesses.
+- Exact next action: in the next allocation that can launch sustained private
+  processes, synchronize to canonical `main`, recover/verify the canonical
+  executable SHA-256
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`,
+  run the existing Squad trace, and manually adjudicate the two
+  `CBasePlayerList` bindings plus `FormationText` value-to-frame transform.
+  Only then promote source-backed bindings and continue to the mandatory real
+  Windows PStartMenu/TeamSelect graphical audit and remaining management
+  screens. Gate 13 remains active.
+
 ## Recovery 126: private source recovered; sandbox failed after first process
 
 - Resumed canonical main `14a7b47b3328475f8218350c0fc03e7786e4537b`.
