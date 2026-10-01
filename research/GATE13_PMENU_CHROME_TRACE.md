@@ -276,3 +276,147 @@ into the expected 29-pixel row stacks (22, 3, 23 and 4 respectively).
 This private validation proves the selected bytes match the source contract; it
 does not replace hosted regressions or authorize any uncorrelated neighboring
 asset.
+
+
+## Recovery 146 label, font, color and background-state closure
+
+The first PMenu checkpoint deliberately left later label globals unresolved
+because the early English loader prefix looked like a simple descending global
+array. Recovery 146 traced the **entire** main language loader instead of
+extending that pattern by assumption.
+
+### Complete English loader correlation
+
+The loader region `0x635F30..0x64C7D4` contains exactly **2,714** calls to
+the string-assignment routine `0x64E320`. That count exactly matches the
+2,714 uint16 entries in the canonical 5,428-byte `English.idx`.
+
+Each call site carries the destination global explicitly. Early assignments
+reproduce the already verified mapping, including:
+
+- entry 39 -> `0x98475C` -> `Team`;
+- entry 43 -> `0x98474C` -> `Analysis`;
+- entry 44 -> `0x984748` -> `EAMail`.
+
+Later PMenu globals are therefore resolved by their exact loader assignment,
+not by extrapolating the early address pattern.
+
+The nine root captions are now source-exact:
+
+| Menu ID | English.idx | Original caption |
+| ---: | ---: | --- |
+| 2 | 39 | Team |
+| 3 | 2392 | Transfers |
+| `0x259` | 1847 | Calendar |
+| 6 | 2520 | TABLES |
+| 7 | 43 | Analysis |
+| 4 | 2521 | ADMIN |
+| 5 | 2519 | ACCOUNTS |
+| 1 | 44 | EAMail |
+| 8 | 2518 | GAME OPTIONS |
+
+The modeled child labels are also now exact:
+
+- Team: `Squad`, `Stats`, `Indiv. Orders`, `Team Orders`,
+  `Training`, `Youth Team`;
+- Transfers: `Transfer List`, `Scouts`, `Player/Club Search`;
+- Calendar: `Calendar`, `League Fixtures`;
+- TABLES: `League Tables`, `Cup Tables`;
+- Analysis: `Charts`, `RATINGS`, `Trophy Cupboard`;
+- ADMIN: `Overview`, `Support Staff`, `Stadium`, `Development`,
+  `Maintenance`;
+- ACCOUNTS: `Cash Flow`, `Tickets`, `Contracts`;
+- EAMail: `EAMail`;
+- GAME OPTIONS: `SAVE GAME`, `SETTINGS`, `RETURN TO MAIN MENU`.
+
+The separate `0x9475A0` array remains outside the proven main-tree ownership,
+but its already-correlated captions remain Formation, Stats, Ind Orders,
+Specific Roles and Team Orders.
+
+`reconstruction/original_pmenu_chrome.py` now uses an exact sparse
+English-entry -> destination-global map for every modeled PMenu label. The old
+simple-address formula is deliberately removed because it is only true for the
+early loader prefix.
+
+### Exact PMenu font
+
+Static initialization at `0x603640` wraps font object `0x9269F0` in the
+runtime object referenced at `0x87BEA0`.
+
+The canonical font loader at `0x604252..0x60429F` binds that object to:
+
+`Fonts/Zurich_BdXCn_BT_16pixel.fnt`
+
+- path literal: `0x839F24`;
+- file size: **79,722 bytes**;
+- SHA-256:
+  `9dc371caba34823b0d6ba6fd4c5e82f94775de1168daa5dad936b70a6e4f9732`;
+- native atlas: **1526x17**;
+- source line height through the recovered EA font parser: **18 pixels**.
+
+This exact authorized font is already provenance-imported at
+`original_assets/source/Fonts/Zurich_BdXCn_BT_16pixel.fnt`, so PMenu can reuse
+the existing source file rather than adding a duplicate.
+
+### Row color components
+
+Both `PTitleMenuRow::0x47A7E0` and `PChildMenuRow::0x47A990` build the same
+two RGB-component triples before background/text setup:
+
+- `(0, 0, 0)`;
+- `(255, 255, 255)`.
+
+Because all three components are equal in each tuple, this evidence does not
+depend on guessing the display backend's component ordering.
+
+### MenuBackgroundToggle state -> source row
+
+RTTI identifies `MenuBackgroundToggle` at vtable `0x7C3AE0`.
+Its state-selection override at `0x47AC00` uses three neutral source bits:
+
+- bit 1: `0x2`;
+- bit 3: `0x8`;
+- bit 15: `0x8000`.
+
+The exact source-row index is:
+
+```text
+if bit 1 is clear:       3
+else if bit 15 is set:   2
+else if bit 3 is set:    1
+else:                    0
+```
+
+With the source-proven 29-pixel row height, the corresponding source y offsets
+are `87, 58, 29, 0` respectively. Bit 15 has precedence over bit 3.
+
+The bit semantics remain deliberately unnamed. In particular, this checkpoint
+does **not** equate the bits with modern hover/down/disabled names.
+
+The title background atlas has only three physical rows. Therefore a computed
+row index 3 for the bit-1-clear path must not be interpreted as an in-bounds
+draw until the surrounding visibility/draw path is traced. The clean-room
+contract records the source arithmetic without fabricating rendering behavior.
+
+### Remaining PMenu presentation boundary
+
+Closed by Recovery 146:
+
+- all modeled root/child captions;
+- exact 16px Zurich font identity and reusable imported bytes;
+- native black/white component tuples;
+- `MenuBackgroundToggle` neutral state-bit -> row-index transform.
+
+Still open:
+
+1. `MenuTitleArrow::0x4825A0` animation/state-to-frame behavior for the
+   22-row title arrow strip;
+2. child-arrow state/frame behavior for the 23-row child strip;
+3. exact clipping/text-origin behavior beyond the recovered control rectangles
+   and font metrics;
+4. PMenu shell/background resource ownership around the menu list;
+5. intentional provenance import of the four already-correlated menu-popup
+   `.444` assets;
+6. corrected real-Windows/Tk integration validation.
+
+No new proprietary resource bytes are added by this label/font/state checkpoint.
