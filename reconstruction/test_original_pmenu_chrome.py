@@ -21,6 +21,9 @@ from original_pmenu_chrome import (
     PMENU_FONT_SOURCE_PATH,
     PMENU_ROW_COLOR_COMPONENTS,
     PMENU_ROW_HEIGHT,
+    PMENU_LIST_OBJECT_OFFSET,
+    PMENU_LIST_SETUP_ARGUMENTS,
+    PMENU_DIRECT_RESOURCE_BINDING_IN_OWN_METHODS,
     PMENU_SEPARATE_TEAM_ORDER_NODES,
     PMENU_SYSTEM_CHILDREN,
     PMENU_TABLES_CHILDREN,
@@ -32,6 +35,16 @@ from original_pmenu_chrome import (
     PMENU_TITLE_ROW_CLASS,
     PMENU_TITLE_ROW_SETUP_VA,
     PMENU_TRANSFER_CHILDREN,
+    PMENU_STATE_BIT_1,
+    PMENU_STATE_BIT_3,
+    PMENU_STATE_BIT_15,
+    pmenu_arrow_state_from_bits,
+    pmenu_arrow_transition_frame,
+    pmenu_arrow_update,
+    pmenu_child_arrow_frame_count,
+    pmenu_child_arrow_source_row,
+    pmenu_title_arrow_frame_count,
+    pmenu_title_arrow_source_row,
     main_english_global_va,
     pmenu_background_row_index,
     pmenu_background_source_y,
@@ -48,7 +61,8 @@ class OriginalPMenuChromeTests(unittest.TestCase):
         self.assertEqual(PMENU_TITLE_ARROW_RESOURCE.owner_class, PMENU_TITLE_ROW_CLASS)
         self.assertEqual(PMENU_TITLE_ARROW_RESOURCE.setup_va, PMENU_TITLE_ROW_SETUP_VA)
         self.assertEqual(PMENU_TITLE_ARROW_RESOURCE.size, (30, 638))
-        self.assertEqual(PMENU_TITLE_ARROW_RESOURCE.frame_count, 22)
+        self.assertEqual(PMENU_TITLE_ARROW_RESOURCE.frame_height, 58)
+        self.assertEqual(PMENU_TITLE_ARROW_RESOURCE.frame_count, 11)
 
         self.assertEqual(PMENU_TITLE_BOX_RESOURCE.owner_class, PMENU_TITLE_ROW_CLASS)
         self.assertEqual(PMENU_TITLE_BOX_RESOURCE.size, (168, 87))
@@ -57,11 +71,20 @@ class OriginalPMenuChromeTests(unittest.TestCase):
         self.assertEqual(PMENU_CHILD_ARROW_RESOURCE.owner_class, PMENU_CHILD_ROW_CLASS)
         self.assertEqual(PMENU_CHILD_ARROW_RESOURCE.setup_va, PMENU_CHILD_ROW_SETUP_VA)
         self.assertEqual(PMENU_CHILD_ARROW_RESOURCE.size, (30, 667))
+        self.assertEqual(PMENU_CHILD_ARROW_RESOURCE.frame_height, 29)
         self.assertEqual(PMENU_CHILD_ARROW_RESOURCE.frame_count, 23)
 
         self.assertEqual(PMENU_CHILD_BOX_RESOURCE.owner_class, PMENU_CHILD_ROW_CLASS)
         self.assertEqual(PMENU_CHILD_BOX_RESOURCE.size, (168, 116))
         self.assertEqual(PMENU_CHILD_BOX_RESOURCE.frame_count, 4)
+
+    def test_pmenu_setup_preserves_raw_list_geometry_and_no_direct_resource_binding(self):
+        self.assertEqual(PMENU_LIST_OBJECT_OFFSET, 0x68)
+        self.assertEqual(
+            PMENU_LIST_SETUP_ARGUMENTS,
+            (0, 0, 201, 504, 16, 29, 0, 0, 0),
+        )
+        self.assertFalse(PMENU_DIRECT_RESOURCE_BINDING_IN_OWN_METHODS)
 
     def test_pmenu_text_controls_preserve_source_geometry_without_font_guess(self):
         self.assertEqual(PMENU_TEXT_CONTROL_SIZE, (160, 24))
@@ -92,6 +115,100 @@ class OriginalPMenuChromeTests(unittest.TestCase):
             with self.subTest(bad=bad):
                 with self.assertRaises(OriginalPMenuChromeError):
                     pmenu_background_row_index(bad)
+
+    def test_arrow_state_selector_uses_exact_neutral_bit_precedence(self):
+        self.assertEqual(pmenu_arrow_state_from_bits(0), 2)
+        self.assertEqual(pmenu_arrow_state_from_bits(PMENU_STATE_BIT_1), 0)
+        self.assertEqual(
+            pmenu_arrow_state_from_bits(PMENU_STATE_BIT_1 | PMENU_STATE_BIT_15),
+            1,
+        )
+        self.assertEqual(
+            pmenu_arrow_state_from_bits(
+                PMENU_STATE_BIT_1 | PMENU_STATE_BIT_3 | PMENU_STATE_BIT_15
+            ),
+            1,
+        )
+
+    def test_child_arrow_partitions_exact_23_rows_as_11_11_1(self):
+        self.assertEqual(
+            [pmenu_child_arrow_frame_count(state) for state in (0, 1, 2)],
+            [11, 11, 1],
+        )
+        self.assertEqual(pmenu_child_arrow_source_row(0, 0), 0)
+        self.assertEqual(pmenu_child_arrow_source_row(0, 10), 10)
+        self.assertEqual(pmenu_child_arrow_source_row(1, 0), 11)
+        self.assertEqual(pmenu_child_arrow_source_row(1, 10), 21)
+        self.assertEqual(pmenu_child_arrow_source_row(2, 0), 22)
+
+    def test_title_arrow_uses_eleven_58px_frames_and_custom_state_offsets(self):
+        self.assertEqual(
+            [pmenu_title_arrow_frame_count(state) for state in (0, 1, 2)],
+            [11, 1, 1],
+        )
+        self.assertEqual(pmenu_title_arrow_source_row(0, 0), 0)
+        self.assertEqual(pmenu_title_arrow_source_row(0, 10), 10)
+        self.assertEqual(pmenu_title_arrow_source_row(1, 0), 10)
+        self.assertEqual(pmenu_title_arrow_source_row(2, 0), 0)
+        self.assertEqual(
+            PMENU_TITLE_ARROW_RESOURCE.frame_count
+            * PMENU_TITLE_ARROW_RESOURCE.frame_height,
+            PMENU_TITLE_ARROW_RESOURCE.size[1],
+        )
+
+    def test_arrow_state_transition_preserves_source_fraction_by_integer_division(self):
+        self.assertEqual(
+            pmenu_arrow_transition_frame(0, 10, 1, title=False),
+            10,
+        )
+        self.assertEqual(
+            pmenu_arrow_transition_frame(1, 10, 2, title=False),
+            0,
+        )
+        self.assertEqual(
+            pmenu_arrow_transition_frame(0, 10, 1, title=True),
+            0,
+        )
+
+    def test_arrow_tick_advances_or_retreats_without_semantic_state_names(self):
+        bits = PMENU_STATE_BIT_1 | PMENU_STATE_BIT_3
+        self.assertEqual(pmenu_arrow_update(0, 0, bits, title=False), (0, 1))
+        self.assertEqual(
+            pmenu_arrow_update(0, 10, PMENU_STATE_BIT_1, title=False),
+            (0, 9),
+        )
+        # The transition preserves frame 10, then this same native tick
+        # sees bit 0x8 clear and retreats once to frame 9.
+        self.assertEqual(
+            pmenu_arrow_update(
+                0,
+                10,
+                PMENU_STATE_BIT_1 | PMENU_STATE_BIT_15,
+                title=False,
+            ),
+            (1, 9),
+        )
+        self.assertEqual(
+            pmenu_arrow_update(
+                0,
+                10,
+                PMENU_STATE_BIT_1 | PMENU_STATE_BIT_15,
+                title=True,
+            ),
+            (1, 0),
+        )
+
+    def test_arrow_helpers_fail_closed_on_invalid_state_or_frame(self):
+        for call in (
+            lambda: pmenu_child_arrow_frame_count(3),
+            lambda: pmenu_title_arrow_frame_count(-1),
+            lambda: pmenu_child_arrow_source_row(2, 1),
+            lambda: pmenu_title_arrow_source_row(1, 1),
+            lambda: pmenu_arrow_transition_frame(0, 11, 1, title=False),
+            lambda: pmenu_arrow_update(0, 11, PMENU_STATE_BIT_1, title=False),
+        ):
+            with self.assertRaises(OriginalPMenuChromeError):
+                call()
 
     def test_root_order_and_child_arrays_are_literal_source_topology(self):
         self.assertEqual(
