@@ -7,6 +7,11 @@ import unittest
 
 from game_state import GameState
 from human_gameplay import HumanGameplayController
+from internal_save import (
+    dumps_human_gameplay,
+    loads_human_gameplay,
+    snapshot_human_gameplay,
+)
 from match_schedule import MsvcCrtRng
 from test_gate11_management_season import (
     Player,
@@ -224,6 +229,62 @@ def _complete_current_season(controller, *, max_days):
     return days
 
 
+def _complete_remaining_season(controller, *, max_days):
+    state = controller.state
+    attack = controller.attack_matrix
+    defence = controller.defence_matrix
+    days = 0
+    while len(state.premier_league.results) < len(state.premier_league.fixtures):
+        days += 1
+        if days > max_days:
+            raise AssertionError(
+                "save/reload consecutive-season stress exceeded day budget"
+            )
+        state.advance_one_day_with_premier_league_ai_fixtures(
+            attack,
+            defence,
+            controller.match_rng,
+        )
+    return days
+
+
+def _advance_to_result_count(controller, target, *, max_days=180):
+    state = controller.state
+    days = 0
+    while len(state.premier_league.results) < int(target):
+        days += 1
+        if days > max_days:
+            raise AssertionError(
+                f"save/reload stress did not reach {target} results within day budget"
+            )
+        state.advance_one_day_with_premier_league_ai_fixtures(
+            controller.attack_matrix,
+            controller.defence_matrix,
+            controller.match_rng,
+        )
+    if len(state.premier_league.results) != int(target):
+        raise AssertionError(
+            f"save/reload stress overshot target {target}: "
+            f"{len(state.premier_league.results)}"
+        )
+    return days
+
+
+def _roundtrip_controller(database, controller):
+    before = snapshot_human_gameplay(controller)
+    payload = dumps_human_gameplay(controller)
+    restored = loads_human_gameplay(
+        database,
+        controller.attack_matrix,
+        controller.defence_matrix,
+        payload,
+    )
+    after = snapshot_human_gameplay(restored)
+    if after != before:
+        raise AssertionError("internal save/reload changed live controller state")
+    return restored, len(payload)
+
+
 class Gate16ConsecutiveSeasonTests(unittest.TestCase):
     def test_three_complete_seasons_run_in_one_live_world_across_two_rollovers(self):
         state = GameState.from_database(
@@ -322,6 +383,105 @@ class Gate16ConsecutiveSeasonTests(unittest.TestCase):
         self.assertLess(completion_dates[0], completion_dates[1])
         self.assertLess(completion_dates[1], completion_dates[2])
         self.assertEqual(len(rng_states), 3)
+
+
+    def test_three_seasons_survive_midseason_and_post_rollover_save_reload(self):
+        database = ConsecutiveSeasonDatabase()
+        state = GameState.from_database(
+            database,
+            date(2000, 8, 18),
+            seed=0x0BADF00D,
+            season_year=2000,
+        )
+        state.install_premier_league_scheduler_order(
+            _initial_scheduler_order(state)
+        )
+        controller = HumanGameplayController(
+            state,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MsvcCrtRng(0x10203040),
+        )
+
+        reload_payload_sizes = []
+        monthly_update_counts = []
+        season_digests = []
+        midseason_targets = (120, 160, 200)
+
+        for season_index, target in enumerate(midseason_targets):
+            _advance_to_result_count(controller, target)
+            controller, payload_size = _roundtrip_controller(database, controller)
+            reload_payload_sizes.append(payload_size)
+
+            remaining_days = _complete_remaining_season(
+                controller,
+                max_days=370,
+            )
+            self.assertLessEqual(remaining_days, 370)
+            state = controller.state
+            self.assertEqual(len(state.premier_league.results), 380)
+            self.assertEqual(len(state.premier_league_table()), 20)
+            self.assertTrue(
+                all(int(row.played) == 38 for row in state.premier_league_table())
+            )
+            self.assertEqual(
+                sum(int(row.goals_for) for row in state.premier_league_table()),
+                sum(int(row.goals_against) for row in state.premier_league_table()),
+            )
+            self.assertEqual(
+                sum(int(row.wins) for row in state.premier_league_table()),
+                sum(int(row.losses) for row in state.premier_league_table()),
+            )
+
+            ranking = _publish_exact_synthetic_ranking(state)
+            self.assertEqual(set(ranking), set(range(1, 21)))
+            season_digests.append(_season_digest(state))
+            monthly_update_counts.append(int(state.monthly_player_updates))
+
+            for club_id in range(1, 21):
+                roster = state.ordered_club_roster(club_id)
+                self.assertGreaterEqual(
+                    len(roster),
+                    16,
+                    f"season {season_index}: roster collapse after save/reload",
+                )
+                self.assertTrue(
+                    all(int(player.club_id) == club_id for player in roster)
+                )
+            for player in state.players.values():
+                self.assertGreaterEqual(int(player.condition), 0)
+                self.assertLessEqual(int(player.condition), 100)
+                self.assertGreaterEqual(int(player.form_state), 0)
+                self.assertLessEqual(int(player.form_state), 4)
+                self.assertGreaterEqual(
+                    int(player.suspension_matches_remaining),
+                    0,
+                )
+
+            if season_index == 2:
+                break
+
+            controller.regenerate_annual_primary_season(
+                season_year=2001 + season_index,
+                procedural_league_ids=(),
+            )
+            state = controller.state
+            self.assertEqual(len(state.premier_league.fixtures), 380)
+            self.assertEqual(state.premier_league.results, {})
+            self.assertTrue(state.primary_matchday_order)
+            self.assertTrue(state.premier_league_scheduler_order)
+
+            controller, payload_size = _roundtrip_controller(database, controller)
+            reload_payload_sizes.append(payload_size)
+            self.assertEqual(controller.state.premier_league.results, {})
+            self.assertEqual(len(controller.state.premier_league.fixtures), 380)
+
+        self.assertEqual(len(reload_payload_sizes), 5)
+        self.assertTrue(all(size > 0 for size in reload_payload_sizes))
+        self.assertEqual(len(season_digests), 3)
+        self.assertEqual(len(monthly_update_counts), 3)
+        self.assertLess(monthly_update_counts[0], monthly_update_counts[1])
+        self.assertLess(monthly_update_counts[1], monthly_update_counts[2])
 
 
 if __name__ == "__main__":
