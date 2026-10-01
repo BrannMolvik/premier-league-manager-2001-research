@@ -89,6 +89,130 @@ def pmenu_background_row_index(state_bits: int) -> int:
 def pmenu_background_source_y(state_bits: int) -> int:
     return pmenu_background_row_index(state_bits) * PMENU_ROW_HEIGHT
 
+PMENU_ARROW_SET_SEQUENCE_VA = 0x652780
+PMENU_ARROW_TICK_VA = 0x6527F0
+PMENU_ARROW_SEQUENCE_SELECTOR_VA = 0x652AE0
+PMENU_CHILD_ARROW_SEQUENCE_LENGTH_VA = 0x5D62F0
+PMENU_TITLE_ARROW_SEQUENCE_LENGTH_VA = 0x5D50E0
+PMENU_TITLE_ARROW_SOURCE_Y_VA = 0x4825A0
+
+PMENU_ARROW_SEQUENCE_0 = 0
+PMENU_ARROW_SEQUENCE_1 = 1
+PMENU_ARROW_SEQUENCE_2 = 2
+
+
+def pmenu_arrow_sequence_for_state_bits(state_bits: int) -> int:
+    """Mirror the neutral bitmap sequence selector at 0x652AE0."""
+    if type(state_bits) is not int or state_bits < 0:
+        raise OriginalPMenuChromeError("PMenu state bits must be a non-negative integer")
+    if not state_bits & PMENU_STATE_BIT_1:
+        return PMENU_ARROW_SEQUENCE_2
+    if state_bits & PMENU_STATE_BIT_15:
+        return PMENU_ARROW_SEQUENCE_1
+    return PMENU_ARROW_SEQUENCE_0
+
+
+def pmenu_child_arrow_sequence_length(sequence: int) -> int:
+    """Mirror generic bitmap sequence lengths used by the child-arrow strip."""
+    if type(sequence) is not int:
+        raise OriginalPMenuChromeError("PMenu arrow sequence must be an integer")
+    if sequence not in (0, 1, 2):
+        raise OriginalPMenuChromeError("PMenu child-arrow sequence must be 0, 1 or 2")
+    return 1 if sequence == 2 else 11
+
+
+def pmenu_title_arrow_sequence_length(sequence: int) -> int:
+    """Mirror MenuTitleArrow's overridden sequence-length method."""
+    if type(sequence) is not int:
+        raise OriginalPMenuChromeError("PMenu arrow sequence must be an integer")
+    if sequence not in (0, 1, 2):
+        raise OriginalPMenuChromeError("PMenu title-arrow sequence must be 0, 1 or 2")
+    return 11 if sequence == 0 else 1
+
+
+def pmenu_remap_arrow_frame(
+    old_sequence: int,
+    old_frame: int,
+    new_sequence: int,
+    *,
+    title: bool = False,
+) -> int:
+    """Mirror 0x652780's proportional current-frame remap on sequence changes."""
+    length = (
+        pmenu_title_arrow_sequence_length if title
+        else pmenu_child_arrow_sequence_length
+    )
+    old_length = length(old_sequence)
+    new_length = length(new_sequence)
+    if type(old_frame) is not int or not 0 <= old_frame < old_length:
+        raise OriginalPMenuChromeError("PMenu arrow frame is outside its sequence")
+    if old_sequence == new_sequence:
+        return old_frame
+    return (new_length * old_frame) // old_length
+
+
+def pmenu_tick_arrow_frame(
+    sequence: int,
+    frame: int,
+    state_bits: int,
+    *,
+    title: bool = False,
+) -> tuple[int, int]:
+    """Mirror one 0x6527F0 update after source-bit sequence selection.
+
+    The bit meanings remain neutral. 0x6527F0 first calls 0x652AE0 to select a
+    sequence, preserving proportional animation progress through 0x652780.
+    It then increments the current frame when bit 3 is set, otherwise
+    decrements it, clamping at the selected sequence endpoint.
+    """
+    selected = pmenu_arrow_sequence_for_state_bits(state_bits)
+    frame = pmenu_remap_arrow_frame(sequence, frame, selected, title=title)
+    length = (
+        pmenu_title_arrow_sequence_length if title
+        else pmenu_child_arrow_sequence_length
+    )(selected)
+    if state_bits & PMENU_STATE_BIT_3:
+        if frame + 1 < length:
+            frame += 1
+    elif frame:
+        frame -= 1
+    return selected, frame
+
+
+def pmenu_child_arrow_source_row(sequence: int, frame: int) -> int:
+    """Mirror generic bitmap source-y row selection for menu_anim.444."""
+    length = pmenu_child_arrow_sequence_length(sequence)
+    if type(frame) is not int or not 0 <= frame < length:
+        raise OriginalPMenuChromeError("PMenu child-arrow frame is outside its sequence")
+    if sequence == 0:
+        return frame
+    if sequence == 1:
+        return 11 + frame
+    return 22
+
+
+def pmenu_title_arrow_source_row(sequence: int, frame: int) -> int:
+    """Mirror MenuTitleArrow::0x4825A0 for menu_arrow_anim.444.
+
+    The 22-row source strip is configured as 30x29 physical frames, but the
+    title-arrow override addresses only source rows 0..10: sequence 0 animates
+    across them, sequence 1 pins row 10, and sequence 2 pins row 0.
+    """
+    length = pmenu_title_arrow_sequence_length(sequence)
+    if type(frame) is not int or not 0 <= frame < length:
+        raise OriginalPMenuChromeError("PMenu title-arrow frame is outside its sequence")
+    if sequence == 0:
+        return frame
+    if sequence == 1:
+        return 10
+    return 0
+
+
+def pmenu_arrow_source_y(row: int) -> int:
+    if type(row) is not int or row < 0:
+        raise OriginalPMenuChromeError("PMenu arrow row must be a non-negative integer")
+    return row * PMENU_ROW_HEIGHT
+
 
 @dataclass(frozen=True)
 class OriginalPMenuResource:
