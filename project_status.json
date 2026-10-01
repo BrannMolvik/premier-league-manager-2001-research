@@ -481,7 +481,7 @@
   "gate13_first_screen_headless_presenter_integrated": true,
   "gate13_exact_source_selection_verified": true,
   "gate13_latest_verified_integration_main_head": "7fc92fedd6f660a878348a34a02055027b63c9cb",
-  "gate13_latest_focused_ci_run": 36773922844,
+  "gate13_latest_focused_ci_run": 36888165831,
   "gate13_latest_asset_policy_ci_run": 36755982172,
   "gate13_source_material_import_completed": true,
   "gate13_native_button_state_recovered": true,
@@ -539,8 +539,8 @@
   "gate13_presentation_separation_evidence": "research/GATE13_PRESENTATION_SEPARATION_AUDIT.md",
   "gate13_resource_coverage_audit": "research/GATE13_RESOURCE_COVERAGE_AUDIT.md",
   "gate13_resource_criterion_status": "open_teamselect_hierarchy_and_broader_management_screen_fidelity",
-  "gate13_latest_focused_executed_tests": 237,
-  "gate13_latest_focused_skips": 19,
+  "gate13_latest_focused_executed_tests": 273,
+  "gate13_latest_focused_skips": 21,
   "gate13_latest_focused_result": "passed",
   "gate13_scouting_presentation_contract_verified": true,
   "gate13_scouting_presentation_contract_evidence": "research/GATE13_SCOUTING_PRESENTATION_CONTRACT.md",
@@ -794,5 +794,8 @@
   "gate16_readiness_audit_head": "268aa0536dec9cada48a1e5b09c651df76fe11ab",
   "gate16_completion_criteria_prevalidated": true,
   "gate13_teamselect_club_row_toggle_integrated": true,
-  "gate13_teamselect_backend_club_id_mapping_verified": false
+  "gate13_teamselect_backend_club_id_mapping_verified": false,
+  "gate13_teamselect_recovery_pr": 68,
+  "gate13_teamselect_recovery_asset_policy_run": 36888165952,
+  "gate13_teamselect_recovery_asset_policy_result": "passed"
 }
