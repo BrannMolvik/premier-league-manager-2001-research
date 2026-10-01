@@ -538,7 +538,7 @@
   "gate13_presentation_separation_audited": true,
   "gate13_presentation_separation_evidence": "research/GATE13_PRESENTATION_SEPARATION_AUDIT.md",
   "gate13_resource_coverage_audit": "research/GATE13_RESOURCE_COVERAGE_AUDIT.md",
-  "gate13_resource_criterion_status": "open_corrected_windows_audit_pmenu_arrow_states_shell_background_asset_import_and_broader_management_presentation",
+  "gate13_resource_criterion_status": "open_corrected_windows_audit_pmenu_asset_import_text_origin_and_broader_management_presentation",
   "gate13_latest_focused_executed_tests": 276,
   "gate13_latest_focused_skips": 21,
   "gate13_latest_focused_result": "passed",
@@ -911,5 +911,36 @@
   ],
   "gate13_pmenu_title_arrow_state_mapping_open": true,
   "gate13_pmenu_child_arrow_state_mapping_open": true,
-  "gate13_recovery_146_direct_git_transport": "blocked_could_not_resolve_github_com"
+  "gate13_recovery_146_direct_git_transport": "blocked_could_not_resolve_github_com",
+  "gate13_pmenu_labels_font_background_merge": "2f59e163e873051a9bc691f6d6c04033f678ad20",
+  "gate13_pmenu_labels_font_background_ci_run": 36914325613,
+  "gate13_pmenu_labels_font_background_asset_policy_run": 36914325533,
+  "gate13_pmenu_arrow_state_source_proven": true,
+  "gate13_pmenu_arrow_state_evidence": "research/GATE13_PMENU_CHROME_TRACE.md",
+  "gate13_pmenu_child_arrow_state_frame_counts": [
+    11,
+    11,
+    1
+  ],
+  "gate13_pmenu_child_arrow_total_frames": 23,
+  "gate13_pmenu_title_arrow_state_frame_counts": [
+    11,
+    1,
+    1
+  ],
+  "gate13_pmenu_title_arrow_native_frame_height": 58,
+  "gate13_pmenu_title_arrow_total_frames": 11,
+  "gate13_pmenu_shell_direct_resource_binding": false,
+  "gate13_pmenu_shell_list_object_offset": "0x68",
+  "gate13_pmenu_shell_list_setup_arguments": [
+    0,
+    0,
+    201,
+    504,
+    16,
+    29,
+    0,
+    0,
+    0
+  ]
 }
