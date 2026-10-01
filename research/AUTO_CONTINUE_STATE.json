@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the active validation gate with the real Windows PStartMenu/TeamSelect graphical audit deferred. Recovery 132 has verified Gate 16 transfer-history save/reload stress and re-established canonical source access. Current task: run a canonical shipped-data multi-season Gate-16 audit. The private disc archive and required root files are already materialized/hash-verified outside Git; obtain current reconstruction runtime code in the execution container without committing proprietary bytes, then drive consecutive canonical seasons through annual qualification/regeneration and persist the evidence.",
-  "last_known_main_head": "120400bd1ce25e449897e927e00dfa9f945076eb",
+  "active_task": "Gate 13 remains the earliest incomplete validation gate with the real Windows PStartMenu/TeamSelect graphical audit deferred. The current cloud-safe work-ahead task remains the canonical shipped-data multi-season Gate-16 audit. Recovery 133 materialized the canonical Library archive but the execution allocation failed after one successful shell process: all subsequent shell/Python launches returned caas.internal.errors.ClientError. Next healthy allocation must sync current main, verify the source outside Git, and drive consecutive canonical seasons through annual qualification/regeneration with long-duration invariants.",
+  "last_known_main_head": "1282b5477d4cfed173cc19111a5480876178aa8b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -19,8 +19,8 @@
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 133,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 133: fresh chat resumed canonical main 120400bd1ce25e449897e927e00dfa9f945076eb. Continuing the repository-recorded canonical shipped-data multi-season Gate-16 audit; Gate 13 remains the earliest incomplete validation gate and its real Windows graphical audit stays deferred.",
+  "last_recovery_reason": "sandbox-execution-failure",
+  "note": "Recovery 133 checkpointed the execution blocker on main 1282b5477d4cfed173cc19111a5480876178aa8b. No canonical multi-season result was claimed. Runtime intentionally remains working so automatic recovery can retry the exact audit in a healthy sustained execution allocation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
