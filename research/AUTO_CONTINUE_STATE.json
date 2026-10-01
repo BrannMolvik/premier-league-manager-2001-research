@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 158 merged PR #87 as 1fb35fbc8e0b36f3fefc7aad00e5cea388383a39 after Gate-13 run 36929308062 passed 351 tests with 21 expected skips and asset-policy run 36929308094 passed. Exact next task: resolve PMatchInfo string/data producers for the six bounded Zurich text controls and reconcile the shared PScriptRow1/PScriptRow2 dynamic incident control at +0x1C8 / resource slot +0x1F4, preserving only source-proven local geometry; then continue PMatchInfo event/tab behavior or remaining name-block/possession consumers.",
-  "last_known_main_head": "1fb35fbc8e0b36f3fefc7aad00e5cea388383a39",
+  "active_task": "Recovery 158 merged PR #88 as 6ae2f39caba70e8f31ec651cf98ccaff1be832a6 after Gate-13 run 36933211315 passed 352 tests with 21 expected skips and asset-policy run 36933211343 passed. Fresh original-source trace resolves the producer chains for all six bounded Zurich text controls and the incident wrapper selection predicates. Persist and regression-cover the exact language-loader indices, source text, DBTPositions position-label chain, popup Attendance/Ref./Mom producers, neutral event_record+0x00 decimal field, and incident-state branches; then continue PMatchInfo event/tab behavior and seven remaining name-block/possession consumers.",
+  "last_known_main_head": "6ae2f39caba70e8f31ec651cf98ccaff1be832a6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 158,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 158 validated and merged Recovery 157; continue from the post-merge PMatchInfo text/incident boundary without repeating geometry/resource ownership.",
+  "note": "Recovery 158 validated and merged the shared incident-control checkpoint and is continuing firsthand PMatchInfo text-producer/source-state tracing.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
