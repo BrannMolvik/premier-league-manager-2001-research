@@ -11,6 +11,15 @@ from original_league_fixtures_resources import (
     LEAGUE_FIXTURES_RESOURCES,
     LEAGUE_FIXTURES_VERTICAL_GRID_POSITIONS,
     LEAGUE_FIXTURE_STATUS_COMPLETE_BIT,
+    LEAGUE_FIXTURE_MATRIX_EXCLUDED_STATUS_BIT,
+    LEAGUE_FIXTURE_MATRIX_KIND_CODE,
+    LEAGUE_FIXTURES_GLOBAL_FIXTURE_BUCKET_COUNT,
+    LEAGUE_FIXTURES_GRID_OBJECT_OFFSET,
+    LEAGUE_FIXTURES_GRID_OUTER_PANEL_OFFSET,
+    LEAGUE_FIXTURES_GRID_VFTABLE_VA,
+    LEAGUE_FIXTURES_CLUB_TEXT_VFTABLE_VA,
+    LEAGUE_FIXTURES_VISIBLE_COLUMNS,
+    LEAGUE_FIXTURES_VISIBLE_ROWS,
     LEAGUE_FIXTURE_SCORE_FORMAT,
     LEAGUE_FIXTURE_DATE_FORMAT,
     OriginalLeagueFixturesResourceError,
@@ -19,6 +28,14 @@ from original_league_fixtures_resources import (
     TOGGLED_FIXTURES_BOX,
     assert_league_fixtures_panel_identity,
     league_fixture_base_box,
+    league_fixture_empty_slot_is_self_match,
+    league_fixture_first_free_repeat_slot,
+    league_fixture_matrix_accepts_candidate,
+    league_fixture_matrix_layer_count_from_helper_result,
+    league_fixture_matrix_slot,
+    league_fixtures_column_page_offset,
+    league_fixtures_grid_indices_from_point,
+    validate_league_fixtures_grid_selection_index,
     league_fixture_box_for_cell,
     league_fixture_visible_text,
     validate_original_league_fixtures_resources,
@@ -102,21 +119,33 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
             DATE_FIXTURES_BOX,
         )
 
-    def test_empty_slot_red_predicate_remains_neutral_and_source_exact(self):
+    def test_grid_and_club_text_owner_offsets_are_source_bound(self):
+        self.assertEqual(LEAGUE_FIXTURES_GRID_OBJECT_OFFSET, 0x1CF0)
+        self.assertEqual(LEAGUE_FIXTURES_GRID_VFTABLE_VA, 0x7C23D0)
+        self.assertEqual(LEAGUE_FIXTURES_GRID_OUTER_PANEL_OFFSET, 0x2C)
+        self.assertEqual(LEAGUE_FIXTURES_CLUB_TEXT_VFTABLE_VA, 0x7C25C0)
+
+    def test_empty_slot_red_box_is_exact_same_club_diagonal(self):
+        self.assertFalse(league_fixture_empty_slot_is_self_match(4, 7))
+        self.assertTrue(league_fixture_empty_slot_is_self_match(4, 4))
         self.assertIs(
             league_fixture_base_box(
                 fixture_present=False,
-                empty_slot_red_predicate=False,
+                empty_slot_same_club=False,
             ),
             DATE_FIXTURES_BOX,
         )
         self.assertIs(
             league_fixture_base_box(
                 fixture_present=False,
-                empty_slot_red_predicate=True,
+                empty_slot_same_club=True,
             ),
             RED_FIXTURES_BOX,
         )
+        for bad in (True, -1, None, "4"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalLeagueFixturesResourceError):
+                    league_fixture_empty_slot_is_self_match(bad, 4)
 
     def test_selected_cell_overlay_has_precedence_over_base_box(self):
         for fixture_present, status, red in (
@@ -134,11 +163,179 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
                     league_fixture_box_for_cell(
                         fixture_present=fixture_present,
                         fixture_status_bits=status,
-                        empty_slot_red_predicate=red,
+                        empty_slot_same_club=red,
                         selected=True,
                     ),
                     TOGGLED_FIXTURES_BOX,
                 )
+
+    def test_matrix_candidate_filter_is_exact_and_status_bit_0x20_stays_neutral(self):
+        base = dict(
+            kind_code=LEAGUE_FIXTURE_MATRIX_KIND_CODE,
+            fixture_competition_identity=6,
+            selected_competition_identity=6,
+            fixture_status_bits=0,
+            left_club_identity=2,
+            right_club_identity=9,
+        )
+        self.assertTrue(league_fixture_matrix_accepts_candidate(**base))
+
+        rejected = (
+            {**base, "kind_code": 0},
+            {**base, "fixture_competition_identity": 5},
+            {**base, "fixture_status_bits": LEAGUE_FIXTURE_MATRIX_EXCLUDED_STATUS_BIT},
+            {**base, "left_club_identity": None},
+            {**base, "right_club_identity": None},
+        )
+        for case in rejected:
+            with self.subTest(case=case):
+                self.assertFalse(league_fixture_matrix_accepts_candidate(**case))
+
+        # Unrelated completion/status bit 0 is not one of this builder's filters.
+        self.assertTrue(
+            league_fixture_matrix_accepts_candidate(
+                **{**base, "fixture_status_bits": LEAGUE_FIXTURE_STATUS_COMPLETE_BIT}
+            )
+        )
+
+    def test_matrix_layer_count_is_source_helper_result_divided_by_two(self):
+        self.assertEqual(league_fixture_matrix_layer_count_from_helper_result(0), 0)
+        self.assertEqual(league_fixture_matrix_layer_count_from_helper_result(2), 1)
+        self.assertEqual(league_fixture_matrix_layer_count_from_helper_result(5), 2)
+        for bad in (True, -1, 1.5, "4"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalLeagueFixturesResourceError):
+                    league_fixture_matrix_layer_count_from_helper_result(bad)
+
+    def test_matrix_slot_is_pair_major_with_n_squared_repeat_layers(self):
+        self.assertEqual(
+            league_fixture_matrix_slot(
+                club_count=20,
+                left_member_index=3,
+                right_member_index=7,
+                repeat_layer=0,
+            ),
+            67,
+        )
+        self.assertEqual(
+            league_fixture_matrix_slot(
+                club_count=20,
+                left_member_index=3,
+                right_member_index=7,
+                repeat_layer=1,
+            ),
+            467,
+        )
+
+    def test_repeated_pair_uses_first_free_n_squared_layer(self):
+        club_count = 4
+        layers = 3
+        occupied = [False] * (club_count * club_count * layers)
+        first = league_fixture_matrix_slot(
+            club_count=club_count,
+            left_member_index=1,
+            right_member_index=2,
+            repeat_layer=0,
+        )
+        second = league_fixture_matrix_slot(
+            club_count=club_count,
+            left_member_index=1,
+            right_member_index=2,
+            repeat_layer=1,
+        )
+        occupied[first] = True
+        self.assertEqual(
+            league_fixture_first_free_repeat_slot(
+                occupied,
+                club_count=club_count,
+                left_member_index=1,
+                right_member_index=2,
+                layer_count=layers,
+            ),
+            second,
+        )
+        occupied[second] = True
+        occupied[
+            league_fixture_matrix_slot(
+                club_count=club_count,
+                left_member_index=1,
+                right_member_index=2,
+                repeat_layer=2,
+            )
+        ] = True
+        with self.assertRaisesRegex(
+            OriginalLeagueFixturesResourceError,
+            "all source-allocated repeat layers",
+        ):
+            league_fixture_first_free_repeat_slot(
+                occupied,
+                club_count=club_count,
+                left_member_index=1,
+                right_member_index=2,
+                layer_count=layers,
+            )
+
+    def test_fixture_chain_scan_has_exact_373_head_slots(self):
+        self.assertEqual(LEAGUE_FIXTURES_GLOBAL_FIXTURE_BUCKET_COUNT, 373)
+
+    def test_column_paging_moves_exactly_twelve_and_clamps_to_last_window(self):
+        self.assertEqual(LEAGUE_FIXTURES_VISIBLE_COLUMNS, 12)
+        self.assertEqual(league_fixtures_column_page_offset(0, 20, 1), 8)
+        self.assertEqual(league_fixtures_column_page_offset(8, 20, -1), 0)
+        self.assertEqual(league_fixtures_column_page_offset(0, 36, 1), 12)
+        self.assertEqual(league_fixtures_column_page_offset(12, 36, 1), 24)
+        self.assertEqual(league_fixtures_column_page_offset(24, 36, 1), 24)
+        self.assertEqual(league_fixtures_column_page_offset(0, 8, 1), 0)
+
+    def test_grid_point_mapping_uses_exact_29_by_14_steps(self):
+        self.assertEqual(
+            league_fixtures_grid_indices_from_point(
+                x=100,
+                y=200,
+                origin_x=100,
+                origin_y=200,
+            ),
+            (0, 0),
+        )
+        self.assertEqual(
+            league_fixtures_grid_indices_from_point(
+                x=100 + 29 * 11 + 28,
+                y=200 + 14 * 23 + 13,
+                origin_x=100,
+                origin_y=200,
+            ),
+            (11, 23),
+        )
+        for x, y in (
+            (99, 200),
+            (100, 199),
+            (100 + 29 * 12, 200),
+            (100, 200 + 14 * 24),
+        ):
+            with self.subTest(x=x, y=y):
+                with self.assertRaises(OriginalLeagueFixturesResourceError):
+                    league_fixtures_grid_indices_from_point(
+                        x=x,
+                        y=y,
+                        origin_x=100,
+                        origin_y=200,
+                    )
+
+    def test_dispatch_selector_ranges_are_twelve_columns_and_twenty_four_rows(self):
+        self.assertEqual(LEAGUE_FIXTURES_VISIBLE_ROWS, 24)
+        for index in range(12):
+            self.assertEqual(
+                validate_league_fixtures_grid_selection_index(index, axis="column"),
+                index,
+            )
+        for index in range(24):
+            self.assertEqual(
+                validate_league_fixtures_grid_selection_index(index, axis="row"),
+                index,
+            )
+        for index, axis in ((12, "column"), (24, "row"), (-1, "row")):
+            with self.assertRaises(OriginalLeagueFixturesResourceError):
+                validate_league_fixtures_grid_selection_index(index, axis=axis)
 
     def test_visible_text_switches_between_date_and_score_at_completion_bit(self):
         self.assertEqual(LEAGUE_FIXTURE_SCORE_FORMAT, "%i:%i")
@@ -167,7 +364,7 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
                 fixture_present=True, fixture_status_bits=True
             ),
             lambda: league_fixture_base_box(
-                fixture_present=False, empty_slot_red_predicate=1
+                fixture_present=False, empty_slot_same_club=1
             ),
             lambda: league_fixture_box_for_cell(
                 fixture_present=True, selected=1
