@@ -53,6 +53,8 @@ on:
       - "reconstruction/test_original_management_navigation.py"
       - "reconstruction/original_league_fixtures_resources.py"
       - "reconstruction/test_original_league_fixtures_resources.py"
+      - "reconstruction/original_pmatchinfo_resources.py"
+      - "reconstruction/test_original_pmatchinfo_resources.py"
       - "reconstruction/original_pmenu_chrome.py"
       - "reconstruction/test_original_pmenu_chrome.py"
       - "reconstruction/original_teamselect_hierarchy_art.py"
@@ -127,6 +129,7 @@ jobs:
             test_original_management_shell \
             test_original_management_navigation \
             test_original_league_fixtures_resources \
+            test_original_pmatchinfo_resources \
             test_original_pmenu_chrome \
             test_original_teamselect_hierarchy_art \
             test_original_first_screen_presenter \
