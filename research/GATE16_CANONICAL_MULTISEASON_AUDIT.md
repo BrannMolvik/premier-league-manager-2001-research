@@ -193,3 +193,36 @@ materialized schedule.
 A regression now covers the exact boundary: competition 14/context 3 remains a
 valid shared-primary procedural entry when 14 is authorized even if that
 context is absent from `state.procedural_leagues`.
+
+
+## Recovery 137 passing canonical seed-1 audit
+
+After PR #65's projection-checker correction passed full CI, the exact
+authorized shipped-data audit was rerun with player seed 1 for three consecutive
+qualification/regeneration cycles. The process exited **0** after 1,617.49
+seconds and reached 2003-06-02.
+
+All three cycles completed 380 Premier League fixtures, retained 30,064 live
+roster references, applied 28 annual membership changes, committed the
+regeneration RNG atomically and passed the current-regeneration projection
+guards. The fresh structural shapes were:
+
+- cycle 0: `(380,380,5735,9344,291,371,311,13)`;
+- cycle 1: `(380,380,5735,9344,291,371,311,13)`;
+- cycle 2: `(380,380,5737,9346,291,373,311,13)`.
+
+The cycle-2 difference is the already-proven UEFA Cup participant-dependent
+materialization, not retained prior-season state. Exact machine-readable
+evidence is stored in
+`research/evidence/GATE16_CANONICAL_MULTISEASON_SEED1_RECOVERY137.json`.
+
+Verification for PR #65 head `31ab282de6d6f62b498801de624526276837ce5a`:
+
+- asset-policy run `36867367968`: passed;
+- reconstruction run `36867368043`: passed;
+- PR #65 squash merge: `7f3f83eb98b9f29039b691197505dbe74c8b0851`.
+
+This closes the previously open canonical seed-1 multi-season execution
+boundary. Gate 16 remains work-ahead rather than a completed gate while Gate 13
+is the earliest incomplete prerequisite. Additional canonical seed coverage is
+the next independent cloud-safe long-duration stress.
