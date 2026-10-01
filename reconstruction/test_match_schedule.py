@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from match_schedule import (
     MsvcCrtRng,
     advance_schedule_bucket_shuffle_state,
+    advance_msvc_schedule_shuffle_aggregate_state,
     build_and_shuffle_schedule_bucket,
     choose_ordinary_league_schedule_bucket,
     first_ordinary_league_conflict_near,
@@ -82,16 +83,21 @@ class ScheduleBucketShuffleTests(unittest.TestCase):
     def test_secondary_documented_aggregate_draw_count_reaches_staff_seed(self):
         # Firsthand Gate11 research establishes exactly 262 mode-1 nodes,
         # 45 nonempty buckets, 217 Fisher-Yates draws and this final CRT
-        # state. The prior handwritten distribution mistakenly summed to
-        # 280; it was NEVER independently source-locked per date. This
-        # explicitly synthetic partition tests only the proven aggregate
-        # draw-state invariant, not original per-bucket placement/order.
-        bucket_sizes = (6,) * 37 + (5,) * 8
-        self.assertEqual(sum(bucket_sizes), 262)
-        self.assertEqual(len(bucket_sizes), 45)
+        # state. Exact per-date bucket sizes remain unresolved, so this test
+        # advances only the aggregate MSVC hidden state and materializes no
+        # synthetic bucket geometry.
         rng = MsvcCrtRng(0xCAB0B953)
-        self.assertEqual(advance_schedule_bucket_shuffle_state(bucket_sizes, rng), 217)
+        self.assertEqual(
+            advance_msvc_schedule_shuffle_aggregate_state(262, 45, rng),
+            217,
+        )
         self.assertEqual(rng.state, 0x61D6DFA2)
+
+    def test_aggregate_checkpoint_rejects_impossible_bucket_counts(self):
+        rng = MsvcCrtRng(1)
+        with self.assertRaises(ValueError):
+            advance_msvc_schedule_shuffle_aggregate_state(3, 4, rng)
+        self.assertEqual(rng.state, 1)
 
     def test_zero_or_one_entry_consumes_no_rng(self):
         rng = RecordingRng([])
