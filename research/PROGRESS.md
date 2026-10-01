@@ -9334,3 +9334,36 @@ invent original visual or control semantics.
   263-test Gate-13 list had no Squad failure; its sole failure is the existing
   case-only duplicate-path assertion under Windows filesystem semantics.
 
+
+
+## 1 October 2026 KST - Gate 16 multi-season save/reload continuation verified
+
+- Recovery 129 resumed canonical main, preserved Gate 13 as the earliest
+  incomplete validation gate, and continued independent Gate 16 work-ahead.
+- Extended the existing three-season synthetic live-world stress with five
+  internal controller save/reload round-trips: mid-season in each of the three
+  seasons and immediately after both annual primary regenerations.
+- The stress compares complete controller snapshots before and after every
+  reload, then continues the same live world through 380 fixtures per season
+  while rechecking table, roster, Condition, Form, suspension and monthly
+  development invariants.
+- Identified and fixed a concrete post-rollover save-continuity defect:
+  internal source validation had rebuilt immutable source fixture identity from
+  the live Premier League, but annual mode deliberately replaces that live
+  league with procedural fixtures. Database-backed GameState now retains the
+  original fixture identity, and restore reconstructs it from the already
+  validated source database. Wrong-database rejection remains strict.
+- Initial full run `36835600174` reached and successfully reloaded the first
+  post-regeneration state, then failed only because the test incorrectly
+  required year two to reach 160 results within 180 calendar days. That bound
+  omitted the legitimate summer off-season, so the harness was corrected to a
+  one-year 370-day bound without weakening any game-state invariant.
+- Final reconstruction run `36836256569` passed **1,125 tests with 22
+  expected original-source-gated skips and zero failures** on PR head
+  `dcf739a6f747fc024e4fbd1038a68a05661e08f4`.
+- Repository asset-policy run `36836256308` passed.
+- PR #55 squash-merged as
+  `73ca421609cc6e929156c72f5b021b02a6efca3b`.
+- Gate 16 remains work-ahead only. Canonical real-data multi-season evidence,
+  broader competitions, sustained autonomous transfer churn, wider seed
+  coverage and remaining long-duration state-growth risks are still open.
