@@ -26,6 +26,8 @@ Evidence:
 ## Live resume summary
 
 - **Earliest incomplete validation gate:** Gate 13.
+- **Recovery 142 private execution boundary:** this recovery initially restored one trivial shell process, then successfully rematerialized the canonical 511,121,336-byte Library source ZIP. Every subsequent shell launch, the independent Python execution path, and a later trivial shell reprobe failed before process start with `caas.internal.errors.ClientError`. No new original-byte hash, TeamSelect payload behavior, or upgraded Windows graphical result is claimed from Recovery 142. The exact private next action remains the bounded `0x4D8E90` / `0x4D9240` selection-record and Start-resolution re-trace, followed by the upgraded real-Windows audit.
+- **Recovery 142 Gate-14 work-ahead:** PR #71 merged as `ea1e7c6bb25c35243a992c4a33d02038ddb3abc3`. The original startup-media contract now also defines deterministic, non-overwriting FFmpeg conversion plans and strict FFprobe validation for MP4/H.264/AAC derivatives while retaining the exact TGQ source hashes, 320x480 geometry, 25 fps timing, decoded frame counts, and 22,050 Hz stereo audio. Full reconstruction run `36897544475` passed **1,149 tests with 22 expected source-gated skips and zero failures**; asset-policy run `36897544592` passed. This closes only the repository-side conversion contract: no actual TGQ conversion, playback, skip-key, fade, scaling/interlace treatment, or Gate-14 completion is claimed.
 - Local Codex recovery on 2 October closed the source-critical TeamSelect
   hierarchy implementation: exact root-league filtering and stable ordering,
   raw-name club ordering, all league/team native frame transforms and Zurich
@@ -85,10 +87,7 @@ Evidence:
 - The Windows first-screen audit harness is merged at
   `0a871b5fbc9c546ad67c335bc6db009d3a023627`; a hosted harness pass is not a
   substitute for the real Windows receipt.
-- Cloud-safe Gate 14 groundwork is merged at
-  `e54cc8591df91bbc949856ed241fcffcedd5fe97`: the source-backed startup-media
-  contract and read-only match-presentation event feed are foundations only;
-  Gate 14 is not complete.
+- Cloud-safe Gate 14 groundwork began at `e54cc8591df91bbc949856ed241fcffcedd5fe97` and now includes the verified conversion contract merged at `ea1e7c6bb25c35243a992c4a33d02038ddb3abc3`. The source-backed startup-media contract, deterministic conversion/probe boundary, and read-only match-presentation event feed are foundations only; Gate 14 is not complete.
 - Cloud-safe Gate 16 work-ahead now includes the 30-rollover destructive annual
   regeneration soak (`abe0876f240cdac1f3b135869a2f5b11b9c0d953`), six-seed
   complete-season stress (`f08a014bc73c8ca4a7e11e3f10ef79e42ca13e62`), three

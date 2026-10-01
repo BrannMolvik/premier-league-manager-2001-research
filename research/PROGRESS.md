@@ -9681,3 +9681,14 @@ canonical audit.
   population path without screenshot inference.
 - Focused tests lock these durable constants. Visual frame-state, exact
   competition filtering, and club selection remain next; Gate 13 stays active.
+
+## 2 October 2026 - Recovery 142 private execution reblocked; Gate 14 TGQ conversion contract
+
+- Resumed from canonical main `fab51646abac21f078fdfa6fd6bed1091010ca33` and advanced the runtime lease to recovery generation 142 with `mode=continuous` / `status=working`.
+- One initial trivial shell probe succeeded. The exact canonical 511,121,336-byte source archive was then resolved from Library path `/FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip` and materialized successfully.
+- Immediately afterward every shell launch, the independent Python execution path, and a later trivial shell reprobe failed before process start with `caas.internal.errors.ClientError`. Therefore Recovery 142 makes no new source-hash, executable-hash, TeamSelect selection-payload, or upgraded Windows graphical claim.
+- Under the deferred-blocker policy, independent Gate-14 work continued instead of repeating the dead execution path. PR #71 added a fail-closed startup-TGQ conversion contract: exact source validation must pass before deterministic non-overwriting FFmpeg plans are produced, and converted MP4/H.264/AAC output must pass exact stream-count, 320x480 geometry, 25 fps, original decoded-frame-count, `yuv420p`, and 22,050 Hz stereo FFprobe checks.
+- The conversion checkpoint deliberately does not launch FFmpeg, claim playback, rename the unresolved wrapper bit as a confirmed skip semantic, or invent fade/scaling/interlace behavior.
+- PR #71 head `cb9ce3836252ee3bf05a259f805f573502032b18` passed full reconstruction run `36897544475`: **1,149 tests, 22 expected source-gated skips, zero failures**. Asset-policy run `36897544592` passed. It squash-merged as `ea1e7c6bb25c35243a992c4a33d02038ddb3abc3`.
+- Gate 13 remains the earliest incomplete validation gate. The exact private next action is still the bounded TeamSelect `0x4D8E90` / `0x4D9240` selection-record and Start-resolution re-trace followed by the upgraded real-Windows audit. While execution remains unavailable, the next independent cloud-safe task is a private Gate-14 conversion/probe receipt runner around the now-verified contract.
+
