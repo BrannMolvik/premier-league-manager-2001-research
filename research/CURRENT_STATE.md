@@ -72,15 +72,13 @@ Evidence:
   asset-policy run `36849081409` passed. The periodically reloaded run matches
   a never-reloaded run from the same seed across the full movement history,
   rosters, counters, RNG state and final date.
-- **Exact next task:** run a canonical shipped-data multi-season Gate-16 audit.
-  Source availability is no longer the blocker in Recovery 132: the Library
-  disc archive was materialized and its ZIP plus extracted `Master.dat`,
-  `Static.dat`, `English.str`, `Core.str` and `FOOTBAL.EXE` all matched
-  their pinned canonical SHA-256 values. Obtain the current reconstruction
-  runtime in the execution container without placing proprietary source bytes
-  in Git, then drive consecutive canonical seasons through annual
-  qualification/regeneration with long-duration invariants and checkpoint the
-  result.
+- **Exact next task:** isolate the Recovery-135 canonical Gate-16 cycle-2
+  structural delta: fresh shared-primary entries 5735 -> 5737, shadow entries
+  9344 -> 9346 and European Cup nodes 371 -> 373 while every other tracked
+  fresh-season count stayed stable. Identify the exact competition/round nodes,
+  determine whether the difference is legitimate participant-dependent Cup
+  materialization or cross-season accumulation, encode the result as a
+  regression/fix, and then rerun the three-rollover canonical audit.
 - **Recovery 133 execution blocker:** the fresh allocation launched one trivial
   shell process successfully, but direct `git clone` could not resolve
   `github.com`. The GitHub connector remained healthy and the canonical
@@ -130,6 +128,17 @@ Evidence:
   allocation is unusable. The blocker is therefore execution infrastructure,
   not source availability, runtime transport, GitHub access, or missing audit
   code. No canonical multi-season result is claimed.
+- **Recovery 135 canonical execution:** the fresh allocation restored sustained
+  shell/Python execution. The authorized source ZIP and persisted runtime ZIP
+  materialized, all 268,549 raw MODE1/2352 sectors validated, the four pinned
+  canonical data/string SHA-256 values matched, and the current multi-season
+  runner blob matched GitHub. The seed-1 three-rollover run then failed closed
+  on cycle 2 after about 22 minutes: fresh shape
+  `(380,380,5735,9344,291,371,311,13)` became
+  `(380,380,5737,9346,291,373,311,13)`. The isolated +2 change is in European
+  Cup nodes and their corresponding shared-primary/shadow entries; Premier,
+  domestic Cup, qualification Cup and procedural-League counts stayed stable.
+  This is now a real Gate-16 investigation, not an infrastructure blocker.
 - Gate 17 release-readiness evidence is now fail-closed and machine-checkable at
   `9e7cb18be721ea2ae89b074991e120d3e60e4c68`; it intentionally cannot pass
   without real clean-Windows receipts, a release archive and final limitations.
