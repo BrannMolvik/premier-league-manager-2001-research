@@ -20,6 +20,21 @@ from original_league_fixtures_resources import (
     LEAGUE_FIXTURES_CLUB_TEXT_VFTABLE_VA,
     LEAGUE_FIXTURES_VISIBLE_COLUMNS,
     LEAGUE_FIXTURES_VISIBLE_ROWS,
+    LEAGUE_FIXTURES_COUNTRY_SELECTORS,
+    LEAGUE_FIXTURES_COUNTRY_SELECTOR_COUNT,
+    LEAGUE_FIXTURES_LEAGUE_SELECTOR_COUNT,
+    LEAGUE_FIXTURES_SELECTOR_CLASS,
+    LEAGUE_FIXTURES_SELECTOR_VFTABLE_VA,
+    LEAGUE_FIXTURES_SELECTOR_CONSTRUCTOR_VA,
+    LEAGUE_FIXTURES_SELECTOR_OWNER_BIND_VA,
+    LEAGUE_FIXTURES_SELECTOR_SETUP_CONTROL_VA,
+    LEAGUE_FIXTURES_SELECTOR_SET_TEXT_VA,
+    LEAGUE_FIXTURES_LEAGUE_BASE_TYPE_DESCRIPTOR_VA,
+    LEAGUE_FIXTURES_LEAGUE_TYPE_DESCRIPTOR_VA,
+    LEAGUE_FIXTURES_RTDYNAMICCAST_VA,
+    LEAGUE_FIXTURES_LEAGUE_CAPTION_OFFSET,
+    LEAGUE_FIXTURES_CURRENT_CLUB_COMPETITION_ID_OFFSET,
+    LEAGUE_FIXTURES_CURRENT_CLUB_COUNTRY_ID_OFFSET,
     LEAGUE_FIXTURE_SCORE_FORMAT,
     LEAGUE_FIXTURE_DATE_FORMAT,
     OriginalLeagueFixturesResourceError,
@@ -35,6 +50,10 @@ from original_league_fixtures_resources import (
     league_fixture_matrix_slot,
     league_fixtures_column_page_offset,
     league_fixtures_grid_indices_from_point,
+    league_fixtures_country_selector_for_club_country,
+    league_fixtures_selected_league_index,
+    league_fixtures_league_selectors,
+    league_fixtures_selector_event,
     validate_league_fixtures_grid_selection_index,
     league_fixture_box_for_cell,
     league_fixture_visible_text,
@@ -100,6 +119,157 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
                 )
             )
         )
+
+    def test_country_selectors_preserve_exact_source_order_ids_events_and_offsets(self):
+        self.assertEqual(LEAGUE_FIXTURES_COUNTRY_SELECTOR_COUNT, 8)
+        self.assertEqual(
+            [selector.caption for selector in LEAGUE_FIXTURES_COUNTRY_SELECTORS],
+            [
+                "England",
+                "Germany",
+                "Italy",
+                "Spain",
+                "Scotland",
+                "France",
+                "Holland",
+                "Belgium",
+            ],
+        )
+        self.assertEqual(
+            [selector.country_id for selector in LEAGUE_FIXTURES_COUNTRY_SELECTORS],
+            [26, 33, 40, 73, 66, 31, 24, 9],
+        )
+        self.assertEqual(
+            [selector.event_id for selector in LEAGUE_FIXTURES_COUNTRY_SELECTORS],
+            list(range(1, 9)),
+        )
+        self.assertEqual(
+            [selector.control_offset for selector in LEAGUE_FIXTURES_COUNTRY_SELECTORS],
+            [0x110 + 0x4C * index for index in range(8)],
+        )
+        self.assertEqual(
+            [selector.country_id_offset for selector in LEAGUE_FIXTURES_COUNTRY_SELECTORS],
+            [0xF0 + 4 * index for index in range(8)],
+        )
+        self.assertEqual(
+            [
+                selector.selected_league_index_offset
+                for selector in LEAGUE_FIXTURES_COUNTRY_SELECTORS
+            ],
+            [0x68 + 4 * index for index in range(8)],
+        )
+
+    def test_country_selector_lookup_matches_current_club_country_and_fails_closed(self):
+        for selector in LEAGUE_FIXTURES_COUNTRY_SELECTORS:
+            with self.subTest(country_id=selector.country_id):
+                self.assertIs(
+                    league_fixtures_country_selector_for_club_country(
+                        selector.country_id
+                    ),
+                    selector,
+                )
+        for bad in (True, -1, 999, "26"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalLeagueFixturesResourceError):
+                    league_fixtures_country_selector_for_club_country(bad)
+
+    def test_league_radio_controls_use_source_class_rtti_and_runtime_cast_boundary(self):
+        self.assertEqual(LEAGUE_FIXTURES_LEAGUE_SELECTOR_COUNT, 6)
+        self.assertEqual(
+            LEAGUE_FIXTURES_SELECTOR_CLASS,
+            "fmRadioTextSm@fm2001_ctrls",
+        )
+        self.assertEqual(LEAGUE_FIXTURES_SELECTOR_VFTABLE_VA, 0x7D6AB8)
+        self.assertEqual(LEAGUE_FIXTURES_SELECTOR_CONSTRUCTOR_VA, 0x5D4B50)
+        self.assertEqual(LEAGUE_FIXTURES_SELECTOR_OWNER_BIND_VA, 0x5D48C0)
+        self.assertEqual(LEAGUE_FIXTURES_SELECTOR_SETUP_CONTROL_VA, 0x5D4C70)
+        self.assertEqual(LEAGUE_FIXTURES_SELECTOR_SET_TEXT_VA, 0x5D3F10)
+        self.assertEqual(LEAGUE_FIXTURES_LEAGUE_BASE_TYPE_DESCRIPTOR_VA, 0x818AA0)
+        self.assertEqual(LEAGUE_FIXTURES_LEAGUE_TYPE_DESCRIPTOR_VA, 0x818978)
+        self.assertEqual(LEAGUE_FIXTURES_RTDYNAMICCAST_VA, 0x668995)
+        self.assertEqual(LEAGUE_FIXTURES_LEAGUE_CAPTION_OFFSET, 0x14)
+        self.assertEqual(LEAGUE_FIXTURES_CURRENT_CLUB_COMPETITION_ID_OFFSET, 0x10)
+        self.assertEqual(LEAGUE_FIXTURES_CURRENT_CLUB_COUNTRY_ID_OFFSET, 0x14)
+
+    def test_dynamic_league_selectors_use_exact_events_offsets_captions_and_selected_state(self):
+        selectors = league_fixtures_league_selectors(
+            [(101, "Premier"), (102, "First")],
+            selected_index=1,
+        )
+        self.assertEqual(
+            [(item.league_identity, item.caption) for item in selectors],
+            [(101, "Premier"), (102, "First")],
+        )
+        self.assertEqual([item.event_id for item in selectors], [9, 10])
+        self.assertEqual([item.control_offset for item in selectors], [0x3B8, 0x404])
+        self.assertEqual([item.selected for item in selectors], [False, True])
+
+    def test_dynamic_league_selectors_fail_closed_outside_source_bounds(self):
+        invalid_calls = (
+            lambda: league_fixtures_league_selectors([], selected_index=0),
+            lambda: league_fixtures_league_selectors(
+                [(index, f"L{index}") for index in range(7)],
+                selected_index=0,
+            ),
+            lambda: league_fixtures_league_selectors(
+                [(101, "Premier"), (101, "Duplicate")],
+                selected_index=0,
+            ),
+            lambda: league_fixtures_league_selectors(
+                [(True, "Premier")],
+                selected_index=0,
+            ),
+            lambda: league_fixtures_league_selectors(
+                [(101, "")],
+                selected_index=0,
+            ),
+            lambda: league_fixtures_league_selectors(
+                [(101, "Premier")],
+                selected_index=1,
+            ),
+            lambda: league_fixtures_league_selectors(
+                [(101, "Premier")],
+                selected_index=True,
+            ),
+        )
+        for call in invalid_calls:
+            with self.assertRaises(OriginalLeagueFixturesResourceError):
+                call()
+
+    def test_current_league_identity_resolves_exact_country_list_index(self):
+        league_ids = [501, 502, 503]
+        self.assertEqual(
+            league_fixtures_selected_league_index(501, league_ids),
+            0,
+        )
+        self.assertEqual(
+            league_fixtures_selected_league_index(503, league_ids),
+            2,
+        )
+        for bad_current, bad_list in (
+            (True, league_ids),
+            (-1, league_ids),
+            (999, league_ids),
+            (501, []),
+            (501, [True]),
+            (501, list(range(7))),
+        ):
+            with self.subTest(current=bad_current, leagues=bad_list):
+                with self.assertRaises(OriginalLeagueFixturesResourceError):
+                    league_fixtures_selected_league_index(
+                        bad_current,
+                        bad_list,
+                    )
+
+    def test_selector_event_dispatch_is_exact_for_country_and_league_ranges(self):
+        self.assertEqual(league_fixtures_selector_event(1), ("country", 0))
+        self.assertEqual(league_fixtures_selector_event(8), ("country", 7))
+        self.assertEqual(league_fixtures_selector_event(9), ("league", 0))
+        self.assertEqual(league_fixtures_selector_event(14), ("league", 5))
+        for bad in (0, 15, True, "9"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalLeagueFixturesResourceError):
+                    league_fixtures_selector_event(bad)
 
     def test_populated_fixture_box_uses_completion_bit_only(self):
         self.assertIs(
