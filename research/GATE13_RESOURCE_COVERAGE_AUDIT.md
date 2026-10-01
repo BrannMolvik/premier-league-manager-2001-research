@@ -45,20 +45,26 @@ PStartMenu and TeamSelect are the only screen family with a deliberately pinned 
 - `Fonts/Zurich_BdXCn_BT_20pixel.fnt`
 - `English.str`
 - `English.idx`
+- `FM2001_Art/Generic/GenericButtonsAndBars/choice_team_but_anim.444`
+- `FM2001_Art/Generic/GenericButtonsAndBars/choice_team_but_bars.444`
+- `Fonts/Zurich_BdXCn_BT_18pixel.fnt`
+- `Fonts/Zurich_BdXCn_BT_16pixel.fnt`
 
-The strict physical ten-resource audit has now passed. Native Button group and
+The strict physical ten-resource base audit has passed. Native Button group and
 23-frame selection, pointer-inside animation direction, PStartMenu Zurich line
 origins and original 16-bit color values are recovered in
-`research/GATE13_BUTTON_NATIVE_TRACE.md`. All ten files are intentionally
-provenance-imported and the post-import readiness guard passes. TeamSelect
-hierarchy item identity/interaction and broader management-screen presentation
-remain incomplete.
+`research/GATE13_BUTTON_NATIVE_TRACE.md`. Those ten files plus the four
+TeamSelect club-row/font resources above are intentionally provenance-imported.
+TeamSelect country/competition/club population, filtering/order, row-state frame
+transforms and Zurich captions are now source-bound. The exact native 0x30-byte
+selection-record payload -> gameplay club identity, the upgraded real-Windows
+audit, and broader management-screen presentation remain incomplete.
 
 ## Management-screen coverage matrix
 
 | Roadmap screen | Source-faithful presentation data seam | Original resource/layout/navigation status |
 | --- | --- | --- |
-| Main menu / TeamSelect | Yes | **Partial.** Button atlas-state, PStartMenu text placement/color endpoints, strict source audit, ten-resource import and live developer-caption integration are complete; TeamSelect hierarchy content/interaction and Windows graphical validation remain open. |
+| Main menu / TeamSelect | Yes | **Partial.** Button atlas-state, PStartMenu text placement/color endpoints, the strict base audit/import, exact country/competition/club population and stable ordering, native row-state transforms, Zurich 18/16 captions, and four additional TeamSelect row/font resources are integrated. The 0x30-byte native selection-record payload -> gameplay club identity and upgraded Windows graphical validation remain open. |
 | Manager home | Controlled-club identity/date available | **Open.** No completed original screen resource/layout/navigation correlation. |
 | Squad | Source-order roster/player state; concrete `PSquadList` / `CSquadPlayerList` / `CSquadSCFList` hierarchy; exact 20-row layout; player/side columns; neutral native status-filter codes; empty-row behavior; `PSquadScreen` top controls and view transitions are source-proven | **Partial.** Core roster geometry/data/status bindings are now proven and guarded. Remaining work is broader original visual/icon semantics, selection/sort/navigation behavior where not yet source-locked, and integrated Windows presentation validation. |
 | Tactics/team selection | Formation, XI/bench and tactical state; `PFormation2k`, `PTeamOrders2K`, `PSquadPitch` and `FormationText` identities; exact `squad_bars.444` / `squad_form_anim.444` bindings; all 22 paired row rectangles/IDs and the exact `FormationText` group/state-to-source-row transform are source-proven | **Partial.** FormationText geometry/state selection is now closed. Remaining tactics/team-selection work is the surrounding original controls, gestures, navigation and full integrated visual presentation. |
@@ -95,8 +101,8 @@ That blocker was cleared by the Windows-local recovery documented in
 
 Current remaining work:
 
-1. run the real Windows PStartMenu/TeamSelect graphical audit with the merged fail-closed harness and record the source-backed receipt/discrepancies;
-2. recover TeamSelect hierarchy item/input/selection-state semantics rather than inferring them from source art or screenshots;
+1. re-trace the TeamSelect `0x4D8E90` / `0x4D9240` 0x30-byte selection-record payload and Start resolution so native club clicks can reach gameplay only through a proven identity mapping;
+2. rerun the upgraded real Windows PStartMenu/TeamSelect graphical audit with the known-working Tcl/Tk-capable Windows Python and record the source-backed receipt/discrepancies;
 3. continue the same executable/resource/layout/navigation correlation discipline across Manager Home and the other incomplete normal-management screen families;
 4. preserve original strings/fonts/art where usable, documenting only genuinely incompatible/inaccessible replacements;
 5. maintain the explicit per-screen resource/layout/navigation evidence table and broader normal-play Windows smoke coverage until every Gate-13 criterion is genuinely satisfied.
