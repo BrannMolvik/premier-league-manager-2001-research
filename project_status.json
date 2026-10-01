@@ -809,5 +809,10 @@
   "gate15_secondary_aggregate_checkpoint_full_ci_run": 36890779450,
   "gate15_secondary_aggregate_checkpoint_test_count": 1146,
   "gate15_secondary_aggregate_checkpoint_expected_skips": 22,
-  "gate15_secondary_aggregate_checkpoint_asset_policy_run": 36890778875
+  "gate15_secondary_aggregate_checkpoint_asset_policy_run": 36890778875,
+  "gate13_evidence_ledgers_reconciled_recovery_141": true,
+  "gate13_resource_coverage_reconciled_head": "d8f13f97f9cd8f25aeb8c9120e8ec0c6a9dfbaa5",
+  "gate13_management_evidence_ledger_reconciled_head": "f5f07ff43d132673072b7fabd87cb15a925116a7",
+  "gate13_presentation_separation_reconciled_head": "5e6e7901cc1004ec55e3a776814b4619b9e4b14a",
+  "gate13_private_execution_recheck_recovery_141": "blocked_clienterror_before_process_start"
 }
