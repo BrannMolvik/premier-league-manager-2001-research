@@ -538,7 +538,7 @@
   "gate13_presentation_separation_audited": true,
   "gate13_presentation_separation_evidence": "research/GATE13_PRESENTATION_SEPARATION_AUDIT.md",
   "gate13_resource_coverage_audit": "research/GATE13_RESOURCE_COVERAGE_AUDIT.md",
-  "gate13_resource_criterion_status": "open_corrected_windows_audit_pmenu_remaining_typography_states_asset_import_and_broader_management_presentation",
+  "gate13_resource_criterion_status": "open_corrected_windows_audit_pmenu_arrow_states_shell_background_asset_import_and_broader_management_presentation",
   "gate13_latest_focused_executed_tests": 276,
   "gate13_latest_focused_skips": 21,
   "gate13_latest_focused_result": "passed",
@@ -871,8 +871,44 @@
     "FM2001_Art/Generic/menu_popup/menu_main_box.444"
   ],
   "gate13_pmenu_unresolved_labels_fail_closed": true,
-  "gate13_pmenu_exact_font_mapping_open": true,
-  "gate13_pmenu_state_frame_mapping_open": true,
+  "gate13_pmenu_exact_font_mapping_open": false,
+  "gate13_pmenu_state_frame_mapping_open": "background_closed_arrow_open",
   "gate13_pmenu_shell_background_open": true,
-  "gate13_pmenu_original_assets_import_status": "correlated_private_bytes_not_yet_provenance_imported"
+  "gate13_pmenu_original_assets_import_status": "correlated_private_bytes_not_yet_provenance_imported",
+  "gate13_pmenu_row_chrome_merge": "addd82b7a8a5efddd83abb698f08d08c71ebcaf9",
+  "gate13_pmenu_row_chrome_ci_run": 36911756061,
+  "gate13_pmenu_row_chrome_test_count": 288,
+  "gate13_pmenu_row_chrome_expected_skips": 21,
+  "gate13_pmenu_row_chrome_asset_policy_run": 36911756170,
+  "gate13_pmenu_all_modeled_labels_source_bound": true,
+  "gate13_pmenu_english_loader_assignment_count": 2714,
+  "gate13_pmenu_font_source_bound": true,
+  "gate13_pmenu_font_path": "Fonts/Zurich_BdXCn_BT_16pixel.fnt",
+  "gate13_pmenu_font_sha256": "9dc371caba34823b0d6ba6fd4c5e82f94775de1168daa5dad936b70a6e4f9732",
+  "gate13_pmenu_font_already_provenance_imported": true,
+  "gate13_pmenu_font_atlas": [
+    1526,
+    17
+  ],
+  "gate13_pmenu_font_native_line_height": 18,
+  "gate13_pmenu_row_color_components": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      255,
+      255,
+      255
+    ]
+  ],
+  "gate13_pmenu_background_toggle_state_mapping_source_bound": true,
+  "gate13_pmenu_background_toggle_state_bits": [
+    "0x2",
+    "0x8",
+    "0x8000"
+  ],
+  "gate13_pmenu_title_arrow_state_mapping_open": true,
+  "gate13_pmenu_child_arrow_state_mapping_open": true
 }
