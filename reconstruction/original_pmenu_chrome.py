@@ -1,9 +1,9 @@
 """Source-backed PMenu menu-row chrome and static menu topology.
 
 This module records only executable-proven FM2001 management-shell presentation
-facts.  It deliberately keeps label globals that have not yet been correlated
-to an original language entry unresolved rather than guessing from nearby menu
-children or modern feature names.
+facts. Recovery 146 closes the label mapping by following the complete
+2,714-entry English.idx loader itself; labels are named only when the exact
+loader assignment and original English bytes agree.
 """
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ from hashlib import sha256
 from pathlib import Path
 
 from ea444_header import parse_ea444_header
+from ea_font import EAFont
 
 
 class OriginalPMenuChromeError(ValueError):
@@ -45,6 +46,48 @@ PMENU_BITMAP_VFTABLE_VA = 0x7BE5D8
 PMENU_TEXT_CONTROL_SIZE = (160, 24)
 PMENU_TEXT_CONTROL_Y = (0, 24, 48, 72, 96, 120)
 PMENU_RUNTIME_FONT_GLOBAL_VA = 0x87BEA0
+PMENU_RUNTIME_FONT_OBJECT_VA = 0x9269F0
+PMENU_RUNTIME_FONT_WRAPPER_INIT_VA = 0x603640
+PMENU_FONT_LOAD_CALL_VA = 0x60429F
+PMENU_FONT_PATH_LITERAL_VA = 0x839F24
+PMENU_FONT_SOURCE_PATH = "Fonts/Zurich_BdXCn_BT_16pixel.fnt"
+PMENU_FONT_SHA256 = "9dc371caba34823b0d6ba6fd4c5e82f94775de1168daa5dad936b70a6e4f9732"
+PMENU_FONT_BYTE_SIZE = 79722
+PMENU_FONT_ATLAS_SIZE = (1526, 17)
+PMENU_FONT_NATIVE_LINE_HEIGHT = 18
+
+# PTitleMenuRow::0x47A7E0 and PChildMenuRow::0x47A990 build the same
+# two grayscale component triples before the row-background setup call. Since
+# every component is equal within each triple, no display-mask channel naming
+# assumption is required.
+PMENU_ROW_COLOR_COMPONENTS = ((0, 0, 0), (255, 255, 255))
+
+PMENU_BACKGROUND_STATE_METHOD_VA = 0x47AC00
+PMENU_STATE_BIT_1 = 0x2
+PMENU_STATE_BIT_3 = 0x8
+PMENU_STATE_BIT_15 = 0x8000
+
+
+def pmenu_background_row_index(state_bits: int) -> int:
+    """Mirror MenuBackgroundToggle::0x47AC00 as an atlas-row index.
+
+    The three source bits remain deliberately unnamed beyond their bit
+    positions. The method itself selects 3/2/1/0 multiples of the source frame
+    height in the order below.
+    """
+    if type(state_bits) is not int or state_bits < 0:
+        raise OriginalPMenuChromeError("PMenu state bits must be a non-negative integer")
+    if not state_bits & PMENU_STATE_BIT_1:
+        return 3
+    if state_bits & PMENU_STATE_BIT_15:
+        return 2
+    if state_bits & PMENU_STATE_BIT_3:
+        return 1
+    return 0
+
+
+def pmenu_background_source_y(state_bits: int) -> int:
+    return pmenu_background_row_index(state_bits) * PMENU_ROW_HEIGHT
 
 
 @dataclass(frozen=True)
@@ -141,14 +184,62 @@ class OriginalPMenuNode:
         return self.original_text
 
 
-# The main English loader stores entry N at 0x9847F8 - 4*N.
-PMENU_MAIN_ENGLISH_BASE_GLOBAL_VA = 0x9847F8
+# Exact PMenu-related assignments recovered from the 2,714-entry English.idx
+# loader at 0x635F30..0x64C7D4. Early entries happen to occupy a descending
+# 0x9847F8 array, but later menu labels are deliberately stored in other
+# globals, so a global arithmetic formula would be false beyond that prefix.
+PMENU_ENGLISH_ENTRY_GLOBALS = {
+    39: 0x98475C,
+    43: 0x98474C,
+    44: 0x984748,
+    47: 0x98473C,
+    48: 0x984738,
+    51: 0x98472C,
+    52: 0x984728,
+    53: 0x984724,
+    54: 0x984720,
+    59: 0x98470C,
+    60: 0x984708,
+    62: 0x984700,
+    63: 0x9846FC,
+    67: 0x9846EC,
+    68: 0x9846E8,
+    69: 0x9846E4,
+    71: 0x9846DC,
+    72: 0x9846D8,
+    661: 0x983DA4,
+    738: 0x983C70,
+    1847: 0x982B1C,
+    1872: 0x982AB8,
+    1976: 0x982918,
+    1977: 0x982914,
+    2391: 0x98229C,
+    2392: 0x982298,
+    2393: 0x982294,
+    2394: 0x982290,
+    2396: 0x982288,
+    2432: 0x9821F8,
+    2482: 0x982130,
+    2516: 0x9820A8,
+    2517: 0x9820A4,
+    2518: 0x9820A0,
+    2519: 0x98209C,
+    2520: 0x982098,
+    2521: 0x982094,
+    2522: 0x982090,
+}
 
 
 def main_english_global_va(index: int) -> int:
+    """Return the exact loader-assigned global for a source-proven menu entry."""
     if type(index) is not int or index < 0:
         raise OriginalPMenuChromeError("English index must be a non-negative integer")
-    return PMENU_MAIN_ENGLISH_BASE_GLOBAL_VA - 4 * index
+    try:
+        return PMENU_ENGLISH_ENTRY_GLOBALS[index]
+    except KeyError as exc:
+        raise OriginalPMenuChromeError(
+            f"English entry {index} is not mapped for PMenu"
+        ) from exc
 
 
 def _node(
@@ -180,45 +271,45 @@ def _node(
 # Root array 0x947638, preserved in executable construction order.
 PMENU_ROOT_NODES = (
     _node(2, 0x98475C, 0x9832CC, 0x9479C8, 39, "Team"),
-    _node(3, 0x982298, 0x9832C8, 0x947968),
-    _node(0x259, 0x982B1C, 0x9836E8, 0x947728),
-    _node(6, 0x982098, None, 0x947830),
+    _node(3, 0x982298, 0x9832C8, 0x947968, 2392, "Transfers"),
+    _node(0x259, 0x982B1C, 0x9836E8, 0x947728, 1847, "Calendar"),
+    _node(6, 0x982098, None, 0x947830, 2520, "TABLES"),
     _node(7, 0x98474C, 0x9832BC, 0x9477D0, 43, "Analysis"),
-    _node(4, 0x982094, None, 0x9478D8),
-    _node(5, 0x98209C, None, 0x947878),
+    _node(4, 0x982094, None, 0x9478D8, 2521, "ADMIN"),
+    _node(5, 0x98209C, None, 0x947878, 2519, "ACCOUNTS"),
     _node(1, 0x984748, 0x9832B8, 0x947A70, 44, "EAMail"),
-    _node(8, 0x9820A0, None, 0x947770),
+    _node(8, 0x9820A0, None, 0x947770, 2518, "GAME OPTIONS"),
 )
 
 PMENU_TEAM_CHILDREN = (
-    _node(0xCE, 0x982918, 0x983714, None),
+    _node(0xCE, 0x982918, 0x983714, None, 1976, "Squad"),
     _node(0xCA, 0x984738, 0x983710, None, 48, "Stats"),
-    _node(0xCB, 0x98229C, 0x983708, None),
+    _node(0xCB, 0x98229C, 0x983708, None, 2391, "Indiv. Orders"),
     _node(0xCC, 0x984724, 0x983704, None, 53, "Team Orders"),
     _node(0xCD, 0x984720, 0x983700, None, 54, "Training"),
     _node(0xCF, 0x98470C, 0x9836EC, None, 59, "Youth Team"),
 )
 PMENU_TRANSFER_CHILDREN = (
-    _node(0x12D, 0x982294, 0x9836FC, None),
-    _node(0x12E, 0x982290, 0x9836F4, None),
-    _node(0x12F, 0x982130, None, None),
+    _node(0x12D, 0x982294, 0x9836FC, None, 2393, "Transfer List"),
+    _node(0x12E, 0x982290, 0x9836F4, None, 2394, "Scouts"),
+    _node(0x12F, 0x982130, None, None, 2482, "Player/Club Search"),
 )
 PMENU_DIRECT_259_CHILDREN = (
-    _node(0x259, 0x982B1C, 0x9836E8, None),
-    _node(0x25C, 0x9821F8, 0x9836E4, None),
+    _node(0x259, 0x982B1C, 0x9836E8, None, 1847, "Calendar"),
+    _node(0x25C, 0x9821F8, 0x9836E4, None, 2432, "League Fixtures"),
 )
 PMENU_TABLES_CHILDREN = (
     _node(0x25A, 0x9846DC, 0x9836E0, None, 71, "League Tables"),
     _node(0x25B, 0x9846D8, 0x9836DC, None, 72, "Cup Tables"),
 )
 PMENU_ANALYSIS_CHILDREN = (
-    _node(0x2BD, 0x983C70, 0x9836D8, None),
-    _node(0x2BE, 0x983DA4, 0x9836D4, None),
-    _node(0x2BF, 0x982288, 0x9836D0, None),
+    _node(0x2BD, 0x983C70, 0x9836D8, None, 738, "Charts"),
+    _node(0x2BE, 0x983DA4, 0x9836D4, None, 661, "RATINGS"),
+    _node(0x2BF, 0x982288, 0x9836D0, None, 2396, "Trophy Cupboard"),
 )
 PMENU_ADMIN_FAMILY_CHILDREN = (
-    _node(0x191, 0x982914, 0x983290, None),
-    _node(0x192, 0x982AB8, 0x982A5C, None),
+    _node(0x191, 0x982914, 0x983290, None, 1977, "Overview"),
+    _node(0x192, 0x982AB8, 0x982A5C, None, 1872, "Support Staff"),
     _node(0x193, 0x9846EC, 0x983290, None, 67, "Stadium"),
     _node(0x194, 0x9846E8, 0x98328C, None, 68, "Development"),
     _node(0x195, 0x9846E4, 0x983288, None, 69, "Maintenance"),
@@ -232,9 +323,9 @@ PMENU_EAMAIL_CHILDREN = (
     _node(0x65, 0x984748, 0x9836C8, None, 44, "EAMail"),
 )
 PMENU_SYSTEM_CHILDREN = (
-    _node(0x321, 0x9820A8, None, None),
-    _node(0x322, 0x9820A4, None, None),
-    _node(0x323, 0x982090, None, None),
+    _node(0x321, 0x9820A8, None, None, 2516, "SAVE GAME"),
+    _node(0x322, 0x9820A4, None, None, 2517, "SETTINGS"),
+    _node(0x323, 0x982090, None, None, 2522, "RETURN TO MAIN MENU"),
 )
 
 PMENU_CHILDREN_BY_ARRAY_VA = {
@@ -284,3 +375,19 @@ def validate_original_pmenu_resources(
             )
         resource.frame_count
     return PMENU_RESOURCES
+
+
+def validate_original_pmenu_font(source_root: Path) -> EAFont:
+    """Require the exact source-proven PMenu Zurich 16px font."""
+    path = Path(source_root) / PMENU_FONT_SOURCE_PATH
+    data = path.read_bytes()
+    if len(data) != PMENU_FONT_BYTE_SIZE:
+        raise OriginalPMenuChromeError("Original PMenu font byte-size mismatch")
+    if sha256(data).hexdigest() != PMENU_FONT_SHA256:
+        raise OriginalPMenuChromeError("Original PMenu font checksum mismatch")
+    font = EAFont.from_bytes(data)
+    if (font.atlas_width, font.atlas_height) != PMENU_FONT_ATLAS_SIZE:
+        raise OriginalPMenuChromeError("Original PMenu font atlas geometry mismatch")
+    if font.native_line_height() != PMENU_FONT_NATIVE_LINE_HEIGHT:
+        raise OriginalPMenuChromeError("Original PMenu font line-height mismatch")
+    return font
