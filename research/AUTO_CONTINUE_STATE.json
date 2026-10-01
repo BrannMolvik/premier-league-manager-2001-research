@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 147 resumes from merged PR #76 at main addd82b7a8a5efddd83abb698f08d08c71ebcaf9. Exact task: source-trace unresolved PMenu label globals, runtime font/color/clipping, row state-to-frame mapping and shell background ownership; preserve fail-closed unknowns and keep the corrected real Windows/Tk first-screen rerun open.",
-  "last_known_main_head": "addd82b7a8a5efddd83abb698f08d08c71ebcaf9",
+  "active_task": "Recovery 148 resumes from merged PR #77 at main 2f59e163e873051a9bc691f6d6c04033f678ad20. Exact next Gate-13 task: persist and verify the already-bounded PMenu title/child arrow animation and source-frame mapping, then continue PMenu shell/background ownership. Four correlated menu-popup binaries remain blocked only on repository binary transport; corrected real Windows/Tk first-screen rerun remains open.",
+  "last_known_main_head": "2f59e163e873051a9bc691f6d6c04033f678ad20",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 147,
+  "recovery_generation": 148,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 147 continues beyond merged PMenu row-chrome checkpoint. Private executable/disassembly staging is healthy and reused; no completed trace is restarted.",
+  "note": "Recovery 148 corrects the lagging runtime after PR #77 merge. Do not repeat PMenu labels/font/background-state work; continue arrow animation/frame mapping.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
