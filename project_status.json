@@ -959,7 +959,7 @@
   "gate13_league_fixtures_panel_constructor": "0x46D470",
   "gate13_league_fixtures_panel_vftable": "0x7C24B8",
   "gate13_calendar_fixtures_navigation_evidence": "research/GATE13_CALENDAR_FIXTURES_NAVIGATION.md",
-  "gate13_fixtures_results_identity_status": "league_fixtures_and_pmatchinfo_navigation_resources_local_geometry_text_producers_incident_predicates_tabs_and_exit_signal_source_proven_event_decimal_semantics_seven_consumers_asset_import_windows_validation_open",
+  "gate13_fixtures_results_identity_status": "league_fixtures_and_pmatchinfo_navigation_resources_geometry_text_producers_incident_predicates_tabs_exit_source_proven_seven_remaining_assets_loaded_but_unconsumed_asset_import_integration_windows_validation_open",
   "gate13_calendar_fixtures_navigation_merge": "9da4c89f67aaba7b263354591497d596ca50edd1",
   "gate13_calendar_fixtures_navigation_ci_run": 36916343766,
   "gate13_calendar_fixtures_navigation_asset_policy_run": 36916343760,
@@ -1246,5 +1246,23 @@
     "lparam": 0
   },
   "gate13_pmatchinfo_event_tab_behavior_open": false,
-  "gate13_pmatchinfo_exit_message_receiver_semantics_open": true
+  "gate13_pmatchinfo_exit_message_receiver_semantics_open": true,
+  "gate13_pmatchinfo_tab_interaction_merge": "ab39fd753e94c6ccfcea13ebbcd1d9576133efdb",
+  "gate13_pmatchinfo_tab_interaction_ci_run": 36935848636,
+  "gate13_pmatchinfo_tab_interaction_test_count": 360,
+  "gate13_pmatchinfo_tab_interaction_expected_skips": 21,
+  "gate13_pmatchinfo_tab_interaction_asset_policy_run": 36935848660,
+  "gate13_pmatchinfo_final_resource_consumer_audit_source_proven": true,
+  "gate13_pmatchinfo_unconsumed_resource_names": [
+    "name_block_1",
+    "name_block_2",
+    "name_block_3",
+    "name_block_4",
+    "poss_back",
+    "poss_blue",
+    "poss_yellow"
+  ],
+  "gate13_pmatchinfo_unconsumed_resource_count": 7,
+  "gate13_pmatchinfo_unconsumed_resource_classification": "loaded_but_no_source_proven_runtime_presentation_consumer",
+  "gate13_pmatchinfo_remaining_resource_consumer_bindings_open": false
 }
