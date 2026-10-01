@@ -68,7 +68,7 @@ loader -> wrapper -> concrete PMenu row class.
 - wrapper: `0x943850`;
 - consumer: `PTitleMenuRow::0x47A7E0` at `0x47A856`;
 - exact file bytes: 26,248;
-- source geometry: 30x638 = **22 x 29-pixel rows**;
+- source geometry: 30x638 = **11 x 58-pixel animation frames**; Recovery 148 corrected the earlier provisional 22x29 interpretation by tracing the source-offset/frame-count methods;
 - SHA-256:
   `45d34aea3d4ae3f85a171fe3e6eb1b28ea960f5f500f123d98bcbbab52d22006`.
 
@@ -420,3 +420,130 @@ Still open:
 6. corrected real-Windows/Tk integration validation.
 
 No new proprietary resource bytes are added by this label/font/state checkpoint.
+
+
+## Recovery 148 arrow animation and shell-background ownership closure
+
+The remaining title/child arrow question was traced through the shared bitmap
+animation engine rather than inferred from atlas height.
+
+### Shared neutral animation state
+
+Both arrow objects inherit the source animation state machine around
+`0x652780..0x6528C3`.
+
+`0x652AE0` maps the neutral source bits to one of three state indices:
+
+```text
+bit 0x2 clear        -> state 2
+bit 0x2 set and
+  bit 0x8000 set     -> state 1
+otherwise            -> state 0
+```
+
+These states remain deliberately unnamed. No hover/down/disabled semantic names
+are introduced.
+
+When a state changes, `0x652780` carries the current animation position by
+integer division:
+
+```text
+new_frame = floor(new_state_frame_count * old_frame / old_state_frame_count)
+```
+
+Then `0x6527F0` performs one tick. Source bit `0x8` controls direction:
+
+- bit `0x8` set: increment frame if another frame exists;
+- bit `0x8` clear: decrement toward frame zero.
+
+Again, that bit is retained by position only rather than named as a UI event.
+
+### Child arrow: exact 23-row partition
+
+The child arrow uses the generic source-offset method `0x652860` and frame-count
+override `0x5D62F0`.
+
+Frame counts by state are exactly:
+
+```text
+state 0 -> 11
+state 1 -> 11
+state 2 -> 1
+```
+
+The generic source-offset method concatenates lower-state frame ranges before
+the current frame. Therefore `menu_anim.444` (30x667) partitions exactly as:
+
+- rows 0..10: state 0;
+- rows 11..21: state 1;
+- row 22: state 2.
+
+At 29 pixels per row, the full 23-row strip is accounted for with no unused or
+invented frames.
+
+### Title arrow: 11 frames at 58 pixels
+
+`MenuTitleArrow` overrides both the source-offset method and frame count:
+
+- source-offset override: `0x4825A0`;
+- frame-count override: `0x5D50E0`.
+
+Its counts are:
+
+```text
+state 0 -> 11
+state 1 -> 1
+state 2 -> 1
+```
+
+The resource is 30x638. The source frame height is therefore **58 pixels** and
+the strip contains **11 physical frames**, not 22 independent 29-pixel rows.
+This correction follows the actual source-offset multiplication and exactly
+accounts for 638 pixels: `11 * 58 = 638`.
+
+The custom source-row policy is:
+
+- state 0: current frame 0..10;
+- state 1: fixed physical frame 10;
+- state 2: fixed physical frame 0.
+
+The state-1/state-2 meanings remain unnamed. The result is an exact rendering
+index contract without speculative interaction labels.
+
+### PMenu shell/background ownership boundary
+
+`PMenu::0x47AB40` initializes the embedded `CMenuList` at object offset
+`+0x68`. Its raw list-setup vcall arguments are preserved as:
+
+```text
+(0, 0, 201, 504, 16, 29, 0, 0, 0)
+```
+
+The PMenu constructor/setup and bounded PMenu method range reference the static
+menu tree at `0x947638` but **no direct 0x94xxxx original-resource handle**.
+The concrete original menu graphics remain owned by the title/child row setup
+methods documented above.
+
+This is a negative ownership boundary, not proof that no background is visible
+on screen. Any surrounding background may belong to an inherited/application
+presentation layer. A distinct PMenu-specific background image must not be
+invented unless a later owner/resource trace proves one.
+
+### Reconstruction consequence
+
+`reconstruction/original_pmenu_chrome.py` now guards the exact neutral state
+selector, proportional transition arithmetic, per-state frame counts, one-tick
+advance/retreat behavior and source-row selection for both arrow types. It also
+corrects the title-arrow resource to 11 native 58-pixel frames.
+
+Still open after this closure:
+
+1. exact higher-level semantic names for the neutral animation bits/states, if
+   they can be proven from input/event ownership;
+2. remaining text clipping/origin details beyond the already recovered control
+   rectangles/font metrics;
+3. intentional provenance import of the four correlated menu-popup `.444`
+   assets once binary Git transport is available;
+4. corrected real-Windows/Tk integration validation of the current TeamSelect
+   and PMenu behavior;
+5. downstream normal-management panel composition/navigation required by Gate 13.
