@@ -10,6 +10,13 @@ from original_league_fixtures_resources import (
     LEAGUE_FIXTURES_HORIZONTAL_GRID_POSITIONS,
     LEAGUE_FIXTURES_RESOURCES,
     LEAGUE_FIXTURES_VERTICAL_GRID_POSITIONS,
+    LEAGUE_FIXTURES_TOP_HEADER_ARRAY_OFFSET,
+    LEAGUE_FIXTURES_SIDE_HEADER_ARRAY_OFFSET,
+    LEAGUE_FIXTURES_HEADER_STRIDE,
+    LEAGUE_FIXTURES_HEADER_IDENTITY_OFFSET,
+    PLEAGUE_GRID_CLASS,
+    PLEAGUE_GRID_TYPE_DESCRIPTOR_VA,
+    PLEAGUE_GRID_VFTABLE_VA,
     LEAGUE_FIXTURE_STATUS_COMPLETE_BIT,
     LEAGUE_FIXTURE_SCORE_FORMAT,
     LEAGUE_FIXTURE_DATE_FORMAT,
@@ -84,6 +91,15 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
             )
         )
 
+    def test_grid_header_arrays_store_same_club_identity_at_plus_48(self):
+        self.assertEqual(PLEAGUE_GRID_CLASS, "PLeagueGrid")
+        self.assertEqual(PLEAGUE_GRID_TYPE_DESCRIPTOR_VA, 0x81C510)
+        self.assertEqual(PLEAGUE_GRID_VFTABLE_VA, 0x7C23D0)
+        self.assertEqual(LEAGUE_FIXTURES_TOP_HEADER_ARRAY_OFFSET, 0x9A0)
+        self.assertEqual(LEAGUE_FIXTURES_SIDE_HEADER_ARRAY_OFFSET, 0x15D0)
+        self.assertEqual(LEAGUE_FIXTURES_HEADER_STRIDE, 0x4C)
+        self.assertEqual(LEAGUE_FIXTURES_HEADER_IDENTITY_OFFSET, 0x48)
+
     def test_populated_fixture_box_uses_completion_bit_only(self):
         self.assertIs(
             league_fixture_base_box(fixture_present=True, fixture_status_bits=0),
@@ -102,18 +118,18 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
             DATE_FIXTURES_BOX,
         )
 
-    def test_empty_slot_red_predicate_remains_neutral_and_source_exact(self):
+    def test_same_club_diagonal_remains_neutral_and_source_exact(self):
         self.assertIs(
             league_fixture_base_box(
                 fixture_present=False,
-                empty_slot_red_predicate=False,
+                same_club_diagonal=False,
             ),
             DATE_FIXTURES_BOX,
         )
         self.assertIs(
             league_fixture_base_box(
                 fixture_present=False,
-                empty_slot_red_predicate=True,
+                same_club_diagonal=True,
             ),
             RED_FIXTURES_BOX,
         )
@@ -134,7 +150,7 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
                     league_fixture_box_for_cell(
                         fixture_present=fixture_present,
                         fixture_status_bits=status,
-                        empty_slot_red_predicate=red,
+                        same_club_diagonal=red,
                         selected=True,
                     ),
                     TOGGLED_FIXTURES_BOX,
@@ -167,7 +183,7 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
                 fixture_present=True, fixture_status_bits=True
             ),
             lambda: league_fixture_base_box(
-                fixture_present=False, empty_slot_red_predicate=1
+                fixture_present=False, same_club_diagonal=1
             ),
             lambda: league_fixture_box_for_cell(
                 fixture_present=True, selected=1
