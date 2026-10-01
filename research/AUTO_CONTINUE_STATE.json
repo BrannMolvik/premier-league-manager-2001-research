@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 121 re-probed the exact Gate 13 blocker from canonical main 9c2fd80087d61cc0c0461bae03c3c1beff23aab2. A trivial shell process and an independent private Python process both returned ClientError before process start. The private source was already successfully re-resolved/materialized in recovery 120, and CURRENT_STATE records that safe non-execution fallback work is exhausted. Exact next action on the first stable process backend: verify the canonical ZIP SHA-256 and executable, run TeamSelect RTTI canary, native Button state/23-frame trace, Zurich placement/color/clipping trace, strict ten-resource audit/import, management-screen correlation and Windows graphical Gate 13 audit; then continue Gates 14-17 through the verified Windows 11 release.",
-  "last_known_main_head": "9c2fd80087d61cc0c0461bae03c3c1beff23aab2",
+  "active_task": "Gate 13 exact next work from canonical main af2b3ec1: integrate the recovered native first-screen Zurich captions into the source-backed presentation; decode and test the proven PScouting2K background_2.444 + background_alpha_1.444 composition; correlate a Squad resource to its panel owner; then perform the real Windows graphical first-screen and normal-play audit. Continue Gate 14-17 only after Gate 13 audit closes.",
+  "last_known_main_head": "af2b3ec1c3d498e8774156d599faceb69e6de8b7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 121,
+  "recovery_generation": 122,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 121: repeated execution probes failed before process start. This is an infrastructure execution-backend blocker, not missing FM2001 source and not a user-action blocker. No new main commit was created solely to repeat the already-canonical blocker; runtime remains continuous/working for the next automatic recovery.",
+  "note": "Recovery 122: detected newer canonical main af2b3ec1 with Button/Zurich trace and ten-resource import complete. Do not retry old execution blocker; continuing the new exact Gate 13 presentation integration task.",
   "same_chat_fallback_minutes": 30
 }
