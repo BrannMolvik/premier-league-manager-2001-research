@@ -406,9 +406,9 @@ def run_real_windows_graphical_audit(
             "<Button-1>", x=first_club.rect.x + 1, y=first_club.rect.y + 1
         )
         _pump(root)
-        if presenter.session.selected_club_id != first_club.source_id:
+        if presenter.session.selected_club_id is not None:
             raise WindowsFirstScreenAuditError(
-                "Native club click did not write the canonical club ID"
+                "Unresolved native selection payload leaked into gameplay club selection"
             )
         selected = presenter.snapshot().club_rows[0]
         if selected.state != 1 or selected.animation_source_index != 11:
@@ -419,9 +419,13 @@ def run_real_windows_graphical_audit(
             "<Button-1>", x=first_club.rect.x + 1, y=first_club.rect.y + 1
         )
         _pump(root)
+        if presenter.hierarchy is None or presenter.hierarchy.selected_club_id is not None:
+            raise WindowsFirstScreenAuditError(
+                "Second native club click did not clear the visual selection record"
+            )
         if presenter.session.selected_club_id is not None:
             raise WindowsFirstScreenAuditError(
-                "Second native club click did not clear the selection record"
+                "Unresolved native selection payload leaked into gameplay after toggle"
             )
 
         # Start/Continue is source-proven, but without a recovered hierarchy
@@ -468,7 +472,7 @@ def run_real_windows_graphical_audit(
                 "competition_filter_and_order_verified": True,
                 "club_filter_and_order_verified": True,
                 "country_competition_population_flow_verified": True,
-                "club_id_toggle_and_active_frame_verified": True,
+                "club_row_toggle_and_active_frame_verified": True,
                 "start_without_club_rejected": True,
             },
             "pstartmenu_after_back": {
@@ -480,6 +484,7 @@ def run_real_windows_graphical_audit(
                 "teamselect_back_to_menu_via_real_tk_binding": True,
             },
             "unresolved_boundaries": [
+                "Exact native TeamSelect selection-record payload -> gameplay club-ID mapping",
                 "Broader Gate-13 management-screen graphical fidelity",
             ],
             "gate13_complete": False,
@@ -515,8 +520,8 @@ def main() -> int:
     )
     print(f"Real Windows first-screen graphical audit passed: {receipt_path}")
     print(
-        "TeamSelect hierarchy semantics and native row states passed; "
-        "broader management presentation still keeps Gate 13 open."
+        "TeamSelect hierarchy filtering/native row states passed; "
+        "club payload mapping and broader management presentation keep Gate 13 open."
     )
     return 0
 
