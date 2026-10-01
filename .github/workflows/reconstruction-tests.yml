@@ -65,3 +65,10 @@ jobs:
       - name: Run reconstruction tests
         working-directory: reconstruction
         run: python -m unittest discover -v
+      - name: Export current reconstruction runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: recovery132-reconstruction-runtime
+          path: reconstruction/
+          if-no-files-found: error
+          retention-days: 1
