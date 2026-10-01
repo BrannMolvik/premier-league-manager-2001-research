@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Resume from canonical main da728c91d2534bc6b19bb12231540f3a70a5f5f1. PR #68 recovered the interrupted Codex TeamSelect integration and passed Gate13 CI (273 tests, 21 expected source-gated skips) plus asset policy. Preserve the recovered competition/club filtering/order, native frame transforms, Zurich captions, resources, and visual club-row toggle. Exact local/private blocker: re-trace TeamSelect 0x4D8E90/0x4D9240 selection-record payload and Start resolution because interrupted Codex labeled DBRClub+0x40 as club ID while prior verified evidence maps DBRClub+0x40 to manager ID/reference. Do not pass native club clicks into gameplay until reconciled. Then rerun the upgraded Windows audit with the known-working Tcl/Tk-capable Python used by Recovery 138. If local/private execution is unavailable, continue highest-priority independent cloud-safe Gate13/15 work under deferred-blocker policy.",
-  "last_known_main_head": "da728c91d2534bc6b19bb12231540f3a70a5f5f1",
+  "active_task": "Resume from canonical main 745a63016f541b40f053feae12ffc8333bfcbd5b. Recovery 141 merged PR #69 as 74f5b626f07f6da5d15fd6c4795a1a37f5a56411, hardening the native TeamSelect visual record index vs backend club-ID boundary; Gate13 CI 36889927015 passed 273 tests with 21 expected skips and asset policy 36889927306 passed. Private blocker remains the bounded 0x4D8E90/0x4D9240 selection-record payload and Start-resolution re-trace, followed by the upgraded real-Windows audit. This allocation materialized source/runtime ZIPs but all subsequent shell and Python launches failed before process start with caas.internal.errors.ClientError. Continue independent cloud-safe Gate13/15 fidelity work without inventing the payload.",
+  "last_known_main_head": "745a63016f541b40f053feae12ffc8333bfcbd5b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -19,8 +19,8 @@
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 141,
-  "last_recovery_reason": "manual-start",
-  "note": "Recovery 141 manually resumed from canonical main da728c91d2534bc6b19bb12231540f3a70a5f5f1. Exact active blocker remains the TeamSelect selection-record payload/Start re-trace before backend club selection can be enabled; upgraded real-Windows audit follows.",
+  "last_recovery_reason": "recovery-141-teamselect-boundary-hardened-private-execution-blocked",
+  "note": "Recovery 141: PR #69 merged and CI-green. Native TeamSelect visual state is now explicitly a record index, not a gameplay club ID. Private process execution failed after source/runtime materialization, so no new payload or Windows result is claimed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
