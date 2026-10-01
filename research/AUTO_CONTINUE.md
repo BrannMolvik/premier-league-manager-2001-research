@@ -289,3 +289,22 @@ Version 0.3.1 treats an explicit ChatGPT `Retry` / `Try again` control as a tran
 ### No-progress escalation
 
 From version 0.3.2, the first accepted same-chat recovery records the latest repository activity and starts a fallback window. Any later commit to `main` or `agent-runtime` proves forward progress and clears the window. If no commit appears for the configured interval (20 minutes by default), the extension may create one new inactive ChatGPT recovery tab using the canonical handoff. This prevents a permanently wedged Retry/stall UI from blocking unattended work indefinitely while still preferring the existing conversation first.
+
+
+### Execution-sandbox failure handling
+
+From extension version 0.4.0, a visible ChatGPT execution failure matching
+`Analysis errored` or `caas.internal.errors.ClientError` is treated as a
+separate sandbox failure rather than an ordinary transient response failure.
+
+Observed project evidence showed that a registered worker conversation could
+retain a failing CAAS execution allocation while a different ChatGPT
+conversation on the same account successfully launched trivial shell and
+Python processes. Therefore a sandbox failure immediately creates a fresh
+inactive background worker chat using the canonical GitHub handoff instead of
+first re-prompting the same conversation. Network/Retry/interruption signals
+continue to prefer same-chat recovery.
+
+Failure detection ignores text inside normal user/assistant message containers,
+so repository notes or user discussion containing the error string cannot
+trigger a false recovery.

@@ -749,12 +749,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const reason = message.reason || "ChatGPT UI failure signal";
         const tabId = sender?.tab?.id;
 
-        if (failureKind === "length") {
+        if (failureKind === "length" || failureKind === "sandbox") {
           const accepted = await triggerNewChatRecovery(reason, state, {
             page: sender?.tab?.url || "unknown",
             failure_kind: failureKind
           });
-          sendResponse({ ok: accepted, action: "new-chat" });
+          sendResponse({
+            ok: accepted,
+            action: "new-chat",
+            failure_kind: failureKind
+          });
           return;
         }
 

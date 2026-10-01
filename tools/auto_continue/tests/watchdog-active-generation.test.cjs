@@ -103,13 +103,13 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
     setGenerating(value) { activeGeneration = value; },
     setHeartbeatAge(minutes) { activity = Date.now() - minutes * 60000; },
     setUnrelatedMainHeartbeatAge(minutes) { unrelatedMainActivity = Date.now() - minutes * 60000; },
-    async sendUiFailure(tabId = 9) {
+    async sendUiFailure(tabId = 9, failureKind = "transient", reason = "network error") {
       return new Promise(resolve => {
         onMessage(
           {
             type: "fm2001-ui-failure",
-            failureKind: "transient",
-            reason: "network error"
+            failureKind,
+            reason
           },
           { tab: { id: tabId, url: "https://chatgpt.com/c/example" } },
           resolve
@@ -288,4 +288,20 @@ test("unregistered worker cannot be started manually",async()=>{
   const result=await h.startNow();
   assert.equal(result.reason,"no-worker-tab");
   assert.equal(h.createdTabs,0);
+});
+
+
+test("sandbox/CAAS failure opens a fresh worker chat immediately", async()=>{
+  const h=harness({generating:false,staleMinutes:0});
+  const result=await h.sendUiFailure(
+    9,
+    "sandbox",
+    "Analysis errored: caas.internal.errors.ClientError"
+  );
+  assert.equal(result.ok,true);
+  assert.equal(result.action,"new-chat");
+  assert.equal(result.failure_kind,"sandbox");
+  assert.equal(h.createdTabs,1);
+  assert.equal(h.store.pendingResume.inPlace,false);
+  assert.equal(h.store.pendingResume.stopFirst,false);
 });

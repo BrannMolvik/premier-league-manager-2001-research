@@ -246,3 +246,21 @@ This means the normal path requires no manual **Start FM2001 worker now** click.
 That button remains only an explicit override. Chrome must still be open, the
 worker tab must have been registered once, and the unpacked extension must be
 reloaded after updating its files.
+
+
+## Version 0.4.0 sandbox-failure recovery
+
+Version 0.4.0 recognizes ChatGPT execution-sandbox failures such as
+`Analysis errored` and `caas.internal.errors.ClientError` as a distinct
+failure class. Evidence from the FM2001 workflow showed that one conversation
+could retain a broken CAAS allocation while another conversation on the same
+account could execute shell/Python normally.
+
+For this failure class the extension skips the normal same-chat transient
+recovery and opens a fresh inactive ChatGPT worker tab immediately using the
+canonical GitHub handoff. This avoids repeatedly resubmitting the private
+binary-analysis task into the same broken conversation. Ordinary network,
+Retry, and interruption failures still prefer in-place recovery.
+
+The detector continues to ignore text inside user/assistant message containers,
+so discussing the error in the conversation does not itself trigger recovery.

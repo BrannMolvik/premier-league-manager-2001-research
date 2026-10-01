@@ -6,6 +6,12 @@ const LENGTH_FAILURE_PATTERNS = [
   /start a new chat to continue/i
 ];
 
+const SANDBOX_FAILURE_PATTERNS = [
+  /analysis errored/i,
+  /caas\.internal\.errors\.ClientError/i,
+  /encountered exception:\s*<class ['"]caas\.internal\.errors\.ClientError['"]>/i
+];
+
 const TRANSIENT_FAILURE_PATTERNS = [
   /connection interrupted/i,
   /network error/i,
@@ -113,6 +119,13 @@ function detectFailureInNode(node) {
   for (const pattern of LENGTH_FAILURE_PATTERNS) {
     if (pattern.test(text)) {
       reportFailure("length", text, pattern);
+      return;
+    }
+  }
+
+  for (const pattern of SANDBOX_FAILURE_PATTERNS) {
+    if (pattern.test(text)) {
+      reportFailure("sandbox", text, pattern);
       return;
     }
   }
