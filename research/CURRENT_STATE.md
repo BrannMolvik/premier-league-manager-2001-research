@@ -1208,3 +1208,33 @@ expected licensed-source-gated skip. The full Gate-13 focused list ran 263
 tests locally: 241 passed, 21 expected source-gated skips, and the pre-existing
 Linux-oriented duplicate-ZIP-path assertion failed on Windows because
 `Panel.dat` and `panel.dat` are the same filesystem entry. No Squad test failed.
+
+## Recovery 128: Windows audit harness merged; GUI deferred; Gate 14 foundation advanced
+
+- Canonical `main` now includes PR #49 as
+  `0a871b5fbc9c546ad67c335bc6db009d3a023627`. It adds the fail-closed
+  `gate13_windows_first_screen_audit.py` real-Windows/Tk harness plus contract
+  tests and procedure documentation. Hosted Gate-13 run `36830496970` and
+  asset-policy run `36830496972` passed after the synthetic hierarchy fixture
+  was corrected. This verifies the harness, **not** the real Windows GUI run.
+- This worker's local/container process launch remains unavailable with
+  `caas.internal.errors.ClientError`, and no Windows GUI is exposed. The actual
+  PStartMenu/TeamSelect graphical smoke receipt is therefore a deferred Gate-13
+  blocker. Run the merged harness against the private canonical executable,
+  source staging and verified game directory on the next working Windows path.
+- Under the repository's deferred-blocker policy, independent cloud-safe work
+  continued without closing Gate 13. PR #50 was squash-merged as
+  `e54cc8591df91bbc949856ed241fcffcedd5fe97` after full reconstruction run
+  `36831057948` and asset-policy run `36831057947` passed.
+- Gate-14 work-ahead now has a checksum/size-gated contract for the already
+  verified original `easp.tgq` -> `premintro.tgq` startup sequence and a
+  read-only match-presentation feed that consumes existing timed MatchCalculator
+  events/possession records without simulation RNG, commentary generation,
+  sound mapping or invented animation semantics. Gate 14 is **not** declared
+  complete; Gate 13 remains the active validation gate.
+- Exact deferred Gate-13 action remains: obtain the real Windows graphical
+  receipt, then recover TeamSelect hierarchy item/input/state semantics from
+  source evidence and continue remaining management-screen fidelity. Until
+  that local path returns, continue the highest-priority independent cloud-safe
+  work, next targeting Gate-16 long-duration/destructive audit coverage without
+  claiming Gate 16 complete.
