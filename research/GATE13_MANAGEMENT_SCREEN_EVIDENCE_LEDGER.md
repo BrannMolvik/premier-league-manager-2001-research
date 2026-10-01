@@ -27,10 +27,10 @@ visually reconstructed.
 
 | Roadmap surface | Persisted presentation identity | Strongest source-backed evidence | Original resource/layout/navigation status |
 | --- | --- | --- | --- |
-| Main menu / TeamSelect | **Proven.** PStartMenu screen ID `0x323`, vtable `0x7C64E0`; `PMain@TeamSelect` vtable `0x7C7650` | PStartMenu/TeamSelect constructors, event IDs, action rectangles, original English STR/IDX menu labels, native Button atlas-state mapping, Zurich caption placement/color and exact first-slice source paths are recorded | **Partial.** The strict ten-resource audit/import and PStartMenu native-caption live-view integration are complete. TeamSelect hierarchy content/interaction and the real Windows graphical validation remain open |
+| Main menu / TeamSelect | **Proven.** PStartMenu screen ID `0x323`, vtable `0x7C64E0`; `PMain@TeamSelect` vtable `0x7C7650` | PStartMenu/TeamSelect constructors, event IDs, action rectangles, English country order, 16 hierarchy + 24 club control layouts, exact root-league/club filtering and stable ordering, native row-state transforms, original Zurich captions/fonts and source paths are recorded | **Partial.** The base first-screen resources plus four TeamSelect row/font resources are provenance-imported and live presentation is integrated. Exact native selection-record payload -> gameplay club identity and the upgraded real-Windows graphical validation remain open |
 | Manager home | **No persisted original panel identity** | Read-only bridge can expose controlled-club original name/short name and current game date | **Open.** No original manager-home screen class, screen ID, exact resource path, layout, controls or navigation edge has been correlated |
-| Squad | **Proven: `PSquadScreen`.** TypeDescriptor `0x819D48`, vtable `0x7C5CA4`, setup `0x4B5720`; embedded `CBasePlayerList` and `PSquadPitch` identities proven | Exact `squad_but_anim.444` controls 3/4/5 and captions; two roster rectangles and pitch rectangle; exact first+reserve / first+pitch / reserve+pitch transitions; all 22 paired `FormationText` rectangles and IDs | **Partial.** Panel/view geometry is proven and imported resources are owner-bound. Player-list columns/status/frame mappings, FormationText state selection, remaining navigation and final composition are open |
-| Tactics / team selection | **Partially proven.** `PFormation2k`; `PTeamOrders2K`; `PSquadPitch`; `FormationText` | `PFormation2k` vtable `0x7C1AB4`; exact `squad_bars.444` and `squad_form_anim.444` consumers in `FormationText`; five native formation records; Team Orders source path `Applications\\FootballManager\\SquadPan.cpp` | **Partial.** The two formation resources are proven/imported, but their caller-supplied geometry, remaining controls, gestures and navigation are unresolved |
+| Squad | **Proven: `PSquadScreen`.** TypeDescriptor `0x819D48`, vtable `0x7C5CA4`, setup `0x4B5720`; embedded `CBasePlayerList` and `PSquadPitch` identities proven | Exact `squad_but_anim.444` controls 3/4/5 and captions; two roster rectangles and pitch rectangle; exact first+reserve / first+pitch / reserve+pitch transitions; concrete 20-row player-list hierarchy/columns/status filters; all 22 paired `FormationText` rectangles/IDs and exact group/state-to-source-row transform | **Partial.** Core panel/view geometry, roster bindings/status semantics and FormationText state selection are source-bound and guarded. Broader visual/icon semantics, unresolved selection/sort/navigation behavior and final integrated composition remain open |
+| Tactics / team selection | **Partially proven.** `PFormation2k`; `PTeamOrders2K`; `PSquadPitch`; `FormationText` | `PFormation2k` vtable `0x7C1AB4`; exact `squad_bars.444` and `squad_form_anim.444` consumers; five native formation records; all 22 FormationText paired rectangles/control IDs and exact state-to-source-row transform; Team Orders source path `Applications\\FootballManager\\SquadPan.cpp` | **Partial.** The two formation resources, FormationText geometry and state selection are proven/imported. Surrounding controls, gestures, broader team-order presentation and navigation remain unresolved |
 | Fixtures / results | **No persisted original panel identity** | `DBTRealFixtures` / `DBRRealFixture` / `DBTRounds` construction and source insertion order are recovered; executable retains `Season.cpp` source-path metadata | **Open.** Original screen comparator/order, graphics, geometry, controls and navigation remain unknown |
 | League table | **No persisted original panel identity** | Native League comparator `0x4F45E0` and its six-field ordering contract are recovered | **Open.** Original table panel class, header/row artwork, geometry, controls and navigation remain unknown |
 | Player profile | **No persisted original panel identity** | `DBTPlayers` / `DBRPlayer` runtime identity and current-skill vector boundary are recovered | **Open.** Original profile panel, visible field/column mapping, icons, resource/layout and visibility rules remain unknown |
@@ -192,16 +192,18 @@ Verification on PR head
 
 ## Current blocker and exact next action
 
-The four-candidate Squad correlation is complete. It proves the distinct
-`PSquadScreen` owner for `squad_but_anim.444`, the `FormationText` ownership of
-`squad_bars.444` and `squad_form_anim.444`, and the negative boundary that
-shared `blue_toggle.444` has no `PSquadScreen` consumer. All four are imported
-and fail-closed by deterministic hash/header/owner tests. Full evidence is in
-`research/GATE13_SQUAD_RESOURCE_CORRELATION.md`.
+The Squad source-critical slice is now beyond the older checkpoint above:
+`PSquadScreen` controls/captions/view transitions, the concrete 20-row
+`CBasePlayerList` hierarchy/columns/status filters, and exact `FormationText`
+geometry/state-to-source-row mapping are source-bound. Do not repeat those
+private traces unless a regression or evidence dispute requires it.
 
-Next, expand outward from `PSquadScreen::0x4B5720` to recover the three button
-bindings/captions and surrounding roster presentation without splitting the
-73x575 atlas by arithmetic guesswork. Trace the callers that provide
-`FormationText` geometry separately. The real Windows PStartMenu/TeamSelect
-graphical audit and remaining management-screen correlations are still
-required before Gate 13 can close.
+The earliest source-critical blocker is now TeamSelect. The native
+`0x4D8E90` / `0x4D9240` path toggles a visible club row and writes/clears a
+0x30-byte selection record, but an interrupted annotation treating
+`DBRClub+0x40` as a club ID conflicts with earlier verified manager-ID/reference
+evidence. Gameplay selection therefore remains fail-closed. Re-trace that
+payload and Start resolution first; then rerun the upgraded real-Windows
+PStartMenu/TeamSelect audit. After those are cleared, continue the same
+resource/layout/navigation correlation discipline across Manager Home and the
+other incomplete normal-management screens.
