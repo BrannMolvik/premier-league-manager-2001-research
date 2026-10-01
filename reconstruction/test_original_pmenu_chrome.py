@@ -17,6 +17,10 @@ from original_pmenu_chrome import (
     PMENU_FINANCE_FAMILY_CHILDREN,
     PMENU_RESOURCES,
     PMENU_ROOT_NODES,
+    PMENU_FONT_ATLAS_SIZE,
+    PMENU_FONT_NATIVE_LINE_HEIGHT,
+    PMENU_FONT_SOURCE_PATH,
+    PMENU_ROW_COLOR_COMPONENTS,
     PMENU_ROW_HEIGHT,
     PMENU_SEPARATE_TEAM_ORDER_NODES,
     PMENU_TABLES_CHILDREN,
@@ -29,6 +33,9 @@ from original_pmenu_chrome import (
     PMENU_TITLE_ROW_SETUP_VA,
     PMENU_TRANSFER_CHILDREN,
     main_english_global_va,
+    pmenu_background_row_index,
+    pmenu_background_source_y,
+    validate_original_pmenu_font,
     validate_original_pmenu_resources,
 )
 
@@ -59,6 +66,32 @@ class OriginalPMenuChromeTests(unittest.TestCase):
     def test_pmenu_text_controls_preserve_source_geometry_without_font_guess(self):
         self.assertEqual(PMENU_TEXT_CONTROL_SIZE, (160, 24))
         self.assertEqual(PMENU_TEXT_CONTROL_Y, (0, 24, 48, 72, 96, 120))
+
+    def test_exact_imported_pmenu_font_matches_native_loader_binding(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        self.assertTrue((source_root / PMENU_FONT_SOURCE_PATH).is_file())
+        font = validate_original_pmenu_font(source_root)
+        self.assertEqual((font.atlas_width, font.atlas_height), PMENU_FONT_ATLAS_SIZE)
+        self.assertEqual(font.native_line_height(), PMENU_FONT_NATIVE_LINE_HEIGHT)
+
+    def test_row_setup_uses_exact_black_and_white_component_triples(self):
+        self.assertEqual(PMENU_ROW_COLOR_COMPONENTS, ((0, 0, 0), (255, 255, 255)))
+
+    def test_background_toggle_state_to_source_row_is_exact(self):
+        self.assertEqual(pmenu_background_row_index(0), 3)
+        self.assertEqual(pmenu_background_source_y(0), 87)
+        self.assertEqual(pmenu_background_row_index(0x2), 0)
+        self.assertEqual(pmenu_background_source_y(0x2), 0)
+        self.assertEqual(pmenu_background_row_index(0x2 | 0x8), 1)
+        self.assertEqual(pmenu_background_source_y(0x2 | 0x8), 29)
+        self.assertEqual(pmenu_background_row_index(0x2 | 0x8000), 2)
+        self.assertEqual(pmenu_background_source_y(0x2 | 0x8000), 58)
+        # The 0x8000 branch has source precedence over the 0x8 branch.
+        self.assertEqual(pmenu_background_row_index(0x2 | 0x8 | 0x8000), 2)
+        for bad in (True, -1, 1.5, "2"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalPMenuChromeError):
+                    pmenu_background_row_index(bad)
 
     def test_root_order_and_child_arrays_are_literal_source_topology(self):
         self.assertEqual(
