@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 13,
   "active_task": "Continue Gate 13 from canonical main e8fa224cc5465928efa9c0c1d5c2836ce4740fae. Do not repeat Squad ownership/captions/geometry/transitions or rebuild the trace utility. Exact next source task: on a sustained working private/local execution path run reconstruction/gate13_squad_source_trace.py against the verified canonical executable, adjudicate CBasePlayerList row/column/status reads and FormationText value-to-frame selection without guessing, then promote only directly proven bindings. Afterward perform the mandatory real Windows PStartMenu/TeamSelect graphical audit and continue remaining management-screen correlations before Gate 13 can close.",
-  "last_known_main_head": "e8fa224cc5465928efa9c0c1d5c2836ce4740fae",
+  "last_known_main_head": "9fc09f2327d4bf1a18c2690bfa97c4756d3616a2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -19,8 +19,8 @@
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 125,
-  "last_recovery_reason": "manual-start-cloud-sandbox-clienterror-after-first-process",
-  "note": "Recovery 126 re-verified canonical main 14a7b47, resolved and materialized the authorized 511,121,336-byte source ZIP, and obtained one successful trivial shell launch before all subsequent shell and Python launches failed before process start with caas.internal.errors.ClientError. No native Squad semantics were promoted. CURRENT_STATE was checkpointed on main as e8fa224cc5465928efa9c0c1d5c2836ce4740fae. Next worker should use the first sustained working process to synchronize main, extract/verify the canonical executable, run the existing Gate-13 Squad trace, and adjudicate row/column/status plus FormationText frame mapping.",
+  "last_recovery_reason": "sandbox-failure-detector-hardening",
+  "note": "Recovery 126 re-verified canonical main 14a7b47, resolved and materialized the authorized 511,121,336-byte source ZIP, and obtained one successful trivial shell launch before all subsequent shell and Python launches failed before process start with caas.internal.errors.ClientError. No native Squad semantics were promoted. CURRENT_STATE was checkpointed on main as e8fa224cc5465928efa9c0c1d5c2836ce4740fae. Next worker should use the first sustained working process to synchronize main, extract/verify the canonical executable, run the existing Gate-13 Squad trace, and adjudicate row/column/status plus FormationText frame mapping. Extension v0.4.1 on main 9fc09f2 adds a narrow assistant-message Analysis errored detector so real CAAS crashes rendered inside the assistant/tool transcript trigger immediate fresh-chat recovery; user quotes and ordinary assistant ClientError discussion remain ignored. Reload the unpacked extension and refresh/register the worker tab once to activate v0.4.1.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
