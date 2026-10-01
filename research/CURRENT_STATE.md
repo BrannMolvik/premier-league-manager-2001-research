@@ -56,6 +56,16 @@ Evidence:
   claimed from this allocation. The exact private next action remains the
   bounded `0x4D8E90` / `0x4D9240` selection-record and Start-resolution
   re-trace, followed by the upgraded Windows audit.
+- Recovery 141 also removed the last synthetic secondary bucket geometry from
+  the Gate-15 startup RNG checkpoint. PR #70 merged as
+  `cb0df0d50b7e1348e9c75b2dfa452f533dd26bed`: the proven 262 secondary
+  nodes / 45 nonempty buckets now advance the MSVC hidden state through an
+  aggregate-only `217`-draw checkpoint, with impossible aggregate shapes
+  rejected and no invented per-date bucket vector. Full reconstruction run
+  `36890779450` passed 1,146 tests with 22 expected source-gated skips and zero
+  failures; asset-policy run `36890778875` passed. Exact per-date mode-1 bucket
+  contents and the complete equal-key native qsort permutation remain open
+  source questions rather than test fixtures.
 - Local Codex recovery at `4537f9b150cab8e2282c5d33a30c13a43cfb50c3`
   completed the concrete Squad player-list hierarchy, 20-row/column/status
   bindings and exact `FormationText` state-to-source-row transform. Do not
@@ -105,10 +115,11 @@ Evidence:
 - **Exact next task:** Gate 16's present roadmap criteria are now prevalidated
   by the synthetic stress suite plus two passing canonical shipped-data
   three-rollover seeds. Do not mark Gate 16 complete before earlier gates close.
-  Continue the next earlier independent cloud-safe fidelity task in Gate 15:
-  recover the secondary startup exact equal-key permutation and mode-1 per-date
-  bucket shape from the canonical executable/real input, replacing the current
-  aggregate-only synthetic partition without guessing.
+  The secondary startup checkpoint is now honestly aggregate-only with no
+  invented bucket vector. The remaining Gate-15 task is to recover the exact
+  equal-key permutation and mode-1 per-date bucket shape from the canonical
+  executable/real input when sustained private execution returns; do not infer
+  those details from the aggregate checkpoint.
 - **Recovery 133 execution blocker:** the fresh allocation launched one trivial
   shell process successfully, but direct `git clone` could not resolve
   `github.com`. The GitHub connector remained healthy and the canonical
