@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "audit": "Gate 16 canonical shipped-data multi-season audit",
+  "recovery": 137,
+  "merged_checker_head": "7f3f83eb98b9f29039b691197505dbe74c8b0851",
+  "pull_request": 65,
+  "player_seed": 1,
+  "rollovers": 3,
+  "exit_code": 0,
+  "elapsed_seconds": 1617.49,
+  "source_validation": {
+    "raw_mode1_2352_sector_count": 268549,
+    "Master_dat_sha256": "183dd457d09ce616f99a664636727668ec15eab3f65b9057ef0953e76548b6b8",
+    "Static_dat_sha256": "e0ff7c10a5f5f973a87cf6cd2d3770e623071899a0b30378debd0e7d13edb9d8",
+    "English_str_sha256": "aa594a55ad95c672b69184e5f3ff8349e41fe95b48c5dcb3c8fcfe2bcdf5b601",
+    "Core_str_sha256": "b0800475769fa087e69de989388569e5b29f495e5abe5d62687c2acb1d339e06",
+    "FOOTBAL_EXE_sha256": "833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3"
+  },
+  "runtime": {
+    "bootstrap_zip_sha256": "9167302c608882161954109d617824422671d2999d69006bff5d662adeb2c4d6",
+    "runner_sha256": "45a68aea0e2d85df9b0bac3c26394a22f797a4cf5664e9ced9b8087b6ade49a8",
+    "stdout_sha256": "2cfe25f869dce8f2e16931f99c3642cc40993ed676e9794c384c27733175c0d7"
+  },
+  "ci": {
+    "asset_policy_run": 36867367968,
+    "asset_policy_result": "success",
+    "reconstruction_run": 36867368043,
+    "reconstruction_result": "success"
+  },
+  "result": {
+    "final_date": "2003-06-02",
+    "final_rng_state": 1945051110,
+    "fresh_state_shapes": [
+      [
+        380,
+        380,
+        5735,
+        9344,
+        291,
+        371,
+        311,
+        13
+      ],
+      [
+        380,
+        380,
+        5735,
+        9344,
+        291,
+        371,
+        311,
+        13
+      ],
+      [
+        380,
+        380,
+        5737,
+        9346,
+        291,
+        373,
+        311,
+        13
+      ]
+    ],
+    "snapshots": [
+      {
+        "cycle": 0,
+        "qualification_captured_on": "2001-06-04",
+        "days_advanced": 335,
+        "completed_premier_results": 380,
+        "membership_changes": 28,
+        "rng_before_rollover": 3466227264,
+        "rng_after_rollover": 1870018361,
+        "rollover_draw_count": 15539,
+        "next_season_year": 2001,
+        "next_premier_fixture_count": 380,
+        "next_primary_order_days": 150,
+        "next_primary_entry_count": 5735,
+        "next_shadow_entry_count": 9344,
+        "next_domestic_node_count": 291,
+        "next_european_node_count": 371,
+        "next_qualification_node_count": 311,
+        "next_procedural_league_count": 13,
+        "live_roster_reference_count": 30064
+      },
+      {
+        "cycle": 1,
+        "qualification_captured_on": "2002-06-03",
+        "days_advanced": 364,
+        "completed_premier_results": 380,
+        "membership_changes": 28,
+        "rng_before_rollover": 2057183306,
+        "rng_after_rollover": 2753320152,
+        "rollover_draw_count": 15330,
+        "next_season_year": 2002,
+        "next_premier_fixture_count": 380,
+        "next_primary_order_days": 149,
+        "next_primary_entry_count": 5735,
+        "next_shadow_entry_count": 9344,
+        "next_domestic_node_count": 291,
+        "next_european_node_count": 371,
+        "next_qualification_node_count": 311,
+        "next_procedural_league_count": 13,
+        "live_roster_reference_count": 30064
+      },
+      {
+        "cycle": 2,
+        "qualification_captured_on": "2003-06-02",
+        "days_advanced": 364,
+        "completed_premier_results": 380,
+        "membership_changes": 28,
+        "rng_before_rollover": 3252311420,
+        "rng_after_rollover": 1945051110,
+        "rollover_draw_count": 15150,
+        "next_season_year": 2003,
+        "next_premier_fixture_count": 380,
+        "next_primary_order_days": 151,
+        "next_primary_entry_count": 5737,
+        "next_shadow_entry_count": 9346,
+        "next_domestic_node_count": 291,
+        "next_european_node_count": 373,
+        "next_qualification_node_count": 311,
+        "next_procedural_league_count": 13,
+        "live_roster_reference_count": 30064
+      }
+    ]
+  },
+  "interpretation": "PASS. The cycle-2 +2 European node variation is current-season UEFA Cup materialization, not cross-season accumulation. Current-regeneration projection guards passed for all three rollovers."
+}
