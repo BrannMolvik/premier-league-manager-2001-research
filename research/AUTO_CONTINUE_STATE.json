@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete. Private next action is still bounded TeamSelect 0x4D8E90/0x4D9240 selection-record payload and Start-resolution re-trace, then upgraded real-Windows audit, but this allocation again fails before process start after source materialization. While blocked, verify/merge PR #71 for the independent Gate-14 startup TGQ conversion contract, then continue the next cloud-safe source-backed Gate-14 step without claiming Gate 14 complete.",
-  "last_known_main_head": "fab51646abac21f078fdfa6fd6bed1091010ca33",
+  "active_task": "Gate 13 remains earliest incomplete. Recovery 142 private TeamSelect 0x4D8E90/0x4D9240 payload/Start-resolution trace and upgraded Windows audit remain blocked by caas.internal.errors.ClientError after successful canonical source materialization. PR #71 conversion contract is merged and reconciled on main 4b61e35be4ed5c6d030ad79c7ff64f1d30ee6884. Continue the next independent Gate-14 step: a fail-closed private TGQ conversion/probe receipt runner that keeps source, derivatives and receipts outside Git.",
+  "last_known_main_head": "4b61e35be4ed5c6d030ad79c7ff64f1d30ee6884",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 142,
   "last_recovery_reason": "recovery-142-same-chat-no-progress-resume",
-  "note": "Recovery 142: canonical source ZIP materialization succeeded, but every subsequent shell/Python process launch again failed before start with caas.internal.errors.ClientError, including a later trivial shell reprobe. Private TeamSelect re-trace remains blocked. PR #71 carries independent Gate-14 fail-closed TGQ conversion contract and is under full reconstruction CI.",
+  "note": "Recovery 142 main checkpoint 4b61e35be4ed5c6d030ad79c7ff64f1d30ee6884 reconciles PR #71 (1,149 tests, 22 expected skips, asset policy passed). Continuing Gate-14 receipt-runner work while the private process path is unavailable.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
