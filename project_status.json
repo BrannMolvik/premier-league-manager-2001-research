@@ -942,5 +942,22 @@
     0,
     0,
     0
-  ]
+  ],
+  "gate13_pmenu_arrow_state_merge": "f61146fa5dd644ecebbf032effda10dab60d7299",
+  "gate13_pmenu_arrow_state_ci_run": 36915849517,
+  "gate13_pmenu_arrow_state_asset_policy_run": 36915849434,
+  "gate13_calendar_panel_identity_source_proven": true,
+  "gate13_calendar_panel_class": "PCalendar2k",
+  "gate13_calendar_panel_constructor": "0x47CCB0",
+  "gate13_calendar_panel_vftable": "0x7C2F04",
+  "gate13_cup_tables_panel_identity_source_proven": true,
+  "gate13_cup_tables_panel_class": "PCupTable2000",
+  "gate13_cup_tables_panel_constructor": "0x44EC80",
+  "gate13_cup_tables_panel_vftable": "0x7C0A78",
+  "gate13_league_fixtures_panel_identity_source_proven": true,
+  "gate13_league_fixtures_panel_class": "PLeagueFixtures",
+  "gate13_league_fixtures_panel_constructor": "0x46D470",
+  "gate13_league_fixtures_panel_vftable": "0x7C24B8",
+  "gate13_calendar_fixtures_navigation_evidence": "research/GATE13_CALENDAR_FIXTURES_NAVIGATION.md",
+  "gate13_fixtures_results_identity_status": "league_fixtures_panel_proven_resources_layout_results_navigation_open"
 }
