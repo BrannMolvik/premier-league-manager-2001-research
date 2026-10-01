@@ -9657,3 +9657,17 @@ canonical audit.
   secondary startup equal-key permutation and per-date mode-1 bucket vector
   from the canonical executable/real input, replacing the current synthetic
   aggregate-only partition without inventing native qsort behavior.
+
+## 1 October 2026 - Recovery 138 real Windows first-screen audit passed
+
+- Rehashed the authorized ZIP and canonical executable, freshly extracted the
+  four canonical gameplay files, and verified their pinned hashes.
+- The first audit attempt correctly failed because private staging omitted
+  `FOOTBAL.EXE`; the unchanged harness passed after the already-verified
+  executable was added under its canonical name.
+- The real Windows 11 Tk path passed live canvas/image/caption checks and the
+  source-backed PStartMenu -> TeamSelect -> Back interaction sequence.
+- Private receipt SHA-256:
+  `b61d56dde7fc3ee7d25451cc993f545c28217cb28347a05921d379efe932e9b4`.
+- Gate 13 remains open on TeamSelect hierarchy semantics and broader original
+  management presentation.

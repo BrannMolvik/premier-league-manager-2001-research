@@ -1388,3 +1388,22 @@ Linux-oriented duplicate-ZIP-path assertion failed on Windows because
   that local path returns, continue the highest-priority independent cloud-safe
   work, next targeting Gate-16 long-duration/destructive audit coverage without
   claiming Gate 16 complete.
+
+## Recovery 138: real Windows first-screen graphical audit passed
+
+- Canonical `main` was reconciled at `70a86dc4033ec51d6dd9ed207405e4275acfd223`
+  before the run. The authorized ZIP and canonical executable were rehashed as
+  `677dcbc...a8a4` and `833bf95e...cc3`; the four required gameplay files were
+  freshly extracted and passed `verify_canonical_files`.
+- The merged real-Windows/Tk harness passed on Windows 11 build 26200 with
+  Python 3.12.14 and Tk 8.6.12. It verified the live 800x600 canvas, exact
+  PhotoImage geometry, PStartMenu frame-0/frame-11 captions and colors, actual
+  New Game -> TeamSelect -> Back bindings, inert unresolved hierarchy input,
+  and rejection of Start without a club.
+- The bounded receipt stays private outside Git; SHA-256 is
+  `b61d56dde7fc3ee7d25451cc993f545c28217cb28347a05921d379efe932e9b4`.
+  No proprietary raw bytes or screen dump entered the repository.
+- Gate 13 remains active. Exact next task is the remaining TeamSelect native
+  hierarchy item identity, hit/input, selection-state, caption/content and
+  navigation mapping, followed by a second Windows audit with live hierarchy
+  behavior and then broader management-screen presentation fidelity.

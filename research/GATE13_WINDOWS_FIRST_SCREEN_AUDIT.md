@@ -69,6 +69,32 @@ selection/frame semantics, hierarchy captions, or the remaining management
 screens. Those facts must still come from canonical executable/resource/direct
 graphical evidence.
 
+## Canonical Windows 11 result (Recovery 138)
+
+The audit passed on the real local Windows 11 path on 1 October 2026 after
+re-verifying the authorized ZIP and executable and extracting the four
+checksum-locked gameplay inputs into private staging. The first attempt failed
+closed because that staging directory lacked `FOOTBAL.EXE`; adding the already
+verified canonical executable closed the backend dependency and the unchanged
+harness then passed.
+
+Verified runtime facts:
+
+- platform `Windows-11-10.0.26200-SP0`, Python 3.12.14, Tk 8.6.12;
+- DPI awareness requested successfully;
+- all four PStartMenu caption/image overlays matched the live Tk dimensions at
+  source frames 0 and 11, with the proven `0xFFFF`/`0x0000` text endpoints;
+- real Tk New Game reached TeamSelect and real Tk Back returned to PStartMenu;
+- the two TeamSelect action images and two hierarchy source-strip previews had
+  their exact expected live dimensions;
+- unresolved hierarchy input remained inert and Start without a selected club
+  was rejected.
+
+The bounded private receipt remains outside Git and has SHA-256
+`b61d56dde7fc3ee7d25451cc993f545c28217cb28347a05921d379efe932e9b4`.
+No screen dump, executable, disc image, or raw proprietary data is committed.
+This closes the Windows first-screen graphical smoke item, not Gate 13.
+
 Hosted CI only tests the audit contract and fail-closed receipt rules. It
 cannot substitute for this real Windows run because the licensed executable is
 not present in hosted CI and the hosted Gate-13 job is Linux/headless.
