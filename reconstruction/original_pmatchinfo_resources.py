@@ -80,6 +80,34 @@ class OriginalPMatchInfoTextPlacement:
         return (self.x, self.y, self.width, self.height)
 
 
+PMATCHINFO_SCRIPT_ROW1_CLASS = "PScriptRow1"
+PMATCHINFO_SCRIPT_ROW1_TYPE_DESCRIPTOR_VA = 0x81CEE8
+PMATCHINFO_SCRIPT_ROW1_COL_VA = 0x7E4890
+PMATCHINFO_SCRIPT_ROW1_VFTABLE_VA = 0x7C3F34
+PMATCHINFO_SCRIPT_ROW1_SETUP_VA = 0x483500
+PMATCHINFO_SCRIPT_ROW1_UPDATE_VA = 0x4858E0
+
+PMATCHINFO_SCRIPT_ROW2_CLASS = "PScriptRow2"
+PMATCHINFO_SCRIPT_ROW2_TYPE_DESCRIPTOR_VA = 0x81CF08
+PMATCHINFO_SCRIPT_ROW2_COL_VA = 0x7E48E0
+PMATCHINFO_SCRIPT_ROW2_VFTABLE_VA = 0x7C3F88
+PMATCHINFO_SCRIPT_ROW2_SETUP_VA = 0x483500
+PMATCHINFO_SCRIPT_ROW2_UPDATE_VA = 0x485F50
+
+PMATCHINFO_DYNAMIC_INCIDENT_CONTROL_OFFSET = 0x1C8
+PMATCHINFO_DYNAMIC_INCIDENT_RESOURCE_SLOT_OFFSET = 0x1F4
+PMATCHINFO_DYNAMIC_INCIDENT_RECT = (191, 11, 14, 14)
+PMATCHINFO_DYNAMIC_INCIDENT_RESOURCE_NAMES = (
+    "score",
+    "injured",
+    "yellow_card",
+    "red_card",
+    "red_card_single",
+    "sub_on",
+    "sub_off",
+)
+
+
 PMATCHINFO_TEXT_PLACEMENTS = (
     OriginalPMatchInfoTextPlacement(0x483500, 0x4836AC, 210, 2, 185, 12),
     OriginalPMatchInfoTextPlacement(0x483500, 0x4836E4, 210, 18, 185, 12),
@@ -302,6 +330,14 @@ PMATCHINFO_RESOURCES = (
 )
 
 PMATCHINFO_RESOURCE_BY_NAME = {resource.name: resource for resource in PMATCHINFO_RESOURCES}
+
+
+def pmatchinfo_dynamic_incident_resources() -> tuple[OriginalPMatchInfoResource, ...]:
+    """Return the exact seven wrappers switched through the shared row icon slot."""
+    return tuple(
+        PMATCHINFO_RESOURCE_BY_NAME[name]
+        for name in PMATCHINFO_DYNAMIC_INCIDENT_RESOURCE_NAMES
+    )
 
 
 def pmatchinfo_placements_for_resource(
