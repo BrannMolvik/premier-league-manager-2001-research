@@ -959,7 +959,7 @@
   "gate13_league_fixtures_panel_constructor": "0x46D470",
   "gate13_league_fixtures_panel_vftable": "0x7C24B8",
   "gate13_calendar_fixtures_navigation_evidence": "research/GATE13_CALENDAR_FIXTURES_NAVIGATION.md",
-  "gate13_fixtures_results_identity_status": "league_fixtures_and_pmatchinfo_navigation_resources_local_geometry_and_zurich16_text_rectangles_source_proven_text_meanings_incident_control_events_seven_consumers_asset_import_windows_validation_open",
+  "gate13_fixtures_results_identity_status": "league_fixtures_and_pmatchinfo_navigation_resources_local_geometry_zurich16_text_and_shared_incident_control_source_proven_text_meanings_incident_predicates_seven_consumers_asset_import_windows_validation_open",
   "gate13_calendar_fixtures_navigation_merge": "9da4c89f67aaba7b263354591497d596ca50edd1",
   "gate13_calendar_fixtures_navigation_ci_run": 36916343766,
   "gate13_calendar_fixtures_navigation_asset_policy_run": 36916343760,
@@ -1146,5 +1146,25 @@
   "gate13_pmatchinfo_text_font_path": "Fonts/Zurich_BdXCn_BT_16pixel.fnt",
   "gate13_pmatchinfo_text_placement_count": 6,
   "gate13_pmatchinfo_text_meanings_open": true,
-  "gate13_pmatchinfo_incident_icon_shared_control_geometry_open": true
+  "gate13_pmatchinfo_incident_icon_shared_control_geometry_open": false,
+  "gate13_pmatchinfo_geometry_merge": "1fb35fbc8e0b36f3fefc7aad00e5cea388383a39",
+  "gate13_pmatchinfo_geometry_ci_run": 36929308062,
+  "gate13_pmatchinfo_geometry_test_count": 351,
+  "gate13_pmatchinfo_geometry_expected_skips": 21,
+  "gate13_pmatchinfo_geometry_asset_policy_run": 36929308094,
+  "gate13_pmatchinfo_dynamic_incident_control_source_proven": true,
+  "gate13_pmatchinfo_dynamic_incident_control_offset": "0x1C8",
+  "gate13_pmatchinfo_dynamic_incident_resource_slot_offset": "0x1F4",
+  "gate13_pmatchinfo_dynamic_incident_rect": [
+    191,
+    11,
+    14,
+    14
+  ],
+  "gate13_pmatchinfo_dynamic_incident_resource_count": 7,
+  "gate13_pmatchinfo_script_row1_class": "PScriptRow1",
+  "gate13_pmatchinfo_script_row1_update_va": "0x4858E0",
+  "gate13_pmatchinfo_script_row2_class": "PScriptRow2",
+  "gate13_pmatchinfo_script_row2_update_va": "0x485F50",
+  "gate13_pmatchinfo_dynamic_incident_selection_predicates_open": true
 }
