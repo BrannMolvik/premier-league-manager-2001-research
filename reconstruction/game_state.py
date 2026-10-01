@@ -174,6 +174,10 @@ class GameState:
     round_definitions: tuple[object, ...] = ()
     cup_allocation_instructions: tuple[object, ...] = ()
     league_allocation_records: tuple[object, ...] = ()
+    # Immutable shipped fixture identity used only for save-source validation.
+    # Annual regeneration replaces premier_league fixtures in-place, so the
+    # live runtime schedule cannot serve as the source-database fingerprint.
+    source_fixture_definitions: tuple[tuple[int, int, int, int], ...] = ()
     club_competition_membership: dict[int, int] = field(default_factory=dict)
     countries: dict[int, object] = field(default_factory=dict)
     positions: dict[int, object] = field(default_factory=dict)
@@ -385,6 +389,15 @@ class GameState:
             ),
             league_allocation_records=tuple(
                 getattr(database, "league_allocation_records", ())
+            ),
+            source_fixture_definitions=tuple(
+                (
+                    int(fixture.id),
+                    int(fixture.round_index),
+                    int(fixture.home_club_id),
+                    int(fixture.away_club_id),
+                )
+                for fixture in fixtures
             ),
             club_competition_membership={
                 int(club.index): int(club.competition_id)
