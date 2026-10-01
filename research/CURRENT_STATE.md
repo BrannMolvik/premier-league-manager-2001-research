@@ -41,6 +41,21 @@ Evidence:
   gameplay backend. Rerun it with the same Tcl/Tk-capable Windows Python used
   by Recovery 138; the interrupted Codex attempt happened to use a bundled
   Python lacking a usable `init.tcl`.
+- Recovery 141 hardened the unresolved TeamSelect identity boundary in PR #69,
+  merged as `74f5b626f07f6da5d15fd6c4795a1a37f5a56411`. The native
+  presentation model now names its provisional value
+  `selected_club_record_index`, while the gameplay session alone owns
+  `selected_club_id`; the developer-only explicit backend picker no longer
+  synchronizes those values by numeric coincidence. Focused Gate-13 run
+  `36889927015` passed 273 tests with 21 expected source-gated skips and zero
+  failures; asset-policy run `36889927306` passed.
+- Recovery 141 successfully materialized the pinned source and persisted runtime
+  ZIPs, but both the next shell launch and the independent Python execution path
+  then failed before process start with `caas.internal.errors.ClientError`.
+  No private TeamSelect payload behavior or upgraded Windows graphical result is
+  claimed from this allocation. The exact private next action remains the
+  bounded `0x4D8E90` / `0x4D9240` selection-record and Start-resolution
+  re-trace, followed by the upgraded Windows audit.
 - Local Codex recovery at `4537f9b150cab8e2282c5d33a30c13a43cfb50c3`
   completed the concrete Squad player-list hierarchy, 20-row/column/status
   bindings and exact `FormationText` state-to-source-row transform. Do not
