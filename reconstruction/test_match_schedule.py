@@ -93,10 +93,14 @@ class ScheduleBucketShuffleTests(unittest.TestCase):
         self.assertEqual(rng.state, 0x61D6DFA2)
 
     def test_aggregate_checkpoint_rejects_impossible_bucket_counts(self):
-        rng = MsvcCrtRng(1)
-        with self.assertRaises(ValueError):
-            advance_msvc_schedule_shuffle_aggregate_state(3, 4, rng)
-        self.assertEqual(rng.state, 1)
+        for nodes, buckets in ((3, 4), (3, 0)):
+            with self.subTest(nodes=nodes, buckets=buckets):
+                rng = MsvcCrtRng(1)
+                with self.assertRaises(ValueError):
+                    advance_msvc_schedule_shuffle_aggregate_state(
+                        nodes, buckets, rng
+                    )
+                self.assertEqual(rng.state, 1)
 
     def test_zero_or_one_entry_consumes_no_rng(self):
         rng = RecordingRng([])
