@@ -90,14 +90,36 @@ Evidence:
   `caas.internal.errors.ClientError`. No canonical season was executed in this
   recovery, no source hash was re-claimed from the failed process path, and no
   new original-behavior assertion is promoted.
+- **Recovery 134 runner/bootstrap checkpoint:** the fresh allocation failed
+  before its first shell process with `caas.internal.errors.ClientError`, so
+  the canonical private run still could not execute. Cloud-safe work produced
+  `reconstruction/canonical_multiseason_audit.py`, merged through PR #63 as
+  `c12df0dde85bb477392c25b97f8b9ca3254b2837`. It repeats the proven annual
+  qualification boundary on one live controller and fails closed on incomplete
+  PL state, invalid roster/membership references, RNG or membership commit
+  drift, dropped played qualification Leagues, duplicate/missing scheduler
+  fixtures, or growth in the fresh season-owned structural shape. Full CI run
+  `36857099351` passed **1,138 tests with 22 expected source-gated skips and
+  zero failures**; asset-policy run `36857099441` passed.
+- Recovery 134 also removed the in-container Git/DNS transport dependency. The
+  successful Recovery-132 Actions artifact was downloaded and persisted in the
+  user Library as
+  `/FM2001/Working Runtime/FM2001-reconstruction-runtime-120400bd.zip`
+  (688,773 bytes; Actions artifact digest
+  `sha256:9167302c608882161954109d617824422671d2999d69006bff5d662adeb2c4d6`).
+  Its `reconstruction/` contents are from merge-base
+  `120400bd1ce25e449897e927e00dfa9f945076eb`; comparison through Recovery-133
+  main showed only research/status changes before PR #63, so the engine code is
+  the current pre-runner runtime. The ZIP does not contain the newly merged
+  multi-season runner itself.
 - **Next executable action:** keep the canonical shipped-data multi-season
   Gate-16 audit as the next task. On the next healthy sustained execution
-  allocation, synchronize the reconstruction runtime to current `main`,
-  re-materialize/verify the pinned canonical source outside Git, then drive
-  consecutive canonical seasons through annual qualification/regeneration on
-  one continuous runtime while checking calendar progress, 380-fixture Premier
-  replacements, scheduler/order presence, membership transitions, RNG commit,
-  roster/competition validity and bounded persisted-state growth. Convert any
+  allocation, materialize both the pinned canonical disc archive and the
+  Library runtime ZIP before launching a shell, extract them outside Git, add
+  the now-canonical `canonical_multiseason_audit.py` from current `main` (or
+  invoke its equivalent temporary orchestration against that runtime), recheck
+  the pinned canonical source hashes, and run at least three consecutive
+  qualification/regeneration cycles. Persist the JSON evidence and convert any
   discovered failure into a regression before continuing.
 - Gate 17 release-readiness evidence is now fail-closed and machine-checkable at
   `9e7cb18be721ea2ae89b074991e120d3e60e4c68`; it intentionally cannot pass

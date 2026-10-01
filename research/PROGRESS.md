@@ -9520,3 +9520,42 @@ earliest incomplete validation gate.
   Gate-16 audit on one continuous runtime through repeated annual
   qualification/regeneration. The runtime stays `working` so automatic
   recovery can move this task to a healthy execution allocation.
+
+
+## 1 October 2026 - Recovery 134 canonical multi-season runner and runtime bootstrap
+
+- Resumed canonical main `1282b5477d4cfed173cc19111a5480876178aa8b` and
+  advanced `agent-runtime` to recovery generation 134. The fresh allocation's
+  first shell launch failed before process start with
+  `caas.internal.errors.ClientError`, so no canonical private execution or new
+  source-hash receipt is claimed from this allocation.
+- Rather than repeat the dead process path, PR #63 added the dedicated
+  fail-closed `reconstruction/canonical_multiseason_audit.py` runner plus four
+  repository-side control-flow tests and
+  `research/GATE16_CANONICAL_MULTISEASON_AUDIT.md`.
+- The runner waits for the same live annual qualification boundary used by the
+  proven Gate-12 canonical audit and never synthesizes standings, Cup results,
+  qualification, membership swaps, or RNG state. Each cycle requires a
+  complete 380-fixture/20-club Premier League, coherent roster/membership
+  references, atomic RNG and membership transition, exact regenerated
+  scheduler coverage, retained played qualification-League owners, and a
+  stable fresh season-owned structural shape.
+- Final PR head `d7d230af935accb0e24f81a46f34a346c9c768fc` passed full
+  reconstruction run `36857099351`: **1,138 tests in 295.693 seconds, 22
+  expected source-gated skips, zero failures**. Asset-policy run
+  `36857099441` passed. PR #63 squash-merged as
+  `c12df0dde85bb477392c25b97f8b9ca3254b2837`.
+- Recovery 132's successful reconstruction-runtime Actions artifact
+  (`recovery132-reconstruction-runtime`, artifact `11155211053`, digest
+  `sha256:9167302c608882161954109d617824422671d2999d69006bff5d662adeb2c4d6`)
+  was downloaded through the GitHub connector and persisted in the Library at
+  `/FM2001/Working Runtime/FM2001-reconstruction-runtime-120400bd.zip`
+  (688,773 bytes). Its reconstruction code is rooted at
+  `120400bd1ce25e449897e927e00dfa9f945076eb`; main changes through Recovery
+  133 touched only research/status files, so it is a valid engine bootstrap.
+  It predates the new runner file itself.
+- Exact next task remains the real canonical shipped-data multi-season run.
+  Future recovery should materialize the canonical disc archive and runtime ZIP
+  through Files before starting a shell, eliminating dependence on in-sandbox
+  GitHub DNS/network access, then execute the merged runner and persist its JSON
+  evidence.
