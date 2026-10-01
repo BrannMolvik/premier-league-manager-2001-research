@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 153 resumes from merged PR #82 at main cac2e5e92a6a195bf1a271e517ed90b5535f9908. Exact next task: resolve PLeagueFixtures empty-slot red predicate by proving identities populated into the compared 0x4C-stride header families, then continue fixture ordering/filtering and grid navigation if source evidence permits.",
-  "last_known_main_head": "cac2e5e92a6a195bf1a271e517ed90b5535f9908",
+  "active_task": "Recovery 154 resumes from merged PR #83 at main 7381efcf9ca912d684406effc5ff3b4da1f2d1d8. Gate-13 run 36922149326 passed 323 tests with 21 expected skips and asset-policy run 36922149239 passed. Exact next task: source-trace PLeagueFixtures country/category and competition selector shell, including exact country IDs, selected indices, competition labels, control identities and event navigation; preserve unresolved semantics fail-closed.",
+  "last_known_main_head": "7381efcf9ca912d684406effc5ff3b4da1f2d1d8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 153,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 153 continues from verified League Fixtures state/text checkpoint. Do not repeat panel identity, resource/grid, score/date mapping, or selected-row toggle work.",
+  "recovery_generation": 154,
+  "last_recovery_reason": "post-pr83-merge-continuation",
+  "note": "Recovery 154 continues beyond verified League Fixtures matrix/navigation. Do not repeat matrix, score/date, red diagonal or grid navigation work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
