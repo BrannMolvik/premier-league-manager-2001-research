@@ -42,6 +42,9 @@ on:
       - "research/GATE16_TRANSFER_CHURN_STRESS.md"
       - "reconstruction/test_gate16_mixed_primary_stress.py"
       - "research/GATE16_MIXED_PRIMARY_STRESS.md"
+      - "reconstruction/canonical_multiseason_audit.py"
+      - "reconstruction/test_canonical_multiseason_audit.py"
+      - "research/GATE16_CANONICAL_MULTISEASON_AUDIT.md"
   workflow_dispatch:
 
 concurrency:
