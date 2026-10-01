@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete validation gate with the real Windows graphical audit deferred. Gate-16 cloud-safe work now has a merged canonical multi-season runner and a persistent Library runtime bootstrap. Recovery 134 confirmed every available process-execution path fails before start with caas.internal.errors.ClientError even after both canonical source and runtime ZIPs materialize successfully. Next healthy allocation must materialize those two ZIPs, re-verify pinned source hashes, and execute at least three canonical qualification/regeneration cycles with the merged runner.",
+  "active_task": "Gate 13 remains the earliest incomplete validation gate with the real Windows graphical audit deferred. Recovery 135 is continuing the exact Gate-16 cloud-safe task: execute the already-merged canonical shipped-data multi-season audit using the persisted runtime/source inputs, re-verify pinned source hashes, run at least three consecutive qualification/regeneration cycles, and persist verified evidence or the precise execution blocker.",
   "last_known_main_head": "4d413fa3036ffeeaf5ad34a1bf3e140eb64bcf34",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 134,
+  "recovery_generation": 135,
   "last_recovery_reason": "sandbox-execution-failure",
-  "note": "Recovery 134 checkpointed main 4d413fa3036ffeeaf5ad34a1bf3e140eb64bcf34. PR #63 runner is merged; full CI 36857099351 passed 1,138 tests with 22 expected skips and asset policy 36857099441 passed. Runtime bootstrap is persisted at /FM2001/Working Runtime/FM2001-reconstruction-runtime-120400bd.zip. Both source/runtime materialization work, but shell and independent Python execution both fail before process start. Runtime stays working for automatic recovery.",
+  "note": "Recovery 135 started from canonical main 4d413fa3036ffeeaf5ad34a1bf3e140eb64bcf34. PR #63 runner remains the verified implementation boundary; this fresh allocation will retest sustained execution before doing any further cloud-safe work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
