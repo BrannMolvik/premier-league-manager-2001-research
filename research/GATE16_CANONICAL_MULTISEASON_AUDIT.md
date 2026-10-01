@@ -159,3 +159,37 @@ qualification-dependent materialization, not cross-season accumulation.
 The regression now models that exact class of change: a fresh European Cup may
 gain two nodes when its current regeneration contains them, while an injected
 stale Cup node that is absent from the current regeneration still fails closed.
+
+
+## Recovery 136 projection-checker correction
+
+After PR #64 merged, the exact merged runner was executed again against the
+reverified canonical source. The game runtime completed the first canonical
+season and annual regeneration, but the new audit checker failed at cycle 0
+with:
+
+`fresh shared-primary order differs from current regeneration projection`
+
+This was an audit-harness defect, not a simulation-state failure. The checker
+had derived expected procedural entries from `state.procedural_leagues`, which
+contains only competition/context pairs that successfully materialize a live
+`LiveProceduralLeagueState`. The source-backed
+`gate12_primary_matchday_order` contract is broader: it retains every
+`league_match` whose **competition ID** is in the authorized procedural set,
+even when a particular context does not become a live owner.
+
+The repaired checker resolves the same procedural competition-ID set used by
+`HumanGameplayController.regenerate_annual_primary_season`:
+
+- English primary procedural roots;
+- played annual type-3 League qualification sources;
+- procedural League children required by annual Cup sources.
+
+Expected shared-primary entries are then projected from those source-authorized
+competition IDs, while the separate stale-owner guard still rejects a live
+procedural owner whose competition/context no longer exists in the current
+materialized schedule.
+
+A regression now covers the exact boundary: competition 14/context 3 remains a
+valid shared-primary procedural entry when 14 is authorized even if that
+context is absent from `state.procedural_leagues`.
