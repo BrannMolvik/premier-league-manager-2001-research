@@ -1,9 +1,11 @@
 """Source-exact TeamSelect hierarchy data, state, art and presentation.
 
 The canonical executable establishes a 16-row country/competition group and a
-24-row club group.  This module mirrors the recovered filtering, stable native
-ordering, click transitions and source-frame transforms without embedding any
-licensed source bytes in code.
+24-row club group. This module mirrors recovered filtering, stable native
+ordering, row-toggle state and source-frame transforms without embedding any
+licensed source bytes in code. The visible club record index used for local row
+state is deliberately not promoted to the gameplay backend until the native
+selection-record payload identity is re-traced.
 """
 from __future__ import annotations
 
@@ -289,6 +291,9 @@ class TeamSelectHierarchyModel:
     clubs: tuple[object, ...]
     selected_country_id: int = 26
     selected_competition_id: int | None = None
+    # Reconstruction record index for visible row state only. The interrupted
+    # trace's claimed native payload identity conflicts with an earlier verified
+    # DBRClub+0x40 manager-ID mapping, so this is not yet a source-exact backend ID.
     selected_club_id: int | None = None
 
     def __post_init__(self) -> None:
