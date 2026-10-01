@@ -40,6 +40,8 @@ on:
       - "research/GATE16_CONSECUTIVE_SEASONS.md"
       - "reconstruction/test_gate16_transfer_churn_stress.py"
       - "research/GATE16_TRANSFER_CHURN_STRESS.md"
+      - "reconstruction/test_gate16_mixed_primary_stress.py"
+      - "research/GATE16_MIXED_PRIMARY_STRESS.md"
   workflow_dispatch:
 
 concurrency:
