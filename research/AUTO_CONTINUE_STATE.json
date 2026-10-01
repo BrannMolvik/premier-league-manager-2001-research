@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete validation gate. Recovery 136 continues the verified Recovery-135 Gate-16 finding: isolate the exact cycle-2 +2 European Cup node delta and corresponding primary/shadow entries, prove legitimate participant-dependent materialization versus cross-season accumulation, encode the result as a regression/fix, then rerun the canonical three-rollover audit.",
+  "active_task": "Gate 13 remains the earliest incomplete validation gate. Recovery 136 proved the Recovery-135 +2 delta is legitimate UEFA Cup round-210 participant-dependent materialization (79/39 pairings -> 80/40). PR #64 replaces the invalid equal-shape guard with current-regeneration projection validation and adds regressions. CI and an exact canonical three-rollover rerun are in progress; merge/checkpoint successful evidence, then continue the next Gate-16 task.",
   "last_known_main_head": "675b7170b4155597b65937ae81c71f5cf3b34dc6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 136,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 136 resumes from main 675b7170b4155597b65937ae81c71f5cf3b34dc6. Recovery 135 already verified canonical source hashes and reproduced the cycle-2 European Cup +2 structural delta. Do not rerun completed setup unless required by the focused delta trace.",
+  "note": "Recovery 136 checkpoint: focused canonical diagnostic completed three rollovers; only added nodes are UEFA Cup 10 round 210 pair 39 first/second legs. Local 23 focused tests pass. PR #64 head d3d29660fb34220905f53ff74cb43d156cdf2b99 has asset policy passed and reconstruction suite running. Exact PR-blob code is running canonical seed-1 three-rollover rerun against reverified source hashes.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
