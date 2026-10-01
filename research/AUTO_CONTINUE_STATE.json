@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the active validation gate. Exact deferred local task: run the real Windows PStartMenu/TeamSelect graphical audit, then recover remaining TeamSelect hierarchy item/input/selection-state semantics and broader management-screen fidelity. Gate 16 annual regeneration/save-growth soak is verified and reconciled on main through cc0b32f0ccf60fc53c9215a1f9f925ebcf808375. Current independent cloud-safe task: extend the five-year autonomous-transfer churn with periodic internal game-state save/reload round-trips, proving completed movement history remains exactly event-proportional, transient transfer containers stay empty, roster ownership remains valid, and serialization does not duplicate or lose persistent transfer history.",
-  "last_known_main_head": "cc0b32f0ccf60fc53c9215a1f9f925ebcf808375",
+  "active_task": "Gate 13 remains the active validation gate with the real Windows PStartMenu/TeamSelect graphical audit deferred. Recovery 132 has verified Gate 16 transfer-history save/reload stress and re-established canonical source access. Current task: run a canonical shipped-data multi-season Gate-16 audit. The private disc archive and required root files are already materialized/hash-verified outside Git; obtain current reconstruction runtime code in the execution container without committing proprietary bytes, then drive consecutive canonical seasons through annual qualification/regeneration and persist the evidence.",
+  "last_known_main_head": "120400bd1ce25e449897e927e00dfa9f945076eb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 132,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 132 resumed after PR #59 passed 1,133 tests with 22 expected skips and asset policy, merged as a9ec833173a92a4b8b3c2238d91943c159f7fa92, then reconciled main. Continuing immediately into transfer-history save/reload growth stress while Gate 13 remains earliest incomplete.",
+  "note": "Recovery 132: PR #60 merged and reconciled; canonical ZIP plus Master.dat, Static.dat, English.str, Core.str and FOOTBAL.EXE all independently hash-verified in the execution container. Continuing canonical real-data multi-season audit.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
