@@ -29,6 +29,7 @@ from original_league_fixtures_resources import (
     league_fixture_matrix_accepts_candidate,
     league_fixture_matrix_slot,
     league_fixtures_column_page_offset,
+    league_fixtures_grid_indices_from_point,
     validate_league_fixtures_grid_selection_index,
     league_fixture_box_for_cell,
     league_fixture_visible_text,
@@ -265,6 +266,40 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
         self.assertEqual(league_fixtures_column_page_offset(12, 36, 1), 24)
         self.assertEqual(league_fixtures_column_page_offset(24, 36, 1), 24)
         self.assertEqual(league_fixtures_column_page_offset(0, 8, 1), 0)
+
+    def test_grid_point_mapping_uses_exact_29_by_14_steps(self):
+        self.assertEqual(
+            league_fixtures_grid_indices_from_point(
+                x=100,
+                y=200,
+                origin_x=100,
+                origin_y=200,
+            ),
+            (0, 0),
+        )
+        self.assertEqual(
+            league_fixtures_grid_indices_from_point(
+                x=100 + 29 * 11 + 28,
+                y=200 + 14 * 23 + 13,
+                origin_x=100,
+                origin_y=200,
+            ),
+            (11, 23),
+        )
+        for x, y in (
+            (99, 200),
+            (100, 199),
+            (100 + 29 * 12, 200),
+            (100, 200 + 14 * 24),
+        ):
+            with self.subTest(x=x, y=y):
+                with self.assertRaises(OriginalLeagueFixturesResourceError):
+                    league_fixtures_grid_indices_from_point(
+                        x=x,
+                        y=y,
+                        origin_x=100,
+                        origin_y=200,
+                    )
 
     def test_dispatch_selector_ranges_are_twelve_columns_and_twenty_four_rows(self):
         self.assertEqual(LEAGUE_FIXTURES_VISIBLE_ROWS, 24)
