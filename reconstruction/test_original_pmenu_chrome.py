@@ -2,8 +2,6 @@
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import patch
-
 from original_pmenu_chrome import (
     OriginalPMenuChromeError,
     PMENU_ADMIN_FAMILY_CHILDREN,
@@ -13,6 +11,7 @@ from original_pmenu_chrome import (
     PMENU_CHILDREN_BY_ARRAY_VA,
     PMENU_CHILD_ROW_CLASS,
     PMENU_CHILD_ROW_SETUP_VA,
+    PMENU_DIRECT_259_CHILDREN,
     PMENU_EAMAIL_CHILDREN,
     PMENU_FINANCE_FAMILY_CHILDREN,
     PMENU_RESOURCES,
@@ -23,6 +22,7 @@ from original_pmenu_chrome import (
     PMENU_ROW_COLOR_COMPONENTS,
     PMENU_ROW_HEIGHT,
     PMENU_SEPARATE_TEAM_ORDER_NODES,
+    PMENU_SYSTEM_CHILDREN,
     PMENU_TABLES_CHILDREN,
     PMENU_TEAM_CHILDREN,
     PMENU_TEXT_CONTROL_SIZE,
@@ -138,6 +138,10 @@ class OriginalPMenuChromeTests(unittest.TestCase):
         self.assertEqual(
             [node.require_original_text() for node in PMENU_TRANSFER_CHILDREN],
             ["Transfer List", "Scouts", "Player/Club Search"],
+        )
+        self.assertEqual(
+            [node.require_original_text() for node in PMENU_DIRECT_259_CHILDREN],
+            ["Calendar", "League Fixtures"],
         )
         self.assertEqual(
             [node.require_original_text() for node in PMENU_TABLES_CHILDREN],
