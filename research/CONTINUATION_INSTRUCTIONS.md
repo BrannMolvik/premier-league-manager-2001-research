@@ -174,3 +174,34 @@ If a session must stop mid-task:
 6. commit and push.
 
 The next session should continue from that checkpoint rather than reconstructing the previous chat.
+
+
+## Deferred blocker and out-of-order work policy
+
+Roadmap gates are **verification milestones**, not a rule that all productive work
+must stop when one gate contains a temporarily blocked local/private task.
+
+When the exact next task requires unavailable local Windows GUI access, the
+private executable/source archive, or a functioning execution sandbox:
+
+1. Record the task as a deferred blocker with the exact missing evidence/action.
+2. Do not mark that criterion complete and do not infer missing original behavior.
+3. Continue the highest-priority independent **cloud-safe** task elsewhere in
+   the current gate or a later gate.
+4. Work ahead only where the task does not depend on the unresolved blocker.
+5. Keep the earliest incomplete gate as the active validation gate until all of
+   its completion criteria are actually satisfied.
+6. Later-gate implementation/tests may advance out of order, but a later gate
+   must not be declared passed if its own criteria or an earlier prerequisite
+   remain unresolved.
+7. Revisit deferred blockers whenever a sustained private/local execution path
+   becomes available, and clear every deferred blocker before the relevant gate
+   is closed.
+
+Useful cloud-safe work-ahead examples include already-evidenced presentation
+integration, deterministic/fail-closed tests, repository-side fidelity work,
+long-duration/destructive simulation testing, packaging/audit tooling, and
+documentation of verified behavior. Do not use this policy to bypass missing
+source evidence, Windows graphical verification, or original-resource
+provenance.
+
