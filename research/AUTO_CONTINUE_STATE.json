@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Resume from canonical main 745a63016f541b40f053feae12ffc8333bfcbd5b. Recovery 141 merged PR #69 as 74f5b626f07f6da5d15fd6c4795a1a37f5a56411, hardening the native TeamSelect visual record index vs backend club-ID boundary; Gate13 CI 36889927015 passed 273 tests with 21 expected skips and asset policy 36889927306 passed. Private blocker remains the bounded 0x4D8E90/0x4D9240 selection-record payload and Start-resolution re-trace, followed by the upgraded real-Windows audit. This allocation materialized source/runtime ZIPs but all subsequent shell and Python launches failed before process start with caas.internal.errors.ClientError. Continue independent cloud-safe Gate13/15 fidelity work without inventing the payload.",
+  "active_task": "Recovery 141 continues. Gate 13 private blocker remains TeamSelect 0x4D8E90/0x4D9240 payload/Start re-trace plus upgraded Windows audit; local shell/Python execution is blocked by ClientError after source/runtime materialization. Cloud-safe PR #70 at head 39bc3d0404de8b069e5f7aa25d9709777ec8d6bc removes invented secondary bucket geometry and uses an aggregate-only MSVC checkpoint. Asset policy run 36890778875 passed; reconstruction run 36890779450 is in progress. Merge only if current-head CI passes, then reconcile main and continue.",
   "last_known_main_head": "745a63016f541b40f053feae12ffc8333bfcbd5b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 141,
   "last_recovery_reason": "recovery-141-teamselect-boundary-hardened-private-execution-blocked",
-  "note": "Recovery 141: PR #69 merged and CI-green. Native TeamSelect visual state is now explicitly a record index, not a gameplay club ID. Private process execution failed after source/runtime materialization, so no new payload or Windows result is claimed.",
+  "note": "Heartbeat during PR #70 current-head full reconstruction CI. No new private source behavior claimed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
