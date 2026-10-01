@@ -79,6 +79,16 @@ construction is source-backed, but its exact post-shuffle `0x615A60` insertion
 order is still unresolved and remains a fidelity gap. The production
 `primary_entries_due_today` guard is left unchanged.
 
-A successful rerun strengthens Gate 16's broader-competition/state-growth
-evidence. It does not replace canonical real-data multi-season evidence and does
-not close Gate 16.
+## Verification
+
+The repaired final PR head `8bc252fdc5f0c960cd4cb8845a6fe1711b6a211d`
+passed reconstruction workflow `36846018068`: **1,132 tests** in 297.493
+seconds with **22 expected source-gated skips and zero failures**. Repository
+asset-policy workflow `36846018016` also passed.
+
+PR #58 squash-merged to canonical `main` as
+`24447d846b96fe68d2eba7c17d0053de638e43ef`.
+
+This strengthens Gate 16's broader-competition/state-growth evidence. It does
+not replace canonical real-data multi-season evidence and does not close Gate
+16.
