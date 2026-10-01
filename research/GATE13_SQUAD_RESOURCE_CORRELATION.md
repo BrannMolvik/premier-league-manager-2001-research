@@ -42,7 +42,31 @@ or raw report entered Git.
 
 This is the first persisted proof of the distinct native `PSquadScreen` class.
 The 73x575 atlas is retained intact. Its internal frame boundaries or user-
-facing button meanings are not inferred from height alone.
+facing frame meanings are not inferred from height alone.
+
+## Exact top-control bindings and captions
+
+The same setup method registers the three adjacent controls through vtable
+slot `+0x08` (`0x64F3C0`), which stores the supplied numeric control ID and
+owner pointer. Their complete source bindings are:
+
+| Control ID | Object offset | Origin | Label global | English.idx | Exact English text |
+| ---: | ---: | ---: | ---: | ---: | --- |
+| 3 | `+0x37A4` | `(37,92)` | `0x982110` | 2490 | `1ST & RES` |
+| 4 | `+0x37F8` | `(113,92)` | `0x98210C` | 2491 | `1ST FORM` |
+| 5 | `+0x384C` | `(189,92)` | `0x982108` | 2492 | `RES. FORM` |
+
+The caption mapping is not inferred from visual order. Language loader
+`0x635F30` begins its sequential two-byte `English.idx` reads at `0x635F56`.
+Calls `0x64AA0E`, `0x64AA30` and `0x64AA52` are zero-based entries 2490,
+2491 and 2492 and install those values into the three globals above. The
+committed original `English.idx` / `English.str` pair resolves them to the
+exact text shown.
+
+The first control receives one distinct setup flag while the other two receive
+zero. Its semantic name is not claimed, and no atlas row is labelled as a
+normal, hover, pressed or selected state without a separate state transition
+trace.
 
 ## Formation resources
 
@@ -75,15 +99,17 @@ that the general Squad panel draws it.
 ## Durable implementation boundary
 
 `reconstruction/original_squad_resources.py` fail-closes on the four hashes and
-native `.444` header sizes, records the exact owner boundary, and locks the
-three recovered `PSquadScreen` button origins. It deliberately does not split
-either vertical atlas, name the three buttons, invent formation coordinates,
-or claim the shared blue toggle for the general Squad screen.
+native `.444` header sizes, records the exact owner boundary, locks the three
+recovered `PSquadScreen` controls, and resolves their captions from the
+committed original language pair. It deliberately does not split either
+vertical atlas, name native frame states, invent formation coordinates, or
+claim the shared blue toggle for the general Squad screen.
 
 ## Next action
 
 Use the now-proven `PSquadScreen` setup method as the anchor for the surrounding
-general-Squad controls, captions and navigation. Separately trace the callers
-that supply `FormationText` geometry before composing the formation fragment.
+general-Squad roster layout, state transitions and navigation. Separately trace
+the callers that supply `FormationText` geometry before composing the formation
+fragment.
 The real Windows PStartMenu/TeamSelect graphical audit remains required before
 Gate 13 can close.

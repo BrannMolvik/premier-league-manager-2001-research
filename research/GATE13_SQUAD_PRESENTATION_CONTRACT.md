@@ -76,13 +76,17 @@ The contract intentionally contains no:
 - visible column names or their order;
 - status icon or color bindings;
 - row/column rectangles;
-- meanings or frame partition for the imported 73x575 button atlas;
+- native state meanings or frame partition for the imported 73x575 button atlas;
 - font/alignment rules;
 - click, drag/drop or navigation mappings.
 
 Those remain open Gate-13 presentation/resource work. The later trace does
 prove `PSquadScreen` TypeDescriptor `0x819D48`, vtable `0x7C5CA4`, setup
 `0x4B5720`, exact `squad_but_anim.444` provenance, and three button origins.
+The subsequent bounded trace additionally proves control IDs 3/4/5 and exact
+captions `1ST & RES`, `1ST FORM`, and `RES. FORM` through English.idx entries
+2490..2492. Those labels do not by themselves prove the first control's
+distinct setup flag or any atlas row's visual-state meaning.
 
 ## Gate 13 consequence
 

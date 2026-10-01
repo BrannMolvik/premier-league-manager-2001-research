@@ -12,6 +12,7 @@ from hashlib import sha256
 from pathlib import Path
 
 from ea444_header import parse_ea444_header
+from ea_language_strings import parse_language_pair
 
 
 @dataclass(frozen=True)
@@ -30,6 +31,28 @@ SQUAD_SCREEN_CLASS = "PSquadScreen"
 SQUAD_SCREEN_TYPE_DESCRIPTOR_VA = 0x819D48
 SQUAD_SCREEN_VFTABLE_VA = 0x7C5CA4
 SQUAD_SCREEN_SETUP_VA = 0x4B5720
+
+
+@dataclass(frozen=True)
+class OriginalSquadButton:
+    control_id: int
+    object_offset: int
+    label_global_va: int
+    language_index: int
+    original_text: str
+    origin: tuple[int, int]
+
+
+# PSquadScreen::0x4B5720 registers these controls through vtable slot +8
+# (0x64F3C0), which stores the numeric ID and owner. The language loader's
+# sequential 16-bit reads bind English.idx entries 2490..2492 to the globals.
+# The first control receives a distinct setup flag, but its semantic name and
+# all atlas-frame meanings remain deliberately unresolved.
+SQUAD_BUTTONS = (
+    OriginalSquadButton(3, 0x37A4, 0x982110, 2490, "1ST & RES", (37, 92)),
+    OriginalSquadButton(4, 0x37F8, 0x98210C, 2491, "1ST FORM", (113, 92)),
+    OriginalSquadButton(5, 0x384C, 0x982108, 2492, "RES. FORM", (189, 92)),
+)
 
 SQUAD_RESOURCES = (
     OriginalSquadResource(
@@ -92,3 +115,18 @@ def validate_imported_original_squad_resources(
                 f"Original Squad resource geometry mismatch: {resource.source_path}"
             )
     return SQUAD_RESOURCES
+
+
+def validate_original_squad_button_labels(
+    english_str: Path, english_idx: Path
+) -> tuple[OriginalSquadButton, ...]:
+    """Resolve the three executable-bound labels from the original language pair."""
+    strings, index = parse_language_pair(
+        Path(english_str).read_bytes(), Path(english_idx).read_bytes()
+    )
+    for button in SQUAD_BUTTONS:
+        if index.resolve(strings, button.language_index) != button.original_text:
+            raise OriginalSquadResourceError(
+                f"Original Squad label mismatch at English.idx {button.language_index}"
+            )
+    return SQUAD_BUTTONS

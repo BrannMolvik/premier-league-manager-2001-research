@@ -5,6 +5,7 @@ import unittest
 
 from original_squad_resources import (
     OriginalSquadResourceError,
+    SQUAD_BUTTONS,
     SQUAD_BUTTON_ORIGINS,
     SQUAD_RESOURCES,
     SQUAD_SCREEN_CLASS,
@@ -12,6 +13,7 @@ from original_squad_resources import (
     SQUAD_SCREEN_TYPE_DESCRIPTOR_VA,
     SQUAD_SCREEN_VFTABLE_VA,
     validate_imported_original_squad_resources,
+    validate_original_squad_button_labels,
 )
 
 
@@ -41,6 +43,35 @@ class OriginalSquadResourceTests(unittest.TestCase):
         self.assertEqual(SQUAD_SCREEN_VFTABLE_VA, 0x7C5CA4)
         self.assertEqual(SQUAD_SCREEN_SETUP_VA, 0x4B5720)
         self.assertEqual(SQUAD_BUTTON_ORIGINS, ((37, 92), (113, 92), (189, 92)))
+
+    def test_native_button_ids_offsets_globals_and_language_bindings_are_locked(self):
+        self.assertEqual(
+            tuple(
+                (
+                    item.control_id,
+                    item.object_offset,
+                    item.label_global_va,
+                    item.language_index,
+                    item.original_text,
+                    item.origin,
+                )
+                for item in SQUAD_BUTTONS
+            ),
+            (
+                (3, 0x37A4, 0x982110, 2490, "1ST & RES", (37, 92)),
+                (4, 0x37F8, 0x98210C, 2491, "1ST FORM", (113, 92)),
+                (5, 0x384C, 0x982108, 2492, "RES. FORM", (189, 92)),
+            ),
+        )
+
+    def test_original_language_pair_resolves_native_squad_labels(self):
+        root = Path(__file__).resolve().parent.parent / "original_assets" / "source"
+        self.assertEqual(
+            validate_original_squad_button_labels(
+                root / "English.str", root / "English.idx"
+            ),
+            SQUAD_BUTTONS,
+        )
 
     def test_wrong_imported_bytes_fail_closed(self):
         source = Path(__file__).resolve().parent.parent / "original_assets" / "source"

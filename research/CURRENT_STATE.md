@@ -41,11 +41,15 @@ Evidence:
 - All four exact resources are provenance-imported. A fail-closed contract and
   tests lock hashes, native header sizes, owner boundaries and recovered Squad
   button origins. See `research/GATE13_SQUAD_RESOURCE_CORRELATION.md`.
-- Exact next Gate-13 work: recover the three `PSquadScreen` button
-  bindings/captions and surrounding roster layout without guessing atlas frame
-  partitions; separately recover the callers supplying `FormationText`
-  geometry. The real Windows PStartMenu/TeamSelect graphical audit and wider
-  management-screen correlations remain mandatory before Gate 13 closes.
+- The three top controls are now source-bound end-to-end: IDs 3/4/5, object
+  offsets `+0x37A4/+0x37F8/+0x384C`, origins `(37,92)/(113,92)/(189,92)`,
+  label globals `0x982110/0x98210C/0x982108`, and English.idx entries
+  2490/2491/2492 resolving exactly to `1ST & RES`, `1ST FORM`, `RES. FORM`.
+- Exact next Gate-13 work: recover surrounding roster layout and the controls'
+  state transitions without guessing atlas frame semantics; separately recover
+  the callers supplying `FormationText` geometry. The real Windows
+  PStartMenu/TeamSelect graphical audit and wider management-screen
+  correlations remain mandatory before Gate 13 closes.
 
 ## Recovery 123: native menu captions + Scouting composition verified
 

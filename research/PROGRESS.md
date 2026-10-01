@@ -9289,3 +9289,18 @@ invent original visual or control semantics.
 - Preserved exhaustive binary reports outside Git. No archive, executable,
   disc image or uncontrolled dump was added.
 
+## 1 October 2026 KST - Gate 13 Squad controls and captions source-bound
+
+- Continued from clean canonical checkpoint `bc25db9c4d98d1e6038d485822e6a74fdc95af1c`.
+- Traced the three `PSquadScreen` top controls through their embedded object
+  offsets, generic registration method and numeric IDs: 3/4/5 at
+  `+0x37A4/+0x37F8/+0x384C`.
+- Counted the canonical language loader's sequential 16-bit reads from its
+  first `English.idx` entry and proved globals `0x982110/0x98210C/0x982108`
+  are entries 2490/2491/2492.
+- The committed original English language pair resolves them exactly to
+  `1ST & RES`, `1ST FORM`, and `RES. FORM`.
+- Added a fail-closed language-binding contract and regressions. The first
+  control's distinct setup flag and all atlas-frame state names remain
+  deliberately unresolved pending a separate transition trace.
+
