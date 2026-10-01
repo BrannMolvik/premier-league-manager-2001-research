@@ -308,3 +308,17 @@ continue to prefer same-chat recovery.
 Failure detection ignores text inside normal user/assistant message containers,
 so repository notes or user discussion containing the error string cannot
 trigger a false recovery.
+
+
+#### In-message `Analysis errored` detection
+
+Extension version 0.4.1 handles the case where ChatGPT renders its real
+`Analysis errored` failure inside an assistant/tool message container.
+Earlier versions deliberately ignored every normal message container to avoid
+false recovery when the user or assistant discussed an error.
+
+The exception is intentionally narrow: only assistant-role fragments whose
+normalized text begins with `Analysis errored` and is no longer than 240
+characters are classified as a sandbox failure from inside a message. User
+messages and assistant prose merely containing `ClientError` remain inert.
+The classified failure uses the existing fresh-chat recovery path.

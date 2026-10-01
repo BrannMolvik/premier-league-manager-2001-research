@@ -79,8 +79,21 @@ function elementFromNode(node) {
   return node?.parentElement || null;
 }
 
+function conversationMessageRole(element) {
+  return element?.closest?.("[data-message-author-role]")
+    ?.getAttribute?.("data-message-author-role") || null;
+}
+
 function isConversationMessage(element) {
-  return Boolean(element?.closest?.("[data-message-author-role]"));
+  return Boolean(conversationMessageRole(element));
+}
+
+function isAssistantSandboxErrorFragment(role, text) {
+  if (role !== "assistant") {
+    return false;
+  }
+  const normalized = text.replace(/\s+/g, " ").trim();
+  return normalized.length <= 240 && /^analysis errored\b/i.test(normalized);
 }
 
 function reportFailure(kind, text, pattern) {
@@ -107,12 +120,23 @@ function reportFailure(kind, text, pattern) {
 
 function detectFailureInNode(node) {
   const element = elementFromNode(node);
-  if (!element || isConversationMessage(element)) {
+  if (!element) {
     return;
   }
 
   const text = (element.innerText || element.textContent || "").trim();
   if (!text || text.length > 1000) {
+    return;
+  }
+
+  const messageRole = conversationMessageRole(element);
+  if (messageRole) {
+    // User text may quote recovery errors, and ordinary assistant summaries may
+    // mention ClientError. Only the narrow ChatGPT-generated "Analysis
+    // errored" fragment is trusted from inside an assistant message.
+    if (isAssistantSandboxErrorFragment(messageRole, text)) {
+      reportFailure("sandbox", text, /analysis errored/i);
+    }
     return;
   }
 

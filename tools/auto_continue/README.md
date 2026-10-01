@@ -264,3 +264,17 @@ Retry, and interruption failures still prefer in-place recovery.
 
 The detector continues to ignore text inside user/assistant message containers,
 so discussing the error in the conversation does not itself trigger recovery.
+
+
+## Version 0.4.1 narrow in-message sandbox detection
+
+Version 0.4.1 closes a detector gap discovered by Recovery 126. ChatGPT can
+render the genuine `Analysis errored` execution failure inside the assistant
+message/tool transcript. Version 0.4.0 ignored all message containers to avoid
+mistaking quoted error text for a live failure.
+
+The content script now accepts only a narrow assistant-message fragment whose
+normalized text starts with `Analysis errored` and is at most 240 characters.
+User-authored message text remains ignored, and ordinary assistant prose that
+merely mentions `ClientError` remains ignored. Once detected, the existing
+sandbox-failure policy opens a fresh inactive worker chat immediately.

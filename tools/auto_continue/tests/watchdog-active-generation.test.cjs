@@ -305,3 +305,14 @@ test("sandbox/CAAS failure opens a fresh worker chat immediately", async()=>{
   assert.equal(h.store.pendingResume.inPlace,false);
   assert.equal(h.store.pendingResume.stopFirst,false);
 });
+
+
+test("assistant Analysis errored fragments are sandbox failures while quoted ClientError text stays inert", ()=>{
+  const source=fs.readFileSync(path.join(extensionDir,"content.js"),"utf8");
+  assert.match(source,/function isAssistantSandboxErrorFragment\(role, text\)/);
+  assert.match(source,/role !== "assistant"/);
+  assert.match(source,/normalized\.length <= 240/);
+  assert.match(source,/\^analysis errored\\b/i);
+  assert.match(source,/if \(isAssistantSandboxErrorFragment\(messageRole, text\)\)/);
+  assert.doesNotMatch(source,/if \(!element \|\| isConversationMessage\(element\)\)/);
+});

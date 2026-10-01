@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "FM2001 ChatGPT Auto Continue",
-  "version": "0.4.0",
-  "description": "FM2001 worker recovery with automatic fresh-chat recovery for broken ChatGPT sandboxes.",
+  "version": "0.4.1",
+  "description": "FM2001 worker recovery with narrow in-message Analysis errored detection and fresh-chat CAAS recovery.",
   "permissions": [
     "storage",
     "tabs",
