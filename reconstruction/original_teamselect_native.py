@@ -2,10 +2,15 @@
 
 The canonical executable establishes a 16-row country/competition group and a
 24-row club group. This module mirrors recovered filtering, stable native
-ordering, row-toggle state and source-frame transforms without embedding any
-licensed source bytes in code. The visible club record index used for local row
-state is deliberately not promoted to the gameplay backend until the native
-selection-record payload identity is re-traced.
+ordering, multi-club row-toggle state and source-frame transforms without
+embedding any licensed source bytes in code.
+
+The original TeamSelect selection record does not contain a club ID in its first
+dword. It stores rollback state for the displaced manager while the selected
+club itself is carried by the row/control and the newly created user object.
+For the clean-room presentation model, canonical club IDs therefore key active
+rows directly, while the original private rollback record remains an
+implementation detail rather than a guessed gameplay identity.
 """
 from __future__ import annotations
 
@@ -57,6 +62,7 @@ CLUB_ANIM_FRAME_SIZE = (30, 19)
 CLUB_BAR_FRAME_SIZE = (167, 19)
 LEAGUE_GROUP_SIZE = (200, 29)
 CLUB_GROUP_SIZE = (199, 19)
+TEAMSELECT_MAX_HUMAN_USERS = 6
 
 
 class TeamSelectNativeError(ValueError):
@@ -291,15 +297,22 @@ class TeamSelectHierarchyModel:
     clubs: tuple[object, ...]
     selected_country_id: int = 26
     selected_competition_id: int | None = None
-    # Reconstruction record index for visible row state only. The interrupted
-    # trace's claimed native payload identity conflicts with an earlier verified
-    # DBRClub+0x40 manager-ID mapping, so this is not yet a source-exact backend ID.
-    selected_club_record_index: int | None = None
+    # Source-backed user-selection order. The executable creates one user per
+    # selected club and caps the global user count at six (0x4DA4D0). Club IDs
+    # are taken from the clicked row, not from the private 0x30-byte rollback
+    # record used by 0x4D8E90.
+    selected_club_ids: tuple[int, ...] = ()
 
     def __post_init__(self) -> None:
         expected = tuple(country_id for country_id, _ in TEAMSELECT_ENGLISH_COUNTRY_ORDER)
         if any(country_id not in self.countries for country_id in expected):
             raise TeamSelectNativeError("Canonical TeamSelect country record is missing")
+        normalized = tuple(int(value) for value in self.selected_club_ids)
+        if len(normalized) != len(set(normalized)):
+            raise TeamSelectNativeError("TeamSelect club selections must be unique")
+        if len(normalized) > TEAMSELECT_MAX_HUMAN_USERS:
+            raise TeamSelectNativeError("Original TeamSelect supports at most six users")
+        self.selected_club_ids = normalized
         if self.selected_competition_id is None:
             available = native_competitions_for_country(
                 self.competitions, self.selected_country_id
@@ -375,7 +388,7 @@ class TeamSelectHierarchyModel:
                     club_id,
                     str(club.name),
                     NativeControlState.ACTIVE
-                    if club_id == self.selected_club_record_index
+                    if club_id in self.selected_club_ids
                     else NativeControlState.NORMAL,
                 )
             )
@@ -386,7 +399,6 @@ class TeamSelectHierarchyModel:
         if type(visible_index) is not int or not 0 <= visible_index < len(rows):
             raise TeamSelectNativeError("Unknown visible hierarchy row")
         row = rows[visible_index]
-        self.selected_club_record_index = None
         if row.kind is HierarchyRowKind.COUNTRY:
             self.selected_country_id = row.source_id
             self.selected_competition_id = None
@@ -399,9 +411,16 @@ class TeamSelectHierarchyModel:
         if type(visible_index) is not int or not 0 <= visible_index < len(rows):
             raise TeamSelectNativeError("Unknown visible club row")
         row = rows[visible_index]
-        self.selected_club_record_index = (
-            None if self.selected_club_record_index == row.club_id else row.club_id
-        )
+        selected = list(self.selected_club_ids)
+        if row.club_id in selected:
+            selected.remove(row.club_id)
+        else:
+            if len(selected) >= TEAMSELECT_MAX_HUMAN_USERS:
+                raise TeamSelectNativeError(
+                    "Original TeamSelect supports at most six users"
+                )
+            selected.append(row.club_id)
+        self.selected_club_ids = tuple(selected)
         return row
 
 
