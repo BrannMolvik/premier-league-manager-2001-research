@@ -170,6 +170,12 @@ LEAGUE_FIXTURE_MATRIX_RIGHT_SIDE_OFFSET = 0x28
 LEAGUE_FIXTURES_VISIBLE_COLUMNS = 12
 LEAGUE_FIXTURES_VISIBLE_ROWS = 24
 LEAGUE_FIXTURES_COLUMN_PAGE_STEP = 12
+LEAGUE_FIXTURES_COLUMN_PIXEL_STEP = 29
+LEAGUE_FIXTURES_ROW_PIXEL_STEP = 14
+LEAGUE_FIXTURES_GRID_POINT_SELECT_VA = 0x46D300
+LEAGUE_FIXTURES_GRID_POINT_FIXTURE_ACTION_VA = 0x46D390
+LEAGUE_FIXTURES_GRID_POINT_COMPLETION_QUERY_VA = 0x46D400
+LEAGUE_FIXTURES_CELL_FIXTURE_ACTION_TARGET_VA = 0x488C80
 
 
 def league_fixture_empty_slot_is_self_match(
@@ -314,6 +320,35 @@ def league_fixtures_column_page_offset(
     if direction < 0:
         return max(0, current_offset - LEAGUE_FIXTURES_COLUMN_PAGE_STEP)
     return min(max_offset, current_offset + LEAGUE_FIXTURES_COLUMN_PAGE_STEP)
+
+
+def league_fixtures_grid_indices_from_point(
+    *,
+    x: int,
+    y: int,
+    origin_x: int,
+    origin_y: int,
+) -> tuple[int, int]:
+    """Mirror the valid in-grid coordinate reduction in 0x46D300/390/400."""
+    for label, value in (
+        ("x", x),
+        ("y", y),
+        ("origin_x", origin_x),
+        ("origin_y", origin_y),
+    ):
+        if type(value) is not int:
+            raise OriginalLeagueFixturesResourceError(f"{label} must be an integer")
+    dx = x - origin_x
+    dy = y - origin_y
+    if dx < 0 or dy < 0:
+        raise OriginalLeagueFixturesResourceError(
+            "point precedes the source grid origin"
+        )
+    column = dx // LEAGUE_FIXTURES_COLUMN_PIXEL_STEP
+    row = dy // LEAGUE_FIXTURES_ROW_PIXEL_STEP
+    validate_league_fixtures_grid_selection_index(column, axis="column")
+    validate_league_fixtures_grid_selection_index(row, axis="row")
+    return column, row
 
 
 def validate_league_fixtures_grid_selection_index(index: int, *, axis: str) -> int:
