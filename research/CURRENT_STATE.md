@@ -58,6 +58,35 @@ Evidence:
   real Windows PStartMenu/TeamSelect graphical audit and wider management-
   screen correlations remain mandatory before Gate 13 closes.
 
+## Recovery 125: fail-closed Squad native trace prepared; cloud execution blocked
+
+- Reconciled canonical main after the worker-recovery hardening commit
+  `0599c15b7064865a239614db213d0873a3460a93`; that commit changed only the
+  auto-continue sandbox-failure handling and did not supersede the active
+  Gate-13 Squad source task.
+- The canonical 511,121,336-byte private source ZIP was resolved at the durable
+  Library identity and materialized successfully in this recovery.
+- Both trivial shell execution and Python execution then failed before process
+  start with `caas.internal.errors.ClientError`. No new original executable
+  bytes, disassembly, row bindings, status semantics or frame meanings are
+  claimed from this worker.
+- PR #48 added `reconstruction/gate13_squad_source_trace.py`, a checksum-gated
+  private trace pinned only to the already-proven `CBasePlayerList`,
+  `FormationText`, `PSquadPitch` and `PSquadScreen` anchors, plus synthetic
+  regression coverage and `research/GATE13_SQUAD_SOURCE_TRACE_PROCEDURE.md`.
+  The tool explicitly leaves row/column/status meanings and state-to-frame
+  semantics unresolved until manual native control/data-flow adjudication.
+- PR #48 Gate-13 run `36822999900` and repository asset-policy run
+  `36822999889` both passed. It squash-merged to main as
+  `cf2b5c18a18a2b05f061d41e2c39a5363a8f643b`.
+- Exact next action: on the next working private/local execution path, run the
+  new Squad trace against the independently verified canonical executable,
+  adjudicate `CBasePlayerList` row/column/status reads and `FormationText`
+  value-to-frame selection, then promote only directly proven bindings into the
+  Squad contract/tests. After that, perform the mandatory real Windows
+  PStartMenu/TeamSelect graphical audit and continue remaining management
+  screens. Gate 13 remains active.
+
 ## Recovery 123: native menu captions + Scouting composition verified
 
 - PR #47 was squash-merged as
