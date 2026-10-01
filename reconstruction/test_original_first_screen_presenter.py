@@ -1,5 +1,6 @@
 """End-to-end headless first-screen source-bundle/navigation regressions."""
 import struct
+from types import SimpleNamespace
 import unittest
 
 from ea444_decoder import EA444DecodedImage
@@ -13,7 +14,9 @@ from original_button_frames import (
     TEAMSELECT_BUTTON_ATLAS,
     split_original_button_atlas,
 )
-from original_first_screen_presenter import OriginalFirstScreenPresenter
+from original_first_screen_presenter import (
+    OriginalFirstScreenPresenter, OriginalHierarchyInteraction,
+)
 from original_teamselect_hierarchy_art import (
     HIERARCHY_ANIM_SPEC, HIERARCHY_BARS_SPEC,
     OriginalTeamSelectHierarchyArt, split_hierarchy_source_strip,
@@ -29,6 +32,7 @@ from original_front_end_layout import (
 from original_pstartmenu_labels import prepare_original_pstartmenu_captions
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
 from original_teamselect_resources import assemble_original_teamselect_inputs
+from original_teamselect_native import TeamSelectHierarchyModel
 from test_ea_font import build_fixture
 from test_ea_language_strings import make_str
 
@@ -163,6 +167,43 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
         self.assertEqual(outcome.selected_manager, ("manager", 12))
         self.assertTrue(presenter.session.started)
         self.assertEqual(built[0].chosen, [12])
+
+    def test_native_club_row_toggle_stays_fail_closed_from_backend_id_mapping(self):
+        presenter, built = self.presenter()
+        presenter.pointer(7, 478)
+        countries = {
+            key: SimpleNamespace(id=key, name=name)
+            for key, name in (
+                (26, "England"), (66, "Scotland"), (33, "Germany"),
+                (40, "Italy"), (73, "Spain"), (31, "France"),
+                (24, "Holland"), (9, "Belgium"),
+            )
+        }
+        competition = SimpleNamespace(
+            id=0,
+            name="F.A. Premier League",
+            initialization_order_value=9,
+            country_region_id=26,
+            runtime_kind_code=1,
+            parent_competition_id=None,
+        )
+        club = SimpleNamespace(index=0, name="Arsenal", competition_id=0)
+        presenter.hierarchy = TeamSelectHierarchyModel(
+            countries, (competition,), (club,)
+        )
+
+        result = presenter.pointer(582, 79)
+        self.assertIsInstance(result, OriginalHierarchyInteraction)
+        self.assertEqual(result.row_kind, "club")
+        self.assertEqual(result.source_id, 0)
+        self.assertEqual(presenter.hierarchy.selected_club_id, 0)
+        self.assertIsNone(presenter.session.selected_club_id)
+        self.assertEqual(built[0].chosen, [])
+
+        presenter.pointer(582, 79)
+        self.assertIsNone(presenter.hierarchy.selected_club_id)
+        self.assertIsNone(presenter.session.selected_club_id)
+        self.assertEqual(built[0].chosen, [])
 
     def test_back_returns_to_original_menu_without_hidden_backend_reset(self):
         presenter, built = self.presenter()

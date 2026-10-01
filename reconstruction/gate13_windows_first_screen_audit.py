@@ -2,15 +2,10 @@
 
 This is deliberately separate from the synthetic/headless viewer tests.  The
 CLI only runs on Windows, loads the checksum-gated original source inputs,
-opens the real Tk viewer, verifies the live 800x600 canvas and PhotoImage
-geometry, and drives the actual Tk <Button-1> binding through the recovered
-PStartMenu -> TeamSelect -> Back path.
-
-TeamSelect hierarchy item identity and selection semantics are still unresolved.
-The audit therefore proves that a hierarchy click remains inert and that Start
-without an explicit club remains rejected.  A passing receipt is a Windows
-graphical smoke result, not a claim that the unrecovered hierarchy is finished
-or that all Gate-13 visual fidelity is complete.
+opens the real Tk viewer, verifies live source-frame geometry, and drives the
+actual Tk binding through recovered country, competition and club transitions.
+A passing receipt is a Windows graphical result, not a claim that all Gate-13
+management presentation is complete.
 """
 from __future__ import annotations
 
@@ -73,6 +68,12 @@ def expected_tk_photo_dimensions(
         for control in snapshot.controls
         if control.caption is not None
     )
+    for row in (*snapshot.hierarchy_rows, *snapshot.club_rows):
+        dimensions.extend((
+            (row.animation_frame.width, row.animation_frame.height),
+            (row.bar_frame.width, row.bar_frame.height),
+            (row.glyph_mask.width, row.glyph_mask.height),
+        ))
     if snapshot.hierarchy_art is not None:
         dimensions.append(
             (
@@ -114,6 +115,24 @@ def audit_frame_contract(
         }
         for item in frame.native_caption_overlays
     ]
+    def hierarchy_record(item) -> dict:
+        return {
+            "kind": item.row_kind,
+            "source_id": item.source_id,
+            "text": item.text,
+            "state": int(item.state),
+            "rect": _rect_dict(item.rect),
+            "animation_source_index": item.animation_source_index,
+            "bar_source_index": item.bar_source_index,
+            "animation_rgba_sha256": sha256(item.animation_frame.rgba).hexdigest(),
+            "bar_rgba_sha256": sha256(item.bar_frame.rgba).hexdigest(),
+            "glyph_alpha_sha256": sha256(item.glyph_mask.alpha).hexdigest(),
+            "line_origin": [item.line_origin_x, item.line_origin_y],
+            "native_color_16": item.native_color_16,
+        }
+
+    hierarchy_rows = [hierarchy_record(item) for item in snapshot.hierarchy_rows]
+    club_rows = [hierarchy_record(item) for item in snapshot.club_rows]
 
     if snapshot.screen is FrontEndScreen.START_MENU:
         expected_actions = [
@@ -171,6 +190,8 @@ def audit_frame_contract(
         "hierarchy_row_origins": [
             list(item) for item in frame.hierarchy_row_origins_not_interactive
         ],
+        "hierarchy_rows": hierarchy_rows,
+        "club_rows": club_rows,
         "native_button_animation_recovered": frame.native_button_animation_recovered,
         "native_text_placement_recovered": frame.native_text_placement_recovered,
         "expected_tk_photo_dimensions": [
@@ -336,24 +357,75 @@ def run_real_windows_graphical_audit(
         team_contract = audit_frame_contract(presenter.snapshot(), 0)
         team_live = _verify_live_tk_redraw(viewer, root, team_contract)
 
-        # The first hierarchy row is source-position-proven but its item/event
-        # semantics are intentionally unresolved.  The real click binding must
-        # therefore keep it inert rather than invent a club/competition action.
+        if len(team_contract["hierarchy_rows"]) != 13:
+            raise WindowsFirstScreenAuditError(
+                "Default English hierarchy did not expose 13 native rows"
+            )
+        if len(team_contract["club_rows"]) != 20:
+            raise WindowsFirstScreenAuditError(
+                "Default F.A. Premier League did not expose 20 native clubs"
+            )
+        if team_contract["hierarchy_rows"][1]["text"] != "F.A. Premier League":
+            raise WindowsFirstScreenAuditError(
+                "Native competition filtering/order differs on the live screen"
+            )
+        if team_contract["club_rows"][0]["text"] != "Arsenal":
+            raise WindowsFirstScreenAuditError(
+                "Native club filtering/order differs on the live screen"
+            )
+
+        # Country activation clears the selected competition and club list.
         row_x, row_y = TEAMSELECT_HIERARCHY_ROW_ORIGINS[0]
         viewer.canvas.event_generate("<Button-1>", x=row_x + 1, y=row_y + 1)
         _pump(root)
-        if presenter.session.navigation.screen is not FrontEndScreen.TEAM_SELECT:
+        collapsed = presenter.snapshot()
+        if collapsed.club_rows:
             raise WindowsFirstScreenAuditError(
-                "Unresolved TeamSelect hierarchy click changed navigation"
+                "Country activation did not clear the native club population"
             )
         if presenter.session.selected_club_id is not None:
             raise WindowsFirstScreenAuditError(
-                "Unresolved TeamSelect hierarchy click invented a club selection"
+                "Country activation retained a club selection"
             )
-        hierarchy_status = str(viewer.status.get())
-        if "No executable-proven click action here" not in hierarchy_status:
+
+        # The first competition row is the native F.A. Premier League after
+        # stable filtering/order; activating it repopulates all 20 clubs.
+        league_x, league_y = TEAMSELECT_HIERARCHY_ROW_ORIGINS[1]
+        viewer.canvas.event_generate(
+            "<Button-1>", x=league_x + 1, y=league_y + 1
+        )
+        _pump(root)
+        repopulated = presenter.snapshot()
+        if len(repopulated.club_rows) != 20:
             raise WindowsFirstScreenAuditError(
-                "Hierarchy fail-closed status is missing from the real Tk path"
+                "Competition activation did not repopulate native clubs"
+            )
+
+        first_club = repopulated.club_rows[0]
+        viewer.canvas.event_generate(
+            "<Button-1>", x=first_club.rect.x + 1, y=first_club.rect.y + 1
+        )
+        _pump(root)
+        if presenter.session.selected_club_id is not None:
+            raise WindowsFirstScreenAuditError(
+                "Unresolved native selection payload leaked into gameplay club selection"
+            )
+        selected = presenter.snapshot().club_rows[0]
+        if selected.state != 1 or selected.animation_source_index != 11:
+            raise WindowsFirstScreenAuditError(
+                "Selected club did not enter native active frame state"
+            )
+        viewer.canvas.event_generate(
+            "<Button-1>", x=first_club.rect.x + 1, y=first_club.rect.y + 1
+        )
+        _pump(root)
+        if presenter.hierarchy is None or presenter.hierarchy.selected_club_id is not None:
+            raise WindowsFirstScreenAuditError(
+                "Second native club click did not clear the visual selection record"
+            )
+        if presenter.session.selected_club_id is not None:
+            raise WindowsFirstScreenAuditError(
+                "Unresolved native selection payload leaked into gameplay after toggle"
             )
 
         # Start/Continue is source-proven, but without a recovered hierarchy
@@ -378,7 +450,7 @@ def run_real_windows_graphical_audit(
         return_live = _verify_live_tk_redraw(viewer, root, return_contract)
 
         return {
-            "schema_version": 1,
+            "schema_version": 2,
             "passed": True,
             "audit_kind": "real_windows_tk_first_screen_graphical_smoke",
             "platform": platform.platform(),
@@ -397,7 +469,10 @@ def run_real_windows_graphical_audit(
             "teamselect": {
                 "contract": team_contract,
                 "live_tk": team_live,
-                "unresolved_hierarchy_click_inert": True,
+                "competition_filter_and_order_verified": True,
+                "club_filter_and_order_verified": True,
+                "country_competition_population_flow_verified": True,
+                "club_row_toggle_and_active_frame_verified": True,
                 "start_without_club_rejected": True,
             },
             "pstartmenu_after_back": {
@@ -409,9 +484,7 @@ def run_real_windows_graphical_audit(
                 "teamselect_back_to_menu_via_real_tk_binding": True,
             },
             "unresolved_boundaries": [
-                "TeamSelect hierarchy item identity and row hit/event semantics",
-                "TeamSelect hierarchy selection-state/frame mapping",
-                "TeamSelect source-backed hierarchy captions/content",
+                "Exact native TeamSelect selection-record payload -> gameplay club-ID mapping",
                 "Broader Gate-13 management-screen graphical fidelity",
             ],
             "gate13_complete": False,
@@ -447,8 +520,8 @@ def main() -> int:
     )
     print(f"Real Windows first-screen graphical audit passed: {receipt_path}")
     print(
-        "TeamSelect hierarchy semantics remain unresolved; "
-        "this receipt does not close Gate 13."
+        "TeamSelect hierarchy filtering/native row states passed; "
+        "club payload mapping and broader management presentation keep Gate 13 open."
     )
     return 0
 

@@ -1,6 +1,6 @@
 # Current State
 
-_Last reconciled: 1 October 2026 KST_
+_Last reconciled: 2 October 2026 KST_
 
 This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
@@ -26,13 +26,28 @@ Evidence:
 ## Live resume summary
 
 - **Earliest incomplete validation gate:** Gate 13.
+- Local Codex recovery on 2 October closed the source-critical TeamSelect
+  hierarchy implementation: exact root-league filtering and stable ordering,
+  raw-name club ordering, all league/team native frame transforms and Zurich
+  18/16 row captions are integrated. Four exact resources were imported through
+  the verified inventory path. The interrupted trace's claim that
+  `DBRClub+0x40` is a canonical club ID conflicts with earlier verified
+  evidence mapping that field to manager ID/reference, so club-row ACTIVE/toggle
+  state is retained but gameplay club selection remains fail-closed pending a
+  bounded payload re-trace.
+- The upgraded real-Windows audit is ready and now checks the 13-row English
+  default, 20 Premier League clubs, country clear, league repopulation and
+  club ACTIVE/toggle state without promoting the unresolved payload into the
+  gameplay backend. Rerun it with the same Tcl/Tk-capable Windows Python used
+  by Recovery 138; the interrupted Codex attempt happened to use a bundled
+  Python lacking a usable `init.tcl`.
 - Local Codex recovery at `4537f9b150cab8e2282c5d33a30c13a43cfb50c3`
   completed the concrete Squad player-list hierarchy, 20-row/column/status
   bindings and exact `FormationText` state-to-source-row transform. Do not
   repeat that private trace unless a regression or evidence dispute requires it.
-- Gate 13 still requires the **real Windows PStartMenu/TeamSelect graphical
-  audit**, remaining TeamSelect hierarchy item/input/selection-state recovery,
-  and broader normal-management presentation/resource/layout/navigation work.
+- Gate 13 still requires the upgraded **real Windows PStartMenu/TeamSelect
+  graphical audit** and broader normal-management presentation/resource/
+  layout/navigation work.
 - The Windows first-screen audit harness is merged at
   `0a871b5fbc9c546ad67c335bc6db009d3a023627`; a hosted harness pass is not a
   substitute for the real Windows receipt.

@@ -80,7 +80,7 @@ class OriginalTeamSelectResourceTests(unittest.TestCase):
                 with self.assertRaises(OriginalTeamSelectResourceError):
                     assemble_original_teamselect_inputs(base, team, invalid)
 
-    def test_original_hierarchy_strips_are_exposed_without_guessing_row_content(self):
+    def test_original_hierarchy_strips_remain_available_to_native_presenter(self):
         base, team, action_atlas = fixture()
         def source_strip(spec, color):
             return split_hierarchy_source_strip(
@@ -134,6 +134,10 @@ class OriginalTeamSelectResourceTests(unittest.TestCase):
         self.assertIsNotNone(original.hierarchy_art)
         self.assertGreater(len(original.hierarchy_art.animation.frames), 0)
         self.assertGreater(len(original.hierarchy_art.bars.frames), 0)
+        self.assertIsNotNone(original.native_hierarchy)
+        self.assertEqual(len(original.native_hierarchy.club_animation.frames), 23)
+        self.assertEqual(original.native_hierarchy.club_animation.trailing_source_rows, 1)
+        self.assertEqual(len(original.native_hierarchy.club_bars.frames), 4)
         self.assertEqual(
             original.hierarchy_row_origins,
             TEAMSELECT_HIERARCHY_ROW_ORIGINS,
