@@ -36,6 +36,8 @@ on:
       - "reconstruction/test_gate17_release_readiness.py"
       - "research/GATE17_RELEASE_READINESS.md"
       - "research/RELEASE_LIMITATIONS.md"
+      - "reconstruction/test_gate16_consecutive_seasons.py"
+      - "research/GATE16_CONSECUTIVE_SEASONS.md"
   workflow_dispatch:
 
 concurrency:
