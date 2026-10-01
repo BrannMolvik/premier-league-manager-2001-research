@@ -9855,3 +9855,14 @@ canonical audit.
 - Source-bound the 29x16 player-strip text to the selected `DBTPositions` record's string field `+0x0C` (TD `0x8182F8`, vtable `0x7BD394`, 20-byte records), using low five bits returned by helper `0x4EA3C0`.
 - Source-bound popup producer `0x4885A0`: `Attendance` (English.idx 1774) with original grouped decimal formatting and optional first/second-leg suffix, `Ref.` (2555) with dynamic source string producer `0x60BEB0` and optional `(%d-%d pen)`, and `Mom` (2128) through source format `%s: %s %s`.
 - Added a clean-room text-producer contract and regressions that preserve exact globals, loader indices, object offsets, assignment VAs and source precedence. Exact next task after CI is PMatchInfo event/tab interaction behavior and/or the seven still-unmapped name-block/possession consumers.
+
+
+## 2 October 2026 - PMatchInfo tab and exit interaction
+
+- PR #89 merged as `5603f96fddee9de4b02d40c0a199fe66eea415ca`; Gate-13 run `36934794672` passed **357 tests with 21 expected source-gated skips and zero failures** and asset-policy run `36934794463` passed.
+- Traced the exact three-element `fmRadioButton6` array (vtable `0x7C4474`, TD `0x81D108`) at PMatchInfo `+0x14A4/+0x14F8/+0x154C`; base binder `0x64F3C0` stores event IDs 1/2/3 at control `+0x20`.
+- Source-bound captions through the complete English loader: `MATCH INFO` (entry 1776), `TEAM INFO` (1775), and `FINANCIAL` (2556).
+- RTTI/source-bound tab targets: `PMatchInfoSubPanel` `+0x1C0`, `PTeamInfoSubPanel` `+0x8F0` (TD `0x81D038`, vtable `0x7C4220`), and `PFinanceSubPanel` `+0xB10` (TD `0x81D1E8`, vtable `0x7C4530`). Constructor `0x4879C6` stores the `+0x1C0` pointer as the setup default.
+- Event handler `0x488B70` rewires the RTTI-proven `eCSubPanel` at `+0x17A8`, sets selected panel `+0x04=2`, panel `+0x08=host`, reapplies the host rectangle through `0x653320`, and refreshes through `0x64F600`.
+- RTTI proves the `+0x17D8` exit control is `fmCrossButton`. Its event ID 7 and key-handler value `0x1B` both call `0x6539F0(7)`; that path reaches imported `PostMessageA` with exact tuple `(WM_USER=0x400, wParam=7, lParam=0)`. Receiver-side higher-level naming is intentionally left open.
+- Exact next task after CI: recover final direct consumers for the four name-block and three possession-strip resources, then continue Match Report asset import and integrated Windows validation.
