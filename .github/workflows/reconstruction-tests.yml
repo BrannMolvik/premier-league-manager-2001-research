@@ -57,6 +57,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Export current reconstruction runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: recovery132-reconstruction-runtime
+          path: reconstruction/
+          if-no-files-found: error
+          retention-days: 1
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -65,10 +72,3 @@ jobs:
       - name: Run reconstruction tests
         working-directory: reconstruction
         run: python -m unittest discover -v
-      - name: Export current reconstruction runtime
-        uses: actions/upload-artifact@v4
-        with:
-          name: recovery132-reconstruction-runtime
-          path: reconstruction/
-          if-no-files-found: error
-          retention-days: 1
