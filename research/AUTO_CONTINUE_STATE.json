@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete validation gate. Recovery 136 proved the Recovery-135 +2 delta is legitimate UEFA Cup round-210 participant-dependent materialization (79/39 pairings -> 80/40). PR #64 replaces the invalid equal-shape guard with current-regeneration projection validation and adds regressions. CI and an exact canonical three-rollover rerun are in progress; merge/checkpoint successful evidence, then continue the next Gate-16 task.",
-  "last_known_main_head": "675b7170b4155597b65937ae81c71f5cf3b34dc6",
+  "active_task": "Gate 13 remains the earliest incomplete validation gate. PR #64 is merged at b7b96927094cf13c296742928731e3b43491bdd4 after full CI passed 1,139 tests with 22 expected source-gated skips and asset policy passed. The corrected seed-1 canonical three-rollover Gate-16 audit is running against exact merged runner code and reverified source hashes; persist its result, then advance to the next independent Gate-16 stress/audit task.",
+  "last_known_main_head": "b7b96927094cf13c296742928731e3b43491bdd4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 136,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 136 checkpoint: focused canonical diagnostic completed three rollovers; only added nodes are UEFA Cup 10 round 210 pair 39 first/second legs. Local 23 focused tests pass. PR #64 head d3d29660fb34220905f53ff74cb43d156cdf2b99 has asset policy passed and reconstruction suite running. Exact PR-blob code is running canonical seed-1 three-rollover rerun against reverified source hashes.",
+  "note": "Recovery 136 merged the canonical projection guard after proving UEFA Cup round 210 legitimately varied from 79/39 pairings to 80/40. Full reconstruction CI 36865896016 passed 1,139 tests (22 expected skips); asset policy 36865895886 passed. Exact canonical rerun remains in progress in the verified private workspace.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
