@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 after successful local Codex byte execution: canonical Button/Zurich native trace, strict ten-resource first-screen audit/import, and proven PScouting2K background bindings are now complete on main af2b3ec. Continue from CURRENT_STATE Recovery 120, not the obsolete execution-blocker task: integrate the verified native first-screen captions/button-state mapping into the presentation, decode/test the proven Scouting composition, correlate source-backed Squad resources/layout/navigation without guessing, then run the real Windows graphical first-screen and normal-play audit. Complete remaining Gate 13 management presentation/audit, then Gates 14-17 and the verified clean Windows 11 release. If cloud process execution is still unavailable, continue any safe GitHub/source-backed integration that does not require it and preserve exact local-execution tasks for Codex/Windows rather than reverting to already-completed Button/Zurich work.",
+  "active_task": "Gate 13 from main af2b3ec1: integrate the verified native first-screen captions/button-state mapping into the presentation; decode/test the proven PScouting2K background_2.444 + background_alpha_1.444 composition; correlate source-backed Squad resources/layout/navigation without guessing; then run the real Windows graphical first-screen and normal-play audit. After Gate 13 closes, continue Gates 14-17 through verified Windows 11 release.",
   "last_known_main_head": "af2b3ec1c3d498e8774156d599faceb69e6de8b7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 122,
-  "last_recovery_reason": "codex-local-progress-sync",
-  "note": "Local Codex successfully completed the previously blocked original-byte work and pushed main af2b3ec1c3d498e8774156d599faceb69e6de8b7: canonical ZIP/executable verified, TeamSelect RTTI canary passed, Button@ease native 23-frame state mapping and Zurich caption behavior recovered, strict ten-resource source audit/import completed, and proven Scouting resources imported. ChatGPT cloud container execution is still failing in a fresh chat as of this sync, so do not repeat the completed byte-analysis path. Resume the post-Codex Gate 13 integration from CURRENT_STATE Recovery 120.",
+  "recovery_generation": 123,
+  "last_recovery_reason": "manual-start",
+  "note": "Recovery 123: manual-start resumed unchanged canonical main af2b3ec1. Continuing the post-Button/Zurich Gate 13 integration path.",
   "same_chat_fallback_minutes": 30
 }
