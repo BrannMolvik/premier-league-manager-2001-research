@@ -252,3 +252,50 @@ Still open after Recovery 157:
 3. direct final consumers for four name blocks and three possession strips;
 4. PMatchInfo event/tab behavior and remaining internal controls;
 5. intentional original asset import and integrated Windows validation.
+
+
+## Recovery 158 shared dynamic incident control
+
+The final source-trace commit on the Recovery-157 branch persisted one more
+bounded PMatchInfo result before that PR merged: both concrete script-row
+classes reuse one 14x14 incident control and switch the already-owned incident
+wrappers through one resource slot. Recovery 158 reconciles that persisted
+trace with the earlier direct-consumer evidence and adds regression coverage
+instead of inferring behavior from filenames.
+
+Source-bound owner identities and offsets:
+
+- `PScriptRow1`: TypeDescriptor `0x81CEE8`, COL `0x7E4890`,
+  vtable `0x7C3F34`, setup `0x483500`, update `0x4858E0`;
+- `PScriptRow2`: TypeDescriptor `0x81CF08`, COL `0x7E48E0`,
+  vtable `0x7C3F88`, shared setup `0x483500`, update `0x485F50`;
+- shared control offset: `+0x1C8`;
+- switched resource slot: `+0x1F4`;
+- exact owner-local rectangle: **`(191,11,14,14)`**.
+
+The setup path already source-binds `yellow_card.444` to that same rectangle
+at `0x48366D -> 0x483674`. The two row update methods then consume the
+same seven exact 14x14 wrapper resources:
+
+| Resource | Row1 direct consumer | Row2 direct consumer |
+| --- | ---: | ---: |
+| `score.444` | `0x4859D5` | `0x486045` |
+| `injured.444` | `0x4859FD` | `0x48606D` |
+| `yellow_card.444` | `0x485A24` | `0x486094` |
+| `red_card.444` | `0x485A50` | `0x4860C0` |
+| `red_card_single.444` | `0x485A5C` | `0x4860CC` |
+| `Sub_on.444` | `0x485A81` | `0x4860F1` |
+| `sub_off.444` | `0x485A9E` | `0x48610E` |
+
+This closes the **shared dynamic incident-control owner/local geometry and
+resource-family** boundary. It does **not** assign high-level meanings to the
+branch predicates that choose among those wrappers.
+
+Still open after this checkpoint:
+
+1. string/data producers and high-level meanings for the six bounded Zurich
+   text controls;
+2. exact selection predicates/state meanings for the seven incident wrappers;
+3. direct final consumers for four name blocks and three possession strips;
+4. PMatchInfo event/tab behavior and remaining internal controls;
+5. intentional original asset import and integrated Windows validation.

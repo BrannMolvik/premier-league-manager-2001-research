@@ -9834,3 +9834,12 @@ canonical audit.
 - The disabled player control intentionally clips the 274x16 source to 252x16, and pitch keeps its negative y=-2. These are original fidelity details, not errors to normalize.
 - Traced text helper `0x6503F0` into `0x64F380`. Six bounded PMatchInfo calls pass the source-proven Zurich 16px global `0x87BEA0`: `(210,2,185,12)`, `(210,18,185,12)`, `(33,0,29,16)`, `(172,50,416,16)`, `(380,68,208,16)`, `(172,68,208,16)`. The two 12px-high controls remain 12px despite the font's 18px native line height.
 - Added fail-closed placement helpers/regressions and explicit separation between bitmap callback ownership and true font binding. Exact next task after CI: resolve string/data producers for these six text controls and shared incident-icon control geometry, then continue PMatchInfo events/remaining resource consumers.
+
+
+## 2 October 2026 - Recovery 158 PMatchInfo shared incident control
+
+- PR #87 merged as `1fb35fbc8e0b36f3fefc7aad00e5cea388383a39`; focused Gate-13 run `36929308062` passed **351 tests with 21 expected source-gated skips and zero failures** and asset-policy run `36929308094` passed.
+- Reconciled the final persisted Recovery-157 branch trace instead of repeating private-source work: `PScriptRow1` (TD `0x81CEE8`, vtable `0x7C3F34`) and `PScriptRow2` (TD `0x81CF08`, vtable `0x7C3F88`) share setup `0x483500` and update at `0x4858E0` / `0x485F50`.
+- Source-bound shared dynamic incident control offset `+0x1C8`, switched resource slot `+0x1F4`, and owner-local rectangle `(191,11,14,14)`. The setup path seeds the same rectangle with `yellow_card.444`.
+- Both update methods directly consume the same seven exact 14x14 wrappers: score, injury, yellow card, red card, single red card, substitution on and substitution off. Regression coverage now joins those consumers to the row methods without inventing the still-unresolved selection predicates.
+- Exact next task after CI: resolve string/data producers and meanings for the six bounded Zurich text controls; then continue PMatchInfo incident predicates/events and the seven remaining name-block/possession final consumers.
