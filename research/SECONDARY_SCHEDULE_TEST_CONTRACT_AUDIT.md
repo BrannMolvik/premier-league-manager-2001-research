@@ -52,18 +52,20 @@ root array **in reverse**, retains each of the fourteen input
 competitions exactly once, and preserves 174 before 171. It
 does not freeze the unproven 170-versus-181 equal-key permutation.
 
-The secondary RNG test now explicitly creates a **synthetic**
-45-element positive bucket vector of 37 six-node and 8 five-node
-buckets, summing to the proven 262 aggregate nodes.
-For any 45 nonempty buckets summing to 262, descending Fisher-Yates
-consumes exactly `262-45=217` shared MSVC CRT RNG draws,
-REGARDLESS of their individual sizes. The CRT hidden state update
-does not depend on the `randbelow` bound; it is driven solely by
-the raw draw count. Accordingly this synthetic vector validates
-the source-backed staff-seed transition without pretending to
-reconstruct original per-date secondary placement.
+The secondary RNG regression no longer materializes any synthetic bucket
+vector. `advance_msvc_schedule_shuffle_aggregate_state` accepts only the
+independently proven total node count and nonempty-bucket count. For any
+45 nonempty buckets summing to 262, descending Fisher-Yates consumes exactly
+`262-45=217` shared MSVC CRT RNG draws. Because the MSVC hidden-state update
+performed by `rand15()` is independent of the later bound scaling, those
+aggregates are sufficient to validate the source-backed staff-seed transition
+without inventing original per-date secondary placement.
 
-**Do not use this aggregate synthetic test to claim exact
+The aggregate helper deliberately cannot produce shuffle outputs, original
+bound sequences, bucket contents, or date placement. Impossible aggregate
+counts fail closed.
+
+**Do not use this aggregate-only checkpoint to claim exact
 secondary match ordering, exact original date-bucket contents,
 equal-key native qsort implementation fidelity, or any Gate
 13/Gate 15/Windows 11 release audit.** Those are explicit open
