@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete validation gate. PR #64 is merged at b7b96927094cf13c296742928731e3b43491bdd4 after full CI passed 1,139 tests with 22 expected source-gated skips and asset policy passed. The corrected seed-1 canonical three-rollover Gate-16 audit is running against exact merged runner code and reverified source hashes; persist its result, then advance to the next independent Gate-16 stress/audit task.",
+  "active_task": "Gate 13 remains the earliest incomplete validation gate. Recovery 136 canonical rerun against merged PR #64 failed at cycle 0 inside the new audit checker: the checker inferred shared-primary procedural entries from materialized live owner keys, but the real source-backed primary-order constructor retains all allowed procedural competition IDs. Repair the audit to rebuild exact expected shadow/Cup/primary projections from regeneration.shuffle.buckets and the same source-derived procedural ID set, regress this boundary, then rerun canonical three rollovers.",
   "last_known_main_head": "b7b96927094cf13c296742928731e3b43491bdd4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 136,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 136 merged the canonical projection guard after proving UEFA Cup round 210 legitimately varied from 79/39 pairings to 80/40. Full reconstruction CI 36865896016 passed 1,139 tests (22 expected skips); asset policy 36865895886 passed. Exact canonical rerun remains in progress in the verified private workspace.",
+  "note": "PR #64 remains a valid partial repair of the false cross-season equal-shape invariant, but its hand-built current-projection checker is too narrow for primary procedural contexts. Canonical rerun failed after 427.26s with 'cycle 0: fresh shared-primary order differs from current regeneration projection'. Runtime itself had completed the first canonical season/regeneration; next work is audit-checker repair, not simulation rollback.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
