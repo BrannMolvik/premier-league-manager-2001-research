@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 129,
+  "recovery_generation": 130,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 129 checkpoint: main 2002304642f9fcbdcc336ce3e4cd358c64d85de7 includes verified three-season/five-roundtrip save continuity evidence and status reconciliation. PR #57 head 5640819358e333bed6960def04bdc75d06ff4de7 adds bounded five-year autonomous transfer churn stress; asset policy is running and reconstruction CI should be checked. Gate 13 remains earliest incomplete; Windows/private GUI audit remains deferred.",
+  "note": "Recovery 130 resumed canonical main 2002304642f9fcbdcc336ce3e4cd358c64d85de7. Gate 13 remains earliest incomplete with the real Windows/private GUI audit deferred. Exact cloud-safe continuation is PR #57 autonomous-transfer churn/state-growth stress; inspect its diff and CI, correct any issue, merge only if verified, then continue the next independent Gate 16 risk.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
