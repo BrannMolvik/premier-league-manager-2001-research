@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains blocked by local process execution. Recovery 119 verified canonical main c36b7047 and CURRENT_STATE unchanged, then retried both container and private Python execution; both returned ClientError before process start. The private source route was already independently verified healthy in recovery 117, and no source-bearing remote execution substitute is available. Exact next action on the first working execution recovery: verify the canonical ZIP and executable hashes; run the TeamSelect RTTI canary; trace native Button state to numbered atlas frames; recover Zurich text placement/color/clipping; run the strict ten-resource audit/import; complete management-screen correlation and the Windows graphical Gate 13 audit; then continue Gates 14-17 and the verified Windows 11 release.",
+  "active_task": "Gate 13 exact next task: re-probe local process execution. If working, verify canonical source ZIP and executable hashes, run the TeamSelect RTTI canary, trace native Button state to numbered atlas frames, recover Zurich text placement/color/clipping, run the strict ten-resource audit/import, then continue management-screen correlation and the Windows graphical Gate 13 audit. After Gate 13 closes, continue Gates 14-17 through the verified Windows 11 release.",
   "last_known_main_head": "c36b7047dbcfc1f99a916a9997debb706ec08eb0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 119,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 119: execution remains the sole blocker. No safe source-backed main change can be made until a local process backend works. Keep continuous working state; no user action required.",
+  "recovery_generation": 120,
+  "last_recovery_reason": "stale-repository-activity-no-worker-tab",
+  "note": "Recovery 120: fresh replacement conversation restored canonical main c36b7047dbcfc1f99a916a9997debb706ec08eb0 from GitHub. Runtime remains continuous/working; resuming the exact Gate 13 execution-blocked Button/Zurich/ten-resource path now.",
   "same_chat_fallback_minutes": 30
 }
