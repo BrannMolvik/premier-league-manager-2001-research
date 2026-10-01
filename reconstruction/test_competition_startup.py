@@ -364,6 +364,63 @@ class OrderedCompetitionRngTests(unittest.TestCase):
         self.assertEqual(len(ids), 14)
         self.assertLess(ids.index(174), ids.index(171))
 
+    def test_canonical_country_116_secondary_equal_key_qsort_order(self):
+        # Canonical country 116 roots are appended in global competition source
+        # order. FOOTBAL.EXE 0x668DA4 independently source-locks the exact CRT
+        # qsort implementation used by 0x4F79A0 before 0x411020 walks the
+        # resulting root array backwards. Include the four primary equal-key
+        # roots because the large-array partition permutation depends on the
+        # complete 20-root input, not on the filtered mode-1 subset alone.
+        competitions = tuple(
+            Competition(competition_id, runtime_kind, container, None, order, 116)
+            for competition_id, runtime_kind, container, order in (
+                (15, 2, 1, 3),
+                (16, 2, 1, 4),
+                (82, 3, 1, 0),
+                (86, 3, 1, 0),
+                (88, 3, 1, 0),
+                (101, 2, 1, 0),
+                (170, 3, 2, 0),
+                (171, 2, 2, 0),
+                (174, 2, 2, 0),
+                (177, 3, 2, 0),
+                (178, 3, 2, 0),
+                (179, 3, 2, 0),
+                (180, 3, 2, 0),
+                (181, 3, 2, 0),
+                (182, 3, 2, 0),
+                (183, 3, 2, 0),
+                (184, 3, 2, 0),
+                (185, 3, 2, 0),
+                (186, 3, 2, 0),
+                (187, 3, 2, 0),
+            )
+        )
+
+        storage_ids = tuple(
+            competition.id
+            for competition in country_root_competition_storage_order(
+                competitions, 116
+            )
+        )
+        self.assertEqual(
+            storage_ids,
+            (16, 15, 86, 88, 82, 101, 170, 171, 174, 177,
+             178, 179, 180, 181, 182, 183, 184, 185, 186, 187),
+        )
+
+        mode1_ids = tuple(
+            competition.id
+            for competition in secondary_mode1_root_initialization_order(
+                competitions, (116,)
+            )
+        )
+        self.assertEqual(
+            mode1_ids,
+            (187, 186, 185, 184, 183, 182, 181, 180, 179, 178,
+             177, 174, 171, 170),
+        )
+
     def test_cup_round_qsort_uses_child_league_date_for_minileague(self):
         rounds = (
             Round(9, 32, 201, 3, 0, 0, 14),
