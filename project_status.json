@@ -538,7 +538,7 @@
   "gate13_presentation_separation_audited": true,
   "gate13_presentation_separation_evidence": "research/GATE13_PRESENTATION_SEPARATION_AUDIT.md",
   "gate13_resource_coverage_audit": "research/GATE13_RESOURCE_COVERAGE_AUDIT.md",
-  "gate13_resource_criterion_status": "open_corrected_windows_audit_pmenu_arrow_states_shell_background_asset_import_and_broader_management_presentation",
+  "gate13_resource_criterion_status": "open_corrected_windows_audit_pmenu_shell_background_asset_import_clipping_and_broader_management_presentation",
   "gate13_latest_focused_executed_tests": 276,
   "gate13_latest_focused_skips": 21,
   "gate13_latest_focused_result": "passed",
@@ -872,7 +872,7 @@
   ],
   "gate13_pmenu_unresolved_labels_fail_closed": true,
   "gate13_pmenu_exact_font_mapping_open": false,
-  "gate13_pmenu_state_frame_mapping_open": "background_closed_arrow_open",
+  "gate13_pmenu_state_frame_mapping_open": false,
   "gate13_pmenu_shell_background_open": true,
   "gate13_pmenu_original_assets_import_status": "blocked_currently_connector_text_only_and_shell_github_dns_unavailable",
   "gate13_pmenu_row_chrome_merge": "addd82b7a8a5efddd83abb698f08d08c71ebcaf9",
@@ -909,7 +909,40 @@
     "0x8",
     "0x8000"
   ],
-  "gate13_pmenu_title_arrow_state_mapping_open": true,
-  "gate13_pmenu_child_arrow_state_mapping_open": true,
-  "gate13_recovery_146_direct_git_transport": "blocked_could_not_resolve_github_com"
+  "gate13_pmenu_title_arrow_state_mapping_open": false,
+  "gate13_pmenu_child_arrow_state_mapping_open": false,
+  "gate13_recovery_146_direct_git_transport": "blocked_could_not_resolve_github_com",
+  "gate13_pmenu_labels_font_background_merge": "2f59e163e873051a9bc691f6d6c04033f678ad20",
+  "gate13_pmenu_labels_font_background_ci_run": 36914325613,
+  "gate13_pmenu_labels_font_background_test_count": 291,
+  "gate13_pmenu_labels_font_background_expected_skips": 21,
+  "gate13_pmenu_labels_font_background_asset_policy_run": 36914325533,
+  "gate13_pmenu_arrow_selector_source_bound": true,
+  "gate13_pmenu_arrow_selector_va": "0x652AE0",
+  "gate13_pmenu_arrow_sequence_remap_va": "0x652780",
+  "gate13_pmenu_arrow_tick_va": "0x6527F0",
+  "gate13_pmenu_child_arrow_sequence_lengths": [
+    11,
+    11,
+    1
+  ],
+  "gate13_pmenu_child_arrow_source_rows": [
+    "0..10",
+    "11..21",
+    "22"
+  ],
+  "gate13_pmenu_title_arrow_vftable": "0x7C3B98",
+  "gate13_pmenu_title_arrow_sequence_length_va": "0x5D50E0",
+  "gate13_pmenu_title_arrow_source_y_va": "0x4825A0",
+  "gate13_pmenu_title_arrow_sequence_lengths": [
+    11,
+    1,
+    1
+  ],
+  "gate13_pmenu_title_arrow_source_rows": [
+    "0..10",
+    "10",
+    "0"
+  ],
+  "gate13_pmenu_title_arrow_unused_physical_rows": "11..21_unreachable_through_recovered_class"
 }

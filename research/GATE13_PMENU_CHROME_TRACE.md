@@ -420,3 +420,106 @@ Still open:
 6. corrected real-Windows/Tk integration validation.
 
 No new proprietary resource bytes are added by this label/font/state checkpoint.
+
+
+## Recovery 148 title/child arrow sequence and frame closure
+
+Recovery 148 continued from merged PR #77 and traced the two arrow paths through
+their actual bitmap sequence machinery rather than naming atlas rows by visual
+inspection.
+
+### Shared neutral sequence selector
+
+Both the custom title arrow and the generic child arrow use bitmap selector
+`0x652AE0`. It maps the already-neutral source state bits to sequence IDs:
+
+```text
+if bit 1 (0x2) is clear: sequence 2
+else if bit 15 (0x8000) is set: sequence 1
+else: sequence 0
+```
+
+The bit meanings remain intentionally unnamed.
+
+Sequence changes go through `0x652780`. When the target sequence differs from
+the current one, the current animation position is preserved proportionally:
+
+```text
+new_frame = floor(new_sequence_length * old_frame / old_sequence_length)
+```
+
+Then `0x6527F0` performs one animation tick:
+
+- bit 3 (`0x8`) set: increment the current frame if another frame exists;
+- bit 3 clear: decrement the current frame if it is above zero.
+
+Thus one source sequence is traversed in both directions; no modern
+hover/open/close label is attached to bit 3.
+
+### Child arrow: menu_anim.444
+
+The wrapper at `0x5FAB60 -> 0x64E500` configures
+`menu_anim.444` with exact physical frame dimensions **30x29**. The 30x667
+source therefore contains exactly 23 vertical physical frames.
+
+The generic bitmap sequence-length method `0x5D62F0` returns:
+
+| Sequence | Length | Source rows |
+| ---: | ---: | --- |
+| 0 | 11 | 0..10 |
+| 1 | 11 | 11..21 |
+| 2 | 1 | 22 |
+
+Generic bitmap source-y method `0x652860` sums the preceding sequence lengths
+and current frame, then multiplies by the 29-pixel physical frame height.
+Therefore the child arrow consumes **all 23 physical rows** exactly.
+
+### Title arrow: menu_arrow_anim.444
+
+The title wrapper at `0x5FABF0 -> 0x64E500` likewise configures
+`menu_arrow_anim.444` as exact **30x29** physical frames. The 30x638 source
+therefore contains 22 physical vertical frames.
+
+`MenuTitleArrow` installs vtable `0x7C3B98`. Its overridden sequence-length
+method is `0x5D50E0`:
+
+| Sequence | Length |
+| ---: | ---: |
+| 0 | 11 |
+| 1 | 1 |
+| 2 | 1 |
+
+Its overridden source-y method `0x4825A0` does **not** use the generic
+sequence-offset calculation:
+
+- sequence 0: source row = current frame, 0..10;
+- sequence 1: fixed source row = 10;
+- sequence 2: fixed source row = 0.
+
+Therefore this concrete title-arrow class addresses only physical rows 0..10 of
+the 22-row source strip. Rows 11..21 are present in the original asset but are
+not reachable through this class's recovered source-y method. No alternative
+meaning is assigned to those unused physical rows without another proven
+consumer.
+
+### Reconstruction consequence
+
+`reconstruction/original_pmenu_chrome.py` now guards:
+
+- the shared sequence selector at `0x652AE0`;
+- proportional sequence remapping at `0x652780`;
+- the directional animation tick at `0x6527F0`;
+- exact child sequence lengths 11/11/1 and source rows 0..22;
+- exact title sequence lengths 11/1/1 and title source rows 0..10.
+
+This closes the PMenu title/child arrow frame arithmetic without inventing
+semantic names for the source bits.
+
+Remaining PMenu shell work is now narrowed to:
+
+1. exact text clipping/origin behavior not already implied by source rectangles
+   and font metrics;
+2. management-shell background/chrome resource ownership outside the row list;
+3. provenance import of the four already-correlated menu-popup `.444` assets
+   when binary repository transport is available;
+4. integrated corrected Windows/Tk validation.

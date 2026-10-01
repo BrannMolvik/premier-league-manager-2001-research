@@ -6,6 +6,9 @@ from original_pmenu_chrome import (
     OriginalPMenuChromeError,
     PMENU_ADMIN_FAMILY_CHILDREN,
     PMENU_ANALYSIS_CHILDREN,
+    PMENU_ARROW_SEQUENCE_0,
+    PMENU_ARROW_SEQUENCE_1,
+    PMENU_ARROW_SEQUENCE_2,
     PMENU_CHILD_ARROW_RESOURCE,
     PMENU_CHILD_BOX_RESOURCE,
     PMENU_CHILDREN_BY_ARRAY_VA,
@@ -33,8 +36,16 @@ from original_pmenu_chrome import (
     PMENU_TITLE_ROW_SETUP_VA,
     PMENU_TRANSFER_CHILDREN,
     main_english_global_va,
+    pmenu_arrow_sequence_for_state_bits,
+    pmenu_arrow_source_y,
+    pmenu_child_arrow_sequence_length,
+    pmenu_child_arrow_source_row,
     pmenu_background_row_index,
     pmenu_background_source_y,
+    pmenu_remap_arrow_frame,
+    pmenu_tick_arrow_frame,
+    pmenu_title_arrow_sequence_length,
+    pmenu_title_arrow_source_row,
     validate_original_pmenu_font,
     validate_original_pmenu_resources,
 )
@@ -92,6 +103,67 @@ class OriginalPMenuChromeTests(unittest.TestCase):
             with self.subTest(bad=bad):
                 with self.assertRaises(OriginalPMenuChromeError):
                     pmenu_background_row_index(bad)
+
+    def test_arrow_sequence_selector_uses_neutral_source_bits(self):
+        self.assertEqual(pmenu_arrow_sequence_for_state_bits(0), PMENU_ARROW_SEQUENCE_2)
+        self.assertEqual(
+            pmenu_arrow_sequence_for_state_bits(0x2),
+            PMENU_ARROW_SEQUENCE_0,
+        )
+        self.assertEqual(
+            pmenu_arrow_sequence_for_state_bits(0x2 | 0x8000),
+            PMENU_ARROW_SEQUENCE_1,
+        )
+        self.assertEqual(
+            pmenu_arrow_sequence_for_state_bits(0x2 | 0x8 | 0x8000),
+            PMENU_ARROW_SEQUENCE_1,
+        )
+        for bad in (True, -1, 1.5, "2"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalPMenuChromeError):
+                    pmenu_arrow_sequence_for_state_bits(bad)
+
+    def test_child_arrow_uses_all_23_physical_rows_as_11_11_1(self):
+        self.assertEqual(
+            [pmenu_child_arrow_sequence_length(i) for i in range(3)],
+            [11, 11, 1],
+        )
+        self.assertEqual(pmenu_child_arrow_source_row(0, 0), 0)
+        self.assertEqual(pmenu_child_arrow_source_row(0, 10), 10)
+        self.assertEqual(pmenu_child_arrow_source_row(1, 0), 11)
+        self.assertEqual(pmenu_child_arrow_source_row(1, 10), 21)
+        self.assertEqual(pmenu_child_arrow_source_row(2, 0), 22)
+        self.assertEqual(pmenu_arrow_source_y(22), 638)
+
+    def test_title_arrow_uses_one_11_frame_animation_and_fixed_endpoints(self):
+        self.assertEqual(
+            [pmenu_title_arrow_sequence_length(i) for i in range(3)],
+            [11, 1, 1],
+        )
+        self.assertEqual(pmenu_title_arrow_source_row(0, 0), 0)
+        self.assertEqual(pmenu_title_arrow_source_row(0, 10), 10)
+        self.assertEqual(pmenu_title_arrow_source_row(1, 0), 10)
+        self.assertEqual(pmenu_title_arrow_source_row(2, 0), 0)
+        self.assertEqual(pmenu_arrow_source_y(10), 290)
+        # The source resource has 22 physical 29px rows, but this class's
+        # overridden source-y method never addresses rows 11..21.
+        self.assertEqual(PMENU_TITLE_ARROW_RESOURCE.frame_count, 22)
+
+    def test_arrow_tick_preserves_native_proportional_sequence_remap(self):
+        self.assertEqual(pmenu_remap_arrow_frame(0, 5, 1), 5)
+        self.assertEqual(pmenu_remap_arrow_frame(1, 10, 2), 0)
+        self.assertEqual(pmenu_remap_arrow_frame(0, 10, 1, title=True), 0)
+
+        # Bit 3 increments after sequence selection; clear bit 3 decrements.
+        self.assertEqual(pmenu_tick_arrow_frame(0, 4, 0x2), (0, 3))
+        self.assertEqual(pmenu_tick_arrow_frame(0, 4, 0x2 | 0x8), (0, 5))
+        # Switching child-arrow sequence 0 -> 1 keeps proportional progress.
+        self.assertEqual(
+            pmenu_tick_arrow_frame(0, 5, 0x2 | 0x8000 | 0x8),
+            (1, 6),
+        )
+        # Sequence 2 has one frame and therefore remains pinned at zero.
+        self.assertEqual(pmenu_tick_arrow_frame(0, 5, 0), (2, 0))
 
     def test_root_order_and_child_arrays_are_literal_source_topology(self):
         self.assertEqual(
