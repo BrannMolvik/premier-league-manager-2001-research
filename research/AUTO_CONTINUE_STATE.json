@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 160 resumes from main ae324cb3ba585dff1f96ff19053e35bc62917540 with PR #92 open. Asset-policy run 36940195519 passed; Gate-13 run 36940195674 failed only because staged info_player_disabled.444 has a byte-size mismatch, proving the interrupted manual blob handoff corrupted that file. Recover exact bytes from canonical authorized source archive, replace the blob, rerun fidelity CI, then continue PMatchInfo asset/presenter integration without weakening checks.",
-  "last_known_main_head": "ae324cb3ba585dff1f96ff19053e35bc62917540",
+  "active_task": "Recovery 160 merged PR #92 as b13e271e9a9014a340f6c6399256108c42f61325 after Gate-13 run 36941189265 passed 363 tests with 21 expected skips and asset-policy run 36941189310 passed. All twelve staged Match Report assets now have exact Git blob identities matching canonical disc bytes. Exact next task: add a read-only PMatchInfo source-art/presentation seam over the staged assets, exact placements/tabs/text slots, and fail-closed full-dialog behavior while info_popup.444 remains absent; do not map modern match events to original event semantics without source evidence.",
+  "last_known_main_head": "b13e271e9a9014a340f6c6399256108c42f61325",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 160,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Do not restart merged PMatchInfo source work or PR #91. Exact active repair is PR #92 binary fidelity.",
+  "note": "PR #92 binary fidelity repaired from canonical 677dcbc... source archive; info_player_disabled and pitch_normal were the only corrupted manual transfers.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
