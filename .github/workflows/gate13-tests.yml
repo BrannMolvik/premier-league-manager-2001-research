@@ -47,6 +47,8 @@ on:
       - "reconstruction/test_original_scouting_resources.py"
       - "reconstruction/original_squad_resources.py"
       - "reconstruction/test_original_squad_resources.py"
+      - "reconstruction/original_management_shell.py"
+      - "reconstruction/test_original_management_shell.py"
       - "reconstruction/original_teamselect_hierarchy_art.py"
       - "reconstruction/test_original_teamselect_hierarchy_art.py"
       - "reconstruction/original_first_screen_presenter.py"
@@ -116,6 +118,7 @@ jobs:
             test_original_teamselect_native \
             test_original_scouting_resources \
             test_original_squad_resources \
+            test_original_management_shell \
             test_original_teamselect_hierarchy_art \
             test_original_first_screen_presenter \
             test_ea444_header \
