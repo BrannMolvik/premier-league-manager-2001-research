@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the active validation gate. First try the real Windows PStartMenu/TeamSelect graphical audit and remaining TeamSelect hierarchy input/state recovery if the required execution path is available. If a required local/private/Windows task is blocked by CAAS or unavailable GUI access, record it as a deferred blocker and immediately continue the highest-priority independent cloud-safe work across Gate 13 or later Gates 14-17. Do not mark blocked criteria complete, do not infer original behavior, and do not declare a later gate passed while earlier required criteria remain unresolved. Revisit deferred blockers when execution becomes available.",
-  "last_known_main_head": "e2838402ea3aa0bae988af0a3c18010ba5c58e65",
+  "active_task": "Gate 13 remains the active validation gate. On the next working Windows/private path run reconstruction/gate13_windows_first_screen_audit.py against the verified canonical executable/source/game data, then recover TeamSelect hierarchy item/input/state mappings and continue remaining management-screen fidelity. While Windows GUI/process execution is unavailable, continue highest-priority independent cloud-safe work under the deferred-blocker policy. Gate 14 startup-media contract and read-only match-presentation feed are merged and verified; next cloud-safe target is bounded Gate 16 long-duration/destructive audit coverage without declaring Gate 16 complete.",
+  "last_known_main_head": "65b256a0cbc46c3dc90fd8c26ad4429acf58186d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 127,
-  "last_recovery_reason": "deferred-blocker-policy-enabled",
-  "note": "Out-of-order cloud-safe work policy enabled on main e2838402. Roadmap gates are validation milestones, not hard scheduling barriers. Keep Gate 13 active until its criteria pass, but do not let CAAS/local-only blockers freeze independent work in Gates 14-17.",
+  "recovery_generation": 128,
+  "last_recovery_reason": "windows-gui-deferred-cloud-safe-work-ahead",
+  "note": "Recovery 128: PR #49 Windows graphical-audit harness merged and passed hosted Gate13/asset-policy CI, but the real Windows receipt remains deferred because this worker cannot launch local processes/GUI. PR #50 Gate14 presentation foundation merged after full reconstruction run 36831057948 and asset-policy 36831057947 passed. Earliest incomplete gate remains 13; continue cloud-safe work while preserving the exact Windows/TeamSelect blockers.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
