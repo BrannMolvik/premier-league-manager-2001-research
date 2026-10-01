@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "PR #78 merged as f61146fa5dd644ecebbf032effda10dab60d7299 after Gate-13 run 36915849517 passed 298 tests with 21 expected skips and asset-policy run 36915849434 passed. Exact next Gate-13 task: persist source-proven PMenu Calendar/Tables navigation identities for IDs 0x259/0x25A/0x25B/0x25C, including PCalendar2k, PLeagueTables, PCupTable2000 and PLeagueFixtures, then continue their resource/layout/navigation correlation. Corrected real Windows/Tk audit and four PMenu binary asset imports remain open.",
-  "last_known_main_head": "f61146fa5dd644ecebbf032effda10dab60d7299",
+  "active_task": "PR #80 merged as 9da4c89f67aaba7b263354591497d596ca50edd1 after Gate-13 run 36916343766 passed 303 tests with 21 expected skips and asset-policy run 36916343760 passed. Exact next Gate-13 task: source-bind PLeagueFixtures six original league_fixtures .444 resources, raw/wrapper handles and visible grid placement geometry, then continue result/date/list bindings. Corrected real Windows/Tk audit and binary asset import blockers remain open.",
+  "last_known_main_head": "9da4c89f67aaba7b263354591497d596ca50edd1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 149,
-  "last_recovery_reason": "post-pr78-merge-continuation",
-  "note": "Recovery 149 continues directly from verified PMenu arrow checkpoint. Fixtures/results panel identity is now source-proven privately as PLeagueFixtures and must be persisted.",
+  "recovery_generation": 150,
+  "last_recovery_reason": "post-pr80-merge-continuation",
+  "note": "Recovery 150 continues directly into PLeagueFixtures resources after panel identity closure.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
