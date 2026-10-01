@@ -43,8 +43,8 @@ class OriginalScoutingResourceTests(unittest.TestCase):
                 self.assertEqual((header.width, header.height), expected_size)
 
     def test_exact_setup_method_geometry_and_transparent_composition(self):
-        repeated = solid(*SCOUTING_REPEATED_SIZE, (10, 20, 30, 255))
-        bottom = solid(*SCOUTING_BOTTOM_SIZE, (40, 50, 60, 255))
+        repeated = solid(SCOUTING_REPEATED_SIZE[0], SCOUTING_REPEATED_SIZE[1], (10, 20, 30, 255))
+        bottom = solid(SCOUTING_BOTTOM_SIZE[0], SCOUTING_BOTTOM_SIZE[1], (40, 50, 60, 255))
         result = assemble_original_scouting_composition(repeated, bottom)
 
         self.assertEqual(len(SCOUTING_REPEATED_ORIGINS), 20)
@@ -77,11 +77,11 @@ class OriginalScoutingResourceTests(unittest.TestCase):
         with self.assertRaises(OriginalScoutingResourceError):
             assemble_original_scouting_composition(
                 solid(570, 16, (1, 2, 3, 255)),
-                solid(*SCOUTING_BOTTOM_SIZE, (4, 5, 6, 255)),
+                solid(SCOUTING_BOTTOM_SIZE[0], SCOUTING_BOTTOM_SIZE[1], (4, 5, 6, 255)),
             )
         result = assemble_original_scouting_composition(
-            solid(*SCOUTING_REPEATED_SIZE, (1, 2, 3, 128)),
-            solid(*SCOUTING_BOTTOM_SIZE, (4, 5, 6, 255)),
+            solid(SCOUTING_REPEATED_SIZE[0], SCOUTING_REPEATED_SIZE[1], (1, 2, 3, 128)),
+            solid(SCOUTING_BOTTOM_SIZE[0], SCOUTING_BOTTOM_SIZE[1], (4, 5, 6, 255)),
         )
         with self.assertRaisesRegex(OriginalScoutingResourceError, "partial alpha"):
             result.transparent_overlay_rgba()
