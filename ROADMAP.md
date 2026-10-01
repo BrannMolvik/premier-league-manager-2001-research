@@ -284,8 +284,8 @@ Goal: restore the original FM2001 interaction flow and visual identity after gam
 Suggested screen order:
 
 1. main menu / TeamSelect;
-2. manager home;
-3. squad;
+2. PMenu management shell / fresh-game Squad landing;
+3. Squad composition and navigation;
 4. tactics/team selection;
 5. fixtures/results;
 6. league table;
@@ -294,7 +294,12 @@ Suggested screen order:
 9. finances;
 10. messages/news;
 11. training/scouting;
-12. remaining screens.
+12. remaining source-proven panels.
+
+The earlier "manager home" placeholder is superseded by
+`research/GATE13_MANAGEMENT_SHELL_ROUTE.md`: the canonical fresh-user route
+constructs PMenu and opens PSquadScreen directly. Do not invent a standalone
+Manager Home panel without new source evidence.
 
 Completion criteria:
 

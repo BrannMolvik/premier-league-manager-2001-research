@@ -4,12 +4,15 @@ _Date: 1 October 2026 KST_
 
 ## Purpose
 
-Gate 13 cannot close while "manager home" and "remaining screens" are only
-generic placeholders. This ledger enumerates the presentation evidence already
-persisted in the repository, separates actual panel/screen identity from backend
-or event identity, and records the exact source-catalog query to run when
-private byte execution becomes usable again. Recovery 120 supplied that
-execution path and completed the first catalog-to-executable correlation.
+Gate 13 cannot close while normal-management surfaces are only generic
+placeholders. This ledger enumerates the presentation evidence already persisted
+in the repository, separates actual panel/screen identity from backend or event
+identity, and records exact source-catalog queries for unresolved surfaces.
+
+Recovery 143/144 corrected two earlier placeholders: TeamSelect club identity is
+now source-bound, and the assumed standalone "Manager Home" fresh-game panel is
+superseded by the executable-proven PMenu management shell routing a fresh user
+directly to PSquadScreen.
 
 This is an evidence inventory, not a claim that the listed screens have been
 visually reconstructed.
@@ -27,12 +30,12 @@ visually reconstructed.
 
 | Roadmap surface | Persisted presentation identity | Strongest source-backed evidence | Original resource/layout/navigation status |
 | --- | --- | --- | --- |
-| Main menu / TeamSelect | **Proven.** PStartMenu screen ID `0x323`, vtable `0x7C64E0`; `PMain@TeamSelect` vtable `0x7C7650` | PStartMenu/TeamSelect constructors, event IDs, action rectangles, English country order, 16 hierarchy + 24 club control layouts, exact root-league/club filtering and stable ordering, native row-state transforms, original Zurich captions/fonts and source paths are recorded | **Partial.** The base first-screen resources plus four TeamSelect row/font resources are provenance-imported and live presentation is integrated. Exact native selection-record payload -> gameplay club identity and the upgraded real-Windows graphical validation remain open |
-| Manager home | **No persisted original panel identity** | Read-only bridge can expose controlled-club original name/short name and current game date | **Open.** No original manager-home screen class, screen ID, exact resource path, layout, controls or navigation edge has been correlated |
+| Main menu / TeamSelect | **Proven.** PStartMenu screen ID `0x323`, vtable `0x7C64E0`; `PMain@TeamSelect` vtable `0x7C7650` | PStartMenu/TeamSelect constructors, event IDs, action rectangles, English country order, 16 hierarchy + 24 club control layouts, exact root-league/club filtering and stable ordering, native row-state transforms, original Zurich captions/fonts, source paths, clicked-club user binding, rollback-record semantics and six-user cap are recorded | **Partial.** The base first-screen resources plus four TeamSelect row/font resources are provenance-imported and live presentation is integrated. The corrected selection semantics are source-bound; the upgraded real-Windows graphical validation remains open. |
+| Management shell / former "Manager home" placeholder | **Proven shell: `PMenu`.** TypeDescriptor `0x81CE80`, vtable `0x7C3DE8`, constructor `0x482830`, route method `0x482960` | Fresh users initialize neutral route state `+0x10E8=0`; PMenu maps that state to panel code `0xCE`, and factory `0x47AEC0` constructs `PSquadScreen`. State 1 maps code `0x25A` to `PLeagueTables` and is then cleared. | **Resolved identity/navigation boundary, presentation still partial.** There is no evidence for a distinct generic fresh-game Manager Home content panel, so one must not be invented. PMenu chrome/resources and complete downstream panel composition/navigation still need recovery. |
 | Squad | **Proven: `PSquadScreen`.** TypeDescriptor `0x819D48`, vtable `0x7C5CA4`, setup `0x4B5720`; embedded `CBasePlayerList` and `PSquadPitch` identities proven | Exact `squad_but_anim.444` controls 3/4/5 and captions; two roster rectangles and pitch rectangle; exact first+reserve / first+pitch / reserve+pitch transitions; concrete 20-row player-list hierarchy/columns/status filters; all 22 paired `FormationText` rectangles/IDs and exact group/state-to-source-row transform | **Partial.** Core panel/view geometry, roster bindings/status semantics and FormationText state selection are source-bound and guarded. Broader visual/icon semantics, unresolved selection/sort/navigation behavior and final integrated composition remain open |
 | Tactics / team selection | **Partially proven.** `PFormation2k`; `PTeamOrders2K`; `PSquadPitch`; `FormationText` | `PFormation2k` vtable `0x7C1AB4`; exact `squad_bars.444` and `squad_form_anim.444` consumers; five native formation records; all 22 FormationText paired rectangles/control IDs and exact state-to-source-row transform; Team Orders source path `Applications\\FootballManager\\SquadPan.cpp` | **Partial.** The two formation resources, FormationText geometry and state selection are proven/imported. Surrounding controls, gestures, broader team-order presentation and navigation remain unresolved |
 | Fixtures / results | **No persisted original panel identity** | `DBTRealFixtures` / `DBRRealFixture` / `DBTRounds` construction and source insertion order are recovered; executable retains `Season.cpp` source-path metadata | **Open.** Original screen comparator/order, graphics, geometry, controls and navigation remain unknown |
-| League table | **No persisted original panel identity** | Native League comparator `0x4F45E0` and its six-field ordering contract are recovered | **Open.** Original table panel class, header/row artwork, geometry, controls and navigation remain unknown |
+| League table | **Proven: `PLeagueTables`.** TypeDescriptor `0x81B458`, vtable `0x7C00C8`, constructor `0x448640`; PMenu route-state 1 selects panel code `0x25A` | Native League comparator `0x4F45E0` and its six-field ordering contract are recovered; the management-shell factory/navigation edge is now source-proven | **Partial.** Panel identity and one PMenu route are proven. Header/row artwork, exact geometry, controls and broader navigation remain unresolved. |
 | Player profile | **No persisted original panel identity** | `DBTPlayers` / `DBRPlayer` runtime identity and current-skill vector boundary are recovered | **Open.** Original profile panel, visible field/column mapping, icons, resource/layout and visibility rules remain unknown |
 | Transfers | **Panel-family name proven: `PTransfer2K`** | Original transfer event/action families, deal-state families and executable source-path family `TransPan.cpp` are persisted | **Open.** Original screen sort, unresolved caption bindings, controls, art, geometry and navigation remain unknown |
 | Finances | **Panel-family names proven: `PFinanceOverview`, `PTickets`** | Finance Overview category-1000 aggregate path; `PTickets` update routine `0x45FF10`, ticket object and section-state semantics; `Balance.cpp` source-path metadata | **Open.** Exact visible account labels, resource paths, widget bindings, layout and navigation remain unknown |
@@ -123,11 +126,11 @@ player profile 8, transfers 5, finances 484, messages/news 28, training 11,
 scouting 2, and support/youth 38. These counts remain discovery evidence only.
 
 An independent exact-full-path scan of the canonical executable found no
-`Manager_Home` path literal, while finding exact source paths in the other
-families (including all four Squad candidates and both Scouting candidates).
-That negative result does not prove that Manager Home lacks resources; it
-prevents a filename-only import and makes panel/factory recovery the next
-required step for that screen.
+`Manager_Home` path literal. Recovery 144 subsequently closed the missing
+panel/factory boundary: the post-TeamSelect shell is `PMenu`, and a fresh
+user routes directly to `PSquadScreen`. The old Manager Home filename query is
+therefore retained only as historical discovery evidence, not as an outstanding
+screen that must be fabricated.
 
 Scouting now has the first complete catalog-to-panel resource correlation:
 
@@ -192,18 +195,17 @@ Verification on PR head
 
 ## Current blocker and exact next action
 
-The Squad source-critical slice is now beyond the older checkpoint above:
-`PSquadScreen` controls/captions/view transitions, the concrete 20-row
-`CBasePlayerList` hierarchy/columns/status filters, and exact `FormationText`
-geometry/state-to-source-row mapping are source-bound. Do not repeat those
-private traces unless a regression or evidence dispute requires it.
+TeamSelect selection identity is closed in
+`research/GATE13_TEAMSELECT_USER_SELECTION_TRACE.md`. The post-TeamSelect
+management-shell/fresh landing route is closed in
+`research/GATE13_MANAGEMENT_SHELL_ROUTE.md`.
 
-The earliest source-critical blocker is now TeamSelect. The native
-`0x4D8E90` / `0x4D9240` path toggles a visible club row and writes/clears a
-0x30-byte selection record, but an interrupted annotation treating
-`DBRClub+0x40` as a club ID conflicts with earlier verified manager-ID/reference
-evidence. Gameplay selection therefore remains fail-closed. Re-trace that
-payload and Start resolution first; then rerun the upgraded real-Windows
-PStartMenu/TeamSelect audit. After those are cleared, continue the same
-resource/layout/navigation correlation discipline across Manager Home and the
-other incomplete normal-management screens.
+The required real-Windows first-screen audit still must be rerun against the
+corrected TeamSelect semantics; the older Recovery-138 receipt predates that
+mapping and remains historical evidence only.
+
+For independent source work, continue from the now-proven PMenu shell and
+PSquadScreen fresh landing rather than looking for a generic Manager Home panel.
+Prioritize exact PMenu chrome/menu resource bindings and the remaining
+screen-by-screen panel/resource/layout/navigation correlations. Keep every
+filename-only lead fail-closed until executable ownership is established.

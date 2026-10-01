@@ -95,7 +95,8 @@ Since this architecture audit was first written, the canonical Button/Zurich tra
 
 Still open:
 
-- TeamSelect's exact 0x30-byte selection-record payload -> gameplay club identity, Start resolution, and upgraded real-Windows graphical validation;
+- the corrected TeamSelect selection semantics still need their upgraded real-Windows graphical validation;
+- PMenu management-shell chrome/resources and downstream original panel composition/navigation beyond the now-proven fresh PSquadScreen route;
 - original manager-screen resources/layouts/navigation/timing beyond the source-bound first-screen, Scouting and Squad/Tactics fragments;
 - remaining Squad/Tactics controls, icon/selection/sort semantics, navigation and full integrated composition;
 - recognizable FM2001 normal-play presentation across the management loop;
