@@ -75,48 +75,65 @@ class OriginalPMenuChromeTests(unittest.TestCase):
             {node.children_array_va for node in PMENU_ROOT_NODES},
         )
 
-    def test_known_main_english_globals_are_exact_and_unknowns_stay_unresolved(self):
-        team, transfer, direct, tables, analysis, admin, finance, eamail, system = (
-            PMENU_ROOT_NODES
+    def test_all_root_labels_are_exact_loader_correlations(self):
+        self.assertEqual(
+            [node.require_original_text() for node in PMENU_ROOT_NODES],
+            [
+                "Team",
+                "Transfers",
+                "Calendar",
+                "TABLES",
+                "Analysis",
+                "ADMIN",
+                "ACCOUNTS",
+                "EAMail",
+                "GAME OPTIONS",
+            ],
         )
-        self.assertEqual(team.require_original_text(), "Team")
-        self.assertEqual(team.english_index, 39)
-        self.assertEqual(team.label_global_va, main_english_global_va(39))
-        self.assertEqual(analysis.require_original_text(), "Analysis")
-        self.assertEqual(eamail.require_original_text(), "EAMail")
+        for node in PMENU_ROOT_NODES:
+            with self.subTest(menu_id=node.menu_id):
+                self.assertEqual(
+                    node.label_global_va,
+                    main_english_global_va(node.english_index),
+                )
 
-        for unresolved in (transfer, direct, tables, admin, finance, system):
-            with self.subTest(menu_id=unresolved.menu_id):
-                self.assertIsNone(unresolved.original_text)
-                self.assertIsNone(unresolved.english_index)
-                with self.assertRaises(OriginalPMenuChromeError):
-                    unresolved.require_original_text()
-
-    def test_exact_language_correlated_children_are_not_inferred_from_neighbors(self):
-        self.assertEqual(PMENU_TEAM_CHILDREN[1].require_original_text(), "Stats")
-        self.assertEqual(PMENU_TEAM_CHILDREN[3].require_original_text(), "Team Orders")
-        self.assertEqual(PMENU_TEAM_CHILDREN[4].require_original_text(), "Training")
-        self.assertEqual(PMENU_TEAM_CHILDREN[5].require_original_text(), "Youth Team")
+    def test_all_modeled_child_labels_are_exact_loader_correlations(self):
+        self.assertEqual(
+            [node.require_original_text() for node in PMENU_TEAM_CHILDREN],
+            ["Squad", "Stats", "Indiv. Orders", "Team Orders", "Training", "Youth Team"],
+        )
+        self.assertEqual(
+            [node.require_original_text() for node in PMENU_TRANSFER_CHILDREN],
+            ["Transfer List", "Scouts", "Player/Club Search"],
+        )
         self.assertEqual(
             [node.require_original_text() for node in PMENU_TABLES_CHILDREN],
             ["League Tables", "Cup Tables"],
         )
         self.assertEqual(
-            [node.require_original_text() for node in PMENU_ADMIN_FAMILY_CHILDREN[2:]],
-            ["Stadium", "Development", "Maintenance"],
+            [node.require_original_text() for node in PMENU_ANALYSIS_CHILDREN],
+            ["Charts", "RATINGS", "Trophy Cupboard"],
+        )
+        self.assertEqual(
+            [node.require_original_text() for node in PMENU_ADMIN_FAMILY_CHILDREN],
+            ["Overview", "Support Staff", "Stadium", "Development", "Maintenance"],
         )
         self.assertEqual(
             [node.require_original_text() for node in PMENU_FINANCE_FAMILY_CHILDREN],
             ["Cash Flow", "Tickets", "Contracts"],
         )
         self.assertEqual(PMENU_EAMAIL_CHILDREN[0].require_original_text(), "EAMail")
-
-        for unresolved in (
-            *PMENU_TRANSFER_CHILDREN,
-            *PMENU_ANALYSIS_CHILDREN,
-        ):
-            with self.assertRaises(OriginalPMenuChromeError):
-                unresolved.require_original_text()
+        self.assertEqual(
+            [node.require_original_text() for node in PMENU_SYSTEM_CHILDREN],
+            ["SAVE GAME", "SETTINGS", "RETURN TO MAIN MENU"],
+        )
+        for children in PMENU_CHILDREN_BY_ARRAY_VA.values():
+            for node in children:
+                with self.subTest(menu_id=node.menu_id):
+                    self.assertEqual(
+                        node.label_global_va,
+                        main_english_global_va(node.english_index),
+                    )
 
     def test_separate_team_order_array_is_not_misrepresented_as_root_children(self):
         self.assertEqual(
@@ -148,9 +165,11 @@ class OriginalPMenuChromeTests(unittest.TestCase):
             ):
                 validate_original_pmenu_resources(root)
 
-    def test_main_english_global_formula_rejects_coercion(self):
+    def test_main_english_global_mapping_is_exact_and_fails_closed(self):
         self.assertEqual(main_english_global_va(44), 0x984748)
-        for bad in (True, -1, 1.5, "44"):
+        self.assertEqual(main_english_global_va(2392), 0x982298)
+        self.assertEqual(main_english_global_va(2522), 0x982090)
+        for bad in (True, -1, 1.5, "44", 100):
             with self.subTest(bad=bad):
                 with self.assertRaises(OriginalPMenuChromeError):
                     main_english_global_va(bad)
