@@ -3,7 +3,6 @@ from dataclasses import dataclass
 
 from match_schedule import (
     MsvcCrtRng,
-    advance_schedule_bucket_shuffle_state,
     advance_msvc_schedule_shuffle_aggregate_state,
     build_and_shuffle_schedule_bucket,
     choose_ordinary_league_schedule_bucket,
