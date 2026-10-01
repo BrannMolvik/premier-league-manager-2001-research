@@ -176,6 +176,11 @@ class GameState:
     league_allocation_records: tuple[object, ...] = ()
     club_competition_membership: dict[int, int] = field(default_factory=dict)
     countries: dict[int, object] = field(default_factory=dict)
+    # Immutable source-database fixture identity used by internal save
+    # validation. Annual mode regenerates the live Premier League procedurally,
+    # so source identity must not be recomputed from later live fixtures.
+    # None means the state did not originate from a database-backed source.
+    source_fixture_identity: tuple[tuple[int, int, int, int], ...] | None = None
     positions: dict[int, object] = field(default_factory=dict)
     access_fan_bases: tuple[object, ...] = ()
     access_skill_financial_values: tuple[object, ...] = ()
@@ -392,6 +397,15 @@ class GameState:
                 if hasattr(club, "competition_id")
             },
             countries=countries_by_id,
+            source_fixture_identity=tuple(
+                (
+                    int(fixture.id),
+                    int(fixture.round_index),
+                    int(fixture.home_club_id),
+                    int(fixture.away_club_id),
+                )
+                for fixture in fixtures
+            ),
             positions=positions_by_id,
             access_fan_bases=fan_bases,
             access_skill_financial_values=financial_values,

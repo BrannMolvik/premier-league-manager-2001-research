@@ -51,3 +51,32 @@ seasons can run automatically. It does not replace canonical real-data
 multi-season evidence, and it does not by itself close Gate 16. Broader
 competition state, transfers, save/reload cycles, many more seeds and any
 failure-driven regressions still need long-duration coverage.
+
+
+## Save/reload continuation stress
+
+Recovery 129 extends the same three-season synthetic world with internal
+save/reload checkpoints during every season and immediately after each annual
+primary regeneration.
+
+The added regression requires five round-trips in total:
+
+- season one after 120 completed Premier League fixtures;
+- immediately after the 2001 annual primary regeneration;
+- season two after 160 completed fixtures;
+- immediately after the 2002 annual primary regeneration;
+- season three after 200 completed fixtures.
+
+Every round-trip compares the complete serialized controller snapshot before
+and after reload. The season must then continue to all 380 fixtures with table,
+roster, Condition, Form, suspension and monthly-development invariants still
+valid. This specifically targets save corruption that only appears after the
+live calendar, player state, controller RNG and regenerated competition runtime
+have already accumulated long-duration changes.
+
+A failure at either post-regeneration checkpoint is treated as a real Gate-16
+save-continuity defect, not worked around by rebuilding a fresh season.
+
+This remains synthetic evidence. It does not substitute for canonical
+real-data multi-season save/reload testing or the still-needed broader
+competition and transfer stress.
