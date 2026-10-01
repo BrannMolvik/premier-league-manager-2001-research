@@ -35,6 +35,22 @@ from original_league_fixtures_resources import (
     LEAGUE_FIXTURES_LEAGUE_CAPTION_OFFSET,
     LEAGUE_FIXTURES_CURRENT_CLUB_COMPETITION_ID_OFFSET,
     LEAGUE_FIXTURES_CURRENT_CLUB_COUNTRY_ID_OFFSET,
+    LEAGUE_FIXTURES_MATCH_INFO_ACTION,
+    LEAGUE_FIXTURES_MATCH_INFO_CLASS,
+    LEAGUE_FIXTURES_MATCH_INFO_TYPE_DESCRIPTOR_VA,
+    LEAGUE_FIXTURES_MATCH_INFO_VFTABLE_VA,
+    LEAGUE_FIXTURES_MATCH_INFO_CONSTRUCTOR_VA,
+    LEAGUE_FIXTURES_MATCH_INFO_ALLOC_SIZE,
+    LEAGUE_FIXTURES_MATCH_INFO_BASE_CLASS,
+    LEAGUE_FIXTURES_MATCH_INFO_BASE_TYPE_DESCRIPTOR_VA,
+    LEAGUE_FIXTURES_MATCH_INFO_BASE_VFTABLE_VA,
+    LEAGUE_FIXTURES_MATCH_INFO_FIXTURE_CONTEXT_VCALL_SLOT,
+    LEAGUE_FIXTURES_MATCH_INFO_LINK_INDEX_OFFSET,
+    LEAGUE_FIXTURES_MATCH_INFO_LINK_ROOT_GLOBAL_VA,
+    LEAGUE_FIXTURES_MATCH_INFO_PRIMARY_CONTEXT_OFFSET,
+    LEAGUE_FIXTURES_MATCH_INFO_SECONDARY_CONTEXT_OFFSET,
+    LEAGUE_FIXTURES_MATCH_INFO_LAYOUT_HELPER_VA,
+    LEAGUE_FIXTURES_MATCH_INFO_SIZE,
     LEAGUE_FIXTURE_SCORE_FORMAT,
     LEAGUE_FIXTURE_DATE_FORMAT,
     OriginalLeagueFixturesResourceError,
@@ -54,6 +70,7 @@ from original_league_fixtures_resources import (
     league_fixtures_selected_league_index,
     league_fixtures_league_selectors,
     league_fixtures_selector_event,
+    league_fixtures_match_info_action,
     validate_league_fixtures_grid_selection_index,
     league_fixture_box_for_cell,
     league_fixture_visible_text,
@@ -270,6 +287,72 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
             with self.subTest(bad=bad):
                 with self.assertRaises(OriginalLeagueFixturesResourceError):
                     league_fixtures_selector_event(bad)
+
+    def test_nonnull_cell_action_constructs_source_proven_pmatchinfo(self):
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_CLASS, "PMatchInfo")
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_TYPE_DESCRIPTOR_VA, 0x81D058)
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_VFTABLE_VA, 0x7C41D4)
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_CONSTRUCTOR_VA, 0x487580)
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_ALLOC_SIZE, 0x1828)
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_SIZE, (760, 500))
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_ACTION.panel_class, "PMatchInfo")
+        self.assertEqual(
+            LEAGUE_FIXTURES_MATCH_INFO_ACTION.size,
+            LEAGUE_FIXTURES_MATCH_INFO_SIZE,
+        )
+
+    def test_match_info_action_preserves_base_and_context_resolution_boundary(self):
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_BASE_CLASS, "PExplodingDialog")
+        self.assertEqual(
+            LEAGUE_FIXTURES_MATCH_INFO_BASE_TYPE_DESCRIPTOR_VA,
+            0x81BB38,
+        )
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_BASE_VFTABLE_VA, 0x7C0D54)
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_FIXTURE_CONTEXT_VCALL_SLOT, 0x18)
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_LINK_INDEX_OFFSET, 0x40)
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_LINK_ROOT_GLOBAL_VA, 0x8755F8)
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_PRIMARY_CONTEXT_OFFSET, 0x70)
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_SECONDARY_CONTEXT_OFFSET, 0x74)
+        self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_LAYOUT_HELPER_VA, 0x653320)
+
+    def test_match_info_action_requires_fixture_and_resolved_linked_context(self):
+        self.assertIsNone(
+            league_fixtures_match_info_action(
+                fixture_present=False,
+                linked_context_available=False,
+            )
+        )
+        self.assertIsNone(
+            league_fixtures_match_info_action(
+                fixture_present=False,
+                linked_context_available=True,
+            )
+        )
+        self.assertIsNone(
+            league_fixtures_match_info_action(
+                fixture_present=True,
+                linked_context_available=False,
+            )
+        )
+        self.assertIs(
+            league_fixtures_match_info_action(
+                fixture_present=True,
+                linked_context_available=True,
+            ),
+            LEAGUE_FIXTURES_MATCH_INFO_ACTION,
+        )
+        for bad_call in (
+            lambda: league_fixtures_match_info_action(
+                fixture_present=1,
+                linked_context_available=True,
+            ),
+            lambda: league_fixtures_match_info_action(
+                fixture_present=True,
+                linked_context_available=1,
+            ),
+        ):
+            with self.assertRaises(OriginalLeagueFixturesResourceError):
+                bad_call()
 
     def test_populated_fixture_box_uses_completion_bit_only(self):
         self.assertIs(

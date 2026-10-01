@@ -180,6 +180,22 @@ LEAGUE_FIXTURES_GRID_POINT_SELECT_VA = 0x46D300
 LEAGUE_FIXTURES_GRID_POINT_FIXTURE_ACTION_VA = 0x46D390
 LEAGUE_FIXTURES_GRID_POINT_COMPLETION_QUERY_VA = 0x46D400
 LEAGUE_FIXTURES_CELL_FIXTURE_ACTION_TARGET_VA = 0x488C80
+LEAGUE_FIXTURES_MATCH_INFO_CLASS = "PMatchInfo"
+LEAGUE_FIXTURES_MATCH_INFO_TYPE_DESCRIPTOR_VA = 0x81D058
+LEAGUE_FIXTURES_MATCH_INFO_VFTABLE_VA = 0x7C41D4
+LEAGUE_FIXTURES_MATCH_INFO_CONSTRUCTOR_VA = 0x487580
+LEAGUE_FIXTURES_MATCH_INFO_ALLOC_SIZE = 0x1828
+LEAGUE_FIXTURES_MATCH_INFO_BASE_CLASS = "PExplodingDialog"
+LEAGUE_FIXTURES_MATCH_INFO_BASE_TYPE_DESCRIPTOR_VA = 0x81BB38
+LEAGUE_FIXTURES_MATCH_INFO_BASE_VFTABLE_VA = 0x7C0D54
+LEAGUE_FIXTURES_MATCH_INFO_FIXTURE_CONTEXT_VCALL_SLOT = 0x18
+LEAGUE_FIXTURES_MATCH_INFO_LINK_INDEX_OFFSET = 0x40
+LEAGUE_FIXTURES_MATCH_INFO_LINK_ROOT_GLOBAL_VA = 0x8755F8
+LEAGUE_FIXTURES_MATCH_INFO_PRIMARY_CONTEXT_OFFSET = 0x70
+LEAGUE_FIXTURES_MATCH_INFO_SECONDARY_CONTEXT_OFFSET = 0x74
+LEAGUE_FIXTURES_MATCH_INFO_LAYOUT_HELPER_VA = 0x653320
+LEAGUE_FIXTURES_MATCH_INFO_SIZE = (760, 500)
+
 LEAGUE_FIXTURES_SELECTOR_SETUP_VA = 0x46AA70
 LEAGUE_FIXTURES_LEAGUE_REBUILD_VA = 0x46D840
 LEAGUE_FIXTURES_EVENT_DISPATCH_VA = 0x46E040
@@ -212,6 +228,53 @@ LEAGUE_FIXTURES_CURRENT_CLUB_COUNTRY_ID_OFFSET = 0x14
 LEAGUE_FIXTURES_COMPETITION_ID_RESOLVE_VA = 0x4056F0
 LEAGUE_FIXTURES_COUNTRY_COMPETITION_INDEX_VA = 0x410FF0
 
+
+
+@dataclass(frozen=True)
+class LeagueFixturesMatchInfoAction:
+    action_va: int
+    panel_class: str
+    constructor_va: int
+    vftable_va: int
+    allocation_size: int
+    size: tuple[int, int]
+    primary_context_offset: int
+    secondary_context_offset: int
+
+
+LEAGUE_FIXTURES_MATCH_INFO_ACTION = LeagueFixturesMatchInfoAction(
+    action_va=LEAGUE_FIXTURES_CELL_FIXTURE_ACTION_TARGET_VA,
+    panel_class=LEAGUE_FIXTURES_MATCH_INFO_CLASS,
+    constructor_va=LEAGUE_FIXTURES_MATCH_INFO_CONSTRUCTOR_VA,
+    vftable_va=LEAGUE_FIXTURES_MATCH_INFO_VFTABLE_VA,
+    allocation_size=LEAGUE_FIXTURES_MATCH_INFO_ALLOC_SIZE,
+    size=LEAGUE_FIXTURES_MATCH_INFO_SIZE,
+    primary_context_offset=LEAGUE_FIXTURES_MATCH_INFO_PRIMARY_CONTEXT_OFFSET,
+    secondary_context_offset=LEAGUE_FIXTURES_MATCH_INFO_SECONDARY_CONTEXT_OFFSET,
+)
+
+
+def league_fixtures_match_info_action(
+    *,
+    fixture_present: bool,
+    linked_context_available: bool,
+) -> LeagueFixturesMatchInfoAction | None:
+    """Mirror the two fail-closed gates before PMatchInfo is opened.
+
+    PLeagueGrid::0x46D390 never calls 0x488C80 for a null matrix fixture.
+    0x488C80 then resolves a linked context from the fixture-derived object's
+    +0x40 index and returns without constructing PMatchInfo when that resolution
+    fails.
+    """
+    if type(fixture_present) is not bool:
+        raise OriginalLeagueFixturesResourceError("fixture_present must be boolean")
+    if type(linked_context_available) is not bool:
+        raise OriginalLeagueFixturesResourceError(
+            "linked_context_available must be boolean"
+        )
+    if not fixture_present or not linked_context_available:
+        return None
+    return LEAGUE_FIXTURES_MATCH_INFO_ACTION
 
 
 @dataclass(frozen=True)
