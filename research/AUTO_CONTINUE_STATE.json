@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 134,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 134: resumed canonical main 1282b5477d4cfed173cc19111a5480876178aa8b after stale heartbeat. Retrying the exact canonical shipped-data multi-season Gate-16 audit in the fresh execution allocation; Gate 13 remains the earliest incomplete validation gate.",
+  "note": "Recovery 134 active: first shell process failed with caas ClientError, so work continued cloud-safe. PR #63 adds the fail-closed canonical multi-season Gate-16 runner and tests; final reconstruction CI run 36857099351 is in progress and asset-policy run 36857099441 passed. A reconstruction runtime bootstrap ZIP matching main 120400bd reconstruction code was persisted at Library /FM2001/Working Runtime/FM2001-reconstruction-runtime-120400bd.zip, removing future git-clone/DNS dependence.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
