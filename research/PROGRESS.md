@@ -9578,3 +9578,30 @@ earliest incomplete validation gate.
   Library ZIPs before launching a process, extract them outside Git, re-verify
   the pinned canonical files, place/invoke the merged multi-season runner, and
   execute at least three consecutive qualification/regeneration cycles.
+
+
+## 1 October 2026 - Recovery 135 canonical multi-season execution
+
+Recovery 135 restored a sustained execution allocation and moved the Gate-16
+canonical multi-season task past the Recovery-134 infrastructure blocker.
+
+The authorized source and persisted reconstruction runtime were materialized
+outside Git. The complete raw MODE1/2352 image passed sector validation across
+268,549 sectors. Canonical `Master.dat`, `Static.dat`, `English.str`, and
+`Core.str` hashes matched, and the executed multi-season runner matched the
+current GitHub blob.
+
+The exact seed-1 three-rollover run advanced for about 22 minutes before the
+runner deliberately failed its fresh-season growth guard on cycle 2:
+
+`(380,380,5735,9344,291,371,311,13)` ->
+`(380,380,5737,9346,291,373,311,13)`.
+
+The delta is narrowly localized: +2 European Cup schedule nodes and the same +2
+entries in the shared primary and shadow schedules. Premier League,
+domestic-Cup, qualification-Cup and procedural-League structure remained
+stable. No Gate-16 pass is claimed. Next work is to identify those exact
+European competition/round nodes, determine whether annual participant-driven
+underfill legitimately changes node cardinality or whether nodes accumulated
+across seasons, encode the result in regression coverage, and rerun the
+canonical audit.
