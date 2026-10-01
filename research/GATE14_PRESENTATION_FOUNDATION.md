@@ -61,8 +61,18 @@ has exactly one video and one audio stream, MP4/H.264/AAC structure, original
 bit-identical to the TGQ. Provenance remains anchored to the original TGQ
 checksum that was validated before conversion.
 
-This closes the repository-side **conversion contract**, not the player-visible
-startup criterion. Still required before making a Gate-14 playback claim:
+The next repository-side layer is `reconstruction/gate14_startup_media_convert.py`.
+It is a deliberately private receipt runner, not a runtime player. It requires
+the original source root, converted output root, and receipt path to remain
+outside Git; validates the exact TGQs before launching a process; refuses
+existing derivative files; records FFmpeg/FFprobe version strings; executes the
+deterministic plans; probes every derivative; hashes the converted bytes; and
+writes one JSON receipt only after the complete requested startup sequence
+passes. A failed conversion/probe never writes a success receipt. The receipt
+retains the neutral `playback_flag_bit0` rather than inventing a skip semantic.
+
+This closes the repository-side **conversion and private receipt contract**, not
+the player-visible startup criterion. Still required before making a Gate-14 playback claim:
 
 1. execute the private conversion/receipt runner against the authorized original TGQs on a healthy process allocation and retain its outside-Git receipt;
 2. integrate a Windows playback surface that consumes only verified derivatives and preserves the proven startup order;
