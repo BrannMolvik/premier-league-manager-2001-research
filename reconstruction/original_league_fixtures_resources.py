@@ -145,20 +145,207 @@ LEAGUE_FIXTURE_DATE_FORMAT = "%02i.%02i"
 LEAGUE_FIXTURES_SELECTED_INDEX_OLD_OFFSET = 0x109B0
 LEAGUE_FIXTURES_SELECTED_INDEX_CURRENT_OFFSET = 0x109B4
 
+# Recovery 153: source-proven PLeagueFixtures matrix/header contract.
+LEAGUE_FIXTURES_MATRIX_BUILD_VA = 0x46D950
+LEAGUE_FIXTURES_MEMBER_PREPARE_VA = 0x4F4940
+LEAGUE_FIXTURES_LAYER_HELPER_VA = 0x616F40
+LEAGUE_FIXTURES_CLUB_TEXT_SETTER_VA = 0x5D5490
+LEAGUE_FIXTURES_CLUB_TEXT_IDENTITY_OFFSET = 0x48
+LEAGUE_FIXTURES_COLUMN_CLUB_TEXT_OFFSET = 0x9A0
+LEAGUE_FIXTURES_ROW_CLUB_TEXT_OFFSET = 0x15D0
+LEAGUE_FIXTURES_CLUB_TEXT_STRIDE = 0x4C
+LEAGUE_FIXTURES_MATRIX_POINTER_OFFSET = 0xA0
+LEAGUE_FIXTURES_COLUMN_WINDOW_OFFSET = 0xA4
+LEAGUE_FIXTURES_MATRIX_MEMBER_INDEX_OFFSET = 0x2A0
+LEAGUE_FIXTURES_GLOBAL_FIXTURE_BUCKETS_VA = 0x947AD8
+LEAGUE_FIXTURES_GLOBAL_FIXTURE_BUCKET_BYTES = 0x5D4
+LEAGUE_FIXTURES_GLOBAL_FIXTURE_BUCKET_COUNT = (
+    LEAGUE_FIXTURES_GLOBAL_FIXTURE_BUCKET_BYTES // 4
+)
+LEAGUE_FIXTURE_MATRIX_KIND_CODE = 1
+LEAGUE_FIXTURE_MATRIX_EXCLUDED_STATUS_BIT = 0x20
+LEAGUE_FIXTURE_MATRIX_COMPETITION_OFFSET = 0x4C
+LEAGUE_FIXTURE_MATRIX_LEFT_SIDE_OFFSET = 0x14
+LEAGUE_FIXTURE_MATRIX_RIGHT_SIDE_OFFSET = 0x28
+LEAGUE_FIXTURES_VISIBLE_COLUMNS = 12
+LEAGUE_FIXTURES_VISIBLE_ROWS = 24
+LEAGUE_FIXTURES_COLUMN_PAGE_STEP = 12
+
+
+def league_fixture_empty_slot_is_self_match(
+    row_club_identity: int,
+    column_club_identity: int,
+) -> bool:
+    """Return the exact empty-slot red predicate from PLeagueGrid.
+
+    Recovery 153 proves both compared values are ClubText+0x48 club identities
+    populated by 0x5D5490 from the same selected competition member list.
+    Pointer equality in the original therefore means the row and column refer
+    to the same club: the impossible self-fixture diagonal.
+    """
+    for label, value in (
+        ("row_club_identity", row_club_identity),
+        ("column_club_identity", column_club_identity),
+    ):
+        if type(value) is not int or value < 0:
+            raise OriginalLeagueFixturesResourceError(
+                f"{label} must be a non-negative canonical club identity"
+            )
+    return row_club_identity == column_club_identity
+
+
+def league_fixture_matrix_accepts_candidate(
+    *,
+    kind_code: int,
+    fixture_competition_identity: int,
+    selected_competition_identity: int,
+    fixture_status_bits: int,
+    left_club_identity: int | None,
+    right_club_identity: int | None,
+) -> bool:
+    """Mirror the fail-closed fixture filters in PLeagueFixtures::0x46D950."""
+    for label, value in (
+        ("kind_code", kind_code),
+        ("fixture_competition_identity", fixture_competition_identity),
+        ("selected_competition_identity", selected_competition_identity),
+        ("fixture_status_bits", fixture_status_bits),
+    ):
+        if type(value) is not int or value < 0:
+            raise OriginalLeagueFixturesResourceError(
+                f"{label} must be a non-negative integer"
+            )
+    for label, value in (
+        ("left_club_identity", left_club_identity),
+        ("right_club_identity", right_club_identity),
+    ):
+        if value is not None and (type(value) is not int or value < 0):
+            raise OriginalLeagueFixturesResourceError(
+                f"{label} must be None or a non-negative canonical club identity"
+            )
+
+    return (
+        kind_code == LEAGUE_FIXTURE_MATRIX_KIND_CODE
+        and fixture_competition_identity == selected_competition_identity
+        and not fixture_status_bits & LEAGUE_FIXTURE_MATRIX_EXCLUDED_STATUS_BIT
+        and left_club_identity is not None
+        and right_club_identity is not None
+    )
+
+
+def league_fixture_matrix_slot(
+    *,
+    club_count: int,
+    left_member_index: int,
+    right_member_index: int,
+    repeat_layer: int = 0,
+) -> int:
+    """Return the exact N*N layer-major matrix slot used by 0x46D950."""
+    for label, value in (
+        ("club_count", club_count),
+        ("left_member_index", left_member_index),
+        ("right_member_index", right_member_index),
+        ("repeat_layer", repeat_layer),
+    ):
+        if type(value) is not int:
+            raise OriginalLeagueFixturesResourceError(f"{label} must be an integer")
+    if club_count <= 0:
+        raise OriginalLeagueFixturesResourceError("club_count must be positive")
+    if not 0 <= left_member_index < club_count:
+        raise OriginalLeagueFixturesResourceError("left_member_index is outside club_count")
+    if not 0 <= right_member_index < club_count:
+        raise OriginalLeagueFixturesResourceError("right_member_index is outside club_count")
+    if repeat_layer < 0:
+        raise OriginalLeagueFixturesResourceError("repeat_layer must be non-negative")
+    return (
+        repeat_layer * club_count * club_count
+        + left_member_index * club_count
+        + right_member_index
+    )
+
+
+def league_fixture_first_free_repeat_slot(
+    occupied: tuple[bool, ...] | list[bool],
+    *,
+    club_count: int,
+    left_member_index: int,
+    right_member_index: int,
+    layer_count: int,
+) -> int:
+    """Mirror the source's N*N stepping for repeated same-pair fixtures."""
+    if type(layer_count) is not int or layer_count <= 0:
+        raise OriginalLeagueFixturesResourceError("layer_count must be positive")
+    required = club_count * club_count * layer_count
+    if len(occupied) != required:
+        raise OriginalLeagueFixturesResourceError(
+            "occupied matrix length does not match club_count and layer_count"
+        )
+    for layer in range(layer_count):
+        slot = league_fixture_matrix_slot(
+            club_count=club_count,
+            left_member_index=left_member_index,
+            right_member_index=right_member_index,
+            repeat_layer=layer,
+        )
+        if not occupied[slot]:
+            return slot
+    raise OriginalLeagueFixturesResourceError(
+        "all source-allocated repeat layers are already occupied"
+    )
+
+
+def league_fixtures_column_page_offset(
+    current_offset: int,
+    club_count: int,
+    direction: int,
+) -> int:
+    """Mirror the reachable +/-12 column paging behavior at 0x46E489/0x46E4AB."""
+    for label, value in (("current_offset", current_offset), ("club_count", club_count)):
+        if type(value) is not int:
+            raise OriginalLeagueFixturesResourceError(f"{label} must be an integer")
+    if club_count < 0:
+        raise OriginalLeagueFixturesResourceError("club_count must be non-negative")
+    max_offset = max(0, club_count - LEAGUE_FIXTURES_VISIBLE_COLUMNS)
+    if not 0 <= current_offset <= max_offset:
+        raise OriginalLeagueFixturesResourceError(
+            "current_offset is outside the source-reachable column window"
+        )
+    if direction not in (-1, 1):
+        raise OriginalLeagueFixturesResourceError("direction must be -1 or 1")
+    if direction < 0:
+        return max(0, current_offset - LEAGUE_FIXTURES_COLUMN_PAGE_STEP)
+    return min(max_offset, current_offset + LEAGUE_FIXTURES_COLUMN_PAGE_STEP)
+
+
+def validate_league_fixtures_grid_selection_index(index: int, *, axis: str) -> int:
+    """Validate the exact visible selector ranges routed by the panel dispatcher."""
+    if type(index) is not int:
+        raise OriginalLeagueFixturesResourceError("grid selection index must be an integer")
+    if axis == "column":
+        limit = LEAGUE_FIXTURES_VISIBLE_COLUMNS
+    elif axis == "row":
+        limit = LEAGUE_FIXTURES_VISIBLE_ROWS
+    else:
+        raise OriginalLeagueFixturesResourceError("axis must be 'column' or 'row'")
+    if not 0 <= index < limit:
+        raise OriginalLeagueFixturesResourceError(
+            f"{axis} selection index must be in 0..{limit - 1}"
+        )
+    return index
+
 
 def league_fixture_base_box(
     *,
     fixture_present: bool,
     fixture_status_bits: int = 0,
-    empty_slot_red_predicate: bool = False,
+    empty_slot_same_club: bool = False,
 ) -> OriginalLeagueFixturesResource:
     """Mirror the base box-selection rules in the recovered row/update paths.
 
     For a populated fixture, status bit 0 selects the completed score-display
     path and its original played_fixtures_box; otherwise the date path uses
-    date_fixtures_box. For an empty slot, the source compares panel-owned table
-    identities (or receives the equivalent boolean in the row helper); that
-    still-unresolved predicate selects red_fixtures_box versus date_fixtures_box.
+    date_fixtures_box. For an empty slot, Recovery 153 proves the source
+    boolean is row-club == column-club, marking the impossible self-fixture
+    diagonal red while other empty slots retain date_fixtures_box.
     """
     if type(fixture_present) is not bool:
         raise OriginalLeagueFixturesResourceError("fixture_present must be boolean")
@@ -166,9 +353,9 @@ def league_fixture_base_box(
         raise OriginalLeagueFixturesResourceError(
             "fixture_status_bits must be a non-negative integer"
         )
-    if type(empty_slot_red_predicate) is not bool:
+    if type(empty_slot_same_club) is not bool:
         raise OriginalLeagueFixturesResourceError(
-            "empty_slot_red_predicate must be boolean"
+            "empty_slot_same_club must be boolean"
         )
     if fixture_present:
         return (
@@ -176,14 +363,14 @@ def league_fixture_base_box(
             if fixture_status_bits & LEAGUE_FIXTURE_STATUS_COMPLETE_BIT
             else DATE_FIXTURES_BOX
         )
-    return RED_FIXTURES_BOX if empty_slot_red_predicate else DATE_FIXTURES_BOX
+    return RED_FIXTURES_BOX if empty_slot_same_club else DATE_FIXTURES_BOX
 
 
 def league_fixture_box_for_cell(
     *,
     fixture_present: bool,
     fixture_status_bits: int = 0,
-    empty_slot_red_predicate: bool = False,
+    empty_slot_same_club: bool = False,
     selected: bool = False,
 ) -> OriginalLeagueFixturesResource:
     """Apply the source-proven selected-cell overlay after the base box rule."""
@@ -194,7 +381,7 @@ def league_fixture_box_for_cell(
     return league_fixture_base_box(
         fixture_present=fixture_present,
         fixture_status_bits=fixture_status_bits,
-        empty_slot_red_predicate=empty_slot_red_predicate,
+        empty_slot_same_club=empty_slot_same_club,
     )
 
 
