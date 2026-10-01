@@ -38,6 +38,68 @@ PMATCHINFO_SUBPANEL_VFTABLE_VA = 0x7C426C
 PMATCHINFO_SUBPANEL_COL_VA = 0x7E4BD0
 
 
+PMATCHINFO_BITMAP_DESCRIPTOR_SETUP_VA = 0x64E500
+PMATCHINFO_CONTROL_RECT_SETUP_VA = 0x64F380
+
+# The fifth argument to 0x64F380 is stored at control+0x28 and receives a
+# virtual callback with the control. Fresh RTTI proves the concrete global
+# passed by these PMatchInfo setup paths is eCDBitmap, not a text/font object.
+# Keep its role neutral rather than inventing a modern widget-owner label.
+PMATCHINFO_CONTROL_CALLBACK_TARGET_VA = 0x87BF00
+PMATCHINFO_CONTROL_CALLBACK_TARGET_CLASS = "eCDBitmap"
+PMATCHINFO_CONTROL_CALLBACK_TARGET_TYPE_DESCRIPTOR_VA = 0x819C48
+PMATCHINFO_CONTROL_CALLBACK_TARGET_COL_VA = 0x7E1248
+PMATCHINFO_CONTROL_CALLBACK_TARGET_VFTABLE_VA = 0x7BFE14
+
+
+@dataclass(frozen=True)
+class OriginalPMatchInfoPlacement:
+    resource_name: str
+    owner_method_va: int
+    resource_bind_va: int
+    rect_setup_call_va: int
+    x: int
+    y: int
+    width: int
+    height: int
+    callback_target_va: int | None = PMATCHINFO_CONTROL_CALLBACK_TARGET_VA
+
+    @property
+    def rect(self) -> tuple[int, int, int, int]:
+        return (self.x, self.y, self.width, self.height)
+
+
+PMATCHINFO_RESOURCE_PLACEMENTS = (
+    OriginalPMatchInfoPlacement(
+        "match_name_grid", 0x483500, 0x483541, 0x483591, 0, 0, 185, 36
+    ),
+    OriginalPMatchInfoPlacement(
+        "match_incid_grid", 0x483500, 0x4835AD, 0x4835E7, 189, 0, 142, 36
+    ),
+    OriginalPMatchInfoPlacement(
+        "yellow_card", 0x483500, 0x48366D, 0x483674, 191, 11, 14, 14
+    ),
+    OriginalPMatchInfoPlacement(
+        "match_name_grid", 0x483750, 0x483784, 0x4837D0, 0, 0, 185, 36
+    ),
+    OriginalPMatchInfoPlacement(
+        "match_incid_grid", 0x483750, 0x4837EC, 0x483826, 189, 0, 142, 36
+    ),
+    OriginalPMatchInfoPlacement(
+        "info_player", 0x483840, 0x4838AC, 0x4838B3, 0, 0, 274, 16
+    ),
+    OriginalPMatchInfoPlacement(
+        "info_player_disabled", 0x483A30, 0x483A81, 0x483A88, 0, 0, 252, 16
+    ),
+    OriginalPMatchInfoPlacement(
+        "pitch_normal", 0x483AA0, 0x483B1E, 0x483B72, 233, -2, 294, 78
+    ),
+    OriginalPMatchInfoPlacement(
+        "info_popup", 0x484F90, 0x484FFF, 0x485059, 0, 0, 760, 500
+    ),
+)
+
+
 @dataclass(frozen=True)
 class OriginalPMatchInfoResource:
     name: str
@@ -202,6 +264,46 @@ PMATCHINFO_RESOURCES = (
 )
 
 PMATCHINFO_RESOURCE_BY_NAME = {resource.name: resource for resource in PMATCHINFO_RESOURCES}
+
+
+def pmatchinfo_placements_for_resource(
+    resource_name: str,
+) -> tuple[OriginalPMatchInfoPlacement, ...]:
+    """Return only source-proven local 0x64F380 placements for a resource."""
+    if not isinstance(resource_name, str) or not resource_name:
+        raise OriginalPMatchInfoResourceError(
+            "PMatchInfo placement resource name must be a non-empty string"
+        )
+    if resource_name not in PMATCHINFO_RESOURCE_BY_NAME:
+        raise OriginalPMatchInfoResourceError(
+            f"Unknown PMatchInfo resource for placement: {resource_name}"
+        )
+    return tuple(
+        placement
+        for placement in PMATCHINFO_RESOURCE_PLACEMENTS
+        if placement.resource_name == resource_name
+    )
+
+
+def assert_pmatchinfo_placement_resources_are_bound() -> None:
+    """Reject geometry that points at a resource outside the verified family."""
+    for placement in PMATCHINFO_RESOURCE_PLACEMENTS:
+        try:
+            resource = PMATCHINFO_RESOURCE_BY_NAME[placement.resource_name]
+        except KeyError as exc:
+            raise OriginalPMatchInfoResourceError(
+                f"Placement references unbound PMatchInfo resource: "
+                f"{placement.resource_name}"
+            ) from exc
+        if placement.width <= 0 or placement.height <= 0:
+            raise OriginalPMatchInfoResourceError(
+                f"Invalid PMatchInfo placement size for {placement.resource_name}"
+            )
+        if placement.width > resource.size[0] or placement.height > resource.size[1]:
+            raise OriginalPMatchInfoResourceError(
+                f"PMatchInfo placement exceeds source geometry: "
+                f"{placement.resource_name}"
+            )
 
 
 def validate_original_pmatchinfo_resources(
