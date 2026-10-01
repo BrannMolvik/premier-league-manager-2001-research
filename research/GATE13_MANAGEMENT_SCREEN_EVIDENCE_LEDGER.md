@@ -29,8 +29,8 @@ visually reconstructed.
 | --- | --- | --- | --- |
 | Main menu / TeamSelect | **Proven.** PStartMenu screen ID `0x323`, vtable `0x7C64E0`; `PMain@TeamSelect` vtable `0x7C7650` | PStartMenu/TeamSelect constructors, event IDs, action rectangles, original English STR/IDX menu labels, native Button atlas-state mapping, Zurich caption placement/color and exact first-slice source paths are recorded | **Partial.** The strict ten-resource audit/import and PStartMenu native-caption live-view integration are complete. TeamSelect hierarchy content/interaction and the real Windows graphical validation remain open |
 | Manager home | **No persisted original panel identity** | Read-only bridge can expose controlled-club original name/short name and current game date | **Open.** No original manager-home screen class, screen ID, exact resource path, layout, controls or navigation edge has been correlated |
-| Squad | **No distinct original Squad panel identity proven** | Ordered live team roster at `+0x244` / count `+0x294`; participant collector `0x510CD0`; DBRPlayer active/substitute flags and setters are now contract-locked | **Open.** Do not treat `PTeamOrders2K` as proof of the general Squad screen. Original squad graphics, columns, status icons, sort, geometry and navigation remain unknown |
-| Tactics / team selection | **Partially proven.** `PFormation2k`; `PTeamOrders2K` | `PFormation2k` vtable `0x7C1AB4`; five native formation records; Team Orders RTTI neighborhood and source path `Applications\\FootballManager\\SquadPan.cpp`; four ordered set-piece/captain categories | **Open.** Original resource bindings, slot geometry, widget IDs, gestures and navigation remain uncorrelated |
+| Squad | **Proven: `PSquadScreen`.** TypeDescriptor `0x819D48`, vtable `0x7C5CA4`, setup `0x4B5720` | Ordered live roster contract plus exact `squad_but_anim.444` binding and three setup origins `(37,92)`, `(113,92)`, `(189,92)` | **Partial.** Distinct panel identity and one atlas binding are proven/imported. Button meanings/frame partition, roster columns/icons/sort and navigation remain unknown |
+| Tactics / team selection | **Partially proven.** `PFormation2k`; `PTeamOrders2K`; `PSquadPitch`; `FormationText` | `PFormation2k` vtable `0x7C1AB4`; exact `squad_bars.444` and `squad_form_anim.444` consumers in `FormationText`; five native formation records; Team Orders source path `Applications\\FootballManager\\SquadPan.cpp` | **Partial.** The two formation resources are proven/imported, but their caller-supplied geometry, remaining controls, gestures and navigation are unresolved |
 | Fixtures / results | **No persisted original panel identity** | `DBTRealFixtures` / `DBRRealFixture` / `DBTRounds` construction and source insertion order are recovered; executable retains `Season.cpp` source-path metadata | **Open.** Original screen comparator/order, graphics, geometry, controls and navigation remain unknown |
 | League table | **No persisted original panel identity** | Native League comparator `0x4F45E0` and its six-field ordering contract are recovered | **Open.** Original table panel class, header/row artwork, geometry, controls and navigation remain unknown |
 | Player profile | **No persisted original panel identity** | `DBTPlayers` / `DBRPlayer` runtime identity and current-skill vector boundary are recovered | **Open.** Original profile panel, visible field/column mapping, icons, resource/layout and visibility rules remain unknown |
@@ -192,29 +192,16 @@ Verification on PR head
 
 ## Current blocker and exact next action
 
-The first-screen Button/Zurich source path, ten-resource import, PStartMenu live
-caption integration, and the first exact Scouting resource composition fragment
-are complete.
+The four-candidate Squad correlation is complete. It proves the distinct
+`PSquadScreen` owner for `squad_but_anim.444`, the `FormationText` ownership of
+`squad_bars.444` and `squad_form_anim.444`, and the negative boundary that
+shared `blue_toggle.444` has no `PSquadScreen` consumer. All four are imported
+and fail-closed by deterministic hash/header/owner tests. Full evidence is in
+`research/GATE13_SQUAD_RESOURCE_CORRELATION.md`.
 
-The next resource-correlation task is **Squad**. Recovery 120's private
-whole-disc report found four exact Squad candidates, but those raw/private
-reports were intentionally kept outside Git. This cloud worker still returns
-`ClientError` before even a trivial shell/Python process starts, so it cannot
-re-open the private catalog/executable to establish ownership. Filename or
-directory similarity is not sufficient evidence.
-
-Exact next steps when private/local execution is available:
-
-1. use the saved whole-disc catalog to enumerate the four exact Squad paths;
-2. find their canonical-executable literals/xrefs and the owning panel/setup
-   method;
-3. import only resources with proven ownership and persist their geometry;
-4. run deterministic composition tests for that bounded Squad fragment;
-5. run the real Windows PStartMenu/TeamSelect graphical audit using the
-   integrated native captions and source-backed Button animation;
-6. continue the same correlation discipline across the remaining management
-   screens before closing Gate 13.
-
-No user action is required merely because this cloud process backend is
-unavailable; the runtime remains continuous so a working local/recovery worker
-can take the exact next step.
+Next, expand outward from `PSquadScreen::0x4B5720` to recover the three button
+bindings/captions and surrounding roster presentation without splitting the
+73x575 atlas by arithmetic guesswork. Trace the callers that provide
+`FormationText` geometry separately. The real Windows PStartMenu/TeamSelect
+graphical audit and remaining management-screen correlations are still
+required before Gate 13 can close.

@@ -9274,3 +9274,18 @@ invent original visual or control semantics.
   one Squad resource -> true panel-owner binding, followed by the real Windows
   first-screen/normal-play audit.
 
+## 1 October 2026 KST - Gate 13 Squad resource ownership recovered
+
+- Re-synchronized clean local main at
+  `cad50f8d9fa45f57608971db3eff5f2bbc817d47` and read recovery generation 124.
+- Re-verified the authorized ZIP and canonical executable hashes, then reused
+  the private whole-disc catalog and Capstone environment.
+- Enumerated and extracted the four exact Squad catalog candidates. Exact
+  literal/loader/wrapper tracing and RTTI recovered `PSquadScreen`,
+  `FormationText`/`PSquadPitch`, and the four actual shared `blue_toggle`
+  consumers.
+- Provenance-imported all four resources and added fail-closed hash, native
+  geometry, owner-boundary and `PSquadScreen` origin tests.
+- Preserved exhaustive binary reports outside Git. No archive, executable,
+  disc image or uncontrolled dump was added.
+

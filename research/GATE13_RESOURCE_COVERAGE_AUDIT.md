@@ -60,8 +60,8 @@ remain incomplete.
 | --- | --- | --- |
 | Main menu / TeamSelect | Yes | **Partial.** Button atlas-state, PStartMenu text placement/color endpoints, strict source audit, ten-resource import and live developer-caption integration are complete; TeamSelect hierarchy content/interaction and Windows graphical validation remain open. |
 | Manager home | Controlled-club identity/date available | **Open.** No completed original screen resource/layout/navigation correlation. |
-| Squad | Source-order roster/player state plus verified ordered-roster active/substitute presentation contract available | **Open.** No completed original squad graphics, columns, icons, geometry, controls or sorting/navigation proof; no distinct general Squad panel identity is yet proven. |
-| Tactics/team selection | Formation, XI/bench and tactical state available; PFormation2k five-record family and PTeamOrders2K captain/penalty/corner/free-kick order semantics now have a verified presentation contract | **Open.** Original control IDs/bindings, graphics, player-slot geometry, gestures and navigation remain unresolved. |
+| Squad | Source-order roster/player state plus verified ordered-roster contract; distinct `PSquadScreen` RTTI identity, exact `squad_but_anim.444` binding and three setup origins are proven | **Partial.** The atlas is provenance-imported and guarded, but its button meanings/frame partition plus roster columns/icons/sort/navigation remain unresolved. |
+| Tactics/team selection | Formation, XI/bench and tactical state; `PFormation2k`, `PTeamOrders2K`, `PSquadPitch` and `FormationText` identities; exact `squad_bars.444` / `squad_form_anim.444` bindings | **Partial.** Both resources are provenance-imported, but caller-supplied geometry, remaining controls, gestures and navigation remain unresolved. |
 | Fixtures/results | Verified DBTRealFixtures/DBRRealFixture construction contract plus source fixture dates/results are available | **Open.** Original screen row ordering/comparator, resources, geometry and navigation are not yet recovered. |
 | League table | Native League comparator-aware rows plus a verified six-field presentation ordering contract are available | **Open.** Original table artwork/header geometry/controls/navigation remain unrecovered. |
 | Player profile | Source/runtime profile projection plus verified DBTPlayers/DBRPlayer identity/vector-boundary contract available | **Open.** Original field-to-column/icon mapping, resource/layout and visibility rules remain unresolved. |
@@ -95,7 +95,7 @@ That blocker was cleared by the Windows-local recovery documented in
 
 Current remaining work:
 
-1. recover one source-backed Squad resource -> actual panel-owner binding from the private whole-disc catalog and canonical executable, then continue the same correlation discipline across the other incomplete management screen families;
+1. expand the proven `PSquadScreen::0x4B5720` anchor into source-backed button meanings/captions and roster layout, then continue the same correlation discipline across the other incomplete management screen families;
 2. preserve original strings/fonts/art where usable, documenting only genuinely incompatible/inaccessible replacements;
 3. recover TeamSelect hierarchy item/interaction semantics rather than inferring them from source art or the secondary screenshot;
 4. maintain the explicit per-screen resource/layout/navigation evidence table until every normal-play presentation area is covered;

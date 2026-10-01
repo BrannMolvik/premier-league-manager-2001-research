@@ -4,10 +4,11 @@ _Date: 1 October 2026 KST_
 
 ## Scope
 
-This checkpoint promotes already recovered ordered-team-roster and
+This checkpoint originally promoted the recovered ordered-team-roster and
 DBRPlayer match-selection state into the Gate-13 read-only presentation seam.
-It does **not** claim the original Squad screen class, row sort, visible columns,
-layout, artwork or navigation.
+Later local executable work has now proven the distinct `PSquadScreen` class
+and one exact resource binding; the backend contract below remains unchanged.
+See `research/GATE13_SQUAD_RESOURCE_CORRELATION.md` for that later evidence.
 
 ## Ordered team roster
 
@@ -70,20 +71,22 @@ selection flags, reorder the roster or simulate a match.
 
 The contract intentionally contains no:
 
-- original Squad panel RTTI class or numeric screen ID;
+- original numeric screen ID;
 - proof of the original Squad screen's row comparator/sort;
 - visible column names or their order;
 - status icon or color bindings;
 - row/column rectangles;
-- original art/resource paths;
+- meanings or frame partition for the imported 73x575 button atlas;
 - font/alignment rules;
 - click, drag/drop or navigation mappings.
 
-Those remain open Gate-13 presentation/resource work.
+Those remain open Gate-13 presentation/resource work. The later trace does
+prove `PSquadScreen` TypeDescriptor `0x819D48`, vtable `0x7C5CA4`, setup
+`0x4B5720`, exact `squad_but_anim.444` provenance, and three button origins.
 
 ## Gate 13 consequence
 
-The Squad data seam now has an instruction-backed ordered-roster and
-active/substitute-state contract. This narrows the backend-to-presentation
-boundary without pretending that the original Squad screen itself has been
-recovered.
+The Squad data seam has an instruction-backed ordered-roster and
+active/substitute-state contract. The later resource trace adds the real
+`PSquadScreen` identity and a bounded original-art anchor without promoting the
+still-unknown roster layout or control meanings.

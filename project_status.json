@@ -14,7 +14,7 @@
   "last_verified_test_count": 1074,
   "asset_policy_validated_head": "db7c463dcfb482bdea938798ba9e545888a53bf4",
   "asset_policy_status": "passed",
-  "active_task": "Gate13 PStartMenu native captions are integrated into the live developer view and the exact two-resource PScouting2K composition fragment is implemented/verified. Exact next source task: correlate one of the four private Squad catalog resources to its actual canonical-executable panel owner, then import/test only proven geometry; run the real Windows PStartMenu/TeamSelect graphical audit and continue remaining management screens before Gate14.",
+  "active_task": "Gate13 Squad ownership correlation is complete: PSquadScreen and its exact squad_but_anim binding/origins are proven; FormationText owns squad_bars/squad_form_anim; blue_toggle is shared and not PSquadScreen evidence. Exact next source task: recover PSquadScreen button bindings/captions and surrounding roster layout without guessing atlas partitions, trace FormationText callers, then run the Windows graphical audit and continue remaining screens before Gate14.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate13 PStartMenu native captions are integrated into the live developer view and the exact two-resource PScouting2K composition fragment is implemented/verified. Exact next source task: correlate one of the four private Squad catalog resources to its actual canonical-executable panel owner, then import/test only proven geometry; run the real Windows PStartMenu/TeamSelect graphical audit and continue remaining management screens before Gate14.",
+  "current_task": "Gate13 Squad ownership correlation is complete: PSquadScreen and its exact squad_but_anim binding/origins are proven; FormationText owns squad_bars/squad_form_anim; blue_toggle is shared and not PSquadScreen evidence. Exact next source task: recover PSquadScreen button bindings/captions and surrounding roster layout without guessing atlas partitions, trace FormationText callers, then run the Windows graphical audit and continue remaining screens before Gate14.",
   "last_verified_reconstruction_failures": 0,
   "last_verified_asset_policy_head": "db7c463dcfb482bdea938798ba9e545888a53bf4",
   "gate11_danger_morale_request_integrated": true,
@@ -608,7 +608,12 @@
   "gate13_focused_test_count": 249,
   "gate13_focused_expected_skips": 20,
   "gate13_asset_policy_run": 36814179303,
-  "gate13_squad_resource_panel_binding": false,
+  "gate13_squad_resource_panel_binding": true,
+  "gate13_squad_resource_evidence": "research/GATE13_SQUAD_RESOURCE_CORRELATION.md",
+  "gate13_squad_screen_type_descriptor": "0x819D48",
+  "gate13_squad_screen_vftable": "0x7C5CA4",
+  "gate13_squad_screen_setup": "0x4B5720",
+  "gate13_squad_resource_count_imported": 4,
   "gate13_windows_graphical_audit": false,
   "gate13_cloud_process_execution_status": "blocked_clienterror_recovery_123"
 }

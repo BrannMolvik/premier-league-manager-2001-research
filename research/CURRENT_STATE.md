@@ -23,6 +23,30 @@ Evidence:
 - `research/GATE12_ENGLISH_SEASON_TRANSITION.md`
 - `research/GATE12_NEXT_SEASON_REGENERATION.md`
 
+## Local recovery: Squad resource ownership correlated
+
+- Resumed clean canonical main
+  `cad50f8d9fa45f57608971db3eff5f2bbc817d47`. The authorized ZIP and private
+  executable re-verified at their pinned SHA-256 values before analysis.
+- The saved whole-disc catalog's four exact Squad candidates were traced
+  through exact path literals, `0x64D750` resource handles, `0x64E500`
+  wrappers, consumers and RTTI-backed presentation owners.
+- Distinct general panel identity is now proven: `PSquadScreen` TypeDescriptor
+  `0x819D48`, vtable `0x7C5CA4`, setup method `0x4B5720`.
+  `squad_but_anim.444` is used at exact origins `(37,92)`, `(113,92)` and
+  `(189,92)`.
+- `squad_bars.444` and `squad_form_anim.444` belong to `FormationText`, a type
+  embedded by `PSquadPitch`. `blue_toggle.444` is shared by `PFormation2k`,
+  `PSCFTitle`, `PTraining` and `PYouthTeam`; it is not `PSquadScreen` evidence.
+- All four exact resources are provenance-imported. A fail-closed contract and
+  tests lock hashes, native header sizes, owner boundaries and recovered Squad
+  button origins. See `research/GATE13_SQUAD_RESOURCE_CORRELATION.md`.
+- Exact next Gate-13 work: recover the three `PSquadScreen` button
+  bindings/captions and surrounding roster layout without guessing atlas frame
+  partitions; separately recover the callers supplying `FormationText`
+  geometry. The real Windows PStartMenu/TeamSelect graphical audit and wider
+  management-screen correlations remain mandatory before Gate 13 closes.
+
 ## Recovery 123: native menu captions + Scouting composition verified
 
 - PR #47 was squash-merged as
