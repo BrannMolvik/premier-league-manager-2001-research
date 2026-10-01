@@ -9465,3 +9465,32 @@ earliest incomplete validation gate.
   periodic save/reload during five-year autonomous transfer churn, with
   movement history required to remain exactly event-proportional and transient
   transfer containers required to stay empty.
+
+
+## 1 October 2026 - Gate 16 transfer history save/reload continuation verified
+
+- PR #60 added yearly schema-34 `GameState` round-trips to the existing
+  five-year/260-week autonomous-transfer churn at weeks 52, 104, 156, 208 and
+  260.
+- The persistence fixture uses a separate immutable synthetic source database,
+  so reloading cannot validate against player ownership already mutated by the
+  live transfer run.
+- Each checkpoint requires exact before/after state-snapshot equality,
+  byte-identical compact JSON reserialization, exact movement-history count,
+  empty transient proposal/deal/bid-log/scheduled-transfer containers, and
+  complete roster-integrity invariants.
+- The complete periodically reloaded five-year run must match a never-reloaded
+  run from the same CRT seed across successful acquisition count, ordered
+  movement history, per-player movement counts, final rosters, autonomous buy
+  counters, final RNG state and final date.
+- Final reconstruction run `36849081411` passed **1,134 tests** in 298.926
+  seconds with **22 expected source-gated skips and zero failures**.
+  Asset-policy run `36849081409` passed.
+- PR #60 squash-merged as
+  `c640e5cb7dad46926e67a35caa34b83deb99c2cf`.
+- Recovery 132 also re-established private canonical source access: the exact
+  511,121,336-byte Library disc archive materialized successfully; its canonical
+  ZIP SHA-256 matched, and direct ISO-9660 extraction produced `Master.dat`,
+  `Static.dat`, `English.str`, `Core.str` and `FOOTBAL.EXE` matching all
+  pinned repository hashes. The next Gate-16 target is therefore canonical
+  shipped-data multi-season execution rather than another synthetic stress.
