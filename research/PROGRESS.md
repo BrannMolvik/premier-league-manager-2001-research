@@ -9757,3 +9757,12 @@ canonical audit.
 - Continued directly through the canonical management panel factory `0x47AEC0` using exact PMenu IDs already recovered from the static tree.
 - Factory dispatch and RTTI now prove `0x259 Calendar -> PCalendar2k` (case `0x47C62B`, ctor `0x47CCB0`, vtable `0x7C2F04`), `0x25A League Tables -> PLeagueTables` (case `0x47C6D1`, ctor `0x448640`, vtable `0x7C00C8`), `0x25B Cup Tables -> PCupTable2000` (case `0x47C67E`, ctor `0x44EC80`, vtable `0x7C0A78`), and direct `0x25C League Fixtures -> PLeagueFixtures` (case `0x47C724`, ctor `0x46D470`, vtable `0x7C24B8`).
 - This closes the prior Fixtures/results concrete panel-identity gap for League Fixtures. Screen art, geometry, row sorting/order, date/result bindings and full navigation remain open rather than inferred from the class name.
+
+
+## 2 October 2026 - Recovery 150 League Fixtures resource ownership
+
+- PR #80 merged as `9da4c89f67aaba7b263354591497d596ca50edd1` after focused Gate-13 run `36916343766` passed 303 tests with 21 expected source-gated skips and asset policy passed in `36916343760`.
+- Continued directly inside source-proven `PLeagueFixtures` setup `0x46AA70` and the canonical static graphic initializers.
+- Bound six exact original paths to raw/wrapper handles and privately revalidated their original disc bytes: four 24x13 fixture boxes plus 132x52 horizontal and 24x528 vertical grid graphics. Every file matched the persisted SHA-256, byte size, dimensions and EA444 descriptor.
+- `fixtures_vert_grid.444` wrapper `0x9449F0` is passed to `0x5D5280` exactly 12 times at `(378+29*n,98)`; `fixtures_hori_grid.444` wrapper `0x944A30` is passed exactly 24 times at `(241,235+14*n)`. The source helper calls are preserved rather than pretending resource dimensions equal logical cell dimensions.
+- The four 24x13 wrappers `0x944B30/0x944AF0/0x944AB0/0x944A70` are selected inside contiguous PLeagueFixtures methods around `0x46CA40..0x46D25B`; their exact runtime state/result meanings remain open pending data-flow trace.
