@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Continue Gate 13 from canonical main 334e5669268e94ed572ff6c6d388f7bd844a61dc. Squad panel geometry, events 3/4/5 view transitions, and all 22 paired FormationText row rectangles/IDs are now source-proven and tested. Exact next source task: recover CBasePlayerList row/column/status bindings and FormationText state-to-frame selection without guessing atlas semantics. Then perform the real Windows PStartMenu/TeamSelect graphical audit, recover TeamSelect hierarchy semantics, and continue remaining management-screen correlations before Gate 13 can close.",
-  "last_known_main_head": "0599c15b7064865a239614db213d0873a3460a93",
+  "active_task": "Continue Gate 13 from canonical main 14a7b47b3328475f8218350c0fc03e7786e4537b. Do not repeat Squad ownership/captions/geometry/transitions or rebuild the trace utility. Exact next source task: on a working private/local execution path run reconstruction/gate13_squad_source_trace.py against the verified canonical executable, adjudicate CBasePlayerList row/column/status reads and FormationText value-to-frame selection without guessing, then promote only directly proven bindings. Afterward perform the mandatory real Windows PStartMenu/TeamSelect graphical audit and continue remaining management-screen correlations before Gate 13 can close.",
+  "last_known_main_head": "14a7b47b3328475f8218350c0fc03e7786e4537b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -19,8 +19,8 @@
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 124,
-  "last_recovery_reason": "sandbox-failure-recovery-hardening",
-  "note": "Local Codex completed and pushed the Squad panel geometry/state-transition checkpoint at main 334e5669268e94ed572ff6c6d388f7bd844a61dc. Continuous ChatGPT ownership is restored. Reuse the durable research and tests; do not repeat the caption, resource, panel-geometry, transition, or 22-row FormationText work. Resume with the exact CBasePlayerList and FormationText state-selection traces, then the mandatory Windows graphical audit. Extension v0.4.0 on main 0599c15 detects Analysis errored/caas.internal.errors.ClientError outside conversation messages and immediately opens a fresh inactive worker chat rather than retrying the same likely-bad sandbox allocation. Normal network/Retry failures still recover in place. Reload the unpacked extension and refresh the worker tab once to activate v0.4.0.",
+  "last_recovery_reason": "manual-start-cloud-sandbox-clienterror",
+  "note": "This cloud worker reconciled newer main 0599c15, materialized the canonical private source ZIP, but both shell and Python execution failed before process start with caas.internal.errors.ClientError. PR #48 added and CI-verified a fail-closed Squad-specific native trace; Gate-13 CI 36822999900 and asset-policy 36822999889 passed, PR #48 squash-merged as cf2b5c18a18a2b05f061d41e2c39a5363a8f643b, and CURRENT_STATE was checkpointed at main 14a7b47b3328475f8218350c0fc03e7786e4537b. Next worker must run the new trace on a working private/local executable path, not recreate it.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
