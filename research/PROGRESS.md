@@ -9800,3 +9800,14 @@ canonical audit.
 - `0x46D840` reads country competition array/count at `+0x48/+0x4C`, dynamically casts `LeagueBase` (TypeDescriptor `0x818AA0`) to concrete `League` (TypeDescriptor `0x818978`) through `__RTDynamicCast 0x668995`, retains resolved League pointers at panel `+0x88`, and uses exact `League+0x14` captions. The screen owns six League controls; unused controls are source-cleared/hidden.
 - Dispatcher events 1..8 select country indices 0..7 and rebuild League radios + matrix + view; events 9..14 select League indices 0..5 and rebuild matrix + view. No generic modern competition merge/filter is introduced.
 - Added exact selector helpers/regressions covering country IDs/order/events/offsets, RTTI/control addresses, six-League bounds, exact captions/selection state, current-League lookup and event dispatch. Exact next task after CI is remaining League Fixtures non-selector shell/action semantics or the next highest-priority Gate-13 presentation slice.
+
+
+## 2 October 2026 - Recovery 155 League Fixtures PMatchInfo navigation
+
+- PR #84 merged as `501707f396aa2af7ca66dffcd7a5ecf8189c4df7`; Gate-13 run `36923762250` passed 330 tests with 21 expected source-gated skips and asset-policy run `36923762398` passed.
+- Continued from the previously address-only `PLeagueGrid::0x46D390 -> 0x488C80` populated-cell action. The grid loads the exact matrix fixture pointer, skips null cells, and pushes that fixture pointer directly into `0x488C80`.
+- `0x488C80` calls fixture virtual slot `+0x18`, reads a signed 16-bit link index from the returned object `+0x40`, and resolves a secondary linked context through global `0x8755F8`. Missing/sentinel/unresolvable context exits without constructing a dialog.
+- With a resolved context, `0x488C80` allocates exactly `0x1828` bytes and calls constructor `0x487580`. That constructor begins from `PExplodingDialog` vtable `0x7C0D54` / TypeDescriptor `0x81BB38` and finishes with vtable `0x7C41D4`; RTTI TypeDescriptor `0x81D058` identifies **PMatchInfo**.
+- Constructor arg1 is the fixture-derived object from virtual +0x18 and is stored at PMatchInfo `+0x70`; arg2 is the resolved linked context stored at `+0x74`. The higher-level class/name of that secondary context remains neutral.
+- Generic geometry helper `0x653320` proves the dialog width/height supplied by `0x488C80` are 760x500; x/y are dynamically clamped from source UI globals rather than fixed by this checkpoint.
+- Added a fail-closed `LeagueFixturesMatchInfoAction` clean-room contract and regressions. Exact next work after CI is PMatchInfo internal presentation/resources or remaining League Fixtures non-selector controls; no modern match-info route is synthesized.
