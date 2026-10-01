@@ -72,12 +72,13 @@ Evidence:
   asset-policy run `36849081409` passed. The periodically reloaded run matches
   a never-reloaded run from the same seed across the full movement history,
   rosters, counters, RNG state and final date.
-- **Exact next task:** extend canonical Gate-16 seed coverage now that the
-  corrected seed-1 shipped-data three-rollover audit passes. Recovery 137 has
-  launched the same three-rollover audit with player seed 2. Persist that result
-  and convert any failure into a regression; if it passes, continue the next
-  highest-value independent cloud-safe Gate-16 stress while Gate 13's real
-  Windows graphical audit remains the earliest incomplete prerequisite.
+- **Exact next task:** Gate 16's present roadmap criteria are now prevalidated
+  by the synthetic stress suite plus two passing canonical shipped-data
+  three-rollover seeds. Do not mark Gate 16 complete before earlier gates close.
+  Continue the next earlier independent cloud-safe fidelity task in Gate 15:
+  recover the secondary startup exact equal-key permutation and mode-1 per-date
+  bucket shape from the canonical executable/real input, replacing the current
+  aggregate-only synthetic partition without guessing.
 - **Recovery 133 execution blocker:** the fresh allocation launched one trivial
   shell process successfully, but direct `git clone` could not resolve
   `github.com`. The GitHub connector remained healthy and the canonical
@@ -151,6 +152,16 @@ Evidence:
   `research/evidence/GATE16_CANONICAL_MULTISEASON_SEED1_RECOVERY137.json`.
   Recovery 137 has started the same three-rollover canonical audit with player
   seed 2 for additional real-data seed coverage.
+- **Recovery 137 canonical seed-2 pass and Gate-16 readiness:** the second
+  shipped-data player seed also completed three consecutive annual cycles with
+  exit code 0 in 1,440.49 seconds, ending 2003-06-02. Its fresh European-Cup
+  node counts (367, 371, 371) differed from seed 1 but every installed schedule
+  projected exactly from that cycle's regeneration; no stale accumulation was
+  observed. Evidence is
+  `research/evidence/GATE16_CANONICAL_MULTISEASON_SEED2_RECOVERY137.json`.
+  `research/GATE16_READINESS_AUDIT.md` now records all four Gate-16 completion
+  criteria as prevalidated by work-ahead. Gate 16 remains formally incomplete
+  until earlier gates close and the then-current runtime is re-audited.
 - Gate 17 release-readiness evidence is now fail-closed and machine-checkable at
   `9e7cb18be721ea2ae89b074991e120d3e60e4c68`; it intentionally cannot pass
   without real clean-Windows receipts, a release archive and final limitations.
