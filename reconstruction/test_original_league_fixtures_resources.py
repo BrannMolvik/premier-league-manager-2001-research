@@ -14,6 +14,10 @@ from original_league_fixtures_resources import (
     LEAGUE_FIXTURE_MATRIX_EXCLUDED_STATUS_BIT,
     LEAGUE_FIXTURE_MATRIX_KIND_CODE,
     LEAGUE_FIXTURES_GLOBAL_FIXTURE_BUCKET_COUNT,
+    LEAGUE_FIXTURES_GRID_OBJECT_OFFSET,
+    LEAGUE_FIXTURES_GRID_OUTER_PANEL_OFFSET,
+    LEAGUE_FIXTURES_GRID_VFTABLE_VA,
+    LEAGUE_FIXTURES_CLUB_TEXT_VFTABLE_VA,
     LEAGUE_FIXTURES_VISIBLE_COLUMNS,
     LEAGUE_FIXTURES_VISIBLE_ROWS,
     LEAGUE_FIXTURE_SCORE_FORMAT,
@@ -114,6 +118,12 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
             league_fixture_base_box(fixture_present=True, fixture_status_bits=0x20),
             DATE_FIXTURES_BOX,
         )
+
+    def test_grid_and_club_text_owner_offsets_are_source_bound(self):
+        self.assertEqual(LEAGUE_FIXTURES_GRID_OBJECT_OFFSET, 0x1CF0)
+        self.assertEqual(LEAGUE_FIXTURES_GRID_VFTABLE_VA, 0x7C23D0)
+        self.assertEqual(LEAGUE_FIXTURES_GRID_OUTER_PANEL_OFFSET, 0x2C)
+        self.assertEqual(LEAGUE_FIXTURES_CLUB_TEXT_VFTABLE_VA, 0x7C25C0)
 
     def test_empty_slot_red_box_is_exact_same_club_diagonal(self):
         self.assertFalse(league_fixture_empty_slot_is_self_match(4, 7))
