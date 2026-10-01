@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the active validation gate. Exact deferred local task: run the real Windows PStartMenu/TeamSelect graphical audit, then recover remaining TeamSelect hierarchy item/input/selection-state semantics and broader management-screen fidelity. Save/reload Gate 16 work-ahead is canonical through main 2002304. Current independent cloud-safe task is PR #57, a five-year autonomous-transfer churn/state-growth stress preserving the unresolved transfer-window and +0x1ED buy-counter lifecycle evidence boundaries. Verify/fix/merge it if sound, then continue the next independent Gate 16 long-duration risk without declaring Gate 16 complete.",
-  "last_known_main_head": "2002304642f9fcbdcc336ce3e4cd358c64d85de7",
+  "active_task": "Gate 13 remains the active validation gate. Exact deferred local task: run the real Windows PStartMenu/TeamSelect graphical audit, then recover remaining TeamSelect hierarchy item/input/selection-state semantics and broader management-screen fidelity. Gate 16 autonomous-transfer churn is verified on main through 173388582d866c8778b400bf579afd901db29c72. Current independent cloud-safe task: add a long shared-primary scheduler stress spanning Premier League, domestic Cup, European Cup, qualification Cup, and procedural League owners while preserving the fail-closed dynamic FA Cup replay insertion boundary; verify and checkpoint without declaring Gate 16 complete.",
+  "last_known_main_head": "173388582d866c8778b400bf579afd901db29c72",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 130,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 130 resumed canonical main 2002304642f9fcbdcc336ce3e4cd358c64d85de7. Gate 13 remains earliest incomplete with the real Windows/private GUI audit deferred. Exact cloud-safe continuation is PR #57 autonomous-transfer churn/state-growth stress; inspect its diff and CI, correct any issue, merge only if verified, then continue the next independent Gate 16 risk.",
+  "note": "Recovery 130 checkpoint: PR #57 transfer churn merged and reconciled. Run 36840977540 passed 1,130 tests / 22 expected skips; asset policy 36840977536 passed. Month-end overflow is regression-locked with a documented compatibility clamp and unresolved original normalization fidelity gap. Gate 13 remains earliest incomplete. Exact cloud-safe continuation is mixed shared-primary competition stress.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
