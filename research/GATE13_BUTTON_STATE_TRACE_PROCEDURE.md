@@ -1,18 +1,33 @@
 # Gate 13: reproducible original Button@ease source-trace procedure
 
-_Status: bounded inspection tool implemented, native state behavior unresolved.
-Source identity and entry points below were established in prior first-hand
-executable research; this document does not claim new disassembly._
+_Status: canonical private run completed 1 October 2026 KST. Native grouping,
+hover direction and Zurich caption placement are recovered; mask-4's
+user-facing semantic name remains open._
+
+## Completed canonical run - 1 October 2026 KST
+
+Windows-local execution cleared the earlier infrastructure blocker. The
+canonical ZIP and executable hashes passed, Capstone 5.0.9 ran from private
+storage, the TeamSelect `0x81EC10` / `0x7C7650` canary passed, and constructor
+writes corroborated the sole `Button@ease_2001` candidate: TypeDescriptor
+`0x81AD90`, COL `0x7E0B90`, CHD `0x7E0B80`, vftable `0x7BF4CC`.
+
+Native group/frame selection, pointer-inside animation direction, Zurich line
+origins and native color values are durable in
+`research/GATE13_BUTTON_NATIVE_TRACE.md` and regression code. The exact ten
+first-screen resources are provenance-imported and the readiness/asset-policy
+guards pass. The rest of this file preserves the reproducible collection
+procedure and historical caution boundaries.
 
 ## Why this is the current source-critical task
 
-The port now has the canonical original PStartMenu and TeamSelect background
+The port has the canonical original PStartMenu and TeamSelect background
 compositions, real Zurich font masks, recovered English STR/IDX command labels,
 original 23-source-frame action atlases, hierarchy-source art loading, and
-test-backed menu/team navigation. Those inputs are **not** sufficient to
-assign frame indices to idle, hover, down/up, disabled or animate states or to
-recreate original label alignment/color. Source pixels are not interaction
-semantics.
+test-backed menu/team navigation. The completed executable trace now binds the
+three native frame groups and PStartMenu caption placement. Source pixels alone
+were not treated as interaction semantics; every promoted mapping is tied to
+the original Button/Zurich code path.
 
 The exact canonical original executable is the private authorized
 `footballmanager.exe` with SHA-256
@@ -148,14 +163,14 @@ research should contain concise recovered facts, addresses, hashes, test
 results and explicit remaining boundaries, not a proprietary executable
 dump. Do not promote Gate 13 or proceed to Gate 14 before its full audit.
 
-## Current execution boundary
+## Superseded recovery execution boundary
 
-At the current recovery checkpoint, both simple shell and the alternate
+At the earlier recovery checkpoint, both simple shell and the alternate
 visible Python execution mechanism returned `ClientError`. Therefore no
 new first-hand executable bytes, full original navigation timing, hover-state
 index, label baseline, or opt-in original-byte pass is claimed by this
-helper's synthetic CI. It exists to make the **next actual executable
-inspection** reproducible once execution access returns.
+helper's synthetic CI. This blocker was cleared by the completed canonical
+run recorded above; this paragraph remains as historical recovery context.
 
 ## Additional bounded source leads for exact Button state recovery
 

@@ -23,38 +23,45 @@ Evidence:
 - `research/GATE12_ENGLISH_SEASON_TRANSITION.md`
 - `research/GATE12_NEXT_SEASON_REGENERATION.md`
 
-## Recovery 120: source materialized; process backend failed again before byte audit
+## Recovery 120: canonical Button/Zurich trace and ten-resource import complete
 
-- Fresh replacement-chat recovery started from canonical main
-  `c36b7047dbcfc1f99a916a9997debb706ec08eb0` and incremented the worker
-  runtime to recovery generation 120 with `mode=continuous` /
-  `status=working`.
-- Local process execution initially recovered: a trivial shell probe completed
-  successfully. A direct `git clone` of the canonical repository then failed
-  because this isolated container could not resolve `github.com`; repository
-  reads/writes therefore continue through the authenticated GitHub connector.
-- The durable private Library locator was re-read and the exact
-  511,121,336-byte authorized source ZIP was independently listed at
-  `/FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip`
-  with the expected file/stable-library identities, then successfully
-  materialized into the current execution workspace.
-- Immediately after materialization, a shell `stat`/hash/listing probe against
-  that file returned `ClientError` before process start. A separate private
-  Python process also returned `ClientError` before execution. Therefore the
-  canonical ZIP SHA-256, TeamSelect RTTI canary, Button state/frame trace,
-  Zurich placement/color trace, ten-resource physical audit/import and native
-  graphical inspection were **not** re-run in recovery 120.
-- This recovery narrows the external blocker: private source access is working;
-  the failing component is the local process-execution backend after source
-  staging. No user action is currently required and no unverified presentation
-  behavior is promoted.
-- Exact next Gate-13 action remains: on the first stable process backend,
-  verify the materialized ZIP's pinned SHA-256 and recover/verify the canonical
-  executable, then run TeamSelect RTTI canary -> native Button state/23-frame
-  trace -> Zurich placement/color/clipping trace -> strict ten-resource
-  audit/import -> management-screen correlation -> Windows graphical Gate-13
-  audit. Gates 14-17 and the verified Windows 11 release remain mandatory
-  afterward.
+- Local Windows execution resumed from clean canonical main
+  `c36b7047dbcfc1f99a916a9997debb706ec08eb0` after fetching and
+  fast-forwarding the local clone without discarding user work.
+- The authorized 511,121,336-byte ZIP matched canonical SHA-256
+  `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`.
+  The privately extracted `footballmanager.exe` matched
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- Capstone 5.0.9 ran privately outside Git. The fail-closed TeamSelect RTTI
+  canary recovered TypeDescriptor `0x81EC10` and vftable `0x7C7650`.
+  Constructor writes then corroborated the sole `Button@ease_2001` candidate:
+  TypeDescriptor `0x81AD90`, COL `0x7E0B90`, CHD `0x7E0B80`, vftable
+  `0x7BF4CC`.
+- Native Button mapping is implemented and tested: enabled/mask-4-clear group
+  0 uses frames `0..10`, enabled/mask-4-set group 1 uses `11..21`, and disabled
+  group 2 uses frame `22`. Pointer-inside mask `0x8` advances the group
+  subframe; outside retreats it. The mask-4 group's user-facing name remains
+  deliberately unresolved rather than guessed as pressed.
+- Zurich Button captions are source-bound: style `0x2000`, centered native
+  21-pixel line, zero offsets, `0xFFFF` for groups 0/2 and `0x0000` for group
+  1. PStartMenu line origins are `(234,480)`, `(33,480)`, `(399,480)` and
+  `(205,510)` for Continue, Start New Game, Load Game and Quit to Windows.
+- The strict exact ten-resource selection and firsthand source audit passed.
+  All ten files are imported individually under `original_assets/source/`
+  with canonical hashes and provenance. The post-import readiness and
+  repository asset-policy guards pass. No archive, executable, disc image,
+  private raw report or uncontrolled dump entered Git.
+- Durable evidence: `research/GATE13_BUTTON_NATIVE_TRACE.md`.
+- The whole-disc management catalog audit also ran. `PScouting2K` setup method
+  `0x4AB150` now proves the exact ownership and geometry of
+  `background_2.444` and `background_alpha_1.444`; both resources are imported
+  with provenance. The private exhaustive correlation reports remain outside
+  Git. See `research/GATE13_MANAGEMENT_SCREEN_EVIDENCE_LEDGER.md`.
+- Exact next Gate-13 work: integrate the native first-screen captions, decode
+  and test the proven Scouting composition, correlate a Squad resource to its
+  panel owner, then perform the real Windows graphical first-screen and
+  normal-play audit. Gate 13 remains active; Gates 14-17 and the verified
+  Windows 11 release remain mandatory afterward.
 
 ## Recovery 104: verified Squad contract; source present, byte execution still blocked
 

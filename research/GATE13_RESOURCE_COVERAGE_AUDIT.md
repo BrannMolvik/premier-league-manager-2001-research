@@ -46,21 +46,19 @@ PStartMenu and TeamSelect are the only screen family with a deliberately pinned 
 - `English.str`
 - `English.idx`
 
-The source paths and hashes are documented, and executable research already proves PStartMenu action rectangles, labels, IDs and core TeamSelect navigation anchors. However:
-
-- the strict physical ten-resource audit has not been rerun in the current blocked execution environment;
-- native Button state-to-atlas mapping remains unresolved;
-- Zurich caption placement/color remains unresolved;
-- TeamSelect hierarchy interaction/layout semantics remain incomplete;
-- the ten pinned resources have not yet been intentionally provenance-imported as the finished first-screen set.
-
-The existing `original_assets/MANIFEST.md` contains three imported original assets only: one reused menu Windows-buttons PNG plus two tiny EA444 scroll-end decoder fixtures. These are useful provenance examples/fixtures, but they are not equivalent to completed PStartMenu/TeamSelect resource import.
+The strict physical ten-resource audit has now passed. Native Button group and
+23-frame selection, pointer-inside animation direction, PStartMenu Zurich line
+origins and original 16-bit color values are recovered in
+`research/GATE13_BUTTON_NATIVE_TRACE.md`. All ten files are intentionally
+provenance-imported and the post-import readiness guard passes. TeamSelect
+hierarchy item identity/interaction and broader management-screen presentation
+remain incomplete.
 
 ## Management-screen coverage matrix
 
 | Roadmap screen | Source-faithful presentation data seam | Original resource/layout/navigation status |
 | --- | --- | --- |
-| Main menu / TeamSelect | Yes | **Partial.** Strongest source-backed screen family, but native atlas-state, text placement, hierarchy behavior, strict source audit and final import are still open. |
+| Main menu / TeamSelect | Yes | **Partial.** Button atlas-state, PStartMenu text placement, strict source audit and ten-resource import are complete; TeamSelect hierarchy content/interaction and Windows graphical validation remain open. |
 | Manager home | Controlled-club identity/date available | **Open.** No completed original screen resource/layout/navigation correlation. |
 | Squad | Source-order roster/player state plus verified ordered-roster active/substitute presentation contract available | **Open.** No completed original squad graphics, columns, icons, geometry, controls or sorting/navigation proof; no distinct general Squad panel identity is yet proven. |
 | Tactics/team selection | Formation, XI/bench and tactical state available; PFormation2k five-record family and PTeamOrders2K captain/penalty/corner/free-kick order semantics now have a verified presentation contract | **Open.** Original control IDs/bindings, graphics, player-slot geometry, gestures and navigation remain unresolved. |
@@ -83,26 +81,24 @@ original panel identity**, and that feature/source-module names such as
 `Support.cpp`, `Youth.cpp` or `MatchFrontEnd.cpp` must not be promoted to
 screens without executable/navigation correlation.
 
-## Current infrastructure result
+## Superseded infrastructure result
 
 Recovery generation 101 re-resolved the canonical private Library ZIP at the durable ID/path and the file service materialized the expected 511,121,336-byte archive into the execution workspace. Immediately afterward:
 
 - trivial `container.exec` failed with `ClientError`;
 - trivial Python execution failed with `ClientError`.
 
-Therefore the source is present, but byte execution remains blocked. No new executable disassembly, ten-resource physical audit, source import or original-pixel claim is made by this audit.
+That blocker was cleared by the Windows-local recovery documented in
+`GATE13_BUTTON_NATIVE_TRACE.md`. This section remains historical context.
 
 ## Exact closure work for this criterion
 
-When byte execution returns:
+Current remaining work:
 
-1. re-hash the materialized canonical ZIP and extract the exact canonical executable;
-2. complete the TeamSelect RTTI canary, Button draw/update state mapping and Zurich render trace;
-3. run the strict ten-resource source audit and provenance-import the verified first-screen assets;
-4. regenerate/save the full disc catalog if needed;
-5. for each remaining Gate 13 screen family, correlate executable/layout/navigation evidence to exact original source paths before importing anything;
-6. preserve original strings/fonts/art where usable, documenting only genuinely incompatible/inaccessible replacements;
-7. maintain an explicit per-screen resource/layout/navigation evidence table until every normal-play presentation area is covered;
-8. run native Windows graphical/integration smoke tests before marking the resource criterion satisfied.
+1. regenerate/save the full disc catalog if needed;
+2. for each remaining Gate 13 screen family, correlate executable/layout/navigation evidence to exact original source paths before importing anything;
+3. preserve original strings/fonts/art where usable, documenting only genuinely incompatible/inaccessible replacements;
+4. maintain an explicit per-screen resource/layout/navigation evidence table until every normal-play presentation area is covered;
+5. run native Windows graphical/integration smoke tests before marking the resource criterion satisfied.
 
 Until those steps are complete, this criterion must remain unchecked in `ROADMAP.md`.

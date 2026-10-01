@@ -3,8 +3,9 @@
 Only source-hash-verified assets are loaded. The user can manually cycle all
 23 original atlas source frames to inspect artwork and click already-proven
 action rectangles. This is intentionally NOT the game's final UI: native
-frame-state selection, caption baseline/color, TeamSelect hierarchy content,
-and manager-home screen still require recovered executable evidence.
+mapping and PStartMenu caption placement are recovered, but this diagnostic
+keeps manual frame selection; TeamSelect hierarchy content and manager-home
+presentation still require recovered executable evidence.
 
 Tk is imported only when this developer viewer is actually launched.
 """
@@ -54,8 +55,9 @@ class OriginalFirstScreenTkDebug:
         ttk.Label(
             sidebar, wraplength=300,
             text="SOURCE PIXEL DIAGNOSTIC, NOT ORIGINAL FM2001 UI. "
-                 "Frame selection below is MANUAL; native hover/down/disabled "
-                 "semantics and text alignment are not recovered.",
+                 "Frame selection below remains MANUAL for atlas inspection. "
+                 "Native groups and PStartMenu text placement are recovered; "
+                 "mask-4's user-facing name remains open.",
         ).pack(anchor="w")
 
         buttons = ttk.Frame(sidebar)
@@ -158,7 +160,8 @@ class OriginalFirstScreenTkDebug:
             )
         self.frame_label.configure(
             text=f"Manually selected original source frame: "
-                 f"{self.source_frame_index} (NOT idle/hover semantics)"
+                 f"{self.source_frame_index} (native mapping available; "
+                 "manual inspection mode)"
         )
         actions = [
             f"Event {overlay.event}: "

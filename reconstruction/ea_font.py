@@ -148,6 +148,15 @@ class EAFont:
                 width += glyph.pair_adjustment(encoded[index + 1])
         return width
 
+    def native_line_height(self) -> int:
+        """Return the original 0x6574D0 line height used by Button captions.
+
+        The native routine uses the space record: glyph height plus twice its
+        vertical draw offset. For the verified 20px Zurich font this is 21.
+        """
+        space = self.glyph_for_byte(0x20)
+        return space.height + 2 * space.draw_y
+
     def render_text_alpha(self, text: str) -> EATextMask:
         """Rasterize source glyph alpha with recovered pair spacing.
 

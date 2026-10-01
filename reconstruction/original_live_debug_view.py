@@ -1,12 +1,11 @@
 """Developer-only live original first-screen pixel inspection model.
 
 Renders the exact source-composed background and a MANUALLY chosen numeric
-source-atlas frame at each previously proven action rectangle. Choosing the
-source index globally is a diagnostic convenience and does not reproduce the
-legacy Button@ease_2001 idle/hover/down/disabled state transitions.
-Recovered English labels are listed for debugging, NOT drawn at guessed
-coordinates or colors. TeamSelect hierarchy rows are positional evidence
-only; no country/league/club hit behavior is synthesized here.
+source-atlas frame at each previously proven action rectangle. The native
+group/subframe mapping is recovered, but this source-frame inspector keeps its
+explicit manual control for comparing every row. Recovered English labels are
+listed with source-backed placement metadata but are not color-converted or
+drawn. TeamSelect hierarchy rows remain positional evidence only.
 """
 from __future__ import annotations
 
@@ -39,7 +38,7 @@ class OriginalLiveDebugFrame:
     background_png: bytes
     original_source_frame_overlays: tuple[OriginalDebugOverlay, ...]
     hierarchy_row_origins_not_interactive: tuple[tuple[int, int], ...]
-    native_button_animation_recovered: bool = False
+    native_button_animation_recovered: bool = True
     native_text_placement_recovered: bool = False
 
 
@@ -91,4 +90,7 @@ def build_original_debug_frame(
         background_png=encode_rgba_png(*SCREEN_SIZE, snapshot.background_rgba),
         original_source_frame_overlays=tuple(overlays),
         hierarchy_row_origins_not_interactive=snapshot.hierarchy_row_origins,
+        native_text_placement_recovered=all(
+            control.caption is not None for control in snapshot.controls
+        ),
     )

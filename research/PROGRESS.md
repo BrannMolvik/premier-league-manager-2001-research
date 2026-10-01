@@ -9214,3 +9214,34 @@ invent original visual or control semantics.
 - Runtime remains continuous/working. Exact next action is the persisted
   TeamSelect RTTI -> Button -> Zurich -> ten-resource path as soon as stable
   process execution returns.
+## Gate 13 canonical Button/Zurich trace and ten-resource import - 1 October 2026 KST
+
+- Fetched canonical GitHub state, verified the local clone was clean and
+  fast-forwarded local main to `c36b7047dbcfc1f99a916a9997debb706ec08eb0`.
+- Located the authorized original ZIP locally. Its 511,121,336 bytes matched
+  SHA-256 `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`.
+  The repository inventory tool privately extracted `footballmanager.exe`,
+  which matched `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- Installed Capstone 5.0.9 to private task storage outside Git. The expanded
+  trace passed the fail-closed TeamSelect TypeDescriptor `0x81EC10` / vftable
+  `0x7C7650` canary and yielded one Button RTTI candidate. Constructor writes
+  corroborated TypeDescriptor `0x81AD90`, COL `0x7E0B90`, CHD `0x7E0B80` and
+  vftable `0x7BF4CC`.
+- Recovered the native 23-frame model: group lengths `(11,11,1)`, frames
+  `0..10` for enabled/mask-4-clear, `11..21` for enabled/mask-4-set and `22`
+  for disabled. Pointer-inside mask `0x8` advances subframes and pointer-out
+  retreats. Mask-4's user-facing name remains deliberately unclaimed.
+- Recovered shared Zurich Button caption setup: style `0x2000`, centered
+  21-pixel native line, 0/0 offsets, 16-bit values `0xFFFF` normally and
+  `0x0000` for group 1. Implemented exact PStartMenu line origins and retained
+  native values without an unsupported RGB reinterpretation.
+- Ran the strict ten-path selection and firsthand source audit successfully,
+  then imported all ten exact originals one at a time with provenance. The
+  first-screen readiness guard and repository asset-policy guard pass.
+- Preserved raw executable/disassembly/pixel reports outside Git. No ZIP,
+  executable, disc image or uncontrolled dump was added.
+- Added `research/GATE13_BUTTON_NATIVE_TRACE.md`, native state/caption code and
+  focused synthetic plus opt-in exact-source regressions.
+- Gate 13 remains active. Next is whole-disc management catalog correlation,
+  TeamSelect hierarchy/wider management presentation only where source-bound,
+  and the real Windows graphical/normal-play audit before Gate 14.

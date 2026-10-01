@@ -108,8 +108,8 @@ class OriginalLiveDebugTests(unittest.TestCase):
         snapshot = live.snapshot()
         debug = build_original_debug_frame(snapshot, 0)
         self.assertIs(debug.screen, FrontEndScreen.START_MENU)
-        self.assertFalse(debug.native_button_animation_recovered)
-        self.assertFalse(debug.native_text_placement_recovered)
+        self.assertTrue(debug.native_button_animation_recovered)
+        self.assertTrue(debug.native_text_placement_recovered)
         self.assertEqual(len(debug.original_source_frame_overlays), 4)
         self.assertEqual(
             [o.event for o in debug.original_source_frame_overlays],

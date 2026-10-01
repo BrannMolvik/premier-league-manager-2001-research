@@ -116,7 +116,13 @@ class OriginalPixelExportTests(unittest.TestCase):
                 menu, team, out, repository_root=Path(directory) / "repo"
             )
             self.assertEqual(manifest["source_verification"], "caller-supplied-debug-data")
-            self.assertIsNone(manifest["native_control_frame_states_and_screen_timing"])
+            self.assertEqual(
+                manifest["native_button_mapping"]["group_lengths"], [11, 11, 1]
+            )
+            self.assertTrue(
+                manifest["native_button_mapping"]
+                ["pointer_inside_mask_8_advances_subframe"]
+            )
             self.assertIsNone(manifest["hierarchy_art"])
             self.assertEqual(
                 read_png_rgba(out / "pstartmenu_background_only.png"),
@@ -135,14 +141,24 @@ class OriginalPixelExportTests(unittest.TestCase):
                 )[2],
                 menu.button_atlas.frame(0).rgba,
             )
-            self.assertIsNone(
-                originals["pstartmenu"]["frames"][0]["native_interaction_state"]
+            self.assertEqual(
+                (originals["pstartmenu"]["frames"][0]["native_group"],
+                 originals["pstartmenu"]["frames"][0]["native_subframe"]),
+                (0, 0),
+            )
+            self.assertEqual(
+                (originals["pstartmenu"]["frames"][22]["native_group"],
+                 originals["pstartmenu"]["frames"][22]["native_subframe"]),
+                (2, 0),
             )
             self.assertEqual(
                 [record["event"] for record in manifest["menu_controls"]],
                 [1, 2, 3, 4],
             )
             label = manifest["menu_controls"][0]
+            self.assertEqual(label["native_style"], 0x2000)
+            self.assertEqual(label["native_color_16_by_group"],
+                             {"0": 0xFFFF, "1": 0, "2": 0xFFFF})
             self.assertEqual(
                 (out / label["uncolored_source_glyph_alpha_file"]).read_bytes(),
                 encode_alpha_pgm(

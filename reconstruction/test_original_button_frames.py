@@ -6,8 +6,10 @@ import unittest
 
 from ea444_decoder import EA444DecodedImage
 from original_button_frames import (
+    BUTTON_GROUP_LENGTHS,
     ButtonAtlasSpec,
     OriginalButtonAtlasError,
+    OriginalButtonState,
     PSTARTMENU_BUTTON_ATLAS,
     TEAMSELECT_BUTTON_ATLAS,
     decode_verified_original_button_atlas,
@@ -16,6 +18,37 @@ from original_button_frames import (
 
 
 class OriginalButtonAtlasTests(unittest.TestCase):
+    def test_native_group_mapping_animation_direction_and_disabled_frame(self):
+        state = OriginalButtonState()
+        self.assertEqual(BUTTON_GROUP_LENGTHS, (11, 11, 1))
+        self.assertEqual((state.group, state.subframe, state.source_frame_index), (0, 0, 0))
+
+        state.set_pointer_inside(True)
+        for expected in range(1, 11):
+            self.assertTrue(state.update())
+            self.assertEqual(state.source_frame_index, expected)
+        self.assertFalse(state.update())
+
+        state.set_alternate(True)
+        self.assertTrue(state.update())
+        self.assertEqual((state.group, state.subframe, state.source_frame_index),
+                         (1, 10, 21))
+        state.set_pointer_inside(False)
+        self.assertTrue(state.update())
+        self.assertEqual(state.source_frame_index, 20)
+
+        state.set_enabled(False)
+        self.assertTrue(state.update())
+        self.assertEqual((state.group, state.subframe, state.source_frame_index),
+                         (2, 0, 22))
+        self.assertFalse(state.update())
+
+        state.set_enabled(True)
+        state.set_alternate(False)
+        self.assertTrue(state.update())
+        self.assertEqual((state.group, state.subframe, state.source_frame_index),
+                         (0, 0, 0))
+
     def test_exact_original_filenames_atlas_geometry_and_frame_count(self):
         self.assertTrue(PSTARTMENU_BUTTON_ATLAS.source_path.endswith("button_type_1.444"))
         self.assertTrue(TEAMSELECT_BUTTON_ATLAS.source_path.endswith("choice_start_anim.444"))
@@ -55,6 +88,9 @@ class OriginalButtonAtlasTests(unittest.TestCase):
             with self.subTest(bad=bad):
                 with self.assertRaises(OriginalButtonAtlasError):
                     atlas.frame(bad)
+
+        with self.assertRaisesRegex(OriginalButtonAtlasError, "23-frame"):
+            atlas.frame_for_state(OriginalButtonState())
 
     def test_dimension_mismatch_and_inconsistent_slicing_are_rejected(self):
         original = EA444DecodedImage(2, 6, bytes(48), 0, 0)

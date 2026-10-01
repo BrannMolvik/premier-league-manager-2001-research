@@ -1,5 +1,14 @@
 # Gate 13: pinned original first-screen source recovery
 
+## Recovery 120 completion update
+
+The canonical private audit, exact ten-file selection and per-file provenance
+import are complete. `gate13_first_screen_manifest_readiness.py` and the
+repository asset-policy guard pass. Native Button grouping/frame selection and
+PStartMenu Zurich placement/native color values are recorded in
+`research/GATE13_BUTTON_NATIVE_TRACE.md`. Historical procedure and caution
+sections below remain useful for reproducibility.
+
 _30 September 2026. This is a repeatable extraction/verification plan, NOT
 a claim that all selected original bytes are already checked into Git._
 
@@ -135,26 +144,21 @@ an explicitly artificial numeric club-ID input until the source-backed
 country/league/club hierarchy is recovered. Normal user-facing FM2001
 cannot ship this debug-only shortcut or invented frame selection.
 
-This path is a source-pixel/navigation smoke test, **not** an original
-interactive-screen fidelity claim. Recover the native Button@ease_2001
-state machine, Zurich caption placement, and actual TeamSelect hierarchy
-selection from the original executable before building/promoting
-the release-facing frontend. Hosted CI uses mocked Tk and synthetic
-source-format fixtures; the actual original asset/runtime graphical
-smoke test must be run after private byte-execution access is restored.
+This path is a source-pixel/navigation smoke test, **not** a complete original
+interactive-screen fidelity claim. Native Button@ease_2001 grouping and
+PStartMenu Zurich placement are recovered; actual TeamSelect hierarchy
+selection and the broader release-facing frontend remain open. Hosted CI uses
+mocked Tk and synthetic source-format fixtures; the actual original
+asset/runtime graphical smoke test must still run on Windows.
 
 ## Open source-recovery boundary
 
-Native Button@ease_2001 23-frame state selection, Zurich caption
-placement/color and TeamSelect hierarchy control content still require
-direct original executable/source evidence. They must not be inferred
-from atlas frame count, guessed visual themes, or substitute fonts.
-
-The current worker's shell/Python containers returned `ClientError` even
-for trivial commands. This selection and its source-hash validator can be
-committed and tested independently, but no new real ZIP staging/import or
-first-hand disassembly is claimed until execution access genuinely recovers.
-The full Gate 13 through Gate 17 mission remains active.
+Native Button@ease_2001 23-frame grouping and PStartMenu Zurich caption
+placement/native values now have direct original-executable evidence.
+Mask-4's user-facing semantic name and TeamSelect hierarchy control content
+remain open and must not be inferred from atlas pixels. The earlier
+`ClientError` execution blocker is resolved. The full Gate 13 through Gate 17
+mission remains active.
 
 ## Single fail-closed first-hand source audit after staging
 
@@ -182,9 +186,9 @@ small JSON measurement receipt outside Git, never the original executable
 or source pixels. Previous audit receipts cannot be overwritten.
 
 **This is not the Gate 13 audit and not a Windows 11 release smoke test.**
-Original Button@ease idle/hover/down/disabled source-frame meanings, native
-Zurich caption origin/color, TeamSelect selection mapping, and the remaining
-manager screens are explicitly represented as unresolved fields. Hosted
+The source audit predates and remains separate from the now-completed native
+Button/Zurich executable trace. TeamSelect hierarchy selection mapping and the
+remaining manager screens are still unresolved. Hosted
 Gate-13 CI has small synthetic assertions that the first-hand audit fails
 closed. Because the licensed ZIP/executable are never placed in hosted CI,
 do not count hosted success as the real-source audit passing.

@@ -1,10 +1,11 @@
 """Export exact decoded FM2001 first-screen pixels for private diagnostics.
 
 This tool writes source-backed *backgrounds* and individually numbered
-source-atlas frames for comparison against the original game. It NEVER
-picks an idle/hover/pressed frame, guesses Zurich caption origins/colors,
-invented hierarchy row contents or a substitute themed UI. Original
-language glyph alpha is exported separately as raw lossless PGM pixels.
+source-atlas frames for comparison against the original game. The manifest
+records the executable-proven Button group/subframe mapping and PStartMenu
+Zurich line origins/native 16-bit color values. It does not guess a semantic
+name for mask-4 group 1, invent hierarchy row contents, or substitute themed
+UI. Original language glyph alpha is exported separately as raw lossless PGM.
 Only the exact hash-checked original loaders may claim source verification.
 """
 from __future__ import annotations
@@ -16,7 +17,9 @@ from pathlib import Path
 import struct
 import zlib
 
-from original_button_frames import OriginalButtonAtlas, OriginalButtonFrame
+from original_button_frames import (
+    BUTTON_GROUP_LENGTHS, OriginalButtonAtlas, OriginalButtonFrame,
+)
 from original_front_end_layout import SCREEN_SIZE
 from original_pstartmenu_resources import (
     OriginalPStartMenuResources, load_verified_english_pstartmenu_inputs,
@@ -84,11 +87,23 @@ def _source_frame_manifest(
         (target / filename).write_bytes(
             encode_rgba_png(frame.width, frame.height, frame.rgba)
         )
+        if source_index < BUTTON_GROUP_LENGTHS[0]:
+            group, subframe = 0, source_index
+        elif source_index < sum(BUTTON_GROUP_LENGTHS[:2]):
+            group, subframe = 1, source_index - BUTTON_GROUP_LENGTHS[0]
+        else:
+            group, subframe = 2, 0
         out.append({
             "source_index_only": source_index, "file": f"{name}/{filename}",
             "width": frame.width, "height": frame.height,
             "rgba_sha256": sha256(frame.rgba).hexdigest(),
-            "native_interaction_state": None,
+            "native_group": group,
+            "native_subframe": subframe,
+            "native_group_semantics": (
+                "disabled" if group == 2 else
+                "enabled_mask4_clear" if group == 0 else
+                "enabled_mask4_set_semantic_name_unproven"
+            ),
         })
     return out
 
@@ -171,7 +186,16 @@ def export_first_screen_source_pixels(
             "rect": vars(item.control_rect),
             "uncolored_source_glyph_alpha_file": label_file,
             "glyph_alpha_sha256": sha256(mask.alpha).hexdigest(),
-            "native_caption_alignment_and_color": None,
+            "native_line_origin": {
+                "x": item.line_origin_x, "y": item.line_origin_y,
+            },
+            "native_clip_rect": vars(item.clip_rect),
+            "native_style": item.native_style,
+            "native_color_16_by_group": {
+                "0": item.native_color_for_group(0),
+                "1": item.native_color_for_group(1),
+                "2": item.native_color_for_group(2),
+            },
         })
 
     manifest = {
@@ -193,7 +217,13 @@ def export_first_screen_source_pixels(
             ),
         },
         "hierarchy_art": None,
-        "native_control_frame_states_and_screen_timing": None,
+        "native_button_mapping": {
+            "group_lengths": list(BUTTON_GROUP_LENGTHS),
+            "pointer_inside_mask_8_advances_subframe": True,
+            "pointer_outside_retreats_subframe": True,
+            "mask_4_user_facing_semantic_name": None,
+            "screen_update_tick_duration": None,
+        },
     }
     if team.hierarchy_art is not None:
         manifest["hierarchy_art"] = {
@@ -237,7 +267,7 @@ def main() -> int:
     )
     print(
         "Wrote private original background, source-frame and glyph-alpha "
-        "diagnostics; native animation/text placement remains unresolved."
+        "diagnostics with native group and PStartMenu caption metadata."
     )
     print(json.dumps({
         "source_verification": result["source_verification"],

@@ -5,11 +5,12 @@ button atlas frames, confirmed action rectangles and original-language glyph
 masks for the currently active front-end screen. Pointer dispatch goes through
 the previously tested original rectangle translator into FrontEndSession.
 
-No default visual frame or caption position is selected: the original
-Button@ease_2001 state machine and text alignment still require executable
-evidence. TeamSelect's hierarchy rows remain locations, not invented team
-IDs. A successful Start event produces a backend handoff command; it does
-not silently synthesize a recovered manager-home renderer.
+The original Button@ease_2001 group/frame state machine and PStartMenu Zurich
+caption alignment are now exposed from executable evidence. The mask-4 group's
+user-facing meaning remains deliberately neutral. TeamSelect's hierarchy rows
+remain locations, not invented team IDs. A successful Start event produces a
+backend handoff command; it does not silently synthesize a recovered
+manager-home renderer.
 """
 from __future__ import annotations
 
@@ -17,7 +18,9 @@ from dataclasses import dataclass
 
 from front_end_session import FrontEndSession, FrontEndSessionOutcome
 from front_end_state import FrontEndScreen
-from original_button_frames import OriginalButtonAtlas, OriginalButtonFrame
+from original_button_frames import (
+    OriginalButtonAtlas, OriginalButtonFrame, OriginalButtonState,
+)
 from original_front_end_input import dispatch_original_pointer
 from original_front_end_layout import (
     OriginalRect,
@@ -41,8 +44,12 @@ class OriginalActionPresentation:
     caption: PStartMenuCaption | None = None
 
     def exact_source_frame(self, index: int) -> OriginalButtonFrame:
-        """Select an explicit source-frame index, not a guessed hover state."""
+        """Select an explicit source-frame index."""
         return self.atlas.frame(index)
+
+    def exact_native_frame(self, state: OriginalButtonState) -> OriginalButtonFrame:
+        """Select from the executable-proven group/subframe state."""
+        return self.atlas.frame_for_state(state)
 
 
 @dataclass(frozen=True)

@@ -37,11 +37,10 @@ ten-entry source contract before checking repository readiness.
 
 ## Evidence boundary
 
-This guard does **not** claim that the ten resources have now been imported.
-At recovery 101, direct shell/Python byte execution still returns
-`ClientError`, and the current manifest contains only earlier intentional
-assets/decoder fixtures. Therefore the real repository is expected to fail the
-readiness CLI today.
+Recovery 120 completed the private physical audit and imported all ten exact
+resources. The real repository now passes the readiness CLI. This success is
+distinct from the synthetic unit-test coverage and does not by itself close
+TeamSelect hierarchy behavior or the Windows graphical audit.
 
 Unit tests use tiny synthetic bytes solely to prove pass/fail behavior. Hosted
 CI cannot turn those fixtures into evidence that the licensed originals were
@@ -65,13 +64,13 @@ that full suite.
 
 ## Completion use
 
-After private byte execution returns:
+Completed recovery sequence:
 
 1. run the canonical Button/Zurich and strict physical ten-resource audit;
 2. import the verified originals using `gate13_asset_import.py`;
 3. run `gate13_first_screen_manifest_readiness.py`;
-4. only if it passes, proceed to the graphical/source-backed first-screen smoke
-   test and any Gate-13 criterion audit.
+4. it passed; proceed to the graphical/source-backed first-screen smoke test
+   and the remaining Gate-13 criterion audit.
 
 This makes partial provenance impossible to promote accidentally as a complete
 first-screen source slice.

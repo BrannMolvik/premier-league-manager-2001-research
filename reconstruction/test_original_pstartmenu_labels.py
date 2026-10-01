@@ -43,6 +43,17 @@ class OriginalPStartMenuCaptionTests(unittest.TestCase):
             captions[0].glyph_mask.alpha,
             bytes((255, 0, 0, 0, 255, 64)),
         )
+        self.assertEqual(
+            tuple((item.native_style, item.normal_color_16,
+                   item.alternate_group_color_16)
+                  for item in captions),
+            ((0x2000, 0xFFFF, 0x0000),) * 4,
+        )
+        self.assertEqual(captions[0].native_color_for_group(0), 0xFFFF)
+        self.assertEqual(captions[0].native_color_for_group(1), 0x0000)
+        self.assertEqual(captions[0].native_color_for_group(2), 0xFFFF)
+        with self.assertRaises(ValueError):
+            captions[0].native_color_for_group(3)
 
     def test_missing_mandatory_idx_is_rejected_not_replaced_by_guessed_text(self):
         font = EAFont.from_bytes(build_fixture())
@@ -85,6 +96,14 @@ class OriginalPStartMenuCaptionTests(unittest.TestCase):
              (2, "Start New Game", 117, 19),
              (3, "Load Game", 81, 19),
              (4, "Quit to Windows", 120, 19)),
+        )
+        self.assertEqual(
+            tuple((item.line_origin_x, item.line_origin_y) for item in captions),
+            ((234, 480), (33, 480), (399, 480), (205, 510)),
+        )
+        self.assertEqual(
+            tuple(item.clip_rect for item in captions),
+            tuple(action.rect for action in PSTARTMENU_ACTIONS),
         )
         self.assertEqual(
             tuple(hashlib.sha256(item.glyph_mask.alpha).hexdigest()

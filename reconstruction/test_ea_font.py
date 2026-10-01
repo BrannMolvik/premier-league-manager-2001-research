@@ -108,6 +108,7 @@ class EAFontTests(unittest.TestCase):
             ),
             (1789, 21, 1, 32768, 65535),
         )
+        self.assertEqual(font.native_line_height(), 21)
         expected = {
             "Continue": (
                 63, 19,
