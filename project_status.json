@@ -874,7 +874,7 @@
   "gate13_pmenu_exact_font_mapping_open": false,
   "gate13_pmenu_state_frame_mapping_open": "background_closed_arrow_open",
   "gate13_pmenu_shell_background_open": true,
-  "gate13_pmenu_original_assets_import_status": "correlated_private_bytes_not_yet_provenance_imported",
+  "gate13_pmenu_original_assets_import_status": "blocked_currently_connector_text_only_and_shell_github_dns_unavailable",
   "gate13_pmenu_row_chrome_merge": "addd82b7a8a5efddd83abb698f08d08c71ebcaf9",
   "gate13_pmenu_row_chrome_ci_run": 36911756061,
   "gate13_pmenu_row_chrome_test_count": 288,
@@ -910,5 +910,6 @@
     "0x8000"
   ],
   "gate13_pmenu_title_arrow_state_mapping_open": true,
-  "gate13_pmenu_child_arrow_state_mapping_open": true
+  "gate13_pmenu_child_arrow_state_mapping_open": true,
+  "gate13_recovery_146_direct_git_transport": "blocked_could_not_resolve_github_com"
 }
