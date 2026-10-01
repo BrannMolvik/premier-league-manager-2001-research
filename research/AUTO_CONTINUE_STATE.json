@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 141 continues. Gate 13 private blocker remains TeamSelect 0x4D8E90/0x4D9240 payload/Start re-trace plus upgraded Windows audit; local shell/Python execution is blocked by ClientError after source/runtime materialization. Cloud-safe PR #70 at head 39bc3d0404de8b069e5f7aa25d9709777ec8d6bc removes invented secondary bucket geometry and uses an aggregate-only MSVC checkpoint. Asset policy run 36890778875 passed; reconstruction run 36890779450 is in progress. Merge only if current-head CI passes, then reconcile main and continue.",
-  "last_known_main_head": "745a63016f541b40f053feae12ffc8333bfcbd5b",
+  "active_task": "Resume from canonical main 7d273f86503e70feffbece92c759b3959c89ac3b. Recovery 141 merged TeamSelect identity hardening PR #69 and aggregate-only secondary startup PR #70. PR #70 full reconstruction run 36890779450 passed 1,146 tests with 22 expected skips; asset policy 36890778875 passed. Highest priority remains the private TeamSelect 0x4D8E90/0x4D9240 selection-record payload and Start-resolution re-trace, followed by the upgraded real-Windows audit. If process execution still fails with ClientError, do not invent payload behavior; continue only genuinely independent cloud-safe work.",
+  "last_known_main_head": "7d273f86503e70feffbece92c759b3959c89ac3b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 141,
   "last_recovery_reason": "recovery-141-teamselect-boundary-hardened-private-execution-blocked",
-  "note": "Heartbeat during PR #70 current-head full reconstruction CI. No new private source behavior claimed.",
+  "note": "Recovery 141 canonical state reconciled after PR #70. One bounded execution-sandbox recheck is next; previous source/runtime materialization succeeded but subsequent shell and Python launches failed before process start.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
