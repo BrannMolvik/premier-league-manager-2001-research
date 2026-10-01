@@ -293,13 +293,14 @@ class OriginalFirstScreenTkDebug:
             elif isinstance(result, OriginalHierarchyInteraction):
                 if result.row_kind == "club":
                     verb = (
-                        "selected" if result.selected_club_record_index is not None
+                        "selected"
+                        if result.source_id in result.selected_club_ids
                         else "cleared"
                     )
                     self.status.set(
                         f"Native club row {result.text!r} {verb}; "
-                        f"record index {result.source_id}. Backend club selection "
-                        "remains fail-closed pending payload re-trace."
+                        f"selected club IDs {result.selected_club_ids}. "
+                        "The modern gameplay backend supports one human manager."
                     )
                 else:
                     self.status.set(
@@ -334,8 +335,8 @@ class OriginalFirstScreenTkDebug:
             value = int(self.club_id_text.get())
             self.presenter.choose_club(value)
             self.status.set(
-                f"Developer-only explicit club ID {value} selected; "
-                "native hierarchy record remains unchanged pending payload re-trace."
+                f"Developer-only explicit club ID {value} selected for the "
+                "single-manager compatibility path."
             )
         except (ValueError, TypeError, RuntimeError) as exc:
             self.status.set(f"Explicit club selection rejected: {exc}")
