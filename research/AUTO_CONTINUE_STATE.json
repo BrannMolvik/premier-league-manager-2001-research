@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 133,
-  "last_recovery_reason": "sandbox-execution-failure",
-  "note": "Recovery 133 checkpointed the execution blocker on main 1282b5477d4cfed173cc19111a5480876178aa8b. No canonical multi-season result was claimed. Runtime intentionally remains working so automatic recovery can retry the exact audit in a healthy sustained execution allocation.",
+  "recovery_generation": 134,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 134: resumed canonical main 1282b5477d4cfed173cc19111a5480876178aa8b after stale heartbeat. Retrying the exact canonical shipped-data multi-season Gate-16 audit in the fresh execution allocation; Gate 13 remains the earliest incomplete validation gate.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
