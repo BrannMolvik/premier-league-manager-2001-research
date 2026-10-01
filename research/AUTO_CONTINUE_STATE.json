@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete validation gate with the real Windows graphical audit deferred. Recovery 135 is continuing the exact Gate-16 cloud-safe task: execute the already-merged canonical shipped-data multi-season audit using the persisted runtime/source inputs, re-verify pinned source hashes, run at least three consecutive qualification/regeneration cycles, and persist verified evidence or the precise execution blocker.",
+  "active_task": "Gate 13 remains the earliest incomplete validation gate with the real Windows graphical audit deferred. Recovery 135 is actively executing the exact Gate-16 canonical shipped-data multi-season audit against sector-validated private source data and the persisted reconstruction runtime; await the three-rollover process result, then persist JSON/hash evidence or convert any failure into a regression.",
   "last_known_main_head": "4d413fa3036ffeeaf5ad34a1bf3e140eb64bcf34",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 135,
   "last_recovery_reason": "sandbox-execution-failure",
-  "note": "Recovery 135 started from canonical main 4d413fa3036ffeeaf5ad34a1bf3e140eb64bcf34. PR #63 runner remains the verified implementation boundary; this fresh allocation will retest sustained execution before doing any further cloud-safe work.",
+  "note": "Recovery 135 execution path is healthy. Shell/Python start normally; the source archive and runtime ZIP materialized; all 268,549 MODE1/2352 sectors validated; Master.dat, Static.dat, English.str, and Core.str match pinned hashes; current canonical_multiseason_audit.py matches GitHub blob a6a1de8782eca06291aeffefba11ff4bcd27c14b. The three-rollover seed-1 canonical process is currently running CPU-bound with stable memory and empty stderr.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
