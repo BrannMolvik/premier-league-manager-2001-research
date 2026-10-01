@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 remains blocked solely by process-execution infrastructure. Recovery115 verified canonical main c36b7047 and CURRENT_STATE unchanged, then retried both execution backends: container.exec failed immediately with ClientError on /bin/true and private python.exec failed immediately with ClientError on print('ok'). The GitHub remote path remains unsuitable because no workflow-dispatch action is available and hosted Actions do not have the private FM2001 Library archive. Safe fallback preparation is exhausted; do not invent native PE/Button/Zurich/pixel behavior. Exact next action on the first recovery where execution works: verify canonical ZIP hash; extract/hash footballmanager.exe; run TeamSelect 0x81EC10/0x7C7650 RTTI canary; trace Button state bits through native draw/update into numbered 23-frame atlas rows; recover Zurich glyph origin/pair spacing/baseline/colors/clipping; strict ten-resource audit/import; run saved management catalog correlation; complete remaining Gate13 presentation/navigation; Windows graphical audit; then Gates14-17 and verified clean Windows11 release.",
+  "active_task": "Gate13 remains blocked solely by process-execution infrastructure. Recovery116 verified canonical main c36b7047 and CURRENT_STATE unchanged, then retried both execution backends: container.exec failed immediately with ClientError on /bin/true and private python.exec failed immediately with ClientError on print('ok'). The GitHub remote path remains unsuitable because no workflow-dispatch action is available and hosted Actions do not have the private FM2001 Library archive. Safe fallback preparation is exhausted; do not invent native PE/Button/Zurich/pixel behavior. Exact next action on the first recovery where execution works: verify canonical ZIP hash; extract/hash footballmanager.exe; run TeamSelect 0x81EC10/0x7C7650 RTTI canary; trace Button state bits through native draw/update into numbered 23-frame atlas rows; recover Zurich glyph origin/pair spacing/baseline/colors/clipping; strict ten-resource audit/import; run saved management catalog correlation; complete remaining Gate13 presentation/navigation; Windows graphical audit; then Gates14-17 and verified clean Windows11 release.",
   "last_known_main_head": "c36b7047dbcfc1f99a916a9997debb706ec08eb0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 115,
+  "recovery_generation": 116,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery115: both local execution backends still fail before process start, and no source-bearing remote GitHub execution path is available. Canonical main has not moved; no new source-backed main change is safe. Preserve continuous/working for automatic recovery. No user action required.",
+  "note": "Recovery116: both local execution backends still fail before process start, and no source-bearing remote GitHub execution path is available. Canonical main has not moved; no new source-backed main change is safe. Preserve continuous/working for automatic recovery. No user action required.",
   "same_chat_fallback_minutes": 30
 }
