@@ -58,7 +58,7 @@ remain incomplete.
 
 | Roadmap screen | Source-faithful presentation data seam | Original resource/layout/navigation status |
 | --- | --- | --- |
-| Main menu / TeamSelect | Yes | **Partial.** Button atlas-state, PStartMenu text placement, strict source audit and ten-resource import are complete; TeamSelect hierarchy content/interaction and Windows graphical validation remain open. |
+| Main menu / TeamSelect | Yes | **Partial.** Button atlas-state, PStartMenu text placement/color endpoints, strict source audit, ten-resource import and live developer-caption integration are complete; TeamSelect hierarchy content/interaction and Windows graphical validation remain open. |
 | Manager home | Controlled-club identity/date available | **Open.** No completed original screen resource/layout/navigation correlation. |
 | Squad | Source-order roster/player state plus verified ordered-roster active/substitute presentation contract available | **Open.** No completed original squad graphics, columns, icons, geometry, controls or sorting/navigation proof; no distinct general Squad panel identity is yet proven. |
 | Tactics/team selection | Formation, XI/bench and tactical state available; PFormation2k five-record family and PTeamOrders2K captain/penalty/corner/free-kick order semantics now have a verified presentation contract | **Open.** Original control IDs/bindings, graphics, player-slot geometry, gestures and navigation remain unresolved. |
@@ -68,7 +68,7 @@ remain incomplete.
 | Transfers | Proposal/deal/contract runtime records available | **Open.** Original screen sort, captions for unresolved negotiation bytes, resource/layout and navigation remain unresolved. |
 | Finances | Cash, ledger and objective runtime state available; PTickets exact ticket object / terrace-seating / section-state presentation contract now verified | **Open.** PFinanceOverview account/category labels plus Finance/PTickets screen resources, control bindings, layout and navigation remain unresolved. |
 | Messages/news | Verified presentation contract now preserves MPMEAMail plus ordinary/Bosman renewal and player-transfer-request identities/actions | **Open.** Complete inbox family coverage, cross-family interleave/order and original screen resources/layout/navigation remain incomplete. |
-| Training/scouting | Training now has a verified Training.cpp method/record contract; PScouting2K event 31 and six native result-sort modes also have a verified presentation contract | **Open.** Proprietary graphics, layout, visible bindings/captions, control geometry and navigation remain unresolved. |
+| Training/scouting | Training now has a verified Training.cpp method/record contract; PScouting2K event 31 and six native result-sort modes also have a verified presentation contract | **Partial.** Scouting now has two exact provenance-imported graphics and an executable-proven 20-row/footer composition fragment with deterministic tests. Training presentation, Scouting surrounding background/captions/remaining controls, and navigation remain unresolved. |
 | Remaining screens | Not a single complete inventory | **Open.** Must be enumerated and correlated before Gate 13 can close. |
 
 The read-only bridge is important architecture and data work, but it must not be counted as original visual/presentation completion.
@@ -95,10 +95,10 @@ That blocker was cleared by the Windows-local recovery documented in
 
 Current remaining work:
 
-1. regenerate/save the full disc catalog if needed;
-2. for each remaining Gate 13 screen family, correlate executable/layout/navigation evidence to exact original source paths before importing anything;
-3. preserve original strings/fonts/art where usable, documenting only genuinely incompatible/inaccessible replacements;
-4. maintain an explicit per-screen resource/layout/navigation evidence table until every normal-play presentation area is covered;
-5. run native Windows graphical/integration smoke tests before marking the resource criterion satisfied.
+1. recover one source-backed Squad resource -> actual panel-owner binding from the private whole-disc catalog and canonical executable, then continue the same correlation discipline across the other incomplete management screen families;
+2. preserve original strings/fonts/art where usable, documenting only genuinely incompatible/inaccessible replacements;
+3. recover TeamSelect hierarchy item/interaction semantics rather than inferring them from source art or the secondary screenshot;
+4. maintain the explicit per-screen resource/layout/navigation evidence table until every normal-play presentation area is covered;
+5. run the native Windows PStartMenu/TeamSelect graphical audit and broader normal-play integration smoke tests before marking the resource criterion satisfied.
 
 Until those steps are complete, this criterion must remain unchecked in `ROADMAP.md`.

@@ -5,9 +5,12 @@ _Date: 30 September 2026_
 ## Purpose and evidence boundary
 
 The authorized FM2001 disc/archive remains the canonical source for resources.
-This note records **secondary visual evidence only** so that the first Gate-13
-screen can be recognized and cross-checked while exact asset extraction is
-temporarily blocked.
+This note records **secondary visual evidence only** as a visual cross-check.
+The earlier exact-asset extraction blocker has since been cleared on local
+Windows: the source-backed PStartMenu/TeamSelect first-screen resource slice,
+Button state mapping and PStartMenu Zurich caption geometry are now primary
+evidence. The screenshots below remain useful only for whole-screen visual
+recognition where primary evidence is still incomplete.
 
 Do not copy these screenshots into `original_assets/`, do not treat their
 resampled pixel coordinates as canonical layout data, and do not use them as a
@@ -43,10 +46,12 @@ Cross-check against executable evidence:
 - this is consistent with the recovered initial `PStartMenu` family;
 - screen ID `0x323` remains the proven front-end identity;
 - event/control ID `2` remains the proven ordinary New Game transition;
-- only **START NEW GAME -> event/control ID 2** is promoted as a recovered
-  interaction mapping here;
-- IDs/semantics for Continue, Load Game and Quit must still be recovered rather
-  than inferred from their visible order.
+- primary executable evidence now binds all four PStartMenu event/control IDs,
+  original English captions, action rectangles, 23-frame Button state mapping,
+  centered Zurich line origins and native endpoint colors; see
+  `research/GATE13_BUTTON_NATIVE_TRACE.md`;
+- the secondary screenshot is no longer needed to establish those exact
+  first-screen facts, but remains a useful whole-screen visual cross-check.
 
 The web copy is a 512x512 screenshot representation, whereas the shipped
 background resource is proven 800x600. It is therefore suitable for visual
@@ -79,28 +84,31 @@ Cross-check against executable evidence:
 - the screen is consistent with the recovered `PMain@TeamSelect` family;
 - TeamSelect Back remains proven control/event ID `0x29`;
 - TeamSelect Start/Continue remains proven control/event ID `0x2A`;
-- the visual `START GAME` action is consistent with the recovered
-  Start/Continue role, but exact rectangle/resource/control binding still
-  requires source extraction before it is promoted as pixel/layout evidence.
+- TeamSelect Back/Start control rectangles and the shared 23-frame action atlas
+  are now primary source/executable evidence;
+- hierarchy row origins and source-strip art are also recovered, but the
+  country/league/club item mapping, row hit behavior and selection-state
+  semantics remain unresolved and must not be inferred from this screenshot.
 
 Again, the 512x512 web representation is not a canonical 800x600 layout dump.
 Do not derive hard-coded production coordinates from it.
 
 ## Gate-13 implementation consequence
 
-The first recognizably original slice now has a visual acceptance target without
-requiring a redesign:
+The first-screen acceptance target is now mostly primary-evidence-backed rather
+than screenshot-led:
 
-1. reproduce the shipped blue/background visual family from authorized source
-   assets;
-2. reproduce the large original main-menu identity composition;
-3. preserve the visible original PStartMenu labels and recovered New Game
-   interaction;
-4. transition into the original TeamSelect hierarchy/competition visual
-   structure;
-5. preserve proven control IDs `0x29` and `0x2A`;
-6. keep all simulation behind the presentation/application boundary already
-   introduced in `reconstruction/front_end_state.py`.
+1. use the provenance-imported shipped backgrounds/action atlases and original
+   Zurich/English resources;
+2. preserve the recovered PStartMenu action rectangles, all four captions,
+   native Button groups/animation direction and caption line origins;
+3. transition through the proven TeamSelect Back/Start controls while keeping
+   hierarchy item identity/hit semantics fail-closed until recovered;
+4. keep all simulation behind the presentation/application boundary already
+   introduced in `reconstruction/front_end_state.py`;
+5. verify the integrated source-backed presentation in a real Windows 11
+   graphical run before promoting first-screen fidelity.
 
-Exact asset names beyond `bground.444`, exact rectangles, fonts, control
-states, and remaining PStartMenu control IDs remain source-extraction work.
+The screenshot remains noncanonical for exact pixels/coordinates. Remaining
+first-screen gaps are TeamSelect hierarchy semantics and Windows graphical
+validation, not missing PStartMenu asset names/rectangles/fonts/button states.

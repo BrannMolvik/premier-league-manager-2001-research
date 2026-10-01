@@ -91,14 +91,14 @@ licensed original-resource opt-in tests or a Windows 11 graphical build.
 
 This audit intentionally closes only architecture separation.
 
+Since this architecture audit was first written, the canonical Button/Zurich trace, strict ten-resource source-byte audit/import, native PStartMenu caption placement/color endpoints, and the first exact Scouting composition fragment have been completed and verified. They do not change the separation result above.
+
 Still open:
 
-- actual private original-executable Button/Zurich trace;
-- physical ten-resource source-byte/pixel audit;
-- provenance import of verified original UI resources;
-- exact original first-screen/control states and typography;
-- original manager-screen layouts/navigation/timing;
-- recognizable FM2001 normal-play presentation;
+- TeamSelect hierarchy item/interaction semantics and remaining first-screen timing/navigation details;
+- original manager-screen resources/layouts/navigation/timing beyond the bounded Scouting fragment;
+- a source-backed general Squad panel/resource binding;
+- recognizable FM2001 normal-play presentation across the management loop;
 - native Windows 11 graphical/integration smoke testing.
 
 Accordingly Gate 13 remains **ACTIVE**. Do not use this criterion's completion
