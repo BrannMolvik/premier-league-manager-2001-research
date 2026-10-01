@@ -9245,3 +9245,32 @@ invent original visual or control semantics.
 - Gate 13 remains active. Next is whole-disc management catalog correlation,
   TeamSelect hierarchy/wider management presentation only where source-bound,
   and the real Windows graphical/normal-play audit before Gate 14.
+
+## Gate 13 native captions and Scouting composition - 1 October 2026 KST
+
+- Opened PR #47 from canonical main `af2b3ec1c3d498e8774156d599faceb69e6de8b7`.
+- Integrated source-backed PStartMenu Zurich caption overlays into the private
+  800x600 developer view. Caption origin comes from the recovered native
+  geometry; color conversion is limited to the invariant all-bits-off/on
+  endpoints `0x0000` / `0xFFFF`.
+- Added exact source-frame -> native Button group/subframe inversion and
+  regression coverage.
+- Added `original_scouting_resources.py` for the proven
+  `PScouting2K::0x4AB150` composition only:
+  `background_alpha_1.444` = 571x16 repeated 20 times at
+  (207, 192+17*n), and `background_2.444` = 295x45 at (206,543).
+- Hosted tests directly verify the committed Scouting source bytes still match
+  their pinned SHA-256 values and original EA444 header geometry.
+- Initial Gate-13 run `36813979522` exposed one stale GUI test expectation
+  (5 canvas images vs 9 after four captions); the Scouting tests themselves
+  passed. The expectation was corrected without changing runtime behavior.
+- Final focused Gate-13 run `36814179046`: **249 tests / 20 expected skips /
+  0 failures**. Asset-policy run `36814179303` passed.
+- PR #47 squash-merged to main as
+  `757e8fec77f688bab893e155fee0bb82eaa97b6f`.
+- Cloud process execution remains unavailable (`ClientError` before process
+  start), preventing a new private Squad resource/executable correlation and
+  the Windows graphical smoke test in this worker. Exact next source task is
+  one Squad resource -> true panel-owner binding, followed by the real Windows
+  first-screen/normal-play audit.
+

@@ -27,7 +27,7 @@ visually reconstructed.
 
 | Roadmap surface | Persisted presentation identity | Strongest source-backed evidence | Original resource/layout/navigation status |
 | --- | --- | --- | --- |
-| Main menu / TeamSelect | **Proven.** PStartMenu screen ID `0x323`, vtable `0x7C64E0`; `PMain@TeamSelect` vtable `0x7C7650` | PStartMenu/TeamSelect constructors, event IDs, action rectangles, original English STR/IDX menu labels, native Button atlas-state mapping, Zurich caption placement/color and exact first-slice source paths are recorded | **Partial.** The strict ten-resource audit/import is complete. Native captions still need integration into the live view and Windows graphical validation remains open |
+| Main menu / TeamSelect | **Proven.** PStartMenu screen ID `0x323`, vtable `0x7C64E0`; `PMain@TeamSelect` vtable `0x7C7650` | PStartMenu/TeamSelect constructors, event IDs, action rectangles, original English STR/IDX menu labels, native Button atlas-state mapping, Zurich caption placement/color and exact first-slice source paths are recorded | **Partial.** The strict ten-resource audit/import and PStartMenu native-caption live-view integration are complete. TeamSelect hierarchy content/interaction and the real Windows graphical validation remain open |
 | Manager home | **No persisted original panel identity** | Read-only bridge can expose controlled-club original name/short name and current game date | **Open.** No original manager-home screen class, screen ID, exact resource path, layout, controls or navigation edge has been correlated |
 | Squad | **No distinct original Squad panel identity proven** | Ordered live team roster at `+0x244` / count `+0x294`; participant collector `0x510CD0`; DBRPlayer active/substitute flags and setters are now contract-locked | **Open.** Do not treat `PTeamOrders2K` as proof of the general Squad screen. Original squad graphics, columns, status icons, sort, geometry and navigation remain unknown |
 | Tactics / team selection | **Partially proven.** `PFormation2k`; `PTeamOrders2K` | `PFormation2k` vtable `0x7C1AB4`; five native formation records; Team Orders RTTI neighborhood and source path `Applications\\FootballManager\\SquadPan.cpp`; four ordered set-piece/captain categories | **Open.** Original resource bindings, slot geometry, widget IDs, gestures and navigation remain uncorrelated |
@@ -38,7 +38,7 @@ visually reconstructed.
 | Finances | **Panel-family names proven: `PFinanceOverview`, `PTickets`** | Finance Overview category-1000 aggregate path; `PTickets` update routine `0x45FF10`, ticket object and section-state semantics; `Balance.cpp` source-path metadata | **Open.** Exact visible account labels, resource paths, widget bindings, layout and navigation remain unknown |
 | Messages / news | **No original inbox panel identity proven** | `MPMEAMail` is a recovered mail wrapper/queue family with several proven message/action subclasses | **Open.** `MPMEAMail` is not evidence of an inbox screen class. Cross-family interleave/order, resources, layout, controls and navigation remain unknown |
 | Training | **No persisted original panel identity** | Executable source-path family `Training.cpp`; recovered training record/method/update contract | **Open.** Original training panel class, resources, visible bindings, geometry and navigation remain unknown |
-| Scouting | **Proven: `PScouting2K`** | TypeDescriptor `0x81C9C0`, COL `0x7E3D20`, vtable `0x7C2E6C`, setup method `0x4AB150`, event handler `0x4ADB50`, search event 31 and six native result-sort modes | **Partial.** Two exact original graphics and their composition geometry are correlated below. Captions, the remaining controls and navigation still need recovery |
+| Scouting | **Proven: `PScouting2K`** | TypeDescriptor `0x81C9C0`, COL `0x7E3D20`, vtable `0x7C2E6C`, setup method `0x4AB150`, event handler `0x4ADB50`, search event 31 and six native result-sort modes | **Partial.** Two exact original graphics are provenance-imported and a deterministic fail-closed composition fragment now enforces their recovered dimensions/placements. Captions, the surrounding background, remaining controls and navigation still need recovery |
 
 ## Additional normal-play / feature-family leads
 
@@ -149,6 +149,24 @@ The private exhaustive reports and raw instruction windows remain outside Git.
 Only the concise addresses and conclusions required for reproducibility are
 preserved here.
 
+## Recovery 123 presentation integration
+
+PR #47 was squash-merged as
+`757e8fec77f688bab893e155fee0bb82eaa97b6f`.
+
+- PStartMenu Zurich captions are now part of the private live developer view at
+  the recovered native line origins, with Button-group-dependent endpoint
+  colors. The implementation refuses any non-endpoint 16-bit color rather than
+  guessing a channel layout.
+- `reconstruction/original_scouting_resources.py` binds the two already
+  provenance-imported Scouting files to their executable-proven composition:
+  20 copies of the 571x16 `background_alpha_1.444` at
+  x=207/y=192..515 step 17, plus the 295x45 `background_2.444` at
+  (206,543). It yields only a transparent composition fragment, not an invented
+  full Scouting screen.
+- Focused Gate-13 run `36814179046` passed **249 tests / 20 expected skips /
+  0 failures**; asset-policy run `36814179303` passed.
+
 ## Automated catalog-audit implementation
 
 PR #46 was squash-merged as
@@ -174,15 +192,29 @@ Verification on PR head
 
 ## Current blocker and exact next action
 
-Local execution is available, the first-screen source slice is imported, and
-the Scouting resource correlation above proves that the catalog expansion path
-works. Gate 13 is still open because the live view does not yet integrate the
-native captions, Windows graphical validation has not passed, and management
-screens remain incomplete.
+The first-screen Button/Zurich source path, ten-resource import, PStartMenu live
+caption integration, and the first exact Scouting resource composition fragment
+are complete.
 
-The next resource step is to provenance-import the two now-proven Scouting
-files, decode them under the existing `.444` contract and build a deterministic
-composition test at the recovered coordinates. In parallel, recover the panel
-owner for one of the four exact Squad resources; do not infer ownership from
-its directory name alone. Manager Home still requires panel/factory evidence
-before any resource import.
+The next resource-correlation task is **Squad**. Recovery 120's private
+whole-disc report found four exact Squad candidates, but those raw/private
+reports were intentionally kept outside Git. This cloud worker still returns
+`ClientError` before even a trivial shell/Python process starts, so it cannot
+re-open the private catalog/executable to establish ownership. Filename or
+directory similarity is not sufficient evidence.
+
+Exact next steps when private/local execution is available:
+
+1. use the saved whole-disc catalog to enumerate the four exact Squad paths;
+2. find their canonical-executable literals/xrefs and the owning panel/setup
+   method;
+3. import only resources with proven ownership and persist their geometry;
+4. run deterministic composition tests for that bounded Squad fragment;
+5. run the real Windows PStartMenu/TeamSelect graphical audit using the
+   integrated native captions and source-backed Button animation;
+6. continue the same correlation discipline across the remaining management
+   screens before closing Gate 13.
+
+No user action is required merely because this cloud process backend is
+unavailable; the runtime remains continuous so a working local/recovery worker
+can take the exact next step.

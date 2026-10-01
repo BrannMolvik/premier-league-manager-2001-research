@@ -23,6 +23,40 @@ Evidence:
 - `research/GATE12_ENGLISH_SEASON_TRANSITION.md`
 - `research/GATE12_NEXT_SEASON_REGENERATION.md`
 
+## Recovery 123: native menu captions + Scouting composition verified
+
+- PR #47 was squash-merged as
+  `757e8fec77f688bab893e155fee0bb82eaa97b6f`.
+- The developer first-screen view now draws the recovered PStartMenu Zurich
+  glyph alpha at the exact native line origins. Manual source-frame inspection
+  uses the recovered source-frame -> Button group mapping, so caption color
+  follows the proven native endpoint value for that group.
+- The live debug conversion remains deliberately narrow: only native
+  `0x0000` (all bits off) and `0xFFFF` (all bits on) are mapped to modern
+  black/white RGBA endpoints. No generic 16-bit color-channel layout is
+  invented.
+- Added a fail-closed `PScouting2K` source-resource composition module.
+  `background_alpha_1.444` is independently checked as **571x16** and placed
+  at x=207 for 20 rows y=192..515 in 17-pixel steps; `background_2.444` is
+  **295x45** at (206,543). The module composes only that proven transparent
+  fragment and does not invent the unknown surrounding Scouting screen,
+  captions, controls, result text, navigation or row semantics.
+- Hosted focused Gate-13 run `36814179046` passed **249 tests with 20
+  expected original-source-gated skips and zero failures** on PR head
+  `2ba43f19ed29e16a609f20d03eeacef6790cf342`. Repository asset-policy run
+  `36814179303` passed.
+- A fresh cloud shell/Python process probe still returned `ClientError`
+  before process start. The four exact private Squad catalog candidates were
+  deliberately not persisted, so their panel ownership cannot be inferred
+  safely from filenames in this environment.
+- Exact next Gate-13 work: on the next working private/local execution path,
+  correlate **one Squad resource to its actual panel owner** from the saved
+  whole-disc catalog + canonical executable, then expand that evidence outward
+  without guessing. In parallel/afterward, run the real Windows graphical
+  PStartMenu/TeamSelect audit using the now-integrated native captions and
+  source-backed controls. Gate 13 remains active; Gates 14-17 and the verified
+  Windows 11 release remain mandatory afterward.
+
 ## Recovery 120: canonical Button/Zurich trace and ten-resource import complete
 
 - Local Windows execution resumed from clean canonical main
