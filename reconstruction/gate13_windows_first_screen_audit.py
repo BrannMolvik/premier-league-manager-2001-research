@@ -419,7 +419,7 @@ def run_real_windows_graphical_audit(
             "<Button-1>", x=first_club.rect.x + 1, y=first_club.rect.y + 1
         )
         _pump(root)
-        if presenter.hierarchy is None or presenter.hierarchy.selected_club_id is not None:
+        if presenter.hierarchy is None or presenter.hierarchy.selected_club_record_index is not None:
             raise WindowsFirstScreenAuditError(
                 "Second native club click did not clear the visual selection record"
             )

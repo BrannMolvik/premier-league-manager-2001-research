@@ -125,10 +125,10 @@ class OriginalTeamSelectNativeTests(unittest.TestCase):
         ])
 
         model.toggle_club_row(0)
-        self.assertEqual(model.selected_club_id, 0)
+        self.assertEqual(model.selected_club_record_index, 0)
         self.assertIs(model.club_rows()[0].state, NativeControlState.ACTIVE)
         model.toggle_club_row(0)
-        self.assertIsNone(model.selected_club_id)
+        self.assertIsNone(model.selected_club_record_index)
 
         model.activate_hierarchy_row(0)
         self.assertIsNone(model.selected_competition_id)

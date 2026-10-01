@@ -75,7 +75,7 @@ class OriginalHierarchyInteraction:
     row_kind: str
     text: str
     source_id: int
-    selected_club_id: int | None
+    selected_club_record_index: int | None
 
 
 @dataclass
@@ -178,7 +178,7 @@ class OriginalFirstScreenPresenter:
                         "club",
                         toggled.text,
                         toggled.club_id,
-                        model.selected_club_id,
+                        model.selected_club_record_index,
                     )
         outcome = dispatch_original_pointer(self.session, x, y)
         if (
@@ -189,7 +189,5 @@ class OriginalFirstScreenPresenter:
         return outcome
 
     def choose_club(self, club_id: int) -> None:
-        """Delegate selection to the established session/backend boundary."""
+        """Set an explicit backend club without inferring the native row payload."""
         self.session.choose_club(club_id)
-        if self.hierarchy is not None:
-            self.hierarchy.selected_club_id = int(club_id)
