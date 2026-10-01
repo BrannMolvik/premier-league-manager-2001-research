@@ -9811,3 +9811,15 @@ canonical audit.
 - Constructor arg1 is the fixture-derived object from virtual +0x18 and is stored at PMatchInfo `+0x70`; arg2 is the resolved linked context stored at `+0x74`. The higher-level class/name of that secondary context remains neutral.
 - Generic geometry helper `0x653320` proves the dialog width/height supplied by `0x488C80` are 760x500; x/y are dynamically clamped from source UI globals rather than fixed by this checkpoint.
 - Added a fail-closed `LeagueFixturesMatchInfoAction` clean-room contract and regressions. Exact next work after CI is PMatchInfo internal presentation/resources or remaining League Fixtures non-selector controls; no modern match-info route is synthesized.
+
+
+## 2 October 2026 - Recovery 156 PMatchInfo original resource ownership
+
+- PR #85 merged as `a5c0de8aff324aa6ea8481da24da725d8921ebd4`; focused Gate-13 run `36924435622` passed 333 tests with 21 expected source-gated skips and asset-policy run `36924435665` passed.
+- Freshly recovered the canonical private Library ZIP and independently rechecked its 511,121,336-byte physical size and SHA-256 `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`. Direct Joliet extraction of both shipped `footballmanager.exe` copies reproduced canonical SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- RTTI/source tracing binds `PMatchInfoSubPanelBase` (TD `0x81D078`, COL `0x7E4C08`, vtable `0x7C42B8`) and `PMatchInfoSubPanel` (TD `0x81D0A0`, COL `0x7E4BD0`, vtable `0x7C426C`) under the already-proven PMatchInfo dialog.
+- Recovered the complete contiguous 20-entry `FM2001_Art/Generic/Match_report/*.444` static loader family from `info_player.444` through `match_incid_grid.444`. Raw handles descend exactly `0x943570 -> 0x9430B0` in 0x40 steps; each wrapper is raw-0x20.
+- Every one of the 20 authorized source files was reread from the raw disc and matched its recorded SHA-256, byte size and EA444 geometry. `info_popup.444` is exactly 760x500, independently matching the recovered PMatchInfo dialog size.
+- Bounded executable consumers are now persisted for 13 resources: the player row pair, popup background, seven 14x14 incident/status icons, match-name grid, pitch image and incident grid. The four name-block and three possession-strip resources remain source-owned/hash-verified but without a claimed final per-control consumer until further data-flow tracing.
+- Added `original_pmatchinfo_resources.py`, strict validator/regressions and Gate-13 CI coverage. No original Match Report binary bytes entered Git.
+- Exact next task after CI is PMatchInfo internal control geometry/text/font/event binding, starting from the already-proven subpanel owner graph and direct resource consumers.
