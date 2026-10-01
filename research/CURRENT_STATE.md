@@ -58,6 +58,33 @@ Evidence:
   real Windows PStartMenu/TeamSelect graphical audit and wider management-
   screen correlations remain mandatory before Gate 13 closes.
 
+## Recovery 126: private source recovered; sandbox failed after first process
+
+- Resumed canonical main `14a7b47b3328475f8218350c0fc03e7786e4537b`.
+  A direct Git tree read confirmed that SHA as the current `main` tree, and the
+  `agent-runtime` handoff still names the same unresolved Gate-13 task.
+- The canonical private source ZIP was resolved again at Library file
+  `file_00000000010c8209961739423e78473b`, size **511,121,336 bytes**, and
+  materialized successfully in the fresh worker workspace. This is therefore
+  not a source-availability failure.
+- The fresh execution allocation initially launched one trivial shell process
+  successfully (`Python 3.13.5`, `git 2.47.3`). Every later shell and Python
+  process then failed before process start with
+  `caas.internal.errors.ClientError`.
+- Because sustained private execution was unavailable, this recovery could not
+  safely synchronize a local clone, extract/verify the canonical executable,
+  run `reconstruction/gate13_squad_source_trace.py`, or adjudicate native
+  control/data flow. No new `CBasePlayerList` row/column/status meaning or
+  `FormationText` frame/state meaning is claimed.
+- Exact next action remains unchanged: on the next execution allocation that
+  can sustain private processes, use the first working process to synchronize
+  canonical main and run the prepared Squad trace against the independently
+  verified executable, then manually adjudicate the two player-list bindings
+  and FormationText value-to-frame transform before promoting anything.
+  Afterward perform the mandatory real Windows PStartMenu/TeamSelect graphical
+  audit and continue remaining management-screen correlations. Gate 13 remains
+  active.
+
 ## Recovery 125: fail-closed Squad native trace prepared; cloud execution blocked
 
 - Reconciled canonical main after the worker-recovery hardening commit
