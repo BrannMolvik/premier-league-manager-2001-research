@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 144 resumes PR #74 at verified source-backed TeamSelect club/user mapping. Focused Gate-13 CI (276 tests, 21 expected skips) and asset policy are green on head 5ee87bae88d5c429908f18b47aa46650bc1913a1. Exact next step: reconcile canonical Gate-13 ledgers/status for the corrected private selection trace, rerun the final branch checks, merge PR #74, then pursue the upgraded real Windows/Tk audit or the highest-priority independent cloud-safe Gate-13 work if Windows GUI remains unavailable.",
-  "last_known_main_head": "0942783fee3f44dc2197e27ae49b6d4514a4b7d3",
+  "active_task": "PR #75 merged as 3adf75e713c70dd3a3cddf9f5df9db6e34e19b5d after Gate-13 run 36907084180 passed 280 tests with 21 expected skips and asset-policy run 36907084140 passed. Continue exact next Gate-13 task: source-trace PMenu visible chrome/menu item classes, geometry, labels and original resource ownership from canonical executable; keep corrected real Windows/Tk first-screen audit open.",
+  "last_known_main_head": "3adf75e713c70dd3a3cddf9f5df9db6e34e19b5d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 144,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 144 continued the interrupted Recovery-143 TeamSelect correction from GitHub canonical state. PR #74 is open and green; ledger reconciliation and merge are the immediate checkpoint, not mission completion.",
+  "note": "Recovery 144 continues beyond the verified management-shell routing checkpoint. Fresh flow PStartMenu -> TeamSelect -> PMenu -> PSquadScreen is source-proven; PMenu chrome/resource binding is now active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
