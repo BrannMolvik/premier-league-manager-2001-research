@@ -89,6 +89,36 @@ class FrontEndSessionTests(unittest.TestCase):
         self.assertIs(session.navigation.screen, FrontEndScreen.TEAM_SELECT)
         self.assertTrue(session.started)
 
+    def test_source_style_multiple_users_are_recorded_but_fail_closed_at_start(self):
+        session, backends = self.new_session()
+        session.dispatch(StartMenuControl.NEW_GAME)
+
+        self.assertEqual(session.toggle_club_selection(12), (12,))
+        self.assertEqual(session.toggle_club_selection(13), (12, 13))
+        self.assertIsNone(session.selected_club_id)
+        self.assertEqual(backends[0].selections, [])
+
+        with self.assertRaisesRegex(FrontEndSessionError, "one human manager"):
+            session.dispatch(TeamSelectControl.START_CONTINUE)
+        self.assertFalse(session.started)
+        self.assertEqual(backends[0].selections, [])
+
+        self.assertEqual(session.toggle_club_selection(13), (12,))
+        self.assertEqual(session.selected_club_id, 12)
+        session.dispatch(TeamSelectControl.START_CONTINUE)
+        self.assertEqual(backends[0].selections, [12])
+
+    def test_source_style_selection_cap_is_six_and_unique(self):
+        session, _backends = self.new_session()
+        session.dispatch(StartMenuControl.NEW_GAME)
+        for club_id in range(6):
+            session.toggle_club_selection(club_id)
+        self.assertEqual(session.selected_club_ids, tuple(range(6)))
+        with self.assertRaisesRegex(FrontEndSessionError, "at most six"):
+            session.toggle_club_selection(6)
+        with self.assertRaisesRegex(ValueError, "unique"):
+            session.set_club_selections((1, 1))
+
     def test_requires_explicit_club_selection_no_default_team(self):
         session, backends = self.new_session()
         session.dispatch(StartMenuControl.NEW_GAME)
@@ -120,6 +150,7 @@ class FrontEndSessionTests(unittest.TestCase):
 
         self.assertIs(result.transition.screen, FrontEndScreen.START_MENU)
         self.assertIsNone(session.selected_club_id)
+        self.assertEqual(session.selected_club_ids, ())
         self.assertIs(session.gameplay, backend)
         self.assertEqual(backend.selections, [])
 
