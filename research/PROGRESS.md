@@ -9605,3 +9605,30 @@ European competition/round nodes, determine whether annual participant-driven
 underfill legitimately changes node cardinality or whether nodes accumulated
 across seasons, encode the result in regression coverage, and rerun the
 canonical audit.
+
+
+## 1 October 2026 - Recovery 137 canonical seed-1 multi-season audit passed
+
+- PR #65 fixed the audit-only procedural shared-primary projection boundary and
+  passed asset-policy run `36867367968` plus full reconstruction run
+  `36867368043`.
+- PR #65 squash-merged as
+  `7f3f83eb98b9f29039b691197505dbe74c8b0851`.
+- The exact authorized shipped-data seed-1 audit then completed three
+  consecutive annual qualification/regeneration cycles with exit code 0 in
+  **1,617.49 seconds**, ending on **2003-06-02**.
+- Every cycle completed all 380 Premier League fixtures, retained 30,064 live
+  roster references, applied 28 annual membership changes, and passed the
+  roster, membership, scheduler, atomic RNG and current-regeneration projection
+  invariants.
+- Fresh shape diagnostics were
+  `(380,380,5735,9344,291,371,311,13)`,
+  `(380,380,5735,9344,291,371,311,13)`, and
+  `(380,380,5737,9346,291,373,311,13)`. The final variation is the
+  already-proven qualification-dependent UEFA Cup node change, not accumulation.
+- Exact hashes, CI IDs, snapshots, RNG states and structural diagnostics are
+  persisted in
+  `research/evidence/GATE16_CANONICAL_MULTISEASON_SEED1_RECOVERY137.json`.
+- Gate 13 remains the earliest incomplete validation gate. Recovery 137 has
+  launched the same canonical three-rollover audit with player seed 2 to widen
+  real-data seed coverage while the Windows graphical audit remains deferred.
