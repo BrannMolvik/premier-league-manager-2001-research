@@ -86,7 +86,6 @@ def build_original_debug_frame(
         raise OriginalLiveDebugError("Missing complete 800x600 original background")
     overlays = []
     captions = []
-    group, _subframe = button_group_subframe_for_source_index(source_frame_index)
     for control in snapshot.controls:
         if (
             control.rect.x < 0 or control.rect.y < 0
@@ -122,6 +121,9 @@ def build_original_debug_frame(
             )
         )
         if control.caption is not None:
+            group, _subframe = button_group_subframe_for_source_index(
+                source_frame_index
+            )
             caption = control.caption
             mask = caption.glyph_mask
             right = caption.line_origin_x + mask.width
