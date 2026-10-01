@@ -44,6 +44,21 @@ BUTTON_INITIAL_FLAGS = 0x183
 BUTTON_GROUP_LENGTHS = (11, 11, 1)
 
 
+def button_group_subframe_for_source_index(source_index: int) -> tuple[int, int]:
+    """Invert the proven 0x652860 source-frame calculation exactly."""
+    if (
+        type(source_index) is not int
+        or not 0 <= source_index < sum(BUTTON_GROUP_LENGTHS)
+    ):
+        raise OriginalButtonAtlasError("Invalid native Button@ease source frame index")
+    offset = source_index
+    for group, length in enumerate(BUTTON_GROUP_LENGTHS):
+        if offset < length:
+            return group, offset
+        offset -= length
+    raise OriginalButtonAtlasError("Unreachable native Button@ease source frame")
+
+
 @dataclass
 class OriginalButtonState:
     """Exact native group/subframe state without guessing mask-4 semantics."""

@@ -17,6 +17,35 @@ from test_original_teamselect_resources import fixture as team_fixture
 from test_gate13_original_pixel_preview import read_png_rgba
 
 
+def read_png_rgba_bytes(raw: bytes):
+    import struct
+    import zlib
+
+    assert raw.startswith(b"\x89PNG\r\n\x1a\n")
+    pos = 8
+    payload = bytearray()
+    width = height = None
+    while pos < len(raw):
+        size = struct.unpack_from(">I", raw, pos)[0]
+        kind = raw[pos + 4:pos + 8]
+        data = raw[pos + 8:pos + 8 + size]
+        pos += size + 12
+        if kind == b"IHDR":
+            width, height, depth, color, *_ = struct.unpack(">IIBBBBB", data)
+            assert (depth, color) == (8, 6)
+        elif kind == b"IDAT":
+            payload.extend(data)
+        elif kind == b"IEND":
+            break
+    pixels = zlib.decompress(bytes(payload))
+    stride = width * 4
+    rows = [
+        pixels[y * (stride + 1) + 1:(y + 1) * (stride + 1)]
+        for y in range(height)
+    ]
+    return width, height, b"".join(rows)
+
+
 class StubBackend:
     def __init__(self):
         self.selections = []
@@ -103,7 +132,7 @@ class FakeTtk:
 
 
 class OriginalLiveDebugTests(unittest.TestCase):
-    def test_original_menu_source_pixels_and_unpositioned_font_metadata(self):
+    def test_original_menu_source_pixels_and_native_caption_overlays(self):
         live = presenter()
         snapshot = live.snapshot()
         debug = build_original_debug_frame(snapshot, 0)
@@ -123,10 +152,40 @@ class OriginalLiveDebugTests(unittest.TestCase):
             [o.source_label_not_positioned for o in debug.original_source_frame_overlays],
             ["AB", "BA", "A", "B"],
         )
+        self.assertEqual(len(debug.native_caption_overlays), 4)
         self.assertEqual(
-            len(debug.background_png) > 0,
-            True,
+            [(item.line_origin_x, item.line_origin_y)
+             for item in debug.native_caption_overlays],
+            [(item.caption.line_origin_x, item.caption.line_origin_y)
+             for item in snapshot.controls],
         )
+        self.assertTrue(all(
+            item.native_color_16 == 0xFFFF
+            for item in debug.native_caption_overlays
+        ))
+        for item in debug.native_caption_overlays:
+            _w, _h, rgba = read_png_rgba_bytes(item.glyph_rgba_png)
+            nontransparent = [
+                tuple(rgba[i:i + 4])
+                for i in range(0, len(rgba), 4)
+                if rgba[i + 3]
+            ]
+            self.assertTrue(nontransparent)
+            self.assertTrue(all(pixel[:3] == (255, 255, 255)
+                                for pixel in nontransparent))
+        alternate = build_original_debug_frame(snapshot, 11)
+        self.assertTrue(all(
+            item.native_color_16 == 0x0000
+            for item in alternate.native_caption_overlays
+        ))
+        for item in alternate.native_caption_overlays:
+            _w, _h, rgba = read_png_rgba_bytes(item.glyph_rgba_png)
+            self.assertTrue(all(
+                tuple(rgba[i:i + 3]) == (0, 0, 0)
+                for i in range(0, len(rgba), 4)
+                if rgba[i + 3]
+            ))
+        self.assertEqual(len(debug.background_png) > 0, True)
         with self.assertRaises(OriginalLiveDebugError):
             build_original_debug_frame(snapshot, True)
         for bad in (-1, 23, 100):
@@ -140,6 +199,7 @@ class OriginalLiveDebugTests(unittest.TestCase):
         debug = build_original_debug_frame(live.snapshot(), 22)
         self.assertIs(debug.screen, FrontEndScreen.TEAM_SELECT)
         self.assertEqual(len(debug.original_source_frame_overlays), 2)
+        self.assertEqual(debug.native_caption_overlays, ())
         self.assertEqual(
             [o.event for o in debug.original_source_frame_overlays],
             [0x29, 0x2A],
@@ -159,10 +219,15 @@ class OriginalLiveDebugTests(unittest.TestCase):
         self.assertEqual(window.canvas.kwargs["width"], 800)
         self.assertEqual(window.canvas.kwargs["height"], 600)
         self.assertIn("DEVELOPER PREVIEW", root.values["title"])
-        self.assertEqual(len(window.canvas.images), 5)
+        self.assertEqual(len(window.canvas.images), 9)
         self.assertEqual(
-            [(x, y) for x, y, _ in window.canvas.images[1:]],
+            [(x, y) for x, y, _ in window.canvas.images[1:5]],
             [(181, 478), (7, 478), (355, 478), (181, 508)],
+        )
+        self.assertEqual(
+            [(x, y) for x, y, _ in window.canvas.images[5:]],
+            [(item.caption.line_origin_x, item.caption.line_origin_y)
+             for item in live.snapshot().controls],
         )
         window.step_source_frame(1)
         self.assertEqual(window.source_frame_index, 1)
@@ -170,7 +235,7 @@ class OriginalLiveDebugTests(unittest.TestCase):
         self.assertEqual(window.source_frame_index, 0)
         window.on_original_click(SimpleNamespace(x=20, y=78))
         self.assertIs(live.snapshot().screen, FrontEndScreen.START_MENU)
-        self.assertEqual(len(window.canvas.images), 5)
+        self.assertEqual(len(window.canvas.images), 9)
         window.on_original_click(SimpleNamespace(x=7, y=478))
         self.assertIs(live.snapshot().screen, FrontEndScreen.TEAM_SELECT)
         self.assertEqual(len(window.canvas.images), 3)
