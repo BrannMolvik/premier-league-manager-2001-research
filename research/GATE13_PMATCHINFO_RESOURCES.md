@@ -438,3 +438,88 @@ Still open:
 2. PMatchInfo event/tab interaction behavior and remaining internal controls;
 3. direct final consumers for four name blocks and three possession strips;
 4. intentional original asset import and integrated Windows validation.
+
+
+## PMatchInfo tab and exit interaction
+
+The canonical executable now closes the previously open PMatchInfo tab/event
+boundary without relying on visual inference.
+
+### Three source-proven tabs
+
+The dialog constructs exactly three contiguous `fmRadioButton6` controls
+(vtable `0x7C4474`, COL `0x7E4D10`, TypeDescriptor `0x81D108`) at
+object offsets `+0x14A4`, `+0x14F8`, and `+0x154C`. Their constructor is
+`0x488570`; the array has three elements with exact stride `0x54`.
+
+Base event binder `0x64F3C0` stores the first setup argument at control
+`+0x20` and the owner at `+0x24`. PMatchInfo therefore source-binds the
+three controls as event IDs **1, 2, 3**.
+
+| Event | Control | English global / loader entry | Original caption | Embedded target panel |
+| ---: | ---: | --- | --- | --- |
+| 1 | `+0x14A4` | `0x982C38` / 1776 | `MATCH INFO` | `+0x1C0` `PMatchInfoSubPanel` (TD `0x81D0A0`, vtable `0x7C426C`) |
+| 2 | `+0x14F8` | `0x982C3C` / 1775 | `TEAM INFO` | `+0x8F0` `PTeamInfoSubPanel` (TD `0x81D038`, COL `0x7E4B10`, vtable `0x7C4220`) |
+| 3 | `+0x154C` | `0x982008` / 2556 | `FINANCIAL` | `+0xB10` `PFinanceSubPanel` (TD `0x81D1E8`, COL `0x7E4D60`, vtable `0x7C4530`) |
+
+The `FINANCIAL` caption is independently joined through the same complete
+2,714-entry English loader used by the preceding PMatchInfo text trace.
+
+### Default active panel and switching
+
+Constructor `0x487580` creates the concrete Match Info panel first at
+`+0x1C0`. At `0x4879C6` that exact pointer is stored in PMatchInfo
+`+0x1390`. Setup `0x484F90` passes `+0x1390` to helper `0x650B20`,
+which stores the target at `eCSubPanel+0x2C`.
+
+The host at PMatchInfo `+0x17A8` is RTTI-proven **`eCSubPanel`**
+(TypeDescriptor `0x81B780`, COL `0x7E1BF0`, vtable `0x7C0668`).
+Therefore **MATCH INFO is the source default**, not an inferred first-tab
+convention.
+
+PMatchInfo event handler `0x488B70` compares the incoming control pointer
+directly with the three tab objects. For each tab it:
+
+1. stores the selected embedded panel at host `+0x2C`;
+2. writes literal `2` to selected panel `+0x04`;
+3. writes the host pointer to selected panel `+0x08`;
+4. reapplies the host rectangle through `0x653320`;
+5. calls host refresh helper `0x64F600`.
+
+No unproven modern navigation abstraction is introduced.
+
+### Cross button and Escape use the same Windows message
+
+The control at PMatchInfo `+0x17D8` is RTTI-proven
+**`fmCrossButton@fm2001_ctrls`** (TD `0x81BBD8`, COL `0x7E2358`,
+vtable `0x7C0DA0`). Setup assigns event ID **7** through the same
+`0x64F3C0` event binder.
+
+In `0x488B70`, a non-tab control whose source event field `+0x20` is 7
+calls helper `0x6539F0(7)`. Separate key handler `0x488C60` compares its
+16-bit key value with **`0x1B`** (Escape) and calls the same helper with 7.
+
+`0x6539F0` passes the owner window to `0x659650`, whose import target is
+Windows **`PostMessageA`**, with the exact tuple:
+
+`message = 0x400 (WM_USER), wParam = 7, lParam = 0`.
+
+This proves the cross control and Escape converge on the same original custom
+window-message path. The receiver-side higher-level name for message code 7 is
+not invented here.
+
+### Boundary after this checkpoint
+
+Closed:
+- exact three-tab count/order/event IDs/captions;
+- concrete Match Info / Team Info / Finance subpanel RTTI and object offsets;
+- source-default Match Info selection and eCSubPanel target wiring;
+- cross-button identity and shared Escape/custom-message path.
+
+Still open:
+1. direct final consumers for four name-block and three possession-strip
+   resources;
+2. receiver-side higher-level interpretation of the WM_USER/wParam=7 message
+   if needed for final behavior parity;
+3. intentional original Match Report asset import and integrated Windows
+   validation.
