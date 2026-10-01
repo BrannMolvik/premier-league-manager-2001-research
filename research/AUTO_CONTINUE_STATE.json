@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the active validation gate. Exact deferred local task: run the real Windows PStartMenu/TeamSelect graphical audit, then recover remaining TeamSelect hierarchy item/input/selection-state semantics and broader management-screen fidelity. Gate 16 mixed shared-primary scheduler stress is verified and reconciled on main through 66fc1d3c90737a7b59ef014bad3140d5a2d91361. Current independent cloud-safe task: combine repeated annual primary regeneration with internal save/reload in a bounded destructive soak, measuring serialized payload/state growth and proving replaced season-owned runtime structures do not accumulate; canonical real-data multi-season evidence remains separately required.",
-  "last_known_main_head": "66fc1d3c90737a7b59ef014bad3140d5a2d91361",
+  "active_task": "Gate 13 remains the active validation gate. Exact deferred local task: run the real Windows PStartMenu/TeamSelect graphical audit, then recover remaining TeamSelect hierarchy item/input/selection-state semantics and broader management-screen fidelity. Gate 16 annual regeneration/save-growth soak is verified and reconciled on main through cc0b32f0ccf60fc53c9215a1f9f925ebcf808375. Current independent cloud-safe task: extend the five-year autonomous-transfer churn with periodic internal game-state save/reload round-trips, proving completed movement history remains exactly event-proportional, transient transfer containers stay empty, roster ownership remains valid, and serialization does not duplicate or lose persistent transfer history.",
+  "last_known_main_head": "cc0b32f0ccf60fc53c9215a1f9f925ebcf808375",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 131,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 131 merged and reconciled the mixed shared-primary Gate 16 stress: PR #58, 1,132 tests with 22 expected skips, asset policy passed. Continuing immediately with the next distinct cloud-safe Gate 16 state-growth/save-reload soak while Gate 13 remains the earliest incomplete validation gate.",
+  "recovery_generation": 132,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 132 resumed after PR #59 passed 1,133 tests with 22 expected skips and asset policy, merged as a9ec833173a92a4b8b3c2238d91943c159f7fa92, then reconciled main. Continuing immediately into transfer-history save/reload growth stress while Gate 13 remains earliest incomplete.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
