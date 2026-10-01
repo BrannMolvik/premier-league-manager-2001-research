@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 154 resumes from merged PR #83 at main 7381efcf9ca912d684406effc5ff3b4da1f2d1d8. Gate-13 run 36922149326 passed 323 tests with 21 expected skips and asset-policy run 36922149239 passed. Exact next task: source-trace PLeagueFixtures country/category and competition selector shell, including exact country IDs, selected indices, competition labels, control identities and event navigation; preserve unresolved semantics fail-closed.",
-  "last_known_main_head": "7381efcf9ca912d684406effc5ff3b4da1f2d1d8",
+  "active_task": "Recovery 155 resumes from merged PR #84 at main 501707f396aa2af7ca66dffcd7a5ecf8189c4df7. Gate-13 run 36923762250 passed 330 tests with 21 expected skips and asset-policy run 36923762398 passed. Exact next task: source-bind League Fixtures non-null cell action 0x488C80 to PMatchInfo and recover only independently proven constructor/navigation semantics; then continue remaining League Fixtures non-selector controls if productive.",
+  "last_known_main_head": "501707f396aa2af7ca66dffcd7a5ecf8189c4df7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 154,
-  "last_recovery_reason": "post-pr83-merge-continuation",
-  "note": "Recovery 154 continues beyond verified League Fixtures matrix/navigation. Do not repeat matrix, score/date, red diagonal or grid navigation work.",
+  "recovery_generation": 155,
+  "last_recovery_reason": "post-pr84-merge-continuation",
+  "note": "Recovery 155 continues beyond verified country/League selectors. Do not repeat selector, matrix, cell-state, resource or panel-identity work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
