@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 159 resumes from main ab39fd753e94c6ccfcea13ebbcd1d9576133efdb. Exact task: close the seven remaining Match Report resource consumers. Fresh exhaustive PE reference analysis shows name_block_1..4 and poss_back/poss_blue/poss_yellow are referenced only by their static loader/setup and global lifetime helpers, with no PMatchInfo/TeamInfo/Finance/runtime UI xrefs or computed base-address access. Persist this negative source evidence as loaded-but-unconsumed in the canonical executable rather than inventing bindings; then continue Match Report asset-import/Windows integration work.",
-  "last_known_main_head": "ab39fd753e94c6ccfcea13ebbcd1d9576133efdb",
+  "active_task": "Recovery 159 merged PR #91 as ae324cb3ba585dff1f96ff19053e35bc62917540 after Gate-13 run 36938526562 passed 361 tests with 21 expected skips and asset-policy run 36938526517 passed. Exact next task: import/stage the 13 Match Report assets with source-proven runtime presentation consumers under original_assets/source with byte-identical provenance; deliberately exclude the seven source-audited loaded-but-unconsumed assets. Then integrate PMatchInfo presentation and perform corrected Windows validation.",
+  "last_known_main_head": "ae324cb3ba585dff1f96ff19053e35bc62917540",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 159,
   "last_recovery_reason": "connection-interrupted",
-  "note": "Recovery 159 started after transient connection interruption; do not redo merged PMatchInfo tab/exit or text-producer work.",
+  "note": "Recovery 159 continues from verified PR #91 into source-proven Match Report asset import; seven loaded-but-unconsumed assets stay excluded from runtime integration unless new source evidence appears.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
