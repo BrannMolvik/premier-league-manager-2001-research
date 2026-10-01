@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete. Recovery 136 canonical rerun after PR #64 exposed an audit-only cycle-0 procedural projection mismatch. PR #65 fixes the checker to use the same source-authorized procedural competition ID set as annual regeneration; 24 focused integration tests pass, asset policy passes, full CI and the exact shipped-data three-rollover rerun are in progress.",
+  "active_task": "Gate 13 remains earliest incomplete. Recovery 137 is continuing the exact Recovery-136 task: PR #65 has green asset-policy and full reconstruction CI; the canonical seed-1 three-rollover shipped-data rerun is still actively executing. Merge PR #65 only after that exact canonical run passes; otherwise capture and regress the next failure.",
   "last_known_main_head": "b7b96927094cf13c296742928731e3b43491bdd4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 136,
+  "recovery_generation": 137,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #65 head 31ab282de6d6f62b498801de624526276837ce5a. Asset policy run 36867367968 passed; reconstruction run 36867368043 is running. Local exact branch runner blob 8ba644a83c6112b3262f69f7717a03d7bb5116d9 is executing canonical seed-1 three rollovers as recovery136b_canonical.",
+  "note": "Recovery 137 resumed without restarting work. PR #65 head 31ab282de6d6f62b498801de624526276837ce5a: asset policy run 36867367968 passed and reconstruction run 36867368043 passed. Exact canonical rerun recovery136b_canonical remains alive in the execution container (python PID 2481, CPU-bound); await its exit/result, then merge or regress.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
