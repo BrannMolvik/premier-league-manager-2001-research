@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete validation gate. Recovery 136 canonical rerun against merged PR #64 failed at cycle 0 inside the new audit checker: the checker inferred shared-primary procedural entries from materialized live owner keys, but the real source-backed primary-order constructor retains all allowed procedural competition IDs. Repair the audit to rebuild exact expected shadow/Cup/primary projections from regeneration.shuffle.buckets and the same source-derived procedural ID set, regress this boundary, then rerun canonical three rollovers.",
+  "active_task": "Gate 13 remains earliest incomplete. Recovery 136 canonical rerun after PR #64 exposed an audit-only cycle-0 procedural projection mismatch. PR #65 fixes the checker to use the same source-authorized procedural competition ID set as annual regeneration; 24 focused integration tests pass, asset policy passes, full CI and the exact shipped-data three-rollover rerun are in progress.",
   "last_known_main_head": "b7b96927094cf13c296742928731e3b43491bdd4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 136,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #64 remains a valid partial repair of the false cross-season equal-shape invariant, but its hand-built current-projection checker is too narrow for primary procedural contexts. Canonical rerun failed after 427.26s with 'cycle 0: fresh shared-primary order differs from current regeneration projection'. Runtime itself had completed the first canonical season/regeneration; next work is audit-checker repair, not simulation rollback.",
+  "note": "PR #65 head 31ab282de6d6f62b498801de624526276837ce5a. Asset policy run 36867367968 passed; reconstruction run 36867368043 is running. Local exact branch runner blob 8ba644a83c6112b3262f69f7717a03d7bb5116d9 is executing canonical seed-1 three rollovers as recovery136b_canonical.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
