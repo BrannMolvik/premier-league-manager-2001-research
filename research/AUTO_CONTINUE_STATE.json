@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and private execution is still blocked by caas.internal.errors.ClientError. Gate-14 PR #72 is merged at 0bb489e0b6d397c26beda463c4a3783da96af02c with a fail-closed outside-Git TGQ conversion/probe receipt runner (1,154 tests, 22 expected skips, asset policy passed). PR #73 is now retargeted to main and adds the next cloud-safe layer: re-hash and validate private converted derivatives before any future playback surface may consume them.",
-  "last_known_main_head": "0bb489e0b6d397c26beda463c4a3783da96af02c",
+  "active_task": "Recovery 144 resumes PR #74 at verified source-backed TeamSelect club/user mapping. Focused Gate-13 CI (276 tests, 21 expected skips) and asset policy are green on head 5ee87bae88d5c429908f18b47aa46650bc1913a1. Exact next step: reconcile canonical Gate-13 ledgers/status for the corrected private selection trace, rerun the final branch checks, merge PR #74, then pursue the upgraded real Windows/Tk audit or the highest-priority independent cloud-safe Gate-13 work if Windows GUI remains unavailable.",
+  "last_known_main_head": "0942783fee3f44dc2197e27ae49b6d4514a4b7d3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 143,
-  "last_recovery_reason": "recovery-143-fresh-chat-auto-recovery",
-  "note": "Recovery 143 resumed from GitHub canonical state after same-chat no-progress fallback. Runtime marked working before substantive work; exact current task is PR #73 derivative validation while Gate 13 private TeamSelect/Windows evidence remains externally blocked.",
+  "recovery_generation": 144,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 144 continued the interrupted Recovery-143 TeamSelect correction from GitHub canonical state. PR #74 is open and green; ledger reconciliation and merge are the immediate checkpoint, not mission completion.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
