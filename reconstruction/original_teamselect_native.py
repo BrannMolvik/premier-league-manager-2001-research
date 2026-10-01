@@ -294,7 +294,7 @@ class TeamSelectHierarchyModel:
     # Reconstruction record index for visible row state only. The interrupted
     # trace's claimed native payload identity conflicts with an earlier verified
     # DBRClub+0x40 manager-ID mapping, so this is not yet a source-exact backend ID.
-    selected_club_id: int | None = None
+    selected_club_record_index: int | None = None
 
     def __post_init__(self) -> None:
         expected = tuple(country_id for country_id, _ in TEAMSELECT_ENGLISH_COUNTRY_ORDER)
@@ -375,7 +375,7 @@ class TeamSelectHierarchyModel:
                     club_id,
                     str(club.name),
                     NativeControlState.ACTIVE
-                    if club_id == self.selected_club_id
+                    if club_id == self.selected_club_record_index
                     else NativeControlState.NORMAL,
                 )
             )
@@ -386,7 +386,7 @@ class TeamSelectHierarchyModel:
         if type(visible_index) is not int or not 0 <= visible_index < len(rows):
             raise TeamSelectNativeError("Unknown visible hierarchy row")
         row = rows[visible_index]
-        self.selected_club_id = None
+        self.selected_club_record_index = None
         if row.kind is HierarchyRowKind.COUNTRY:
             self.selected_country_id = row.source_id
             self.selected_competition_id = None
@@ -399,8 +399,8 @@ class TeamSelectHierarchyModel:
         if type(visible_index) is not int or not 0 <= visible_index < len(rows):
             raise TeamSelectNativeError("Unknown visible club row")
         row = rows[visible_index]
-        self.selected_club_id = (
-            None if self.selected_club_id == row.club_id else row.club_id
+        self.selected_club_record_index = (
+            None if self.selected_club_record_index == row.club_id else row.club_id
         )
         return row
 
