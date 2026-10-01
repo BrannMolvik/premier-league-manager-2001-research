@@ -959,7 +959,7 @@
   "gate13_league_fixtures_panel_constructor": "0x46D470",
   "gate13_league_fixtures_panel_vftable": "0x7C24B8",
   "gate13_calendar_fixtures_navigation_evidence": "research/GATE13_CALENDAR_FIXTURES_NAVIGATION.md",
-  "gate13_fixtures_results_identity_status": "league_fixtures_and_pmatchinfo_navigation_resources_local_geometry_zurich16_text_and_shared_incident_control_source_proven_text_meanings_incident_predicates_seven_consumers_asset_import_windows_validation_open",
+  "gate13_fixtures_results_identity_status": "league_fixtures_and_pmatchinfo_navigation_resources_local_geometry_zurich16_text_producers_shared_incident_control_and_incident_predicates_source_proven_event_decimal_semantics_seven_consumers_asset_import_windows_validation_open",
   "gate13_calendar_fixtures_navigation_merge": "9da4c89f67aaba7b263354591497d596ca50edd1",
   "gate13_calendar_fixtures_navigation_ci_run": 36916343766,
   "gate13_calendar_fixtures_navigation_asset_policy_run": 36916343760,
@@ -1166,5 +1166,32 @@
   "gate13_pmatchinfo_script_row1_update_va": "0x4858E0",
   "gate13_pmatchinfo_script_row2_class": "PScriptRow2",
   "gate13_pmatchinfo_script_row2_update_va": "0x485F50",
-  "gate13_pmatchinfo_dynamic_incident_selection_predicates_open": true
+  "gate13_pmatchinfo_dynamic_incident_selection_predicates_open": false,
+  "gate13_pmatchinfo_incident_control_merge": "6ae2f39caba70e8f31ec651cf98ccaff1be832a6",
+  "gate13_pmatchinfo_incident_control_ci_run": 36933211315,
+  "gate13_pmatchinfo_incident_control_test_count": 352,
+  "gate13_pmatchinfo_incident_control_expected_skips": 21,
+  "gate13_pmatchinfo_incident_control_asset_policy_run": 36933211343,
+  "gate13_pmatchinfo_text_producers_source_proven": true,
+  "gate13_pmatchinfo_text_producer_count": 6,
+  "gate13_pmatchinfo_english_loader_range": [
+    "0x635F30",
+    "0x64C7D4"
+  ],
+  "gate13_pmatchinfo_english_loader_entry_count": 2714,
+  "gate13_pmatchinfo_language_binding_count": 17,
+  "gate13_pmatchinfo_script_event_label_source_proven": true,
+  "gate13_pmatchinfo_script_event_decimal_source_offset": "0x00",
+  "gate13_pmatchinfo_script_event_decimal_field_semantics_open": true,
+  "gate13_pmatchinfo_player_text_source": "DBTPositions string field +0x0C",
+  "gate13_pmatchinfo_positions_type_descriptor": "0x8182F8",
+  "gate13_pmatchinfo_positions_vftable": "0x7BD394",
+  "gate13_pmatchinfo_popup_text_update_va": "0x4885A0",
+  "gate13_pmatchinfo_popup_text_source_roles": [
+    "Attendance",
+    "Ref.",
+    "Mom"
+  ],
+  "gate13_pmatchinfo_dynamic_incident_selection_predicates_source_proven": true,
+  "gate13_pmatchinfo_text_meanings_open_reason": "event_record+0x00 decimal field remains semantically neutral"
 }
