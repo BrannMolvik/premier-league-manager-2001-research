@@ -168,7 +168,7 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
         self.assertTrue(presenter.session.started)
         self.assertEqual(built[0].chosen, [12])
 
-    def test_native_club_row_toggle_stays_fail_closed_from_backend_id_mapping(self):
+    def test_native_club_row_toggle_uses_row_club_identity_and_preserves_users(self):
         presenter, built = self.presenter()
         presenter.pointer(7, 478)
         countries = {
@@ -187,31 +187,36 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
             runtime_kind_code=1,
             parent_competition_id=None,
         )
-        club = SimpleNamespace(index=0, name="Arsenal", competition_id=0)
-        presenter.hierarchy = TeamSelectHierarchyModel(
-            countries, (competition,), (club,)
+        clubs = (
+            SimpleNamespace(index=0, name="Arsenal", competition_id=0),
+            SimpleNamespace(index=1, name="Aston Villa", competition_id=0),
         )
-
-        # The developer-only backend picker uses a gameplay club ID. It must
-        # not seed the unresolved native selection-record index by coincidence.
-        presenter.choose_club(12)
-        self.assertEqual(presenter.session.selected_club_id, 12)
-        self.assertIsNone(presenter.hierarchy.selected_club_record_index)
-        presenter.session.clear_club_selection()
+        presenter.hierarchy = TeamSelectHierarchyModel(
+            countries, (competition,), clubs
+        )
 
         result = presenter.pointer(582, 79)
         self.assertIsInstance(result, OriginalHierarchyInteraction)
         self.assertEqual(result.row_kind, "club")
         self.assertEqual(result.source_id, 0)
-        self.assertEqual(result.selected_club_record_index, 0)
-        self.assertEqual(presenter.hierarchy.selected_club_record_index, 0)
+        self.assertEqual(result.selected_club_ids, (0,))
+        self.assertEqual(presenter.hierarchy.selected_club_ids, (0,))
+        self.assertEqual(presenter.session.selected_club_id, 0)
+        self.assertEqual(built[0].chosen, [])
+
+        # The second row adds another original-style user rather than replacing
+        # the first. The single-manager backend stays untouched until Start.
+        result = presenter.pointer(582, 98)
+        self.assertEqual(result.selected_club_ids, (0, 1))
+        self.assertEqual(presenter.session.selected_club_ids, (0, 1))
         self.assertIsNone(presenter.session.selected_club_id)
         self.assertEqual(built[0].chosen, [])
 
-        presenter.pointer(582, 79)
-        self.assertIsNone(presenter.hierarchy.selected_club_record_index)
-        self.assertIsNone(presenter.session.selected_club_id)
-        self.assertEqual(built[0].chosen, [])
+        # Hierarchy navigation must not destroy already-created original users.
+        hierarchy_result = presenter.pointer(20, 78)
+        self.assertEqual(hierarchy_result.selected_club_ids, (0, 1))
+        self.assertEqual(presenter.hierarchy.selected_club_ids, (0, 1))
+        self.assertEqual(presenter.session.selected_club_ids, (0, 1))
 
     def test_back_returns_to_original_menu_without_hidden_backend_reset(self):
         presenter, built = self.presenter()
