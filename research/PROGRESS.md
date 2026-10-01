@@ -9712,3 +9712,15 @@ canonical audit.
 - Route state 0 selects PMenu panel code `0xCE`; factory `0x47AEC0` case `0x47AF2D` allocates the panel and calls `0x4B8240`, which installs `PSquadScreen` vtable `0x7C5CA4`. Therefore fresh new-game management content begins on Squad, not on an unproven generic Manager Home panel.
 - Route state 1 selects code `0x25A`; factory case `0x47C6D1` calls `0x448640`, whose panel vtable is `0x7C00C8` / `PLeagueTables`. PMenu then clears nonzero route state to zero. Other nonzero values use the Squad route and are likewise cleared.
 - Added `reconstruction/original_management_shell.py` plus regressions and `research/GATE13_MANAGEMENT_SHELL_ROUTE.md`; reconciled the management-screen/resource/separation audits and corrected the roadmap suggested order. The real Windows/Tk corrected first-screen rerun remains a separate validation requirement.
+
+
+## 2 October 2026 - Recovery 145 PMenu row chrome and menu topology
+
+- Resumed canonical main `3adf75e713c70dd3a3cddf9f5df9db6e34e19b5d` after PR #75 had already merged; no TeamSelect or fresh-route work was repeated.
+- Reused the still-healthy private canonical executable/source staging and continued from `PMenu` into its concrete row-class family: `CMenuList`, `PBaseMenuRow`, `PTitleMenuRow`, `PChildMenuRow`, `MenuTitleArrow`, `MenuBackgroundToggle`, and the title/child selection bitmap classes. The row builder advances in exact 29-pixel steps.
+- Source-bound four original management-menu resources through literal path, raw handle, wrapper and concrete row setup: `menu_arrow_anim.444` + `submenu_main_box.444` for title rows, and `menu_anim.444` + `menu_main_box.444` for child rows. Their exact source sizes, SHA-256 values and EA444 geometries are persisted in `research/GATE13_PMENU_CHROME_TRACE.md` and `reconstruction/original_pmenu_chrome.py`.
+- Re-read all four selected files from the authorized private source. All matched the persisted hashes, byte sizes, dimensions and original `64 ff 00 ff` EA444 descriptor. Heights resolve to exact 29-pixel stacks of 22, 3, 23 and 4 rows.
+- Recovered the nine-root static menu tree at `0x947638` plus every child array. The implementation retains unresolved label globals as `None`/fail-closed. Only exact main-English loader/global correlations are named, including Team, Analysis, EAMail, Stats, Team Orders, Training, Youth Team, League Tables, Cup Tables, Stadium, Development, Maintenance, Cash Flow, Tickets and Contracts.
+- A separate array at `0x9475A0` contains Formation/Stats/Ind Orders/Specific Roles/Team Orders, but its owning navigation edge is not yet proven and it is deliberately kept out of the main root hierarchy.
+- `menu_anim_disabled.444` and `GenericButtonsAndBars/menu_arrow.444` were found and checked privately but are not promoted as PMenu-row resources because their ownership/state meaning is not yet source-proven.
+- Exact next work after hosted validation: recover unresolved PMenu row label globals, font/color/clipping and state-to-frame mapping and/or provenance-import the four already-correlated assets. The corrected real-Windows PStartMenu/TeamSelect audit remains separately open.
