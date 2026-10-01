@@ -121,6 +121,15 @@ Evidence:
   the pinned canonical source hashes, and run at least three consecutive
   qualification/regeneration cycles. Persist the JSON evidence and convert any
   discovered failure into a regression before continuing.
+- **Recovery 134 final execution boundary:** after the runner/bootstrap
+  checkpoint, Files successfully materialized both persistent inputs into the
+  workspace (`fm2001-source.zip`, 511,121,336 bytes; `fm2001-runtime.zip`,
+  688,773 bytes). An independent user-visible Python execution path then also
+  failed before process start with `caas.internal.errors.ClientError`. Together
+  with the first shell failure, every available process-execution route in this
+  allocation is unusable. The blocker is therefore execution infrastructure,
+  not source availability, runtime transport, GitHub access, or missing audit
+  code. No canonical multi-season result is claimed.
 - Gate 17 release-readiness evidence is now fail-closed and machine-checkable at
   `9e7cb18be721ea2ae89b074991e120d3e60e4c68`; it intentionally cannot pass
   without real clean-Windows receipts, a release archive and final limitations.

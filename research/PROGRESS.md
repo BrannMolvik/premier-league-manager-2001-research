@@ -9559,3 +9559,22 @@ earliest incomplete validation gate.
   through Files before starting a shell, eliminating dependence on in-sandbox
   GitHub DNS/network access, then execute the merged runner and persist its JSON
   evidence.
+
+
+## 1 October 2026 - Recovery 134 all process execution paths confirmed blocked
+
+- After merging/checkpointing the canonical multi-season runner, Files
+  successfully materialized the canonical 511,121,336-byte source archive and
+  the persistent 688,773-byte reconstruction runtime ZIP into the execution
+  workspace without requiring a shell.
+- The independent user-visible Python environment was then invoked solely to
+  verify/access those files and also failed before process start with
+  `caas.internal.errors.ClientError`.
+- This confirms the remaining blocker in Recovery 134 is the execution
+  allocation itself. Repository access, canonical source availability, runtime
+  transport, CI, and the audit runner are all available. No canonical season
+  was executed and no source hash was re-verified in this failed allocation.
+- Exact next action: in the next healthy allocation, materialize the same two
+  Library ZIPs before launching a process, extract them outside Git, re-verify
+  the pinned canonical files, place/invoke the merged multi-season runner, and
+  execute at least three consecutive qualification/regeneration cycles.

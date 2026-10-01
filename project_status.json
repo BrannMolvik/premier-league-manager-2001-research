@@ -711,8 +711,8 @@
   "gate16_canonical_source_materialized_recovery_132": true,
   "gate16_canonical_root_files_hash_verified_recovery_132": true,
   "gate16_canonical_multiseason_audit_executed": false,
-  "gate16_canonical_multiseason_audit_status": "runner_ready_execution_pending_recovery_134",
-  "gate16_cloud_process_execution_status": "blocked_clienterror_recovery_134_first_process",
+  "gate16_canonical_multiseason_audit_status": "runner_ready_all_process_execution_blocked_recovery_134",
+  "gate16_cloud_process_execution_status": "blocked_clienterror_recovery_134_all_available_process_paths",
   "gate16_recovery_133_source_archive_materialized": true,
   "gate16_recovery_133_source_archive_hash_reverified": false,
   "gate16_recovery_133_main_head": "120400bd1ce25e449897e927e00dfa9f945076eb",
@@ -728,5 +728,8 @@
   "gate16_runtime_bootstrap_artifact_id": 11155211053,
   "gate16_runtime_bootstrap_artifact_digest": "sha256:9167302c608882161954109d617824422671d2999d69006bff5d662adeb2c4d6",
   "gate16_runtime_bootstrap_reconstruction_head": "120400bd1ce25e449897e927e00dfa9f945076eb",
-  "gate16_recovery_134_source_hash_reverified": false
+  "gate16_recovery_134_source_hash_reverified": false,
+  "gate16_recovery_134_source_archive_materialized": true,
+  "gate16_recovery_134_runtime_archive_materialized": true,
+  "gate16_recovery_134_independent_python_execution_failed": true
 }
