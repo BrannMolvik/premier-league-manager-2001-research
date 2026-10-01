@@ -9777,3 +9777,14 @@ canonical audit.
 - The bit-clear path calls fixture date accessor `0x510A20`, decomposes the date through `0x64CCD0`, and formats day/month with exact string `0x81C4F8 = "%02i.%02i"`.
 - Current/previous selected indices at `PLeagueFixtures+0x109B4/+0x109B0` drive `toggled_fixtures_box.444`: the refresh path restores a previous index to its base played/date/red boxes, then overlays all 24 cells of the newly selected index with the toggled wrapper.
 - Empty fixture slots choose red versus date from a separate boolean/table-identity predicate. Its football meaning remains intentionally unresolved rather than guessed.
+
+
+## 2 October 2026 - Recovery 153 League Fixtures matrix and grid navigation
+
+- Resumed from canonical main `cac2e5e92a6a195bf1a271e517ed90b5535f9908`; PR #82 had already merged, so prior League Fixtures panel/resource/cell-state work was not repeated.
+- Closed the former empty-slot red predicate. The embedded `PLeagueGrid` at `PLeagueFixtures+0x1CF0` stores its outer panel pointer at `+0x2C`. Both compared 0x4C-stride header families are RTTI-proven `ClubText` arrays; `ClubText::0x5D5490` stores the exact supplied club pointer at `+0x48`. Equality of row and column `ClubText+0x48` selects `red_fixtures_box.444`. This is the same-club self-fixture diagonal.
+- Matrix builder `0x46D950` prepares the selected competition member list through `0x4F4940`, assigns each resolved club a temporary zero-based matrix index at `club+0x2A0`, and allocates repeat layers from `0x616F40(selected_competition) / 2` using the original truncating integer sequence.
+- The builder scans the global fixture chain-head region at `0x947AD8` over exactly `0x5D4` bytes = 373 heads. It accepts only virtual kind-code 1 fixtures for the selected competition, rejects fixture status `+0x44 bit 0x20`, requires both side club references, and inserts by `layer*N*N + left*N + right`. Same-pair duplicates advance by exactly `N*N`, preserving chain encounter order. Bit `0x20` remains intentionally unnamed beyond “matrix-exclusion bit”.
+- The 12 visible column ClubText controls show competition members starting at panel offset `+0xA4`; the 24 row controls are layer-major `row = layer*N + club_index`. Left/right paging changes `+0xA4` by exactly 12 and clamps to 0 / `club_count-12`.
+- Pointer method `0x46D300` reduces valid grid-relative coordinates by exact integer divisions `dx//29` and `dy//14`, then selects column 0..11 and row 0..23. Companion `0x46D390` performs the same lookup and calls `0x488C80` only for a non-null fixture; this downstream action remains address-only pending semantic proof.
+- Added fail-closed clean-room helpers/regressions for the same-club diagonal, neutral candidate filters, repeat-layer slots, paging, selector bounds and pointer coordinate mapping. Exact next work after CI is remaining surrounding League Fixtures controls/navigation or the next highest-priority Gate-13 screen slice.
