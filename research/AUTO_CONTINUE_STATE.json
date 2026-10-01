@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 137,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Seed-1 canonical three-rollover audit passed and is persisted through main cf211f6f0c6170172d98de9965d974ed50f4ffa7. PR #65 merged as 7f3f83eb98b9f29039b691197505dbe74c8b0851; CI 36867367968 and 36867368043 passed. Seed-2 canonical run is active as python PID 2852 in /mnt/data/fm2001-recovery135.",
+  "note": "Recovery 137 seed-1 canonical pass is fully persisted on main cf211f6f0c6170172d98de9965d974ed50f4ffa7. Seed-2 canonical three-rollover audit remains actively CPU-bound in the execution container (PID 2852), >14 minutes elapsed, no stderr; continue observing exact process.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
