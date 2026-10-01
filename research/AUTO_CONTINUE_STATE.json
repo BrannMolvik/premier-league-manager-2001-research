@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 124,
   "last_recovery_reason": "manual-start",
-  "note": "Recovery 124: manual-start resumed current main cad50f8d9fa45f57608971db3eff5f2bbc817d47. The only main change since the last Gate-13 checkpoint 6213ff960a5ddfd5194cf65740efe0878731d601 is the unattended-recovery extension v0.3.9; no newer Gate-13 fidelity work exists. Fresh trivial shell and private Python probes both failed with ClientError before process start. The four Squad catalog candidates remain private/outside Git, so no safe ownership inference can be made from repository filenames. No user action is required; remain continuous/working for automatic recovery on a functioning execution backend.",
+  "note": "Recovery 124: manual-start resumed current main cad50f8d9fa45f57608971db3eff5f2bbc817d47. The only main change since Gate-13 checkpoint 6213ff960a5ddfd5194cf65740efe0878731d601 is recovery-extension v0.3.9. Fresh shell and private Python probes both fail with ClientError before process start. A separate Library/file-service fallback confirms the canonical 511,121,336-byte authorized source ZIP still exists at /FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip, but archive content is neither indexed for search nor readable through the file service. The four Squad catalog candidates therefore cannot be recovered or correlated safely without an archive/executable process. No user action is required; remain continuous/working for automatic recovery on a functioning execution backend.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
