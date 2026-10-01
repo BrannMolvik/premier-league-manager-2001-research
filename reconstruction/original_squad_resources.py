@@ -43,6 +43,35 @@ class OriginalSquadButton:
     origin: tuple[int, int]
 
 
+@dataclass(frozen=True)
+class OriginalSquadRect:
+    x: int
+    y: int
+    width: int
+    height: int
+
+
+@dataclass(frozen=True)
+class OriginalFormationTextRow:
+    index: int
+    form_control_id: int
+    bar_control_id: int
+    form_object_offset: int
+    bar_object_offset: int
+    form_rect: OriginalSquadRect
+    bar_rect: OriginalSquadRect
+
+
+@dataclass(frozen=True)
+class OriginalSquadViewTransition:
+    control_id: int
+    original_text: str
+    left_roster: str
+    second_roster_mask1: bool
+    pitch_mask1: bool
+    pitch_team_index: int | None
+
+
 # PSquadScreen::0x4B5720 registers these controls through vtable slot +8
 # (0x64F3C0), which stores the numeric ID and owner. The language loader's
 # sequential 16-bit reads bind English.idx entries 2490..2492 to the globals.
@@ -52,6 +81,48 @@ SQUAD_BUTTONS = (
     OriginalSquadButton(3, 0x37A4, 0x982110, 2490, "1ST & RES", (37, 92)),
     OriginalSquadButton(4, 0x37F8, 0x98210C, 2491, "1ST FORM", (113, 92)),
     OriginalSquadButton(5, 0x384C, 0x982108, 2492, "RES. FORM", (189, 92)),
+)
+
+CBASE_PLAYER_LIST_CLASS = "CBasePlayerList"
+CBASE_PLAYER_LIST_TYPE_DESCRIPTOR_VA = 0x81DCB8
+CBASE_PLAYER_LIST_VFTABLE_VA = 0x7C5BC8
+SQUAD_FIRST_ROSTER_OFFSET = 0x130
+SQUAD_RESERVE_ROSTER_OFFSET = 0x1030
+SQUAD_PITCH_OFFSET = 0x1F30
+SQUAD_FIRST_ROSTER_RECT = OriginalSquadRect(37, 0, 228, 520)
+SQUAD_RESERVE_ROSTER_RECT = OriginalSquadRect(418, 0, 228, 520)
+SQUAD_PITCH_RECT = OriginalSquadRect(388, 92, 412, 432)
+SQUAD_SCREEN_EVENT_HANDLER_VA = 0x4B8E70
+
+SQUAD_VIEW_TRANSITIONS = (
+    OriginalSquadViewTransition(3, "1ST & RES", "first", True, False, None),
+    OriginalSquadViewTransition(4, "1ST FORM", "first", False, True, 0),
+    OriginalSquadViewTransition(5, "RES. FORM", "reserve", False, True, 1),
+)
+
+SQUAD_PITCH_CLASS = "PSquadPitch"
+SQUAD_PITCH_TYPE_DESCRIPTOR_VA = 0x81DB30
+SQUAD_PITCH_VFTABLE_VA = 0x7C54A8
+SQUAD_PITCH_SETUP_VA = 0x4B3C80
+FORMATION_TEXT_CLASS = "FormationText"
+FORMATION_TEXT_TYPE_DESCRIPTOR_VA = 0x81DBC0
+FORMATION_TEXT_VFTABLE_VA = 0x7C5700
+FORMATION_TEXT_FORM_SETUP_VA = 0x4B6C30
+FORMATION_TEXT_BAR_SETUP_VA = 0x4B6B60
+FORMATION_TEXT_FORM_FRAME_SIZE = (23, 16)
+FORMATION_TEXT_BAR_FRAME_SIZE = (81, 16)
+
+FORMATION_TEXT_ROWS = tuple(
+    OriginalFormationTextRow(
+        index=index,
+        form_control_id=12 + index * 2,
+        bar_control_id=13 + index * 2,
+        form_object_offset=0x8C0 + index * 0x58,
+        bar_object_offset=0x1050 + index * 0x58,
+        form_rect=OriginalSquadRect(279, 25 + index * 17, 23, 16),
+        bar_rect=OriginalSquadRect(303, 25 + index * 17, 81, 16),
+    )
+    for index in range(22)
 )
 
 SQUAD_RESOURCES = (

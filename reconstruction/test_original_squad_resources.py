@@ -4,6 +4,17 @@ import tempfile
 import unittest
 
 from original_squad_resources import (
+    CBASE_PLAYER_LIST_CLASS,
+    CBASE_PLAYER_LIST_TYPE_DESCRIPTOR_VA,
+    CBASE_PLAYER_LIST_VFTABLE_VA,
+    FORMATION_TEXT_BAR_FRAME_SIZE,
+    FORMATION_TEXT_BAR_SETUP_VA,
+    FORMATION_TEXT_CLASS,
+    FORMATION_TEXT_FORM_FRAME_SIZE,
+    FORMATION_TEXT_FORM_SETUP_VA,
+    FORMATION_TEXT_ROWS,
+    FORMATION_TEXT_TYPE_DESCRIPTOR_VA,
+    FORMATION_TEXT_VFTABLE_VA,
     OriginalSquadResourceError,
     SQUAD_BUTTONS,
     SQUAD_BUTTON_ORIGINS,
@@ -12,6 +23,18 @@ from original_squad_resources import (
     SQUAD_SCREEN_SETUP_VA,
     SQUAD_SCREEN_TYPE_DESCRIPTOR_VA,
     SQUAD_SCREEN_VFTABLE_VA,
+    SQUAD_FIRST_ROSTER_OFFSET,
+    SQUAD_FIRST_ROSTER_RECT,
+    SQUAD_PITCH_CLASS,
+    SQUAD_PITCH_OFFSET,
+    SQUAD_PITCH_RECT,
+    SQUAD_PITCH_SETUP_VA,
+    SQUAD_PITCH_TYPE_DESCRIPTOR_VA,
+    SQUAD_PITCH_VFTABLE_VA,
+    SQUAD_RESERVE_ROSTER_OFFSET,
+    SQUAD_RESERVE_ROSTER_RECT,
+    SQUAD_SCREEN_EVENT_HANDLER_VA,
+    SQUAD_VIEW_TRANSITIONS,
     validate_imported_original_squad_resources,
     validate_original_squad_button_labels,
 )
@@ -71,6 +94,79 @@ class OriginalSquadResourceTests(unittest.TestCase):
                 root / "English.str", root / "English.idx"
             ),
             SQUAD_BUTTONS,
+        )
+
+    def test_roster_panels_pitch_bounds_and_event_transitions_are_locked(self):
+        self.assertEqual(CBASE_PLAYER_LIST_CLASS, "CBasePlayerList")
+        self.assertEqual(CBASE_PLAYER_LIST_TYPE_DESCRIPTOR_VA, 0x81DCB8)
+        self.assertEqual(CBASE_PLAYER_LIST_VFTABLE_VA, 0x7C5BC8)
+        self.assertEqual(SQUAD_FIRST_ROSTER_OFFSET, 0x130)
+        self.assertEqual(SQUAD_RESERVE_ROSTER_OFFSET, 0x1030)
+        self.assertEqual(SQUAD_PITCH_OFFSET, 0x1F30)
+        self.assertEqual(tuple(SQUAD_FIRST_ROSTER_RECT.__dict__.values()), (37, 0, 228, 520))
+        self.assertEqual(tuple(SQUAD_RESERVE_ROSTER_RECT.__dict__.values()), (418, 0, 228, 520))
+        self.assertEqual(tuple(SQUAD_PITCH_RECT.__dict__.values()), (388, 92, 412, 432))
+        self.assertEqual(SQUAD_SCREEN_EVENT_HANDLER_VA, 0x4B8E70)
+        self.assertEqual(
+            tuple(
+                (
+                    item.control_id,
+                    item.original_text,
+                    item.left_roster,
+                    item.second_roster_mask1,
+                    item.pitch_mask1,
+                    item.pitch_team_index,
+                )
+                for item in SQUAD_VIEW_TRANSITIONS
+            ),
+            (
+                (3, "1ST & RES", "first", True, False, None),
+                (4, "1ST FORM", "first", False, True, 0),
+                (5, "RES. FORM", "reserve", False, True, 1),
+            ),
+        )
+
+    def test_formation_text_rows_have_exact_native_geometry_and_ids(self):
+        self.assertEqual(SQUAD_PITCH_CLASS, "PSquadPitch")
+        self.assertEqual(SQUAD_PITCH_TYPE_DESCRIPTOR_VA, 0x81DB30)
+        self.assertEqual(SQUAD_PITCH_VFTABLE_VA, 0x7C54A8)
+        self.assertEqual(SQUAD_PITCH_SETUP_VA, 0x4B3C80)
+        self.assertEqual(FORMATION_TEXT_CLASS, "FormationText")
+        self.assertEqual(FORMATION_TEXT_TYPE_DESCRIPTOR_VA, 0x81DBC0)
+        self.assertEqual(FORMATION_TEXT_VFTABLE_VA, 0x7C5700)
+        self.assertEqual(FORMATION_TEXT_FORM_SETUP_VA, 0x4B6C30)
+        self.assertEqual(FORMATION_TEXT_BAR_SETUP_VA, 0x4B6B60)
+        self.assertEqual(FORMATION_TEXT_FORM_FRAME_SIZE, (23, 16))
+        self.assertEqual(FORMATION_TEXT_BAR_FRAME_SIZE, (81, 16))
+        self.assertEqual(len(FORMATION_TEXT_ROWS), 22)
+        self.assertEqual(
+            (
+                FORMATION_TEXT_ROWS[0].form_control_id,
+                FORMATION_TEXT_ROWS[0].bar_control_id,
+                FORMATION_TEXT_ROWS[0].form_object_offset,
+                FORMATION_TEXT_ROWS[0].bar_object_offset,
+                tuple(FORMATION_TEXT_ROWS[0].form_rect.__dict__.values()),
+                tuple(FORMATION_TEXT_ROWS[0].bar_rect.__dict__.values()),
+            ),
+            (12, 13, 0x8C0, 0x1050, (279, 25, 23, 16), (303, 25, 81, 16)),
+        )
+        self.assertEqual(
+            (
+                FORMATION_TEXT_ROWS[-1].form_control_id,
+                FORMATION_TEXT_ROWS[-1].bar_control_id,
+                FORMATION_TEXT_ROWS[-1].form_object_offset,
+                FORMATION_TEXT_ROWS[-1].bar_object_offset,
+                tuple(FORMATION_TEXT_ROWS[-1].form_rect.__dict__.values()),
+                tuple(FORMATION_TEXT_ROWS[-1].bar_rect.__dict__.values()),
+            ),
+            (54, 55, 0xFF8, 0x1788, (279, 382, 23, 16), (303, 382, 81, 16)),
+        )
+        self.assertTrue(
+            all(
+                row.form_rect.y == 25 + row.index * 17
+                and row.bar_rect.y == row.form_rect.y
+                for row in FORMATION_TEXT_ROWS
+            )
         )
 
     def test_wrong_imported_bytes_fail_closed(self):

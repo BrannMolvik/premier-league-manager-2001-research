@@ -68,6 +68,49 @@ zero. Its semantic name is not claimed, and no atlas row is labelled as a
 normal, hover, pressed or selected state without a separate state transition
 trace.
 
+## Roster/pitch layout and control transitions
+
+`PSquadScreen` embeds two `CBasePlayerList` instances (TypeDescriptor
+`0x81DCB8`, vtable `0x7C5BC8`) and one `PSquadPitch`:
+
+| Embedded object | Object offset | Initial rectangle `(x,y,w,h)` |
+| --- | ---: | --- |
+| first-team player list | `+0x130` | `(37,0,228,520)` |
+| reserve player list | `+0x1030` | `(418,0,228,520)` |
+| formation/pitch panel | `+0x1F30` | `(388,92,412,432)` |
+
+The two player-list constructor calls at `0x4B82A4..0x4B82BA` pass exact
+discriminators 0 and 1. Event handler `PSquadScreen::0x4B8E70` then switches
+the container bindings directly from the now-proven control IDs:
+
+| Control | Exact transition |
+| --- | --- |
+| 3 `1ST & RES` | bind the first-team list left and reserve list right; set native mask 1 on the second-list container and clear it on the pitch container |
+| 4 `1ST FORM` | bind the first-team list left; clear native mask 1 on the second-list container, set it on the pitch container, and store pitch team index 0 |
+| 5 `RES. FORM` | bind the reserve list left; clear native mask 1 on the second-list container, set it on the pitch container, and store pitch team index 1 |
+
+The generic methods used here are `0x64F510` and `0x64F520`, which set and
+clear control flag mask 1 through `0x64F3E0`. The durable contract retains the
+neutral native-mask wording rather than assigning a broader UI meaning beyond
+the proven container transitions.
+
+## Exact `PSquadPitch` / `FormationText` geometry
+
+RTTI proves setup method `0x4B3C80` is vtable slot 1 of `PSquadPitch`
+(TypeDescriptor `0x81DB30`, vtable `0x7C54A8`). It constructs 22 paired
+`FormationText` controls with consecutive control IDs 12..55:
+
+- row `i` is at local y `25 + 17*i`, for `i=0..21`;
+- the `squad_form_anim.444` control is `(279,y,23,16)`, ID `12+2*i`, object
+  offset `+0x8C0 + 0x58*i`;
+- the `squad_bars.444` control is `(303,y,81,16)`, ID `13+2*i`, object offset
+  `+0x1050 + 0x58*i`.
+
+The last row is therefore y=382 with IDs 54/55. Wrapper initializers
+`0x5FF7B0` and `0x5FF840` independently pass frame sizes 23x16 and 81x16;
+the geometry is not inferred merely by dividing atlas height. The 17-pixel row
+step leaves one native pixel between adjacent 16-pixel rows.
+
 ## Formation resources
 
 `squad_bars.444` is consumed by `FormationText::0x4B6B60`; the method forwards
@@ -108,8 +151,8 @@ claim the shared blue toggle for the general Squad screen.
 ## Next action
 
 Use the now-proven `PSquadScreen` setup method as the anchor for the surrounding
-general-Squad roster layout, state transitions and navigation. Separately trace
-the callers that supply `FormationText` geometry before composing the formation
-fragment.
+general-Squad roster columns, row/status bindings and navigation. Decode only
+the proven `FormationText` frame/state mapping needed before composing the
+formation fragment.
 The real Windows PStartMenu/TeamSelect graphical audit remains required before
 Gate 13 can close.

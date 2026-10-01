@@ -45,11 +45,18 @@ Evidence:
   offsets `+0x37A4/+0x37F8/+0x384C`, origins `(37,92)/(113,92)/(189,92)`,
   label globals `0x982110/0x98210C/0x982108`, and English.idx entries
   2490/2491/2492 resolving exactly to `1ST & RES`, `1ST FORM`, `RES. FORM`.
-- Exact next Gate-13 work: recover surrounding roster layout and the controls'
-  state transitions without guessing atlas frame semantics; separately recover
-  the callers supplying `FormationText` geometry. The real Windows
-  PStartMenu/TeamSelect graphical audit and wider management-screen
-  correlations remain mandatory before Gate 13 closes.
+- The surrounding view transition is now exact. Embedded `CBasePlayerList`
+  panels are `(37,0,228,520)` and `(418,0,228,520)`; `PSquadPitch` is
+  `(388,92,412,432)`. Events 3/4/5 switch first+reserve / first+pitch /
+  reserve+pitch by rebinding the left list, toggling native mask 1 on the
+  second-list and pitch containers, and selecting pitch team index 0 or 1.
+- `PSquadPitch::0x4B3C80` supplies all 22 `FormationText` rows: paired 23x16
+  form cells at x=279 and 81x16 bars at x=303, y=`25+17*i`, control IDs
+  12..55. Wrapper initializers independently prove both frame sizes.
+- Exact next Gate-13 work: recover the two player lists' row/column/status
+  bindings and `FormationText` state/frame selection without guessing. The
+  real Windows PStartMenu/TeamSelect graphical audit and wider management-
+  screen correlations remain mandatory before Gate 13 closes.
 
 ## Recovery 123: native menu captions + Scouting composition verified
 

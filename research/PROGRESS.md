@@ -9304,3 +9304,18 @@ invent original visual or control semantics.
   control's distinct setup flag and all atlas-frame state names remain
   deliberately unresolved pending a separate transition trace.
 
+## 1 October 2026 KST - Squad view transitions and FormationText geometry
+
+- Proved the two embedded roster panels are `CBasePlayerList` instances and
+  recovered their 228x520 rectangles plus the embedded 412x432
+  `PSquadPitch` rectangle.
+- Traced `PSquadScreen::0x4B8E70`: controls 3/4/5 select first+reserve,
+  first+formation and reserve+formation by rebinding the left player list,
+  toggling native mask 1 on the second-list/pitch containers, and storing
+  pitch team index 0 or 1.
+- Proved `PSquadPitch::0x4B3C80` constructs 22 paired `FormationText` rows at
+  y=25..382 in 17-pixel steps, with IDs 12..55. The form cell is 23x16 at
+  x=279 and the bar is 81x16 at x=303.
+- Confirmed both frame sizes directly from native wrapper initializers rather
+  than dividing atlas height. Raw disassembly remains private outside Git.
+
