@@ -149,8 +149,13 @@ def _source_payload_from_state(state: GameState) -> dict[str, Any]:
     through 0x41E510/0x61DD30. RuntimePlayer keeps immutable mirrors for those
     source fields so a valid youth save still hashes against the supplied
     original database.
+
+    Annual mode regenerates Premier League fixtures procedurally, so the live
+    league cannot define source-database identity after a rollover. Database-
+    backed GameState instances retain the original fixture rows separately.
+    Lightweight states that did not originate from a database keep the legacy
+    live-fixture fallback.
     """
-    league = state.premier_league
 
     player_records = []
     for player in state.players.values():
@@ -175,6 +180,26 @@ def _source_payload_from_state(state: GameState) -> dict[str, Any]:
             values.append(_stable_source_value(value))
         player_records.append(values)
 
+    source_fixture_identity = getattr(state, "source_fixture_identity", None)
+    if source_fixture_identity is None:
+        league = state.premier_league
+        fixture_rows = tuple(
+            (
+                int(fixture.id),
+                int(fixture.round_index),
+                int(fixture.home_club_id),
+                int(fixture.away_club_id),
+            )
+            for fixture in (
+                () if league is None else tuple(league.fixtures.values())
+            )
+        )
+    else:
+        fixture_rows = tuple(
+            tuple(int(value) for value in row)
+            for row in source_fixture_identity
+        )
+
     return {
         "players": sorted(player_records),
         "clubs": _source_records(tuple(state.clubs.values()), _CLUB_SIGNATURE_FIELDS),
@@ -183,17 +208,7 @@ def _source_payload_from_state(state: GameState) -> dict[str, Any]:
             tuple(state.competitions.values()),
             _COMPETITION_SIGNATURE_FIELDS,
         ),
-        "fixtures": sorted(
-            [
-                int(fixture.id),
-                int(fixture.round_index),
-                int(fixture.home_club_id),
-                int(fixture.away_club_id),
-            ]
-            for fixture in (
-                () if league is None else tuple(league.fixtures.values())
-            )
-        ),
+        "fixtures": sorted([list(row) for row in fixture_rows]),
     }
 
 
@@ -1328,6 +1343,15 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             ).items()
         },
         countries=countries,
+        source_fixture_identity=tuple(
+            (
+                int(fixture.id),
+                int(fixture.round_index),
+                int(fixture.home_club_id),
+                int(fixture.away_club_id),
+            )
+            for fixture in getattr(database, "real_fixtures", ())
+        ),
         positions=positions,
         access_fan_bases=access_fan_bases,
         access_skill_financial_values=access_skill_financial_values,
