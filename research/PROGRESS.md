@@ -9702,3 +9702,13 @@ canonical audit.
 - PR #74 implements the corrected boundary: ordered multi-club selection persists across country/competition navigation, clicked rows use canonical club IDs, the six-user cap is fail-closed, and the present single-manager backend refuses multi-user Start rather than silently discarding users. Detailed source evidence is in `research/GATE13_TEAMSELECT_USER_SELECTION_TRACE.md`.
 - PR #74 head `5ee87bae88d5c429908f18b47aa46650bc1913a1` passed Gate-13 focused run `36905144322`: **276 tests, 21 expected source-gated skips, zero failures**. Asset-policy run `36905144376` passed.
 - Recovery 144 resumed after an interrupted response and reconciled the canonical status ledgers before merge. The next validation boundary is a new real Windows 11/Tk audit of the corrected TeamSelect click/select/deselect/Start behavior; the older Recovery-138 graphical receipt predates this mapping and remains historical evidence only.
+
+
+## 2 October 2026 - Recovery 144 PMenu management-shell route
+
+- Continued immediately after PR #74 merged as `38b8daedcc85ba5f875aca075ad6c9ea852bcd7a`; Gate 13 remained active because the corrected Windows graphical audit and normal-management presentation were still open.
+- The canonical executable remained locally available and hash-verified. The post-TeamSelect new-game tail calls `0x4C2FB0(1,0,0)`; that function constructs `PMenu` through ctor `0x482830`, vtable `0x7C3DE8`, RTTI `.?AVPMenu@@`.
+- `PMenu::0x482960` reads neutral user route state at `+0x10E8` through `0x42C6A0`. The user constructor `0x424CA0`, reached by TeamSelect user creation `0x413BB0`, explicitly calls setter `0x42C6B0` with zero, proving fresh users start in route state 0.
+- Route state 0 selects PMenu panel code `0xCE`; factory `0x47AEC0` case `0x47AF2D` allocates the panel and calls `0x4B8240`, which installs `PSquadScreen` vtable `0x7C5CA4`. Therefore fresh new-game management content begins on Squad, not on an unproven generic Manager Home panel.
+- Route state 1 selects code `0x25A`; factory case `0x47C6D1` calls `0x448640`, whose panel vtable is `0x7C00C8` / `PLeagueTables`. PMenu then clears nonzero route state to zero. Other nonzero values use the Squad route and are likewise cleared.
+- Added `reconstruction/original_management_shell.py` plus regressions and `research/GATE13_MANAGEMENT_SHELL_ROUTE.md`; reconciled the management-screen/resource/separation audits and corrected the roadmap suggested order. The real Windows/Tk corrected first-screen rerun remains a separate validation requirement.
