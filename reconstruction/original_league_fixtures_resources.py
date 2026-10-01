@@ -129,6 +129,101 @@ LEAGUE_FIXTURES_HORIZONTAL_GRID_POSITIONS = tuple(
     (241, 235 + 14 * index) for index in range(24)
 )
 
+LEAGUE_FIXTURE_STATUS_COMPLETE_BIT = 0x1
+LEAGUE_FIXTURE_SCORE_LEFT_OFFSET = 0x3C
+LEAGUE_FIXTURE_SCORE_RIGHT_OFFSET = 0x3E
+LEAGUE_FIXTURE_STATUS_OFFSET = 0x44
+LEAGUE_FIXTURE_DATE_ACCESSOR_VA = 0x510A20
+LEAGUE_FIXTURE_SCORE_LEFT_ACCESSOR_VA = 0x513E70
+LEAGUE_FIXTURE_SCORE_RIGHT_ACCESSOR_VA = 0x513E80
+LEAGUE_FIXTURE_RESULT_COPY_VA = 0x5112A0
+LEAGUE_FIXTURE_COMPLETION_VA = 0x511370
+LEAGUE_FIXTURE_SCORE_FORMAT_VA = 0x81C504
+LEAGUE_FIXTURE_SCORE_FORMAT = "%i:%i"
+LEAGUE_FIXTURE_DATE_FORMAT_VA = 0x81C4F8
+LEAGUE_FIXTURE_DATE_FORMAT = "%02i.%02i"
+LEAGUE_FIXTURES_SELECTED_INDEX_OLD_OFFSET = 0x109B0
+LEAGUE_FIXTURES_SELECTED_INDEX_CURRENT_OFFSET = 0x109B4
+
+
+def league_fixture_base_box(
+    *,
+    fixture_present: bool,
+    fixture_status_bits: int = 0,
+    empty_slot_red_predicate: bool = False,
+) -> OriginalLeagueFixturesResource:
+    """Mirror the base box-selection rules in the recovered row/update paths.
+
+    For a populated fixture, status bit 0 selects the completed score-display
+    path and its original played_fixtures_box; otherwise the date path uses
+    date_fixtures_box. For an empty slot, the source compares panel-owned table
+    identities (or receives the equivalent boolean in the row helper); that
+    still-unresolved predicate selects red_fixtures_box versus date_fixtures_box.
+    """
+    if type(fixture_present) is not bool:
+        raise OriginalLeagueFixturesResourceError("fixture_present must be boolean")
+    if type(fixture_status_bits) is not int or fixture_status_bits < 0:
+        raise OriginalLeagueFixturesResourceError(
+            "fixture_status_bits must be a non-negative integer"
+        )
+    if type(empty_slot_red_predicate) is not bool:
+        raise OriginalLeagueFixturesResourceError(
+            "empty_slot_red_predicate must be boolean"
+        )
+    if fixture_present:
+        return (
+            PLAYED_FIXTURES_BOX
+            if fixture_status_bits & LEAGUE_FIXTURE_STATUS_COMPLETE_BIT
+            else DATE_FIXTURES_BOX
+        )
+    return RED_FIXTURES_BOX if empty_slot_red_predicate else DATE_FIXTURES_BOX
+
+
+def league_fixture_box_for_cell(
+    *,
+    fixture_present: bool,
+    fixture_status_bits: int = 0,
+    empty_slot_red_predicate: bool = False,
+    selected: bool = False,
+) -> OriginalLeagueFixturesResource:
+    """Apply the source-proven selected-cell overlay after the base box rule."""
+    if type(selected) is not bool:
+        raise OriginalLeagueFixturesResourceError("selected must be boolean")
+    if selected:
+        return TOGGLED_FIXTURES_BOX
+    return league_fixture_base_box(
+        fixture_present=fixture_present,
+        fixture_status_bits=fixture_status_bits,
+        empty_slot_red_predicate=empty_slot_red_predicate,
+    )
+
+
+def league_fixture_visible_text(
+    *,
+    fixture_status_bits: int,
+    score_left: int | None = None,
+    score_right: int | None = None,
+    date_day: int | None = None,
+    date_month: int | None = None,
+) -> str:
+    """Mirror the two source format strings selected by fixture status bit 0."""
+    if type(fixture_status_bits) is not int or fixture_status_bits < 0:
+        raise OriginalLeagueFixturesResourceError(
+            "fixture_status_bits must be a non-negative integer"
+        )
+    if fixture_status_bits & LEAGUE_FIXTURE_STATUS_COMPLETE_BIT:
+        if type(score_left) is not int or type(score_right) is not int:
+            raise OriginalLeagueFixturesResourceError(
+                "completed fixture text requires integer score fields"
+            )
+        return f"{score_left}:{score_right}"
+    if type(date_day) is not int or type(date_month) is not int:
+        raise OriginalLeagueFixturesResourceError(
+            "scheduled fixture text requires integer day/month fields"
+        )
+    return f"{date_day:02d}.{date_month:02d}"
+
+
 
 def validate_original_league_fixtures_resources(
     source_root: Path,

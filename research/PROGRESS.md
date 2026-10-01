@@ -9766,3 +9766,14 @@ canonical audit.
 - Bound six exact original paths to raw/wrapper handles and privately revalidated their original disc bytes: four 24x13 fixture boxes plus 132x52 horizontal and 24x528 vertical grid graphics. Every file matched the persisted SHA-256, byte size, dimensions and EA444 descriptor.
 - `fixtures_vert_grid.444` wrapper `0x9449F0` is passed to `0x5D5280` exactly 12 times at `(378+29*n,98)`; `fixtures_hori_grid.444` wrapper `0x944A30` is passed exactly 24 times at `(241,235+14*n)`. The source helper calls are preserved rather than pretending resource dimensions equal logical cell dimensions.
 - The four 24x13 wrappers `0x944B30/0x944AF0/0x944AB0/0x944A70` are selected inside contiguous PLeagueFixtures methods around `0x46CA40..0x46D25B`; their exact runtime state/result meanings remain open pending data-flow trace.
+
+
+## 2 October 2026 - Recovery 151 League Fixtures box states and visible text
+
+- PR #81 merged as `4420e2d12386b749653cbc4202cd2d3f190c1ebe`; focused Gate-13 run `36917169429` passed 309 tests with 21 expected source-gated skips, and asset-policy run `36917169401` passed.
+- Continued from the already-recovered four 24x13 box wrappers into `PLeagueFixtures` row/update methods around `0x46CA40..0x46D2F9`.
+- Runtime fixture `+0x44` initializes to zero near `0x5104CF`; `0x511370` sets bit 0 before its post-match processing. The League Fixtures row/update code tests that same bit. Populated fixtures with bit 0 clear use `date_fixtures_box.444`; bit 0 set uses `played_fixtures_box.444`.
+- The bit-0 path reads signed fixture words `+0x3C/+0x3E` through `0x513E70/0x513E80` and exact format string `0x81C504 = "%i:%i"`. Independent `0x5112A0` copies MatchCalculator side-indexed score fields `+0xD4C/+0xD50` into those fixture words, source-proving the displayed score semantics.
+- The bit-clear path calls fixture date accessor `0x510A20`, decomposes the date through `0x64CCD0`, and formats day/month with exact string `0x81C4F8 = "%02i.%02i"`.
+- Current/previous selected indices at `PLeagueFixtures+0x109B4/+0x109B0` drive `toggled_fixtures_box.444`: the refresh path restores a previous index to its base played/date/red boxes, then overlays all 24 cells of the newly selected index with the toggled wrapper.
+- Empty fixture slots choose red versus date from a separate boolean/table-identity predicate. Its football meaning remains intentionally unresolved rather than guessed.

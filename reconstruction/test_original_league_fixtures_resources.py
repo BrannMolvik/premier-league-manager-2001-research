@@ -10,11 +10,17 @@ from original_league_fixtures_resources import (
     LEAGUE_FIXTURES_HORIZONTAL_GRID_POSITIONS,
     LEAGUE_FIXTURES_RESOURCES,
     LEAGUE_FIXTURES_VERTICAL_GRID_POSITIONS,
+    LEAGUE_FIXTURE_STATUS_COMPLETE_BIT,
+    LEAGUE_FIXTURE_SCORE_FORMAT,
+    LEAGUE_FIXTURE_DATE_FORMAT,
     OriginalLeagueFixturesResourceError,
     PLAYED_FIXTURES_BOX,
     RED_FIXTURES_BOX,
     TOGGLED_FIXTURES_BOX,
     assert_league_fixtures_panel_identity,
+    league_fixture_base_box,
+    league_fixture_box_for_cell,
+    league_fixture_visible_text,
     validate_original_league_fixtures_resources,
 )
 
@@ -77,6 +83,110 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
                 )
             )
         )
+
+    def test_populated_fixture_box_uses_completion_bit_only(self):
+        self.assertIs(
+            league_fixture_base_box(fixture_present=True, fixture_status_bits=0),
+            DATE_FIXTURES_BOX,
+        )
+        self.assertIs(
+            league_fixture_base_box(
+                fixture_present=True,
+                fixture_status_bits=LEAGUE_FIXTURE_STATUS_COMPLETE_BIT,
+            ),
+            PLAYED_FIXTURES_BOX,
+        )
+        # Unrelated status bits do not alter this source branch.
+        self.assertIs(
+            league_fixture_base_box(fixture_present=True, fixture_status_bits=0x20),
+            DATE_FIXTURES_BOX,
+        )
+
+    def test_empty_slot_red_predicate_remains_neutral_and_source_exact(self):
+        self.assertIs(
+            league_fixture_base_box(
+                fixture_present=False,
+                empty_slot_red_predicate=False,
+            ),
+            DATE_FIXTURES_BOX,
+        )
+        self.assertIs(
+            league_fixture_base_box(
+                fixture_present=False,
+                empty_slot_red_predicate=True,
+            ),
+            RED_FIXTURES_BOX,
+        )
+
+    def test_selected_cell_overlay_has_precedence_over_base_box(self):
+        for fixture_present, status, red in (
+            (True, 0, False),
+            (True, LEAGUE_FIXTURE_STATUS_COMPLETE_BIT, False),
+            (False, 0, False),
+            (False, 0, True),
+        ):
+            with self.subTest(
+                fixture_present=fixture_present,
+                status=status,
+                red=red,
+            ):
+                self.assertIs(
+                    league_fixture_box_for_cell(
+                        fixture_present=fixture_present,
+                        fixture_status_bits=status,
+                        empty_slot_red_predicate=red,
+                        selected=True,
+                    ),
+                    TOGGLED_FIXTURES_BOX,
+                )
+
+    def test_visible_text_switches_between_date_and_score_at_completion_bit(self):
+        self.assertEqual(LEAGUE_FIXTURE_SCORE_FORMAT, "%i:%i")
+        self.assertEqual(LEAGUE_FIXTURE_DATE_FORMAT, "%02i.%02i")
+        self.assertEqual(
+            league_fixture_visible_text(
+                fixture_status_bits=0,
+                date_day=7,
+                date_month=10,
+            ),
+            "07.10",
+        )
+        self.assertEqual(
+            league_fixture_visible_text(
+                fixture_status_bits=LEAGUE_FIXTURE_STATUS_COMPLETE_BIT,
+                score_left=2,
+                score_right=1,
+            ),
+            "2:1",
+        )
+
+    def test_box_and_text_helpers_fail_closed_on_invalid_types(self):
+        bad_calls = (
+            lambda: league_fixture_base_box(fixture_present=1),
+            lambda: league_fixture_base_box(
+                fixture_present=True, fixture_status_bits=True
+            ),
+            lambda: league_fixture_base_box(
+                fixture_present=False, empty_slot_red_predicate=1
+            ),
+            lambda: league_fixture_box_for_cell(
+                fixture_present=True, selected=1
+            ),
+            lambda: league_fixture_visible_text(
+                fixture_status_bits=True, date_day=1, date_month=1
+            ),
+            lambda: league_fixture_visible_text(
+                fixture_status_bits=0, date_day=None, date_month=1
+            ),
+            lambda: league_fixture_visible_text(
+                fixture_status_bits=LEAGUE_FIXTURE_STATUS_COMPLETE_BIT,
+                score_left=1,
+                score_right=None,
+            ),
+        )
+        for call in bad_calls:
+            with self.assertRaises(OriginalLeagueFixturesResourceError):
+                call()
 
     def test_resource_validator_fails_closed_on_synthetic_bytes(self):
         with tempfile.TemporaryDirectory() as temp:

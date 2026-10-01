@@ -114,3 +114,117 @@ Still open:
 7. real Windows integrated presentation verification.
 
 No completion claim for the full Fixtures/results screen is made here.
+
+
+## Recovery 151 fixture-box state and visible text closure
+
+The four 24x13 fixture boxes are no longer only ownership-proven. The bounded
+row/update methods at `0x46CA40..0x46D2F9` establish their selection rules.
+
+### Fixture completion/status bit
+
+A runtime fixture initializes `+0x44` to zero in its constructor near
+`0x5104CF`.
+
+Routine `0x511370` begins by OR-ing bit 0 into fixture `+0x44` before the
+post-match processing it performs. The League Fixtures row/update paths test
+that same bit at `0x46CA9E`, `0x46CFDD` and `0x46D195`.
+
+For a populated fixture:
+
+```text
+fixture +0x44 bit 0 clear -> date_fixtures_box.444
+fixture +0x44 bit 0 set   -> played_fixtures_box.444
+```
+
+The UI branch therefore agrees with the original filename without relying on
+the filename alone: bit 0 is the source completion/status boundary that switches
+the cell from scheduled-date presentation to completed-score presentation.
+
+### Completed score text
+
+When bit 0 is set, the row helper calls:
+
+- `0x513E70` -> signed word at fixture `+0x3C`;
+- `0x513E80` -> signed word at fixture `+0x3E`.
+
+It then formats those values using exact executable string
+`0x81C504 = "%i:%i"`.
+
+The broader fixture implementation independently proves those words are the
+match score fields: `0x5112A0` copies MatchCalculator side-indexed score
+fields `+0xD4C/+0xD50` directly into fixture `+0x3C/+0x3E`.
+
+The visible completed-fixture text is therefore source-exact:
+
+```text
+left_score:right_score
+```
+
+No extra-time/penalty suffix is inferred by this checkpoint.
+
+### Scheduled date text
+
+When bit 0 is clear, the same row helper:
+
+1. calls fixture accessor `0x510A20`;
+2. feeds the returned date value through date decomposition helper
+   `0x64CCD0`;
+3. formats the resulting day and month through executable string
+   `0x81C4F8 = "%02i.%02i"`.
+
+The visible scheduled-fixture text is therefore exact `DD.MM`.
+
+### Selected-cell overlay
+
+`PLeagueFixtures` keeps two selected-index fields at:
+
+- previous/alternate selected index: `+0x109B0`;
+- current selected index: `+0x109B4`.
+
+The refresh path at `0x46D09B..0x46D127` applies wrapper
+`0x944A70` (`toggled_fixtures_box.444`) across all 24 cell entries belonging
+to the selected index at `+0x109B4`.
+
+The transition path at `0x46D140..0x46D2F9` first restores the previous
+index's base cells (played/date/red as appropriate), stores the new selected
+index into `+0x109B0`, then applies the toggled wrapper across all 24 cells of
+that new index.
+
+Accordingly, **toggled_fixtures_box is source-proven as the selected-cell
+overlay** and has precedence over the base box state while that index is
+selected.
+
+### Empty-slot red predicate remains neutral
+
+When no fixture pointer exists, the row helper at `0x46CA6B..` chooses between
+`red_fixtures_box.444` and `date_fixtures_box.444` from a separate boolean
+argument.
+
+The larger refresh loops derive the equivalent decision by comparing
+panel-owned table identities at offsets under the object referenced by
+`PLeagueFixtures+0x2C`.
+
+That predicate's higher-level football meaning is not yet sufficiently bounded.
+The clean-room code names it only `empty_slot_red_predicate` and refuses to
+call it unavailable, postponed, current-date, home/away, or another semantic
+label without further source evidence.
+
+## Updated reconstruction consequence
+
+`reconstruction/original_league_fixtures_resources.py` now additionally
+guards:
+
+- the source completion bit at fixture `+0x44 bit 0`;
+- base box choice for populated fixtures;
+- selected-cell toggled-box precedence;
+- exact score words at `+0x3C/+0x3E` and `"%i:%i"` formatting;
+- exact scheduled-date `DD.MM` presentation.
+
+Still open:
+
+1. semantic meaning of the null/empty-cell red predicate;
+2. fixture ordering/filtering used to populate the 12x24 grid;
+3. surrounding header/team/date text controls;
+4. event/navigation behavior from selected grid cells;
+5. original asset import and integrated Windows verification.
