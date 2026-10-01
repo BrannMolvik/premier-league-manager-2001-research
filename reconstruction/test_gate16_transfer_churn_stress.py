@@ -9,10 +9,12 @@ from __future__ import annotations
 
 from collections import Counter
 from datetime import date, timedelta
+import json
 from types import SimpleNamespace
 import unittest
 
 from game_state import GameState
+from internal_save import restore_game_state, snapshot_game_state
 from match_schedule import MsvcCrtRng
 from runtime_state import RuntimePlayer
 from test_ai_transfers import financial_rows
@@ -96,6 +98,88 @@ def _build_state(seed: int) -> GameState:
     return state
 
 
+def _build_source_database():
+    """Immutable source identity for periodic internal game-state reloads."""
+    source_players = tuple(
+        SimpleNamespace(
+            index=club_id * 1000 + offset,
+            first_name=f"P{club_id * 1000 + offset}",
+            surname="Stress",
+            club_id=club_id,
+            nationality_id=0,
+            date_of_birth=date(1975 + (offset % 5), 1, 1),
+            joined_current_club_date=None,
+            height_cm=180,
+            weight_kg=75,
+            positions=(0, 0, 0),
+            target_raw=(128,) * 17,
+            eu_status_code=2,
+        )
+        for club_id in CLUB_IDS
+        for offset in range(PLAYERS_PER_CLUB)
+    )
+    clubs = tuple(
+        SimpleNamespace(
+            index=club_id,
+            name=f"Club {club_id}",
+            manager_id=club_id,
+            competition_id=0,
+            country_id=0,
+            team_category_code=0,
+            fan_base_index=22,
+            related_club_id_0=-1,
+            related_club_id_1=-1,
+            related_club_id_2=-1,
+        )
+        for club_id in CLUB_IDS
+    )
+    managers = tuple(
+        SimpleNamespace(index=club_id, club_id=club_id)
+        for club_id in CLUB_IDS
+    )
+    competitions = (
+        SimpleNamespace(id=0, valuation_division_category=0),
+    )
+    countries = (
+        SimpleNamespace(
+            id=0,
+            financial_multiplier_percent=100,
+            eu_status_flag=1,
+        ),
+    )
+    return SimpleNamespace(
+        players=source_players,
+        clubs=clubs,
+        managers=managers,
+        competitions=competitions,
+        countries=countries,
+        positions=(SimpleNamespace(lineup_group=0),),
+        access_fan_bases=tuple(
+            SimpleNamespace(field_48=20)
+            for _ in range(23)
+        ),
+        access_skill_financial_values=financial_rows(),
+        real_fixtures=(),
+        premier_league_rounds=(),
+        rounds=(),
+        cup_allocation_instructions=(),
+        league_allocation_records=(),
+    )
+
+
+def _roundtrip_state(database, state: GameState):
+    before = snapshot_game_state(state)
+    payload = json.dumps(before, sort_keys=True, separators=(",", ":"))
+    restored = restore_game_state(database, json.loads(payload))
+    after = snapshot_game_state(restored)
+    if after != before:
+        raise AssertionError("transfer churn internal game-state reload changed state")
+    replay = json.dumps(after, sort_keys=True, separators=(",", ":"))
+    if replay != payload:
+        raise AssertionError("transfer churn internal game-state reserialization changed")
+    return restored, len(payload)
+
+
 def _assert_roster_integrity(testcase: unittest.TestCase, state: GameState) -> None:
     roster_ids = []
     for club_id in CLUB_IDS:
@@ -125,9 +209,15 @@ def _assert_roster_integrity(testcase: unittest.TestCase, state: GameState) -> N
     testcase.assertEqual(set(roster_ids), set(state.players))
 
 
-def _stress_signature(seed: int):
+def _stress_signature(seed: int, *, roundtrip_interval_weeks: int | None = None):
     state = _build_state(seed)
+    database = (
+        _build_source_database()
+        if roundtrip_interval_weeks is not None
+        else None
+    )
     successful = 0
+    roundtrips = []
 
     for _week in range(WEEKS):
         if state.calendar.current_date.weekday() != 5:
@@ -152,6 +242,32 @@ def _stress_signature(seed: int):
 
         _assert_roster_integrity(_StressAsserts(), state)
         state.calendar.current_date += timedelta(days=7)
+
+        if (
+            roundtrip_interval_weeks is not None
+            and (_week + 1) % int(roundtrip_interval_weeks) == 0
+        ):
+            movement_count = len(state.transfers.movements)
+            state, payload_size = _roundtrip_state(database, state)
+            if len(state.transfers.movements) != movement_count:
+                raise AssertionError("reload changed completed movement-history count")
+            if state.transfers.proposals:
+                raise AssertionError("reload revived pending transfer proposals")
+            if state.transfers.deals:
+                raise AssertionError("reload revived deals in progress")
+            if state.transfers.bid_log:
+                raise AssertionError("reload revived bid-log entries")
+            if state.transfers.scheduled_transfers:
+                raise AssertionError("reload revived scheduled transfers")
+            _assert_roster_integrity(_StressAsserts(), state)
+            roundtrips.append(
+                (
+                    _week + 1,
+                    movement_count,
+                    payload_size,
+                    int(state.rng.state) & 0xFFFFFFFF,
+                )
+            )
 
     movements = tuple(
         (
@@ -181,6 +297,7 @@ def _stress_signature(seed: int):
         ),
         "rng_state": int(state.rng.state) & 0xFFFFFFFF,
         "final_date": state.calendar.current_date.isoformat(),
+        "roundtrips": tuple(roundtrips),
     }
 
 
@@ -233,6 +350,45 @@ class Gate16TransferChurnStressTests(unittest.TestCase):
         result = _stress_signature(0xDEADBEEF)
         self.assertGreater(result["successful"], 0)
         self.assertEqual(len(result["movements"]), result["successful"])
+
+    def test_yearly_game_state_roundtrips_preserve_transfer_history_and_trajectory(self):
+        seed = 0x1A2B3C4D
+        baseline = _stress_signature(seed)
+        reloaded = _stress_signature(seed, roundtrip_interval_weeks=52)
+
+        self.assertEqual(len(reloaded["roundtrips"]), 5)
+        self.assertEqual(
+            tuple(item[0] for item in reloaded["roundtrips"]),
+            (52, 104, 156, 208, 260),
+        )
+        self.assertTrue(
+            all(
+                later[1] >= earlier[1]
+                for earlier, later in zip(
+                    reloaded["roundtrips"],
+                    reloaded["roundtrips"][1:],
+                )
+            )
+        )
+
+        # Save/reload must not alter the subsequent market trajectory. Every
+        # persistent output except roundtrip metadata must match a never-reloaded
+        # run from the same CRT seed.
+        for key in (
+            "successful",
+            "movements",
+            "move_counts",
+            "rosters",
+            "counters",
+            "rng_state",
+            "final_date",
+        ):
+            self.assertEqual(reloaded[key], baseline[key], key)
+
+        self.assertEqual(
+            len(reloaded["movements"]),
+            reloaded["successful"],
+        )
 
 
 if __name__ == "__main__":

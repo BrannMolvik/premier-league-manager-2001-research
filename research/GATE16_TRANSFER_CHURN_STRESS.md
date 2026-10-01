@@ -40,6 +40,36 @@ Across every weekly pass the stress requires:
 This makes completed movement history an **explained event-proportional growth
 surface** while fail-closing on transient-container leaks or roster corruption.
 
+## Periodic internal-save continuation
+
+The five-year stress now also has an optional yearly internal game-state
+round-trip path. The persistence fixture uses a separate immutable synthetic
+source database rather than the live RuntimePlayer objects, so a reload cannot
+silently validate source identity against already-transferred ownership.
+
+At weeks **52, 104, 156, 208 and 260**, the test:
+
+- snapshots the complete live `GameState` using schema-34 serialization
+  helpers;
+- compact-JSON serializes and restores through `restore_game_state`;
+- requires exact before/after state-snapshot equality and byte-identical compact
+  JSON after reserialization;
+- requires completed movement-history count to survive exactly;
+- requires pending proposal, deal, bid-log and scheduled-transfer containers to
+  remain empty rather than being revived by reload;
+- reruns full roster ownership/floor/corruption guards immediately after reload.
+
+The stronger regression then compares the **entire five-year transfer
+trajectory** from the periodically reloaded run with a never-reloaded run using
+the same CRT seed. Successful acquisition count, ordered movement history,
+per-player movement counts, final rosters, autonomous buy counters, final RNG
+state and final calendar date must all match exactly.
+
+This does not require completed movement history to stay constant. Its growth is
+source-meaningful transfer history and therefore is expected to remain exactly
+one record per successful acquisition. The test targets accidental duplication,
+loss or mutation of that persistent history during save/reload.
+
 ## Evidence boundary
 
 This test is intentionally synthetic and does **not** claim authentic
@@ -107,6 +137,8 @@ PR #57 merged to canonical `main` as
 `71676cb9a5b5b89b60b037c8f4426dc72a58e682`.
 
 This verifies the synthetic transfer-churn/state-growth regression and the
-month-end crash repair. It does not resolve the separately documented original
-end-of-month normalization semantics, transfer-window dates, or autonomous
-buy-counter lifecycle, and it does not close Gate 16.
+month-end crash repair. The later periodic-save continuation is a separate
+verification step and must pass CI before it is promoted as evidence. Neither
+path resolves the separately documented original end-of-month normalization
+semantics, transfer-window dates, or autonomous buy-counter lifecycle, and they
+do not close Gate 16.
