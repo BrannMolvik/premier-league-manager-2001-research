@@ -192,16 +192,24 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
             countries, (competition,), (club,)
         )
 
+        # The developer-only backend picker uses a gameplay club ID. It must
+        # not seed the unresolved native selection-record index by coincidence.
+        presenter.choose_club(12)
+        self.assertEqual(presenter.session.selected_club_id, 12)
+        self.assertIsNone(presenter.hierarchy.selected_club_record_index)
+        presenter.session.clear_club_selection()
+
         result = presenter.pointer(582, 79)
         self.assertIsInstance(result, OriginalHierarchyInteraction)
         self.assertEqual(result.row_kind, "club")
         self.assertEqual(result.source_id, 0)
-        self.assertEqual(presenter.hierarchy.selected_club_id, 0)
+        self.assertEqual(result.selected_club_record_index, 0)
+        self.assertEqual(presenter.hierarchy.selected_club_record_index, 0)
         self.assertIsNone(presenter.session.selected_club_id)
         self.assertEqual(built[0].chosen, [])
 
         presenter.pointer(582, 79)
-        self.assertIsNone(presenter.hierarchy.selected_club_id)
+        self.assertIsNone(presenter.hierarchy.selected_club_record_index)
         self.assertIsNone(presenter.session.selected_club_id)
         self.assertEqual(built[0].chosen, [])
 
