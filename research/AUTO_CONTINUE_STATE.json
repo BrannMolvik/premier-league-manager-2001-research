@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 exact next task remains private/local evidence work: correlate one of the four saved whole-disc Squad resource candidates to its actual canonical-executable panel/setup owner, persist only proven path/geometry and import/test the bounded fragment; then run the real Windows PStartMenu/TeamSelect graphical audit and continue remaining management-screen correlations. PStartMenu native captions and the proven two-resource PScouting2K fragment are already complete. After Gate 13 closes, continue Gates 14-17 through the verified Windows 11 release.",
+  "active_task": "Gate 13 exact next task remains the source-backed Squad ownership step: on a working private/local execution backend, enumerate the four saved whole-disc Squad resource candidates, correlate at least one exact resource literal/xref to its actual canonical-executable panel/setup owner, persist only proven path/geometry, provenance-import/test the bounded fragment, then run the real Windows PStartMenu/TeamSelect graphical audit and continue the remaining management-screen correlations. PStartMenu native captions and the proven two-resource PScouting2K composition fragment are already complete. After Gate 13 closes, continue Gates 14-17 through the verified Windows 11 release.",
   "last_known_main_head": "cad50f8d9fa45f57608971db3eff5f2bbc817d47",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 123,
+  "recovery_generation": 124,
   "last_recovery_reason": "manual-start",
-  "note": "Recovery 123 latest main 6213ff960a5ddfd5194cf65740efe0878731d601 reconciles stale Gate 13 audits after verified PR #47. Cloud process execution remains blocked by ClientError before process start, and the four private Squad candidates were intentionally kept outside Git, so no safe GitHub-only ownership inference remains. No user action required; keep continuous/working for a local or recovered execution worker. Auto-recovery policy hardened in main cad50f8: stale generating UI gets only 10 extra minutes after the 15-minute heartbeat threshold; no-progress same-chat recovery escalates after 20 minutes. Extension v0.3.9 must be pulled/reloaded locally once; afterward normal recovery is unattended.",
+  "note": "Recovery 124: manual-start resumed current main cad50f8d9fa45f57608971db3eff5f2bbc817d47. The only main change since the last Gate-13 checkpoint 6213ff960a5ddfd5194cf65740efe0878731d601 is the unattended-recovery extension v0.3.9; no newer Gate-13 fidelity work exists. Fresh trivial shell and private Python probes both failed with ClientError before process start. The four Squad catalog candidates remain private/outside Git, so no safe ownership inference can be made from repository filenames. No user action is required; remain continuous/working for automatic recovery on a functioning execution backend.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
