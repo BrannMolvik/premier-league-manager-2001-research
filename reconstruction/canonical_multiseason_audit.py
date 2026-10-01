@@ -21,13 +21,17 @@ from pathlib import Path
 from typing import Callable
 
 from canonical_annual_rollover_audit import _qualification_if_complete
-from human_gameplay import HumanGameplayController
+from competition_runtime import partition_root_procedural_league_ids
+from human_gameplay import HumanGameplayController, _annual_cup_child_procedural_ids
 from domestic_cup_state import (
     ANNUAL_QUALIFICATION_CUP_IDS,
     ENGLISH_DOMESTIC_CUP_IDS,
     EUROPEAN_CUP_IDS,
 )
-from season_regeneration import partition_annual_type3_league_sources
+from season_regeneration import (
+    partition_annual_type3_league_sources,
+    required_annual_type3_sources,
+)
 
 
 class CanonicalMultiSeasonAuditError(RuntimeError):
@@ -96,7 +100,52 @@ def _node_signature(node) -> tuple:
     )
 
 
-def _validate_fresh_regeneration_projection(state, regeneration, cycle: int) -> None:
+def _resolved_procedural_league_ids(state, procedural_league_ids) -> tuple[int, ...]:
+    if procedural_league_ids is not None:
+        return tuple(int(value) for value in procedural_league_ids)
+
+    competitions = tuple(state.competitions.values())
+    allocations = tuple(state.cup_allocation_instructions)
+    english_primary, english_secondary = partition_root_procedural_league_ids(
+        competitions,
+        country_region_id=26,
+    )
+    if english_secondary:
+        raise CanonicalMultiSeasonAuditError(
+            "canonical English procedural League ownership changed: "
+            f"secondary={english_secondary}"
+        )
+    annual_played, _annual_dummy = partition_annual_type3_league_sources(
+        competitions,
+        allocations,
+    )
+    _annual_leagues, annual_cups = required_annual_type3_sources(
+        competitions,
+        allocations,
+    )
+    annual_played_ids = tuple(
+        int(competition_id)
+        for competition_id in annual_played
+        if int(competition_id) != 0
+    )
+    annual_cup_child_ids = _annual_cup_child_procedural_ids(
+        competitions,
+        annual_cups,
+    )
+    return tuple(dict.fromkeys(
+        tuple(int(value) for value in english_primary)
+        + annual_played_ids
+        + annual_cup_child_ids
+    ))
+
+
+def _validate_fresh_regeneration_projection(
+    state,
+    regeneration,
+    cycle: int,
+    *,
+    procedural_league_ids=None,
+) -> None:
     """Prove fresh season-owned state is exactly the current regeneration.
 
     Cup participant counts are legitimately qualification-dependent. A fresh
@@ -139,6 +188,9 @@ def _validate_fresh_regeneration_projection(state, regeneration, cycle: int) -> 
                 "regeneration projection"
             )
 
+    allowed_procedural_ids = frozenset(
+        _resolved_procedural_league_ids(state, procedural_league_ids)
+    )
     live_procedural_keys = {
         (int(key[0]), int(key[1])) for key in state.procedural_leagues
     }
@@ -175,7 +227,7 @@ def _validate_fresh_regeneration_projection(state, regeneration, cycle: int) -> 
             expected_primary_entries.append(("qualification_cup", node_token))
         elif (
             node_kind == "league_match"
-            and (competition_id, competition_context) in live_procedural_keys
+            and competition_id in allowed_procedural_ids
         ):
             expected_primary_entries.append(("procedural_league", node_token))
 
@@ -448,7 +500,12 @@ def run_multiseason_controller_audit(
             )
 
         fresh_shape = _fresh_primary_shape(state)
-        _validate_fresh_regeneration_projection(state, regeneration, cycle)
+        _validate_fresh_regeneration_projection(
+            state,
+            regeneration,
+            cycle,
+            procedural_league_ids=procedural_league_ids,
+        )
         fresh_shapes.append(fresh_shape)
 
         membership_changes = sum(
