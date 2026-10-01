@@ -9886,3 +9886,13 @@ canonical audit.
 - Deliberately did not import the seven Recovery-159 loaded-but-unconsumed name-block/possession files into the runtime set.
 - `info_popup.444` remains the only source-proven runtime asset not yet staged. The current GitHub connector cannot safely transmit its 179,988 raw binary bytes in a single blob handoff without truncation. No substitute, conversion or guessed background is allowed. The branch explicitly tests that this missing file remains absent rather than silently replaced.
 - Exact next task: run the partial import checkpoint through Gate-13/asset-policy CI, then build the reconstructed PMatchInfo presenter so the source-proven subcomponents can integrate while the full-dialog background fails closed until its exact bytes can be transferred.
+
+
+## 2 October 2026 - Recovery 160 PMatchInfo presenter integration
+
+- PR #92 merged as `b13e271e9a9014a340f6c6399256108c42f61325` after Gate-13 run `36941189265` passed **363 tests with 21 expected source-gated skips and zero failures** and asset-policy run `36941189310` passed.
+- Recovered the canonical 511,121,336-byte Library source ZIP again, reverified SHA-256 `677dcbc...a8a4`, extracted the raw Mode-1 disc image, and used its Joliet filesystem to source exact Match Report bytes.
+- The first PR #92 run correctly caught a byte-size mismatch in `info_player_disabled.444`; a full Git-blob comparison then found `pitch_normal.444` was also truncated. Both were replaced from the canonical disc. All twelve staged runtime Match Report files now have exact Git blob identities matching local canonical source objects.
+- Added `original_pmatchinfo_presenter.py`, a read-only, simulation-independent presentation seam over the recovered PMatchInfo contract. It preserves the exact 760x500 dialog size, tabs/default panel, six text rectangles, eight static placements currently available, the pitch's -2 local y origin, the 252x16 source clipping of the disabled 274x16 strip, and the source-proven incident-art selector.
+- The presenter refuses a complete-dialog snapshot unless the exact `info_popup.444` is present. It does not translate modern `MatchEvent` objects into original PScriptRow event types because that semantic bridge is not source-proven.
+- Exact next step after CI: merge this presenter checkpoint, then continue the strongest source-backed Gate-13 integration/audit path while preserving the popup transport blocker and real-Windows validation requirement.
