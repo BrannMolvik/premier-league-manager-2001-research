@@ -14,7 +14,7 @@
   "last_verified_test_count": 1134,
   "asset_policy_validated_head": "dcf739a6f747fc024e4fbd1038a68a05661e08f4",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 remains the active validation gate. Exact deferred local task: real Windows PStartMenu/TeamSelect graphical audit, then remaining TeamSelect hierarchy input/state recovery and broader management-screen fidelity. Current Gate 16 task: run a canonical shipped-data multi-season audit now that the exact private source archive and five required root files have been re-extracted and hash-verified in Recovery 132; obtain the current reconstruction runtime in the execution container without committing proprietary bytes, then drive consecutive canonical seasons through annual qualification/regeneration.",
+  "active_task": "Gate 13 remains the active validation gate with the real Windows graphical audit deferred. Gate-16 work-ahead now has a passing canonical shipped-data seed-1 three-rollover audit after PR #65; Recovery 137 is running the same exact audit with player seed 2 for broader canonical seed coverage.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -711,7 +711,7 @@
   "gate16_canonical_source_materialized_recovery_132": true,
   "gate16_canonical_root_files_hash_verified_recovery_132": true,
   "gate16_canonical_multiseason_audit_executed": true,
-  "gate16_canonical_multiseason_audit_status": "recovery_135_failed_closed_cycle_2_european_node_delta_under_investigation",
+  "gate16_canonical_multiseason_audit_status": "seed1_three_rollovers_passed_recovery_137_seed2_in_progress",
   "gate16_cloud_process_execution_status": "healthy_recovery_135",
   "gate16_recovery_133_source_archive_materialized": true,
   "gate16_recovery_133_source_archive_hash_reverified": false,
@@ -762,5 +762,16 @@
     "shadow_entries": 2,
     "european_cup_nodes": 2
   },
-  "gate16_recovery_135_next_task": "isolate the two added European Cup nodes by competition/round, determine legitimate dynamic materialization vs accumulation, encode regression/fix, rerun canonical three-rollover audit"
+  "gate16_recovery_135_next_task": "superseded_by_recovery_137_seed1_pass",
+  "gate16_canonical_multiseason_seed1_passed": true,
+  "gate16_canonical_multiseason_seed1_recovery": 137,
+  "gate16_canonical_multiseason_seed1_rollovers": 3,
+  "gate16_canonical_multiseason_seed1_final_date": "2003-06-02",
+  "gate16_canonical_multiseason_seed1_elapsed_seconds": 1617.49,
+  "gate16_canonical_multiseason_seed1_final_rng_state": 1945051110,
+  "gate16_canonical_multiseason_seed1_receipt": "research/evidence/GATE16_CANONICAL_MULTISEASON_SEED1_RECOVERY137.json",
+  "gate16_canonical_multiseason_projection_fix_merge": "7f3f83eb98b9f29039b691197505dbe74c8b0851",
+  "gate16_canonical_multiseason_projection_fix_asset_policy_run": 36867367968,
+  "gate16_canonical_multiseason_projection_fix_full_ci_run": 36867368043,
+  "gate16_recovery_137_seed2_canonical_in_progress": true
 }
