@@ -41,9 +41,51 @@ This proves a two-stage native hierarchy, not a flat developer club picker:
 
 `country -> competition -> club -> Start`
 
-## Still open
+## Exact filters and stable ordering
 
-This does not claim the exact competition inclusion/order for every country,
-the visual state-to-source-frame transforms, the final club-row selection
-write, or live hierarchy rendering. Those remain required before replacing
-the inert hierarchy in the Windows audit. Gate 13 remains active.
+`0x4D9C70` retains only competition records whose runtime kind is `1`, whose
+country is the selected country, and whose parent ID is `-1`. Comparator
+`0x4DA0B0` orders the retained root leagues by signed initialization-order
+value; the small-range sorter at `0x4DA980` preserves source-table order for
+ties. `0x4DA0F0` retains clubs whose competition ID equals the selected league
+and stably orders their raw CP1252 visible-name bytes. The reconstruction now
+implements those predicates directly and keeps the native 16/24 row caps.
+
+The English default therefore opens England -> F.A. Premier League and shows
+the 20 clubs alphabetically from Arsenal through West Ham United. The other
+seven country league lists are derived by the same source fields, not a modern
+hard-coded league map.
+
+## Native frames, fonts and final selection write
+
+Both hierarchy animation children use 11 NORMAL frames, 11 ACTIVE frames and
+one DISABLED frame: source indices `0..10`, `11..21`, and `22`. Team bars use
+NORMAL `0/1`, ACTIVE `2`, DISABLED `3`. League bars use country NORMAL `0`,
+competition NORMAL `1`, shared transition row `2`, ACTIVE `3`, DISABLED `4`.
+The recovered sources are 30x29/168x29 for league rows and 30x19/167x19 for
+club rows. The canonical 30x438 club animation contains 23 addressable 19-pixel
+frames plus one trailing source scanline which no recovered state reads.
+
+League labels use `Fonts/Zurich_BdXCn_BT_18pixel.fnt`; club labels use
+`Fonts/Zurich_BdXCn_BT_16pixel.fnt`. Both are centered in the native bar child
+using source glyph alpha and the recovered white/black endpoint colors.
+
+`0x4D8E90` / `0x4D9240` writes the clicked DBRClub `+0x40` canonical ID into
+the 0x30-byte selection record, updates the active state, and writes `-1` on a
+second click. The live presenter mirrors that toggle and passes the same
+canonical ID to the existing Start boundary.
+
+## Integrated verification and remaining boundary
+
+The four exact TeamSelect club-row/font resources were imported through the
+hash- and inventory-gated asset path. Twenty focused tests pass, including the
+real licensed resource loader (one unrelated source-gated test remains an
+expected skip in the ordinary run). The upgraded Windows audit now verifies
+default 13-row/20-club population, country clear, competition repopulation,
+club-ID toggle and ACTIVE frame state.
+
+The current desktop Python runtime cannot execute that upgraded audit because
+its bundled Tcl/Tk install lacks `init.tcl`; no upgraded graphical pass is
+claimed. The earlier Windows first-screen receipt remains valid for its prior
+scope. Gate 13 remains active for this rerun and broader management-screen
+presentation.

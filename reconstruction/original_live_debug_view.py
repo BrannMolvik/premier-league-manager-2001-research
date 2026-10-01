@@ -57,7 +57,7 @@ class OriginalLiveDebugFrame:
     native_text_placement_recovered: bool = False
 
 
-def _endpoint_text_rgba(alpha: bytes, native_color_16: int) -> bytes:
+def endpoint_text_rgba(alpha: bytes, native_color_16: int) -> bytes:
     """Convert only the two proven all-bits-off/on native endpoint colors."""
     if native_color_16 == 0x0000:
         channel = 0
@@ -138,7 +138,7 @@ def build_original_debug_frame(
                     "Recovered Zurich glyph mask exceeds its native clip rectangle"
                 )
             native_color = caption.native_color_for_group(group)
-            rgba = _endpoint_text_rgba(mask.alpha, native_color)
+            rgba = endpoint_text_rgba(mask.alpha, native_color)
             captions.append(
                 OriginalDebugCaptionOverlay(
                     event=control.event,

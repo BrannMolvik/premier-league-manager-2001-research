@@ -78,6 +78,12 @@ class FrontEndSession:
             raise ValueError("Club ID must be an integer.")
         self.selected_club_id = int(club_id)
 
+    def clear_club_selection(self) -> None:
+        """Clear the native TeamSelect toggle without changing gameplay state."""
+        if self.navigation.screen is not FrontEndScreen.TEAM_SELECT or self.started:
+            raise FrontEndSessionError("Club selection can only change in TeamSelect.")
+        self.selected_club_id = None
+
     def dispatch(self, control_id: int) -> FrontEndSessionOutcome:
         """Dispatch only recovered controls and preserve retryable failures."""
         control = int(control_id)

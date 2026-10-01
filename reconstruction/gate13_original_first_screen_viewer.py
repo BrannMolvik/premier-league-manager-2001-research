@@ -18,9 +18,13 @@ from pathlib import Path
 
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndCommand, FrontEndScreen
-from original_first_screen_presenter import OriginalFirstScreenPresenter
+from gate13_original_pixel_preview import encode_rgba_png
+from original_first_screen_presenter import (
+    OriginalFirstScreenPresenter,
+    OriginalHierarchyInteraction,
+)
 from original_live_debug_view import (
-    OriginalLiveDebugError, build_original_debug_frame,
+    OriginalLiveDebugError, build_original_debug_frame, endpoint_text_rgba,
 )
 from original_hierarchy_debug_inspector import (
     OriginalHierarchyDebugError, inspect_original_hierarchy_source_frames,
@@ -58,7 +62,7 @@ class OriginalFirstScreenTkDebug:
             text="SOURCE PIXEL DIAGNOSTIC, NOT ORIGINAL FM2001 UI. "
                  "Frame selection below remains MANUAL for atlas inspection. "
                  "Native groups and PStartMenu text placement are recovered; "
-                 "mask-4's user-facing name remains open.",
+                 "TeamSelect rows use their recovered native states.",
         ).pack(anchor="w")
 
         buttons = ttk.Frame(sidebar)
@@ -78,9 +82,9 @@ class OriginalFirstScreenTkDebug:
         self.events_label.pack(anchor="w", pady=8)
 
         ttk.Label(
-            sidebar, text="Original hierarchy source art OFF-CANVAS ONLY. "
-            "Native sprite placement, country/club labels and all hierarchy "
-            "hover/selection states are unresolved.", wraplength=300,
+            sidebar, text="Independent hierarchy source-strip inspector. "
+            "The canvas uses recovered state-specific frames and captions.",
+            wraplength=300,
         ).pack(anchor="w")
         anim_controls = ttk.Frame(sidebar)
         anim_controls.pack(anchor="w")
@@ -113,7 +117,7 @@ class OriginalFirstScreenTkDebug:
 
         ttk.Label(
             sidebar,
-            text="Developer-only explicit club ID (NOT original hierarchy):"
+            text="Developer-only explicit club ID override:"
         ).pack(anchor="w")
         self.club_id_text = tk.StringVar()
         ttk.Entry(sidebar, textvariable=self.club_id_text,
@@ -165,6 +169,37 @@ class OriginalFirstScreenTkDebug:
                 caption.line_origin_x, caption.line_origin_y,
                 image=glyphs, anchor=self.tk.NW
             )
+        for row in (*view.hierarchy_rows, *view.club_rows):
+            animation = self._photo(encode_rgba_png(
+                row.animation_frame.width,
+                row.animation_frame.height,
+                row.animation_frame.rgba,
+            ))
+            bar = self._photo(encode_rgba_png(
+                row.bar_frame.width,
+                row.bar_frame.height,
+                row.bar_frame.rgba,
+            ))
+            glyph_rgba = endpoint_text_rgba(
+                row.glyph_mask.alpha, row.native_color_16
+            )
+            glyphs = self._photo(encode_rgba_png(
+                row.glyph_mask.width,
+                row.glyph_mask.height,
+                glyph_rgba,
+            ))
+            self.canvas.create_image(
+                row.animation_rect.x, row.animation_rect.y,
+                image=animation, anchor=self.tk.NW,
+            )
+            self.canvas.create_image(
+                row.bar_rect.x, row.bar_rect.y,
+                image=bar, anchor=self.tk.NW,
+            )
+            self.canvas.create_image(
+                row.line_origin_x, row.line_origin_y,
+                image=glyphs, anchor=self.tk.NW,
+            )
         self.frame_label.configure(
             text=f"Manually selected original source frame: "
                  f"{self.source_frame_index} (native mapping available; "
@@ -178,8 +213,8 @@ class OriginalFirstScreenTkDebug:
         ]
         if frame.screen is FrontEndScreen.TEAM_SELECT:
             actions.append(
-                f"Hierarchy: {len(frame.hierarchy_row_origins_not_interactive)} "
-                "source-backed row origins; row events/items NOT recovered."
+                f"Hierarchy: {len(view.hierarchy_rows)} visible country/league "
+                f"rows and {len(view.club_rows)} visible club rows."
             )
         self.events_label.configure(text="\n".join(actions))
         try:
@@ -254,10 +289,22 @@ class OriginalFirstScreenTkDebug:
         try:
             result = self.presenter.pointer(int(event.x), int(event.y))
             if result is None:
-                self.status.set(
-                    "No executable-proven click action here; "
-                    "TeamSelect hierarchy row IDs remain unresolved."
-                )
+                self.status.set("No executable-proven click action here.")
+            elif isinstance(result, OriginalHierarchyInteraction):
+                if result.row_kind == "club":
+                    verb = (
+                        "selected" if result.selected_club_id is not None
+                        else "cleared"
+                    )
+                    self.status.set(
+                        f"Native club row {result.text!r} {verb}; "
+                        f"source ID {result.source_id}."
+                    )
+                else:
+                    self.status.set(
+                        f"Native {result.row_kind} row activated: "
+                        f"{result.text!r} (source ID {result.source_id})."
+                    )
             elif result.transition.command is FrontEndCommand.TEAMSELECT_START_CONTINUE:
                 self.status.set(
                     f"Backend selection returned {result.selected_manager!r}; "
@@ -287,7 +334,7 @@ class OriginalFirstScreenTkDebug:
             self.presenter.choose_club(value)
             self.status.set(
                 f"Developer-only explicit club ID {value} selected; "
-                "original hierarchy mapping has not been inferred."
+                "native hierarchy selection synchronized when available."
             )
         except (ValueError, TypeError, RuntimeError) as exc:
             self.status.set(f"Explicit club selection rejected: {exc}")

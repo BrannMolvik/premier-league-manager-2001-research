@@ -1,10 +1,7 @@
 """Build the confirmed original TeamSelect background and action resources.
 
-This binds the exact source backgrounds, TeamSelect 23-frame Back/Start atlas,
-16 original hierarchy-row origins, and proven Back/Start control geometry.
-It does not invent the hierarchy's country/league/club row mapping, button
-source-frame interaction states, fonts, or placement of untraced sprites.
-Those remain dependent on source-backed executable research.
+This binds the exact source backgrounds, action atlas, hierarchy and club-row
+art, native Zurich fonts, and proven control geometry/state transforms.
 """
 from __future__ import annotations
 
@@ -25,6 +22,18 @@ from original_teamselect_hierarchy_art import (
     HIERARCHY_BARS_SPEC,
     OriginalTeamSelectHierarchyArt,
     decode_verified_hierarchy_art,
+)
+from original_teamselect_native import (
+    TEAMSELECT_CLUB_ANIM_PATH,
+    TEAMSELECT_CLUB_ANIM_SHA256,
+    TEAMSELECT_CLUB_BARS_PATH,
+    TEAMSELECT_CLUB_BARS_SHA256,
+    TEAMSELECT_CLUB_FONT_PATH,
+    TEAMSELECT_CLUB_FONT_SHA256,
+    TEAMSELECT_LEAGUE_FONT_PATH,
+    TEAMSELECT_LEAGUE_FONT_SHA256,
+    OriginalTeamSelectNativeInputs,
+    decode_verified_teamselect_native_inputs,
 )
 from original_front_end_layout import (
     GLOBAL_BACKGROUND_PATH,
@@ -62,6 +71,7 @@ class OriginalTeamSelectResources:
     action_atlas: OriginalButtonAtlas
     hierarchy_row_origins: tuple[tuple[int, int], ...]
     hierarchy_art: OriginalTeamSelectHierarchyArt | None = None
+    native_hierarchy: OriginalTeamSelectNativeInputs | None = None
 
     def __post_init__(self) -> None:
         if len(self.background_rgba) != SCREEN_SIZE[0] * SCREEN_SIZE[1] * 4:
@@ -88,6 +98,10 @@ class OriginalTeamSelectResources:
             self.hierarchy_art, OriginalTeamSelectHierarchyArt
         ):
             raise OriginalTeamSelectResourceError("Unverified hierarchy source art")
+        if self.native_hierarchy is not None and not isinstance(
+            self.native_hierarchy, OriginalTeamSelectNativeInputs
+        ):
+            raise OriginalTeamSelectResourceError("Unverified native hierarchy inputs")
 
     @property
     def proven_actions(self) -> tuple[tuple[int, object], ...]:
@@ -102,6 +116,7 @@ def assemble_original_teamselect_inputs(
     team_background: EA444DecodedImage,
     action_atlas: OriginalButtonAtlas,
     hierarchy_art: OriginalTeamSelectHierarchyArt | None = None,
+    native_hierarchy: OriginalTeamSelectNativeInputs | None = None,
 ) -> OriginalTeamSelectResources:
     """Compose only the two proven background layers and original atlas."""
     return OriginalTeamSelectResources(
@@ -109,6 +124,7 @@ def assemble_original_teamselect_inputs(
         action_atlas,
         TEAMSELECT_HIERARCHY_ROW_ORIGINS,
         hierarchy_art,
+        native_hierarchy,
     )
 
 
@@ -126,10 +142,24 @@ def _read_verified_art(
     return data
 
 
+def _read_verified_root(
+    source_root: Path,
+    source_path: str,
+    expected_sha256: str,
+) -> bytes:
+    path = Path(source_root) / source_path
+    data = path.read_bytes()
+    if sha256(data).hexdigest() != expected_sha256:
+        raise OriginalTeamSelectResourceError(
+            f"Original TeamSelect resource checksum mismatch: {source_path}"
+        )
+    return data
+
+
 def load_verified_original_teamselect_inputs(
     *, original_art_dir: Path, original_executable: Path
 ) -> OriginalTeamSelectResources:
-    """Load actual original bytes; exact native action-frame states stay unknown."""
+    """Load the checksum-gated native TeamSelect presentation inputs."""
     executable = Path(original_executable).read_bytes()
     tables = tables_from_original_executable(executable)
     quant = quantization_from_verified_executable(executable)
@@ -169,8 +199,33 @@ def load_verified_original_teamselect_inputs(
         tables=tables,
         quant=quant,
     )
+    source_root = Path(original_art_dir).parent
+    native_hierarchy = decode_verified_teamselect_native_inputs(
+        _read_verified_art(
+            original_art_dir,
+            TEAMSELECT_CLUB_ANIM_PATH,
+            TEAMSELECT_CLUB_ANIM_SHA256,
+        ),
+        _read_verified_art(
+            original_art_dir,
+            TEAMSELECT_CLUB_BARS_PATH,
+            TEAMSELECT_CLUB_BARS_SHA256,
+        ),
+        _read_verified_root(
+            source_root,
+            TEAMSELECT_LEAGUE_FONT_PATH,
+            TEAMSELECT_LEAGUE_FONT_SHA256,
+        ),
+        _read_verified_root(
+            source_root,
+            TEAMSELECT_CLUB_FONT_PATH,
+            TEAMSELECT_CLUB_FONT_SHA256,
+        ),
+        tables=tables,
+        quant=quant,
+    )
     result = assemble_original_teamselect_inputs(
-        base, team, buttons, hierarchy_art,
+        base, team, buttons, hierarchy_art, native_hierarchy,
     )
     if sha256(result.background_rgba).hexdigest() != (
         TEAMSELECT_COMPOSED_BACKGROUND_RGBA_SHA256

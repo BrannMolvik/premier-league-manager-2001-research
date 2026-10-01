@@ -1,6 +1,6 @@
 # Current State
 
-_Last reconciled: 1 October 2026 KST_
+_Last reconciled: 2 October 2026 KST_
 
 This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
@@ -26,13 +26,24 @@ Evidence:
 ## Live resume summary
 
 - **Earliest incomplete validation gate:** Gate 13.
+- Local Codex recovery on 2 October closed the source-critical TeamSelect
+  hierarchy implementation: exact root-league filtering and stable ordering,
+  raw-name club ordering, all league/team native frame transforms, Zurich
+  18/16 row captions, and the canonical club-ID toggle are integrated. Four
+  exact resources were imported through the verified inventory path; 20
+  focused tests pass and the licensed resource loader passes.
+- The upgraded real-Windows audit is ready and now checks the 13-row English
+  default, 20 Premier League clubs, country clear, league repopulation and
+  club ACTIVE/toggle state. Its rerun is blocked only because the available
+  bundled Python has no usable Tcl/Tk `init.tcl`. Run it with a Tcl/Tk-capable
+  Windows Python before claiming the new graphical scope.
 - Local Codex recovery at `4537f9b150cab8e2282c5d33a30c13a43cfb50c3`
   completed the concrete Squad player-list hierarchy, 20-row/column/status
   bindings and exact `FormationText` state-to-source-row transform. Do not
   repeat that private trace unless a regression or evidence dispute requires it.
-- Gate 13 still requires the **real Windows PStartMenu/TeamSelect graphical
-  audit**, remaining TeamSelect hierarchy item/input/selection-state recovery,
-  and broader normal-management presentation/resource/layout/navigation work.
+- Gate 13 still requires the upgraded **real Windows PStartMenu/TeamSelect
+  graphical audit** and broader normal-management presentation/resource/
+  layout/navigation work.
 - The Windows first-screen audit harness is merged at
   `0a871b5fbc9c546ad67c335bc6db009d3a023627`; a hosted harness pass is not a
   substitute for the real Windows receipt.
