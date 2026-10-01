@@ -14,6 +14,12 @@ from original_pmatchinfo_resources import (
     PMATCHINFO_CONTROL_CALLBACK_TARGET_TYPE_DESCRIPTOR_VA,
     PMATCHINFO_CONTROL_CALLBACK_TARGET_COL_VA,
     PMATCHINFO_CONTROL_CALLBACK_TARGET_VFTABLE_VA,
+    PMATCHINFO_TEXT_SETUP_VA,
+    PMATCHINFO_TEXT_PLACEMENTS,
+    PMATCHINFO_TEXT_FONT_GLOBAL_VA,
+    PMATCHINFO_TEXT_FONT_SOURCE_PATH,
+    PMATCHINFO_TEXT_FONT_SHA256,
+    PMATCHINFO_TEXT_FONT_NATIVE_LINE_HEIGHT,
     PMATCHINFO_SUBPANEL_BASE_CLASS,
     PMATCHINFO_SUBPANEL_BASE_COL_VA,
     PMATCHINFO_SUBPANEL_BASE_TYPE_DESCRIPTOR_VA,
@@ -186,6 +192,50 @@ class OriginalPMatchInfoResourceTests(unittest.TestCase):
             with self.subTest(bad=bad):
                 with self.assertRaises(OriginalPMatchInfoResourceError):
                     pmatchinfo_placements_for_resource(bad)
+
+    def test_text_setup_uses_source_bound_zurich_16_font_and_exact_rectangles(self):
+        self.assertEqual(PMATCHINFO_TEXT_SETUP_VA, 0x6503F0)
+        self.assertEqual(PMATCHINFO_TEXT_FONT_GLOBAL_VA, 0x87BEA0)
+        self.assertEqual(
+            PMATCHINFO_TEXT_FONT_SOURCE_PATH,
+            "Fonts/Zurich_BdXCn_BT_16pixel.fnt",
+        )
+        self.assertEqual(
+            PMATCHINFO_TEXT_FONT_SHA256,
+            "9dc371caba34823b0d6ba6fd4c5e82f94775de1168daa5dad936b70a6e4f9732",
+        )
+        self.assertEqual(PMATCHINFO_TEXT_FONT_NATIVE_LINE_HEIGHT, 18)
+        self.assertEqual(
+            [
+                (placement.owner_method_va, placement.setup_call_va, placement.rect)
+                for placement in PMATCHINFO_TEXT_PLACEMENTS
+            ],
+            [
+                (0x483500, 0x4836AC, (210, 2, 185, 12)),
+                (0x483500, 0x4836E4, (210, 18, 185, 12)),
+                (0x483840, 0x483918, (33, 0, 29, 16)),
+                (0x484F90, 0x485091, (172, 50, 416, 16)),
+                (0x484F90, 0x4850C9, (380, 68, 208, 16)),
+                (0x484F90, 0x485101, (172, 68, 208, 16)),
+            ],
+        )
+        self.assertTrue(
+            all(
+                placement.font_global_va == PMATCHINFO_TEXT_FONT_GLOBAL_VA
+                for placement in PMATCHINFO_TEXT_PLACEMENTS
+            )
+        )
+
+    def test_text_control_height_does_not_get_replaced_by_font_line_height(self):
+        self.assertEqual(PMATCHINFO_TEXT_FONT_NATIVE_LINE_HEIGHT, 18)
+        self.assertEqual(
+            [placement.height for placement in PMATCHINFO_TEXT_PLACEMENTS[:2]],
+            [12, 12],
+        )
+        self.assertNotEqual(
+            PMATCHINFO_TEXT_PLACEMENTS[0].height,
+            PMATCHINFO_TEXT_FONT_NATIVE_LINE_HEIGHT,
+        )
 
     def test_incident_icon_family_is_exact_fourteen_square_pixels(self):
         for name in (
