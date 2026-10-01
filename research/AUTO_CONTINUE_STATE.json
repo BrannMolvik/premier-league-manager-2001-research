@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete. Recovery 137 has durably recorded the passing canonical shipped-data seed-1 three-rollover Gate-16 audit. The same exact canonical audit is now actively running with player seed 2 for broader real-data seed coverage; persist its result, regress any failure, then continue the next independent cloud-safe Gate-16 stress if feasible.",
-  "last_known_main_head": "cf211f6f0c6170172d98de9965d974ed50f4ffa7",
+  "active_task": "Gate 13 remains earliest incomplete with Windows graphical work deferred. Gate-16 work-ahead criteria are prevalidated through two passing canonical three-rollover seeds. Recovery 137 is now working the next earlier independent Gate-15 fidelity gap: recover the secondary startup exact equal-key permutation and mode-1 per-date bucket vector from the canonical executable/real input, replacing the aggregate-only synthetic partition without guessing.",
+  "last_known_main_head": "279500548217ad18a8a845236107b4a083ccf178",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 137,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 137 seed-1 canonical pass is fully persisted on main cf211f6f0c6170172d98de9965d974ed50f4ffa7. Seed-2 canonical three-rollover audit remains actively CPU-bound in the execution container (PID 2852), >14 minutes elapsed, no stderr; continue observing exact process.",
+  "note": "Gate-16 seed1/seed2 canonical receipts and readiness audit are persisted through main 279500548217ad18a8a845236107b4a083ccf178. Active cloud-safe work has shifted to Gate 15 secondary startup exact tie/bucket fidelity.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
