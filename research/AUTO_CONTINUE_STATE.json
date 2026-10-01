@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 159 merged PR #91 as ae324cb3ba585dff1f96ff19053e35bc62917540 after Gate-13 run 36938526562 passed 361 tests with 21 expected skips and asset-policy run 36938526517 passed. Exact next task: import/stage the 13 Match Report assets with source-proven runtime presentation consumers under original_assets/source with byte-identical provenance; deliberately exclude the seven source-audited loaded-but-unconsumed assets. Then integrate PMatchInfo presentation and perform corrected Windows validation.",
+  "active_task": "Recovery 160 resumes from main ae324cb3ba585dff1f96ff19053e35bc62917540 with PR #92 open. Asset-policy run 36940195519 passed; Gate-13 run 36940195674 failed only because staged info_player_disabled.444 has a byte-size mismatch, proving the interrupted manual blob handoff corrupted that file. Recover exact bytes from canonical authorized source archive, replace the blob, rerun fidelity CI, then continue PMatchInfo asset/presenter integration without weakening checks.",
   "last_known_main_head": "ae324cb3ba585dff1f96ff19053e35bc62917540",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 159,
-  "last_recovery_reason": "connection-interrupted",
-  "note": "Recovery 159 continues from verified PR #91 into source-proven Match Report asset import; seven loaded-but-unconsumed assets stay excluded from runtime integration unless new source evidence appears.",
+  "recovery_generation": 160,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Do not restart merged PMatchInfo source work or PR #91. Exact active repair is PR #92 binary fidelity.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
