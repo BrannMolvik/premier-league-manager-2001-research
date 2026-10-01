@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 from main af2b3ec1: integrate the verified native first-screen captions/button-state mapping into the presentation; decode/test the proven PScouting2K background_2.444 + background_alpha_1.444 composition; correlate source-backed Squad resources/layout/navigation without guessing; then run the real Windows graphical first-screen and normal-play audit. After Gate 13 closes, continue Gates 14-17 through verified Windows 11 release.",
-  "last_known_main_head": "af2b3ec1c3d498e8774156d599faceb69e6de8b7",
+  "active_task": "Gate 13 after verified PR #47 and canonical checkpoint 16a61f37: PStartMenu native captions are integrated and the proven two-resource PScouting2K composition fragment is implemented/verified. Exact next source task: on a working private/local execution backend, correlate one of the four private Squad catalog resources to its actual canonical-executable panel owner, import/test only proven geometry, then run the real Windows PStartMenu/TeamSelect graphical audit and continue wider management-screen resource/layout/navigation correlation. After Gate 13 closes, continue Gates 14-17 through the verified Windows 11 release.",
+  "last_known_main_head": "16a61f374a247b641097a6be1c15236c307cf8ee",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 123,
   "last_recovery_reason": "manual-start",
-  "note": "Recovery 123: manual-start resumed unchanged canonical main af2b3ec1. Continuing the post-Button/Zurich Gate 13 integration path.",
+  "note": "Recovery 123 checkpoint: main advanced to 16a61f374a247b641097a6be1c15236c307cf8ee after PR #47 (focused Gate 13 run 36814179046: 249 tests, 20 expected skips, zero failures; asset-policy 36814179303 passed). Cloud shell/Python still returns ClientError before process start, so the next private Squad/executable correlation and Windows graphical audit require a working local/recovery execution backend. No user action is required; remain continuous/working.",
   "same_chat_fallback_minutes": 30
 }
