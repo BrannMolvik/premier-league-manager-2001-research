@@ -64,12 +64,10 @@ checksum that was validated before conversion.
 This closes the repository-side **conversion contract**, not the player-visible
 startup criterion. Still required before making a Gate-14 playback claim:
 
-1. execute the plans against the authorized original TGQs with a pinned modern
-   FFmpeg build;
-2. persist a private conversion/probe receipt and verify both outputs;
-3. integrate a Windows playback surface that preserves the proven startup order;
-4. recover the exact input event(s) behind the longer FMV's bit-0 callback path;
-5. verify transition/fade behavior on Windows 11.
+1. execute the private conversion/receipt runner against the authorized original TGQs on a healthy process allocation and retain its outside-Git receipt;
+2. integrate a Windows playback surface that consumes only verified derivatives and preserves the proven startup order;
+3. recover the exact input event(s) behind the longer FMV's bit-0 callback path;
+4. verify transition/fade behavior on Windows 11.
 
 No skip key, fade timing, scaling/interlace treatment or runtime player is
 invented by this checkpoint.
@@ -100,7 +98,7 @@ presentation uses this feed.
 
 Still open:
 
-- execute and privately receipt the source-backed TGQ conversions;
+- execute the merged private conversion/receipt runner against the source-backed TGQs when process execution is healthy;
 - integrate original login/menu music and applicable sound resources;
 - integrate the verified startup derivatives in the Windows runtime;
 - recover exact startup skip/input and transition behavior;
