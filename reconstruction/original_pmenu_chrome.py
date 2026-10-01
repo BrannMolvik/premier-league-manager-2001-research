@@ -1,0 +1,286 @@
+"""Source-backed PMenu menu-row chrome and static menu topology.
+
+This module records only executable-proven FM2001 management-shell presentation
+facts.  It deliberately keeps label globals that have not yet been correlated
+to an original language entry unresolved rather than guessing from nearby menu
+children or modern feature names.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from hashlib import sha256
+from pathlib import Path
+
+from ea444_header import parse_ea444_header
+
+
+class OriginalPMenuChromeError(ValueError):
+    pass
+
+
+PMENU_LIST_CLASS = "CMenuList"
+PMENU_LIST_TYPE_DESCRIPTOR_VA = 0x81CE98
+PMENU_LIST_VFTABLE_VA = 0x7C3E34
+
+PMENU_BASE_ROW_CLASS = "PBaseMenuRow"
+PMENU_BASE_ROW_VFTABLE_VA = 0x7C3C50
+PMENU_TITLE_ROW_CLASS = "PTitleMenuRow"
+PMENU_TITLE_ROW_VFTABLE_VA = 0x7C3A80
+PMENU_TITLE_ROW_SETUP_VA = 0x47A7E0
+PMENU_CHILD_ROW_CLASS = "PChildMenuRow"
+PMENU_CHILD_ROW_VFTABLE_VA = 0x7C3A20
+PMENU_CHILD_ROW_SETUP_VA = 0x47A990
+PMENU_TITLE_ARROW_CLASS = "MenuTitleArrow"
+PMENU_TITLE_ARROW_VFTABLE_VA = 0x7C3B98
+PMENU_BACKGROUND_TOGGLE_CLASS = "MenuBackgroundToggle"
+PMENU_BACKGROUND_TOGGLE_VFTABLE_VA = 0x7C3AE0
+PMENU_TITLE_SELECT_BITMAP_VFTABLE_VA = 0x7C3CB0
+PMENU_CHILD_SELECT_BITMAP_VFTABLE_VA = 0x7C3D4C
+
+PMENU_ROW_HEIGHT = 29
+PMENU_TEXT_CLASS = "eCText"
+PMENU_TEXT_VFTABLE_VA = 0x7BE340
+PMENU_BITMAP_CLASS = "eCBitmap"
+PMENU_BITMAP_VFTABLE_VA = 0x7BE5D8
+PMENU_TEXT_CONTROL_SIZE = (160, 24)
+PMENU_TEXT_CONTROL_Y = (0, 24, 48, 72, 96, 120)
+PMENU_RUNTIME_FONT_GLOBAL_VA = 0x87BEA0
+
+
+@dataclass(frozen=True)
+class OriginalPMenuResource:
+    source_path: str
+    sha256: str
+    byte_size: int
+    size: tuple[int, int]
+    path_literal_va: int
+    raw_handle_va: int
+    wrapper_va: int
+    owner_class: str
+    setup_va: int
+
+    @property
+    def frame_count(self) -> int:
+        width, height = self.size
+        del width
+        if height % PMENU_ROW_HEIGHT:
+            raise OriginalPMenuChromeError(
+                f"{self.source_path} height is not a whole PMenu row stack"
+            )
+        return height // PMENU_ROW_HEIGHT
+
+
+PMENU_TITLE_ARROW_RESOURCE = OriginalPMenuResource(
+    "FM2001_Art/Generic/menu_popup/menu_arrow_anim.444",
+    "45d34aea3d4ae3f85a171fe3e6eb1b28ea960f5f500f123d98bcbbab52d22006",
+    26248,
+    (30, 638),
+    0x837C4C,
+    0x943870,
+    0x943850,
+    PMENU_TITLE_ROW_CLASS,
+    PMENU_TITLE_ROW_SETUP_VA,
+)
+PMENU_TITLE_BOX_RESOURCE = OriginalPMenuResource(
+    "FM2001_Art/Generic/menu_popup/submenu_main_box.444",
+    "37bc920cb734cde0ac8891d240341f06319c4d1827cdd03a9c4ef8137e30791c",
+    5700,
+    (168, 87),
+    0x837C80,
+    0x943830,
+    0x943810,
+    PMENU_TITLE_ROW_CLASS,
+    PMENU_TITLE_ROW_SETUP_VA,
+)
+PMENU_CHILD_ARROW_RESOURCE = OriginalPMenuResource(
+    "FM2001_Art/Generic/menu_popup/menu_anim.444",
+    "de53b9ed410bf0456e79c03b305cfb7a1ccaae4c10fb77a50fefd7106c2d4e22",
+    22768,
+    (30, 667),
+    0x837C20,
+    0x9438B0,
+    0x943890,
+    PMENU_CHILD_ROW_CLASS,
+    PMENU_CHILD_ROW_SETUP_VA,
+)
+PMENU_CHILD_BOX_RESOURCE = OriginalPMenuResource(
+    "FM2001_Art/Generic/menu_popup/menu_main_box.444",
+    "4cc1becee669f1f55749a58051eca8833ed582b1f45754c18485366dd6715007",
+    6864,
+    (168, 116),
+    0x837CB4,
+    0x9437F0,
+    0x9437D0,
+    PMENU_CHILD_ROW_CLASS,
+    PMENU_CHILD_ROW_SETUP_VA,
+)
+
+PMENU_RESOURCES = (
+    PMENU_TITLE_ARROW_RESOURCE,
+    PMENU_TITLE_BOX_RESOURCE,
+    PMENU_CHILD_ARROW_RESOURCE,
+    PMENU_CHILD_BOX_RESOURCE,
+)
+
+
+@dataclass(frozen=True)
+class OriginalPMenuNode:
+    menu_id: int
+    label_global_va: int
+    aux_global_va: int | None
+    children_array_va: int | None
+    english_index: int | None = None
+    original_text: str | None = None
+
+    def require_original_text(self) -> str:
+        if self.english_index is None or self.original_text is None:
+            raise OriginalPMenuChromeError(
+                f"PMenu node {self.menu_id:#x} label global "
+                f"{self.label_global_va:#x} is not language-correlated"
+            )
+        return self.original_text
+
+
+# The main English loader stores entry N at 0x9847F8 - 4*N.
+PMENU_MAIN_ENGLISH_BASE_GLOBAL_VA = 0x9847F8
+
+
+def main_english_global_va(index: int) -> int:
+    if type(index) is not int or index < 0:
+        raise OriginalPMenuChromeError("English index must be a non-negative integer")
+    return PMENU_MAIN_ENGLISH_BASE_GLOBAL_VA - 4 * index
+
+
+def _node(
+    menu_id: int,
+    label_global_va: int,
+    aux_global_va: int | None,
+    children_array_va: int | None,
+    english_index: int | None = None,
+    original_text: str | None = None,
+) -> OriginalPMenuNode:
+    if (english_index is None) != (original_text is None):
+        raise OriginalPMenuChromeError(
+            "PMenu language identity requires both index and exact original text"
+        )
+    if english_index is not None and main_english_global_va(english_index) != label_global_va:
+        raise OriginalPMenuChromeError(
+            f"PMenu English/global mismatch for node {menu_id:#x}"
+        )
+    return OriginalPMenuNode(
+        menu_id,
+        label_global_va,
+        aux_global_va,
+        children_array_va,
+        english_index,
+        original_text,
+    )
+
+
+# Root array 0x947638, preserved in executable construction order.
+PMENU_ROOT_NODES = (
+    _node(2, 0x98475C, 0x9832CC, 0x9479C8, 39, "Team"),
+    _node(3, 0x982298, 0x9832C8, 0x947968),
+    _node(0x259, 0x982B1C, 0x9836E8, 0x947728),
+    _node(6, 0x982098, None, 0x947830),
+    _node(7, 0x98474C, 0x9832BC, 0x9477D0, 43, "Analysis"),
+    _node(4, 0x982094, None, 0x9478D8),
+    _node(5, 0x98209C, None, 0x947878),
+    _node(1, 0x984748, 0x9832B8, 0x947A70, 44, "EAMail"),
+    _node(8, 0x9820A0, None, 0x947770),
+)
+
+PMENU_TEAM_CHILDREN = (
+    _node(0xCE, 0x982918, 0x983714, None),
+    _node(0xCA, 0x984738, 0x983710, None, 48, "Stats"),
+    _node(0xCB, 0x98229C, 0x983708, None),
+    _node(0xCC, 0x984724, 0x983704, None, 53, "Team Orders"),
+    _node(0xCD, 0x984720, 0x983700, None, 54, "Training"),
+    _node(0xCF, 0x98470C, 0x9836EC, None, 59, "Youth Team"),
+)
+PMENU_TRANSFER_CHILDREN = (
+    _node(0x12D, 0x982294, 0x9836FC, None),
+    _node(0x12E, 0x982290, 0x9836F4, None),
+    _node(0x12F, 0x982130, None, None),
+)
+PMENU_DIRECT_259_CHILDREN = (
+    _node(0x259, 0x982B1C, 0x9836E8, None),
+    _node(0x25C, 0x9821F8, 0x9836E4, None),
+)
+PMENU_TABLES_CHILDREN = (
+    _node(0x25A, 0x9846DC, 0x9836E0, None, 71, "League Tables"),
+    _node(0x25B, 0x9846D8, 0x9836DC, None, 72, "Cup Tables"),
+)
+PMENU_ANALYSIS_CHILDREN = (
+    _node(0x2BD, 0x983C70, 0x9836D8, None),
+    _node(0x2BE, 0x983DA4, 0x9836D4, None),
+    _node(0x2BF, 0x982288, 0x9836D0, None),
+)
+PMENU_ADMIN_FAMILY_CHILDREN = (
+    _node(0x191, 0x982914, 0x983290, None),
+    _node(0x192, 0x982AB8, 0x982A5C, None),
+    _node(0x193, 0x9846EC, 0x983290, None, 67, "Stadium"),
+    _node(0x194, 0x9846E8, 0x98328C, None, 68, "Development"),
+    _node(0x195, 0x9846E4, 0x983288, None, 69, "Maintenance"),
+)
+PMENU_FINANCE_FAMILY_CHILDREN = (
+    _node(0x1F5, 0x984708, 0x9832AC, None, 60, "Cash Flow"),
+    _node(0x1F6, 0x984700, 0x9832A4, None, 62, "Tickets"),
+    _node(0x1F7, 0x9846FC, 0x98329C, None, 63, "Contracts"),
+)
+PMENU_EAMAIL_CHILDREN = (
+    _node(0x65, 0x984748, 0x9836C8, None, 44, "EAMail"),
+)
+PMENU_SYSTEM_CHILDREN = (
+    _node(0x321, 0x9820A8, None, None),
+    _node(0x322, 0x9820A4, None, None),
+    _node(0x323, 0x982090, None, None),
+)
+
+PMENU_CHILDREN_BY_ARRAY_VA = {
+    0x9479C8: PMENU_TEAM_CHILDREN,
+    0x947968: PMENU_TRANSFER_CHILDREN,
+    0x947728: PMENU_DIRECT_259_CHILDREN,
+    0x947830: PMENU_TABLES_CHILDREN,
+    0x9477D0: PMENU_ANALYSIS_CHILDREN,
+    0x9478D8: PMENU_ADMIN_FAMILY_CHILDREN,
+    0x947878: PMENU_FINANCE_FAMILY_CHILDREN,
+    0x947A70: PMENU_EAMAIL_CHILDREN,
+    0x947770: PMENU_SYSTEM_CHILDREN,
+}
+
+# This separate array is source-proven but is not promoted to the main root tree
+# until its owning navigation path is traced.
+PMENU_SEPARATE_TEAM_ORDER_ARRAY_VA = 0x9475A0
+PMENU_SEPARATE_TEAM_ORDER_NODES = (
+    _node(0x3E9, 0x98473C, 0x983714, None, 47, "Formation"),
+    _node(0x3EA, 0x984738, 0x983710, None, 48, "Stats"),
+    _node(0x3EB, 0x98472C, None, None, 51, "Ind Orders"),
+    _node(0x3EC, 0x984728, 0x983708, None, 52, "Specific Roles"),
+    _node(0x3ED, 0x984724, 0x983704, None, 53, "Team Orders"),
+)
+
+
+def validate_original_pmenu_resources(
+    source_root: Path,
+) -> tuple[OriginalPMenuResource, ...]:
+    """Require the four exact source-bound PMenu row assets."""
+    root = Path(source_root)
+    for resource in PMENU_RESOURCES:
+        path = root / resource.source_path
+        data = path.read_bytes()
+        if len(data) != resource.byte_size:
+            raise OriginalPMenuChromeError(
+                f"Original PMenu resource byte-size mismatch: {resource.source_path}"
+            )
+        if sha256(data).hexdigest() != resource.sha256:
+            raise OriginalPMenuChromeError(
+                f"Original PMenu resource checksum mismatch: {resource.source_path}"
+            )
+        header = parse_ea444_header(data)
+        if (header.width, header.height) != resource.size:
+            raise OriginalPMenuChromeError(
+                f"Original PMenu resource geometry mismatch: {resource.source_path}"
+            )
+        resource.frame_count
+    return PMENU_RESOURCES
