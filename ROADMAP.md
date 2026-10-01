@@ -4,14 +4,14 @@
 
 This is the authoritative long-term development plan for the **Windows 11 modernization/port of The F.A. Premier League Football Manager 2001**. The goal is to preserve and reuse authorized original game resources wherever practical while replacing incompatible legacy runtime/code with a modern implementation.
 
-The project is deliberately organized around sequential gates. Only one gate should be active at a time. Interesting discoveries outside the active gate belong in `research/BACKLOG.md` unless they are required to unblock the active work.
+The project is deliberately organized around sequential validation gates. Only one gate is the active validation gate at a time. When that gate contains a task blocked by unavailable local/private/Windows execution, independent cloud-safe work may advance in later gates under the deferred-blocker policy; later gates are not declared passed until their own criteria and earlier prerequisites are satisfied.
 
 For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 ## Working rules
 
 1. GitHub is canonical. Chat context is temporary.
-2. Work only on the active gate unless a dependency requires otherwise.
+2. Keep the earliest incomplete gate as the active validation gate. If a required task is blocked by unavailable local/private/Windows execution, record the blocker and continue only independent cloud-safe work in the current or later gates; never use work-ahead to bypass missing evidence or declare a later gate passed early.
 3. A finding is not project truth until it is persisted in the repository.
 4. Commit every meaningful verified result.
 5. During unresolved work, checkpoint after roughly ten minutes rather than risk losing the trace.
@@ -25,6 +25,7 @@ For the exact live resume point, read `research/CURRENT_STATE.md`.
 
 - **Active gate:** Gate 13 - Restore original management presentation
 - **Next gate:** Gate 14 - Original audio and match presentation
+- **Work-ahead:** Independent, bounded groundwork currently exists in Gates 14, 16, and 17 while Gate 13 remains the earliest incomplete validation gate.
 - **Gate 12 completed:** 30 September 2026
 - **Gate 11 completed:** 29 September 2026
 - **Gate 10 completed:** 28 September 2026

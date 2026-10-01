@@ -60,8 +60,8 @@ remain incomplete.
 | --- | --- | --- |
 | Main menu / TeamSelect | Yes | **Partial.** Button atlas-state, PStartMenu text placement/color endpoints, strict source audit, ten-resource import and live developer-caption integration are complete; TeamSelect hierarchy content/interaction and Windows graphical validation remain open. |
 | Manager home | Controlled-club identity/date available | **Open.** No completed original screen resource/layout/navigation correlation. |
-| Squad | Source-order roster/player state plus verified ordered-roster contract; distinct `PSquadScreen` RTTI identity, exact `squad_but_anim.444` binding and three setup origins are proven | **Partial.** The atlas is provenance-imported and guarded, but its button meanings/frame partition plus roster columns/icons/sort/navigation remain unresolved. |
-| Tactics/team selection | Formation, XI/bench and tactical state; `PFormation2k`, `PTeamOrders2K`, `PSquadPitch` and `FormationText` identities; exact `squad_bars.444` / `squad_form_anim.444` bindings | **Partial.** Both resources are provenance-imported, but caller-supplied geometry, remaining controls, gestures and navigation remain unresolved. |
+| Squad | Source-order roster/player state; concrete `PSquadList` / `CSquadPlayerList` / `CSquadSCFList` hierarchy; exact 20-row layout; player/side columns; neutral native status-filter codes; empty-row behavior; `PSquadScreen` top controls and view transitions are source-proven | **Partial.** Core roster geometry/data/status bindings are now proven and guarded. Remaining work is broader original visual/icon semantics, selection/sort/navigation behavior where not yet source-locked, and integrated Windows presentation validation. |
+| Tactics/team selection | Formation, XI/bench and tactical state; `PFormation2k`, `PTeamOrders2K`, `PSquadPitch` and `FormationText` identities; exact `squad_bars.444` / `squad_form_anim.444` bindings; all 22 paired row rectangles/IDs and the exact `FormationText` group/state-to-source-row transform are source-proven | **Partial.** FormationText geometry/state selection is now closed. Remaining tactics/team-selection work is the surrounding original controls, gestures, navigation and full integrated visual presentation. |
 | Fixtures/results | Verified DBTRealFixtures/DBRRealFixture construction contract plus source fixture dates/results are available | **Open.** Original screen row ordering/comparator, resources, geometry and navigation are not yet recovered. |
 | League table | Native League comparator-aware rows plus a verified six-field presentation ordering contract are available | **Open.** Original table artwork/header geometry/controls/navigation remain unrecovered. |
 | Player profile | Source/runtime profile projection plus verified DBTPlayers/DBRPlayer identity/vector-boundary contract available | **Open.** Original field-to-column/icon mapping, resource/layout and visibility rules remain unresolved. |
@@ -95,10 +95,10 @@ That blocker was cleared by the Windows-local recovery documented in
 
 Current remaining work:
 
-1. expand the proven `PSquadScreen::0x4B5720` anchor into source-backed button meanings/captions and roster layout, then continue the same correlation discipline across the other incomplete management screen families;
-2. preserve original strings/fonts/art where usable, documenting only genuinely incompatible/inaccessible replacements;
-3. recover TeamSelect hierarchy item/interaction semantics rather than inferring them from source art or the secondary screenshot;
-4. maintain the explicit per-screen resource/layout/navigation evidence table until every normal-play presentation area is covered;
-5. run the native Windows PStartMenu/TeamSelect graphical audit and broader normal-play integration smoke tests before marking the resource criterion satisfied.
+1. run the real Windows PStartMenu/TeamSelect graphical audit with the merged fail-closed harness and record the source-backed receipt/discrepancies;
+2. recover TeamSelect hierarchy item/input/selection-state semantics rather than inferring them from source art or screenshots;
+3. continue the same executable/resource/layout/navigation correlation discipline across Manager Home and the other incomplete normal-management screen families;
+4. preserve original strings/fonts/art where usable, documenting only genuinely incompatible/inaccessible replacements;
+5. maintain the explicit per-screen resource/layout/navigation evidence table and broader normal-play Windows smoke coverage until every Gate-13 criterion is genuinely satisfied.
 
 Until those steps are complete, this criterion must remain unchecked in `ROADMAP.md`.

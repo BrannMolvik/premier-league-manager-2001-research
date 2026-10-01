@@ -2,11 +2,15 @@
 
 _Date: 1 October 2026 KST_
 
+**Status: COMPLETED by local Windows recovery at `4537f9b150cab8e2282c5d33a30c13a43cfb50c3`.** This file is retained as the reproducible private-trace procedure. Do not treat it as the active task or rerun it unless a regression/evidence dispute requires fresh adjudication.
+
 ## Purpose
 
-The active Gate-13 task is to recover the two native `CBasePlayerList`
+The task documented here was to recover the native Squad player-list
 row/column/status bindings and the `FormationText` state-to-frame selection
-without naming atlas states by visual guesswork.
+without naming atlas states by visual guesswork. That task is now closed; the
+current Gate-13 boundary is the real Windows first-screen graphical audit and
+remaining TeamSelect hierarchy input/state mapping.
 
 The durable source anchors already proven on canonical main are:
 
@@ -56,9 +60,9 @@ instruction and pointer evidence.
    `original_squad_resources.py`, focused tests, and
    `research/GATE13_SQUAD_RESOURCE_CORRELATION.md`.
 
-## Current infrastructure boundary
+## Historical infrastructure boundary (superseded)
 
-In the 1 October 2026 cloud recovery, the canonical 511,121,336-byte private
+Before the successful local recovery, in the 1 October 2026 cloud recovery, the canonical 511,121,336-byte private
 source ZIP was successfully resolved and materialized from the durable Library
 identity, but both shell and Python process execution returned `ClientError`
 before source inspection. Therefore the trace utility can be prepared and

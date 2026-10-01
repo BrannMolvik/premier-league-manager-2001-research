@@ -269,7 +269,16 @@ class Gate13SourceInventoryTests(unittest.TestCase):
                     only_explicit=True,
                 )
             self.assertEqual((staged / "UI/Panel.dat").read_bytes(), b"first")
-            self.assertFalse((staged / "ui/panel.dat").exists())
+            # Windows filesystems are commonly case-insensitive, so asking
+            # whether the alternate-cased alias "exists" is not a valid way
+            # to prove that only one archive member was staged. Verify the
+            # actual case-preserved directory entries instead.
+            staged_files = sorted(
+                path.relative_to(staged).as_posix()
+                for path in staged.rglob("*")
+                if path.is_file()
+            )
+            self.assertEqual(staged_files, ["UI/Panel.dat"])
 
     def test_selected_loose_and_nested_disc_path_collision_is_fatal(self):
         with tempfile.TemporaryDirectory() as temp_name:

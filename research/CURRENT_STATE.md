@@ -23,7 +23,38 @@ Evidence:
 - `research/GATE12_ENGLISH_SEASON_TRANSITION.md`
 - `research/GATE12_NEXT_SEASON_REGENERATION.md`
 
-## Local recovery: Squad resource ownership correlated
+## Live resume summary
+
+- **Earliest incomplete validation gate:** Gate 13.
+- Local Codex recovery at `4537f9b150cab8e2282c5d33a30c13a43cfb50c3`
+  completed the concrete Squad player-list hierarchy, 20-row/column/status
+  bindings and exact `FormationText` state-to-source-row transform. Do not
+  repeat that private trace unless a regression or evidence dispute requires it.
+- Gate 13 still requires the **real Windows PStartMenu/TeamSelect graphical
+  audit**, remaining TeamSelect hierarchy item/input/selection-state recovery,
+  and broader normal-management presentation/resource/layout/navigation work.
+- The Windows first-screen audit harness is merged at
+  `0a871b5fbc9c546ad67c335bc6db009d3a023627`; a hosted harness pass is not a
+  substitute for the real Windows receipt.
+- Cloud-safe Gate 14 groundwork is merged at
+  `e54cc8591df91bbc949856ed241fcffcedd5fe97`: the source-backed startup-media
+  contract and read-only match-presentation event feed are foundations only;
+  Gate 14 is not complete.
+- Cloud-safe Gate 16 work-ahead now includes the 30-rollover destructive annual
+  regeneration soak (`abe0876f240cdac1f3b135869a2f5b11b9c0d953`) and six-seed
+  complete-season stress (`f08a014bc73c8ca4a7e11e3f10ef79e42ca13e62`). Consecutive
+  multi-season live-world stress with broader systems remains open.
+- Gate 17 release-readiness evidence is now fail-closed and machine-checkable at
+  `9e7cb18be721ea2ae89b074991e120d3e60e4c68`; it intentionally cannot pass
+  without real clean-Windows receipts, a release archive and final limitations.
+- If Windows/private execution is unavailable, preserve those Gate-13 blockers
+  and continue the highest-priority independent cloud-safe work. Do not mark a
+  blocked criterion or later gate complete merely because work-ahead exists.
+
+**Resume rule:** this live summary and the current `agent-runtime` marker
+supersede historical "exact next task" wording in older recovery sections below.
+
+## Historical local recovery: Squad resource ownership correlated
 
 - Resumed clean canonical main
   `cad50f8d9fa45f57608971db3eff5f2bbc817d47`. The authorized ZIP and private
@@ -53,10 +84,11 @@ Evidence:
 - `PSquadPitch::0x4B3C80` supplies all 22 `FormationText` rows: paired 23x16
   form cells at x=279 and 81x16 bars at x=303, y=`25+17*i`, control IDs
   12..55. Wrapper initializers independently prove both frame sizes.
-- Exact next Gate-13 work: recover the two player lists' row/column/status
-  bindings and `FormationText` state/frame selection without guessing. The
-  real Windows PStartMenu/TeamSelect graphical audit and wider management-
-  screen correlations remain mandatory before Gate 13 closes.
+- **Superseded next-task note:** the player-list row/column/status bindings and
+  `FormationText` state/frame selection were later completed by local recovery
+  at `4537f9b150cab8e2282c5d33a30c13a43cfb50c3`. The remaining Gate-13 boundary
+  is the real Windows PStartMenu/TeamSelect graphical audit, TeamSelect
+  hierarchy input/state recovery and broader management-screen fidelity.
 
 ## Recovery 127: fresh worker cannot launch first private process
 
