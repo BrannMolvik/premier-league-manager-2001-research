@@ -136,6 +136,7 @@ jobs:
             test_gate13_original_source_audit \
             test_gate13_original_pixel_preview \
             test_gate13_original_first_screen_viewer \
+            test_gate13_windows_first_screen_audit \
             test_gate13_management_source_data \
             test_app_presentation_boundary \
             test_gate13_presentation_separation \
