@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 157 resumes from merged PR #86 at main c304e77d81b21d1c6fde1a63b90934347926d7f1. Gate-13 run 36927729023 passed 343 tests with 21 expected skips and asset-policy run 36927729082 passed. Exact next task: recover PMatchInfo/subpanel local control geometry and typography from source-proven consumers, beginning match_name_grid, match_incid_grid, info_player/info_player_disabled, pitch_normal and info_popup; preserve exact 0x64F380 arguments and avoid inferred screen-global positions.",
+  "active_task": "Recovery 158 resumes from merged PR #86 at main c304e77d81b21d1c6fde1a63b90934347926d7f1. Gate-13 run 36927729023 passed 343 tests with 21 expected skips and asset-policy run 36927729082 passed. Exact next task: recover PMatchInfo/subpanel local control geometry and typography from source-proven consumers, beginning match_name_grid, match_incid_grid, info_player/info_player_disabled, pitch_normal and info_popup; preserve exact 0x64F380 arguments and avoid inferred screen-global positions.",
   "last_known_main_head": "c304e77d81b21d1c6fde1a63b90934347926d7f1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 157,
-  "last_recovery_reason": "post-pr86-merge-continuation",
-  "note": "Recovery 157 continues beyond verified PMatchInfo resource inventory. Do not repeat source hashes/resource ownership/navigation.",
+  "recovery_generation": 158,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 158 continues beyond verified PMatchInfo resource inventory. Do not repeat source hashes/resource ownership/navigation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
