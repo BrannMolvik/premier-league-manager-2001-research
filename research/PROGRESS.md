@@ -9367,3 +9367,36 @@ invent original visual or control semantics.
 - Gate 16 remains work-ahead only. Canonical real-data multi-season evidence,
   broader competitions, sustained autonomous transfer churn, wider seed
   coverage and remaining long-duration state-growth risks are still open.
+
+
+## 1 October 2026 KST - Gate 16 autonomous transfer churn verified
+
+- Recovery 130 resumed canonical main at
+  `2002304642f9fcbdcc336ce3e4cd358c64d85de7` with Gate 13 still the earliest
+  incomplete validation gate and PR #57 as the exact independent cloud-safe
+  task.
+- The first full-suite attempt, run `36837615509`, executed 1,129 tests with
+  22 expected source-gated skips and found three errors in the new five-year
+  transfer-churn stress. All three exposed the same pre-existing production
+  defect: contract month arithmetic could construct an impossible Python date
+  when day 29/30/31 targeted a shorter month.
+- The source-backed month count remains unchanged. Because the exact original
+  end-of-month normalization could not be re-disassembled in the current
+  execution allocation, the runtime now uses a bounded compatibility rule:
+  preserve the source day when valid, otherwise clamp to the target month's
+  final valid day. The unresolved original behavior is explicitly recorded in
+  `research/FIDELITY_GAPS.md`; no source-fidelity claim was invented.
+- Added ordinary, leap-February and multi-month month-end regressions while
+  retaining the five-year/260-week transfer-churn invariants: exact roster
+  ownership, seller floor, bounded roster size, one movement per successful
+  acquisition, no transient transfer-container leakage, residency cooldown and
+  deterministic seed signatures.
+- Final reconstruction run `36840977540` passed **1,130 tests with 22
+  expected source-gated skips and zero failures** in 278.116 seconds.
+  Repository asset-policy run `36840977536` passed.
+- PR #57 merged to main as
+  `71676cb9a5b5b89b60b037c8f4426dc72a58e682`.
+- Gate 16 remains work-ahead only. The next independent cloud-safe risk is one
+  long shared-primary scheduler stress spanning Premier League, domestic Cup,
+  European Cup, qualification-Cup and procedural-League owners. Dynamic FA Cup
+  replay insertion remains fail-closed and must not be guessed.

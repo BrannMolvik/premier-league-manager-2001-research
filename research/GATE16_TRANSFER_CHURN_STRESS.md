@@ -88,3 +88,25 @@ Focused tests cover ordinary, leap-February and multi-month boundaries.
 This section records the failed finding and the repair boundary only. A later
 CI pass is required before the five-year transfer stress is treated as
 verified.
+
+
+## Verification
+
+The bounded month-end repair and the original five-year stress were re-run
+together in reconstruction workflow `36840977540`.
+
+Result:
+
+- **1,130 tests passed**;
+- **22 expected original-source-gated skips**;
+- **0 failures / 0 errors**;
+- runtime: **278.116 seconds**;
+- repository asset-policy run `36840977536`: **passed**.
+
+PR #57 merged to canonical `main` as
+`71676cb9a5b5b89b60b037c8f4426dc72a58e682`.
+
+This verifies the synthetic transfer-churn/state-growth regression and the
+month-end crash repair. It does not resolve the separately documented original
+end-of-month normalization semantics, transfer-window dates, or autonomous
+buy-counter lifecycle, and it does not close Gate 16.

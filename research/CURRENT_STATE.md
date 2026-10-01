@@ -44,12 +44,21 @@ Evidence:
   regeneration soak (`abe0876f240cdac1f3b135869a2f5b11b9c0d953`), six-seed
   complete-season stress (`f08a014bc73c8ca4a7e11e3f10ef79e42ca13e62`), three
   consecutive fully played synthetic seasons (`3d6037d71365a2ddce53d2e6b40eda9baa02cf93`),
-  and five exact save/reload round-trips across those seasons, including both
-  annual rollover boundaries (`73ca421609cc6e929156c72f5b021b02a6efca3b`).
-  The latter fixed immutable source-fixture validation after procedural annual
-  regeneration and passed 1,125 tests with 22 expected source-gated skips.
-  Canonical real-data multi-season evidence, broader competitions, autonomous
-  transfer churn, more seed coverage and remaining state-growth risks stay open.
+  five exact save/reload round-trips across those seasons
+  (`73ca421609cc6e929156c72f5b021b02a6efca3b`), and a five-year autonomous
+  transfer-churn/state-growth stress merged at
+  `71676cb9a5b5b89b60b037c8f4426dc72a58e682`.
+  Transfer churn exposed a real month-end contract-date crash; the runtime now
+  uses a documented bounded target-month clamp while the exact original
+  normalization remains tracked in `FIDELITY_GAPS.md`. Final PR verification
+  run `36840977540` passed 1,130 tests with 22 expected source-gated skips and
+  asset-policy run `36840977536` passed. Canonical real-data multi-season
+  evidence, broader shared-primary competition stress, more seed coverage and
+  remaining state-growth risks stay open.
+- **Exact cloud-safe next task:** stress the shared Gate-12 primary scheduler
+  across Premier League, domestic Cup, European Cup, qualification-Cup and
+  procedural-League owners in one long synthetic calendar run, preserving the
+  known fail-closed dynamic FA Cup replay insertion boundary.
 - Gate 17 release-readiness evidence is now fail-closed and machine-checkable at
   `9e7cb18be721ea2ae89b074991e120d3e60e4c68`; it intentionally cannot pass
   without real clean-Windows receipts, a release archive and final limitations.

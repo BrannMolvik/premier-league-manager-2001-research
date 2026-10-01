@@ -668,5 +668,14 @@
   "gate16_save_reload_full_ci_run": 36836256569,
   "gate16_save_reload_full_test_count": 1125,
   "gate16_save_reload_expected_skips": 22,
-  "gate16_save_reload_asset_policy_run": 36836256308
+  "gate16_save_reload_asset_policy_run": 36836256308,
+  "gate16_transfer_churn_stress_head": "71676cb9a5b5b89b60b037c8f4426dc72a58e682",
+  "gate16_transfer_churn_weeks": 260,
+  "gate16_transfer_churn_years": 5,
+  "gate16_transfer_churn_full_ci_run": 36840977540,
+  "gate16_transfer_churn_full_test_count": 1130,
+  "gate16_transfer_churn_expected_skips": 22,
+  "gate16_transfer_churn_asset_policy_run": 36840977536,
+  "gate16_contract_month_end_overflow_regression": true,
+  "gate16_contract_month_end_original_normalization": "fidelity_gap"
 }

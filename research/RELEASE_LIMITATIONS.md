@@ -21,11 +21,14 @@ still identifies itself as pre-release.
   research/FIDELITY_GAPS.md, including original save compatibility and several
   bounded simulation/finance/transfer uncertainties.
 - Gate 16 now has repeated annual-regeneration soak coverage, six-seed
-  complete-season stress, three consecutive fully played synthetic seasons and
-  five verified internal save/reload round-trips across those seasons. It still
-  lacks canonical real-data multi-season evidence, broader competition stress,
-  sustained autonomous transfer churn, broader deterministic-seed coverage and
-  closure of all remaining long-duration state-growth risks.
+  complete-season stress, three consecutive fully played synthetic seasons,
+  five verified internal save/reload round-trips across those seasons, and a
+  verified five-year autonomous-transfer churn/state-growth stress. That stress
+  found and regression-locked a month-end contract-date crash; exact original
+  unavailable-day normalization remains a documented fidelity gap. Gate 16
+  still lacks canonical real-data multi-season evidence, broader shared-primary
+  competition stress, broader deterministic-seed coverage and closure of all
+  remaining long-duration state-growth risks.
 - Gate 17 does not yet have a verified installable release archive or clean
   Windows 11 installation receipt.
 
