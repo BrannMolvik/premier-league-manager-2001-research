@@ -154,6 +154,20 @@ class PlayerContractTests(unittest.TestCase):
             date(2005, 8, 18),
         )
 
+    def test_contract_expiry_month_end_uses_bounded_compatibility_clamp(self):
+        self.assertEqual(
+            contract_expiry_from_month_span(date(2001, 1, 31), 1),
+            date(2001, 2, 28),
+        )
+        self.assertEqual(
+            contract_expiry_from_month_span(date(2000, 1, 31), 1),
+            date(2000, 2, 29),
+        )
+        self.assertEqual(
+            contract_expiry_from_month_span(date(2001, 1, 31), 2),
+            date(2001, 3, 31),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

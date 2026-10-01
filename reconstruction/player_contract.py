@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from calendar import monthrange
 from datetime import date
 import math
 from typing import Protocol, Sequence
@@ -46,7 +47,14 @@ def initial_weekly_wage(
 
 
 def contract_expiry_from_month_span(start_date: date, month_span: int) -> date:
-    """Reproduce the month-by-month +0xC0 -> +0x154 startup date loop."""
+    """Advance by the recovered calendar-month span without invalid dates.
+
+    The executable-backed behavior proves the month count and that the contract
+    path advances in calendar months. The exact original normalization when the
+    source day does not exist in the target month is not yet instruction-locked.
+    The modern runtime therefore keeps the source day when valid and uses a
+    documented compatibility clamp to the target month's final day otherwise.
+    """
     month_span = int(month_span)
     if month_span < 0:
         raise ValueError("month_span must not be negative")
@@ -58,7 +66,8 @@ def contract_expiry_from_month_span(start_date: date, month_span: int) -> date:
             year += 1
         else:
             month += 1
-    return date(year, month, int(start_date.day))
+    day = min(int(start_date.day), monthrange(year, month)[1])
+    return date(year, month, day)
 
 
 def _scaled_financial_value(

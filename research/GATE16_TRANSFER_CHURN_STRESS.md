@@ -59,3 +59,32 @@ using its transfer count as evidence for the original market cadence.
 A pass strengthens Gate 16 but does not close it. Canonical real-data
 multi-season evidence, broader competitions, additional unusual-state
 combinations and remaining long-duration fidelity gaps are still required.
+
+
+## First full-suite finding: month-end contract overflow
+
+Reconstruction run `36837615509` did not validate this stress. It ran 1,129
+tests with 22 expected source-gated skips and stopped with three errors, one in
+each new transfer-churn test.
+
+All three reached an existing long-duration defect in
+`contract_expiry_from_month_span`: the recovered autonomous transfer path can
+start a contract on day 29, 30 or 31 and later target a shorter month. The
+clean-room helper preserved the day unconditionally, so Python raised
+`ValueError: day is out of range for month`.
+
+The source evidence already proves the contract-length unit and calendar-month
+advance, but the exact original helper's normalization of an unavailable target
+day is not yet instruction-locked. The private authorized source archive was
+successfully recovered for this audit, but the current execution allocation
+could not launch the process required to re-disassemble `FOOTBAL.EXE`.
+
+The runtime therefore uses a deliberately bounded compatibility rule rather
+than inventing original semantics: preserve the source day whenever it exists
+in the final target month; otherwise clamp to that month's final valid day.
+Focused tests cover ordinary, leap-February and multi-month boundaries.
+`research/FIDELITY_GAPS.md` records the unresolved original normalization.
+
+This section records the failed finding and the repair boundary only. A later
+CI pass is required before the five-year transfer stress is treated as
+verified.
