@@ -6,12 +6,14 @@ masks for the currently active front-end screen. Pointer dispatch goes through
 the previously tested original rectangle translator into FrontEndSession.
 
 The original Button@ease_2001 group/frame state machine, Zurich caption
-alignment, TeamSelect population order and hierarchy state transforms are
-exposed from executable evidence. The native club-row toggle is kept separate
-from the gameplay backend until the interrupted trace's selection-record payload
-identity is reconciled. A successful Start event produces a backend handoff
-command; it does not silently synthesize a recovered
-manager-home renderer.
+alignment, TeamSelect population order, hierarchy state transforms and
+multi-user club toggles are exposed from executable evidence. The private
+0x30-byte TeamSelect selection record is rollback state, not a club identity:
+the clicked row carries the club and the original creates a user for it
+immediately. This presenter mirrors that source-backed selected-club set while
+the current gameplay backend remains deliberately single-manager. A successful
+single-user Start event produces a backend handoff command; it does not silently
+synthesize a recovered manager-home renderer.
 """
 from __future__ import annotations
 
@@ -75,7 +77,7 @@ class OriginalHierarchyInteraction:
     row_kind: str
     text: str
     source_id: int
-    selected_club_record_index: int | None
+    selected_club_ids: tuple[int, ...]
 
 
 @dataclass
@@ -157,28 +159,28 @@ class OriginalFirstScreenPresenter:
                 row = row_at_pointer(model.hierarchy_rows(), x, y)
                 if row is not None:
                     activated = model.activate_hierarchy_row(row.visible_index)
-                    self.session.clear_club_selection()
                     return OriginalHierarchyInteraction(
                         activated.kind.value,
                         activated.text,
                         activated.source_id,
-                        None,
+                        model.selected_club_ids,
                     )
                 club = row_at_pointer(model.club_rows(), x, y)
                 if club is not None:
                     toggled = model.toggle_club_row(club.visible_index)
-                    # Recovery audit boundary: the interrupted native trace
-                    # correctly establishes row toggle/state behavior, but its
-                    # claim that DBRClub+0x40 is the canonical club ID conflicts
-                    # with an older verified field mapping (+0x40 is manager ID).
-                    # Keep the visual/native row state fail-closed from gameplay
-                    # selection until that selection-record payload is re-traced.
-                    self.session.clear_club_selection()
+                    # 0x4D8E90 receives the clicked row's club directly, while
+                    # the private selection record stores displaced-manager
+                    # rollback state. Keep the clean-room session keyed by the
+                    # row's canonical club IDs and preserve source selection
+                    # order. The session itself fails closed at Start if more
+                    # than one original-style user is selected because the
+                    # modern gameplay backend is still single-manager.
+                    self.session.set_club_selections(model.selected_club_ids)
                     return OriginalHierarchyInteraction(
                         "club",
                         toggled.text,
                         toggled.club_id,
-                        model.selected_club_record_index,
+                        model.selected_club_ids,
                     )
         outcome = dispatch_original_pointer(self.session, x, y)
         if (
@@ -189,5 +191,5 @@ class OriginalFirstScreenPresenter:
         return outcome
 
     def choose_club(self, club_id: int) -> None:
-        """Set an explicit backend club without inferring the native row payload."""
+        """Developer-only explicit single-club compatibility selection."""
         self.session.choose_club(club_id)
