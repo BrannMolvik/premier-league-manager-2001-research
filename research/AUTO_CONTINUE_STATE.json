@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 158 merged PR #90 as ab39fd753e94c6ccfcea13ebbcd1d9576133efdb after Gate-13 run 36935848636 passed 360 tests with 21 expected skips and asset-policy run 36935848660 passed. Exact next task: source-trace the final indirect consumers for name_block_1..4 and poss_back/poss_blue/poss_yellow. Direct immediate xrefs exist only in the static loader, so follow PMatchInfoSubPanel/helper data flow rather than filenames. Then continue intentional Match Report asset import and integrated Windows validation.",
+  "active_task": "Recovery 159 resumes from main ab39fd753e94c6ccfcea13ebbcd1d9576133efdb. Exact task: close the seven remaining Match Report resource consumers. Fresh exhaustive PE reference analysis shows name_block_1..4 and poss_back/poss_blue/poss_yellow are referenced only by their static loader/setup and global lifetime helpers, with no PMatchInfo/TeamInfo/Finance/runtime UI xrefs or computed base-address access. Persist this negative source evidence as loaded-but-unconsumed in the canonical executable rather than inventing bindings; then continue Match Report asset-import/Windows integration work.",
   "last_known_main_head": "ab39fd753e94c6ccfcea13ebbcd1d9576133efdb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 158,
+  "recovery_generation": 159,
   "last_recovery_reason": "connection-interrupted",
-  "note": "Recovery 158 merged PMatchInfo tab/exit interaction and continues directly into seven indirect Match Report resource consumers.",
+  "note": "Recovery 159 started after transient connection interruption; do not redo merged PMatchInfo tab/exit or text-producer work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
