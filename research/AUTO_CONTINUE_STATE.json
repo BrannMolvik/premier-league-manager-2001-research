@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 135,
   "last_recovery_reason": "sandbox-execution-failure",
-  "note": "Recovery 135 execution path is healthy. Shell/Python start normally; the source archive and runtime ZIP materialized; all 268,549 MODE1/2352 sectors validated; Master.dat, Static.dat, English.str, and Core.str match pinned hashes; current canonical_multiseason_audit.py matches GitHub blob a6a1de8782eca06291aeffefba11ff4bcd27c14b. The three-rollover seed-1 canonical process is currently running CPU-bound with stable memory and empty stderr.",
+  "note": "Recovery 135 unresolved-work checkpoint: the exact three-rollover seed-1 canonical process has accumulated about 14 minutes of continuous CPU time, remains in running state, and still has empty stderr. RSS is approximately 247 MiB. Do not restart or duplicate this run if the same container survives; await its exit and then persist the report.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
