@@ -9737,3 +9737,13 @@ canonical audit.
 - Remaining PMenu source work is narrowed to the 22-row title-arrow and 23-row child-arrow animation/state mapping, any still-unresolved clipping/text-origin behavior, and shell/background resource ownership. Four row `.444` assets are source-correlated but still await intentional provenance import because the GitHub connector only exposes UTF-8 content writes; the 16px font is already imported.
 
 - Direct binary-import transport was reprobed in Recovery 146. The GitHub connector exposes only UTF-8 contents writes, while shell `git ls-remote https://github.com/BrannMolvik/premier-league-manager-2001-research.git HEAD` failed because `github.com` could not resolve. The four proven menu-popup binaries therefore remain staged/private and unimported; this is an infrastructure/transport limitation, not missing provenance or source ownership.
+
+
+## 2 October 2026 - Recovery 148 PMenu arrow animation closure
+
+- Resumed after PR #77 had already merged as `2f59e163e873051a9bc691f6d6c04033f678ad20`; no label/font/background-state work was repeated.
+- Traced the shared bitmap animation engine. `0x652AE0` maps neutral bits to states 2/1/0 by bit-`0x2` / bit-`0x8000` precedence. `0x652780` remaps frame position across state changes with exact integer division, and `0x6527F0` increments or decrements the frame according to source bit `0x8`. All bits/states remain semantically unnamed.
+- Child-arrow frame-count override `0x5D62F0` yields 11/11/1 frames for states 0/1/2. Generic source-offset method `0x652860` concatenates those ranges, accounting for all 23 rows of `menu_anim.444` exactly.
+- `MenuTitleArrow` overrides source offset at `0x4825A0` and frame count at `0x5D50E0`. Its 30x638 source is therefore 11 frames of 30x58, correcting the earlier provisional 22x29 interpretation. State 0 uses frames 0..10; state 1 fixes frame 10; state 2 fixes frame 0.
+- Bounded PMenu constructor/setup/method tracing shows no direct original-resource handle owned by PMenu itself. `PMenu::0x47AB40` creates/configures the embedded CMenuList at +0x68 with raw setup args `(0,0,201,504,16,29,0,0,0)`; concrete menu graphics remain bound by row classes. This is not proof that the screen lacks a visible inherited/application background.
+- Exact next task after hosted validation: downstream source-backed management panel composition/navigation or remaining PMenu text-origin/clipping details; real Windows corrected audit and binary asset-import transport remain open.
