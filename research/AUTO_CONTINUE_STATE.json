@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the active validation gate. On the next working Windows/private path run reconstruction/gate13_windows_first_screen_audit.py against the verified canonical executable/source/game data, then recover TeamSelect hierarchy item/input/state mappings and continue remaining management-screen fidelity. While Windows GUI/process execution is unavailable, continue highest-priority independent cloud-safe work under the deferred-blocker policy. Gate 14 startup-media contract and read-only match-presentation feed are merged and verified; next cloud-safe target is bounded Gate 16 long-duration/destructive audit coverage without declaring Gate 16 complete.",
-  "last_known_main_head": "65b256a0cbc46c3dc90fd8c26ad4429acf58186d",
+  "active_task": "Gate 13 remains the active validation gate. Exact deferred local task: run reconstruction/gate13_windows_first_screen_audit.py on a real Windows GUI against the verified canonical executable/source/game data, then recover remaining TeamSelect hierarchy item/input/selection-state semantics and continue broader management-screen fidelity. While that local path is unavailable, continue independent cloud-safe work. Latest completed work-ahead at main 3d6037d adds three consecutive fully played synthetic seasons; next cloud-safe target is long-duration save/reload plus management-system stress across consecutive seasons, preserving broader-competition evidence boundaries and without declaring Gate 16 complete.",
+  "last_known_main_head": "3d6037d71365a2ddce53d2e6b40eda9baa02cf93",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 128,
-  "last_recovery_reason": "windows-gui-deferred-cloud-safe-work-ahead",
-  "note": "Recovery 128: PR #49 Windows graphical-audit harness merged and passed hosted Gate13/asset-policy CI, but the real Windows receipt remains deferred because this worker cannot launch local processes/GUI. PR #50 Gate14 presentation foundation merged after full reconstruction run 36831057948 and asset-policy 36831057947 passed. Earliest incomplete gate remains 13; continue cloud-safe work while preserving the exact Windows/TeamSelect blockers.",
+  "recovery_generation": 129,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 129 resumed canonical main at 3d6037d after prior runtime state lagged at 65b256a. Gate 13 is still the earliest incomplete gate. Gate 16 work-ahead now includes repeated regeneration, six-seed season stress, and three consecutive fully played synthetic seasons; Gate 17 has a fail-closed readiness harness. Continue source-backed cloud-safe stress work until a real Windows/private path is available.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
