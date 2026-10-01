@@ -12,6 +12,7 @@ from hashlib import sha256
 from pathlib import Path
 
 from ea444_header import parse_ea444_header
+from ea_font import EAFont
 
 
 class OriginalPMenuChromeError(ValueError):
@@ -45,6 +46,47 @@ PMENU_BITMAP_VFTABLE_VA = 0x7BE5D8
 PMENU_TEXT_CONTROL_SIZE = (160, 24)
 PMENU_TEXT_CONTROL_Y = (0, 24, 48, 72, 96, 120)
 PMENU_RUNTIME_FONT_GLOBAL_VA = 0x87BEA0
+PMENU_RUNTIME_FONT_OBJECT_VA = 0x9269F0
+PMENU_RUNTIME_FONT_WRAPPER_INIT_VA = 0x603640
+PMENU_FONT_LOAD_CALL_VA = 0x60429F
+PMENU_FONT_PATH_LITERAL_VA = 0x839F24
+PMENU_FONT_SOURCE_PATH = "Fonts/Zurich_BdXCn_BT_16pixel.fnt"
+PMENU_FONT_SHA256 = "9dc371caba34823b0d6ba6fd4c5e82f94775de1168daa5dad936b70a6e4f9732"
+PMENU_FONT_BYTE_SIZE = 79722
+PMENU_FONT_ATLAS_SIZE = (1526, 17)
+PMENU_FONT_NATIVE_LINE_HEIGHT = 18
+
+# PTitleMenuRow::0x47A7E0 and PChildMenuRow::0x47A990 build the same
+# two grayscale component triples before the row-background setup call. Since
+# every component is equal within each triple, no display-mask channel naming
+# assumption is required.
+PMENU_ROW_COLOR_COMPONENTS = ((0, 0, 0), (255, 255, 255))
+
+PMENU_BACKGROUND_STATE_METHOD_VA = 0x47AC00
+PMENU_VISIBLE_STATE_BIT = 0x2
+PMENU_ALTERNATE_STATE_BIT = 0x8
+PMENU_SPECIAL_STATE_BIT = 0x8000
+
+
+def pmenu_background_row_index(state_bits: int) -> int:
+    """Mirror MenuBackgroundToggle::0x47AC00 as an atlas-row index.
+
+    Names for the three source bits remain neutral. The method itself selects
+    3/2/1/0 multiples of the source frame height in the order below.
+    """
+    if type(state_bits) is not int or state_bits < 0:
+        raise OriginalPMenuChromeError("PMenu state bits must be a non-negative integer")
+    if not state_bits & PMENU_VISIBLE_STATE_BIT:
+        return 3
+    if state_bits & PMENU_SPECIAL_STATE_BIT:
+        return 2
+    if state_bits & PMENU_ALTERNATE_STATE_BIT:
+        return 1
+    return 0
+
+
+def pmenu_background_source_y(state_bits: int) -> int:
+    return pmenu_background_row_index(state_bits) * PMENU_ROW_HEIGHT
 
 
 @dataclass(frozen=True)
@@ -332,3 +374,19 @@ def validate_original_pmenu_resources(
             )
         resource.frame_count
     return PMENU_RESOURCES
+
+
+def validate_original_pmenu_font(source_root: Path) -> EAFont:
+    """Require the exact source-proven PMenu Zurich 16px font."""
+    path = Path(source_root) / PMENU_FONT_SOURCE_PATH
+    data = path.read_bytes()
+    if len(data) != PMENU_FONT_BYTE_SIZE:
+        raise OriginalPMenuChromeError("Original PMenu font byte-size mismatch")
+    if sha256(data).hexdigest() != PMENU_FONT_SHA256:
+        raise OriginalPMenuChromeError("Original PMenu font checksum mismatch")
+    font = EAFont.from_bytes(data)
+    if (font.atlas_width, font.atlas_height) != PMENU_FONT_ATLAS_SIZE:
+        raise OriginalPMenuChromeError("Original PMenu font atlas geometry mismatch")
+    if font.native_line_height() != PMENU_FONT_NATIVE_LINE_HEIGHT:
+        raise OriginalPMenuChromeError("Original PMenu font line-height mismatch")
+    return font
