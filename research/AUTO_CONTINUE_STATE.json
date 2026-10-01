@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 148 resumes from merged PR #77 at main 2f59e163e873051a9bc691f6d6c04033f678ad20. Exact next Gate-13 task: persist and verify the already-bounded PMenu title/child arrow animation and source-frame mapping, then continue PMenu shell/background ownership. Four correlated menu-popup binaries remain blocked only on repository binary transport; corrected real Windows/Tk first-screen rerun remains open.",
+  "active_task": "Recovery 148 resumes from merged PR #77 at main 2f59e163e873051a9bc691f6d6c04033f678ad20. Gate-13 run 36914325613 and asset-policy run 36914325533 passed on PR head f0cb6a0b55955f2b99d79687c80734b85b5ec61b. Exact next task: source-trace PMenu title-arrow and child-arrow state/animation-to-frame behavior plus surrounding shell/background resource ownership; keep corrected real Windows/Tk first-screen rerun and four menu-popup asset import transport blocker open.",
   "last_known_main_head": "2f59e163e873051a9bc691f6d6c04033f678ad20",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 148,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 148 corrects the lagging runtime after PR #77 merge. Do not repeat PMenu labels/font/background-state work; continue arrow animation/frame mapping.",
+  "note": "Recovery 148 advances beyond merged PR #77. Do not repeat PMenu label/font/background-state work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
