@@ -69,13 +69,16 @@ def _require_exact(value: object, expected: object, *, label: str) -> None:
         )
 
 
+def _require_bool(value: object, *, label: str) -> bool:
+    if not isinstance(value, bool):
+        raise StartupMediaDerivativeError(f"{label} must be a boolean")
+    return value
+
+
 def _require_int(value: object, *, label: str) -> int:
-    if isinstance(value, bool):
+    if isinstance(value, bool) or not isinstance(value, int):
         raise StartupMediaDerivativeError(f"{label} must be an integer")
-    try:
-        return int(value)
-    except (TypeError, ValueError) as exc:
-        raise StartupMediaDerivativeError(f"{label} must be an integer") from exc
+    return value
 
 
 def load_verified_startup_media_derivatives(
@@ -112,8 +115,16 @@ def load_verified_startup_media_derivatives(
             "Startup-media conversion receipt root must be an object"
         )
 
-    _require_exact(payload.get("schema_version"), 1, label="Receipt schema_version")
-    _require_exact(payload.get("passed"), True, label="Receipt passed flag")
+    _require_exact(
+        _require_int(payload.get("schema_version"), label="Receipt schema_version"),
+        1,
+        label="Receipt schema_version",
+    )
+    _require_exact(
+        _require_bool(payload.get("passed"), label="Receipt passed flag"),
+        True,
+        label="Receipt passed flag",
+    )
     _require_exact(
         payload.get("audit_kind"),
         "private_original_startup_media_conversion",
@@ -122,7 +133,10 @@ def load_verified_startup_media_derivatives(
     # The receipt is evidence for conversion only. It must never self-promote a
     # roadmap completion claim.
     _require_exact(
-        payload.get("gate14_complete"),
+        _require_bool(
+            payload.get("gate14_complete"),
+            label="Receipt Gate-14 completion boundary",
+        ),
         False,
         label="Receipt Gate-14 completion boundary",
     )
@@ -161,7 +175,11 @@ def load_verified_startup_media_derivatives(
             raise StartupMediaDerivativeError(
                 f"Receipt output {sequence} is not an object"
             )
-        _require_exact(raw.get("sequence"), sequence, label=f"Output {sequence} sequence")
+        _require_exact(
+            _require_int(raw.get("sequence"), label=f"Output {sequence} sequence"),
+            sequence,
+            label=f"Output {sequence} sequence",
+        )
         _require_exact(
             raw.get("source_path"), spec.source_path,
             label=f"Output {sequence} source_path",
@@ -186,7 +204,10 @@ def load_verified_startup_media_derivatives(
             label=f"Output {sequence} playback_wrapper_va",
         )
         _require_exact(
-            raw.get("playback_flag_bit0"),
+            _require_bool(
+                raw.get("playback_flag_bit0"),
+                label=f"Output {sequence} playback_flag_bit0",
+            ),
             spec.playback_flag_bit0,
             label=f"Output {sequence} playback_flag_bit0",
         )
