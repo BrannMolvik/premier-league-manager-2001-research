@@ -9400,3 +9400,42 @@ invent original visual or control semantics.
   long shared-primary scheduler stress spanning Premier League, domestic Cup,
   European Cup, qualification-Cup and procedural-League owners. Dynamic FA Cup
   replay insertion remains fail-closed and must not be guessed.
+
+
+## 1 October 2026 - Gate 16 mixed shared-primary scheduler stress verified
+
+Independent Gate-16 work-ahead now includes one long synthetic calendar that
+executes five live primary owner types through the retained Gate-12 global
+order: Premier League, English domestic Cup, European Cup, annual-qualification
+Cup and procedural League.
+
+PR #58's first full run (`36842205701`) produced exactly two new errors. Both
+came from the stress fixture shrinking the Premier League to two clubs while
+the source-backed League strategy requires the canonical competition cut-line
+structure. Production logic was not weakened. The fixture was repaired to keep
+a valid 20-club Premier League table while exposing only one bounded PL entry
+through the mixed primary order.
+
+The repaired stress now requires the complete dated execution signature to
+equal the retained primary order exactly, completes eight events for each
+non-PL owner, checks event-proportional Cup/procedural state, preserves roster
+ownership and valid player condition/form/injury/discipline state, and
+replays identically from the same CRT seed. Daily post-fixture maintenance is
+live; transfer/payroll maintenance remains covered by the separate five-year
+transfer-churn soak. Decisive synthetic Cup nodes deliberately leave the
+unresolved fail-closed dynamic FA Cup replay insertion boundary unchanged.
+
+Verification on final PR head
+`8bc252fdc5f0c960cd4cb8845a6fe1711b6a211d`:
+- reconstruction run `36846018068`: **1,132 tests**, **22 expected
+  source-gated skips**, zero failures;
+- asset-policy run `36846018016`: passed.
+
+PR #58 squash-merged as
+`24447d846b96fe68d2eba7c17d0053de638e43ef`.
+
+Next cloud-safe Gate-16 target: combine repeated annual regeneration with
+internal save/reload and measure serialized/state growth so replaced
+season-owned structures cannot accumulate silently. Canonical real-data
+multi-season evidence remains separately required, and Gate 13 remains the
+earliest incomplete validation gate.
