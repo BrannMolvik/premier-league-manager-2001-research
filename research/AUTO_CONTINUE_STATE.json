@@ -8,8 +8,8 @@
   "status": "paused",
   "work_owner": "codex",
   "active_gate": 13,
-  "active_task": "Gate 13 exact next task remains the source-backed Squad ownership step: on a working private/local execution backend, enumerate the four saved whole-disc Squad resource candidates, correlate at least one exact resource literal/xref to its actual canonical-executable panel/setup owner, persist only proven path/geometry, provenance-import/test the bounded fragment, then run the real Windows PStartMenu/TeamSelect graphical audit and continue the remaining management-screen correlations. PStartMenu native captions and the proven two-resource PScouting2K composition fragment are already complete. After Gate 13 closes, continue Gates 14-17 through the verified Windows 11 release.",
-  "last_known_main_head": "cad50f8d9fa45f57608971db3eff5f2bbc817d47",
+  "active_task": "Local Codex priority queue for Gate 13: continue from fc49ab6. First recover Squad roster layout/state transitions and FormationText geometry without guessing atlas semantics. Then use local/private execution for the real Windows PStartMenu/TeamSelect graphical audit, TeamSelect hierarchy semantics, and as many remaining management-screen resource/panel/layout/navigation correlations as practical. Prioritize tasks that require the private archive/executable, saved catalog/disassembly reports, or Windows graphical execution; leave ordinary GitHub-only integration/audits for ChatGPT. When local-only productive work is exhausted or Codex is stopping, push verified main state, update CURRENT_STATE, then hand ownership back with work_owner=chatgpt,status=working,last_known_main_head=<final main> and an exact next task.",
+  "last_known_main_head": "fc49ab6919c66d0638575ed9315e2f3438b54c90",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 124,
   "last_recovery_reason": "codex-local-exclusive-work",
-  "note": "Recovery 124: manual-start resumed current main cad50f8d9fa45f57608971db3eff5f2bbc817d47. The only main change since Gate-13 checkpoint 6213ff960a5ddfd5194cf65740efe0878731d601 is recovery-extension v0.3.9. Fresh shell and private Python probes both fail with ClientError before process start. A separate Library/file-service fallback confirms the canonical 511,121,336-byte authorized source ZIP still exists at /FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip, but archive content is neither indexed for search nor readable through the file service. The four Squad catalog candidates therefore cannot be recovered or correlated safely without an archive/executable process. No user action is required; remain continuous/working for automatic recovery on a functioning execution backend. ChatGPT watchdog intentionally paused while local Codex owns the current Gate 13 task, to prevent duplicate work. When Codex finishes and its verified main checkpoint is visible, hand ownership back by setting work_owner=chatgpt, status=working, and last_known_main_head to the new canonical main HEAD.",
+  "note": "Codex exclusively owns the current local/private execution phase from canonical main fc49ab6. ChatGPT watchdog remains paused to prevent duplicate work. Codex should prioritize execution- and Windows-dependent Gate 13 evidence, checkpoint verified work to main, and explicitly hand ownership back to ChatGPT when finished.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
