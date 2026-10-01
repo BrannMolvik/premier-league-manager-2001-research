@@ -80,3 +80,38 @@ save-continuity defect, not worked around by rebuilding a fresh season.
 This remains synthetic evidence. It does not substitute for canonical
 real-data multi-season save/reload testing or the still-needed broader
 competition and transfer stress.
+
+
+## Verification
+
+PR #55 was squash-merged to canonical main as
+`73ca421609cc6e929156c72f5b021b02a6efca3b`.
+
+The first full run, `36835600174`, reached and successfully reloaded the
+first post-regeneration season before the stress harness stopped on its own
+180-day midseason budget. That bound was invalid because year-two advancement
+starts from the prior season's May finish and legitimately includes the summer
+off-season. The bound was corrected to 370 days without changing any state,
+save, roster, result, or completion invariant.
+
+Final verification on PR head
+`dcf739a6f747fc024e4fbd1038a68a05661e08f4`:
+
+- reconstruction run `36836256569`: **1,125 tests, 22 expected source-gated
+  skips, 0 failures**;
+- repository asset-policy run `36836256308`: **passed**;
+- all five controller snapshot round-trips completed;
+- both post-regeneration round-trips completed against the original source
+  database identity;
+- all three seasons reached 380 Premier League results.
+
+The verification also closes a concrete save-continuity defect: source
+validation no longer derives immutable database fixture identity from the live
+Premier League after annual mode has replaced that league with procedural
+fixtures. `GameState` retains the original fixture identity and restore
+reconstructs it from the already-validated source database. Strict
+wrong-database rejection remains in force.
+
+Gate 16 is still **not complete**. Canonical real-data multi-season evidence,
+broader competition stress, autonomous transfer churn, additional seed
+coverage, and remaining long-duration state-growth risks are still open.
