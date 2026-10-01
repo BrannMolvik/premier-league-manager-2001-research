@@ -177,6 +177,8 @@ class OriginalPMenuChromeTests(unittest.TestCase):
             pmenu_arrow_update(0, 10, PMENU_STATE_BIT_1, title=False),
             (0, 9),
         )
+        # The transition preserves frame 10, then this same native tick
+        # sees bit 0x8 clear and retreats once to frame 9.
         self.assertEqual(
             pmenu_arrow_update(
                 0,
@@ -184,7 +186,7 @@ class OriginalPMenuChromeTests(unittest.TestCase):
                 PMENU_STATE_BIT_1 | PMENU_STATE_BIT_15,
                 title=False,
             ),
-            (1, 10),
+            (1, 9),
         )
         self.assertEqual(
             pmenu_arrow_update(
