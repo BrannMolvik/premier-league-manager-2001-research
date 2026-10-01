@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "PR #75 merged as 3adf75e713c70dd3a3cddf9f5df9db6e34e19b5d after Gate-13 run 36907084180 passed 280 tests with 21 expected skips and asset-policy run 36907084140 passed. Continue exact next Gate-13 task: source-trace PMenu visible chrome/menu item classes, geometry, labels and original resource ownership from canonical executable; keep corrected real Windows/Tk first-screen audit open.",
+  "active_task": "Recovery 145 resumes exact Gate-13 task from main 3adf75e713c70dd3a3cddf9f5df9db6e34e19b5d: source-trace PMenu visible chrome/menu item classes, geometry, labels and original resource ownership from the canonical executable on branch feature/gate13-pmenu-chrome. Corrected real Windows/Tk first-screen audit remains open.",
   "last_known_main_head": "3adf75e713c70dd3a3cddf9f5df9db6e34e19b5d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 144,
+  "recovery_generation": 145,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 144 continues beyond the verified management-shell routing checkpoint. Fresh flow PStartMenu -> TeamSelect -> PMenu -> PSquadScreen is source-proven; PMenu chrome/resource binding is now active.",
+  "note": "Recovery 145 resumed after stale repository activity. PR #75 is already merged; do not repeat management-shell routing. Continue PMenu chrome/resource trace.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
