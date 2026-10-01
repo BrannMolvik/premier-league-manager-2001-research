@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete validation gate with the real Windows graphical audit deferred. Recovery 135 is actively executing the exact Gate-16 canonical shipped-data multi-season audit against sector-validated private source data and the persisted reconstruction runtime; await the three-rollover process result, then persist JSON/hash evidence or convert any failure into a regression.",
-  "last_known_main_head": "4d413fa3036ffeeaf5ad34a1bf3e140eb64bcf34",
+  "active_task": "Gate 13 remains the earliest incomplete validation gate. Recovery 135 canonical Gate-16 execution found a cycle-2 +2 European Cup node delta. Isolate the exact competition/round nodes, prove legitimate participant-dependent materialization versus accumulation, encode regression/fix, then rerun the canonical three-rollover audit.",
+  "last_known_main_head": "675b7170b4155597b65937ae81c71f5cf3b34dc6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 135,
   "last_recovery_reason": "sandbox-execution-failure",
-  "note": "Recovery 135 unresolved-work checkpoint: the exact three-rollover seed-1 canonical process has accumulated about 14 minutes of continuous CPU time, remains in running state, and still has empty stderr. RSS is approximately 247 MiB. Do not restart or duplicate this run if the same container survives; await its exit and then persist the report.",
+  "note": "Recovery 135 main checkpoint 675b7170b4155597b65937ae81c71f5cf3b34dc6 records the verified canonical run failure. Sustained execution is healthy; private source hashes and full-sector validation passed. Next action is exact European node-delta isolation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
