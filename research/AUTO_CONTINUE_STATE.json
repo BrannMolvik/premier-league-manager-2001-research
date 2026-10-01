@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete. Recovery 137 is continuing the exact Recovery-136 task: PR #65 has green asset-policy and full reconstruction CI; the canonical seed-1 three-rollover shipped-data rerun is still actively executing. Merge PR #65 only after that exact canonical run passes; otherwise capture and regress the next failure.",
-  "last_known_main_head": "b7b96927094cf13c296742928731e3b43491bdd4",
+  "active_task": "Gate 13 remains earliest incomplete. Recovery 137 has durably recorded the passing canonical shipped-data seed-1 three-rollover Gate-16 audit. The same exact canonical audit is now actively running with player seed 2 for broader real-data seed coverage; persist its result, regress any failure, then continue the next independent cloud-safe Gate-16 stress if feasible.",
+  "last_known_main_head": "cf211f6f0c6170172d98de9965d974ed50f4ffa7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 137,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 137 resumed without restarting work. PR #65 head 31ab282de6d6f62b498801de624526276837ce5a: asset policy run 36867367968 passed and reconstruction run 36867368043 passed. Exact canonical rerun recovery136b_canonical remains alive in the execution container (python PID 2481, CPU-bound); await its exit/result, then merge or regress.",
+  "note": "Seed-1 canonical three-rollover audit passed and is persisted through main cf211f6f0c6170172d98de9965d974ed50f4ffa7. PR #65 merged as 7f3f83eb98b9f29039b691197505dbe74c8b0851; CI 36867367968 and 36867368043 passed. Seed-2 canonical run is active as python PID 2852 in /mnt/data/fm2001-recovery135.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
