@@ -15,6 +15,12 @@ from hashlib import sha256
 from pathlib import Path
 
 from ea444_header import parse_ea444_header
+from original_pmenu_chrome import (
+    PMENU_FONT_NATIVE_LINE_HEIGHT,
+    PMENU_FONT_SHA256,
+    PMENU_FONT_SOURCE_PATH,
+    PMENU_RUNTIME_FONT_GLOBAL_VA,
+)
 from original_league_fixtures_resources import (
     LEAGUE_FIXTURES_MATCH_INFO_CLASS,
     LEAGUE_FIXTURES_MATCH_INFO_CONSTRUCTOR_VA,
@@ -50,6 +56,38 @@ PMATCHINFO_CONTROL_CALLBACK_TARGET_CLASS = "eCDBitmap"
 PMATCHINFO_CONTROL_CALLBACK_TARGET_TYPE_DESCRIPTOR_VA = 0x819C48
 PMATCHINFO_CONTROL_CALLBACK_TARGET_COL_VA = 0x7E1248
 PMATCHINFO_CONTROL_CALLBACK_TARGET_VFTABLE_VA = 0x7BFE14
+
+
+PMATCHINFO_TEXT_SETUP_VA = 0x6503F0
+PMATCHINFO_TEXT_FONT_GLOBAL_VA = PMENU_RUNTIME_FONT_GLOBAL_VA
+PMATCHINFO_TEXT_FONT_SOURCE_PATH = PMENU_FONT_SOURCE_PATH
+PMATCHINFO_TEXT_FONT_SHA256 = PMENU_FONT_SHA256
+PMATCHINFO_TEXT_FONT_NATIVE_LINE_HEIGHT = PMENU_FONT_NATIVE_LINE_HEIGHT
+
+
+@dataclass(frozen=True)
+class OriginalPMatchInfoTextPlacement:
+    owner_method_va: int
+    setup_call_va: int
+    x: int
+    y: int
+    width: int
+    height: int
+    font_global_va: int = PMATCHINFO_TEXT_FONT_GLOBAL_VA
+
+    @property
+    def rect(self) -> tuple[int, int, int, int]:
+        return (self.x, self.y, self.width, self.height)
+
+
+PMATCHINFO_TEXT_PLACEMENTS = (
+    OriginalPMatchInfoTextPlacement(0x483500, 0x4836AC, 210, 2, 185, 12),
+    OriginalPMatchInfoTextPlacement(0x483500, 0x4836E4, 210, 18, 185, 12),
+    OriginalPMatchInfoTextPlacement(0x483840, 0x483918, 33, 0, 29, 16),
+    OriginalPMatchInfoTextPlacement(0x484F90, 0x485091, 172, 50, 416, 16),
+    OriginalPMatchInfoTextPlacement(0x484F90, 0x4850C9, 380, 68, 208, 16),
+    OriginalPMatchInfoTextPlacement(0x484F90, 0x485101, 172, 68, 208, 16),
+)
 
 
 @dataclass(frozen=True)
