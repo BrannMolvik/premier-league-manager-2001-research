@@ -8,6 +8,7 @@ from ea444_decoder import EA444DecodedImage
 from original_button_frames import (
     BUTTON_GROUP_LENGTHS,
     ButtonAtlasSpec,
+    button_group_subframe_for_source_index,
     OriginalButtonAtlasError,
     OriginalButtonState,
     PSTARTMENU_BUTTON_ATLAS,
@@ -18,6 +19,18 @@ from original_button_frames import (
 
 
 class OriginalButtonAtlasTests(unittest.TestCase):
+    def test_source_frame_inverse_mapping_matches_three_native_groups(self):
+        self.assertEqual(
+            [button_group_subframe_for_source_index(i) for i in range(23)],
+            [(0, i) for i in range(11)]
+            + [(1, i) for i in range(11)]
+            + [(2, 0)],
+        )
+        for bad in (-1, 23, True, 1.0):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalButtonAtlasError):
+                    button_group_subframe_for_source_index(bad)
+
     def test_native_group_mapping_animation_direction_and_disabled_frame(self):
         state = OriginalButtonState()
         self.assertEqual(BUTTON_GROUP_LENGTHS, (11, 11, 1))

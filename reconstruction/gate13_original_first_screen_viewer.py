@@ -3,8 +3,9 @@
 Only source-hash-verified assets are loaded. The user can manually cycle all
 23 original atlas source frames to inspect artwork and click already-proven
 action rectangles. This is intentionally NOT the game's final UI: native
-mapping and PStartMenu caption placement are recovered, but this diagnostic
-keeps manual frame selection; TeamSelect hierarchy content and manager-home
+mapping and PStartMenu caption placement/color endpoints are recovered and
+drawn from the original glyph alpha, but this diagnostic keeps manual frame
+selection; TeamSelect hierarchy content and manager-home
 presentation still require recovered executable evidence.
 
 Tk is imported only when this developer viewer is actually launched.
@@ -157,6 +158,12 @@ class OriginalFirstScreenTkDebug:
             self.canvas.create_image(
                 overlay.rect.x, overlay.rect.y,
                 image=art, anchor=self.tk.NW
+            )
+        for caption in frame.native_caption_overlays:
+            glyphs = self._photo(caption.glyph_rgba_png)
+            self.canvas.create_image(
+                caption.line_origin_x, caption.line_origin_y,
+                image=glyphs, anchor=self.tk.NW
             )
         self.frame_label.configure(
             text=f"Manually selected original source frame: "
