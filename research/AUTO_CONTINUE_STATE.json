@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Continue from canonical main 4537f9b150cab8e2282c5d33a30c13a43cfb50c3. The canonical executable was reverified and the concrete Squad list/row/status bindings plus exact FormationText state-to-source-row transform are complete and tested. Exact next task: run the real Windows PStartMenu/TeamSelect graphical audit, record source-backed discrepancies, then recover remaining TeamSelect hierarchy input/state semantics and continue Gate 13 management-screen presentation correlations. Do not repeat the completed private Squad trace; no proprietary raw reports belong in Git.",
-  "last_known_main_head": "4537f9b150cab8e2282c5d33a30c13a43cfb50c3",
+  "active_task": "Gate 13 remains the active validation gate. First try the real Windows PStartMenu/TeamSelect graphical audit and remaining TeamSelect hierarchy input/state recovery if the required execution path is available. If a required local/private/Windows task is blocked by CAAS or unavailable GUI access, record it as a deferred blocker and immediately continue the highest-priority independent cloud-safe work across Gate 13 or later Gates 14-17. Do not mark blocked criteria complete, do not infer original behavior, and do not declare a later gate passed while earlier required criteria remain unresolved. Revisit deferred blockers when execution becomes available.",
+  "last_known_main_head": "e2838402ea3aa0bae988af0a3c18010ba5c58e65",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -19,8 +19,8 @@
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 127,
-  "last_recovery_reason": "codex-usage-handoff",
-  "note": "Codex pushed verified Squad trace work and handed ownership back because usage reached the reserved final-verification threshold. Resume from the Windows graphical audit; the completed Squad binary analysis must not be repeated.",
+  "last_recovery_reason": "deferred-blocker-policy-enabled",
+  "note": "Out-of-order cloud-safe work policy enabled on main e2838402. Roadmap gates are validation milestones, not hard scheduling barriers. Keep Gate 13 active until its criteria pass, but do not let CAAS/local-only blockers freeze independent work in Gates 14-17.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
