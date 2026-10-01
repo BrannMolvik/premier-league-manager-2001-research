@@ -228,3 +228,216 @@ Still open:
 3. surrounding header/team/date text controls;
 4. event/navigation behavior from selected grid cells;
 5. original asset import and integrated Windows verification.
+
+
+## Recovery 153 matrix identity, filtering and grid navigation closure
+
+The remaining neutral empty-slot predicate is now source-resolved, and the
+same bounded trace closes the fixture matrix layout and visible grid navigation.
+
+### The red empty cell is the same-club diagonal
+
+The embedded grid is constructed at `PLeagueFixtures+0x1CF0`.
+`PLeagueGrid::0x46CBC0` stores its owning `PLeagueFixtures` pointer at
+`PLeagueGrid+0x2C` (write at `0x46CC08`). RTTI identifies:
+
+- grid vtable `0x7C23D0` as `PLeagueGrid`;
+- header vtable `0x7C25C0` as `ClubText@fm2001_ctrls`.
+
+`PLeagueFixtures` constructs two `ClubText` arrays:
+
+- 12 elements at `+0x9A0`, stride `0x4C`;
+- 24 elements at `+0x15D0`, stride `0x4C`.
+
+The exact `ClubText` setter is `0x5D5490`. It stores the supplied identity
+pointer directly at `ClubText+0x48` before resolving its visible club name.
+
+Both axis-population paths pass a club pointer from the selected competition:
+
+- the 24-row family at `0x46DAE2..0x46DBD7`;
+- the 12-column family at `0x46DDA6..0x46DE93`.
+
+Each path independently compares that same pointer to current user club
+`user+0x5B4` when choosing the header text color, which confirms the identity
+is a club rather than a fixture, competition, or arbitrary row token.
+
+The empty-cell branches at `0x46CFF5..0x46D01C` and
+`0x46D1AD..0x46D1D9` compare:
+
+```text
+column ClubText+0x48 == row ClubText+0x48
+```
+
+Equality selects `red_fixtures_box.444`; inequality selects
+`date_fixtures_box.444`.
+
+Therefore the red empty cell is source-proven as the **same-club self-fixture
+diagonal**. It marks the matrix positions where one club would otherwise be
+paired with itself. The former neutral `empty_slot_red_predicate` name is
+superseded by `empty_slot_same_club`.
+
+### Competition member order and temporary matrix indices
+
+The selected competition exposes member count at `+0x3C` and member storage
+at `+0x34`.
+
+Before reading that list, `PLeagueFixtures::0x46D950` calls
+`0x4F4940`. That routine performs the competition object's own preparation
+vcall and then assigns one-based member-record order at member object `+0x28`.
+
+The League Fixtures builder then walks the resulting competition member list in
+that preserved order, resolves each member to its club, and writes a temporary
+zero-based matrix index to club `+0x2A0`.
+
+This checkpoint therefore preserves **the competition's prepared member-list
+order**. It does not substitute alphabetical order, table position, club ID,
+or another modern sort.
+
+### Matrix allocation and repeated fixtures
+
+`0x616F40(selected_competition)` supplies a source helper count. At
+`0x46D98A..0x46D98F`, the panel divides that non-negative result by two with
+the original signed truncating sequence. That becomes the repeat-layer count.
+
+For `N = competition club count`, the panel allocates:
+
+```text
+layer_count * N * N
+```
+
+fixture-pointer slots.
+
+A fixture whose resolved club indices are `left` and `right` first targets:
+
+```text
+left * N + right
+```
+
+If that slot is already occupied, the source adds exactly `N*N` and retries,
+placing another same-pair fixture into the next repeat layer:
+
+```text
+layer * N*N + left*N + right
+```
+
+No date sort is applied at insertion. Repeated pair order therefore follows the
+retained global fixture-chain encounter order described below.
+
+### Exact fixture acceptance filters
+
+The builder scans the global fixture chain-head region beginning at
+`0x947AD8` over exactly `0x5D4` bytes, four bytes per head:
+**373 chain heads**. Each chain follows fixture `+0x04` to the next node.
+
+A fixture is inserted only when all recovered conditions pass:
+
+1. its virtual kind-code method at slot `+0x28` returns **1**;
+2. fixture `+0x4C` is exactly the currently selected competition;
+3. fixture `+0x44 bit 0x20` is **clear**;
+4. the side reference at fixture `+0x14` resolves to a club;
+5. the side reference at fixture `+0x28` resolves to a club.
+
+Status bit `0x20` remains deliberately **semantically unnamed**. It is
+source-proven as a matrix-exclusion bit, but its higher-level football meaning
+is not sufficiently bounded by this trace. Other status bits, including the
+already-proven completion bit `0x01`, do not participate in this matrix
+eligibility branch.
+
+Within those filters, fixtures preserve the global chain scan order, and
+same-pair duplicates preserve first-free repeat-layer order.
+
+### Visible row/column arrangement
+
+The 12-element `ClubText` family is the visible column header window.
+Panel offset `+0xA4` is the first visible competition-member index.
+
+Columns are therefore:
+
+```text
+competition_member[a4 + column], column = 0..11
+```
+
+The 24-element row-header family is populated layer-major. For each competition
+club, the panel repeats the club identity once per repeat layer at row indices:
+
+```text
+row = layer * N + club_index
+```
+
+The fixture lookup used during cell refresh is correspondingly:
+
+```text
+matrix[(row * N) + a4 + column]
+```
+
+which is algebraically the same layer-major `layer*N*N + club*N + opponent`
+layout constructed above.
+
+Unused row/column controls are hidden rather than populated with invented clubs.
+
+### Horizontal paging
+
+The visible column window is exactly 12 clubs.
+
+The left-page handler at `0x46E489` subtracts 12 from `PLeagueFixtures+0xA4`
+and clamps at zero.
+
+The right-page handler at `0x46E4AB` adds 12 and clamps to:
+
+```text
+club_count - 12
+```
+
+for the source-reachable enabled state. Thus a 20-club competition pages from
+offset 0 directly to the final offset 8, rather than forcing offsets to be
+multiples of 12.
+
+### Exact selector ranges and pointer reduction
+
+The panel dispatcher routes:
+
+- column selector indices **0..11** to `PLeagueGrid::0x46CF90`;
+- row selector indices **0..23** to `PLeagueGrid::0x46D140`.
+
+Pointer method `0x46D300` derives both from a grid-relative point. Its two
+signed-multiply division sequences are exact division by the existing native
+placement steps for valid non-negative deltas:
+
+```text
+column = (x - grid_origin_x) // 29
+row    = (y - grid_origin_y) // 14
+```
+
+It then applies the exact column and row selectors.
+
+Companion method `0x46D390` uses the same coordinate reduction, reads the
+fixture pointer for that cell, and calls `0x488C80` only when the fixture is
+non-null. This checkpoint records that downstream action target by address only;
+it does not invent a modern label for the action.
+
+Method `0x46D400` uses the same cell lookup and returns the already-proven
+completion bit for a populated fixture.
+
+### Reconstruction consequence
+
+`reconstruction/original_league_fixtures_resources.py` now guards:
+
+- same-club diagonal identity and red-box selection;
+- the neutral type/competition/status/club fixture filters;
+- the 373-head retained fixture-chain scan boundary;
+- exact `N*N` pair indexing and repeat-layer stepping;
+- the source helper-result / 2 layer-count arithmetic;
+- 12-column paging by exact 12-club steps with last-window clamping;
+- exact 12-column / 24-row selector ranges;
+- exact 29x14 grid coordinate reduction.
+
+Still open after Recovery 153:
+
+1. higher-level semantic meaning of fixture status bit `0x20`;
+2. surrounding screen header/filter controls outside the now-proven matrix;
+3. the higher-level meaning of the non-null cell action at `0x488C80`;
+4. remaining competition/category tab controls and their captions/resources;
+5. original asset import and integrated Windows verification.
+
+The earlier open item “semantic meaning of the null/empty-cell red predicate”
+is closed and must not be reintroduced.
