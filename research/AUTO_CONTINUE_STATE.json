@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "PR #76 merged as addd82b7a8a5efddd83abb698f08d08c71ebcaf9 after Gate-13 run 36911756061 passed 288 tests with 21 expected skips and asset-policy run 36911756170 passed. Continue exact next Gate-13 task: source-trace unresolved PMenu label globals, exact runtime font/color/clipping, row state-to-frame mapping and shell background ownership; provenance-import four already-correlated menu assets once policy/provenance paths are verified. Corrected real Windows/Tk first-screen rerun remains open.",
+  "active_task": "Recovery 147 resumes from merged PR #76 at main addd82b7a8a5efddd83abb698f08d08c71ebcaf9. Exact task: source-trace unresolved PMenu label globals, runtime font/color/clipping, row state-to-frame mapping and shell background ownership; preserve fail-closed unknowns and keep the corrected real Windows/Tk first-screen rerun open.",
   "last_known_main_head": "addd82b7a8a5efddd83abb698f08d08c71ebcaf9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 146,
+  "recovery_generation": 147,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 146 continues beyond merged PMenu row-chrome checkpoint; localization/state/font/background trace is active.",
+  "note": "Recovery 147 continues beyond merged PMenu row-chrome checkpoint. Private executable/disassembly staging is healthy and reused; no completed trace is restarted.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
