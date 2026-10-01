@@ -8,7 +8,7 @@
   "status": "paused",
   "work_owner": "codex",
   "active_gate": 13,
-  "active_task": "Codex owns the local/private Windows sprint from canonical main aec0f946b593291a5cb76bc2a8893655b00447d6. Continue the unresolved TeamSelect trace: exact competition filtering/order, LeagueBtnGrp/TeamBtnGrp frame-state transforms, and final club-selection write; integrate live hierarchy and rerun the real Windows audit. Continue successive private Gate 13 work while useful local work remains. Do not repeat Button/Zurich/Squad or the completed first Windows audit.",
+  "active_task": "Codex usage exhausted mid-local Gate 13 TeamSelect sprint. Preserve and audit the local Windows working tree before any pull/reset/checkout or ChatGPT worker resume. Canonical remote main remains aec0f946b593291a5cb76bc2a8893655b00447d6; durable technical work through 071e476 is verified separately. Local uncommitted work may contain progress on exact competition filtering/order, LeagueBtnGrp/TeamBtnGrp frame-state transforms, final club-selection write, or live hierarchy integration.",
   "last_known_main_head": "aec0f946b593291a5cb76bc2a8893655b00447d6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -19,8 +19,8 @@
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 140,
-  "last_recovery_reason": "codex-local-windows-sprint-resumed",
-  "note": "Chrome watchdog intentionally paused while Codex owns the local/private Windows queue under the durable policy added at aec0f946. Private reports remain outside Git. Do not infer unresolved competition filtering, frame states, or club selection semantics.",
+  "last_recovery_reason": "codex-usage-exhausted-mid-work",
+  "note": "DO NOT auto-resume ChatGPT yet. User screenshot indicates Codex stopped on usage exhaustion while still working; no post-aec0f946 technical commit exists on remote GitHub. Recover/inspect local git status and diff first. Do not blindly git add -A because private source/staging files must not be committed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
