@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains blocked by local process execution. Recovery 118 verified main and CURRENT_STATE unchanged. Fresh container and Python probes both returned ClientError before process start. Continue from the existing Gate 13 native trace as soon as execution works: verify source hashes, run TeamSelect RTTI canary, trace Button frame-state behavior, recover Zurich text placement and color, run the ten-resource audit/import, finish management-screen correlation and Windows graphical audit, then continue Gates 14-17 and the verified Windows 11 release.",
+  "active_task": "Gate 13 remains blocked by local process execution. Recovery 119 verified canonical main c36b7047 and CURRENT_STATE unchanged, then retried both container and private Python execution; both returned ClientError before process start. The private source route was already independently verified healthy in recovery 117, and no source-bearing remote execution substitute is available. Exact next action on the first working execution recovery: verify the canonical ZIP and executable hashes; run the TeamSelect RTTI canary; trace native Button state to numbered atlas frames; recover Zurich text placement/color/clipping; run the strict ten-resource audit/import; complete management-screen correlation and the Windows graphical Gate 13 audit; then continue Gates 14-17 and the verified Windows 11 release.",
   "last_known_main_head": "c36b7047dbcfc1f99a916a9997debb706ec08eb0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 118,
+  "recovery_generation": 119,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 118: execution still fails before process start. Keep continuous working state. No user action required.",
+  "note": "Recovery 119: execution remains the sole blocker. No safe source-backed main change can be made until a local process backend works. Keep continuous working state; no user action required.",
   "same_chat_fallback_minutes": 30
 }
