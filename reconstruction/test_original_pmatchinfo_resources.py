@@ -337,6 +337,7 @@ class OriginalPMatchInfoResourceTests(unittest.TestCase):
             0x982154: (2473, "Injury"),
             0x982100: (2494, "Shoot Out"),
             0x98200C: (2555, "Ref."),
+            0x982008: (2556, "FINANCIAL"),
             0x981EA4: (2645, "%s: %s %s"),
             0x981E98: (2648, "first leg"),
             0x981E94: (2649, "second leg"),
@@ -357,6 +358,120 @@ class OriginalPMatchInfoResourceTests(unittest.TestCase):
             with self.subTest(bad=bad):
                 with self.assertRaises(OriginalPMatchInfoResourceError):
                     pmatch.pmatchinfo_original_english(bad)
+
+    def test_pmatchinfo_tabs_source_bind_labels_controls_and_concrete_panels(self):
+        self.assertEqual(pmatch.PMATCHINFO_CONTROL_EVENT_BIND_VA, 0x64F3C0)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_EVENT_HANDLER_VA, 0x488B70)
+        self.assertEqual(pmatch.PMATCHINFO_KEY_EVENT_HANDLER_VA, 0x488C60)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_CONTROL_CLASS, "fmRadioButton6")
+        self.assertEqual(pmatch.PMATCHINFO_TAB_CONTROL_TYPE_DESCRIPTOR_VA, 0x81D108)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_CONTROL_COL_VA, 0x7E4D10)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_CONTROL_VFTABLE_VA, 0x7C4474)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_CONTROL_CONSTRUCTOR_VA, 0x488570)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_CONTROL_COUNT, 3)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_CONTROL_STRIDE, 0x54)
+
+        expected = [
+            (
+                1, 0x14A4, 0x982C38, "MATCH INFO", 0x1C0,
+                "PMatchInfoSubPanel", 0x81D0A0, 0x7E4BD0, 0x7C426C,
+            ),
+            (
+                2, 0x14F8, 0x982C3C, "TEAM INFO", 0x8F0,
+                "PTeamInfoSubPanel", 0x81D038, 0x7E4B10, 0x7C4220,
+            ),
+            (
+                3, 0x154C, 0x982008, "FINANCIAL", 0xB10,
+                "PFinanceSubPanel", 0x81D1E8, 0x7E4D60, 0x7C4530,
+            ),
+        ]
+        self.assertEqual(
+            [
+                (
+                    tab.event_id,
+                    tab.control_offset,
+                    tab.label_global_va,
+                    tab.label,
+                    tab.panel_offset,
+                    tab.panel_class,
+                    tab.panel_type_descriptor_va,
+                    tab.panel_col_va,
+                    tab.panel_vftable_va,
+                )
+                for tab in pmatch.PMATCHINFO_TABS
+            ],
+            expected,
+        )
+        for tab in pmatch.PMATCHINFO_TABS:
+            with self.subTest(tab=tab.label):
+                self.assertEqual(
+                    pmatch.pmatchinfo_original_english(tab.label_global_va),
+                    tab.label,
+                )
+                self.assertEqual(
+                    pmatch.pmatchinfo_tab_for_event(tab.event_id),
+                    tab,
+                )
+                self.assertEqual(
+                    pmatch.pmatchinfo_tab_for_control_offset(tab.control_offset),
+                    tab,
+                )
+        for bad in (0, 4, 7, -1, None, "1"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalPMatchInfoResourceError):
+                    pmatch.pmatchinfo_tab_for_event(bad)
+        for bad in (0, 0x17D8, None, "0x14A4"):
+            with self.subTest(control_offset=bad):
+                with self.assertRaises(OriginalPMatchInfoResourceError):
+                    pmatch.pmatchinfo_tab_for_control_offset(bad)
+
+    def test_pmatchinfo_default_tab_and_subpanel_host_are_source_fixed(self):
+        self.assertEqual(pmatch.PMATCHINFO_DEFAULT_TAB_EVENT_ID, 1)
+        self.assertEqual(pmatch.PMATCHINFO_DEFAULT_PANEL_OFFSET, 0x1C0)
+        self.assertEqual(pmatch.PMATCHINFO_DEFAULT_PANEL_POINTER_OFFSET, 0x1390)
+        self.assertEqual(pmatch.PMATCHINFO_DEFAULT_PANEL_POINTER_ASSIGN_VA, 0x4879C6)
+        self.assertEqual(pmatch.pmatchinfo_tab_for_event(1).label, "MATCH INFO")
+        self.assertEqual(
+            pmatch.pmatchinfo_tab_for_event(1).panel_class,
+            "PMatchInfoSubPanel",
+        )
+        self.assertEqual(pmatch.PMATCHINFO_TAB_HOST_CLASS, "eCSubPanel")
+        self.assertEqual(pmatch.PMATCHINFO_TAB_HOST_TYPE_DESCRIPTOR_VA, 0x81B780)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_HOST_COL_VA, 0x7E1BF0)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_HOST_VFTABLE_VA, 0x7C0668)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_HOST_OFFSET, 0x17A8)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_HOST_TARGET_OFFSET, 0x2C)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_HOST_SETUP_VA, 0x650B20)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_PANEL_RECT_SETUP_VA, 0x653320)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_HOST_REFRESH_VA, 0x64F600)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_PANEL_STATE_OFFSET, 0x04)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_PANEL_STATE_VALUE, 2)
+        self.assertEqual(pmatch.PMATCHINFO_TAB_PANEL_HOST_POINTER_OFFSET, 0x08)
+
+    def test_pmatchinfo_cross_and_escape_share_exact_postmessage_signal(self):
+        self.assertEqual(pmatch.PMATCHINFO_CROSS_BUTTON_CLASS, "fmCrossButton")
+        self.assertEqual(
+            pmatch.PMATCHINFO_CROSS_BUTTON_TYPE_DESCRIPTOR_VA,
+            0x81BBD8,
+        )
+        self.assertEqual(pmatch.PMATCHINFO_CROSS_BUTTON_COL_VA, 0x7E2358)
+        self.assertEqual(pmatch.PMATCHINFO_CROSS_BUTTON_VFTABLE_VA, 0x7C0DA0)
+        self.assertEqual(pmatch.PMATCHINFO_CROSS_BUTTON_OFFSET, 0x17D8)
+        self.assertEqual(pmatch.PMATCHINFO_EXIT_EVENT_ID, 7)
+        self.assertEqual(pmatch.PMATCHINFO_ESCAPE_CODE, 0x1B)
+        self.assertEqual(pmatch.PMATCHINFO_EVENT_CODE_OFFSET, 0x20)
+        self.assertEqual(pmatch.PMATCHINFO_EVENT_OWNER_OFFSET, 0x24)
+        self.assertEqual(pmatch.PMATCHINFO_EXIT_MESSAGE_HELPER_VA, 0x6539F0)
+        self.assertEqual(pmatch.PMATCHINFO_POST_MESSAGE_WRAPPER_VA, 0x659650)
+        self.assertEqual(pmatch.PMATCHINFO_POST_MESSAGE_API, "PostMessageA")
+        self.assertEqual(
+            (
+                pmatch.PMATCHINFO_EXIT_MESSAGE_ID,
+                pmatch.PMATCHINFO_EXIT_MESSAGE_WPARAM,
+                pmatch.PMATCHINFO_EXIT_MESSAGE_LPARAM,
+            ),
+            (0x400, 7, 0),
+        )
 
     def test_script_row_text_producers_preserve_label_and_neutral_decimal_fields(self):
         self.assertEqual(
