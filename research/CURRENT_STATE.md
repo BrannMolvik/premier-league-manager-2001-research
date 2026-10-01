@@ -72,13 +72,12 @@ Evidence:
   asset-policy run `36849081409` passed. The periodically reloaded run matches
   a never-reloaded run from the same seed across the full movement history,
   rosters, counters, RNG state and final date.
-- **Exact next task:** isolate the Recovery-135 canonical Gate-16 cycle-2
-  structural delta: fresh shared-primary entries 5735 -> 5737, shadow entries
-  9344 -> 9346 and European Cup nodes 371 -> 373 while every other tracked
-  fresh-season count stayed stable. Identify the exact competition/round nodes,
-  determine whether the difference is legitimate participant-dependent Cup
-  materialization or cross-season accumulation, encode the result as a
-  regression/fix, and then rerun the three-rollover canonical audit.
+- **Exact next task:** extend canonical Gate-16 seed coverage now that the
+  corrected seed-1 shipped-data three-rollover audit passes. Recovery 137 has
+  launched the same three-rollover audit with player seed 2. Persist that result
+  and convert any failure into a regression; if it passes, continue the next
+  highest-value independent cloud-safe Gate-16 stress while Gate 13's real
+  Windows graphical audit remains the earliest incomplete prerequisite.
 - **Recovery 133 execution blocker:** the fresh allocation launched one trivial
   shell process successfully, but direct `git clone` could not resolve
   `github.com`. The GitHub connector remained healthy and the canonical
@@ -139,6 +138,19 @@ Evidence:
   Cup nodes and their corresponding shared-primary/shadow entries; Premier,
   domestic Cup, qualification Cup and procedural-League counts stayed stable.
   This is now a real Gate-16 investigation, not an infrastructure blocker.
+- **Recovery 137 canonical seed-1 pass:** PR #65's corrected current-regeneration
+  projection guard passed asset-policy run `36867367968` and full reconstruction
+  run `36867368043`, then merged as
+  `7f3f83eb98b9f29039b691197505dbe74c8b0851`. The exact authorized shipped-data
+  seed-1 audit completed three consecutive annual qualification/regeneration
+  cycles with exit code 0 in 1,617.49 seconds, ending 2003-06-02. All three
+  cycles completed 380 Premier League fixtures and passed roster, membership,
+  RNG, scheduler and current-regeneration projection invariants. The legitimate
+  cycle-2 UEFA Cup shape variation remained bounded rather than accumulating.
+  Machine-readable evidence is
+  `research/evidence/GATE16_CANONICAL_MULTISEASON_SEED1_RECOVERY137.json`.
+  Recovery 137 has started the same three-rollover canonical audit with player
+  seed 2 for additional real-data seed coverage.
 - Gate 17 release-readiness evidence is now fail-closed and machine-checkable at
   `9e7cb18be721ea2ae89b074991e120d3e60e4c68`; it intentionally cannot pass
   without real clean-Windows receipts, a release archive and final limitations.
