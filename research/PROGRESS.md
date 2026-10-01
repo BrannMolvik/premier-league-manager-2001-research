@@ -9439,3 +9439,29 @@ internal save/reload and measure serialized/state growth so replaced
 season-owned structures cannot accumulate silently. Canonical real-data
 multi-season evidence remains separately required, and Gate 13 remains the
 earliest incomplete validation gate.
+
+
+## 1 October 2026 - Gate 16 annual regeneration/save-growth soak verified
+
+- PR #59 extended the existing destructive annual-regeneration soak with **12
+  consecutive annual replacements and 12 exact schema-34 internal save/reload
+  round-trips** in the existing 20-club synthetic annual world.
+- Before each rollover the outgoing season is deliberately dirtied with one
+  Premier League result and one prepared-match environment. The new season must
+  replace those structures, restore an exact 380-fixture scheduler, and retain
+  one stable structural shape across Premier League fixtures/results, scheduler
+  state, primary shadow/order, Cup owners and procedural-League owners.
+- Every cycle compares the complete human-gameplay snapshot before and after
+  reload and requires byte-identical compact JSON after reserialization.
+- Compact save length may vary with dates/RNG integers, so the test uses a
+  deliberately generous **4 KiB max-minus-min payload spread** only as a
+  corruption detector. It is not an original FM2001 save-size claim.
+- Final reconstruction run `36847418060` passed **1,133 tests** in 159.081
+  seconds with **22 expected source-gated skips and zero failures**.
+  Repository asset-policy run `36847418038` passed.
+- PR #59 squash-merged as
+  `a9ec833173a92a4b8b3c2238d91943c159f7fa92`.
+- Gate 16 remains work-ahead only. Next cloud-safe state-growth target is
+  periodic save/reload during five-year autonomous transfer churn, with
+  movement history required to remain exactly event-proportional and transient
+  transfer containers required to stay empty.
