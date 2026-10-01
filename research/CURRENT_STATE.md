@@ -45,20 +45,25 @@ Evidence:
   complete-season stress (`f08a014bc73c8ca4a7e11e3f10ef79e42ca13e62`), three
   consecutive fully played synthetic seasons (`3d6037d71365a2ddce53d2e6b40eda9baa02cf93`),
   five exact save/reload round-trips across those seasons
-  (`73ca421609cc6e929156c72f5b021b02a6efca3b`), and a five-year autonomous
-  transfer-churn/state-growth stress merged at
-  `71676cb9a5b5b89b60b037c8f4426dc72a58e682`.
-  Transfer churn exposed a real month-end contract-date crash; the runtime now
-  uses a documented bounded target-month clamp while the exact original
-  normalization remains tracked in `FIDELITY_GAPS.md`. Final PR verification
-  run `36840977540` passed 1,130 tests with 22 expected source-gated skips and
-  asset-policy run `36840977536` passed. Canonical real-data multi-season
-  evidence, broader shared-primary competition stress, more seed coverage and
-  remaining state-growth risks stay open.
-- **Exact cloud-safe next task:** stress the shared Gate-12 primary scheduler
-  across Premier League, domestic Cup, European Cup, qualification-Cup and
-  procedural-League owners in one long synthetic calendar run, preserving the
-  known fail-closed dynamic FA Cup replay insertion boundary.
+  (`73ca421609cc6e929156c72f5b021b02a6efca3b`), a five-year autonomous
+  transfer-churn/state-growth stress (`71676cb9a5b5b89b60b037c8f4426dc72a58e682`),
+  and the mixed shared-primary scheduler stress merged at
+  `24447d846b96fe68d2eba7c17d0053de638e43ef`. The mixed stress executes 33
+  retained-order entries across Premier League, domestic Cup, European Cup,
+  qualification Cup and procedural League owners in one long synthetic
+  calendar. Its first CI run exposed an invalid two-club stress fixture rather
+  than a production defect; the repaired 20-club fixture passed full
+  reconstruction run `36846018068`: 1,132 tests, 22 expected source-gated
+  skips, zero failures. Asset-policy run `36846018016` passed. The production
+  fail-closed dynamic FA Cup replay insertion boundary remains unchanged.
+  Canonical real-data multi-season evidence, more seed coverage and remaining
+  state-growth risks stay open.
+- **Exact cloud-safe next task:** combine repeated annual primary regeneration
+  with internal save/reload in a bounded destructive soak, measuring serialized
+  payload/state growth and proving that replaced season-owned runtime structures
+  do not accumulate across repeated rollovers. Keep canonical real-data
+  multi-season evidence deferred when the required private/source execution path
+  is unavailable; do not mark Gate 16 complete from synthetic evidence alone.
 - Gate 17 release-readiness evidence is now fail-closed and machine-checkable at
   `9e7cb18be721ea2ae89b074991e120d3e60e4c68`; it intentionally cannot pass
   without real clean-Windows receipts, a release archive and final limitations.
