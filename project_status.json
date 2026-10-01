@@ -538,7 +538,7 @@
   "gate13_presentation_separation_audited": true,
   "gate13_presentation_separation_evidence": "research/GATE13_PRESENTATION_SEPARATION_AUDIT.md",
   "gate13_resource_coverage_audit": "research/GATE13_RESOURCE_COVERAGE_AUDIT.md",
-  "gate13_resource_criterion_status": "open_corrected_windows_audit_pmenu_chrome_and_broader_management_presentation",
+  "gate13_resource_criterion_status": "open_corrected_windows_audit_pmenu_remaining_typography_states_asset_import_and_broader_management_presentation",
   "gate13_latest_focused_executed_tests": 276,
   "gate13_latest_focused_skips": 21,
   "gate13_latest_focused_result": "passed",
@@ -853,5 +853,26 @@
   "gate13_league_table_panel_class": "PLeagueTables",
   "gate13_league_table_panel_vftable": "0x7C00C8",
   "gate13_league_table_panel_constructor": "0x448640",
-  "gate13_manager_home_placeholder_superseded": true
+  "gate13_manager_home_placeholder_superseded": true,
+  "gate13_pmenu_chrome_source_bound": true,
+  "gate13_pmenu_chrome_evidence": "research/GATE13_PMENU_CHROME_TRACE.md",
+  "gate13_pmenu_chrome_contract": "reconstruction/original_pmenu_chrome.py",
+  "gate13_pmenu_row_height": 29,
+  "gate13_pmenu_root_node_count": 9,
+  "gate13_pmenu_correlated_resource_count": 4,
+  "gate13_pmenu_private_source_validation_passed": true,
+  "gate13_pmenu_private_source_validation_recovery": 145,
+  "gate13_pmenu_title_row_resources": [
+    "FM2001_Art/Generic/menu_popup/menu_arrow_anim.444",
+    "FM2001_Art/Generic/menu_popup/submenu_main_box.444"
+  ],
+  "gate13_pmenu_child_row_resources": [
+    "FM2001_Art/Generic/menu_popup/menu_anim.444",
+    "FM2001_Art/Generic/menu_popup/menu_main_box.444"
+  ],
+  "gate13_pmenu_unresolved_labels_fail_closed": true,
+  "gate13_pmenu_exact_font_mapping_open": true,
+  "gate13_pmenu_state_frame_mapping_open": true,
+  "gate13_pmenu_shell_background_open": true,
+  "gate13_pmenu_original_assets_import_status": "correlated_private_bytes_not_yet_provenance_imported"
 }
