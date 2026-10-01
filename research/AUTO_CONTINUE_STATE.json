@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete. Recovery 142 private TeamSelect 0x4D8E90/0x4D9240 payload/Start-resolution trace and upgraded Windows audit remain blocked by caas.internal.errors.ClientError after successful canonical source materialization. PR #71 conversion contract is merged and reconciled on main 4b61e35be4ed5c6d030ad79c7ff64f1d30ee6884. Continue the next independent Gate-14 step: a fail-closed private TGQ conversion/probe receipt runner that keeps source, derivatives and receipts outside Git.",
-  "last_known_main_head": "4b61e35be4ed5c6d030ad79c7ff64f1d30ee6884",
+  "active_task": "Gate 13 remains earliest incomplete and private execution is still blocked by caas.internal.errors.ClientError. Gate-14 PR #72 is merged at 0bb489e0b6d397c26beda463c4a3783da96af02c with a fail-closed outside-Git TGQ conversion/probe receipt runner (1,154 tests, 22 expected skips, asset policy passed). PR #73 is now retargeted to main and adds the next cloud-safe layer: re-hash and validate private converted derivatives before any future playback surface may consume them.",
+  "last_known_main_head": "0bb489e0b6d397c26beda463c4a3783da96af02c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 142,
   "last_recovery_reason": "recovery-142-same-chat-no-progress-resume",
-  "note": "Recovery 142 main checkpoint 4b61e35be4ed5c6d030ad79c7ff64f1d30ee6884 reconciles PR #71 (1,149 tests, 22 expected skips, asset policy passed). Continuing Gate-14 receipt-runner work while the private process path is unavailable.",
+  "note": "Recovery 142 continuing without idle time. PR #72 verified/merged; PR #73 stacked work was merged with the new main parent and retargeted to main. Private TeamSelect trace and actual TGQ conversion remain blocked by process-start ClientError.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
