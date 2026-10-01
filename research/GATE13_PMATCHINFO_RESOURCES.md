@@ -600,3 +600,29 @@ Still open after Recovery 159:
 3. corrected real-Windows validation of that integrated path;
 4. broader Gate-13 completion/audit work after the PMatchInfo family is
    integrated.
+
+
+## Recovery 159 runtime asset staging
+
+The final consumer audit separates **resource ownership** from **runtime
+presentation use**. Runtime staging therefore imports only Match Report files
+with source-proven presentation consumers.
+
+Twelve such files are now present byte-identically under
+`original_assets/source/FM2001_Art/Generic/match_report/` and are verified by
+SHA-256, byte size and EA444 dimensions in the Gate-13 test suite:
+
+`info_player`, `info_player_disabled`, `red_card`, `yellow_card`,
+`Sub_on`, `sub_off`, `injured`, `score`, `red_card_single`,
+`match_name_grid`, `pitch_normal`, and `match_incid_grid`.
+
+The thirteenth source-proven runtime asset, `info_popup.444`, remains
+transport-blocked only by the current GitHub connector's safe binary handoff
+size. Its canonical contract remains exact: **179,988 bytes**, **760x500**,
+SHA-256
+`d4bcf7d57b5e38de01d43e214d937045529e6434d1c40bb0f04620753c18f5e6`.
+The reconstruction must fail closed while it is absent. No generated,
+re-encoded, resized or substitute popup background is acceptable.
+
+The seven source-audited loaded-but-unconsumed name-block/possession assets are
+not part of this runtime import set.
