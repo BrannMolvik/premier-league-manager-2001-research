@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the active validation gate. Exact deferred local task: run reconstruction/gate13_windows_first_screen_audit.py on a real Windows GUI against the verified canonical executable/source/game data, then recover remaining TeamSelect hierarchy item/input/selection-state semantics and continue broader management-screen fidelity. While that local path is unavailable, continue independent cloud-safe work. Latest completed work-ahead at main 3d6037d adds three consecutive fully played synthetic seasons; next cloud-safe target is long-duration save/reload plus management-system stress across consecutive seasons, preserving broader-competition evidence boundaries and without declaring Gate 16 complete.",
-  "last_known_main_head": "3d6037d71365a2ddce53d2e6b40eda9baa02cf93",
+  "active_task": "Gate 13 remains the active validation gate. Exact deferred local task: run reconstruction/gate13_windows_first_screen_audit.py on a real Windows GUI against the verified canonical executable/source/game data, then recover remaining TeamSelect hierarchy item/input/selection-state semantics and continue broader management-screen fidelity. While that local path is unavailable, continue independent cloud-safe work. Recovery 129 currently has PR #55 open for Gate 16 three-season save/reload continuation stress and an immutable source-fixture identity fix. First full run 36835600174 reached the post-regeneration round-trip successfully but failed only because the synthetic test allowed 180 days to reach year-two midseason; branch dcf739a raises that artificial bound to 370 days and full run 36836256569 is in progress. Do not merge until the rerun passes.",
+  "last_known_main_head": "46d463613ab72a8d418bcdcb1326cc4e1e0df681",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 129,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 129 resumed canonical main at 3d6037d after prior runtime state lagged at 65b256a. Gate 13 is still the earliest incomplete gate. Gate 16 work-ahead now includes repeated regeneration, six-seed season stress, and three consecutive fully played synthetic seasons; Gate 17 has a fail-closed readiness harness. Continue source-backed cloud-safe stress work until a real Windows/private path is available.",
+  "note": "Recovery 129 checkpoint: canonical main advanced to 46d463d. Gate 13 remains earliest incomplete. PR #55 (branch recovery129-gate16-save-reload-stress) head dcf739a adds five save/reload checkpoints across three fully played synthetic seasons and preserves original source fixture identity across annual procedural regeneration. Initial 1125-test run failed only on an invalid 180-day year-two midseason budget after the post-rollover save/reload had already succeeded; corrected rerun 36836256569 is active. Next after verification: persist/merge this result, then continue bounded Gate 16 transfer-churn/state-growth stress while preserving canonical-data evidence boundaries.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
