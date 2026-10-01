@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 158 merged PR #89 as 5603f96fddee9de4b02d40c0a199fe66eea415ca after Gate-13 run 36934794672 passed 357 tests with 21 expected skips and asset-policy run 36934794463 passed. Exact next task: trace PMatchInfo event/tab interaction behavior and/or the four name-block plus three possession-strip final consumers from the canonical executable; preserve event_record+0x00 semantics as neutral unless separately proven. Then continue intentional Match Report asset import and integrated Windows validation.",
-  "last_known_main_head": "5603f96fddee9de4b02d40c0a199fe66eea415ca",
+  "active_task": "Recovery 158 merged PR #90 as ab39fd753e94c6ccfcea13ebbcd1d9576133efdb after Gate-13 run 36935848636 passed 360 tests with 21 expected skips and asset-policy run 36935848660 passed. Exact next task: source-trace the final indirect consumers for name_block_1..4 and poss_back/poss_blue/poss_yellow. Direct immediate xrefs exist only in the static loader, so follow PMatchInfoSubPanel/helper data flow rather than filenames. Then continue intentional Match Report asset import and integrated Windows validation.",
+  "last_known_main_head": "ab39fd753e94c6ccfcea13ebbcd1d9576133efdb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 158,
   "last_recovery_reason": "connection-interrupted",
-  "note": "Recovery 158 merged the source-backed PMatchInfo text-producer checkpoint and continues directly into PMatchInfo interaction/final-consumer tracing.",
+  "note": "Recovery 158 merged PMatchInfo tab/exit interaction and continues directly into seven indirect Match Report resource consumers.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
