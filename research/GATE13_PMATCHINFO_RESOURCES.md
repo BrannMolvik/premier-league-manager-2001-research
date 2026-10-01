@@ -299,3 +299,142 @@ Still open after this checkpoint:
 3. direct final consumers for four name blocks and three possession strips;
 4. PMatchInfo event/tab behavior and remaining internal controls;
 5. intentional original asset import and integrated Windows validation.
+
+
+## Recovery 158 source continuation: PMatchInfo text producers
+
+After PR #88 closed the shared incident-control geometry/resource checkpoint,
+the authorized original source was reread rather than inferring captions from
+resource filenames. The 511,121,336-byte source ZIP again yielded both shipped
+`footballmanager.exe` copies, and both independently matched canonical
+SHA-256 `833bf95e6aae1b4c5e28d07e1bef272c03b9720cdf96572fdd4a7113f5104cc3`.
+
+The original `English.idx` / `English.str` pair was also read directly from
+the disc. The complete loader range `0x635F30..0x64C7D4` contains exactly
+**2,714** assignments, matching the 2,714 `English.idx` entries. That provides
+a source-backed global -> English entry -> visible string join instead of a
+guessed caption map.
+
+### PScriptRow1 / PScriptRow2: two 185x12 text controls
+
+The controls created at `0x4836AC` and `0x4836E4` are populated by both
+concrete row update methods.
+
+The first control is at row object `+0x1F8`, with its text pointer at
+`+0x224` and backing buffer at `+0xA0`. Row1 assigns that pointer at
+`0x485AE6`; Row2 mirrors it at `0x486156`. It is the source incident/event
+description line.
+
+The second control is at `+0x238`, with text pointer `+0x264` and buffer
+`+0x80`. Row1 assigns it at `0x485AEC`; Row2 at `0x48615C`. Its source
+producer formats `event_record+0x00` through literal `%d` at `0x81B1A8`.
+The reconstruction keeps this as **event_record+0x00 decimal**. It is not named
+as a minute, timestamp or other gameplay field without separate evidence.
+
+Exact incident/event English globals used by both row paths:
+
+| Global | English.idx | Original text |
+| ---: | ---: | --- |
+| `0x982BA4` | 1813 | `O.G.` |
+| `0x982100` | 2494 | `Shoot Out` |
+| `0x982164` | 2469 | `Goal` |
+| `0x982154` | 2473 | `Injury` |
+| `0x982158` | 2472 | `Booking` |
+| `0x9822E4` | 2373 | `Sent off` |
+| `0x98215C` | 2471 | `Sub On` |
+| `0x982160` | 2470 | `Sub Off` |
+
+The event-type class table is exactly
+`00 00 00 00 00 01 03 03 03 03 02` for source values 0..10. Bounded row
+logic therefore proves these selection predicates:
+
+- source event types 0..4 choose the goal family:
+  - row `+0x74 != 0` -> `O.G.` + `score.444`;
+  - else row `+0x78 != 0` -> `Shoot Out` + `score.444`;
+  - else -> `Goal` + `score.444`;
+- source event type 5 checks, in this exact precedence:
+  - event `+0x20 != 0` -> `Injury` + `injured.444`;
+  - else event `+0x18 != 0` -> `Booking` + `yellow_card.444`;
+  - else event `+0x1C != 0` -> `Sent off` and
+    `red_card.444` when row `+0x74 != 0`, otherwise
+    `red_card_single.444`;
+- source event types 6..9 do not select one of the bounded incident
+  label/icon branches;
+- source event type 10 -> `Sub On` + `Sub_on.444` when row `+0x74 != 0`,
+  otherwise `Sub Off` + `sub_off.444`.
+
+The offsets above remain source-offset names. Recovery 158 does not assign
+unproven higher-level meanings to row `+0x74/+0x78` or event
+`+0x20/+0x18/+0x1C`.
+
+### 29x16 player-strip text: DBTPositions label
+
+The `0x483918` text control does not use an English-loader global. Its source
+chain takes the context index at owner `+0x70`, indexes a neutral
+`0x875640` table with 0x250-byte records, follows record `+0x248`, and calls
+`0x4EA3C0`. That helper returns the low five bits of byte `+0x03`.
+
+The result selects a 20-byte record beginning at `0x874B68`; the visible
+string is resolved through record field `+0x0C`. RTTI independently proves
+the owning table object at `0x874B60` is **`DBTPositions`**:
+
+- vtable `0x7BD394`;
+- COL `0x7DE8B8`;
+- TypeDescriptor `0x8182F8`;
+- record size 20 bytes.
+
+The 29x16 control is therefore source-bound to the selected **DBTPositions
+string label**, without naming the surrounding 0x250-byte context table.
+
+### PMatchInfo popup: three 16px lines
+
+Producer method `0x4885A0` populates the three text controls previously
+source-bound at `0x485091/0x4850C9/0x485101`.
+
+**Attendance line**
+- control `+0x13E4`, text pointer `+0x1410`, buffer `+0xB8`;
+- pointer assignment `0x48899A`;
+- global `0x982C40`, English.idx 1774 -> **`Attendance`**;
+- value source `context+0x30`;
+- original grouping uses `%d` (`0x81B1A8`), comma
+  (`0x81D148`) and `%.3d` (`0x81D140`);
+- the same source path may append `first leg` (global `0x981E98`,
+  English.idx 2648) or `second leg` (`0x981E94`, index 2649).
+
+**Ref. line**
+- control `+0x1424`, pointer `+0x1450`, buffer `+0x140`;
+- assignment `0x488A79`;
+- global `0x98200C`, English.idx 2555 -> **`Ref.`**;
+- dynamic following string produced through source routine `0x60BEB0`;
+- source state at `context+0x1C` can append global `0x982BA0`,
+  English.idx 1814 -> **`(%d-%d pen)`**.
+
+The dynamic routine is retained as a source string producer rather than being
+given an unproven class/name contract.
+
+**Mom line**
+- control `+0x1464`, pointer `+0x1490`, buffer `+0x180`;
+- assignment `0x488AD2`;
+- active when source index at `context+0x9C` is not `-1`;
+- indexes the same neutral 0x250-byte table and reads string fields
+  `+0x08/+0x0C`;
+- global `0x981EA4`, English.idx 2645 -> **`%s: %s %s`**;
+- global `0x9826B8`, English.idx 2128 -> **`Mom`**.
+
+The reconstruction preserves the original visible `Mom` abbreviation rather
+than expanding it beyond the shipped text.
+
+### Boundary after the source continuation
+
+This closes:
+- producer chains for all six bounded Zurich text controls;
+- the source-visible identities of the event-label, DBTPositions,
+  Attendance, Ref. and Mom lines;
+- the exact incident wrapper-selection predicates for the bounded row paths.
+
+Still open:
+1. the higher-level gameplay meaning of the decimal `event_record+0x00`
+   field;
+2. PMatchInfo event/tab interaction behavior and remaining internal controls;
+3. direct final consumers for four name blocks and three possession strips;
+4. intentional original asset import and integrated Windows validation.
