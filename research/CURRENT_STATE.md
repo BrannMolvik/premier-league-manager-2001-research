@@ -56,14 +56,22 @@ Evidence:
   reconstruction run `36846018068`: 1,132 tests, 22 expected source-gated
   skips, zero failures. Asset-policy run `36846018016` passed. The production
   fail-closed dynamic FA Cup replay insertion boundary remains unchanged.
-  Canonical real-data multi-season evidence, more seed coverage and remaining
-  state-growth risks stay open.
-- **Exact cloud-safe next task:** combine repeated annual primary regeneration
-  with internal save/reload in a bounded destructive soak, measuring serialized
-  payload/state growth and proving that replaced season-owned runtime structures
-  do not accumulate across repeated rollovers. Keep canonical real-data
-  multi-season evidence deferred when the required private/source execution path
-  is unavailable; do not mark Gate 16 complete from synthetic evidence alone.
+  The annual replacement path is also now combined with 12 exact internal
+  save/reload round-trips in PR #59, merged as
+  `a9ec833173a92a4b8b3c2238d91943c159f7fa92`. Final reconstruction run
+  `36847418060` passed 1,133 tests with 22 expected source-gated skips and
+  asset-policy run `36847418038` passed. Across all 12 cycles, replaced
+  season-owned structures retain one stable shape and compact JSON payload size
+  stays within a 4 KiB max-minus-min corruption guard. Canonical real-data
+  multi-season evidence, more seed coverage and remaining state-growth risks
+  stay open.
+- **Exact cloud-safe next task:** extend the five-year autonomous-transfer churn
+  with periodic internal game-state save/reload round-trips. Prove completed
+  movement history remains exactly event-proportional, transient transfer
+  containers remain empty, roster ownership remains valid, and serialization
+  does not duplicate or lose persistent transfer history. Keep unresolved
+  original transfer-window / +0x1ED lifecycle semantics explicitly out of the
+  claim.
 - Gate 17 release-readiness evidence is now fail-closed and machine-checkable at
   `9e7cb18be721ea2ae89b074991e120d3e60e4c68`; it intentionally cannot pass
   without real clean-Windows receipts, a release archive and final limitations.
