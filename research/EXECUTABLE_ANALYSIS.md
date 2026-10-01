@@ -9479,3 +9479,12 @@ slot 1 (Cup+0x44) = opposite final participant / loser
 
 This closes the positional dependency needed to construct annual Cup
 qualification state from live completed Cup outcomes.
+
+
+## TeamSelect private selection record and user binding closure
+
+**Confirmed 2 October 2026 from canonical `footballmanager.exe` SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.**
+
+The private TeamSelect 0x30-byte row record resolved by `0x4D9240` is rollback state, not a club-ID payload. Constructor initialization writes `-1` to its first dword. On selection, `0x4D8E90` saves `DBRClub+0x40` (the independently mapped manager reference) and displaced manager state, then passes the clicked club pointer directly to `0x413BB0`. That routine creates a user via `0x4258D0`, which stores the clicked club at user `+0x5B4`. Deselection removes the user and restores the saved manager/reference state before resetting the private record sentinel.
+
+Selection appends users rather than replacing the previous club. `0x4DA4D0` reports saturation when the global user count reaches six, with an additional manager-availability condition. TeamSelect Start `0x4DA480 -> 0x4C41C0` consumes the existing user list and does not perform a later private-record-to-club translation. Detailed address-level notes and the reconstruction consequence are retained in `research/GATE13_TEAMSELECT_USER_SELECTION_TRACE.md`.
