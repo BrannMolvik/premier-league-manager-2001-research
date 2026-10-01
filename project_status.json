@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Gate13 Squad panel geometry and top-control transitions are complete: two CBasePlayerList rectangles, the PSquadPitch rectangle, first+reserve/first+pitch/reserve+pitch switching, and all 22 FormationText row pairs are source-proven. Exact next source task: recover player-list row/column/status bindings and FormationText state/frame selection without guessing, then perform the Windows first-screen graphical audit and continue remaining screens before Gate14.",
+  "current_task": "Gate13 concrete Squad list/row hierarchy, 20-row layout, player/side columns, native status filter codes, empty rows and FormationText state-to-source-row transform are source-proven. Exact next task: real Windows PStartMenu/TeamSelect graphical audit, then remaining TeamSelect hierarchy input/state mapping and management-screen presentation work before Gate14.",
   "last_verified_reconstruction_failures": 0,
   "last_verified_asset_policy_head": "db7c463dcfb482bdea938798ba9e545888a53bf4",
   "gate11_danger_morale_request_integrated": true,
@@ -620,6 +620,12 @@
   "gate13_squad_view_transitions_source_bound": true,
   "gate13_squad_formation_text_row_count": 22,
   "gate13_squad_formation_text_control_id_range": [12, 55],
+  "gate13_squad_row_bindings_source_bound": true,
+  "gate13_squad_visible_row_count": 20,
+  "gate13_squad_native_status_filter_mapping_source_bound": true,
+  "gate13_squad_formation_text_state_frame_mapping_source_bound": true,
+  "gate13_local_squad_trace_focused_tests_passed": 14,
+  "gate13_local_full_focused_windows_result": "263_run_21_skipped_1_unrelated_case_insensitive_path_assertion_failed",
   "gate13_windows_graphical_audit": false,
   "gate13_cloud_process_execution_status": "blocked_clienterror_recovery_123"
 }

@@ -1185,3 +1185,26 @@ compatibility, residual transfer/finance branches,
 special both-controlled-participants Cup revenue, and presentation/audio
 fidelity remain explicit later work. Do not promote historical synthetic
 tooling verification as original-screen visual fidelity.
+# Local Windows recovery 124: Squad row/state trace closed
+
+The canonical executable was rehashed locally as
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3` and the
+expanded private Squad trace was regenerated outside Git. Manual data-flow
+adjudication now closes the concrete `PSquadList`/`CSquadPlayerList`/
+`CSquadSCFList` owner hierarchy, 20-row construction, player and side-column
+bindings, neutral status-filter code map, empty-row behavior, and exact
+`FormationText` group/state-to-source-row transform. Focused tests pass.
+
+No proprietary executable, archive, or raw trace entered Git. Exact evidence
+is in `research/GATE13_SQUAD_RESOURCE_CORRELATION.md`; durable constants and
+fail-closed behavior are in `reconstruction/original_squad_resources.py`.
+
+Exact next Gate-13 task: run the real Windows PStartMenu/TeamSelect graphical
+audit, then recover remaining TeamSelect hierarchy input/state mappings and
+continue management-screen presentation correlation. Gate 13 remains active.
+
+Verification: the two directly affected modules pass 14 tests with one
+expected licensed-source-gated skip. The full Gate-13 focused list ran 263
+tests locally: 241 passed, 21 expected source-gated skips, and the pre-existing
+Linux-oriented duplicate-ZIP-path assertion failed on Windows because
+`Panel.dat` and `panel.dat` are the same filesystem entry. No Squad test failed.

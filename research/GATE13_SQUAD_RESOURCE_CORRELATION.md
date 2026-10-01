@@ -148,11 +148,65 @@ committed original language pair. It deliberately does not split either
 vertical atlas, name native frame states, invent formation coordinates, or
 claim the shared blue toggle for the general Squad screen.
 
+## Concrete roster owner, rows and columns
+
+The expanded private trace was rerun against the independently rehashed
+canonical executable. Manual CFG/data-flow adjudication replaces the earlier
+base-class-only description with the concrete native hierarchy:
+
+| Class | TypeDescriptor | Vftable | Proven entry |
+| --- | ---: | ---: | ---: |
+| `PSquadList` | `0x81DC60` | `0x7C5864` | setup `0x4B4FE0` |
+| `CSquadPlayerList` | `0x81DD00` | `0x7C5AF4` | player-row factory `0x4B7170` |
+| `CSquadSCFList` | `0x81DC98` | `0x7C5968` | side-row factory `0x4B7240` |
+| `PSquadPlayerRow` | `0x81DBE0` | `0x7C57BC` | setup `0x489530` |
+| `PSCFRow` | `0x81D348` | `0x7C4720` | setup `0x489B40` |
+| `PPlayerEmptyRow` | `0x81D2B0` | `0x7C46CC` | empty-row factory branch |
+| `PSCFEmptyRow` | `0x81DC40` | `0x7C5810` | empty-row factory branch |
+
+`PSquadList::0x4B4FE0` constructs exactly 20 visible row shells at local
+y-origins 154..477 in 17-pixel steps. It owns a `CSquadPlayerList` at
+`+0xE44` and paired `CSquadSCFList` at `+0xEA8`; discriminator byte `+0x98C`
+selects first or reserve data and is passed into both lists.
+
+The populated player row directly binds `(x,width)` columns: club-relative
+assignment selector `(1,22)`, assigned role `(28,38)`, and formatted player
+display name `(76,144)`. The paired side row binds a native status icon at
+x=1, Condition `(24,19)` from `DBRPlayer+0x77`, six-entry recent-form average
+`(47,19)`, and current assigned-role rating `(70,19)`. The status icon result
+from `0x418330` selects a 32-byte entry in `0x87BBF0`; result -1 clears it.
+Its user-facing category name remains deliberately unclaimed.
+
+`CBasePlayerList::0x48B0D0` also proves the filter-mask-to-native-code map:
+`0x1 -> 3`, `0x2 -> 0`, `0x4 -> 1`, `0x8 -> 2`. These remain neutral native
+codes: no unsupported UI labels are attached. Both concrete factories emit
+their empty-row class when the shared visible-row mapping returns -1.
+
+## Exact `FormationText` state-to-atlas transform
+
+The generic transform is now source-bound rather than inferred from atlas
+height. Vtable slot `+0xA8` (`0x4D8D30`) returns group lengths `(2,1,1)`;
+slot `+0xAC` (`0x652AE0`) chooses group 2 when native mask `0x2` is clear,
+group 1 when mask `0x8000` is set, otherwise group 0. Pointer-inside mask
+`0x8` advances the group-0 subframe and pointer-out retreats it.
+
+Slot `+0x98` (`0x5D4D70`) maps group 0 to source rows 0/1, group 1 to row 2,
+and group 2 to row 4, then multiplies by the proven 16-pixel frame height.
+`PSquadPitch::0x4B6910` calls the paired controls' state setter with 1 only
+when all 11 formation positions are represented, setting mask `0x8000` and
+therefore selecting row 2 (source y=32). An ordinary enabled row uses rows
+0/1 for pointer-out/in.
+
+The inherited mask-2-clear transform calculates row 4. That is outside the
+four-row 81x64 `squad_bars.444` atlas, and no Squad runtime path clearing that
+mask has been proved. It must therefore fail closed rather than inventing a
+disabled bar. Row 3 and the remaining rows of the 23-frame-high form atlas
+are not selected by this `FormationText` path and receive no guessed meaning.
+
 ## Next action
 
-Use the now-proven `PSquadScreen` setup method as the anchor for the surrounding
-general-Squad roster columns, row/status bindings and navigation. Decode only
-the proven `FormationText` frame/state mapping needed before composing the
-formation fragment.
-The real Windows PStartMenu/TeamSelect graphical audit remains required before
-Gate 13 can close.
+Run the real Windows PStartMenu/TeamSelect graphical audit, then recover the
+remaining TeamSelect native hierarchy input/state mapping. Continue the
+management-screen correlations and presentation work only from executable,
+resource, or direct graphical evidence. Gate 13 cannot close until the real
+Windows source-backed audit passes.

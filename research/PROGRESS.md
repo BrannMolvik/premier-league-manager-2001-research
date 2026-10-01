@@ -9319,3 +9319,18 @@ invent original visual or control semantics.
 - Confirmed both frame sizes directly from native wrapper initializers rather
   than dividing atlas height. Raw disassembly remains private outside Git.
 
+# 2026-10-01: concrete Squad rows and FormationText mapping recovered
+
+- Reverified the canonical executable SHA-256 and regenerated the expanded
+  private Squad trace outside Git.
+- Recovered the concrete list/row RTTI hierarchy, 20-row layout, source-bound
+  player/role/name/Condition/form/rating columns, neutral filter-code mapping,
+  status-icon binding, and empty-row branches.
+- Recovered exact `FormationText` groups `(2,1,1)`, ordinary hover rows 0/1,
+  complete-formation row 2, and the fail-closed generic row-4 boundary.
+- Added durable constants and focused tests; no proprietary/raw source entered
+  Git. Next: real Windows PStartMenu/TeamSelect graphical audit.
+- Focused affected tests: 14 passed with one expected source-gated skip. The
+  263-test Gate-13 list had no Squad failure; its sole failure is the existing
+  case-only duplicate-path assertion under Windows filesystem semantics.
+

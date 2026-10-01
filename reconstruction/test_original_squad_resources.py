@@ -15,6 +15,9 @@ from original_squad_resources import (
     FORMATION_TEXT_ROWS,
     FORMATION_TEXT_TYPE_DESCRIPTOR_VA,
     FORMATION_TEXT_VFTABLE_VA,
+    FORMATION_TEXT_GROUP_LENGTHS,
+    FORMATION_TEXT_GROUP_SELECTOR_VA,
+    FORMATION_TEXT_SOURCE_OFFSET_VA,
     OriginalSquadResourceError,
     SQUAD_BUTTONS,
     SQUAD_BUTTON_ORIGINS,
@@ -35,6 +38,22 @@ from original_squad_resources import (
     SQUAD_RESERVE_ROSTER_RECT,
     SQUAD_SCREEN_EVENT_HANDLER_VA,
     SQUAD_VIEW_TRANSITIONS,
+    PSQUAD_LIST_TYPE_DESCRIPTOR_VA,
+    PSQUAD_LIST_VFTABLE_VA,
+    PSQUAD_LIST_SETUP_VA,
+    CSQUAD_PLAYER_LIST_TYPE_DESCRIPTOR_VA,
+    CSQUAD_SCF_LIST_TYPE_DESCRIPTOR_VA,
+    PSQUAD_PLAYER_ROW_TYPE_DESCRIPTOR_VA,
+    PSCF_ROW_TYPE_DESCRIPTOR_VA,
+    PPLAYER_EMPTY_ROW_TYPE_DESCRIPTOR_VA,
+    PSCF_EMPTY_ROW_TYPE_DESCRIPTOR_VA,
+    SQUAD_VISIBLE_ROW_COUNT,
+    SQUAD_VISIBLE_ROW_Y_ORIGINS,
+    SQUAD_PLAYER_COLUMNS,
+    SQUAD_SCF_COLUMNS,
+    SQUAD_STATUS_FILTER_CODE_BY_MASK,
+    formation_text_source_row,
+    formation_text_source_y,
     validate_imported_original_squad_resources,
     validate_original_squad_button_labels,
 )
@@ -168,6 +187,61 @@ class OriginalSquadResourceTests(unittest.TestCase):
                 for row in FORMATION_TEXT_ROWS
             )
         )
+
+    def test_concrete_squad_list_row_hierarchy_and_columns_are_locked(self):
+        self.assertEqual(
+            (
+                PSQUAD_LIST_TYPE_DESCRIPTOR_VA,
+                PSQUAD_LIST_VFTABLE_VA,
+                PSQUAD_LIST_SETUP_VA,
+            ),
+            (0x81DC60, 0x7C5864, 0x4B4FE0),
+        )
+        self.assertEqual(CSQUAD_PLAYER_LIST_TYPE_DESCRIPTOR_VA, 0x81DD00)
+        self.assertEqual(CSQUAD_SCF_LIST_TYPE_DESCRIPTOR_VA, 0x81DC98)
+        self.assertEqual(PSQUAD_PLAYER_ROW_TYPE_DESCRIPTOR_VA, 0x81DBE0)
+        self.assertEqual(PSCF_ROW_TYPE_DESCRIPTOR_VA, 0x81D348)
+        self.assertEqual(PPLAYER_EMPTY_ROW_TYPE_DESCRIPTOR_VA, 0x81D2B0)
+        self.assertEqual(PSCF_EMPTY_ROW_TYPE_DESCRIPTOR_VA, 0x81DC40)
+        self.assertEqual(SQUAD_VISIBLE_ROW_COUNT, 20)
+        self.assertEqual(SQUAD_VISIBLE_ROW_Y_ORIGINS, tuple(range(154, 478, 17)))
+        self.assertEqual(
+            [(c.name, c.x, c.width) for c in SQUAD_PLAYER_COLUMNS],
+            [
+                ("club_relative_assignment", 1, 22),
+                ("assigned_role", 28, 38),
+                ("display_name", 76, 144),
+            ],
+        )
+        self.assertEqual(
+            [(c.name, c.x, c.width) for c in SQUAD_SCF_COLUMNS],
+            [
+                ("native_status_icon", 1, None),
+                ("condition", 24, 19),
+                ("recent_form_average", 47, 19),
+                ("current_role_rating", 70, 19),
+            ],
+        )
+        self.assertEqual(
+            SQUAD_STATUS_FILTER_CODE_BY_MASK,
+            ((1, 3), (2, 0), (4, 1), (8, 2)),
+        )
+
+    def test_formation_text_native_state_to_source_row_transform_is_locked(self):
+        self.assertEqual(FORMATION_TEXT_GROUP_LENGTHS, (2, 1, 1))
+        self.assertEqual(FORMATION_TEXT_GROUP_SELECTOR_VA, 0x652AE0)
+        self.assertEqual(FORMATION_TEXT_SOURCE_OFFSET_VA, 0x5D4D70)
+        self.assertEqual(
+            formation_text_source_row(enabled=True, complete=False, subframe=0), 0
+        )
+        self.assertEqual(
+            formation_text_source_row(enabled=True, complete=False, subframe=1), 1
+        )
+        self.assertEqual(formation_text_source_row(enabled=True, complete=True), 2)
+        self.assertEqual(formation_text_source_y(enabled=True, complete=True), 32)
+        self.assertEqual(formation_text_source_row(enabled=False, complete=False), 4)
+        with self.assertRaises(OriginalSquadResourceError):
+            formation_text_source_row(enabled=True, complete=True, subframe=1)
 
     def test_wrong_imported_bytes_fail_closed(self):
         source = Path(__file__).resolve().parent.parent / "original_assets" / "source"
