@@ -108,6 +108,37 @@ def advance_schedule_bucket_shuffle_state(
     return draw_count
 
 
+def advance_msvc_schedule_shuffle_aggregate_state(
+    total_nodes: int,
+    nonempty_bucket_count: int,
+    rng: MsvcCrtRng,
+) -> int:
+    """Advance an MSVC CRT checkpoint from aggregate bucket evidence only.
+
+    For a set of nonempty schedule buckets with a total of ``total_nodes``
+    entries, the per-bucket descending Fisher-Yates loops consume exactly
+    ``total_nodes - nonempty_bucket_count`` raw CRT draws. The MSVC hidden
+    state update performed by ``rand15()`` is independent of the later
+    ``randbelow`` bound scaling, so aggregate evidence is sufficient to recover
+    the resulting CRT state without inventing any per-date bucket sizes.
+
+    This helper intentionally does NOT reconstruct shuffle outputs, bound
+    sequences, bucket contents, or original date placement. Use
+    ``advance_schedule_bucket_shuffle_state`` when exact bucket sizes are known.
+    """
+    nodes = int(total_nodes)
+    bucket_count = int(nonempty_bucket_count)
+    if nodes < 0 or bucket_count < 0:
+        raise ValueError("aggregate schedule counts must be non-negative")
+    if bucket_count > nodes:
+        raise ValueError("nonempty bucket count cannot exceed total nodes")
+
+    draw_count = nodes - bucket_count
+    for _ in range(draw_count):
+        rng.rand15()
+    return draw_count
+
+
 def ordinary_league_matches_conflict(
     existing: OrdinaryLeagueMatchSource,
     candidate: OrdinaryLeagueMatchSource,
