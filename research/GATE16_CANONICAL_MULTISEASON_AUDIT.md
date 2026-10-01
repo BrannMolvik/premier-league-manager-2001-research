@@ -82,3 +82,42 @@ start with `caas.internal.errors.ClientError`. Therefore no canonical source
 hash or multi-season runtime result is claimed by this change. Repository-side
 runner tests are intentionally separate from the future private shipped-data
 execution.
+
+
+## Recovery 135 canonical execution result
+
+Recovery 135 cleared the prior execution-infrastructure blocker and executed the
+canonical runner against the authorized shipped source. Before execution:
+
+- the 511,121,336-byte Library source ZIP was materialized and the raw
+  MODE1/2352 disc image was extracted outside Git;
+- all **268,549** raw sectors passed the repository's full-sector
+  `verify_mode1_2352_image` validation;
+- `Master.dat`, `Static.dat`, `English.str`, and `Core.str` matched their
+  pinned canonical SHA-256 values;
+- the persisted reconstruction runtime ZIP matched its recorded
+  `9167302c608882161954109d617824422671d2999d69006bff5d662adeb2c4d6`
+  digest;
+- the executed `canonical_multiseason_audit.py` matched GitHub blob
+  `a6a1de8782eca06291aeffefba11ff4bcd27c14b`.
+
+The exact seed-1, three-rollover canonical process ran for about 22 minutes and
+then failed closed on cycle 2, rather than on infrastructure:
+
+```text
+cycle 2: fresh season-owned state shape changed
+(380, 380, 5735, 9344, 291, 371, 311, 13)
+->
+(380, 380, 5737, 9346, 291, 373, 311, 13)
+```
+
+Only three linked counts changed: shared-primary entries **+2**, shadow entries
+**+2**, and European Cup nodes **+2**. Premier League fixture/scheduler counts,
+domestic Cup nodes, qualification Cup nodes, and procedural-League owner count
+were unchanged.
+
+This is a verified Gate-16 finding, not a passing audit. The immediate next
+task is to isolate the two added European nodes by competition/round and prove
+whether they are legitimate participant-dependent annual Cup materialization
+or an actual cross-season accumulation defect. A regression must encode that
+boundary before the canonical three-rollover audit is rerun.
