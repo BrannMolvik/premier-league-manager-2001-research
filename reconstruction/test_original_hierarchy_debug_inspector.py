@@ -117,7 +117,9 @@ class HierarchyPrivateDebugTests(unittest.TestCase):
         live = presenter_with_hierarchy_art()
         root = FakeRoot()
         window = OriginalFirstScreenTkDebug(live, root, FakeTk, FakeTtk)
-        self.assertEqual(len(window.canvas.images), 5)
+        # PStartMenu now carries four source-backed Zurich caption overlays:
+        # background + four button frames + four captions.
+        self.assertEqual(len(window.canvas.images), 9)
         self.assertEqual(window.hierarchy_anim_label.values.get("image"), "")
         self.assertEqual(window.hierarchy_bars_label.values.get("image"), "")
         window.on_original_click(SimpleNamespace(x=7, y=478))
