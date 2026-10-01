@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "PR #80 merged as 9da4c89f67aaba7b263354591497d596ca50edd1 after Gate-13 run 36916343766 passed 303 tests with 21 expected skips and asset-policy run 36916343760 passed. Exact next Gate-13 task: source-bind PLeagueFixtures six original league_fixtures .444 resources, raw/wrapper handles and visible grid placement geometry, then continue result/date/list bindings. Corrected real Windows/Tk audit and binary asset import blockers remain open.",
-  "last_known_main_head": "9da4c89f67aaba7b263354591497d596ca50edd1",
+  "active_task": "PR #81 merged as 4420e2d12386b749653cbc4202cd2d3f190c1ebe after Gate-13 run 36917169429 passed 309 tests with 21 expected skips and asset-policy run 36917169401 passed. Exact next task: source-lock PLeagueFixtures fixture-box selection rules and visible score/date text calls from methods around 0x46CA40..0x46D25B, preserving unresolved null-fixture predicate semantics; then continue ordering/filter/navigation.",
+  "last_known_main_head": "4420e2d12386b749653cbc4202cd2d3f190c1ebe",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 150,
-  "last_recovery_reason": "post-pr80-merge-continuation",
-  "note": "Recovery 150 continues directly into PLeagueFixtures resources after panel identity closure.",
+  "recovery_generation": 151,
+  "last_recovery_reason": "post-pr81-merge-continuation",
+  "note": "Recovery 151 continues directly into League Fixtures state/text bindings. Do not repeat six-resource/grid ownership.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
