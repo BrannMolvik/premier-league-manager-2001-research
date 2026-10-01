@@ -9692,3 +9692,13 @@ canonical audit.
 - PR #71 head `cb9ce3836252ee3bf05a259f805f573502032b18` passed full reconstruction run `36897544475`: **1,149 tests, 22 expected source-gated skips, zero failures**. Asset-policy run `36897544592` passed. It squash-merged as `ea1e7c6bb25c35243a992c4a33d02038ddb3abc3`.
 - Gate 13 remains the earliest incomplete validation gate. The exact private next action is still the bounded TeamSelect `0x4D8E90` / `0x4D9240` selection-record and Start-resolution re-trace followed by the upgraded real-Windows audit. While execution remains unavailable, the next independent cloud-safe task is a private Gate-14 conversion/probe receipt runner around the now-verified contract.
 
+
+
+## 2 October 2026 - Recovery 143/144 TeamSelect selection-record closure
+
+- Recovery 143 restored process execution, rematerialized the canonical 511,121,336-byte source archive outside Git, and reverified both shipped `footballmanager.exe` copies at SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- The bounded original-byte trace closed the long-standing TeamSelect contradiction. `0x4D9240` resolves a private 0x30-byte per-row rollback record whose first dword is initialized to `-1`. `0x4D8E90` saves the clicked club's displaced manager reference/state there, then passes the clicked club itself to `0x413BB0`; user initialization `0x4258D0` binds that club at user `+0x5B4`. Deselection removes the created user and restores the saved manager state.
+- TeamSelect is therefore source-proven multi-user rather than a single provisional selection-record ID. `0x4DA4D0` hard-stops at six global users and can also stop earlier when manager availability is exhausted. Start event `0x2A` enters `0x4C41C0` with the already-created user list; it does not translate the rollback record into a gameplay club ID.
+- PR #74 implements the corrected boundary: ordered multi-club selection persists across country/competition navigation, clicked rows use canonical club IDs, the six-user cap is fail-closed, and the present single-manager backend refuses multi-user Start rather than silently discarding users. Detailed source evidence is in `research/GATE13_TEAMSELECT_USER_SELECTION_TRACE.md`.
+- PR #74 head `5ee87bae88d5c429908f18b47aa46650bc1913a1` passed Gate-13 focused run `36905144322`: **276 tests, 21 expected source-gated skips, zero failures**. Asset-policy run `36905144376` passed.
+- Recovery 144 resumed after an interrupted response and reconciled the canonical status ledgers before merge. The next validation boundary is a new real Windows 11/Tk audit of the corrected TeamSelect click/select/deselect/Start behavior; the older Recovery-138 graphical receipt predates this mapping and remains historical evidence only.

@@ -374,7 +374,8 @@ def run_real_windows_graphical_audit(
                 "Native club filtering/order differs on the live screen"
             )
 
-        # Country activation clears the selected competition and club list.
+        # Country activation clears the visible competition/club population.
+        # Existing original-style selected users would persist; none exist yet.
         row_x, row_y = TEAMSELECT_HIERARCHY_ROW_ORIGINS[0]
         viewer.canvas.event_generate("<Button-1>", x=row_x + 1, y=row_y + 1)
         _pump(root)
@@ -383,9 +384,9 @@ def run_real_windows_graphical_audit(
             raise WindowsFirstScreenAuditError(
                 "Country activation did not clear the native club population"
             )
-        if presenter.session.selected_club_id is not None:
+        if presenter.session.selected_club_ids:
             raise WindowsFirstScreenAuditError(
-                "Country activation retained a club selection"
+                "Country activation synthesized a club selection"
             )
 
         # The first competition row is the native F.A. Premier League after
@@ -406,9 +407,9 @@ def run_real_windows_graphical_audit(
             "<Button-1>", x=first_club.rect.x + 1, y=first_club.rect.y + 1
         )
         _pump(root)
-        if presenter.session.selected_club_id is not None:
+        if presenter.session.selected_club_id != first_club.source_id:
             raise WindowsFirstScreenAuditError(
-                "Unresolved native selection payload leaked into gameplay club selection"
+                "Native club row did not map to its canonical clicked-club identity"
             )
         selected = presenter.snapshot().club_rows[0]
         if selected.state != 1 or selected.animation_source_index != 11:
@@ -419,17 +420,16 @@ def run_real_windows_graphical_audit(
             "<Button-1>", x=first_club.rect.x + 1, y=first_club.rect.y + 1
         )
         _pump(root)
-        if presenter.hierarchy is None or presenter.hierarchy.selected_club_record_index is not None:
+        if presenter.hierarchy is None or presenter.hierarchy.selected_club_ids:
             raise WindowsFirstScreenAuditError(
-                "Second native club click did not clear the visual selection record"
+                "Second native club click did not remove the selected user"
             )
-        if presenter.session.selected_club_id is not None:
+        if presenter.session.selected_club_ids:
             raise WindowsFirstScreenAuditError(
-                "Unresolved native selection payload leaked into gameplay after toggle"
+                "Deselected native club remained in the clean-room user selection set"
             )
 
-        # Start/Continue is source-proven, but without a recovered hierarchy
-        # selection it must reject rather than synthesize a club.
+        # Start/Continue is source-proven and must reject with no selected user.
         _click(viewer.canvas, root, TEAMSELECT_START_RECT)
         if presenter.session.navigation.screen is not FrontEndScreen.TEAM_SELECT:
             raise WindowsFirstScreenAuditError(
@@ -450,7 +450,7 @@ def run_real_windows_graphical_audit(
         return_live = _verify_live_tk_redraw(viewer, root, return_contract)
 
         return {
-            "schema_version": 2,
+            "schema_version": 3,
             "passed": True,
             "audit_kind": "real_windows_tk_first_screen_graphical_smoke",
             "platform": platform.platform(),
