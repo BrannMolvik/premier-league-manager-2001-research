@@ -9494,3 +9494,29 @@ earliest incomplete validation gate.
   `Static.dat`, `English.str`, `Core.str` and `FOOTBAL.EXE` matching all
   pinned repository hashes. The next Gate-16 target is therefore canonical
   shipped-data multi-season execution rather than another synthetic stress.
+
+
+## 1 October 2026 - Recovery 133 canonical multi-season execution allocation failed
+
+- Resumed canonical `main` at `120400bd1ce25e449897e927e00dfa9f945076eb`
+  and restored `agent-runtime` to continuous/working as recovery generation
+  133 before substantive work.
+- The fresh execution allocation initially launched one trivial shell process
+  successfully (`Python 3.13.5`, `git 2.47.3`). A direct repository clone then
+  failed because the shell could not resolve `github.com`; connector-backed
+  GitHub reads remained healthy.
+- The canonical 511,121,336-byte disc archive at Library path
+  `/FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip`
+  was materialized successfully into the workspace. An older portable FM2001
+  bundle was also located only as a potential transport/bootstrap source, with
+  the explicit requirement that every runtime module used be reconciled to
+  current `main` before execution.
+- Before hashes or canonical runtime execution could be re-run, every later
+  shell process and the independent Python process path failed before start
+  with `caas.internal.errors.ClientError`. Therefore this recovery does not
+  claim a canonical multi-season pass, a new source hash receipt, or any new
+  gameplay fidelity result.
+- The next executable task remains the canonical shipped-data multi-season
+  Gate-16 audit on one continuous runtime through repeated annual
+  qualification/regeneration. The runtime stays `working` so automatic
+  recovery can move this task to a healthy execution allocation.

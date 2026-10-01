@@ -81,6 +81,24 @@ Evidence:
   in Git, then drive consecutive canonical seasons through annual
   qualification/regeneration with long-duration invariants and checkpoint the
   result.
+- **Recovery 133 execution blocker:** the fresh allocation launched one trivial
+  shell process successfully, but direct `git clone` could not resolve
+  `github.com`. The GitHub connector remained healthy and the canonical
+  511,121,336-byte Library disc archive was materialized into the execution
+  workspace. Immediately afterward every further shell launch and the
+  independent Python execution path failed before process start with
+  `caas.internal.errors.ClientError`. No canonical season was executed in this
+  recovery, no source hash was re-claimed from the failed process path, and no
+  new original-behavior assertion is promoted.
+- **Next executable action:** keep the canonical shipped-data multi-season
+  Gate-16 audit as the next task. On the next healthy sustained execution
+  allocation, synchronize the reconstruction runtime to current `main`,
+  re-materialize/verify the pinned canonical source outside Git, then drive
+  consecutive canonical seasons through annual qualification/regeneration on
+  one continuous runtime while checking calendar progress, 380-fixture Premier
+  replacements, scheduler/order presence, membership transitions, RNG commit,
+  roster/competition validity and bounded persisted-state growth. Convert any
+  discovered failure into a regression before continuing.
 - Gate 17 release-readiness evidence is now fail-closed and machine-checkable at
   `9e7cb18be721ea2ae89b074991e120d3e60e4c68`; it intentionally cannot pass
   without real clean-Windows receipts, a release archive and final limitations.

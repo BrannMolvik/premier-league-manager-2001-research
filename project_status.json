@@ -709,5 +709,11 @@
   "gate16_transfer_save_growth_expected_skips": 22,
   "gate16_transfer_save_growth_asset_policy_run": 36849081409,
   "gate16_canonical_source_materialized_recovery_132": true,
-  "gate16_canonical_root_files_hash_verified_recovery_132": true
+  "gate16_canonical_root_files_hash_verified_recovery_132": true,
+  "gate16_canonical_multiseason_audit_executed": false,
+  "gate16_canonical_multiseason_audit_status": "blocked_execution_clienterror_recovery_133",
+  "gate16_cloud_process_execution_status": "blocked_clienterror_recovery_133_after_one_successful_shell",
+  "gate16_recovery_133_source_archive_materialized": true,
+  "gate16_recovery_133_source_archive_hash_reverified": false,
+  "gate16_recovery_133_main_head": "120400bd1ce25e449897e927e00dfa9f945076eb"
 }
