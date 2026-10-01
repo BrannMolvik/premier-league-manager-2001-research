@@ -61,15 +61,23 @@ has exactly one video and one audio stream, MP4/H.264/AAC structure, original
 bit-identical to the TGQ. Provenance remains anchored to the original TGQ
 checksum that was validated before conversion.
 
-This closes the repository-side **conversion contract**, not the player-visible
-startup criterion. Still required before making a Gate-14 playback claim:
+The next repository-side layer is `reconstruction/gate14_startup_media_convert.py`.
+It is a deliberately private receipt runner, not a runtime player. It requires
+the original source root, converted output root, and receipt path to remain
+outside Git; validates the exact TGQs before launching a process; refuses
+existing derivative files; records FFmpeg/FFprobe version strings; executes the
+deterministic plans; probes every derivative; hashes the converted bytes; and
+writes one JSON receipt only after the complete requested startup sequence
+passes. A failed conversion/probe never writes a success receipt. The receipt
+retains the neutral `playback_flag_bit0` rather than inventing a skip semantic.
 
-1. execute the plans against the authorized original TGQs with a pinned modern
-   FFmpeg build;
-2. persist a private conversion/probe receipt and verify both outputs;
-3. integrate a Windows playback surface that preserves the proven startup order;
-4. recover the exact input event(s) behind the longer FMV's bit-0 callback path;
-5. verify transition/fade behavior on Windows 11.
+This closes the repository-side **conversion and private receipt contract**, not
+the player-visible startup criterion. Still required before making a Gate-14 playback claim:
+
+1. execute the private conversion/receipt runner against the authorized original TGQs on a healthy process allocation and retain its outside-Git receipt;
+2. integrate a Windows playback surface that consumes only verified derivatives and preserves the proven startup order;
+3. recover the exact input event(s) behind the longer FMV's bit-0 callback path;
+4. verify transition/fade behavior on Windows 11.
 
 No skip key, fade timing, scaling/interlace treatment or runtime player is
 invented by this checkpoint.
@@ -100,7 +108,7 @@ presentation uses this feed.
 
 Still open:
 
-- execute and privately receipt the source-backed TGQ conversions;
+- execute the merged private conversion/receipt runner against the source-backed TGQs when process execution is healthy;
 - integrate original login/menu music and applicable sound resources;
 - integrate the verified startup derivatives in the Windows runtime;
 - recover exact startup skip/input and transition behavior;
