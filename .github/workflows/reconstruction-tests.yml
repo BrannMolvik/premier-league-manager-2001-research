@@ -27,6 +27,9 @@ on:
       - "reconstruction/match_presentation_feed.py"
       - "reconstruction/test_match_presentation_feed.py"
       - "research/GATE14_PRESENTATION_FOUNDATION.md"
+      - "reconstruction/gate16_annual_regeneration_soak.py"
+      - "reconstruction/test_gate16_annual_regeneration_soak.py"
+      - "research/GATE16_ANNUAL_REGENERATION_SOAK.md"
   workflow_dispatch:
 
 concurrency:
