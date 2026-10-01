@@ -9788,3 +9788,15 @@ canonical audit.
 - The 12 visible column ClubText controls show competition members starting at panel offset `+0xA4`; the 24 row controls are layer-major `row = layer*N + club_index`. Left/right paging changes `+0xA4` by exactly 12 and clamps to 0 / `club_count-12`.
 - Pointer method `0x46D300` reduces valid grid-relative coordinates by exact integer divisions `dx//29` and `dy//14`, then selects column 0..11 and row 0..23. Companion `0x46D390` performs the same lookup and calls `0x488C80` only for a non-null fixture; this downstream action remains address-only pending semantic proof.
 - Added fail-closed clean-room helpers/regressions for the same-club diagonal, neutral candidate filters, repeat-layer slots, paging, selector bounds and pointer coordinate mapping. Exact next work after CI is remaining surrounding League Fixtures controls/navigation or the next highest-priority Gate-13 screen slice.
+
+
+## 2 October 2026 - Recovery 154 League Fixtures country and League selectors
+
+- PR #83 merged as `7381efcf9ca912d684406effc5ff3b4da1f2d1d8`; final focused Gate-13 run `36922149326` passed 323 tests with 21 expected source-gated skips and asset-policy run `36922149239` passed.
+- Continued inside `PLeagueFixtures::0x46AA70` / `0x46D840` / `0x46E040` rather than repeating the matrix trace.
+- RTTI proves both selector arrays are `fmRadioTextSm@fm2001_ctrls` (vtable `0x7D6AB8`): eight country controls at `+0x110` and six League controls at `+0x3B8`, each 0x4C bytes. A separate `LeagueFixRadioButton` class exists elsewhere and is not misapplied to these arrays.
+- Exact country order/events are England 26/event1, Germany 33/2, Italy 40/3, Spain 73/4, Scotland 66/5, France 31/6, Holland 24/7, Belgium 9/8. Active country is `+0x64`; one selected-League index per country is retained at `+0x68..+0x84`.
+- Initial selection comes from current club competition identity `DBRClub+0x10` and country ID `DBRClub+0x14`: the competition identity is resolved to its runtime object, then country helper `0x410FF0` finds that exact object in the country competition array. The clean-room helper fails closed if that identity is absent.
+- `0x46D840` reads country competition array/count at `+0x48/+0x4C`, dynamically casts `LeagueBase` (TypeDescriptor `0x818AA0`) to concrete `League` (TypeDescriptor `0x818978`) through `__RTDynamicCast 0x668995`, retains resolved League pointers at panel `+0x88`, and uses exact `League+0x14` captions. The screen owns six League controls; unused controls are source-cleared/hidden.
+- Dispatcher events 1..8 select country indices 0..7 and rebuild League radios + matrix + view; events 9..14 select League indices 0..5 and rebuild matrix + view. No generic modern competition merge/filter is introduced.
+- Added exact selector helpers/regressions covering country IDs/order/events/offsets, RTTI/control addresses, six-League bounds, exact captions/selection state, current-League lookup and event dispatch. Exact next task after CI is remaining League Fixtures non-selector shell/action semantics or the next highest-priority Gate-13 presentation slice.

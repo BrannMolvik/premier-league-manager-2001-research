@@ -180,6 +180,189 @@ LEAGUE_FIXTURES_GRID_POINT_SELECT_VA = 0x46D300
 LEAGUE_FIXTURES_GRID_POINT_FIXTURE_ACTION_VA = 0x46D390
 LEAGUE_FIXTURES_GRID_POINT_COMPLETION_QUERY_VA = 0x46D400
 LEAGUE_FIXTURES_CELL_FIXTURE_ACTION_TARGET_VA = 0x488C80
+LEAGUE_FIXTURES_SELECTOR_SETUP_VA = 0x46AA70
+LEAGUE_FIXTURES_LEAGUE_REBUILD_VA = 0x46D840
+LEAGUE_FIXTURES_EVENT_DISPATCH_VA = 0x46E040
+LEAGUE_FIXTURES_ACTIVE_COUNTRY_INDEX_OFFSET = 0x64
+LEAGUE_FIXTURES_SELECTED_LEAGUE_INDEX_BASE_OFFSET = 0x68
+LEAGUE_FIXTURES_SELECTED_LEAGUE_INDEX_COUNT = 8
+LEAGUE_FIXTURES_LEAGUE_POINTER_BASE_OFFSET = 0x88
+LEAGUE_FIXTURES_COUNTRY_ID_BASE_OFFSET = 0xF0
+LEAGUE_FIXTURES_COUNTRY_CONTROL_BASE_OFFSET = 0x110
+LEAGUE_FIXTURES_LEAGUE_CONTROL_BASE_OFFSET = 0x3B8
+LEAGUE_FIXTURES_SELECTOR_CONTROL_STRIDE = 0x4C
+LEAGUE_FIXTURES_COUNTRY_SELECTOR_COUNT = 8
+LEAGUE_FIXTURES_LEAGUE_SELECTOR_COUNT = 6
+LEAGUE_FIXTURES_COUNTRY_EVENT_FIRST = 1
+LEAGUE_FIXTURES_LEAGUE_EVENT_FIRST = 9
+LEAGUE_FIXTURES_SELECTOR_CLASS = "fmRadioTextSm@fm2001_ctrls"
+LEAGUE_FIXTURES_SELECTOR_VFTABLE_VA = 0x7D6AB8
+LEAGUE_FIXTURES_SELECTOR_CONSTRUCTOR_VA = 0x5D4B50
+LEAGUE_FIXTURES_SELECTOR_OWNER_BIND_VA = 0x5D48C0
+LEAGUE_FIXTURES_SELECTOR_SETUP_CONTROL_VA = 0x5D4C70
+LEAGUE_FIXTURES_SELECTOR_SET_TEXT_VA = 0x5D3F10
+LEAGUE_FIXTURES_LEAGUE_BASE_TYPE_DESCRIPTOR_VA = 0x818AA0
+LEAGUE_FIXTURES_LEAGUE_TYPE_DESCRIPTOR_VA = 0x818978
+LEAGUE_FIXTURES_RTDYNAMICCAST_VA = 0x668995
+LEAGUE_FIXTURES_COUNTRY_COMPETITION_COUNT_OFFSET = 0x4C
+LEAGUE_FIXTURES_COUNTRY_COMPETITION_ARRAY_OFFSET = 0x48
+LEAGUE_FIXTURES_LEAGUE_CAPTION_OFFSET = 0x14
+LEAGUE_FIXTURES_CURRENT_CLUB_COMPETITION_ID_OFFSET = 0x10
+LEAGUE_FIXTURES_CURRENT_CLUB_COUNTRY_ID_OFFSET = 0x14
+LEAGUE_FIXTURES_COMPETITION_ID_RESOLVE_VA = 0x4056F0
+LEAGUE_FIXTURES_COUNTRY_COMPETITION_INDEX_VA = 0x410FF0
+
+
+
+@dataclass(frozen=True)
+class LeagueFixturesCountrySelector:
+    index: int
+    country_id: int
+    caption: str
+    event_id: int
+    control_offset: int
+    country_id_offset: int
+    selected_league_index_offset: int
+
+
+@dataclass(frozen=True)
+class LeagueFixturesLeagueSelector:
+    index: int
+    league_identity: int
+    caption: str
+    event_id: int
+    control_offset: int
+    selected: bool
+
+
+LEAGUE_FIXTURES_COUNTRY_SELECTORS = (
+    LeagueFixturesCountrySelector(0, 26, "England", 1, 0x110, 0xF0, 0x68),
+    LeagueFixturesCountrySelector(1, 33, "Germany", 2, 0x15C, 0xF4, 0x6C),
+    LeagueFixturesCountrySelector(2, 40, "Italy", 3, 0x1A8, 0xF8, 0x70),
+    LeagueFixturesCountrySelector(3, 73, "Spain", 4, 0x1F4, 0xFC, 0x74),
+    LeagueFixturesCountrySelector(4, 66, "Scotland", 5, 0x240, 0x100, 0x78),
+    LeagueFixturesCountrySelector(5, 31, "France", 6, 0x28C, 0x104, 0x7C),
+    LeagueFixturesCountrySelector(6, 24, "Holland", 7, 0x2D8, 0x108, 0x80),
+    LeagueFixturesCountrySelector(7, 9, "Belgium", 8, 0x324, 0x10C, 0x84),
+)
+
+
+def league_fixtures_country_selector_for_club_country(
+    country_id: int,
+) -> LeagueFixturesCountrySelector:
+    """Return the source country selector matching the current user's club."""
+    if type(country_id) is not int or country_id < 0:
+        raise OriginalLeagueFixturesResourceError(
+            "current club country ID must be a non-negative integer"
+        )
+    for selector in LEAGUE_FIXTURES_COUNTRY_SELECTORS:
+        if selector.country_id == country_id:
+            return selector
+    raise OriginalLeagueFixturesResourceError(
+        "current club country is outside the eight source League Fixtures selectors"
+    )
+
+
+def league_fixtures_selected_league_index(
+    current_league_identity: int,
+    league_identities: tuple[int, ...] | list[int],
+) -> int:
+    """Mirror country competition-index lookup 0x410FF0, fail-closed on -1."""
+    if type(current_league_identity) is not int or current_league_identity < 0:
+        raise OriginalLeagueFixturesResourceError(
+            "current league identity must be a non-negative integer"
+        )
+    normalized = tuple(league_identities)
+    if not normalized or len(normalized) > LEAGUE_FIXTURES_LEAGUE_SELECTOR_COUNT:
+        raise OriginalLeagueFixturesResourceError(
+            "League Fixtures requires between one and six source League entries"
+        )
+    for value in normalized:
+        if type(value) is not int or value < 0:
+            raise OriginalLeagueFixturesResourceError(
+                "source League identities must be non-negative integers"
+            )
+    try:
+        return normalized.index(current_league_identity)
+    except ValueError as exc:
+        raise OriginalLeagueFixturesResourceError(
+            "current league is absent from the selected country's source League list"
+        ) from exc
+
+
+def league_fixtures_league_selectors(
+    leagues: tuple[tuple[int, str], ...] | list[tuple[int, str]],
+    *,
+    selected_index: int,
+) -> tuple[LeagueFixturesLeagueSelector, ...]:
+    """Build the exact visible League radio list used by 0x46D840.
+
+    The original country competition array is LeagueBase*. 0x46D840
+    dynamically casts entries to League and exposes at most the six source
+    radio controls. The clean-room seam receives only those already-proven
+    League identities/captions and fails closed outside that bound.
+    """
+    normalized = tuple(leagues)
+    if not normalized or len(normalized) > LEAGUE_FIXTURES_LEAGUE_SELECTOR_COUNT:
+        raise OriginalLeagueFixturesResourceError(
+            "League Fixtures requires between one and six source League entries"
+        )
+    if type(selected_index) is not int or not 0 <= selected_index < len(normalized):
+        raise OriginalLeagueFixturesResourceError(
+            "selected League index is outside the visible source League list"
+        )
+
+    result = []
+    seen: set[int] = set()
+    for index, item in enumerate(normalized):
+        if (
+            not isinstance(item, tuple)
+            or len(item) != 2
+            or type(item[0]) is not int
+            or item[0] < 0
+            or not isinstance(item[1], str)
+            or not item[1]
+        ):
+            raise OriginalLeagueFixturesResourceError(
+                "each source League entry must be (non-negative identity, non-empty caption)"
+            )
+        identity, caption = item
+        if identity in seen:
+            raise OriginalLeagueFixturesResourceError(
+                "source League identities must be unique"
+            )
+        seen.add(identity)
+        result.append(
+            LeagueFixturesLeagueSelector(
+                index=index,
+                league_identity=identity,
+                caption=caption,
+                event_id=LEAGUE_FIXTURES_LEAGUE_EVENT_FIRST + index,
+                control_offset=(
+                    LEAGUE_FIXTURES_LEAGUE_CONTROL_BASE_OFFSET
+                    + LEAGUE_FIXTURES_SELECTOR_CONTROL_STRIDE * index
+                ),
+                selected=index == selected_index,
+            )
+        )
+    return tuple(result)
+
+
+def league_fixtures_selector_event(event_id: int) -> tuple[str, int]:
+    """Map exact PLeagueFixtures radio events 1..14 to source selector indices."""
+    if type(event_id) is not int:
+        raise OriginalLeagueFixturesResourceError("selector event ID must be an integer")
+    if LEAGUE_FIXTURES_COUNTRY_EVENT_FIRST <= event_id < (
+        LEAGUE_FIXTURES_COUNTRY_EVENT_FIRST + LEAGUE_FIXTURES_COUNTRY_SELECTOR_COUNT
+    ):
+        return ("country", event_id - LEAGUE_FIXTURES_COUNTRY_EVENT_FIRST)
+    if LEAGUE_FIXTURES_LEAGUE_EVENT_FIRST <= event_id < (
+        LEAGUE_FIXTURES_LEAGUE_EVENT_FIRST + LEAGUE_FIXTURES_LEAGUE_SELECTOR_COUNT
+    ):
+        return ("league", event_id - LEAGUE_FIXTURES_LEAGUE_EVENT_FIRST)
+    raise OriginalLeagueFixturesResourceError(
+        "event ID is not a League Fixtures country/League selector"
+    )
 
 
 def league_fixture_empty_slot_is_self_match(

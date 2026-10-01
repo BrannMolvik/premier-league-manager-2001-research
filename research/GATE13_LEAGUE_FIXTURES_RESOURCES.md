@@ -441,3 +441,158 @@ Still open after Recovery 153:
 
 The earlier open item “semantic meaning of the null/empty-cell red predicate”
 is closed and must not be reintroduced.
+
+
+## Recovery 154 country and League selector closure
+
+The League Fixtures matrix is not fed by generic modern category controls.
+Recovery 154 traces the exact original country/League selector shell around
+`PLeagueFixtures`.
+
+### Concrete selector control class
+
+The panel constructor creates two arrays with the same concrete control type:
+
+- eight controls at `PLeagueFixtures+0x110`, stride `0x4C`;
+- six controls at `PLeagueFixtures+0x3B8`, stride `0x4C`.
+
+RTTI identifies their vtable `0x7D6AB8` as
+`fmRadioTextSm@fm2001_ctrls`.
+
+Relevant source methods are:
+
+- constructor `0x5D4B50`;
+- owner/event bind `0x5D48C0`;
+- control setup `0x5D4C70`;
+- text setter `0x5D3F10`;
+- selected/toggle vcall at vtable slot `+0x98` = `0x5D49F0`.
+
+A separate `LeagueFixRadioButton` class exists elsewhere in the panel, but it
+does **not** own these country/League selector arrays. The clean-room contract
+therefore keeps these controls as `fmRadioTextSm`.
+
+### Exact eight-country order
+
+`PLeagueFixtures::0x46AA70` writes the following country IDs at
+`+0xF0 + 4*index`, builds the corresponding controls, and assigns events
+1 through 8 in the same order:
+
+| Index | Country ID | Original name | Event | Control offset | Per-country selected-League index |
+| ---: | ---: | --- | ---: | ---: | ---: |
+| 0 | 26 | England | 1 | `+0x110` | `+0x68` |
+| 1 | 33 | Germany | 2 | `+0x15C` | `+0x6C` |
+| 2 | 40 | Italy | 3 | `+0x1A8` | `+0x70` |
+| 3 | 73 | Spain | 4 | `+0x1F4` | `+0x74` |
+| 4 | 66 | Scotland | 5 | `+0x240` | `+0x78` |
+| 5 | 31 | France | 6 | `+0x28C` | `+0x7C` |
+| 6 | 24 | Holland | 7 | `+0x2D8` | `+0x80` |
+| 7 | 9 | Belgium | 8 | `+0x324` | `+0x84` |
+
+The names are independently source-backed by the canonical database mapping
+already used by TeamSelect. The order is intentionally **not** copied from
+TeamSelect: League Fixtures places Germany/Italy/Spain before Scotland.
+
+The panel's active-country index is stored at `+0x64`. During setup, the
+source compares current-user club country ID `DBRClub+0x14` against these
+eight exact IDs and selects the matching country control.
+
+The clean-room seam fails closed for a club country outside this eight-country
+set instead of silently choosing England or another default.
+
+### Current club selects its League within that country
+
+The current user's club provides:
+
+- a compact competition/League identifier at `DBRClub+0x10`;
+- country ID at `DBRClub+0x14`.
+
+The compact competition identity is resolved through
+`0x4056F0 -> 0x4F3B10` to the runtime competition object.
+
+The country record is resolved from the club country ID, and helper
+`0x410FF0` searches the country's competition pointer array for that exact
+runtime object identity. The returned zero-based index is stored in the active
+country's per-country selected-League slot at `+0x68 + 4*country_index`.
+
+The original helper can return `-1`; the normal current-club path assumes a
+valid League. The clean-room selector helper fails closed if the current League
+is absent rather than accepting a negative index.
+
+### Dynamic six-League radio list
+
+`PLeagueFixtures::0x46D840` rebuilds the second selector family whenever the
+active country changes.
+
+The active country supplies:
+
+- competition pointer array at country `+0x48`;
+- competition count at country `+0x4C`.
+
+Those entries are base-class `LeagueBase*` objects. Before exposing one as a
+League Fixtures radio option, the source performs `__RTDynamicCast`
+at `0x668995` from:
+
+- `LeagueBase` TypeDescriptor `0x818AA0`;
+- to `League` TypeDescriptor `0x818978`.
+
+The visible radio caption is taken from the successfully cast
+`League+0x14` string. Resolved League pointers are retained at
+`PLeagueFixtures+0x88 + 4*index`.
+
+The screen owns exactly six League radio controls. The modeled source boundary
+therefore exposes between one and six validated League identities/captions and
+fails closed beyond that fixed control capacity. Unused source controls are
+cleared/hidden.
+
+This is a strong presentation boundary: the selector is specifically a
+**League** selector after the source RTTI cast, not a generic list of arbitrary
+competition subclasses.
+
+### Exact event dispatch
+
+`PLeagueFixtures::0x46E040` dispatches the radio controls as follows:
+
+```text
+events 1..8  -> country indices 0..7
+events 9..14 -> League indices 0..5
+```
+
+A country event:
+
+1. updates active country `+0x64`;
+2. rebuilds the visible League radios through `0x46D840`;
+3. rebuilds the fixture matrix through `0x46D950`;
+4. refreshes the grid/view through `0x46DCD0`.
+
+A League event:
+
+1. updates `+0x68[active_country]` to the selected League index;
+2. rebuilds the matrix;
+3. refreshes the grid/view.
+
+No additional modern filtering or cross-country League merge is inserted.
+
+### Reconstruction consequence
+
+`reconstruction/original_league_fixtures_resources.py` now additionally
+guards:
+
+- the exact eight-country order, IDs, events and object offsets;
+- current-club country -> active selector resolution;
+- current-club League identity -> per-country selected index;
+- the six-control `fmRadioTextSm` League selector family;
+- exact `LeagueBase -> League` RTTI cast boundary;
+- source League `+0x14` captions;
+- exact country and League event index ranges.
+
+Still open after Recovery 154:
+
+1. remaining non-selector header/footer controls and captions/resources around
+   the League Fixtures panel;
+2. exact higher-level meaning of non-null fixture action target `0x488C80`;
+3. semantic label for fixture matrix-exclusion status bit `0x20`, if a later
+   independent producer/consumer trace proves it;
+4. original binary asset import and integrated Windows verification.
+
+No selector caption is synthesized from a modern competition name or from
+control order.
