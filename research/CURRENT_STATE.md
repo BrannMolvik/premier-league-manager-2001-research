@@ -66,6 +66,15 @@ Evidence:
   failures; asset-policy run `36890778875` passed. Exact per-date mode-1 bucket
   contents and the complete equal-key native qsort permutation remain open
   source questions rather than test fixtures.
+- Recovery 141 reconciled the Gate-13 resource coverage, management-screen
+  evidence ledger and presentation-separation audit after the TeamSelect/Squad
+  source work (`d8f13f97f9cd8f25aeb8c9120e8ec0c6a9dfbaa5`,
+  `f5f07ff43d132673072b7fabd87cb15a925116a7`,
+  `5e6e7901cc1004ec55e3a776814b4619b9e4b14a`). They now explicitly mark
+  the 20-row Squad bindings and FormationText state mapping as complete, and
+  narrow TeamSelect to the selection-record/Start identity plus upgraded
+  Windows audit. Older instructions to re-recover those completed slices are
+  superseded.
 - Local Codex recovery at `4537f9b150cab8e2282c5d33a30c13a43cfb50c3`
   completed the concrete Squad player-list hierarchy, 20-row/column/status
   bindings and exact `FormationText` state-to-source-row transform. Do not
