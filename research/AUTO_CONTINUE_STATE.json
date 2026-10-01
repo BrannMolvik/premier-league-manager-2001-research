@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 145 resumes exact Gate-13 task from main 3adf75e713c70dd3a3cddf9f5df9db6e34e19b5d: source-trace PMenu visible chrome/menu item classes, geometry, labels and original resource ownership from the canonical executable on branch feature/gate13-pmenu-chrome. Corrected real Windows/Tk first-screen audit remains open.",
+  "active_task": "Recovery 146 resumes PR #76 at verified Gate-13 PMenu chrome checkpoint. Head b448912a603d9b87dc52e6a74c05b48bc356515a passed focused Gate-13 run 36911756061 (288 tests, 21 expected skips) and asset-policy run 36911756170. Exact next step: merge PR #76, then continue source-backed unresolved PMenu localization/font/color/state-frame/shell-background trace and/or provenance-import the four already-correlated assets; corrected real Windows/Tk first-screen rerun remains open.",
   "last_known_main_head": "3adf75e713c70dd3a3cddf9f5df9db6e34e19b5d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 145,
+  "recovery_generation": 146,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 145 resumed after stale repository activity. PR #75 is already merged; do not repeat management-shell routing. Continue PMenu chrome/resource trace.",
+  "note": "Recovery 146 resumed from GitHub after interruption. PR #76 is green and mergeable; do not repeat its trace.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
