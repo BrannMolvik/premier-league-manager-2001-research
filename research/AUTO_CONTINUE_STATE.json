@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate13 remains blocked solely by process-execution infrastructure. Recovery110 verified canonical main c36b7047 and CURRENT_STATE unchanged, then retried both execution backends: container.exec failed immediately with ClientError on /bin/true and private python.exec failed immediately with ClientError on print('ok'). Safe fallback preparation is already exhausted, so no source-backed native PE/Button/Zurich/pixel work can proceed without inventing behavior. Exact next action on the first recovery where execution works: verify canonical ZIP hash; extract/hash footballmanager.exe; run TeamSelect 0x81EC10/0x7C7650 RTTI canary; trace Button state bits through native draw/update into numbered 23-frame atlas rows; recover Zurich glyph origin/pair spacing/baseline/colors/clipping; strict ten-resource audit/import; run saved management catalog correlation; complete remaining Gate13 presentation/navigation; Windows graphical audit; then Gates14-17 and verified clean Windows11 release.",
+  "active_task": "Gate13 remains blocked solely by process-execution infrastructure. Recovery111 verified canonical main c36b7047 and CURRENT_STATE unchanged, then retried both execution backends: container.exec failed immediately with ClientError on /bin/true and private python.exec failed immediately with ClientError on print('ok'). Safe fallback preparation is already exhausted, so no source-backed native PE/Button/Zurich/pixel work can proceed without inventing behavior. Exact next action on the first recovery where execution works: verify canonical ZIP hash; extract/hash footballmanager.exe; run TeamSelect 0x81EC10/0x7C7650 RTTI canary; trace Button state bits through native draw/update into numbered 23-frame atlas rows; recover Zurich glyph origin/pair spacing/baseline/colors/clipping; strict ten-resource audit/import; run saved management catalog correlation; complete remaining Gate13 presentation/navigation; Windows graphical audit; then Gates14-17 and verified clean Windows11 release.",
   "last_known_main_head": "c36b7047dbcfc1f99a916a9997debb706ec08eb0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 110,
+  "recovery_generation": 111,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery110: both execution backends still fail before process start. Canonical main has not moved and no new source-backed main change is safe. Preserve continuous/working for automatic recovery; do not manufacture UI semantics or heartbeat-only main commits. No user action required.",
+  "note": "Recovery111: both execution backends still fail before process start. Canonical main has not moved and no new source-backed main change is safe. Preserve continuous/working for automatic recovery; do not manufacture UI semantics or heartbeat-only main commits. No user action required.",
   "same_chat_fallback_minutes": 30
 }
