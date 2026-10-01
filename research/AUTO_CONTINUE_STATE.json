@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 158 merged PR #88 as 6ae2f39caba70e8f31ec651cf98ccaff1be832a6 after Gate-13 run 36933211315 passed 352 tests with 21 expected skips and asset-policy run 36933211343 passed. Fresh original-source trace resolves the producer chains for all six bounded Zurich text controls and the incident wrapper selection predicates. Persist and regression-cover the exact language-loader indices, source text, DBTPositions position-label chain, popup Attendance/Ref./Mom producers, neutral event_record+0x00 decimal field, and incident-state branches; then continue PMatchInfo event/tab behavior and seven remaining name-block/possession consumers.",
-  "last_known_main_head": "6ae2f39caba70e8f31ec651cf98ccaff1be832a6",
+  "active_task": "Recovery 158 merged PR #89 as 5603f96fddee9de4b02d40c0a199fe66eea415ca after Gate-13 run 36934794672 passed 357 tests with 21 expected skips and asset-policy run 36934794463 passed. Exact next task: trace PMatchInfo event/tab interaction behavior and/or the four name-block plus three possession-strip final consumers from the canonical executable; preserve event_record+0x00 semantics as neutral unless separately proven. Then continue intentional Match Report asset import and integrated Windows validation.",
+  "last_known_main_head": "5603f96fddee9de4b02d40c0a199fe66eea415ca",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -19,8 +19,8 @@
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 158,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 158 validated and merged the shared incident-control checkpoint and is continuing firsthand PMatchInfo text-producer/source-state tracing.",
+  "last_recovery_reason": "connection-interrupted",
+  "note": "Recovery 158 merged the source-backed PMatchInfo text-producer checkpoint and continues directly into PMatchInfo interaction/final-consumer tracing.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
