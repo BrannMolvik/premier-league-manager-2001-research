@@ -22,6 +22,11 @@ on:
       - "reconstruction/test_gate13_management_source_data.py"
       - "reconstruction/app.py"
       - "reconstruction/test_app_presentation_boundary.py"
+      - "reconstruction/original_startup_media.py"
+      - "reconstruction/test_original_startup_media.py"
+      - "reconstruction/match_presentation_feed.py"
+      - "reconstruction/test_match_presentation_feed.py"
+      - "research/GATE14_PRESENTATION_FOUNDATION.md"
   workflow_dispatch:
 
 concurrency:
