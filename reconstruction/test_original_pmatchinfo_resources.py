@@ -56,6 +56,55 @@ from original_pmatchinfo_resources import (
 
 
 class OriginalPMatchInfoResourceTests(unittest.TestCase):
+    def test_twelve_source_proven_runtime_assets_are_staged_byte_identically(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        self.assertEqual(
+            pmatch.PMATCHINFO_RUNTIME_PRESENTATION_RESOURCE_NAMES,
+            (
+                "info_player",
+                "info_player_disabled",
+                "info_popup",
+                "red_card",
+                "yellow_card",
+                "sub_on",
+                "sub_off",
+                "injured",
+                "score",
+                "red_card_single",
+                "match_name_grid",
+                "pitch_normal",
+                "match_incid_grid",
+            ),
+        )
+        self.assertEqual(
+            pmatch.PMATCHINFO_PENDING_PRESENTATION_RESOURCE_NAMES,
+            ("info_popup",),
+        )
+        self.assertEqual(len(pmatch.PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES), 12)
+        self.assertNotIn(
+            "info_popup",
+            pmatch.PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES,
+        )
+        staged = pmatch.validate_staged_pmatchinfo_presentation_assets(repo_root)
+        self.assertEqual(
+            tuple(resource.name for resource in staged),
+            pmatch.PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES,
+        )
+
+    def test_popup_and_loaded_but_unconsumed_assets_are_not_silently_staged(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        popup = pmatch.pmatchinfo_import_path(repo_root, "info_popup")
+        self.assertFalse(
+            popup.exists(),
+            "Transport-blocked info_popup must not be replaced with guessed bytes",
+        )
+        for name in pmatch.PMATCHINFO_UNCONSUMED_RESOURCE_NAMES:
+            with self.subTest(name=name):
+                self.assertFalse(
+                    pmatch.pmatchinfo_import_path(repo_root, name).exists(),
+                    "Loaded-but-unconsumed resource entered the runtime import set",
+                )
+
     def test_twenty_exact_match_report_resources_are_bound(self):
         self.assertEqual(len(PMATCHINFO_RESOURCES), 20)
         self.assertEqual(

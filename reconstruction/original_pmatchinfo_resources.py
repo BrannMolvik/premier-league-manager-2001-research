@@ -700,6 +700,63 @@ PMATCHINFO_RESOURCES = (
 
 PMATCHINFO_RESOURCE_BY_NAME = {resource.name: resource for resource in PMATCHINFO_RESOURCES}
 
+
+PMATCHINFO_RUNTIME_PRESENTATION_RESOURCE_NAMES = tuple(
+    resource.name for resource in PMATCHINFO_RESOURCES
+    if resource.direct_consumer_vas
+)
+PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES = tuple(
+    name for name in PMATCHINFO_RUNTIME_PRESENTATION_RESOURCE_NAMES
+    if name != "info_popup"
+)
+PMATCHINFO_PENDING_PRESENTATION_RESOURCE_NAMES = ("info_popup",)
+PMATCHINFO_IMPORT_ROOT = Path("original_assets/source")
+
+
+def pmatchinfo_import_path(repo_root: Path, resource_name: str) -> Path:
+    try:
+        resource = PMATCHINFO_RESOURCE_BY_NAME[resource_name]
+    except KeyError as exc:
+        raise OriginalPMatchInfoResourceError(
+            f"Unknown PMatchInfo import resource: {resource_name}"
+        ) from exc
+    return Path(repo_root) / PMATCHINFO_IMPORT_ROOT / resource.source_path
+
+
+def validate_staged_pmatchinfo_presentation_assets(
+    repo_root: Path,
+) -> tuple[OriginalPMatchInfoResource, ...]:
+    """Verify the byte-identical Recovery-159 subset already in Git.
+
+    info_popup remains source-proven but transport-blocked, so this validator
+    deliberately covers only the twelve staged runtime-presentation assets.
+    """
+    validated = []
+    for name in PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES:
+        resource = PMATCHINFO_RESOURCE_BY_NAME[name]
+        path = pmatchinfo_import_path(repo_root, name)
+        try:
+            data = path.read_bytes()
+        except FileNotFoundError as exc:
+            raise OriginalPMatchInfoResourceError(
+                f"Missing staged PMatchInfo asset: {resource.source_path}"
+            ) from exc
+        if len(data) != resource.byte_size:
+            raise OriginalPMatchInfoResourceError(
+                f"Staged PMatchInfo byte-size mismatch: {resource.source_path}"
+            )
+        if sha256(data).hexdigest() != resource.sha256:
+            raise OriginalPMatchInfoResourceError(
+                f"Staged PMatchInfo checksum mismatch: {resource.source_path}"
+            )
+        header = parse_ea444_header(data)
+        if (header.width, header.height) != resource.size:
+            raise OriginalPMatchInfoResourceError(
+                f"Staged PMatchInfo geometry mismatch: {resource.source_path}"
+            )
+        validated.append(resource)
+    return tuple(validated)
+
 @dataclass(frozen=True)
 class OriginalPMatchInfoUnconsumedResourceAudit:
     resource_name: str

@@ -1264,5 +1264,33 @@
   ],
   "gate13_pmatchinfo_unconsumed_resource_count": 7,
   "gate13_pmatchinfo_unconsumed_resource_classification": "loaded_but_no_source_proven_runtime_presentation_consumer",
-  "gate13_pmatchinfo_remaining_resource_consumer_bindings_open": false
+  "gate13_pmatchinfo_remaining_resource_consumer_bindings_open": false,
+  "gate13_pmatchinfo_consumer_audit_merge": "ae324cb3ba585dff1f96ff19053e35bc62917540",
+  "gate13_pmatchinfo_consumer_audit_ci_run": 36938526562,
+  "gate13_pmatchinfo_consumer_audit_test_count": 361,
+  "gate13_pmatchinfo_consumer_audit_expected_skips": 21,
+  "gate13_pmatchinfo_consumer_audit_asset_policy_run": 36938526517,
+  "gate13_pmatchinfo_source_proven_runtime_asset_count": 13,
+  "gate13_pmatchinfo_staged_runtime_asset_count": 12,
+  "gate13_pmatchinfo_staged_runtime_asset_names": [
+    "info_player",
+    "info_player_disabled",
+    "red_card",
+    "yellow_card",
+    "sub_on",
+    "sub_off",
+    "injured",
+    "score",
+    "red_card_single",
+    "match_name_grid",
+    "pitch_normal",
+    "match_incid_grid"
+  ],
+  "gate13_pmatchinfo_pending_runtime_asset_names": [
+    "info_popup"
+  ],
+  "gate13_pmatchinfo_pending_runtime_asset_reason": "GitHub connector binary blob handoff cannot safely carry the 179988-byte source file without truncation in the current session; do not substitute or convert it",
+  "gate13_pmatchinfo_loaded_unconsumed_assets_runtime_imported": false,
+  "gate13_pmatchinfo_asset_import_branch": "feature/gate13-pmatchinfo-asset-import",
+  "gate13_pmatchinfo_asset_import_partial_commit": "448c6e990153675f345ef169d8527e25dd8070fe"
 }
