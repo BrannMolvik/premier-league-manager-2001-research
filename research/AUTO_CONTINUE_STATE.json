@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 after verified PR #47 and canonical checkpoint 16a61f37: PStartMenu native captions are integrated and the proven two-resource PScouting2K composition fragment is implemented/verified. Exact next source task: on a working private/local execution backend, correlate one of the four private Squad catalog resources to its actual canonical-executable panel owner, import/test only proven geometry, then run the real Windows PStartMenu/TeamSelect graphical audit and continue wider management-screen resource/layout/navigation correlation. After Gate 13 closes, continue Gates 14-17 through the verified Windows 11 release.",
-  "last_known_main_head": "16a61f374a247b641097a6be1c15236c307cf8ee",
+  "active_task": "Gate 13 exact next task remains private/local evidence work: correlate one of the four saved whole-disc Squad resource candidates to its actual canonical-executable panel/setup owner, persist only proven path/geometry and import/test the bounded fragment; then run the real Windows PStartMenu/TeamSelect graphical audit and continue remaining management-screen correlations. PStartMenu native captions and the proven two-resource PScouting2K fragment are already complete. After Gate 13 closes, continue Gates 14-17 through the verified Windows 11 release.",
+  "last_known_main_head": "6213ff960a5ddfd5194cf65740efe0878731d601",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,6 +20,6 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 123,
   "last_recovery_reason": "manual-start",
-  "note": "Recovery 123 checkpoint: main advanced to 16a61f374a247b641097a6be1c15236c307cf8ee after PR #47 (focused Gate 13 run 36814179046: 249 tests, 20 expected skips, zero failures; asset-policy 36814179303 passed). Cloud shell/Python still returns ClientError before process start, so the next private Squad/executable correlation and Windows graphical audit require a working local/recovery execution backend. No user action is required; remain continuous/working.",
+  "note": "Recovery 123 latest main 6213ff960a5ddfd5194cf65740efe0878731d601 reconciles stale Gate 13 audits after verified PR #47. Cloud process execution remains blocked by ClientError before process start, and the four private Squad candidates were intentionally kept outside Git, so no safe GitHub-only ownership inference remains. No user action required; keep continuous/working for a local or recovered execution worker.",
   "same_chat_fallback_minutes": 30
 }
