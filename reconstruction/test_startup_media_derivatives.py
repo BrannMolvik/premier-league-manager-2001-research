@@ -197,6 +197,36 @@ class StartupMediaDerivativeTests(unittest.TestCase):
                     specs=specs,
                 )
 
+    def test_boolean_receipt_fields_require_json_booleans(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, receipt, payload, specs, _files = self.fixture(temp)
+            payload["passed"] = 1
+            self.rewrite(receipt, payload)
+            with self.assertRaisesRegex(
+                StartupMediaDerivativeError,
+                "must be a boolean",
+            ):
+                load_verified_startup_media_derivatives(
+                    receipt_path=receipt,
+                    repo_root=repo,
+                    specs=specs,
+                )
+
+    def test_integer_receipt_fields_reject_numeric_coercion(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, receipt, payload, specs, _files = self.fixture(temp)
+            payload["outputs"][0]["video_width"] = 320.5
+            self.rewrite(receipt, payload)
+            with self.assertRaisesRegex(
+                StartupMediaDerivativeError,
+                "must be an integer",
+            ):
+                load_verified_startup_media_derivatives(
+                    receipt_path=receipt,
+                    repo_root=repo,
+                    specs=specs,
+                )
+
     def test_duplicate_derivative_path_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             repo, _private, receipt, payload, specs, files = self.fixture(temp)
