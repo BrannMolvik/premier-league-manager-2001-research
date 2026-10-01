@@ -1,12 +1,13 @@
 # Gate 14 presentation foundation
 
-_Date: 1 October 2026 KST_
+_Date: 2 October 2026 KST_
 
 ## Status
 
 This is **cloud-safe work ahead while Gate 13 remains the active validation
-gate**. It does not mark Gate 14 complete and does not bypass the deferred real
-Windows first-screen audit or TeamSelect hierarchy recovery.
+gate**. It does not mark Gate 14 complete and does not bypass the deferred
+TeamSelect selection-record/Start-resolution trace or the upgraded real-Windows
+first-screen audit.
 
 ## Source-backed startup media contract
 
@@ -21,8 +22,8 @@ The exact startup order remains:
 
 Both use wrapper `0x461E20`. Their independently measured SHA-256 values,
 sizes, 320x480 geometry, 25 fps video, 22,050 Hz stereo audio and decoded
-frame counts are now durable code constants. The differing wrapper flag bit 0
-is preserved neutrally as `playback_flag_bit0`; it is **not** renamed to
+frame counts are durable code constants. The differing wrapper flag bit 0 is
+preserved neutrally as `playback_flag_bit0`; it is **not** renamed to
 "skippable" because the precise user input semantics remain only probable.
 
 `validate_original_startup_media()` accepts a deliberately supplied source
@@ -30,7 +31,48 @@ root and rejects size/hash mismatches. Hosted CI uses a synthetic contract
 fixture; an opt-in original-source test can be enabled with
 `FM2001_ORIGINAL_GAME_ROOT`.
 
-This does not yet integrate a modern TGQ decoder/player or converted derivative.
+## Fail-closed modern TGQ conversion contract
+
+The same module now defines the first modern compatibility handoff without
+claiming a playback integration.
+
+`build_startup_media_conversion_plans()` first revalidates every supplied TGQ
+against its exact original size and SHA-256, preserves the proven two-item
+startup order, and returns deterministic non-overwriting FFmpeg argument lists.
+The current compatibility target is deliberately narrow:
+
+- MP4 container;
+- H.264 video through `libx264`;
+- `yuv420p` pixel format;
+- source frame timing passed through rather than synthesized;
+- AAC audio;
+- original 22,050 Hz stereo geometry;
+- `+faststart` for ordinary modern playback.
+
+The planner does **not** launch FFmpeg. This keeps process execution and
+provenance decisions outside the pure source contract.
+
+After a caller performs the conversion,
+`build_startup_media_ffprobe_args()` defines the required frame-counting
+probe and `validate_startup_media_probe()` refuses the derivative unless it
+has exactly one video and one audio stream, MP4/H.264/AAC structure, original
+320x480 geometry, exact 25 fps timing, the original decoded video-frame count,
+`yuv420p`, and 22,050 Hz stereo audio. It does not treat the MP4 as
+bit-identical to the TGQ. Provenance remains anchored to the original TGQ
+checksum that was validated before conversion.
+
+This closes the repository-side **conversion contract**, not the player-visible
+startup criterion. Still required before making a Gate-14 playback claim:
+
+1. execute the plans against the authorized original TGQs with a pinned modern
+   FFmpeg build;
+2. persist a private conversion/probe receipt and verify both outputs;
+3. integrate a Windows playback surface that preserves the proven startup order;
+4. recover the exact input event(s) behind the longer FMV's bit-0 callback path;
+5. verify transition/fade behavior on Windows 11.
+
+No skip key, fade timing, scaling/interlace treatment or runtime player is
+invented by this checkpoint.
 
 ## Match presentation feed boundary
 
@@ -58,9 +100,10 @@ presentation uses this feed.
 
 Still open:
 
+- execute and privately receipt the source-backed TGQ conversions;
 - integrate original login/menu music and applicable sound resources;
-- choose and implement the modern TGQ playback/conversion route while retaining
-  provenance;
+- integrate the verified startup derivatives in the Windows runtime;
+- recover exact startup skip/input and transition behavior;
 - recover source-backed match presentation graphics/timing/audio mappings;
 - connect a player-visible match presentation to
   `match_presentation_feed.py`;
