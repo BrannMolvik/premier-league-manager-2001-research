@@ -32,6 +32,10 @@ on:
       - "research/GATE16_ANNUAL_REGENERATION_SOAK.md"
       - "reconstruction/test_gate16_multiseed_season_stress.py"
       - "research/GATE16_MULTISEED_SEASON_STRESS.md"
+      - "reconstruction/gate17_release_readiness.py"
+      - "reconstruction/test_gate17_release_readiness.py"
+      - "research/GATE17_RELEASE_READINESS.md"
+      - "research/RELEASE_LIMITATIONS.md"
   workflow_dispatch:
 
 concurrency:

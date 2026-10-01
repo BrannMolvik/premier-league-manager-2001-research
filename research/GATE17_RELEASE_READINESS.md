@@ -1,0 +1,21 @@
+# Gate 17 release-readiness audit
+
+_Date: 1 October 2026 KST_
+
+## Status
+
+This is release-audit groundwork. Gate 17 is not complete, and Gate 13 remains the earliest incomplete validation gate.
+
+The final audit in reconstruction/gate17_release_readiness.py is designed to run on the actual Windows 11 release candidate. It joins repository checks with separate clean-install and gameplay evidence rather than treating hosted CI as proof of a successful Windows release.
+
+## Required final evidence
+
+The evidence contract requires four external JSON receipts, all tied to the same repository commit and stored outside Git: clean Windows 11 installation outside the development environment; new-game plus management-loop smoke; season progression; and save/reload.
+
+The audit also verifies a clean Git working tree, repository asset policy, canonical FM2001 source-data verification, the full unittest suite, an archived release file with exact size and SHA-256, and the final release-limitations document.
+
+## Fail-closed boundary
+
+research/RELEASE_LIMITATIONS.md is deliberately marked pre-release today. The final audit rejects a limitations document that still carries that marker. This prevents the Gate 17 tool from passing until earlier gate work and the real Windows release checks have actually been completed.
+
+Gate 17 must still produce and test the installable build itself. This harness only makes the final evidence requirements machine-checkable and consistent with one known repository state.
