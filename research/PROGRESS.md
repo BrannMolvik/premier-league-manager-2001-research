@@ -9200,3 +9200,17 @@ invent original visual or control semantics.
 - No further screen semantics will be invented. The exact next action remains
   TeamSelect RTTI canary -> Button 23-frame state mapping -> Zurich text trace
   -> strict ten-resource audit/import as soon as private execution works.
+
+## 1 October 2026 KST - Recovery 120 source recovery succeeded, execution failed before byte audit
+
+- Resumed canonical main `c36b7047dbcfc1f99a916a9997debb706ec08eb0`.
+- Trivial shell execution initially worked; direct GitHub cloning failed only
+  because the isolated container had no DNS route to `github.com`.
+- Re-resolved and materialized the exact 511,121,336-byte authorized private
+  source ZIP from the durable Library locator.
+- After materialization, both a trivial shell file probe and a separate private
+  Python process failed with `ClientError` before execution, so no new
+  original-byte fidelity claim is made.
+- Runtime remains continuous/working. Exact next action is the persisted
+  TeamSelect RTTI -> Button -> Zurich -> ten-resource path as soon as stable
+  process execution returns.

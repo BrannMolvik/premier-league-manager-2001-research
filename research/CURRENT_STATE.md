@@ -23,6 +23,39 @@ Evidence:
 - `research/GATE12_ENGLISH_SEASON_TRANSITION.md`
 - `research/GATE12_NEXT_SEASON_REGENERATION.md`
 
+## Recovery 120: source materialized; process backend failed again before byte audit
+
+- Fresh replacement-chat recovery started from canonical main
+  `c36b7047dbcfc1f99a916a9997debb706ec08eb0` and incremented the worker
+  runtime to recovery generation 120 with `mode=continuous` /
+  `status=working`.
+- Local process execution initially recovered: a trivial shell probe completed
+  successfully. A direct `git clone` of the canonical repository then failed
+  because this isolated container could not resolve `github.com`; repository
+  reads/writes therefore continue through the authenticated GitHub connector.
+- The durable private Library locator was re-read and the exact
+  511,121,336-byte authorized source ZIP was independently listed at
+  `/FM2001/Original Source/The-F-A-Premier-League-Football-Manager-2001_Win_EN_Disc-Image.zip`
+  with the expected file/stable-library identities, then successfully
+  materialized into the current execution workspace.
+- Immediately after materialization, a shell `stat`/hash/listing probe against
+  that file returned `ClientError` before process start. A separate private
+  Python process also returned `ClientError` before execution. Therefore the
+  canonical ZIP SHA-256, TeamSelect RTTI canary, Button state/frame trace,
+  Zurich placement/color trace, ten-resource physical audit/import and native
+  graphical inspection were **not** re-run in recovery 120.
+- This recovery narrows the external blocker: private source access is working;
+  the failing component is the local process-execution backend after source
+  staging. No user action is currently required and no unverified presentation
+  behavior is promoted.
+- Exact next Gate-13 action remains: on the first stable process backend,
+  verify the materialized ZIP's pinned SHA-256 and recover/verify the canonical
+  executable, then run TeamSelect RTTI canary -> native Button state/23-frame
+  trace -> Zurich placement/color/clipping trace -> strict ten-resource
+  audit/import -> management-screen correlation -> Windows graphical Gate-13
+  audit. Gates 14-17 and the verified Windows 11 release remain mandatory
+  afterward.
+
 ## Recovery 104: verified Squad contract; source present, byte execution still blocked
 
 - Fresh fallback recovery resumed canonical main
