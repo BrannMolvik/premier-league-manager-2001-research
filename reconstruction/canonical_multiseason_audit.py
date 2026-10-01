@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import date
 from pathlib import Path
@@ -21,6 +22,11 @@ from typing import Callable
 
 from canonical_annual_rollover_audit import _qualification_if_complete
 from human_gameplay import HumanGameplayController
+from domestic_cup_state import (
+    ANNUAL_QUALIFICATION_CUP_IDS,
+    ENGLISH_DOMESTIC_CUP_IDS,
+    EUROPEAN_CUP_IDS,
+)
 from season_regeneration import partition_annual_type3_league_sources
 
 
@@ -79,6 +85,110 @@ def _fresh_primary_shape(state) -> tuple[int, ...]:
         len(state.qualification_cups.nodes),
         len(state.procedural_leagues),
     )
+
+
+def _node_signature(node) -> tuple:
+    return (
+        str(node.node_kind),
+        int(node.competition_id),
+        int(node.competition_context),
+        tuple(node.node_token),
+    )
+
+
+def _validate_fresh_regeneration_projection(state, regeneration, cycle: int) -> None:
+    """Prove fresh season-owned state is exactly the current regeneration.
+
+    Cup participant counts are legitimately qualification-dependent. A fresh
+    season can therefore contain a different number of Cup nodes than the
+    previous fresh season without representing accumulation. The corruption
+    guard must compare each installed runtime against *that cycle's* materialized
+    schedule instead of requiring cross-season count equality.
+    """
+
+    schedule_nodes = tuple(regeneration.competition.schedule_nodes)
+    expected_shadow = Counter(_node_signature(node) for node in schedule_nodes)
+    actual_shadow = Counter(
+        _node_signature(entry)
+        for on_date in sorted(state.primary_schedule_shadow.days)
+        for entry in state.primary_schedule_shadow.days[on_date]
+    )
+    if actual_shadow != expected_shadow:
+        raise CanonicalMultiSeasonAuditError(
+            f"cycle {cycle}: fresh primary shadow differs from current "
+            "regeneration projection"
+        )
+
+    cup_kinds = frozenset(("cup_match", "first_leg_match", "second_leg_match"))
+    owners = (
+        ("domestic", ENGLISH_DOMESTIC_CUP_IDS, state.domestic_cups),
+        ("European", EUROPEAN_CUP_IDS, state.european_cups),
+        ("qualification", ANNUAL_QUALIFICATION_CUP_IDS, state.qualification_cups),
+    )
+    for label, competition_ids, owner in owners:
+        expected = Counter(
+            _node_signature(node)
+            for node in schedule_nodes
+            if int(node.competition_id) in competition_ids
+            and str(node.node_kind) in cup_kinds
+        )
+        actual = Counter(_node_signature(node) for node in owner.nodes)
+        if actual != expected:
+            raise CanonicalMultiSeasonAuditError(
+                f"cycle {cycle}: fresh {label} Cup state differs from current "
+                "regeneration projection"
+            )
+
+    live_procedural_keys = {
+        (int(key[0]), int(key[1])) for key in state.procedural_leagues
+    }
+    current_procedural_keys = {
+        (int(node.competition_id), int(node.competition_context))
+        for node in schedule_nodes
+        if str(node.node_kind) == "league_match"
+        and int(node.competition_id) != 0
+    }
+    stale_procedural_keys = live_procedural_keys - current_procedural_keys
+    if stale_procedural_keys:
+        raise CanonicalMultiSeasonAuditError(
+            f"cycle {cycle}: fresh procedural state retained non-current owners "
+            f"{tuple(sorted(stale_procedural_keys))}"
+        )
+
+    expected_primary_entries: list[tuple] = []
+    for node in schedule_nodes:
+        competition_id = int(node.competition_id)
+        competition_context = int(node.competition_context)
+        node_kind = str(node.node_kind)
+        node_token = tuple(node.node_token)
+        if (
+            node_kind in ("fixed_league_match", "league_match")
+            and competition_id == 0
+            and competition_context == 0
+        ):
+            expected_primary_entries.append(("premier_league", int(node_token[-1])))
+        elif competition_id in ENGLISH_DOMESTIC_CUP_IDS and node_kind in cup_kinds:
+            expected_primary_entries.append(("domestic_cup", node_token))
+        elif competition_id in EUROPEAN_CUP_IDS and node_kind in cup_kinds:
+            expected_primary_entries.append(("european_cup", node_token))
+        elif competition_id in ANNUAL_QUALIFICATION_CUP_IDS and node_kind in cup_kinds:
+            expected_primary_entries.append(("qualification_cup", node_token))
+        elif (
+            node_kind == "league_match"
+            and (competition_id, competition_context) in live_procedural_keys
+        ):
+            expected_primary_entries.append(("procedural_league", node_token))
+
+    actual_primary_entries = [
+        tuple(entry)
+        for on_date in sorted(state.primary_matchday_order)
+        for entry in state.primary_matchday_order[on_date]
+    ]
+    if Counter(actual_primary_entries) != Counter(expected_primary_entries):
+        raise CanonicalMultiSeasonAuditError(
+            f"cycle {cycle}: fresh shared-primary order differs from current "
+            "regeneration projection"
+        )
 
 
 def _validate_live_references(state, cycle: int) -> int:
@@ -212,7 +322,7 @@ def run_multiseason_controller_audit(
 
     probe = _qualification_if_complete if qualification_probe is None else qualification_probe
     snapshots: list[CanonicalSeasonRolloverSnapshot] = []
-    baseline_fresh_shape: tuple[int, ...] | None = None
+    fresh_shapes: list[tuple[int, ...]] = []
     previous_capture_date: date | None = None
     retained_runtimes: list[object] = []
 
@@ -338,13 +448,8 @@ def run_multiseason_controller_audit(
             )
 
         fresh_shape = _fresh_primary_shape(state)
-        if baseline_fresh_shape is None:
-            baseline_fresh_shape = fresh_shape
-        elif fresh_shape != baseline_fresh_shape:
-            raise CanonicalMultiSeasonAuditError(
-                f"cycle {cycle}: fresh season-owned state shape changed "
-                f"{baseline_fresh_shape} -> {fresh_shape}"
-            )
+        _validate_fresh_regeneration_projection(state, regeneration, cycle)
+        fresh_shapes.append(fresh_shape)
 
         membership_changes = sum(
             1
@@ -382,7 +487,9 @@ def run_multiseason_controller_audit(
     return {
         "rollover_count": rollover_count,
         "max_days_per_season": max_days_per_season,
-        "fresh_state_shape": list(baseline_fresh_shape or ()),
+        # Backward-compatible first-cycle shape plus the actual per-cycle shapes.
+        "fresh_state_shape": list(fresh_shapes[0] if fresh_shapes else ()),
+        "fresh_state_shapes": [list(shape) for shape in fresh_shapes],
         "snapshots": [asdict(item) for item in snapshots],
         "final_date": controller.state.calendar.current_date.isoformat(),
         "final_rng_state": int(controller.match_rng.state) & 0xFFFFFFFF,
