@@ -6,11 +6,17 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 
+const extensionDir = path.join(__dirname, "../chrome-extension");
 const source = fs.readFileSync(
-  path.join(__dirname, "../chrome-extension/background.js"), "utf8"
+  path.join(extensionDir, "background.js"), "utf8"
 );
 
-function harness({ generating = false, staleMinutes = 20, initialStorage = {} } = {}) {
+function harness({
+  generating = false,
+  staleMinutes = 20,
+  initialStorage = {},
+  workerTabPresent = true
+} = {}) {
   const now = Date.now();
   let activity = now - staleMinutes * 60 * 1000;
   let unrelatedMainActivity = now;
@@ -36,8 +42,8 @@ function harness({ generating = false, staleMinutes = 20, initialStorage = {} } 
     },
     tabs: {
       async get(id) {
-        if (id !== store.workerTabId) throw Error("Tab missing");
-        return { id };
+        if (id !== store.workerTabId || !workerTabPresent) throw Error("Tab missing");
+        return { id, url: "https://chatgpt.com/c/fm2001" };
       },
       async sendMessage(id, message) {
         assert.equal(id, store.workerTabId);
@@ -151,6 +157,41 @@ test("stale heartbeat recovers a stopped worker", async () => {
   assert.equal(h.store.pendingResume.stopFirst, true);
   assert.equal(h.resumeMessages, 1);
   assert.equal(h.createdTabs, 0);
+});
+
+test("missing worker tab does not recover while independent heartbeat is fresh", async () => {
+  const h = harness({
+    generating: false,
+    staleMinutes: 4,
+    workerTabPresent: false
+  });
+  await h.check();
+  assert.equal(h.createdTabs, 0);
+  assert.equal(h.store.pendingResume, undefined);
+  assert.equal(h.store.workerTabId, 9);
+});
+
+test("stale heartbeat with missing worker tab opens a fresh worker immediately", async () => {
+  const h = harness({
+    generating: false,
+    staleMinutes: 20,
+    workerTabPresent: false,
+    initialStorage: {
+      sameChatRecoveryWindow: {
+        startedAt: Date.now() - 2 * 60000,
+        baselineActivity: Date.now() - 20 * 60000
+      }
+    }
+  });
+  await h.check();
+  assert.equal(h.createdTabs, 1);
+  assert.equal(h.store.pendingResume.inPlace, false);
+  assert.equal(
+    h.store.pendingResume.reason,
+    "stale-repository-activity-missing-worker-tab"
+  );
+  assert.equal(h.store.workerTabId, 10);
+  assert.equal(h.store.sameChatRecoveryWindow, undefined);
 });
 
 test("active-generation grace is finite: a prolonged silent worker can recover", async () => {

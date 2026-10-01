@@ -201,7 +201,7 @@ the rate-limited REST branch endpoint) for:
 The `main` branch remains the canonical technical project state, but is not a
 live-worker heartbeat because unrelated work can change it.
 
-If the state is `working` and neither branch has activity within `stale_after_minutes`, the browser extension treats the previous work session as stalled even when the ChatGPT UI never displayed an explicit error. It first reuses the recorded worker tab, stops any still-running generation, and re-prompts in the same conversation. Only when that worker tab no longer exists may it create a replacement ChatGPT tab with `active: false`.
+If the state is `working` and the worker-owned `agent-runtime` heartbeat has no activity within `stale_after_minutes`, the browser extension treats the previous work session as stalled even when the ChatGPT UI never displayed an explicit error. A fresh heartbeat always protects long-running backend work even if Chrome has lost the registered tab. Once the heartbeat is stale, however, the extension verifies the recorded worker tab before any same-chat fallback delay: if that tab is gone or no longer a ChatGPT page, it clears the stale registration and opens a replacement ChatGPT tab with `active: false` immediately, subject to normal cooldown/per-hour loop guards. If the registered tab still exists, it first attempts in-place recovery there.
 
 The Windows watchdog remains an independent detector/logging path if the old
 ChatGPT tab is gone, but it never opens or focuses Chrome. If Chrome is fully

@@ -278,3 +278,30 @@ normalized text starts with `Analysis errored` and is at most 240 characters.
 User-authored message text remains ignored, and ordinary assistant prose that
 merely mentions `ClientError` remains ignored. Once detected, the existing
 sandbox-failure policy opens a fresh inactive worker chat immediately.
+
+
+## Version 0.4.2 stale missing-tab recovery
+
+Version 0.4.2 closes the failure mode where Chrome still remembered a worker tab
+ID after that tab had been closed. A fresh independent `agent-runtime`
+heartbeat still protects long-running backend work, so the extension does not
+create a duplicate worker merely because the browser tab disappeared.
+
+Once the independent heartbeat reaches `stale_after_minutes`, however, the
+background check now verifies the registered tab before applying the normal
+same-chat fallback window. If the tab is missing or no longer a ChatGPT page,
+the stale registration and same-chat window are cleared and a fresh inactive
+ChatGPT worker is opened immediately, subject to the existing cooldown and
+per-hour recovery loop guards.
+
+This means the diagnostics state
+
+`FAIL: Registered worker tab — Error: No tab with id ...`
+
+is safe while the worker heartbeat is fresh, but becomes an automatic fresh-chat
+recovery condition once that heartbeat is stale.
+
+**Deployment:** pull the merged change, reload the unpacked extension in
+`chrome://extensions/`, refresh any remaining ChatGPT tabs, and confirm
+version **0.4.2**. No manual re-registration is needed for an automatically
+created replacement worker; its recovery record becomes the new tracked tab.

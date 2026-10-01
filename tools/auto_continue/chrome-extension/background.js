@@ -395,8 +395,49 @@ async function checkForStaleSession() {
     const staleAfterMinutes = Number(state.stale_after_minutes || 15);
     const staleMinutes = Math.floor((Date.now() - latestActivity) / 60000);
     if (staleMinutes < staleAfterMinutes) {
-      // A new repository checkpoint resets the active-generation quiet window.
+      // A fresh independent worker heartbeat protects long-running backend work
+      // even if Chrome has already lost the registered conversation tab.
       await chrome.storage.local.remove("activeGenerationGuard");
+      return;
+    }
+
+    const details = {
+      stale_minutes: staleMinutes,
+      source: "chrome-extension-background-alarm"
+    };
+
+    // Once the independent heartbeat is genuinely stale, a registered tab that
+    // no longer exists cannot be recovered in place. Do this check before the
+    // same-chat fallback window so a dead tab never delays replacement-worker
+    // creation. Cooldown/history guards still apply inside triggerNewChatRecovery.
+    const registered = await chrome.storage.local.get(["workerTabId"]);
+    const registeredTabId = registered.workerTabId || null;
+    let registeredTabPresent = false;
+    if (registeredTabId) {
+      try {
+        const tab = await chrome.tabs.get(registeredTabId);
+        registeredTabPresent = /^https:\/\/chatgpt\.com(?:\/|$)/.test(
+          tab.url || ""
+        );
+      } catch (_error) {
+        registeredTabPresent = false;
+      }
+    }
+
+    if (!registeredTabPresent) {
+      await chrome.storage.local.remove([
+        "workerTabId",
+        "activeGenerationGuard"
+      ]);
+      await clearSameChatRecoveryWindow();
+      await triggerNewChatRecovery(
+        "stale-repository-activity-missing-worker-tab",
+        state,
+        {
+          ...details,
+          missing_worker_tab_id: registeredTabId || "none"
+        }
+      );
       return;
     }
 
@@ -406,11 +447,6 @@ async function checkForStaleSession() {
     if (await deferStaleRecoveryForActiveGeneration(latestActivity, state)) {
       return;
     }
-
-    const details = {
-      stale_minutes: staleMinutes,
-      source: "chrome-extension-background-alarm"
-    };
 
     if (sameChatWindow) {
       const fallbackMinutes = Number(
