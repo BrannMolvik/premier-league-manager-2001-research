@@ -63,9 +63,17 @@ PMENU_FONT_NATIVE_LINE_HEIGHT = 18
 PMENU_ROW_COLOR_COMPONENTS = ((0, 0, 0), (255, 255, 255))
 
 PMENU_BACKGROUND_STATE_METHOD_VA = 0x47AC00
+PMENU_ANIMATION_STATE_METHOD_VA = 0x652AE0
+PMENU_ANIMATION_TRANSITION_METHOD_VA = 0x652780
+PMENU_ANIMATION_STEP_METHOD_VA = 0x6527F0
+PMENU_CHILD_ARROW_SOURCE_Y_METHOD_VA = 0x652860
+PMENU_CHILD_ARROW_FRAME_COUNT_METHOD_VA = 0x5D62F0
+PMENU_TITLE_ARROW_SOURCE_Y_METHOD_VA = 0x4825A0
+PMENU_TITLE_ARROW_FRAME_COUNT_METHOD_VA = 0x5D50E0
 PMENU_STATE_BIT_1 = 0x2
 PMENU_STATE_BIT_3 = 0x8
 PMENU_STATE_BIT_15 = 0x8000
+PMENU_ANIMATION_STATES = (0, 1, 2)
 
 
 def pmenu_background_row_index(state_bits: int) -> int:
@@ -89,6 +97,114 @@ def pmenu_background_row_index(state_bits: int) -> int:
 def pmenu_background_source_y(state_bits: int) -> int:
     return pmenu_background_row_index(state_bits) * PMENU_ROW_HEIGHT
 
+def pmenu_arrow_state_from_bits(state_bits: int) -> int:
+    """Mirror the neutral three-state selector at 0x652AE0.
+
+    State names are deliberately not inferred. Bit 1 clear selects state 2;
+    otherwise bit 15 selects state 1 and the remaining case is state 0.
+    """
+    if type(state_bits) is not int or state_bits < 0:
+        raise OriginalPMenuChromeError("PMenu state bits must be a non-negative integer")
+    if not state_bits & PMENU_STATE_BIT_1:
+        return 2
+    if state_bits & PMENU_STATE_BIT_15:
+        return 1
+    return 0
+
+
+def _require_animation_state(state: int) -> int:
+    if type(state) is not int or state not in PMENU_ANIMATION_STATES:
+        raise OriginalPMenuChromeError("PMenu arrow state must be 0, 1 or 2")
+    return state
+
+
+def pmenu_child_arrow_frame_count(state: int) -> int:
+    """Mirror generic child-arrow frame-count method 0x5D62F0."""
+    state = _require_animation_state(state)
+    return 1 if state == 2 else 11
+
+
+def pmenu_title_arrow_frame_count(state: int) -> int:
+    """Mirror MenuTitleArrow frame-count override 0x5D50E0."""
+    state = _require_animation_state(state)
+    return 11 if state == 0 else 1
+
+
+def pmenu_arrow_transition_frame(
+    old_state: int,
+    old_frame: int,
+    new_state: int,
+    *,
+    title: bool,
+) -> int:
+    """Mirror 0x652780's proportional frame carry across state transitions."""
+    old_state = _require_animation_state(old_state)
+    new_state = _require_animation_state(new_state)
+    if type(old_frame) is not int or old_frame < 0:
+        raise OriginalPMenuChromeError("PMenu arrow frame must be a non-negative integer")
+    count = pmenu_title_arrow_frame_count if title else pmenu_child_arrow_frame_count
+    old_count = count(old_state)
+    new_count = count(new_state)
+    if old_frame >= old_count:
+        raise OriginalPMenuChromeError("PMenu arrow frame exceeds source state frame count")
+    return (new_count * old_frame) // old_count
+
+
+def pmenu_arrow_update(
+    state: int,
+    frame: int,
+    state_bits: int,
+    *,
+    title: bool,
+) -> tuple[int, int]:
+    """Mirror state remap + one 0x6527F0 animation tick.
+
+    Bit 3 controls whether the current frame advances toward the end of the
+    selected state's frame range or retreats toward frame zero. The bit remains
+    deliberately unnamed beyond its source position.
+    """
+    state = _require_animation_state(state)
+    if type(frame) is not int or frame < 0:
+        raise OriginalPMenuChromeError("PMenu arrow frame must be a non-negative integer")
+    if type(state_bits) is not int or state_bits < 0:
+        raise OriginalPMenuChromeError("PMenu state bits must be a non-negative integer")
+    count = pmenu_title_arrow_frame_count if title else pmenu_child_arrow_frame_count
+    if frame >= count(state):
+        raise OriginalPMenuChromeError("PMenu arrow frame exceeds source state frame count")
+
+    target = pmenu_arrow_state_from_bits(state_bits)
+    if target != state:
+        frame = pmenu_arrow_transition_frame(state, frame, target, title=title)
+        state = target
+
+    if state_bits & PMENU_STATE_BIT_3:
+        if frame + 1 < count(state):
+            frame += 1
+    elif frame:
+        frame -= 1
+    return state, frame
+
+
+def pmenu_child_arrow_source_row(state: int, frame: int) -> int:
+    """Mirror generic source-offset method 0x652860 as a row index."""
+    state = _require_animation_state(state)
+    if type(frame) is not int or frame < 0 or frame >= pmenu_child_arrow_frame_count(state):
+        raise OriginalPMenuChromeError("PMenu child-arrow frame is outside its state")
+    return sum(pmenu_child_arrow_frame_count(value) for value in range(state)) + frame
+
+
+def pmenu_title_arrow_source_row(state: int, frame: int) -> int:
+    """Mirror MenuTitleArrow source-offset override 0x4825A0."""
+    state = _require_animation_state(state)
+    if type(frame) is not int or frame < 0 or frame >= pmenu_title_arrow_frame_count(state):
+        raise OriginalPMenuChromeError("PMenu title-arrow frame is outside its state")
+    if state == 0:
+        return frame
+    if state == 1:
+        return pmenu_title_arrow_frame_count(0) - 1
+    return 0
+
+
 
 @dataclass(frozen=True)
 class OriginalPMenuResource:
@@ -96,6 +212,7 @@ class OriginalPMenuResource:
     sha256: str
     byte_size: int
     size: tuple[int, int]
+    frame_height: int
     path_literal_va: int
     raw_handle_va: int
     wrapper_va: int
@@ -106,11 +223,15 @@ class OriginalPMenuResource:
     def frame_count(self) -> int:
         width, height = self.size
         del width
-        if height % PMENU_ROW_HEIGHT:
+        if type(self.frame_height) is not int or self.frame_height <= 0:
             raise OriginalPMenuChromeError(
-                f"{self.source_path} height is not a whole PMenu row stack"
+                f"{self.source_path} has an invalid native frame height"
             )
-        return height // PMENU_ROW_HEIGHT
+        if height % self.frame_height:
+            raise OriginalPMenuChromeError(
+                f"{self.source_path} height is not a whole native frame stack"
+            )
+        return height // self.frame_height
 
 
 PMENU_TITLE_ARROW_RESOURCE = OriginalPMenuResource(
@@ -118,6 +239,7 @@ PMENU_TITLE_ARROW_RESOURCE = OriginalPMenuResource(
     "45d34aea3d4ae3f85a171fe3e6eb1b28ea960f5f500f123d98bcbbab52d22006",
     26248,
     (30, 638),
+    58,
     0x837C4C,
     0x943870,
     0x943850,
@@ -129,6 +251,7 @@ PMENU_TITLE_BOX_RESOURCE = OriginalPMenuResource(
     "37bc920cb734cde0ac8891d240341f06319c4d1827cdd03a9c4ef8137e30791c",
     5700,
     (168, 87),
+    29,
     0x837C80,
     0x943830,
     0x943810,
@@ -140,6 +263,7 @@ PMENU_CHILD_ARROW_RESOURCE = OriginalPMenuResource(
     "de53b9ed410bf0456e79c03b305cfb7a1ccaae4c10fb77a50fefd7106c2d4e22",
     22768,
     (30, 667),
+    29,
     0x837C20,
     0x9438B0,
     0x943890,
@@ -151,6 +275,7 @@ PMENU_CHILD_BOX_RESOURCE = OriginalPMenuResource(
     "4cc1becee669f1f55749a58051eca8833ed582b1f45754c18485366dd6715007",
     6864,
     (168, 116),
+    29,
     0x837CB4,
     0x9437F0,
     0x9437D0,
