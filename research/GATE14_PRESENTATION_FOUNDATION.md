@@ -71,6 +71,19 @@ writes one JSON receipt only after the complete requested startup sequence
 passes. A failed conversion/probe never writes a success receipt. The receipt
 retains the neutral `playback_flag_bit0` rather than inventing a skip semantic.
 
+The playback-facing handoff is now guarded separately by
+`reconstruction/startup_media_derivatives.py`. It reads only a completed
+outside-Git conversion receipt, requires the exact canonical startup order and
+source identities, validates all receipt metadata against the same conversion
+profile, rechecks every derivative's physical byte count and SHA-256, rejects
+files or receipts inside the repository, and returns an immutable verified
+sequence for a future player. The original TGQs do not need to remain mounted at
+playback time, but the receipt must still bind each derivative to their exact
+source SHA-256 and original media measurements.
+
+This still performs **no playback** and does not interpret
+`playback_flag_bit0`.
+
 This closes the repository-side **conversion and private receipt contract**, not
 the player-visible startup criterion. Still required before making a Gate-14 playback claim:
 
