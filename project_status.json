@@ -959,7 +959,7 @@
   "gate13_league_fixtures_panel_constructor": "0x46D470",
   "gate13_league_fixtures_panel_vftable": "0x7C24B8",
   "gate13_calendar_fixtures_navigation_evidence": "research/GATE13_CALENDAR_FIXTURES_NAVIGATION.md",
-  "gate13_fixtures_results_identity_status": "league_fixtures_panel_and_six_graphics_proven_state_text_order_navigation_open",
+  "gate13_fixtures_results_identity_status": "league_fixtures_panel_resources_grid_box_states_score_date_and_selection_proven_order_filter_controls_navigation_open",
   "gate13_calendar_fixtures_navigation_merge": "9da4c89f67aaba7b263354591497d596ca50edd1",
   "gate13_calendar_fixtures_navigation_ci_run": 36916343766,
   "gate13_calendar_fixtures_navigation_asset_policy_run": 36916343760,
@@ -970,5 +970,24 @@
   "gate13_league_fixtures_vertical_grid_positions": 12,
   "gate13_league_fixtures_horizontal_grid_positions": 24,
   "gate13_league_fixtures_private_source_validation_passed": true,
-  "gate13_league_fixtures_box_state_mapping_open": true
+  "gate13_league_fixtures_box_state_mapping_open": false,
+  "gate13_league_fixtures_resources_merge": "4420e2d12386b749653cbc4202cd2d3f190c1ebe",
+  "gate13_league_fixtures_resources_ci_run": 36917169429,
+  "gate13_league_fixtures_resources_test_count": 309,
+  "gate13_league_fixtures_resources_expected_skips": 21,
+  "gate13_league_fixtures_resources_asset_policy_run": 36917169401,
+  "gate13_league_fixtures_completion_status_bit_offset": "0x44",
+  "gate13_league_fixtures_completion_status_bit": "0x1",
+  "gate13_league_fixtures_score_offsets": [
+    "0x3C",
+    "0x3E"
+  ],
+  "gate13_league_fixtures_score_format": "%i:%i",
+  "gate13_league_fixtures_date_format": "%02i.%02i",
+  "gate13_league_fixtures_selected_index_offsets": [
+    "0x109B0",
+    "0x109B4"
+  ],
+  "gate13_league_fixtures_toggled_overlay_source_proven": true,
+  "gate13_league_fixtures_empty_slot_red_predicate_open": true
 }
