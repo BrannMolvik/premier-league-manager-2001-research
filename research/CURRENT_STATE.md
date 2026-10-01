@@ -65,13 +65,22 @@ Evidence:
   stays within a 4 KiB max-minus-min corruption guard. Canonical real-data
   multi-season evidence, more seed coverage and remaining state-growth risks
   stay open.
-- **Exact cloud-safe next task:** extend the five-year autonomous-transfer churn
-  with periodic internal game-state save/reload round-trips. Prove completed
-  movement history remains exactly event-proportional, transient transfer
-  containers remain empty, roster ownership remains valid, and serialization
-  does not duplicate or lose persistent transfer history. Keep unresolved
-  original transfer-window / +0x1ED lifecycle semantics explicitly out of the
-  claim.
+- The five-year autonomous-transfer churn now also survives yearly internal
+  game-state round-trips at weeks 52/104/156/208/260. PR #60 merged as
+  `c640e5cb7dad46926e67a35caa34b83deb99c2cf`; final reconstruction run
+  `36849081411` passed 1,134 tests with 22 expected source-gated skips and
+  asset-policy run `36849081409` passed. The periodically reloaded run matches
+  a never-reloaded run from the same seed across the full movement history,
+  rosters, counters, RNG state and final date.
+- **Exact next task:** run a canonical shipped-data multi-season Gate-16 audit.
+  Source availability is no longer the blocker in Recovery 132: the Library
+  disc archive was materialized and its ZIP plus extracted `Master.dat`,
+  `Static.dat`, `English.str`, `Core.str` and `FOOTBAL.EXE` all matched
+  their pinned canonical SHA-256 values. Obtain the current reconstruction
+  runtime in the execution container without placing proprietary source bytes
+  in Git, then drive consecutive canonical seasons through annual
+  qualification/regeneration with long-duration invariants and checkpoint the
+  result.
 - Gate 17 release-readiness evidence is now fail-closed and machine-checkable at
   `9e7cb18be721ea2ae89b074991e120d3e60e4c68`; it intentionally cannot pass
   without real clean-Windows receipts, a release archive and final limitations.
