@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 120,
-  "last_recovery_reason": "stale-repository-activity-no-worker-tab",
-  "note": "Recovery 120 persisted main checkpoint 9c2fd80087d61cc0c0461bae03c3c1beff23aab2. Source access/materialization works; local process execution failed again immediately afterward. No user action required; keep continuous working state for automatic recovery.",
+  "recovery_generation": 121,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 121: resumed canonical main 9c2fd80087d61cc0c0461bae03c3c1beff23aab2 after stale worker activity. Retrying the exact Gate 13 process-execution blocker; no user action required.",
   "same_chat_fallback_minutes": 30
 }
