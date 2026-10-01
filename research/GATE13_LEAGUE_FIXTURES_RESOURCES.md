@@ -596,3 +596,124 @@ Still open after Recovery 154:
 
 No selector caption is synthesized from a modern competition name or from
 control order.
+
+
+## Recovery 155 populated-cell PMatchInfo action closure
+
+The previously address-only non-null cell action at `0x488C80` is now tied to
+a concrete original presentation class and its fail-closed context resolution.
+
+### Grid passes the fixture pointer directly
+
+`PLeagueGrid::0x46D390` uses the already-proven 29x14 point reduction to
+resolve the matrix cell. At `0x46D3E6` it loads the matrix pointer for that
+cell, tests it for null, and only when non-null:
+
+```text
+push fixture_pointer
+call 0x488C80
+```
+
+No modern route ID or synthesized match record is inserted by the grid.
+
+### 0x488C80 resolves a second context before opening
+
+The target receives that fixture pointer and calls its virtual slot `+0x18`.
+The returned source object supplies a signed 16-bit link index at `+0x40`.
+
+The function then walks the source-linked structure rooted through global
+`0x8755F8`. If:
+
+- the link index is `0xFFFF`;
+- the linked-list root is absent;
+- or the requested linked node cannot be resolved;
+
+the function reaches its no-op exit without allocating a dialog.
+
+Therefore a populated League Fixtures cell is **necessary but not sufficient**
+for the original match-info dialog to open.
+
+### Concrete dialog identity
+
+When the secondary context resolves, `0x488C80`:
+
+1. allocates exactly `0x1828` bytes through `0x668140`;
+2. calls constructor `0x487580`;
+3. stores the constructor result as the dialog object.
+
+The constructor initially installs the inherited
+`PExplodingDialog` vtable `0x7C0D54` and finishes by installing final vtable
+`0x7C41D4`.
+
+MSVC RTTI resolves:
+
+- final TypeDescriptor `0x81D058` -> **`PMatchInfo`**;
+- base TypeDescriptor `0x81BB38` -> **`PExplodingDialog`**.
+
+This independently identifies the League Fixtures populated-cell action as an
+attempt to open the original `PMatchInfo` presentation dialog.
+
+### Constructor contexts
+
+Immediately before constructor `0x487580`, `0x488C80` pushes:
+
+1. the source object returned from the fixture virtual `+0x18`;
+2. the resolved linked context.
+
+Inside `PMatchInfo`, those two arguments are retained at:
+
+- `PMatchInfo+0x70`: primary fixture-derived context;
+- `PMatchInfo+0x74`: resolved linked context.
+
+The exact higher-level class/football name of the secondary linked context is
+not promoted by this checkpoint. The clean-room boundary names it only as the
+source-resolved secondary context.
+
+### Dialog geometry
+
+After construction, `0x488C80` calls generic geometry helper `0x653320`.
+That helper stores:
+
+```text
+left   = x
+top    = y
+right  = x + width
+bottom = y + height
+```
+
+The `PMatchInfo` caller supplies exact dimensions:
+
+- width = `0x2F8` = **760**;
+- height = `0x1F4` = **500**.
+
+The x/y origin is dynamically clamped from the existing source UI globals at
+`0x8779C0/0x8779C4`; this checkpoint therefore preserves only the proven
+760x500 size and does not invent a fixed origin.
+
+### Reconstruction consequence
+
+`reconstruction/original_league_fixtures_resources.py` now guards a
+`LeagueFixturesMatchInfoAction` with:
+
+- action target `0x488C80`;
+- class `PMatchInfo`;
+- final vtable `0x7C41D4`;
+- constructor `0x487580`;
+- allocation size `0x1828`;
+- base `PExplodingDialog` vtable `0x7C0D54`;
+- fixture-derived primary context and linked secondary context;
+- exact 760x500 dialog size;
+- no-op behavior unless both the cell fixture and linked context are present.
+
+Still open after Recovery 155:
+
+1. broader `PMatchInfo` internal resources/layout/content, which is a separate
+   presentation slice from proving the navigation target;
+2. the exact higher-level semantic identity of the linked secondary context;
+3. remaining non-selector League Fixtures header/footer controls;
+4. fixture matrix status bit `0x20` semantic name, if independently provable;
+5. original binary asset import and integrated Windows validation.
+
+The former open item “exact semantics of action target `0x488C80`” is closed
+at the presentation/navigation level as **open original PMatchInfo dialog when
+its source-linked context resolves**.
