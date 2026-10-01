@@ -959,7 +959,7 @@
   "gate13_league_fixtures_panel_constructor": "0x46D470",
   "gate13_league_fixtures_panel_vftable": "0x7C24B8",
   "gate13_calendar_fixtures_navigation_evidence": "research/GATE13_CALENDAR_FIXTURES_NAVIGATION.md",
-  "gate13_fixtures_results_identity_status": "league_fixtures_and_pmatchinfo_navigation_resource_family_source_proven_pmatchinfo_control_geometry_text_font_events_asset_import_windows_validation_open",
+  "gate13_fixtures_results_identity_status": "league_fixtures_and_pmatchinfo_navigation_resources_local_geometry_and_zurich16_text_rectangles_source_proven_text_meanings_incident_control_events_seven_consumers_asset_import_windows_validation_open",
   "gate13_calendar_fixtures_navigation_merge": "9da4c89f67aaba7b263354591497d596ca50edd1",
   "gate13_calendar_fixtures_navigation_ci_run": 36916343766,
   "gate13_calendar_fixtures_navigation_asset_policy_run": 36916343760,
@@ -1117,5 +1117,34 @@
     500
   ],
   "gate13_pmatchinfo_private_source_reverified_recovery": 156,
-  "gate13_pmatchinfo_original_assets_imported": false
+  "gate13_pmatchinfo_original_assets_imported": false,
+  "gate13_pmatchinfo_resource_merge": "c304e77d81b21d1c6fde1a63b90934347926d7f1",
+  "gate13_pmatchinfo_resource_ci_run": 36927729023,
+  "gate13_pmatchinfo_resource_test_count": 343,
+  "gate13_pmatchinfo_resource_expected_skips": 21,
+  "gate13_pmatchinfo_resource_asset_policy_run": 36927729082,
+  "gate13_pmatchinfo_geometry_source_proven": true,
+  "gate13_pmatchinfo_rect_setup_va": "0x64F380",
+  "gate13_pmatchinfo_bitmap_descriptor_setup_va": "0x64E500",
+  "gate13_pmatchinfo_control_callback_target_va": "0x87BF00",
+  "gate13_pmatchinfo_control_callback_target_class": "eCDBitmap",
+  "gate13_pmatchinfo_control_callback_target_type_descriptor": "0x819C48",
+  "gate13_pmatchinfo_control_callback_target_vftable": "0x7BFE14",
+  "gate13_pmatchinfo_resource_placement_count": 9,
+  "gate13_pmatchinfo_disabled_player_control_size": [
+    252,
+    16
+  ],
+  "gate13_pmatchinfo_pitch_local_rect": [
+    233,
+    -2,
+    294,
+    78
+  ],
+  "gate13_pmatchinfo_text_setup_va": "0x6503F0",
+  "gate13_pmatchinfo_text_font_global": "0x87BEA0",
+  "gate13_pmatchinfo_text_font_path": "Fonts/Zurich_BdXCn_BT_16pixel.fnt",
+  "gate13_pmatchinfo_text_placement_count": 6,
+  "gate13_pmatchinfo_text_meanings_open": true,
+  "gate13_pmatchinfo_incident_icon_shared_control_geometry_open": true
 }

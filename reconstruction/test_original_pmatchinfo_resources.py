@@ -6,6 +6,20 @@ import unittest
 from original_pmatchinfo_resources import (
     PMATCHINFO_RESOURCE_BY_NAME,
     PMATCHINFO_RESOURCES,
+    PMATCHINFO_RESOURCE_PLACEMENTS,
+    PMATCHINFO_BITMAP_DESCRIPTOR_SETUP_VA,
+    PMATCHINFO_CONTROL_RECT_SETUP_VA,
+    PMATCHINFO_CONTROL_CALLBACK_TARGET_VA,
+    PMATCHINFO_CONTROL_CALLBACK_TARGET_CLASS,
+    PMATCHINFO_CONTROL_CALLBACK_TARGET_TYPE_DESCRIPTOR_VA,
+    PMATCHINFO_CONTROL_CALLBACK_TARGET_COL_VA,
+    PMATCHINFO_CONTROL_CALLBACK_TARGET_VFTABLE_VA,
+    PMATCHINFO_TEXT_SETUP_VA,
+    PMATCHINFO_TEXT_PLACEMENTS,
+    PMATCHINFO_TEXT_FONT_GLOBAL_VA,
+    PMATCHINFO_TEXT_FONT_SOURCE_PATH,
+    PMATCHINFO_TEXT_FONT_SHA256,
+    PMATCHINFO_TEXT_FONT_NATIVE_LINE_HEIGHT,
     PMATCHINFO_SUBPANEL_BASE_CLASS,
     PMATCHINFO_SUBPANEL_BASE_COL_VA,
     PMATCHINFO_SUBPANEL_BASE_TYPE_DESCRIPTOR_VA,
@@ -16,6 +30,8 @@ from original_pmatchinfo_resources import (
     PMATCHINFO_SUBPANEL_VFTABLE_VA,
     OriginalPMatchInfoResourceError,
     assert_pmatchinfo_identity_contract,
+    assert_pmatchinfo_placement_resources_are_bound,
+    pmatchinfo_placements_for_resource,
     validate_original_pmatchinfo_resources,
 )
 
@@ -95,6 +111,131 @@ class OriginalPMatchInfoResourceTests(unittest.TestCase):
         self.assertEqual(PMATCHINFO_RESOURCE_BY_NAME["match_name_grid"].size, (185, 36))
         self.assertEqual(PMATCHINFO_RESOURCE_BY_NAME["match_incid_grid"].size, (142, 36))
         self.assertEqual(PMATCHINFO_RESOURCE_BY_NAME["pitch_normal"].size, (294, 78))
+
+    def test_local_resource_placements_preserve_exact_64f380_rectangles(self):
+        expected = [
+            ("match_name_grid", 0x483500, 0x483541, 0x483591, (0, 0, 185, 36)),
+            ("match_incid_grid", 0x483500, 0x4835AD, 0x4835E7, (189, 0, 142, 36)),
+            ("yellow_card", 0x483500, 0x48366D, 0x483674, (191, 11, 14, 14)),
+            ("match_name_grid", 0x483750, 0x483784, 0x4837D0, (0, 0, 185, 36)),
+            ("match_incid_grid", 0x483750, 0x4837EC, 0x483826, (189, 0, 142, 36)),
+            ("info_player", 0x483840, 0x4838AC, 0x4838B3, (0, 0, 274, 16)),
+            (
+                "info_player_disabled",
+                0x483A30,
+                0x483A81,
+                0x483A88,
+                (0, 0, 252, 16),
+            ),
+            ("pitch_normal", 0x483AA0, 0x483B1E, 0x483B72, (233, -2, 294, 78)),
+            ("info_popup", 0x484F90, 0x484FFF, 0x485059, (0, 0, 760, 500)),
+        ]
+        self.assertEqual(
+            [
+                (
+                    placement.resource_name,
+                    placement.owner_method_va,
+                    placement.resource_bind_va,
+                    placement.rect_setup_call_va,
+                    placement.rect,
+                )
+                for placement in PMATCHINFO_RESOURCE_PLACEMENTS
+            ],
+            expected,
+        )
+        self.assertEqual(PMATCHINFO_CONTROL_RECT_SETUP_VA, 0x64F380)
+        self.assertEqual(PMATCHINFO_BITMAP_DESCRIPTOR_SETUP_VA, 0x64E500)
+
+    def test_disabled_player_strip_is_source_clipped_not_stretched(self):
+        source = PMATCHINFO_RESOURCE_BY_NAME["info_player_disabled"]
+        placement = pmatchinfo_placements_for_resource("info_player_disabled")
+        self.assertEqual(source.size, (274, 16))
+        self.assertEqual(len(placement), 1)
+        self.assertEqual(placement[0].rect, (0, 0, 252, 16))
+        self.assertLess(placement[0].width, source.size[0])
+
+    def test_pitch_preserves_negative_local_y_origin(self):
+        placement = pmatchinfo_placements_for_resource("pitch_normal")
+        self.assertEqual(len(placement), 1)
+        self.assertEqual(placement[0].rect, (233, -2, 294, 78))
+
+    def test_reused_name_and_incident_grids_keep_same_local_geometry(self):
+        self.assertEqual(
+            [placement.rect for placement in pmatchinfo_placements_for_resource("match_name_grid")],
+            [(0, 0, 185, 36), (0, 0, 185, 36)],
+        )
+        self.assertEqual(
+            [placement.rect for placement in pmatchinfo_placements_for_resource("match_incid_grid")],
+            [(189, 0, 142, 36), (189, 0, 142, 36)],
+        )
+
+    def test_64f380_callback_target_is_ecdbitmap_not_a_guessed_font(self):
+        self.assertEqual(PMATCHINFO_CONTROL_CALLBACK_TARGET_VA, 0x87BF00)
+        self.assertEqual(PMATCHINFO_CONTROL_CALLBACK_TARGET_CLASS, "eCDBitmap")
+        self.assertEqual(
+            PMATCHINFO_CONTROL_CALLBACK_TARGET_TYPE_DESCRIPTOR_VA,
+            0x819C48,
+        )
+        self.assertEqual(PMATCHINFO_CONTROL_CALLBACK_TARGET_COL_VA, 0x7E1248)
+        self.assertEqual(PMATCHINFO_CONTROL_CALLBACK_TARGET_VFTABLE_VA, 0x7BFE14)
+        self.assertTrue(
+            all(
+                placement.callback_target_va == PMATCHINFO_CONTROL_CALLBACK_TARGET_VA
+                for placement in PMATCHINFO_RESOURCE_PLACEMENTS
+            )
+        )
+
+    def test_placement_lookup_fails_closed_and_geometry_stays_within_source(self):
+        assert_pmatchinfo_placement_resources_are_bound()
+        self.assertEqual(pmatchinfo_placements_for_resource("poss_back"), ())
+        for bad in ("", "not-a-resource", None, 1):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalPMatchInfoResourceError):
+                    pmatchinfo_placements_for_resource(bad)
+
+    def test_text_setup_uses_source_bound_zurich_16_font_and_exact_rectangles(self):
+        self.assertEqual(PMATCHINFO_TEXT_SETUP_VA, 0x6503F0)
+        self.assertEqual(PMATCHINFO_TEXT_FONT_GLOBAL_VA, 0x87BEA0)
+        self.assertEqual(
+            PMATCHINFO_TEXT_FONT_SOURCE_PATH,
+            "Fonts/Zurich_BdXCn_BT_16pixel.fnt",
+        )
+        self.assertEqual(
+            PMATCHINFO_TEXT_FONT_SHA256,
+            "9dc371caba34823b0d6ba6fd4c5e82f94775de1168daa5dad936b70a6e4f9732",
+        )
+        self.assertEqual(PMATCHINFO_TEXT_FONT_NATIVE_LINE_HEIGHT, 18)
+        self.assertEqual(
+            [
+                (placement.owner_method_va, placement.setup_call_va, placement.rect)
+                for placement in PMATCHINFO_TEXT_PLACEMENTS
+            ],
+            [
+                (0x483500, 0x4836AC, (210, 2, 185, 12)),
+                (0x483500, 0x4836E4, (210, 18, 185, 12)),
+                (0x483840, 0x483918, (33, 0, 29, 16)),
+                (0x484F90, 0x485091, (172, 50, 416, 16)),
+                (0x484F90, 0x4850C9, (380, 68, 208, 16)),
+                (0x484F90, 0x485101, (172, 68, 208, 16)),
+            ],
+        )
+        self.assertTrue(
+            all(
+                placement.font_global_va == PMATCHINFO_TEXT_FONT_GLOBAL_VA
+                for placement in PMATCHINFO_TEXT_PLACEMENTS
+            )
+        )
+
+    def test_text_control_height_does_not_get_replaced_by_font_line_height(self):
+        self.assertEqual(PMATCHINFO_TEXT_FONT_NATIVE_LINE_HEIGHT, 18)
+        self.assertEqual(
+            [placement.height for placement in PMATCHINFO_TEXT_PLACEMENTS[:2]],
+            [12, 12],
+        )
+        self.assertNotEqual(
+            PMATCHINFO_TEXT_PLACEMENTS[0].height,
+            PMATCHINFO_TEXT_FONT_NATIVE_LINE_HEIGHT,
+        )
 
     def test_incident_icon_family_is_exact_fourteen_square_pixels(self):
         for name in (

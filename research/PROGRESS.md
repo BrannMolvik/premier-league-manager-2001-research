@@ -9823,3 +9823,14 @@ canonical audit.
 - Bounded executable consumers are now persisted for 13 resources: the player row pair, popup background, seven 14x14 incident/status icons, match-name grid, pitch image and incident grid. The four name-block and three possession-strip resources remain source-owned/hash-verified but without a claimed final per-control consumer until further data-flow tracing.
 - Added `original_pmatchinfo_resources.py`, strict validator/regressions and Gate-13 CI coverage. No original Match Report binary bytes entered Git.
 - Exact next task after CI is PMatchInfo internal control geometry/text/font/event binding, starting from the already-proven subpanel owner graph and direct resource consumers.
+
+
+## 2 October 2026 - Recovery 157 PMatchInfo local geometry and Zurich text controls
+
+- PR #86 merged as `c304e77d81b21d1c6fde1a63b90934347926d7f1`; focused Gate-13 run `36927729023` passed 343 tests with 21 expected source-gated skips and asset-policy run `36927729082` passed.
+- Traced shared control rectangle helper `0x64F380`: arg1/2 store x/y, arg3/4 form right/bottom via width/height, arg5 is retained at control `+0x28` and receives an optional virtual callback, arg6 stores at `+0x1C`.
+- Fresh RTTI proves the common PMatchInfo arg5 global `0x87BF00` is `eCDBitmap` (vtable `0x7BFE14`, COL `0x7E1248`, TD `0x819C48`), not a font. The model therefore keeps it as a neutral callback target.
+- Source-bound nine exact owner-local resource rectangles: two copies each of match-name `(0,0,185,36)` and incident `(189,0,142,36)` grids; yellow-card `(191,11,14,14)`; active player `(0,0,274,16)`; disabled player `(0,0,252,16)`; pitch `(233,-2,294,78)`; popup `(0,0,760,500)`.
+- The disabled player control intentionally clips the 274x16 source to 252x16, and pitch keeps its negative y=-2. These are original fidelity details, not errors to normalize.
+- Traced text helper `0x6503F0` into `0x64F380`. Six bounded PMatchInfo calls pass the source-proven Zurich 16px global `0x87BEA0`: `(210,2,185,12)`, `(210,18,185,12)`, `(33,0,29,16)`, `(172,50,416,16)`, `(380,68,208,16)`, `(172,68,208,16)`. The two 12px-high controls remain 12px despite the font's 18px native line height.
+- Added fail-closed placement helpers/regressions and explicit separation between bitmap callback ownership and true font binding. Exact next task after CI: resolve string/data producers for these six text controls and shared incident-icon control geometry, then continue PMatchInfo events/remaining resource consumers.

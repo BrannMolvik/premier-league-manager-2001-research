@@ -140,3 +140,115 @@ No original Match Report graphic bytes are committed by this checkpoint.
 5. integrated real-Windows presentation validation;
 6. remaining Gate-13 screens after the fixtures/results family reaches a
    sufficient source-faithful presentation boundary.
+
+
+## Recovery 157 local control and Zurich text geometry
+
+Recovery 157 continues from the verified Match Report resource inventory into
+the source setup helpers used by the concrete PMatchInfo/subpanel methods. The
+coordinates below are **owner-local control rectangles** recovered from setup
+arguments. They are not promoted to screen-global coordinates unless the source
+owner transform is separately traced.
+
+### Exact control rectangle helper
+
+Shared helper `0x64F380` stores six incoming arguments as follows:
+
+```text
+arg1 -> control +0x08 = x
+arg2 -> control +0x0C = y
+arg3 -> right = x + width
+arg4 -> bottom = y + height
+arg5 -> control +0x28 and optional virtual callback target
+arg6 -> control +0x1C
+```
+
+The PMatchInfo setup paths below pass global `0x87BF00` as arg5.
+
+A fresh MSVC RTTI walk corrects an important possible misinterpretation:
+`0x87BF00` is **not a font object**. Its vtable is `0x7BFE14`, Complete
+Object Locator `0x7E1248`, TypeDescriptor `0x819C48`, which names
+`eCDBitmap`. The clean-room contract therefore names it only as the
+`0x64F380` callback target. Text/font ownership is traced separately through
+`0x6503F0`.
+
+### Source-proven local resource rectangles
+
+| Resource | Owner/setup method | Resource bind | `0x64F380` call | Exact local rect `(x,y,w,h)` |
+| --- | ---: | ---: | ---: | --- |
+| `match_name_grid.444` | `0x483500` | `0x483541` | `0x483591` | `(0,0,185,36)` |
+| `match_incid_grid.444` | `0x483500` | `0x4835AD` | `0x4835E7` | `(189,0,142,36)` |
+| `yellow_card.444` | `0x483500` | `0x48366D` | `0x483674` | `(191,11,14,14)` |
+| `match_name_grid.444` | `0x483750` | `0x483784` | `0x4837D0` | `(0,0,185,36)` |
+| `match_incid_grid.444` | `0x483750` | `0x4837EC` | `0x483826` | `(189,0,142,36)` |
+| `info_player.444` | `0x483840` | `0x4838AC` | `0x4838B3` | `(0,0,274,16)` |
+| `info_player_disabled.444` | `0x483A30` | `0x483A81` | `0x483A88` | `(0,0,252,16)` |
+| `pitch_normal.444` | `0x483AA0` | `0x483B1E` | `0x483B72` | `(233,-2,294,78)` |
+| `info_popup.444` | `0x484F90` | `0x484FFF` | `0x485059` | `(0,0,760,500)` |
+
+Several fidelity-significant details follow directly:
+
+- the disabled player source bitmap is 274x16, but the original control
+  deliberately exposes only **252x16**; the reconstruction must not stretch it
+  to its full source width;
+- `pitch_normal.444` retains a real negative local y origin of **-2**;
+- the two name/incident-grid setup variants reuse exactly the same local
+  rectangles;
+- `info_popup.444` occupies the exact full 760x500 PMatchInfo local
+  rectangle, independently matching the dialog size already recovered through
+  `0x488C80`.
+
+### Exact text helper and Zurich 16px binding
+
+Shared text setup `0x6503F0` retains its text/font-specific fields and then
+forwards its first four arguments to `0x64F380` as x/y/width/height.
+
+The PMatchInfo calls bounded here pass **`0x87BEA0`** as the font argument.
+That global is already independently source-bound to:
+
+`Fonts/Zurich_BdXCn_BT_16pixel.fnt`
+
+with SHA-256:
+
+`9dc371caba34823b0d6ba6fd4c5e82f94775de1168daa5dad936b70a6e4f9732`
+
+and recovered native line height 18 pixels.
+
+The exact local text rectangles currently source-bound are:
+
+| Owner/setup method | `0x6503F0` call | Exact local rect |
+| ---: | ---: | --- |
+| `0x483500` | `0x4836AC` | `(210,2,185,12)` |
+| `0x483500` | `0x4836E4` | `(210,18,185,12)` |
+| `0x483840` | `0x483918` | `(33,0,29,16)` |
+| `0x484F90` | `0x485091` | `(172,50,416,16)` |
+| `0x484F90` | `0x4850C9` | `(380,68,208,16)` |
+| `0x484F90` | `0x485101` | `(172,68,208,16)` |
+
+The two 12-pixel-high controls remain **12 pixels high** even though the
+source font's native line height is 18. No modern clipping correction is
+introduced.
+
+This checkpoint does not yet assign higher-level caption meanings to those six
+text controls. Their string/data producers are a separate trace.
+
+### Reconstruction consequence
+
+`reconstruction/original_pmatchinfo_resources.py` now additionally guards:
+
+- the exact `0x64F380` rectangle-storage contract;
+- nine local resource placements with source call sites;
+- the `eCDBitmap` RTTI identity of the common `0x87BF00` callback target;
+- the exact `0x6503F0` text-setup boundary;
+- six source-proven text rectangles;
+- the already-proven Zurich 16px font binding;
+- source clipping/negative-origin details that must not be normalized.
+
+Still open after Recovery 157:
+
+1. string/data producers and visible meanings for the bounded text controls;
+2. the shared dynamic incident-icon control geometry used by score/injury/
+   card/substitution resource switching;
+3. direct final consumers for four name blocks and three possession strips;
+4. PMatchInfo event/tab behavior and remaining internal controls;
+5. intentional original asset import and integrated Windows validation.
