@@ -238,6 +238,20 @@ def league_fixture_matrix_accepts_candidate(
     )
 
 
+def league_fixture_matrix_layer_count_from_helper_result(helper_result: int) -> int:
+    """Mirror 0x46D985..0x46D98F: signed helper result divided by two.
+
+    The source-selected competitions observed by this path provide a
+    non-negative helper result; invalid negative values are rejected rather
+    than extrapolated.
+    """
+    if type(helper_result) is not int or helper_result < 0:
+        raise OriginalLeagueFixturesResourceError(
+            "matrix layer helper result must be a non-negative integer"
+        )
+    return helper_result // 2
+
+
 def league_fixture_matrix_slot(
     *,
     club_count: int,
