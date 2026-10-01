@@ -133,6 +133,7 @@ PMATCHINFO_LANGUAGE_BINDINGS = (
     OriginalPMatchInfoLanguageBinding(0x982154, 2473, "Injury"),
     OriginalPMatchInfoLanguageBinding(0x982100, 2494, "Shoot Out"),
     OriginalPMatchInfoLanguageBinding(0x98200C, 2555, "Ref."),
+    OriginalPMatchInfoLanguageBinding(0x982008, 2556, "FINANCIAL"),
     OriginalPMatchInfoLanguageBinding(0x981EA4, 2645, "%s: %s %s"),
     OriginalPMatchInfoLanguageBinding(0x981E98, 2648, "first leg"),
     OriginalPMatchInfoLanguageBinding(0x981E94, 2649, "second leg"),
@@ -156,6 +157,140 @@ def pmatchinfo_original_english(global_va: int) -> str:
         raise OriginalPMatchInfoResourceError(
             f"Unbound PMatchInfo English global: {global_va:#x}"
         ) from exc
+
+
+PMATCHINFO_CONTROL_EVENT_BIND_VA = 0x64F3C0
+PMATCHINFO_TAB_EVENT_HANDLER_VA = 0x488B70
+PMATCHINFO_KEY_EVENT_HANDLER_VA = 0x488C60
+
+PMATCHINFO_TAB_CONTROL_CLASS = "fmRadioButton6"
+PMATCHINFO_TAB_CONTROL_TYPE_DESCRIPTOR_VA = 0x81D108
+PMATCHINFO_TAB_CONTROL_COL_VA = 0x7E4D10
+PMATCHINFO_TAB_CONTROL_VFTABLE_VA = 0x7C4474
+PMATCHINFO_TAB_CONTROL_CONSTRUCTOR_VA = 0x488570
+PMATCHINFO_TAB_CONTROL_COUNT = 3
+PMATCHINFO_TAB_CONTROL_STRIDE = 0x54
+
+PMATCHINFO_TEAM_INFO_SUBPANEL_CLASS = "PTeamInfoSubPanel"
+PMATCHINFO_TEAM_INFO_SUBPANEL_TYPE_DESCRIPTOR_VA = 0x81D038
+PMATCHINFO_TEAM_INFO_SUBPANEL_COL_VA = 0x7E4B10
+PMATCHINFO_TEAM_INFO_SUBPANEL_VFTABLE_VA = 0x7C4220
+
+PMATCHINFO_FINANCE_SUBPANEL_CLASS = "PFinanceSubPanel"
+PMATCHINFO_FINANCE_SUBPANEL_TYPE_DESCRIPTOR_VA = 0x81D1E8
+PMATCHINFO_FINANCE_SUBPANEL_COL_VA = 0x7E4D60
+PMATCHINFO_FINANCE_SUBPANEL_VFTABLE_VA = 0x7C4530
+PMATCHINFO_FINANCE_SUBPANEL_CONSTRUCTOR_VA = 0x488DE0
+
+PMATCHINFO_TAB_HOST_CLASS = "eCSubPanel"
+PMATCHINFO_TAB_HOST_TYPE_DESCRIPTOR_VA = 0x81B780
+PMATCHINFO_TAB_HOST_COL_VA = 0x7E1BF0
+PMATCHINFO_TAB_HOST_VFTABLE_VA = 0x7C0668
+PMATCHINFO_TAB_HOST_OFFSET = 0x17A8
+PMATCHINFO_TAB_HOST_TARGET_OFFSET = 0x2C
+PMATCHINFO_TAB_HOST_SETUP_VA = 0x650B20
+PMATCHINFO_TAB_PANEL_RECT_SETUP_VA = 0x653320
+PMATCHINFO_TAB_HOST_REFRESH_VA = 0x64F600
+PMATCHINFO_DEFAULT_PANEL_POINTER_OFFSET = 0x1390
+PMATCHINFO_DEFAULT_PANEL_POINTER_ASSIGN_VA = 0x4879C6
+
+PMATCHINFO_CROSS_BUTTON_CLASS = "fmCrossButton"
+PMATCHINFO_CROSS_BUTTON_TYPE_DESCRIPTOR_VA = 0x81BBD8
+PMATCHINFO_CROSS_BUTTON_COL_VA = 0x7E2358
+PMATCHINFO_CROSS_BUTTON_VFTABLE_VA = 0x7C0DA0
+PMATCHINFO_CROSS_BUTTON_OFFSET = 0x17D8
+PMATCHINFO_EXIT_EVENT_ID = 7
+PMATCHINFO_ESCAPE_CODE = 0x1B
+PMATCHINFO_EVENT_CODE_OFFSET = 0x20
+PMATCHINFO_EVENT_OWNER_OFFSET = 0x24
+PMATCHINFO_EXIT_MESSAGE_HELPER_VA = 0x6539F0
+PMATCHINFO_POST_MESSAGE_WRAPPER_VA = 0x659650
+PMATCHINFO_EXIT_MESSAGE_ID = 0x400
+PMATCHINFO_EXIT_MESSAGE_WPARAM = 7
+PMATCHINFO_EXIT_MESSAGE_LPARAM = 0
+PMATCHINFO_POST_MESSAGE_API = "PostMessageA"
+
+
+@dataclass(frozen=True)
+class OriginalPMatchInfoTab:
+    event_id: int
+    control_offset: int
+    label_global_va: int
+    label: str
+    panel_offset: int
+    panel_class: str
+    panel_type_descriptor_va: int
+    panel_col_va: int
+    panel_vftable_va: int
+
+
+PMATCHINFO_TABS = (
+    OriginalPMatchInfoTab(
+        1,
+        0x14A4,
+        0x982C38,
+        "MATCH INFO",
+        0x1C0,
+        PMATCHINFO_SUBPANEL_CLASS,
+        PMATCHINFO_SUBPANEL_TYPE_DESCRIPTOR_VA,
+        PMATCHINFO_SUBPANEL_COL_VA,
+        PMATCHINFO_SUBPANEL_VFTABLE_VA,
+    ),
+    OriginalPMatchInfoTab(
+        2,
+        0x14F8,
+        0x982C3C,
+        "TEAM INFO",
+        0x8F0,
+        PMATCHINFO_TEAM_INFO_SUBPANEL_CLASS,
+        PMATCHINFO_TEAM_INFO_SUBPANEL_TYPE_DESCRIPTOR_VA,
+        PMATCHINFO_TEAM_INFO_SUBPANEL_COL_VA,
+        PMATCHINFO_TEAM_INFO_SUBPANEL_VFTABLE_VA,
+    ),
+    OriginalPMatchInfoTab(
+        3,
+        0x154C,
+        0x982008,
+        "FINANCIAL",
+        0xB10,
+        PMATCHINFO_FINANCE_SUBPANEL_CLASS,
+        PMATCHINFO_FINANCE_SUBPANEL_TYPE_DESCRIPTOR_VA,
+        PMATCHINFO_FINANCE_SUBPANEL_COL_VA,
+        PMATCHINFO_FINANCE_SUBPANEL_VFTABLE_VA,
+    ),
+)
+
+PMATCHINFO_DEFAULT_TAB_EVENT_ID = 1
+PMATCHINFO_DEFAULT_PANEL_OFFSET = 0x1C0
+PMATCHINFO_TAB_PANEL_STATE_VALUE = 2
+PMATCHINFO_TAB_PANEL_STATE_OFFSET = 0x04
+PMATCHINFO_TAB_PANEL_HOST_POINTER_OFFSET = 0x08
+
+
+def pmatchinfo_tab_for_event(event_id: int) -> OriginalPMatchInfoTab:
+    if type(event_id) is not int:
+        raise OriginalPMatchInfoResourceError(
+            "PMatchInfo tab event id must be an integer"
+        )
+    for tab in PMATCHINFO_TABS:
+        if tab.event_id == event_id:
+            return tab
+    raise OriginalPMatchInfoResourceError(
+        f"Unbound PMatchInfo tab event id: {event_id}"
+    )
+
+
+def pmatchinfo_tab_for_control_offset(control_offset: int) -> OriginalPMatchInfoTab:
+    if type(control_offset) is not int:
+        raise OriginalPMatchInfoResourceError(
+            "PMatchInfo tab control offset must be an integer"
+        )
+    for tab in PMATCHINFO_TABS:
+        if tab.control_offset == control_offset:
+            return tab
+    raise OriginalPMatchInfoResourceError(
+        f"Unbound PMatchInfo tab control offset: {control_offset:#x}"
+    )
 
 
 # PScriptRow1/2 share these two text controls. The first control receives an
