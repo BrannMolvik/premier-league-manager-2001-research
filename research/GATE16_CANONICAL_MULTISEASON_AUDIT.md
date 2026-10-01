@@ -48,7 +48,8 @@ rollover.
 ## State-growth guard
 
 Immediately after each regeneration, before the new season accumulates dynamic
-results or replays, the runner records a fresh season-owned structural shape:
+results or replays, the runner records the fresh season-owned structural shape
+for diagnostics:
 
 - Premier League fixture and scheduler counts;
 - shared primary entry count;
@@ -58,9 +59,18 @@ results or replays, the runner records a fresh season-owned structural shape:
 - qualification Cup node count;
 - live procedural-League owner count.
 
-That fresh structural shape must remain identical across all audited rollovers.
-This is deliberately a runtime-state accumulation guard. It does not assert that
-serialized save byte length must be identical.
+Recovery 136 proved that exact Cup node counts are not a valid cross-season
+corruption invariant because annual qualification can legitimately change the
+number of admitted direct Cup participants. The fail-closed guard now compares
+each freshly installed runtime to **that cycle's own materialized schedule**.
+The complete primary shadow, all three Cup owners, the shared-primary execution
+entries, and live procedural owner keys must project exactly from the current
+regeneration. A stale prior-season node therefore still fails closed, while a
+legitimate participant-dependent current-season shape change does not.
+
+The diagnostic shape remains in the JSON report, now also as
+`fresh_state_shapes` for every rollover. This is a runtime-state accumulation
+guard; it does not assert that serialized save byte length must be identical.
 
 ## Canonical command
 
@@ -121,3 +131,31 @@ task is to isolate the two added European nodes by competition/round and prove
 whether they are legitimate participant-dependent annual Cup materialization
 or an actual cross-season accumulation defect. A regression must encode that
 boundary before the canonical three-rollover audit is rerun.
+
+
+## Recovery 136 European-node isolation
+
+The focused three-cycle diagnostic completed successfully and retained the
+exact current-season Cup runtime alongside the installed European schedule.
+Cycles 0 and 1 regenerated UEFA Cup (competition 10) round 210 with **79**
+direct participants, producing `floor(79/2) = 39` two-leg pairings. Cycle 2
+had **80** direct participants and therefore 40 pairings.
+
+The only added installed nodes were therefore exactly:
+
+- `("cup_first_leg", 10, 210, 39)`;
+- `("cup_result", 10, 210, 39)`.
+
+Round 211 consequently received 95 participants instead of 94, but both values
+still produce 47 pairings. Round 212 onward retained the same pairing counts,
+which is why the complete European-node delta was exactly +2.
+
+This matches the recovered knockout preparation semantics in
+`prepare_cup_knockout_round`: odd runtime participant counts are accepted,
+the routine pairs `floor(count/2)`, and the final unpaired ClubRef is not
+propagated as a bye. The cycle-2 shape change is therefore legitimate
+qualification-dependent materialization, not cross-season accumulation.
+
+The regression now models that exact class of change: a fresh European Cup may
+gain two nodes when its current regeneration contains them, while an injected
+stale Cup node that is absent from the current regeneration still fails closed.
