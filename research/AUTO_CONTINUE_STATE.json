@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 156 continues from main 501707f396aa2af7ca66dffcd7a5ecf8189c4df7. Private source ZIP and both shipped footballmanager.exe copies reverified; canonical executable SHA remains 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3. Exact task: persist source proof that League Fixtures non-null cell action 0x488C80 opens PMatchInfo via ctor 0x487580/vftable 0x7C41D4/TypeDescriptor 0x81D058, while keeping the secondary constructor context neutral unless independently identified; then continue remaining non-selector controls.",
-  "last_known_main_head": "501707f396aa2af7ca66dffcd7a5ecf8189c4df7",
+  "active_task": "Recovery 156 continues from merged PR #85 at main a5c0de8aff324aa6ea8481da24da725d8921ebd4. Gate-13 run 36924435622 passed 333 tests with 21 expected skips and asset-policy run 36924435665 passed. Exact next task: source-bind PMatchInfo internal Match_report resource ownership using the freshly reverified canonical executable and authorized disc bytes, recording exact hashes/dimensions/static handles and only directly proven PMatchInfo/subpanel consumers; then continue remaining Gate-13 presentation work.",
+  "last_known_main_head": "a5c0de8aff324aa6ea8481da24da725d8921ebd4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -19,8 +19,8 @@
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 156,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 156 has firsthand canonical executable access. Do not repeat selector/matrix/cell-state/resource work. Raw source stays private outside Git.",
+  "last_recovery_reason": "post-pr85-merge-continuation",
+  "note": "Recovery 156 has private canonical source/executable access. Do not repeat League Fixtures selectors, matrix, cell state or PMatchInfo navigation identity. Raw original bytes remain private outside Git.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
