@@ -27,6 +27,7 @@ from original_league_fixtures_resources import (
     league_fixture_empty_slot_is_self_match,
     league_fixture_first_free_repeat_slot,
     league_fixture_matrix_accepts_candidate,
+    league_fixture_matrix_layer_count_from_helper_result,
     league_fixture_matrix_slot,
     league_fixtures_column_page_offset,
     league_fixtures_grid_indices_from_point,
@@ -186,6 +187,15 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
                 **{**base, "fixture_status_bits": LEAGUE_FIXTURE_STATUS_COMPLETE_BIT}
             )
         )
+
+    def test_matrix_layer_count_is_source_helper_result_divided_by_two(self):
+        self.assertEqual(league_fixture_matrix_layer_count_from_helper_result(0), 0)
+        self.assertEqual(league_fixture_matrix_layer_count_from_helper_result(2), 1)
+        self.assertEqual(league_fixture_matrix_layer_count_from_helper_result(5), 2)
+        for bad in (True, -1, 1.5, "4"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalLeagueFixturesResourceError):
+                    league_fixture_matrix_layer_count_from_helper_result(bad)
 
     def test_matrix_slot_is_pair_major_with_n_squared_repeat_layers(self):
         self.assertEqual(
