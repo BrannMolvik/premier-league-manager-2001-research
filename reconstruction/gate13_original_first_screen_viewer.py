@@ -298,7 +298,8 @@ class OriginalFirstScreenTkDebug:
                     )
                     self.status.set(
                         f"Native club row {result.text!r} {verb}; "
-                        f"source ID {result.source_id}."
+                        f"record index {result.source_id}. Backend club selection "
+                        "remains fail-closed pending payload re-trace."
                     )
                 else:
                     self.status.set(
