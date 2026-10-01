@@ -18,9 +18,18 @@ from original_front_end_layout import (
     TEAMSELECT_HIERARCHY_ROW_ORIGINS,
 )
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
+from original_teamselect_hierarchy_art import (
+    HIERARCHY_ANIM_SPEC,
+    HIERARCHY_BARS_SPEC,
+    OriginalTeamSelectHierarchyArt,
+    split_hierarchy_source_strip,
+)
 from original_teamselect_resources import assemble_original_teamselect_inputs
 from test_original_pstartmenu_resources import fixture as menu_fixture
-from test_original_teamselect_resources import fixture as team_fixture
+from test_original_teamselect_resources import (
+    fixture as team_fixture,
+    solid as team_solid,
+)
 
 
 class StubBackend:
@@ -29,10 +38,23 @@ class StubBackend:
 
 
 def presenter() -> OriginalFirstScreenPresenter:
+    base, team, action_atlas = team_fixture()
+
+    def source_strip(spec, color):
+        return split_hierarchy_source_strip(
+            team_solid(spec.frame_width, spec.frame_height, color), spec
+        )
+
+    hierarchy_art = OriginalTeamSelectHierarchyArt(
+        source_strip(HIERARCHY_ANIM_SPEC, (9, 8, 7, 255)),
+        source_strip(HIERARCHY_BARS_SPEC, (4, 3, 2, 255)),
+    )
     return OriginalFirstScreenPresenter(
         FrontEndSession(lambda: StubBackend()),
         assemble_original_pstartmenu_inputs(*menu_fixture()),
-        assemble_original_teamselect_inputs(*team_fixture()),
+        assemble_original_teamselect_inputs(
+            base, team, action_atlas, hierarchy_art
+        ),
     )
 
 
