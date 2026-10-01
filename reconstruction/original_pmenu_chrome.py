@@ -63,24 +63,25 @@ PMENU_FONT_NATIVE_LINE_HEIGHT = 18
 PMENU_ROW_COLOR_COMPONENTS = ((0, 0, 0), (255, 255, 255))
 
 PMENU_BACKGROUND_STATE_METHOD_VA = 0x47AC00
-PMENU_VISIBLE_STATE_BIT = 0x2
-PMENU_ALTERNATE_STATE_BIT = 0x8
-PMENU_SPECIAL_STATE_BIT = 0x8000
+PMENU_STATE_BIT_1 = 0x2
+PMENU_STATE_BIT_3 = 0x8
+PMENU_STATE_BIT_15 = 0x8000
 
 
 def pmenu_background_row_index(state_bits: int) -> int:
     """Mirror MenuBackgroundToggle::0x47AC00 as an atlas-row index.
 
-    Names for the three source bits remain neutral. The method itself selects
-    3/2/1/0 multiples of the source frame height in the order below.
+    The three source bits remain deliberately unnamed beyond their bit
+    positions. The method itself selects 3/2/1/0 multiples of the source frame
+    height in the order below.
     """
     if type(state_bits) is not int or state_bits < 0:
         raise OriginalPMenuChromeError("PMenu state bits must be a non-negative integer")
-    if not state_bits & PMENU_VISIBLE_STATE_BIT:
+    if not state_bits & PMENU_STATE_BIT_1:
         return 3
-    if state_bits & PMENU_SPECIAL_STATE_BIT:
+    if state_bits & PMENU_STATE_BIT_15:
         return 2
-    if state_bits & PMENU_ALTERNATE_STATE_BIT:
+    if state_bits & PMENU_STATE_BIT_3:
         return 1
     return 0
 
