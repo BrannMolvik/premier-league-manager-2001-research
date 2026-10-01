@@ -95,11 +95,11 @@ Since this architecture audit was first written, the canonical Button/Zurich tra
 
 Still open:
 
-- TeamSelect hierarchy item/interaction semantics and remaining first-screen timing/navigation details;
-- original manager-screen resources/layouts/navigation/timing beyond the bounded Scouting fragment;
-- a source-backed general Squad panel/resource binding;
+- TeamSelect's exact 0x30-byte selection-record payload -> gameplay club identity, Start resolution, and upgraded real-Windows graphical validation;
+- original manager-screen resources/layouts/navigation/timing beyond the source-bound first-screen, Scouting and Squad/Tactics fragments;
+- remaining Squad/Tactics controls, icon/selection/sort semantics, navigation and full integrated composition;
 - recognizable FM2001 normal-play presentation across the management loop;
-- native Windows 11 graphical/integration smoke testing.
+- broader native Windows 11 graphical/integration smoke testing.
 
 Accordingly Gate 13 remains **ACTIVE**. Do not use this criterion's completion
 to advance to Gate 14 until the remaining Gate 13 criteria are independently
