@@ -21,6 +21,9 @@ from original_pmenu_chrome import (
     PMENU_FONT_SOURCE_PATH,
     PMENU_ROW_COLOR_COMPONENTS,
     PMENU_ROW_HEIGHT,
+    PMENU_LIST_OBJECT_OFFSET,
+    PMENU_LIST_SETUP_ARGUMENTS,
+    PMENU_DIRECT_RESOURCE_BINDING_IN_OWN_METHODS,
     PMENU_SEPARATE_TEAM_ORDER_NODES,
     PMENU_SYSTEM_CHILDREN,
     PMENU_TABLES_CHILDREN,
@@ -74,6 +77,14 @@ class OriginalPMenuChromeTests(unittest.TestCase):
         self.assertEqual(PMENU_CHILD_BOX_RESOURCE.owner_class, PMENU_CHILD_ROW_CLASS)
         self.assertEqual(PMENU_CHILD_BOX_RESOURCE.size, (168, 116))
         self.assertEqual(PMENU_CHILD_BOX_RESOURCE.frame_count, 4)
+
+    def test_pmenu_setup_preserves_raw_list_geometry_and_no_direct_resource_binding(self):
+        self.assertEqual(PMENU_LIST_OBJECT_OFFSET, 0x68)
+        self.assertEqual(
+            PMENU_LIST_SETUP_ARGUMENTS,
+            (0, 0, 201, 504, 16, 29, 0, 0, 0),
+        )
+        self.assertFalse(PMENU_DIRECT_RESOURCE_BINDING_IN_OWN_METHODS)
 
     def test_pmenu_text_controls_preserve_source_geometry_without_font_guess(self):
         self.assertEqual(PMENU_TEXT_CONTROL_SIZE, (160, 24))
