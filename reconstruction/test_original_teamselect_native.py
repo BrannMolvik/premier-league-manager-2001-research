@@ -125,18 +125,46 @@ class OriginalTeamSelectNativeTests(unittest.TestCase):
         ])
 
         model.toggle_club_row(0)
-        self.assertEqual(model.selected_club_record_index, 0)
+        model.toggle_club_row(1)
+        self.assertEqual(model.selected_club_ids, (0, 1))
         self.assertIs(model.club_rows()[0].state, NativeControlState.ACTIVE)
-        model.toggle_club_row(0)
-        self.assertIsNone(model.selected_club_record_index)
+        self.assertIs(model.club_rows()[1].state, NativeControlState.ACTIVE)
 
+        # Original users survive country/competition navigation. The private
+        # selection records are rollback state; navigation does not collapse the
+        # global user list to one visual row.
         model.activate_hierarchy_row(0)
+        self.assertEqual(model.selected_club_ids, (0, 1))
         self.assertIsNone(model.selected_competition_id)
         self.assertEqual(model.club_rows(), ())
         self.assertIs(model.hierarchy_rows()[0].state, NativeControlState.ACTIVE)
         model.activate_hierarchy_row(1)
         self.assertEqual(model.selected_competition_id, 0)
         self.assertEqual(len(model.club_rows()), 3)
+        self.assertIs(model.club_rows()[0].state, NativeControlState.ACTIVE)
+        self.assertIs(model.club_rows()[1].state, NativeControlState.ACTIVE)
+
+        model.toggle_club_row(0)
+        self.assertEqual(model.selected_club_ids, (1,))
+        self.assertIs(model.club_rows()[0].state, NativeControlState.NORMAL)
+
+    def test_source_proven_six_user_cap_fails_closed(self):
+        country_order = (
+            (26, "England"), (66, "Scotland"), (33, "Germany"),
+            (40, "Italy"), (73, "Spain"), (31, "France"),
+            (24, "Holland"), (9, "Belgium"),
+        )
+        countries = {key: country(key, name) for key, name in country_order}
+        competitions = (competition(0, "F.A. Premier League", 9),)
+        clubs = tuple(club(index, f"Club {index:02d}") for index in range(7))
+        model = TeamSelectHierarchyModel(countries, competitions, clubs)
+
+        for index in range(6):
+            model.toggle_club_row(index)
+        self.assertEqual(model.selected_club_ids, (0, 1, 2, 3, 4, 5))
+        with self.assertRaisesRegex(TeamSelectNativeError, "at most six"):
+            model.toggle_club_row(6)
+        self.assertEqual(model.selected_club_ids, (0, 1, 2, 3, 4, 5))
 
 
 if __name__ == "__main__":
