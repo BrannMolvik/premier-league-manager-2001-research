@@ -9,7 +9,7 @@
   "work_owner": "chatgpt",
   "active_gate": 13,
   "active_task": "Continue Gate 13 from canonical main 334e5669268e94ed572ff6c6d388f7bd844a61dc. Squad panel geometry, events 3/4/5 view transitions, and all 22 paired FormationText row rectangles/IDs are now source-proven and tested. Exact next source task: recover CBasePlayerList row/column/status bindings and FormationText state-to-frame selection without guessing atlas semantics. Then perform the real Windows PStartMenu/TeamSelect graphical audit, recover TeamSelect hierarchy semantics, and continue remaining management-screen correlations before Gate 13 can close.",
-  "last_known_main_head": "334e5669268e94ed572ff6c6d388f7bd844a61dc",
+  "last_known_main_head": "0599c15b7064865a239614db213d0873a3460a93",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -19,8 +19,8 @@
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 124,
-  "last_recovery_reason": "codex-local-handoff",
-  "note": "Local Codex completed and pushed the Squad panel geometry/state-transition checkpoint at main 334e5669268e94ed572ff6c6d388f7bd844a61dc. Continuous ChatGPT ownership is restored. Reuse the durable research and tests; do not repeat the caption, resource, panel-geometry, transition, or 22-row FormationText work. Resume with the exact CBasePlayerList and FormationText state-selection traces, then the mandatory Windows graphical audit.",
+  "last_recovery_reason": "sandbox-failure-recovery-hardening",
+  "note": "Local Codex completed and pushed the Squad panel geometry/state-transition checkpoint at main 334e5669268e94ed572ff6c6d388f7bd844a61dc. Continuous ChatGPT ownership is restored. Reuse the durable research and tests; do not repeat the caption, resource, panel-geometry, transition, or 22-row FormationText work. Resume with the exact CBasePlayerList and FormationText state-selection traces, then the mandatory Windows graphical audit. Extension v0.4.0 on main 0599c15 detects Analysis errored/caas.internal.errors.ClientError outside conversation messages and immediately opens a fresh inactive worker chat rather than retrying the same likely-bad sandbox allocation. Normal network/Retry failures still recover in place. Reload the unpacked extension and refresh the worker tab once to activate v0.4.0.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
