@@ -9,24 +9,15 @@ from competition_state import season_weekday_date
 from domestic_cup_state import DomesticCupScheduleState
 from game_state import GameState
 from primary_schedule import primary_schedule_source_bucket
-from test_game_state_competition import AutonomousDatabase, coefficient_matrix
+from test_gate11_management_season import FullSeasonDatabase, coefficient_matrix
 
 
 SEASON_YEAR = 2000
-CYCLE_WEEKS = (2, 8, 14, 20, 26, 32, 38, 44)
+CYCLE_WEEKS = (8, 13, 18, 23, 28, 33, 38, 43)
 
 
-class MixedPrimaryDatabase(AutonomousDatabase):
-    """Keep the proven two-club AI fixture while removing unused synthetic PL ties."""
-
-    real_fixtures = (AutonomousDatabase.real_fixtures[0],)
-    premier_league_rounds = (
-        SimpleNamespace(
-            round_number=1,
-            scheduled_week=1,
-            scheduled_weekday=6,
-        ),
-    )
+class MixedPrimaryDatabase(FullSeasonDatabase):
+    """Keep a valid 20-club PL table while the stress executes one PL entry."""
 
 
 def _cup_nodes(competition_id: int, weekday: int):
@@ -98,10 +89,16 @@ def _raw_primary_buckets(nodes):
     return tuple(tuple(bucket) for bucket in buckets)
 
 
+def _entry_signature(on_date, entry):
+    identity = tuple(entry[1]) if isinstance(entry[1], tuple) else int(entry[1])
+    return (on_date.isoformat(), str(entry[0]), identity)
+
+
 def _build_state(seed: int):
+    first_pl_date = season_weekday_date(SEASON_YEAR, 7, 6)
     state = GameState.from_database(
         MixedPrimaryDatabase(),
-        season_weekday_date(SEASON_YEAR, 1, 6) - timedelta(days=1),
+        first_pl_date - timedelta(days=1),
         seed=int(seed),
         season_year=SEASON_YEAR,
     )
@@ -124,18 +121,20 @@ def _build_state(seed: int):
     european = _cup_nodes(9, 2)
     qualification = _cup_nodes(19, 3)
     procedural = _procedural_nodes()
+
+    pl_fixture = state.premier_league.fixtures[0]
     pl_shadow = StartupScheduleNode(
-        node_kind="league_match",
+        node_kind="fixed_league_match",
         competition_id=0,
         competition_context=0,
-        round_id=None,
+        round_id=0,
         pair_index=0,
-        schedule_index=0,
-        scheduled_week=1,
+        schedule_index=None,
+        scheduled_week=7,
         scheduled_weekday=6,
-        participant_0_ref=direct_club_ref(1),
-        participant_1_ref=direct_club_ref(2),
-        node_token=("league_match", 0, 0, 0),
+        participant_0_ref=direct_club_ref(int(pl_fixture.home_club_id)),
+        participant_1_ref=direct_club_ref(int(pl_fixture.away_club_id)),
+        node_token=("fixed_league_match", 0, 0, 0),
     )
 
     all_nodes = (pl_shadow,) + domestic + european + qualification + procedural
@@ -175,6 +174,15 @@ def _run_mixed_primary(seed: int):
     defence = coefficient_matrix()
     final_scheduled_date = max(state.primary_matchday_order)
     stop_date = final_scheduled_date + timedelta(days=7)
+    expected = tuple(
+        _entry_signature(on_date, entry)
+        for on_date, entries in sorted(state.primary_matchday_order.items())
+        for entry in entries
+    )
+    roster_sizes = {
+        club_id: len(state.ordered_club_roster(club_id))
+        for club_id in (1, 2, 20)
+    }
     executed = []
     days = 0
 
@@ -182,17 +190,26 @@ def _run_mixed_primary(seed: int):
         days += 1
         if days > 370:
             raise AssertionError("mixed-primary stress exceeded one-year day budget")
-        on_date = state.calendar.current_date + timedelta(days=1)
-        results = state.advance_one_day_with_primary_ai_matches(attack, defence)
+        state.calendar.increment_one_day()
+        on_date = state.calendar.current_date
+        results = state.simulate_due_primary_ai_entries(attack, defence)
         for entry, result in results:
             executed.append(
                 (
-                    on_date.isoformat(),
-                    str(entry[0]),
-                    tuple(entry[1]) if isinstance(entry[1], tuple) else int(entry[1]),
+                    *_entry_signature(on_date, entry),
                     tuple(int(value) for value in result.score),
                 )
             )
+        # Keep the recovered post-fixture player/calendar maintenance live while
+        # deliberately excluding the already-separate transfer/payroll stress.
+        state.calendar.run_post_fixture_maintenance()
+
+    executed_signatures = tuple(item[:3] for item in executed)
+    if executed_signatures != expected:
+        raise AssertionError(
+            "shared-primary execution diverged from retained global order: "
+            f"expected={expected!r} executed={executed_signatures!r}"
+        )
 
     kinds = {}
     for _on_date, kind, _identity, _score in executed:
@@ -218,7 +235,7 @@ def _run_mixed_primary(seed: int):
         if len(owner.completed_node_tokens) != expected_owner_count:
             raise AssertionError("Cup owner left scheduled nodes incomplete")
         if len(owner.match_states) != expected_owner_count:
-            raise AssertionError("Cup owner retained unexpected transient match state")
+            raise AssertionError("Cup owner retained unexpected match-state growth")
 
     if len(state.cup_results.outcomes) != 3 * expected_owner_count:
         raise AssertionError("Cup result registry growth is not event-proportional")
@@ -233,13 +250,13 @@ def _run_mixed_primary(seed: int):
     if sum(int(row.played) for row in procedural.table()) != 2 * expected_owner_count:
         raise AssertionError("procedural League played totals do not reconcile")
 
-    if len(state.premier_league.results) != 1:
-        raise AssertionError("synthetic Premier League fixture was not completed")
+    if len(state.premier_league.results) != 1 or 0 not in state.premier_league.results:
+        raise AssertionError("bounded Premier League scheduler entry was not completed")
 
-    for club_id in (1, 2):
+    for club_id, initial_size in roster_sizes.items():
         roster = state.ordered_club_roster(club_id)
-        if len(roster) != 16:
-            raise AssertionError(f"club {club_id} roster changed size during mixed stress")
+        if len(roster) != initial_size:
+            raise AssertionError(f"club {club_id} roster size changed during mixed stress")
         if any(int(player.club_id) != club_id for player in roster):
             raise AssertionError(f"club {club_id} roster ownership diverged")
 
@@ -253,14 +270,10 @@ def _run_mixed_primary(seed: int):
         if player.injured and player.injury_return_date is None:
             raise AssertionError(f"injured player {player.index} lacks a return date")
 
-    if state.transfers.proposals or state.transfers.deals:
-        raise AssertionError("mixed-primary calendar leaked transfer negotiation state")
-    if state.transfers.bid_log or state.transfers.scheduled_transfers:
-        raise AssertionError("mixed-primary calendar leaked pending transfer state")
-
     return {
         "days": days,
         "final_date": state.calendar.current_date.isoformat(),
+        "expected": expected,
         "executed": tuple(executed),
         "cup_outcomes": tuple(
             sorted(
@@ -300,7 +313,7 @@ class Gate16MixedPrimaryStressTests(unittest.TestCase):
     def test_shared_primary_scheduler_survives_long_mixed_owner_calendar(self):
         result = _run_mixed_primary(0x13579BDF)
         self.assertLessEqual(result["days"], 370)
-        self.assertGreater(len(result["executed"]), 30)
+        self.assertEqual(len(result["executed"]), 33)
 
     def test_mixed_primary_stress_replays_identically_for_same_seed(self):
         first = _run_mixed_primary(0x2468ACE0)
