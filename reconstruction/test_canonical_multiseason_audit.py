@@ -9,6 +9,7 @@ import unittest
 
 from canonical_multiseason_audit import (
     CanonicalMultiSeasonAuditError,
+    _validate_fresh_regeneration_projection,
     run_multiseason_controller_audit,
 )
 
@@ -269,6 +270,36 @@ class CanonicalMultiSeasonAuditRunnerTests(unittest.TestCase):
         self.assertEqual([shape[5] for shape in shapes], [2, 2, 4])
         self.assertEqual(shapes[2][2] - shapes[1][2], 2)
         self.assertEqual(shapes[2][3] - shapes[1][3], 2)
+
+    def test_primary_projection_keeps_allowed_procedural_context_without_live_owner(self):
+        node = FakeScheduleNode(
+            "league_match",
+            14,
+            3,
+            ("league_match", 14, 3, 0),
+        )
+        state = SimpleNamespace(
+            primary_schedule_shadow=SimpleNamespace(days={date(2001, 1, 1): (node,)}),
+            domestic_cups=SimpleNamespace(nodes=()),
+            european_cups=SimpleNamespace(nodes=()),
+            qualification_cups=SimpleNamespace(nodes=()),
+            procedural_leagues={},
+            primary_matchday_order={
+                date(2001, 1, 1): (("procedural_league", node.node_token),)
+            },
+        )
+        regeneration = SimpleNamespace(
+            competition=SimpleNamespace(schedule_nodes=(node,))
+        )
+
+        # Gate-12 primary order is keyed by the source-authorized competition
+        # ID, not by whether this particular context resolves to a live owner.
+        _validate_fresh_regeneration_projection(
+            state,
+            regeneration,
+            0,
+            procedural_league_ids=(14,),
+        )
 
     def test_current_regeneration_projection_mismatch_fails_closed(self):
         controller = FakeController(drift_on_cycle=2)
