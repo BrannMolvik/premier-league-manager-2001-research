@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 146 resumes PR #76 at verified Gate-13 PMenu chrome checkpoint. Head b448912a603d9b87dc52e6a74c05b48bc356515a passed focused Gate-13 run 36911756061 (288 tests, 21 expected skips) and asset-policy run 36911756170. Exact next step: merge PR #76, then continue source-backed unresolved PMenu localization/font/color/state-frame/shell-background trace and/or provenance-import the four already-correlated assets; corrected real Windows/Tk first-screen rerun remains open.",
-  "last_known_main_head": "3adf75e713c70dd3a3cddf9f5df9db6e34e19b5d",
+  "active_task": "PR #76 merged as addd82b7a8a5efddd83abb698f08d08c71ebcaf9 after Gate-13 run 36911756061 passed 288 tests with 21 expected skips and asset-policy run 36911756170 passed. Continue exact next Gate-13 task: source-trace unresolved PMenu label globals, exact runtime font/color/clipping, row state-to-frame mapping and shell background ownership; provenance-import four already-correlated menu assets once policy/provenance paths are verified. Corrected real Windows/Tk first-screen rerun remains open.",
+  "last_known_main_head": "addd82b7a8a5efddd83abb698f08d08c71ebcaf9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 146,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 146 resumed from GitHub after interruption. PR #76 is green and mergeable; do not repeat its trace.",
+  "note": "Recovery 146 continues beyond merged PMenu row-chrome checkpoint; localization/state/font/background trace is active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
