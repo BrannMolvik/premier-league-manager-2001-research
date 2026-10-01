@@ -959,7 +959,7 @@
   "gate13_league_fixtures_panel_constructor": "0x46D470",
   "gate13_league_fixtures_panel_vftable": "0x7C24B8",
   "gate13_calendar_fixtures_navigation_evidence": "research/GATE13_CALENDAR_FIXTURES_NAVIGATION.md",
-  "gate13_fixtures_results_identity_status": "league_fixtures_panel_resources_grid_box_states_score_date_selection_self_diagonal_matrix_filters_paging_pointer_navigation_and_country_league_selectors_proven_remaining_nonselector_controls_action_semantics_asset_import_windows_validation_open",
+  "gate13_fixtures_results_identity_status": "league_fixtures_grid_selectors_and_populated_cell_pmatchinfo_navigation_proven_pmatchinfo_internal_presentation_nonselector_controls_asset_import_windows_validation_open",
   "gate13_calendar_fixtures_navigation_merge": "9da4c89f67aaba7b263354591497d596ca50edd1",
   "gate13_calendar_fixtures_navigation_ci_run": 36916343766,
   "gate13_calendar_fixtures_navigation_asset_policy_run": 36916343760,
@@ -1063,5 +1063,28 @@
   "gate13_league_fixtures_league_base_type_descriptor": "0x818AA0",
   "gate13_league_fixtures_league_type_descriptor": "0x818978",
   "gate13_league_fixtures_league_caption_offset": "0x14",
-  "gate13_league_fixtures_selector_event_dispatch": "1..8 country; 9..14 league"
+  "gate13_league_fixtures_selector_event_dispatch": "1..8 country; 9..14 league",
+  "gate13_league_fixtures_selector_merge": "501707f396aa2af7ca66dffcd7a5ecf8189c4df7",
+  "gate13_league_fixtures_selector_ci_run": 36923762250,
+  "gate13_league_fixtures_selector_test_count": 330,
+  "gate13_league_fixtures_selector_expected_skips": 21,
+  "gate13_league_fixtures_selector_asset_policy_run": 36923762398,
+  "gate13_league_fixtures_match_info_action_source_proven": true,
+  "gate13_league_fixtures_match_info_action_va": "0x488C80",
+  "gate13_league_fixtures_match_info_class": "PMatchInfo",
+  "gate13_league_fixtures_match_info_type_descriptor": "0x81D058",
+  "gate13_league_fixtures_match_info_vftable": "0x7C41D4",
+  "gate13_league_fixtures_match_info_constructor": "0x487580",
+  "gate13_league_fixtures_match_info_allocation_size": "0x1828",
+  "gate13_league_fixtures_match_info_base_class": "PExplodingDialog",
+  "gate13_league_fixtures_match_info_base_vftable": "0x7C0D54",
+  "gate13_league_fixtures_match_info_context_offsets": [
+    "0x70",
+    "0x74"
+  ],
+  "gate13_league_fixtures_match_info_size": [
+    760,
+    500
+  ],
+  "gate13_league_fixtures_match_info_requires_resolved_linked_context": true
 }
