@@ -56,7 +56,7 @@ the 20 clubs alphabetically from Arsenal through West Ham United. The other
 seven country league lists are derived by the same source fields, not a modern
 hard-coded league map.
 
-## Native frames, fonts and final selection write
+## Native frames, fonts and interrupted selection-write boundary
 
 Both hierarchy animation children use 11 NORMAL frames, 11 ACTIVE frames and
 one DISABLED frame: source indices `0..10`, `11..21`, and `22`. Team bars use
@@ -70,10 +70,17 @@ League labels use `Fonts/Zurich_BdXCn_BT_18pixel.fnt`; club labels use
 `Fonts/Zurich_BdXCn_BT_16pixel.fnt`. Both are centered in the native bar child
 using source glyph alpha and the recovered white/black endpoint colors.
 
-`0x4D8E90` / `0x4D9240` writes the clicked DBRClub `+0x40` canonical ID into
-the 0x30-byte selection record, updates the active state, and writes `-1` on a
-second click. The live presenter mirrors that toggle and passes the same
-canonical ID to the existing Start boundary.
+The interrupted Codex trace associated `0x4D8E90` / `0x4D9240` with the
+club-row toggle and a write/clear of the 0x30-byte TeamSelect selection record.
+Its semantic annotation of the loaded `DBRClub+0x40` value as a canonical club
+ID is **not promoted**: earlier independently verified executable work maps
+runtime `DBRClub+0x40` to the manager ID/reference (Arsenal -> manager 204).
+The exact selection-record payload, and how Start resolves that payload back to
+the controlled club, therefore requires a bounded re-trace.
+
+The reconstruction keeps the recovered visible-row toggle/ACTIVE state but
+deliberately does not pass that provisional record index into the gameplay
+backend. Start remains fail-closed until the payload identity is reconciled.
 
 ## Integrated verification and remaining boundary
 
@@ -82,10 +89,11 @@ hash- and inventory-gated asset path. Twenty focused tests pass, including the
 real licensed resource loader (one unrelated source-gated test remains an
 expected skip in the ordinary run). The upgraded Windows audit now verifies
 default 13-row/20-club population, country clear, competition repopulation,
-club-ID toggle and ACTIVE frame state.
+club-row toggle and ACTIVE frame state while requiring gameplay club selection
+to remain unset until the payload mapping is recovered.
 
 The current desktop Python runtime cannot execute that upgraded audit because
 its bundled Tcl/Tk install lacks `init.tcl`; no upgraded graphical pass is
 claimed. The earlier Windows first-screen receipt remains valid for its prior
-scope. Gate 13 remains active for this rerun and broader management-screen
-presentation.
+scope. Gate 13 remains active for the payload re-trace, the upgraded Windows rerun,
+and broader management-screen presentation.
