@@ -14,7 +14,7 @@
   "last_verified_test_count": 1134,
   "asset_policy_validated_head": "dcf739a6f747fc024e4fbd1038a68a05661e08f4",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 remains active. Exact TeamSelect competition/club filtering and stable ordering, native league/team frame transforms, Zurich row captions, canonical club-ID toggle, and four verified resources are integrated. Exact next task: rerun the upgraded audit with a Tcl/Tk-capable Windows Python, then continue broader management-screen fidelity; the current bundled Python lacks init.tcl.",
+  "active_task": "Gate 13 remains active. TeamSelect competition/club filtering and stable ordering, native league/team frame transforms, Zurich row captions, and four verified resources are integrated on the interrupted recovery branch. Audit found a source-evidence conflict: prior verified DBRClub+0x40 is manager ID/reference, so the native TeamSelect selection-record payload -> gameplay club-ID mapping must be re-traced before club clicks can drive Start. Then rerun the upgraded audit using the known-working Tcl/Tk-capable Windows Python and continue broader management-screen fidelity.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Rerun the upgraded TeamSelect Windows audit with a Tcl/Tk-capable Python, then continue broader source-backed management-screen presentation fidelity. The exact hierarchy identity, filtering/order, captions, native frames and club-ID toggle are integrated.",
+  "current_task": "Re-trace the TeamSelect selection-record payload and Start resolution because the interrupted DBRClub+0x40-as-club-ID annotation conflicts with prior verified manager-ID evidence; keep gameplay selection fail-closed. Then rerun the upgraded TeamSelect Windows audit with the known-working Tcl/Tk-capable Python and continue broader presentation fidelity.",
   "last_verified_reconstruction_failures": 0,
   "last_verified_asset_policy_head": "d851f08abfdb23806473e8fbe45adcc02f8a8d96",
   "gate11_danger_morale_request_integrated": true,
@@ -648,10 +648,10 @@
   "gate13_windows_graphical_audit_harness_head": "0a871b5fbc9c546ad67c335bc6db009d3a023627",
   "gate13_teamselect_exact_filter_order_integrated": true,
   "gate13_teamselect_native_frame_transforms_integrated": true,
-  "gate13_teamselect_club_id_toggle_integrated": true,
+  "gate13_teamselect_club_id_toggle_integrated": false,
   "gate13_teamselect_native_resource_count_imported": 4,
   "gate13_teamselect_focused_tests_passed": 20,
-  "gate13_teamselect_upgraded_windows_audit_status": "blocked_missing_tcl_init_tcl",
+  "gate13_teamselect_upgraded_windows_audit_status": "pending_known_working_tcl_python_and_payload_retrace",
   "gate13_windows_case_insensitive_source_inventory_test_repaired": true,
   "gate14_work_ahead": true,
   "gate14_presentation_foundation_head": "e54cc8591df91bbc949856ed241fcffcedd5fe97",
@@ -792,5 +792,7 @@
   "gate16_canonical_multiseason_seed2_receipt": "research/evidence/GATE16_CANONICAL_MULTISEASON_SEED2_RECOVERY137.json",
   "gate16_readiness_audit": "research/GATE16_READINESS_AUDIT.md",
   "gate16_readiness_audit_head": "268aa0536dec9cada48a1e5b09c651df76fe11ab",
-  "gate16_completion_criteria_prevalidated": true
+  "gate16_completion_criteria_prevalidated": true,
+  "gate13_teamselect_club_row_toggle_integrated": true,
+  "gate13_teamselect_backend_club_id_mapping_verified": false
 }
