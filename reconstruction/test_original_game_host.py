@@ -139,8 +139,23 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.images, [])
         self.assertIn("Management host active", host.last_status)
 
+        before = host.management_presenter.snapshot()
+        self.assertEqual(before.panel_code, 0xCE)
+
         host.on_click(SimpleNamespace(x=700, y=120))
-        self.assertIn("PMenu input is not yet source-bound", host.last_status)
+        self.assertIn("PMenu candidate row only", host.last_status)
+        self.assertIn("Team", host.last_status)
+        self.assertIn("menu ID 0x2", host.last_status)
+        self.assertIn("no navigation dispatched", host.last_status)
+        after = host.management_presenter.snapshot()
+        self.assertEqual(after.panel_code, 0xCE)
+        self.assertEqual(after.menu.selected_child_id, 0xCE)
+        self.assertEqual(host.canvas.images, [])
+
+        host.on_click(SimpleNamespace(x=100, y=120))
+        self.assertIn("no source-bounded PMenu candidate row", host.last_status)
+        self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
+        self.assertEqual(host.canvas.images, [])
 
     def test_default_source_root_is_repository_original_asset_store(self):
         self.assertEqual(
