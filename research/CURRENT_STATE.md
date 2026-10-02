@@ -25,6 +25,14 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 179 PMenu static row-state propagation closed:** the canonical
+  row factory maps node bit 0 through vtable `+0x4C` and inverted node bit 1
+  through `+0x58`. Enabled title backgrounds stay `0x8002`/white while their
+  arrows carry expansion; child backgrounds are `0x0002`/black when
+  unselected and `0x8002`/white when selected. Presenter rows now carry the
+  exact arrow/background bits and native endpoint color. The next task remains
+  composing the already imported row resources/fonts into the live canvas.
+  Focused PMenu/canvas verification passes **32 tests**.
 - **Recovery 177 exact PMenu row text geometry recovered:** private canonical
   executable tracing followed the concrete title/child constructors through
   `0x651E30 -> 0x6520C0 -> 0x657280/0x6570F0`. Title rows use exact

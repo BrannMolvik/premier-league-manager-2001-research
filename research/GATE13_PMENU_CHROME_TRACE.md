@@ -67,6 +67,26 @@ ZIP and imported byte-identically:
 - title 25px: 98,830 bytes, atlas 1802x25, SHA-256
   `bc1159e69fe55c2dd54eb8ec1f672fc26a5ad69d298e5d60967a1c4e046e5101`.
 
+### Factory state propagation and exact static label color
+
+Recovery 179 followed `CMenuList::0x4823A0` after construction. Node flag bit
+0 is passed through row vtable slot `+0x4C`; node flag bit 1 is inverted and
+passed through `+0x58`. Slot `+0x58` toggles control bit `0x2` on both the
+arrow and background. Title slot `+0x4C` (`0x4825E0`) sets bit `0x8000` only
+on its arrow, while child slot `+0x4C` (`0x482700`) sets it on both. Both row
+constructors initially set the background's `0x8000` bit.
+
+Consequently, for ordinary enabled stationary rows:
+
+- a title background is `0x8002` and its label is white whether or not that
+  root is expanded; only the title arrow reflects expansion;
+- an unselected child background is `0x0002` with black text;
+- the selected child background is `0x8002` with white text.
+
+The color selection is direct: `0x6529F0` calls `0x652F80`, which tests bit
+`0x8000`, then returns the row's `+0x46` white value when set or `+0x44`
+black value otherwise. No visual naming is assigned to the atlas frames.
+
 ## Exact original row resources
 
 Four original files are now bound end-to-end from literal path -> resource

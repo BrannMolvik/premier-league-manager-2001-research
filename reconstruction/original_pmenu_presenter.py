@@ -26,6 +26,7 @@ from original_pmenu_chrome import (
     PMENU_TITLE_BOX_RESOURCE,
     PMENU_TITLE_TEXT_LAYOUT,
     OriginalPMenuNode,
+    pmenu_static_row_state,
 )
 
 
@@ -48,6 +49,9 @@ class OriginalPMenuVisibleRow:
     font_source_path: str
     text_line_origin: tuple[int, int]
     text_clip_rect: tuple[int, int, int, int]
+    arrow_state_bits: int
+    background_state_bits: int
+    text_color_16: int
 
 
 @dataclass(frozen=True)
@@ -136,6 +140,7 @@ def build_pmenu_snapshot(
         title = kind == "title"
         text_layout = PMENU_TITLE_TEXT_LAYOUT if title else PMENU_CHILD_TEXT_LAYOUT
         row_y = index * PMENU_ROW_HEIGHT
+        static_state = pmenu_static_row_state(kind, selected=(node is selected_child or node is expanded_root))
         rows.append(
             OriginalPMenuVisibleRow(
                 visible_index=index,
@@ -167,6 +172,9 @@ def build_pmenu_snapshot(
                     text_layout.clip_rect[2],
                     row_y + text_layout.clip_rect[3],
                 ),
+                arrow_state_bits=static_state.arrow_state_bits,
+                background_state_bits=static_state.background_state_bits,
+                text_color_16=static_state.text_color_16,
             )
         )
 

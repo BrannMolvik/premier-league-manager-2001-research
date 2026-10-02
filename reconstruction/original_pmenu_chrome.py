@@ -140,6 +140,46 @@ PMENU_CHILD_TEXT_LAYOUT = OriginalPMenuTextLayout(
 )
 PMENU_ROW_TEXT_LAYOUTS = (PMENU_TITLE_TEXT_LAYOUT, PMENU_CHILD_TEXT_LAYOUT)
 
+
+@dataclass(frozen=True)
+class OriginalPMenuStaticRowState:
+    arrow_state_bits: int
+    background_state_bits: int
+    text_color_16: int
+
+
+def pmenu_static_row_state(
+    row_kind: str,
+    *,
+    selected: bool,
+    disabled: bool = False,
+) -> OriginalPMenuStaticRowState:
+    """Project the exact post-factory state bits for a stationary visible row.
+
+    The row factory passes node bit 0 through vtable slot +0x4c and the inverse
+    of node bit 1 through +0x58. Title +0x4c updates only its arrow; child
+    +0x4c updates both arrow and background. Both constructors initialize the
+    background's bit 15 set. Text color method 0x6529F0 selects white when that
+    background bit remains set and black otherwise.
+    """
+    if row_kind not in {"title", "child"}:
+        raise OriginalPMenuChromeError("PMenu row kind must be title or child")
+    if type(selected) is not bool or type(disabled) is not bool:
+        raise OriginalPMenuChromeError("PMenu selected/disabled state must be boolean")
+    enabled_bit = 0 if disabled else PMENU_STATE_BIT_1
+    selected_bit = PMENU_STATE_BIT_15 if selected else 0
+    arrow_bits = enabled_bit | selected_bit
+    background_bits = (
+        enabled_bit | PMENU_STATE_BIT_15
+        if row_kind == "title"
+        else arrow_bits
+    )
+    return OriginalPMenuStaticRowState(
+        arrow_state_bits=arrow_bits,
+        background_state_bits=background_bits,
+        text_color_16=(0xFFFF if background_bits & PMENU_STATE_BIT_15 else 0x0000),
+    )
+
 # PTitleMenuRow::0x47A7E0 and PChildMenuRow::0x47A990 build the same
 # two grayscale component triples before the row-background setup call. Since
 # every component is equal within each triple, no display-mask channel naming

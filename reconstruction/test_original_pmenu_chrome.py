@@ -63,6 +63,7 @@ from original_pmenu_chrome import (
     main_english_global_va,
     pmenu_background_row_index,
     pmenu_background_source_y,
+    pmenu_static_row_state,
     validate_original_pmenu_font,
     validate_original_pmenu_row_fonts,
     validate_original_pmenu_resources,
@@ -143,6 +144,27 @@ class OriginalPMenuChromeTests(unittest.TestCase):
 
     def test_row_setup_uses_exact_black_and_white_component_triples(self):
         self.assertEqual(PMENU_ROW_COLOR_COMPONENTS, ((0, 0, 0), (255, 255, 255)))
+
+    def test_row_factory_state_propagation_closes_static_color_choice(self):
+        title = pmenu_static_row_state("title", selected=False)
+        selected_title = pmenu_static_row_state("title", selected=True)
+        child = pmenu_static_row_state("child", selected=False)
+        selected_child = pmenu_static_row_state("child", selected=True)
+        self.assertEqual((title.arrow_state_bits, title.background_state_bits), (0x2, 0x8002))
+        self.assertEqual(
+            (selected_title.arrow_state_bits, selected_title.background_state_bits),
+            (0x8002, 0x8002),
+        )
+        self.assertEqual(title.text_color_16, 0xFFFF)
+        self.assertEqual((child.arrow_state_bits, child.background_state_bits), (0x2, 0x2))
+        self.assertEqual(child.text_color_16, 0x0000)
+        self.assertEqual(
+            (selected_child.arrow_state_bits, selected_child.background_state_bits),
+            (0x8002, 0x8002),
+        )
+        self.assertEqual(selected_child.text_color_16, 0xFFFF)
+        with self.assertRaises(OriginalPMenuChromeError):
+            pmenu_static_row_state("other", selected=False)
 
     def test_background_toggle_state_to_source_row_is_exact(self):
         self.assertEqual(pmenu_background_row_index(0), 3)
