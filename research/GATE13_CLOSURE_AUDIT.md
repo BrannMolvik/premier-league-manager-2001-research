@@ -1,7 +1,7 @@
 # Gate 13 Closure Audit
 
 _Audit date: 2 October 2026 KST_  
-_Last reconciled during Recovery 181 after the canonical Squad/Fixtures/PMatchInfo/League Tables visual-loop and schema-8 audit integration._
+_Last reconciled during Recovery 182 after the bounded PSquadScreen view-transition seam and schema-8 audit update._
 
 ## Decision
 
@@ -19,13 +19,17 @@ audit now walks this source-backed bitmap stack through Squad -> League Fixtures
 -> explicit source-accepted PMatchInfo -> exit -> League Tables and verifies the
 live Tk PhotoImage dimensions against independently derived source geometry.
 
+Recovery 182 additionally integrates the exact PSquadScreen controls 3/4/5
+container transitions through an explicit source-accepted seam. Control 4/5
+post-event button, formation and player pixels remain withheld because their
+screen state is not yet source-closed; ordinary modern top-control pointer
+equivalence is not claimed.
+
 Gate 13 still cannot pass yet. The expanded schema-8 contract has not been run
-on real Windows 11/Tk, the source-proven PSquadScreen first+formation /
-reserve+formation transition is not yet integrated as a normal modern pointer
-path, ordinary fixture-cell -> secondary linked-context PMatchInfo opening
-remains unbridged, and the application-owned surrounding management background
-is still unresolved. Keyboard equivalence remains unproven and fail-closed; it
-is not itself required for Gate 13 closure.
+on real Windows 11/Tk, ordinary fixture-cell -> secondary linked-context
+PMatchInfo opening remains unbridged, and the application-owned surrounding
+management background is still unresolved. Keyboard equivalence remains
+unproven and fail-closed; it is not itself required for Gate 13 closure.
 
 This audit remains criterion-driven. It does not require every obscure panel,
 secondary screen, or neutral bit name before Gate 13 can close.
@@ -35,7 +39,7 @@ secondary screen, or neutral bit name before Gate 13 can close.
 | Criterion | Result | Evidence |
 | --- | --- | --- |
 | Simulation logic remains separated from presentation | **PASS** | `GATE13_PRESENTATION_SEPARATION_AUDIT.md`, `ManagementSourceDataBridge`, `OriginalManagementPresenter`, and the clean host keep gameplay mutation behind controller/session boundaries. The PMenu/fixtures renderers consume snapshots and decoded original art only. |
-| Accessible original resources and recoverable layout/navigation are reused or converted | **PARTIAL - narrow required work remains** | First-screen, PMenu, Squad, League Fixtures, PMatchInfo, League Tables and Scouting resources/contracts are source-bound in substantial part. The fresh Squad controls, Fixtures grid, PMatchInfo popup background and League Tables header are now live. Remaining required work is the bounded Squad/formation interaction needed for the representative normal path plus any management-shell pixels actually necessary for recognizability; unresolved secondary art stays fail-closed. |
+| Accessible original resources and recoverable layout/navigation are reused or converted | **PARTIAL - Windows judgment remains** | First-screen, PMenu, Squad, League Fixtures, PMatchInfo, League Tables and Scouting resources/contracts are source-bound in substantial part. The fresh Squad controls, explicit controls 3/4/5 container transition seam, Fixtures grid, PMatchInfo popup background and League Tables header are now live/source-bound. Remaining work is the real-Windows recognizability judgment plus any management-shell pixels that audit shows are actually necessary; unresolved secondary art stays fail-closed. |
 | Main-menu/login presentation, structure, navigation and timing closely follow the original | **PARTIAL - Windows refresh pending** | PStartMenu -> TeamSelect -> MANAGEMENT is integrated with native assets, hierarchy population, club selection, Back/Start behavior and fixed management geometry. Recovery 177's real Windows schema-7 receipt proves the earlier pointer route. Recovery 181 extends repository schema 8 across live PMenu plus Squad/Fixtures/PMatchInfo/League Tables bitmap geometry; a fresh real-Windows schema-8 run is required before this criterion is current for the rendered path. |
 | Normal play feels recognizably like FM2001 rather than a generic replacement UI | **FAIL - close to re-audit** | The default host no longer falls back to the ttk notebook or a blank PMenu. It now renders original PMenu rows, fresh Squad top controls, exact League Fixtures grid, exact PMatchInfo popup background, and exact League Tables header. The remaining question is whether the bounded source-backed Squad/formation interaction plus unresolved surrounding shell are sufficient on the real Windows path; that judgment is deferred to the updated graphical audit rather than claimed from hosted CI. |
 
@@ -92,17 +96,17 @@ The following earlier blockers are closed and must not be reintroduced:
 16. **Panel-aware schema-8 contract:** PR #123 verifies the live source bitmap
     sequence for Squad -> Fixtures -> explicit PMatchInfo -> League Tables and
     records the unreconstructed secondary context instead of overclaiming it.
+17. **Bounded Squad view transition seam:** PR #126 integrates the executable-
+    proven controls 3/4/5 container transitions through an explicit source-
+    accepted adapter. Control 4/5 post-event panel pixels and modern pointer
+    equivalence remain deliberately unclaimed.
 
 ## Required before Gate 13 can pass
 
 The smallest sufficient remaining closure slice is:
 
-1. **Close the bounded Squad/formation interaction seam.** The exact
-   PSquadScreen control IDs and first+reserve / first+formation /
-   reserve+formation container transitions are already source-proven. Integrate
-   only the transition that can be supported without inventing unresolved
-   formation/player pixels or claiming unproved modern pointer equivalence.
-2. **Validate the representative clean-host management loop on real Windows.**
+1. **Validate the representative clean-host management loop on real Windows.**
+   The bounded Squad container transition seam is now integrated.
    The repository contract now covers Squad -> League Fixtures -> explicit
    source-accepted PMatchInfo/result -> League Tables. A real Windows 11/Tk
    receipt must confirm the rendered path before recognizability is judged.
@@ -110,11 +114,11 @@ The smallest sufficient remaining closure slice is:
    four 24x13 League Fixtures cell resources until their screen placement is
    source-proven, do not guess unresolved Squad icons/text styling, and do not
    enable PMenu keyboard activation without native evidence.
-4. **Keep real-Windows coverage aligned with rendered pixels.** Schema 8 is the
+3. **Keep real-Windows coverage aligned with rendered pixels.** Schema 8 is the
    repository contract for live PMenu pixels. Extend it with each required
    management-panel visual slice and obtain a fresh real-Windows receipt before
    Gate 13 closes.
-5. **Re-audit every ROADMAP criterion after the representative loop is live.**
+4. **Re-audit every ROADMAP criterion after the representative loop is live.**
    Presenter snapshots or diagnostic status strings alone are insufficient.
 
 ## Current evidence boundaries
@@ -141,9 +145,10 @@ blocker unless later evidence makes it part of the required normal path.
 ### Real Windows validation
 
 Recovery 177's schema-7 receipt remains valid for the pointer route that existed
-then. Recovery 181 keeps repository schema **8** but expands its exact
-PhotoImage contract across PMenu rows, fresh Squad controls, League Fixtures
-grid art, the source-accepted PMatchInfo popup, and the League Tables header.
+then. Recovery 182 keeps repository schema **8** but expands its exact contract
+across PMenu rows, fresh Squad controls, the explicit Squad container-transition
+seam, League Fixtures grid art, the source-accepted PMatchInfo popup, and the
+League Tables header.
 The expanded schema-8 real Windows run is pending and must be refreshed again
 if required panel pixels are added before closure.
 
@@ -155,7 +160,11 @@ Latest relevant canonical verification:
   **22 expected skips**, pass;
 - PR #123 Gate-13 presentation run `37010700467`: **479 tests**,
   **21 expected skips**, pass;
-- PR #123 repository asset-policy run `37010700447`: pass.
+- PR #123 repository asset-policy run `37010700447`: pass;
+- PR #126 Gate-13 run `37015082865`: **485 tests**, **21 expected skips**, pass;
+- PR #126 full reconstruction run `37015083315`: **1,387 tests**,
+  **22 expected skips**, pass;
+- PR #126 repository asset-policy run `37015082578`: pass.
 
 These hosted results validate the source/audit contract. They are not a
 substitute for the pending real Windows 11/Tk schema-8 receipt.
@@ -208,13 +217,13 @@ pixel or action remains genuinely unresolved.
 
 Immediate order:
 
-1. integrate the smallest source-accepted PSquadScreen first+formation
-   transition from the already-proven controls 3/4/5 contract without inventing
-   unresolved formation/player pixels or modern pointer equivalence;
-2. keep ordinary fixture-cell -> secondary-context PMatchInfo opening and
-   owner-local PMatchInfo child transforms fail-closed unless separately proved;
-3. run the expanded schema-8 audit on real Windows 11/Tk;
-4. re-audit the Gate-13 roadmap criteria, including whether the unresolved
+1. run the expanded schema-8 audit on real Windows 11/Tk;
+2. keep Squad top-control pointer equivalence, ordinary fixture-cell ->
+   secondary-context PMatchInfo opening and owner-local PMatchInfo child
+   transforms fail-closed unless separately proved;
+3. re-audit the Gate-13 roadmap criteria, including whether the unresolved
    surrounding management background is still a closure blocker once the
-   source-backed normal path is viewed on Windows;
-5. if every criterion passes, close Gate 13 and immediately continue Gate 14.
+   source-backed path is viewed on Windows;
+4. if every criterion passes, close Gate 13 and immediately continue Gate 14;
+   otherwise continue the highest-priority independent cloud-safe work while
+   preserving the exact Windows blocker.
