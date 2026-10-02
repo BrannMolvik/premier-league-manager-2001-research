@@ -94,6 +94,9 @@ class FakePlayer:
     def match_performance_average(self):
         return float(self.index % 10) + 0.5
 
+    def current_role_rating(self):
+        return 40 + int(self.current_position)
+
 
 @dataclass
 class FakeFixture:
@@ -460,9 +463,11 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
             (
                 second.full_name, second.shirt_number, second.positions,
                 second.current_position, second.match_unavailable,
-                second.condition, second.form_state, second.morale,
+                second.condition, second.form_state,
+                second.recent_form_average, second.current_role_rating,
+                second.morale,
             ),
-            ("Second Source", 9, (4, 0, 0), 0, False, 91, 3, 88),
+            ("Second Source", 9, (4, 0, 0), 0, False, 91, 3, 2.5, 40, 88),
         )
         self.assertTrue(second.transfer_listed)
         self.assertFalse(second.injured)
