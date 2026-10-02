@@ -586,13 +586,14 @@ def country_root_competition_storage_order(
     competitions: Iterable[OrderedCompetitionSource],
     country_region_id: int,
 ) -> tuple[OrderedCompetitionSource, ...]:
-    """Return the exact stored root-competition array scanned by 0x410FF0.
+    """Return the exact all-root DBRCountry +0x40/+0x44 storage order.
 
-    Country construction appends root competitions in DBTCompetition source
-    order, then qsorts the pointer array by runtime +0x18, which is the negated
-    packed initialization_order_value. Unlike initialization traversal, this
-    helper does not reverse the qsorted array and does not filter by schedule
-    container because 0x410FF0 scans the stored country vector itself.
+    Country construction appends every parentless competition in DBTCompetition
+    source order, then qsorts this all-root pointer vector through comparator
+    0x4F79A0 by runtime +0x18, the negated packed
+    initialization_order_value. This vector drives country/root initialization
+    traversal; it is distinct from the +0x48/+0x4C League/DummyLeague subset
+    searched by 0x410FF0.
     """
     roots = tuple(
         competition
