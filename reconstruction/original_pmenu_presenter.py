@@ -17,6 +17,7 @@ from original_pmenu_chrome import (
     PMENU_FRESH_SELECTED_CHILD_ID,
     PMENU_FRESH_SELECTED_ROOT_ID,
     PMENU_LIST_ROW_CAPACITY,
+    PMENU_LIST_SCREEN_ORIGIN,
     PMENU_LIST_SIZE,
     PMENU_RESOURCES,
     PMENU_ROOT_NODES,
@@ -47,6 +48,7 @@ class OriginalPMenuVisibleRow:
 
 @dataclass(frozen=True)
 class OriginalPMenuSnapshot:
+    list_screen_origin: tuple[int, int]
     list_size: tuple[int, int]
     row_capacity: int
     row_step: int
@@ -126,6 +128,7 @@ def build_pmenu_snapshot(selected_child_id: int) -> OriginalPMenuSnapshot:
         )
 
     return OriginalPMenuSnapshot(
+        list_screen_origin=PMENU_LIST_SCREEN_ORIGIN,
         list_size=PMENU_LIST_SIZE,
         row_capacity=PMENU_LIST_ROW_CAPACITY,
         row_step=PMENU_ROW_HEIGHT,

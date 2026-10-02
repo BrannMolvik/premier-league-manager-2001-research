@@ -14,6 +14,7 @@ class OriginalPMenuPresenterTests(unittest.TestCase):
         snapshot = build_fresh_pmenu_snapshot()
 
         self.assertEqual(snapshot.list_size, (201, 504))
+        self.assertEqual(snapshot.list_screen_origin, (599, 96))
         self.assertEqual(snapshot.row_capacity, 16)
         self.assertEqual(snapshot.row_step, 29)
         self.assertEqual((snapshot.selected_root_id, snapshot.selected_child_id), (2, 0xCE))

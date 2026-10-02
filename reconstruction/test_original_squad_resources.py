@@ -26,6 +26,10 @@ from original_squad_resources import (
     SQUAD_SCREEN_SETUP_VA,
     SQUAD_SCREEN_TYPE_DESCRIPTOR_VA,
     SQUAD_SCREEN_VFTABLE_VA,
+    SQUAD_PANEL_FACTORY_VA,
+    SQUAD_PANEL_FACTORY_BRANCH_VA,
+    SQUAD_PANEL_LAYOUT_CALL_VA,
+    SQUAD_PANEL_RECT,
     SQUAD_FIRST_ROSTER_OFFSET,
     SQUAD_FIRST_ROSTER_RECT,
     SQUAD_PITCH_CLASS,
@@ -85,6 +89,10 @@ class OriginalSquadResourceTests(unittest.TestCase):
         self.assertEqual(SQUAD_SCREEN_VFTABLE_VA, 0x7C5CA4)
         self.assertEqual(SQUAD_SCREEN_SETUP_VA, 0x4B5720)
         self.assertEqual(SQUAD_BUTTON_ORIGINS, ((37, 92), (113, 92), (189, 92)))
+        self.assertEqual(SQUAD_PANEL_FACTORY_VA, 0x47AEC0)
+        self.assertEqual(SQUAD_PANEL_FACTORY_BRANCH_VA, 0x47AF2D)
+        self.assertEqual(SQUAD_PANEL_LAYOUT_CALL_VA, 0x47AF80)
+        self.assertEqual(SQUAD_PANEL_RECT, (0, 79, 800, 520))
 
     def test_native_button_ids_offsets_globals_and_language_bindings_are_locked(self):
         self.assertEqual(

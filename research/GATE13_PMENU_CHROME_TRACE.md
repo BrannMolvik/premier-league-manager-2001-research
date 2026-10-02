@@ -607,3 +607,30 @@ title/child resource identities. It fails closed on non-recovered child IDs or
 an expansion exceeding the native 16-row capacity. It does not invent the
 remaining exact text origin/clipping behavior. The focused chrome/presenter
 suite passes **23 tests**.
+
+### Recovery 166 application-owned screen placement
+
+A raw rel32 scan (used because linear disassembly skipped one exception-framed
+call site) finds the only direct `PMenu` constructor call at `0x4C2FF8` inside
+the application owner routine beginning at `0x4C2FB0`. Immediately after
+construction, the owner calls the shared panel-layout method at `0x4C301F`
+with the exact rectangle:
+
+```text
+x=599, y=96, width=201, height=504
+```
+
+This matches the independently recovered `CMenuList` local size exactly. The
+fresh `PSquadScreen` factory branch for ID `0xCE` begins at `0x47AF2D` and calls
+the same layout method at `0x47AF80` with:
+
+```text
+x=0, y=79, width=800, height=520
+```
+
+The overlap is native: PMenu occupies the rightmost 201 pixels over the full
+Squad panel. These coordinates close the parent placement needed for an
+800x600 composition. They do not establish a new PMenu-specific background;
+the earlier negative resource-ownership boundary still applies. Exact label
+origin/clipping and a source-backed surrounding background remain open, so a
+finished pixel renderer is not yet claimed.

@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Render the composed PMenu/Squad snapshot on the fixed 800x600 Windows surface using only source-backed assets and geometry, then route the fresh TeamSelect Start into it instead of the generic ttk Play tab.",
+  "current_task": "Recover the remaining source-backed management canvas background and PMenu label origin/clipping, then render the composed PMenu (599,96,201,504) over PSquadScreen (0,79,800,520) and route fresh TeamSelect Start into it.",
   "last_verified_reconstruction_failures": 0,
   "last_verified_asset_policy_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "gate11_danger_morale_request_integrated": true,
@@ -1476,5 +1476,9 @@
   "gate13_pmenu_exact_text_origin_open": true,
   "gate13_teamselect_pmenu_squad_composition_complete": true,
   "gate13_fresh_management_presenter": "reconstruction/original_management_presenter.py",
-  "gate13_management_canvas_rendering_complete": false
+  "gate13_management_canvas_rendering_complete": false,
+  "gate13_pmenu_screen_rect": [599, 96, 201, 504],
+  "gate13_fresh_squad_screen_rect": [0, 79, 800, 520],
+  "gate13_pmenu_parent_placement_complete": true,
+  "gate13_management_canvas_background_open": true
 }

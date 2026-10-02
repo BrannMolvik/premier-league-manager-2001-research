@@ -25,6 +25,13 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 166 PMenu/Squad parent placement:** private checksum-gated native
+  tracing now closes the application-owned PMenu rectangle at
+  **(599,96,201,504)** and the fresh PSquadScreen factory rectangle at
+  **(0,79,800,520)**. The right-side overlap is original behavior and the
+  clean-room constants/tests now preserve it. The trace still proves no
+  PMenu-specific shell background; exact menu label origin/clipping remains
+  open, so the finished canvas is not claimed.
 - **Recovery 166 TeamSelect -> PMenu/Squad composition seam:** after a valid
   single-user Start, `original_management_presenter.py` now joins the live
   read-only club/roster bridge to the exact fresh Team -> Squad PMenu snapshot

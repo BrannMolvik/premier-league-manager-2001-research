@@ -23,6 +23,7 @@ from original_pmenu_chrome import (
     PMENU_ROW_HEIGHT,
     PMENU_LIST_OBJECT_OFFSET,
     PMENU_LIST_ROW_CAPACITY,
+    PMENU_LIST_SCREEN_ORIGIN,
     PMENU_LIST_SIZE,
     PMENU_LIST_SETUP_ARGUMENTS,
     PMENU_FRESH_SELECTED_CHILD_ID,
@@ -31,6 +32,8 @@ from original_pmenu_chrome import (
     PMENU_NODE_SELECTED_OR_EXPANDED_BIT,
     PMENU_NODE_STATE_FLAGS_OFFSET,
     PMENU_ROW_FACTORY_VA,
+    PMENU_OWNER_CONSTRUCTION_VA,
+    PMENU_OWNER_LAYOUT_CALL_VA,
     PMENU_TREE_ORDINAL_TRAVERSAL_VA,
     PMENU_VISIBLE_ROW_LAYOUT_VA,
     PMENU_DIRECT_RESOURCE_BINDING_IN_OWN_METHODS,
@@ -95,7 +98,10 @@ class OriginalPMenuChromeTests(unittest.TestCase):
             (0, 0, 201, 504, 16, 29, 0, 0, 0),
         )
         self.assertEqual(PMENU_LIST_SIZE, (201, 504))
+        self.assertEqual(PMENU_LIST_SCREEN_ORIGIN, (599, 96))
         self.assertEqual(PMENU_LIST_ROW_CAPACITY, 16)
+        self.assertEqual(PMENU_OWNER_CONSTRUCTION_VA, 0x4C2FB0)
+        self.assertEqual(PMENU_OWNER_LAYOUT_CALL_VA, 0x4C301F)
         self.assertEqual(PMENU_VISIBLE_ROW_LAYOUT_VA, 0x482300)
         self.assertEqual(PMENU_ROW_FACTORY_VA, 0x4823A0)
         self.assertEqual(PMENU_TREE_ORDINAL_TRAVERSAL_VA, 0x60CA70)
