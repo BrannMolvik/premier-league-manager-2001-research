@@ -25,6 +25,27 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 175 schema-6 Windows audit contract merged:** PR #112
+  squash-merged as `f6995c0e6b90c9e06a7d6309c7ffb2e49f26f376`.
+  Gate-13 run `36987669876` passed **442 tests with 21 expected skips**
+  and asset-policy run `36987669896` passed. The real-Windows harness now
+  requires ordinary Tk PMenu clicks to remain candidate-only while
+  separately exercising the explicit source-accepted callback seam through
+  Calendar root -> League Fixtures -> TABLES root -> League Tables. It
+  records that Tk-event equivalence is **not** claimed and still requires
+  zero guessed management PhotoImages.
+- **Real Windows validation boundary:** the schema-6 contract is
+  repository-verified only. A fresh real Windows 11 schema-6 receipt is
+  still pending; the Recovery-164 schema-3 receipt remains valid only for
+  the earlier corrected first-screen path.
+- **Exact next task:** audit the already source-proven Squad/PMenu
+  presentation inventory for the smallest recognizable management landing
+  that can be composed cloud-safely without inventing unresolved PMenu
+  text origin/clipping or application-owned background pixels. If that
+  evidence is insufficient, record the exact pixel blocker and continue
+  the next independent Gate-13 closure slice. Revisit private executable
+  tracing immediately when process execution recovers.
+
 - **Recovery 175 source-accepted PMenu integration merged:** PR #111
   squash-merged as `9e8f7a18368b8ce7076126a55b2e99563197659a` after
   Gate-13 run `36986776362` passed **440 tests with 21 expected skips**,
