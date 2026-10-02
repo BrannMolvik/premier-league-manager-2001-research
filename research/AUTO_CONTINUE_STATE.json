@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "PR #109 integrates the verified startup-media sequence into the real clean-host launch boundary through an explicit synchronous command backend and receipt/player CLI options. Await/inspect its Gate13/full-suite/asset-policy checks, fix any failure, merge only when verified, then update canonical state and continue the next independent source-backed Gate 14 presentation slice while Gate 13 private/local blockers remain open.",
-  "last_known_main_head": "82a89e9c18c4a96951f00321b4e0932af6eb216d",
+  "active_task": "Sandbox/private source recovered and canonical executable reverified. Persist and test the source-backed PMenu row action contract recovered in Recovery 173: parent action vtable slot +0x10, title open-bit mutation at 0x47AC60, child panel-factory dispatch at 0x47AD60 to 0x47AEC0 using node +0x0C. Then continue the exact PMenu text-origin/clipping trace and clean-host activation integration; real Windows schema-5 receipt remains pending.",
+  "last_known_main_head": "94d9702c0e4fce3fd215ec4741755cf8630751b3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 173,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 173 active. PR #109 head 13103f03b... is under CI; main remains 82a89e9c... until verification/merge.",
+  "note": "Recovery 173 active. PR #109 passed Gate13/full-suite/asset-policy CI and squash-merged to main 94d9702c.... The 511,121,336-byte authorized source archive and canonical executable hash 833bf95e... were reverified privately; PMenu action ownership is now source-traced and awaiting repository persistence/tests.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
