@@ -388,3 +388,43 @@ execution-sandbox blocker, not evidence that the source archive is unavailable.
 Cloud-safe work may therefore verify and integrate the already-persisted
 list/row/resource contract while leaving those seven display-control identities
 explicitly open for the next functioning private-source execution session.
+
+
+## Recovery 163 presentation integration seam
+
+The source-backed row/body contract is now consumed through
+`reconstruction/original_league_tables_presenter.py`, a read-only presentation
+seam that imports no simulation module and accepts immutable bridge rows only.
+
+The presenter preserves:
+
+- exact list rectangle `(270,184,477,384)`;
+- 24-row source capacity and 16-pixel row step;
+- original blank rank/name header plus `P/W/D/L/F/A/Pts`;
+- rank/name/stat local rectangles from `PLeagueTableRow`;
+- source data projection `P,W,D,L,F,A,Pts`;
+- original points arithmetic `Pts = 3*W + D`;
+- exact required 15-resource art identity without substituting recreated art.
+
+The presenter fails closed when:
+
+- more than 24 source rows are supplied;
+- numeric source fields are missing or non-integer;
+- a row's points value disagrees with original `3*W+D`;
+- an unknown staged-art identity is supplied;
+- source sort state 1 (**Current Form**) is requested.
+
+Current Form is deliberately rejected because the original UI path
+`0x4F4A10` is source-proven but the current management bridge exposes only the
+native League Position table order. Reusing that order would be a fidelity
+guess.
+
+The development Tk table now calls this presenter rather than projecting the
+bridge rows directly. Its previous modern `GD` column is removed and replaced
+by the source-visible **F** and **A** columns; its row capacity is 24. This is
+still a development integration surface, not a claim that ttk styling itself
+matches the original raster composition.
+
+Exact original League Tables binary art is still a separate provenance/staging
+step. `exact_art_staged` remains false unless all 15 source resource identities
+are present; no substitute pixels are generated.

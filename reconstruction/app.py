@@ -6,6 +6,7 @@ from tkinter import ttk, filedialog, messagebox
 from fm2001_data import FM2001Database, PLAYER_SKILLS
 from human_gameplay import HumanGameplayController
 from gate13_management_source_data import ManagementSourceDataBridge, ManagementPresentationError
+from original_league_tables_presenter import build_league_tables_snapshot, OriginalLeagueTablesPresentationError
 from internal_save import load_human_gameplay, save_human_gameplay
 from match_team_setup import TeamTacticalState
 
@@ -251,24 +252,28 @@ class App(tk.Tk):
         selected_starters = set()
         selected_subs = set()
 
+        # Gate 13 source-faithful League Tables projection. The original
+        # header leaves rank/name unlabeled and exposes F/A separately; do not
+        # substitute the prototype's previous modern GD column.
         table = ttk.Treeview(
             right,
-            columns=('pos', 'club', 'p', 'w', 'd', 'l', 'gd', 'pts'),
+            columns=('pos', 'club', 'p', 'w', 'd', 'l', 'f', 'a', 'pts'),
             show='headings',
-            height=16,
+            height=24,
         )
         for col, title, width in (
-            ('pos', '#', 35),
-            ('club', 'Club', 150),
-            ('p', 'P', 35),
-            ('w', 'W', 35),
-            ('d', 'D', 35),
-            ('l', 'L', 35),
-            ('gd', 'GD', 45),
-            ('pts', 'Pts', 45),
+            ('pos', '', 44),
+            ('club', '', 214),
+            ('p', 'P', 27),
+            ('w', 'W', 27),
+            ('d', 'D', 27),
+            ('l', 'L', 27),
+            ('f', 'F', 27),
+            ('a', 'A', 27),
+            ('pts', 'Pts', 27),
         ):
             table.heading(col, text=title)
-            table.column(col, width=width, anchor='w')
+            table.column(col, width=width, anchor='w', stretch=False)
         table.pack(fill='both', expand=True)
 
         match_text = tk.StringVar(value='No fixture pending.')
@@ -319,9 +324,13 @@ class App(tk.Tk):
                 return
             try:
                 rows = self._play_presentation().league_table_rows()
-            except ManagementPresentationError:
+                snapshot = build_league_tables_snapshot(rows)
+            except (
+                ManagementPresentationError,
+                OriginalLeagueTablesPresentationError,
+            ):
                 return
-            for row in rows:
+            for row in snapshot.rows:
                 table.insert(
                     '',
                     'end',
@@ -332,7 +341,8 @@ class App(tk.Tk):
                         row.wins,
                         row.draws,
                         row.losses,
-                        row.goal_difference,
+                        row.goals_for,
+                        row.goals_against,
                         row.points,
                     ),
                 )
