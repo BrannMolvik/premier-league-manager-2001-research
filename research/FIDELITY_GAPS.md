@@ -10,7 +10,6 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | --- | --- | --- | --- |
 | Secondary startup exact tie permutation and bucket shape | The startup-staff CRT boundary replays the independently recorded 262 total secondary schedule nodes / 45 nonempty buckets / 217 shuffle draws through an **aggregate-only MSVC checkpoint with no invented bucket vector**; tests enforce the proven World Cup-before-European Championship ordering without pretending to know every equal-key root permutation | Original reverse qsorted country-root traversal and post-secondary CRT state are documented, but the exact per-date mode-1 bucket vector and full equal-key native qsort order have NOT been independently source-locked; resolve from the canonical executable/real input before asserting pixel-calendar-level fidelity | 15 |
 | Exact fully indistinguishable PL league-table native qsort ties | PL display now uses the previously recovered numeric and CP1252 short-name source comparator when original club short names are available; if two clubs have identical complete source keys, it explicitly falls back to deterministic display and refuses to publish an "exact" ranking | All comparator fields are recovered, but native qsort's relative order for truly identical complete source keys has not been independently locked; lightweight synthetic clubs missing valid CP1252 names also receive documented display-only fallback | 15 |
-| Original FM2001 save compatibility | Modern port now has a versioned internal schema-34 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
 | Player negotiation residual branches | The proven ordinary money path handles accepted, low-wage, counter-offer, already-signed and recently-joined outcomes; unresolved 0x422803 / invalid-duration 0x423340 branches return explicit deferred states | Remaining refusal/status and duration-revision policy is not guessed | 15 or earlier if a broader negotiation case blocks play |
 | Due-transfer same-day ordering | Scheduled MPMTransferPlayer objects execute in reconstructed day maintenance after the date's fixture block | Exact original ordering relative to a fixture on the same due date is not yet instruction-locked | 15 or earlier if same-day transfer availability matters |
 | Match-day / recurring commercial income | Normal Premier League gate income is integrated; English Cup gate RNG and policy inputs are integrated but the special both-controlled-participants category-1/category-2 posting branch is not | The Cup/knockout applicability flag and independent controlled-participant posting branches are proven, but the exact business-policy split has not yet been instruction-closed. The authorized canonical executable is accessible again from the ChatGPT Library, so this is now a pending trace rather than a source-access blocker. Do not infer revenue sharing. Fresh-game concession income remains disabled because its generator does not activate records | 15 |
@@ -20,6 +19,22 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | FastView/3D | Reconstructed match events now project through source-backed FastView semantic routes into a bounded presentation shell; a seven-target `PossessionFigures`/`PossessionDiagram` basename resolver fails closed until exact private-disc paths are uniquely proved | Original resource paths/placement geometry, side orientation, territory thresholds, audio bindings, commentary, and SCI/3D choreography remain unclosed; no guessed match-view layout is shipped as original behavior | 14 |
 
 ## Resolved or superseded gaps
+
+### Original FM2001 save-file compatibility
+
+**Intentionally accepted release limitation in Gate 15.** The modernization
+does not import original FM2001/PLM2001 save files. That compatibility layer is
+not required by the project definition of done, which requires new game,
+season progression and save/reload on the Windows 11 port itself. The modern
+runtime already uses versioned internal schema **34** and has canonical
+save/reload plus repeated multi-season roundtrip coverage.
+
+This is a scope decision, not a claim that the legacy save format is
+impossible to reconstruct. The final release limitations document must state
+that old FM2001 save files cannot be loaded; the port must never silently treat
+a legacy file as a modern save. Future legacy-save import can be added as a
+separate compatibility feature without blocking the verified Windows 11
+release.
 
 ### Autonomous monthly purchase-counter lifecycle
 
