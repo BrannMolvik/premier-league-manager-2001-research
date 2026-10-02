@@ -25,6 +25,32 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 170 ordinary-management routing verified on PR #98:** the
+  source-bounded management presenter now switches the recovered PMenu between
+  fresh **PSquadScreen (0xCE)**, **PLeagueFixtures (0x25C)** and
+  **PLeagueTables (0x25A)** without importing simulation code or falling back
+  to the generic ttk Play tab. Fixture rows remain in the bridge's recovered
+  source order; League Tables reuses its fail-closed original presenter; and
+  the PLeagueFixtures -> **PMatchInfo** transition exposes only the already
+  recovered two-gate action boundary. Navigation is transactional, so an
+  unintegrated PMenu child leaves the previous source-backed panel selected.
+  Gate-13 CI run `36968140361` passed **403 tests with 21 expected
+  source-gated skips and zero failures** on head
+  `30cfc7fdc999d5bc0e005a5a5bc0bc78525aaecd`; asset-policy run
+  `36968140362` passed.
+- **Recovery 170 private execution blocker:** the authorized
+  **511,121,336-byte** Library source ZIP was successfully rematerialized, but
+  both the shell/container path and independent Python execution path failed
+  before process start with `caas.internal.errors.ClientError`. No new
+  original-byte behavior is inferred from that failure. The exact PMenu label
+  origin/clipping and application-owned management background trace therefore
+  remain deferred infrastructure blockers, not user-action blockers.
+- **Exact next task:** merge the verified routing checkpoint, then continue the
+  highest-priority cloud-safe Gate-13 integration around the fixed 800x600
+  management surface and League Fixtures data/presentation seam while keeping
+  the unresolved PMenu text/background pixels fail-closed. Revisit the private
+  executable trace as soon as a process sandbox is available.
+
 - **Recovery 166 PMenu/Squad parent placement:** private checksum-gated native
   tracing now closes the application-owned PMenu rectangle at
   **(599,96,201,504)** and the fresh PSquadScreen factory rectangle at
