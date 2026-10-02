@@ -85,12 +85,24 @@ Evidence:
   contract duration now uses the exact country League/DummyLeague root index;
   Premier League attendance uses exact **FanFactor1 = 0.9**, and Cup attendance
   derives FanFactor from the host club's league rather than the Cup root.
-- **Active Gate-15 branch:** `recovery186/gate15-exact-buy-counter-lifecycle`
-  closes DBRClub `+0x1ED` as the monthly permanent-arrival byte. Permanent
-  human/autonomous arrivals now share one increment path, and day-1 reset runs
-  after same-date Saturday transfer maintenance/payroll exactly as
-  `0x4A8070 -> 0x4F3320`. Branch CI is the next checkpoint. The separate
-  due-transfer same-day ordering gap remains open.
+- **Recovery 186/187 monthly permanent-arrival lifecycle is canonical:**
+  PR #143 squash-merged as `3b9fc3741a8d614a14389d90db99285b9aa49a69`
+  after reconstruction run `37050081471` passed **1,420 tests / 22 expected
+  skips** and asset-policy run `37050081510` passed. Shared permanent
+  assignment `0x422F70 -> 0x405190 -> 0x4F3290` increments DBRClub
+  `+0x1ED`; late day-1
+  `0x4A81A0 -> 0x40BB10 -> 0x4042E0 -> 0x4F3320` clears it only after
+  same-date Saturday transfer/payroll work. Shipped `0x403E70` intentionally
+  reads the same monthly byte for both configured 3/8 limits.
+- **Exact cloud-safe Gate-15 continuation:** the due-transfer same-day ordering
+  gap is narrowed to one unproved outer-loop edge. Persisted evidence proves
+  `0x613EE0` executes due dated MPM/process objects at the start of
+  `0x4A8070`, but does not yet place the day's ScheduleContainer match
+  traversal relative to outer calendar loop `0x4A83F0/0x4A83D0`.
+  Do not change fixture/transfer order until that caller edge is source-locked.
+  Fresh private disassembly is currently blocked by process-start
+  `caas.internal.errors.ClientError`; continue an independent cloud-safe
+  fidelity item rather than guessing.
 - **Recovery 186 private source access is working again:** the canonical
   511,121,336-byte disc-image ZIP was materialized from the Library, its raw
   MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical
