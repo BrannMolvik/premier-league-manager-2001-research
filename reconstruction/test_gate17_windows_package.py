@@ -14,6 +14,7 @@ from gate17_windows_package import (
     create_deterministic_zip,
     require_output_directory_outside_repo,
     require_pyinstaller_version,
+    require_windows_build_host,
     validate_package_contents,
     write_external_manifest,
     write_package_build_info,
@@ -35,6 +36,24 @@ def synthetic_package(root: Path) -> Path:
 
 
 class Gate17WindowsPackageTests(unittest.TestCase):
+    def test_windows_server_is_allowed_as_build_host_only(self):
+        with (
+            patch("gate17_windows_package.platform.system", return_value="Windows"),
+            patch(
+                "gate17_windows_package.platform.platform",
+                return_value="Windows-Server-2025",
+            ),
+        ):
+            result = require_windows_build_host()
+        self.assertEqual(result["platform"], "Windows-Server-2025")
+
+        with patch("gate17_windows_package.platform.system", return_value="Linux"):
+            with self.assertRaisesRegex(
+                WindowsPackageError,
+                "requires Windows",
+            ):
+                require_windows_build_host()
+
     def test_output_directory_must_be_outside_repo(self):
         with tempfile.TemporaryDirectory() as temp:
             repo = Path(temp) / "repo"
