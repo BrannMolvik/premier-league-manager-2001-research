@@ -11,6 +11,7 @@ from gate13_windows_first_screen_audit import (
     _require_private_receipt,
     audit_frame_contract,
     audit_management_host_contract,
+    audit_source_accepted_pmenu_transition,
     expected_tk_photo_dimensions,
 )
 from original_first_screen_presenter import OriginalFirstScreenPresenter
@@ -214,6 +215,113 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
                 status="wrong status",
             )
 
+    def test_source_accepted_transition_record_keeps_event_equivalence_separate(self):
+        title = SimpleNamespace(
+            action=SimpleNamespace(
+                accepted=True,
+                row_kind="title",
+                menu_id=0x259,
+                action_kind="expand_root",
+                panel_factory_arguments=None,
+            ),
+            presentation=SimpleNamespace(
+                menu=SimpleNamespace(
+                    selected_root_id=0x259,
+                    selected_child_id=0xCE,
+                ),
+                panel_code=0xCE,
+                panel_class="PSquadScreen",
+            ),
+        )
+        record = audit_source_accepted_pmenu_transition(
+            title,
+            expected_row_kind="title",
+            expected_menu_id=0x259,
+            expected_action_kind="expand_root",
+            expected_root_id=0x259,
+            expected_child_id=0xCE,
+            expected_panel_code=0xCE,
+            expected_panel_class="PSquadScreen",
+        )
+        self.assertEqual(record["action_kind"], "expand_root")
+        self.assertEqual(record["expanded_root_id"], 0x259)
+        self.assertEqual(record["selected_child_id"], 0xCE)
+        self.assertIsNone(record["panel_factory_arguments"])
+
+        child = SimpleNamespace(
+            action=SimpleNamespace(
+                accepted=True,
+                row_kind="child",
+                menu_id=0x25C,
+                action_kind="open_panel",
+                panel_factory_arguments=(0x25C, 0),
+            ),
+            presentation=SimpleNamespace(
+                menu=SimpleNamespace(
+                    selected_root_id=0x259,
+                    selected_child_id=0x25C,
+                ),
+                panel_code=0x25C,
+                panel_class="PLeagueFixtures",
+            ),
+        )
+        record = audit_source_accepted_pmenu_transition(
+            child,
+            expected_row_kind="child",
+            expected_menu_id=0x25C,
+            expected_action_kind="open_panel",
+            expected_root_id=0x259,
+            expected_child_id=0x25C,
+            expected_panel_code=0x25C,
+            expected_panel_class="PLeagueFixtures",
+        )
+        self.assertEqual(record["panel_factory_arguments"], [0x25C, 0])
+        self.assertEqual(record["panel_class"], "PLeagueFixtures")
+
+    def test_source_accepted_transition_record_fails_closed_on_contract_drift(self):
+        base_action = dict(
+            accepted=True,
+            row_kind="child",
+            menu_id=0x25A,
+            action_kind="open_panel",
+            panel_factory_arguments=(0x25A, 0),
+        )
+        base_presentation = dict(
+            menu=SimpleNamespace(selected_root_id=6, selected_child_id=0x25A),
+            panel_code=0x25A,
+            panel_class="PLeagueTables",
+        )
+        cases = (
+            ("unexpectedly rejected", {"accepted": False}, {}),
+            ("identity changed", {"menu_id": 0x25C}, {}),
+            ("action kind changed", {"action_kind": "expand_root"}, {}),
+            ("panel-factory arguments", {"panel_factory_arguments": (0x25A, 1)}, {}),
+            ("wrong expanded root", {}, {"menu": SimpleNamespace(selected_root_id=0x259, selected_child_id=0x25A)}),
+            ("wrong selected child", {}, {"menu": SimpleNamespace(selected_root_id=6, selected_child_id=0x25C)}),
+            ("wrong panel code", {}, {"panel_code": 0x25C}),
+            ("wrong panel class", {}, {"panel_class": "PLeagueFixtures"}),
+        )
+        for expected, action_changes, presentation_changes in cases:
+            with self.subTest(expected=expected):
+                action_values = dict(base_action)
+                action_values.update(action_changes)
+                presentation_values = dict(base_presentation)
+                presentation_values.update(presentation_changes)
+                result = SimpleNamespace(
+                    action=SimpleNamespace(**action_values),
+                    presentation=SimpleNamespace(**presentation_values),
+                )
+                with self.assertRaisesRegex(WindowsFirstScreenAuditError, expected):
+                    audit_source_accepted_pmenu_transition(
+                        result,
+                        expected_row_kind="child",
+                        expected_menu_id=0x25A,
+                        expected_action_kind="open_panel",
+                        expected_root_id=6,
+                        expected_child_id=0x25A,
+                        expected_panel_code=0x25A,
+                        expected_panel_class="PLeagueTables",
+                    )
     def test_receipt_must_stay_outside_repository_and_never_overwrite(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp) / "repo"
