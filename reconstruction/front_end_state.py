@@ -11,6 +11,8 @@ ORIGINAL_PSTARTMENU_SCREEN_ID = 0x323
 class FrontEndScreen(Enum):
     START_MENU = "pstartmenu"
     TEAM_SELECT = "team_select"
+    # Source-proven post-TeamSelect owner: PMenu with a concrete content panel.
+    MANAGEMENT = "pmenu_management"
 
 
 class StartMenuControl(IntEnum):
@@ -93,6 +95,7 @@ class FrontEndState:
             self.screen = FrontEndScreen.START_MENU
             return FrontEndTransition(screen=self.screen)
         if control_id == int(TeamSelectControl.START_CONTINUE):
+            self.screen = FrontEndScreen.MANAGEMENT
             return FrontEndTransition(
                 screen=self.screen,
                 command=FrontEndCommand.TEAMSELECT_START_CONTINUE,
