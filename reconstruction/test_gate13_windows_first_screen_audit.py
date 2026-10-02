@@ -3,6 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndScreen
@@ -12,6 +13,7 @@ from gate13_windows_first_screen_audit import (
     audit_frame_contract,
     audit_management_host_contract,
     audit_source_accepted_pmenu_transition,
+    expected_clean_host_photo_dimensions,
     expected_tk_photo_dimensions,
 )
 from original_first_screen_presenter import OriginalFirstScreenPresenter
@@ -126,6 +128,118 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
         self.assertEqual(team_dims[1:3], ((150, 32), (150, 32)))
         self.assertEqual(team_dims[-2:], ((30, 29), (168, 29)))
 
+
+    def test_clean_host_photo_dimensions_follow_panel_pmenu_and_modal_order(self):
+        pmenu_dimensions = [[30, 29], [168, 29]]
+
+        def run_case(panel_class, panel_snapshot, host_fields, expected_panel):
+            presenter_stub = object()
+            host = SimpleNamespace(
+                management_presenter=presenter_stub,
+                active_pmatchinfo_art=host_fields.pop(
+                    "active_pmatchinfo_art", None
+                ),
+                **host_fields,
+            )
+            frame = SimpleNamespace(
+                presentation=SimpleNamespace(
+                    panel_class=panel_class,
+                    league_fixtures=(
+                        panel_snapshot if panel_class == "PLeagueFixtures" else None
+                    ),
+                    league_tables=(
+                        panel_snapshot if panel_class == "PLeagueTables" else None
+                    ),
+                )
+            )
+            with (
+                patch(
+                    "gate13_windows_first_screen_audit.build_management_canvas_frame",
+                    return_value=frame,
+                ),
+                patch(
+                    "gate13_windows_first_screen_audit.expected_management_pmenu_photo_dimensions",
+                    return_value=pmenu_dimensions,
+                ),
+                patch(
+                    "gate13_windows_first_screen_audit.build_fresh_squad_top_render",
+                    return_value=SimpleNamespace(
+                        photo_dimensions=((73, 25), (41, 15))
+                    ),
+                ),
+            ):
+                return expected_clean_host_photo_dimensions(host, object())
+
+        squad = run_case(
+            "PSquadScreen",
+            None,
+            {
+                "squad_top_resources": object(),
+                "league_fixtures_grid_art": None,
+                "league_tables_header_art": None,
+            },
+            [[73, 25], [41, 15]],
+        )
+        self.assertEqual(squad, [[73, 25], [41, 15], *pmenu_dimensions])
+
+        fixture_art = SimpleNamespace(
+            placements=(
+                SimpleNamespace(width=5, height=17),
+                SimpleNamespace(width=28, height=5),
+            )
+        )
+        fixtures = run_case(
+            "PLeagueFixtures",
+            SimpleNamespace(exact_art_staged=True),
+            {
+                "squad_top_resources": None,
+                "league_fixtures_grid_art": fixture_art,
+                "league_tables_header_art": None,
+                "active_pmatchinfo_art": SimpleNamespace(width=760, height=500),
+            },
+            [[5, 17], [28, 5]],
+        )
+        self.assertEqual(
+            fixtures,
+            [[5, 17], [28, 5], *pmenu_dimensions, [760, 500]],
+        )
+
+        tables = run_case(
+            "PLeagueTables",
+            SimpleNamespace(exact_art_staged=True),
+            {
+                "squad_top_resources": None,
+                "league_fixtures_grid_art": None,
+                "league_tables_header_art": SimpleNamespace(width=475, height=19),
+            },
+            [[475, 19]],
+        )
+        self.assertEqual(tables, [[475, 19], *pmenu_dimensions])
+
+    def test_clean_host_photo_dimensions_fail_closed_on_missing_exact_panel_art(self):
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PLeagueFixtures",
+                league_fixtures=SimpleNamespace(exact_art_staged=False),
+                league_tables=None,
+            )
+        )
+        host = SimpleNamespace(
+            management_presenter=object(),
+            squad_top_resources=None,
+            league_fixtures_grid_art=object(),
+            league_tables_header_art=None,
+            active_pmatchinfo_art=None,
+        )
+        with patch(
+            "gate13_windows_first_screen_audit.build_management_canvas_frame",
+            return_value=frame,
+        ):
+            with self.assertRaisesRegex(
+                WindowsFirstScreenAuditError,
+                "lost exact staged grid art",
+            ):
+                expected_clean_host_photo_dimensions(host, object())
 
     def test_management_host_contract_preserves_geometry_and_open_pixel_boundaries(self):
         frame = SimpleNamespace(
