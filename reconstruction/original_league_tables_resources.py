@@ -59,21 +59,68 @@ LEAGUE_TABLES_COUNTRY_SETUP_CALLS = (
     0x44728F,
 )
 
-# The same constructor allocates two additional fmRadioTextSm families.  Keep
-# them neutral until their data producers/event meanings are independently
-# traced.
-LEAGUE_TABLES_SECONDARY_SELECTOR_BASE_OFFSET = 0x4E4
-LEAGUE_TABLES_SECONDARY_SELECTOR_COUNT = 5
-LEAGUE_TABLES_SECONDARY_SETUP_CALLS = (
+# Recovery 161 continuation closes the two remaining selector families.
+# Events 9..13 are a dynamic DIVISION selector over the active country's
+# non-DummyLeague LeagueBase entries. Event IDs are stored at control+0x20;
+# the event handler scans exactly five controls and loads the selected source
+# identity from object+0xA0+4*index.
+LEAGUE_TABLES_DIVISION_HEADER_CONTROL_OFFSET = 0x49C
+LEAGUE_TABLES_DIVISION_HEADER_SETUP_VA = 0x5D6090
+LEAGUE_TABLES_DIVISION_HEADER_CALL_VA = 0x4472C1
+LEAGUE_TABLES_DIVISION_HEADER_GLOBAL_VA = 0x982678
+LEAGUE_TABLES_DIVISION_HEADER_ENGLISH_INDEX = 2144
+LEAGUE_TABLES_DIVISION_HEADER_TEXT = "DIVISION"
+LEAGUE_TABLES_DIVISION_SELECTOR_BASE_OFFSET = 0x4E4
+LEAGUE_TABLES_DIVISION_SELECTOR_COUNT = 5
+LEAGUE_TABLES_DIVISION_EVENT_FIRST = 9
+LEAGUE_TABLES_SELECTED_DIVISION_INDEX_OFFSET = 0x68
+LEAGUE_TABLES_SELECTED_DIVISION_IDENTITY_OFFSET = 0x8C
+LEAGUE_TABLES_DIVISION_IDENTITY_ARRAY_OFFSET = 0xA0
+LEAGUE_TABLES_DIVISION_SETUP_CALLS = (
     0x447306,
     0x447353,
     0x4473A1,
     0x4473F2,
     0x447440,
 )
-LEAGUE_TABLES_TERTIARY_SELECTOR_BASE_OFFSET = 0x6A8
-LEAGUE_TABLES_TERTIARY_SELECTOR_COUNT = 2
-LEAGUE_TABLES_TERTIARY_SETUP_CALLS = (0x4474B5, 0x447501)
+LEAGUE_TABLES_DIVISION_REBUILD_VA = 0x448E60
+LEAGUE_TABLES_DIVISION_SET_TEXT_VA = 0x5D3F10
+LEAGUE_TABLES_LEAGUE_BASE_TYPE_DESCRIPTOR_VA = 0x818AA0
+LEAGUE_TABLES_DUMMY_LEAGUE_TYPE_DESCRIPTOR_VA = 0x81B498
+LEAGUE_TABLES_RTDYNAMICCAST_VA = 0x668995
+LEAGUE_TABLES_COUNTRY_COMPETITION_ARRAY_OFFSET = 0x48
+LEAGUE_TABLES_COUNTRY_COMPETITION_COUNT_OFFSET = 0x4C
+LEAGUE_TABLES_DIVISION_CAPTION_OFFSET = 0x14
+LEAGUE_TABLES_DIVISION_IDENTITY_WORD_OFFSET = 0x20
+
+# Events 14 and 15 are an exact two-state Sort By family. The source initializes
+# object+0x98 to 0, so League Position is the default; event 15 sets state 1.
+LEAGUE_TABLES_SORT_HEADER_CONTROL_OFFSET = 0x660
+LEAGUE_TABLES_SORT_HEADER_SETUP_VA = 0x5D6090
+LEAGUE_TABLES_SORT_HEADER_CALL_VA = 0x447472
+LEAGUE_TABLES_SORT_HEADER_GLOBAL_VA = 0x983A94
+LEAGUE_TABLES_SORT_HEADER_ENGLISH_INDEX = 857
+LEAGUE_TABLES_SORT_HEADER_TEXT = "Sort By"
+LEAGUE_TABLES_SORT_SELECTOR_BASE_OFFSET = 0x6A8
+LEAGUE_TABLES_SORT_SELECTOR_COUNT = 2
+LEAGUE_TABLES_SORT_EVENT_FIRST = 14
+LEAGUE_TABLES_SORT_STATE_OFFSET = 0x98
+LEAGUE_TABLES_SORT_DEFAULT_STATE = 0
+LEAGUE_TABLES_SORT_SETUP_CALLS = (0x4474B5, 0x447501)
+LEAGUE_TABLES_SORT_OPTIONS = (
+    ("League Position", 0x983C04, 765, 14, 0),
+    ("Current Form", 0x983A90, 858, 15, 1),
+)
+LEAGUE_TABLES_SORT_APPLY_VA = 0x449090
+
+# Backward-compatible structural aliases retained for callers/tests written at
+# the earlier checkpoint.
+LEAGUE_TABLES_SECONDARY_SELECTOR_BASE_OFFSET = LEAGUE_TABLES_DIVISION_SELECTOR_BASE_OFFSET
+LEAGUE_TABLES_SECONDARY_SELECTOR_COUNT = LEAGUE_TABLES_DIVISION_SELECTOR_COUNT
+LEAGUE_TABLES_SECONDARY_SETUP_CALLS = LEAGUE_TABLES_DIVISION_SETUP_CALLS
+LEAGUE_TABLES_TERTIARY_SELECTOR_BASE_OFFSET = LEAGUE_TABLES_SORT_SELECTOR_BASE_OFFSET
+LEAGUE_TABLES_TERTIARY_SELECTOR_COUNT = LEAGUE_TABLES_SORT_SELECTOR_COUNT
+LEAGUE_TABLES_TERTIARY_SETUP_CALLS = LEAGUE_TABLES_SORT_SETUP_CALLS
 
 LEAGUE_TABLES_COUNTRY_HEADER_CONTROL_OFFSET = 0x1F4
 LEAGUE_TABLES_COUNTRY_HEADER_SETUP_VA = 0x5D6090
@@ -160,3 +207,27 @@ def assert_league_tables_identity_contract() -> None:
         raise OriginalLeagueTablesError(
             "League Tables shell requires the source-proven PLeagueTables identity"
         )
+
+
+def league_tables_division_event_index(event_id: int) -> int:
+    """Map exact source events 9..13 to the five dynamic division slots."""
+    if type(event_id) is not int:
+        raise OriginalLeagueTablesError("League Tables event ID must be an integer")
+    index = event_id - LEAGUE_TABLES_DIVISION_EVENT_FIRST
+    if not 0 <= index < LEAGUE_TABLES_DIVISION_SELECTOR_COUNT:
+        raise OriginalLeagueTablesError(
+            f"League Tables event {event_id} is not a recovered division selector"
+        )
+    return index
+
+
+def league_tables_sort_state(event_id: int) -> int:
+    """Map exact source events 14/15 to the binary sort state."""
+    if type(event_id) is not int:
+        raise OriginalLeagueTablesError("League Tables event ID must be an integer")
+    index = event_id - LEAGUE_TABLES_SORT_EVENT_FIRST
+    if not 0 <= index < LEAGUE_TABLES_SORT_SELECTOR_COUNT:
+        raise OriginalLeagueTablesError(
+            f"League Tables event {event_id} is not a recovered sort selector"
+        )
+    return LEAGUE_TABLES_SORT_OPTIONS[index][4]
