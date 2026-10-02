@@ -60,6 +60,19 @@ Evidence:
   priority independent cloud-safe Gate 14 work without declaring Gate 13
   complete.
 
+- **Recovery 186 Gate-15 injury gap closed:** `DBRClub::0x405080`
+  availability is now shared exactly by persistent-injury and transfer
+  consumers; PR #138 merged as `1a274e5f...` after 1,413 tests / 22 expected
+  skips.
+- **Recovery 186 Gate-15 legacy chairman-budget disposition:** persisted
+  executable evidence proves the A0/A1/settings/warning budget-message family
+  irrelevant to the ordinary shipped fresh-game path. Ordinary Finance
+  Overview/transfers use Balance/accounting, so the port keeps no invented live
+  budget scalar. Legacy persistence compatibility remains bounded.
+- **Next cloud-safe Gate-15 task:** audit the remaining finance/commercial and
+  transfer-order gaps for another item that is already source-bounded or can be
+  fixed from persisted evidence. Private-executable-dependent gaps remain
+  deferred rather than guessed.
 - **Recovery 186 source retry:** the canonical 511,121,336-byte original-source
   ZIP was successfully materialized again, but the fresh sandbox then failed
   before starting the archive-inspection process. No FastView source path,
