@@ -16,6 +16,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
+from procedural_league import procedural_league_cycle_count
+
 
 class ManagementPresentationError(ValueError):
     pass
@@ -165,6 +167,25 @@ class FixtureRowView:
     played: bool
     home_goals: int | None
     away_goals: int | None
+
+
+@dataclass(frozen=True)
+class LeagueFixturesGridSourceView:
+    """Exact ordinary-League source inputs needed by PLeagueFixtures.
+
+    0x46D950 calls League preparation 0x4F4940 before consuming members.
+    Ordinary League dispatches to the recovered 0x4F45E0 ranking comparator.
+    The same comparator is used here directly with canonical CP1252 short-name
+    bytes. 0x616F40 supplies the schedule-cycle count; PLeagueFixtures then
+    divides that count by two to allocate directed-pair repeat layers.
+    """
+
+    competition_id: int
+    member_club_ids: tuple[int, ...]
+    scheduled_matchday_count: int
+    schedule_cycle_count: int
+    matrix_layer_count: int
+    fixtures_in_source_order: tuple[FixtureRowView, ...]
 
 
 @dataclass(frozen=True)
@@ -1798,6 +1819,94 @@ class ManagementSourceDataBridge:
                 away_goals=(None if result is None else int(result.away_goals)),
             ))
         return tuple(rows)
+
+    def league_fixtures_grid_source(self) -> LeagueFixturesGridSourceView:
+        """Return the exact current Premier League member/matrix source contract.
+
+        This is intentionally stricter than the generic display-table helper:
+        ambiguous source-name ties fail closed rather than falling back to club
+        IDs, because PLeagueFixtures consumes the competition's prepared member
+        list after 0x4F4940.
+        """
+        league = getattr(self.state, "premier_league", None)
+        if league is None:
+            raise ManagementPresentationError("Premier League state is unavailable")
+
+        member_ids = getattr(league, "club_ids", None)
+        table = getattr(league, "table", None)
+        if not isinstance(member_ids, tuple) or not callable(table):
+            raise ManagementPresentationError(
+                "Recovered Premier League member preparation is unavailable"
+            )
+
+        name_bytes: dict[int, bytes] = {}
+        for club_id in member_ids:
+            club = self._source_club(int(club_id))
+            try:
+                encoded = club.short_name.encode("cp1252")
+            except UnicodeEncodeError as exc:
+                raise ManagementPresentationError(
+                    f"Club {club_id} short name is not canonical CP1252"
+                ) from exc
+            if encoded in name_bytes.values():
+                raise ManagementPresentationError(
+                    "PLeagueFixtures member order is ambiguous because source "
+                    "short-name bytes are not unique"
+                )
+            name_bytes[int(club_id)] = encoded
+
+        try:
+            prepared = tuple(table(name_bytes.get))
+        except ValueError as exc:
+            raise ManagementPresentationError(
+                "PLeagueFixtures member order is ambiguous under native 0x4F45E0"
+            ) from exc
+        prepared_ids = tuple(int(row.club_id) for row in prepared)
+        if set(prepared_ids) != {int(value) for value in member_ids}:
+            raise ManagementPresentationError(
+                "Prepared PLeagueFixtures members do not match Premier League membership"
+            )
+        if len(prepared_ids) <= 1:
+            raise ManagementPresentationError(
+                "PLeagueFixtures requires at least two prepared League members"
+            )
+
+        competitions = getattr(self.state, "competitions", None)
+        if not hasattr(competitions, "get"):
+            raise ManagementPresentationError(
+                "Recovered competition definitions are unavailable"
+            )
+        competition = competitions.get(0)
+        if competition is None:
+            raise ManagementPresentationError(
+                "Premier League competition definition 0 is unavailable"
+            )
+        scheduled_matchday_count = getattr(
+            competition, "scheduled_matchday_count", None
+        )
+        if type(scheduled_matchday_count) is not int:
+            raise ManagementPresentationError(
+                "Premier League scheduled-matchday count is unavailable"
+            )
+
+        cycle_count = procedural_league_cycle_count(
+            len(prepared_ids),
+            scheduled_matchday_count,
+        )
+        matrix_layer_count = cycle_count // 2
+        if matrix_layer_count <= 0:
+            raise ManagementPresentationError(
+                "PLeagueFixtures source helper produced no directed-pair matrix layer"
+            )
+
+        return LeagueFixturesGridSourceView(
+            competition_id=0,
+            member_club_ids=prepared_ids,
+            scheduled_matchday_count=scheduled_matchday_count,
+            schedule_cycle_count=cycle_count,
+            matrix_layer_count=matrix_layer_count,
+            fixtures_in_source_order=self.fixture_rows(),
+        )
 
     def pending_fixture(self) -> FixtureRowView | None:
         """Return the pending human fixture through the same source-data seam."""
