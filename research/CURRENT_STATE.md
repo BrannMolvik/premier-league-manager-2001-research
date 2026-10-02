@@ -113,16 +113,26 @@ Evidence:
   **1,428 tests / 22 expected skips** plus asset-policy success. The final audit
   now requires every Gate 1-16 roadmap criterion and four distinct external
   Windows receipts before Gate 17 can pass.
-- **Recovery 188 active Gate-17 work-ahead:** private process execution still
-  fails before start with `caas.internal.errors.ClientError`. Persisted
-  Gate-14 evidence proves the seven FastView basenames but not their exact disc
-  paths or placement; `pitch_normal.444` is independently owned by PMatchInfo,
-  so directory inference from basename is explicitly unsafe. Branch
-  `recovery188/gate17-artifact-bound-receipts` binds every Windows receipt to
-  the exact release version/archive SHA-256 and adds a fail-closed Windows
-  producer for new-game/management-loop, save/reload and canonical annual
-  season-progression receipts. Clean-install evidence remains a separate
-  packaging/install task.
+- **Recovery 188/189 Gate-17 artifact binding and packaging are canonical:**
+  gameplay receipt producers are bound to one release version, commit and
+  archive SHA-256, and main `d571f86de06fbe09a7e5d74f848ffc36c05e2f59`
+  has the reproducible Windows candidate package. Full reconstruction workflow
+  `37063389249` passed **1,448 tests / 22 expected skips**; Gate-13 and
+  asset-policy workflows passed; Windows package workflow `37063389258`
+  froze and smoke-tested the PyInstaller executable and produced candidate
+  archive SHA-256
+  `79116b1aece63c68bfdf7b2fc541f1697f49bea79c87ccc2260144dd24139075`
+  (13,626,308 bytes), artifact `11251855235`.
+- **Recovery 190 active Gate-17 work-ahead:** PR #154
+  (`recovery190/gate17-clean-windows-install-receipt`) adds the separate
+  fail-closed `clean_windows_install.json` producer. It requires Windows 11,
+  extracts the exact archive into a fresh directory outside Git, validates the
+  installed payload against `PACKAGE-MANIFEST.json`, runs the frozen
+  executable's `--package-smoke` from that installed location, and refuses to
+  overwrite prior receipt evidence. Hosted `windows-latest` runs only its unit
+  tests and is explicitly not accepted as the external Windows 11 receipt.
+  Branch CI is the next checkpoint. Gate 17 remains incomplete until the
+  distinct external receipts and earlier Gate 13-16 prerequisites all pass.
 - **Recovery 186 private source access is working again:** the canonical
   511,121,336-byte disc-image ZIP was materialized from the Library, its raw
   MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical
