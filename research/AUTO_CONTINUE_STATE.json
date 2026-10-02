@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 179: PR #117 renders the exact fresh PSquadScreen top controls (source frame 11 selected for 1ST & RES, source frame 0 for the other two, exact Zurich 16px captions at screen y=171). Focused Gate13 and asset policy pass; full reconstruction still running. PMatchInfo remains fail-closed at its source-linked secondary-context gate; independently inspect/integrate source-proven League Tables pixels next.",
-  "last_known_main_head": "cd4bc4b",
+  "active_task": "Recovery 179: fresh source-backed PSquadScreen top controls merged as 378aea2 after Gate13/full/asset validation. Next: persist the exact PMatchInfo pointer-origin clamp recovered from 0x488C80; keep entry fail-closed until the secondary source-linked context is bridged. Independently integrate source-proven League Tables header/body pixels, beginning with league_bar and exact header text only where font/state is source-closed.",
+  "last_known_main_head": "378aea2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 180,
   "last_recovery_reason": "analysis-errored-sandbox",
-  "note": "ChatGPT remains active. PR #117 head 0f79cb6 is mergeable; Gate13 run 37004147338 passed 460 tests with 21 expected skips, asset policy 37004147311 passed, full reconstruction 37004147299 still running. Do not race this branch.",
+  "note": "PR #117 merged as 378aea2. Gate13 37004147338 passed 460 tests/21 skips; full 37004147299 passed 1,370 tests/22 skips; asset policy 37004147311 passed. ChatGPT continues.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
