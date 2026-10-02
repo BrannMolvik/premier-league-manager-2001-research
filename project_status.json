@@ -14,7 +14,7 @@
   "last_verified_test_count": 1149,
   "asset_policy_validated_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 remains active. Recovery 172 merged the schema-4 real Windows/Tk audit harness for native club selection -> TeamSelect Start -> MANAGEMENT/PMenu, verifying the fixed 800x600, PMenu (599,96,201,504), PSquadScreen (0,79,800,520), panel code 0xCE, and fail-closed zero-management-PhotoImage boundary. Continue the next independent source-backed Gate-13 presentation slice; run the new schema-4 receipt on real Windows when available.",
+  "active_task": "Gate 13 remains active after Recovery 172. Default app launch is source-backed through TeamSelect Start -> MANAGEMENT/PMenu and both diagnostic/default hosts expose geometry-only PMenu candidate hits without navigation. Schema-5 Windows audit now covers the default clean host but still needs a real local Windows 11 receipt. Exact PMenu text/background and native row activation/event ownership require fresh private executable tracing; current process sandbox still fails before start with caas.internal.errors.ClientError.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -1547,5 +1547,15 @@
   "gate13_windows_management_audit_expected_skips": 21,
   "gate13_windows_management_audit_asset_policy_run": 36974932407,
   "gate13_windows_management_audit_schema": 4,
-  "gate13_windows_management_real_receipt_status": "pending_local_windows_11_run"
+  "gate13_windows_management_real_receipt_status": "pending_local_windows_11_run",
+  "gate13_pmenu_diagnostic_hit_merge": "8b36c566ababdf52a8574d5c8753f92aad641fc4",
+  "gate13_pmenu_clean_host_hit_merge": "45844074b4ad7128903fd3ed7b9a840dc82dbc74",
+  "gate13_windows_clean_host_audit_merge": "a79edc86e0333fb856539274e12113d85de868c8",
+  "gate13_windows_audit_schema": 5,
+  "gate13_windows_audit_ci_run": 36975636316,
+  "gate13_windows_audit_test_count": 427,
+  "gate13_windows_audit_expected_skips": 21,
+  "gate13_windows_audit_asset_policy_run": 36975636285,
+  "gate13_windows_audit_real_receipt_status": "pending_local_windows_11_schema5_run",
+  "gate13_pmenu_activation_status": "blocked_pending_private_native_trace"
 }
