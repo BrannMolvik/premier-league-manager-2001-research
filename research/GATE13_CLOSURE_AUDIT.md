@@ -1,7 +1,7 @@
 # Gate 13 Closure Audit
 
 _Audit date: 2 October 2026 KST_
-_Last reconciled after Recovery 175 source-accepted PMenu integration._
+_Last reconciled after Recovery 175 schema-6 PMenu audit integration._
 
 ## Decision
 
@@ -26,7 +26,7 @@ every neutral bit name before Gate 13 can close.
 | --- | --- | --- |
 | Simulation logic remains separated from presentation | **PASS** | `GATE13_PRESENTATION_SEPARATION_AUDIT.md`, `ManagementSourceDataBridge`, `OriginalManagementPresenter`, and the source-backed first-screen/management hosts keep simulation mutation behind controller/session boundaries. |
 | Accessible original resources and recoverable layout/navigation are reused or converted | **PARTIAL - required work remains** | First-screen, PMenu, Squad, League Fixtures, PMatchInfo, League Tables and Scouting resources/contracts are source-bound and many are provenance-imported. Normal launch now uses the source-backed host, but the management canvas still cannot compose the unresolved surrounding background, exact PMenu text placement or a complete source-backed Squad view. |
-| Main-menu/login presentation, structure, navigation and timing closely follow the original | **PARTIAL - close to sufficient for Gate 13** | PStartMenu -> TeamSelect -> MANAGEMENT is integrated with native first-screen resources, hierarchy population, club selection, Back/Start behavior and the fixed PMenu/Squad parent geometry. The Recovery-172 schema-5 Windows harness also covers the default clean host, but a new real Windows 11 schema-5 receipt is still pending. |
+| Main-menu/login presentation, structure, navigation and timing closely follow the original | **PARTIAL - close to sufficient for Gate 13** | PStartMenu -> TeamSelect -> MANAGEMENT is integrated with native first-screen resources, hierarchy population, club selection, Back/Start behavior and the fixed PMenu/Squad parent geometry. The Recovery-175 schema-6 Windows harness covers the default clean host, preserves ordinary Tk PMenu clicks as candidate-only, and separately verifies the source-accepted callback seam, but a new real Windows 11 schema-6 receipt is still pending. |
 | Normal play feels recognizably like FM2001 rather than a generic replacement UI | **FAIL** | The default host no longer falls back to the ttk notebook, but after Start it intentionally presents a blank 800x600 management canvas because source management pixels are incomplete. Candidate PMenu hit-testing is geometry-only and cannot yet navigate. |
 
 ## Closed since the earlier audit
@@ -54,10 +54,13 @@ The following blockers from the original closure audit are now closed:
    current panel; supported child actions route transactionally into the existing
    management presenters. Ordinary Tk clicks are still not treated as accepted
    source events.
-7. **Windows audit contract:** schema 5 now tests the developer viewer and the
+7. **Windows audit contract:** schema 6 now tests the developer viewer and the
    default clean host through New Game -> native club click -> Start ->
-   MANAGEMENT, and requires zero guessed management PhotoImages. The new
-   schema-5 contract is repository-verified; its real Windows execution is
+   MANAGEMENT, preserves real Tk PMenu clicks as non-activating candidates,
+   and separately exercises the explicit source-accepted Calendar/Fixtures/
+   TABLES/League Tables action seam. It requires zero guessed management
+   PhotoImages and explicitly declines to claim Tk-event equivalence. The
+   schema-6 contract is repository-verified; its real Windows execution is
    still pending.
 
 ## Required before Gate 13 can pass
@@ -78,7 +81,7 @@ The smallest sufficient remaining closure slice is now:
    able to move through the source-backed Squad/tactics -> League Fixtures ->
    PMatchInfo/result -> League Tables path while gameplay mutations continue to
    flow through the reconstructed backend rather than presentation code.
-4. **Run the integrated route on real Windows 11.** Execute the schema-5 audit
+4. **Run the integrated route on real Windows 11.** Execute the schema-6 audit
    (and extend it as the management loop becomes interactive) against the
    canonical local install and preserve the bounded receipt outside Git.
 
@@ -106,7 +109,7 @@ missing behavior from appearance or modern UI conventions.
 ### Local Windows validation boundary
 
 Hosted Linux CI verifies the audit contract but cannot produce a real Windows
-Tk receipt. A new schema-5 local Windows 11 run remains required before the
+Tk receipt. A new schema-6 local Windows 11 run remains required before the
 expanded clean-host graphical result is claimed.
 
 ## Validly deferred to Gate 15
