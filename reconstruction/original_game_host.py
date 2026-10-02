@@ -31,6 +31,10 @@ from original_management_canvas import (
     load_verified_management_pmenu_resources,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_management_panel_canvas import (
+    build_management_panel_render,
+    load_verified_management_panel_resources,
+)
 from original_pmenu_activation import resolve_pmenu_pointer_press
 from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
@@ -87,14 +91,24 @@ class OriginalGameTkHost:
         *,
         management_presenter_factory=None,
         management_pmenu_resources=None,
+        management_panel_resources=None,
     ):
         self.presenter = presenter
         self.root = root
         self.tk = tk
-        self.management_presenter_factory = (
-            management_presenter_factory
-            or (lambda session: OriginalManagementPresenter(session))
-        )
+        self.management_panel_resources = management_panel_resources
+        if management_presenter_factory is None:
+            staged_fixtures = (
+                ()
+                if management_panel_resources is None
+                else management_panel_resources.league_fixtures_resource_names
+            )
+            self.management_presenter_factory = lambda session: OriginalManagementPresenter(
+                session,
+                staged_league_fixture_resource_names=staged_fixtures,
+            )
+        else:
+            self.management_presenter_factory = management_presenter_factory
         self.management_presenter = None
         self.management_pmenu_resources = management_pmenu_resources
         self.last_pmenu_activation = None
@@ -209,8 +223,27 @@ class OriginalGameTkHost:
             frame,
             self.management_pmenu_resources,
         )
+        panel_render = None
+        if self.management_panel_resources is not None:
+            panel_render = build_management_panel_render(
+                frame,
+                self.management_panel_resources,
+            )
+
         self.canvas.delete("all")
         self._photos = []
+
+        # Panel-owned art is below PMenu. This preserves the recovered native
+        # overlap where the menu occupies the right edge of management panels.
+        if panel_render is not None:
+            for overlay in panel_render.overlays:
+                art = self._photo(overlay.png)
+                self.canvas.create_image(
+                    overlay.x,
+                    overlay.y,
+                    image=art,
+                    anchor=self.tk.NW,
+                )
 
         menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
         for overlay in menu_render.overlays:
@@ -222,9 +255,11 @@ class OriginalGameTkHost:
                 anchor=self.tk.NW,
             )
 
+        panel_pixel_count = 0 if panel_render is None else len(panel_render.overlays)
         self.last_status = (
             f"Management host active: {frame.presentation.panel_class}; "
-            "source PMenu rows rendered; surrounding management background unresolved"
+            f"{panel_pixel_count} source panel overlays; source PMenu rows rendered; "
+            "surrounding management background unresolved"
         )
 
     def redraw(self) -> None:
@@ -378,9 +413,14 @@ def run_original_game_ui(
         game_dir,
         source_root=resolved_source_root,
     )
+    original_executable = Path(game_dir) / "FOOTBAL.EXE"
     pmenu_resources = load_verified_management_pmenu_resources(
         resolved_source_root,
-        Path(game_dir) / "FOOTBAL.EXE",
+        original_executable,
+    )
+    panel_resources = load_verified_management_panel_resources(
+        resolved_source_root,
+        original_executable,
     )
     import tkinter as tk
 
@@ -390,5 +430,6 @@ def run_original_game_ui(
         root,
         tk,
         management_pmenu_resources=pmenu_resources,
+        management_panel_resources=panel_resources,
     )
     root.mainloop()

@@ -739,14 +739,25 @@ resources or any fixture/date/team text. Their source identities and runtime
 selection semantics are recovered, but the current persisted evidence does not
 justify inventing a screen-pixel placement/text rendering rule for them.
 
-### Current staging boundary
+### Recovery 179 source import closure
 
-Unlike the already imported Squad, PMenu, League Tables and consumed PMatchInfo
-families, the six League Fixtures `.444` files are not currently present under
-`original_assets/source/FM2001_Art/Generic/league_fixtures/` and have no
-rows in `original_assets/MANIFEST.md`. Repository history and the relevant
-recovery branches contain metadata/code only, not an unmerged byte-identical
-asset copy.
+The earlier staging blocker is now closed. The canonical authorized 511,121,336-
+byte ZIP was recovered again from the durable Library locator and rehashed to
+`677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`.
+Its Joliet image again enumerated 2,456 files, and all six exact League Fixtures
+resources below matched the already-persisted byte sizes, SHA-256 values and
+EA444 geometries before import.
+
+All six files are now intentionally provenance-imported under
+`original_assets/source/FM2001_Art/Generic/league_fixtures/` and recorded in
+`original_assets/MANIFEST.md`. The earlier CAAS/process-start note remains
+historical evidence only and is no longer a current asset-availability blocker.
+
+The exact screen placement boundary is unchanged: the two grid families may be
+rendered at their proven 36 setup calls. The four 24x13 cell wrappers are
+source-proven and imported, but their final screen-pixel placement/text
+composition remains fail-closed until that placement path is independently
+recovered.
 
 Therefore the new loader is intentionally fail-closed in the normal repository
 until the authorized private source can be re-extracted and the exact files

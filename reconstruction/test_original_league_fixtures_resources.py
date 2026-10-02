@@ -651,6 +651,13 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
             ):
                 validate_original_league_fixtures_resources(root)
 
+    def test_imported_league_fixtures_resources_match_source_contract(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        self.assertEqual(
+            validate_original_league_fixtures_resources(source_root),
+            LEAGUE_FIXTURES_RESOURCES,
+        )
+
     def test_panel_identity_guard_uses_source_proven_navigation_contract(self):
         assert_league_fixtures_panel_identity()
 

@@ -38,6 +38,10 @@ from original_management_canvas import (
     build_management_pmenu_render,
     load_verified_management_pmenu_resources,
 )
+from original_management_panel_canvas import (
+    build_management_panel_render,
+    load_verified_management_panel_resources,
+)
 from original_pmenu_chrome import PMENU_LIST_SCREEN_ORIGIN, PMENU_LIST_SIZE
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from original_squad_resources import SQUAD_PANEL_RECT
@@ -373,16 +377,38 @@ def expected_management_pmenu_photo_dimensions(frame, resources) -> list[list[in
     return [list(item) for item in render.photo_dimensions]
 
 
-def verify_live_management_pmenu(host, resources) -> list[list[int]]:
-    """Require the clean host's current PhotoImages to match its live PMenu rows."""
+def expected_management_host_photo_dimensions(
+    frame,
+    pmenu_resources,
+    panel_resources,
+) -> list[list[int]]:
+    """Return panel-owned image geometry followed by the overlaid PMenu geometry."""
+    panel = build_management_panel_render(frame, panel_resources)
+    menu = build_management_pmenu_render(frame, pmenu_resources)
+    return (
+        [[item.width, item.height] for item in panel.overlays]
+        + [list(item) for item in menu.photo_dimensions]
+    )
+
+
+def verify_live_management_pixels(
+    host,
+    pmenu_resources,
+    panel_resources,
+) -> list[list[int]]:
+    """Require the clean host to match the current source-backed layer stack."""
     if host.management_presenter is None:
         raise WindowsFirstScreenAuditError("Clean host lost its management presenter")
     frame = build_management_canvas_frame(host.management_presenter)
-    expected = expected_management_pmenu_photo_dimensions(frame, resources)
+    expected = expected_management_host_photo_dimensions(
+        frame,
+        pmenu_resources,
+        panel_resources,
+    )
     actual = _actual_photo_dimensions(host)
     if actual != expected:
         raise WindowsFirstScreenAuditError(
-            "Clean host PMenu PhotoImages differ from the current source-backed rows"
+            "Clean host management PhotoImages differ from source-backed panel/PMenu composition"
         )
     return actual
 
@@ -479,8 +505,13 @@ def run_real_windows_graphical_audit(
         original_art_dir=original_art_root,
         original_executable=original_exe,
     )
+    source_root = Path(original_art_root).parent
     pmenu_resources = load_verified_management_pmenu_resources(
-        Path(original_art_root).parent,
+        source_root,
+        original_exe,
+    )
+    panel_resources = load_verified_management_panel_resources(
+        source_root,
         original_exe,
     )
     presenter = OriginalFirstScreenPresenter(
@@ -727,6 +758,7 @@ def run_real_windows_graphical_audit(
             clean_root,
             tk,
             management_pmenu_resources=pmenu_resources,
+            management_panel_resources=panel_resources,
         )
         try:
             _pump(root)
@@ -778,9 +810,10 @@ def run_real_windows_graphical_audit(
                 int(clean_host.canvas.winfo_height()),
             ]
             clean_photo_dimensions = _actual_photo_dimensions(clean_host)
-            clean_expected_photos = expected_management_pmenu_photo_dimensions(
+            clean_expected_photos = expected_management_host_photo_dimensions(
                 clean_frame,
                 pmenu_resources,
+                panel_resources,
             )
             clean_contract = audit_management_host_contract(
                 clean_frame,
@@ -813,7 +846,7 @@ def run_real_windows_graphical_audit(
                 raise WindowsFirstScreenAuditError(
                     "Selected PMenu title press mutated PMenu selection"
                 )
-            verify_live_management_pmenu(clean_host, pmenu_resources)
+            verify_live_management_pixels(clean_host, pmenu_resources, panel_resources)
 
             # Recovery 176 proves that the concrete whole-row SelectBmp uses
             # 0x64F7A0 at vtable +0x6C and that Tk <Button-1> is the equivalent
@@ -835,7 +868,7 @@ def run_real_windows_graphical_audit(
                     expected_panel_class="PSquadScreen",
                 )
             )
-            verify_live_management_pmenu(clean_host, pmenu_resources)
+            verify_live_management_pixels(clean_host, pmenu_resources, panel_resources)
 
             clean_host.canvas.event_generate("<Button-1>", x=600, y=96 + 4 * 29)
             _pump(root)
@@ -852,7 +885,7 @@ def run_real_windows_graphical_audit(
                     expected_panel_class="PLeagueFixtures",
                 )
             )
-            verify_live_management_pmenu(clean_host, pmenu_resources)
+            verify_live_management_pixels(clean_host, pmenu_resources, panel_resources)
 
             clean_host.canvas.event_generate("<Button-1>", x=600, y=96 + 5 * 29)
             _pump(root)
@@ -885,7 +918,7 @@ def run_real_windows_graphical_audit(
                     expected_panel_class="PLeagueTables",
                 )
             )
-            verify_live_management_pmenu(clean_host, pmenu_resources)
+            verify_live_management_pixels(clean_host, pmenu_resources, panel_resources)
 
             clean_host_receipt = {
                 "new_game_to_teamselect": True,
@@ -898,6 +931,7 @@ def run_real_windows_graphical_audit(
                 "source_accepted_pmenu_actions": source_accepted_actions,
                 "tk_pmenu_pointer_press_equivalence_verified": True,
                 "pmenu_source_row_pixels_rendered": True,
+                "league_fixtures_source_grid_pixels_rendered": True,
                 **clean_contract,
             }
         finally:
@@ -907,7 +941,7 @@ def run_real_windows_graphical_audit(
                 pass
 
         return {
-            "schema_version": 8,
+            "schema_version": 9,
             "passed": True,
             "audit_kind": "real_windows_tk_first_screen_management_and_clean_host_smoke",
             "platform": platform.platform(),
@@ -955,7 +989,8 @@ def run_real_windows_graphical_audit(
             "unresolved_boundaries": [
                 "Surrounding management background pixels",
                 "Original PMenu keyboard-event equivalence",
-                "Broader Gate-13 management-panel graphical fidelity beyond the rendered PMenu",
+                "League Fixtures 24x13 cell placement/text and non-grid panel chrome",
+                "Broader Gate-13 management-panel graphical fidelity beyond integrated source-owned layers",
             ],
             "gate13_complete": False,
         }
