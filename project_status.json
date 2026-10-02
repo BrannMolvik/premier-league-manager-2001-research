@@ -1344,8 +1344,29 @@
   ],
   "gate13_league_tables_secondary_selector_count": 5,
   "gate13_league_tables_tertiary_selector_count": 2,
-  "gate13_league_tables_secondary_selector_semantics_open": true,
-  "gate13_league_tables_tertiary_selector_semantics_open": true,
+  "gate13_league_tables_secondary_selector_semantics_open": false,
+  "gate13_league_tables_tertiary_selector_semantics_open": false,
   "gate13_league_tables_row_presentation_open": true,
-  "gate13_league_tables_original_resources_open": true
+  "gate13_league_tables_original_resources_open": true,
+  "gate13_league_tables_division_selector_source_proven": true,
+  "gate13_league_tables_division_header": "DIVISION",
+  "gate13_league_tables_division_event_range": [
+    9,
+    13
+  ],
+  "gate13_league_tables_division_selector_count": 5,
+  "gate13_league_tables_division_rebuild_va": "0x448E60",
+  "gate13_league_tables_division_source_type": "LeagueBase excluding DummyLeague",
+  "gate13_league_tables_sort_selector_source_proven": true,
+  "gate13_league_tables_sort_header": "Sort By",
+  "gate13_league_tables_sort_options": [
+    "League Position",
+    "Current Form"
+  ],
+  "gate13_league_tables_sort_event_range": [
+    14,
+    15
+  ],
+  "gate13_league_tables_sort_state_offset": "0x98",
+  "gate13_league_tables_sort_default_state": 0
 }
