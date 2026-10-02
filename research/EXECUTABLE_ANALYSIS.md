@@ -9599,3 +9599,48 @@ the current month.
 The reconstruction now shares this exact behavior through
 `contract_expiry_from_month_span()`; the previous preserve-day/final-day clamp
 is removed.
+
+
+## Gate 15 autonomous contract category source closed - 3 October 2026
+
+Direct disassembly closes `0x423340`'s category input.
+
+`0x4FA510` is only:
+
+```text
+call 0x4F8FF0   ; competition -> owning country
+mov  ecx,eax
+call 0x410FF0   ; search country +0x48/+0x4C
+ret
+```
+
+`0x410FF0` returns the zero-based index of the passed competition in the
+country pointer vector at `+0x48`, or -1 if absent.
+
+Country construction proves that `+0x48/+0x4C` is a distinct root subset,
+not the all-root vector at `+0x40/+0x44`. Only root competitions whose
+virtual `+0x24` kind is 1 (League) or 3 (DummyLeague) are appended. This
+subset is qsorted through comparator `0x4F79D0`, which orders:
+
+1. League before DummyLeague;
+2. equal-kind entries by ascending packed `initialization_order_value`
+   (runtime `+0x18` is the negated packed value).
+
+For canonical England the exact subset is:
+
+```text
+index 0  F.A. Premier League   kind 1  order 9
+index 1  Division 1            kind 1  order 10
+index 2  Division 2            kind 1  order 11
+index 3  Division 3            kind 1  order 12
+index 4  Conference            kind 1  order 13
+index 5  Conference 2          kind 3  order 14
+```
+
+That explains the five-row `0x423340` autonomous contract-duration table:
+the five playable English League roots are rows 0..4. The trailing DummyLeague
+is not a valid table row and must not be clamped into row 4.
+
+The reconstruction now reproduces the separate `0x4F79D0` CRT qsort subset
+and uses its `0x4FA510` index directly. The previous
+`valuation_division_category` proxy is removed from this path.
