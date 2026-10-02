@@ -47,6 +47,11 @@ from original_management_canvas import (
     load_verified_management_pmenu_resources,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_pmatchinfo_art import build_pmatchinfo_popup_art
+from original_pmatchinfo_presenter import (
+    OriginalPMatchInfoStaticSnapshot,
+    load_staged_pmatchinfo_snapshot,
+)
 from original_pmenu_activation import resolve_pmenu_pointer_press
 from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
@@ -111,6 +116,7 @@ class OriginalGameTkHost:
         league_fixtures_grid_art=None,
         squad_top_resources=None,
         league_tables_header_art=None,
+        pmatchinfo_snapshot=None,
     ):
         self.presenter = presenter
         self.root = root
@@ -124,7 +130,10 @@ class OriginalGameTkHost:
         self.league_fixtures_grid_art = league_fixtures_grid_art
         self.squad_top_resources = squad_top_resources
         self.league_tables_header_art = league_tables_header_art
+        self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.last_pmenu_activation = None
+        self.last_pmatchinfo_action = None
+        self.last_pmatchinfo_origin = None
         self._photos = []
         self.last_status = "Source-backed FM2001 host ready"
 
@@ -391,6 +400,64 @@ class OriginalGameTkHost:
         )
         return result
 
+    def apply_source_accepted_fixture_match_info(
+        self,
+        *,
+        fixture_present: bool,
+        linked_context_available: bool,
+        pointer_x: int,
+        pointer_y: int,
+    ):
+        """Open only the source-proven PMatchInfo popup after its two source gates.
+
+        Ordinary League Fixtures clicks are not promoted into this seam because
+        the secondary linked context is not yet bridged from reconstructed
+        fixture state. A caller must supply the already-adjudicated gate result
+        inputs explicitly.
+        """
+        if self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
+            raise OriginalGameHostError(
+                "Source-accepted PMatchInfo action requires the MANAGEMENT host"
+            )
+        if self.management_presenter is None:
+            self.management_presenter = self.management_presenter_factory(
+                self.presenter.session
+            )
+        action = self.management_presenter.fixture_match_info_action(
+            fixture_present=fixture_present,
+            linked_context_available=linked_context_available,
+        )
+        if action is None:
+            self.last_pmatchinfo_action = None
+            self.last_pmatchinfo_origin = None
+            self.last_status = "PMatchInfo source action rejected by recovered fixture gates"
+            return None
+
+        snapshot = self.pmatchinfo_snapshot
+        if not isinstance(snapshot, OriginalPMatchInfoStaticSnapshot):
+            raise OriginalGameHostError(
+                "PMatchInfo action requires the verified complete popup snapshot"
+            )
+        art = build_pmatchinfo_popup_art(
+            snapshot,
+            pointer_x=pointer_x,
+            pointer_y=pointer_y,
+        )
+        image = self._photo(encode_rgba_png(art.width, art.height, art.rgba))
+        self.canvas.create_image(
+            art.x,
+            art.y,
+            image=image,
+            anchor=self.tk.NW,
+        )
+        self.last_pmatchinfo_action = action
+        self.last_pmatchinfo_origin = (art.x, art.y)
+        self.last_status = (
+            "Opened source-accepted PMatchInfo popup at "
+            f"({art.x}, {art.y}); nested owner-local child art remains fail-closed"
+        )
+        return action
+
     def on_click(self, event) -> None:
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
             if self.management_presenter is None:
@@ -523,6 +590,12 @@ def run_original_game_ui(
         resolved_source_root,
         original_executable,
     )
+    runtime_repo_root = REPO_ROOT if repo_root is None else Path(repo_root)
+    pmatchinfo_snapshot = load_staged_pmatchinfo_snapshot(
+        runtime_repo_root,
+        original_executable,
+        require_complete_dialog=True,
+    )
     import tkinter as tk
 
     root = tk.Tk()
@@ -543,5 +616,6 @@ def run_original_game_ui(
         league_fixtures_grid_art=fixture_grid_art,
         squad_top_resources=squad_top_resources,
         league_tables_header_art=league_tables_header_art,
+        pmatchinfo_snapshot=pmatchinfo_snapshot,
     )
     root.mainloop()
