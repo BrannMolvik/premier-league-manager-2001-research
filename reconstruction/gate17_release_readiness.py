@@ -174,6 +174,7 @@ def validate_external_receipts(
     """Hash and inspect every externally produced Windows release receipt."""
     checked: dict[str, dict] = {}
     root = Path(repo_root).resolve()
+    used_paths: dict[Path, str] = {}
 
     for name, required_flags in REQUIRED_EXTERNAL_RECEIPTS.items():
         spec = evidence.external_receipts[name]
@@ -182,6 +183,12 @@ def validate_external_receipts(
             root,
             label=f"{name} receipt",
         )
+        previous_name = used_paths.get(path)
+        if previous_name is not None:
+            raise ReleaseReadinessError(
+                f"{name} receipt reuses the same evidence file as {previous_name}"
+            )
+        used_paths[path] = name
         if not path.is_file():
             raise ReleaseReadinessError(f"{name} receipt does not exist: {path}")
         actual_sha = _sha256_file(path)
