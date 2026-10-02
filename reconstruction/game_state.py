@@ -211,10 +211,13 @@ class GameState:
     finance_balances: dict[int, BalanceRuntimeState] = field(default_factory=dict)
     stadium_sources: dict[int, StadiumSourceState] = field(default_factory=dict)
     ticket_states: dict[int, TicketRuntimeState] = field(default_factory=dict)
-    # Gate-9 source/runtime inputs for the recovered weekly club acquisition
+    # Gate-9/15 source/runtime inputs for the recovered weekly club acquisition
     # path. Startup roster counts are immutable initialization baselines;
-    # country gates start enabled at 0x4117C6; the neutral buy-counter byte is
-    # persisted so a save/reload does not reset autonomous acquisition state.
+    # country gates start enabled at 0x4117C6. The historical internal-save
+    # name ai_transfer_buy_counter now models exact DBRClub byte +0x1ED: the
+    # monthly permanent-arrival count incremented by shared 0x422F70, not an
+    # autonomous-only counter. 0x403E70 reads this same byte for both shipped
+    # monthly/season threshold comparisons.
     ai_transfer_startup_roster_count: dict[int, int] = field(default_factory=dict)
     ai_transfer_buy_counter: dict[int, int] = field(default_factory=dict)
     country_transfer_window_open: dict[int, bool] = field(default_factory=dict)
@@ -1055,6 +1058,21 @@ class GameState:
             user_controlled_club_id=user_controlled_club_id,
         )
 
+    def run_monthly_permanent_arrival_counter_reset(self) -> bool:
+        """Reset exact DBRClub +0x1ED after the first day's transfer block.
+
+        The original first-of-month clear occurs after the same day's global
+        transfer/payroll maintenance. Keeping this outside GameCalendar's
+        earlier monthly_hooks is observable when day 1 is a Saturday: any
+        permanent arrivals completed on that date increment +0x1ED first, then
+        the counter is cleared for the new month.
+        """
+        if self.calendar.current_date.day != 1:
+            return False
+        for club_id in tuple(self.ai_transfer_buy_counter):
+            self.ai_transfer_buy_counter[int(club_id)] = 0
+        return True
+
     def materialize_gate_source_state(
         self,
         club_id: int,
@@ -1761,6 +1779,7 @@ class GameState:
         # global Saturday autonomous-acquisition pass consumes that gate.
         self.run_country_transfer_window_day()
         self.run_weekly_ai_transfer_maintenance()
+        self.run_monthly_permanent_arrival_counter_reset()
         return self.calendar.current_date
 
     def advance(self, days: int) -> date:
@@ -2196,6 +2215,7 @@ class GameState:
             rng,
             user_controlled_club_id=self.user_controlled_club_id,
         )
+        self.run_monthly_permanent_arrival_counter_reset()
         self.finalize_single_user_sacking_control()
         return results
 
@@ -2238,6 +2258,7 @@ class GameState:
             rng,
             user_controlled_club_id=self.user_controlled_club_id,
         )
+        self.run_monthly_permanent_arrival_counter_reset()
         self.finalize_single_user_sacking_control()
         return results
 
