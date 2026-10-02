@@ -1718,5 +1718,17 @@
     "season_progression"
   ],
   "gate17_clean_install_receipt_separate": true,
-  "gate17_release_workahead_recovery": 188
+  "gate17_release_workahead_recovery": 188,
+  "gate17_artifact_bound_receipts_canonical": true,
+  "gate17_artifact_bound_receipts_commit": "489bf23b25d7633385b42257379da7cc5056ca0b",
+  "gate17_artifact_bound_receipts_test_count": 1439,
+  "gate17_windows_package_active": true,
+  "gate17_windows_package_builder": "reconstruction/gate17_windows_package.py",
+  "gate17_windows_package_pyinstaller_version": "6.22.3",
+  "gate17_windows_package_original_game_data_bundled": false,
+  "gate17_windows_package_hosted_workflow": ".github/workflows/windows-release-candidate.yml",
+  "gate17_windows_package_hosted_os_role": "build_and_smoke_only",
+  "gate17_windows11_evidence_requires_workstation_product_type": true,
+  "gate17_windows11_server_runner_accepted_as_evidence": false,
+  "gate17_windows_package_recovery": 188
 }
