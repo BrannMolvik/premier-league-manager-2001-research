@@ -60,6 +60,22 @@ Evidence:
   priority independent cloud-safe Gate 14 work without declaring Gate 13
   complete.
 
+- **Recovery 186 source retry:** the canonical 511,121,336-byte original-source
+  ZIP was successfully materialized again, but the fresh sandbox then failed
+  before starting the archive-inspection process. No FastView source path,
+  geometry, orientation, or placement claim was inferred from that failed
+  attempt. Gate 14 therefore remains fail-closed at the private-disc execution
+  boundary.
+- **Gate 14 work-ahead checkpoint:** PR #133 / `c1ea9ecd...` provides the
+  bounded semantic FastView shell and PR #134 / `10cbd543...` provides the
+  seven-target exact-basename resource resolver. Their recorded full-suite
+  baselines are 1,397 and 1,410 tests respectively, with 22 expected skips.
+  Exact source paths and placement remain pending private source execution.
+- **Independent cloud-safe reconciliation:** Gate 16 already has two passing
+  canonical three-cycle receipts and a readiness audit, so the stale Gate 17
+  limitations text that still described canonical multi-season evidence as
+  missing is being reconciled without changing any gate-completion claim.
+
 - **Recovery 179 live PMenu pixels are canonical:** PR #114 squash-merged as
   `57e334208dbad69127d5a173caf23d511971066e`. The default clean MANAGEMENT
   host now composes the four checksum-gated original PMenu row atlases with the
