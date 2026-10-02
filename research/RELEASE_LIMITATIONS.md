@@ -26,12 +26,15 @@ still identifies itself as pre-release.
   integrated, the seven FastView resources still require exact source-path and
   placement proof from the private original-disc evidence, and a match is not
   yet recognizably presented in the original FM2001 style/workflow.
-- Gate 15 still contains the active fidelity gaps recorded in
-  `research/FIDELITY_GAPS.md`, including original save compatibility and
-  bounded startup-order, injury, contract, transfer, finance, and native
-  tie-order uncertainties. Deterministic fallbacks must remain explicitly
-  labeled until each item is fixed, proven irrelevant, or intentionally
-  accepted.
+- Gate 15 still contains active fidelity gaps recorded in
+  `research/FIDELITY_GAPS.md`, including bounded startup-order, transfer,
+  contract-category, negotiation, finance, and same-day-order uncertainties.
+  Recovery 186 has already fixed the persistent-injury availability mismatch
+  and explicitly accepted three bounded modernization differences for the
+  current release scope: no original PLM2001 save-file import, deterministic
+  handling of fully indistinguishable native qsort ties, and last-valid-day
+  clamping for invalid target-month contract dates. These accepted differences
+  remain disclosures, not claims of original behavior.
 - Gate 16 completion criteria are already prevalidated by committed work-ahead,
   including six deterministic synthetic seeds, destructive annual regeneration
   and save-growth soaks, five years of autonomous transfer churn, mixed
