@@ -10335,3 +10335,23 @@ work may continue under the deferred-blocker policy.
   selection-only exclusion is not part of `0x405080`.
 - Moved only this fidelity item to the resolved section; all other Gate-15 gaps
   remain open pending their own evidence.
+
+
+### Recovery 186 - Gate 15 accepted-limitations disposition
+
+- Applied the roadmap's explicit Gate-15 rule that a deviation may be fixed,
+  proven irrelevant, or deliberately accepted/documented.
+- Classified original PLM2001 save-file import as an accepted compatibility
+  limitation for the Windows 11 modernization release. The supported
+  persistence path is the tested internal schema 34; no legacy-save behavior is
+  claimed or guessed.
+- Classified fully indistinguishable native league-table qsort ordering as an
+  accepted deterministic modernization fallback because the recovered source
+  comparator itself returns equality on all keys. The fallback remains
+  explicitly non-original.
+- Classified invalid target-month contract-date clamping as an accepted bounded
+  safety difference. Source-backed month counts remain exact; only the
+  unrecovered invalid-date normalization differs.
+- Added `research/GATE15_FIDELITY_DISPOSITION.md` so remaining items are
+  driven to a concrete fix/proof/acceptance rather than lingering as an
+  unbounded research list.
