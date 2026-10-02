@@ -10456,3 +10456,14 @@ work may continue under the deferred-blocker policy.
 - Full live domestic-Cup receipt attachment remains pending after branch CI;
   the existing Cup simulation still consumes its four source-ordered gate RNG
   draws without yet invoking the new posting helper.
+
+
+### Recovery 188 - Gate 17 prerequisite and artifact-bound receipt work-ahead
+
+- PR #149 squash-merged as `ba6cabb692a1884be9e5bec8115d41f8bcad60c4` after reconstruction workflow `37058660790` passed **1,428 tests with 22 expected skips** and asset-policy workflow `37058660751` passed.
+- The final release audit now parses `ROADMAP.md` and refuses to pass until every Gate 1-16 completion criterion is checked. Gate 17 itself stays outside that prerequisite check because the final audit is one of its own completion steps.
+- The release audit now requires four distinct external receipt files, preventing one broad JSON file from being reused as evidence for clean install, management, season progression and save/reload.
+- Persisted Gate-14 evidence was exhausted for the seven FastView basenames. Exact disc paths/placement remain unavailable without fresh private execution; `pitch_normal.444` is independently PMatchInfo-owned, so basename-only directory inference is unsafe and was not used.
+- Active branch `recovery188/gate17-artifact-bound-receipts` binds every external receipt to the exact release version and archive SHA-256. It adds a Windows gameplay receipt producer using independent canonical runtimes for new-game/management-loop, save/reload and the existing canonical annual rollover audit.
+- The producer writes no receipt until all three gameplay audits have succeeded, keeps evidence outside Git and never overwrites prior receipts. Clean-install evidence remains deliberately separate because it must come from an actual installed release outside the development environment.
+- The current execution sandbox still fails before shell/Python process start with `caas.internal.errors.ClientError`; hosted GitHub CI remains the verification path for cloud-safe code changes.
