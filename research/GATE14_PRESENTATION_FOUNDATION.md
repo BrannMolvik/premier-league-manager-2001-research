@@ -95,6 +95,37 @@ the player-visible startup criterion. Still required before making a Gate-14 pla
 No skip key, fade timing, scaling/interlace treatment or runtime player is
 invented by this checkpoint.
 
+## Verified-derivative playback orchestration seam
+
+`reconstruction/startup_media_playback.py` now defines the first runtime-facing
+orchestration layer above the verified derivative loader. It still does **not**
+choose a Windows media framework or claim player-visible playback.
+
+The seam:
+
+- accepts only `VerifiedStartupMediaDerivative` records;
+- requires their sequence indices and source specs to match the supplied
+  source-proven startup order exactly;
+- rejects duplicate derivative paths before invoking a player;
+- invokes a caller-supplied synchronous backend one item at a time;
+- advances only when the backend returns exactly `True`;
+- aborts immediately if a backend rejects an item or raises;
+- reuses `load_verified_startup_media_derivatives()` in the receipt-facing
+  entrypoint so converted files are size/hash checked immediately before use;
+- carries `playback_flag_bit0` into the completion summary only as neutral
+  source metadata.
+
+The summary deliberately records
+`playback_flag_semantics_recovered=False`,
+`skip_input_recovered=False`,
+`transition_timing_recovered=False`, and `gate14_complete=False`.
+Therefore this checkpoint cannot be used to infer a skip key, fade behavior,
+transition timing, scaling/interlace treatment, or Gate-14 completion.
+
+A future Windows player can implement the tiny synchronous backend interface
+without gaining permission to reinterpret the unresolved native interaction
+semantics.
+
 ## Match presentation feed boundary
 
 `reconstruction/match_presentation_feed.py` establishes the Gate-14
