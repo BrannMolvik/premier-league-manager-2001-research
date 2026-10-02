@@ -7,7 +7,12 @@ import unittest
 
 from front_end_session import FrontEndSession
 from front_end_state import StartMenuControl, TeamSelectControl
-from gate13_management_source_data import ClubHeaderView, FixtureRowView
+from gate13_management_source_data import (
+    ClubHeaderView,
+    FixtureRowView,
+    LeagueFixturesGridSourceView,
+)
+from original_league_fixtures_resources import LEAGUE_FIXTURES_RESOURCES
 from original_league_tables_resources import LEAGUE_TABLES_RESOURCES
 from original_management_presenter import (
     OriginalManagementPresentationError,
@@ -74,6 +79,16 @@ class Bridge:
                 home_goals=None,
                 away_goals=None,
             ),
+        )
+
+    def league_fixtures_grid_source(self):
+        return LeagueFixturesGridSourceView(
+            competition_id=0,
+            member_club_ids=(12, 13),
+            scheduled_matchday_count=2,
+            schedule_cycle_count=2,
+            matrix_layer_count=1,
+            fixtures_in_source_order=self.fixture_rows(),
         )
 
     def league_table_rows(self):
@@ -154,11 +169,13 @@ class OriginalManagementPresenterTests(unittest.TestCase):
         self.assertEqual(snapshot.menu.selected_child_id, 0xCE)
 
     def test_pmenu_navigation_integrates_fixtures_and_league_tables(self):
-        staged = tuple(resource.name for resource in LEAGUE_TABLES_RESOURCES)
+        fixture_staged = tuple(resource.name for resource in LEAGUE_FIXTURES_RESOURCES)
+        table_staged = tuple(resource.name for resource in LEAGUE_TABLES_RESOURCES)
         presenter = OriginalManagementPresenter(
             self.started_session(),
             bridge_factory=Bridge,
-            staged_league_table_resource_names=staged,
+            staged_league_fixture_resource_names=fixture_staged,
+            staged_league_table_resource_names=table_staged,
         )
 
         fresh = presenter.snapshot()
@@ -177,6 +194,16 @@ class OriginalManagementPresenterTests(unittest.TestCase):
             tuple(row.fixture_id for row in fixtures.fixtures_in_source_order),
             (700,),
         )
+        self.assertIsNotNone(fixtures.league_fixtures)
+        self.assertEqual(fixtures.league_fixtures.member_club_ids, (12, 13))
+        self.assertEqual(fixtures.league_fixtures.matrix_layer_count, 1)
+        self.assertTrue(fixtures.league_fixtures.exact_art_staged)
+        fixture_cell = next(
+            cell for cell in fixtures.league_fixtures.cells
+            if cell.fixture_id == 700
+        )
+        self.assertEqual(fixture_cell.text, "19.08")
+        self.assertEqual(fixture_cell.resource_name, "date_fixtures_box")
         self.assertIsNone(fixtures.squad)
         self.assertIsNone(fixtures.league_tables)
 
