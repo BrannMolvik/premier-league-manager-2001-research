@@ -25,6 +25,23 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 171 PMenu candidate hit-testing merged:** PR #102 merged as
+  `25fdf0e8d9cbcf9cea580ca625e548b21612604c`. The presenter can now identify
+  the visible PMenu row under a screen-space point using only the exact
+  **(599,96)** list origin, **201x504** bounds, **29px** row step and current
+  recovered visible ordering. The API deliberately returns a **candidate row**
+  only; it does not activate, expand, select or navigate because native PMenu
+  event ownership is still unproven in persisted evidence. Gate-13 run
+  `36973075568` passed **425 tests with 21 expected skips** on exact head
+  `b33b3fc2f32d25dbdb7b55b1c4e283c0d9d69605`; asset-policy run
+  `36973075522` passed.
+- **Exact next task:** extend the integrated real-Windows/Tk Gate-13 audit so a
+  native club selection followed by TeamSelect Start must enter the fixed
+  MANAGEMENT/PMenu host with the exact recovered PMenu/Squad parent geometry.
+  Keep the audit fail-closed on still-unrendered management background/text and
+  do not convert candidate PMenu row containment into activation.
+
+
 - **Recovery 171 source-backed app host merged:** PR #101 merged as
   `62a1bbcd24bf1dc26e57294e40fef176a4f87036`. Normal `app.py` launch now
   opens the clean fixed **800x600** source-backed FM2001 host, loads
