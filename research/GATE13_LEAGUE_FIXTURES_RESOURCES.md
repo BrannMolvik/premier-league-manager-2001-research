@@ -739,21 +739,32 @@ resources or any fixture/date/team text. Their source identities and runtime
 selection semantics are recovered, but the current persisted evidence does not
 justify inventing a screen-pixel placement/text rendering rule for them.
 
-### Current staging boundary
+### Recovery 179 staging and live-grid integration
 
-Unlike the already imported Squad, PMenu, League Tables and consumed PMatchInfo
-families, the six League Fixtures `.444` files are not currently present under
-`original_assets/source/FM2001_Art/Generic/league_fixtures/` and have no
-rows in `original_assets/MANIFEST.md`. Repository history and the relevant
-recovery branches contain metadata/code only, not an unmerged byte-identical
-asset copy.
+The earlier infrastructure-only staging blocker is closed. Recovery 179
+rematerialized the canonical 511,121,336-byte authorized source ZIP through
+`research/ORIGINAL_SOURCE_LOCATOR.md`, reverified source SHA-256
+`677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`,
+enumerated the expected 2,456-file Joliet source and independently reverified
+all six PLeagueFixtures files against the hashes above.
 
-Therefore the new loader is intentionally fail-closed in the normal repository
-until the authorized private source can be re-extracted and the exact files
-are imported through `gate13_asset_import.py` with provenance. A missing
-asset is not replaced with generated art.
+All six exact resources are now intentionally provenance-imported under
+`original_assets/source/FM2001_Art/Generic/league_fixtures/` and recorded in
+`original_assets/MANIFEST.md`.
 
-The current process sandbox still fails before process start with
-`caas.internal.errors.ClientError`, so the already documented private
-Library source cannot be extracted in this worker. This is an infrastructure
-blocker, not a user-action blocker.
+The clean host renders only the two bitmap families whose pixel placement was
+already source-closed in Recovery 175:
+
+- twelve full `fixtures_vert_grid.444` placements at
+  `(378 + 29*n, 98)`;
+- twenty-four full `fixtures_hori_grid.444` placements at
+  `(241, 235 + 14*n)`.
+
+The four 24x13 date/played/red/toggled resources are imported and validated but
+remain intentionally unrendered. Their logical state selection is recovered,
+but the current evidence still does not justify inventing their screen-pixel
+placement or fixture-text layering.
+
+This closes original binary availability and exact grid-art staging. Integrated
+real-Windows verification remains pending as part of the schema-8 management
+visual audit.
