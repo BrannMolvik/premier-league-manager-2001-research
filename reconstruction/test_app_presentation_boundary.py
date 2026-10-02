@@ -53,5 +53,32 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         self.assertGreaterEqual(calls, 3)
 
 
+    def test_development_league_table_uses_source_presenter_and_original_columns(self):
+        source = APP_PATH.read_text(encoding="utf-8")
+        tree = ast.parse(source, filename=str(APP_PATH))
+        imported = False
+        presenter_calls = 0
+        for node in ast.walk(tree):
+            if (
+                isinstance(node, ast.ImportFrom)
+                and node.module == "original_league_tables_presenter"
+            ):
+                imported = any(
+                    alias.name == "build_league_tables_snapshot"
+                    for alias in node.names
+                )
+            if (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "build_league_tables_snapshot"
+            ):
+                presenter_calls += 1
+        self.assertTrue(imported)
+        self.assertGreaterEqual(presenter_calls, 1)
+        self.assertIn("columns=('pos', 'club', 'p', 'w', 'd', 'l', 'f', 'a', 'pts')", source)
+        self.assertNotIn("columns=('pos', 'club', 'p', 'w', 'd', 'l', 'gd', 'pts')", source)
+
+
+
 if __name__ == "__main__":
     unittest.main()
