@@ -9933,3 +9933,27 @@ canonical audit.
 - The development League Tables view now consumes the simulation-independent source presenter, restores the source-visible F/A columns, removes the unsupported GD substitution, enforces the native 24-row capacity and `Pts=3*W+D`, and fails closed for Current Form ordering and unstaged exact art.
 - Private blockers remain unchanged: local execution still fails before process start with `caas.internal.errors.ClientError`; Current Form `0x4F4A10`, downstream controls `+0x7FC..+0x97C`, byte-identical League Tables art staging, and corrected Windows/Tk validation therefore remain deferred rather than guessed.
 - Next cloud-safe task: extend the already source-proven Squad presentation seam with the recovered six-match performance average and current assigned-role rating, then bind only the exact row-column geometry that is already evidenced.
+
+
+## 2 October 2026 - Recovery 170 management routing checkpoint
+
+PR #98 adds a source-bounded ordinary-management routing layer over the
+recovered PMenu. A started TeamSelect session can now project the exact fresh
+PSquadScreen route (0xCE), League Fixtures (0x25C), and League Tables (0x25A)
+through the existing read-only presentation bridge. The League Fixtures route
+preserves recovered fixture source order; League Tables reuses its strict
+source presenter; and PMatchInfo is exposed only through the already-proven
+fixture-present + linked-context action gates. Unsupported PMenu children fail
+closed transactionally instead of dropping into the generic ttk prototype.
+
+GitHub Actions Gate-13 run `36968140361` passed **403 tests, 21 expected
+source-gated skips, zero failures** on
+`30cfc7fdc999d5bc0e005a5a5bc0bc78525aaecd`. Repository asset-policy run
+`36968140362` also passed.
+
+The authorized 511,121,336-byte original Library ZIP was successfully
+rematerialized during this recovery. Fresh private native tracing could not
+continue because both available execution backends failed before process start
+with `caas.internal.errors.ClientError`. Consequently no new claim is made
+about the unresolved PMenu text origin/clipping or surrounding management
+background. Work continues cloud-safely until execution recovers.
