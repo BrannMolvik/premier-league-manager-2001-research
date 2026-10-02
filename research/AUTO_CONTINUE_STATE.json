@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 179: League Fixtures exact grid-art checkpoint merged as cd4bc4b after Gate13/full/asset validation. Continue the fresh PSquadScreen landing: close the three top controls' concrete Button@ease state/setup and caption placement, render only source-backed Squad/tactics pixels, then integrate PMatchInfo and League Tables into the representative visual loop. Schema 8 real-Windows run remains pending; surrounding application-owned background and keyboard equivalence remain fail-closed.",
-  "last_known_main_head": "cd4bc4b",
+  "active_task": "Recovery 180: resume from main cd4bc4b. Continue the fresh PSquadScreen landing: close the three top controls' concrete Button@ease state/setup and caption placement, render only source-backed Squad/tactics pixels, then integrate PMatchInfo and League Tables into the representative visual loop. Schema 8 real-Windows run remains pending; surrounding application-owned background and keyboard equivalence remain fail-closed.",
+  "last_known_main_head": "cd4bc4b543016da4472042168fce8cb4144411b0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 179,
-  "last_recovery_reason": "codex-usage-reserve-handoff",
-  "note": "PR #116 merged as cd4bc4b. Gate-13 37002118717 passed 455 tests/21 skips; full 37002118757 passed 1,365 tests/22 skips; asset policy 37002118716 passed. ChatGPT continues Recovery 179.",
+  "recovery_generation": 180,
+  "last_recovery_reason": "analysis-errored-sandbox",
+  "note": "Recovered after the previous ChatGPT session failed with a sandbox analysis error. Main is cd4bc4b (PR #116 League Fixtures grid art); Gate-13 run 37002118717 passed 455 tests/21 skips, full run 37002118757 passed 1,365 tests/22 skips, asset policy 37002118716 passed. ChatGPT owns continuous Recovery 180.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
