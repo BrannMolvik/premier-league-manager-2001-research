@@ -108,14 +108,21 @@ Evidence:
   `04b2a65d864939f219d5800bef03eb8144833b00`. It classifies remaining
   fidelity items under Gate 15's fixed / proven-irrelevant /
   explicitly-documented rule without closing Gate 15 or bypassing Gates 13-14.
-- **Recovery 188 active cloud-safe work-ahead:** private process execution still
+- **Recovery 188 Gate-17 prerequisite guard is canonical:** PR #149
+  squash-merged as `ba6cabb692a1884be9e5bec8115d41f8bcad60c4` after
+  **1,428 tests / 22 expected skips** plus asset-policy success. The final audit
+  now requires every Gate 1-16 roadmap criterion and four distinct external
+  Windows receipts before Gate 17 can pass.
+- **Recovery 188 active Gate-17 work-ahead:** private process execution still
   fails before start with `caas.internal.errors.ClientError`. Persisted
   Gate-14 evidence proves the seven FastView basenames but not their exact disc
   paths or placement; `pitch_normal.444` is independently owned by PMatchInfo,
-  so directory inference from basename is explicitly unsafe. The active branch
-  `recovery188/gate17-prerequisite-guard` hardens final release readiness so
-  Gate 17 cannot pass unless every Gate 1-16 completion criterion is checked in
-  `ROADMAP.md`.
+  so directory inference from basename is explicitly unsafe. Branch
+  `recovery188/gate17-artifact-bound-receipts` binds every Windows receipt to
+  the exact release version/archive SHA-256 and adds a fail-closed Windows
+  producer for new-game/management-loop, save/reload and canonical annual
+  season-progression receipts. Clean-install evidence remains a separate
+  packaging/install task.
 - **Recovery 186 private source access is working again:** the canonical
   511,121,336-byte disc-image ZIP was materialized from the Library, its raw
   MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical
