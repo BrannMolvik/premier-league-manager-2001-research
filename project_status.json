@@ -1679,5 +1679,15 @@
     "4": "Conference",
     "5": "Conference 2 DummyLeague"
   },
-  "gate15_autonomous_contract_category_recovery": 186
+  "gate15_autonomous_contract_category_recovery": 186,
+  "gate15_autonomous_contract_category_verified_checkpoint": "948aa5193ab9a1003a7a640e93eca91b1dfee126",
+  "gate15_autonomous_contract_category_verified_test_count": 1418,
+  "gate10_premier_league_tier_factor_verified_checkpoint": "948aa5193ab9a1003a7a640e93eca91b1dfee126",
+  "gate15_monthly_buy_counter_exact": true,
+  "gate15_monthly_buy_counter_runtime_field": "DBRClub +0x1ED",
+  "gate15_monthly_buy_counter_arrival_path": "0x422F70 -> 0x405190 -> 0x4F3290",
+  "gate15_monthly_buy_counter_reset_path": "0x4A81A0 -> 0x40BB10 -> 0x4042E0 -> 0x4F3320",
+  "gate15_monthly_buy_counter_reset_order": "after same-day Saturday transfer maintenance and payroll",
+  "gate15_monthly_buy_counter_threshold_quirk": "0x403E70 compares +0x1ED against both 3 and 8",
+  "gate15_monthly_buy_counter_recovery": 186
 }
