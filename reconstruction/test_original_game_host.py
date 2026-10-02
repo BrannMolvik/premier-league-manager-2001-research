@@ -154,11 +154,28 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(after.menu.selected_child_id, 0xCE)
         self.assertEqual(host.canvas.images, [])
 
+        accepted = host.apply_source_accepted_pmenu_action("title", 0x259, 0)
+        self.assertTrue(accepted.action.accepted)
+        self.assertEqual(accepted.action.action_kind, "expand_root")
+        self.assertEqual(accepted.presentation.panel_code, 0xCE)
+        self.assertEqual(accepted.presentation.menu.selected_root_id, 0x259)
+        self.assertEqual(accepted.presentation.menu.selected_child_id, 0xCE)
+        self.assertIn("source-accepted PMenu action", host.last_status)
+        self.assertIn("Tk event equivalence remains unresolved", host.last_status)
+        self.assertEqual(host.canvas.images, [])
+
         host.on_click(SimpleNamespace(x=100, y=120))
         self.assertIn("no source-bounded PMenu candidate row", host.last_status)
         self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
         self.assertEqual(host.canvas.images, [])
 
+    def test_source_accepted_pmenu_seam_rejects_pre_management_host(self):
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
+        with self.assertRaisesRegex(
+            OriginalGameHostError,
+            "requires the MANAGEMENT host",
+        ):
+            host.apply_source_accepted_pmenu_action("title", 0x259, 0)
     def test_startup_media_runtime_integration_requires_explicit_receipt_and_backend(self):
         self.assertIsNone(
             play_configured_startup_media(

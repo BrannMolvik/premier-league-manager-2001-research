@@ -20,6 +20,12 @@ on:
       # main checkpoints remain outside the full-suite trigger.
       - "reconstruction/gate13_management_source_data.py"
       - "reconstruction/test_gate13_management_source_data.py"
+      - "reconstruction/original_pmenu_presenter.py"
+      - "reconstruction/test_original_pmenu_presenter.py"
+      - "reconstruction/original_management_presenter.py"
+      - "reconstruction/test_original_management_presenter.py"
+      - "reconstruction/original_game_host.py"
+      - "reconstruction/test_original_game_host.py"
       - "reconstruction/app.py"
       - "reconstruction/test_app_presentation_boundary.py"
       - "reconstruction/original_startup_media.py"

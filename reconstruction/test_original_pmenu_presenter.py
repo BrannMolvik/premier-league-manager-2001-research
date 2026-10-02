@@ -50,6 +50,41 @@ class OriginalPMenuPresenterTests(unittest.TestCase):
             ),
         )
 
+    def test_expanded_root_can_differ_from_selected_panel_after_title_action(self):
+        snapshot = build_pmenu_snapshot(0xCE, expanded_root_id=0x259)
+
+        self.assertEqual(
+            (snapshot.selected_root_id, snapshot.selected_child_id),
+            (0x259, 0xCE),
+        )
+        self.assertEqual(
+            tuple(row.caption for row in snapshot.rows),
+            (
+                "Team", "Transfers", "Calendar", "Calendar",
+                "League Fixtures", "TABLES", "Analysis", "ADMIN",
+                "ACCOUNTS", "EAMail", "GAME OPTIONS",
+            ),
+        )
+        self.assertEqual(
+            tuple(row.caption for row in snapshot.rows if row.selected),
+            ("Calendar",),
+        )
+        self.assertEqual(
+            tuple(row.caption for row in snapshot.rows if row.expanded),
+            ("Calendar",),
+        )
+
+    def test_invalid_expanded_root_fails_closed(self):
+        with self.assertRaisesRegex(
+            OriginalPMenuPresentationError,
+            "root ID",
+        ):
+            build_pmenu_snapshot(0xCE, expanded_root_id=0xDEADBEEF)
+        with self.assertRaisesRegex(
+            OriginalPMenuPresentationError,
+            "root ID must be an integer",
+        ):
+            build_pmenu_snapshot(0xCE, expanded_root_id=True)
     def test_rows_retain_exact_title_child_assets_and_font(self):
         snapshot = build_fresh_pmenu_snapshot()
 

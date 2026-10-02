@@ -217,6 +217,40 @@ class OriginalGameTkHost:
             return
         raise OriginalGameHostError(f"Unsupported source-backed screen: {screen!r}")
 
+    def apply_source_accepted_pmenu_action(
+        self,
+        row_kind: str,
+        menu_id: int,
+        source_flags: int,
+    ):
+        """Apply a recovered PMenu callback after source event acceptance.
+
+        This is intentionally separate from ``on_click``. Recovery 173 proves
+        the row callback after the original control accepts its event, but it
+        does not yet prove that a Tk pointer event is equivalent to that
+        source acceptance boundary.
+        """
+        if self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
+            raise OriginalGameHostError(
+                "Source-accepted PMenu action requires the MANAGEMENT host"
+            )
+        if self.management_presenter is None:
+            self.management_presenter = self.management_presenter_factory(
+                self.presenter.session
+            )
+        result = self.management_presenter.source_accepted_pmenu_action(
+            row_kind,
+            menu_id,
+            source_flags,
+        )
+        self.redraw()
+        self.last_status = (
+            "Applied source-accepted PMenu action: "
+            f"{result.action.action_kind} {menu_id:#x}; "
+            "Tk event equivalence remains unresolved"
+        )
+        return result
+
     def on_click(self, event) -> None:
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
             if self.management_presenter is None:
