@@ -10283,3 +10283,22 @@ fresh real-Windows 11/Tk receipt and the unresolved surrounding-management /
 normal PMatchInfo bridge questions must be judged without invented behavior.
 While that external validation is unavailable, independent cloud-safe Gate 14
 work may continue under the deferred-blocker policy.
+
+
+## 3 October 2026 KST - Recovery 186
+
+- Rehydrated canonical main at `10cbd543ca3f1172f9326c13e4450573e5f53418`
+  and incremented the autonomous runtime generation to 186.
+- Re-materialized the canonical private 511,121,336-byte original-source ZIP,
+  confirming source availability, but the fresh execution sandbox failed before
+  starting archive inspection. No new FastView path/geometry claim was made.
+- Confirmed Gate 14 PR #133 semantic-shell and PR #134 resource-resolver
+  checkpoints as the current cloud-safe boundary.
+- Audited later-gate work-ahead and found the Gate 17 pre-release limitations
+  ledger stale: Gate 16 already has two independent canonical shipped-data
+  seeds with three successful annual cycles each, while the ledger still said
+  canonical real-data multi-season evidence was missing.
+- Opened a bounded reconciliation branch to correct that status, refresh
+  project-status fields for the latest Gate 14 checkpoints, and preserve Gate
+  13 as the earliest incomplete validation gate. The branch is not a gate
+  closure and will be merged only after repository verification.
