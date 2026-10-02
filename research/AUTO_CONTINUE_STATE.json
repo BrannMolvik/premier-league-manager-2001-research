@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 181: PR #118 merged as main 503af7fff0b2af35dcae988fa8e7f6d16e371221 with Gate 13, full reconstruction, and asset-policy CI green. Integrate the source-resolved PLeagueFixtures -> PMatchInfo popup path: render only exact info_popup.444 at the recovered pointer-clamped 760x500 origin, require the existing fixture+linked-context gate, and do not invent the secondary linked context or owner-local subpanel transforms. Then continue the representative management visual loop and schema-8 Windows audit.",
-  "last_known_main_head": "503af7fff0b2af35dcae988fa8e7f6d16e371221",
+  "active_task": "Recovery 181: main advanced canonically to 6711f7a85349e82ae1a013d66279babfbb99c4ea via PR #120, adding source-proven PMatchInfo popup art projection. PR #122 is the current host integration on that head; PR #121 was closed as a stale duplicate. Verify/merge PR #122, then reconcile schema-8 Windows audit with live Squad, League Fixtures, PMatchInfo and League Tables image stacks while keeping the unresolved fixture-cell/secondary-context bridge fail-closed.",
+  "last_known_main_head": "6711f7a85349e82ae1a013d66279babfbb99c4ea",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 181,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 181 active. League Tables league_bar live integration is canonical via PR #118. Immediate task is PMatchInfo full-dialog popup integration with explicit source-resolved context gating; Gate 13 remains active and overall mission continues through Gate 17.",
+  "note": "Recovery 181 reconciled concurrent progress. Trust main 6711f7a and PR #122 over stale PR #121. Continue Gate 13 visual loop/audit; mission remains Gates 13-17.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
