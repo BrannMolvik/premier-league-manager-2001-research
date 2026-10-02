@@ -47,7 +47,12 @@ from original_squad_presenter import (
     OriginalSquadViewportSnapshot,
     build_squad_row_viewport,
 )
-from original_squad_resources import SQUAD_VISIBLE_ROW_COUNT
+from original_squad_resources import (
+    OriginalSquadResourceError,
+    OriginalSquadViewTransition,
+    SQUAD_VISIBLE_ROW_COUNT,
+    squad_view_transition,
+)
 
 
 class OriginalManagementPresentationError(ValueError):
@@ -59,6 +64,7 @@ class OriginalFreshManagementSnapshot:
     club: ClubHeaderView
     menu: OriginalPMenuSnapshot
     squad: OriginalSquadViewportSnapshot
+    squad_view_transition: OriginalSquadViewTransition
     source_squad_count: int
     rows_beyond_initial_viewport: int
 
@@ -72,6 +78,7 @@ class OriginalManagementPanelSnapshot:
     panel_code: int
     panel_class: str
     squad: OriginalSquadViewportSnapshot | None = None
+    squad_view_transition: OriginalSquadViewTransition | None = None
     source_squad_count: int = 0
     rows_beyond_initial_viewport: int = 0
     fixtures_in_source_order: tuple[FixtureRowView, ...] = ()
@@ -84,6 +91,14 @@ class OriginalManagementPMenuActivation:
     """Result of applying one source-accepted PMenu row callback."""
 
     action: OriginalPMenuRowAction
+    presentation: OriginalManagementPanelSnapshot
+
+
+@dataclass(frozen=True)
+class OriginalManagementSquadViewActivation:
+    """Result of one explicitly source-accepted PSquadScreen control event."""
+
+    transition: OriginalSquadViewTransition
     presentation: OriginalManagementPanelSnapshot
 
 
@@ -111,6 +126,7 @@ def build_management_panel_snapshot(
     staged_league_fixture_resource_names: Iterable[str] = (),
     staged_league_table_resource_names: Iterable[str] = (),
     expanded_root_id: int | None = None,
+    squad_view_control_id: int = 3,
 ) -> OriginalManagementPanelSnapshot:
     """Project one source-proven integrated PMenu route.
 
@@ -131,6 +147,10 @@ def build_management_panel_snapshot(
     )
 
     if selected_child_id == SQUAD_PANEL_CODE:
+        try:
+            view_transition = squad_view_transition(squad_view_control_id)
+        except OriginalSquadResourceError as exc:
+            raise OriginalManagementPresentationError(str(exc)) from exc
         source_rows = tuple(bridge.squad_rows())
         visible_rows = source_rows[:SQUAD_VISIBLE_ROW_COUNT]
         return OriginalManagementPanelSnapshot(
@@ -139,6 +159,7 @@ def build_management_panel_snapshot(
             panel_code=SQUAD_PANEL_CODE,
             panel_class=SQUAD_PANEL_CLASS,
             squad=build_squad_row_viewport(visible_rows),
+            squad_view_transition=view_transition,
             source_squad_count=len(source_rows),
             rows_beyond_initial_viewport=max(0, len(source_rows) - len(visible_rows)),
         )
@@ -196,6 +217,7 @@ def build_fresh_management_snapshot(
         club=snapshot.club,
         menu=snapshot.menu,
         squad=snapshot.squad,
+        squad_view_transition=snapshot.squad_view_transition,
         source_squad_count=snapshot.source_squad_count,
         rows_beyond_initial_viewport=snapshot.rows_beyond_initial_viewport,
     )
@@ -215,6 +237,7 @@ class OriginalManagementPresenter:
     staged_league_fixture_resource_names: tuple[str, ...] = ()
     staged_league_table_resource_names: tuple[str, ...] = ()
     expanded_root_id: int | None = None
+    squad_view_control_id: int = 3
 
     def snapshot(self) -> OriginalManagementPanelSnapshot:
         return build_management_panel_snapshot(
@@ -224,6 +247,7 @@ class OriginalManagementPresenter:
             staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
             staged_league_table_resource_names=self.staged_league_table_resource_names,
             expanded_root_id=self.expanded_root_id,
+            squad_view_control_id=self.squad_view_control_id,
         )
 
     def navigate(self, selected_child_id: int) -> OriginalManagementPanelSnapshot:
@@ -234,6 +258,7 @@ class OriginalManagementPresenter:
             staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
             staged_league_table_resource_names=self.staged_league_table_resource_names,
             expanded_root_id=self.expanded_root_id,
+            squad_view_control_id=self.squad_view_control_id,
         )
         self.selected_child_id = selected_child_id
         return snapshot
@@ -282,9 +307,41 @@ class OriginalManagementPresenter:
             staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
             staged_league_table_resource_names=self.staged_league_table_resource_names,
             expanded_root_id=self.expanded_root_id,
+            squad_view_control_id=self.squad_view_control_id,
         )
         self.selected_child_id = menu_id
         return OriginalManagementPMenuActivation(action, snapshot)
+
+    def source_accepted_squad_view_transition(
+        self,
+        control_id: int,
+    ) -> OriginalManagementSquadViewActivation:
+        """Apply only the recovered PSquadScreen 3/4/5 container transition.
+
+        The caller must already own the native event-acceptance evidence. This
+        method deliberately accepts no coordinates or Tk event, and the returned
+        snapshot does not claim unrecovered formation/player pixels.
+        """
+        if self.selected_child_id != SQUAD_PANEL_CODE:
+            raise OriginalManagementPresentationError(
+                "Squad view transition requires the integrated PSquadScreen panel"
+            )
+        try:
+            transition = squad_view_transition(control_id)
+        except OriginalSquadResourceError as exc:
+            raise OriginalManagementPresentationError(str(exc)) from exc
+
+        snapshot = build_management_panel_snapshot(
+            self.session,
+            SQUAD_PANEL_CODE,
+            bridge_factory=self.bridge_factory,
+            staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
+            staged_league_table_resource_names=self.staged_league_table_resource_names,
+            expanded_root_id=self.expanded_root_id,
+            squad_view_control_id=transition.control_id,
+        )
+        self.squad_view_control_id = transition.control_id
+        return OriginalManagementSquadViewActivation(transition, snapshot)
 
     def fixture_match_info_action(
         self,
