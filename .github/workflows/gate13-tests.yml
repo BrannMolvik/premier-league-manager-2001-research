@@ -61,6 +61,8 @@ on:
       - "reconstruction/test_original_game_host.py"
       - "reconstruction/original_league_fixtures_resources.py"
       - "reconstruction/test_original_league_fixtures_resources.py"
+      - "reconstruction/original_league_fixtures_art.py"
+      - "reconstruction/test_original_league_fixtures_art.py"
       - "reconstruction/original_league_fixtures_presenter.py"
       - "reconstruction/test_original_league_fixtures_presenter.py"
       - "reconstruction/original_league_tables_resources.py"
@@ -151,6 +153,7 @@ jobs:
             test_original_management_canvas \
             test_original_game_host \
             test_original_league_fixtures_resources \
+            test_original_league_fixtures_art \
             test_original_league_fixtures_presenter \
             test_original_league_tables_resources \
             test_original_league_tables_presenter \
