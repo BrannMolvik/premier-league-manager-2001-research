@@ -16,6 +16,7 @@ from hashlib import sha256
 import importlib.metadata
 import json
 import os
+import platform
 from pathlib import Path
 import re
 import shutil
@@ -23,8 +24,6 @@ import subprocess
 import sys
 import tempfile
 import zipfile
-
-from gate17_release_readiness import require_windows_11
 
 
 PYINSTALLER_VERSION = "6.22.3"
@@ -63,6 +62,18 @@ class ReleasePackageManifest:
     app_name: str
     pyinstaller_version: str
     bundled_original_asset_file_count: int
+
+
+def require_windows_build_host() -> dict:
+    """Require Windows for the frozen build without claiming Windows 11 QA.
+
+    GitHub-hosted windows-latest currently uses Windows Server. That is a valid
+    x64 packaging host, but it is deliberately not accepted by the separate
+    Gate-17 Windows 11 evidence check.
+    """
+    if platform.system() != "Windows":
+        raise WindowsPackageError("Windows release packaging requires Windows")
+    return {"platform": platform.platform()}
 
 
 def _sha256_file(path: Path) -> str:
@@ -325,7 +336,7 @@ def build_windows_release_candidate(
     release_version: str,
     repository_commit: str,
 ) -> dict:
-    windows = require_windows_11()
+    windows = require_windows_build_host()
     root = Path(repo_root).resolve()
     output = require_output_directory_outside_repo(output_dir, root)
     safe_version = _safe_release_version(release_version)
