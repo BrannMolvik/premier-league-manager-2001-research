@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 181: schema-8 panel-aware management visual-loop audit merged as main a5277f889e4653c464dda1d410e9febc4dbb42e1. Reconcile CURRENT_STATE, GATE13_CLOSURE_AUDIT and project_status with canonical Squad -> League Fixtures -> explicit source-resolved PMatchInfo -> League Tables pixels. Real Windows schema-8 execution remains pending; ordinary fixture-cell -> secondary linked-context PMatchInfo opening and PMatchInfo owner-local child transforms remain fail-closed. After documentation checkpoint, continue the highest-priority independent cloud-safe Gate 13/next-gate work without claiming Gate 13 complete.",
-  "last_known_main_head": "a5277f889e4653c464dda1d410e9febc4dbb42e1",
+  "active_task": "Recovery 181: documentation/status reconciliation merged as main 1c640bad04b350a9a6c89c4fea88d10b07b6967c. Integrate the smallest source-proven PSquadScreen view-transition seam for controls 3/4/5 without inventing modern pointer equivalence or unresolved formation/player pixels; verify it and extend the schema-8 audit contract only as supported. Real Windows schema-8 execution remains pending; ordinary fixture-cell PMatchInfo secondary-context opening and surrounding management background remain fail-closed.",
+  "last_known_main_head": "1c640bad04b350a9a6c89c4fea88d10b07b6967c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 181,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 181: Gate 13 cloud-side representative visual loop and schema-8 audit contract are canonical at a5277f8. Pending: fresh real-Windows schema-8 receipt and normal PMatchInfo bridge/remaining required fidelity. Continue cloud-safe work ahead under deferred-blocker policy.",
+  "note": "Recovery 181 continues on Gate 13. Canonical docs merged via PR #125. Active cloud-safe task is bounded Squad view-transition seam; do not claim pointer equivalence.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
