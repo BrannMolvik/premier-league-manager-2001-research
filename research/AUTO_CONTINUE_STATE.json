@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Sandbox/private source recovered and canonical executable reverified. Persist and test the source-backed PMenu row action contract recovered in Recovery 173: parent action vtable slot +0x10, title open-bit mutation at 0x47AC60, child panel-factory dispatch at 0x47AD60 to 0x47AEC0 using node +0x0C. Then continue the exact PMenu text-origin/clipping trace and clean-host activation integration; real Windows schema-5 receipt remains pending.",
-  "last_known_main_head": "94d9702c0e4fce3fd215ec4741755cf8630751b3",
+  "active_task": "PR #110 merged as main 3401944146e0aa6254b6496b7e928bfa59fdc606. Continue Gate 13 from the proven post-acceptance PMenu action contract: trace text-origin/clipping and source control acceptance when private execution is available; meanwhile integrate only a fail-closed source-accepted activation seam for supported management panels without equating Tk geometry hits to native events. Real Windows schema-5 receipt remains pending.",
+  "last_known_main_head": "3401944146e0aa6254b6496b7e928bfa59fdc606",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 174,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 174 resumed from canonical main 94d9702c0e4fce3fd215ec4741755cf8630751b3. Continue the persisted Recovery 173 PMenu row-action source trace without restarting completed work; exact next task remains source-backed action-contract persistence/tests, then PMenu text-origin/clipping and clean-host activation integration.",
+  "recovery_generation": 175,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 175 heartbeat after verified PR #110 merge. Gate13/full reconstruction/asset-policy CI all passed on aa7e0c82 before squash merge. Current execution sandbox still needs re-probe for private byte tracing.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
