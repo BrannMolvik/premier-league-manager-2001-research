@@ -70,12 +70,25 @@ def _children(root: OriginalPMenuNode) -> tuple[OriginalPMenuNode, ...]:
         ) from exc
 
 
-def build_pmenu_snapshot(selected_child_id: int) -> OriginalPMenuSnapshot:
-    """Project the native one-root-expanded menu for a recovered child ID."""
+def build_pmenu_snapshot(
+    selected_child_id: int,
+    *,
+    expanded_root_id: int | None = None,
+) -> OriginalPMenuSnapshot:
+    """Project the native one-root-expanded menu around a recovered panel.
+
+    selected_child_id remains the currently selected management panel.
+    expanded_root_id may independently identify the source root whose bit-0
+    state is open after an accepted title-row action. When omitted, the
+    historic behavior is preserved and the selected child's owning root is
+    expanded.
+    """
     if type(selected_child_id) is not int:
         raise OriginalPMenuPresentationError("PMenu child ID must be an integer")
+    if expanded_root_id is not None and type(expanded_root_id) is not int:
+        raise OriginalPMenuPresentationError("PMenu root ID must be an integer")
 
-    selected_root = None
+    selected_child_root = None
     selected_child = None
     for root in PMENU_ROOT_NODES:
         for child in _children(root):
@@ -84,17 +97,30 @@ def build_pmenu_snapshot(selected_child_id: int) -> OriginalPMenuSnapshot:
                     raise OriginalPMenuPresentationError(
                         f"PMenu child ID {selected_child_id:#x} is ambiguous"
                     )
-                selected_root = root
+                selected_child_root = root
                 selected_child = child
-    if selected_root is None or selected_child is None:
+    if selected_child_root is None or selected_child is None:
         raise OriginalPMenuPresentationError(
             f"PMenu child ID {selected_child_id:#x} is not source-proven"
         )
 
+    if expanded_root_id is None:
+        expanded_root = selected_child_root
+    else:
+        matches = [
+            root for root in PMENU_ROOT_NODES
+            if root.menu_id == expanded_root_id
+        ]
+        if len(matches) != 1:
+            raise OriginalPMenuPresentationError(
+                f"PMenu root ID {expanded_root_id:#x} is not uniquely source-proven"
+            )
+        expanded_root = matches[0]
+
     ordered: list[tuple[str, OriginalPMenuNode]] = []
     for root in PMENU_ROOT_NODES:
         ordered.append(("title", root))
-        if root is selected_root:
+        if root is expanded_root:
             ordered.extend(("child", child) for child in _children(root))
     if len(ordered) > PMENU_LIST_ROW_CAPACITY:
         raise OriginalPMenuPresentationError(
@@ -112,8 +138,8 @@ def build_pmenu_snapshot(selected_child_id: int) -> OriginalPMenuSnapshot:
                 row_kind=kind,
                 menu_id=node.menu_id,
                 caption=node.require_original_text(),
-                selected=node is selected_child or node is selected_root,
-                expanded=node is selected_root,
+                selected=node is selected_child or node is expanded_root,
+                expanded=node is expanded_root,
                 arrow_source_path=(
                     PMENU_TITLE_ARROW_RESOURCE.source_path
                     if title
@@ -132,13 +158,12 @@ def build_pmenu_snapshot(selected_child_id: int) -> OriginalPMenuSnapshot:
         list_size=PMENU_LIST_SIZE,
         row_capacity=PMENU_LIST_ROW_CAPACITY,
         row_step=PMENU_ROW_HEIGHT,
-        selected_root_id=selected_root.menu_id,
+        selected_root_id=expanded_root.menu_id,
         selected_child_id=selected_child.menu_id,
         font_source_path=PMENU_FONT_SOURCE_PATH,
         resource_source_paths=tuple(resource.source_path for resource in PMENU_RESOURCES),
         rows=tuple(rows),
     )
-
 
 def build_fresh_pmenu_snapshot() -> OriginalPMenuSnapshot:
     """Project the executable-proven fresh Team -> Squad selection."""
