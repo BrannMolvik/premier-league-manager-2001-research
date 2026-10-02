@@ -10,6 +10,7 @@ from unittest.mock import patch
 from gate17_clean_windows_install import (
     CleanWindowsInstallReceiptError,
     _preflight_archive,
+    require_external_windows_11_workstation,
     run_clean_windows_install_receipt,
     validate_installed_payload,
 )
@@ -74,7 +75,7 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
             )
             with (
                 patch(
-                    "gate17_clean_windows_install.require_windows_11",
+                    "gate17_clean_windows_install.require_external_windows_11_workstation",
                     return_value={
                         "platform": "Windows-11-10.0.26200",
                         "windows_build": 26200,
@@ -110,6 +111,46 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
             self.assertEqual(args[0][1], "--package-smoke")
             self.assertEqual(Path(kwargs["cwd"]), Path(payload["package_root"]))
 
+    def test_external_windows_guard_rejects_github_actions_and_server(self):
+        base = {"platform": "Windows-11", "windows_build": 26200}
+
+        with (
+            patch("gate17_clean_windows_install.require_windows_11", return_value=base),
+            patch.dict("gate17_clean_windows_install.os.environ", {"GITHUB_ACTIONS": "true"}, clear=False),
+        ):
+            with self.assertRaisesRegex(
+                CleanWindowsInstallReceiptError,
+                "GitHub Actions",
+            ):
+                require_external_windows_11_workstation()
+
+        with (
+            patch("gate17_clean_windows_install.require_windows_11", return_value=base),
+            patch.dict("gate17_clean_windows_install.os.environ", {}, clear=True),
+            patch(
+                "gate17_clean_windows_install.sys.getwindowsversion",
+                return_value=SimpleNamespace(product_type=3),
+            ),
+        ):
+            with self.assertRaisesRegex(
+                CleanWindowsInstallReceiptError,
+                "client workstation",
+            ):
+                require_external_windows_11_workstation()
+
+        with (
+            patch("gate17_clean_windows_install.require_windows_11", return_value=base),
+            patch.dict("gate17_clean_windows_install.os.environ", {}, clear=True),
+            patch(
+                "gate17_clean_windows_install.sys.getwindowsversion",
+                return_value=SimpleNamespace(product_type=1),
+            ),
+        ):
+            result = require_external_windows_11_workstation()
+
+        self.assertEqual(result["windows_product_type"], 1)
+        self.assertEqual(result["windows_build"], 26200)
+
     def test_windows_11_guard_runs_before_any_installation(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -119,7 +160,7 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
             install = root / "should-not-exist"
 
             with patch(
-                "gate17_clean_windows_install.require_windows_11",
+                "gate17_clean_windows_install.require_external_windows_11_workstation",
                 side_effect=ReleaseReadinessError("Windows 11 required"),
             ):
                 with self.assertRaisesRegex(ReleaseReadinessError, "Windows 11"):
@@ -144,7 +185,7 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
             install = root / "occupied-install"
             install.mkdir()
             with patch(
-                "gate17_clean_windows_install.require_windows_11",
+                "gate17_clean_windows_install.require_external_windows_11_workstation",
                 return_value={"platform": "Windows-11", "windows_build": 26200},
             ):
                 with self.assertRaisesRegex(
@@ -168,7 +209,7 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
             )
             fresh_install = root / "fresh-install"
             with patch(
-                "gate17_clean_windows_install.require_windows_11",
+                "gate17_clean_windows_install.require_external_windows_11_workstation",
                 return_value={"platform": "Windows-11", "windows_build": 26200},
             ):
                 with self.assertRaisesRegex(
@@ -194,7 +235,7 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
 
             with (
                 patch(
-                    "gate17_clean_windows_install.require_windows_11",
+                    "gate17_clean_windows_install.require_external_windows_11_workstation",
                     return_value={"platform": "Windows-11", "windows_build": 26200},
                 ),
                 patch("gate17_clean_windows_install.subprocess.run") as runner,
@@ -266,7 +307,7 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
             install = root / "install"
 
             with patch(
-                "gate17_clean_windows_install.require_windows_11",
+                "gate17_clean_windows_install.require_external_windows_11_workstation",
                 return_value={"platform": "Windows-11", "windows_build": 26200},
             ):
                 with self.assertRaisesRegex(
