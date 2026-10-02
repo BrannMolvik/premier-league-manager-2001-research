@@ -10467,3 +10467,40 @@ work may continue under the deferred-blocker policy.
 - Active branch `recovery188/gate17-artifact-bound-receipts` binds every external receipt to the exact release version and archive SHA-256. It adds a Windows gameplay receipt producer using independent canonical runtimes for new-game/management-loop, save/reload and the existing canonical annual rollover audit.
 - The producer writes no receipt until all three gameplay audits have succeeded, keeps evidence outside Git and never overwrites prior receipts. Clean-install evidence remains deliberately separate because it must come from an actual installed release outside the development environment.
 - The current execution sandbox still fails before shell/Python process start with `caas.internal.errors.ClientError`; hosted GitHub CI remains the verification path for cloud-safe code changes.
+
+## 2026-10-03 - Recovery 194: Gate-17 coordinator merged; FastView possession source closure
+
+- Recovered from canonical GitHub state and refreshed `agent-runtime` to
+  recovery generation 194 with `mode=continuous`, `status=working`.
+- Audited PR #160 rather than restarting it. Reconstruction run
+  `37070962823` passed 1,470 tests with 22 expected skips; Windows package
+  run `37070962855` passed package tests, PyInstaller freeze, packaged
+  executable smoke and candidate build; asset-policy run `37070962826`
+  passed. Squash-merged PR #160 as
+  `6b33a5fab9651866021a1e28be4bc72877303dda`.
+- Rematerialized the authorized 511,121,336-byte Library source ZIP and
+  extracted its 631,627,248-byte MODE1/2352 image. A fresh independent Joliet
+  level-3 walk reproduced the durable inventory exactly: 2,456 files and 211
+  folders excluding root. The source executable rehashed to canonical
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- Proved that the executable embeds the full seven bounded FastView paths. The
+  real disc has two `pitch_normal.444` files, but the
+  `PossessionDiagram` executable string explicitly selects
+  `FM2001_Art/FastView/pitch_normal.444`, eliminating the old basename-only
+  ambiguity without guessing.
+- First-hand extracted and hashed all seven bounded resources. The three
+  PossessionFigures bars are 82x16. PossessionDiagram uses a 294x78 normal
+  pitch plus 125x78 / 98x78 / 125x78 left/middle/right overlays.
+- Traced `PossessionDiagram` construction from FastView callsite
+  `0x5206CD` into `0x5227D0`: normal pitch rectangle
+  `(253,139)-(547,217)`, initial state 1, active overlay x offsets
+  `[0,98,169]`, inactive x=4000.
+- Traced one update through `0x522BB0 -> 0x5227A0`. The private presentation
+  RNG uses the exact MSVC constants 214013/2531011; the compiled quotient is
+  `floor(rand15/327)` over the full 15-bit output range. The territory byte
+  drives one source call's left/middle/right state transition. Callback cadence
+  and user/side orientation remain intentionally unresolved.
+- Added source-proven full-path resolver schema 2 and
+  `gate14_possession_diagram.py` with focused local verification passing 12
+  tests. CI is the next checkpoint before any asset import or live rendering.
+
