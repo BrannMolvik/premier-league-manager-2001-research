@@ -486,10 +486,6 @@ def complete_autonomous_acquisition(state, player_id: int, buyer_club_id: int, r
     # signed-contract morale RNG(2) as an ordinary human transfer.
     movement = _complete_ordinary_cash_transfer(state, proposal, rng)
 
-    counters = getattr(state, "ai_transfer_buy_counter", None)
-    if counters is not None:
-        counters[buyer_club_id] = int(counters.get(buyer_club_id, 0)) + 1
-
     return AutonomousTransferResult(
         buyer_club_id=buyer_club_id,
         seller_club_id=seller_club_id,
