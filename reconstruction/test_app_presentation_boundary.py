@@ -86,13 +86,15 @@ class AppPresentationBoundaryTests(unittest.TestCase):
         self.assertIn("'--prototype-ui'", source)
         self.assertIn("if args.prototype_ui:", source)
         self.assertIn("App(game_dir).mainloop()", source)
-        self.assertIn(
-            "run_original_game_ui(game_dir, source_root=args.source_root)",
-            source,
-        )
+        self.assertIn("'--startup-media-receipt'", source)
+        self.assertIn("'--startup-media-player'", source)
+        self.assertIn("'--startup-media-player-arg'", source)
+        self.assertIn("SynchronousCommandStartupMediaBackend", source)
+        self.assertIn("startup_media_receipt=args.startup_media_receipt", source)
+        self.assertIn("startup_media_backend=startup_backend", source)
         self.assertLess(
             source.index("if args.prototype_ui:"),
-            source.index("run_original_game_ui(game_dir, source_root=args.source_root)"),
+            source.index("run_original_game_ui("),
         )
 
 
