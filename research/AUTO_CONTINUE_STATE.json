@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 180: resume from main cd4bc4b. Continue the fresh PSquadScreen landing: close the three top controls' concrete Button@ease state/setup and caption placement, render only source-backed Squad/tactics pixels, then integrate PMatchInfo and League Tables into the representative visual loop. Schema 8 real-Windows run remains pending; surrounding application-owned background and keyboard equivalence remain fail-closed.",
-  "last_known_main_head": "cd4bc4b543016da4472042168fce8cb4144411b0",
+  "active_task": "Recovery 179: PR #117 renders the exact fresh PSquadScreen top controls (source frame 11 selected for 1ST & RES, source frame 0 for the other two, exact Zurich 16px captions at screen y=171). Focused Gate13 and asset policy pass; full reconstruction still running. PMatchInfo remains fail-closed at its source-linked secondary-context gate; independently inspect/integrate source-proven League Tables pixels next.",
+  "last_known_main_head": "cd4bc4b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 180,
   "last_recovery_reason": "analysis-errored-sandbox",
-  "note": "Recovered after the previous ChatGPT session failed with a sandbox analysis error. Main is cd4bc4b (PR #116 League Fixtures grid art); Gate-13 run 37002118717 passed 455 tests/21 skips, full run 37002118757 passed 1,365 tests/22 skips, asset policy 37002118716 passed. ChatGPT owns continuous Recovery 180.",
+  "note": "ChatGPT remains active. PR #117 head 0f79cb6 is mergeable; Gate13 run 37004147338 passed 460 tests with 21 expected skips, asset policy 37004147311 passed, full reconstruction 37004147299 still running. Do not race this branch.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
