@@ -33,7 +33,11 @@ from original_front_end_layout import (
     OriginalRect,
 )
 from original_live_debug_view import build_original_debug_frame
-from original_management_canvas import build_management_canvas_frame
+from original_management_canvas import (
+    build_management_canvas_frame,
+    build_management_pmenu_render,
+    load_verified_management_pmenu_resources,
+)
 from original_pmenu_chrome import PMENU_LIST_SCREEN_ORIGIN, PMENU_LIST_SIZE
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from original_squad_resources import SQUAD_PANEL_RECT
@@ -290,8 +294,9 @@ def audit_management_host_contract(
     photo_dimensions: list[list[int]],
     status: str,
     required_status_fragment: str = "entered source-proven PMenu management host",
+    expected_pmenu_photo_dimensions: list[list[int]] | None = None,
 ) -> dict:
-    """Validate the recovered MANAGEMENT host without claiming missing pixels."""
+    """Validate recovered MANAGEMENT geometry and any source-backed PMenu pixels."""
     menu_x, menu_y = PMENU_LIST_SCREEN_ORIGIN
     menu_w, menu_h = PMENU_LIST_SIZE
     expected_menu_rect = (menu_x, menu_y, menu_w, menu_h)
@@ -319,9 +324,9 @@ def audit_management_host_contract(
         raise WindowsFirstScreenAuditError(
             "MANAGEMENT audit must not claim unresolved surrounding background pixels"
         )
-    if frame.pmenu_text_placement_recovered:
+    if not frame.pmenu_text_placement_recovered:
         raise WindowsFirstScreenAuditError(
-            "MANAGEMENT audit must not claim unresolved PMenu text placement"
+            "MANAGEMENT audit lost recovered PMenu text placement"
         )
     if frame.complete_source_pixel_frame_available:
         raise WindowsFirstScreenAuditError(
@@ -331,10 +336,18 @@ def audit_management_host_contract(
         raise WindowsFirstScreenAuditError(
             "Real Tk MANAGEMENT canvas is not the fixed 800x600 surface"
         )
-    if photo_dimensions:
-        raise WindowsFirstScreenAuditError(
-            "MANAGEMENT host drew PhotoImages before background/text recovery"
-        )
+    if expected_pmenu_photo_dimensions is None:
+        if photo_dimensions:
+            raise WindowsFirstScreenAuditError(
+                "Diagnostic MANAGEMENT host introduced uncontracted PhotoImages"
+            )
+        pmenu_rows_rendered = False
+    else:
+        if photo_dimensions != expected_pmenu_photo_dimensions:
+            raise WindowsFirstScreenAuditError(
+                "Live PMenu PhotoImage geometry differs from recovered row composition"
+            )
+        pmenu_rows_rendered = True
     if required_status_fragment not in status:
         raise WindowsFirstScreenAuditError(
             "Real Tk Start path did not report the recovered PMenu host transition"
@@ -347,10 +360,31 @@ def audit_management_host_contract(
         "panel_code": frame.presentation.panel_code,
         "live_tk_canvas_size": list(canvas_size),
         "photo_dimensions": list(photo_dimensions),
+        "pmenu_rows_rendered": pmenu_rows_rendered,
         "surrounding_background_recovered": frame.surrounding_background_recovered,
         "pmenu_text_placement_recovered": frame.pmenu_text_placement_recovered,
         "complete_source_pixel_frame_available": frame.complete_source_pixel_frame_available,
     }
+
+
+def expected_management_pmenu_photo_dimensions(frame, resources) -> list[list[int]]:
+    """Return exact image sizes emitted by the source-backed PMenu compositor."""
+    render = build_management_pmenu_render(frame, resources)
+    return [list(item) for item in render.photo_dimensions]
+
+
+def verify_live_management_pmenu(host, resources) -> list[list[int]]:
+    """Require the clean host's current PhotoImages to match its live PMenu rows."""
+    if host.management_presenter is None:
+        raise WindowsFirstScreenAuditError("Clean host lost its management presenter")
+    frame = build_management_canvas_frame(host.management_presenter)
+    expected = expected_management_pmenu_photo_dimensions(frame, resources)
+    actual = _actual_photo_dimensions(host)
+    if actual != expected:
+        raise WindowsFirstScreenAuditError(
+            "Clean host PMenu PhotoImages differ from the current source-backed rows"
+        )
+    return actual
 
 
 def audit_source_accepted_pmenu_transition(
@@ -444,6 +478,10 @@ def run_real_windows_graphical_audit(
     team = load_verified_original_teamselect_inputs(
         original_art_dir=original_art_root,
         original_executable=original_exe,
+    )
+    pmenu_resources = load_verified_management_pmenu_resources(
+        Path(original_art_root).parent,
+        original_exe,
     )
     presenter = OriginalFirstScreenPresenter(
         FrontEndSession.for_canonical_game_dir(canonical_game_dir),
@@ -684,7 +722,12 @@ def run_real_windows_graphical_audit(
             team,
         )
         clean_root = tk.Toplevel(root)
-        clean_host = OriginalGameTkHost(clean_presenter, clean_root, tk)
+        clean_host = OriginalGameTkHost(
+            clean_presenter,
+            clean_root,
+            tk,
+            management_pmenu_resources=pmenu_resources,
+        )
         try:
             _pump(root)
             clean_initial_size = [
@@ -735,12 +778,17 @@ def run_real_windows_graphical_audit(
                 int(clean_host.canvas.winfo_height()),
             ]
             clean_photo_dimensions = _actual_photo_dimensions(clean_host)
+            clean_expected_photos = expected_management_pmenu_photo_dimensions(
+                clean_frame,
+                pmenu_resources,
+            )
             clean_contract = audit_management_host_contract(
                 clean_frame,
                 canvas_size=clean_canvas_size,
                 photo_dimensions=clean_photo_dimensions,
                 status=str(clean_host.last_status),
-                required_status_fragment="Management host active",
+                required_status_fragment="source PMenu rows rendered",
+                expected_pmenu_photo_dimensions=clean_expected_photos,
             )
 
             clean_before_candidate = clean_host.management_presenter.snapshot()
@@ -765,10 +813,7 @@ def run_real_windows_graphical_audit(
                 raise WindowsFirstScreenAuditError(
                     "Selected PMenu title press mutated PMenu selection"
                 )
-            if _actual_photo_dimensions(clean_host):
-                raise WindowsFirstScreenAuditError(
-                    "Default clean host PMenu pointer press introduced guessed pixels"
-                )
+            verify_live_management_pmenu(clean_host, pmenu_resources)
 
             # Recovery 176 proves that the concrete whole-row SelectBmp uses
             # 0x64F7A0 at vtable +0x6C and that Tk <Button-1> is the equivalent
@@ -790,10 +835,7 @@ def run_real_windows_graphical_audit(
                     expected_panel_class="PSquadScreen",
                 )
             )
-            if _actual_photo_dimensions(clean_host):
-                raise WindowsFirstScreenAuditError(
-                    "Source-accepted Calendar expansion introduced guessed pixels"
-                )
+            verify_live_management_pmenu(clean_host, pmenu_resources)
 
             clean_host.canvas.event_generate("<Button-1>", x=600, y=96 + 4 * 29)
             _pump(root)
@@ -810,10 +852,7 @@ def run_real_windows_graphical_audit(
                     expected_panel_class="PLeagueFixtures",
                 )
             )
-            if _actual_photo_dimensions(clean_host):
-                raise WindowsFirstScreenAuditError(
-                    "Source-accepted League Fixtures transition introduced guessed pixels"
-                )
+            verify_live_management_pmenu(clean_host, pmenu_resources)
 
             clean_host.canvas.event_generate("<Button-1>", x=600, y=96 + 5 * 29)
             _pump(root)
@@ -846,10 +885,7 @@ def run_real_windows_graphical_audit(
                     expected_panel_class="PLeagueTables",
                 )
             )
-            if _actual_photo_dimensions(clean_host):
-                raise WindowsFirstScreenAuditError(
-                    "Source-accepted League Tables transition introduced guessed pixels"
-                )
+            verify_live_management_pmenu(clean_host, pmenu_resources)
 
             clean_host_receipt = {
                 "new_game_to_teamselect": True,
@@ -861,6 +897,7 @@ def run_real_windows_graphical_audit(
                 "source_accepted_pmenu_actions_verified": True,
                 "source_accepted_pmenu_actions": source_accepted_actions,
                 "tk_pmenu_pointer_press_equivalence_verified": True,
+                "pmenu_source_row_pixels_rendered": True,
                 **clean_contract,
             }
         finally:
@@ -870,7 +907,7 @@ def run_real_windows_graphical_audit(
                 pass
 
         return {
-            "schema_version": 7,
+            "schema_version": 8,
             "passed": True,
             "audit_kind": "real_windows_tk_first_screen_management_and_clean_host_smoke",
             "platform": platform.platform(),
@@ -917,9 +954,8 @@ def run_real_windows_graphical_audit(
             },
             "unresolved_boundaries": [
                 "Surrounding management background pixels",
-                "Exact PMenu label origin/clipping",
                 "Original PMenu keyboard-event equivalence",
-                "Broader Gate-13 management-screen graphical fidelity",
+                "Broader Gate-13 management-panel graphical fidelity beyond the rendered PMenu",
             ],
             "gate13_complete": False,
         }
