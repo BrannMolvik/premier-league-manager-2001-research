@@ -1302,5 +1302,50 @@
   "gate13_pmatchinfo_presenter_source_seam": true,
   "gate13_pmatchinfo_presenter_complete_dialog_available": false,
   "gate13_pmatchinfo_presenter_requires_info_popup": true,
-  "gate13_pmatchinfo_presenter_simulation_imports": false
+  "gate13_pmatchinfo_presenter_simulation_imports": false,
+  "gate13_pmatchinfo_presenter_merge": "5f76cd8d1187601034424fd6519c29c521b912bc",
+  "gate13_pmatchinfo_presenter_ci_run": 36943619177,
+  "gate13_pmatchinfo_presenter_test_count": 364,
+  "gate13_pmatchinfo_presenter_expected_skips": 21,
+  "gate13_pmatchinfo_presenter_asset_policy_run": 36943619314,
+  "gate13_league_tables_shell_source_proven": true,
+  "gate13_league_tables_setup_va": "0x446F00",
+  "gate13_league_tables_event_va": "0x448C40",
+  "gate13_league_tables_country_selector_count": 8,
+  "gate13_league_tables_country_ids": [
+    26,
+    33,
+    40,
+    73,
+    66,
+    31,
+    24,
+    9
+  ],
+  "gate13_league_tables_country_events": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "gate13_league_tables_country_header": "Country",
+  "gate13_league_tables_header_labels": [
+    "P",
+    "W",
+    "D",
+    "L",
+    "F",
+    "A",
+    "Pts"
+  ],
+  "gate13_league_tables_secondary_selector_count": 5,
+  "gate13_league_tables_tertiary_selector_count": 2,
+  "gate13_league_tables_secondary_selector_semantics_open": true,
+  "gate13_league_tables_tertiary_selector_semantics_open": true,
+  "gate13_league_tables_row_presentation_open": true,
+  "gate13_league_tables_original_resources_open": true
 }
