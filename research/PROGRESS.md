@@ -10007,3 +10007,21 @@ asset-policy run `36972538362` passed. PR #101 merged as
 
 The next cloud-safe checkpoint, PR #102, intentionally adds only candidate
 PMenu row hit-testing from proven geometry and does not infer row activation.
+
+
+## 2 October 2026 - Recovery 172 Windows management audit harness
+
+PR #104 merged as `c0b2fd2465952d2f5134837054622c2706abda71`.
+The fail-closed real Windows/Tk audit now extends the verified TeamSelect path
+through a positive native-club selection and Start into the recovered
+MANAGEMENT/PMenu host. The schema-4 contract requires the fixed 800x600 canvas,
+PMenu rectangle (599,96,201,504), fresh PSquadScreen parent
+(0,79,800,520), panel code 0xCE and PSquadScreen identity. It also requires no
+management PhotoImages while the surrounding management background and exact
+PMenu label placement remain unresolved.
+
+Gate-13 CI run `36974932379` passed **427 tests with 21 expected skips and
+zero failures** on the exact PR head. Repository asset-policy run
+`36974932407` passed. The upgraded audit contract is therefore verified in
+the repository; an actual new schema-4 Windows 11 receipt remains a separate
+local graphical validation step.
