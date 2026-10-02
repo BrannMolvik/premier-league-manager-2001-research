@@ -126,3 +126,29 @@ loaded through checksum-gated source loaders; the executable remained canonical
 SHA-256 `833bf95e...cc3`. This supersedes the obsolete inert-hierarchy portion
 of Recovery 138 while retaining `gate13_complete: false` for broader management
 presentation.
+
+
+## Recovery 172 schema-5 clean-host audit contract
+
+The audit harness now extends beyond the developer viewer and explicitly
+exercises the default `OriginalGameTkHost` used by normal `app.py` launch.
+
+The schema-5 run must:
+
+- create a fresh clean-host session in a real Tk window;
+- drive New Game through the clean host;
+- click the first source-backed native TeamSelect club row;
+- drive TeamSelect Start into `FrontEndScreen.MANAGEMENT`;
+- require the exact fixed **800x600** canvas;
+- require PMenu **(599,96,201,504)** and fresh PSquadScreen
+  **(0,79,800,520)** with panel code **0xCE**;
+- require **zero management PhotoImages** while the surrounding management
+  background and exact PMenu text placement remain unresolved;
+- click inside the proven PMenu rectangle and require candidate-row feedback;
+- require that candidate feedback dispatches **no** navigation and leaves the
+  selected PSquadScreen panel unchanged.
+
+Hosted Gate-13 CI verifies this contract but cannot produce the Windows result.
+The new schema-5 local Windows 11 receipt remains **pending**. The prior
+Recovery-164 schema-3 receipt remains valid evidence for the corrected
+first-screen path, but it does not prove the new clean MANAGEMENT host.
