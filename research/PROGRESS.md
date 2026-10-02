@@ -10220,3 +10220,37 @@ does not require those unresolved pixels.
 - Schema 7 remains the last actual real-Windows receipt. Schema 8 now covers
   the integrated Squad -> League Fixtures -> explicit PMatchInfo -> League
   Tables stack and requires a fresh Windows 11/Tk execution.
+
+
+## 2 October 2026 KST - Recovery 181 representative management visual loop
+
+- Adopted the newer canonical Squad checkpoint from PR #117, which renders the
+  three exact fresh PSquadScreen top-control source frames and Zurich captions.
+- Merged the source-proven League Tables `league_bar.444` header at
+  `(270,152,475,19)` in PR #118 after Gate-13 and full-suite validation.
+- Merged PR #119, recovering the PMatchInfo 760x500 pointer-origin clamp and
+  confirming the full-screen PLeagueTables parent rectangle.
+- Merged PR #120, which projects only the globally valid `info_popup.444`
+  PMatchInfo background and keeps owner-local child transforms fail-closed.
+- Merged PR #122, which persists the exact PMatchInfo popup through clean-host
+  redraws, preserves the populated-fixture + linked-context gate, blocks
+  unproved modal pointer interaction, and exposes a separate source-accepted
+  exit seam. Full reconstruction run `37009547601` passed **1,379 tests with
+  22 expected skips**.
+- Merged PR #123 as `a5277f889e4653c464dda1d410e9febc4dbb42e1`.
+  Schema 8 now constructs the real clean host with the verified Squad,
+  Fixtures, PMatchInfo, League Tables and PMenu resources and compares the live
+  PhotoImage sequence against independently derived source geometry. It audits
+  Squad -> Fixtures -> explicit source-accepted PMatchInfo -> exit -> League
+  Tables, records the unreconstructed secondary context instead of overclaiming
+  it, and keeps the schema at 8 pending a fresh real-Windows run.
+- PR #123 Gate-13 run `37010700467` passed **479 tests with 21 expected
+  skips**; asset-policy run `37010700447` passed.
+- Remaining Gate-13 boundary after this checkpoint: integrate the already
+  source-proven PSquadScreen controls 3/4/5 first+reserve / first+formation /
+  reserve+formation transition through a bounded source-accepted seam without
+  inventing modern pointer equivalence or unresolved formation/player pixels;
+  then obtain the fresh real-Windows schema-8 receipt and re-audit Gate 13.
+  Ordinary fixture-cell -> secondary-context PMatchInfo opening, PMatchInfo
+  owner-local child transforms, surrounding management background and PMenu
+  keyboard equivalence remain fail-closed.
