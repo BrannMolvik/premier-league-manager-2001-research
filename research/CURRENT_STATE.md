@@ -85,12 +85,28 @@ Evidence:
   contract duration now uses the exact country League/DummyLeague root index;
   Premier League attendance uses exact **FanFactor1 = 0.9**, and Cup attendance
   derives FanFactor from the host club's league rather than the Cup root.
-- **Active Gate-15 branch:** `recovery186/gate15-exact-buy-counter-lifecycle`
-  closes DBRClub `+0x1ED` as the monthly permanent-arrival byte. Permanent
-  human/autonomous arrivals now share one increment path, and day-1 reset runs
-  after same-date Saturday transfer maintenance/payroll exactly as
-  `0x4A8070 -> 0x4F3320`. Branch CI is the next checkpoint. The separate
-  due-transfer same-day ordering gap remains open.
+- **Recovery 186/187 permanent-arrival lifecycle is canonical:** PR #143
+  merged as `3b9fc3741a8d614a14389d90db99285b9aa49a69` after
+  **1,420 tests / 22 expected skips** plus asset-policy success. DBRClub
+  `+0x1ED` is the monthly permanent-arrival byte shared by human/autonomous
+  transfers; day-1 reset runs after same-date Saturday transfer/payroll work.
+- **Recovery 187 due-transfer ordering blocker:** persisted evidence proves
+  `0x613EE0` is first inside `0x4A8070`, but the repository does not retain
+  the missing outer relation between that dated-process queue and same-day match
+  execution. The current worker cannot start a shell process
+  (`caas.internal.errors.ClientError`), so fresh disassembly is unavailable.
+  The reconstruction therefore keeps due transfers after fixtures as an
+  explicit approximation rather than promoting it to original behavior.
+- **Recovery 187 active Gate-15 work-ahead:** branch
+  `recovery187/gate15-cup-controlled-postings` implements the already-proven
+  special Cup/knockout accounting tail: both controlled participants can receive
+  categories 1 and 2 independently from the common attendance counts while each
+  participant uses its own ticket prices. The branch also materializes the
+  exact alternate `0x5DBCD0` paired first-XI attendance modifier while
+  deliberately leaving its match-family applicability neutral until the caller
+  is source-locked. No business-policy label such as "revenue sharing" is
+  inferred. Full live Cup receipt attachment remains blocked on that exact
+  caller/applicability boundary rather than on the accounting formula.
 - **Recovery 186 private source access is working again:** the canonical
   511,121,336-byte disc-image ZIP was materialized from the Library, its raw
   MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical

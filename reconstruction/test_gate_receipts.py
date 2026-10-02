@@ -13,6 +13,7 @@ from gate_receipts import (
     league_importance_factor,
     league_position_factor,
     ordinary_league_side_modifier,
+    paired_type6_side_modifier,
     randomized_gate_count,
     signed_trunc_division,
     ticket_price_response,
@@ -21,6 +22,9 @@ from gate_receipts import (
     DomesticCupGatePolicyInputs,
     english_domestic_cup_gate_policy_inputs,
     english_ticket_reference_prices,
+    gate_revenues_for_ticket_prices,
+    GateAttendanceCell,
+    GateReceiptResult,
 )
 
 
@@ -107,6 +111,35 @@ class CupGatePrimitiveTests(unittest.TestCase):
             )
 
 
+class CupControlledPostingTests(unittest.TestCase):
+    def test_participant_local_prices_reuse_common_attendance_counts(self):
+        receipts = GateReceiptResult(
+            home_seating=GateAttendanceCell(0.0, 1.0, 1, 100),
+            visiting_seating=GateAttendanceCell(0.0, 1.0, 1, 40),
+            home_terrace=GateAttendanceCell(0.0, 1.0, 1, 60),
+            visiting_terrace=GateAttendanceCell(0.0, 1.0, 1, 20),
+            home_revenue=0,
+            visiting_revenue=0,
+        )
+
+        self.assertEqual(
+            gate_revenues_for_ticket_prices(
+                receipts,
+                seating_price=30,
+                terrace_price=20,
+            ),
+            (4200, 1600),
+        )
+        self.assertEqual(
+            gate_revenues_for_ticket_prices(
+                receipts,
+                seating_price=12,
+                terrace_price=8,
+            ),
+            (1680, 640),
+        )
+
+
 class GateLiveInputTests(unittest.TestCase):
     def test_premier_league_source_constants(self):
         self.assertEqual(PREMIER_LEAGUE_TIER_FACTOR, 0.9)
@@ -182,6 +215,25 @@ class GateLiveInputTests(unittest.TestCase):
             ),
             0.0,
         )
+
+    def test_alternate_type6_side_modifier_uses_exact_weighted_pair(self):
+        primary = (80,) * 11
+        other = (40,) * 11
+        self.assertAlmostEqual(
+            paired_type6_side_modifier(primary, other),
+            0.2 * (10.0 * 1.1 + 5.0 * 0.55) / 15.0,
+        )
+        self.assertAlmostEqual(
+            paired_type6_side_modifier(other, primary),
+            0.2 * (10.0 * 0.55 + 5.0 * 1.1) / 15.0,
+        )
+        with self.assertRaises(ValueError):
+            paired_type6_side_modifier(
+                primary,
+                other,
+                prestige_weight=1.0,
+                other_prestige_weight=-1.0,
+            )
 
     def test_first_xi_and_weighted_side_modifier(self):
         ratings = (80,) * 11

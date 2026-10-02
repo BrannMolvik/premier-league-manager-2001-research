@@ -221,6 +221,32 @@ def first_xi_rating_factor(overall_ratings: Iterable[int]) -> float:
     return float(sum(ratings)) * 0.00125
 
 
+def paired_type6_side_modifier(
+    primary_first_xi_ratings: Iterable[int],
+    other_first_xi_ratings: Iterable[int],
+    *,
+    prestige_weight: float = 10.0,
+    other_prestige_weight: float = 5.0,
+) -> float:
+    """Reproduce alternate attendance helper 0x5DBCD0 exactly.
+
+    The executable computes each side's first-11 factor as sum(overall)/800,
+    then returns 0.2 times the weighted blend below. Its caller reverses the
+    two club arguments for the other side. The semantic match-family label is
+    intentionally left neutral until the direct caller branch is source-locked.
+    """
+    prestige_weight = float(prestige_weight)
+    other_prestige_weight = float(other_prestige_weight)
+    denominator = prestige_weight + other_prestige_weight
+    if denominator == 0.0:
+        raise ValueError("paired attendance prestige weights must not sum to zero")
+    primary = first_xi_rating_factor(primary_first_xi_ratings)
+    other = first_xi_rating_factor(other_first_xi_ratings)
+    return 0.2 * (
+        prestige_weight * primary
+        + other_prestige_weight * other
+    ) / denominator
+
 def ordinary_league_side_modifier(
     *,
     first_xi_ratings: Iterable[int],
@@ -385,6 +411,34 @@ class GateReceiptResult:
         return self.home_attendance + self.visiting_attendance
 
 
+def gate_revenues_for_ticket_prices(
+    receipts: GateReceiptResult,
+    *,
+    seating_price: int,
+    terrace_price: int,
+) -> tuple[int, int]:
+    """Return (home, visiting) category-2/category-1 revenue for one DBRUser.
+
+    In the Cup/knockout posting tail of 0x5DA2F0, each controlled participant
+    reuses the already-produced four attendance counts but multiplies them by
+    that participant's own DBRUser +0x694 seating/terrace ticket prices before
+    independently crediting categories 2 and 1. This helper deliberately names
+    only the accounting behavior, not an unproven business label such as
+    revenue sharing.
+    """
+    seating = max(0, int(seating_price))
+    terrace = max(0, int(terrace_price))
+    home = (
+        seating * int(receipts.home_seating.count)
+        + terrace * int(receipts.home_terrace.count)
+    )
+    visiting = (
+        seating * int(receipts.visiting_seating.count)
+        + terrace * int(receipts.visiting_terrace.count)
+    )
+    return home, visiting
+
+
 def calculate_matchday_gate_receipts(
     *,
     home_fan_base_raw: float,
@@ -467,13 +521,19 @@ def calculate_matchday_gate_receipts(
         cup_special=cup_special,
     )
 
-    home_revenue = (
-        int(host_seating_price) * int(home_seating.count)
-        + int(host_terrace_price) * int(home_terrace.count)
+    partial = GateReceiptResult(
+        home_seating=home_seating,
+        visiting_seating=visiting_seating,
+        home_terrace=home_terrace,
+        visiting_terrace=visiting_terrace,
+        home_revenue=0,
+        visiting_revenue=0,
+        season_ticket_quantity=max(0, int(season_ticket_quantity)),
     )
-    visiting_revenue = (
-        int(host_seating_price) * int(visiting_seating.count)
-        + int(host_terrace_price) * int(visiting_terrace.count)
+    home_revenue, visiting_revenue = gate_revenues_for_ticket_prices(
+        partial,
+        seating_price=host_seating_price,
+        terrace_price=host_terrace_price,
     )
     return GateReceiptResult(
         home_seating=home_seating,
@@ -482,5 +542,5 @@ def calculate_matchday_gate_receipts(
         visiting_terrace=visiting_terrace,
         home_revenue=home_revenue,
         visiting_revenue=visiting_revenue,
-        season_ticket_quantity=max(0, int(season_ticket_quantity)),
+        season_ticket_quantity=partial.season_ticket_quantity,
     )
