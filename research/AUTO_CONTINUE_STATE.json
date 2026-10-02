@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 186: PR #140 merged as 833f1fedd7ce3c645c428ba20a09392d6bf994b3 after 1,417 tests / 22 expected skips and asset-policy success. Exact country transfer-window lifecycle is source-closed. Continue Gate 15: replace the contract month-span compatibility clamp with the directly recovered 0x64CDD0 behavior (day resets to 1, then year/month advance). Keep due-transfer same-day ordering open until the fixture-date path is fully instruction-locked.",
-  "last_known_main_head": "833f1fedd7ce3c645c428ba20a09392d6bf994b3",
+  "active_task": "Recovery 186: PR #141 merged as 6a31e62e92c6c74fe097940dbd5b9bdea92b6b75 after 1,416 tests / 22 expected skips and asset-policy success. Exact 0x64CDD0 contract month normalization is source-closed. Next Gate-15 slice: replace autonomous contract duration's valuation-category proxy with exact 0x4FA510 -> 0x4F8FF0 -> 0x410FF0 country +0x48 League/DummyLeague root-subset index; England playable rows are PL=0, Div1=1, Div2=2, Div3=3, Conference=4.",
+  "last_known_main_head": "6a31e62e92c6c74fe097940dbd5b9bdea92b6b75",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 186,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Continuous Gate-15 work-ahead. Gate 13 still requires fresh real-Windows schema-8 receipt.",
+  "note": "Continuous Gate-15 work-ahead. Buy-counter lifecycle also traced: club +0x1ED increments on player addition and resets on day-of-month 1; patch after contract category unless merged together only if tightly coupled.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
