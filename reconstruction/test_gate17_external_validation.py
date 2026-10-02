@@ -201,7 +201,10 @@ class Gate17ExternalValidationTests(unittest.TestCase):
             )
             self.assertTrue(final_payload["passed"])
             self.assertEqual(final_payload["repository_commit"], COMMIT)
-            self.assertEqual(result["release_evidence"], evidence_path)
+            self.assertEqual(
+                result["release_evidence"].resolve(),
+                evidence_path.resolve(),
+            )
             self.assertEqual(clean.call_args.kwargs["release_archive"], archive.resolve())
             self.assertEqual(gameplay.call_args.kwargs["release_archive"], archive.resolve())
             self.assertEqual(gameplay.call_args.kwargs["player_seed"], 7)
