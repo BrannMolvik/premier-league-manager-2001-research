@@ -35,6 +35,18 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _require_external_path(
+    path: str | Path,
+    repo_root: str | Path,
+    *,
+    label: str,
+) -> Path:
+    try:
+        return require_path_outside_repo(Path(path), Path(repo_root), label=label)
+    except Exception as exc:
+        raise ReleaseEvidenceAssemblerError(str(exc)) from exc
+
+
 def _require_commit(value: str) -> str:
     value = str(value)
     if re.fullmatch(r"[0-9a-f]{40}", value) is None:
@@ -71,8 +83,8 @@ def assemble_release_evidence(
             f"receipt set mismatch: missing={missing}, extra={extra}"
         )
 
-    archive = require_path_outside_repo(
-        Path(release_archive),
+    archive = _require_external_path(
+        release_archive,
         root,
         label="release archive",
     )
@@ -84,8 +96,8 @@ def assemble_release_evidence(
     normalized_receipts: dict[str, Path] = {}
     seen: dict[Path, str] = {}
     for name in REQUIRED_EXTERNAL_RECEIPTS:
-        path = require_path_outside_repo(
-            Path(receipt_paths[name]),
+        path = _require_external_path(
+            receipt_paths[name],
             root,
             label=f"{name} receipt",
         )
@@ -101,8 +113,8 @@ def assemble_release_evidence(
             )
         normalized_receipts[name] = path
 
-    output = require_path_outside_repo(
-        Path(output_path),
+    output = _require_external_path(
+        output_path,
         root,
         label="release evidence output",
     )
