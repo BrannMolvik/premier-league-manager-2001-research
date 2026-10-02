@@ -14,7 +14,7 @@
   "last_verified_test_count": 1149,
   "asset_policy_validated_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 remains active. Recovery 170 has a verified source-bounded PMenu routing layer for PSquadScreen (0xCE), PLeagueFixtures (0x25C), PLeagueTables (0x25A), and the existing two-gate PMatchInfo action boundary. Merge PR #98, then continue fixed-800x600/cloud-safe management integration while exact PMenu label origin/clipping and surrounding background remain deferred behind the current process-sandbox ClientError.",
+  "active_task": "Gate 13 remains active. Recovery 171 merged PR #100: successful TeamSelect Start now enters explicit MANAGEMENT/PMenu state and a fixed 800x600 management host backed by OriginalManagementPresenter. Next replace remaining generic ttk ordinary-management launch path with this recovered host, then integrate source-backed PMenu row input/navigation for Squad, League Fixtures and League Tables. Exact PMenu label origin/clipping and any extra management background layer remain deferred behind the current caas ClientError process-start blocker.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -1503,5 +1503,27 @@
   "gate13_management_routing_test_count": 403,
   "gate13_management_routing_expected_skips": 21,
   "gate13_management_routing_asset_policy_run": 36968140362,
-  "gate13_private_execution_blocker": "Recovery 170: authorized Library ZIP materialized successfully; container.exec and python execution both fail before process start with caas.internal.errors.ClientError. No user action required."
+  "gate13_private_execution_blocker": "Recovery 171: trivial container.exec still fails before process start with caas.internal.errors.ClientError. Continue cloud-safe work; no user action required.",
+  "gate13_management_host_merge": "163071883b932067a5cf33cf12ff3d05a2940cb5",
+  "gate13_management_host_verified_head": "4551e0a5e178a850a8cdf6930beff75cc84bbbc8",
+  "gate13_management_host_ci_run": 36971906350,
+  "gate13_management_host_test_count": 415,
+  "gate13_management_host_expected_skips": 21,
+  "gate13_management_host_asset_policy_run": 36971906383,
+  "gate13_management_host_screen_size": [
+    800,
+    600
+  ],
+  "gate13_management_host_pmenu_rect": [
+    599,
+    96,
+    201,
+    504
+  ],
+  "gate13_management_host_squad_rect": [
+    0,
+    79,
+    800,
+    520
+  ]
 }
