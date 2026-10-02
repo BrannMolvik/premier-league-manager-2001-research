@@ -123,16 +123,29 @@ Evidence:
   archive SHA-256
   `79116b1aece63c68bfdf7b2fc541f1697f49bea79c87ccc2260144dd24139075`
   (13,626,308 bytes), artifact `11251855235`.
-- **Recovery 190 active Gate-17 work-ahead:** PR #154
-  (`recovery190/gate17-clean-windows-install-receipt`) adds the separate
-  fail-closed `clean_windows_install.json` producer. It requires Windows 11,
-  extracts the exact archive into a fresh directory outside Git, validates the
-  installed payload against `PACKAGE-MANIFEST.json`, runs the frozen
-  executable's `--package-smoke` from that installed location, and refuses to
-  overwrite prior receipt evidence. Hosted `windows-latest` runs only its unit
-  tests and is explicitly not accepted as the external Windows 11 receipt.
-  Branch CI is the next checkpoint. Gate 17 remains incomplete until the
-  distinct external receipts and earlier Gate 13-16 prerequisites all pass.
+- **Recovery 190 clean-install producer is canonical:** PR #154 merged as
+  `49c2c1099ba546c1ce6d9f809d91425c62bc5a43` after full reconstruction,
+  asset-policy, and Windows package/freeze/smoke verification. The separate
+  `clean_windows_install.json` producer extracts the exact release archive
+  into a fresh directory outside Git, validates every installed payload file
+  against `PACKAGE-MANIFEST.json`, runs the frozen executable's
+  `--package-smoke` from the installed location, and never overwrites prior
+  receipt evidence.
+- **Recovery 190 release-evidence assembler is canonical:** stale-base PR #155
+  was closed without merge; rebased PR #157 squash-merged as
+  `8ec4dec9f32a98362f29fccaecec6176e1fef5a8` after full reconstruction and
+  asset-policy success. It deterministically hashes/prevalidates the exact
+  archive and four distinct external receipt files before constructing the
+  final Gate-17 evidence contract.
+- **Recovery 190 active Gate-17 hardening:** PR #158
+  (`recovery190/gate17-shared-windows-workstation-guard`) centralizes the
+  external Windows host guard. Final audit, gameplay receipts, and clean-install
+  receipts must all run on a Windows client workstation
+  (`VER_NT_WORKSTATION/product_type == 1`) and explicitly reject GitHub
+  Actions. A modern Windows build number alone can no longer make Windows
+  Server/hosted CI acceptable external release evidence. Branch CI is pending.
+  Gate 17 remains incomplete until real external receipts exist and Gates 13-16
+  are actually closed.
 - **Recovery 186 private source access is working again:** the canonical
   511,121,336-byte disc-image ZIP was materialized from the Library, its raw
   MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical

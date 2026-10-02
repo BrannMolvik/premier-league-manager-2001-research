@@ -17,6 +17,7 @@ import argparse
 from dataclasses import dataclass
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 import platform
 import re
@@ -401,6 +402,7 @@ def validate_clean_repository(repo_root: Path, expected_commit: str) -> dict:
 
 
 def require_windows_11() -> dict:
+    """Require the Windows 11 build family without asserting host provenance."""
     if platform.system() != "Windows":
         raise ReleaseReadinessError(
             "final Gate-17 release audit must run on Windows 11"
@@ -420,6 +422,33 @@ def require_windows_11() -> dict:
         "platform": platform.platform(),
         "windows_build": build,
     }
+
+
+def require_external_windows_11_workstation() -> dict:
+    """Require real Windows 11 client evidence, never hosted/server CI.
+
+    Gate-17 external receipts and the final audit must be produced on a client
+    Windows workstation. A Windows Server host can share a modern build number,
+    so build >= 22000 alone is insufficient. GitHub Actions is rejected
+    explicitly even if a future hosted runner reports a client product type.
+    """
+    windows = require_windows_11()
+    if str(os.environ.get("GITHUB_ACTIONS", "")).casefold() == "true":
+        raise ReleaseReadinessError(
+            "Gate-17 external Windows evidence cannot be produced under GitHub Actions"
+        )
+    try:
+        product_type = int(sys.getwindowsversion().product_type)
+    except Exception as exc:
+        raise ReleaseReadinessError(
+            "unable to verify Windows workstation product type"
+        ) from exc
+    if product_type != 1:
+        raise ReleaseReadinessError(
+            "Gate-17 external Windows evidence requires a Windows client "
+            f"workstation, not product_type {product_type}"
+        )
+    return {**windows, "windows_product_type": product_type}
 
 
 def run_repository_command(
@@ -469,7 +498,7 @@ def run_final_release_audit(
         raise ReleaseReadinessError("release evidence root must be an object")
     evidence = parse_release_evidence(payload)
 
-    windows = require_windows_11()
+    windows = require_external_windows_11_workstation()
     repository = validate_clean_repository(root, evidence.repository_commit)
     roadmap_prerequisites = validate_roadmap_prerequisites(root)
     receipts = validate_external_receipts(evidence, root)

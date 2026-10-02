@@ -28,7 +28,7 @@ import tempfile
 from canonical_annual_rollover_audit import run_canonical_annual_rollover_audit
 from fm2001_data import FM2001Database
 from human_gameplay import HumanGameplayController
-from gate17_release_readiness import require_windows_11
+from gate17_release_readiness import require_external_windows_11_workstation
 from internal_save import (
     load_human_gameplay,
     save_human_gameplay,
@@ -272,7 +272,7 @@ def run_windows_gameplay_receipts(
     player_seed: int = 1,
     max_days: int = 420,
 ) -> dict[str, Path]:
-    windows = require_windows_11()
+    windows = require_external_windows_11_workstation()
     identity = resolve_release_artifact_identity(
         release_version=release_version,
         repository_commit=repository_commit,

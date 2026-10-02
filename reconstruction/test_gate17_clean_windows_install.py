@@ -115,35 +115,35 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
         base = {"platform": "Windows-11", "windows_build": 26200}
 
         with (
-            patch("gate17_clean_windows_install.require_windows_11", return_value=base),
-            patch.dict("gate17_clean_windows_install.os.environ", {"GITHUB_ACTIONS": "true"}, clear=False),
+            patch("gate17_release_readiness.require_windows_11", return_value=base),
+            patch.dict("gate17_release_readiness.os.environ", {"GITHUB_ACTIONS": "true"}, clear=False),
         ):
             with self.assertRaisesRegex(
-                CleanWindowsInstallReceiptError,
+                ReleaseReadinessError,
                 "GitHub Actions",
             ):
                 require_external_windows_11_workstation()
 
         with (
-            patch("gate17_clean_windows_install.require_windows_11", return_value=base),
-            patch.dict("gate17_clean_windows_install.os.environ", {}, clear=True),
+            patch("gate17_release_readiness.require_windows_11", return_value=base),
+            patch.dict("gate17_release_readiness.os.environ", {}, clear=True),
             patch(
-                "gate17_clean_windows_install.sys.getwindowsversion",
+                "gate17_release_readiness.sys.getwindowsversion",
                 return_value=SimpleNamespace(product_type=3),
                 create=True,
             ),
         ):
             with self.assertRaisesRegex(
-                CleanWindowsInstallReceiptError,
+                ReleaseReadinessError,
                 "client workstation",
             ):
                 require_external_windows_11_workstation()
 
         with (
-            patch("gate17_clean_windows_install.require_windows_11", return_value=base),
-            patch.dict("gate17_clean_windows_install.os.environ", {}, clear=True),
+            patch("gate17_release_readiness.require_windows_11", return_value=base),
+            patch.dict("gate17_release_readiness.os.environ", {}, clear=True),
             patch(
-                "gate17_clean_windows_install.sys.getwindowsversion",
+                "gate17_release_readiness.sys.getwindowsversion",
                 return_value=SimpleNamespace(product_type=1),
                 create=True,
             ),

@@ -272,7 +272,7 @@ class Gate17WindowsGameplayReceiptTests(unittest.TestCase):
 
             with (
                 patch(
-                    "gate17_windows_gameplay_receipts.require_windows_11",
+                    "gate17_windows_gameplay_receipts.require_external_windows_11_workstation",
                     return_value={"platform": "Windows-11", "windows_build": 26200},
                 ),
                 patch(

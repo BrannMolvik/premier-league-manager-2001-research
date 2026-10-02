@@ -41,9 +41,13 @@ still identifies itself as pre-release.
   When those prerequisites close, the relevant full suite must be rerun and
   `research/GATE16_READINESS_AUDIT.md` reconciled against the then-current
   runtime.
-- Gate 17 does not yet have a verified installable release archive, clean
-  Windows 11 installation receipt, final gameplay receipts tied to one release
-  commit, or a final non-pre-release limitations document.
+- Gate 17 now has a reproducible, CI-smoke-tested Windows release-candidate
+  archive from canonical packaging work, but it does **not** yet have the
+  required external Windows 11 client-workstation evidence. A clean-install
+  receipt, the three gameplay receipts, and the final release audit must all be
+  tied to one final archive/version/commit and produced outside hosted CI. The
+  limitations document itself also remains intentionally pre-release until the
+  earlier gates and those external checks close.
 
 ## Final-review rule
 

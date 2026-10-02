@@ -19,16 +19,14 @@ from __future__ import annotations
 import argparse
 from hashlib import sha256
 import json
-import os
 from pathlib import Path, PurePosixPath
 import re
 import shutil
 import stat
 import subprocess
-import sys
 import zipfile
 
-from gate17_release_readiness import require_windows_11
+from gate17_release_readiness import require_external_windows_11_workstation
 from gate17_windows_gameplay_receipts import (
     ReleaseArtifactIdentity,
     resolve_release_artifact_identity,
@@ -42,32 +40,6 @@ class CleanWindowsInstallReceiptError(RuntimeError):
 
 PACKAGE_MANIFEST = "PACKAGE-MANIFEST.json"
 DEFAULT_EXECUTABLE = "FM2001-Windows11.exe"
-
-
-def require_external_windows_11_workstation() -> dict:
-    """Require a real Windows 11 client host, never GitHub-hosted CI.
-
-    The shared release audit's build-number gate is necessary but not enough
-    for clean-install evidence because current GitHub-hosted Windows runners are
-    Windows Server. Windows client systems report VER_NT_WORKSTATION (1).
-    """
-    windows = require_windows_11()
-    if str(os.environ.get("GITHUB_ACTIONS", "")).casefold() == "true":
-        raise CleanWindowsInstallReceiptError(
-            "clean Windows install evidence cannot be produced under GitHub Actions"
-        )
-    try:
-        product_type = int(sys.getwindowsversion().product_type)
-    except Exception as exc:
-        raise CleanWindowsInstallReceiptError(
-            "unable to verify Windows workstation product type"
-        ) from exc
-    if product_type != 1:
-        raise CleanWindowsInstallReceiptError(
-            "clean Windows install evidence requires a Windows client workstation, "
-            f"not product_type {product_type}"
-        )
-    return {**windows, "windows_product_type": product_type}
 
 
 def _sha256_file(path: Path) -> str:
