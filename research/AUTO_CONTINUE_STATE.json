@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 164: PR #96 (feature/gate13-league-tables-presenter-r164, head 68861d8435f986c34a94fa75fde07eb82fd6262c) cleanly rebases the persisted League Tables presenter onto main c5dd5c5fc9f98e05b2a17e9b1a2eaddb6e39c264. Gate-13 run 36953094233 passed 388 tests with 21 expected skips; asset-policy run 36953094185 passed; full reconstruction run 36953094137 is pending. Merge after full verification, reconcile main state, then continue strongest cloud-safe Gate-13 gap. Local container still fails before process start with caas ClientError.",
-  "last_known_main_head": "c5dd5c5fc9f98e05b2a17e9b1a2eaddb6e39c264",
+  "active_task": "Recovery 164 presenter integration is canonical on main 4a8d5132f64ccb8b247da542ec300b586e276608 after PR #96 merged as 95b566a50d749d17bcf0324b46582c9bc215b65b. Exact next cloud-safe task: extend the source-proven Squad presentation seam with six-match performance average and current assigned-role rating, then bind only exact PSquad row geometry/columns. Keep icon meanings, roster grouping, private binary staging, and Windows validation fail-closed.",
+  "last_known_main_head": "4a8d5132f64ccb8b247da542ec300b586e276608",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 164,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "ChatGPT owns recovery after stale Codex lease. Private source/Windows tasks remain deferred because trivial container execution fails; do not reinterpret as source loss.",
+  "note": "Gate-13 run 36953094233: 388 tests, 21 skips. Full suite 36953094137: 1285 tests, 22 skips. Asset policy 36953094185 passed. Local container still fails before process start with caas ClientError.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
