@@ -442,15 +442,15 @@ class OriginalGameHostTests(unittest.TestCase):
 
     def test_active_pmatchinfo_pointer_input_fails_closed_without_screen_transforms(self):
         live = presenter()
-        live.session.dispatch(1)
-        live.choose_club(12)
-        live.session.dispatch(4)
         host = OriginalGameTkHost(
             live,
             FakeRoot(),
             FakeTk,
             pmatchinfo_snapshot=fake_pmatchinfo_snapshot(),
         )
+        live.session.dispatch(StartMenuControl.NEW_GAME)
+        live.choose_club(12)
+        live.session.dispatch(TeamSelectControl.START_CONTINUE)
         host.active_pmatchinfo_origin = (20, 50)
 
         host.on_click(SimpleNamespace(x=30, y=60))
