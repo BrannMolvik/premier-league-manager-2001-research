@@ -959,7 +959,7 @@
   "gate13_league_fixtures_panel_constructor": "0x46D470",
   "gate13_league_fixtures_panel_vftable": "0x7C24B8",
   "gate13_calendar_fixtures_navigation_evidence": "research/GATE13_CALENDAR_FIXTURES_NAVIGATION.md",
-  "gate13_fixtures_results_identity_status": "league_fixtures_and_pmatchinfo_navigation_resources_geometry_text_producers_incident_predicates_tabs_exit_source_proven_seven_remaining_assets_loaded_but_unconsumed_asset_import_integration_windows_validation_open",
+  "gate13_fixtures_results_identity_status": "league_fixtures_and_pmatchinfo_navigation_resources_geometry_text_producers_incident_predicates_tabs_exit_source_proven_seven_remaining_assets_loaded_but_unconsumed_twelve_runtime_assets_exact_presenter_integration_checkpoint_info_popup_windows_validation_open",
   "gate13_calendar_fixtures_navigation_merge": "9da4c89f67aaba7b263354591497d596ca50edd1",
   "gate13_calendar_fixtures_navigation_ci_run": 36916343766,
   "gate13_calendar_fixtures_navigation_asset_policy_run": 36916343760,
@@ -1292,5 +1292,15 @@
   "gate13_pmatchinfo_pending_runtime_asset_reason": "GitHub connector binary blob handoff cannot safely carry the 179988-byte source file without truncation in the current session; do not substitute or convert it",
   "gate13_pmatchinfo_loaded_unconsumed_assets_runtime_imported": false,
   "gate13_pmatchinfo_asset_import_branch": "feature/gate13-pmatchinfo-asset-import",
-  "gate13_pmatchinfo_asset_import_partial_commit": "448c6e990153675f345ef169d8527e25dd8070fe"
+  "gate13_pmatchinfo_asset_import_partial_commit": "448c6e990153675f345ef169d8527e25dd8070fe",
+  "gate13_pmatchinfo_asset_import_merge": "b13e271e9a9014a340f6c6399256108c42f61325",
+  "gate13_pmatchinfo_asset_import_ci_run": 36941189265,
+  "gate13_pmatchinfo_asset_import_test_count": 363,
+  "gate13_pmatchinfo_asset_import_expected_skips": 21,
+  "gate13_pmatchinfo_asset_import_asset_policy_run": 36941189310,
+  "gate13_pmatchinfo_staged_runtime_asset_fidelity_verified": true,
+  "gate13_pmatchinfo_presenter_source_seam": true,
+  "gate13_pmatchinfo_presenter_complete_dialog_available": false,
+  "gate13_pmatchinfo_presenter_requires_info_popup": true,
+  "gate13_pmatchinfo_presenter_simulation_imports": false
 }
