@@ -330,6 +330,16 @@ def _complete_ordinary_cash_transfer(
     new_roster.append(player_id)
     player.club_id = buyer_id
     player.current_club_join_date = state.calendar.current_date
+
+    # 0x422F70 increments the destination club's byte +0x1ED for every
+    # completed permanent arrival. This is the same counter consumed by
+    # 0x403E70's autonomous-buyer limits; it is not autonomous-transfer-only.
+    # Keep byte storage semantics even though the normal monthly reset makes
+    # wraparound unreachable in ordinary play.
+    counters = getattr(state, "ai_transfer_buy_counter", None)
+    if counters is not None:
+        counters[buyer_id] = (int(counters.get(buyer_id, 0)) + 1) & 0xFF
+
     player.signed_for_other_club = False
     player.transfer_listed = False
     player.loan_club_id = None
