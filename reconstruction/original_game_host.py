@@ -25,6 +25,14 @@ from original_first_screen_presenter import (
     OriginalHierarchyInteraction,
 )
 from original_live_debug_view import build_original_debug_frame, endpoint_text_rgba
+from original_league_fixtures_art import (
+    OriginalLeagueFixturesGridArt,
+    load_verified_league_fixtures_grid_art,
+)
+from original_league_fixtures_resources import (
+    LEAGUE_FIXTURES_RESOURCES,
+    validate_original_league_fixtures_resources,
+)
 from original_management_canvas import (
     build_management_canvas_frame,
     build_management_pmenu_render,
@@ -87,6 +95,7 @@ class OriginalGameTkHost:
         *,
         management_presenter_factory=None,
         management_pmenu_resources=None,
+        league_fixtures_grid_art=None,
     ):
         self.presenter = presenter
         self.root = root
@@ -97,6 +106,7 @@ class OriginalGameTkHost:
         )
         self.management_presenter = None
         self.management_pmenu_resources = management_pmenu_resources
+        self.league_fixtures_grid_art = league_fixtures_grid_art
         self.last_pmenu_activation = None
         self._photos = []
         self.last_status = "Source-backed FM2001 host ready"
@@ -194,6 +204,41 @@ class OriginalGameTkHost:
                 anchor=self.tk.NW,
             )
 
+    def _draw_league_fixtures_grid_art(self, frame) -> int:
+        """Draw only PLeagueFixtures bitmaps with source-proven screen placement."""
+        if frame.presentation.panel_class != "PLeagueFixtures":
+            return 0
+        if frame.presentation.league_fixtures is None:
+            raise OriginalGameHostError(
+                "League Fixtures panel lost its source-backed matrix snapshot"
+            )
+        if not frame.presentation.league_fixtures.exact_art_staged:
+            raise OriginalGameHostError(
+                "League Fixtures panel requires all six verified original assets"
+            )
+        art = self.league_fixtures_grid_art
+        if not isinstance(art, OriginalLeagueFixturesGridArt):
+            raise OriginalGameHostError(
+                "League Fixtures renderer requires verified original grid art"
+            )
+
+        count = 0
+        for placement in art.placements:
+            png = encode_rgba_png(
+                placement.width,
+                placement.height,
+                placement.rgba,
+            )
+            image = self._photo(png)
+            self.canvas.create_image(
+                placement.x,
+                placement.y,
+                image=image,
+                anchor=self.tk.NW,
+            )
+            count += 1
+        return count
+
     def _draw_management_host(self) -> None:
         if self.management_presenter is None:
             self.management_presenter = self.management_presenter_factory(
@@ -212,6 +257,8 @@ class OriginalGameTkHost:
         self.canvas.delete("all")
         self._photos = []
 
+        panel_image_count = self._draw_league_fixtures_grid_art(frame)
+
         menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
         for overlay in menu_render.overlays:
             art = self._photo(overlay.png)
@@ -222,9 +269,15 @@ class OriginalGameTkHost:
                 anchor=self.tk.NW,
             )
 
+        panel_status = (
+            f"; {panel_image_count} source panel bitmaps rendered"
+            if panel_image_count
+            else ""
+        )
         self.last_status = (
             f"Management host active: {frame.presentation.panel_class}; "
-            "source PMenu rows rendered; surrounding management background unresolved"
+            f"source PMenu rows rendered{panel_status}; "
+            "surrounding management background unresolved"
         )
 
     def redraw(self) -> None:
@@ -378,9 +431,17 @@ def run_original_game_ui(
         game_dir,
         source_root=resolved_source_root,
     )
+    original_executable = Path(game_dir) / "FOOTBAL.EXE"
     pmenu_resources = load_verified_management_pmenu_resources(
         resolved_source_root,
-        Path(game_dir) / "FOOTBAL.EXE",
+        original_executable,
+    )
+    fixture_resources = validate_original_league_fixtures_resources(
+        resolved_source_root
+    )
+    fixture_grid_art = load_verified_league_fixtures_grid_art(
+        resolved_source_root,
+        original_executable,
     )
     import tkinter as tk
 
@@ -389,6 +450,13 @@ def run_original_game_ui(
         presenter,
         root,
         tk,
+        management_presenter_factory=lambda session: OriginalManagementPresenter(
+            session,
+            staged_league_fixture_resource_names=tuple(
+                resource.name for resource in fixture_resources
+            ),
+        ),
         management_pmenu_resources=pmenu_resources,
+        league_fixtures_grid_art=fixture_grid_art,
     )
     root.mainloop()
