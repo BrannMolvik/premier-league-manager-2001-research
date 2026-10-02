@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 164 presenter integration is canonical on main 4a8d5132f64ccb8b247da542ec300b586e276608 after PR #96 merged as 95b566a50d749d17bcf0324b46582c9bc215b65b. Exact next cloud-safe task: extend the source-proven Squad presentation seam with six-match performance average and current assigned-role rating, then bind only exact PSquad row geometry/columns. Keep icon meanings, roster grouping, private binary staging, and Windows validation fail-closed.",
+  "active_task": "Recovery 164 Squad row presenter PR #97, head 99f0e287349b7346841603d3d0a124d3ea419fb1. Gate-13 run 36954039753 passed 392 tests with 21 expected skips; asset-policy run 36954039727 passed; full reconstruction run 36954039762 remains in progress. Merge only after full success, reconcile main, then continue source-proven Squad screen/view integration if still cloud-safe.",
   "last_known_main_head": "4a8d5132f64ccb8b247da542ec300b586e276608",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
