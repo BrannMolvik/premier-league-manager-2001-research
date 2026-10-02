@@ -60,18 +60,37 @@ def _require_outside_repo(path: str | Path, repo_root: str | Path, *, label: str
     return target
 
 
+WINDOWS_RESERVED_BASENAMES = {
+    "con", "prn", "aux", "nul",
+    *(f"com{index}" for index in range(1, 10)),
+    *(f"lpt{index}" for index in range(1, 10)),
+}
+
+
 def _safe_member_path(name: str) -> PurePosixPath:
     normalized = str(name).replace("\\", "/")
     pure = PurePosixPath(normalized)
+    raw_parts = normalized.split("/")
     if (
         not normalized
         or normalized.startswith("/")
         or re.match(r"^[A-Za-z]:", normalized)
-        or any(part in ("", ".", "..") for part in pure.parts)
+        or not pure.parts
+        or any(part in ("", ".", "..") for part in raw_parts)
     ):
         raise CleanWindowsInstallReceiptError(
             f"release archive contains unsafe path: {name!r}"
         )
+    for part in pure.parts:
+        if ":" in part or part.endswith((" ", ".")):
+            raise CleanWindowsInstallReceiptError(
+                f"release archive contains unsafe Windows path: {name!r}"
+            )
+        basename = part.split(".", 1)[0].casefold()
+        if basename in WINDOWS_RESERVED_BASENAMES:
+            raise CleanWindowsInstallReceiptError(
+                f"release archive contains reserved Windows path: {name!r}"
+            )
     return pure
 
 
@@ -309,13 +328,17 @@ def run_clean_windows_install_receipt(
     executable_name: str = DEFAULT_EXECUTABLE,
 ) -> Path:
     windows = require_windows_11()
+    root = Path(repo_root).resolve()
+    archive = _require_outside_repo(
+        release_archive,
+        root,
+        label="release archive",
+    )
     identity = resolve_release_artifact_identity(
         release_version=release_version,
         repository_commit=repository_commit,
-        release_archive=release_archive,
+        release_archive=archive,
     )
-    archive = Path(release_archive).resolve()
-    root = Path(repo_root).resolve()
     install = _require_outside_repo(
         install_root,
         root,
@@ -326,6 +349,14 @@ def run_clean_windows_install_receipt(
         root,
         label="clean-install receipt directory",
     )
+    if (
+        output == install
+        or output.is_relative_to(install)
+        or install.is_relative_to(output)
+    ):
+        raise CleanWindowsInstallReceiptError(
+            "clean-install receipt directory must be disjoint from install tree"
+        )
     output.mkdir(parents=True, exist_ok=True)
     target = output / "clean_windows_install.json"
     if target.exists():
