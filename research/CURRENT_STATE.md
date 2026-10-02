@@ -79,13 +79,23 @@ Evidence:
   **1,416 tests / 22 expected skips** plus asset-policy success. Shared
   `0x64CDD0` resets day to 1 before advancing the requested calendar-month
   span.
-- **Active Gate-15 branch:** `recovery186/gate15-exact-autonomous-contract-category`
-  replaces the autonomous contract-duration valuation-category proxy with the
-  exact `0x4FA510 -> 0x4F8FF0 -> 0x410FF0` League/DummyLeague root-subset
+- **Recovery 186 exact contract category/FanFactor correction is canonical:**
+  PR #142 squash-merged as `948aa5193ab9a1003a7a640e93eca91b1dfee126`
+  after workflow `37048726841` passed **1,418 tests / 22 expected skips**
+  plus asset-policy success. Autonomous duration now uses the exact
+  `0x4FA510 -> 0x4F8FF0 -> 0x410FF0` League/DummyLeague root-subset
   index. The same source recheck corrected Gate-10 attendance: Premier League
   is subset index 0 and therefore **FanFactor1 = 0.9**, and Cup attendance uses
-  the host club's league competition rather than the Cup root. Full CI is the
-  next checkpoint. The separate due-transfer same-day ordering gap remains open.
+  the host club's league competition rather than the Cup root.
+- **Recovery 187 active Gate-15 slice:** PR #145
+  (`recovery187/gate15-exact-transfer-counter`) moves DBRClub **+0x1ED**
+  increment into shared permanent assignment `0x422F70`, removes the
+  autonomous-only duplicate, and clears the monthly arrival counter only after
+  the first day's same-date transfer/payroll/Saturday acquisition maintenance.
+  The adjacent +0x1EE season byte is source-observed, but shipped `0x403E70`
+  reads +0x1ED for both configured 3/8 thresholds, so the original quirk is
+  preserved. Asset policy has passed; full reconstruction CI is pending on the
+  branch. The separate due-transfer same-day ordering gap remains open.
 - **Recovery 186 private source access is working again:** the canonical
   511,121,336-byte disc-image ZIP was materialized from the Library, its raw
   MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical
