@@ -21,6 +21,7 @@ from competition_startup import (
     primary_mode0_cup_round_team_counts,
     primary_mode0_dummy_league_sort_draw_count,
     primary_mode0_dummy_league_sort_source_ids,
+    country_leaguebase_root_storage_order,
     country_root_competition_storage_order,
     primary_mode0_root_initialization_order,
     primary_mode0_root_finalization_order,
@@ -274,6 +275,31 @@ class OrderedCompetitionRngTests(unittest.TestCase):
         self.assertEqual(
             tuple(competition.id for competition in stored),
             (11, 12, 10, 9),
+        )
+
+    def test_country_leaguebase_subset_preserves_source_order_without_root_qsort(self):
+        competitions = (
+            Competition(50, 2, 1, None, 99, 26),
+            Competition(0, 1, 1, None, 9, 26),
+            Competition(60, 2, 1, None, 98, 26),
+            Competition(1, 1, 1, None, 10, 26),
+            Competition(2, 1, 1, None, -20, 26),
+            Competition(3, 1, 1, None, 12, 26),
+            Competition(4, 3, 1, None, 1, 26),
+            Competition(90, 1, 1, 0, 0, 26),
+            Competition(91, 1, 1, None, 0, 31),
+        )
+
+        stored = country_leaguebase_root_storage_order(
+            competitions,
+            26,
+        )
+
+        # +0x48/+0x4C is populated during the source-order scan. Cups and
+        # child competitions are excluded, and the +0x40 qsort is not reused.
+        self.assertEqual(
+            tuple(competition.id for competition in stored),
+            (0, 1, 2, 3, 4),
         )
 
     def test_primary_root_finalization_reverses_each_country_initialization_chunk(self):
