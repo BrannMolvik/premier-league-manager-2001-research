@@ -23,6 +23,7 @@ from original_first_screen_presenter import (
     OriginalFirstScreenPresenter,
     OriginalFirstScreenSnapshot,
 )
+from original_game_host import OriginalGameTkHost
 from original_front_end_layout import (
     PSTARTMENU_ACTIONS,
     SCREEN_SIZE,
@@ -288,6 +289,7 @@ def audit_management_host_contract(
     canvas_size: list[int],
     photo_dimensions: list[list[int]],
     status: str,
+    required_status_fragment: str = "entered source-proven PMenu management host",
 ) -> dict:
     """Validate the recovered MANAGEMENT host without claiming missing pixels."""
     menu_x, menu_y = PMENU_LIST_SCREEN_ORIGIN
@@ -333,7 +335,7 @@ def audit_management_host_contract(
         raise WindowsFirstScreenAuditError(
             "MANAGEMENT host drew PhotoImages before background/text recovery"
         )
-    if "entered source-proven PMenu management host" not in status:
+    if required_status_fragment not in status:
         raise WindowsFirstScreenAuditError(
             "Real Tk Start path did not report the recovered PMenu host transition"
         )
@@ -605,10 +607,120 @@ def run_real_windows_graphical_audit(
                 "Candidate PMenu feedback introduced guessed management pixels"
             )
 
+        # The default application launches OriginalGameTkHost, not the
+        # developer viewer above. Exercise that clean host in a second Tk
+        # window with a fresh backend/session so the Windows receipt proves the
+        # actual user-facing entrypoint reaches the same fail-closed MANAGEMENT
+        # boundary.
+        clean_presenter = OriginalFirstScreenPresenter(
+            FrontEndSession.for_canonical_game_dir(canonical_game_dir),
+            menu,
+            team,
+        )
+        clean_root = tk.Toplevel(root)
+        clean_host = OriginalGameTkHost(clean_presenter, clean_root, tk)
+        try:
+            _pump(root)
+            clean_initial_size = [
+                int(clean_host.canvas.winfo_width()),
+                int(clean_host.canvas.winfo_height()),
+            ]
+            if clean_initial_size != list(SCREEN_SIZE):
+                raise WindowsFirstScreenAuditError(
+                    "Default clean host did not open on the fixed 800x600 canvas"
+                )
+
+            _click(clean_host.canvas, root, new_game_rect)
+            if clean_presenter.session.navigation.screen is not FrontEndScreen.TEAM_SELECT:
+                raise WindowsFirstScreenAuditError(
+                    "Default clean host New Game did not reach TeamSelect"
+                )
+            clean_team = clean_presenter.snapshot()
+            if len(clean_team.club_rows) != 20:
+                raise WindowsFirstScreenAuditError(
+                    "Default clean host TeamSelect did not expose 20 native clubs"
+                )
+            clean_club = clean_team.club_rows[0]
+            clean_host.canvas.event_generate(
+                "<Button-1>",
+                x=clean_club.rect.x + 1,
+                y=clean_club.rect.y + 1,
+            )
+            _pump(root)
+            if clean_presenter.session.selected_club_id != clean_club.source_id:
+                raise WindowsFirstScreenAuditError(
+                    "Default clean host native club click lost canonical identity"
+                )
+
+            _click(clean_host.canvas, root, TEAMSELECT_START_RECT)
+            if clean_presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
+                raise WindowsFirstScreenAuditError(
+                    "Default clean host Start did not enter MANAGEMENT"
+                )
+            if clean_host.management_presenter is None:
+                raise WindowsFirstScreenAuditError(
+                    "Default clean host did not construct its PMenu presenter"
+                )
+            clean_frame = build_management_canvas_frame(
+                clean_host.management_presenter
+            )
+            clean_canvas_size = [
+                int(clean_host.canvas.winfo_width()),
+                int(clean_host.canvas.winfo_height()),
+            ]
+            clean_photo_dimensions = _actual_photo_dimensions(clean_host)
+            clean_contract = audit_management_host_contract(
+                clean_frame,
+                canvas_size=clean_canvas_size,
+                photo_dimensions=clean_photo_dimensions,
+                status=str(clean_host.last_status),
+                required_status_fragment="Management host active",
+            )
+
+            clean_before_candidate = clean_host.management_presenter.snapshot()
+            clean_host.canvas.event_generate("<Button-1>", x=600, y=100)
+            _pump(root)
+            clean_after_candidate = clean_host.management_presenter.snapshot()
+            if "PMenu candidate row only" not in clean_host.last_status:
+                raise WindowsFirstScreenAuditError(
+                    "Default clean host did not expose source-bounded PMenu candidate feedback"
+                )
+            if "no navigation dispatched" not in clean_host.last_status:
+                raise WindowsFirstScreenAuditError(
+                    "Default clean host candidate feedback lost fail-closed navigation"
+                )
+            if (
+                clean_after_candidate.panel_code != clean_before_candidate.panel_code
+                or clean_after_candidate.menu.selected_child_id
+                != clean_before_candidate.menu.selected_child_id
+            ):
+                raise WindowsFirstScreenAuditError(
+                    "Default clean host candidate click mutated PMenu selection"
+                )
+            if _actual_photo_dimensions(clean_host):
+                raise WindowsFirstScreenAuditError(
+                    "Default clean host candidate feedback introduced guessed pixels"
+                )
+
+            clean_host_receipt = {
+                "new_game_to_teamselect": True,
+                "native_club_selection": True,
+                "selected_club_id": clean_club.source_id,
+                "teamselect_start_to_management": True,
+                "candidate_pmenu_hit_test_verified": True,
+                "candidate_pmenu_activation_dispatched": False,
+                **clean_contract,
+            }
+        finally:
+            try:
+                clean_root.destroy()
+            except Exception:
+                pass
+
         return {
-            "schema_version": 4,
+            "schema_version": 5,
             "passed": True,
-            "audit_kind": "real_windows_tk_first_screen_and_management_graphical_smoke",
+            "audit_kind": "real_windows_tk_first_screen_management_and_clean_host_smoke",
             "platform": platform.platform(),
             "python_version": sys.version.split()[0],
             "tk_patchlevel": tk_patchlevel,
@@ -642,10 +754,12 @@ def run_real_windows_graphical_audit(
                 "candidate_pmenu_activation_dispatched": False,
                 **management_contract,
             },
+            "clean_application_host": clean_host_receipt,
             "navigation": {
                 "new_game_to_teamselect_via_real_tk_binding": True,
                 "teamselect_back_to_menu_via_real_tk_binding": True,
                 "teamselect_selected_club_start_to_management_via_real_tk_binding": True,
+                "default_clean_host_start_to_management_via_real_tk_binding": True,
             },
             "unresolved_boundaries": [
                 "Surrounding management background pixels",
