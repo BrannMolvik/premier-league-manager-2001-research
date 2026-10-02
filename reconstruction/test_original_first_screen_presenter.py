@@ -165,6 +165,8 @@ class OriginalFirstScreenPresenterTests(unittest.TestCase):
         self.assertIs(outcome.transition.command,
                       FrontEndCommand.TEAMSELECT_START_CONTINUE)
         self.assertEqual(outcome.selected_manager, ("manager", 12))
+        self.assertIs(outcome.transition.screen, FrontEndScreen.MANAGEMENT)
+        self.assertIs(presenter.session.navigation.screen, FrontEndScreen.MANAGEMENT)
         self.assertTrue(presenter.session.started)
         self.assertEqual(built[0].chosen, [12])
 
