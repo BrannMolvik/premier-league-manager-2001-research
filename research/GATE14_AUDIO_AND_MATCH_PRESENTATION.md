@@ -85,6 +85,17 @@ current execution sandbox fails before starting even trivial archive-inspection
 processes. Therefore this recovery cannot honestly add new loose-audio,
 sound-bank, or cue-path filenames from fresh source enumeration.
 
+The persisted verified Joliet inventory does establish one additional bounded
+fact: the disc contains **64 `.bnk` files**. Their individual paths and runtime
+semantics are not persisted here, so they remain neutral **bank candidates**
+rather than being called music, commentary, crowd, UI, or match effects.
+
+`reconstruction/gate14_audio_source_inventory.py` now makes the next healthy
+private-source pass deterministic. It reads the existing ISO/Joliet or raw
+MODE1/2352 catalog, records every `.bnk` path neutrally, separately recognizes
+the two already source-bound startup TGQs, and emits an explicit semantic
+boundary saying bank suffix/entry meanings are still unrecovered.
+
 This is an infrastructure blocker, not a source-availability blocker. Existing
 startup-FMV evidence remains valid. New menu/login or match-audio bank semantics
 must wait for either:
