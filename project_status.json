@@ -1679,5 +1679,13 @@
     "4": "Conference",
     "5": "Conference 2 DummyLeague"
   },
-  "gate15_autonomous_contract_category_recovery": 186
+  "gate15_autonomous_contract_category_recovery": 186,
+  "gate15_permanent_arrival_counter_exact": true,
+  "gate15_permanent_arrival_counter_runtime_byte": "DBRClub +0x1ED",
+  "gate15_permanent_arrival_counter_increment_path": "0x422F70",
+  "gate15_permanent_arrival_counter_scope": "all completed permanent arrivals",
+  "gate15_permanent_arrival_counter_reset": "day 1 after same-day transfer/payroll/Saturday autonomous maintenance",
+  "gate15_permanent_arrival_counter_season_byte_observed": "DBRClub +0x1EE",
+  "gate15_permanent_arrival_counter_shipped_gate_quirk": "0x403E70 reads +0x1ED for both MaxPlayersBuyMonthly and MaxPlayersBuySeason",
+  "gate15_permanent_arrival_counter_recovery": 187
 }
