@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 162 checkpoint is PR #95 on feature/gate13-league-tables-rows, head 48075e1f5e5a007b7a4937eaebceac7868cd667c. Source-bound CLeagueTableList/PLeagueTableRow, 24x16 native row layout, exact P/W/D/L/F/A/Pts field projection with Pts=3*W+D, and all 15 original league_tables graphics. Validate/merge PR #95, then integrate this contract through the Gate-13 presentation seam without simulation imports and continue the next canonical presentation gap / Windows validation work.",
-  "last_known_main_head": "3c19c4fff22cc397fe3728e8f6e21fc7896075e0",
+  "active_task": "Recovery 162 merged PR #95 as 7578e465fbc952a74ee1268b698dde7d26ee2a8b; Gate-13 run 36949336841 passed 379 tests with 21 expected skips and asset-policy run 36949336761 passed. Exact task: integrate the source-bound League Tables selector/header/body/row contract through a simulation-independent presenter, fail closed on unproven row-art selection or unstaged original bytes, and keep +0x7FC..+0x97C as a deferred private-source trace until the execution sandbox works; then continue Gate-13 closure.",
+  "last_known_main_head": "c5dd5c5fc9f98e05b2a17e9b1a2eaddb6e39c264",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 162,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 162 source checkpoint persisted; do not redo row/resource tracing. PR #95 CI is the immediate validation boundary.",
+  "note": "Do not redo merged Recovery 162. Private source archive is present/materialized, but this recovery's CAAS execution paths failed before byte processing. Continue cloud-safe integration and verification.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
