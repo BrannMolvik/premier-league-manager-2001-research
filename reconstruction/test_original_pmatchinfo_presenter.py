@@ -33,10 +33,10 @@ class OriginalPMatchInfoPresenterTests(unittest.TestCase):
             for index, name in enumerate(PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES)
         }
 
-    def test_partial_snapshot_preserves_exact_source_layout_without_popup(self):
+    def test_complete_snapshot_preserves_exact_source_layout_with_popup(self):
         snapshot = build_staged_pmatchinfo_snapshot(self.staged())
         self.assertEqual(snapshot.dialog_size, (760, 500))
-        self.assertFalse(snapshot.complete_dialog_background_available)
+        self.assertTrue(snapshot.complete_dialog_background_available)
         self.assertEqual(snapshot.selected_tab_event_id, 1)
         self.assertEqual(
             tuple((tab.event_id, tab.label, tab.panel_class) for tab in snapshot.tabs),
@@ -47,7 +47,7 @@ class OriginalPMatchInfoPresenterTests(unittest.TestCase):
             ),
         )
         self.assertEqual(len(snapshot.text_slots), 6)
-        self.assertEqual(len(snapshot.art), 8)
+        self.assertEqual(len(snapshot.art), 9)
         self.assertEqual(
             tuple((item.resource_name, item.rect) for item in snapshot.art),
             (
@@ -59,6 +59,7 @@ class OriginalPMatchInfoPresenterTests(unittest.TestCase):
                 ("info_player", (0, 0, 274, 16)),
                 ("info_player_disabled", (0, 0, 252, 16)),
                 ("pitch_normal", (233, -2, 294, 78)),
+                ("info_popup", (0, 0, 760, 500)),
             ),
         )
 
@@ -79,13 +80,15 @@ class OriginalPMatchInfoPresenterTests(unittest.TestCase):
             expected.extend(source[start:start + 252 * 4])
         self.assertEqual(strip.rgba, bytes(expected))
 
-    def test_complete_dialog_fails_closed_without_exact_popup(self):
+    def test_staged_dialog_fails_closed_if_exact_popup_is_missing(self):
+        decoded = self.staged()
+        decoded.pop("info_popup")
         with self.assertRaisesRegex(
             OriginalPMatchInfoPresentationError,
-            "requires exact info_popup.444",
+            "Missing decoded staged PMatchInfo art: info_popup",
         ):
             build_staged_pmatchinfo_snapshot(
-                self.staged(),
+                decoded,
                 require_complete_dialog=True,
             )
 
