@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 172 continuation from main 51b056b932f6cc4ec6bd8856f503135675411dcd. Extend the integrated real-Windows/Tk Gate-13 audit through native club selection -> TeamSelect Start -> MANAGEMENT/PMenu host and exact PMenu (599,96,201,504) / fresh PSquadScreen (0,79,800,520) geometry. Keep unresolved management background/text pixels and PMenu row activation semantics fail-closed.",
-  "last_known_main_head": "51b056b932f6cc4ec6bd8856f503135675411dcd",
+  "active_task": "Gate 13 remains the active validation gate. Exact PMenu text/background and native row activation/event ownership are blocked on fresh private executable tracing because the process sandbox still fails before start; schema-5 real Windows receipt is pending. Under deferred-blocker policy, continue independent cloud-safe Gate 14 startup-media playback orchestration that consumes only verified derivatives, preserves canonical order, and does not invent skip/fade/input semantics.",
+  "last_known_main_head": "343acf47cd0c9af9c3ca372c11f90dff38aada78",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 172,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 172 resumed exact canonical Gate 13 Windows/Tk audit task.",
+  "note": "Recovery 172 state refreshed after clean-host and schema-5 audit integration. Main 343acf47... is canonical; continuing cloud-safe Gate 14 groundwork while Gate 13 private/local blockers remain explicit.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
