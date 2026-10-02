@@ -10117,3 +10117,27 @@ Next: extend the Windows audit contract to exercise the explicit
 source-accepted action seam separately from ordinary non-activating Tk hits,
 then resume the private PMenu text/control-acceptance trace when execution
 recovers. A fresh real Windows 11 audit receipt is still required.
+
+## 2 October Recovery 175 - schema-6 Windows PMenu audit contract
+
+PR #112 squash-merged as `f6995c0e6b90c9e06a7d6309c7ffb2e49f26f376`.
+The pending real-Windows audit is now schema 6. It keeps real Tk PMenu
+pointer clicks candidate-only/no-navigation, then separately invokes the
+explicit source-accepted callback seam to verify Calendar root expansion,
+League Fixtures dispatch, TABLES root expansion and League Tables dispatch.
+The audit requires zero guessed management PhotoImages throughout and
+records that Tk-event equivalence is not claimed.
+
+Verification on PR head `ffdd95bc02639b8355917e57ae139ebcb516c03c`:
+
+- Gate-13 run `36987669876`: **442 tests passed, 21 expected skips**;
+- asset-policy run `36987669896`: passed.
+
+A fresh real Windows 11 schema-6 receipt remains pending. Private tracing
+for exact PMenu text origin/clipping, surrounding application-owned
+management pixels and original control-acceptance/Tk-event equivalence
+remains blocked by the process-start `caas.internal.errors.ClientError`.
+
+Next: audit already source-proven Squad/PMenu presentation assets and
+geometry for the smallest recognizable cloud-safe management landing that
+does not require those unresolved pixels.
