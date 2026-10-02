@@ -73,6 +73,13 @@ Evidence:
   transfer-order gaps for another item that is already source-bounded or can be
   fixed from persisted evidence. Private-executable-dependent gaps remain
   deferred rather than guessed.
+- **Recovery 186 Gate-15 transfer-window lifecycle:** canonical
+  country bytes `Static.dat +28..+35` are now mapped as four transfer boundary
+  pairs. The runtime starts country `+0x54` open and XOR-toggles it on each
+  exact materialized boundary through `0x411850 -> 0x411190 -> 0x4112D0 ->
+  0x411380`. England closes on 30 March 2001 and reopens on 31 May 2001.
+  Branch verification is pending CI; the separate due-transfer same-day ordering
+  gap remains open.
 - **Recovery 186 source retry:** the canonical 511,121,336-byte original-source
   ZIP was successfully materialized again, but the fresh sandbox then failed
   before starting the archive-inspection process. No FastView source path,

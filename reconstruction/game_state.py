@@ -6,7 +6,7 @@ from time import time
 from typing import Callable, Iterable
 
 from competition_startup import country_root_competition_storage_order
-from competition_state import PremierLeagueState
+from competition_state import PremierLeagueState, season_weekday_date
 from cup_progression import (
     CupMatchCompletion,
     CupMatchResolutionSnapshot,
@@ -987,6 +987,53 @@ class GameState:
         )
         return daily_draws, weekly_draws
 
+    def run_country_transfer_window_day(self) -> tuple[int, ...]:
+        """Apply the exact DBRCountry +0x54 transfer-window boundary toggles.
+
+        Runtime country initialization copies four packed (week, weekday)
+        pairs from Static.dat +28..+35 into DBRCountry +0x24..+0x2B.
+        0x411020 materializes each enabled pair as:
+
+            first Monday on/after July 1
+            + 7 * (week - 1)
+            + (weekday - 1)
+
+        and daily 0x411190 -> 0x4112D0 XOR-toggles +0x54 once for every
+        enabled boundary equal to the current date. Preserve multiplicity:
+        duplicate source dates would toggle more than once.
+        """
+        on_date = self.calendar.current_date
+        season_year = on_date.year if on_date.month >= 7 else on_date.year - 1
+        toggled: list[int] = []
+
+        for country_id, country in self.countries.items():
+            boundaries = tuple(
+                getattr(country, "transfer_window_boundaries", ())
+            )
+            if not boundaries:
+                continue
+
+            for week, weekday in boundaries:
+                week = int(week)
+                weekday = int(weekday)
+                # The executable uses the weekday byte as the enable flag.
+                if weekday <= 0:
+                    continue
+                boundary_date = season_weekday_date(
+                    season_year,
+                    week - 1,
+                    weekday,
+                )
+                if boundary_date != on_date:
+                    continue
+                current = bool(
+                    self.country_transfer_window_open.get(int(country_id), True)
+                )
+                self.country_transfer_window_open[int(country_id)] = not current
+                toggled.append(int(country_id))
+
+        return tuple(toggled)
+
     def run_weekly_ai_transfer_maintenance(
         self,
         rng=None,
@@ -1707,6 +1754,9 @@ class GameState:
 
         self.run_due_transfer_maintenance()
         self.run_weekly_player_payroll()
+        # Country +0x54 is toggled by the daily country pass before the
+        # global Saturday autonomous-acquisition pass consumes that gate.
+        self.run_country_transfer_window_day()
         self.run_weekly_ai_transfer_maintenance()
         return self.calendar.current_date
 
@@ -2138,6 +2188,7 @@ class GameState:
             user_controlled_club_id=self.user_controlled_club_id,
         )
         self.run_weekly_player_payroll()
+        self.run_country_transfer_window_day()
         self.run_weekly_ai_transfer_maintenance(
             rng,
             user_controlled_club_id=self.user_controlled_club_id,
@@ -2179,6 +2230,7 @@ class GameState:
             user_controlled_club_id=self.user_controlled_club_id,
         )
         self.run_weekly_player_payroll()
+        self.run_country_transfer_window_day()
         self.run_weekly_ai_transfer_maintenance(
             rng,
             user_controlled_club_id=self.user_controlled_club_id,

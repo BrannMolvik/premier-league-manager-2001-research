@@ -10354,3 +10354,21 @@ work may continue under the deferred-blocker policy.
   Legacy-save/materialized-event compatibility remains explicitly bounded, not
   erased.
 - No other Gate-15 gap is closed by this disposition.
+
+
+### Recovery 186 - exact country transfer-window lifecycle
+
+- Recovered canonical country transfer boundary bytes from `Static.dat`
+  `+28..+35` as four `(week, weekday)` pairs and tied them to runtime
+  `DBRCountry +0x24..+0x2B`.
+- Proved fresh gate `+0x54 = 1`, exact `0x64D500` boundary construction,
+  and daily `0x411380` XOR toggling through the country dispatcher.
+- Proved the fresh boundary anchor is 3 July 2000, the first Monday on/after
+  July 1, before country schedule initialization materializes the dates.
+- England's shipped data closes autonomous transfer acquisition on
+  **30 March 2001** and reopens it on **31 May 2001**.
+- Integrated all four source pairs into `CountryDefinition` and the daily
+  `GameState` path immediately before weekly autonomous acquisitions.
+- Existing schema-34 save persistence already stores the live country gate
+  boolean, so no schema bump is required.
+- The separate due-transfer same-day fixture-order gap remains open.
