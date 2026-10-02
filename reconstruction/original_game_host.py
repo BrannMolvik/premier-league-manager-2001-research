@@ -26,6 +26,7 @@ from original_first_screen_presenter import (
 from original_live_debug_view import build_original_debug_frame, endpoint_text_rgba
 from original_management_canvas import build_management_canvas_frame
 from original_management_presenter import OriginalManagementPresenter
+from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from original_teamselect_resources import load_verified_original_teamselect_inputs
 
@@ -218,9 +219,27 @@ class OriginalGameTkHost:
 
     def on_click(self, event) -> None:
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
-            self.last_status = (
-                "Management PMenu input is not yet source-bound in the live host"
+            if self.management_presenter is None:
+                self.management_presenter = self.management_presenter_factory(
+                    self.presenter.session
+                )
+            frame = build_management_canvas_frame(self.management_presenter)
+            candidate = candidate_pmenu_row_at_screen_point(
+                frame.presentation.menu,
+                int(event.x),
+                int(event.y),
             )
+            if candidate is None:
+                self.last_status = (
+                    "Management host active; no source-bounded PMenu candidate "
+                    f"row at ({int(event.x)}, {int(event.y)})"
+                )
+            else:
+                self.last_status = (
+                    "PMenu candidate row only: "
+                    f"{candidate.caption} (menu ID {candidate.menu_id:#x}); "
+                    "native activation unresolved; no navigation dispatched"
+                )
             return
         try:
             result = self.presenter.pointer(int(event.x), int(event.y))
