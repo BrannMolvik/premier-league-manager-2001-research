@@ -34,6 +34,11 @@ from original_game_host import (
     play_configured_startup_media,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_pmatchinfo_presenter import build_staged_pmatchinfo_snapshot
+from original_pmatchinfo_resources import (
+    PMATCHINFO_RESOURCE_BY_NAME,
+    PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES,
+)
 from original_pmenu_chrome import PMENU_FONT_SOURCE_PATH
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
 from original_squad_top_controls import OriginalSquadTopResources
@@ -137,6 +142,25 @@ def fake_league_tables_header_art():
     return build_league_tables_header_art(
         image,
         staged_resource_names=tuple(item.name for item in LEAGUE_TABLES_RESOURCES),
+    )
+
+
+def fake_pmatchinfo_snapshot():
+    decoded = {}
+    for index, name in enumerate(PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES):
+        resource = PMATCHINFO_RESOURCE_BY_NAME[name]
+        marker = (31 + index * 7) % 240
+        decoded[name] = EA444DecodedImage(
+            resource.size[0],
+            resource.size[1],
+            bytes((marker, marker, marker, 255))
+            * (resource.size[0] * resource.size[1]),
+            consumed_bits=0,
+            transparent_pixels=0,
+        )
+    return build_staged_pmatchinfo_snapshot(
+        decoded,
+        require_complete_dialog=True,
     )
 
 
@@ -339,6 +363,101 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(len(host.canvas.images), 1)
         self.assertEqual(len(host._photos), 1)
         self.assertEqual(host.canvas.images[0][:2], LEAGUE_TABLES_BAR_RECT[:2])
+
+    def test_pmatchinfo_draws_only_exact_full_dialog_background_at_source_origin(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            pmatchinfo_snapshot=fake_pmatchinfo_snapshot(),
+        )
+        host.canvas.delete("all")
+        host._photos = []
+        host.active_pmatchinfo_origin = (20, 50)
+
+        count = host._draw_pmatchinfo_dialog()
+
+        self.assertEqual(count, 1)
+        self.assertEqual(len(host.canvas.images), 1)
+        self.assertEqual(len(host._photos), 1)
+        self.assertEqual(host.canvas.images[0][:2], (20, 50))
+
+    def test_pmatchinfo_dialog_fails_closed_without_verified_snapshot(self):
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
+        host.active_pmatchinfo_origin = (20, 50)
+        with self.assertRaisesRegex(
+            OriginalGameHostError,
+            "verified source-backed snapshot",
+        ):
+            host._draw_pmatchinfo_dialog()
+
+    def test_source_resolved_pmatchinfo_gate_clamp_and_exit_remain_explicit(self):
+        live = presenter()
+        live.session.dispatch(1)
+        live.choose_club(12)
+        live.session.dispatch(4)
+
+        host = OriginalGameTkHost(
+            live,
+            FakeRoot(),
+            FakeTk,
+            pmatchinfo_snapshot=fake_pmatchinfo_snapshot(),
+        )
+
+        action = SimpleNamespace(panel_class="PMatchInfo", size=(760, 500))
+
+        class MatchInfoPresenter:
+            def fixture_match_info_action(self, *, fixture_present, linked_context_available):
+                if not fixture_present or not linked_context_available:
+                    return None
+                return action
+
+        host.management_presenter = MatchInfoPresenter()
+
+        with patch.object(host, "redraw") as redraw:
+            self.assertIsNone(
+                host.apply_source_resolved_fixture_match_info_action(
+                    fixture_present=True,
+                    linked_context_available=False,
+                    pointer_x=400,
+                    pointer_y=300,
+                )
+            )
+            self.assertIsNone(host.active_pmatchinfo_origin)
+            redraw.assert_not_called()
+
+            opened = host.apply_source_resolved_fixture_match_info_action(
+                fixture_present=True,
+                linked_context_available=True,
+                pointer_x=799,
+                pointer_y=599,
+            )
+            self.assertIs(opened, action)
+            self.assertEqual(host.active_pmatchinfo_origin, (39, 99))
+            redraw.assert_called_once_with()
+
+        with patch.object(host, "redraw") as redraw:
+            host.apply_source_accepted_pmatchinfo_exit()
+            self.assertIsNone(host.active_pmatchinfo_origin)
+            redraw.assert_called_once_with()
+
+    def test_active_pmatchinfo_pointer_input_fails_closed_without_screen_transforms(self):
+        live = presenter()
+        live.session.dispatch(1)
+        live.choose_club(12)
+        live.session.dispatch(4)
+        host = OriginalGameTkHost(
+            live,
+            FakeRoot(),
+            FakeTk,
+            pmatchinfo_snapshot=fake_pmatchinfo_snapshot(),
+        )
+        host.active_pmatchinfo_origin = (20, 50)
+
+        host.on_click(SimpleNamespace(x=30, y=60))
+
+        self.assertIn("pointer interaction remains fail-closed", host.last_status)
+        self.assertEqual(host.active_pmatchinfo_origin, (20, 50))
 
     def test_league_tables_header_fails_closed_without_complete_staging(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
