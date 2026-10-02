@@ -28,6 +28,7 @@ from original_live_debug_view import (
 )
 from original_management_canvas import build_management_canvas_frame
 from original_management_presenter import OriginalManagementPresenter
+from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
 from original_hierarchy_debug_inspector import (
     OriginalHierarchyDebugError, inspect_original_hierarchy_source_frames,
 )
@@ -343,9 +344,29 @@ class OriginalFirstScreenTkDebug:
     def on_original_click(self, event):
         """Canvas uses fixed original 800x600 unscaled source coordinates."""
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
-            self.status.set(
-                "Management host active; PMenu hit-testing is not yet integrated."
+            if self.management_presenter is None:
+                self.management_presenter = self.management_presenter_factory(
+                    self.presenter.session
+                )
+            frame = build_management_canvas_frame(self.management_presenter)
+            candidate = candidate_pmenu_row_at_screen_point(
+                frame.presentation.menu,
+                int(event.x),
+                int(event.y),
             )
+            if candidate is None:
+                self.status.set(
+                    "Management host active; no source-bounded PMenu candidate "
+                    f"row at ({int(event.x)}, {int(event.y)})."
+                )
+            else:
+                self.status.set(
+                    "PMenu candidate row only: "
+                    f"visible index {candidate.visible_index}, "
+                    f"{candidate.caption!r}, menu ID {candidate.menu_id:#x}. "
+                    "Native activation/event ownership is unresolved; "
+                    "no navigation was dispatched."
+                )
             self.redraw()
             return
         try:
