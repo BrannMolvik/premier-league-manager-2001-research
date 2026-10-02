@@ -40,6 +40,8 @@ class SquadRowView:
     match_unavailable: bool
     condition: int
     form_state: int
+    recent_form_average: float
+    current_role_rating: int
     morale: int
     injured: bool
     suspended: bool
@@ -950,6 +952,8 @@ class ManagementSourceDataBridge:
         for source_index, player in enumerate(tuple(squad())):
             player_id = getattr(player, "index", None)
             positions = getattr(player, "positions", None)
+            history_average = getattr(player, "match_performance_average", None)
+            current_role_rating = getattr(player, "current_role_rating", None)
             if type(player_id) is not int:
                 raise ManagementPresentationError("Runtime player ID is unavailable")
             if (
@@ -959,6 +963,25 @@ class ManagementSourceDataBridge:
             ):
                 raise ManagementPresentationError(
                     f"Player {player_id} has no recovered three-position tuple"
+                )
+            if not callable(history_average):
+                raise ManagementPresentationError(
+                    f"Player {player_id} has no recovered six-match performance average"
+                )
+            if not callable(current_role_rating):
+                raise ManagementPresentationError(
+                    f"Player {player_id} has no recovered current-role rating"
+                )
+            try:
+                recent_form_average = float(history_average())
+                assigned_role_rating = current_role_rating()
+            except (TypeError, ValueError) as exc:
+                raise ManagementPresentationError(
+                    f"Player {player_id} has invalid recovered Squad row values"
+                ) from exc
+            if type(assigned_role_rating) is not int:
+                raise ManagementPresentationError(
+                    f"Player {player_id} current-role rating must be an integer"
                 )
             rows.append(SquadRowView(
                 source_roster_index=source_index,
@@ -970,6 +993,8 @@ class ManagementSourceDataBridge:
                 match_unavailable=bool(getattr(player, "base_match_unavailable")),
                 condition=int(getattr(player, "condition")),
                 form_state=int(getattr(player, "form_state")),
+                recent_form_average=recent_form_average,
+                current_role_rating=assigned_role_rating,
                 morale=int(getattr(player, "morale")),
                 injured=bool(getattr(player, "injured")),
                 suspended=bool(getattr(player, "suspended")),
