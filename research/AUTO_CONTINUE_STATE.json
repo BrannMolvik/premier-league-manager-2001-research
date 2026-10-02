@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 191: canonical main is 8ec4dec9f32a98362f29fccaecec6176e1fef5a8 with PR #154 clean-install producer and PR #157 evidence assembler merged. Active PR #158 head f5584ffd8d5137963cba61e1cc4df27f4088447e centralizes the Gate-17 external Windows workstation guard so final audit, gameplay receipts and clean-install receipts reject GitHub Actions and Windows Server/non-workstation hosts. Verify full CI on the final branch head, merge only if green, then continue the next Gate-17 work-ahead step without weakening the requirement for real external Windows 11 receipts. Gate 13 remains the earliest incomplete validation gate.",
-  "last_known_main_head": "8ec4dec9f32a98362f29fccaecec6176e1fef5a8",
+  "active_task": "Recovery 192: PR #158 is canonical at main 9fe93ea5c87e87b6e2db866205f8289e0bac83c6 after 1,464 tests / 22 expected skips plus Windows package/freeze/smoke and asset-policy success. Active PR #159 head 132a349b560652c4608bdb4a49c52c15309c4d2b independently validates every external Gate-17 receipt host record: windows_11=true, build>=22000, windows_product_type=1. Verify full CI and merge only if green. Then continue the next cloud-safe Gate-17 external-validation workflow improvement; Gate 13 remains earliest incomplete validation gate and private process execution still fails with caas ClientError.",
+  "last_known_main_head": "9fe93ea5c87e87b6e2db866205f8289e0bac83c6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 191,
+  "recovery_generation": 192,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #158 contains the shared external Windows client-workstation guard plus regression coverage. It does not create any external receipt or close Gate 17.",
+  "note": "External Windows evidence producers are guarded on canonical main. PR #159 adds independent receipt-metadata validation so stale/copied evidence cannot bypass host provenance checks.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
