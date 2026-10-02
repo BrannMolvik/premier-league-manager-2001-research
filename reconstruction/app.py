@@ -1,5 +1,6 @@
 from __future__ import annotations
 import argparse
+import json
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -11,6 +12,7 @@ from original_game_host import run_original_game_ui
 from startup_media_command_backend import SynchronousCommandStartupMediaBackend
 from internal_save import load_human_gameplay, save_human_gameplay
 from match_team_setup import TeamTacticalState
+from runtime_layout import application_root, bundled_source_root
 
 DEFAULT_GAME_DIR = Path(r'C:\Games\FM2001')
 
@@ -653,6 +655,42 @@ class App(tk.Tk):
         )
         ttk.Label(f, text=text, justify='left', font=('Segoe UI', 11)).pack(anchor='nw')
 
+PACKAGE_SMOKE_REQUIRED = (
+    "English.str",
+    "FM2001_Art/Generic/main_menu/main_menu_bground.444",
+    "FM2001_Art/Generic/menu_popup/menu_anim.444",
+    "FM2001_Art/Generic/match_report/info_popup.444",
+    "Fonts/Zurich_XCn_BT_16pixel.fnt",
+)
+
+
+def package_smoke_report() -> dict:
+    """Fail-closed packaged-runtime probe that requires no user game data."""
+    app_root = application_root()
+    root = bundled_source_root()
+    provenance = app_root / "original_assets" / "MANIFEST.md"
+    missing = [
+        relative
+        for relative in PACKAGE_SMOKE_REQUIRED
+        if not (root / Path(relative)).is_file()
+    ]
+    if not provenance.is_file():
+        missing.insert(0, "original_assets/MANIFEST.md")
+    if missing:
+        raise RuntimeError(
+            "Packaged runtime is missing required provenance-tracked assets: "
+            + ", ".join(missing)
+        )
+    return {
+        "passed": True,
+        "application_root": str(app_root),
+        "source_root": str(root),
+        "provenance_manifest": str(provenance),
+        "required_asset_count": len(PACKAGE_SMOKE_REQUIRED),
+        "external_game_data_required": True,
+    }
+
+
 def choose_dir() -> Path | None:
     root = tk.Tk()
     root.withdraw()
@@ -663,6 +701,11 @@ def choose_dir() -> Path | None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('game_dir', nargs='?', default=str(DEFAULT_GAME_DIR))
+    ap.add_argument(
+        '--package-smoke',
+        action='store_true',
+        help='Verify frozen runtime resource layout without loading user-owned game data.',
+    )
     ap.add_argument(
         '--prototype-ui',
         action='store_true',
@@ -692,6 +735,9 @@ def main():
         help='Repeatable argument passed to the configured startup-media player before the media path.',
     )
     args = ap.parse_args()
+    if args.package_smoke:
+        print(json.dumps(package_smoke_report(), sort_keys=True))
+        return
     game_dir = Path(args.game_dir)
     if not (game_dir / 'Master.dat').exists():
         game_dir = choose_dir()
