@@ -10,6 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from ea444_decoder import EA444DecodedImage
+from ea_font import EAFont
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndScreen
 from gate13_management_source_data import ClubHeaderView
@@ -27,7 +28,10 @@ from original_game_host import (
     play_configured_startup_media,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_pmenu_chrome import PMENU_FONT_SOURCE_PATH
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
+from original_squad_top_controls import OriginalSquadTopResources
+
 from original_teamselect_resources import assemble_original_teamselect_inputs
 from test_original_pstartmenu_resources import fixture as menu_fixture
 from test_original_teamselect_resources import fixture as team_fixture
@@ -77,6 +81,22 @@ def fake_pmenu_render():
                 png=b"\x89PNG\r\n\x1a\nsource-backed-test-overlay",
             ),
         ),
+    )
+
+
+def fake_squad_top_resources():
+    root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+    font = EAFont.from_bytes((root / PMENU_FONT_SOURCE_PATH).read_bytes())
+    width, height = 73, 575
+    return OriginalSquadTopResources(
+        EA444DecodedImage(
+            width,
+            height,
+            bytes((17, 17, 17, 255)) * (width * height),
+            consumed_bits=0,
+            transparent_pixels=0,
+        ),
+        font,
     )
 
 
@@ -164,6 +184,7 @@ class OriginalGameHostTests(unittest.TestCase):
                 FakeTk,
                 management_presenter_factory=management_factory,
                 management_pmenu_resources=object(),
+                squad_top_resources=fake_squad_top_resources(),
             )
 
             self.assertEqual(root.values["title"], "Premier League Manager 2001")
@@ -185,8 +206,9 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
             self.assertTrue(live.session.started)
             self.assertEqual(live.session.gameplay.selections, [12])
-            self.assertEqual(len(host.canvas.images), 1)
+            self.assertEqual(len(host.canvas.images), 7)
             self.assertIn("source PMenu rows rendered", host.last_status)
+            self.assertIn("6 source panel bitmaps rendered", host.last_status)
             self.assertIn("surrounding management background unresolved", host.last_status)
 
             before = host.management_presenter.snapshot()
@@ -198,7 +220,7 @@ class OriginalGameHostTests(unittest.TestCase):
             after = host.management_presenter.snapshot()
             self.assertEqual(after.panel_code, 0xCE)
             self.assertEqual(after.menu.selected_child_id, 0xCE)
-            self.assertEqual(len(host.canvas.images), 1)
+            self.assertEqual(len(host.canvas.images), 7)
 
             # The ninth fresh visible row is Calendar.  Tk <Button-1> is a press,
             # matching the recovered SelectBmp +0x6C input virtual.
@@ -207,7 +229,7 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(native.panel_code, 0xCE)
             self.assertEqual(native.menu.selected_root_id, 0x259)
             self.assertIn("expand_root 0x259", host.last_status)
-            self.assertEqual(len(host.canvas.images), 1)
+            self.assertEqual(len(host.canvas.images), 7)
 
             accepted = host.apply_source_accepted_pmenu_action("title", 3, 0)
             self.assertTrue(accepted.action.accepted)
@@ -216,12 +238,45 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(accepted.presentation.menu.selected_root_id, 3)
             self.assertEqual(accepted.presentation.menu.selected_child_id, 0xCE)
             self.assertIn("source-accepted PMenu action", host.last_status)
-            self.assertEqual(len(host.canvas.images), 1)
+            self.assertEqual(len(host.canvas.images), 7)
 
             host.on_click(SimpleNamespace(x=100, y=120))
             self.assertIn("no source-bounded PMenu candidate row", host.last_status)
             self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
-            self.assertEqual(len(host.canvas.images), 1)
+            self.assertEqual(len(host.canvas.images), 7)
+
+    def test_squad_landing_draws_only_six_source_backed_top_control_overlays(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            squad_top_resources=fake_squad_top_resources(),
+        )
+        host.canvas.delete("all")
+        host._photos = []
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(panel_class="PSquadScreen")
+        )
+
+        count = host._draw_squad_top_controls(frame)
+
+        self.assertEqual(count, 6)
+        self.assertEqual(len(host.canvas.images), 6)
+        self.assertEqual(len(host._photos), 6)
+        self.assertEqual(host.canvas.images[0][:2], (37, 171))
+        self.assertEqual(host.canvas.images[2][:2], (113, 171))
+        self.assertEqual(host.canvas.images[4][:2], (189, 171))
+
+    def test_squad_landing_fails_closed_without_verified_top_control_resources(self):
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(panel_class="PSquadScreen")
+        )
+        with self.assertRaisesRegex(
+            OriginalGameHostError,
+            "verified original top-control resources",
+        ):
+            host._draw_squad_top_controls(frame)
 
     def test_league_fixtures_draws_only_the_36_position_proven_grid_bitmaps(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
