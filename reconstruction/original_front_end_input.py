@@ -53,6 +53,10 @@ def candidate_original_event(
             if _inside(rect, x, y):
                 return event
         return None
+    if screen is FrontEndScreen.MANAGEMENT:
+        # Management owns a separate PMenu/panel pointer router. The first-
+        # screen adapter must not reinterpret management pixels as menu events.
+        return None
     raise ValueError(f"Unrecovered first-screen pointer target: {screen!r}")
 
 
