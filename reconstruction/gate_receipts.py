@@ -221,6 +221,32 @@ def first_xi_rating_factor(overall_ratings: Iterable[int]) -> float:
     return float(sum(ratings)) * 0.00125
 
 
+def paired_type6_side_modifier(
+    primary_first_xi_ratings: Iterable[int],
+    other_first_xi_ratings: Iterable[int],
+    *,
+    prestige_weight: float = 10.0,
+    other_prestige_weight: float = 5.0,
+) -> float:
+    """Reproduce alternate attendance helper 0x5DBCD0 exactly.
+
+    The executable computes each side's first-11 factor as sum(overall)/800,
+    then returns 0.2 times the weighted blend below. Its caller reverses the
+    two club arguments for the other side. The semantic match-family label is
+    intentionally left neutral until the direct caller branch is source-locked.
+    """
+    prestige_weight = float(prestige_weight)
+    other_prestige_weight = float(other_prestige_weight)
+    denominator = prestige_weight + other_prestige_weight
+    if denominator == 0.0:
+        raise ValueError("paired attendance prestige weights must not sum to zero")
+    primary = first_xi_rating_factor(primary_first_xi_ratings)
+    other = first_xi_rating_factor(other_first_xi_ratings)
+    return 0.2 * (
+        prestige_weight * primary
+        + other_prestige_weight * other
+    ) / denominator
+
 def ordinary_league_side_modifier(
     *,
     first_xi_ratings: Iterable[int],
