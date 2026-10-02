@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 189: PR #152 is canonical at main d571f86de06fbe09a7e5d74f848ffc36c05e2f59 after 1,448 tests / 22 expected skips, Gate-13 and asset-policy success, and Windows package workflow 37063389258. Next Gate-17 work-ahead: implement a fail-closed real-Windows-11 clean-install receipt producer bound to the exact release archive identity. It must extract/install outside the repository/development environment, run the packaged executable smoke from that installed location, and write a distinct non-overwriting clean_windows_install.json outside Git. Hosted windows-latest must not be treated as the required Windows 11 receipt.",
+  "active_task": "Recovery 190: PR #154 branch recovery190/gate17-clean-windows-install-receipt at head 719faeb066d5a3d16334631624fbe15ada97b3eb adds the distinct fail-closed real-Windows-11 clean-install receipt producer. Next: wait for/inspect full reconstruction, Gate-13, asset-policy, and Windows package CI; fix any failures, then merge only after all branch checks pass. After merge, continue the next independent Gate-17 work-ahead without claiming Gate 17 complete. Gate 13 remains the earliest incomplete validation gate pending the schema-8 real-Windows receipt.",
   "last_known_main_head": "d571f86de06fbe09a7e5d74f848ffc36c05e2f59",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 189,
+  "recovery_generation": 190,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Packaging is canonical. Candidate workflow produced archive SHA-256 79116b1aece63c68bfdf7b2fc541f1697f49bea79c87ccc2260144dd24139075, size 13626308 bytes, artifact 11251855235 from PR head 80984563093e19f395430f3d015ab48d535de624. Private process execution remains unavailable with caas ClientError; Gate 13 schema-8 real-Windows receipt and Gate 14 fresh source traces remain blockers.",
+  "note": "PR #154 safely extracts the exact release archive to a fresh external install tree, validates PACKAGE-MANIFEST hashes/sizes, runs the installed frozen executable --package-smoke, and writes non-overwriting clean_windows_install.json outside Git. Hosted windows-latest runs unit tests only and is not the required external Windows 11 evidence.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
