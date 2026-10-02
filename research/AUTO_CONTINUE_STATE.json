@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 171 continuation from main 096e8fb3579a30c70b7d3f760cae5dd60080e580. PR #99 merged the source-backed PLeagueFixtures directed-pair matrix and reconciled stale PMatchInfo popup tests. Next: make successful TeamSelect Start enter an explicit source-proven MANAGEMENT/PMenu state, then wire the fixed 800x600 original management resource/canvas host to the existing OriginalManagementPresenter without falling back to the generic ttk Play tab. Keep exact PMenu label origin/clipping and any unproven additional management background layer fail-closed while the process sandbox still returns caas ClientError.",
+  "active_task": "Recovery 171 continuation from main 096e8fb3579a30c70b7d3f760cae5dd60080e580. PR #99 merged the source-backed PLeagueFixtures directed-pair matrix. Next: make successful TeamSelect Start enter an explicit source-proven MANAGEMENT/PMenu state, then wire the fixed 800x600 original management host to OriginalManagementPresenter without falling back to the generic ttk Play tab. Keep exact PMenu label origin/clipping and any unproven additional management background layer fail-closed while the process sandbox returns caas ClientError.",
   "last_known_main_head": "096e8fb3579a30c70b7d3f760cae5dd60080e580",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 170,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 171: main 096e8fb3579a30c70b7d3f760cae5dd60080e580. PR #99 exact head 7edaa3b1d25dfb6e4728ba42de0a8ecba9a42b96 passed Gate-13 run 36969502834 (412 tests/21 skips), full run 36969502807 (1314/22), asset policy 36969502814. Container process launch still fails before start with caas ClientError.",
+  "recovery_generation": 171,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 171 resumed from canonical main 096e8fb3579a30c70b7d3f760cae5dd60080e580 after PR #99. Proceeding directly to explicit MANAGEMENT/PMenu state and fixed 800x600 host integration. Private process sandbox remains a deferred infrastructure blocker.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
