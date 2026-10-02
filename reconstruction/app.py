@@ -666,12 +666,16 @@ PACKAGE_SMOKE_REQUIRED = (
 
 def package_smoke_report() -> dict:
     """Fail-closed packaged-runtime probe that requires no user game data."""
+    app_root = application_root()
     root = bundled_source_root()
+    provenance = app_root / "original_assets" / "MANIFEST.md"
     missing = [
         relative
         for relative in PACKAGE_SMOKE_REQUIRED
         if not (root / Path(relative)).is_file()
     ]
+    if not provenance.is_file():
+        missing.insert(0, "original_assets/MANIFEST.md")
     if missing:
         raise RuntimeError(
             "Packaged runtime is missing required provenance-tracked assets: "
@@ -679,8 +683,9 @@ def package_smoke_report() -> dict:
         )
     return {
         "passed": True,
-        "application_root": str(application_root()),
+        "application_root": str(app_root),
         "source_root": str(root),
+        "provenance_manifest": str(provenance),
         "required_asset_count": len(PACKAGE_SMOKE_REQUIRED),
         "external_game_data_required": True,
     }
