@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 186: PR #142 merged as 948aa5193ab9a1003a7a640e93eca91b1dfee126 after 1,418 tests / 22 expected skips and asset-policy success. Exact 0x4FA510 contract category and corrected Premier League FanFactor 0.9 are canonical. Next Gate-15 slice: implement exact club +0x1ED monthly permanent-arrival counter lifecycle: increment in shared 0x422F70 permanent completion, remove autonomous-only duplicate, reset monthly count after same-day Saturday transfer/payroll maintenance on day-of-month 1.",
-  "last_known_main_head": "948aa5193ab9a1003a7a640e93eca91b1dfee126",
+  "active_task": "Recovery 187: PR #143 is canonical at main 3b9fc3741a8d614a14389d90db99285b9aa49a69 after 1,420 tests / 22 expected skips plus asset-policy success. Next: source-close the remaining due MPMTransferPlayer same-day ordering relative to fixtures if persisted 0x4A83F0/0x4A83D0/0x4A8070 outer-calendar evidence is sufficient; otherwise record the exact blocker and continue the next independent cloud-safe Gate-15 fidelity gap without guessing. Gate 13 remains the earliest incomplete validation gate pending a fresh schema-8 real-Windows 11/Tk receipt.",
+  "last_known_main_head": "3b9fc3741a8d614a14389d90db99285b9aa49a69",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 187,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Direct source also shows season byte +0x1EE increments, but shipped 0x403E70 reads +0x1ED for both configured 3 and 8 thresholds. Preserve this original quirk. Due-transfer same-day ordering remains open pending full fixture-handoff closure.",
+  "note": "Canonical +0x1ED lifecycle is merged. Direct process execution is currently unavailable with caas ClientError, so fresh private disassembly is blocked; use persisted executable evidence only and fail closed when it is insufficient.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
