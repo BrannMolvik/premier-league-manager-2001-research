@@ -94,6 +94,21 @@ class Gate13PresentationSeparationAuditTests(unittest.TestCase):
         self.assertIn("original_pmatchinfo_resources", modules)
         self.assertIn("ea444_decoder", modules)
 
+    def test_league_fixtures_presenter_has_no_simulation_imports(self):
+        modules = set(top_level_import_modules("original_league_fixtures_presenter.py"))
+        forbidden = {
+            "human_gameplay",
+            "game_state",
+            "competition_state",
+            "procedural_league",
+            "match_calculator",
+            "transfer_state",
+            "finance_state",
+            "runtime_state",
+        }
+        self.assertEqual(modules & forbidden, set())
+        self.assertIn("original_league_fixtures_resources", modules)
+
     def test_league_tables_presenter_has_no_simulation_imports(self):
         modules = set(top_level_import_modules("original_league_tables_presenter.py"))
         forbidden = {
