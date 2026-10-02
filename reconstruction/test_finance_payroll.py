@@ -4,9 +4,12 @@ import unittest
 
 from finance_state import (
     BalanceRuntimeState,
+    GATE_HOME_ACCOUNT_CATEGORY,
+    GATE_VISITING_ACCOUNT_CATEGORY,
     PLAYER_COST_ACCOUNT_CATEGORY,
     SUPPORT_STAFF_COST_ACCOUNT_CATEGORY,
 )
+from gate_receipts import GateAttendanceCell, GateReceiptResult
 from game_state import GameCalendar, GameState
 
 
@@ -33,6 +36,79 @@ def state_for(on_date, *, cash=10_000):
         club_roster_order={10: [1, 2, 3], 20: [3]},
         finance_balances={10: BalanceRuntimeState(current_cash=cash)},
     )
+
+
+class CupControlledGatePostingTests(unittest.TestCase):
+    def test_each_controlled_participant_uses_own_ticket_prices(self):
+        state = GameState(
+            calendar=GameCalendar(date(2000, 8, 19)),
+            players={},
+            finance_balances={
+                10: BalanceRuntimeState(current_cash=10_000),
+                20: BalanceRuntimeState(current_cash=20_000),
+            },
+            ticket_states={
+                10: SimpleNamespace(seating_price=30, terrace_price=20),
+                20: SimpleNamespace(seating_price=12, terrace_price=8),
+            },
+        )
+        receipts = GateReceiptResult(
+            home_seating=GateAttendanceCell(0.0, 1.0, 1, 100),
+            visiting_seating=GateAttendanceCell(0.0, 1.0, 1, 40),
+            home_terrace=GateAttendanceCell(0.0, 1.0, 1, 60),
+            visiting_terrace=GateAttendanceCell(0.0, 1.0, 1, 20),
+            home_revenue=0,
+            visiting_revenue=0,
+        )
+
+        posted = state.post_cup_gate_receipts(10, 20, receipts)
+
+        self.assertEqual(
+            posted,
+            {
+                10: {
+                    GATE_VISITING_ACCOUNT_CATEGORY: 1600,
+                    GATE_HOME_ACCOUNT_CATEGORY: 4200,
+                },
+                20: {
+                    GATE_VISITING_ACCOUNT_CATEGORY: 640,
+                    GATE_HOME_ACCOUNT_CATEGORY: 1680,
+                },
+            },
+        )
+        # Balance.credit() also applies the exact category-1600 secondary
+        # debit, so verify the primary gate postings themselves by category.
+        self.assertEqual(
+            [(p.amount, p.category) for p in state.finance_balances[10].ledger
+             if p.category in (GATE_VISITING_ACCOUNT_CATEGORY, GATE_HOME_ACCOUNT_CATEGORY)],
+            [(1600, GATE_VISITING_ACCOUNT_CATEGORY), (4200, GATE_HOME_ACCOUNT_CATEGORY)],
+        )
+        self.assertEqual(
+            [(p.amount, p.category) for p in state.finance_balances[20].ledger
+             if p.category in (GATE_VISITING_ACCOUNT_CATEGORY, GATE_HOME_ACCOUNT_CATEGORY)],
+            [(640, GATE_VISITING_ACCOUNT_CATEGORY), (1680, GATE_HOME_ACCOUNT_CATEGORY)],
+        )
+
+    def test_uncontrolled_or_unmaterialized_participant_is_not_posted(self):
+        state = GameState(
+            calendar=GameCalendar(date(2000, 8, 19)),
+            players={},
+            finance_balances={10: BalanceRuntimeState(current_cash=10_000)},
+            ticket_states={10: SimpleNamespace(seating_price=30, terrace_price=20)},
+        )
+        receipts = GateReceiptResult(
+            home_seating=GateAttendanceCell(0.0, 1.0, 1, 1),
+            visiting_seating=GateAttendanceCell(0.0, 1.0, 1, 1),
+            home_terrace=GateAttendanceCell(0.0, 1.0, 1, 1),
+            visiting_terrace=GateAttendanceCell(0.0, 1.0, 1, 1),
+            home_revenue=0,
+            visiting_revenue=0,
+        )
+
+        self.assertEqual(
+            tuple(state.post_cup_gate_receipts(10, 20, receipts)),
+            (10,),
+        )
 
 
 class WeeklyPlayerPayrollTests(unittest.TestCase):
