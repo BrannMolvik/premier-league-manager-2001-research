@@ -19,13 +19,11 @@ from __future__ import annotations
 import argparse
 from hashlib import sha256
 import json
-import os
 from pathlib import Path, PurePosixPath
 import re
 import shutil
 import stat
 import subprocess
-import sys
 import zipfile
 
 from gate17_release_readiness import require_external_windows_11_workstation
