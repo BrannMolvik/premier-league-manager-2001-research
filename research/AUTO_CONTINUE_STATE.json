@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 170 continuation from main 5a77dcfe41f4a31e844f09766277037acd385d8a. Recover the remaining source-backed management canvas background and exact PMenu label origin/clipping, then render the composed PMenu rectangle (599,96,201,504) over fresh PSquadScreen (0,79,800,520) and route TeamSelect Start into that fixed 800x600 surface. Reuse the completed PMenu visible-row presenter and TeamSelect-to-PMenu/Squad composition seam; do not repeat their traces.",
-  "last_known_main_head": "5a77dcfe41f4a31e844f09766277037acd385d8a",
+  "active_task": "Recovery 170 continuation from main 88ced324bbc6aabfa01d8f08b34c71f28f2682aa. PR #98 closed the cloud-safe PMenu -> PSquadScreen / PLeagueFixtures / PLeagueTables routing seam and PMatchInfo action gate. Next: recover or expose the exact PLeagueFixtures competition-member order needed for native matrix projection from already-persisted source/backend state, while the private process sandbox ClientError keeps exact PMenu label origin/clipping and surrounding management background deferred. If member order is not source-backed in current backend state, record that exact boundary and move to the next independent fixed-800x600 integration slice without inventing order.",
+  "last_known_main_head": "88ced324bbc6aabfa01d8f08b34c71f28f2682aa",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 170,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 170 resumed from canonical main HEAD 5a77dcfe41f4a31e844f09766277037acd385d8a after the configured no-progress fallback. Recovery 166 already completed PMenu visible ordering, TeamSelect Start -> PMenu/Squad composition, and native parent placement. Immediate work remains exact PMenu label origin/clipping and the source-backed surrounding management canvas/background needed for an honest fixed 800x600 renderer and replacement of the generic Play-tab handoff.",
+  "note": "Recovery 170 merged PR #98 as main 88ced324bbc6aabfa01d8f08b34c71f28f2682aa after exact-head Gate-13 run 36968264310 passed 403 tests / 21 expected skips / 0 failures and asset-policy run 36968264309 passed. Authorized 511,121,336-byte source ZIP rematerialized, but container.exec and python execution both fail before process start with caas ClientError; no new private-byte claims. Continue cloud-safe work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
