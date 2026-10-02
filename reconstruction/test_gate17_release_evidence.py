@@ -215,6 +215,25 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
                     repo_root=root / "fresh" / "repo",
                 )
 
+    def test_receipt_cannot_reuse_release_archive_file(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            repo, archive, receipts = self._fixture(root)
+            receipts["save_reload"] = archive
+
+            with self.assertRaisesRegex(
+                ReleaseEvidenceAssemblerError,
+                "cannot reuse the release archive",
+            ):
+                assemble_release_evidence(
+                    release_version=VERSION,
+                    repository_commit=COMMIT,
+                    release_archive=archive,
+                    receipt_paths=receipts,
+                    output_path=root / "evidence.json",
+                    repo_root=repo,
+                )
+
     def test_output_must_be_outside_repo_and_never_overwrite(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
