@@ -138,6 +138,8 @@ LEAGUE_TABLES_HEADER_HEIGHT = 19
 
 # Recovery 162: concrete table/list and row presentation.
 LEAGUE_TABLES_LIST_CLASS = "CLeagueTableList"
+LEAGUE_TABLES_LIST_TYPE_DESCRIPTOR_VA = 0x81B478
+LEAGUE_TABLES_LIST_COL_VA = 0x7E1520
 LEAGUE_TABLES_LIST_VFTABLE_VA = 0x7C011C
 LEAGUE_TABLES_LIST_SETUP_WRAPPER_VA = 0x4477E0
 LEAGUE_TABLES_LIST_GENERIC_SETUP_VA = 0x6510F0
@@ -152,6 +154,8 @@ LEAGUE_TABLES_LIST_ROW_SPAN_VA = 0x4466E0
 LEAGUE_TABLES_LIST_ROW_HEIGHT_VA = 0x446710
 
 LEAGUE_TABLES_ROW_CLASS = "PLeagueTableRow"
+LEAGUE_TABLES_ROW_TYPE_DESCRIPTOR_VA = 0x81B378
+LEAGUE_TABLES_ROW_COL_VA = 0x7E1398
 LEAGUE_TABLES_ROW_VFTABLE_VA = 0x7BFEC0
 LEAGUE_TABLES_ROW_SETUP_VA = 0x446930
 LEAGUE_TABLES_ROW_ALLOC_SIZE = 0x4A8
@@ -176,6 +180,24 @@ LEAGUE_TABLES_ROW_STAT_RECTS = tuple(
     (x, 1, 27, 12) for x in (262, 291, 320, 349, 378, 407, 436)
 )
 LEAGUE_TABLES_ROW_COLUMN_LABELS = ("P", "W", "D", "L", "F", "A", "Pts")
+LEAGUE_TABLES_ROW_COLUMN_SOURCE_OFFSETS = {
+    "P": (0x10,),
+    "W": (0x14,),
+    "D": (0x18,),
+    "L": (0x1C,),
+    "F": (0x20,),
+    "A": (0x24,),
+    "Pts": (0x14, 0x18),
+}
+LEAGUE_TABLES_ROW_COLUMN_EXPRESSIONS = {
+    "P": "field_0x10",
+    "W": "field_0x14",
+    "D": "field_0x18",
+    "L": "field_0x1C",
+    "F": "field_0x20",
+    "A": "field_0x24",
+    "Pts": "3*field_0x14 + field_0x18",
+}
 
 LEAGUE_TABLES_POSITION_SORT_VA = 0x4F4940
 LEAGUE_TABLES_CURRENT_FORM_SORT_VA = 0x4F4A10
@@ -211,6 +233,26 @@ LEAGUE_TABLES_RESOURCES = (
     OriginalLeagueTablesResource("league_bar", "FM2001_Art/Generic/league_tables/league_bar.444", "818c42b75cecaac2ad310c2586f8539fc3d30411715d702c1f6056c9332cd4cd", 5552, (475, 19), 0x944B90, 0x944B70),
 )
 LEAGUE_TABLES_RESOURCE_BY_NAME = {resource.name: resource for resource in LEAGUE_TABLES_RESOURCES}
+LEAGUE_TABLES_RESOURCE_PATH_LITERAL_VAS = {
+    "champion_grid": 0x836A08,
+    "promotion_grid": 0x836A3C,
+    "relegation_grid": 0x836A70,
+    "standard_grid": 0x836AA8,
+    "your_team_grid": 0x836ADC,
+    "playoff_grid": 0x836B10,
+    "champion_icon": 0x836B44,
+    "promotion_icon": 0x836B78,
+    "relegation_icon": 0x836BAC,
+    "playoff_icon": 0x836BE4,
+    "your_champion_icon": 0x836C18,
+    "your_promotion_icon": 0x836C50,
+    "your_relegation_icon": 0x836C8C,
+    "your_playoff_icon": 0x836CC8,
+    "league_bar": 0x836D00,
+}
+LEAGUE_TABLES_RESOURCE_LOADER_START_VA = 0x5F7870
+LEAGUE_TABLES_RESOURCE_LOADER_END_VA = 0x5F80C0
+
 
 LEAGUE_TABLES_GRID_WRAPPERS = {
     "champion": 0x944EF0,
