@@ -282,7 +282,20 @@ def run_windows_gameplay_receipts(
         output_dir,
         repo_root=repo_root,
     )
+    targets = {
+        "new_game_management_loop": output / "new_game_management_loop.json",
+        "save_reload": output / "save_reload.json",
+        "season_progression": output / "season_progression.json",
+    }
+    occupied = tuple(path for path in targets.values() if path.exists())
+    if occupied:
+        raise WindowsGameplayReceiptError(
+            "use a fresh Gate-17 receipt directory; existing evidence would be "
+            "overwritten: " + ", ".join(str(path) for path in occupied)
+        )
 
+    # Complete all three audits before writing any receipt. A late season
+    # failure must not leave a partial evidence set that looks release-ready.
     management = audit_new_game_management_loop(
         HumanGameplayController.from_canonical_game_dir(
             game_dir,
@@ -290,7 +303,7 @@ def run_windows_gameplay_receipts(
         )
     )
     management_path = write_new_receipt(
-        output / "new_game_management_loop.json",
+        targets["new_game_management_loop"],
         _receipt_payload(
             audit_kind="gate17_new_game_management_loop",
             identity=identity,
@@ -307,7 +320,7 @@ def run_windows_gameplay_receipts(
         ),
     )
     save_path = write_new_receipt(
-        output / "save_reload.json",
+        targets["save_reload"],
         _receipt_payload(
             audit_kind="gate17_save_reload",
             identity=identity,
@@ -322,7 +335,7 @@ def run_windows_gameplay_receipts(
         max_days=int(max_days),
     )
     season_path = write_new_receipt(
-        output / "season_progression.json",
+        targets["season_progression"],
         _receipt_payload(
             audit_kind="gate17_season_progression",
             identity=identity,
