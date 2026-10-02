@@ -19,6 +19,7 @@ from original_league_fixtures_art import build_league_fixtures_grid_art
 from original_league_fixtures_resources import (
     FIXTURES_HORIZONTAL_GRID,
     FIXTURES_VERTICAL_GRID,
+    LEAGUE_FIXTURES_MATCH_INFO_ACTION,
 )
 from original_league_tables_art import build_league_tables_header_art
 from original_league_tables_resources import (
@@ -34,6 +35,11 @@ from original_game_host import (
     play_configured_startup_media,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_pmatchinfo_presenter import build_staged_pmatchinfo_snapshot
+from original_pmatchinfo_resources import (
+    PMATCHINFO_RESOURCE_BY_NAME,
+    PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES,
+)
 from original_pmenu_chrome import PMENU_FONT_SOURCE_PATH
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
 from original_squad_top_controls import OriginalSquadTopResources
@@ -123,6 +129,37 @@ def fake_fixture_grid_art():
             FIXTURES_HORIZONTAL_GRID.name: image(FIXTURES_HORIZONTAL_GRID, 33),
         }
     )
+
+
+def fake_pmatchinfo_snapshot():
+    decoded = {}
+    for index, name in enumerate(PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES):
+        resource = PMATCHINFO_RESOURCE_BY_NAME[name]
+        marker = (index * 13) % 240
+        decoded[name] = EA444DecodedImage(
+            resource.size[0],
+            resource.size[1],
+            bytes((marker, marker, marker, 255))
+            * (resource.size[0] * resource.size[1]),
+            consumed_bits=0,
+            transparent_pixels=0,
+        )
+    return build_staged_pmatchinfo_snapshot(
+        decoded,
+        require_complete_dialog=True,
+    )
+
+
+class MatchInfoActionPresenter:
+    def fixture_match_info_action(
+        self,
+        *,
+        fixture_present,
+        linked_context_available,
+    ):
+        if fixture_present and linked_context_available:
+            return LEAGUE_FIXTURES_MATCH_INFO_ACTION
+        return None
 
 
 def fake_league_tables_header_art():
@@ -369,6 +406,111 @@ class OriginalGameHostTests(unittest.TestCase):
             "all six verified original assets",
         ):
             host._draw_league_fixtures_grid_art(frame)
+
+    def test_source_accepted_pmatchinfo_persists_exact_popup_for_redraw(self):
+        live = presenter()
+        host = OriginalGameTkHost(
+            live,
+            FakeRoot(),
+            FakeTk,
+            pmatchinfo_snapshot=fake_pmatchinfo_snapshot(),
+        )
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host.management_presenter = MatchInfoActionPresenter()
+
+        with patch.object(host, "redraw") as redraw:
+            action = host.apply_source_accepted_fixture_match_info(
+                fixture_present=True,
+                linked_context_available=True,
+                pointer_x=400,
+                pointer_y=300,
+            )
+
+        self.assertIs(action, LEAGUE_FIXTURES_MATCH_INFO_ACTION)
+        self.assertEqual(
+            (host.active_pmatchinfo_art.x, host.active_pmatchinfo_art.y),
+            (20, 50),
+        )
+        redraw.assert_called_once_with()
+        self.assertIn("source-accepted PMatchInfo", host.last_status)
+        self.assertIn("owner-local child art remains fail-closed", host.last_status)
+
+        host.canvas.delete("all")
+        host._photos = []
+        self.assertEqual(host._draw_pmatchinfo_dialog(), 1)
+        self.assertEqual(host.canvas.images[-1][:2], (20, 50))
+
+    def test_source_accepted_pmatchinfo_keeps_missing_context_fail_closed(self):
+        live = presenter()
+        host = OriginalGameTkHost(
+            live,
+            FakeRoot(),
+            FakeTk,
+            pmatchinfo_snapshot=fake_pmatchinfo_snapshot(),
+        )
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host.management_presenter = MatchInfoActionPresenter()
+
+        with patch.object(host, "redraw") as redraw:
+            action = host.apply_source_accepted_fixture_match_info(
+                fixture_present=True,
+                linked_context_available=False,
+                pointer_x=400,
+                pointer_y=300,
+            )
+
+        self.assertIsNone(action)
+        self.assertIsNone(host.active_pmatchinfo_art)
+        redraw.assert_not_called()
+        self.assertIn("rejected by recovered fixture gates", host.last_status)
+
+    def test_source_accepted_pmatchinfo_requires_verified_popup_snapshot(self):
+        live = presenter()
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk)
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host.management_presenter = MatchInfoActionPresenter()
+
+        with self.assertRaisesRegex(
+            OriginalGameHostError,
+            "verified complete popup snapshot",
+        ):
+            host.apply_source_accepted_fixture_match_info(
+                fixture_present=True,
+                linked_context_available=True,
+                pointer_x=400,
+                pointer_y=300,
+            )
+
+    def test_pmatchinfo_exit_and_pointer_interaction_remain_explicit(self):
+        live = presenter()
+        host = OriginalGameTkHost(
+            live,
+            FakeRoot(),
+            FakeTk,
+            pmatchinfo_snapshot=fake_pmatchinfo_snapshot(),
+        )
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host.management_presenter = MatchInfoActionPresenter()
+        snapshot = fake_pmatchinfo_snapshot()
+        from original_pmatchinfo_art import build_pmatchinfo_popup_art
+        host.active_pmatchinfo_art = build_pmatchinfo_popup_art(
+            snapshot,
+            pointer_x=799,
+            pointer_y=599,
+        )
+
+        host.on_click(SimpleNamespace(x=40, y=110))
+        self.assertIn("pointer interaction remains fail-closed", host.last_status)
+        self.assertEqual(
+            (host.active_pmatchinfo_art.x, host.active_pmatchinfo_art.y),
+            (39, 99),
+        )
+
+        with patch.object(host, "redraw") as redraw:
+            host.apply_source_accepted_pmatchinfo_exit()
+        self.assertIsNone(host.active_pmatchinfo_art)
+        redraw.assert_called_once_with()
+        self.assertIn("Closed source-accepted PMatchInfo", host.last_status)
 
     def test_management_redraw_requires_verified_pmenu_resources(self):
         live = presenter()
