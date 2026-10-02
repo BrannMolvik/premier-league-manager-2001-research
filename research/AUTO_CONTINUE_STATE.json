@@ -6,10 +6,10 @@
   "enabled": true,
   "mode": "continuous",
   "status": "working",
-  "work_owner": "codex",
+  "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Codex/local Windows handoff from canonical main 8351de99dccd2ef7004637efcb425ac931823b56. Continue Gate 13 private/local queue: trace exact PMenu label origin/clipping and accepted-control event semantics from the canonical executable; integrate only source-proven pointer/keyboard equivalence while preserving the current non-activating Tk boundary otherwise; extend the real-Windows audit through the source-accepted PMenu route and obtain a fresh Windows 11 receipt; then continue the minimum Squad -> League Fixtures/PMatchInfo -> League Tables visual loop. Do not close Gate 13 until its ROADMAP criteria pass.",
-  "last_known_main_head": "8351de99dccd2ef7004637efcb425ac931823b56",
+  "active_task": "Recovery 176 is canonical on main 235c054. The concrete PMenu SelectBmp pointer-press boundary is source-proven and integrated; schema 7 now drives Calendar -> League Fixtures -> TABLES -> League Tables through real Tk presses. Next: run the schema-7 audit on real Windows 11, then continue exact PMenu label origin/clipping and application-owned management background recovery and compose the recognizable Squad -> Fixtures/PMatchInfo -> League Tables visual loop. Keyboard equivalence remains fail-closed. Gate 13 remains active.",
+  "last_known_main_head": "235c054",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 176,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "User explicitly resumed the local/private Codex worker. Recovery 176 is active from canonical main 8351de99dccd2ef7004637efcb425ac931823b56. Codex owns the private PMenu text-origin/clipping and source control-acceptance traces plus the real-Windows audit queue; ChatGPT must not race this work.",
+  "note": "Codex completed and pushed Recovery 176. Source ZIP/executable identities were reverified; private reports remain outside Git. Pointer-press equivalence is integrated and 40 focused tests pass. Ownership returns to ChatGPT because the user requested quota-conscious wrap-up. The next Windows/private blockers are the schema-7 receipt, exact PMenu label origin/clipping and application-owned management background.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
