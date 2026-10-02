@@ -1761,5 +1761,34 @@
   "gate17_external_validation_test_count": 1470,
   "gate17_external_validation_expected_skips": 22,
   "gate17_external_validation_windows_package_run": 37070962855,
-  "gate17_external_validation_asset_policy_run": 37070962826
+  "gate17_external_validation_asset_policy_run": 37070962826,
+  "gate14_possession_diagram_assets_imported": true,
+  "gate14_possession_diagram_imported_asset_count": 4,
+  "gate14_possession_diagram_import_root": "original_assets/source/FM2001_Art/FastView",
+  "gate14_possession_diagram_geometry_adapter": "reconstruction/original_fastview_possession_resources.py",
+  "gate14_possession_figures_text_geometry_exact": true,
+  "gate14_possession_figures_constructor_va": "0x51E7E0",
+  "gate14_possession_figures_receiver_va": "0x51EA80",
+  "gate14_possession_figures_side1_rect": [
+    311,
+    181,
+    351,
+    199
+  ],
+  "gate14_possession_figures_neutral_rect": [
+    382,
+    181,
+    422,
+    199
+  ],
+  "gate14_possession_figures_side0_rect": [
+    454,
+    181,
+    494,
+    199
+  ],
+  "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
+  "gate14_possession_user_side_orientation": "unrecovered_fail_closed",
+  "gate14_possession_figures_bar_geometry": "pending_source_trace",
+  "gate14_exact_next_task": "Verify Recovery 196 CI and merge; then source-trace the three 82x16 PossessionFigures bar placement/binding without inventing human-side orientation or diagram cadence."
 }
