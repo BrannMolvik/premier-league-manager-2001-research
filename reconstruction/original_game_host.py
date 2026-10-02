@@ -43,6 +43,11 @@ from original_pmenu_activation import resolve_pmenu_pointer_press
 from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from original_teamselect_resources import load_verified_original_teamselect_inputs
+from original_squad_top_controls import (
+    OriginalSquadTopResources,
+    build_fresh_squad_top_render,
+    load_verified_squad_top_resources,
+)
 from startup_media_playback import load_and_play_verified_startup_sequence
 
 
@@ -96,6 +101,7 @@ class OriginalGameTkHost:
         management_presenter_factory=None,
         management_pmenu_resources=None,
         league_fixtures_grid_art=None,
+        squad_top_resources=None,
     ):
         self.presenter = presenter
         self.root = root
@@ -107,6 +113,7 @@ class OriginalGameTkHost:
         self.management_presenter = None
         self.management_pmenu_resources = management_pmenu_resources
         self.league_fixtures_grid_art = league_fixtures_grid_art
+        self.squad_top_resources = squad_top_resources
         self.last_pmenu_activation = None
         self._photos = []
         self.last_status = "Source-backed FM2001 host ready"
@@ -204,6 +211,28 @@ class OriginalGameTkHost:
                 anchor=self.tk.NW,
             )
 
+    def _draw_squad_top_controls(self, frame) -> int:
+        """Draw only the exact native fresh PSquadScreen top controls."""
+        if frame.presentation.panel_class != "PSquadScreen":
+            return 0
+        resources = self.squad_top_resources
+        if not isinstance(resources, OriginalSquadTopResources):
+            raise OriginalGameHostError(
+                "Squad landing renderer requires verified original top-control resources"
+            )
+        rendered = build_fresh_squad_top_render(resources)
+        count = 0
+        for overlay in rendered.overlays:
+            image = self._photo(overlay.png)
+            self.canvas.create_image(
+                overlay.x,
+                overlay.y,
+                image=image,
+                anchor=self.tk.NW,
+            )
+            count += 1
+        return count
+
     def _draw_league_fixtures_grid_art(self, frame) -> int:
         """Draw only PLeagueFixtures bitmaps with source-proven screen placement."""
         if frame.presentation.panel_class != "PLeagueFixtures":
@@ -257,7 +286,9 @@ class OriginalGameTkHost:
         self.canvas.delete("all")
         self._photos = []
 
-        panel_image_count = self._draw_league_fixtures_grid_art(frame)
+        squad_image_count = self._draw_squad_top_controls(frame)
+        fixture_image_count = self._draw_league_fixtures_grid_art(frame)
+        panel_image_count = squad_image_count + fixture_image_count
 
         menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
         for overlay in menu_render.overlays:
@@ -443,6 +474,10 @@ def run_original_game_ui(
         resolved_source_root,
         original_executable,
     )
+    squad_top_resources = load_verified_squad_top_resources(
+        resolved_source_root,
+        original_executable,
+    )
     import tkinter as tk
 
     root = tk.Tk()
@@ -458,5 +493,6 @@ def run_original_game_ui(
         ),
         management_pmenu_resources=pmenu_resources,
         league_fixtures_grid_art=fixture_grid_art,
+        squad_top_resources=squad_top_resources,
     )
     root.mainloop()
