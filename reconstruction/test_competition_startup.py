@@ -22,6 +22,7 @@ from competition_startup import (
     primary_mode0_dummy_league_sort_draw_count,
     primary_mode0_dummy_league_sort_source_ids,
     country_root_competition_storage_order,
+    country_league_root_storage_order,
     primary_mode0_root_initialization_order,
     primary_mode0_root_finalization_order,
     secondary_mode1_root_initialization_order,
@@ -255,6 +256,30 @@ class PrimaryCupSchedulerStateTests(unittest.TestCase):
         self.assertEqual(replay.total_draw_count, 6)
         self.assertEqual(replay.state_entering_primary_shuffle, 0x44D2B546)
         self.assertEqual(rng.state, 0x44D2B546)
+
+class ContractCategoryRootOrderTests(unittest.TestCase):
+    def test_england_league_subset_matches_4f79d0_and_playable_rows(self):
+        competitions = (
+            Competition(0, 1, 1, None, 9, 26),
+            Competition(1, 2, 1, None, 6, 26),
+            Competition(2, 1, 1, None, 10, 26),
+            Competition(3, 1, 1, None, 11, 26),
+            Competition(4, 1, 1, None, 12, 26),
+            Competition(5, 2, 1, None, 5, 26),
+            Competition(6, 2, 1, None, 8, 26),
+            Competition(7, 1, 1, None, 13, 26),
+            Competition(8, 2, 1, None, 7, 26),
+            Competition(89, 3, 1, None, 14, 26),
+            Competition(90, 2, 1, None, 15, 26),
+        )
+
+        ordered = country_league_root_storage_order(competitions, 26)
+
+        self.assertEqual(
+            tuple(competition.id for competition in ordered),
+            (0, 2, 3, 4, 7, 89),
+        )
+
 
 class OrderedCompetitionRngTests(unittest.TestCase):
     def test_country_root_storage_order_is_qsorted_but_not_reversed(self):
