@@ -73,6 +73,8 @@ on:
       - "reconstruction/test_original_pmenu_chrome.py"
       - "reconstruction/original_pmenu_presenter.py"
       - "reconstruction/test_original_pmenu_presenter.py"
+      - "reconstruction/original_pmenu_activation.py"
+      - "reconstruction/test_original_pmenu_activation.py"
       - "reconstruction/original_teamselect_hierarchy_art.py"
       - "reconstruction/test_original_teamselect_hierarchy_art.py"
       - "reconstruction/original_first_screen_presenter.py"
