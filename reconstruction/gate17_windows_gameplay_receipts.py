@@ -22,14 +22,13 @@ from dataclasses import dataclass
 from hashlib import sha256
 import json
 from pathlib import Path
-import platform
 import re
-import sys
 import tempfile
 
 from canonical_annual_rollover_audit import run_canonical_annual_rollover_audit
 from fm2001_data import FM2001Database
 from human_gameplay import HumanGameplayController
+from gate17_release_readiness import require_windows_11
 from internal_save import (
     load_human_gameplay,
     save_human_gameplay,
@@ -55,26 +54,6 @@ def _sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
-
-
-def require_windows_11() -> dict[str, str]:
-    if platform.system() != "Windows":
-        raise WindowsGameplayReceiptError(
-            "Gate-17 gameplay receipts must be produced on Windows 11"
-        )
-    release = platform.release()
-    version = platform.version()
-    combined = f"{release} {version}".lower()
-    if "11" not in combined:
-        raise WindowsGameplayReceiptError(
-            f"Gate-17 gameplay receipts require Windows 11, got {release} {version}"
-        )
-    return {
-        "platform": platform.platform(),
-        "python_version": sys.version.split()[0],
-        "windows_release": release,
-        "windows_version": version,
-    }
 
 
 def resolve_release_artifact_identity(
