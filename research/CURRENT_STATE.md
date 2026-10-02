@@ -25,6 +25,33 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 171 fixed PMenu management host merged:** PR #100 merged as
+  `163071883b932067a5cf33cf12ff3d05a2940cb5`. Successful TeamSelect Start
+  now transitions from `TEAM_SELECT` into an explicit source-proven
+  `MANAGEMENT` / PMenu state instead of remaining on the first-screen enum.
+  The fixed host binds `OriginalManagementPresenter` to the exact **800x600**
+  surface, preserves the PMenu rectangle **(599,96,201,504)** over the fresh
+  PSquadScreen parent **(0,79,800,520)**, and deliberately reports the
+  surrounding management background and exact PMenu label origin/clipping as
+  unresolved rather than drawing a substitute skin. The Tk first-screen viewer
+  enters this host after Start. Gate-13 run `36971906350` passed **415 tests
+  with 21 expected source-gated skips and zero failures** on exact PR head
+  `4551e0a5e178a850a8cdf6930beff75cc84bbbc8`; asset-policy run
+  `36971906383` passed.
+- **Recovery 171 process-sandbox blocker persists:** a fresh trivial
+  `container.exec` probe still fails before process start with
+  `caas.internal.errors.ClientError`. Private executable tracing for PMenu
+  label origin/clipping and any additional application-owned management
+  background layer remains deferred infrastructure work, not a user-action
+  blocker.
+- **Exact next task:** replace the remaining generic ttk ordinary-management
+  launch path with the recovered first-screen -> MANAGEMENT host wherever the
+  application entrypoint still exposes the prototype Play tab, then integrate
+  source-backed PMenu row input/navigation for already-supported Squad,
+  League Fixtures and League Tables without inventing unresolved row-event
+  semantics.
+
+
 - **Recovery 170 ordinary-management routing verified on PR #98:** the
   source-bounded management presenter now switches the recovered PMenu between
   fresh **PSquadScreen (0xCE)**, **PLeagueFixtures (0x25C)** and
