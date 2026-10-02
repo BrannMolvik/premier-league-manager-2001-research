@@ -571,6 +571,40 @@ def run_real_windows_graphical_audit(
             status=management_status,
         )
 
+        # Candidate PMenu containment is source-backed geometry only. Exercise
+        # it through the real Tk binding and require that no panel navigation
+        # occurs until native row activation/event ownership is recovered.
+        before_candidate_panel = viewer.management_presenter.snapshot()
+        viewer.canvas.event_generate("<Button-1>", x=600, y=100)
+        _pump(root)
+        candidate_status = str(viewer.status.get())
+        after_candidate_panel = viewer.management_presenter.snapshot()
+        if "PMenu candidate row only" not in candidate_status:
+            raise WindowsFirstScreenAuditError(
+                "Real Tk MANAGEMENT click did not report the source-bounded PMenu candidate"
+            )
+        if "no navigation was dispatched" not in candidate_status:
+            raise WindowsFirstScreenAuditError(
+                "Real Tk MANAGEMENT candidate click lost the fail-closed activation boundary"
+            )
+        if presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
+            raise WindowsFirstScreenAuditError(
+                "Candidate PMenu click left the recovered MANAGEMENT host"
+            )
+        if (
+            before_candidate_panel.panel_code != 0xCE
+            or after_candidate_panel.panel_code != before_candidate_panel.panel_code
+            or after_candidate_panel.menu.selected_child_id
+            != before_candidate_panel.menu.selected_child_id
+        ):
+            raise WindowsFirstScreenAuditError(
+                "Candidate PMenu click mutated panel selection without native event evidence"
+            )
+        if _actual_photo_dimensions(viewer):
+            raise WindowsFirstScreenAuditError(
+                "Candidate PMenu feedback introduced guessed management pixels"
+            )
+
         return {
             "schema_version": 4,
             "passed": True,
@@ -604,6 +638,8 @@ def run_real_windows_graphical_audit(
             "management": {
                 "entered_via_native_club_selection_and_start": True,
                 "selected_club_id": management_club.source_id,
+                "candidate_pmenu_hit_test_verified": True,
+                "candidate_pmenu_activation_dispatched": False,
                 **management_contract,
             },
             "navigation": {
