@@ -121,6 +121,17 @@ The clean host already contains an explicit verified-startup-media seam from
 earlier Gate-14 work-ahead. Exact startup skip input and transition/fade
 behavior remain open.
 
+
+Recovery 196 deliberately stages the four exact PossessionDiagram EA444 files
+under the provenance-controlled original-assets tree and adds a checksum/size/
+geometry validator plus an exact layer-placement adapter. The same fresh
+executable trace closes the three PossessionFigures 40x18 percentage text
+rectangles: side 1 is left at (311,181)-(351,199), neutral is centered at
+(382,181)-(422,199), and side 0 is right at (454,181)-(494,199). This is a
+source-index mapping only; which match side is the human user's screen side is
+still unproven and remains fail-closed. The three 82x16 bar controls still need
+direct placement/binding trace.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
