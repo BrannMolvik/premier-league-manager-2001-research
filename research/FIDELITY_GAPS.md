@@ -11,7 +11,6 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | Secondary startup exact tie permutation and bucket shape | The startup-staff CRT boundary replays the independently recorded 262 total secondary schedule nodes / 45 nonempty buckets / 217 shuffle draws through an **aggregate-only MSVC checkpoint with no invented bucket vector**; tests enforce the proven World Cup-before-European Championship ordering without pretending to know every equal-key root permutation | Original reverse qsorted country-root traversal and post-secondary CRT state are documented, but the exact per-date mode-1 bucket vector and full equal-key native qsort order have NOT been independently source-locked; resolve from the canonical executable/real input before asserting pixel-calendar-level fidelity | 15 |
 | Exact fully indistinguishable PL league-table native qsort ties | PL display now uses the previously recovered numeric and CP1252 short-name source comparator when original club short names are available; if two clubs have identical complete source keys, it explicitly falls back to deterministic display and refuses to publish an "exact" ranking | All comparator fields are recovered, but native qsort's relative order for truly identical complete source keys has not been independently locked; lightweight synthetic clubs missing valid CP1252 names also receive documented display-only fallback | 15 |
 | Original FM2001 save compatibility | Modern port now has a versioned internal schema-34 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
-| Contract month-end normalization | Recovered contract paths advance by the source-backed calendar-month count. When the source day does not exist in the final target month, the modern runtime clamps to that month's final valid day so long-duration play cannot crash | Exact end-of-month normalization in the original date helper (`0x64CDD0` / callers including `0x4192B0`) is not yet instruction-locked. The clamp is a bounded compatibility approximation, not an original-behavior claim | 15 or earlier if private executable tracing becomes available |
 | Autonomous contract category helper | The exact 0x423340 age/category month table is used; the current port labels a clamped competition valuation category as an approximation for the unresolved 0x4FA510 category source | Exact 0x4FA510 category-source mapping remains unresolved | 15 or earlier if contract-term fidelity requires it |
 | Autonomous buy-counter lifecycle | The recovered >28-player buyer gate and 3/8 thresholds are represented with a persisted neutral counter, incremented on AI purchase | Exact club +0x1ED update/reset lifecycle remains unresolved | 15 or earlier if long-season transfer frequency requires it |
 | Player negotiation residual branches | The proven ordinary money path handles accepted, low-wage, counter-offer, already-signed and recently-joined outcomes; unresolved 0x422803 / invalid-duration 0x423340 branches return explicit deferred states | Remaining refusal/status and duration-revision policy is not guessed | 15 or earlier if a broader negotiation case blocks play |
@@ -23,6 +22,17 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | FastView/3D | Reconstructed match events now project through source-backed FastView semantic routes into a bounded presentation shell; a seven-target `PossessionFigures`/`PossessionDiagram` basename resolver fails closed until exact private-disc paths are uniquely proved | Original resource paths/placement geometry, side orientation, territory thresholds, audio bindings, commentary, and SCI/3D choreography remain unclosed; no guessed match-view layout is shipped as original behavior | 14 |
 
 ## Resolved or superseded gaps
+
+### Contract calendar-month normalization
+
+**Resolved in Gate 15.** Direct disassembly of shared date helper `0x64CDD0`
+shows that the original does not preserve or clamp the source day. It first
+writes decomposed day = 1, then advances the year/month pair by the requested
+month span. Contract callers including `0x418FED`, `0x4191AF`,
+`0x4192CE` and youth/date caller `0x61E65B` serialize that normalized
+date through `0x64CE30`. The modern shared
+`contract_expiry_from_month_span()` now returns the first day of the target
+month exactly, including for a zero-month span.
 
 ### Autonomous transfer-window lifecycle
 
