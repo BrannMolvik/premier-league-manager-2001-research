@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 187: PR #143 is canonical at main 3b9fc3741a8d614a14389d90db99285b9aa49a69 after 1,420 tests / 22 expected skips plus asset-policy success. Next: source-close the remaining due MPMTransferPlayer same-day ordering relative to fixtures if persisted 0x4A83F0/0x4A83D0/0x4A8070 outer-calendar evidence is sufficient; otherwise record the exact blocker and continue the next independent cloud-safe Gate-15 fidelity gap without guessing. Gate 13 remains the earliest incomplete validation gate pending a fresh schema-8 real-Windows 11/Tk receipt.",
+  "active_task": "Recovery 187: main remains 3b9fc3741a8d614a14389d90db99285b9aa49a69. Due MPMTransferPlayer same-day fixture ordering is bounded as an evidence blocker: 0x613EE0 is first inside 0x4A8070, but the persisted repo lacks the outer relation to match execution and fresh process execution is blocked by caas ClientError. PR #146 (recovery187/gate15-cup-controlled-postings) is the active independent Gate-15 slice: exact special Cup/knockout controlled-participant category-1/category-2 accounting helper using each participant's own ticket prices; full live Cup receipt attachment remains next after CI.",
   "last_known_main_head": "3b9fc3741a8d614a14389d90db99285b9aa49a69",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 187,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Canonical +0x1ED lifecycle is merged. Direct process execution is currently unavailable with caas ClientError, so fresh private disassembly is blocked; use persisted executable evidence only and fail closed when it is insufficient.",
+  "note": "Gate 13 remains earliest incomplete validation gate pending schema-8 real-Windows 11/Tk receipt. Do not infer due-transfer fixture ordering or label the Cup posting mechanic as revenue sharing.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
