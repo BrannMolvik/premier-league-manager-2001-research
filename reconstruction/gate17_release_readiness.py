@@ -218,6 +218,35 @@ def validate_external_receipts(
             raise ReleaseReadinessError(
                 f"{name} receipt was produced for a different release archive"
             )
+
+        # Independently validate the host facts recorded by every external
+        # producer. Do not trust a receipt merely because its producer is
+        # currently guarded: old, copied or hand-edited evidence must fail too.
+        if payload.get("windows_11") is not True:
+            raise ReleaseReadinessError(
+                f"{name} receipt does not prove Windows 11 execution"
+            )
+        try:
+            windows_build = int(payload.get("windows_build", 0))
+        except (TypeError, ValueError) as exc:
+            raise ReleaseReadinessError(
+                f"{name} receipt has an invalid Windows build"
+            ) from exc
+        if windows_build < 22000:
+            raise ReleaseReadinessError(
+                f"{name} receipt Windows build {windows_build} is older than Windows 11"
+            )
+        try:
+            product_type = int(payload.get("windows_product_type", -1))
+        except (TypeError, ValueError) as exc:
+            raise ReleaseReadinessError(
+                f"{name} receipt has an invalid Windows product type"
+            ) from exc
+        if product_type != 1:
+            raise ReleaseReadinessError(
+                f"{name} receipt does not prove a Windows client workstation"
+            )
+
         for flag in required_flags:
             if payload.get(flag) is not True:
                 raise ReleaseReadinessError(
@@ -227,6 +256,8 @@ def validate_external_receipts(
             "path": str(path),
             "sha256": actual_sha,
             "required_flags": list(required_flags),
+            "windows_build": windows_build,
+            "windows_product_type": product_type,
         }
 
     return checked
@@ -448,7 +479,11 @@ def require_external_windows_11_workstation() -> dict:
             "Gate-17 external Windows evidence requires a Windows client "
             f"workstation, not product_type {product_type}"
         )
-    return {**windows, "windows_product_type": product_type}
+    return {
+        **windows,
+        "windows_11": True,
+        "windows_product_type": product_type,
+    }
 
 
 def run_repository_command(
