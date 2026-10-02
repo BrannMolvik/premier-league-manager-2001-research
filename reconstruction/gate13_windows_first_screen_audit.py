@@ -397,12 +397,22 @@ def expected_clean_host_photo_dimensions(host, resources) -> list[list[int]]:
     expected: list[list[int]] = []
 
     if frame.presentation.panel_class == "PSquadScreen":
-        if host.squad_top_resources is None:
+        transition = frame.presentation.squad_view_transition
+        if transition is None:
             raise WindowsFirstScreenAuditError(
-                "Clean host Squad audit is missing verified top-control resources"
+                "Clean host Squad audit lost its source-proven view transition"
             )
-        render = build_fresh_squad_top_render(host.squad_top_resources)
-        expected.extend([list(item) for item in render.photo_dimensions])
+        if transition.control_id == 3:
+            if host.squad_top_resources is None:
+                raise WindowsFirstScreenAuditError(
+                    "Clean host Squad audit is missing verified top-control resources"
+                )
+            render = build_fresh_squad_top_render(host.squad_top_resources)
+            expected.extend([list(item) for item in render.photo_dimensions])
+        elif transition.control_id not in (4, 5):
+            raise WindowsFirstScreenAuditError(
+                "Clean host Squad audit exposed an unrecovered view control"
+            )
     elif frame.presentation.panel_class == "PLeagueFixtures":
         snapshot = frame.presentation.league_fixtures
         art = host.league_fixtures_grid_art
@@ -902,6 +912,57 @@ def run_real_windows_graphical_audit(
                 )
             verify_live_management_pmenu(clean_host, pmenu_resources)
 
+            # PSquadScreen control IDs 3/4/5 and their container transitions are
+            # source-proven, but modern Tk pointer equivalence and post-event
+            # formation/player pixels are not. Exercise only the explicit
+            # post-acceptance seam and require the unproven panel pixels to stay
+            # withheld for the formation view.
+            squad_view_activation = clean_host.apply_source_accepted_squad_view(4)
+            _pump(root)
+            transition = squad_view_activation.transition
+            if (
+                transition.control_id,
+                transition.left_roster,
+                transition.second_roster_mask1,
+                transition.pitch_mask1,
+                transition.pitch_team_index,
+            ) != (4, "first", False, True, 0):
+                raise WindowsFirstScreenAuditError(
+                    "Source-accepted Squad control 4 transition drifted from PSquadScreen"
+                )
+            squad_first_form_photo_dimensions = verify_live_management_pmenu(
+                clean_host,
+                pmenu_resources,
+            )
+            squad_view_receipt = {
+                "source_accepted_transition_verified": True,
+                "source_accepted_control_id": transition.control_id,
+                "source_accepted_caption": transition.original_text,
+                "left_roster": transition.left_roster,
+                "second_roster_mask1": transition.second_roster_mask1,
+                "pitch_mask1": transition.pitch_mask1,
+                "pitch_team_index": transition.pitch_team_index,
+                "modern_pointer_equivalence_verified": False,
+                "post_event_button_pixels_verified": False,
+                "formation_player_pixels_verified": False,
+                "post_transition_photo_dimensions": squad_first_form_photo_dimensions,
+            }
+
+            restored_squad = clean_host.apply_source_accepted_squad_view(3)
+            _pump(root)
+            if restored_squad.transition.control_id != 3:
+                raise WindowsFirstScreenAuditError(
+                    "Source-accepted Squad control 3 did not restore the fresh container state"
+                )
+            restored_squad_photo_dimensions = verify_live_management_pmenu(
+                clean_host,
+                pmenu_resources,
+            )
+            if restored_squad_photo_dimensions != clean_photo_dimensions:
+                raise WindowsFirstScreenAuditError(
+                    "Restored fresh Squad bitmap stack differs from its initial source state"
+                )
+
             # Recovery 176 proves that the concrete whole-row SelectBmp uses
             # 0x64F7A0 at vtable +0x6C and that Tk <Button-1> is the equivalent
             # pointer-press boundary. Exercise the complete supported route
@@ -1034,6 +1095,7 @@ def run_real_windows_graphical_audit(
                 "pmenu_source_row_pixels_rendered": True,
                 "source_backed_squad_pixels_verified": True,
                 "source_backed_squad_photo_dimensions": clean_photo_dimensions,
+                "squad_view_transition": squad_view_receipt,
                 "source_backed_fixtures_pixels_verified": True,
                 "source_backed_fixtures_photo_dimensions": fixture_photo_dimensions,
                 "pmatchinfo_source_accepted_action_verified": True,
@@ -1097,11 +1159,14 @@ def run_real_windows_graphical_audit(
                 "default_clean_host_start_to_management_via_real_tk_binding": True,
                 "source_accepted_pmenu_callbacks_via_real_tk_press_verified": True,
                 "tk_pmenu_pointer_press_equivalence_verified": True,
+                "squad_source_accepted_view_transition_verified": True,
+                "squad_top_control_pointer_equivalence_verified": False,
             },
             "unresolved_boundaries": [
                 "Surrounding management background pixels",
                 "Original PMenu keyboard-event equivalence",
-                "Broader Gate-13 management-panel graphical fidelity beyond the rendered PMenu",
+                "PSquadScreen top-control modern pointer equivalence and post-event formation/player pixels",
+                "Broader Gate-13 management-panel graphical fidelity beyond integrated source-owned layers",
             ],
             "gate13_complete": False,
         }
