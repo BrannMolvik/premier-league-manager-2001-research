@@ -1649,5 +1649,9 @@
     "suspended"
   ],
   "gate15_persistent_injury_selection_only_excluded": false,
-  "gate15_persistent_injury_availability_recovery": 186
+  "gate15_persistent_injury_availability_recovery": 186,
+  "gate15_legacy_chairman_budget_gap_disposition": "proven_irrelevant_to_ordinary_shipped_fresh_game",
+  "gate15_legacy_chairman_budget_events_persistence_compatible": true,
+  "gate15_legacy_chairman_budget_live_scalar_invented": false,
+  "gate15_legacy_chairman_budget_recovery": 186
 }
