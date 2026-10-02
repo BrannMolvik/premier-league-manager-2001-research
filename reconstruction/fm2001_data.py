@@ -148,6 +148,11 @@ class CountryDefinition:
     eu_status_flag: int
     continent_id: int
     financial_multiplier_percent: int = 100
+    # Packed Static.dat country bytes +28..+35 are four (week, weekday)
+    # transfer-window boundary pairs. Runtime DBRCountry +0x24..+0x2B copies
+    # them verbatim; 0x411020 materializes enabled pairs and 0x411190 toggles
+    # DBRCountry +0x54 when the current date reaches a boundary.
+    transfer_window_boundaries: tuple[tuple[int, int], ...] = ()
 
 @dataclass(frozen=True)
 class AccessFanBase:
@@ -480,6 +485,10 @@ class FM2001Database:
                 eu_status_flag=struct.unpack_from('<H', r, 16)[0],
                 continent_id=struct.unpack_from('<I', r, 24)[0],
                 financial_multiplier_percent=struct.unpack_from('<I', r, 37)[0],
+                transfer_window_boundaries=tuple(
+                    (int(r[offset]), int(r[offset + 1]))
+                    for offset in (28, 30, 32, 34)
+                ),
             ))
 
     def country_for_nationality(self, nationality_id: int) -> CountryDefinition | None:
