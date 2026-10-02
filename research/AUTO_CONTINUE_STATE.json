@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 186 continued after transient interruption. PR #137 merged as d31e2ab5f5adb2bd6258222ec36349e3970c8df3. Gate 13 remains pending the fresh real-Windows schema-8 receipt; Gate 14 private-source path/geometry work remains process-blocked. Continue an actual unresolved cloud-safe Gate 15 behavior from the fidelity ledger without closing earlier gates.",
-  "last_known_main_head": "d31e2ab5f5adb2bd6258222ec36349e3970c8df3",
+  "active_task": "Recovery 186: PR #138 merged as 1a274e5f5b1f7494db3230d6a7b79cc4b5984773 after asset policy 37035514105 and reconstruction workflow 37035514222 passed 1,413 tests with 22 skips. Persistent-injury 0x405080 availability gap is resolved. Continue Gate 15 finite fidelity disposition while Gate 13 remains pending real-Windows schema-8 and Gate 14 private-source execution remains blocked.",
+  "last_known_main_head": "1a274e5f5b1f7494db3230d6a7b79cc4b5984773",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 186,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 186 resumed cleanly after connection interruption; documentation reconciliation is canonical.",
+  "note": "Recovery 186 substantive checkpoint merged; next step is evidence-based Gate 15 disposition, not gate closure.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
