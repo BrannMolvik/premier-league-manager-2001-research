@@ -1718,5 +1718,15 @@
     "season_progression"
   ],
   "gate17_clean_install_receipt_separate": true,
-  "gate17_release_workahead_recovery": 188
+  "gate17_release_workahead_recovery": 188,
+  "gate17_release_candidate_packaging_canonical": true,
+  "gate17_release_candidate_packaging_commit": "d571f86de06fbe09a7e5d74f848ffc36c05e2f59",
+  "gate17_release_candidate_archive_sha256": "79116b1aece63c68bfdf7b2fc541f1697f49bea79c87ccc2260144dd24139075",
+  "gate17_release_candidate_archive_size_bytes": 13626308,
+  "gate17_release_candidate_artifact_id": 11251855235,
+  "gate17_clean_install_receipt_producer": "reconstruction/gate17_clean_windows_install.py",
+  "gate17_clean_install_receipt_requires_real_windows_11": true,
+  "gate17_clean_install_receipt_requires_external_fresh_install": true,
+  "gate17_clean_install_receipt_hosted_ci_is_final_evidence": false,
+  "gate17_clean_install_receipt_recovery": 190
 }

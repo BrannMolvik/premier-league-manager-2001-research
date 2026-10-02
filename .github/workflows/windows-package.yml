@@ -8,7 +8,9 @@ on:
       - "reconstruction/runtime_layout.py"
       - "reconstruction/original_game_host.py"
       - "reconstruction/gate17_package_candidate.py"
+      - "reconstruction/gate17_clean_windows_install.py"
       - "reconstruction/test_gate17_package_candidate.py"
+      - "reconstruction/test_gate17_clean_windows_install.py"
       - "reconstruction/test_runtime_layout.py"
       - "original_assets/**"
   workflow_dispatch:
@@ -39,7 +41,7 @@ jobs:
 
       - name: Run package-specific unit tests
         working-directory: reconstruction
-        run: python -m unittest -v test_runtime_layout test_gate17_package_candidate
+        run: python -m unittest -v test_runtime_layout test_gate17_package_candidate test_gate17_clean_windows_install
 
       - name: Freeze one-directory Windows runtime
         working-directory: reconstruction

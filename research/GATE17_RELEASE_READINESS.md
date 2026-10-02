@@ -70,3 +70,44 @@ python reconstruction/gate17_windows_gameplay_receipts.py `
 ```
 
 This tool intentionally does **not** create `clean_windows_install.json`. That receipt must be produced by the separate clean-install procedure after the candidate archive has actually been installed or extracted outside the development environment.
+
+
+### Clean Windows 11 install receipt producer
+
+`reconstruction/gate17_clean_windows_install.py` is the separate producer for
+`clean_windows_install.json`. It must be run on the actual Windows 11 release
+candidate environment and is deliberately not invoked by hosted packaging CI.
+
+The producer is archive-first rather than source-tree-first:
+
+1. require Windows 11 through the same build check used by the final release audit;
+2. hash the exact release archive and bind the receipt to its release version and
+   full repository commit;
+3. require a **new, non-existing install directory outside the Git checkout**;
+4. reject archive traversal, symlinks and case-insensitive Windows path
+   collisions before extraction;
+5. extract the candidate archive into that fresh external directory;
+6. require the installed `PACKAGE-MANIFEST.json` to match the requested
+   release version, repository commit and executable name;
+7. hash and size-check every installed payload file and reject both missing and
+   unexpected files;
+8. launch the frozen `FM2001-Windows11.exe --package-smoke` with the extracted
+   package as its working directory;
+9. only after all checks pass, write a new
+   `clean_windows_install.json` outside Git without overwriting prior evidence.
+
+Example on the Windows 11 validation machine:
+
+```powershell
+python reconstruction/gate17_clean_windows_install.py `
+  --release-version "<version>" `
+  --repository-commit "<40-char release commit>" `
+  --release-archive "C:\FM2001-release\FM2001-Windows11-<version>.zip" `
+  --install-root "C:\FM2001-clean-install-<version>" `
+  --output-dir "C:\FM2001-release\receipts"
+```
+
+The normal `windows-package.yml` workflow runs this module's **unit tests**
+because package-format changes must not silently break the external validator.
+It does not run the producer and therefore cannot create or substitute the
+required real-Windows-11 clean-install receipt.
