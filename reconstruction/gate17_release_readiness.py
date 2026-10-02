@@ -408,10 +408,16 @@ def require_windows_11() -> dict:
     try:
         version = sys.getwindowsversion()
         build = int(version.build)
+        product_type = int(version.product_type)
     except Exception as exc:
         raise ReleaseReadinessError(
-            "unable to read Windows build number"
+            "unable to read Windows build/product type"
         ) from exc
+    if product_type != 1:
+        raise ReleaseReadinessError(
+            "final Gate-17 Windows 11 evidence must run on a consumer "
+            "Windows workstation, not Windows Server"
+        )
     if build < 22000:
         raise ReleaseReadinessError(
             f"Windows build {build} is older than Windows 11"
@@ -419,6 +425,7 @@ def require_windows_11() -> dict:
     return {
         "platform": platform.platform(),
         "windows_build": build,
+        "windows_product_type": product_type,
     }
 
 
