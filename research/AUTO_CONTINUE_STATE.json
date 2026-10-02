@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Extend the Gate-13 real-Windows audit to schema 6: ordinary Tk PMenu hits must remain candidate-only/no navigation, while the explicit source-accepted post-callback seam must separately demonstrate supported root expansion and panel transitions. Keep exact control-acceptance/Tk-event equivalence, PMenu text origin/clipping, surrounding management pixels, and the real Windows receipt unresolved.",
-  "last_known_main_head": "c0b25df0df2a73d3583f61fc4fda490168fb2006",
+  "active_task": "Audit the already source-proven Squad/PMenu presentation inventory for the smallest recognizable fresh management landing that can be composed cloud-safely without inventing unresolved PMenu text origin/clipping or application-owned background pixels. If sufficient, implement/test the bounded renderer; otherwise persist the exact blocker and continue the next independent Gate-13 closure slice. Real Windows schema-6 receipt and private event/text trace remain pending.",
+  "last_known_main_head": "76035ba841e12612a8c76d434a7b541511b01b99",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 175,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 175 canonical state reconciled through main c0b25df0df2a73d3583f61fc4fda490168fb2006 after PR #111. Continue audit-contract work without claiming native Tk activation.",
+  "note": "Recovery 175 schema-6 audit merged as f6995c0e... and canonical docs reconciled through main 76035ba8.... Continue Gate 13; do not treat schema-6 contract completion as gate completion.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
