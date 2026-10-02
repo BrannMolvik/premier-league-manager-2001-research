@@ -9,10 +9,16 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from ea444_decoder import EA444DecodedImage
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndScreen
 from gate13_management_source_data import ClubHeaderView
 from original_first_screen_presenter import OriginalFirstScreenPresenter
+from original_league_fixtures_art import build_league_fixtures_grid_art
+from original_league_fixtures_resources import (
+    FIXTURES_HORIZONTAL_GRID,
+    FIXTURES_VERTICAL_GRID,
+)
 from original_game_host import (
     DEFAULT_SOURCE_ROOT,
     OriginalGameHostError,
@@ -71,6 +77,25 @@ def fake_pmenu_render():
                 png=b"\x89PNG\r\n\x1a\nsource-backed-test-overlay",
             ),
         ),
+    )
+
+
+def fake_fixture_grid_art():
+    def image(resource, marker):
+        width, height = resource.size
+        return EA444DecodedImage(
+            width,
+            height,
+            bytes((marker, marker, marker, 255)) * (width * height),
+            consumed_bits=0,
+            transparent_pixels=0,
+        )
+
+    return build_league_fixtures_grid_art(
+        {
+            FIXTURES_VERTICAL_GRID.name: image(FIXTURES_VERTICAL_GRID, 17),
+            FIXTURES_HORIZONTAL_GRID.name: image(FIXTURES_HORIZONTAL_GRID, 33),
+        }
     )
 
 
@@ -197,6 +222,43 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertIn("no source-bounded PMenu candidate row", host.last_status)
             self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
             self.assertEqual(len(host.canvas.images), 1)
+
+    def test_league_fixtures_draws_only_the_36_position_proven_grid_bitmaps(self):
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
+        host.league_fixtures_grid_art = fake_fixture_grid_art()
+        host.canvas.delete("all")
+        host._photos = []
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PLeagueFixtures",
+                league_fixtures=SimpleNamespace(exact_art_staged=True),
+            )
+        )
+
+        count = host._draw_league_fixtures_grid_art(frame)
+
+        self.assertEqual(count, 36)
+        self.assertEqual(len(host.canvas.images), 36)
+        self.assertEqual(len(host._photos), 36)
+        self.assertEqual(host.canvas.images[0][:2], (378, 98))
+        self.assertEqual(host.canvas.images[11][:2], (697, 98))
+        self.assertEqual(host.canvas.images[12][:2], (241, 235))
+        self.assertEqual(host.canvas.images[-1][:2], (241, 557))
+
+    def test_league_fixtures_grid_art_fails_closed_without_complete_staging(self):
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
+        host.league_fixtures_grid_art = fake_fixture_grid_art()
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PLeagueFixtures",
+                league_fixtures=SimpleNamespace(exact_art_staged=False),
+            )
+        )
+        with self.assertRaisesRegex(
+            OriginalGameHostError,
+            "all six verified original assets",
+        ):
+            host._draw_league_fixtures_grid_art(frame)
 
     def test_management_redraw_requires_verified_pmenu_resources(self):
         live = presenter()

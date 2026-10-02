@@ -1,36 +1,45 @@
 # Gate 13 Closure Audit
 
-_Audit date: 2 October 2026 KST_
-_Last reconciled after Recovery 177 real-Windows schema-7 audit._
+_Audit date: 2 October 2026 KST_  
+_Last reconciled during Recovery 179 after live PMenu composition and the source-proven League Fixtures grid integration._
 
 ## Decision
 
-**Gate 13 remains active.** The earlier generic-ttk handoff blocker is now
-closed: normal `app.py` launch enters the source-backed fixed 800x600 host,
-PStartMenu/TeamSelect are live, and a successful TeamSelect Start enters the
-source-proven `PMenu -> PSquadScreen` management state.
+**Gate 13 remains active.** Normal `app.py` launch uses the fixed 800x600
+source-backed host, PStartMenu/TeamSelect are live, TeamSelect Start reaches the
+original PMenu management route, ordinary PMenu pointer presses are source-
+backed, and the clean host now renders recovered PMenu row pixels instead of an
+intentionally blank management canvas.
 
-Gate 13 still cannot pass because the ordinary-management canvas deliberately
-draws no guessed management pixels and the source-backed
-Squad/Fixtures/PMatchInfo/League Tables presenters are not yet one playable
-visual loop. Recovery 176 closes and integrates the ordinary PMenu
-pointer-press boundary; keyboard equivalence remains unproven.
+Recovery 179 also re-recovered the canonical authorized source through
+`research/ORIGINAL_SOURCE_LOCATOR.md`, reverified the six PLeagueFixtures
+graphics byte-for-byte, provenance-imported them, and integrated only the two
+grid families whose 36 screen-space placements are exact. The four fixture-box
+assets remain intentionally unrendered because their screen-pixel placement is
+not yet source-closed.
 
-This audit remains criterion-driven. It does not require every obscure panel or
-every neutral bit name before Gate 13 can close.
+Gate 13 still cannot pass because the source-backed Squad/tactics ->
+League Fixtures -> PMatchInfo/result -> League Tables path is not yet one
+recognizable usable visual loop, the application-owned surrounding management
+background is still unresolved, and the new management pixels have not yet
+passed an updated real-Windows audit. Keyboard equivalence remains unproven and
+fail-closed; it is not itself required for Gate 13 closure.
+
+This audit remains criterion-driven. It does not require every obscure panel,
+secondary screen, or neutral bit name before Gate 13 can close.
 
 ## Roadmap criteria
 
 | Criterion | Result | Evidence |
 | --- | --- | --- |
-| Simulation logic remains separated from presentation | **PASS** | `GATE13_PRESENTATION_SEPARATION_AUDIT.md`, `ManagementSourceDataBridge`, `OriginalManagementPresenter`, and the source-backed first-screen/management hosts keep simulation mutation behind controller/session boundaries. |
-| Accessible original resources and recoverable layout/navigation are reused or converted | **PARTIAL - required work remains** | First-screen, PMenu, Squad, League Fixtures, PMatchInfo, League Tables and Scouting resources/contracts are source-bound and many are provenance-imported. Normal launch now uses the source-backed host, but the management canvas still cannot compose the unresolved surrounding background, exact PMenu text placement or a complete source-backed Squad view. |
-| Main-menu/login presentation, structure, navigation and timing closely follow the original | **PARTIAL - close to sufficient for Gate 13** | PStartMenu -> TeamSelect -> MANAGEMENT is integrated with native first-screen resources, hierarchy population, club selection, Back/Start behavior and fixed PMenu/Squad parent geometry. Recovery 177's real Windows schema-7 receipt passes Calendar -> League Fixtures -> TABLES -> League Tables through actual Tk presses. Remaining incompleteness is in ordinary-management pixels, not this audited pointer route. |
-| Normal play feels recognizably like FM2001 rather than a generic replacement UI | **FAIL** | The default host no longer falls back to the ttk notebook and PMenu pointer presses now navigate, but after Start it intentionally presents a blank 800x600 management canvas because source management pixels are incomplete. |
+| Simulation logic remains separated from presentation | **PASS** | `GATE13_PRESENTATION_SEPARATION_AUDIT.md`, `ManagementSourceDataBridge`, `OriginalManagementPresenter`, and the clean host keep gameplay mutation behind controller/session boundaries. The PMenu/fixtures renderers consume snapshots and decoded original art only. |
+| Accessible original resources and recoverable layout/navigation are reused or converted | **PARTIAL - required work remains** | First-screen, PMenu, Squad, League Fixtures, PMatchInfo, League Tables and Scouting resources/contracts are source-bound in substantial part. PMenu row art/fonts are live, and the source-proven League Fixtures grid art is now imported/integrated. Remaining required work is the smallest source-backed Squad/tactics, PMatchInfo/result and League Tables visual composition plus any management-shell pixels actually needed for recognizability. |
+| Main-menu/login presentation, structure, navigation and timing closely follow the original | **PARTIAL - Windows refresh pending** | PStartMenu -> TeamSelect -> MANAGEMENT is integrated with native assets, hierarchy population, club selection, Back/Start behavior and fixed management geometry. Recovery 177's real Windows schema-7 receipt passes Calendar -> League Fixtures -> TABLES -> League Tables through actual Tk presses. Recovery 179 adds source-backed PMenu pixels and upgrades the repository audit contract to schema 8; a fresh real-Windows schema-8 run is required before this criterion is treated as current for the rendered path. |
+| Normal play feels recognizably like FM2001 rather than a generic replacement UI | **FAIL - improving** | The default host no longer falls back to the ttk notebook or a blank PMenu. It now renders original PMenu rows and the exact League Fixtures grid when that panel is selected. The fresh Squad landing and the representative management loop still lack enough integrated source-backed panel pixels/interaction to satisfy this criterion. |
 
-## Closed since the earlier audit
+## Closed blockers
 
-The following blockers from the original closure audit are now closed:
+The following earlier blockers are closed and must not be reintroduced:
 
 1. **Default launch path:** normal `app.py` launch uses
    `OriginalGameTkHost`; the generic ttk notebook is explicit
@@ -42,69 +51,95 @@ The following blockers from the original closure audit are now closed:
    **800x600** surface, PMenu **(599,96,201,504)** and fresh PSquadScreen
    **(0,79,800,520)**.
 4. **Source-backed management routing model:** `OriginalManagementPresenter`
-   can project PSquadScreen (`0xCE`), PLeagueFixtures (`0x25C`) and
+   projects PSquadScreen (`0xCE`), PLeagueFixtures (`0x25C`) and
    PLeagueTables (`0x25A`) without importing simulation logic.
-5. **PMenu pointer acceptance:** Recovery 176 ties both concrete whole-row
-   SelectBmp controls to `0x64F7A0` at vtable `+0x6C`, their half-open 201x29
-   bounds and constant-true parent predicate. The clean host dispatches matching
-   Tk `<Button-1>` presses through the recovered row action.
-6. **Post-acceptance PMenu action contract:** Recovery 173 source-closed the
-   concrete row callbacks and Recovery 175 integrated them through a visible-row
-   guarded seam. Title actions can change the expanded root without changing the
-   current panel; supported child actions route transactionally into the existing
-   management presenters. Ordinary Tk pointer presses now use this seam.
-7. **Windows audit contract:** schema 7 now tests the developer viewer and the
-   default clean host through New Game -> native club click -> Start ->
-   MANAGEMENT, then exercises Calendar/Fixtures/TABLES/League Tables through
-   the real Tk PMenu press binding. It requires zero guessed management
-   PhotoImages and retains keyboard equivalence as unresolved. The schema-7
-   contract passed on real Windows 11 in Recovery 177; the bounded receipt stays
-   outside Git with SHA-256 `6e1a43e0...f0bef2`.
+5. **PMenu pointer acceptance:** both concrete whole-row SelectBmp controls use
+   the recovered `0x64F7A0` press path, half-open 201x29 bounds and concrete
+   row callbacks. Matching Tk `<Button-1>` presses use that seam.
+6. **PMenu title/child actions:** title expansion and supported child-panel
+   navigation are source-closed and integrated transactionally.
+7. **Exact PMenu row text geometry:** title and child captions use the
+   source-bound `Zurich_XCn_BT_25pixel.fnt` / `Zurich_XCn_BT_16pixel.fnt`,
+   local line origins **(30,1)** / **(30,17)** and half-open clip rectangle
+   **(30,0)-(198,29)**.
+8. **Static PMenu row visual state:** title/child background state, title arrow
+   expansion state, child selected/unselected state, and native black/white
+   label endpoints are source-backed.
+9. **Live PMenu pixel composition:** merge `57e3342` composes the four exact
+   imported row atlases plus native font masks in the normal clean host. It
+   deliberately does not fill unrecovered surrounding pixels.
+10. **Existing pointer-route Windows validation:** Recovery 177 schema 7 passed
+    on real Windows 11 with receipt SHA-256
+    `6e1a43e01a43ccbf7bfe92c3088ee446c40a92d51add3ba9660f20cb76f0bef2`.
+11. **League Fixtures source-byte availability:** Recovery 179 reverified the
+    canonical 511,121,336-byte source ZIP, its canonical executable and all six
+    PLeagueFixtures graphics. The six exact assets are now provenance-imported;
+    the vertical/horizontal grid families are rendered only at their 36
+    source-proven placements.
 
 ## Required before Gate 13 can pass
 
-The smallest sufficient remaining closure slice is now:
+The smallest sufficient remaining closure slice is:
 
-1. **Recover enough management pixels to render the fresh landing recognizably.**
-   Source-bind the remaining PMenu text origin/clipping and application-owned
-   management background/chrome needed for the visible PMenu/Squad landing.
-   Reuse the already imported PMenu/Squad resources; do not introduce a
-   substitute skin.
-2. **Keep unrecovered input modes fail-closed.** Ordinary PMenu pointer presses
-   are now source-bound and integrated. Keyboard activation remains unproven and
-   must not be enabled without its native dispatch trace.
-3. **Compose one ordinary management loop in the clean host.** The user must be
-   able to move through the source-backed Squad/tactics -> League Fixtures ->
+1. **Make the fresh management landing recognizable.** Integrate the
+   source-backed Squad/tactics pixels and controls that are already recoverable.
+   The unresolved application-owned background may remain a bounded gap only if
+   the resulting normal landing is still recognizably FM2001 and no substitute
+   pixels are invented.
+2. **Complete one representative clean-host management loop.** The user must be
+   able to move through a source-backed Squad/tactics -> League Fixtures ->
    PMatchInfo/result -> League Tables path while gameplay mutations continue to
-   flow through the reconstructed backend rather than presentation code.
-4. **Keep real-Windows coverage aligned with new pixels.** Schema 7 now passes
-   on Windows 11. Extend and rerun it when the recognizable management canvas
-   gains additional rendered controls or panels.
+   flow through the reconstructed backend.
+3. **Keep unrecovered details fail-closed.** In particular, do not place the
+   four 24x13 League Fixtures cell resources until their screen placement is
+   source-proven, do not guess unresolved Squad icons/text styling, and do not
+   enable PMenu keyboard activation without native evidence.
+4. **Keep real-Windows coverage aligned with rendered pixels.** Schema 8 is the
+   repository contract for live PMenu pixels. Extend it with each required
+   management-panel visual slice and obtain a fresh real-Windows receipt before
+   Gate 13 closes.
+5. **Re-audit every ROADMAP criterion after the representative loop is live.**
+   Presenter snapshots or diagnostic status strings alone are insufficient.
 
-A collection of presenter snapshots or diagnostic status strings is not enough
-to satisfy the normal-play criterion.
+## Current evidence boundaries
 
-## Current blockers
+### Application-owned surrounding management background
 
-### Private/native evidence blocker
+PMenu itself has a negative direct resource-ownership result. Recovery 179 also
+reverified the immediate application owner around `0x4C2FB0`: it constructs
+PMenu and places it at **(599,96,201,504)** but does not bind a new PMenu-
+specific image in that bounded owner path. This does **not** prove that the
+whole management screen has no background; any wider application-owned layer
+still requires its own owner/resource trace.
 
-The hosted ChatGPT execution sandbox fails before process start, but the local
-Windows Codex worker successfully resumed checksum-gated private tracing in
-Recovery 176. Remaining private trace targets are:
+The canonical **800x600** `FM2001_Art/Generic/bground.444` must not be reused
+here merely because its dimensions fit. Persisted evidence binds it to startup/
+front-end loading, not to the ordinary management shell.
 
-- exact PMenu label origin/clipping;
-- any application-owned surrounding management background layer not already
-  persisted;
-- original PMenu keyboard event equivalence.
+### Keyboard equivalence
 
-This is an infrastructure blocker, not a user-action blocker. Do not infer the
-missing behavior from appearance or modern UI conventions.
+Ordinary pointer presses are source-backed and integrated. Native PMenu keyboard
+event equivalence remains unproven, is disabled/unclaimed, and is not a Gate-13
+blocker unless later evidence makes it part of the required normal path.
 
-### Local Windows validation boundary
+### Real Windows validation
 
-Recovery 177 supplies the real Windows schema-7 receipt for the current blank-
-management-pixel contract. New management pixels must still be covered by a
-later schema revision and another real Windows run before Gate 13 closes.
+Recovery 177's schema-7 receipt remains valid for the pointer route that existed
+then. Recovery 179 added PMenu PhotoImages and the repository audit contract is
+now schema **8**, requiring those images to match the exact live row
+composition. A real Windows schema-8 run is pending and must be refreshed again
+if required panel pixels are added before closure.
+
+## Current verification
+
+For the live PMenu compositor merge `57e3342`:
+
+- Gate-13 presentation run `36998507566`: **453 tests**, **21 expected skips**, pass;
+- full reconstruction run `36998507518`: **1,363 tests**, **22 expected skips**, pass;
+- repository asset-policy run `36998507581`: pass.
+
+The League Fixtures asset/grid integration must pass its own branch validation
+before being merged and counted as canonical.
 
 ## Validly deferred to Gate 15
 
@@ -136,24 +171,31 @@ not be replaced by invented behavior.
 - TeamSelect Start backend-only handoff: superseded by the live MANAGEMENT host;
 - first-screen Windows validation: passed in Recovery 164;
 - PMenu four-file binary staging: complete;
+- PMenu label origin/clipping: complete;
+- ordinary PMenu pointer activation: complete;
 - PMatchInfo `info_popup.444` staging: complete;
 - League Tables 15-file staging: complete;
+- League Fixtures six-file staging: complete in the current Recovery-179
+  integration checkpoint;
 - `PLeagueTables+0x7FC..+0x97C` identity: closed as seven `eCText` stat
   headings with exact sort-state transforms.
 
 ## Immediate implementation boundary
 
-Until the process sandbox recovers, continue only independent cloud-safe work
-that improves the already-proven management path without inventing native
-behavior. Highest-value examples are:
+Continue the smallest source-backed representative management loop. Prefer
+already imported resources and persisted geometry/state over additional native
+tracing. Use private executable/source tracing only where a concrete required
+pixel or action remains genuinely unresolved.
 
-- keep the clean host, management presenter and Windows audit contract aligned;
-- integrate source-backed panel composition only where source geometry/state is
-  already sufficient;
-- make all unresolved management pixels and activation semantics fail closed;
-- prepare tests/audit coverage so fresh private evidence can be integrated
-  immediately when execution is available.
+Immediate order:
 
-When private execution recovers, the priority trace is the exact PMenu
-text-origin/clipping and source control-acceptance/event-equivalence path,
-followed by any still-needed application-owned background ownership evidence.
+1. finish/verify the League Fixtures grid checkpoint;
+2. render the smallest source-backed fresh Squad/tactics slice without guessing
+   unresolved row fonts/icons;
+3. expose the already source-bound PLeagueFixtures -> PMatchInfo dialog path and
+   render its exact imported dialog resources/placements;
+4. render the source-backed League Tables header/body art that can be selected
+   without inventing unresolved row-state semantics;
+5. extend schema 8 for that representative loop and run it on real Windows;
+6. re-audit Gate 13 and, if every criterion passes, close it and immediately
+   continue Gate 14.
