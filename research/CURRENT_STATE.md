@@ -97,16 +97,25 @@ Evidence:
   (`caas.internal.errors.ClientError`), so fresh disassembly is unavailable.
   The reconstruction therefore keeps due transfers after fixtures as an
   explicit approximation rather than promoting it to original behavior.
-- **Recovery 187 active Gate-15 work-ahead:** branch
-  `recovery187/gate15-cup-controlled-postings` implements the already-proven
-  special Cup/knockout accounting tail: both controlled participants can receive
-  categories 1 and 2 independently from the common attendance counts while each
-  participant uses its own ticket prices. The branch also materializes the
-  exact alternate `0x5DBCD0` paired first-XI attendance modifier while
-  deliberately leaving its match-family applicability neutral until the caller
-  is source-locked. No business-policy label such as "revenue sharing" is
-  inferred. Full live Cup receipt attachment remains blocked on that exact
-  caller/applicability boundary rather than on the accounting formula.
+- **Recovery 187 Gate-15 Cup accounting work-ahead is canonical:** PR #146
+  merged as `57e59f6374f8c278cabbe054b8767638a69e5a26` after
+  **1,424 tests / 22 expected skips** plus asset-policy success. The exact
+  controlled-participant category-1/category-2 posting helper and neutral
+  `0x5DBCD0` paired-XI numeric primitive are materialized; the direct
+  match-family caller/applicability remains fail-closed and no invented
+  "revenue sharing" label is used.
+- **Recovery 187 Gate-15 readiness audit is canonical:** PR #147 merged as
+  `04b2a65d864939f219d5800bef03eb8144833b00`. It classifies remaining
+  fidelity items under Gate 15's fixed / proven-irrelevant /
+  explicitly-documented rule without closing Gate 15 or bypassing Gates 13-14.
+- **Recovery 188 active cloud-safe work-ahead:** private process execution still
+  fails before start with `caas.internal.errors.ClientError`. Persisted
+  Gate-14 evidence proves the seven FastView basenames but not their exact disc
+  paths or placement; `pitch_normal.444` is independently owned by PMatchInfo,
+  so directory inference from basename is explicitly unsafe. The active branch
+  `recovery188/gate17-prerequisite-guard` hardens final release readiness so
+  Gate 17 cannot pass unless every Gate 1-16 completion criterion is checked in
+  `ROADMAP.md`.
 - **Recovery 186 private source access is working again:** the canonical
   511,121,336-byte disc-image ZIP was materialized from the Library, its raw
   MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical
