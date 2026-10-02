@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 182: PR #126 merged as main 9b31feb05f4c6e239eb4c96288375217165a484e. Gate 13 cloud-side Squad view-transition seam is now source-accepted and schema-8-covered: control 4/5 container transitions are tracked while modern pointer equivalence and post-event formation/player pixels remain fail-closed. Reconcile CURRENT_STATE/GATE13_CLOSURE_AUDIT/project_status, then real Windows schema-8 execution is the earliest validation blocker. Under the deferred-blocker policy, continue the highest-priority independent cloud-safe Gate 14 work without declaring Gate 13 complete.",
-  "last_known_main_head": "9b31feb05f4c6e239eb4c96288375217165a484e",
+  "active_task": "Recovery 182: documentation checkpoint merged as main 342504c4cf320e26524d6fa06674bf88ad6dbbe9. Gate 13 remains active with fresh real-Windows schema-8 execution as the earliest validation blocker. Under the deferred-blocker policy, continue independent cloud-safe Gate 14 work. Immediate task: inventory source-backed audio/sound-bank evidence and identify the smallest original login/menu or match-audio integration slice without inventing bank semantics.",
+  "last_known_main_head": "342504c4cf320e26524d6fa06674bf88ad6dbbe9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 182,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 182: bounded Squad view transition merged at 9b31feb. Gate 13 still awaits real Windows schema-8 and unresolved normal PMatchInfo/background judgments. Continue cloud-safe Gate 14 work-ahead after docs checkpoint.",
+  "note": "Recovery 182 continues. Gate 13 implementation/docs are checkpointed; real-Windows schema-8 is external. Active cloud-safe work-ahead is Gate 14 audio/sound-bank evidence inventory.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
