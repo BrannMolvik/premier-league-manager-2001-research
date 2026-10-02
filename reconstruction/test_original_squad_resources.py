@@ -58,6 +58,7 @@ from original_squad_resources import (
     SQUAD_STATUS_FILTER_CODE_BY_MASK,
     formation_text_source_row,
     formation_text_source_y,
+    squad_view_transition,
     validate_imported_original_squad_resources,
     validate_original_squad_button_labels,
 )
@@ -152,6 +153,21 @@ class OriginalSquadResourceTests(unittest.TestCase):
                 (5, "RES. FORM", "reserve", False, True, 1),
             ),
         )
+
+    def test_squad_view_transition_resolver_accepts_only_the_three_source_controls(self):
+        self.assertIs(squad_view_transition(3), SQUAD_VIEW_TRANSITIONS[0])
+        self.assertIs(squad_view_transition(4), SQUAD_VIEW_TRANSITIONS[1])
+        self.assertIs(squad_view_transition(5), SQUAD_VIEW_TRANSITIONS[2])
+        with self.assertRaisesRegex(
+            OriginalSquadResourceError,
+            "Unrecovered PSquadScreen view control ID",
+        ):
+            squad_view_transition(6)
+        with self.assertRaisesRegex(
+            OriginalSquadResourceError,
+            "must be an integer",
+        ):
+            squad_view_transition(True)
 
     def test_formation_text_rows_have_exact_native_geometry_and_ids(self):
         self.assertEqual(SQUAD_PITCH_CLASS, "PSquadPitch")

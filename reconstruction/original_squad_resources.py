@@ -162,6 +162,27 @@ SQUAD_VIEW_TRANSITIONS = (
     OriginalSquadViewTransition(5, "RES. FORM", "reserve", False, True, 1),
 )
 
+def squad_view_transition(control_id: int) -> OriginalSquadViewTransition:
+    """Return one executable-proven PSquadScreen view transition.
+
+    This resolver is intentionally source-accepted only. It does not map a
+    modern pointer/key event to controls 3/4/5 and it does not imply that
+    formation/player pixels for the resulting container state are recovered.
+    """
+    if type(control_id) is not int:
+        raise OriginalSquadResourceError("Squad view control ID must be an integer")
+    matches = tuple(
+        transition
+        for transition in SQUAD_VIEW_TRANSITIONS
+        if transition.control_id == control_id
+    )
+    if len(matches) != 1:
+        raise OriginalSquadResourceError(
+            f"Unrecovered PSquadScreen view control ID: {control_id:#x}"
+        )
+    return matches[0]
+
+
 SQUAD_PITCH_CLASS = "PSquadPitch"
 SQUAD_PITCH_TYPE_DESCRIPTOR_VA = 0x81DB30
 SQUAD_PITCH_VFTABLE_VA = 0x7C54A8
