@@ -10141,3 +10141,28 @@ remains blocked by the process-start `caas.internal.errors.ClientError`.
 Next: audit already source-proven Squad/PMenu presentation assets and
 geometry for the smallest recognizable cloud-safe management landing that
 does not require those unresolved pixels.
+
+
+## 2 October 2026 - Recovery 175 source-accepted PMenu checkpoint
+
+- PR #110 was reviewed, corrected so Gate-13 focused CI actually invokes
+  `test_original_pmenu_activation`, passed Gate-13/full-suite/asset-policy CI,
+  and squash-merged as `3401944146e0aa6254b6496b7e928bfa59fdc606`.
+- PR #111 then integrated the recovered post-source-acceptance PMenu action
+  contract without claiming Tk-event equivalence. It separates expanded-root
+  state from selected-panel state, requires currently visible source rows,
+  routes only supported recovered child panels transactionally, and keeps
+  ordinary Tk candidate hits non-activating.
+- PR #111 passed Gate-13 run `36986776362`, full reconstruction run
+  `36986776403`, and asset-policy run `36986776562`, then squash-merged as
+  `9e8f7a18368b8ce7076126a55b2e99563197659a`.
+- The authorized source ZIP was re-resolved and materialized from its canonical
+  Library location during Recovery 174/175, but the current ChatGPT execution
+  allocation again fails before shell/Python process start with
+  `caas.internal.errors.ClientError`. New private executable tracing is
+  therefore handed to Codex/local Windows rather than guessed.
+- Exact Codex next task: trace PMenu label origin/clipping and the native
+  accepted-control event boundary, then integrate only proven event
+  equivalence and run an updated real-Windows management audit. Continue
+  through the source-backed Squad -> League Fixtures/PMatchInfo -> League
+  Tables loop where evidence permits. Gate 13 remains active.
