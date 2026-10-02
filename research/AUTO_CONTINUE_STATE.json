@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 180: PR #119 merged as 6b26ad9, closing the exact PMatchInfo pointer-origin clamp and PLeagueTables 800x600 parent rect. Reconcile and merge PR #118 League Tables league_bar live raster integration on current main, then integrate the PMatchInfo dialog path without inventing the still-unbridged secondary linked context; continue representative Squad/tactics -> Fixtures/PMatchInfo -> League Tables visuals and schema-8 Windows audit.",
+  "active_task": "Recovery 181: resume canonical Gate 13 closure from main 6b26ad9caa24cf6a2725bda1536adead9d6dff8f. Reconcile and merge PR #118 League Tables league_bar live raster integration on current main, then integrate the PMatchInfo dialog path without inventing the still-unbridged secondary linked context; continue representative Squad/tactics -> Fixtures/PMatchInfo -> League Tables visuals and schema-8 Windows audit.",
   "last_known_main_head": "6b26ad9caa24cf6a2725bda1536adead9d6dff8f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 180,
-  "last_recovery_reason": "analysis-errored-sandbox",
-  "note": "Recovery 180 active. PR #117 had already advanced main to 378aea2 with fresh Squad top controls. PR #119 merged as 6b26ad9 after Gate13 run 37005529703 passed 461 tests/21 skips and asset policy 37005529961 passed. PR #118 League Tables header art remains in validation/reconciliation; local sandbox process start remains unavailable, so private-byte-only details stay fail-closed.",
+  "recovery_generation": 181,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 181 active after automatic recovery. Main remains 6b26ad9 from PR #119. PR #118 League Tables header art is the immediate canonical task; local sandbox/private-byte-only details remain fail-closed unless a functioning execution path becomes available.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
