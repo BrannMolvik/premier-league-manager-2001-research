@@ -65,10 +65,11 @@ from original_squad_top_controls import (
     load_verified_squad_top_resources,
 )
 from startup_media_playback import load_and_play_verified_startup_sequence
+from runtime_layout import application_root, bundled_source_root
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_SOURCE_ROOT = REPO_ROOT / "original_assets" / "source"
+REPO_ROOT = application_root()
+DEFAULT_SOURCE_ROOT = bundled_source_root()
 SCREEN_SIZE = (800, 600)
 
 
