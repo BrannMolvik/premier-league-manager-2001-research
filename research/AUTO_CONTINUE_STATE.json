@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 171 continuation from main 808ba182f42719b7736f5ddc96f91db654616778. PR #101 merged normal source-backed 800x600 app host; generic ttk is --prototype-ui only. PR #102 is active: geometry-only candidate PMenu row hit-testing, with no invented activation. Verify/merge #102, then continue independent Gate-13 presentation work. Private executable tracing for PMenu event semantics, exact label origin/clipping and any additional management background remains blocked by caas ClientError.",
-  "last_known_main_head": "808ba182f42719b7736f5ddc96f91db654616778",
+  "active_task": "Recovery 171 continuation from main 51b056b932f6cc4ec6bd8856f503135675411dcd. PR #102 merged geometry-only candidate PMenu row hit-testing. Next extend the integrated real-Windows/Tk Gate-13 audit through native club selection -> TeamSelect Start -> MANAGEMENT/PMenu host and exact PMenu (599,96,201,504) / fresh PSquadScreen (0,79,800,520) geometry. Keep unresolved management background/text pixels and PMenu row activation semantics fail-closed.",
+  "last_known_main_head": "51b056b932f6cc4ec6bd8856f503135675411dcd",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 171,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 171 checkpoint after PR #101. Gate13 36972538322 passed 419/21; full 36972538328 passed 1321/22; asset policy 36972538362 passed. PR #102 in verification.",
+  "note": "Recovery 171 checkpoint after PR #102. Gate13 run 36973075568 passed 425 tests/21 skips; asset policy 36973075522 passed. Continuing integrated Windows audit contract.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
