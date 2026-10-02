@@ -1089,6 +1089,7 @@ class HumanGameplayController:
             self.match_rng,
             user_controlled_club_id=controlled,
         )
+        self.state.run_monthly_transfer_counter_reset()
         if self.state.finalize_single_user_sacking_control() is not None:
             self.human = None
 
@@ -1408,6 +1409,7 @@ class HumanGameplayController:
             self.match_rng,
             user_controlled_club_id=self.human.club_id,
         )
+        self.state.run_monthly_transfer_counter_reset()
 
         # DBRUser +0x10D8 is consumed by the outer manager loop after the
         # reason-specific sacking message is queued. In single-user play the
