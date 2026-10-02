@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 181: main advanced canonically to 6711f7a85349e82ae1a013d66279babfbb99c4ea via PR #120, adding source-proven PMatchInfo popup art projection. PR #122 is the current host integration on that head; PR #121 was closed as a stale duplicate. Verify/merge PR #122, then reconcile schema-8 Windows audit with live Squad, League Fixtures, PMatchInfo and League Tables image stacks while keeping the unresolved fixture-cell/secondary-context bridge fail-closed.",
-  "last_known_main_head": "6711f7a85349e82ae1a013d66279babfbb99c4ea",
+  "active_task": "Recovery 181: PR #122 merged as main f248ecaf7cae4535b78451f46dad3ac8d36646be. Reconcile the real-Windows schema-8 audit with the now-live source-backed management image stack: fresh Squad top controls, 36 League Fixtures grid images, explicit source-resolved PMatchInfo popup, League Tables league_bar, plus current PMenu overlays. Preserve normal fixture-cell/secondary-context and PMatchInfo owner-local controls as unverified/fail-closed. Then refresh Gate 13 state/audit and continue closure work.",
+  "last_known_main_head": "f248ecaf7cae4535b78451f46dad3ac8d36646be",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 181,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 181 reconciled concurrent progress. Trust main 6711f7a and PR #122 over stale PR #121. Continue Gate 13 visual loop/audit; mission remains Gates 13-17.",
+  "note": "Recovery 181: PMatchInfo clean-host integration is canonical at f248ecaf. Next is panel-aware schema-8 Windows audit and Gate 13 reconciliation; overall mission continues through Gate 17.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
