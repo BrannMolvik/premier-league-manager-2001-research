@@ -9,12 +9,12 @@
   "gate_2_status": "complete",
   "gate_3_status": "complete",
   "gate_4_status": "complete",
-  "latest_reverse_engineering_checkpoint": "4537f9b150cab8e2282c5d33a30c13a43cfb50c3",
-  "last_verified_reconstruction_ci_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
+  "latest_reverse_engineering_checkpoint": "9e8f7a18368b8ce7076126a55b2e99563197659a",
+  "last_verified_reconstruction_ci_head": "776b1040ea90397c1f467fe990f1048781f9da1a",
   "last_verified_test_count": 1149,
-  "asset_policy_validated_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
+  "asset_policy_validated_head": "776b1040ea90397c1f467fe990f1048781f9da1a",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 remains active after Recovery 172. Default app launch is source-backed through TeamSelect Start -> MANAGEMENT/PMenu and both diagnostic/default hosts expose geometry-only PMenu candidate hits without navigation. Schema-5 Windows audit now covers the default clean host but still needs a real local Windows 11 receipt. Exact PMenu text/background and native row activation/event ownership require fresh private executable tracing; current process sandbox still fails before start with caas.internal.errors.ClientError.",
+  "active_task": "Recovery 175 checkpoint handed to Codex/local Windows. PR #111 is merged and the source-accepted PMenu action seam is canonical while ordinary Tk clicks remain non-activating. Next local/private work: trace exact PMenu label origin/clipping and accepted-control event semantics from the canonical executable; integrate only proven Tk pointer/keyboard equivalence; extend the real-Windows management audit through the source-backed PMenu action route and obtain a fresh Windows 11 receipt; then continue the minimum Squad -> League Fixtures/PMatchInfo -> League Tables visual loop. Gate 13 remains active.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -1557,5 +1557,8 @@
   "gate13_windows_audit_expected_skips": 21,
   "gate13_windows_audit_asset_policy_run": 36975636285,
   "gate13_windows_audit_real_receipt_status": "pending_local_windows_11_schema5_run",
-  "gate13_pmenu_activation_status": "blocked_pending_private_native_trace"
+  "gate13_pmenu_activation_status": "blocked_pending_private_native_trace",
+  "latest_gate13_ci_run": 36986776362,
+  "latest_reconstruction_ci_run": 36986776403,
+  "latest_asset_policy_run": 36986776562
 }
