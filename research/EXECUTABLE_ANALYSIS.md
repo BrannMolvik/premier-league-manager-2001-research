@@ -9663,3 +9663,70 @@ uses the host club's `+0x10/+0x14` league/country pair with this same
 `+0x48` subset. Premier League is therefore FanFactor1 = **0.9**, and Cup
 attendance derives the factor from the host club's league rather than the Cup
 root itself.
+
+
+## Gate 15 exact monthly purchase-counter lifecycle - 3 October 2026
+
+Direct canonical disassembly closes the old club `+0x1ED` lifecycle gap.
+
+### Permanent-arrival producer
+
+The transfer-stat object begins at club `+0x1E0`.
+`0x4F3290` is the permanent-arrival update:
+
+- byte `+0x0D` -> club `+0x1ED`: monthly arrivals, incremented;
+- byte `+0x0E` -> club `+0x1EE`: season arrivals, incremented;
+- the same helper also updates the associated financial totals.
+
+Permanent player club-switch finalizer `0x422F70` installs the destination
+club and calls `0x405190`; `0x405190` calls `0x4F3290` on the
+destination club's transfer-stat object. The direct call scan finds this as the
+mapped permanent-arrival producer. Therefore ordinary/human and autonomous
+permanent transfers share the same monthly arrival byte.
+
+The clean-room runtime now increments its persisted
+`ai_transfer_buy_counter` inside the shared permanent-transfer completion
+rather than only in the autonomous wrapper. Byte wraparound is preserved.
+
+### Month-start reset and ordering
+
+`0x4F3320` clears monthly transfer bytes `+0x0B` and `+0x0D` but does
+not clear the adjacent season bytes `+0x0C/+0x0E`.
+
+The daily order inside `0x4A8070` is decisive:
+
+```text
+0x613EE0    due dated process/message queue
+0x4138E0    DBRUser/country daily work
+Saturday:
+  0x6194D0  global transfer/loan maintenance
+  0x40BAD0  payroll
+decompose current date
+if day-of-month == 1:
+  0x40BB10 -> 0x4042E0 -> 0x4F3320
+```
+
+Thus when the first day of a month is Saturday, the Saturday buyer pass observes
+the pre-reset monthly purchase count. The reset occurs afterward. The modern
+runtime reproduces this as a late day-1 reset after
+`run_weekly_ai_transfer_maintenance()`, not as a `GameCalendar` monthly
+hook.
+
+### Shipped threshold quirk
+
+For rosters above 28, `0x403E70` loads club `+0x1ED` and compares that
+same value against both named tuning globals:
+
+```text
+MaxPlayersBuyMonthly = 3
+MaxPlayersBuySeason  = 8
+```
+
+Although season-arrivals byte `+0x1EE` exists and is maintained, this buyer
+predicate does not read it. The reconstruction intentionally preserves the
+double comparison against the monthly byte.
+
+Regression coverage locks the shared permanent-arrival increment, the absence
+of autonomous double-counting, day-1-only reset, and the Saturday
+1 September 2001 edge where a count of four blocks the buyer before any RNG
+and resets only afterward.
