@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 182: documentation checkpoint merged as main 342504c4cf320e26524d6fa06674bf88ad6dbbe9. Gate 13 remains active with fresh real-Windows schema-8 execution as the earliest validation blocker. Under the deferred-blocker policy, continue independent cloud-safe Gate 14 work. Immediate task: inventory source-backed audio/sound-bank evidence and identify the smallest original login/menu or match-audio integration slice without inventing bank semantics.",
+  "active_task": "Recovery 183: resume from canonical main 342504c4cf320e26524d6fa06674bf88ad6dbbe9. Gate 13 remains blocked only on fresh real-Windows schema-8 execution plus explicitly fail-closed normal Squad/fixture/PMatchInfo details. Under deferred-blocker policy, continue independent cloud-safe Gate 14 work. Immediate task: inventory source-backed audio/sound-bank evidence and identify the smallest original login/menu or match-audio integration slice without inventing bank semantics.",
   "last_known_main_head": "342504c4cf320e26524d6fa06674bf88ad6dbbe9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 182,
+  "recovery_generation": 183,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 182 continues. Gate 13 implementation/docs are checkpointed; real-Windows schema-8 is external. Active cloud-safe work-ahead is Gate 14 audio/sound-bank evidence inventory.",
+  "note": "Recovery 183 active. Do not redo Gate 13 merged work. Continue Gate 14 audio/sound inventory while preserving Gate 13 as earliest incomplete validation gate.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
