@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 179: fresh source-backed PSquadScreen top controls merged as 378aea2 after Gate13/full/asset validation. Next: persist the exact PMatchInfo pointer-origin clamp recovered from 0x488C80; keep entry fail-closed until the secondary source-linked context is bridged. Independently integrate source-proven League Tables header/body pixels, beginning with league_bar and exact header text only where font/state is source-closed.",
-  "last_known_main_head": "378aea2",
+  "active_task": "Recovery 180: PR #119 merged as 6b26ad9, closing the exact PMatchInfo pointer-origin clamp and PLeagueTables 800x600 parent rect. Reconcile and merge PR #118 League Tables league_bar live raster integration on current main, then integrate the PMatchInfo dialog path without inventing the still-unbridged secondary linked context; continue representative Squad/tactics -> Fixtures/PMatchInfo -> League Tables visuals and schema-8 Windows audit.",
+  "last_known_main_head": "6b26ad9caa24cf6a2725bda1536adead9d6dff8f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 180,
   "last_recovery_reason": "analysis-errored-sandbox",
-  "note": "PR #117 merged as 378aea2. Gate13 37004147338 passed 460 tests/21 skips; full 37004147299 passed 1,370 tests/22 skips; asset policy 37004147311 passed. ChatGPT continues.",
+  "note": "Recovery 180 active. PR #117 had already advanced main to 378aea2 with fresh Squad top controls. PR #119 merged as 6b26ad9 after Gate13 run 37005529703 passed 461 tests/21 skips and asset policy 37005529961 passed. PR #118 League Tables header art remains in validation/reconciliation; local sandbox process start remains unavailable, so private-byte-only details stay fail-closed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
