@@ -21,9 +21,9 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | Chairman legacy budget-event family | Modern port does not invent a live transfer/wage-budget scalar; ordinary play uses proven Balance/accounting paths | A0/A1/settings/warning payloads are persistence-loadable, but no ordinary fresh-game producer or Finance/Transfer UI consumer is mapped in the shipped executable | 15 or earlier if new evidence appears |
 | Match-day / recurring commercial income | Normal Premier League gate income is integrated; English Cup gate RNG and policy inputs are integrated but the special both-controlled-participants category-1/category-2 posting branch is not | The Cup/knockout applicability flag and independent controlled-participant posting branches are proven, but the exact business-policy split has not yet been instruction-closed. The authorized canonical executable is accessible again from the ChatGPT Library, so this is now a pending trace rather than a source-access blocker. Do not infer revenue sharing. Fresh-game concession income remains disabled because its generator does not activate records | 15 |
 | Finance/board residuals | Gate-10 ordinary Premier League finance and recovered board/job-security behavior are integrated | Remaining items are legacy chairman budget-event fidelity, support-staff amount materialization, broader cup gate/facility behavior, and unresolved EA-facing category labels | 15 or owning later system |
-| Original front-end presentation | Temporary Tk prototype now has a functional Play tab, but it is intentionally not the original FM2001 presentation | Authorized original screen/audio resources should be inventoried, reused, and converted where needed | 13-14 |
-| UI fidelity | Minimum human gameplay controls exist; original FM2001 screen structure/workflow is still unreconstructed | Original screen/workflow restoration incomplete | 13 |
-| FastView/3D | Largely unreconstructed | Intentionally low priority until gameplay is stable | 14 |
+| Original front-end presentation | Normal `app.py` launch now uses the fixed 800x600 source-backed `OriginalGameTkHost`; original PStartMenu/TeamSelect assets and a bounded PMenu/Squad/League Fixtures/PMatchInfo/League Tables management slice are live, while the generic ttk/Play prototype is explicit opt-in only | Repository schema 8 substantially restores the source-backed front-end/management workflow, but the expanded path still needs a fresh real-Windows 11/Tk receipt and re-audit; unrecovered surrounding management pixels, linked-context PMatchInfo details, and other secondary presentation remain fail-closed | 13-14 |
+| UI fidelity | A representative original-style management route now exists from PStartMenu -> TeamSelect -> PMenu -> Squad / League Fixtures / source-accepted PMatchInfo / League Tables using recovered geometry and original assets; unresolved actions/pixels are deliberately withheld instead of replaced by generic controls | The representative workflow is only partially source-closed and has not yet passed the current schema-8 real-Windows recognizability audit; ordinary fixture-cell linked context, some Squad pointer equivalence, owner-local popup children, and the wider management shell remain incomplete | 13 |
+| FastView/3D | Reconstructed match events now project through source-backed FastView semantic routes into a bounded presentation shell; a seven-target `PossessionFigures`/`PossessionDiagram` basename resolver fails closed until exact private-disc paths are uniquely proved | Original resource paths/placement geometry, side orientation, territory thresholds, audio bindings, commentary, and SCI/3D choreography remain unclosed; no guessed match-view layout is shipped as original behavior | 14 |
 
 ## Resolved or superseded gaps
 
@@ -81,14 +81,16 @@ remains unresolved.
 
 ### Internal modern-port save/load
 
-**Resolved for Gate 8.** The source-bound JSON save path now uses schema 10 and persists the live
-human-game runtime, both relevant RNG streams, league/result state, player
+**Resolved for Gate 8 and evolved since.** The versioned source-bound JSON save path
+now uses internal schema **34** and persists the live human-game runtime,
+relevant RNG streams, league/result state, player
 Condition/Form/injury/suspension/development state, tactics, scheduler order,
-and even a pending mid-matchday human fixture. File saves default to gzip and
-the temporary Play tab exposes Save Game / Load Game. A canonical Arsenal branch
-saved before the 26 August 2000 human fixture and reloaded into a fresh runtime
-remained exactly equal through 23 September / 60 stored PL results. See
-`research/GATE8_INTERNAL_SAVE.md`.
+and later-gate competition/transfer/finance state. File saves default to gzip.
+The original Gate-8 canonical Arsenal branch saved before the 26 August 2000
+human fixture and reloaded into a fresh runtime exactly through 23 September /
+60 stored PL results; later Gate-12/16 work additionally exercises schema-34
+season transitions and repeated save/reload stress. See
+`research/GATE8_INTERNAL_SAVE.md` and the current `project_status.json`.
 
 This does **not** claim compatibility with original FM2001 save files; that is
 retained above as a separate fidelity gap.

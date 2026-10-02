@@ -1635,5 +1635,9 @@
   "gate14_recovery_186_source_archive_materialized": true,
   "gate14_recovery_186_private_process_execution_status": "blocked_before_archive_inspection",
   "gate17_release_limitations_reconciled_recovery": 186,
-  "gate17_release_limitations_status": "pre_release_current_through_gate16_prevalidation"
+  "gate17_release_limitations_status": "pre_release_current_through_gate16_prevalidation",
+  "gate15_fidelity_ledger_reconciled_recovery": 186,
+  "gate15_fidelity_ledger_reconcile_base": "66fda45f07d8df50dea71303ff0e26348d9e3651",
+  "gate15_fidelity_ledger_current_internal_save_schema": 34,
+  "gate15_fidelity_ledger_presentation_status": "current_through_gate13_schema8_and_gate14_fastview_resolver"
 }

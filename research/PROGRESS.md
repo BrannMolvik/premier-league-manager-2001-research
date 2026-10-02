@@ -10302,3 +10302,18 @@ work may continue under the deferred-blocker policy.
   project-status fields for the latest Gate 14 checkpoints, and preserve Gate
   13 as the earliest incomplete validation gate. The branch is not a gate
   closure and will be merged only after repository verification.
+
+
+### Recovery 186 - Gate 15 fidelity-ledger reconciliation
+
+- Audited `research/FIDELITY_GAPS.md` against the current canonical status after
+  Gate-13 schema 8 and Gate-14 FastView work-ahead.
+- Corrected stale descriptions that still treated the generic Play tab as the
+  normal front end, described the source-backed management workflow as wholly
+  unreconstructed, and described FastView as merely deferred/low priority.
+- Reconciled the resolved internal-save note from historical schema 10 wording
+  to the current schema **34**, while preserving original-save compatibility as
+  a separate active fidelity gap.
+- No active fidelity item was falsely closed: real-Windows schema-8 validation,
+  unresolved management-shell details, FastView exact source paths/placement,
+  and the remaining Gate-15 behavioral gaps all remain open.
