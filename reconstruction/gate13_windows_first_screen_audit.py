@@ -865,8 +865,8 @@ def run_real_windows_graphical_audit(
                 int(clean_host.canvas.winfo_height()),
             ]
             clean_photo_dimensions = _actual_photo_dimensions(clean_host)
-            clean_expected_photos = expected_management_pmenu_photo_dimensions(
-                clean_frame,
+            clean_expected_photos = expected_clean_host_photo_dimensions(
+                clean_host,
                 pmenu_resources,
             )
             clean_contract = audit_management_host_contract(
@@ -939,7 +939,51 @@ def run_real_windows_graphical_audit(
                     expected_panel_class="PLeagueFixtures",
                 )
             )
-            verify_live_management_pmenu(clean_host, pmenu_resources)
+            fixture_photo_dimensions = verify_live_management_pmenu(
+                clean_host,
+                pmenu_resources,
+            )
+
+            match_info_action = clean_host.apply_source_accepted_fixture_match_info(
+                fixture_present=True,
+                linked_context_available=True,
+                pointer_x=400,
+                pointer_y=300,
+            )
+            _pump(root)
+            if match_info_action is None:
+                raise WindowsFirstScreenAuditError(
+                    "Source-accepted PMatchInfo action did not open the verified popup"
+                )
+            popup = clean_host.active_pmatchinfo_art
+            if popup is None or (
+                popup.x,
+                popup.y,
+                popup.width,
+                popup.height,
+            ) != (20, 50, 760, 500):
+                raise WindowsFirstScreenAuditError(
+                    "PMatchInfo popup lost its recovered middle-screen origin or size"
+                )
+            pmatchinfo_photo_dimensions = verify_live_management_pmenu(
+                clean_host,
+                pmenu_resources,
+            )
+
+            clean_host.apply_source_accepted_pmatchinfo_exit()
+            _pump(root)
+            if clean_host.active_pmatchinfo_art is not None:
+                raise WindowsFirstScreenAuditError(
+                    "Source-accepted PMatchInfo exit left the modal active"
+                )
+            post_pmatchinfo_photo_dimensions = verify_live_management_pmenu(
+                clean_host,
+                pmenu_resources,
+            )
+            if post_pmatchinfo_photo_dimensions != fixture_photo_dimensions:
+                raise WindowsFirstScreenAuditError(
+                    "Closing PMatchInfo did not restore the exact Fixtures bitmap stack"
+                )
 
             clean_host.canvas.event_generate("<Button-1>", x=600, y=96 + 5 * 29)
             _pump(root)
@@ -972,7 +1016,10 @@ def run_real_windows_graphical_audit(
                     expected_panel_class="PLeagueTables",
                 )
             )
-            verify_live_management_pmenu(clean_host, pmenu_resources)
+            league_tables_photo_dimensions = verify_live_management_pmenu(
+                clean_host,
+                pmenu_resources,
+            )
 
             clean_host_receipt = {
                 "new_game_to_teamselect": True,
@@ -985,6 +1032,18 @@ def run_real_windows_graphical_audit(
                 "source_accepted_pmenu_actions": source_accepted_actions,
                 "tk_pmenu_pointer_press_equivalence_verified": True,
                 "pmenu_source_row_pixels_rendered": True,
+                "source_backed_squad_pixels_verified": True,
+                "source_backed_squad_photo_dimensions": clean_photo_dimensions,
+                "source_backed_fixtures_pixels_verified": True,
+                "source_backed_fixtures_photo_dimensions": fixture_photo_dimensions,
+                "pmatchinfo_source_accepted_action_verified": True,
+                "pmatchinfo_secondary_context_reconstructed": False,
+                "pmatchinfo_popup_origin": [20, 50],
+                "pmatchinfo_popup_size": [760, 500],
+                "pmatchinfo_photo_dimensions": pmatchinfo_photo_dimensions,
+                "pmatchinfo_source_accepted_exit_verified": True,
+                "source_backed_league_tables_pixels_verified": True,
+                "source_backed_league_tables_photo_dimensions": league_tables_photo_dimensions,
                 **clean_contract,
             }
         finally:
