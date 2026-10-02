@@ -158,6 +158,16 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
         self.assertFalse(record["pmenu_text_placement_recovered"])
         self.assertFalse(record["complete_source_pixel_frame_available"])
 
+        clean_record = audit_management_host_contract(
+            frame,
+            canvas_size=[800, 600],
+            photo_dimensions=[],
+            status="Management host active: PSquadScreen",
+            required_status_fragment="Management host active",
+        )
+        self.assertEqual(clean_record["panel_code"], 0xCE)
+        self.assertEqual(clean_record["photo_dimensions"], [])
+
     def test_management_host_contract_fails_closed_on_guessed_pixels_or_geometry(self):
         base = dict(
             screen_size=(800, 600),
