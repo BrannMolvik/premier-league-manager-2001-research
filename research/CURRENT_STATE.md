@@ -113,17 +113,21 @@ Evidence:
   **1,428 tests / 22 expected skips** plus asset-policy success. The final audit
   now requires every Gate 1-16 roadmap criterion and four distinct external
   Windows receipts before Gate 17 can pass.
-- **Recovery 188 active Gate-17 work-ahead:** private process execution still
-  fails before start with `caas.internal.errors.ClientError`. Persisted
-  Gate-14 evidence proves the seven FastView basenames but not their exact disc
-  paths or placement; `pitch_normal.444` is independently owned by PMatchInfo,
-  so directory inference from basename is explicitly unsafe. Branch
-  `recovery188/gate17-artifact-bound-receipts` binds every Windows receipt to
-  the exact release version/archive SHA-256 and adds a fail-closed Windows
-  producer for new-game/management-loop, save/reload and canonical annual
-  season-progression receipts. Clean-install evidence remains a separate
-  packaging/install task.
-- **Recovery 188 Gate-17 artifact-bound receipts are canonical:** PR #150\n  squash-merged as `489bf23b25d7633385b42257379da7cc5056ca0b` after\n  **1,439 tests / 22 expected skips** plus asset-policy success. Gameplay\n  receipts now bind repository commit, release version and archive SHA-256;\n  the Windows producer independently audits new-game/management-loop, exact\n  save/reload round-trip and canonical annual season progression.\n- **Recovery 188 active Windows-package work-ahead:** branch\n  `recovery188/gate17-windows-package` makes bundled source assets\n  PyInstaller-safe, builds a provenance-bounded `onedir` Windows candidate\n  outside Git, rejects original database/executable/disc-image material,\n  smoke-tests the frozen executable, and uploads ZIP + SHA-256 manifest from\n  hosted Windows CI. Hosted `windows-latest` is treated only as a build host;\n  Gate-17 Windows evidence now rejects Windows Server and still requires a\n  real consumer Windows 11 clean-install receipt.\n- **Recovery 186 private source access is working again:** the canonical
+- **Recovery 188 Gate-17 artifact-bound receipts are canonical:** PR #150
+  squash-merged as `489bf23b25d7633385b42257379da7cc5056ca0b` after
+  **1,439 tests / 22 expected skips** plus asset-policy success. Gameplay
+  receipts now bind repository commit, release version and archive SHA-256;
+  the Windows producer independently audits new-game/management-loop, exact
+  save/reload round-trip and canonical annual season progression.
+- **Recovery 188 active Windows-package work-ahead:** branch
+  `recovery188/gate17-windows-package` makes bundled source assets
+  PyInstaller-safe, builds a provenance-bounded `onedir` Windows candidate
+  outside Git, rejects original database/executable/disc-image material,
+  smoke-tests the frozen executable, and uploads ZIP + SHA-256 manifest from
+  hosted Windows CI. Hosted `windows-latest` is treated only as a build host;
+  Gate-17 Windows evidence now rejects Windows Server and still requires a
+  real consumer Windows 11 clean-install receipt.
+- **Recovery 186 private source access is working again:** the canonical
   511,121,336-byte disc-image ZIP was materialized from the Library, its raw
   MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical
   SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
