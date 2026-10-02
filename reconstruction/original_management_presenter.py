@@ -5,11 +5,11 @@ only the content panels whose current presentation boundary is source-proven
 well enough to integrate without inventing a replacement UI:
 
 * fresh Team -> Squad (PSquadScreen);
-* Calendar -> League Fixtures (PLeagueFixtures), preserving bridge source order;
+* Calendar -> League Fixtures (PLeagueFixtures), including its recovered directed-pair grid;
 * TABLES -> League Tables (PLeagueTables), using the recovered table presenter.
 
-It deliberately does not synthesize unresolved shell pixels, fixture-grid
-member placement, Current Form ordering, or gameplay mutations. PMatchInfo is
+It deliberately does not synthesize unresolved shell pixels, surrounding
+League Fixtures chrome, Current Form ordering, or gameplay mutations. PMatchInfo is
 exposed only through the already recovered fixture action gate.
 """
 from __future__ import annotations
@@ -22,6 +22,10 @@ from gate13_management_source_data import (
     ClubHeaderView,
     FixtureRowView,
     ManagementSourceDataBridge,
+)
+from original_league_fixtures_presenter import (
+    OriginalLeagueFixturesSnapshot,
+    build_league_fixtures_snapshot,
 )
 from original_league_fixtures_resources import (
     LeagueFixturesMatchInfoAction,
@@ -70,6 +74,7 @@ class OriginalManagementPanelSnapshot:
     source_squad_count: int = 0
     rows_beyond_initial_viewport: int = 0
     fixtures_in_source_order: tuple[FixtureRowView, ...] = ()
+    league_fixtures: OriginalLeagueFixturesSnapshot | None = None
     league_tables: OriginalLeagueTablesSnapshot | None = None
 
 
@@ -94,6 +99,7 @@ def build_management_panel_snapshot(
     selected_child_id: int,
     *,
     bridge_factory: Callable[[object], object] = ManagementSourceDataBridge,
+    staged_league_fixture_resource_names: Iterable[str] = (),
     staged_league_table_resource_names: Iterable[str] = (),
 ) -> OriginalManagementPanelSnapshot:
     """Project one source-proven integrated PMenu route.
@@ -125,12 +131,18 @@ def build_management_panel_snapshot(
         )
 
     if selected_child_id == LEAGUE_FIXTURES_PANEL.menu_id:
+        source = bridge.league_fixtures_grid_source()
+        fixtures = build_league_fixtures_snapshot(
+            source,
+            staged_resource_names=staged_league_fixture_resource_names,
+        )
         return OriginalManagementPanelSnapshot(
             club=club,
             menu=menu,
             panel_code=LEAGUE_FIXTURES_PANEL.menu_id,
             panel_class=LEAGUE_FIXTURES_PANEL.panel_class,
-            fixtures_in_source_order=tuple(bridge.fixture_rows()),
+            fixtures_in_source_order=tuple(source.fixtures_in_source_order),
+            league_fixtures=fixtures,
         )
 
     if selected_child_id == LEAGUE_TABLES_PANEL.menu_id:
@@ -187,6 +199,7 @@ class OriginalManagementPresenter:
     session: FrontEndSession
     bridge_factory: Callable[[object], object] = ManagementSourceDataBridge
     selected_child_id: int = PMENU_FRESH_SELECTED_CHILD_ID
+    staged_league_fixture_resource_names: tuple[str, ...] = ()
     staged_league_table_resource_names: tuple[str, ...] = ()
 
     def snapshot(self) -> OriginalManagementPanelSnapshot:
@@ -194,6 +207,7 @@ class OriginalManagementPresenter:
             self.session,
             self.selected_child_id,
             bridge_factory=self.bridge_factory,
+            staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
             staged_league_table_resource_names=self.staged_league_table_resource_names,
         )
 
@@ -202,6 +216,7 @@ class OriginalManagementPresenter:
             self.session,
             selected_child_id,
             bridge_factory=self.bridge_factory,
+            staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
             staged_league_table_resource_names=self.staged_league_table_resource_names,
         )
         self.selected_child_id = selected_child_id

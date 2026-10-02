@@ -1309,5 +1309,46 @@ class ManagementSourceDataBridgeTests(unittest.TestCase):
             ManagementSourceDataBridge(controller).fixture_rows()
 
 
+    def test_league_fixtures_grid_source_reuses_native_league_prepare_order(self):
+        controller = FakeController()
+        controller.state.premier_league.club_ids = (10, 11)
+        controller.state.premier_league.table = (
+            lambda name_key: controller.state._table
+        )
+        controller.state.competitions = {
+            0: SimpleNamespace(scheduled_matchday_count=2)
+        }
+
+        source = ManagementSourceDataBridge(controller).league_fixtures_grid_source()
+
+        # FakeState's native-comparator output is deliberately Beta then Alpha.
+        self.assertEqual(source.competition_id, 0)
+        self.assertEqual(source.member_club_ids, (11, 10))
+        self.assertEqual(source.scheduled_matchday_count, 2)
+        self.assertEqual(source.schedule_cycle_count, 2)
+        self.assertEqual(source.matrix_layer_count, 1)
+        self.assertEqual(
+            tuple(row.fixture_id for row in source.fixtures_in_source_order),
+            (17, 3),
+        )
+
+    def test_league_fixtures_grid_source_fails_closed_on_ambiguous_name_bytes(self):
+        controller = FakeController()
+        controller.state.clubs[11].short_name = "Alpha"
+        controller.state.premier_league.club_ids = (10, 11)
+        controller.state.premier_league.table = (
+            lambda name_key: controller.state._table
+        )
+        controller.state.competitions = {
+            0: SimpleNamespace(scheduled_matchday_count=2)
+        }
+
+        with self.assertRaisesRegex(
+            ManagementPresentationError,
+            "short-name bytes are not unique",
+        ):
+            ManagementSourceDataBridge(controller).league_fixtures_grid_source()
+
+
 if __name__ == "__main__":
     unittest.main()
