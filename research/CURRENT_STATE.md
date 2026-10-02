@@ -25,6 +25,36 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 173 private execution recovered:** the authorized
+  **511,121,336-byte** source ZIP rehashed to canonical
+  `677dcbc...a8a4`, and both extracted shipped executables rehashed to
+  canonical `833bf95e...b7cc3`. The previous process-start infrastructure
+  blocker is no longer active for static tracing.
+- **Recovery 173 PMenu action ownership is source-closed:** concrete row action
+  vtable slot `+0x10` resolves to title `0x47AC60` and child
+  `0x47AD60`; the generic accepted-control path calls the parent-row action
+  at `0x64FF21`. Title action mutates the exact root open bit. Child action
+  reads node `+0x0C` and calls management panel factory
+  `0x47AEC0(menu_id, 0)`, gated by neutral node-state bits 0/1.
+  `original_pmenu_activation.py` preserves this contract without equating a
+  modern Tk click to the original accepted event.
+- **Gate-14 startup-media work-ahead verified and merged:** PR #109 passed
+  Gate-13 presentation CI, the full reconstruction suite, and asset policy,
+  then squash-merged as
+  `94d9702c0e4fce3fd215ec4741755cf8630751b3`. The clean host can now run
+  an explicitly configured verified startup derivative sequence before Tk.
+- **Gate 13 remains active:** exact PMenu label origin/clipping and any
+  application-owned surrounding management pixels remain unresolved; the
+  source control-acceptance boundary is not yet mapped far enough to promote
+  Tk rectangle containment into native event equivalence; the clean-host
+  Squad -> Fixtures/PMatchInfo -> League Tables loop still needs live
+  activation; and a real Windows 11 schema-5 receipt is pending.
+- **Exact next task:** continue the now-unblocked private PMenu trace through
+  label origin/clipping and accepted-control event semantics, then integrate
+  only the proven row activation route into the clean host and update the
+  Windows audit contract.
+
+
 - **Recovery 172 default clean-host Windows audit merged:** PR #107 merged as
   `a79edc86e0333fb856539274e12113d85de868c8`. The real Windows/Tk harness is
   now schema **5** and exercises both the developer viewer and the default

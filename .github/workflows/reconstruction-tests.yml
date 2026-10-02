@@ -32,6 +32,8 @@ on:
       - "reconstruction/test_startup_media_playback.py"
       - "reconstruction/match_presentation_feed.py"
       - "reconstruction/test_match_presentation_feed.py"
+      - "reconstruction/original_pmenu_activation.py"
+      - "reconstruction/test_original_pmenu_activation.py"
       - "research/GATE14_PRESENTATION_FOUNDATION.md"
       - "reconstruction/gate16_annual_regeneration_soak.py"
       - "reconstruction/test_gate16_annual_regeneration_soak.py"

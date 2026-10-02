@@ -634,3 +634,95 @@ Squad panel. These coordinates close the parent placement needed for an
 the earlier negative resource-ownership boundary still applies. Exact label
 origin/clipping and a source-backed surrounding background remain open, so a
 finished pixel renderer is not yet claimed.
+
+
+## Recovery 173 row action / event-ownership closure
+
+The process sandbox recovered in Recovery 173, so the exact canonical executable
+was re-extracted from the authorized source archive and reverified before this
+trace:
+
+- source ZIP SHA-256:
+  `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`;
+- canonical executable SHA-256:
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+
+No executable or raw disassembly bytes are added to Git.
+
+### Concrete row action ownership
+
+The common `PBaseMenuRow` virtual at offset `+0x10` resolves to
+`0x668766`, which reaches the runtime pure-virtual handler. The concrete row
+classes therefore own distinct mandatory overrides:
+
+- `PTitleMenuRow` vtable `+0x10 -> 0x47AC60`;
+- `PChildMenuRow` vtable `+0x10 -> 0x47AD60`.
+
+The generic child-control path around `0x64FE50` obtains the child object's
+parent at child `+0x24` and, after the source control accepts its event,
+dispatches the child plus event/context pointer through the **parent's vtable
++0x10** at the call ending `0x64FF21`.
+
+This closes the earlier ownership uncertainty: PMenu actions belong to the
+concrete row callback. It does **not** prove that arbitrary rectangle
+containment or a modern Tk `<Button-1>` event is equivalent to the original
+accepted event object.
+
+### Title-row action
+
+`PTitleMenuRow::0x47AC60` resolves the row's source node through the recovered
+ordinal/tree path `0x60CA70`. If node state `+0x14 bit 0` is already set it
+does nothing. Otherwise it:
+
+1. walks the expandable root nodes and clears bit 0 from the other open root;
+2. sets bit 0 on the target title node;
+3. calls the PMenu owner refresh path through owner vtable `+0xA8`.
+
+The higher-level event type remains deliberately unnamed. The observable source
+mutation is exactly an expanded/selected-root change.
+
+### Child-row action
+
+`PChildMenuRow::0x47AD60` resolves the source node the same way and gates the
+action when either:
+
+- node `+0x14 bit 0` is already set; or
+- node `+0x14 bit 1` is set.
+
+Bit 1 remains neutral because its higher-level UI meaning is not required for
+the recovered dispatch contract.
+
+For an accepted child action, the executable reads the node's **`+0x0C`
+menu/panel ID** and calls the real management panel factory
+`0x47AEC0(menu_id, 0)`. Only after successful factory/transition work does the
+route set the target child's bit 0 and refresh the owner through vtable
+`+0xA8`.
+
+Therefore the panel ID used for management navigation is not inferred from row
+text or screen geometry; it is the exact static node ID already modeled in the
+PMenu topology.
+
+### Clean-room boundary
+
+`reconstruction/original_pmenu_activation.py` records this action seam with:
+
+- the concrete action VAs and parent-dispatch addresses;
+- exact node offsets `+0x0C/+0x10/+0x14`;
+- title open-bit mutation;
+- the neutral child bit-1 gate;
+- exact child factory call `0x47AEC0(menu_id, 0)`;
+- owner refresh vtable offset `+0xA8`.
+
+The contract intentionally starts after source control/event acceptance. The
+clean host should not promote its current geometry-only Tk hit into a native
+activation until the event equivalence/control coverage is separately traced.
+
+The previous Gate-13 blocker **"native PMenu row activation/event ownership is
+unproven"** is therefore closed at the executable-contract level. Remaining
+work is:
+
+1. finish exact label origin/clipping and surrounding source-pixel ownership;
+2. trace the source control acceptance boundary far enough to justify clean-host
+   pointer/keyboard dispatch;
+3. integrate supported child panel transitions in the clean host;
+4. execute the corrected real-Windows/schema-5 audit.

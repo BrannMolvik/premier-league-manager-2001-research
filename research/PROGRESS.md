@@ -10052,3 +10052,37 @@ A fresh trivial container process probe still fails before start with
 persisted native PMenu row-event ownership trace sufficient to implement
 activation safely, so activation/text/background work remains blocked on fresh
 private execution rather than being guessed.
+
+
+## 2 October 2026 - Recovery 173 sandbox recovery and PMenu action ownership
+
+- Recovery 173 resumed from main `82a89e9c18c4a96951f00321b4e0932af6eb216d`.
+- Independent Gate-14 PR #109 completed Gate-13 presentation CI, the full
+  reconstruction suite, and asset-policy CI successfully, then squash-merged to
+  main as `94d9702c0e4fce3fd215ec4741755cf8630751b3`. The clean host now has
+  explicit receipt-driven verified startup-media playback through a caller-
+  configured synchronous player command; no skip/fade/scaling semantics were
+  invented.
+- The process sandbox recovered. The authorized 511,121,336-byte Library source
+  ZIP rehashed exactly to
+  `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`.
+  Both executable copies extracted directly from the raw MODE1/2352 Joliet
+  image rehashed to canonical
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- Fresh private disassembly closes PMenu row action ownership. The common
+  `PBaseMenuRow` action slot at vtable `+0x10` is pure; title and child rows
+  override it at `0x47AC60` and `0x47AD60`. The generic accepted-control
+  path dispatches through the parent row's `+0x10` slot at the call ending
+  `0x64FF21`.
+- Title action resolves the node through `0x60CA70`, clears bit 0 on other
+  expandable roots, sets target node `+0x14 bit 0`, then refreshes the owner.
+  Child action gates on target bits 0/1, reads exact node `+0x0C`, and calls
+  management panel factory `0x47AEC0(menu_id, 0)` before committing the child
+  selection and owner refresh.
+- `reconstruction/original_pmenu_activation.py` and focused regressions now
+  preserve this source contract. The seam deliberately begins after the
+  original child control accepts an event, so the existing Tk rectangle hit is
+  not yet promoted to a native click-equivalence claim.
+- Exact next task: complete the PMenu label origin/clipping trace and the source
+  control-acceptance boundary, then wire only source-proven activation into the
+  clean host. The real Windows 11 schema-5 graphical receipt remains pending.

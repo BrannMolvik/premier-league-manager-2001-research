@@ -73,6 +73,8 @@ on:
       - "reconstruction/test_original_pmenu_chrome.py"
       - "reconstruction/original_pmenu_presenter.py"
       - "reconstruction/test_original_pmenu_presenter.py"
+      - "reconstruction/original_pmenu_activation.py"
+      - "reconstruction/test_original_pmenu_activation.py"
       - "reconstruction/original_teamselect_hierarchy_art.py"
       - "reconstruction/test_original_teamselect_hierarchy_art.py"
       - "reconstruction/original_first_screen_presenter.py"
@@ -155,6 +157,7 @@ jobs:
             test_original_pmatchinfo_resources \
             test_original_pmenu_chrome \
             test_original_pmenu_presenter \
+            test_original_pmenu_activation \
             test_original_teamselect_hierarchy_art \
             test_original_first_screen_presenter \
             test_ea444_header \
