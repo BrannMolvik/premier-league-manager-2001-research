@@ -252,6 +252,10 @@ class ScheduledTransferCompletionTests(unittest.TestCase):
         self.assertNotIn((1, 11), state.transfers.proposals)
         self.assertNotIn(1, state.transfers.deals)
 
+        # 0x422F70 counts every permanent arrival at the destination club,
+        # including scheduled/human-path transfers rather than AI buys only.
+        self.assertEqual(state.ai_transfer_buy_counter[11], 1)
+
         self.assertEqual(state.current_cash(11), 250_000)
         self.assertEqual(state.current_cash(10), 998_500)
         self.assertEqual(
@@ -323,6 +327,7 @@ class ScheduledTransferCompletionTests(unittest.TestCase):
         self.assertEqual(state.players[1].club_id, 10)
         self.assertEqual(len(state.transfers.scheduled_transfers), 1)
         self.assertEqual(state.transfers.movements, [])
+        self.assertEqual(state.ai_transfer_buy_counter.get(11, 0), 0)
 
 
 class CashProposalTotalTests(unittest.TestCase):
