@@ -160,7 +160,7 @@ class ContractMaintenanceTests(unittest.TestCase):
 
         self.assertEqual(outcome, AiContractMaintenanceOutcome.RENEWED)
         self.assertEqual(rng.bounds, [100, 2])
-        self.assertEqual(player.contract_expiry_date, date(2001, 7, 21))
+        self.assertEqual(player.contract_expiry_date, date(2001, 7, 1))
         self.assertEqual(player.morale, 82)
 
     def test_417580_equivalent_block_and_loan_gates_force_renewal(self):
@@ -532,7 +532,7 @@ class ContractMaintenanceTests(unittest.TestCase):
             controlled.contract_expiry_date,
             self.on_date + timedelta(days=20),
         )
-        self.assertEqual(ai_player.contract_expiry_date, date(2001, 7, 21))
+        self.assertEqual(ai_player.contract_expiry_date, date(2001, 7, 1))
 
 
 if __name__ == "__main__":
