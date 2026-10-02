@@ -9565,3 +9565,37 @@ replays the exact daily XOR lifecycle before weekly autonomous acquisitions.
 The live gate boolean was already persisted by internal save schema 34, so no
 save-format change is required. Due-transfer same-day fixture ordering remains
 a separate unresolved Gate-15 item and is not inferred from this trace.
+
+
+## Gate 15 exact contract calendar-month normalization - 3 October 2026
+
+Direct disassembly of canonical `FOOTBAL.EXE` closes the old month-end
+compatibility approximation.
+
+`0x64CDD0` operates on the decomposed date structure produced by
+`0x64CCD0`. On entry it immediately writes:
+
+```text
+date.day = 1
+```
+
+It then adds the requested month span to `date.month - 1`, folds signed month
+overflow into the year, normalizes the month back to 1..12, and returns. It
+contains no source-day preservation and no target-month final-day clamp.
+
+Recovered contract/date callers include:
+
+- `0x418FED` in contract-term application;
+- `0x4191AF` in player contract maintenance;
+- `0x4192CE` in signed/new-contract processing;
+- `0x61E65B` in the youth date path.
+
+Each caller then invokes `0x64CE30` to serialize the normalized structure.
+Therefore a source date of 18 August 2000 plus 12 months becomes
+**1 August 2001**, and 31 January 2001 plus one month becomes
+**1 February 2001**. A zero-month call likewise normalizes to the first day of
+the current month.
+
+The reconstruction now shares this exact behavior through
+`contract_expiry_from_month_span()`; the previous preserve-day/final-day clamp
+is removed.

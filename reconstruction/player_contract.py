@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from calendar import monthrange
 from datetime import date
 import math
 from typing import Protocol, Sequence
@@ -47,27 +46,21 @@ def initial_weekly_wage(
 
 
 def contract_expiry_from_month_span(start_date: date, month_span: int) -> date:
-    """Advance by the recovered calendar-month span without invalid dates.
+    """Reproduce the shared 0x64CDD0 calendar-month advance exactly.
 
-    The executable-backed behavior proves the month count and that the contract
-    path advances in calendar months. The exact original normalization when the
-    source day does not exist in the target month is not yet instruction-locked.
-    The modern runtime therefore keeps the source day when valid and uses a
-    documented compatibility clamp to the target month's final day otherwise.
+    The original first decomposes the source date through 0x64CCD0. 0x64CDD0
+    then unconditionally writes day = 1 before advancing the year/month pair by
+    the requested month count. Callers serialize that normalized date through
+    0x64CE30. Therefore this is *not* a preserve-the-day/clamp operation:
+    every result is the first day of the target calendar month.
     """
     month_span = int(month_span)
     if month_span < 0:
         raise ValueError("month_span must not be negative")
-    year = int(start_date.year)
-    month = int(start_date.month)
-    for _ in range(month_span):
-        if month == 12:
-            month = 1
-            year += 1
-        else:
-            month += 1
-    day = min(int(start_date.day), monthrange(year, month)[1])
-    return date(year, month, day)
+    zero_based_month = (int(start_date.month) - 1) + month_span
+    year = int(start_date.year) + zero_based_month // 12
+    month = zero_based_month % 12 + 1
+    return date(year, month, 1)
 
 
 def _scaled_financial_value(

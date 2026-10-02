@@ -10372,3 +10372,16 @@ work may continue under the deferred-blocker policy.
 - Existing schema-34 save persistence already stores the live country gate
   boolean, so no schema bump is required.
 - The separate due-transfer same-day fixture-order gap remains open.
+
+
+### Recovery 186 - exact contract calendar-month normalization
+
+- Directly disassembled `0x64CDD0` from the canonical executable.
+- Proved that month-span advancement unconditionally resets day to **1** before
+  year/month normalization; the prior preserve-day/end-of-month clamp was a real
+  compatibility approximation rather than original behavior.
+- Updated the shared contract-expiry primitive used by startup contracts,
+  renewals, autonomous transfers and completed-transfer contract terms.
+- Regression coverage now locks ordinary, leap-February, multi-year and
+  zero-month cases to first-of-target-month behavior.
+- Moved only the contract month-normalization fidelity item to resolved.

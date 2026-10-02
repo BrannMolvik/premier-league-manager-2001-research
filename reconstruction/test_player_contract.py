@@ -144,28 +144,31 @@ class PlayerContractTests(unittest.TestCase):
             7500,
         )
 
-    def test_contract_expiry_advances_months_preserving_day(self):
+    def test_contract_expiry_month_span_resets_to_first_of_target_month(self):
         self.assertEqual(
             contract_expiry_from_month_span(date(2000, 8, 18), 12),
-            date(2001, 8, 18),
+            date(2001, 8, 1),
         )
         self.assertEqual(
             contract_expiry_from_month_span(date(2000, 8, 18), 60),
-            date(2005, 8, 18),
+            date(2005, 8, 1),
         )
-
-    def test_contract_expiry_month_end_uses_bounded_compatibility_clamp(self):
         self.assertEqual(
             contract_expiry_from_month_span(date(2001, 1, 31), 1),
-            date(2001, 2, 28),
+            date(2001, 2, 1),
         )
         self.assertEqual(
             contract_expiry_from_month_span(date(2000, 1, 31), 1),
-            date(2000, 2, 29),
+            date(2000, 2, 1),
         )
         self.assertEqual(
             contract_expiry_from_month_span(date(2001, 1, 31), 2),
-            date(2001, 3, 31),
+            date(2001, 3, 1),
+        )
+        # 0x64CDD0 writes day=1 even when adding zero months.
+        self.assertEqual(
+            contract_expiry_from_month_span(date(2001, 1, 31), 0),
+            date(2001, 1, 1),
         )
 
 
