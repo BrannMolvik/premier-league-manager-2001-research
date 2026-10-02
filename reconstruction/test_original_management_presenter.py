@@ -218,6 +218,72 @@ class OriginalManagementPresenterTests(unittest.TestCase):
         self.assertTrue(league.league_tables.exact_art_staged)
         self.assertEqual(league.fixtures_in_source_order, ())
 
+    def test_source_accepted_pmenu_actions_expand_then_navigate_supported_panels(self):
+        fixture_staged = tuple(resource.name for resource in LEAGUE_FIXTURES_RESOURCES)
+        table_staged = tuple(resource.name for resource in LEAGUE_TABLES_RESOURCES)
+        presenter = OriginalManagementPresenter(
+            self.started_session(),
+            bridge_factory=Bridge,
+            staged_league_fixture_resource_names=fixture_staged,
+            staged_league_table_resource_names=table_staged,
+        )
+
+        with self.assertRaisesRegex(
+            OriginalManagementPresentationError,
+            "currently visible recovered row",
+        ):
+            presenter.source_accepted_pmenu_action("child", 0x25A, 0)
+
+        calendar = presenter.source_accepted_pmenu_action("title", 0x259, 0)
+        self.assertTrue(calendar.action.accepted)
+        self.assertEqual(calendar.action.action_kind, "expand_root")
+        self.assertEqual(calendar.presentation.panel_code, 0xCE)
+        self.assertEqual(calendar.presentation.menu.selected_root_id, 0x259)
+        self.assertEqual(calendar.presentation.menu.selected_child_id, 0xCE)
+        self.assertIn(
+            ("child", 0x25C, "League Fixtures"),
+            tuple(
+                (row.row_kind, row.menu_id, row.caption)
+                for row in calendar.presentation.menu.rows
+            ),
+        )
+
+        fixtures = presenter.source_accepted_pmenu_action("child", 0x25C, 0)
+        self.assertTrue(fixtures.action.accepted)
+        self.assertEqual(fixtures.action.action_kind, "open_panel")
+        self.assertEqual(fixtures.action.panel_factory_arguments, (0x25C, 0))
+        self.assertEqual(
+            (fixtures.presentation.panel_code, fixtures.presentation.panel_class),
+            (0x25C, "PLeagueFixtures"),
+        )
+        self.assertEqual(fixtures.presentation.menu.selected_root_id, 0x259)
+        self.assertEqual(fixtures.presentation.menu.selected_child_id, 0x25C)
+
+        tables_root = presenter.source_accepted_pmenu_action("title", 6, 0)
+        self.assertEqual(tables_root.presentation.panel_code, 0x25C)
+        self.assertEqual(tables_root.presentation.menu.selected_root_id, 6)
+        self.assertEqual(tables_root.presentation.menu.selected_child_id, 0x25C)
+
+        league = presenter.source_accepted_pmenu_action("child", 0x25A, 0)
+        self.assertEqual(
+            (league.presentation.panel_code, league.presentation.panel_class),
+            (0x25A, "PLeagueTables"),
+        )
+        self.assertEqual(league.presentation.menu.selected_root_id, 6)
+        self.assertEqual(league.presentation.menu.selected_child_id, 0x25A)
+
+    def test_rejected_source_accepted_action_does_not_mutate_presenter(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(), bridge_factory=Bridge
+        )
+        before = presenter.snapshot()
+        rejected = presenter.source_accepted_pmenu_action("title", 2, 1)
+
+        self.assertFalse(rejected.action.accepted)
+        self.assertEqual(rejected.action.rejection_reason, "source_bit0_already_set")
+        self.assertEqual(rejected.presentation, before)
+        self.assertEqual(presenter.selected_child_id, 0xCE)
+        self.assertIsNone(presenter.expanded_root_id)
     def test_navigation_is_transactional_and_fails_closed_for_unintegrated_panel(self):
         presenter = OriginalManagementPresenter(
             self.started_session(), bridge_factory=Bridge
