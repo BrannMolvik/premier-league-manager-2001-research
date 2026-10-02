@@ -1,7 +1,7 @@
 # Gate 13 Closure Audit
 
 _Audit date: 2 October 2026 KST_
-_Last reconciled after Recovery 176 schema-7 PMenu pointer integration._
+_Last reconciled after Recovery 177 real-Windows schema-7 audit._
 
 ## Decision
 
@@ -25,7 +25,7 @@ every neutral bit name before Gate 13 can close.
 | --- | --- | --- |
 | Simulation logic remains separated from presentation | **PASS** | `GATE13_PRESENTATION_SEPARATION_AUDIT.md`, `ManagementSourceDataBridge`, `OriginalManagementPresenter`, and the source-backed first-screen/management hosts keep simulation mutation behind controller/session boundaries. |
 | Accessible original resources and recoverable layout/navigation are reused or converted | **PARTIAL - required work remains** | First-screen, PMenu, Squad, League Fixtures, PMatchInfo, League Tables and Scouting resources/contracts are source-bound and many are provenance-imported. Normal launch now uses the source-backed host, but the management canvas still cannot compose the unresolved surrounding background, exact PMenu text placement or a complete source-backed Squad view. |
-| Main-menu/login presentation, structure, navigation and timing closely follow the original | **PARTIAL - close to sufficient for Gate 13** | PStartMenu -> TeamSelect -> MANAGEMENT is integrated with native first-screen resources, hierarchy population, club selection, Back/Start behavior and the fixed PMenu/Squad parent geometry. Recovery 176 proves and integrates the concrete PMenu SelectBmp pointer-press boundary; schema 7 drives Calendar -> League Fixtures -> TABLES -> League Tables through real Tk presses. A new real Windows 11 schema-7 receipt is still pending. |
+| Main-menu/login presentation, structure, navigation and timing closely follow the original | **PARTIAL - close to sufficient for Gate 13** | PStartMenu -> TeamSelect -> MANAGEMENT is integrated with native first-screen resources, hierarchy population, club selection, Back/Start behavior and fixed PMenu/Squad parent geometry. Recovery 177's real Windows schema-7 receipt passes Calendar -> League Fixtures -> TABLES -> League Tables through actual Tk presses. Remaining incompleteness is in ordinary-management pixels, not this audited pointer route. |
 | Normal play feels recognizably like FM2001 rather than a generic replacement UI | **FAIL** | The default host no longer falls back to the ttk notebook and PMenu pointer presses now navigate, but after Start it intentionally presents a blank 800x600 management canvas because source management pixels are incomplete. |
 
 ## Closed since the earlier audit
@@ -58,7 +58,8 @@ The following blockers from the original closure audit are now closed:
    MANAGEMENT, then exercises Calendar/Fixtures/TABLES/League Tables through
    the real Tk PMenu press binding. It requires zero guessed management
    PhotoImages and retains keyboard equivalence as unresolved. The schema-7
-   contract is repository-verified; its real Windows execution is pending.
+   contract passed on real Windows 11 in Recovery 177; the bounded receipt stays
+   outside Git with SHA-256 `6e1a43e0...f0bef2`.
 
 ## Required before Gate 13 can pass
 
@@ -76,9 +77,9 @@ The smallest sufficient remaining closure slice is now:
    able to move through the source-backed Squad/tactics -> League Fixtures ->
    PMatchInfo/result -> League Tables path while gameplay mutations continue to
    flow through the reconstructed backend rather than presentation code.
-4. **Run the integrated route on real Windows 11.** Execute the schema-7 audit
-   (and extend it as the management loop becomes interactive) against the
-   canonical local install and preserve the bounded receipt outside Git.
+4. **Keep real-Windows coverage aligned with new pixels.** Schema 7 now passes
+   on Windows 11. Extend and rerun it when the recognizable management canvas
+   gains additional rendered controls or panels.
 
 A collection of presenter snapshots or diagnostic status strings is not enough
 to satisfy the normal-play criterion.
@@ -101,9 +102,9 @@ missing behavior from appearance or modern UI conventions.
 
 ### Local Windows validation boundary
 
-Hosted Linux CI verifies the audit contract but cannot produce a real Windows
-Tk receipt. A new schema-7 local Windows 11 run remains required before the
-expanded clean-host graphical result is claimed.
+Recovery 177 supplies the real Windows schema-7 receipt for the current blank-
+management-pixel contract. New management pixels must still be covered by a
+later schema revision and another real Windows run before Gate 13 closes.
 
 ## Validly deferred to Gate 15
 

@@ -10135,6 +10135,19 @@ Tk presses. Keyboard equivalence and final management pixels remain open.
 
 Focused PMenu/host/presenter/Windows-contract verification: **40 tests passed**.
 
+## 2 October Recovery 177 - real Windows schema-7 audit
+
+The schema-7 audit passed on Windows 11 build 26200 with Python 3.12.14 and
+Tk 8.6.12. It exercised the actual Tk-bound TeamSelect and PMenu pointer path
+through Calendar, League Fixtures, TABLES and League Tables. The clean
+management host retained zero guessed PhotoImages.
+
+The bounded private receipt stays outside Git and has SHA-256
+`6e1a43e01a43ccbf7bfe92c3088ee446c40a92d51add3ba9660f20cb76f0bef2`.
+It correctly leaves Gate 13 active for exact PMenu label origin/clipping,
+surrounding management background pixels, keyboard equivalence and the broader
+recognizable management loop.
+
 ## 2 October Recovery 175 - schema-6 Windows PMenu audit contract
 
 PR #112 squash-merged as `f6995c0e6b90c9e06a7d6309c7ffb2e49f26f376`.

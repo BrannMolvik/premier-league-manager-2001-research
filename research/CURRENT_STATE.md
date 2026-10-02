@@ -25,6 +25,15 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 177 real Windows schema-7 audit passed:** the private receipt
+  (SHA-256 `6e1a43e01a43ccbf7bfe92c3088ee446c40a92d51add3ba9660f20cb76f0bef2`)
+  records Windows 11 build 26200, Python 3.12.14 and Tk 8.6.12. The real Tk
+  route passes TeamSelect and PMenu Calendar -> League Fixtures -> TABLES ->
+  League Tables pointer presses with zero guessed management PhotoImages. The
+  receipt remains outside Git and correctly records `gate13_complete: false`.
+  The Windows pointer-audit blocker is closed; exact PMenu label
+  origin/clipping, surrounding management pixels, keyboard equivalence and the
+  recognizable management canvas remain open.
 - **Recovery 176 PMenu pointer-press boundary integrated locally:** the
   canonical ZIP/executable hashes were reverified. Both concrete title/child
   SelectBmp vtables place `0x64F7A0` at input slot `+0x6C`; their exact control

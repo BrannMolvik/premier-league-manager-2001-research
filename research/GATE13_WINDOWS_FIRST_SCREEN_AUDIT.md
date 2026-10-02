@@ -198,4 +198,19 @@ Calendar -> League Fixtures -> TABLES -> League Tables pointer presses.
 The contract still requires zero guessed management PhotoImages. It records
 pointer-press equivalence as verified, leaves keyboard equivalence unresolved,
 and does not claim complete management pixels. Focused synthetic verification
-passes; a fresh real Windows 11 **schema-7 receipt is pending**.
+passes.
+
+Recovery 177 executed this exact schema-7 contract on real Windows 11:
+
+- platform: `Windows-11-10.0.26200-SP0`;
+- Python: `3.12.14`;
+- Tk: `8.6.12`;
+- receipt SHA-256:
+  `6e1a43e01a43ccbf7bfe92c3088ee446c40a92d51add3ba9660f20cb76f0bef2`.
+
+The private receipt remains outside Git. It records `passed: true`, real-Tk
+PMenu pointer-press equivalence and the full supported management route, with
+zero management PhotoImages. It deliberately records `gate13_complete: false`
+because the surrounding management background, exact PMenu label
+origin/clipping, keyboard equivalence and broader management pixels remain
+open.
