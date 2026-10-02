@@ -101,9 +101,12 @@ Evidence:
   `recovery187/gate15-cup-controlled-postings` implements the already-proven
   special Cup/knockout accounting tail: both controlled participants can receive
   categories 1 and 2 independently from the common attendance counts while each
-  participant uses its own ticket prices. No business-policy label such as
-  "revenue sharing" is inferred. Full live Cup receipt attachment remains the
-  next integration step after branch verification.
+  participant uses its own ticket prices. The branch also materializes the
+  exact alternate `0x5DBCD0` paired first-XI attendance modifier while
+  deliberately leaving its match-family applicability neutral until the caller
+  is source-locked. No business-policy label such as "revenue sharing" is
+  inferred. Full live Cup receipt attachment remains blocked on that exact
+  caller/applicability boundary rather than on the accounting formula.
 - **Recovery 186 private source access is working again:** the canonical
   511,121,336-byte disc-image ZIP was materialized from the Library, its raw
   MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical
