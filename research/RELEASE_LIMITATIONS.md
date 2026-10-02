@@ -27,11 +27,14 @@ still identifies itself as pre-release.
   placement proof from the private original-disc evidence, and a match is not
   yet recognizably presented in the original FM2001 style/workflow.
 - Gate 15 still contains the active fidelity gaps recorded in
-  `research/FIDELITY_GAPS.md`, including original save compatibility and
-  bounded startup-order, injury, contract, transfer, finance, and native
-  tie-order uncertainties. Deterministic fallbacks must remain explicitly
-  labeled until each item is fixed, proven irrelevant, or intentionally
-  accepted.
+  `research/FIDELITY_GAPS.md`, including bounded startup-order, negotiation,
+  transfer-order, finance/commercial, and native tie-order uncertainties.
+  Original FM2001/PLM2001 save-file import is now an **intentionally accepted
+  compatibility limitation** rather than an active release blocker: the
+  Windows 11 port uses its own versioned schema-34 saves and will disclose that
+  legacy saves cannot be imported. Deterministic fallbacks must remain
+  explicitly labeled until each remaining item is fixed, proven irrelevant,
+  or intentionally accepted.
 - Gate 16 completion criteria are already prevalidated by committed work-ahead,
   including six deterministic synthetic seeds, destructive annual regeneration
   and save-growth soaks, five years of autonomous transfer churn, mixed
