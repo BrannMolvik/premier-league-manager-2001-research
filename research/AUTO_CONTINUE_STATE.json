@@ -6,9 +6,9 @@
   "enabled": true,
   "mode": "continuous",
   "status": "working",
-  "work_owner": "chatgpt",
+  "work_owner": "codex",
   "active_gate": 13,
-  "active_task": "Canonical main is c5dd5c5fc9f98e05b2a17e9b1a2eaddb6e39c264 and the local main is clean/synchronized. Continue Gate 13 from Recovery 162 without redoing TeamSelect, PMenu arrows, fixtures, PMatchInfo, or League Tables resource recovery. Highest-priority local blockers remain: rerun the corrected Windows audit with the known Tcl/Tk-capable Python; import the five pinned PMenu/PMatchInfo binaries and the 15-file League Tables family from the authorized archive; then trace PLeagueTables::0x449090 controls +0x7FC..+0x97C. The bundled Codex Python is unusable for Tk because init.tcl is absent.",
+  "active_task": "Codex owns the Gate 13 local/private queue from canonical main c5dd5c5fc9f98e05b2a17e9b1a2eaddb6e39c264. Continue successive local/private Gate-13 tasks without handing back after one checkpoint. Priority: (1) rerun the corrected real-Windows graphical audit using a genuinely Tcl/Tk-capable Windows Python; (2) import and provenance-track the four pinned PMenu menu-popup .444 assets plus PMatchInfo info_popup.444 and required League Tables source assets from the authorized archive with byte/hash verification; (3) trace PLeagueTables::0x449090 downstream controls +0x7FC..+0x97C and unresolved row-art state; (4) continue the remaining private/local Gate-13 management-presentation backlog from the audited catch-up prompt. Do not redo closed TeamSelect selection semantics, PMenu arrow-state mapping, FormationText, League Fixtures, PMatchInfo consumer audit, or Recovery-162 League Tables resource recovery. Reserve final 5-7% Codex usage for validation, clean push, state reconciliation, and handoff.",
   "last_known_main_head": "c5dd5c5fc9f98e05b2a17e9b1a2eaddb6e39c264",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -19,8 +19,8 @@
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 163,
-  "last_recovery_reason": "codex-final-usage-reserve-handoff",
-  "note": "Codex verified canonical main and stopped at its final usage reserve. A prior local TeamSelect checkpoint was an ancestor of canonical main and was not pushed over newer work. Resume continuously from current main; use a separately installed Tcl/Tk-capable Windows Python for the graphical audit.",
+  "last_recovery_reason": "manual-handoff-to-codex-full-usage",
+  "note": "User has almost full Codex usage available. Prefer Codex for the remaining Gate-13 local/private/Windows work. ChatGPT worker must not race Codex while work_owner=codex.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
