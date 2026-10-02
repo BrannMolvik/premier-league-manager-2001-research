@@ -303,6 +303,43 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
             self.assertEqual(len(host.canvas.images), 7)
 
+    def test_source_accepted_squad_view_applies_exact_first_formation_transition(self):
+        live = presenter()
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk)
+        host.management_presenter = management_factory(live.session)
+
+        with patch.object(host, "redraw") as redraw:
+            transition = host.apply_source_accepted_squad_view(4)
+
+        self.assertEqual(transition.control_id, 4)
+        self.assertEqual(transition.original_text, "1ST FORM")
+        self.assertEqual(transition.left_roster, "first")
+        self.assertFalse(transition.second_roster_mask1)
+        self.assertTrue(transition.pitch_mask1)
+        self.assertEqual(transition.pitch_team_index, 0)
+        self.assertIs(host.active_squad_view_transition, transition)
+        redraw.assert_called_once_with()
+        self.assertIn("source-accepted PSquadScreen view transition", host.last_status)
+        self.assertIn("pointer equivalence remain fail-closed", host.last_status)
+
+    def test_source_accepted_squad_view_rejects_non_squad_panel(self):
+        live = presenter()
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk)
+        host.management_presenter = management_factory(live.session)
+        with patch(
+            "original_game_host.build_management_canvas_frame",
+            return_value=SimpleNamespace(
+                presentation=SimpleNamespace(panel_class="PLeagueFixtures")
+            ),
+        ):
+            with self.assertRaisesRegex(
+                OriginalGameHostError,
+                "requires PSquadScreen",
+            ):
+                host.apply_source_accepted_squad_view(4)
+
     def test_squad_landing_draws_only_six_source_backed_top_control_overlays(self):
         host = OriginalGameTkHost(
             presenter(),
