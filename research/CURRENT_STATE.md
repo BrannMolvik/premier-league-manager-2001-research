@@ -151,29 +151,35 @@ Evidence:
   every external receipt to record `windows_11 = true`, build >= 22000, and
   workstation product type 1, preventing old/copied/hand-edited evidence from
   bypassing host provenance checks.
-- **Recovery 192 active Gate-17 work-ahead:** branch
-  `recovery192/gate17-external-validation-orchestrator` adds a single
-  transactional real-workstation coordinator. Before any immutable receipt is
-  written it requires the strict external-workstation guard, an exact clean
-  release commit, complete Gate 1-16 roadmap criteria, a final non-pre-release
-  limitations document, external archive/game-data paths, and a fresh external
-  work root. Only then does it run clean install, gameplay receipts, evidence
-  assembly and final release audit; any later failure removes the new work root
-  so partial evidence cannot masquerade as a final sign-off. Branch CI is the
-  next checkpoint. Gate 17 remains incomplete until the real external run
-  exists and Gates 13-16 are actually closed.
-- **Recovery 186 private source access is working again:** the canonical
-  511,121,336-byte disc-image ZIP was materialized from the Library, its raw
-  MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical
-  SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
-  Fresh disassembly is therefore available again. This removes the old process-
-  start blocker but does not itself close unresolved Gate-14 FastView paths,
-  geometry, orientation, audio, or presentation semantics.
-- **Gate 14 work-ahead checkpoint:** PR #133 / `c1ea9ecd...` provides the
-  bounded semantic FastView shell and PR #134 / `10cbd543...` provides the
-  seven-target exact-basename resource resolver. Their recorded full-suite
-  baselines are 1,397 and 1,410 tests respectively, with 22 expected skips.
-  Exact source paths and placement remain pending private source execution.
+- **Recovery 194 Gate-17 transactional coordinator is canonical:** PR #160
+  squash-merged as `6b33a5fab9651866021a1e28be4bc72877303dda`.
+  Full reconstruction run `37070962823` passed **1,470 tests with 22
+  expected skips**; Windows package run `37070962855` passed package tests,
+  PyInstaller freeze, packaged executable smoke and candidate build; asset
+  policy run `37070962826` passed. The coordinator remains work-ahead only:
+  Gate 17 still requires the real external workstation run and Gates 13-16
+  actually closed.
+- **Recovery 194 private source revalidation:** the canonical 511,121,336-byte
+  disc-image ZIP was rematerialized, the 631,627,248-byte MODE1/2352 image was
+  decoded, and a fresh independent Joliet scan reproduced exactly **2,456
+  files / 211 folders**. The root executable rehashed to canonical SHA-256
+  `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+  The older process-start blocker is not current.
+- **Recovery 194 Gate-14 FastView source closure in progress:** the canonical
+  executable embeds all seven bounded `PossessionFigures` /
+  `PossessionDiagram` full paths. This resolves the real
+  `pitch_normal.444` basename collision in favor of the explicit FastView
+  path without directory guessing. The bounded `PossessionDiagram` constructor
+  is now traced to exact pitch rectangle **(253,139)-(547,217)**, overlay x
+  offsets **[0,98,169]**, initial middle state, and a source-exact one-call
+  territory transition using the private MSVC-style presentation RNG. Update
+  cadence and side-0/user orientation remain fail-closed. See
+  `research/GATE14_FASTVIEW_POSSESSION_SOURCE_TRACE.md`.
+- **Exact Gate-14 work-ahead after this checkpoint:** verify the exact-path and
+  PossessionDiagram primitives through full CI, then deliberately stage only
+  the four source-closed diagram assets and connect their proven geometry to a
+  player-visible presentation surface without inventing timing/orientation.
+  Continue the independent `PossessionFigures` bar/text placement trace.
 - **Independent cloud-safe reconciliation:** Gate 16 already has two passing
   canonical three-cycle receipts and a readiness audit, so the stale Gate 17
   limitations text that still described canonical multi-season evidence as
