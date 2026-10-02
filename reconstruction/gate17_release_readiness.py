@@ -209,6 +209,14 @@ def validate_external_receipts(
             raise ReleaseReadinessError(
                 f"{name} receipt was produced for a different repository commit"
             )
+        if payload.get("release_version") != evidence.release_version:
+            raise ReleaseReadinessError(
+                f"{name} receipt was produced for a different release version"
+            )
+        if payload.get("release_archive_sha256") != evidence.archive.sha256:
+            raise ReleaseReadinessError(
+                f"{name} receipt was produced for a different release archive"
+            )
         for flag in required_flags:
             if payload.get(flag) is not True:
                 raise ReleaseReadinessError(
