@@ -25,6 +25,43 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 172 default clean-host Windows audit merged:** PR #107 merged as
+  `a79edc86e0333fb856539274e12113d85de868c8`. The real Windows/Tk harness is
+  now schema **5** and exercises both the developer viewer and the default
+  `OriginalGameTkHost` with a fresh session through New Game -> native club
+  click -> TeamSelect Start -> MANAGEMENT. It requires the fixed **800x600**
+  host, PMenu **(599,96,201,504)**, fresh PSquadScreen
+  **(0,79,800,520)** / code **0xCE**, zero guessed management PhotoImages,
+  and candidate PMenu hit feedback that dispatches no navigation. Gate-13 run
+  `36975636316` passed **427 tests with 21 expected skips**; asset-policy
+  run `36975636285` passed. A new real Windows 11 schema-5 receipt is still
+  pending.
+- **Recovery 172 normal-host PMenu hit integration merged:** PR #106 merged as
+  `45844074b4ad7128903fd3ed7b9a840dc82dbc74`. The default clean host now
+  reports the geometry-proven PMenu candidate row under a management click,
+  while keeping PSquadScreen selected and dispatching no navigation.
+- **Recovery 172 diagnostic PMenu hit integration merged:** PR #105 merged as
+  `8b36c566ababdf52a8574d5c8753f92aad641fc4`. The developer viewer and the
+  Windows audit exercise the same non-activating candidate-row boundary.
+- **Recovery 172 closure audit refreshed:** `GATE13_CLOSURE_AUDIT.md` now
+  reflects that the generic ttk notebook is no longer the normal launch path.
+  Gate 13 remains active because the management canvas is intentionally blank,
+  exact PMenu text/background pixels are unresolved, native row activation is
+  unproven, and the Squad -> Fixtures/PMatchInfo -> League Tables loop is not
+  yet live in the clean host.
+- **Current infrastructure blocker:** a fresh trivial process probe still fails
+  before start with `caas.internal.errors.ClientError`. Repository evidence
+  contains no persisted native PMenu activation/event trace sufficient to
+  promote candidate containment into navigation. Fresh private executable
+  tracing remains required for PMenu label origin/clipping, any missing
+  application-owned background layer, and row-event ownership.
+- **Exact next task:** if private execution recovers, trace PMenu
+  text-origin/clipping plus row activation/event ownership first. Otherwise
+  continue only source-backed cloud-safe management composition/audit work that
+  does not invent those semantics. Run the schema-5 audit on the real local
+  Windows 11 path when available.
+
+
 - **Recovery 172 Windows-management audit harness merged:** PR #104 merged as
   `c0b2fd2465952d2f5134837054622c2706abda71`. The real Windows/Tk Gate-13
   audit now preserves all prior first-screen checks, then re-enters New Game,
