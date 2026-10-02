@@ -47,7 +47,10 @@ from original_management_canvas import (
     load_verified_management_pmenu_resources,
 )
 from original_management_presenter import OriginalManagementPresenter
-from original_pmatchinfo_art import build_pmatchinfo_popup_art
+from original_pmatchinfo_art import (
+    OriginalPMatchInfoPopupArt,
+    build_pmatchinfo_popup_art,
+)
 from original_pmatchinfo_presenter import (
     OriginalPMatchInfoStaticSnapshot,
     load_staged_pmatchinfo_snapshot,
@@ -133,7 +136,7 @@ class OriginalGameTkHost:
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.last_pmenu_activation = None
         self.last_pmatchinfo_action = None
-        self.last_pmatchinfo_origin = None
+        self.active_pmatchinfo_art = None
         self._photos = []
         self.last_status = "Source-backed FM2001 host ready"
 
@@ -314,6 +317,24 @@ class OriginalGameTkHost:
         )
         return 1
 
+    def _draw_pmatchinfo_dialog(self) -> int:
+        """Redraw only the globally source-proven PMatchInfo popup background."""
+        art = self.active_pmatchinfo_art
+        if art is None:
+            return 0
+        if not isinstance(art, OriginalPMatchInfoPopupArt):
+            raise OriginalGameHostError(
+                "Active PMatchInfo state must be verified popup art"
+            )
+        image = self._photo(encode_rgba_png(art.width, art.height, art.rgba))
+        self.canvas.create_image(
+            art.x,
+            art.y,
+            image=image,
+            anchor=self.tk.NW,
+        )
+        return 1
+
     def _draw_management_host(self) -> None:
         if self.management_presenter is None:
             self.management_presenter = self.management_presenter_factory(
@@ -347,14 +368,21 @@ class OriginalGameTkHost:
                 anchor=self.tk.NW,
             )
 
+        dialog_image_count = self._draw_pmatchinfo_dialog()
+
         panel_status = (
             f"; {panel_image_count} source panel bitmaps rendered"
             if panel_image_count
             else ""
         )
+        dialog_status = (
+            f"; {dialog_image_count} source PMatchInfo bitmap rendered"
+            if dialog_image_count
+            else ""
+        )
         self.last_status = (
             f"Management host active: {frame.presentation.panel_class}; "
-            f"source PMenu rows rendered{panel_status}; "
+            f"source PMenu rows rendered{panel_status}{dialog_status}; "
             "surrounding management background unresolved"
         )
 
@@ -429,7 +457,7 @@ class OriginalGameTkHost:
         )
         if action is None:
             self.last_pmatchinfo_action = None
-            self.last_pmatchinfo_origin = None
+            self.active_pmatchinfo_art = None
             self.last_status = "PMatchInfo source action rejected by recovered fixture gates"
             return None
 
@@ -443,23 +471,32 @@ class OriginalGameTkHost:
             pointer_x=pointer_x,
             pointer_y=pointer_y,
         )
-        image = self._photo(encode_rgba_png(art.width, art.height, art.rgba))
-        self.canvas.create_image(
-            art.x,
-            art.y,
-            image=image,
-            anchor=self.tk.NW,
-        )
         self.last_pmatchinfo_action = action
-        self.last_pmatchinfo_origin = (art.x, art.y)
+        self.active_pmatchinfo_art = art
+        self.redraw()
         self.last_status = (
             "Opened source-accepted PMatchInfo popup at "
             f"({art.x}, {art.y}); nested owner-local child art remains fail-closed"
         )
         return action
 
+    def apply_source_accepted_pmatchinfo_exit(self) -> None:
+        """Close the modal only after a separately source-accepted exit event."""
+        if self.active_pmatchinfo_art is None:
+            raise OriginalGameHostError("No active PMatchInfo dialog to close")
+        self.active_pmatchinfo_art = None
+        self.last_pmatchinfo_action = None
+        self.redraw()
+        self.last_status = "Closed source-accepted PMatchInfo popup"
+
     def on_click(self, event) -> None:
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
+            if self.active_pmatchinfo_art is not None:
+                self.last_status = (
+                    "PMatchInfo pointer interaction remains fail-closed until "
+                    "owner-local source control transforms are recovered"
+                )
+                return
             if self.management_presenter is None:
                 self.management_presenter = self.management_presenter_factory(
                     self.presenter.session
