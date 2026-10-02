@@ -25,6 +25,29 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 172 Windows-management audit harness merged:** PR #104 merged as
+  `c0b2fd2465952d2f5134837054622c2706abda71`. The real Windows/Tk Gate-13
+  audit now preserves all prior first-screen checks, then re-enters New Game,
+  clicks a source-backed native club row, drives TeamSelect Start through the
+  real Tk binding, and requires the recovered **MANAGEMENT/PMenu** host. The
+  schema-4 contract verifies the exact **800x600** canvas, PMenu
+  **(599,96,201,504)**, fresh PSquadScreen **(0,79,800,520)**, panel code
+  **0xCE**, and PSquadScreen identity. It also requires **zero management
+  PhotoImages** and keeps surrounding background, exact PMenu label placement,
+  and native PMenu row activation explicitly unresolved. Gate-13 run
+  `36974932379` passed **427 tests with 21 expected skips and zero failures**;
+  asset-policy run `36974932407` passed.
+- **Validation boundary:** the upgraded schema-4 harness is repository-verified,
+  but its new positive MANAGEMENT path still needs one actual local Windows 11
+  execution before that graphical result can be claimed. Hosted Linux CI is not
+  a substitute for the real Windows/Tk receipt.
+- **Exact next task:** continue the highest-priority independent Gate-13
+  presentation slice that does not require unresolved PMenu activation or
+  private native pixels. Re-run the schema-4 Windows audit on the local
+  Windows path when that execution path is available, then fold the result into
+  the Gate-13 closure audit.
+
+
 - **Recovery 171 PMenu candidate hit-testing merged:** PR #102 merged as
   `25fdf0e8d9cbcf9cea580ca625e548b21612604c`. The presenter can now identify
   the visible PMenu row under a screen-space point using only the exact
