@@ -205,8 +205,8 @@ def _assert_roster_integrity(testcase: unittest.TestCase, state: GameState) -> N
             16,
             f"club {club_id} fell through the recovered seller roster floor",
         )
-        # This is intentionally a generous corruption guard, not an assertion
-        # about authentic transfer frequency while +0x1ED reset timing is open.
+        # This is intentionally a generous corruption guard rather than an
+        # assertion about one exact five-year transfer-frequency trajectory.
         testcase.assertLessEqual(
             len(roster),
             40,
