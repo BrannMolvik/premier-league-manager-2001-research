@@ -20,6 +20,12 @@ from original_league_fixtures_resources import (
     FIXTURES_HORIZONTAL_GRID,
     FIXTURES_VERTICAL_GRID,
 )
+from original_league_tables_art import build_league_tables_header_art
+from original_league_tables_resources import (
+    LEAGUE_TABLES_BAR_RECT,
+    LEAGUE_TABLES_RESOURCES,
+    LEAGUE_TABLES_RESOURCE_BY_NAME,
+)
 from original_game_host import (
     DEFAULT_SOURCE_ROOT,
     OriginalGameHostError,
@@ -116,6 +122,21 @@ def fake_fixture_grid_art():
             FIXTURES_VERTICAL_GRID.name: image(FIXTURES_VERTICAL_GRID, 17),
             FIXTURES_HORIZONTAL_GRID.name: image(FIXTURES_HORIZONTAL_GRID, 33),
         }
+    )
+
+
+def fake_league_tables_header_art():
+    resource = LEAGUE_TABLES_RESOURCE_BY_NAME["league_bar"]
+    image = EA444DecodedImage(
+        resource.size[0],
+        resource.size[1],
+        bytes((55, 55, 55, 255)) * (resource.size[0] * resource.size[1]),
+        consumed_bits=0,
+        transparent_pixels=0,
+    )
+    return build_league_tables_header_art(
+        image,
+        staged_resource_names=tuple(item.name for item in LEAGUE_TABLES_RESOURCES),
     )
 
 
@@ -299,6 +320,40 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(host.canvas.images[11][:2], (697, 98))
         self.assertEqual(host.canvas.images[12][:2], (241, 235))
         self.assertEqual(host.canvas.images[-1][:2], (241, 557))
+
+    def test_league_tables_draws_only_the_source_proven_header_band(self):
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
+        host.league_tables_header_art = fake_league_tables_header_art()
+        host.canvas.delete("all")
+        host._photos = []
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PLeagueTables",
+                league_tables=SimpleNamespace(exact_art_staged=True),
+            )
+        )
+
+        count = host._draw_league_tables_header_art(frame)
+
+        self.assertEqual(count, 1)
+        self.assertEqual(len(host.canvas.images), 1)
+        self.assertEqual(len(host._photos), 1)
+        self.assertEqual(host.canvas.images[0][:2], LEAGUE_TABLES_BAR_RECT[:2])
+
+    def test_league_tables_header_fails_closed_without_complete_staging(self):
+        host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
+        host.league_tables_header_art = fake_league_tables_header_art()
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PLeagueTables",
+                league_tables=SimpleNamespace(exact_art_staged=False),
+            )
+        )
+        with self.assertRaisesRegex(
+            OriginalGameHostError,
+            "all 15 verified original assets",
+        ):
+            host._draw_league_tables_header_art(frame)
 
     def test_league_fixtures_grid_art_fails_closed_without_complete_staging(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
