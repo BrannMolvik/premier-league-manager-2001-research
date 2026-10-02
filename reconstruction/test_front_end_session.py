@@ -86,7 +86,8 @@ class FrontEndSessionTests(unittest.TestCase):
             result.transition.command,
             FrontEndCommand.TEAMSELECT_START_CONTINUE,
         )
-        self.assertIs(session.navigation.screen, FrontEndScreen.TEAM_SELECT)
+        self.assertIs(session.navigation.screen, FrontEndScreen.MANAGEMENT)
+        self.assertIs(result.transition.screen, FrontEndScreen.MANAGEMENT)
         self.assertTrue(session.started)
 
     def test_source_style_multiple_users_are_recorded_but_fail_closed_at_start(self):
