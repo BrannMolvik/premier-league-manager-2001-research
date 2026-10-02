@@ -130,6 +130,7 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
             patch(
                 "gate17_clean_windows_install.sys.getwindowsversion",
                 return_value=SimpleNamespace(product_type=3),
+                create=True,
             ),
         ):
             with self.assertRaisesRegex(
@@ -144,6 +145,7 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
             patch(
                 "gate17_clean_windows_install.sys.getwindowsversion",
                 return_value=SimpleNamespace(product_type=1),
+                create=True,
             ),
         ):
             result = require_external_windows_11_workstation()
