@@ -16,6 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
+from competition_startup import country_leaguebase_root_storage_order
 from player_contract import (
     initial_weekly_wage,
     signing_fee_doubling_eligible,
@@ -348,16 +349,51 @@ def related_club_suppression_passes(state, buyer_club_id: int, seller_club_id: i
 
 
 def _autonomous_contract_category(state, buyer_club_id: int) -> int:
+    """Reproduce 0x4FA510 -> 0x4F8FF0 -> 0x410FF0 exactly.
+
+    0x4F8FF0 resolves the buying club competition's country/region. 0x410FF0
+    then returns that competition's zero-based index in the country's stored
+    +0x48/+0x4C LeagueBase root subset (League/ScotPremierLeague/DummyLeague
+    only). 0x423340 has exactly five category rows, so impossible/unresolved
+    runtime states fail closed rather than being clamped onto row 4.
+    """
     club = state.clubs[int(buyer_club_id)]
-    competition = state.competitions.get(int(club.competition_id))
+    competition_id = int(club.competition_id)
+    competition = state.competitions.get(competition_id)
     if competition is None:
-        return 4
-    # 0x423340 consumes a 0..4 category from 0x4FA510. The source-backed
-    # competition category already used by the reconstructed valuation path is
-    # the closest persisted field; values beyond the table are clamped to the
-    # executable table's last row rather than indexing out of range.
-    raw = int(getattr(competition, "valuation_division_category", 4))
-    return max(0, min(4, raw))
+        raise ValueError(
+            f"buying club {buyer_club_id} competition {competition_id} is unavailable"
+        )
+
+    try:
+        region_id = int(competition.country_region_id)
+    except AttributeError as exc:
+        raise ValueError(
+            f"competition {competition_id} has no source country/region identity"
+        ) from exc
+
+    leaguebase_roots = country_leaguebase_root_storage_order(
+        tuple(state.competitions.values()),
+        region_id,
+    )
+    try:
+        category = next(
+            index
+            for index, candidate in enumerate(leaguebase_roots)
+            if int(candidate.id) == competition_id
+        )
+    except StopIteration as exc:
+        raise ValueError(
+            f"competition {competition_id} is absent from country {region_id} "
+            "LeagueBase root subset"
+        ) from exc
+
+    if not 0 <= category < len(AUTONOMOUS_CONTRACT_MONTHS):
+        raise ValueError(
+            f"autonomous contract category {category} is outside the "
+            "five-row 0x423340 table"
+        )
+    return category
 
 
 def autonomous_contract_length_months(state, player_id: int, buyer_club_id: int) -> int:
