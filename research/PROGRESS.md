@@ -10385,3 +10385,23 @@ work may continue under the deferred-blocker policy.
 - Regression coverage now locks ordinary, leap-February, multi-year and
   zero-month cases to first-of-target-month behavior.
 - Moved only the contract month-normalization fidelity item to resolved.
+
+
+### Recovery 186 - exact autonomous contract category and FanFactor correction
+
+- Directly rechecked canonical `FOOTBAL.EXE` against the authorized disc
+  image and separated the two country root vectors: all roots at
+  `+0x40/+0x44` and League/DummyLeague roots at `+0x48/+0x4C`.
+- Proved `0x4FA510 -> 0x4F8FF0 -> 0x410FF0` returns the zero-based
+  `+0x48` subset index used by `0x423340` autonomous contract duration.
+- Canonical England maps Premier League / Division 1 / Division 2 / Division 3 /
+  Conference to rows 0..4; Conference 2 DummyLeague is index 5 and is rejected
+  rather than silently clamped.
+- Removed the old `valuation_division_category` proxy from autonomous
+  contract duration and added exact subset-order regressions.
+- The same trace exposed a real Gate-10 correction: `0x5DA2F0` derives
+  FanFactor from club `+0x10/+0x14`, not from the Cup/match competition.
+  Premier League therefore uses **FanFactor1 = 0.9**, not 0.5, and a PL club
+  hosting a Cup match also uses 0.9.
+- Corrected the ordinary PL constant and Cup host-league adapter; CI verification
+  is pending on the active branch.
