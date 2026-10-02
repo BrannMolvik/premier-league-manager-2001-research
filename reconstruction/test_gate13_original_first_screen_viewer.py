@@ -293,6 +293,26 @@ class OriginalLiveDebugTests(unittest.TestCase):
         self.assertIn("PSquadScreen", window.events_label.values["text"])
         self.assertIn("(599, 96, 201, 504)", window.events_label.values["text"])
 
+        # MANAGEMENT clicks may identify only a geometry-proven candidate row.
+        # They must not dispatch or mutate the selected native panel until the
+        # original PMenu activation/event path is recovered.
+        self.assertIsNotNone(window.management_presenter)
+        before = window.management_presenter.snapshot()
+        self.assertEqual(before.panel_code, 0xCE)
+        window.on_original_click(SimpleNamespace(x=600, y=100))
+        self.assertIn("PMenu candidate row only", window.status.get())
+        self.assertIn("'Team'", window.status.get())
+        self.assertIn("menu ID 0x2", window.status.get())
+        self.assertIn("no navigation was dispatched", window.status.get())
+        after = window.management_presenter.snapshot()
+        self.assertEqual(after.panel_code, 0xCE)
+        self.assertEqual(after.menu.selected_child_id, 0xCE)
+        self.assertEqual(window.canvas.images, [])
+
+        window.on_original_click(SimpleNamespace(x=100, y=100))
+        self.assertIn("no source-bounded PMenu candidate row", window.status.get())
+        self.assertEqual(window.management_presenter.snapshot().panel_code, 0xCE)
+
 
 if __name__ == "__main__":
     unittest.main()
