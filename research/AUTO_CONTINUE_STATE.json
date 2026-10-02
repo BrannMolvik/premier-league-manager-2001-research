@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 179 continuation after transient disconnect: reconcile current main ff99516 with the existing feature/gate13-fixtures-grid-composition checkpoint; finish live PLeagueFixtures grid composition and schema-9 audit/tests, then continue source-backed League Tables/PMatchInfo layers and refresh stale Gate-13 canonical state. Do not redo merged PMenu work.",
-  "last_known_main_head": "ff99516",
+  "active_task": "Recovery 179: live source-backed PMenu compositor merged as 57e3342 with Gate13/full/asset validation green. Next: import the six already-source-proven League Fixtures assets from the reverified authorized disc, integrate only the exact grid placements into the clean League Fixtures panel, then continue PMatchInfo/League Tables source-backed visuals. Surrounding application-owned management background remains an exact unresolved ownership boundary; keyboard stays fail-closed.",
+  "last_known_main_head": "57e3342",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 179,
   "last_recovery_reason": "codex-usage-reserve-handoff",
-  "note": "Transient connection interruption only. Existing feature branch retained; main advanced by unrelated documentation-only policy commit after the PMenu compositor merge.",
+  "note": "PR #114 merged as 57e3342. Gate-13 run 36998507566 and asset policy 36998507581 passed; full reconstruction 36998507518 passed 1,363 tests with 22 expected skips. Authorized source ZIP and all six League Fixtures graphics were reverified in this worker.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
