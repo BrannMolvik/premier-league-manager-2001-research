@@ -42,6 +42,8 @@ on:
       - "reconstruction/test_human_match_presentation.py"
       - "reconstruction/fastview_semantic_shell.py"
       - "reconstruction/test_fastview_semantic_shell.py"
+      - "reconstruction/gate14_fastview_resource_catalog.py"
+      - "reconstruction/test_gate14_fastview_resource_catalog.py"
       - "research/GATE14_AUDIO_AND_MATCH_PRESENTATION.md"
       - "reconstruction/original_pmenu_activation.py"
       - "reconstruction/test_original_pmenu_activation.py"
