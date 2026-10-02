@@ -1698,5 +1698,25 @@
   "gate15_cup_controlled_posting_rule": "Each controlled participant independently posts categories 1/2 from common attendance counts using that participant's own DBRUser +0x694 ticket prices",
   "gate15_cup_controlled_posting_business_label_inferred": false,
   "gate15_cup_controlled_posting_live_match_attachment": false,
-  "gate15_cup_controlled_posting_recovery": 187
+  "gate15_cup_controlled_posting_recovery": 187,
+  "gate17_prerequisite_guard_exact": true,
+  "gate17_prerequisite_guard_required_gates": "1..16",
+  "gate17_prerequisite_guard_commit": "ba6cabb692a1884be9e5bec8115d41f8bcad60c4",
+  "gate17_prerequisite_guard_reconstruction_run": 37058660790,
+  "gate17_prerequisite_guard_test_count": 1428,
+  "gate17_external_receipts_distinct_required": true,
+  "gate17_receipt_artifact_binding_active": true,
+  "gate17_receipt_artifact_binding_fields": [
+    "release_version",
+    "release_archive_sha256",
+    "repository_commit"
+  ],
+  "gate17_windows_gameplay_receipt_producer": "reconstruction/gate17_windows_gameplay_receipts.py",
+  "gate17_windows_gameplay_receipt_kinds": [
+    "new_game_management_loop",
+    "save_reload",
+    "season_progression"
+  ],
+  "gate17_clean_install_receipt_separate": true,
+  "gate17_release_workahead_recovery": 188
 }
