@@ -137,13 +137,19 @@ Evidence:
   asset-policy success. It deterministically hashes/prevalidates the exact
   archive and four distinct external receipt files before constructing the
   final Gate-17 evidence contract.
-- **Recovery 190 active Gate-17 hardening:** PR #158
-  (`recovery190/gate17-shared-windows-workstation-guard`) centralizes the
-  external Windows host guard. Final audit, gameplay receipts, and clean-install
-  receipts must all run on a Windows client workstation
+- **Recovery 191 shared external-workstation guard is canonical:** PR #158
+  squash-merged as `9fe93ea5c87e87b6e2db866205f8289e0bac83c6` after
+  **1,464 tests / 22 expected skips**, Windows package/freeze/smoke success,
+  and asset-policy success. Final audit, gameplay receipts, and clean-install
+  receipts now all require a Windows client workstation
   (`VER_NT_WORKSTATION/product_type == 1`) and explicitly reject GitHub
-  Actions. A modern Windows build number alone can no longer make Windows
-  Server/hosted CI acceptable external release evidence. Branch CI is pending.
+  Actions; a modern Windows build number alone is insufficient.
+- **Recovery 191 active Gate-17 evidence hardening:** PR #159
+  (`recovery191/gate17-receipt-host-metadata`) makes the final evidence
+  validator independently require every external receipt to record
+  `windows_11 = true`, build >= 22000, and workstation product type 1.
+  This prevents old/copied/hand-edited receipts from passing solely because
+  their gameplay criterion flags are true. Branch CI is the next checkpoint.
   Gate 17 remains incomplete until real external receipts exist and Gates 13-16
   are actually closed.
 - **Recovery 186 private source access is working again:** the canonical
