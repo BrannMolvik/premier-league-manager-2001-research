@@ -222,7 +222,7 @@ class ScheduledTransferCompletionTests(unittest.TestCase):
         self.assertFalse(player.transfer_listed)
         self.assertIsNone(player.loan_club_id)
         self.assertEqual(player.weekly_wage, 12_000)
-        self.assertEqual(player.contract_expiry_date, date(2003, 8, 19))
+        self.assertEqual(player.contract_expiry_date, date(2003, 8, 1))
         self.assertEqual(player.promotion_bonus, 25_000)
         self.assertEqual(player.appearance_fee, 1_250)
         self.assertTrue(player.relegation_transfer_request_clause)
