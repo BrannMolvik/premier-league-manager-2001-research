@@ -1,4 +1,5 @@
 """Regressions for source-backed PLeagueTables selector/header shell."""
+from pathlib import Path
 import unittest
 
 import original_league_tables_resources as lt
@@ -277,6 +278,13 @@ class OriginalLeagueTablesResourceTests(unittest.TestCase):
         )
         self.assertEqual(lt.LEAGUE_TABLES_RESOURCE_LOADER_START_VA, 0x5F7870)
         self.assertEqual(lt.LEAGUE_TABLES_RESOURCE_LOADER_END_VA, 0x5F80C0)
+
+    def test_imported_league_table_resources_match_the_source_contract(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        self.assertEqual(
+            lt.validate_original_league_tables_resources(source_root),
+            lt.LEAGUE_TABLES_RESOURCES,
+        )
 
     def test_grid_icon_and_bar_wrapper_bindings_preserve_source_roles(self):
         self.assertEqual(

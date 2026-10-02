@@ -547,3 +547,12 @@ Still open after this closure:
 4. corrected real-Windows/Tk integration validation of the current TeamSelect
    and PMenu behavior;
 5. downstream normal-management panel composition/navigation required by Gate 13.
+
+## Recovery 164 exact asset import
+
+The four source-bound menu-popup assets are now intentionally imported under
+their original paths in `original_assets/source`. The importer reverified each
+file against the exact-path private selection report and canonical source ZIP
+SHA-256 `677dcbc...a8a4`. `validate_original_pmenu_resources` now passes against
+the tracked bytes, including native geometry and frame partition checks. No
+neighboring or filename-only menu asset was imported.

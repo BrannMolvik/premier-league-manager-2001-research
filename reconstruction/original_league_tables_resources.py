@@ -9,7 +9,10 @@ visible field projection, and exact original league_tables graphic family.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from hashlib import sha256
+from pathlib import Path
 
+from ea444_header import parse_ea444_header
 from original_management_navigation import LEAGUE_TABLES_PANEL
 
 
@@ -233,6 +236,35 @@ LEAGUE_TABLES_RESOURCES = (
     OriginalLeagueTablesResource("league_bar", "FM2001_Art/Generic/league_tables/league_bar.444", "818c42b75cecaac2ad310c2586f8539fc3d30411715d702c1f6056c9332cd4cd", 5552, (475, 19), 0x944B90, 0x944B70),
 )
 LEAGUE_TABLES_RESOURCE_BY_NAME = {resource.name: resource for resource in LEAGUE_TABLES_RESOURCES}
+
+
+def validate_original_league_tables_resources(
+    source_root: Path,
+) -> tuple[OriginalLeagueTablesResource, ...]:
+    """Require all 15 exact source-owned League Tables graphics."""
+    root = Path(source_root)
+    for resource in LEAGUE_TABLES_RESOURCES:
+        path = root / resource.source_path
+        try:
+            data = path.read_bytes()
+        except FileNotFoundError as exc:
+            raise OriginalLeagueTablesError(
+                f"Missing original League Tables resource: {resource.source_path}"
+            ) from exc
+        if len(data) != resource.byte_size:
+            raise OriginalLeagueTablesError(
+                f"League Tables byte-size mismatch: {resource.source_path}"
+            )
+        if sha256(data).hexdigest() != resource.sha256:
+            raise OriginalLeagueTablesError(
+                f"League Tables checksum mismatch: {resource.source_path}"
+            )
+        header = parse_ea444_header(data)
+        if (header.width, header.height) != resource.size:
+            raise OriginalLeagueTablesError(
+                f"League Tables geometry mismatch: {resource.source_path}"
+            )
+    return LEAGUE_TABLES_RESOURCES
 LEAGUE_TABLES_RESOURCE_PATH_LITERAL_VAS = {
     "champion_grid": 0x836A08,
     "promotion_grid": 0x836A3C,

@@ -1,4 +1,5 @@
 """Regressions for source-backed PMatchInfo Match_report resources."""
+import hashlib
 from pathlib import Path
 import tempfile
 import unittest
@@ -76,12 +77,9 @@ class OriginalPMatchInfoResourceTests(unittest.TestCase):
                 "match_incid_grid",
             ),
         )
-        self.assertEqual(
-            pmatch.PMATCHINFO_PENDING_PRESENTATION_RESOURCE_NAMES,
-            ("info_popup",),
-        )
-        self.assertEqual(len(pmatch.PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES), 12)
-        self.assertNotIn(
+        self.assertEqual(pmatch.PMATCHINFO_PENDING_PRESENTATION_RESOURCE_NAMES, ())
+        self.assertEqual(len(pmatch.PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES), 13)
+        self.assertIn(
             "info_popup",
             pmatch.PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES,
         )
@@ -91,13 +89,13 @@ class OriginalPMatchInfoResourceTests(unittest.TestCase):
             pmatch.PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES,
         )
 
-    def test_popup_and_loaded_but_unconsumed_assets_are_not_silently_staged(self):
+    def test_popup_is_exactly_staged_and_unconsumed_assets_remain_absent(self):
         repo_root = Path(__file__).resolve().parent.parent
         popup = pmatch.pmatchinfo_import_path(repo_root, "info_popup")
-        self.assertFalse(
-            popup.exists(),
-            "Transport-blocked info_popup must not be replaced with guessed bytes",
-        )
+        resource = pmatch.PMATCHINFO_RESOURCE_BY_NAME["info_popup"]
+        data = popup.read_bytes()
+        self.assertEqual(len(data), resource.byte_size)
+        self.assertEqual(hashlib.sha256(data).hexdigest(), resource.sha256)
         for name in pmatch.PMATCHINFO_UNCONSUMED_RESOURCE_NAMES:
             with self.subTest(name=name):
                 self.assertFalse(

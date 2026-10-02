@@ -110,3 +110,19 @@ After the real Windows receipt passes:
 4. rerun the Windows graphical audit with hierarchy behavior no longer inert;
 5. continue the remaining Gate-13 management-screen resource/layout/navigation
    correlations before considering Gate 14.
+
+## Corrected Windows 11 result (Recovery 164)
+
+The current schema-3 audit passed on 2 October 2026 using the normal Windows
+installation at Python **3.13.15**, Tk **8.6.15**, platform
+`Windows-11-10.0.26200-SP0`. It exercised the corrected TeamSelect hierarchy:
+13 default English country/competition rows, 20 F.A. Premier League clubs,
+country clear, competition repopulation, canonical clicked-club identity,
+ACTIVE frame 11, deselection, and Start rejection with no selected user.
+
+The receipt is private at
+`windows-first-screen-audit-recovery164.json` outside Git. All inputs were
+loaded through checksum-gated source loaders; the executable remained canonical
+SHA-256 `833bf95e...cc3`. This supersedes the obsolete inert-hierarchy portion
+of Recovery 138 while retaining `gate13_complete: false` for broader management
+presentation.

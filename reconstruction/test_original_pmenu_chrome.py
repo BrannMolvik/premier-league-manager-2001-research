@@ -319,6 +319,13 @@ class OriginalPMenuChromeTests(unittest.TestCase):
             ):
                 validate_original_pmenu_resources(root)
 
+    def test_imported_pmenu_resources_match_the_source_contract(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        self.assertEqual(
+            validate_original_pmenu_resources(source_root),
+            PMENU_RESOURCES,
+        )
+
     def test_main_english_global_mapping_is_exact_and_fails_closed(self):
         self.assertEqual(main_english_global_va(44), 0x984748)
         self.assertEqual(main_english_global_va(2392), 0x982298)

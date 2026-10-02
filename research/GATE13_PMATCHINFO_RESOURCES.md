@@ -11,6 +11,11 @@ Canonical executable SHA-256:
 
 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
 
+> **Recovery 164 import update:** the exact source-proven 760x500
+> `info_popup.444` is now provenance-imported. All 13 directly consumed
+> PMatchInfo runtime assets are therefore staged and checksum/geometry guarded;
+> the seven exhaustively unconsumed resources remain deliberately absent.
+
 Authorized source ZIP was freshly rematerialized from the private Library and
 rehashed as:
 

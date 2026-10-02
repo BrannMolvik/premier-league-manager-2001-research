@@ -706,10 +706,9 @@ PMATCHINFO_RUNTIME_PRESENTATION_RESOURCE_NAMES = tuple(
     if resource.direct_consumer_vas
 )
 PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES = tuple(
-    name for name in PMATCHINFO_RUNTIME_PRESENTATION_RESOURCE_NAMES
-    if name != "info_popup"
+    PMATCHINFO_RUNTIME_PRESENTATION_RESOURCE_NAMES
 )
-PMATCHINFO_PENDING_PRESENTATION_RESOURCE_NAMES = ("info_popup",)
+PMATCHINFO_PENDING_PRESENTATION_RESOURCE_NAMES = ()
 PMATCHINFO_IMPORT_ROOT = Path("original_assets/source")
 
 
@@ -726,11 +725,7 @@ def pmatchinfo_import_path(repo_root: Path, resource_name: str) -> Path:
 def validate_staged_pmatchinfo_presentation_assets(
     repo_root: Path,
 ) -> tuple[OriginalPMatchInfoResource, ...]:
-    """Verify the byte-identical Recovery-159 subset already in Git.
-
-    info_popup remains source-proven but transport-blocked, so this validator
-    deliberately covers only the twelve staged runtime-presentation assets.
-    """
+    """Verify every byte-identical runtime-consumed PMatchInfo asset in Git."""
     validated = []
     for name in PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES:
         resource = PMATCHINFO_RESOURCE_BY_NAME[name]

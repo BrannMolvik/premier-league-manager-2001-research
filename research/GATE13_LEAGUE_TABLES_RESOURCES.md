@@ -1,5 +1,11 @@
 # Gate 13 League Tables source shell
 
+> **Recovery 164 import update:** all 15 exact `league_tables/*.444` resources
+> below are now provenance-imported from the canonical authorized archive.
+> `validate_original_league_tables_resources` enforces their pinned byte sizes,
+> SHA-256 values and native geometries. The `+0x7FC..+0x97C` private control
+> trace remains open and is not inferred from this import.
+
 Recovery 161 starts source-faithful presentation recovery for the already
 RTTI-proven `PLeagueTables` panel.
 

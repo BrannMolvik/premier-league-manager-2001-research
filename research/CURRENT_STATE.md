@@ -25,6 +25,16 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 164 local blockers cleared:** the corrected real Windows audit
+  passed on Windows 11 with Python 3.13.15 / Tk 8.6.15. The private schema-3
+  receipt remains outside Git. The authorized ZIP rehashed to canonical
+  `677dcbc...a8a4`; four PMenu assets, `info_popup.444`, and all 15 League
+  Tables assets were exact-path extracted and provenance-imported. Seventy-five
+  focused resource tests and the repository asset-policy check pass.
+- **Exact Gate-13 next boundary:** trace `PLeagueTables::0x449090` and the seven
+  downstream controls at `+0x7FC..+0x97C`, then perform the fresh Gate-13
+  closure audit. Do not redo the imported resource ownership or Recovery-162
+  row/list work.
 - **Recovery 160 PMatchInfo presenter merged:** PR #93 merged as `5f76cd8d1187601034424fd6519c29c521b912bc`; Gate-13 run `36943619177` passed **364 tests with 21 expected source-gated skips and zero failures**, and asset-policy run `36943619314` passed. The simulation-independent PMatchInfo presenter is canonical, preserving exact staged art geometry/clipping/tabs/text slots and refusing a complete dialog while exact `info_popup.444` remains unavailable through safe binary transport.
 - **Recovery 161 League Tables shell merged:** PR #94 merged as `3c19c4fff22cc397fe3728e8f6e21fc7896075e0`. All **15** selector events are source-bound: country events 1..8, dynamic DIVISION events 9..13, and Sort By events 14/15 = League Position / Current Form. Country/DIVISION/Sort By and exact P/W/D/L/F/A/Pts header text/geometry are canonical.
 - **Recovery 162 League Tables body/resources merged:** PR #95 merged as `7578e465fbc952a74ee1268b698dde7d26ee2a8b`; Gate-13 run `36949336841` passed **379 tests with 21 expected source-gated skips and zero failures**, and asset-policy run `36949336761` passed. `CLeagueTableList` (TD `0x81B478`, vtable `0x7C011C`) at panel `+0x9BC` has exact local rect **(270,184,477,384)**, native 24-row capacity and 16px row step. Each `PLeagueTableRow` (TD `0x81B378`, vtable `0x7BFEC0`, 0x4A8 bytes) source-binds rank/name plus P/W/D/L/F/A/Pts rectangles; fields come from source offsets `+0x10/+0x14/+0x18/+0x1C/+0x20/+0x24`, with **Pts = 3*W + D**. The complete 15-file `league_tables/*.444` family is source-owned and raw-disc hash/geometry verified.
