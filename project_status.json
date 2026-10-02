@@ -14,7 +14,7 @@
   "last_verified_test_count": 1149,
   "asset_policy_validated_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 remains active. Recovery 171 merged PR #100: successful TeamSelect Start now enters explicit MANAGEMENT/PMenu state and a fixed 800x600 management host backed by OriginalManagementPresenter. Next replace remaining generic ttk ordinary-management launch path with this recovered host, then integrate source-backed PMenu row input/navigation for Squad, League Fixtures and League Tables. Exact PMenu label origin/clipping and any extra management background layer remain deferred behind the current caas ClientError process-start blocker.",
+  "active_task": "Gate 13 remains active. PR #101 merged: normal app.py launch is now the clean source-backed 800x600 FM2001 host; the generic ttk notebook is explicit --prototype-ui only. PR #102 is the active cloud-safe checkpoint adding candidate PMenu row hit-testing from proven geometry without inventing activation. Verify/merge #102, then continue independent Gate-13 presentation work while exact PMenu event semantics, label placement and management background remain deferred behind the caas ClientError private-execution blocker.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -1525,5 +1525,14 @@
     79,
     800,
     520
-  ]
+  ],
+  "gate13_source_app_host_merge": "62a1bbcd24bf1dc26e57294e40fef176a4f87036",
+  "gate13_source_app_host_verified_head": "f1653cef39182c744e88c03c8e8f83b30418a95d",
+  "gate13_source_app_host_gate13_run": 36972538322,
+  "gate13_source_app_host_gate13_test_count": 419,
+  "gate13_source_app_host_full_run": 36972538328,
+  "gate13_source_app_host_full_test_count": 1321,
+  "gate13_source_app_host_full_expected_skips": 22,
+  "gate13_source_app_host_asset_policy_run": 36972538362,
+  "gate13_pmenu_hit_test_pr": 102
 }
