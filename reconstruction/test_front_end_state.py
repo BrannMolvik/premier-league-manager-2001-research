@@ -52,13 +52,13 @@ class FrontEndStateTests(unittest.TestCase):
         self.assertIs(transition.screen, FrontEndScreen.START_MENU)
         self.assertIsNone(transition.command)
 
-    def test_team_select_start_emits_command_without_simulating(self):
+    def test_team_select_start_enters_source_proven_management_shell(self):
         state = FrontEndState(screen=FrontEndScreen.TEAM_SELECT)
 
         transition = state.dispatch(TeamSelectControl.START_CONTINUE)
 
-        self.assertIs(state.screen, FrontEndScreen.TEAM_SELECT)
-        self.assertIs(transition.screen, FrontEndScreen.TEAM_SELECT)
+        self.assertIs(state.screen, FrontEndScreen.MANAGEMENT)
+        self.assertIs(transition.screen, FrontEndScreen.MANAGEMENT)
         self.assertIs(
             transition.command,
             FrontEndCommand.TEAMSELECT_START_CONTINUE,
