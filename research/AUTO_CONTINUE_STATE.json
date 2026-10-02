@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 181: resume canonical Gate 13 closure from main 6b26ad9caa24cf6a2725bda1536adead9d6dff8f. Reconcile and merge PR #118 League Tables league_bar live raster integration on current main, then integrate the PMatchInfo dialog path without inventing the still-unbridged secondary linked context; continue representative Squad/tactics -> Fixtures/PMatchInfo -> League Tables visuals and schema-8 Windows audit.",
-  "last_known_main_head": "6b26ad9caa24cf6a2725bda1536adead9d6dff8f",
+  "active_task": "Recovery 181: PR #118 merged as main 503af7fff0b2af35dcae988fa8e7f6d16e371221 with Gate 13, full reconstruction, and asset-policy CI green. Integrate the source-resolved PLeagueFixtures -> PMatchInfo popup path: render only exact info_popup.444 at the recovered pointer-clamped 760x500 origin, require the existing fixture+linked-context gate, and do not invent the secondary linked context or owner-local subpanel transforms. Then continue the representative management visual loop and schema-8 Windows audit.",
+  "last_known_main_head": "503af7fff0b2af35dcae988fa8e7f6d16e371221",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 181,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 181 active after automatic recovery. Main remains 6b26ad9 from PR #119. PR #118 League Tables header art is the immediate canonical task; local sandbox/private-byte-only details remain fail-closed unless a functioning execution path becomes available.",
+  "note": "Recovery 181 active. League Tables league_bar live integration is canonical via PR #118. Immediate task is PMatchInfo full-dialog popup integration with explicit source-resolved context gating; Gate 13 remains active and overall mission continues through Gate 17.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
