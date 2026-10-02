@@ -2,8 +2,8 @@
 
 This module composes only source-proven PMatchInfo presentation inputs. It does
 not simulate a match, translate reconstructed MatchEvent objects into original
-event-record semantics, or invent missing controls. The full 760x500 dialog
-remains fail-closed until the exact source-proven info_popup.444 is staged.
+event-record semantics, or invent missing controls. The full 760x500 dialog now requires the complete
+byte-identical staged runtime presentation set, including info_popup.444.
 """
 from __future__ import annotations
 
