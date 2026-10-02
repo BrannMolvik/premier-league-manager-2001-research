@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 183: Gate 14 semantic FastView feed merged as main c6b2392fffc0416b0b4bd3ded23c8523e9e17b59. PR #130 adapts completed human match outcomes into that presentation feed without coupling presentation to simulation. Verify/merge PR #130, then continue the smallest source-backed match presentation shell. Gate 13 remains earliest incomplete validation gate pending real-Windows schema-8.",
-  "last_known_main_head": "c6b2392fffc0416b0b4bd3ded23c8523e9e17b59",
+  "active_task": "Recovery 184: PR #130 merged as main 393acb370c2164cff7c72fc552ebd84fbbeb6b37 after full reconstruction run 37021083056 passed 1,393 tests with 22 expected skips and asset-policy run 37021083395 passed. Continue the smallest source-backed match-presentation shell that consumes HumanMatchPresentation/FastView semantics without inventing commentary, sound cues, or 3D choreography. Gate 13 remains earliest incomplete validation gate pending fresh real-Windows schema-8.",
+  "last_known_main_head": "393acb370c2164cff7c72fc552ebd84fbbeb6b37",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 184,
   "last_recovery_reason": "Analysis errored",
-  "note": "Recovery 183: Gate 14 work-ahead active. Authorized source rematerialized, but local process execution is blocked, so no new audio-bank semantics may be inferred. Continue cloud-safe presentation integration.",
+  "note": "Recovery 184 canonical task advanced after PR #130. Audio-catalog PR #131 is independent work-ahead and must be reconciled separately; current primary task is the source-backed match presentation shell.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
