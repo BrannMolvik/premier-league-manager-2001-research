@@ -9488,3 +9488,80 @@ qualification state from live completed Cup outcomes.
 The private TeamSelect 0x30-byte row record resolved by `0x4D9240` is rollback state, not a club-ID payload. Constructor initialization writes `-1` to its first dword. On selection, `0x4D8E90` saves `DBRClub+0x40` (the independently mapped manager reference) and displaced manager state, then passes the clicked club pointer directly to `0x413BB0`. That routine creates a user via `0x4258D0`, which stores the clicked club at user `+0x5B4`. Deselection removes the user and restores the saved manager/reference state before resetting the private record sentinel.
 
 Selection appends users rather than replacing the previous club. `0x4DA4D0` reports saturation when the global user count reaches six, with an additional manager-availability condition. TeamSelect Start `0x4DA480 -> 0x4C41C0` consumes the existing user list and does not perform a later private-record-to-club translation. Detailed address-level notes and the reconstruction consequence are retained in `research/GATE13_TEAMSELECT_USER_SELECTION_TRACE.md`.
+
+
+## Gate 15 country transfer-window lifecycle closed - 3 October 2026
+
+Direct reinspection of canonical `FOOTBAL.EXE`
+(SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`)
+plus canonical `Static.dat` closes the autonomous country transfer gate.
+
+### Packed source fields and fresh state
+
+`DBRCountry` copy routine `0x411740` preserves the four source byte pairs at
+runtime `+0x24..+0x2B`. Canonical `Static.dat` maps those to packed country
+record bytes `+28..+35`, yielding four `(week, weekday)` pairs. Constructor/
+reset paths `0x4117C6` and `0x411600` set runtime gate byte `+0x54` to 1.
+
+England (country 26) carries:
+
+```text
++28/+29  48,4
++30/+31  39,5
++32/+33   0,0
++34/+35   0,0
+```
+
+Spain (country 73) demonstrates that all four slots are live:
+
+```text
+48,4   13,5   22,1   30,7
+```
+
+### Exact boundary-date construction
+
+Fresh new-game setup at `0x4C3920 -> 0x64CC70(100)` writes 3 July 2000,
+the first Monday on/after July 1, into global current date `0x9847FC` at
+`0x4C392A`. The only executable writers of `0x9847FC` are the calendar
+advance paths plus this initializer/reset; there is no intervening write before
+`0x4C4381 -> 0x4F7C00 -> 0x616620 -> 0x411020` materializes country
+boundaries.
+
+For each pair whose weekday byte is nonzero, `0x411020` decrements both
+source bytes and calls `0x64D500`. That helper computes exactly:
+
+```text
+boundary = current_date + 7 * (week - 1) + (weekday - 1)
+```
+
+so England materializes:
+
+```text
+(39,5) -> 30 March 2001
+(48,4) -> 31 May 2001
+```
+
+### Daily toggle and ordering
+
+`0x411850` walks every country each day and calls `0x411190`. For each
+enabled pair, `0x411190` calls `0x4112D0(boundary_date)`. `0x4112D0`
+compares that date to global current date and, on equality, calls `0x411380`,
+whose entire behavior is:
+
+```text
+xor byte ptr [country+0x54], 1
+```
+
+The daily master path `0x4138E0` performs DBRUser daily work first and then
+`0x411850`. Existing `0x4A8070` ordering places its global Saturday
+transfer/loan maintenance after the `0x4138E0` return, so a boundary that
+falls before a Saturday acquisition pass changes the gate before that pass
+consumes it.
+
+### Reconstruction consequence
+
+`CountryDefinition` now exposes all four packed boundary pairs and `GameState`
+replays the exact daily XOR lifecycle before weekly autonomous acquisitions.
+The live gate boolean was already persisted by internal save schema 34, so no
+save-format change is required. Due-transfer same-day fixture ordering remains
+a separate unresolved Gate-15 item and is not inferred from this trace.
