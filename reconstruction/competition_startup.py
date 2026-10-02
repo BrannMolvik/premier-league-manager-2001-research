@@ -586,13 +586,13 @@ def country_root_competition_storage_order(
     competitions: Iterable[OrderedCompetitionSource],
     country_region_id: int,
 ) -> tuple[OrderedCompetitionSource, ...]:
-    """Return the exact stored root-competition array scanned by 0x410FF0.
+    """Return the exact qsorted country +0x40/+0x44 all-root array.
 
     Country construction appends root competitions in DBTCompetition source
-    order, then qsorts the pointer array by runtime +0x18, which is the negated
+    order, then qsorts this pointer array by runtime +0x18, which is the negated
     packed initialization_order_value. Unlike initialization traversal, this
     helper does not reverse the qsorted array and does not filter by schedule
-    container because 0x410FF0 scans the stored country vector itself.
+    container.
     """
     roots = tuple(
         competition
@@ -605,6 +605,27 @@ def country_root_competition_storage_order(
             roots,
             lambda competition: -int(competition.initialization_order_value),
         )
+    )
+
+
+def country_leaguebase_root_storage_order(
+    competitions: Iterable[OrderedCompetitionSource],
+    country_region_id: int,
+) -> tuple[OrderedCompetitionSource, ...]:
+    """Return the exact country +0x48/+0x4C LeagueBase root subset.
+
+    0x4F7380 scans the global competition pointer array in source/ID order and
+    appends only parentless objects whose virtual +0x24 class code is 1
+    (League/ScotPremierLeague) or 3 (DummyLeague). Unlike the +0x40 all-root
+    vector, this secondary array is not passed through the +0x18 qsort.
+    0x410FF0 scans this stored subset and returns the matching zero-based index.
+    """
+    return tuple(
+        competition
+        for competition in competitions
+        if competition.parent_competition_id is None
+        and int(competition.country_region_id) == int(country_region_id)
+        and int(competition.runtime_kind_code) in (1, 3)
     )
 
 
