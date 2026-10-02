@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 193: PR #159 is canonical at main fe73236559e61939e972324f0c61e391f29a1a0f after 1,465 tests / 22 expected skips plus Windows package/freeze/smoke and asset-policy success. Active branch recovery192/gate17-external-validation-orchestrator adds a transactional real-Windows Gate-17 coordinator that preflights strict workstation, clean exact commit, Gate 1-16 completion, final limitations, external archive/game data and fresh work root before writing receipts; any later failure deletes the new external work root. Verify full reconstruction + Windows package + asset policy, merge only if green, then continue cloud-safe release hardening. Gate 13 remains earliest incomplete validation gate and private process execution remains blocked by caas ClientError.",
+  "active_task": "Recovery 194: resume the existing recovery192/gate17-external-validation-orchestrator work-ahead from canonical main fe73236559e61939e972324f0c61e391f29a1a0f. Inspect the existing branch/PR and its current verification; finish or correct the transactional real-Windows Gate-17 coordinator, verify full reconstruction + Windows package + asset policy, merge only if green, then continue the next highest-priority cloud-safe task. Gate 13 remains the earliest incomplete validation gate; real Windows schema-8 receipt is still externally blocked.",
   "last_known_main_head": "fe73236559e61939e972324f0c61e391f29a1a0f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 193,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Canonical external receipt validation now independently verifies Windows 11 build/client-workstation metadata. Active orchestrator is fail-closed and cannot pass while Gates 13-16 or pre-release limitations remain open.",
+  "recovery_generation": 194,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Runtime lease refreshed after recovery. Do not restart completed work; continue the persisted Gate-17 orchestrator work-ahead while Gate 13 remains the earliest incomplete validation gate.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
