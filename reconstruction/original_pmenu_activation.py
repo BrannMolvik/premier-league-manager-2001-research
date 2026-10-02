@@ -6,9 +6,11 @@ the child control accepts its source event. Title rows mutate the static
 menu-tree open bit. Child rows call the real management panel factory with the
 node's +0x0C menu/panel ID.
 
-This module deliberately starts after source control/event acceptance. It does
-not claim that arbitrary rectangle containment, a modern Tk click, or any
-particular mouse/keyboard event is equivalent to the original event object.
+Recovery 176 additionally closes the ordinary pointer-press boundary for the
+two concrete PMenu SelectBmp controls. Their exact vtables both place the
+shared input method at slot +0x6C, their parent acceptance predicate is the
+constant-true row virtual, and their source rectangle is the whole 201x29 row.
+Keyboard equivalence remains outside this contract.
 """
 from __future__ import annotations
 
@@ -39,6 +41,17 @@ PMENU_CHILD_ROW_ACTION_VA = 0x47AD60
 PMENU_CHILD_PARENT_OFFSET = 0x24
 PMENU_GENERIC_CONTROL_DISPATCH_VA = 0x64FE50
 PMENU_GENERIC_PARENT_ACTION_CALL_VA = 0x64FF21
+
+PMENU_TITLE_SELECT_BITMAP_VFTABLE_VA = 0x7C3CB0
+PMENU_CHILD_SELECT_BITMAP_VFTABLE_VA = 0x7C3D4C
+PMENU_SELECT_POINTER_INPUT_VTABLE_OFFSET = 0x6C
+PMENU_SELECT_POINTER_INPUT_VA = 0x64F7A0
+PMENU_ROW_ACCEPT_VTABLE_OFFSET = 0x0C
+PMENU_ROW_ACCEPT_CONSTANT_TRUE_VA = 0x42DE00
+PMENU_SELECT_CONTROL_RECT = (0, 0, 201, 29)
+PMENU_SELECT_CONTROL_INITIAL_FLAGS = 0x183
+PMENU_SELECT_CONTROL_REQUIRED_BIT = 0x2
+PMENU_SELECT_CONTROL_GUARD_BIT = 0x10
 
 PMENU_TREE_ORDINAL_TRAVERSAL_VA = 0x60CA70
 PMENU_MANAGEMENT_PANEL_FACTORY_VA = 0x47AEC0
@@ -190,3 +203,38 @@ def resolve_pmenu_row_action(
         owner_refresh_vtable_offset=PMENU_OWNER_REFRESH_VTABLE_OFFSET,
         rejection_reason=None,
     )
+
+
+def resolve_pmenu_pointer_press(
+    row_kind: str,
+    menu_id: int,
+    source_flags: int,
+    local_x: int,
+    local_y: int,
+    *,
+    control_flags: int = PMENU_SELECT_CONTROL_INITIAL_FLAGS,
+) -> OriginalPMenuRowAction | None:
+    """Resolve one source-equivalent PMenu SelectBmp pointer press.
+
+    Coordinates are local to the visible row.  The half-open bounds mirror the
+    source control checks.  The neutral control-bit gates are retained exactly;
+    callers may not bypass them by treating geometry alone as acceptance.
+    """
+    for name, value in (
+        ("local x", local_x),
+        ("local y", local_y),
+        ("control flags", control_flags),
+    ):
+        if type(value) is not int or value < 0:
+            raise OriginalPMenuActivationError(
+                f"PMenu pointer {name} must be a non-negative integer"
+            )
+
+    left, top, right, bottom = PMENU_SELECT_CONTROL_RECT
+    if not (left <= local_x < right and top <= local_y < bottom):
+        return None
+    if not control_flags & PMENU_SELECT_CONTROL_REQUIRED_BIT:
+        return None
+    if control_flags & PMENU_SELECT_CONTROL_GUARD_BIT:
+        return None
+    return resolve_pmenu_row_action(row_kind, menu_id, source_flags)

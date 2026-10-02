@@ -25,6 +25,16 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 176 PMenu pointer-press boundary integrated locally:** the
+  canonical ZIP/executable hashes were reverified. Both concrete title/child
+  SelectBmp vtables place `0x64F7A0` at input slot `+0x6C`; their exact control
+  is the half-open 201x29 whole-row rectangle, both row `+0x0C` acceptance
+  predicates resolve to constant-true `0x42DE00`, and accepted input reaches
+  the already proven row `+0x10` actions. Tk `<Button-1>` is a press event, so
+  ordinary contained PMenu presses now use the recovered action seam. The
+  unknown child node bit 1 and keyboard equivalence remain fail-closed.
+  Focused host/PMenu/presenter verification passes **31 tests**. A fresh
+  schema-updated real-Windows receipt is still required.
 - **Recovery 175 source-accepted PMenu seam merged:** PR #111 passed Gate-13
   presentation CI (`36986776362`), the full reconstruction suite
   (`36986776403`), and asset policy (`36986776562`), then squash-merged as
@@ -33,8 +43,7 @@ Evidence:
   selected child panel and exposes an explicit post-source-acceptance PMenu
   action seam. Only currently visible recovered rows may dispatch; supported
   child actions route transactionally into Squad, League Fixtures and League
-  Tables. Ordinary Tk rectangle clicks remain non-activating and cannot be
-  treated as native accepted events.
+  Tables. Recovery 176 subsequently closed the concrete pointer-press boundary.
 - **Current ChatGPT execution blocker:** this recovery's Library lookup and
   materialization succeeded for the canonical 511,121,336-byte source ZIP,
   but both shell/container and independent Python process startup again failed
@@ -63,13 +72,11 @@ Evidence:
   repository-verified only. A fresh real Windows 11 schema-6 receipt is
   still pending; the Recovery-164 schema-3 receipt remains valid only for
   the earlier corrected first-screen path.
-- **Exact next task:** audit the already source-proven Squad/PMenu
-  presentation inventory for the smallest recognizable management landing
-  that can be composed cloud-safely without inventing unresolved PMenu
-  text origin/clipping or application-owned background pixels. If that
-  evidence is insufficient, record the exact pixel blocker and continue
-  the next independent Gate-13 closure slice. Revisit private executable
-  tracing immediately when process execution recovers.
+- **Exact next task:** update and execute the real-Windows management audit for
+  native PMenu pointer presses, then finish exact PMenu label origin/clipping
+  and application-owned background ownership. Continue the smallest
+  source-backed Squad -> League Fixtures/PMatchInfo -> League Tables visual
+  loop without inventing pixels. Gate 13 remains active.
 
 - **Recovery 175 source-accepted PMenu integration merged:** PR #111
   squash-merged as `9e8f7a18368b8ce7076126a55b2e99563197659a` after

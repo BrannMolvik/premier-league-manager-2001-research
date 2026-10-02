@@ -10118,6 +10118,23 @@ source-accepted action seam separately from ordinary non-activating Tk hits,
 then resume the private PMenu text/control-acceptance trace when execution
 recovers. A fresh real Windows 11 audit receipt is still required.
 
+## 2 October Recovery 176 - native PMenu pointer-press integration
+
+The authorized source ZIP and canonical executable were reverified locally.
+Private vtable/control-flow reports remain outside Git. Both title and child
+PMenu SelectBmp vtables bind slot `+0x6C` to `0x64F7A0`; their setup covers
+the exact half-open 201x29 row, their parent `+0x0C` predicate is constant-true
+`0x42DE00`, and accepted input reaches the already proven row `+0x10` action.
+
+The clean Tk host now routes `<Button-1>` PMenu presses through that exact
+boundary. Initial node flags are source-zero and only recovered bit-0 changes
+are modeled; the neutral child bit-1 gate remains fail-closed. Unsupported
+panels still fail transactionally. The Windows audit advances to schema 7 and
+drives the supported Calendar/Fixtures/TABLES/League Tables route through real
+Tk presses. Keyboard equivalence and final management pixels remain open.
+
+Focused PMenu/host/presenter/Windows-contract verification: **40 tests passed**.
+
 ## 2 October Recovery 175 - schema-6 Windows PMenu audit contract
 
 PR #112 squash-merged as `f6995c0e6b90c9e06a7d6309c7ffb2e49f26f376`.

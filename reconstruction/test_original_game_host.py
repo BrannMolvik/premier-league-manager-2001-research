@@ -145,23 +145,28 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertEqual(before.panel_code, 0xCE)
 
         host.on_click(SimpleNamespace(x=700, y=120))
-        self.assertIn("PMenu candidate row only", host.last_status)
-        self.assertIn("Team", host.last_status)
-        self.assertIn("menu ID 0x2", host.last_status)
-        self.assertIn("no navigation dispatched", host.last_status)
+        self.assertIn("PMenu source pointer press", host.last_status)
+        self.assertIn("no_action 0x2", host.last_status)
         after = host.management_presenter.snapshot()
         self.assertEqual(after.panel_code, 0xCE)
         self.assertEqual(after.menu.selected_child_id, 0xCE)
         self.assertEqual(host.canvas.images, [])
 
-        accepted = host.apply_source_accepted_pmenu_action("title", 0x259, 0)
+        # The ninth fresh visible row is Calendar.  Tk <Button-1> is a press,
+        # matching the recovered SelectBmp +0x6C input virtual.
+        host.on_click(SimpleNamespace(x=700, y=96 + 8 * 29))
+        native = host.management_presenter.snapshot()
+        self.assertEqual(native.panel_code, 0xCE)
+        self.assertEqual(native.menu.selected_root_id, 0x259)
+        self.assertIn("expand_root 0x259", host.last_status)
+
+        accepted = host.apply_source_accepted_pmenu_action("title", 3, 0)
         self.assertTrue(accepted.action.accepted)
         self.assertEqual(accepted.action.action_kind, "expand_root")
         self.assertEqual(accepted.presentation.panel_code, 0xCE)
-        self.assertEqual(accepted.presentation.menu.selected_root_id, 0x259)
+        self.assertEqual(accepted.presentation.menu.selected_root_id, 3)
         self.assertEqual(accepted.presentation.menu.selected_child_id, 0xCE)
         self.assertIn("source-accepted PMenu action", host.last_status)
-        self.assertIn("Tk event equivalence remains unresolved", host.last_status)
         self.assertEqual(host.canvas.images, [])
 
         host.on_click(SimpleNamespace(x=100, y=120))

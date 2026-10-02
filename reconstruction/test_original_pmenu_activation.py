@@ -6,6 +6,7 @@ from original_pmenu_activation import (
     PMENU_BASE_ROW_ACTION_PURECALL_VA,
     PMENU_CHILD_PARENT_OFFSET,
     PMENU_CHILD_ROW_ACTION_VA,
+    PMENU_CHILD_SELECT_BITMAP_VFTABLE_VA,
     PMENU_GENERIC_CONTROL_DISPATCH_VA,
     PMENU_GENERIC_PARENT_ACTION_CALL_VA,
     PMENU_MANAGEMENT_PANEL_FACTORY_VA,
@@ -13,12 +14,22 @@ from original_pmenu_activation import (
     PMENU_NODE_MENU_ID_OFFSET,
     PMENU_NODE_STATE_FLAGS_OFFSET,
     PMENU_OWNER_REFRESH_VTABLE_OFFSET,
+    PMENU_ROW_ACCEPT_CONSTANT_TRUE_VA,
+    PMENU_ROW_ACCEPT_VTABLE_OFFSET,
     PMENU_ROW_ACTION_VTABLE_OFFSET,
     PMENU_SOURCE_GUARD_BIT_1,
+    PMENU_SELECT_CONTROL_GUARD_BIT,
+    PMENU_SELECT_CONTROL_INITIAL_FLAGS,
+    PMENU_SELECT_CONTROL_RECT,
+    PMENU_SELECT_CONTROL_REQUIRED_BIT,
+    PMENU_SELECT_POINTER_INPUT_VA,
+    PMENU_SELECT_POINTER_INPUT_VTABLE_OFFSET,
+    PMENU_TITLE_SELECT_BITMAP_VFTABLE_VA,
     PMENU_TITLE_ROW_ACTION_VA,
     PMENU_TREE_ORDINAL_TRAVERSAL_VA,
     OriginalPMenuActivationError,
     resolve_pmenu_row_action,
+    resolve_pmenu_pointer_press,
     source_pmenu_node,
 )
 
@@ -35,6 +46,13 @@ class OriginalPMenuActivationTests(unittest.TestCase):
         self.assertEqual(PMENU_TREE_ORDINAL_TRAVERSAL_VA, 0x60CA70)
         self.assertEqual(PMENU_MANAGEMENT_PANEL_FACTORY_VA, 0x47AEC0)
         self.assertEqual(PMENU_OWNER_REFRESH_VTABLE_OFFSET, 0xA8)
+        self.assertEqual(PMENU_TITLE_SELECT_BITMAP_VFTABLE_VA, 0x7C3CB0)
+        self.assertEqual(PMENU_CHILD_SELECT_BITMAP_VFTABLE_VA, 0x7C3D4C)
+        self.assertEqual(PMENU_SELECT_POINTER_INPUT_VTABLE_OFFSET, 0x6C)
+        self.assertEqual(PMENU_SELECT_POINTER_INPUT_VA, 0x64F7A0)
+        self.assertEqual(PMENU_ROW_ACCEPT_VTABLE_OFFSET, 0x0C)
+        self.assertEqual(PMENU_ROW_ACCEPT_CONSTANT_TRUE_VA, 0x42DE00)
+        self.assertEqual(PMENU_SELECT_CONTROL_RECT, (0, 0, 201, 29))
         self.assertEqual(PMENU_NODE_MENU_ID_OFFSET, 0x0C)
         self.assertEqual(PMENU_NODE_CHILD_ARRAY_OFFSET, 0x10)
         self.assertEqual(PMENU_NODE_STATE_FLAGS_OFFSET, 0x14)
@@ -98,6 +116,38 @@ class OriginalPMenuActivationTests(unittest.TestCase):
         self.assertEqual(root.menu_id, child.menu_id)
         self.assertIsNotNone(root.children_array_va)
         self.assertIsNone(child.children_array_va)
+
+    def test_pointer_press_uses_half_open_select_control_and_native_bit_gates(self):
+        for point in ((0, 0), (200, 28)):
+            with self.subTest(point=point):
+                action = resolve_pmenu_pointer_press("title", 3, 0, *point)
+                self.assertTrue(action.accepted)
+                self.assertEqual(action.action_kind, "expand_root")
+
+        for point in ((201, 0), (0, 29)):
+            with self.subTest(point=point):
+                self.assertIsNone(
+                    resolve_pmenu_pointer_press("title", 3, 0, *point)
+                )
+
+        self.assertEqual(
+            PMENU_SELECT_CONTROL_INITIAL_FLAGS & PMENU_SELECT_CONTROL_REQUIRED_BIT,
+            PMENU_SELECT_CONTROL_REQUIRED_BIT,
+        )
+        self.assertFalse(
+            PMENU_SELECT_CONTROL_INITIAL_FLAGS & PMENU_SELECT_CONTROL_GUARD_BIT
+        )
+        self.assertIsNone(
+            resolve_pmenu_pointer_press("title", 3, 0, 0, 0, control_flags=0)
+        )
+        self.assertIsNone(
+            resolve_pmenu_pointer_press(
+                "title", 3, 0, 0, 0,
+                control_flags=(
+                    PMENU_SELECT_CONTROL_REQUIRED_BIT | PMENU_SELECT_CONTROL_GUARD_BIT
+                ),
+            )
+        )
 
     def test_invalid_requests_fail_closed(self):
         cases = (

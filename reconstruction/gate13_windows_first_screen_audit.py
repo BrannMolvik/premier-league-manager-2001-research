@@ -747,13 +747,15 @@ def run_real_windows_graphical_audit(
             clean_host.canvas.event_generate("<Button-1>", x=600, y=100)
             _pump(root)
             clean_after_candidate = clean_host.management_presenter.snapshot()
-            if "PMenu candidate row only" not in clean_host.last_status:
+            if "PMenu source pointer press" not in clean_host.last_status:
                 raise WindowsFirstScreenAuditError(
-                    "Default clean host did not expose source-bounded PMenu candidate feedback"
+                    "Default clean host did not dispatch the recovered PMenu pointer press"
                 )
-            if "no navigation dispatched" not in clean_host.last_status:
+            if clean_host.last_pmenu_activation is None or (
+                clean_host.last_pmenu_activation.action.action_kind != "no_action"
+            ):
                 raise WindowsFirstScreenAuditError(
-                    "Default clean host candidate feedback lost fail-closed navigation"
+                    "Selected PMenu title press did not retain the source no-action gate"
                 )
             if (
                 clean_after_candidate.panel_code != clean_before_candidate.panel_code
@@ -761,22 +763,21 @@ def run_real_windows_graphical_audit(
                 != clean_before_candidate.menu.selected_child_id
             ):
                 raise WindowsFirstScreenAuditError(
-                    "Default clean host candidate click mutated PMenu selection"
+                    "Selected PMenu title press mutated PMenu selection"
                 )
             if _actual_photo_dimensions(clean_host):
                 raise WindowsFirstScreenAuditError(
-                    "Default clean host candidate feedback introduced guessed pixels"
+                    "Default clean host PMenu pointer press introduced guessed pixels"
                 )
 
-            # Recovery 173 proves the row callbacks only after the original
-            # control has accepted its event. Exercise that explicit seam
-            # programmatically while keeping the real Tk click above
-            # non-activating. This validates integration, not event equivalence.
+            # Recovery 176 proves that the concrete whole-row SelectBmp uses
+            # 0x64F7A0 at vtable +0x6C and that Tk <Button-1> is the equivalent
+            # pointer-press boundary. Exercise the complete supported route
+            # through the real binding.
             source_accepted_actions = []
-            calendar_root = clean_host.apply_source_accepted_pmenu_action(
-                "title", 0x259, 0
-            )
+            clean_host.canvas.event_generate("<Button-1>", x=600, y=96 + 8 * 29)
             _pump(root)
+            calendar_root = clean_host.last_pmenu_activation
             source_accepted_actions.append(
                 audit_source_accepted_pmenu_transition(
                     calendar_root,
@@ -794,10 +795,9 @@ def run_real_windows_graphical_audit(
                     "Source-accepted Calendar expansion introduced guessed pixels"
                 )
 
-            fixtures = clean_host.apply_source_accepted_pmenu_action(
-                "child", 0x25C, 0
-            )
+            clean_host.canvas.event_generate("<Button-1>", x=600, y=96 + 4 * 29)
             _pump(root)
+            fixtures = clean_host.last_pmenu_activation
             source_accepted_actions.append(
                 audit_source_accepted_pmenu_transition(
                     fixtures,
@@ -815,10 +815,9 @@ def run_real_windows_graphical_audit(
                     "Source-accepted League Fixtures transition introduced guessed pixels"
                 )
 
-            tables_root = clean_host.apply_source_accepted_pmenu_action(
-                "title", 6, 0
-            )
+            clean_host.canvas.event_generate("<Button-1>", x=600, y=96 + 5 * 29)
             _pump(root)
+            tables_root = clean_host.last_pmenu_activation
             source_accepted_actions.append(
                 audit_source_accepted_pmenu_transition(
                     tables_root,
@@ -832,10 +831,9 @@ def run_real_windows_graphical_audit(
                 )
             )
 
-            league_tables = clean_host.apply_source_accepted_pmenu_action(
-                "child", 0x25A, 0
-            )
+            clean_host.canvas.event_generate("<Button-1>", x=600, y=96 + 4 * 29)
             _pump(root)
+            league_tables = clean_host.last_pmenu_activation
             source_accepted_actions.append(
                 audit_source_accepted_pmenu_transition(
                     league_tables,
@@ -858,11 +856,11 @@ def run_real_windows_graphical_audit(
                 "native_club_selection": True,
                 "selected_club_id": clean_club.source_id,
                 "teamselect_start_to_management": True,
-                "candidate_pmenu_hit_test_verified": True,
-                "candidate_pmenu_activation_dispatched": False,
+                "pmenu_pointer_press_hit_test_verified": True,
+                "pmenu_pointer_press_activation_dispatched": True,
                 "source_accepted_pmenu_actions_verified": True,
                 "source_accepted_pmenu_actions": source_accepted_actions,
-                "tk_pmenu_event_equivalence_claimed": False,
+                "tk_pmenu_pointer_press_equivalence_verified": True,
                 **clean_contract,
             }
         finally:
@@ -872,7 +870,7 @@ def run_real_windows_graphical_audit(
                 pass
 
         return {
-            "schema_version": 6,
+            "schema_version": 7,
             "passed": True,
             "audit_kind": "real_windows_tk_first_screen_management_and_clean_host_smoke",
             "platform": platform.platform(),
@@ -904,8 +902,8 @@ def run_real_windows_graphical_audit(
             "management": {
                 "entered_via_native_club_selection_and_start": True,
                 "selected_club_id": management_club.source_id,
-                "candidate_pmenu_hit_test_verified": True,
-                "candidate_pmenu_activation_dispatched": False,
+                "pmenu_pointer_press_hit_test_verified": True,
+                "pmenu_pointer_press_activation_dispatched": True,
                 **management_contract,
             },
             "clean_application_host": clean_host_receipt,
@@ -914,13 +912,13 @@ def run_real_windows_graphical_audit(
                 "teamselect_back_to_menu_via_real_tk_binding": True,
                 "teamselect_selected_club_start_to_management_via_real_tk_binding": True,
                 "default_clean_host_start_to_management_via_real_tk_binding": True,
-                "source_accepted_pmenu_callbacks_programmatically_verified": True,
-                "tk_pmenu_click_equivalence_claimed": False,
+                "source_accepted_pmenu_callbacks_via_real_tk_press_verified": True,
+                "tk_pmenu_pointer_press_equivalence_verified": True,
             },
             "unresolved_boundaries": [
                 "Surrounding management background pixels",
                 "Exact PMenu label origin/clipping",
-                "Original PMenu control acceptance / Tk-event equivalence",
+                "Original PMenu keyboard-event equivalence",
                 "Broader Gate-13 management-screen graphical fidelity",
             ],
             "gate13_complete": False,

@@ -185,3 +185,17 @@ A fresh real Windows 11 **schema-6 receipt remains pending**. The older
 Recovery-164 schema-3 receipt remains valid evidence for its tested
 first-screen path, but neither it nor hosted CI proves this new clean-host
 management action-seam audit.
+
+## Recovery 176 schema-7 native PMenu pointer-press contract
+
+The canonical executable trace now proves that both concrete PMenu SelectBmp
+controls use `0x64F7A0` at vtable slot `+0x6C`, cover the exact half-open
+201x29 row, pass through constant-true row predicate `0x42DE00`, and dispatch
+the already recovered row `+0x10` action. Because Tk `<Button-1>` is the same
+press boundary, schema 7 replaces the candidate-only check with real Tk-bound
+Calendar -> League Fixtures -> TABLES -> League Tables pointer presses.
+
+The contract still requires zero guessed management PhotoImages. It records
+pointer-press equivalence as verified, leaves keyboard equivalence unresolved,
+and does not claim complete management pixels. Focused synthetic verification
+passes; a fresh real Windows 11 **schema-7 receipt is pending**.

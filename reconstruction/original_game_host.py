@@ -26,6 +26,7 @@ from original_first_screen_presenter import (
 from original_live_debug_view import build_original_debug_frame, endpoint_text_rgba
 from original_management_canvas import build_management_canvas_frame
 from original_management_presenter import OriginalManagementPresenter
+from original_pmenu_activation import resolve_pmenu_pointer_press
 from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from original_teamselect_resources import load_verified_original_teamselect_inputs
@@ -89,6 +90,7 @@ class OriginalGameTkHost:
             or (lambda session: OriginalManagementPresenter(session))
         )
         self.management_presenter = None
+        self.last_pmenu_activation = None
         self._photos = []
         self.last_status = "Source-backed FM2001 host ready"
 
@@ -225,10 +227,8 @@ class OriginalGameTkHost:
     ):
         """Apply a recovered PMenu callback after source event acceptance.
 
-        This is intentionally separate from ``on_click``. Recovery 173 proves
-        the row callback after the original control accepts its event, but it
-        does not yet prove that a Tk pointer event is equivalent to that
-        source acceptance boundary.
+        This remains useful for tests and non-pointer source adapters. Ordinary
+        Tk pointer presses now use the separately recovered SelectBmp boundary.
         """
         if self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
             raise OriginalGameHostError(
@@ -243,11 +243,11 @@ class OriginalGameTkHost:
             menu_id,
             source_flags,
         )
+        self.last_pmenu_activation = result
         self.redraw()
         self.last_status = (
             "Applied source-accepted PMenu action: "
-            f"{result.action.action_kind} {menu_id:#x}; "
-            "Tk event equivalence remains unresolved"
+            f"{result.action.action_kind} {menu_id:#x}"
         )
         return result
 
@@ -264,16 +264,40 @@ class OriginalGameTkHost:
                 int(event.y),
             )
             if candidate is None:
+                self.last_pmenu_activation = None
                 self.last_status = (
                     "Management host active; no source-bounded PMenu candidate "
                     f"row at ({int(event.x)}, {int(event.y)})"
                 )
             else:
-                self.last_status = (
-                    "PMenu candidate row only: "
-                    f"{candidate.caption} (menu ID {candidate.menu_id:#x}); "
-                    "native activation unresolved; no navigation dispatched"
+                menu = frame.presentation.menu
+                local_x = int(event.x) - menu.list_screen_origin[0]
+                local_y = int(event.y) - menu.list_screen_origin[1] - candidate.y
+                source_flags = 1 if candidate.selected else 0
+                action = resolve_pmenu_pointer_press(
+                    candidate.row_kind,
+                    candidate.menu_id,
+                    source_flags,
+                    local_x,
+                    local_y,
                 )
+                if action is None:
+                    self.last_status = "PMenu pointer press rejected by source control gates"
+                    return
+                try:
+                    result = self.management_presenter.source_accepted_pmenu_action(
+                        candidate.row_kind,
+                        candidate.menu_id,
+                        source_flags,
+                    )
+                    self.last_pmenu_activation = result
+                    self.redraw()
+                    self.last_status = (
+                        "PMenu source pointer press: "
+                        f"{result.action.action_kind} {candidate.menu_id:#x}"
+                    )
+                except Exception as exc:
+                    self.last_status = f"{type(exc).__name__}: {exc}"
             return
         try:
             result = self.presenter.pointer(int(event.x), int(event.y))

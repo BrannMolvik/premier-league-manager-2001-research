@@ -726,3 +726,35 @@ work is:
    pointer/keyboard dispatch;
 3. integrate supported child panel transitions in the clean host;
 4. execute the corrected real-Windows/schema-5 audit.
+
+## Recovery 176 SelectBmp pointer-press acceptance closure
+
+The canonical ZIP and executable were reverified before this local/private
+trace. Generated disassembly and pointer reports remain outside Git.
+
+Both concrete whole-row SelectBmp vtables use the same generic control input
+method at virtual slot `+0x6C`:
+
+- title SelectBmp vtable `0x7C3CB0 -> 0x64F7A0`;
+- child SelectBmp vtable `0x7C3D4C -> 0x64F7A0`.
+
+Their row setup constructs the exact local control rectangle
+`(0,0,201,29)`. The shared hit path uses half-open bounds, so the accepted
+coverage is `[0,201) x [0,29)`. The `0x64F7A0` input method requires source
+control bit `0x2`, rejects while bit `0x10` is set, calls the parent row's
+virtual `+0x0C` predicate and then the parent action virtual `+0x10`. Both
+concrete row vtables resolve `+0x0C` to `0x42DE00`, exactly `return 1`, and
+their `+0x10` slots remain the already proven `0x47AC60/0x47AD60` actions.
+The native initial control flags are `0x183`, satisfying the required bit and
+clearing the guard bit.
+
+This closes ordinary **pointer-press** equivalence for the concrete PMenu row
+control. Tk's existing `<Button-1>` binding is also a press event, so the clean
+host now dispatches a contained row through the exact recovered action seam.
+Initial node flags are source-zero; the clean host only models the recovered
+bit-0 selection mutations, while the still-neutral child bit 1 continues to
+gate actions and is never guessed. Unsupported child panels still fail
+transactionally. Keyboard activation remains unproven and unintegrated.
+
+The exact label origin/clipping, application-owned management background and a
+fresh schema-updated real-Windows receipt remain open.
