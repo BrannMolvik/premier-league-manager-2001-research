@@ -207,6 +207,57 @@ provenance.
 
 
 
+## Reasoning-budget and local-model delegation policy
+
+For sustained FM2001 work, prefer **GPT-6.1 Sol at High reasoning** when that
+model/effort is available. Treat the selected effort as a ceiling/budget rather
+than a requirement to deliberate heavily on every operation.
+
+Allocate reasoning in proportion to the actual difficulty and uncertainty:
+
+- use minimal deliberation for deterministic/repetitive repository operations,
+  mechanical edits, known commands, formatting, and other low-risk work;
+- use normal/deeper analysis for implementation that spans systems or depends
+  on recovered behavior;
+- reserve the heaviest reasoning for reverse engineering, ambiguous original
+  behavior, difficult cross-system bugs, architecture decisions, conflicting
+  evidence, and gate-completion/audit judgments;
+- spend extensive reasoning only when the evidence, failure mode, or decision
+  genuinely warrants it. Do not burn reasoning budget merely because the
+  configured effort ceiling is High.
+
+If the current Codex interface cannot change reasoning effort dynamically during
+a run, do not stop or ask the user to switch settings for ordinary subtasks.
+The rule above is still an instruction to scale internal deliberation to the
+task while staying within the selected setting.
+
+Daniel's local Ollama model **`qwen2.5-coder:14b`** is an approved optional
+helper for **extremely simple, low-risk, deterministic work** when the worker is
+running in an environment that can access it. Suitable delegation includes
+mechanical text/code transformations, boilerplate whose exact behavior is
+already specified, trivial formatting/cleanup, or similarly reversible tasks
+where the result is easy for the primary worker to inspect.
+
+Local-model delegation has strict boundaries:
+
+- it is optional, never a prerequisite or blocker;
+- do not spend more time wiring up Ollama than the trivial task would take
+  directly;
+- do not delegate reverse-engineering interpretation, inference of original
+  FM2001 behavior, fidelity decisions, architecture, ambiguous debugging,
+  security-sensitive decisions, evidence classification, gate audits, or
+  completion judgments;
+- do not let the local model independently commit, push, alter canonical
+  runtime state, or make unreviewed repository decisions;
+- GPT-6.1 Sol/Codex remains responsible for the task. Review the local model's
+  output, inspect the resulting diff, run the same appropriate tests/checks,
+  and accept only changes that satisfy the repository's evidence and quality
+  rules.
+
+The purpose of local-model use is to conserve hosted Codex allowance on work
+that does not benefit materially from stronger reasoning. It must never lower
+the reconstruction's verification or fidelity standard.
+
 ## Codex local/private ownership policy
 
 When `agent-runtime` names `work_owner = "codex"`, Codex owns the local/private
