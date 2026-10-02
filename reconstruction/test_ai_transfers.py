@@ -115,7 +115,15 @@ def build_state(on_date=date(2000, 8, 19)):
             102: SimpleNamespace(index=102, club_id=seller_id),
         },
         competitions={
-            0: SimpleNamespace(id=0, valuation_division_category=0),
+            0: SimpleNamespace(
+                id=0,
+                valuation_division_category=4,
+                runtime_kind_code=1,
+                schedule_container_code=1,
+                parent_competition_id=None,
+                initialization_order_value=9,
+                country_region_id=26,
+            ),
         },
         countries={
             0: SimpleNamespace(
@@ -166,6 +174,93 @@ class WeeklyAiTransferTests(unittest.TestCase):
         self.assertEqual(autonomous_contract_length_months(state, 20, 1), 4)
         state.players[20].date_of_birth = date(1965, 1, 1)
         self.assertEqual(autonomous_contract_length_months(state, 20, 1), 2)
+
+    def test_contract_category_uses_leaguebase_source_index_not_valuation_proxy(self):
+        state = build_state()
+        state.competitions = {
+            50: SimpleNamespace(
+                id=50,
+                valuation_division_category=0,
+                runtime_kind_code=2,
+                parent_competition_id=None,
+                initialization_order_value=99,
+                country_region_id=26,
+            ),
+            0: SimpleNamespace(
+                id=0,
+                valuation_division_category=4,
+                runtime_kind_code=1,
+                parent_competition_id=None,
+                initialization_order_value=9,
+                country_region_id=26,
+            ),
+            60: SimpleNamespace(
+                id=60,
+                valuation_division_category=0,
+                runtime_kind_code=2,
+                parent_competition_id=None,
+                initialization_order_value=98,
+                country_region_id=26,
+            ),
+            1: SimpleNamespace(
+                id=1,
+                valuation_division_category=4,
+                runtime_kind_code=1,
+                parent_competition_id=None,
+                initialization_order_value=10,
+                country_region_id=26,
+            ),
+            2: SimpleNamespace(
+                id=2,
+                valuation_division_category=0,
+                runtime_kind_code=1,
+                parent_competition_id=None,
+                initialization_order_value=-50,
+                country_region_id=26,
+            ),
+            3: SimpleNamespace(
+                id=3,
+                valuation_division_category=0,
+                runtime_kind_code=1,
+                parent_competition_id=None,
+                initialization_order_value=12,
+                country_region_id=26,
+            ),
+            4: SimpleNamespace(
+                id=4,
+                valuation_division_category=0,
+                runtime_kind_code=3,
+                parent_competition_id=None,
+                initialization_order_value=1,
+                country_region_id=26,
+            ),
+        }
+        state.clubs[1].competition_id = 2
+
+        # At age 25, source category/index 2 returns 3.0 months. The old
+        # valuation proxy would have used row 0 here and returned 4 months.
+        self.assertEqual(
+            autonomous_contract_length_months(state, 20, 1),
+            3,
+        )
+
+    def test_contract_category_fails_closed_outside_five_row_table(self):
+        state = build_state()
+        state.competitions = {
+            index: SimpleNamespace(
+                id=index,
+                valuation_division_category=0,
+                runtime_kind_code=1,
+                parent_competition_id=None,
+                initialization_order_value=index,
+                country_region_id=26,
+            )
+            for index in range(6)
+        }
+        state.clubs[1].competition_id = 5
+
+        with self.assertRaisesRegex(ValueError, "outside the five-row"):
+            autonomous_contract_length_months(state, 20, 1)
 
     def test_saturday_pass_completes_direct_ai_transfer(self):
         state = build_state()
