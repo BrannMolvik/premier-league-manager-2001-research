@@ -3,12 +3,15 @@ from hashlib import sha256
 import json
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from gate17_release_readiness import (
     ReleaseReadinessError,
     parse_release_evidence,
     require_path_outside_repo,
+    require_windows_11,
     validate_external_receipts,
     validate_limitations_document,
     validate_release_archive,
@@ -46,6 +49,71 @@ def write_roadmap(path, *, open_gate=None, omit_gate=None):
         lines.append(f"- [{marker}] criterion {gate}")
         lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
+
+
+class Gate17WindowsHostGuardTests(unittest.TestCase):
+    def test_rejects_non_windows_host(self):
+        with patch("gate17_release_readiness.platform.system", return_value="Linux"):
+            with self.assertRaisesRegex(ReleaseReadinessError, "Windows 11"):
+                require_windows_11()
+
+    def test_rejects_github_actions_even_on_windows_client(self):
+        with (
+            patch("gate17_release_readiness.platform.system", return_value="Windows"),
+            patch.dict(
+                "gate17_release_readiness.os.environ",
+                {"GITHUB_ACTIONS": "true"},
+                clear=False,
+            ),
+        ):
+            with self.assertRaisesRegex(ReleaseReadinessError, "GitHub Actions"):
+                require_windows_11()
+
+    def test_rejects_modern_windows_server_product_type(self):
+        with (
+            patch("gate17_release_readiness.platform.system", return_value="Windows"),
+            patch.dict("gate17_release_readiness.os.environ", {}, clear=True),
+            patch(
+                "gate17_release_readiness.sys.getwindowsversion",
+                return_value=SimpleNamespace(build=26100, product_type=3),
+                create=True,
+            ),
+        ):
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "client workstation",
+            ):
+                require_windows_11()
+
+    def test_rejects_pre_windows_11_client_build(self):
+        with (
+            patch("gate17_release_readiness.platform.system", return_value="Windows"),
+            patch.dict("gate17_release_readiness.os.environ", {}, clear=True),
+            patch(
+                "gate17_release_readiness.sys.getwindowsversion",
+                return_value=SimpleNamespace(build=19045, product_type=1),
+                create=True,
+            ),
+        ):
+            with self.assertRaisesRegex(ReleaseReadinessError, "older than Windows 11"):
+                require_windows_11()
+
+    def test_accepts_windows_11_client_workstation(self):
+        with (
+            patch("gate17_release_readiness.platform.system", return_value="Windows"),
+            patch("gate17_release_readiness.platform.platform", return_value="Windows-11-test"),
+            patch.dict("gate17_release_readiness.os.environ", {}, clear=True),
+            patch(
+                "gate17_release_readiness.sys.getwindowsversion",
+                return_value=SimpleNamespace(build=26200, product_type=1),
+                create=True,
+            ),
+        ):
+            result = require_windows_11()
+
+        self.assertEqual(result["windows_build"], 26200)
+        self.assertEqual(result["windows_product_type"], 1)
+        self.assertEqual(result["platform"], "Windows-11-test")
 
 
 class Gate17ReleaseReadinessTests(unittest.TestCase):
