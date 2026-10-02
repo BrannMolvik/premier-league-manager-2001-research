@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 192: PR #158 is canonical at main 9fe93ea5c87e87b6e2db866205f8289e0bac83c6 after 1,464 tests / 22 expected skips plus Windows package/freeze/smoke and asset-policy success. Active PR #159 head 132a349b560652c4608bdb4a49c52c15309c4d2b independently validates every external Gate-17 receipt host record: windows_11=true, build>=22000, windows_product_type=1. Verify full CI and merge only if green. Then continue the next cloud-safe Gate-17 external-validation workflow improvement; Gate 13 remains earliest incomplete validation gate and private process execution still fails with caas ClientError.",
-  "last_known_main_head": "9fe93ea5c87e87b6e2db866205f8289e0bac83c6",
+  "active_task": "Recovery 193: PR #159 is canonical at main fe73236559e61939e972324f0c61e391f29a1a0f after 1,465 tests / 22 expected skips plus Windows package/freeze/smoke and asset-policy success. Active branch recovery192/gate17-external-validation-orchestrator adds a transactional real-Windows Gate-17 coordinator that preflights strict workstation, clean exact commit, Gate 1-16 completion, final limitations, external archive/game data and fresh work root before writing receipts; any later failure deletes the new external work root. Verify full reconstruction + Windows package + asset policy, merge only if green, then continue cloud-safe release hardening. Gate 13 remains earliest incomplete validation gate and private process execution remains blocked by caas ClientError.",
+  "last_known_main_head": "fe73236559e61939e972324f0c61e391f29a1a0f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 192,
+  "recovery_generation": 193,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "External Windows evidence producers are guarded on canonical main. PR #159 adds independent receipt-metadata validation so stale/copied evidence cannot bypass host provenance checks.",
+  "note": "Canonical external receipt validation now independently verifies Windows 11 build/client-workstation metadata. Active orchestrator is fail-closed and cannot pass while Gates 13-16 or pre-release limitations remain open.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
