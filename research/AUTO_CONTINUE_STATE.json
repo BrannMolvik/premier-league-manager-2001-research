@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 170 continuation from main 88ced324bbc6aabfa01d8f08b34c71f28f2682aa. PR #98 closed the cloud-safe PMenu -> PSquadScreen / PLeagueFixtures / PLeagueTables routing seam and PMatchInfo action gate. Next: recover or expose the exact PLeagueFixtures competition-member order needed for native matrix projection from already-persisted source/backend state, while the private process sandbox ClientError keeps exact PMenu label origin/clipping and surrounding management background deferred. If member order is not source-backed in current backend state, record that exact boundary and move to the next independent fixed-800x600 integration slice without inventing order.",
-  "last_known_main_head": "88ced324bbc6aabfa01d8f08b34c71f28f2682aa",
+  "active_task": "Recovery 171 continuation from main 096e8fb3579a30c70b7d3f760cae5dd60080e580. PR #99 merged the source-backed PLeagueFixtures directed-pair matrix and reconciled stale PMatchInfo popup tests. Next: make successful TeamSelect Start enter an explicit source-proven MANAGEMENT/PMenu state, then wire the fixed 800x600 original management resource/canvas host to the existing OriginalManagementPresenter without falling back to the generic ttk Play tab. Keep exact PMenu label origin/clipping and any unproven additional management background layer fail-closed while the process sandbox still returns caas ClientError.",
+  "last_known_main_head": "096e8fb3579a30c70b7d3f760cae5dd60080e580",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 170,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 170 merged PR #98 as main 88ced324bbc6aabfa01d8f08b34c71f28f2682aa after exact-head Gate-13 run 36968264310 passed 403 tests / 21 expected skips / 0 failures and asset-policy run 36968264309 passed. Authorized 511,121,336-byte source ZIP rematerialized, but container.exec and python execution both fail before process start with caas ClientError; no new private-byte claims. Continue cloud-safe work.",
+  "note": "Recovery 171: main 096e8fb3579a30c70b7d3f760cae5dd60080e580. PR #99 exact head 7edaa3b1d25dfb6e4728ba42de0a8ecba9a42b96 passed Gate-13 run 36969502834 (412 tests/21 skips), full run 36969502807 (1314/22), asset policy 36969502814. Container process launch still fails before start with caas ClientError.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
