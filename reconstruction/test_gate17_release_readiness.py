@@ -17,12 +17,17 @@ from gate17_release_readiness import (
 
 
 COMMIT = "a" * 40
+RELEASE_VERSION = "test-1"
+RELEASE_ARCHIVE_BYTES = b"release bytes"
+RELEASE_ARCHIVE_SHA256 = sha256(RELEASE_ARCHIVE_BYTES).hexdigest()
 
 
 def write_receipt(path, **flags):
     payload = {
         "passed": True,
         "repository_commit": COMMIT,
+        "release_version": RELEASE_VERSION,
+        "release_archive_sha256": RELEASE_ARCHIVE_SHA256,
         **flags,
     }
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -82,15 +87,15 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             }
 
         archive = private / "fm2001-port.zip"
-        archive.write_bytes(b"release bytes")
+        archive.write_bytes(RELEASE_ARCHIVE_BYTES)
         evidence = {
             "schema_version": 1,
-            "release_version": "test-1",
+            "release_version": RELEASE_VERSION,
             "repository_commit": COMMIT,
             "limitations_path": "research/RELEASE_LIMITATIONS.md",
             "external_receipts": receipts,
             "archive": {
-                "sha256": sha256(archive.read_bytes()).hexdigest(),
+                "sha256": RELEASE_ARCHIVE_SHA256,
                 "size_bytes": archive.stat().st_size,
             },
         }
@@ -141,7 +146,7 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             archive_check = validate_release_archive(
                 archive, evidence.archive, repo
             )
-            self.assertEqual(archive_check["size_bytes"], len(b"release bytes"))
+            self.assertEqual(archive_check["size_bytes"], len(RELEASE_ARCHIVE_BYTES))
             limits = validate_limitations_document(
                 repo, evidence.limitations_path
             )
@@ -183,6 +188,42 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 "reuses the same evidence file",
             ):
                 validate_external_receipts(evidence, repo)
+
+    def test_receipt_for_another_release_version_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            name = "season_progression"
+            path = Path(raw["external_receipts"][name]["path"])
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload["release_version"] = "other-release"
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            raw["external_receipts"][name]["sha256"] = sha256(
+                path.read_bytes()
+            ).hexdigest()
+
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "different release version",
+            ):
+                validate_external_receipts(parse_release_evidence(raw), repo)
+
+    def test_receipt_for_another_release_archive_is_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            name = "save_reload"
+            path = Path(raw["external_receipts"][name]["path"])
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload["release_archive_sha256"] = "b" * 64
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            raw["external_receipts"][name]["sha256"] = sha256(
+                path.read_bytes()
+            ).hexdigest()
+
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "different release archive",
+            ):
+                validate_external_receipts(parse_release_evidence(raw), repo)
 
     def test_receipt_for_another_commit_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
