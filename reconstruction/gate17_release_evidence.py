@@ -101,6 +101,10 @@ def assemble_release_evidence(
             root,
             label=f"{name} receipt",
         )
+        if path == archive:
+            raise ReleaseEvidenceAssemblerError(
+                f"{name} receipt cannot reuse the release archive file"
+            )
         previous = seen.get(path)
         if previous is not None:
             raise ReleaseEvidenceAssemblerError(
