@@ -26,6 +26,8 @@ from original_first_screen_presenter import (
 from original_live_debug_view import (
     OriginalLiveDebugError, build_original_debug_frame, endpoint_text_rgba,
 )
+from original_management_canvas import build_management_canvas_frame
+from original_management_presenter import OriginalManagementPresenter
 from original_hierarchy_debug_inspector import (
     OriginalHierarchyDebugError, inspect_original_hierarchy_source_frames,
 )
@@ -36,8 +38,21 @@ from original_teamselect_resources import load_verified_original_teamselect_inpu
 class OriginalFirstScreenTkDebug:
     """Fixed, unscaled 800x600 original-pixel diagnostic with external controls."""
 
-    def __init__(self, presenter: OriginalFirstScreenPresenter, root, tk, ttk):
+    def __init__(
+        self,
+        presenter: OriginalFirstScreenPresenter,
+        root,
+        tk,
+        ttk,
+        *,
+        management_presenter_factory=None,
+    ):
         self.presenter = presenter
+        self.management_presenter_factory = (
+            management_presenter_factory
+            or (lambda session: OriginalManagementPresenter(session))
+        )
+        self.management_presenter = None
         self.root = root
         self.tk = tk
         self.ttk = ttk
@@ -143,6 +158,9 @@ class OriginalFirstScreenTkDebug:
         return photo
 
     def redraw(self):
+        if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
+            self._redraw_management_host()
+            return
         view = self.presenter.snapshot()
         try:
             frame = build_original_debug_frame(
@@ -256,7 +274,42 @@ class OriginalFirstScreenTkDebug:
                 image=bar_photo, compound="top",
             )
 
+    def _redraw_management_host(self):
+        """Expose the recovered management route without drawing guessed pixels."""
+        if self.management_presenter is None:
+            self.management_presenter = self.management_presenter_factory(
+                self.presenter.session
+            )
+        frame = build_management_canvas_frame(self.management_presenter)
+        self.canvas.delete("all")
+        self._photos = []
+        self.frame_label.configure(
+            text=(
+                "Fixed 800x600 PMenu management host active. "
+                "Complete source pixels remain fail-closed."
+            )
+        )
+        self.events_label.configure(
+            text=(
+                f"Panel: {frame.presentation.panel_class} "
+                f"(menu ID {frame.presentation.panel_code:#x})\n"
+                f"PMenu rect: {frame.menu_rect}\n"
+                f"Panel rect: {frame.panel_rect}\n"
+                "Surrounding management background: unresolved\n"
+                "PMenu label origin/clipping: unresolved"
+            )
+        )
+        self.hierarchy_anim_label.configure(
+            text="Hierarchy inspector is inactive in PMenu management.", image=""
+        )
+        self.hierarchy_bars_label.configure(
+            text="No guessed management pixels are drawn.", image=""
+        )
+
     def step_hierarchy_source_frame(self, kind: str, delta: int):
+        if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
+            self.status.set("Hierarchy source inspection is unavailable in management.")
+            return
         view = self.presenter.snapshot()
         if view.screen is not FrontEndScreen.TEAM_SELECT or view.hierarchy_art is None:
             self.status.set("No original hierarchy strip available for source inspection")
@@ -276,6 +329,9 @@ class OriginalFirstScreenTkDebug:
         self.redraw()
 
     def step_source_frame(self, delta: int):
+        if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
+            self.status.set("First-screen source frames are unavailable in management.")
+            return
         view = self.presenter.snapshot()
         count = min(len(item.atlas.frames) for item in view.controls)
         if count <= 0:
@@ -286,6 +342,12 @@ class OriginalFirstScreenTkDebug:
 
     def on_original_click(self, event):
         """Canvas uses fixed original 800x600 unscaled source coordinates."""
+        if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
+            self.status.set(
+                "Management host active; PMenu hit-testing is not yet integrated."
+            )
+            self.redraw()
+            return
         try:
             result = self.presenter.pointer(int(event.x), int(event.y))
             if result is None:
@@ -310,7 +372,7 @@ class OriginalFirstScreenTkDebug:
             elif result.transition.command is FrontEndCommand.TEAMSELECT_START_CONTINUE:
                 self.status.set(
                     f"Backend selection returned {result.selected_manager!r}; "
-                    "native manager-home presentation is not yet reconstructed."
+                    "entered source-proven PMenu management host."
                 )
             elif result.transition.command is not None:
                 self.status.set(
