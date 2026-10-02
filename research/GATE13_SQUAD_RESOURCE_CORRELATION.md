@@ -234,3 +234,66 @@ unresolved at the value layer, and refuses more than one 20-row viewport.
 First/reserve membership, filtering/scrolling behavior and user-facing status
 icon meanings therefore remain source-gated rather than inferred.
 
+## Recovery 179 - fresh PSquadScreen top-control pixel closure
+
+Recovery 179 reverified the canonical executable
+`833bf95e...b7cc3` from the authorized source and followed the three
+`PSquadScreen::0x4B5720` calls through the concrete embedded control class
+instead of inferring atlas frames from appearance.
+
+The three 0x54-byte objects are constructed by `0x42DEB0`, which installs
+vtable **0x7BE814**. Their shared setup remains `0x652C50`. The one distinct
+literal passed only for control 3 is not a text-layout flag: `0x652C50`
+withholds that argument from the common `0x651E30` text setup and later passes
+it through vtable `+0xB0 -> 0x652D80`. That method drives `0x652B10`,
+which sets/clears source control mask **0x8000**.
+
+The same concrete vtable supplies:
+
+- state selector `+0xAC -> 0x652AE0`;
+- state frame-count method `+0xA8 -> 0x652BC0`;
+- source offset `+0x98 -> 0x5D4D70`.
+
+With the normal initial enabled flags and zero subframe, the exact fresh state
+is therefore:
+
+| Control | Source state | Source frame | Native text endpoint |
+| --- | ---: | ---: | ---: |
+| 3 `1ST & RES` | group 1 / mask 0x8000 set | **11** | `0x0000` |
+| 4 `1ST FORM` | group 0 | **0** | `0xFFFF` |
+| 5 `RES. FORM` | group 0 | **0** | `0xFFFF` |
+
+The 73x575 `squad_but_anim.444` atlas is thus source-partitioned into the same
+23 physical 73x25 frames consumed by this concrete control path; this statement
+comes from the executable source-offset/frame-count methods, not height division
+alone.
+
+### Caption geometry
+
+All three calls use runtime font object `0x9269F0`, already source-bound to
+`Fonts/Zurich_BdXCn_BT_16pixel.fnt`, and pass raw text style **0** with zero
+x/y text offsets. The shared `0x6520C0` renderer's style-0 path centers the
+measured line horizontally and the native 18-pixel line vertically in each
+73x25 control. The exact English captions remain the loader-correlated entries
+2490..2492 documented above.
+
+Generic draw `0x6520C0` adds the parent draw origin to each stored child
+coordinate. Therefore the three setup origins are **PSquadScreen-local**, not
+final screen positions. With the independently recovered PSquadScreen parent
+rectangle `(0,79,800,520)`, the fresh live screen origins are:
+
+- control 3: **(37,171)**;
+- control 4: **(113,171)**;
+- control 5: **(189,171)**.
+
+This parent-relative result also preserves the native alignment with the
+`PSquadPitch` local y=92 boundary.
+
+### Clean-room consequence
+
+`reconstruction/original_squad_top_controls.py` now composes only these six
+verified overlays: three exact source frames plus three original Zurich caption
+masks. It does **not** render unrecovered roster typography/status icons or
+invent a Squad background. The default host can use this bounded fresh landing
+layer underneath PMenu while the rest of the Squad surface remains fail-closed.
+
