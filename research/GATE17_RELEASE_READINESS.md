@@ -14,6 +14,14 @@ The evidence contract requires four external JSON receipts, all tied to the same
 
 The audit also verifies a clean Git working tree, repository asset policy, canonical FM2001 source-data verification, the full unittest suite, an archived release file with exact size and SHA-256, and the final release-limitations document.
 
+Recovery 188 additionally makes the roadmap prerequisite chain machine-checkable:
+the final Gate-17 audit refuses to pass unless **every completion criterion in
+Gates 1 through 16 is checked in `ROADMAP.md`**. Gate 17 itself is
+deliberately excluded from that prerequisite check because this release audit is
+one of Gate 17's own completion steps. Missing gate sections, prerequisite gates
+with no checkbox criteria, and any unchecked Gate 1-16 criterion all fail
+closed.
+
 ## Fail-closed boundary
 
 research/RELEASE_LIMITATIONS.md is deliberately marked pre-release today. The final audit rejects a limitations document that still carries that marker. This prevents the Gate 17 tool from passing until earlier gate work and the real Windows release checks have actually been completed.
