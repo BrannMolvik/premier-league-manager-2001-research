@@ -32,7 +32,10 @@ from original_front_end_layout import (
     OriginalRect,
 )
 from original_live_debug_view import build_original_debug_frame
+from original_management_canvas import build_management_canvas_frame
+from original_pmenu_chrome import PMENU_LIST_SCREEN_ORIGIN, PMENU_LIST_SIZE
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
+from original_squad_resources import SQUAD_PANEL_RECT
 from original_teamselect_resources import load_verified_original_teamselect_inputs
 
 
@@ -449,10 +452,93 @@ def run_real_windows_graphical_audit(
         return_contract = audit_frame_contract(presenter.snapshot(), 0)
         return_live = _verify_live_tk_redraw(viewer, root, return_contract)
 
+        # Re-enter through the real Tk binding, select the first native club,
+        # and require Start to enter the recovered fixed MANAGEMENT/PMenu host.
+        # The host intentionally draws no guessed management pixels yet.
+        _click(viewer.canvas, root, new_game_rect)
+        if presenter.session.navigation.screen is not FrontEndScreen.TEAM_SELECT:
+            raise WindowsFirstScreenAuditError(
+                "Second real Tk New Game click did not reach TeamSelect"
+            )
+        management_team = presenter.snapshot()
+        if len(management_team.club_rows) != 20:
+            raise WindowsFirstScreenAuditError(
+                "Fresh TeamSelect re-entry did not expose 20 native clubs"
+            )
+        management_club = management_team.club_rows[0]
+        viewer.canvas.event_generate(
+            "<Button-1>",
+            x=management_club.rect.x + 1,
+            y=management_club.rect.y + 1,
+        )
+        _pump(root)
+        if presenter.session.selected_club_id != management_club.source_id:
+            raise WindowsFirstScreenAuditError(
+                "Positive Start path did not retain the clicked native club identity"
+            )
+
+        _click(viewer.canvas, root, TEAMSELECT_START_RECT)
+        if presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
+            raise WindowsFirstScreenAuditError(
+                "TeamSelect Start with a selected native club did not enter MANAGEMENT"
+            )
+        if viewer.management_presenter is None:
+            raise WindowsFirstScreenAuditError(
+                "Real Tk MANAGEMENT redraw did not construct the PMenu presenter"
+            )
+        management_frame = build_management_canvas_frame(
+            viewer.management_presenter
+        )
+        menu_x, menu_y = PMENU_LIST_SCREEN_ORIGIN
+        menu_w, menu_h = PMENU_LIST_SIZE
+        expected_menu_rect = (menu_x, menu_y, menu_w, menu_h)
+        if management_frame.screen_size != SCREEN_SIZE:
+            raise WindowsFirstScreenAuditError(
+                "MANAGEMENT host no longer uses the exact 800x600 source surface"
+            )
+        if management_frame.menu_rect != expected_menu_rect:
+            raise WindowsFirstScreenAuditError(
+                "MANAGEMENT PMenu rectangle differs from recovered native geometry"
+            )
+        if management_frame.panel_rect != SQUAD_PANEL_RECT:
+            raise WindowsFirstScreenAuditError(
+                "Fresh MANAGEMENT panel rectangle differs from recovered PSquadScreen geometry"
+            )
+        if management_frame.presentation.panel_class != "PSquadScreen":
+            raise WindowsFirstScreenAuditError(
+                "Fresh MANAGEMENT host did not resolve PSquadScreen"
+            )
+        if management_frame.presentation.panel_code != 0xCE:
+            raise WindowsFirstScreenAuditError(
+                "Fresh MANAGEMENT host did not preserve native Squad menu ID 0xCE"
+            )
+        if management_frame.complete_source_pixel_frame_available:
+            raise WindowsFirstScreenAuditError(
+                "MANAGEMENT audit unexpectedly claimed unresolved full source pixels"
+            )
+        management_canvas_size = [
+            int(viewer.canvas.winfo_width()),
+            int(viewer.canvas.winfo_height()),
+        ]
+        if management_canvas_size != list(SCREEN_SIZE):
+            raise WindowsFirstScreenAuditError(
+                "Real Tk MANAGEMENT canvas is not the fixed 800x600 surface"
+            )
+        management_photo_dimensions = _actual_photo_dimensions(viewer)
+        if management_photo_dimensions:
+            raise WindowsFirstScreenAuditError(
+                "MANAGEMENT host drew PhotoImages before background/text recovery"
+            )
+        management_status = str(viewer.status.get())
+        if "entered source-proven PMenu management host" not in management_status:
+            raise WindowsFirstScreenAuditError(
+                "Real Tk Start path did not report the recovered PMenu host transition"
+            )
+
         return {
-            "schema_version": 3,
+            "schema_version": 4,
             "passed": True,
-            "audit_kind": "real_windows_tk_first_screen_graphical_smoke",
+            "audit_kind": "real_windows_tk_first_screen_and_management_graphical_smoke",
             "platform": platform.platform(),
             "python_version": sys.version.split()[0],
             "tk_patchlevel": tk_patchlevel,
@@ -479,12 +565,29 @@ def run_real_windows_graphical_audit(
                 "contract": return_contract,
                 "live_tk": return_live,
             },
+            "management": {
+                "entered_via_native_club_selection_and_start": True,
+                "selected_club_id": management_club.source_id,
+                "screen_size": list(management_frame.screen_size),
+                "pmenu_rect": list(management_frame.menu_rect),
+                "panel_rect": list(management_frame.panel_rect),
+                "panel_class": management_frame.presentation.panel_class,
+                "panel_code": management_frame.presentation.panel_code,
+                "live_tk_canvas_size": management_canvas_size,
+                "photo_dimensions": management_photo_dimensions,
+                "surrounding_background_recovered": management_frame.surrounding_background_recovered,
+                "pmenu_text_placement_recovered": management_frame.pmenu_text_placement_recovered,
+                "complete_source_pixel_frame_available": management_frame.complete_source_pixel_frame_available,
+            },
             "navigation": {
                 "new_game_to_teamselect_via_real_tk_binding": True,
                 "teamselect_back_to_menu_via_real_tk_binding": True,
+                "teamselect_selected_club_start_to_management_via_real_tk_binding": True,
             },
             "unresolved_boundaries": [
-                "Exact native TeamSelect selection-record payload -> gameplay club-ID mapping",
+                "Surrounding management background pixels",
+                "Exact PMenu label origin/clipping",
+                "Native PMenu row activation/event ownership",
                 "Broader Gate-13 management-screen graphical fidelity",
             ],
             "gate13_complete": False,
