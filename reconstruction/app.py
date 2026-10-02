@@ -8,6 +8,7 @@ from human_gameplay import HumanGameplayController
 from gate13_management_source_data import ManagementSourceDataBridge, ManagementPresentationError
 from original_league_tables_presenter import build_league_tables_snapshot, OriginalLeagueTablesPresentationError
 from original_game_host import run_original_game_ui
+from startup_media_command_backend import SynchronousCommandStartupMediaBackend
 from internal_save import load_human_gameplay, save_human_gameplay
 from match_team_setup import TeamTacticalState
 
@@ -673,6 +674,23 @@ def main():
         default=None,
         help='Override the verified original_assets/source root used by the source-backed host.',
     )
+    ap.add_argument(
+        '--startup-media-receipt',
+        type=Path,
+        default=None,
+        help='Outside-Git Gate-14 conversion receipt for verified startup-media derivatives.',
+    )
+    ap.add_argument(
+        '--startup-media-player',
+        default=None,
+        help='Explicit synchronous media-player executable for verified startup derivatives.',
+    )
+    ap.add_argument(
+        '--startup-media-player-arg',
+        action='append',
+        default=[],
+        help='Repeatable argument passed to the configured startup-media player before the media path.',
+    )
     args = ap.parse_args()
     game_dir = Path(args.game_dir)
     if not (game_dir / 'Master.dat').exists():
@@ -680,10 +698,35 @@ def main():
         if game_dir is None:
             return
     try:
+        startup_requested = (
+            args.startup_media_receipt is not None
+            or args.startup_media_player is not None
+            or bool(args.startup_media_player_arg)
+        )
+        if args.prototype_ui and startup_requested:
+            raise ValueError(
+                'Startup media is available only on the source-backed FM2001 host.'
+            )
+        startup_backend = None
+        if startup_requested:
+            if args.startup_media_receipt is None or args.startup_media_player is None:
+                raise ValueError(
+                    'Startup media requires both --startup-media-receipt and --startup-media-player.'
+                )
+            startup_backend = SynchronousCommandStartupMediaBackend(
+                args.startup_media_player,
+                tuple(args.startup_media_player_arg),
+            )
+
         if args.prototype_ui:
             App(game_dir).mainloop()
         else:
-            run_original_game_ui(game_dir, source_root=args.source_root)
+            run_original_game_ui(
+                game_dir,
+                source_root=args.source_root,
+                startup_media_receipt=args.startup_media_receipt,
+                startup_media_backend=startup_backend,
+            )
     except Exception as exc:
         root = tk.Tk()
         root.withdraw()
