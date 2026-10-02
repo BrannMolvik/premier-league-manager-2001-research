@@ -24,6 +24,12 @@ from original_first_screen_presenter import (
     OriginalFirstScreenSnapshot,
 )
 from original_game_host import OriginalGameTkHost
+from original_league_fixtures_art import load_verified_league_fixtures_grid_art
+from original_league_fixtures_resources import validate_original_league_fixtures_resources
+from original_league_tables_art import load_verified_league_tables_header_art
+from original_league_tables_resources import validate_original_league_tables_resources
+from original_management_presenter import OriginalManagementPresenter
+from original_pmatchinfo_presenter import load_staged_pmatchinfo_snapshot
 from original_front_end_layout import (
     PSTARTMENU_ACTIONS,
     SCREEN_SIZE,
@@ -41,6 +47,10 @@ from original_management_canvas import (
 from original_pmenu_chrome import PMENU_LIST_SCREEN_ORIGIN, PMENU_LIST_SIZE
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from original_squad_resources import SQUAD_PANEL_RECT
+from original_squad_top_controls import (
+    build_fresh_squad_top_render,
+    load_verified_squad_top_resources,
+)
 from original_teamselect_resources import load_verified_original_teamselect_inputs
 
 
@@ -294,9 +304,9 @@ def audit_management_host_contract(
     photo_dimensions: list[list[int]],
     status: str,
     required_status_fragment: str = "entered source-proven PMenu management host",
-    expected_pmenu_photo_dimensions: list[list[int]] | None = None,
+    expected_management_photo_dimensions: list[list[int]] | None = None,
 ) -> dict:
-    """Validate recovered MANAGEMENT geometry and any source-backed PMenu pixels."""
+    """Validate recovered MANAGEMENT geometry and its current source-backed pixels."""
     menu_x, menu_y = PMENU_LIST_SCREEN_ORIGIN
     menu_w, menu_h = PMENU_LIST_SIZE
     expected_menu_rect = (menu_x, menu_y, menu_w, menu_h)
@@ -336,18 +346,20 @@ def audit_management_host_contract(
         raise WindowsFirstScreenAuditError(
             "Real Tk MANAGEMENT canvas is not the fixed 800x600 surface"
         )
-    if expected_pmenu_photo_dimensions is None:
+    if expected_management_photo_dimensions is None:
         if photo_dimensions:
             raise WindowsFirstScreenAuditError(
                 "Diagnostic MANAGEMENT host introduced uncontracted PhotoImages"
             )
         pmenu_rows_rendered = False
+        management_source_pixels_rendered = False
     else:
-        if photo_dimensions != expected_pmenu_photo_dimensions:
+        if photo_dimensions != expected_management_photo_dimensions:
             raise WindowsFirstScreenAuditError(
-                "Live PMenu PhotoImage geometry differs from recovered row composition"
+                "Live management PhotoImage geometry differs from recovered source composition"
             )
         pmenu_rows_rendered = True
+        management_source_pixels_rendered = True
     if required_status_fragment not in status:
         raise WindowsFirstScreenAuditError(
             "Real Tk Start path did not report the recovered PMenu host transition"
@@ -361,6 +373,7 @@ def audit_management_host_contract(
         "live_tk_canvas_size": list(canvas_size),
         "photo_dimensions": list(photo_dimensions),
         "pmenu_rows_rendered": pmenu_rows_rendered,
+        "management_source_pixels_rendered": management_source_pixels_rendered,
         "surrounding_background_recovered": frame.surrounding_background_recovered,
         "pmenu_text_placement_recovered": frame.pmenu_text_placement_recovered,
         "complete_source_pixel_frame_available": frame.complete_source_pixel_frame_available,
@@ -373,16 +386,88 @@ def expected_management_pmenu_photo_dimensions(frame, resources) -> list[list[in
     return [list(item) for item in render.photo_dimensions]
 
 
-def verify_live_management_pmenu(host, resources) -> list[list[int]]:
-    """Require the clean host's current PhotoImages to match its live PMenu rows."""
+def expected_management_panel_photo_dimensions(
+    frame,
+    *,
+    squad_top_resources,
+    league_fixtures_grid_art,
+    league_tables_header_art,
+) -> list[list[int]]:
+    """Return only the source-proven panel layer emitted before the PMenu."""
+    panel_class = frame.presentation.panel_class
+    if panel_class == "PSquadScreen":
+        rendered = build_fresh_squad_top_render(squad_top_resources)
+        return [list(item) for item in rendered.photo_dimensions]
+    if panel_class == "PLeagueFixtures":
+        snapshot = frame.presentation.league_fixtures
+        if snapshot is None or not snapshot.exact_art_staged:
+            raise WindowsFirstScreenAuditError(
+                "League Fixtures audit requires its complete verified source family"
+            )
+        return [
+            [placement.width, placement.height]
+            for placement in league_fixtures_grid_art.placements
+        ]
+    if panel_class == "PLeagueTables":
+        snapshot = frame.presentation.league_tables
+        if snapshot is None or not snapshot.exact_art_staged:
+            raise WindowsFirstScreenAuditError(
+                "League Tables audit requires its complete verified source family"
+            )
+        return [[league_tables_header_art.width, league_tables_header_art.height]]
+    raise WindowsFirstScreenAuditError(
+        f"Unsupported MANAGEMENT panel in visual audit: {panel_class}"
+    )
+
+
+def expected_management_host_photo_dimensions(
+    frame,
+    pmenu_resources,
+    *,
+    squad_top_resources,
+    league_fixtures_grid_art,
+    league_tables_header_art,
+    active_pmatchinfo_art=None,
+) -> list[list[int]]:
+    """Mirror the clean host's source layer order: panel, PMenu, then PMatchInfo."""
+    dimensions = expected_management_panel_photo_dimensions(
+        frame,
+        squad_top_resources=squad_top_resources,
+        league_fixtures_grid_art=league_fixtures_grid_art,
+        league_tables_header_art=league_tables_header_art,
+    )
+    dimensions.extend(expected_management_pmenu_photo_dimensions(frame, pmenu_resources))
+    if active_pmatchinfo_art is not None:
+        dimensions.append(
+            [active_pmatchinfo_art.width, active_pmatchinfo_art.height]
+        )
+    return dimensions
+
+
+def verify_live_management_pixels(
+    host,
+    pmenu_resources,
+    *,
+    squad_top_resources,
+    league_fixtures_grid_art,
+    league_tables_header_art,
+) -> list[list[int]]:
+    """Require the clean host to match every currently integrated source layer."""
     if host.management_presenter is None:
         raise WindowsFirstScreenAuditError("Clean host lost its management presenter")
     frame = build_management_canvas_frame(host.management_presenter)
-    expected = expected_management_pmenu_photo_dimensions(frame, resources)
+    expected = expected_management_host_photo_dimensions(
+        frame,
+        pmenu_resources,
+        squad_top_resources=squad_top_resources,
+        league_fixtures_grid_art=league_fixtures_grid_art,
+        league_tables_header_art=league_tables_header_art,
+        active_pmatchinfo_art=host.active_pmatchinfo_art,
+    )
     actual = _actual_photo_dimensions(host)
     if actual != expected:
         raise WindowsFirstScreenAuditError(
-            "Clean host PMenu PhotoImages differ from the current source-backed rows"
+            "Clean host management PhotoImages differ from the current source-backed stack"
         )
     return actual
 
@@ -479,9 +564,30 @@ def run_real_windows_graphical_audit(
         original_art_dir=original_art_root,
         original_executable=original_exe,
     )
+    source_root = Path(original_art_root).parent
     pmenu_resources = load_verified_management_pmenu_resources(
-        Path(original_art_root).parent,
+        source_root,
         original_exe,
+    )
+    fixture_resources = validate_original_league_fixtures_resources(source_root)
+    fixture_grid_art = load_verified_league_fixtures_grid_art(
+        source_root,
+        original_exe,
+    )
+    squad_top_resources = load_verified_squad_top_resources(
+        source_root,
+        original_exe,
+    )
+    league_table_resources = validate_original_league_tables_resources(source_root)
+    league_tables_header_art = load_verified_league_tables_header_art(
+        source_root,
+        original_exe,
+    )
+    repository_root = Path(__file__).resolve().parent.parent
+    pmatchinfo_snapshot = load_staged_pmatchinfo_snapshot(
+        repository_root,
+        original_exe,
+        require_complete_dialog=True,
     )
     presenter = OriginalFirstScreenPresenter(
         FrontEndSession.for_canonical_game_dir(canonical_game_dir),
@@ -726,7 +832,20 @@ def run_real_windows_graphical_audit(
             clean_presenter,
             clean_root,
             tk,
+            management_presenter_factory=lambda session: OriginalManagementPresenter(
+                session,
+                staged_league_fixture_resource_names=tuple(
+                    resource.name for resource in fixture_resources
+                ),
+                staged_league_table_resource_names=tuple(
+                    resource.name for resource in league_table_resources
+                ),
+            ),
             management_pmenu_resources=pmenu_resources,
+            league_fixtures_grid_art=fixture_grid_art,
+            squad_top_resources=squad_top_resources,
+            league_tables_header_art=league_tables_header_art,
+            pmatchinfo_snapshot=pmatchinfo_snapshot,
         )
         try:
             _pump(root)
@@ -778,9 +897,12 @@ def run_real_windows_graphical_audit(
                 int(clean_host.canvas.winfo_height()),
             ]
             clean_photo_dimensions = _actual_photo_dimensions(clean_host)
-            clean_expected_photos = expected_management_pmenu_photo_dimensions(
+            clean_expected_photos = expected_management_host_photo_dimensions(
                 clean_frame,
                 pmenu_resources,
+                squad_top_resources=squad_top_resources,
+                league_fixtures_grid_art=fixture_grid_art,
+                league_tables_header_art=league_tables_header_art,
             )
             clean_contract = audit_management_host_contract(
                 clean_frame,
@@ -788,7 +910,7 @@ def run_real_windows_graphical_audit(
                 photo_dimensions=clean_photo_dimensions,
                 status=str(clean_host.last_status),
                 required_status_fragment="source PMenu rows rendered",
-                expected_pmenu_photo_dimensions=clean_expected_photos,
+                expected_management_photo_dimensions=clean_expected_photos,
             )
 
             clean_before_candidate = clean_host.management_presenter.snapshot()
@@ -813,7 +935,13 @@ def run_real_windows_graphical_audit(
                 raise WindowsFirstScreenAuditError(
                     "Selected PMenu title press mutated PMenu selection"
                 )
-            verify_live_management_pmenu(clean_host, pmenu_resources)
+            verify_live_management_pixels(
+                clean_host,
+                pmenu_resources,
+                squad_top_resources=squad_top_resources,
+                league_fixtures_grid_art=fixture_grid_art,
+                league_tables_header_art=league_tables_header_art,
+            )
 
             # Recovery 176 proves that the concrete whole-row SelectBmp uses
             # 0x64F7A0 at vtable +0x6C and that Tk <Button-1> is the equivalent
@@ -835,7 +963,13 @@ def run_real_windows_graphical_audit(
                     expected_panel_class="PSquadScreen",
                 )
             )
-            verify_live_management_pmenu(clean_host, pmenu_resources)
+            verify_live_management_pixels(
+                clean_host,
+                pmenu_resources,
+                squad_top_resources=squad_top_resources,
+                league_fixtures_grid_art=fixture_grid_art,
+                league_tables_header_art=league_tables_header_art,
+            )
 
             clean_host.canvas.event_generate("<Button-1>", x=600, y=96 + 4 * 29)
             _pump(root)
@@ -852,7 +986,64 @@ def run_real_windows_graphical_audit(
                     expected_panel_class="PLeagueFixtures",
                 )
             )
-            verify_live_management_pmenu(clean_host, pmenu_resources)
+            verify_live_management_pixels(
+                clean_host,
+                pmenu_resources,
+                squad_top_resources=squad_top_resources,
+                league_fixtures_grid_art=fixture_grid_art,
+                league_tables_header_art=league_tables_header_art,
+            )
+
+            # The PMatchInfo constructor path has two source gates.  The normal
+            # fixture-cell -> secondary linked-context bridge is still unresolved,
+            # so exercise only the explicit post-resolution adapter and record that
+            # limitation separately from the real PMenu pointer route.
+            pmatch_action = clean_host.apply_source_accepted_fixture_match_info(
+                fixture_present=True,
+                linked_context_available=True,
+                pointer_x=400,
+                pointer_y=300,
+            )
+            _pump(root)
+            if pmatch_action is None:
+                raise WindowsFirstScreenAuditError(
+                    "Source-resolved PMatchInfo adapter unexpectedly rejected the fixture"
+                )
+            if clean_host.active_pmatchinfo_art is None:
+                raise WindowsFirstScreenAuditError(
+                    "Source-resolved PMatchInfo adapter did not retain popup art"
+                )
+            popup = clean_host.active_pmatchinfo_art
+            if (popup.x, popup.y, popup.width, popup.height) != (20, 50, 760, 500):
+                raise WindowsFirstScreenAuditError(
+                    "PMatchInfo popup geometry differs from recovered clamped dialog"
+                )
+            verify_live_management_pixels(
+                clean_host,
+                pmenu_resources,
+                squad_top_resources=squad_top_resources,
+                league_fixtures_grid_art=fixture_grid_art,
+                league_tables_header_art=league_tables_header_art,
+            )
+            pmatchinfo_adapter = {
+                "source_resolved_adapter_verified": True,
+                "normal_fixture_cell_bridge_verified": False,
+                "linked_context_bridge_verified": False,
+                "panel_class": pmatch_action.panel_class,
+                "size": list(pmatch_action.size),
+                "origin": [popup.x, popup.y],
+                "owner_local_child_controls_verified": False,
+            }
+
+            clean_host.apply_source_accepted_pmatchinfo_exit()
+            _pump(root)
+            verify_live_management_pixels(
+                clean_host,
+                pmenu_resources,
+                squad_top_resources=squad_top_resources,
+                league_fixtures_grid_art=fixture_grid_art,
+                league_tables_header_art=league_tables_header_art,
+            )
 
             clean_host.canvas.event_generate("<Button-1>", x=600, y=96 + 5 * 29)
             _pump(root)
@@ -885,7 +1076,13 @@ def run_real_windows_graphical_audit(
                     expected_panel_class="PLeagueTables",
                 )
             )
-            verify_live_management_pmenu(clean_host, pmenu_resources)
+            verify_live_management_pixels(
+                clean_host,
+                pmenu_resources,
+                squad_top_resources=squad_top_resources,
+                league_fixtures_grid_art=fixture_grid_art,
+                league_tables_header_art=league_tables_header_art,
+            )
 
             clean_host_receipt = {
                 "new_game_to_teamselect": True,
@@ -898,6 +1095,10 @@ def run_real_windows_graphical_audit(
                 "source_accepted_pmenu_actions": source_accepted_actions,
                 "tk_pmenu_pointer_press_equivalence_verified": True,
                 "pmenu_source_row_pixels_rendered": True,
+                "fresh_squad_source_top_controls_rendered": True,
+                "league_fixtures_source_grid_pixels_rendered": True,
+                "pmatchinfo": pmatchinfo_adapter,
+                "league_tables_source_header_pixels_rendered": True,
                 **clean_contract,
             }
         finally:
@@ -951,11 +1152,15 @@ def run_real_windows_graphical_audit(
                 "default_clean_host_start_to_management_via_real_tk_binding": True,
                 "source_accepted_pmenu_callbacks_via_real_tk_press_verified": True,
                 "tk_pmenu_pointer_press_equivalence_verified": True,
+                "pmatchinfo_source_resolved_adapter_verified": True,
+                "normal_fixture_cell_pmatchinfo_opening_verified": False,
             },
             "unresolved_boundaries": [
                 "Surrounding management background pixels",
                 "Original PMenu keyboard-event equivalence",
-                "Broader Gate-13 management-panel graphical fidelity beyond the rendered PMenu",
+                "League Fixtures 24x13 cell placement/text and the normal secondary-context bridge",
+                "PMatchInfo owner-local child control screen transforms",
+                "Broader Gate-13 management-panel graphical fidelity beyond integrated source-owned layers",
             ],
             "gate13_complete": False,
         }
