@@ -214,6 +214,9 @@ class ScheduledTransferCompletionTests(unittest.TestCase):
         self.assertEqual(result[0].outcome, ScheduledTransferOutcome.COMPLETED)
         self.assertNotIn(1, state.club_roster_order[10])
         self.assertEqual(state.club_roster_order[11].count(1), 1)
+        # 0x422F70 -> 0x405190 -> 0x4F3290 increments destination
+        # DBRClub +0x1ED for every permanent arrival, including human deals.
+        self.assertEqual(state.ai_transfer_buy_counter[11], 1)
 
         player = state.players[1]
         self.assertEqual(player.club_id, 11)

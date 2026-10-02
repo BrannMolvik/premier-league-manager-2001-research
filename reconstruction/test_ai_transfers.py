@@ -267,6 +267,52 @@ class WeeklyAiTransferTests(unittest.TestCase):
         self.assertEqual(run_weekly_ai_acquisitions(state, rng), ())
         self.assertEqual(rng.bounds, [])
 
+    def test_saturday_first_of_month_uses_old_counter_then_resets_late(self):
+        source = build_state(date(2001, 8, 31))  # Friday
+        # Both buyers are above the >28 roster gate. A monthly count of 4
+        # must reject them before RNG on Saturday 1 September 2001. Only after
+        # that Saturday transfer pass does 0x4F3320 clear +0x1ED.
+        source.club_roster_order = {
+            1: list(range(100, 129)),
+            2: list(range(200, 229)),
+        }
+        source.ai_transfer_startup_roster_count = {1: 29, 2: 29}
+        source.ai_transfer_buy_counter = {1: 4, 2: 4}
+        rng = ScriptedRng([])
+        state = GameState(
+            calendar=source.calendar,
+            players=source.players,
+            club_roster_order=source.club_roster_order,
+            clubs=source.clubs,
+            managers=source.managers,
+            competitions=source.competitions,
+            countries=source.countries,
+            positions=source.positions,
+            access_fan_bases=source.access_fan_bases,
+            access_skill_financial_values=source.access_skill_financial_values,
+            transfers=source.transfers,
+            ai_transfer_startup_roster_count=source.ai_transfer_startup_roster_count,
+            ai_transfer_buy_counter=source.ai_transfer_buy_counter,
+            country_transfer_window_open=source.country_transfer_window_open,
+            rng=rng,
+        )
+
+        self.assertEqual(state.advance_one_day(), date(2001, 9, 1))
+        self.assertEqual(rng.bounds, [])
+        self.assertEqual(state.ai_transfer_buy_counter, {1: 0, 2: 0})
+
+    def test_monthly_counter_reset_is_day_one_only(self):
+        state = GameState(
+            calendar=GameCalendar(date(2001, 9, 2)),
+            players={},
+            ai_transfer_buy_counter={1: 7},
+        )
+        self.assertFalse(state.run_monthly_transfer_counter_reset())
+        self.assertEqual(state.ai_transfer_buy_counter[1], 7)
+        state.calendar.current_date = date(2001, 10, 1)
+        self.assertTrue(state.run_monthly_transfer_counter_reset())
+        self.assertEqual(state.ai_transfer_buy_counter[1], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

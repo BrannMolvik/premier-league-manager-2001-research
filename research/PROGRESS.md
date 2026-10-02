@@ -10405,3 +10405,26 @@ work may continue under the deferred-blocker policy.
   hosting a Cup match also uses 0.9.
 - Corrected the ordinary PL constant and Cup host-league adapter; CI verification
   is pending on the active branch.
+
+
+### Recovery 186 - PR #142 canonical and exact monthly purchase-counter lifecycle
+
+- PR #142 merged as `948aa5193ab9a1003a7a640e93eca91b1dfee126` after
+  reconstruction run `37048726841` passed **1,418 tests with 22 expected
+  skips** and asset-policy run `37048726728` passed.
+- Canonical autonomous contract duration now uses exact country
+  `+0x48/+0x4C` League/DummyLeague root indices, and the same source recheck
+  corrected Premier League FanFactor to **0.9**.
+- Continued directly into club `+0x1ED`. Permanent arrival is
+  `0x422F70 -> 0x405190 -> 0x4F3290`; monthly arrivals are not an
+  autonomous-only counter.
+- Moved the increment into the shared permanent-transfer completion and removed
+  the autonomous wrapper's duplicate increment.
+- Recovered month-start reset at
+  `0x4A81A0 -> 0x40BB10 -> 0x4042E0 -> 0x4F3320`, which occurs after
+  same-day Saturday transfer maintenance/payroll. Added the September 1, 2001
+  ordering regression.
+- Preserved the shipped `0x403E70` quirk that compares monthly byte
+  `+0x1ED` against both the 3 and 8 tuning thresholds even though the
+  adjacent season-arrival byte exists.
+- Full branch CI for the lifecycle patch is pending.
