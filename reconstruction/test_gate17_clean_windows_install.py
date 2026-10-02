@@ -236,6 +236,53 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
             ):
                 _preflight_archive(collision)
 
+    def test_windows_reserved_and_ads_paths_are_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            reserved = root / "reserved.zip"
+            with zipfile.ZipFile(reserved, "w") as zf:
+                zf.writestr("package/CON.txt", b"x")
+            with self.assertRaisesRegex(
+                CleanWindowsInstallReceiptError,
+                "reserved Windows path",
+            ):
+                _preflight_archive(reserved)
+
+            ads = root / "ads.zip"
+            with zipfile.ZipFile(ads, "w") as zf:
+                zf.writestr("package/file.txt:stream", b"x")
+            with self.assertRaisesRegex(
+                CleanWindowsInstallReceiptError,
+                "unsafe Windows path",
+            ):
+                _preflight_archive(ads)
+
+    def test_receipt_directory_must_be_disjoint_from_install_tree(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            repo = root / "repo"
+            repo.mkdir()
+            archive = self._archive(root)
+            install = root / "install"
+
+            with patch(
+                "gate17_clean_windows_install.require_windows_11",
+                return_value={"platform": "Windows-11", "windows_build": 26200},
+            ):
+                with self.assertRaisesRegex(
+                    CleanWindowsInstallReceiptError,
+                    "disjoint",
+                ):
+                    run_clean_windows_install_receipt(
+                        release_version=VERSION,
+                        repository_commit=COMMIT,
+                        release_archive=archive,
+                        install_root=install,
+                        output_dir=install / "receipts",
+                        repo_root=repo,
+                    )
+            self.assertFalse(install.exists())
+
     def test_installed_payload_rejects_unexpected_file(self):
         with tempfile.TemporaryDirectory() as temp:
             package = Path(temp)
