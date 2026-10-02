@@ -385,6 +385,34 @@ class GateReceiptResult:
         return self.home_attendance + self.visiting_attendance
 
 
+def gate_revenues_for_ticket_prices(
+    receipts: GateReceiptResult,
+    *,
+    seating_price: int,
+    terrace_price: int,
+) -> tuple[int, int]:
+    """Return (home, visiting) category-2/category-1 revenue for one DBRUser.
+
+    In the Cup/knockout posting tail of 0x5DA2F0, each controlled participant
+    reuses the already-produced four attendance counts but multiplies them by
+    that participant's own DBRUser +0x694 seating/terrace ticket prices before
+    independently crediting categories 2 and 1. This helper deliberately names
+    only the accounting behavior, not an unproven business label such as
+    revenue sharing.
+    """
+    seating = max(0, int(seating_price))
+    terrace = max(0, int(terrace_price))
+    home = (
+        seating * int(receipts.home_seating.count)
+        + terrace * int(receipts.home_terrace.count)
+    )
+    visiting = (
+        seating * int(receipts.visiting_seating.count)
+        + terrace * int(receipts.visiting_terrace.count)
+    )
+    return home, visiting
+
+
 def calculate_matchday_gate_receipts(
     *,
     home_fan_base_raw: float,
@@ -467,13 +495,19 @@ def calculate_matchday_gate_receipts(
         cup_special=cup_special,
     )
 
-    home_revenue = (
-        int(host_seating_price) * int(home_seating.count)
-        + int(host_terrace_price) * int(home_terrace.count)
+    partial = GateReceiptResult(
+        home_seating=home_seating,
+        visiting_seating=visiting_seating,
+        home_terrace=home_terrace,
+        visiting_terrace=visiting_terrace,
+        home_revenue=0,
+        visiting_revenue=0,
+        season_ticket_quantity=max(0, int(season_ticket_quantity)),
     )
-    visiting_revenue = (
-        int(host_seating_price) * int(visiting_seating.count)
-        + int(host_terrace_price) * int(visiting_terrace.count)
+    home_revenue, visiting_revenue = gate_revenues_for_ticket_prices(
+        partial,
+        seating_price=host_seating_price,
+        terrace_price=host_terrace_price,
     )
     return GateReceiptResult(
         home_seating=home_seating,
@@ -482,5 +516,5 @@ def calculate_matchday_gate_receipts(
         visiting_terrace=visiting_terrace,
         home_revenue=home_revenue,
         visiting_revenue=visiting_revenue,
-        season_ticket_quantity=max(0, int(season_ticket_quantity)),
+        season_ticket_quantity=partial.season_ticket_quantity,
     )
