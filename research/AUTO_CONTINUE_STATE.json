@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 184: PR #133 bounded FastView semantic shell merged as main c1ea9ecd5e6bd50622cff4f2236d34ea6cb8cab3 after reconstruction CI 37022409513 passed 1,397 tests with 22 expected skips and asset-policy run 37022409837 passed. Continue source-backed FastView visual/resource tracing: resolve exact disc paths for the persisted PossessionFigures and PossessionDiagram asset basenames without inventing geometry or side orientation. Gate 13 remains earliest incomplete validation gate pending fresh real-Windows schema-8.",
-  "last_known_main_head": "c1ea9ecd5e6bd50622cff4f2236d34ea6cb8cab3",
+  "active_task": "Recovery 185: main is 10cbd543ca3f1172f9326c13e4450573e5f53418. Gate 13 remains the earliest incomplete validation gate pending a fresh real-Windows 11/Tk schema-8 receipt and re-audit. The latest cloud-safe Gate 14 FastView asset-path resolver is canonical; continue the next highest-priority independent source-backed Gate 14 presentation/audio task without closing Gate 13.",
+  "last_known_main_head": "10cbd543ca3f1172f9326c13e4450573e5f53418",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 184,
-  "last_recovery_reason": "Analysis errored",
-  "note": "Recovery 184: semantic shell and fail-closed audio catalog are canonical. Private process execution remains blocked; next cloud-safe step is deterministic FastView visual-resource resolution from the saved full-disc catalog.",
+  "recovery_generation": 185,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 185 rehydrated from the newer canonical main head 10cbd543. Preserve fail-closed boundaries; do not infer Windows-only or private-source behavior.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
