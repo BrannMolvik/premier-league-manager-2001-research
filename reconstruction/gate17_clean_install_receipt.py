@@ -97,6 +97,62 @@ def _safe_zip_member(name: str) -> PurePosixPath:
     return path
 
 
+def validate_embedded_package_identity(
+    archive: str | Path,
+    *,
+    release_version: str,
+    repository_commit: str,
+    executable_name: str,
+) -> dict:
+    """Require the archive's embedded package manifest to match this audit."""
+    archive = Path(archive).resolve()
+    try:
+        with zipfile.ZipFile(archive) as bundle:
+            matches = [
+                item
+                for item in bundle.infolist()
+                if not item.is_dir()
+                and PurePosixPath(item.filename.replace("\\", "/")).name
+                == "PACKAGE-MANIFEST.json"
+            ]
+            if len(matches) != 1:
+                raise CleanInstallReceiptError(
+                    "release archive must contain exactly one PACKAGE-MANIFEST.json"
+                )
+            try:
+                payload = json.loads(bundle.read(matches[0]).decode("utf-8"))
+            except (UnicodeError, json.JSONDecodeError) as exc:
+                raise CleanInstallReceiptError(
+                    "embedded PACKAGE-MANIFEST.json is not valid UTF-8 JSON"
+                ) from exc
+    except zipfile.BadZipFile as exc:
+        raise CleanInstallReceiptError("release archive is not a valid ZIP") from exc
+
+    if not isinstance(payload, dict) or int(payload.get("schema_version", 0)) != 1:
+        raise CleanInstallReceiptError("embedded package manifest schema is invalid")
+    if payload.get("release_version") != release_version:
+        raise CleanInstallReceiptError(
+            "embedded package manifest belongs to a different release version"
+        )
+    if payload.get("repository_commit") != repository_commit:
+        raise CleanInstallReceiptError(
+            "embedded package manifest belongs to a different repository commit"
+        )
+    if payload.get("executable") != executable_name:
+        raise CleanInstallReceiptError(
+            "embedded package manifest names a different executable"
+        )
+    if payload.get("external_original_game_data_bundled") is not False:
+        raise CleanInstallReceiptError(
+            "embedded package manifest does not preserve original-data exclusion"
+        )
+    if payload.get("external_game_data_required_at_runtime") is not True:
+        raise CleanInstallReceiptError(
+            "embedded package manifest does not require external game data"
+        )
+    return payload
+
+
 def extract_release_archive(
     archive: str | Path,
     install_dir: str | Path,
@@ -208,6 +264,12 @@ def write_clean_install_receipt(
         raise CleanInstallReceiptError("release archive is missing or empty")
     archive_sha = _sha256_file(archive)
     archive_size = int(archive.stat().st_size)
+    package_manifest = validate_embedded_package_identity(
+        archive,
+        release_version=version,
+        repository_commit=commit,
+        executable_name=executable_name,
+    )
 
     target = _require_fresh_directory(install_dir, repo_root=repo_root)
     receipt = _outside(
@@ -239,6 +301,8 @@ def write_clean_install_receipt(
         "release_archive_size": archive_size,
         "installed_executable_sha256": _sha256_file(executable),
         "installed_executable_relative_path": executable.relative_to(target).as_posix(),
+        "embedded_package_manifest_verified": True,
+        "embedded_package_file_count": len(package_manifest.get("files", ())),
         "installed_package_smoke": smoke,
         **windows,
     }
