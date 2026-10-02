@@ -41,11 +41,11 @@ class FastViewSemanticEvent(Enum):
     PLAYER_GOAL = "EventPlayerGoal"
     PLAYER_OWN_GOAL = "EventPlayerOwnGoal"
     POSSESSION = "EventPossession"
-    SUBSTITUTION = "EventSubstitution"
-    HALF_TIME = "EventHalfTime"
-    FULL_TIME = "EventFullTime"
-    EXTRA_TIME = "EventExtraTime"
-    PENALTIES = "EventPenalties"
+    SUBSTITUTION = "FastView:Substitution"
+    HALF_TIME = "FastView:HalfTime"
+    FULL_TIME = "FastView:FullTime"
+    EXTRA_TIME = "FastView:ExtraTime"
+    PENALTIES = "FastView:Penalties"
 
 
 def fastview_semantic_event(event: MatchEvent) -> FastViewSemanticEvent | None:
