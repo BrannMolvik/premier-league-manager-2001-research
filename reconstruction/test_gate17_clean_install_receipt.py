@@ -21,7 +21,14 @@ VERSION = "rc-test"
 EXE = "FM2001-Windows11.exe"
 
 
-def make_archive(path: Path, *, version=VERSION, commit=COMMIT, unsafe=False):
+def make_archive(
+    path: Path,
+    *,
+    version=VERSION,
+    commit=COMMIT,
+    unsafe=False,
+    forbidden=False,
+):
     manifest = {
         "schema_version": 1,
         "release_version": version,
@@ -43,6 +50,8 @@ def make_archive(path: Path, *, version=VERSION, commit=COMMIT, unsafe=False):
         )
         if unsafe:
             bundle.writestr("../escape.txt", b"bad")
+        if forbidden:
+            bundle.writestr("FM2001-Windows11-rc/Master.dat", b"must-not-ship")
     return manifest
 
 
@@ -169,6 +178,37 @@ class Gate17CleanInstallReceiptTests(unittest.TestCase):
                     )
             run.assert_not_called()
             self.assertFalse(receipt.exists())
+            self.assertTrue((root / "install").is_dir())
+            self.assertEqual(tuple((root / "install").iterdir()), ())
+
+    def test_clean_install_rejects_original_game_data_even_if_manifest_claims_false(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            repo = root / "repo"
+            repo.mkdir()
+            archive = root / "candidate.zip"
+            make_archive(archive, forbidden=True)
+            with (
+                patch(
+                    "gate17_clean_install_receipt.require_external_windows_11",
+                    return_value={"platform": "Windows-11", "windows_build": 26200},
+                ),
+                patch("gate17_clean_install_receipt.subprocess.run") as run,
+            ):
+                with self.assertRaisesRegex(
+                    CleanInstallReceiptError,
+                    "excluded original game data",
+                ):
+                    write_clean_install_receipt(
+                        release_archive=archive,
+                        release_version=VERSION,
+                        repository_commit=COMMIT,
+                        install_dir=root / "install",
+                        output_path=root / "receipt.json",
+                        repo_root=repo,
+                    )
+            run.assert_not_called()
+            self.assertEqual(tuple((root / "install").iterdir()), ())
 
     def test_receipt_never_overwrites_and_install_must_be_fresh(self):
         with tempfile.TemporaryDirectory() as temp:
