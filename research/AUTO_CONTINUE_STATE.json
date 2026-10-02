@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 164 takes over after stale Codex ownership. Audit and integrate feature/gate13-league-tables-presenter against canonical main c5dd5c5fc9f98e05b2a17e9b1a2eaddb6e39c264, run focused Gate-13 verification, then continue the next strongest cloud-safe Gate-13 presentation task. Preserve private Windows/source blockers without inventing behavior.",
+  "active_task": "Recovery 164: PR #96 (feature/gate13-league-tables-presenter-r164, head 68861d8435f986c34a94fa75fde07eb82fd6262c) cleanly rebases the persisted League Tables presenter onto main c5dd5c5fc9f98e05b2a17e9b1a2eaddb6e39c264. Gate-13 run 36953094233 passed 388 tests with 21 expected skips; asset-policy run 36953094185 passed; full reconstruction run 36953094137 is pending. Merge after full verification, reconcile main state, then continue strongest cloud-safe Gate-13 gap. Local container still fails before process start with caas ClientError.",
   "last_known_main_head": "c5dd5c5fc9f98e05b2a17e9b1a2eaddb6e39c264",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 164,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Ownership transferred to ChatGPT because the Codex lease was stale and Daniel explicitly requested continuation. Do not redo Recovery 162 League Tables body/resource recovery.",
+  "note": "ChatGPT owns recovery after stale Codex lease. Private source/Windows tasks remain deferred because trivial container execution fails; do not reinterpret as source loss.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
