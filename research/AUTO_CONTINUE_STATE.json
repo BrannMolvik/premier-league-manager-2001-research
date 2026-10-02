@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Re-read current main CURRENT_STATE.md after the verified Gate 14 startup playback seam at main 82a89e9c18c4a96951f00321b4e0932af6eb216d, then continue the exact next canonical cloud-safe task while Gate 13 private/local blockers remain explicit.",
+  "active_task": "PR #109 integrates the verified startup-media sequence into the real clean-host launch boundary through an explicit synchronous command backend and receipt/player CLI options. Await/inspect its Gate13/full-suite/asset-policy checks, fix any failure, merge only when verified, then update canonical state and continue the next independent source-backed Gate 14 presentation slice while Gate 13 private/local blockers remain open.",
   "last_known_main_head": "82a89e9c18c4a96951f00321b4e0932af6eb216d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 173,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 173 claimed from the canonical main HEAD 82a89e9c... after the prior worker stopped making repository progress. Runtime remains continuous/working; main is canonical and the exact task will be narrowed from CURRENT_STATE.md.",
+  "note": "Recovery 173 active. PR #109 head 13103f03b... is under CI; main remains 82a89e9c... until verification/merge.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
