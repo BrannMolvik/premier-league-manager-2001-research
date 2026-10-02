@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 160 merged PR #92 as b13e271e9a9014a340f6c6399256108c42f61325 after Gate-13 run 36941189265 passed 363 tests with 21 expected skips and asset-policy run 36941189310 passed. All twelve staged Match Report assets now have exact Git blob identities matching canonical disc bytes. Exact next task: add a read-only PMatchInfo source-art/presentation seam over the staged assets, exact placements/tabs/text slots, and fail-closed full-dialog behavior while info_popup.444 remains absent; do not map modern match events to original event semantics without source evidence.",
-  "last_known_main_head": "b13e271e9a9014a340f6c6399256108c42f61325",
+  "active_task": "Recovery 160 merged PR #93 as 5f76cd8d1187601034424fd6519c29c521b912bc after Gate-13 run 36943619177 passed 364 tests with 21 expected skips and asset-policy run 36943619314 passed. Exact next task: attack current Gate-13 closure blockers. First verify whether the four source-bound PMenu menu-popup assets remain unimported and whether corrected Windows graphical audit can run in CI; import the four exact assets if still absent, then advance integrated presentation/Windows audit without redoing PMatchInfo.",
+  "last_known_main_head": "5f76cd8d1187601034424fd6519c29c521b912bc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 160,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #92 binary fidelity repaired from canonical 677dcbc... source archive; info_player_disabled and pitch_normal were the only corrupted manual transfers.",
+  "note": "PMatchInfo presenter seam is canonical; info_popup.444 remains exact-byte transport-blocked and full dialog fails closed. Continue cloud-safe Gate-13 closure elsewhere while preserving that blocker.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
