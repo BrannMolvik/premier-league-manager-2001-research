@@ -144,6 +144,11 @@ class OriginalManagementPresenterTests(unittest.TestCase):
         self.assertEqual(snapshot.menu.rows[1].caption, "Squad")
         self.assertEqual(snapshot.source_squad_count, 23)
         self.assertEqual(snapshot.rows_beyond_initial_viewport, 3)
+        self.assertEqual(snapshot.squad_view_transition.control_id, 3)
+        self.assertEqual(snapshot.squad_view_transition.left_roster, "first")
+        self.assertTrue(snapshot.squad_view_transition.second_roster_mask1)
+        self.assertFalse(snapshot.squad_view_transition.pitch_mask1)
+        self.assertIsNone(snapshot.squad_view_transition.pitch_team_index)
         self.assertEqual(len(snapshot.squad.rows), 20)
         self.assertEqual(
             tuple(row.player_id for row in snapshot.squad.rows),
@@ -298,6 +303,56 @@ class OriginalManagementPresenterTests(unittest.TestCase):
 
         self.assertEqual(presenter.selected_child_id, 0xCE)
         self.assertEqual(presenter.snapshot().panel_class, "PSquadScreen")
+
+    def test_source_accepted_squad_view_transition_tracks_only_proven_container_state(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(), bridge_factory=Bridge
+        )
+
+        first_form = presenter.source_accepted_squad_view_transition(4)
+        self.assertEqual(first_form.transition.control_id, 4)
+        self.assertEqual(first_form.transition.original_text, "1ST FORM")
+        self.assertEqual(first_form.transition.left_roster, "first")
+        self.assertFalse(first_form.transition.second_roster_mask1)
+        self.assertTrue(first_form.transition.pitch_mask1)
+        self.assertEqual(first_form.transition.pitch_team_index, 0)
+        self.assertEqual(first_form.presentation.squad_view_transition, first_form.transition)
+        self.assertEqual(presenter.squad_view_control_id, 4)
+
+        reserve_form = presenter.source_accepted_squad_view_transition(5)
+        self.assertEqual(reserve_form.transition.left_roster, "reserve")
+        self.assertFalse(reserve_form.transition.second_roster_mask1)
+        self.assertTrue(reserve_form.transition.pitch_mask1)
+        self.assertEqual(reserve_form.transition.pitch_team_index, 1)
+        self.assertEqual(presenter.snapshot().squad_view_transition.control_id, 5)
+
+        combined = presenter.source_accepted_squad_view_transition(3)
+        self.assertEqual(combined.transition.original_text, "1ST & RES")
+        self.assertTrue(combined.transition.second_roster_mask1)
+        self.assertFalse(combined.transition.pitch_mask1)
+        self.assertIsNone(combined.transition.pitch_team_index)
+
+    def test_source_accepted_squad_view_transition_rejects_unproven_input_or_wrong_panel(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(), bridge_factory=Bridge
+        )
+        with self.assertRaisesRegex(
+            OriginalManagementPresentationError,
+            "Unrecovered PSquadScreen view control",
+        ):
+            presenter.source_accepted_squad_view_transition(6)
+        with self.assertRaisesRegex(
+            OriginalManagementPresentationError,
+            "must be an integer",
+        ):
+            presenter.source_accepted_squad_view_transition(True)
+
+        presenter.navigate(0x25C)
+        with self.assertRaisesRegex(
+            OriginalManagementPresentationError,
+            "requires the integrated PSquadScreen",
+        ):
+            presenter.source_accepted_squad_view_transition(4)
 
     def test_fixture_match_info_action_uses_recovered_two_gate_boundary(self):
         presenter = OriginalManagementPresenter(
