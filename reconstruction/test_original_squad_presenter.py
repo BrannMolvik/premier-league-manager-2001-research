@@ -6,6 +6,7 @@ import unittest
 from original_squad_presenter import (
     OriginalSquadPresentationError,
     build_squad_row_viewport,
+    source_accepted_squad_view_transition,
 )
 
 
@@ -57,6 +58,50 @@ class OriginalSquadPresenterTests(unittest.TestCase):
         self.assertEqual(snapshot.rows[0].condition, 88)
         self.assertEqual(snapshot.rows[0].recent_form_average, 7.5)
         self.assertEqual(snapshot.rows[0].current_role_rating, 63)
+
+    def test_source_accepted_view_transitions_match_native_control_contract(self):
+        combined = source_accepted_squad_view_transition(3)
+        self.assertEqual(
+            (
+                combined.original_text,
+                combined.left_roster,
+                combined.second_roster_mask1,
+                combined.pitch_mask1,
+                combined.pitch_team_index,
+            ),
+            ("1ST & RES", "first", True, False, None),
+        )
+
+        first_form = source_accepted_squad_view_transition(4)
+        self.assertEqual(
+            (
+                first_form.original_text,
+                first_form.left_roster,
+                first_form.second_roster_mask1,
+                first_form.pitch_mask1,
+                first_form.pitch_team_index,
+            ),
+            ("1ST FORM", "first", False, True, 0),
+        )
+
+        reserve_form = source_accepted_squad_view_transition(5)
+        self.assertEqual(
+            (
+                reserve_form.original_text,
+                reserve_form.left_roster,
+                reserve_form.second_roster_mask1,
+                reserve_form.pitch_mask1,
+                reserve_form.pitch_team_index,
+            ),
+            ("RES. FORM", "reserve", False, True, 1),
+        )
+
+    def test_unproven_squad_view_control_fails_closed(self):
+        with self.assertRaisesRegex(
+            OriginalSquadPresentationError,
+            "not source-proven",
+        ):
+            source_accepted_squad_view_transition(6)
 
     def test_more_than_twenty_visible_rows_fails_closed(self):
         with self.assertRaisesRegex(
