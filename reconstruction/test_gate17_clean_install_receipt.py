@@ -85,10 +85,19 @@ class Gate17CleanInstallReceiptTests(unittest.TestCase):
             make_archive(archive)
             install = root / "fresh-install"
             receipt = root / "receipts" / "clean_windows_install.json"
+            installed_root = (
+                install
+                / "FM2001-Windows11-rc"
+                / "_internal"
+            )
             smoke = {
                 "passed": True,
                 "external_game_data_required": True,
-                "source_root": "installed/_internal/original_assets/source",
+                "application_root": str(installed_root),
+                "source_root": str(installed_root / "original_assets" / "source"),
+                "provenance_manifest": str(
+                    installed_root / "original_assets" / "MANIFEST.md"
+                ),
             }
             completed = SimpleNamespace(
                 returncode=0,
