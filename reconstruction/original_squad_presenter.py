@@ -11,10 +11,12 @@ from dataclasses import dataclass
 from typing import Iterable
 
 from original_squad_resources import (
+    OriginalSquadViewTransition,
     SQUAD_PLAYER_COLUMNS,
     SQUAD_SCF_COLUMNS,
     SQUAD_VISIBLE_ROW_COUNT,
     SQUAD_VISIBLE_ROW_Y_ORIGINS,
+    SQUAD_VIEW_TRANSITIONS,
 )
 
 
@@ -146,3 +148,28 @@ def build_squad_row_viewport(rows: Iterable[object]) -> OriginalSquadViewportSna
         rows=tuple(projected),
         unresolved_value_columns=_UNRESOLVED_COLUMNS,
     )
+
+
+def source_accepted_squad_view_transition(
+    control_id: int,
+) -> OriginalSquadViewTransition:
+    """Return only an executable-proven PSquadScreen control-ID transition.
+
+    The native event handler at 0x4B8E70 switches on controls 3/4/5. This
+    function deliberately does not claim that a reconstructed Tk pointer event
+    has the same acceptance semantics as the original generic button owner path.
+    """
+    if type(control_id) is not int:
+        raise OriginalSquadPresentationError(
+            "Squad view control_id must be an integer source control ID"
+        )
+    matches = tuple(
+        transition
+        for transition in SQUAD_VIEW_TRANSITIONS
+        if transition.control_id == control_id
+    )
+    if len(matches) != 1:
+        raise OriginalSquadPresentationError(
+            f"Squad view control {control_id} is not source-proven"
+        )
+    return matches[0]
