@@ -97,16 +97,25 @@ Evidence:
   (`caas.internal.errors.ClientError`), so fresh disassembly is unavailable.
   The reconstruction therefore keeps due transfers after fixtures as an
   explicit approximation rather than promoting it to original behavior.
-- **Recovery 187 active Gate-15 work-ahead:** branch
-  `recovery187/gate15-cup-controlled-postings` implements the already-proven
-  special Cup/knockout accounting tail: both controlled participants can receive
-  categories 1 and 2 independently from the common attendance counts while each
-  participant uses its own ticket prices. The branch also materializes the
-  exact alternate `0x5DBCD0` paired first-XI attendance modifier while
-  deliberately leaving its match-family applicability neutral until the caller
-  is source-locked. No business-policy label such as "revenue sharing" is
-  inferred. Full live Cup receipt attachment remains blocked on that exact
-  caller/applicability boundary rather than on the accounting formula.
+- **Recovery 187 Cup controlled-participant accounting is canonical:** PR
+  #146 squash-merged as `57e59f6374f8c278cabbe054b8767638a69e5a26`
+  after reconstruction run `37055561454` passed **1,424 tests / 22 expected
+  skips** and asset-policy run `37055561468` passed. The special Cup/knockout
+  posting helper independently credits categories 1 and 2 to each materialized
+  controlled participant using that participant's own ticket prices. The exact
+  numeric `0x5DBCD0` paired first-XI modifier is also materialized, while its
+  match-family caller/applicability remains fail-closed. No business-policy
+  label such as "revenue sharing" is inferred.
+- **Recovery 187 Gate-15 readiness audit is canonical:** PR #147 merged as
+  `04b2a65d864939f219d5800bef03eb8144833b00`. It classifies every remaining
+  fidelity item under the roadmap's fixed / proven-irrelevant / explicitly
+  documented-limitation rule without marking Gate 15 complete or bypassing
+  Gates 13-14. See `research/GATE15_READINESS_AUDIT.md`.
+- **Active cloud-safe task:** reconcile the pre-release limitations ledger and
+  status files through the new Gate-15 checkpoints. Gate 13 remains the
+  earliest incomplete validation gate; fresh schema-8 Windows 11/Tk validation
+  is still the earliest prerequisite action when a Windows execution path is
+  available.
 - **Recovery 186 private source access is working again:** the canonical
   511,121,336-byte disc-image ZIP was materialized from the Library, its raw
   MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical
