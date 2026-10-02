@@ -10504,3 +10504,11 @@ work may continue under the deferred-blocker policy.
   `gate14_possession_diagram.py` with focused local verification passing 12
   tests. CI is the next checkpoint before any asset import or live rendering.
 
+
+## 3 October 2026 - Recovery 196 - FastView possession diagram assets staged and percentage geometry source-closed
+
+- Continued from canonical main `ce22b66e8259d983782a87aad456dcd21220cf9a`; did not repeat Recovery 195.
+- Re-extracted and rehashed the four source-proven FastView PossessionDiagram EA444 files from the authorized MODE1/2352 disc and staged them byte-identically under `original_assets/source/FM2001_Art/FastView/` with provenance.
+- Added a fail-closed runtime resource validator and exact normal-pitch/active-overlay rectangle adapter. Native cadence and human-side orientation remain unclaimed.
+- Fresh executable tracing closes PossessionFigures constructor `0x51E7E0`, receiver `0x51EA80`, owner callsite `0x520802`, and the three percentage rectangles: side1 left (311,181)-(351,199), neutral center (382,181)-(422,199), side0 right (454,181)-(494,199).
+- Local source-bounded focused tests passed before repository CI. Next source task is the three 82x16 PossessionFigures bar placement/binding trace while Gate 13 remains externally blocked on the real-Windows schema-8 receipt.

@@ -128,6 +128,31 @@ For one source call:
 single-call primitive and the proven geometry. It deliberately does not decide
 how often the original invokes the update method.
 
+
+## Recovery 196: staged diagram art and PossessionFigures text geometry
+
+The four source-closed PossessionDiagram files are now deliberately staged as
+byte-identical authorized originals under `original_assets/source/FM2001_Art/FastView/`.
+`reconstruction/original_fastview_possession_resources.py` verifies each file's
+exact source path, byte count, SHA-256 and EA444 dimensions before exposing only
+the proven base-pitch plus active-overlay rectangles. The caller must supply the
+0/1/2 source state; the module does not invent update cadence.
+
+Fresh static tracing also closes `PossessionFigures` text placement. FastView
+owner call `0x520802` constructs `0x51E7E0` at **(311,181)**. The constructor
+creates three 40x18 text controls, and receiver `0x51EA80` maps the exact
+EventPossession byte accessors as follows:
+
+- side 1, byte `+0x0F` / accessor `0x51A720`: **(311,181)-(351,199)**;
+- neutral, byte `+0x0E` / accessor `0x51A710`: **(382,181)-(422,199)**;
+- side 0, byte `+0x0D` / accessor `0x51A700`: **(454,181)-(494,199)**.
+
+All three are formatted by the source `%u%%` format at `0x82924C`.
+`reconstruction/gate14_possession_figures.py` preserves this side-indexed
+left/center/right mapping and deliberately does **not** rename either side as
+the human team. This closes screen placement of the percentage text without
+claiming user-side orientation.
+
 ## Remaining boundary
 
 Still open before claiming the bounded diagram is player-visible original
@@ -137,10 +162,11 @@ FastView behavior:
    semantics for the private presentation RNG;
 2. recover side-0/user orientation rather than inferring it from
    `left/middle/right` filenames;
-3. deliberately import the now-source-closed four diagram assets under the
-   asset policy and connect them to the presentation host;
-4. continue the independent `PossessionFigures` placement trace for its
-   three 82×16 bars and percentage text;
+3. trace and source-bind the three 82×16 PossessionFigures bar controls; the
+   percentage text placement is now exact;
+4. connect the source-bounded diagram/text geometry to a player-visible
+   FastView surface only after its missing lifecycle/orientation boundaries are
+   resolved or explicitly fail-closed;
 5. recover audio/commentary and broader FastView/SCI choreography separately.
 
 No unresolved timing or orientation is described as original behavior by this
