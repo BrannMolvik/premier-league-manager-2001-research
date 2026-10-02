@@ -33,6 +33,7 @@ from original_game_host import (
     OriginalGameTkHost,
     build_original_game_presenter,
     play_configured_startup_media,
+    runtime_application_root,
 )
 from original_management_presenter import OriginalManagementPresenter
 from original_pmatchinfo_presenter import build_staged_pmatchinfo_snapshot
@@ -48,6 +49,23 @@ from original_squad_top_controls import OriginalSquadTopResources
 from original_teamselect_resources import assemble_original_teamselect_inputs
 from test_original_pstartmenu_resources import fixture as menu_fixture
 from test_original_teamselect_resources import fixture as team_fixture
+
+
+class RuntimeApplicationRootTests(unittest.TestCase):
+    def test_source_checkout_root_is_parent_of_reconstruction(self):
+        with patch("original_game_host.sys._MEIPASS", new=None, create=True):
+            root = runtime_application_root()
+        self.assertEqual(root, Path(__file__).resolve().parent.parent)
+
+    def test_pyinstaller_meipass_overrides_source_checkout_root(self):
+        with tempfile.TemporaryDirectory() as temp:
+            with patch(
+                "original_game_host.sys._MEIPASS",
+                new=temp,
+                create=True,
+            ):
+                root = runtime_application_root()
+        self.assertEqual(root, Path(temp).resolve())
 
 
 class StubBackend:
