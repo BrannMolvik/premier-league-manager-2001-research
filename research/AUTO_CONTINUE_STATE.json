@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 175 source-accepted PMenu integration merged as main 9e8f7a18368b8ce7076126a55b2e99563197659a. Next: extend the Gate-13 Windows audit contract to exercise the explicit post-acceptance PMenu seam separately from ordinary Tk pointer clicks, which must remain candidate-only. Private trace for exact PMenu text origin/clipping and source control-acceptance/Tk-event equivalence remains blocked by caas process-start ClientError; real Windows receipt remains pending.",
-  "last_known_main_head": "9e8f7a18368b8ce7076126a55b2e99563197659a",
+  "active_task": "Extend the Gate-13 real-Windows audit to schema 6: ordinary Tk PMenu hits must remain candidate-only/no navigation, while the explicit source-accepted post-callback seam must separately demonstrate supported root expansion and panel transitions. Keep exact control-acceptance/Tk-event equivalence, PMenu text origin/clipping, surrounding management pixels, and the real Windows receipt unresolved.",
+  "last_known_main_head": "c0b25df0df2a73d3583f61fc4fda490168fb2006",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 175,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #111 passed Gate13 run 36986776362 (440 tests, 21 skips), full run 36986776403 (1350 tests, 22 skips), and asset-policy run 36986776562, then squash-merged. Recovery 175 shell re-probe still failed before process start with caas.internal.errors.ClientError.",
+  "note": "Recovery 175 canonical state reconciled through main c0b25df0df2a73d3583f61fc4fda490168fb2006 after PR #111. Continue audit-contract work without claiming native Tk activation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
