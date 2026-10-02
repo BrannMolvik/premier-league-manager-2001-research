@@ -10317,3 +10317,21 @@ work may continue under the deferred-blocker policy.
 - No active fidelity item was falsely closed: real-Windows schema-8 validation,
   unresolved management-shell details, FastView exact source paths/placement,
   and the remaining Gate-15 behavioral gaps all remain open.
+
+
+### Recovery 186 - exact persistent-injury availability
+
+- Audited the live Gate-15 injury-availability gap against the already recovered
+  selling-club helper and found a real mismatch rather than a documentation
+  issue.
+- Original `DBRClub::0x405080` excludes exactly transfer-listed, injured,
+  loaned-out and suspended roster players. The persistent-injury guard was
+  instead approximating availability with injured/suspended/selection-excluded.
+- Updated `match_injury_persistence.py` to consume the shared exact runtime
+  `selling_squad_count_excluded` predicate, so the injury and transfer
+  consumers now agree with the same source helper.
+- Added regressions for all four original exclusions, the exact 14-player
+  threshold, transfer/loan suppression before RNG, and the fact that a
+  selection-only exclusion is not part of `0x405080`.
+- Moved only this fidelity item to the resolved section; all other Gate-15 gaps
+  remain open pending their own evidence.
