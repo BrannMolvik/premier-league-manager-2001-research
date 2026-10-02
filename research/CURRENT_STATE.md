@@ -25,6 +25,41 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 181 representative management visual loop is canonical through the
+  cloud-side schema-8 contract:** PR #117 added the fresh source-backed
+  PSquadScreen top controls; PR #118 added the exact League Tables
+  `league_bar.444` at **(270,152,475,19)**; PR #119 source-closed the
+  PMatchInfo pointer-origin clamp and PLeagueTables 800x600 parent; PR #120
+  added the exact 760x500 `info_popup.444` screen projector; PR #122 merged
+  the explicit source-accepted PMatchInfo modal/exit path as
+  `f248ecaf7cae4535b78451f46dad3ac8d36646be`; and PR #123 merged the
+  panel-aware schema-8 Windows audit contract as
+  `a5277f889e4653c464dda1d410e9febc4dbb42e1`.
+- **Current verification:** PR #122's full reconstruction run
+  `37009547601` passed **1,379 tests with 22 expected skips**. PR #123's
+  Gate-13 run `37010700467` passed **479 tests with 21 expected skips** and
+  repository asset-policy run `37010700447` passed.
+- **Windows validation boundary:** schema 7 remains the last actual
+  real-Windows receipt. Schema **8** now audits the live Squad, League Fixtures,
+  explicit source-accepted PMatchInfo and League Tables bitmap stack in
+  addition to PMenu rows, but that expanded contract still needs one real
+  Windows 11/Tk execution before Gate 13 can close.
+- **Remaining fidelity boundary:** ordinary League Fixtures cell -> secondary
+  linked-context PMatchInfo opening remains unbridged; PMatchInfo owner-local
+  child transforms remain fail-closed; the application-owned surrounding
+  management background remains unresolved; and native PMenu keyboard
+  equivalence remains unclaimed. The current PSquadScreen executable evidence
+  does source-close controls 3/4/5 and their first+reserve / first+formation /
+  reserve+formation container transitions, but ordinary modern Tk pointer
+  equivalence for those top controls has not yet been promoted.
+- **Exact next task:** reconcile the source-proven PSquadScreen view transition
+  into the smallest fail-closed Squad/formation seam needed by the
+  representative loop, without inventing top-button event equivalence or
+  unresolved formation/player pixels. Then run the expanded schema-8 audit on
+  real Windows, re-audit Gate 13, and close it only if every roadmap criterion
+  passes. If the Windows path remains unavailable, continue independent
+  cloud-safe later-gate work under the deferred-blocker policy.
+
 - **Recovery 179 live PMenu pixels are canonical:** PR #114 squash-merged as
   `57e334208dbad69127d5a173caf23d511971066e`. The default clean MANAGEMENT
   host now composes the four checksum-gated original PMenu row atlases with the
@@ -34,35 +69,6 @@ Evidence:
   passed **453 tests with 21 expected skips**, full reconstruction run
   `36998507518` passed **1,363 tests with 22 expected skips**, and asset
   policy `36998507581` passed.
-- **Recovery 179 League Fixtures source gap is no longer an infrastructure
-  blocker:** this worker rematerialized the canonical **511,121,336-byte**
-  authorized ZIP, reverified SHA-256 `677dcbc...a8a4`, enumerated the
-  **2,456-file** Joliet source, reverified canonical
-  `footballmanager.exe` SHA-256 `833bf95e...cc3`, and reverified all six
-  already source-bound PLeagueFixtures graphics. The current integration
-  checkpoint provenance-imports all six exact files and draws only
-  `fixtures_vert_grid.444` / `fixtures_hori_grid.444` at the already proven
-  **36 absolute placements**. The four 24x13 fixture-box resources remain
-  intentionally unrendered until their screen-pixel placement is source-closed.
-- **Current native/background boundary:** process execution works in this
-  recovery. A bounded recheck of the PMenu application owner at `0x4C2FB0`
-  confirms PMenu construction/placement at **(599,96,201,504)** without a new
-  direct PMenu-specific image binding. This does not prove the wider management
-  screen has no background. The startup `bground.444` remains ineligible as a
-  management substitute because persisted ownership evidence binds it to the
-  startup/front-end path.
-- **Windows validation boundary:** schema 7 remains the last real-Windows
-  receipt and proves the ordinary pointer route. The repository contract is now
-  schema **8** for live PMenu PhotoImages; a fresh real-Windows schema-8 run is
-  required after the representative management visual loop is integrated.
-- **Exact next task:** finish/verify the League Fixtures grid checkpoint, then
-  compose the smallest source-backed fresh Squad/tactics slice, expose and
-  render the already recovered PLeagueFixtures -> PMatchInfo dialog path, and
-  add the source-backed League Tables visuals that can be selected without
-  inventing row-state semantics. Extend schema 8 with that representative
-  loop, run it on real Windows, and re-audit Gate 13. Keyboard equivalence stays
-  unproven/fail-closed and is not a Gate-13 closure requirement by itself.
-
 - **Recovery 179 PMenu static row-state propagation closed:** the canonical
   row factory maps node bit 0 through vtable `+0x4C` and inverted node bit 1
   through `+0x58`. Enabled title backgrounds stay `0x8002`/white while their
