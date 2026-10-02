@@ -12,7 +12,7 @@ from unittest.mock import patch
 from ea444_decoder import EA444DecodedImage
 from ea_font import EAFont
 from front_end_session import FrontEndSession
-from front_end_state import FrontEndScreen
+from front_end_state import FrontEndScreen, StartMenuControl, TeamSelectControl
 from gate13_management_source_data import ClubHeaderView
 from original_first_screen_presenter import OriginalFirstScreenPresenter
 from original_league_fixtures_art import build_league_fixtures_grid_art
@@ -393,16 +393,15 @@ class OriginalGameHostTests(unittest.TestCase):
 
     def test_source_resolved_pmatchinfo_gate_clamp_and_exit_remain_explicit(self):
         live = presenter()
-        live.session.dispatch(1)
-        live.choose_club(12)
-        live.session.dispatch(4)
-
         host = OriginalGameTkHost(
             live,
             FakeRoot(),
             FakeTk,
             pmatchinfo_snapshot=fake_pmatchinfo_snapshot(),
         )
+        live.session.dispatch(StartMenuControl.NEW_GAME)
+        live.choose_club(12)
+        live.session.dispatch(TeamSelectControl.START_CONTINUE)
 
         action = SimpleNamespace(panel_class="PMatchInfo", size=(760, 500))
 
