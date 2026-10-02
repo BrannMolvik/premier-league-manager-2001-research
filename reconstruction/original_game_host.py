@@ -16,6 +16,7 @@ from __future__ import annotations
 
 from base64 import b64encode
 from pathlib import Path
+import sys
 
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndCommand, FrontEndScreen
@@ -67,7 +68,21 @@ from original_squad_top_controls import (
 from startup_media_playback import load_and_play_verified_startup_sequence
 
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+def runtime_application_root() -> Path:
+    """Return the source tree root or PyInstaller extraction root.
+
+    PyInstaller exposes bundled data through sys._MEIPASS. Keeping this
+    boundary in one place lets the normal source checkout and the frozen
+    Windows build resolve the same provenance-tracked original_assets tree
+    without special-casing every source-backed loader.
+    """
+    frozen_root = getattr(sys, "_MEIPASS", None)
+    if frozen_root is not None:
+        return Path(frozen_root).resolve()
+    return Path(__file__).resolve().parent.parent
+
+
+REPO_ROOT = runtime_application_root()
 DEFAULT_SOURCE_ROOT = REPO_ROOT / "original_assets" / "source"
 SCREEN_SIZE = (800, 600)
 
