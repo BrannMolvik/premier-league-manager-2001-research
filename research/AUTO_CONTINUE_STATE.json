@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "PR #110 merged as main 3401944146e0aa6254b6496b7e928bfa59fdc606. Continue Gate 13 from the proven post-acceptance PMenu action contract: trace text-origin/clipping and source control acceptance when private execution is available; meanwhile integrate only a fail-closed source-accepted activation seam for supported management panels without equating Tk geometry hits to native events. Real Windows schema-5 receipt remains pending.",
-  "last_known_main_head": "3401944146e0aa6254b6496b7e928bfa59fdc606",
+  "active_task": "Recovery 175 source-accepted PMenu integration merged as main 9e8f7a18368b8ce7076126a55b2e99563197659a. Next: extend the Gate-13 Windows audit contract to exercise the explicit post-acceptance PMenu seam separately from ordinary Tk pointer clicks, which must remain candidate-only. Private trace for exact PMenu text origin/clipping and source control-acceptance/Tk-event equivalence remains blocked by caas process-start ClientError; real Windows receipt remains pending.",
+  "last_known_main_head": "9e8f7a18368b8ce7076126a55b2e99563197659a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 175,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 175 heartbeat after verified PR #110 merge. Gate13/full reconstruction/asset-policy CI all passed on aa7e0c82 before squash merge. Current execution sandbox still needs re-probe for private byte tracing.",
+  "note": "PR #111 passed Gate13 run 36986776362 (440 tests, 21 skips), full run 36986776403 (1350 tests, 22 skips), and asset-policy run 36986776562, then squash-merged. Recovery 175 shell re-probe still failed before process start with caas.internal.errors.ClientError.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
