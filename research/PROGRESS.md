@@ -10335,3 +10335,22 @@ work may continue under the deferred-blocker policy.
   selection-only exclusion is not part of `0x405080`.
 - Moved only this fidelity item to the resolved section; all other Gate-15 gaps
   remain open pending their own evidence.
+
+
+### Recovery 186 - retire legacy chairman budget-event fidelity gap
+
+- Re-audited the Gate-15 chairman budget-event item against the persisted
+  executable evidence in `FINDINGS.md` and
+  `GATE10_MONTHLY_BUDGET_TRACE.md`.
+- The A0/A1/settings/warning family is persistence-compatible, but no ordinary
+  fresh-game producer or Finance/Transfer consumer is mapped in the shipped
+  executable; the named `*Budget` tuning globals are loader-only on the
+  recovered ordinary static paths.
+- Ordinary Finance Overview and transfer spending are instead backed by the
+  proven Balance/accounting model. The port therefore remains intentionally
+  free of a fabricated live transfer/wage-budget scalar.
+- Moved this item from the active fidelity table to the resolved/superseded
+  section as **proven irrelevant to the ordinary shipped fresh-game path**.
+  Legacy-save/materialized-event compatibility remains explicitly bounded, not
+  erased.
+- No other Gate-15 gap is closed by this disposition.
