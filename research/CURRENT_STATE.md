@@ -25,6 +25,41 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 181 representative management visual loop is now canonical:** the
+  clean host renders the exact fresh Squad top controls (`378aea2`), the 36
+  source-proven League Fixtures grid placements (`cd4bc4b`), the exact League
+  Tables `league_bar` header (`503af7f`), and the exact 760x500 PMatchInfo
+  `info_popup` through its recovered clamped origin (`6711f7a` /
+  `f248ecaf`). PR #123 merged the panel-aware real-Windows schema-8 audit
+  contract as `a5277f889e4653c464dda1d410e9febc4dbb42e1`.
+- **PMatchInfo boundary remains explicit:** the host can render PMatchInfo only
+  after the already recovered populated-fixture + linked-context gates have
+  been resolved by an explicit source-accepted adapter. The ordinary
+  fixture-cell -> secondary linked-context bridge is **not** reconstructed,
+  and PMatchInfo owner-local child-control screen transforms remain
+  fail-closed. This adapter must not be described as normal fixture-click
+  equivalence.
+- **Verification:** PR #123 Gate-13 presentation run `37010700467` and asset
+  policy run `37010700447` passed. The immediately preceding PMatchInfo host
+  checkpoint PR #122 passed Gate-13 run `37009547541`, full reconstruction
+  run `37009547601`, and asset policy `37009547547`.
+- **Real-Windows boundary:** schema **7** remains the last actual Windows 11
+  receipt (SHA-256
+  `6e1a43e01a43ccbf7bfe92c3088ee446c40a92d51add3ba9660f20cb76f0bef2`).
+  Schema **8** now covers the integrated Squad -> League Fixtures -> explicit
+  source-resolved PMatchInfo -> League Tables image stack, but still requires a
+  fresh real-Windows execution before Gate 13 can close.
+- **Exact next task:** reconcile the Gate-13 state/audit files to this
+  checkpoint, then attack the ordinary League Fixtures fixture-cell ->
+  secondary linked-context PMatchInfo bridge from persisted source evidence.
+  If that bridge or the schema-8 receipt requires unavailable private/local
+  execution, keep it recorded as a deferred blocker and continue the highest
+  priority independent cloud-safe fidelity/release work without claiming Gate
+  13 complete. The unresolved application-owned surrounding management
+  background and keyboard equivalence remain fail-closed; keyboard equivalence
+  is not itself a Gate-13 closure requirement.
+
+
 - **Recovery 181 representative management visual loop is canonical through the
   cloud-side schema-8 contract:** PR #117 added the fresh source-backed
   PSquadScreen top controls; PR #118 added the exact League Tables
