@@ -556,3 +556,54 @@ file against the exact-path private selection report and canonical source ZIP
 SHA-256 `677dcbc...a8a4`. `validate_original_pmenu_resources` now passes against
 the tracked bytes, including native geometry and frame partition checks. No
 neighboring or filename-only menu asset was imported.
+
+## Recovery 166 visible-row order and fresh-route closure
+
+A fresh checksum-gated private trace of the canonical executable
+(`833bf95e...b7cc3`) closed the PMenu composition facts needed by the first
+ordinary-management seam. The generated disassembly report remains outside
+Git at `work/fm2001-private-gate13/pmenu-integration-recovery166.json`.
+
+`PMenu::0x47AB40` configures its list as **201x504**, with **16** row slots and
+a **29-pixel** step. The visible-row layout at `0x482300` assigns each emitted
+row the current top/bottom pair and advances the next origin by exactly
+`0x1D`. The factory at `0x4823A0` chooses `PTitleMenuRow` when the source node's
+`+0x10` child-array pointer is nonzero and `PChildMenuRow` otherwise.
+
+The ordinal tree walker at `0x60CA70` is root-first. It emits a node, descends
+into its child array when the bit-0 open path permits it, then continues to the
+next 24-byte sibling. The state/open flags live at node `+0x14`; this checkpoint
+retains bit 0 only as the selected-or-expanded bit proven by its use, without
+naming the still-neutral bit-1 behavior.
+
+The fresh route in the `0x482A00` control-flow region looks up child `0xCE`
+(`Squad`) and root `2` (`Team`), then sets bit 0 on both before panel creation.
+The resulting exact 15-row order is:
+
+```text
+Team
+  Squad
+  Stats
+  Indiv. Orders
+  Team Orders
+  Training
+  Youth Team
+Transfers
+Calendar
+TABLES
+Analysis
+ADMIN
+ACCOUNTS
+EAMail
+GAME OPTIONS
+```
+
+The state-1 return route similarly looks up child `0x25A` (`League Tables`)
+and root `6` (`TABLES`).
+
+`reconstruction/original_pmenu_presenter.py` now projects this source-proven
+one-root-expanded ordering, exact row geometry, labels, font identity and
+title/child resource identities. It fails closed on non-recovered child IDs or
+an expansion exceeding the native 16-row capacity. It does not invent the
+remaining exact text origin/clipping behavior. The focused chrome/presenter
+suite passes **23 tests**.

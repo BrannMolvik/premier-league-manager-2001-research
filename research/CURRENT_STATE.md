@@ -25,6 +25,25 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 166 PMenu visible-row closure:** checksum-gated native tracing
+  closes the 201x504 / 16-row / 29-pixel list, root-first bit-0 expansion,
+  title-versus-child factory split, and fresh Team (`2`) -> Squad (`0xCE`)
+  selection. `original_pmenu_presenter.py` now supplies the exact 15 visible
+  rows with source-bound resources/font and fails closed outside recovered
+  topology; 23 focused tests pass. Raw reports remain outside Git. Exact text
+  origin/clipping beyond the recovered row controls remains open.
+- **Exact next task:** compose this PMenu snapshot with the existing Squad
+  presenter as the first integrated management canvas, then connect the
+  TeamSelect Start handoff without moving simulation logic into presentation.
+- **Recovery 166 fresh Gate-13 closure audit:** Gate 13 remains active. The
+  source-backed first screens, PMenu contracts and management presenters do not
+  yet form one integrated ordinary-management path; the live application still
+  hands normal play to the generic ttk prototype. The minimum required closure
+  slice is TeamSelect Start -> PMenu -> PSquadScreen, followed by core
+  Squad/tactics -> Fixtures/PMatchInfo -> League Tables navigation and a real
+  Windows audit. Exact Current Form ordering and secondary-panel pixel fidelity
+  are valid Gate-15 deferrals. Evidence:
+  `research/GATE13_CLOSURE_AUDIT.md`.
 - **Recovery 164 local blockers cleared:** the corrected real Windows audit
   passed on Windows 11 with Python 3.13.15 / Tk 8.6.15. The private schema-3
   receipt remains outside Git. The authorized ZIP rehashed to canonical

@@ -22,7 +22,17 @@ from original_pmenu_chrome import (
     PMENU_ROW_COLOR_COMPONENTS,
     PMENU_ROW_HEIGHT,
     PMENU_LIST_OBJECT_OFFSET,
+    PMENU_LIST_ROW_CAPACITY,
+    PMENU_LIST_SIZE,
     PMENU_LIST_SETUP_ARGUMENTS,
+    PMENU_FRESH_SELECTED_CHILD_ID,
+    PMENU_FRESH_SELECTED_ROOT_ID,
+    PMENU_NODE_CHILD_ARRAY_OFFSET,
+    PMENU_NODE_SELECTED_OR_EXPANDED_BIT,
+    PMENU_NODE_STATE_FLAGS_OFFSET,
+    PMENU_ROW_FACTORY_VA,
+    PMENU_TREE_ORDINAL_TRAVERSAL_VA,
+    PMENU_VISIBLE_ROW_LAYOUT_VA,
     PMENU_DIRECT_RESOURCE_BINDING_IN_OWN_METHODS,
     PMENU_SEPARATE_TEAM_ORDER_NODES,
     PMENU_SYSTEM_CHILDREN,
@@ -84,6 +94,15 @@ class OriginalPMenuChromeTests(unittest.TestCase):
             PMENU_LIST_SETUP_ARGUMENTS,
             (0, 0, 201, 504, 16, 29, 0, 0, 0),
         )
+        self.assertEqual(PMENU_LIST_SIZE, (201, 504))
+        self.assertEqual(PMENU_LIST_ROW_CAPACITY, 16)
+        self.assertEqual(PMENU_VISIBLE_ROW_LAYOUT_VA, 0x482300)
+        self.assertEqual(PMENU_ROW_FACTORY_VA, 0x4823A0)
+        self.assertEqual(PMENU_TREE_ORDINAL_TRAVERSAL_VA, 0x60CA70)
+        self.assertEqual(PMENU_NODE_CHILD_ARRAY_OFFSET, 0x10)
+        self.assertEqual(PMENU_NODE_STATE_FLAGS_OFFSET, 0x14)
+        self.assertEqual(PMENU_NODE_SELECTED_OR_EXPANDED_BIT, 1)
+        self.assertEqual((PMENU_FRESH_SELECTED_ROOT_ID, PMENU_FRESH_SELECTED_CHILD_ID), (2, 0xCE))
         self.assertFalse(PMENU_DIRECT_RESOURCE_BINDING_IN_OWN_METHODS)
 
     def test_pmenu_text_controls_preserve_source_geometry_without_font_guess(self):

@@ -14,7 +14,7 @@
   "last_verified_test_count": 1149,
   "asset_policy_validated_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 remains active. Recovery 164 passed the corrected real-Windows audit, imported twenty exact resources, and closed the PLeagueTables::0x449090 seven-header eCText state trace. The immediate task is a fresh Gate-13 closure audit against the actual ROADMAP criteria; Current Form row ordering at 0x4F4A10 remains fail-closed.",
+  "active_task": "Gate 13 remains active after the Recovery 166 closure audit and PMenu visible-row closure. Compose the exact PMenu snapshot with the existing Squad presenter, connect TeamSelect Start to that management canvas, then extend the integrated normal-play path through tactics, Fixtures/PMatchInfo and League Tables before the Windows audit.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Perform a fresh Gate-13 closure audit, classify each remaining presentation gap as required now, Gate 14/15, stale, or optional, and implement only the smallest remaining ordinary-management path needed for the ROADMAP criterion.",
+  "current_task": "Compose the source-backed PMenu snapshot with the existing Squad presenter as the first integrated management canvas and connect the TeamSelect Start handoff without duplicating simulation logic.",
   "last_verified_reconstruction_failures": 0,
   "last_verified_asset_policy_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "gate11_danger_morale_request_integrated": true,
@@ -1462,5 +1462,16 @@
   "gate13_league_tables_stat_header_type_descriptor": "0x8198F8",
   "gate13_league_tables_stat_header_vftable": "0x7BE340",
   "gate13_league_tables_downstream_header_state_trace_complete": true,
-  "gate13_league_tables_current_form_ordering_open": true
+  "gate13_league_tables_current_form_ordering_open": true,
+  "gate13_closure_audit": "research/GATE13_CLOSURE_AUDIT.md",
+  "gate13_closure_audit_result": "active_integrated_normal_management_path_required",
+  "gate13_required_integrated_path": "TeamSelect->PMenu->PSquadScreen->Tactics->LeagueFixtures/PMatchInfo->LeagueTables",
+  "gate13_current_form_ordering_deferred_gate": 15,
+  "gate13_pmenu_visible_row_trace_complete": true,
+  "gate13_pmenu_visible_row_presenter": "reconstruction/original_pmenu_presenter.py",
+  "gate13_pmenu_list_size": [201, 504],
+  "gate13_pmenu_row_capacity": 16,
+  "gate13_pmenu_row_step": 29,
+  "gate13_pmenu_fresh_selection": {"root_id": 2, "child_id": 206},
+  "gate13_pmenu_exact_text_origin_open": true
 }
