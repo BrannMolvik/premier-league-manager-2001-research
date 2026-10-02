@@ -163,6 +163,10 @@ def buyer_club_eligible(
     roster_count = len(state.club_roster_order.get(club_id, ()))
     if roster_count > 28:
         counter = _buy_counter(state, club_id)
+        # Shipped 0x403E70 reads the SAME monthly byte (+0x1ED) for both
+        # MaxPlayersBuyMonthly and MaxPlayersBuySeason comparisons. The
+        # adjacent season-arrivals byte +0x1EE exists and is maintained by
+        # 0x4F3290, but this buyer predicate does not read it.
         if counter > MAX_PLAYERS_BUY_MONTHLY or counter > MAX_PLAYERS_BUY_SEASON:
             return False
     return True
@@ -485,10 +489,6 @@ def complete_autonomous_acquisition(state, player_id: int, buyer_club_id: int, r
     # 0x422B80 -> 0x422F40 -> 0x422F70, so it reaches the same final
     # signed-contract morale RNG(2) as an ordinary human transfer.
     movement = _complete_ordinary_cash_transfer(state, proposal, rng)
-
-    counters = getattr(state, "ai_transfer_buy_counter", None)
-    if counters is not None:
-        counters[buyer_club_id] = int(counters.get(buyer_club_id, 0)) + 1
 
     return AutonomousTransferResult(
         buyer_club_id=buyer_club_id,
