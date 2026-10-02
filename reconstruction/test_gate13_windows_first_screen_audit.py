@@ -1,5 +1,6 @@
 """Synthetic contract tests for the real-Windows first-screen audit harness."""
 from pathlib import Path
+from types import SimpleNamespace
 import tempfile
 import unittest
 
@@ -9,6 +10,7 @@ from gate13_windows_first_screen_audit import (
     WindowsFirstScreenAuditError,
     _require_private_receipt,
     audit_frame_contract,
+    audit_management_host_contract,
     expected_tk_photo_dimensions,
 )
 from original_first_screen_presenter import OriginalFirstScreenPresenter
@@ -122,6 +124,85 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
         self.assertEqual(team_dims[0], SCREEN_SIZE)
         self.assertEqual(team_dims[1:3], ((150, 32), (150, 32)))
         self.assertEqual(team_dims[-2:], ((30, 29), (168, 29)))
+
+
+    def test_management_host_contract_preserves_geometry_and_open_pixel_boundaries(self):
+        frame = SimpleNamespace(
+            screen_size=(800, 600),
+            menu_rect=(599, 96, 201, 504),
+            panel_rect=(0, 79, 800, 520),
+            presentation=SimpleNamespace(
+                panel_class="PSquadScreen",
+                panel_code=0xCE,
+            ),
+            surrounding_background_recovered=False,
+            pmenu_text_placement_recovered=False,
+            complete_source_pixel_frame_available=False,
+        )
+        record = audit_management_host_contract(
+            frame,
+            canvas_size=[800, 600],
+            photo_dimensions=[],
+            status=(
+                "Backend selection returned ('manager', 12); "
+                "entered source-proven PMenu management host."
+            ),
+        )
+        self.assertEqual(record["screen_size"], [800, 600])
+        self.assertEqual(record["pmenu_rect"], [599, 96, 201, 504])
+        self.assertEqual(record["panel_rect"], [0, 79, 800, 520])
+        self.assertEqual(record["panel_class"], "PSquadScreen")
+        self.assertEqual(record["panel_code"], 0xCE)
+        self.assertEqual(record["photo_dimensions"], [])
+        self.assertFalse(record["surrounding_background_recovered"])
+        self.assertFalse(record["pmenu_text_placement_recovered"])
+        self.assertFalse(record["complete_source_pixel_frame_available"])
+
+    def test_management_host_contract_fails_closed_on_guessed_pixels_or_geometry(self):
+        base = dict(
+            screen_size=(800, 600),
+            menu_rect=(599, 96, 201, 504),
+            panel_rect=(0, 79, 800, 520),
+            presentation=SimpleNamespace(
+                panel_class="PSquadScreen",
+                panel_code=0xCE,
+            ),
+            surrounding_background_recovered=False,
+            pmenu_text_placement_recovered=False,
+            complete_source_pixel_frame_available=False,
+        )
+        status = "entered source-proven PMenu management host."
+
+        bad_cases = (
+            ("PMenu rectangle", {"menu_rect": (598, 96, 201, 504)}, [800, 600], []),
+            ("PSquadScreen geometry", {"panel_rect": (0, 80, 800, 520)}, [800, 600], []),
+            ("surrounding background", {"surrounding_background_recovered": True}, [800, 600], []),
+            ("PMenu text placement", {"pmenu_text_placement_recovered": True}, [800, 600], []),
+            ("fixed 800x600", {}, [801, 600], []),
+            ("drew PhotoImages", {}, [800, 600], [[800, 600]]),
+        )
+        for expected, changes, canvas_size, photos in bad_cases:
+            with self.subTest(expected=expected):
+                values = dict(base)
+                values.update(changes)
+                with self.assertRaisesRegex(WindowsFirstScreenAuditError, expected):
+                    audit_management_host_contract(
+                        SimpleNamespace(**values),
+                        canvas_size=canvas_size,
+                        photo_dimensions=photos,
+                        status=status,
+                    )
+
+        with self.assertRaisesRegex(
+            WindowsFirstScreenAuditError,
+            "PMenu host transition",
+        ):
+            audit_management_host_contract(
+                SimpleNamespace(**base),
+                canvas_size=[800, 600],
+                photo_dimensions=[],
+                status="wrong status",
+            )
 
     def test_receipt_must_stay_outside_repository_and_never_overwrite(self):
         with tempfile.TemporaryDirectory() as temp:
