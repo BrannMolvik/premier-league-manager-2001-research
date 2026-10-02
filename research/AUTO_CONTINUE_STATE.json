@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 169 continuation from main 5a77dcfe41f4a31e844f09766277037acd385d8a. Recover the remaining source-backed management canvas background and exact PMenu label origin/clipping, then render the composed PMenu rectangle (599,96,201,504) over fresh PSquadScreen (0,79,800,520) and route TeamSelect Start into that fixed 800x600 surface. Reuse the completed PMenu visible-row presenter and TeamSelect-to-PMenu/Squad composition seam; do not repeat their traces.",
+  "active_task": "Recovery 170 continuation from main 5a77dcfe41f4a31e844f09766277037acd385d8a. Recover the remaining source-backed management canvas background and exact PMenu label origin/clipping, then render the composed PMenu rectangle (599,96,201,504) over fresh PSquadScreen (0,79,800,520) and route TeamSelect Start into that fixed 800x600 surface. Reuse the completed PMenu visible-row presenter and TeamSelect-to-PMenu/Squad composition seam; do not repeat their traces.",
   "last_known_main_head": "5a77dcfe41f4a31e844f09766277037acd385d8a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 169,
+  "recovery_generation": 170,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 169 resumed from canonical main HEAD 5a77dcfe41f4a31e844f09766277037acd385d8a after no-progress fallback. Recovery 166 completed PMenu visible ordering, TeamSelect Start -> PMenu/Squad composition, and native parent placement. Immediate blocker remains exact menu label origin/clipping plus source-backed surrounding management canvas background before an honest fixed-surface renderer can replace the generic Play-tab handoff.",
+  "note": "Recovery 170 resumed from canonical main HEAD 5a77dcfe41f4a31e844f09766277037acd385d8a after the configured no-progress fallback. Recovery 166 already completed PMenu visible ordering, TeamSelect Start -> PMenu/Squad composition, and native parent placement. Immediate work remains exact PMenu label origin/clipping and the source-backed surrounding management canvas/background needed for an honest fixed 800x600 renderer and replacement of the generic Play-tab handoff.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
