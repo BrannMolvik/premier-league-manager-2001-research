@@ -171,6 +171,19 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             ):
                 validate_external_receipts(evidence, repo)
 
+    def test_external_receipts_must_be_four_distinct_files(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            shared = raw["external_receipts"]["clean_windows_install"]
+            raw["external_receipts"]["new_game_management_loop"] = dict(shared)
+            evidence = parse_release_evidence(raw)
+
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "reuses the same evidence file",
+            ):
+                validate_external_receipts(evidence, repo)
+
     def test_receipt_for_another_commit_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
             repo, _private, _archive, raw = self.fixture(temp)
