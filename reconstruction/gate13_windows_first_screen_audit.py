@@ -353,6 +353,72 @@ def audit_management_host_contract(
     }
 
 
+def audit_source_accepted_pmenu_transition(
+    result,
+    *,
+    expected_row_kind: str,
+    expected_menu_id: int,
+    expected_action_kind: str,
+    expected_root_id: int,
+    expected_child_id: int,
+    expected_panel_code: int,
+    expected_panel_class: str,
+) -> dict:
+    """Validate one post-acceptance PMenu callback without claiming input equivalence."""
+    action = result.action
+    presentation = result.presentation
+    if not action.accepted:
+        raise WindowsFirstScreenAuditError(
+            "Source-accepted PMenu audit action was unexpectedly rejected"
+        )
+    if action.row_kind != expected_row_kind or action.menu_id != expected_menu_id:
+        raise WindowsFirstScreenAuditError(
+            "Source-accepted PMenu audit action identity changed"
+        )
+    if action.action_kind != expected_action_kind:
+        raise WindowsFirstScreenAuditError(
+            "Source-accepted PMenu audit action kind changed"
+        )
+    if expected_action_kind == "open_panel":
+        if action.panel_factory_arguments != (expected_menu_id, 0):
+            raise WindowsFirstScreenAuditError(
+                "Source-accepted child action lost the recovered panel-factory arguments"
+            )
+    elif action.panel_factory_arguments is not None:
+        raise WindowsFirstScreenAuditError(
+            "Source-accepted title action unexpectedly dispatched a panel factory"
+        )
+    if presentation.menu.selected_root_id != expected_root_id:
+        raise WindowsFirstScreenAuditError(
+            "Source-accepted PMenu action produced the wrong expanded root"
+        )
+    if presentation.menu.selected_child_id != expected_child_id:
+        raise WindowsFirstScreenAuditError(
+            "Source-accepted PMenu action produced the wrong selected child"
+        )
+    if presentation.panel_code != expected_panel_code:
+        raise WindowsFirstScreenAuditError(
+            "Source-accepted PMenu action produced the wrong panel code"
+        )
+    if presentation.panel_class != expected_panel_class:
+        raise WindowsFirstScreenAuditError(
+            "Source-accepted PMenu action produced the wrong panel class"
+        )
+    return {
+        "row_kind": action.row_kind,
+        "menu_id": action.menu_id,
+        "action_kind": action.action_kind,
+        "expanded_root_id": presentation.menu.selected_root_id,
+        "selected_child_id": presentation.menu.selected_child_id,
+        "panel_code": presentation.panel_code,
+        "panel_class": presentation.panel_class,
+        "panel_factory_arguments": (
+            list(action.panel_factory_arguments)
+            if action.panel_factory_arguments is not None
+            else None
+        ),
+    }
+
 def run_real_windows_graphical_audit(
     *,
     original_exe: Path,
@@ -702,6 +768,91 @@ def run_real_windows_graphical_audit(
                     "Default clean host candidate feedback introduced guessed pixels"
                 )
 
+            # Recovery 173 proves the row callbacks only after the original
+            # control has accepted its event. Exercise that explicit seam
+            # programmatically while keeping the real Tk click above
+            # non-activating. This validates integration, not event equivalence.
+            source_accepted_actions = []
+            calendar_root = clean_host.apply_source_accepted_pmenu_action(
+                "title", 0x259, 0
+            )
+            _pump(root)
+            source_accepted_actions.append(
+                audit_source_accepted_pmenu_transition(
+                    calendar_root,
+                    expected_row_kind="title",
+                    expected_menu_id=0x259,
+                    expected_action_kind="expand_root",
+                    expected_root_id=0x259,
+                    expected_child_id=0xCE,
+                    expected_panel_code=0xCE,
+                    expected_panel_class="PSquadScreen",
+                )
+            )
+            if _actual_photo_dimensions(clean_host):
+                raise WindowsFirstScreenAuditError(
+                    "Source-accepted Calendar expansion introduced guessed pixels"
+                )
+
+            fixtures = clean_host.apply_source_accepted_pmenu_action(
+                "child", 0x25C, 0
+            )
+            _pump(root)
+            source_accepted_actions.append(
+                audit_source_accepted_pmenu_transition(
+                    fixtures,
+                    expected_row_kind="child",
+                    expected_menu_id=0x25C,
+                    expected_action_kind="open_panel",
+                    expected_root_id=0x259,
+                    expected_child_id=0x25C,
+                    expected_panel_code=0x25C,
+                    expected_panel_class="PLeagueFixtures",
+                )
+            )
+            if _actual_photo_dimensions(clean_host):
+                raise WindowsFirstScreenAuditError(
+                    "Source-accepted League Fixtures transition introduced guessed pixels"
+                )
+
+            tables_root = clean_host.apply_source_accepted_pmenu_action(
+                "title", 6, 0
+            )
+            _pump(root)
+            source_accepted_actions.append(
+                audit_source_accepted_pmenu_transition(
+                    tables_root,
+                    expected_row_kind="title",
+                    expected_menu_id=6,
+                    expected_action_kind="expand_root",
+                    expected_root_id=6,
+                    expected_child_id=0x25C,
+                    expected_panel_code=0x25C,
+                    expected_panel_class="PLeagueFixtures",
+                )
+            )
+
+            league_tables = clean_host.apply_source_accepted_pmenu_action(
+                "child", 0x25A, 0
+            )
+            _pump(root)
+            source_accepted_actions.append(
+                audit_source_accepted_pmenu_transition(
+                    league_tables,
+                    expected_row_kind="child",
+                    expected_menu_id=0x25A,
+                    expected_action_kind="open_panel",
+                    expected_root_id=6,
+                    expected_child_id=0x25A,
+                    expected_panel_code=0x25A,
+                    expected_panel_class="PLeagueTables",
+                )
+            )
+            if _actual_photo_dimensions(clean_host):
+                raise WindowsFirstScreenAuditError(
+                    "Source-accepted League Tables transition introduced guessed pixels"
+                )
+
             clean_host_receipt = {
                 "new_game_to_teamselect": True,
                 "native_club_selection": True,
@@ -709,6 +860,9 @@ def run_real_windows_graphical_audit(
                 "teamselect_start_to_management": True,
                 "candidate_pmenu_hit_test_verified": True,
                 "candidate_pmenu_activation_dispatched": False,
+                "source_accepted_pmenu_actions_verified": True,
+                "source_accepted_pmenu_actions": source_accepted_actions,
+                "tk_pmenu_event_equivalence_claimed": False,
                 **clean_contract,
             }
         finally:
@@ -718,7 +872,7 @@ def run_real_windows_graphical_audit(
                 pass
 
         return {
-            "schema_version": 5,
+            "schema_version": 6,
             "passed": True,
             "audit_kind": "real_windows_tk_first_screen_management_and_clean_host_smoke",
             "platform": platform.platform(),
@@ -760,11 +914,13 @@ def run_real_windows_graphical_audit(
                 "teamselect_back_to_menu_via_real_tk_binding": True,
                 "teamselect_selected_club_start_to_management_via_real_tk_binding": True,
                 "default_clean_host_start_to_management_via_real_tk_binding": True,
+                "source_accepted_pmenu_callbacks_programmatically_verified": True,
+                "tk_pmenu_click_equivalence_claimed": False,
             },
             "unresolved_boundaries": [
                 "Surrounding management background pixels",
                 "Exact PMenu label origin/clipping",
-                "Native PMenu row activation/event ownership",
+                "Original PMenu control acceptance / Tk-event equivalence",
                 "Broader Gate-13 management-screen graphical fidelity",
             ],
             "gate13_complete": False,
