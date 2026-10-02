@@ -1689,5 +1689,14 @@
   "gate15_monthly_buy_counter_reset_path": "0x4A81A0 -> 0x40BB10 -> 0x4042E0 -> 0x4F3320",
   "gate15_monthly_buy_counter_reset_order": "after same-day Saturday transfer maintenance and payroll",
   "gate15_monthly_buy_counter_threshold_quirk": "0x403E70 compares +0x1ED against both 3 and 8",
-  "gate15_monthly_buy_counter_recovery": 186
+  "gate15_monthly_buy_counter_recovery": 186,
+  "gate15_monthly_buy_counter_verified_checkpoint": "3b9fc3741a8d614a14389d90db99285b9aa49a69",
+  "gate15_monthly_buy_counter_verified_test_count": 1420,
+  "gate15_monthly_buy_counter_expected_skips": 22,
+  "gate15_monthly_buy_counter_asset_policy_run": 37050081510,
+  "gate15_due_transfer_same_day_ordering_exact": false,
+  "gate15_due_transfer_same_day_known_inner_order": "0x613EE0 due MPM/process queue runs first inside 0x4A8070",
+  "gate15_due_transfer_same_day_missing_evidence": "ScheduleContainer match traversal position relative to 0x4A8070 inside outer 0x4A83F0/0x4A83D0 calendar loop",
+  "gate15_due_transfer_same_day_current_runtime_order": "fixtures before due transfer maintenance",
+  "gate15_due_transfer_same_day_recovery": 187
 }
