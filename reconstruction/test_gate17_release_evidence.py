@@ -49,6 +49,9 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
             "release_version": release_version,
             "repository_commit": repository_commit,
             "release_archive_sha256": archive_sha,
+            "windows_11": True,
+            "windows_build": 26200,
+            "windows_product_type": 1,
             **flags[kind],
         }
         path.write_text(json.dumps(payload), encoding="utf-8")
