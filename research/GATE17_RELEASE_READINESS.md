@@ -70,3 +70,14 @@ python reconstruction/gate17_windows_gameplay_receipts.py `
 ```
 
 This tool intentionally does **not** create `clean_windows_install.json`. That receipt must be produced by the separate clean-install procedure after the candidate archive has actually been installed or extracted outside the development environment.
+
+
+### Hosted Windows release-candidate packaging
+
+`reconstruction/gate17_windows_package.py` builds a bounded PyInstaller `onedir` candidate using pinned `pyinstaller==6.22.3`. Build/work/spec directories and final release output remain outside the Git checkout. The builder requires the exact candidate commit and a clean repository before packaging, runs a silent frozen-import smoke through `FM2001-Windows11.exe --package-smoke`, then writes a sorted/fixed-timestamp ZIP plus a separate SHA-256 manifest.
+
+The package contains the modern runtime and the provenance-tracked `original_assets` tree only. It explicitly rejects bundled `FOOTBAL.EXE`, `Master.dat`, `Static.dat`, and raw disc-image formats. Users supply an authorized original FM2001 installation on first launch.
+
+`.github/workflows/windows-release-candidate.yml` runs this build on GitHub-hosted `windows-latest`, uploads the candidate folder/ZIP/manifest as a temporary Actions artifact, and is a **build/smoke path only**. GitHub documents `windows-latest` as Windows Server 2025, so this hosted workflow must never be treated as the required consumer Windows 11 clean-install receipt. Reference: https://github.com/actions/runner-images/blob/main/README.md
+
+The final Windows 11 evidence gate therefore also verifies Windows workstation product type in addition to build >= 22000. Windows Server can build the candidate but cannot satisfy Gate 17 end-user validation.
