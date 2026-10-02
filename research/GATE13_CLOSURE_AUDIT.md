@@ -1,7 +1,7 @@
 # Gate 13 Closure Audit
 
 _Audit date: 2 October 2026 KST_
-_Last reconciled after Recovery 172 clean-host integration._
+_Last reconciled after Recovery 175 source-accepted PMenu integration._
 
 ## Decision
 
@@ -11,9 +11,11 @@ PStartMenu/TeamSelect are live, and a successful TeamSelect Start enters the
 source-proven `PMenu -> PSquadScreen` management state.
 
 Gate 13 still cannot pass because the ordinary-management canvas deliberately
-draws no guessed management pixels, native PMenu activation/navigation is not
-yet source-bound, and the source-backed Squad/Fixtures/PMatchInfo/League Tables
-presenters are not yet one playable visual loop.
+draws no guessed management pixels, the original control-acceptance boundary is
+not yet mapped far enough to equate ordinary Tk clicks with native accepted
+events, and the source-backed Squad/Fixtures/PMatchInfo/League Tables presenters
+are not yet one playable visual loop. The post-acceptance title/child callback
+itself is now source-bound and integrated through an explicit fail-closed seam.
 
 This audit remains criterion-driven. It does not require every obscure panel or
 every neutral bit name before Gate 13 can close.
@@ -46,7 +48,13 @@ The following blockers from the original closure audit are now closed:
 5. **PMenu pointer containment:** the live diagnostic and clean hosts now expose
    the geometry-proven candidate visible row under the pointer while explicitly
    dispatching **no** navigation.
-6. **Windows audit contract:** schema 5 now tests the developer viewer and the
+6. **Post-acceptance PMenu action contract:** Recovery 173 source-closed the
+   concrete row callbacks and Recovery 175 integrated them through a visible-row
+   guarded seam. Title actions can change the expanded root without changing the
+   current panel; supported child actions route transactionally into the existing
+   management presenters. Ordinary Tk clicks are still not treated as accepted
+   source events.
+7. **Windows audit contract:** schema 5 now tests the developer viewer and the
    default clean host through New Game -> native club click -> Start ->
    MANAGEMENT, and requires zero guessed management PhotoImages. The new
    schema-5 contract is repository-verified; its real Windows execution is
@@ -61,10 +69,11 @@ The smallest sufficient remaining closure slice is now:
    management background/chrome needed for the visible PMenu/Squad landing.
    Reuse the already imported PMenu/Squad resources; do not introduce a
    substitute skin.
-2. **Recover native PMenu activation/navigation semantics.** Candidate row
-   containment alone is not evidence of click activation. Trace the row-event
-   ownership/state path and only then connect the already-supported Squad,
-   League Fixtures and League Tables panel routes.
+2. **Recover the source control-acceptance/event-equivalence boundary.** The
+   post-acceptance row callback and supported panel dispatch are now integrated,
+   but candidate rectangle containment alone is still not evidence that a Tk
+   click is an accepted native event. Trace the original control acceptance path
+   far enough to bind pointer/keyboard input without guessing.
 3. **Compose one ordinary management loop in the clean host.** The user must be
    able to move through the source-backed Squad/tactics -> League Fixtures ->
    PMatchInfo/result -> League Tables path while gameplay mutations continue to
@@ -89,7 +98,7 @@ for:
 - exact PMenu label origin/clipping;
 - any application-owned surrounding management background layer not already
   persisted;
-- native PMenu row activation/event ownership.
+- original PMenu control acceptance and its pointer/keyboard event equivalence.
 
 This is an infrastructure blocker, not a user-action blocker. Do not infer the
 missing behavior from appearance or modern UI conventions.
@@ -149,5 +158,5 @@ behavior. Highest-value examples are:
   immediately when execution is available.
 
 When private execution recovers, the priority trace is the exact PMenu
-text-origin/clipping and row activation/event path, followed by any still-needed
-application-owned background ownership evidence.
+text-origin/clipping and source control-acceptance/event-equivalence path,
+followed by any still-needed application-owned background ownership evidence.
