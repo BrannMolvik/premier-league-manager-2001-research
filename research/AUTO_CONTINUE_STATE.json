@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 195: resume branch recovery194/gate14-fastview-source-closure from main 6b33a5fab9651866021a1e28be4bc72877303dda. Finish status reconciliation, verify the source-proven FastView full-path resolver and PossessionDiagram primitive, open/merge only after green CI, then continue the next source-backed Gate-14 step. Gate 13 remains the earliest incomplete validation gate; schema-8 real-Windows receipt remains external.",
-  "last_known_main_head": "6b33a5fab9651866021a1e28be4bc72877303dda",
+  "active_task": "Recovery 195: PR #161 is canonical at main ce22b66e8259d983782a87aad456dcd21220cf9a after 1,476 tests / 22 expected skips plus asset-policy success. Continue the exact Gate-14 work-ahead: deliberately stage the four now-source-closed PossessionDiagram assets under the asset policy and connect only their proven geometry, while keeping update cadence and side orientation fail-closed; continue PossessionFigures placement trace. Gate 13 remains earliest incomplete pending the external schema-8 Windows receipt.",
+  "last_known_main_head": "ce22b66e8259d983782a87aad456dcd21220cf9a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 195,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered without restarting completed work. Gate-14 FastView source-closure branch is the active cloud-safe checkpoint.",
+  "note": "PR #161 merged. Continue with exact authorized PossessionDiagram asset import/live geometry; do not infer cadence or orientation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
