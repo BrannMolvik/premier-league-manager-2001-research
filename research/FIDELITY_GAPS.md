@@ -40,6 +40,11 @@ outside that table. The modern autonomous contract-duration path now resolves
 this exact subset index and fails closed outside rows 0..4 instead of clamping
 a guessed valuation category.
 
+This trace also supersedes the old Gate-10 all-root FanFactor interpretation:
+`0x5DA2F0` indexes the host club's registered League/DummyLeague subset entry.
+Premier League is index 0 and therefore uses **FanFactor1 = 0.9**; the Cup gate
+adapter now uses the host club's league index rather than the Cup competition.
+
 ### Contract calendar-month normalization
 
 **Resolved in Gate 15.** Direct disassembly of shared date helper `0x64CDD0`
