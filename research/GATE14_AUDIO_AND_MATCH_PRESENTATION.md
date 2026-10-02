@@ -1,6 +1,6 @@
 # Gate 14 Audio and Match Presentation
 
-_Last reconciled: 2 October 2026 KST, Recovery 184_
+_Last reconciled: 3 October 2026 KST, Recovery 194_
 
 ## Scope
 
@@ -72,23 +72,37 @@ side-0 screen orientation, commentary, audio mapping, territorial
 left/middle/right thresholds and 3D choreography remain explicitly unrecovered
 and are not synthesized by this layer.
 
-Recovery 184 now adds
-`reconstruction/gate14_fastview_resource_catalog.py` as the deterministic
-bridge from persisted executable asset names to exact source-disc paths. The
-target set is deliberately limited to the already-evidenced smallest visual
-family:
+Recovery 194 rematerialized the authorized source, reproduced the full
+2,456-file / 211-folder Joliet inventory, and revalidated the canonical
+executable hash. The canonical executable itself embeds the full paths for the
+bounded seven-resource family, so
+`reconstruction/gate14_fastview_resource_catalog.py` schema 2 now resolves
+those **source-proven exact paths** rather than relying on basename uniqueness:
 
-- `PossessionFigures`: `team_bar_1.444`, `blank_bar.444`,
-  `team_bar_2.444`;
-- `PossessionDiagram`: `pitch_left.444`, `pitch_middle.444`,
-  `pitch_right.444`, `pitch_normal.444`.
+- `PossessionFigures`: `FM2001_Art/FastView/team_bar_1.444`,
+  `FM2001_Art/FastView/blank_bar.444`,
+  `FM2001_Art/FastView/team_bar_2.444`;
+- `PossessionDiagram`: `FM2001_Art/FastView/pitch_left.444`,
+  `FM2001_Art/FastView/pitch_middle.444`,
+  `FM2001_Art/FastView/pitch_right.444`,
+  `FM2001_Art/FastView/pitch_normal.444`.
 
-The resolver scans a saved full-disc inventory by exact case-insensitive
-basename. It publishes a source path only when exactly one catalog entry
-matches, carries an already-proven SHA-256 when available, and fails closed on
-missing or ambiguous basenames. It explicitly leaves layout geometry, side-0
-screen orientation and territorial thresholds unrecovered. No directory path
-is inferred from the executable filename alone.
+This matters because the real disc also contains
+`FM2001_Art/Generic/match_report/pitch_normal.444`. The executable separately
+embeds both paths, proving that the FastView component owns the FastView copy.
+The resolver now fails closed on a missing exact path, wrong source size, or a
+conflicting observed hash; a same-basename file elsewhere cannot substitute.
+
+The same trace closes the bounded `PossessionDiagram` pixel geometry and
+single-call territory update primitive. Constructor `0x5227D0`, called from
+the FastView owner at `0x5206CD`, places the normal 294×78 pitch at
+`(253,139)-(547,217)`. State 1 is initially active; left/middle/right
+overlays use exact x offsets `[0,98,169]`. Update `0x522BB0` uses a private
+MSVC-style presentation RNG and the EventPossession territory byte to choose
+the next state. The original callback cadence and side-0/user orientation are
+still intentionally unrecovered. See
+`research/GATE14_FASTVIEW_POSSESSION_SOURCE_TRACE.md` and
+`reconstruction/gate14_possession_diagram.py`.
 
 ### Startup FMVs
 
@@ -131,19 +145,15 @@ The canonical authorized source remains:
 Size: 511,121,336 bytes. SHA-256:
 `677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4`.
 
-Recovery 183 successfully rematerialized that exact Library file. However, the
-current execution sandbox fails before starting even trivial archive-inspection
-processes. Therefore this recovery cannot honestly add new loose-audio,
-sound-bank, or cue-path filenames from fresh source enumeration.
+Recovery 194 revalidated and enumerated the exact Library source successfully,
+so the earlier process-start infrastructure blocker is no longer current.
+This recovery concentrated first on the source-closed FastView possession
+family. The complete 64-bank audio inventory remains available for the next
+trace, but no bank/sample role is inferred from filenames alone.
 
-This is an infrastructure blocker, not a source-availability blocker. Existing
-startup-FMV evidence remains valid. New menu/login or match-audio bank semantics
-must wait for either:
-
-1. a functioning local/private process path that can enumerate the verified
-   Joliet source; or
-2. already-persisted repository evidence that source-binds a concrete audio
-   resource and its owner.
+Existing startup-FMV evidence remains valid. New menu/login or match-audio bank
+semantics still require executable ownership/callsite evidence for the exact
+bank/sample resource before integration.
 
 ## Gate 14 completion status
 
@@ -161,13 +171,13 @@ must wait for either:
 
 ## Exact next cloud-safe task
 
-Verify the Recovery-184 FastView resource resolver through CI. With the current
-process-start sandbox failure, fresh private execution is still required to run
-the saved full-disc catalog through that resolver and to trace the exact
-PossessionFigures/PossessionDiagram geometry. Do not import or place those
-assets before both the unique source paths and placement semantics are proven.
+Verify the Recovery-194 exact-path resolver and PossessionDiagram primitive
+through full CI. The four diagram paths, source identities and bounded pixel
+geometry are now source-closed, so after that checkpoint deliberately stage
+only those exact authorized assets under `original_assets/` using the existing
+asset-policy import path, then connect the diagram to a player-visible
+presentation surface **without** inventing update cadence or side orientation.
 
-Until that private execution path recovers, continue independent later-gate
-cloud-safe testing or release-audit work under the deferred-blocker policy.
-Gate 13 remains the earliest incomplete validation gate and Gate 14 remains
-work-ahead, not passed.
+In parallel, continue the `PossessionFigures` constructor trace to recover the
+three 82×16 bar placements and percentage-text geometry. Gate 13 remains the
+earliest incomplete validation gate and Gate 14 remains work-ahead, not passed.
