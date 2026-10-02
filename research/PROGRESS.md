@@ -10467,3 +10467,14 @@ work may continue under the deferred-blocker policy.
 - Active branch `recovery188/gate17-artifact-bound-receipts` binds every external receipt to the exact release version and archive SHA-256. It adds a Windows gameplay receipt producer using independent canonical runtimes for new-game/management-loop, save/reload and the existing canonical annual rollover audit.
 - The producer writes no receipt until all three gameplay audits have succeeded, keeps evidence outside Git and never overwrites prior receipts. Clean-install evidence remains deliberately separate because it must come from an actual installed release outside the development environment.
 - The current execution sandbox still fails before shell/Python process start with `caas.internal.errors.ClientError`; hosted GitHub CI remains the verification path for cloud-safe code changes.
+
+
+### Recovery 188 - hosted Windows package pipeline
+
+- PR #150 is canonical at `489bf23b25d7633385b42257379da7cc5056ca0b`; reconstruction workflow `37060227170` passed **1,439 tests with 22 expected skips** and asset-policy workflow `37060227193` passed.
+- Added a single frozen-runtime asset-root seam in `original_game_host.py`: source checkouts use the repository root while PyInstaller builds use `sys._MEIPASS`. This keeps every source-backed loader on the same provenance-tracked `original_assets/source` tree.
+- Added `gate17_windows_package.py`: exact clean commit guard, pinned PyInstaller 6.22.3, all build/output state outside Git, bounded `onedir` packaging, package-content rejection for `FOOTBAL.EXE` / `Master.dat` / `Static.dat` / raw disc images, silent frozen import smoke, sorted fixed-timestamp ZIP, and external SHA-256 manifest.
+- Added a hidden `--package-smoke` app argument that exits immediately after all imports/argument parsing, avoiding argparse stdout assumptions in a `--windowed` frozen executable.
+- Added `.github/workflows/windows-release-candidate.yml` on `windows-latest` to install pinned build dependencies, enforce asset policy, run package-focused tests, build/smoke the candidate and upload folder/ZIP/manifest as a 14-day Actions artifact.
+- GitHub runner-image documentation shows `windows-latest` is Windows Server 2025. The final Windows 11 evidence gate is therefore tightened to require workstation `product_type == 1` plus build >=22000. Server remains valid only as a packaging host and can never satisfy the consumer Windows 11 receipt.
+- Local process execution remains blocked by `caas.internal.errors.ClientError`; this hosted Windows workflow is intentionally the executable verification path for the packaging slice.
