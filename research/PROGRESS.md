@@ -9981,3 +9981,29 @@ failures**; asset-policy run `36971906383` passed. PR #100 merged as
 A fresh process-sandbox probe still fails before process start with
 `caas.internal.errors.ClientError`, so private executable tracing remains a
 deferred infrastructure blocker while cloud-safe integration continues.
+
+
+## 2 October 2026 - Recovery 171 source-backed default application host
+
+PR #101 replaced the generic ttk notebook as the normal application launch with
+a clean fixed **800x600** source-backed FM2001 host. The host loads the
+provenance-tracked PStartMenu and TeamSelect resource set from
+`original_assets/source`, uses the canonical installed `FOOTBAL.EXE` for
+the verified original EA444 decode tables, and routes the first-screen flow
+through `FrontEndSession` into the explicit MANAGEMENT/PMenu state. The old
+ttk notebook remains an explicit `--prototype-ui` development fallback only.
+
+The management state still draws no guessed background/text. The previous
+TeamSelect frame is cleared and the recovered management presenter remains
+attached while exact management background ownership and PMenu label
+origin/clipping stay fail-closed.
+
+Verification on exact PR head
+`f1653cef39182c744e88c03c8e8f83b30418a95d`:
+Gate-13 run `36972538322` passed **419 tests / 21 expected skips**; full
+reconstruction run `36972538328` passed **1,321 tests / 22 expected skips**;
+asset-policy run `36972538362` passed. PR #101 merged as
+`62a1bbcd24bf1dc26e57294e40fef176a4f87036`.
+
+The next cloud-safe checkpoint, PR #102, intentionally adds only candidate
+PMenu row hit-testing from proven geometry and does not infer row activation.
