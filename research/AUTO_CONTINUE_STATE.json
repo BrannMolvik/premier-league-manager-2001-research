@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 190: PR #154 clean-install receipt producer head bc7f5d034eb5787eb425c04284a2331f58ea4630 is under full reconstruction + Windows package verification after fixing Linux test mocking; Windows package-specific unit/freeze/smoke steps are already green and asset policy passed. PR #155 release-evidence assembler head 439d24e1fa9896662d4f271e314d6db9739e9281 is independently under full-suite verification with asset policy passed. Merge #154 first only after its full suite + Windows workflow pass, then re-evaluate/rebase #155 against new main and merge only after green checks. Then harden the shared Gate-17 Windows host guard so final/gameplay audits cannot accept Windows Server/GitHub Actions. Gate 13 remains earliest incomplete validation gate.",
-  "last_known_main_head": "d571f86de06fbe09a7e5d74f848ffc36c05e2f59",
+  "active_task": "Recovery 191: canonical main is 8ec4dec9f32a98362f29fccaecec6176e1fef5a8 with PR #154 clean-install producer and PR #157 evidence assembler merged. Active PR #158 head f5584ffd8d5137963cba61e1cc4df27f4088447e centralizes the Gate-17 external Windows workstation guard so final audit, gameplay receipts and clean-install receipts reject GitHub Actions and Windows Server/non-workstation hosts. Verify full CI on the final branch head, merge only if green, then continue the next Gate-17 work-ahead step without weakening the requirement for real external Windows 11 receipts. Gate 13 remains the earliest incomplete validation gate.",
+  "last_known_main_head": "8ec4dec9f32a98362f29fccaecec6176e1fef5a8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 190,
+  "recovery_generation": 191,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 190 has two independent Gate-17 work-ahead PRs. #154 creates clean_windows_install.json only on external Windows 11 workstation, validates exact archive payload and installed exe smoke; #155 assembles/hashes/prevalidates the exact archive plus four distinct receipts into the final evidence contract.",
+  "note": "PR #158 contains the shared external Windows client-workstation guard plus regression coverage. It does not create any external receipt or close Gate 17.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
