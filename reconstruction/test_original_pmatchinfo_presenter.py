@@ -3,6 +3,10 @@ from __future__ import annotations
 import unittest
 
 from ea444_decoder import EA444DecodedImage
+from original_pmatchinfo_art import (
+    OriginalPMatchInfoArtError,
+    build_pmatchinfo_popup_art,
+)
 from original_pmatchinfo_presenter import (
     OriginalPMatchInfoPresentationError,
     build_dynamic_incident_art,
@@ -121,6 +125,42 @@ class OriginalPMatchInfoPresenterTests(unittest.TestCase):
             build_staged_pmatchinfo_snapshot(
                 self.staged(),
                 selected_tab_event_id=4,
+            )
+
+    def test_popup_art_uses_exact_pointer_clamp_and_only_global_background(self):
+        snapshot = build_staged_pmatchinfo_snapshot(
+            self.staged(),
+            require_complete_dialog=True,
+        )
+
+        middle = build_pmatchinfo_popup_art(
+            snapshot,
+            pointer_x=400,
+            pointer_y=300,
+        )
+        self.assertEqual((middle.x, middle.y), (20, 50))
+        self.assertEqual((middle.width, middle.height), (760, 500))
+        self.assertEqual(len(middle.rgba), 760 * 500 * 4)
+
+        far_edge = build_pmatchinfo_popup_art(
+            snapshot,
+            pointer_x=799,
+            pointer_y=599,
+        )
+        self.assertEqual((far_edge.x, far_edge.y), (39, 99))
+
+    def test_popup_art_fails_closed_without_exact_dialog_background(self):
+        decoded = self.staged()
+        decoded.pop("info_popup")
+        snapshot = build_staged_pmatchinfo_snapshot(decoded)
+        with self.assertRaisesRegex(
+            OriginalPMatchInfoArtError,
+            "exact info_popup",
+        ):
+            build_pmatchinfo_popup_art(
+                snapshot,
+                pointer_x=400,
+                pointer_y=300,
             )
 
     def test_dynamic_incident_art_uses_source_predicate_and_exact_rect(self):
