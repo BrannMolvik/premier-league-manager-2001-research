@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Audit the already source-proven Squad/PMenu presentation inventory for the smallest recognizable fresh management landing that can be composed cloud-safely without inventing unresolved PMenu text origin/clipping or application-owned background pixels. If sufficient, implement/test the bounded renderer; otherwise persist the exact blocker and continue the next independent Gate-13 closure slice. Real Windows schema-6 receipt and private event/text trace remain pending.",
-  "last_known_main_head": "76035ba841e12612a8c76d434a7b541511b01b99",
+  "active_task": "Recovery 175 League Fixtures grid-art checkpoint merged as main 3a71c34c4f48cca8abdb2b7e90e77cdf3e69bd51. Next integrate the already imported, exact League Tables league_bar.444 at its source-proven (270,152,475,19) rectangle in the clean host, without rendering unproven row-grid/icon states or text. Update Windows audit from zero-management-pixel expectation to exact bounded original-pixel expectation for League Tables only.",
+  "last_known_main_head": "3a71c34c4f48cca8abdb2b7e90e77cdf3e69bd51",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 175,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 175 schema-6 audit merged as f6995c0e... and canonical docs reconciled through main 76035ba8.... Continue Gate 13; do not treat schema-6 contract completion as gate completion.",
+  "note": "PR #113 passed Gate13 run 36989259366 (447 tests, 21 skips) and asset-policy run 36989259364, then squash-merged. League Fixtures art remains runtime-staging blocked because six source files are not imported and process execution still fails.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
