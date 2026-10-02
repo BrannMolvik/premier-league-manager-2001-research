@@ -9957,3 +9957,27 @@ continue because both available execution backends failed before process start
 with `caas.internal.errors.ClientError`. Consequently no new claim is made
 about the unresolved PMenu text origin/clipping or surrounding management
 background. Work continues cloud-safely until execution recovers.
+
+
+## 2 October 2026 - Recovery 171 fixed PMenu management host
+
+PR #100 merged the first live post-TeamSelect management host. Successful
+single-user Start now enters an explicit `FrontEndScreen.MANAGEMENT` state and
+the Tk source viewer switches to a fixed **800x600** management host backed by
+`OriginalManagementPresenter`. The host preserves the executable-recovered
+PMenu **(599,96,201,504)** and fresh PSquadScreen **(0,79,800,520)** parent
+geometry, including their native overlap.
+
+The host intentionally renders no invented surrounding management pixels.
+Exact PMenu label origin/clipping and any additional application-owned
+background layer are still unresolved and exposed as fail-closed flags.
+
+Verification on exact PR head
+`4551e0a5e178a850a8cdf6930beff75cc84bbbc8`:
+Gate-13 run `36971906350` passed **415 tests, 21 expected skips, zero
+failures**; asset-policy run `36971906383` passed. PR #100 merged as
+`163071883b932067a5cf33cf12ff3d05a2940cb5`.
+
+A fresh process-sandbox probe still fails before process start with
+`caas.internal.errors.ClientError`, so private executable tracing remains a
+deferred infrastructure blocker while cloud-safe integration continues.
