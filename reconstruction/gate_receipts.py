@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Iterable
 
 
-PREMIER_LEAGUE_TIER_FACTOR = 0.5
+PREMIER_LEAGUE_TIER_FACTOR = 0.9
 PREMIER_LEAGUE_SEATING_REFERENCE = 30.0
 PREMIER_LEAGUE_TERRACE_REFERENCE = 22.5
 FRESH_CONTROLLED_FACILITY_FACTOR = 0.9
@@ -67,10 +67,12 @@ def english_domestic_cup_gate_policy_inputs(
 ) -> DomesticCupGatePolicyInputs:
     """Compose the source-backed English Cup gate policy inputs.
 
-    0x410FF0 selects the match competition's country-root FanFactor.
-    0x40CBC0's English branch selects reference prices from the owning host
-    club competition's valuation/division category. The Cup round relationship
-    supplies the separately recovered round attendance modifier.
+    0x5DA2F0 resolves the host club's registered competition through club +0x10
+    and its country through club +0x14, then 0x410FF0 selects that competition's
+    index in DBRCountry +0x48/+0x4C (the League/DummyLeague root subset).
+    0x40CBC0's English branch independently selects reference prices from the
+    host club competition's valuation/division category. The Cup round
+    relationship supplies the separately recovered round attendance modifier.
     """
     seating, terrace = english_ticket_reference_prices(
         int(host_valuation_division_category)
@@ -89,11 +91,11 @@ def english_domestic_cup_gate_policy_inputs(
 
 
 def fan_factor_for_root_competition_index(index: int) -> float:
-    """Exact 0x5DA2F0 FanFactor1..5 selection by country-root array index.
+    """Exact 0x5DA2F0 FanFactor1..5 selection by country league-root index.
 
-    0x410FF0 supplies the owning competition's stored index in its country /
-    region root-competition array. Indices 0..3 select 0.9/0.8/0.7/0.6;
-    index 4 and every later/default case use 0.5.
+    0x410FF0 supplies the owning club competition's stored index in its
+    DBRCountry +0x48/+0x4C League/DummyLeague root subset. Indices 0..3
+    select 0.9/0.8/0.7/0.6; index 4 and every later/default case use 0.5.
     """
     index = int(index)
     if index < 0:
