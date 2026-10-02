@@ -25,6 +25,31 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 175 source-accepted PMenu seam merged:** PR #111 passed Gate-13
+  presentation CI (`36986776362`), the full reconstruction suite
+  (`36986776403`), and asset policy (`36986776562`), then squash-merged as
+  `9e8f7a18368b8ce7076126a55b2e99563197659a`. The clean-room management
+  presenter now preserves source-proven title expansion independently from the
+  selected child panel and exposes an explicit post-source-acceptance PMenu
+  action seam. Only currently visible recovered rows may dispatch; supported
+  child actions route transactionally into Squad, League Fixtures and League
+  Tables. Ordinary Tk rectangle clicks remain non-activating and cannot be
+  treated as native accepted events.
+- **Current ChatGPT execution blocker:** this recovery's Library lookup and
+  materialization succeeded for the canonical 511,121,336-byte source ZIP,
+  but both shell/container and independent Python process startup again failed
+  with `caas.internal.errors.ClientError`. This does not invalidate the
+  Recovery-173 executable trace already persisted on `main`; it blocks new
+  private byte tracing in this worker only.
+- **Codex handoff priority:** continue the local/private Gate-13 queue from
+  `9e8f7a18368b8ce7076126a55b2e99563197659a`: (1) trace exact PMenu label
+  origin/clipping and accepted-control event semantics from the canonical
+  executable; (2) if source evidence proves native pointer/keyboard acceptance,
+  integrate that equivalence without weakening the current fail-closed Tk
+  boundary; (3) extend the real-Windows audit through the newly integrated
+  PMenu action route and obtain a fresh Windows 11 receipt; (4) continue the
+  smallest source-backed Squad -> League Fixtures/PMatchInfo -> League Tables
+  visual loop. Do not close Gate 13 until the ROADMAP criteria are audited.
 - **Recovery 175 schema-6 Windows audit contract merged:** PR #112
   squash-merged as `f6995c0e6b90c9e06a7d6309c7ffb2e49f26f376`.
   Gate-13 run `36987669876` passed **442 tests with 21 expected skips**
