@@ -1639,5 +1639,15 @@
   "gate15_fidelity_ledger_reconciled_recovery": 186,
   "gate15_fidelity_ledger_reconcile_base": "66fda45f07d8df50dea71303ff0e26348d9e3651",
   "gate15_fidelity_ledger_current_internal_save_schema": 34,
-  "gate15_fidelity_ledger_presentation_status": "current_through_gate13_schema8_and_gate14_fastview_resolver"
+  "gate15_fidelity_ledger_presentation_status": "current_through_gate13_schema8_and_gate14_fastview_resolver",
+  "gate15_persistent_injury_availability_exact": true,
+  "gate15_persistent_injury_availability_helper": "DBRClub::0x405080",
+  "gate15_persistent_injury_availability_exclusions": [
+    "transfer_listed",
+    "injured",
+    "loaned_out",
+    "suspended"
+  ],
+  "gate15_persistent_injury_selection_only_excluded": false,
+  "gate15_persistent_injury_availability_recovery": 186
 }
