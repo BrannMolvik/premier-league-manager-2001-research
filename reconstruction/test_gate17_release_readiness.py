@@ -4,10 +4,13 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from gate17_release_readiness import (
     ReleaseReadinessError,
     parse_release_evidence,
+    require_external_windows_11_workstation,
     require_path_outside_repo,
     validate_external_receipts,
     validate_limitations_document,
@@ -49,6 +52,52 @@ def write_roadmap(path, *, open_gate=None, omit_gate=None):
 
 
 class Gate17ReleaseReadinessTests(unittest.TestCase):
+    def test_external_windows_guard_rejects_github_actions_and_server(self):
+        base = {"platform": "Windows-11", "windows_build": 26200}
+
+        with (
+            patch("gate17_release_readiness.require_windows_11", return_value=base),
+            patch.dict(
+                "gate17_release_readiness.os.environ",
+                {"GITHUB_ACTIONS": "true"},
+                clear=False,
+            ),
+        ):
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "GitHub Actions",
+            ):
+                require_external_windows_11_workstation()
+
+        with (
+            patch("gate17_release_readiness.require_windows_11", return_value=base),
+            patch.dict("gate17_release_readiness.os.environ", {}, clear=True),
+            patch(
+                "gate17_release_readiness.sys.getwindowsversion",
+                return_value=SimpleNamespace(product_type=3),
+                create=True,
+            ),
+        ):
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "client workstation",
+            ):
+                require_external_windows_11_workstation()
+
+        with (
+            patch("gate17_release_readiness.require_windows_11", return_value=base),
+            patch.dict("gate17_release_readiness.os.environ", {}, clear=True),
+            patch(
+                "gate17_release_readiness.sys.getwindowsversion",
+                return_value=SimpleNamespace(product_type=1),
+                create=True,
+            ),
+        ):
+            result = require_external_windows_11_workstation()
+
+        self.assertEqual(result["windows_product_type"], 1)
+        self.assertEqual(result["windows_build"], 26200)
+
     def fixture(self, temp):
         temp = Path(temp)
         repo = temp / "repo"
