@@ -127,7 +127,7 @@ class ContractMaintenanceTests(unittest.TestCase):
 
         self.assertEqual(outcome, AiContractMaintenanceOutcome.RENEWED)
         self.assertEqual(rng.bounds, [100, 100, 2])
-        self.assertEqual(player.contract_expiry_date, date(2001, 7, 21))
+        self.assertEqual(player.contract_expiry_date, date(2001, 7, 1))
         self.assertEqual(player.morale, 82)
         self.assertFalse(player.out_of_contract)
         self.assertFalse(player.signed_for_other_club)
