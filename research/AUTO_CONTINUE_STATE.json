@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 194: PR #160 is canonical at main 6b33a5fab9651866021a1e28be4bc72877303dda after 1,470 tests / 22 expected skips plus Windows package/freeze/smoke and asset-policy success. Re-read the merged canonical state and continue the next highest-priority independent cloud-safe source-backed task. Gate 13 remains the earliest incomplete validation gate and its fresh real-Windows schema-8 receipt remains externally blocked.",
+  "active_task": "Recovery 195: resume branch recovery194/gate14-fastview-source-closure from main 6b33a5fab9651866021a1e28be4bc72877303dda. Finish status reconciliation, verify the source-proven FastView full-path resolver and PossessionDiagram primitive, open/merge only after green CI, then continue the next source-backed Gate-14 step. Gate 13 remains the earliest incomplete validation gate; schema-8 real-Windows receipt remains external.",
   "last_known_main_head": "6b33a5fab9651866021a1e28be4bc72877303dda",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 194,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #160 merged and runtime checkpoint advanced. Keep working; do not treat this merge as mission completion.",
+  "recovery_generation": 195,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovered without restarting completed work. Gate-14 FastView source-closure branch is the active cloud-safe checkpoint.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
