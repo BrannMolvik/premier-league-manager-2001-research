@@ -17,7 +17,6 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | Autonomous buy-counter lifecycle | The recovered >28-player buyer gate and 3/8 thresholds are represented with a persisted neutral counter, incremented on AI purchase | Exact club +0x1ED update/reset lifecycle remains unresolved | 15 or earlier if long-season transfer frequency requires it |
 | Player negotiation residual branches | The proven ordinary money path handles accepted, low-wage, counter-offer, already-signed and recently-joined outcomes; unresolved 0x422803 / invalid-duration 0x423340 branches return explicit deferred states | Remaining refusal/status and duration-revision policy is not guessed | 15 or earlier if a broader negotiation case blocks play |
 | Due-transfer same-day ordering | Scheduled MPMTransferPlayer objects execute in reconstructed day maintenance after the date's fixture block | Exact original ordering relative to a fixture on the same due date is not yet instruction-locked | 15 or earlier if same-day transfer availability matters |
-| Chairman legacy budget-event family | Modern port does not invent a live transfer/wage-budget scalar; ordinary play uses proven Balance/accounting paths | A0/A1/settings/warning payloads are persistence-loadable, but no ordinary fresh-game producer or Finance/Transfer UI consumer is mapped in the shipped executable | 15 or earlier if new evidence appears |
 | Match-day / recurring commercial income | Normal Premier League gate income is integrated; English Cup gate RNG and policy inputs are integrated but the special both-controlled-participants category-1/category-2 posting branch is not | The Cup/knockout applicability flag and independent controlled-participant posting branches are proven, but the exact business-policy split has not yet been instruction-closed. The authorized canonical executable is accessible again from the ChatGPT Library, so this is now a pending trace rather than a source-access blocker. Do not infer revenue sharing. Fresh-game concession income remains disabled because its generator does not activate records | 15 |
 | Finance/board residuals | Gate-10 ordinary Premier League finance and recovered board/job-security behavior are integrated | Remaining items are legacy chairman budget-event fidelity, support-staff amount materialization, broader cup gate/facility behavior, and unresolved EA-facing category labels | 15 or owning later system |
 | Original front-end presentation | Normal `app.py` launch now uses the fixed 800x600 source-backed `OriginalGameTkHost`; original PStartMenu/TeamSelect assets and a bounded PMenu/Squad/League Fixtures/PMatchInfo/League Tables management slice are live, while the generic ttk/Play prototype is explicit opt-in only | Repository schema 8 substantially restores the source-backed front-end/management workflow, but the expanded path still needs a fresh real-Windows 11/Tk receipt and re-audit; unrecovered surrounding management pixels, linked-context PMatchInfo details, and other secondary presentation remain fail-closed | 13-14 |
@@ -25,6 +24,21 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | FastView/3D | Reconstructed match events now project through source-backed FastView semantic routes into a bounded presentation shell; a seven-target `PossessionFigures`/`PossessionDiagram` basename resolver fails closed until exact private-disc paths are uniquely proved | Original resource paths/placement geometry, side orientation, territory thresholds, audio bindings, commentary, and SCI/3D choreography remain unclosed; no guessed match-view layout is shipped as original behavior | 14 |
 
 ## Resolved or superseded gaps
+
+### Chairman legacy budget-event family
+
+**Proven irrelevant to the ordinary shipped fresh-game path in Gate 15.**
+Static constructor/callsite analysis shows `EAMbcstartseasonmail`,
+`EAMbcmonthlybudget`, `EAMchairbudgetsettings` and
+`EAMchairbudgetwarning` are persistence-compatible event classes, but the A0/A1
+constructors are reached only through the generic event factory used by
+persistence readers. The named `*Budget` / `*Budget2K` tuning globals have
+loader writes but no recovered ordinary runtime consumer, normal
+`PFinanceOverview` is Balance/accounting-ledger driven, and `PTransfer2K` has no
+mapped dependency on those budget events/globals. The modern port therefore
+correctly **does not invent** a live transfer/wage-budget scalar for ordinary
+fresh games. Legacy-save or deliberately materialized event payloads remain a
+documented compatibility boundary and are not claimed impossible.
 
 ### Persistent-injury availability count
 
