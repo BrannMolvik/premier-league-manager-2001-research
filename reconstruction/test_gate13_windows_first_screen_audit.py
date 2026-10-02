@@ -1,5 +1,6 @@
 """Synthetic contract tests for the real-Windows first-screen audit harness."""
 from pathlib import Path
+from types import SimpleNamespace
 import tempfile
 import unittest
 
@@ -9,6 +10,7 @@ from gate13_windows_first_screen_audit import (
     WindowsFirstScreenAuditError,
     _require_private_receipt,
     audit_frame_contract,
+    audit_management_host_contract,
     expected_tk_photo_dimensions,
 )
 from original_first_screen_presenter import OriginalFirstScreenPresenter
@@ -122,6 +124,56 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
         self.assertEqual(team_dims[0], SCREEN_SIZE)
         self.assertEqual(team_dims[1:3], ((150, 32), (150, 32)))
         self.assertEqual(team_dims[-2:], ((30, 29), (168, 29)))
+
+
+    def test_management_host_contract_requires_exact_geometry_and_incomplete_pixels(self):
+        frame = SimpleNamespace(
+            menu_rect=(599, 96, 201, 504),
+            panel_rect=(0, 79, 800, 520),
+            presentation=SimpleNamespace(
+                panel_class="PSquadScreen",
+                menu=SimpleNamespace(selected_child_id=0xCE),
+            ),
+            complete_source_pixel_frame_available=False,
+            surrounding_background_recovered=False,
+            pmenu_text_placement_recovered=False,
+        )
+        record = audit_management_host_contract(
+            frame,
+            canvas_size=(800, 600),
+            photo_count=0,
+        )
+        self.assertEqual(record["menu_rect"], [599, 96, 201, 504])
+        self.assertEqual(record["panel_rect"], [0, 79, 800, 520])
+        self.assertEqual(record["panel_class"], "PSquadScreen")
+        self.assertEqual(record["selected_child_id"], 0xCE)
+        self.assertFalse(record["complete_source_pixel_frame_available"])
+
+        bad_cases = (
+            ("canvas", {"canvas_size": (799, 600), "photo_count": 0}),
+            ("photos", {"canvas_size": (800, 600), "photo_count": 1}),
+        )
+        for _label, kwargs in bad_cases:
+            with self.subTest(label=_label):
+                with self.assertRaises(WindowsFirstScreenAuditError):
+                    audit_management_host_contract(frame, **kwargs)
+
+        for attribute, value in (
+            ("menu_rect", (598, 96, 201, 504)),
+            ("panel_rect", (0, 80, 800, 520)),
+            ("complete_source_pixel_frame_available", True),
+            ("surrounding_background_recovered", True),
+            ("pmenu_text_placement_recovered", True),
+        ):
+            broken = SimpleNamespace(**vars(frame))
+            setattr(broken, attribute, value)
+            with self.subTest(attribute=attribute):
+                with self.assertRaises(WindowsFirstScreenAuditError):
+                    audit_management_host_contract(
+                        broken,
+                        canvas_size=(800, 600),
+                        photo_count=0,
+                    )
 
     def test_receipt_must_stay_outside_repository_and_never_overwrite(self):
         with tempfile.TemporaryDirectory() as temp:

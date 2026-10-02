@@ -32,6 +32,9 @@ from original_front_end_layout import (
     OriginalRect,
 )
 from original_live_debug_view import build_original_debug_frame
+from original_management_canvas import build_management_canvas_frame
+from original_pmenu_chrome import PMENU_LIST_SCREEN_ORIGIN, PMENU_LIST_SIZE
+from original_squad_resources import SQUAD_PANEL_RECT
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from original_teamselect_resources import load_verified_original_teamselect_inputs
 
@@ -198,6 +201,75 @@ def audit_frame_contract(
             list(item)
             for item in expected_tk_photo_dimensions(snapshot, source_frame_index)
         ],
+    }
+
+
+
+def audit_management_host_contract(
+    frame,
+    *,
+    canvas_size: tuple[int, int],
+    photo_count: int,
+) -> dict:
+    """Validate only the source-proven fixed MANAGEMENT host boundary.
+
+    A passing contract proves that the live host reached PMenu/PSquadScreen at
+    the recovered parent coordinates. It explicitly requires the current
+    incomplete pixel flags and an empty photo list so the audit cannot pass by
+    retaining TeamSelect pixels or silently drawing a substitute skin.
+    """
+    if tuple(canvas_size) != SCREEN_SIZE:
+        raise WindowsFirstScreenAuditError(
+            f"Management Tk canvas is {tuple(canvas_size)}, expected {SCREEN_SIZE}"
+        )
+    expected_menu_rect = (
+        PMENU_LIST_SCREEN_ORIGIN[0],
+        PMENU_LIST_SCREEN_ORIGIN[1],
+        PMENU_LIST_SIZE[0],
+        PMENU_LIST_SIZE[1],
+    )
+    if tuple(frame.menu_rect) != expected_menu_rect:
+        raise WindowsFirstScreenAuditError(
+            "Live MANAGEMENT PMenu rectangle differs from recovered placement"
+        )
+    if tuple(frame.panel_rect or ()) != tuple(SQUAD_PANEL_RECT):
+        raise WindowsFirstScreenAuditError(
+            "Live MANAGEMENT fresh Squad rectangle differs from recovered placement"
+        )
+    if frame.presentation.panel_class != "PSquadScreen":
+        raise WindowsFirstScreenAuditError(
+            "Live MANAGEMENT host did not enter fresh PSquadScreen"
+        )
+    if frame.presentation.menu.selected_child_id != 0xCE:
+        raise WindowsFirstScreenAuditError(
+            "Live MANAGEMENT PMenu did not select the recovered Squad child"
+        )
+    if frame.complete_source_pixel_frame_available:
+        raise WindowsFirstScreenAuditError(
+            "Management host claims complete source pixels before unresolved blockers close"
+        )
+    if frame.surrounding_background_recovered:
+        raise WindowsFirstScreenAuditError(
+            "Management background was marked recovered without source closure"
+        )
+    if frame.pmenu_text_placement_recovered:
+        raise WindowsFirstScreenAuditError(
+            "PMenu text placement was marked recovered without source closure"
+        )
+    if photo_count != 0:
+        raise WindowsFirstScreenAuditError(
+            "Management host retained/drew Tk PhotoImages while source pixels are incomplete"
+        )
+    return {
+        "screen_size": list(SCREEN_SIZE),
+        "menu_rect": list(expected_menu_rect),
+        "panel_rect": list(SQUAD_PANEL_RECT),
+        "panel_class": frame.presentation.panel_class,
+        "selected_child_id": frame.presentation.menu.selected_child_id,
+        "complete_source_pixel_frame_available": False,
+        "surrounding_background_recovered": False,
+        "pmenu_text_placement_recovered": False,
+        "photo_count": 0,
     }
 
 
@@ -449,8 +521,54 @@ def run_real_windows_graphical_audit(
         return_contract = audit_frame_contract(presenter.snapshot(), 0)
         return_live = _verify_live_tk_redraw(viewer, root, return_contract)
 
+        # Start a fresh source-backed session and prove the now-integrated
+        # selected-club Start -> PMenu/PSquadScreen host route. Keep this after
+        # the historical Back smoke so both navigation directions are audited.
+        _click(viewer.canvas, root, new_game_rect)
+        if presenter.session.navigation.screen is not FrontEndScreen.TEAM_SELECT:
+            raise WindowsFirstScreenAuditError(
+                "Second real Tk New Game click did not reach TeamSelect"
+            )
+        fresh_team = presenter.snapshot()
+        if not fresh_team.club_rows:
+            raise WindowsFirstScreenAuditError(
+                "Fresh TeamSelect has no native club rows for management audit"
+            )
+        management_club = fresh_team.club_rows[0]
+        viewer.canvas.event_generate(
+            "<Button-1>",
+            x=management_club.rect.x + 1,
+            y=management_club.rect.y + 1,
+        )
+        _pump(root)
+        if presenter.session.selected_club_id != management_club.source_id:
+            raise WindowsFirstScreenAuditError(
+                "Management audit club click did not bind canonical club identity"
+            )
+        _click(viewer.canvas, root, TEAMSELECT_START_RECT)
+        if presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
+            raise WindowsFirstScreenAuditError(
+                "Selected-club TeamSelect Start did not enter MANAGEMENT/PMenu"
+            )
+        if viewer.management_presenter is None:
+            raise WindowsFirstScreenAuditError(
+                "Tk viewer did not attach OriginalManagementPresenter after Start"
+            )
+        management_frame = build_management_canvas_frame(
+            viewer.management_presenter
+        )
+        _pump(root)
+        management_contract = audit_management_host_contract(
+            management_frame,
+            canvas_size=(
+                int(viewer.canvas.winfo_width()),
+                int(viewer.canvas.winfo_height()),
+            ),
+            photo_count=len(viewer._photos),
+        )
+
         return {
-            "schema_version": 3,
+            "schema_version": 4,
             "passed": True,
             "audit_kind": "real_windows_tk_first_screen_graphical_smoke",
             "platform": platform.platform(),
@@ -479,12 +597,19 @@ def run_real_windows_graphical_audit(
                 "contract": return_contract,
                 "live_tk": return_live,
             },
+            "management_host": {
+                "selected_club_id": management_club.source_id,
+                "contract": management_contract,
+            },
             "navigation": {
                 "new_game_to_teamselect_via_real_tk_binding": True,
                 "teamselect_back_to_menu_via_real_tk_binding": True,
+                "selected_club_start_to_management_via_real_tk_binding": True,
             },
             "unresolved_boundaries": [
-                "Exact native TeamSelect selection-record payload -> gameplay club-ID mapping",
+                "Exact PMenu row activation/event ownership",
+                "Exact PMenu label origin/clipping",
+                "Application-owned surrounding management background pixels",
                 "Broader Gate-13 management-screen graphical fidelity",
             ],
             "gate13_complete": False,

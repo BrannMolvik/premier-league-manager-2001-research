@@ -126,3 +126,34 @@ loaded through checksum-gated source loaders; the executable remained canonical
 SHA-256 `833bf95e...cc3`. This supersedes the obsolete inert-hierarchy portion
 of Recovery 138 while retaining `gate13_complete: false` for broader management
 presentation.
+
+
+## Recovery 171 schema-4 integrated management-host extension
+
+The next Windows audit revision extends the already-passing first-screen smoke
+through the newly integrated post-TeamSelect host without claiming unresolved
+management pixels.
+
+After preserving the historical New Game -> TeamSelect -> Back round trip, the
+schema-4 harness starts a fresh source-backed session, selects the native first
+club row, presses the exact TeamSelect Start control, and requires:
+
+- navigation state `MANAGEMENT`;
+- an attached `OriginalManagementPresenter`;
+- fixed Tk canvas **800x600**;
+- PMenu parent rectangle **(599,96,201,504)**;
+- fresh PSquadScreen parent rectangle **(0,79,800,520)**;
+- fresh PMenu child **0xCE / Squad** and panel class `PSquadScreen`;
+- **zero** management-state Tk `PhotoImage` objects while the source pixels
+  remain incomplete, proving the host did not retain TeamSelect pixels or draw
+  a substitute skin;
+- `surrounding_background_recovered == false`;
+- `pmenu_text_placement_recovered == false`;
+- `complete_source_pixel_frame_available == false`.
+
+Hosted tests validate this fail-closed receipt contract, but they do **not**
+replace the required real Windows execution. A new private schema-4 receipt
+must still be produced on Windows 11 before this integrated route can count as
+graphically audited. The current container process-start failure is an
+infrastructure blocker for that local/private execution, not evidence of a
+passing audit.
