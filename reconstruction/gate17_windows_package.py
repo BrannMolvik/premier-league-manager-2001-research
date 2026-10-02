@@ -386,9 +386,9 @@ def build_windows_release_candidate(
         validation = validate_package_contents(built)
 
         _run(
-            [str(built / f"{APP_NAME}.exe"), "--help"],
+            [str(built / f"{APP_NAME}.exe"), "--package-smoke"],
             cwd=built,
-            label="packaged executable --help smoke",
+            label="packaged executable import smoke",
             timeout=60,
         )
 
