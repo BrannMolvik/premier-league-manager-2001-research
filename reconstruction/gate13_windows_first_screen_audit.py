@@ -24,6 +24,16 @@ from original_first_screen_presenter import (
     OriginalFirstScreenSnapshot,
 )
 from original_game_host import OriginalGameTkHost
+from original_league_fixtures_art import load_verified_league_fixtures_grid_art
+from original_league_fixtures_resources import (
+    LEAGUE_FIXTURES_RESOURCES,
+    validate_original_league_fixtures_resources,
+)
+from original_league_tables_art import load_verified_league_tables_header_art
+from original_league_tables_resources import (
+    LEAGUE_TABLES_RESOURCES,
+    validate_original_league_tables_resources,
+)
 from original_front_end_layout import (
     PSTARTMENU_ACTIONS,
     SCREEN_SIZE,
@@ -38,9 +48,15 @@ from original_management_canvas import (
     build_management_pmenu_render,
     load_verified_management_pmenu_resources,
 )
+from original_management_presenter import OriginalManagementPresenter
+from original_pmatchinfo_presenter import load_staged_pmatchinfo_snapshot
 from original_pmenu_chrome import PMENU_LIST_SCREEN_ORIGIN, PMENU_LIST_SIZE
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from original_squad_resources import SQUAD_PANEL_RECT
+from original_squad_top_controls import (
+    build_fresh_squad_top_render,
+    load_verified_squad_top_resources,
+)
 from original_teamselect_resources import load_verified_original_teamselect_inputs
 
 
@@ -373,16 +389,54 @@ def expected_management_pmenu_photo_dimensions(frame, resources) -> list[list[in
     return [list(item) for item in render.photo_dimensions]
 
 
-def verify_live_management_pmenu(host, resources) -> list[list[int]]:
-    """Require the clean host's current PhotoImages to match its live PMenu rows."""
+def expected_clean_host_photo_dimensions(host, resources) -> list[list[int]]:
+    """Derive the exact clean-host bitmap sequence from independent source objects."""
     if host.management_presenter is None:
         raise WindowsFirstScreenAuditError("Clean host lost its management presenter")
     frame = build_management_canvas_frame(host.management_presenter)
-    expected = expected_management_pmenu_photo_dimensions(frame, resources)
+    expected: list[list[int]] = []
+
+    if frame.presentation.panel_class == "PSquadScreen":
+        if host.squad_top_resources is None:
+            raise WindowsFirstScreenAuditError(
+                "Clean host Squad audit is missing verified top-control resources"
+            )
+        render = build_fresh_squad_top_render(host.squad_top_resources)
+        expected.extend([list(item) for item in render.photo_dimensions])
+    elif frame.presentation.panel_class == "PLeagueFixtures":
+        snapshot = frame.presentation.league_fixtures
+        art = host.league_fixtures_grid_art
+        if snapshot is None or not snapshot.exact_art_staged or art is None:
+            raise WindowsFirstScreenAuditError(
+                "Clean host Fixtures audit lost exact staged grid art"
+            )
+        expected.extend(
+            [[item.width, item.height] for item in art.placements]
+        )
+    elif frame.presentation.panel_class == "PLeagueTables":
+        snapshot = frame.presentation.league_tables
+        art = host.league_tables_header_art
+        if snapshot is None or not snapshot.exact_art_staged or art is None:
+            raise WindowsFirstScreenAuditError(
+                "Clean host League Tables audit lost exact staged header art"
+            )
+        expected.append([art.width, art.height])
+
+    expected.extend(expected_management_pmenu_photo_dimensions(frame, resources))
+
+    popup = getattr(host, "active_pmatchinfo_art", None)
+    if popup is not None:
+        expected.append([popup.width, popup.height])
+    return expected
+
+
+def verify_live_management_pmenu(host, resources) -> list[list[int]]:
+    """Require live clean-host photos to match panel, PMenu, and modal source art."""
+    expected = expected_clean_host_photo_dimensions(host, resources)
     actual = _actual_photo_dimensions(host)
     if actual != expected:
         raise WindowsFirstScreenAuditError(
-            "Clean host PMenu PhotoImages differ from the current source-backed rows"
+            "Clean host PhotoImages differ from source-backed panel/PMenu/modal art"
         )
     return actual
 
@@ -479,9 +533,29 @@ def run_real_windows_graphical_audit(
         original_art_dir=original_art_root,
         original_executable=original_exe,
     )
+    source_root = Path(original_art_root).parent
     pmenu_resources = load_verified_management_pmenu_resources(
-        Path(original_art_root).parent,
+        source_root,
         original_exe,
+    )
+    squad_top_resources = load_verified_squad_top_resources(
+        source_root,
+        original_exe,
+    )
+    fixture_resources = validate_original_league_fixtures_resources(source_root)
+    fixture_grid_art = load_verified_league_fixtures_grid_art(
+        source_root,
+        original_exe,
+    )
+    league_table_resources = validate_original_league_tables_resources(source_root)
+    league_tables_header_art = load_verified_league_tables_header_art(
+        source_root,
+        original_exe,
+    )
+    pmatchinfo_snapshot = load_staged_pmatchinfo_snapshot(
+        Path(__file__).resolve().parent.parent,
+        original_exe,
+        require_complete_dialog=True,
     )
     presenter = OriginalFirstScreenPresenter(
         FrontEndSession.for_canonical_game_dir(canonical_game_dir),
@@ -726,7 +800,20 @@ def run_real_windows_graphical_audit(
             clean_presenter,
             clean_root,
             tk,
+            management_presenter_factory=lambda session: OriginalManagementPresenter(
+                session,
+                staged_league_fixture_resource_names=tuple(
+                    resource.name for resource in fixture_resources
+                ),
+                staged_league_table_resource_names=tuple(
+                    resource.name for resource in league_table_resources
+                ),
+            ),
             management_pmenu_resources=pmenu_resources,
+            league_fixtures_grid_art=fixture_grid_art,
+            squad_top_resources=squad_top_resources,
+            league_tables_header_art=league_tables_header_art,
+            pmatchinfo_snapshot=pmatchinfo_snapshot,
         )
         try:
             _pump(root)
