@@ -29,6 +29,8 @@ class ReleaseReadinessError(RuntimeError):
     """A Gate-17 release criterion is missing, stale or inconsistent."""
 
 
+REQUIRED_PREREQUISITE_GATES = tuple(range(1, 17))
+
 REQUIRED_EXTERNAL_RECEIPTS = {
     "clean_windows_install": (
         "windows_11",
@@ -172,6 +174,7 @@ def validate_external_receipts(
     """Hash and inspect every externally produced Windows release receipt."""
     checked: dict[str, dict] = {}
     root = Path(repo_root).resolve()
+    used_paths: dict[Path, str] = {}
 
     for name, required_flags in REQUIRED_EXTERNAL_RECEIPTS.items():
         spec = evidence.external_receipts[name]
@@ -180,6 +183,12 @@ def validate_external_receipts(
             root,
             label=f"{name} receipt",
         )
+        previous_name = used_paths.get(path)
+        if previous_name is not None:
+            raise ReleaseReadinessError(
+                f"{name} receipt reuses the same evidence file as {previous_name}"
+            )
+        used_paths[path] = name
         if not path.is_file():
             raise ReleaseReadinessError(f"{name} receipt does not exist: {path}")
         actual_sha = _sha256_file(path)
@@ -268,6 +277,89 @@ def validate_limitations_document(
         "path": limitations_path,
         "sha256": sha256(text.encode("utf-8")).hexdigest(),
         "characters": len(text),
+    }
+
+
+def validate_roadmap_prerequisites(repo_root: Path) -> dict:
+    """Require every Gate 1-16 completion criterion to be checked.
+
+    Gate 17 itself is intentionally excluded because this final audit is one of
+    its completion criteria. Missing gate sections, gates without checkbox
+    criteria, and any unchecked prerequisite criterion all fail closed.
+    """
+    path = (Path(repo_root) / "ROADMAP.md").resolve()
+    root = Path(repo_root).resolve()
+    if not path.is_relative_to(root):
+        raise ReleaseReadinessError("ROADMAP.md escaped repository root")
+    if not path.is_file():
+        raise ReleaseReadinessError("ROADMAP.md is missing")
+
+    gate_heading = re.compile(r"^## Gate (\d+)\b")
+    checkbox = re.compile(r"^- \[([ xX])\]")
+    counts = {
+        gate: {"checked": 0, "unchecked": 0}
+        for gate in REQUIRED_PREREQUISITE_GATES
+    }
+    seen: set[int] = set()
+    current_gate: int | None = None
+
+    for line in path.read_text(encoding="utf-8").splitlines():
+        heading = gate_heading.match(line)
+        if heading is not None:
+            current_gate = int(heading.group(1))
+            if current_gate in counts:
+                seen.add(current_gate)
+            continue
+        if current_gate not in counts:
+            continue
+        item = checkbox.match(line)
+        if item is None:
+            continue
+        if item.group(1).lower() == "x":
+            counts[current_gate]["checked"] += 1
+        else:
+            counts[current_gate]["unchecked"] += 1
+
+    missing = [
+        gate for gate in REQUIRED_PREREQUISITE_GATES
+        if gate not in seen
+    ]
+    empty = [
+        gate for gate in REQUIRED_PREREQUISITE_GATES
+        if gate in seen
+        and counts[gate]["checked"] + counts[gate]["unchecked"] == 0
+    ]
+    open_gates = [
+        gate for gate in REQUIRED_PREREQUISITE_GATES
+        if counts[gate]["unchecked"] > 0
+    ]
+
+    if missing:
+        raise ReleaseReadinessError(
+            f"ROADMAP.md is missing prerequisite gate sections: {missing}"
+        )
+    if empty:
+        raise ReleaseReadinessError(
+            f"prerequisite gates have no completion criteria: {empty}"
+        )
+    if open_gates:
+        details = ", ".join(
+            f"Gate {gate} ({counts[gate]['unchecked']} unchecked)"
+            for gate in open_gates
+        )
+        raise ReleaseReadinessError(
+            "Gate 17 release audit requires Gates 1-16 to be complete: "
+            + details
+        )
+
+    return {
+        "path": "ROADMAP.md",
+        "required_gates": list(REQUIRED_PREREQUISITE_GATES),
+        "all_prerequisites_complete": True,
+        "criteria": {
+            str(gate): dict(counts[gate])
+            for gate in REQUIRED_PREREQUISITE_GATES
+        },
     }
 
 
@@ -371,6 +463,7 @@ def run_final_release_audit(
 
     windows = require_windows_11()
     repository = validate_clean_repository(root, evidence.repository_commit)
+    roadmap_prerequisites = validate_roadmap_prerequisites(root)
     receipts = validate_external_receipts(evidence, root)
     archive = validate_release_archive(release_archive, evidence.archive, root)
     limitations = validate_limitations_document(root, evidence.limitations_path)
@@ -402,6 +495,7 @@ def run_final_release_audit(
         "repository_commit": evidence.repository_commit,
         "windows": windows,
         "repository": repository,
+        "roadmap_prerequisites": roadmap_prerequisites,
         "external_receipts": receipts,
         "release_archive": archive,
         "limitations": limitations,

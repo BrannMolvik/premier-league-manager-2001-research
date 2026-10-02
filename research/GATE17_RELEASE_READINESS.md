@@ -10,9 +10,17 @@ The final audit in reconstruction/gate17_release_readiness.py is designed to run
 
 ## Required final evidence
 
-The evidence contract requires four external JSON receipts, all tied to the same repository commit and stored outside Git: clean Windows 11 installation outside the development environment; new-game plus management-loop smoke; season progression; and save/reload.
+The evidence contract requires four **distinct** external JSON receipt files, all tied to the same repository commit and stored outside Git: clean Windows 11 installation outside the development environment; new-game plus management-loop smoke; season progression; and save/reload. Reusing one receipt file for multiple criteria is rejected even if that file happens to contain several true flags.
 
 The audit also verifies a clean Git working tree, repository asset policy, canonical FM2001 source-data verification, the full unittest suite, an archived release file with exact size and SHA-256, and the final release-limitations document.
+
+Recovery 188 additionally makes the roadmap prerequisite chain machine-checkable:
+the final Gate-17 audit refuses to pass unless **every completion criterion in
+Gates 1 through 16 is checked in `ROADMAP.md`**. Gate 17 itself is
+deliberately excluded from that prerequisite check because this release audit is
+one of Gate 17's own completion steps. Missing gate sections, prerequisite gates
+with no checkbox criteria, and any unchecked Gate 1-16 criterion all fail
+closed.
 
 ## Fail-closed boundary
 
