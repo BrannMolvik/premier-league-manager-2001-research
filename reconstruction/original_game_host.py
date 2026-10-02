@@ -33,6 +33,14 @@ from original_league_fixtures_resources import (
     LEAGUE_FIXTURES_RESOURCES,
     validate_original_league_fixtures_resources,
 )
+from original_league_tables_art import (
+    OriginalLeagueTablesHeaderArt,
+    load_verified_league_tables_header_art,
+)
+from original_league_tables_resources import (
+    LEAGUE_TABLES_RESOURCES,
+    validate_original_league_tables_resources,
+)
 from original_management_canvas import (
     build_management_canvas_frame,
     build_management_pmenu_render,
@@ -102,6 +110,7 @@ class OriginalGameTkHost:
         management_pmenu_resources=None,
         league_fixtures_grid_art=None,
         squad_top_resources=None,
+        league_tables_header_art=None,
     ):
         self.presenter = presenter
         self.root = root
@@ -114,6 +123,7 @@ class OriginalGameTkHost:
         self.management_pmenu_resources = management_pmenu_resources
         self.league_fixtures_grid_art = league_fixtures_grid_art
         self.squad_top_resources = squad_top_resources
+        self.league_tables_header_art = league_tables_header_art
         self.last_pmenu_activation = None
         self._photos = []
         self.last_status = "Source-backed FM2001 host ready"
@@ -268,6 +278,33 @@ class OriginalGameTkHost:
             count += 1
         return count
 
+    def _draw_league_tables_header_art(self, frame) -> int:
+        """Draw only the exact PLeagueTables league_bar control."""
+        if frame.presentation.panel_class != "PLeagueTables":
+            return 0
+        snapshot = frame.presentation.league_tables
+        if snapshot is None:
+            raise OriginalGameHostError(
+                "League Tables panel lost its source-backed table snapshot"
+            )
+        if not snapshot.exact_art_staged:
+            raise OriginalGameHostError(
+                "League Tables renderer requires all 15 verified original assets"
+            )
+        art = self.league_tables_header_art
+        if not isinstance(art, OriginalLeagueTablesHeaderArt):
+            raise OriginalGameHostError(
+                "League Tables renderer requires verified original header art"
+            )
+        image = self._photo(encode_rgba_png(art.width, art.height, art.rgba))
+        self.canvas.create_image(
+            art.x,
+            art.y,
+            image=image,
+            anchor=self.tk.NW,
+        )
+        return 1
+
     def _draw_management_host(self) -> None:
         if self.management_presenter is None:
             self.management_presenter = self.management_presenter_factory(
@@ -288,7 +325,8 @@ class OriginalGameTkHost:
 
         squad_image_count = self._draw_squad_top_controls(frame)
         fixture_image_count = self._draw_league_fixtures_grid_art(frame)
-        panel_image_count = squad_image_count + fixture_image_count
+        table_image_count = self._draw_league_tables_header_art(frame)
+        panel_image_count = squad_image_count + fixture_image_count + table_image_count
 
         menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
         for overlay in menu_render.overlays:
@@ -478,6 +516,13 @@ def run_original_game_ui(
         resolved_source_root,
         original_executable,
     )
+    league_table_resources = validate_original_league_tables_resources(
+        resolved_source_root
+    )
+    league_tables_header_art = load_verified_league_tables_header_art(
+        resolved_source_root,
+        original_executable,
+    )
     import tkinter as tk
 
     root = tk.Tk()
@@ -490,9 +535,13 @@ def run_original_game_ui(
             staged_league_fixture_resource_names=tuple(
                 resource.name for resource in fixture_resources
             ),
+            staged_league_table_resource_names=tuple(
+                resource.name for resource in league_table_resources
+            ),
         ),
         management_pmenu_resources=pmenu_resources,
         league_fixtures_grid_art=fixture_grid_art,
         squad_top_resources=squad_top_resources,
+        league_tables_header_art=league_tables_header_art,
     )
     root.mainloop()
