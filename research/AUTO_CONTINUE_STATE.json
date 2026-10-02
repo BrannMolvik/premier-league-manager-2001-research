@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 179 ChatGPT implementation: compose recovered PMenu arrow/background/font overlays into the default MANAGEMENT canvas; update focused regression coverage and schema-8 Windows audit contract, then reconcile stale Gate-13 state. Surrounding application-owned background remains the next source-evidence boundary.",
-  "last_known_main_head": "136dd19",
+  "active_task": "Recovery 179: source-backed live PMenu composition merged at main 57e3342. Next integrate panel-owned management visuals without inventing the unresolved global background: provenance-import the six already-proven League Fixtures assets, render their exact 36 grid placements in PLeagueFixtures, then add the safest source-backed League Tables/PMatchInfo visual layers and reconcile stale Gate-13 audit/state. Schema-8 real Windows validation remains pending after new pixels.",
+  "last_known_main_head": "57e3342",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 179,
   "last_recovery_reason": "codex-usage-reserve-handoff",
-  "note": "ChatGPT ownership confirmed. Working on the live source-backed PMenu compositor from canonical main 136dd19; no native tracing is being repeated.",
+  "note": "PR #114 merged after Gate-13 run 36998507566, full reconstruction run 36998507518, and asset policy 36998507581 passed. ChatGPT continues Gate 13; surrounding management background remains open and keyboard activation remains fail-closed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
