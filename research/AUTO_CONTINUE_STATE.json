@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 185: main is 10cbd543ca3f1172f9326c13e4450573e5f53418. Gate 13 remains the earliest incomplete validation gate pending a fresh real-Windows 11/Tk schema-8 receipt and re-audit. The latest cloud-safe Gate 14 FastView asset-path resolver is canonical; continue the next highest-priority independent source-backed Gate 14 presentation/audio task without closing Gate 13.",
+  "active_task": "Recovery 186: main is 10cbd543ca3f1172f9326c13e4450573e5f53418. Gate 13 remains the earliest incomplete validation gate pending a fresh real-Windows 11/Tk schema-8 receipt and re-audit. Continue the next highest-priority independent source-backed Gate 14 presentation/audio task after the canonical FastView asset-path resolver, preserving fail-closed evidence boundaries and without closing Gate 13.",
   "last_known_main_head": "10cbd543ca3f1172f9326c13e4450573e5f53418",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 185,
+  "recovery_generation": 186,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 185 rehydrated from the newer canonical main head 10cbd543. Preserve fail-closed boundaries; do not infer Windows-only or private-source behavior.",
+  "note": "Recovery 186 resumed from canonical main 10cbd543 after a no-progress same-chat fallback. Runtime remains continuous/working; advance Gate 14 cloud-safe work while Gate 13 external Windows validation remains pending.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
