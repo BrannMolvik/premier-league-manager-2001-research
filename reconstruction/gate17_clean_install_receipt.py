@@ -27,6 +27,15 @@ class CleanInstallReceiptError(RuntimeError):
     """The release candidate did not satisfy the clean-install contract."""
 
 
+FORBIDDEN_EXTERNAL_GAME_DATA = {
+    "footbal.exe",
+    "footballmanager.exe",
+    "master.dat",
+    "static.dat",
+    "core.str",
+}
+
+
 def require_external_windows_11() -> dict:
     """Require a real Windows 11 run outside hosted/automated CI."""
     if os.environ.get("GITHUB_ACTIONS", "").casefold() == "true":
@@ -84,6 +93,11 @@ def _require_fresh_directory(
         repo_root,
         label="clean install directory",
     )
+    repo = Path(repo_root).resolve()
+    if repo.is_relative_to(target):
+        raise CleanInstallReceiptError(
+            "clean install directory must not contain the development repository"
+        )
     if target.exists():
         if not target.is_dir():
             raise CleanInstallReceiptError(
@@ -179,8 +193,28 @@ def extract_release_archive(
             entries = [item for item in bundle.infolist() if not item.is_dir()]
             if not entries:
                 raise CleanInstallReceiptError("release archive contains no files")
+
+            # Validate the entire payload before the first write. A rejected ZIP
+            # therefore cannot leave a partially extracted directory that looks
+            # like a clean install.
+            planned: list[tuple[zipfile.ZipInfo, PurePosixPath]] = []
+            seen: set[str] = set()
             for item in entries:
                 relative = _safe_zip_member(item.filename)
+                normalized = relative.as_posix().casefold()
+                if normalized in seen:
+                    raise CleanInstallReceiptError(
+                        f"release archive contains duplicate path: {item.filename}"
+                    )
+                seen.add(normalized)
+                if relative.name.casefold() in FORBIDDEN_EXTERNAL_GAME_DATA:
+                    raise CleanInstallReceiptError(
+                        "release archive contains excluded original game data: "
+                        + item.filename
+                    )
+                planned.append((item, relative))
+
+            for item, relative in planned:
                 destination = target.joinpath(*relative.parts)
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 with bundle.open(item, "r") as source, destination.open("wb") as sink:
