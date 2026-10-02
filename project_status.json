@@ -1649,5 +1649,11 @@
     "suspended"
   ],
   "gate15_persistent_injury_selection_only_excluded": false,
-  "gate15_persistent_injury_availability_recovery": 186
+  "gate15_persistent_injury_availability_recovery": 186,
+  "gate15_disposition_ledger": "research/GATE15_FIDELITY_DISPOSITION.md",
+  "gate15_accepted_original_save_compatibility": true,
+  "gate15_accepted_indistinguishable_qsort_ties": true,
+  "gate15_accepted_contract_month_end_clamp": true,
+  "gate15_accepted_limitations_scope": "windows_11_modernization_release",
+  "gate15_accepted_limitations_recovery": 186
 }
