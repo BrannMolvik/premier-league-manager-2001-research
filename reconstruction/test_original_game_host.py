@@ -42,6 +42,7 @@ from original_pmatchinfo_resources import (
 )
 from original_pmenu_chrome import PMENU_FONT_SOURCE_PATH
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
+from original_squad_resources import squad_view_transition
 from original_squad_top_controls import OriginalSquadTopResources
 
 from original_teamselect_resources import assemble_original_teamselect_inputs
@@ -313,7 +314,10 @@ class OriginalGameHostTests(unittest.TestCase):
         host.canvas.delete("all")
         host._photos = []
         frame = SimpleNamespace(
-            presentation=SimpleNamespace(panel_class="PSquadScreen")
+            presentation=SimpleNamespace(
+                panel_class="PSquadScreen",
+                squad_view_transition=squad_view_transition(3),
+            )
         )
 
         count = host._draw_squad_top_controls(frame)
@@ -328,13 +332,79 @@ class OriginalGameHostTests(unittest.TestCase):
     def test_squad_landing_fails_closed_without_verified_top_control_resources(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
         frame = SimpleNamespace(
-            presentation=SimpleNamespace(panel_class="PSquadScreen")
+            presentation=SimpleNamespace(
+                panel_class="PSquadScreen",
+                squad_view_transition=squad_view_transition(3),
+            )
         )
         with self.assertRaisesRegex(
             OriginalGameHostError,
             "verified original top-control resources",
         ):
             host._draw_squad_top_controls(frame)
+
+    def test_post_transition_squad_pixels_fail_closed_until_their_state_is_proven(self):
+        host = OriginalGameTkHost(
+            presenter(),
+            FakeRoot(),
+            FakeTk,
+            squad_top_resources=fake_squad_top_resources(),
+        )
+        host.canvas.delete("all")
+        host._photos = []
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PSquadScreen",
+                squad_view_transition=squad_view_transition(4),
+            )
+        )
+
+        count = host._draw_squad_top_controls(frame)
+
+        self.assertEqual(count, 0)
+        self.assertEqual(host.canvas.images, [])
+        self.assertEqual(host._photos, [])
+
+    def test_source_accepted_squad_view_seam_changes_only_proven_container_state(self):
+        live = presenter()
+        root = FakeRoot()
+        with patch(
+            "original_game_host.build_management_pmenu_render",
+            side_effect=lambda frame, resources: fake_pmenu_render(),
+        ):
+            host = OriginalGameTkHost(
+                live,
+                root,
+                FakeTk,
+                management_presenter_factory=management_factory,
+                management_pmenu_resources=object(),
+                squad_top_resources=fake_squad_top_resources(),
+            )
+            host.on_click(SimpleNamespace(x=7, y=478))
+            live.choose_club(12)
+            host.on_click(SimpleNamespace(x=426, y=301))
+            self.assertEqual(len(host.canvas.images), 7)
+
+            activation = host.apply_source_accepted_squad_view(4)
+            self.assertEqual(activation.transition.control_id, 4)
+            self.assertEqual(activation.transition.left_roster, "first")
+            self.assertFalse(activation.transition.second_roster_mask1)
+            self.assertTrue(activation.transition.pitch_mask1)
+            self.assertEqual(activation.transition.pitch_team_index, 0)
+            self.assertEqual(len(host.canvas.images), 1)
+            self.assertIn("source-accepted Squad view transition", host.last_status)
+            self.assertIn("formation/player pixels remain fail-closed", host.last_status)
+
+            # A normal modern click inside the top-control region is still not
+            # promoted into control 3/4/5 event equivalence.
+            before = host.management_presenter.squad_view_control_id
+            host.on_click(SimpleNamespace(x=120, y=180))
+            self.assertEqual(host.management_presenter.squad_view_control_id, before)
+            self.assertIn("no source-bounded PMenu candidate row", host.last_status)
+
+            restored = host.apply_source_accepted_squad_view(3)
+            self.assertEqual(restored.transition.control_id, 3)
+            self.assertEqual(len(host.canvas.images), 7)
 
     def test_league_fixtures_draws_only_the_36_position_proven_grid_bitmaps(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
