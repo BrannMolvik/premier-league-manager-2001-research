@@ -12,6 +12,11 @@ The final audit in reconstruction/gate17_release_readiness.py is designed to run
 
 The evidence contract requires four **distinct** external JSON receipt files, all tied to the same repository commit and stored outside Git: clean Windows 11 installation outside the development environment; new-game plus management-loop smoke; season progression; and save/reload. Reusing one receipt file for multiple criteria is rejected even if that file happens to contain several true flags.
 
+Every receipt must also identify the exact `release_version` and
+`release_archive_sha256` from the final evidence contract. This prevents a
+source-tree or older-build smoke result from being paired with a different
+archive merely because both share a repository commit.
+
 The audit also verifies a clean Git working tree, repository asset policy, canonical FM2001 source-data verification, the full unittest suite, an archived release file with exact size and SHA-256, and the final release-limitations document.
 
 Recovery 188 additionally makes the roadmap prerequisite chain machine-checkable:
@@ -41,3 +46,27 @@ The pre-release limitations ledger must therefore describe Gate 16 as
 prevalidated-but-blocked-by-prerequisites, not as lacking canonical
 multi-season evidence. Gate 13 remains the earliest incomplete validation gate,
 and Gate 14/15 work remains unfinished.
+
+
+### Windows gameplay receipt producer
+
+`reconstruction/gate17_windows_gameplay_receipts.py` creates the three runtime-verifiable gameplay receipts on Windows 11:
+
+- `new_game_management_loop.json`: constructs the canonical shipped-data runtime, selects a Premier League club, produces a legal 11+5 lineup, reaches the first human fixture, plays it through the shared backend and requires the result to persist;
+- `save_reload.json`: starts an independent canonical game, plays one matchday, writes the current schema save, reloads it against the canonical database and requires an exact logical gameplay snapshot round-trip;
+- `season_progression.json`: reuses the canonical Gate-12 annual-rollover audit, requiring a completed live season and a complete 380-fixture year-two Premier League regeneration.
+
+The runner hashes the release archive itself and writes all three receipts only after all three audits have passed. Its output directory must be outside Git and must not contain prior receipt files. Every produced receipt carries the exact release version, repository commit and archive SHA-256.
+
+Example from the release-candidate environment:
+
+```powershell
+python reconstruction/gate17_windows_gameplay_receipts.py `
+  --game-dir "C:\\Games\\FM2001" `
+  --release-version "<version>" `
+  --repository-commit "<40-char release commit>" `
+  --release-archive "C:\\FM2001-release\\FM2001-Windows11-<version>.zip" `
+  --output-dir "C:\\FM2001-release\\receipts"
+```
+
+This tool intentionally does **not** create `clean_windows_install.json`. That receipt must be produced by the separate clean-install procedure after the candidate archive has actually been installed or extracted outside the development environment.

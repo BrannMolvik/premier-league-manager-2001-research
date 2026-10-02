@@ -62,6 +62,8 @@ on:
       - "research/GATE16_MULTISEED_SEASON_STRESS.md"
       - "reconstruction/gate17_release_readiness.py"
       - "reconstruction/test_gate17_release_readiness.py"
+      - "reconstruction/gate17_windows_gameplay_receipts.py"
+      - "reconstruction/test_gate17_windows_gameplay_receipts.py"
       - "research/GATE17_RELEASE_READINESS.md"
       - "research/RELEASE_LIMITATIONS.md"
       - "reconstruction/test_gate16_consecutive_seasons.py"
