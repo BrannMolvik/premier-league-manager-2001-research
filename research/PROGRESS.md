@@ -10427,4 +10427,14 @@ work may continue under the deferred-blocker policy.
 - Preserved the shipped `0x403E70` quirk that compares monthly byte
   `+0x1ED` against both the 3 and 8 tuning thresholds even though the
   adjacent season-arrival byte exists.
-- Full branch CI for the lifecycle patch is pending.
+- PR #143 later squash-merged as
+  `3b9fc3741a8d614a14389d90db99285b9aa49a69` after reconstruction run
+  `37050081471` passed **1,420 tests with 22 expected skips** and
+  asset-policy run `37050081510` passed.
+- The next due-transfer same-day ordering audit narrowed its missing proof to
+  the outer calendar edge. Persisted disassembly proves `0x613EE0` runs due
+  dated MPM/process objects first inside `0x4A8070`, but the repository does
+  not yet prove whether the date's ScheduleContainer match traversal occurs
+  before or after that `0x4A8070` invocation inside
+  `0x4A83F0/0x4A83D0`. The existing clean-room fixture-before-due-transfer
+  order therefore remains explicitly unverified rather than being promoted.
