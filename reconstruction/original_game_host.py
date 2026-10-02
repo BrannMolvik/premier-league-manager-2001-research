@@ -59,6 +59,7 @@ from original_pmenu_activation import resolve_pmenu_pointer_press
 from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from original_teamselect_resources import load_verified_original_teamselect_inputs
+from original_squad_presenter import source_accepted_squad_view_transition
 from original_squad_top_controls import (
     OriginalSquadTopResources,
     build_fresh_squad_top_render,
@@ -137,6 +138,7 @@ class OriginalGameTkHost:
         self.last_pmenu_activation = None
         self.last_pmatchinfo_action = None
         self.active_pmatchinfo_art = None
+        self.active_squad_view_transition = source_accepted_squad_view_transition(3)
         self._photos = []
         self.last_status = "Source-backed FM2001 host ready"
 
@@ -427,6 +429,37 @@ class OriginalGameTkHost:
             f"{result.action.action_kind} {menu_id:#x}"
         )
         return result
+
+    def apply_source_accepted_squad_view(self, control_id: int):
+        """Apply only an executable-proven PSquadScreen container transition.
+
+        This seam does not claim ordinary Tk pointer equivalence for the native
+        generic top-button owner path. It records the exact native transition
+        selected by PSquadScreen::0x4B8E70 and redraws only the already-proven
+        pixels; unresolved roster/pitch child pixels remain fail-closed.
+        """
+        if self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
+            raise OriginalGameHostError(
+                "Source-accepted Squad view action requires the MANAGEMENT host"
+            )
+        if self.management_presenter is None:
+            self.management_presenter = self.management_presenter_factory(
+                self.presenter.session
+            )
+        frame = build_management_canvas_frame(self.management_presenter)
+        if frame.presentation.panel_class != "PSquadScreen":
+            raise OriginalGameHostError(
+                "Source-accepted Squad view action requires PSquadScreen"
+            )
+        transition = source_accepted_squad_view_transition(control_id)
+        self.active_squad_view_transition = transition
+        self.redraw()
+        self.last_status = (
+            "Applied source-accepted PSquadScreen view transition: "
+            f"{transition.original_text}; unresolved roster/pitch child pixels "
+            "and Tk top-button pointer equivalence remain fail-closed"
+        )
+        return transition
 
     def apply_source_accepted_fixture_match_info(
         self,
