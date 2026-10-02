@@ -25,6 +25,19 @@ fail-closed compatibility limitations**. "Acceptable as a documented
 limitation" below means the project can satisfy Gate 15 without pretending the
 behavior is original; it does not mean the difference disappears.
 
+## Current canonical checkpoint
+
+This audit is reconciled through main
+`57e59f6374f8c278cabbe054b8767638a69e5a26` (PR #146). That checkpoint
+passed reconstruction workflow `37055561454` with **1,424 tests / 22 expected
+skips** and repository asset-policy workflow `37055561468`.
+
+PR #146 source-bounded the special Cup/knockout controlled-participant
+category-1/category-2 accounting helper and materialized the exact numeric
+`0x5DBCD0` paired-XI attendance modifier. The direct caller/applicability of
+that alternate modifier remains intentionally unresolved, so full live Cup
+receipt attachment is still fail-closed.
+
 ## Current source-execution blocker
 
 The authorized original-source archive remains known and provenance-locked, but
