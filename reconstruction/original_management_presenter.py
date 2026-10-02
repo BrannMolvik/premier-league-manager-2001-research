@@ -40,6 +40,7 @@ from original_management_navigation import (
     LEAGUE_TABLES_PANEL,
 )
 from original_management_shell import SQUAD_PANEL_CLASS, SQUAD_PANEL_CODE
+from original_pmenu_activation import OriginalPMenuRowAction, resolve_pmenu_row_action
 from original_pmenu_chrome import PMENU_FRESH_SELECTED_CHILD_ID
 from original_pmenu_presenter import OriginalPMenuSnapshot, build_pmenu_snapshot
 from original_squad_presenter import (
@@ -78,6 +79,14 @@ class OriginalManagementPanelSnapshot:
     league_tables: OriginalLeagueTablesSnapshot | None = None
 
 
+@dataclass(frozen=True)
+class OriginalManagementPMenuActivation:
+    """Result of applying one source-accepted PMenu row callback."""
+
+    action: OriginalPMenuRowAction
+    presentation: OriginalManagementPanelSnapshot
+
+
 def _require_started_session(session: FrontEndSession) -> None:
     if not isinstance(session, FrontEndSession):
         raise OriginalManagementPresentationError(
@@ -101,6 +110,7 @@ def build_management_panel_snapshot(
     bridge_factory: Callable[[object], object] = ManagementSourceDataBridge,
     staged_league_fixture_resource_names: Iterable[str] = (),
     staged_league_table_resource_names: Iterable[str] = (),
+    expanded_root_id: int | None = None,
 ) -> OriginalManagementPanelSnapshot:
     """Project one source-proven integrated PMenu route.
 
@@ -115,7 +125,10 @@ def build_management_panel_snapshot(
 
     bridge = _bridge(session, bridge_factory)
     club = bridge.club_header()
-    menu = build_pmenu_snapshot(selected_child_id)
+    menu = build_pmenu_snapshot(
+        selected_child_id,
+        expanded_root_id=expanded_root_id,
+    )
 
     if selected_child_id == SQUAD_PANEL_CODE:
         source_rows = tuple(bridge.squad_rows())
@@ -201,6 +214,7 @@ class OriginalManagementPresenter:
     selected_child_id: int = PMENU_FRESH_SELECTED_CHILD_ID
     staged_league_fixture_resource_names: tuple[str, ...] = ()
     staged_league_table_resource_names: tuple[str, ...] = ()
+    expanded_root_id: int | None = None
 
     def snapshot(self) -> OriginalManagementPanelSnapshot:
         return build_management_panel_snapshot(
@@ -209,6 +223,7 @@ class OriginalManagementPresenter:
             bridge_factory=self.bridge_factory,
             staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
             staged_league_table_resource_names=self.staged_league_table_resource_names,
+            expanded_root_id=self.expanded_root_id,
         )
 
     def navigate(self, selected_child_id: int) -> OriginalManagementPanelSnapshot:
@@ -218,9 +233,58 @@ class OriginalManagementPresenter:
             bridge_factory=self.bridge_factory,
             staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
             staged_league_table_resource_names=self.staged_league_table_resource_names,
+            expanded_root_id=self.expanded_root_id,
         )
         self.selected_child_id = selected_child_id
         return snapshot
+
+    def source_accepted_pmenu_action(
+        self,
+        row_kind: str,
+        menu_id: int,
+        source_flags: int,
+    ) -> OriginalManagementPMenuActivation:
+        """Apply one row callback only after native control acceptance is proven.
+
+        This method deliberately has no screen-coordinate or Tk-event input.
+        Callers must already have the source control/event acceptance evidence
+        represented by the recovered row callback contract. Hidden rows fail
+        closed so this seam cannot be used to dispatch an arbitrary menu ID.
+        """
+        current = self.snapshot()
+        visible = [
+            row
+            for row in current.menu.rows
+            if row.row_kind == row_kind and row.menu_id == menu_id
+        ]
+        if len(visible) != 1:
+            raise OriginalManagementPresentationError(
+                "Source-accepted PMenu action requires one currently visible recovered row"
+            )
+
+        action = resolve_pmenu_row_action(row_kind, menu_id, source_flags)
+        if not action.accepted:
+            return OriginalManagementPMenuActivation(action, current)
+
+        if action.action_kind == "expand_root":
+            self.expanded_root_id = menu_id
+            return OriginalManagementPMenuActivation(action, self.snapshot())
+
+        if action.action_kind != "open_panel":
+            raise OriginalManagementPresentationError(
+                f"Unsupported recovered PMenu action kind: {action.action_kind}"
+            )
+
+        snapshot = build_management_panel_snapshot(
+            self.session,
+            menu_id,
+            bridge_factory=self.bridge_factory,
+            staged_league_fixture_resource_names=self.staged_league_fixture_resource_names,
+            staged_league_table_resource_names=self.staged_league_table_resource_names,
+            expanded_root_id=self.expanded_root_id,
+        )
+        self.selected_child_id = menu_id
+        return OriginalManagementPMenuActivation(action, snapshot)
 
     def fixture_match_info_action(
         self,
