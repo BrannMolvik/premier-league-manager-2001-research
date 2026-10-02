@@ -14,6 +14,13 @@ on:
       - "reconstruction/competition_state.py"
       - "reconstruction/test_competition_state.py"
       - "reconstruction/game_state.py"
+      # Gate 15 source-backed injury availability correction shares the exact
+      # DBRClub::0x405080 predicate already used by transfer decisions.
+      - "reconstruction/match_injury_persistence.py"
+      - "reconstruction/test_match_injury_persistence.py"
+      - "reconstruction/match_postmatch.py"
+      - "reconstruction/test_match_postmatch.py"
+      - "research/FIDELITY_GAPS.md"
       # Gate13 batches may touch only presentation seams yet still import
       # large portions of the reconstructed runtime. Give those code changes
       # one full integration suite on PR, while ordinary research/docs and
