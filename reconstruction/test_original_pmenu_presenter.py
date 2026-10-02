@@ -88,7 +88,17 @@ class OriginalPMenuPresenterTests(unittest.TestCase):
     def test_rows_retain_exact_title_child_assets_and_font(self):
         snapshot = build_fresh_pmenu_snapshot()
 
-        self.assertEqual(snapshot.font_source_path, "Fonts/Zurich_BdXCn_BT_16pixel.fnt")
+        self.assertEqual(
+            snapshot.font_source_paths,
+            (
+                "Fonts/Zurich_XCn_BT_25pixel.fnt",
+                "Fonts/Zurich_XCn_BT_16pixel.fnt",
+            ),
+        )
+        self.assertEqual(snapshot.rows[0].text_line_origin, (30, 1))
+        self.assertEqual(snapshot.rows[1].text_line_origin, (30, 46))
+        self.assertEqual(snapshot.rows[0].text_clip_rect, (30, 0, 198, 29))
+        self.assertEqual(snapshot.rows[1].text_clip_rect, (30, 29, 198, 58))
         self.assertEqual(len(snapshot.resource_source_paths), 4)
         self.assertTrue(snapshot.rows[0].arrow_source_path.endswith("menu_arrow_anim.444"))
         self.assertTrue(snapshot.rows[0].box_source_path.endswith("submenu_main_box.444"))

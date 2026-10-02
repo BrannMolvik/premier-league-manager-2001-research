@@ -69,6 +69,9 @@ PMENU_BITMAP_CLASS = "eCBitmap"
 PMENU_BITMAP_VFTABLE_VA = 0x7BE5D8
 PMENU_TEXT_CONTROL_SIZE = (160, 24)
 PMENU_TEXT_CONTROL_Y = (0, 24, 48, 72, 96, 120)
+# The CMenuList text family below is retained for consumers such as
+# PMatchInfo. It is not the concrete label font used by PTitleMenuRow or
+# PChildMenuRow; those exact constructor bindings are recorded separately.
 PMENU_RUNTIME_FONT_GLOBAL_VA = 0x87BEA0
 PMENU_RUNTIME_FONT_OBJECT_VA = 0x9269F0
 PMENU_RUNTIME_FONT_WRAPPER_INIT_VA = 0x603640
@@ -79,6 +82,63 @@ PMENU_FONT_SHA256 = "9dc371caba34823b0d6ba6fd4c5e82f94775de1168daa5dad936b70a6e4
 PMENU_FONT_BYTE_SIZE = 79722
 PMENU_FONT_ATLAS_SIZE = (1526, 17)
 PMENU_FONT_NATIVE_LINE_HEIGHT = 18
+
+PMENU_ROW_LABEL_SETUP_VA = 0x651E30
+PMENU_ROW_LABEL_DRAW_VA = 0x6520C0
+PMENU_FONT_DRAW_VA = 0x657280
+PMENU_GLYPH_CLIP_VA = 0x6570F0
+PMENU_ROW_LABEL_RAW_STYLE = 0x2001
+PMENU_ROW_LABEL_EFFECTIVE_STYLE = 0x21
+
+
+@dataclass(frozen=True)
+class OriginalPMenuTextLayout:
+    row_kind: str
+    font_source_path: str
+    font_sha256: str
+    font_byte_size: int
+    font_atlas_size: tuple[int, int]
+    native_line_height: int
+    font_object_va: int
+    font_path_literal_va: int
+    font_load_call_va: int
+    control_rect: tuple[int, int, int, int]
+    signed_offset: tuple[int, int]
+    line_origin: tuple[int, int]
+    clip_rect: tuple[int, int, int, int]
+
+
+PMENU_TITLE_TEXT_LAYOUT = OriginalPMenuTextLayout(
+    row_kind="title",
+    font_source_path="Fonts/Zurich_XCn_BT_25pixel.fnt",
+    font_sha256="bc1159e69fe55c2dd54eb8ec1f672fc26a5ad69d298e5d60967a1c4e046e5101",
+    font_byte_size=98830,
+    font_atlas_size=(1802, 25),
+    native_line_height=26,
+    font_object_va=0x8A3550,
+    font_path_literal_va=0x839DD0,
+    font_load_call_va=0x6045F6,
+    control_rect=(30, 0, 168, 29),
+    signed_offset=(0, 0),
+    line_origin=(30, 1),
+    clip_rect=(30, 0, 198, 29),
+)
+PMENU_CHILD_TEXT_LAYOUT = OriginalPMenuTextLayout(
+    row_kind="child",
+    font_source_path="Fonts/Zurich_XCn_BT_16pixel.fnt",
+    font_sha256="e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18",
+    font_byte_size=75217,
+    font_atlas_size=(1261, 17),
+    native_line_height=18,
+    font_object_va=0x8CAB80,
+    font_path_literal_va=0x839E30,
+    font_load_call_va=0x6044F4,
+    control_rect=(30, 0, 168, 29),
+    signed_offset=(0, 12),
+    line_origin=(30, 17),
+    clip_rect=(30, 0, 198, 29),
+)
+PMENU_ROW_TEXT_LAYOUTS = (PMENU_TITLE_TEXT_LAYOUT, PMENU_CHILD_TEXT_LAYOUT)
 
 # PTitleMenuRow::0x47A7E0 and PChildMenuRow::0x47A990 build the same
 # two grayscale component triples before the row-background setup call. Since
@@ -527,7 +587,7 @@ def validate_original_pmenu_resources(
 
 
 def validate_original_pmenu_font(source_root: Path) -> EAFont:
-    """Require the exact source-proven PMenu Zurich 16px font."""
+    """Require the CMenuList-family font retained by PMatchInfo consumers."""
     path = Path(source_root) / PMENU_FONT_SOURCE_PATH
     data = path.read_bytes()
     if len(data) != PMENU_FONT_BYTE_SIZE:
@@ -540,3 +600,32 @@ def validate_original_pmenu_font(source_root: Path) -> EAFont:
     if font.native_line_height() != PMENU_FONT_NATIVE_LINE_HEIGHT:
         raise OriginalPMenuChromeError("Original PMenu font line-height mismatch")
     return font
+
+
+def validate_original_pmenu_row_fonts(
+    source_root: Path,
+) -> tuple[tuple[OriginalPMenuTextLayout, EAFont], ...]:
+    """Require both concrete PMenu row fonts and their recovered metrics."""
+    root = Path(source_root)
+    validated = []
+    for layout in PMENU_ROW_TEXT_LAYOUTS:
+        data = (root / layout.font_source_path).read_bytes()
+        if len(data) != layout.font_byte_size:
+            raise OriginalPMenuChromeError(
+                f"Original PMenu {layout.row_kind} font byte-size mismatch"
+            )
+        if sha256(data).hexdigest() != layout.font_sha256:
+            raise OriginalPMenuChromeError(
+                f"Original PMenu {layout.row_kind} font checksum mismatch"
+            )
+        font = EAFont.from_bytes(data)
+        if (font.atlas_width, font.atlas_height) != layout.font_atlas_size:
+            raise OriginalPMenuChromeError(
+                f"Original PMenu {layout.row_kind} font atlas geometry mismatch"
+            )
+        if font.native_line_height() != layout.native_line_height:
+            raise OriginalPMenuChromeError(
+                f"Original PMenu {layout.row_kind} font line-height mismatch"
+            )
+        validated.append((layout, font))
+    return tuple(validated)

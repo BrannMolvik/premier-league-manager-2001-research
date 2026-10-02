@@ -31,11 +31,41 @@ increments. The same height is encoded by every correlated row resource below.
 `CMenuList` also constructs six `eCText` objects (vtable `0x7BE340`) at
 vertical origins `0,24,48,72,96,120`, each with a 160x24 presentation
 rectangle, plus bitmap/background objects. Those text controls all reference the
-runtime font object at `0x87BEA0`.
+runtime font object at `0x87BEA0`. That separate text family uses
+`Zurich_BdXCn_BT_16pixel.fnt`; it is not the concrete visible row-label path.
 
-The exact source font file, native text colors, clipping and all row-state
-meanings are still open. The reconstruction must not substitute a modern font
-or name atlas frames from appearance alone.
+## Concrete row-label fonts, origin and clipping
+
+Recovery 177 followed the actual `PTitleMenuRow::0x47A7E0` and
+`PChildMenuRow::0x47A990` setup arguments through label setup `0x651E30`, draw
+method `0x6520C0`, font draw `0x657280` and glyph clipping at `0x6570F0`.
+This corrects the earlier provisional use of the CMenuList-family bold font.
+
+| Row | Font object | Static loader call | Exact font | Native line height | Stored offset | Local line origin |
+| --- | ---: | ---: | --- | ---: | ---: | ---: |
+| title | `0x8A3550` | `0x6045F6` | `Fonts/Zurich_XCn_BT_25pixel.fnt` | 26 | `(0,0)` | `(30,1)` |
+| child | `0x8CAB80` | `0x6044F4` | `Fonts/Zurich_XCn_BT_16pixel.fnt` | 18 | `(0,12)` | `(30,17)` |
+
+Both row constructors pass raw style `0x2001`, whose effective font style is
+`0x21`. Bit 0 preserves the left origin. With neither vertical edge bit set,
+the renderer adds `trunc(29/2) - trunc(line_height/2)`, producing the `+1`
+title and `+5` child centering terms shown above. The child constructor's
+stored `+12` is then applied exactly; it is not normalized away.
+
+The background control begins at local `(30,0)`, has source-proven size
+`168x29`, and supplies the half-open text clip `(30,0)-(198,29)`. Each glyph's
+own `draw_y` is added after the line origin, then the glyph rectangle is
+clipped against that control rectangle. The reconstruction now preserves
+these intentionally low/clipped child-label coordinates rather than making a
+visual correction.
+
+The two authorized font files were exact-path selected from the canonical
+ZIP and imported byte-identically:
+
+- child 16px: 75,217 bytes, atlas 1261x17, SHA-256
+  `e0fbe91421642a489721ab167ce3d2db1738802ef0f1e198df3c90ce25ec3d18`;
+- title 25px: 98,830 bytes, atlas 1802x25, SHA-256
+  `bc1159e69fe55c2dd54eb8ec1f672fc26a5ad69d298e5d60967a1c4e046e5101`.
 
 ## Exact original row resources
 
@@ -254,12 +284,14 @@ It is **not** enough to claim finished management presentation. Remaining PMenu
 work includes:
 
 1. recover the unresolved non-main-English label globals;
-2. identify the exact source font behind runtime handle `0x87BEA0`;
-3. recover text origin/color/clipping and row selection/hover/disabled state-to-
-   frame transforms;
-4. trace the exact PMenu shell background/chrome around the row list;
-5. provenance-import only the four already-correlated source assets (and later
-   assets only after their ownership is proven);
+2. compose the now exact row backgrounds/arrows/fonts into the live management
+   canvas with the recovered per-glyph clipping;
+3. finish any still-unresolved row selection/hover/disabled state-to-frame
+   transforms;
+4. trace the exact application-owned management background/chrome around the
+   row list;
+5. keep imports limited to the four row resources and two concrete row fonts
+   already correlated to native owners;
 6. execute integrated Windows graphical validation after the corrected first-
    screen audit.
 

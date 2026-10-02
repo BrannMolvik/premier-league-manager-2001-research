@@ -13,7 +13,7 @@ from original_pmenu_chrome import (
     PMENU_CHILDREN_BY_ARRAY_VA,
     PMENU_CHILD_ARROW_RESOURCE,
     PMENU_CHILD_BOX_RESOURCE,
-    PMENU_FONT_SOURCE_PATH,
+    PMENU_CHILD_TEXT_LAYOUT,
     PMENU_FRESH_SELECTED_CHILD_ID,
     PMENU_FRESH_SELECTED_ROOT_ID,
     PMENU_LIST_ROW_CAPACITY,
@@ -24,6 +24,7 @@ from original_pmenu_chrome import (
     PMENU_ROW_HEIGHT,
     PMENU_TITLE_ARROW_RESOURCE,
     PMENU_TITLE_BOX_RESOURCE,
+    PMENU_TITLE_TEXT_LAYOUT,
     OriginalPMenuNode,
 )
 
@@ -44,6 +45,9 @@ class OriginalPMenuVisibleRow:
     expanded: bool
     arrow_source_path: str
     box_source_path: str
+    font_source_path: str
+    text_line_origin: tuple[int, int]
+    text_clip_rect: tuple[int, int, int, int]
 
 
 @dataclass(frozen=True)
@@ -54,7 +58,7 @@ class OriginalPMenuSnapshot:
     row_step: int
     selected_root_id: int
     selected_child_id: int
-    font_source_path: str
+    font_source_paths: tuple[str, str]
     resource_source_paths: tuple[str, ...]
     rows: tuple[OriginalPMenuVisibleRow, ...]
 
@@ -130,10 +134,12 @@ def build_pmenu_snapshot(
     rows = []
     for index, (kind, node) in enumerate(ordered):
         title = kind == "title"
+        text_layout = PMENU_TITLE_TEXT_LAYOUT if title else PMENU_CHILD_TEXT_LAYOUT
+        row_y = index * PMENU_ROW_HEIGHT
         rows.append(
             OriginalPMenuVisibleRow(
                 visible_index=index,
-                y=index * PMENU_ROW_HEIGHT,
+                y=row_y,
                 height=PMENU_ROW_HEIGHT,
                 row_kind=kind,
                 menu_id=node.menu_id,
@@ -150,6 +156,17 @@ def build_pmenu_snapshot(
                     if title
                     else PMENU_CHILD_BOX_RESOURCE.source_path
                 ),
+                font_source_path=text_layout.font_source_path,
+                text_line_origin=(
+                    text_layout.line_origin[0],
+                    row_y + text_layout.line_origin[1],
+                ),
+                text_clip_rect=(
+                    text_layout.clip_rect[0],
+                    row_y + text_layout.clip_rect[1],
+                    text_layout.clip_rect[2],
+                    row_y + text_layout.clip_rect[3],
+                ),
             )
         )
 
@@ -160,7 +177,10 @@ def build_pmenu_snapshot(
         row_step=PMENU_ROW_HEIGHT,
         selected_root_id=expanded_root.menu_id,
         selected_child_id=selected_child.menu_id,
-        font_source_path=PMENU_FONT_SOURCE_PATH,
+        font_source_paths=(
+            PMENU_TITLE_TEXT_LAYOUT.font_source_path,
+            PMENU_CHILD_TEXT_LAYOUT.font_source_path,
+        ),
         resource_source_paths=tuple(resource.source_path for resource in PMENU_RESOURCES),
         rows=tuple(rows),
     )

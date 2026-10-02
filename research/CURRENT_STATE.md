@@ -25,15 +25,27 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 177 exact PMenu row text geometry recovered:** private canonical
+  executable tracing followed the concrete title/child constructors through
+  `0x651E30 -> 0x6520C0 -> 0x657280/0x6570F0`. Title rows use exact
+  `Zurich_XCn_BT_25pixel.fnt` at local line origin **(30,1)**; child rows use
+  exact `Zurich_XCn_BT_16pixel.fnt` at **(30,17)**. Both clip to the
+  half-open **(30,0)-(198,29)** background control. The two checksum-gated
+  authorized fonts are now imported, and the presenter carries per-row font,
+  line-origin and clip geometry. Focused PMenu/canvas verification passes
+  **31 tests**. The next task is live row pixel composition, followed by the
+  unresolved application-owned management background and broader management
+  screen fidelity.
 - **Recovery 177 real Windows schema-7 audit passed:** the private receipt
   (SHA-256 `6e1a43e01a43ccbf7bfe92c3088ee446c40a92d51add3ba9660f20cb76f0bef2`)
   records Windows 11 build 26200, Python 3.12.14 and Tk 8.6.12. The real Tk
   route passes TeamSelect and PMenu Calendar -> League Fixtures -> TABLES ->
   League Tables pointer presses with zero guessed management PhotoImages. The
   receipt remains outside Git and correctly records `gate13_complete: false`.
-  The Windows pointer-audit blocker is closed; exact PMenu label
-  origin/clipping, surrounding management pixels, keyboard equivalence and the
-  recognizable management canvas remain open.
+  The Windows pointer-audit blocker is closed. Recovery 177 subsequently
+  closed exact PMenu label origin/clipping; live row composition, surrounding
+  management pixels, keyboard equivalence and the recognizable management
+  canvas remain open.
 - **Recovery 176 PMenu pointer-press boundary integrated locally:** the
   canonical ZIP/executable hashes were reverified. Both concrete title/child
   SelectBmp vtables place `0x64F7A0` at input slot `+0x6C`; their exact control
@@ -81,9 +93,9 @@ Evidence:
   repository-verified only. A fresh real Windows 11 schema-6 receipt is
   still pending; the Recovery-164 schema-3 receipt remains valid only for
   the earlier corrected first-screen path.
-- **Exact next task:** update and execute the real-Windows management audit for
-  native PMenu pointer presses, then finish exact PMenu label origin/clipping
-  and application-owned background ownership. Continue the smallest
+- **Exact next task:** compose the exact PMenu row resources and newly recovered
+  native label geometry in the live management canvas, then close
+  application-owned background ownership. Continue the smallest
   source-backed Squad -> League Fixtures/PMatchInfo -> League Tables visual
   loop without inventing pixels. Gate 13 remains active.
 

@@ -19,6 +19,8 @@ from original_pmenu_chrome import (
     PMENU_FONT_ATLAS_SIZE,
     PMENU_FONT_NATIVE_LINE_HEIGHT,
     PMENU_FONT_SOURCE_PATH,
+    PMENU_CHILD_TEXT_LAYOUT,
+    PMENU_TITLE_TEXT_LAYOUT,
     PMENU_ROW_COLOR_COMPONENTS,
     PMENU_ROW_HEIGHT,
     PMENU_LIST_OBJECT_OFFSET,
@@ -62,6 +64,7 @@ from original_pmenu_chrome import (
     pmenu_background_row_index,
     pmenu_background_source_y,
     validate_original_pmenu_font,
+    validate_original_pmenu_row_fonts,
     validate_original_pmenu_resources,
 )
 
@@ -121,6 +124,22 @@ class OriginalPMenuChromeTests(unittest.TestCase):
         font = validate_original_pmenu_font(source_root)
         self.assertEqual((font.atlas_width, font.atlas_height), PMENU_FONT_ATLAS_SIZE)
         self.assertEqual(font.native_line_height(), PMENU_FONT_NATIVE_LINE_HEIGHT)
+
+    def test_concrete_row_fonts_and_label_geometry_match_native_draw_path(self):
+        source_root = Path(__file__).resolve().parents[1] / "original_assets" / "source"
+        validated = validate_original_pmenu_row_fonts(source_root)
+        self.assertEqual(
+            tuple(layout for layout, _font in validated),
+            (PMENU_TITLE_TEXT_LAYOUT, PMENU_CHILD_TEXT_LAYOUT),
+        )
+        self.assertEqual(PMENU_TITLE_TEXT_LAYOUT.font_object_va, 0x8A3550)
+        self.assertEqual(PMENU_CHILD_TEXT_LAYOUT.font_object_va, 0x8CAB80)
+        self.assertEqual(PMENU_TITLE_TEXT_LAYOUT.control_rect, (30, 0, 168, 29))
+        self.assertEqual(PMENU_CHILD_TEXT_LAYOUT.control_rect, (30, 0, 168, 29))
+        self.assertEqual(PMENU_TITLE_TEXT_LAYOUT.line_origin, (30, 1))
+        self.assertEqual(PMENU_CHILD_TEXT_LAYOUT.line_origin, (30, 17))
+        self.assertEqual(PMENU_TITLE_TEXT_LAYOUT.clip_rect, (30, 0, 198, 29))
+        self.assertEqual(PMENU_CHILD_TEXT_LAYOUT.clip_rect, (30, 0, 198, 29))
 
     def test_row_setup_uses_exact_black_and_white_component_triples(self):
         self.assertEqual(PMENU_ROW_COLOR_COMPONENTS, ((0, 0, 0), (255, 255, 255)))
