@@ -3,6 +3,7 @@ from pathlib import Path
 from types import SimpleNamespace
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndScreen
@@ -12,6 +13,7 @@ from gate13_windows_first_screen_audit import (
     audit_frame_contract,
     audit_management_host_contract,
     audit_source_accepted_pmenu_transition,
+    expected_management_host_photo_dimensions,
     expected_tk_photo_dimensions,
 )
 from original_first_screen_presenter import OriginalFirstScreenPresenter
@@ -158,6 +160,7 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
         self.assertFalse(record["surrounding_background_recovered"])
         self.assertTrue(record["pmenu_text_placement_recovered"])
         self.assertFalse(record["pmenu_rows_rendered"])
+        self.assertFalse(record["management_source_pixels_rendered"])
         self.assertFalse(record["complete_source_pixel_frame_available"])
 
         source_photos = [[30, 29], [168, 29], [42, 24]]
@@ -170,11 +173,43 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
                 "source PMenu rows rendered; surrounding management background unresolved"
             ),
             required_status_fragment="source PMenu rows rendered",
-            expected_pmenu_photo_dimensions=source_photos,
+            expected_management_photo_dimensions=source_photos,
         )
         self.assertEqual(clean_record["panel_code"], 0xCE)
         self.assertEqual(clean_record["photo_dimensions"], source_photos)
         self.assertTrue(clean_record["pmenu_rows_rendered"])
+        self.assertTrue(clean_record["management_source_pixels_rendered"])
+
+    def test_management_host_photo_order_is_panel_then_pmenu_then_pmatchinfo(self):
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(panel_class="PSquadScreen")
+        )
+        popup = SimpleNamespace(width=760, height=500)
+        with (
+            patch(
+                "gate13_windows_first_screen_audit.build_fresh_squad_top_render",
+                return_value=SimpleNamespace(
+                    photo_dimensions=((73, 25), (45, 16))
+                ),
+            ),
+            patch(
+                "gate13_windows_first_screen_audit.expected_management_pmenu_photo_dimensions",
+                return_value=[[201, 29], [168, 16]],
+            ),
+        ):
+            dimensions = expected_management_host_photo_dimensions(
+                frame,
+                object(),
+                squad_top_resources=object(),
+                league_fixtures_grid_art=object(),
+                league_tables_header_art=object(),
+                active_pmatchinfo_art=popup,
+            )
+
+        self.assertEqual(
+            dimensions,
+            [[73, 25], [45, 16], [201, 29], [168, 16], [760, 500]],
+        )
 
     def test_management_host_contract_fails_closed_on_guessed_pixels_or_geometry(self):
         base = dict(
@@ -213,7 +248,7 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
 
         with self.assertRaisesRegex(
             WindowsFirstScreenAuditError,
-            "Live PMenu PhotoImage geometry",
+            "Live management PhotoImage geometry",
         ):
             audit_management_host_contract(
                 SimpleNamespace(**base),
@@ -221,7 +256,7 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
                 photo_dimensions=[[30, 29]],
                 status="source PMenu rows rendered",
                 required_status_fragment="source PMenu rows rendered",
-                expected_pmenu_photo_dimensions=[[168, 29]],
+                expected_management_photo_dimensions=[[168, 29]],
             )
 
         with self.assertRaisesRegex(
