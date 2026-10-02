@@ -17,6 +17,7 @@ import argparse
 from dataclasses import dataclass
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 import platform
 import re
@@ -401,24 +402,42 @@ def validate_clean_repository(repo_root: Path, expected_commit: str) -> dict:
 
 
 def require_windows_11() -> dict:
+    """Require a real Windows 11 client workstation outside GitHub Actions.
+
+    Build number alone is insufficient because modern Windows Server releases
+    can also be >= 22000. External Gate-17 gameplay/install/final-audit evidence
+    must come from a Windows client workstation (VER_NT_WORKSTATION == 1), and
+    GitHub-hosted Windows CI must never be promoted into that external receipt.
+    """
     if platform.system() != "Windows":
         raise ReleaseReadinessError(
             "final Gate-17 release audit must run on Windows 11"
         )
+    if str(os.environ.get("GITHUB_ACTIONS", "")).casefold() == "true":
+        raise ReleaseReadinessError(
+            "final Gate-17 Windows evidence cannot be produced under GitHub Actions"
+        )
     try:
         version = sys.getwindowsversion()
         build = int(version.build)
+        product_type = int(version.product_type)
     except Exception as exc:
         raise ReleaseReadinessError(
-            "unable to read Windows build number"
+            "unable to read Windows build/product type"
         ) from exc
     if build < 22000:
         raise ReleaseReadinessError(
             f"Windows build {build} is older than Windows 11"
         )
+    if product_type != 1:
+        raise ReleaseReadinessError(
+            "final Gate-17 Windows evidence requires a Windows client "
+            f"workstation, not product_type {product_type}"
+        )
     return {
         "platform": platform.platform(),
         "windows_build": build,
+        "windows_product_type": product_type,
     }
 
 
