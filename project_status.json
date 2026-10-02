@@ -14,7 +14,7 @@
   "last_verified_test_count": 1149,
   "asset_policy_validated_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 remains active. Recovery 166 now composes a successful TeamSelect Start into the exact fresh PMenu Team/Squad state and source-preserved 20-row Squad viewport through the read-only bridge. Render this snapshot on the fixed Windows canvas, then extend navigation through tactics, Fixtures/PMatchInfo and League Tables before the integrated audit.",
+  "active_task": "Gate 13 remains active. Recovery 170 has a verified source-bounded PMenu routing layer for PSquadScreen (0xCE), PLeagueFixtures (0x25C), PLeagueTables (0x25A), and the existing two-gate PMatchInfo action boundary. Merge PR #98, then continue fixed-800x600/cloud-safe management integration while exact PMenu label origin/clipping and surrounding background remain deferred behind the current process-sandbox ClientError.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -1469,16 +1469,39 @@
   "gate13_current_form_ordering_deferred_gate": 15,
   "gate13_pmenu_visible_row_trace_complete": true,
   "gate13_pmenu_visible_row_presenter": "reconstruction/original_pmenu_presenter.py",
-  "gate13_pmenu_list_size": [201, 504],
+  "gate13_pmenu_list_size": [
+    201,
+    504
+  ],
   "gate13_pmenu_row_capacity": 16,
   "gate13_pmenu_row_step": 29,
-  "gate13_pmenu_fresh_selection": {"root_id": 2, "child_id": 206},
+  "gate13_pmenu_fresh_selection": {
+    "root_id": 2,
+    "child_id": 206
+  },
   "gate13_pmenu_exact_text_origin_open": true,
   "gate13_teamselect_pmenu_squad_composition_complete": true,
   "gate13_fresh_management_presenter": "reconstruction/original_management_presenter.py",
   "gate13_management_canvas_rendering_complete": false,
-  "gate13_pmenu_screen_rect": [599, 96, 201, 504],
-  "gate13_fresh_squad_screen_rect": [0, 79, 800, 520],
+  "gate13_pmenu_screen_rect": [
+    599,
+    96,
+    201,
+    504
+  ],
+  "gate13_fresh_squad_screen_rect": [
+    0,
+    79,
+    800,
+    520
+  ],
   "gate13_pmenu_parent_placement_complete": true,
-  "gate13_management_canvas_background_open": true
+  "gate13_management_canvas_background_open": true,
+  "gate13_management_routing_pr": 98,
+  "gate13_management_routing_verified_head": "30cfc7fdc999d5bc0e005a5a5bc0bc78525aaecd",
+  "gate13_management_routing_ci_run": 36968140361,
+  "gate13_management_routing_test_count": 403,
+  "gate13_management_routing_expected_skips": 21,
+  "gate13_management_routing_asset_policy_run": 36968140362,
+  "gate13_private_execution_blocker": "Recovery 170: authorized Library ZIP materialized successfully; container.exec and python execution both fail before process start with caas.internal.errors.ClientError. No user action required."
 }
