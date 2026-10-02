@@ -48,7 +48,7 @@ jobs:
         shell: pwsh
         working-directory: reconstruction
         run: |
-          python -m unittest -v test_original_game_host.RuntimeApplicationRootTests test_gate17_windows_package
+          python -m unittest -v test_app_presentation_boundary.AppPresentationBoundaryTests.test_package_smoke_exits_before_game_directory_or_ui_work test_original_game_host.RuntimeApplicationRootTests test_gate17_windows_package
 
       - name: Build and smoke Windows candidate
         id: build
