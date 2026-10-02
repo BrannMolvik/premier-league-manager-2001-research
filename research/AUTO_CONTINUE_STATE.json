@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 184: resume from canonical main 342504c4cf320e26524d6fa06674bf88ad6dbbe9 after Analysis errored recovery. Gate 13 remains blocked only on fresh real-Windows schema-8 execution plus explicitly fail-closed normal Squad/fixture/PMatchInfo details. Under deferred-blocker policy, continue independent cloud-safe Gate 14 work. Immediate task: inventory source-backed audio/sound-bank evidence and identify the smallest original login/menu or match-audio integration slice without inventing bank semantics.",
-  "last_known_main_head": "342504c4cf320e26524d6fa06674bf88ad6dbbe9",
+  "active_task": "Recovery 183: Gate 14 semantic FastView feed merged as main c6b2392fffc0416b0b4bd3ded23c8523e9e17b59. PR #130 adapts completed human match outcomes into that presentation feed without coupling presentation to simulation. Verify/merge PR #130, then continue the smallest source-backed match presentation shell. Gate 13 remains earliest incomplete validation gate pending real-Windows schema-8.",
+  "last_known_main_head": "c6b2392fffc0416b0b4bd3ded23c8523e9e17b59",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 184,
   "last_recovery_reason": "Analysis errored",
-  "note": "Recovery 184 active. Do not redo Gate 13 merged work. Continue Gate 14 audio/sound inventory while preserving Gate 13 as earliest incomplete validation gate.",
+  "note": "Recovery 183: Gate 14 work-ahead active. Authorized source rematerialized, but local process execution is blocked, so no new audio-bank semantics may be inferred. Continue cloud-safe presentation integration.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
