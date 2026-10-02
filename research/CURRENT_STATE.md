@@ -25,6 +25,32 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 175 source-accepted PMenu integration merged:** PR #111
+  squash-merged as `9e8f7a18368b8ce7076126a55b2e99563197659a` after
+  Gate-13 run `36986776362` passed **440 tests with 21 expected skips**,
+  full reconstruction run `36986776403` passed **1,350 tests with 22
+  expected skips**, and asset-policy run `36986776562` passed.
+  `OriginalManagementPresenter` now keeps the currently expanded source root
+  separate from the selected management panel, applies the recovered
+  post-acceptance title/child callback contract only to a currently visible
+  row, and transactionally routes supported child actions into Squad, League
+  Fixtures and League Tables. `OriginalGameTkHost` exposes the same explicit
+  source-accepted seam, but ordinary Tk pointer clicks remain candidate-only.
+- **Recovery 175 private-trace blocker reverified:** a fresh trivial shell
+  probe still fails before process start with `caas.internal.errors.ClientError`.
+  The blocker is now narrower than the old row-action uncertainty: exact PMenu
+  label origin/clipping, any still-missing application-owned management
+  pixels, and the original control-acceptance -> modern Tk-event equivalence
+  remain unavailable for fresh private tracing. This is not a user-action
+  blocker.
+- **Exact next task:** extend the real-Windows Gate-13 audit contract so it
+  separately proves (a) ordinary Tk PMenu hits remain non-activating and
+  (b) the explicit source-accepted seam can execute the already-proven
+  post-acceptance root/child actions and supported panel transitions without
+  inventing event equivalence. Then resume the private text-origin/control-
+  acceptance trace as soon as process execution recovers; a fresh real
+  Windows 11 receipt remains pending.
+
 - **Recovery 173 private execution recovered:** the authorized
   **511,121,336-byte** source ZIP rehashed to canonical
   `677dcbc...a8a4`, and both extracted shipped executables rehashed to
