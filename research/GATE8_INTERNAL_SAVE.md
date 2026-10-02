@@ -159,5 +159,9 @@ pending fixture state.
 - [x] Original PLM2001 save compatibility remains explicitly separate and
       incomplete.
 
-Original save compatibility therefore remains a later fidelity task rather than
-being implied by this internal port format.
+Original save compatibility is therefore not implied by this internal port
+format. Gate 15 later classifies original PLM2001 save-file import as an
+explicitly accepted modernization limitation for the current release scope:
+schema-34 internal save/reload is the supported persistence path, while legacy
+save import can be revisited after the release baseline if it becomes a
+separate compatibility requirement.
