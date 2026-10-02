@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 164 Squad row presenter PR #97, head 99f0e287349b7346841603d3d0a124d3ea419fb1. Gate-13 run 36954039753 passed 392 tests with 21 expected skips; asset-policy run 36954039727 passed; full reconstruction run 36954039762 remains in progress. Merge only after full success, reconcile main, then continue source-proven Squad screen/view integration if still cloud-safe.",
-  "last_known_main_head": "4a8d5132f64ccb8b247da542ec300b586e276608",
+  "active_task": "Recovery 165: perform the fresh Gate-13 closure audit from canonical main. Classify every remaining ordinary-management presentation gap as required now, Gate 14/15, stale, or optional before broad new reverse engineering. The corrected Windows audit, twenty exact asset imports, League Tables presenter, Squad row presenter, and PLeagueTables seven-header eCText trace are complete. Current Form row ordering at 0x4F4A10 remains fail-closed.",
+  "last_known_main_head": "1b6fb3f1d00ee701b287c06239ee745d7cbc6721",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 164,
+  "recovery_generation": 165,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate-13 run 36953094233: 388 tests, 21 skips. Full suite 36953094137: 1285 tests, 22 skips. Asset policy 36953094185 passed. Local container still fails before process start with caas ClientError.",
+  "note": "Codex Recovery 165 handoff. Windows 11 Python 3.13.15/Tk 8.6.15 audit passed. Twenty exact assets were imported and asset policy passed. The private 0x449090 trace resolves +0x7FC..+0x97C as eCText P/W/D/L/F/A/Pts headers with exact sort-state bit transforms; 33 focused trace/presenter tests passed. Private report remains outside Git.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
