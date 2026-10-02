@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from match_injury_persistence import (
     MatchInjuryBucket,
     clear_expired_persistent_injury,
+    count_available_for_persistent_injury,
     generate_persistent_match_injury,
 )
 
@@ -30,10 +31,21 @@ class Player:
     injured: bool = False
     suspended: bool = False
     selection_excluded: bool = False
+    transfer_listed: bool = False
+    loan_club_id: int | None = None
     injury_return_date: date | None = None
     injury_source_mode: int | None = None
     injury_severity_code: int | None = None
     injury_history_weight: int = 0
+
+    @property
+    def selling_squad_count_excluded(self) -> bool:
+        return bool(
+            self.transfer_listed
+            or self.injured
+            or self.loan_club_id is not None
+            or self.suspended
+        )
 
 
 def roster(count=14, *, condition=80):
@@ -41,6 +53,57 @@ def roster(count=14, *, condition=80):
 
 
 class PersistentMatchInjuryTests(unittest.TestCase):
+    def test_405080_exactly_excludes_transfer_injury_loan_and_suspension(self):
+        players = roster(18)
+        players[0].transfer_listed = True
+        players[1].injured = True
+        players[2].loan_club_id = 99
+        players[3].suspended = True
+        # This modern selection-only state is deliberately not one of the
+        # four original DBRPlayer+0x14 exclusions consumed by 0x405080.
+        players[4].selection_excluded = True
+
+        self.assertEqual(count_available_for_persistent_injury(players), 14)
+
+    def test_ai_guard_uses_transfer_and_loan_exclusions_before_rng(self):
+        players = roster(15)
+        players[1].transfer_listed = True
+        rng = ScriptedRng([2, 1])
+        allowed = generate_persistent_match_injury(
+            players[0],
+            players,
+            date(2000, 8, 19),
+            rng,
+        )
+        self.assertIsNotNone(allowed)
+        self.assertEqual(rng.calls, [100, 4])
+
+        players = roster(15)
+        players[1].transfer_listed = True
+        players[2].loan_club_id = 99
+        rng = ScriptedRng([])
+        suppressed = generate_persistent_match_injury(
+            players[0],
+            players,
+            date(2000, 8, 19),
+            rng,
+        )
+        self.assertIsNone(suppressed)
+        self.assertEqual(rng.calls, [])
+
+    def test_selection_only_exclusion_does_not_reduce_405080_count(self):
+        players = roster(14)
+        players[1].selection_excluded = True
+        rng = ScriptedRng([2, 1])
+        result = generate_persistent_match_injury(
+            players[0],
+            players,
+            date(2000, 8, 19),
+            rng,
+        )
+        self.assertIsNotNone(result)
+        self.assertEqual(rng.calls, [100, 4])
+
     def test_ai_guard_suppresses_below_fourteen_without_rng(self):
         players = roster(13)
         rng = ScriptedRng([])

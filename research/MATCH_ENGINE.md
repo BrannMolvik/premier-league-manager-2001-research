@@ -3442,6 +3442,19 @@ MinPlayersAvailForInj = 14
 
 If fewer than 14 players are currently available, no persistent injury object is created.
 
+The availability counter is the same exact `DBRClub::0x405080` helper used by
+the selling-club transfer decision. It starts from the club roster and excludes
+exactly players whose `DBRPlayer+0x14` state maps to:
+
+- bit 8: transfer-listed;
+- bit 0: injured;
+- bit 6: loaned out;
+- bit 1: suspended.
+
+A separate modern selection-only exclusion is **not** part of `0x405080`.
+The runtime now shares the same exact predicate between the transfer and injury
+consumers rather than approximating this guard from lineup availability.
+
 This test happens before the existing-injury check and before injury-generator RNG. Because the post-match controller walks participants in order and marks a newly injured player immediately, that new injury can reduce the available-player count seen by later participants in the same match.
 
 User-controlled teams bypass this 14-player guard.

@@ -80,7 +80,17 @@ class RuntimePlayer:
     match_performance_history_write_index: int = 0
     contract_renewal_suggestion_pending: bool = True
     transfer_listed: bool = False
+    loan_club_id: int | None = None
     wanted: bool = False
+
+    @property
+    def selling_squad_count_excluded(self) -> bool:
+        return bool(
+            self.transfer_listed
+            or self.injured
+            or self.loan_club_id is not None
+            or self.suspended
+        )
 
     def __post_init__(self):
         if self.match_performance_history is None:

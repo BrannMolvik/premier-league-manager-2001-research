@@ -18,7 +18,7 @@ class MutablePersistentInjuryPlayer(Protocol):
     condition: int
     injured: bool
     suspended: bool
-    selection_excluded: bool
+    selling_squad_count_excluded: bool
     injury_return_date: date | None
     injury_source_mode: int | None
     injury_severity_code: int | None
@@ -62,19 +62,21 @@ class GeneratedPersistentInjury:
 def count_available_for_persistent_injury(
     roster: Sequence[MutablePersistentInjuryPlayer],
 ) -> int:
-    """Approximate the proven availability inputs of team helper 0x405080.
+    """Reproduce DBRClub helper 0x405080 for the injury guard.
 
-    The reconstructed runtime currently models the exact low-three-bit
-    unavailable states relevant here: injury, suspension and selection
-    exclusion. Newly created injuries therefore reduce the count immediately
-    for later participants in the same post-match loop.
+    The same source helper is used by the recovered selling-club decision.
+    It starts from the club roster count and excludes exactly players whose
+    status maps to transfer-listed, injured, loaned-out, or suspended. A
+    separate modern selection exclusion is not part of 0x405080.
+
+    Newly created injuries therefore reduce the count immediately for later
+    participants in the same post-match loop through the shared exact runtime
+    predicate.
     """
     return sum(
         1
         for player in roster
-        if not bool(player.injured)
-        and not bool(player.suspended)
-        and not bool(player.selection_excluded)
+        if not bool(player.selling_squad_count_excluded)
     )
 
 
