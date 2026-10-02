@@ -181,41 +181,47 @@ def prepared_side(side_id):
 
 
 class DomesticCupGatePolicyAdapterTests(unittest.TestCase):
-    def test_adapter_uses_cup_root_index_and_host_owning_division(self):
+    def test_adapter_uses_host_league_root_index_and_host_owning_division(self):
         competitions = {
             0: SimpleNamespace(
                 id=0,
+                runtime_kind_code=1,
                 parent_competition_id=None,
-                initialization_order_value=10,
+                initialization_order_value=9,
                 country_region_id=26,
                 valuation_division_category=2,
             ),
             90: SimpleNamespace(
                 id=90,
+                runtime_kind_code=2,
                 parent_competition_id=None,
-                initialization_order_value=9,
+                initialization_order_value=15,
                 country_region_id=26,
             ),
             89: SimpleNamespace(
                 id=89,
+                runtime_kind_code=3,
                 parent_competition_id=None,
-                initialization_order_value=8,
+                initialization_order_value=14,
                 country_region_id=26,
             ),
             7: SimpleNamespace(
                 id=7,
+                runtime_kind_code=2,
                 parent_competition_id=None,
-                initialization_order_value=7,
+                initialization_order_value=13,
                 country_region_id=26,
             ),
             4: SimpleNamespace(
                 id=4,
+                runtime_kind_code=2,
                 parent_competition_id=None,
-                initialization_order_value=6,
+                initialization_order_value=12,
                 country_region_id=26,
             ),
             1: SimpleNamespace(
                 id=1,
+                runtime_kind_code=2,
                 parent_competition_id=None,
                 initialization_order_value=5,
                 country_region_id=26,
@@ -225,7 +231,7 @@ class DomesticCupGatePolicyAdapterTests(unittest.TestCase):
         state = GameState(
             calendar=__import__("game_state").GameCalendar(date(2000, 8, 19)),
             players={},
-            clubs={10: SimpleNamespace(competition_id=0)},
+            clubs={10: SimpleNamespace(competition_id=0, country_id=26)},
             competitions=competitions,
         )
 
@@ -235,7 +241,8 @@ class DomesticCupGatePolicyAdapterTests(unittest.TestCase):
             host_club_id=10,
         )
 
-        self.assertEqual(policy.tier_factor, 0.5)
+        # 0x5DA2F0 indexes host club competition 0 in country +0x48, not Cup 1.
+        self.assertEqual(policy.tier_factor, 0.9)
         self.assertEqual(policy.round_attendance_modifier, 3.0)
         self.assertEqual(policy.seating_reference, 16.0)
         self.assertEqual(policy.terrace_reference, 12.0)
