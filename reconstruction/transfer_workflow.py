@@ -334,6 +334,16 @@ def _complete_ordinary_cash_transfer(
     player.transfer_listed = False
     player.loan_club_id = None
 
+    # 0x422F70 calls 0x405190 after installing the destination club.
+    # 0x405190 -> 0x4F3290 increments transfer-stat byte +0x0D,
+    # i.e. DBRClub +0x1ED, for every permanent arrival. Keep byte
+    # wraparound semantics; this is not autonomous-transfer-only state.
+    monthly_buys = getattr(state, "ai_transfer_buy_counter", None)
+    if monthly_buys is not None:
+        monthly_buys[buyer_id] = (
+            int(monthly_buys.get(buyer_id, 0)) + 1
+        ) & 0xFF
+
     terms = proposal.contract_terms
     player.weekly_wage = int(terms.weekly_wage)
     player.contract_expiry_date = contract_expiry_from_month_span(
