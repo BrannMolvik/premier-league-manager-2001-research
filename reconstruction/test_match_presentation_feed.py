@@ -13,8 +13,10 @@ from match_events import (
     SubstitutionRecord,
 )
 from match_presentation_feed import (
+    FastViewSemanticEvent,
     MatchPresentationFeedError,
     build_match_presentation_feed,
+    fastview_semantic_event,
 )
 from match_simulation import NormalMatchResult, SegmentPossession, TimedMatchEvent
 
@@ -59,6 +61,98 @@ class MatchPresentationFeedTests(unittest.TestCase):
             ], strict=True))
         )
 
+    def test_fastview_semantics_use_only_recovered_event_routes(self):
+        goal = ChanceRecord(
+            ChanceSource.OPEN_PLAY,
+            raw_outcome=0,
+            player_side=0,
+            player_index=4,
+        )
+        own_goal = ChanceRecord(
+            ChanceSource.CORNER,
+            raw_outcome=3,
+            player_side=0,
+            player_index=7,
+            side_inversion=True,
+        )
+        miss = ChanceRecord(
+            ChanceSource.FREE_KICK,
+            raw_outcome=1,
+            player_side=1,
+            player_index=5,
+        )
+        booking = IncidentRecord(IncidentKind.BOOKED, 1, 2)
+
+        self.assertIs(
+            fastview_semantic_event(goal),
+            FastViewSemanticEvent.PLAYER_GOAL,
+        )
+        self.assertEqual(
+            FastViewSemanticEvent.PLAYER_GOAL.value,
+            "EventPlayerGoal",
+        )
+        self.assertIs(
+            fastview_semantic_event(own_goal),
+            FastViewSemanticEvent.PLAYER_OWN_GOAL,
+        )
+        self.assertEqual(
+            FastViewSemanticEvent.PLAYER_OWN_GOAL.value,
+            "EventPlayerOwnGoal",
+        )
+        self.assertIsNone(fastview_semantic_event(miss))
+        self.assertIsNone(fastview_semantic_event(booking))
+        self.assertIs(
+            fastview_semantic_event(SubstitutionRecord(1, 9, 14)),
+            FastViewSemanticEvent.SUBSTITUTION,
+        )
+        self.assertIs(
+            fastview_semantic_event(BoundaryRecord(BoundaryType.HALF_TIME)),
+            FastViewSemanticEvent.HALF_TIME,
+        )
+        self.assertIs(
+            fastview_semantic_event(BoundaryRecord(BoundaryType.FULL_TIME)),
+            FastViewSemanticEvent.FULL_TIME,
+        )
+        self.assertIs(
+            fastview_semantic_event(BoundaryRecord(BoundaryType.EXTRA_TIME)),
+            FastViewSemanticEvent.EXTRA_TIME,
+        )
+        self.assertIs(
+            fastview_semantic_event(BoundaryRecord(BoundaryType.PENALTIES)),
+            FastViewSemanticEvent.PENALTIES,
+        )
+
+    def test_feed_carries_fastview_semantics_without_changing_records(self):
+        goal = ChanceRecord(
+            ChanceSource.OPEN_PLAY,
+            raw_outcome=0,
+            player_side=0,
+            player_index=4,
+        )
+        miss = ChanceRecord(
+            ChanceSource.CORNER,
+            raw_outcome=2,
+            player_side=1,
+            player_index=7,
+        )
+        full_time = BoundaryRecord(BoundaryType.FULL_TIME)
+        feed = build_match_presentation_feed((
+            TimedMatchEvent(12, goal),
+            TimedMatchEvent(25, miss),
+            TimedMatchEvent(90, full_time),
+        ))
+        self.assertEqual(
+            [item.fastview_event for item in feed.events],
+            [
+                FastViewSemanticEvent.PLAYER_GOAL,
+                None,
+                FastViewSemanticEvent.FULL_TIME,
+            ],
+        )
+        self.assertIs(feed.events[0].event, goal)
+        self.assertIs(feed.events[1].event, miss)
+        self.assertIs(feed.events[2].event, full_time)
+
     def test_possession_records_are_projected_without_recalculation(self):
         first = PossessionRecord(territory=55, side0_percent=40, neutral_percent=20)
         second = PossessionRecord(territory=35, side0_percent=30, neutral_percent=10)
@@ -74,6 +168,12 @@ class MatchPresentationFeedTests(unittest.TestCase):
         )
         self.assertIs(feed.possession_segments[0].record, first)
         self.assertIs(feed.possession_segments[1].record, second)
+        self.assertTrue(
+            all(
+                item.fastview_event is FastViewSemanticEvent.POSSESSION
+                for item in feed.possession_segments
+            )
+        )
 
     def test_projection_rejects_reordered_or_invalid_inputs_instead_of_sorting_them(self):
         event = BoundaryRecord(BoundaryType.HALF_TIME)
