@@ -49,8 +49,11 @@ semantic FastView feed. Full reconstruction CI run `37021083056` passed
 **1,393 tests with 22 expected skips**; asset-policy run `37021083395`
 passed.
 
-Recovery 184 adds the next deliberately narrow shell in
-`reconstruction/fastview_semantic_shell.py`. It is based only on persisted
+PR #133 merged the next deliberately narrow shell as
+`c1ea9ecd5e6bd50622cff4f2236d34ea6cb8cab3`.
+Full reconstruction CI run `37022409513` passed **1,397 tests with 22
+expected skips**; asset-policy run `37022409837` passed. The shell lives in
+`reconstruction/fastview_semantic_shell.py` and is based only on persisted
 original component evidence:
 
 - `FastViewPanel` exists as the semantic event receiver/presenter layer;
@@ -68,6 +71,24 @@ This is not yet the original visual FastView screen. Exact panel geometry,
 side-0 screen orientation, commentary, audio mapping, territorial
 left/middle/right thresholds and 3D choreography remain explicitly unrecovered
 and are not synthesized by this layer.
+
+Recovery 184 now adds
+`reconstruction/gate14_fastview_resource_catalog.py` as the deterministic
+bridge from persisted executable asset names to exact source-disc paths. The
+target set is deliberately limited to the already-evidenced smallest visual
+family:
+
+- `PossessionFigures`: `team_bar_1.444`, `blank_bar.444`,
+  `team_bar_2.444`;
+- `PossessionDiagram`: `pitch_left.444`, `pitch_middle.444`,
+  `pitch_right.444`, `pitch_normal.444`.
+
+The resolver scans a saved full-disc inventory by exact case-insensitive
+basename. It publishes a source path only when exactly one catalog entry
+matches, carries an already-proven SHA-256 when available, and fails closed on
+missing or ambiguous basenames. It explicitly leaves layout geometry, side-0
+screen orientation and territorial thresholds unrecovered. No directory path
+is inferred from the executable filename alone.
 
 ### Startup FMVs
 
@@ -140,13 +161,13 @@ must wait for either:
 
 ## Exact next cloud-safe task
 
-Verify the Recovery-184 semantic shell through CI, then trace the smallest
-source-backed FastView visual/resource family needed to turn the shell into a
-player-visible presentation without inventing layout. The persisted
-`PossessionFigures` assets (`team_bar_1.444`, `blank_bar.444`,
-`team_bar_2.444`) and `PossessionDiagram` pitch assets are the current
-resource leads, but their exact source paths/geometry and side orientation must
-be proven before integration.
+Verify the Recovery-184 FastView resource resolver through CI. With the current
+process-start sandbox failure, fresh private execution is still required to run
+the saved full-disc catalog through that resolver and to trace the exact
+PossessionFigures/PossessionDiagram geometry. Do not import or place those
+assets before both the unique source paths and placement semantics are proven.
 
-If private execution recovers first, prioritize the exact sound-bank inventory
-and the concrete front-end UI/sound callback resource binding.
+Until that private execution path recovers, continue independent later-gate
+cloud-safe testing or release-audit work under the deferred-blocker policy.
+Gate 13 remains the earliest incomplete validation gate and Gate 14 remains
+work-ahead, not passed.
