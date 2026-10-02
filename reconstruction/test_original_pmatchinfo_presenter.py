@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from dataclasses import replace
 
 from ea444_decoder import EA444DecodedImage
 from original_pmatchinfo_art import (
@@ -150,15 +151,20 @@ class OriginalPMatchInfoPresenterTests(unittest.TestCase):
         self.assertEqual((far_edge.x, far_edge.y), (39, 99))
 
     def test_popup_art_fails_closed_without_exact_dialog_background(self):
-        decoded = self.staged()
-        decoded.pop("info_popup")
-        snapshot = build_staged_pmatchinfo_snapshot(decoded)
+        snapshot = build_staged_pmatchinfo_snapshot(
+            self.staged(),
+            require_complete_dialog=True,
+        )
+        incomplete = replace(
+            snapshot,
+            complete_dialog_background_available=False,
+        )
         with self.assertRaisesRegex(
             OriginalPMatchInfoArtError,
             "exact info_popup",
         ):
             build_pmatchinfo_popup_art(
-                snapshot,
+                incomplete,
                 pointer_x=400,
                 pointer_y=300,
             )
