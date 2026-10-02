@@ -1346,8 +1346,8 @@
   "gate13_league_tables_tertiary_selector_count": 2,
   "gate13_league_tables_secondary_selector_semantics_open": false,
   "gate13_league_tables_tertiary_selector_semantics_open": false,
-  "gate13_league_tables_row_presentation_open": true,
-  "gate13_league_tables_original_resources_open": true,
+  "gate13_league_tables_row_presentation_open": false,
+  "gate13_league_tables_original_resources_open": false,
   "gate13_league_tables_division_selector_source_proven": true,
   "gate13_league_tables_division_header": "DIVISION",
   "gate13_league_tables_division_event_range": [
@@ -1368,5 +1368,54 @@
     15
   ],
   "gate13_league_tables_sort_state_offset": "0x98",
-  "gate13_league_tables_sort_default_state": 0
+  "gate13_league_tables_sort_default_state": 0,
+  "gate13_league_tables_list_source_proven": true,
+  "gate13_league_tables_list_class": "CLeagueTableList",
+  "gate13_league_tables_list_type_descriptor": "0x81B478",
+  "gate13_league_tables_list_vftable": "0x7C011C",
+  "gate13_league_tables_list_rect": [
+    270,
+    184,
+    477,
+    384
+  ],
+  "gate13_league_tables_list_row_capacity": 24,
+  "gate13_league_tables_list_row_step": 16,
+  "gate13_league_tables_row_source_proven": true,
+  "gate13_league_tables_row_class": "PLeagueTableRow",
+  "gate13_league_tables_row_type_descriptor": "0x81B378",
+  "gate13_league_tables_row_vftable": "0x7BFEC0",
+  "gate13_league_tables_row_alloc_size": 1192,
+  "gate13_league_tables_row_column_labels": [
+    "P",
+    "W",
+    "D",
+    "L",
+    "F",
+    "A",
+    "Pts"
+  ],
+  "gate13_league_tables_row_source_offsets": [
+    "0x10",
+    "0x14",
+    "0x18",
+    "0x1C",
+    "0x20",
+    "0x24"
+  ],
+  "gate13_league_tables_points_formula": "3*field_0x14 + field_0x18",
+  "gate13_league_tables_resource_family_source_proven": true,
+  "gate13_league_tables_resource_count": 15,
+  "gate13_league_tables_resource_loader_range": [
+    "0x5F7870",
+    "0x5F80C0"
+  ],
+  "gate13_league_tables_league_bar_rect": [
+    270,
+    152,
+    475,
+    19
+  ],
+  "gate13_league_tables_integration_open": true,
+  "gate13_league_tables_windows_validation_open": true
 }
