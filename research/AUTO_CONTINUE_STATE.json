@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 186: PR #136 reconciles stale Gate 16/17 work-ahead status and records the renewed Gate 14 private-process blocker. Reconstruction workflow 37033405890 is running on head cb5dabc3591594308fbfa2b47626d1902b7589f1. Merge only if verification passes, then advance to the next highest-priority cloud-safe task while Gate 13 remains pending real-Windows schema-8.",
-  "last_known_main_head": "10cbd543ca3f1172f9326c13e4450573e5f53418",
+  "active_task": "Recovery 186: PR #136 merged as 66fda45f07d8df50dea71303ff0e26348d9e3651 after workflow 37033405890 passed 1,410 tests with 22 expected skips. Gate 13 remains pending the real-Windows schema-8 receipt. Audit Gate 15/FIDELITY_GAPS against later verified work and reconcile only evidence-backed stale entries; continue cloud-safe work without closing Gate 13.",
+  "last_known_main_head": "66fda45f07d8df50dea71303ff0e26348d9e3651",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 186,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 186 heartbeat: source ZIP materialized but CAAS process start failed again; no FastView geometry/path inference. PR #136 is the active verified cloud-safe checkpoint.",
+  "note": "Recovery 186 main checkpoint merged. Private process execution remains blocked after source ZIP materialization, so FastView path/geometry stays unclaimed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
