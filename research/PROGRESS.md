@@ -10405,3 +10405,39 @@ work may continue under the deferred-blocker policy.
   hosting a Cup match also uses 0.9.
 - Corrected the ordinary PL constant and Cup host-league adapter; CI verification
   is pending on the active branch.
+
+
+### Recovery 187 - exact DBRClub +0x1ED permanent-arrival counter lifecycle
+
+- Resumed from canonical main `948aa5193ab9a1003a7a640e93eca91b1dfee126`
+  after PR #142 had already closed the autonomous contract-category source and
+  corrected Premier League FanFactor to 0.9.
+- Reconciled the runtime handoff and followed the next Gate-15 slice: exact club
+  buy-counter ownership/reset semantics.
+- Source-backed executable evidence proves the weekly buyer gate reads
+  **DBRClub +0x1ED** for both shipped `MaxPlayersBuyMonthly` and
+  `MaxPlayersBuySeason` comparisons.
+- Shared permanent assignment `0x422F70` increments +0x1ED for every completed
+  permanent arrival. Ordinary scheduled transfers and autonomous acquisitions
+  therefore share one counter; the former autonomous-only increment was removed.
+- The executable also increments adjacent byte **+0x1EE**, but shipped
+  `0x403E70` still reads +0x1ED for both configured limits. The reconstruction
+  deliberately preserves that original quirk rather than silently substituting
+  +0x1EE into the season-threshold check.
+- First-of-month clearing is now placed after the same date's transfer/payroll
+  and Saturday autonomous-acquisition maintenance. A regression on
+  **1 July 2000**, which is a Saturday, proves a same-day acquisition increments
+  the old +0x1ED value before the later monthly clear leaves the new-month value
+  at zero.
+- Scheduled-transfer regression coverage proves a normal permanent transfer
+  increments the same destination counter, while an insufficient-funds block
+  does not.
+- The existing schema-34 internal-save field already persists this byte, so no
+  save-schema change is required.
+- The separate due-transfer-vs-fixture same-day ordering remains open: persisted
+  evidence proves the MPM execution path and calendar maintenance phases, but
+  does not yet lock the exact fixture/MPM handoff, so no ordering claim was
+  invented.
+- PR #145 carries the implementation and fidelity-ledger reconciliation.
+  Repository asset policy passed on the current branch head; full reconstruction
+  CI remains the merge gate.
