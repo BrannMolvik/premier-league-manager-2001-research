@@ -9663,3 +9663,36 @@ uses the host club's `+0x10/+0x14` league/country pair with this same
 `+0x48` subset. Premier League is therefore FanFactor1 = **0.9**, and Cup
 attendance derives the factor from the host club's league rather than the Cup
 root itself.
+
+
+## Gate 15 DBRClub +0x1ED permanent-arrival counter lifecycle
+
+A direct canonical-executable recheck closes the remaining buyer-counter
+lifecycle that had been left neutral in the Gate-9 implementation.
+
+The lower-level permanent club-assignment path at `0x422F70` increments the
+destination club's byte at **DBRClub +0x1ED**. Because ordinary scheduled
+transfers and the autonomous `0x41EFB0` acquisition both converge on this
+same assignment path, +0x1ED counts **all completed permanent arrivals** at the
+club. It is not an autonomous-transfer-only counter. Loan assignment remains a
+separate path and does not use this permanent-arrival update.
+
+The executable also increments the adjacent byte at **+0x1EE** as a
+season-oriented arrival count. However, the shipped `0x403E70` buyer
+eligibility code reads **+0x1ED for both configured limits**:
+`MaxPlayersBuyMonthly` and `MaxPlayersBuySeason`. The reconstruction
+preserves that original shipped quirk rather than silently substituting +0x1EE
+for the second comparison.
+
+The first-of-month maintenance clears +0x1ED only **after** the same date's
+global transfer/payroll block, including the Saturday autonomous-acquisition
+pass when day 1 falls on Saturday. Therefore a permanent arrival completed on
+the first of a month increments the old counter first; the later monthly clear
+then leaves +0x1ED at zero for the new month.
+
+The clean runtime now models this with its persisted historical
+`ai_transfer_buy_counter` map: the increment lives in the shared permanent
+completion helper, the former autonomous-only duplicate increment is removed,
+and all reconstructed daily execution routes clear the counter at the
+post-transfer first-of-month boundary. No separate live +0x1EE state is
+invented because the recovered shipped buyer gate does not consume it.
