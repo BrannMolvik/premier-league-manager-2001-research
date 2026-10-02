@@ -4,8 +4,8 @@
   "runtime_branch": "agent-runtime",
   "main_branch": "main",
   "enabled": true,
-  "mode": "manual",
-  "status": "paused",
+  "mode": "continuous",
+  "status": "working",
   "work_owner": "codex",
   "active_gate": 13,
   "active_task": "Codex/local Windows handoff from canonical main 8351de99dccd2ef7004637efcb425ac931823b56. Continue Gate 13 private/local queue: trace exact PMenu label origin/clipping and accepted-control event semantics from the canonical executable; integrate only source-proven pointer/keyboard equivalence while preserving the current non-activating Tk boundary otherwise; extend the real-Windows audit through the source-accepted PMenu route and obtain a fresh Windows 11 receipt; then continue the minimum Squad -> League Fixtures/PMatchInfo -> League Tables visual loop. Do not close Gate 13 until its ROADMAP criteria pass.",
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 175,
+  "recovery_generation": 176,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "User asked ChatGPT to stop at the next checkpoint so Codex can take work. Recovery 175 checkpoint is complete: PR #110 merged as 3401944..., PR #111 merged as 9e8f7a1..., canonical state/progress/project_status reconciled through main 8351de99.... Gate13/full reconstruction/asset-policy CI passed on PR #111 head 776b1040.... Automatic ChatGPT recovery is paused/manual to avoid competing with Codex.",
+  "note": "User explicitly resumed the local/private Codex worker. Recovery 176 is active from canonical main 8351de99dccd2ef7004637efcb425ac931823b56. Codex owns the private PMenu text-origin/clipping and source control-acceptance traces plus the real-Windows audit queue; ChatGPT must not race this work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
