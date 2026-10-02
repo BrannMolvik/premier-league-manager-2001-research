@@ -79,6 +79,8 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
                     return_value={
                         "platform": "Windows-11-10.0.26200",
                         "windows_build": 26200,
+                        "windows_11": True,
+                        "windows_product_type": 1,
                     },
                 ),
                 patch(
@@ -105,6 +107,7 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
             self.assertEqual(payload["validated_payload_file_count"], 2)
             self.assertEqual(payload["package_smoke_returncode"], 0)
             self.assertEqual(payload["windows_build"], 26200)
+            self.assertEqual(payload["windows_product_type"], 1)
             self.assertTrue(Path(payload["package_root"]).is_relative_to(install.resolve()))
             runner.assert_called_once()
             args, kwargs = runner.call_args
