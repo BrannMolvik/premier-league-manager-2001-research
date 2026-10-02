@@ -7,6 +7,7 @@ from fm2001_data import FM2001Database, PLAYER_SKILLS
 from human_gameplay import HumanGameplayController
 from gate13_management_source_data import ManagementSourceDataBridge, ManagementPresentationError
 from original_league_tables_presenter import build_league_tables_snapshot, OriginalLeagueTablesPresentationError
+from original_game_host import run_original_game_ui
 from internal_save import load_human_gameplay, save_human_gameplay
 from match_team_setup import TeamTacticalState
 
@@ -661,6 +662,17 @@ def choose_dir() -> Path | None:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('game_dir', nargs='?', default=str(DEFAULT_GAME_DIR))
+    ap.add_argument(
+        '--prototype-ui',
+        action='store_true',
+        help='Open the legacy development notebook instead of the source-backed FM2001 host.',
+    )
+    ap.add_argument(
+        '--source-root',
+        type=Path,
+        default=None,
+        help='Override the verified original_assets/source root used by the source-backed host.',
+    )
     args = ap.parse_args()
     game_dir = Path(args.game_dir)
     if not (game_dir / 'Master.dat').exists():
@@ -668,7 +680,10 @@ def main():
         if game_dir is None:
             return
     try:
-        App(game_dir).mainloop()
+        if args.prototype_ui:
+            App(game_dir).mainloop()
+        else:
+            run_original_game_ui(game_dir, source_root=args.source_root)
     except Exception as exc:
         root = tk.Tk()
         root.withdraw()
