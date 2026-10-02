@@ -25,6 +25,7 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 196 FastView possession assets / text geometry in progress:** the four source-closed PossessionDiagram EA444 files are staged byte-identically under `original_assets/source/FM2001_Art/FastView/` on branch `recovery196/gate14-possession-assets`. Exact base/overlay rectangles are encoded through a fail-closed resource validator. Fresh source tracing also closes PossessionFigures percentage rectangles: side 1 left (311,181)-(351,199), neutral center (382,181)-(422,199), side 0 right (454,181)-(494,199). User-side orientation and diagram cadence remain unclaimed. Verify PR CI, merge only if green, then trace the three 82x16 PossessionFigures bar placements/bindings.
 - **Recovery 182 bounded Squad view transition is canonical:** PR #126
   squash-merged as `9b31feb05f4c6e239eb4c96288375217165a484e`.
   `OriginalManagementPresenter` now carries the exact source-proven
