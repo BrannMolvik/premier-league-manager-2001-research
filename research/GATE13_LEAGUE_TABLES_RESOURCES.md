@@ -158,3 +158,137 @@ Still open after this continuation:
 2. exact row geometry and native row ordering/sort projection;
 3. original League Tables graphic-resource ownership;
 4. reconstructed presentation integration and corrected Windows validation.
+
+
+## Recovery 162 table body, row projection and original graphics
+
+Recovery 162 continues from the selector/header shell into the concrete table
+body. All findings below were reread from canonical
+`footballmanager.exe` SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+and the authorized raw-disc resources.
+
+### Concrete list and row RTTI
+
+The object at `PLeagueTables+0x9BC` is not another header control.
+
+- class: **`CLeagueTableList`**
+- TypeDescriptor: `0x81B478`
+- Complete Object Locator: `0x7E1520`
+- vtable: `0x7C011C`
+- setup wrapper: `0x4477E0`
+- generic list setup: `0x6510F0`
+- row factory: `0x447820`
+
+Its exact local rectangle is **`(270,184,477,384)`**. The setup supplies a
+native capacity of **24 rows**, row step **16 pixels**, and an additional source
+value **8** that remains neutral rather than being given an invented modern
+meaning.
+
+The row factory allocates `0x4A8` bytes and constructs:
+
+- class: **`PLeagueTableRow`**
+- TypeDescriptor: `0x81B378`
+- Complete Object Locator: `0x7E1398`
+- vtable: `0x7BFEC0`
+- visible setup: `0x446930`
+
+The factory stops when the requested source index reaches the source count at
+the owning presentation object. In source sort state 0 it prepares ordering
+through `0x4F4940`; the alternate state uses `0x4F4A10`. The prepared row
+pointer comes from source array `+0x34`.
+
+### Exact row child layout and visible projection
+
+Each row owns 12 children. The source row pointer is retained at row `+0x70`;
+its source rank/order value `+0x28` is copied to row `+0xC4`.
+
+Visible local text rectangles:
+
+| Visible field | row control | exact local rect |
+| --- | ---: | --- |
+| rank/order value | `+0x160` | `(23,1,21,12)` |
+| source name string | `+0x1C0` | `(46,1,214,12)` |
+| P | `+0x208` | `(262,1,27,12)` |
+| W | `+0x268` | `(291,1,27,12)` |
+| D | `+0x2C8` | `(320,1,27,12)` |
+| L | `+0x328` | `(349,1,27,12)` |
+| F | `+0x388` | `(378,1,27,12)` |
+| A | `+0x3E8` | `(407,1,27,12)` |
+| Pts | `+0x448` | `(436,1,27,12)` |
+
+Adding list x=270 aligns the seven stat columns exactly under the recovered
+header band at x=532, 561, 590, 619, 648, 677 and 706.
+
+The source data projection is also exact:
+
+- **P** <- source row `+0x10`
+- **W** <- `+0x14`
+- **D** <- `+0x18`
+- **L** <- `+0x1C`
+- **F** <- `+0x20`
+- **A** <- `+0x24`
+- **Pts** <- **`3 * (+0x14) + (+0x18)`**
+
+The P/W/D/L/F/A/Pts names are not inferred from modern football conventions:
+they are the original English header globals recovered in Recovery 161 and
+their rectangles align one-for-one with these source fields.
+
+### Exact original League Tables graphic family
+
+The static loader range `0x5F7870..0x5F80C0` owns exactly 15
+`FM2001_Art/Generic/league_tables/*.444` resources used by the table/header
+presentation.
+
+| Resource | exact size | bytes | raw / wrapper |
+| --- | --- | ---: | --- |
+| `champion_grid.444` | 477x14 | 8512 | `0x944F10 / 0x944EF0` |
+| `promotion_grid.444` | 477x14 | 7096 | `0x944ED0 / 0x944EB0` |
+| `relegation_grid.444` | 477x14 | 7288 | `0x944E90 / 0x944E70` |
+| `standard_grid.444` | 477x14 | 7304 | `0x944E50 / 0x944E30` |
+| `your_team_grid.444` | 477x14 | 8068 | `0x944E10 / 0x944DF0` |
+| `playoff_grid.444` | 477x14 | 7068 | `0x944DD0 / 0x944DB0` |
+| `champion_icon.444` | 20x12 | 688 | `0x944D90 / 0x944D70` |
+| `promotion_icon.444` | 20x12 | 512 | `0x944D50 / 0x944D30` |
+| `relegation_icon.444` | 20x12 | 644 | `0x944D10 / 0x944CF0` |
+| `playoff_icon.444` | 20x12 | 552 | `0x944CD0 / 0x944CB0` |
+| `your_champion_icon.444` | 20x12 | 576 | `0x944C90 / 0x944C70` |
+| `your_promotion_icon.444` | 20x12 | 488 | `0x944C50 / 0x944C30` |
+| `your_relegation_icon.444` | 20x12 | 492 | `0x944C10 / 0x944BF0` |
+| `your_playoff_icon.444` | 20x12 | 552 | `0x944BD0 / 0x944BB0` |
+| `league_bar.444` | 475x19 | 5552 | `0x944B90 / 0x944B70` |
+
+Every file was freshly reread from the raw disc and its SHA-256 is persisted in
+`LEAGUE_TABLES_RESOURCES`.
+
+The row starts from `standard_grid`. Source position thresholds select
+`champion_grid`, `promotion_grid`, `relegation_grid`, or `playoff_grid`;
+a separately recovered source byte from helper `0x4037B0` selects the paired
+normal versus `your_*` icon variant and can replace the grid with
+`your_team_grid`. The backing source byte remains neutrally named until its
+higher-level identity is independently proven.
+
+The header band additionally binds `league_bar.444` at object `+0x788` with
+exact local rectangle **`(270,152,475,19)`**.
+
+### Boundary after Recovery 162
+
+Closed here:
+
+1. concrete League Tables body/list and row RTTI;
+2. 24-row native capacity, 16-pixel row step and exact body rectangle;
+3. exact rank/name/seven-stat row geometry;
+4. exact source fields for P/W/D/L/F/A and original points arithmetic;
+5. source position/current-form preparation boundary;
+6. all 15 original League Tables graphics with fresh hash/size/geometry and
+   raw/wrapper ownership;
+7. source grid/icon selection family without inventing the remaining neutral
+   helper-byte meaning.
+
+Still open:
+
+1. reconstructed League Tables presentation integration using this contract;
+2. safe import/staging of the exact original table binaries where required;
+3. corrected real-Windows/Tk graphical validation;
+4. broader Gate-13 management/tactics presentation gaps after League Tables
+   integration.
