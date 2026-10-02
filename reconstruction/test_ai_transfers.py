@@ -261,6 +261,63 @@ class WeeklyAiTransferTests(unittest.TestCase):
         self.assertEqual(len(state.transfers.movements), 1)
         self.assertEqual(state.transfers.movements[0].player_id, 20)
 
+    def test_first_of_month_counter_reset_runs_after_same_day_saturday_buy(self):
+        source = build_state(date(2000, 6, 30))
+        source.ai_transfer_buy_counter[1] = 2
+        rng = ScriptedRng([3, 1, 0, 0, 0, 0, 0])
+        state = GameState(
+            calendar=source.calendar,
+            players=source.players,
+            club_roster_order=source.club_roster_order,
+            clubs=source.clubs,
+            managers=source.managers,
+            competitions=source.competitions,
+            countries=source.countries,
+            positions=source.positions,
+            access_fan_bases=source.access_fan_bases,
+            access_skill_financial_values=source.access_skill_financial_values,
+            transfers=source.transfers,
+            ai_transfer_startup_roster_count=source.ai_transfer_startup_roster_count,
+            ai_transfer_buy_counter=source.ai_transfer_buy_counter,
+            country_transfer_window_open=source.country_transfer_window_open,
+            rng=rng,
+        )
+
+        # 1 July 2000 is Saturday. The transfer increments +0x1ED from 2 to 3
+        # first, then the day-1 monthly clear runs, so the observable end state
+        # is zero. An early monthly-hook reset would incorrectly leave one.
+        self.assertEqual(state.advance_one_day(), date(2000, 7, 1))
+        self.assertEqual(state.players[20].club_id, 1)
+        self.assertEqual(len(state.transfers.movements), 1)
+        self.assertEqual(state.ai_transfer_buy_counter[1], 0)
+
+    def test_first_of_month_counter_reset_also_runs_without_saturday_transfer(self):
+        source = build_state(date(2000, 9, 30))
+        source.ai_transfer_buy_counter[1] = 3
+        rng = ScriptedRng([])
+        state = GameState(
+            calendar=source.calendar,
+            players=source.players,
+            club_roster_order=source.club_roster_order,
+            clubs=source.clubs,
+            managers=source.managers,
+            competitions=source.competitions,
+            countries=source.countries,
+            positions=source.positions,
+            access_fan_bases=source.access_fan_bases,
+            access_skill_financial_values=source.access_skill_financial_values,
+            transfers=source.transfers,
+            ai_transfer_startup_roster_count=source.ai_transfer_startup_roster_count,
+            ai_transfer_buy_counter=source.ai_transfer_buy_counter,
+            country_transfer_window_open=source.country_transfer_window_open,
+            rng=rng,
+        )
+
+        self.assertEqual(state.advance_one_day(), date(2000, 10, 1))
+        self.assertEqual(state.ai_transfer_buy_counter[1], 0)
+        self.assertEqual(state.transfers.movements, [])
+        self.assertEqual(rng.bounds, [])
+
     def test_non_saturday_consumes_no_rng(self):
         state = build_state(date(2000, 8, 18))
         rng = ScriptedRng([])
