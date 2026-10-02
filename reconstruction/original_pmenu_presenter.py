@@ -146,3 +146,45 @@ def build_fresh_pmenu_snapshot() -> OriginalPMenuSnapshot:
     if snapshot.selected_root_id != PMENU_FRESH_SELECTED_ROOT_ID:
         raise OriginalPMenuPresentationError("Fresh PMenu root identity mismatch")
     return snapshot
+
+
+def candidate_pmenu_row_at_screen_point(
+    snapshot: OriginalPMenuSnapshot,
+    x: int,
+    y: int,
+) -> OriginalPMenuVisibleRow | None:
+    """Return the visible native row containing one screen-space point.
+
+    This is geometry only. Recovery 166 proves the list origin, width, row
+    step, visible row order and each emitted row's 29-pixel extent, but the
+    repository does not yet prove that pointer containment alone activates a
+    row or changes PMenu selection. Callers must therefore treat the result as
+    a candidate row and must not dispatch its menu ID without separate
+    executable-backed event evidence.
+    """
+    if not isinstance(snapshot, OriginalPMenuSnapshot):
+        raise OriginalPMenuPresentationError(
+            "PMenu pointer lookup requires an OriginalPMenuSnapshot"
+        )
+    if type(x) is not int or type(y) is not int:
+        raise OriginalPMenuPresentationError(
+            "PMenu pointer coordinates must be integers"
+        )
+
+    origin_x, origin_y = snapshot.list_screen_origin
+    width, height = snapshot.list_size
+    if not (
+        origin_x <= x < origin_x + width
+        and origin_y <= y < origin_y + height
+    ):
+        return None
+
+    local_y = y - origin_y
+    visible_index = local_y // snapshot.row_step
+    if not 0 <= visible_index < len(snapshot.rows):
+        return None
+
+    row = snapshot.rows[visible_index]
+    if not row.y <= local_y < row.y + row.height:
+        return None
+    return row
