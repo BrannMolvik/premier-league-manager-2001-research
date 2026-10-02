@@ -25,6 +25,44 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 179 live PMenu pixels are canonical:** PR #114 squash-merged as
+  `57e334208dbad69127d5a173caf23d511971066e`. The default clean MANAGEMENT
+  host now composes the four checksum-gated original PMenu row atlases with the
+  exact recovered title/child Zurich fonts, line origins, clipping, static
+  background/arrow state and black/white label endpoints. It does not fill the
+  unresolved surrounding management background. Gate-13 run `36998507566`
+  passed **453 tests with 21 expected skips**, full reconstruction run
+  `36998507518` passed **1,363 tests with 22 expected skips**, and asset
+  policy `36998507581` passed.
+- **Recovery 179 League Fixtures source gap is no longer an infrastructure
+  blocker:** this worker rematerialized the canonical **511,121,336-byte**
+  authorized ZIP, reverified SHA-256 `677dcbc...a8a4`, enumerated the
+  **2,456-file** Joliet source, reverified canonical
+  `footballmanager.exe` SHA-256 `833bf95e...cc3`, and reverified all six
+  already source-bound PLeagueFixtures graphics. The current integration
+  checkpoint provenance-imports all six exact files and draws only
+  `fixtures_vert_grid.444` / `fixtures_hori_grid.444` at the already proven
+  **36 absolute placements**. The four 24x13 fixture-box resources remain
+  intentionally unrendered until their screen-pixel placement is source-closed.
+- **Current native/background boundary:** process execution works in this
+  recovery. A bounded recheck of the PMenu application owner at `0x4C2FB0`
+  confirms PMenu construction/placement at **(599,96,201,504)** without a new
+  direct PMenu-specific image binding. This does not prove the wider management
+  screen has no background. The startup `bground.444` remains ineligible as a
+  management substitute because persisted ownership evidence binds it to the
+  startup/front-end path.
+- **Windows validation boundary:** schema 7 remains the last real-Windows
+  receipt and proves the ordinary pointer route. The repository contract is now
+  schema **8** for live PMenu PhotoImages; a fresh real-Windows schema-8 run is
+  required after the representative management visual loop is integrated.
+- **Exact next task:** finish/verify the League Fixtures grid checkpoint, then
+  compose the smallest source-backed fresh Squad/tactics slice, expose and
+  render the already recovered PLeagueFixtures -> PMatchInfo dialog path, and
+  add the source-backed League Tables visuals that can be selected without
+  inventing row-state semantics. Extend schema 8 with that representative
+  loop, run it on real Windows, and re-audit Gate 13. Keyboard equivalence stays
+  unproven/fail-closed and is not a Gate-13 closure requirement by itself.
+
 - **Recovery 179 PMenu static row-state propagation closed:** the canonical
   row factory maps node bit 0 through vtable `+0x4C` and inverted node bit 1
   through `+0x58`. Enabled title backgrounds stay `0x8002`/white while their
@@ -73,21 +111,10 @@ Evidence:
   action seam. Only currently visible recovered rows may dispatch; supported
   child actions route transactionally into Squad, League Fixtures and League
   Tables. Recovery 176 subsequently closed the concrete pointer-press boundary.
-- **Current ChatGPT execution blocker:** this recovery's Library lookup and
-  materialization succeeded for the canonical 511,121,336-byte source ZIP,
-  but both shell/container and independent Python process startup again failed
-  with `caas.internal.errors.ClientError`. This does not invalidate the
-  Recovery-173 executable trace already persisted on `main`; it blocks new
-  private byte tracing in this worker only.
-- **Codex handoff priority:** continue the local/private Gate-13 queue from
-  `9e8f7a18368b8ce7076126a55b2e99563197659a`: (1) trace exact PMenu label
-  origin/clipping and accepted-control event semantics from the canonical
-  executable; (2) if source evidence proves native pointer/keyboard acceptance,
-  integrate that equivalence without weakening the current fail-closed Tk
-  boundary; (3) extend the real-Windows audit through the newly integrated
-  PMenu action route and obtain a fresh Windows 11 receipt; (4) continue the
-  smallest source-backed Squad -> League Fixtures/PMatchInfo -> League Tables
-  visual loop. Do not close Gate 13 until the ROADMAP criteria are audited.
+- **Superseded worker blocker:** the earlier ChatGPT process-start failure is
+  historical. Recovery 179 has working container execution and successfully
+  recovered/rehashed the authorized source. Do not treat the old ClientError
+  note as a current blocker.
 - **Recovery 175 schema-6 Windows audit contract merged:** PR #112
   squash-merged as `f6995c0e6b90c9e06a7d6309c7ffb2e49f26f376`.
   Gate-13 run `36987669876` passed **442 tests with 21 expected skips**
