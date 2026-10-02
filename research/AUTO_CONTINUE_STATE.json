@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 161 merged PR #94 as 3c19c4fff22cc397fe3728e8f6e21fc7896075e0 after Gate-13 run 36945086191 passed 371 tests with 21 expected skips and asset-policy run 36945086177 passed. Exact task: trace PLeagueTables row/display controls at object +0x7BC..+0x9BC, exact visible row geometry/order and source graphic ownership; persist a bounded source-backed checkpoint, then continue Gate-13 closure.",
+  "active_task": "Recovery 162 checkpoint is PR #95 on feature/gate13-league-tables-rows, head 48075e1f5e5a007b7a4937eaebceac7868cd667c. Source-bound CLeagueTableList/PLeagueTableRow, 24x16 native row layout, exact P/W/D/L/F/A/Pts field projection with Pts=3*W+D, and all 15 original league_tables graphics. Validate/merge PR #95, then integrate this contract through the Gate-13 presentation seam without simulation imports and continue the next canonical presentation gap / Windows validation work.",
   "last_known_main_head": "3c19c4fff22cc397fe3728e8f6e21fc7896075e0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 162,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Do not redo merged PMatchInfo or League Tables selector/header work. Windows/Tk private-source audit and several binary imports remain deferred blockers, not substitutes for cloud-safe source recovery.",
+  "note": "Recovery 162 source checkpoint persisted; do not redo row/resource tracing. PR #95 CI is the immediate validation boundary.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
