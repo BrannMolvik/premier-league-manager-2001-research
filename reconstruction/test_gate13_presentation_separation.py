@@ -108,6 +108,21 @@ class Gate13PresentationSeparationAuditTests(unittest.TestCase):
         self.assertEqual(modules & forbidden, set())
         self.assertIn("original_league_tables_resources", modules)
 
+    def test_squad_presenter_has_no_simulation_imports(self):
+        modules = set(top_level_import_modules("original_squad_presenter.py"))
+        forbidden = {
+            "human_gameplay",
+            "game_state",
+            "competition_state",
+            "match_calculator",
+            "match_role_rating",
+            "transfer_state",
+            "finance_state",
+            "runtime_state",
+        }
+        self.assertEqual(modules & forbidden, set())
+        self.assertIn("original_squad_resources", modules)
+
     def test_management_projection_is_backend_type_agnostic_and_read_only(self):
         # The management bridge intentionally accepts a controller by duck
         # typing and imports no simulation package. This prevents presentation

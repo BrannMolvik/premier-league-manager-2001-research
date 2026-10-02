@@ -5,6 +5,7 @@ from datetime import date, timedelta
 from typing import Protocol, Sequence
 
 from match_schedule import BoundedRng
+from match_role_rating import role_rating
 from player_contract import contract_expiry_from_month_span, initial_weekly_wage
 
 from player_development import (
@@ -426,6 +427,14 @@ class RuntimePlayer:
             raise ValueError("invalid match performance history state")
         index = (int(self.match_performance_history_write_index) - 1) % 6
         return int(self.match_performance_history[index]) & 0xFF
+
+    def current_role_rating(self) -> int:
+        """Expose the exact 0x41C7E0 rating for the currently assigned role."""
+        return role_rating(
+            self.skills,
+            int(self.current_position),
+            self.preferred_positions,
+        )
 
     def assign_match_position(self, role: int, auxiliary_code: int) -> None:
         """Mirror the low-bit writes of 0x4EA330 / 0x4EA350."""

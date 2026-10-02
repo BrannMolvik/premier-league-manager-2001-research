@@ -210,3 +210,27 @@ remaining TeamSelect native hierarchy input/state mapping. Continue the
 management-screen correlations and presentation work only from executable,
 resource, or direct graphical evidence. Gate 13 cannot close until the real
 Windows source-backed audit passes.
+
+## Recovery 164 cloud-safe row presentation seam
+
+The already recovered row contract can now be consumed without private source
+execution through `reconstruction/original_squad_presenter.py`.
+
+The read-only management bridge exposes two values that were already
+source-reconstructed in runtime code:
+
+- the six-entry circular match-performance average used by the native
+  `PSCFRow` recent-form field;
+- the exact `0x41C7E0` rating for the player's currently assigned role.
+
+The presenter maps only the proven row fields and local geometry:
+assigned role at x=28/width 38, display name at x=76/width 144, Condition at
+x=24/width 19, recent-form average at x=47/width 19 and current-role rating at
+x=70/width 19, with the 20 native visible row origins 154..477 at 17-pixel
+steps.
+
+It deliberately leaves `club_relative_assignment` and `native_status_icon`
+unresolved at the value layer, and refuses more than one 20-row viewport.
+First/reserve membership, filtering/scrolling behavior and user-facing status
+icon meanings therefore remain source-gated rather than inferred.
+

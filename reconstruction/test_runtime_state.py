@@ -127,6 +127,25 @@ class RuntimePlayerTests(unittest.TestCase):
         self.assertEqual(player.skills, (100,) * 17)
         self.assertEqual(player.preferred_positions, (12, 18, 0))
 
+    def test_current_role_rating_uses_exact_assigned_role_helper(self):
+        subject = FakePlayer(positions=(12, 18, 0))
+        player = RuntimePlayer.from_database_player(
+            subject,
+            date(2000, 7, 1),
+            MsvcCrtRng(1),
+        )
+        from match_role_rating import role_rating
+
+        self.assertEqual(
+            player.current_role_rating(),
+            role_rating(player.skills, 12, player.preferred_positions),
+        )
+        player.assign_match_position(18, 0)
+        self.assertEqual(
+            player.current_role_rating(),
+            role_rating(player.skills, 18, player.preferred_positions),
+        )
+
     def test_match_position_assignment_and_reset_preserve_balance_code(self):
         subject = FakePlayer(positions=(12, 18, 0))
         player = RuntimePlayer.from_database_player(
