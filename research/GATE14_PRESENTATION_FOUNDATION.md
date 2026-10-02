@@ -183,6 +183,55 @@ reconstructed match state/events rather than duplicate simulation logic. The
 criterion should not be checked off until an actual player-visible match
 presentation uses this feed.
 
+## Audio and sound-bank inventory boundary
+
+Recovery 184 resumes Gate-14 work-ahead from persisted source evidence without
+assigning semantics to opaque audio banks.
+
+Confirmed evidence already in the repository:
+
+- the validated original Joliet disc contains exactly **64** `.bnk` files;
+- the canonical executable imports both **DirectSound** and **WinMM**;
+- the generic front-end `Button@ease_2001::input` path at `0x64F7A0`
+  reaches an optional global UI/sound callback through `0x984810`;
+- that callback resolves through `0x5DBFC0`, option accessor `0x515FE0`,
+  and sound/timer plumbing before the already-proven parent button action;
+- the two startup TGQs remain separately source-proven media containers with
+  embedded audio and exact startup callsites.
+
+What is **not** proven yet:
+
+- any `.bnk` filename-to-role meaning;
+- bank/sample IDs for the front-end button callback;
+- which bank, if any, owns login/menu music;
+- match-event-to-sound mappings;
+- bank format/sample codec details beyond the source family identity;
+- exact volume, mixing, repetition, stop/fade, or lifetime semantics.
+
+`reconstruction/gate14_audio_catalog.py` now reduces the complete saved source
+inventory report to only the evidence-backed audio families above. It selects
+all exact `.bnk` paths plus only `FMV/easp.tgq` and
+`FMV/premintro.tgq`, preserves size/extent and any already-proven extracted
+SHA-256, marks every bank binding as `unmapped`, rejects case-insensitive
+catalog collisions, and can require the canonical **64-bank + two-TGQ**
+shape. Its `--paths-only` output is intended to feed a later exact-path
+source extraction pass rather than broad archive dumping.
+
+The smallest defensible non-FMV integration slice is therefore the existing
+front-end **button UI sound** path, not menu music or match audio. Its trigger
+ownership is already source-backed and it sits on the live PStartMenu /
+TeamSelect interaction path. Integration must still remain blocked until a
+fresh executable trace resolves the callback arguments to an exact bank/sample
+resource. This choice deliberately avoids inventing a bank role from filenames.
+
+During Recovery 184 the canonical private Library ZIP was successfully
+re-resolved and materialized, but both trivial container and Python process
+starts failed with `caas.internal.errors.ClientError`. Source access itself is
+therefore available; only fresh byte-level execution is deferred. When process
+execution recovers, regenerate the full catalog, run the Gate-14 reducer, then
+trace `0x984810 -> 0x5DBFC0` to the exact resource binding before importing or
+playing any bank.
+
 ## Remaining Gate-14 evidence/work
 
 Still open:
