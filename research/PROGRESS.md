@@ -10196,3 +10196,27 @@ does not require those unresolved pixels.
   equivalence and run an updated real-Windows management audit. Continue
   through the source-backed Squad -> League Fixtures/PMatchInfo -> League
   Tables loop where evidence permits. Gate 13 remains active.
+
+## 2 October 2026 - Recovery 181 representative Gate 13 visual-loop checkpoint
+
+- Canonical `main` advanced through the source-backed management visual loop:
+  - League Fixtures exact grid composition: `cd4bc4b543016da4472042168fce8cb4144411b0`;
+  - fresh Squad top controls: `378aea2401f48850faa0d50550faeaeed80c1cb6`;
+  - PMatchInfo origin clamp / League Tables parent geometry: `6b26ad9caa24cf6a2725bda1536adead9d6dff8f`;
+  - League Tables `league_bar` live composition: `503af7fff0b2af35dcae988fa8e7f6d16e371221`;
+  - source-global PMatchInfo popup projection: `6711f7a85349e82ae1a013d66279babfbb99c4ea`;
+  - clean-host PMatchInfo explicit source-resolved modal seam: `f248ecaf7cae4535b78451f46dad3ac8d36646be`;
+  - panel-aware schema-8 Windows audit contract: `a5277f889e4653c464dda1d410e9febc4dbb42e1`.
+- PR #123 Gate-13 presentation run `37010700467` and asset-policy run
+  `37010700447` passed. PR #122's immediately preceding PMatchInfo host
+  checkpoint passed full reconstruction run `37009547601`.
+- Gate 13 remains active. The next cloud-safe closure slice is the smallest
+  source-accepted PSquadScreen first+formation transition from the already
+  proven controls 3/4/5 contract, without inventing top-button pointer
+  equivalence or unresolved formation/player pixels.
+- Ordinary fixture-cell -> secondary linked-context PMatchInfo opening,
+  PMatchInfo owner-local child transforms, and the application-owned
+  surrounding management background remain fail-closed.
+- Schema 7 remains the last actual real-Windows receipt. Schema 8 now covers
+  the integrated Squad -> League Fixtures -> explicit PMatchInfo -> League
+  Tables stack and requires a fresh Windows 11/Tk execution.
