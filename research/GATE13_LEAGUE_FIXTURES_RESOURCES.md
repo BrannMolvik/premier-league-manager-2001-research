@@ -717,3 +717,43 @@ Still open after Recovery 155:
 The former open item “exact semantics of action target `0x488C80`” is closed
 at the presentation/navigation level as **open original PMatchInfo dialog when
 its source-linked context resolves**.
+
+## Recovery 175 cloud-safe grid-art projection
+
+The repository-side presentation boundary now models the two League Fixtures
+bitmap families whose **screen-space setup calls are already exact**:
+
+- `fixtures_vert_grid.444`: twelve full-source bitmap placements at
+  `(378 + 29*n, 98)`, `n=0..11`;
+- `fixtures_hori_grid.444`: twenty-four full-source bitmap placements at
+  `(241, 235 + 14*n)`, `n=0..23`.
+
+`reconstruction/original_league_fixtures_art.py` validates the source file
+size/SHA-256/header, decodes the original EA444 bytes with codec tables and
+quantization recovered from the canonical executable, and emits exactly those
+36 setup placements. The original overlap is retained rather than normalized
+into a modern grid.
+
+This checkpoint deliberately **does not** place the four 24x13 fixture-box
+resources or any fixture/date/team text. Their source identities and runtime
+selection semantics are recovered, but the current persisted evidence does not
+justify inventing a screen-pixel placement/text rendering rule for them.
+
+### Current staging boundary
+
+Unlike the already imported Squad, PMenu, League Tables and consumed PMatchInfo
+families, the six League Fixtures `.444` files are not currently present under
+`original_assets/source/FM2001_Art/Generic/league_fixtures/` and have no
+rows in `original_assets/MANIFEST.md`. Repository history and the relevant
+recovery branches contain metadata/code only, not an unmerged byte-identical
+asset copy.
+
+Therefore the new loader is intentionally fail-closed in the normal repository
+until the authorized private source can be re-extracted and the exact files
+are imported through `gate13_asset_import.py` with provenance. A missing
+asset is not replaced with generated art.
+
+The current process sandbox still fails before process start with
+`caas.internal.errors.ClientError`, so the already documented private
+Library source cannot be extracted in this worker. This is an infrastructure
+blocker, not a user-action blocker.
