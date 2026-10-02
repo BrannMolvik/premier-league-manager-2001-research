@@ -193,3 +193,19 @@ class OriginalFirstScreenPresenter:
     def choose_club(self, club_id: int) -> None:
         """Developer-only explicit single-club compatibility selection."""
         self.session.choose_club(club_id)
+
+    def fresh_management_snapshot(self, *, bridge_factory=None):
+        """Enter the source-backed fresh PMenu -> PSquadScreen composition.
+
+        Import lazily so the original first-screen presenter retains its
+        simulation-free import boundary. The called seam itself consumes only
+        the read-only management bridge.
+        """
+        from original_management_presenter import build_fresh_management_snapshot
+
+        if bridge_factory is None:
+            return build_fresh_management_snapshot(self.session)
+        return build_fresh_management_snapshot(
+            self.session,
+            bridge_factory=bridge_factory,
+        )

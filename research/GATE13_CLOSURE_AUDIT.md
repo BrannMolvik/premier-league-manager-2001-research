@@ -92,3 +92,25 @@ already imported PMenu/Squad resources and current Squad presenter. The next
 private trace should be limited to evidence genuinely needed to compose that
 route, especially remaining PMenu text origin/clipping and visible-row
 expansion behavior. Do not restart closed first-screen or League Tables work.
+
+## Recovery 166 implementation progress
+
+The first non-visual integration seam is now implemented in
+`original_management_presenter.py`. After the existing `FrontEndSession`
+successfully completes a single-user TeamSelect Start, it composes:
+
+- the live controlled-club header from `ManagementSourceDataBridge`;
+- the exact fresh `Team` -> `Squad` PMenu selection and 15 visible rows;
+- the source-preserved first 20 roster entries through the existing exact
+  PSquadList row/column geometry.
+
+The snapshot reports the complete source squad count and any rows outside the
+initial 20-row projection. It does not invent scrolling, text origin, shell
+pixels, or gameplay mutations. The original first-screen presenter exposes the
+same seam through `fresh_management_snapshot()` using a lazy import, preserving
+its simulation-free import boundary.
+
+This closes the data/composition handoff, not the Gate-13 visual criterion. The
+next required step is to render the composed snapshot on the fixed 800x600
+Windows canvas using only source-backed geometry/resources, then route recovered
+menu selections without falling back to the generic ttk Play tab.

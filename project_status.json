@@ -14,7 +14,7 @@
   "last_verified_test_count": 1149,
   "asset_policy_validated_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 remains active after the Recovery 166 closure audit and PMenu visible-row closure. Compose the exact PMenu snapshot with the existing Squad presenter, connect TeamSelect Start to that management canvas, then extend the integrated normal-play path through tactics, Fixtures/PMatchInfo and League Tables before the Windows audit.",
+  "active_task": "Gate 13 remains active. Recovery 166 now composes a successful TeamSelect Start into the exact fresh PMenu Team/Squad state and source-preserved 20-row Squad viewport through the read-only bridge. Render this snapshot on the fixed Windows canvas, then extend navigation through tactics, Fixtures/PMatchInfo and League Tables before the integrated audit.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Compose the source-backed PMenu snapshot with the existing Squad presenter as the first integrated management canvas and connect the TeamSelect Start handoff without duplicating simulation logic.",
+  "current_task": "Render the composed PMenu/Squad snapshot on the fixed 800x600 Windows surface using only source-backed assets and geometry, then route the fresh TeamSelect Start into it instead of the generic ttk Play tab.",
   "last_verified_reconstruction_failures": 0,
   "last_verified_asset_policy_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "gate11_danger_morale_request_integrated": true,
@@ -1473,5 +1473,8 @@
   "gate13_pmenu_row_capacity": 16,
   "gate13_pmenu_row_step": 29,
   "gate13_pmenu_fresh_selection": {"root_id": 2, "child_id": 206},
-  "gate13_pmenu_exact_text_origin_open": true
+  "gate13_pmenu_exact_text_origin_open": true,
+  "gate13_teamselect_pmenu_squad_composition_complete": true,
+  "gate13_fresh_management_presenter": "reconstruction/original_management_presenter.py",
+  "gate13_management_canvas_rendering_complete": false
 }

@@ -25,6 +25,16 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 166 TeamSelect -> PMenu/Squad composition seam:** after a valid
+  single-user Start, `original_management_presenter.py` now joins the live
+  read-only club/roster bridge to the exact fresh Team -> Squad PMenu snapshot
+  and the native 20-row Squad viewport. It preserves source roster order,
+  reports overflow without inventing scrolling, and has no direct simulation
+  imports. The first-screen presenter exposes the seam lazily. Fifteen focused
+  integration/front-end/PMenu/Squad tests pass.
+- **Exact next task:** render that composed snapshot in the fixed 800x600
+  Windows surface with source-backed assets/geometry, then replace the generic
+  Play-tab handoff for the fresh management route.
 - **Recovery 166 PMenu visible-row closure:** checksum-gated native tracing
   closes the 201x504 / 16-row / 29-pixel list, root-first bit-0 expansion,
   title-versus-child factory split, and fresh Team (`2`) -> Squad (`0xCE`)
@@ -32,9 +42,6 @@ Evidence:
   rows with source-bound resources/font and fails closed outside recovered
   topology; 23 focused tests pass. Raw reports remain outside Git. Exact text
   origin/clipping beyond the recovered row controls remains open.
-- **Exact next task:** compose this PMenu snapshot with the existing Squad
-  presenter as the first integrated management canvas, then connect the
-  TeamSelect Start handoff without moving simulation logic into presentation.
 - **Recovery 166 fresh Gate-13 closure audit:** Gate 13 remains active. The
   source-backed first screens, PMenu contracts and management presenters do not
   yet form one integrated ordinary-management path; the live application still
