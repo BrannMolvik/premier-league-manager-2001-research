@@ -92,3 +92,69 @@ Still open:
 3. source graphic-resource ownership for League Tables;
 4. sorting/paging/navigation beyond the bounded country events;
 5. reconstructed presentation integration and corrected Windows validation.
+
+
+## Recovery 161 continuation: DIVISION and Sort By selectors
+
+The remaining seven selector events are now source-closed through
+`PLeagueTables::0x448C40`.
+
+### Events 9..13: DIVISION
+
+Global `0x982678` resolves through complete English-loader entry 2144 to
+exact shipped text **DIVISION**. Its header control is object `+0x49C`,
+set up at `0x4472C1`.
+
+Five `fmRadioTextSm` controls begin at object `+0x4E4`. Their exact event
+IDs are **9..13**. The event handler does not use a guessed division enum:
+for non-country events it scans the five controls' event fields at
+control `+0x20`; on a match it stores the selected index at object `+0x68`
+and the corresponding source identity from object `+0xA0+4*index` at
+object `+0x8C`.
+
+Rebuild method `0x448E60`:
+- clears/hides all five controls first;
+- resolves the active country from the source country object table;
+- iterates country competition entries from `country+0x48`, count
+  `country+0x4C`;
+- dynamically casts each `LeagueBase` entry (TD `0x818AA0`) toward
+  **DummyLeague** (TD `0x81B498`) through `__RTDynamicCast 0x668995`;
+- non-DummyLeague entries expose exact caption pointer `+0x14` to
+  `fmRadioTextSm::0x5D3F10`;
+- their source identity word at `+0x20` is retained in the panel's five-entry
+  identity array at `+0xA0`;
+- unused selector slots are cleared and disabled.
+
+The initial selection is source-aware: if the current club's country matches
+the selected country, the current competition identity is resolved and mapped
+back to that country's competition index; invalid `0xFFFF` falls back to
+index 0.
+
+### Events 14/15: Sort By
+
+Global `0x983A94` is English-loader entry 857 -> exact text **Sort By**.
+Its header control is object `+0x660`, setup call `0x447472`.
+
+The two `fmRadioTextSm` controls begin at `+0x6A8`:
+- event **14**: global `0x983C04`, loader index 765 ->
+  **League Position**, source state 0;
+- event **15**: global `0x983A90`, loader index 858 ->
+  **Current Form**, source state 1.
+
+Object `+0x98` stores the binary sort mode and is explicitly initialized to
+0 at `0x448BF0`, so **League Position is the source default**. Event 14 writes
+0; event 15 writes 1. Both call `0x449090`, which applies the selected mode
+to the seven table/display controls at `+0x7FC..+0x97C` via their source
+virtual state methods.
+
+This closes selector semantics for all 15 PLeagueTables events without
+inventing row meanings.
+
+### Updated boundary
+
+Still open after this continuation:
+1. concrete identity and visible-field binding of the table row/display
+   controls at `+0x7BC..+0x9BC`;
+2. exact row geometry and native row ordering/sort projection;
+3. original League Tables graphic-resource ownership;
+4. reconstructed presentation integration and corrected Windows validation.
