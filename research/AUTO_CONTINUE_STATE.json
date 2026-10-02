@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 184: Gate 14 audio catalog boundary from PR #131 is canonical as main 6c40d8bd21abaf33cd00e1f7725f43845220f559. Verify/merge PR #133 bounded FastView semantic presentation shell on current main, then continue source-backed FastView visual/resource tracing. Gate 13 remains earliest incomplete validation gate pending fresh real-Windows schema-8.",
-  "last_known_main_head": "6c40d8bd21abaf33cd00e1f7725f43845220f559",
+  "active_task": "Recovery 184: PR #133 bounded FastView semantic shell merged as main c1ea9ecd5e6bd50622cff4f2236d34ea6cb8cab3 after reconstruction CI 37022409513 passed 1,397 tests with 22 expected skips and asset-policy run 37022409837 passed. Continue source-backed FastView visual/resource tracing: resolve exact disc paths for the persisted PossessionFigures and PossessionDiagram asset basenames without inventing geometry or side orientation. Gate 13 remains earliest incomplete validation gate pending fresh real-Windows schema-8.",
+  "last_known_main_head": "c1ea9ecd5e6bd50622cff4f2236d34ea6cb8cab3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 184,
   "last_recovery_reason": "Analysis errored",
-  "note": "Recovery 184 reconciled concurrent Gate 14 audio work. PR #132 closed as duplicate. Current cloud-safe task is PR #133 semantic shell; private process execution remains blocked, but source availability is not.",
+  "note": "Recovery 184: semantic shell and fail-closed audio catalog are canonical. Private process execution remains blocked; next cloud-safe step is deterministic FastView visual-resource resolution from the saved full-disc catalog.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
