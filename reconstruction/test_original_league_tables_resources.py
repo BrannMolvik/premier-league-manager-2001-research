@@ -174,5 +174,264 @@ class OriginalLeagueTablesResourceTests(unittest.TestCase):
         )
 
 
+    def test_concrete_list_and_row_identity_geometry_are_exact(self):
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_CLASS, "CLeagueTableList")
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_TYPE_DESCRIPTOR_VA, 0x81B478)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_COL_VA, 0x7E1520)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_VFTABLE_VA, 0x7C011C)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_OBJECT_OFFSET, 0x9BC)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_RECT, (270, 184, 477, 384))
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_ROW_COUNT, 24)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_ROW_STEP, 16)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_AUX_VALUE, 8)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_ROW_CREATE_VA, 0x447820)
+
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_CLASS, "PLeagueTableRow")
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_TYPE_DESCRIPTOR_VA, 0x81B378)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_COL_VA, 0x7E1398)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_VFTABLE_VA, 0x7BFEC0)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_SETUP_VA, 0x446930)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_ALLOC_SIZE, 0x4A8)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_CHILD_COUNT, 12)
+
+    def test_row_column_projection_matches_header_and_source_fields(self):
+        self.assertEqual(
+            lt.LEAGUE_TABLES_ROW_COLUMN_LABELS,
+            ("P", "W", "D", "L", "F", "A", "Pts"),
+        )
+        self.assertEqual(
+            lt.LEAGUE_TABLES_ROW_STAT_TEXT_OFFSETS,
+            (0x208, 0x268, 0x2C8, 0x328, 0x388, 0x3E8, 0x448),
+        )
+        self.assertEqual(
+            lt.LEAGUE_TABLES_ROW_STAT_RECTS,
+            (
+                (262, 1, 27, 12),
+                (291, 1, 27, 12),
+                (320, 1, 27, 12),
+                (349, 1, 27, 12),
+                (378, 1, 27, 12),
+                (407, 1, 27, 12),
+                (436, 1, 27, 12),
+            ),
+        )
+        self.assertEqual(
+            lt.LEAGUE_TABLES_ROW_COLUMN_SOURCE_OFFSETS,
+            {
+                "P": (0x10,),
+                "W": (0x14,),
+                "D": (0x18,),
+                "L": (0x1C,),
+                "F": (0x20,),
+                "A": (0x24,),
+                "Pts": (0x14, 0x18),
+            },
+        )
+        self.assertEqual(
+            lt.LEAGUE_TABLES_ROW_COLUMN_EXPRESSIONS["Pts"],
+            "3*field_0x14 + field_0x18",
+        )
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_RANK_RECT, (23, 1, 21, 12))
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_CLUB_RECT, (46, 1, 214, 12))
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_SOURCE_RECORD_OFFSET, 0x70)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_RANK_VALUE_OFFSET, 0xC4)
+
+    def test_exact_fifteen_league_table_resources_are_source_bound(self):
+        expected = [
+            ("champion_grid", 8512, (477, 14), 0x944F10, 0x944EF0, 0x836A08),
+            ("promotion_grid", 7096, (477, 14), 0x944ED0, 0x944EB0, 0x836A3C),
+            ("relegation_grid", 7288, (477, 14), 0x944E90, 0x944E70, 0x836A70),
+            ("standard_grid", 7304, (477, 14), 0x944E50, 0x944E30, 0x836AA8),
+            ("your_team_grid", 8068, (477, 14), 0x944E10, 0x944DF0, 0x836ADC),
+            ("playoff_grid", 7068, (477, 14), 0x944DD0, 0x944DB0, 0x836B10),
+            ("champion_icon", 688, (20, 12), 0x944D90, 0x944D70, 0x836B44),
+            ("promotion_icon", 512, (20, 12), 0x944D50, 0x944D30, 0x836B78),
+            ("relegation_icon", 644, (20, 12), 0x944D10, 0x944CF0, 0x836BAC),
+            ("playoff_icon", 552, (20, 12), 0x944CD0, 0x944CB0, 0x836BE4),
+            ("your_champion_icon", 576, (20, 12), 0x944C90, 0x944C70, 0x836C18),
+            ("your_promotion_icon", 488, (20, 12), 0x944C50, 0x944C30, 0x836C50),
+            ("your_relegation_icon", 492, (20, 12), 0x944C10, 0x944BF0, 0x836C8C),
+            ("your_playoff_icon", 552, (20, 12), 0x944BD0, 0x944BB0, 0x836CC8),
+            ("league_bar", 5552, (475, 19), 0x944B90, 0x944B70, 0x836D00),
+        ]
+        self.assertEqual(len(lt.LEAGUE_TABLES_RESOURCES), 15)
+        self.assertEqual(
+            [
+                (
+                    r.name,
+                    r.byte_size,
+                    r.size,
+                    r.raw_handle_va,
+                    r.wrapper_va,
+                    lt.LEAGUE_TABLES_RESOURCE_PATH_LITERAL_VAS[r.name],
+                )
+                for r in lt.LEAGUE_TABLES_RESOURCES
+            ],
+            expected,
+        )
+        self.assertTrue(
+            all(
+                r.source_path.startswith("FM2001_Art/Generic/league_tables/")
+                for r in lt.LEAGUE_TABLES_RESOURCES
+            )
+        )
+        self.assertEqual(lt.LEAGUE_TABLES_RESOURCE_LOADER_START_VA, 0x5F7870)
+        self.assertEqual(lt.LEAGUE_TABLES_RESOURCE_LOADER_END_VA, 0x5F80C0)
+
+    def test_grid_icon_and_bar_wrapper_bindings_preserve_source_roles(self):
+        self.assertEqual(
+            lt.LEAGUE_TABLES_GRID_WRAPPERS,
+            {
+                "champion": 0x944EF0,
+                "promotion": 0x944EB0,
+                "relegation": 0x944E70,
+                "standard": 0x944E30,
+                "your_team": 0x944DF0,
+                "playoff": 0x944DB0,
+            },
+        )
+        self.assertEqual(
+            lt.LEAGUE_TABLES_ICON_WRAPPERS,
+            {
+                "champion": (0x944D70, 0x944C70),
+                "promotion": (0x944D30, 0x944C30),
+                "relegation": (0x944CF0, 0x944BF0),
+                "playoff": (0x944CB0, 0x944BB0),
+            },
+        )
+        self.assertEqual(lt.LEAGUE_TABLES_BAR_CONTROL_OFFSET, 0x788)
+        self.assertEqual(lt.LEAGUE_TABLES_BAR_WRAPPER_VA, 0x944B70)
+        self.assertEqual(lt.LEAGUE_TABLES_BAR_RECT, (270, 152, 475, 19))
+
+
+
+    def test_concrete_list_and_row_contract_is_exact(self):
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_CLASS, "CLeagueTableList")
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_VFTABLE_VA, 0x7C011C)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_SETUP_WRAPPER_VA, 0x4477E0)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_GENERIC_SETUP_VA, 0x6510F0)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_OBJECT_OFFSET, 0x9BC)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_RECT, (270, 184, 477, 384))
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_ROW_COUNT, 24)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_ROW_STEP, 16)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_AUX_VALUE, 8)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_SOURCE_POINTER_OFFSET, 0x4C)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_ROW_CREATE_VA, 0x447820)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_ROW_SPAN_VA, 0x4466E0)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_ROW_HEIGHT_VA, 0x446710)
+
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_CLASS, "PLeagueTableRow")
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_VFTABLE_VA, 0x7BFEC0)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_SETUP_VA, 0x446930)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_ALLOC_SIZE, 0x4A8)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_SOURCE_RECORD_OFFSET, 0x70)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_RANK_VALUE_OFFSET, 0xC4)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_CHILD_COUNT, 12)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_BACKGROUND_OFFSET, 0xC8)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_ICON_BACKGROUND_OFFSET, 0xF8)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_ICON_OFFSET, 0x12C)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_RANK_TEXT_OFFSET, 0x160)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_CLUB_TEXT_OFFSET, 0x1C0)
+        self.assertEqual(
+            lt.LEAGUE_TABLES_ROW_STAT_TEXT_OFFSETS,
+            (0x208, 0x268, 0x2C8, 0x328, 0x388, 0x3E8, 0x448),
+        )
+
+    def test_row_visible_fields_and_geometry_align_to_header_band(self):
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_RANK_RECT, (23, 1, 21, 12))
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_CLUB_RECT, (46, 1, 214, 12))
+        self.assertEqual(
+            lt.LEAGUE_TABLES_ROW_STAT_RECTS,
+            tuple((x, 1, 27, 12) for x in (262, 291, 320, 349, 378, 407, 436)),
+        )
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_COLUMN_LABELS, ("P", "W", "D", "L", "F", "A", "Pts"))
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_STAT_SOURCE_OFFSETS, (0x10, 0x14, 0x18, 0x1C, 0x20, 0x24))
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_POINTS_SOURCE_OFFSETS, (0x14, 0x18))
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_POINTS_FORMULA, "3*field_0x14 + field_0x18")
+        self.assertEqual(lt.LEAGUE_TABLES_POSITION_SORT_VA, 0x4F4940)
+        self.assertEqual(lt.LEAGUE_TABLES_CURRENT_FORM_SORT_VA, 0x4F4A10)
+        self.assertEqual(lt.LEAGUE_TABLES_ROW_SOURCE_ARRAY_OFFSET, 0x34)
+
+        list_x = lt.LEAGUE_TABLES_LIST_RECT[0]
+        header_rects = [h.rect for h in lt.LEAGUE_TABLES_HEADER_TEXTS]
+        self.assertEqual(list_x + lt.LEAGUE_TABLES_ROW_CLUB_RECT[0], header_rects[0][0])
+        self.assertEqual(
+            [list_x + rect[0] for rect in lt.LEAGUE_TABLES_ROW_STAT_RECTS],
+            [rect[0] for rect in header_rects[1:]],
+        )
+        self.assertEqual(
+            [rect[2] for rect in lt.LEAGUE_TABLES_ROW_STAT_RECTS],
+            [rect[2] for rect in header_rects[1:]],
+        )
+        self.assertEqual(
+            lt.LEAGUE_TABLES_LIST_ROW_COUNT * lt.LEAGUE_TABLES_LIST_ROW_STEP,
+            lt.LEAGUE_TABLES_LIST_RECT[3],
+        )
+
+    def test_original_league_tables_graphic_family_is_exact_and_unique(self):
+        self.assertEqual(len(lt.LEAGUE_TABLES_RESOURCES), 15)
+        expected = [
+            ("champion_grid", "champion_grid.444", 8512, (477, 14), 0x944F10, 0x944EF0),
+            ("promotion_grid", "promotion_grid.444", 7096, (477, 14), 0x944ED0, 0x944EB0),
+            ("relegation_grid", "relegation_grid.444", 7288, (477, 14), 0x944E90, 0x944E70),
+            ("standard_grid", "standard_grid.444", 7304, (477, 14), 0x944E50, 0x944E30),
+            ("your_team_grid", "your_team_grid.444", 8068, (477, 14), 0x944E10, 0x944DF0),
+            ("playoff_grid", "playoff_grid.444", 7068, (477, 14), 0x944DD0, 0x944DB0),
+            ("champion_icon", "champion_icon.444", 688, (20, 12), 0x944D90, 0x944D70),
+            ("promotion_icon", "promotion_icon.444", 512, (20, 12), 0x944D50, 0x944D30),
+            ("relegation_icon", "relegation_icon.444", 644, (20, 12), 0x944D10, 0x944CF0),
+            ("playoff_icon", "playoff_icon.444", 552, (20, 12), 0x944CD0, 0x944CB0),
+            ("your_champion_icon", "your_champion_icon.444", 576, (20, 12), 0x944C90, 0x944C70),
+            ("your_promotion_icon", "your_promotion_icon.444", 488, (20, 12), 0x944C50, 0x944C30),
+            ("your_relegation_icon", "your_relegation_icon.444", 492, (20, 12), 0x944C10, 0x944BF0),
+            ("your_playoff_icon", "your_playoff_icon.444", 552, (20, 12), 0x944BD0, 0x944BB0),
+            ("league_bar", "league_bar.444", 5552, (475, 19), 0x944B90, 0x944B70),
+        ]
+        self.assertEqual(
+            [
+                (r.name, r.source_path.rsplit("/", 1)[-1], r.byte_size, r.size, r.raw_handle_va, r.wrapper_va)
+                for r in lt.LEAGUE_TABLES_RESOURCES
+            ],
+            expected,
+        )
+        self.assertEqual(len({r.source_path for r in lt.LEAGUE_TABLES_RESOURCES}), 15)
+        self.assertEqual(len({r.sha256 for r in lt.LEAGUE_TABLES_RESOURCES}), 15)
+        self.assertTrue(all(len(r.sha256) == 64 for r in lt.LEAGUE_TABLES_RESOURCES))
+        self.assertTrue(all(r.source_path.startswith("FM2001_Art/Generic/league_tables/") for r in lt.LEAGUE_TABLES_RESOURCES))
+        self.assertEqual(
+            lt.LEAGUE_TABLES_GRID_WRAPPERS,
+            {
+                "champion": 0x944EF0,
+                "promotion": 0x944EB0,
+                "relegation": 0x944E70,
+                "standard": 0x944E30,
+                "your_team": 0x944DF0,
+                "playoff": 0x944DB0,
+            },
+        )
+        self.assertEqual(
+            lt.LEAGUE_TABLES_ICON_WRAPPERS,
+            {
+                "champion": (0x944D70, 0x944C70),
+                "promotion": (0x944D30, 0x944C30),
+                "relegation": (0x944CF0, 0x944BF0),
+                "playoff": (0x944CB0, 0x944BB0),
+            },
+        )
+
+    def test_league_bar_geometry_matches_header_band(self):
+        self.assertEqual(lt.LEAGUE_TABLES_BAR_CONTROL_OFFSET, 0x788)
+        self.assertEqual(lt.LEAGUE_TABLES_BAR_WRAPPER_VA, 0x944B70)
+        self.assertEqual(lt.LEAGUE_TABLES_BAR_RECT, (270, 152, 475, 19))
+        self.assertEqual(lt.LEAGUE_TABLES_BAR_RECT[1], lt.LEAGUE_TABLES_HEADER_Y)
+        self.assertEqual(lt.LEAGUE_TABLES_BAR_RECT[3], lt.LEAGUE_TABLES_HEADER_HEIGHT)
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_RECT[0], lt.LEAGUE_TABLES_BAR_RECT[0])
+        self.assertEqual(lt.LEAGUE_TABLES_LIST_RECT[2], 477)
+        self.assertEqual(
+            {r.size for r in lt.LEAGUE_TABLES_RESOURCES if r.name.endswith("_grid")},
+            {(477, 14)},
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
