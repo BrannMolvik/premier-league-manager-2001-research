@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from time import time
 from typing import Callable, Iterable
 
-from competition_startup import country_root_competition_storage_order
+from competition_startup import country_league_root_storage_order
 from competition_state import PremierLeagueState, season_weekday_date
 from cup_progression import (
     CupMatchCompletion,
@@ -1511,23 +1511,6 @@ class GameState:
             raise RuntimeError(
                 f"Cup competition definition {competition_id} is not loaded"
             )
-        region_id = int(getattr(competition, "country_region_id"))
-        roots = country_root_competition_storage_order(
-            tuple(self.competitions.values()),
-            region_id,
-        )
-        try:
-            root_index = next(
-                index
-                for index, candidate in enumerate(roots)
-                if int(getattr(candidate, "id")) == competition_id
-            )
-        except StopIteration as exc:
-            raise RuntimeError(
-                f"Cup competition {competition_id} is not a stored root "
-                f"competition for region {region_id}"
-            ) from exc
-
         club = self.clubs.get(host_club_id)
         if club is None:
             raise RuntimeError(f"host club definition {host_club_id} is not loaded")
@@ -1537,6 +1520,26 @@ class GameState:
             raise RuntimeError(
                 f"host club competition {owning_competition_id} is not loaded"
             )
+
+        # 0x5DAA0B..0x5DAA42 uses club +0x10 (registered competition) and
+        # club +0x14 (country) to feed 0x410FF0. It does not index the Cup
+        # competition itself.
+        country_id = int(getattr(club, "country_id"))
+        roots = country_league_root_storage_order(
+            tuple(self.competitions.values()),
+            country_id,
+        )
+        try:
+            root_index = next(
+                index
+                for index, candidate in enumerate(roots)
+                if int(getattr(candidate, "id")) == owning_competition_id
+            )
+        except StopIteration as exc:
+            raise RuntimeError(
+                f"host competition {owning_competition_id} is not in country "
+                f"{country_id} League/DummyLeague root subset"
+            ) from exc
 
         total_round_count = int(
             getattr(competition, "scheduled_matchday_count")
