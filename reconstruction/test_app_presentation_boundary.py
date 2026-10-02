@@ -80,5 +80,21 @@ class AppPresentationBoundaryTests(unittest.TestCase):
 
 
 
+    def test_normal_launch_uses_source_backed_host_and_prototype_is_explicit_opt_in(self):
+        source = APP_PATH.read_text(encoding="utf-8")
+        self.assertIn("from original_game_host import run_original_game_ui", source)
+        self.assertIn("'--prototype-ui'", source)
+        self.assertIn("if args.prototype_ui:", source)
+        self.assertIn("App(game_dir).mainloop()", source)
+        self.assertIn(
+            "run_original_game_ui(game_dir, source_root=args.source_root)",
+            source,
+        )
+        self.assertLess(
+            source.index("if args.prototype_ui:"),
+            source.index("run_original_game_ui(game_dir, source_root=args.source_root)"),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
