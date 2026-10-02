@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the active validation gate. Exact PMenu text/background and native row activation/event ownership are blocked on fresh private executable tracing because the process sandbox still fails before start; schema-5 real Windows receipt is pending. Under deferred-blocker policy, continue independent cloud-safe Gate 14 startup-media playback orchestration that consumes only verified derivatives, preserves canonical order, and does not invent skip/fade/input semantics.",
-  "last_known_main_head": "343acf47cd0c9af9c3ca372c11f90dff38aada78",
+  "active_task": "Re-read current main CURRENT_STATE.md after the verified Gate 14 startup playback seam at main 82a89e9c18c4a96951f00321b4e0932af6eb216d, then continue the exact next canonical cloud-safe task while Gate 13 private/local blockers remain explicit.",
+  "last_known_main_head": "82a89e9c18c4a96951f00321b4e0932af6eb216d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 172,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 172 state refreshed after clean-host and schema-5 audit integration. Main 343acf47... is canonical; continuing cloud-safe Gate 14 groundwork while Gate 13 private/local blockers remain explicit.",
+  "recovery_generation": 173,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 173 claimed from the canonical main HEAD 82a89e9c... after the prior worker stopped making repository progress. Runtime remains continuous/working; main is canonical and the exact task will be narrowed from CURRENT_STATE.md.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
