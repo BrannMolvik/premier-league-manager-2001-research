@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 187: PR #146 head dca8964acfd38158da0a537ba814eec79cd50703 is under full reconstruction CI. It adds exact special Cup/knockout controlled-participant category-1/category-2 accounting using each participant's own ticket prices plus exact neutral 0x5DBCD0 paired-XI attendance modifier. Full live Cup receipt attachment is blocked on source-locking the 0x5DBCD0 caller/applicability. Due MPMTransferPlayer same-day fixture ordering remains blocked because persisted evidence lacks the outer match-vs-0x4A8070 relation.",
-  "last_known_main_head": "3b9fc3741a8d614a14389d90db99285b9aa49a69",
+  "active_task": "Recovery 187: PR #146 is canonical at main 57e59f6374f8c278cabbe054b8767638a69e5a26 after 1,424 tests / 22 expected skips plus asset-policy success. PR #147 (recovery187/gate15-readiness-audit) is the active work-ahead checkpoint: classify all remaining Fidelity Gaps under Gate 15's actual fixed/irrelevant/explicitly-documented criterion without marking Gate 15 complete or bypassing Gate 13/14. After verification, continue the next independent cloud-safe source-backed task; fresh private execution remains unavailable.",
+  "last_known_main_head": "57e59f6374f8c278cabbe054b8767638a69e5a26",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 187,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Gate 13 remains earliest incomplete validation gate pending schema-8 real-Windows 11/Tk receipt. Fresh private execution is unavailable: both shell/container and Python process paths fail with caas.internal.errors.ClientError. Do not infer due-transfer fixture ordering, 0x5DBCD0 applicability, or label the Cup posting mechanic as revenue sharing.",
+  "note": "Gate 13 remains earliest incomplete validation gate pending a fresh schema-8 real-Windows 11/Tk receipt. Gate 14 exact FastView paths/placement/audio and fresh source questions remain blocked by caas ClientError. Due-transfer fixture ordering and 0x5DBCD0 caller applicability remain fail-closed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
