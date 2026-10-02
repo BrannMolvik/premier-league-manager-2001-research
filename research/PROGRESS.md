@@ -9896,3 +9896,16 @@ canonical audit.
 - Added `original_pmatchinfo_presenter.py`, a read-only, simulation-independent presentation seam over the recovered PMatchInfo contract. It preserves the exact 760x500 dialog size, tabs/default panel, six text rectangles, eight static placements currently available, the pitch's -2 local y origin, the 252x16 source clipping of the disabled 274x16 strip, and the source-proven incident-art selector.
 - The presenter refuses a complete-dialog snapshot unless the exact `info_popup.444` is present. It does not translate modern `MatchEvent` objects into original PScriptRow event types because that semantic bridge is not source-proven.
 - Exact next step after CI: merge this presenter checkpoint, then continue the strongest source-backed Gate-13 integration/audit path while preserving the popup transport blocker and real-Windows validation requirement.
+
+
+## 2 October 2026 - Recovery 161 League Tables selector/header shell
+
+- PR #93 merged as `5f76cd8d1187601034424fd6519c29c521b912bc`; focused Gate-13 run `36943619177` passed **364 tests with 21 expected source-gated skips and zero failures**, and asset-policy run `36943619314` passed.
+- Continued source recovery on the RTTI-proven `PLeagueTables` panel (TD `0x81B458`, vtable `0x7C00C8`, constructor `0x448640`) through main setup `0x446F00` and event dispatch `0x448C40`.
+- Source-bound eight `fmRadioTextSm` country controls beginning at object `+0x23C` and the constructor's exact country identity array at `+0x1D4`: England 26, Germany 33, Italy 40, Spain 73, Scotland 66, France 31, Holland 24, Belgium 9. Events 1..8 map directly to active-country index 0..7 at `+0x64`.
+- Source-bound the country caption control at `+0x1F4` to English loader global `0x982670` / index 2146 / exact text `Country`.
+- Recovered the table-header band through shared text setup `0x6503F0`: a neutral 214x19 slot at (316,152), then exact 27x19 columns P/W/D/L/F/A/Pts at x=532/561/590/619/648/677/706, y=152. Loader globals `0x9830F4..0x9830DC` resolve to indices 1473..1479.
+- Bounded but did not semantically name two further `fmRadioTextSm` families: five controls at `+0x4E4` and two controls at `+0x6A8`. Exact next task after CI is events 9..15 plus their data/text producers, then League Tables row identity/geometry/resource ownership.
+
+- Recovery 161 continuation closed events 9..15: source global `0x982678` / English index 2144 is **DIVISION**; five controls at `+0x4E4` use events 9..13 and are rebuilt by `0x448E60` from the active country's non-`DummyLeague` `LeagueBase` entries, exposing source caption `+0x14` and identity word `+0x20`. The selected index/identity live at `+0x68/+0x8C`.
+- Source global `0x983A94` / index 857 is **Sort By**. Event 14 is **League Position** (global `0x983C04`, index 765, sort state 0); event 15 is **Current Form** (global `0x983A90`, index 858, state 1). Object `+0x98` is explicitly initialized to 0, making League Position the source default; `0x449090` applies the mode to the seven downstream table/display controls.
