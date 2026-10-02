@@ -77,6 +77,18 @@ def _payload_files(root: Path) -> tuple[Path, ...]:
     return tuple(sorted((p for p in root.rglob("*") if p.is_file()), key=lambda p: p.relative_to(root).as_posix().casefold()))
 
 
+def _resolve_bundled_file(root: Path, relative: str) -> Path:
+    """Resolve PyInstaller data in legacy beside-exe or v6 _internal layout."""
+    direct = root / Path(relative)
+    internal = root / "_internal" / Path(relative)
+    matches = [path for path in (direct, internal) if path.is_file()]
+    if len(matches) != 1:
+        raise PackageCandidateError(
+            f"required bundled asset must resolve exactly once: {relative}"
+        )
+    return matches[0]
+
+
 def validate_distribution(dist_root: str | Path, executable_name: str) -> tuple[Path, ...]:
     root = Path(dist_root).resolve()
     if not root.is_dir():
@@ -85,9 +97,9 @@ def validate_distribution(dist_root: str | Path, executable_name: str) -> tuple[
     if not executable.is_file() or executable.stat().st_size <= 0:
         raise PackageCandidateError(f"packaged executable is missing or empty: {executable}")
     for relative in REQUIRED_BUNDLED_FILES:
-        path = root / Path(relative)
-        if not path.is_file() or path.stat().st_size <= 0:
-            raise PackageCandidateError(f"required bundled asset is missing or empty: {relative}")
+        path = _resolve_bundled_file(root, relative)
+        if path.stat().st_size <= 0:
+            raise PackageCandidateError(f"required bundled asset is empty: {relative}")
     files = _payload_files(root)
     forbidden = [
         p.relative_to(root).as_posix()
