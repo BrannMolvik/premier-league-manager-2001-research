@@ -10025,3 +10025,30 @@ zero failures** on the exact PR head. Repository asset-policy run
 `36974932407` passed. The upgraded audit contract is therefore verified in
 the repository; an actual new schema-4 Windows 11 receipt remains a separate
 local graphical validation step.
+
+
+## 2 October 2026 - Recovery 172 clean-host and PMenu input checkpoints
+
+Three verified Gate-13 checkpoints landed after the fixed MANAGEMENT host:
+
+- PR #105 -> `8b36c566ababdf52a8574d5c8753f92aad641fc4`: the
+  diagnostic viewer now routes management clicks through the recovered PMenu
+  candidate-row geometry while dispatching no navigation.
+- PR #106 -> `45844074b4ad7128903fd3ed7b9a840dc82dbc74`: the same
+  non-activating candidate feedback is integrated into the default
+  `OriginalGameTkHost`.
+- PR #107 -> `a79edc86e0333fb856539274e12113d85de868c8`: the real
+  Windows/Tk audit contract is schema 5 and now exercises the default clean host
+  through New Game -> native club -> Start -> MANAGEMENT, verifies exact
+  management geometry and zero guessed pixels, and confirms PMenu candidate
+  clicks do not mutate selection.
+
+The final PR #107 Gate-13 run `36975636316` passed **427 tests with 21
+expected skips** and asset-policy run `36975636285` passed. A new schema-5
+real Windows 11 receipt remains pending.
+
+A fresh trivial container process probe still fails before start with
+`caas.internal.errors.ClientError`. A repository-only evidence sweep found no
+persisted native PMenu row-event ownership trace sufficient to implement
+activation safely, so activation/text/background work remains blocked on fresh
+private execution rather than being guessed.
