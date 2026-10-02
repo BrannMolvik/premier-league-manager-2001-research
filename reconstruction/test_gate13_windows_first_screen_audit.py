@@ -137,7 +137,7 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
                 panel_code=0xCE,
             ),
             surrounding_background_recovered=False,
-            pmenu_text_placement_recovered=False,
+            pmenu_text_placement_recovered=True,
             complete_source_pixel_frame_available=False,
         )
         record = audit_management_host_contract(
@@ -156,18 +156,25 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
         self.assertEqual(record["panel_code"], 0xCE)
         self.assertEqual(record["photo_dimensions"], [])
         self.assertFalse(record["surrounding_background_recovered"])
-        self.assertFalse(record["pmenu_text_placement_recovered"])
+        self.assertTrue(record["pmenu_text_placement_recovered"])
+        self.assertFalse(record["pmenu_rows_rendered"])
         self.assertFalse(record["complete_source_pixel_frame_available"])
 
+        source_photos = [[30, 29], [168, 29], [42, 24]]
         clean_record = audit_management_host_contract(
             frame,
             canvas_size=[800, 600],
-            photo_dimensions=[],
-            status="Management host active: PSquadScreen",
-            required_status_fragment="Management host active",
+            photo_dimensions=source_photos,
+            status=(
+                "Management host active: PSquadScreen; "
+                "source PMenu rows rendered; surrounding management background unresolved"
+            ),
+            required_status_fragment="source PMenu rows rendered",
+            expected_pmenu_photo_dimensions=source_photos,
         )
         self.assertEqual(clean_record["panel_code"], 0xCE)
-        self.assertEqual(clean_record["photo_dimensions"], [])
+        self.assertEqual(clean_record["photo_dimensions"], source_photos)
+        self.assertTrue(clean_record["pmenu_rows_rendered"])
 
     def test_management_host_contract_fails_closed_on_guessed_pixels_or_geometry(self):
         base = dict(
@@ -179,7 +186,7 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
                 panel_code=0xCE,
             ),
             surrounding_background_recovered=False,
-            pmenu_text_placement_recovered=False,
+            pmenu_text_placement_recovered=True,
             complete_source_pixel_frame_available=False,
         )
         status = "entered source-proven PMenu management host."
@@ -188,9 +195,9 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
             ("PMenu rectangle", {"menu_rect": (598, 96, 201, 504)}, [800, 600], []),
             ("PSquadScreen geometry", {"panel_rect": (0, 80, 800, 520)}, [800, 600], []),
             ("surrounding background", {"surrounding_background_recovered": True}, [800, 600], []),
-            ("PMenu text placement", {"pmenu_text_placement_recovered": True}, [800, 600], []),
+            ("lost recovered PMenu text placement", {"pmenu_text_placement_recovered": False}, [800, 600], []),
             ("fixed 800x600", {}, [801, 600], []),
-            ("drew PhotoImages", {}, [800, 600], [[800, 600]]),
+            ("uncontracted PhotoImages", {}, [800, 600], [[800, 600]]),
         )
         for expected, changes, canvas_size, photos in bad_cases:
             with self.subTest(expected=expected):
@@ -203,6 +210,19 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
                         photo_dimensions=photos,
                         status=status,
                     )
+
+        with self.assertRaisesRegex(
+            WindowsFirstScreenAuditError,
+            "Live PMenu PhotoImage geometry",
+        ):
+            audit_management_host_contract(
+                SimpleNamespace(**base),
+                canvas_size=[800, 600],
+                photo_dimensions=[[30, 29]],
+                status="source PMenu rows rendered",
+                required_status_fragment="source PMenu rows rendered",
+                expected_pmenu_photo_dimensions=[[168, 29]],
+            )
 
         with self.assertRaisesRegex(
             WindowsFirstScreenAuditError,

@@ -62,6 +62,18 @@ def management_factory(session):
     return OriginalManagementPresenter(session, bridge_factory=Bridge)
 
 
+def fake_pmenu_render():
+    return SimpleNamespace(
+        overlays=(
+            SimpleNamespace(
+                x=0,
+                y=0,
+                png=b"\x89PNG\r\n\x1a\nsource-backed-test-overlay",
+            ),
+        ),
+    )
+
+
 def presenter():
     return OriginalFirstScreenPresenter(
         FrontEndSession(StubBackend),
@@ -117,62 +129,90 @@ class OriginalGameHostTests(unittest.TestCase):
     def test_clean_host_routes_first_screens_into_fixed_management_without_debug_ui(self):
         live = presenter()
         root = FakeRoot()
+        with patch(
+            "original_game_host.build_management_pmenu_render",
+            side_effect=lambda frame, resources: fake_pmenu_render(),
+        ):
+            host = OriginalGameTkHost(
+                live,
+                root,
+                FakeTk,
+                management_presenter_factory=management_factory,
+                management_pmenu_resources=object(),
+            )
+
+            self.assertEqual(root.values["title"], "Premier League Manager 2001")
+            self.assertEqual(host.canvas.kwargs["width"], 800)
+            self.assertEqual(host.canvas.kwargs["height"], 600)
+            bind_args, bind_kwargs = host.canvas.values["bind"]
+            self.assertEqual(bind_args[0], "<Button-1>")
+            self.assertIs(bind_args[1].__self__, host)
+            self.assertEqual(bind_args[1].__func__, host.on_click.__func__)
+            self.assertEqual(bind_kwargs, {})
+            self.assertEqual(len(host.canvas.images), 9)
+
+            host.on_click(SimpleNamespace(x=7, y=478))
+            self.assertIs(live.session.navigation.screen, FrontEndScreen.TEAM_SELECT)
+            self.assertEqual(len(host.canvas.images), 3)
+
+            live.choose_club(12)
+            host.on_click(SimpleNamespace(x=426, y=301))
+            self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
+            self.assertTrue(live.session.started)
+            self.assertEqual(live.session.gameplay.selections, [12])
+            self.assertEqual(len(host.canvas.images), 1)
+            self.assertIn("source PMenu rows rendered", host.last_status)
+            self.assertIn("surrounding management background unresolved", host.last_status)
+
+            before = host.management_presenter.snapshot()
+            self.assertEqual(before.panel_code, 0xCE)
+
+            host.on_click(SimpleNamespace(x=700, y=120))
+            self.assertIn("PMenu source pointer press", host.last_status)
+            self.assertIn("no_action 0x2", host.last_status)
+            after = host.management_presenter.snapshot()
+            self.assertEqual(after.panel_code, 0xCE)
+            self.assertEqual(after.menu.selected_child_id, 0xCE)
+            self.assertEqual(len(host.canvas.images), 1)
+
+            # The ninth fresh visible row is Calendar.  Tk <Button-1> is a press,
+            # matching the recovered SelectBmp +0x6C input virtual.
+            host.on_click(SimpleNamespace(x=700, y=96 + 8 * 29))
+            native = host.management_presenter.snapshot()
+            self.assertEqual(native.panel_code, 0xCE)
+            self.assertEqual(native.menu.selected_root_id, 0x259)
+            self.assertIn("expand_root 0x259", host.last_status)
+            self.assertEqual(len(host.canvas.images), 1)
+
+            accepted = host.apply_source_accepted_pmenu_action("title", 3, 0)
+            self.assertTrue(accepted.action.accepted)
+            self.assertEqual(accepted.action.action_kind, "expand_root")
+            self.assertEqual(accepted.presentation.panel_code, 0xCE)
+            self.assertEqual(accepted.presentation.menu.selected_root_id, 3)
+            self.assertEqual(accepted.presentation.menu.selected_child_id, 0xCE)
+            self.assertIn("source-accepted PMenu action", host.last_status)
+            self.assertEqual(len(host.canvas.images), 1)
+
+            host.on_click(SimpleNamespace(x=100, y=120))
+            self.assertIn("no source-bounded PMenu candidate row", host.last_status)
+            self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
+            self.assertEqual(len(host.canvas.images), 1)
+
+    def test_management_redraw_requires_verified_pmenu_resources(self):
+        live = presenter()
         host = OriginalGameTkHost(
             live,
-            root,
+            FakeRoot(),
             FakeTk,
             management_presenter_factory=management_factory,
         )
-
-        self.assertEqual(root.values["title"], "Premier League Manager 2001")
-        self.assertEqual(host.canvas.kwargs["width"], 800)
-        self.assertEqual(host.canvas.kwargs["height"], 600)
-        self.assertEqual(len(host.canvas.images), 9)
-
         host.on_click(SimpleNamespace(x=7, y=478))
-        self.assertIs(live.session.navigation.screen, FrontEndScreen.TEAM_SELECT)
-        self.assertEqual(len(host.canvas.images), 3)
-
         live.choose_club(12)
-        host.on_click(SimpleNamespace(x=426, y=301))
-        self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
-        self.assertTrue(live.session.started)
-        self.assertEqual(live.session.gameplay.selections, [12])
-        self.assertEqual(host.canvas.images, [])
-        self.assertIn("Management host active", host.last_status)
-
-        before = host.management_presenter.snapshot()
-        self.assertEqual(before.panel_code, 0xCE)
-
-        host.on_click(SimpleNamespace(x=700, y=120))
-        self.assertIn("PMenu source pointer press", host.last_status)
-        self.assertIn("no_action 0x2", host.last_status)
-        after = host.management_presenter.snapshot()
-        self.assertEqual(after.panel_code, 0xCE)
-        self.assertEqual(after.menu.selected_child_id, 0xCE)
-        self.assertEqual(host.canvas.images, [])
-
-        # The ninth fresh visible row is Calendar.  Tk <Button-1> is a press,
-        # matching the recovered SelectBmp +0x6C input virtual.
-        host.on_click(SimpleNamespace(x=700, y=96 + 8 * 29))
-        native = host.management_presenter.snapshot()
-        self.assertEqual(native.panel_code, 0xCE)
-        self.assertEqual(native.menu.selected_root_id, 0x259)
-        self.assertIn("expand_root 0x259", host.last_status)
-
-        accepted = host.apply_source_accepted_pmenu_action("title", 3, 0)
-        self.assertTrue(accepted.action.accepted)
-        self.assertEqual(accepted.action.action_kind, "expand_root")
-        self.assertEqual(accepted.presentation.panel_code, 0xCE)
-        self.assertEqual(accepted.presentation.menu.selected_root_id, 3)
-        self.assertEqual(accepted.presentation.menu.selected_child_id, 0xCE)
-        self.assertIn("source-accepted PMenu action", host.last_status)
-        self.assertEqual(host.canvas.images, [])
-
-        host.on_click(SimpleNamespace(x=100, y=120))
-        self.assertIn("no source-bounded PMenu candidate row", host.last_status)
-        self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
-        self.assertEqual(host.canvas.images, [])
+        with self.assertRaisesRegex(
+            OriginalGameHostError,
+            "verified original row resources",
+        ):
+            host.on_click(SimpleNamespace(x=426, y=301))
 
     def test_source_accepted_pmenu_seam_rejects_pre_management_host(self):
         host = OriginalGameTkHost(presenter(), FakeRoot(), FakeTk)
