@@ -1416,7 +1416,7 @@
     475,
     19
   ],
-  "gate13_league_tables_integration_open": true,
+  "gate13_league_tables_integration_open": false,
   "gate13_league_tables_windows_validation_open": true,
   "gate13_league_tables_body_merge": "7578e465fbc952a74ee1268b698dde7d26ee2a8b",
   "gate13_league_tables_body_ci_run": 36949336841,
@@ -1428,5 +1428,29 @@
     "0x7FC",
     "0x97C"
   ],
-  "gate13_league_tables_private_source_execution_blocked": true
+  "gate13_league_tables_private_source_execution_blocked": true,
+  "gate13_league_tables_presenter_source_seam": true,
+  "gate13_league_tables_presenter_path": "reconstruction/original_league_tables_presenter.py",
+  "gate13_league_tables_development_ui_uses_presenter": true,
+  "gate13_league_tables_development_ui_original_columns": [
+    "P",
+    "W",
+    "D",
+    "L",
+    "F",
+    "A",
+    "Pts"
+  ],
+  "gate13_league_tables_development_ui_legacy_goal_difference_column_removed": true,
+  "gate13_league_tables_presenter_current_form_sort_open": true,
+  "gate13_league_tables_presenter_current_form_fail_closed": true,
+  "gate13_league_tables_exact_art_staging_open": true,
+  "gate13_league_tables_presenter_merge": "95b566a50d749d17bcf0324b46582c9bc215b65b",
+  "gate13_league_tables_presenter_ci_run": 36953094233,
+  "gate13_league_tables_presenter_test_count": 388,
+  "gate13_league_tables_presenter_expected_skips": 21,
+  "gate13_league_tables_presenter_full_suite_run": 36953094137,
+  "gate13_league_tables_presenter_full_suite_test_count": 1285,
+  "gate13_league_tables_presenter_full_suite_expected_skips": 22,
+  "gate13_league_tables_presenter_asset_policy_run": 36953094185
 }

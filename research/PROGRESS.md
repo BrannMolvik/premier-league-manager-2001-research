@@ -9925,3 +9925,11 @@ canonical audit.
 - PR #95 merged as `7578e465fbc952a74ee1268b698dde7d26ee2a8b`; Gate-13 run `36949336841` passed **379 tests with 21 expected source-gated skips and zero failures**, and asset-policy run `36949336761` passed.
 - Recovery 162's authorized source ZIP was successfully resolved/materialized, but all available execution sandboxes then failed before even trivial byte processing with `caas.internal.errors.ClientError`. The seven downstream display controls at `+0x7FC..+0x97C` therefore remain an explicit deferred private-source trace, not a guessed presentation binding.
 - Canonical next task: integrate the already source-bound League Tables selector/header/body/row contract through a simulation-independent presentation seam, failing closed where exact row-art selection or unstaged original bytes are not source-proven.
+
+## 2 October 2026 - Recovery 164 League Tables presenter integration
+
+- Recovered the interrupted presenter stack from `feature/gate13-league-tables-presenter`, audited it against canonical Recovery 162, and rebuilt it cleanly on current main without carrying stale state-file edits.
+- PR #96 merged as `95b566a50d749d17bcf0324b46582c9bc215b65b`. Gate-13 run `36953094233` passed **388 tests with 21 expected source-gated skips and zero failures**; full reconstruction run `36953094137` passed **1,285 tests with 22 expected source-gated skips and zero failures**; asset-policy run `36953094185` passed.
+- The development League Tables view now consumes the simulation-independent source presenter, restores the source-visible F/A columns, removes the unsupported GD substitution, enforces the native 24-row capacity and `Pts=3*W+D`, and fails closed for Current Form ordering and unstaged exact art.
+- Private blockers remain unchanged: local execution still fails before process start with `caas.internal.errors.ClientError`; Current Form `0x4F4A10`, downstream controls `+0x7FC..+0x97C`, byte-identical League Tables art staging, and corrected Windows/Tk validation therefore remain deferred rather than guessed.
+- Next cloud-safe task: extend the already source-proven Squad presentation seam with the recovered six-match performance average and current assigned-role rating, then bind only the exact row-column geometry that is already evidenced.
