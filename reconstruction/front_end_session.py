@@ -124,6 +124,9 @@ class FrontEndSession:
         control = int(control_id)
         screen = self.navigation.screen
 
+        if self.started and control == int(TeamSelectControl.START_CONTINUE):
+            raise FrontEndSessionError("TeamSelect Start has already completed.")
+
         if screen is FrontEndScreen.START_MENU and control == StartMenuControl.NEW_GAME:
             # Do not move off PStartMenu if the database cannot be loaded.
             backend = self.gameplay_factory()
@@ -136,8 +139,6 @@ class FrontEndSession:
             return FrontEndSessionOutcome(transition)
 
         if screen is FrontEndScreen.TEAM_SELECT and control == TeamSelectControl.START_CONTINUE:
-            if self.started:
-                raise FrontEndSessionError("TeamSelect Start has already completed.")
             if self.gameplay is None or not self.selected_club_ids:
                 raise FrontEndSessionError("Choose a club before starting the game.")
             if len(self.selected_club_ids) != 1:

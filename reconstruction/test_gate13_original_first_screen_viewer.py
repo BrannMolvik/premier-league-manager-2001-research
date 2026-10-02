@@ -1,15 +1,19 @@
 """Headless exact-source live viewer model and mocked Tk navigation tests."""
 from base64 import b64decode
+from dataclasses import dataclass
+from datetime import date
 from types import SimpleNamespace
 import unittest
 
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndScreen
+from gate13_management_source_data import ClubHeaderView
 from gate13_original_first_screen_viewer import OriginalFirstScreenTkDebug
 from original_first_screen_presenter import OriginalFirstScreenPresenter
 from original_live_debug_view import (
     OriginalLiveDebugError, build_original_debug_frame
 )
+from original_management_presenter import OriginalManagementPresenter
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
 from original_teamselect_resources import assemble_original_teamselect_inputs
 from test_original_pstartmenu_resources import fixture as menu_fixture
@@ -53,6 +57,34 @@ class StubBackend:
     def select_club(self, club_id):
         self.selections.append(club_id)
         return ("source-debug-manager", club_id)
+
+
+@dataclass(frozen=True)
+class ManagementRow:
+    source_roster_index: int
+    player_id: int
+    full_name: str
+    current_position: int = 12
+    condition: int = 90
+    recent_form_average: float = 7.0
+    current_role_rating: int = 61
+
+
+class ViewerManagementBridge:
+    def __init__(self, backend):
+        self.backend = backend
+
+    def club_header(self):
+        return ClubHeaderView(12, "Source Club", "Source", date(2000, 8, 1))
+
+    def squad_rows(self):
+        return (ManagementRow(0, 1000, "Player 0"),)
+
+
+def management_presenter_factory(session):
+    return OriginalManagementPresenter(
+        session, bridge_factory=ViewerManagementBridge
+    )
 
 
 def presenter():
@@ -215,7 +247,13 @@ class OriginalLiveDebugTests(unittest.TestCase):
     def test_mock_tk_displays_original_unscaled_background_and_routes_known_pixels(self):
         live = presenter()
         root = FakeRoot()
-        window = OriginalFirstScreenTkDebug(live, root, FakeTk, FakeTtk)
+        window = OriginalFirstScreenTkDebug(
+            live,
+            root,
+            FakeTk,
+            FakeTtk,
+            management_presenter_factory=management_presenter_factory,
+        )
         self.assertEqual(window.canvas.kwargs["width"], 800)
         self.assertEqual(window.canvas.kwargs["height"], 600)
         self.assertIn("DEVELOPER PREVIEW", root.values["title"])
@@ -246,10 +284,14 @@ class OriginalLiveDebugTests(unittest.TestCase):
         self.assertEqual(live.session.selected_club_id, 12)
         window.on_original_click(SimpleNamespace(x=426, y=301))
         self.assertTrue(live.session.started)
+        self.assertIs(live.session.navigation.screen, FrontEndScreen.MANAGEMENT)
         self.assertEqual(
             live.session.gameplay.selections, [12]
         )
-        self.assertIn("not yet reconstructed", window.status.get())
+        self.assertEqual(window.canvas.images, [])
+        self.assertIn("PMenu management host", window.status.get())
+        self.assertIn("PSquadScreen", window.events_label.values["text"])
+        self.assertIn("(599, 96, 201, 504)", window.events_label.values["text"])
 
 
 if __name__ == "__main__":
