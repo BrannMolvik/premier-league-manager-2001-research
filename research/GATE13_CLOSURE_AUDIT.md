@@ -1,46 +1,104 @@
 # Gate 13 Closure Audit
 
 _Audit date: 2 October 2026 KST_
+_Last reconciled after Recovery 172 clean-host integration._
 
 ## Decision
 
-**Gate 13 remains active.** The source recovery is substantially ahead of the
-integrated runtime presentation, but the current application still enters the
-generic ttk Play tab for ordinary management. That surface is explicitly a
-prototype and does not yet make normal play recognizably FM2001.
+**Gate 13 remains active.** The earlier generic-ttk handoff blocker is now
+closed: normal `app.py` launch enters the source-backed fixed 800x600 host,
+PStartMenu/TeamSelect are live, and a successful TeamSelect Start enters the
+source-proven `PMenu -> PSquadScreen` management state.
 
-This audit is intentionally criterion-driven. It does not require every
-unresolved executable detail or every obscure original panel before Gate 13 can
-pass.
+Gate 13 still cannot pass because the ordinary-management canvas deliberately
+draws no guessed management pixels, native PMenu activation/navigation is not
+yet source-bound, and the source-backed Squad/Fixtures/PMatchInfo/League Tables
+presenters are not yet one playable visual loop.
+
+This audit remains criterion-driven. It does not require every obscure panel or
+every neutral bit name before Gate 13 can close.
 
 ## Roadmap criteria
 
 | Criterion | Result | Evidence |
 | --- | --- | --- |
-| Simulation logic remains separated from presentation | **PASS** | `GATE13_PRESENTATION_SEPARATION_AUDIT.md`, the read-only management bridge, and the first-screen, Squad, League Tables and PMatchInfo presenters keep simulation imports outside presentation modules. |
-| Accessible original resources and recoverable layout/navigation are reused or converted | **FAIL - required work remains** | Exact first-screen, PMenu, Squad, Fixtures, PMatchInfo, League Tables and Scouting resources/contracts exist, but several are not composed into the live ordinary-management surface. The generic prototype therefore remains the effective replacement for normal play. |
-| Main-menu/login presentation, structure, navigation and timing closely follow the original | **PARTIAL - not yet a gate pass** | The corrected Windows 11 PStartMenu -> TeamSelect audit passes with native resources, hierarchy population, selection and Back/Start behavior. A successful Start still hands off to the generic prototype instead of the source-proven PMenu -> PSquadScreen route. |
-| Normal play feels recognizably like FM2001 rather than a generic replacement UI | **FAIL** | `reconstruction/app.py` still identifies itself as a prototype and uses ttk notebook/tree controls for ordinary management. Source-backed presenters do not yet form one integrated playable management path. |
+| Simulation logic remains separated from presentation | **PASS** | `GATE13_PRESENTATION_SEPARATION_AUDIT.md`, `ManagementSourceDataBridge`, `OriginalManagementPresenter`, and the source-backed first-screen/management hosts keep simulation mutation behind controller/session boundaries. |
+| Accessible original resources and recoverable layout/navigation are reused or converted | **PARTIAL - required work remains** | First-screen, PMenu, Squad, League Fixtures, PMatchInfo, League Tables and Scouting resources/contracts are source-bound and many are provenance-imported. Normal launch now uses the source-backed host, but the management canvas still cannot compose the unresolved surrounding background, exact PMenu text placement or a complete source-backed Squad view. |
+| Main-menu/login presentation, structure, navigation and timing closely follow the original | **PARTIAL - close to sufficient for Gate 13** | PStartMenu -> TeamSelect -> MANAGEMENT is integrated with native first-screen resources, hierarchy population, club selection, Back/Start behavior and the fixed PMenu/Squad parent geometry. The Recovery-172 schema-5 Windows harness also covers the default clean host, but a new real Windows 11 schema-5 receipt is still pending. |
+| Normal play feels recognizably like FM2001 rather than a generic replacement UI | **FAIL** | The default host no longer falls back to the ttk notebook, but after Start it intentionally presents a blank 800x600 management canvas because source management pixels are incomplete. Candidate PMenu hit-testing is geometry-only and cannot yet navigate. |
+
+## Closed since the earlier audit
+
+The following blockers from the original closure audit are now closed:
+
+1. **Default launch path:** normal `app.py` launch uses
+   `OriginalGameTkHost`; the generic ttk notebook is explicit
+   `--prototype-ui` only.
+2. **TeamSelect Start handoff:** a valid native club selection reaches
+   `FrontEndScreen.MANAGEMENT` and creates the source-proven fresh
+   `PMenu -> PSquadScreen` presenter.
+3. **Fixed management geometry:** the live management host preserves the exact
+   **800x600** surface, PMenu **(599,96,201,504)** and fresh PSquadScreen
+   **(0,79,800,520)**.
+4. **Source-backed management routing model:** `OriginalManagementPresenter`
+   can project PSquadScreen (`0xCE`), PLeagueFixtures (`0x25C`) and
+   PLeagueTables (`0x25A`) without importing simulation logic.
+5. **PMenu pointer containment:** the live diagnostic and clean hosts now expose
+   the geometry-proven candidate visible row under the pointer while explicitly
+   dispatching **no** navigation.
+6. **Windows audit contract:** schema 5 now tests the developer viewer and the
+   default clean host through New Game -> native club click -> Start ->
+   MANAGEMENT, and requires zero guessed management PhotoImages. The new
+   schema-5 contract is repository-verified; its real Windows execution is
+   still pending.
 
 ## Required before Gate 13 can pass
 
-The smallest sufficient closure slice is one complete, source-backed normal
-gameplay path:
+The smallest sufficient remaining closure slice is now:
 
-1. TeamSelect Start must enter the source-proven `PMenu` shell and fresh-user
-   `PSquadScreen` landing instead of stopping at a backend handoff message.
-2. The live management canvas must compose the already recovered PMenu chrome,
-   Zurich text, Squad row/view controls and original resources without a modern
+1. **Recover enough management pixels to render the fresh landing recognizably.**
+   Source-bind the remaining PMenu text origin/clipping and application-owned
+   management background/chrome needed for the visible PMenu/Squad landing.
+   Reuse the already imported PMenu/Squad resources; do not introduce a
    substitute skin.
-3. That path must navigate through the core ordinary loop needed to manage and
-   play a fixture: Squad/tactics -> League Fixtures -> PMatchInfo/result ->
-   League Tables, using the existing read-only bridge and action boundary.
-4. A real Windows/Tk audit must exercise the integrated route, verify original
-   resource dimensions/state transforms, and prove that gameplay actions still
-   use the reconstructed backend rather than duplicated presentation logic.
+2. **Recover native PMenu activation/navigation semantics.** Candidate row
+   containment alone is not evidence of click activation. Trace the row-event
+   ownership/state path and only then connect the already-supported Squad,
+   League Fixtures and League Tables panel routes.
+3. **Compose one ordinary management loop in the clean host.** The user must be
+   able to move through the source-backed Squad/tactics -> League Fixtures ->
+   PMatchInfo/result -> League Tables path while gameplay mutations continue to
+   flow through the reconstructed backend rather than presentation code.
+4. **Run the integrated route on real Windows 11.** Execute the schema-5 audit
+   (and extend it as the management loop becomes interactive) against the
+   canonical local install and preserve the bounded receipt outside Git.
 
-The exact implementation may be incremental, but a collection of disconnected
-presenter snapshots is not enough to satisfy the normal-play criterion.
+A collection of presenter snapshots or diagnostic status strings is not enough
+to satisfy the normal-play criterion.
+
+## Current blockers
+
+### Private/native evidence blocker
+
+The current ChatGPT execution sandbox still fails before process start with
+`caas.internal.errors.ClientError`, including a trivial shell probe in
+Recovery 172. The authorized source ZIP remains recoverable from the private
+Library, but the unavailable process sandbox prevents a fresh executable trace
+for:
+
+- exact PMenu label origin/clipping;
+- any application-owned surrounding management background layer not already
+  persisted;
+- native PMenu row activation/event ownership.
+
+This is an infrastructure blocker, not a user-action blocker. Do not infer the
+missing behavior from appearance or modern UI conventions.
+
+### Local Windows validation boundary
+
+Hosted Linux CI verifies the audit contract but cannot produce a real Windows
+Tk receipt. A new schema-5 local Windows 11 run remains required before the
+expanded clean-host graphical result is claimed.
 
 ## Validly deferred to Gate 15
 
@@ -66,51 +124,30 @@ not be replaced by invented behavior.
 
 ## Stale or superseded blockers
 
-- a standalone Manager Home panel: superseded by `PMenu -> PSquadScreen`;
+- standalone Manager Home panel: superseded by `PMenu -> PSquadScreen`;
+- generic ttk Play tab as normal launch path: superseded by
+  `OriginalGameTkHost`;
+- TeamSelect Start backend-only handoff: superseded by the live MANAGEMENT host;
 - first-screen Windows validation: passed in Recovery 164;
 - PMenu four-file binary staging: complete;
 - PMatchInfo `info_popup.444` staging: complete;
 - League Tables 15-file staging: complete;
 - `PLeagueTables+0x7FC..+0x97C` identity: closed as seven `eCText` stat
-  headings with exact sort-state transforms;
-- cloud/private process-start failure: not a blocker in the current Windows
-  Codex environment.
-
-## Optional polish
-
-- exhaustive reconstruction of every non-core menu branch before the first
-  integrated management path exists;
-- animation/state semantic labels not required to reproduce the proven frame
-  transform;
-- screens or resources known only from filenames without executable ownership;
-- styling changes motivated by modernization rather than original evidence.
+  headings with exact sort-state transforms.
 
 ## Immediate implementation boundary
 
-Continue with the PMenu -> PSquadScreen integrated presentation seam. Reuse the
-already imported PMenu/Squad resources and current Squad presenter. The next
-private trace should be limited to evidence genuinely needed to compose that
-route, especially remaining PMenu text origin/clipping and visible-row
-expansion behavior. Do not restart closed first-screen or League Tables work.
+Until the process sandbox recovers, continue only independent cloud-safe work
+that improves the already-proven management path without inventing native
+behavior. Highest-value examples are:
 
-## Recovery 166 implementation progress
+- keep the clean host, management presenter and Windows audit contract aligned;
+- integrate source-backed panel composition only where source geometry/state is
+  already sufficient;
+- make all unresolved management pixels and activation semantics fail closed;
+- prepare tests/audit coverage so fresh private evidence can be integrated
+  immediately when execution is available.
 
-The first non-visual integration seam is now implemented in
-`original_management_presenter.py`. After the existing `FrontEndSession`
-successfully completes a single-user TeamSelect Start, it composes:
-
-- the live controlled-club header from `ManagementSourceDataBridge`;
-- the exact fresh `Team` -> `Squad` PMenu selection and 15 visible rows;
-- the source-preserved first 20 roster entries through the existing exact
-  PSquadList row/column geometry.
-
-The snapshot reports the complete source squad count and any rows outside the
-initial 20-row projection. It does not invent scrolling, text origin, shell
-pixels, or gameplay mutations. The original first-screen presenter exposes the
-same seam through `fresh_management_snapshot()` using a lazy import, preserving
-its simulation-free import boundary.
-
-This closes the data/composition handoff, not the Gate-13 visual criterion. The
-next required step is to render the composed snapshot on the fixed 800x600
-Windows canvas using only source-backed geometry/resources, then route recovered
-menu selections without falling back to the generic ttk Play tab.
+When private execution recovers, the priority trace is the exact PMenu
+text-origin/clipping and row activation/event path, followed by any still-needed
+application-owned background ownership evidence.
