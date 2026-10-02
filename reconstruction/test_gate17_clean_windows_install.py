@@ -119,7 +119,7 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
             patch.dict("gate17_release_readiness.os.environ", {"GITHUB_ACTIONS": "true"}, clear=False),
         ):
             with self.assertRaisesRegex(
-                CleanWindowsInstallReceiptError,
+                ReleaseReadinessError,
                 "GitHub Actions",
             ):
                 require_external_windows_11_workstation()
@@ -134,7 +134,7 @@ class Gate17CleanWindowsInstallReceiptTests(unittest.TestCase):
             ),
         ):
             with self.assertRaisesRegex(
-                CleanWindowsInstallReceiptError,
+                ReleaseReadinessError,
                 "client workstation",
             ):
                 require_external_windows_11_workstation()
