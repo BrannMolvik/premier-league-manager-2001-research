@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 186: PR #136 merged as 66fda45f07d8df50dea71303ff0e26348d9e3651 after workflow 37033405890 passed 1,410 tests with 22 expected skips. Gate 13 remains pending the real-Windows schema-8 receipt. Audit Gate 15/FIDELITY_GAPS against later verified work and reconcile only evidence-backed stale entries; continue cloud-safe work without closing Gate 13.",
-  "last_known_main_head": "66fda45f07d8df50dea71303ff0e26348d9e3651",
+  "active_task": "Recovery 186 continued after transient interruption. PR #137 merged as d31e2ab5f5adb2bd6258222ec36349e3970c8df3. Gate 13 remains pending the fresh real-Windows schema-8 receipt; Gate 14 private-source path/geometry work remains process-blocked. Continue an actual unresolved cloud-safe Gate 15 behavior from the fidelity ledger without closing earlier gates.",
+  "last_known_main_head": "d31e2ab5f5adb2bd6258222ec36349e3970c8df3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 186,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 186 main checkpoint merged. Private process execution remains blocked after source ZIP materialization, so FastView path/geometry stays unclaimed.",
+  "note": "Recovery 186 resumed cleanly after connection interruption; documentation reconciliation is canonical.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
