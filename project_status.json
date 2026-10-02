@@ -1417,5 +1417,16 @@
     19
   ],
   "gate13_league_tables_integration_open": true,
-  "gate13_league_tables_windows_validation_open": true
+  "gate13_league_tables_windows_validation_open": true,
+  "gate13_league_tables_body_merge": "7578e465fbc952a74ee1268b698dde7d26ee2a8b",
+  "gate13_league_tables_body_ci_run": 36949336841,
+  "gate13_league_tables_body_test_count": 379,
+  "gate13_league_tables_body_expected_skips": 21,
+  "gate13_league_tables_body_asset_policy_run": 36949336761,
+  "gate13_league_tables_downstream_display_controls_open": true,
+  "gate13_league_tables_downstream_display_control_range": [
+    "0x7FC",
+    "0x97C"
+  ],
+  "gate13_league_tables_private_source_execution_blocked": true
 }
