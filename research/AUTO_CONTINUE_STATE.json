@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 187: main remains 3b9fc3741a8d614a14389d90db99285b9aa49a69. Due MPMTransferPlayer same-day fixture ordering is bounded as an evidence blocker: 0x613EE0 is first inside 0x4A8070, but the persisted repo lacks the outer relation to match execution and fresh process execution is blocked by caas ClientError. PR #146 (recovery187/gate15-cup-controlled-postings) is the active independent Gate-15 slice: exact special Cup/knockout controlled-participant category-1/category-2 accounting helper using each participant's own ticket prices; full live Cup receipt attachment remains next after CI.",
+  "active_task": "Recovery 187: PR #146 head dca8964acfd38158da0a537ba814eec79cd50703 is under full reconstruction CI. It adds exact special Cup/knockout controlled-participant category-1/category-2 accounting using each participant's own ticket prices plus exact neutral 0x5DBCD0 paired-XI attendance modifier. Full live Cup receipt attachment is blocked on source-locking the 0x5DBCD0 caller/applicability. Due MPMTransferPlayer same-day fixture ordering remains blocked because persisted evidence lacks the outer match-vs-0x4A8070 relation.",
   "last_known_main_head": "3b9fc3741a8d614a14389d90db99285b9aa49a69",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 187,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Gate 13 remains earliest incomplete validation gate pending schema-8 real-Windows 11/Tk receipt. Do not infer due-transfer fixture ordering or label the Cup posting mechanic as revenue sharing.",
+  "note": "Gate 13 remains earliest incomplete validation gate pending schema-8 real-Windows 11/Tk receipt. Fresh private execution is unavailable: both shell/container and Python process paths fail with caas.internal.errors.ClientError. Do not infer due-transfer fixture ordering, 0x5DBCD0 applicability, or label the Cup posting mechanic as revenue sharing.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
