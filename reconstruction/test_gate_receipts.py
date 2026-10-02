@@ -13,6 +13,7 @@ from gate_receipts import (
     league_importance_factor,
     league_position_factor,
     ordinary_league_side_modifier,
+    paired_type6_side_modifier,
     randomized_gate_count,
     signed_trunc_division,
     ticket_price_response,
@@ -214,6 +215,25 @@ class GateLiveInputTests(unittest.TestCase):
             ),
             0.0,
         )
+
+    def test_alternate_type6_side_modifier_uses_exact_weighted_pair(self):
+        primary = (80,) * 11
+        other = (40,) * 11
+        self.assertAlmostEqual(
+            paired_type6_side_modifier(primary, other),
+            0.2 * (10.0 * 1.1 + 5.0 * 0.55) / 15.0,
+        )
+        self.assertAlmostEqual(
+            paired_type6_side_modifier(other, primary),
+            0.2 * (10.0 * 0.55 + 5.0 * 1.1) / 15.0,
+        )
+        with self.assertRaises(ValueError):
+            paired_type6_side_modifier(
+                primary,
+                other,
+                prestige_weight=1.0,
+                other_prestige_weight=-1.0,
+            )
 
     def test_first_xi_and_weighted_side_modifier(self):
         ratings = (80,) * 11
