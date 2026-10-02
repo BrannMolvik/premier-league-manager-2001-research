@@ -53,6 +53,8 @@ on:
       - "reconstruction/test_original_management_shell.py"
       - "reconstruction/original_management_navigation.py"
       - "reconstruction/test_original_management_navigation.py"
+      - "reconstruction/original_management_presenter.py"
+      - "reconstruction/test_original_management_presenter.py"
       - "reconstruction/original_league_fixtures_resources.py"
       - "reconstruction/test_original_league_fixtures_resources.py"
       - "reconstruction/original_league_tables_resources.py"
@@ -116,7 +118,7 @@ jobs:
         run: python -m pip install "capstone>=5,<6"
       - name: Compile temporary prototype after presentation-boundary changes
         working-directory: reconstruction
-        run: python -m py_compile app.py gate13_management_source_data.py original_league_tables_presenter.py
+        run: python -m py_compile app.py gate13_management_source_data.py original_management_presenter.py original_league_tables_presenter.py
       - name: Run focused Gate 13 tests
         working-directory: reconstruction
         run: |
@@ -135,6 +137,7 @@ jobs:
             test_original_squad_presenter \
             test_original_management_shell \
             test_original_management_navigation \
+            test_original_management_presenter \
             test_original_league_fixtures_resources \
             test_original_league_tables_resources \
             test_original_league_tables_presenter \
