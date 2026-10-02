@@ -144,7 +144,11 @@ class OriginalGameHostTests(unittest.TestCase):
             self.assertEqual(root.values["title"], "Premier League Manager 2001")
             self.assertEqual(host.canvas.kwargs["width"], 800)
             self.assertEqual(host.canvas.kwargs["height"], 600)
-            self.assertEqual(host.canvas.values["bind"][0], ("<Button-1>",))
+            bind_args, bind_kwargs = host.canvas.values["bind"]
+            self.assertEqual(bind_args[0], "<Button-1>")
+            self.assertIs(bind_args[1].__self__, host)
+            self.assertEqual(bind_args[1].__func__, host.on_click.__func__)
+            self.assertEqual(bind_kwargs, {})
             self.assertEqual(len(host.canvas.images), 9)
 
             host.on_click(SimpleNamespace(x=7, y=478))
