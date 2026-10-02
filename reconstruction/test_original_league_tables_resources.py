@@ -1,6 +1,8 @@
 """Regressions for source-backed PLeagueTables selector/header shell."""
 import unittest
 
+import original_league_tables_resources as lt
+
 from original_league_tables_resources import (
     LEAGUE_TABLES_ACTIVE_COUNTRY_INDEX_OFFSET,
     LEAGUE_TABLES_CLASS,
@@ -85,16 +87,64 @@ class OriginalLeagueTablesResourceTests(unittest.TestCase):
                 with self.assertRaises(OriginalLeagueTablesError):
                     league_tables_country_event_index(bad)
 
-    def test_two_unresolved_selector_families_stay_structurally_bounded_and_neutral(self):
-        self.assertEqual(LEAGUE_TABLES_SECONDARY_SELECTOR_BASE_OFFSET, 0x4E4)
-        self.assertEqual(LEAGUE_TABLES_SECONDARY_SELECTOR_COUNT, 5)
+    def test_division_selector_family_is_dynamic_leaguebase_content(self):
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_HEADER_CONTROL_OFFSET, 0x49C)
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_HEADER_CALL_VA, 0x4472C1)
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_HEADER_GLOBAL_VA, 0x982678)
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_HEADER_ENGLISH_INDEX, 2144)
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_HEADER_TEXT, "DIVISION")
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_SELECTOR_BASE_OFFSET, 0x4E4)
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_SELECTOR_COUNT, 5)
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_EVENT_FIRST, 9)
+        self.assertEqual(lt.LEAGUE_TABLES_SELECTED_DIVISION_INDEX_OFFSET, 0x68)
+        self.assertEqual(lt.LEAGUE_TABLES_SELECTED_DIVISION_IDENTITY_OFFSET, 0x8C)
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_IDENTITY_ARRAY_OFFSET, 0xA0)
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_REBUILD_VA, 0x448E60)
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_SET_TEXT_VA, 0x5D3F10)
+        self.assertEqual(lt.LEAGUE_TABLES_LEAGUE_BASE_TYPE_DESCRIPTOR_VA, 0x818AA0)
+        self.assertEqual(lt.LEAGUE_TABLES_DUMMY_LEAGUE_TYPE_DESCRIPTOR_VA, 0x81B498)
+        self.assertEqual(lt.LEAGUE_TABLES_RTDYNAMICCAST_VA, 0x668995)
+        self.assertEqual(lt.LEAGUE_TABLES_COUNTRY_COMPETITION_ARRAY_OFFSET, 0x48)
+        self.assertEqual(lt.LEAGUE_TABLES_COUNTRY_COMPETITION_COUNT_OFFSET, 0x4C)
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_CAPTION_OFFSET, 0x14)
+        self.assertEqual(lt.LEAGUE_TABLES_DIVISION_IDENTITY_WORD_OFFSET, 0x20)
         self.assertEqual(
-            LEAGUE_TABLES_SECONDARY_SETUP_CALLS,
+            lt.LEAGUE_TABLES_DIVISION_SETUP_CALLS,
             (0x447306, 0x447353, 0x4473A1, 0x4473F2, 0x447440),
         )
-        self.assertEqual(LEAGUE_TABLES_TERTIARY_SELECTOR_BASE_OFFSET, 0x6A8)
-        self.assertEqual(LEAGUE_TABLES_TERTIARY_SELECTOR_COUNT, 2)
-        self.assertEqual(LEAGUE_TABLES_TERTIARY_SETUP_CALLS, (0x4474B5, 0x447501))
+        for event_id in range(9, 14):
+            self.assertEqual(lt.league_tables_division_event_index(event_id), event_id - 9)
+        for bad in (True, "9", 8, 14, -1):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalLeagueTablesError):
+                    lt.league_tables_division_event_index(bad)
+
+    def test_sort_by_family_is_exact_league_position_vs_current_form(self):
+        self.assertEqual(lt.LEAGUE_TABLES_SORT_HEADER_CONTROL_OFFSET, 0x660)
+        self.assertEqual(lt.LEAGUE_TABLES_SORT_HEADER_CALL_VA, 0x447472)
+        self.assertEqual(lt.LEAGUE_TABLES_SORT_HEADER_GLOBAL_VA, 0x983A94)
+        self.assertEqual(lt.LEAGUE_TABLES_SORT_HEADER_ENGLISH_INDEX, 857)
+        self.assertEqual(lt.LEAGUE_TABLES_SORT_HEADER_TEXT, "Sort By")
+        self.assertEqual(lt.LEAGUE_TABLES_SORT_SELECTOR_BASE_OFFSET, 0x6A8)
+        self.assertEqual(lt.LEAGUE_TABLES_SORT_SELECTOR_COUNT, 2)
+        self.assertEqual(lt.LEAGUE_TABLES_SORT_EVENT_FIRST, 14)
+        self.assertEqual(lt.LEAGUE_TABLES_SORT_STATE_OFFSET, 0x98)
+        self.assertEqual(lt.LEAGUE_TABLES_SORT_DEFAULT_STATE, 0)
+        self.assertEqual(lt.LEAGUE_TABLES_SORT_SETUP_CALLS, (0x4474B5, 0x447501))
+        self.assertEqual(
+            lt.LEAGUE_TABLES_SORT_OPTIONS,
+            (
+                ("League Position", 0x983C04, 765, 14, 0),
+                ("Current Form", 0x983A90, 858, 15, 1),
+            ),
+        )
+        self.assertEqual(lt.LEAGUE_TABLES_SORT_APPLY_VA, 0x449090)
+        self.assertEqual(lt.league_tables_sort_state(14), 0)
+        self.assertEqual(lt.league_tables_sort_state(15), 1)
+        for bad in (True, "14", 13, 16, -1):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalLeagueTablesError):
+                    lt.league_tables_sort_state(bad)
 
     def test_country_header_is_source_bound_to_original_english_text(self):
         self.assertEqual(LEAGUE_TABLES_COUNTRY_HEADER_CONTROL_OFFSET, 0x1F4)
