@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 186: PR #138 merged as 1a274e5f5b1f7494db3230d6a7b79cc4b5984773 after asset policy 37035514105 and reconstruction workflow 37035514222 passed 1,413 tests with 22 skips. Persistent-injury 0x405080 availability gap is resolved. Continue Gate 15 finite fidelity disposition while Gate 13 remains pending real-Windows schema-8 and Gate 14 private-source execution remains blocked.",
-  "last_known_main_head": "1a274e5f5b1f7494db3230d6a7b79cc4b5984773",
+  "active_task": "Recovery 186: PR #139 merged as 40937ad80eb0538ce128ffc6c9588ac91634eb4a after workflow 37038514423 passed 1,413 tests with 22 expected skips. Legacy chairman budget-event family is retired as irrelevant to ordinary shipped fresh-game behavior. Continue Gate 15 finite fidelity disposition by tracing due-transfer same-day ordering relative to fixture execution from persisted executable evidence; keep unresolved private-source gaps fail-closed.",
+  "last_known_main_head": "40937ad80eb0538ce128ffc6c9588ac91634eb4a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 186,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 186 substantive checkpoint merged; next step is evidence-based Gate 15 disposition, not gate closure.",
+  "note": "Recovery 186 checkpoint merged; Gate 13 still waits on real-Windows schema-8. Continue Gate 15 cloud-safe disposition.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
