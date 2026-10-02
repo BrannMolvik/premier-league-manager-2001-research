@@ -27,6 +27,21 @@ class Gate17PackageCandidateTests(unittest.TestCase):
         (dist / "runtime.bin").write_bytes(b"runtime")
         return dist
 
+    def test_distribution_accepts_pyinstaller_v6_internal_data_layout(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            dist = self._distribution(root)
+            internal = dist / "_internal"
+            internal.mkdir()
+            (dist / "original_assets").rename(internal / "original_assets")
+
+            files = validate_distribution(dist, "FM2001-Windows11.exe")
+
+            self.assertTrue(files)
+            self.assertTrue(
+                (internal / "original_assets" / "MANIFEST.md").is_file()
+            )
+
     def test_distribution_rejects_user_owned_game_data(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
