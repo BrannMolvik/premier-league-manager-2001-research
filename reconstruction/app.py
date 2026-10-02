@@ -664,6 +664,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('game_dir', nargs='?', default=str(DEFAULT_GAME_DIR))
     ap.add_argument(
+        '--package-smoke',
+        action='store_true',
+        help=argparse.SUPPRESS,
+    )
+    ap.add_argument(
         '--prototype-ui',
         action='store_true',
         help='Open the legacy development notebook instead of the source-backed FM2001 host.',
@@ -692,6 +697,8 @@ def main():
         help='Repeatable argument passed to the configured startup-media player before the media path.',
     )
     args = ap.parse_args()
+    if args.package_smoke:
+        return
     game_dir = Path(args.game_dir)
     if not (game_dir / 'Master.dat').exists():
         game_dir = choose_dir()
