@@ -15,8 +15,10 @@ from gate13_management_source_data import ClubHeaderView
 from original_first_screen_presenter import OriginalFirstScreenPresenter
 from original_game_host import (
     DEFAULT_SOURCE_ROOT,
+    OriginalGameHostError,
     OriginalGameTkHost,
     build_original_game_presenter,
+    play_configured_startup_media,
 )
 from original_management_presenter import OriginalManagementPresenter
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
@@ -156,6 +158,45 @@ class OriginalGameHostTests(unittest.TestCase):
         self.assertIn("no source-bounded PMenu candidate row", host.last_status)
         self.assertEqual(host.management_presenter.snapshot().panel_code, 0xCE)
         self.assertEqual(host.canvas.images, [])
+
+    def test_startup_media_runtime_integration_requires_explicit_receipt_and_backend(self):
+        self.assertIsNone(
+            play_configured_startup_media(
+                receipt_path=None,
+                backend=None,
+            )
+        )
+
+        backend = object()
+        receipt = Path("/private/startup-receipt.json")
+        repo_root = Path("/repo")
+        with patch(
+            "original_game_host.load_and_play_verified_startup_sequence",
+            return_value="summary",
+        ) as play:
+            result = play_configured_startup_media(
+                receipt_path=receipt,
+                backend=backend,
+                repo_root=repo_root,
+            )
+
+        self.assertEqual(result, "summary")
+        play.assert_called_once_with(
+            receipt_path=receipt,
+            repo_root=repo_root,
+            backend=backend,
+        )
+
+        for bad_receipt, bad_backend in (
+            (receipt, None),
+            (None, backend),
+        ):
+            with self.subTest(receipt=bad_receipt, backend=bad_backend):
+                with self.assertRaises(OriginalGameHostError):
+                    play_configured_startup_media(
+                        receipt_path=bad_receipt,
+                        backend=bad_backend,
+                    )
 
     def test_default_source_root_is_repository_original_asset_store(self):
         self.assertEqual(
