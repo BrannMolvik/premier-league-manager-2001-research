@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 188: main 04b2a65d864939f219d5800bef03eb8144833b00 includes PR #147 Gate-15 readiness audit. Private process execution still fails with caas ClientError, so Gate 13 schema-8 Windows receipt and fresh executable traces remain deferred. Continue the highest-priority independent cloud-safe Gate-14 task by exhausting persisted repository evidence for exact FastView seven-resource paths/placement/audio; if insufficient, record the precise unresolved boundary and advance to the next cloud-safe release-readiness task without guessing.",
-  "last_known_main_head": "04b2a65d864939f219d5800bef03eb8144833b00",
+  "active_task": "Recovery 188: PR #149 is canonical at ba6cabb692a1884be9e5bec8115d41f8bcad60c4 after 1,428 tests / 22 expected skips plus asset-policy success. Continue Gate-17 work-ahead on a fresh branch: bind every external Windows receipt to the exact release_version and release_archive_sha256, then add fail-closed machine producers for the release gameplay receipts where existing canonical controller APIs are sufficient. Gate 13 remains earliest incomplete validation gate; private process execution remains unavailable.",
+  "last_known_main_head": "ba6cabb692a1884be9e5bec8115d41f8bcad60c4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 188,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate 13 remains earliest incomplete validation gate pending a fresh schema-8 real-Windows 11/Tk receipt. Gate 14 exact FastView paths/placement/audio and fresh source questions remain blocked by caas ClientError. Due-transfer fixture ordering and 0x5DBCD0 caller applicability remain fail-closed.",
+  "note": "Gate 17 prerequisite guard and distinct-receipt rule are canonical. FastView exact disc paths/placement remain blocked by caas ClientError; pitch_normal.444 basename collision makes directory inference unsafe. Do not claim release completion.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
