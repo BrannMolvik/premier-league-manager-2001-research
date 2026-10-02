@@ -13,13 +13,63 @@ separate source evidence.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 from typing import Iterable, Protocol
 
-from match_events import ChanceRecord, MatchEvent, PossessionRecord
+from match_events import (
+    BoundaryRecord,
+    BoundaryType,
+    ChanceRecord,
+    MatchEvent,
+    PossessionRecord,
+    SubstitutionRecord,
+)
 
 
 class MatchPresentationFeedError(ValueError):
     """An input timeline cannot be projected without inventing state."""
+
+
+class FastViewSemanticEvent(Enum):
+    """Original presentation event families directly evidenced in FM2001.
+
+    These names mirror recovered FastView/MatchController event routes. Records
+    without a proven original presentation sender deliberately map to None
+    rather than receiving a guessed semantic label.
+    """
+
+    PLAYER_GOAL = "EventPlayerGoal"
+    PLAYER_OWN_GOAL = "EventPlayerOwnGoal"
+    POSSESSION = "EventPossession"
+    SUBSTITUTION = "FastView:Substitution"
+    HALF_TIME = "FastView:HalfTime"
+    FULL_TIME = "FastView:FullTime"
+    EXTRA_TIME = "FastView:ExtraTime"
+    PENALTIES = "FastView:Penalties"
+
+
+def fastview_semantic_event(event: MatchEvent) -> FastViewSemanticEvent | None:
+    """Project one reconstructed record onto only proven FastView semantics."""
+    if isinstance(event, ChanceRecord):
+        if not event.is_goal:
+            return None
+        return (
+            FastViewSemanticEvent.PLAYER_OWN_GOAL
+            if event.is_own_goal
+            else FastViewSemanticEvent.PLAYER_GOAL
+        )
+    if isinstance(event, PossessionRecord):
+        return FastViewSemanticEvent.POSSESSION
+    if isinstance(event, SubstitutionRecord):
+        return FastViewSemanticEvent.SUBSTITUTION
+    if isinstance(event, BoundaryRecord):
+        return {
+            BoundaryType.HALF_TIME: FastViewSemanticEvent.HALF_TIME,
+            BoundaryType.FULL_TIME: FastViewSemanticEvent.FULL_TIME,
+            BoundaryType.EXTRA_TIME: FastViewSemanticEvent.EXTRA_TIME,
+            BoundaryType.PENALTIES: FastViewSemanticEvent.PENALTIES,
+        }[event.kind]
+    return None
 
 
 class TimedMatchEventLike(Protocol):
@@ -38,6 +88,7 @@ class MatchPresentationEvent:
     minute: int
     score_after: tuple[int, int]
     event: MatchEvent
+    fastview_event: FastViewSemanticEvent | None
 
 
 @dataclass(frozen=True)
@@ -45,6 +96,7 @@ class MatchPresentationPossession:
     sequence: int
     calculation_minute: int
     record: PossessionRecord
+    fastview_event: FastViewSemanticEvent
 
 
 @dataclass(frozen=True)
@@ -83,6 +135,7 @@ def build_match_presentation_feed(
                 minute=minute,
                 score_after=(score[0], score[1]),
                 event=event,
+                fastview_event=fastview_semantic_event(event),
             )
         )
 
@@ -108,6 +161,7 @@ def build_match_presentation_feed(
                 sequence=sequence,
                 calculation_minute=minute,
                 record=segment.record,
+                fastview_event=FastViewSemanticEvent.POSSESSION,
             )
         )
 
