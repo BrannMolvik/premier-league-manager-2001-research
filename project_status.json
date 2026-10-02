@@ -1416,6 +1416,22 @@
     475,
     19
   ],
-  "gate13_league_tables_integration_open": true,
-  "gate13_league_tables_windows_validation_open": true
+  "gate13_league_tables_integration_open": false,
+  "gate13_league_tables_windows_validation_open": true,
+  "gate13_league_tables_presenter_source_seam": true,
+  "gate13_league_tables_presenter_path": "reconstruction/original_league_tables_presenter.py",
+  "gate13_league_tables_development_ui_uses_presenter": true,
+  "gate13_league_tables_development_ui_original_columns": [
+    "P",
+    "W",
+    "D",
+    "L",
+    "F",
+    "A",
+    "Pts"
+  ],
+  "gate13_league_tables_development_ui_legacy_goal_difference_column_removed": true,
+  "gate13_league_tables_presenter_current_form_sort_open": true,
+  "gate13_league_tables_presenter_current_form_fail_closed": true,
+  "gate13_league_tables_exact_art_staging_open": true
 }
