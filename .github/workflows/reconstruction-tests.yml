@@ -28,6 +28,8 @@ on:
       - "reconstruction/test_gate14_startup_media_convert.py"
       - "reconstruction/startup_media_derivatives.py"
       - "reconstruction/test_startup_media_derivatives.py"
+      - "reconstruction/startup_media_playback.py"
+      - "reconstruction/test_startup_media_playback.py"
       - "reconstruction/match_presentation_feed.py"
       - "reconstruction/test_match_presentation_feed.py"
       - "research/GATE14_PRESENTATION_FOUNDATION.md"
