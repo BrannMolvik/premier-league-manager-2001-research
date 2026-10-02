@@ -135,6 +135,7 @@ class OriginalGameTkHost:
         self.league_tables_header_art = league_tables_header_art
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.last_pmenu_activation = None
+        self.last_squad_view_activation = None
         self.last_pmatchinfo_action = None
         self.active_pmatchinfo_art = None
         self._photos = []
@@ -234,8 +235,18 @@ class OriginalGameTkHost:
             )
 
     def _draw_squad_top_controls(self, frame) -> int:
-        """Draw only the exact native fresh PSquadScreen top controls."""
+        """Draw only the exact native fresh PSquadScreen top-control state."""
         if frame.presentation.panel_class != "PSquadScreen":
+            return 0
+        transition = frame.presentation.squad_view_transition
+        if transition is None:
+            raise OriginalGameHostError(
+                "Squad panel lost its source-proven view-transition state"
+            )
+        # Only control 3's initial selected/normal button frames are currently
+        # source-closed. Controls 4/5 have proven container transitions but
+        # their post-event button/formation/player pixels remain fail-closed.
+        if transition.control_id != 3:
             return 0
         resources = self.squad_top_resources
         if not isinstance(resources, OriginalSquadTopResources):
@@ -427,6 +438,33 @@ class OriginalGameTkHost:
             f"{result.action.action_kind} {menu_id:#x}"
         )
         return result
+
+    def apply_source_accepted_squad_view(self, control_id: int):
+        """Apply one proven Squad container transition after source acceptance.
+
+        No modern pointer/key event is mapped here. Controls 4/5 intentionally
+        redraw with their unresolved post-event Squad pixels withheld.
+        """
+        if self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
+            raise OriginalGameHostError(
+                "Source-accepted Squad view transition requires the MANAGEMENT host"
+            )
+        if self.management_presenter is None:
+            self.management_presenter = self.management_presenter_factory(
+                self.presenter.session
+            )
+        activation = self.management_presenter.source_accepted_squad_view_transition(
+            control_id
+        )
+        self.last_squad_view_activation = activation
+        self.redraw()
+        transition = activation.transition
+        self.last_status = (
+            "Applied source-accepted Squad view transition: "
+            f"{transition.control_id} {transition.original_text}; "
+            "post-event formation/player pixels remain fail-closed"
+        )
+        return activation
 
     def apply_source_accepted_fixture_match_info(
         self,
