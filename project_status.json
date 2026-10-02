@@ -1660,5 +1660,9 @@
   "gate15_country_transfer_window_toggle": "0x411850 -> 0x411190 -> 0x4112D0 -> 0x411380",
   "gate15_country_transfer_window_england_close": "2001-03-30",
   "gate15_country_transfer_window_england_reopen": "2001-05-31",
-  "gate15_country_transfer_window_recovery": 186
+  "gate15_country_transfer_window_recovery": 186,
+  "gate15_contract_month_normalization_exact": true,
+  "gate15_contract_month_normalization_helper": "0x64CDD0",
+  "gate15_contract_month_normalization_rule": "target month day always 1",
+  "gate15_contract_month_normalization_recovery": 186
 }
