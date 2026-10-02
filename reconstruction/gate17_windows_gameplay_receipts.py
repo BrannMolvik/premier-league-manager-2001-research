@@ -302,6 +302,19 @@ def run_windows_gameplay_receipts(
             player_seed=int(player_seed),
         )
     )
+    save_reload = audit_save_reload(
+        game_dir,
+        HumanGameplayController.from_canonical_game_dir(
+            game_dir,
+            player_seed=int(player_seed),
+        ),
+    )
+    season = audit_season_progression(
+        game_dir,
+        player_seed=int(player_seed),
+        max_days=int(max_days),
+    )
+
     management_path = write_new_receipt(
         targets["new_game_management_loop"],
         _receipt_payload(
@@ -309,14 +322,6 @@ def run_windows_gameplay_receipts(
             identity=identity,
             windows=windows,
             result=management,
-        ),
-    )
-
-    save_reload = audit_save_reload(
-        game_dir,
-        HumanGameplayController.from_canonical_game_dir(
-            game_dir,
-            player_seed=int(player_seed),
         ),
     )
     save_path = write_new_receipt(
@@ -327,12 +332,6 @@ def run_windows_gameplay_receipts(
             windows=windows,
             result=save_reload,
         ),
-    )
-
-    season = audit_season_progression(
-        game_dir,
-        player_seed=int(player_seed),
-        max_days=int(max_days),
     )
     season_path = write_new_receipt(
         targets["season_progression"],
