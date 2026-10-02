@@ -292,3 +292,99 @@ Still open:
 3. corrected real-Windows/Tk graphical validation;
 4. broader Gate-13 management/tactics presentation gaps after League Tables
    integration.
+
+
+## Recovery 162 interrupted-row checkpoint
+
+Automatic recovery found branch `feature/gate13-league-tables-rows` exactly one
+commit ahead of merged Recovery 161, based on main
+`3c19c4fff22cc397fe3728e8f6e21fc7896075e0`.  The persisted source trace in
+`faef428e6fda077d311344fb26704d1196828f79` closes a substantial part of the
+row/resource boundary that had not yet reached a pull request.
+
+### Concrete list and row classes
+
+The source-backed list wrapper is `CLeagueTableList`:
+
+- vtable `0x7C011C`;
+- panel object offset `+0x9BC`;
+- setup wrapper `0x4477E0` over generic list setup `0x6510F0`;
+- rectangle `(270,184,477,384)`;
+- exactly 24 visible row slots at 16-pixel step;
+- row creation callback `0x447820`;
+- source pointer at list `+0x4C`.
+
+Each concrete row is `PLeagueTableRow`:
+
+- vtable `0x7BFEC0`;
+- setup `0x446930`;
+- allocation size `0x4A8`;
+- source record pointer `+0x70`;
+- rank value `+0xC4`;
+- 12 child controls.
+
+Recovered row children are background `+0xC8`, icon background `+0xF8`,
+icon `+0x12C`, rank text `+0x160`, club text `+0x1C0`, and seven stat
+texts at `+0x208,+0x268,+0x2C8,+0x328,+0x388,+0x3E8,+0x448`.
+
+The row's source stat fields are `+0x10,+0x14,+0x18,+0x1C,+0x20,+0x24`.
+The displayed points value is source-computed as
+`3 * field_0x14 + field_0x18`.  The two source ordering paths used by the
+screen are `0x4F4940` (League Position) and `0x4F4A10` (Current Form).
+
+### Exact row geometry
+
+Within each 477-pixel row:
+
+- rank: `(23,1,21,12)`;
+- club: `(46,1,214,12)`;
+- P/W/D/L/F/A/Pts: seven `27x12` rectangles at local x
+  `262,291,320,349,378,407,436`.
+
+Adding list x=270 puts club x at 316 and the seven stat columns at
+532/561/590/619/648/677/706, exactly under the already recovered header band.
+The 24 slots times the 16-pixel row step exactly fill the 384-pixel list
+height.
+
+### Original `league_tables` graphic family
+
+The checkpoint records 15 source-proven assets under
+`FM2001_Art/Generic/league_tables/`.
+
+Six 477x14 row grids:
+
+- `champion_grid.444`;
+- `promotion_grid.444`;
+- `relegation_grid.444`;
+- `standard_grid.444`;
+- `your_team_grid.444`;
+- `playoff_grid.444`.
+
+Eight 20x12 state icons:
+
+- `champion_icon.444`, `promotion_icon.444`,
+  `relegation_icon.444`, `playoff_icon.444`;
+- corresponding `your_champion_icon.444`,
+  `your_promotion_icon.444`, `your_relegation_icon.444`,
+  `your_playoff_icon.444`.
+
+The header background is `league_bar.444`, 475x19, wrapper `0x944B70`,
+bound through the panel control at `+0x788` with exact rectangle
+`(270,152,475,19)`.  Exact byte sizes, SHA-256 values and raw/wrapper
+addresses are persisted in `reconstruction/original_league_tables_resources.py`
+and guarded by the focused regression suite.
+
+### Boundary that remains open
+
+This checkpoint does **not** close the entire prior next task.  Recovery 161
+proved that `0x449090` applies sort state to seven downstream display
+controls at `+0x7FC..+0x97C`; their concrete control identities and exact
+state behavior still require executable-byte tracing.  The current recovery
+successfully re-materialized the authorized 511,121,336-byte Library source
+archive, but the available execution sandboxes failed even trivial processing
+with an infrastructure `caas.internal.errors.ClientError`.  This is an
+execution-sandbox blocker, not evidence that the source archive is unavailable.
+
+Cloud-safe work may therefore verify and integrate the already-persisted
+list/row/resource contract while leaving those seven display-control identities
+explicitly open for the next functioning private-source execution session.
