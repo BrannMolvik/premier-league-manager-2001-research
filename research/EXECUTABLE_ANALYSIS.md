@@ -7109,10 +7109,10 @@ With this path and the stadium/map source bridge, the Gate-10 gate-receipt
 producer has no remaining reverse-engineering blocker before implementation.
 
 
-## Gate 10 FanFactor source and Premier League value
+## Gate 10 FanFactor source and Premier League value — corrected 3 October 2026
 
-The neutral `tier_factor` input in the recovered attendance formula is now tied
-to its exact original source rather than left caller-supplied.
+A Gate-15 cross-check of `0x4FA510` exposed and corrected the older Gate-10
+interpretation of the country vectors.
 
 The named tuning loader maps:
 
@@ -7122,33 +7122,46 @@ The named tuning loader maps:
 - `FanFactor4 = 0.6`;
 - `FanFactor5 = 0.5`.
 
-Inside `0x5DA2F0`, the match competition and club country/region are passed to
-`0x410FF0`. That helper searches the country's stored root-competition pointer
-array at `+0x48/+0x4C` and returns the competition's array index. The switch
-then selects FanFactor1..4 for indices 0..3; index 4 and all later/default cases
-use FanFactor5.
+Country construction maintains **two different** root vectors:
 
-The root array construction was already recovered: parentless competitions are
-attached in global source order and qsorted by runtime competition
-`+0x18 = -initialization_order_value`. For England (country/region 26), the
-stored root order is:
+- `DBRCountry +0x40/+0x44`: every parentless competition, qsorted through
+  `0x4F79A0` by runtime `+0x18`;
+- `DBRCountry +0x48/+0x4C`: only root League (kind 1) and DummyLeague
+  (kind 3) competitions, qsorted through `0x4F79D0`.
 
-```text
-90, 89, 7, 4, 3, 2, 0, 6, 8, 1, 5
-```
+`0x410FF0` searches the second vector, `+0x48/+0x4C`.
 
-Premier League competition 0 is therefore stored at index **6**, which takes the
-default/FanFactor5 branch. The exact Premier League attendance factor is thus:
+The attendance path at `0x5DAA0B..0x5DAA42` does **not** pass the match/Cup
+competition to that helper. It reads the club's registered competition from
+club `+0x10`, resolves that pointer through `0x4F3B10`, reads the club
+country from `+0x14`, and calls `0x410FF0` on that country/subset pair.
+
+For canonical England the `+0x48` subset is:
 
 ```text
-FanFactor5 = 0.5
+index 0  F.A. Premier League   kind 1  order 9
+index 1  Division 1            kind 1  order 10
+index 2  Division 2            kind 1  order 11
+index 3  Division 3            kind 1  order 12
+index 4  Conference            kind 1  order 13
+index 5  Conference 2          kind 3  order 14
 ```
 
-This removes another caller-supplied input from the normal Premier League gate
-receipt path. The separate controlled-club facility multiplier and exact RNG
-placement relative to the match/post-match pipeline still need to be attached
-before automatic posting is enabled.
+The switch at `0x5DAA47` selects FanFactor1..4 for indices 0..3 and the
+FanFactor5 value for indices 4, 5 and default. Therefore the exact ordinary
+Premier League factor is:
 
+```text
+FanFactor1 = 0.9
+```
+
+A Premier League club hosting an English Cup match also uses **0.9**, because
+the lookup is based on the host club's registered league competition rather
+than the Cup competition.
+
+This supersedes the older all-root-index-6 / FanFactor5 = 0.5 conclusion.
+The reconstruction now uses 0.9 for ordinary Premier League attendance and
+derives Cup FanFactor from the host club's exact `+0x48` league-root index.
 
 ## Gate 10 normal Premier League gate integration boundary
 
@@ -9644,3 +9657,9 @@ is not a valid table row and must not be clamped into row 4.
 The reconstruction now reproduces the separate `0x4F79D0` CRT qsort subset
 and uses its `0x4FA510` index directly. The previous
 `valuation_division_category` proxy is removed from this path.
+
+The same proof also corrects the Gate-10 FanFactor adapter: `0x5DA2F0`
+uses the host club's `+0x10/+0x14` league/country pair with this same
+`+0x48` subset. Premier League is therefore FanFactor1 = **0.9**, and Cup
+attendance derives the factor from the host club's league rather than the Cup
+root itself.
