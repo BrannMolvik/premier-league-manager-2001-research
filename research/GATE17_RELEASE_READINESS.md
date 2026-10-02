@@ -12,6 +12,11 @@ The final audit in reconstruction/gate17_release_readiness.py is designed to run
 
 The evidence contract requires four **distinct** external JSON receipt files, all tied to the same repository commit and stored outside Git: clean Windows 11 installation outside the development environment; new-game plus management-loop smoke; season progression; and save/reload. Reusing one receipt file for multiple criteria is rejected even if that file happens to contain several true flags.
 
+Every receipt must also identify the exact `release_version` and
+`release_archive_sha256` from the final evidence contract. This prevents a
+source-tree or older-build smoke result from being paired with a different
+archive merely because both share a repository commit.
+
 The audit also verifies a clean Git working tree, repository asset policy, canonical FM2001 source-data verification, the full unittest suite, an archived release file with exact size and SHA-256, and the final release-limitations document.
 
 Recovery 188 additionally makes the roadmap prerequisite chain machine-checkable:
