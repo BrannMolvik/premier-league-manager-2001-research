@@ -21,6 +21,9 @@ from gate_receipts import (
     DomesticCupGatePolicyInputs,
     english_domestic_cup_gate_policy_inputs,
     english_ticket_reference_prices,
+    gate_revenues_for_ticket_prices,
+    GateAttendanceCell,
+    GateReceiptResult,
 )
 
 
@@ -105,6 +108,35 @@ class CupGatePrimitiveTests(unittest.TestCase):
                 total_round_count=8,
                 zero_based_round_index=8,
             )
+
+
+class CupControlledPostingTests(unittest.TestCase):
+    def test_participant_local_prices_reuse_common_attendance_counts(self):
+        receipts = GateReceiptResult(
+            home_seating=GateAttendanceCell(0.0, 1.0, 1, 100),
+            visiting_seating=GateAttendanceCell(0.0, 1.0, 1, 40),
+            home_terrace=GateAttendanceCell(0.0, 1.0, 1, 60),
+            visiting_terrace=GateAttendanceCell(0.0, 1.0, 1, 20),
+            home_revenue=0,
+            visiting_revenue=0,
+        )
+
+        self.assertEqual(
+            gate_revenues_for_ticket_prices(
+                receipts,
+                seating_price=30,
+                terrace_price=20,
+            ),
+            (4200, 1600),
+        )
+        self.assertEqual(
+            gate_revenues_for_ticket_prices(
+                receipts,
+                seating_price=12,
+                terrace_price=8,
+            ),
+            (1680, 640),
+        )
 
 
 class GateLiveInputTests(unittest.TestCase):
