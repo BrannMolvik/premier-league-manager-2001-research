@@ -82,3 +82,60 @@ jobs:
       - name: Run reconstruction tests
         working-directory: reconstruction
         run: python -m unittest discover -v
+
+  playtest-build:
+    name: Frozen Windows playtest package
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          architecture: "x64"
+      - name: Install packaging dependencies
+        shell: pwsh
+        run: python -m pip install --disable-pip-version-check "pyinstaller>=6,<7" "capstone>=5,<6"
+      - name: Build source-backed Windows playtest
+        shell: pwsh
+        run: |
+          python -m PyInstaller --noconfirm --clean --windowed --name FM2001_Playtest --paths reconstruction --add-data "original_assets;original_assets" reconstruction/app.py
+          if (-not (Test-Path "dist/FM2001_Playtest/FM2001_Playtest.exe")) { throw "PyInstaller output missing" }
+          @"
+          FM2001 GATE 13 PLAYTEST
+
+          Frozen source commit:
+          9b31feb05f4c6e239eb4c96288375217165a484e
+
+          This package is a playtest snapshot, not a Gate 13 release.
+
+          HOW TO RUN
+          1. Extract the entire ZIP to a normal folder.
+          2. Run FM2001_Playtest.exe.
+          3. The port looks first for the original FM2001 installation at:
+             C:\Games\FM2001
+          4. If it is not there, choose your original FM2001 game folder when prompted.
+
+          The selected folder must contain the authorized original game files,
+          including Master.dat and FOOTBAL.EXE. Keep the whole playtest folder
+          together because the bundled original UI resources live beside the EXE.
+
+          PLAYTEST TARGET
+          Focus on the source-backed path:
+          New Game -> TeamSelect -> Management/PMenu -> Squad -> League Fixtures
+          -> PMatchInfo -> League Tables.
+
+          Some unrecovered interactions intentionally remain disabled/fail-closed.
+          "@ | Set-Content -Encoding UTF8 "dist/FM2001_Playtest/PLAYTEST_README.txt"
+          "9b31feb05f4c6e239eb4c96288375217165a484e" | Set-Content -Encoding ASCII "dist/FM2001_Playtest/SOURCE_COMMIT.txt"
+          Compress-Archive -Path "dist/FM2001_Playtest/*" -DestinationPath "FM2001-Gate13-Playtest-9b31feb.zip" -Force
+          Get-FileHash "FM2001-Gate13-Playtest-9b31feb.zip" -Algorithm SHA256 | Format-List
+      - name: Upload playtest package
+        uses: actions/upload-artifact@v4
+        with:
+          name: FM2001-Gate13-Playtest-9b31feb
+          path: FM2001-Gate13-Playtest-9b31feb.zip
+          if-no-files-found: error
+          retention-days: 7
