@@ -9909,3 +9909,15 @@ canonical audit.
 
 - Recovery 161 continuation closed events 9..15: source global `0x982678` / English index 2144 is **DIVISION**; five controls at `+0x4E4` use events 9..13 and are rebuilt by `0x448E60` from the active country's non-`DummyLeague` `LeagueBase` entries, exposing source caption `+0x14` and identity word `+0x20`. The selected index/identity live at `+0x68/+0x8C`.
 - Source global `0x983A94` / index 857 is **Sort By**. Event 14 is **League Position** (global `0x983C04`, index 765, sort state 0); event 15 is **Current Form** (global `0x983A90`, index 858, state 1). Object `+0x98` is explicitly initialized to 0, making League Position the source default; `0x449090` applies the mode to the seven downstream table/display controls.
+
+
+## 2 October 2026 - Recovery 162 League Tables body and original graphics
+
+- Continued from merged League Tables selector/header shell at main `3c19c4fff22cc397fe3728e8f6e21fc7896075e0`.
+- RTTI/source tracing identifies panel `+0x9BC` as `CLeagueTableList` (TD `0x81B478`, COL `0x7E1520`, vtable `0x7C011C`) and its row factory `0x447820` as constructing `PLeagueTableRow` (TD `0x81B378`, COL `0x7E1398`, vtable `0x7BFEC0`) in 0x4A8-byte objects.
+- Source setup `0x4477E0 -> 0x6510F0` binds the table body at exact local rectangle `(270,184,477,384)` with native 24-row capacity and 16px row step.
+- Each row source-binds rank `(23,1,21,12)`, name `(46,1,214,12)`, and seven 27x12 stat controls at x `262,291,320,349,378,407,436`. Added to list x=270, the seven stat positions align exactly under the recovered P/W/D/L/F/A/Pts headers.
+- The source row record projects P/W/D/L/F/A from exact offsets `+0x10/+0x14/+0x18/+0x1C/+0x20/+0x24`; points are explicitly computed as `3*(+0x14) + (+0x18)`, i.e. **3*W + D**.
+- Fresh raw-disc extraction source-binds all 15 `FM2001_Art/Generic/league_tables/*.444` files with exact SHA-256, byte size, geometry and raw/wrapper handles: six 477x14 grid strips, eight 20x12 normal/your status icons, and `league_bar.444` 475x19.
+- Row source branches select champion/promotion/relegation/playoff/standard/your-team strips and paired icon wrappers. The helper byte returned through `0x4037B0` remains semantically neutral; only its exact art-selection consequence is recorded.
+- Exact next task after CI: integrate the source-bound League Tables body in the reconstruction, stage/import exact original resources where safe transport permits, then continue the next Gate-13 presentation gap and corrected Windows validation.
