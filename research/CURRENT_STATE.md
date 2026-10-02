@@ -31,16 +31,21 @@ Evidence:
   `677dcbc...a8a4`; four PMenu assets, `info_popup.444`, and all 15 League
   Tables assets were exact-path extracted and provenance-imported. Seventy-five
   focused resource tests and the repository asset-policy check pass.
-- **Exact Gate-13 next boundary:** trace `PLeagueTables::0x449090` and the seven
-  downstream controls at `+0x7FC..+0x97C`, then perform the fresh Gate-13
-  closure audit. Do not redo the imported resource ownership or Recovery-162
-  row/list work.
+- **Recovery 164 League Tables private trace closed:** the seven controls at
+  `+0x7FC..+0x97C` are exact `eCText` P/W/D/L/F/A/Pts headers (TD `0x8198F8`,
+  vtable `0x7BE340`). League Position activates all seven through vtable
+  `+0x30`; Current Form deactivates them through `+0x34`. The exact bit-state
+  transform is integrated and guarded. Current Form row ordering at `0x4F4A10`
+  remains deliberately fail-closed.
+- **Exact Gate-13 next boundary:** perform the fresh Gate-13 closure audit.
+  Classify remaining ordinary-management gaps against the actual ROADMAP
+  criteria before starting any broad new reverse engineering.
 - **Recovery 160 PMatchInfo presenter merged:** PR #93 merged as `5f76cd8d1187601034424fd6519c29c521b912bc`; Gate-13 run `36943619177` passed **364 tests with 21 expected source-gated skips and zero failures**, and asset-policy run `36943619314` passed. The simulation-independent PMatchInfo presenter is canonical, preserving exact staged art geometry/clipping/tabs/text slots and refusing a complete dialog while exact `info_popup.444` remains unavailable through safe binary transport.
 - **Recovery 161 League Tables shell merged:** PR #94 merged as `3c19c4fff22cc397fe3728e8f6e21fc7896075e0`. All **15** selector events are source-bound: country events 1..8, dynamic DIVISION events 9..13, and Sort By events 14/15 = League Position / Current Form. Country/DIVISION/Sort By and exact P/W/D/L/F/A/Pts header text/geometry are canonical.
 - **Recovery 162 League Tables body/resources merged:** PR #95 merged as `7578e465fbc952a74ee1268b698dde7d26ee2a8b`; Gate-13 run `36949336841` passed **379 tests with 21 expected source-gated skips and zero failures**, and asset-policy run `36949336761` passed. `CLeagueTableList` (TD `0x81B478`, vtable `0x7C011C`) at panel `+0x9BC` has exact local rect **(270,184,477,384)**, native 24-row capacity and 16px row step. Each `PLeagueTableRow` (TD `0x81B378`, vtable `0x7BFEC0`, 0x4A8 bytes) source-binds rank/name plus P/W/D/L/F/A/Pts rectangles; fields come from source offsets `+0x10/+0x14/+0x18/+0x1C/+0x20/+0x24`, with **Pts = 3*W + D**. The complete 15-file `league_tables/*.444` family is source-owned and raw-disc hash/geometry verified.
 
 - **Recovery 164 League Tables presenter merged:** PR #96 merged as `95b566a50d749d17bcf0324b46582c9bc215b65b`; Gate-13 run `36953094233` passed **388 tests with 21 expected source-gated skips and zero failures**, full reconstruction run `36953094137` passed **1,285 tests with 22 expected source-gated skips and zero failures**, and asset-policy run `36953094185` passed. The simulation-independent presenter is now canonical: it preserves the exact 24-row/16px League Tables body contract and P/W/D/L/F/A/Pts projection, removes the unsupported development-only GD substitution, validates `Pts = 3*W + D`, and fails closed on Current Form ordering and unstaged exact art.
-- **Exact Gate-13 next boundary:** continue the strongest cloud-safe management-presentation integration with the already source-proven Squad row contract: expose the recovered six-match performance average and current assigned-role rating through the read-only bridge, then bind only the exact PSquad row geometry/columns without inventing unresolved icon meanings or roster-group behavior. Private/local blockers remain: League Tables Current Form ordering (`0x4F4A10`), downstream controls `+0x7FC..+0x97C`, exact 15-file League Tables art staging, PMatchInfo `info_popup.444`, PMenu popup binary staging, and corrected real-Windows/Tk graphical validation.
+- **Recovery 164 presenter reconciliation:** the cloud-safe League Tables presenter and local exact-art/Windows work are both canonical. The former private blockers for downstream headers, 15-file art staging, `info_popup.444`, PMenu popup staging and corrected first-screen validation are closed. Current Form ordering (`0x4F4A10`) remains open and fail-closed.
 
 
 - **Recovery 155 PMatchInfo navigation merged:** PR #85 merged as `a5c0de8aff324aa6ea8481da24da725d8921ebd4`; Gate-13 run `36924435622` passed **333 tests with 21 expected source-gated skips and zero failures**, and asset-policy run `36924435665` passed. Populated League Fixtures cells conditionally open the exact 760x500 `PMatchInfo` dialog through `0x488C80 -> 0x487580`; unresolved linked context remains a source no-op.

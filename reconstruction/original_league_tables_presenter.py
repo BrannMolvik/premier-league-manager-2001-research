@@ -23,6 +23,7 @@ from original_league_tables_resources import (
     LEAGUE_TABLES_ROW_RANK_RECT,
     LEAGUE_TABLES_ROW_STAT_RECTS,
     LEAGUE_TABLES_SORT_DEFAULT_STATE,
+    league_tables_stat_header_state,
 )
 
 
@@ -82,6 +83,7 @@ class OriginalLeagueTablesSnapshot:
     row_capacity: int
     row_step: int
     sort_state: int
+    stat_headers_active: bool
     headers: tuple[OriginalLeagueTablesHeaderSlot, ...]
     rows: tuple[OriginalLeagueTablesRowSnapshot, ...]
     required_art: tuple[str, ...]
@@ -184,6 +186,7 @@ def build_league_tables_snapshot(
         row_capacity=LEAGUE_TABLES_LIST_ROW_COUNT,
         row_step=LEAGUE_TABLES_LIST_ROW_STEP,
         sort_state=sort_state,
+        stat_headers_active=league_tables_stat_header_state(sort_state).active,
         headers=tuple(
             OriginalLeagueTablesHeaderSlot(header.label, header.rect)
             for header in LEAGUE_TABLES_HEADER_TEXTS

@@ -380,20 +380,10 @@ bound through the panel control at `+0x788` with exact rectangle
 addresses are persisted in `reconstruction/original_league_tables_resources.py`
 and guarded by the focused regression suite.
 
-### Boundary that remains open
+### Superseded private-trace boundary
 
-This checkpoint does **not** close the entire prior next task.  Recovery 161
-proved that `0x449090` applies sort state to seven downstream display
-controls at `+0x7FC..+0x97C`; their concrete control identities and exact
-state behavior still require executable-byte tracing.  The current recovery
-successfully re-materialized the authorized 511,121,336-byte Library source
-archive, but the available execution sandboxes failed even trivial processing
-with an infrastructure `caas.internal.errors.ClientError`.  This is an
-execution-sandbox blocker, not evidence that the source archive is unavailable.
-
-Cloud-safe work may therefore verify and integrate the already-persisted
-list/row/resource contract while leaving those seven display-control identities
-explicitly open for the next functioning private-source execution session.
+At this checkpoint the seven controls at `+0x7FC..+0x97C` still required a
+working private-source execution path. Recovery 164 closes that boundary below.
 
 
 ## Recovery 163 presentation integration seam
@@ -431,6 +421,37 @@ by the source-visible **F** and **A** columns; its row capacity is 24. This is
 still a development integration surface, not a claim that ttk styling itself
 matches the original raster composition.
 
-Exact original League Tables binary art is still a separate provenance/staging
-step. `exact_art_staged` remains false unless all 15 source resource identities
-are present; no substitute pixels are generated.
+All 15 exact original League Tables binaries were provenance-imported in
+Recovery 164. `exact_art_staged` remains a caller-supplied readiness assertion;
+no substitute pixels are generated.
+
+## Recovery 164 downstream eCText state trace
+
+The canonical executable was reverified at SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+The bounded private report remains outside Git as
+`league-tables-449090-recovery164.json`.
+
+The seven objects at panel offsets `+0x7FC`, `+0x83C`, `+0x87C`, `+0x8BC`,
+`+0x8FC`, `+0x93C` and `+0x97C` are the exact P/W/D/L/F/A/Pts header controls:
+
+- every object is constructed by `0x64F300` with stride `0x40`;
+- every final vtable is `0x7BE340`;
+- MSVC RTTI resolves that vtable to **`eCText`**, TypeDescriptor `0x8198F8`,
+  Complete Object Locator `0x7E01D0`;
+- setup calls `0x4475D7..0x447769` bind the seven source strings and exact
+  rectangles already recorded above.
+
+`PLeagueTables::0x449090` reads sort state from panel `+0x98` and applies the
+same transition to all seven controls:
+
+- state 0 (**League Position**) calls vtable `+0x30` -> `0x64F510`, forwarding
+  boolean 1 to the shared `0x64F3E0` state method and setting state bit `0x1`;
+- state 1 (**Current Form**) calls vtable `+0x34` -> `0x64F520`, forwarding
+  boolean 0 and clearing state bits `0x8` then `0x1`.
+
+Thus the seven conventional stat headings are active for League Position and
+inactive for Current Form. This state transform is now deterministic in
+`original_league_tables_resources.py`. It does **not** recover Current Form row
+ordering: `0x4F4A10` and the bridge projection remain a separate fail-closed
+boundary.

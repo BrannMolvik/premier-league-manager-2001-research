@@ -116,6 +116,54 @@ LEAGUE_TABLES_SORT_OPTIONS = (
 )
 LEAGUE_TABLES_SORT_APPLY_VA = 0x449090
 
+# Recovery 164 private-source closure: the seven objects toggled by the sort
+# apply routine are the P/W/D/L/F/A/Pts eCText header controls. State 0 calls
+# vtable +0x30 on each object, forwarding boolean 1 to the shared bit-state
+# method; state 1 calls +0x34, forwarding 0. The latter clears bits 0x8 and
+# 0x1, while the former sets bit 0x1. Current Form row ordering remains a
+# separate fail-closed boundary at 0x4F4A10.
+LEAGUE_TABLES_STAT_HEADER_CLASS = "eCText"
+LEAGUE_TABLES_STAT_HEADER_TYPE_DESCRIPTOR_VA = 0x8198F8
+LEAGUE_TABLES_STAT_HEADER_COL_VA = 0x7E01D0
+LEAGUE_TABLES_STAT_HEADER_VFTABLE_VA = 0x7BE340
+LEAGUE_TABLES_STAT_HEADER_CONTROL_OFFSETS = (
+    0x7FC, 0x83C, 0x87C, 0x8BC, 0x8FC, 0x93C, 0x97C,
+)
+LEAGUE_TABLES_STAT_HEADER_STRIDE = 0x40
+LEAGUE_TABLES_STAT_HEADER_ENABLE_SLOT = 0x30
+LEAGUE_TABLES_STAT_HEADER_DISABLE_SLOT = 0x34
+LEAGUE_TABLES_STAT_HEADER_ENABLE_TARGET_VA = 0x64F510
+LEAGUE_TABLES_STAT_HEADER_DISABLE_TARGET_VA = 0x64F520
+LEAGUE_TABLES_STAT_HEADER_BOOL_STATE_VA = 0x64F3E0
+LEAGUE_TABLES_STAT_HEADER_STATE_BITS_OFFSET = 0x18
+
+
+@dataclass(frozen=True)
+class OriginalLeagueTablesStatHeaderState:
+    sort_state: int
+    active: bool
+    virtual_slot_offset: int
+    boolean_argument: int
+    set_bits: tuple[int, ...]
+    cleared_bits: tuple[int, ...]
+
+
+def league_tables_stat_header_state(
+    sort_state: int,
+) -> OriginalLeagueTablesStatHeaderState:
+    """Return the exact seven-header state transform selected by 0x449090."""
+    if type(sort_state) is not int or sort_state not in (0, 1):
+        raise OriginalLeagueTablesError(
+            "League Tables sort state must be source state 0 or 1"
+        )
+    if sort_state == 0:
+        return OriginalLeagueTablesStatHeaderState(
+            0, True, 0x30, 1, (0x1,), (),
+        )
+    return OriginalLeagueTablesStatHeaderState(
+        1, False, 0x34, 0, (), (0x8, 0x1),
+    )
+
 # Backward-compatible structural aliases retained for callers/tests written at
 # the earlier checkpoint.
 LEAGUE_TABLES_SECONDARY_SELECTOR_BASE_OFFSET = LEAGUE_TABLES_DIVISION_SELECTOR_BASE_OFFSET

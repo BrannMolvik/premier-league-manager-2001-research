@@ -14,7 +14,7 @@
   "last_verified_test_count": 1149,
   "asset_policy_validated_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 remains active. Recovery 164 passed the corrected real-Windows PStartMenu/TeamSelect audit and provenance-imported the four PMenu, PMatchInfo info_popup and all fifteen League Tables resources. The immediate private-source task is the bounded PLeagueTables::0x449090 downstream-control trace at +0x7FC..+0x97C, followed by a fresh Gate-13 closure audit.",
+  "active_task": "Gate 13 remains active. Recovery 164 passed the corrected real-Windows audit, imported twenty exact resources, and closed the PLeagueTables::0x449090 seven-header eCText state trace. The immediate task is a fresh Gate-13 closure audit against the actual ROADMAP criteria; Current Form row ordering at 0x4F4A10 remains fail-closed.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -279,7 +279,7 @@
     "secondary bucket count 262 vs 280"
   ],
   "gate11_morale_evidence": "research/GATE11_MORALE_LIFECYCLE.md",
-  "current_task": "Trace PLeagueTables::0x449090 and the seven downstream controls at PLeagueTables+0x7FC..+0x97C from the canonical executable, integrate only instruction-proven behavior, then perform a fresh Gate-13 closure audit.",
+  "current_task": "Perform a fresh Gate-13 closure audit, classify each remaining presentation gap as required now, Gate 14/15, stale, or optional, and implement only the smallest remaining ordinary-management path needed for the ROADMAP criterion.",
   "last_verified_reconstruction_failures": 0,
   "last_verified_asset_policy_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "gate11_danger_morale_request_integrated": true,
@@ -1422,7 +1422,7 @@
   "gate13_league_tables_body_test_count": 379,
   "gate13_league_tables_body_expected_skips": 21,
   "gate13_league_tables_body_asset_policy_run": 36949336761,
-  "gate13_league_tables_downstream_display_controls_open": true,
+  "gate13_league_tables_downstream_display_controls_open": false,
   "gate13_league_tables_downstream_display_control_range": [
     "0x7FC",
     "0x97C"
@@ -1443,7 +1443,7 @@
   "gate13_league_tables_development_ui_legacy_goal_difference_column_removed": true,
   "gate13_league_tables_presenter_current_form_sort_open": true,
   "gate13_league_tables_presenter_current_form_fail_closed": true,
-  "gate13_league_tables_exact_art_staging_open": true,
+  "gate13_league_tables_exact_art_staging_open": false,
   "gate13_league_tables_presenter_merge": "95b566a50d749d17bcf0324b46582c9bc215b65b",
   "gate13_league_tables_presenter_ci_run": 36953094233,
   "gate13_league_tables_presenter_test_count": 388,
@@ -1457,5 +1457,10 @@
   "gate13_recovery_164_imported_exact_asset_count": 20,
   "gate13_recovery_164_focused_tests_passed": 75,
   "gate13_recovery_164_asset_policy_passed": true,
-  "gate13_league_tables_imported_exact_asset_count": 15
+  "gate13_league_tables_imported_exact_asset_count": 15,
+  "gate13_league_tables_stat_header_class": "eCText",
+  "gate13_league_tables_stat_header_type_descriptor": "0x8198F8",
+  "gate13_league_tables_stat_header_vftable": "0x7BE340",
+  "gate13_league_tables_downstream_header_state_trace_complete": true,
+  "gate13_league_tables_current_form_ordering_open": true
 }

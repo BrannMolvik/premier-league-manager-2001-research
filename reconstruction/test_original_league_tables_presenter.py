@@ -39,6 +39,7 @@ class OriginalLeagueTablesPresenterTests(unittest.TestCase):
         self.assertEqual(snapshot.row_capacity, 24)
         self.assertEqual(snapshot.row_step, 16)
         self.assertEqual(snapshot.sort_state, 0)
+        self.assertTrue(snapshot.stat_headers_active)
         self.assertEqual(
             tuple((header.label, header.rect) for header in snapshot.headers),
             (

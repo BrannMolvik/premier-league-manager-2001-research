@@ -147,6 +147,39 @@ class OriginalLeagueTablesResourceTests(unittest.TestCase):
                 with self.assertRaises(OriginalLeagueTablesError):
                     lt.league_tables_sort_state(bad)
 
+    def test_sort_apply_toggles_the_exact_seven_ec_text_stat_headers(self):
+        self.assertEqual(lt.LEAGUE_TABLES_STAT_HEADER_CLASS, "eCText")
+        self.assertEqual(lt.LEAGUE_TABLES_STAT_HEADER_TYPE_DESCRIPTOR_VA, 0x8198F8)
+        self.assertEqual(lt.LEAGUE_TABLES_STAT_HEADER_COL_VA, 0x7E01D0)
+        self.assertEqual(lt.LEAGUE_TABLES_STAT_HEADER_VFTABLE_VA, 0x7BE340)
+        self.assertEqual(
+            lt.LEAGUE_TABLES_STAT_HEADER_CONTROL_OFFSETS,
+            (0x7FC, 0x83C, 0x87C, 0x8BC, 0x8FC, 0x93C, 0x97C),
+        )
+        self.assertEqual(lt.LEAGUE_TABLES_STAT_HEADER_STRIDE, 0x40)
+        self.assertEqual(lt.LEAGUE_TABLES_STAT_HEADER_ENABLE_TARGET_VA, 0x64F510)
+        self.assertEqual(lt.LEAGUE_TABLES_STAT_HEADER_DISABLE_TARGET_VA, 0x64F520)
+        self.assertEqual(lt.LEAGUE_TABLES_STAT_HEADER_BOOL_STATE_VA, 0x64F3E0)
+        self.assertEqual(lt.LEAGUE_TABLES_STAT_HEADER_STATE_BITS_OFFSET, 0x18)
+
+        position = lt.league_tables_stat_header_state(0)
+        self.assertEqual(
+            (position.active, position.virtual_slot_offset,
+             position.boolean_argument, position.set_bits, position.cleared_bits),
+            (True, 0x30, 1, (0x1,), ()),
+        )
+        current_form = lt.league_tables_stat_header_state(1)
+        self.assertEqual(
+            (current_form.active, current_form.virtual_slot_offset,
+             current_form.boolean_argument, current_form.set_bits,
+             current_form.cleared_bits),
+            (False, 0x34, 0, (), (0x8, 0x1)),
+        )
+        for bad in (True, -1, 2, "0"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(OriginalLeagueTablesError):
+                    lt.league_tables_stat_header_state(bad)
+
     def test_country_header_is_source_bound_to_original_english_text(self):
         self.assertEqual(LEAGUE_TABLES_COUNTRY_HEADER_CONTROL_OFFSET, 0x1F4)
         self.assertEqual(LEAGUE_TABLES_COUNTRY_HEADER_SETUP_VA, 0x5D6090)
