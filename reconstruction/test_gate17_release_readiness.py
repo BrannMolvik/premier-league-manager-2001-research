@@ -3,12 +3,15 @@ from hashlib import sha256
 import json
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from gate17_release_readiness import (
     ReleaseReadinessError,
     parse_release_evidence,
     require_path_outside_repo,
+    require_windows_11,
     validate_external_receipts,
     validate_limitations_document,
     validate_release_archive,
@@ -100,6 +103,35 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             },
         }
         return repo, private, archive, evidence
+
+    def test_windows_11_evidence_requires_consumer_workstation(self):
+        with (
+            patch("gate17_release_readiness.platform.system", return_value="Windows"),
+            patch("gate17_release_readiness.platform.platform", return_value="Windows-11"),
+            patch(
+                "gate17_release_readiness.sys.getwindowsversion",
+                return_value=SimpleNamespace(build=26200, product_type=1),
+                create=True,
+            ),
+        ):
+            result = require_windows_11()
+        self.assertEqual(result["windows_build"], 26200)
+        self.assertEqual(result["windows_product_type"], 1)
+
+    def test_windows_server_cannot_satisfy_windows_11_evidence(self):
+        with (
+            patch("gate17_release_readiness.platform.system", return_value="Windows"),
+            patch(
+                "gate17_release_readiness.sys.getwindowsversion",
+                return_value=SimpleNamespace(build=26200, product_type=3),
+                create=True,
+            ),
+        ):
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "not Windows Server",
+            ):
+                require_windows_11()
 
     def test_roadmap_prerequisites_allow_open_gate17_only(self):
         with tempfile.TemporaryDirectory() as temp:
