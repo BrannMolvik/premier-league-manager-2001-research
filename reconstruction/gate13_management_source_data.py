@@ -16,8 +16,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
-from procedural_league import procedural_league_cycle_count
-
 
 class ManagementPresentationError(ValueError):
     pass
@@ -1889,10 +1887,9 @@ class ManagementSourceDataBridge:
                 "Premier League scheduled-matchday count is unavailable"
             )
 
-        cycle_count = procedural_league_cycle_count(
-            len(prepared_ids),
-            scheduled_matchday_count,
-        )
+        divisor = len(prepared_ids) - 1
+        quotient, remainder = divmod(scheduled_matchday_count, divisor)
+        cycle_count = quotient + int(remainder != 0)
         matrix_layer_count = cycle_count // 2
         if matrix_layer_count <= 0:
             raise ManagementPresentationError(
