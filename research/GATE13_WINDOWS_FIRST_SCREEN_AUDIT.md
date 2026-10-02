@@ -1,6 +1,6 @@
 # Gate 13 Windows first-screen graphical audit
 
-_Date: 1 October 2026 KST_
+_Date: 2 October 2026 KST_
 
 ## Purpose
 
@@ -152,3 +152,36 @@ Hosted Gate-13 CI verifies this contract but cannot produce the Windows result.
 The new schema-5 local Windows 11 receipt remains **pending**. The prior
 Recovery-164 schema-3 receipt remains valid evidence for the corrected
 first-screen path, but it does not prove the new clean MANAGEMENT host.
+
+## Recovery 175 schema-6 source-accepted PMenu audit contract
+
+PR #112 upgrades the pending real-Windows receipt to schema **6** while
+preserving the evidence boundary introduced by the source trace.
+
+The real Tk portion still clicks inside the exact PMenu rectangle and must
+observe candidate-row feedback with **no navigation**. The audit then uses
+the separate explicit post-acceptance seam, not a synthesized Tk event, to
+verify the already recovered callback contract:
+
+- Calendar title `0x259` expands while Squad `0xCE` remains the selected
+  `PSquadScreen` panel;
+- League Fixtures child `0x25C` dispatches to `PLeagueFixtures` with the
+  exact recovered factory arguments `(0x25C, 0)`;
+- TABLES title `6` expands while League Fixtures remains selected;
+- League Tables child `0x25A` dispatches to `PLeagueTables` with exact
+  factory arguments `(0x25A, 0)`.
+
+Every step still requires **zero management PhotoImages** because exact
+PMenu text origin/clipping and the surrounding application-owned
+management pixels remain unresolved. The receipt explicitly records
+`tk_pmenu_event_equivalence_claimed: false` and
+`tk_pmenu_click_equivalence_claimed: false`.
+
+Hosted Gate-13 run `36987669876` verified the schema-6 contract with
+**442 tests passed and 21 expected skips**; asset-policy run
+`36987669896` passed. Hosted CI is not a Windows graphical result.
+
+A fresh real Windows 11 **schema-6 receipt remains pending**. The older
+Recovery-164 schema-3 receipt remains valid evidence for its tested
+first-screen path, but neither it nor hosted CI proves this new clean-host
+management action-seam audit.
