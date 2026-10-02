@@ -9,10 +9,7 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | Gap | Current reconstruction behavior | Original status | Planned gate |
 | --- | --- | --- | --- |
 | Secondary startup exact tie permutation and bucket shape | The startup-staff CRT boundary replays the independently recorded 262 total secondary schedule nodes / 45 nonempty buckets / 217 shuffle draws through an **aggregate-only MSVC checkpoint with no invented bucket vector**; tests enforce the proven World Cup-before-European Championship ordering without pretending to know every equal-key root permutation | Original reverse qsorted country-root traversal and post-secondary CRT state are documented, but the exact per-date mode-1 bucket vector and full equal-key native qsort order have NOT been independently source-locked; resolve from the canonical executable/real input before asserting pixel-calendar-level fidelity | 15 |
-| Exact fully indistinguishable PL league-table native qsort ties | PL display now uses the previously recovered numeric and CP1252 short-name source comparator when original club short names are available; if two clubs have identical complete source keys, it explicitly falls back to deterministic display and refuses to publish an "exact" ranking | All comparator fields are recovered, but native qsort's relative order for truly identical complete source keys has not been independently locked; lightweight synthetic clubs missing valid CP1252 names also receive documented display-only fallback | 15 |
-| Original FM2001 save compatibility | Modern port now has a versioned internal schema-34 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
 | Autonomous transfer-window lifecycle | Fresh-game country gates start at the proven enabled value; later dated toggles are not yet driven from source boundary data | Runtime country +0x54 consumer/toggle behavior is known, but the complete source boundary mapping is unresolved | 15 or earlier if season transfer timing requires it |
-| Contract month-end normalization | Recovered contract paths advance by the source-backed calendar-month count. When the source day does not exist in the final target month, the modern runtime clamps to that month's final valid day so long-duration play cannot crash | Exact end-of-month normalization in the original date helper (`0x64CDD0` / callers including `0x4192B0`) is not yet instruction-locked. The clamp is a bounded compatibility approximation, not an original-behavior claim | 15 or earlier if private executable tracing becomes available |
 | Autonomous contract category helper | The exact 0x423340 age/category month table is used; the current port labels a clamped competition valuation category as an approximation for the unresolved 0x4FA510 category source | Exact 0x4FA510 category-source mapping remains unresolved | 15 or earlier if contract-term fidelity requires it |
 | Autonomous buy-counter lifecycle | The recovered >28-player buyer gate and 3/8 thresholds are represented with a persisted neutral counter, incremented on AI purchase | Exact club +0x1ED update/reset lifecycle remains unresolved | 15 or earlier if long-season transfer frequency requires it |
 | Player negotiation residual branches | The proven ordinary money path handles accepted, low-wage, counter-offer, already-signed and recently-joined outcomes; unresolved 0x422803 / invalid-duration 0x423340 branches return explicit deferred states | Remaining refusal/status and duration-revision policy is not guessed | 15 or earlier if a broader negotiation case blocks play |
@@ -23,6 +20,47 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | Original front-end presentation | Normal `app.py` launch now uses the fixed 800x600 source-backed `OriginalGameTkHost`; original PStartMenu/TeamSelect assets and a bounded PMenu/Squad/League Fixtures/PMatchInfo/League Tables management slice are live, while the generic ttk/Play prototype is explicit opt-in only | Repository schema 8 substantially restores the source-backed front-end/management workflow, but the expanded path still needs a fresh real-Windows 11/Tk receipt and re-audit; unrecovered surrounding management pixels, linked-context PMatchInfo details, and other secondary presentation remain fail-closed | 13-14 |
 | UI fidelity | A representative original-style management route now exists from PStartMenu -> TeamSelect -> PMenu -> Squad / League Fixtures / source-accepted PMatchInfo / League Tables using recovered geometry and original assets; unresolved actions/pixels are deliberately withheld instead of replaced by generic controls | The representative workflow is only partially source-closed and has not yet passed the current schema-8 real-Windows recognizability audit; ordinary fixture-cell linked context, some Squad pointer equivalence, owner-local popup children, and the wider management shell remain incomplete | 13 |
 | FastView/3D | Reconstructed match events now project through source-backed FastView semantic routes into a bounded presentation shell; a seven-target `PossessionFigures`/`PossessionDiagram` basename resolver fails closed until exact private-disc paths are uniquely proved | Original resource paths/placement geometry, side orientation, territory thresholds, audio bindings, commentary, and SCI/3D choreography remain unclosed; no guessed match-view layout is shipped as original behavior | 14 |
+
+## Accepted modernization limitations
+
+These are deliberate, documented differences for the current Windows 11
+modernization release scope. They are **not** claims about original FM2001
+behavior and can be revisited after the release baseline if stronger source
+evidence or a compatibility requirement appears.
+
+### Original FM2001 save-file import
+
+The port does not import or write the original PLM2001 save format. The modern
+runtime instead uses the versioned internal schema-34 save/reload path, which is
+covered by canonical continuation, season-transition, and repeated save/reload
+stress. Backward compatibility with 2000-era save files is not a Gate-17
+installation/gameplay criterion or part of the final definition of done, so it
+is accepted as a disclosed compatibility limitation rather than an open
+behavioral reconstruction blocker.
+
+### Fully indistinguishable Premier League native qsort ties
+
+The source comparator is recovered through every observable key: points,
+played, goal difference, goals for, goals against, and raw CP1252 short-name
+bytes. When two clubs are identical on that complete key, the original
+comparator returns equality and the relative order is an implementation detail
+of the legacy native qsort rather than a further football rule. The modern
+runtime keeps a deterministic fallback for display/stability and explicitly
+withholds an "exact" ranking for that exceptional state. That fallback is
+accepted for the modernization release and must never be described as the
+original tie order.
+
+### Invalid target-month contract dates
+
+Recovered contract paths apply a source-backed integer number of calendar
+months. When the source day does not exist in the target month, the modern
+runtime clamps to that month's final valid day. Exact legacy normalization in
+`0x64CDD0` is not instruction-locked, so the clamp remains a bounded safety
+difference rather than an original-behavior claim. Gate-16 destructive testing
+proved the clamp prevents long-duration date overflow without masking broader
+state corruption. This bounded normalization is accepted for the modernization
+release and must remain disclosed until/unless the legacy helper is later
+closed.
 
 ## Resolved or superseded gaps
 
