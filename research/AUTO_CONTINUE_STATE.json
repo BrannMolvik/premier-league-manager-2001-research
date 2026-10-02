@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 186: PR #139 merged as 40937ad80eb0538ce128ffc6c9588ac91634eb4a after workflow 37038514423 passed 1,413 tests with 22 expected skips. Legacy chairman budget-event family is retired as irrelevant to ordinary shipped fresh-game behavior. Continue Gate 15 finite fidelity disposition by tracing due-transfer same-day ordering relative to fixture execution from persisted executable evidence; keep unresolved private-source gaps fail-closed.",
-  "last_known_main_head": "40937ad80eb0538ce128ffc6c9588ac91634eb4a",
+  "active_task": "Recovery 186: PR #140 merged as 833f1fedd7ce3c645c428ba20a09392d6bf994b3 after 1,417 tests / 22 expected skips and asset-policy success. Exact country transfer-window lifecycle is source-closed. Continue Gate 15: replace the contract month-span compatibility clamp with the directly recovered 0x64CDD0 behavior (day resets to 1, then year/month advance). Keep due-transfer same-day ordering open until the fixture-date path is fully instruction-locked.",
+  "last_known_main_head": "833f1fedd7ce3c645c428ba20a09392d6bf994b3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 186,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 186 checkpoint merged; Gate 13 still waits on real-Windows schema-8. Continue Gate 15 cloud-safe disposition.",
+  "note": "Continuous Gate-15 work-ahead. Gate 13 still requires fresh real-Windows schema-8 receipt.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
