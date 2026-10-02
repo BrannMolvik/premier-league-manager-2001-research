@@ -255,6 +255,25 @@ def run_installed_package_smoke(
     return payload
 
 
+def require_smoke_paths_inside_install(smoke: dict, install_dir: Path) -> dict:
+    """Prove the frozen smoke resolved runtime resources from the clean install."""
+    root = Path(install_dir).resolve()
+    checked: dict[str, str] = {}
+    for field in ("application_root", "source_root", "provenance_manifest"):
+        raw = smoke.get(field)
+        if not isinstance(raw, str) or not raw.strip():
+            raise CleanInstallReceiptError(
+                f"installed package smoke is missing {field}"
+            )
+        path = Path(raw).resolve()
+        if path == root or not path.is_relative_to(root):
+            raise CleanInstallReceiptError(
+                f"installed package smoke {field} is outside the clean install"
+            )
+        checked[field] = str(path)
+    return checked
+
+
 def write_clean_install_receipt(
     *,
     release_archive: str | Path,
@@ -303,6 +322,7 @@ def write_clean_install_receipt(
         executable,
         timeout_seconds=timeout_seconds,
     )
+    smoke_paths = require_smoke_paths_inside_install(smoke, target)
 
     payload = {
         "passed": True,
@@ -317,6 +337,7 @@ def write_clean_install_receipt(
         "installed_executable_relative_path": executable.relative_to(target).as_posix(),
         "embedded_package_manifest_verified": True,
         "embedded_package_file_count": len(package_manifest.get("files", ())),
+        "installed_package_smoke_paths": smoke_paths,
         "installed_package_smoke": smoke,
         **windows,
     }
