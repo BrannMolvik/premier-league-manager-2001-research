@@ -75,10 +75,12 @@ class OriginalFrontEndPointerTests(unittest.TestCase):
                 ))
 
     def test_background_and_unrecovered_hierarchy_regions_are_not_invented(self):
-        for screen in FrontEndScreen:
+        for screen in (FrontEndScreen.START_MENU, FrontEndScreen.TEAM_SELECT):
             for x, y in ((0, 0), (799, 599), (-1, 100), (800, 100),
                          (200, -1), (200, 600)):
                 self.assertIsNone(candidate_original_event(screen, x, y))
+        with self.assertRaisesRegex(ValueError, "Unrecovered first-screen"):
+            candidate_original_event(FrontEndScreen.MANAGEMENT, 0, 0)
         self.assertIsNone(
             candidate_original_event(FrontEndScreen.TEAM_SELECT, 20, 78)
         )
