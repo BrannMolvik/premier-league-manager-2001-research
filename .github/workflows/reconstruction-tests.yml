@@ -40,6 +40,8 @@ on:
       - "reconstruction/test_match_presentation_feed.py"
       - "reconstruction/human_match_presentation.py"
       - "reconstruction/test_human_match_presentation.py"
+      - "reconstruction/gate14_audio_source_inventory.py"
+      - "reconstruction/test_gate14_audio_source_inventory.py"
       - "reconstruction/original_pmenu_activation.py"
       - "reconstruction/test_original_pmenu_activation.py"
       - "research/GATE14_PRESENTATION_FOUNDATION.md"
