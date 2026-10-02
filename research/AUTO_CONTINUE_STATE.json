@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 195: PR #161 is canonical at main ce22b66e8259d983782a87aad456dcd21220cf9a after 1,476 tests / 22 expected skips plus asset-policy success. Continue the exact Gate-14 work-ahead: deliberately stage the four now-source-closed PossessionDiagram assets under the asset policy and connect only their proven geometry, while keeping update cadence and side orientation fail-closed; continue PossessionFigures placement trace. Gate 13 remains earliest incomplete pending the external schema-8 Windows receipt.",
+  "active_task": "Recovery 196: resume from canonical main ce22b66e8259d983782a87aad456dcd21220cf9a. Do not repeat Recovery 195. Deliberately stage the four source-closed PossessionDiagram assets under the asset policy, connect only their proven geometry, keep update cadence and side orientation fail-closed, then continue the PossessionFigures placement trace. Gate 13 remains earliest incomplete pending the external schema-8 Windows receipt.",
   "last_known_main_head": "ce22b66e8259d983782a87aad456dcd21220cf9a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 195,
+  "recovery_generation": 196,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #161 merged. Continue with exact authorized PossessionDiagram asset import/live geometry; do not infer cadence or orientation.",
+  "note": "Recovery 196 resumed after PR #161/Recovery 195 had already merged. Continue exact asset staging/live geometry task and PossessionFigures trace.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
