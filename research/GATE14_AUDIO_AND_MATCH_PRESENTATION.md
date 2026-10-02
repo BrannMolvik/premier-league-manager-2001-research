@@ -1,6 +1,6 @@
 # Gate 14 Audio and Match Presentation
 
-_Last reconciled: 2 October 2026 KST, Recovery 183_
+_Last reconciled: 2 October 2026 KST, Recovery 184_
 
 ## Scope
 
@@ -38,6 +38,36 @@ at the presentation-route layer even though their backend semantics are known.
 `reconstruction/match_presentation_feed.py` is the read-only projection
 boundary over already-created match events. Recovery 183 extends that feed
 with only the semantic FastView mappings listed above.
+
+### Completed-human adapter and bounded FastView shell
+
+PR #130 merged the presentation-only completed-human adapter as
+`393acb370c2164cff7c72fc552ebd84fbbeb6b37`. It preserves the existing
+Premier League fixture ID or tagged primary-match reference and projects the
+already-completed `user_result.events` / possession segments through the
+semantic FastView feed. Full reconstruction CI run `37021083056` passed
+**1,393 tests with 22 expected skips**; asset-policy run `37021083395`
+passed.
+
+Recovery 184 adds the next deliberately narrow shell in
+`reconstruction/fastview_semantic_shell.py`. It is based only on persisted
+original component evidence:
+
+- `FastViewPanel` exists as the semantic event receiver/presenter layer;
+- `ScoreComposite` is an original FastView component;
+- `PossessionFigures` receiver `0x51EA80` prints the three possession values
+  as `%u%%`.
+
+The shell therefore exposes the existing event minute, running score and exact
+recovered FastView sender name where one exists. Unmapped events retain
+`sender_name=None`. It also exposes the original EventPossession record with
+the exact three percentage strings and preserves the territorial value only as
+raw data.
+
+This is not yet the original visual FastView screen. Exact panel geometry,
+side-0 screen orientation, commentary, audio mapping, territorial
+left/middle/right thresholds and 3D choreography remain explicitly unrecovered
+and are not synthesized by this layer.
 
 ### Startup FMVs
 
@@ -110,8 +140,13 @@ must wait for either:
 
 ## Exact next cloud-safe task
 
-After the Recovery-183 semantic-feed checkpoint is verified, continue with the
-smallest source-backed match-presentation shell that can display the recovered
-semantic event stream without inventing commentary, sound cues, or 3D
-choreography. If private execution recovers first, prioritize enumerating the
-verified disc's audio/sound-bank files and tracing concrete menu/login ownership.
+Verify the Recovery-184 semantic shell through CI, then trace the smallest
+source-backed FastView visual/resource family needed to turn the shell into a
+player-visible presentation without inventing layout. The persisted
+`PossessionFigures` assets (`team_bar_1.444`, `blank_bar.444`,
+`team_bar_2.444`) and `PossessionDiagram` pitch assets are the current
+resource leads, but their exact source paths/geometry and side orientation must
+be proven before integration.
+
+If private execution recovers first, prioritize the exact sound-bank inventory
+and the concrete front-end UI/sound callback resource binding.
