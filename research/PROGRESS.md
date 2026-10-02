@@ -10086,3 +10086,34 @@ private execution rather than being guessed.
 - Exact next task: complete the PMenu label origin/clipping trace and the source
   control-acceptance boundary, then wire only source-proven activation into the
   clean host. The real Windows 11 schema-5 graphical receipt remains pending.
+
+## 2 October Recovery 175 - source-accepted PMenu action integration
+
+PR #111 squash-merged as `9e8f7a18368b8ce7076126a55b2e99563197659a`.
+The management presenter now models the expanded PMenu root independently
+from the selected panel, so an accepted title-row action can expose Calendar
+or TABLES children without silently changing the current Squad/Fixtures panel.
+The explicit source-accepted seam requires the target row to be visible,
+preserves rejected actions without mutation, and transactionally routes the
+already-source-proven child IDs into the existing Squad, League Fixtures and
+League Tables presenters. `OriginalGameTkHost` exposes this seam separately
+from `on_click`; ordinary Tk pointer hits remain candidate-only and dispatch
+no navigation until source control acceptance/event equivalence is recovered.
+
+Verification on PR head `776b1040ea90397c1f467fe990f1048781f9da1a`:
+
+- Gate-13 run `36986776362`: **440 tests passed, 21 expected skips**;
+- full reconstruction run `36986776403`: **1,350 tests passed, 22 expected skips**;
+- asset-policy run `36986776562`: passed.
+
+A fresh process probe in Recovery 175 still fails before process start with
+`caas.internal.errors.ClientError`. Private executable tracing therefore
+remains blocked for exact PMenu text origin/clipping, any still-missing
+application-owned management pixels, and the source control-acceptance ->
+modern Tk-event equivalence. This is an infrastructure blocker, not a user
+action requirement.
+
+Next: extend the Windows audit contract to exercise the explicit
+source-accepted action seam separately from ordinary non-activating Tk hits,
+then resume the private PMenu text/control-acceptance trace when execution
+recovers. A fresh real Windows 11 audit receipt is still required.
