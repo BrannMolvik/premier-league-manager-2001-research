@@ -71,6 +71,7 @@ from original_league_fixtures_resources import (
     league_fixtures_league_selectors,
     league_fixtures_selector_event,
     league_fixtures_match_info_action,
+    league_fixtures_match_info_origin,
     validate_league_fixtures_grid_selection_index,
     league_fixture_box_for_cell,
     league_fixture_visible_text,
@@ -314,6 +315,22 @@ class OriginalLeagueFixturesResourceTests(unittest.TestCase):
         self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_PRIMARY_CONTEXT_OFFSET, 0x70)
         self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_SECONDARY_CONTEXT_OFFSET, 0x74)
         self.assertEqual(LEAGUE_FIXTURES_MATCH_INFO_LAYOUT_HELPER_VA, 0x653320)
+
+    def test_match_info_dialog_origin_preserves_exact_pointer_clamp(self):
+        self.assertEqual(league_fixtures_match_info_origin(400, 300), (20, 50))
+        self.assertEqual(league_fixtures_match_info_origin(0, 0), (0, 0))
+        self.assertEqual(league_fixtures_match_info_origin(19, 49), (19, 49))
+        self.assertEqual(league_fixtures_match_info_origin(20, 50), (20, 50))
+        self.assertEqual(league_fixtures_match_info_origin(779, 549), (20, 50))
+        self.assertEqual(league_fixtures_match_info_origin(780, 550), (20, 50))
+        self.assertEqual(league_fixtures_match_info_origin(799, 599), (39, 99))
+        for bad in ((True, 300), (400, False), (400.0, 300), (400, "300")):
+            with self.subTest(bad=bad):
+                with self.assertRaisesRegex(
+                    OriginalLeagueFixturesResourceError,
+                    "pointer coordinates",
+                ):
+                    league_fixtures_match_info_origin(*bad)
 
     def test_match_info_action_requires_fixture_and_resolved_linked_context(self):
         self.assertIsNone(

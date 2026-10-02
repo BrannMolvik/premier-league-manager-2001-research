@@ -195,6 +195,12 @@ LEAGUE_FIXTURES_MATCH_INFO_PRIMARY_CONTEXT_OFFSET = 0x70
 LEAGUE_FIXTURES_MATCH_INFO_SECONDARY_CONTEXT_OFFSET = 0x74
 LEAGUE_FIXTURES_MATCH_INFO_LAYOUT_HELPER_VA = 0x653320
 LEAGUE_FIXTURES_MATCH_INFO_SIZE = (760, 500)
+LEAGUE_FIXTURES_MATCH_INFO_POINTER_X_GLOBAL_VA = 0x8779C0
+LEAGUE_FIXTURES_MATCH_INFO_POINTER_Y_GLOBAL_VA = 0x8779C4
+LEAGUE_FIXTURES_MATCH_INFO_X_MARGIN = 20
+LEAGUE_FIXTURES_MATCH_INFO_Y_MARGIN = 50
+LEAGUE_FIXTURES_MATCH_INFO_X_FAR_EDGE = 780
+LEAGUE_FIXTURES_MATCH_INFO_Y_FAR_EDGE = 550
 
 LEAGUE_FIXTURES_SELECTOR_SETUP_VA = 0x46AA70
 LEAGUE_FIXTURES_LEAGUE_REBUILD_VA = 0x46D840
@@ -252,6 +258,39 @@ LEAGUE_FIXTURES_MATCH_INFO_ACTION = LeagueFixturesMatchInfoAction(
     primary_context_offset=LEAGUE_FIXTURES_MATCH_INFO_PRIMARY_CONTEXT_OFFSET,
     secondary_context_offset=LEAGUE_FIXTURES_MATCH_INFO_SECONDARY_CONTEXT_OFFSET,
 )
+
+
+def league_fixtures_match_info_origin(
+    pointer_x: int,
+    pointer_y: int,
+) -> tuple[int, int]:
+    """Mirror 0x488D23..0x488D8C's exact 760x500 dialog origin clamp.
+
+    The source globals at 0x8779C0/0x8779C4 carry the pointer/UI origin used
+    when a populated fixture opens PMatchInfo. The middle region snaps to
+    (20,50); near the far right/bottom edge the dialog is shifted by its full
+    width/height, and coordinates already inside the near margin are preserved.
+    """
+    if type(pointer_x) is not int or type(pointer_y) is not int:
+        raise OriginalLeagueFixturesResourceError(
+            "PMatchInfo pointer coordinates must be integers"
+        )
+
+    if pointer_x < LEAGUE_FIXTURES_MATCH_INFO_X_MARGIN:
+        x = pointer_x
+    elif pointer_x >= LEAGUE_FIXTURES_MATCH_INFO_X_FAR_EDGE:
+        x = pointer_x - LEAGUE_FIXTURES_MATCH_INFO_SIZE[0]
+    else:
+        x = LEAGUE_FIXTURES_MATCH_INFO_X_MARGIN
+
+    if pointer_y < LEAGUE_FIXTURES_MATCH_INFO_Y_MARGIN:
+        y = pointer_y
+    elif pointer_y >= LEAGUE_FIXTURES_MATCH_INFO_Y_FAR_EDGE:
+        y = pointer_y - LEAGUE_FIXTURES_MATCH_INFO_SIZE[1]
+    else:
+        y = LEAGUE_FIXTURES_MATCH_INFO_Y_MARGIN
+
+    return x, y
 
 
 def league_fixtures_match_info_action(
