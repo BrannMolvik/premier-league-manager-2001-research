@@ -16,6 +16,7 @@ from gate17_windows_gameplay_receipts import (
     audit_season_progression,
     require_output_directory_outside_repo,
     resolve_release_artifact_identity,
+    run_windows_gameplay_receipts,
     write_new_receipt,
 )
 
@@ -260,6 +261,51 @@ class Gate17WindowsGameplayReceiptTests(unittest.TestCase):
                 "do not overwrite",
             ):
                 write_new_receipt(path, payload)
+
+    def test_receipt_set_writes_nothing_when_late_season_audit_fails(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp) / "repo"
+            repo.mkdir()
+            output = Path(temp) / "receipts"
+            archive = Path(temp) / "release.zip"
+            archive.write_bytes(b"candidate")
+
+            with (
+                patch(
+                    "gate17_windows_gameplay_receipts.require_windows_11",
+                    return_value={"platform": "Windows-11", "windows_build": 26200},
+                ),
+                patch(
+                    "gate17_windows_gameplay_receipts.HumanGameplayController.from_canonical_game_dir",
+                    return_value=object(),
+                ),
+                patch(
+                    "gate17_windows_gameplay_receipts.audit_new_game_management_loop",
+                    return_value={"new_game": True, "management_loop": True},
+                ),
+                patch(
+                    "gate17_windows_gameplay_receipts.audit_save_reload",
+                    return_value={"save_reload": True},
+                ),
+                patch(
+                    "gate17_windows_gameplay_receipts.audit_season_progression",
+                    side_effect=WindowsGameplayReceiptError("season failed"),
+                ),
+            ):
+                with self.assertRaisesRegex(
+                    WindowsGameplayReceiptError,
+                    "season failed",
+                ):
+                    run_windows_gameplay_receipts(
+                        game_dir="C:/FM2001",
+                        release_version="v0.17.0",
+                        repository_commit=COMMIT,
+                        release_archive=archive,
+                        output_dir=output,
+                        repo_root=repo,
+                    )
+
+            self.assertEqual(tuple(output.glob("*.json")), ())
 
     def test_receipt_payload_carries_exact_release_identity(self):
         identity = ReleaseArtifactIdentity(
