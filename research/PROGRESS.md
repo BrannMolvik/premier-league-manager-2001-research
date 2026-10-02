@@ -10428,3 +10428,31 @@ work may continue under the deferred-blocker policy.
   `+0x1ED` against both the 3 and 8 tuning thresholds even though the
   adjacent season-arrival byte exists.
 - Full branch CI for the lifecycle patch is pending.
+
+
+### Recovery 187 - due-transfer blocker bounded; Cup controlled posting helper
+
+- Rechecked canonical main at `3b9fc3741a8d614a14389d90db99285b9aa49a69`;
+  the monthly permanent-arrival lifecycle is already merged and verified with
+  **1,420 tests / 22 expected skips** plus repository asset-policy success.
+- Re-audited the remaining due `MPMTransferPlayer` same-day ordering gap.
+  Persisted executable evidence proves `0x613EE0` is the first dated-process
+  queue call inside `0x4A8070`, but the repository does not retain the
+  missing outer relationship between that daily coordinator and same-day match
+  execution. The current execution allocation still fails before even a trivial
+  shell process starts with `caas.internal.errors.ClientError`, so fresh
+  disassembly is unavailable. No fixture/transfer ordering claim was invented.
+- Continued the next independent source-bounded Gate-15 finance slice instead.
+  Persisted `0x5DA2F0` evidence proves that its special Cup/knockout posting
+  tail can independently credit accounting categories 1 and 2 to both
+  controlled participants from the common attendance counts, while each
+  participant uses its own DBRUser `+0x694` seating/terrace prices.
+- Added a reusable revenue-from-attendance helper and
+  `GameState.post_cup_gate_receipts()`. It deliberately models only the
+  proven accounting mechanics and does **not** label the behavior as revenue
+  sharing, neutral-ground receipts, or any other unproved business rule.
+- Added regressions with deliberately different home/away controlled-user
+  ticket prices plus the unmaterialized-participant skip boundary.
+- Full live domestic-Cup receipt attachment remains pending after branch CI;
+  the existing Cup simulation still consumes its four source-ordered gate RNG
+  draws without yet invoking the new posting helper.
