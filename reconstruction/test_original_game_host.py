@@ -19,6 +19,7 @@ from original_league_fixtures_art import build_league_fixtures_grid_art
 from original_league_fixtures_resources import (
     FIXTURES_HORIZONTAL_GRID,
     FIXTURES_VERTICAL_GRID,
+    LEAGUE_FIXTURES_MATCH_INFO_ACTION,
 )
 from original_league_tables_art import build_league_tables_header_art
 from original_league_tables_resources import (
@@ -34,6 +35,11 @@ from original_game_host import (
     play_configured_startup_media,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_pmatchinfo_presenter import build_staged_pmatchinfo_snapshot
+from original_pmatchinfo_resources import (
+    PMATCHINFO_RESOURCE_BY_NAME,
+    PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES,
+)
 from original_pmenu_chrome import PMENU_FONT_SOURCE_PATH
 from original_pstartmenu_resources import assemble_original_pstartmenu_inputs
 from original_squad_top_controls import OriginalSquadTopResources
@@ -123,6 +129,37 @@ def fake_fixture_grid_art():
             FIXTURES_HORIZONTAL_GRID.name: image(FIXTURES_HORIZONTAL_GRID, 33),
         }
     )
+
+
+def fake_pmatchinfo_snapshot():
+    decoded = {}
+    for index, name in enumerate(PMATCHINFO_STAGED_PRESENTATION_RESOURCE_NAMES):
+        resource = PMATCHINFO_RESOURCE_BY_NAME[name]
+        marker = (index * 13) % 240
+        decoded[name] = EA444DecodedImage(
+            resource.size[0],
+            resource.size[1],
+            bytes((marker, marker, marker, 255))
+            * (resource.size[0] * resource.size[1]),
+            consumed_bits=0,
+            transparent_pixels=0,
+        )
+    return build_staged_pmatchinfo_snapshot(
+        decoded,
+        require_complete_dialog=True,
+    )
+
+
+class MatchInfoActionPresenter:
+    def fixture_match_info_action(
+        self,
+        *,
+        fixture_present,
+        linked_context_available,
+    ):
+        if fixture_present and linked_context_available:
+            return LEAGUE_FIXTURES_MATCH_INFO_ACTION
+        return None
 
 
 def fake_league_tables_header_art():
@@ -369,6 +406,82 @@ class OriginalGameHostTests(unittest.TestCase):
             "all six verified original assets",
         ):
             host._draw_league_fixtures_grid_art(frame)
+
+    def test_source_accepted_pmatchinfo_draws_exact_popup_at_recovered_origin(self):
+        live = presenter()
+        with patch(
+            "original_game_host.build_management_pmenu_render",
+            side_effect=lambda frame, resources: fake_pmenu_render(),
+        ):
+            host = OriginalGameTkHost(
+                live,
+                FakeRoot(),
+                FakeTk,
+                management_presenter_factory=management_factory,
+                management_pmenu_resources=object(),
+                squad_top_resources=fake_squad_top_resources(),
+                pmatchinfo_snapshot=fake_pmatchinfo_snapshot(),
+            )
+            host.on_click(SimpleNamespace(x=7, y=478))
+            live.choose_club(12)
+            host.on_click(SimpleNamespace(x=426, y=301))
+
+        host.management_presenter = MatchInfoActionPresenter()
+        before = len(host.canvas.images)
+        action = host.apply_source_accepted_fixture_match_info(
+            fixture_present=True,
+            linked_context_available=True,
+            pointer_x=400,
+            pointer_y=300,
+        )
+
+        self.assertIs(action, LEAGUE_FIXTURES_MATCH_INFO_ACTION)
+        self.assertEqual(host.last_pmatchinfo_origin, (20, 50))
+        self.assertEqual(len(host.canvas.images), before + 1)
+        self.assertEqual(host.canvas.images[-1][:2], (20, 50))
+        self.assertIn("source-accepted PMatchInfo", host.last_status)
+        self.assertIn("owner-local child art remains fail-closed", host.last_status)
+
+    def test_source_accepted_pmatchinfo_keeps_missing_context_fail_closed(self):
+        live = presenter()
+        host = OriginalGameTkHost(
+            live,
+            FakeRoot(),
+            FakeTk,
+            pmatchinfo_snapshot=fake_pmatchinfo_snapshot(),
+        )
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host.management_presenter = MatchInfoActionPresenter()
+        before = len(host.canvas.images)
+
+        action = host.apply_source_accepted_fixture_match_info(
+            fixture_present=True,
+            linked_context_available=False,
+            pointer_x=400,
+            pointer_y=300,
+        )
+
+        self.assertIsNone(action)
+        self.assertEqual(len(host.canvas.images), before)
+        self.assertIsNone(host.last_pmatchinfo_origin)
+        self.assertIn("rejected by recovered fixture gates", host.last_status)
+
+    def test_source_accepted_pmatchinfo_requires_verified_popup_snapshot(self):
+        live = presenter()
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk)
+        live.session.navigation.screen = FrontEndScreen.MANAGEMENT
+        host.management_presenter = MatchInfoActionPresenter()
+
+        with self.assertRaisesRegex(
+            OriginalGameHostError,
+            "verified complete popup snapshot",
+        ):
+            host.apply_source_accepted_fixture_match_info(
+                fixture_present=True,
+                linked_context_available=True,
+                pointer_x=400,
+                pointer_y=300,
+            )
 
     def test_management_redraw_requires_verified_pmenu_resources(self):
         live = presenter()
