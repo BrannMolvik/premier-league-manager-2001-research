@@ -1,0 +1,77 @@
+name: Windows release candidate
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/windows-release-candidate.yml"
+      - "reconstruction/app.py"
+      - "reconstruction/original_game_host.py"
+      - "reconstruction/test_original_game_host.py"
+      - "reconstruction/gate17_windows_package.py"
+      - "reconstruction/test_gate17_windows_package.py"
+      - "original_assets/**"
+      - "tools/check_repository_assets.py"
+  workflow_dispatch:
+
+concurrency:
+  group: windows-release-candidate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact candidate commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install frozen-build dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --disable-pip-version-check "pyinstaller==6.22.3" "capstone>=5,<6"
+
+      - name: Validate repository asset policy
+        shell: pwsh
+        run: python tools/check_repository_assets.py
+
+      - name: Run package-focused regression tests
+        shell: pwsh
+        working-directory: reconstruction
+        run: |
+          python -m unittest -v test_original_game_host.RuntimeApplicationRootTests test_gate17_windows_package
+
+      - name: Build and smoke Windows candidate
+        id: build
+        shell: pwsh
+        run: |
+          $commit = git rev-parse HEAD
+          if ("${{ github.event_name }}" -eq "pull_request") {
+            $version = "pr-${{ github.event.pull_request.number }}"
+          } else {
+            $version = "candidate-${{ github.run_number }}"
+          }
+          $out = Join-Path $env:RUNNER_TEMP "fm2001-release"
+          python reconstruction/gate17_windows_package.py `
+            --release-version $version `
+            --repository-commit $commit `
+            --output-dir $out
+          "release_version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "output_dir=$out" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Upload Windows candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: FM2001-Windows11-${{ steps.build.outputs.release_version }}
+          path: ${{ steps.build.outputs.output_dir }}
+          if-no-files-found: error
+          retention-days: 14
