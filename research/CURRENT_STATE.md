@@ -25,40 +25,40 @@ Evidence:
 
 ## Live resume summary
 
-- **Recovery 181 representative management visual loop is canonical through the
-  cloud-side schema-8 contract:** PR #117 added the fresh source-backed
-  PSquadScreen top controls; PR #118 added the exact League Tables
-  `league_bar.444` at **(270,152,475,19)**; PR #119 source-closed the
-  PMatchInfo pointer-origin clamp and PLeagueTables 800x600 parent; PR #120
-  added the exact 760x500 `info_popup.444` screen projector; PR #122 merged
-  the explicit source-accepted PMatchInfo modal/exit path as
-  `f248ecaf7cae4535b78451f46dad3ac8d36646be`; and PR #123 merged the
-  panel-aware schema-8 Windows audit contract as
-  `a5277f889e4653c464dda1d410e9febc4dbb42e1`.
-- **Current verification:** PR #122's full reconstruction run
-  `37009547601` passed **1,379 tests with 22 expected skips**. PR #123's
-  Gate-13 run `37010700467` passed **479 tests with 21 expected skips** and
-  repository asset-policy run `37010700447` passed.
-- **Windows validation boundary:** schema 7 remains the last actual
-  real-Windows receipt. Schema **8** now audits the live Squad, League Fixtures,
-  explicit source-accepted PMatchInfo and League Tables bitmap stack in
-  addition to PMenu rows, but that expanded contract still needs one real
-  Windows 11/Tk execution before Gate 13 can close.
-- **Remaining fidelity boundary:** ordinary League Fixtures cell -> secondary
-  linked-context PMatchInfo opening remains unbridged; PMatchInfo owner-local
-  child transforms remain fail-closed; the application-owned surrounding
-  management background remains unresolved; and native PMenu keyboard
-  equivalence remains unclaimed. The current PSquadScreen executable evidence
-  does source-close controls 3/4/5 and their first+reserve / first+formation /
-  reserve+formation container transitions, but ordinary modern Tk pointer
-  equivalence for those top controls has not yet been promoted.
-- **Exact next task:** reconcile the source-proven PSquadScreen view transition
-  into the smallest fail-closed Squad/formation seam needed by the
-  representative loop, without inventing top-button event equivalence or
-  unresolved formation/player pixels. Then run the expanded schema-8 audit on
-  real Windows, re-audit Gate 13, and close it only if every roadmap criterion
-  passes. If the Windows path remains unavailable, continue independent
-  cloud-safe later-gate work under the deferred-blocker policy.
+- **Recovery 182 bounded Squad view transition is canonical:** PR #126
+  squash-merged as `9b31feb05f4c6e239eb4c96288375217165a484e`.
+  `OriginalManagementPresenter` now carries the exact source-proven
+  PSquadScreen control 3/4/5 container state: control 3 first+reserve, control
+  4 first+formation with pitch team index 0, and control 5 reserve+formation
+  with pitch team index 1. The clean host exposes this only through an explicit
+  source-accepted seam. Ordinary modern pointer equivalence is still false.
+- **Fail-closed post-transition pixels:** only control 3's fresh selected/normal
+  top-button state was previously source-closed. After source-accepted controls
+  4/5, the host withholds unproven top-button/formation/player pixels instead
+  of reusing or inventing them. The schema-8 audit exercises control 4 through
+  the explicit seam, verifies the exact container transition, then restores
+  control 3 before continuing the representative loop.
+- **Current verification:** PR #126 Gate-13 run `37015082865` passed
+  **485 tests with 21 expected skips**; full reconstruction run
+  `37015083315` passed **1,387 tests with 22 expected skips**; repository
+  asset-policy run `37015082578` passed.
+- **Gate 13 validation boundary:** schema 7 remains the last actual real-Windows
+  receipt. Repository schema **8** now covers the source-backed PMenu, fresh
+  Squad pixels, explicit Squad container transition seam, League Fixtures grid,
+  explicit source-resolved PMatchInfo popup/exit, and League Tables header.
+  A fresh real-Windows 11/Tk schema-8 receipt is the earliest incomplete Gate-13
+  validation step.
+- **Remaining fail-closed boundaries:** ordinary Squad top-control pointer
+  equivalence is unproven; ordinary League Fixtures cell -> secondary linked
+  context PMatchInfo opening remains unbridged; PMatchInfo owner-local child
+  transforms remain unresolved; the application-owned surrounding management
+  background remains unresolved; and PMenu keyboard equivalence remains
+  unclaimed.
+- **Exact next task:** obtain the expanded schema-8 real-Windows receipt and
+  re-audit Gate 13. If that execution path is unavailable in the current
+  worker, treat it as a deferred external blocker and continue the highest-
+  priority independent cloud-safe Gate 14 work without declaring Gate 13
+  complete.
 
 - **Recovery 179 live PMenu pixels are canonical:** PR #114 squash-merged as
   `57e334208dbad69127d5a173caf23d511971066e`. The default clean MANAGEMENT
