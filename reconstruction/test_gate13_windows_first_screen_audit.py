@@ -144,6 +144,11 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
             frame = SimpleNamespace(
                 presentation=SimpleNamespace(
                     panel_class=panel_class,
+                    squad_view_transition=(
+                        SimpleNamespace(control_id=3)
+                        if panel_class == "PSquadScreen"
+                        else None
+                    ),
                     league_fixtures=(
                         panel_snapshot if panel_class == "PLeagueFixtures" else None
                     ),
@@ -181,6 +186,36 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
             [[73, 25], [41, 15]],
         )
         self.assertEqual(squad, [[73, 25], [41, 15], *pmenu_dimensions])
+
+        post_transition_host = SimpleNamespace(
+            management_presenter=object(),
+            active_pmatchinfo_art=None,
+            squad_top_resources=object(),
+            league_fixtures_grid_art=None,
+            league_tables_header_art=None,
+        )
+        post_transition_frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PSquadScreen",
+                squad_view_transition=SimpleNamespace(control_id=4),
+                league_fixtures=None,
+                league_tables=None,
+            )
+        )
+        with (
+            patch(
+                "gate13_windows_first_screen_audit.build_management_canvas_frame",
+                return_value=post_transition_frame,
+            ),
+            patch(
+                "gate13_windows_first_screen_audit.expected_management_pmenu_photo_dimensions",
+                return_value=pmenu_dimensions,
+            ),
+        ):
+            self.assertEqual(
+                expected_clean_host_photo_dimensions(post_transition_host, object()),
+                pmenu_dimensions,
+            )
 
         fixture_art = SimpleNamespace(
             placements=(
@@ -238,6 +273,32 @@ class WindowsFirstScreenAuditContractTests(unittest.TestCase):
             with self.assertRaisesRegex(
                 WindowsFirstScreenAuditError,
                 "lost exact staged grid art",
+            ):
+                expected_clean_host_photo_dimensions(host, object())
+
+    def test_clean_host_photo_dimensions_reject_unrecovered_squad_view_control(self):
+        frame = SimpleNamespace(
+            presentation=SimpleNamespace(
+                panel_class="PSquadScreen",
+                squad_view_transition=SimpleNamespace(control_id=6),
+                league_fixtures=None,
+                league_tables=None,
+            )
+        )
+        host = SimpleNamespace(
+            management_presenter=object(),
+            squad_top_resources=object(),
+            league_fixtures_grid_art=None,
+            league_tables_header_art=None,
+            active_pmatchinfo_art=None,
+        )
+        with patch(
+            "gate13_windows_first_screen_audit.build_management_canvas_frame",
+            return_value=frame,
+        ):
+            with self.assertRaisesRegex(
+                WindowsFirstScreenAuditError,
+                "unrecovered view control",
             ):
                 expected_clean_host_photo_dimensions(host, object())
 
