@@ -282,6 +282,75 @@ def _verify_live_tk_redraw(
     }
 
 
+def audit_management_host_contract(
+    frame,
+    *,
+    canvas_size: list[int],
+    photo_dimensions: list[list[int]],
+    status: str,
+) -> dict:
+    """Validate the recovered MANAGEMENT host without claiming missing pixels."""
+    menu_x, menu_y = PMENU_LIST_SCREEN_ORIGIN
+    menu_w, menu_h = PMENU_LIST_SIZE
+    expected_menu_rect = (menu_x, menu_y, menu_w, menu_h)
+    if frame.screen_size != SCREEN_SIZE:
+        raise WindowsFirstScreenAuditError(
+            "MANAGEMENT host no longer uses the exact 800x600 source surface"
+        )
+    if frame.menu_rect != expected_menu_rect:
+        raise WindowsFirstScreenAuditError(
+            "MANAGEMENT PMenu rectangle differs from recovered native geometry"
+        )
+    if frame.panel_rect != SQUAD_PANEL_RECT:
+        raise WindowsFirstScreenAuditError(
+            "Fresh MANAGEMENT panel rectangle differs from recovered PSquadScreen geometry"
+        )
+    if frame.presentation.panel_class != "PSquadScreen":
+        raise WindowsFirstScreenAuditError(
+            "Fresh MANAGEMENT host did not resolve PSquadScreen"
+        )
+    if frame.presentation.panel_code != 0xCE:
+        raise WindowsFirstScreenAuditError(
+            "Fresh MANAGEMENT host did not preserve native Squad menu ID 0xCE"
+        )
+    if frame.surrounding_background_recovered:
+        raise WindowsFirstScreenAuditError(
+            "MANAGEMENT audit must not claim unresolved surrounding background pixels"
+        )
+    if frame.pmenu_text_placement_recovered:
+        raise WindowsFirstScreenAuditError(
+            "MANAGEMENT audit must not claim unresolved PMenu text placement"
+        )
+    if frame.complete_source_pixel_frame_available:
+        raise WindowsFirstScreenAuditError(
+            "MANAGEMENT audit unexpectedly claimed unresolved full source pixels"
+        )
+    if canvas_size != list(SCREEN_SIZE):
+        raise WindowsFirstScreenAuditError(
+            "Real Tk MANAGEMENT canvas is not the fixed 800x600 surface"
+        )
+    if photo_dimensions:
+        raise WindowsFirstScreenAuditError(
+            "MANAGEMENT host drew PhotoImages before background/text recovery"
+        )
+    if "entered source-proven PMenu management host" not in status:
+        raise WindowsFirstScreenAuditError(
+            "Real Tk Start path did not report the recovered PMenu host transition"
+        )
+    return {
+        "screen_size": list(frame.screen_size),
+        "pmenu_rect": list(frame.menu_rect),
+        "panel_rect": list(frame.panel_rect),
+        "panel_class": frame.presentation.panel_class,
+        "panel_code": frame.presentation.panel_code,
+        "live_tk_canvas_size": list(canvas_size),
+        "photo_dimensions": list(photo_dimensions),
+        "surrounding_background_recovered": frame.surrounding_background_recovered,
+        "pmenu_text_placement_recovered": frame.pmenu_text_placement_recovered,
+        "complete_source_pixel_frame_available": frame.complete_source_pixel_frame_available,
+    }
+
+
 def run_real_windows_graphical_audit(
     *,
     original_exe: Path,
@@ -489,51 +558,18 @@ def run_real_windows_graphical_audit(
         management_frame = build_management_canvas_frame(
             viewer.management_presenter
         )
-        menu_x, menu_y = PMENU_LIST_SCREEN_ORIGIN
-        menu_w, menu_h = PMENU_LIST_SIZE
-        expected_menu_rect = (menu_x, menu_y, menu_w, menu_h)
-        if management_frame.screen_size != SCREEN_SIZE:
-            raise WindowsFirstScreenAuditError(
-                "MANAGEMENT host no longer uses the exact 800x600 source surface"
-            )
-        if management_frame.menu_rect != expected_menu_rect:
-            raise WindowsFirstScreenAuditError(
-                "MANAGEMENT PMenu rectangle differs from recovered native geometry"
-            )
-        if management_frame.panel_rect != SQUAD_PANEL_RECT:
-            raise WindowsFirstScreenAuditError(
-                "Fresh MANAGEMENT panel rectangle differs from recovered PSquadScreen geometry"
-            )
-        if management_frame.presentation.panel_class != "PSquadScreen":
-            raise WindowsFirstScreenAuditError(
-                "Fresh MANAGEMENT host did not resolve PSquadScreen"
-            )
-        if management_frame.presentation.panel_code != 0xCE:
-            raise WindowsFirstScreenAuditError(
-                "Fresh MANAGEMENT host did not preserve native Squad menu ID 0xCE"
-            )
-        if management_frame.complete_source_pixel_frame_available:
-            raise WindowsFirstScreenAuditError(
-                "MANAGEMENT audit unexpectedly claimed unresolved full source pixels"
-            )
         management_canvas_size = [
             int(viewer.canvas.winfo_width()),
             int(viewer.canvas.winfo_height()),
         ]
-        if management_canvas_size != list(SCREEN_SIZE):
-            raise WindowsFirstScreenAuditError(
-                "Real Tk MANAGEMENT canvas is not the fixed 800x600 surface"
-            )
         management_photo_dimensions = _actual_photo_dimensions(viewer)
-        if management_photo_dimensions:
-            raise WindowsFirstScreenAuditError(
-                "MANAGEMENT host drew PhotoImages before background/text recovery"
-            )
         management_status = str(viewer.status.get())
-        if "entered source-proven PMenu management host" not in management_status:
-            raise WindowsFirstScreenAuditError(
-                "Real Tk Start path did not report the recovered PMenu host transition"
-            )
+        management_contract = audit_management_host_contract(
+            management_frame,
+            canvas_size=management_canvas_size,
+            photo_dimensions=management_photo_dimensions,
+            status=management_status,
+        )
 
         return {
             "schema_version": 4,
@@ -568,16 +604,7 @@ def run_real_windows_graphical_audit(
             "management": {
                 "entered_via_native_club_selection_and_start": True,
                 "selected_club_id": management_club.source_id,
-                "screen_size": list(management_frame.screen_size),
-                "pmenu_rect": list(management_frame.menu_rect),
-                "panel_rect": list(management_frame.panel_rect),
-                "panel_class": management_frame.presentation.panel_class,
-                "panel_code": management_frame.presentation.panel_code,
-                "live_tk_canvas_size": management_canvas_size,
-                "photo_dimensions": management_photo_dimensions,
-                "surrounding_background_recovered": management_frame.surrounding_background_recovered,
-                "pmenu_text_placement_recovered": management_frame.pmenu_text_placement_recovered,
-                "complete_source_pixel_frame_available": management_frame.complete_source_pixel_frame_available,
+                **management_contract,
             },
             "navigation": {
                 "new_game_to_teamselect_via_real_tk_binding": True,
