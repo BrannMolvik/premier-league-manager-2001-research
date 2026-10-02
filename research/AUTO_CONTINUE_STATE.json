@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 179 is complete on main 136dd19. Compose the four imported PMenu row resources and the exact imported title/child fonts into the live management canvas using each presenter's recovered arrow/background state bits, text color, line origin and clip. Then recover the application-owned surrounding management background and continue the recognizable Squad -> League Fixtures/PMatchInfo -> League Tables visual loop. Keyboard equivalence remains fail-closed.",
+  "active_task": "Recovery 179 ChatGPT implementation: compose recovered PMenu arrow/background/font overlays into the default MANAGEMENT canvas; update focused regression coverage and schema-8 Windows audit contract, then reconcile stale Gate-13 state. Surrounding application-owned background remains the next source-evidence boundary.",
   "last_known_main_head": "136dd19",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 179,
   "last_recovery_reason": "codex-usage-reserve-handoff",
-  "note": "Codex finished and pushed exact PMenu row fonts, geometry, clipping, static state propagation and native black/white color selection. Focused 32-test slice and repository asset policy pass. The live row compositor is the exact next implementation task; do not retrace completed evidence.",
+  "note": "ChatGPT ownership confirmed. Working on the live source-backed PMenu compositor from canonical main 136dd19; no native tracing is being repeated.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
