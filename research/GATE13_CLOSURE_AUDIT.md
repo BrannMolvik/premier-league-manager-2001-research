@@ -107,10 +107,11 @@ The smallest sufficient remaining closure slice is:
 
 1. **Validate the representative clean-host management loop on real Windows.**
    The bounded Squad container transition seam is now integrated.
-   The repository contract now covers Squad -> League Fixtures -> explicit
-   source-accepted PMatchInfo/result -> League Tables. A real Windows 11/Tk
+   The repository contract now covers Squad plus the explicit first+formation
+   container transition -> League Fixtures -> explicit source-accepted
+   PMatchInfo/result -> League Tables. A real Windows 11/Tk
    receipt must confirm the rendered path before recognizability is judged.
-3. **Keep unrecovered details fail-closed.** In particular, do not place the
+2. **Keep unrecovered details fail-closed.** In particular, do not place the
    four 24x13 League Fixtures cell resources until their screen placement is
    source-proven, do not guess unresolved Squad icons/text styling, and do not
    enable PMenu keyboard activation without native evidence.
