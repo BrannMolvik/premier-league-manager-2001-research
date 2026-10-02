@@ -10254,3 +10254,32 @@ does not require those unresolved pixels.
   Ordinary fixture-cell -> secondary-context PMatchInfo opening, PMatchInfo
   owner-local child transforms, surrounding management background and PMenu
   keyboard equivalence remain fail-closed.
+
+## 2 October 2026 - Recovery 182 bounded Squad view-transition checkpoint
+
+PR #126 squash-merged as `9b31feb05f4c6e239eb4c96288375217165a484e`.
+The management presenter and clean host now expose the executable-proven
+PSquadScreen controls 3/4/5 container transitions only through an explicit
+source-accepted seam. Control 4 maps to first-team + formation/pitch team index
+0; control 5 maps to reserve + formation/pitch team index 1; control 3 restores
+the fresh first+reserve container state. Ordinary modern top-control pointer
+equivalence remains unproven.
+
+The host renders the already source-closed fresh control-3 pixels only. After
+source-accepted controls 4/5 it withholds unproven post-event top-control,
+formation and player pixels rather than reusing or inventing them. Schema 8 now
+exercises the control-4 transition, verifies its exact neutral container state,
+then restores control 3 before continuing the existing Squad -> League Fixtures
+-> explicit PMatchInfo -> League Tables audit path.
+
+Verification on PR #126:
+
+- Gate-13 presentation run `37015082865`: 485 tests, 21 expected skips, pass;
+- full reconstruction run `37015083315`: 1,387 tests, 22 expected skips, pass;
+- repository asset-policy run `37015082578`: pass.
+
+Gate 13 remains active because the expanded schema-8 contract still requires a
+fresh real-Windows 11/Tk receipt and the unresolved surrounding-management /
+normal PMatchInfo bridge questions must be judged without invented behavior.
+While that external validation is unavailable, independent cloud-safe Gate 14
+work may continue under the deferred-blocker policy.
