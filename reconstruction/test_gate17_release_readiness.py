@@ -31,6 +31,9 @@ def write_receipt(path, **flags):
         "repository_commit": COMMIT,
         "release_version": RELEASE_VERSION,
         "release_archive_sha256": RELEASE_ARCHIVE_SHA256,
+        "windows_11": True,
+        "windows_build": 26200,
+        "windows_product_type": 1,
         **flags,
     }
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -224,6 +227,36 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 "outside_development_environment",
             ):
                 validate_external_receipts(evidence, repo)
+
+    def test_external_receipt_host_metadata_fails_closed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            name = "save_reload"
+            path = Path(raw["external_receipts"][name]["path"])
+
+            cases = (
+                ("windows_11", False, "does not prove Windows 11"),
+                ("windows_build", 21999, "older than Windows 11"),
+                ("windows_product_type", 3, "client workstation"),
+            )
+            for field, value, message in cases:
+                with self.subTest(field=field):
+                    payload = json.loads(path.read_text(encoding="utf-8"))
+                    payload[field] = value
+                    path.write_text(json.dumps(payload), encoding="utf-8")
+                    raw["external_receipts"][name]["sha256"] = sha256(
+                        path.read_bytes()
+                    ).hexdigest()
+                    with self.assertRaisesRegex(ReleaseReadinessError, message):
+                        validate_external_receipts(
+                            parse_release_evidence(raw),
+                            repo,
+                        )
+                    # Restore canonical synthetic evidence before next case.
+                    raw["external_receipts"][name]["sha256"] = write_receipt(
+                        path,
+                        save_reload=True,
+                    )
 
     def test_external_receipts_must_be_four_distinct_files(self):
         with tempfile.TemporaryDirectory() as temp:

@@ -317,7 +317,12 @@ class Gate17WindowsGameplayReceiptTests(unittest.TestCase):
         payload = _receipt_payload(
             audit_kind="gate17_save_reload",
             identity=identity,
-            windows={"platform": "Windows-11", "windows_build": 26200},
+            windows={
+                "platform": "Windows-11",
+                "windows_build": 26200,
+                "windows_11": True,
+                "windows_product_type": 1,
+            },
             result={"save_reload": True},
         )
         self.assertTrue(payload["passed"])
@@ -325,6 +330,9 @@ class Gate17WindowsGameplayReceiptTests(unittest.TestCase):
         self.assertEqual(payload["release_version"], "v0.17.0")
         self.assertEqual(payload["release_archive_sha256"], "b" * 64)
         self.assertEqual(payload["release_archive_size"], 123)
+        self.assertTrue(payload["windows_11"])
+        self.assertEqual(payload["windows_build"], 26200)
+        self.assertEqual(payload["windows_product_type"], 1)
         self.assertTrue(payload["save_reload"])
 
 
