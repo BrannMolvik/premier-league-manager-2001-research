@@ -76,7 +76,15 @@ def _build_state(seed: int) -> GameState:
         for club_id in CLUB_IDS
     }
     state.competitions = {
-        0: SimpleNamespace(id=0, valuation_division_category=0)
+        0: SimpleNamespace(
+            id=0,
+            runtime_kind_code=1,
+            schedule_container_code=1,
+            parent_competition_id=None,
+            initialization_order_value=0,
+            country_region_id=0,
+            valuation_division_category=0,
+        )
     }
     state.countries = {
         0: SimpleNamespace(
@@ -138,7 +146,15 @@ def _build_source_database():
         for club_id in CLUB_IDS
     )
     competitions = (
-        SimpleNamespace(id=0, valuation_division_category=0),
+        SimpleNamespace(
+            id=0,
+            runtime_kind_code=1,
+            schedule_container_code=1,
+            parent_competition_id=None,
+            initialization_order_value=0,
+            country_region_id=0,
+            valuation_division_category=0,
+        ),
     )
     countries = (
         SimpleNamespace(
