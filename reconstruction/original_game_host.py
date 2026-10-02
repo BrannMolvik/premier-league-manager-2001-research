@@ -29,11 +29,11 @@ from original_management_presenter import OriginalManagementPresenter
 from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
 from original_teamselect_resources import load_verified_original_teamselect_inputs
+from startup_media_playback import load_and_play_verified_startup_sequence
 
 
-DEFAULT_SOURCE_ROOT = (
-    Path(__file__).resolve().parent.parent / "original_assets" / "source"
-)
+REPO_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_SOURCE_ROOT = REPO_ROOT / "original_assets" / "source"
 SCREEN_SIZE = (800, 600)
 
 
@@ -261,12 +261,40 @@ class OriginalGameTkHost:
         self.redraw()
 
 
+def play_configured_startup_media(
+    *,
+    receipt_path: str | Path | None,
+    backend,
+    repo_root: str | Path | None = None,
+):
+    """Run verified startup media only when both explicit inputs are configured."""
+    if receipt_path is None and backend is None:
+        return None
+    if receipt_path is None or backend is None:
+        raise OriginalGameHostError(
+            "Startup media requires both a private conversion receipt and a playback backend"
+        )
+    return load_and_play_verified_startup_sequence(
+        receipt_path=Path(receipt_path),
+        repo_root=REPO_ROOT if repo_root is None else Path(repo_root),
+        backend=backend,
+    )
+
+
 def run_original_game_ui(
     game_dir: str | Path,
     *,
     source_root: str | Path | None = None,
+    startup_media_receipt: str | Path | None = None,
+    startup_media_backend=None,
+    repo_root: str | Path | None = None,
 ) -> None:
-    """Launch the current source-backed UI as the normal application surface."""
+    """Launch verified startup media, then the current source-backed UI surface."""
+    play_configured_startup_media(
+        receipt_path=startup_media_receipt,
+        backend=startup_media_backend,
+        repo_root=repo_root,
+    )
     presenter = build_original_game_presenter(
         game_dir,
         source_root=source_root,

@@ -126,6 +126,41 @@ A future Windows player can implement the tiny synchronous backend interface
 without gaining permission to reinterpret the unresolved native interaction
 semantics.
 
+## Configured clean-host startup-media integration
+
+The source-backed application launch now has an explicit runtime bridge for the
+verified derivative sequence. This remains cloud-safe work ahead while Gate 13
+is open.
+
+`reconstruction/startup_media_command_backend.py` provides a deliberately
+minimal synchronous command adapter. It launches only an explicitly configured
+player executable, appends the already verified derivative path as the final
+argument, waits for process completion, and reports success only for exit code
+zero. The player command is outside the source contract: callers are responsible
+for choosing a command that exits successfully only after playback has actually
+completed.
+
+`original_game_host.play_configured_startup_media()` requires the private
+outside-Git conversion receipt and a playback backend together, then delegates
+to `load_and_play_verified_startup_sequence()` before Tk creates the normal
+800x600 source-backed host. Supplying neither leaves the ordinary management
+launch unchanged; supplying only one side fails closed.
+
+`app.py` exposes this path only through explicit options:
+
+- `--startup-media-receipt` for the outside-Git receipt;
+- `--startup-media-player` for the synchronous player executable;
+- repeatable `--startup-media-player-arg` values passed before the media path.
+
+The prototype notebook cannot use these options. This checkpoint therefore
+connects verified startup derivatives to the real clean-host launch boundary
+without making an unsupported default-player choice.
+
+It still does **not** recover or claim the original skip key, callback meaning,
+fade/transition timing, display scaling/interlace treatment, or a bundled
+Windows release player. Those remain required before the player-visible startup
+criterion can be closed.
+
 ## Match presentation feed boundary
 
 `reconstruction/match_presentation_feed.py` establishes the Gate-14
