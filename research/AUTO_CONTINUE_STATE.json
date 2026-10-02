@@ -18,8 +18,8 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 161,
-  "last_recovery_reason": "stale-repository-activity",
+  "recovery_generation": 162,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
   "note": "Do not redo merged PMatchInfo or League Tables selector/header work. Windows/Tk private-source audit and several binary imports remain deferred blockers, not substitutes for cloud-safe source recovery.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
