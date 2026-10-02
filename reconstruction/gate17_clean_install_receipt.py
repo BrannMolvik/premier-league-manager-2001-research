@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import zipfile
@@ -24,6 +25,19 @@ from gate17_release_readiness import require_windows_11
 
 class CleanInstallReceiptError(RuntimeError):
     """The release candidate did not satisfy the clean-install contract."""
+
+
+def require_external_windows_11() -> dict:
+    """Require a real Windows 11 run outside hosted/automated CI."""
+    if os.environ.get("GITHUB_ACTIONS", "").casefold() == "true":
+        raise CleanInstallReceiptError(
+            "clean Windows install receipt cannot be produced by GitHub Actions"
+        )
+    if os.environ.get("CI", "").casefold() in ("1", "true", "yes"):
+        raise CleanInstallReceiptError(
+            "clean Windows install receipt cannot be produced inside CI"
+        )
+    return require_windows_11()
 
 
 def _sha256_file(path: Path) -> str:
@@ -252,7 +266,7 @@ def write_clean_install_receipt(
     executable_name: str = "FM2001-Windows11.exe",
     timeout_seconds: int = 60,
 ) -> Path:
-    windows = require_windows_11()
+    windows = require_external_windows_11()
     version = _require_release_version(release_version)
     commit = _require_commit(repository_commit)
     archive = _outside(
