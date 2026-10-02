@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 173,
+  "recovery_generation": 174,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 173 active. PR #109 passed Gate13/full-suite/asset-policy CI and squash-merged to main 94d9702c.... The 511,121,336-byte authorized source archive and canonical executable hash 833bf95e... were reverified privately; PMenu action ownership is now source-traced and awaiting repository persistence/tests.",
+  "note": "Recovery 174 resumed from canonical main 94d9702c0e4fce3fd215ec4741755cf8630751b3. Continue the persisted Recovery 173 PMenu row-action source trace without restarting completed work; exact next task remains source-backed action-contract persistence/tests, then PMenu text-origin/clipping and clean-host activation integration.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
