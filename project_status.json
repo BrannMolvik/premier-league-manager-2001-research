@@ -178,7 +178,7 @@
   "last_updated": "2026-10-02",
   "gate10_normal_pl_gate_verified_checkpoint": "0d3010df0dbbb60ab147d40dedd1ad83ff533965",
   "gate10_normal_pl_gate_verified_test_count": 531,
-  "gate10_premier_league_tier_factor": 0.5,
+  "gate10_premier_league_tier_factor": 0.9,
   "gate10_premier_league_seating_reference": 30,
   "gate10_premier_league_terrace_reference": 22.5,
   "gate10_fresh_controlled_facility_factor": 0.9,
@@ -1664,5 +1664,20 @@
   "gate15_contract_month_normalization_exact": true,
   "gate15_contract_month_normalization_helper": "0x64CDD0",
   "gate15_contract_month_normalization_rule": "target month day always 1",
-  "gate15_contract_month_normalization_recovery": 186
+  "gate15_contract_month_normalization_recovery": 186,
+  "gate10_premier_league_tier_factor_corrected_recovery": 186,
+  "gate10_fan_factor_country_vector": "DBRCountry +0x48/+0x4C League/DummyLeague roots",
+  "gate10_fan_factor_host_source": "club +0x10 registered competition and +0x14 country",
+  "gate15_autonomous_contract_category_exact": true,
+  "gate15_autonomous_contract_category_helper": "0x4FA510 -> 0x4F8FF0 -> 0x410FF0",
+  "gate15_autonomous_contract_category_vector": "DBRCountry +0x48/+0x4C",
+  "gate15_autonomous_contract_category_england_rows": {
+    "0": "Premier League",
+    "1": "Division 1",
+    "2": "Division 2",
+    "3": "Division 3",
+    "4": "Conference",
+    "5": "Conference 2 DummyLeague"
+  },
+  "gate15_autonomous_contract_category_recovery": 186
 }

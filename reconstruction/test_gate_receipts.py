@@ -109,7 +109,7 @@ class CupGatePrimitiveTests(unittest.TestCase):
 
 class GateLiveInputTests(unittest.TestCase):
     def test_premier_league_source_constants(self):
-        self.assertEqual(PREMIER_LEAGUE_TIER_FACTOR, 0.5)
+        self.assertEqual(PREMIER_LEAGUE_TIER_FACTOR, 0.9)
         self.assertEqual(PREMIER_LEAGUE_SEATING_REFERENCE, 30.0)
         self.assertEqual(PREMIER_LEAGUE_TERRACE_REFERENCE, 22.5)
         self.assertEqual(FRESH_CONTROLLED_FACILITY_FACTOR, 0.9)

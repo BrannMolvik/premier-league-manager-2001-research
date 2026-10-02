@@ -115,7 +115,15 @@ def build_state(on_date=date(2000, 8, 19)):
             102: SimpleNamespace(index=102, club_id=seller_id),
         },
         competitions={
-            0: SimpleNamespace(id=0, valuation_division_category=0),
+            0: SimpleNamespace(
+                id=0,
+                runtime_kind_code=1,
+                schedule_container_code=1,
+                parent_competition_id=None,
+                initialization_order_value=9,
+                country_region_id=0,
+                valuation_division_category=4,
+            ),
         },
         countries={
             0: SimpleNamespace(
@@ -160,12 +168,46 @@ class WeeklyAiTransferTests(unittest.TestCase):
         self.assertFalse(related_club_suppression_passes(state, 1, 2, rng))
         self.assertEqual(rng.bounds, [100])
 
-    def test_contract_table_is_applied_as_truncated_months(self):
+    def test_contract_table_uses_country_league_root_index_not_valuation_proxy(self):
         state = build_state()
-        # 25-year-old, category 0 -> 4.0 -> 4 calendar months.
+        # Packed valuation category deliberately says 4, but 0x4FA510 resolves
+        # the sole League root at country +0x48 index 0.
+        self.assertEqual(state.competitions[0].valuation_division_category, 4)
         self.assertEqual(autonomous_contract_length_months(state, 20, 1), 4)
         state.players[20].date_of_birth = date(1965, 1, 1)
         self.assertEqual(autonomous_contract_length_months(state, 20, 1), 2)
+
+    def test_contract_table_maps_five_playable_english_league_rows(self):
+        state = build_state()
+        state.competitions = {
+            0: SimpleNamespace(id=0, runtime_kind_code=1, schedule_container_code=1,
+                               parent_competition_id=None, initialization_order_value=9,
+                               country_region_id=26),
+            2: SimpleNamespace(id=2, runtime_kind_code=1, schedule_container_code=1,
+                               parent_competition_id=None, initialization_order_value=10,
+                               country_region_id=26),
+            3: SimpleNamespace(id=3, runtime_kind_code=1, schedule_container_code=1,
+                               parent_competition_id=None, initialization_order_value=11,
+                               country_region_id=26),
+            4: SimpleNamespace(id=4, runtime_kind_code=1, schedule_container_code=1,
+                               parent_competition_id=None, initialization_order_value=12,
+                               country_region_id=26),
+            7: SimpleNamespace(id=7, runtime_kind_code=1, schedule_container_code=1,
+                               parent_competition_id=None, initialization_order_value=13,
+                               country_region_id=26),
+            89: SimpleNamespace(id=89, runtime_kind_code=3, schedule_container_code=1,
+                                parent_competition_id=None, initialization_order_value=14,
+                                country_region_id=26),
+        }
+        # Buyer competition 7 is the fifth playable root, category 4.
+        state.clubs[1].competition_id = 7
+        state.players[20].date_of_birth = date(1975, 1, 1)  # age 25
+        self.assertEqual(autonomous_contract_length_months(state, 20, 1), 3)
+
+        # The trailing DummyLeague is index 5 and must not be silently clamped.
+        state.clubs[1].competition_id = 89
+        with self.assertRaisesRegex(RuntimeError, "outside"):
+            autonomous_contract_length_months(state, 20, 1)
 
     def test_saturday_pass_completes_direct_ai_transfer(self):
         state = build_state()

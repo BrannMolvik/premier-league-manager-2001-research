@@ -1,6 +1,6 @@
 # Current State
 
-_Last reconciled: 2 October 2026 KST_
+_Last reconciled: 3 October 2026 KST_
 
 This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
@@ -69,23 +69,30 @@ Evidence:
   irrelevant to the ordinary shipped fresh-game path. Ordinary Finance
   Overview/transfers use Balance/accounting, so the port keeps no invented live
   budget scalar. Legacy persistence compatibility remains bounded.
-- **Next cloud-safe Gate-15 task:** audit the remaining finance/commercial and
-  transfer-order gaps for another item that is already source-bounded or can be
-  fixed from persisted evidence. Private-executable-dependent gaps remain
-  deferred rather than guessed.
-- **Recovery 186 Gate-15 transfer-window lifecycle:** canonical
-  country bytes `Static.dat +28..+35` are now mapped as four transfer boundary
-  pairs. The runtime starts country `+0x54` open and XOR-toggles it on each
-  exact materialized boundary through `0x411850 -> 0x411190 -> 0x4112D0 ->
-  0x411380`. England closes on 30 March 2001 and reopens on 31 May 2001.
-  Branch verification is pending CI; the separate due-transfer same-day ordering
-  gap remains open.
-- **Recovery 186 source retry:** the canonical 511,121,336-byte original-source
-  ZIP was successfully materialized again, but the fresh sandbox then failed
-  before starting the archive-inspection process. No FastView source path,
-  geometry, orientation, or placement claim was inferred from that failed
-  attempt. Gate 14 therefore remains fail-closed at the private-disc execution
-  boundary.
+- **Recovery 186 Gate-15 transfer-window lifecycle is canonical:** PR #140
+  squash-merged as `833f1fedd7ce3c645c428ba20a09392d6bf994b3` after
+  **1,417 tests / 22 expected skips** plus asset-policy success. Canonical
+  `Static.dat +28..+35` supplies four transfer boundary pairs; England closes
+  autonomous acquisition on 30 March 2001 and reopens it on 31 May 2001.
+- **Recovery 186 contract month normalization is canonical:** PR #141
+  squash-merged as `6a31e62e92c6c74fe097940dbd5b9bdea92b6b75` after
+  **1,416 tests / 22 expected skips** plus asset-policy success. Shared
+  `0x64CDD0` resets day to 1 before advancing the requested calendar-month
+  span.
+- **Active Gate-15 branch:** `recovery186/gate15-exact-autonomous-contract-category`
+  replaces the autonomous contract-duration valuation-category proxy with the
+  exact `0x4FA510 -> 0x4F8FF0 -> 0x410FF0` League/DummyLeague root-subset
+  index. The same source recheck corrected Gate-10 attendance: Premier League
+  is subset index 0 and therefore **FanFactor1 = 0.9**, and Cup attendance uses
+  the host club's league competition rather than the Cup root. Full CI is the
+  next checkpoint. The separate due-transfer same-day ordering gap remains open.
+- **Recovery 186 private source access is working again:** the canonical
+  511,121,336-byte disc-image ZIP was materialized from the Library, its raw
+  MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical
+  SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+  Fresh disassembly is therefore available again. This removes the old process-
+  start blocker but does not itself close unresolved Gate-14 FastView paths,
+  geometry, orientation, audio, or presentation semantics.
 - **Gate 14 work-ahead checkpoint:** PR #133 / `c1ea9ecd...` provides the
   bounded semantic FastView shell and PR #134 / `10cbd543...` provides the
   seven-target exact-basename resource resolver. Their recorded full-suite

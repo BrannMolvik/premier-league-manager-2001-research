@@ -16,6 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
+from competition_startup import country_league_root_storage_order
 from player_contract import (
     initial_weekly_wage,
     signing_fee_doubling_eligible,
@@ -348,16 +349,46 @@ def related_club_suppression_passes(state, buyer_club_id: int, seller_club_id: i
 
 
 def _autonomous_contract_category(state, buyer_club_id: int) -> int:
-    club = state.clubs[int(buyer_club_id)]
-    competition = state.competitions.get(int(club.competition_id))
+    """Return 0x4FA510's exact country League/DummyLeague root index."""
+    buyer_club_id = int(buyer_club_id)
+    club = state.clubs.get(buyer_club_id)
+    if club is None:
+        raise KeyError(f"unknown buying club {buyer_club_id}")
+
+    competition_id = int(club.competition_id)
+    competition = state.competitions.get(competition_id)
     if competition is None:
-        return 4
-    # 0x423340 consumes a 0..4 category from 0x4FA510. The source-backed
-    # competition category already used by the reconstructed valuation path is
-    # the closest persisted field; values beyond the table are clamped to the
-    # executable table's last row rather than indexing out of range.
-    raw = int(getattr(competition, "valuation_division_category", 4))
-    return max(0, min(4, raw))
+        raise RuntimeError(
+            f"buying club {buyer_club_id} competition {competition_id} is not loaded"
+        )
+
+    country_region_id = int(getattr(competition, "country_region_id"))
+    ordered = country_league_root_storage_order(
+        tuple(state.competitions.values()),
+        country_region_id,
+    )
+    try:
+        category = next(
+            index
+            for index, candidate in enumerate(ordered)
+            if int(candidate.id) == competition_id
+        )
+    except StopIteration as exc:
+        raise RuntimeError(
+            f"competition {competition_id} is not in country {country_region_id} "
+            "League/DummyLeague root subset"
+        ) from exc
+
+    # 0x423340 contains exactly five playable rows. Canonical England maps
+    # Premier League/Division 1/Division 2/Division 3/Conference to 0..4;
+    # Conference 2 is the trailing DummyLeague at index 5 and is not a valid
+    # autonomous buyer-league category.
+    if not 0 <= category < len(AUTONOMOUS_CONTRACT_MONTHS):
+        raise RuntimeError(
+            f"competition {competition_id} contract category {category} is "
+            "outside the 0x423340 playable table"
+        )
+    return category
 
 
 def autonomous_contract_length_months(state, player_id: int, buyer_club_id: int) -> int:
