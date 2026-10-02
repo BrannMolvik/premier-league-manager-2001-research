@@ -31,6 +31,7 @@ from original_league_fixtures_art import (
 )
 from original_league_fixtures_resources import (
     LEAGUE_FIXTURES_RESOURCES,
+    league_fixtures_match_info_origin,
     validate_original_league_fixtures_resources,
 )
 from original_league_tables_art import (
@@ -47,6 +48,10 @@ from original_management_canvas import (
     load_verified_management_pmenu_resources,
 )
 from original_management_presenter import OriginalManagementPresenter
+from original_pmatchinfo_presenter import (
+    OriginalPMatchInfoStaticSnapshot,
+    load_staged_pmatchinfo_snapshot,
+)
 from original_pmenu_activation import resolve_pmenu_pointer_press
 from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
 from original_pstartmenu_resources import load_verified_english_pstartmenu_inputs
@@ -111,6 +116,7 @@ class OriginalGameTkHost:
         league_fixtures_grid_art=None,
         squad_top_resources=None,
         league_tables_header_art=None,
+        pmatchinfo_snapshot=None,
     ):
         self.presenter = presenter
         self.root = root
@@ -124,6 +130,8 @@ class OriginalGameTkHost:
         self.league_fixtures_grid_art = league_fixtures_grid_art
         self.squad_top_resources = squad_top_resources
         self.league_tables_header_art = league_tables_header_art
+        self.pmatchinfo_snapshot = pmatchinfo_snapshot
+        self.active_pmatchinfo_origin = None
         self.last_pmenu_activation = None
         self._photos = []
         self.last_status = "Source-backed FM2001 host ready"
@@ -305,6 +313,50 @@ class OriginalGameTkHost:
         )
         return 1
 
+    def _require_pmatchinfo_popup(self):
+        """Return the exact full-dialog PMatchInfo background or fail closed."""
+        snapshot = self.pmatchinfo_snapshot
+        if not isinstance(snapshot, OriginalPMatchInfoStaticSnapshot):
+            raise OriginalGameHostError(
+                "PMatchInfo renderer requires a verified source-backed snapshot"
+            )
+        if (
+            snapshot.dialog_size != (760, 500)
+            or not snapshot.complete_dialog_background_available
+        ):
+            raise OriginalGameHostError(
+                "PMatchInfo renderer requires the complete verified 760x500 dialog"
+            )
+        popup = tuple(
+            item for item in snapshot.art if item.resource_name == "info_popup"
+        )
+        if len(popup) != 1:
+            raise OriginalGameHostError(
+                "PMatchInfo renderer requires exactly one verified info_popup"
+            )
+        item = popup[0]
+        if item.rect != (0, 0, 760, 500) or item.source_size != (760, 500):
+            raise OriginalGameHostError(
+                "PMatchInfo info_popup geometry differs from the recovered dialog"
+            )
+        return item
+
+    def _draw_pmatchinfo_dialog(self) -> int:
+        """Draw only the source-proven full PMatchInfo dialog background."""
+        if self.active_pmatchinfo_origin is None:
+            return 0
+        popup = self._require_pmatchinfo_popup()
+        image = self._photo(
+            encode_rgba_png(popup.rect[2], popup.rect[3], popup.rgba)
+        )
+        self.canvas.create_image(
+            self.active_pmatchinfo_origin[0],
+            self.active_pmatchinfo_origin[1],
+            image=image,
+            anchor=self.tk.NW,
+        )
+        return 1
+
     def _draw_management_host(self) -> None:
         if self.management_presenter is None:
             self.management_presenter = self.management_presenter_factory(
@@ -338,14 +390,21 @@ class OriginalGameTkHost:
                 anchor=self.tk.NW,
             )
 
+        dialog_image_count = self._draw_pmatchinfo_dialog()
+
         panel_status = (
             f"; {panel_image_count} source panel bitmaps rendered"
             if panel_image_count
             else ""
         )
+        dialog_status = (
+            f"; {dialog_image_count} source PMatchInfo bitmap rendered"
+            if dialog_image_count
+            else ""
+        )
         self.last_status = (
             f"Management host active: {frame.presentation.panel_class}; "
-            f"source PMenu rows rendered{panel_status}; "
+            f"source PMenu rows rendered{panel_status}{dialog_status}; "
             "surrounding management background unresolved"
         )
 
@@ -391,8 +450,62 @@ class OriginalGameTkHost:
         )
         return result
 
+    def apply_source_resolved_fixture_match_info_action(
+        self,
+        *,
+        fixture_present: bool,
+        linked_context_available: bool,
+        pointer_x: int,
+        pointer_y: int,
+    ):
+        """Open PMatchInfo only after the two recovered source gates resolve.
+
+        This is intentionally an adapter seam rather than a guessed fixture-cell
+        hit test. The caller must provide the source-resolved linked-context
+        availability; this host does not derive or invent that context from the
+        reconstructed fixture model.
+        """
+        if self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
+            raise OriginalGameHostError(
+                "PMatchInfo action requires the MANAGEMENT host"
+            )
+        if self.management_presenter is None:
+            self.management_presenter = self.management_presenter_factory(
+                self.presenter.session
+            )
+        action = self.management_presenter.fixture_match_info_action(
+            fixture_present=fixture_present,
+            linked_context_available=linked_context_available,
+        )
+        if action is None:
+            return None
+
+        self._require_pmatchinfo_popup()
+        origin = league_fixtures_match_info_origin(pointer_x, pointer_y)
+        self.active_pmatchinfo_origin = origin
+        self.redraw()
+        self.last_status = (
+            "Opened source-resolved PMatchInfo dialog at "
+            f"({origin[0]}, {origin[1]})"
+        )
+        return action
+
+    def apply_source_accepted_pmatchinfo_exit(self) -> None:
+        """Close an active PMatchInfo after a separately proven source exit event."""
+        if self.active_pmatchinfo_origin is None:
+            raise OriginalGameHostError("No active PMatchInfo dialog to close")
+        self.active_pmatchinfo_origin = None
+        self.redraw()
+        self.last_status = "Closed source-resolved PMatchInfo dialog"
+
     def on_click(self, event) -> None:
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
+            if self.active_pmatchinfo_origin is not None:
+                self.last_status = (
+                    "PMatchInfo pointer interaction remains fail-closed until "
+                    "its source control screen transforms are recovered"
+                )
+                return
             if self.management_presenter is None:
                 self.management_presenter = self.management_presenter_factory(
                     self.presenter.session
@@ -523,6 +636,11 @@ def run_original_game_ui(
         resolved_source_root,
         original_executable,
     )
+    pmatchinfo_snapshot = load_staged_pmatchinfo_snapshot(
+        REPO_ROOT if repo_root is None else Path(repo_root),
+        original_executable,
+        require_complete_dialog=True,
+    )
     import tkinter as tk
 
     root = tk.Tk()
@@ -543,5 +661,6 @@ def run_original_game_ui(
         league_fixtures_grid_art=fixture_grid_art,
         squad_top_resources=squad_top_resources,
         league_tables_header_art=league_tables_header_art,
+        pmatchinfo_snapshot=pmatchinfo_snapshot,
     )
     root.mainloop()
