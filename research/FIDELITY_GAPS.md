@@ -10,7 +10,6 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | --- | --- | --- | --- |
 | Secondary startup exact tie permutation and bucket shape | The startup-staff CRT boundary replays the independently recorded 262 total secondary schedule nodes / 45 nonempty buckets / 217 shuffle draws through an **aggregate-only MSVC checkpoint with no invented bucket vector**; tests enforce the proven World Cup-before-European Championship ordering without pretending to know every equal-key root permutation | Original reverse qsorted country-root traversal and post-secondary CRT state are documented, but the exact per-date mode-1 bucket vector and full equal-key native qsort order have NOT been independently source-locked; resolve from the canonical executable/real input before asserting pixel-calendar-level fidelity | 15 |
 | Exact fully indistinguishable PL league-table native qsort ties | PL display now uses the previously recovered numeric and CP1252 short-name source comparator when original club short names are available; if two clubs have identical complete source keys, it explicitly falls back to deterministic display and refuses to publish an "exact" ranking | All comparator fields are recovered, but native qsort's relative order for truly identical complete source keys has not been independently locked; lightweight synthetic clubs missing valid CP1252 names also receive documented display-only fallback | 15 |
-| Persistent-injury availability count | Approximation around the inputs to helper `0x405080` | Injury generation/persistence is substantially recovered, but this availability helper is not exact | 15 |
 | Original FM2001 save compatibility | Modern port now has a versioned internal schema-34 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
 | Autonomous transfer-window lifecycle | Fresh-game country gates start at the proven enabled value; later dated toggles are not yet driven from source boundary data | Runtime country +0x54 consumer/toggle behavior is known, but the complete source boundary mapping is unresolved | 15 or earlier if season transfer timing requires it |
 | Contract month-end normalization | Recovered contract paths advance by the source-backed calendar-month count. When the source day does not exist in the final target month, the modern runtime clamps to that month's final valid day so long-duration play cannot crash | Exact end-of-month normalization in the original date helper (`0x64CDD0` / callers including `0x4192B0`) is not yet instruction-locked. The clamp is a bounded compatibility approximation, not an original-behavior claim | 15 or earlier if private executable tracing becomes available |
@@ -26,6 +25,16 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | FastView/3D | Reconstructed match events now project through source-backed FastView semantic routes into a bounded presentation shell; a seven-target `PossessionFigures`/`PossessionDiagram` basename resolver fails closed until exact private-disc paths are uniquely proved | Original resource paths/placement geometry, side orientation, territory thresholds, audio bindings, commentary, and SCI/3D choreography remain unclosed; no guessed match-view layout is shipped as original behavior | 14 |
 
 ## Resolved or superseded gaps
+
+### Persistent-injury availability count
+
+**Resolved in Gate 15 work-ahead.** The non-user persistent-injury guard calls
+the same source helper `DBRClub::0x405080` already recovered for the
+selling-club transfer decision. The runtime now shares the exact four-state
+predicate: transfer-listed, injured, loaned-out and suspended players are
+excluded from the available count; a separate modern selection-only exclusion
+is not. Tests cover the exact exclusion set, the 14-player boundary, and the
+fact that the guard consumes no injury RNG when the exact count falls below 14.
 
 ### Source-exact Premier League table comparison for identifiable clubs
 
