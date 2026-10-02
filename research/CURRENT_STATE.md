@@ -69,35 +69,6 @@ Evidence:
   passed **453 tests with 21 expected skips**, full reconstruction run
   `36998507518` passed **1,363 tests with 22 expected skips**, and asset
   policy `36998507581` passed.
-- **Recovery 179 League Fixtures source gap is no longer an infrastructure
-  blocker:** this worker rematerialized the canonical **511,121,336-byte**
-  authorized ZIP, reverified SHA-256 `677dcbc...a8a4`, enumerated the
-  **2,456-file** Joliet source, reverified canonical
-  `footballmanager.exe` SHA-256 `833bf95e...cc3`, and reverified all six
-  already source-bound PLeagueFixtures graphics. The current integration
-  checkpoint provenance-imports all six exact files and draws only
-  `fixtures_vert_grid.444` / `fixtures_hori_grid.444` at the already proven
-  **36 absolute placements**. The four 24x13 fixture-box resources remain
-  intentionally unrendered until their screen-pixel placement is source-closed.
-- **Current native/background boundary:** process execution works in this
-  recovery. A bounded recheck of the PMenu application owner at `0x4C2FB0`
-  confirms PMenu construction/placement at **(599,96,201,504)** without a new
-  direct PMenu-specific image binding. This does not prove the wider management
-  screen has no background. The startup `bground.444` remains ineligible as a
-  management substitute because persisted ownership evidence binds it to the
-  startup/front-end path.
-- **Windows validation boundary:** schema 7 remains the last real-Windows
-  receipt and proves the ordinary pointer route. The repository contract is now
-  schema **8** for live PMenu PhotoImages; a fresh real-Windows schema-8 run is
-  required after the representative management visual loop is integrated.
-- **Exact next task:** finish/verify the League Fixtures grid checkpoint, then
-  compose the smallest source-backed fresh Squad/tactics slice, expose and
-  render the already recovered PLeagueFixtures -> PMatchInfo dialog path, and
-  add the source-backed League Tables visuals that can be selected without
-  inventing row-state semantics. Extend schema 8 with that representative
-  loop, run it on real Windows, and re-audit Gate 13. Keyboard equivalence stays
-  unproven/fail-closed and is not a Gate-13 closure requirement by itself.
-
 - **Recovery 179 PMenu static row-state propagation closed:** the canonical
   row factory maps node bit 0 through vtable `+0x4C` and inverted node bit 1
   through `+0x58`. Enabled title backgrounds stay `0x8002`/white while their
