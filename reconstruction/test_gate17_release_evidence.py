@@ -55,6 +55,7 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
         return path
 
     def _fixture(self, root: Path):
+        root.mkdir(parents=True, exist_ok=True)
         repo = root / "repo"
         repo.mkdir()
         archive = root / "release.zip"
@@ -219,7 +220,10 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
             root = Path(temp)
             repo, archive, receipts = self._fixture(root)
 
-            with self.assertRaisesRegex(Exception, "outside"):
+            with self.assertRaisesRegex(
+                ReleaseEvidenceAssemblerError,
+                "outside",
+            ):
                 assemble_release_evidence(
                     release_version=VERSION,
                     repository_commit=COMMIT,
