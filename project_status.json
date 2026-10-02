@@ -1689,5 +1689,14 @@
   "gate15_monthly_buy_counter_reset_path": "0x4A81A0 -> 0x40BB10 -> 0x4042E0 -> 0x4F3320",
   "gate15_monthly_buy_counter_reset_order": "after same-day Saturday transfer maintenance and payroll",
   "gate15_monthly_buy_counter_threshold_quirk": "0x403E70 compares +0x1ED against both 3 and 8",
-  "gate15_monthly_buy_counter_recovery": 186
+  "gate15_monthly_buy_counter_recovery": 186,
+  "gate15_due_transfer_same_day_ordering_exact": false,
+  "gate15_due_transfer_same_day_ordering_blocker": "Persisted evidence proves 0x613EE0 is first inside 0x4A8070 but does not retain the outer call relation to same-day match execution; fresh disassembly blocked by caas process-start ClientError.",
+  "gate15_due_transfer_same_day_ordering_recovery": 187,
+  "gate15_cup_controlled_posting_accounting_exact": true,
+  "gate15_cup_controlled_posting_source": "0x5DA2F0 special Cup/knockout posting tail",
+  "gate15_cup_controlled_posting_rule": "Each controlled participant independently posts categories 1/2 from common attendance counts using that participant's own DBRUser +0x694 ticket prices",
+  "gate15_cup_controlled_posting_business_label_inferred": false,
+  "gate15_cup_controlled_posting_live_match_attachment": false,
+  "gate15_cup_controlled_posting_recovery": 187
 }
