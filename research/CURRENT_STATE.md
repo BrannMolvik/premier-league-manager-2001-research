@@ -79,13 +79,18 @@ Evidence:
   **1,416 tests / 22 expected skips** plus asset-policy success. Shared
   `0x64CDD0` resets day to 1 before advancing the requested calendar-month
   span.
-- **Active Gate-15 branch:** `recovery186/gate15-exact-autonomous-contract-category`
-  replaces the autonomous contract-duration valuation-category proxy with the
-  exact `0x4FA510 -> 0x4F8FF0 -> 0x410FF0` League/DummyLeague root-subset
-  index. The same source recheck corrected Gate-10 attendance: Premier League
-  is subset index 0 and therefore **FanFactor1 = 0.9**, and Cup attendance uses
-  the host club's league competition rather than the Cup root. Full CI is the
-  next checkpoint. The separate due-transfer same-day ordering gap remains open.
+- **Recovery 186 contract category/FanFactor correction is canonical:** PR #142
+  squash-merged as `948aa5193ab9a1003a7a640e93eca91b1dfee126` after
+  **1,418 tests / 22 expected skips** plus asset-policy success. Autonomous
+  contract duration now uses the exact country League/DummyLeague root index;
+  Premier League attendance uses exact **FanFactor1 = 0.9**, and Cup attendance
+  derives FanFactor from the host club's league rather than the Cup root.
+- **Active Gate-15 branch:** `recovery186/gate15-exact-buy-counter-lifecycle`
+  closes DBRClub `+0x1ED` as the monthly permanent-arrival byte. Permanent
+  human/autonomous arrivals now share one increment path, and day-1 reset runs
+  after same-date Saturday transfer maintenance/payroll exactly as
+  `0x4A8070 -> 0x4F3320`. Branch CI is the next checkpoint. The separate
+  due-transfer same-day ordering gap remains open.
 - **Recovery 186 private source access is working again:** the canonical
   511,121,336-byte disc-image ZIP was materialized from the Library, its raw
   MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical
