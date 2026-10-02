@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 187: resume exact Gate-15 work-ahead from main 6a31e62e92c6c74fe097940dbd5b9bdea92b6b75. Replace autonomous contract duration's valuation-category proxy with exact 0x4FA510 -> 0x4F8FF0 -> 0x410FF0 country +0x48 League/DummyLeague root-subset index; England playable rows are PL=0, Div1=1, Div2=2, Div3=3, Conference=4.",
-  "last_known_main_head": "6a31e62e92c6c74fe097940dbd5b9bdea92b6b75",
+  "active_task": "Recovery 186: PR #142 merged as 948aa5193ab9a1003a7a640e93eca91b1dfee126 after 1,418 tests / 22 expected skips and asset-policy success. Exact 0x4FA510 contract category and corrected Premier League FanFactor 0.9 are canonical. Next Gate-15 slice: implement exact club +0x1ED monthly permanent-arrival counter lifecycle: increment in shared 0x422F70 permanent completion, remove autonomous-only duplicate, reset monthly count after same-day Saturday transfer/payroll maintenance on day-of-month 1.",
+  "last_known_main_head": "948aa5193ab9a1003a7a640e93eca91b1dfee126",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 187,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Continuous Gate-15 work-ahead. Buy-counter lifecycle also traced: club +0x1ED increments on player addition and resets on day-of-month 1; patch after contract category unless merged together only if tightly coupled.",
+  "note": "Direct source also shows season byte +0x1EE increments, but shipped 0x403E70 reads +0x1ED for both configured 3 and 8 thresholds. Preserve this original quirk. Due-transfer same-day ordering remains open pending full fixture-handoff closure.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
