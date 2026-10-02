@@ -25,6 +25,30 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 171 source-backed app host merged:** PR #101 merged as
+  `62a1bbcd24bf1dc26e57294e40fef176a4f87036`. Normal `app.py` launch now
+  opens the clean fixed **800x600** source-backed FM2001 host, loads
+  checksum-gated PStartMenu/TeamSelect resources from
+  `original_assets/source` plus the canonical installed `FOOTBAL.EXE`, and
+  routes the recovered first-screen flow into the MANAGEMENT/PMenu host. The
+  former generic ttk notebook remains available only through explicit
+  `--prototype-ui`. Gate-13 run `36972538322` passed **419 tests with 21
+  expected skips**; full reconstruction run `36972538328` passed **1,321
+  tests with 22 expected skips**; asset-policy run `36972538362` passed.
+  After TeamSelect Start the host deliberately clears prior first-screen pixels
+  instead of drawing an invented management skin while the management
+  background and exact PMenu label placement remain unresolved.
+- **Recovery 171 PMenu input boundary:** PR #102 is the current cloud-safe
+  checkpoint. It adds only source-bounded screen-coordinate **candidate row**
+  hit-testing from the proven PMenu origin/201px width/29px row geometry and
+  visible order. It does not activate, expand, select or navigate a row because
+  the native row-event ownership is not yet persisted.
+- **Exact next task:** verify/merge PR #102, then continue the next independent
+  Gate-13 presentation slice. Private executable tracing remains required
+  before promoting PMenu pointer containment into native activation semantics or
+  claiming exact PMenu text/background pixels.
+
+
 - **Recovery 171 fixed PMenu management host merged:** PR #100 merged as
   `163071883b932067a5cf33cf12ff3d05a2940cb5`. Successful TeamSelect Start
   now transitions from `TEAM_SELECT` into an explicit source-proven
