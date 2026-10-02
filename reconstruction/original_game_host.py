@@ -6,10 +6,11 @@ native 800x600 coordinates using the recovered initial Button@ease frame and
 routes proven clicks through FrontEndSession. Successful TeamSelect Start enters
 the fixed PMenu management host.
 
-The management shell still has two explicit pixel blockers: the surrounding
-application-owned management background and exact PMenu label origin/clipping.
-When that state is reached this host fails closed rather than drawing the old
-generic ttk Play replacement or inventing a skin.
+The surrounding application-owned management background remains unresolved,
+but the PMenu row assets, exact title/child fonts, line origins, clipping and
+static state colors/arrows are source-backed. The management host renders those
+known pixels and leaves only the unrecovered surrounding shell fail-closed
+rather than drawing the old generic ttk Play replacement or inventing a skin.
 """
 from __future__ import annotations
 
@@ -24,7 +25,11 @@ from original_first_screen_presenter import (
     OriginalHierarchyInteraction,
 )
 from original_live_debug_view import build_original_debug_frame, endpoint_text_rgba
-from original_management_canvas import build_management_canvas_frame
+from original_management_canvas import (
+    build_management_canvas_frame,
+    build_management_pmenu_render,
+    load_verified_management_pmenu_resources,
+)
 from original_management_presenter import OriginalManagementPresenter
 from original_pmenu_activation import resolve_pmenu_pointer_press
 from original_pmenu_presenter import candidate_pmenu_row_at_screen_point
@@ -81,6 +86,7 @@ class OriginalGameTkHost:
         tk,
         *,
         management_presenter_factory=None,
+        management_pmenu_resources=None,
     ):
         self.presenter = presenter
         self.root = root
@@ -90,6 +96,7 @@ class OriginalGameTkHost:
             or (lambda session: OriginalManagementPresenter(session))
         )
         self.management_presenter = None
+        self.management_pmenu_resources = management_pmenu_resources
         self.last_pmenu_activation = None
         self._photos = []
         self.last_status = "Source-backed FM2001 host ready"
@@ -193,20 +200,31 @@ class OriginalGameTkHost:
                 self.presenter.session
             )
         frame = build_management_canvas_frame(self.management_presenter)
-        if frame.complete_source_pixel_frame_available:
+        if self.management_pmenu_resources is None:
             raise OriginalGameHostError(
-                "Management pixel renderer flag changed without a renderer implementation"
+                "Management PMenu renderer requires verified original row resources"
             )
 
-        # Do not preserve the previous TeamSelect image underneath PMenu. The
-        # original management background is not yet source-bound, so the only
-        # honest live state is an empty fixed host with the recovered presenter
-        # attached and no invented pixels.
+        menu_render = build_management_pmenu_render(
+            frame,
+            self.management_pmenu_resources,
+        )
         self.canvas.delete("all")
         self._photos = []
+
+        menu_x, menu_y, _menu_w, _menu_h = frame.menu_rect
+        for overlay in menu_render.overlays:
+            art = self._photo(overlay.png)
+            self.canvas.create_image(
+                menu_x + overlay.x,
+                menu_y + overlay.y,
+                image=art,
+                anchor=self.tk.NW,
+            )
+
         self.last_status = (
             f"Management host active: {frame.presentation.panel_class}; "
-            "source background/text placement still unresolved"
+            "source PMenu rows rendered; surrounding management background unresolved"
         )
 
     def redraw(self) -> None:
@@ -353,12 +371,24 @@ def run_original_game_ui(
         backend=startup_media_backend,
         repo_root=repo_root,
     )
+    resolved_source_root = (
+        DEFAULT_SOURCE_ROOT if source_root is None else Path(source_root)
+    )
     presenter = build_original_game_presenter(
         game_dir,
-        source_root=source_root,
+        source_root=resolved_source_root,
+    )
+    pmenu_resources = load_verified_management_pmenu_resources(
+        resolved_source_root,
+        Path(game_dir) / "FOOTBAL.EXE",
     )
     import tkinter as tk
 
     root = tk.Tk()
-    OriginalGameTkHost(presenter, root, tk)
+    OriginalGameTkHost(
+        presenter,
+        root,
+        tk,
+        management_pmenu_resources=pmenu_resources,
+    )
     root.mainloop()
