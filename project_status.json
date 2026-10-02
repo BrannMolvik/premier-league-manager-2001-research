@@ -1698,5 +1698,20 @@
   "gate15_cup_controlled_posting_rule": "Each controlled participant independently posts categories 1/2 from common attendance counts using that participant's own DBRUser +0x694 ticket prices",
   "gate15_cup_controlled_posting_business_label_inferred": false,
   "gate15_cup_controlled_posting_live_match_attachment": false,
-  "gate15_cup_controlled_posting_recovery": 187
+  "gate15_cup_controlled_posting_recovery": 187,
+  "gate15_cup_controlled_posting_verified_checkpoint": "57e59f6374f8c278cabbe054b8767638a69e5a26",
+  "gate15_cup_controlled_posting_verified_test_count": 1424,
+  "gate15_cup_controlled_posting_expected_skips": 22,
+  "gate15_cup_controlled_posting_asset_policy_run": 37055561468,
+  "gate15_paired_type6_modifier_exact": true,
+  "gate15_paired_type6_modifier_helper": "0x5DBCD0",
+  "gate15_paired_type6_modifier_applicability_exact": false,
+  "gate15_readiness_audit_checkpoint": "04b2a65d864939f219d5800bef03eb8144833b00",
+  "gate15_readiness_audit_path": "research/GATE15_READINESS_AUDIT.md",
+  "gate15_readiness_audit_complete": false,
+  "gate15_readiness_blocked_by_prerequisites": [
+    13,
+    14
+  ],
+  "gate17_release_limitations_reconciled_through_gate15_recovery": 187
 }

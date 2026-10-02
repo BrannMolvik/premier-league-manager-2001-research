@@ -10456,3 +10456,29 @@ work may continue under the deferred-blocker policy.
 - Full live domestic-Cup receipt attachment remains pending after branch CI;
   the existing Cup simulation still consumes its four source-ordered gate RNG
   draws without yet invoking the new posting helper.
+
+
+### Recovery 187 - Gate 15 readiness and release-limitations reconciliation
+
+- PR #146 squash-merged as
+  `57e59f6374f8c278cabbe054b8767638a69e5a26` after reconstruction
+  workflow `37055561454` passed **1,424 tests with 22 expected skips** and
+  asset-policy workflow `37055561468` passed.
+- The canonical runtime now includes the source-proven special Cup/knockout
+  controlled-participant accounting helper: each materialized controlled
+  participant can receive categories 1 and 2 independently from the common
+  attendance counts while using its own DBRUser ticket prices. The exact
+  numeric `0x5DBCD0` paired-XI attendance modifier is also materialized;
+  its direct match-family caller/applicability remains intentionally
+  fail-closed.
+- PR #147 merged as
+  `04b2a65d864939f219d5800bef03eb8144833b00`, adding
+  `research/GATE15_READINESS_AUDIT.md`. The audit does not mark Gate 15
+  complete; it classifies remaining gaps under the roadmap rule
+  fixed/proven-irrelevant/explicitly-documented while preserving Gate 13/14 as
+  prerequisites.
+- Reconciled the pre-release limitations ledger so it no longer lists already
+  closed persistent-injury, transfer-window, contract-normalization,
+  autonomous-category/FanFactor, permanent-arrival, or legacy-chairman-budget
+  work as active. Remaining limitations stay explicit and are not erased to
+  make Gate 17 look closer than it is.
