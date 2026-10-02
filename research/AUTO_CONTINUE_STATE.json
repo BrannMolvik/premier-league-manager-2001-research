@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 181: documentation/status reconciliation merged as main 1c640bad04b350a9a6c89c4fea88d10b07b6967c. Integrate the smallest source-proven PSquadScreen view-transition seam for controls 3/4/5 without inventing modern pointer equivalence or unresolved formation/player pixels; verify it and extend the schema-8 audit contract only as supported. Real Windows schema-8 execution remains pending; ordinary fixture-cell PMatchInfo secondary-context opening and surrounding management background remain fail-closed.",
+  "active_task": "Recovery 182: continue canonical Gate 13 from main 1c640bad04b350a9a6c89c4fea88d10b07b6967c. Integrate a source-accepted PSquadScreen controls 3/4/5 view-transition seam that exposes only the proven roster/container/pitch state change. Do not claim Tk pointer equivalence or render unresolved formation/player pixels. Extend schema-8 receipt semantics only to verify that explicit source-accepted transition; then continue Gate 13 closure or independent cloud-safe work if real Windows remains unavailable.",
   "last_known_main_head": "1c640bad04b350a9a6c89c4fea88d10b07b6967c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 181,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 181 continues on Gate 13. Canonical docs merged via PR #125. Active cloud-safe task is bounded Squad view-transition seam; do not claim pointer equivalence.",
+  "recovery_generation": 182,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 182 active after transient/stale recovery. Canonical main is 1c640bad. Exact task is bounded Squad view-transition seam; real Windows schema-8 remains pending.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
