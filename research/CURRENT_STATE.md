@@ -144,14 +144,24 @@ Evidence:
   receipts now all require a Windows client workstation
   (`VER_NT_WORKSTATION/product_type == 1`) and explicitly reject GitHub
   Actions; a modern Windows build number alone is insufficient.
-- **Recovery 191 active Gate-17 evidence hardening:** PR #159
-  (`recovery191/gate17-receipt-host-metadata`) makes the final evidence
-  validator independently require every external receipt to record
-  `windows_11 = true`, build >= 22000, and workstation product type 1.
-  This prevents old/copied/hand-edited receipts from passing solely because
-  their gameplay criterion flags are true. Branch CI is the next checkpoint.
-  Gate 17 remains incomplete until real external receipts exist and Gates 13-16
-  are actually closed.
+- **Recovery 192 receipt-host metadata validation is canonical:** PR #159
+  squash-merged as `fe73236559e61939e972324f0c61e391f29a1a0f` after
+  **1,465 tests / 22 expected skips**, Windows package/freeze/smoke success,
+  and asset-policy success. The final evidence validator independently requires
+  every external receipt to record `windows_11 = true`, build >= 22000, and
+  workstation product type 1, preventing old/copied/hand-edited evidence from
+  bypassing host provenance checks.
+- **Recovery 192 active Gate-17 work-ahead:** branch
+  `recovery192/gate17-external-validation-orchestrator` adds a single
+  transactional real-workstation coordinator. Before any immutable receipt is
+  written it requires the strict external-workstation guard, an exact clean
+  release commit, complete Gate 1-16 roadmap criteria, a final non-pre-release
+  limitations document, external archive/game-data paths, and a fresh external
+  work root. Only then does it run clean install, gameplay receipts, evidence
+  assembly and final release audit; any later failure removes the new work root
+  so partial evidence cannot masquerade as a final sign-off. Branch CI is the
+  next checkpoint. Gate 17 remains incomplete until the real external run
+  exists and Gates 13-16 are actually closed.
 - **Recovery 186 private source access is working again:** the canonical
   511,121,336-byte disc-image ZIP was materialized from the Library, its raw
   MODE1/2352 image was decoded, and `FOOTBAL.EXE` rehashed to canonical
