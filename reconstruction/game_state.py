@@ -49,6 +49,7 @@ from gate_receipts import (
     league_importance_factor,
     league_position_factor,
     ordinary_league_side_modifier,
+    gate_revenues_for_ticket_prices,
 )
 from match_condition import ConditionInjurySettings
 from match_environment import (
@@ -1684,6 +1685,52 @@ class GameState:
                 posting_date=self.calendar.current_date,
             )
             posted[GATE_HOME_ACCOUNT_CATEGORY] = home
+        return posted
+
+    def post_cup_gate_receipts(
+        self,
+        home_club_id: int,
+        away_club_id: int,
+        receipts: GateReceiptResult,
+    ) -> dict[int, dict[int, int]]:
+        """Apply 0x5DA2F0's special Cup posting tail without inventing a label.
+
+        When the Cup/knockout flag is set, the executable can independently
+        credit categories 1 and 2 to each controlled participant. Each DBRUser
+        multiplies the common four attendance counts by its own +0x694
+        seating/terrace prices. Only materialized Balance + TicketRuntimeState
+        pairs are eligible in the clean runtime, matching the source ownership
+        boundary.
+        """
+        posted: dict[int, dict[int, int]] = {}
+        for club_id in (int(home_club_id), int(away_club_id)):
+            balance = self.finance_balances.get(club_id)
+            tickets = self.ticket_states.get(club_id)
+            if balance is None or tickets is None:
+                continue
+
+            home_revenue, visiting_revenue = gate_revenues_for_ticket_prices(
+                receipts,
+                seating_price=int(tickets.seating_price),
+                terrace_price=int(tickets.terrace_price),
+            )
+            club_posted: dict[int, int] = {}
+            if visiting_revenue > 0:
+                balance.credit(
+                    visiting_revenue,
+                    category=GATE_VISITING_ACCOUNT_CATEGORY,
+                    posting_date=self.calendar.current_date,
+                )
+                club_posted[GATE_VISITING_ACCOUNT_CATEGORY] = visiting_revenue
+            if home_revenue > 0:
+                balance.credit(
+                    home_revenue,
+                    category=GATE_HOME_ACCOUNT_CATEGORY,
+                    posting_date=self.calendar.current_date,
+                )
+                club_posted[GATE_HOME_ACCOUNT_CATEGORY] = home_revenue
+            if club_posted:
+                posted[club_id] = club_posted
         return posted
 
     def run_weekly_player_payroll(self) -> dict[int, int]:
