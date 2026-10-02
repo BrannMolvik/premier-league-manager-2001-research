@@ -80,6 +80,19 @@ class AppPresentationBoundaryTests(unittest.TestCase):
 
 
 
+    def test_package_smoke_exits_before_game_directory_or_ui_work(self):
+        source = APP_PATH.read_text(encoding="utf-8")
+        self.assertIn("'--package-smoke'", source)
+        self.assertIn("if args.package_smoke:", source)
+        self.assertLess(
+            source.index("if args.package_smoke:"),
+            source.index("game_dir = Path(args.game_dir)"),
+        )
+        self.assertLess(
+            source.index("if args.package_smoke:"),
+            source.index("run_original_game_ui("),
+        )
+
     def test_normal_launch_uses_source_backed_host_and_prototype_is_explicit_opt_in(self):
         source = APP_PATH.read_text(encoding="utf-8")
         self.assertIn("from original_game_host import run_original_game_ui", source)
