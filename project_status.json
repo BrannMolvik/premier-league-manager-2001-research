@@ -14,7 +14,7 @@
   "last_verified_test_count": 1149,
   "asset_policy_validated_head": "cb9ce3836252ee3bf05a259f805f573502032b18",
   "asset_policy_status": "passed",
-  "active_task": "Gate 13 remains active. PR #101 merged: normal app.py launch is now the clean source-backed 800x600 FM2001 host; the generic ttk notebook is explicit --prototype-ui only. PR #102 is the active cloud-safe checkpoint adding candidate PMenu row hit-testing from proven geometry without inventing activation. Verify/merge #102, then continue independent Gate-13 presentation work while exact PMenu event semantics, label placement and management background remain deferred behind the caas ClientError private-execution blocker.",
+  "active_task": "Gate 13 remains active. PR #102 merged source-bounded PMenu candidate row hit-testing without inventing activation. Next extend the real-Windows/Tk audit through selected club -> TeamSelect Start -> MANAGEMENT/PMenu host and exact PMenu/Squad parent geometry, while background/text pixels and row-event semantics remain fail-closed.",
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
   "blocked": false,
@@ -1534,5 +1534,11 @@
   "gate13_source_app_host_full_test_count": 1321,
   "gate13_source_app_host_full_expected_skips": 22,
   "gate13_source_app_host_asset_policy_run": 36972538362,
-  "gate13_pmenu_hit_test_pr": 102
+  "gate13_pmenu_hit_test_pr": 102,
+  "gate13_pmenu_hit_test_merge": "25fdf0e8d9cbcf9cea580ca625e548b21612604c",
+  "gate13_pmenu_hit_test_verified_head": "b33b3fc2f32d25dbdb7b55b1c4e283c0d9d69605",
+  "gate13_pmenu_hit_test_ci_run": 36973075568,
+  "gate13_pmenu_hit_test_test_count": 425,
+  "gate13_pmenu_hit_test_expected_skips": 21,
+  "gate13_pmenu_hit_test_asset_policy_run": 36973075522
 }
