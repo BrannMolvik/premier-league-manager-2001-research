@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 194: resume the existing recovery192/gate17-external-validation-orchestrator work-ahead from canonical main fe73236559e61939e972324f0c61e391f29a1a0f. Inspect the existing branch/PR and its current verification; finish or correct the transactional real-Windows Gate-17 coordinator, verify full reconstruction + Windows package + asset policy, merge only if green, then continue the next highest-priority cloud-safe task. Gate 13 remains the earliest incomplete validation gate; real Windows schema-8 receipt is still externally blocked.",
-  "last_known_main_head": "fe73236559e61939e972324f0c61e391f29a1a0f",
+  "active_task": "Recovery 194: PR #160 is canonical at main 6b33a5fab9651866021a1e28be4bc72877303dda after 1,470 tests / 22 expected skips plus Windows package/freeze/smoke and asset-policy success. Re-read the merged canonical state and continue the next highest-priority independent cloud-safe source-backed task. Gate 13 remains the earliest incomplete validation gate and its fresh real-Windows schema-8 receipt remains externally blocked.",
+  "last_known_main_head": "6b33a5fab9651866021a1e28be4bc72877303dda",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 194,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Runtime lease refreshed after recovery. Do not restart completed work; continue the persisted Gate-17 orchestrator work-ahead while Gate 13 remains the earliest incomplete validation gate.",
+  "note": "PR #160 merged and runtime checkpoint advanced. Keep working; do not treat this merge as mission completion.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
