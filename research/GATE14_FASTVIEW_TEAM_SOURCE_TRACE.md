@@ -115,6 +115,76 @@ This numeric transition is source-closed. It is deliberately not labelled
 "starting XI", "substitutes", "reserves", or any similar gameplay term until a
 direct semantic bridge proves that interpretation.
 
+## Recovery 209: typed PlayerRow event semantics
+
+RTTI identifies the four Row receiver bases and their final callback overrides:
+
+| Row subobject | Receiver RTTI | Final vtable | Callback |
+| --- | --- | ---: | ---: |
+| `+0x54` | `Receiver<EventPlayerUpdateForm>` | `0x7CA90C` | `0x526740` |
+| `+0x58` | `Receiver<EventPlayerUpdateEnergy>` | `0x7CA900` | `0x5267D0` |
+| `+0x5C` | `Receiver<EventPlayerGoal>` | `0x7CA8F4` | `0x526800` |
+| `+0x60` | `Receiver<EventPlayerOwnGoal>` | `0x7CA8E8` | `0x526880` |
+
+### Energy bar
+
+`EventPlayerUpdateEnergy::0x5267D0` reads event dword `+0x04` and passes it
+to Row helper `0x526680`.
+
+The helper uses source constants **58**, **99**, and **82**. Static initializer
+`0x51F330` stores `99 - 58 = 41` into runtime divisor `0x877754`.
+The exact transform is:
+
+`extent = trunc(clamp((energy - 58) / 41, 0, 1) * 82)`
+
+The truncation helper is `0x668350`. For integral event values this is
+exactly `floor((energy - 58) * 82 / 41)` inside the 59..98 interval.
+
+The full bar rectangle is the already source-closed 82×16 Row bar rectangle.
+The two PictureControls have distinct roles:
+
+- Row `+0x3C`: full static bar-B layer;
+- Row `+0x38`: dynamically resized bar-A layer;
+- Row `+0x40`: source side index controlling the resize direction.
+
+Side index 0 therefore uses full `blank_bar` below a `team_bar_1` dynamic
+layer growing from 0 to 82 pixels from the left.
+
+Side index 1 uses full `team_bar_2` below a `blank_bar` dynamic layer whose
+width shrinks from 82 to 0 pixels, revealing the team-bar layer from the right.
+
+This is now source-proven as **player Energy** presentation, not a generic or
+possession bar.
+
+### Form text
+
+`EventPlayerUpdateForm::0x526740` reads event dword `+0x04`, formats it
+with exact source format `%u` at `0x828D3C`, and writes Row text control
+`+0x34`.
+
+That is generic text-control index 5 from the Recovery-208 geometry:
+
+- side 0 row 0: **(276,27)-(296,43)**;
+- side 1 row 0: **(504,27)-(524,43)**.
+
+### Goal / own-goal count
+
+`EventPlayerGoal::0x526800` increments Row dword `+0x18`, formats the new
+value with exact source format `(%u)` at `0x829B94`, and writes Row text
+control `+0x2C`.
+
+`EventPlayerOwnGoal::0x526880` increments the same counter and writes the same
+`(%u)` text to the same control. It additionally changes that control's
+native packed color before returning. The packed-color operation is retained
+as an exact source action, but no human-readable color name is assigned here.
+
+The goal-count control is generic text-control index 3:
+
+- side 0 row 0: **(243,27)-(263,43)**;
+- side 1 row 0: **(743,27)-(763,43)**.
+
+The remaining text controls stay unnamed.
+
 ## Reconstruction contract
 
 `reconstruction/gate14_fastview_team.py` records the exact side-indexed asset
@@ -126,8 +196,8 @@ substitute pixels are introduced.
 
 ## Next source step
 
-After CI verifies this checkpoint, trace the two bar PictureControl state
-consumers, including dynamic routine `0x526680`, far enough to name only
-source-proven state semantics. If that remains semantically opaque, continue
-the next directly owned FastViewTeam resource/control family without inventing
-labels.
+After CI verifies this checkpoint, prioritize Gate-14 closure work: use the
+newly source-closed FastViewTeam presentation only where it helps construct the
+recognizable match workflow, and pivot to exact menu/match audio bank ownership
+or another directly integrated presentation seam. Do not exhaustively name
+remaining decorative cells unless they are required by the Gate-14 criteria.
