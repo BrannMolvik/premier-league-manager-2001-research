@@ -20,6 +20,7 @@ from match_postmatch import (
     increase_player_morale,
     appeared_player_indices,
     apply_league_match_discipline,
+    persist_match_performance_and_fastview_form_histories,
     persist_match_performance_history,
     persist_post_match_form,
     persist_post_match_side,
@@ -712,6 +713,141 @@ class MatchPerformancePersistenceTests(unittest.TestCase):
         self.assertEqual(runtime[1].match_performance_history[0], 8)
         self.assertEqual(runtime[2].match_performance_history[0], 6)
         self.assertEqual(runtime[3].match_performance_history_count, 0)
+
+    def test_completed_finalizer_preserves_side_local_target_then_trajectory_rng_order(self):
+        context = TeamStrengthContext(
+            tactic_style=0,
+            match_bias=2,
+            user_controlled=False,
+            aggression=5,
+        )
+
+        def finalizer_side(side_id):
+            prepared = PreparedMatchPlayer(
+                side=side_id,
+                player_index=0,
+                condition=80,
+                form_state=2,
+                current_position=12,
+                balance_position_code=10,
+                preferred_positions=(12, 0, 0),
+                skills=(100,) * 17,
+                active=False,
+                substitution_available=False,
+            )
+            return PreparedMatchSide(
+                players=(prepared,),
+                attack_context=context,
+                defence_context=context,
+                penalty_taker_priority=(),
+                corner_taker_priority=(),
+                free_kick_taker_priority=(),
+                starting_player_indices=(0,),
+            )
+
+        result = NormalMatchResult(
+            events=(
+                TimedMatchEvent(20, IncidentRecord(IncidentKind.SENT_OFF, 0, 0)),
+                TimedMatchEvent(30, IncidentRecord(IncidentKind.SENT_OFF, 1, 0)),
+            ),
+            condition_history_sample_count=18,
+        )
+        side0 = finalizer_side(0)
+        side1 = finalizer_side(1)
+        runtime0 = [RuntimePlayer(form_state=0)]
+        runtime1 = [RuntimePlayer(form_state=0)]
+        shared = ScriptedRng([])
+        engine = ScriptedRng(
+            [0] + [1] * 17
+            + [0] + [1] * 17
+        )
+
+        finalized = persist_match_performance_and_fastview_form_histories(
+            side0,
+            runtime0,
+            side1,
+            runtime1,
+            result,
+            shared,
+            engine,
+        )
+
+        self.assertEqual(shared.calls, [])
+        self.assertEqual(
+            engine.calls,
+            [3] + [2] * 17 + [3] + [2] * 17,
+        )
+        self.assertEqual(
+            [
+                (item.side_index, item.player_index, item.target_rating)
+                for item in finalized.fastview_form_histories
+            ],
+            [(0, 0, 4), (1, 0, 4)],
+        )
+        self.assertEqual(
+            finalized.fastview_form_histories[0].samples,
+            (5,) + (4,) * 23,
+        )
+        self.assertEqual(
+            finalized.fastview_form_histories[1].samples,
+            (5,) + (4,) * 23,
+        )
+        self.assertEqual(runtime0[0].match_performance_history[0], 4)
+        self.assertEqual(runtime1[0].match_performance_history[0], 4)
+
+    def test_completed_finalizer_fails_closed_without_live_history_sample_count(self):
+        context = TeamStrengthContext(
+            tactic_style=0,
+            match_bias=2,
+            user_controlled=False,
+            aggression=5,
+        )
+        side0 = PreparedMatchSide(
+            players=(PreparedMatchPlayer(
+                side=0,
+                player_index=0,
+                condition=80,
+                form_state=2,
+                current_position=12,
+                balance_position_code=10,
+                preferred_positions=(12, 0, 0),
+                skills=(100,) * 17,
+            ),),
+            attack_context=context,
+            defence_context=context,
+            penalty_taker_priority=(),
+            corner_taker_priority=(),
+            free_kick_taker_priority=(),
+            starting_player_indices=(0,),
+        )
+        side1 = PreparedMatchSide(
+            players=(PreparedMatchPlayer(
+                side=1,
+                player_index=0,
+                condition=80,
+                form_state=2,
+                current_position=12,
+                balance_position_code=10,
+                preferred_positions=(12, 0, 0),
+                skills=(100,) * 17,
+            ),),
+            attack_context=context,
+            defence_context=context,
+            penalty_taker_priority=(),
+            corner_taker_priority=(),
+            free_kick_taker_priority=(),
+            starting_player_indices=(0,),
+        )
+        with self.assertRaisesRegex(ValueError, "sample count 18 or 24"):
+            persist_match_performance_and_fastview_form_histories(
+                side0,
+                [RuntimePlayer()],
+                side1,
+                [RuntimePlayer()],
+                NormalMatchResult(events=()),
+                ScriptedRng([]),
+                ScriptedRng([]),
+            )
 
 
 class PostMatchPersistenceTests(unittest.TestCase):
