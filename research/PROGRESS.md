@@ -10691,3 +10691,12 @@ work may continue under the deferred-blocker policy.
 - Rechecked compact player import `0x418B90`: Master.dat byte +18, already proven as shirt/squad number, is imported to runtime DBRPlayer **+0x70**. PlayerRow cell 1 instead reads the separate 72-byte match-player proxy at **+0x47**, so the previous tempting squad-number inference is explicitly rejected until a producer proves it.
 - Cell 3 remains source-bounded only as the proxy's leading C string, formatted as `%s` when proxy+0x20 is '-' or `%c %s` otherwise. The user-facing meaning of the prefix byte remains unresolved.
 - Gate 13 remains the earliest incomplete validation gate. This is independent Gate-14 work-ahead.
+
+
+## 3 October 2026 - Recovery 210 PlayerRow player-name ownership
+
+- After PR #185 became canonical at `25aac6bdce57e1ae06f395da6f058209cd746794`, continued directly into the remaining shared PlayerRow text fields.
+- Compact importer `0x418B90` resolves compact player first-name ID +2 into runtime DBRPlayer string object `+0x08` and surname ID +4 into runtime string object `+0x0C`.
+- Matching 72-byte player-display record builder `0x533A00` copies the DBRPlayer surname string to record offset 0 and copies the first byte of the DBRPlayer first-name string to record `+0x20`.
+- PlayerRow shared producer `0x525BD0` renders cell 3 using source `%s` when record+0x20 is `'-'`, otherwise `%c %s`. Independent match-presentation consumer `0x6CE809` combines the same prefix/string pair with the already source-closed localized position as `%c %s (%s)`, confirming the pair is the player display name.
+- Cell 3 is therefore source-closed as surname-only for the sentinel case or first-name initial plus surname otherwise. Cell 1 at proxy `+0x47` remains unnamed and fail-closed.
