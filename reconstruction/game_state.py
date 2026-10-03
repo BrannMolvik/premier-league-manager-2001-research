@@ -190,14 +190,15 @@ class GameState:
     team_tactics: dict[int, TeamTacticalState] = field(default_factory=dict)
     pitch_wear: dict[int, int] = field(default_factory=dict)
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
-    # Completion inputs only, NOT captured reports or fixture links. Until
-    # the complete report producer exists these are transient and deliberately
-    # excluded from internal save; no missing attendance is defaulted.
+    # Completion inputs only, NOT captured reports or fixture links. These
+    # exact gate-receipt values include source-backed report attendance outputs
+    # and must survive the calculated-fixture -> save/reload route. Persistence
+    # does not imply that D88/D9C, venue, captions or a complete report exist.
     prepared_match_gate_receipts: dict[int, GateReceiptResult] = field(default_factory=dict)
-    # Actual 0x631110 output; transient input, not a captured report/link.
+    # Actual 0x631110 output; persistent report input, not a captured report/link.
     prepared_match_report_player_ids: dict[int, int] = field(default_factory=dict)
-    # Complete per-side rating/skill output from actual finalization, still
-    # only report INPUTS. No owner/link or save projection of fragments.
+    # Complete per-side rating/skill output from actual finalization. These are
+    # persistent report INPUTS only; no owner/link is created from fragments.
     prepared_match_participant_statistics: dict[
         int, tuple[FinalizedSideParticipantStatistics, FinalizedSideParticipantStatistics]
     ] = field(default_factory=dict)

@@ -26,6 +26,7 @@ from contract_maintenance import (
 )
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from game_state import GameCalendar, GameState
+from gate_receipts import GateAttendanceCell, GateReceiptResult
 from human_gameplay import HumanGameplayController, HumanManagerState
 from primary_schedule_shadow import PrimaryScheduleShadowState
 from procedural_league_state import LiveProceduralLeagueState
@@ -39,7 +40,11 @@ from match_events import (
     SubstitutionRecord,
 )
 from match_orders import TeamOrderPriorities
-from match_postmatch import PlayerTransferRequest
+from match_postmatch import (
+    FinalizedParticipantStatistics,
+    FinalizedSideParticipantStatistics,
+    PlayerTransferRequest,
+)
 from match_schedule import MsvcCrtRng
 from original_fixture_report_capture import NativeCapturedPossession, capture_completed_possession_rows
 from match_simulation import (
@@ -65,7 +70,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 38
+SAVE_SCHEMA_VERSION = 39
 
 
 def _iso(value: date | None) -> str | None:
@@ -1224,6 +1229,63 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             }
             for fixture_id, value in sorted(state.prepared_match_environments.items())
         },
+        "prepared_match_gate_receipts": {
+            str(int(fixture_id)): {
+                "home_seating": {
+                    "demand": float(value.home_seating.demand),
+                    "price_response": float(value.home_seating.price_response),
+                    "random_span": int(value.home_seating.random_span),
+                    "count": int(value.home_seating.count),
+                },
+                "visiting_seating": {
+                    "demand": float(value.visiting_seating.demand),
+                    "price_response": float(value.visiting_seating.price_response),
+                    "random_span": int(value.visiting_seating.random_span),
+                    "count": int(value.visiting_seating.count),
+                },
+                "home_terrace": {
+                    "demand": float(value.home_terrace.demand),
+                    "price_response": float(value.home_terrace.price_response),
+                    "random_span": int(value.home_terrace.random_span),
+                    "count": int(value.home_terrace.count),
+                },
+                "visiting_terrace": {
+                    "demand": float(value.visiting_terrace.demand),
+                    "price_response": float(value.visiting_terrace.price_response),
+                    "random_span": int(value.visiting_terrace.random_span),
+                    "count": int(value.visiting_terrace.count),
+                },
+                "home_revenue": int(value.home_revenue),
+                "visiting_revenue": int(value.visiting_revenue),
+                "season_ticket_quantity": int(value.season_ticket_quantity),
+            }
+            for fixture_id, value in sorted(state.prepared_match_gate_receipts.items())
+        },
+        "prepared_match_report_player_ids": {
+            str(int(fixture_id)): int(player_id)
+            for fixture_id, player_id in sorted(
+                state.prepared_match_report_player_ids.items()
+            )
+        },
+        "prepared_match_participant_statistics": {
+            str(int(fixture_id)): [
+                {
+                    "player_ids": [int(player_id) for player_id in side.player_ids],
+                    "statistics": [
+                        {
+                            "player_index": int(item.player_index),
+                            "rating": int(item.rating),
+                            "skill_flags": [int(value) for value in item.skill_flags],
+                        }
+                        for item in side.statistics
+                    ],
+                }
+                for side in sides
+            ]
+            for fixture_id, sides in sorted(
+                state.prepared_match_participant_statistics.items()
+            )
+        },
         "premier_league_scheduler_order": {
             str(int(round_index)): [int(v) for v in values]
             for round_index, values in sorted(state.premier_league_scheduler_order.items())
@@ -1571,6 +1633,65 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
                 weekday_evening=bool(value["weekday_evening"]),
             )
             for fixture_id, value in snapshot["prepared_match_environments"].items()
+        },
+        prepared_match_gate_receipts={
+            int(fixture_id): GateReceiptResult(
+                home_seating=GateAttendanceCell(
+                    demand=float(value["home_seating"]["demand"]),
+                    price_response=float(value["home_seating"]["price_response"]),
+                    random_span=int(value["home_seating"]["random_span"]),
+                    count=int(value["home_seating"]["count"]),
+                ),
+                visiting_seating=GateAttendanceCell(
+                    demand=float(value["visiting_seating"]["demand"]),
+                    price_response=float(value["visiting_seating"]["price_response"]),
+                    random_span=int(value["visiting_seating"]["random_span"]),
+                    count=int(value["visiting_seating"]["count"]),
+                ),
+                home_terrace=GateAttendanceCell(
+                    demand=float(value["home_terrace"]["demand"]),
+                    price_response=float(value["home_terrace"]["price_response"]),
+                    random_span=int(value["home_terrace"]["random_span"]),
+                    count=int(value["home_terrace"]["count"]),
+                ),
+                visiting_terrace=GateAttendanceCell(
+                    demand=float(value["visiting_terrace"]["demand"]),
+                    price_response=float(value["visiting_terrace"]["price_response"]),
+                    random_span=int(value["visiting_terrace"]["random_span"]),
+                    count=int(value["visiting_terrace"]["count"]),
+                ),
+                home_revenue=int(value["home_revenue"]),
+                visiting_revenue=int(value["visiting_revenue"]),
+                season_ticket_quantity=int(value["season_ticket_quantity"]),
+            )
+            for fixture_id, value in snapshot.get(
+                "prepared_match_gate_receipts", {}
+            ).items()
+        },
+        prepared_match_report_player_ids={
+            int(fixture_id): int(player_id)
+            for fixture_id, player_id in snapshot.get(
+                "prepared_match_report_player_ids", {}
+            ).items()
+        },
+        prepared_match_participant_statistics={
+            int(fixture_id): tuple(
+                FinalizedSideParticipantStatistics(
+                    player_ids=tuple(int(player_id) for player_id in side["player_ids"]),
+                    statistics=tuple(
+                        FinalizedParticipantStatistics(
+                            player_index=int(item["player_index"]),
+                            rating=int(item["rating"]),
+                            skill_flags=bytes(int(value) for value in item["skill_flags"]),
+                        )
+                        for item in side["statistics"]
+                    ),
+                )
+                for side in sides
+            )
+            for fixture_id, sides in snapshot.get(
+                "prepared_match_participant_statistics", {}
+            ).items()
         },
         premier_league_scheduler_order={
             int(round_index): tuple(int(v) for v in values)
