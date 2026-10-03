@@ -79,7 +79,7 @@ bounded seven-resource family, so
 `reconstruction/gate14_fastview_resource_catalog.py` schema 2 now resolves
 those **source-proven exact paths** rather than relying on basename uniqueness:
 
-- `PossessionFigures`: `FM2001_Art/FastView/team_bar_1.444`,
+- `FastViewTeam` / `TeamTable`: `FM2001_Art/FastView/team_bar_1.444`,
   `FM2001_Art/FastView/blank_bar.444`,
   `FM2001_Art/FastView/team_bar_2.444`;
 - `PossessionDiagram`: `FM2001_Art/FastView/pitch_left.444`,
@@ -129,8 +129,10 @@ executable trace closes the three PossessionFigures 40x18 percentage text
 rectangles: side 1 is left at (311,181)-(351,199), neutral is centered at
 (382,181)-(422,199), and side 0 is right at (454,181)-(494,199). This is a
 source-index mapping only; which match side is the human user's screen side is
-still unproven and remains fail-closed. The three 82x16 bar controls still need
-direct placement/binding trace.
+still unproven and remains fail-closed. Recovery 198 rejects the earlier bar-to-PossessionFigures association: RTTI and
+constructor flow bind the 82x16 `team_bar_1` / `blank_bar` / `team_bar_2`
+family to `FastViewPanel::FastViewTeam` / `TeamTable`, while
+`PossessionFigures` remains the separate text-only component at `0x51E7E0`.
 
 ## 3D / FastView resource evidence
 
@@ -158,7 +160,7 @@ Size: 511,121,336 bytes. SHA-256:
 
 Recovery 194 revalidated and enumerated the exact Library source successfully,
 so the earlier process-start infrastructure blocker is no longer current.
-This recovery concentrated first on the source-closed FastView possession
+This recovery concentrated first on the source-closed FastView presentation
 family. The complete 64-bank audio inventory remains available for the next
 trace, but no bank/sample role is inferred from filenames alone.
 
@@ -189,6 +191,9 @@ only those exact authorized assets under `original_assets/` using the existing
 asset-policy import path, then connect the diagram to a player-visible
 presentation surface **without** inventing update cadence or side orientation.
 
-In parallel, continue the `PossessionFigures` constructor trace to recover the
-three 82×16 bar placements and percentage-text geometry. Gate 13 remains the
+Continue the smallest source-backed player-visible FastView slice: keep
+PossessionFigures percentage text and PossessionDiagram geometry separate from
+the now-corrected FastViewTeam bar family, then recover the original
+PossessionDiagram callback cadence or a source-backed presentation-host lifecycle
+without inventing human-side orientation. Gate 13 remains the
 earliest incomplete validation gate and Gate 14 remains work-ahead, not passed.
