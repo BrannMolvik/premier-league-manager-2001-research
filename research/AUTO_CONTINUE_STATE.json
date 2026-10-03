@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 202: canonical main is 49cb46ece578a6d93105febf49968aed6cf4b694 and exact active Gate-14 checkpoint is PR #169 / head 664c3fe270af3d648db7e6de58634d6b932f25a4. Verify/merge the persisted PossessionFigures typography source closure only if CI is green: style index 1, Zurich_BdXCn_BT_18pixel.fnt, white 0xFFFF, flags 9 left/top, exact 40x18 percentage text art. Then continue direct FastViewPanel background ownership and side-orientation source tracing without repeating prior work. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
-  "last_known_main_head": "49cb46ece578a6d93105febf49968aed6cf4b694",
+  "active_task": "Recovery 202: PR #169 is canonical at main c75ce5b07dc9d8c7467ed8dc4826854443ffd4a2 after 1,504 tests / 22 expected skips and asset-policy success. Continue Gate-14 source work with direct FastViewPanel ownership/draw of FM2001_Art/FastView/background.444 and source-backed side-orientation mapping. Do not guess background ownership, home/away/human screen side, or complete FastView fidelity. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
+  "last_known_main_head": "c75ce5b07dc9d8c7467ed8dc4826854443ffd4a2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 202,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 202 resumes PR #169 exactly. Do not repeat Recovery 199/200 source tracing.",
+  "note": "PR #169 merged. Continue background ownership and side orientation only; do not repeat typography.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
