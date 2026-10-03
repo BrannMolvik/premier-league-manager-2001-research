@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 210: PR #185 canonical at main 25aac6bdce57e1ae06f395da6f058209cd746794 after 1,559 tests / 22 expected skips and asset-policy success. Continue Gate-14 72-byte match-player proxy source tracing. Cell 2 position is closed. Identify cell 1 proxy+0x47 and cell 3 leading string/+0x20 prefix only via direct producer/consumer ownership; do not infer squad number or player-name format from layout. Own-goal color remains fail-closed. Gate 13 remains earliest incomplete.",
-  "last_known_main_head": "25aac6bdce57e1ae06f395da6f058209cd746794",
+  "active_task": "Recovery 210: PR #186 canonical at main cdfc5b88c67d05b4eb58fc3c42f879e9fe95146e after 1,560 tests / 22 expected skips and asset-policy success. Transplant the already source-closed PlayerRow cell-1 shirt/squad-number derivation from the stacked branch onto fresh canonical main: DBRPlayer accessor 0x41E3D0 (+0x70/+0x76) -> caller 0x533370 -> call 0x5333EC -> record+0x47 write 0x5333F3 -> PlayerRow cell1 %u. Verify/merge, then assemble a complete source-backed PlayerRow snapshot and integrate it with presentation state without duplicating simulation. Gate 13 remains earliest incomplete.",
+  "last_known_main_head": "cdfc5b88c67d05b4eb58fc3c42f879e9fe95146e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 210,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #185 canonical. Continue cells 1 and 3 only from source ownership; no layout inference.",
+  "note": "PR #186 canonical. Transplant only shirt-number delta from stacked child, then continue complete PlayerRow integration.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
