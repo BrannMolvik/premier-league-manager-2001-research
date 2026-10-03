@@ -252,6 +252,55 @@ def generated_name_source_ids(
     )
 
 
+def report_setup_player_pool(
+    players: Iterable[GeneratedNamePlayerSource],
+    nationality_id: int,
+) -> tuple[GeneratedNamePlayerSource, ...]:
+    """Return the exact 0x421BA0 source pool for Gate-13 FE0/FE4 setup.
+
+    0x510F40 passes the home country's nationality identity directly. 0x421BA0
+    uses the 0x411A10 nationality auxiliary vector only when its filtered count
+    exceeds ten; otherwise it falls back to the complete DBTPlayers array in
+    original table order.
+    """
+    player_list = tuple(players)
+    if not player_list:
+        raise ValueError("report setup selection requires at least one player")
+    if len({int(player.index) for player in player_list}) != len(player_list):
+        raise ValueError("report setup selection requires unique player identities")
+
+    source_ids = generated_name_source_ids(player_list, int(nationality_id))
+    if len(source_ids) <= 10:
+        return player_list
+
+    by_id = {int(player.index): player for player in player_list}
+    return tuple(by_id[player_id] for player_id in source_ids)
+
+
+def select_report_setup_player_ids(
+    rng: BoundedRng,
+    players: Iterable[GeneratedNamePlayerSource],
+    nationality_id: int,
+) -> tuple[int, int]:
+    """Replay 0x510F40/0x510F6E's two FE0/FE4 identity selections.
+
+    The first 0x421BA0 selection is retried only when the selected DBRPlayer's
+    first-name byte 0 is '-'. Each retry consumes another bounded shared-CRT
+    draw. The second selection is one unfiltered draw from the same source
+    pool. Selection is with replacement, matching the source pointer lookup.
+    """
+    pool = report_setup_player_pool(players, int(nationality_id))
+    bound = len(pool)
+
+    while True:
+        first = pool[int(rng.randbelow(bound))]
+        if not str(first.first_name).startswith("-"):
+            break
+
+    second = pool[int(rng.randbelow(bound))]
+    return int(first.index), int(second.index)
+
+
 def generated_name_rng_bound(
     country_id: int,
     countries: Iterable[GeneratedNameCountrySource],
