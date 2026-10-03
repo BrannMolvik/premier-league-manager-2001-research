@@ -88,6 +88,20 @@ PLAYER_ROW_POSITION_KEYS = (
 DBRPLAYER_SQUAD_NUMBER_RUNTIME_OFFSET = 0x70
 PLAYER_ROW_CELL1_MATCH_PROXY_OFFSET = 0x47
 
+PLAYER_ROW_NAME_RECORD_BUILDER_VA = 0x533A00
+PLAYER_ROW_DBRPLAYER_FIRST_NAME_RUNTIME_OFFSET = 0x08
+PLAYER_ROW_DBRPLAYER_SURNAME_RUNTIME_OFFSET = 0x0C
+PLAYER_ROW_NAME_STRING_OFFSET = 0x00
+PLAYER_ROW_NAME_PREFIX_OFFSET = 0x20
+PLAYER_ROW_NAME_SENTINEL = "-"
+PLAYER_ROW_NAME_PLAIN_FORMAT_VA = 0x81D97C
+PLAYER_ROW_NAME_PLAIN_FORMAT = "%s"
+PLAYER_ROW_NAME_PREFIX_FORMAT_VA = 0x829B8C
+PLAYER_ROW_NAME_PREFIX_FORMAT = "%c %s"
+PLAYER_ROW_NAME_WITH_POSITION_FORMAT_VA = 0x829EB8
+PLAYER_ROW_NAME_WITH_POSITION_FORMAT = "%c %s (%s)"
+PLAYER_ROW_NAME_TEXT_CELL_INDEX = 3
+
 PLAYER_ROW_ENERGY_CALLBACK_VA = 0x5267D0
 PLAYER_ROW_ENERGY_UPDATE_VA = 0x526680
 PLAYER_ROW_ENERGY_EVENT_VALUE_OFFSET = 0x04
@@ -486,4 +500,46 @@ def player_row_position_state(
         ),
         source_position_code=source_position_code,
         localization_key=PLAYER_ROW_POSITION_KEYS[source_position_code],
+    )
+
+
+def player_row_name_text_state(
+    side_index: int,
+    row_index: int,
+    surname: str,
+    first_name_initial: str,
+) -> FastViewPlayerRowTextState:
+    """Mirror PlayerRow cell 3's source name formatting.
+
+    The matching 72-byte player-display record builder at 0x533A00 copies the
+    DBRPlayer surname string (+0x0C) to record offset 0 and the first byte of
+    the DBRPlayer first-name string (+0x08) to record +0x20. PlayerRow refresh
+    0x525BD0 prints the surname alone when that byte is '-' and otherwise uses
+    "%c %s". A separate consumer at 0x6CE809 combines the same pair with the
+    independently source-closed localized position as "%c %s (%s)", confirming
+    this is the player-name display field rather than a layout-derived label.
+    """
+    if not isinstance(surname, str) or not surname:
+        raise FastViewTeamError("PlayerRow surname must be a non-empty string")
+    if not isinstance(first_name_initial, str) or len(first_name_initial) != 1:
+        raise FastViewTeamError(
+            "PlayerRow first-name initial must be exactly one character"
+        )
+    text = (
+        surname
+        if first_name_initial == PLAYER_ROW_NAME_SENTINEL
+        else f"{first_name_initial} {surname}"
+    )
+    return FastViewPlayerRowTextState(
+        semantic="player_display_name",
+        side_index=side_index,
+        row_index=row_index,
+        text_cell_index=PLAYER_ROW_NAME_TEXT_CELL_INDEX,
+        rect=team_row_text_rect(
+            side_index,
+            row_index,
+            PLAYER_ROW_NAME_TEXT_CELL_INDEX,
+        ),
+        text=text,
+        stored_value=0,
     )

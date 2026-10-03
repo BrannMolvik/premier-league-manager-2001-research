@@ -50,6 +50,19 @@ from gate14_fastview_team import (
     PLAYER_ROW_POSITION_KEYS,
     DBRPLAYER_SQUAD_NUMBER_RUNTIME_OFFSET,
     PLAYER_ROW_CELL1_MATCH_PROXY_OFFSET,
+    PLAYER_ROW_NAME_RECORD_BUILDER_VA,
+    PLAYER_ROW_DBRPLAYER_FIRST_NAME_RUNTIME_OFFSET,
+    PLAYER_ROW_DBRPLAYER_SURNAME_RUNTIME_OFFSET,
+    PLAYER_ROW_NAME_STRING_OFFSET,
+    PLAYER_ROW_NAME_PREFIX_OFFSET,
+    PLAYER_ROW_NAME_SENTINEL,
+    PLAYER_ROW_NAME_PLAIN_FORMAT_VA,
+    PLAYER_ROW_NAME_PLAIN_FORMAT,
+    PLAYER_ROW_NAME_PREFIX_FORMAT_VA,
+    PLAYER_ROW_NAME_PREFIX_FORMAT,
+    PLAYER_ROW_NAME_WITH_POSITION_FORMAT_VA,
+    PLAYER_ROW_NAME_WITH_POSITION_FORMAT,
+    PLAYER_ROW_NAME_TEXT_CELL_INDEX,
     PLAYER_ROW_ENERGY_RECEIVER_BASE_VFTABLE,
     PLAYER_ROW_ENERGY_RECEIVER_VFTABLE,
     PLAYER_ROW_ENERGY_RECEIVER_OFFSET,
@@ -69,6 +82,7 @@ from gate14_fastview_team import (
     player_row_form_text_state,
     player_row_goal_text_state,
     player_row_position_state,
+    player_row_name_text_state,
     side_contract,
     team_row_energy_bar_state,
     team_row_name_resource,
@@ -179,6 +193,36 @@ class FastViewTeamTests(unittest.TestCase):
             with self.subTest(bad=bad):
                 with self.assertRaises(FastViewTeamError):
                     player_row_position_state(0, 0, bad)
+
+    def test_playerrow_cell3_is_source_player_display_name(self):
+        self.assertEqual(PLAYER_ROW_NAME_RECORD_BUILDER_VA, 0x533A00)
+        self.assertEqual(PLAYER_ROW_DBRPLAYER_FIRST_NAME_RUNTIME_OFFSET, 0x08)
+        self.assertEqual(PLAYER_ROW_DBRPLAYER_SURNAME_RUNTIME_OFFSET, 0x0C)
+        self.assertEqual(PLAYER_ROW_NAME_STRING_OFFSET, 0x00)
+        self.assertEqual(PLAYER_ROW_NAME_PREFIX_OFFSET, 0x20)
+        self.assertEqual(PLAYER_ROW_NAME_SENTINEL, "-")
+        self.assertEqual(PLAYER_ROW_NAME_PLAIN_FORMAT_VA, 0x81D97C)
+        self.assertEqual(PLAYER_ROW_NAME_PLAIN_FORMAT, "%s")
+        self.assertEqual(PLAYER_ROW_NAME_PREFIX_FORMAT_VA, 0x829B8C)
+        self.assertEqual(PLAYER_ROW_NAME_PREFIX_FORMAT, "%c %s")
+        self.assertEqual(PLAYER_ROW_NAME_WITH_POSITION_FORMAT_VA, 0x829EB8)
+        self.assertEqual(PLAYER_ROW_NAME_WITH_POSITION_FORMAT, "%c %s (%s)")
+        self.assertEqual(PLAYER_ROW_NAME_TEXT_CELL_INDEX, 3)
+
+        named = player_row_name_text_state(0, 0, "Seaman", "D")
+        self.assertEqual(named.semantic, "player_display_name")
+        self.assertEqual(named.text_cell_index, 3)
+        self.assertEqual(named.rect, (107, 27, 243, 43))
+        self.assertEqual(named.text, "D Seaman")
+
+        sentinel = player_row_name_text_state(1, 1, "Ronaldo", "-")
+        self.assertEqual(sentinel.rect, (607, 44, 743, 60))
+        self.assertEqual(sentinel.text, "Ronaldo")
+
+        for args in (("", "D"), ("Seaman", ""), ("Seaman", "AB")):
+            with self.subTest(args=args):
+                with self.assertRaises(FastViewTeamError):
+                    player_row_name_text_state(0, 0, *args)
 
     def test_bar_source_identities_remain_separate_from_possession_figures(self):
         self.assertEqual(TEAM_BAR_1.size, (82, 16))
