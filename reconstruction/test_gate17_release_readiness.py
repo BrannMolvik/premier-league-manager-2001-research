@@ -149,7 +149,7 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
         archive = private / "fm2001-port.zip"
         archive.write_bytes(RELEASE_ARCHIVE_BYTES)
         evidence = {
-            "schema_version": 1,
+            "schema_version": 2,
             "release_version": RELEASE_VERSION,
             "repository_commit": COMMIT,
             "limitations_path": "research/RELEASE_LIMITATIONS.md",
