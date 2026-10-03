@@ -43,6 +43,10 @@ class StringTable:
         if index_end > len(data):
             raise ValueError(f'Invalid STR index: {path}')
         offsets = struct.unpack_from(f'<{count}I', data, index_start)
+        # 0x64E140 loads this contiguous blob, then +8 holds pointers into it.
+        # Native setup peeks past short string terminators: never pad those bytes.
+        self.native_data = data[8:table_offset + 8]
+        self.native_offsets = offsets
         vals = []
         for rel in offsets:
             pos = 8 + rel
@@ -57,6 +61,13 @@ class StringTable:
 
     def get(self, idx: int) -> str:
         return self.values[idx] if 0 <= idx < len(self.values) else f'<str:{idx}>'
+
+    def native_prefix(self, idx: int, width: int) -> bytes | None:
+        if not 0 <= idx < len(self.native_offsets):
+            return None
+        start = self.native_offsets[idx]
+        prefix = self.native_data[start:start + width]
+        return prefix if len(prefix) == width else None
 
 def ole_date(serial: int) -> date | None:
     if not 10000 <= serial <= 70000:

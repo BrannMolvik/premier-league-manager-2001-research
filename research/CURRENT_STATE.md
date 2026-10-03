@@ -10,6 +10,18 @@ topic-specific research files.
 
 **Gate 13 - Restore original management presentation**
 
+PR #199 continuation from `f8bbdd9c`: B68 constructor and original-order
+FE0/FE4 draws, explicit tactics, primary-shirt/normalized flag metadata and
+gate scalar retention are connected at production to the existing strict
+assembler. A genuine canonical calculated fixture retains six of eleven
+scalars but stays fail-closed: uncontrolled-home gate inputs are unavailable.
+The remaining setup boundary is legacy visiting capacities +13C/+140 and
+human-opponent D48's attendance-counter/rank guard (plus secondary-shirt
+contexts). Exact evidence and next action: `GATE13_LIVE_CAPTURE_INPUTS.md`.
+Gate 13 remains OPEN; no genuine reload/right-click/PMatchInfo success or
+final timing/Windows closure is claimed. No main reconciliation or Gate-14/
+agent-runtime ownership change was made in this continuation.
+
 Local complete-report owner milestone, based on `41df3ac` and reconciled with
 `050085a8`: exact source caption/context/venue/weather setup fragments and initial
 normalized-history/booking bits are retained at production. Strict complete
