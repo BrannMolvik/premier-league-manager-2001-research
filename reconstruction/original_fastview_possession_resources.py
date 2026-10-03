@@ -2,8 +2,9 @@
 
 Only the four PossessionDiagram resources are runtime-staged here. Their exact
 source paths, hashes, dimensions and placement are source-closed from the
-canonical executable and authorized disc. Update cadence and human-team side
-orientation remain deliberately outside this module.
+canonical executable and authorized disc. Scheduling and human-team side
+orientation remain deliberately outside this module; source timing is modeled
+separately from pixel placement.
 """
 from __future__ import annotations
 
@@ -77,9 +78,8 @@ class PossessionDiagramLayer:
 def possession_diagram_layers(state: int) -> tuple[PossessionDiagramLayer, ...]:
     """Return the exact normal-pitch + active-overlay placement for a state.
 
-    The caller must supply the state. This function deliberately does not map
-    match time or possession records to update calls because native cadence is
-    not yet recovered.
+    The caller must supply the state. Scheduling and event ordering remain
+    separate from this exact pixel-placement primitive.
     """
     if type(state) is not int or state not in (0, 1, 2):
         raise OriginalFastViewPossessionResourceError(
