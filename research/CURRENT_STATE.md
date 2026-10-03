@@ -14,15 +14,27 @@ Current Codex branch `codex/gate13-report-row-closure` starts from canonical
 main `5df5d591991fcd209d8fa1d65c14ddb781145aac`, preserving its disjoint later-gate
 work. Default packed-script reader/list/row ownership is now integrated:
 labels, duplicate minute behavior, source player abbreviations/selection colors,
-icons and two original custom numbered-shirt atlases render after genuine
+icons and all twenty original Premiership primary custom numbered-shirt atlases
+are available; the genuine route renders them after
 calculation -> disk save -> fresh reload -> actual Windows Fixtures right-click.
-**60 focused tests pass.** See `GATE13_PMATCHINFO_SCRIPT_ROWS.md` for source
+**65 focused tests pass.** Original blank slots and native single-press scroll
+arrows are integrated. The genuine report's eight entries can all be reached
+through actual Tk arrow press/release, with global duplicate/boundary state
+and held-press/disabled-bound rejection. PR #242 contains this continuation.
+See `GATE13_PMATCHINFO_SCRIPT_ROWS.md` for source
 addresses, exact private receipt and remaining rendering boundaries.
+Final milestone: **1,791 full tests / 23 expected skips**, asset policy and
+fresh real Windows schema8 pass. The exact thumb/bar loaders and renderer
+64EBE0 are now located; composite/zero-range behavior remains unimplemented.
 The older "required rows blank" checkpoint below is superseded by this
 milestone, not by a complete report-surface or Gate13 sign-off.
 Fresh uncontrolled +13C/+140 still lacks a proven initializer; the native
 constructor iterator adds no implicit payload zeroing. Gate13 remains OPEN.
-Continue the remaining row/kit/scroll fidelity and capacity lifecycle, then
+The fresh human-away negative probe executes fixture2 but publishes no report
+or link; only six non-attendance scalars are retained. This is an observable
+normal-play blocker, not proof that uncontrolled capacities are irrelevant.
+Continue native capacity allocation/write observation through `5DA538`, plus
+the remaining thumb/bar/hover/repeat and required kit/color adjudication, then
 final full tests/Windows validation/timing-recognizability audit. Do not redo
 solved report production/persistence, change ownership or edit Gate14.
 

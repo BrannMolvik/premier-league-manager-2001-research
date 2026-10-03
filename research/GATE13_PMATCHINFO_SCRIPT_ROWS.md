@@ -52,31 +52,77 @@ and the canonical sentinel-terminated clash table at `834AF8`. Compact reader
 `408320` loads the custom `40DA90` basename before any generic kit fallback.
 The existing recovered byte-level art-name translation is reused.
 `485F50` selects source frame `(captured shirt number - 1)*32`, not generated
-digits. Two deliberately imported 36x1280 custom atlases cover the genuine
-Coventry/Middlesbrough route; their canonical provenance is in the asset
-manifest. Unstaged, generic/alternate and out-of-range shirts stay unavailable.
+digits. Twenty deliberately imported 36x1280 custom atlases cover the original
+Premiership primary custom-shirt family, including the genuine Coventry/
+Middlesbrough route; canonical provenance is in the asset manifest. Generic/
+alternate and out-of-range shirts stay unavailable rather than using a substitute.
+
+`6510F0/483750` create and paint all six slots, including original blank grids
+when fewer records exist. `487520/487550` set scroll bounds to
+`max(native count - 6, 0)`. The source `483AA0` top/down control rectangles are
+(17,260,18,25)/(17,460,18,25) and (389,260,18,25)/(389,460,18,25), after parent
+translation. Arrow events3/5 and6/8 reach `650020 -> 64FF30 -> 4874B0 ->
+6512A0`: one entry per accepted press, clamped to those bounds. Row factory
+`486EE4` uses viewport offset plus slot; duplicate/prior-card/boundary scans
+remain global rather than being reset at the viewport edge. `64F7A0` rejects
+an already-pressed control; `64F860 -> 64F470(0)` clears bit4 on release without
+a second scroll. Tests and real Tk press/release exercise this distinction.
+
+`5F2BC0/5F2C00` bind two 18x25 slices of canonical `scroller_vert.444`.
+The 72x50 atlas hash is
+`3f96ef29d80c7d369f65236c29ae8281b7e490c3c71a65644490daefe5f1f9f7`.
+`64FDB0/64E5D0` select idle0/pressed1/disabled3 across 18px horizontal frames.
+The original atlas is provenance-imported, not drawn as modern arrows. The
+thumb/bar, hover flags and six-tick held-repeat cadence are not yet certified
+by this implementation; wheel/drag/repeat are not guessed.
+
+The directly required thumb/bar continuation is now narrowed to original
+loaders `5F2DA0/5F2E30/5F2E80/5F2F10`: respectively
+`scroller_bar_vert.444`, `scroller_blue_bar.444`, `vscroll_end.444` and
+`vscroll_blue_bar.444`. Thumb descriptor946FB0 binds an 18x25 source slice,
+flags0xD. Startup603540 sets renderer87BEE8 to vtable7D7AB8, whose drawing
+slot+8 is64EBE0 and whose cap inputs are both3. That renderer's native
+page/range arithmetic and composite blits still need complete adjudication,
+especially the zero-range x87 conversion/clipping path. Exact filenames or
+the partial window are not permission to invent a knob, tiling or rounding.
 
 ## Genuine Windows milestone
 
-60 focused resource/row/host tests pass. The genuine calculated fixture2
+65 focused resource/row/host tests pass. The genuine calculated fixture2
 (Coventry5 vs Middlesbrough11), complete publication, disk save, fresh reload
 and actual Tk Fixtures right-click all pass. Twelve visible native row owners
-now render labels/minutes/names/icons/custom numbered shirts. No report
+now render labels/minutes/names/icons/custom numbered shirts. Both lists reach
+all eight source entries, including the 89-minute substitutions, through actual
+Tk arrow clicks. Repeated held presses and disabled bounds do not step; release
+allows the next press. No report
 context is manufactured, and no report/save/calculator implementation changed.
 
-Private receipt `gate13-calculated-reload-script-rows-20261004.json` SHA-256:
-`65ba38b69e27f511f438d2a5adb1db7cc739074655b47abee3daec566f88722b`.
-Private PNG: `gate13-pmatchinfo-script-rows-20261004.png`. Private expanded
-owner evidence: `gate13-closure-tail-private-20261003.json`, SHA-256
-`3acde972d8d28b546854324c22538693a19b034b33ca2494d4e63dd21ed7cdec`.
+Private receipt `gate13-calculated-reload-script-scroll-20261004.json` SHA-256:
+`dda3d6c6cdb289cd953fff6413b6f0fd762c159a3af7d8a7921e60642821840c`.
+Private PNG: `gate13-pmatchinfo-script-scroll-20261004.png`. Expanded owner,
+control and kit evidence: `gate13-script-scroll-owner-private-20261004.json`,
+SHA-256 `b4e18704c6c3dde7088a7bf6dfa241e32cc5ef054e77b5885f7e87057cee861a`.
 All reside outside Git beneath the authorized local scratch directory. The
-expanded evidence supersedes the older same-path private trace digest.
+earlier first-six-only receipt remains historical, not final scroll evidence.
+The final PNG captures actual HWND bounds; the earlier desktop bounding-box
+capture was DPI-cropped and is not a complete-report visual audit.
+
+Final milestone validation: 1,791 full reconstruction tests, 23 expected
+licensed-source skips, zero failures/errors; private receipt
+`gate13-script-scroll-full-suite-20261004.json`. The initial full invocation
+omitted the private Capstone module path; it was rerun with that verified
+dependency available. Fresh real Windows schema8 passes on final code,
+`gate13-script-scroll-schema8-20261004.json`, SHA-256
+`131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`.
+Repository asset policy, JSON and diff guards pass. This is not a frozen-package
+launch, timing sign-off or Gate13/Gate17 release claim.
 
 ## Still-open closure boundary
 
 This milestone does not certify the complete report surface across normal
-contexts: empty native rows/scroll interactions, unstaged required shirt
-families and display-color fidelity need final adjudication. Fresh uncontrolled
+contexts: thumb/bar/hover/held-repeat behavior, required unstaged shirt
+contexts and display-color fidelity need final adjudication. Blank slots and
+single-press arrow traversal are now integrated and tested. Fresh uncontrolled
 club +13C/+140 remains unknown. The constructor iterator `6687C1` only calls
 the supplied constructor per element; it does not initialize the club-array
 payload beyond that constructor. No zero-filled allocation is assumed.

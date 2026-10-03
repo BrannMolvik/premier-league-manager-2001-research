@@ -108,11 +108,9 @@ class NativeReportScriptRow:
         return (39 if self.list_side else 411, 145 + 115 + self.slot * 38)
 
 
-def ordinary_report_script_rows(report, *, list_side):
-    if type(list_side) is not int or list_side not in (0, 1):
-        raise ValueError('Native list side must be 0 or 1')
+def _ordinary_entries(report):
     if type(report) is not CompleteFixtureReport or report.metadata.previous_scores is not None:
-        return ()
+        return (), (), 0
     events = decoded_report_row_events(report.script)
     entries = []
     boundary = False
@@ -128,20 +126,46 @@ def ordinary_report_script_rows(report, *, list_side):
         elif kind == 9:
             entries.append(index)
             boundary = True
+    return events, entries, len(entries) - int(boundary)
+
+
+def ordinary_report_script_count(report):
+    """4872C0 list +60; both ordinary lists use the same eligibility table."""
+    return _ordinary_entries(report)[2]
+
+
+def script_scroll_step(report, first_row, direction):
+    """64FF30/64FF90: one entry, clamped by 487520/487550 count-minus-six."""
+    maximum = max(ordinary_report_script_count(report) - 6, 0)
+    if type(first_row) is not int or not 0 <= first_row <= maximum:
+        raise ValueError('Native list offset outside scroll bounds')
+    if type(direction) is not int or direction not in (-1, 1):
+        raise ValueError('Only source arrow step directions are accepted')
+    return max(0, min(maximum, first_row + direction))
+
+
+def ordinary_report_script_rows(report, *, list_side, first_row=0):
+    if type(list_side) is not int or list_side not in (0, 1):
+        raise ValueError('Native list side must be 0 or 1')
+    if type(report) is not CompleteFixtureReport or report.metadata.previous_scores is not None:
+        return ()
+    events, entries, count = _ordinary_entries(report)
     # Exact 4872C0 tables filter +4==1 for both concrete default lists.
     # +50 is a row-constructor input, not permission to invent a side filter.
-    count = len(entries) - int(boundary)
+    if type(first_row) is not int or not 0 <= first_row <= max(count - 6, 0):
+        raise ValueError('Native list offset outside scroll bounds')
     rows = []
-    for slot in range(min(6, count)):
-        original_index = entries[slot]
-        flag78 = int(slot > 0 and entries[slot - 1] == original_index)
+    for slot in range(min(6, count - first_row)):
+        logical_index = first_row + slot  # 486EE4: list +3C plus visible slot.
+        original_index = entries[logical_index]
+        flag78 = int(logical_index > 0 and entries[logical_index - 1] == original_index)
         current = events[original_index]
         if current.kind == 5 and not current.field(0x20) and current.field(0x1C):
             flag78 |= int(any(events[i].kind == 5 and not events[i].field(0x20)
                               and events[i].field(0x14) == current.field(0x14)
-                              for i in entries[:slot]))
-        after_boundary = any(events[i].kind == 9 for i in entries[:slot + 1])
-        index = entries[slot + int(after_boundary)]
+                              for i in entries[:logical_index]))
+        after_boundary = any(events[i].kind == 9 for i in entries[:logical_index + 1])
+        index = entries[logical_index + int(after_boundary)]
         event = events[index]
         flag74 = list_side
         if event.kind in (1, 2, 3, 4):
@@ -204,18 +228,43 @@ def load_script_row_art(repo_root, executable, *, game_dir=None):
                          *PMATCHINFO_DYNAMIC_INCIDENT_RESOURCE_NAMES)}
     if game_dir is not None:
         images['_shirt_source'] = OriginalScriptShirtSource(repo_root, blob, game_dir)
+    from hashlib import sha256
+    raw = (Path(repo_root) / 'original_assets/source/FM2001_Art/Generic/GenericButtonsAndBars/scroller_vert.444').read_bytes()
+    if sha256(raw).hexdigest() != '3f96ef29d80c7d369f65236c29ae8281b7e490c3c71a65644490daefe5f1f9f7':
+        raise ValueError('Original scroll arrow atlas hash mismatch')
+    images['_scroll_arrows'] = decode_ea444(raw, tables=tables, quant=quant)
+    if (images['_scroll_arrows'].width, images['_scroll_arrows'].height) != (72, 50):
+        raise ValueError('Original scroll arrow atlas geometry mismatch')
     return images
 
 
 class OriginalScriptShirtSource:
     """408320 primary custom atlases; no invented generic/alternate fallback.
 
-    The deliberately imported selection currently covers the genuine Coventry /
-    Middlesbrough route. Unstaged families and alternate shirts remain closed.
+    The deliberately imported selection covers all twenty original Premiership
+    clubs. Unstaged families and alternate shirts remain closed.
     """
     HASHES = {
+        'Arsenal': '0d1a264bcb920eaa984bb115cf681bbeb4e8ff22175e37119e18dc68cfb5fc25',
+        'Aston_Villa': '19a55444f7b04b4bbe0df0edaccdb6a484c823554ec37a6a03db1e20a456d5c4',
+        'Bradford': '23714003d9b57a9e1f02b6845bd808263fb1ed29e0828d3419ec453b2bc8a50f',
+        'Charlton_Ath': 'ca8ec47fb0679ac56c37800962786170e073bcce59e1cd6168a5d8386333cdfe',
+        'Chelsea': 'f5000bf4b9aea3f89fb8d3942199ba4743cb63fa10cc3019f84cd1df91cf5be8',
         'Coventry_City': 'a62be2bd04240a2ab85d49b7c263d4c0d6c5f33862eae83541c28d80334ca2f9',
+        'Derby_County': 'a4c757e80c95d579b49879e945e01939a83bd4c633753b748861b580cc05d2a5',
+        'Everton': 'c0c5efa319249750457437a6c21d147ba0941cd5c239ddd73252ef182596d3b5',
+        'Ipswich': 'a5c7cf7547778974c3c5504c257607556c5e79781dcbefb6931d413334a375c2',
+        'Leeds_United': '2425431a34b7fd782e1901e06427bae02cf09972258b91ff735782b4c1471126',
+        'Leicester_City': 'c6be0ffdcd741e27929fb4c0750850596fe189cee597df2beb1d3a099c8f8bd8',
+        'Liverpool': '706cd08bbc58e3b070deee6e0fcf420f440fb4f386d81c058f5a5ae6a1b3a0a3',
+        'Man_City': 'f899139c4d8b442ccae8d1cf4b60ce65f091ad456bdde8c005572ee32a37359b',
+        'Man_Utd': '46750817de8c5cbe7f77fad34727a0281f2bb92348d92b1ead3de7133c36f693',
         'Middlesbrough': '55695ac800a7be7058aa23ca0ea44278e5caa37133a74ef521e8f9df84e617f5',
+        'Newcastle_Utd': '6941ff0088796129ff4a3bd73c0fcd520e79c3e3691d2e3d87487a1d89cce221',
+        'Southampton': '54ca100b57ed02f1931fe8023226788aa5222d4ecd27813b896ecc299c17f43e',
+        'Sunderland': '77114b42a829c754be0af5b202b17f30bacc56b7decbbba74bc14f3178b1e7d0',
+        'Tottenham': 'd724426713975c7f7ded834d93956b3c1dd572e10d2bb5d12e53d090f09ec36e',
+        'West_Ham_Utd': 'f482f62d9a8433a63ab96c873c5e5a0e80ab3d3215ecdf4597f25a801b59ea67',
     }
 
     def __init__(self, repo_root, executable_bytes, game_dir):
@@ -392,4 +441,61 @@ def script_row_pixels(row, images, font, *, players=None, report=None):
                 rgba = _endpoint_text_rgba(alpha, 0xFFFF)
             layers.append((tx, ty, tw, th,
                 encode_rgba_png(tw, th, rgba)))
+    return tuple(layers)
+
+
+def script_list_pixels(report, list_side, images, font, *, players=None, first_row=0):
+    """6510F0 creates all six slots; 483750 paints native blank-row grids.
+
+    The viewport offset is the source arrow callback's list +3C value.
+    Partial report contexts never receive even empty placeholder rows.
+    """
+    from gate13_original_pixel_preview import encode_rgba_png
+    if type(report) is not CompleteFixtureReport or report.metadata.previous_scores is not None:
+        return ()
+    rows = ordinary_report_script_rows(report, list_side=list_side, first_row=first_row)
+    layers = []
+    for slot in range(6):
+        if slot < len(rows):
+            layers.extend(script_row_pixels(rows[slot], images, font,
+                                            players=players, report=report))
+        else:
+            x, y = (39 if list_side else 411), 260 + slot * 38
+            for name, dx, width in (('match_name_grid', 0, 185), ('match_incid_grid', 189, 142)):
+                image = images[name]
+                if (image.width, image.height) != (width, 36):
+                    raise ValueError('Native blank row grid geometry mismatch')
+                layers.append((x + dx, y, width, 36,
+                               encode_rgba_png(width, 36, image.rgba)))
+    return tuple(layers)
+
+
+def script_arrow_at_point(x, y):
+    """483AA0 default child translation: event IDs 3/5 and 6/8."""
+    for side, left in ((1, 17), (0, 389)):
+        for direction, top in ((-1, 260), (1, 460)):
+            if left <= x < left + 18 and top <= y < top + 25:
+                return side, direction
+    return None
+
+
+def script_arrow_pixels(report, list_side, images, *, first_row=0, pressed_direction=None):
+    """5F2BC0/5F2C00, 64FDB0: idle0, pressed1, disabled3; no fake repeat."""
+    from gate13_original_pixel_preview import encode_rgba_png
+    if type(report) is not CompleteFixtureReport or report.metadata.previous_scores is not None:
+        return ()
+    # Validate state even when art is not supplied by a diagnostic host.
+    script_scroll_step(report, first_row, 1)
+    atlas = images.get('_scroll_arrows')
+    if atlas is None:
+        return ()
+    maximum = max(ordinary_report_script_count(report) - 6, 0)
+    layers = []
+    for direction, y, source_y in ((-1, 260, 0), (1, 460, 25)):
+        enabled = first_row > 0 if direction == -1 else first_row < maximum
+        frame = (1 if pressed_direction == direction else 0) if enabled else 3
+        sx = frame * 18
+        rgba = b''.join(atlas.rgba[(row * 72 + sx) * 4:(row * 72 + sx + 18) * 4]
+                        for row in range(source_y, source_y + 25))
+        layers.append((17 if list_side else 389, y, 18, 25, encode_rgba_png(18, 25, rgba)))
     return tuple(layers)

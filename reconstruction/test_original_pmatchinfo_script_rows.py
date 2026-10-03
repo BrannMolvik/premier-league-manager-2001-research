@@ -2,7 +2,9 @@ import unittest
 from types import SimpleNamespace
 from dataclasses import replace
 from original_pmatchinfo_script_rows import (decoded_report_row_events, ordinary_report_script_rows,
-    script_row_text_lines, script_row_pixels, script_row_player_name, script_row_player_color)
+    script_row_text_lines, script_row_pixels, script_row_player_name, script_row_player_color,
+    script_list_pixels, OriginalScriptShirtSource, script_scroll_step,
+    ordinary_report_script_count, script_arrow_at_point, script_arrow_pixels)
 from original_fixture_report_packing import pack_native_match_script
 from test_original_fixture_report_packing import native_record
 from test_complete_fixture_report import contract
@@ -26,6 +28,44 @@ def report_with(records):
 
 
 class NativeReportRowsTests(unittest.TestCase):
+    def test_native_arrow_bounds_and_global_duplicate_index_after_scroll(self):
+        sub = NativeCompactRecord(30, 10, ((4, 1), (8, 2), (0x2C, 3)))
+        report = report_with((sub,) + tuple(chance(i) for i in range(31, 39)))
+        self.assertEqual(ordinary_report_script_count(report), 10)
+        self.assertEqual(script_scroll_step(report, 0, -1), 0)
+        self.assertEqual(script_scroll_step(report, 4, 1), 4)
+        rows = ordinary_report_script_rows(report, list_side=1, first_row=1)
+        self.assertEqual(rows[0].origin, (39, 260))
+        self.assertEqual(rows[0].field_78, 1)
+        self.assertEqual(script_row_text_lines(rows[0])[1].text, '30')
+        rows = ordinary_report_script_rows(report, list_side=0, first_row=4)
+        self.assertEqual([r.event.minute for r in rows], list(range(33, 39)))
+        with self.assertRaises(ValueError):
+            ordinary_report_script_rows(report, list_side=1, first_row=5)
+        for x, y, expected in ((17, 260, (1, -1)), (406, 484, (0, 1)),
+                               (35, 260, None), (389, 485, None)):
+            self.assertEqual(script_arrow_at_point(x, y), expected)
+
+    def test_boundary_scan_still_uses_global_source_entry_after_scroll(self):
+        report = report_with(tuple(chance(i) for i in range(1, 5)) +
+            (native_boundary(5, 9),) + tuple(chance(i) for i in range(6, 12)))
+        rows = ordinary_report_script_rows(report, list_side=1, first_row=4)
+        self.assertEqual([r.event.minute for r in rows], list(range(6, 12)))
+
+    def test_arrows_use_original_idle_and_disabled_frames(self):
+        from gate13_original_pixel_preview import encode_rgba_png
+        rgba = b''.join(bytes((x // 18, y // 25, 0, 255))
+                        for y in range(50) for x in range(72))
+        images = {'_scroll_arrows': SimpleNamespace(width=72, height=50, rgba=rgba)}
+        report = report_with(tuple(chance(i) for i in range(9)))
+        layers = script_arrow_pixels(report, 1, images)
+        self.assertEqual(layers[0][:4], (17, 260, 18, 25))
+        self.assertEqual(layers[0][4], encode_rgba_png(18, 25, bytes((3, 0, 0, 255)) * 450))
+        self.assertEqual(layers[1][4], encode_rgba_png(18, 25, bytes((0, 1, 0, 255)) * 450))
+        pressed = script_arrow_pixels(report, 1, images, first_row=1, pressed_direction=1)
+        self.assertEqual(pressed[1][4], encode_rgba_png(18, 25, bytes((1, 1, 0, 255)) * 450))
+        self.assertEqual(script_arrow_pixels(None, 1, images), ())
+
     def test_packed_chance_inverse_widths_not_original_untruncated_fields(self):
         records = tuple(native_record(0x38, {0: 0x123, 0x28: kind, 4: 3,
             8: 34, 12: 33, 0x24: 11, 0x2C: 2}) for kind in range(1, 5))
@@ -131,6 +171,16 @@ class NativeReportRowsTests(unittest.TestCase):
         self.assertEqual(script_row_player_name(row, players).text, 'Ince')
         self.assertIsNone(script_row_player_name(row, {player.index: SimpleNamespace(**vars(player))}))
 
+    def test_empty_native_slots_draw_only_original_blank_grids(self):
+        images = {name: SimpleNamespace(width=w, height=36, rgba=b'\xff' * (w * 36 * 4))
+                  for name, w in (('match_name_grid', 185), ('match_incid_grid', 142))}
+        report = report_with(())
+        layers = script_list_pixels(report, 0, images, None)
+        self.assertEqual(len(layers), 12)
+        self.assertEqual([layer[:4] for layer in layers[::2]],
+                         [(411, 260 + i * 38, 185, 36) for i in range(6)])
+        self.assertEqual(script_list_pixels(None, 0, images, None), ())
+
     def test_shirt_uses_exact_numbered_frame_not_generated_digits(self):
         from pathlib import Path
         from original_pmenu_chrome import validate_original_pmenu_font
@@ -151,6 +201,18 @@ class NativeReportRowsTests(unittest.TestCase):
         zero = replace(row, shirt_number=0)
         self.assertFalse(any(layer[:4] == (39, 262, 36, 32)
                              for layer in script_row_pixels(zero, images, font, report=report)))
+
+    def test_all_twenty_deliberate_custom_atlases_keep_hash_and_geometry(self):
+        from pathlib import Path
+        from hashlib import sha256
+        from ea444_header import parse_ea444_header
+        root = Path(__file__).resolve().parents[1] / 'original_assets/source/FM2001_Art/Generic/Front-End-Shirts/Custom'
+        self.assertEqual(len(OriginalScriptShirtSource.HASHES), 20)
+        for key, digest in OriginalScriptShirtSource.HASHES.items():
+            raw = (root / (key + '.444')).read_bytes()
+            self.assertEqual(sha256(raw).hexdigest(), digest)
+            header = parse_ea444_header(raw)
+            self.assertEqual((header.width, header.height), (36, 1280))
 
 
 if __name__ == '__main__':

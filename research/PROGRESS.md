@@ -4,6 +4,34 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — PR242 captured rows and native arrow traversal
+
+Started `codex/gate13-report-row-closure` from actual canonical main5df5d591,
+preserving disjoint later-gate commits and leaving ownership unchanged. The
+first checkpoint1250f2e implemented actual packed-script row ownership/text/
+icons/names and the genuine route's custom numbered shirts. Continued with
+all twenty original Premiership primary custom atlases, six native blank slots,
+and source single-press arrows/offsets/bounds/global duplicate state. Native
+pressed-frame/held-press rejection and release are retained, not a guessed
+scroll/repeat policy. 65 focused checks pass; actual calculated fixture2 ->
+complete report -> save -> fresh reload -> ordinary Windows right-click and
+both lists' actual arrow press/release reach all eight entries.
+
+Capacity-tail trace excludes constructor-iterator hidden zeroing and the
+622A10 float-triple receiver as a club initializer. Genuine human-away fixture2
+executes but retains only six non-attendance scalars and publishes no report
+or fixture link. This observable boundary remains fail-closed; no zero,
+percentages or controlled stadium substitute were introduced. Exact private
+receipts/source addresses are in GATE13_PMATCHINFO_SCRIPT_ROWS and
+GATE13_LEGACY_CLUB_REPORT_STATE. Gate13 remains OPEN pending native allocation/
+write lifecycle observation and final required presentation/timing audit.
+Final validation: 1,791 full tests / 23 expected skips, fresh Windows schema8,
+asset policy/JSON/diff guards pass. Full-window HWND capture corrects the
+private probe's DPI-cropped image. Original thumb/bar loaders and renderer
+64EBE0 are now narrowed for the next directly required control dependency;
+their composite/zero-range behavior is not guessed. No Gate14 implementation,
+ownership change or release claim.
+
 ### 4 October 2026 KST — Gate13 native header/possession and reader discrepancy
 
 Continued PR211 from requested `689c91dd`, without main reconciliation,
