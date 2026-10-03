@@ -226,3 +226,33 @@ This closes the previously open canonical seed-1 multi-season execution
 boundary. Gate 16 remains work-ahead rather than a completed gate while Gate 13
 is the earliest incomplete prerequisite. Additional canonical seed coverage is
 the next independent cloud-safe long-duration stress.
+
+## Recovery 242 canonical multi-seed wrapper
+
+The verified seed-1 three-rollover runner is now wrapped by
+`reconstruction/canonical_multiseed_audit.py` so the same authorized
+shipped-data audit can be repeated across independent player-startup seeds
+without changing the underlying season audit.
+
+The wrapper defaults to:
+
+- `1`;
+- `2`;
+- `0x12345678`.
+
+It normalizes exact integer seed inputs to uint32, requires at least two unique
+seeds and at least two rollovers per seed, aborts on the first canonical-runner
+failure, and rejects a result whose reported seed, rollover count or snapshot
+count differs from the request. It does not synthesize standings, qualification
+state, season results or RNG state.
+
+This checkpoint is orchestration capability, not new canonical execution
+evidence. The existing seed-1 receipt remains the latest verified shipped-data
+long-duration run until the wrapper is executed against the authorized
+canonical game directory for the additional seeds.
+
+Gate 16 therefore remains open. The next evidence step is to run the multi-seed
+wrapper on the canonical source and retain each per-seed report, then investigate
+and regression-lock any seed-specific failure before marking the many-seed
+criterion complete.
+
