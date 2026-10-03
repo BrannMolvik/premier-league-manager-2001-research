@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "assignments": [
+    {
+      "scope": "Gate 13 closure",
+      "owner": "codex",
+      "status": "active",
+      "created_date": "2026-10-03",
+      "reason": "Prevent concurrent Gate-13 reverse-engineering and report/persistence edits while Codex owns closure.",
+      "non_owner_policy": "Do not modify Gate-13 implementation, tests, audits/status files, report/persistence state, or shared files touched by the active Gate-13 PR. Continue only independent Gate-14+ work-ahead that does not touch those files or behaviors; otherwise checkpoint without duplicating work.",
+      "explicitly_forbidden_for_continuous_worker": [
+        "Gate 13 native report/setup reverse engineering",
+        "Gate 13 game_state/report/persistence implementation",
+        "Gate 13 closure audits/status rewrites",
+        "Any reconciliation of an active Codex Gate-13 branch unless explicitly assigned"
+      ],
+      "allowed_for_continuous_worker": [
+        "Independent Gate-14 work-ahead on disjoint files",
+        "Later-gate research/tooling that does not alter Gate-13/shared runtime state"
+      ],
+      "release_condition": "Gate 13 passes and main advances to Gate 14, or Daniel/coordination explicitly releases or reassigns this lock."
+    }
+  ]
+}
