@@ -189,6 +189,28 @@ class Gate17RuntimeProgressionAuditTests(unittest.TestCase):
                 ):
                     audit_runtime_playable_progression(plan_fixture(), state)
 
+    def test_lower_level_plan_drift_is_wrapped_in_runtime_contract(self):
+        plan = plan_fixture()
+        bad = PlayableCountryAllocationPlan(
+            catalog_sha256=plan.catalog_sha256,
+            countries=(
+                PlayableCountryAllocationScope(
+                    country_id=26,
+                    country_name="England",
+                    selectable_league_ids=(0, 2),
+                    allocation_ids=(0,),
+                    ranking_endpoint_ids=(0, 2, 11),
+                ),
+            ),
+            assigned_allocation_ids=(0, 1),
+            ignored_allocation_ids=(),
+        )
+        with self.assertRaisesRegex(
+            Gate17RuntimeProgressionAuditError,
+            "runtime ranking capability audit failed",
+        ):
+            audit_runtime_playable_progression(bad, FakeState())
+
     def test_invalid_plan_endpoint_identity_fails_closed(self):
         plan = plan_fixture()
         bad = PlayableCountryAllocationPlan(
