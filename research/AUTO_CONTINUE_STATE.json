@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned on main d2329aa45dba3f3d80a41447d0de1cc8d05fa635. Finish validation/integration of nearly-complete disjoint Gate-17 playable-scope catalog PR #226, then pivot immediately to highest-priority disjoint Gate-14 source-backed implementation/integration per the critical-path efficiency policy. Do not touch Gate-13-owned/shared runtime files.",
-  "last_known_main_head": "d2329aa45dba3f3d80a41447d0de1cc8d05fa635",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned on canonical main e75351d4a01d30954a4493a0ec4f2ba1cd7688df. Disjoint Gate-14 PR #228 (source-backed FastView component RGBA planes) is open at 4b616b5004341c5948067e14269a17e87cdf883c; asset policy run 37137641252 passed and full reconstruction run 37137641253 is still in progress. When it passes, merge PR #228, reconcile main, then continue the highest-efficiency disjoint Gate-14 implementation. Local container execution remains unavailable with caas ClientError; do not treat that as a source blocker or duplicate Gate-13 work.",
+  "last_known_main_head": "e75351d4a01d30954a4493a0ec4f2ba1cd7688df",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 228,
+  "recovery_generation": 229,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 228: reconciled canonical main d2329aa4. PR #226 remains the nearly-complete in-flight disjoint Gate-17 catalog change; finish it, then resume Gate-14 critical-path work-ahead under Gate-13 Codex lock.",
+  "note": "Recovery 229: resumed from merged Gate-17 catalog e75351d4. Opened Gate-14 PR #228 adding separate source-backed FastView chrome/possession/figures RGBA planes and frame-plan attachment. Asset policy passed; full reconstruction CI still running. Preserve Gate-13 Codex lock.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
