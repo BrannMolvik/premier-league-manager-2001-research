@@ -39,10 +39,15 @@ from verify import verify_canonical_files
 
 CATALOG_SCHEMA_VERSION = 1
 TEAMSELECT_COUNTRY_COUNT = len(TEAMSELECT_ENGLISH_COUNTRY_ORDER)
-TEAMSELECT_MAX_VISIBLE_LEAGUES = (
-    len(TEAMSELECT_HIERARCHY_ROW_ORIGINS) - TEAMSELECT_COUNTRY_COUNT
-)
 TEAMSELECT_MAX_VISIBLE_CLUBS = len(TEAMSELECT_CLUB_ROW_ORIGINS)
+
+
+def teamselect_visible_league_capacity(country_index: int) -> int:
+    """Exact shared-row capacity after the selected country row is inserted."""
+    country_index = int(country_index)
+    if not 0 <= country_index < TEAMSELECT_COUNTRY_COUNT:
+        raise Gate17PlayableScopeError("TeamSelect country index is out of range")
+    return len(TEAMSELECT_HIERARCHY_ROW_ORIGINS) - (country_index + 1)
 
 
 class Gate17PlayableScopeError(RuntimeError):
@@ -76,6 +81,7 @@ class PlayableCountryScope:
     country_id: int
     name: str
     source_root_league_count: int
+    visible_league_capacity: int
     leagues: tuple[PlayableLeagueScope, ...]
 
     def as_dict(self) -> dict:
@@ -83,6 +89,7 @@ class PlayableCountryScope:
             "country_id": int(self.country_id),
             "name": self.name,
             "source_root_league_count": int(self.source_root_league_count),
+            "visible_league_capacity": int(self.visible_league_capacity),
             "selectable_league_count": len(self.leagues),
             "league_rows_truncated": (
                 int(self.source_root_league_count) > len(self.leagues)
@@ -102,7 +109,10 @@ class OriginalPlayableScope:
             "country_count": len(self.countries),
             "hierarchy_control_count": len(TEAMSELECT_HIERARCHY_ROW_ORIGINS),
             "club_control_count": len(TEAMSELECT_CLUB_ROW_ORIGINS),
-            "max_visible_leagues_per_country": TEAMSELECT_MAX_VISIBLE_LEAGUES,
+            "visible_league_capacity_by_country": [
+                teamselect_visible_league_capacity(index)
+                for index in range(TEAMSELECT_COUNTRY_COUNT)
+            ],
             "max_visible_clubs_per_league": TEAMSELECT_MAX_VISIBLE_CLUBS,
             "selectable_league_count": sum(
                 len(country.leagues) for country in self.countries
@@ -157,7 +167,9 @@ def derive_original_playable_scope(database) -> OriginalPlayableScope:
     club_source = tuple(database.clubs)
     output: list[PlayableCountryScope] = []
 
-    for expected_country_id, expected_name in TEAMSELECT_ENGLISH_COUNTRY_ORDER:
+    for country_index, (expected_country_id, expected_name) in enumerate(
+        TEAMSELECT_ENGLISH_COUNTRY_ORDER
+    ):
         country = countries_by_id.get(int(expected_country_id))
         if country is None:
             raise Gate17PlayableScopeError(
@@ -179,7 +191,8 @@ def derive_original_playable_scope(database) -> OriginalPlayableScope:
             raise Gate17PlayableScopeError(
                 f"TeamSelect country {expected_name} has no root League"
             )
-        visible_leagues = source_leagues[:TEAMSELECT_MAX_VISIBLE_LEAGUES]
+        visible_league_capacity = teamselect_visible_league_capacity(country_index)
+        visible_leagues = source_leagues[:visible_league_capacity]
 
         leagues: list[PlayableLeagueScope] = []
         for competition in visible_leagues:
@@ -226,6 +239,7 @@ def derive_original_playable_scope(database) -> OriginalPlayableScope:
                 country_id=int(expected_country_id),
                 name=expected_name,
                 source_root_league_count=len(source_leagues),
+                visible_league_capacity=visible_league_capacity,
                 leagues=tuple(leagues),
             )
         )
