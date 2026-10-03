@@ -129,6 +129,8 @@ on:
       - "reconstruction/test_gate17_playable_allocation_preview.py"
       - "reconstruction/gate17_runtime_progression_audit.py"
       - "reconstruction/test_gate17_runtime_progression_audit.py"
+      - "reconstruction/gate17_full_scope_preflight.py"
+      - "reconstruction/test_gate17_full_scope_preflight.py"
       - "reconstruction/gate17_human_scope_capability.py"
       - "reconstruction/test_gate17_human_scope_capability.py"
       - "research/GATE17_RELEASE_READINESS.md"
