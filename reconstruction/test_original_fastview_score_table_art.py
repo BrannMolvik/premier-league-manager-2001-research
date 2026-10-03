@@ -60,10 +60,11 @@ class OriginalFastViewScoreTableArtTests(unittest.TestCase):
             )
 
     def test_lookup_is_bound_to_exact_source_object_identity(self):
-        art = build_fastview_score_table_art(exact_decoded())
+        decoded = exact_decoded()
+        art = build_fastview_score_table_art(decoded)
         self.assertIs(
             art.image_for(CURRENT_FIX_GRID_1),
-            exact_decoded()["current_fix_grid_1"],
+            decoded["current_fix_grid_1"],
         )
         fabricated = replace(CURRENT_FIX_GRID_1)
         with self.assertRaisesRegex(
