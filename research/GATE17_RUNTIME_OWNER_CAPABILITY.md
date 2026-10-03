@@ -39,7 +39,8 @@ The canonical runner deliberately mirrors the current repository boundary:
 - fixed human League support is competition 0;
 - primary procedural League state already exists generically in
   `state.procedural_leagues`;
-- `play_user_primary_match()` still has no human `procedural_league` branch;
+- `play_user_primary_match()` now dispatches already-materialized primary
+  `procedural_league` entries through the shared human match backend;
 - GameState has no secondary procedural League runtime container;
 - annual LeagueAllocation commit remains the English-only transition path.
 
@@ -49,8 +50,10 @@ about original behavior.
 ## Boundary
 
 This module is diagnostic only. It does not mutate GameState, install secondary
-competition state, change human selection, add match dispatch, apply allocation
-exchanges, regenerate a season, or alter save data.
+competition state, change human selection, apply allocation exchanges,
+regenerate a season, or alter save data. The separately implemented primary
+procedural human-dispatch bridge is measured here rather than created by the
+audit.
 
 A fully green capability audit would only mean that the repository-side
 runtime surfaces needed by every source-backed TeamSelect League are present.
