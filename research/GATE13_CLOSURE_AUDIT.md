@@ -35,11 +35,18 @@ Gate-13 completion is claimed; parallel Gate-14 work-ahead remains separate.
 
 ### PR #183 live completion input retention
 
+- Reconciled the newer worker's `main` through
+  `25aac6bdce57e1ae06f395da6f058209cd746794`. The sole progress-log merge
+  conflict was resolved by preserving both workers' complete entries.
 - Premier League AI/human completion now retains the actual gate-receipt
   output by fixture identity, with unchanged source RNG/accounting. Missing
   inputs remain absent. This transient map is not a report owner/link and
   is deliberately excluded from save until the complete producer exists.
 - Focused completion/routing/competition/internal-save tests: **79 passed**.
+- Final full reconstruction on reconciled code `2e8893e1` passed:
+  **1,591 tests, 23 expected skips** (276.292 seconds). Asset policy, project
+  JSON and diff-whitespace checks passed. The parallel worker's newer tests
+  are included; no licensed archive/executable or private report was staged.
 - Fresh real Windows schema-8 audit passed:
   `C:\Users\Brann\Documents\FM2001-audits\gate13-schema8-completion-inputs-20261003.json`.
   Deterministic SHA-256 remains
@@ -49,6 +56,10 @@ Gate-13 completion is claimed; parallel Gate-14 work-ahead remains separate.
   Windows Application Control prevented process startup. No policy bypass was
   attempted. Private executable SHA-256:
   `2471772456e51a173cf110f804199ee9301f2f99e5037e496cc1336710bbb4ba`.
+  Final reconciled build also passed, SHA-256
+  `9b31b35f3b9c55556e0e0bbd46b4e40acb86194ce0f8b32180e8973659943621`;
+  its smoke was not rerun after the policy block. Both artifacts remain
+  private; package validation is incomplete, not silently waived.
   Next Windows validation action is to resolve the Application Control block
   through the user's normal security approval process and rerun
   `FM2001-Windows11.exe --package-smoke` on this same artifact.
