@@ -8,7 +8,16 @@ import unittest
 from unittest.mock import patch
 
 from gate14_fastview_resource_catalog import (
+    FASTVIEW_TEAM_CONSTRUCTOR_VA,
+    FASTVIEW_TEAM_TYPE_DESCRIPTOR_VA,
+    FASTVIEW_TEAM_VFTABLE_VA,
     TARGETS,
+    TEAMTABLE_CONSTRUCTOR_VA,
+    TEAMTABLE_ROW_CONSTRUCTOR_VA,
+    TEAMTABLE_ROW_TYPE_DESCRIPTOR_VA,
+    TEAMTABLE_ROW_VFTABLE_VA,
+    TEAMTABLE_TYPE_DESCRIPTOR_VA,
+    TEAMTABLE_VFTABLE_VA,
     main,
     require_source_resolved_fastview_resources,
     resolve_fastview_resources,
@@ -53,6 +62,22 @@ class Gate14FastViewResourceCatalogTests(unittest.TestCase):
         self.assertEqual(
             first["executable_string_va"], TARGETS[0].executable_string_va
         )
+
+    def test_team_bar_family_is_owned_by_fastview_teamtable_not_possession_figures(self):
+        self.assertEqual(
+            [target.component for target in TARGETS[:3]],
+            ["FastViewPanel::FastViewTeam::TeamTable"] * 3,
+        )
+        self.assertEqual(FASTVIEW_TEAM_CONSTRUCTOR_VA, 0x524A20)
+        self.assertEqual(FASTVIEW_TEAM_VFTABLE_VA, 0x7CA888)
+        self.assertEqual(FASTVIEW_TEAM_TYPE_DESCRIPTOR_VA, 0x8299D8)
+        self.assertEqual(TEAMTABLE_CONSTRUCTOR_VA, 0x524EC0)
+        self.assertEqual(TEAMTABLE_VFTABLE_VA, 0x7CA950)
+        self.assertEqual(TEAMTABLE_TYPE_DESCRIPTOR_VA, 0x829B50)
+        self.assertEqual(TEAMTABLE_ROW_CONSTRUCTOR_VA, 0x525DB0)
+        self.assertEqual(TEAMTABLE_ROW_VFTABLE_VA, 0x7CA968)
+        self.assertEqual(TEAMTABLE_ROW_TYPE_DESCRIPTOR_VA, 0x829A78)
+        self.assertNotIn("PossessionFigures", [target.component for target in TARGETS[:3]])
 
     def test_duplicate_pitch_normal_basename_does_not_ambiguate_exact_fastview_path(self):
         report = complete_report()
@@ -126,7 +151,10 @@ class Gate14FastViewResourceCatalogTests(unittest.TestCase):
         catalog = resolve_fastview_resources(complete_report())
         boundary = catalog["fidelity_boundary"]
         self.assertTrue(boundary["exact_source_paths_source_proven"])
+        self.assertTrue(boundary["teamtable_bar_ownership_corrected"])
+        self.assertFalse(boundary["possession_figures_image_ownership"])
         self.assertFalse(boundary["layout_geometry_recovered"])
+        self.assertFalse(boundary["teamtable_row_state_semantics_recovered"])
         self.assertFalse(boundary["side0_screen_orientation_recovered"])
         self.assertFalse(boundary["territory_update_cadence_recovered"])
 
