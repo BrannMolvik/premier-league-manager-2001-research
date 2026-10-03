@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 218: PR #198 merged canonical as main 7402e8d79b4f249844b27ba0a5e0e3fcb8cfadbb after reconstruction run 37114096197 passed 1,658 tests with 23 expected skips and asset-policy run 37114096123 passed. Internal save schema 39 now preserves all current GameState prepared_match_* completion-input maps plus all retained NormalMatchResult fields. Continue Gate 13 at genuinely missing source/runtime producers, priority FE0/FE4 setup identities via bounded canonical executable trace from the authorized original source archive. Do not invent venue DBRClub+4, participant normalized-history bit, D9C or caption context.",
+  "active_task": "Recovery 218: Gate 13 remains the earliest incomplete validation gate. FE0/FE4 private source tracing is deferred because the authorized source archive is available/materialized but every process-execution route fails before start with caas.internal.errors.ClientError, even trivial shell commands. Continue independent Gate-14 work-ahead: retain complete calculator-final FastView Condition histories for AI-vs-AI matches from the already-retained raw prefix plus pre-incident final PreparedMatchPlayer Condition; fail closed for human-involved matches because MatchCalculator+0xD48 remains unresolved. Persist this state through internal save, then only advance to live RNG(6) PlayerProxy energy consumption if exact display evaluation order is source-proven.",
   "last_known_main_head": "7402e8d79b4f249844b27ba0a5e0e3fcb8cfadbb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 218,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #198 canonical. No remaining silent serializer omission among current prepared_match_* fields. Next work is missing native metadata producer evidence.",
+  "note": "PR #198 canonical at 7402e8d7, schema 39, 1,658 tests/23 skips. Gate13 source execution deferred, not abandoned. Gate14 work-ahead must not close Gate13.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
