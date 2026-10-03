@@ -14,7 +14,7 @@ The evidence contract requires five **distinct** external JSON receipt files, al
 
 The fifth receipt closes a release-audit gap introduced when the project scope was strengthened in PR #189. The existing management smoke is Premier-League-centered and therefore cannot prove Gate 17's permanent requirement that every originally selectable/playable league and country, human-manager career flow, competition progression, and required management/gameplay subsystem be available in the Windows 11 port. The final audit now requires `full_original_scope.json` to carry all of those true flags on the same Windows 11 client, archive, release version and repository commit.
 
-This receipt is intentionally **not** produced by `gate17_windows_gameplay_receipts.py`. A future source-backed full-scope audit must produce it separately once the runtime actually supports the complete shipped scope. Until then, Gate 17 is release-blocked even if the older four receipts pass.
+This receipt is intentionally **not** produced by `gate17_windows_gameplay_receipts.py`. A future source-backed full-scope audit must produce it separately once the runtime actually supports the complete shipped scope. It must also prove save/reload continuation for every exact canonical TeamSelect scope ID, with the verified save/reload count equal to the full catalog and no missing or failed scope IDs. The older `save_reload.json` remains Premier-League-centered and cannot satisfy this requirement. Until then, Gate 17 is release-blocked even if the older four receipts pass.
 
 The full-scope receipt also explicitly covers the original multi-human TeamSelect
 capability. Source tracing proves selections append users and the original global
