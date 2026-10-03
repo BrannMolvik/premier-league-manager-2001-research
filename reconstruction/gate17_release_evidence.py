@@ -132,7 +132,7 @@ def assemble_release_evidence(
         )
 
     payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "release_version": version,
         "repository_commit": commit,
         "limitations_path": "research/RELEASE_LIMITATIONS.md",
