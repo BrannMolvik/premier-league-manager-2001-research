@@ -20,6 +20,7 @@ from gate14_fastview_partial_surface import (
     build_fastview_partial_surface_from_render_plans,
 )
 from gate14_fastview_team_static_raster import rasterize_fastview_team_static_rows
+from gate14_fastview_score_table_static_raster import FastViewScoreTableStaticRasterSet
 from gate14_fastview_playerrow_snapshot import (
     FastViewPlayerRowRenderPlan,
     build_fastview_player_row_render_plan,
@@ -86,8 +87,13 @@ def build_fastview_frame_plan(
     possession: OriginalFastViewPossessionArtFrame,
     figures: OriginalFastViewPossessionFiguresArt,
     team_art: OriginalFastViewTeamArt,
+    score_table_static: FastViewScoreTableStaticRasterSet | None = None,
 ) -> FastViewFramePlan:
-    """Compose one renderer input from already retained/source-closed state."""
+    """Compose one renderer input from already retained/source-closed state.
+
+    score_table_static is accepted only as an already-built presentation
+    artifact. This layer never derives fixture/table counts or phase state.
+    """
     if type(shell) is not FastViewSemanticShell:
         raise FastViewFramePlanError("shell must be an exact FastViewSemanticShell")
 
@@ -122,6 +128,7 @@ def build_fastview_frame_plan(
         possession,
         figures,
         team_static,
+        score_table=score_table_static,
     )
 
     return FastViewFramePlan(
