@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 209: canonical main 9041cb9aff25e6982af6d9c80fccc0bac693f852. Exact active checkpoint is PR #180 / branch recovery208/gate14-fastview-team-table at head 699c3cc5359a63a76c845e2459305df8b85d5de0. Verify/merge only if CI is green; then continue the next directly evidenced FastViewTeam/TeamTable state-selection or adjacent resource family without inventing row meanings. Gate 13 remains earliest incomplete for shell/navigation fidelity.",
-  "last_known_main_head": "9041cb9aff25e6982af6d9c80fccc0bac693f852",
+  "active_task": "Recovery 209: canonical main 745c1576c337c94dcea86f996bf347af641c77c2 after PR #180 passed 1,549 tests / 22 expected skips and asset-policy success. Continue Gate-14 PlayerRow typed receiver semantics: EventPlayerUpdateEnergy -> exact 58..99 clamped 82px energy-bar transform with side-index-specific dynamic/static layers; EventPlayerUpdateForm -> %u control +0x34; EventPlayerGoal/OwnGoal -> shared incrementing (%u) control +0x2C, with own-goal native-color change retained without guessing color semantics. Gate 13 remains earliest incomplete for shell/navigation fidelity.",
+  "last_known_main_head": "745c1576c337c94dcea86f996bf347af641c77c2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 209,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 209 resumed from already-open PR #180. Do not restart Recovery 208 source tracing.",
+  "note": "PR #180 canonical. Continue typed PlayerRow receiver semantics from clean main.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
