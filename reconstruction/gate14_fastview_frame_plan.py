@@ -15,6 +15,10 @@ from gate14_fastview_component_rasters import (
     FastViewComponentRasterSet,
     build_fastview_component_rasters,
 )
+from gate14_fastview_resolved_composite import (
+    FastViewResolvedOnlyComposite,
+    compose_fastview_resolved_only_pixels,
+)
 from gate14_fastview_partial_surface import (
     FastViewPartialSurfaceLayout,
     build_fastview_partial_surface_from_render_plans,
@@ -43,6 +47,7 @@ class FastViewFramePlan:
     semantic_shell: FastViewSemanticShell
     surface_layout: FastViewPartialSurfaceLayout
     component_rasters: FastViewComponentRasterSet
+    resolved_composite: FastViewResolvedOnlyComposite
     player_row_render_plans: tuple[FastViewPlayerRowRenderPlan, ...]
     complete_raster_frame: bool = False
     audio_ready: bool = False
@@ -56,6 +61,30 @@ class FastViewFramePlan:
         if type(self.component_rasters) is not FastViewComponentRasterSet:
             raise FastViewFramePlanError(
                 "frame plan requires exact source-backed component rasters"
+            )
+        if type(self.resolved_composite) is not FastViewResolvedOnlyComposite:
+            raise FastViewFramePlanError(
+                "frame plan requires exact resolved-only FastView composite"
+            )
+        planes = [
+            self.component_rasters.chrome,
+            self.component_rasters.possession_diagram,
+            self.component_rasters.possession_figures,
+        ]
+        for optional in (
+            self.component_rasters.team_table,
+            self.component_rasters.league_scores,
+            self.component_rasters.league_table,
+        ):
+            if optional is not None:
+                planes.append(optional)
+        expected_source_hashes = tuple(
+            (plane.component, plane.rgba_sha256)
+            for plane in planes
+        )
+        if self.resolved_composite.source_plane_sha256 != expected_source_hashes:
+            raise FastViewFramePlanError(
+                "resolved-only composite does not match frame component rasters"
             )
         if (
             self.component_rasters.cross_component_z_order_recovered
@@ -131,10 +160,13 @@ def build_fastview_frame_plan(
         score_table=score_table_static,
     )
 
+    resolved_composite = compose_fastview_resolved_only_pixels(component_rasters)
+
     return FastViewFramePlan(
         match_reference=shell.match_reference,
         semantic_shell=shell,
         surface_layout=surface,
         component_rasters=component_rasters,
+        resolved_composite=resolved_composite,
         player_row_render_plans=shell.player_row_render_plans,
     )
