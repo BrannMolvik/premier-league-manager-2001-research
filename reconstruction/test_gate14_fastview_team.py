@@ -49,6 +49,12 @@ from gate14_fastview_team import (
     PLAYER_ROW_POSITION_TEXT_CELL_INDEX,
     PLAYER_ROW_POSITION_KEYS,
     DBRPLAYER_SQUAD_NUMBER_RUNTIME_OFFSET,
+    DBRPLAYER_ALTERNATE_SQUAD_NUMBER_RUNTIME_OFFSET,
+    DBRPLAYER_SQUAD_NUMBER_ACCESSOR_VA,
+    PLAYER_ROW_SHIRT_RECORD_BUILDER_CALLER_VA,
+    PLAYER_ROW_SHIRT_ACCESSOR_CALL_VA,
+    PLAYER_ROW_SHIRT_RECORD_WRITE_VA,
+    PLAYER_ROW_SHIRT_TEXT_CELL_INDEX,
     PLAYER_ROW_CELL1_MATCH_PROXY_OFFSET,
     PLAYER_ROW_NAME_RECORD_BUILDER_VA,
     PLAYER_ROW_DBRPLAYER_FIRST_NAME_RUNTIME_OFFSET,
@@ -83,6 +89,7 @@ from gate14_fastview_team import (
     player_row_goal_text_state,
     player_row_position_state,
     player_row_name_text_state,
+    player_row_shirt_number_text_state,
     side_contract,
     team_row_energy_bar_state,
     team_row_name_resource,
@@ -182,15 +189,39 @@ class FastViewTeamTests(unittest.TestCase):
         self.assertEqual(away.rect, (564, 61, 604, 77))
         self.assertEqual(away.localization_key, "PositionST")
 
-    def test_cell1_proxy_byte_is_not_equated_to_dbrplayer_squad_number(self):
+    def test_cell1_is_derived_shirt_number_not_direct_offset_alias(self):
         self.assertEqual(DBRPLAYER_SQUAD_NUMBER_RUNTIME_OFFSET, 0x70)
+        self.assertEqual(DBRPLAYER_ALTERNATE_SQUAD_NUMBER_RUNTIME_OFFSET, 0x76)
+        self.assertEqual(DBRPLAYER_SQUAD_NUMBER_ACCESSOR_VA, 0x41E3D0)
         self.assertEqual(PLAYER_ROW_CELL1_MATCH_PROXY_OFFSET, 0x47)
+        self.assertEqual(PLAYER_ROW_SHIRT_RECORD_BUILDER_CALLER_VA, 0x533370)
+        self.assertEqual(PLAYER_ROW_SHIRT_ACCESSOR_CALL_VA, 0x5333EC)
+        self.assertEqual(PLAYER_ROW_SHIRT_RECORD_WRITE_VA, 0x5333F3)
+        self.assertEqual(PLAYER_ROW_SHIRT_TEXT_CELL_INDEX, 1)
         self.assertNotEqual(
             DBRPLAYER_SQUAD_NUMBER_RUNTIME_OFFSET,
             PLAYER_ROW_CELL1_MATCH_PROXY_OFFSET,
         )
-        for bad in (-1, 20, True, "1"):
+
+        home = player_row_shirt_number_text_state(0, 0, 1)
+        self.assertEqual(home.semantic, "player_shirt_number")
+        self.assertEqual(home.text_cell_index, 1)
+        self.assertEqual(home.rect, (37, 27, 61, 43))
+        self.assertEqual(home.text, "1")
+        self.assertEqual(home.stored_value, 1)
+
+        away = player_row_shirt_number_text_state(1, 2, 36)
+        self.assertEqual(away.rect, (537, 61, 561, 77))
+        self.assertEqual(away.text, "36")
+        self.assertEqual(away.stored_value, 36)
+
+        for bad in (-1, 256, True, "1"):
             with self.subTest(bad=bad):
+                with self.assertRaises(FastViewTeamError):
+                    player_row_shirt_number_text_state(0, 0, bad)
+
+        for bad in (-1, 20, True, "1"):
+            with self.subTest(position=bad):
                 with self.assertRaises(FastViewTeamError):
                     player_row_position_state(0, 0, bad)
 
