@@ -193,12 +193,36 @@ event reactions separately. This closes the diagram's receiver lifecycle but
 does **not** establish how often the match controller emits
 `EventPossession`; emission cadence remains a distinct fail-closed boundary.
 
+## Recovery 198: EventPossession emission cadence
+
+The exact possession sender path is now located. `MatchIterator`'s primary
+base is `Receiver<EventGlobalTick>`: construction temporarily installs the
+base vtable `0x7CA24C`, then the final primary `MatchIterator` vtable
+`0x7CA1DC`. Its GlobalTick callback is `0x519630`.
+
+The unique direct construction of the bounded `EventPossession` object is
+`0x5197B8 -> 0x51A6B0`, followed by iteration of the
+`Sender<EventPossession>` receiver list at MatchIterator source offset
+`+0x20`.
+
+That branch executes only when all of these source conditions hold:
+
+- MatchIterator byte `+0xA5 == 0`;
+- MatchIterator pointer `+0x98` is non-null;
+- MatchIterator pointer `+0xA0` is non-null;
+- the first dword of the incoming `EventGlobalTick` is divisible by **5**.
+
+Therefore the source cadence is **one EventPossession opportunity every fifth
+EventGlobalTick while those gates hold**. This does not yet establish the
+wall-clock duration of one GlobalTick and does not imply a per-frame or
+per-second interval.
+
 ## Remaining boundary
 
 Still open before claiming the bounded diagram is player-visible original
 FastView behavior:
 
-1. recover the original `EventPossession` emission cadence and any process/match lifecycle reset semantics for the private presentation RNG;
+1. recover the wall-clock meaning/lifecycle of `EventGlobalTick` and any process/match reset semantics for the private presentation RNG; the event-count cadence is now exact at every fifth GlobalTick under the source gates;
 2. recover side-0/user orientation rather than inferring it from
    `left/middle/right` filenames;
 3. keep the three 82×16 `team_bar_1` / `blank_bar` / `team_bar_2` assets under
