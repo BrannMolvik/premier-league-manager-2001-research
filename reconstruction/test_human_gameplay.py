@@ -7,6 +7,10 @@ from finance_state import BalanceRuntimeState, FinancialObjectiveState
 from competition_schedule import StartupScheduleNode, direct_club_ref
 from domestic_cup_state import DomesticCupScheduleState
 from game_state import GameState
+from gate17_country_allocation_scope import (
+    PlayableCountryAllocationPlan,
+    PlayableCountryAllocationScope,
+)
 from human_gameplay import HumanGameplayController
 from match_engine_rng import MatchEngineRng
 from match_lineup import AI_FORMATIONS
@@ -273,6 +277,64 @@ class HumanGameplayControllerTests(unittest.TestCase):
         self.assertEqual(
             controller.playable_primary_club_ids,
             (9, 10),
+        )
+        self.assertEqual(
+            controller.playable_annual_progression_country_ids(),
+            (26,),
+        )
+
+    def test_playable_country_transition_previews_non_english_membership_swap(self):
+        controller = self.build_controller()
+        controller.playable_country_allocation_plan = PlayableCountryAllocationPlan(
+            catalog_sha256="c" * 64,
+            countries=(
+                PlayableCountryAllocationScope(
+                    country_id=66,
+                    country_name="Scotland",
+                    selectable_league_ids=(27, 28),
+                    allocation_ids=(7,),
+                    ranking_endpoint_ids=(27, 28),
+                ),
+            ),
+            assigned_allocation_ids=(7,),
+            ignored_allocation_ids=(),
+        )
+        controller.state.league_allocation_records = (
+            SimpleNamespace(
+                id=7,
+                competition_a_id=27,
+                competition_a_start=0,
+                competition_a_end=0,
+                competition_b_id=28,
+                competition_b_start=0,
+                competition_b_end=0,
+            ),
+        )
+        controller.state.club_competition_membership = {
+            270: 27,
+            280: 28,
+        }
+        controller.state.cup_results.replace_competition_ranking(
+            27,
+            (270,),
+            competition_context=0,
+        )
+        controller.state.cup_results.replace_competition_ranking(
+            28,
+            (280,),
+            competition_context=0,
+        )
+        before = dict(controller.state.club_competition_membership)
+
+        preview = controller.preview_playable_country_season_transition()
+
+        self.assertEqual(controller.playable_annual_progression_country_ids(), (66,))
+        self.assertEqual(controller.state.club_competition_membership, before)
+        self.assertEqual(preview.assigned_allocation_ids, (7,))
+        self.assertEqual(preview.memberships, {270: 28, 280: 27})
+        self.assertEqual(
+            tuple(exchange.allocation_id for exchange in preview.exchanges),
+            (7,),
         )
 
     def test_human_scouting_search_excludes_controlled_club_and_sorts_by_name(self):

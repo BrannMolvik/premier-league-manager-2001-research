@@ -272,8 +272,10 @@ def run_canonical_runtime_owner_capability(
     `procedural_league` owner because `play_user_primary_match()` now routes
     that entry family through the shared human match backend. Secondary
     procedural runtime state still has no current GameState container. Fresh
-    chairman-objective candidates remain source-locked only for competition 0,
-    and annual LeagueAllocation commit remains the English-only transition path.
+    chairman-objective candidates remain source-locked only for competition 0.
+    Canonical annual LeagueAllocation commit uses the exact TeamSelect-country
+    allocation plan and remains fail-closed when a required ranking endpoint is
+    unresolved.
     """
     from human_gameplay import HumanGameplayController
 
@@ -308,6 +310,8 @@ def run_canonical_runtime_owner_capability(
         # Only the fresh Premier League objective-candidate branch is
         # instruction-locked. Do not infer non-PL chairman candidates.
         fresh_financial_objective_competition_ids=(0,),
-        annual_progression_country_ids=(26,),
+        annual_progression_country_ids=(
+            controller.playable_annual_progression_country_ids()
+        ),
     )
     return audit_runtime_owner_capability(plan, surface)

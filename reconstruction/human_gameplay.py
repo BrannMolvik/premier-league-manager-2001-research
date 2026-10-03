@@ -107,6 +107,7 @@ class HumanGameplayController:
         *,
         playable_primary_procedural_ids: Iterable[int] = (),
         playable_primary_club_ids: Iterable[int] = (),
+        playable_country_allocation_plan=None,
     ):
         if state.premier_league is None:
             raise RuntimeError("Premier League state is required")
@@ -121,6 +122,7 @@ class HumanGameplayController:
         self.playable_primary_club_ids = tuple(
             dict.fromkeys(int(value) for value in playable_primary_club_ids)
         )
+        self.playable_country_allocation_plan = playable_country_allocation_plan
         self.human: HumanManagerState | None = None
         self.pending_fixture_id: int | None = None
         self._pending_prior_results: tuple[tuple[int, object], ...] = ()
@@ -146,6 +148,9 @@ class HumanGameplayController:
         from canonical_matchday_audit import reconstruct_canonical_primary_schedule
         from competition_runtime import partition_root_procedural_league_ids
         from fm2001_data import FM2001Database
+        from gate17_country_allocation_scope import (
+            derive_playable_country_allocation_plan,
+        )
         from gate17_full_scope_catalog import derive_original_playable_scope
         from gate17_playable_league_runtime_plan import (
             derive_playable_league_runtime_plan,
@@ -160,8 +165,14 @@ class HumanGameplayController:
         game_dir = Path(game_dir)
         verify_canonical_files(game_dir)
         database = FM2001Database(game_dir)
+        playable_scope = derive_original_playable_scope(database)
         playable_runtime_plan = derive_playable_league_runtime_plan(
-            derive_original_playable_scope(database),
+            playable_scope,
+            database.competitions,
+        )
+        playable_country_allocation_plan = derive_playable_country_allocation_plan(
+            playable_scope,
+            database.league_allocation_records,
             database.competitions,
         )
         playable_primary_league_ids = (
@@ -266,6 +277,62 @@ class HumanGameplayController:
             ),
             playable_primary_procedural_ids=playable_primary_league_ids,
             playable_primary_club_ids=playable_primary_club_ids,
+            playable_country_allocation_plan=playable_country_allocation_plan,
+        )
+
+    def playable_annual_progression_country_ids(self) -> tuple[int, ...]:
+        plan = self.playable_country_allocation_plan
+        if plan is None:
+            return (26,)
+        return tuple(int(country.country_id) for country in plan.countries)
+
+    def preview_playable_country_season_transition(
+        self,
+        *,
+        ranking_overrides=None,
+    ):
+        """Preview source-backed playable-country annual membership exchanges."""
+        plan = self.playable_country_allocation_plan
+        if plan is None:
+            return self.state.preview_english_season_transition(
+                ranking_overrides=ranking_overrides,
+            )
+
+        from gate17_playable_allocation_preview import (
+            preview_playable_allocation_exchanges,
+        )
+
+        overrides = {
+            int(competition_id): tuple(int(club_id) for club_id in ranking)
+            for competition_id, ranking in (
+                {} if ranking_overrides is None else ranking_overrides
+            ).items()
+        }
+        endpoint_ids: list[int] = []
+        seen: set[int] = set()
+        for country in plan.countries:
+            for raw_id in country.ranking_endpoint_ids:
+                competition_id = int(raw_id)
+                if competition_id not in seen:
+                    endpoint_ids.append(competition_id)
+                    seen.add(competition_id)
+
+        rankings: dict[int, tuple[int, ...] | None] = {}
+        for competition_id in endpoint_ids:
+            ranking = overrides.get(competition_id)
+            if ranking is None:
+                ranking = self.state.season_transition_ranking(competition_id)
+            rankings[competition_id] = (
+                None
+                if ranking is None
+                else tuple(int(club_id) for club_id in ranking)
+            )
+
+        return preview_playable_allocation_exchanges(
+            plan,
+            self.state.league_allocation_records,
+            rankings,
+            self.state.club_competition_membership,
         )
 
     def regenerate_annual_primary_season(
@@ -273,12 +340,16 @@ class HumanGameplayController:
         *,
         season_year: int | None = None,
         procedural_league_ids: Iterable[int] | None = None,
+        full_playable_country_progression: bool = False,
     ):
         """Atomically roll the primary competition runtime into a new season.
 
         Qualification is captured from the completed old season before any
-        membership exchange. English LeagueAllocation swaps are previewed
-        without mutation. Annual competition construction and bucket shuffle
+        membership exchange. The established default retains the recovered
+        English transition. Gate-17 callers may explicitly request the exact
+        TeamSelect-country allocation plan; that mode previews all required
+        source exchanges fail-closed before the same atomic install. Annual
+        competition construction and bucket shuffle
         then consume a cloned controller match_rng; only after the complete
         replacement validates are both GameState and the controller CRT state
         committed.
@@ -394,9 +465,14 @@ class HumanGameplayController:
             allocations,
             ranking_overrides=finalized_dummy_rankings,
         )
-        transition = self.state.preview_english_season_transition(
-            ranking_overrides=finalized_dummy_rankings,
-        )
+        if full_playable_country_progression:
+            transition = self.preview_playable_country_season_transition(
+                ranking_overrides=finalized_dummy_rankings,
+            )
+        else:
+            transition = self.state.preview_english_season_transition(
+                ranking_overrides=finalized_dummy_rankings,
+            )
 
         regeneration = materialize_annual_primary_schedule(
             trial_rng,

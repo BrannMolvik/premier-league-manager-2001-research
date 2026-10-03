@@ -131,6 +131,21 @@ class Gate17PlayableAllocationPreviewTests(unittest.TestCase):
         self.assertTrue(payload["ranking_capability"]["complete"])
         self.assertEqual(payload["assigned_allocation_ids"], [7, 0, 1])
 
+    def test_memberships_alias_returns_post_exchange_copy(self):
+        preview = preview_playable_allocation_exchanges(
+            plan_fixture(),
+            records_fixture(),
+            rankings_fixture(),
+            memberships_fixture(),
+        )
+
+        alias = preview.memberships
+
+        self.assertEqual(alias, preview.memberships_after)
+        self.assertIsNot(alias, preview.memberships_after)
+        alias[next(iter(alias))] = 999
+        self.assertNotEqual(alias, preview.memberships_after)
+
     def test_incomplete_ranking_capability_blocks_before_any_exchange(self):
         memberships = memberships_fixture()
         before = dict(memberships)
