@@ -2,6 +2,31 @@
 
 _3 October 2026 KST. Gate 13 remains OPEN._
 
+## Recovery 222 partial human D48 closure
+
+The human-opponent D48 path is now split at the exact source guard instead of
+being treated as wholly unresolved. `native_premier_league_table_index()`
+uses the recovered League comparator with original CP1252 DBRClub short-name
+bytes and returns `None` on any missing source key or identical full native
+sort key. `0x408170`'s counter-independent branch is therefore safe when the
+controlled club's native zero-based rank is **>= 4**: shipped
+`DefaultConditionBoost = 5` is passed into the existing MatchCalculator
+initial-history normalization and only AI participant low bits are adjusted.
+
+Ranks 0..3 remain deliberately unresolved because they still depend on legacy
+DBRClub `+0x130` attendance-counter state. No value of 5 or the stronger boost
+branch is guessed there. AI-vs-AI remains the explicit native D48=0 path.
+Legacy visiting capacities `+0x13C/+0x140` and secondary/loan shirt `+0x76`
+remain open. The genuine calculated fixture -> save/reload -> native
+right-click -> PMatchInfo proof is still unpassed.
+
+Fresh private executable tracing for the remaining capacity/counter writers is
+currently blocked by the execution container: the authorized original disc
+archive materializes from Library successfully, but even a trivial container
+filesystem command returns `ClientError`. This is an infrastructure blocker,
+not evidence that the source is unavailable.
+
+
 ## PR #199 ordinary setup producers, based on `f8bbdd9c`
 
 The ordinary producer chain now retains B68 before team selection (constructor
