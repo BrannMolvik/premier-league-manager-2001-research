@@ -10,6 +10,20 @@ topic-specific research files.
 
 **Gate 13 - Restore original management presentation**
 
+Local Gate-13 branch update (3 October): management base lookup at `0x5D3560`
+is now recovered and integrated, including the month variant, exact source
+club/country art fields and the application-owned competition header. All 97
+selected assets pass provenance/hash/geometry checks; a new real Windows
+schema-8 receipt passes with the base/header live. See
+`GATE13_MANAGEMENT_BACKGROUND_RECOVERY.md`. Gate 13 remains OPEN.
+Successive fixture tracing recovered the exact (378,235) grid origin and
+the successful-capture report-list/link writer `0x60BF10`. A played fixture
+cannot substitute for that captured report. Next local task: recover/persist
+the capture eligibility/data and original pointer-event acceptance, then wire
+ordinary Fixtures -> PMatchInfo. Remaining normal-play content and menu timing
+still require criterion-level validation. Parallel later-gate work and
+`agent-runtime` ownership are unchanged.
+
 Gates 1 through 12 are complete. Gate 12 closed on 30 September 2026 after a
 canonical real-data season reached the complete annual qualification snapshot
 and atomically regenerated the year-two primary world.

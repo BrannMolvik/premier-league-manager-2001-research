@@ -1,5 +1,10 @@
 # Application-owned management shell: bounded owner trace
 
+**Superseded boundary:** the month-based resource cache, final base assets and
+live Premiership integration are now recovered in
+`GATE13_MANAGEMENT_BACKGROUND_RECOVERY.md`. The "option/generator" uncertainty
+below records the earlier checkpoint; it is not the active base-image blocker.
+
 3 October 2026 KST; canonical executable SHA-256
 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
 Raw disassembly stays private. These findings extend, rather than replace,

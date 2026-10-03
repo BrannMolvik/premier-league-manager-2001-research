@@ -6,16 +6,16 @@ native 800x600 coordinates using the recovered initial Button@ease frame and
 routes proven clicks through FrontEndSession. Successful TeamSelect Start enters
 the fixed PMenu management host.
 
-The surrounding application-owned management background remains unresolved,
-but the PMenu row assets, exact title/child fonts, line origins, clipping and
-static state colors/arrows are source-backed. The management host renders those
-known pixels and leaves only the unrecovered surrounding shell fail-closed
-rather than drawing the old generic ttk Play replacement or inventing a skin.
+The application-owned seasonal base and competition header are source-backed
+for the twenty original Premiership clubs. PMenu row assets, fonts and geometry
+are also recovered. Remaining shell controls and ordinary match-report context
+capture stay fail-closed; the host does not invent a replacement skin.
 """
 from __future__ import annotations
 
 from base64 import b64encode
 from pathlib import Path
+from original_management_background import OriginalManagementBackground
 
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndCommand, FrontEndScreen
@@ -122,6 +122,7 @@ class OriginalGameTkHost:
         league_tables_header_art=None,
         pmatchinfo_snapshot=None,
         error_reporter=None,
+        management_background=None,
     ):
         self.presenter = presenter
         self.root = root
@@ -137,6 +138,7 @@ class OriginalGameTkHost:
         self.league_tables_header_art = league_tables_header_art
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.error_reporter = error_reporter or self._show_transition_error
+        self.management_background = management_background
         self.last_pmenu_activation = None
         self.last_squad_view_activation = None
         self.last_pmatchinfo_action = None
@@ -373,6 +375,11 @@ class OriginalGameTkHost:
         self.canvas.delete("all")
         self._photos = []
 
+        if self.management_background is not None:
+            for image in self.management_background.images(frame.presentation.club):
+                photo = self._photo(encode_rgba_png(image.width, image.height, image.rgba))
+                self.canvas.create_image(image.x, image.y, image=photo, anchor=self.tk.NW)
+
         squad_image_count = self._draw_squad_top_controls(frame)
         fixture_image_count = self._draw_league_fixtures_grid_art(frame)
         table_image_count = self._draw_league_tables_header_art(frame)
@@ -403,7 +410,9 @@ class OriginalGameTkHost:
         self.last_status = (
             f"Management host active: {frame.presentation.panel_class}; "
             f"source PMenu rows rendered{panel_status}{dialog_status}; "
-            "surrounding management background unresolved"
+            + ("native management base/header rendered; remaining shell controls unresolved"
+               if self.management_background is not None
+               else "surrounding management background unresolved")
         )
 
     def redraw(self) -> None:
@@ -702,5 +711,7 @@ def run_original_game_ui(
         squad_top_resources=squad_top_resources,
         league_tables_header_art=league_tables_header_art,
         pmatchinfo_snapshot=pmatchinfo_snapshot,
+        management_background=OriginalManagementBackground(
+            resolved_source_root, original_executable),
     )
     root.mainloop()

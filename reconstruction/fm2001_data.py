@@ -88,6 +88,8 @@ class Club:
     related_club_id_2: int = -1
     map_file: str = ""
     starting_cash: float = 0.0
+    # Master.dat +179 -> DBRClub+0xE0, used by 0x40DA90 for art lookup.
+    graphics_basename: str = ''
 
 @dataclass(frozen=True)
 class Player:
@@ -153,6 +155,8 @@ class CountryDefinition:
     # them verbatim; 0x411020 materializes enabled pairs and 0x411190 toggles
     # DBRCountry +0x54 when the current date reaches a boundary.
     transfer_window_boundaries: tuple[tuple[int, int], ...] = ()
+    # Static.dat +41 -> DBRCountry+0x34, read by 0x410778 / 0x411610.
+    graphics_directory: str = ''
 
 @dataclass(frozen=True)
 class AccessFanBase:
@@ -389,6 +393,7 @@ class FM2001Database:
                 related_club_id_2,
                 self.english.get(map_file_id),
                 starting_cash,
+                self.english.get(struct.unpack_from('<H', r, 179)[0]),
             ))
 
         player_count = struct.unpack_from('<I', d, club_end)[0]
@@ -485,6 +490,7 @@ class FM2001Database:
                 eu_status_flag=struct.unpack_from('<H', r, 16)[0],
                 continent_id=struct.unpack_from('<I', r, 24)[0],
                 financial_multiplier_percent=struct.unpack_from('<I', r, 37)[0],
+                graphics_directory=self.english.get(struct.unpack_from('<H', r, 41)[0]),
                 transfer_window_boundaries=tuple(
                     (int(r[offset]), int(r[offset + 1]))
                     for offset in (28, 30, 32, 34)
