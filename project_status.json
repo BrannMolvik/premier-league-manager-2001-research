@@ -1970,7 +1970,8 @@
       95
     ],
     "sha256": "f7410cf85900846ee1b276fa309bca4e560580286d5641092f2f98d20afa379a",
-    "callsite_va": "0x51FD63"
+    "path_setup_va": "0x51FD63",
+    "control_call_va": "0x51FDA3"
   },
   "gate14_fastview_ticker": {
     "path": "FM2001_Art/FastView/ticker.444",
@@ -1986,7 +1987,8 @@
       590
     ],
     "sha256": "b0fe2d8266ae157b7821e8c1de310e89bbc37ae859f666e64f59731c78e68257",
-    "callsite_va": "0x51FDF0"
+    "path_setup_va": "0x51FDF0",
+    "control_call_va": "0x51FE31"
   },
   "gate14_fastview_chrome_art": "reconstruction/original_fastview_chrome_art.py",
   "gate14_fastview_chrome_middle_surface_recovered": false
