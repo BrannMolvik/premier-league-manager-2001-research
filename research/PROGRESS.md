@@ -10512,3 +10512,12 @@ work may continue under the deferred-blocker policy.
 - Added a fail-closed runtime resource validator and exact normal-pitch/active-overlay rectangle adapter. Native cadence and human-side orientation remain unclaimed.
 - Fresh executable tracing closes PossessionFigures constructor `0x51E7E0`, receiver `0x51EA80`, owner callsite `0x520802`, and the three percentage rectangles: side1 left (311,181)-(351,199), neutral center (382,181)-(422,199), side0 right (454,181)-(494,199).
 - Local source-bounded focused tests passed before repository CI. Next source task is the three 82x16 PossessionFigures bar placement/binding trace while Gate 13 remains externally blocked on the real-Windows schema-8 receipt.
+
+## 3 October 2026 - Recovery 197 - Correct FastView TeamTable bar ownership
+
+- PR #162 merged as `1e68dca68395c97cc8ea8498f1ec212e0273659b` after reconstruction run `37079435396`, Windows package/freeze/smoke run `37079435467`, and asset-policy run `37079435346` all passed.
+- Fresh RTTI and constructor tracing corrected an earlier Gate-14 ownership mistake: `team_bar_1.444`, `blank_bar.444`, and `team_bar_2.444` belong to `FastViewPanel::FastViewTeam::TeamTable::Row`, not `PossessionFigures`.
+- Source-closed the constructor chain `0x524A20 -> 0x524EC0 -> 0x525DB0`, row side flag `+0x40`, overlaid bar controls `+0x38/+0x3C`, 11-row count, 17-pixel row step, and exact 82x16 rectangles: side 0 x 309..391, side 1 x 409..491, row 0 y 27..43 through row 10 y 197..213.
+- Staged the three corrected TeamTable originals byte-identically with checksum/size/EA444 geometry validation and manifest provenance.
+- `PossessionFigures` remains the separate text-only component at `0x51E7E0/0x51EA80`; Recovery 196 percentage-text geometry remains valid.
+- Next source task: close the receiver/caller semantics behind TeamTable dynamic bar update `0x526680` or continue another independent Gate-14 audio/presentation gap if that chain bottoms out, while Gate 13 remains externally blocked on the schema-8 Windows receipt.
