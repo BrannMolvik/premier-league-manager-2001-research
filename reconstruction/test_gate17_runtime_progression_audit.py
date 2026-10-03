@@ -173,6 +173,22 @@ class Gate17RuntimeProgressionAuditTests(unittest.TestCase):
         ):
             audit_runtime_playable_progression(plan_fixture(), state)
 
+    def test_runtime_membership_identities_must_be_exact_non_negative_ints(self):
+        for memberships, message in (
+            ({True: 0}, "club IDs"),
+            ({1: True}, "competition IDs"),
+            ({-1: 0}, "club IDs"),
+            ({1: -1}, "competition IDs"),
+        ):
+            state = FakeState()
+            state.club_competition_membership = memberships
+            with self.subTest(memberships=memberships):
+                with self.assertRaisesRegex(
+                    Gate17RuntimeProgressionAuditError,
+                    message,
+                ):
+                    audit_runtime_playable_progression(plan_fixture(), state)
+
     def test_invalid_plan_endpoint_identity_fails_closed(self):
         plan = plan_fixture()
         bad = PlayableCountryAllocationPlan(
