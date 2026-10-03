@@ -18,6 +18,7 @@ from domestic_cup_state import DomesticCupScheduleState
 from finance_state import FinancialObjectiveState
 from game_state import GameState
 from gate13_management_source_data import ManagementSourceDataBridge
+from gate_receipts import GateAttendanceCell, GateReceiptResult
 from human_gameplay import HumanGameplayController
 from internal_save import (
     SAVE_SCHEMA_VERSION,
@@ -1746,6 +1747,58 @@ class InternalSaveTests(unittest.TestCase):
         self.assertEqual(
             restored.state.transfers.scheduled_transfers,
             original.state.transfers.scheduled_transfers,
+        )
+
+    def test_gate_receipt_report_inputs_survive_roundtrip(self):
+        original = self.build_controller()
+        original.state.prepared_match_gate_receipts[7] = GateReceiptResult(
+            home_seating=GateAttendanceCell(
+                demand=1234.5,
+                price_response=0.75,
+                random_span=321,
+                count=900,
+            ),
+            visiting_seating=GateAttendanceCell(
+                demand=432.1,
+                price_response=0.5,
+                random_span=111,
+                count=250,
+            ),
+            home_terrace=GateAttendanceCell(
+                demand=987.6,
+                price_response=0.8,
+                random_span=222,
+                count=700,
+            ),
+            visiting_terrace=GateAttendanceCell(
+                demand=321.0,
+                price_response=0.6,
+                random_span=99,
+                count=150,
+            ),
+            home_revenue=12_345,
+            visiting_revenue=6_789,
+            season_ticket_quantity=80,
+        )
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.prepared_match_gate_receipts,
+            original.state.prepared_match_gate_receipts,
+        )
+        receipt = restored.state.prepared_match_gate_receipts[7]
+        self.assertEqual(receipt.total_attendance, 2_080)
+        self.assertEqual(receipt.home_attendance, 1_680)
+        self.assertEqual(receipt.visiting_attendance, 400)
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
         )
 
     def test_match_engine_rng_full_state_survives_roundtrip(self):
