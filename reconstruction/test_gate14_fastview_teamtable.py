@@ -1,4 +1,6 @@
+import tempfile
 import unittest
+from pathlib import Path
 
 from gate14_fastview_teamtable import (
     BLANK_BAR_PATH,
@@ -18,6 +20,7 @@ from gate14_fastview_teamtable import (
     TEAMTABLE_ROW_STEP,
     TEAMTABLE_ROW_TYPE_DESCRIPTOR_VA,
     TEAMTABLE_ROW_VFTABLE_VA,
+    TEAMTABLE_BAR_RESOURCES,
     TEAMTABLE_SIDE0_BAR_X,
     TEAMTABLE_SIDE1_BAR_X,
     TEAMTABLE_TYPE_DESCRIPTOR_VA,
@@ -26,6 +29,7 @@ from gate14_fastview_teamtable import (
     TEAM_BAR_2_PATH,
     FastViewTeamTableError,
     teamtable_bar_pair,
+    validate_imported_teamtable_bar_resources,
 )
 
 
@@ -70,6 +74,26 @@ class FastViewTeamTableTests(unittest.TestCase):
         self.assertEqual(TEAMTABLE_ROW_SIDE_FLAG_OFFSET, 0x40)
         self.assertEqual(TEAMTABLE_ROW_DYNAMIC_CONTROL_OFFSET, 0x38)
         self.assertEqual(TEAMTABLE_ROW_PAIRED_CONTROL_OFFSET, 0x3C)
+
+    def test_staged_bar_assets_are_exact_and_corruption_fails(self):
+        repo_root = Path(__file__).resolve().parent.parent
+        self.assertEqual(
+            validate_imported_teamtable_bar_resources(repo_root),
+            TEAMTABLE_BAR_RESOURCES,
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for resource in TEAMTABLE_BAR_RESOURCES:
+                source = repo_root / "original_assets/source" / resource.source_path
+                target = root / "original_assets/source" / resource.source_path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(source.read_bytes())
+            target = root / "original_assets/source" / TEAM_BAR_1_PATH
+            data = bytearray(target.read_bytes())
+            data[-1] ^= 1
+            target.write_bytes(data)
+            with self.assertRaisesRegex(FastViewTeamTableError, "checksum mismatch"):
+                validate_imported_teamtable_bar_resources(root)
 
     def test_invalid_side_or_row_fails_closed(self):
         for side, row in ((-1, 0), (2, 0), (True, 0), (0, -1), (0, 11), (0, True)):
