@@ -1200,7 +1200,8 @@ class HumanGameplayController:
                 self.defence_matrix,
                 self.match_rng,
                 team_orders=self.human.team_orders,
-            match_engine_rng=self.match_engine_rng,
+                match_engine_rng=self.match_engine_rng,
+                human_formation_id=self.human.formation_id,
             )
         elif entry[0] == "domestic_cup":
             user_result, _completion = self.state.simulate_domestic_cup_human_node(
@@ -1382,7 +1383,8 @@ class HumanGameplayController:
             self.defence_matrix,
             self.match_rng,
             team_orders=self.human.team_orders,
-        match_engine_rng=self.match_engine_rng,
+            match_engine_rng=self.match_engine_rng,
+            human_formation_id=self.human.formation_id,
         )
 
         trailing = []

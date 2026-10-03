@@ -2,6 +2,18 @@
 
 _Audit refreshed: 3 October 2026 KST_
 
+PR #199 setup continuation from `f8bbdd9c` connects constructor B68,
+original-order FE0/FE4, tactics, primary shirts/flags and gate scalar copies
+to the existing assembler. The canonical calculated-fixture probe remains
+fail-closed on missing uncontrolled-home attendance inputs. Native legacy
+visiting capacities and the human-opponent adjustment/rank boundary are the
+next source action, detailed in `GATE13_LIVE_CAPTURE_INPUTS.md`. Ordinary
+save/reload/right-click success is still **NOT PASSED**. This is not a broad
+closure audit; Gate 13 stays OPEN and Windows/timing sign-off remains pending.
+Validation of code `a9388465`: 1,675 full reconstruction tests, 23 expected
+skips; 116 focused tests and asset policy pass. This does not change the
+unpassed ordinary opening criterion.
+
 Local owner/persistence implementation milestone (not final criterion sign-off):
 source caption/setup and initial normalized-history/booking outputs now have
 live retention; strict complete assembly and ordered GameState owner/link

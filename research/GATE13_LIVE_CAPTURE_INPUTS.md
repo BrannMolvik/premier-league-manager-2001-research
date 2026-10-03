@@ -2,6 +2,62 @@
 
 _3 October 2026 KST. Gate 13 remains OPEN._
 
+## PR #199 ordinary setup producers, based on `f8bbdd9c`
+
+The ordinary producer chain now retains B68 before team selection (constructor
+call `0x5130A9`, RNG(32767) at `0x62AC34` on the distinct MatchEngine stream),
+FE0 then FE4 after selection, explicit side tactics, primary-team shirt bits,
+and normalized initial/booking bits. The existing assembler is called only
+when all eleven scalar copies and every other metadata input are present.
+Fresh construction clears stale setup/metadata; missing inputs never publish
+an owner/link. The existing owner/link and schema-39 codecs are unchanged.
+
+FE0/FE4 preserves original DBTPlayers array order and the strict nationality
+pool count >10 branch. `0x64E140` loads a contiguous string blob: the separate
+byte predicates at `0x411A10` inspect actual post-NUL bytes, not padded strings.
+The authorized source pool has 30,064 players and 2,548 nationality-26 members.
+The first selection retries a first-name '-' prefix; the second does not.
+
+Gate outputs are retained from actual receipts, before posting. D88 stays at
+the constructor's explicit zero when seating capacity is zero. At `0x5DB716`
+and `0x5DB772`, FLD ST(0); FDIVRP divides each attendance count by itself,
+not by capacity or total attendance. Nonzero yields class 2; masked 0/0 takes
+the unordered class-0 branch. `0x5DBDE0` therefore gives D9C 4/3/2 for two,
+one or zero nonzero sides. No guessed occupancy denominator is introduced.
+
+**Actual calculated-fixture probe:** canonical data and checksum-gated matrices,
+explicit seed 1 on both distinct streams, ordinary fixture 0 on 26 August 2000:
+B68, FE0, FE4, weather and tactics retained; all 32 initial participant bits
+present. Report remains absent because D84/D88/D8C/D90/D9C lack actual gate
+inputs. This is a negative production probe, NOT the save/reload/open proof.
+
+**Remaining setup boundary:** uncontrolled-home visiting capacities
+DBRClub+13C/+140 and human-opponent adjustment lifecycle. `0x403660` imports
+home +134/+138 as truncations of source +1C times 0.75/0.25, but does not
+initialize +130/+13C/+140. Constructor `0x405A40` also does not; allocation
+`0x668140 -> 0x669BE3` does not promise zeroed storage. The actual +130 writer
+is the home-attendance counter at `0x5DB97F` (first observation 1) and
+`0x5DB9C1` (incrementing byte), guarded by +E8 bit 9. It is not a control-mode
+flag. `0x408170` returns shipped adjustment 5 when counter <2 or the global
+human club's native zero-based rank is >=4; the latter guard could be closed
+independently of the unknown counter once its exact live ranking is supplied.
+Do not treat a synthetic/display fallback rank as that source input.
+Secondary/loan shirt +76 remains withheld, not replaced by the primary shirt.
+
+Next: establish the missing legacy visiting-capacity producer/runtime boundary
+and connect the source-qualified D48 rank guard; then repeat the genuine
+fixture/save/reload/native right-click proof. No final Windows/timing closure
+audit was repeated while ordinary success remains unavailable. Gate 14 and
+agent-runtime ownership were untouched. Private bounded disassembly SHA-256:
+`450b67d10fed3ff3385031d9b83523645a9d24ca29b9a56f08853f1729013961`.
+Canonical executable SHA-256 was reverified; raw evidence stays outside Git.
+Negative calculated-fixture receipt SHA-256:
+`e0fdf5d6997b6c1d05fcfa235f08038171808e736c0fef7e578ea9979f7f02a6`.
+Code `a9388465` passes 1,675 full tests / 23 expected licensed-source skips,
+116 focused tests and asset policy. An initial sandbox run had three private
+Capstone import errors; the full access-corrected rerun passes. There is no
+genuine save/reload/open or fresh Windows success receipt for this milestone.
+
 ## PR #194 continuation: executable compact-stream milestone
 
 `native_compact_match.py` now implements the ordinary complete-boundary path
