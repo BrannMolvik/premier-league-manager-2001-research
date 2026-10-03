@@ -31,7 +31,27 @@ PLAYER_ROW_ENERGY_RECEIVER_VFTABLE = 0x7CA900
 PLAYER_ROW_GOAL_RECEIVER_VFTABLE = 0x7CA8F4
 PLAYER_ROW_OWN_GOAL_RECEIVER_VFTABLE = 0x7CA8E8
 
+PLAYER_ROW_FORM_RECEIVER_OFFSET = 0x54
 PLAYER_ROW_ENERGY_RECEIVER_OFFSET = 0x58
+PLAYER_ROW_GOAL_RECEIVER_OFFSET = 0x5C
+PLAYER_ROW_OWN_GOAL_RECEIVER_OFFSET = 0x60
+
+PLAYER_ROW_FORM_CALLBACK_VA = 0x526740
+PLAYER_ROW_GOAL_CALLBACK_VA = 0x526800
+PLAYER_ROW_OWN_GOAL_CALLBACK_VA = 0x526880
+
+PLAYER_ROW_FORM_EVENT_VALUE_OFFSET = 0x04
+PLAYER_ROW_FORM_TEXT_CONTROL_OFFSET = 0x34
+PLAYER_ROW_GOAL_COUNTER_OFFSET = 0x18
+PLAYER_ROW_GOAL_TEXT_CONTROL_OFFSET = 0x2C
+PLAYER_ROW_OWN_GOAL_COUNTER_OFFSET = 0x1C
+PLAYER_ROW_OWN_GOAL_TEXT_CONTROL_OFFSET = 0x30
+PLAYER_ROW_FORM_FORMAT_VA = 0x828D3C
+PLAYER_ROW_FORM_FORMAT = "%u"
+PLAYER_ROW_GOAL_COUNT_FORMAT_VA = 0x829B94
+PLAYER_ROW_GOAL_COUNT_FORMAT = "(%u)"
+PLAYER_ROW_OWN_GOAL_COLOR_SETTER_VA = 0x650480
+
 PLAYER_ROW_ENERGY_CALLBACK_VA = 0x5267D0
 PLAYER_ROW_ENERGY_UPDATE_VA = 0x526680
 PLAYER_ROW_ENERGY_EVENT_VALUE_OFFSET = 0x04
@@ -305,4 +325,86 @@ def team_row_rects(
         _translate(contract.name_local_rect, origin),
         _translate(contract.bar_local_rect, origin),
         tuple(_translate(rect, origin) for rect in contract.text_local_rects),
+    )
+
+
+@dataclass(frozen=True)
+class FastViewPlayerRowTextState:
+    semantic: str
+    side_index: int
+    row_index: int
+    text_cell_index: int
+    rect: tuple[int, int, int, int]
+    text: str
+    stored_value: int
+    source_color_update: bool = False
+
+
+def team_row_text_rect(
+    side_index: int,
+    row_index: int,
+    text_cell_index: int,
+) -> tuple[int, int, int, int]:
+    """Return one exact source-order PlayerRow text rectangle (1..6)."""
+    if type(text_cell_index) is not int or not 1 <= text_cell_index <= 6:
+        raise FastViewTeamError("FastViewTeam text_cell_index must be 1..6")
+    _, _, text_rects = team_row_rects(side_index, row_index)
+    return text_rects[text_cell_index - 1]
+
+
+def _require_u32(value: int, field: str) -> int:
+    if type(value) is not int or not 0 <= value <= 0xFFFFFFFF:
+        raise FastViewTeamError(f"{field} must fit an unsigned source dword")
+    return value
+
+
+def player_row_form_text_state(
+    side_index: int,
+    row_index: int,
+    form_value: int,
+) -> FastViewPlayerRowTextState:
+    """Mirror Receiver<EventPlayerUpdateForm>::0x526740.
+
+    The callback reads event+0x04 and writes it with source format "%u" into
+    PlayerRow text-control +0x34, which is constructor text cell 6.
+    """
+    value = _require_u32(form_value, "EventPlayerUpdateForm value")
+    return FastViewPlayerRowTextState(
+        semantic="player_form",
+        side_index=side_index,
+        row_index=row_index,
+        text_cell_index=6,
+        rect=team_row_text_rect(side_index, row_index, 6),
+        text=f"{value:d}",
+        stored_value=value,
+    )
+
+
+def player_row_goal_text_state(
+    side_index: int,
+    row_index: int,
+    current_count: int,
+    *,
+    own_goal: bool = False,
+) -> FastViewPlayerRowTextState:
+    """Mirror the PlayerRow goal/own-goal receiver-local counters.
+
+    EventPlayerGoal::0x526800 increments overall row+0x18 and writes "(%u)"
+    to text-control +0x2C (cell 4). EventPlayerOwnGoal::0x526880 does the same
+    with row+0x1C / text-control +0x30 (cell 5), then changes that control's
+    native color through 0x650480. The exact color-channel interpretation is
+    intentionally not assigned here.
+    """
+    value = _require_u32(current_count, "PlayerRow goal counter")
+    next_value = (value + 1) & 0xFFFFFFFF
+    cell = 5 if own_goal else 4
+    return FastViewPlayerRowTextState(
+        semantic="player_own_goal_count" if own_goal else "player_goal_count",
+        side_index=side_index,
+        row_index=row_index,
+        text_cell_index=cell,
+        rect=team_row_text_rect(side_index, row_index, cell),
+        text=f"({next_value:d})",
+        stored_value=next_value,
+        source_color_update=own_goal,
     )
