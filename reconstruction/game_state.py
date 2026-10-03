@@ -2159,6 +2159,8 @@ class GameState:
         attack_matrix,
         defence_matrix,
         rng=None,
+        *,
+        match_engine_rng=None,
     ) -> NormalMatchResult:
         """Simulate one tagged primary PL/Cup entry as AI-vs-AI."""
         rng = self._resolve_rng(rng)
@@ -2170,6 +2172,7 @@ class GameState:
                 attack_matrix,
                 defence_matrix,
                 rng,
+                match_engine_rng=match_engine_rng,
             )
         if kind == "domestic_cup":
             result, _completion = self.simulate_domestic_cup_ai_node(
@@ -2211,6 +2214,7 @@ class GameState:
         rng=None,
         *,
         entry_order: Iterable[tuple] | None = None,
+        match_engine_rng=None,
     ) -> tuple[tuple[tuple, object], ...]:
         """Simulate today's live primary entries in one scheduler order.
 
@@ -2237,6 +2241,7 @@ class GameState:
                     attack_matrix,
                     defence_matrix,
                     rng,
+                    match_engine_rng=match_engine_rng,
                 ),
             )
             for entry in ordered
@@ -2247,6 +2252,8 @@ class GameState:
         attack_matrix,
         defence_matrix,
         rng=None,
+        *,
+        match_engine_rng=None,
     ) -> tuple[tuple[tuple, object], ...]:
         """Advance one day and execute live matches in shared primary order."""
         rng = self._resolve_rng(rng)
@@ -2255,6 +2262,7 @@ class GameState:
             attack_matrix,
             defence_matrix,
             rng,
+            match_engine_rng=match_engine_rng,
         )
         if (
             results
