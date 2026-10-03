@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 219: canonical main ef524540e14d1eb5e7275305625a8bddbb2660df includes exact FE0/FE4 selector semantics (PR #202, 1,672 tests/23 skips) but not live RNG placement. Stale PR #203 was rebased as PR #204 head 0bdf52271e181aa9d82f5deef7b5cc879b15e26f, preserving exact D88 seating-price retention on top of current main; require fresh combined CI before merge. Gate 13 remains earliest incomplete. Next cloud-safe producer audit: source-close/retain B68, D9C classification, side tactics/shirts/context or FE0/FE4 relative setup RNG order; do not guess unresolved values.",
-  "last_known_main_head": "ef524540e14d1eb5e7275305625a8bddbb2660df",
+  "active_task": "Recovery 220: PR #204 merged canonical as main 0402dd108d5a224438a161ea51ce859cd550a4ab after reconstruction run 37118795599 passed 1,674 tests with 23 expected skips; Gate-13 presentation source and asset policy also passed. Continue Gate 13 at the remaining ordinary-report producer inputs. First source-audit B68 and D9C classification; if either is not instruction-closed, move to side tactics/shirts/context. FE0/FE4 selector semantics are canonical but live shared-CRT RNG placement remains deferred until relative setup order is proven. Do not publish partial reports or guess unresolved bytes.",
+  "last_known_main_head": "0402dd108d5a224438a161ea51ce859cd550a4ab",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 219,
+  "recovery_generation": 220,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #203 closed as superseded by #204. Execution sandbox for fresh executable disassembly may still be unavailable; continue repository/source-backed work without inventing metadata.",
+  "note": "Canonical schema 41 now retains exact D88 seating ticket price alongside D84/D8C/D90 attendance. Next task is remaining scalar/context production.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
