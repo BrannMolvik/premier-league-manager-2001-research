@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "136dd19",
-  "last_verified_reconstruction_ci_head": "745c1576c337c94dcea86f996bf347af641c77c2",
-  "last_verified_test_count": 1549,
+  "last_verified_reconstruction_ci_head": "66c0886a49581ac3461e0c242fb5e333bf73ac8c",
+  "last_verified_test_count": 1553,
   "asset_policy_validated_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
   "asset_policy_status": "passed",
-  "active_task": "Recovery 209 Gate-14 work-ahead: verify exact EventPlayerUpdateEnergy bar transform, then trace PlayerRow EventPlayerUpdateForm/EventPlayerGoal/EventPlayerOwnGoal text/control data flow without inventing remaining row labels. Gate 13 remains earliest incomplete.",
+  "active_task": "Recovery 209 Gate-14 work-ahead: verify PlayerRow form/goal/own-goal text-event semantics, then trace shared row refresh 0x526470 and producer 0x525BD0 for text cells 1..3 without guessing labels. Gate 13 remains earliest incomplete.",
   "last_local_focused_test_count": 453,
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
@@ -1807,7 +1807,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "dynamic_by_fixture_role_exact",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "Verify Recovery 209 energy-bar contract through CI, then trace PlayerRow callbacks 0x526740 (EventPlayerUpdateForm), 0x526800 (EventPlayerGoal), and 0x526880 (EventPlayerOwnGoal) far enough to bind only directly proven row text/control semantics.",
+  "gate14_exact_next_task": "Verify Recovery 209 PlayerRow typed text events through CI, then trace shared row refresh 0x526470 and producer 0x525BD0 for text cells 1..3. Keep own-goal color name fail-closed until pixel-format channel mapping is proven.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -2358,5 +2358,53 @@
   "gate14_fastview_team_side_1_energy_layers": [
     "blank_bar.444",
     "team_bar_2.444"
-  ]
+  ],
+  "gate14_fastview_team_energy_merge": "66c0886a49581ac3461e0c242fb5e333bf73ac8c",
+  "gate14_fastview_team_energy_reconstruction_run": 37096841596,
+  "gate14_fastview_team_energy_test_count": 1553,
+  "gate14_fastview_team_energy_expected_skips": 22,
+  "gate14_fastview_team_energy_asset_policy_run": 37096841613,
+  "gate14_player_row_form_receiver": {
+    "offset": "0x54",
+    "base_vftable": "0x7CA938",
+    "vftable": "0x7CA90C",
+    "callback": "0x526740",
+    "event_value_offset": "0x04",
+    "text_control_offset": "0x34",
+    "text_cell": 6,
+    "format": "%u",
+    "format_va": "0x828D3C"
+  },
+  "gate14_player_row_goal_receiver": {
+    "offset": "0x5C",
+    "base_vftable": "0x7CA920",
+    "vftable": "0x7CA8F4",
+    "callback": "0x526800",
+    "counter_offset": "0x18",
+    "text_control_offset": "0x2C",
+    "text_cell": 4,
+    "format": "(%u)",
+    "format_va": "0x829B94"
+  },
+  "gate14_player_row_own_goal_receiver": {
+    "offset": "0x60",
+    "base_vftable": "0x7CA95C",
+    "vftable": "0x7CA8E8",
+    "callback": "0x526880",
+    "counter_offset": "0x1C",
+    "text_control_offset": "0x30",
+    "text_cell": 5,
+    "format": "(%u)",
+    "format_va": "0x829B94",
+    "color_setter": "0x650480",
+    "color_semantics": "unresolved_fail_closed"
+  },
+  "gate14_fastview_team_text_cell_semantics": {
+    "1": "unresolved",
+    "2": "unresolved",
+    "3": "unresolved",
+    "4": "player_goal_count",
+    "5": "player_own_goal_count",
+    "6": "player_form"
+  }
 }

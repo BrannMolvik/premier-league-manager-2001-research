@@ -169,6 +169,65 @@ This closes the bar-state semantics as **player energy**. It does not assign
 semantics to the six generic text controls; those remain separate receiver/data
 traces.
 
+## Recovery 209: typed PlayerRow text-event receivers
+
+The three remaining typed PlayerRow receiver callbacks adjacent to the energy
+receiver source-close three of the six generic text cells.
+
+### EventPlayerUpdateForm
+
+- receiver subobject: overall row **+0x54**;
+- base RTTI vtable: `0x7CA938` =
+  `Receiver<EventPlayerUpdateForm>`;
+- final PlayerRow receiver vtable: `0x7CA90C`;
+- callback: `0x526740`;
+- event field: `+0x04`;
+- source format: `%u` at `0x828D3C`;
+- destination control: row `+0x34` = constructor text cell **6**.
+
+Therefore text cell 6 is the source PlayerRow **form** value display.
+
+### EventPlayerGoal
+
+- receiver subobject: overall row **+0x5C**;
+- base RTTI vtable: `0x7CA920` = `Receiver<EventPlayerGoal>`;
+- final PlayerRow receiver vtable: `0x7CA8F4`;
+- callback: `0x526800`;
+- row-local counter: `+0x18`, initialized to zero by the constructor;
+- callback increments that counter and formats it with `(%u)` at
+  `0x829B94`;
+- destination control: row `+0x2C` = constructor text cell **4**.
+
+Therefore text cell 4 is the source per-player **goal count** display.
+
+### EventPlayerOwnGoal
+
+- receiver subobject: overall row **+0x60**;
+- base RTTI vtable: `0x7CA95C` = `Receiver<EventPlayerOwnGoal>`;
+- final PlayerRow receiver vtable: `0x7CA8E8`;
+- callback: `0x526880`;
+- separate row-local counter: `+0x1C`, initialized to zero;
+- callback increments that counter and formats it with the same `(%u)`
+  source string;
+- destination control: row `+0x30` = constructor text cell **5**;
+- after updating text, the source calls color setter `0x650480` with a
+  pixel-format-derived value.
+
+The own-goal control therefore has a source-proven distinct color update, but
+this checkpoint does **not** name that color until the runtime pixel-format
+channel mapping is independently closed.
+
+The source-order rectangle mapping means row 0 uses:
+
+- side 0 goal cell 4: **(243,27)-(263,43)**;
+- side 0 own-goal cell 5: **(223,27)-(243,43)**;
+- side 0 form cell 6: **(276,27)-(296,43)**;
+- side 1 goal cell 4: **(743,27)-(763,43)**;
+- side 1 own-goal cell 5: **(723,27)-(743,43)**;
+- side 1 form cell 6: **(504,27)-(524,43)**.
+
+Text cells 1..3 remain deliberately unnamed.
+
 ## Reconstruction contract
 
 `reconstruction/gate14_fastview_team.py` records the exact side-indexed asset
@@ -180,9 +239,8 @@ substitute pixels are introduced.
 
 ## Next source step
 
-After CI verifies the energy-bar checkpoint, continue the adjacent typed
-PlayerRow receivers. Source candidates are EventPlayerUpdateForm callback
-`0x526740`, EventPlayerGoal callback `0x526800`, and
-EventPlayerOwnGoal callback `0x526880`. Map only the text/control fields
-directly proved by their data flow; do not infer the remaining row labels from
-layout.
+After CI verifies the typed text-event checkpoint, trace the shared row refresh
+path `0x526470 <- 0x525B66` and producer `0x525BD0` far enough to identify
+text cells 1..3 only where their underlying player/database accessors are
+directly proven. Keep the own-goal color name fail-closed unless the runtime
+pixel-format channel mapping is independently recovered.

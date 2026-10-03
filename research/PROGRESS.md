@@ -10670,3 +10670,14 @@ work may continue under the deferred-blocker policy.
 - For integer event values through 99 the width is exactly `2*(energy-58)`; values above 99 clamp to 82. The routine itself has no lower clamp, so the reconstruction deliberately preserves negative-width arithmetic for below-anchor inputs rather than inventing validation.
 - Side 0 dynamically grows `team_bar_1.444` over static `blank_bar.444`; side 1 dynamically shrinks the `blank_bar.444` mask to reveal static `team_bar_2.444`. The formerly unnamed bar-state semantics are therefore source-closed as player energy.
 - The six generic row text-control meanings remain fail-closed. Next trace is the adjacent typed EventPlayerUpdateForm / EventPlayerGoal / EventPlayerOwnGoal receivers.
+
+
+## 3 October 2026 - Recovery 209 PlayerRow typed form / goal / own-goal text
+
+- PR #182 became canonical at `66c0886a49581ac3461e0c242fb5e333bf73ac8c` after reconstruction run `37096841596` passed **1,553 tests / 22 expected skips** and asset-policy run `37096841613` passed.
+- Continued directly with the adjacent PlayerRow typed receiver subobjects against the same rehashed canonical executable.
+- `Receiver<EventPlayerUpdateForm>` is row `+0x54` / final vtable `0x7CA90C`; callback `0x526740` reads event `+0x04`, formats `%u`, and writes row text-control `+0x34` = constructor text cell 6.
+- `Receiver<EventPlayerGoal>` is row `+0x5C` / final vtable `0x7CA8F4`; callback `0x526800` increments row-local counter `+0x18` and writes `(%u)` to text-control `+0x2C` = cell 4.
+- `Receiver<EventPlayerOwnGoal>` is row `+0x60` / final vtable `0x7CA8E8`; callback `0x526880` increments separate counter `+0x1C`, writes `(%u)` to text-control `+0x30` = cell 5, then changes that control's native color via `0x650480`.
+- The source-computed own-goal color is not named because its runtime channel mapping has not yet been independently closed. Text cells 1..3 remain unassigned.
+- Added pure source-contract helpers/regressions for exact rectangles, unsigned formatting and independent goal/own-goal counter wrap behavior.
