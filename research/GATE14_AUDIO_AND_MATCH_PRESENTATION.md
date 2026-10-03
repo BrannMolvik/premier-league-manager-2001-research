@@ -209,6 +209,14 @@ RGBA placement seam are regression-locked in
 are recovered but their repository import is deferred to a binary-safe
 container-to-Git transport; no replacement artwork is used.
 
+Recovery 204 also source-closes the first league-score grid. RTTI identifies
+`FastViewLeagueScores@FastViewPanel`; its setup method `0x523370` is invoked
+immediately after construction and directly creates
+`current_fix_grid_1.444` as a PictureControl at owner-local
+(38,32)-(347,51). The exact 309x19 source asset identity is locked. The related
+309x16 `current_fix_grid_2.444` belongs to `ScoreCompositeNormal`, but its
+shared layout-descriptor transform remains unresolved, so it is not rendered.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
@@ -259,9 +267,9 @@ bank/sample resource before integration.
 
 ## Exact next cloud-safe task
 
-Verify the Recovery-204 direct top-bar/ticker PictureControl contract through
-full CI. Once canonical, continue the next directly owned FastView
-shell/control from executable callsites. Keep the rejected loose background
-unrendered, and import the exact top/ticker EA444 bytes only through a
-binary-safe repository transport. Gate 13 remains earliest incomplete pending
-its external schema-8 Windows receipt.
+Verify the Recovery-204 FastViewLeagueScores current-fixture checkpoint through
+full CI. Then decode the ScoreCompositeNormal layout structure consumed by
+`0x51A730` to recover `current_fix_grid_2.444` and its associated score text
+placement. Do not infer the grid-2 rectangle from its 309x16 source dimensions.
+Gate 13 remains earliest incomplete pending the external schema-8 Windows
+receipt.
