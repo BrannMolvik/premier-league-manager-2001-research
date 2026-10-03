@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN on canonical main b9956c425cecb1950fdc7140f9f11e79bf57729b; research/WORK_OWNERSHIP.json still assigns Gate-13 closure exclusively to Codex. Independent PR #224 (head 275f6476ad8f64fc678cc76ef632788df247ce68) upgrades Gate-17 evidence to schema 2 and requires a fifth full_original_scope Windows receipt so Premier-League-only smoke cannot certify release. Asset policy and Windows release-candidate package run 37132771510 pass; reconstruction run 37132771563 remains in progress. If green, merge #224. Then the exact Gate-17 scope blocker is recovery/implementation of a source-backed catalog and runtime audit covering every originally selectable/playable league/country and required career/progression/management systems; do not fabricate the list. Private original-source execution remains blocked by caas ClientError.",
-  "last_known_main_head": "b9956c425cecb1950fdc7140f9f11e79bf57729b",
+  "active_task": "Gate 13 remains OPEN on canonical main a5a4c6f0cc7b0afda2870e5dec2c4209a7b49553 and research/WORK_OWNERSHIP.json still assigns Gate-13 closure exclusively to Codex. PR #224 is now merged as a5a4c6f0 and its schema-2 Gate-17 evidence guard is canonical. Continuous-worker next task is independent Gate-17 work-ahead: recover a source-backed catalog of every originally selectable/playable league/country and the required career/progression/management scope, then implement a fail-closed runtime/full-scope audit and receipt producer without fabricating missing source facts or touching Gate-13-owned files. Use the documented original-source recovery route if original binaries/resources are required.",
+  "last_known_main_head": "a5a4c6f0cc7b0afda2870e5dec2c4209a7b49553",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 226,
-  "last_recovery_reason": "analysis-errored-sandbox",
-  "note": "Recovery 226: Codex Gate-13 PR merged but Gate 13 and ownership lock remain open/active. PR #224 full-scope release guard pending reconstruction CI; Windows package already green.",
+  "recovery_generation": 227,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 227: reconciled main through merged PR #224 at a5a4c6f0. Gate 13 remains Codex-owned and open. Resuming independent Gate-17 full-original-scope catalog/audit work-ahead.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
