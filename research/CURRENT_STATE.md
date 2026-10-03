@@ -25,6 +25,7 @@ Evidence:
 
 ## Live resume summary
 
+- **Recovery 197 TeamTable ownership correction in progress:** fresh RTTI and constructor tracing corrects the earlier claim that `team_bar_1.444`, `blank_bar.444`, and `team_bar_2.444` were PossessionFigures art. They belong to `FastViewPanel::FastViewTeam::TeamTable::Row` through `0x524A20 -> 0x524EC0 -> 0x525DB0`. Exact 11-row geometry is side 0 x 309..391, side 1 x 409..491, y 27..43 plus 17 pixels per row. The three originals are byte-identically staged and validated. `PossessionFigures` remains the separate percentage-text component at `0x51E7E0/0x51EA80`. Verify PR CI, merge only if green, then trace the dynamic TeamTable bar receiver at `0x526680` or advance to the next independent Gate-14 presentation gap. Gate 13 remains earliest incomplete pending the real-Windows schema-8 receipt.
 - **Recovery 196 FastView possession assets / text geometry in progress:** the four source-closed PossessionDiagram EA444 files are staged byte-identically under `original_assets/source/FM2001_Art/FastView/` on branch `recovery196/gate14-possession-assets`. Exact base/overlay rectangles are encoded through a fail-closed resource validator. Fresh source tracing also closes PossessionFigures percentage rectangles: side 1 left (311,181)-(351,199), neutral center (382,181)-(422,199), side 0 right (454,181)-(494,199). User-side orientation and diagram cadence remain unclaimed. Verify PR CI, merge only if green, then trace the three 82x16 PossessionFigures bar placements/bindings.
 - **Recovery 182 bounded Squad view transition is canonical:** PR #126
   squash-merged as `9b31feb05f4c6e239eb4c96288375217165a484e`.
@@ -176,11 +177,13 @@ Evidence:
   territory transition using the private MSVC-style presentation RNG. Update
   cadence and side-0/user orientation remain fail-closed. See
   `research/GATE14_FASTVIEW_POSSESSION_SOURCE_TRACE.md`.
-- **Exact Gate-14 work-ahead after this checkpoint:** verify the exact-path and
-  PossessionDiagram primitives through full CI, then deliberately stage only
-  the four source-closed diagram assets and connect their proven geometry to a
-  player-visible presentation surface without inventing timing/orientation.
-  Continue the independent `PossessionFigures` bar/text placement trace.
+- **Exact Gate-14 work-ahead after this checkpoint:** the four source-closed
+  PossessionDiagram assets and PossessionFigures percentage text are canonical.
+  Recovery 197 corrects the adjacent 82x16 bar family to FastViewTeam::TeamTable
+  and source-closes its row geometry. Verify/merge that correction, then trace
+  the dynamic TeamTable bar receiver semantics at `0x526680` or continue the
+  next independent audio/presentation gap without inventing user-side
+  orientation or diagram cadence.
 - **Independent cloud-safe reconciliation:** Gate 16 already has two passing
   canonical three-cycle receipts and a readiness audit, so the stale Gate 17
   limitations text that still described canonical multi-season evidence as
