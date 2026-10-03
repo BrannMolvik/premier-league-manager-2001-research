@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 work-ahead PR #262 merged green as main 0b255ce4 after 1,863 tests / 23 expected skips: TeamSelect clubs with live primary owners are selectable, and non-PL fresh financial objectives remain explicit blockers. Next cloud-safe task: generalize annual LeagueAllocation commit from the current English-only transition to the already-source-backed all-TeamSelect-country allocation preview, preserving fail-closed unresolved rankings and atomic season regeneration.",
-  "last_known_main_head": "0b255ce403277b0868d73bb6ac297ce3eab452a9",
+  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 work-ahead PR #263 merged green as main 50f9afb6 after 1,865 tests / 23 expected skips: canonical controller now retains the TeamSelect-country allocation plan and exposes explicit fail-closed full_playable_country_progression annual regeneration while preserving the established English default. Next task: reconcile and verify the small non-PL fresh-objective guard from stacked PR #264 onto current main, merge if green, then continue source-backed work-ahead.",
+  "last_known_main_head": "50f9afb6c7afac3f54c4bfd99cbb545d1ee0d8f5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 248,
   "last_recovery_reason": "connection-interrupted-transient",
-  "note": "Recovery 248 checkpoint: PR #262 merged green as 0b255ce4. Continuing annual all-playable-country LeagueAllocation commit work-ahead.",
+  "note": "Recovery 248 checkpoint: PR #263 merged green as 50f9afb6. PR #264 is stacked child hardening and may require replay after squash merge.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
