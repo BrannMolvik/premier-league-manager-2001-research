@@ -2,6 +2,50 @@
 
 ## PR #211 continuation from `70c8af0a`
 
+### Continuation from `689c91dd`: actual writer and required child controls
+
+The support scanner stopped at the first undecodable sequence, before the
+known `5DA538/5DA56B` reads. Candidate discovery now enables Capstone skipdata
+and explicitly ignores synthetic data records; resumed decoding is still not
+CFG/semantic proof. An invalid-byte regression passes. Original scan counted
+29/53 +13C/+140 operands; resumed scan counts 164/234. Private resumed report
+SHA-256 `0c8e9d0a2c3e12994e9c25bf5970330d76e352aeaabb306ddbb5ba6bd7dd85ef`.
+
+The actual club-capacity writer `618C10` takes the club argument, resolves
+`403850`'s user and +6B0 stadium, clears all four +134/+138/+13C/+140 fields,
+then visits 26 sections. Non-disabled original building seating/terrace
+quantities are accumulated according to the user's +694 ticket section flags;
+`4290A0` adjusts each total. Recovered direct callers `4257A6`, `460B82`,
+`4C4713` run through user setup/owner state, not a fresh uncontrolled-club
+initializer. This proves a writer/lifecycle but does **not** establish fresh
+AI capacities or authorize human-map allocation for every AI club. The
+622A10 candidate is a six-argument repeating multi-field struct writer;
+without receiver-type evidence it is not admitted as DBRClub semantics.
+
+Required nested possession controls `483BCA/483C22/483C7A` now consume the
+complete report's +22/+21/+20 averages, in that order, at popup-local
+`(295,187,30,20)`, `(370,187,30,20)`, `(443,187,30,20)`. `603670/6042F0`
+bind original BdXCn18 (not 20), verified hash
+`4c5d5d33cb1fb2345c93a0e133863cc3e9e25d4297d0a6d15df762fb710eaccd`.
+`81CEE0` is `%N%%`; `6507A0 -> 655F40 -> 6559B0` formats these unsigned
+bytes using flags 0, shipped English numeric configuration and `%1.0f`,
+then a percent sign. Original white/style-24 centering/clipping is reused.
+
+The full ordinary Attendance buffer also includes two spaces, captured
+report caption +41 and two trailing spaces (`488896..48890D`), now retained
+in rendering. `4887AE..488865` displays literal 55,241 for +30 <=1 and
+otherwise quotient/remainder with a three-digit remainder. This is a native
+text-only branch, not report-data manufacture. Tests cover 0,1,2 and1000.
+
+Default script list setup is now traced to vtable `7C43BC` slot +B0
+`487B80`, lazy report script expansion `60B1E0 -> 633BD0`, eligibility
+`4872C0` and row factory `486EC0`. The two lists start child-local
+`(39,115,332,228)` / `(411,115,332,228)`, six rows with 38px spacing.
+Row construction has duplicate-record/substitution and boundary-state
+inputs; do not simply draw six compact records or invent omitted fields.
+The earlier `4885A0` +78/+98 buffers produce **badge resource paths**, not
+club-name/score text. Required script/name/score rendering remains open.
+
 ### Source-backed visible summary/default pitch milestone
 
 `4885A0` / `60BEB0` now drive Attendance, Ref. and Mom from the complete

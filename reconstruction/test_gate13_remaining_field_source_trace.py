@@ -83,6 +83,15 @@ class RemainingFieldCandidateTests(unittest.TestCase):
         self.assertFalse(report["gate13_closed"])
         self.assertIn("does not prove", report["evidence_limit"])
 
+    def test_embedded_undecodable_byte_does_not_hide_later_candidates(self):
+        fake = bytearray(field_fixture().data)
+        # LOCK NOP is invalid; the following NOPs allow linear resumption.
+        fake[0x228:0x22A] = b'\xf0\x90'
+        pe = OriginalPE32.parse(fake, expected_sha256=sha256(fake).hexdigest())
+        hits = linear_memory_displacement_candidates(pe)
+        self.assertIn(0x401030, [hit['candidate_instruction_va'] for hit in hits])
+        self.assertEqual(remaining_field_trace_report(pe)['source_semantics_recovered'], False)
+
     def test_bounded_limit_and_invalid_inputs_fail_closed(self):
         hits = linear_memory_displacement_candidates(
             field_fixture(),

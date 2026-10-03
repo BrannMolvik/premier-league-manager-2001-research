@@ -8,6 +8,7 @@ from original_fixture_report_capture import NativeCapturedScalar
 from original_pmatchinfo_summary import (
     ordinary_pmatchinfo_summary_lines, summary_line_pixels,
     ordinary_pmatchinfo_pitch_pixels,
+    ordinary_pmatchinfo_possession_lines, load_pmatchinfo_nested_font,
 )
 from original_pmenu_chrome import validate_original_pmenu_font
 from test_complete_fixture_report import contract
@@ -34,7 +35,7 @@ class PMatchInfoSummaryTests(unittest.TestCase):
     def test_actual_report_fields_and_two_referee_identities(self):
         lines = ordinary_pmatchinfo_summary_lines(self.report, self.players)
         self.assertEqual([line.text for line in lines],
-                         ['Attendance 123,456', 'Ref. É Referee', 'Mom: First Player'])
+                         ['Attendance 123,456  Explicit synthetic contract  ', 'Ref. É Referee', 'Mom: First Player'])
         self.assertEqual([line.rect for line in lines],
                          [(172, 50, 416, 16), (380, 68, 208, 16), (172, 68, 208, 16)])
 
@@ -57,11 +58,20 @@ class PMatchInfoSummaryTests(unittest.TestCase):
         font = validate_original_pmenu_font(Path(__file__).resolve().parents[1] / 'original_assets/source')
         line = ordinary_pmatchinfo_summary_lines(self.report, self.players)[0]
         x, y, width, height, png = summary_line_pixels(line, font)
-        self.assertEqual(x, 172 + 416 // 2 - font.measure_text(line.text) // 2)
+        self.assertEqual(x, max(172, 172 + 416 // 2 - font.measure_text(line.text) // 2))
         self.assertEqual(y, 50)  # Native line origin is 49, clipped at the control top.
         self.assertLessEqual(height, 16)
         self.assertLessEqual(width, 416)
         self.assertTrue(png.startswith(b'\x89PNG'))
+
+    def test_source_attendance_buffer_retains_caption_and_native_small_value_branch(self):
+        for value, rendered in ((0, '55,241'), (1, '55,241'), (2, '0,002'), (1000, '1,000')):
+            copies = tuple(replace(s, value=value.to_bytes(4, 'little')) if s.report_offset == 0x30
+                           else s for s in self.report.metadata.scalar_copies)
+            report = replace(self.report, metadata=replace(self.report.metadata, scalar_copies=copies))
+            line = ordinary_pmatchinfo_summary_lines(report, self.players)[0]
+            self.assertEqual(line.text, f'Attendance {rendered}  Explicit synthetic contract  ')
+            self.assertEqual(int.from_bytes(report.metadata.scalar_copies[0].value, 'little'), value)
 
     def test_default_nested_pitch_uses_source_owner_and_two_row_crop(self):
         from original_pmatchinfo_presenter import OriginalPMatchInfoArtPlacement
@@ -76,3 +86,19 @@ class PMatchInfoSummaryTests(unittest.TestCase):
         self.assertIsNone(ordinary_pmatchinfo_pitch_pixels(self.report, snapshot))
         snapshot.selected_tab_event_id = 1
         self.assertIsNone(ordinary_pmatchinfo_pitch_pixels(None, snapshot))
+
+    def test_possession_columns_consume_captured_bytes_in_reverse_source_order(self):
+        report = replace(self.report, possession=replace(self.report.possession, averages=bytes((12, 43, 91))))
+        snapshot = SimpleNamespace(selected_tab_event_id=1)
+        lines = ordinary_pmatchinfo_possession_lines(report, snapshot)
+        self.assertEqual([line.text for line in lines], ['91%', '43%', '12%'])
+        self.assertEqual([line.rect for line in lines], [(295,187,30,20), (370,187,30,20), (443,187,30,20)])
+        font = load_pmatchinfo_nested_font(Path(__file__).resolve().parents[1] / 'original_assets/source')
+        for line in lines:
+            pixels = summary_line_pixels(line, font)
+            self.assertLessEqual(pixels[3], 20)
+            self.assertGreaterEqual(pixels[1], 187)
+        snapshot.selected_tab_event_id = 2
+        self.assertEqual(ordinary_pmatchinfo_possession_lines(report, snapshot), ())
+        snapshot.selected_tab_event_id = 1
+        self.assertEqual(ordinary_pmatchinfo_possession_lines(None, snapshot), ())

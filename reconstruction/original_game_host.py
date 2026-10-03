@@ -19,6 +19,7 @@ from original_management_background import OriginalManagementBackground
 from original_pmatchinfo_summary import (
     ordinary_pmatchinfo_summary_lines, summary_line_pixels,
     ordinary_pmatchinfo_pitch_pixels,
+    ordinary_pmatchinfo_possession_lines, load_pmatchinfo_nested_font,
 )
 from original_pmenu_chrome import validate_original_pmenu_font
 
@@ -127,6 +128,7 @@ class OriginalGameTkHost:
         league_tables_header_art=None,
         pmatchinfo_snapshot=None,
         pmatchinfo_font=None,
+        pmatchinfo_nested_font=None,
         error_reporter=None,
         management_background=None,
     ):
@@ -144,6 +146,7 @@ class OriginalGameTkHost:
         self.league_tables_header_art = league_tables_header_art
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.pmatchinfo_font = pmatchinfo_font
+        self.pmatchinfo_nested_font = pmatchinfo_nested_font
         self.error_reporter = error_reporter or self._show_transition_error
         self.management_background = management_background
         self.last_pmenu_activation = None
@@ -372,6 +375,14 @@ class OriginalGameTkHost:
                 x, y, w, h, png = pixels
                 self.canvas.create_image(art.x + x, art.y + y,
                     image=self._photo(png), anchor=self.tk.NW)
+            if self.pmatchinfo_nested_font is not None:
+                for line in ordinary_pmatchinfo_possession_lines(
+                        context.captured_report, self.pmatchinfo_snapshot):
+                    pixels = summary_line_pixels(line, self.pmatchinfo_nested_font)
+                    if pixels is not None:
+                        x, y, w, h, png = pixels
+                        self.canvas.create_image(art.x + x, art.y + y,
+                            image=self._photo(png), anchor=self.tk.NW)
         if context is not None and self.pmatchinfo_font is not None:
             controller = self.presenter.session.gameplay
             if controller is not None:
@@ -777,6 +788,7 @@ def run_original_game_ui(
         league_tables_header_art=league_tables_header_art,
         pmatchinfo_snapshot=pmatchinfo_snapshot,
         pmatchinfo_font=validate_original_pmenu_font(resolved_source_root),
+        pmatchinfo_nested_font=load_pmatchinfo_nested_font(resolved_source_root),
         management_background=OriginalManagementBackground(
             resolved_source_root, original_executable),
     )
