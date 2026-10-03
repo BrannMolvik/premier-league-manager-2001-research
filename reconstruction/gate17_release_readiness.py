@@ -59,6 +59,7 @@ REQUIRED_EXTERNAL_RECEIPTS = {
         "human_career_flow",
         "competition_progression",
         "original_management_gameplay_subsystems",
+        "multi_human_management",
     ),
 }
 
@@ -226,6 +227,24 @@ def build_full_scope_receipt_binding(
     }
 
 
+ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS = 6
+
+
+def _validate_full_scope_multi_human(payload: Mapping[str, object]) -> int:
+    """Require the source-proven TeamSelect multi-human capacity in final evidence."""
+    if payload.get("multi_human_management") is not True:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt does not prove multi_human_management"
+        )
+    value = payload.get("simultaneous_human_users_verified")
+    if type(value) is not int or value != ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt simultaneous_human_users_verified "
+            f"must equal {ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS}"
+        )
+    return value
+
+
 def validate_full_original_scope_binding(
     evidence: ReleaseEvidence,
     repo_root: Path,
@@ -260,6 +279,8 @@ def validate_full_original_scope_binding(
         raise ReleaseReadinessError(
             "full_original_scope receipt root must be an object"
         )
+
+    simultaneous_human_users_verified = _validate_full_scope_multi_human(payload)
 
     if payload.get("scope_catalog_sha256") != expected["scope_catalog_sha256"]:
         raise ReleaseReadinessError(
@@ -315,6 +336,7 @@ def validate_full_original_scope_binding(
         "verified_scope_ids": list(verified_ids),
         "missing_scope_ids": [],
         "failed_scope_ids": [],
+        "simultaneous_human_users_verified": simultaneous_human_users_verified,
     }
 
 
@@ -402,12 +424,25 @@ def validate_external_receipts(
                 raise ReleaseReadinessError(
                     f"{name} receipt is missing required true flag {flag}"
                 )
+        simultaneous_human_users_verified = None
+        if name == "full_original_scope":
+            simultaneous_human_users_verified = _validate_full_scope_multi_human(
+                payload
+            )
         checked[name] = {
             "path": str(path),
             "sha256": actual_sha,
             "required_flags": list(required_flags),
             "windows_build": windows_build,
             "windows_product_type": product_type,
+            **(
+                {
+                    "simultaneous_human_users_verified":
+                        simultaneous_human_users_verified
+                }
+                if simultaneous_human_users_verified is not None
+                else {}
+            ),
         }
 
     return checked
