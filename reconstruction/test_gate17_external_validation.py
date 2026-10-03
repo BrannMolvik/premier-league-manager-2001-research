@@ -372,6 +372,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         repository_commit=COMMIT,
                         release_archive=archive,
                         canonical_game_dir=inside_game,
+                        full_original_scope_receipt=root / "scope.json",
                         work_root=root / "work",
                     )
 
