@@ -1,8 +1,18 @@
 # Gate 13 Closure Audit
 
-_Audit refreshed: 3 October 2026 KST_
+_Audit refreshed: 4 October 2026 KST_
 
 ## Current local producer milestone and criterion audit
+
+The 4 October default-row milestone supersedes the historical "rows blank"
+statement below: actual packed-native reader, eligibility/duplicate/boundary
+ownership, labels/minutes/player names/icons and the genuine route's custom
+numbered shirts are now integrated. 60 focused tests and genuine calculated
+fixture -> disk save -> fresh reload -> Windows right-click pass. Exact source
+evidence and still-open empty-row/scroll/kit/color boundaries are in
+`GATE13_PMATCHINFO_SCRIPT_ROWS.md`. Fresh uncontrolled +13C/+140 remains unknown.
+Gate13 remains OPEN; final full-suite/schema8/timing/recognizability validation
+is not inferred from this intermediate milestone.
 
 PR #211 continuation from `689c91dd`: original possession controls, complete
 Attendance/caption buffer and native-aligned home/away names/score are now

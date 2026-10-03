@@ -132,6 +132,7 @@ PMATCHINFO_LANGUAGE_BINDINGS = (
     OriginalPMatchInfoLanguageBinding(0x982158, 2472, "Booking"),
     OriginalPMatchInfoLanguageBinding(0x982154, 2473, "Injury"),
     OriginalPMatchInfoLanguageBinding(0x982100, 2494, "Shoot Out"),
+    OriginalPMatchInfoLanguageBinding(0x982010, 2554, " MINS"),
     OriginalPMatchInfoLanguageBinding(0x98200C, 2555, "Ref."),
     OriginalPMatchInfoLanguageBinding(0x982008, 2556, "FINANCIAL"),
     OriginalPMatchInfoLanguageBinding(0x981EA4, 2645, "%s: %s %s"),
