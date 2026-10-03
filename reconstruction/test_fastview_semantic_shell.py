@@ -118,6 +118,62 @@ class FastViewSemanticShellTests(unittest.TestCase):
         shell = build_fastview_semantic_shell(presentation)
         self.assertEqual(len(shell.player_rows), 1)
         self.assertIs(shell.player_rows[0], row)
+        self.assertEqual(len(shell.player_row_render_plans), 1)
+        plan = shell.player_row_render_plans[0]
+        self.assertEqual((plan.side_index, plan.row_index), (0, 0))
+        self.assertEqual(plan.name_grid_rect, (37, 27, 296, 43))
+        self.assertEqual(plan.energy_dynamic_rect, (309, 27, 351, 43))
+        self.assertEqual(
+            [item.value_kind for item in plan.text_instructions],
+            [
+                "literal",
+                "localization_key",
+                "literal",
+                "unwritten",
+                "unwritten",
+                "literal",
+            ],
+        )
+        self.assertFalse(plan.raster_ready)
+
+    def test_shell_keeps_render_plan_order_identical_to_retained_row_order(self):
+        presentation, *_ = self._presentation()
+        rows = (
+            build_fastview_player_row_snapshot(
+                side_index=1,
+                row_index=2,
+                shirt_number=4,
+                source_position_code=4,
+                surname="Defender",
+                first_name_initial="-",
+                form_value=7,
+                energy_value=99,
+                displayed_goal_count=2,
+            ),
+            build_fastview_player_row_snapshot(
+                side_index=0,
+                row_index=0,
+                shirt_number=9,
+                source_position_code=19,
+                surname="Striker",
+                first_name_initial="A",
+                form_value=4,
+                energy_value=79,
+            ),
+        )
+        shell = build_fastview_semantic_shell(
+            presentation.__class__(
+                match_reference=presentation.match_reference,
+                feed=presentation.feed,
+                player_rows=rows,
+            )
+        )
+        self.assertEqual(
+            [(plan.side_index, plan.row_index) for plan in shell.player_row_render_plans],
+            [(1, 2), (0, 0)],
+        )
+        self.assertEqual(shell.player_row_render_plans[0].text_instructions[3].value, "(2)")
+        self.assertEqual(shell.player_row_render_plans[1].text_instructions[3].value_kind, "unwritten")
 
     def test_shell_declares_only_persisted_component_and_fidelity_boundaries(self):
         presentation, *_ = self._presentation()
@@ -137,6 +193,7 @@ class FastViewSemanticShellTests(unittest.TestCase):
         source = (
             Path(__file__).resolve().parent / "fastview_semantic_shell.py"
         ).read_text(encoding="utf-8")
+        self.assertIn("build_fastview_player_row_render_plan", source)
         for forbidden in (
             "match_simulation",
             "match_calculator",
