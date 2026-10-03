@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is af6afe2ce4c2ab4689691786adfad58ef4598712 after Gate-14 score/table static raster PR #237 merged green. PR #238 (head 7d0e2b69) is mergeable: asset policy 37142230004 passed and reconstruction run 37142230014 is actively running; it adds the verified league_scores_static + league_table_static pair to the unflattened FastView component container. Prepared dependent branch worker/gate14-score-table-frame-plan at 07810cf8 forwards an already-verified score/table raster set through the immutable frame-plan and completed-human adapter without deriving live counts/phase state. After #238 is canonical, transplant that four-file bridge onto the squash head and validate via hosted CI. Local process sandbox still fails before start with caas.internal.errors.ClientError, blocking private audio-bank and cross-component-z-order source adjudication. Do not touch Gate-13-owned/shared runtime files.",
-  "last_known_main_head": "af6afe2ce4c2ab4689691786adfad58ef4598712",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is e9bb5fda62c56647c5b02b5439151c8e482c98f7 after Gate-14 score/table component-plane PR #238 merged green. PR #239 (head 707f2566) is mergeable: asset policy run 37142600150 passed and reconstruction run 37142600118 is in progress. It forwards an optional already-verified FastViewScoreTableStaticRasterSet through the immutable frame plan and completed-human adapter without deriving live fixture/table counts or phase state. Merge only after green. Fresh private audio-bank, cross-component z-order, dynamic TeamTable resize/text typography, and own-goal color source adjudication remain blocked because every local process start fails with caas.internal.errors.ClientError. Do not touch Gate-13-owned/shared runtime files.",
+  "last_known_main_head": "e9bb5fda62c56647c5b02b5439151c8e482c98f7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 236,
+  "recovery_generation": 237,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 236 checkpoint: #237 merged green as af6afe2c. #238 score/table component-plane bridge is mergeable with asset policy green and reconstruction CI running. Next frame-plan pass-through bridge is prepared at 07810cf8 and must be freshly transplanted after #238 squash merge.",
+  "note": "Recovery 237 checkpoint: #238 merged green as e9bb5fda. #239 score/table frame-plan pass-through is mergeable with asset policy green and full reconstruction CI running. Further Gate-14 pixel/audio work requiring private source or locked host remains explicitly blocked.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
