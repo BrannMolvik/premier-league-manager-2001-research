@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 214: PR #193 merged canonical at main d0dadf1fbe5088959bf611b360884f414e61590b after reconstruction run 37107226133 passed 1,614 tests with 23 expected skips and asset-policy run 37107226129 passed. Continue Gate-14 work-ahead by retaining the source-timed Condition history prefix and exact side0->side1 target/form MatchEngine RNG order in the live completed-match path. Do not populate FastView PlayerRow snapshots until live histories and presentation RNG state are retained. Gate 13 remains earliest incomplete.",
+  "active_task": "Recovery 215: main remains d0dadf1fbe5088959bf611b360884f414e61590b. Verify PR #195 head fefc4cf0cb230a4606b4406b5f7d9ae7d6f970fa, which retains exact source-timed raw Condition history prefixes. Merge only if reconstruction CI and asset policy pass. Then continue Gate-14 work-ahead by retaining exact side0->side1 target-rating/form-trajectory MatchEngine RNG ordering and presentation RNG state in the completed-match path, without populating FastView PlayerRow snapshots prematurely. Gate 13 remains earliest incomplete.",
   "last_known_main_head": "d0dadf1fbe5088959bf611b360884f414e61590b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 214,
+  "recovery_generation": 215,
   "last_recovery_reason": "manual-start",
-  "note": "PR #193 merged verified. Continuing live PlayerProxy retention integration.",
+  "note": "Manual recovery resumed PR #195; main unchanged.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
