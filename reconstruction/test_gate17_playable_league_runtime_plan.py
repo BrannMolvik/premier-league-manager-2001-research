@@ -102,6 +102,7 @@ class Gate17PlayableLeagueRuntimePlanTests(unittest.TestCase):
         payload = plan.as_dict()
         self.assertEqual(payload["scope_entry_count"], 3)
         self.assertEqual(payload["primary_scope_ids"], ["26:0", "26:2"])
+        self.assertEqual(payload["procedural_primary_competition_ids"], [2])
         self.assertEqual(payload["secondary_scope_ids"], ["66:27"])
 
     def test_fixed_ids_must_be_playable_primary_leagues(self):
