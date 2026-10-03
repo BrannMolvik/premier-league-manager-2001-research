@@ -70,10 +70,13 @@ result and does **not** attempt an allocation preview.
 
 The audit itself remains read-only: it does not change
 `club_competition_membership` or regenerate schedules. Canonical
-`HumanGameplayController.regenerate_annual_primary_season()` now uses the same
-source-backed playable-country plan and preview logic to obtain the post-exchange
-membership map, then commits that map only through the existing atomic annual
-GameState installation boundary.
+`HumanGameplayController.regenerate_annual_primary_season()` now exposes an
+explicit `full_playable_country_progression=True` mode that uses the same
+source-backed playable-country plan and preview logic to obtain the
+post-exchange membership map, then commits that map only through the existing
+atomic annual GameState installation boundary. The default remains the
+already-verified English transition so incomplete secondary ranking publishers
+do not regress the working primary season rollover.
 
 A complete audit is therefore evidence for the same ranking/exchange contract
 used by the live annual regeneration path. It is still not permission to skip
@@ -83,10 +86,11 @@ Windows 11 validation.
 ## Current canonical runtime seam
 
 Canonical construction now derives and retains the exact TeamSelect-country
-allocation plan. Annual regeneration resolves every plan-required ranking
-endpoint from finalized DummyLeague overrides or the live ranking publisher,
-runs the same fail-closed all-playable-country exchange preview, and passes its
-post-exchange membership map into the existing atomic primary-season installer.
+allocation plan. In explicit full-scope mode, annual regeneration resolves every
+plan-required ranking endpoint from finalized DummyLeague overrides or the live
+ranking publisher, runs the same fail-closed all-playable-country exchange
+preview, and passes its post-exchange membership map into the existing atomic
+primary-season installer.
 
 The remaining full-scope seams are elsewhere: secondary-container playable
 Leagues still lack live runtime ownership/dispatch, and fresh chairman-objective
