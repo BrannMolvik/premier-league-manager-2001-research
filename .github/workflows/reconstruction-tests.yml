@@ -148,6 +148,8 @@ on:
       - "reconstruction/canonical_multiseason_audit.py"
       - "reconstruction/test_canonical_multiseason_audit.py"
       - "research/GATE16_CANONICAL_MULTISEASON_AUDIT.md"
+      - "reconstruction/canonical_internal_save_audit.py"
+      - "reconstruction/test_canonical_internal_save_audit.py"
   workflow_dispatch:
 
 concurrency:
