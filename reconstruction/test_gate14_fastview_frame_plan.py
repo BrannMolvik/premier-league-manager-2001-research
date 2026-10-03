@@ -169,8 +169,8 @@ class FastViewFramePlanTests(unittest.TestCase):
                 exact_chrome(),
                 exact_possession(),
                 exact_figures(),
-            exact_team_art(),
-        )
+                exact_team_art(),
+            )
 
         drifted_plan = replace(
             shell.player_row_render_plans[0],
