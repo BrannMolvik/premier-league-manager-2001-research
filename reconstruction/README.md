@@ -60,7 +60,7 @@ Current tested implementation includes:
 - persistent human club, formation, XI/bench, tactics and Team Orders workflow;
 - scheduler-aware advance-to-user-fixture behavior while other PL matches continue;
 - temporary Tkinter controls for club, lineup, tactics, advance/play, result and table;
-- schema-8 internal save/load with source-database binding, gzip `.fm2k` files, mid-matchday continuation, transfer state, and Play-tab Save/Load controls;
+- schema-43 internal save/load with source-database binding, gzip `.fm2k` files, mid-matchday continuation, transfer state, playable-scope controller policy, and Play-tab Save/Load controls;
 - evidence-backed human cash bids, player contract terms, scheduled transfer completion and safe roster movement;
 - recurring Saturday autonomous AI acquisitions integrated into calendar progression.
 
@@ -70,6 +70,16 @@ Canonical real-data evidence now includes:
 - three deterministic full seasons: `../research/GATE6_FULL_SEASON.md`;
 - six human-controlled Arsenal fixtures over more than a month: `../research/GATE7_HUMAN_GAMEPLAY.md`;
 - canonical mid-matchday save/reload branch equivalence through that same six-fixture span: `../research/GATE8_INTERNAL_SAVE.md`;
+- Gate-17 non-PL primary save/reload audit mode source-selects a live TeamSelect
+  procedural-primary club and saves with its first procedural League match
+  pending.
+
+Run the two canonical save routes against an authorized game directory with:
+
+```text
+PYTHONPATH=reconstruction python reconstruction/canonical_internal_save_audit.py /path/to/game
+PYTHONPATH=reconstruction python reconstruction/canonical_internal_save_audit.py /path/to/game --procedural-primary
+```
 - transfer/contract completion with human and AI calendar paths: `../research/GATE9_TRANSFERS_AND_CONTRACTS.md`.
 
 The final Gate-9 reconstruction checkpoint contains **486 passing tests**. Gate-8 historical canonical save/reload evidence remains in `../research/GATE8_INTERNAL_SAVE.md`.
@@ -80,12 +90,11 @@ Gates 1 through 12 are complete. The active roadmap gate is **Gate 13: restore o
 
 Known remaining fidelity boundaries include:
 
-- exact final league-table tie fallback beyond points / goal difference / goals scored;
-- the remaining approximation around persistent-injury availability helper `0x405080`;
+- native ordering of the pathological case where two PL clubs have identical complete numeric and CP1252 short-name table keys;
 - original FM2001 save-file compatibility;
 - residual transfer-negotiation / same-day ordering fidelity gaps tracked explicitly;
 - finances/board and broader management systems;
-- broader competition season transitions;
+- remaining secondary-container competition runtime and non-PL objective progression boundaries;
 - faithful original FM2001 front-end presentation;
 - original match presentation / FastView / 3D.
 
