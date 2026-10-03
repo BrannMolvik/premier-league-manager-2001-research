@@ -4167,6 +4167,11 @@ class GameState:
             defence_matrix,
             rng,
             condition_injury_settings=condition_injury_settings,
+            # Ordinary fixture setup 0x510E55/5E/64 writes -1/-1;
+            # 0x511120 only replaces them for native match family 5.
+            # Default constructor 1145=1 selects 1150=0 at 0x62ACCC.
+            native_previous_scores=(-1, -1),
+            native_compact_spacing=0,
         )
         home_goals, away_goals = result.score
         self.record_premier_league_result(

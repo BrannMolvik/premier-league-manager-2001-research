@@ -2,6 +2,48 @@
 
 _3 October 2026 KST. Gate 13 remains OPEN._
 
+## PR #194 continuation: executable compact-stream milestone
+
+`native_compact_match.py` now implements the ordinary complete-boundary path
+of `0x62F7C0 -> 0x62FBF0`: last-eligible pruning at eight/twelve, protected
+minutes/cutoff, unsigned spacing, incident/substitution time coupling,
+immediate-predecessor boundary clamp and signed stable list ordering. The
+backwards boundary loop does not write earlier record minutes; no invented
+backward cascade is applied. Malformed missing-boundary native fallback paths
+remain unsupported rather than synthesizing a list.
+
+Live Premier League calculation now retains constructor-written compact fields
+and FullTime's explicit outcome. `0x510E55/5E/64` initializes previous scores
+to `-1/-1`; `0x511120` replaces them only for match family 5 (two legs).
+FullTime uses the live accumulator and those setup inputs before the fixture
+result is persisted. Other calculation callers without explicit native setup
+inputs do not receive a fabricated stream. The sparse field representation
+does not allocate fake zero-filled 0x38-byte snapshots. Encoding shares the
+existing native packer and rejects any missing consumed field.
+
+Constructor argument inspection found and fixed two omissions in the live
+open-play semantic producer: shooting misses retain the carrier as secondary
+at `0x62CD0F`; own-goal calls `0x62CAFF/0x62CCC7` retain the selected finisher
+as secondary, not the carrier. The second participant lookup owns native +4,
+as proven by `0x62ECF0/0x62EE20/0x62EEA0`. No RNG draw or scoring algorithm
+was added for these argument-retention corrections.
+
+Internal schema **36** retains finalized compact order, explicit fields and
+FullTime payload alongside existing pending matchday calculation results.
+Null remains null; missing required keys, partial payloads and unsorted streams
+reject. Old schema 35 is rejected by the existing strict version gate.
+Five genuinely calculated pending fixtures now retain complete consumed script
+fields and survive save/reload with byte-identical packed scripts. This is NOT
+the successful PMatchInfo milestone: report helper/scalar/participant metadata,
+complete report assembly, ordered GameState report owner and fixture links
+remain absent, so the existing right-click bridge continues to return None.
+
+Focused calculation/capture/save regressions: **135 passed**. No full-suite,
+Windows schema-8, broad closure audit or Gate-14 work was repeated for this
+intermediate milestone. The exact next task remains complete completion-time
+report assembly/ownership/persistence using the actual retained producer
+outputs; never promote this script alone to a captured report.
+
 Canonical main was reconciled at `9019be2a1efa05e215a63464ea7d86e7a612d9b1`.
 PR #183 is already merged; this is a separate continuation branch. The
 parallel Gate-14 worker and `agent-runtime` ownership are unchanged. The

@@ -83,12 +83,25 @@ def pack_native_match_script(records: tuple[bytes, ...]) -> bytes:
     of reproducing the original's incomplete/default or truncated stream.
     """
     _snapshots(records, 0x38, 0x3FF, 'Native script records')
-    writer = _NativeBitWriter()
-    writer.bits(len(records), 10)
-    for record in records:
-        def field(offset):
-            return int.from_bytes(record[offset:offset + 4], 'little')
+    return _pack_match_script_fields(tuple(
+        lambda offset, record=record: int.from_bytes(record[offset:offset + 4], 'little')
+        for record in records
+    ))
 
+
+def pack_live_native_match_script(records) -> bytes:
+    """Encode explicit live fields; no fabricated snapshots/unwritten bytes."""
+    from native_compact_match import NativeCompactRecord
+    if (type(records) is not tuple or len(records) > 0x3FF
+            or any(type(record) is not NativeCompactRecord for record in records)):
+        raise ValueError('Live script requires immutable bounded native records')
+    return _pack_match_script_fields(tuple(record.field for record in records))
+
+
+def _pack_match_script_fields(fields):
+    writer = _NativeBitWriter()
+    writer.bits(len(fields), 10)
+    for field in fields:
         def copy(offset, width):
             writer.bits(field(offset), width)
 

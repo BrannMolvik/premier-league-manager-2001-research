@@ -198,6 +198,47 @@ class InternalSaveTests(unittest.TestCase):
         with self.assertRaises(KeyError):
             _restore_normal_match_result(snapshot)
 
+    def test_calculated_compact_stream_and_full_time_survive_reload_without_report_link(self):
+        from original_fixture_report_packing import pack_live_native_match_script
+        original = self.build_controller()
+        original.advance_to_next_user_fixture()
+        self.assertTrue(original._pending_prior_results)
+        for _, result in original._pending_prior_results:
+            self.assertIsNotNone(result.native_compact_events)
+            self.assertEqual(sum(r.kind == 7 for r in result.native_compact_events), 1)
+            self.assertIn(next(r for r in result.native_compact_events if r.kind == 7).field(0x24), (0, 1, 2))
+        restored = loads_human_gameplay(Database(), coefficient_matrix(), coefficient_matrix(),
+                                        dumps_human_gameplay(original))
+        bridge = ManagementSourceDataBridge(restored)
+        for (fixture_id, old), (saved_id, saved) in zip(original._pending_prior_results,
+                                                     restored._pending_prior_results):
+            self.assertEqual(fixture_id, saved_id)
+            self.assertEqual(saved.native_compact_events, old.native_compact_events)
+            self.assertEqual(pack_live_native_match_script(saved.native_compact_events),
+                             pack_live_native_match_script(old.native_compact_events))
+            self.assertIsNone(bridge.fixture_match_info_context(fixture_id))
+
+    def test_missing_or_partial_saved_compact_stream_cannot_be_rebuilt(self):
+        from internal_save import _snapshot_normal_match_result, _restore_normal_match_result
+        import copy
+        original = self.build_controller()
+        original.advance_to_next_user_fixture()
+        snapshot = _snapshot_normal_match_result(original._pending_prior_results[0][1])
+        broken = copy.deepcopy(snapshot)
+        final = next(r for r in broken['native_compact_events'] if r['kind'] == 7)
+        final['fields'] = []
+        with self.assertRaises(ValueError):
+            _restore_normal_match_result(broken)
+        broken = copy.deepcopy(snapshot)
+        broken['native_compact_events'].reverse()
+        with self.assertRaises(ValueError):
+            _restore_normal_match_result(broken)
+        snapshot['native_compact_events'] = None
+        self.assertIsNone(_restore_normal_match_result(snapshot).native_compact_events)
+        del snapshot['native_compact_events']
+        with self.assertRaises(KeyError):
+            _restore_normal_match_result(snapshot)
+
     def test_primary_schedule_shadow_survives_roundtrip(self):
         original = self.build_controller()
         node = StartupScheduleNode(

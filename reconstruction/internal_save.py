@@ -58,7 +58,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 35
+SAVE_SCHEMA_VERSION = 36
 
 
 def _iso(value: date | None) -> str | None:
@@ -576,7 +576,7 @@ def _snapshot_event(event) -> dict[str, Any]:
             "incoming_player_index": int(event.incoming_player_index),
         }
     if isinstance(event, BoundaryRecord):
-        return {"type": "boundary", "kind": int(event.kind)}
+        return {"type": "boundary", "kind": int(event.kind), "outcome": event.outcome}
     if isinstance(event, PossessionRecord):
         return {
             "type": "possession",
@@ -621,7 +621,7 @@ def _restore_event(value: dict[str, Any]):
             incoming_player_index=int(value["incoming_player_index"]),
         )
     if kind == "boundary":
-        return BoundaryRecord(kind=int(value["kind"]))
+        return BoundaryRecord(kind=int(value["kind"]), outcome=value['outcome'])
     if kind == "possession":
         return PossessionRecord(
             territory=int(value["territory"]),
@@ -636,6 +636,10 @@ def _snapshot_normal_match_result(result: NormalMatchResult) -> dict[str, Any]:
     if capture is not None:
         _validate_retained_possession(result)
     return {
+        "native_compact_events": None if result.native_compact_events is None else [
+            {"minute": r.minute, "kind": r.kind, "fields": [list(f) for f in r.fields]}
+            for r in _validated_compact_stream(result.native_compact_events)
+        ],
         # A complete calculator output, not a captured report / ownership link.
         "captured_possession": None if capture is None else {
             "triplets": capture.triplets.hex(), "averages": capture.averages.hex(),
@@ -679,8 +683,20 @@ def _restore_normal_match_result(value: dict[str, Any]) -> NormalMatchResult:
             raise ValueError('Invalid saved possession input')
         capture = NativeCapturedPossession(bytes.fromhex(saved_capture['triplets']),
                                            bytes.fromhex(saved_capture['averages']))
+    from native_compact_match import NativeCompactRecord
+    compact = value['native_compact_events']
+    if compact is not None:
+        if type(compact) is not list or any(
+                type(r) is not dict or set(r) != {'minute', 'kind', 'fields'}
+                or type(r['fields']) is not list
+                or any(type(f) is not list or len(f) != 2 for f in r['fields']) for r in compact):
+            raise ValueError('Invalid saved native compact stream')
+        compact = _validated_compact_stream(tuple(NativeCompactRecord(
+            r['minute'], r['kind'], tuple(tuple(f) for f in r['fields'])
+        ) for r in compact))
     result = NormalMatchResult(
         captured_possession=capture,
+        native_compact_events=compact,
         events=tuple(
             TimedMatchEvent(
                 minute=int(item["minute"]),
@@ -699,6 +715,22 @@ def _restore_normal_match_result(value: dict[str, Any]) -> NormalMatchResult:
     if capture is not None:
         _validate_retained_possession(result)
     return result
+
+
+def _validated_compact_stream(records):
+    from native_compact_match import NativeCompactRecord
+    from original_fixture_report_packing import pack_live_native_match_script
+    if type(records) is not tuple or any(type(r) is not NativeCompactRecord for r in records):
+        raise ValueError('Saved compact stream requires immutable native records')
+    if not records or not any(r.kind == 6 for r in records) or not any(r.kind == 7 for r in records):
+        raise ValueError('Saved compact stream must retain ordinary boundaries')
+    if tuple(r.minute for r in records) != tuple(sorted(r.minute for r in records)):
+        raise ValueError('Saved compact stream must retain finalized link order')
+    for record in records:
+        if record.kind == 7 and record.field(0x24) not in (0, 1, 2):
+            raise ValueError('Saved compact stream has invalid FullTime payload')
+    pack_live_native_match_script(records)
+    return records
 
 
 def _snapshot_contract_terms(value: ContractTerms) -> dict[str, Any]:

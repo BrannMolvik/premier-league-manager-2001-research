@@ -31,6 +31,10 @@ from match_events import (
 from match_orders import TeamOrderCategory, TeamOrderPriorities, select_set_piece_taker
 from match_statistics import SegmentCounters, normalize_segment_statistics
 from original_fixture_report_capture import NativeCapturedPossession, capture_completed_possession_rows
+from native_compact_match import (
+    NativeCompactRecord, compact_record_from_live_event,
+    finalize_native_compact_events, native_full_time_outcome,
+)
 from match_substitution import apply_ai_substitution, apply_injury_substitution
 from match_strength import (
     TeamStrengthContext,
@@ -243,6 +247,7 @@ class NormalMatchResult:
     # Actual completion-time output only. Older / synthetic semantic results
     # leave this absent. A fragment is not a report and cannot assign a link.
     captured_possession: NativeCapturedPossession | None = None
+    native_compact_events: tuple[NativeCompactRecord, ...] | None = None
 
     @property
     def score(self) -> tuple[int, int]:
@@ -408,6 +413,8 @@ def simulate_normal_match(
     discipline_enabled: bool = True,
     match_mode_code: int | None = None,
     extra_time: bool = False,
+    native_previous_scores: tuple[int, int] | None = None,
+    native_compact_spacing: int | None = None,
 ) -> NormalMatchResult:
     """Run the verified scoring/chance backbone through normal or extra time.
 
@@ -427,6 +434,11 @@ def simulate_normal_match(
     """
     if side0.side != 0 or side1.side != 1:
         raise ValueError("simulate_normal_match requires side0.side=0 and side1.side=1")
+    if native_previous_scores is not None:
+        native_full_time_outcome((0, 0), native_previous_scores, (0, 0))
+    if native_compact_spacing is not None and (
+            type(native_compact_spacing) is not int or not 0 <= native_compact_spacing <= 0xFFFFFFFF):
+        raise ValueError('Native compact spacing must be an explicit uint32')
 
     sides = (side0, side1)
     events: list[TimedMatchEvent] = []
@@ -558,9 +570,17 @@ def simulate_normal_match(
         boundary_minute = segment_start + 5
         kind = boundaries.get(boundary_minute)
         if kind is not None:
+            # 0x62AE90 supplies 0x62AE00's result to 0x632660 before
+            # finalization. These are the live accumulator and explicit
+            # setup inputs, NOT a persisted fixture score/completion flag.
+            outcome = None
+            if kind is BoundaryType.FULL_TIME and native_previous_scores is not None:
+                # 0x62AC90 resets D7C/D80 to zero. This routine does not
+                # execute the penalty-shootout producer.
+                outcome = native_full_time_outcome(tuple(scores), native_previous_scores, (0, 0))
             events.append(TimedMatchEvent(
                 boundary_minute,
-                BoundaryRecord(kind),
+                BoundaryRecord(kind, outcome=outcome),
             ))
 
     captured_possession = capture_completed_possession_rows(tuple(
@@ -569,4 +589,14 @@ def simulate_normal_match(
                                           segment.record.neutral_percent)))
         for segment in possession_segments
     ))
-    return NormalMatchResult(tuple(events), tuple(possession_segments), captured_possession)
+    compact = None
+    if native_compact_spacing is not None and native_previous_scores is not None:
+        try:
+            compact = finalize_native_compact_events(tuple(
+                compact_record_from_live_event(timed.minute, timed.event) for timed in events
+            ), spacing=native_compact_spacing)
+        except ValueError:
+            # An unsupported/missing native payload withholds the ENTIRE
+            # compact stream. It cannot promote a partial report or link.
+            compact = None
+    return NormalMatchResult(tuple(events), tuple(possession_segments), captured_possession, compact)

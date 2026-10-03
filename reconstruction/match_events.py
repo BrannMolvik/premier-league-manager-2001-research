@@ -155,10 +155,17 @@ class SubstitutionRecord:
 @dataclass(frozen=True)
 class BoundaryRecord:
     kind: BoundaryType
+    # 0x632660 writes +0x24 from the live 0x62AE00 getter. Null is an
+    # explicitly incomplete semantic boundary, never a captured-script default.
+    outcome: int | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.kind, BoundaryType):
             object.__setattr__(self, "kind", BoundaryType(int(self.kind)))
+        if self.outcome is not None:
+            if (self.kind is not BoundaryType.FULL_TIME or type(self.outcome) is not int
+                    or self.outcome not in (0, 1, 2)):
+                raise ValueError('Only FullTime accepts a native outcome 0..2')
 
 
 @dataclass(frozen=True)

@@ -22,6 +22,14 @@ LIVE_PRODUCER_WINDOWS = (
     ('native boundary time correction and ordering', 0x62FBF0, 0x199),
     ('compact record base constructor', 0x6325E0, 0x1A),
     ('FullTime compact record constructor', 0x632660, 0x1C),
+    ('ordinary previous-score initialization', 0x510E55, 0x15),
+    ('two-leg previous-score override', 0x511120, 0x4C),
+    ('chance compact fields', 0x62ECF0, 0x12C),
+    ('free-kick compact fields', 0x62EE20, 0x7D),
+    ('penalty compact fields', 0x62EEA0, 0x7D),
+    ('incident compact fields', 0x62EF20, 0x70),
+    ('substitution compact fields', 0x62F000, 0xAC),
+    ('open-play constructor argument flow', 0x62C740, 0x600),
 )
 
 
