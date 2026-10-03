@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from gate14_fastview_clock import possession_array_index_for_global_tick
 from human_match_presentation import HumanMatchPresentation
 from match_events import MatchEvent, PossessionRecord
 
@@ -18,6 +19,7 @@ SOURCE_BACKED_COMPONENTS = (
     "FastViewPanel",
     "ScoreComposite",
     "PossessionFigures",
+    "PossessionDiagram",
 )
 
 
@@ -38,6 +40,8 @@ class PossessionFiguresState:
 
     sequence: int
     calculation_minute: int
+    source_global_tick: int
+    source_possession_array_index: int
     side0_percent_text: str
     neutral_percent_text: str
     side1_percent_text: str
@@ -95,6 +99,10 @@ def build_fastview_semantic_shell(
         PossessionFiguresState(
             sequence=item.sequence,
             calculation_minute=item.calculation_minute,
+            source_global_tick=item.calculation_minute,
+            source_possession_array_index=possession_array_index_for_global_tick(
+                item.calculation_minute
+            ),
             side0_percent_text=_percent_text(item.record.side0_percent),
             neutral_percent_text=_percent_text(item.record.neutral_percent),
             side1_percent_text=_percent_text(item.record.side1_percent),
