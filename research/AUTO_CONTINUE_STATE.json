@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 203: resume from canonical main c75ce5b07dc9d8c7467ed8dc4826854443ffd4a2. Do not repeat merged PR #169 typography work. Continue Gate-14 source tracing for direct FastViewPanel ownership/draw of FM2001_Art/FastView/background.444 and source-backed side-orientation mapping. If one remains unproven, persist the exact blocker and continue the other independent source path. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
+  "active_task": "Recovery 203: PR #170 head e881a6ad649f2870a9dc65e08fd2f1de34109de1 is green after 1,509 tests / 22 expected skips plus asset-policy success but the prior merge call was interrupted. Merge #170 exactly, then continue from canonical main with the already source-traced direct-owned FastView top_bar.444 and ticker.444 chrome slice. Do not repeat orientation/background tracing. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
   "last_known_main_head": "c75ce5b07dc9d8c7467ed8dc4826854443ffd4a2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 203,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 203 resumed from canonical PR #169. Work only on background ownership and/or side orientation; do not invent either.",
+  "note": "Recovery 203 detected interrupted merge: PR #170 still open and main still c75ce5b0. Resume at merge boundary only.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
