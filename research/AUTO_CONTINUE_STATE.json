@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains exclusively owned by Codex. Recovery 226 PR #223 merged green at main a9fc6900f974dc919b977ef2fcecf5ae68880ae1. Continue independent Gate-14 work by recovering the seven source-proven FastViewTeam/TeamTable EA444 assets from the authorized private original source, then add only hash/geometry-verified presentation integration without touching Gate-13/shared status files or inventing unresolved text/z-order fidelity.",
-  "last_known_main_head": "a9fc6900f974dc919b977ef2fcecf5ae68880ae1",
+  "active_task": "Gate 13 remains OPEN on canonical main b9956c425cecb1950fdc7140f9f11e79bf57729b; research/WORK_OWNERSHIP.json still assigns Gate-13 closure exclusively to Codex. Independent PR #224 (head 275f6476ad8f64fc678cc76ef632788df247ce68) upgrades Gate-17 evidence to schema 2 and requires a fifth full_original_scope Windows receipt so Premier-League-only smoke cannot certify release. Asset policy and Windows release-candidate package run 37132771510 pass; reconstruction run 37132771563 remains in progress. If green, merge #224. Then the exact Gate-17 scope blocker is recovery/implementation of a source-backed catalog and runtime audit covering every originally selectable/playable league/country and required career/progression/management systems; do not fabricate the list. Private original-source execution remains blocked by caas ClientError.",
+  "last_known_main_head": "b9956c425cecb1950fdc7140f9f11e79bf57729b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 226,
   "last_recovery_reason": "analysis-errored-sandbox",
-  "note": "Recovery 226: completed-human FastView frame-plan bridge is canonical; next source-backed task is exact TeamTable row art recovery/integration.",
+  "note": "Recovery 226: Codex Gate-13 PR merged but Gate 13 and ownership lock remain open/active. PR #224 full-scope release guard pending reconstruction CI; Windows package already green.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
