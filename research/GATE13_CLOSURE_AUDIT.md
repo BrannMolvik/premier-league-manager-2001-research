@@ -33,6 +33,29 @@ Gate-13 completion is claimed; parallel Gate-14 work-ahead remains separate.
 
 ## Final local validation (3 October)
 
+### PR #183 live completion input retention
+
+- Premier League AI/human completion now retains the actual gate-receipt
+  output by fixture identity, with unchanged source RNG/accounting. Missing
+  inputs remain absent. This transient map is not a report owner/link and
+  is deliberately excluded from save until the complete producer exists.
+- Focused completion/routing/competition/internal-save tests: **79 passed**.
+- Fresh real Windows schema-8 audit passed:
+  `C:\Users\Brann\Documents\FM2001-audits\gate13-schema8-completion-inputs-20261003.json`.
+  Deterministic SHA-256 remains
+  `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`;
+  successful ordinary report opening is still explicitly false.
+- Windows onedir package build passed. **Frozen smoke is blocked, not passed:**
+  Windows Application Control prevented process startup. No policy bypass was
+  attempted. Private executable SHA-256:
+  `2471772456e51a173cf110f804199ee9301f2f99e5037e496cc1336710bbb4ba`.
+  Next Windows validation action is to resolve the Application Control block
+  through the user's normal security approval process and rerun
+  `FM2001-Windows11.exe --package-smoke` on this same artifact.
+- Gate 13 remains open. Full report production/ownership/save and the genuine
+  calculated-fixture/reload/right-click audit are not yet implemented; final
+  timing/recognizability closure is therefore not certified.
+
 ### PR #183 codec continuation
 
 - Reconciled newer continuous-worker work through

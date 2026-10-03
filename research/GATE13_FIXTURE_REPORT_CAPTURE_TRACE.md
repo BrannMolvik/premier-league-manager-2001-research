@@ -154,8 +154,13 @@ and full report owner/save integration, not either packing codec.**
 not the complete native compact-event list or required scalar snapshot.
 `PreparedMatchPlayer` does not retain the native final rating/flag record;
 performance finalization remains opt-in on an explicitly distinct MatchEngine
-RNG. The gate receipt finalizer returns its output, but its league callers
-currently discard that return. Those inputs must be retained at their proven
+RNG. The Premier League AI/human completion callers now retain the actual gate
+receipt finalizer output in `prepared_match_gate_receipts`, keyed by fixture
+ID, without changing the four source-ordered RNG draws or accounting. Missing
+inputs remove stale entries rather than manufacturing attendance. This map
+is transient completion input, deliberately excluded from internal save, not
+`captured_match_reports` or a fixture link. Annual regeneration clears it.
+Those and the remaining inputs must be retained at their proven
 production points and projected into the complete report before appending any
 link. A synthetic native snapshot or codec test is not that producer.
 

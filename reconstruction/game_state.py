@@ -188,6 +188,10 @@ class GameState:
     team_tactics: dict[int, TeamTacticalState] = field(default_factory=dict)
     pitch_wear: dict[int, int] = field(default_factory=dict)
     prepared_match_environments: dict[int, MatchEnvironment] = field(default_factory=dict)
+    # Completion inputs only, NOT captured reports or fixture links. Until
+    # the complete report producer exists these are transient and deliberately
+    # excluded from internal save; no missing attendance is defaulted.
+    prepared_match_gate_receipts: dict[int, GateReceiptResult] = field(default_factory=dict)
     premier_league_scheduler_order: dict[int, tuple[int, ...]] = field(default_factory=dict)
     primary_matchday_order: dict[date, tuple[tuple, ...]] = field(default_factory=dict)
     primary_schedule_shadow: PrimaryScheduleShadowState = field(
@@ -1639,16 +1643,24 @@ class GameState:
         home_club_id: int,
         prepared_inputs: dict[str, object] | None,
         rng,
+        *,
+        fixture_id: int | None = None,
     ) -> GateReceiptResult | None:
         """Consume the four post-calculator gate draws and post when materialized."""
+        if fixture_id is not None and (type(fixture_id) is not int or fixture_id < 0):
+            raise ValueError("Completion input fixture ID must be a non-negative integer")
         rand15_values = self._draw_matchday_gate_rand15_values(rng)
         if prepared_inputs is None:
+            if fixture_id is not None:
+                self.prepared_match_gate_receipts.pop(fixture_id, None)
             return None
         receipts = calculate_matchday_gate_receipts(
             **prepared_inputs,
             rand15_values=rand15_values,
         )
         self.post_gate_receipts(int(home_club_id), receipts)
+        if fixture_id is not None:
+            self.prepared_match_gate_receipts[fixture_id] = receipts
         return receipts
 
     def post_gate_receipts(
@@ -2538,6 +2550,7 @@ class GameState:
         self.primary_matchday_order = new_primary_order
         self.premier_league_scheduler_order = new_scheduler_order
         self.prepared_match_environments = {}
+        self.prepared_match_gate_receipts = {}
         return regeneration
 
     def refresh_primary_procedural_leagues(
@@ -3758,6 +3771,7 @@ class GameState:
         match_engine_rng=None,
     ) -> NormalMatchResult:
         """Prepare two AI clubs, simulate the due fixture, and store its result."""
+        fixture_id = int(fixture_id)
         rng = self._resolve_rng(rng)
         home, away = self.prepare_premier_league_ai_fixture_sides(fixture_id, rng)
         fixture = self.premier_league.fixtures[int(fixture_id)]
@@ -3806,7 +3820,9 @@ class GameState:
         # 0x513252 -> 0x5DA2F0 runs after MatchCalculator and before
         # 0x5127A0 incident persistence / later Form RNG. Every normal League
         # fixture consumes these four draws even when no user Balance is posted.
-        self._finish_premier_league_gate_receipts(home_club_id, gate_inputs, rng)
+        self._finish_premier_league_gate_receipts(
+            home_club_id, gate_inputs, rng, fixture_id=fixture_id,
+        )
 
         fixture_date = self.calendar.current_date
         away_club_id = int(fixture.away_club_id)
@@ -4026,7 +4042,9 @@ class GameState:
                 rng,
                 match_engine_rng,
             )
-        self._finish_premier_league_gate_receipts(home_club_id, gate_inputs, rng)
+        self._finish_premier_league_gate_receipts(
+            home_club_id, gate_inputs, rng, fixture_id=fixture_id,
+        )
 
         fixture_date = self.calendar.current_date
         home_next = self.premier_league.next_club_match_date(

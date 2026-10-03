@@ -10688,4 +10688,10 @@ work may continue under the deferred-blocker policy.
 - Source-closed native participant 12-bit packing, exact eight skill flags, all sixteen compact-script families/six tactical subcommands, four additional scalar copies and two/four-group possession capture. Added fail-closed snapshot codecs and independent bit-stream/offset/overflow regressions; no fragment is promoted to a report or assigned a fixture link.
 - Canonical private calibration passed (18 tests); focused Gate-13 report/route/host/bridge/audit/separation passed (118 tests, one expected skip). Asset policy passed. Fresh Windows schema-8 audit and reconciled frozen package smoke passed; private trace/receipt/package hashes are in `GATE13_CLOSURE_AUDIT.md`.
 - Full reconstruction rerun on the reconciled tree passed: 1,587 tests, 23 expected skips. Project JSON and diff-whitespace checks passed; no proprietary executable/archive/raw analysis or packaging output was staged.
+
+## 3 October 2026 - PR #183 live completion gate-input retention
+
+- Reconciled `origin/main` at `88e8b3554ece25ca609e38a41f159b5473900065`; no recovered codec/routing work was repeated and runtime ownership is unchanged.
+- Premier League AI/human completion now retains actual gate-receipt output by fixture ID at its existing finalizer. RNG/accounting are unchanged. Missing inputs do not get defaults; annual regeneration clears the transient map. It is not report ownership and is deliberately excluded from save until complete report production exists.
+- Focused completion/routing/competition/internal-save tests passed: 79 tests. Gate 13 remains open: complete native participant/event/scalar inputs, full report ownership/save integration and the genuine calculated-fixture/reload/right-click audit are still required.
 - Gate 13 remains OPEN. Single next blocker: retain the complete source-backed live calculator/completion inputs, assemble and persist the full report owner/link, then audit calculated fixture -> save/reload -> native right-click -> correct PMatchInfo and timing/normal-play criteria. Codecs are now recovered; do not restart their trace or derive context from results.

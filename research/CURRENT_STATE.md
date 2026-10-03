@@ -33,6 +33,10 @@ These snapshot codecs do not supply a complete report or assign a link.
 Continue at the live calculator/completion boundary, not by retracing codecs:
 retain final native participant records, the complete compact-event list and
 calculator/post-match scalars, then assemble/persist the complete owner.
+The Premier League AI/human completion paths now retain actual gate receipts
+as transient inputs; this alone does not create or persist a report/link.
+Latest Windows package built, but Application Control blocked its smoke-test
+process startup. See `GATE13_CLOSURE_AUDIT.md`; no security bypass was attempted.
 Normal-play/timing criteria must be assessed on that real route, not the
 explicit popup seam. Parallel later-gate work and `agent-runtime` ownership
 are unchanged.
