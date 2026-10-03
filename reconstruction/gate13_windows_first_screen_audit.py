@@ -14,6 +14,7 @@ from hashlib import sha256
 import json
 import platform
 from pathlib import Path
+from original_management_background import OriginalManagementBackground
 import sys
 
 from front_end_session import FrontEndSession
@@ -399,6 +400,8 @@ def expected_clean_host_photo_dimensions(host, resources) -> list[list[int]]:
         raise WindowsFirstScreenAuditError("Clean host lost its management presenter")
     frame = build_management_canvas_frame(host.management_presenter)
     expected: list[list[int]] = []
+    if getattr(host, 'management_background', None) is not None:
+        expected.extend([[800, 600], [385, 95]])
 
     if frame.presentation.panel_class == "PSquadScreen":
         transition = frame.presentation.squad_view_transition
@@ -829,6 +832,7 @@ def run_real_windows_graphical_audit(
             league_fixtures_grid_art=fixture_grid_art,
             squad_top_resources=squad_top_resources,
             league_tables_header_art=league_tables_header_art,
+            management_background=OriginalManagementBackground(source_root, original_exe),
             pmatchinfo_snapshot=pmatchinfo_snapshot,
         )
         try:

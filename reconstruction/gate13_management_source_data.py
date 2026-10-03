@@ -27,6 +27,10 @@ class ClubHeaderView:
     name: str
     short_name: str
     current_date: date
+    graphics_basename: str = ''
+    graphics_directory: str = ''
+    fan_base_index: int = 0
+    competition_id: int = -1
 
 
 @dataclass(frozen=True)
@@ -955,6 +959,14 @@ class ManagementSourceDataBridge:
             name=club.name,
             short_name=club.short_name,
             current_date=current_date,
+            graphics_basename=getattr(club, 'graphics_basename', ''),
+            graphics_directory=(
+                'International' if getattr(club, 'team_category_code', 0) in (2, 3)
+                else getattr(getattr(self.state, 'countries', {}).get(
+                    getattr(club, 'country_id', -1)), 'graphics_directory', '')
+            ),
+            fan_base_index=getattr(club, 'fan_base_index', 0),
+            competition_id=getattr(club, 'competition_id', -1),
         )
 
     @staticmethod
