@@ -203,6 +203,20 @@ class FastViewRetainedPlayerRowTests(unittest.TestCase):
                 energy_rng6_rolls={(0, 3): 0},
             )
 
+    def test_identity_rejects_non_source_position_codes(self):
+        for bad in (-1, 20, True, "19"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(FastViewRetainedPlayerRowError):
+                    FastViewRetainedPlayerRowIdentity(
+                        side_index=0,
+                        player_index=3,
+                        row_index=0,
+                        shirt_number=9,
+                        source_position_code=bad,
+                        surname="Striker",
+                        first_name_initial="A",
+                    )
+
     def test_adapter_does_not_import_simulation_gameplay_or_rng_modules(self):
         source = Path(__file__).with_name(
             "gate14_fastview_playerrow_from_result.py"
