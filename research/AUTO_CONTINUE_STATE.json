@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 199: PR #167 is canonical at main 78e305ca0e0fc7e5c22ed91649c2d9c5b163162f after 1,492 tests / 22 expected skips and asset-policy success. Continue Gate-14 work-ahead with the smallest source-backed player-visible FastView possession integration: reuse staged original PossessionDiagram art, exact diagram/text geometry, typed receiver lifecycle, every-fifth-GlobalTick cadence and GetTickCount speed thresholds. Keep human-side orientation, unresolved text font/color, broader FastView score/team/audio/3D choreography, and Gate 14 completion fail-closed. Gate 13 remains earliest incomplete pending the external schema-8 Windows receipt.",
-  "last_known_main_head": "78e305ca0e0fc7e5c22ed91649c2d9c5b163162f",
+  "active_task": "Recovery 200: PR #168 merged canonical at main 49cb46ece578a6d93105febf49968aed6cf4b694 after 1,500 tests / 22 expected skips and asset-policy success. Continue exact Gate-14 PossessionFigures typography trace already underway: style index 1 -> runtime font wrapper/global, source font file, native color, clipping/alignment. Do not render possession text until line-origin/clipping semantics are source-closed. FastView background ownership and human-side orientation remain fail-closed. Gate 13 remains earliest incomplete pending the external schema-8 Windows receipt.",
+  "last_known_main_head": "49cb46ece578a6d93105febf49968aed6cf4b694",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 199,
+  "recovery_generation": 200,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #167 merged. Continue live possession presentation slice without inventing unresolved orientation or typography.",
+  "note": "PR #168 merged. Continue typography/alignment source trace; do not repeat clock/art work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
