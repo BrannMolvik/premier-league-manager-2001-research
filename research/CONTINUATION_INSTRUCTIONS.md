@@ -58,6 +58,30 @@ Do **not** read the entire multi-thousand-line `PROGRESS.md` as a prerequisite u
 
 A reusable prompt for a fresh session is stored in `research/HANDOFF_PROMPT.md`.
 
+## Cross-worker ownership locks
+
+Before choosing work from the earliest incomplete gate, read
+`research/WORK_OWNERSHIP.json`.
+
+An active exclusive assignment in that file overrides the normal "continue the
+active gate" rule for workers that do not own the assignment. This is a
+coordination rule, not a scope reduction:
+
+- the named owner may continue the locked gate/subsystem;
+- every other worker must avoid modifying the locked implementation, tests,
+  status/audit documents and shared state files;
+- non-owning workers may continue independent later-gate work-ahead only when
+  it does not touch the locked files or behavior;
+- if no independent work exists, checkpoint and stop rather than duplicate the
+  owner's investigation;
+- do not rewrite or silently clear an active ownership lock merely because
+  `CURRENT_STATE.md` still names that gate as the earliest incomplete gate;
+- release or change the lock only through an explicit coordination update or
+  after the recorded release condition is satisfied.
+
+This rule exists to prevent ChatGPT continuous workers and Codex from solving
+the same reverse-engineering boundary on divergent branches.
+
 ## One-gate rule
 
 Only one roadmap gate should be active at a time.
