@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is 0b6ca1f835b5e144c1d8a4cfec7d2df1a7031788 after Gate-17 PR #249 merged green. PR #250 latest head b30855c7f299bd4b9d11d1b4d8a3b47e33a40435 fixes its one hosted-test failure by validating country-plan assignment before the lower-level ranking audit; the prior failed run on ffe44594 is superseded and fresh checks are pending. #250 previews all playable-country LeagueAllocation exchanges in global source row order without mutating runtime. Prepared behind it: worker/gate17-runtime-progression-audit (read-only live ranking resolver/membership immutability audit) and worker/gate17-full-scope-preflight (aggregates human-scope/progression blockers). Preserve Gate-13 ownership; local private-source execution remains blocked by process-start ClientError.",
-  "last_known_main_head": "0b6ca1f835b5e144c1d8a4cfec7d2df1a7031788",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is d258c3581e40b6a143445cc1b4bf790e0dd76ef4 after Gate-17 PR #250 merged green. PR #251 head c1ec213330ca5a9b45e3270c41a97e0815e34337 audits live full-scope progression readiness read-only; both Reconstruction test suite run 37149115980 and Repository asset policy run 37149115941 passed. Next action is merge #251 if its diff remains scoped/correct, then continue the prepared full-scope preflight branch against the new main. Preserve Gate-13 ownership; local private-source execution remains blocked by process-start ClientError.",
+  "last_known_main_head": "d258c3581e40b6a143445cc1b4bf790e0dd76ef4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 245,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 245 checkpoint: #249 merged green as 0b6ca1f8. #250 failed one contract-order test on old head, fixed on b30855c7 by moving country assignment validation before ranking audit. Fresh CI pending. Runtime progression audit and full-scope preflight are prepared but unopened.",
+  "recovery_generation": 246,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 246: reconciled stale runtime to main d258c358 after #250 merged. #251 is open at c1ec2133 with both hosted checks green. Review/merge #251, then rebase/transplant the prepared Gate-17 full-scope preflight onto canonical main and continue cloud-safe work without changing Gate-13 ownership.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
