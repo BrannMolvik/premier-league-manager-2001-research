@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 223,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 223 tooling merged verified. Runtime/data model remains fail-closed for unresolved visiting capacities, top-four +0x130 lifecycle and secondary selector.",
+  "recovery_generation": 224,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 224 auto-recovery attached to canonical main 104738383273205c1697a035685e6b83f4fd1895. Continue the exact Gate-13 remaining-field private scan/adjudication when executable access exists; otherwise record the blocker and advance only independent cloud-safe work without inferring unresolved semantics.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
