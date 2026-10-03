@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is now 9130c24dd89aa9ce2703f543f408a4c644e517ae after verified Gate-14 PR #228 merged (component RGBA planes; reconstruction 37138177620 + asset policy 37138177540 passed). Continue disjoint Gate-14 work: PR #229 TeamTable art loader has isolated test-fixture fix at 75961b1b2a38cbe50dd06901c496df9118d4674d and awaits restarted CI. Descendant branches prepare static TeamTable raster and verified-source chrome loading. Do not touch Gate-13-owned/shared runtime files.",
-  "last_known_main_head": "9130c24dd89aa9ce2703f543f408a4c644e517ae",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is 2b646ee191fffa276f670404116c1d37727f3f0a after Gate-14 TeamTable art loader PR #230 merged green. PR #231 (worker/gate14-teamtable-static-raster-v2, head 030fb54d) is mergeable; asset policy passed and reconstruction run 37139711909 is in progress. Stacked PR #232 (worker/gate14-chrome-source-loader, head aae8a91c) isolates the verified-source FastView chrome loader and now includes reconstruction workflow path coverage; reconstruction run 37139780822 and asset-policy run 37139780764 are queued. Merge #231 only after green, then retarget/transplant #232 to canonical main and merge only after green. Do not touch Gate-13-owned/shared runtime files.",
+  "last_known_main_head": "2b646ee191fffa276f670404116c1d37727f3f0a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 230,
+  "recovery_generation": 231,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 230 checkpoint: Gate-14 PR #228 merged green as 9130c24d. PR #229 loader failure was impossible malformed EA444 fixture, fixed at 75961b1b. Static TeamTable raster and chrome source-loader work are persisted on descendant/disjoint branches. Local process sandbox still unavailable.",
+  "note": "Recovery 231 checkpoint: PR #230 merged green as 2b646ee1. PR #231 static TeamTable raster is mergeable with asset policy green and reconstruction CI running. PR #232 chrome source loader is cleanly stacked on #231 and now has hosted reconstruction coverage queued after workflow-path fix aae8a91c.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
