@@ -94,6 +94,29 @@ class CanonicalMultiSeedAuditTests(unittest.TestCase):
             )
         self.assertEqual(calls, [])
 
+    def test_bool_and_non_integer_inputs_fail_closed(self):
+        for seeds in ((1, True), (1, "2")):
+            with self.subTest(seeds=seeds):
+                with self.assertRaisesRegex(ValueError, "exact integers"):
+                    run_canonical_multiseed_audit(
+                        "/canonical",
+                        player_seeds=seeds,
+                    )
+
+        for kwargs in (
+            {"rollover_count": True},
+            {"rollover_count": 2.0},
+            {"max_days_per_season": True},
+            {"max_days_per_season": 420.0},
+        ):
+            with self.subTest(kwargs=kwargs):
+                with self.assertRaises(ValueError):
+                    run_canonical_multiseed_audit(
+                        "/canonical",
+                        player_seeds=(1, 2),
+                        **kwargs,
+                    )
+
     def test_first_failing_seed_aborts_without_false_combined_success(self):
         calls = []
 
@@ -145,13 +168,13 @@ class CanonicalMultiSeedAuditTests(unittest.TestCase):
             )
 
     def test_invalid_rollover_and_day_bounds_fail_before_execution(self):
-        with self.assertRaisesRegex(ValueError, "at least two rollovers"):
+        with self.assertRaisesRegex(ValueError, "integer >= 2"):
             run_canonical_multiseed_audit(
                 "/canonical",
                 player_seeds=(1, 2),
                 rollover_count=1,
             )
-        with self.assertRaisesRegex(ValueError, "must be positive"):
+        with self.assertRaisesRegex(ValueError, "positive integer"):
             run_canonical_multiseed_audit(
                 "/canonical",
                 player_seeds=(1, 2),
