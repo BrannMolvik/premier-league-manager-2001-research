@@ -19,6 +19,10 @@ from gate17_playable_allocation_preview import (
     PlayableAllocationPreview,
     PlayableCountryExchangeSummary,
 )
+from gate17_runtime_owner_capability import (
+    RuntimeOwnerCapabilityAudit,
+    RuntimeOwnerCapabilityEntry,
+)
 from gate17_runtime_progression_audit import RuntimeProgressionAudit
 from league_transition import LeagueMembershipExchange
 
@@ -45,6 +49,25 @@ def human_audit(*, complete=True):
         backend_selectable_club_ids=supported,
         catalog_selectable_club_ids=(1, 2),
         backend_club_ids_outside_catalog=(),
+        entries=(entry,),
+    )
+
+
+def runtime_owner_audit(*, complete=True, scope_id="26:0"):
+    blockers = () if complete else ("human_match_dispatch_missing",)
+    entry = RuntimeOwnerCapabilityEntry(
+        scope_id=scope_id,
+        country_id=26,
+        competition_id=0,
+        runtime_owner="fixed_primary",
+        selection_supported=True,
+        runtime_materialized=True,
+        human_match_supported=complete,
+        annual_progression_supported=True,
+        blocker_codes=blockers,
+    )
+    return RuntimeOwnerCapabilityAudit(
+        catalog_sha256=CATALOG,
         entries=(entry,),
     )
 
@@ -125,19 +148,24 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
     def test_complete_audits_are_ready_for_full_runtime_validation(self):
         result = build_full_scope_preflight(
             human_audit(),
+            runtime_owner_audit(),
             progression_audit(),
         )
 
         self.assertTrue(result.ready_for_full_runtime_validation)
+        self.assertTrue(result.runtime_owner_complete)
         self.assertTrue(result.progression_runtime_complete)
         self.assertEqual(result.blocker_codes, ())
         self.assertEqual(result.supported_scope_ids, ("26:0",))
+        self.assertEqual(result.runtime_owner_supported_scope_ids, ("26:0",))
         self.assertEqual(result.previewed_allocation_ids, (0,))
+        self.assertEqual(result.as_dict()["schema_version"], 2)
         self.assertTrue(result.as_dict()["ready_for_full_runtime_validation"])
 
     def test_incomplete_surfaces_remain_explicit_blockers(self):
         result = build_full_scope_preflight(
             human_audit(complete=False),
+            runtime_owner_audit(complete=False),
             progression_audit(complete=False, with_preview=False),
         )
 
@@ -146,21 +174,39 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             result.blocker_codes,
             (
                 "human_scope_incomplete",
+                "runtime_owner_capability_incomplete",
                 "progression_rankings_incomplete",
                 "allocation_preview_missing",
             ),
         )
         self.assertEqual(result.unsupported_scope_ids, ("26:0",))
+        self.assertEqual(result.runtime_owner_blocked_scope_ids, ("26:0",))
+        self.assertEqual(
+            result.runtime_owner_blocker_codes,
+            ("human_match_dispatch_missing",),
+        )
         self.assertEqual(result.unresolved_allocation_ids, (0,))
         self.assertEqual(result.unresolved_ranking_endpoint_ids, (2,))
 
-    def test_catalog_identity_must_match_across_inputs(self):
+    def test_catalog_identity_must_match_across_all_inputs(self):
+        bad_owner = replace(runtime_owner_audit(), catalog_sha256="d" * 64)
+        with self.assertRaisesRegex(
+            Gate17FullScopePreflightError,
+            "runtime-owner audits target different catalogs",
+        ):
+            build_full_scope_preflight(
+                human_audit(),
+                bad_owner,
+                progression_audit(),
+            )
+
         with self.assertRaisesRegex(
             Gate17FullScopePreflightError,
             "different catalogs",
         ):
             build_full_scope_preflight(
                 human_audit(),
+                runtime_owner_audit(),
                 replace(progression_audit(), catalog_sha256="d" * 64),
             )
 
@@ -174,7 +220,19 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
         ):
             build_full_scope_preflight(
                 human_audit(),
+                runtime_owner_audit(),
                 replace(progression_audit(), ranking_capability=bad_ranking),
+            )
+
+    def test_runtime_owner_scope_identity_must_exactly_match_human_scope(self):
+        with self.assertRaisesRegex(
+            Gate17FullScopePreflightError,
+            "scope IDs do not exactly match",
+        ):
+            build_full_scope_preflight(
+                human_audit(),
+                runtime_owner_audit(scope_id="66:27"),
+                progression_audit(),
             )
 
     def test_runtime_preview_integrity_must_match_runtime_audit(self):
@@ -193,6 +251,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
         ):
             build_full_scope_preflight(
                 human_audit(),
+                runtime_owner_audit(),
                 replace(progression, allocation_preview=bad_preview),
             )
 
@@ -202,6 +261,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
         ):
             build_full_scope_preflight(
                 human_audit(),
+                runtime_owner_audit(),
                 replace(
                     progression,
                     allocation_preview=replace(
@@ -216,18 +276,33 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             progression_audit(),
             runtime_memberships_unchanged=False,
         )
-        result = build_full_scope_preflight(human_audit(), progression)
+        result = build_full_scope_preflight(
+            human_audit(),
+            runtime_owner_audit(),
+            progression,
+        )
 
         self.assertFalse(result.ready_for_full_runtime_validation)
         self.assertIn("runtime_membership_mutation", result.blocker_codes)
 
-    def test_empty_human_scope_and_bad_types_fail_closed(self):
+    def test_empty_audits_and_bad_types_fail_closed(self):
         with self.assertRaisesRegex(
             Gate17FullScopePreflightError,
-            "contains no TeamSelect scope entries",
+            "human-scope audit contains no TeamSelect scope entries",
         ):
             build_full_scope_preflight(
                 replace(human_audit(), entries=()),
+                runtime_owner_audit(),
+                progression_audit(),
+            )
+
+        with self.assertRaisesRegex(
+            Gate17FullScopePreflightError,
+            "runtime-owner audit contains no TeamSelect scope entries",
+        ):
+            build_full_scope_preflight(
+                human_audit(),
+                replace(runtime_owner_audit(), entries=()),
                 progression_audit(),
             )
 
@@ -235,13 +310,31 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             Gate17FullScopePreflightError,
             "exact HumanScopeCapabilityAudit",
         ):
-            build_full_scope_preflight(object(), progression_audit())
+            build_full_scope_preflight(
+                object(),
+                runtime_owner_audit(),
+                progression_audit(),
+            )
+
+        with self.assertRaisesRegex(
+            Gate17FullScopePreflightError,
+            "exact RuntimeOwnerCapabilityAudit",
+        ):
+            build_full_scope_preflight(
+                human_audit(),
+                object(),
+                progression_audit(),
+            )
 
         with self.assertRaisesRegex(
             Gate17FullScopePreflightError,
             "exact RuntimeProgressionAudit",
         ):
-            build_full_scope_preflight(human_audit(), object())
+            build_full_scope_preflight(
+                human_audit(),
+                runtime_owner_audit(),
+                object(),
+            )
 
 
 if __name__ == "__main__":
