@@ -7,8 +7,9 @@ Fonts/Zurich_BdXCn_BT_18pixel.fnt. Generic text rendering uses native color
 0xFFFF and flags 9, which resolve to left/top alignment.
 
 This module renders only the three source-proven percentage strings and control
-rectangles. It does not assign side 0/1 to the human user or synthesize the
-surrounding FastView background.
+rectangles. Source side 0/home is right and side 1/away is left; a standalone
+art object still lacks the specific fixture's human_is_home context. It does
+not synthesize the surrounding FastView background.
 """
 from __future__ import annotations
 
@@ -63,7 +64,8 @@ class OriginalFastViewPossessionFiguresArt:
     ]
     horizontal_alignment: str = SOURCE_TEXT_HORIZONTAL_ALIGNMENT
     vertical_alignment: str = SOURCE_TEXT_VERTICAL_ALIGNMENT
-    human_side_orientation_recovered: bool = False
+    match_role_orientation_recovered: bool = True
+    human_side_orientation_requires_fixture_role: bool = True
 
 
 def load_verified_possession_figures_font(repo_root: str | Path) -> EAFont:
