@@ -186,14 +186,13 @@ def run_canonical_human_scope_capability(game_dir: str | Path) -> HumanScopeCapa
         player_seed=1,
         match_engine_seed=1,
     )
-    league = controller.state.premier_league
-    if league is None:
+    if controller.state.premier_league is None:
         raise Gate17HumanScopeCapabilityError(
-            "canonical human controller has no Premier League selection backend"
+            "canonical human controller has no fixed primary runtime"
         )
     return audit_human_selection_scope(
         scope,
-        tuple(int(value) for value in league.club_ids),
+        controller.selectable_club_ids(),
     )
 
 
