@@ -341,6 +341,14 @@ Completion criteria:
 
 ## Gate 17 - Final modernization and release audit
 
+### Port-scope invariant
+
+The release target is a **Windows 11 compatibility port of the shipped original game**, not a reduced remake, demo, or Premier-League-only reinterpretation.
+
+Gate 17 cannot pass while functionality that was available in the shipped original is deliberately absent from the port. This includes every originally selectable/playable league and country, the human-manager career flow in those competitions, promotion/relegation and competition progression, and the original management/gameplay subsystems needed to operate a complete career. Shared systems should be generalized from source-backed data/competition ownership rather than reimplemented separately per league where the original itself is generic.
+
+Temporary reconstruction limits such as Premier-League-only human control are acceptable only as intermediate milestones. They are **release blockers**, not limitations that may be documented away at final release. Modernization may change implementation details required for Windows 11 compatibility, but it must not intentionally reduce the shipped game's functional scope.
+
 Goal: produce a stable Windows 11 port/modernization build with intentional provenance for reused original resources.
 
 Completion criteria:
@@ -355,4 +363,6 @@ Completion criteria:
 
 ## Final project definition of done
 
-A person other than the developers can install the Windows 11 port, start a game, manage a club through a season, save/reload, and experience something that feels like **The F.A. Premier League Football Manager 2001** because original authorized data/presentation resources are preserved wherever practical and replacement runtime code reproduces the incompatible legacy behavior. Known fidelity differences remain documented rather than hidden.
+A person other than the developers can install the Windows 11 port and use the **full functional scope of the shipped original game** on Windows 11: start a game in every originally selectable/playable league and country, manage a club through seasons and competition transitions, use the original management/gameplay functions, and save/reload successfully.
+
+The port should experience and behave like **The F.A. Premier League Football Manager 2001** because original authorized data/presentation resources are preserved wherever practical and replacement runtime code reproduces incompatible legacy behavior. Known fidelity differences may be documented, but missing original functionality is not an acceptable final limitation merely because a narrower Premier League path works.
