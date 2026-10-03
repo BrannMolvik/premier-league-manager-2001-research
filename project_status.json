@@ -1832,7 +1832,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "dynamic_by_fixture_role_exact",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "Verify Recovery 210 PlayerRow name closure through CI, merge if green, then identify remaining cell 1 proxy+0x47 only through direct producer/consumer ownership. Do not infer squad number from layout.",
+  "gate14_exact_next_task": "After the rebased shirt-number PR is canonical, transplant and verify the complete PlayerRow snapshot/presentation-retention delta on current main. Then retain the required per-player FastView row state from the actual match/completion path instead of recomputing it after simulation.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -2478,5 +2478,20 @@
   "gate14_playerrow_shirt_builder_caller_va": "0x533370",
   "gate14_playerrow_shirt_accessor_call_va": "0x5333EC",
   "gate14_playerrow_shirt_record_write_va": "0x5333F3",
-  "gate14_playerrow_cell1_derived_not_direct_alias": true
+  "gate14_playerrow_cell1_derived_not_direct_alias": true,
+  "gate14_playerrow_snapshot_module": "reconstruction/gate14_fastview_playerrow_snapshot.py",
+  "gate14_playerrow_snapshot_complete_source_fields": [
+    "shirt_number",
+    "position",
+    "player_display_name",
+    "goal_count_optional",
+    "own_goal_count_optional",
+    "form",
+    "energy_bar",
+    "name_grid_resource"
+  ],
+  "gate14_playerrow_snapshot_goal_counter_unwritten_state": "none_not_invented_zero_text",
+  "gate14_playerrow_snapshot_presentation_only": true,
+  "gate14_playerrow_snapshot_outcome_attribute": "fastview_player_rows",
+  "gate14_playerrow_snapshot_missing_retained_state_behavior": "empty_tuple_fail_closed"
 }
