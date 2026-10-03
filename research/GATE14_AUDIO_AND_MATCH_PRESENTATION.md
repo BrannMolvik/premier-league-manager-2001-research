@@ -198,6 +198,17 @@ otherwise unconsumed static string; FastViewPanel's 800x600 base constructor
 takes no bitmap path. The authenticated file remains a source lead but is not
 rendered as the live panel background.
 
+Recovery 204 source-closes two more directly owned FastView pixels without
+using the rejected loose background. The FastViewPanel constructor creates
+`FM2001_Art/FastView/top_bar.444` as a generic PictureControl at
+(0,0)-(800,95) and `FM2001_Art/FastView/ticker.444` as a PictureControl at
+(0,557)-(800,590). Both calls target `0x527730`, whose vtable `0x7CAA5C`
+has RTTI `.?AVPictureControl@@`. Exact source identities, hashes and an
+RGBA placement seam are regression-locked in
+`research/GATE14_FASTVIEW_CHROME_SOURCE_TRACE.md`. The original binary bytes
+are recovered but their repository import is deferred to a binary-safe
+container-to-Git transport; no replacement artwork is used.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
@@ -248,8 +259,9 @@ bank/sample resource before integration.
 
 ## Exact next cloud-safe task
 
-Verify Recovery 202 through full CI, then continue the next source-backed
-FastView shell/chrome component. Do not use the rejected loose-background
-inference, and do not mirror the whole scene around the human user merely from
-the now-proven home/right and away/left PossessionFigures mapping. Gate 13
-remains earliest incomplete pending its external schema-8 Windows receipt.
+Verify the Recovery-204 direct top-bar/ticker PictureControl contract through
+full CI. Once canonical, continue the next directly owned FastView
+shell/control from executable callsites. Keep the rejected loose background
+unrendered, and import the exact top/ticker EA444 bytes only through a
+binary-safe repository transport. Gate 13 remains earliest incomplete pending
+its external schema-8 Windows receipt.
