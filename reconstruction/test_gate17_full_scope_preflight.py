@@ -201,6 +201,50 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
                 bad_preview,
             )
 
+    def test_preview_exchange_membership_and_country_coverage_fail_closed(self):
+        ranking = ranking_audit()
+        base = preview(ranking)
+
+        with self.assertRaisesRegex(
+            Gate17FullScopePreflightError,
+            "exchange ledger",
+        ):
+            build_full_scope_preflight(
+                human_audit(),
+                ranking,
+                replace(base, exchanges=()),
+            )
+
+        with self.assertRaisesRegex(
+            Gate17FullScopePreflightError,
+            "membership key set changed",
+        ):
+            build_full_scope_preflight(
+                human_audit(),
+                ranking,
+                replace(base, memberships_after={1: 2}),
+            )
+
+        with self.assertRaisesRegex(
+            Gate17FullScopePreflightError,
+            "country summaries",
+        ):
+            build_full_scope_preflight(
+                human_audit(),
+                ranking,
+                replace(base, country_summaries=()),
+            )
+
+        with self.assertRaisesRegex(
+            Gate17FullScopePreflightError,
+            "duplicate assigned allocation IDs",
+        ):
+            build_full_scope_preflight(
+                human_audit(),
+                ranking,
+                replace(base, assigned_allocation_ids=(0, 0)),
+            )
+
     def test_empty_human_scope_and_bad_input_types_fail_closed(self):
         empty = replace(human_audit(), entries=())
         with self.assertRaisesRegex(
