@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN on canonical main a5a4c6f0cc7b0afda2870e5dec2c4209a7b49553 and research/WORK_OWNERSHIP.json still assigns Gate-13 closure exclusively to Codex. PR #224 is now merged as a5a4c6f0 and its schema-2 Gate-17 evidence guard is canonical. Continuous-worker next task is independent Gate-17 work-ahead: recover a source-backed catalog of every originally selectable/playable league/country and the required career/progression/management scope, then implement a fail-closed runtime/full-scope audit and receipt producer without fabricating missing source facts or touching Gate-13-owned files. Use the documented original-source recovery route if original binaries/resources are required.",
-  "last_known_main_head": "a5a4c6f0cc7b0afda2870e5dec2c4209a7b49553",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Optimize continuous-worker work by critical-path efficiency, not gate number. First choose productive, disjoint Gate-14 source-backed implementation/integration. If Gate 14 is blocked, resolve independent Gate-15 fidelity gaps that can be conclusively fixed without touching Gate-13-owned/shared files. Use Gate-17 scope discovery only when it yields concrete architectural leverage; avoid release-evidence scaffolding that cannot yet change implementation. Use Gate-16 stress/audit work opportunistically when the relevant code is stable. Pivot immediately when a task hits a private-source/container/Windows blocker with no concrete repository-side step left.",
+  "last_known_main_head": "d2329aa45dba3f3d80a41447d0de1cc8d05fa635",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 227,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 227: reconciled main through merged PR #224 at a5a4c6f0. Gate 13 remains Codex-owned and open. Resuming independent Gate-17 full-original-scope catalog/audit work-ahead.",
+  "note": "Efficiency priority updated: Gate 14 implementation > independent Gate 15 fixes > architecturally useful Gate 17 scope work > opportunistic Gate 16/audit tooling, subject to the Gate-13 Codex ownership lock. Re-evaluate after each checkpoint.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
