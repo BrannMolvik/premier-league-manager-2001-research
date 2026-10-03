@@ -10564,3 +10564,15 @@ work may continue under the deferred-blocker policy.
 - Rehashed source-disc `FM2001_Art/FastView/background.444` to SHA-256 `499e930fe0a328d969096b8d2cdb8c817169f02812adcc78acf111dc666d95c0`; it is 205,984 bytes and 800x600 with path literal `0x8294E8`. Direct FastViewPanel draw ownership is still unresolved, so it is not imported or rendered.
 - Corrected stale `MATCH_ENGINE.md` wording that still associated the three 82x16 team/blank bars with PossessionFigures. Canonical ownership remains FastViewTeam/TeamTable.
 - Gate 13 remains the earliest incomplete validation gate pending the external schema-8 real-Windows receipt. This is Gate-14 work-ahead only.
+
+
+## 3 October 2026 - Recovery 200 exact PossessionFigures typography
+
+- Resumed from canonical main `49cb46ece578a6d93105febf49968aed6cf4b694`; PR #168 had passed reconstruction run `37085827416` with **1,500 tests / 22 expected skips** and asset-policy run `37085827389`.
+- Continued the already active typography trace rather than repeating the clock/art work.
+- Corrected an intermediate trace mistake before persistence: PossessionFigures style index 1 maps to the **18-pixel** bold Zurich font, not the 20-pixel font. Generic style selector `0x527BA0` returns wrapper `0x87BE90`; initializer `0x603670` binds font object `0x9197E0`; loader sequence `0x6042A8..0x6042F5` uses path literal `0x839F00 = Fonts\\Zurich_BdXCn_BT_18pixel.fnt`.
+- The font is already provenance-staged: 83,174 bytes, SHA-256 `4c5d5d33cb1fb2345c93a0e133863cc3e9e25d4297d0a6d15df762fb710eaccd`, atlas 1633x18, native line height 20.
+- PossessionFigures passes constructor flags 1; `0x527960` ORs bit 3 and sends render flags 9 plus native color `0xFFFF` to the generic control.
+- Draw routine `0x64F090` proves flags 9 mean default left horizontal and top vertical alignment. All valid `0%..100%` strings fit the 40x18 controls; the maximum is `100%` at 34x17.
+- Added an exact source-font text-art seam that renders only the three percentage glyph overlays at their already source-closed side1/neutral/side0 rectangles. Human-side orientation and surrounding FastView background remain fail-closed.
+- Gate 13 remains earliest incomplete pending the external schema-8 Windows receipt; Gate 14 is still work-ahead.
