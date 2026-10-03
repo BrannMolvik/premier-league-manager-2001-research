@@ -10814,3 +10814,13 @@ work may continue under the deferred-blocker policy.
 - PR #196 reconstruction run `37111511192` passed **1,620 tests with 23 expected skips**; asset-policy run `37111511208` passed.
 - Additional direct tracing closed the human-vs-AI `MatchCalculator+0xD48` tuning defaults but not the decisive legacy `DBRClub+0x130` lifecycle. The port therefore retains raw Condition history and refuses to guess the default-5 versus boost-16 adjustment branch.
 - Gate 13 remains the earliest incomplete validation gate. After merging this verified work-ahead checkpoint, resume Gate 13 at the native completion-time report owner: retain/assemble/persist the complete report and verify calculated fixture -> save/reload -> right-click PMatchInfo on Windows.
+
+
+## 3 October 2026 - Recovery 223 remaining Gate-13 field trace tooling
+
+- Canonical main remained `370ad184b4b3f2e9ecf33e5331afac212e588d9e`; Gate 13 remained the earliest incomplete gate.
+- Private container access still failed with `ClientError` on trivial filesystem commands, so the authorized materialized original archive could not be executed or disassembled.
+- Added checksum-gated `gate13_remaining_field_source_trace.py`, a candidate-only linear x86 memory-displacement scanner for `+0x130`, `+0x13C`, `+0x140`, and `+0x76`.
+- The scanner intentionally does not classify candidate hits as real DBRClub/participant accesses, reads/writes, lifecycle owners, capacities, or shirt selectors. Manual canonical CFG/data-flow adjudication remains required.
+- Added synthetic Capstone coverage for all four displacements and fail-closed argument validation; wired the new test into Gate-13 focused CI and the full reconstruction PR path.
+- Exact next step after CI: run the scanner privately on the canonical executable when container execution recovers, manually adjudicate candidate object provenance, then source-close one field at a time. No 10% capacity rule, secondary-selector value, or `+0x130` state is inferred.

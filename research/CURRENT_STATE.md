@@ -33,6 +33,12 @@ and final timing/recognizability judgment. Secondary/loan shirts remain
 fail-closed, not a reason to expand the minimum slice without audit evidence.
 Main, Gate-14 work and ownership protocol are untouched.
 
+Recovery-223's checksum-gated remaining-field scanner is also preserved as
+support tooling. Its earlier +0x130/D48 status is superseded by the PR #211
+producer proof above; the scanner remains useful for candidate discovery and
+manual CFG/data-flow review of the still-open fresh +0x13C/+0x140 capacity
+lifecycle and secondary/loan +0x76 selector. Candidate hits are not semantics.
+
 Previous local Gate-13 milestone, based on canonical `6207dbe0`: native
 attendance bit-9/count lifecycle and exact zero-based human-rank D48 guards
 are integrated and persist in schema 42. A genuinely calculated Coventry

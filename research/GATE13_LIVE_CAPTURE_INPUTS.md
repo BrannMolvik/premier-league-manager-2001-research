@@ -13,6 +13,18 @@ addresses, private receipt hashes and exact remaining allocation/boost/render
 dependencies are in `GATE13_LEGACY_CLUB_REPORT_STATE.md`. No Gate-14 or runtime
 ownership changes; partial/uncontrolled/secondary-shirt setups remain closed.
 
+### Recovery 223 candidate scanner retained after PR #211 advances
+
+The checksum-gated `gate13_remaining_field_source_trace.py` scanner is retained
+as fail-closed source-discovery tooling. It can report exact x86 memory-
+displacement candidates for `+0x130`, `+0x13C`, `+0x140` and `+0x76`
+without assigning semantics. PR #211 has since source-closed the required
++0x130/D48 path for the genuine controlled-home report, so that earlier blocker
+statement is historical. The scanner remains directly useful for the still-open
+fresh uncontrolled visiting-capacity lifecycle at +0x13C/+0x140 and the
+secondary/loan selector +0x76. Every hit still requires manual CFG/data-flow
+adjudication before runtime behavior is promoted.
+
 ## PR #199 ordinary setup producers, based on `f8bbdd9c`
 
 The ordinary producer chain now retains B68 before team selection (constructor

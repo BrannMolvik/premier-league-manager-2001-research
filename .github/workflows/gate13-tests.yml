@@ -215,6 +215,7 @@ jobs:
             test_gate13_button_vtable_xref_candidates \
             test_gate13_button_rtti_candidates \
             test_gate13_squad_source_trace \
+            test_gate13_remaining_field_source_trace \
             test_gate13_original_source_audit \
             test_gate13_original_pixel_preview \
             test_gate13_original_first_screen_viewer \
