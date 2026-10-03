@@ -261,14 +261,18 @@ def validate_full_original_scope_binding(
             "full_original_scope receipt root must be an object"
         )
 
-    scalar_fields = (
-        "scope_catalog_sha256",
+    if payload.get("scope_catalog_sha256") != expected["scope_catalog_sha256"]:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt scope_catalog_sha256 does not match "
+            "the canonical TeamSelect catalog"
+        )
+    for field in (
         "scope_country_count",
         "scope_entry_count",
         "scope_selectable_club_row_count",
-    )
-    for field in scalar_fields:
-        if payload.get(field) != expected[field]:
+    ):
+        value = payload.get(field)
+        if type(value) is not int or value != expected[field]:
             raise ReleaseReadinessError(
                 f"full_original_scope receipt {field} does not match "
                 "the canonical TeamSelect catalog"
