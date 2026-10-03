@@ -104,7 +104,7 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
 
             self.assertEqual(result, output.resolve())
             payload = json.loads(output.read_text(encoding="utf-8"))
-            self.assertEqual(payload["schema_version"], 1)
+            self.assertEqual(payload["schema_version"], 2)
             self.assertEqual(payload["release_version"], VERSION)
             self.assertEqual(payload["repository_commit"], COMMIT)
             self.assertEqual(
