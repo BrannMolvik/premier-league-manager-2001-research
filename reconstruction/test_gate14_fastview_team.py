@@ -17,6 +17,29 @@ from gate14_fastview_team import (
     TEAM_ROW_PRIMARY_VFTABLE,
     TEAM_ROW_STEP,
     TEAM_ROW_TEXT_RAW_FLAGS,
+    PLAYER_ROW_FORM_RECEIVER_BASE_VFTABLE,
+    PLAYER_ROW_GOAL_RECEIVER_BASE_VFTABLE,
+    PLAYER_ROW_OWN_GOAL_RECEIVER_BASE_VFTABLE,
+    PLAYER_ROW_FORM_RECEIVER_VFTABLE,
+    PLAYER_ROW_GOAL_RECEIVER_VFTABLE,
+    PLAYER_ROW_OWN_GOAL_RECEIVER_VFTABLE,
+    PLAYER_ROW_FORM_RECEIVER_OFFSET,
+    PLAYER_ROW_GOAL_RECEIVER_OFFSET,
+    PLAYER_ROW_OWN_GOAL_RECEIVER_OFFSET,
+    PLAYER_ROW_FORM_CALLBACK_VA,
+    PLAYER_ROW_GOAL_CALLBACK_VA,
+    PLAYER_ROW_OWN_GOAL_CALLBACK_VA,
+    PLAYER_ROW_FORM_EVENT_VALUE_OFFSET,
+    PLAYER_ROW_FORM_TEXT_CONTROL_OFFSET,
+    PLAYER_ROW_GOAL_COUNTER_OFFSET,
+    PLAYER_ROW_GOAL_TEXT_CONTROL_OFFSET,
+    PLAYER_ROW_OWN_GOAL_COUNTER_OFFSET,
+    PLAYER_ROW_OWN_GOAL_TEXT_CONTROL_OFFSET,
+    PLAYER_ROW_FORM_FORMAT_VA,
+    PLAYER_ROW_FORM_FORMAT,
+    PLAYER_ROW_GOAL_COUNT_FORMAT_VA,
+    PLAYER_ROW_GOAL_COUNT_FORMAT,
+    PLAYER_ROW_OWN_GOAL_COLOR_SETTER_VA,
     PLAYER_ROW_ENERGY_RECEIVER_BASE_VFTABLE,
     PLAYER_ROW_ENERGY_RECEIVER_VFTABLE,
     PLAYER_ROW_ENERGY_RECEIVER_OFFSET,
@@ -33,11 +56,14 @@ from gate14_fastview_team import (
     TEAM_TABLE_CONSTRUCTOR_VA,
     TEAM_TABLE_VFTABLE,
     FastViewTeamError,
+    player_row_form_text_state,
+    player_row_goal_text_state,
     side_contract,
     team_row_energy_bar_state,
     team_row_name_resource,
     team_row_origin,
     team_row_rects,
+    team_row_text_rect,
 )
 
 
@@ -206,6 +232,67 @@ class FastViewTeamTests(unittest.TestCase):
         low = team_row_energy_bar_state(0, 1, 57)
         self.assertEqual(low.source_scaled_width, -2)
         self.assertEqual(low.dynamic_rect, (309, 44, 307, 60))
+
+    def test_typed_form_goal_and_own_goal_receivers_are_exact(self):
+        self.assertEqual(PLAYER_ROW_FORM_RECEIVER_BASE_VFTABLE, 0x7CA938)
+        self.assertEqual(PLAYER_ROW_GOAL_RECEIVER_BASE_VFTABLE, 0x7CA920)
+        self.assertEqual(PLAYER_ROW_OWN_GOAL_RECEIVER_BASE_VFTABLE, 0x7CA95C)
+        self.assertEqual(PLAYER_ROW_FORM_RECEIVER_VFTABLE, 0x7CA90C)
+        self.assertEqual(PLAYER_ROW_GOAL_RECEIVER_VFTABLE, 0x7CA8F4)
+        self.assertEqual(PLAYER_ROW_OWN_GOAL_RECEIVER_VFTABLE, 0x7CA8E8)
+        self.assertEqual(PLAYER_ROW_FORM_RECEIVER_OFFSET, 0x54)
+        self.assertEqual(PLAYER_ROW_GOAL_RECEIVER_OFFSET, 0x5C)
+        self.assertEqual(PLAYER_ROW_OWN_GOAL_RECEIVER_OFFSET, 0x60)
+        self.assertEqual(PLAYER_ROW_FORM_CALLBACK_VA, 0x526740)
+        self.assertEqual(PLAYER_ROW_GOAL_CALLBACK_VA, 0x526800)
+        self.assertEqual(PLAYER_ROW_OWN_GOAL_CALLBACK_VA, 0x526880)
+        self.assertEqual(PLAYER_ROW_FORM_EVENT_VALUE_OFFSET, 0x04)
+        self.assertEqual(PLAYER_ROW_FORM_TEXT_CONTROL_OFFSET, 0x34)
+        self.assertEqual(PLAYER_ROW_GOAL_COUNTER_OFFSET, 0x18)
+        self.assertEqual(PLAYER_ROW_GOAL_TEXT_CONTROL_OFFSET, 0x2C)
+        self.assertEqual(PLAYER_ROW_OWN_GOAL_COUNTER_OFFSET, 0x1C)
+        self.assertEqual(PLAYER_ROW_OWN_GOAL_TEXT_CONTROL_OFFSET, 0x30)
+        self.assertEqual(PLAYER_ROW_FORM_FORMAT_VA, 0x828D3C)
+        self.assertEqual(PLAYER_ROW_FORM_FORMAT, "%u")
+        self.assertEqual(PLAYER_ROW_GOAL_COUNT_FORMAT_VA, 0x829B94)
+        self.assertEqual(PLAYER_ROW_GOAL_COUNT_FORMAT, "(%u)")
+        self.assertEqual(PLAYER_ROW_OWN_GOAL_COLOR_SETTER_VA, 0x650480)
+
+    def test_form_event_writes_text_cell_six_on_each_side(self):
+        side0 = player_row_form_text_state(0, 0, 4)
+        side1 = player_row_form_text_state(1, 2, 7)
+        self.assertEqual((side0.text_cell_index, side0.text), (6, "4"))
+        self.assertEqual(side0.rect, (276, 27, 296, 43))
+        self.assertEqual(side1.rect, (504, 61, 524, 77))
+        self.assertFalse(side0.source_color_update)
+
+    def test_goal_and_own_goal_events_increment_separate_parenthesized_counters(self):
+        goal = player_row_goal_text_state(0, 0, 2)
+        own = player_row_goal_text_state(1, 0, 0, own_goal=True)
+        self.assertEqual(goal.semantic, "player_goal_count")
+        self.assertEqual(goal.stored_value, 3)
+        self.assertEqual(goal.text, "(3)")
+        self.assertEqual(goal.text_cell_index, 4)
+        self.assertEqual(goal.rect, (243, 27, 263, 43))
+        self.assertFalse(goal.source_color_update)
+
+        self.assertEqual(own.semantic, "player_own_goal_count")
+        self.assertEqual(own.stored_value, 1)
+        self.assertEqual(own.text, "(1)")
+        self.assertEqual(own.text_cell_index, 5)
+        self.assertEqual(own.rect, (723, 27, 743, 43))
+        self.assertTrue(own.source_color_update)
+
+    def test_goal_counter_wrap_and_source_u32_validation_are_explicit(self):
+        wrapped = player_row_goal_text_state(0, 0, 0xFFFFFFFF)
+        self.assertEqual(wrapped.stored_value, 0)
+        self.assertEqual(wrapped.text, "(0)")
+        with self.assertRaises(FastViewTeamError):
+            player_row_form_text_state(0, 0, -1)
+        with self.assertRaises(FastViewTeamError):
+            player_row_goal_text_state(0, 0, 0x100000000)
+        with self.assertRaises(FastViewTeamError):
+            team_row_text_rect(0, 0, 7)
 
     def test_invalid_side_and_row_inputs_fail_closed(self):
         for bad in (-1, 2, True, "0"):
