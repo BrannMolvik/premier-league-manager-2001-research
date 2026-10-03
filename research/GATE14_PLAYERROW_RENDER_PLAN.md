@@ -63,3 +63,23 @@ The shell continues to report:
 Therefore this integration is evidence that Gate 14 presentation consumes
 retained reconstructed state without duplicating simulation, not evidence of a
 complete or player-visible original FastView frame.
+
+
+## Recovery 225 partial-surface selection bridge
+
+The partial 800x600 FastView layout can now derive its TeamTable row selections
+directly from a tuple of `FastViewPlayerRowRenderPlan` values.
+
+This removes a duplicate manual row-selection channel. The presentation path no
+longer needs to separately state `(side_index, row_index)` after those identities
+have already been validated in retained PlayerRow state.
+
+The bridge preserves input order, rejects non-tuple/manual shorthand and wrong
+types, and rejects duplicate retained row identities. It then delegates to the
+existing fail-closed partial-surface builder, so all prior geometry bounds,
+cross-component overlap reporting and unresolved raster/z-order boundaries still
+apply.
+
+This remains geometry-only for TeamTable rows. No row art/text rasterization,
+cross-component draw order, complete frame, audio mapping or Gate-14 completion
+is claimed.
