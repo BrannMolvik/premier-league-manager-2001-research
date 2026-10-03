@@ -182,6 +182,7 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 "human_career_flow": True,
                 "competition_progression": True,
                 "original_management_gameplay_subsystems": True,
+                "all_original_scope_save_reload": True,
                 "multi_human_management": True,
                 "simultaneous_human_users_verified": 6,
             },
@@ -369,6 +370,7 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                         human_career_flow=True,
                         competition_progression=True,
                         original_management_gameplay_subsystems=True,
+                        all_original_scope_save_reload=True,
                         multi_human_management=True,
                         simultaneous_human_users_verified=6,
                     )
@@ -388,6 +390,24 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             with self.assertRaisesRegex(
                 ReleaseReadinessError,
                 "all_original_playable_countries",
+            ):
+                validate_external_receipts(parse_release_evidence(raw), repo)
+
+    def test_full_scope_receipt_requires_scope_save_reload_flag(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            name = "full_original_scope"
+            path = Path(raw["external_receipts"][name]["path"])
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload["all_original_scope_save_reload"] = False
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            raw["external_receipts"][name]["sha256"] = sha256(
+                path.read_bytes()
+            ).hexdigest()
+
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "all_original_scope_save_reload",
             ):
                 validate_external_receipts(parse_release_evidence(raw), repo)
 
@@ -421,6 +441,10 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                     "verified_scope_ids": list(binding["scope_ids"]),
                     "missing_scope_ids": [],
                     "failed_scope_ids": [],
+                    "save_reload_verified_scope_entry_count": binding["scope_entry_count"],
+                    "save_reload_verified_scope_ids": list(binding["scope_ids"]),
+                    "save_reload_missing_scope_ids": [],
+                    "save_reload_failed_scope_ids": [],
                 }
             )
             path.write_text(json.dumps(payload), encoding="utf-8")
@@ -441,6 +465,10 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
 
             self.assertEqual(result["scope_catalog_sha256"], scope.catalog_sha256)
             self.assertEqual(result["verified_scope_ids"], ["26:100", "66:200"])
+            self.assertEqual(
+                result["save_reload_verified_scope_ids"],
+                ["26:100", "66:200"],
+            )
 
             cases = (
                 (
@@ -462,6 +490,21 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                     "scope_entry_count",
                     True,
                     "scope_entry_count",
+                ),
+                (
+                    "save_reload_verified_scope_ids",
+                    ["66:200", "26:100"],
+                    "save_reload_verified_scope_ids",
+                ),
+                (
+                    "save_reload_missing_scope_ids",
+                    ["26:100"],
+                    "save_reload_missing_scope_ids",
+                ),
+                (
+                    "save_reload_verified_scope_entry_count",
+                    1,
+                    "save/reload for every catalog scope entry",
                 ),
             )
             for field, bad_value, message in cases:
