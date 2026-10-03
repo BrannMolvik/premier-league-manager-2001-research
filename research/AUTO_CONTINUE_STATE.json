@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 PR #269 merged as 1a4f5eea (1,880 tests / 23 skips) and PR #270 merged as 06c935b7 (1,880 / 23), so sporting progression readiness is separate and internal save schema 43 preserves playable primary IDs/clubs plus full-country allocation plan. Active next task: replay/validate the non-PL procedural-primary canonical save/reload audit on fresh main, ensuring a source-selected TeamSelect primary club can save with a procedural League entry pending and continue identically after reload.",
-  "last_known_main_head": "06c935b74bd2518cb4043fe5462058ba8923e70f",
+  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 PR #271 merged as efb9eb7b after 1,885 tests / 23 expected skips plus asset-policy success, adding a source-driven non-PL procedural-primary canonical save/reload audit harness. The private canonical --procedural-primary receipt is not yet claimed. Next cloud-safe task: audit Gate-17 final release/receipt plumbing and require this broadened primary save-continuation evidence explicitly if it is not already enforced; preserve secondary-container, RNG-bearing fresh-objective, and non-PL sporting-progression source blockers.",
+  "last_known_main_head": "efb9eb7ba3ac15c2bc16ecbebe3dc26839bd5f11",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 250,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 250 resumed canonical Gate-17 work-ahead from main 06c935b7. Next: validate non-PL procedural-primary canonical save/reload continuity with a source-selected TeamSelect primary club and pending procedural League entry; preserve private/source blockers without guessing.",
+  "note": "Recovery 250 checkpoint after #271 merge. Hosted audit harness is verified; no licensed canonical non-PL save receipt is inferred. Continue release-evidence plumbing or next independent source-backed task.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
