@@ -13,6 +13,7 @@ from competition_startup import (
     expand_champions_league_to_uefa_transfer,
     expand_league_position_allocation_instructions,
     expand_standard_cup_allocation_instructions,
+    fresh_objective_hierarchy,
     fresh_promotion_playoff_position_count,
     msvc_crt_qsort,
     materialize_cup_runtime_rounds,
@@ -292,6 +293,55 @@ class ContractCategoryRootOrderTests(unittest.TestCase):
             tuple(competition.id for competition in ordered),
             (0, 2, 3, 4, 7, 89),
         )
+
+
+class FreshObjectiveHierarchyTests(unittest.TestCase):
+    def test_england_subset_uses_plain_zero_based_classification(self):
+        competitions = (
+            Competition(0, 1, 1, None, 9, 26),
+            Competition(2, 1, 1, None, 10, 26),
+            Competition(3, 1, 1, None, 11, 26),
+            Competition(4, 1, 1, None, 12, 26),
+            Competition(7, 1, 1, None, 13, 26),
+            Competition(89, 3, 1, None, 14, 26),
+        )
+
+        premier = fresh_objective_hierarchy(0, competitions)
+        conference = fresh_objective_hierarchy(7, competitions)
+        dummy = fresh_objective_hierarchy(89, competitions)
+
+        self.assertEqual(
+            (premier.classification, premier.first_class, premier.last_class_equal),
+            (0, True, False),
+        )
+        self.assertEqual(
+            (conference.classification, conference.first_class, conference.last_class_equal),
+            (4, False, False),
+        )
+        self.assertEqual(
+            (dummy.classification, dummy.first_class, dummy.last_class_equal),
+            (5, False, True),
+        )
+
+    def test_germany_4fa520_merges_index_three_and_remaps_last_dummy(self):
+        competitions = (
+            Competition(21, 1, 1, None, 7, 33),
+            Competition(22, 1, 1, None, 8, 33),
+            Competition(24, 1, 1, None, 9, 33),
+            Competition(83, 1, 1, None, 9, 33),
+            Competition(25, 3, 1, None, 10, 33),
+        )
+
+        north = fresh_objective_hierarchy(24, competitions)
+        south = fresh_objective_hierarchy(83, competitions)
+        spare = fresh_objective_hierarchy(25, competitions)
+
+        self.assertEqual(north.classification, 2)
+        self.assertEqual(south.classification, 2)
+        self.assertEqual(spare.classification, 3)
+        self.assertTrue(spare.last_class_equal)
+        self.assertFalse(north.last_class_equal)
+        self.assertFalse(south.last_class_equal)
 
 
 class OrderedCompetitionRngTests(unittest.TestCase):
