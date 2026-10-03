@@ -602,16 +602,28 @@ class HumanGameplayController:
             raise RuntimeError("select a human club first")
         return self.state.release_user_youth_player(int(player_id))
 
-    def financial_objective_candidates(self) -> tuple[int, int, int]:
-        """Return the three recovered chairman objective choices."""
+    def _require_source_backed_fresh_financial_objective(self) -> None:
         if self.human is None:
             raise RuntimeError("select a human club first")
+        club_id = int(self.human.club_id)
+        premier_ids = {
+            int(value) for value in self.state.premier_league.club_ids
+        }
+        if club_id not in premier_ids:
+            competition_id = self.state.club_competition_membership.get(club_id)
+            raise RuntimeError(
+                "fresh chairman objective candidates are not source-backed for "
+                f"controlled club {club_id} in competition {competition_id}"
+            )
+
+    def financial_objective_candidates(self) -> tuple[int, int, int]:
+        """Return the source-backed fresh chairman objective choices."""
+        self._require_source_backed_fresh_financial_objective()
         return self.state.financial_objective_candidates(self.human.club_id)
 
     def select_financial_objective(self, candidate_index: int) -> int | float:
-        """Accept one chairman objective and apply its immediate starting funds."""
-        if self.human is None:
-            raise RuntimeError("select a human club first")
+        """Accept one source-backed chairman objective and replace live cash."""
+        self._require_source_backed_fresh_financial_objective()
         return self.state.select_financial_objective(
             self.human.club_id,
             int(candidate_index),
