@@ -79,6 +79,8 @@ on:
       - "reconstruction/test_gate14_fastview_playerrow_snapshot.py"
       - "reconstruction/gate14_fastview_partial_surface.py"
       - "reconstruction/test_gate14_fastview_partial_surface.py"
+      - "reconstruction/gate14_fastview_frame_plan.py"
+      - "reconstruction/test_gate14_fastview_frame_plan.py"
       - "reconstruction/gate14_audio_bank_source_trace.py"
       - "reconstruction/test_gate14_audio_bank_source_trace.py"
       - "reconstruction/gate14_fastview_league_table.py"
