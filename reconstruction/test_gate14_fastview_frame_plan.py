@@ -138,6 +138,31 @@ class FastViewFramePlanTests(unittest.TestCase):
             "team_table_static",
         )
         self.assertEqual(frame.component_rasters.team_table.source_layer_count, 2)
+        self.assertEqual(frame.resolved_composite.size, (800, 600))
+        self.assertFalse(frame.resolved_composite.cross_component_z_order_recovered)
+        self.assertFalse(frame.resolved_composite.flattened_frame_available)
+        self.assertFalse(frame.resolved_composite.complete_fastview_frame)
+        self.assertEqual(
+            frame.resolved_composite.source_plane_sha256,
+            (
+                (
+                    frame.component_rasters.chrome.component,
+                    frame.component_rasters.chrome.rgba_sha256,
+                ),
+                (
+                    frame.component_rasters.possession_diagram.component,
+                    frame.component_rasters.possession_diagram.rgba_sha256,
+                ),
+                (
+                    frame.component_rasters.possession_figures.component,
+                    frame.component_rasters.possession_figures.rgba_sha256,
+                ),
+                (
+                    frame.component_rasters.team_table.component,
+                    frame.component_rasters.team_table.rgba_sha256,
+                ),
+            ),
+        )
         self.assertFalse(frame.component_rasters.cross_component_z_order_recovered)
         self.assertFalse(frame.component_rasters.flattened_frame_available)
         team_layers = [
@@ -159,6 +184,33 @@ class FastViewFramePlanTests(unittest.TestCase):
             len(frame.component_rasters.chrome.rgba),
             800 * 600 * 4,
         )
+
+    def test_rejects_resolved_composite_drift_from_component_planes(self):
+        frame = build_fastview_frame_plan(
+            exact_shell(),
+            exact_chrome(),
+            exact_possession(),
+            exact_figures(),
+            exact_team_art(),
+        )
+        with self.assertRaisesRegex(
+            FastViewFramePlanError,
+            "exact resolved-only FastView composite",
+        ):
+            replace(frame, resolved_composite=object())
+
+        drifted = replace(
+            frame.resolved_composite,
+            source_plane_sha256=tuple(
+                (name, "0" * 64)
+                for name, _digest in frame.resolved_composite.source_plane_sha256
+            ),
+        )
+        with self.assertRaisesRegex(
+            FastViewFramePlanError,
+            "does not match frame component rasters",
+        ):
+            replace(frame, resolved_composite=drifted)
 
     def test_rejects_shell_snapshot_render_plan_count_or_content_drift(self):
         shell = exact_shell()
