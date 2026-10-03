@@ -340,13 +340,15 @@ class HumanGameplayController:
         *,
         season_year: int | None = None,
         procedural_league_ids: Iterable[int] | None = None,
+        full_playable_country_progression: bool = False,
     ):
         """Atomically roll the primary competition runtime into a new season.
 
         Qualification is captured from the completed old season before any
-        membership exchange. Canonical TeamSelect-country LeagueAllocation
-        swaps are previewed without mutation; synthetic callers without that
-        source plan retain the legacy English-only transition. Annual
+        membership exchange. The established default retains the recovered
+        English transition. Gate-17 callers may explicitly request the exact
+        TeamSelect-country allocation plan; that mode previews all required
+        source exchanges fail-closed before the same atomic install. Annual
         competition construction and bucket shuffle
         then consume a cloned controller match_rng; only after the complete
         replacement validates are both GameState and the controller CRT state
@@ -463,9 +465,14 @@ class HumanGameplayController:
             allocations,
             ranking_overrides=finalized_dummy_rankings,
         )
-        transition = self.preview_playable_country_season_transition(
-            ranking_overrides=finalized_dummy_rankings,
-        )
+        if full_playable_country_progression:
+            transition = self.preview_playable_country_season_transition(
+                ranking_overrides=finalized_dummy_rankings,
+            )
+        else:
+            transition = self.state.preview_english_season_transition(
+                ranking_overrides=finalized_dummy_rankings,
+            )
 
         regeneration = materialize_annual_primary_schedule(
             trial_rng,
