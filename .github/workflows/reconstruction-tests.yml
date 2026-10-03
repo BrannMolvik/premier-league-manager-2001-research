@@ -57,6 +57,8 @@ on:
       - "reconstruction/test_original_fastview_possession_resources.py"
       - "reconstruction/gate14_possession_figures.py"
       - "reconstruction/test_gate14_possession_figures.py"
+      - "reconstruction/gate14_fastview_league_table.py"
+      - "reconstruction/test_gate14_fastview_league_table.py"
       - "original_assets/source/FM2001_Art/FastView/**"
       - "research/GATE14_AUDIO_AND_MATCH_PRESENTATION.md"
       - "reconstruction/original_pmenu_activation.py"
