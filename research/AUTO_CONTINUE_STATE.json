@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 203: PR #171 head 452f3f9e710632d619f088d8b1f11e734aaa7a71 stages direct-owned FastView top_bar/ticker chrome with exact provenance/geometry and decoded pixel seam. Verify CI and merge if green, then continue the next directly owned FastView shell/chrome or source-bound audio path. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
-  "last_known_main_head": "608e4f9168939c08ddffd90f5d6fb112b5d2724e",
+  "active_task": "Recovery 204: PR #172 merged canonical at main 9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658 after 1,514 tests / 22 expected skips and asset-policy success. Continue Gate-14 source work with FastViewLeagueScores / ScoreCompositeNormal current-fixture grid family. Reverify class ownership, exact source identities, constructor geometry and event/lifecycle semantics before integrating any pixels. Keep top/ticker binary import as a deterministic transport follow-up; do not block source work on it. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
+  "last_known_main_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 204,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #170 merged as 608e4f91. PR #171 is the only active Gate-14 checkpoint.",
+  "note": "PR #172 canonical. Continue FastViewLeagueScores / ScoreCompositeNormal current fixture grid trace without guessing geometry from bitmap sizes.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
