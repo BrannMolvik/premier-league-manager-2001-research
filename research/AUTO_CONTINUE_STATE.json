@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains exclusively owned by Codex. PR #217 has reached main at 823334fbb95c9143861e89aae9f4cabff2d73d61; recover and verify the persisted recovery225/gate14-surface-from-render-plans child work against current main, then continue the next independent source-backed cloud-safe task without touching Gate-13/shared status files.",
-  "last_known_main_head": "823334fbb95c9143861e89aae9f4cabff2d73d61",
+  "active_task": "Gate 13 remains exclusively owned by Codex. PR #222 (head 78b569c45bba5963a79f16001c5c8c89afae5b31) is the clean main-based Gate-14 frame-plan continuation after canonical PRs #217 and #220. Verify and merge only with green full reconstruction + asset policy. Private Gate-14 button-audio tracing was retried: canonical 511,121,336-byte source ZIP materialized successfully from Library, but both container and Python process starts fail with caas.internal.errors.ClientError; no standalone FM2001 executable exists in Library. Do not infer bank/sample semantics.",
+  "last_known_main_head": "c5f9b462affbf874fc49f01b15bce19ac765dc9f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 226,
   "last_recovery_reason": "analysis-errored-sandbox",
-  "note": "Recovery 226 started from canonical main HEAD 823334fbb95c9143861e89aae9f4cabff2d73d61 after sandbox failure; runtime lease refreshed before substantive work.",
+  "note": "Recovery 225: main now c5f9b462 after PR #220 (1712 tests/23 skips). PR #222 clean frame plan pending CI. Private audio source is available but execution remains blocked by ClientError.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
