@@ -22,6 +22,10 @@ from original_fastview_possession_resources import (
     FASTVIEW_POSSESSION_DIAGRAM_RESOURCES,
 )
 from gate14_fastview_team_static_raster import FastViewTeamStaticRaster
+from gate14_fastview_score_table_static_raster import (
+    FastViewScoreTableStaticPlane,
+    FastViewScoreTableStaticRasterSet,
+)
 from hashlib import sha256
 
 
@@ -71,6 +75,27 @@ def figures():
         )
     return OriginalFastViewPossessionFiguresArt(tuple(rows))
 
+
+
+def score_table_rasters():
+    rgba_a = bytes((11, 12, 13, 255)) * (800 * 600)
+    rgba_b = bytes((21, 22, 23, 255)) * (800 * 600)
+    return FastViewScoreTableStaticRasterSet(
+        league_scores=FastViewScoreTableStaticPlane(
+            component="league_scores_static",
+            size=(800, 600),
+            rgba=rgba_a,
+            source_layer_count=2,
+            rgba_sha256=sha256(rgba_a).hexdigest(),
+        ),
+        league_table=FastViewScoreTableStaticPlane(
+            component="league_table_static",
+            size=(800, 600),
+            rgba=rgba_b,
+            source_layer_count=3,
+            rgba_sha256=sha256(rgba_b).hexdigest(),
+        ),
+    )
 
 def pixel(plane, x, y):
     offset = (y * 800 + x) * 4
@@ -139,6 +164,54 @@ class FastViewComponentRasterTests(unittest.TestCase):
         self.assertEqual(plane.source_layer_count, 0)
         self.assertEqual(plane.rgba, rgba)
         self.assertFalse(plane.complete_fastview_frame)
+
+    def test_score_and_table_static_planes_lift_as_verified_pair(self):
+        source = score_table_rasters()
+        rasters = build_fastview_component_rasters(
+            chrome(),
+            possession(),
+            figures(),
+            score_table=source,
+        )
+        self.assertIsNotNone(rasters.league_scores)
+        self.assertIsNotNone(rasters.league_table)
+        self.assertEqual(rasters.league_scores.component, "league_scores_static")
+        self.assertEqual(rasters.league_table.component, "league_table_static")
+        self.assertEqual(
+            rasters.league_scores.rgba_sha256,
+            source.league_scores.rgba_sha256,
+        )
+        self.assertEqual(
+            rasters.league_table.rgba_sha256,
+            source.league_table.rgba_sha256,
+        )
+        self.assertFalse(rasters.cross_component_z_order_recovered)
+        self.assertFalse(rasters.flattened_frame_available)
+
+    def test_score_table_bundle_fails_closed_on_wrong_type_or_partial_pair(self):
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "score_table must be exact",
+        ):
+            build_fastview_component_rasters(
+                chrome(),
+                possession(),
+                figures(),
+                score_table=object(),
+            )
+
+        source = score_table_rasters()
+        rasters = build_fastview_component_rasters(
+            chrome(),
+            possession(),
+            figures(),
+            score_table=source,
+        )
+        with self.assertRaisesRegex(
+            FastViewComponentRasterError,
+            "supplied as one verified pair",
+        ):
+            replace(rasters, league_table=None)
 
     def test_component_set_remains_unflattened_and_has_no_cross_component_order(self):
         rasters = build_fastview_component_rasters(
