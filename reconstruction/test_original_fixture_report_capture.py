@@ -1,6 +1,6 @@
 import unittest
 from original_fixture_report_capture import (
-    NATIVE_CAPTURE_SCALAR_COPIES, copy_native_capture_scalars,
+    NATIVE_CAPTURE_SCALAR_COPIES, capture_gate_report_scalars, copy_native_capture_scalars,
     NATIVE_CAPTURE_HELPER_SCALAR_COPIES, copy_native_capture_helper_scalars,
     copy_native_capture_possession,
     capture_completed_possession_rows,
@@ -8,6 +8,41 @@ from original_fixture_report_capture import (
 
 
 class NativeFixtureCaptureTests(unittest.TestCase):
+    def test_gate_scalar_fragment_uses_retained_d84_d88_d8c_d90_only(self):
+        from gate_receipts import GateAttendanceCell, GateReceiptResult
+
+        receipt = GateReceiptResult(
+            home_seating=GateAttendanceCell(0.0, 1.0, 1, 900),
+            visiting_seating=GateAttendanceCell(0.0, 1.0, 1, 250),
+            home_terrace=GateAttendanceCell(0.0, 1.0, 1, 700),
+            visiting_terrace=GateAttendanceCell(0.0, 1.0, 1, 150),
+            home_revenue=0,
+            visiting_revenue=0,
+            season_ticket_quantity=80,
+            report_seating_price=37,
+        )
+
+        scalars = capture_gate_report_scalars(receipt)
+
+        self.assertEqual(
+            tuple((item.report_offset, item.calculator_offset) for item in scalars),
+            ((0x30, 0xD84), (0x34, 0xD88), (0x38, 0xD8C), (0x3C, 0xD90)),
+        )
+        self.assertEqual(
+            tuple(int.from_bytes(item.value, "little") for item in scalars),
+            (2080, 37, 1680, 400),
+        )
+        self.assertNotIn(0xD9C, tuple(item.calculator_offset for item in scalars))
+
+    def test_gate_scalar_fragment_fails_closed_without_retained_d88(self):
+        from gate_receipts import GateAttendanceCell, GateReceiptResult
+
+        cell = GateAttendanceCell(0.0, 1.0, 1, 1)
+        with self.assertRaisesRegex(ValueError, "D88"):
+            capture_gate_report_scalars(
+                GateReceiptResult(cell, cell, cell, cell, 0, 0)
+            )
+
     def test_live_calendar_and_accumulators_are_explicit_not_semantic_scores(self):
         from datetime import date
         from original_fixture_report_capture import LiveReportCompletionScalars
