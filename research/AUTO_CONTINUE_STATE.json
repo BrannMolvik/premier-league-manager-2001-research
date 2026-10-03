@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with private/local source work blocked. PR #260 merged green as main ab9a1881 after 1,860 tests / 23 expected skips: human lineup rules and primary-outcome League tables now resolve from the actual live competition. Active cloud-safe Gate-17 task is PR #261: source-driven TeamSelect primary club selection with a live-owner guard and an explicit fail-closed fresh_financial_objective_missing capability for non-PL scopes. Reconcile #261 onto main, verify its own CI/diff, and merge only if clean.",
+  "active_task": "Gate 13 remains OPEN with private/local source work blocked. PR #260 is merged green as main ab9a1881. The old PR #261 conflicts only because its parent was squash-merged. Its exact child content has been replayed onto conflict-free branch worker/gate17-primary-human-selection-main, based directly on ab9a1881, with exactly 10 intended changed files. Validate that replay through normal CI, merge it if green, then continue the next source-backed Gate-17 work-ahead step.",
   "last_known_main_head": "ab9a1881fb299706049d0ae5f0b35a28fcd21289",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 247,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 247 checkpoint: PR #260 merged green as ab9a1881. PR #261 remains active; secondary runtime fidelity and non-PL objective candidate generation remain genuine unresolved source boundaries.",
+  "recovery_generation": 248,
+  "last_recovery_reason": "connection-interrupted-transient",
+  "note": "Recovery 248 resumed after transient connection interruption. Fresh main-based replay branch worker/gate17-primary-human-selection-main is complete through 37f0bdd8; old #261 remains open only as historical stacked validation.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
