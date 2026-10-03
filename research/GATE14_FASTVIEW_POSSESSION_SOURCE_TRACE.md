@@ -372,6 +372,29 @@ rendered merely because its filename and dimensions look appropriate.
 `reconstruction/gate14_fastview_background.py` regression-locks this negative
 result.
 
+## Recovery 203: directly owned full-width chrome
+
+The next shell slice is source-bound more strongly than the rejected loose
+background string. Live FastView code passes two concrete file paths directly
+into image-control constructor `0x527730`:
+
+- callsite `0x51FD63`: `FM2001_Art/FastView/top_bar.444`, exact source
+  800x95, placed at (0,0)-(800,95);
+- callsite `0x51FDF0`: `FM2001_Art/FastView/ticker.444`, exact source
+  800x33, placed at (0,557)-(800,590).
+
+The authorized source files rehash to
+`f7410cf85900846ee1b276fa309bca4e560580286d5641092f2f98d20afa379a`
+(19,268 bytes) and
+`b0fe2d8266ae157b7821e8c1de310e89bbc37ae859f666e64f59731c78e68257`
+(6,352 bytes). Both are staged byte-identically with provenance.
+`reconstruction/gate14_fastview_chrome.py` guards identity/geometry and
+`original_fastview_chrome_art.py` exposes only the two exact decoded strips.
+
+This still does not recover the middle surface between y=95 and y=557 or the
+bottom 10 pixels y=590..599. A complete 800x600 FastView frame is therefore not
+claimed.
+
 ## Remaining boundary
 
 Still open before claiming the bounded diagram is player-visible original
