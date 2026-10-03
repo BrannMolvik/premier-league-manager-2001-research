@@ -657,6 +657,65 @@ def country_league_root_storage_order(
 
 
 
+@dataclass(frozen=True)
+class FreshObjectiveHierarchy:
+    classification: int
+    first_class: bool
+    last_class_equal: bool
+
+
+def fresh_objective_hierarchy(
+    competition_id: int,
+    competitions: Iterable[OrderedCompetitionSource],
+) -> FreshObjectiveHierarchy:
+    """Reproduce fresh-objective predicates 0x4FA520/0x4FA570/0x4FA590.
+
+    0x4FA510 returns the zero-based index in DBRCountry +0x48's qsorted
+    League/DummyLeague subset. 0x4FA520 normally returns that index unchanged.
+    Germany (country ID 33) is the only special case: subset index 3 maps to
+    class 2 and index 4 maps to class 3. 0x4FA570 tests class == 0. 0x4FA590
+    compares the current class with the class of the subset's final entry.
+    """
+    competition_id = int(competition_id)
+    competition_list = tuple(competitions)
+    by_id = {int(item.id): item for item in competition_list}
+    current = by_id.get(competition_id)
+    if current is None:
+        raise ValueError(f"competition {competition_id} is not loaded")
+    if getattr(current, "parent_competition_id", None) is not None:
+        raise ValueError("fresh objective hierarchy requires a root competition")
+
+    country_id = int(current.country_region_id)
+    subset = country_league_root_storage_order(
+        competition_list,
+        country_id,
+    )
+    if not subset:
+        raise ValueError(f"country {country_id} has no League/DummyLeague subset")
+    indices = {int(item.id): index for index, item in enumerate(subset)}
+    if competition_id not in indices:
+        raise ValueError(
+            f"competition {competition_id} is absent from its country League subset"
+        )
+
+    def classify(index: int) -> int:
+        index = int(index)
+        if country_id == 33:
+            if index == 3:
+                return 2
+            if index == 4:
+                return 3
+        return index
+
+    classification = classify(indices[competition_id])
+    last_classification = classify(len(subset) - 1)
+    return FreshObjectiveHierarchy(
+        classification=classification,
+        first_class=classification == 0,
+        last_class_equal=classification == last_classification,
+    )
+
+
 def primary_mode0_root_initialization_order(
     competitions: Iterable[OrderedCompetitionSource],
     country_ids_in_source_order: Iterable[int],
