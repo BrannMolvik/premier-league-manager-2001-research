@@ -23,6 +23,10 @@ from original_fastview_possession_figures_art import (
 from original_fastview_possession_resources import (
     FASTVIEW_POSSESSION_DIAGRAM_RESOURCES,
 )
+from original_fastview_team_art import (
+    FASTVIEW_TEAM_ART_RESOURCES,
+    build_fastview_team_art,
+)
 
 
 def image(width, height, value):
@@ -69,6 +73,15 @@ def exact_figures(side0=45, neutral=20):
     return OriginalFastViewPossessionFiguresArt(tuple(rows))
 
 
+
+def exact_team_art():
+    return build_fastview_team_art(
+        {
+            resource.name: image(*resource.size, 20 + index)
+            for index, resource in enumerate(FASTVIEW_TEAM_ART_RESOURCES)
+        }
+    )
+
 def row_snapshot():
     return build_fastview_player_row_snapshot(
         side_index=0,
@@ -103,6 +116,7 @@ class FastViewFramePlanTests(unittest.TestCase):
             exact_chrome(),
             exact_possession(),
             exact_figures(),
+            exact_team_art(),
         )
 
         self.assertEqual(frame.match_reference, 23)
@@ -118,6 +132,12 @@ class FastViewFramePlanTests(unittest.TestCase):
             frame.component_rasters.possession_figures.component,
             "possession_figures_text",
         )
+        self.assertIsNotNone(frame.component_rasters.team_table)
+        self.assertEqual(
+            frame.component_rasters.team_table.component,
+            "team_table_static",
+        )
+        self.assertEqual(frame.component_rasters.team_table.source_layer_count, 2)
         self.assertFalse(frame.component_rasters.cross_component_z_order_recovered)
         self.assertFalse(frame.component_rasters.flattened_frame_available)
         team_layers = [
@@ -149,7 +169,8 @@ class FastViewFramePlanTests(unittest.TestCase):
                 exact_chrome(),
                 exact_possession(),
                 exact_figures(),
-            )
+            exact_team_art(),
+        )
 
         drifted_plan = replace(
             shell.player_row_render_plans[0],
@@ -161,7 +182,8 @@ class FastViewFramePlanTests(unittest.TestCase):
                 exact_chrome(),
                 exact_possession(),
                 exact_figures(),
-            )
+            exact_team_art(),
+        )
 
     def test_requires_exact_semantic_shell(self):
         with self.assertRaisesRegex(FastViewFramePlanError, "exact FastViewSemanticShell"):
@@ -170,7 +192,8 @@ class FastViewFramePlanTests(unittest.TestCase):
                 exact_chrome(),
                 exact_possession(),
                 exact_figures(),
-            )
+            exact_team_art(),
+        )
 
     def test_frame_plan_module_does_not_import_gameplay_rng_audio_or_commentary(self):
         source = Path(__file__).with_name(
