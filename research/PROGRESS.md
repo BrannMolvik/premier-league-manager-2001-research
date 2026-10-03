@@ -10598,3 +10598,14 @@ work may continue under the deferred-blocker policy.
 - Added a fail-closed source contract/validator plus exact decoded-placement seam and regressions. The rejected 800x600 background path is explicitly excluded.
 - The current GitHub connector has no safe direct container-file-to-Git-blob handoff. The exact recovered binary files are therefore not manually transcribed into Git in this checkpoint; their later byte-identical import is deterministic from the recorded path/size/hash.
 - Gate 13 remains the earliest incomplete validation gate pending the external schema-8 Windows receipt; this is bounded Gate-14 work-ahead only.
+
+
+## 3 October 2026 - Recovery 204 FastViewLeagueScores current fixture grid
+
+- PR #172 merged as `9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658` after reconstruction run `37090449064` passed **1,514 tests with 22 expected skips** and asset-policy run `37090449112` passed.
+- Continued directly into the FastView score family. Canonical RTTI maps vtables `0x7CA750/0x7CA744` to `FastViewLeagueScores@FastViewPanel`.
+- The FastView owner immediately invokes league-scores virtual slot +4 at `0x520D82`, resolving to setup method `0x523370`.
+- That method directly constructs `FM2001_Art/FastView/current_fix_grid_1.444` via PictureControl call `0x5239F3 -> 0x527730` at exact owner-local rectangle (38,32)-(347,51).
+- Re-extracted source grid 1: 3,704 bytes, 309x19, SHA-256 `bdd2fe25884e8ce72e21bd7b9296c65827ce90ea058c6f43e2f727f2bae19057`.
+- Re-extracted `current_fix_grid_2.444`: 4,060 bytes, 309x16, SHA-256 `ffc53c7b5fc9aa8c11053d704c4232505528577bfb9675fa7a4a2985e8e4ec2e`. It is directly source-owned by `ScoreCompositeNormal::0x51B740`, but shared layout data controls its PictureControl placement, so geometry remains fail-closed.
+- Added a bounded league-scores contract and decoded-art seam that expose grid 1 only and explicitly withhold screen-absolute placement and grid-2 geometry.
