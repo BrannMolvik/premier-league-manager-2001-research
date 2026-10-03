@@ -73,7 +73,6 @@ from match_postmatch import (
     PlayerTransferRequest,
     apply_player_transfer_request_response,
     persist_match_performance_and_fastview_form_histories,
-    persist_match_performance_history,
     persist_premier_league_morale_and_form,
     persist_premier_league_match_incidents,
     sync_post_match_conditions,
