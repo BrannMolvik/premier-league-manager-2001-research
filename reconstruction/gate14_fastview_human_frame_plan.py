@@ -11,6 +11,7 @@ from fastview_semantic_shell import build_fastview_semantic_shell
 from gate14_fastview_frame_plan import FastViewFramePlan, build_fastview_frame_plan
 from human_match_presentation import HumanMatchOutcomeLike, build_human_match_presentation
 from original_fastview_chrome_art import OriginalFastViewChromeArt
+from original_fastview_team_art import OriginalFastViewTeamArt
 from original_fastview_possession_art import OriginalFastViewPossessionArtFrame
 from original_fastview_possession_figures_art import OriginalFastViewPossessionFiguresArt
 
@@ -20,8 +21,11 @@ def build_human_fastview_frame_plan(
     chrome: OriginalFastViewChromeArt,
     possession: OriginalFastViewPossessionArtFrame,
     figures: OriginalFastViewPossessionFiguresArt,
+    team_art: OriginalFastViewTeamArt,
 ) -> FastViewFramePlan:
     """Compose the source-bounded FastView renderer input for one completed match."""
     presentation = build_human_match_presentation(outcome)
     shell = build_fastview_semantic_shell(presentation)
-    return build_fastview_frame_plan(shell, chrome, possession, figures)
+    return build_fastview_frame_plan(
+        shell, chrome, possession, figures, team_art
+    )

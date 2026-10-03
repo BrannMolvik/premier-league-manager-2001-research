@@ -5,7 +5,8 @@ draw order are already recovered:
 
 * directly PictureControl-bound FastView chrome;
 * PossessionDiagram base pitch followed by its active overlay;
-* PossessionFigures source-font glyphs.
+* PossessionFigures source-font glyphs;
+* the independently rasterized static TeamTable row plane when supplied.
 
 Each component is emitted as a separate transparent 800x600 RGBA plane.
 Cross-component z-order remains deliberately unresolved, so this module cannot
@@ -17,6 +18,7 @@ from dataclasses import dataclass
 from hashlib import sha256
 
 from gate14_fastview_partial_surface import FASTVIEW_SURFACE_SIZE
+from gate14_fastview_team_static_raster import FastViewTeamStaticRaster
 from original_fastview_chrome_art import OriginalFastViewChromeArt
 from original_fastview_possession_art import OriginalFastViewPossessionArtFrame
 from original_fastview_possession_figures_art import (
@@ -42,6 +44,7 @@ class FastViewComponentRasterPlane:
             "direct_chrome",
             "possession_diagram",
             "possession_figures_text",
+            "team_table_static",
         }:
             raise FastViewComponentRasterError("unknown FastView raster component")
         if self.size != FASTVIEW_SURFACE_SIZE:
@@ -51,9 +54,13 @@ class FastViewComponentRasterPlane:
             raise FastViewComponentRasterError(
                 "FastView raster plane RGBA payload has wrong size"
             )
-        if type(self.source_layer_count) is not int or self.source_layer_count <= 0:
+        if type(self.source_layer_count) is not int or self.source_layer_count < 0:
             raise FastViewComponentRasterError(
-                "FastView raster plane source_layer_count must be positive"
+                "FastView raster plane source_layer_count must be non-negative"
+            )
+        if self.component != "team_table_static" and self.source_layer_count == 0:
+            raise FastViewComponentRasterError(
+                "non-TeamTable FastView raster planes require source layers"
             )
         if (
             not isinstance(self.rgba_sha256, str)
@@ -78,6 +85,7 @@ class FastViewComponentRasterSet:
     chrome: FastViewComponentRasterPlane
     possession_diagram: FastViewComponentRasterPlane
     possession_figures: FastViewComponentRasterPlane
+    team_table: FastViewComponentRasterPlane | None = None
     cross_component_z_order_recovered: bool = False
     flattened_frame_available: bool = False
 
@@ -95,6 +103,15 @@ class FastViewComponentRasterSet:
             if plane.component != component:
                 raise FastViewComponentRasterError(
                     "FastView raster set component identity mismatch"
+                )
+        if self.team_table is not None:
+            if type(self.team_table) is not FastViewComponentRasterPlane:
+                raise FastViewComponentRasterError(
+                    "TeamTable raster must be an exact component plane"
+                )
+            if self.team_table.component != "team_table_static":
+                raise FastViewComponentRasterError(
+                    "TeamTable raster component identity mismatch"
                 )
         if self.cross_component_z_order_recovered or self.flattened_frame_available:
             raise FastViewComponentRasterError(
@@ -283,14 +300,37 @@ def rasterize_fastview_possession_figures_plane(
     return _plane("possession_figures_text", canvas, len(figures.rows))
 
 
+def rasterize_fastview_team_table_plane(
+    team_table: FastViewTeamStaticRaster,
+) -> FastViewComponentRasterPlane:
+    """Lift the independently verified TeamTable static raster into the plane set."""
+    if type(team_table) is not FastViewTeamStaticRaster:
+        raise FastViewComponentRasterError(
+            "team_table must be exact FastViewTeamStaticRaster"
+        )
+    return FastViewComponentRasterPlane(
+        component="team_table_static",
+        size=team_table.size,
+        rgba=team_table.rgba,
+        source_layer_count=team_table.source_layer_count,
+        rgba_sha256=team_table.rgba_sha256,
+    )
+
+
 def build_fastview_component_rasters(
     chrome: OriginalFastViewChromeArt,
     possession: OriginalFastViewPossessionArtFrame,
     figures: OriginalFastViewPossessionFiguresArt,
+    team_table: FastViewTeamStaticRaster | None = None,
 ) -> FastViewComponentRasterSet:
     """Build all currently source-rasterizable planes without flattening them."""
     return FastViewComponentRasterSet(
         chrome=rasterize_fastview_chrome_plane(chrome),
         possession_diagram=rasterize_fastview_possession_plane(possession),
         possession_figures=rasterize_fastview_possession_figures_plane(figures),
+        team_table=(
+            None
+            if team_table is None
+            else rasterize_fastview_team_table_plane(team_table)
+        ),
     )

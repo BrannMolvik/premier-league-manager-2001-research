@@ -19,11 +19,13 @@ from gate14_fastview_partial_surface import (
     FastViewPartialSurfaceLayout,
     build_fastview_partial_surface_from_render_plans,
 )
+from gate14_fastview_team_static_raster import rasterize_fastview_team_static_rows
 from gate14_fastview_playerrow_snapshot import (
     FastViewPlayerRowRenderPlan,
     build_fastview_player_row_render_plan,
 )
 from original_fastview_chrome_art import OriginalFastViewChromeArt
+from original_fastview_team_art import OriginalFastViewTeamArt
 from original_fastview_possession_art import OriginalFastViewPossessionArtFrame
 from original_fastview_possession_figures_art import (
     OriginalFastViewPossessionFiguresArt,
@@ -83,6 +85,7 @@ def build_fastview_frame_plan(
     chrome: OriginalFastViewChromeArt,
     possession: OriginalFastViewPossessionArtFrame,
     figures: OriginalFastViewPossessionFiguresArt,
+    team_art: OriginalFastViewTeamArt,
 ) -> FastViewFramePlan:
     """Compose one renderer input from already retained/source-closed state."""
     if type(shell) is not FastViewSemanticShell:
@@ -110,10 +113,15 @@ def build_fastview_frame_plan(
         figures,
         render_plans=shell.player_row_render_plans,
     )
+    team_static = rasterize_fastview_team_static_rows(
+        team_art,
+        shell.player_row_render_plans,
+    )
     component_rasters = build_fastview_component_rasters(
         chrome,
         possession,
         figures,
+        team_static,
     )
 
     return FastViewFramePlan(

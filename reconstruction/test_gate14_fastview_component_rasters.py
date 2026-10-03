@@ -9,6 +9,7 @@ from gate14_fastview_component_rasters import (
     rasterize_fastview_chrome_plane,
     rasterize_fastview_possession_figures_plane,
     rasterize_fastview_possession_plane,
+    rasterize_fastview_team_table_plane,
 )
 from gate14_possession_figures import possession_figures_text_layout
 from original_fastview_chrome_art import build_fastview_chrome_art
@@ -20,6 +21,8 @@ from original_fastview_possession_figures_art import (
 from original_fastview_possession_resources import (
     FASTVIEW_POSSESSION_DIAGRAM_RESOURCES,
 )
+from gate14_fastview_team_static_raster import FastViewTeamStaticRaster
+from hashlib import sha256
 
 
 def image(width, height, rgba):
@@ -121,6 +124,21 @@ class FastViewComponentRasterTests(unittest.TestCase):
         self.assertEqual(pixel(plane, x + 1, y), tuple(first.glyph_rgba[4:8]))
         self.assertEqual(pixel(plane, x + 2, y), (0, 0, 0, 0))
         self.assertEqual(pixel(plane, first.clip_rect[2] - 1, y), (0, 0, 0, 0))
+
+    def test_team_table_plane_accepts_verified_static_raster_including_empty_rows(self):
+        rgba = bytes(800 * 600 * 4)
+        static = FastViewTeamStaticRaster(
+            size=(800, 600),
+            rgba=rgba,
+            row_identities=(),
+            source_layer_count=0,
+            rgba_sha256=sha256(rgba).hexdigest(),
+        )
+        plane = rasterize_fastview_team_table_plane(static)
+        self.assertEqual(plane.component, "team_table_static")
+        self.assertEqual(plane.source_layer_count, 0)
+        self.assertEqual(plane.rgba, rgba)
+        self.assertFalse(plane.complete_fastview_frame)
 
     def test_component_set_remains_unflattened_and_has_no_cross_component_order(self):
         rasters = build_fastview_component_rasters(
