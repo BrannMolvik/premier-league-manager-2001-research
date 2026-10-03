@@ -11,6 +11,7 @@ from human_gameplay import HumanGameplayController
 from match_engine_rng import MatchEngineRng
 from match_lineup import AI_FORMATIONS
 from match_schedule import MsvcCrtRng
+from procedural_league_state import LiveProceduralLeagueState, ProceduralLeagueFixture
 from scouting import ScoutingFilterControls, ScoutingReseedState
 from match_team_setup import TeamTacticalState
 from transfer_decision import SellingClubDecision
@@ -653,6 +654,66 @@ class HumanGameplayControllerTests(unittest.TestCase):
         )
         self.assertIn(token, controller.state.cup_results.outcomes)
         self.assertIn(token, controller.state.european_cups.completed_node_tokens)
+        self.assertIn(6, controller.state.premier_league.results)
+        self.assertIsNone(controller.pending_primary_entry)
+
+    def test_shared_primary_controller_plays_human_procedural_league_entry(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+        self.set_available_lineup(controller)
+
+        competition_id = 14
+        token = ("league_match", competition_id, 0, 0, 0)
+        controller.state.competitions[competition_id] = Competition(id=competition_id)
+        controller.state.procedural_leagues[(competition_id, 0)] = (
+            LiveProceduralLeagueState(
+                competition_id=competition_id,
+                competition_context=0,
+                fixtures={
+                    token: ProceduralLeagueFixture(
+                        node_token=token,
+                        home_club_id=1,
+                        away_club_id=2,
+                    )
+                },
+                club_ids=(1, 2),
+            )
+        )
+        controller.state.primary_matchday_order = {
+            date(2000, 7, 8): (
+                ("premier_league", 5),
+                ("procedural_league", token),
+                ("premier_league", 6),
+            )
+        }
+
+        pending = controller.advance_to_next_user_primary_match()
+
+        self.assertEqual(pending, ("procedural_league", token))
+        self.assertIn(5, controller.state.premier_league.results)
+        self.assertNotIn(6, controller.state.premier_league.results)
+        live = controller.state.procedural_leagues[(competition_id, 0)]
+        self.assertNotIn(token, live.results)
+
+        outcome = controller.play_user_primary_match()
+
+        self.assertEqual(outcome.match_entry, ("procedural_league", token))
+        self.assertEqual(
+            tuple(entry for entry, _result in outcome.matchday_results),
+            (
+                ("premier_league", 5),
+                ("procedural_league", token),
+                ("premier_league", 6),
+            ),
+        )
+        self.assertIn(token, live.results)
+        self.assertEqual(
+            (
+                live.results[token].home_goals,
+                live.results[token].away_goals,
+            ),
+            tuple(int(value) for value in outcome.user_result.score),
+        )
         self.assertIn(6, controller.state.premier_league.results)
         self.assertIsNone(controller.pending_primary_entry)
 
