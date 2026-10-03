@@ -72,7 +72,10 @@ def validate_scope_results(
 ) -> dict:
     """Validate every result against the exact source-backed scope catalog."""
     root = Path(repo_root).resolve()
-    catalog = validate_full_scope_catalog(root)
+    try:
+        catalog = validate_full_scope_catalog(root)
+    except ReleaseReadinessError as exc:
+        raise FullScopeReceiptError(str(exc)) from exc
     path = _external_existing_file(
         results_path,
         repo_root=root,
