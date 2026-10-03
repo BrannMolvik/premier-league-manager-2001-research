@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 225 after transient connection interruption. Gate 13 remains exclusively owned by Codex. Exact active task: finish PR #216 verification on head 25ea93a7fa7e1ab2cd257e97a78423656da5f45a; asset policy 37129849568 already passed, full reconstruction run 37129849546 is pending. Merge only if green, then continue the next disjoint Gate-14 source-backed presentation step without touching Gate-13/shared status files.",
-  "last_known_main_head": "3655216b432f18ee05f2d40b6bb3f752a8c2f2e2",
+  "active_task": "Gate 13 remains exclusively owned by Codex. PR #216 is canonical at main 1e89045e35588a82a079f9b68635eae29b1eebf9 after reconstruction run 37129849546 passed 1,709 tests with 23 expected skips and asset-policy run 37129849568 passed. Continue independent Gate-14 presentation work from retained PlayerRow render plans on disjoint files; do not edit Gate-13/shared status files.",
+  "last_known_main_head": "1e89045e35588a82a079f9b68635eae29b1eebf9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 225,
   "last_recovery_reason": "connection-interrupted-transient",
-  "note": "Transient chat connection interrupted after PR #216 was opened. No repository work was lost; resume from its CI checkpoint.",
+  "note": "Recovery 225 merged PR #216 after full green CI. Continue next source-backed Gate-14 presentation seam.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
