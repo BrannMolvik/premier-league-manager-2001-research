@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 209: PR #180 merged canonical at main 745c1576c337c94dcea86f996bf347af641c77c2 after 1,549 tests / 22 expected skips and asset-policy success. Continue Gate-14 by source-closing PlayerRow Receiver<EventPlayerUpdateEnergy> callback 0x5267D0 -> row update 0x526680, including exact 58..99 normalization constants, 82-pixel bar transform, truncation and mirrored side geometry. Do not invent meanings for the six other row text controls or unrelated row events. Gate 13 remains earliest incomplete for shell/navigation fidelity.",
-  "last_known_main_head": "745c1576c337c94dcea86f996bf347af641c77c2",
+  "active_task": "Recovery 209: PR #182 merged canonical at main 66c0886a49581ac3461e0c242fb5e333bf73ac8c after 1,553 tests / 22 expected skips and asset-policy success. Continue Gate-14 PlayerRow typed text receivers from verified executable: EventPlayerUpdateForm callback 0x526740 writes event+0x04 as %u to text cell 6; EventPlayerGoal callback 0x526800 increments counter +0x18 and writes (%u) to cell 4; EventPlayerOwnGoal callback 0x526880 increments counter +0x1C and writes (%u) to cell 5 plus a source-computed color. Keep color meaning and text cells 1..3 fail-closed unless directly proved. Gate 13 remains earliest incomplete.",
+  "last_known_main_head": "66c0886a49581ac3461e0c242fb5e333bf73ac8c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 209,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #180 canonical. Continue exact energy-bar transform from verified executable.",
+  "note": "PR #182 canonical. Continue exact typed PlayerRow form/goal/own-goal text semantics.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
