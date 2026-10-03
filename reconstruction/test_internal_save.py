@@ -28,6 +28,7 @@ from internal_save import (
     load_human_gameplay,
     snapshot_human_gameplay,
 )
+from match_engine_rng import MatchEngineRng
 from match_postmatch import PlayerTransferRequest
 from procedural_league_state import LiveProceduralLeagueState
 from primary_schedule_shadow import PrimaryScheduleShadowState
@@ -1745,6 +1746,29 @@ class InternalSaveTests(unittest.TestCase):
         self.assertEqual(
             restored.state.transfers.scheduled_transfers,
             original.state.transfers.scheduled_transfers,
+        )
+
+    def test_match_engine_rng_full_state_survives_roundtrip(self):
+        original = self.build_controller()
+        original.match_engine_rng = MatchEngineRng(123456789)
+        for bound in (6, 2, 4, 100, 7, 2, 6, 31):
+            original.match_engine_rng.randbelow(bound)
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertIsNotNone(restored.match_engine_rng)
+        self.assertEqual(
+            restored.match_engine_rng.snapshot_state(),
+            original.match_engine_rng.snapshot_state(),
+        )
+        self.assertEqual(
+            [restored.match_engine_rng.randbelow(1000) for _ in range(48)],
+            [original.match_engine_rng.randbelow(1000) for _ in range(48)],
         )
 
     def test_wrong_source_database_is_rejected(self):

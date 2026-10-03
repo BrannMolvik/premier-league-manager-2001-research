@@ -2181,6 +2181,8 @@ class GameState:
         attack_matrix,
         defence_matrix,
         rng=None,
+        *,
+        match_engine_rng=None,
     ) -> NormalMatchResult:
         """Simulate one tagged primary PL/Cup entry as AI-vs-AI."""
         rng = self._resolve_rng(rng)
@@ -2192,6 +2194,7 @@ class GameState:
                 attack_matrix,
                 defence_matrix,
                 rng,
+                match_engine_rng=match_engine_rng,
             )
         if kind == "domestic_cup":
             result, _completion = self.simulate_domestic_cup_ai_node(
@@ -2233,6 +2236,7 @@ class GameState:
         rng=None,
         *,
         entry_order: Iterable[tuple] | None = None,
+        match_engine_rng=None,
     ) -> tuple[tuple[tuple, object], ...]:
         """Simulate today's live primary entries in one scheduler order.
 
@@ -2259,6 +2263,7 @@ class GameState:
                     attack_matrix,
                     defence_matrix,
                     rng,
+                    match_engine_rng=match_engine_rng,
                 ),
             )
             for entry in ordered
@@ -2269,6 +2274,8 @@ class GameState:
         attack_matrix,
         defence_matrix,
         rng=None,
+        *,
+        match_engine_rng=None,
     ) -> tuple[tuple[tuple, object], ...]:
         """Advance one day and execute live matches in shared primary order."""
         rng = self._resolve_rng(rng)
@@ -2277,6 +2284,7 @@ class GameState:
             attack_matrix,
             defence_matrix,
             rng,
+            match_engine_rng=match_engine_rng,
         )
         if (
             results
@@ -3689,6 +3697,8 @@ class GameState:
         self,
         fixture_id: int,
         rng=None,
+        *,
+        match_engine_rng=None,
     ) -> tuple[PreparedPremierLeagueAiSide, PreparedPremierLeagueAiSide]:
         """Prepare both AI sides in the original shared fixture RNG order.
 
@@ -3696,6 +3706,7 @@ class GameState:
         both AI selections -> weather -> home AI Condition -> away AI Condition.
         """
         rng = self._resolve_rng(rng)
+        engine_rng = match_engine_rng if match_engine_rng is not None else rng
         if self.premier_league is None:
             raise RuntimeError("Premier League state is not loaded")
         fixture_id = int(fixture_id)
@@ -3763,7 +3774,7 @@ class GameState:
 
         environment = generate_match_environment(
             self.calendar.current_date,
-            rng,
+            engine_rng,
         )
         self.prepared_match_environments[fixture_id] = environment
 
@@ -3773,7 +3784,7 @@ class GameState:
             home_preparation,
             home_roster,
             side=0,
-            rng=rng,
+            rng=engine_rng,
             tactical_state=self.team_tactics.get(
                 int(fixture.home_club_id),
                 TeamTacticalState(),
@@ -3783,7 +3794,7 @@ class GameState:
             away_preparation,
             away_roster,
             side=1,
-            rng=rng,
+            rng=engine_rng,
             tactical_state=self.team_tactics.get(
                 int(fixture.away_club_id),
                 TeamTacticalState(),
@@ -3803,7 +3814,11 @@ class GameState:
         """Prepare two AI clubs, simulate the due fixture, and store its result."""
         fixture_id = int(fixture_id)
         rng = self._resolve_rng(rng)
-        home, away = self.prepare_premier_league_ai_fixture_sides(fixture_id, rng)
+        home, away = self.prepare_premier_league_ai_fixture_sides(
+            fixture_id,
+            rng,
+            match_engine_rng=match_engine_rng,
+        )
         fixture = self.premier_league.fixtures[int(fixture_id)]
         home_club_id = int(fixture.home_club_id)
         pitch_wear_before = int(self.pitch_wear.get(home_club_id, 0))
@@ -3823,6 +3838,7 @@ class GameState:
             attack_matrix,
             defence_matrix,
             rng,
+            match_engine_rng=match_engine_rng,
             condition_injury_settings=ConditionInjurySettings(
                 environment_byte=pitch_wear_before,
             ),
@@ -4003,6 +4019,7 @@ class GameState:
         user_controlled flag passed into match-side/treatment paths.
         """
         rng = self._resolve_rng(rng)
+        engine_rng = match_engine_rng if match_engine_rng is not None else rng
         if self.premier_league is None:
             raise RuntimeError("Premier League state is not loaded")
 
@@ -4051,7 +4068,7 @@ class GameState:
         # recovered OppMinVal + RNG(6) + RNG(5) pre-match overwrite.
         environment = generate_match_environment(
             self.calendar.current_date,
-            rng,
+            engine_rng,
         )
         self.prepared_match_environments[fixture_id] = environment
 
@@ -4061,7 +4078,7 @@ class GameState:
             ai_preparation,
             ai_roster,
             side=1 if human_is_home else 0,
-            rng=rng,
+            rng=engine_rng,
             tactical_state=self.team_tactics.get(
                 ai_club_id,
                 TeamTacticalState(),
@@ -4108,6 +4125,7 @@ class GameState:
             attack_matrix,
             defence_matrix,
             rng,
+            match_engine_rng=match_engine_rng,
             condition_injury_settings=ConditionInjurySettings(
                 environment_byte=pitch_wear_before,
             ),
@@ -4212,6 +4230,7 @@ class GameState:
         defence_matrix,
         rng=None,
         *,
+        match_engine_rng=None,
         condition_injury_settings: ConditionInjurySettings | None = None,
     ) -> NormalMatchResult:
         """Simulate one fixture due today and persist its result into league state.
@@ -4220,6 +4239,7 @@ class GameState:
         this method does not invent a lineup, Condition, Form, or Team Orders.
         """
         rng = self._resolve_rng(rng)
+        engine_rng = match_engine_rng if match_engine_rng is not None else rng
         if self.premier_league is None:
             raise RuntimeError("Premier League state is not loaded")
         if fixture_id not in self.premier_league.fixtures:
@@ -4238,7 +4258,7 @@ class GameState:
             away_side,
             attack_matrix,
             defence_matrix,
-            rng,
+            engine_rng,
             condition_injury_settings=condition_injury_settings,
             # Ordinary fixture setup 0x510E55/5E/64 writes -1/-1;
             # 0x511120 only replaces them for native match family 5.

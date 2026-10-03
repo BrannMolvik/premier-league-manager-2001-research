@@ -10,9 +10,11 @@ from __future__ import annotations
 from dataclasses import dataclass, field, replace
 from datetime import date, timedelta
 from pathlib import Path
+from time import time
 from typing import Callable, Iterable
 
 from game_state import GameState
+from match_engine_rng import MatchEngineRng
 from match_lineup import AI_FORMATIONS, AiLineupCoreResult, StarterAssignment
 from match_orders import TeamOrderPriorities
 from match_participants import collect_match_participants
@@ -101,6 +103,7 @@ class HumanGameplayController:
         attack_matrix,
         defence_matrix,
         match_rng,
+        match_engine_rng=None,
     ):
         if state.premier_league is None:
             raise RuntimeError("Premier League state is required")
@@ -108,6 +111,7 @@ class HumanGameplayController:
         self.attack_matrix = attack_matrix
         self.defence_matrix = defence_matrix
         self.match_rng = match_rng
+        self.match_engine_rng = match_engine_rng
         self.human: HumanManagerState | None = None
         self.pending_fixture_id: int | None = None
         self._pending_prior_results: tuple[tuple[int, object], ...] = ()
@@ -124,6 +128,7 @@ class HumanGameplayController:
         *,
         player_seed: int = 1,
         start_date: date = date(2000, 7, 4),
+        match_engine_seed: int | None = None,
     ) -> "HumanGameplayController":
         """Create the same canonical shipped-data runtime used by Gates 5/6."""
 
@@ -232,6 +237,9 @@ class HumanGameplayController:
             matrices.attack,
             matrices.defence,
             MsvcCrtRng(primary_schedule.state_after),
+            MatchEngineRng(
+                int(time()) if match_engine_seed is None else int(match_engine_seed)
+            ),
         )
 
     def regenerate_annual_primary_season(
@@ -1147,6 +1155,7 @@ class HumanGameplayController:
                     self.attack_matrix,
                     self.defence_matrix,
                     self.match_rng,
+                match_engine_rng=self.match_engine_rng,
                 )
                 self._finish_shared_primary_day(bool(results))
                 if self.human is None:
@@ -1163,6 +1172,7 @@ class HumanGameplayController:
                         self.attack_matrix,
                         self.defence_matrix,
                         self.match_rng,
+                    match_engine_rng=self.match_engine_rng,
                     ),
                 )
                 for entry in due_order[:split]
@@ -1190,6 +1200,7 @@ class HumanGameplayController:
                 self.defence_matrix,
                 self.match_rng,
                 team_orders=self.human.team_orders,
+            match_engine_rng=self.match_engine_rng,
             )
         elif entry[0] == "domestic_cup":
             user_result, _completion = self.state.simulate_domestic_cup_human_node(
@@ -1234,6 +1245,7 @@ class HumanGameplayController:
                     self.attack_matrix,
                     self.defence_matrix,
                     self.match_rng,
+                match_engine_rng=self.match_engine_rng,
                 ),
             )
             for trailing_entry in self._pending_after_primary_entries
@@ -1309,6 +1321,7 @@ class HumanGameplayController:
                 self.attack_matrix,
                 self.defence_matrix,
                 self.match_rng,
+                match_engine_rng=self.match_engine_rng,
             )
 
         if self.state.calendar.current_date < target_date:
@@ -1341,6 +1354,7 @@ class HumanGameplayController:
                         self.attack_matrix,
                         self.defence_matrix,
                         self.match_rng,
+                    match_engine_rng=self.match_engine_rng,
                     ),
                 )
             )
@@ -1368,6 +1382,7 @@ class HumanGameplayController:
             self.defence_matrix,
             self.match_rng,
             team_orders=self.human.team_orders,
+        match_engine_rng=self.match_engine_rng,
         )
 
         trailing = []
@@ -1380,6 +1395,7 @@ class HumanGameplayController:
                         self.attack_matrix,
                         self.defence_matrix,
                         self.match_rng,
+                    match_engine_rng=self.match_engine_rng,
                     ),
                 )
             )
