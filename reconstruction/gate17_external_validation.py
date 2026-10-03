@@ -11,8 +11,9 @@ external receipt it requires:
 - the exact release archive and canonical user-owned game directory outside Git;
 - a fresh external work root.
 
-Only after those checks pass does it run the clean-install receipt, the three
-canonical gameplay receipts, assemble one release-evidence manifest and execute
+Only after those checks pass does it require a separately produced full-original-
+scope receipt, run the clean-install receipt and the three canonical gameplay
+receipts, assemble one release-evidence manifest and execute
 the final release-readiness audit. If any later step fails, the newly created
 work root is removed so a partial receipt set cannot be mistaken for final
 release evidence.
@@ -60,6 +61,21 @@ def _external_existing_dir(
     return target
 
 
+def _external_existing_file(
+    path: str | Path,
+    *,
+    repo_root: Path,
+    label: str,
+) -> Path:
+    try:
+        target = require_path_outside_repo(Path(path), repo_root, label=label)
+    except ReleaseReadinessError as exc:
+        raise ExternalReleaseValidationError(str(exc)) from exc
+    if not target.is_file():
+        raise ExternalReleaseValidationError(f"{label} does not exist: {target}")
+    return target
+
+
 def _fresh_external_root(
     path: str | Path,
     *,
@@ -87,6 +103,7 @@ def preflight_external_release_validation(
     repository_commit: str,
     release_archive: str | Path,
     canonical_game_dir: str | Path,
+    full_original_scope_receipt: str | Path,
     work_root: str | Path,
 ) -> dict:
     """Validate all immutable-evidence prerequisites before writing anything."""
@@ -117,6 +134,11 @@ def preflight_external_release_validation(
         repo_root=root,
         label="canonical FM2001 game directory",
     )
+    scope_receipt = _external_existing_file(
+        full_original_scope_receipt,
+        repo_root=root,
+        label="full original scope receipt",
+    )
     output_root = _fresh_external_root(work_root, repo_root=root)
 
     return {
@@ -127,6 +149,7 @@ def preflight_external_release_validation(
         "identity": identity,
         "release_archive": archive,
         "canonical_game_dir": game_dir,
+        "full_original_scope_receipt": scope_receipt,
         "work_root": output_root,
     }
 
@@ -150,6 +173,7 @@ def run_external_release_validation(
     repository_commit: str,
     release_archive: str | Path,
     canonical_game_dir: str | Path,
+    full_original_scope_receipt: str | Path,
     work_root: str | Path,
     player_seed: int = 1,
     max_days: int = 420,
@@ -161,6 +185,7 @@ def run_external_release_validation(
         repository_commit=repository_commit,
         release_archive=release_archive,
         canonical_game_dir=canonical_game_dir,
+        full_original_scope_receipt=full_original_scope_receipt,
         work_root=work_root,
     )
 
@@ -200,6 +225,7 @@ def run_external_release_validation(
                 "new_game_management_loop": gameplay["new_game_management_loop"],
                 "season_progression": gameplay["season_progression"],
                 "save_reload": gameplay["save_reload"],
+                "full_original_scope": preflight["full_original_scope_receipt"],
             },
             output_path=evidence_path,
             repo_root=root,
@@ -221,6 +247,7 @@ def run_external_release_validation(
         "new_game_management_loop": gameplay["new_game_management_loop"],
         "season_progression": gameplay["season_progression"],
         "save_reload": gameplay["save_reload"],
+        "full_original_scope": preflight["full_original_scope_receipt"],
         "release_evidence": evidence,
         "final_release_receipt": final_receipt_path,
     }
@@ -233,6 +260,7 @@ def main() -> int:
     parser.add_argument("--repository-commit", required=True)
     parser.add_argument("--release-archive", type=Path, required=True)
     parser.add_argument("--canonical-game-dir", type=Path, required=True)
+    parser.add_argument("--full-original-scope-receipt", type=Path, required=True)
     parser.add_argument("--work-root", type=Path, required=True)
     parser.add_argument("--player-seed", type=int, default=1)
     parser.add_argument("--max-days", type=int, default=420)
@@ -244,6 +272,7 @@ def main() -> int:
         repository_commit=args.repository_commit,
         release_archive=args.release_archive,
         canonical_game_dir=args.canonical_game_dir,
+        full_original_scope_receipt=args.full_original_scope_receipt,
         work_root=args.work_root,
         player_seed=args.player_seed,
         max_days=args.max_days,
