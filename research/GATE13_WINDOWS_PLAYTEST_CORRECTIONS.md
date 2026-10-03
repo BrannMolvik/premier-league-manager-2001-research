@@ -62,13 +62,29 @@ regression verifies visible reporting and unchanged retry state.
 | --- | ---: | --- | ---: | --- |
 | `gate13-schema8-20261003.json` | 8 | PASS | 71613 | `14cf97fc8dc2dc672fcd050f8396cc0dc4ca31c2afaa47fc4eda4c3a25e2b61a` |
 | `gate13-schema8-postfix-20261003.json` | 8 | PASS | 72432 | `a64beff49ff9cf0eeca9f8581e4f9e640eaac351427949899c35dfbded1117ac` |
+| `gate13-schema8-postfix-reconciled-20261003.json` | 8 | PASS | 72432 | `a64beff49ff9cf0eeca9f8581e4f9e640eaac351427949899c35dfbded1117ac` |
 
-Both reside in `C:\Users\Brann\Documents\FM2001-audits`, outside Git.
+All reside in `C:\Users\Brann\Documents\FM2001-audits`, outside Git.
 Platform: `Windows-11-10.0.26200-SP0`. The original receipt was not overwritten.
 The post-fix real Tk run verifies both action-caption contracts and native
 PhotoImage dimensions, first-screen navigation, hierarchy population and the
 existing explicit Squad/Fixtures/PMatchInfo/Tables bitmap loop. It is not a
 pixel-for-pixel original-game comparison, nor a human recognizability judgment.
+
+The reconciled receipt was generated after merging canonical main
+`9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658` into this branch. Its deterministic
+contents match the first post-fix receipt byte-for-byte. The main merge preserves
+the separate worker's FastView code/research/state; no Gate-14 change is part
+of the PR diff against main.
+
+Validation: final corrected-environment full reconstruction run passed **1,513 tests
+with 22 expected licensed-source skips**; post-reconciliation focused/integration
+run passed **67 tests with 3 expected skips**. Exact licensed menu-font tests
+also pass with the canonical English source inputs. Repository asset policy
+passes. Full local validation used the existing private Capstone installation
+and a writable temporary directory outside Git. Initial sandbox-only failures
+were missing Capstone and temporary-file fallback into the repository, not code
+regressions; both prerequisites were corrected before the successful full runs.
 
 ## Closure decision
 
