@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 206: resume from canonical main 8ea49594b827542196a4b5e94137ea4cecc5d176. Continue Gate-14 with the independently owned LeagueTableComposite family: current_table_grid_1 heading, current_table_grid_2 row, parent constructor/caller coordinates, exact child text rectangles, and direct source identities. Keep user-facing text semantics fail-closed unless directly proved. Gate 13 remains earliest incomplete for remaining shell/navigation fidelity; schema-8 Windows validation has passed.",
-  "last_known_main_head": "8ea49594b827542196a4b5e94137ea4cecc5d176",
+  "active_task": "Recovery 207: canonical main 642c004eb9e9b542a21e2a7c4401eb233c58b531 after PR #178 passed 1,532 tests / 22 expected skips and asset-policy success. Continue Gate-14 with ScoreCompositeNormal phase presentation: source-bind half_time_icon.444, full_time_icon.444, extra_time_icon.444, penalties_icon.444 to their typed event callbacks and recover exact PictureControl/text geometry through helper 0x51BA30. Keep any unresolved localized label text and broader score semantics fail-closed. Gate 13 remains earliest incomplete for shell/navigation fidelity.",
+  "last_known_main_head": "642c004eb9e9b542a21e2a7c4401eb233c58b531",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 206,
+  "recovery_generation": 207,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 206 adopted canonical post-PR #176 state; do not repeat completed score-grid work.",
+  "note": "PR #178 canonical. Continue phase icon+label presentation path from clean main.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
