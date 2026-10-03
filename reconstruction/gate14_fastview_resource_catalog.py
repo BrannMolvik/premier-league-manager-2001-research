@@ -1,13 +1,18 @@
 """Resolve source-proven FastView assets against a saved full-disc catalog.
 
 The canonical executable embeds the full original path for every bounded
-PossessionFigures/PossessionDiagram asset in this module. The resolver therefore
-matches those exact case-insensitive source paths rather than inferring a path
-from a basename. This is important for `pitch_normal.444`, whose basename
+FastView asset in this module. Recovery 197 corrects an earlier ownership
+mistake: the three 82x16 team/blank bar images belong to
+FastViewPanel::FastViewTeam::TeamTable row construction, not to
+PossessionFigures. The four pitch images belong to PossessionDiagram.
+
+The resolver matches exact case-insensitive source paths rather than inferring a
+path from a basename. This is important for `pitch_normal.444`, whose basename
 also exists under `Generic/match_report` on the authorized source disc.
 
-Layout and timing are separate fidelity questions. This module proves resource
-identity only.
+Layout, row-state meaning, user-side orientation and timing are separate
+fidelity questions. This module proves resource identity and bounded component
+ownership only.
 """
 from __future__ import annotations
 
@@ -20,6 +25,16 @@ from pathlib import Path, PurePosixPath
 CANONICAL_SOURCE_ARCHIVE_SHA256 = (
     "677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4"
 )
+
+FASTVIEW_TEAM_CONSTRUCTOR_VA = 0x524A20
+FASTVIEW_TEAM_VFTABLE_VA = 0x7CA888
+FASTVIEW_TEAM_TYPE_DESCRIPTOR_VA = 0x8299D8
+TEAMTABLE_CONSTRUCTOR_VA = 0x524EC0
+TEAMTABLE_VFTABLE_VA = 0x7CA950
+TEAMTABLE_TYPE_DESCRIPTOR_VA = 0x829B50
+TEAMTABLE_ROW_CONSTRUCTOR_VA = 0x525DB0
+TEAMTABLE_ROW_VFTABLE_VA = 0x7CA968
+TEAMTABLE_ROW_TYPE_DESCRIPTOR_VA = 0x829A78
 
 
 @dataclass(frozen=True)
@@ -40,9 +55,9 @@ class FastViewResourceTarget:
 
 TARGETS = (
     FastViewResourceTarget(
-        "PossessionFigures",
+        "FastViewPanel::FastViewTeam::TeamTable",
         "FM2001_Art/FastView/team_bar_1.444",
-        "one of the three source-proven possession percentage bars",
+        "TeamTable row bar resource; exact row-state meaning remains bounded",
         0x8293D4,
         2344,
         "edd35c18a53598b3cfd3e93adc2b27153742582d7888a0923fdd672d36e2681d",
@@ -50,9 +65,9 @@ TARGETS = (
         16,
     ),
     FastViewResourceTarget(
-        "PossessionFigures",
+        "FastViewPanel::FastViewTeam::TeamTable",
         "FM2001_Art/FastView/blank_bar.444",
-        "neutral/contested possession percentage bar family",
+        "TeamTable row blank-bar resource; exact row-state meaning remains bounded",
         0x8293B0,
         2776,
         "961eb49ae0810a522130f4b6e7401c7d16250d0de65bc7e51bc8341c6b8a7e3a",
@@ -60,9 +75,9 @@ TARGETS = (
         16,
     ),
     FastViewResourceTarget(
-        "PossessionFigures",
+        "FastViewPanel::FastViewTeam::TeamTable",
         "FM2001_Art/FastView/team_bar_2.444",
-        "one of the three source-proven possession percentage bars",
+        "TeamTable row bar resource; exact row-state meaning remains bounded",
         0x829334,
         2312,
         "4514b621f8d6a7b41c82c5215c4a1af571f60d773f0a3d1ea095c87d62e8a751",
@@ -210,9 +225,12 @@ def resolve_fastview_resources(report: dict) -> dict:
         "resources": resources,
         "fidelity_boundary": {
             "component_ownership_recovered": True,
+            "teamtable_bar_ownership_corrected": True,
+            "possession_figures_image_ownership": False,
             "asset_basenames_recovered": True,
             "exact_source_paths_source_proven": True,
             "layout_geometry_recovered": False,
+            "teamtable_row_state_semantics_recovered": False,
             "side0_screen_orientation_recovered": False,
             "territory_update_cadence_recovered": False,
         },
