@@ -34,7 +34,10 @@ CanonicalRunner = Callable[..., dict]
 
 
 def _normalized_seeds(player_seeds: Iterable[int]) -> tuple[int, ...]:
-    seeds = tuple(int(seed) & 0xFFFFFFFF for seed in player_seeds)
+    raw = tuple(player_seeds)
+    if any(type(seed) is not int for seed in raw):
+        raise ValueError("canonical multi-seed audit seeds must be exact integers")
+    seeds = tuple(seed & 0xFFFFFFFF for seed in raw)
     if len(seeds) < 2:
         raise ValueError("canonical multi-seed audit requires at least two seeds")
     if len(set(seeds)) != len(seeds):
@@ -56,10 +59,12 @@ def run_canonical_multiseed_audit(
     emits a misleading combined success report containing a failed seed.
     """
     seeds = _normalized_seeds(player_seeds)
-    if int(rollover_count) < 2:
-        raise ValueError("canonical multi-seed audit requires at least two rollovers")
-    if int(max_days_per_season) <= 0:
-        raise ValueError("max_days_per_season must be positive")
+    if type(rollover_count) is not int or rollover_count < 2:
+        raise ValueError(
+            "canonical multi-seed audit rollover_count must be an integer >= 2"
+        )
+    if type(max_days_per_season) is not int or max_days_per_season <= 0:
+        raise ValueError("max_days_per_season must be a positive integer")
 
     reports: list[dict] = []
     for seed in seeds:
@@ -67,8 +72,8 @@ def run_canonical_multiseed_audit(
             report = canonical_runner(
                 game_dir,
                 player_seed=seed,
-                rollover_count=int(rollover_count),
-                max_days_per_season=int(max_days_per_season),
+                rollover_count=rollover_count,
+                max_days_per_season=max_days_per_season,
             )
         except Exception as exc:
             raise CanonicalMultiSeedAuditError(
@@ -81,13 +86,13 @@ def run_canonical_multiseed_audit(
                 "canonical runner returned a mismatched player seed: "
                 f"requested 0x{seed:08X}, got 0x{reported_seed:08X}"
             )
-        if int(report.get("rollover_count", -1)) != int(rollover_count):
+        if report.get("rollover_count") != rollover_count:
             raise CanonicalMultiSeedAuditError(
                 f"canonical runner returned unexpected rollover count for "
                 f"seed 0x{seed:08X}"
             )
         snapshots = report.get("snapshots")
-        if not isinstance(snapshots, list) or len(snapshots) != int(rollover_count):
+        if not isinstance(snapshots, list) or len(snapshots) != rollover_count:
             raise CanonicalMultiSeedAuditError(
                 f"canonical runner returned incomplete snapshots for "
                 f"seed 0x{seed:08X}"
@@ -99,8 +104,8 @@ def run_canonical_multiseed_audit(
         "audit": "gate16_canonical_multiseed",
         "player_seeds": list(seeds),
         "seed_count": len(seeds),
-        "rollover_count_per_seed": int(rollover_count),
-        "max_days_per_season": int(max_days_per_season),
+        "rollover_count_per_seed": rollover_count,
+        "max_days_per_season": max_days_per_season,
         "all_seeds_passed": True,
         "reports": reports,
     }
