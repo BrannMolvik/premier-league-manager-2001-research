@@ -854,6 +854,26 @@ class HumanGameplayControllerTests(unittest.TestCase):
         ):
             controller.select_financial_objective(0)
 
+    def test_non_pl_controller_exposes_materialized_source_backed_objective(self):
+        controller, _token = self.build_primary_procedural_controller()
+        controller.select_club(21)
+        balance = controller.state.finance_balances.get(21)
+        if balance is None:
+            balance = BalanceRuntimeState(current_cash=1_000_000)
+            controller.state.finance_balances[21] = balance
+        balance.financial_objective = FinancialObjectiveState(
+            base_cash=1_000_000,
+            candidate_ids=(1, 5, 9),
+        )
+
+        self.assertEqual(
+            controller.financial_objective_candidates(),
+            (1, 5, 9),
+        )
+        replacement = controller.select_financial_objective(0)
+        self.assertEqual(replacement, 1_550_000)
+        self.assertEqual(balance.current_cash, 1_550_000)
+
     def test_pending_cup_autofill_uses_cup_selection_rules(self):
         controller = self.build_controller()
         controller.select_club(1)
