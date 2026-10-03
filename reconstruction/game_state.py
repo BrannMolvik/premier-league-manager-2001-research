@@ -89,6 +89,12 @@ from primary_schedule_shadow import (
     PrimaryScheduleShadowState,
 )
 from runtime_state import RuntimePlayer, derive_non_eu_status
+from complete_fixture_report import (
+    CompleteFixtureReport, ReportMetadata, assemble_complete_fixture_report,
+    validate_report_owner,
+    LiveReportSetupFragment, report_language_from_database, format_report_caption,
+)
+from original_fixture_report_capture import NativeCapturedScalar
 from stadium_state import StadiumSourceState, TicketRuntimeState
 from transfer_state import TransferRuntimeState
 from youth_state import (
@@ -197,6 +203,12 @@ class GameState:
     prepared_match_gate_receipts: dict[int, GateReceiptResult] = field(default_factory=dict)
     # Actual 0x631110 output; persistent report input, not a captured report/link.
     prepared_match_report_player_ids: dict[int, int] = field(default_factory=dict)
+    # Producer-retained setup is transient. Only a complete capture is published.
+    prepared_match_report_metadata: dict[int, ReportMetadata] = field(default_factory=dict)
+    report_language: tuple | None = None
+    prepared_match_report_setup: dict[int, LiveReportSetupFragment] = field(default_factory=dict)
+    captured_match_reports: tuple[CompleteFixtureReport, ...] = ()
+    fixture_match_info_links: dict[int, int] = field(default_factory=dict)
     # Complete per-side rating/skill output from actual finalization. These are
     # persistent report INPUTS only; no owner/link is created from fragments.
     prepared_match_participant_statistics: dict[
@@ -432,6 +444,7 @@ class GameState:
             country_transfer_window_open=country_transfer_window_open,
             rng=rng,
         )
+        state.report_language = report_language_from_database(database)
         state.calendar.daily_hooks.append(state._run_daily_injury_returns)
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
@@ -2571,6 +2584,10 @@ class GameState:
         self.prepared_match_gate_receipts = {}
         self.prepared_match_participant_statistics = {}
         self.prepared_match_report_player_ids = {}
+        self.prepared_match_report_metadata = {}
+        self.prepared_match_report_setup = {}
+        self.captured_match_reports = ()
+        self.fixture_match_info_links = {}
         return regeneration
 
     def refresh_primary_procedural_leagues(
@@ -3762,6 +3779,8 @@ class GameState:
         )
         self.prepared_match_environments[fixture_id] = environment
 
+        self._retain_fixture_report_setup(fixture, competition, environment)
+
         home = build_premier_league_ai_match_side(
             home_preparation,
             home_roster,
@@ -3941,7 +3960,44 @@ class GameState:
             fixture_date,
             rng,
         )
+        self._publish_completed_fixture_report(fixture_id, result)
         return result
+
+    def _retain_fixture_report_setup(self, fixture, competition, environment):
+        # Ordinary PL has no match +0x48 alternate venue; 0x514220 therefore
+        # resolves the home DBRClub identity. Do not generalize to other families.
+        self.prepared_match_report_setup[fixture.id] = LiveReportSetupFragment(
+            format_report_caption(self.report_language, getattr(competition, 'name', None),
+                                  self.calendar.current_date),
+            fixture.home_club_id & 0xFFFF,
+            (NativeCapturedScalar(0xA0, 0xD46, bytes((environment.temperature_c & 0xFF,))),
+             NativeCapturedScalar(0xA1, 0xD45, bytes((int(environment.weekday_evening),))),
+             NativeCapturedScalar(0xA2, 0xD44, bytes((environment.weather_code & 0xFF,)))))
+
+    def _publish_completed_fixture_report(self, fixture_id, result):
+        """Publish the native ordered owner/link atomically, never result scores.
+
+        Missing setup leaves the ordinary right-click unavailable. In particular,
+        retained statistics alone are not permission to create a report.
+        """
+        fixtures = {} if self.premier_league is None else self.premier_league.fixtures
+        validate_report_owner(self.captured_match_reports, self.fixture_match_info_links, fixtures)
+        report = assemble_complete_fixture_report(
+            fixture_id, result, self.prepared_match_report_metadata.get(fixture_id),
+            self.prepared_match_participant_statistics.get(fixture_id),
+            self.prepared_match_report_player_ids.get(fixture_id))
+        if report is None:
+            return False
+        if fixture_id in self.fixture_match_info_links:
+            raise ValueError('A fixture cannot acquire a second captured-report owner')
+        reports = self.captured_match_reports + (report,)
+        links = dict(self.fixture_match_info_links)
+        links[fixture_id] = len(self.captured_match_reports)
+        validate_report_owner(reports, links, fixtures)
+        self.captured_match_reports, self.fixture_match_info_links = reports, links
+        self.prepared_match_report_metadata.pop(fixture_id, None)
+        self.prepared_match_report_setup.pop(fixture_id, None)
+        return True
 
     def simulate_premier_league_human_fixture(
         self,
@@ -4016,6 +4072,8 @@ class GameState:
             engine_rng,
         )
         self.prepared_match_environments[fixture_id] = environment
+
+        self._retain_fixture_report_setup(fixture, competition, environment)
 
         ai_prepared = build_premier_league_ai_match_side(
             ai_preparation,
@@ -4161,6 +4219,7 @@ class GameState:
             fixture_date,
             rng,
         )
+        self._publish_completed_fixture_report(fixture_id, result)
         return result
 
     def simulate_premier_league_fixture(
@@ -4208,6 +4267,11 @@ class GameState:
             native_previous_scores=(-1, -1),
             native_compact_spacing=0,
             native_report_date=self.calendar.current_date,
+            # 0x51101C writes D48=0 for AI-vs-AI. A human opponent's
+            # legacy DBRClub+0x130 adjustment remains unresolved, not zero.
+            native_ai_condition_adjustment=(
+                0 if not home_side.attack_context.user_controlled
+                and not away_side.attack_context.user_controlled else None),
         )
         home_goals, away_goals = result.score
         self.record_premier_league_result(

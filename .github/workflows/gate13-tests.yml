@@ -64,6 +64,8 @@ on:
       - "reconstruction/original_game_host.py"
       - "reconstruction/original_fixture_match_info_link.py"
       - "reconstruction/original_fixture_report_capture.py"
+      - "reconstruction/complete_fixture_report.py"
+      - "reconstruction/test_complete_fixture_report.py"
       - "reconstruction/original_fixture_report_packing.py"
       - "reconstruction/test_original_fixture_match_info_link.py"
       - "reconstruction/test_original_fixture_report_capture.py"
@@ -170,6 +172,7 @@ jobs:
             test_original_game_host \
             test_original_fixture_match_info_link \
             test_original_fixture_report_capture \
+            test_complete_fixture_report \
             test_original_fixture_report_packing \
             test_original_fixture_report_route \
             test_gate13_fixture_report_source_trace \
