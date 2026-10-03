@@ -32,6 +32,7 @@ class HumanRuntimeOwnerSurface:
     materialized_secondary_procedural_ids: tuple[int, ...]
     human_primary_procedural_ids: tuple[int, ...]
     human_secondary_procedural_ids: tuple[int, ...]
+    fresh_financial_objective_competition_ids: tuple[int, ...]
     annual_progression_country_ids: tuple[int, ...]
 
 
@@ -44,6 +45,7 @@ class RuntimeOwnerCapabilityEntry:
     selection_supported: bool
     runtime_materialized: bool
     human_match_supported: bool
+    fresh_financial_objective_supported: bool
     annual_progression_supported: bool
     blocker_codes: tuple[str, ...]
 
@@ -60,6 +62,9 @@ class RuntimeOwnerCapabilityEntry:
             "selection_supported": self.selection_supported,
             "runtime_materialized": self.runtime_materialized,
             "human_match_supported": self.human_match_supported,
+            "fresh_financial_objective_supported": (
+                self.fresh_financial_objective_supported
+            ),
             "annual_progression_supported": self.annual_progression_supported,
             "blocker_codes": list(self.blocker_codes),
             "complete": self.complete,
@@ -96,7 +101,7 @@ class RuntimeOwnerCapabilityAudit:
 
     def as_dict(self) -> dict:
         return {
-            "schema_version": 1,
+            "schema_version": 2,
             "catalog_sha256": self.catalog_sha256,
             "scope_entry_count": len(self.entries),
             "supported_scope_ids": list(self.supported_scope_ids),
@@ -132,6 +137,7 @@ def normalized_surface(
     materialized_secondary_procedural_ids: Iterable[int],
     human_primary_procedural_ids: Iterable[int],
     human_secondary_procedural_ids: Iterable[int],
+    fresh_financial_objective_competition_ids: Iterable[int],
     annual_progression_country_ids: Iterable[int],
 ) -> HumanRuntimeOwnerSurface:
     return HumanRuntimeOwnerSurface(
@@ -156,6 +162,10 @@ def normalized_surface(
         human_secondary_procedural_ids=_exact_unique_ids(
             human_secondary_procedural_ids,
             label="human secondary procedural IDs",
+        ),
+        fresh_financial_objective_competition_ids=_exact_unique_ids(
+            fresh_financial_objective_competition_ids,
+            label="fresh financial objective competition IDs",
         ),
         annual_progression_country_ids=_exact_unique_ids(
             annual_progression_country_ids,
@@ -186,6 +196,9 @@ def audit_runtime_owner_capability(
     secondary_live = set(surface.materialized_secondary_procedural_ids)
     primary_human = set(surface.human_primary_procedural_ids)
     secondary_human = set(surface.human_secondary_procedural_ids)
+    fresh_objectives = set(
+        surface.fresh_financial_objective_competition_ids
+    )
     progression_countries = set(surface.annual_progression_country_ids)
 
     entries: list[RuntimeOwnerCapabilityEntry] = []
@@ -209,6 +222,9 @@ def audit_runtime_owner_capability(
                 f"unknown runtime owner {planned.runtime_owner!r}"
             )
 
+        fresh_financial_objective_supported = (
+            competition_id in fresh_objectives
+        )
         annual_progression_supported = (
             int(planned.country_id) in progression_countries
         )
@@ -219,6 +235,8 @@ def audit_runtime_owner_capability(
             blockers.append("runtime_owner_not_materialized")
         if not human_match_supported:
             blockers.append("human_match_dispatch_missing")
+        if not fresh_financial_objective_supported:
+            blockers.append("fresh_financial_objective_missing")
         if not annual_progression_supported:
             blockers.append("annual_progression_country_missing")
 
@@ -231,6 +249,9 @@ def audit_runtime_owner_capability(
                 selection_supported=selection_supported,
                 runtime_materialized=runtime_materialized,
                 human_match_supported=human_match_supported,
+                fresh_financial_objective_supported=(
+                    fresh_financial_objective_supported
+                ),
                 annual_progression_supported=annual_progression_supported,
                 blocker_codes=tuple(blockers),
             )
@@ -250,8 +271,9 @@ def run_canonical_runtime_owner_capability(
     Human primary procedural dispatch is generic for every already-materialized
     `procedural_league` owner because `play_user_primary_match()` now routes
     that entry family through the shared human match backend. Secondary
-    procedural runtime state still has no current GameState container. Annual
-    LeagueAllocation commit remains the English-only transition path.
+    procedural runtime state still has no current GameState container. Fresh
+    chairman-objective candidates remain source-locked only for competition 0,
+    and annual LeagueAllocation commit remains the English-only transition path.
     """
     from human_gameplay import HumanGameplayController
 
@@ -267,9 +289,7 @@ def run_canonical_runtime_owner_capability(
         )
 
     surface = normalized_surface(
-        selectable_club_ids=tuple(
-            int(value) for value in controller.state.premier_league.club_ids
-        ),
+        selectable_club_ids=controller.selectable_club_ids(),
         fixed_primary_competition_ids=(0,),
         materialized_primary_procedural_ids=tuple(
             dict.fromkeys(
@@ -285,6 +305,9 @@ def run_canonical_runtime_owner_capability(
             )
         ),
         human_secondary_procedural_ids=(),
+        # Only the fresh Premier League objective-candidate branch is
+        # instruction-locked. Do not infer non-PL chairman candidates.
+        fresh_financial_objective_competition_ids=(0,),
         annual_progression_country_ids=(26,),
     )
     return audit_runtime_owner_capability(plan, surface)
