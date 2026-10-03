@@ -1,7 +1,7 @@
 """Resolve source-proven FastView assets against a saved full-disc catalog.
 
 The canonical executable embeds the full original path for every bounded
-PossessionFigures/PossessionDiagram asset in this module. The resolver therefore
+FastViewTeam/PossessionDiagram asset in this module. The resolver therefore
 matches those exact case-insensitive source paths rather than inferring a path
 from a basename. This is important for `pitch_normal.444`, whose basename
 also exists under `Generic/match_report` on the authorized source disc.
@@ -40,9 +40,9 @@ class FastViewResourceTarget:
 
 TARGETS = (
     FastViewResourceTarget(
-        "PossessionFigures",
+        "FastViewTeam",
         "FM2001_Art/FastView/team_bar_1.444",
-        "one of the three source-proven possession percentage bars",
+        "FastViewTeam/TeamTable bar-family source asset; not a PossessionFigures control",
         0x8293D4,
         2344,
         "edd35c18a53598b3cfd3e93adc2b27153742582d7888a0923fdd672d36e2681d",
@@ -50,9 +50,9 @@ TARGETS = (
         16,
     ),
     FastViewResourceTarget(
-        "PossessionFigures",
+        "FastViewTeam",
         "FM2001_Art/FastView/blank_bar.444",
-        "neutral/contested possession percentage bar family",
+        "FastViewTeam/TeamTable blank bar-family source asset; not a PossessionFigures control",
         0x8293B0,
         2776,
         "961eb49ae0810a522130f4b6e7401c7d16250d0de65bc7e51bc8341c6b8a7e3a",
@@ -60,9 +60,9 @@ TARGETS = (
         16,
     ),
     FastViewResourceTarget(
-        "PossessionFigures",
+        "FastViewTeam",
         "FM2001_Art/FastView/team_bar_2.444",
-        "one of the three source-proven possession percentage bars",
+        "FastViewTeam/TeamTable bar-family source asset; not a PossessionFigures control",
         0x829334,
         2312,
         "4514b621f8d6a7b41c82c5215c4a1af571f60d773f0a3d1ea095c87d62e8a751",
@@ -210,6 +210,7 @@ def resolve_fastview_resources(report: dict) -> dict:
         "resources": resources,
         "fidelity_boundary": {
             "component_ownership_recovered": True,
+            "possession_figures_bar_association_rejected": True,
             "asset_basenames_recovered": True,
             "exact_source_paths_source_proven": True,
             "layout_geometry_recovered": False,

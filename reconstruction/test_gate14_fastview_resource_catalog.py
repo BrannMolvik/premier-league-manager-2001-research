@@ -54,6 +54,11 @@ class Gate14FastViewResourceCatalogTests(unittest.TestCase):
             first["executable_string_va"], TARGETS[0].executable_string_va
         )
 
+    def test_team_bars_are_fastview_team_not_possession_figures(self):
+        bars = TARGETS[:3]
+        self.assertEqual([item.component for item in bars], ["FastViewTeam"] * 3)
+        self.assertTrue(all("not a PossessionFigures control" in item.proven_role for item in bars))
+
     def test_duplicate_pitch_normal_basename_does_not_ambiguate_exact_fastview_path(self):
         report = complete_report()
         report["disc_files"].append(
@@ -126,6 +131,7 @@ class Gate14FastViewResourceCatalogTests(unittest.TestCase):
         catalog = resolve_fastview_resources(complete_report())
         boundary = catalog["fidelity_boundary"]
         self.assertTrue(boundary["exact_source_paths_source_proven"])
+        self.assertTrue(boundary["possession_figures_bar_association_rejected"])
         self.assertFalse(boundary["layout_geometry_recovered"])
         self.assertFalse(boundary["side0_screen_orientation_recovered"])
         self.assertFalse(boundary["territory_update_cadence_recovered"])

@@ -10512,3 +10512,13 @@ work may continue under the deferred-blocker policy.
 - Added a fail-closed runtime resource validator and exact normal-pitch/active-overlay rectangle adapter. Native cadence and human-side orientation remain unclaimed.
 - Fresh executable tracing closes PossessionFigures constructor `0x51E7E0`, receiver `0x51EA80`, owner callsite `0x520802`, and the three percentage rectangles: side1 left (311,181)-(351,199), neutral center (382,181)-(422,199), side0 right (454,181)-(494,199).
 - Local source-bounded focused tests passed before repository CI. Next source task is the three 82x16 PossessionFigures bar placement/binding trace while Gate 13 remains externally blocked on the real-Windows schema-8 receipt.
+
+
+## 3 October 2026 - Recovery 198 FastView bar ownership correction
+
+- Resumed from canonical main `1e68dca68395c97cc8ea8498f1ec212e0273659b`; Recovery 196 was already merged and green, so no completed asset-staging work was repeated.
+- Re-traced the canonical executable around `PossessionFigures::0x51E7E0` and the adjacent FastView resource table.
+- RTTI proves vtable `0x7CA414` is `PossessionFigures`, vtable `0x7CA888` is `FastViewTeam@FastViewPanel`, and vtable `0x7CA950` is nested `TeamTable@FastViewTeam@FastViewPanel`.
+- The exact bar paths `team_bar_1.444`, `blank_bar.444`, and `team_bar_2.444` are consumed through the separate `0x524920 -> 0x524A20 -> 0x524EC0` FastViewTeam/TeamTable construction path, not by PossessionFigures.
+- Corrected the Gate-14 resource catalog and research notes so those three files can no longer be wired into the percentage-text component by mistake. PossessionFigures remains the source-proven three-text-control component; its Recovery-196 geometry remains valid.
+- Human-side orientation and PossessionDiagram callback cadence remain fail-closed. Gate 13 remains the earliest incomplete validation gate pending the external schema-8 Windows receipt.

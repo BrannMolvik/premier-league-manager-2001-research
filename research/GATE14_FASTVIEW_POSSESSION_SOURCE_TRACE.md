@@ -33,13 +33,22 @@ for this worker.
 ## Exact FastView resource paths
 
 The canonical executable contains the complete FastView source paths, not only
-basenames. The relevant image-path string addresses are:
+basenames. Recovery 198 corrects one earlier ownership assumption: the three
+82×16 bar files adjacent to the FastView constants are **not**
+`PossessionFigures` controls. Their consumer is the separate
+`FastViewPanel::FastViewTeam` / `TeamTable` construction path at
+`0x524920 -> 0x524A20 -> 0x524EC0`. RTTI proves vtable `0x7CA888` as
+`FastViewTeam@FastViewPanel` and vtable `0x7CA950` as its nested
+`TeamTable`. The `PossessionFigures` constructor remains the separate
+`0x51E7E0` text-only component.
+
+The relevant image-path string addresses are:
 
 | Component | Executable VA | Exact original source path | Bytes | Dimensions | SHA-256 |
 | --- | ---: | --- | ---: | ---: | --- |
-| PossessionFigures | `0x8293D4` | `FM2001_Art/FastView/team_bar_1.444` | 2,344 | 82×16 | `edd35c18a53598b3cfd3e93adc2b27153742582d7888a0923fdd672d36e2681d` |
-| PossessionFigures | `0x8293B0` | `FM2001_Art/FastView/blank_bar.444` | 2,776 | 82×16 | `961eb49ae0810a522130f4b6e7401c7d16250d0de65bc7e51bc8341c6b8a7e3a` |
-| PossessionFigures | `0x829334` | `FM2001_Art/FastView/team_bar_2.444` | 2,312 | 82×16 | `4514b621f8d6a7b41c82c5215c4a1af571f60d773f0a3d1ea095c87d62e8a751` |
+| FastViewTeam | `0x8293D4` | `FM2001_Art/FastView/team_bar_1.444` | 2,344 | 82×16 | `edd35c18a53598b3cfd3e93adc2b27153742582d7888a0923fdd672d36e2681d` |
+| FastViewTeam | `0x8293B0` | `FM2001_Art/FastView/blank_bar.444` | 2,776 | 82×16 | `961eb49ae0810a522130f4b6e7401c7d16250d0de65bc7e51bc8341c6b8a7e3a` |
+| FastViewTeam | `0x829334` | `FM2001_Art/FastView/team_bar_2.444` | 2,312 | 82×16 | `4514b621f8d6a7b41c82c5215c4a1af571f60d773f0a3d1ea095c87d62e8a751` |
 | PossessionDiagram | `0x8298D4` | `FM2001_Art/FastView/pitch_left.444` | 9,736 | 125×78 | `bf1cf154f9742b39953771a248c7d1269d8d0394856ab1dc76dd81882b1b29d9` |
 | PossessionDiagram | `0x8298AC` | `FM2001_Art/FastView/pitch_middle.444` | 7,896 | 98×78 | `ad53294836bf1f489060e9339da79fa43f2fb70034c890ea93dbff14f5caee77` |
 | PossessionDiagram | `0x829888` | `FM2001_Art/FastView/pitch_right.444` | 9,408 | 125×78 | `dedc194dc9410ddc6d606fdabd3fe779a0c1bf0bfdfe85752f9a56d57171e5fd` |
@@ -162,8 +171,9 @@ FastView behavior:
    semantics for the private presentation RNG;
 2. recover side-0/user orientation rather than inferring it from
    `left/middle/right` filenames;
-3. trace and source-bind the three 82×16 PossessionFigures bar controls; the
-   percentage text placement is now exact;
+3. keep the three 82×16 `team_bar_1` / `blank_bar` / `team_bar_2` assets under
+   the separately proven `FastViewTeam` / `TeamTable` ownership. They must not
+   be wired into `PossessionFigures`; percentage text placement is already exact;
 4. connect the source-bounded diagram/text geometry to a player-visible
    FastView surface only after its missing lifecycle/orientation boundaries are
    resolved or explicitly fail-closed;
