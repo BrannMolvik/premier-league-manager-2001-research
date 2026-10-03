@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Codex PR #242 (head 1250f2e4) is green across Gate-13 source tests, asset policy, Windows release-candidate package and full reconstruction CI, but its own body explicitly keeps Gate 13 open for remaining row/kit/scroll/color fidelity plus fresh uncontrolled visiting-capacity lifecycle; do not merge or modify it. Canonical main is a5b4766a698c95ef0517890c1097bcbb99cfee88 after Gate-14 PR #245 merged green, providing a completed-human FastView frame path from retained Condition/form histories plus explicit row identities and caller-supplied presentation RNG(6) results without gameplay mutation. PR #246 (head 32b54253) is mergeable and validating: it makes the final Gate-17 Windows audit derive the hash-verified canonical TeamSelect catalog and bind full_original_scope.json to exact catalog SHA/counts/scope IDs with empty missing/failed lists. Prepared independent branch worker/gate17-human-scope-capability at 19ca2062 compares exact TeamSelect club scope against the current human controller's selectable club IDs and reports supported/unsupported country:competition targets without changing runtime. Local process starts still fail with caas.internal.errors.ClientError, so private Gate-14 audio-bank/cross-z-order/dynamic-resize/text-color adjudication remains blocked. Preserve the Gate-13 ownership lock.",
-  "last_known_main_head": "a5b4766a698c95ef0517890c1097bcbb99cfee88",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Codex PR #242 head 1250f2e4 is fully green but still explicitly open for remaining row/kit/scroll/color fidelity and fresh uncontrolled visiting-capacity lifecycle; do not merge or modify it. Canonical main is da5c0fb268b17483521cbd12ef9ec77fed5367ad after Gate-17 PR #246 merged green, binding final full_original_scope evidence to the exact hash-verified TeamSelect catalog SHA/counts/ordered country:competition IDs with empty missing/failed scope. PR #247 head a74e9f98 is validating the exact human-control capability gap over that catalog; asset policy is green and reconstruction CI is in progress. Gate-14 retained-history FastView frame path is canonical through a5b4766a. Local shell/container/Python process starts still fail with caas.internal.errors.ClientError, blocking private audio-bank/cross-z-order/dynamic-resize/text-color source adjudication. Gate16 current readiness audit already prevalidates its roadmap criteria with two canonical three-season seeds plus six deterministic synthetic seeds, so the recovered optional canonical_multiseed wrapper branch worker/gate16-canonical-multiseed-v2 at c2ea5ebc is not on the critical path. Preserve Gate-13 ownership.",
+  "last_known_main_head": "da5c0fb268b17483521cbd12ef9ec77fed5367ad",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 241,
+  "recovery_generation": 242,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 241 checkpoint: #244 and #245 merged green; Gate-14 retained-history PlayerRows now flow into the completed-human frame plan without gameplay replay. #246 exact Gate-17 canonical scope receipt binding is validating. Gate-17 human scope capability audit prepared at 19ca2062. Gate-13 PR #242 is green but explicitly still open and Codex-owned.",
+  "note": "Recovery 242 checkpoint: #246 exact Gate17 canonical scope binding merged green as da5c0fb2. #247 human-control scope capability audit is running (asset green, reconstruction active). Gate16 is already prevalidated by current readiness evidence; optional recovered multi-seed wrapper prepared but intentionally deprioritized. Gate13 #242 remains green/open/Codex-owned.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
