@@ -84,3 +84,12 @@ receipt bound to the exact canonical catalog and release archive.
 Gate 13 remains the earliest incomplete gate. This work is independent Gate 17
 readiness infrastructure only and must not be used to bypass Gate 13 or declare
 a later gate complete early.
+
+The runtime-owner capability input distinguishes fresh objective creation from
+season-end sporting-objective progression. A scope that can materialize a fresh
+objective is still blocked when its recovered sporting objective IDs are not
+advanced/evaluated at that competition's season boundary. The corresponding
+low-level blocker is `sporting_objective_progression_missing`; the preflight
+continues to surface it through `runtime_owner_blocker_codes` while the
+top-level readiness blocker remains `runtime_owner_capability_incomplete`.
+
