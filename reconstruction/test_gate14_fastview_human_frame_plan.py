@@ -178,8 +178,8 @@ class HumanFastViewFramePlanTests(unittest.TestCase):
                 exact_chrome(),
                 exact_possession(),
                 exact_figures(),
-            exact_team_art(),
-        )
+                exact_team_art(),
+            )
 
     def test_adapter_does_not_import_simulation_rng_audio_or_controller_layers(self):
         source = Path(__file__).with_name(
