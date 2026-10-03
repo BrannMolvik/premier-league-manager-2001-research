@@ -924,6 +924,8 @@ class IntegratedGameStateTests(unittest.TestCase):
             coefficient_matrix(),
             MidpointRng(),
         )
+        self.assertEqual(legacy.prepared_match_participant_statistics, {})
+        self.assertEqual(legacy.prepared_match_report_player_ids, {})
         self.assertEqual(
             sum(
                 player.match_performance_history_count
@@ -961,6 +963,22 @@ class IntegratedGameStateTests(unittest.TestCase):
         self.assertTrue(
             all(4 <= player.latest_match_performance() <= 10 for player in populated)
         )
+        statistics = state.prepared_match_participant_statistics[0]
+        self.assertIn(state.prepared_match_report_player_ids[0],
+                      tuple(identity for side in statistics for identity in side.player_ids))
+        self.assertEqual(len(statistics), 2)
+        for side in statistics:
+            self.assertEqual(tuple(item.player_index for item in side.statistics), tuple(range(16)))
+            self.assertEqual(sum(item.rating != 0 for item in side.statistics), 11)
+            self.assertTrue(all(len(item.skill_flags) == 8 for item in side.statistics))
+            self.assertEqual(len(set(side.player_ids)), 16)
+            for identity, item in zip(side.player_ids, side.statistics):
+                if item.rating:
+                    self.assertEqual(state.players[identity].latest_match_performance(), item.rating)
+        # Genuine simulation did not promote a statistics fragment into a
+        # persistent capture owner or expose PMatchInfo context.
+        self.assertFalse(hasattr(state, 'captured_match_reports'))
+        self.assertFalse(hasattr(state, 'fixture_match_info_links'))
 
     def test_daily_injury_return_clears_exact_persistent_state(self):
         state = GameState.from_database(

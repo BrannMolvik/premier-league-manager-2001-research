@@ -2,6 +2,39 @@
 
 _Audit refreshed: 3 October 2026 KST_
 
+PR #194 metadata checkpoint (not a refreshed criterion-level audit): producer
+calendar/score accumulators survive schema-37 pending-result reload; exact
+caption language binding and setup metadata consumers are recorded. Missing
+mandatory live setup/caption/normalized participant metadata still prevents
+complete report production, ordered owner/link persistence and the successful
+ordinary right-click route. Gate 13 remains OPEN. Main `50b70390` history work
+is preserved; 156 focused tests pass. No final timing/recognizability sign-off
+or intermediate full/Windows audit is claimed.
+
+PR #194 implementation checkpoint (not a new broad closure audit): live
+ordinary compact scripts now undergo native finalization and retain FullTime's
+payload through pending-result save/reload under schema 36. Goal/statistic
+capture and selected-player output also have live-field consumers. Full report
+metadata/assembly/ordered owner/link remain incomplete; the successful normal
+route and timing/recognizability criteria remain unverified. No intermediate
+schema-8 run or Gate-14 change was made. Details: `GATE13_LIVE_CAPTURE_INPUTS.md`.
+
+Earlier live-input continuation: complete ordered rating/skill outputs with
+persistent player IDs are retained at actual AI/human finalization, and actual
+captured possession survives pending-matchday save/reload under schema 35.
+See `GATE13_LIVE_CAPTURE_INPUTS.md`. These are report inputs, not the complete
+report/owner/link. The successful calculated-fixture -> reload -> native
+right-click -> PMatchInfo context is still unverified/unavailable. Consequently
+the criterion-level results below remain unchanged and **Gate 13 stays OPEN**.
+No timing/recognizability sign-off or formal Gate-14 transition is claimed.
+Final reconciled code `f8b9f4ba` passes 1,625 full tests / 23 expected skips
+and 134 focused checks; fresh real Windows schema 8 passes. New private
+source evidence proves pre-capture list pruning/time/order finalization and
+FullTime's required outcome payload. These are not retained by the current
+semantic list, so final ordinary-route/timing/recognizability closure cannot
+be signed off. This is one complete-report-production boundary, not permission
+to widen Gate 13 or reduce the shipped-original-functionality scope.
+
 ## Windows refresh and playtest corrections
 
 The real Windows schema-8 receipt has passed, as has a separate post-fix run.

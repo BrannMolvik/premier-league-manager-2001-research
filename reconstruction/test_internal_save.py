@@ -17,6 +17,7 @@ from cup_progression import CupMatchResolutionSnapshot, complete_cup_match
 from domestic_cup_state import DomesticCupScheduleState
 from finance_state import FinancialObjectiveState
 from game_state import GameState
+from gate13_management_source_data import ManagementSourceDataBridge
 from human_gameplay import HumanGameplayController
 from internal_save import (
     SAVE_SCHEMA_VERSION,
@@ -164,6 +165,115 @@ class InternalSaveTests(unittest.TestCase):
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),
         )
+
+    def test_calculated_pending_fixture_possession_survives_reload_without_report_context(self):
+        original = self.build_controller()
+        original.advance_to_next_user_fixture()
+        self.assertTrue(original._pending_prior_results)
+        for _, result in original._pending_prior_results:
+            self.assertIsNotNone(result.captured_possession)
+        restored = loads_human_gameplay(
+            Database(), coefficient_matrix(), coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+        self.assertEqual(restored._pending_prior_results, original._pending_prior_results)
+        bridge = ManagementSourceDataBridge(restored)
+        for fixture_id, result in restored._pending_prior_results:
+            self.assertIsNotNone(result.captured_possession)
+            self.assertIsNone(bridge.fixture_match_info_context(fixture_id))
+
+    def test_live_completion_scalars_survive_reload_without_promoting_report(self):
+        from internal_save import _snapshot_normal_match_result, _restore_normal_match_result
+        original = self.build_controller()
+        original.advance_to_next_user_fixture()
+        for fixture_id, result in original._pending_prior_results:
+            scalars = result.native_completion_scalars
+            self.assertIsNotNone(scalars)
+            played_on = original.state.calendar.current_date
+            self.assertEqual(scalars.calendar, (played_on.year - 1900, played_on.month, played_on.day))
+            self.assertEqual(scalars.scores, result.score)
+            snapshot = _snapshot_normal_match_result(result)
+            self.assertEqual(_restore_normal_match_result(snapshot).native_completion_scalars, scalars)
+            # Retention does not authorize reconstructing missing inputs from
+            # semantic events, nor does it publish an owner/link.
+            snapshot['native_completion_scalars'] = None
+            self.assertIsNone(_restore_normal_match_result(snapshot).native_completion_scalars)
+            del snapshot['native_completion_scalars']
+            with self.assertRaises(KeyError):
+                _restore_normal_match_result(snapshot)
+            self.assertIsNone(ManagementSourceDataBridge(original).fixture_match_info_context(fixture_id))
+        restored = loads_human_gameplay(Database(), coefficient_matrix(), coefficient_matrix(),
+                                        dumps_human_gameplay(original))
+        self.assertEqual(restored._pending_prior_results, original._pending_prior_results)
+
+    def test_saved_completion_scalar_shape_is_strict_and_not_rebuilt(self):
+        from internal_save import _snapshot_normal_match_result, _restore_normal_match_result
+        from match_simulation import NormalMatchResult
+        for invalid in ({'calendar': [100, 2, 30], 'scores': [0, 0]},
+                        {'calendar': [100, 1, 1], 'scores': [True, 0]},
+                        {'calendar': [100, 1, 1]},
+                        {'calendar': (100, 1, 1), 'scores': [0, 0]}):
+            snapshot = _snapshot_normal_match_result(NormalMatchResult(()))
+            snapshot['native_completion_scalars'] = invalid
+            with self.assertRaises(ValueError):
+                _restore_normal_match_result(snapshot)
+
+    def test_saved_possession_tampering_and_missing_input_fail_closed(self):
+        from internal_save import _snapshot_normal_match_result, _restore_normal_match_result
+        original = self.build_controller()
+        original.advance_to_next_user_fixture()
+        result = original._pending_prior_results[0][1]
+        snapshot = _snapshot_normal_match_result(result)
+        snapshot['captured_possession']['averages'] = '000000'
+        with self.assertRaises(ValueError):
+            _restore_normal_match_result(snapshot)
+        snapshot['captured_possession'] = None
+        # Even complete saved rows do not authorize synthesis of absent capture.
+        self.assertIsNone(_restore_normal_match_result(snapshot).captured_possession)
+        del snapshot['captured_possession']
+        with self.assertRaises(KeyError):
+            _restore_normal_match_result(snapshot)
+
+    def test_calculated_compact_stream_and_full_time_survive_reload_without_report_link(self):
+        from original_fixture_report_packing import pack_live_native_match_script
+        original = self.build_controller()
+        original.advance_to_next_user_fixture()
+        self.assertTrue(original._pending_prior_results)
+        for _, result in original._pending_prior_results:
+            self.assertIsNotNone(result.native_compact_events)
+            self.assertEqual(sum(r.kind == 7 for r in result.native_compact_events), 1)
+            self.assertIn(next(r for r in result.native_compact_events if r.kind == 7).field(0x24), (0, 1, 2))
+        restored = loads_human_gameplay(Database(), coefficient_matrix(), coefficient_matrix(),
+                                        dumps_human_gameplay(original))
+        bridge = ManagementSourceDataBridge(restored)
+        for (fixture_id, old), (saved_id, saved) in zip(original._pending_prior_results,
+                                                     restored._pending_prior_results):
+            self.assertEqual(fixture_id, saved_id)
+            self.assertEqual(saved.native_compact_events, old.native_compact_events)
+            self.assertEqual(pack_live_native_match_script(saved.native_compact_events),
+                             pack_live_native_match_script(old.native_compact_events))
+            self.assertIsNone(bridge.fixture_match_info_context(fixture_id))
+
+    def test_missing_or_partial_saved_compact_stream_cannot_be_rebuilt(self):
+        from internal_save import _snapshot_normal_match_result, _restore_normal_match_result
+        import copy
+        original = self.build_controller()
+        original.advance_to_next_user_fixture()
+        snapshot = _snapshot_normal_match_result(original._pending_prior_results[0][1])
+        broken = copy.deepcopy(snapshot)
+        final = next(r for r in broken['native_compact_events'] if r['kind'] == 7)
+        final['fields'] = []
+        with self.assertRaises(ValueError):
+            _restore_normal_match_result(broken)
+        broken = copy.deepcopy(snapshot)
+        broken['native_compact_events'].reverse()
+        with self.assertRaises(ValueError):
+            _restore_normal_match_result(broken)
+        snapshot['native_compact_events'] = None
+        self.assertIsNone(_restore_normal_match_result(snapshot).native_compact_events)
+        del snapshot['native_compact_events']
+        with self.assertRaises(KeyError):
+            _restore_normal_match_result(snapshot)
 
     def test_primary_schedule_shadow_survives_roundtrip(self):
         original = self.build_controller()

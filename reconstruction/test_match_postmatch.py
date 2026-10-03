@@ -1,5 +1,5 @@
 import unittest
-from dataclasses import dataclass
+from dataclasses import dataclass, FrozenInstanceError
 from datetime import date, timedelta
 
 from match_events import (
@@ -22,6 +22,9 @@ from match_postmatch import (
     apply_league_match_discipline,
     persist_match_performance_and_fastview_form_histories,
     persist_match_performance_history,
+    finalize_match_participant_statistics,
+    FinalizedParticipantStatistics,
+    FinalizedSideParticipantStatistics,
     persist_post_match_form,
     persist_post_match_side,
     persist_premier_league_discipline,
@@ -672,6 +675,53 @@ class ExactIncidentOrderingTests(unittest.TestCase):
 
 
 class MatchPerformancePersistenceTests(unittest.TestCase):
+    def test_live_finalizer_retains_ordered_output_including_unused_player_zero(self):
+        side = prepared_side()
+        # All eight flag writes also occur on the non-appeared branch.
+        side.players[3].skills = (255,) * 17
+        runtime = [RuntimePlayer() for _ in range(4)]
+        shared = ScriptedRng([])
+        engine = ScriptedRng([])
+        output = finalize_match_participant_statistics(
+            side, runtime, NormalMatchResult(events=()), shared, engine,
+        )
+        self.assertEqual(tuple(item.player_index for item in output), (0, 1, 2, 3))
+        self.assertEqual(tuple(item.rating for item in output), (6, 6, 0, 0))
+        self.assertEqual(output[3].skill_flags, bytes((1,) * 8))
+        self.assertEqual(output[0].skill_flags, bytes(8))
+        self.assertEqual(shared.calls, [])
+        self.assertEqual(engine.calls, [])
+        self.assertEqual([p.match_performance_history_count for p in runtime], [1, 1, 0, 0])
+        with self.assertRaises(FrozenInstanceError):
+            output[0].rating = 8
+
+    def test_invalid_complete_side_rejected_before_rng_and_history_mutation(self):
+        side = prepared_side()
+        side.players[3].player_index = 17
+        runtime = [RuntimePlayer() for _ in range(4)]
+        shared, engine = ScriptedRng([]), ScriptedRng([])
+        with self.assertRaises(ValueError):
+            finalize_match_participant_statistics(
+                side, runtime, NormalMatchResult(events=()), shared, engine,
+            )
+        self.assertEqual(shared.calls, [])
+        self.assertEqual([p.match_performance_history_count for p in runtime], [0] * 4)
+
+    def test_partial_or_mutable_statistics_cannot_be_finalized_output(self):
+        for rating, flags in ((None, bytes(8)), (2, bytes(8)),
+                              (7, bytearray(8)), (7, bytes(7)), (7, bytes((2,) * 8))):
+            with self.assertRaises(ValueError):
+                FinalizedParticipantStatistics(0, rating, flags)
+
+    def test_identity_container_rejects_missing_duplicate_or_reordered_players(self):
+        output = (FinalizedParticipantStatistics(0, 7, bytes(8)),
+                  FinalizedParticipantStatistics(1, 0, bytes(8)))
+        for identities, statistics in (((), ()), ((100,), output),
+                                       ((100, 100), output), ((True, 101), output),
+                                       ((100, 101), output[::-1])):
+            with self.assertRaises(ValueError):
+                FinalizedSideParticipantStatistics(identities, statistics)
+
     def test_exact_history_finalizer_uses_goal_attribution_cards_and_two_rng_streams(self):
         side = prepared_side()
         result = NormalMatchResult(events=(
@@ -761,6 +811,7 @@ class MatchPerformancePersistenceTests(unittest.TestCase):
             [0] + [1] * 17
             + [0] + [1] * 17
         )
+        captured_statistics = []
 
         finalized = persist_match_performance_and_fastview_form_histories(
             side0,
@@ -770,8 +821,12 @@ class MatchPerformancePersistenceTests(unittest.TestCase):
             result,
             shared,
             engine,
+            statistics_sink=captured_statistics.append,
         )
 
+        self.assertEqual(len(captured_statistics), 2)
+        self.assertEqual(tuple(s[0].rating for s in captured_statistics), (4, 4))
+        self.assertEqual(tuple(s[0].player_index for s in captured_statistics), (0, 0))
         self.assertEqual(shared.calls, [])
         self.assertEqual(
             engine.calls,

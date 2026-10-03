@@ -194,6 +194,29 @@ class SequenceIntegrationTests(unittest.TestCase):
 
 
 class FullNormalMatchTests(unittest.TestCase):
+    def test_live_completion_retention_does_not_read_semantic_score_property(self):
+        from datetime import date
+        from unittest.mock import PropertyMock
+        from match_simulation import NormalMatchResult
+        home = side(0, self.lineup(0), 10)
+        away = side(1, self.lineup(1), 10)
+        with patch.object(NormalMatchResult, 'score', new_callable=PropertyMock,
+                          side_effect=AssertionError('semantic score read')):
+            result = simulate_normal_match(home, away, matrix(), matrix(), MidpointRng(),
+                                           native_report_date=date(2000, 8, 12))
+        self.assertEqual(result.native_completion_scalars.calendar, (100, 8, 12))
+        self.assertEqual(result.native_completion_scalars.scores, (0, 0))
+
+    def test_invalid_report_date_rejects_before_rng_or_player_mutation(self):
+        from datetime import date
+        home = side(0, self.lineup(0), 10)
+        away = side(1, self.lineup(1), 10)
+        before = tuple(p.condition for s in (home, away) for p in s.players)
+        with self.assertRaises(ValueError):
+            simulate_normal_match(home, away, matrix(), matrix(), ScriptedRng([]),
+                                  native_report_date=date(1899, 1, 1))
+        self.assertEqual(before, tuple(p.condition for s in (home, away) for p in s.players))
+
     def lineup(self, side_id):
         roles = (
             PositionRole.GOALKEEPER,

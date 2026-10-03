@@ -72,6 +72,8 @@ from match_preparation import (
 from match_postmatch import (
     PlayerTransferRequest,
     apply_player_transfer_request_response,
+    FinalizedSideParticipantStatistics,
+    select_native_report_player_id,
     persist_match_performance_and_fastview_form_histories,
     persist_premier_league_morale_and_form,
     persist_premier_league_match_incidents,
@@ -192,6 +194,13 @@ class GameState:
     # the complete report producer exists these are transient and deliberately
     # excluded from internal save; no missing attendance is defaulted.
     prepared_match_gate_receipts: dict[int, GateReceiptResult] = field(default_factory=dict)
+    # Actual 0x631110 output; transient input, not a captured report/link.
+    prepared_match_report_player_ids: dict[int, int] = field(default_factory=dict)
+    # Complete per-side rating/skill output from actual finalization, still
+    # only report INPUTS. No owner/link or save projection of fragments.
+    prepared_match_participant_statistics: dict[
+        int, tuple[FinalizedSideParticipantStatistics, FinalizedSideParticipantStatistics]
+    ] = field(default_factory=dict)
     premier_league_scheduler_order: dict[int, tuple[int, ...]] = field(default_factory=dict)
     primary_matchday_order: dict[date, tuple[tuple, ...]] = field(default_factory=dict)
     primary_schedule_shadow: PrimaryScheduleShadowState = field(
@@ -2551,6 +2560,8 @@ class GameState:
         self.premier_league_scheduler_order = new_scheduler_order
         self.prepared_match_environments = {}
         self.prepared_match_gate_receipts = {}
+        self.prepared_match_participant_statistics = {}
+        self.prepared_match_report_player_ids = {}
         return regeneration
 
     def refresh_primary_procedural_leagues(
@@ -3801,7 +3812,10 @@ class GameState:
         # ratings before returning to the later gate/incident/Form pipeline.
         # Keep this opt-in until a distinct MatchEngine RNG is explicitly
         # supplied; never alias the shared CRT stream as a substitute.
+        self.prepared_match_participant_statistics.pop(fixture_id, None)
+        self.prepared_match_report_player_ids.pop(fixture_id, None)
         if match_engine_rng is not None:
+            side_statistics = []
             result = persist_match_performance_and_fastview_form_histories(
                 home.match_side,
                 home.preparation.selection.participants,
@@ -3810,6 +3824,24 @@ class GameState:
                 result,
                 rng,
                 match_engine_rng,
+                statistics_sink=side_statistics.append,
+            )
+            home_statistics, away_statistics = side_statistics
+            self.prepared_match_participant_statistics[fixture_id] = (
+                FinalizedSideParticipantStatistics(
+                    tuple(int(player.index) for player in home.preparation.selection.participants),
+                    home_statistics,
+                ),
+                FinalizedSideParticipantStatistics(
+                    tuple(int(player.index) for player in away.preparation.selection.participants),
+                    away_statistics,
+                ),
+            )
+
+            self.prepared_match_report_player_ids[fixture_id] = select_native_report_player_id(
+                self.prepared_match_participant_statistics[fixture_id],
+                (tuple(player.match_performance_average() for player in home.preparation.selection.participants),
+                 tuple(player.match_performance_average() for player in away.preparation.selection.participants)),
             )
 
         # 0x513252 -> 0x5DA2F0 runs after MatchCalculator and before
@@ -4022,7 +4054,10 @@ class GameState:
                 environment_byte=pitch_wear_before,
             ),
         )
+        self.prepared_match_participant_statistics.pop(fixture_id, None)
+        self.prepared_match_report_player_ids.pop(fixture_id, None)
         if match_engine_rng is not None:
+            side_statistics = []
             result = persist_match_performance_and_fastview_form_histories(
                 home_side,
                 home_participants,
@@ -4031,6 +4066,22 @@ class GameState:
                 result,
                 rng,
                 match_engine_rng,
+                statistics_sink=side_statistics.append,
+            )
+            home_statistics, away_statistics = side_statistics
+            self.prepared_match_participant_statistics[fixture_id] = (
+                FinalizedSideParticipantStatistics(
+                    tuple(int(player.index) for player in home_participants), home_statistics,
+                ),
+                FinalizedSideParticipantStatistics(
+                    tuple(int(player.index) for player in away_participants), away_statistics,
+                ),
+            )
+
+            self.prepared_match_report_player_ids[fixture_id] = select_native_report_player_id(
+                self.prepared_match_participant_statistics[fixture_id],
+                (tuple(player.match_performance_average() for player in home_participants),
+                 tuple(player.match_performance_average() for player in away_participants)),
             )
         self._finish_premier_league_gate_receipts(
             home_club_id, gate_inputs, rng, fixture_id=fixture_id,
@@ -4130,6 +4181,12 @@ class GameState:
             defence_matrix,
             rng,
             condition_injury_settings=condition_injury_settings,
+            # Ordinary fixture setup 0x510E55/5E/64 writes -1/-1;
+            # 0x511120 only replaces them for native match family 5.
+            # Default constructor 1145=1 selects 1150=0 at 0x62ACCC.
+            native_previous_scores=(-1, -1),
+            native_compact_spacing=0,
+            native_report_date=self.calendar.current_date,
         )
         home_goals, away_goals = result.score
         self.record_premier_league_result(

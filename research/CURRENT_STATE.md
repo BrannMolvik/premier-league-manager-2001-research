@@ -10,6 +10,63 @@ topic-specific research files.
 
 **Gate 13 - Restore original management presentation**
 
+PR #194 follow-on from `cfab7abc`: live calculator completion now retains
+the native calendar tuple and D4C/D50 score accumulators, independently of the
+semantic score property, through pending-result save/reload (internal schema
+37). Metadata-only canonical-executable evidence resolves the caption binding
+(English IDX 2713), venue selection, initial participant-history bit and
+referee/setup selection. These are not yet a complete live report producer.
+Required setup fields, adjusted initial history and caption/context inputs
+remain absent from the ordinary runtime capture; no partial report/link is
+published. The successful calculated fixture -> reload -> native right-click
+-> PMatchInfo route remains unverified, and Gate 13 remains OPEN.
+
+Latest `origin/main` `50b70390197ecace3297231eef5d227820a22478` was reconciled.
+The parallel worker's history retention and per-side target/trajectory ordering
+are preserved; Gate-13 statistics are collected from that same finalization,
+not by replaying rating RNG. Reconciled focused tests: 156 passed. No new broad
+closure audit, full suite, Windows schema-8 run or package claim was made for
+this input-only continuation. The previous 1,644-test milestone remains a
+historical result, not verification of this new merge. Agent-runtime ownership
+was not changed. Exact next producer boundary: `GATE13_LIVE_CAPTURE_INPUTS.md`.
+
+PR #194 continuation (3 October): native compact pruning/spacing/boundary
+correction/stable ordering and explicit live FullTime payloads are implemented.
+Ordinary calculated fixtures retain constructor-written script fields and
+survive pending-matchday save/reload with identical packed scripts (schema 36).
+Live statistics pack without fabricated memory/tail padding; finalized goal
+fields and selected-player output are source-backed. Complete report assembly,
+ordered GameState owner/link and successful reload/right-click/PMatchInfo
+remain unfinished: missing native participant history/flag and helper/scalar
+metadata must not be filled with defaults. Next: retain those outputs at the
+calculator/completion producer, assemble only a complete report, persist owner
+and fixture links together, then verify the genuine normal route. Gate 13 is
+OPEN. Gate-14 files and agent-runtime ownership are untouched. No broad closure
+or repeated intermediate Windows audit was performed for this continuation.
+See `GATE13_LIVE_CAPTURE_INPUTS.md` for the current executable milestone.
+Milestone suite: 1,644 tests / 23 expected skips, plus 179 focused checks and
+80 final targeted assertions; asset policy passes. Current reconciled main is
+`d0dadf1f`. Complete report/owner persistence and successful PMatchInfo opening
+are explicitly not claimed by those passing tests.
+
+Earlier local continuation (3 October, after PR #183 merged): live AI/human performance
+finalization now retains ordered participant ratings/skill flags and persistent
+player identities as transient report inputs. Actual calculator possession is
+retained at completion and survives the already-saved pending matchday results
+through internal schema 35. No partial input creates a report/link. Full live
+compact-event and remaining helper/scalar output retention, complete report
+owner/save integration and successful normal right-click remain the blocker.
+See `GATE13_LIVE_CAPTURE_INPUTS.md`. Gate 13 remains OPEN; Gate-14 worker,
+runtime ownership and full-original-functionality scope are unchanged.
+Fresh native production tracing additionally proves that capture needs the
+`0x62F7C0 -> 0x62FBF0` pruning/time/order finalizer and FullTime's explicit
+`0x62AE00` outcome payload, not an encoding of the present semantic event list.
+These inputs must be retained at production; no post-score reconstruction.
+Final code `f8b9f4ba` passes 1,625 tests with 23 expected skips and 134 focused
+checks; fresh Windows schema 8 passes with ordinary successful opening still
+false. Continuation PR #194 reconciles main `d0dadf1f`; no runtime ownership
+change or Gate-13 closure is claimed.
+
 Local Gate-13 branch update (3 October): management base lookup at `0x5D3560`
 is now recovered and integrated, including the month variant, exact source
 club/country art fields and the application-owned competition header. All 97
@@ -31,7 +88,7 @@ eight native skill flags, all sixteen script families/six tactical subcommands,
 four additional scalar copies and exact two/four-group captured possession.
 These snapshot codecs do not supply a complete report or assign a link.
 Continue at the live calculator/completion boundary, not by retracing codecs:
-retain final native participant records, the complete compact-event list and
+retain the remaining native participant/goal metadata, complete compact-event list and
 calculator/post-match scalars, then assemble/persist the complete owner.
 The Premier League AI/human completion paths now retain actual gate receipts
 as transient inputs; this alone does not create or persist a report/link.
@@ -111,9 +168,11 @@ Evidence:
   completion-time report. PR #183 now closes `0x60BCB0` participant packing,
   `0x630C4F/0x630DE0` skill flags, `0x633610` script extraction and the
   `0x631270/0x631290` possession aggregation codecs. Retain their complete
-  source-backed inputs at live calculation/completion, including explicit
-  distinct MatchEngine RNG, final participant rating/flags, complete compact
-  event records and gate-receipt/scalar output. Do not default missing fields
+  remaining source-backed inputs at live calculation/completion, including
+  the complete compact records / native list finalizer, FullTime outcome and
+  remaining participant/goal/helper metadata. Rating/skill outputs plus player
+  IDs and gate-receipt output are already retained; do not retrace them.
+  Do not default missing fields
   or reconstruct report ownership from scores. Then verify real
   calculation/save/reload/right-press context and
   assess normal-play/timing against the roadmap. The parallel cloud worker

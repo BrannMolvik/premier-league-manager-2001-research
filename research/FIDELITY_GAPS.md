@@ -10,7 +10,7 @@ Historical uncertainty that has since been resolved should be moved to the resol
 | --- | --- | --- | --- |
 | Secondary startup exact tie permutation and bucket shape | The startup-staff CRT boundary replays the independently recorded 262 total secondary schedule nodes / 45 nonempty buckets / 217 shuffle draws through an **aggregate-only MSVC checkpoint with no invented bucket vector**; tests enforce the proven World Cup-before-European Championship ordering without pretending to know every equal-key root permutation | Original reverse qsorted country-root traversal and post-secondary CRT state are documented, but the exact per-date mode-1 bucket vector and full equal-key native qsort order have NOT been independently source-locked; resolve from the canonical executable/real input before asserting pixel-calendar-level fidelity | 15 |
 | Exact fully indistinguishable PL league-table native qsort ties | PL display now uses the previously recovered numeric and CP1252 short-name source comparator when original club short names are available; if two clubs have identical complete source keys, it explicitly falls back to deterministic display and refuses to publish an "exact" ranking | All comparator fields are recovered, but native qsort's relative order for truly identical complete source keys has not been independently locked; lightweight synthetic clubs missing valid CP1252 names also receive documented display-only fallback | 15 |
-| Original FM2001 save compatibility | Modern port now has a versioned internal schema-34 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
+| Original FM2001 save compatibility | Modern port now has a versioned internal schema-36 save/reload path | Original PLM2001 save format is not yet supported | 15 or later fidelity work |
 | Player negotiation residual branches | The proven ordinary money path handles accepted, low-wage, counter-offer, already-signed and recently-joined outcomes; unresolved 0x422803 / invalid-duration 0x423340 branches return explicit deferred states | Remaining refusal/status and duration-revision policy is not guessed | 15 or earlier if a broader negotiation case blocks play |
 | Due-transfer same-day ordering | Scheduled MPMTransferPlayer objects execute in reconstructed day maintenance after the date's fixture block | Persisted evidence proves 0x613EE0 is first inside 0x4A8070, but does not preserve the missing outer call relationship between 0x4A8070's dated-process queue and same-day match execution. Fresh disassembly is currently blocked by the worker's process-start ClientError, so fixture ordering remains fail-closed rather than inferred. | 15 or earlier if same-day transfer availability matters |
 | Match-day / recurring commercial income | Normal Premier League gate income is integrated. English Cup gate RNG/policy inputs are integrated, and the source-proven special posting tail now has an accounting helper that can independently credit both controlled participants' category-1/category-2 receipts using each participant's own ticket prices. Full live Cup receipt attachment remains pending. | The Cup/knockout applicability flag and controlled-participant posting mechanics are instruction-bounded; no narrower business-policy label such as revenue sharing is claimed. Fresh-game concession income remains disabled because its generator does not activate records. | 15 |
@@ -174,7 +174,7 @@ remains unresolved.
 ### Internal modern-port save/load
 
 **Resolved for Gate 8 and evolved since.** The versioned source-bound JSON save path
-now uses internal schema **34** and persists the live human-game runtime,
+now uses internal schema **36** and persists the live human-game runtime,
 relevant RNG streams, league/result state, player
 Condition/Form/injury/suspension/development state, tactics, scheduler order,
 and later-gate competition/transfer/finance state. File saves default to gzip.
@@ -186,6 +186,19 @@ season transitions and repeated save/reload stress. See
 
 This does **not** claim compatibility with original FM2001 save files; that is
 retained above as a separate fidelity gap.
+
+Schema 35 adds explicit retention/validation of the actual calculator's
+captured-possession output in saved pending matchday results. This does not
+close full live captured-report production/ownership/save persistence or
+ordinary PMatchInfo opening. Participant rating/skill outputs and identities
+are retained transiently at live completion; remaining inputs stay absent.
+See `GATE13_LIVE_CAPTURE_INPUTS.md`. Strict schema-34 migration is not claimed.
+
+Schema 36 additionally preserves actual finalized compact order, source-written
+fields and FullTime outcome in saved pending calculation results. Missing
+payloads reject; null stays absent. The successful ordinary report route still
+requires complete report metadata/assembly and ordered persistent owner/link.
+No schema-35 migration or original-save compatibility is claimed.
 
 ### Human-controlled minimum gameplay loop
 

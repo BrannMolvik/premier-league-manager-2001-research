@@ -11,6 +11,7 @@ from gate14_fastview_player_history import (
 )
 from match_performance import target_match_performance_rating
 from match_injury_persistence import generate_persistent_match_injury
+from original_fixture_report_packing import native_participant_skill_flags
 from match_simulation import (
     NormalMatchResult,
     PreparedMatchSide,
@@ -486,17 +487,89 @@ def sync_post_match_conditions(
         runtime[local_index].condition = int(player.condition)
 
 
-def persist_match_performance_history(
+@dataclass(frozen=True)
+class FinalizedParticipantStatistics:
+    """Live +0x30/+0x35..+0x3C output, NOT a complete captured report.
+
+    player_index is the ordered side-local calculator index, not a DB player ID.
+    Zero rating is the explicit 0x630C4B non-appeared write, not missing data.
+    """
+
+    player_index: int
+    rating: int
+    skill_flags: bytes
+
+    def __post_init__(self):
+        if type(self.player_index) is not int or not 0 <= self.player_index < 18:
+            raise ValueError('Finalized participant index must be in 0..17')
+        if type(self.rating) is not int or self.rating not in (0, *range(4, 11)):
+            raise ValueError('Finalized participant rating must be zero or 4..10')
+        if (type(self.skill_flags) is not bytes or len(self.skill_flags) != 8
+                or any(value not in (0, 1) for value in self.skill_flags)):
+            raise ValueError('Finalized participant requires eight immutable skill flags')
+
+
+@dataclass(frozen=True)
+class FinalizedSideParticipantStatistics:
+    """Retain DB identities together with their completion-time local ordering."""
+
+    player_ids: tuple[int, ...]
+    statistics: tuple[FinalizedParticipantStatistics, ...]
+
+    def __post_init__(self):
+        if (type(self.player_ids) is not tuple or type(self.statistics) is not tuple
+                or not 0 < len(self.player_ids) <= 18
+                or len(self.player_ids) != len(self.statistics)
+                or any(type(value) is not int or value < 0 for value in self.player_ids)
+                or len(set(self.player_ids)) != len(self.player_ids)
+                or any(type(item) is not FinalizedParticipantStatistics
+                       or item.player_index != index
+                       for index, item in enumerate(self.statistics))):
+            raise ValueError('Finalized side requires exact ordered unique player identities')
+
+
+def select_native_report_player_id(
+    sides: tuple[FinalizedSideParticipantStatistics, FinalizedSideParticipantStatistics],
+    history_averages: tuple[tuple[float, ...], tuple[float, ...]],
+) -> int:
+    """0x631110 -> calculator +0x1154, in side-0 then side-1 order.
+
+    Prefer higher final rating, then strictly higher populated recent-history
+    average (0x41FB60). Equal ties retain the earlier participant. The ctor's
+    -1 survives when the final best rating is zero. No RNG/score is consumed.
+    """
+    from math import isfinite
+    if (type(sides) is not tuple or len(sides) != 2
+            or any(type(s) is not FinalizedSideParticipantStatistics for s in sides)
+            or type(history_averages) is not tuple or len(history_averages) != 2):
+        raise ValueError('Report player selection requires two complete ordered sides')
+    for side, averages in zip(sides, history_averages):
+        if (type(averages) is not tuple or len(averages) != len(side.statistics)
+                or any(type(v) not in (int, float) or not isfinite(v) or not 0 <= v <= 255
+                       for v in averages)):
+            raise ValueError('Report player selection requires complete native history averages')
+    best_rating, best_average, player_id = 0, 0.0, -1
+    for side, averages in zip(sides, history_averages):
+        for identity, statistics, average in zip(side.player_ids, side.statistics, averages):
+            if statistics.rating > best_rating or (
+                    statistics.rating == best_rating and average > best_average):
+                best_rating, best_average, player_id = statistics.rating, average, identity & 0xFFFF
+    return player_id if best_rating else -1
+
+
+def finalize_match_participant_statistics(
     side: PreparedMatchSide,
     runtime_participants: Sequence[MutablePostMatchPlayer],
     result: NormalMatchResult,
     shared_rng: BoundedRng,
     match_engine_rng: BoundedRng,
-) -> tuple[int, ...]:
-    """Compute and append exact 0x6309D0 -> 0x630FC0 performance ratings.
+) -> tuple[FinalizedParticipantStatistics, ...]:
+    """Retain exact live finalization output in complete participant-array order.
 
-    Only players who appeared are processed, matching the original +0x18F
-    active/appearance guard. Ratings are computed in participant-array order.
+    Only appeared players consume rating RNG / append performance history.
+    Non-appeared players receive the explicit zero at 0x630C4B; all participants
+    receive the already recovered eight skill flags at 0x630C4F. This retains
+    actual calculation output without rerunning the finalizer for capture.
     Goal-family +0x40/+0x44 counters are reconstructed only from non-own goals:
     primary attribution is ChanceRecord.player_index and the separately mapped
     secondary attribution is ChanceRecord.secondary_player_index.
@@ -507,6 +580,13 @@ def persist_match_performance_history(
         raise ValueError(
             "runtime participant count must match prepared participant count"
         )
+    if len(prepared) > 18 or any(
+        int(player.player_index) != index for index, player in enumerate(prepared)
+    ):
+        raise ValueError('prepared participants must use bounded contiguous indices')
+    # Validate the complete input before changing any history or RNG state.
+    flags = tuple(native_participant_skill_flags(tuple(player.skills))
+                  for player in prepared)
 
     side_id = int(side.side)
     appeared = appeared_player_indices(side, result)
@@ -541,9 +621,10 @@ def persist_match_performance_history(
         (score0, score1) if side_id == 0 else (score1, score0)
     )
 
-    ratings: list[int] = []
+    finalized: list[FinalizedParticipantStatistics] = []
     for local_index, player in enumerate(runtime):
         if local_index not in appeared:
+            finalized.append(FinalizedParticipantStatistics(local_index, 0, flags[local_index]))
             continue
         prepared_player = prepared[local_index]
         if int(prepared_player.player_index) != local_index:
@@ -564,9 +645,22 @@ def persist_match_performance_history(
             match_engine_rng=match_engine_rng,
         )
         player.append_match_performance(rating)
-        ratings.append(int(rating))
+        finalized.append(FinalizedParticipantStatistics(local_index, int(rating), flags[local_index]))
 
-    return tuple(ratings)
+    return tuple(finalized)
+
+
+def persist_match_performance_history(
+    side: PreparedMatchSide,
+    runtime_participants: Sequence[MutablePostMatchPlayer],
+    result: NormalMatchResult,
+    shared_rng: BoundedRng,
+    match_engine_rng: BoundedRng,
+) -> tuple[int, ...]:
+    """Compatibility API: return only appeared ratings, with identical RNG cost."""
+    return tuple(item.rating for item in finalize_match_participant_statistics(
+        side, runtime_participants, result, shared_rng, match_engine_rng,
+    ) if item.rating != 0)
 
 
 def persist_match_performance_and_fastview_form_histories(
@@ -577,6 +671,8 @@ def persist_match_performance_and_fastview_form_histories(
     result: NormalMatchResult,
     shared_rng: BoundedRng,
     match_engine_rng: BoundedRng,
+    *,
+    statistics_sink: Callable[[tuple[FinalizedParticipantStatistics, ...]], None] | None = None,
 ) -> NormalMatchResult:
     """Persist target ratings and retain exact side-local FastView form histories.
 
@@ -592,6 +688,8 @@ def persist_match_performance_and_fastview_form_histories(
     The returned NormalMatchResult retains only the completed match-form
     histories. Condition history remains the separate raw prefix until the
     human-vs-AI +0xD48 adjustment is source-closed.
+    The optional capture sink receives each side's actual statistics once,
+    before that side's trajectory phase; it must not rerun target-rating RNG.
     """
     if int(side0.side) != 0 or int(side1.side) != 1:
         raise ValueError("FastView finalizer requires side0.side=0 and side1.side=1")
@@ -608,13 +706,16 @@ def persist_match_performance_and_fastview_form_histories(
         (side0, runtime_side0),
         (side1, runtime_side1),
     ):
-        ratings = persist_match_performance_history(
+        statistics = finalize_match_participant_statistics(
             side,
             runtime,
             result,
             shared_rng,
             match_engine_rng,
         )
+        if statistics_sink is not None:
+            statistics_sink(statistics)
+        ratings = tuple(item.rating for item in statistics if item.rating != 0)
         appeared = appeared_player_indices(side, result)
         rating_index = 0
         for local_index, prepared_player in enumerate(side.players):

@@ -2,6 +2,13 @@
 
 _Local/private Windows trace, 3 October 2026. Gate 13 remains OPEN._
 
+Latest integration after PR #183 merged: see `GATE13_LIVE_CAPTURE_INPUTS.md`.
+The existing live performance finalizer now retains complete ordered rating/
+skill output and persistent participant IDs; actual normalized calculator
+possession is retained at completion and preserved in saved pending results.
+These are inputs, not a full report owner/link. Continue with full live compact
+event and remaining helper output retention, not retracing the closed codecs.
+
 ## What is now source-closed
 
 The authorized executable was reused, not downloaded or substituted. Every

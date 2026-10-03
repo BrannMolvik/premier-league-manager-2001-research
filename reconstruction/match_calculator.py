@@ -433,6 +433,8 @@ def _open_play_record(
         }
     )
     if own_goal_defender is not None:
+        # 0x62CAFF / 0x62CCC7 pass the selected finisher (EDI), not
+        # the original carrier, as the second lookup for the own-goal branch.
         return ChanceRecord(
             ChanceSource.OPEN_PLAY,
             raw,
@@ -440,7 +442,8 @@ def _open_play_record(
             own_goal_defender.player_index,
             side_inversion=True,
             finish_mode=finish_mode,
-            **secondary_kwargs,
+            secondary_player_side=finisher.side,
+            secondary_player_index=finisher.player_index,
         )
     return ChanceRecord(
         ChanceSource.OPEN_PLAY,
@@ -499,7 +502,7 @@ def resolve_open_play_attempt(attacking_players: Sequence[MatchSkillPlayer], def
         if not duel_won:
             return OpenPlayResolution(transition=_failed_final_duel_transition(close_defender, rng), neutral_increment=neutral, attacking_possession_increment=side_control)
         if not shooting_attempt_on_target(finisher, rng):
-            return OpenPlayResolution(event=_open_play_record(finisher,1,minute,finish_mode,rng), neutral_increment=neutral, attacking_possession_increment=side_control)
+            return OpenPlayResolution(event=_open_play_record(finisher,1,minute,finish_mode,rng, secondary_player=carrier), neutral_increment=neutral, attacking_possession_increment=side_control)
 
     if defend.goalkeeper is None:
         raise ValueError("open-play resolution requires a defending goalkeeper")
