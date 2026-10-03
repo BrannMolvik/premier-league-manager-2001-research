@@ -44,10 +44,14 @@ still identifies itself as pre-release.
 - Gate 17 now has a reproducible, CI-smoke-tested Windows release-candidate
   archive from canonical packaging work, but it does **not** yet have the
   required external Windows 11 client-workstation evidence. A clean-install
-  receipt, the three gameplay receipts, and the final release audit must all be
-  tied to one final archive/version/commit and produced outside hosted CI. The
-  limitations document itself also remains intentionally pre-release until the
-  earlier gates and those external checks close.
+  receipt, the three Premier-League-centered gameplay receipts, a separate
+  `full_original_scope.json` receipt, and the final release audit must all be
+  tied to one final archive/version/commit and remain outside hosted CI. The
+  full-scope receipt is a release blocker, not an acceptable documented
+  limitation: it must prove every originally selectable/playable league and
+  country plus the required career/progression/management systems before Gate
+  17 can pass. The limitations document itself also remains intentionally
+  pre-release until the earlier gates and those external checks close.
 
 ## Final-review rule
 

@@ -43,6 +43,14 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
             "save_reload": {
                 "save_reload": True,
             },
+            "full_original_scope": {
+                "full_original_scope": True,
+                "all_original_playable_leagues": True,
+                "all_original_playable_countries": True,
+                "human_career_flow": True,
+                "competition_progression": True,
+                "original_management_gameplay_subsystems": True,
+            },
         }
         payload = {
             "passed": True,
@@ -70,6 +78,7 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
             "new_game_management_loop",
             "season_progression",
             "save_reload",
+            "full_original_scope",
         ):
             receipts[name] = self._receipt(
                 root / f"{name}.json",
@@ -95,7 +104,7 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
 
             self.assertEqual(result, output.resolve())
             payload = json.loads(output.read_text(encoding="utf-8"))
-            self.assertEqual(payload["schema_version"], 1)
+            self.assertEqual(payload["schema_version"], 2)
             self.assertEqual(payload["release_version"], VERSION)
             self.assertEqual(payload["repository_commit"], COMMIT)
             self.assertEqual(
@@ -112,6 +121,25 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
                 self.assertEqual(
                     payload["external_receipts"][name]["sha256"],
                     digest(path.read_bytes()),
+                )
+
+    def test_full_scope_receipt_is_required_by_exact_receipt_set(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            repo, archive, receipts = self._fixture(root)
+            receipts.pop("full_original_scope")
+
+            with self.assertRaisesRegex(
+                ReleaseEvidenceAssemblerError,
+                "receipt set mismatch",
+            ):
+                assemble_release_evidence(
+                    release_version=VERSION,
+                    repository_commit=COMMIT,
+                    release_archive=archive,
+                    receipt_paths=receipts,
+                    output_path=root / "missing-scope.json",
+                    repo_root=repo,
                 )
 
     def test_mismatched_receipt_archive_identity_fails_before_output(self):

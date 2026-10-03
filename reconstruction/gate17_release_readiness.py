@@ -47,6 +47,14 @@ REQUIRED_EXTERNAL_RECEIPTS = {
     "save_reload": (
         "save_reload",
     ),
+    "full_original_scope": (
+        "full_original_scope",
+        "all_original_playable_leagues",
+        "all_original_playable_countries",
+        "human_career_flow",
+        "competition_progression",
+        "original_management_gameplay_subsystems",
+    ),
 }
 
 
@@ -97,8 +105,8 @@ def _require_commit(value: object) -> str:
 
 def parse_release_evidence(payload: Mapping[str, object]) -> ReleaseEvidence:
     """Parse the final evidence contract without accepting partial criteria."""
-    if int(payload.get("schema_version", 0)) != 1:
-        raise ReleaseReadinessError("release evidence schema_version must be 1")
+    if int(payload.get("schema_version", 0)) != 2:
+        raise ReleaseReadinessError("release evidence schema_version must be 2")
 
     release_version = str(payload.get("release_version", "")).strip()
     if not release_version:
