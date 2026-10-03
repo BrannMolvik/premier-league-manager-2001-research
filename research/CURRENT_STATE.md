@@ -168,15 +168,6 @@ Evidence:
 
 ## Live resume summary
 
-- **Recovery 223 Gate-14 work-ahead under Gate-13 execution blocker:** a
-  fail-closed 800x600 partial FastView layout now combines only the directly
-  source-bound top/ticker chrome, PossessionDiagram placements and
-  PossessionFigures text-control rectangles. It detects the diagram/text
-  overlap and deliberately refuses RGBA flattening because cross-component
-  z-order has not yet been promoted as source-backed. The loose
-  `FastView/background.444` remains unbound. This does not advance the active
-  validation gate or claim a complete/player-visible original FastView frame.
-
 - **Recovery 196 FastView possession assets / text geometry is canonical:** PR #162 squash-merged as `1e68dca68395c97cc8ea8498f1ec212e0273659b` after reconstruction run `37079435396`, Windows package run `37079435467`, and asset-policy run `37079435346` all passed. Four source-closed PossessionDiagram EA444 files are staged byte-identically; exact diagram rectangles and PossessionFigures percentage rectangles are guarded. User-side orientation and diagram cadence remain unclaimed.
 - **Recovery 198 bar-ownership correction is canonical:** PR #164 squash-merged as `25ad2622aec612e8eddaf452e53ae7b717369a05`; reconstruction run `37081838582` passed **1,483 tests with 22 expected skips** and asset-policy run `37081838607` passed. The 82x16 team/blank bars are source-bound to `FastViewTeam/TeamTable`, not `PossessionFigures`.
 - **Recovery 198 PossessionDiagram receiver lifecycle is canonical:** PR #165 squash-merged as `46d3cb57a1d7ad0fdd5141f911b00dabda35cc4e`; reconstruction run `37082560833` passed **1,487 tests with 22 expected skips** and asset-policy run `37082560879` passed.
