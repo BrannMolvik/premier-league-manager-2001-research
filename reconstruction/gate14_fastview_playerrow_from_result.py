@@ -21,6 +21,7 @@ from gate14_fastview_playerrow_snapshot import (
     FastViewPlayerRowSnapshot,
     build_fastview_player_row_snapshot_from_histories,
 )
+from gate14_fastview_team import PLAYER_ROW_POSITION_KEYS
 
 
 class FastViewRetainedPlayerRowError(ValueError):
@@ -56,9 +57,11 @@ class FastViewRetainedPlayerRowIdentity:
             raise FastViewRetainedPlayerRowError(
                 "PlayerRow shirt number must fit an unsigned source byte"
             )
-        if type(self.source_position_code) is not int:
+        if type(self.source_position_code) is not int or not (
+            0 <= self.source_position_code < len(PLAYER_ROW_POSITION_KEYS)
+        ):
             raise FastViewRetainedPlayerRowError(
-                "PlayerRow source position code must be an integer"
+                "PlayerRow source position code must index the 0..19 source table"
             )
         if not isinstance(self.surname, str) or not self.surname:
             raise FastViewRetainedPlayerRowError(
