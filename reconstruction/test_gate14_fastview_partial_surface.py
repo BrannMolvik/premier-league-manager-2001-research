@@ -16,6 +16,7 @@ from original_fastview_possession_resources import (
 from gate14_fastview_partial_surface import (
     FASTVIEW_SURFACE_SIZE,
     FastViewPartialSurfaceError,
+    FastViewTeamRowSelection,
     build_fastview_partial_surface_layout,
 )
 
@@ -116,6 +117,117 @@ class FastViewPartialSurfaceTests(unittest.TestCase):
         self.assertIn(("base_pitch:pitch_normal", "neutral", (382, 181, 422, 199)), pairs)
         self.assertIn(("base_pitch:pitch_normal", "side0", (454, 181, 494, 199)), pairs)
         self.assertIn(("active_overlay:pitch_middle", "neutral", (382, 181, 422, 199)), pairs)
+
+    def test_team_rows_are_caller_explicit_and_keep_geometry_only_assets_unrendered(self):
+        layout = build_fastview_partial_surface_layout(
+            exact_chrome(),
+            exact_possession(1),
+            exact_figures(),
+            team_rows=(
+                FastViewTeamRowSelection(0, 0),
+                FastViewTeamRowSelection(0, 11),
+                FastViewTeamRowSelection(1, 0),
+                FastViewTeamRowSelection(1, 11),
+            ),
+        )
+
+        team_layers = [
+            layer for layer in layout.layers
+            if layer.component == "team_table_geometry"
+        ]
+        self.assertEqual(len(team_layers), 32)
+        self.assertEqual(
+            (team_layers[0].identity, team_layers[0].rect),
+            ("side0:row0:name_grid:team_name_grid", (37, 27, 296, 43)),
+        )
+        self.assertEqual(
+            (team_layers[8].identity, team_layers[8].rect),
+            ("side0:row11:name_grid:team_name_grid_2", (37, 214, 296, 230)),
+        )
+        self.assertEqual(
+            (team_layers[16].identity, team_layers[16].rect),
+            ("side1:row0:name_grid:team_name_grid_3", (504, 27, 763, 43)),
+        )
+        self.assertEqual(
+            (team_layers[24].identity, team_layers[24].rect),
+            ("side1:row11:name_grid:team_name_grid_4", (504, 214, 763, 230)),
+        )
+        self.assertTrue(all(not layer.raster_available for layer in team_layers))
+        self.assertTrue(all(layer.raster_available for layer in layout.layers[:7]))
+
+    def test_team_row_overlap_with_top_chrome_is_recorded_not_ordered(self):
+        layout = build_fastview_partial_surface_layout(
+            exact_chrome(),
+            exact_possession(1),
+            exact_figures(),
+            team_rows=(FastViewTeamRowSelection(0, 0),),
+        )
+        pairs = {
+            (
+                layout.layers[item.first_layer_index].identity,
+                layout.layers[item.second_layer_index].identity,
+                item.rect,
+            )
+            for item in layout.cross_component_overlaps
+        }
+        self.assertIn(
+            (
+                "top_bar",
+                "side0:row0:name_grid:team_name_grid",
+                (37, 27, 296, 43),
+            ),
+            pairs,
+        )
+        self.assertFalse(layout.cross_component_z_order_recovered)
+        self.assertFalse(layout.raster_composition_available)
+
+    def test_team_rows_never_appear_without_explicit_selection(self):
+        layout = build_fastview_partial_surface_layout(
+            exact_chrome(),
+            exact_possession(1),
+            exact_figures(),
+        )
+        self.assertFalse(
+            any(layer.component == "team_table_geometry" for layer in layout.layers)
+        )
+
+    def test_invalid_team_row_selections_fail_closed(self):
+        with self.assertRaises(FastViewPartialSurfaceError):
+            FastViewTeamRowSelection(True, 0)
+        with self.assertRaises(FastViewPartialSurfaceError):
+            FastViewTeamRowSelection(0, True)
+        with self.assertRaises(FastViewPartialSurfaceError):
+            FastViewTeamRowSelection(2, 0)
+
+        with self.assertRaisesRegex(FastViewPartialSurfaceError, "explicit tuple"):
+            build_fastview_partial_surface_layout(
+                exact_chrome(),
+                exact_possession(1),
+                exact_figures(),
+                team_rows=[FastViewTeamRowSelection(0, 0)],
+            )
+        with self.assertRaisesRegex(FastViewPartialSurfaceError, "contain only"):
+            build_fastview_partial_surface_layout(
+                exact_chrome(),
+                exact_possession(1),
+                exact_figures(),
+                team_rows=((0, 0),),
+            )
+        row = FastViewTeamRowSelection(0, 0)
+        with self.assertRaisesRegex(FastViewPartialSurfaceError, "duplicate"):
+            build_fastview_partial_surface_layout(
+                exact_chrome(),
+                exact_possession(1),
+                exact_figures(),
+                team_rows=(row, row),
+            )
+        with self.assertRaisesRegex(FastViewPartialSurfaceError, "800x600"):
+            build_fastview_partial_surface_layout(
+                exact_chrome(),
+                exact_possession(1),
+                exact_figures(),
+                team_rows=(FastViewTeamRowSelection(0, 34),),
+            )
 
     def test_bad_figure_origin_fails_closed(self):
         figures = exact_figures()
