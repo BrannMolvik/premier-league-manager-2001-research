@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 205: PR #175 merged canonical at main 29a55fdeed4192010940f9f3806f87cfea2dc5f5 after 1,523 tests / 22 expected skips and asset-policy success. Continue Gate-14 follow-on: source-close ScoreCompositeNormal final visible row origins and four local text-control rectangles from FastViewLeagueScores relayout + shared ScoreComposite table. Keep semantic labels for those text controls fail-closed unless separately proved. Then trace adjacent current_table_grid family if independent. Gate 13 remains earliest incomplete for remaining shell/navigation fidelity; schema-8 Windows validation has passed.",
-  "last_known_main_head": "29a55fdeed4192010940f9f3806f87cfea2dc5f5",
+  "active_task": "Recovery 205: PR #176 merged canonical at main 8ea49594b827542196a4b5e94137ea4cecc5d176 after 1,526 tests / 22 expected skips and asset-policy success. Continue Gate-14 with the independently owned LeagueTableComposite family: current_table_grid_1 heading, current_table_grid_2 row, parent constructor/caller coordinates and exact child text rectangles. Keep text semantics fail-closed unless directly proved. Gate 13 remains earliest incomplete for remaining shell/navigation fidelity; schema-8 Windows validation has passed.",
+  "last_known_main_head": "8ea49594b827542196a4b5e94137ea4cecc5d176",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 205,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #175 canonical. Continue row-level ScoreCompositeNormal geometry; preserve parallel Gate-13 work.",
+  "note": "PR #176 canonical. Continue LeagueTableComposite current_table grids without conflating them with FastViewLeagueScores score grids.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
