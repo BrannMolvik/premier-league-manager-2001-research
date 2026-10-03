@@ -23,6 +23,10 @@ Fresh native production tracing additionally proves that capture needs the
 `0x62F7C0 -> 0x62FBF0` pruning/time/order finalizer and FullTime's explicit
 `0x62AE00` outcome payload, not an encoding of the present semantic event list.
 These inputs must be retained at production; no post-score reconstruction.
+Final code `f8b9f4ba` passes 1,625 tests with 23 expected skips and 134 focused
+checks; fresh Windows schema 8 passes with ordinary successful opening still
+false. Continuation PR #194 reconciles main `d0dadf1f`; no runtime ownership
+change or Gate-13 closure is claimed.
 
 Local Gate-13 branch update (3 October): management base lookup at `0x5D3560`
 is now recovered and integrated, including the month variant, exact source
@@ -125,9 +129,11 @@ Evidence:
   completion-time report. PR #183 now closes `0x60BCB0` participant packing,
   `0x630C4F/0x630DE0` skill flags, `0x633610` script extraction and the
   `0x631270/0x631290` possession aggregation codecs. Retain their complete
-  source-backed inputs at live calculation/completion, including explicit
-  distinct MatchEngine RNG, final participant rating/flags, complete compact
-  event records and gate-receipt/scalar output. Do not default missing fields
+  remaining source-backed inputs at live calculation/completion, including
+  the complete compact records / native list finalizer, FullTime outcome and
+  remaining participant/goal/helper metadata. Rating/skill outputs plus player
+  IDs and gate-receipt output are already retained; do not retrace them.
+  Do not default missing fields
   or reconstruct report ownership from scores. Then verify real
   calculation/save/reload/right-press context and
   assess normal-play/timing against the roadmap. The parallel cloud worker

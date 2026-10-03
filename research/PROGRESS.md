@@ -6,6 +6,15 @@ _Last updated: 26 September 2026_
 
 ### 3 October 2026 KST — live Gate-13 calculator input checkpoint
 
+Final continuation checkpoint: main `d0dadf1f` was preserved; code `f8b9f4ba`
+passed 1,625 tests / 23 expected skips and 134 focused checks. PR #194 carries
+the integration. New source-gated private tooling identifies the mandatory
+`0x62F7C0 -> 0x62FBF0` pre-capture list finalization and FullTime's `0x62AE00`
+outcome payload. Current semantic events alone are insufficient; no partial
+report was promoted. Fresh Windows schema 8 passes, ordinary successful
+report opening remains false. Gate 13 remains OPEN with the precise next
+producer action in `GATE13_LIVE_CAPTURE_INPUTS.md`.
+
 Reconciled main `9019be2a` after PR #183 merged, preserving all parallel
 Gate-14 work and runtime ownership. New continuation branch
 `codex/gate13-live-report-production` retains actual ordered participant

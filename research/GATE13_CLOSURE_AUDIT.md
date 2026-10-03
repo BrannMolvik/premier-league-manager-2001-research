@@ -10,6 +10,13 @@ report/owner/link. The successful calculated-fixture -> reload -> native
 right-click -> PMatchInfo context is still unverified/unavailable. Consequently
 the criterion-level results below remain unchanged and **Gate 13 stays OPEN**.
 No timing/recognizability sign-off or formal Gate-14 transition is claimed.
+Final reconciled code `f8b9f4ba` passes 1,625 full tests / 23 expected skips
+and 134 focused checks; fresh real Windows schema 8 passes. New private
+source evidence proves pre-capture list pruning/time/order finalization and
+FullTime's required outcome payload. These are not retained by the current
+semantic list, so final ordinary-route/timing/recognizability closure cannot
+be signed off. This is one complete-report-production boundary, not permission
+to widen Gate 13 or reduce the shipped-original-functionality scope.
 
 ## Windows refresh and playtest corrections
 

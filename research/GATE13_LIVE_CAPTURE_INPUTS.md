@@ -104,6 +104,18 @@ No complete report/context claim was added on the strength of this trace.
 
 ## Checkpoint validation
 
+Final reconciled code `f8b9f4baf5d73d5a291065b1e200a94d408c5968` passed
+**1,625 full reconstruction tests with 23 expected skips** (220.137 seconds),
+including the preserved Gate-14 history-lifecycle main `d0dadf1f` and new
+private-producer-tool contracts. Reconciled focused suite: **134 passed**.
+The private live-producer report SHA-256 is
+`9bc32884b549bf8f1772f288b45dd6bf04836802dbd2db3dd47ffaf59060c6de`.
+Fresh Windows schema-8 receipt SHA-256 is
+`131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`.
+The native interaction/presentation path was unchanged by the subsequent
+producer-tool additions. Runtime report producer/owner/save remains incomplete,
+ordinary successful PMatchInfo opening remains false, and Gate 13 remains open.
+
 Code `9f5ce577` passed **1,614 full reconstruction tests with 23 expected skips**
 (241.851 seconds), using the existing private Capstone runtime. The first run
 without that import path failed one optional-disassembly dependency test; it
