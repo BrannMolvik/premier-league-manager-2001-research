@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "136dd19",
-  "last_verified_reconstruction_ci_head": "608e4f9168939c08ddffd90f5d6fb112b5d2724e",
-  "last_verified_test_count": 1509,
+  "last_verified_reconstruction_ci_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
+  "last_verified_test_count": 1514,
   "asset_policy_validated_head": "76a32b36e7dc3261db17072a01b2c9382615dd91",
   "asset_policy_status": "passed",
-  "active_task": "Recovery 204 Gate-14 work-ahead: verify directly bound FastView top_bar/ticker PictureControl contract and decoded placement seam, then continue the next direct-owned FastView control. Binary asset import remains a deterministic transport follow-up.",
+  "active_task": "Recovery 204 Gate-14 work-ahead: verify FastViewLeagueScores current_fix_grid_1 source/owner-local placement checkpoint, then decode ScoreCompositeNormal layout structure for current_fix_grid_2 and associated score text controls.",
   "last_local_focused_test_count": 453,
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
@@ -1790,7 +1790,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "dynamic_by_fixture_role_exact",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "Verify Recovery 204 direct top_bar/ticker PictureControl contract through CI, then continue source tracing the next directly owned FastView control. Import the two exact EA444 blobs once a binary-safe container-to-repository handoff is available.",
+  "gate14_exact_next_task": "Verify Recovery 204 FastViewLeagueScores current fixture grid through CI, then decode the ScoreCompositeNormal layout structure passed to 0x51A730. Do not infer current_fix_grid_2 placement from bitmap size.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -1998,5 +1998,47 @@
     "direct_live_ownership": true,
     "imported": false
   },
-  "gate14_fastview_chrome_binary_import_status": "exact_bytes_recovered_import_transport_deferred"
+  "gate14_fastview_chrome_binary_import_status": "exact_bytes_recovered_import_transport_deferred",
+  "gate14_direct_chrome_merge": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
+  "gate14_direct_chrome_reconstruction_run": 37090449064,
+  "gate14_direct_chrome_test_count": 1514,
+  "gate14_direct_chrome_expected_skips": 22,
+  "gate14_direct_chrome_asset_policy_run": 37090449112,
+  "gate14_fastview_league_scores_primary_vftable": "0x7CA750",
+  "gate14_fastview_league_scores_rtti": ".?AVFastViewLeagueScores@FastViewPanel@@",
+  "gate14_fastview_league_scores_setup_va": "0x523370",
+  "gate14_fastview_league_scores_setup_call_va": "0x520D82",
+  "gate14_current_fix_grid_1": {
+    "path": "FM2001_Art/FastView/current_fix_grid_1.444",
+    "bytes": 3704,
+    "dimensions": [
+      309,
+      19
+    ],
+    "sha256": "bdd2fe25884e8ce72e21bd7b9296c65827ce90ea058c6f43e2f727f2bae19057",
+    "path_literal_va": "0x829920",
+    "string_init_va": "0x5239AB",
+    "picture_control_call_va": "0x5239F3",
+    "owner_local_rect": [
+      38,
+      32,
+      347,
+      51
+    ],
+    "screen_absolute_rect": "unresolved_fail_closed"
+  },
+  "gate14_current_fix_grid_2": {
+    "path": "FM2001_Art/FastView/current_fix_grid_2.444",
+    "bytes": 4060,
+    "dimensions": [
+      309,
+      16
+    ],
+    "sha256": "ffc53c7b5fc9aa8c11053d704c4232505528577bfb9675fa7a4a2985e8e4ec2e",
+    "path_literal_va": "0x828ED0",
+    "score_composite_normal_constructor_va": "0x51B740",
+    "string_init_va": "0x51B75D",
+    "score_composite_base_call_va": "0x51B79A",
+    "owner_local_rect": "unresolved_fail_closed"
+  }
 }
