@@ -142,6 +142,14 @@ subsequent possession callbacks force state 1 without consuming presentation
 RNG. The exact MatchController EventPossession emission cadence is still
 unrecovered, so no runtime scheduler frequency is inferred.
 
+The source timing layer is also now bounded. FastView uses
+Win32 GetTickCount with speed thresholds 1000/500/250 ms, defaults to the
+500-ms index, and cycles speeds on Space. Each due host iteration calls
+MatchController at most once; no catch-up loop is present. Together with the
+every-fifth-GlobalTick possession sender gate, nominal minimum possession
+thresholds are 5.0 s / 2.5 s / 1.25 s. Host-loop delay may lengthen them, so
+they are not treated as guaranteed observed intervals.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
