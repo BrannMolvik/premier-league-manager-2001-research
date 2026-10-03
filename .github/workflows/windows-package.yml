@@ -10,9 +10,12 @@ on:
       - "reconstruction/gate17_package_candidate.py"
       - "reconstruction/gate17_clean_windows_install.py"
       - "reconstruction/gate17_external_validation.py"
+      - "reconstruction/gate17_full_scope_receipt.py"
       - "reconstruction/test_gate17_package_candidate.py"
       - "reconstruction/test_gate17_clean_windows_install.py"
       - "reconstruction/test_gate17_external_validation.py"
+      - "reconstruction/test_gate17_full_scope_receipt.py"
+      - "research/GATE17_ORIGINAL_SCOPE_CATALOG.json"
       - "reconstruction/test_runtime_layout.py"
       - "original_assets/**"
   workflow_dispatch:
@@ -43,7 +46,7 @@ jobs:
 
       - name: Run package-specific unit tests
         working-directory: reconstruction
-        run: python -m unittest -v test_runtime_layout test_gate17_package_candidate test_gate17_clean_windows_install test_gate17_external_validation
+        run: python -m unittest -v test_runtime_layout test_gate17_package_candidate test_gate17_clean_windows_install test_gate17_external_validation test_gate17_full_scope_receipt
 
       - name: Freeze one-directory Windows runtime
         working-directory: reconstruction
