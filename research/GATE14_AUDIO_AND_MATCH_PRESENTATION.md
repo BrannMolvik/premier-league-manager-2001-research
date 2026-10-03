@@ -186,6 +186,18 @@ exact source-font RGBA glyph overlays for the three percentage controls. It
 still does not assign side 0/1 to the human user and does not fill unrecovered
 surrounding FastView pixels.
 
+Recovery 202 closes the bounded possession side orientation without
+human-centric guessing. Original fixed-fixture construction maps
+MatchCalculator side 0 to the **home** team and side 1 to the **away** team.
+PossessionFigures therefore shows away/side1 on the left and home/side0 on the
+right; the human club appears on whichever side matches its fixture role.
+
+The same recovery rejects the loose `FM2001_Art/FastView/background.444`
+filename as sufficient screen ownership. Its path is constructed only into an
+otherwise unconsumed static string; FastViewPanel's 800x600 base constructor
+takes no bitmap path. The authenticated file remains a source lead but is not
+rendered as the live panel background.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
@@ -236,10 +248,8 @@ bank/sample resource before integration.
 
 ## Exact next cloud-safe task
 
-Verify the Recovery-200 PossessionFigures typography checkpoint through full
-CI. Once canonical, continue the narrow original-style FastView slice by
-source-tracing direct FastViewPanel ownership/draw of
-`FM2001_Art/FastView/background.444` and the side-0/side-1 presentation
-orientation. Do not compose a complete screen until those boundaries are
-source-closed or explicitly fail-closed. Gate 13 remains the earliest
-incomplete validation gate and Gate 14 remains work-ahead, not passed.
+Verify Recovery 202 through full CI, then continue the next source-backed
+FastView shell/chrome component. Do not use the rejected loose-background
+inference, and do not mirror the whole scene around the human user merely from
+the now-proven home/right and away/left PossessionFigures mapping. Gate 13
+remains earliest incomplete pending its external schema-8 Windows receipt.
