@@ -1184,7 +1184,7 @@ class HumanGameplayController:
             return human_entry
 
     def play_user_primary_match(self) -> HumanPrimaryMatchdayOutcome:
-        """Play the pending tagged PL/Cup match and finish its shared matchday."""
+        """Play the pending tagged PL/Cup/procedural-League match and finish its day."""
         if self.human is None:
             raise RuntimeError("select a human club first")
         if self.pending_primary_entry is None:
@@ -1235,6 +1235,16 @@ class HumanGameplayController:
                     self.match_rng,
                     team_orders=self.human.team_orders,
                 )
+            )
+        elif entry[0] == "procedural_league":
+            user_result = self.state.simulate_procedural_league_human_node(
+                tuple(entry[1]),
+                self.human.club_id,
+                selection,
+                self.attack_matrix,
+                self.defence_matrix,
+                self.match_rng,
+                team_orders=self.human.team_orders,
             )
         else:
             raise ValueError(f"unsupported human primary match entry {entry!r}")
