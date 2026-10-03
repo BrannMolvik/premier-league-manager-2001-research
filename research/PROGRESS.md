@@ -10658,3 +10658,14 @@ work may continue under the deferred-blocker policy.
 - Six generic text-control rectangles per side are now exact, including raw flag sequence `0x24,0x24,0x21,0x21,0x21,0x24`; no user-facing labels are assigned.
 - The first loop constructs exactly 11 rows with the primary name-grid string. At `0x52583E` the alternate name-grid string replaces it for any remaining rows. This numeric transition is not labelled as starting/substitute/reserve without direct evidence.
 - Added `gate14_fastview_team.py`, regression coverage, and a dedicated TeamTable source trace. Binary assets remain unimported; no substitute art is used.
+
+
+## 3 October 2026 - Recovery 209 typed PlayerRow event semantics
+
+- PR #180 became canonical at `745c1576c337c94dcea86f996bf347af641c77c2` after reconstruction run `37095885928` passed **1,549 tests / 22 expected skips** and asset-policy run `37095885981` passed.
+- RTTI resolves PlayerRow subobjects +0x54/+0x58/+0x5C/+0x60 as Receiver<EventPlayerUpdateForm>, Receiver<EventPlayerUpdateEnergy>, Receiver<EventPlayerGoal>, and Receiver<EventPlayerOwnGoal>; final callbacks are `0x526740 / 0x5267D0 / 0x526800 / 0x526880`.
+- Energy callback passes event dword +0x04 into `0x526680`. Source constants 58 and 99 define the input span; initializer `0x51F330` stores the 41-point range; 82 is the exact pixel width. The source clamps, scales and truncates toward zero through `0x668350`.
+- Side 0 energy presentation is full blank_bar plus dynamic team_bar_1 growing left-to-right. Side 1 is full team_bar_2 plus dynamic blank_bar shrinking 82->0 pixels, revealing the colored layer from the right.
+- Form callback formats event +0x04 with exact `%u` and updates Row control +0x34, the sixth source-order text rectangle.
+- Goal and own-goal callbacks increment Row dword +0x18 and format exact `(%u)` into Row control +0x2C, the fourth source-order text rectangle. OwnGoal additionally changes that control's native packed color; no human-readable color name is invented.
+- Extended `gate14_fastview_team.py` and regressions with exact typed receiver and energy/text presentation behavior. Remaining generic cells stay unnamed.
