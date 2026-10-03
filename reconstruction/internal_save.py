@@ -26,6 +26,7 @@ from contract_maintenance import (
 )
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from game_state import GameCalendar, GameState
+from complete_fixture_report import snapshot_report, restore_report, validate_report_owner, report_language_from_database
 from human_gameplay import HumanGameplayController, HumanManagerState
 from primary_schedule_shadow import PrimaryScheduleShadowState
 from procedural_league_state import LiveProceduralLeagueState
@@ -64,7 +65,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 37
+SAVE_SCHEMA_VERSION = 38
 
 
 def _iso(value: date | None) -> str | None:
@@ -646,6 +647,8 @@ def _snapshot_normal_match_result(result: NormalMatchResult) -> dict[str, Any]:
     if capture is not None:
         _validate_retained_possession(result)
     return {
+        "initial_report_condition_bits": [list(row) for row in result.initial_report_condition_bits],
+        "report_booking_bits": [list(row) for row in result.report_booking_bits],
         "native_completion_scalars": None if scalars is None else {
             "calendar": list(scalars.calendar), "scores": list(scalars.scores),
         },
@@ -765,6 +768,8 @@ def _restore_normal_match_result(value: dict[str, Any]) -> NormalMatchResult:
         condition_history_sample_count=int(
             value["condition_history_sample_count"]
         ),
+        initial_report_condition_bits=tuple(tuple(row) for row in value['initial_report_condition_bits']),
+        report_booking_bits=tuple(tuple(row) for row in value['report_booking_bits']),
         fastview_form_histories=tuple(
             RetainedFastViewFormHistory(
                 side_index=int(item["side_index"]),
@@ -1177,7 +1182,11 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             },
         }
 
+    validate_report_owner(state.captured_match_reports, state.fixture_match_info_links,
+                          {} if league is None else league.fixtures)
     return {
+        "captured_match_reports": [snapshot_report(report) for report in state.captured_match_reports],
+        "fixture_match_info_links": [[key, value] for key, value in state.fixture_match_info_links.items()],
         "calendar_date": state.calendar.current_date.isoformat(),
         "monthly_player_updates": int(state.monthly_player_updates),
         "players": [
@@ -1655,6 +1664,17 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             else MsvcCrtRng(int(snapshot["rng_state"]))
         ),
     )
+    state.captured_match_reports = tuple(restore_report(raw)
+                                        for raw in snapshot["captured_match_reports"])
+    pairs = snapshot["fixture_match_info_links"]
+    if (type(pairs) is not list or any(type(pair) is not list or len(pair) != 2
+                                     or any(type(v) is not int for v in pair) for pair in pairs)
+            or len({pair[0] for pair in pairs}) != len(pairs)):
+        raise ValueError('Invalid saved fixture report links')
+    state.fixture_match_info_links = dict(pairs)
+    state.report_language = report_language_from_database(database)
+    validate_report_owner(state.captured_match_reports, state.fixture_match_info_links,
+                          {} if league is None else league.fixtures)
     state.calendar.daily_hooks.append(state._run_daily_injury_returns)
     state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
     state.calendar.monthly_hooks.append(state._run_monthly_player_development)

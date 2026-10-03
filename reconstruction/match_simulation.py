@@ -301,6 +301,29 @@ class NormalMatchResult:
     raw_condition_history_prefixes: tuple[RawPlayerConditionHistory, ...] = ()
     condition_history_sample_count: int = 0
     fastview_form_histories: tuple[RetainedFastViewFormHistory, ...] = ()
+    # +0x60B8D0 consumes +1 of the INITIAL normalized history, not final
+    # Condition. None entries withhold unresolved human-vs-AI +0xD48.
+    initial_report_condition_bits: tuple[tuple[int, int, int | None], ...] = ()
+    report_booking_bits: tuple[tuple[int, int, int], ...] = ()
+
+    def __post_init__(self):
+        values = self.initial_report_condition_bits
+        if (type(values) is not tuple or any(
+                type(row) is not tuple or len(row) != 3
+                or type(row[0]) is not int or row[0] not in (0, 1)
+                or type(row[1]) is not int or not 0 <= row[1] < 18
+                or (row[2] is not None and (type(row[2]) is not int or row[2] not in (0, 1)))
+                for row in values)
+                or len({row[:2] for row in values}) != len(values)):
+            raise ValueError('Initial report history requires unique local identities and explicit bits')
+        values = self.report_booking_bits
+        if (type(values) is not tuple or any(
+                type(row) is not tuple or len(row) != 3
+                or type(row[0]) is not int or row[0] not in (0, 1)
+                or type(row[1]) is not int or not 0 <= row[1] < 18
+                or type(row[2]) is not int or row[2] not in (0, 1) for row in values)
+                or len({row[:2] for row in values}) != len(values)):
+            raise ValueError('Report booking bits require exact local participant ownership')
 
     @property
     def score(self) -> tuple[int, int]:
@@ -469,6 +492,7 @@ def simulate_normal_match(
     native_previous_scores: tuple[int, int] | None = None,
     native_compact_spacing: int | None = None,
     native_report_date: date | None = None,
+    native_ai_condition_adjustment: int | None = None,
 ) -> NormalMatchResult:
     """Run the verified scoring/chance backbone through normal or extra time.
 
@@ -515,6 +539,11 @@ def simulate_normal_match(
         for side in sides
         for player in side.players
     }
+    if (native_ai_condition_adjustment is not None
+            and (type(native_ai_condition_adjustment) is not int
+                 or not 0 <= native_ai_condition_adjustment <= 255)):
+        raise ValueError('Native AI Condition adjustment must be an explicit byte')
+    initial_report_condition_bits = ()
     condition_history_sample_count = 0
 
     def capture_condition_history_boundary() -> None:
@@ -532,6 +561,14 @@ def simulate_normal_match(
 
     # 0x62AF24: one history update before the first five-minute segment.
     capture_condition_history_boundary()
+    # 0x62B447/46C: byte subtraction wraps. This is retained NOW, before
+    # simulation/treatment changes Condition. Human clubs skip subtraction.
+    initial_report_condition_bits = tuple(
+        (int(player.side), int(player.player_index),
+         (int(player.condition) & 1) if side.attack_context.user_controlled else
+         None if native_ai_condition_adjustment is None else
+         ((int(player.condition) - native_ai_condition_adjustment) & 0xFF) & 1)
+        for side in sides for player in side.players)
 
     for segment_start in plan.segment_minutes:
         # 0x62AFC1: extra time performs one additional history update at the
@@ -719,4 +756,10 @@ def simulate_normal_match(
         native_completion_scalars=completion,
         raw_condition_history_prefixes=histories,
         condition_history_sample_count=condition_history_sample_count,
+        initial_report_condition_bits=initial_report_condition_bits,
+        # The live discipline owner's +0x48 bit, not semantic incident replay.
+        report_booking_bits=tuple(
+            (int(player.side), int(player.player_index),
+             int((int(player.side), int(player.player_index)) in discipline_state.booked_players))
+            for side in sides for player in side.players),
     )
