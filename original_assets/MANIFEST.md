@@ -62,6 +62,9 @@ This manifest will be populated as authorized FM2001 resources are intentionally
 | original_assets/source/FM2001_Art/FastView/pitch_right.444 | FM2001_Art/FastView/pitch_right.444 | dedc194dc9410ddc6d606fdabd3fe779a0c1bf0bfdfe85752f9a56d57171e5fd | original | Gate 14 source-proven PossessionDiagram right overlay, 125x78. Exact executable path, source bytes and placement state 2. Source archive SHA-256: 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4. |
 | original_assets/source/FM2001_Art/FastView/pitch_normal.444 | FM2001_Art/FastView/pitch_normal.444 | 326f484f264630d656e47aee1eb8419970ddbf336fbbc4e47588ff841a346ced | original | Gate 14 source-proven PossessionDiagram 294x78 base pitch. This is the FastView path, not the distinct Generic/match_report same-basename asset. Exact screen rect (253,139)-(547,217). Source archive SHA-256: 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4. |
 
+| original_assets/source/FM2001_Art/FastView/top_bar.444 | FM2001_Art/FastView/top_bar.444 | f7410cf85900846ee1b276fa309bca4e560580286d5641092f2f98d20afa379a | original | Gate 14 direct-owned FastView top chrome. Byte-identical 800x95 EA444, exact live image-control placement (0,0)-(800,95), source callsite 0x51FD63 -> image-control constructor 0x527730. Source archive SHA-256: 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4. |
+| original_assets/source/FM2001_Art/FastView/ticker.444 | FM2001_Art/FastView/ticker.444 | b0fe2d8266ae157b7821e8c1de310e89bbc37ae859f666e64f59731c78e68257 | original | Gate 14 direct-owned FastView ticker chrome. Byte-identical 800x33 EA444, exact live image-control placement (0,557)-(800,590), source callsite 0x51FDF0 -> image-control constructor 0x527730. Source archive SHA-256: 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4. |
+
 Forms:
 
 - **original** - byte-identical extracted source asset;
