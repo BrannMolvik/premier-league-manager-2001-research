@@ -1822,6 +1822,10 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         raise ValueError('Invalid saved fixture report links')
     state.fixture_match_info_links = dict(pairs)
     state.report_language = report_language_from_database(database)
+    # Immutable original setup pool is reconstructed from the same database;
+    # no report codec or already-completed inputs are recalculated.
+    from ordinary_report_setup import NativeSetupPlayerPool
+    state.native_setup_player_pool = NativeSetupPlayerPool.from_database(database)
     validate_report_owner(state.captured_match_reports, state.fixture_match_info_links,
                           {} if league is None else league.fixtures)
     state.calendar.daily_hooks.append(state._run_daily_injury_returns)

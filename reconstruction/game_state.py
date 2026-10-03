@@ -95,6 +95,9 @@ from complete_fixture_report import (
     LiveReportSetupFragment, report_language_from_database, format_report_caption,
 )
 from original_fixture_report_capture import NativeCapturedScalar
+from original_fixture_report_capture import NATIVE_CAPTURE_SCALAR_COPIES
+from ordinary_report_setup import NativeSetupPlayerPool, gate_report_scalar_copies, report_participant_metadata
+from match_team_setup import pack_tactics_word, manager_tactics_packet_fields, team_tactics_packet_fields
 from stadium_state import StadiumSourceState, TicketRuntimeState
 from transfer_state import TransferRuntimeState
 from youth_state import (
@@ -207,6 +210,9 @@ class GameState:
     prepared_match_report_metadata: dict[int, ReportMetadata] = field(default_factory=dict)
     report_language: tuple | None = None
     prepared_match_report_setup: dict[int, LiveReportSetupFragment] = field(default_factory=dict)
+    native_setup_player_pool: NativeSetupPlayerPool | None = None
+    prepared_match_report_scalars: dict[int, dict[int, NativeCapturedScalar]] = field(default_factory=dict)
+    prepared_match_report_tactics: dict[int, tuple[int, int] | None] = field(default_factory=dict)
     captured_match_reports: tuple[CompleteFixtureReport, ...] = ()
     fixture_match_info_links: dict[int, int] = field(default_factory=dict)
     # Complete per-side rating/skill output from actual finalization. These are
@@ -445,6 +451,7 @@ class GameState:
             rng=rng,
         )
         state.report_language = report_language_from_database(database)
+        state.native_setup_player_pool = NativeSetupPlayerPool.from_database(database)
         state.calendar.daily_hooks.append(state._run_daily_injury_returns)
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
@@ -1681,6 +1688,15 @@ class GameState:
             **prepared_inputs,
             rand15_values=rand15_values,
         )
+        if fixture_id is not None:
+            # 0x5DA979 skips seating setup when its capacity is zero. D88 then
+            # remains the calculator constructor's explicit zero, not the price.
+            price = (0 if prepared_inputs.get('home_seating_capacity') == 0 else
+                     prepared_inputs.get('host_seating_price'))
+            copies = gate_report_scalar_copies(receipts, price)
+            if copies is not None:
+                self.prepared_match_report_scalars.setdefault(fixture_id, {}).update(
+                    (s.report_offset, s) for s in copies)
         self.post_gate_receipts(int(home_club_id), receipts)
         if fixture_id is not None:
             self.prepared_match_gate_receipts[fixture_id] = receipts
@@ -2586,6 +2602,8 @@ class GameState:
         self.prepared_match_report_player_ids = {}
         self.prepared_match_report_metadata = {}
         self.prepared_match_report_setup = {}
+        self.prepared_match_report_scalars = {}
+        self.prepared_match_report_tactics = {}
         self.captured_match_reports = ()
         self.fixture_match_info_links = {}
         return regeneration
@@ -3723,6 +3741,8 @@ class GameState:
         fixture = self.premier_league.fixtures[fixture_id]
         table = self.premier_league_table()
 
+        self._begin_native_report_calculator(fixture_id, match_engine_rng)
+
         def inputs_for(club_id: int, opponent_id: int):
             club_id = int(club_id)
             opponent_id = int(opponent_id)
@@ -3772,6 +3792,14 @@ class GameState:
             table,
             is_home=False,
         )
+
+        self._retain_native_report_refs(fixture, rng)
+        try:
+            self.prepared_match_report_tactics[fixture_id] = (
+                pack_tactics_word(home_preparation.formation_id, manager_tactics_packet_fields(home_manager)),
+                pack_tactics_word(away_preparation.formation_id, manager_tactics_packet_fields(away_manager)))
+        except AttributeError:
+            self.prepared_match_report_tactics[fixture_id] = None
 
         environment = generate_match_environment(
             self.calendar.current_date,
@@ -3960,8 +3988,54 @@ class GameState:
             fixture_date,
             rng,
         )
+        self._complete_native_report_setup(fixture, result,
+            (home.preparation.selection.participants, away.preparation.selection.participants))
         self._publish_completed_fixture_report(fixture_id, result)
         return result
+
+    def _begin_native_report_calculator(self, fixture_id, match_engine_rng):
+        # 0x5130A9 constructs once per match, BEFORE virtual setup/selection.
+        # 0x62AC34 draws from 981BF0, never the shared CRT substitute.
+        self.prepared_match_report_metadata.pop(fixture_id, None)
+        self.prepared_match_report_tactics.pop(fixture_id, None)
+        self.prepared_match_report_setup.pop(fixture_id, None)
+        scalars = {}
+        if match_engine_rng is not None:
+            seed = match_engine_rng.randbelow(0x7FFF)
+            if type(seed) is not int or not 0 <= seed < 0x7FFF:
+                raise ValueError('Invalid native calculator constructor RNG output')
+            scalars[0x94] = NativeCapturedScalar(0x94, 0xB68, seed.to_bytes(4, 'little'))
+        self.prepared_match_report_scalars[fixture_id] = scalars
+
+    def _retain_native_report_refs(self, fixture, rng):
+        pool = self.native_setup_player_pool
+        home = self.clubs.get(fixture.home_club_id)
+        country = self.countries.get(getattr(home, 'country_id', None))
+        nationality = getattr(country, 'nationality_id', None)
+        if pool is None or nationality is None:
+            return
+        if nationality == -1:
+            nationality = 26  # explicit native 0x510F3B branch
+        pair = pool.draw_pair(nationality, self.players, rng)
+        if pair is not None:
+            values = self.prepared_match_report_scalars.setdefault(fixture.id, {})
+            for identity, (destination, source) in zip(pair, ((0x98, 0xFE0), (0x9A, 0xFE4))):
+                values[destination] = NativeCapturedScalar(destination, source, identity.to_bytes(2, 'little'))
+
+    def _complete_native_report_setup(self, fixture, result, participants):
+        self.prepared_match_report_metadata.pop(fixture.id, None)
+        setup = self.prepared_match_report_setup.get(fixture.id)
+        values = self.prepared_match_report_scalars.get(fixture.id, {})
+        tactics = self.prepared_match_report_tactics.get(fixture.id)
+        metadata = report_participant_metadata(
+            (fixture.home_club_id, fixture.away_club_id), participants, result)
+        if (setup is None or setup.caption is None or tactics is None or metadata is None
+                or any(destination not in values for destination, _, _ in NATIVE_CAPTURE_SCALAR_COPIES)):
+            return False
+        self.prepared_match_report_metadata[fixture.id] = ReportMetadata(
+            tuple(values[d] for d, _, _ in NATIVE_CAPTURE_SCALAR_COPIES), setup.caption,
+            setup.venue_id, (fixture.home_club_id, fixture.away_club_id), tactics, metadata, None)
+        return True
 
     def _retain_fixture_report_setup(self, fixture, competition, environment):
         # Ordinary PL has no match +0x48 alternate venue; 0x514220 therefore
@@ -3973,6 +4047,8 @@ class GameState:
             (NativeCapturedScalar(0xA0, 0xD46, bytes((environment.temperature_c & 0xFF,))),
              NativeCapturedScalar(0xA1, 0xD45, bytes((int(environment.weekday_evening),))),
              NativeCapturedScalar(0xA2, 0xD44, bytes((environment.weather_code & 0xFF,)))))
+        values = self.prepared_match_report_scalars.setdefault(fixture.id, {})
+        values.update((s.report_offset, s) for s in self.prepared_match_report_setup[fixture.id].environment_copies)
 
     def _publish_completed_fixture_report(self, fixture_id, result):
         """Publish the native ordered owner/link atomically, never result scores.
@@ -4010,6 +4086,7 @@ class GameState:
         *,
         team_orders: TeamOrderPriorities | None = None,
         match_engine_rng=None,
+        human_formation_id: int | None = None,
     ) -> NormalMatchResult:
         """Simulate one human-vs-AI PL fixture through the shared backend.
 
@@ -4054,6 +4131,7 @@ class GameState:
         if not human_roster or not ai_roster:
             raise RuntimeError("human/AI fixture requires both runtime rosters")
 
+        self._begin_native_report_calculator(fixture_id, match_engine_rng)
         ai_preparation = prepare_premier_league_ai_selection(
             ai_club_id,
             ai_roster,
@@ -4063,6 +4141,17 @@ class GameState:
             self.premier_league_table(),
             is_home=not human_is_home,
         )
+
+        self._retain_native_report_refs(fixture, rng)
+        try:
+            ai_word = pack_tactics_word(ai_preparation.formation_id, manager_tactics_packet_fields(ai_manager))
+            human_tactics = self.team_tactics.get(human_club_id)
+            human_word = (None if human_formation_id is None or human_tactics is None else
+                          pack_tactics_word(human_formation_id, team_tactics_packet_fields(human_tactics)))
+            self.prepared_match_report_tactics[fixture_id] = (
+                None if human_word is None else (human_word, ai_word) if human_is_home else (ai_word, human_word))
+        except AttributeError:
+            self.prepared_match_report_tactics[fixture_id] = None
 
         # Original high-level setup performs both selections before weather.
         # User Condition is persistent; only the autonomous side receives the
@@ -4219,6 +4308,7 @@ class GameState:
             fixture_date,
             rng,
         )
+        self._complete_native_report_setup(fixture, result, (home_participants, away_participants))
         self._publish_completed_fixture_report(fixture_id, result)
         return result
 
