@@ -228,6 +228,15 @@ first 309x16 pixels of each composite. Four adjacent generic text controls have
 exact local rectangles but remain semantically unnamed until their data
 producers are traced.
 
+Recovery 208/209 also closes the FastViewTeam player-row bar family. The
+two side-indexed TeamTables have exact 17-pixel row geometry and source asset
+pairing. Fresh RTTI then identifies PlayerRow receiver `+0x58` as
+`Receiver<EventPlayerUpdateEnergy>`; callback `0x5267D0` drives the bar
+routine `0x526680`. Its exact transform uses source anchors 58/99 and an
+82-pixel width, with side 0 growing `team_bar_1` over `blank_bar` and
+side 1 shrinking a `blank_bar` mask to reveal `team_bar_2`. The remaining
+row text controls are not named from layout alone.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
@@ -278,9 +287,10 @@ bank/sample resource before integration.
 
 ## Exact next cloud-safe task
 
-Verify the Recovery-204 direct top-bar/ticker PictureControl contract through
-full CI. Once canonical, continue the next directly owned FastView
-shell/control from executable callsites. Keep the rejected loose background
-unrendered, and import the exact top/ticker EA444 bytes only through a
-binary-safe repository transport. Gate 13 remains earliest incomplete pending
-its external schema-8 Windows receipt.
+Verify the Recovery-209 PlayerRow energy-bar contract through full CI. Once
+canonical, trace the adjacent typed PlayerRow receivers:
+EventPlayerUpdateForm callback `0x526740`, EventPlayerGoal callback
+`0x526800`, and EventPlayerOwnGoal callback `0x526880`. Bind only text or
+control semantics directly proven by their event-field/data flow; leave every
+other row label fail-closed. Gate 13 remains the earliest incomplete gate for
+its independent shell/navigation fidelity work.
