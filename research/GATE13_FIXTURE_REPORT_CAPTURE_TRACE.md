@@ -103,10 +103,62 @@ Do not relabel the existing explicit popup seam as normal-play success.
 
 ## Single next implementation blocker / source-backed action
 
+### PR #183 continuation: packing and script codecs source-closed
+
+On 3 October the branch reconciled `origin/main` at
+`66c0886a49581ac3461e0c242fb5e333bf73ac8c`, preserving the continuous
+worker's Gate-14 changes. No runtime ownership changed.
+
+`original_fixture_report_packing.py` now implements the recovered snapshot
+codecs. They remain fragments, not complete reports or gameplay context:
+
+- `0x60BCB0` writes **12 bits per participant**: rating `+0x30` low four
+  bits followed by eight one-bit writes from `+0x35..+0x3C`, in participant
+  order. The next participant is not byte-aligned. Eighteen participants copy
+  27 bytes; the helper copies only `ceil(bit_count / 8)` bytes into each
+  28-byte destination, not a zero-filled 28-byte replacement.
+- Those eight bytes are now source-identified by `0x630C4F -> 0x630DE0`:
+  threshold `>=200` on DBRPlayer offsets `+0x1E`, integer mean of
+  `+0x27/+0x1E`, `+0x24`, `+0x26`, `+0x28`, `+0x25`, `+0x25`, `+0x22`.
+  The duplicated selector is real. They are **skill flags**, not numeric
+  event counters or the separate FastView performance trajectory.
+- `0x659CF0` ORs the supplied byte shifted within the current byte, then
+  advances **one** bit. It does not first mask the input to one bit and does
+  not carry overflow into the next byte. `0x659D30` explicitly masks each
+  successive low bit. Both behaviors are preserved and tested.
+- `0x633610 -> 0x6336A0` emits a ten-bit linked-event count, then traverses
+  the entire native list in order (including records after kind 9). Every
+  record first writes `+0x00` in eight bits. The calibrated dispatch covers
+  kinds 1..16, all six kind-11 subcommands and both kind-5 branches, using
+  `0x6337B0/0x633870/0x6338E0/0x633990/0x6339D0/0x633A20/0x633B30`.
+  Unknown families/subcommands or count overflow fail closed; no unsupported
+  semantic event is converted into a plausible native record.
+- `0x632570` is exactly `return calculator +0xFEC`. Thus report
+  `+0x24/+0x28/+0x2C` copy calculator `+0xFEC/+0xFF0/+0xFF4` dwords;
+  report `+0x9C` copies calculator `+0x1154` in `0x60B8D0`.
+- Captured possession is **not** the five-minute display segment list.
+  `0x631270` returns 2 when calculator `+0xFF8 == 18`, otherwise 4.
+  `0x631290` averages the three dword arrays starting at
+  `+0x100C/+0x106C/+0x10CC` over indices 1..8, 10..17, 19..20 and 22..23.
+  Boundary entries 0/9/18/21 are excluded. Dword sums wrap, averages truncate,
+  and the copied triplets are low bytes. `0x60BBC0` averages their second and
+  third bytes into report `+0x20/+0x21`; `+0x22` is the byte remainder to 100.
+  Snapshot projection and tests now preserve this exact distinction.
+
+**The remaining single blocker is the live completion-time calculator output
+and full report owner/save integration, not either packing codec.**
+`NormalMatchResult` currently retains semantic events and possession segments,
+not the complete native compact-event list or required scalar snapshot.
+`PreparedMatchPlayer` does not retain the native final rating/flag record;
+performance finalization remains opt-in on an explicitly distinct MatchEngine
+RNG. The gate receipt finalizer returns its output, but its league callers
+currently discard that return. Those inputs must be retained at their proven
+production points and projected into the complete report before appending any
+link. A synthetic native snapshot or codec test is not that producer.
+
 Materialize and persist the complete completion-time captured report and its
 append-order link in GameState/internal save. Continue from the above helper
-windows, especially participant packing `0x60BCB0` and script extraction
-`0x633610`, reconciling them with the exact existing calculator outputs and
+windows and source-closed codecs, reconciling the exact calculator outputs and
 post-calculation attendance/environment/participant state. Preserve capture
 order and season reset. Only then run a real calculated fixture -> save/reload
 -> native right-press -> correct PMatchInfo context audit and criterion-level
@@ -119,8 +171,9 @@ secondary fidelity or duplicate the parallel Gate-14 audio/FastView work.
 ## Reproduction and validation
 
 `gate13_fixture_report_source_trace.py --original-executable <authorized exe>
---output <private path outside Git> --disassemble` regenerates 28 bounded
-windows and checks five native vtable slots. Hash mismatch or slot mismatch
+--output <private path outside Git> --disassemble` regenerates 49 bounded
+windows and checks five native vtable slots, five dispatch tables and the
+boundary index table. Hash mismatch or calibration mismatch
 fails before saving the report. Reports, original binaries and packaging output
 remain outside Git. Final test/Windows/package receipt identities are recorded
 in the closure audit and project state, not committed as uncontrolled dumps.

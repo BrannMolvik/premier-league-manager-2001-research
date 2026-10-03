@@ -36,6 +36,27 @@ FIXTURE_REPORT_WINDOWS = (
     ('capture participant statistics', 0x60BCB0, 0xE0),
     ('capture goal events', 0x60BD90, 0x90),
     ('capture script', 0x60BE20, 0x30),
+    ('participant bit-buffer constructor', 0x659CA0, 0x38),
+    ('native raw one-bit writer', 0x659CF0, 0x39),
+    ('native low-bits writer', 0x659D30, 0x29),
+    ('native bit-buffer copied length', 0x659D60, 0xC),
+    ('native bit-buffer copy', 0x659D70, 0x20),
+    ('script bit-buffer constructor', 0x659C60, 0x3C),
+    ('script extraction allocation', 0x633610, 0x83),
+    ('script count and linked order', 0x6336A0, 0x3C),
+    ('script family dispatch', 0x6336E0, 0x81),
+    ('script chance payload', 0x6337B0, 0xAB),
+    ('script incident payload', 0x633870, 0x68),
+    ('script boundary payload', 0x6338E0, 0x82),
+    ('script substitution payload', 0x633990, 0x3F),
+    ('script packed triplet payload', 0x6339D0, 0x50),
+    ('script tactical payload', 0x633A20, 0xF1),
+    ('script auxiliary payload', 0x633B30, 0x9D),
+    ('participant captured skill flags', 0x630C4F, 0x22),
+    ('participant skill selector', 0x630DE0, 0x68),
+    ('capture helper pointer getter', 0x632570, 0x7),
+    ('report possession group count', 0x631270, 0x14),
+    ('report possession group averages', 0x631290, 0x23C),
     ('capture success link writer', 0x60BF10, 0x80),
     ('ordered list append', 0x617D70, 0x60),
     ('ordered report list load', 0x60BF90, 0x90),
@@ -58,6 +79,27 @@ def fixture_report_trace_report(pe: OriginalPE32, *, with_disassembly=False):
         actual = struct.unpack('<I', pe.read(table + slot, 4))[0]
         if actual != expected:
             raise OriginalPETraceError(f'Native fixture slot calibration failed: {name}')
+    # These are tables, not executable instructions. Calibrate separately
+    # rather than presenting a linear disassembly of data as control flow.
+    tables = (
+        (0x633764, (0x633706,) * 4 + (0x633713,) + (0x633720,) * 4
+         + (0x63372D, 0x633747, 0x633754, 0x63373A, 0x633754,
+            0x633754, 0x633720)),
+        (0x633964, (0x63390F, 0x63391D, 0x633938, 0x633946,
+                    0x633954, 0x63395F)),
+        (0x633B14, (0x633A55, 0x633A70, 0x633A8B, 0x633AC1,
+                    0x633AA6, 0x633ADC)),
+        (0x630E48, (0x630DF0, 0x630E18, 0x630DFA, 0x630E04,
+                    0x630E0E, 0x630E2E, 0x630E2E, 0x630E38)),
+        (0x6314D0, (0x6312A9, 0x631339, 0x6313C9, 0x631459)),
+    )
+    for address, expected in tables:
+        actual = struct.unpack(f'<{len(expected)}I', pe.read(address, len(expected) * 4))
+        if actual != expected:
+            raise OriginalPETraceError(f'Native script dispatch calibration failed: {address:#x}')
+    boundary_indices = (0, 1, 2, 3, 5, 5, 5, 5, 5, 5, 4)
+    if tuple(pe.read(0x63397C, 11)) != boundary_indices:
+        raise OriginalPETraceError('Native script boundary-index calibration failed')
     windows = []
     for label, va, size in FIXTURE_REPORT_WINDOWS:
         blob = pe.read(va, size)
@@ -75,6 +117,13 @@ def fixture_report_trace_report(pe: OriginalPE32, *, with_disassembly=False):
         'match_link_word_offset': 0x40,
         'scalar_copies': [list(copy) for copy in NATIVE_CAPTURE_SCALAR_COPIES],
         'calibrated_slots': [list(slot) for slot in slots],
+        'calibrated_script_dispatch_tables': [
+            {'va': address, 'targets': list(targets)} for address, targets in tables
+        ],
+        'calibrated_script_boundary_indices': list(boundary_indices),
+        'participant_statistics_bits_per_record': 12,
+        'script_count_bits': 10,
+        'report_possession_group_counts': [2, 4],
         'windows': windows,
         'runtime_capture_production_complete': False,
         'gate13_closed': False,
