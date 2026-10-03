@@ -83,6 +83,8 @@ on:
       - "reconstruction/test_gate14_fastview_frame_plan.py"
       - "reconstruction/gate14_fastview_human_frame_plan.py"
       - "reconstruction/test_gate14_fastview_human_frame_plan.py"
+      - "reconstruction/original_fastview_chrome_art.py"
+      - "reconstruction/test_original_fastview_chrome_source.py"
       - "reconstruction/gate14_audio_bank_source_trace.py"
       - "reconstruction/test_gate14_audio_bank_source_trace.py"
       - "reconstruction/gate14_fastview_league_table.py"
