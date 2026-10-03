@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 197: PR #162 is canonical at main 1e68dca68395c97cc8ea8498f1ec212e0273659b after green reconstruction, Windows package/freeze/smoke and asset-policy CI. Continue the exact Gate-14 work-ahead by source-tracing the three 82x16 PossessionFigures bar controls, their placement/binding/state mapping, without inventing user-side orientation or diagram cadence. Gate 13 remains earliest incomplete pending the external schema-8 Windows receipt.",
+  "active_task": "Recovery 198: resume from canonical main 1e68dca68395c97cc8ea8498f1ec212e0273659b. Do not repeat Recovery 196/PR #162. Source-trace the three 82x16 PossessionFigures bar controls, their exact placement/binding/state mapping, without inventing user-side orientation or diagram cadence. Gate 13 remains earliest incomplete pending the external schema-8 Windows receipt.",
   "last_known_main_head": "1e68dca68395c97cc8ea8498f1ec212e0273659b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 197,
+  "recovery_generation": 198,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #162 merged. Continue exact PossessionFigures 82x16 bar trace; do not claim user-side orientation or Gate 14 completion.",
+  "note": "Recovery 198 resumed after PR #162 was already canonical. Continue exact PossessionFigures bar trace only.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
