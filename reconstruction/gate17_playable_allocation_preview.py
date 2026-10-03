@@ -14,6 +14,7 @@ from typing import Iterable, Mapping, Protocol
 
 from gate17_allocation_ranking_capability import (
     AllocationRankingCapabilityAudit,
+    Gate17AllocationRankingCapabilityError,
     audit_allocation_ranking_capability,
 )
 from gate17_country_allocation_scope import PlayableCountryAllocationPlan
@@ -171,11 +172,16 @@ def preview_playable_allocation_exchanges(
             "playable allocation source order does not cover assigned rows exactly"
         )
 
-    ranking_audit = audit_allocation_ranking_capability(
-        plan,
-        rows,
-        rankings_by_competition,
-    )
+    try:
+        ranking_audit = audit_allocation_ranking_capability(
+            plan,
+            rows,
+            rankings_by_competition,
+        )
+    except Gate17AllocationRankingCapabilityError as exc:
+        raise Gate17PlayableAllocationPreviewError(
+            f"playable allocation ranking audit failed: {exc}"
+        ) from exc
     if not ranking_audit.complete:
         raise Gate17PlayableAllocationPreviewError(
             "playable allocation rankings are incomplete: "
