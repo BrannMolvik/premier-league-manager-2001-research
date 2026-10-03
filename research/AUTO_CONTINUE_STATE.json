@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 PR #268 merged green as main ee2831a7 after 1,879 tests / 23 expected skips: deterministic non-PL fresh objective branches are integrated while RNG-bearing branches remain fail-closed. Next task: harden Gate-17 runtime-owner/full-scope readiness with a separate sporting-objective progression capability blocker so fresh objective materialization does not imply season-end objective parity. Preserve the unresolved exact 0x5DF670 caller CRT state for RNG-bearing branches.",
+  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Main ee2831a7 includes deterministic non-PL fresh objectives. Active independent Gate-17 candidates: PR #269 adds separate sporting_objective_progression_missing readiness (canonical progression only competition 0); PR #270 fixes internal save/reload dropping playable_primary_procedural_ids, playable_primary_club_ids, and playable_country_allocation_plan, bumping schema to 43. Merge each only after its own CI is green. RNG-bearing fresh objectives remain blocked on exact 0x5DF670 caller CRT state; secondary runtime remains blocked on exact mode-1 per-date bucket/equal-key fidelity.",
   "last_known_main_head": "ee2831a7ef3b2b0a3fc3ba2e3c75be6d18753730",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 249,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 249 checkpoint: PR #268 merged green. Next source-backed step is separate sporting-objective progression readiness, not new objective RNG guessing.",
+  "note": "Recovery 249 checkpoint: #269 asset policy green/full suite running; #270 newly opened. Next after verified merges: continue highest-value cloud-safe Gate17/Gate15 work; do not guess private-source blockers.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
