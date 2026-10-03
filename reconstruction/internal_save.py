@@ -40,7 +40,11 @@ from match_events import (
     SubstitutionRecord,
 )
 from match_orders import TeamOrderPriorities
-from match_postmatch import PlayerTransferRequest
+from match_postmatch import (
+    FinalizedParticipantStatistics,
+    FinalizedSideParticipantStatistics,
+    PlayerTransferRequest,
+)
 from match_schedule import MsvcCrtRng
 from original_fixture_report_capture import NativeCapturedPossession, capture_completed_possession_rows
 from match_simulation import (
@@ -1257,6 +1261,31 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
             }
             for fixture_id, value in sorted(state.prepared_match_gate_receipts.items())
         },
+        "prepared_match_report_player_ids": {
+            str(int(fixture_id)): int(player_id)
+            for fixture_id, player_id in sorted(
+                state.prepared_match_report_player_ids.items()
+            )
+        },
+        "prepared_match_participant_statistics": {
+            str(int(fixture_id)): [
+                {
+                    "player_ids": [int(player_id) for player_id in side.player_ids],
+                    "statistics": [
+                        {
+                            "player_index": int(item.player_index),
+                            "rating": int(item.rating),
+                            "skill_flags": [int(value) for value in item.skill_flags],
+                        }
+                        for item in side.statistics
+                    ],
+                }
+                for side in sides
+            ]
+            for fixture_id, sides in sorted(
+                state.prepared_match_participant_statistics.items()
+            )
+        },
         "premier_league_scheduler_order": {
             str(int(round_index)): [int(v) for v in values]
             for round_index, values in sorted(state.premier_league_scheduler_order.items())
@@ -1637,6 +1666,31 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
             )
             for fixture_id, value in snapshot.get(
                 "prepared_match_gate_receipts", {}
+            ).items()
+        },
+        prepared_match_report_player_ids={
+            int(fixture_id): int(player_id)
+            for fixture_id, player_id in snapshot.get(
+                "prepared_match_report_player_ids", {}
+            ).items()
+        },
+        prepared_match_participant_statistics={
+            int(fixture_id): tuple(
+                FinalizedSideParticipantStatistics(
+                    player_ids=tuple(int(player_id) for player_id in side["player_ids"]),
+                    statistics=tuple(
+                        FinalizedParticipantStatistics(
+                            player_index=int(item["player_index"]),
+                            rating=int(item["rating"]),
+                            skill_flags=bytes(int(value) for value in item["skill_flags"]),
+                        )
+                        for item in side["statistics"]
+                    ),
+                )
+                for side in sides
+            )
+            for fixture_id, sides in snapshot.get(
+                "prepared_match_participant_statistics", {}
             ).items()
         },
         premier_league_scheduler_order={
