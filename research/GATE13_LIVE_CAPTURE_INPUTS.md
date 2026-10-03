@@ -125,15 +125,66 @@ fragments and requires complete report ownership/link state.
 ## Single remaining blocker
 
 Complete live native report production and persistence are still absent.
-Next: retain the full source-ordered compact-event list at its live producer,
-including native finalization/boundary payloads, and the remaining calculator /
-post-match helper outputs (caption/identity/scalars and participant/goal
-metadata). Then assemble the complete report, append it to the GameState owner
+The compact list/finalization, FullTime, participant statistics, selected-player
+and goal helpers are already recovered; do not retrace them. Next: retain the
+missing mandatory native setup metadata, adjusted initial participant-history
+flags and caption/context inputs at their actual producers. Then assemble the
+complete report, append it to the GameState owner
 only after successful capture, save/load that ordered owner and fixture link,
 and verify a genuine calculated fixture -> reload -> native right-click ->
 correct PMatchInfo context. Do not substitute semantic score/completion or
 zero-filled snapshots. Final normal-play/timing closure remains pending that
 successful route.
+
+### Metadata continuation from cfab7abc (not a closure audit)
+
+- `0x632550 -> 0x64CCD0` supplies calendar year-offset-from-1900, month and
+  day. Its first four years are non-leap, then it uses 1461-day cycles, not
+  Gregorian century rules. The live calculator now retains this tuple together
+  with its actual D4C/D50 accumulators. `0x60BA80` copies their low nibbles;
+  retained values are not reconstructed from `NormalMatchResult.score`, saved
+  completion or finalized/pruned goal records. Pending-result schema 37 saves
+  explicit values; null remains null and missing/malformed input rejects.
+- `0x64C7BF`, the last of the verified 2,714 language assignments, binds
+  `0x981D94` to English IDX 2713 / STR 21855: `%C %D{%D %M %Yf}`.
+  `0x5146B0` resolves `%C` through the native match context's `+0x4C/+0x14`
+  label and dispatches `%D` to `0x64D150`. This particular date format writes
+  decimal day, the first three bytes of the original month string and four
+  year digits. Month globals `0x984604..0x9845D8` bind IDX 125..136.
+  `0x60B29F` serializes 64 caption bytes. The runtime must retain the actual
+  context label; this evidence is not permission to guess one from a score.
+- `0x514220` uses explicit match `+0x48` venue override unless it is -1;
+  otherwise it resolves the home participant and returns its club `+4`, or
+  -1 if absent. Capture keeps its low word at report `+0xF0`.
+- `0x62B3F0` writes the first normalized Condition-history sample into
+  participant `+1`; `0x60B8D0` copies that byte's low bit. The later final
+  Condition must not substitute for it. Human-vs-AI's `+0xD48` adjustment
+  remains unresolved; the parallel worker's retained **raw** history does
+  not itself authorize publishing this normalized bit.
+- Setup `0x510F40/0x510F6E -> 0x421BA0` selects persistent **DBRPlayer**
+  identities from global DBTPlayers `0x875638`, not a newly invented referee
+  database. The country auxiliary list at `0x874BD0 + country*20 +0x0C`
+  is used only when its `+0x10` count exceeds ten; otherwise selection uses
+  the complete player array in original order. First selection retries when
+  its first-name string begins `-`; second selection is unfiltered. FE0/FE4
+  must retain those setup draws/identities, not draw new substitutes after
+  completion. The live setup currently does not retain this path.
+- `0x5DB71A/20/26` writes total/home/visiting attendance to D84/D8C/D90.
+  Classification thresholds are original doubles 0.3 / 0.7 at 821118/821128;
+  `0x5DBDE0` combines the two classifications as min(((a+b) unsigned>>1)+2,4).
+  Do not invent classification inputs or a default D9C byte.
+
+Canonical executable SHA-256 remains `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+The reused private English STR/IDX hashes match `original_assets/MANIFEST.md`.
+Metadata-only private disassembly report SHA-256:
+`da1b3da6f72c623c0214fd5350fb89955a83e467e5d4d205b774e10ffc94dfcd`.
+Reports remain outside Git. Focused reconciled suite: **156 passed**, preserving
+main `50b70390`'s history lifecycle and side-0 targets/trajectories then side-1
+targets/trajectories. Capture receives statistics from the same finalizer;
+ratings/RNG are not replayed. Complete assembly, ordered owner/link persistence
+and successful PMatchInfo opening remain false. No intermediate broad or
+Windows audit was run; the final timing/recognizability audit is still gated
+on the successful executable route.
 
 ### Newly resolved live compact-list prerequisite
 

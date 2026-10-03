@@ -22,9 +22,13 @@ class LiveReportCompletionScalars:
     def __post_init__(self):
         if (type(self.calendar) is not tuple or len(self.calendar) != 3
                 or any(type(v) is not int for v in self.calendar)
-                or not 0 <= self.calendar[0] <= 199):
+                or not 0 <= self.calendar[0] <= 8099):
             raise ValueError('Report calendar requires supported native date components')
-        date(self.calendar[0] + 1900, self.calendar[1], self.calendar[2])
+        year, month, day = self.calendar
+        lengths = (31, 29 if year >= 4 and year % 4 == 0 else 28,
+                   31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+        if not 1 <= month <= 12 or not 1 <= day <= lengths[month - 1]:
+            raise ValueError('Invalid native report calendar components')
         if (type(self.scores) is not tuple or len(self.scores) != 2
                 or any(type(v) is not int or not 0 <= v <= 0x7FFFFFFF for v in self.scores)):
             raise ValueError('Report scores require explicit live accumulator outputs')
@@ -33,9 +37,30 @@ class LiveReportCompletionScalars:
     def from_calculation(cls, played_on: date, scores: tuple[int, int]):
         if type(played_on) is not date:
             raise ValueError('Report date must be the calculation setup date')
-        # Native leap-cycle semantics after 2099 are not Gregorian. Do not
-        # silently substitute datetime's calendar beyond the verified range.
-        return cls((played_on.year - 1900, played_on.month, played_on.day), scores)
+        elapsed = (played_on - date(1900, 1, 1)).days
+        if elapsed < 0:
+            raise ValueError('Pre-1900 native report dates are not supported')
+        # 0x64CCD0: OLE serial minus 2; special non-leap first four years,
+        # then 1461-day cycles. This deliberately does NOT apply Gregorian
+        # century rules to the native calendar tuple.
+        if elapsed < 1460:
+            year, remainder = divmod(elapsed, 365)
+            leap = False
+        else:
+            cycles, remainder = divmod(elapsed - 1460, 1461)
+            year = 4 + 4 * cycles
+            leap = remainder < 366
+            if not leap:
+                extra_years, remainder = divmod(remainder - 366, 365)
+                year += 1 + extra_years
+        lengths = (31, 29 if leap else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+        month = 1
+        for length in lengths:
+            if remainder < length:
+                break
+            remainder -= length
+            month += 1
+        return cls((year, month, remainder + 1), scores)
 
     @property
     def native_score_nibbles(self) -> int:

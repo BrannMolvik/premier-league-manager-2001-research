@@ -73,8 +73,8 @@ from match_postmatch import (
     PlayerTransferRequest,
     apply_player_transfer_request_response,
     FinalizedSideParticipantStatistics,
-    finalize_match_participant_statistics,
     select_native_report_player_id,
+    persist_match_performance_and_fastview_form_histories,
     persist_premier_league_morale_and_form,
     persist_premier_league_match_incidents,
     sync_post_match_conditions,
@@ -3815,20 +3815,18 @@ class GameState:
         self.prepared_match_participant_statistics.pop(fixture_id, None)
         self.prepared_match_report_player_ids.pop(fixture_id, None)
         if match_engine_rng is not None:
-            home_statistics = finalize_match_participant_statistics(
+            side_statistics = []
+            result = persist_match_performance_and_fastview_form_histories(
                 home.match_side,
                 home.preparation.selection.participants,
-                result,
-                rng,
-                match_engine_rng,
-            )
-            away_statistics = finalize_match_participant_statistics(
                 away.match_side,
                 away.preparation.selection.participants,
                 result,
                 rng,
                 match_engine_rng,
+                statistics_sink=side_statistics.append,
             )
+            home_statistics, away_statistics = side_statistics
             self.prepared_match_participant_statistics[fixture_id] = (
                 FinalizedSideParticipantStatistics(
                     tuple(int(player.index) for player in home.preparation.selection.participants),
@@ -4059,20 +4057,18 @@ class GameState:
         self.prepared_match_participant_statistics.pop(fixture_id, None)
         self.prepared_match_report_player_ids.pop(fixture_id, None)
         if match_engine_rng is not None:
-            home_statistics = finalize_match_participant_statistics(
+            side_statistics = []
+            result = persist_match_performance_and_fastview_form_histories(
                 home_side,
                 home_participants,
-                result,
-                rng,
-                match_engine_rng,
-            )
-            away_statistics = finalize_match_participant_statistics(
                 away_side,
                 away_participants,
                 result,
                 rng,
                 match_engine_rng,
+                statistics_sink=side_statistics.append,
             )
+            home_statistics, away_statistics = side_statistics
             self.prepared_match_participant_statistics[fixture_id] = (
                 FinalizedSideParticipantStatistics(
                     tuple(int(player.index) for player in home_participants), home_statistics,

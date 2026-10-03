@@ -20,6 +20,8 @@ on:
       - "reconstruction/test_match_injury_persistence.py"
       - "reconstruction/match_postmatch.py"
       - "reconstruction/test_match_postmatch.py"
+      - "reconstruction/match_simulation.py"
+      - "reconstruction/test_match_simulation.py"
       - "research/FIDELITY_GAPS.md"
       # Gate13 batches may touch only presentation seams yet still import
       # large portions of the reconstructed runtime. Give those code changes

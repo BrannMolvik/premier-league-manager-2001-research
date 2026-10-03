@@ -214,7 +214,7 @@ class FullNormalMatchTests(unittest.TestCase):
         before = tuple(p.condition for s in (home, away) for p in s.players)
         with self.assertRaises(ValueError):
             simulate_normal_match(home, away, matrix(), matrix(), ScriptedRng([]),
-                                  native_report_date=date(2100, 1, 1))
+                                  native_report_date=date(1899, 1, 1))
         self.assertEqual(before, tuple(p.condition for s in (home, away) for p in s.players))
 
     def lineup(self, side_id):
@@ -334,6 +334,20 @@ class FullNormalMatchTests(unittest.TestCase):
             [slot.calculation_minute for slot in result.possession_segments],
             [5, 10, 15, 20, 25, 30, 35, 40, 50, 55, 60, 65, 70, 75, 80, 85],
         )
+        self.assertEqual(result.condition_history_sample_count, 18)
+        self.assertEqual(len(result.raw_condition_history_prefixes), 22)
+        self.assertTrue(
+            all(
+                len(history.samples) == 18
+                for history in result.raw_condition_history_prefixes
+            )
+        )
+        self.assertTrue(
+            all(
+                history.samples == (100,) * 18
+                for history in result.raw_condition_history_prefixes
+            )
+        )
 
 
     def test_extra_time_runs_same_backend_through_minute_120(self):
@@ -366,6 +380,20 @@ class FullNormalMatchTests(unittest.TestCase):
         self.assertEqual(
             [slot.calculation_minute for slot in result.possession_segments[-4:]],
             [95, 100, 110, 115],
+        )
+        self.assertEqual(result.condition_history_sample_count, 24)
+        self.assertEqual(len(result.raw_condition_history_prefixes), 22)
+        self.assertTrue(
+            all(
+                len(history.samples) == 24
+                for history in result.raw_condition_history_prefixes
+            )
+        )
+        self.assertTrue(
+            all(
+                history.samples == (100,) * 24
+                for history in result.raw_condition_history_prefixes
+            )
         )
 
 

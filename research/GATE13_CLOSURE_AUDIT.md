@@ -2,6 +2,15 @@
 
 _Audit refreshed: 3 October 2026 KST_
 
+PR #194 metadata checkpoint (not a refreshed criterion-level audit): producer
+calendar/score accumulators survive schema-37 pending-result reload; exact
+caption language binding and setup metadata consumers are recorded. Missing
+mandatory live setup/caption/normalized participant metadata still prevents
+complete report production, ordered owner/link persistence and the successful
+ordinary right-click route. Gate 13 remains OPEN. Main `50b70390` history work
+is preserved; 156 focused tests pass. No final timing/recognizability sign-off
+or intermediate full/Windows audit is claimed.
+
 PR #194 implementation checkpoint (not a new broad closure audit): live
 ordinary compact scripts now undergo native finalization and retain FullTime's
 payload through pending-result save/reload under schema 36. Goal/statistic

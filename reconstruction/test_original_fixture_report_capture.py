@@ -15,7 +15,11 @@ class NativeFixtureCaptureTests(unittest.TestCase):
         self.assertEqual(output.calendar, (100, 2, 29))
         self.assertEqual(output.scores, (17, 34))
         self.assertEqual(output.native_score_nibbles, 0x21)
-        for calendar, scores in (((100, 2, 30), (0, 0)), ((200, 1, 1), (0, 0)),
+        self.assertEqual(LiveReportCompletionScalars.from_calculation(date(1904, 1, 1), (0, 0)).calendar,
+                         (4, 1, 1))
+        self.assertEqual(LiveReportCompletionScalars.from_calculation(date(2100, 3, 1), (0, 0)).calendar,
+                         (200, 2, 29))
+        for calendar, scores in (((100, 2, 30), (0, 0)), ((8100, 1, 1), (0, 0)),
                                  ((100, True, 1), (0, 0)), ((100, 1, 1), (-1, 0)),
                                  ((100, 1, 1), (True, 0)), ((100, 1, 1), [0, 0])):
             with self.assertRaises(ValueError):

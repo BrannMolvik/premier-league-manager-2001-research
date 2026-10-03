@@ -40,8 +40,14 @@ from match_events import (
 from match_orders import TeamOrderPriorities
 from match_postmatch import PlayerTransferRequest
 from match_schedule import MsvcCrtRng
-from match_simulation import NormalMatchResult, SegmentPossession, TimedMatchEvent
 from original_fixture_report_capture import NativeCapturedPossession, capture_completed_possession_rows
+from match_simulation import (
+    NormalMatchResult,
+    RawPlayerConditionHistory,
+    RetainedFastViewFormHistory,
+    SegmentPossession,
+    TimedMatchEvent,
+)
 from match_team_setup import TeamTacticalState
 from player_development import DevelopmentState, PeakAges
 from runtime_state import RuntimePlayer
@@ -662,6 +668,26 @@ def _snapshot_normal_match_result(result: NormalMatchResult) -> dict[str, Any]:
             }
             for segment in result.possession_segments
         ],
+        "raw_condition_history_prefixes": [
+            {
+                "side_index": int(history.side_index),
+                "player_index": int(history.player_index),
+                "samples": [int(value) for value in history.samples],
+            }
+            for history in result.raw_condition_history_prefixes
+        ],
+        "condition_history_sample_count": int(
+            result.condition_history_sample_count
+        ),
+        "fastview_form_histories": [
+            {
+                "side_index": int(history.side_index),
+                "player_index": int(history.player_index),
+                "target_rating": int(history.target_rating),
+                "samples": [int(value) for value in history.samples],
+            }
+            for history in result.fastview_form_histories
+        ],
     }
 
 
@@ -727,6 +753,26 @@ def _restore_normal_match_result(value: dict[str, Any]) -> NormalMatchResult:
                 record=_restore_event(item["record"]),
             )
             for item in value["possession_segments"]
+        ),
+        raw_condition_history_prefixes=tuple(
+            RawPlayerConditionHistory(
+                side_index=int(item["side_index"]),
+                player_index=int(item["player_index"]),
+                samples=tuple(int(sample) for sample in item["samples"]),
+            )
+            for item in value["raw_condition_history_prefixes"]
+        ),
+        condition_history_sample_count=int(
+            value["condition_history_sample_count"]
+        ),
+        fastview_form_histories=tuple(
+            RetainedFastViewFormHistory(
+                side_index=int(item["side_index"]),
+                player_index=int(item["player_index"]),
+                target_rating=int(item["target_rating"]),
+                samples=tuple(int(sample) for sample in item["samples"]),
+            )
+            for item in value["fastview_form_histories"]
         ),
     )
     if capture is not None:

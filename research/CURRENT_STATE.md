@@ -10,6 +10,26 @@ topic-specific research files.
 
 **Gate 13 - Restore original management presentation**
 
+PR #194 follow-on from `cfab7abc`: live calculator completion now retains
+the native calendar tuple and D4C/D50 score accumulators, independently of the
+semantic score property, through pending-result save/reload (internal schema
+37). Metadata-only canonical-executable evidence resolves the caption binding
+(English IDX 2713), venue selection, initial participant-history bit and
+referee/setup selection. These are not yet a complete live report producer.
+Required setup fields, adjusted initial history and caption/context inputs
+remain absent from the ordinary runtime capture; no partial report/link is
+published. The successful calculated fixture -> reload -> native right-click
+-> PMatchInfo route remains unverified, and Gate 13 remains OPEN.
+
+Latest `origin/main` `50b70390197ecace3297231eef5d227820a22478` was reconciled.
+The parallel worker's history retention and per-side target/trajectory ordering
+are preserved; Gate-13 statistics are collected from that same finalization,
+not by replaying rating RNG. Reconciled focused tests: 156 passed. No new broad
+closure audit, full suite, Windows schema-8 run or package claim was made for
+this input-only continuation. The previous 1,644-test milestone remains a
+historical result, not verification of this new merge. Agent-runtime ownership
+was not changed. Exact next producer boundary: `GATE13_LIVE_CAPTURE_INPUTS.md`.
+
 PR #194 continuation (3 October): native compact pruning/spacing/boundary
 correction/stable ordering and explicit live FullTime payloads are implemented.
 Ordinary calculated fixtures retain constructor-written script fields and

@@ -1,14 +1,22 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, timedelta
 from typing import Callable, Protocol, Sequence
 
 from match_events import ChanceRecord, IncidentKind, IncidentRecord, SubstitutionRecord
+from gate14_fastview_player_history import (
+    match_form_trajectory_rng_draw_count,
+    materialize_fastview_match_form_history,
+)
 from match_performance import target_match_performance_rating
 from match_injury_persistence import generate_persistent_match_injury
-from match_simulation import NormalMatchResult, PreparedMatchSide
 from original_fixture_report_packing import native_participant_skill_flags
+from match_simulation import (
+    NormalMatchResult,
+    PreparedMatchSide,
+    RetainedFastViewFormHistory,
+)
 
 
 DEFAULT_FORM_CHANGE_PROB = 5
@@ -653,6 +661,92 @@ def persist_match_performance_history(
     return tuple(item.rating for item in finalize_match_participant_statistics(
         side, runtime_participants, result, shared_rng, match_engine_rng,
     ) if item.rating != 0)
+
+
+def persist_match_performance_and_fastview_form_histories(
+    side0: PreparedMatchSide,
+    runtime_side0: Sequence[MutablePostMatchPlayer],
+    side1: PreparedMatchSide,
+    runtime_side1: Sequence[MutablePostMatchPlayer],
+    result: NormalMatchResult,
+    shared_rng: BoundedRng,
+    match_engine_rng: BoundedRng,
+    *,
+    statistics_sink: Callable[[tuple[FinalizedParticipantStatistics, ...]], None] | None = None,
+) -> NormalMatchResult:
+    """Persist target ratings and retain exact side-local FastView form histories.
+
+    Source 0x62B040 calls finalizer 0x6309D0 for side 0 and then side 1.
+    Inside each side call, every appeared participant target (+0x30) is
+    calculated first. Only after that target phase does 0x630CEC visit the
+    appeared participants again and consume their trajectory RNG(2) draws.
+
+    This helper mirrors that exact ordering:
+        side0 all targets -> side0 all trajectories ->
+        side1 all targets -> side1 all trajectories.
+
+    The returned NormalMatchResult retains only the completed match-form
+    histories. Condition history remains the separate raw prefix until the
+    human-vs-AI +0xD48 adjustment is source-closed.
+    The optional capture sink receives each side's actual statistics once,
+    before that side's trajectory phase; it must not rerun target-rating RNG.
+    """
+    if int(side0.side) != 0 or int(side1.side) != 1:
+        raise ValueError("FastView finalizer requires side0.side=0 and side1.side=1")
+    elapsed = int(result.condition_history_sample_count)
+    if elapsed not in (18, 24):
+        raise ValueError(
+            "completed FastView finalization requires retained sample count 18 or 24"
+        )
+
+    retained: list[RetainedFastViewFormHistory] = []
+    draw_count = match_form_trajectory_rng_draw_count(elapsed)
+
+    for side, runtime in (
+        (side0, runtime_side0),
+        (side1, runtime_side1),
+    ):
+        statistics = finalize_match_participant_statistics(
+            side,
+            runtime,
+            result,
+            shared_rng,
+            match_engine_rng,
+        )
+        if statistics_sink is not None:
+            statistics_sink(statistics)
+        ratings = tuple(item.rating for item in statistics if item.rating != 0)
+        appeared = appeared_player_indices(side, result)
+        rating_index = 0
+        for local_index, prepared_player in enumerate(side.players):
+            if local_index not in appeared:
+                continue
+            if rating_index >= len(ratings):
+                raise RuntimeError("performance target/history ordering became inconsistent")
+            target = int(ratings[rating_index])
+            rating_index += 1
+            rolls = tuple(
+                int(match_engine_rng.randbelow(2))
+                for _ in range(draw_count)
+            )
+            history = materialize_fastview_match_form_history(
+                target,
+                elapsed,
+                rolls,
+                active_for_club=bool(prepared_player.active),
+            )
+            retained.append(
+                RetainedFastViewFormHistory(
+                    side_index=int(side.side),
+                    player_index=int(local_index),
+                    target_rating=target,
+                    samples=history,
+                )
+            )
+        if rating_index != len(ratings):
+            raise RuntimeError("not all persisted target ratings received form histories")
+
+    return replace(result, fastview_form_histories=tuple(retained))
 
 
 def persist_post_match_form(
