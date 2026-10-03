@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains exclusively owned by Codex. Gate-14 renderer frame plan is canonical at main 21d5a445f4f90f174c04bd5e4b26505b816018e3 after reconstruction run 37131778708 passed 1,716 tests with 23 expected skips and asset-policy run 37131778705 passed. Next: inspect persisted generic UI parent/child draw-order evidence for a source-backed FastView cross-component z-order closure; if absent, keep z-order fail-closed and continue independent later-gate work. Private audio trace remains blocked by caas ClientError despite canonical source ZIP materialization.",
+  "active_task": "Gate 13 remains exclusively owned by Codex. Gate-14 Recovery 225 frame-plan PR #222 is merged at main 21d5a445f4f90f174c04bd5e4b26505b816018e3. Recovery 226 PR #223 (head c4640a1e77f6c4eb00e3fa53c9f46018e8ae3c88) connects completed human outcomes through HumanMatchPresentation and FastViewSemanticShell to the immutable FastViewFramePlan; verify CI, merge only when green, then continue the next independent source-backed Gate-14 step without touching Gate-13/shared status files.",
   "last_known_main_head": "21d5a445f4f90f174c04bd5e4b26505b816018e3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 226,
   "last_recovery_reason": "analysis-errored-sandbox",
-  "note": "Recovery 226 checkpoint: PR #222 merged canonical; z-order evidence review is next Gate-14 task, audio private execution remains blocked.",
+  "note": "Recovery 226 checkpoint: PR #222 merged green; PR #223 opened on clean canonical main and awaits CI.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
