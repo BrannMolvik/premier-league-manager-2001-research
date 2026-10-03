@@ -33,6 +33,7 @@ class HumanRuntimeOwnerSurface:
     human_primary_procedural_ids: tuple[int, ...]
     human_secondary_procedural_ids: tuple[int, ...]
     fresh_financial_objective_competition_ids: tuple[int, ...]
+    sporting_objective_progression_competition_ids: tuple[int, ...]
     annual_progression_country_ids: tuple[int, ...]
 
 
@@ -46,6 +47,7 @@ class RuntimeOwnerCapabilityEntry:
     runtime_materialized: bool
     human_match_supported: bool
     fresh_financial_objective_supported: bool
+    sporting_objective_progression_supported: bool
     annual_progression_supported: bool
     blocker_codes: tuple[str, ...]
 
@@ -64,6 +66,9 @@ class RuntimeOwnerCapabilityEntry:
             "human_match_supported": self.human_match_supported,
             "fresh_financial_objective_supported": (
                 self.fresh_financial_objective_supported
+            ),
+            "sporting_objective_progression_supported": (
+                self.sporting_objective_progression_supported
             ),
             "annual_progression_supported": self.annual_progression_supported,
             "blocker_codes": list(self.blocker_codes),
@@ -101,7 +106,7 @@ class RuntimeOwnerCapabilityAudit:
 
     def as_dict(self) -> dict:
         return {
-            "schema_version": 2,
+            "schema_version": 3,
             "catalog_sha256": self.catalog_sha256,
             "scope_entry_count": len(self.entries),
             "supported_scope_ids": list(self.supported_scope_ids),
@@ -138,6 +143,7 @@ def normalized_surface(
     human_primary_procedural_ids: Iterable[int],
     human_secondary_procedural_ids: Iterable[int],
     fresh_financial_objective_competition_ids: Iterable[int],
+    sporting_objective_progression_competition_ids: Iterable[int],
     annual_progression_country_ids: Iterable[int],
 ) -> HumanRuntimeOwnerSurface:
     return HumanRuntimeOwnerSurface(
@@ -166,6 +172,10 @@ def normalized_surface(
         fresh_financial_objective_competition_ids=_exact_unique_ids(
             fresh_financial_objective_competition_ids,
             label="fresh financial objective competition IDs",
+        ),
+        sporting_objective_progression_competition_ids=_exact_unique_ids(
+            sporting_objective_progression_competition_ids,
+            label="sporting objective progression competition IDs",
         ),
         annual_progression_country_ids=_exact_unique_ids(
             annual_progression_country_ids,
@@ -199,6 +209,9 @@ def audit_runtime_owner_capability(
     fresh_objectives = set(
         surface.fresh_financial_objective_competition_ids
     )
+    sporting_progression = set(
+        surface.sporting_objective_progression_competition_ids
+    )
     progression_countries = set(surface.annual_progression_country_ids)
 
     entries: list[RuntimeOwnerCapabilityEntry] = []
@@ -225,6 +238,9 @@ def audit_runtime_owner_capability(
         fresh_financial_objective_supported = (
             competition_id in fresh_objectives
         )
+        sporting_objective_progression_supported = (
+            competition_id in sporting_progression
+        )
         annual_progression_supported = (
             int(planned.country_id) in progression_countries
         )
@@ -237,6 +253,8 @@ def audit_runtime_owner_capability(
             blockers.append("human_match_dispatch_missing")
         if not fresh_financial_objective_supported:
             blockers.append("fresh_financial_objective_missing")
+        if not sporting_objective_progression_supported:
+            blockers.append("sporting_objective_progression_missing")
         if not annual_progression_supported:
             blockers.append("annual_progression_country_missing")
 
@@ -251,6 +269,9 @@ def audit_runtime_owner_capability(
                 human_match_supported=human_match_supported,
                 fresh_financial_objective_supported=(
                     fresh_financial_objective_supported
+                ),
+                sporting_objective_progression_supported=(
+                    sporting_objective_progression_supported
                 ),
                 annual_progression_supported=annual_progression_supported,
                 blocker_codes=tuple(blockers),
@@ -271,9 +292,12 @@ def run_canonical_runtime_owner_capability(
     Human primary procedural dispatch is generic for every already-materialized
     `procedural_league` owner because `play_user_primary_match()` now routes
     that entry family through the shared human match backend. Secondary
-    procedural runtime state still has no current GameState container. Fresh
-    chairman-objective candidates remain source-locked only for competition 0.
-    Canonical annual LeagueAllocation commit uses the exact TeamSelect-country
+    procedural runtime state still has no current GameState container.
+    Scope-wide fresh chairman-objective setup is still complete only for
+    competition 0 because some non-PL opening branches require unresolved
+    caller CRT state. Season-end sporting-objective progression is likewise
+    connected only for competition 0. Canonical annual LeagueAllocation commit
+    uses the exact TeamSelect-country
     allocation plan and remains fail-closed when a required ranking endpoint is
     unresolved.
     """
@@ -307,9 +331,13 @@ def run_canonical_runtime_owner_capability(
             )
         ),
         human_secondary_procedural_ids=(),
-        # Only the fresh Premier League objective-candidate branch is
-        # instruction-locked. Do not infer non-PL chairman candidates.
+        # Deterministic non-PL opening branches can now materialize per club,
+        # but scope-wide fresh objective support still requires every selectable
+        # club path. RNG-bearing branches remain unresolved outside competition 0.
         fresh_financial_objective_competition_ids=(0,),
+        # The current season-end sporting objective transition is invoked only
+        # from the Premier League completion path.
+        sporting_objective_progression_competition_ids=(0,),
         annual_progression_country_ids=(
             controller.playable_annual_progression_country_ids()
         ),
