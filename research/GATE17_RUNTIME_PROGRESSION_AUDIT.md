@@ -68,38 +68,28 @@ result and does **not** attempt an allocation preview.
 
 ## Integration boundary
 
-This checkpoint deliberately does not call
-`GameState.apply_english_season_transition()`, change
-`club_competition_membership`, regenerate schedules, or widen human selection.
+The audit itself remains read-only: it does not change
+`club_competition_membership` or regenerate schedules. Canonical
+`HumanGameplayController.regenerate_annual_primary_season()` now uses the same
+source-backed playable-country plan and preview logic to obtain the post-exchange
+membership map, then commits that map only through the existing atomic annual
+GameState installation boundary.
 
-After Gate 13 releases shared-runtime ownership, the intended full-scope annual
-path can reuse this read-only audit immediately before committing source-backed
-membership changes. A complete audit is evidence that the runtime has all
-required ranking inputs and that the generic source executor can produce the
-next membership map, not permission to skip the later atomic installation and
-Windows validation.
+A complete audit is therefore evidence for the same ranking/exchange contract
+used by the live annual regeneration path. It is still not permission to skip
+secondary-runtime implementation, non-PL fresh chairman-objective recovery, or
+Windows 11 validation.
 
 ## Current canonical runtime seam
 
-The present canonical human-controller constructor still hard-codes the selected
-domestic runtime to England:
+Canonical construction now derives and retains the exact TeamSelect-country
+allocation plan. Annual regeneration resolves every plan-required ranking
+endpoint from finalized DummyLeague overrides or the live ranking publisher,
+runs the same fail-closed all-playable-country exchange preview, and passes its
+post-exchange membership map into the existing atomic primary-season installer.
 
-- `HumanGameplayController.from_canonical_game_dir()` calls
-  `partition_root_procedural_league_ids(..., country_region_id=26)`;
-- it labels those results `english_primary_leagues` /
-  `english_secondary_leagues`;
-- it refuses a changed English secondary set;
-- only the English primary set is unioned with annual played ranking sources and
-  annual Cup-child procedural Leagues before
-  `refresh_primary_procedural_leagues()`.
-
-This is important because the underlying procedural League state and the
-LeagueAllocation exchange executor are already generic. Once Gate 13 releases
-shared-runtime ownership, full-country progression should generalize this
-source-backed selected-country ownership boundary rather than fork the league
-engine per country.
-
-The audit in this checkpoint will then measure whether that generalization
-actually publishes every ranking endpoint required by the canonical allocation
-plan.
+The remaining full-scope seams are elsewhere: secondary-container playable
+Leagues still lack live runtime ownership/dispatch, and fresh chairman-objective
+candidate generation remains source-locked only for competition 0. Those gaps
+must not be hidden by the now-generic annual membership commit.
 
