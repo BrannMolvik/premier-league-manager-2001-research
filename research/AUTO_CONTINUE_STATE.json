@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 222: Gate-13 PR #205 is canonical at main 6207dbe01de068083c20f7fe22a773adab35e010. Stale Gate-14 PR #207 is superseded by reconciliation PR #208 head e9b2b5af09812c9ff35d94bb397d17a190e1dc67 on current main; require combined CI before merge. Gate 13 is no longer coordination-locked. Continue the exact remaining Gate-13 setup boundary from GATE13_LIVE_CAPTURE_INPUTS.md: source-close legacy uncontrolled-home visiting capacities DBRClub+0x13C/+0x140 and the human-opponent D48 attendance-counter/rank guard, while secondary-shirt contexts remain fail-closed. Do not fabricate missing report metadata.",
-  "last_known_main_head": "6207dbe01de068083c20f7fe22a773adab35e010",
+  "active_task": "Recovery 222: Gate-13 PR #209 merged canonical as main 370ad184b4b3f2e9ecf33e5331afac212e588d9e after reconstruction run 37123797539 passed 1,689 tests with 23 expected skips and asset-policy run 37123797538 passed. Human D48 is source-closed only when exact native PL rank >=4, yielding shipped value 5; ranks 0..3 remain fail-closed on legacy DBRClub+0x130. Continue Gate 13 at unresolved uncontrolled-home visiting capacities DBRClub+0x13C/+0x140, +0x130 lifecycle for top-four controlled clubs, and secondary selector +0x76. Build bounded checksum-gated trace tooling while container execution remains ClientError; do not infer 10% capacities or secondary selectors.",
+  "last_known_main_head": "370ad184b4b3f2e9ecf33e5331afac212e588d9e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 222,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #208 contains only fail-closed audio evidence tooling; Gate 13 remains earliest incomplete. PR #207 closed as superseded.",
+  "note": "Gate-14 audio trace merged at c6b9eed0 with 1,690 tests/23 skips. Gate-13 D48 partial closure merged at 370ad184. Authorized original disc archive materializes from Library but container filesystem execution currently fails with ClientError.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
