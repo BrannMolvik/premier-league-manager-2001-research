@@ -22,6 +22,7 @@ from original_pmatchinfo_summary import (
     ordinary_pmatchinfo_possession_lines, load_pmatchinfo_nested_font,
     ordinary_pmatchinfo_header_lines,
 )
+from original_pmatchinfo_script_rows import load_script_row_art
 from original_pmenu_chrome import validate_original_pmenu_font
 
 from front_end_session import FrontEndSession
@@ -130,6 +131,7 @@ class OriginalGameTkHost:
         pmatchinfo_snapshot=None,
         pmatchinfo_font=None,
         pmatchinfo_nested_font=None,
+        pmatchinfo_script_art=None,
         error_reporter=None,
         management_background=None,
     ):
@@ -148,6 +150,7 @@ class OriginalGameTkHost:
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
         self.pmatchinfo_font = pmatchinfo_font
         self.pmatchinfo_nested_font = pmatchinfo_nested_font
+        self.pmatchinfo_script_art = pmatchinfo_script_art
         self.error_reporter = error_reporter or self._show_transition_error
         self.management_background = management_background
         self.last_pmenu_activation = None
@@ -398,6 +401,17 @@ class OriginalGameTkHost:
                     x, y, w, h, png = pixels
                     self.canvas.create_image(art.x + x, art.y + y,
                         image=self._photo(png), anchor=self.tk.NW)
+            if (self.pmatchinfo_script_art is not None and self.pmatchinfo_snapshot is not None
+                    and self.pmatchinfo_snapshot.selected_tab_event_id == 1):
+                from original_pmatchinfo_script_rows import ordinary_report_script_rows, script_row_pixels
+                for side in (1, 0):
+                    for row in ordinary_report_script_rows(context.captured_report, list_side=side):
+                        for x, y, w, h, png in script_row_pixels(
+                                row, self.pmatchinfo_script_art, self.pmatchinfo_font,
+                                players=None if controller is None else controller.state.players,
+                                report=context.captured_report):
+                            self.canvas.create_image(art.x + x, art.y + y,
+                                image=self._photo(png), anchor=self.tk.NW)
         return 1
 
     def _draw_management_host(self) -> None:
@@ -793,6 +807,8 @@ def run_original_game_ui(
         pmatchinfo_snapshot=pmatchinfo_snapshot,
         pmatchinfo_font=validate_original_pmenu_font(resolved_source_root),
         pmatchinfo_nested_font=load_pmatchinfo_nested_font(resolved_source_root),
+        pmatchinfo_script_art=load_script_row_art(
+            runtime_repo_root, original_executable, game_dir=game_dir),
         management_background=OriginalManagementBackground(
             resolved_source_root, original_executable),
     )

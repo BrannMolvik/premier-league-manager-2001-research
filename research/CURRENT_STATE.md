@@ -1,6 +1,6 @@
 # Current State
 
-_Last reconciled: 3 October 2026 KST_
+_Last reconciled: 4 October 2026 KST_
 
 This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
@@ -9,6 +9,22 @@ topic-specific research files.
 ## Current gate
 
 **Gate 13 - Restore original management presentation**
+
+Current Codex branch `codex/gate13-report-row-closure` starts from canonical
+main `5df5d591991fcd209d8fa1d65c14ddb781145aac`, preserving its disjoint later-gate
+work. Default packed-script reader/list/row ownership is now integrated:
+labels, duplicate minute behavior, source player abbreviations/selection colors,
+icons and two original custom numbered-shirt atlases render after genuine
+calculation -> disk save -> fresh reload -> actual Windows Fixtures right-click.
+**60 focused tests pass.** See `GATE13_PMATCHINFO_SCRIPT_ROWS.md` for source
+addresses, exact private receipt and remaining rendering boundaries.
+The older "required rows blank" checkpoint below is superseded by this
+milestone, not by a complete report-surface or Gate13 sign-off.
+Fresh uncontrolled +13C/+140 still lacks a proven initializer; the native
+constructor iterator adds no implicit payload zeroing. Gate13 remains OPEN.
+Continue the remaining row/kit/scroll fidelity and capacity lifecycle, then
+final full tests/Windows validation/timing-recognizability audit. Do not redo
+solved report production/persistence, change ownership or edit Gate14.
 
 Continuation from PR #211 head `689c91dd`: corrected scanner discovery past
 undecodable bytes (still candidate-only), traced controlled capacity writer
