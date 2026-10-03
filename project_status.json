@@ -1789,6 +1789,19 @@
   ],
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "unrecovered_fail_closed",
-  "gate14_possession_figures_bar_geometry": "pending_source_trace",
-  "gate14_exact_next_task": "Verify Recovery 196 CI and merge; then source-trace the three 82x16 PossessionFigures bar placement/binding without inventing human-side orientation or diagram cadence."
+  "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
+  "gate14_exact_next_task": "Verify Recovery 198 ownership correction through CI, then continue the smallest source-backed player-visible FastView lifecycle slice: recover PossessionDiagram callback cadence or a presentation-host lifecycle boundary without inventing human-side orientation.",
+  "gate14_fastview_team_bar_ownership_exact": true,
+  "gate14_fastview_team_vftable": "0x7CA888",
+  "gate14_fastview_team_constructor_va": "0x524920",
+  "gate14_fastview_team_setup_va": "0x524A20",
+  "gate14_fastview_team_table_vftable": "0x7CA950",
+  "gate14_fastview_team_table_constructor_va": "0x524EC0",
+  "gate14_fastview_team_bar_paths": [
+    "FM2001_Art/FastView/team_bar_1.444",
+    "FM2001_Art/FastView/blank_bar.444",
+    "FM2001_Art/FastView/team_bar_2.444"
+  ],
+  "gate14_possession_figures_visual_kind": "text_only_source_component",
+  "gate14_bar_ownership_correction_recovery": 198
 }
