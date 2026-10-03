@@ -57,7 +57,8 @@ Current high-level fail-closed blockers are:
 
 The runtime-owner audit separately preserves its exact underlying blockers,
 including unavailable human selection, missing runtime materialization, missing
-human match dispatch, and missing annual progression country coverage.
+human match dispatch, missing source-backed fresh financial/chairman-objective
+setup, and missing annual progression country coverage.
 
 `ready_for_full_runtime_validation=true` means only that repository-side
 capability has reached the point where full runtime validation is meaningful.
