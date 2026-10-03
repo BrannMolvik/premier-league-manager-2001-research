@@ -50,7 +50,9 @@ The canonical runner deliberately mirrors the current repository boundary:
   `procedural_league` entries through the shared human match backend;
 - GameState has no secondary procedural League runtime container;
 - fresh chairman-objective candidate generation remains instruction-locked
-  only for competition 0, so non-PL scopes retain the explicit
+  only for competition 0; controller objective APIs explicitly fail closed for
+  non-PL controlled clubs rather than routing them through the PL candidate
+  generator, so those scopes retain the
   `fresh_financial_objective_missing` blocker;
 - the controller exposes an explicit full-scope annual progression mode using
   the exact TeamSelect-country allocation plan, resolving required rankings
