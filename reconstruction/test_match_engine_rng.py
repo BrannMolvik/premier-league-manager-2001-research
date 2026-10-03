@@ -32,5 +32,27 @@ class MatchEngineRngTests(unittest.TestCase):
         )
 
 
+    def test_full_shuffle_state_roundtrip_continues_exact_sequence(self):
+        original = MatchEngineRng(123456789)
+        prefix = [original.randbelow(10000) for _ in range(47)]
+        self.assertEqual(len(prefix), 47)
+
+        snapshot = original.snapshot_state()
+        restored = MatchEngineRng.from_snapshot(snapshot)
+
+        self.assertEqual(restored.snapshot_state(), snapshot)
+        self.assertEqual(
+            [restored.randbelow(10000) for _ in range(64)],
+            [original.randbelow(10000) for _ in range(64)],
+        )
+
+    def test_snapshot_rejects_wrong_table_length(self):
+        rng = MatchEngineRng(1)
+        snapshot = rng.snapshot_state()
+        snapshot["table"] = snapshot["table"][:-1]
+        with self.assertRaisesRegex(ValueError, "32 table entries"):
+            MatchEngineRng.from_snapshot(snapshot)
+
+
 if __name__ == "__main__":
     unittest.main()

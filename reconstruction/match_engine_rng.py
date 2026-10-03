@@ -40,6 +40,35 @@ class MatchEngineRng:
             raise ValueError("MatchEngine RNG shuffle table requires 32 entries")
         self.table[:] = [0] * NTAB
 
+    def snapshot_state(self) -> dict[str, object]:
+        """Return the complete persistent 0x981BF0 generator state."""
+        return {
+            "state": int(self.state),
+            "shuffle_value": int(self.shuffle_value),
+            "table": [int(value) for value in self.table],
+        }
+
+    @classmethod
+    def from_snapshot(cls, value: dict[str, object]) -> "MatchEngineRng":
+        """Restore without rerunning ran1 initialization or losing shuffle state."""
+        state = int(value["state"])
+        shuffle_value = int(value["shuffle_value"])
+        table = [int(item) for item in value["table"]]
+        if len(table) != NTAB:
+            raise ValueError("MatchEngine RNG snapshot requires 32 table entries")
+        if state == 0 or abs(state) >= IM:
+            raise ValueError("MatchEngine RNG snapshot state is outside source range")
+        if not 0 <= shuffle_value < IM:
+            raise ValueError("MatchEngine RNG snapshot shuffle value is outside source range")
+        if any(not 0 <= item < IM for item in table):
+            raise ValueError("MatchEngine RNG snapshot table value is outside source range")
+
+        instance = cls(1)
+        instance.state = state
+        instance.shuffle_value = shuffle_value
+        instance.table[:] = table
+        return instance
+
     def random(self) -> float:
         """Return the exact bounded [0,1) ran1 value from 0x64D5D0."""
         if self.state <= 0 or self.shuffle_value == 0:

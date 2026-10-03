@@ -8,6 +8,7 @@ from competition_schedule import StartupScheduleNode, direct_club_ref
 from domestic_cup_state import DomesticCupScheduleState
 from game_state import GameState
 from human_gameplay import HumanGameplayController
+from match_engine_rng import MatchEngineRng
 from match_lineup import AI_FORMATIONS
 from match_schedule import MsvcCrtRng
 from scouting import ScoutingFilterControls, ScoutingReseedState
@@ -680,6 +681,31 @@ class HumanGameplayControllerTests(unittest.TestCase):
         self.assertEqual(len(controller.state.premier_league.results), 10)
         self.assertEqual(sum(row.played for row in outcome.table), 20)
         self.assertIsNone(controller.pending_fixture_id)
+
+    def test_distinct_match_engine_rng_retains_live_fastview_histories(self):
+        controller = self.build_controller()
+        controller.match_engine_rng = MatchEngineRng(0x12345678)
+        controller.select_club(1)
+        self.set_available_lineup(controller)
+
+        engine_before = controller.match_engine_rng.snapshot_state()
+        fixture = controller.advance_to_next_user_fixture()
+        self.assertEqual(fixture.id, 0)
+        outcome = controller.play_user_fixture()
+
+        self.assertEqual(outcome.user_result.condition_history_sample_count, 18)
+        self.assertTrue(outcome.user_result.raw_condition_history_prefixes)
+        self.assertTrue(outcome.user_result.fastview_form_histories)
+        self.assertTrue(
+            all(
+                len(history.samples) == 24
+                for history in outcome.user_result.fastview_form_histories
+            )
+        )
+        self.assertNotEqual(
+            controller.match_engine_rng.snapshot_state(),
+            engine_before,
+        )
 
     def test_three_week_human_loop_reuses_same_backend(self):
         controller = self.build_controller()
