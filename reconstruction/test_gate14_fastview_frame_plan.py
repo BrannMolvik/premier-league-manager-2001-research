@@ -109,6 +109,17 @@ class FastViewFramePlanTests(unittest.TestCase):
         self.assertIs(frame.semantic_shell, shell)
         self.assertIs(frame.player_row_render_plans, shell.player_row_render_plans)
         self.assertEqual(frame.surface_layout.size, (800, 600))
+        self.assertEqual(frame.component_rasters.chrome.component, "direct_chrome")
+        self.assertEqual(
+            frame.component_rasters.possession_diagram.component,
+            "possession_diagram",
+        )
+        self.assertEqual(
+            frame.component_rasters.possession_figures.component,
+            "possession_figures_text",
+        )
+        self.assertFalse(frame.component_rasters.cross_component_z_order_recovered)
+        self.assertFalse(frame.component_rasters.flattened_frame_available)
         team_layers = [
             layer
             for layer in frame.surface_layout.layers
@@ -124,6 +135,10 @@ class FastViewFramePlanTests(unittest.TestCase):
         self.assertFalse(frame.choreography_3d_ready)
         self.assertFalse(frame.surface_layout.raster_composition_available)
         self.assertFalse(frame.surface_layout.complete_fastview_frame_available)
+        self.assertEqual(
+            len(frame.component_rasters.chrome.rgba),
+            800 * 600 * 4,
+        )
 
     def test_rejects_shell_snapshot_render_plan_count_or_content_drift(self):
         shell = exact_shell()
