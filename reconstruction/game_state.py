@@ -72,7 +72,7 @@ from match_preparation import (
 from match_postmatch import (
     PlayerTransferRequest,
     apply_player_transfer_request_response,
-    persist_match_performance_history,
+    persist_match_performance_and_fastview_form_histories,
     persist_premier_league_morale_and_form,
     persist_premier_league_match_incidents,
     sync_post_match_conditions,
@@ -3802,14 +3802,9 @@ class GameState:
         # Keep this opt-in until a distinct MatchEngine RNG is explicitly
         # supplied; never alias the shared CRT stream as a substitute.
         if match_engine_rng is not None:
-            persist_match_performance_history(
+            result = persist_match_performance_and_fastview_form_histories(
                 home.match_side,
                 home.preparation.selection.participants,
-                result,
-                rng,
-                match_engine_rng,
-            )
-            persist_match_performance_history(
                 away.match_side,
                 away.preparation.selection.participants,
                 result,
@@ -4028,14 +4023,9 @@ class GameState:
             ),
         )
         if match_engine_rng is not None:
-            persist_match_performance_history(
+            result = persist_match_performance_and_fastview_form_histories(
                 home_side,
                 home_participants,
-                result,
-                rng,
-                match_engine_rng,
-            )
-            persist_match_performance_history(
                 away_side,
                 away_participants,
                 result,

@@ -236,9 +236,58 @@ class SegmentPossession:
 
 
 @dataclass(frozen=True)
+class RawPlayerConditionHistory:
+    """Source-timed raw DBRPlayer Condition bytes retained from MatchCalculator.
+
+    These samples are captured before the source's non-user +0xD48 subtraction.
+    They are therefore exact raw calculator inputs, not necessarily the final
+    FastView-visible Condition history in a human-vs-AI match.
+    """
+
+    side_index: int
+    player_index: int
+    samples: tuple[int, ...]
+
+    def __post_init__(self) -> None:
+        if int(self.side_index) not in (0, 1):
+            raise ValueError("condition-history side_index must be 0 or 1")
+        if int(self.player_index) < 0:
+            raise ValueError("condition-history player_index must be non-negative")
+        if not 1 <= len(self.samples) <= 24:
+            raise ValueError("condition-history prefix must contain 1..24 samples")
+        if any(type(value) is not int or not 0 <= value <= 0xFF for value in self.samples):
+            raise ValueError("condition-history samples must be unsigned source bytes")
+
+
+@dataclass(frozen=True)
+class RetainedFastViewFormHistory:
+    """Completed-match PlayerProxy form history retained in source domain."""
+
+    side_index: int
+    player_index: int
+    target_rating: int
+    samples: tuple[int, ...]
+
+    def __post_init__(self) -> None:
+        if int(self.side_index) not in (0, 1):
+            raise ValueError("FastView form-history side_index must be 0 or 1")
+        if int(self.player_index) < 0:
+            raise ValueError("FastView form-history player_index must be non-negative")
+        if not 4 <= int(self.target_rating) <= 10:
+            raise ValueError("FastView target_rating must be in source range 4..10")
+        if len(self.samples) != 24:
+            raise ValueError("FastView form history must contain 24 samples")
+        if any(type(value) is not int or not 1 <= value <= 10 for value in self.samples):
+            raise ValueError("FastView form-history samples must remain in 1..10")
+
+
+@dataclass(frozen=True)
 class NormalMatchResult:
     events: tuple[TimedMatchEvent, ...]
     possession_segments: tuple[SegmentPossession, ...] = ()
+    raw_condition_history_prefixes: tuple[RawPlayerConditionHistory, ...] = ()
+    condition_history_sample_count: int = 0
+    fastview_form_histories: tuple[RetainedFastViewFormHistory, ...] = ()
 
     @property
     def score(self) -> tuple[int, int]:
@@ -433,7 +482,38 @@ def simulate_normal_match(
     plan = build_match_phase_plan(extra_time=bool(extra_time), penalties=False)
     boundaries = {boundary.minute: boundary.kind for boundary in plan.boundaries}
 
+    # 0x62ACxx seeds visible Condition sample 0 from DBRPlayer+0x77.
+    # 0x62B3F0 then writes sample (+0xFF8 + 1) and increments +0xFF8.
+    # Keep the raw DBRPlayer byte here; the source's human-vs-AI +0xD48
+    # subtraction is a separate materialization step and must not be guessed.
+    raw_condition_samples = {
+        (int(player.side), int(player.player_index)): [int(player.condition)]
+        for side in sides
+        for player in side.players
+    }
+    condition_history_sample_count = 0
+
+    def capture_condition_history_boundary() -> None:
+        nonlocal condition_history_sample_count
+        next_sample = condition_history_sample_count + 1
+        # PlayerProxy exposes only samples 0..23. Extra-time's terminal source
+        # update can write a scratch byte beyond that visible window.
+        if next_sample < 24:
+            for side in sides:
+                for player in side.players:
+                    raw_condition_samples[
+                        (int(player.side), int(player.player_index))
+                    ].append(int(player.condition))
+        condition_history_sample_count += 1
+
+    # 0x62AF24: one history update before the first five-minute segment.
+    capture_condition_history_boundary()
+
     for segment_start in plan.segment_minutes:
+        # 0x62AFC1: extra time performs one additional history update at the
+        # 90-minute transition before the first 95-minute segment.
+        if bool(extra_time) and int(segment_start) == 95:
+            capture_condition_history_boundary()
         strengths = []
         for side in sides:
             strength_players = side.strength_players()
@@ -551,6 +631,13 @@ def simulate_normal_match(
             ),
         ))
 
+        # 0x62B1A0 -> 0x62B3F0 after every segment. At minute 40 and 100
+        # the source immediately calls the updater a second time for the
+        # half-time / extra-time break state.
+        capture_condition_history_boundary()
+        if int(segment_start) in (40, 100):
+            capture_condition_history_boundary()
+
         boundary_minute = segment_start + 5
         kind = boundaries.get(boundary_minute)
         if kind is not None:
@@ -559,4 +646,23 @@ def simulate_normal_match(
                 BoundaryRecord(kind),
             ))
 
-    return NormalMatchResult(tuple(events), tuple(possession_segments))
+    retained_prefix_length = min(condition_history_sample_count, 24)
+    histories = tuple(
+        RawPlayerConditionHistory(
+            side_index=int(player.side),
+            player_index=int(player.player_index),
+            samples=tuple(
+                raw_condition_samples[
+                    (int(player.side), int(player.player_index))
+                ][:retained_prefix_length]
+            ),
+        )
+        for side in sides
+        for player in side.players
+    )
+    return NormalMatchResult(
+        tuple(events),
+        tuple(possession_segments),
+        histories,
+        condition_history_sample_count,
+    )
