@@ -92,6 +92,35 @@ class NativeCapturedScalar:
     value: bytes
 
 
+def capture_gate_report_scalars(receipts) -> tuple[NativeCapturedScalar, ...]:
+    """Project source-backed D84/D88/D8C/D90 without inventing D9C.
+
+    The live gate path already owns the exact three attendance outputs and the
+    completion-time seating-price scalar. This helper converts only those four
+    proven values to the byte-exact direct-copy representation consumed by the
+    eventual complete report assembler.
+    """
+    from gate_receipts import GateReceiptResult
+
+    if type(receipts) is not GateReceiptResult:
+        raise ValueError("Gate report scalars require a GateReceiptResult")
+    if receipts.report_seating_price is None:
+        raise ValueError("Gate report D88 requires the retained seating price")
+
+    values = (
+        (0x30, 0xD84, int(receipts.total_attendance)),
+        (0x34, 0xD88, int(receipts.report_seating_price)),
+        (0x38, 0xD8C, int(receipts.home_attendance)),
+        (0x3C, 0xD90, int(receipts.visiting_attendance)),
+    )
+    if any(value < 0 or value > 0xFFFFFFFF for _, _, value in values):
+        raise ValueError("Gate report scalar is outside unsigned dword range")
+    return tuple(
+        NativeCapturedScalar(destination, source, value.to_bytes(4, "little"))
+        for destination, source, value in values
+    )
+
+
 def copy_native_capture_scalars(calculator: bytes) -> tuple[NativeCapturedScalar, ...]:
     """Read only the proven direct copies; never manufacture missing bytes."""
     if type(calculator) is not bytes:
