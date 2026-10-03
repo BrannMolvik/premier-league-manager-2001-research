@@ -50,6 +50,8 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
                 "human_career_flow": True,
                 "competition_progression": True,
                 "original_management_gameplay_subsystems": True,
+                "multi_human_management": True,
+                "simultaneous_human_users_verified": 6,
             },
         }
         payload = {
@@ -121,6 +123,28 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
                 self.assertEqual(
                     payload["external_receipts"][name]["sha256"],
                     digest(path.read_bytes()),
+                )
+
+    def test_assembler_rejects_full_scope_without_six_user_evidence(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            repo, archive, receipts = self._fixture(root)
+            path = receipts["full_original_scope"]
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload["simultaneous_human_users_verified"] = 1
+            path.write_text(json.dumps(payload), encoding="utf-8")
+
+            with self.assertRaisesRegex(
+                ReleaseEvidenceAssemblerError,
+                "simultaneous_human_users_verified",
+            ):
+                assemble_release_evidence(
+                    release_version=VERSION,
+                    repository_commit=COMMIT,
+                    release_archive=archive,
+                    receipt_paths=receipts,
+                    output_path=root / "bad-multi-human.json",
+                    repo_root=repo,
                 )
 
     def test_full_scope_receipt_is_required_by_exact_receipt_set(self):
