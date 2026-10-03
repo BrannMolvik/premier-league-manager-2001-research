@@ -13,10 +13,12 @@ from typing import Protocol
 
 from gate17_allocation_ranking_capability import (
     AllocationRankingCapabilityAudit,
+    Gate17AllocationRankingCapabilityError,
     audit_allocation_ranking_capability,
 )
 from gate17_country_allocation_scope import PlayableCountryAllocationPlan
 from gate17_playable_allocation_preview import (
+    Gate17PlayableAllocationPreviewError,
     PlayableAllocationPreview,
     preview_playable_allocation_exchanges,
 )
@@ -163,20 +165,30 @@ def audit_runtime_playable_progression(
             "ranking resolution mutated runtime club competition memberships"
         )
 
-    ranking_capability = audit_allocation_ranking_capability(
-        plan,
-        records,
-        rankings,
-    )
-
-    preview = None
-    if ranking_capability.complete:
-        preview = preview_playable_allocation_exchanges(
+    try:
+        ranking_capability = audit_allocation_ranking_capability(
             plan,
             records,
             rankings,
-            before,
         )
+    except Gate17AllocationRankingCapabilityError as exc:
+        raise Gate17RuntimeProgressionAuditError(
+            f"runtime ranking capability audit failed: {exc}"
+        ) from exc
+
+    preview = None
+    if ranking_capability.complete:
+        try:
+            preview = preview_playable_allocation_exchanges(
+                plan,
+                records,
+                rankings,
+                before,
+            )
+        except Gate17PlayableAllocationPreviewError as exc:
+            raise Gate17RuntimeProgressionAuditError(
+                f"runtime playable allocation preview failed: {exc}"
+            ) from exc
 
     final_memberships = _snapshot_memberships(state.club_competition_membership)
     if final_memberships != before:
