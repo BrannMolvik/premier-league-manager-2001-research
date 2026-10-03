@@ -170,6 +170,14 @@ Canonical RTTI and direct constructor references resolve a separate
 The FastView owner call at `0x523472` constructs `LeagueTableComposite`
 through `0x51E000` at exact origin **(382,32)**.
 
+The final primary vtable replaces the base `Receiver<EventScore>` callback
+with `0x51E360`. That callback applies the source score-record mutations and
+calls refresh `0x51E4C0` at `0x51E3A8`. The constructor independently
+calls the same refresh at `0x51E1A5` after heading/row construction. The
+refresh finishes by iterating the embedded `Sender<EventLeagueTableUpdate>`
+receiver list beginning at `0x51E683`, so score events and initial
+construction share one table-refresh/update-notification path.
+
 ### Exact current-table resources
 
 | Owner | Path literal VA | Exact source path | Bytes | Dimensions | SHA-256 |
