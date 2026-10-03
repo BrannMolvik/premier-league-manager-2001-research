@@ -205,7 +205,8 @@ class Gate17FullScopeCatalogTests(unittest.TestCase):
 
     def test_empty_visible_league_fails_closed(self):
         database = full_synthetic_database()
-        empty_competition_id = database.competitions[0].id
+        # England League 00 is native-order first and therefore visible.
+        empty_competition_id = 100
         clubs = [
             item
             for item in database.clubs
