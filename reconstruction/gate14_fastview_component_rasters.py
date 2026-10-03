@@ -368,6 +368,10 @@ def build_fastview_component_rasters(
     score_table: FastViewScoreTableStaticRasterSet | None = None,
 ) -> FastViewComponentRasterSet:
     """Build all currently source-rasterizable planes without flattening them."""
+    if score_table is not None and type(score_table) is not FastViewScoreTableStaticRasterSet:
+        raise FastViewComponentRasterError(
+            "score_table must be exact FastViewScoreTableStaticRasterSet"
+        )
     return FastViewComponentRasterSet(
         chrome=rasterize_fastview_chrome_plane(chrome),
         possession_diagram=rasterize_fastview_possession_plane(possession),
