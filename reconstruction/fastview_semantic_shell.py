@@ -11,7 +11,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gate14_fastview_clock import possession_array_index_for_global_tick
-from gate14_fastview_playerrow_snapshot import FastViewPlayerRowSnapshot
+from gate14_fastview_playerrow_snapshot import (
+    FastViewPlayerRowRenderPlan,
+    FastViewPlayerRowSnapshot,
+    build_fastview_player_row_render_plan,
+)
 from human_match_presentation import HumanMatchPresentation
 from match_events import MatchEvent, PossessionRecord
 
@@ -59,6 +63,7 @@ class FastViewSemanticShell:
     possession_figures: tuple[PossessionFiguresState, ...]
     final_score: tuple[int, int]
     player_rows: tuple[FastViewPlayerRowSnapshot, ...] = ()
+    player_row_render_plans: tuple[FastViewPlayerRowRenderPlan, ...] = ()
     source_backed_components: tuple[str, ...] = SOURCE_BACKED_COMPONENTS
     original_layout_recovered: bool = False
     audio_mapping_recovered: bool = False
@@ -114,10 +119,16 @@ def build_fastview_semantic_shell(
         for item in feed.possession_segments
     )
 
+    player_row_render_plans = tuple(
+        build_fastview_player_row_render_plan(row)
+        for row in presentation.player_rows
+    )
+
     return FastViewSemanticShell(
         match_reference=presentation.match_reference,
         events=events,
         possession_figures=possession,
         final_score=feed.final_score,
         player_rows=presentation.player_rows,
+        player_row_render_plans=player_row_render_plans,
     )
