@@ -1,0 +1,31 @@
+name: Audit Actions caches
+
+on:
+  push:
+    paths:
+      - ".github/workflows/audit-actions-caches.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inventory Actions caches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/caches?per_page=100" \
+            --jq '.actions_caches[] | [.id, .key, .size_in_bytes, .last_accessed_at, .created_at] | @tsv' \
+            > /tmp/caches.tsv
+
+          count=$(wc -l < /tmp/caches.tsv)
+          bytes=$(awk -F '\t' '{sum += $3} END {printf "%.0f", sum+0}' /tmp/caches.tsv)
+          echo "CACHE_COUNT=$count"
+          echo "CACHE_BYTES=$bytes"
+          echo "CACHE_MB=$(awk -v b="$bytes" 'BEGIN {printf "%.3f", b/1000000}')"
+          cat /tmp/caches.tsv
