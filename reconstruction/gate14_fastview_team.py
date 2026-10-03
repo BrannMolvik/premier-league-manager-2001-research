@@ -86,7 +86,13 @@ PLAYER_ROW_POSITION_KEYS = (
 )
 
 DBRPLAYER_SQUAD_NUMBER_RUNTIME_OFFSET = 0x70
+DBRPLAYER_ALTERNATE_SQUAD_NUMBER_RUNTIME_OFFSET = 0x76
+DBRPLAYER_SQUAD_NUMBER_ACCESSOR_VA = 0x41E3D0
 PLAYER_ROW_CELL1_MATCH_PROXY_OFFSET = 0x47
+PLAYER_ROW_SHIRT_RECORD_BUILDER_CALLER_VA = 0x533370
+PLAYER_ROW_SHIRT_ACCESSOR_CALL_VA = 0x5333EC
+PLAYER_ROW_SHIRT_RECORD_WRITE_VA = 0x5333F3
+PLAYER_ROW_SHIRT_TEXT_CELL_INDEX = 1
 
 PLAYER_ROW_NAME_RECORD_BUILDER_VA = 0x533A00
 PLAYER_ROW_DBRPLAYER_FIRST_NAME_RUNTIME_OFFSET = 0x08
@@ -542,4 +548,37 @@ def player_row_name_text_state(
         ),
         text=text,
         stored_value=0,
+    )
+
+
+def player_row_shirt_number_text_state(
+    side_index: int,
+    row_index: int,
+    shirt_number: int,
+) -> FastViewPlayerRowTextState:
+    """Mirror PlayerRow cell 1's source shirt/squad-number display.
+
+    The 72-byte record builder at 0x533A00 is called from 0x533370. Immediately
+    after each record is built, 0x5333EC calls DBRPlayer accessor 0x41E3D0.
+    That accessor returns the proven shirt/squad-number byte from runtime
+    DBRPlayer +0x70 for the matching team context or +0x76 for the alternate
+    context. 0x5333F3 stores AL into record +0x47. PlayerRow producer 0x525BD0
+    later formats that exact byte as "%u" into text cell 1.
+    """
+    if type(shirt_number) is not int or not 0 <= shirt_number <= 0xFF:
+        raise FastViewTeamError(
+            "PlayerRow shirt/squad number must fit an unsigned source byte"
+        )
+    return FastViewPlayerRowTextState(
+        semantic="player_shirt_number",
+        side_index=side_index,
+        row_index=row_index,
+        text_cell_index=PLAYER_ROW_SHIRT_TEXT_CELL_INDEX,
+        rect=team_row_text_rect(
+            side_index,
+            row_index,
+            PLAYER_ROW_SHIRT_TEXT_CELL_INDEX,
+        ),
+        text=f"{shirt_number:d}",
+        stored_value=shirt_number,
     )

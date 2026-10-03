@@ -270,8 +270,40 @@ when that prefix is the source `'-'` sentinel and otherwise as `%c %s`.
 Another match-presentation consumer renders the same pair plus the localized
 position as `%c %s (%s)`, closing the field as the player display name.
 
-Cell 1 remains the only unnamed shared text cell and continues to fail closed
-at match-player proxy byte `+0x47`.
+Cell 1 no longer remains unnamed. Recovery 211 traces its producer through
+builder caller `0x533370`: DBRPlayer accessor `0x41E3D0` is called at
+`0x5333EC`, returns the source shirt/squad-number byte from runtime `+0x70`
+for matching team context or alternate `+0x76`, and `0x5333F3` stores that
+byte to the 72-byte display record at `+0x47`. Shared producer `0x525BD0`
+then formats it as `%u` in text cell 1. The display-record offset is therefore
+derived presentation state, not a direct alias of DBRPlayer `+0x70`.
+
+All six PlayerRow text cells plus the energy bar now have source-backed
+ownership.
+
+Recovery 211's child checkpoint composes those primitives in
+`gate14_fastview_playerrow_snapshot.py`. The snapshot includes source-order
+cells 1..6, the side-specific name-grid resource and the exact energy-bar state.
+Goal and own-goal display text are optional: their row-local counters initialize
+to zero, but the parenthesized strings are written by the typed goal callbacks,
+so the snapshot does not invent `(0)` before such a write.
+
+The integration seam is presentation-only. A completed outcome may explicitly
+retain `fastview_player_rows`; `HumanMatchPresentation` validates that every
+item is a source-backed PlayerRow snapshot and preserves those exact objects.
+The semantic FastView shell passes them through unchanged. Missing retained
+rows produce an empty tuple instead of reconstructing form/energy/player state
+from gameplay after the fact.
+
+Recovery 211 now source-closes the PlayerProxy value source beneath the
+complete row snapshot. Form is supplied by MatchCalculator wrapper
+`0x632FC0 -> 0x6308B0` from a 24-sample, five-minute **1..10 match-form
+history**. Energy is supplied by `0x633000 -> 0x630910` and is a
+presentation derivation over Condition history, form trend and one RNG(6) draw.
+The source writer `0x6309D0` proves DBRPlayer Condition `+0x77` seeds the
+Condition history while persistent form-state `+0x192` is only an input to
+the separate form history. Consequently neither modern `condition` nor
+`form_state` may be copied directly into FastView row output.
 
 ## 3D / FastView resource evidence
 

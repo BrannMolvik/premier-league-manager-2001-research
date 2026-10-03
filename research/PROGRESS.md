@@ -10716,3 +10716,36 @@ work may continue under the deferred-blocker policy.
 - Matching 72-byte player-display record builder `0x533A00` copies the DBRPlayer surname string to record offset 0 and copies the first byte of the DBRPlayer first-name string to record `+0x20`.
 - PlayerRow shared producer `0x525BD0` renders cell 3 using source `%s` when record+0x20 is `'-'`, otherwise `%c %s`. Independent match-presentation consumer `0x6CE809` combines the same prefix/string pair with the already source-closed localized position as `%c %s (%s)`, confirming the pair is the player display name.
 - Cell 3 is therefore source-closed as surname-only for the sentinel case or first-name initial plus surname otherwise. Cell 1 at proxy `+0x47` remains unnamed and fail-closed.
+
+
+## 3 October 2026 - Recovery 211 PlayerRow shirt/squad-number ownership rebase
+
+- Reconciled the stale Recovery-210 runtime with canonical main `ef5760b669cdf5eacc91d8a9d4cd8c3fed95a216`, preserving the newer Gate-13 fixture-report work and the permanent full-original-game Windows 11 port scope.
+- The prior shirt-number branch PR #187 was based on `cdfc5b88...` and could not be merged safely after those independent main changes. Its source contract had already passed reconstruction run `37100399837` with **1,560 tests / 22 expected skips** and asset-policy run `37100399856`.
+- Rebased only the PlayerRow shirt-number delta onto current main. Builder caller `0x533370` calls DBRPlayer accessor `0x41E3D0` at `0x5333EC`; the accessor selects the proven shirt/squad-number byte at runtime `+0x70` for matching team context or alternate `+0x76`.
+- `0x5333F3` writes that returned byte to display-record `+0x47`; shared PlayerRow producer `0x525BD0` later formats it as `%u` into text cell 1.
+- The earlier offset mismatch is therefore resolved correctly: display-record `+0x47` is derived shirt-number presentation state, not a direct alias of DBRPlayer `+0x70`.
+- All six PlayerRow text cells plus the energy bar now have source-backed ownership. Fresh CI on the rebased branch is still required before merge.
+
+
+## 3 October 2026 - Recovery 211 complete PlayerRow presentation snapshot
+
+- Built a child checkpoint on top of the rebased shirt-number branch rather than enlarging PR #190.
+- Added `gate14_fastview_playerrow_snapshot.py` to compose the already-proven shirt-number cell, position key, player-display name, form cell, exact energy bar and optional goal/own-goal counter displays into one immutable PlayerRow presentation snapshot.
+- Preserved the original event-write distinction: goal/own-goal counters are initialized internally to zero, but their parenthesized control strings are written by the typed callbacks. The snapshot therefore uses `None` before an evidenced text write instead of inventing `(0)`.
+- Added a presentation-only retention seam: `HumanMatchPresentation` accepts only explicitly retained `FastViewPlayerRowSnapshot` objects from `outcome.fastview_player_rows`, and `FastViewSemanticShell` passes them through unchanged.
+- This seam imports no simulator, RNG or gameplay controller and does not reconstruct missing final player state. Existing outcomes without retained row snapshots remain valid and expose an empty tuple.
+- Fresh CI is deferred until the parent shirt-number checkpoint becomes canonical and this child delta is transplanted onto the resulting main head.
+
+
+## 3 October 2026 - Recovery 211 PlayerProxy form/energy history source closure
+
+- PR #191 merged canonical as `5952be5c383d44a4dabe6258a10196f75416c1bb` after reconstruction run `37102331288` passed **1,599 tests / 23 expected skips** and asset-policy run `37102331263` passed.
+- Rehashed the retained private canonical executable to the expected SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3` and resumed direct source tracing.
+- RTTI resolves PlayerProxy primary base Sender<EventPlayerUpdateForm> (0x7CA85C) and +0x10 Sender<EventPlayerUpdateEnergy> (0x7CA854).
+- FastViewPanel loop `0x521C9C` feeds `PlayerProxy::0x5247A0` with form from `0x632FC0 -> 0x6308B0` and energy from `0x633000 -> 0x630910`.
+- The source uses two adjacent 24-sample histories per player with 0x4C stride and five-minute indexing capped at tick 119. Condition histories start at side0 +0x4C / side1 +0x5FC; form histories start at +0x64/+0x614.
+- Writer `0x6309D0` copies DBRPlayer Condition +0x77 into Condition history and maintains a separate 1..10 match-form history. Persistent form_state +0x192 is one input to that history, not the displayed form value.
+- Energy `0x630910` is a derived presentation value: Condition-at-zero baseline, +/-4 per earlier five-minute form trend, one RNG(6) draw shifted by -3, minimum 1, capped by Condition at the first boundary >= current tick.
+- Added a pure source-contract module requiring the RNG(6) result explicitly. It imports no simulator/RNG and forbids direct modern condition/form_state aliasing.
+- Next integration requirement: retain the exact two histories and source-order presentation RNG state/results from the real clean-room match path before producing live PlayerRow snapshots.

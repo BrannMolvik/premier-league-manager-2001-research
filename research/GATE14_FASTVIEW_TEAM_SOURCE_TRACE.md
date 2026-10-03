@@ -244,3 +244,61 @@ path `0x526470 <- 0x525B66` and producer `0x525BD0` far enough to identify
 text cells 1..3 only where their underlying player/database accessors are
 directly proven. Keep the own-goal color name fail-closed unless the runtime
 pixel-format channel mapping is independently recovered.
+
+
+## Recovery 211: PlayerProxy form/energy source histories
+
+Fresh canonical-executable tracing closes the source of the two remaining
+dynamic PlayerProxy payloads rather than aliasing them to similarly named modern
+fields.
+
+RTTI identifies PlayerProxy's primary base as
+`Sender<EventPlayerUpdateForm>` (base vtable `0x7CA85C`) and its
+`+0x10` subobject as `Sender<EventPlayerUpdateEnergy>` (base vtable
+`0x7CA854`). FastViewPanel allocates 11 proxies per side and update path
+`0x521C9C` calls two MatchCalculator wrappers for each eligible displayed
+player:
+
+- `0x632FC0 -> 0x6308B0` supplies the first argument to
+  `PlayerProxy::0x5247A0`; that argument is cached at proxy `+0x4C` and
+  dispatched through the **form** sender.
+- `0x633000 -> 0x630910` supplies the second argument; it is cached at proxy
+  `+0x50` and dispatched through the **energy** sender.
+
+The MatchCalculator player history uses a **0x4C-byte stride** and 24
+five-minute samples. Both getters clamp the tick to 119 before integer division
+by five.
+
+Condition history:
+- side 0 begins at MatchRecord `+0x4C`;
+- side 1 begins at `+0x5FC`;
+- sample address = side base + player_index*0x4C + floor(min(tick,119)/5).
+
+Form history is the adjacent 24-byte history exactly **+0x18** later:
+- side 0 `+0x64`;
+- side 1 `+0x614`.
+
+Writer `0x6309D0` proves the distinction. It copies DBRPlayer Condition
+`+0x77` into the Condition history, while the separate match-form history is
+maintained in the source display range **1..10**, initialized from 5 and
+updated by match/player context. Persistent DBRPlayer form-state byte
+`+0x192` (the modern `PreparedMatchPlayer.form_state` source, range 0..4)
+is merely one input into that history and is **not** the FastView form value.
+
+Energy derivation `0x630910` is also separate from raw Condition. It starts
+from Condition at tick 0, walks five-minute form-history transitions before the
+requested tick (rising form subtracts 4; otherwise adds 4), consumes one
+`RNG(6)` draw and adds `roll-3`, clamps to at least 1, then caps by the
+Condition history at the first five-minute boundary at or after the requested
+tick. Therefore modern `condition` cannot be copied directly into the energy
+bar either.
+
+`reconstruction/gate14_fastview_player_history.py` materializes only this
+source contract and exact derived-energy primitive. It requires the source-order
+RNG(6) result explicitly and does not import or advance simulation RNG.
+
+The live integration boundary is now precise: a completed modern match must
+retain the source-compatible Condition history, 1..10 match-form history, and
+the correct post-calculation/presentation RNG sequence before
+`fastview_player_rows` can be populated faithfully. Post-hoc copying of
+`PreparedMatchPlayer.condition` or `form_state` is forbidden.

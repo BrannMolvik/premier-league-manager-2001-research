@@ -7,6 +7,7 @@ from fastview_semantic_shell import (
     SOURCE_BACKED_COMPONENTS,
     build_fastview_semantic_shell,
 )
+from gate14_fastview_playerrow_snapshot import build_fastview_player_row_snapshot
 from human_match_presentation import build_human_match_presentation
 from match_events import (
     BoundaryRecord,
@@ -95,6 +96,28 @@ class FastViewSemanticShellTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "divisible by five"):
             build_fastview_semantic_shell(presentation)
+
+
+    def test_shell_preserves_retained_player_row_snapshot_objects(self):
+        presentation, *_ = self._presentation()
+        row = build_fastview_player_row_snapshot(
+            side_index=0,
+            row_index=0,
+            shirt_number=9,
+            source_position_code=19,
+            surname="Striker",
+            first_name_initial="A",
+            form_value=4,
+            energy_value=79,
+        )
+        presentation = presentation.__class__(
+            match_reference=presentation.match_reference,
+            feed=presentation.feed,
+            player_rows=(row,),
+        )
+        shell = build_fastview_semantic_shell(presentation)
+        self.assertEqual(len(shell.player_rows), 1)
+        self.assertIs(shell.player_rows[0], row)
 
     def test_shell_declares_only_persisted_component_and_fidelity_boundaries(self):
         presentation, *_ = self._presentation()
