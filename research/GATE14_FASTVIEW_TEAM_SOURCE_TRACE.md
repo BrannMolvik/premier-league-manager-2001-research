@@ -6,9 +6,10 @@ _Date: 3 October 2026 KST. Recovery 208. Evidence tier: canonical executable plu
 
 This trace source-closes the two side-indexed `FastViewTeam::TeamTable`
 constructor configurations and the bounded nested `Row` presentation
-geometry. It deliberately does not assign user-facing meanings to the six row
-text controls, the two bar layers, or the row-index transition after the first
-11 rows.
+geometry. Recovery 209 additionally source-closes the two bar layers as the
+mirrored `EventPlayerUpdateEnergy` display. It still does not assign
+user-facing meanings to the six row text controls or the row-index transition
+after the first 11 rows.
 
 Gate 13 remains the earliest incomplete validation gate for its remaining
 management shell/navigation fidelity work.
@@ -115,6 +116,59 @@ This numeric transition is source-closed. It is deliberately not labelled
 "starting XI", "substitutes", "reserves", or any similar gameplay term until a
 direct semantic bridge proves that interpretation.
 
+## Recovery 209: EventPlayerUpdateEnergy bar lifecycle
+
+Fresh first-hand disassembly of the rehashed canonical executable closes the
+previously unnamed bar consumer.
+
+`PlayerRow` contains four typed receiver subobjects. The energy receiver is
+the subobject at overall row **+0x58**:
+
+- base RTTI vtable `0x7CA92C` =
+  `Receiver<EventPlayerUpdateEnergy>`;
+- final PlayerRow receiver vtable `0x7CA900`;
+- callback `0x5267D0`;
+- callback reads `EventPlayerUpdateEnergy +0x04` and forwards that integer
+  value to row routine `0x526680`.
+
+Routine `0x526680` rewrites only the dynamic bar PictureControl at row
+`+0x38`. Its source rectangle comes from row fields
+`+0x44/+0x48/+0x4C/+0x50`; row `+0x40` is the side index.
+
+The exact source normalization is:
+
+- lower anchor: **58.0** at `0x7CA544`;
+- upper anchor: **99.0** at `0x7CA548`;
+- span global `0x877754` initialized at `0x51F330` to **41.0**;
+- output width constant: **82.0** at `0x7CA96C`;
+- float-to-int helper `0x668350` truncates toward zero;
+- values above the normalized maximum are clamped to 1.0;
+- this routine contains **no lower clamp**.
+
+For integer event values at or below 99, the width expression therefore
+reduces exactly to:
+
+`2 * (energy - 58)`
+
+and values above 99 produce width 82.
+
+The side-specific resource composition now has source-proven meaning:
+
+- side 0: `team_bar_1.444` is the dynamic layer over static
+  `blank_bar.444`; its right edge grows from the bar's left edge;
+- side 1: `blank_bar.444` is the dynamic mask over static
+  `team_bar_2.444`; its right edge shrinks as energy rises, revealing the
+  team bar underneath.
+
+At row 0 this means side 0 grows within **(309,27)-(391,43)**, while side 1
+shrinks the blank mask within **(409,27)-(491,43)**. The reconstruction
+preserves the source's lack of a lower clamp rather than silently sanitizing
+values below 58.
+
+This closes the bar-state semantics as **player energy**. It does not assign
+semantics to the six generic text controls; those remain separate receiver/data
+traces.
+
 ## Reconstruction contract
 
 `reconstruction/gate14_fastview_team.py` records the exact side-indexed asset
@@ -126,8 +180,9 @@ substitute pixels are introduced.
 
 ## Next source step
 
-After CI verifies this checkpoint, trace the two bar PictureControl state
-consumers, including dynamic routine `0x526680`, far enough to name only
-source-proven state semantics. If that remains semantically opaque, continue
-the next directly owned FastViewTeam resource/control family without inventing
-labels.
+After CI verifies the energy-bar checkpoint, continue the adjacent typed
+PlayerRow receivers. Source candidates are EventPlayerUpdateForm callback
+`0x526740`, EventPlayerGoal callback `0x526800`, and
+EventPlayerOwnGoal callback `0x526880`. Map only the text/control fields
+directly proved by their data flow; do not infer the remaining row labels from
+layout.
