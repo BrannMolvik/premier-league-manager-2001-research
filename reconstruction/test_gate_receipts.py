@@ -378,6 +378,7 @@ class MatchdayGateReceiptTests(unittest.TestCase):
         self.assertEqual(result.home_attendance, 1600)
         self.assertEqual(result.visiting_attendance, 1000)
         self.assertEqual(result.total_attendance, 2600)
+        self.assertEqual(result.report_seating_price, 30)
 
     def test_four_rand_values_are_consumed_by_documented_cell_order(self):
         result = calculate_matchday_gate_receipts(
