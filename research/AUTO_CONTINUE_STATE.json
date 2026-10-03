@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 217: main remains 050085a8e0845a90f700498bef638ee466bf65fc. Continue Gate 13 from the already-identified save/reload gap: GameState.prepared_match_gate_receipts holds exact source-backed report D84 total, D8C home and D90 visiting attendance outputs, but internal-save schema 38 drops that mapping. Persist those gate-receipt inputs and verify roundtrip without fabricating D88, D9C, venue, captions, FE0/FE4 or a partial report/link. Then continue the next source-backed mandatory input if feasible.",
-  "last_known_main_head": "050085a8e0845a90f700498bef638ee466bf65fc",
+  "active_task": "Recovery 218: PR #198 merged canonical as main 7402e8d79b4f249844b27ba0a5e0e3fcb8cfadbb after reconstruction run 37114096197 passed 1,658 tests with 23 expected skips and asset-policy run 37114096123 passed. Internal save schema 39 now preserves all current GameState prepared_match_* completion-input maps plus all retained NormalMatchResult fields. Continue Gate 13 at genuinely missing source/runtime producers, priority FE0/FE4 setup identities via bounded canonical executable trace from the authorized original source archive. Do not invent venue DBRClub+4, participant normalized-history bit, D9C or caption context.",
+  "last_known_main_head": "7402e8d79b4f249844b27ba0a5e0e3fcb8cfadbb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 217,
-  "last_recovery_reason": "manual-start",
-  "note": "Manual recovery 217 resumes the concrete attendance-persistence defect found before interruption; no re-tracing of closed Gate-13 codecs.",
+  "recovery_generation": 218,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "PR #198 canonical. No remaining silent serializer omission among current prepared_match_* fields. Next work is missing native metadata producer evidence.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
