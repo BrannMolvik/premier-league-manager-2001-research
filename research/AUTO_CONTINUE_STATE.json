@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 215: PR #196 head a22f92fef424c71b900f799c112e0ef134d068c2 implements the source-backed Premier League MatchEngine RNG split. Persistent MatchEngineRng state now has exact full snapshot/restore; GameState uses the distinct engine stream for weather, AI Condition, calculator, target low-rating lift and FastView form trajectory when supplied; HumanGameplayController owns/passes the stream; internal save schema 36 persists it. Reconstruction run 37111511192 is in progress; asset-policy run 37111511208 passed. Merge only if full CI passes. Gate 13 remains earliest incomplete.",
+  "active_task": "Recovery 216: PR #196 code head a22f92fef424c71b900f799c112e0ef134d068c2 passed reconstruction run 37111511192 (1,620 tests, 23 expected skips) and asset-policy run 37111511208. Research-only reconciliation commits are on the same PR. Merge #196, then return to Gate 13, the earliest incomplete gate: continue the native completion-time fixture report owner from the already source-closed codecs/live gate receipts; retain final participant records, complete compact-event stream and calculator/post-match scalars, persist the complete report across save/reload, and verify real right-click -> PMatchInfo context. Do not retrace closed codecs.",
   "last_known_main_head": "50b70390197ecace3297231eef5d227820a22478",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 215,
-  "last_recovery_reason": "manual-start",
-  "note": "PR #196 open. During CI, direct canonical trace also closed +0xD48 tuning defaults: OppMinVal=90, OppMaxVal=99, OppBoostMeanVal=105, OppBoostMinVal=100, OppBoostMaxVal=110, BoostNumPos=4, DefaultConditionBoost=5, MaxBoostChance=100, MinBoostChance=0. DBRClub+0x130 lifecycle remains unresolved, so no display adjustment is guessed.",
+  "recovery_generation": 216,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 216 resumed stale checkpoint. Gate-14 RNG split is verified; durable docs reconciled. +0xD48 remains fail-closed on unresolved legacy DBRClub+0x130.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
