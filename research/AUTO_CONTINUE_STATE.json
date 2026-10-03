@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 203: PR #170 head e881a6ad649f2870a9dc65e08fd2f1de34109de1 is green after 1,509 tests / 22 expected skips plus asset-policy success but the prior merge call was interrupted. Merge #170 exactly, then continue from canonical main with the already source-traced direct-owned FastView top_bar.444 and ticker.444 chrome slice. Do not repeat orientation/background tracing. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
-  "last_known_main_head": "c75ce5b07dc9d8c7467ed8dc4826854443ffd4a2",
+  "active_task": "Recovery 204: resume from canonical main 608e4f9168939c08ddffd90f5d6fb112b5d2724e. PR #170 is merged and verified; do not repeat orientation/background work. Continue Gate-14 source work with the already identified direct-owned FastView top_bar.444 and ticker.444 chrome slice: verify exact source paths, ownership/callsites, geometry and lifecycle from the canonical executable/disc, stage only assets whose live binding is proven, add fail-closed render seams/tests, then continue the next source-backed FastView slice. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
+  "last_known_main_head": "608e4f9168939c08ddffd90f5d6fb112b5d2724e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 203,
+  "recovery_generation": 204,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 203 detected interrupted merge: PR #170 still open and main still c75ce5b0. Resume at merge boundary only.",
+  "note": "PR #170 canonical. Continue direct-owned top_bar/ticker chrome only; do not use rejected background. Preserve Gate 13 external blocker.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
