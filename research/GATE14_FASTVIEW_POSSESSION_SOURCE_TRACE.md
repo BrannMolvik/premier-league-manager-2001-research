@@ -162,13 +162,43 @@ left/center/right mapping and deliberately does **not** rename either side as
 the human team. This closes screen placement of the percentage text without
 claiming user-side orientation.
 
+## Recovery 198: typed receiver lifecycle
+
+The bounded diagram is not an independently polled widget. Its constructor
+produces three receiver subobjects and the FastView owner registers all three
+immediately after storing the new object at panel `+0x420`:
+
+- primary vtable `0x7CA87C`: `Receiver<EventPossession>`, callback
+  `0x522BB0`;
+- subobject `+0x04`, vtable `0x7CA870`: `Receiver<EventGoal>`, callback
+  `0x522C30`;
+- subobject `+0x08`, vtable `0x7CA864`:
+  `Receiver<EventGlobalPenalties>`, callback `0x522C60`.
+
+The exact receiver effects are now source-closed:
+
+1. `EventPossession` normally performs the already documented one-call
+   territory/RNG transition.
+2. `EventGlobalPenalties` sets the diagram's byte at overall object
+   `+0x20` to one. It does **not** immediately move the overlay.
+3. Once that byte is set, every later `EventPossession` returns through the
+   early branch after forcing state **1**, without calling the private
+   presentation RNG.
+4. `EventGoal+0x0C == 0` snaps the diagram to state **2**;
+   `EventGoal+0x0C == 1` snaps it to state **0**; other values leave the
+   current state unchanged. No side/user meaning is assigned to that field.
+
+`reconstruction/gate14_possession_diagram.py` now exposes these three typed
+event reactions separately. This closes the diagram's receiver lifecycle but
+does **not** establish how often the match controller emits
+`EventPossession`; emission cadence remains a distinct fail-closed boundary.
+
 ## Remaining boundary
 
 Still open before claiming the bounded diagram is player-visible original
 FastView behavior:
 
-1. recover the original update/callback cadence and any lifecycle reset
-   semantics for the private presentation RNG;
+1. recover the original `EventPossession` emission cadence and any process/match lifecycle reset semantics for the private presentation RNG;
 2. recover side-0/user orientation rather than inferring it from
    `left/middle/right` filenames;
 3. keep the three 82×16 `team_bar_1` / `blank_bar` / `team_bar_2` assets under

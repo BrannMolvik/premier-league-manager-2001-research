@@ -10522,3 +10522,14 @@ work may continue under the deferred-blocker policy.
 - The exact bar paths `team_bar_1.444`, `blank_bar.444`, and `team_bar_2.444` are consumed through the separate `0x524920 -> 0x524A20 -> 0x524EC0` FastViewTeam/TeamTable construction path, not by PossessionFigures.
 - Corrected the Gate-14 resource catalog and research notes so those three files can no longer be wired into the percentage-text component by mistake. PossessionFigures remains the source-proven three-text-control component; its Recovery-196 geometry remains valid.
 - Human-side orientation and PossessionDiagram callback cadence remain fail-closed. Gate 13 remains the earliest incomplete validation gate pending the external schema-8 Windows receipt.
+
+
+## 3 October 2026 - Recovery 198 PossessionDiagram receiver lifecycle
+
+- After PR #164 merged at `25ad2622aec612e8eddaf452e53ae7b717369a05`, continued directly into the next Gate-14 source task instead of treating the correction as a stopping point.
+- Canonical executable tracing proves `PossessionDiagram` is registered as three typed FastView receivers: `Receiver<EventPossession>` at primary vtable `0x7CA87C`, `Receiver<EventGoal>` at subobject `+0x04` / vtable `0x7CA870`, and `Receiver<EventGlobalPenalties>` at subobject `+0x08` / vtable `0x7CA864`.
+- `0x522BB0` is the EventPossession callback. Before penalties it performs the source-proven territory/private-RNG transition. After latch byte overall object `+0x20` is set, it forces state 1 and returns before consuming RNG.
+- `0x522C60` is the EventGlobalPenalties callback. It sets the overall `+0x20` latch only; the overlay does not move until a later EventPossession callback.
+- `0x522C30` is the EventGoal callback. EventGoal source field `+0x0C` value 0 snaps to state 2 and value 1 snaps to state 0; other values leave state unchanged. No left/right, home/away, or human-side semantic is inferred.
+- The apparent generic routines around `0x51A470` were checked and rejected as cadence evidence: RTTI binds them to `ScoreConverter` vtables, not EventPossession dispatch.
+- The exact EventPossession emission cadence therefore remains fail-closed. The next trace is the MatchController sender/emission path, not an assumed per-frame or per-possession-segment schedule.

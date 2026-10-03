@@ -8,8 +8,14 @@ from gate14_possession_diagram import (
     PITCH_NORMAL_PATH,
     PITCH_RECT,
     PROCESS_INITIAL_PRESENTATION_RNG_STATE,
+    SOURCE_GLOBAL_PENALTIES_RECEIVER_VA,
+    SOURCE_GOAL_RECEIVER_VA,
+    SOURCE_PENALTIES_LATCH_OFFSET,
     active_overlay_rect,
     advance_possession_diagram,
+    apply_global_penalties_event,
+    apply_goal_event,
+    apply_possession_event,
     possession_roll,
     presentation_rand_step,
 )
@@ -80,6 +86,62 @@ class PossessionDiagramTests(unittest.TestCase):
             advance_possession_diagram(0, 0, seed).next_state, 0
         )
 
+    def test_receiver_addresses_and_latch_offset_are_source_bound(self):
+        self.assertEqual(SOURCE_GOAL_RECEIVER_VA, 0x522C30)
+        self.assertEqual(SOURCE_GLOBAL_PENALTIES_RECEIVER_VA, 0x522C60)
+        self.assertEqual(SOURCE_PENALTIES_LATCH_OFFSET, 0x20)
+
+    def test_possession_event_uses_rng_until_penalties_latches(self):
+        normal = apply_possession_event(
+            1, 100, 0, penalties_latched=False
+        )
+        self.assertEqual(normal.next_state, 2)
+        self.assertNotEqual(normal.rng_state_after, normal.rng_state_before)
+        self.assertIsNotNone(normal.transition)
+
+        latched = apply_possession_event(
+            2, 0, normal.rng_state_after, penalties_latched=True
+        )
+        self.assertEqual(latched.next_state, 1)
+        self.assertEqual(latched.rng_state_after, normal.rng_state_after)
+        self.assertIsNone(latched.transition)
+
+    def test_goal_event_snaps_source_field_zero_and_one_to_edges(self):
+        self.assertEqual(
+            apply_goal_event(
+                1, 0, 123, penalties_latched=False
+            ).next_state,
+            2,
+        )
+        self.assertEqual(
+            apply_goal_event(
+                1, 1, 123, penalties_latched=False
+            ).next_state,
+            0,
+        )
+        other = apply_goal_event(
+            2, 7, 123, penalties_latched=True
+        )
+        self.assertEqual(other.next_state, 2)
+        self.assertTrue(other.penalties_latched)
+        self.assertEqual(other.rng_state_after, 123)
+
+    def test_global_penalties_only_latches_until_next_possession_event(self):
+        latched = apply_global_penalties_event(
+            2, 77, penalties_latched=False
+        )
+        self.assertEqual(latched.next_state, 2)
+        self.assertTrue(latched.penalties_latched)
+        self.assertEqual(latched.rng_state_after, 77)
+        followup = apply_possession_event(
+            latched.next_state,
+            100,
+            latched.rng_state_after,
+            penalties_latched=latched.penalties_latched,
+        )
+        self.assertEqual(followup.next_state, 1)
+        self.assertEqual(followup.rng_state_after, 77)
+
     def test_invalid_inputs_fail_closed(self):
         with self.assertRaises(ValueError):
             active_overlay_rect(3)
@@ -87,6 +149,12 @@ class PossessionDiagramTests(unittest.TestCase):
             advance_possession_diagram(1, 101, 0)
         with self.assertRaises(ValueError):
             presentation_rand_step(-1)
+        with self.assertRaises(ValueError):
+            apply_possession_event(1, 50, 0, penalties_latched=1)
+        with self.assertRaises(ValueError):
+            apply_goal_event(1, "0", 0, penalties_latched=False)
+        with self.assertRaises(ValueError):
+            apply_global_penalties_event(3, 0, penalties_latched=False)
 
 
 if __name__ == "__main__":
