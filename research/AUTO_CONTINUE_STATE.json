@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 205: canonical main advanced concurrently to c44dac3d2e29fde8368fe330ab9c37b3d8f51d8b with Gate-13 Windows schema-8 fixes/receipts; preserve that work. Recovery-205 Gate-14 score-grid work is cleanly transplanted to recovery205b/gate14-fastview-scores. Verify/merge distinct FastViewLeagueScores current_fix_grid_1 and ScoreCompositeNormal current_fix_grid_2 ownership/geometry/receiver lifecycle, then recover ScoreCompositeNormal caller-supplied final origin/text-control geometry. Gate 13 remains earliest incomplete for remaining shell/navigation fidelity, not for schema-8 validation.",
-  "last_known_main_head": "c44dac3d2e29fde8368fe330ab9c37b3d8f51d8b",
+  "active_task": "Recovery 205: PR #175 merged canonical at main 29a55fdeed4192010940f9f3806f87cfea2dc5f5 after 1,523 tests / 22 expected skips and asset-policy success. Continue Gate-14 follow-on: source-close ScoreCompositeNormal final visible row origins and four local text-control rectangles from FastViewLeagueScores relayout + shared ScoreComposite table. Keep semantic labels for those text controls fail-closed unless separately proved. Then trace adjacent current_table_grid family if independent. Gate 13 remains earliest incomplete for remaining shell/navigation fidelity; schema-8 Windows validation has passed.",
+  "last_known_main_head": "29a55fdeed4192010940f9f3806f87cfea2dc5f5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 205,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Concurrent Gate-13 main advance detected and preserved. Use only clean recovery205b branch; do not propose the original mixed recovery205 branch.",
+  "note": "PR #175 canonical. Continue row-level ScoreCompositeNormal geometry; preserve parallel Gate-13 work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
