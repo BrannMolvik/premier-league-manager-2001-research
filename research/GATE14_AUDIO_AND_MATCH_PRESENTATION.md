@@ -199,8 +199,7 @@ takes no bitmap path. The authenticated file remains a source lead but is not
 rendered as the live panel background.
 
 Recovery 203 adds the first directly owned full-width FastView chrome
-outside the possession core. Live FastView callsites `0x51FD63` and
-`0x51FDF0` pass `top_bar.444` and `ticker.444` directly to image-control
+outside the possession core. Live FastView path-setup sites `0x51FD63` / `0x51FDF0` and control calls `0x51FDA3` / `0x51FE31` pass `top_bar.444` and `ticker.444` directly to image-control
 constructor `0x527730`. Their exact source geometry and screen placement are:
 
 - `top_bar.444`: 800x95 at (0,0)-(800,95), 19,268 bytes, SHA-256
