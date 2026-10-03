@@ -10552,3 +10552,15 @@ work may continue under the deferred-blocker policy.
 - Once due, the host writes current GetTickCount to baseline `+0x2B0` and calls MatchController once at `0x521C03 -> 0x518330`. There is no source catch-up loop in this host path, so delayed host iterations can only lengthen the real observed interval.
 - MatchController dispatcher `0x518790` sends its current `+0x78` value as EventGlobalTick and increments `+0x78` after dispatch unless state `+0x90 == 5`.
 - Combined with the parent checkpoint's every-fifth-GlobalTick EventPossession gate, source minimum possession thresholds are 5000 ms / 2500 ms / 1250 ms for speed indices 0/1/2. These are scheduling thresholds, not a promise of exact wall-clock spacing under event-loop delay.
+
+
+## 3 October 2026 - Recovery 199 FastView clock/index bridge and exact possession pixels
+
+- Resumed from canonical main `78e305ca0e0fc7e5c22ed91649c2d9c5b163162f`; PR #167 was already verified and merged with **1,492 tests / 22 expected skips** plus asset-policy success.
+- Reconciled PR #166 as canonical at `6277e385cff41216f6842bce4b49daea41e366e6` after **1,489 tests / 22 expected skips** plus asset-policy success.
+- Bounded ClockControl evidence ties receiver `0x51EDB0` to the same EventGlobalTick first dword used by MatchIterator. Render helper `0x51EDD0` formats that value with `%u %s`; the text control is at (439,44)-(621,64), with source branches around values 46 and 91.
+- MatchIterator divides the same GlobalTick by five before source statistics lookup `0x631240`. The semantic FastView shell now records each five-minute possession segment's source GlobalTick and exact `tick // 5` array index; non-five-minute possession input fails closed.
+- Added `original_fastview_possession_art.py`, which decodes only the four already provenance-staged PossessionDiagram EA444 assets using original executable codec tables and returns the exact base-pitch/active-overlay source rectangles. It explicitly refuses to imply a complete FastView frame.
+- Rehashed source-disc `FM2001_Art/FastView/background.444` to SHA-256 `499e930fe0a328d969096b8d2cdb8c817169f02812adcc78acf111dc666d95c0`; it is 205,984 bytes and 800x600 with path literal `0x8294E8`. Direct FastViewPanel draw ownership is still unresolved, so it is not imported or rendered.
+- Corrected stale `MATCH_ENGINE.md` wording that still associated the three 82x16 team/blank bars with PossessionFigures. Canonical ownership remains FastViewTeam/TeamTable.
+- Gate 13 remains the earliest incomplete validation gate pending the external schema-8 real-Windows receipt. This is Gate-14 work-ahead only.
