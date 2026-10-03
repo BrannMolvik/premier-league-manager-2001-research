@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. CURRENT_STATE.md still names Gate 13 as the canonical current gate. Codex PR #242 head 1250f2e4 remains open and explicitly retains row/kit/scroll/color fidelity plus fresh uncontrolled visiting-capacity lifecycle; main has advanced under it, so do not merge/rebase/modify it. Canonical main is 3c6fee802cb0ea3197666f9c0bfc064d5e219bfb after Gate-17 PR #247 merged green, adding a fail-closed exact audit of current human-control club coverage over the source-backed TeamSelect catalog. PR #248 head 3d90ef28 is mergeable with reconstruction run 37146423524 and asset-policy run 37146423542 in progress; it maps parsed source LeagueAllocation rows onto exact playable countries/ranking endpoints without performing transitions or inventing policy. Gate-14 retained-history frame path remains canonical through a5b4766a; private .bnk audio, cross-component z-order, dynamic TeamTable resize pixels and PlayerRow typography/color remain blocked by local process-start ClientError. Gate16 remains prevalidated by existing readiness evidence. Preserve Gate-13 ownership.",
-  "last_known_main_head": "3c6fee802cb0ea3197666f9c0bfc064d5e219bfb",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is b599dada63b4575b1a1938d5d1c7ac8230ff7573 after Gate-17 PR #248 merged green, mapping all parsed source LeagueAllocation rows onto exact TeamSelect-playable countries/ranking endpoint IDs without mutation. PR #249 head 722f411f is mergeable and awaiting hosted checks; it audits every assigned allocation's exact source ranking positions against available runtime rankings, reports missing/too-short endpoints, and performs no membership exchange or transition policy. After #249 green, merge and continue the next source-backed progression seam. Preserve Gate-13 ownership and do not modify shared runtime.",
+  "last_known_main_head": "b599dada63b4575b1a1938d5d1c7ac8230ff7573",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 243,
+  "recovery_generation": 244,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 243 checkpoint: #247 human-scope capability audit merged green as 3c6fee80. #248 playable-country LeagueAllocation scope planner is mergeable with both hosted checks running. Gate13 #242 remains open/Codex-owned. Gate14 remaining audio/z-order/player-visible-host work is blocked by private process execution or shared host ownership.",
+  "note": "Recovery 244 checkpoint: #248 merged green as b599dada. #249 allocation ranking endpoint readiness audit is mergeable and awaiting hosted checks. Gate13 remains Codex-owned unless ownership/main state changes.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
