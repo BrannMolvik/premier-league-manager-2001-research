@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Optimize continuous-worker work by critical-path efficiency, not gate number. First choose productive, disjoint Gate-14 source-backed implementation/integration. If Gate 14 is blocked, resolve independent Gate-15 fidelity gaps that can be conclusively fixed without touching Gate-13-owned/shared files. Use Gate-17 scope discovery only when it yields concrete architectural leverage; avoid release-evidence scaffolding that cannot yet change implementation. Use Gate-16 stress/audit work opportunistically when the relevant code is stable. Pivot immediately when a task hits a private-source/container/Windows blocker with no concrete repository-side step left.",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned on main d2329aa45dba3f3d80a41447d0de1cc8d05fa635. Finish validation/integration of nearly-complete disjoint Gate-17 playable-scope catalog PR #226, then pivot immediately to highest-priority disjoint Gate-14 source-backed implementation/integration per the critical-path efficiency policy. Do not touch Gate-13-owned/shared runtime files.",
   "last_known_main_head": "d2329aa45dba3f3d80a41447d0de1cc8d05fa635",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 227,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Efficiency priority updated: Gate 14 implementation > independent Gate 15 fixes > architecturally useful Gate 17 scope work > opportunistic Gate 16/audit tooling, subject to the Gate-13 Codex ownership lock. Re-evaluate after each checkpoint.",
+  "recovery_generation": 228,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 228: reconciled canonical main d2329aa4. PR #226 remains the nearly-complete in-flight disjoint Gate-17 catalog change; finish it, then resume Gate-14 critical-path work-ahead under Gate-13 Codex lock.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
