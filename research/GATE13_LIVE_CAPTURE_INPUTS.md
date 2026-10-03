@@ -2,30 +2,16 @@
 
 _3 October 2026 KST. Gate 13 remains OPEN._
 
-## Recovery 222 partial human D48 closure
+## Latest local ordinary producer milestone, based on `6207dbe0`
 
-The human-opponent D48 path is now split at the exact source guard instead of
-being treated as wholly unresolved. `native_premier_league_table_index()`
-uses the recovered League comparator with original CP1252 DBRClub short-name
-bytes and returns `None` on any missing source key or identical full native
-sort key. `0x408170`'s counter-independent branch is therefore safe when the
-controlled club's native zero-based rank is **>= 4**: shipped
-`DefaultConditionBoost = 5` is passed into the existing MatchCalculator
-initial-history normalization and only AI participant low bits are adjusted.
-
-Ranks 0..3 remain deliberately unresolved because they still depend on legacy
-DBRClub `+0x130` attendance-counter state. No value of 5 or the stronger boost
-branch is guessed there. AI-vs-AI remains the explicit native D48=0 path.
-Legacy visiting capacities `+0x13C/+0x140` and secondary/loan shirt `+0x76`
-remain open. The genuine calculated fixture -> save/reload -> native
-right-click -> PMatchInfo proof is still unpassed.
-
-Fresh private executable tracing for the remaining capacity/counter writers is
-currently blocked by the execution container: the authorized original disc
-archive materializes from Library successfully, but even a trivial container
-filesystem command returns `ClientError`. This is an infrastructure blocker,
-not evidence that the source is unavailable.
-
+Native attendance bit-9/byte retention, guarded D48 and schema-42 counter
+persistence now produce a complete real controlled-home report. Coventry
+fixture 2 survives disk save/fresh reload and actual Windows Fixtures
+right-click opens its correct PMatchInfo context. This supersedes the prior
+negative probe only for the source-qualified setup path. Evidence, raw source
+addresses, private receipt hashes and exact remaining allocation/boost/render
+dependencies are in `GATE13_LEGACY_CLUB_REPORT_STATE.md`. No Gate-14 or runtime
+ownership changes; partial/uncontrolled/secondary-shirt setups remain closed.
 
 ## PR #199 ordinary setup producers, based on `f8bbdd9c`
 
