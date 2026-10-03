@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains exclusively owned by Codex. PR #216 is canonical at main 1e89045e35588a82a079f9b68635eae29b1eebf9 after reconstruction run 37129849546 passed 1,709 tests with 23 expected skips and asset-policy run 37129849568 passed. Continue independent Gate-14 presentation work from retained PlayerRow render plans on disjoint files; do not edit Gate-13/shared status files.",
+  "active_task": "Gate 13 remains exclusively owned by Codex. PR #217 (head b157d303212b72c7ffde63638235d5812ff74e13) exposes retained PlayerRow render plans through FastViewSemanticShell; asset-policy run 37130747619 passed and reconstruction run 37130747656 is still running. Child branch recovery225/gate14-surface-from-render-plans is ready at 7e7b88a87ddeffc9d2769570c0e29bb86b1e6065 and derives TeamTable partial-surface selections directly from retained render plans. Merge #217 only when full CI is green, then open/verify the child diff against updated main. Do not touch Gate-13/shared status files.",
   "last_known_main_head": "1e89045e35588a82a079f9b68635eae29b1eebf9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 225,
   "last_recovery_reason": "connection-interrupted-transient",
-  "note": "Recovery 225 merged PR #216 after full green CI. Continue next source-backed Gate-14 presentation seam.",
+  "note": "Recovery 225 durable checkpoint: PR #217 pending full suite; next child surface bridge already persisted on disjoint branch.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
