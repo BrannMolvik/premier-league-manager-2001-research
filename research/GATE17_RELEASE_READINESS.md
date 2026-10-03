@@ -16,6 +16,13 @@ The fifth receipt closes a release-audit gap introduced when the project scope w
 
 This receipt is intentionally **not** produced by `gate17_windows_gameplay_receipts.py`. A future source-backed full-scope audit must produce it separately once the runtime actually supports the complete shipped scope. Until then, Gate 17 is release-blocked even if the older four receipts pass.
 
+The full-scope receipt also explicitly covers the original multi-human TeamSelect
+capability. Source tracing proves selections append users and the original global
+limit is six simultaneous human users. Final evidence must therefore declare
+`multi_human_management=true` and
+`simultaneous_human_users_verified=6`. The present single-manager backend does
+not satisfy this requirement.
+
 Every receipt must also identify the exact `release_version` and
 `release_archive_sha256` from the final evidence contract. This prevents a
 source-tree or older-build smoke result from being paired with a different

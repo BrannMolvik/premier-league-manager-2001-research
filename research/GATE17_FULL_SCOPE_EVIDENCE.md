@@ -25,7 +25,16 @@ archive SHA-256 as the other release evidence and declares all of these true:
 - `all_original_playable_countries`;
 - `human_career_flow`;
 - `competition_progression`;
-- `original_management_gameplay_subsystems`.
+- `original_management_gameplay_subsystems`;
+- `multi_human_management`.
+
+The receipt must additionally record
+`simultaneous_human_users_verified: 6`. The original TeamSelect path is
+source-proven to append human users rather than replace the prior selection and
+to saturate at the global user count of six. The current clean-room backend
+models only one `HumanManagerState` and fails closed when Start has multiple
+active selections, so this remains a release blocker rather than a documented
+limitation.
 
 The receipt cannot reuse the clean-install, Premier League management,
 season-progression or save/reload receipt file.
