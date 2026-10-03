@@ -72,6 +72,8 @@ class FastViewSemanticShellTests(unittest.TestCase):
         figures = shell.possession_figures[0]
 
         self.assertEqual(figures.calculation_minute, 10)
+        self.assertEqual(figures.source_global_tick, 10)
+        self.assertEqual(figures.source_possession_array_index, 2)
         self.assertEqual(figures.side0_percent_text, "45%")
         self.assertEqual(figures.neutral_percent_text, "20%")
         self.assertEqual(figures.side1_percent_text, "35%")
