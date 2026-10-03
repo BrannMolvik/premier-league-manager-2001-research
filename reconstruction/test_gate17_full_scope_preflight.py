@@ -63,6 +63,7 @@ def runtime_owner_audit(*, complete=True, scope_id="26:0"):
         selection_supported=True,
         runtime_materialized=True,
         human_match_supported=complete,
+        fresh_financial_objective_supported=True,
         annual_progression_supported=True,
         blocker_codes=blockers,
     )

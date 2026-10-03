@@ -10,15 +10,18 @@ belongs to the fixed primary, procedural primary, or procedural secondary
 runtime family.
 
 This checkpoint measures those requirements against the clean-room human
-controller without widening it.
+controller. Primary TeamSelect club selection is now source-driven; secondary
+selection remains unavailable until its distinct runtime owner exists.
 
 ## Capability dimensions
 
-Every playable country/League scope is checked for four independent conditions:
+Every playable country/League scope is checked for five independent conditions:
 
 - every cataloged club in that scope is selectable by the current human backend;
 - the required runtime owner is materialized;
 - the human match dispatcher can play that runtime-owner family;
+- fresh chairman/financial-objective setup is source-backed for that
+  competition;
 - annual progression is connected for that scope's country.
 
 The audit reports exact blocker codes:
@@ -26,6 +29,7 @@ The audit reports exact blocker codes:
 - `human_selection_unavailable`;
 - `runtime_owner_not_materialized`;
 - `human_match_dispatch_missing`;
+- `fresh_financial_objective_missing`;
 - `annual_progression_country_missing`.
 
 No blocker is inferred away merely because the generic AI/runtime machinery
@@ -35,7 +39,9 @@ exists.
 
 The canonical runner deliberately mirrors the current repository boundary:
 
-- human club selection comes from `state.premier_league.club_ids`;
+- human club selection includes the exact TeamSelect clubs whose required
+  runtime owner is fixed/procedural primary, with a live-owner membership
+  guard before control is assigned;
 - fixed human League support is competition 0;
 - every TeamSelect League classified `procedural_primary` is included in the
   canonical primary scheduler/materialization set and is represented through
@@ -43,6 +49,9 @@ The canonical runner deliberately mirrors the current repository boundary:
 - `play_user_primary_match()` now dispatches already-materialized primary
   `procedural_league` entries through the shared human match backend;
 - GameState has no secondary procedural League runtime container;
+- fresh chairman-objective candidate generation remains instruction-locked
+  only for competition 0, so non-PL scopes retain the explicit
+  `fresh_financial_objective_missing` blocker;
 - annual LeagueAllocation commit remains the English-only transition path.
 
 These are implementation facts about the present clean-room port, not claims
@@ -51,10 +60,10 @@ about original behavior.
 ## Boundary
 
 This module is diagnostic only. It does not mutate GameState, install secondary
-competition state, change human selection, apply allocation exchanges,
-regenerate a season, or alter save data. The separately implemented primary
-procedural human-dispatch bridge is measured here rather than created by the
-audit.
+competition state, apply allocation exchanges, regenerate a season, or alter
+save data. Source-driven primary selection and the separately implemented
+primary procedural human-dispatch bridge are measured here rather than created
+by the audit.
 
 A fully green capability audit would only mean that the repository-side
 runtime surfaces needed by every source-backed TeamSelect League are present.

@@ -118,6 +118,15 @@ class PlayableLeagueRuntimePlan:
         )
 
     @property
+    def primary_selectable_club_ids(self) -> tuple[int, ...]:
+        return tuple(
+            int(club_id)
+            for entry in self.entries
+            if entry.uses_primary_container
+            for club_id in entry.selectable_club_ids
+        )
+
+    @property
     def procedural_secondary_scope_ids(self) -> tuple[str, ...]:
         return tuple(
             entry.scope_id for entry in self.entries
@@ -137,6 +146,9 @@ class PlayableLeagueRuntimePlan:
             ),
             "procedural_primary_competition_ids": list(
                 self.procedural_primary_competition_ids
+            ),
+            "primary_selectable_club_ids": list(
+                self.primary_selectable_club_ids
             ),
             "procedural_secondary_scope_ids": list(
                 self.procedural_secondary_scope_ids
