@@ -73,6 +73,8 @@ on:
       - "reconstruction/test_gate14_fastview_team.py"
       - "reconstruction/gate14_fastview_player_history.py"
       - "reconstruction/test_gate14_fastview_player_history.py"
+      - "reconstruction/gate14_fastview_playerrow_snapshot.py"
+      - "reconstruction/test_gate14_fastview_playerrow_snapshot.py"
       - "reconstruction/gate14_fastview_league_table.py"
       - "reconstruction/test_gate14_fastview_league_table.py"
       - "original_assets/source/FM2001_Art/FastView/**"
