@@ -125,6 +125,8 @@ on:
       - "reconstruction/test_gate17_country_allocation_scope.py"
       - "reconstruction/gate17_allocation_ranking_capability.py"
       - "reconstruction/test_gate17_allocation_ranking_capability.py"
+      - "reconstruction/gate17_playable_allocation_preview.py"
+      - "reconstruction/test_gate17_playable_allocation_preview.py"
       - "reconstruction/gate17_human_scope_capability.py"
       - "reconstruction/test_gate17_human_scope_capability.py"
       - "research/GATE17_RELEASE_READINESS.md"
