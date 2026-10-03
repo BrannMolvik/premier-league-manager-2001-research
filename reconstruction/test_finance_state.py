@@ -10,6 +10,7 @@ from finance_state import (
     FinancialObjectiveState,
     TRANSFER_ACCOUNT_CATEGORY,
     fresh_financial_objective_candidates,
+    fresh_financial_objective_requires_rng,
 )
 
 
@@ -99,6 +100,42 @@ class RecordingObjectiveRng:
 
 
 class FinancialObjectiveStateTests(unittest.TestCase):
+    def test_fresh_candidate_rng_requirement_matches_exact_random_branches(self):
+        self.assertFalse(
+            fresh_financial_objective_requires_rng(
+                4,
+                10,
+                first_hierarchy_class=True,
+                promotion_playoff_position_count=0,
+            )
+        )
+        self.assertTrue(
+            fresh_financial_objective_requires_rng(
+                5,
+                10,
+                first_hierarchy_class=True,
+                promotion_playoff_position_count=0,
+            )
+        )
+        for rank_count in (4, 5):
+            with self.subTest(rank_count=rank_count):
+                self.assertFalse(
+                    fresh_financial_objective_requires_rng(
+                        rank_count,
+                        10,
+                        first_hierarchy_class=False,
+                        promotion_playoff_position_count=0,
+                    )
+                )
+                self.assertTrue(
+                    fresh_financial_objective_requires_rng(
+                        rank_count,
+                        10,
+                        first_hierarchy_class=False,
+                        promotion_playoff_position_count=1,
+                    )
+                )
+
     def test_full_fresh_candidate_generator_covers_first_class_branches(self):
         low_rng = RecordingObjectiveRng(())
         self.assertEqual(
@@ -269,6 +306,71 @@ class FinancialObjectiveStateTests(unittest.TestCase):
 
 
 class FinancialObjectiveGameStateTests(unittest.TestCase):
+    @staticmethod
+    def non_pl_state(*, controlled_competition_id: int, controlled_club_id: int):
+        clubs = {
+            20: SimpleNamespace(starting_cash=1_000_000, fan_base_index=1),
+            21: SimpleNamespace(starting_cash=1_000_000, fan_base_index=2),
+            22: SimpleNamespace(starting_cash=1_000_000, fan_base_index=3),
+            23: SimpleNamespace(starting_cash=1_000_000, fan_base_index=4),
+        }
+        competitions = {
+            9: SimpleNamespace(
+                id=9,
+                runtime_kind_code=1,
+                schedule_container_code=1,
+                parent_competition_id=None,
+                initialization_order_value=0,
+                country_region_id=1,
+            ),
+            10: SimpleNamespace(
+                id=10,
+                runtime_kind_code=1,
+                schedule_container_code=1,
+                parent_competition_id=None,
+                initialization_order_value=1,
+                country_region_id=1,
+            ),
+        }
+        owner = SimpleNamespace(club_ids=(20, 21, 22, 23))
+        return GameState(
+            calendar=GameCalendar(date(2000, 8, 18)),
+            players={},
+            clubs=clubs,
+            competitions=competitions,
+            premier_league=SimpleNamespace(club_ids=(100, 101)),
+            procedural_leagues={(controlled_competition_id, 0): owner},
+            club_competition_membership={
+                club_id: controlled_competition_id
+                for club_id in owner.club_ids
+            },
+            source_fixture_identity=(),
+        )
+
+    def test_deterministic_non_pl_fresh_candidates_materialize_without_rng(self):
+        state = self.non_pl_state(
+            controlled_competition_id=10,
+            controlled_club_id=20,
+        )
+        balance = state.initialize_controlled_club_balance(20)
+
+        self.assertIsNotNone(balance.financial_objective)
+        self.assertEqual(
+            state.financial_objective_candidates(20),
+            (1, 5, 9),
+        )
+
+    def test_rng_dependent_non_pl_fresh_candidates_remain_fail_closed(self):
+        state = self.non_pl_state(
+            controlled_competition_id=9,
+            controlled_club_id=23,
+        )
+        balance = state.initialize_controlled_club_balance(23)
+
+        self.assertIsNone(balance.financial_objective)
+        with self.assertRaisesRegex(RuntimeError, "not initialized"):
+            state.financial_objective_candidates(23)
+
     def test_controlled_club_initialization_materializes_pl_candidates(self):
         clubs = {
             club_id: SimpleNamespace(
