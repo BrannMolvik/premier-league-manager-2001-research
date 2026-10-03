@@ -51,12 +51,13 @@ procedural-secondary scope-ID sets.
 
 ## Why this matters
 
-The existing clean-room competition engine already has generic procedural
-League construction for the primary container. The current human gameplay
-controller only materializes an English/annual subset of those owners and does
-not provide a human procedural-League dispatch. Secondary-container League
-support is a separate boundary and must not be silently routed through the
-primary engine.
+The existing clean-room competition engine has generic procedural League
+construction for the primary container. Canonical controller construction now
+adds every TeamSelect entry classified `procedural_primary` to the live primary
+scheduler/materialization set, while retaining the English/annual/Cup-child
+dependencies needed elsewhere. Human primary procedural entries use the shared
+human match backend. Secondary-container League support remains a separate
+boundary and is not silently routed through the primary engine.
 
 This plan therefore makes the full-scope implementation boundary explicit
 without changing `GameState`, `HumanGameplayController`, fixtures, RNG,
@@ -66,14 +67,12 @@ annual transitions, or save state.
 
 After Gate 13 releases shared-runtime ownership:
 
-1. materialize every cataloged primary League owner required by the selected
-   human career;
-2. add the source-backed human procedural-League match branch;
-3. provide the distinct secondary-container continuation for catalog entries
+1. provide the distinct secondary-container continuation for catalog entries
    classified there;
-4. connect the already-parsed country allocation/ranking endpoints for annual
+2. widen human club selection only where its required runtime owner is live;
+3. connect the already-parsed country allocation/ranking endpoints for annual
    progression;
-5. validate every catalog scope through the final Windows 11 archive.
+4. validate every catalog scope through the final Windows 11 archive.
 
 This checkpoint is a source-backed routing contract, not a claim that those
 routes are already playable.
