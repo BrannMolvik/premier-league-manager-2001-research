@@ -895,8 +895,12 @@ class FreshPromotionPlayoffCountTests(unittest.TestCase):
             CupAllocation(155, 11, 2, 1, 2, 4),
         )
         rounds = (
-            Round(11, 4, 218, 2, 0, 0, 0xFFFFFFFF, 4),
-            Round(11, 2, 219, 1, 0, 0, 0xFFFFFFFF, 0),
+            # Preserve the recovered Cup+0x38 ordering dependency: the
+            # entrant-bearing semifinal precedes the no-new-entrant final.
+            # Equal synthetic schedule keys would make this regression depend
+            # on unrelated CRT qsort tie permutation instead.
+            Round(11, 4, 218, 2, 1, 1, 0xFFFFFFFF, 4),
+            Round(11, 2, 219, 1, 2, 1, 0xFFFFFFFF, 0),
         )
 
         self.assertEqual(
