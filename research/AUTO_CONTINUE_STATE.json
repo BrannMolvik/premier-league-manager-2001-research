@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 218: canonical main advanced via Gate-13 PR #199 to d22a21385f237e486e07ce10376867eda6d7792a, adding strict complete-report owner/link persistence and more setup inputs while Gate 13 remains open. Stale Gate-14 PR #200 was closed; reconciled PR #201 head 5d4513008b9c1fee006f8297cdf7f132bbc597e2 is based directly on d22a213. It advances shared internal save schema 39->40 and retains complete 24-byte FastView Condition histories only for source-closed AI-vs-AI (0x51101C D48=0); human-opponent histories remain raw-prefix-only. Asset policy passed; full reconstruction CI is running. After #201 verification, return to Gate 13's new exact producer boundary (B68, FE0/FE4, gate scalar/classification, side tactics/shirt/context and human-opponent D48 metadata) before any closure claim.",
-  "last_known_main_head": "d22a21385f237e486e07ce10376867eda6d7792a",
+  "active_task": "Recovery 218: canonical main 24f1772474dd26ece609998a3534a9dd5793e2f4 includes Gate-13 report owner/setup and Gate-14 AI-vs-AI full FastView Condition histories (PR #201, 1,668 tests/23 skips). Gate 13 remains earliest incomplete. PR #202 head b5a5be9203b21c85cf863e47d403de9649b513d1 models exact FE0/FE4 0x510F40/0x421BA0 shared-CRT selection semantics and fixes CI path coverage; full CI queued/running. PR #203 head 7a4071d453ae5da9f12ff76468f8242ea1db5f1a retains exact source D88 seating-price scalar in GateReceiptResult and schema 41; CI pending. Do not live-wire FE0/FE4 until relative setup RNG position is verified. Remaining report producers include B68, D9C classification, side tactics/shirts/context and human-opponent D48.",
+  "last_known_main_head": "24f1772474dd26ece609998a3534a9dd5793e2f4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 218,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Process execution remains unavailable for fresh private disassembly, but PR #199 source-closed the FE0/FE4 setup argument as the home country's nationality identity plus existing 0x421BA0 pool/retry rules. Evaluate cloud-safe FE0/FE4 integration after #201.",
+  "note": "Execution sandbox remains unavailable for fresh executable disassembly. Continue source-backed cloud-safe Gate13 inputs; do not guess B68/D9C or PlayerProxy RNG6 traversal.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
