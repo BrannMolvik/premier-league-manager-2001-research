@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Codex PR #242 head 1250f2e4 is fully green but still explicitly open for remaining row/kit/scroll/color fidelity and fresh uncontrolled visiting-capacity lifecycle; do not merge or modify it. Canonical main is da5c0fb268b17483521cbd12ef9ec77fed5367ad after Gate-17 PR #246 merged green, binding final full_original_scope evidence to the exact hash-verified TeamSelect catalog SHA/counts/ordered country:competition IDs with empty missing/failed scope. PR #247 head a74e9f98 is validating the exact human-control capability gap over that catalog; asset policy is green and reconstruction CI is in progress. Gate-14 retained-history FastView frame path is canonical through a5b4766a. Local shell/container/Python process starts still fail with caas.internal.errors.ClientError, blocking private audio-bank/cross-z-order/dynamic-resize/text-color source adjudication. Gate16 current readiness audit already prevalidates its roadmap criteria with two canonical three-season seeds plus six deterministic synthetic seeds, so the recovered optional canonical_multiseed wrapper branch worker/gate16-canonical-multiseed-v2 at c2ea5ebc is not on the critical path. Preserve Gate-13 ownership.",
-  "last_known_main_head": "da5c0fb268b17483521cbd12ef9ec77fed5367ad",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. CURRENT_STATE.md still names Gate 13 as the canonical current gate. Codex PR #242 head 1250f2e4 remains open and explicitly retains row/kit/scroll/color fidelity plus fresh uncontrolled visiting-capacity lifecycle; main has advanced under it, so do not merge/rebase/modify it. Canonical main is 3c6fee802cb0ea3197666f9c0bfc064d5e219bfb after Gate-17 PR #247 merged green, adding a fail-closed exact audit of current human-control club coverage over the source-backed TeamSelect catalog. PR #248 head 3d90ef28 is mergeable with reconstruction run 37146423524 and asset-policy run 37146423542 in progress; it maps parsed source LeagueAllocation rows onto exact playable countries/ranking endpoints without performing transitions or inventing policy. Gate-14 retained-history frame path remains canonical through a5b4766a; private .bnk audio, cross-component z-order, dynamic TeamTable resize pixels and PlayerRow typography/color remain blocked by local process-start ClientError. Gate16 remains prevalidated by existing readiness evidence. Preserve Gate-13 ownership.",
+  "last_known_main_head": "3c6fee802cb0ea3197666f9c0bfc064d5e219bfb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 242,
+  "recovery_generation": 243,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 242 checkpoint: #246 exact Gate17 canonical scope binding merged green as da5c0fb2. #247 human-control scope capability audit is running (asset green, reconstruction active). Gate16 is already prevalidated by current readiness evidence; optional recovered multi-seed wrapper prepared but intentionally deprioritized. Gate13 #242 remains green/open/Codex-owned.",
+  "note": "Recovery 243 checkpoint: #247 human-scope capability audit merged green as 3c6fee80. #248 playable-country LeagueAllocation scope planner is mergeable with both hosted checks running. Gate13 #242 remains open/Codex-owned. Gate14 remaining audio/z-order/player-visible-host work is blocked by private process execution or shared host ownership.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
