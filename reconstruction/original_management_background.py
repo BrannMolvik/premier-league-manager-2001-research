@@ -36,11 +36,12 @@ def background_candidates(directory: str, basename: str, month: int,
                           fan_base: int) -> tuple[str, ...]:
     if type(month) is not int or not 1 <= month <= 12:
         raise ManagementBackgroundError('Native date month must be 1..12')
-    if type(fan_base) is not int or fan_base < 0:
+    if type(fan_base) is not int or not 0 <= fan_base <= 0xFFFFFFFF:
         raise ManagementBackgroundError('Missing original fan-base index')
     directory, basename = map(native_art_component, (directory, basename))
     variant = MONTH_VARIANTS[month - 1]
-    generic = 0 if fan_base > 20 else 1 if fan_base > 8 else 2
+    signed_fan_base = fan_base if fan_base < 0x80000000 else fan_base - 0x100000000
+    generic = 0 if signed_fan_base > 20 else 1 if signed_fan_base > 8 else 2
     return (
         f'{TEAM_ROOT}/{directory}/{basename}_background{variant}.444',
         f'{TEAM_ROOT}/{directory}/{basename}_background.444',

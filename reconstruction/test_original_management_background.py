@@ -16,7 +16,8 @@ class ManagementBackgroundTests(unittest.TestCase):
     def test_exact_calendar_and_fan_base_boundaries(self):
         self.assertEqual(MONTH_VARIANTS, (2, 2, 3, 3, 0, 0, 0, 0, 1, 1, 1, 2))
         for month, variant in enumerate(MONTH_VARIANTS, 1):
-            for fans, generic in ((0, 2), (8, 2), (9, 1), (20, 1), (21, 0)):
+            for fans, generic in ((0, 2), (8, 2), (9, 1), (20, 1), (21, 0),
+                                  (0x7FFFFFFF, 0), (0x80000000, 2), (0xFFFFFFFF, 2)):
                 paths = background_candidates('England', 'Aston Villa', month, fans)
                 self.assertTrue(paths[0].endswith(f'/Aston_Villa_background{variant}.444'))
                 self.assertTrue(paths[1].endswith('/Aston_Villa_background.444'))

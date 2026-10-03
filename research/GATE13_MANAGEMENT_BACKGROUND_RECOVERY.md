@@ -26,7 +26,8 @@ Exact lookup order under `FM2001_Art/Generic/Team_backgrounds`:
 3. `generic<fan-base-band>_background<variant>.444`;
 4. static handle `0x9460B0`, initialized from `generic.444` by `0x5F5010`.
 
-Fan-base band is 0 for values >20, 1 for 9..20, and 2 for <=8.
+The comparisons are signed 32-bit: fan-base band is 0 for values >20,
+1 for 9..20, and 2 for <=8 (including negative encoded dwords).
 This is native club `+0x70`, not a randomly selected fallback.
 `0x64DB90` supplies the slash, underscore and `.444` literals.
 `0x40C850` uses `International` for team categories 2/3; otherwise it

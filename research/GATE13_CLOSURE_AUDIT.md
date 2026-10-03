@@ -13,13 +13,18 @@ wording below describes the 2 October checkpoint, not the current blocker.
 | Roadmap criterion | Current result | Concrete evidence / remaining boundary |
 | --- | --- | --- |
 | Simulation separated from presentation | **PASS** | Presentation-separation tests, controller/session boundary; captions and error feedback do not add simulation semantics. |
-| Accessible original resources/layout/navigation reused | **PARTIAL** | Canonical resource hashes/import manifest; fresh schema-8 Tk bitmap/caption dimensions pass. Ordinary Fixtures cell/context navigation and management shell pixels remain unresolved. |
+| Accessible original resources/layout/navigation reused | **PARTIAL** | Native seasonal management base/header now integrated with 97 verified selected assets and a fresh Windows schema-8 pass. Ordinary Fixtures captured-report lifecycle/event acceptance and remaining shell/content stay open. |
 | Main-menu/login presentation, structure, navigation and timing closely follow original | **PARTIAL** | Canonical strings, fonts, layouts, Button frames and real Tk menu/TeamSelect route pass; space/caption playtest defects fixed. Original timing is not certified by this receipt. |
-| Normal play recognizably FM2001 | **NOT YET ESTABLISHED** | Original PMenu/Squad/Fixtures/popup/Tables fragments render on real Windows. Schema 8 tests an explicit popup seam, not ordinary fixture-cell navigation, surrounding shell pixels or a human recognizability comparison. |
+| Normal play recognizably FM2001 | **NOT YET ESTABLISHED** | Original management backdrop/header plus PMenu/Squad/Fixtures/popup/Tables fragments render on real Windows. Schema 8 still tests an explicit popup seam, not ordinary captured-report navigation or complete normal-play content/recognizability. |
 
 Gate 13 remains **OPEN**, for substantive presentation/navigation boundaries,
-not absence of a schema-8 Windows run. Next: application-owned shell draw path,
-then fixture-cell hit-testing and secondary-context PMatchInfo owner bridge.
+not absence of a schema-8 Windows run. The base/header blocker is now narrowed
+by `GATE13_MANAGEMENT_BACKGROUND_RECOVERY.md`. Next: capture eligibility/data
+at `0x511479 -> 0x60BF10/0x60BE50`, persistent native report/link ownership,
+then native event acceptance and ordinary Fixtures -> PMatchInfo. Grid origin
+and signed-word lookup are source-closed/tested; no score-derived substitute
+context is accepted. Remaining normal-play content and original timing still
+prevent a truthful Gate-13 completion/transition to formal Gate-14 validation.
 
 ## Prior checkpoint assessment (2 October)
 _Last reconciled during Recovery 182 after the bounded PSquadScreen view-transition seam and schema-8 audit update._
