@@ -26,6 +26,14 @@ class SourceFixtureMatchInfoContext:
     link_word: int
     captured_report: object
 
+    def __post_init__(self):
+        if type(self.fixture_id) is not int or self.fixture_id < 0:
+            raise ValueError('Source fixture identity must be an integer')
+        if type(self.link_word) is not int or not 0 <= self.link_word < 0x8000:
+            raise ValueError('Resolved source context requires a nonnegative signed link')
+        if self.captured_report is None:
+            raise ValueError('Resolved source context cannot have a null report')
+
 
 def source_report_capture_eligible(
     home_participant_count: int,

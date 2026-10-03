@@ -496,10 +496,10 @@ class OriginalGameTkHost:
     ):
         """Open only the source-proven PMatchInfo popup after its two source gates.
 
-        Ordinary League Fixtures clicks are not promoted into this seam because
-        the secondary linked context is not yet bridged from reconstructed
-        fixture state. A caller must supply the already-adjudicated gate result
-        inputs explicitly.
+        The native right-press adapter resolves an explicit report owner/link
+        before entering this seam. It never fabricates that owner from results.
+        Other callers must supply already-adjudicated gate inputs explicitly;
+        this seam alone is not evidence of ordinary runtime capture production.
         """
         if self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT:
             raise OriginalGameHostError(
@@ -572,9 +572,14 @@ class OriginalGameTkHost:
         if context is None:
             self.last_status = 'Native fixture report unavailable; no score-derived context'
             return
-        action = self.apply_source_accepted_fixture_match_info(
-            fixture_present=True, linked_context_available=True,
-            pointer_x=int(event.x), pointer_y=int(event.y))
+        try:
+            action = self.apply_source_accepted_fixture_match_info(
+                fixture_present=True, linked_context_available=True,
+                pointer_x=int(event.x), pointer_y=int(event.y))
+        except Exception as exc:
+            self.last_status = f'{type(exc).__name__}: {exc}'
+            self.error_reporter(self.last_status)
+            return
         if action is not None:
             self.active_pmatchinfo_context = context
 

@@ -16,6 +16,12 @@ from test_original_game_host import (
 
 
 class FixtureReportRouteTests(unittest.TestCase):
+    def test_resolved_context_rejects_sentinel_null_and_boolean_identity(self):
+        for fixture, word, report in ((True, 0, object()), (700, 0xFFFF, object()),
+                                      (700, 0x8000, object()), (700, 0, None)):
+            with self.assertRaises(ValueError):
+                SourceFixtureMatchInfoContext(fixture, word, report)
+
     def test_bridge_never_uses_scores_or_completion_as_report(self):
         state = SimpleNamespace(premier_league=SimpleNamespace(
             results={700: SimpleNamespace(home_goals=3, away_goals=0)}))
