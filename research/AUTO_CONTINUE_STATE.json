@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with private/local source work blocked. PR #260 is merged green as main ab9a1881. The old PR #261 conflicts only because its parent was squash-merged. Its exact child content has been replayed onto conflict-free branch worker/gate17-primary-human-selection-main, based directly on ab9a1881, with exactly 10 intended changed files. Validate that replay through normal CI, merge it if green, then continue the next source-backed Gate-17 work-ahead step.",
-  "last_known_main_head": "ab9a1881fb299706049d0ae5f0b35a28fcd21289",
+  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 work-ahead PR #262 merged green as main 0b255ce4 after 1,863 tests / 23 expected skips: TeamSelect clubs with live primary owners are selectable, and non-PL fresh financial objectives remain explicit blockers. Next cloud-safe task: generalize annual LeagueAllocation commit from the current English-only transition to the already-source-backed all-TeamSelect-country allocation preview, preserving fail-closed unresolved rankings and atomic season regeneration.",
+  "last_known_main_head": "0b255ce403277b0868d73bb6ac297ce3eab452a9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 248,
   "last_recovery_reason": "connection-interrupted-transient",
-  "note": "Recovery 248 resumed after transient connection interruption. Fresh main-based replay branch worker/gate17-primary-human-selection-main is complete through 37f0bdd8; old #261 remains open only as historical stacked validation.",
+  "note": "Recovery 248 checkpoint: PR #262 merged green as 0b255ce4. Continuing annual all-playable-country LeagueAllocation commit work-ahead.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
