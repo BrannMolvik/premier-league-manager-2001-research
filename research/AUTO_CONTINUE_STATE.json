@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 218: Gate 13 remains the earliest incomplete validation gate. FE0/FE4 private source tracing is deferred because the authorized source archive is available/materialized but every process-execution route fails before start with caas.internal.errors.ClientError, even trivial shell commands. Continue independent Gate-14 work-ahead: retain complete calculator-final FastView Condition histories for AI-vs-AI matches from the already-retained raw prefix plus pre-incident final PreparedMatchPlayer Condition; fail closed for human-involved matches because MatchCalculator+0xD48 remains unresolved. Persist this state through internal save, then only advance to live RNG(6) PlayerProxy energy consumption if exact display evaluation order is source-proven.",
-  "last_known_main_head": "7402e8d79b4f249844b27ba0a5e0e3fcb8cfadbb",
+  "active_task": "Recovery 218: canonical main advanced via Gate-13 PR #199 to d22a21385f237e486e07ce10376867eda6d7792a, adding strict complete-report owner/link persistence and more setup inputs while Gate 13 remains open. Stale Gate-14 PR #200 was closed; reconciled PR #201 head 5d4513008b9c1fee006f8297cdf7f132bbc597e2 is based directly on d22a213. It advances shared internal save schema 39->40 and retains complete 24-byte FastView Condition histories only for source-closed AI-vs-AI (0x51101C D48=0); human-opponent histories remain raw-prefix-only. Asset policy passed; full reconstruction CI is running. After #201 verification, return to Gate 13's new exact producer boundary (B68, FE0/FE4, gate scalar/classification, side tactics/shirt/context and human-opponent D48 metadata) before any closure claim.",
+  "last_known_main_head": "d22a21385f237e486e07ce10376867eda6d7792a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 218,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #198 canonical at 7402e8d7, schema 39, 1,658 tests/23 skips. Gate13 source execution deferred, not abandoned. Gate14 work-ahead must not close Gate13.",
+  "note": "Process execution remains unavailable for fresh private disassembly, but PR #199 source-closed the FE0/FE4 setup argument as the home country's nationality identity plus existing 0x421BA0 pool/retry rules. Evaluate cloud-safe FE0/FE4 integration after #201.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
