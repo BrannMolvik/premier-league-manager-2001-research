@@ -10576,3 +10576,13 @@ work may continue under the deferred-blocker policy.
 - Draw routine `0x64F090` proves flags 9 mean default left horizontal and top vertical alignment. All valid `0%..100%` strings fit the 40x18 controls; the maximum is `100%` at 34x17.
 - Added an exact source-font text-art seam that renders only the three percentage glyph overlays at their already source-closed side1/neutral/side0 rectangles. Human-side orientation and surrounding FastView background remain fail-closed.
 - Gate 13 remains earliest incomplete pending the external schema-8 Windows receipt; Gate 14 is still work-ahead.
+
+
+## 3 October 2026 - Recovery 202 FastView home/away orientation and background boundary
+
+- PR #169 became canonical at `c75ce5b07dc9d8c7467ed8dc4826854443ffd4a2` after reconstruction run `37086870371` passed **1,504 tests with 22 expected skips** and asset-policy run `37086870329` passed.
+- Continued directly into side orientation. Fixed-fixture builder `0x6173D0` resolves fixture `+0x0C` home first and `+0x10` away second. `LeagueMatch::0x5104F0 -> 0x5103D0` stores home in embedded subobject `+0x14` and away in `+0x28`.
+- Match setup `0x510D60` maps `+0x14` to MatchCalculator side 0 at `+0x0000` and `+0x28` to side 1 at `+0x05B0`. Combined with already exact PossessionFigures geometry, side 1/away is left and side 0/home is right. A human-controlled club is therefore right when home and left when away for this bounded component.
+- Rechecked the loose `FM2001_Art/FastView/background.444` lead. Literal `0x8294E8` is copied at `0x51F2F0` into static string `0x877758` through generic string constructor `0x684620`. Direct executable-reference scanning finds only construction and destruction; the 800x600 FastViewPanel constructor `0x51F490 -> 0x527350` receives no bitmap path.
+- Recorded that negative result as `unbound_static_path_string_fail_closed`. The authenticated 800x600 bitmap is not imported/rendered as a panel background without a direct owner/draw path.
+- Gate 13 remains the earliest incomplete validation gate pending the external schema-8 Windows receipt; this remains Gate-14 work-ahead.
