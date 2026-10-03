@@ -41,3 +41,25 @@ The source energy transform is not sanitized. A below-anchor value can therefore
 ## Gate impact
 
 This advances Gate 14's requirement that presentation consume reconstructed/retained match state rather than duplicate simulation logic. It does not close Gate 14, provide missing audio mappings, resolve generic FastView text pixels, assign cross-component z-order, or alter any Gate-13 implementation/status file.
+
+
+## Recovery 225 semantic-shell integration
+
+The next presentation seam is now explicit: `FastViewSemanticShell` derives one
+`FastViewPlayerRowRenderPlan` for each retained `presentation.player_rows`
+snapshot, in exactly the same tuple order.
+
+This remains a one-way read-only projection. The shell does not call match
+simulation, RNG, scheduling, controller, audio or commentary code. It simply
+translates the already retained PlayerRow snapshot through the fail-closed
+render-plan adapter.
+
+The shell continues to report:
+
+- `original_layout_recovered = False`;
+- `audio_mapping_recovered = False`;
+- `choreography_3d_recovered = False`.
+
+Therefore this integration is evidence that Gate 14 presentation consumes
+retained reconstructed state without duplicating simulation, not evidence of a
+complete or player-visible original FastView frame.
