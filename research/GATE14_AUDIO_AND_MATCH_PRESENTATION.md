@@ -220,6 +220,14 @@ extra time, penalties, full time and global second-half events. The grid-2
 final screen origin is still caller-supplied/unresolved, so neither binary is
 rendered by this checkpoint.
 
+Recovery 205's follow-on closes the final visible
+`ScoreCompositeNormal` row geometry. The owning score view lays out one
+12-row column at x=246 for <=12 source entries or two columns at x=38/454
+above 12; rows begin at y=55 and advance by 19 pixels. Grid-2 occupies the
+first 309x16 pixels of each composite. Four adjacent generic text controls have
+exact local rectangles but remain semantically unnamed until their data
+producers are traced.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
