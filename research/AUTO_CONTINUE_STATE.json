@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 221: Gate 13 remains coordination-locked to open PR #205. Do not touch Gate-13 producer/report/persistence code or PR #205 files. Continue independent Gate-14 PlayerProxy work-ahead only: add a pure read-only adapter in gate14_fastview_playerrow_snapshot.py that consumes already-retained FastViewPlayerHistories, global tick and an explicit source-order RNG(6) result, derives 0x6308B0 form plus 0x630910 energy, and composes the existing PlayerRow snapshot without importing/advancing simulation or RNG state.",
-  "last_known_main_head": "0402dd108d5a224438a161ea51ce859cd550a4ab",
+  "active_task": "Recovery 221: Gate 13 remains coordination-locked to PR #205; do not reconcile or edit its files. PR #206 merged canonical as a5976a7fb2578331ac170ec8676e3cac345c97b9 after reconstruction run 37121498780 passed 1,677 tests with 23 expected skips and asset-policy run 37121498972 passed. Continue only independent Gate-14 work-ahead. PlayerProxy batch RNG order remains fail-closed because 0x521C9C loop order is not persisted and private executable execution is currently blocked by container ClientError. Next research target: source-backed ownership/callsites for original audio banks; do not infer semantics from .bnk filenames.",
+  "last_known_main_head": "a5976a7fb2578331ac170ec8676e3cac345c97b9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 221,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 221 obeys Gate-13 lock. Work only in PlayerProxy helper/test files not changed by PR #205.",
+  "note": "Gate-13 coordination lock still active. Canonical PlayerRow retained-history adapter merged. Private source archive is present in Library but container/Python execution remains unavailable.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
