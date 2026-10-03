@@ -23,6 +23,10 @@ from original_fastview_possession_figures_art import (
     OriginalFastViewPossessionFiguresArt,
 )
 from original_fastview_possession_resources import FASTVIEW_POSSESSION_DIAGRAM_RESOURCES
+from original_fastview_team_art import (
+    FASTVIEW_TEAM_ART_RESOURCES,
+    build_fastview_team_art,
+)
 
 
 def image(width, height, value):
@@ -68,6 +72,15 @@ def exact_figures(side0=45, neutral=20):
         )
     return OriginalFastViewPossessionFiguresArt(tuple(rows))
 
+
+
+def exact_team_art():
+    return build_fastview_team_art(
+        {
+            resource.name: image(*resource.size, 20 + index)
+            for index, resource in enumerate(FASTVIEW_TEAM_ART_RESOURCES)
+        }
+    )
 
 def completed_outcome(*, match_reference=23):
     goal = ChanceRecord(
@@ -122,6 +135,7 @@ class HumanFastViewFramePlanTests(unittest.TestCase):
             exact_chrome(),
             exact_possession(),
             exact_figures(),
+            exact_team_art(),
         )
 
         self.assertEqual(frame.match_reference, 23)
@@ -134,6 +148,11 @@ class HumanFastViewFramePlanTests(unittest.TestCase):
             frame.semantic_shell.player_row_render_plans,
         )
         self.assertEqual(frame.surface_layout.size, (800, 600))
+        self.assertIsNotNone(frame.component_rasters.team_table)
+        self.assertEqual(
+            frame.component_rasters.team_table.component,
+            "team_table_static",
+        )
         self.assertFalse(frame.complete_raster_frame)
         self.assertFalse(frame.audio_ready)
         self.assertFalse(frame.choreography_3d_ready)
@@ -147,6 +166,7 @@ class HumanFastViewFramePlanTests(unittest.TestCase):
             exact_chrome(),
             exact_possession(),
             exact_figures(),
+            exact_team_art(),
         )
 
         self.assertEqual(frame.match_reference, reference)
@@ -158,6 +178,7 @@ class HumanFastViewFramePlanTests(unittest.TestCase):
                 exact_chrome(),
                 exact_possession(),
                 exact_figures(),
+                exact_team_art(),
             )
 
     def test_adapter_does_not_import_simulation_rng_audio_or_controller_layers(self):
