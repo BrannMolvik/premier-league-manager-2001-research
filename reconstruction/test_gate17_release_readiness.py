@@ -182,6 +182,8 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 "human_career_flow": True,
                 "competition_progression": True,
                 "original_management_gameplay_subsystems": True,
+                "multi_human_management": True,
+                "simultaneous_human_users_verified": 6,
             },
         }
         for name, flags in receipt_flags.items():
@@ -323,6 +325,53 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 "reuses the same evidence file",
             ):
                 validate_external_receipts(evidence, repo)
+
+    def test_full_scope_receipt_requires_source_proven_six_user_capability(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            name = "full_original_scope"
+            path = Path(raw["external_receipts"][name]["path"])
+
+            cases = (
+                ("multi_human_management", False, "multi_human_management"),
+                (
+                    "simultaneous_human_users_verified",
+                    5,
+                    "simultaneous_human_users_verified",
+                ),
+                (
+                    "simultaneous_human_users_verified",
+                    True,
+                    "simultaneous_human_users_verified",
+                ),
+            )
+            for field, value, message in cases:
+                with self.subTest(field=field, value=value):
+                    payload = json.loads(path.read_text(encoding="utf-8"))
+                    payload[field] = value
+                    path.write_text(json.dumps(payload), encoding="utf-8")
+                    raw["external_receipts"][name]["sha256"] = sha256(
+                        path.read_bytes()
+                    ).hexdigest()
+                    with self.assertRaisesRegex(
+                        ReleaseReadinessError,
+                        message,
+                    ):
+                        validate_external_receipts(
+                            parse_release_evidence(raw),
+                            repo,
+                        )
+                    raw["external_receipts"][name]["sha256"] = write_receipt(
+                        path,
+                        full_original_scope=True,
+                        all_original_playable_leagues=True,
+                        all_original_playable_countries=True,
+                        human_career_flow=True,
+                        competition_progression=True,
+                        original_management_gameplay_subsystems=True,
+                        multi_human_management=True,
+                        simultaneous_human_users_verified=6,
+                    )
 
     def test_full_original_scope_receipt_cannot_be_replaced_by_premier_smoke(self):
         with tempfile.TemporaryDirectory() as temp:
