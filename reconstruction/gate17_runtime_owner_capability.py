@@ -247,11 +247,11 @@ def run_canonical_runtime_owner_capability(
 ) -> RuntimeOwnerCapabilityAudit:
     """Measure the current canonical single-human controller without mutation.
 
-    The explicit empty procedural human-dispatch sets mirror the current
-    `play_user_primary_match()` implementation: it handles Premier League and
-    Cup entry families but has no `procedural_league` human branch. Secondary
-    procedural runtime state likewise has no current GameState container.
-    Annual LeagueAllocation commit remains the English-only transition path.
+    Human primary procedural dispatch is generic for every already-materialized
+    `procedural_league` owner because `play_user_primary_match()` now routes
+    that entry family through the shared human match backend. Secondary
+    procedural runtime state still has no current GameState container. Annual
+    LeagueAllocation commit remains the English-only transition path.
     """
     from human_gameplay import HumanGameplayController
 
@@ -278,7 +278,12 @@ def run_canonical_runtime_owner_capability(
             )
         ),
         materialized_secondary_procedural_ids=(),
-        human_primary_procedural_ids=(),
+        human_primary_procedural_ids=tuple(
+            dict.fromkeys(
+                int(competition_id)
+                for competition_id, _context in controller.state.procedural_leagues
+            )
+        ),
         human_secondary_procedural_ids=(),
         annual_progression_country_ids=(26,),
     )
