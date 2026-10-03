@@ -95,16 +95,19 @@ class FastViewComponentRasterTests(unittest.TestCase):
         self.assertEqual(plane.source_layer_count, len(art.placements))
 
         base = art.placements[0]
+        overlay = art.placements[1]
+
+        # State 0's left overlay begins at the base pitch's top-left, so that
+        # pixel must show the later overlay. Check an uncovered base pixel
+        # separately, then assert the overlap itself preserves overlay order.
         self.assertEqual(
-            pixel(plane, base.x, base.y),
+            pixel(plane, base.x + base.width - 1, base.y),
             tuple(base.rgba[:4]),
         )
-        if len(art.placements) > 1:
-            overlay = art.placements[1]
-            self.assertEqual(
-                pixel(plane, overlay.x, overlay.y),
-                tuple(overlay.rgba[:4]),
-            )
+        self.assertEqual(
+            pixel(plane, overlay.x, overlay.y),
+            tuple(overlay.rgba[:4]),
+        )
 
     def test_possession_figures_plane_uses_glyph_bounds_not_full_control_box(self):
         art = figures()
