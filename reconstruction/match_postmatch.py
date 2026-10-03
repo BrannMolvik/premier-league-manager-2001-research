@@ -7,6 +7,7 @@ from typing import Callable, Protocol, Sequence
 from match_events import ChanceRecord, IncidentKind, IncidentRecord, SubstitutionRecord
 from gate14_fastview_player_history import (
     match_form_trajectory_rng_draw_count,
+    materialize_fastview_condition_history,
     materialize_fastview_match_form_history,
 )
 from match_performance import target_match_performance_rating
@@ -15,6 +16,7 @@ from original_fixture_report_packing import native_participant_skill_flags
 from match_simulation import (
     NormalMatchResult,
     PreparedMatchSide,
+    RetainedFastViewConditionHistory,
     RetainedFastViewFormHistory,
 )
 
@@ -663,6 +665,70 @@ def persist_match_performance_history(
     ) if item.rating != 0)
 
 
+def _materialize_closed_fastview_condition_histories(
+    side0: PreparedMatchSide,
+    side1: PreparedMatchSide,
+    result: NormalMatchResult,
+) -> tuple[RetainedFastViewConditionHistory, ...]:
+    """Complete Condition histories only where the source materialization is closed.
+
+    Raw MatchCalculator prefixes are retained for every match. In a match with
+    a user-controlled side, however, the source can alter the non-user history
+    through MatchCalculator+0xD48 using the still-unresolved DBRClub+0x130
+    branch. Do not publish those raw bytes as PlayerProxy-visible Condition.
+
+    AI-vs-AI has no such unresolved user/opponent branch. When the live result
+    carries raw prefixes, require exact coverage for every prepared participant
+    and fill samples after +0xFF8 from the calculator-final PreparedMatchPlayer
+    Condition, matching 0x630D12..0x630D3D.
+    """
+    if any(
+        bool(side.attack_context.user_controlled)
+        or bool(side.defence_context.user_controlled)
+        for side in (side0, side1)
+    ):
+        return ()
+    if not result.raw_condition_history_prefixes:
+        return ()
+
+    prefixes = {
+        (int(item.side_index), int(item.player_index)): item.samples
+        for item in result.raw_condition_history_prefixes
+    }
+    expected = {
+        (int(side.side), int(player.player_index))
+        for side in (side0, side1)
+        for player in side.players
+    }
+    if set(prefixes) != expected:
+        raise ValueError(
+            "complete FastView Condition retention requires one raw prefix "
+            "for every prepared participant"
+        )
+
+    elapsed = int(result.condition_history_sample_count)
+    retained: list[RetainedFastViewConditionHistory] = []
+    for side in (side0, side1):
+        for local_index, player in enumerate(side.players):
+            if int(player.player_index) != local_index:
+                raise ValueError(
+                    "prepared participants must use contiguous side-local indices"
+                )
+            samples = materialize_fastview_condition_history(
+                prefixes[(int(side.side), int(local_index))],
+                elapsed,
+                int(player.condition),
+            )
+            retained.append(
+                RetainedFastViewConditionHistory(
+                    side_index=int(side.side),
+                    player_index=int(local_index),
+                    samples=samples,
+                )
+            )
+    return tuple(retained)
+
+
 def persist_match_performance_and_fastview_form_histories(
     side0: PreparedMatchSide,
     runtime_side0: Sequence[MutablePostMatchPlayer],
@@ -685,9 +751,10 @@ def persist_match_performance_and_fastview_form_histories(
         side0 all targets -> side0 all trajectories ->
         side1 all targets -> side1 all trajectories.
 
-    The returned NormalMatchResult retains only the completed match-form
-    histories. Condition history remains the separate raw prefix until the
-    human-vs-AI +0xD48 adjustment is source-closed.
+    The returned NormalMatchResult always retains the completed match-form
+    histories. For AI-vs-AI, raw Condition prefixes are also completed from the
+    calculator-final prepared Conditions. Human-involved matches deliberately
+    keep only the raw prefix until +0xD48's legacy club-state branch is closed.
     The optional capture sink receives each side's actual statistics once,
     before that side's trajectory phase; it must not rerun target-rating RNG.
     """
@@ -746,7 +813,16 @@ def persist_match_performance_and_fastview_form_histories(
         if rating_index != len(ratings):
             raise RuntimeError("not all persisted target ratings received form histories")
 
-    return replace(result, fastview_form_histories=tuple(retained))
+    condition_histories = _materialize_closed_fastview_condition_histories(
+        side0,
+        side1,
+        result,
+    )
+    return replace(
+        result,
+        fastview_condition_histories=condition_histories,
+        fastview_form_histories=tuple(retained),
+    )
 
 
 def persist_post_match_form(

@@ -39,6 +39,7 @@ from match_postmatch import (
 from match_simulation import (
     NormalMatchResult,
     PreparedMatchPlayer,
+    RawPlayerConditionHistory,
     PreparedMatchSide,
     TimedMatchEvent,
 )
@@ -800,6 +801,10 @@ class MatchPerformancePersistenceTests(unittest.TestCase):
                 TimedMatchEvent(20, IncidentRecord(IncidentKind.SENT_OFF, 0, 0)),
                 TimedMatchEvent(30, IncidentRecord(IncidentKind.SENT_OFF, 1, 0)),
             ),
+            raw_condition_history_prefixes=(
+                RawPlayerConditionHistory(0, 0, (70,) * 18),
+                RawPlayerConditionHistory(1, 0, (60,) * 18),
+            ),
             condition_history_sample_count=18,
         )
         side0 = finalizer_side(0)
@@ -840,6 +845,21 @@ class MatchPerformancePersistenceTests(unittest.TestCase):
             [(0, 0, 4), (1, 0, 4)],
         )
         self.assertEqual(
+            [
+                (item.side_index, item.player_index)
+                for item in finalized.fastview_condition_histories
+            ],
+            [(0, 0), (1, 0)],
+        )
+        self.assertEqual(
+            finalized.fastview_condition_histories[0].samples,
+            (70,) * 18 + (80,) * 6,
+        )
+        self.assertEqual(
+            finalized.fastview_condition_histories[1].samples,
+            (60,) * 18 + (80,) * 6,
+        )
+        self.assertEqual(
             finalized.fastview_form_histories[0].samples,
             (5,) + (4,) * 23,
         )
@@ -849,6 +869,70 @@ class MatchPerformancePersistenceTests(unittest.TestCase):
         )
         self.assertEqual(runtime0[0].match_performance_history[0], 4)
         self.assertEqual(runtime1[0].match_performance_history[0], 4)
+
+    def test_completed_finalizer_keeps_human_match_condition_history_raw_only(self):
+        ai_context = TeamStrengthContext(
+            tactic_style=0,
+            match_bias=2,
+            user_controlled=False,
+            aggression=5,
+        )
+        human_context = TeamStrengthContext(
+            tactic_style=0,
+            match_bias=2,
+            user_controlled=True,
+            aggression=5,
+        )
+
+        def side(side_id, context):
+            return PreparedMatchSide(
+                players=(PreparedMatchPlayer(
+                    side=side_id,
+                    player_index=0,
+                    condition=80,
+                    form_state=2,
+                    current_position=12,
+                    balance_position_code=10,
+                    preferred_positions=(12, 0, 0),
+                    skills=(100,) * 17,
+                    active=False,
+                    substitution_available=False,
+                ),),
+                attack_context=context,
+                defence_context=context,
+                penalty_taker_priority=(),
+                corner_taker_priority=(),
+                free_kick_taker_priority=(),
+                starting_player_indices=(0,),
+            )
+
+        result = NormalMatchResult(
+            events=(
+                TimedMatchEvent(20, IncidentRecord(IncidentKind.SENT_OFF, 0, 0)),
+                TimedMatchEvent(30, IncidentRecord(IncidentKind.SENT_OFF, 1, 0)),
+            ),
+            raw_condition_history_prefixes=(
+                RawPlayerConditionHistory(0, 0, (70,) * 18),
+                RawPlayerConditionHistory(1, 0, (60,) * 18),
+            ),
+            condition_history_sample_count=18,
+        )
+        finalized = persist_match_performance_and_fastview_form_histories(
+            side(0, human_context),
+            [RuntimePlayer(form_state=0)],
+            side(1, ai_context),
+            [RuntimePlayer(form_state=0)],
+            result,
+            ScriptedRng([]),
+            ScriptedRng([0] + [1] * 17 + [0] + [1] * 17),
+        )
+
+        self.assertEqual(finalized.fastview_condition_histories, ())
+        self.assertEqual(
+            finalized.raw_condition_history_prefixes,
+            result.raw_condition_history_prefixes,
+        )
+        self.assertEqual(len(finalized.fastview_form_histories), 2)
 
     def test_completed_finalizer_fails_closed_without_live_history_sample_count(self):
         context = TeamStrengthContext(

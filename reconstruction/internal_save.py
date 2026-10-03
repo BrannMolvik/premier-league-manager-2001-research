@@ -51,6 +51,7 @@ from original_fixture_report_capture import NativeCapturedPossession, capture_co
 from match_simulation import (
     NormalMatchResult,
     RawPlayerConditionHistory,
+    RetainedFastViewConditionHistory,
     RetainedFastViewFormHistory,
     SegmentPossession,
     TimedMatchEvent,
@@ -71,7 +72,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 39
+SAVE_SCHEMA_VERSION = 40
 
 
 def _iso(value: date | None) -> str | None:
@@ -688,6 +689,14 @@ def _snapshot_normal_match_result(result: NormalMatchResult) -> dict[str, Any]:
         "condition_history_sample_count": int(
             result.condition_history_sample_count
         ),
+        "fastview_condition_histories": [
+            {
+                "side_index": int(history.side_index),
+                "player_index": int(history.player_index),
+                "samples": [int(value) for value in history.samples],
+            }
+            for history in result.fastview_condition_histories
+        ],
         "fastview_form_histories": [
             {
                 "side_index": int(history.side_index),
@@ -773,6 +782,14 @@ def _restore_normal_match_result(value: dict[str, Any]) -> NormalMatchResult:
         ),
         condition_history_sample_count=int(
             value["condition_history_sample_count"]
+        ),
+        fastview_condition_histories=tuple(
+            RetainedFastViewConditionHistory(
+                side_index=int(item["side_index"]),
+                player_index=int(item["player_index"]),
+                samples=tuple(int(sample) for sample in item["samples"]),
+            )
+            for item in value["fastview_condition_histories"]
         ),
         initial_report_condition_bits=tuple(tuple(row) for row in value['initial_report_condition_bits']),
         report_booking_bits=tuple(tuple(row) for row in value['report_booking_bits']),
