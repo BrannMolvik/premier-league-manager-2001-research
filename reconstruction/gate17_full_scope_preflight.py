@@ -112,9 +112,45 @@ def build_full_scope_preflight(
             raise Gate17FullScopePreflightError(
                 "allocation preview ranking audit does not match supplied audit"
             )
-        if set(previewed_ids) != set(ranking_capability.assigned_allocation_ids):
+        if len(set(previewed_ids)) != len(previewed_ids):
+            raise Gate17FullScopePreflightError(
+                "allocation preview contains duplicate assigned allocation IDs"
+            )
+        expected_allocation_set = set(ranking_capability.assigned_allocation_ids)
+        if set(previewed_ids) != expected_allocation_set:
             raise Gate17FullScopePreflightError(
                 "allocation preview does not cover exact assigned allocation set"
+            )
+
+        exchange_ids = tuple(
+            int(exchange.allocation_id)
+            for exchange in allocation_preview.exchanges
+        )
+        if set(exchange_ids) != expected_allocation_set:
+            raise Gate17FullScopePreflightError(
+                "allocation preview exchange ledger does not cover exact assigned set"
+            )
+        if set(allocation_preview.memberships_before) != set(
+            allocation_preview.memberships_after
+        ):
+            raise Gate17FullScopePreflightError(
+                "allocation preview membership key set changed"
+            )
+
+        country_allocation_ids: list[int] = []
+        country_seen: set[int] = set()
+        for summary in allocation_preview.country_summaries:
+            for raw_allocation_id in summary.allocation_ids:
+                allocation_id = int(raw_allocation_id)
+                if allocation_id in country_seen:
+                    raise Gate17FullScopePreflightError(
+                        "allocation preview country summaries duplicate allocation IDs"
+                    )
+                country_seen.add(allocation_id)
+                country_allocation_ids.append(allocation_id)
+        if set(country_allocation_ids) != expected_allocation_set:
+            raise Gate17FullScopePreflightError(
+                "allocation preview country summaries do not cover exact assigned set"
             )
 
     blockers: list[str] = []
