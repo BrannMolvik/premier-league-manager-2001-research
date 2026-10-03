@@ -85,7 +85,7 @@ class FastViewSemanticShellTests(unittest.TestCase):
 
         self.assertEqual(
             shell.source_backed_components,
-            ("FastViewPanel", "ScoreComposite", "PossessionFigures"),
+            ("FastViewPanel", "ScoreComposite", "PossessionFigures", "PossessionDiagram"),
         )
         self.assertEqual(shell.source_backed_components, SOURCE_BACKED_COMPONENTS)
         self.assertFalse(shell.original_layout_recovered)
