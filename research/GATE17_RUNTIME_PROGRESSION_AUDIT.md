@@ -78,3 +78,28 @@ membership changes. A complete audit is evidence that the runtime has all
 required ranking inputs and that the generic source executor can produce the
 next membership map, not permission to skip the later atomic installation and
 Windows validation.
+
+## Current canonical runtime seam
+
+The present canonical human-controller constructor still hard-codes the selected
+domestic runtime to England:
+
+- `HumanGameplayController.from_canonical_game_dir()` calls
+  `partition_root_procedural_league_ids(..., country_region_id=26)`;
+- it labels those results `english_primary_leagues` /
+  `english_secondary_leagues`;
+- it refuses a changed English secondary set;
+- only the English primary set is unioned with annual played ranking sources and
+  annual Cup-child procedural Leagues before
+  `refresh_primary_procedural_leagues()`.
+
+This is important because the underlying procedural League state and the
+LeagueAllocation exchange executor are already generic. Once Gate 13 releases
+shared-runtime ownership, full-country progression should generalize this
+source-backed selected-country ownership boundary rather than fork the league
+engine per country.
+
+The audit in this checkpoint will then measure whether that generalization
+actually publishes every ranking endpoint required by the canonical allocation
+plan.
+
