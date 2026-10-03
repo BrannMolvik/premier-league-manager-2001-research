@@ -4,6 +4,7 @@ from datetime import date
 from types import SimpleNamespace
 
 from competition_schedule import StartupScheduleNode, direct_club_ref
+from competition_state import PremierLeagueState
 from domestic_cup_state import DomesticCupScheduleState
 import game_state as game_state_module
 from game_state import GameState
@@ -424,6 +425,108 @@ class IntegratedGameStateTests(unittest.TestCase):
         self.assertEqual(table[0].club_id, 1)
         self.assertEqual(table[0].points, 3)
         self.assertEqual(state.premier_league.next_unplayed_round(), 1)
+
+
+    def test_source_qualified_human_d48_uses_only_exact_native_rank_at_or_below_fifth(self):
+        fixtures = (
+            Fixture(0, 0, 1, 2),
+            Fixture(1, 0, 1, 3),
+            Fixture(2, 0, 1, 4),
+            Fixture(3, 0, 1, 5),
+        )
+        state = GameState(
+            game_state_module.GameCalendar(date(2000, 7, 1)),
+            {},
+            premier_league=PremierLeagueState(fixtures),
+            clubs={
+                1: SimpleNamespace(short_name="E"),
+                2: SimpleNamespace(short_name="A"),
+                3: SimpleNamespace(short_name="B"),
+                4: SimpleNamespace(short_name="C"),
+                5: SimpleNamespace(short_name="D"),
+            },
+        )
+        self.assertEqual(state.native_premier_league_table_index(1), 4)
+        self.assertEqual(
+            state.source_qualified_human_ai_condition_adjustment(1),
+            5,
+        )
+        self.assertEqual(state.native_premier_league_table_index(2), 0)
+        self.assertIsNone(
+            state.source_qualified_human_ai_condition_adjustment(2)
+        )
+
+    def test_source_qualified_human_d48_rejects_missing_or_ambiguous_source_order(self):
+        fixtures = (
+            Fixture(0, 0, 1, 2),
+            Fixture(1, 0, 1, 3),
+            Fixture(2, 0, 1, 4),
+            Fixture(3, 0, 1, 5),
+        )
+        clubs = {
+            1: SimpleNamespace(short_name="E"),
+            2: SimpleNamespace(short_name="A"),
+            3: SimpleNamespace(short_name="B"),
+            4: SimpleNamespace(short_name="C"),
+            5: SimpleNamespace(short_name="D"),
+        }
+        state = GameState(
+            game_state_module.GameCalendar(date(2000, 7, 1)),
+            {},
+            premier_league=PremierLeagueState(fixtures),
+            clubs=clubs,
+        )
+        clubs[4].short_name = None
+        self.assertIsNone(state.native_premier_league_table_index(1))
+        self.assertIsNone(
+            state.source_qualified_human_ai_condition_adjustment(1)
+        )
+
+        clubs[4].short_name = "D"
+        clubs[5].short_name = "D"
+        self.assertIsNone(state.native_premier_league_table_index(1))
+        self.assertIsNone(
+            state.source_qualified_human_ai_condition_adjustment(1)
+        )
+
+    def test_explicit_human_d48_normalizes_only_ai_initial_report_bits(self):
+        state = GameState.from_database(
+            FakeDatabase(),
+            date(2000, 7, 8),
+            seed=1,
+            season_year=2000,
+        )
+        home = prepared_side(0)
+        away_source = prepared_side(1)
+        ai_context = TeamStrengthContext(
+            tactic_style=0,
+            match_bias=2,
+            user_controlled=False,
+            aggression=5,
+        )
+        away = PreparedMatchSide(
+            players=away_source.players,
+            attack_context=ai_context,
+            defence_context=ai_context,
+            penalty_taker_priority=away_source.penalty_taker_priority,
+            corner_taker_priority=away_source.corner_taker_priority,
+            free_kick_taker_priority=away_source.free_kick_taker_priority,
+        )
+        result = state.simulate_premier_league_fixture(
+            0,
+            home,
+            away,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MidpointRng(),
+            native_human_ai_condition_adjustment=5,
+        )
+        bits = {
+            (side, index): bit
+            for side, index, bit in result.initial_report_condition_bits
+        }
+        self.assertTrue(all(bits[(0, index)] == 0 for index in range(11)))
+        self.assertTrue(all(bits[(1, index)] == 1 for index in range(11)))
 
     def test_database_initial_roster_order_matches_player_iteration_order(self):
         state = GameState.from_database(

@@ -3712,6 +3712,56 @@ class GameState:
             # pretend this deterministic display fallback is original.
             return self.premier_league.table()
 
+    def native_premier_league_table_index(self, club_id: int) -> int | None:
+        """Return a source-qualified zero-based League rank or None.
+
+        0x408170 consumes the global human club's native League rank. This
+        helper deliberately does not reuse premier_league_table()'s documented
+        synthetic/ID fallback: every original CP1252 short-name key must exist,
+        and an identical full native sort key remains unresolved.
+        """
+        if self.premier_league is None:
+            return None
+        club_ids = getattr(self.premier_league, "club_ids", None)
+        if club_ids is None:
+            return None
+
+        names: dict[int, bytes] = {}
+        for candidate_id in club_ids:
+            source_name = _original_pl_short_name_bytes(
+                self.clubs,
+                int(candidate_id),
+            )
+            if source_name is None:
+                return None
+            names[int(candidate_id)] = source_name
+        try:
+            table = self.premier_league.table(names.get)
+        except ValueError:
+            return None
+
+        club_id = int(club_id)
+        for index, row in enumerate(table):
+            if int(row.club_id) == club_id:
+                return index
+        return None
+
+    def source_qualified_human_ai_condition_adjustment(
+        self,
+        human_club_id: int,
+    ) -> int | None:
+        """Resolve only the counter-independent 0x408170 D48 branch.
+
+        Shipped 0x408170 returns DefaultConditionBoost=5 when the controlled
+        club's native zero-based rank is >=4, regardless of legacy DBRClub
+        +0x130. Ranks 0..3 still depend on that unresolved attendance counter,
+        so they remain None rather than guessing either 5 or the boost path.
+        """
+        rank = self.native_premier_league_table_index(int(human_club_id))
+        if rank is None or rank < 4:
+            return None
+        return 5
+
     def prepare_premier_league_ai_fixture_sides(
         self,
         fixture_id: int,
@@ -4219,6 +4269,11 @@ class GameState:
             condition_injury_settings=ConditionInjurySettings(
                 environment_byte=pitch_wear_before,
             ),
+            native_human_ai_condition_adjustment=(
+                self.source_qualified_human_ai_condition_adjustment(
+                    human_club_id
+                )
+            ),
         )
         self.prepared_match_participant_statistics.pop(fixture_id, None)
         self.prepared_match_report_player_ids.pop(fixture_id, None)
@@ -4323,6 +4378,7 @@ class GameState:
         *,
         match_engine_rng=None,
         condition_injury_settings: ConditionInjurySettings | None = None,
+        native_human_ai_condition_adjustment: int | None = None,
     ) -> NormalMatchResult:
         """Simulate one fixture due today and persist its result into league state.
 
@@ -4357,11 +4413,13 @@ class GameState:
             native_previous_scores=(-1, -1),
             native_compact_spacing=0,
             native_report_date=self.calendar.current_date,
-            # 0x51101C writes D48=0 for AI-vs-AI. A human opponent's
-            # legacy DBRClub+0x130 adjustment remains unresolved, not zero.
+            # 0x51101C writes D48=0 for AI-vs-AI. Human-opponent
+            # setup may supply only an independently source-qualified 0x408170
+            # result; unresolved counter/rank cases remain None.
             native_ai_condition_adjustment=(
                 0 if not home_side.attack_context.user_controlled
-                and not away_side.attack_context.user_controlled else None),
+                and not away_side.attack_context.user_controlled
+                else native_human_ai_condition_adjustment),
         )
         home_goals, away_goals = result.score
         self.record_premier_league_result(

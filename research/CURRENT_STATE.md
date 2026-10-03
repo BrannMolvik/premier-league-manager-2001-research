@@ -10,6 +10,19 @@ topic-specific research files.
 
 **Gate 13 - Restore original management presentation**
 
+
+Recovery 222 narrows the human-opponent D48 blocker without guessing legacy
+club state. Exact native Premier League rank is now recomputed only from the
+recovered comparator plus original CP1252 short-name bytes; missing/ambiguous
+source order fails closed. When that native zero-based rank is >=4,
+`0x408170` is counter-independent and the shipped D48 value 5 is passed into
+the existing initial-history producer. Ranks 0..3 still require unresolved
+DBRClub `+0x130`; `+0x13C/+0x140` visiting capacities and secondary-shirt
+contexts also remain open. Gate 13 therefore remains OPEN and the genuine
+reload/right-click/PMatchInfo route is not yet claimed. See
+`GATE13_LIVE_CAPTURE_INPUTS.md`.
+
+
 PR #199 continuation from `f8bbdd9c`: B68 constructor and original-order
 FE0/FE4 draws, explicit tactics, primary-shirt/normalized flag metadata and
 gate scalar retention are connected at production to the existing strict
