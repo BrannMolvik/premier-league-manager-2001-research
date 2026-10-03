@@ -302,3 +302,92 @@ retain the source-compatible Condition history, 1..10 match-form history, and
 the correct post-calculation/presentation RNG sequence before
 `fastview_player_rows` can be populated faithfully. Post-hoc copying of
 `PreparedMatchPlayer.condition` or `form_state` is forbidden.
+
+
+## Recovery 212: exact PlayerProxy history lifecycle and form trajectory
+
+The authorized source-disc archive was re-materialized and the root executable
+was re-extracted. SHA-256 reverified exactly as
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`
+before accepting new disassembly evidence.
+
+Fresh tracing closes the previously deferred 24-sample writer rather than
+inventing a modern display curve.
+
+### Participant history seeds
+
+Participant setup writes the source histories directly:
+
+- side 0 Condition sample 0: `0x62ACFF -> 0x62AD02`, copying
+  `DBRPlayer+0x77`;
+- side 1 Condition sample 0: `0x62AD65 -> 0x62AD68`, also copying
+  `DBRPlayer+0x77`;
+- the existing team adjustment is then applied where the source predicate
+  requires it;
+- starting/on-field participants seed match-form sample 0 to **5** at
+  `0x62ACED` / `0x62AD53`;
+- substitute participants seed that byte to **0** at `0x62ACF8` /
+  `0x62AD5E`.
+
+The zero substitute seed is raw MatchCalculator state. The active-player
+finalizer below resets sample 0 to 5 before producing the PlayerProxy-visible
+trajectory, so the PlayerProxy form domain remains 1..10.
+
+### Five-minute Condition/carry lifecycle
+
+`0x62B3F0` is the segment-history updater. For every participant it:
+
+1. writes current `DBRPlayer+0x77` to Condition history index
+   `MatchCalculator+0xFF8 + 1` at `0x62B43E..0x62B447`;
+2. applies the already-source-backed team Condition adjustment when required at
+   `0x62B44B..0x62B46E`;
+3. for an active player, carries the current match-form byte forward one sample
+   at `0x62B470..0x62B493`, substituting 5 when the source byte is zero;
+4. increments `MatchCalculator+0xFF8` at `0x62B5FC..0x62B60F`.
+
+The complete-match path calls this updater once before the first simulated
+five-minute segment at `0x62AF24`. Normal time then runs the 16 segment calls
+for 5..40 and 50..85, with the explicit additional half-time history update at
+minute 40. Therefore a completed normal-time match reaches **+0xFF8 = 18**.
+The extra-time path adds the 90-minute boundary update plus four extra-time
+segments and the explicit 100-minute break update, reaching **+0xFF8 = 24**.
+
+### Exact active-player form trajectory
+
+After participant target byte `+0x30` has been calculated, finalizer
+`0x6309D0` enters the active-player trajectory at `0x630CEC`.
+
+- `0x630CF8` resets form sample 0 to **5**.
+- Samples 1..23 are visited in order.
+- If `sample_index >= MatchCalculator+0xFF8`, the source consumes no RNG,
+  clamps/holds the previous form in 1..10, and copies final
+  `DBRPlayer+0x77` into the matching Condition history byte
+  (`0x630D12..0x630D3D`).
+- If `sample_index < +0xFF8`, `0x630D46` consumes exactly one
+  MatchEngine **RNG(2)** result. Roll 0 holds. Roll 1 moves one point toward
+  participant target byte `+0x30`.
+- If the previous form already equals the target, the source calls
+  `0x417F50` at `0x630D6D`. That predicate is already proven to mean
+  starting/on-field active for the supplied club context. If true, equal form
+  values **<=5 rise by one**, while values **>5 fall by one**.
+- `0x630D7F..0x630D95` clamps every written form byte to **1..10**.
+
+Consequently a completed normal-time active player consumes **17 RNG(2)
+draws** in this trajectory; a completed extra-time active player consumes
+**23**. Those draws occur in the source participant/finalizer order and belong
+to the separate MatchEngine RNG stream, so they cannot be synthesized from the
+modern shared CRT gameplay RNG without changing later source-order results.
+
+`reconstruction/gate14_fastview_player_history.py` now models this exact
+trajectory and the final Condition-history fill as pure fail-closed
+primitives. The caller must provide the exact RNG(2) results. No live
+`fastview_player_rows` are emitted yet.
+
+### Next integration boundary
+
+The remaining task is no longer a formula trace. The actual modern match path
+must retain the source-visible Condition prefix at the same lifecycle
+boundaries, run the already-source-backed target-rating/finalizer work on a
+real MatchEngine RNG stream in exact participant order, and retain the
+post-finalizer stream for subsequent PlayerProxy energy RNG(6) evaluations.
+Only after that state is available may the presentation snapshot be populated.

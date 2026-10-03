@@ -10766,3 +10766,13 @@ work may continue under the deferred-blocker policy.
 - Energy `0x630910` is a derived presentation value: Condition-at-zero baseline, +/-4 per earlier five-minute form trend, one RNG(6) draw shifted by -3, minimum 1, capped by Condition at the first boundary >= current tick.
 - Added a pure source-contract module requiring the RNG(6) result explicitly. It imports no simulator/RNG and forbids direct modern condition/form_state aliasing.
 - Next integration requirement: retain the exact two histories and source-order presentation RNG state/results from the real clean-room match path before producing live PlayerRow snapshots.
+
+
+## 3 October 2026 - Recovery 212 exact PlayerProxy history lifecycle
+
+- Resumed from canonical main `5952be5c383d44a4dabe6258a10196f75416c1bb`, restored worker runtime generation 212, verified PR #192 with reconstruction run `37103135199` (**1,606 tests / 23 expected skips**) and asset-policy run `37103135246`, then squash-merged it as canonical main `9019be2a1efa05e215a63464ea7d86e7a612d9b1`.
+- Re-materialized the authorized original disc archive and re-extracted `FOOTBAL.EXE`; SHA-256 reverified exactly as `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- Closed the deferred form-history writer: participant setup seeds Condition sample 0 from DBRPlayer +0x77 and starter form sample 0 to 5; `0x62B3F0` captures/carries five-minute history and increments +0xFF8; completed normal time reaches 18 samples and completed extra time reaches 24.
+- Finalizer `0x630CEC..0x630D9E` resets active-player form sample 0 to 5, consumes one separate MatchEngine RNG(2) draw for every sample index below +0xFF8, moves one point toward target rating +0x30 on a nonzero roll, uses the proven `0x417F50` active-for-club predicate for the equal-target 5/6 branch, clamps to 1..10, and final-fills remaining Condition samples from final DBRPlayer Condition.
+- Added pure fail-closed form-trajectory and Condition-finalization primitives plus focused tests on branch `recovery212/gate14-playerproxy-live-history`. Equivalent local focused cases pass. Repository CI remains required before merge.
+- Gate 13 remains the earliest incomplete validation gate. Next independent Gate-14 work-ahead step: retain the exact Condition prefix and MatchEngine finalizer/presentation RNG state in the real completed-match path before creating any live PlayerRow snapshots.
