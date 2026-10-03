@@ -95,6 +95,8 @@ on:
       - "reconstruction/test_gate14_audio_bank_source_trace.py"
       - "reconstruction/gate14_fastview_league_table.py"
       - "reconstruction/test_gate14_fastview_league_table.py"
+      - "reconstruction/original_fastview_score_table_art.py"
+      - "reconstruction/test_original_fastview_score_table_art.py"
       - "original_assets/source/FM2001_Art/FastView/**"
       - "research/GATE14_AUDIO_AND_MATCH_PRESENTATION.md"
       - "reconstruction/original_pmenu_activation.py"
