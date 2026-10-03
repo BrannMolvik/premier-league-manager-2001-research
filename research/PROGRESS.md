@@ -10598,3 +10598,16 @@ work may continue under the deferred-blocker policy.
 - Added a fail-closed source contract/validator plus exact decoded-placement seam and regressions. The rejected 800x600 background path is explicitly excluded.
 - The current GitHub connector has no safe direct container-file-to-Git-blob handoff. The exact recovered binary files are therefore not manually transcribed into Git in this checkpoint; their later byte-identical import is deterministic from the recorded path/size/hash.
 - Gate 13 remains the earliest incomplete validation gate pending the external schema-8 Windows receipt; this is bounded Gate-14 work-ahead only.
+
+
+## 3 October 2026 - Recovery 205 FastView current-fixture score grids
+
+- Resumed from canonical main `9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658`; Recovery 204 PR #172 was already merged after reconstruction run `37090449064` passed **1,514 tests / 22 expected skips** and asset-policy run `37090449112` passed.
+- A parallel Gate-13 worker advanced main to `c44dac3d2e29fde8368fe330ab9c37b3d8f51d8b` while this trace was in progress; its Windows schema-8 fixes/receipts are preserved. The first Recovery-205 branch was intentionally not proposed because it inherited those concurrent edits; this clean branch was transplanted from the new canonical main.
+- Rematerialized the authorized 511,121,336-byte private source ZIP and re-extracted the 631,627,248-byte MODE1/2352 disc image. The canonical executable rehashed to `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`; the independent Joliet walk again found 2,456 files.
+- Separated the two similarly named score-grid assets by direct executable ownership. `current_fix_grid_1.444` is 3,704 bytes / 309x19 / SHA-256 `bdd2fe25884e8ce72e21bd7b9296c65827ce90ea058c6f43e2f727f2bae19057` and belongs to `FastViewPanel::FastViewLeagueScores`; `current_fix_grid_2.444` is 4,060 bytes / 309x16 / SHA-256 `ffc53c7b5fc9aa8c11053d704c4232505528577bfb9675fa7a4a2985e8e4ec2e` and belongs to `ScoreCompositeNormal`.
+- RTTI resolves FastViewLeagueScores final vtables `0x7CA750/0x7CA744`. Its `Receiver<EventLeagueTableUpdate>` callback is `0x523DB0`, and primary-vtable factory `0x523CC0` allocates `ScoreCompositeNormal::0x51B740`.
+- Method `0x523DF0` source-closes grid-1 layout: source count 1..12 gives one centered PictureControl at (246,32)-(555,51); count >12 gives two 309x19 strips at (38,32)-(347,51) and (454,32)-(763,51).
+- ScoreCompositeNormal fixed table `0x828E98` begins with exact grid-2 dimensions 309x16 and installs typed receivers for EventHalfTime, EventExtraTime, EventPenalties, EventFullTime and EventGlobalSecondHalf. The owning caller's final screen origin remains fail-closed and is not inferred from the bitmap.
+- Added `reconstruction/gate14_fastview_scores.py`, focused regressions and `research/GATE14_FASTVIEW_SCORES_SOURCE_TRACE.md`. Neither grid binary is imported yet; no substitute pixels are used.
+- Gate 13 remains the earliest incomplete validation gate, now with schema-8 Windows validation passed but additional shell/navigation fidelity work still open under the parallel worker.

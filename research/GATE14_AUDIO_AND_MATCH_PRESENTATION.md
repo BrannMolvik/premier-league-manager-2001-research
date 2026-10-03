@@ -209,6 +209,17 @@ RGBA placement seam are regression-locked in
 are recovered but their repository import is deferred to a binary-safe
 container-to-Git transport; no replacement artwork is used.
 
+Recovery 205 separates the current-fixture score graphics by direct class
+ownership. `FastViewPanel::FastViewLeagueScores` owns the 309x19
+`current_fix_grid_1.444` strips and switches from one centered strip to two
+left/right strips when its source count exceeds 12. Its secondary receiver is
+`Receiver<EventLeagueTableUpdate>` with callback `0x523DB0`.
+`ScoreCompositeNormal::0x51B740` separately owns the 309x16
+`current_fix_grid_2.444` resource and installs typed receivers for half time,
+extra time, penalties, full time and global second-half events. The grid-2
+final screen origin is still caller-supplied/unresolved, so neither binary is
+rendered by this checkpoint.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:

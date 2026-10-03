@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "136dd19",
-  "last_verified_reconstruction_ci_head": "608e4f9168939c08ddffd90f5d6fb112b5d2724e",
-  "last_verified_test_count": 1509,
-  "asset_policy_validated_head": "76a32b36e7dc3261db17072a01b2c9382615dd91",
+  "last_verified_reconstruction_ci_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
+  "last_verified_test_count": 1514,
+  "asset_policy_validated_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
   "asset_policy_status": "passed",
-  "active_task": "Recovery 204 Gate-14 work-ahead: verify directly bound FastView top_bar/ticker PictureControl contract and decoded placement seam, then continue the next direct-owned FastView control. Binary asset import remains a deterministic transport follow-up.",
+  "active_task": "Recovery 205 Gate-14 work-ahead: verify distinct FastViewLeagueScores current_fix_grid_1 and ScoreCompositeNormal current_fix_grid_2 ownership/geometry/receiver lifecycle; then recover ScoreCompositeNormal caller-supplied final origin and adjacent score controls without inventing pixels. Gate 13 parallel worker now has schema-8 Windows validation and continues its remaining shell/navigation fidelity work.",
   "last_local_focused_test_count": 453,
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
@@ -1798,7 +1798,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "dynamic_by_fixture_role_exact",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "Verify Recovery 204 direct top_bar/ticker PictureControl contract through CI, then continue source tracing the next directly owned FastView control. Import the two exact EA444 blobs once a binary-safe container-to-repository handoff is available.",
+  "gate14_exact_next_task": "Verify Recovery 205 score-grid contract through CI, then recover ScoreCompositeNormal caller-supplied final origin/text-control geometry; only then consider adjacent current_table_grid family or pixel integration.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -2006,5 +2006,92 @@
     "direct_live_ownership": true,
     "imported": false
   },
-  "gate14_fastview_chrome_binary_import_status": "exact_bytes_recovered_import_transport_deferred"
+  "gate14_fastview_chrome_binary_import_status": "exact_bytes_recovered_import_transport_deferred",
+  "gate14_fastview_chrome_merge": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
+  "gate14_fastview_chrome_reconstruction_run": 37090449064,
+  "gate14_fastview_chrome_test_count": 1514,
+  "gate14_fastview_chrome_expected_skips": 22,
+  "gate14_fastview_chrome_asset_policy_run": 37090449112,
+  "gate14_fastview_scores_source_trace": "research/GATE14_FASTVIEW_SCORES_SOURCE_TRACE.md",
+  "gate14_current_fix_grid_1": {
+    "path": "FM2001_Art/FastView/current_fix_grid_1.444",
+    "bytes": 3704,
+    "dimensions": [
+      309,
+      19
+    ],
+    "sha256": "bdd2fe25884e8ce72e21bd7b9296c65827ce90ea058c6f43e2f727f2bae19057",
+    "path_literal_va": "0x829920",
+    "owner": "FastViewPanel::FastViewLeagueScores",
+    "imported": false
+  },
+  "gate14_current_fix_grid_1_layout": {
+    "method_va": "0x523DF0",
+    "threshold": 12,
+    "count_1_to_12_rects": [
+      [
+        246,
+        32,
+        555,
+        51
+      ]
+    ],
+    "count_above_12_rects": [
+      [
+        38,
+        32,
+        347,
+        51
+      ],
+      [
+        454,
+        32,
+        763,
+        51
+      ]
+    ]
+  },
+  "gate14_fastview_league_scores_primary_vftable": "0x7CA750",
+  "gate14_fastview_league_scores_receiver_vftable": "0x7CA744",
+  "gate14_fastview_league_scores_event_update_callback": "0x523DB0",
+  "gate14_fastview_league_scores_event_receiver": "EventLeagueTableUpdate",
+  "gate14_current_fix_grid_2": {
+    "path": "FM2001_Art/FastView/current_fix_grid_2.444",
+    "bytes": 4060,
+    "dimensions": [
+      309,
+      16
+    ],
+    "sha256": "ffc53c7b5fc9aa8c11053d704c4232505528577bfb9675fa7a4a2985e8e4ec2e",
+    "path_literal_va": "0x828ED0",
+    "owner": "ScoreCompositeNormal",
+    "imported": false
+  },
+  "gate14_score_composite_normal_constructor_va": "0x51B740",
+  "gate14_score_composite_normal_primary_vftable": "0x7CA36C",
+  "gate14_score_composite_normal_layout_table_va": "0x828E98",
+  "gate14_score_composite_normal_layout_dwords": [
+    309,
+    16,
+    0,
+    0,
+    0,
+    0,
+    2,
+    139,
+    177,
+    158,
+    130,
+    16,
+    13,
+    16
+  ],
+  "gate14_score_composite_normal_final_screen_origin": "unresolved_caller_supplied_fail_closed",
+  "gate14_score_composite_normal_event_receivers": [
+    "EventHalfTime",
+    "EventExtraTime",
+    "EventPenalties",
+    "EventFullTime",
+    "EventGlobalSecondHalf"
+  ]
 }
