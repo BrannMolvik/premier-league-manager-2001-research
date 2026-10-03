@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 224: Gate 13 closure is exclusively owned by Codex per research/WORK_OWNERSHIP.json. Continue only independent Gate-14+ work-ahead. Current exact task: finish verification of PR #213 (lock-safe disjoint Gate-14 partial FastView surface layout, final head a045b7704e512e254fcbe683ae76a63a43bda4fd), merge only if reconstruction and asset-policy CI pass, then continue the next disjoint source-backed Gate-14 task without editing Gate-13/shared status files.",
-  "last_known_main_head": "104738383273205c1697a035685e6b83f4fd1895",
+  "active_task": "Gate 13 closure remains exclusively owned by Codex. PR #213 is canonical at main 4f8860b325484a19fec7a76cf9d49ae23584899f after reconstruction run 37128681158 passed 1,701 tests with 23 expected skips and asset-policy run 37128681160 passed. Continue independent Gate-14 work-ahead: extend source-closed FastView surface geometry with explicit TeamTable row regions without guessing visible row counts or cross-component z-order, and do not edit Gate-13/shared status files.",
+  "last_known_main_head": "4f8860b325484a19fec7a76cf9d49ae23584899f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 224,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 224 corrected course after re-reading WORK_OWNERSHIP: closed unmerged PR #214 because it touched Codex-owned Gate 13. Resumed canonical independent PR #213 and removed its CURRENT_STATE/PROGRESS overlap with Codex PR #211.",
+  "note": "Recovery 224 merged lock-safe Gate-14 PR #213. Next disjoint step is explicit TeamTable row geometry integration; Gate 13 ownership remains Codex.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
