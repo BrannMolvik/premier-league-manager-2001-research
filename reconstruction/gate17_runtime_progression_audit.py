@@ -76,6 +76,25 @@ class RuntimeProgressionAudit:
         }
 
 
+def _snapshot_memberships(values) -> dict[int, int]:
+    if not isinstance(values, dict):
+        raise Gate17RuntimeProgressionAuditError(
+            "runtime club_competition_membership must be a dict"
+        )
+    output: dict[int, int] = {}
+    for club_id, competition_id in values.items():
+        if type(club_id) is not int or club_id < 0:
+            raise Gate17RuntimeProgressionAuditError(
+                "runtime membership club IDs must be non-negative integers"
+            )
+        if type(competition_id) is not int or competition_id < 0:
+            raise Gate17RuntimeProgressionAuditError(
+                "runtime membership competition IDs must be non-negative integers"
+            )
+        output[club_id] = competition_id
+    return output
+
+
 def _required_endpoint_ids(
     plan: PlayableCountryAllocationPlan,
 ) -> tuple[int, ...]:
@@ -118,19 +137,12 @@ def audit_runtime_playable_progression(
             "runtime state lacks allocation records, memberships or ranking resolver"
         ) from exc
 
-    if not isinstance(membership_source, dict):
-        raise Gate17RuntimeProgressionAuditError(
-            "runtime club_competition_membership must be a dict"
-        )
     if not callable(resolver):
         raise Gate17RuntimeProgressionAuditError(
             "runtime season_transition_ranking must be callable"
         )
 
-    before = {
-        int(club_id): int(competition_id)
-        for club_id, competition_id in membership_source.items()
-    }
+    before = _snapshot_memberships(membership_source)
     endpoint_ids = _required_endpoint_ids(plan)
 
     rankings: dict[int, tuple[int, ...] | None] = {}
@@ -145,10 +157,7 @@ def audit_runtime_playable_progression(
                 )
             rankings[endpoint_id] = tuple(raw)
 
-    after_resolution = {
-        int(club_id): int(competition_id)
-        for club_id, competition_id in state.club_competition_membership.items()
-    }
+    after_resolution = _snapshot_memberships(state.club_competition_membership)
     if after_resolution != before:
         raise Gate17RuntimeProgressionAuditError(
             "ranking resolution mutated runtime club competition memberships"
@@ -169,10 +178,7 @@ def audit_runtime_playable_progression(
             before,
         )
 
-    final_memberships = {
-        int(club_id): int(competition_id)
-        for club_id, competition_id in state.club_competition_membership.items()
-    }
+    final_memberships = _snapshot_memberships(state.club_competition_membership)
     if final_memberships != before:
         raise Gate17RuntimeProgressionAuditError(
             "playable progression audit mutated runtime memberships"
