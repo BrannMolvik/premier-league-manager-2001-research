@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 closure remains exclusively owned by Codex. Recovery 224 Gate-14 work-ahead is canonical through main 3655216b432f18ee05f2d40b6bb3f752a8c2f2e2: PR #213 partial FastView layout and PR #215 caller-explicit TeamTable geometry both passed full CI. Continue the next disjoint Gate-14 step by bridging retained source-backed PlayerRow snapshots into presentation render instructions without importing gameplay RNG/simulation, guessing localization text, or assigning unresolved raster/z-order semantics.",
+  "active_task": "Recovery 225 after transient connection interruption. Gate 13 remains exclusively owned by Codex. Exact active task: finish PR #216 verification on head 25ea93a7fa7e1ab2cd257e97a78423656da5f45a; asset policy 37129849568 already passed, full reconstruction run 37129849546 is pending. Merge only if green, then continue the next disjoint Gate-14 source-backed presentation step without touching Gate-13/shared status files.",
   "last_known_main_head": "3655216b432f18ee05f2d40b6bb3f752a8c2f2e2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 224,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "PR #215 merged after reconstruction run 37129286573 passed 1,705 tests with 23 skips and asset-policy run 37129286593 passed. Gate 13 lock still active; proceed only with disjoint Gate-14 files.",
+  "recovery_generation": 225,
+  "last_recovery_reason": "connection-interrupted-transient",
+  "note": "Transient chat connection interrupted after PR #216 was opened. No repository work was lost; resume from its CI checkpoint.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
