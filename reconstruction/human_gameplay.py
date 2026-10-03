@@ -1155,6 +1155,7 @@ class HumanGameplayController:
                     self.attack_matrix,
                     self.defence_matrix,
                     self.match_rng,
+                match_engine_rng=self.match_engine_rng,
                 )
                 self._finish_shared_primary_day(bool(results))
                 if self.human is None:
@@ -1171,6 +1172,7 @@ class HumanGameplayController:
                         self.attack_matrix,
                         self.defence_matrix,
                         self.match_rng,
+                    match_engine_rng=self.match_engine_rng,
                     ),
                 )
                 for entry in due_order[:split]
@@ -1198,6 +1200,7 @@ class HumanGameplayController:
                 self.defence_matrix,
                 self.match_rng,
                 team_orders=self.human.team_orders,
+            match_engine_rng=self.match_engine_rng,
             )
         elif entry[0] == "domestic_cup":
             user_result, _completion = self.state.simulate_domestic_cup_human_node(
@@ -1242,6 +1245,7 @@ class HumanGameplayController:
                     self.attack_matrix,
                     self.defence_matrix,
                     self.match_rng,
+                match_engine_rng=self.match_engine_rng,
                 ),
             )
             for trailing_entry in self._pending_after_primary_entries
@@ -1350,6 +1354,7 @@ class HumanGameplayController:
                         self.attack_matrix,
                         self.defence_matrix,
                         self.match_rng,
+                    match_engine_rng=self.match_engine_rng,
                     ),
                 )
             )
@@ -1377,6 +1382,7 @@ class HumanGameplayController:
             self.defence_matrix,
             self.match_rng,
             team_orders=self.human.team_orders,
+        match_engine_rng=self.match_engine_rng,
         )
 
         trailing = []
@@ -1389,6 +1395,7 @@ class HumanGameplayController:
                         self.attack_matrix,
                         self.defence_matrix,
                         self.match_rng,
+                    match_engine_rng=self.match_engine_rng,
                     ),
                 )
             )
