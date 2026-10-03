@@ -54,14 +54,15 @@ class RemainingFieldCandidateTests(unittest.TestCase):
                     item["candidate_instruction_va"],
                     item["candidate_displacement"],
                     item["base_register"],
+                    item["candidate_operand_access"],
                 )
                 for item in hits
             ],
             [
-                (0x401020, 0x130, "ecx"),
-                (0x401030, 0x13C, "edx"),
-                (0x401040, 0x140, "ebx"),
-                (0x401050, 0x76, "eax"),
+                (0x401020, 0x130, "ecx", "read"),
+                (0x401030, 0x13C, "edx", "write"),
+                (0x401040, 0x140, "ebx", "read"),
+                (0x401050, 0x76, "eax", "read"),
             ],
         )
         self.assertTrue(
@@ -71,17 +72,30 @@ class RemainingFieldCandidateTests(unittest.TestCase):
                 for item in hits
             )
         )
+        self.assertTrue(
+            all(
+                item["candidate_context_classification"]
+                == "bounded_raw_bytes_only_not_a_cfg_or_function_boundary"
+                for item in hits
+            )
+        )
+        first = hits[0]
+        self.assertEqual(first["candidate_instruction_size"], 6)
+        self.assertEqual(first["candidate_context_start_va"], 0x401018)
+        self.assertIn(first["candidate_bytes"], first["candidate_context_bytes"])
 
     def test_report_counts_candidates_but_does_not_promote_semantics(self):
         report = remaining_field_trace_report(field_fixture())
         self.assertEqual(report["candidate_count"], 4)
+        self.assertEqual(report["candidate_context_radius_bytes"], 8)
         self.assertEqual(
             report["candidate_counts_by_displacement"],
             {"0x130": 1, "0x13C": 1, "0x140": 1, "0x76": 1},
         )
         self.assertFalse(report["source_semantics_recovered"])
         self.assertFalse(report["gate13_closed"])
-        self.assertIn("does not prove", report["evidence_limit"])
+        self.assertIn("Capstone operand metadata", report["evidence_limit"])
+        self.assertIn("neither proves", report["evidence_limit"])
 
     def test_bounded_limit_and_invalid_inputs_fail_closed(self):
         hits = linear_memory_displacement_candidates(
@@ -106,6 +120,13 @@ class RemainingFieldCandidateTests(unittest.TestCase):
                 field_fixture(),
                 fields=(("bad", -1),),
             )
+        for bad_radius in (-1, True, 65):
+            with self.subTest(context_radius=bad_radius):
+                with self.assertRaises(Gate13RemainingFieldTraceError):
+                    linear_memory_displacement_candidates(
+                        field_fixture(),
+                        context_radius=bad_radius,
+                    )
 
 
 if __name__ == "__main__":
