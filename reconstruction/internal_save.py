@@ -72,7 +72,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 40
+SAVE_SCHEMA_VERSION = 41
 
 
 def _iso(value: date | None) -> str | None:
@@ -1284,6 +1284,11 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
                 "home_revenue": int(value.home_revenue),
                 "visiting_revenue": int(value.visiting_revenue),
                 "season_ticket_quantity": int(value.season_ticket_quantity),
+                "report_seating_price": (
+                    None
+                    if value.report_seating_price is None
+                    else int(value.report_seating_price)
+                ),
             }
             for fixture_id, value in sorted(state.prepared_match_gate_receipts.items())
         },
@@ -1689,6 +1694,11 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
                 home_revenue=int(value["home_revenue"]),
                 visiting_revenue=int(value["visiting_revenue"]),
                 season_ticket_quantity=int(value["season_ticket_quantity"]),
+                report_seating_price=(
+                    None
+                    if value["report_seating_price"] is None
+                    else int(value["report_seating_price"])
+                ),
             )
             for fixture_id, value in snapshot.get(
                 "prepared_match_gate_receipts", {}
