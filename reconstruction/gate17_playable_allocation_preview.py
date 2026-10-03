@@ -172,6 +172,23 @@ def preview_playable_allocation_exchanges(
             "playable allocation source order does not cover assigned rows exactly"
         )
 
+    allocation_country: dict[int, tuple[int, str]] = {}
+    for country in plan.countries:
+        for raw_allocation_id in country.allocation_ids:
+            allocation_id = int(raw_allocation_id)
+            if allocation_id in allocation_country:
+                raise Gate17PlayableAllocationPreviewError(
+                    f"allocation {allocation_id} belongs to multiple countries"
+                )
+            allocation_country[allocation_id] = (
+                int(country.country_id),
+                str(country.country_name),
+            )
+    if set(allocation_country) != assigned_set:
+        raise Gate17PlayableAllocationPreviewError(
+            "playable allocation country assignment does not match assigned IDs"
+        )
+
     try:
         ranking_audit = audit_allocation_ranking_capability(
             plan,
@@ -211,23 +228,6 @@ def preview_playable_allocation_exchanges(
         raise Gate17PlayableAllocationPreviewError(
             f"source-backed playable allocation preview failed: {exc}"
         ) from exc
-
-    allocation_country: dict[int, tuple[int, str]] = {}
-    for country in plan.countries:
-        for allocation_id in country.allocation_ids:
-            allocation_id = int(allocation_id)
-            if allocation_id in allocation_country:
-                raise Gate17PlayableAllocationPreviewError(
-                    f"allocation {allocation_id} belongs to multiple countries"
-                )
-            allocation_country[allocation_id] = (
-                int(country.country_id),
-                str(country.country_name),
-            )
-    if set(allocation_country) != assigned_set:
-        raise Gate17PlayableAllocationPreviewError(
-            "playable allocation country assignment does not match assigned IDs"
-        )
 
     summaries: list[PlayableCountryExchangeSummary] = []
     for country in plan.countries:
