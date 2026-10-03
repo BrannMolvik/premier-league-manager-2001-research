@@ -33,6 +33,7 @@ class HumanRuntimeOwnerSurface:
     human_primary_procedural_ids: tuple[int, ...]
     human_secondary_procedural_ids: tuple[int, ...]
     fresh_financial_objective_competition_ids: tuple[int, ...]
+    financial_objective_progression_competition_ids: tuple[int, ...]
     annual_progression_country_ids: tuple[int, ...]
 
 
@@ -46,6 +47,7 @@ class RuntimeOwnerCapabilityEntry:
     runtime_materialized: bool
     human_match_supported: bool
     fresh_financial_objective_supported: bool
+    financial_objective_progression_supported: bool
     annual_progression_supported: bool
     blocker_codes: tuple[str, ...]
 
@@ -64,6 +66,9 @@ class RuntimeOwnerCapabilityEntry:
             "human_match_supported": self.human_match_supported,
             "fresh_financial_objective_supported": (
                 self.fresh_financial_objective_supported
+            ),
+            "financial_objective_progression_supported": (
+                self.financial_objective_progression_supported
             ),
             "annual_progression_supported": self.annual_progression_supported,
             "blocker_codes": list(self.blocker_codes),
@@ -101,7 +106,7 @@ class RuntimeOwnerCapabilityAudit:
 
     def as_dict(self) -> dict:
         return {
-            "schema_version": 2,
+            "schema_version": 3,
             "catalog_sha256": self.catalog_sha256,
             "scope_entry_count": len(self.entries),
             "supported_scope_ids": list(self.supported_scope_ids),
@@ -138,6 +143,7 @@ def normalized_surface(
     human_primary_procedural_ids: Iterable[int],
     human_secondary_procedural_ids: Iterable[int],
     fresh_financial_objective_competition_ids: Iterable[int],
+    financial_objective_progression_competition_ids: Iterable[int],
     annual_progression_country_ids: Iterable[int],
 ) -> HumanRuntimeOwnerSurface:
     return HumanRuntimeOwnerSurface(
@@ -166,6 +172,10 @@ def normalized_surface(
         fresh_financial_objective_competition_ids=_exact_unique_ids(
             fresh_financial_objective_competition_ids,
             label="fresh financial objective competition IDs",
+        ),
+        financial_objective_progression_competition_ids=_exact_unique_ids(
+            financial_objective_progression_competition_ids,
+            label="financial objective progression competition IDs",
         ),
         annual_progression_country_ids=_exact_unique_ids(
             annual_progression_country_ids,
@@ -199,6 +209,9 @@ def audit_runtime_owner_capability(
     fresh_objectives = set(
         surface.fresh_financial_objective_competition_ids
     )
+    objective_progression = set(
+        surface.financial_objective_progression_competition_ids
+    )
     progression_countries = set(surface.annual_progression_country_ids)
 
     entries: list[RuntimeOwnerCapabilityEntry] = []
@@ -225,6 +238,9 @@ def audit_runtime_owner_capability(
         fresh_financial_objective_supported = (
             competition_id in fresh_objectives
         )
+        financial_objective_progression_supported = (
+            competition_id in objective_progression
+        )
         annual_progression_supported = (
             int(planned.country_id) in progression_countries
         )
@@ -237,6 +253,8 @@ def audit_runtime_owner_capability(
             blockers.append("human_match_dispatch_missing")
         if not fresh_financial_objective_supported:
             blockers.append("fresh_financial_objective_missing")
+        if not financial_objective_progression_supported:
+            blockers.append("financial_objective_progression_missing")
         if not annual_progression_supported:
             blockers.append("annual_progression_country_missing")
 
@@ -251,6 +269,9 @@ def audit_runtime_owner_capability(
                 human_match_supported=human_match_supported,
                 fresh_financial_objective_supported=(
                     fresh_financial_objective_supported
+                ),
+                financial_objective_progression_supported=(
+                    financial_objective_progression_supported
                 ),
                 annual_progression_supported=annual_progression_supported,
                 blocker_codes=tuple(blockers),
@@ -272,11 +293,17 @@ def run_canonical_runtime_owner_capability(
     `procedural_league` owner because `play_user_primary_match()` now routes
     that entry family through the shared human match backend. Secondary
     procedural runtime state still has no current GameState container. Fresh
-    chairman-objective candidates remain source-locked only for competition 0.
+    chairman-objective candidates may now be source-backed for live primary
+    Leagues whose recovered fresh branch is RNG-free for every fan-rank value.
+    Sporting-objective progression remains integrated only for competition 0.
     Canonical annual LeagueAllocation commit uses the exact TeamSelect-country
     allocation plan and remains fail-closed when a required ranking endpoint is
     unresolved.
     """
+    from competition_startup import (
+        fresh_objective_hierarchy,
+        fresh_promotion_playoff_position_count,
+    )
     from human_gameplay import HumanGameplayController
 
     plan = load_canonical_playable_league_runtime_plan(game_dir)
@@ -289,6 +316,34 @@ def run_canonical_runtime_owner_capability(
         raise Gate17RuntimeOwnerCapabilityError(
             "canonical controller has no fixed Premier League runtime"
         )
+
+    live_primary_ids = {
+        int(competition_id)
+        for competition_id, context in controller.state.procedural_leagues
+        if int(context) == 0
+    }
+    fresh_objective_ids: list[int] = [0]
+    competitions = tuple(controller.state.competitions.values())
+    for entry in plan.entries:
+        competition_id = int(entry.competition_id)
+        if competition_id == 0 or competition_id not in live_primary_ids:
+            continue
+        hierarchy = fresh_objective_hierarchy(
+            competition_id,
+            competitions,
+        )
+        playoff_count = fresh_promotion_playoff_position_count(
+            competition_id,
+            competitions,
+            controller.state.league_allocation_records,
+            controller.state.cup_allocation_instructions,
+            controller.state.round_definitions,
+        )
+        # The recovered fresh branch is RNG-free for every possible fan-rank
+        # value exactly when this is not the first hierarchy class and the
+        # status-2 promotion-playoff count is zero.
+        if not hierarchy.first_class and int(playoff_count) == 0:
+            fresh_objective_ids.append(competition_id)
 
     surface = normalized_surface(
         selectable_club_ids=controller.selectable_club_ids(),
@@ -307,9 +362,12 @@ def run_canonical_runtime_owner_capability(
             )
         ),
         human_secondary_procedural_ids=(),
-        # Only the fresh Premier League objective-candidate branch is
-        # instruction-locked. Do not infer non-PL chairman candidates.
-        fresh_financial_objective_competition_ids=(0,),
+        fresh_financial_objective_competition_ids=tuple(
+            dict.fromkeys(fresh_objective_ids)
+        ),
+        # Sporting-objective progression through 0x5E0310 is currently
+        # integrated only for the source-backed Premier League subset.
+        financial_objective_progression_competition_ids=(0,),
         annual_progression_country_ids=(
             controller.playable_annual_progression_country_ids()
         ),
