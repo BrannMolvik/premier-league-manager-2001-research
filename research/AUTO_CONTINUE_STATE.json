@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 198: PR #164 merged canonical at main 25ad2622aec612e8eddaf452e53ae7b717369a05 after 1,483 tests / 22 expected skips and asset-policy success. Continue Gate-14 source work by persisting the exact PossessionDiagram typed receiver lifecycle: EventPossession transition/penalties latch, EventGoal edge snap, EventGlobalPenalties latch. Keep EventPossession emission cadence and human-side orientation fail-closed; then continue cadence tracing.",
-  "last_known_main_head": "25ad2622aec612e8eddaf452e53ae7b717369a05",
+  "active_task": "Recovery 198: PR #165 merged canonical at main 46d3cb57a1d7ad0fdd5141f911b00dabda35cc4e after 1,487 tests / 22 expected skips and asset-policy success. Continue Gate-14 source work by materializing exact EventPossession emission cadence: MatchIterator Receiver<EventGlobalTick> callback 0x519630 emits only on GlobalTick value % 5 == 0 under source fields +0xA5==0, +0x98 non-null, +0xA0 non-null. Preserve wall-clock tick duration and human-side orientation as unresolved.",
+  "last_known_main_head": "46d3cb57a1d7ad0fdd5141f911b00dabda35cc4e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 198,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #164 merged. Continue exact PossessionDiagram receiver lifecycle and cadence trace; do not claim Gate 14 complete.",
+  "note": "PR #165 merged. Continue exact EventGlobalTick -> EventPossession cadence gate; do not infer wall-clock tick duration or Gate 14 completion.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
