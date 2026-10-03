@@ -1,0 +1,63 @@
+name: Cleanup old FM2001 Windows artifacts
+
+on:
+  push:
+    paths:
+      - ".github/workflows/cleanup-old-artifacts.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Keep newest Windows package and delete older copies
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.expired == false) | select(.name | startswith("FM2001-Windows11-")) | [.id, .name, .size_in_bytes, .created_at] | @tsv' \
+            | sort -t$'\t' -k4,4r > /tmp/windows-artifacts.tsv
+
+          count=$(wc -l < /tmp/windows-artifacts.tsv)
+          bytes=$(awk -F '\t' '{sum += $3} END {printf "%.0f", sum+0}' /tmp/windows-artifacts.tsv)
+          echo "Found $count FM2001 Windows artifacts totaling $bytes bytes."
+
+          if [ "$count" -le 1 ]; then
+            echo "Nothing to delete."
+            exit 0
+          fi
+
+          keep_id=$(head -n 1 /tmp/windows-artifacts.tsv | cut -f1)
+          keep_name=$(head -n 1 /tmp/windows-artifacts.tsv | cut -f2)
+          keep_created=$(head -n 1 /tmp/windows-artifacts.tsv | cut -f4)
+          echo "Keeping newest artifact id=$keep_id name=$keep_name created=$keep_created"
+
+          tail -n +2 /tmp/windows-artifacts.tsv | while IFS=$'\t' read -r id name size created; do
+            [ -n "$id" ] || continue
+            echo "Deleting id=$id name=$name size=$size created=$created"
+            gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$id"
+          done
+
+      - name: Verify repository artifact total
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.expired == false) | [.id, .name, .size_in_bytes, .created_at] | @tsv' \
+            > /tmp/remaining.tsv
+
+          echo "Remaining live artifacts:"
+          cat /tmp/remaining.tsv
+
+          windows=$(awk -F '\t' '$2 ~ /^FM2001-Windows11-/{c++} END{print c+0}' /tmp/remaining.tsv)
+          bytes=$(awk -F '\t' '{sum += $3} END {printf "%.0f", sum+0}' /tmp/remaining.tsv)
+          echo "Remaining FM2001 Windows artifact count: $windows"
+          echo "Remaining total artifact bytes: $bytes"
+          test "$windows" -le 1
