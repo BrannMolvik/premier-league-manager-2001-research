@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 209: PR #182 merged canonical at main 66c0886a49581ac3461e0c242fb5e333bf73ac8c after 1,553 tests / 22 expected skips and asset-policy success. Continue Gate-14 PlayerRow typed text receivers from verified executable: EventPlayerUpdateForm callback 0x526740 writes event+0x04 as %u to text cell 6; EventPlayerGoal callback 0x526800 increments counter +0x18 and writes (%u) to cell 4; EventPlayerOwnGoal callback 0x526880 increments counter +0x1C and writes (%u) to cell 5 plus a source-computed color. Keep color meaning and text cells 1..3 fail-closed unless directly proved. Gate 13 remains earliest incomplete.",
-  "last_known_main_head": "66c0886a49581ac3461e0c242fb5e333bf73ac8c",
+  "active_task": "Recovery 209: PR #184 merged canonical at main 88e8b3554ece25ca609e38a41f159b5473900065 after 1,557 tests / 22 expected skips and asset-policy success. Continue Gate-14 shared PlayerRow refresh 0x526470 <- TeamTable 0x525B66 and producer 0x525BD0 to identify text cells 1..3 only through direct data accessors/format strings. Current evidence: cell1 is %u from 72-byte player-proxy byte +0x47; cell2 is a %s helper result from TeamTable row mapping; cell3 is %c %s using proxy +0x20 plus the proxy base string. Do not promote shirt/position/name labels until source field ownership is directly proven. Gate 13 remains earliest incomplete.",
+  "last_known_main_head": "88e8b3554ece25ca609e38a41f159b5473900065",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 209,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #182 canonical. Continue exact typed PlayerRow form/goal/own-goal text semantics.",
+  "note": "PR #184 canonical. Continue source-only identification of PlayerRow cells 1..3.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
