@@ -66,6 +66,16 @@ class CupAllocationInstructionSource(Protocol):
     auxiliary: int
 
 
+class LeagueAllocationBoundarySource(Protocol):
+    id: int
+    competition_a_id: int
+    competition_a_start: int
+    competition_a_end: int
+    competition_b_id: int
+    competition_b_start: int
+    competition_b_end: int
+
+
 class DummyLeagueRatingPlayerSource(Protocol):
     club_id: int
     current_raw: tuple[int, ...]
@@ -1838,6 +1848,178 @@ def expand_standard_cup_allocation_instructions(
         selected_direct_club_ids=tuple(sorted(direct_ids)),
     )
 
+
+
+def fresh_promotion_playoff_position_count(
+    competition_id: int,
+    competitions: Iterable[OrderedCompetitionSource],
+    league_allocations: Iterable[LeagueAllocationBoundarySource],
+    cup_allocations: Iterable[CupAllocationInstructionSource],
+    rounds: Iterable[OrderedRoundSource],
+) -> int:
+    """Return fresh 0x4F88C0's status-2 count for one root League.
+
+    0x4F88C0 first finds the source-order upper LeagueAllocation neighbour,
+    marks direct top/bottom positions, then asks promotion-playoff child
+    competitions to overwrite referenced current-League positions with status
+    2. League/DummyLeague children use virtual +0x34 = 0x4F8800 and Cups use
+    +0x34 = 0x4F8860. Both only care about type-2 ClubRefs' source competition
+    and selector. Reuse the already-recovered allocation expanders rather than
+    inventing a playoff rule from competition names.
+    """
+    competition_id = int(competition_id)
+    competition_list = tuple(competitions)
+    allocation_rows = tuple(league_allocations)
+    cup_rows = tuple(cup_allocations)
+    round_list = tuple(rounds)
+    by_id = {int(item.id): item for item in competition_list}
+    current = by_id.get(competition_id)
+    if current is None:
+        raise ValueError(f"competition {competition_id} is not loaded")
+    if getattr(current, "parent_competition_id", None) is not None:
+        raise ValueError("fresh objective boundary count requires a root League")
+    if int(current.runtime_kind_code) != 1:
+        raise ValueError("fresh objective boundary count requires a League")
+
+    subset = country_league_root_storage_order(
+        competition_list,
+        int(current.country_region_id),
+    )
+    subset_index = {
+        int(item.id): index
+        for index, item in enumerate(subset)
+    }
+    if competition_id not in subset_index:
+        raise ValueError(
+            f"competition {competition_id} is absent from its country League subset"
+        )
+
+    def root_id(item) -> int:
+        parent = getattr(item, "parent_competition_id", None)
+        return int(item.id) if parent is None else int(parent)
+
+    def is_above(item) -> bool:
+        root = root_id(item)
+        if root not in subset_index:
+            raise ValueError(
+                f"allocation counterpart {int(item.id)} has no source country root"
+            )
+        return subset_index[root] < subset_index[competition_id]
+
+    upper = None
+    for row in allocation_rows:
+        a_id = int(row.competition_a_id)
+        b_id = int(row.competition_b_id)
+        if a_id == competition_id:
+            other_id = b_id
+        elif b_id == competition_id:
+            other_id = a_id
+        else:
+            continue
+        other = by_id.get(other_id)
+        if other is None:
+            raise ValueError(
+                f"LeagueAllocation {int(row.id)} references missing competition "
+                f"{other_id}"
+            )
+        if is_above(other):
+            # Native 0x4F88C0 overwrites this pointer as source rows advance.
+            upper = other
+
+    if upper is None:
+        return 0
+
+    children: dict[int, list[OrderedCompetitionSource]] = {}
+    for item in competition_list:
+        parent = getattr(item, "parent_competition_id", None)
+        if parent is not None:
+            children.setdefault(int(parent), []).append(item)
+
+    def has_allocation_relation(left_id: int, right_id: int) -> bool:
+        left_id = int(left_id)
+        right_id = int(right_id)
+        return any(
+            {
+                int(row.competition_a_id),
+                int(row.competition_b_id),
+            } == {left_id, right_id}
+            for row in allocation_rows
+        )
+
+    relevant_children: list[OrderedCompetitionSource] = list(
+        children.get(int(upper.id), ())
+    )
+    relevant_children.extend(
+        child
+        for child in children.get(competition_id, ())
+        if has_allocation_relation(int(child.id), int(upper.id))
+    )
+
+    marked_selectors: set[int] = set()
+
+    def mark_refs(refs: Iterable[CupClubRefDescriptor]) -> None:
+        for ref in refs:
+            if (
+                int(ref.type_code) == 2
+                and ref.competition_id is not None
+                and int(ref.competition_id) == competition_id
+            ):
+                selector = int(ref.selector)
+                if not 0 <= selector:
+                    raise ValueError("competition-position selector is negative")
+                marked_selectors.add(selector)
+
+    for child in relevant_children:
+        child_id = int(child.id)
+        child_kind = int(child.runtime_kind_code)
+        child_instructions = tuple(
+            row
+            for row in cup_rows
+            if int(row.destination_competition_id) == child_id
+        )
+
+        if child_kind in (1, 3):
+            expansion = expand_league_position_allocation_instructions(
+                child_id,
+                child_instructions,
+            )
+            mark_refs(expansion.participant_refs)
+            continue
+
+        if child_kind == 2:
+            unsupported = tuple(
+                int(row.instruction_type)
+                for row in child_instructions
+                if int(row.instruction_type) not in (1, 4)
+            )
+            if unsupported:
+                raise ValueError(
+                    f"playoff Cup {child_id} has non-position allocation types "
+                    f"{unsupported}"
+                )
+            sorted_rounds = primary_cup_round_initialization_order(
+                child_id,
+                round_list,
+            )
+            if not sorted_rounds:
+                raise ValueError(f"playoff Cup {child_id} has no rounds")
+            expansion = expand_standard_cup_allocation_instructions(
+                child_id,
+                sorted_rounds,
+                child_instructions,
+                ranked_club_ids_by_source={},
+                enumerated_club_ids_by_source={},
+            )
+            # Cup virtual +0x34 (0x4F8860) scans Cup+0x38's first qsorted
+            # runtime round only, not every propagated later-round ClubRef.
+            mark_refs(expansion.round_buckets[0].participant_refs)
+            continue
+
+        raise ValueError(
+            f"unsupported playoff child runtime kind {child_kind} for {child_id}"
+        )
+
+    return len(marked_selectors)
 
 
 @dataclass(frozen=True)
