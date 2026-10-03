@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 202: PR #169 is canonical at main c75ce5b07dc9d8c7467ed8dc4826854443ffd4a2 after 1,504 tests / 22 expected skips and asset-policy success. Continue Gate-14 source work with direct FastViewPanel ownership/draw of FM2001_Art/FastView/background.444 and source-backed side-orientation mapping. Do not guess background ownership, home/away/human screen side, or complete FastView fidelity. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
+  "active_task": "Recovery 203: resume from canonical main c75ce5b07dc9d8c7467ed8dc4826854443ffd4a2. Do not repeat merged PR #169 typography work. Continue Gate-14 source tracing for direct FastViewPanel ownership/draw of FM2001_Art/FastView/background.444 and source-backed side-orientation mapping. If one remains unproven, persist the exact blocker and continue the other independent source path. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
   "last_known_main_head": "c75ce5b07dc9d8c7467ed8dc4826854443ffd4a2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 202,
+  "recovery_generation": 203,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #169 merged. Continue background ownership and side orientation only; do not repeat typography.",
+  "note": "Recovery 203 resumed from canonical PR #169. Work only on background ownership and/or side orientation; do not invent either.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
