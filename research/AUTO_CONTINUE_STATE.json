@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 211: reconcile stale runtime with canonical main ef5760b669cdf5eacc91d8a9d4cd8c3fed95a216. Preserve merged Gate-13 PR #183 and full-original-port scope PR #189. Rebase only PR #187's source-closed PlayerRow shirt/squad-number delta onto current main: DBRPlayer accessor 0x41E3D0 (+0x70/+0x76) -> caller 0x533370 -> call 0x5333EC -> record+0x47 write 0x5333F3 -> PlayerRow cell1 %u. The stale branch already passed 1,560 tests / 22 expected skips and asset policy, but rerun CI on a fresh canonical-main branch before merge. Then assemble/integrate a complete source-backed PlayerRow snapshot without duplicating simulation. Gate 13 remains earliest incomplete.",
-  "last_known_main_head": "ef5760b669cdf5eacc91d8a9d4cd8c3fed95a216",
+  "active_task": "Recovery 211: PR #190 canonical at main 0a8576cf1c72d7b8704fff665669d9eab516c8a9 after 1,592 tests / 23 expected skips and asset-policy success. Transplant only the complete PlayerRow snapshot/presentation-retention delta from child branch recovery211/gate14-playerrow-snapshot onto fresh canonical main. Verify/merge independently, then retain the required per-player FastView row state from the actual match/completion path rather than recomputing it after simulation. Preserve Gate-13 PR #183 and full-original-port scope.",
+  "last_known_main_head": "0a8576cf1c72d7b8704fff665669d9eab516c8a9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 211,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Main advanced through Gate-13 PR #183 and project-scope PR #189. Preserve both; transplant only PR #187 PlayerRow shirt-number delta.",
+  "note": "PR #190 merged. Next exact task is clean snapshot delta transplant and CI.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
