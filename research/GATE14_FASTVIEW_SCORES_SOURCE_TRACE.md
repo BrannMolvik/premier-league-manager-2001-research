@@ -100,6 +100,59 @@ the final class vtables:
 This source-closes the receiver families and callback identities, not yet every
 visible text/icon effect inside those callbacks.
 
+## Recovery 205 follow-on: final visible row geometry
+
+The owning layout helper `0x522CD0` stores six row-layout fields on
+`FastViewLeagueScores`; relayout method `0x5230B0` then positions existing
+score composites from those exact fields.
+
+For source counts **1..12**:
+
+- columns = 1;
+- rows per column = 12;
+- composite origin = **(246,55)**;
+- row step = **19** pixels.
+
+For source counts **>12**:
+
+- columns = 2;
+- rows per column = 12;
+- first origin = **(38,55)**;
+- column step = **416** pixels, giving second-column x = **454**;
+- row step = **19** pixels.
+
+The same source has separate page handling above 24 records. This checkpoint
+therefore treats the geometry as one visible 24-slot page and does not invent
+off-page mapping.
+
+Shared `ScoreComposite::0x51A730` proves that the grid-2 PictureControl begins
+at the composite origin itself. Its exact local rectangle is:
+
+`(0,0)-(309,16)`
+
+so, for example, the first one-column row is
+**(246,55)-(555,71)** and the first right-column row is
+**(454,55)-(763,71)**.
+
+The same fixed layout table creates four generic text controls at these local
+rectangles:
+
+1. `(2,0)-(132,16)`;
+2. `(177,0)-(307,16)`;
+3. `(139,0)-(152,16)`;
+4. `(158,0)-(171,16)`.
+
+At one-column row 0 those become:
+
+1. `(248,55)-(378,71)`;
+2. `(423,55)-(553,71)`;
+3. `(385,55)-(398,71)`;
+4. `(404,55)-(417,71)`.
+
+Their semantic labels are intentionally not assigned by this checkpoint. The
+geometry is source-closed independently of whether a control later proves to be
+a club name, score, state marker or another text role.
+
 ## Reconstruction contract
 
 `reconstruction/gate14_fastview_scores.py` now records:
@@ -116,9 +169,7 @@ Both resources remain `imported=False`; no substitute art is used.
 
 After CI verifies this checkpoint:
 
-1. recover the caller-supplied final origin and text/control geometry for
-   `ScoreCompositeNormal`;
-2. trace the adjacent `current_table_grid_1.444` /
+1. trace the adjacent `current_table_grid_1.444` /
    `current_table_grid_2.444` family only if it is independently owned by the
    same score workflow;
 3. keep the already source-closed top/ticker binary import as a deterministic

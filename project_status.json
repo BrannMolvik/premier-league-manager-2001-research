@@ -14,7 +14,7 @@
   "last_verified_test_count": 1514,
   "asset_policy_validated_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
   "asset_policy_status": "passed",
-  "active_task": "Recovery 205 Gate-14 work-ahead: verify distinct FastViewLeagueScores current_fix_grid_1 and ScoreCompositeNormal current_fix_grid_2 ownership/geometry/receiver lifecycle; then recover ScoreCompositeNormal caller-supplied final origin and adjacent score controls without inventing pixels. Gate 13 parallel worker now has schema-8 Windows validation and continues its remaining shell/navigation fidelity work.",
+  "active_task": "Recovery 205 Gate-14 work-ahead: verify ScoreCompositeNormal final row/grid/text geometry, then trace adjacent current_table_grid family while preserving unknown text semantics and unstaged binary boundaries.",
   "last_local_focused_test_count": 453,
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
@@ -1798,7 +1798,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "dynamic_by_fixture_role_exact",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "Verify Recovery 205 score-grid contract through CI, then recover ScoreCompositeNormal caller-supplied final origin/text-control geometry; only then consider adjacent current_table_grid family or pixel integration.",
+  "gate14_exact_next_task": "Verify Recovery 205 ScoreCompositeNormal final row/text geometry through CI, then source-trace current_table_grid_1/current_table_grid_2 ownership and geometry independently before any pixel integration.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -2086,12 +2086,75 @@
     13,
     16
   ],
-  "gate14_score_composite_normal_final_screen_origin": "unresolved_caller_supplied_fail_closed",
+  "gate14_score_composite_normal_final_screen_origin": "source_closed_by_fastview_league_scores_relayout",
   "gate14_score_composite_normal_event_receivers": [
     "EventHalfTime",
     "EventExtraTime",
     "EventPenalties",
     "EventFullTime",
     "EventGlobalSecondHalf"
-  ]
+  ],
+  "gate14_fastview_scores_merge": "29a55fdeed4192010940f9f3806f87cfea2dc5f5",
+  "gate14_fastview_scores_reconstruction_run": 37092578763,
+  "gate14_fastview_scores_test_count": 1523,
+  "gate14_fastview_scores_expected_skips": 22,
+  "gate14_fastview_scores_asset_policy_run": 37092578747,
+  "gate14_score_composite_page_layout": {
+    "single_column": {
+      "count_max": 12,
+      "columns": 1,
+      "rows_per_column": 12,
+      "origin": [
+        246,
+        55
+      ],
+      "column_step": 0,
+      "row_step": 19
+    },
+    "two_column": {
+      "count_min": 13,
+      "columns": 2,
+      "rows_per_column": 12,
+      "origin": [
+        38,
+        55
+      ],
+      "column_step": 416,
+      "row_step": 19,
+      "page_capacity": 24
+    }
+  },
+  "gate14_score_composite_normal_grid_local_rect": [
+    0,
+    0,
+    309,
+    16
+  ],
+  "gate14_score_composite_normal_text_local_rects": [
+    [
+      2,
+      0,
+      132,
+      16
+    ],
+    [
+      177,
+      0,
+      307,
+      16
+    ],
+    [
+      139,
+      0,
+      152,
+      16
+    ],
+    [
+      158,
+      0,
+      171,
+      16
+    ]
+  ],
+  "gate14_score_composite_normal_text_semantics": "unresolved_fail_closed"
 }
