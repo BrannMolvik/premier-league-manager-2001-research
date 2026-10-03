@@ -1790,7 +1790,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "unrecovered_fail_closed",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "Verify Recovery 198 ownership correction through CI, then continue the smallest source-backed player-visible FastView lifecycle slice: recover PossessionDiagram callback cadence or a presentation-host lifecycle boundary without inventing human-side orientation.",
+  "gate14_exact_next_task": "Verify Recovery 198 PossessionDiagram typed receiver lifecycle through CI, then source-trace MatchController EventPossession emission cadence without inventing per-segment timing or human-side orientation.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -1803,5 +1803,22 @@
     "FM2001_Art/FastView/team_bar_2.444"
   ],
   "gate14_possession_figures_visual_kind": "text_only_source_component",
-  "gate14_bar_ownership_correction_recovery": 198
+  "gate14_bar_ownership_correction_recovery": 198,
+  "gate14_fastview_bar_ownership_merge": "25ad2622aec612e8eddaf452e53ae7b717369a05",
+  "gate14_fastview_bar_ownership_reconstruction_run": 37081838582,
+  "gate14_fastview_bar_ownership_test_count": 1483,
+  "gate14_fastview_bar_ownership_expected_skips": 22,
+  "gate14_fastview_bar_ownership_asset_policy_run": 37081838607,
+  "gate14_possession_diagram_receiver_lifecycle_exact": true,
+  "gate14_possession_diagram_event_possession_receiver": "0x522BB0",
+  "gate14_possession_diagram_event_goal_receiver": "0x522C30",
+  "gate14_possession_diagram_event_global_penalties_receiver": "0x522C60",
+  "gate14_possession_diagram_penalties_latch_offset": "0x20",
+  "gate14_possession_diagram_goal_field_offset": "0x0C",
+  "gate14_possession_diagram_goal_field_state_mapping": {
+    "0": 2,
+    "1": 0
+  },
+  "gate14_possession_diagram_penalties_behavior": "latch_then_next_and_later_possession_force_state1_without_rng",
+  "gate14_possession_event_emission_cadence": "unresolved_fail_closed"
 }
