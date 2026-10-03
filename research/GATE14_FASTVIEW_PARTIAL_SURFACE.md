@@ -19,11 +19,25 @@ Implementation:
 - `reconstruction/gate14_fastview_partial_surface.py`
 - `reconstruction/test_gate14_fastview_partial_surface.py`
 
-Verification on PR #213 head `d18b00bf721d6094dbe29738d0ea0c2209611b39` before the lock-safe status-file cleanup:
+PR #213 was cleaned of shared Gate-13 status-file edits, verified and squash-merged as canonical main `4f8860b325484a19fec7a76cf9d49ae23584899f`:
 
-- reconstruction workflow `37126497098`: passed;
-- repository asset-policy workflow `37126497095`: passed.
+- reconstruction workflow `37128681158`: **1,701 tests passed, 23 expected skips**;
+- repository asset-policy workflow `37128681160`: passed.
 
-After removing shared Gate-13 status-file edits from the branch, CI must be rechecked on the final head before merge.
+## Recovery 224 explicit TeamTable geometry extension
 
-The next independent cloud-safe step is to continue composing only additional already source-closed FastView regions on disjoint Gate-14 files, while keeping rasterization withheld anywhere cross-component ordering or ownership is not yet source-backed.
+The next independent surface step adds only caller-explicit TeamTable rows. The partial-surface builder accepts a tuple of `FastViewTeamRowSelection(side_index, row_index)` values and never manufactures a visible roster count.
+
+For each selected row it reuses the already source-closed TeamTable contract to expose:
+
+- the exact side/row name-grid rectangle and the source-selected primary/alternate resource identity;
+- the exact shared 82x16 energy-bar rectangle and its side-specific static/dynamic resource identities;
+- all six exact PlayerRow text-control rectangles.
+
+These new entries are classified as `team_table_geometry` and have `raster_available = False`: the TeamTable grid/bar resources remain unimported in this presentation path and no row text pixels are supplied by this layout-only seam. The existing decoded chrome, possession art and PossessionFigures glyph layers remain raster-available.
+
+Cross-component overlap detection now also catches TeamTable geometry against existing source-bound fragments. For example, explicit row 0 overlaps `top_bar.444`; the layout records that overlap and still refuses to assign a z-order or flatten the frame.
+
+Invalid sides, boolean/non-integer row indices, duplicate row selections, implicit list/tuple shorthand and rows whose translated rectangles leave the recovered 800x600 surface fail closed.
+
+The Recovery-224 TeamTable extension still requires branch CI before merge. Gate 13 remains the earliest incomplete validation gate under Codex ownership.
