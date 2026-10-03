@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 216: reconciliation PR #197 merged canonical as main 050085a8e0845a90f700498bef638ee466bf65fc after reconstruction run 37113179818 passed 1,656 tests with 23 expected skips and asset-policy run 37113179917 passed. PR #196 is closed as superseded. Continue Gate 13, earliest incomplete: source-close and retain the next mandatory native setup/report metadata input without creating partial reports; current priority is setup FE0/FE4 identities if the exact 0x510F40 country argument/retry order can be recovered, otherwise move to another already source-closed mandatory scalar. Complete owner/link/save/right-click PMatchInfo only after required input set is complete.",
+  "active_task": "Recovery 217: main remains 050085a8e0845a90f700498bef638ee466bf65fc. Continue Gate 13 from the already-identified save/reload gap: GameState.prepared_match_gate_receipts holds exact source-backed report D84 total, D8C home and D90 visiting attendance outputs, but internal-save schema 38 drops that mapping. Persist those gate-receipt inputs and verify roundtrip without fabricating D88, D9C, venue, captions, FE0/FE4 or a partial report/link. Then continue the next source-backed mandatory input if feasible.",
   "last_known_main_head": "050085a8e0845a90f700498bef638ee466bf65fc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 216,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "Canonical schema 38 now combines Gate-13 completion inputs with persistent MatchEngine RNG state. Venue, initial participant-history bit, D88/D9C and caption context remain fail-closed; do not guess them.",
+  "recovery_generation": 217,
+  "last_recovery_reason": "manual-start",
+  "note": "Manual recovery 217 resumes the concrete attendance-persistence defect found before interruption; no re-tracing of closed Gate-13 codecs.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
