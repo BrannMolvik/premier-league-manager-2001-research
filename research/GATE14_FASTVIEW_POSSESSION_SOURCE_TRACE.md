@@ -4,9 +4,9 @@ _Date: 3 October 2026 KST. Recovery 194. Evidence tier: canonical executable plu
 
 ## Scope
 
-This trace closes the exact source identity of the bounded
-`PossessionFigures` / `PossessionDiagram` resource family and the
-`PossessionDiagram` geometry plus one-call state transition primitive. It
+This trace closes the `PossessionDiagram` image family, its geometry and its
+one-call state transition primitive, plus the independent `PossessionFigures`
+percentage-text geometry. It
 does **not** claim the original update cadence, side-0/user screen orientation,
 commentary/audio binding, or broader FastView/3D choreography.
 
@@ -33,13 +33,10 @@ for this worker.
 ## Exact FastView resource paths
 
 The canonical executable contains the complete FastView source paths, not only
-basenames. The relevant image-path string addresses are:
+basenames. The PossessionDiagram image-path string addresses are:
 
 | Component | Executable VA | Exact original source path | Bytes | Dimensions | SHA-256 |
 | --- | ---: | --- | ---: | ---: | --- |
-| PossessionFigures | `0x8293D4` | `FM2001_Art/FastView/team_bar_1.444` | 2,344 | 82×16 | `edd35c18a53598b3cfd3e93adc2b27153742582d7888a0923fdd672d36e2681d` |
-| PossessionFigures | `0x8293B0` | `FM2001_Art/FastView/blank_bar.444` | 2,776 | 82×16 | `961eb49ae0810a522130f4b6e7401c7d16250d0de65bc7e51bc8341c6b8a7e3a` |
-| PossessionFigures | `0x829334` | `FM2001_Art/FastView/team_bar_2.444` | 2,312 | 82×16 | `4514b621f8d6a7b41c82c5215c4a1af571f60d773f0a3d1ea095c87d62e8a751` |
 | PossessionDiagram | `0x8298D4` | `FM2001_Art/FastView/pitch_left.444` | 9,736 | 125×78 | `bf1cf154f9742b39953771a248c7d1269d8d0394856ab1dc76dd81882b1b29d9` |
 | PossessionDiagram | `0x8298AC` | `FM2001_Art/FastView/pitch_middle.444` | 7,896 | 98×78 | `ad53294836bf1f489060e9339da79fa43f2fb70034c890ea93dbff14f5caee77` |
 | PossessionDiagram | `0x829888` | `FM2001_Art/FastView/pitch_right.444` | 9,408 | 125×78 | `dedc194dc9410ddc6d606fdabd3fe779a0c1bf0bfdfe85752f9a56d57171e5fd` |
@@ -60,6 +57,18 @@ ambiguity is now source-resolved without guessing from directory names.
 source-proven full paths and fails closed on a missing path, wrong source size,
 or conflicting observed SHA-256. A same-basename file elsewhere cannot
 substitute for the exact FastView path.
+
+### Recovery 197 ownership correction
+
+The adjacent 82x16 `team_bar_1.444`, `blank_bar.444`, and
+`team_bar_2.444` strings were previously listed here as PossessionFigures
+art. RTTI and constructor tracing disproves that ownership. They belong to
+`FastViewPanel::FastViewTeam::TeamTable::Row`; see
+`research/GATE14_FASTVIEW_TEAMTABLE_SOURCE_TRACE.md`.
+
+`PossessionFigures` itself remains the separate class at constructor
+`0x51E7E0` / receiver `0x51EA80`, with the three percentage text controls
+already source-closed in Recovery 196.
 
 ## PossessionDiagram construction and geometry
 
@@ -162,12 +171,13 @@ FastView behavior:
    semantics for the private presentation RNG;
 2. recover side-0/user orientation rather than inferring it from
    `left/middle/right` filenames;
-3. trace and source-bind the three 82×16 PossessionFigures bar controls; the
-   percentage text placement is now exact;
-4. connect the source-bounded diagram/text geometry to a player-visible
+3. connect the source-bounded diagram/text geometry to a player-visible
    FastView surface only after its missing lifecycle/orientation boundaries are
    resolved or explicitly fail-closed;
-5. recover audio/commentary and broader FastView/SCI choreography separately.
+4. recover audio/commentary and broader FastView/SCI choreography separately.
+
+The three 82x16 team/blank bars are no longer an open PossessionFigures item;
+Recovery 197 source-closes them as a separate FastViewTeam::TeamTable family.
 
 No unresolved timing or orientation is described as original behavior by this
 checkpoint.
