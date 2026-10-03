@@ -10621,3 +10621,15 @@ work may continue under the deferred-blocker policy.
 - Shared `ScoreComposite::0x51A730` places current_fix_grid_2 at the composite origin itself, giving a 309x16 final rectangle per row.
 - The same fixed table source-closes four local text-control rectangles: (2,0)-(132,16), (177,0)-(307,16), (139,0)-(152,16), and (158,0)-(171,16). No user-facing semantic labels are assigned yet.
 - Added row/page layout and exact translated-rectangle helpers plus regressions. Next independent source task is the current_table_grid_1/current_table_grid_2 family.
+
+
+## 3 October 2026 - Recovery 206 LeagueTableComposite current-table source closure
+
+- Resumed from canonical main `8ea49594b827542196a4b5e94137ea4cecc5d176`; PR #176 was already merged and verified with **1,526 tests / 22 expected skips** plus asset-policy success, so no completed score-row work was repeated.
+- Canonical RTTI separates `LeagueTableComposite` from the already closed FastViewLeagueScores / ScoreCompositeNormal current-fixture family: primary vtable `0x7CA400`, secondary `0x7CA3F8`, `Row` vtable `0x7CA3E8`, and `Heading` vtable `0x7CA3F0`.
+- Direct resource references bind `current_table_grid_1.444` to `Heading::0x51DCB0` and `current_table_grid_2.444` to `Row::0x51D730`.
+- Re-extracted both authorized source assets: grid 1 = 381x19 / 4,496 bytes / SHA-256 `db8114130becce71ba84f890ccd157606d04bf68501484df308564da28957a5f`; grid 2 = 381x16 / 4,276 bytes / SHA-256 `e5a1b5688115cc8a63d47c738cf5af7f66f20eee9433292e47ee4e7c152ed70b`.
+- FastView call `0x523472 -> 0x51E000` fixes the composite origin at (382,32). Heading grid is (382,32)-(763,51). Rows begin at (382,55), step by 19 pixels, and use exact 381x16 grid rectangles.
+- Source tables close seven heading text rectangles and nine row text rectangles. Their user-facing labels remain deliberately unassigned.
+- The constructor transforms source counts above 12 with `floor((count-1)/2)+1` = `ceil(count/2)`; this numeric transform is retained without inventing a page/half-table semantic.
+- Added `reconstruction/gate14_fastview_league_table.py` plus regression coverage. Both current-table assets remain unimported and no substitute art is used.
