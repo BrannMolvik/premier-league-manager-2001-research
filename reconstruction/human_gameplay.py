@@ -906,6 +906,111 @@ class HumanGameplayController:
         self.last_transfer_executions = tuple(results)
         return self.last_transfer_executions
 
+    def _procedural_league_owner_for_token(self, node_token: tuple):
+        token = tuple(node_token)
+        owners = tuple(
+            live
+            for live in self.state.procedural_leagues.values()
+            if token in live.fixtures
+        )
+        if len(owners) != 1:
+            if not owners:
+                raise KeyError(token)
+            raise RuntimeError(
+                "procedural League node belongs to multiple live groups"
+            )
+        return owners[0]
+
+    def _primary_entry_competition_id(self, entry: tuple) -> int:
+        entry = tuple(entry)
+        kind = entry[0]
+        if kind == "premier_league":
+            return 0
+        if kind == "domestic_cup":
+            return int(self.state.domestic_cups.node(tuple(entry[1])).competition_id)
+        if kind == "european_cup":
+            return int(self.state.european_cups.node(tuple(entry[1])).competition_id)
+        if kind == "qualification_cup":
+            return int(
+                self.state.qualification_cups.node(tuple(entry[1])).competition_id
+            )
+        if kind == "procedural_league":
+            return int(
+                self._procedural_league_owner_for_token(
+                    tuple(entry[1])
+                ).competition_id
+            )
+        raise ValueError(f"unsupported primary match entry {entry!r}")
+
+    def _human_selection_competition_id(self) -> int:
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        if self.pending_primary_entry is not None:
+            return self._primary_entry_competition_id(
+                self.pending_primary_entry
+            )
+        if self.pending_fixture_id is not None:
+            return 0
+
+        club_id = int(self.human.club_id)
+        membership = self.state.club_competition_membership.get(club_id)
+        if membership is not None:
+            return int(membership)
+        if (
+            self.state.premier_league is not None
+            and club_id in {
+                int(value) for value in self.state.premier_league.club_ids
+            }
+        ):
+            return 0
+        raise RuntimeError(
+            f"controlled club {club_id} has no live League membership"
+        )
+
+    def _human_selection_competition(self):
+        competition_id = self._human_selection_competition_id()
+        competition = self.state.competitions.get(int(competition_id))
+        if competition is None:
+            raise RuntimeError(
+                f"human match competition {competition_id} is not loaded"
+            )
+        return competition
+
+    def _human_live_league_table(self) -> tuple[object, ...]:
+        if self.human is None:
+            raise RuntimeError("select a human club first")
+        club_id = int(self.human.club_id)
+        competition_id = self.state.club_competition_membership.get(club_id)
+        if competition_id is None:
+            if (
+                self.state.premier_league is not None
+                and club_id in {
+                    int(value) for value in self.state.premier_league.club_ids
+                }
+            ):
+                competition_id = 0
+            else:
+                return ()
+
+        competition_id = int(competition_id)
+        if competition_id == 0:
+            return tuple(self.state.premier_league_table())
+
+        owners = tuple(
+            live
+            for (owner_competition_id, context), live
+            in self.state.procedural_leagues.items()
+            if int(owner_competition_id) == competition_id
+            and int(context) == 0
+        )
+        if len(owners) > 1:
+            raise RuntimeError(
+                f"multiple root League owners for competition {competition_id}"
+            )
+        if not owners:
+            return ()
+        return tuple(owners[0].table())
+
     def _prepare_human_selection(
         self,
         formation_id: int,
@@ -924,9 +1029,7 @@ class HumanGameplayController:
         if len(starters) != 11:
             raise ValueError("human lineup requires exactly 11 starters")
 
-        competition = self.state.competitions.get(0)
-        if competition is None:
-            raise RuntimeError("Premier League competition definition is not loaded")
+        competition = self._human_selection_competition()
         substitute_quota = resolved_substitute_quota(
             int(competition.substitute_quota)
         )
@@ -1032,9 +1135,7 @@ class HumanGameplayController:
         if self.human is None:
             raise RuntimeError("select a human club first")
 
-        competition = self.state.competitions.get(0)
-        if competition is None:
-            raise RuntimeError("Premier League competition definition is not loaded")
+        competition = self._human_selection_competition()
 
         roster = self.state.ordered_club_roster(self.human.club_id)
         selection = prepare_ai_match_selection(
@@ -1086,14 +1187,11 @@ class HumanGameplayController:
             return node.resolve_pair(self.state.cup_results)
         if entry[0] == "procedural_league":
             token = tuple(entry[1])
-            owners = tuple(
-                live
-                for live in self.state.procedural_leagues.values()
-                if token in live.fixtures
-            )
-            if len(owners) != 1:
+            try:
+                owner = self._procedural_league_owner_for_token(token)
+            except (KeyError, RuntimeError):
                 return None
-            fixture = owners[0].fixtures[token]
+            fixture = owner.fixtures[token]
             return int(fixture.home_club_id), int(fixture.away_club_id)
         raise ValueError(f"unsupported primary match entry {entry!r}")
 
@@ -1296,7 +1394,7 @@ class HumanGameplayController:
             match_entry=entry,
             user_result=user_result,
             matchday_results=all_results,
-            table=tuple(self.state.premier_league_table()),
+            table=self._human_live_league_table(),
         )
 
     def next_user_fixture(self):
