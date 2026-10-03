@@ -10,18 +10,29 @@ topic-specific research files.
 
 **Gate 13 - Restore original management presentation**
 
+Latest local Gate-13 milestone, based on canonical `6207dbe0`: native
+attendance bit-9/count lifecycle and exact zero-based human-rank D48 guards
+are integrated and persist in schema 42. A genuinely calculated Coventry
+home fixture publishes all eleven scalars and a complete report. Disk save,
+fresh reload and real Windows ordinary Fixtures right-click open the correct
+PMatchInfo context (fixture 2, owner 0), without injected fragments. Fresh
+Windows schema-8 audit passes. Evidence: `GATE13_LEGACY_CLUB_REPORT_STATE.md`.
+Final local validation: **1,695 full tests / 23 expected skips**, 135 focused
+tests, asset-policy/JSON/diff checks, fresh Windows schema 8 and the final-code
+genuine reload/right-click probe all pass. Frozen-package launch is not claimed.
 
-Recovery 222 narrows the human-opponent D48 blocker without guessing legacy
-club state. Exact native Premier League rank is now recomputed only from the
-recovered comparator plus original CP1252 short-name bytes; missing/ambiguous
-source order fails closed. When that native zero-based rank is >=4,
-`0x408170` is counter-independent and the shipped D48 value 5 is passed into
-the existing initial-history producer. Ranks 0..3 still require unresolved
-DBRClub `+0x130`; `+0x13C/+0x140` visiting capacities and secondary-shirt
-contexts also remain open. Gate 13 therefore remains OPEN and the genuine
-reload/right-click/PMatchInfo route is not yet claimed. See
-`GATE13_LIVE_CAPTURE_INPUTS.md`.
+Gate 13 remains **OPEN**. Next source task: establish the fresh native
+allocation/write lifecycle of uncontrolled visiting capacities +13C/+140;
+do not assume zero. Complete the top-four D48 roster-Condition/RNG branch
+without a numeric substitute. Secondary/loan shirts stay unknown. The
+ordinary host still needs source-qualified stadium setup materialization;
+PMatchInfo nested report rendering and final timing/normal-play judgment
+are not certified by a correct stored context. Preserve all shipped-country
+scope; Gate-14 work and agent-runtime ownership are untouched. Work is on
+`codex/gate13-legacy-setup`, not main; no branch reconciliation was performed.
 
+Earlier checkpoints below are historical and do not negate the new genuine
+calculated-report/context proof.
 
 PR #199 continuation from `f8bbdd9c`: B68 constructor and original-order
 FE0/FE4 draws, explicit tactics, primary-shirt/normalized flag metadata and

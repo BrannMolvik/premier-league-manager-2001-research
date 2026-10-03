@@ -4,6 +4,25 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 3 October 2026 KST — genuine ordinary Gate-13 report route
+
+Isolated `codex/gate13-legacy-setup` from canonical `6207dbe0`; no main
+reconciliation, Gate-14 changes or agent-runtime ownership changes. Retained
+the source bit-9/attendance-byte lifecycle and native zero-based human-rank
+D48 guards with schema-42 unknown-aware persistence. Complete calculated
+Coventry/Newcastle fixture 2 actually publishes a report, survives disk save
+and fresh controller reload, then opens the matching PMatchInfo context via
+real Windows ordinary Fixtures right-click. No report/scalar injection.
+
+Final validation: 1,695 full tests, 23 expected licensed-source skips, 135
+focused tests, asset policy/JSON/diff checks and fresh Windows schema 8 pass.
+Private source traces, WAD members, calculated save and receipts stay outside
+Git. Precise addresses/hashes: `GATE13_LEGACY_CLUB_REPORT_STATE.md`.
+Gate 13 remains OPEN: fresh uncontrolled visiting-capacity state and top-four
+Condition/RNG production remain unknown, and supported popup context does not
+close owner-local rendering, automatic stadium bootstrap or original timing/
+normal-play recognizability. Full-original-functionality scope is preserved.
+
 ### 3 October 2026 KST — live Gate-13 calculator input checkpoint
 
 Final continuation checkpoint: main `d0dadf1f` was preserved; code `f8b9f4ba`
