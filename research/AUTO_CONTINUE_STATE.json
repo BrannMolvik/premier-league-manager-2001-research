@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 215: PR #195 merged canonical at main 50b70390197ecace3297231eef5d227820a22478 after reconstruction run 37110917465 passed 1,616 tests with 23 expected skips and asset-policy run 37110917460 passed. Next Gate-14 work-ahead task: split live match RNG ownership. Persist one MatchEngineRng stream (source global 0x981BF0, seeded once via 0x62B640->0x64D560) through 0x6314E0/0x631630 weather, 0x4080F0 AI Condition, MatchCalculator, target low-rating lift, and 0x630CEC form trajectory; retain shared MsvcCrtRng only for source-proven shared-CRT game-state paths. Add save/reload persistence for the full MatchEngine RNG state. Gate 13 remains earliest incomplete.",
+  "active_task": "Recovery 215: PR #196 head a22f92fef424c71b900f799c112e0ef134d068c2 implements the source-backed Premier League MatchEngine RNG split. Persistent MatchEngineRng state now has exact full snapshot/restore; GameState uses the distinct engine stream for weather, AI Condition, calculator, target low-rating lift and FastView form trajectory when supplied; HumanGameplayController owns/passes the stream; internal save schema 36 persists it. Reconstruction run 37111511192 is in progress; asset-policy run 37111511208 passed. Merge only if full CI passes. Gate 13 remains earliest incomplete.",
   "last_known_main_head": "50b70390197ecace3297231eef5d227820a22478",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 215,
   "last_recovery_reason": "manual-start",
-  "note": "PR #195 canonical. Direct executable trace confirmed temperature/weather, AI Condition and MatchCalculator use the persistent global MatchEngine RNG.",
+  "note": "PR #196 open. During CI, direct canonical trace also closed +0xD48 tuning defaults: OppMinVal=90, OppMaxVal=99, OppBoostMeanVal=105, OppBoostMinVal=100, OppBoostMaxVal=110, BoostNumPos=4, DefaultConditionBoost=5, MaxBoostChance=100, MinBoostChance=0. DBRClub+0x130 lifecycle remains unresolved, so no display adjustment is guessed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
