@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 212: resumed at main 5952be5c383d44a4dabe6258a10196f75416c1bb. Gate-14 work-ahead exact task remains the source-backed PlayerProxy form/energy history contract: form payload = 0x632FC0 -> 0x6308B0 match-form history; energy payload = 0x633000 -> 0x630910 derived from Condition history + form trend + RNG. Materialize the exact histories and derived-energy primitive, retain post-calc RNG state from the actual match path, and only then populate outcome.fastview_player_rows. Do not alias modern condition/form_state directly. Gate 13 remains earliest incomplete.",
-  "last_known_main_head": "5952be5c383d44a4dabe6258a10196f75416c1bb",
+  "active_task": "Recovery 212: PR #192 is canonical at main 9019be2a1efa05e215a63464ea7d86e7a612d9b1 after reconstruction run 37103135199 passed 1,606 tests with 23 expected skips and asset-policy run 37103135246 passed. Continue Gate-14 work-ahead by retaining source-compatible 24-sample Condition and 1..10 match-form histories plus exact source-order presentation RNG state/results in the actual completed-match path. Do not populate outcome.fastview_player_rows until that live state is faithfully available; do not alias modern condition/form_state directly. Gate 13 remains earliest incomplete.",
+  "last_known_main_head": "9019be2a1efa05e215a63464ea7d86e7a612d9b1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 212,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 212 resumed from canonical GitHub state. Continue PlayerProxy form/energy history materialization; Gate 13 remains earliest incomplete.",
+  "note": "Recovery 212 merged verified PlayerProxy history contract and is continuing live-history integration. Gate 13 remains earliest incomplete.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
