@@ -15,13 +15,14 @@ selection remains unavailable until its distinct runtime owner exists.
 
 ## Capability dimensions
 
-Every playable country/League scope is checked for five independent conditions:
+Every playable country/League scope is checked for six independent conditions:
 
 - every cataloged club in that scope is selectable by the current human backend;
 - the required runtime owner is materialized;
 - the human match dispatcher can play that runtime-owner family;
 - fresh chairman/financial-objective setup is source-backed for that
   competition;
+- season-end sporting-objective progression is connected for that competition;
 - annual progression is connected for that scope's country.
 
 The audit reports exact blocker codes:
@@ -30,6 +31,7 @@ The audit reports exact blocker codes:
 - `runtime_owner_not_materialized`;
 - `human_match_dispatch_missing`;
 - `fresh_financial_objective_missing`;
+- `sporting_objective_progression_missing`;
 - `annual_progression_country_missing`.
 
 No blocker is inferred away merely because the generic AI/runtime machinery
@@ -49,11 +51,14 @@ The canonical runner deliberately mirrors the current repository boundary:
 - `play_user_primary_match()` now dispatches already-materialized primary
   `procedural_league` entries through the shared human match backend;
 - GameState has no secondary procedural League runtime container;
-- fresh chairman-objective candidate generation remains instruction-locked
-  only for competition 0; controller objective APIs explicitly fail closed for
-  non-PL controlled clubs rather than routing them through the PL candidate
-  generator, so those scopes retain the
-  `fresh_financial_objective_missing` blocker;
+- the full fresh chairman-objective generator is recovered, and deterministic
+  non-PL opening branches can materialize per club; scope-wide fresh-objective
+  support still remains complete only for competition 0 because RNG-bearing
+  non-PL branches require the unresolved exact caller CRT state;
+- season-end sporting-objective progression is currently connected only through
+  the Premier League completion path, so every non-PL scope retains the
+  separate `sporting_objective_progression_missing` blocker even when its
+  opening objective happened to be deterministic;
 - the controller exposes an explicit full-scope annual progression mode using
   the exact TeamSelect-country allocation plan, resolving required rankings
   fail-closed before the existing atomic season-regeneration install; the
