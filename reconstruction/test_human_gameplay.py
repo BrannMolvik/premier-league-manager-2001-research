@@ -188,6 +188,26 @@ class HumanGameplayControllerTests(unittest.TestCase):
             available[11:16],
         )
 
+    def test_controller_retains_unique_playable_primary_procedural_ids(self):
+        state = GameState.from_database(
+            Database(),
+            date(2000, 6, 30),
+            seed=1,
+            season_year=2000,
+        )
+        controller = HumanGameplayController(
+            state,
+            coefficient_matrix(),
+            coefficient_matrix(),
+            MsvcCrtRng(0x12345678),
+            playable_primary_procedural_ids=(2, 4, 2),
+        )
+
+        self.assertEqual(
+            controller.playable_primary_procedural_ids,
+            (2, 4),
+        )
+
     def test_human_scouting_search_excludes_controlled_club_and_sorts_by_name(self):
         controller = self.build_controller()
         controller.select_club(1)

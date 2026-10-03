@@ -94,6 +94,7 @@ class Gate17PlayableLeagueRuntimePlanTests(unittest.TestCase):
         self.assertEqual(plan.secondary_scope_ids, ("66:27",))
         self.assertEqual(plan.fixed_primary_scope_ids, ("26:0",))
         self.assertEqual(plan.procedural_primary_scope_ids, ("26:2",))
+        self.assertEqual(plan.procedural_primary_competition_ids, (2,))
         self.assertEqual(plan.procedural_secondary_scope_ids, ("66:27",))
         self.assertTrue(plan.entries[0].uses_primary_container)
         self.assertTrue(plan.entries[2].uses_secondary_container)
@@ -101,6 +102,7 @@ class Gate17PlayableLeagueRuntimePlanTests(unittest.TestCase):
         payload = plan.as_dict()
         self.assertEqual(payload["scope_entry_count"], 3)
         self.assertEqual(payload["primary_scope_ids"], ["26:0", "26:2"])
+        self.assertEqual(payload["procedural_primary_competition_ids"], [2])
         self.assertEqual(payload["secondary_scope_ids"], ["66:27"])
 
     def test_fixed_ids_must_be_playable_primary_leagues(self):

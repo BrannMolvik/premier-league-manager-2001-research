@@ -104,6 +104,8 @@ class HumanGameplayController:
         defence_matrix,
         match_rng,
         match_engine_rng=None,
+        *,
+        playable_primary_procedural_ids: Iterable[int] = (),
     ):
         if state.premier_league is None:
             raise RuntimeError("Premier League state is required")
@@ -112,6 +114,9 @@ class HumanGameplayController:
         self.defence_matrix = defence_matrix
         self.match_rng = match_rng
         self.match_engine_rng = match_engine_rng
+        self.playable_primary_procedural_ids = tuple(
+            dict.fromkeys(int(value) for value in playable_primary_procedural_ids)
+        )
         self.human: HumanManagerState | None = None
         self.pending_fixture_id: int | None = None
         self._pending_prior_results: tuple[tuple[int, object], ...] = ()
@@ -137,6 +142,10 @@ class HumanGameplayController:
         from canonical_matchday_audit import reconstruct_canonical_primary_schedule
         from competition_runtime import partition_root_procedural_league_ids
         from fm2001_data import FM2001Database
+        from gate17_full_scope_catalog import derive_original_playable_scope
+        from gate17_playable_league_runtime_plan import (
+            derive_playable_league_runtime_plan,
+        )
         from match_coefficients import MatchCoefficientMatrices
         from season_regeneration import (
             partition_annual_type3_league_sources,
@@ -147,6 +156,13 @@ class HumanGameplayController:
         game_dir = Path(game_dir)
         verify_canonical_files(game_dir)
         database = FM2001Database(game_dir)
+        playable_runtime_plan = derive_playable_league_runtime_plan(
+            derive_original_playable_scope(database),
+            database.competitions,
+        )
+        playable_primary_league_ids = (
+            playable_runtime_plan.procedural_primary_competition_ids
+        )
         english_primary_leagues, english_secondary_leagues = (
             partition_root_procedural_league_ids(
                 database.competitions,
@@ -177,12 +193,13 @@ class HumanGameplayController:
             database.competitions,
             annual_cup_sources,
         )
-        # Keep the English promotion chain, every played annual ranking source,
-        # and every procedural League child needed to resolve an annual Cup
-        # source. Shipped data derives Champions League phases 14/167 and WCC
-        # Group Phase 192 here. DummyLeagues remain on their separate sorter.
+        # Keep every TeamSelect-playable primary procedural League live, plus
+        # the English promotion chain, every played annual ranking source and
+        # every procedural League child needed to resolve an annual Cup source.
+        # Secondary-container TeamSelect Leagues remain deliberately excluded.
         live_procedural_league_ids = tuple(dict.fromkeys(
-            tuple(english_primary_leagues)
+            tuple(playable_primary_league_ids)
+            + tuple(english_primary_leagues)
             + annual_played_league_ids
             + annual_cup_child_league_ids
         ))
@@ -240,6 +257,7 @@ class HumanGameplayController:
             MatchEngineRng(
                 int(time()) if match_engine_seed is None else int(match_engine_seed)
             ),
+            playable_primary_procedural_ids=playable_primary_league_ids,
         )
 
     def regenerate_annual_primary_season(
@@ -335,7 +353,8 @@ class HumanGameplayController:
                 annual_cups,
             )
             procedural_league_ids = tuple(dict.fromkeys(
-                tuple(int(value) for value in english_primary)
+                tuple(int(value) for value in self.playable_primary_procedural_ids)
+                + tuple(int(value) for value in english_primary)
                 + annual_played_ids
                 + annual_cup_child_ids
             ))
