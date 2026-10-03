@@ -2234,6 +2234,184 @@ class GameState:
         )
         return result
 
+    def simulate_procedural_league_human_node(
+        self,
+        node_token: tuple,
+        human_club_id: int,
+        human_selection: PreparedAiMatchSelection,
+        attack_matrix,
+        defence_matrix,
+        rng=None,
+        *,
+        team_orders: TeamOrderPriorities | None = None,
+    ) -> NormalMatchResult:
+        """Run one due human-vs-AI procedural League fixture through the shared backend.
+
+        The live League owner, table, advancement cut and primary-order identity
+        are the same source-backed surfaces used by the established AI bridge.
+        Human selection/Condition remain persistent; only the autonomous side
+        receives the ordinary-League AI selection and Condition initialization.
+        """
+        rng = self._resolve_rng(rng)
+        token = tuple(node_token)
+        owners = tuple(
+            live
+            for live in self.procedural_leagues.values()
+            if token in live.fixtures
+        )
+        if len(owners) != 1:
+            if not owners:
+                raise KeyError(token)
+            raise RuntimeError("procedural League node belongs to multiple live groups")
+        live = owners[0]
+        if token in live.results:
+            raise ValueError("procedural League match already has a result")
+        if ("procedural_league", token) not in self.primary_matchday_order.get(
+            self.calendar.current_date,
+            (),
+        ):
+            raise ValueError(
+                f"procedural League node {token!r} is not due on "
+                f"{self.calendar.current_date}"
+            )
+
+        fixture = live.fixtures[token]
+        home_club_id = int(fixture.home_club_id)
+        away_club_id = int(fixture.away_club_id)
+        human_club_id = int(human_club_id)
+        if human_club_id not in (home_club_id, away_club_id):
+            raise ValueError(
+                "human club does not participate in this procedural League match"
+            )
+
+        competition = self.competitions.get(int(live.competition_id))
+        if competition is None:
+            raise RuntimeError(
+                f"League competition definition {int(live.competition_id)} is not loaded"
+            )
+
+        human_is_home = human_club_id == home_club_id
+        ai_club_id = away_club_id if human_is_home else home_club_id
+        ai_club = self.clubs.get(ai_club_id)
+        if ai_club is None:
+            raise RuntimeError(f"club definition {ai_club_id} is not loaded")
+        ai_manager = self.managers.get(int(ai_club.manager_id))
+        if ai_manager is None:
+            raise RuntimeError(
+                f"manager {int(ai_club.manager_id)} for club {ai_club_id} "
+                "is not loaded"
+            )
+
+        human_roster = self.ordered_club_roster(human_club_id)
+        ai_roster = self.ordered_club_roster(ai_club_id)
+        if not human_roster or not ai_roster:
+            raise RuntimeError(
+                "human/AI procedural League match requires both runtime rosters"
+            )
+
+        table = live.table()
+
+        def scheduled_matches_for(club_id: int) -> int:
+            return sum(
+                1
+                for item in live.fixtures.values()
+                if int(club_id) in (
+                    int(item.home_club_id),
+                    int(item.away_club_id),
+                )
+            )
+
+        human_total = scheduled_matches_for(human_club_id)
+        ai_total = scheduled_matches_for(ai_club_id)
+        if human_total <= 0 or human_total != ai_total:
+            raise RuntimeError(
+                "procedural League fixture has inconsistent per-club schedule length"
+            )
+        advancement_places = self.procedural_league_advancement_places(
+            int(live.competition_id),
+            int(live.competition_context),
+        )
+
+        ai_preparation = prepare_league_ai_selection(
+            ai_club_id,
+            ai_roster,
+            human_roster,
+            ai_manager,
+            competition,
+            table,
+            total_matches=ai_total,
+            automatic_promotion_places=advancement_places,
+            is_home=not human_is_home,
+        )
+
+        # As in the other human match bridges, both selections are complete
+        # before weather and user Condition is not overwritten.
+        environment = generate_match_environment(
+            self.calendar.current_date,
+            rng,
+        )
+        initialize_ai_roster_condition(ai_roster, rng)
+        ai_side = build_prepared_match_side_from_selection(
+            ai_preparation.selection,
+            1 if human_is_home else 0,
+            self.team_tactics.get(ai_club_id, TeamTacticalState()),
+            user_controlled=False,
+            team_orders=TeamOrderPriorities(),
+        )
+        human_side = build_prepared_match_side_from_selection(
+            human_selection,
+            0 if human_is_home else 1,
+            self.team_tactics.get(human_club_id, TeamTacticalState()),
+            user_controlled=True,
+            team_orders=team_orders or TeamOrderPriorities(),
+        )
+
+        if human_is_home:
+            home_side = human_side
+            away_side = ai_side
+            home_participants = human_selection.participants
+            away_participants = ai_preparation.selection.participants
+        else:
+            home_side = ai_side
+            away_side = human_side
+            home_participants = ai_preparation.selection.participants
+            away_participants = human_selection.participants
+
+        pitch_wear_before = int(self.pitch_wear.get(home_club_id, 0))
+        result = simulate_normal_match(
+            home_side,
+            away_side,
+            attack_matrix,
+            defence_matrix,
+            rng,
+            condition_injury_settings=ConditionInjurySettings(
+                environment_byte=pitch_wear_before,
+            ),
+            extra_time=False,
+        )
+        self.record_procedural_league_result(
+            token,
+            int(result.score[0]),
+            int(result.score[1]),
+        )
+
+        # Preserve the exact shared LeagueMatch post-calculator gate boundary
+        # already exercised by the AI procedural bridge.
+        self._draw_matchday_gate_rand15_values(rng)
+        self._persist_domestic_cup_shared_post_match(
+            home_club_id=home_club_id,
+            away_club_id=away_club_id,
+            home_side=home_side,
+            away_side=away_side,
+            home_participants=home_participants,
+            away_participants=away_participants,
+            result=result,
+            environment=environment,
+            pitch_wear_before=pitch_wear_before,
+            rng=rng,
+        )
+        return result
+
     def simulate_primary_ai_entry(
         self,
         entry: tuple,
