@@ -10759,3 +10759,14 @@ work may continue under the deferred-blocker policy.
 - Finalizer `0x630CEC..0x630D9E` resets active-player form sample 0 to 5, consumes one separate MatchEngine RNG(2) draw for every sample index below +0xFF8, moves one point toward target rating +0x30 on a nonzero roll, uses the proven `0x417F50` active-for-club predicate for the equal-target 5/6 branch, clamps to 1..10, and final-fills remaining Condition samples from final DBRPlayer Condition.
 - Added pure fail-closed form-trajectory and Condition-finalization primitives plus focused tests on branch `recovery212/gate14-playerproxy-live-history`. Equivalent local focused cases pass. Repository CI remains required before merge.
 - Gate 13 remains the earliest incomplete validation gate. Next independent Gate-14 work-ahead step: retain the exact Condition prefix and MatchEngine finalizer/presentation RNG state in the real completed-match path before creating any live PlayerRow snapshots.
+
+
+## 3 October 2026 - Recovery 215-216 persistent MatchEngine RNG live-path split
+
+- Resumed from canonical main `50b70390197ecace3297231eef5d227820a22478`, where PR #195 had already retained source-timed raw Condition prefixes and completed FastView form histories through internal-save schema 35.
+- Source audit established that the original global MatchEngine ran1 object at `0x981BF0` is seeded once and reused, rather than recreated per fixture. The same stream owns Premier League weather, AI pre-match Condition initialization, MatchCalculator draws, low-rating target lift and the final `0x630CEC` form trajectory. Proven post-match gate/incident/morale/maintenance consumers remain on the separate MSVC CRT stream.
+- Added full `MatchEngineRng` snapshot/restore of state, shuffle value and all 32 shuffle-table entries. `HumanGameplayController` now owns/passes the persistent engine stream, and internal-save schema 36 preserves it without rewinding on reload.
+- Premier League primary-entry propagation is wired. Cup/procedural MatchEngine routing is intentionally not generalized without equivalent source evidence.
+- PR #196 reconstruction run `37111511192` passed **1,620 tests with 23 expected skips**; asset-policy run `37111511208` passed.
+- Additional direct tracing closed the human-vs-AI `MatchCalculator+0xD48` tuning defaults but not the decisive legacy `DBRClub+0x130` lifecycle. The port therefore retains raw Condition history and refuses to guess the default-5 versus boost-16 adjustment branch.
+- Gate 13 remains the earliest incomplete validation gate. After merging this verified work-ahead checkpoint, resume Gate 13 at the native completion-time report owner: retain/assemble/persist the complete report and verify calculated fixture -> save/reload -> right-click PMatchInfo on Windows.
