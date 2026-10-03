@@ -17,6 +17,10 @@ from cup_progression import CupMatchResolutionSnapshot, complete_cup_match
 from domestic_cup_state import DomesticCupScheduleState
 from finance_state import FinancialObjectiveState
 from game_state import GameState
+from gate17_country_allocation_scope import (
+    PlayableCountryAllocationPlan,
+    PlayableCountryAllocationScope,
+)
 from gate13_management_source_data import ManagementSourceDataBridge
 from gate_receipts import GateAttendanceCell, GateReceiptResult
 from human_gameplay import HumanGameplayController
@@ -98,6 +102,33 @@ class InternalSaveTests(unittest.TestCase):
         )
         controller.select_club(1)
         controller.autofill_lineup(0)
+        return controller
+
+    def build_controller_with_playable_scope_policy(self):
+        controller = self.build_controller()
+        controller.playable_primary_procedural_ids = (2, 14)
+        controller.playable_primary_club_ids = (1, 2, 21, 22)
+        controller.playable_country_allocation_plan = PlayableCountryAllocationPlan(
+            catalog_sha256="a" * 64,
+            countries=(
+                PlayableCountryAllocationScope(
+                    country_id=26,
+                    country_name="England",
+                    selectable_league_ids=(0, 2),
+                    allocation_ids=(0,),
+                    ranking_endpoint_ids=(0, 2),
+                ),
+                PlayableCountryAllocationScope(
+                    country_id=66,
+                    country_name="Scotland",
+                    selectable_league_ids=(27,),
+                    allocation_ids=(1,),
+                    ranking_endpoint_ids=(27, 28),
+                ),
+            ),
+            assigned_allocation_ids=(0, 1),
+            ignored_allocation_ids=(2,),
+        )
         return controller
 
     def build_cup_controller(self):
@@ -358,6 +389,37 @@ class InternalSaveTests(unittest.TestCase):
         self.assertEqual(
             restored.state.primary_matchday_order,
             original.state.primary_matchday_order,
+        )
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
+    def test_playable_scope_controller_policy_survives_roundtrip(self):
+        original = self.build_controller_with_playable_scope_policy()
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.playable_primary_procedural_ids,
+            original.playable_primary_procedural_ids,
+        )
+        self.assertEqual(
+            restored.playable_primary_club_ids,
+            original.playable_primary_club_ids,
+        )
+        self.assertEqual(
+            restored.playable_country_allocation_plan,
+            original.playable_country_allocation_plan,
+        )
+        self.assertEqual(
+            restored.playable_annual_progression_country_ids(),
+            (26, 66),
         )
         self.assertEqual(
             snapshot_human_gameplay(restored),
