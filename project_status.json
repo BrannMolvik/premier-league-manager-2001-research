@@ -1790,7 +1790,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "unrecovered_fail_closed",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "Verify Recovery 198 PossessionDiagram typed receiver lifecycle through CI, then source-trace MatchController EventPossession emission cadence without inventing per-segment timing or human-side orientation.",
+  "gate14_exact_next_task": "Verify Recovery 198 EventPossession GlobalTick cadence through CI, then recover GlobalTick wall-clock/lifecycle semantics or continue the smallest source-backed FastView host integration boundary without inventing timing.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -1820,5 +1820,21 @@
     "1": 0
   },
   "gate14_possession_diagram_penalties_behavior": "latch_then_next_and_later_possession_force_state1_without_rng",
-  "gate14_possession_event_emission_cadence": "unresolved_fail_closed"
+  "gate14_possession_event_emission_cadence": "unresolved_fail_closed",
+  "gate14_possession_receiver_lifecycle_merge": "46d3cb57a1d7ad0fdd5141f911b00dabda35cc4e",
+  "gate14_possession_receiver_lifecycle_reconstruction_run": 37082560833,
+  "gate14_possession_receiver_lifecycle_test_count": 1487,
+  "gate14_possession_receiver_lifecycle_expected_skips": 22,
+  "gate14_possession_receiver_lifecycle_asset_policy_run": 37082560879,
+  "gate14_event_possession_emission_cadence_exact": true,
+  "gate14_event_possession_match_iterator_callback": "0x519630",
+  "gate14_event_possession_construct_call": "0x5197B8",
+  "gate14_event_possession_constructor": "0x51A6B0",
+  "gate14_event_possession_global_tick_divisor": 5,
+  "gate14_event_possession_source_gates": {
+    "field_a5_zero": true,
+    "field_98_nonnull": true,
+    "field_a0_nonnull": true
+  },
+  "gate14_global_tick_wall_clock_duration": "unresolved_fail_closed"
 }

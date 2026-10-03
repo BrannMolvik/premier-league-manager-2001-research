@@ -22,6 +22,16 @@ SOURCE_GOAL_RECEIVER_VFTABLE = 0x7CA870
 SOURCE_GLOBAL_PENALTIES_RECEIVER_VFTABLE = 0x7CA864
 SOURCE_PENALTIES_LATCH_OFFSET = 0x20
 SOURCE_GOAL_FIELD_OFFSET = 0x0C
+
+SOURCE_MATCH_ITERATOR_TICK_VA = 0x519630
+SOURCE_MATCH_ITERATOR_VFTABLE = 0x7CA1DC
+SOURCE_EVENT_POSSESSION_CONSTRUCTOR_VA = 0x51A6B0
+SOURCE_EVENT_POSSESSION_CONSTRUCT_CALL_VA = 0x5197B8
+SOURCE_EVENT_POSSESSION_SENDER_OFFSET = 0x20
+SOURCE_GLOBAL_TICK_DIVISOR = 5
+SOURCE_MATCH_ITERATOR_GATE_A5_OFFSET = 0xA5
+SOURCE_MATCH_ITERATOR_GATE_98_OFFSET = 0x98
+SOURCE_MATCH_ITERATOR_GATE_A0_OFFSET = 0xA0
 SOURCE_OVERLAY_X_TABLE_VA = 0x829328
 
 PROCESS_INITIAL_PRESENTATION_RNG_STATE = 0
@@ -228,4 +238,35 @@ def apply_global_penalties_event(
         penalties_latched=True,
         event_kind="EventGlobalPenalties",
         transition=None,
+    )
+
+
+def should_emit_possession_on_global_tick(
+    global_tick_value: int,
+    *,
+    field_a5: int,
+    field_98_present: bool,
+    field_a0_present: bool,
+) -> bool:
+    """Mirror the exact preconditions before 0x5197B8 constructs EventPossession.
+
+    MatchIterator's primary base is Receiver<EventGlobalTick>. Its callback at
+    0x519630 exits when source byte +0xA5 is nonzero or pointer +0x98 is null.
+    The EventPossession branch additionally requires pointer +0xA0 and only
+    executes when the EventGlobalTick first dword is divisible by five.
+
+    This closes cadence in *GlobalTick event counts only*. The wall-clock
+    duration represented by one GlobalTick is intentionally not inferred here.
+    """
+    if type(global_tick_value) is not int or global_tick_value < 0:
+        raise ValueError("global_tick_value must be a non-negative integer")
+    if type(field_a5) is not int or not 0 <= field_a5 <= 0xFF:
+        raise ValueError("field_a5 must be an unsigned source byte")
+    if type(field_98_present) is not bool or type(field_a0_present) is not bool:
+        raise ValueError("source pointer-presence gates must be boolean")
+    return (
+        field_a5 == 0
+        and field_98_present
+        and field_a0_present
+        and global_tick_value % SOURCE_GLOBAL_TICK_DIVISOR == 0
     )

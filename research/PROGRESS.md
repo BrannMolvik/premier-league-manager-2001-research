@@ -10533,3 +10533,12 @@ work may continue under the deferred-blocker policy.
 - `0x522C30` is the EventGoal callback. EventGoal source field `+0x0C` value 0 snaps to state 2 and value 1 snaps to state 0; other values leave state unchanged. No left/right, home/away, or human-side semantic is inferred.
 - The apparent generic routines around `0x51A470` were checked and rejected as cadence evidence: RTTI binds them to `ScoreConverter` vtables, not EventPossession dispatch.
 - The exact EventPossession emission cadence therefore remains fail-closed. The next trace is the MatchController sender/emission path, not an assumed per-frame or per-possession-segment schedule.
+
+
+## 3 October 2026 - Recovery 198 EventPossession GlobalTick cadence
+
+- Continued immediately after receiver-lifecycle PR #165 became canonical.
+- The canonical executable proves `MatchIterator`'s primary base is `Receiver<EventGlobalTick>`; the final primary vtable is `0x7CA1DC` and callback `0x519630`.
+- `EventPossession` has one direct construction call in this path: `0x5197B8 -> 0x51A6B0`, followed by dispatch through the embedded `Sender<EventPossession>` at source offset `+0x20`.
+- The branch is entered only when source byte `+0xA5 == 0`, source pointers `+0x98` and `+0xA0` are non-null, and the incoming EventGlobalTick first dword is divisible by **5**.
+- This source-closes possession emission cadence in event counts: every fifth GlobalTick while those gates hold. It does not source-close how many milliseconds/frames one GlobalTick represents, so no wall-clock timing is claimed.
