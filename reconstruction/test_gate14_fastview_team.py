@@ -40,6 +40,16 @@ from gate14_fastview_team import (
     PLAYER_ROW_GOAL_COUNT_FORMAT_VA,
     PLAYER_ROW_GOAL_COUNT_FORMAT,
     PLAYER_ROW_OWN_GOAL_COLOR_SETTER_VA,
+    PLAYER_ROW_SHARED_REFRESH_VA,
+    TEAM_TABLE_SHARED_REFRESH_CALL_VA,
+    TEAM_TABLE_ROW_DATA_PRODUCER_VA,
+    PLAYER_ROW_POSITION_LOOKUP_VA,
+    PLAYER_ROW_POSITION_LOCALIZER_VA,
+    PLAYER_ROW_POSITION_TABLE_VA,
+    PLAYER_ROW_POSITION_TEXT_CELL_INDEX,
+    PLAYER_ROW_POSITION_KEYS,
+    DBRPLAYER_SQUAD_NUMBER_RUNTIME_OFFSET,
+    PLAYER_ROW_CELL1_MATCH_PROXY_OFFSET,
     PLAYER_ROW_ENERGY_RECEIVER_BASE_VFTABLE,
     PLAYER_ROW_ENERGY_RECEIVER_VFTABLE,
     PLAYER_ROW_ENERGY_RECEIVER_OFFSET,
@@ -58,6 +68,7 @@ from gate14_fastview_team import (
     FastViewTeamError,
     player_row_form_text_state,
     player_row_goal_text_state,
+    player_row_position_state,
     side_contract,
     team_row_energy_bar_state,
     team_row_name_resource,
@@ -129,6 +140,45 @@ class FastViewTeamTests(unittest.TestCase):
                 self.assertEqual(resource.sha256, digest)
                 self.assertEqual(resource.path_literal_va, path_va)
                 self.assertFalse(resource.imported)
+
+    def test_playerrow_cell2_is_source_position_lookup(self):
+        self.assertEqual(PLAYER_ROW_SHARED_REFRESH_VA, 0x526470)
+        self.assertEqual(TEAM_TABLE_SHARED_REFRESH_CALL_VA, 0x525B66)
+        self.assertEqual(TEAM_TABLE_ROW_DATA_PRODUCER_VA, 0x525BD0)
+        self.assertEqual(PLAYER_ROW_POSITION_LOOKUP_VA, 0x635EC0)
+        self.assertEqual(PLAYER_ROW_POSITION_LOCALIZER_VA, 0x6350D0)
+        self.assertEqual(PLAYER_ROW_POSITION_TABLE_VA, 0x849930)
+        self.assertEqual(PLAYER_ROW_POSITION_TEXT_CELL_INDEX, 2)
+        self.assertEqual(
+            PLAYER_ROW_POSITION_KEYS,
+            (
+                "", "PositionGK", "PositionRB", "PositionLB", "PositionCD",
+                "PositionSW", "PositionRWB", "PositionLWB", "PositionANC",
+                "PositionDM", "PositionRM", "PositionLM", "PositionCM",
+                "PositionRW", "PositionLW", "PositionAM", "PositionRF",
+                "PositionLF", "PositionCF", "PositionST",
+            ),
+        )
+        state = player_row_position_state(0, 0, 1)
+        self.assertEqual(state.text_cell_index, 2)
+        self.assertEqual(state.rect, (64, 27, 104, 43))
+        self.assertEqual(state.source_position_code, 1)
+        self.assertEqual(state.localization_key, "PositionGK")
+        away = player_row_position_state(1, 2, 19)
+        self.assertEqual(away.rect, (564, 61, 604, 77))
+        self.assertEqual(away.localization_key, "PositionST")
+
+    def test_cell1_proxy_byte_is_not_equated_to_dbrplayer_squad_number(self):
+        self.assertEqual(DBRPLAYER_SQUAD_NUMBER_RUNTIME_OFFSET, 0x70)
+        self.assertEqual(PLAYER_ROW_CELL1_MATCH_PROXY_OFFSET, 0x47)
+        self.assertNotEqual(
+            DBRPLAYER_SQUAD_NUMBER_RUNTIME_OFFSET,
+            PLAYER_ROW_CELL1_MATCH_PROXY_OFFSET,
+        )
+        for bad in (-1, 20, True, "1"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(FastViewTeamError):
+                    player_row_position_state(0, 0, bad)
 
     def test_bar_source_identities_remain_separate_from_possession_figures(self):
         self.assertEqual(TEAM_BAR_1.size, (82, 16))

@@ -10695,3 +10695,12 @@ work may continue under the deferred-blocker policy.
 - Premier League AI/human completion now retains actual gate-receipt output by fixture ID at its existing finalizer. RNG/accounting are unchanged. Missing inputs do not get defaults; annual regeneration clears the transient map. It is not report ownership and is deliberately excluded from save until complete report production exists.
 - Focused completion/routing/competition/internal-save tests passed: 79 tests. Gate 13 remains open: complete native participant/event/scalar inputs, full report ownership/save integration and the genuine calculated-fixture/reload/right-click audit are still required.
 - Gate 13 remains OPEN. Single next blocker: retain the complete source-backed live calculator/completion inputs, assemble and persist the full report owner/link, then audit calculated fixture -> save/reload -> native right-click -> correct PMatchInfo and timing/normal-play criteria. Codecs are now recovered; do not restart their trace or derive context from results.
+
+## 3 October 2026 - Recovery 210 PlayerRow position ownership
+
+- Resumed from canonical main `88e8b3554ece25ca609e38a41f159b5473900065`; PR #184 was already merged and green at **1,557 tests / 22 expected skips** plus asset-policy success.
+- Traced shared PlayerRow refresh `0x526470 <- TeamTable 0x525B66` and row-data producer `0x525BD0` without assigning labels from the visual layout.
+- Source helper `0x635EC0` directly indexes pointer table `0x849930`, whose exact entries are empty index 0 followed by `PositionGK, PositionRB, PositionLB, PositionCD, PositionSW, PositionRWB, PositionLWB, PositionANC, PositionDM, PositionRM, PositionLM, PositionCM, PositionRW, PositionLW, PositionAM, PositionRF, PositionLF, PositionCF, PositionST`; it localizes the selected key through `0x6350D0`. Cell 2 is therefore the source-proven **position** text field.
+- Rechecked compact player import `0x418B90`: Master.dat byte +18, already proven as shirt/squad number, is imported to runtime DBRPlayer **+0x70**. PlayerRow cell 1 instead reads the separate 72-byte match-player proxy at **+0x47**, so the previous tempting squad-number inference is explicitly rejected until a producer proves it.
+- Cell 3 remains source-bounded only as the proxy's leading C string, formatted as `%s` when proxy+0x20 is '-' or `%c %s` otherwise. The user-facing meaning of the prefix byte remains unresolved.
+- Gate 13 remains the earliest incomplete validation gate. This is independent Gate-14 work-ahead.

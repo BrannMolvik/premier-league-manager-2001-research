@@ -52,6 +52,42 @@ PLAYER_ROW_GOAL_COUNT_FORMAT_VA = 0x829B94
 PLAYER_ROW_GOAL_COUNT_FORMAT = "(%u)"
 PLAYER_ROW_OWN_GOAL_COLOR_SETTER_VA = 0x650480
 
+PLAYER_ROW_SHARED_REFRESH_VA = 0x526470
+TEAM_TABLE_SHARED_REFRESH_CALL_VA = 0x525B66
+TEAM_TABLE_ROW_DATA_PRODUCER_VA = 0x525BD0
+PLAYER_ROW_POSITION_LOOKUP_VA = 0x635EC0
+PLAYER_ROW_POSITION_LOCALIZER_VA = 0x6350D0
+PLAYER_ROW_POSITION_TABLE_VA = 0x849930
+PLAYER_ROW_POSITION_TEXT_CELL_INDEX = 2
+PLAYER_ROW_UNRESOLVED_NUMERIC_TEXT_CELL_INDEX = 1
+PLAYER_ROW_UNRESOLVED_NAME_TEXT_CELL_INDEX = 3
+
+PLAYER_ROW_POSITION_KEYS = (
+    "",
+    "PositionGK",
+    "PositionRB",
+    "PositionLB",
+    "PositionCD",
+    "PositionSW",
+    "PositionRWB",
+    "PositionLWB",
+    "PositionANC",
+    "PositionDM",
+    "PositionRM",
+    "PositionLM",
+    "PositionCM",
+    "PositionRW",
+    "PositionLW",
+    "PositionAM",
+    "PositionRF",
+    "PositionLF",
+    "PositionCF",
+    "PositionST",
+)
+
+DBRPLAYER_SQUAD_NUMBER_RUNTIME_OFFSET = 0x70
+PLAYER_ROW_CELL1_MATCH_PROXY_OFFSET = 0x47
+
 PLAYER_ROW_ENERGY_CALLBACK_VA = 0x5267D0
 PLAYER_ROW_ENERGY_UPDATE_VA = 0x526680
 PLAYER_ROW_ENERGY_EVENT_VALUE_OFFSET = 0x04
@@ -407,4 +443,47 @@ def player_row_goal_text_state(
         text=f"({next_value:d})",
         stored_value=next_value,
         source_color_update=own_goal,
+    )
+
+
+@dataclass(frozen=True)
+class FastViewPlayerRowPositionState:
+    side_index: int
+    row_index: int
+    text_cell_index: int
+    rect: tuple[int, int, int, int]
+    source_position_code: int
+    localization_key: str
+
+
+def player_row_position_state(
+    side_index: int,
+    row_index: int,
+    source_position_code: int,
+) -> FastViewPlayerRowPositionState:
+    """Mirror cell 2's direct source ownership without inventing localization.
+
+    TeamTable producer 0x525BD0 reads its row-local value at +0x70 and passes
+    it unchanged to 0x635EC0. That helper indexes the pointer table at 0x849930
+    and resolves the selected Position* key through 0x6350D0. This helper
+    exposes the exact source key and geometry while leaving language-table
+    rendering to the existing localization layer.
+    """
+    if type(source_position_code) is not int or not (
+        0 <= source_position_code < len(PLAYER_ROW_POSITION_KEYS)
+    ):
+        raise FastViewTeamError(
+            "PlayerRow source position code must index the 0..19 source table"
+        )
+    return FastViewPlayerRowPositionState(
+        side_index=side_index,
+        row_index=row_index,
+        text_cell_index=PLAYER_ROW_POSITION_TEXT_CELL_INDEX,
+        rect=team_row_text_rect(
+            side_index,
+            row_index,
+            PLAYER_ROW_POSITION_TEXT_CELL_INDEX,
+        ),
+        source_position_code=source_position_code,
+        localization_key=PLAYER_ROW_POSITION_KEYS[source_position_code],
     )
