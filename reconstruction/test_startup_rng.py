@@ -16,6 +16,8 @@ from startup_rng import (
     replay_precompetition_startup_rng,
     replay_startup_youth_generation,
     replay_startup_youth_generation_for_country,
+    report_setup_player_pool,
+    select_report_setup_player_ids,
     select_startup_youth_candidate,
     startup_spare_club_id,
     startup_youth_candidate_ids,
@@ -248,6 +250,53 @@ class GeneratedNameRngTests(unittest.TestCase):
         )
         countries = (Country(199, 0xFFFFFFFF),)
         self.assertEqual(generated_name_rng_bound(199, countries, players), 12)
+
+    def test_report_setup_uses_filtered_nationality_pool_only_above_ten(self):
+        players = tuple(
+            [NamePlayer(i, "Alan", f"Smith{i}", 7) for i in range(12)]
+            + [NamePlayer(100, "Other", "Player", 8)]
+        )
+
+        pool = report_setup_player_pool(players, 7)
+
+        self.assertEqual(tuple(player.index for player in pool), tuple(range(12)))
+
+    def test_report_setup_falls_back_to_complete_original_player_order_at_ten_or_less(self):
+        players = (
+            NamePlayer(9, "Alan", "Smith", 7),
+            NamePlayer(4, "Other", "Brown", 8),
+            NamePlayer(7, "Eric", "Jones", 7),
+            NamePlayer(2, "Else", "Green", 9),
+        )
+
+        pool = report_setup_player_pool(players, 7)
+
+        self.assertEqual(tuple(player.index for player in pool), (9, 4, 7, 2))
+
+    def test_report_setup_first_selection_retries_dash_but_second_is_unfiltered(self):
+        players = tuple(
+            [NamePlayer(0, "-Hidden", "Smith0", 7)]
+            + [NamePlayer(i, "Alan", f"Smith{i}", 7) for i in range(1, 12)]
+        )
+        rng = RecordingRng([0, 3, 0])
+
+        selected = select_report_setup_player_ids(rng, players, 7)
+
+        self.assertEqual(selected, (3, 0))
+        self.assertEqual(rng.calls, [12, 12, 12])
+
+    def test_report_setup_returns_persistent_player_ids_not_pool_offsets(self):
+        players = tuple(
+            NamePlayer(100 + i, "Alan", f"Smith{i}", 7)
+            for i in range(12)
+        )
+        rng = RecordingRng([2, 9])
+
+        self.assertEqual(
+            select_report_setup_player_ids(rng, players, 7),
+            (102, 109),
+        )
+        self.assertEqual(rng.calls, [12, 12])
 
     def test_team_name_loop_filter_and_two_draws_per_team(self):
         clubs = (
