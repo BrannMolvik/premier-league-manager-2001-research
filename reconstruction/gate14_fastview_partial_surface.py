@@ -23,6 +23,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gate14_fastview_background import BACKGROUND_BINDING_STATUS
+from gate14_fastview_playerrow_snapshot import FastViewPlayerRowRenderPlan
 from gate14_fastview_team import (
     side_contract,
     team_row_name_resource,
@@ -157,6 +158,47 @@ def _cross_component_overlaps(
                     )
                 )
     return tuple(overlaps)
+
+
+def team_row_selections_from_render_plans(
+    render_plans: tuple[FastViewPlayerRowRenderPlan, ...],
+) -> tuple[FastViewTeamRowSelection, ...]:
+    """Derive explicit TeamTable selections from validated retained render plans."""
+    if type(render_plans) is not tuple:
+        raise FastViewPartialSurfaceError(
+            "render_plans must be an explicit tuple of FastViewPlayerRowRenderPlan"
+        )
+    if any(type(plan) is not FastViewPlayerRowRenderPlan for plan in render_plans):
+        raise FastViewPartialSurfaceError(
+            "render_plans must contain only FastViewPlayerRowRenderPlan values"
+        )
+
+    selections = tuple(
+        FastViewTeamRowSelection(plan.side_index, plan.row_index)
+        for plan in render_plans
+    )
+    keys = tuple((item.side_index, item.row_index) for item in selections)
+    if len(set(keys)) != len(keys):
+        raise FastViewPartialSurfaceError(
+            "duplicate retained PlayerRow render plans are not allowed"
+        )
+    return selections
+
+
+def build_fastview_partial_surface_from_render_plans(
+    chrome: OriginalFastViewChromeArt,
+    possession: OriginalFastViewPossessionArtFrame,
+    figures: OriginalFastViewPossessionFiguresArt,
+    *,
+    render_plans: tuple[FastViewPlayerRowRenderPlan, ...],
+) -> FastViewPartialSurfaceLayout:
+    """Place only TeamTable rows already present in retained render plans."""
+    return build_fastview_partial_surface_layout(
+        chrome,
+        possession,
+        figures,
+        team_rows=team_row_selections_from_render_plans(render_plans),
+    )
 
 
 def build_fastview_partial_surface_layout(
