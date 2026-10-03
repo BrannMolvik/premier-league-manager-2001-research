@@ -291,6 +291,44 @@ with path literal at `0x8294E8`. This is a high-value shell lead, not a live
 asset claim: the direct draw/binding from FastViewPanel to this bitmap is not
 yet source-closed, so the renderer does not use it.
 
+## Recovery 200: PossessionFigures exact typography
+
+The three percentage controls now have a fully bounded source typography path.
+Each constructor call into generic text control `0x527960` passes style index
+**1**. Selector `0x527BA0` maps that index to wrapper `0x87BE90`.
+Initializer `0x603670` stores font object `0x9197E0` into that wrapper, and
+the loader sequence at `0x6042A8..0x6042F5` binds that object to exact source
+path:
+
+`Fonts/Zurich_BdXCn_BT_18pixel.fnt`
+
+via path literal `0x839F00`.
+
+The font is already provenance-staged from the authorized source:
+
+- bytes: **83,174**;
+- SHA-256:
+  `4c5d5d33cb1fb2345c93a0e133863cc3e9e25d4297d0a6d15df762fb710eaccd`;
+- atlas: **1633x18**;
+- native line height: **20**.
+
+The generic constructor receives source flags **1**, ORs bit 3, and stores
+render flags **9**. Draw path `0x64F090` interprets these flags as the default
+**left** horizontal alignment and **top** vertical alignment: right and center
+horizontal branches require bits 1/2, while bottom and center vertical branches
+require bits 4/5. The constructor also supplies native color **0xFFFF**.
+Rasterization ultimately reaches font draw `0x657280`.
+
+Therefore each percentage glyph mask begins at the recovered control's top-left
+origin and uses endpoint-white native color. The widest valid percentage string,
+`100%`, rasterizes to **34x17**, so all `0%..100%` values fit completely
+inside the source 40x18 controls without clipping.
+
+`reconstruction/original_fastview_possession_figures_art.py` verifies the
+staged font identity/metrics and renders only these exact percentage glyphs at
+the already source-closed side1/neutral/side0 rectangles. It still does not
+assign side 0/1 to the human user or synthesize surrounding FastView pixels.
+
 ## Remaining boundary
 
 Still open before claiming the bounded diagram is player-visible original
@@ -302,9 +340,9 @@ FastView behavior:
 3. keep the three 82×16 `team_bar_1` / `blank_bar` / `team_bar_2` assets under
    the separately proven `FastViewTeam` / `TeamTable` ownership. They must not
    be wired into `PossessionFigures`; percentage text placement is already exact;
-4. continue from the exact decoded possession-art seam to a player-visible
-   FastView surface only after the surrounding shell/background ownership and
-   remaining event-order/orientation boundaries are source-closed or explicitly
+4. combine the exact diagram pixels and exact percentage typography into a
+   player-visible FastView surface only after surrounding shell/background
+   ownership and side-orientation boundaries are source-closed or explicitly
    fail-closed;
 5. recover audio/commentary and broader FastView/SCI choreography separately.
 
