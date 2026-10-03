@@ -64,3 +64,19 @@ and verify a genuine calculated fixture -> reload -> native right-click ->
 correct PMatchInfo context. Do not substitute semantic score/completion or
 zero-filled snapshots. Final normal-play/timing closure remains pending that
 successful route.
+
+## Checkpoint validation
+
+Code `9f5ce577` passed **1,614 full reconstruction tests with 23 expected skips**
+(241.851 seconds), using the existing private Capstone runtime. The first run
+without that import path failed one optional-disassembly dependency test; it
+is not the passing run. Focused calculation/capture/save/route tests passed
+115 checks before the final identity-container regression was added.
+
+A fresh real-Windows schema-8 graphical receipt passed at
+`work/gate13-live-inputs-schema8-20261003.json` outside Git. Successful ordinary
+captured-report opening remains explicitly false. The initial audit invocation
+used an incomplete old font staging root; the passing run used a fresh private
+root assembled from existing checksum-gated authorized assets. Asset policy
+and diff-whitespace checks passed. Frozen-package smoke remains subject to the
+previously documented Windows Application Control block; no bypass was tried.

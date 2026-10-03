@@ -4,6 +4,23 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 3 October 2026 KST — live Gate-13 calculator input checkpoint
+
+Reconciled main `9019be2a` after PR #183 merged, preserving all parallel
+Gate-14 work and runtime ownership. New continuation branch
+`codex/gate13-live-report-production` retains actual ordered participant
+rating/skill output and persistent identities at both PL completion paths,
+without a second finalization or manufactured RNG. Actual calculator captured
+possession now persists through saved pending-matchday results in schema 35.
+Complete report ownership/link/save production is still absent; partial inputs
+remain fail-closed. Code `9f5ce577` passed 1,614 tests / 23 expected skips and a
+fresh real-Windows schema-8 audit. The first full run lacked the private
+Capstone import path; the successful rerun includes it. The first Windows
+attempt used an incomplete old staging root; the successful retry assembled
+the checksum-gated authorized source privately. See
+`GATE13_LIVE_CAPTURE_INPUTS.md`. Gate 13 remains OPEN; no timing or normal-play
+sign-off is claimed, and full shipped functionality remains the release scope.
+
 This file is the **chronological project log**. It preserves dated checkpoints, including older "current" statements that may later be superseded.
 
 The canonical live resume point is now `research/CURRENT_STATE.md`, with long-term sequencing in `ROADMAP.md`. New sessions should not treat early status sections in this file as current merely because they appear near the top.
