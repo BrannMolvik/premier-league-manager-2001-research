@@ -26,6 +26,9 @@ import re
 import tempfile
 
 from canonical_annual_rollover_audit import run_canonical_annual_rollover_audit
+from canonical_internal_save_audit import (
+    run_canonical_primary_scope_internal_save_audit,
+)
 from fm2001_data import FM2001Database
 from human_gameplay import HumanGameplayController
 from gate17_release_readiness import require_external_windows_11_workstation
@@ -139,7 +142,12 @@ def audit_new_game_management_loop(controller) -> dict:
     }
 
 
-def audit_save_reload(game_dir: str | Path, controller) -> dict:
+def audit_save_reload(
+    game_dir: str | Path,
+    controller,
+    *,
+    player_seed: int = 1,
+) -> dict:
     club_id = _first_premier_club_id(controller)
     controller.select_club(club_id)
     controller.autofill_lineup(0)
@@ -170,12 +178,28 @@ def audit_save_reload(game_dir: str | Path, controller) -> dict:
         raise WindowsGameplayReceiptError(
             "save/reload audit did not restore the exact gameplay snapshot"
         )
+    primary = run_canonical_primary_scope_internal_save_audit(
+        game_dir,
+        player_seed=int(player_seed),
+        post_save_matches=1,
+    )
+    if primary.get("branches_equal") is not True:
+        raise WindowsGameplayReceiptError(
+            "procedural-primary save/reload audit did not prove equal branches"
+        )
+
     return {
         "save_reload": True,
+        "premier_league_save_reload": True,
+        "procedural_primary_save_reload": True,
         "selected_club_id": club_id,
         "schema_version": int(expected["schema_version"]),
         "restored_date": restored.state.calendar.current_date.isoformat(),
         "restored_result_count": len(restored.state.premier_league.results),
+        "procedural_primary_club_id": int(primary["human_club_id"]),
+        "procedural_primary_competition_id": int(primary["competition_id"]),
+        "procedural_primary_schema_version": int(primary["schema_version"]),
+        "procedural_primary_audit_sha256": str(primary["audit_sha256"]),
     }
 
 
@@ -308,6 +332,7 @@ def run_windows_gameplay_receipts(
             game_dir,
             player_seed=int(player_seed),
         ),
+        player_seed=int(player_seed),
     )
     season = audit_season_progression(
         game_dir,
