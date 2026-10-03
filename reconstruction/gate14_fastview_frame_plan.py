@@ -11,6 +11,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from fastview_semantic_shell import FastViewSemanticShell
+from gate14_fastview_component_rasters import (
+    FastViewComponentRasterSet,
+    build_fastview_component_rasters,
+)
 from gate14_fastview_partial_surface import (
     FastViewPartialSurfaceLayout,
     build_fastview_partial_surface_from_render_plans,
@@ -35,6 +39,7 @@ class FastViewFramePlan:
     match_reference: object
     semantic_shell: FastViewSemanticShell
     surface_layout: FastViewPartialSurfaceLayout
+    component_rasters: FastViewComponentRasterSet
     player_row_render_plans: tuple[FastViewPlayerRowRenderPlan, ...]
     complete_raster_frame: bool = False
     audio_ready: bool = False
@@ -44,6 +49,17 @@ class FastViewFramePlan:
         if self.player_row_render_plans != self.semantic_shell.player_row_render_plans:
             raise FastViewFramePlanError(
                 "frame plan PlayerRow instructions must match semantic shell"
+            )
+        if type(self.component_rasters) is not FastViewComponentRasterSet:
+            raise FastViewFramePlanError(
+                "frame plan requires exact source-backed component rasters"
+            )
+        if (
+            self.component_rasters.cross_component_z_order_recovered
+            or self.component_rasters.flattened_frame_available
+        ):
+            raise FastViewFramePlanError(
+                "frame plan cannot promote unresolved cross-component raster order"
             )
         if (
             self.complete_raster_frame
@@ -94,10 +110,16 @@ def build_fastview_frame_plan(
         figures,
         render_plans=shell.player_row_render_plans,
     )
+    component_rasters = build_fastview_component_rasters(
+        chrome,
+        possession,
+        figures,
+    )
 
     return FastViewFramePlan(
         match_reference=shell.match_reference,
         semantic_shell=shell,
         surface_layout=surface,
+        component_rasters=component_rasters,
         player_row_render_plans=shell.player_row_render_plans,
     )
