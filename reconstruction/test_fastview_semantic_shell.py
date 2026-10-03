@@ -80,6 +80,22 @@ class FastViewSemanticShellTests(unittest.TestCase):
         self.assertEqual(figures.territory_raw, 55)
         self.assertIs(figures.record, possession)
 
+    def test_non_five_minute_possession_segment_fails_source_bridge_closed(self):
+        possession = PossessionRecord(
+            territory=55,
+            side0_percent=45,
+            neutral_percent=20,
+        )
+        result = NormalMatchResult(
+            events=(),
+            possession_segments=(SegmentPossession(7, possession),),
+        )
+        presentation = build_human_match_presentation(
+            SimpleNamespace(fixture_id=23, user_result=result)
+        )
+        with self.assertRaisesRegex(ValueError, "divisible by five"):
+            build_fastview_semantic_shell(presentation)
+
     def test_shell_declares_only_persisted_component_and_fidelity_boundaries(self):
         presentation, *_ = self._presentation()
 
