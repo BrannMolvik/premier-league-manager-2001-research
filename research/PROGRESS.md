@@ -10805,3 +10805,12 @@ work may continue under the deferred-blocker policy.
 - The scanner intentionally does not classify candidate hits as real DBRClub/participant accesses, reads/writes, lifecycle owners, capacities, or shirt selectors. Manual canonical CFG/data-flow adjudication remains required.
 - Added synthetic Capstone coverage for all four displacements and fail-closed argument validation; wired the new test into Gate-13 focused CI and the full reconstruction PR path.
 - Exact next step after CI: run the scanner privately on the canonical executable when container execution recovers, manually adjudicate candidate object provenance, then source-close one field at a time. No 10% capacity rule, secondary-selector value, or `+0x130` state is inferred.
+
+
+## 3 October 2026 - Recovery 223 Gate-14 partial FastView layout work-ahead
+
+- Gate 13 remained the earliest incomplete validation gate. Private container process start still failed with `ClientError`, so the canonical remaining-field scanner could not yet be run against the original executable.
+- Added `gate14_fastview_partial_surface.py` as independent cloud-safe Gate-14 work-ahead. It gathers only already source-closed 800x600 placements for directly bound top/ticker chrome, PossessionDiagram art and PossessionFigures percentage controls.
+- The layout explicitly detects cross-component overlaps. Because the source draw/z order between the diagram and overlapping text controls has not been independently promoted, `raster_composition_available` and `complete_fastview_frame_available` remain false.
+- The authenticated but unbound `FM2001_Art/FastView/background.444` remains excluded rather than being guessed into the frame.
+- Synthetic tests exercise exact placement collection, overlap detection and fail-closed geometry/type drift. Full reconstruction CI is required before merge.
