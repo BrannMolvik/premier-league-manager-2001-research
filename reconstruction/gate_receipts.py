@@ -393,6 +393,9 @@ class GateReceiptResult:
     home_revenue: int
     visiting_revenue: int
     season_ticket_quantity: int = 0
+    # Exact calculator +0xD88 source value for Gate-13 report capture.
+    # None means this receipt was constructed outside a source-backed gate path.
+    report_seating_price: int | None = None
 
     @property
     def ordinary_home_attendance(self) -> int:
@@ -543,4 +546,5 @@ def calculate_matchday_gate_receipts(
         home_revenue=home_revenue,
         visiting_revenue=visiting_revenue,
         season_ticket_quantity=partial.season_ticket_quantity,
+        report_seating_price=max(0, int(host_seating_price)),
     )
