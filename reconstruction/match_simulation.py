@@ -268,6 +268,25 @@ class RawPlayerConditionHistory:
 
 
 @dataclass(frozen=True)
+class RetainedFastViewConditionHistory:
+    """Completed PlayerProxy Condition history when the source path is closed."""
+
+    side_index: int
+    player_index: int
+    samples: tuple[int, ...]
+
+    def __post_init__(self) -> None:
+        if int(self.side_index) not in (0, 1):
+            raise ValueError("FastView condition-history side_index must be 0 or 1")
+        if int(self.player_index) < 0:
+            raise ValueError("FastView condition-history player_index must be non-negative")
+        if len(self.samples) != 24:
+            raise ValueError("FastView Condition history must contain 24 samples")
+        if any(type(value) is not int or not 0 <= value <= 0xFF for value in self.samples):
+            raise ValueError("FastView Condition-history samples must be unsigned source bytes")
+
+
+@dataclass(frozen=True)
 class RetainedFastViewFormHistory:
     """Completed-match PlayerProxy form history retained in source domain."""
 
@@ -300,6 +319,10 @@ class NormalMatchResult:
     native_completion_scalars: LiveReportCompletionScalars | None = None
     raw_condition_history_prefixes: tuple[RawPlayerConditionHistory, ...] = ()
     condition_history_sample_count: int = 0
+    # Complete source-visible histories are retained only when the finalizer can
+    # prove the Condition materialization path. Human-involved matches remain
+    # empty until MatchCalculator+0xD48's legacy club-state branch is closed.
+    fastview_condition_histories: tuple[RetainedFastViewConditionHistory, ...] = ()
     fastview_form_histories: tuple[RetainedFastViewFormHistory, ...] = ()
 
     @property
