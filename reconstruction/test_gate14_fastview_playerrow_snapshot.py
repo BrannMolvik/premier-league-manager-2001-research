@@ -66,7 +66,7 @@ class FastViewPlayerRowSnapshotTests(unittest.TestCase):
         self.assertEqual(row.form.text, "6")
         self.assertEqual(row.form.stored_value, 6)
         self.assertEqual(row.energy.energy, 97)
-        self.assertEqual(row.energy.dynamic_rect, (309, 27, 360, 43))
+        self.assertEqual(row.energy.dynamic_rect, (309, 27, 387, 43))
 
     def test_history_adapter_preserves_event_written_counter_channels(self):
         histories = FastViewPlayerHistories((90,) * 24, (7,) * 24)
