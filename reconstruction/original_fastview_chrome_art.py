@@ -82,6 +82,30 @@ def build_fastview_chrome_art(
     return OriginalFastViewChromeArt(tuple(placements))
 
 
+def _read_verified_fastview_chrome_resource(
+    source_root: str | Path,
+    resource: FastViewChromeResource,
+) -> bytes:
+    """Read one exact source-bound chrome file and require its recorded identity."""
+    root = Path(source_root)
+    path = root / Path(resource.source_path)
+    try:
+        raw = path.read_bytes()
+    except FileNotFoundError as exc:
+        raise OriginalFastViewChromeArtError(
+            f"Missing original FastView chrome: {resource.source_path}"
+        ) from exc
+    if len(raw) != resource.byte_size:
+        raise OriginalFastViewChromeArtError(
+            f"FastView chrome byte-size mismatch: {resource.source_path}"
+        )
+    if sha256(raw).hexdigest() != resource.sha256:
+        raise OriginalFastViewChromeArtError(
+            f"FastView chrome checksum mismatch: {resource.source_path}"
+        )
+    return raw
+
+
 def load_verified_fastview_chrome_art_from_source(
     source_root: str | Path,
     original_executable: str | Path,
@@ -92,7 +116,6 @@ def load_verified_fastview_chrome_art_from_source(
     It allows a runtime/private audit to consume the authorized originals
     without committing the binary resources or substituting replacement art.
     """
-    root = Path(source_root)
     try:
         executable = Path(original_executable).read_bytes()
     except FileNotFoundError as exc:
@@ -105,21 +128,7 @@ def load_verified_fastview_chrome_art_from_source(
 
     decoded: dict[str, EA444DecodedImage] = {}
     for resource in FASTVIEW_DIRECT_CHROME_RESOURCES:
-        path = root / Path(resource.source_path)
-        try:
-            raw = path.read_bytes()
-        except FileNotFoundError as exc:
-            raise OriginalFastViewChromeArtError(
-                f"Missing original FastView chrome: {resource.source_path}"
-            ) from exc
-        if len(raw) != resource.byte_size:
-            raise OriginalFastViewChromeArtError(
-                f"FastView chrome byte-size mismatch: {resource.source_path}"
-            )
-        if sha256(raw).hexdigest() != resource.sha256:
-            raise OriginalFastViewChromeArtError(
-                f"FastView chrome checksum mismatch: {resource.source_path}"
-            )
+        raw = _read_verified_fastview_chrome_resource(source_root, resource)
         image = decode_ea444(raw, tables=tables, quant=quant)
         if (image.width, image.height) != resource.size:
             raise OriginalFastViewChromeArtError(
