@@ -65,7 +65,7 @@ class OriginalFastViewTeamArtTests(unittest.TestCase):
         ):
             build_fastview_team_art(decoded)
 
-    def test_rejects_decoded_geometry_or_rgba_drift(self):
+    def test_rejects_decoded_geometry_or_wrong_decoded_type(self):
         decoded = complete_decoded()
         decoded[TEAM_NAME_GRID_1.name] = image(258, 16, 1)
         with self.assertRaisesRegex(
@@ -74,15 +74,14 @@ class OriginalFastViewTeamArtTests(unittest.TestCase):
         ):
             build_fastview_team_art(decoded)
 
+        # EA444DecodedImage itself enforces width*height*4 RGBA length, so
+        # a malformed payload cannot reach this bundle as a valid decoded
+        # image. The reachable bundle boundary is therefore wrong decoded type.
         decoded = complete_decoded()
-        good = decoded[TEAM_NAME_GRID_1.name]
-        decoded[TEAM_NAME_GRID_1.name] = replace(
-            good,
-            rgba=good.rgba[:-4],
-        )
+        decoded[TEAM_NAME_GRID_1.name] = object()
         with self.assertRaisesRegex(
             OriginalFastViewTeamArtError,
-            "RGBA payload incomplete",
+            "wrong type",
         ):
             build_fastview_team_art(decoded)
 
