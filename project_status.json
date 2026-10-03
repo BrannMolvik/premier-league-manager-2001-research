@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "136dd19",
-  "last_verified_reconstruction_ci_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
-  "last_verified_test_count": 1514,
+  "last_verified_reconstruction_ci_head": "8ea49594b827542196a4b5e94137ea4cecc5d176",
+  "last_verified_test_count": 1526,
   "asset_policy_validated_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
   "asset_policy_status": "passed",
-  "active_task": "Recovery 205 Gate-14 work-ahead: verify ScoreCompositeNormal final row/grid/text geometry, then trace adjacent current_table_grid family while preserving unknown text semantics and unstaged binary boundaries.",
+  "active_task": "Recovery 206 Gate-14 work-ahead: verify independent LeagueTableComposite current-table grid ownership, geometry and source count transform; then continue the next source-backed FastView table/update slice while Gate 13 remains earliest incomplete for shell/navigation fidelity.",
   "last_local_focused_test_count": 453,
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
@@ -1798,7 +1798,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "dynamic_by_fixture_role_exact",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "Verify Recovery 205 ScoreCompositeNormal final row/text geometry through CI, then source-trace current_table_grid_1/current_table_grid_2 ownership and geometry independently before any pixel integration.",
+  "gate14_exact_next_task": "Verify Recovery 206 LeagueTableComposite current-table contract through CI, then trace the next directly evidenced LeagueTableComposite update/text semantics or adjacent independent FastView resource family without assigning unproved column labels.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -2156,5 +2156,58 @@
       16
     ]
   ],
-  "gate14_score_composite_normal_text_semantics": "unresolved_fail_closed"
+  "gate14_score_composite_normal_text_semantics": "unresolved_fail_closed",
+  "gate14_score_row_geometry_merge": "8ea49594b827542196a4b5e94137ea4cecc5d176",
+  "gate14_score_row_geometry_reconstruction_run": 37093081527,
+  "gate14_score_row_geometry_test_count": 1526,
+  "gate14_score_row_geometry_expected_skips": 22,
+  "gate14_score_row_geometry_asset_policy_run": 37093081545,
+  "gate14_league_table_composite_constructor_va": "0x51E000",
+  "gate14_league_table_composite_fastview_callsite_va": "0x523472",
+  "gate14_league_table_composite_origin": [
+    382,
+    32
+  ],
+  "gate14_league_table_composite_primary_vftable": "0x7CA400",
+  "gate14_league_table_row_constructor_va": "0x51D730",
+  "gate14_league_table_heading_constructor_va": "0x51DCB0",
+  "gate14_current_table_grid_1": {
+    "owner": "LeagueTableComposite::Heading",
+    "path": "FM2001_Art/FastView/current_table_grid_1.444",
+    "bytes": 4496,
+    "dimensions": [
+      381,
+      19
+    ],
+    "sha256": "db8114130becce71ba84f890ccd157606d04bf68501484df308564da28957a5f",
+    "path_literal_va": "0x829114",
+    "imported": false
+  },
+  "gate14_current_table_grid_2": {
+    "owner": "LeagueTableComposite::Row",
+    "path": "FM2001_Art/FastView/current_table_grid_2.444",
+    "bytes": 4276,
+    "dimensions": [
+      381,
+      16
+    ],
+    "sha256": "e5a1b5688115cc8a63d47c738cf5af7f66f20eee9433292e47ee4e7c152ed70b",
+    "path_literal_va": "0x8290B4",
+    "imported": false
+  },
+  "gate14_league_table_heading_rect": [
+    382,
+    32,
+    763,
+    51
+  ],
+  "gate14_league_table_row_first_rect": [
+    382,
+    55,
+    763,
+    71
+  ],
+  "gate14_league_table_row_step": 19,
+  "gate14_league_table_count_transform": "count<=12 unchanged; count>12 => ceil(count/2)",
+  "gate14_league_table_text_semantics": "unresolved_fail_closed"
 }
