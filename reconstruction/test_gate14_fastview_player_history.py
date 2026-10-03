@@ -13,7 +13,11 @@ from gate14_fastview_player_history import (
     SOURCE_PLAYER_PROXY_UPDATE_VA,
     FastViewPlayerHistories,
     FastViewPlayerHistoryError,
+    condition_history_retained_prefix_count,
     derive_fastview_energy,
+    match_form_trajectory_rng_draw_count,
+    materialize_fastview_condition_history,
+    materialize_fastview_match_form_history,
     player_history_sample_index,
     source_history_byte_offset,
 )
@@ -72,6 +76,75 @@ class FastViewPlayerHistoryTests(unittest.TestCase):
 
         low = FastViewPlayerHistories((1,) * 24, (5,) * 24)
         self.assertEqual(derive_fastview_energy(low, 5, 0), 1)
+
+
+    def test_form_trajectory_draw_count_matches_elapsed_source_prefix(self):
+        self.assertEqual(match_form_trajectory_rng_draw_count(0), 0)
+        self.assertEqual(match_form_trajectory_rng_draw_count(1), 0)
+        self.assertEqual(match_form_trajectory_rng_draw_count(18), 17)
+        self.assertEqual(match_form_trajectory_rng_draw_count(24), 23)
+
+    def test_form_trajectory_moves_toward_target_then_holds_after_elapsed(self):
+        history = materialize_fastview_match_form_history(
+            8,
+            18,
+            (1,) * 17,
+            active_for_club=False,
+        )
+        self.assertEqual(history[:5], (5, 6, 7, 8, 8))
+        self.assertEqual(history[17], 8)
+        self.assertEqual(history[18:], (8,) * 6)
+
+    def test_form_trajectory_zero_rng_rolls_hold_source_value(self):
+        history = materialize_fastview_match_form_history(
+            10,
+            18,
+            (0,) * 17,
+            active_for_club=False,
+        )
+        self.assertEqual(history, (5,) * 24)
+
+    def test_equal_target_active_player_oscillates_around_five_six(self):
+        history = materialize_fastview_match_form_history(
+            5,
+            18,
+            (1,) * 17,
+            active_for_club=True,
+        )
+        self.assertEqual(history[:6], (5, 6, 5, 6, 5, 6))
+
+    def test_extra_time_form_trajectory_consumes_all_23_source_draws(self):
+        history = materialize_fastview_match_form_history(
+            10,
+            24,
+            (1,) * 23,
+            active_for_club=False,
+        )
+        self.assertEqual(len(history), 24)
+        self.assertEqual(history[-1], 10)
+
+    def test_condition_history_keeps_pre_elapsed_prefix_then_final_fills(self):
+        prefix = tuple(range(80, 98))
+        history = materialize_fastview_condition_history(prefix, 18, 63)
+        self.assertEqual(condition_history_retained_prefix_count(18), 18)
+        self.assertEqual(history[:18], prefix)
+        self.assertEqual(history[18:], (63,) * 6)
+
+    def test_extra_time_condition_history_preserves_all_24_visible_samples(self):
+        prefix = tuple(range(24))
+        self.assertEqual(
+            materialize_fastview_condition_history(prefix, 24, 99),
+            prefix,
+        )
+
+    def test_trajectory_rng_count_mismatch_fails_closed(self):
+        with self.assertRaises(FastViewPlayerHistoryError):
+            materialize_fastview_match_form_history(
+                8,
+                18,
+                (1,) * 16,
+                active_for_club=False,
+            )
 
     def test_invalid_histories_or_rng_fail_closed(self):
         with self.assertRaises(FastViewPlayerHistoryError):
