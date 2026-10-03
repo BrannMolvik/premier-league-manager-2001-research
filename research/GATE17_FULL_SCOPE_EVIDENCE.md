@@ -30,18 +30,44 @@ archive SHA-256 as the other release evidence and declares all of these true:
 The receipt cannot reuse the clean-install, Premier League management,
 season-progression or save/reload receipt file.
 
+## Canonical catalog binding
+
+The repository now has a source-backed catalog primitive in
+`gate17_full_scope_catalog.py`. It derives the exact recovered TeamSelect
+country/League/club projection from the hash-verified canonical game directory;
+no original game bytes or guessed modern league list are committed.
+
+The final Windows 11 release audit independently rebuilds that catalog and
+requires `full_original_scope.json` to carry:
+
+- `scope_catalog_sha256`, equal to the deterministic canonical catalog hash;
+- `scope_country_count`;
+- `scope_entry_count`, one entry for each selectable country/League pair;
+- `scope_selectable_club_row_count`;
+- `verified_scope_entry_count`, equal to the full entry count;
+- `verified_scope_ids`, in exact canonical order, using
+  `<country_id>:<competition_id>`;
+- empty `missing_scope_ids`;
+- empty `failed_scope_ids`.
+
+The catalog SHA also covers the exact selectable club IDs and captions recorded
+inside every League entry. A broad set of true booleans can therefore no longer
+stand in for an audit of an unspecified scope.
+
 ## Current fail-closed boundary
 
-There is deliberately no producer in the current repository that claims these
-facts. `gate17_windows_gameplay_receipts.py` remains honest about producing
-three Premier-League-centered gameplay receipts only.
+There is deliberately still no producer in the current repository that claims
+the full-scope runtime facts. `gate17_windows_gameplay_receipts.py` remains
+honest about producing three Premier-League-centered gameplay receipts only.
 
-A source-backed full-scope catalog and runtime audit still need to be recovered
-and implemented. That future audit must exercise every originally selectable /
-playable entry against the final archive on a real Windows 11 client and only
-then write this receipt. Until that exists, the transactional external
-validator requires a pre-existing external full-scope receipt and Gate 17
-cannot pass.
+The current human gameplay handoff is still Premier-League-only, so the
+full-scope receipt cannot legitimately satisfy the binding above yet. After
+Gate 13 releases the shared-runtime ownership lock, the gameplay continuation
+must be generalized across the source-backed catalog, then every cataloged
+country/League route must be exercised against the final archive on a real
+Windows 11 client.
+
+Until that external audit passes, Gate 17 remains open.
 
 This is not a new product requirement. It makes the already-canonical ROADMAP
 scope invariant machine-checkable so missing shipped functionality cannot be
