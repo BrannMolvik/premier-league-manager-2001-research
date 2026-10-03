@@ -83,6 +83,8 @@ on:
       - "reconstruction/test_gate14_fastview_component_rasters.py"
       - "reconstruction/original_fastview_team_art.py"
       - "reconstruction/test_original_fastview_team_art.py"
+      - "reconstruction/gate14_fastview_team_static_raster.py"
+      - "reconstruction/test_gate14_fastview_team_static_raster.py"
       - "reconstruction/gate14_fastview_frame_plan.py"
       - "reconstruction/test_gate14_fastview_frame_plan.py"
       - "reconstruction/gate14_fastview_human_frame_plan.py"
