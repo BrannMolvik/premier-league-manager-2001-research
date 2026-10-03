@@ -10,28 +10,81 @@ topic-specific research files.
 
 **Gate 13 - Restore original management presentation**
 
+Continuation from PR #211 head `689c91dd`: corrected scanner discovery past
+undecodable bytes (still candidate-only), traced controlled capacity writer
+`618C10`, and integrated original possession-percent controls, complete
+Attendance/caption buffer and native-aligned name/score header. +13C/+140
+fresh uncontrolled state remains unknown: the proven writer uses an existing
+user-owned stadium, not fresh AI setup. Required script rows remain withheld
+pending native lazy reader `60B1E0 -> 633BD0/633C50`, concrete list
+`487B80 -> 4872C0`, row factory `486EC0 -> 485B30` and source clipping.
+The reader exposed and now verifies a corrected native chance-family encoder
+tag mapping (kinds1..4 -> tags2/3/1/0), not a second decoded-kind remapping.
+Do not replay completed
+report assembly/save/owner/calculator work. Gate13 remains OPEN; main,
+later-gate files and ownership protocol are unchanged.
 
-Recovery 223 adds only fail-closed source-discovery tooling for the three
-remaining setup fields: `DBRClub+0x130`, `+0x13C/+0x140`, and participant
-secondary/loan selector `+0x76`. The authorized original archive still
-materializes from Library, but the private execution container currently fails
-even trivial filesystem commands with `ClientError`. No field semantics are
-therefore promoted. The new checksum-gated scanner records only exact
-memory-displacement candidates for later private CFG/data-flow adjudication.
-Gate 13 remains OPEN; see `GATE13_LIVE_CAPTURE_INPUTS.md`.
+Final changed-code milestone: **1,722 full tests / 23 expected skips**;
+99 focused tests / 5 expected licensed-source skips, asset policy and fresh
+real Windows schema8 pass. Genuine calculated fixture2 again publishes,
+saves/reloads and opens correct PMatchInfo with header/summary/pitch/possession.
+Required script rows remain blank. Exact receipts and encoder discrepancy
+evidence are in `GATE13_LEGACY_CLUB_REPORT_STATE.md`. No final closure or
+package/release success is inferred. The first full run lacked Capstone;
+the final run with the existing private runtime passes.
 
+Latest PR #211 continuation from reconciled `70c8af0a`: the top-four D48
+producer now performs the exact second full-roster Condition/RNG pass before
+participant snapshots. Human club selection automatically loads the original
+club stadium map/building setup, without resetting existing ticket state.
+The genuine Coventry calculated fixture again publishes a complete report,
+saves/reloads and opens matching PMatchInfo through real Windows right-click.
+The original summary font now renders Attendance/Referee/Mom, and the default
+nested pitch uses its recovered parent translation and two-row source clip.
+These are partial visible contents, not complete nested report rendering.
+Evidence and private receipt hashes: `GATE13_LEGACY_CLUB_REPORT_STATE.md`.
+Final milestone validation: **1,713 full tests / 23 expected skips**, 91
+focused report/host/save tests, asset policy, JSON/diff checks, fresh real
+Windows schema 8 and repeated genuine changed-route probe pass. No frozen
+package/release launch or complete nested report rendering is claimed.
 
-Recovery 222 narrows the human-opponent D48 blocker without guessing legacy
-club state. Exact native Premier League rank is now recomputed only from the
-recovered comparator plus original CP1252 short-name bytes; missing/ambiguous
-source order fails closed. When that native zero-based rank is >=4,
-`0x408170` is counter-independent and the shipped D48 value 5 is passed into
-the existing initial-history producer. Ranks 0..3 still require unresolved
-DBRClub `+0x130`; `+0x13C/+0x140` visiting capacities and secondary-shirt
-contexts also remain open. Gate 13 therefore remains OPEN and the genuine
-reload/right-click/PMatchInfo route is not yet claimed. See
-`GATE13_LIVE_CAPTURE_INPUTS.md`.
+Gate 13 remains **OPEN**. +13C/+140's fresh club allocation has HeapAlloc
+flags 0, not a zero-fill contract; no authoritative fresh capacity value is
+established. Next presentation step is default PMatchInfo score/script-row
+owners, text producers and clipping, followed by the complete genuine route
+and final timing/recognizability judgment. Secondary/loan shirts remain
+fail-closed, not a reason to expand the minimum slice without audit evidence.
+Main, Gate-14 work and ownership protocol are untouched.
 
+Recovery-223's checksum-gated remaining-field scanner is also preserved as
+support tooling. Its earlier +0x130/D48 status is superseded by the PR #211
+producer proof above; the scanner remains useful for candidate discovery and
+manual CFG/data-flow review of the still-open fresh +0x13C/+0x140 capacity
+lifecycle and secondary/loan +0x76 selector. Candidate hits are not semantics.
+
+Previous local Gate-13 milestone, based on canonical `6207dbe0`: native
+attendance bit-9/count lifecycle and exact zero-based human-rank D48 guards
+are integrated and persist in schema 42. A genuinely calculated Coventry
+home fixture publishes all eleven scalars and a complete report. Disk save,
+fresh reload and real Windows ordinary Fixtures right-click open the correct
+PMatchInfo context (fixture 2, owner 0), without injected fragments. Fresh
+Windows schema-8 audit passes. Evidence: `GATE13_LEGACY_CLUB_REPORT_STATE.md`.
+Final local validation: **1,695 full tests / 23 expected skips**, 135 focused
+tests, asset-policy/JSON/diff checks, fresh Windows schema 8 and the final-code
+genuine reload/right-click probe all pass. Frozen-package launch is not claimed.
+
+At that earlier checkpoint Gate 13 remained **OPEN**. Its next source task was to establish the fresh native
+allocation/write lifecycle of uncontrolled visiting capacities +13C/+140;
+do not assume zero. Complete the top-four D48 roster-Condition/RNG branch
+without a numeric substitute. Secondary/loan shirts stay unknown. The
+ordinary host still needs source-qualified stadium setup materialization;
+PMatchInfo nested report rendering and final timing/normal-play judgment
+are not certified by a correct stored context. Preserve all shipped-country
+scope; Gate-14 work and agent-runtime ownership are untouched. Work is on
+`codex/gate13-legacy-setup`, not main; no branch reconciliation was performed.
+
+Earlier checkpoints below are historical and do not negate the new genuine
+calculated-report/context proof.
 
 PR #199 continuation from `f8bbdd9c`: B68 constructor and original-order
 FE0/FE4 draws, explicit tactics, primary-shirt/normalized flag metadata and

@@ -16,6 +16,13 @@ from __future__ import annotations
 from base64 import b64encode
 from pathlib import Path
 from original_management_background import OriginalManagementBackground
+from original_pmatchinfo_summary import (
+    ordinary_pmatchinfo_summary_lines, summary_line_pixels,
+    ordinary_pmatchinfo_pitch_pixels,
+    ordinary_pmatchinfo_possession_lines, load_pmatchinfo_nested_font,
+    ordinary_pmatchinfo_header_lines,
+)
+from original_pmenu_chrome import validate_original_pmenu_font
 
 from front_end_session import FrontEndSession
 from front_end_state import FrontEndCommand, FrontEndScreen
@@ -121,6 +128,8 @@ class OriginalGameTkHost:
         squad_top_resources=None,
         league_tables_header_art=None,
         pmatchinfo_snapshot=None,
+        pmatchinfo_font=None,
+        pmatchinfo_nested_font=None,
         error_reporter=None,
         management_background=None,
     ):
@@ -137,6 +146,8 @@ class OriginalGameTkHost:
         self.squad_top_resources = squad_top_resources
         self.league_tables_header_art = league_tables_header_art
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
+        self.pmatchinfo_font = pmatchinfo_font
+        self.pmatchinfo_nested_font = pmatchinfo_nested_font
         self.error_reporter = error_reporter or self._show_transition_error
         self.management_background = management_background
         self.last_pmenu_activation = None
@@ -342,7 +353,7 @@ class OriginalGameTkHost:
         return 1
 
     def _draw_pmatchinfo_dialog(self) -> int:
-        """Redraw only the globally source-proven PMatchInfo popup background."""
+        """Draw the popup and source-closed ordinary summary/default pitch."""
         art = self.active_pmatchinfo_art
         if art is None:
             return 0
@@ -357,6 +368,36 @@ class OriginalGameTkHost:
             image=image,
             anchor=self.tk.NW,
         )
+        context = self.active_pmatchinfo_context
+        if context is not None and self.pmatchinfo_snapshot is not None:
+            pixels = ordinary_pmatchinfo_pitch_pixels(
+                context.captured_report, self.pmatchinfo_snapshot)
+            if pixels is not None:
+                x, y, w, h, png = pixels
+                self.canvas.create_image(art.x + x, art.y + y,
+                    image=self._photo(png), anchor=self.tk.NW)
+            if self.pmatchinfo_nested_font is not None:
+                controller = self.presenter.session.gameplay
+                header = (() if controller is None else ordinary_pmatchinfo_header_lines(
+                    context.captured_report, controller.state.clubs))
+                for line in header + ordinary_pmatchinfo_possession_lines(
+                        context.captured_report, self.pmatchinfo_snapshot):
+                    pixels = summary_line_pixels(line, self.pmatchinfo_nested_font)
+                    if pixels is not None:
+                        x, y, w, h, png = pixels
+                        self.canvas.create_image(art.x + x, art.y + y,
+                            image=self._photo(png), anchor=self.tk.NW)
+        if context is not None and self.pmatchinfo_font is not None:
+            controller = self.presenter.session.gameplay
+            if controller is not None:
+                for line in ordinary_pmatchinfo_summary_lines(
+                        context.captured_report, controller.state.players):
+                    pixels = summary_line_pixels(line, self.pmatchinfo_font)
+                    if pixels is None:
+                        continue
+                    x, y, w, h, png = pixels
+                    self.canvas.create_image(art.x + x, art.y + y,
+                        image=self._photo(png), anchor=self.tk.NW)
         return 1
 
     def _draw_management_host(self) -> None:
@@ -582,6 +623,7 @@ class OriginalGameTkHost:
             return
         if action is not None:
             self.active_pmatchinfo_context = context
+            self.redraw()
 
     def on_click(self, event) -> None:
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
@@ -749,6 +791,8 @@ def run_original_game_ui(
         squad_top_resources=squad_top_resources,
         league_tables_header_art=league_tables_header_art,
         pmatchinfo_snapshot=pmatchinfo_snapshot,
+        pmatchinfo_font=validate_original_pmenu_font(resolved_source_root),
+        pmatchinfo_nested_font=load_pmatchinfo_nested_font(resolved_source_root),
         management_background=OriginalManagementBackground(
             resolved_source_root, original_executable),
     )

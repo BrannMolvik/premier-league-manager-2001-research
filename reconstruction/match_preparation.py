@@ -487,6 +487,7 @@ def build_premier_league_ai_match_side(
     side: int,
     rng,
     tactical_state: TeamTacticalState | None = None,
+    after_condition_initializer=None,
 ) -> PreparedPremierLeagueAiSide:
     """Finish one already-selected AI side after shared fixture setup.
 
@@ -496,6 +497,8 @@ def build_premier_league_ai_match_side(
     RNG order.
     """
     initialize_ai_roster_condition(ordered_roster, rng)
+    if after_condition_initializer is not None:
+        after_condition_initializer(ordered_roster, rng)
     live_tactics = tactical_state or TeamTacticalState()
     match_side = build_prepared_match_side_from_selection(
         preparation.selection,

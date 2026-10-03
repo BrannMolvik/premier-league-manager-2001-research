@@ -97,6 +97,10 @@ from complete_fixture_report import (
 from original_fixture_report_capture import NativeCapturedScalar
 from original_fixture_report_capture import NATIVE_CAPTURE_SCALAR_COPIES
 from ordinary_report_setup import NativeSetupPlayerPool, gate_report_scalar_copies, report_participant_metadata
+from native_club_report_state import (
+    ClubAttendanceCounter, ordinary_human_adjustment,
+    produce_human_opponent_condition,
+)
 from match_team_setup import pack_tactics_word, manager_tactics_packet_fields, team_tactics_packet_fields
 from stadium_state import StadiumSourceState, TicketRuntimeState
 from transfer_state import TransferRuntimeState
@@ -211,6 +215,7 @@ class GameState:
     report_language: tuple | None = None
     prepared_match_report_setup: dict[int, LiveReportSetupFragment] = field(default_factory=dict)
     native_setup_player_pool: NativeSetupPlayerPool | None = None
+    native_club_attendance_counters: dict[int, ClubAttendanceCounter] = field(default_factory=dict)
     prepared_match_report_scalars: dict[int, dict[int, NativeCapturedScalar]] = field(default_factory=dict)
     prepared_match_report_tactics: dict[int, tuple[int, int] | None] = field(default_factory=dict)
     captured_match_reports: tuple[CompleteFixtureReport, ...] = ()
@@ -243,6 +248,7 @@ class GameState:
     # Master.dat club +165 -> DBRClub +0xD0/+0xD4 -> Balance +0x10.
     finance_balances: dict[int, BalanceRuntimeState] = field(default_factory=dict)
     stadium_sources: dict[int, StadiumSourceState] = field(default_factory=dict)
+    stadium_source_loader: Callable[[int], StadiumSourceState] | None = field(default=None, repr=False)
     ticket_states: dict[int, TicketRuntimeState] = field(default_factory=dict)
     # Gate-9/15 source/runtime inputs for the recovered weekly club acquisition
     # path. Startup roster counts are immutable initialization baselines;
@@ -452,6 +458,10 @@ class GameState:
         )
         state.report_language = report_language_from_database(database)
         state.native_setup_player_pool = NativeSetupPlayerPool.from_database(database)
+        state.configure_stadium_source_loader(database)
+        if state.native_setup_player_pool is not None:
+            state.native_club_attendance_counters = {
+                club_id: ClubAttendanceCounter.fresh() for club_id in state.clubs}
         state.calendar.daily_hooks.append(state._run_daily_injury_returns)
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
@@ -1106,6 +1116,33 @@ class GameState:
             self.ai_transfer_buy_counter[int(club_id)] = 0
         return True
 
+    def configure_stadium_source_loader(self, database):
+        """Bind immutable original map access; never persist a host filesystem path."""
+        from pathlib import Path
+        source = getattr(database, 'stadium_source_state', None)
+        game_dir = getattr(database, 'game_dir', None)
+        if not callable(source) or game_dir is None:
+            self.stadium_source_loader = None
+            return
+        buildings = Path(game_dir) / 'Lists' / 'Buildings.dat'
+        self.stadium_source_loader = lambda club_id: source(club_id, buildings)
+
+    def initialize_controlled_stadium_source(self, club_id):
+        """Fresh DBRUser +6B0 -> 65D5B0 -> 6187E0 owned map/ticket setup."""
+        if club_id in self.stadium_sources or club_id in self.ticket_states:
+            # Save/reload owns both already; do not reallocate sections/prices.
+            return club_id in self.stadium_sources and club_id in self.ticket_states
+        if self.stadium_source_loader is None:
+            return False
+        try:
+            stadium = self.stadium_source_loader(club_id)
+        except FileNotFoundError:
+            return False  # No substitute map, capacity or context.
+        self.materialize_gate_source_state(club_id, stadium,
+            seating_reference=PREMIER_LEAGUE_SEATING_REFERENCE,
+            terrace_reference=PREMIER_LEAGUE_TERRACE_REFERENCE)
+        return True
+
     def materialize_gate_source_state(
         self,
         club_id: int,
@@ -1680,6 +1717,11 @@ class GameState:
         if fixture_id is not None and (type(fixture_id) is not int or fixture_id < 0):
             raise ValueError("Completion input fixture ID must be a non-negative integer")
         rand15_values = self._draw_matchday_gate_rand15_values(rng)
+        # The gate tail's byte/bit-9 writes do not depend on the unresolved
+        # attendance quantities. Retain only this independent producer.
+        counter = self.native_club_attendance_counters.get(int(home_club_id))
+        if counter is not None:
+            self.native_club_attendance_counters[int(home_club_id)] = counter.completed_home_gate()
         if prepared_inputs is None:
             if fixture_id is not None:
                 self.prepared_match_gate_receipts.pop(fixture_id, None)
@@ -2401,7 +2443,13 @@ class GameState:
         snapshot: CupMatchResolutionSnapshot,
     ):
         """Persist a definitive Cup outcome in the live GameState registry."""
-        return self.cup_results.record_match_resolution(result_token, snapshot)
+        result = self.cup_results.record_match_resolution(result_token, snapshot)
+        # Cup gate/counter production is not retained here. Do not carry a
+        # stale ordinary count across another native gate lifecycle.
+        if snapshot.complete:
+            for club_id in (snapshot.participant_0_club_id, snapshot.participant_1_club_id):
+                self.native_club_attendance_counters.pop(club_id, None)
+        return result
 
     def resolve_cup_club_ref(self, ref):
         """Resolve a Cup ClubRef against live GameState result state."""
@@ -2588,6 +2636,9 @@ class GameState:
             for club_id, competition_id in club_competition_membership.items()
         }
         self.premier_league = new_premier
+        # No proven annual +E8/+130 producer/reset is connected at this
+        # boundary. Unknown is not the constructor's known-clear bit 9.
+        self.native_club_attendance_counters = {}
         self.cup_results = new_registry
         self.domestic_cups = new_domestic
         self.european_cups = new_european
@@ -3754,8 +3805,7 @@ class GameState:
 
         Shipped 0x408170 returns DefaultConditionBoost=5 when the controlled
         club's native zero-based rank is >=4, regardless of legacy DBRClub
-        +0x130. Ranks 0..3 still depend on that unresolved attendance counter,
-        so they remain None rather than guessing either 5 or the boost path.
+        +0x130. Ranks 0..3 still depend on that attendance counter lifecycle.
         """
         rank = self.native_premier_league_table_index(int(human_club_id))
         if rank is None or rank < 4:
@@ -4214,11 +4264,22 @@ class GameState:
 
         self._retain_fixture_report_setup(fixture, competition, environment)
 
+        native_adjustment = None
+        def retain_human_opponent_condition(roster, condition_rng):
+            nonlocal native_adjustment
+            if self.user_controlled_club_id != human_club_id:
+                return
+            counter = self.native_club_attendance_counters.get(ai_club_id)
+            rank = self.native_premier_league_table_index(human_club_id)
+            native_adjustment = produce_human_opponent_condition(counter, rank,
+                roster, condition_rng if match_engine_rng is not None else None)
+
         ai_prepared = build_premier_league_ai_match_side(
             ai_preparation,
             ai_roster,
             side=1 if human_is_home else 0,
             rng=engine_rng,
+            after_condition_initializer=retain_human_opponent_condition,
             tactical_state=self.team_tactics.get(
                 ai_club_id,
                 TeamTacticalState(),
@@ -4269,11 +4330,7 @@ class GameState:
             condition_injury_settings=ConditionInjurySettings(
                 environment_byte=pitch_wear_before,
             ),
-            native_human_ai_condition_adjustment=(
-                self.source_qualified_human_ai_condition_adjustment(
-                    human_club_id
-                )
-            ),
+            native_human_ai_condition_adjustment=native_adjustment,
         )
         self.prepared_match_participant_statistics.pop(fixture_id, None)
         self.prepared_match_report_player_ids.pop(fixture_id, None)
@@ -4367,6 +4424,26 @@ class GameState:
         self._publish_completed_fixture_report(fixture_id, result)
         return result
 
+    def _ordinary_native_human_adjustment(self, fixture, home_side, away_side):
+        controls = (home_side.attack_context.user_controlled,
+                    away_side.attack_context.user_controlled)
+        if not any(controls):
+            return 0  # 51101C, no human opponent.
+        if controls not in ((True, False), (False, True)):
+            return None
+        human_id, ai_id = ((fixture.home_club_id, fixture.away_club_id) if controls[0]
+                           else (fixture.away_club_id, fixture.home_club_id))
+        if self.user_controlled_club_id != human_id:
+            return None  # Native 4139D0's global user owner, not an arbitrary side.
+        counter = self.native_club_attendance_counters.get(ai_id)
+        early = ordinary_human_adjustment(counter, None)
+        if early is not None:
+            return early
+        # Recovery 222 source-closes the counter-independent rank guard with
+        # the exact native Premier League sort and no synthetic/ID fallback.
+        rank = self.native_premier_league_table_index(human_id)
+        return ordinary_human_adjustment(counter, rank)
+
     def simulate_premier_league_fixture(
         self,
         fixture_id: int,
@@ -4413,13 +4490,15 @@ class GameState:
             native_previous_scores=(-1, -1),
             native_compact_spacing=0,
             native_report_date=self.calendar.current_date,
-            # 0x51101C writes D48=0 for AI-vs-AI. Human-opponent
-            # setup may supply only an independently source-qualified 0x408170
-            # result; unresolved counter/rank cases remain None.
             native_ai_condition_adjustment=(
-                0 if not home_side.attack_context.user_controlled
-                and not away_side.attack_context.user_controlled
-                else native_human_ai_condition_adjustment),
+                native_human_ai_condition_adjustment
+                if native_human_ai_condition_adjustment is not None
+                else self._ordinary_native_human_adjustment(
+                    self.premier_league.fixtures[fixture_id],
+                    home_side,
+                    away_side,
+                )
+            ),
         )
         home_goals, away_goals = result.score
         self.record_premier_league_result(

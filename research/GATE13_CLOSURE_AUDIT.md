@@ -2,6 +2,65 @@
 
 _Audit refreshed: 3 October 2026 KST_
 
+## Current local producer milestone and criterion audit
+
+PR #211 continuation from `689c91dd`: original possession controls, complete
+Attendance/caption buffer and native-aligned home/away names/score are now
+rendered. Required row-reader tracing exposed an encoder tag discrepancy,
+fixed against the canonical jump table and inverse reader branches. The
+genuine calculation/save/fresh-reload/Windows right-click route passes on
+this code, without any manufactured report context. Required script rows
+remain blank: list ownership, duplicate/boundary flags, participant/shirt
+context and nested rendering must be integrated before recognizable report
+contents can pass. Fresh uncontrolled visiting capacities also remain
+unknown; `618C10` is a controlled user-owned-stadium writer, not a fresh AI
+initializer. Gate 13 remains OPEN; no final timing/normal-play sign-off or
+Gate-14 transition is claimed. This supersedes earlier score-header negatives.
+
+PR #211 continuation from reconciled `70c8af0a`: exact top-four D48
+roster/RNG production and automatic original controlled stadium bootstrap
+are integrated. The genuine calculated fixture -> complete report -> disk
+save -> fresh reload -> Windows ordinary right-click route still passes.
+PMatchInfo now draws the three source-font summary lines and the default
+subpanel pitch with recovered translation/clipping. Script rows and remaining
+report controls are not yet fully rendered. This is a meaningful executable
+milestone, **not a final timing/recognizability sign-off**. Gate 13 remains OPEN.
+Fresh uncontrolled-home +13C/+140 values remain unknown; HeapAlloc flags 0
+are not a zero default. Next bounded step: default PMatchInfo score/script
+owners and text producers. Full report rendering and native fresh capacity
+evidence precede the final closure attempt; do not repeat saved-report codecs.
+See `GATE13_LEGACY_CLUB_REPORT_STATE.md` for verification/provenance.
+
+The following paragraph describes the earlier producer/context checkpoint.
+
+Based on canonical `6207dbe0`, not a Gate-14 reconciliation. Native bit-9/
+attendance-byte lifecycle and D48's exact global-human native rank guards
+advance the ordinary producer. A source-materialized Coventry home fixture
+actually publishes a complete report; disk save/fresh reload preserves it
+and real Windows Fixtures right-click opens the correct PMatchInfo context.
+This context-opening criterion now **PASSES for that supported producer
+path**, not for every fixture/setup context. Receipt/provenance:
+`GATE13_LEGACY_CLUB_REPORT_STATE.md`. Fresh Windows schema-8 audit passes
+(SHA-256 `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`).
+Its usual synthetic/no-op seam is not the positive ordinary proof; the
+separate genuine calculated-state receipt supplies that proof.
+
+Roadmap assessment: simulation/presentation separation remains passed.
+Resource/layout reuse is substantial but nested PMatchInfo owner-local report
+content remains withheld. Main-menu/login timing and normal-play
+recognizability cannot be signed off by a popup context alone. Ordinary
+uncontrolled-home visiting-capacity fresh state, top-four D48 player/RNG
+production, secondary shirts and automatic original stadium initialization
+remain incomplete. No guessed allocation defaults or display-rank substitute
+were added. **Gate 13 stays OPEN**; no Gate-14 transition or scope reduction.
+Next native dependency: +13C/+140's observed fresh allocation/write boundary,
+then the top-four 408170 Condition loop, not codecs/packing/save/owner retracing.
+Original loaded-save and clone value preservation is proven, not fresh
+initialization. Timing/recognizability closure remains NOT PASSED.
+
+Historical checkpoints follow; their negative ordinary-probe statements
+describe their own revisions, not this supported positive milestone.
+
 PR #199 setup continuation from `f8bbdd9c` connects constructor B68,
 original-order FE0/FE4, tactics, primary shirts/flags and gate scalar copies
 to the existing assembler. The canonical calculated-fixture probe remains

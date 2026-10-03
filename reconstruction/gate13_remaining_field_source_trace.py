@@ -73,6 +73,9 @@ def linear_memory_displacement_candidates(
 
     engine = Cs(CS_ARCH_X86, CS_MODE_32)
     engine.detail = True
+    # Embedded data/undecodable bytes must not silently terminate discovery.
+    # Resumption is still LINEAR candidate decoding, never a CFG proof.
+    engine.skipdata = True
     found: list[dict] = []
 
     for section in pe.sections:
@@ -84,6 +87,8 @@ def linear_memory_displacement_candidates(
         section_va = pe.image_base + section.virtual_address
 
         for insn in engine.disasm(blob, section_va):
+            if insn.id == 0:
+                continue  # Capstone synthetic data records have no operands.
             for operand_index, operand in enumerate(insn.operands):
                 if operand.type != X86_OP_MEM:
                     continue
@@ -150,6 +155,8 @@ def remaining_field_trace_report(
         "candidate_counts_by_displacement": counts,
         "candidate_memory_operands_not_proven_field_accesses": candidates,
         "source_semantics_recovered": False,
+        "undecodable_bytes_policy": "skipdata_then_resume_linear_candidates_not_cfg_proof",
+        "candidate_limit_reached": len(candidates) >= max_candidates,
         "gate13_closed": False,
         "evidence_limit": (
             "Linear x86 decode plus exact memory-displacement equality only. "

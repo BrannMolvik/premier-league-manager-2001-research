@@ -52,6 +52,37 @@ def stadium_with_sections(capacities):
 
 
 class GateSourceMaterializationTests(unittest.TestCase):
+    def test_fresh_source_loader_and_restored_stadium_are_not_reinitialized(self):
+        state = GameState(GameCalendar(date(2000, 8, 1)), {}, clubs={
+            0: SimpleNamespace(competition_id=0, fan_base_index=20,
+                               runtime_value_1c_source=10000)})
+        stadium = stadium_with_sections({24: (0, 2000), 0: (0, 5000)})
+        calls = []
+        def load(club_id, buildings):
+            calls.append((club_id, str(buildings)))
+            return stadium
+        state.configure_stadium_source_loader(SimpleNamespace(game_dir='original',
+                                                              stadium_source_state=load))
+        self.assertTrue(state.initialize_controlled_stadium_source(0))
+        self.assertEqual(calls[0][0], 0)
+        self.assertTrue(calls[0][1].endswith('Buildings.dat'))
+        tickets = state.ticket_states[0]
+        tickets.seating_price = 123
+        self.assertTrue(state.initialize_controlled_stadium_source(0))
+        self.assertEqual(len(calls), 1)
+        self.assertIs(state.ticket_states[0], tickets)
+        self.assertEqual(tickets.seating_price, 123)
+
+    def test_missing_source_stays_unmaterialized(self):
+        state = GameState(GameCalendar(date(2000, 8, 1)), {})
+        self.assertFalse(state.initialize_controlled_stadium_source(0))
+        def missing(club_id):
+            raise FileNotFoundError('exact original map missing')
+        state.stadium_source_loader = missing
+        self.assertFalse(state.initialize_controlled_stadium_source(0))
+        self.assertEqual(state.stadium_sources, {})
+        self.assertEqual(state.ticket_states, {})
+
     def test_arsenal_shape_uses_shipped_rank_band_and_visiting_threshold(self):
         fan_indexes = (
             31, 28, 31, 22, 25, 28, 31, 23, 32, 23,
