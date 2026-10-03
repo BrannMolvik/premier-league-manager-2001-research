@@ -67,6 +67,11 @@ class PlayableAllocationPreview:
     country_summaries: tuple[PlayableCountryExchangeSummary, ...]
 
     @property
+    def memberships(self) -> dict[int, int]:
+        """Compatibility view of the validated post-exchange membership map."""
+        return dict(self.memberships_after)
+
+    @property
     def changed_club_ids(self) -> tuple[int, ...]:
         return tuple(
             club_id
