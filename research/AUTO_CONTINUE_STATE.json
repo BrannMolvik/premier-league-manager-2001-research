@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is 5df5d591991fcd209d8fa1d65c14ddb781145aac after verified Gate-14 PR #232 merged. Gate-14 PR #234 (worker/gate14-teamtable-component-plane-v2, head fd44f732) is a clean eight-file fourth-plane integration: attach source-backed TeamTable static raster to the unflattened FastView component set and require exact TeamTable art through frame/human presentation adapters. PR #234 is mergeable; reconstruction run 37140211213 and asset-policy run 37140211173 are in progress. Merge only after both pass. Local process sandbox still fails before start with caas.internal.errors.ClientError, blocking private executable audio-bank adjudication. Do not touch Gate-13-owned/shared runtime files.",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main remains 5df5d591991fcd209d8fa1d65c14ddb781145aac. Gate-14 PR #234 (head fd44f732) is mergeable: asset policy 37140211173 passed; reconstruction 37140211213 is still in progress. Gate-14 PR #235 (head 81b65b67) is mergeable: asset policy 37140430307 passed; reconstruction 37140430316 is in progress. Prepared dependent branch worker/gate14-score-table-static-raster at de0e77af contains source-backed current-fixture/phase-icon/LeagueTable static raster planes plus tests/CI/docs and is based on PR #235; do not open/merge it until one current CI slot clears and #235 is canonical. Local process sandbox still fails before start with caas.internal.errors.ClientError, blocking private audio-bank adjudication. Do not touch Gate-13-owned/shared runtime files.",
   "last_known_main_head": "5df5d591991fcd209d8fa1d65c14ddb781145aac",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 232,
+  "recovery_generation": 233,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 232 checkpoint: PR #231 static TeamTable raster merged green as 923ad042; PR #232 verified-source chrome loader merged green as 5df5d591. Noisy stacked PR #233 was closed without merge. Fresh PR #234 cleanly carries only the fourth TeamTable component-plane integration and is in hosted CI. Audio source trace remains blocked only by local CAAS process-start failure.",
+  "note": "Recovery 233 checkpoint: PR #234 fourth TeamTable raster plane and PR #235 checksum-gated score/table art loader both mergeable with asset policy green and full reconstruction CI running. Dependent score/table static raster branch is prepared through de0e77af but intentionally not opened yet to avoid a third concurrent full-suite run.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
