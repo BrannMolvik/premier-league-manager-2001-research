@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 PR #269 merged green as main 1a4f5eea after 1,880 tests / 23 expected skips, adding separate sporting-objective progression readiness. PR #270 remains active: preserve playable_primary_procedural_ids, playable_primary_club_ids and playable_country_allocation_plan across internal save/reload, schema 43. Its asset policy is green and full suite is running; reconcile onto current main after validation if needed. Next after #270: add/extend non-PL primary save/reload audit so broadened TeamSelect primary careers are verified, not only PL.",
-  "last_known_main_head": "1a4f5eea4f29bdbb8bf8a9fbd86e935686661785",
+  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 PR #269 merged as 1a4f5eea (1,880 tests / 23 skips) and PR #270 merged as 06c935b7 (1,880 / 23), so sporting progression readiness is separate and internal save schema 43 preserves playable primary IDs/clubs plus full-country allocation plan. Active next task: replay/validate the non-PL procedural-primary canonical save/reload audit on fresh main, ensuring a source-selected TeamSelect primary club can save with a procedural League entry pending and continue identically after reload.",
+  "last_known_main_head": "06c935b74bd2518cb4043fe5462058ba8923e70f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 249,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 249 checkpoint: #269 merged; #270 full suite in progress on pre-#269 base, likely needs clean replay or rebase if GitHub remains non-mergeable. Source-private blockers remain fail-closed.",
+  "note": "Recovery 249 checkpoint after #270 merge. RNG-bearing fresh objectives, non-PL sporting progression implementation, and exact secondary mode-1 scheduling remain source-private blockers; do not guess them.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
