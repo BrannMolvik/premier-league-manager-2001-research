@@ -3,7 +3,7 @@
 The final release audit deliberately consumes an external evidence JSON rather
 than inventing receipt state from the source tree. This helper removes manual
 hash-copying from that process. It validates the exact release archive and all
-four distinct external receipts against one release version and repository
+five distinct external receipts against one release version and repository
 commit before writing a new evidence file outside Git.
 """
 from __future__ import annotations
@@ -178,6 +178,7 @@ def main() -> int:
     parser.add_argument("--new-game-management-loop", type=Path, required=True)
     parser.add_argument("--season-progression", type=Path, required=True)
     parser.add_argument("--save-reload", type=Path, required=True)
+    parser.add_argument("--full-original-scope", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
@@ -191,6 +192,7 @@ def main() -> int:
             "new_game_management_loop": args.new_game_management_loop,
             "season_progression": args.season_progression,
             "save_reload": args.save_reload,
+            "full_original_scope": args.full_original_scope,
         },
         output_path=args.output,
         repo_root=repo_root,
