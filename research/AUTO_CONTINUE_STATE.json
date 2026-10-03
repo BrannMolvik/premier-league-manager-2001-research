@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 205: resume from canonical main 9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658. Continue exact current Gate-14 source task: FastViewLeagueScores / ScoreCompositeNormal current-fixture grid family. Reverify class ownership, exact source identities, constructor geometry, and event/lifecycle semantics before integrating any pixels. Keep top/ticker binary import as a deterministic transport follow-up and do not block source work on it. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
-  "last_known_main_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
+  "active_task": "Recovery 205: canonical main advanced concurrently to c44dac3d2e29fde8368fe330ab9c37b3d8f51d8b with Gate-13 Windows schema-8 fixes/receipts; preserve that work. Recovery-205 Gate-14 score-grid work is cleanly transplanted to recovery205b/gate14-fastview-scores. Verify/merge distinct FastViewLeagueScores current_fix_grid_1 and ScoreCompositeNormal current_fix_grid_2 ownership/geometry/receiver lifecycle, then recover ScoreCompositeNormal caller-supplied final origin/text-control geometry. Gate 13 remains earliest incomplete for remaining shell/navigation fidelity, not for schema-8 validation.",
+  "last_known_main_head": "c44dac3d2e29fde8368fe330ab9c37b3d8f51d8b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 205,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 205 resumed from canonical PR #172 checkpoint. Continue FastViewLeagueScores / ScoreCompositeNormal only.",
+  "note": "Concurrent Gate-13 main advance detected and preserved. Use only clean recovery205b branch; do not propose the original mixed recovery205 branch.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
