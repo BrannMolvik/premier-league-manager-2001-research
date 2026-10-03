@@ -259,6 +259,20 @@ squad number. Cell 3 renders the proxy's leading player string either alone or
 prefixed by its `+0x20` character; the prefix semantic still requires its
 producer.
 
+### Recovery 210 PlayerRow player-name field
+
+The remaining wide shared PlayerRow text cell is now source-owned. Compact
+player import resolves first name to runtime DBRPlayer `+0x08` and surname to
+`+0x0C`. The matching 72-byte display-record builder `0x533A00` copies the
+surname string to record offset 0 and the first byte of the first-name string
+to record `+0x20`. PlayerRow producer `0x525BD0` renders cell 3 as `%s`
+when that prefix is the source `'-'` sentinel and otherwise as `%c %s`.
+Another match-presentation consumer renders the same pair plus the localized
+position as `%c %s (%s)`, closing the field as the player display name.
+
+Cell 1 remains the only unnamed shared text cell and continues to fail closed
+at match-player proxy byte `+0x47`.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
