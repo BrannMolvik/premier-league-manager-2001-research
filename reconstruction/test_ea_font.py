@@ -38,6 +38,51 @@ def build_fixture() -> bytes:
 
 
 class EAFontTests(unittest.TestCase):
+    def test_playtest_labels_use_blank_space_advances_with_canonical_font(self):
+        root = Path(__file__).resolve().parents[1] / "original_assets/source/Fonts"
+        font = EAFont.from_bytes((root / "Zurich_BdXCn_BT_20pixel.fnt").read_bytes())
+        self.assertTrue(any(font.glyph_alpha(32)))
+        for text in ("Start New Game", "Load Game", "Quit to Windows",
+                     "F.A. Premier League", "Boston United"):
+            with self.subTest(text=text):
+                mask = font.render_text_alpha(text)
+                x = 0
+                for i, ch in enumerate(text):
+                    glyph = font.glyph_for_byte(ord(ch))
+                    if ch == " ":
+                        self.assertTrue(all(mask.alpha[y * mask.width + x + px] == 0
+                                            for y in range(mask.height)
+                                            for px in range(glyph.width)))
+                    x += glyph.width
+                    if i + 1 < len(text):
+                        x += glyph.pair_adjustment(ord(text[i + 1]))
+
+    def test_spaces_advance_without_painting_but_literal_exclamation_paints(self):
+        data = bytearray(build_fixture())
+        for ch in " !":
+            struct.pack_into("<4I", data, 20 + (ord(ch) - 32) * GLYPH_RECORD_SIZE,
+                             0, 2, 2, 0)
+        # Include pair adjustments on either side of space, not just its width.
+        struct.pack_into("<b", data, 20 + (ord("A") - 32) * GLYPH_RECORD_SIZE
+                         + 16, 1)
+        font = EAFont.from_bytes(bytes(data))
+        for text in ("A B", "A A B", " B", "A "):
+            with self.subTest(text=text):
+                mask = font.render_text_alpha(text)
+                x = 0
+                for i, ch in enumerate(text):
+                    glyph = font.glyph_for_byte(ord(ch))
+                    if ch == " ":
+                        self.assertTrue(all(mask.alpha[y * mask.width + x + px] == 0
+                                            for y in range(mask.height)
+                                            for px in range(glyph.width)))
+                    x += glyph.width
+                    if i + 1 < len(text):
+                        x += glyph.pair_adjustment(ord(text[i + 1]))
+                self.assertEqual(mask.width, font.measure_text(text))
+        self.assertFalse(any(font.render_text_alpha(" ").alpha))
+        self.assertTrue(any(font.render_text_alpha("!").alpha))
+
     def test_parses_glyph_metrics_signed_pair_spacing_and_alpha(self):
         font = EAFont.from_bytes(build_fixture())
         self.assertEqual((font.atlas_width, font.atlas_height), (4, 2))
@@ -116,15 +161,15 @@ class EAFontTests(unittest.TestCase):
             ),
             "Start New Game": (
                 117, 19,
-                "2fa38f32908de0f08b66c7c6d7f0f900ab9ba141cac4ae38abc3e7236134378a",
+                "4b44e56c14963f59e5cdd6343f124e6674c45b96ccf8bc810480001da0462e60",
             ),
             "Load Game": (
                 81, 19,
-                "5f5b62250acce9bce3a46ee101db3b9357b8b8f6a139940e06ba5e43cd7312ea",
+                "53d3f619416f77f04cac75543287d1ca23095f70de4417ec2fcdad492a7dc804",
             ),
             "Quit to Windows": (
                 120, 19,
-                "6f0030a88479d55ece7b77ac5b32f99b699ceff748be890e04614c22e5bb2140",
+                "98458644c31c322d1bd6e64e20f59bc6e8c50291b3eef4b61a0da4c9fe91e421",
             ),
         }
         for text, (width, height, digest) in expected.items():

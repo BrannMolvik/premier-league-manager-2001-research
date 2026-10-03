@@ -230,6 +230,22 @@ class FakeTk:
 
 
 class OriginalGameHostTests(unittest.TestCase):
+    def test_rejected_start_is_visible_and_retains_retryable_selection(self):
+        live = presenter()
+        messages = []
+        host = OriginalGameTkHost(live, FakeRoot(), FakeTk,
+                                  error_reporter=messages.append)
+        host.on_click(SimpleNamespace(x=7, y=478))
+        live.session.choose_club(999)
+        def reject(club_id):
+            raise ValueError(f"club {club_id} is not in the Premier League")
+        live.session.gameplay.select_club = reject
+        host.on_click(SimpleNamespace(x=426, y=301))
+        self.assertEqual(messages, ["ValueError: club 999 is not in the Premier League"])
+        self.assertEqual(live.session.navigation.screen, FrontEndScreen.TEAM_SELECT)
+        self.assertEqual(live.session.selected_club_ids, (999,))
+        self.assertFalse(live.session.started)
+
     def test_clean_host_routes_first_screens_into_fixed_management_without_debug_ui(self):
         live = presenter()
         root = FakeRoot()

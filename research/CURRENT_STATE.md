@@ -51,23 +51,24 @@ Evidence:
   **485 tests with 21 expected skips**; full reconstruction run
   `37015083315` passed **1,387 tests with 22 expected skips**; repository
   asset-policy run `37015082578` passed.
-- **Gate 13 validation boundary:** schema 7 remains the last actual real-Windows
-  receipt. Repository schema **8** now covers the source-backed PMenu, fresh
-  Squad pixels, explicit Squad container transition seam, League Fixtures grid,
-  explicit source-resolved PMatchInfo popup/exit, and League Tables header.
-  A fresh real-Windows 11/Tk schema-8 receipt is the earliest incomplete Gate-13
-  validation step.
+- **Gate 13 validation boundary:** actual Windows 11/Tk schema **8** passed,
+  including a fresh post-fix run with source-proven TeamSelect action captions
+  and corrected space rendering. Private receipt hashes and source corrections
+  are in `GATE13_WINDOWS_PLAYTEST_CORRECTIONS.md`. The existing explicit
+  Squad/Fixtures/PMatchInfo/Tables bitmap loop passed; this does not close the
+  ordinary navigation or broader graphical-fidelity boundaries below.
 - **Remaining fail-closed boundaries:** ordinary Squad top-control pointer
   equivalence is unproven; ordinary League Fixtures cell -> secondary linked
   context PMatchInfo opening remains unbridged; PMatchInfo owner-local child
   transforms remain unresolved; the application-owned surrounding management
   background remains unresolved; and PMenu keyboard equivalence remains
   unclaimed.
-- **Exact next task:** obtain the expanded schema-8 real-Windows receipt and
-  re-audit Gate 13. If that execution path is unavailable in the current
-  worker, treat it as a deferred external blocker and continue the highest-
-  priority independent cloud-safe Gate 14 work without declaring Gate 13
-  complete.
+- **Exact next Gate-13 task:** follow the now identified application-shell
+  image cache/generator `0x5D3560` and option key into its final pixels
+  (`GATE13_APPLICATION_SHELL_OWNER_TRACE.md`), then ordinary Fixtures cell hit-testing and
+  the secondary linked-context PMatchInfo bridge. The parallel cloud worker
+  continues its existing Gate-14 task independently; runtime ownership is
+  unchanged. Gate 13 is not complete merely because schema 8 passed.
 
 - **Recovery 186 Gate-15 injury gap closed:** `DBRClub::0x405080`
   availability is now shared exactly by persistent-injury and transfer

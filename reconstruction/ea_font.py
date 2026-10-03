@@ -175,8 +175,10 @@ class EAFont:
 
         x = 0
         for index, (value, glyph) in enumerate(zip(encoded, glyphs)):
-            bitmap = self.glyph_alpha(value)
-            for y in range(glyph.height):
+            # Native 0x657389/0x65738D bypasses rasterization for ASCII space.
+            # Its record still supplies advance/kerning; atlas x=0 is NOT blank.
+            bitmap = self.glyph_alpha(value) if value != 0x20 else b""
+            for y in range(glyph.height if value != 0x20 else 0):
                 src = y * glyph.width
                 dst = (glyph.draw_y + y) * width + x
                 for px in range(glyph.width):

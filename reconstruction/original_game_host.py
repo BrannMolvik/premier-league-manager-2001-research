@@ -121,6 +121,7 @@ class OriginalGameTkHost:
         squad_top_resources=None,
         league_tables_header_art=None,
         pmatchinfo_snapshot=None,
+        error_reporter=None,
     ):
         self.presenter = presenter
         self.root = root
@@ -135,6 +136,7 @@ class OriginalGameTkHost:
         self.squad_top_resources = squad_top_resources
         self.league_tables_header_art = league_tables_header_art
         self.pmatchinfo_snapshot = pmatchinfo_snapshot
+        self.error_reporter = error_reporter or self._show_transition_error
         self.last_pmenu_activation = None
         self.last_squad_view_activation = None
         self.last_pmatchinfo_action = None
@@ -154,6 +156,12 @@ class OriginalGameTkHost:
         self.canvas.pack()
         self.canvas.bind("<Button-1>", self.on_click)
         self.redraw()
+
+    def _show_transition_error(self, message: str) -> None:
+        # Port compatibility feedback, not a claimed original-game dialog.
+        from tkinter import messagebox
+        messagebox.showerror("FM2001 port: action could not complete", message,
+                             parent=self.root)
 
     def _photo(self, png: bytes):
         photo = self.tk.PhotoImage(
@@ -598,6 +606,7 @@ class OriginalGameTkHost:
                 self.last_status = result.transition.screen.name
         except Exception as exc:
             self.last_status = f"{type(exc).__name__}: {exc}"
+            self.error_reporter(self.last_status)
             return
         self.redraw()
 
