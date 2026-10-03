@@ -29,6 +29,7 @@ from game_state import GameCalendar, GameState
 from human_gameplay import HumanGameplayController, HumanManagerState
 from primary_schedule_shadow import PrimaryScheduleShadowState
 from procedural_league_state import LiveProceduralLeagueState
+from match_engine_rng import MatchEngineRng
 from match_environment import MatchEnvironment
 from match_events import (
     BoundaryRecord,
@@ -64,7 +65,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 37
+SAVE_SCHEMA_VERSION = 38
 
 
 def _iso(value: date | None) -> str | None:
@@ -1697,6 +1698,12 @@ def snapshot_human_gameplay(controller: HumanGameplayController) -> dict[str, An
     rng_state = getattr(controller.match_rng, "state", None)
     if rng_state is None:
         raise TypeError("internal save requires a match RNG with serializable state")
+    engine_rng = getattr(controller, "match_engine_rng", None)
+    engine_snapshot = (
+        None
+        if engine_rng is None
+        else engine_rng.snapshot_state()
+    )
 
     human = controller.human
     human_snapshot = None
@@ -1747,6 +1754,7 @@ def snapshot_human_gameplay(controller: HumanGameplayController) -> dict[str, An
                 for entry in controller._pending_after_primary_entries
             ],
             "match_rng_state": int(rng_state),
+            "match_engine_rng": engine_snapshot,
         },
     }
 
@@ -1768,11 +1776,17 @@ def restore_human_gameplay(
     _assert_database_matches(database, snapshot["source"])
     state = restore_game_state(database, snapshot["game_state"])
     control = snapshot["controller"]
+    engine_snapshot = control.get("match_engine_rng")
     controller = HumanGameplayController(
         state,
         attack_matrix,
         defence_matrix,
         MsvcCrtRng(int(control["match_rng_state"])),
+        (
+            None
+            if engine_snapshot is None
+            else MatchEngineRng.from_snapshot(engine_snapshot)
+        ),
     )
 
     human = control["human"]

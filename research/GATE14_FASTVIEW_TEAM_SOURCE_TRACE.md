@@ -383,11 +383,56 @@ trajectory and the final Condition-history fill as pure fail-closed
 primitives. The caller must provide the exact RNG(2) results. No live
 `fastview_player_rows` are emitted yet.
 
-### Next integration boundary
+### Live integration boundary after Recovery 215-216
 
-The remaining task is no longer a formula trace. The actual modern match path
-must retain the source-visible Condition prefix at the same lifecycle
-boundaries, run the already-source-backed target-rating/finalizer work on a
-real MatchEngine RNG stream in exact participant order, and retain the
-post-finalizer stream for subsequent PlayerProxy energy RNG(6) evaluations.
-Only after that state is available may the presentation snapshot be populated.
+The first live-retention requirement is now implemented for Premier League
+matches. The completed-match result retains the source-timed raw Condition
+prefix, the exact 18/24 sample count and completed 24-sample form histories.
+The finalizer preserves the native side-local ordering:
+
+1. side 0 participant target ratings;
+2. side 0 form-trajectory MatchEngine RNG(2) draws;
+3. side 1 participant target ratings;
+4. side 1 form-trajectory MatchEngine RNG(2) draws.
+
+The live controller now owns a persistent clean-room MatchEngine ran1 object
+for global source object `0x981BF0`. When supplied, the same stream advances
+through source-backed Premier League weather, AI Condition initialization,
+MatchCalculator, low-rating target lift and form trajectory. The shared MSVC
+CRT stream remains separate for the already-proven post-match gate, incident,
+morale and maintenance consumers. Internal-save schema 36 serializes the full
+ran1 state, including `state`, `shuffle_value` and all 32 shuffle entries, so
+save/reload does not rewind the generator.
+
+Full verification on PR #196: reconstruction run `37111511192` passed
+**1,620 tests with 23 expected skips**; repository asset-policy run
+`37111511208` passed.
+
+The next PlayerProxy presentation step is therefore narrower: consume retained
+post-finalizer MatchEngine state for the source energy RNG(6) evaluation and
+compose live PlayerRow snapshots without rerunning simulation.
+
+### Human-vs-AI +0xD48 fail-closed boundary
+
+Additional direct source tracing closes the tuning values used by the
+human-vs-AI Condition-history adjustment:
+
+- OppMinVal = 90
+- OppMaxVal = 99
+- OppBoostMeanVal = 105
+- OppBoostMinVal = 100
+- OppBoostMaxVal = 110
+- BoostNumPos = 4
+- DefaultConditionBoost = 5
+- MaxBoostChance = 100
+- MinBoostChance = 0
+
+The source can therefore produce the default adjustment 5 or, on the
+rank/club-state boost branch, 16 with shipped tuning while also rewriting AI
+Conditions from the MatchEngine stream. One branch input remains unsafe to
+model: legacy `DBRClub+0x130`. The constructor/database-loader path does not
+establish a trustworthy initialized semantic value, and the underlying
+allocation path is not zero-initializing by contract. The port must not guess
+that byte as zero or select either +0xD48 outcome without further source
+evidence. Raw Condition history remains retained so this later correction can
+be applied once that legacy state is genuinely source-closed.
