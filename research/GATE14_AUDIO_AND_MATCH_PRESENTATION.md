@@ -279,8 +279,21 @@ then formats it as `%u` in text cell 1. The display-record offset is therefore
 derived presentation state, not a direct alias of DBRPlayer `+0x70`.
 
 All six PlayerRow text cells plus the energy bar now have source-backed
-ownership. The next useful integration slice is a complete PlayerRow snapshot
-that composes those already-proven fields without duplicating simulation.
+ownership.
+
+Recovery 211's child checkpoint composes those primitives in
+`gate14_fastview_playerrow_snapshot.py`. The snapshot includes source-order
+cells 1..6, the side-specific name-grid resource and the exact energy-bar state.
+Goal and own-goal display text are optional: their row-local counters initialize
+to zero, but the parenthesized strings are written by the typed goal callbacks,
+so the snapshot does not invent `(0)` before such a write.
+
+The integration seam is presentation-only. A completed outcome may explicitly
+retain `fastview_player_rows`; `HumanMatchPresentation` validates that every
+item is a source-backed PlayerRow snapshot and preserves those exact objects.
+The semantic FastView shell passes them through unchanged. Missing retained
+rows produce an empty tuple instead of reconstructing form/energy/player state
+from gameplay after the fact.
 
 ## 3D / FastView resource evidence
 

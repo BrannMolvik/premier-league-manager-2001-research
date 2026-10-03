@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol
 
+from gate14_fastview_playerrow_snapshot import FastViewPlayerRowSnapshot
 from match_presentation_feed import MatchPresentationFeed, build_match_presentation_feed
 
 
@@ -28,6 +29,7 @@ class HumanMatchPresentation:
 
     match_reference: object
     feed: MatchPresentationFeed
+    player_rows: tuple[FastViewPlayerRowSnapshot, ...] = ()
 
 
 class HumanMatchPresentationError(ValueError):
@@ -57,7 +59,13 @@ def build_human_match_presentation(
         )
     possession = getattr(result, "possession_segments", ())
     feed = build_match_presentation_feed(result.events, possession)
+    rows = tuple(getattr(outcome, "fastview_player_rows", ()))
+    if any(not isinstance(row, FastViewPlayerRowSnapshot) for row in rows):
+        raise HumanMatchPresentationError(
+            "human match outcome contains non-source-backed FastView player rows"
+        )
     return HumanMatchPresentation(
         match_reference=_match_reference(outcome),
         feed=feed,
+        player_rows=rows,
     )
