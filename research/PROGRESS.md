@@ -10658,3 +10658,15 @@ work may continue under the deferred-blocker policy.
 - Six generic text-control rectangles per side are now exact, including raw flag sequence `0x24,0x24,0x21,0x21,0x21,0x24`; no user-facing labels are assigned.
 - The first loop constructs exactly 11 rows with the primary name-grid string. At `0x52583E` the alternate name-grid string replaces it for any remaining rows. This numeric transition is not labelled as starting/substitute/reserve without direct evidence.
 - Added `gate14_fastview_team.py`, regression coverage, and a dedicated TeamTable source trace. Binary assets remain unimported; no substitute art is used.
+
+
+## 3 October 2026 - Recovery 209 FastViewTeam PlayerRow energy bars
+
+- Resumed from canonical main `9041cb9aff25e6982af6d9c80fccc0bac693f852` and verified the already-open Recovery-208 PR #180 instead of restarting its TeamTable trace.
+- PR #180 reconstruction run `37095885928` passed **1,549 tests / 22 expected skips** and asset-policy run `37095885981` passed; squash-merged as `745c1576c337c94dcea86f996bf347af641c77c2`.
+- Rematerialized the canonical private 511,121,336-byte source ZIP, extracted only the required MODE1/2352 disc image and root/crack executables, and rehashed both executables to canonical SHA-256 `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+- Fresh canonical RTTI proves PlayerRow receiver subobject `+0x58` is `Receiver<EventPlayerUpdateEnergy>`: base vtable `0x7CA92C`, final PlayerRow receiver vtable `0x7CA900`, callback `0x5267D0`.
+- The callback forwards `EventPlayerUpdateEnergy+0x04` into row routine `0x526680`. That routine rewrites the dynamic PictureControl at row `+0x38` using exact 58/99 anchors, span global `0x877754 = 41.0`, width constant 82.0 and truncate-toward-zero helper `0x668350`.
+- For integer event values through 99 the width is exactly `2*(energy-58)`; values above 99 clamp to 82. The routine itself has no lower clamp, so the reconstruction deliberately preserves negative-width arithmetic for below-anchor inputs rather than inventing validation.
+- Side 0 dynamically grows `team_bar_1.444` over static `blank_bar.444`; side 1 dynamically shrinks the `blank_bar.444` mask to reveal static `team_bar_2.444`. The formerly unnamed bar-state semantics are therefore source-closed as player energy.
+- The six generic row text-control meanings remain fail-closed. Next trace is the adjacent typed EventPlayerUpdateForm / EventPlayerGoal / EventPlayerOwnGoal receivers.
