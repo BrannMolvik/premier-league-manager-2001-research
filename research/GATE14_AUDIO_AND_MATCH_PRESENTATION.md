@@ -244,6 +244,21 @@ EventPlayerOwnGoal maintains its own parenthesized count in cell 5 and applies
 a distinct source-computed native color. Cells 1..3 and the human-readable name
 of that own-goal color remain fail-closed.
 
+### Recovery 210 PlayerRow shared text fields
+
+Shared PlayerRow refresh `0x526470` receives row data produced at
+`0x525BD0` and called from TeamTable at `0x525B66`. Cell 2 is now
+source-identified as the localized position field: the producer passes the
+row-local `+0x70` value to `0x635EC0`, which indexes exact
+`Position*` keys at `0x849930` and localizes them through `0x6350D0`.
+
+Cells 1 and 3 stay fail-closed. Cell 1 formats proxy byte `+0x47` as
+`%u`, but compact Master.dat shirt/squad number +18 imports to runtime
+DBRPlayer `+0x70`, so layout alone cannot equate the proxy field with the
+squad number. Cell 3 renders the proxy's leading player string either alone or
+prefixed by its `+0x20` character; the prefix semantic still requires its
+producer.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
