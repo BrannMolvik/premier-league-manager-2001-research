@@ -360,3 +360,30 @@ full CI. Once canonical, trace shared row refresh `0x526470` and its producer
 `0x525BD0` to identify text cells 1..3 only through direct database/event
 accessors. Do not name the own-goal color until runtime pixel-format channels
 are independently source-closed. Gate 13 remains the earliest incomplete gate.
+
+
+## Recovery 228 retained-history PlayerRow bridge
+
+The completed-match runtime already retains the source-domain 24-sample
+Condition and match-form histories required by FastView PlayerProxy. A new
+presentation-only adapter now turns those retained histories into the existing
+source-backed PlayerRow snapshots without importing simulation, shared GameState,
+human gameplay control, MatchCalculator, or an RNG implementation.
+
+The bridge requires exact source-player identities, visible row metadata and one
+caller-supplied RNG(6) result for each requested energy evaluation. Condition and
+form history identity sets must agree exactly; missing, duplicate, malformed or
+misaligned data fails closed. Goal and own-goal row text remains absent unless
+the caller explicitly supplies an already-written callback count.
+
+This closes a real renderer-input gap while preserving the active Gate-13
+ownership lock. Automatic attachment to completed human outcomes remains
+deferred until shared runtime ownership is released.
+
+### Current independent Gate-14 next step
+
+After hosted CI validates this adapter, continue the shortest source-backed path
+toward a player-visible FastView host. Prefer integration that consumes the
+existing semantic/frame-plan state without changing simulation. Private
+audio-bank role tracing remains deferred while the local executable/container
+path is unavailable; do not infer bank semantics from filenames.
