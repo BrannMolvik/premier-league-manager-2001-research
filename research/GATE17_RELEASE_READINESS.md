@@ -16,6 +16,8 @@ The fifth receipt closes a release-audit gap introduced when the project scope w
 
 This receipt is intentionally **not** produced by `gate17_windows_gameplay_receipts.py`. A future source-backed full-scope audit must produce it separately once the runtime actually supports the complete shipped scope. Until then, Gate 17 is release-blocked even if the older four receipts pass.
 
+The receipt is also bound to `research/GATE17_ORIGINAL_SCOPE_CATALOG.json` by SHA-256 and exact ordered scope IDs. That catalog is intentionally `unrecovered` today and therefore makes final validation fail closed until the exact originally playable country/competition set is recovered from authorized original evidence. The receipt must verify every catalog entry with zero missing or failed scope IDs.
+
 Every receipt must also identify the exact `release_version` and
 `release_archive_sha256` from the final evidence contract. This prevents a
 source-tree or older-build smoke result from being paired with a different
