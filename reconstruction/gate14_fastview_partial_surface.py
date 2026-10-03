@@ -5,7 +5,9 @@ source-closed:
 
 - directly PictureControl-bound FastView top/ticker chrome;
 - PossessionDiagram base/active art placements;
-- PossessionFigures percentage text placements.
+- PossessionFigures percentage text placements;
+- explicitly selected TeamTable row/control geometry whose row indices are
+  supplied by the caller rather than inferred.
 
 It deliberately does not flatten those fragments into one RGBA frame. The
 percentage controls overlap the possession diagram in the recovered 800x600
@@ -21,6 +23,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from gate14_fastview_background import BACKGROUND_BINDING_STATUS
+from gate14_fastview_team import (
+    side_contract,
+    team_row_name_resource,
+    team_row_rects,
+)
 from original_fastview_chrome_art import OriginalFastViewChromeArt
 from original_fastview_possession_art import OriginalFastViewPossessionArtFrame
 from original_fastview_possession_figures_art import (
@@ -40,16 +47,22 @@ class FastViewPartialSurfaceLayer:
     component: str
     identity: str
     rect: tuple[int, int, int, int]
+    raster_available: bool = True
 
     def __post_init__(self) -> None:
         if self.component not in {
             "direct_chrome",
             "possession_diagram",
             "possession_figures_text",
+            "team_table_geometry",
         }:
             raise FastViewPartialSurfaceError("unknown FastView partial component")
         if not isinstance(self.identity, str) or not self.identity:
             raise FastViewPartialSurfaceError("FastView layer identity must be nonempty")
+        if type(self.raster_available) is not bool:
+            raise FastViewPartialSurfaceError(
+                "FastView layer raster_available must be boolean"
+            )
         if (
             type(self.rect) is not tuple
             or len(self.rect) != 4
@@ -61,6 +74,24 @@ class FastViewPartialSurfaceLayer:
         if not (0 <= left < right <= width and 0 <= top < bottom <= height):
             raise FastViewPartialSurfaceError(
                 "FastView layer rect must stay inside the recovered 800x600 surface"
+            )
+
+
+@dataclass(frozen=True)
+class FastViewTeamRowSelection:
+    """One caller-explicit TeamTable row to expose in the partial surface."""
+
+    side_index: int
+    row_index: int
+
+    def __post_init__(self) -> None:
+        if type(self.side_index) is not int or self.side_index not in (0, 1):
+            raise FastViewPartialSurfaceError(
+                "FastView TeamTable side_index must be 0 or 1"
+            )
+        if type(self.row_index) is not int or self.row_index < 0:
+            raise FastViewPartialSurfaceError(
+                "FastView TeamTable row_index must be non-negative"
             )
 
 
@@ -132,6 +163,8 @@ def build_fastview_partial_surface_layout(
     chrome: OriginalFastViewChromeArt,
     possession: OriginalFastViewPossessionArtFrame,
     figures: OriginalFastViewPossessionFiguresArt,
+    *,
+    team_rows: tuple[FastViewTeamRowSelection, ...] = (),
 ) -> FastViewPartialSurfaceLayout:
     """Collect exact placements without inventing a cross-component draw order."""
     if type(chrome) is not OriginalFastViewChromeArt:
@@ -143,6 +176,19 @@ def build_fastview_partial_surface_layout(
     if type(figures) is not OriginalFastViewPossessionFiguresArt:
         raise FastViewPartialSurfaceError(
             "figures must be exact FastView possession typography"
+        )
+    if type(team_rows) is not tuple:
+        raise FastViewPartialSurfaceError(
+            "team_rows must be an explicit tuple of FastViewTeamRowSelection"
+        )
+    if any(type(row) is not FastViewTeamRowSelection for row in team_rows):
+        raise FastViewPartialSurfaceError(
+            "team_rows must contain only FastViewTeamRowSelection values"
+        )
+    row_keys = tuple((row.side_index, row.row_index) for row in team_rows)
+    if len(set(row_keys)) != len(row_keys):
+        raise FastViewPartialSurfaceError(
+            "duplicate FastView TeamTable row selections are not allowed"
         )
 
     layers: list[FastViewPartialSurfaceLayer] = []
@@ -186,6 +232,50 @@ def build_fastview_partial_surface_layout(
                 rect=row.clip_rect,
             )
         )
+
+    for selection in team_rows:
+        contract = side_contract(selection.side_index)
+        name_resource = team_row_name_resource(
+            selection.side_index,
+            selection.row_index,
+        )
+        name_rect, bar_rect, text_rects = team_row_rects(
+            selection.side_index,
+            selection.row_index,
+        )
+        prefix = f"side{selection.side_index}:row{selection.row_index}"
+        layers.append(
+            FastViewPartialSurfaceLayer(
+                component="team_table_geometry",
+                identity=f"{prefix}:name_grid:{name_resource.name}",
+                rect=name_rect,
+                raster_available=name_resource.imported,
+            )
+        )
+        layers.append(
+            FastViewPartialSurfaceLayer(
+                component="team_table_geometry",
+                identity=(
+                    f"{prefix}:energy_bar:"
+                    f"{contract.static_energy_bar.name}+"
+                    f"{contract.dynamic_energy_bar.name}"
+                ),
+                rect=bar_rect,
+                raster_available=(
+                    contract.static_energy_bar.imported
+                    and contract.dynamic_energy_bar.imported
+                ),
+            )
+        )
+        for cell_index, rect in enumerate(text_rects, start=1):
+            layers.append(
+                FastViewPartialSurfaceLayer(
+                    component="team_table_geometry",
+                    identity=f"{prefix}:text_cell:{cell_index}",
+                    rect=rect,
+                    raster_available=False,
+                )
+            )
 
     layer_tuple = tuple(layers)
     return FastViewPartialSurfaceLayout(
