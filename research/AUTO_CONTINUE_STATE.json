@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 215: PR #195 head 2c28ae7bdfc44126c188c50ce1def52b74432dbb fixes the full-suite save/reload failure by persisting raw Condition prefixes and retained FastView form histories in internal-save schema 35. Asset policy passed; reconstruction run 37110917465 is in progress. Merge only if green. Next source-backed step after merge: split live match RNG ownership so persistent MatchEngineRng drives 0x6314E0/0x631630 weather, 0x4080F0 AI Condition, MatchCalculator, low-rating target lift and form trajectory, while shared MsvcCrtRng remains on proven post-match game-state paths. Gate 13 remains earliest incomplete.",
-  "last_known_main_head": "d0dadf1fbe5088959bf611b360884f414e61590b",
+  "active_task": "Recovery 215: PR #195 merged canonical at main 50b70390197ecace3297231eef5d227820a22478 after reconstruction run 37110917465 passed 1,616 tests with 23 expected skips and asset-policy run 37110917460 passed. Next Gate-14 work-ahead task: split live match RNG ownership. Persist one MatchEngineRng stream (source global 0x981BF0, seeded once via 0x62B640->0x64D560) through 0x6314E0/0x631630 weather, 0x4080F0 AI Condition, MatchCalculator, target low-rating lift, and 0x630CEC form trajectory; retain shared MsvcCrtRng only for source-proven shared-CRT game-state paths. Add save/reload persistence for the full MatchEngine RNG state. Gate 13 remains earliest incomplete.",
+  "last_known_main_head": "50b70390197ecace3297231eef5d227820a22478",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 215,
   "last_recovery_reason": "manual-start",
-  "note": "PR #195 first full-suite run exposed save/reload dropping new histories; schema 35 fix committed and rerun in progress. Direct executable trace confirms weather also uses global MatchEngine RNG 0x981BF0.",
+  "note": "PR #195 canonical. Direct executable trace confirmed temperature/weather, AI Condition and MatchCalculator use the persistent global MatchEngine RNG.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
