@@ -270,8 +270,17 @@ when that prefix is the source `'-'` sentinel and otherwise as `%c %s`.
 Another match-presentation consumer renders the same pair plus the localized
 position as `%c %s (%s)`, closing the field as the player display name.
 
-Cell 1 remains the only unnamed shared text cell and continues to fail closed
-at match-player proxy byte `+0x47`.
+Cell 1 no longer remains unnamed. Recovery 211 traces its producer through
+builder caller `0x533370`: DBRPlayer accessor `0x41E3D0` is called at
+`0x5333EC`, returns the source shirt/squad-number byte from runtime `+0x70`
+for matching team context or alternate `+0x76`, and `0x5333F3` stores that
+byte to the 72-byte display record at `+0x47`. Shared producer `0x525BD0`
+then formats it as `%u` in text cell 1. The display-record offset is therefore
+derived presentation state, not a direct alias of DBRPlayer `+0x70`.
+
+All six PlayerRow text cells plus the energy bar now have source-backed
+ownership. The next useful integration slice is a complete PlayerRow snapshot
+that composes those already-proven fields without duplicating simulation.
 
 ## 3D / FastView resource evidence
 

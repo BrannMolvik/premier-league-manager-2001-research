@@ -10716,3 +10716,13 @@ work may continue under the deferred-blocker policy.
 - Matching 72-byte player-display record builder `0x533A00` copies the DBRPlayer surname string to record offset 0 and copies the first byte of the DBRPlayer first-name string to record `+0x20`.
 - PlayerRow shared producer `0x525BD0` renders cell 3 using source `%s` when record+0x20 is `'-'`, otherwise `%c %s`. Independent match-presentation consumer `0x6CE809` combines the same prefix/string pair with the already source-closed localized position as `%c %s (%s)`, confirming the pair is the player display name.
 - Cell 3 is therefore source-closed as surname-only for the sentinel case or first-name initial plus surname otherwise. Cell 1 at proxy `+0x47` remains unnamed and fail-closed.
+
+
+## 3 October 2026 - Recovery 211 PlayerRow shirt/squad-number ownership rebase
+
+- Reconciled the stale Recovery-210 runtime with canonical main `ef5760b669cdf5eacc91d8a9d4cd8c3fed95a216`, preserving the newer Gate-13 fixture-report work and the permanent full-original-game Windows 11 port scope.
+- The prior shirt-number branch PR #187 was based on `cdfc5b88...` and could not be merged safely after those independent main changes. Its source contract had already passed reconstruction run `37100399837` with **1,560 tests / 22 expected skips** and asset-policy run `37100399856`.
+- Rebased only the PlayerRow shirt-number delta onto current main. Builder caller `0x533370` calls DBRPlayer accessor `0x41E3D0` at `0x5333EC`; the accessor selects the proven shirt/squad-number byte at runtime `+0x70` for matching team context or alternate `+0x76`.
+- `0x5333F3` writes that returned byte to display-record `+0x47`; shared PlayerRow producer `0x525BD0` later formats it as `%u` into text cell 1.
+- The earlier offset mismatch is therefore resolved correctly: display-record `+0x47` is derived shirt-number presentation state, not a direct alias of DBRPlayer `+0x70`.
+- All six PlayerRow text cells plus the energy bar now have source-backed ownership. Fresh CI on the rebased branch is still required before merge.
