@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 223: PR #212 merged canonical as main 104738383273205c1697a035685e6b83f4fd1895 after Gate-13 run 37125513842 passed 548 tests/22 skips, full reconstruction run 37125513766 passed 1,697 tests/23 skips, and asset-policy run 37125513740 passed. Exact next Gate-13 action: run gate13_remaining_field_source_trace.py privately against canonical executable SHA-256 833bf95e... to collect candidate accesses for +0x130/+0x13C/+0x140/+0x76, then manually adjudicate object provenance/read-write/control flow before promoting semantics. If container still fails, record the infrastructure blocker and use only independent cloud-safe work-ahead; do not guess values.",
+  "active_task": "Recovery 224: Gate 13 closure is exclusively owned by Codex per research/WORK_OWNERSHIP.json. Continue only independent Gate-14+ work-ahead. Current exact task: finish verification of PR #213 (lock-safe disjoint Gate-14 partial FastView surface layout, final head a045b7704e512e254fcbe683ae76a63a43bda4fd), merge only if reconstruction and asset-policy CI pass, then continue the next disjoint source-backed Gate-14 task without editing Gate-13/shared status files.",
   "last_known_main_head": "104738383273205c1697a035685e6b83f4fd1895",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 224,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 224 auto-recovery attached to canonical main 104738383273205c1697a035685e6b83f4fd1895. Continue the exact Gate-13 remaining-field private scan/adjudication when executable access exists; otherwise record the blocker and advance only independent cloud-safe work without inferring unresolved semantics.",
+  "note": "Recovery 224 corrected course after re-reading WORK_OWNERSHIP: closed unmerged PR #214 because it touched Codex-owned Gate 13. Resumed canonical independent PR #213 and removed its CURRENT_STATE/PROGRESS overlap with Codex PR #211.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
