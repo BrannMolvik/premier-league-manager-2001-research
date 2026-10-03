@@ -166,9 +166,9 @@ def preview_playable_allocation_exchanges(
     source_assigned_order = tuple(
         record_id for record_id in source_order if record_id in assigned_set
     )
-    if source_assigned_order != assigned_ids:
+    if set(source_assigned_order) != assigned_set:
         raise Gate17PlayableAllocationPreviewError(
-            "playable allocation plan assigned IDs do not preserve source row order"
+            "playable allocation source order does not cover assigned rows exactly"
         )
 
     ranking_audit = audit_allocation_ranking_capability(
@@ -184,7 +184,7 @@ def preview_playable_allocation_exchanges(
         )
 
     memberships_before = _normalize_memberships(current_memberships)
-    ordered_rows = tuple(by_id[value] for value in assigned_ids)
+    ordered_rows = tuple(by_id[value] for value in source_assigned_order)
 
     # The capability audit proved every required endpoint is present and long
     # enough. The executor still owns all exact source slot selection and swap
@@ -251,7 +251,7 @@ def preview_playable_allocation_exchanges(
 
     return PlayableAllocationPreview(
         catalog_sha256=str(plan.catalog_sha256),
-        assigned_allocation_ids=assigned_ids,
+        assigned_allocation_ids=source_assigned_order,
         ranking_capability=ranking_audit,
         memberships_before=dict(memberships_before),
         memberships_after=dict(transition.memberships),
