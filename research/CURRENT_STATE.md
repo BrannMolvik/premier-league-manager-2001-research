@@ -21,6 +21,11 @@ contexts). Exact evidence and next action: `GATE13_LIVE_CAPTURE_INPUTS.md`.
 Gate 13 remains OPEN; no genuine reload/right-click/PMatchInfo success or
 final timing/Windows closure is claimed. No main reconciliation or Gate-14/
 agent-runtime ownership change was made in this continuation.
+Verified code checkpoint `a9388465`: **1,675 full reconstruction tests,
+23 expected licensed-source skips**, plus 116 focused tests and asset-policy
+checks pass. The first full run had three sandbox/private-Capstone import
+errors; the access-corrected full rerun passes. No Windows/packaging success
+is inferred from these results.
 
 Local complete-report owner milestone, based on `41df3ac` and reconciled with
 `050085a8`: exact source caption/context/venue/weather setup fragments and initial

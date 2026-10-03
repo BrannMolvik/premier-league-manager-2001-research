@@ -51,6 +51,12 @@ audit was repeated while ordinary success remains unavailable. Gate 14 and
 agent-runtime ownership were untouched. Private bounded disassembly SHA-256:
 `450b67d10fed3ff3385031d9b83523645a9d24ca29b9a56f08853f1729013961`.
 Canonical executable SHA-256 was reverified; raw evidence stays outside Git.
+Negative calculated-fixture receipt SHA-256:
+`e0fdf5d6997b6c1d05fcfa235f08038171808e736c0fef7e578ea9979f7f02a6`.
+Code `a9388465` passes 1,675 full tests / 23 expected licensed-source skips,
+116 focused tests and asset policy. An initial sandbox run had three private
+Capstone import errors; the full access-corrected rerun passes. There is no
+genuine save/reload/open or fresh Windows success receipt for this milestone.
 
 ## PR #194 continuation: executable compact-stream milestone
 
