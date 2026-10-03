@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 216: PR #196 code head a22f92fef424c71b900f799c112e0ef134d068c2 passed reconstruction run 37111511192 (1,620 tests, 23 expected skips) and asset-policy run 37111511208. Research-only reconciliation commits are on the same PR. Merge #196, then return to Gate 13, the earliest incomplete gate: continue the native completion-time fixture report owner from the already source-closed codecs/live gate receipts; retain final participant records, complete compact-event stream and calculator/post-match scalars, persist the complete report across save/reload, and verify real right-click -> PMatchInfo context. Do not retrace closed codecs.",
-  "last_known_main_head": "50b70390197ecace3297231eef5d227820a22478",
+  "active_task": "Recovery 216: PR #194 merged canonical as main 41df3ac109d5529eaaf5d9e0a56e4a035d927110 while PR #196 was in CI. Stale #196 is superseded by reconciliation PR #197 head 9626da005fabdfa7731c97c21e146a24665a53b4, built directly on new main. It preserves all Gate-13 live completion-report inputs and overlays verified persistent MatchEngine RNG ownership; combined internal-save schema is 38. Require fresh combined CI before merge. Then continue Gate 13 at missing mandatory native setup metadata, adjusted initial participant-history flags and caption/context inputs; assemble/persist report owner/link only after all required inputs exist.",
+  "last_known_main_head": "41df3ac109d5529eaaf5d9e0a56e4a035d927110",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 216,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 216 resumed stale checkpoint. Gate-14 RNG split is verified; durable docs reconciled. +0xD48 remains fail-closed on unresolved legacy DBRClub+0x130.",
+  "note": "Prepared combined tree 76946ef9886888bb7fcb63f52fa35259e0a39155 became PR #197. PR #196 remains open but is stale/superseded; do not merge it directly.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
