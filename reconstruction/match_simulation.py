@@ -260,11 +260,34 @@ class RawPlayerConditionHistory:
 
 
 @dataclass(frozen=True)
+class RetainedFastViewFormHistory:
+    """Completed-match PlayerProxy form history retained in source domain."""
+
+    side_index: int
+    player_index: int
+    target_rating: int
+    samples: tuple[int, ...]
+
+    def __post_init__(self) -> None:
+        if int(self.side_index) not in (0, 1):
+            raise ValueError("FastView form-history side_index must be 0 or 1")
+        if int(self.player_index) < 0:
+            raise ValueError("FastView form-history player_index must be non-negative")
+        if not 4 <= int(self.target_rating) <= 10:
+            raise ValueError("FastView target_rating must be in source range 4..10")
+        if len(self.samples) != 24:
+            raise ValueError("FastView form history must contain 24 samples")
+        if any(type(value) is not int or not 1 <= value <= 10 for value in self.samples):
+            raise ValueError("FastView form-history samples must remain in 1..10")
+
+
+@dataclass(frozen=True)
 class NormalMatchResult:
     events: tuple[TimedMatchEvent, ...]
     possession_segments: tuple[SegmentPossession, ...] = ()
     raw_condition_history_prefixes: tuple[RawPlayerConditionHistory, ...] = ()
     condition_history_sample_count: int = 0
+    fastview_form_histories: tuple[RetainedFastViewFormHistory, ...] = ()
 
     @property
     def score(self) -> tuple[int, int]:
