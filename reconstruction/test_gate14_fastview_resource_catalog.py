@@ -40,8 +40,8 @@ class Gate14FastViewResourceCatalogTests(unittest.TestCase):
         catalog = resolve_fastview_resources(complete_report())
 
         self.assertEqual(catalog["schema_version"], 2)
-        self.assertEqual(catalog["resource_count"], 7)
-        self.assertEqual(catalog["resolved_count"], 7)
+        self.assertEqual(catalog["resource_count"], 11)
+        self.assertEqual(catalog["resolved_count"], 11)
         self.assertTrue(catalog["all_paths_source_resolved"])
         self.assertEqual(
             [item["source_path"] for item in catalog["resources"]],
@@ -58,6 +58,20 @@ class Gate14FastViewResourceCatalogTests(unittest.TestCase):
         bars = TARGETS[:3]
         self.assertEqual([item.component for item in bars], ["FastViewTeam"] * 3)
         self.assertTrue(all("not a PossessionFigures control" in item.proven_role for item in bars))
+
+    def test_team_name_grids_are_exact_fastview_team_targets(self):
+        grids = TARGETS[3:7]
+        self.assertEqual(
+            [item.basename for item in grids],
+            [
+                "team_name_grid.444",
+                "team_name_grid_2.444",
+                "team_name_grid_3.444",
+                "team_name_grid_4.444",
+            ],
+        )
+        self.assertEqual([item.component for item in grids], ["FastViewTeam"] * 4)
+        self.assertTrue(all(item.width == 259 and item.height == 16 for item in grids))
 
     def test_duplicate_pitch_normal_basename_does_not_ambiguate_exact_fastview_path(self):
         report = complete_report()
