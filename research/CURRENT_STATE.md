@@ -18,11 +18,17 @@ schema-8 receipt passes with the base/header live. See
 `GATE13_MANAGEMENT_BACKGROUND_RECOVERY.md`. Gate 13 remains OPEN.
 Successive fixture tracing recovered the exact (378,235) grid origin and
 the successful-capture report-list/link writer `0x60BF10`. A played fixture
-cannot substitute for that captured report. Next local task: recover/persist
-the capture eligibility/data and original pointer-event acceptance, then wire
-ordinary Fixtures -> PMatchInfo. Remaining normal-play content and menu timing
-still require criterion-level validation. Parallel later-gate work and
-`agent-runtime` ownership are unchanged.
+cannot substitute for that captured report. Native capture eligibility, ordered
+owner save/load/clear, eleven scalar copies and the WM_RBUTTONDOWN acceptance
+chain are now recovered. The real host has the read-only right-press/cell/link
+adapter; an uncaptured fixture remains a no-op, not a fabricated report.
+See `GATE13_FIXTURE_REPORT_CAPTURE_TRACE.md`. Single next implementation
+blocker: materialize/persist the complete completion-time report from native
+participant/statistics/script and calculator/post-match state, then verify a
+calculated fixture -> save/reload -> correct PMatchInfo context on Windows.
+Normal-play/timing criteria must be assessed on that real route, not the
+explicit popup seam. Parallel later-gate work and `agent-runtime` ownership
+are unchanged.
 
 Gates 1 through 12 are complete. Gate 12 closed on 30 September 2026 after a
 canonical real-data season reached the complete annual qualification snapshot
@@ -77,15 +83,16 @@ Evidence:
   Squad/Fixtures/PMatchInfo/Tables bitmap loop passed; this does not close the
   ordinary navigation or broader graphical-fidelity boundaries below.
 - **Remaining fail-closed boundaries:** ordinary Squad top-control pointer
-  equivalence is unproven; ordinary League Fixtures cell -> secondary linked
-  context PMatchInfo opening remains unbridged; PMatchInfo owner-local child
-  transforms remain unresolved; the application-owned surrounding management
-  background remains unresolved; and PMenu keyboard equivalence remains
-  unclaimed.
-- **Exact next Gate-13 task:** follow the now identified application-shell
-  image cache/generator `0x5D3560` and option key into its final pixels
-  (`GATE13_APPLICATION_SHELL_OWNER_TRACE.md`), then ordinary Fixtures cell hit-testing and
-  the secondary linked-context PMatchInfo bridge. The parallel cloud worker
+  equivalence remains unproven; real captured-report production/persistence is
+  missing despite the now source-closed native right-press/cell/link adapter;
+  unproven owner-local popup children remain withheld. #177's management
+  background is integrated, not an active retrace task. Keyboard equivalence
+  remains unclaimed and is not itself a closure prerequisite.
+- **Exact next Gate-13 task:** materialize and persist the complete native
+  completion-time report, focusing on `0x60BCB0` participant packing and
+  `0x633610` script extraction plus the recovered calculator/post-match
+  fields. Then verify real calculation/save/reload/right-press context and
+  assess normal-play/timing against the roadmap. The parallel cloud worker
   continues its existing Gate-14 task independently; runtime ownership is
   unchanged. Gate 13 is not complete merely because schema 8 passed.
 
