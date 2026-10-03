@@ -237,6 +237,13 @@ routine `0x526680`. Its exact transform uses source anchors 58/99 and an
 side 1 shrinking a `blank_bar` mask to reveal `team_bar_2`. The remaining
 row text controls are not named from layout alone.
 
+Recovery 209's follow-on closes three PlayerRow text-event fields without
+guessing the rest of the row. EventPlayerUpdateForm writes source text cell 6
+as `%u`; EventPlayerGoal maintains a separate parenthesized count in cell 4;
+EventPlayerOwnGoal maintains its own parenthesized count in cell 5 and applies
+a distinct source-computed native color. Cells 1..3 and the human-readable name
+of that own-goal color remain fail-closed.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
@@ -287,10 +294,8 @@ bank/sample resource before integration.
 
 ## Exact next cloud-safe task
 
-Verify the Recovery-209 PlayerRow energy-bar contract through full CI. Once
-canonical, trace the adjacent typed PlayerRow receivers:
-EventPlayerUpdateForm callback `0x526740`, EventPlayerGoal callback
-`0x526800`, and EventPlayerOwnGoal callback `0x526880`. Bind only text or
-control semantics directly proven by their event-field/data flow; leave every
-other row label fail-closed. Gate 13 remains the earliest incomplete gate for
-its independent shell/navigation fidelity work.
+Verify the Recovery-209 PlayerRow form/goal/own-goal text-event contract through
+full CI. Once canonical, trace shared row refresh `0x526470` and its producer
+`0x525BD0` to identify text cells 1..3 only through direct database/event
+accessors. Do not name the own-goal color until runtime pixel-format channels
+are independently source-closed. Gate 13 remains the earliest incomplete gate.
