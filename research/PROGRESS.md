@@ -10645,3 +10645,16 @@ work may continue under the deferred-blocker policy.
 - EventGlobalSecondHalf callback `0x51BA20` only clears the display. It has no source-proven icon mapping and is rejected by the event->icon adapter.
 - The callbacks also supply separate language-string globals, but their exact localized text contents are not promoted in this checkpoint. No conventional "HT/FT/ET" labels are invented.
 - Added exact resource/geometry/event mapping and regressions to `gate14_fastview_scores.py`; all four binaries remain unimported and no substitute art is used.
+
+
+## 3 October 2026 - Recovery 208 FastViewTeam / TeamTable row geometry
+
+- PR #179 became canonical at `9041cb9aff25e6982af6d9c80fccc0bac693f852` after reconstruction run `37095142860` passed **1,543 tests / 22 expected skips** and asset-policy run `37095142854` passed.
+- Continued the previously corrected FastViewTeam ownership path rather than reopening PossessionFigures.
+- `FastViewTeam::0x524A20` constructs explicit side-index-0 and side-index-1 TeamTables through `0x524EC0`.
+- Side 0 source pairing is `team_name_grid.444` / `team_name_grid_2.444` plus `team_bar_1.444` / `blank_bar.444`. Side 1 is `team_name_grid_3.444` / `team_name_grid_4.444` plus `blank_bar.444` / `team_bar_2.444`.
+- Re-extracted and hash-pinned all four 259x16 name-grid assets; the existing three 82x16 bar hashes remain unchanged.
+- Row constructor `0x525DB0` source-closes row 0 geometry: side 0 name (37,27)-(296,43), bar (309,27)-(391,43); side 1 name (504,27)-(763,43), bar (409,27)-(491,43). Both advance by 17 pixels per row.
+- Six generic text-control rectangles per side are now exact, including raw flag sequence `0x24,0x24,0x21,0x21,0x21,0x24`; no user-facing labels are assigned.
+- The first loop constructs exactly 11 rows with the primary name-grid string. At `0x52583E` the alternate name-grid string replaces it for any remaining rows. This numeric transition is not labelled as starting/substitute/reserve without direct evidence.
+- Added `gate14_fastview_team.py`, regression coverage, and a dedicated TeamTable source trace. Binary assets remain unimported; no substitute art is used.
