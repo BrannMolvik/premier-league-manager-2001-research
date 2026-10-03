@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is b599dada63b4575b1a1938d5d1c7ac8230ff7573 after Gate-17 PR #248 merged green, mapping all parsed source LeagueAllocation rows onto exact TeamSelect-playable countries/ranking endpoint IDs without mutation. PR #249 head 722f411f is mergeable and awaiting hosted checks; it audits every assigned allocation's exact source ranking positions against available runtime rankings, reports missing/too-short endpoints, and performs no membership exchange or transition policy. After #249 green, merge and continue the next source-backed progression seam. Preserve Gate-13 ownership and do not modify shared runtime.",
-  "last_known_main_head": "b599dada63b4575b1a1938d5d1c7ac8230ff7573",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is 0b6ca1f835b5e144c1d8a4cfec7d2df1a7031788 after Gate-17 PR #249 merged green. PR #250 latest head b30855c7f299bd4b9d11d1b4d8a3b47e33a40435 fixes its one hosted-test failure by validating country-plan assignment before the lower-level ranking audit; the prior failed run on ffe44594 is superseded and fresh checks are pending. #250 previews all playable-country LeagueAllocation exchanges in global source row order without mutating runtime. Prepared behind it: worker/gate17-runtime-progression-audit (read-only live ranking resolver/membership immutability audit) and worker/gate17-full-scope-preflight (aggregates human-scope/progression blockers). Preserve Gate-13 ownership; local private-source execution remains blocked by process-start ClientError.",
+  "last_known_main_head": "0b6ca1f835b5e144c1d8a4cfec7d2df1a7031788",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 244,
+  "recovery_generation": 245,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 244 checkpoint: #248 merged green as b599dada. #249 allocation ranking endpoint readiness audit is mergeable and awaiting hosted checks. Gate13 remains Codex-owned unless ownership/main state changes.",
+  "note": "Recovery 245 checkpoint: #249 merged green as 0b6ca1f8. #250 failed one contract-order test on old head, fixed on b30855c7 by moving country assignment validation before ranking audit. Fresh CI pending. Runtime progression audit and full-scope preflight are prepared but unopened.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
