@@ -175,6 +175,68 @@ class HumanGameplayControllerTests(unittest.TestCase):
             MsvcCrtRng(0x12345678),
         )
 
+    def build_primary_procedural_controller(self):
+        database = SimpleNamespace(
+            players=tuple(
+                list(Database.players)
+                + players_for_club(21)
+                + players_for_club(22)
+            ),
+            clubs=tuple(
+                Database.clubs
+                + (
+                    Club(21, 21, competition_id=14),
+                    Club(22, 22, competition_id=14),
+                )
+            ),
+            managers=tuple(
+                Database.managers + (Manager(21), Manager(22))
+            ),
+            competitions=(
+                Competition(),
+                Competition(id=14, substitute_quota=3, max_non_eu_players=10),
+            ),
+            countries=Database.countries,
+            real_fixtures=Database.real_fixtures,
+            premier_league_rounds=Database.premier_league_rounds,
+        )
+        state = GameState.from_database(
+            database,
+            date(2000, 6, 30),
+            seed=1,
+            season_year=2000,
+        )
+        state.positions.update(
+            {role: SimpleNamespace(lineup_group=0) for role in range(20)}
+        )
+        token = ("league_match", 14, 0, 0, 0)
+        state.procedural_leagues[(14, 0)] = LiveProceduralLeagueState(
+            competition_id=14,
+            competition_context=0,
+            fixtures={
+                token: ProceduralLeagueFixture(
+                    node_token=token,
+                    home_club_id=21,
+                    away_club_id=22,
+                )
+            },
+            club_ids=(21, 22),
+        )
+        state.primary_matchday_order = {
+            date(2000, 7, 8): (("procedural_league", token),)
+        }
+        return (
+            HumanGameplayController(
+                state,
+                coefficient_matrix(),
+                coefficient_matrix(),
+                MsvcCrtRng(0x12345678),
+                playable_primary_procedural_ids=(14,),
+                playable_primary_club_ids=(21, 22),
+            ),
+            token,
+        )
+
     def set_available_lineup(self, controller):
         available = [
             player.index
@@ -201,11 +263,16 @@ class HumanGameplayControllerTests(unittest.TestCase):
             coefficient_matrix(),
             MsvcCrtRng(0x12345678),
             playable_primary_procedural_ids=(2, 4, 2),
+            playable_primary_club_ids=(9, 10, 9),
         )
 
         self.assertEqual(
             controller.playable_primary_procedural_ids,
             (2, 4),
+        )
+        self.assertEqual(
+            controller.playable_primary_club_ids,
+            (9, 10),
         )
 
     def test_human_scouting_search_excludes_controlled_club_and_sorts_by_name(self):
@@ -676,6 +743,39 @@ class HumanGameplayControllerTests(unittest.TestCase):
         self.assertIn(token, controller.state.european_cups.completed_node_tokens)
         self.assertIn(6, controller.state.premier_league.results)
         self.assertIsNone(controller.pending_primary_entry)
+
+    def test_primary_teamselect_club_can_run_live_procedural_match(self):
+        controller, token = self.build_primary_procedural_controller()
+
+        self.assertIn(21, controller.selectable_club_ids())
+        self.assertNotIn(23, controller.selectable_club_ids())
+
+        human = controller.select_club(21)
+        self.assertEqual(human.club_id, 21)
+        selection = controller.autofill_lineup()
+        self.assertEqual(len(selection.lineup.starters), 11)
+        self.assertEqual(len(selection.lineup.substitutes), 3)
+
+        pending = controller.advance_to_next_user_primary_match()
+        self.assertEqual(pending, ("procedural_league", token))
+        outcome = controller.play_user_primary_match()
+
+        self.assertEqual(outcome.match_entry, ("procedural_league", token))
+        self.assertEqual({int(row.club_id) for row in outcome.table}, {21, 22})
+        self.assertIn(
+            token,
+            controller.state.procedural_leagues[(14, 0)].results,
+        )
+
+    def test_primary_teamselect_selection_requires_materialized_owner(self):
+        controller, _token = self.build_primary_procedural_controller()
+        controller.state.procedural_leagues.clear()
+
+        with self.assertRaisesRegex(
+            RuntimeError,
+            "no materialized primary League owner",
+        ):
+            controller.select_club(21)
 
     def test_pending_cup_autofill_uses_cup_selection_rules(self):
         controller = self.build_controller()
