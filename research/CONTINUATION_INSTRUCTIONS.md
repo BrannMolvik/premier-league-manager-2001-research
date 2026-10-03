@@ -209,6 +209,42 @@ If a session must stop mid-task:
 The next session should continue from that checkpoint rather than reconstructing the previous chat.
 
 
+## Critical-path efficiency priority
+
+When multiple independent work-ahead tasks are legal, optimize for shortest
+time to the final Gate-17 definition of done rather than for balanced progress,
+gate-number order, or producing activity in every later gate.
+
+Use this priority heuristic while an earlier gate is externally owned or
+temporarily blocked:
+
+1. **Gate 14 source-backed implementation/integration that reduces the next
+   active-gate closure path**, especially reusable FastView/audio/3D
+   presentation work on files disjoint from the Gate-13 ownership lock.
+2. **Independent Gate 15 fidelity gaps that can be conclusively fixed now**
+   without depending on unfinished Gate-13/14 behavior or touching locked
+   shared files. Prefer a real fix over an audit/documentation-only task.
+3. **Gate 17 scope discovery or generalized implementation only when it has
+   concrete architectural leverage** (for example, proving the original
+   playable-country/league catalog or preventing a Premier-League-specific
+   design from hardening). Do not spend sustained time on release-evidence
+   scaffolding that cannot yet change implementation or a release decision.
+4. **Gate 16 long-duration/destructive tests and later release-audit tooling**
+   when the relevant implementation is stable enough that the result will not
+   immediately be invalidated, or when the work can run opportunistically
+   without delaying higher-value implementation.
+
+A nearly complete in-flight change may be finished before switching when doing
+so is cheaper than abandoning/recreating context. If a chosen task hits a
+private-source/container/Windows blocker and no concrete repository-side step
+remains, pivot immediately to the next highest-value independent task instead
+of waiting, repeatedly re-probing the blocker, or producing speculative
+documentation.
+
+Re-evaluate this ordering after each meaningful checkpoint. "Highest priority"
+means highest expected reduction in total remaining project time, not simply
+the earliest or latest gate number.
+
 ## Deferred blocker and out-of-order work policy
 
 Roadmap gates are **verification milestones**, not a rule that all productive work
