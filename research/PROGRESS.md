@@ -10726,3 +10726,13 @@ work may continue under the deferred-blocker policy.
 - `0x5333F3` writes that returned byte to display-record `+0x47`; shared PlayerRow producer `0x525BD0` later formats it as `%u` into text cell 1.
 - The earlier offset mismatch is therefore resolved correctly: display-record `+0x47` is derived shirt-number presentation state, not a direct alias of DBRPlayer `+0x70`.
 - All six PlayerRow text cells plus the energy bar now have source-backed ownership. Fresh CI on the rebased branch is still required before merge.
+
+
+## 3 October 2026 - Recovery 211 complete PlayerRow presentation snapshot
+
+- Built a child checkpoint on top of the rebased shirt-number branch rather than enlarging PR #190.
+- Added `gate14_fastview_playerrow_snapshot.py` to compose the already-proven shirt-number cell, position key, player-display name, form cell, exact energy bar and optional goal/own-goal counter displays into one immutable PlayerRow presentation snapshot.
+- Preserved the original event-write distinction: goal/own-goal counters are initialized internally to zero, but their parenthesized control strings are written by the typed callbacks. The snapshot therefore uses `None` before an evidenced text write instead of inventing `(0)`.
+- Added a presentation-only retention seam: `HumanMatchPresentation` accepts only explicitly retained `FastViewPlayerRowSnapshot` objects from `outcome.fastview_player_rows`, and `FastViewSemanticShell` passes them through unchanged.
+- This seam imports no simulator, RNG or gameplay controller and does not reconstruct missing final player state. Existing outcomes without retained row snapshots remain valid and expose an empty tuple.
+- Fresh CI is deferred until the parent shirt-number checkpoint becomes canonical and this child delta is transplanted onto the resulting main head.
