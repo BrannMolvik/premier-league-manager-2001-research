@@ -10,7 +10,30 @@ topic-specific research files.
 
 **Gate 13 - Restore original management presentation**
 
-Latest local Gate-13 milestone, based on canonical `6207dbe0`: native
+Latest PR #211 continuation from reconciled `70c8af0a`: the top-four D48
+producer now performs the exact second full-roster Condition/RNG pass before
+participant snapshots. Human club selection automatically loads the original
+club stadium map/building setup, without resetting existing ticket state.
+The genuine Coventry calculated fixture again publishes a complete report,
+saves/reloads and opens matching PMatchInfo through real Windows right-click.
+The original summary font now renders Attendance/Referee/Mom, and the default
+nested pitch uses its recovered parent translation and two-row source clip.
+These are partial visible contents, not complete nested report rendering.
+Evidence and private receipt hashes: `GATE13_LEGACY_CLUB_REPORT_STATE.md`.
+Final milestone validation: **1,713 full tests / 23 expected skips**, 91
+focused report/host/save tests, asset policy, JSON/diff checks, fresh real
+Windows schema 8 and repeated genuine changed-route probe pass. No frozen
+package/release launch or complete nested report rendering is claimed.
+
+Gate 13 remains **OPEN**. +13C/+140's fresh club allocation has HeapAlloc
+flags 0, not a zero-fill contract; no authoritative fresh capacity value is
+established. Next presentation step is default PMatchInfo score/script-row
+owners, text producers and clipping, followed by the complete genuine route
+and final timing/recognizability judgment. Secondary/loan shirts remain
+fail-closed, not a reason to expand the minimum slice without audit evidence.
+Main, Gate-14 work and ownership protocol are untouched.
+
+Previous local Gate-13 milestone, based on canonical `6207dbe0`: native
 attendance bit-9/count lifecycle and exact zero-based human-rank D48 guards
 are integrated and persist in schema 42. A genuinely calculated Coventry
 home fixture publishes all eleven scalars and a complete report. Disk save,
@@ -21,7 +44,7 @@ Final local validation: **1,695 full tests / 23 expected skips**, 135 focused
 tests, asset-policy/JSON/diff checks, fresh Windows schema 8 and the final-code
 genuine reload/right-click probe all pass. Frozen-package launch is not claimed.
 
-Gate 13 remains **OPEN**. Next source task: establish the fresh native
+At that earlier checkpoint Gate 13 remained **OPEN**. Its next source task was to establish the fresh native
 allocation/write lifecycle of uncontrolled visiting capacities +13C/+140;
 do not assume zero. Complete the top-four D48 roster-Condition/RNG branch
 without a numeric substitute. Secondary/loan shirts stay unknown. The

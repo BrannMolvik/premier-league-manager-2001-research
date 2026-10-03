@@ -2,6 +2,60 @@
 
 ## PR #211 continuation from `70c8af0a`
 
+### Source-backed visible summary/default pitch milestone
+
+`4885A0` / `60BEB0` now drive Attendance, Ref. and Mom from the complete
+captured report, never a score-derived popup context. Referee formatting
+uses the first **CP1252 byte** of the +98 identity and the +9A surname.
+The original BdXCn16 atlas is checksum-verified. Setup calls
+`485091/4850C9/485101` use style 24/color FFFF. Font callback `64F090`
+centers as floor(control/2)-floor(text/2), with native 18px line height
+and the original 16px control clipping, not a modern replacement font.
+
+Default nested owner `485471 -> 650B20 -> 653320` places the subpanel at
+`(0,145,800,500)`, without normalizing it to the 760px popup. `650BB0`
+translates the parent clip to child coordinates; `6533A0` intersects the
+child controls. Pitch `(233,-2,294,78)` therefore draws at popup-local
+`(233,145,294,76)` with two source rows cropped. Script/other owner-local
+resources are not promoted by this pitch proof.
+Private bounded owner/font trace:
+`work/gate13-pmatchinfo-owner-font-private-20261003.json`, SHA-256
+`6152ba23863a57d0d7e7dbb3c886b4f516fdb180c1735fd2e1669d544c9e36f9`.
+
+The genuine fixture-2 probe now uses ordinary `select_club`, not manually
+injected stadium state. Complete publication, disk save, fresh reload and
+real Windows right-click pass with Attendance 48,144, Ref. B Betsy and
+Mom: Cedric Roussel (the actual source name preserves its accented byte).
+Private reproducer `work/probe_gate13_human_setup.py 2` and its receipts stay
+outside Git. This probe uses native human rank 5: top-four production is
+verified separately by exact roster/RNG tests, not claimed exercised here.
+Final repeated receipt `work/gate13-calculated-reload-summary-pitch-20261003.json`
+SHA-256: `2bc0962277d3e4aefcd5e753abab2b03180ef070e452788f9b28ca892d198a44`.
+Disk save: `6db42a9993d71547ef28dec8a76023f215df986005d02587923ac5bd01909d86`.
+Save hashes differ across repetitions because this Python runtime's default
+gzip compression embeds mtime; equality is checked against each actual saved/reloaded
+report, not inferred from different saves' whole-file hashes.
+Private window capture visibly confirms summary/pitch but is a partial
+desktop/DPI capture, not a complete graphical normal-play sign-off.
+
+Milestone validation: **1,713 full reconstruction tests / 23 expected skips**,
+91 focused report/host/save tests, asset policy and JSON/diff checks pass.
+Fresh Windows schema-8 receipt `work/gate13-legacy-summary-schema8-20261003.json`
+passes (deterministic SHA-256
+`131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`).
+Schema 8's synthetic interaction seam is not the genuine publication proof;
+the separate calculated-state receipt is. Frozen-package launch is not claimed.
+The pitch and three lines are **not complete report contents**. Default
+score/script-row owners and final timing/recognizability still require work.
+The follow-on child trace `483BCA/483C22/483C7A` establishes numeric
+controls at child-local `(295,42,30,20)`, `(370,42,30,20)` and
+`(443,42,30,20)`, consuming report bytes +22/+21/+20. These are the already
+retained possession averages, **not match goals**. Their `87BE90` font,
+`6507A0` numeric formatting/color and subsequent update/visibility remain to
+be traced before integration. Header score/name branch `4885A0` and actual
+script-row list owners are separate dependencies; do not render a score in
+the possession controls or distribute raw owner-local rows heuristically.
+
 The top-four D48 **producer**, not merely adjustment 16, is now integrated.
 `0x4081FB..0x4082E4` computes upper/lower spans (6,6) from shipped globals
 100/105/110. It runs RNG(upper span) then RNG(lower span) for every ordered

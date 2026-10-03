@@ -4,6 +4,22 @@ _Audit refreshed: 3 October 2026 KST_
 
 ## Current local producer milestone and criterion audit
 
+PR #211 continuation from reconciled `70c8af0a`: exact top-four D48
+roster/RNG production and automatic original controlled stadium bootstrap
+are integrated. The genuine calculated fixture -> complete report -> disk
+save -> fresh reload -> Windows ordinary right-click route still passes.
+PMatchInfo now draws the three source-font summary lines and the default
+subpanel pitch with recovered translation/clipping. Script rows and remaining
+report controls are not yet fully rendered. This is a meaningful executable
+milestone, **not a final timing/recognizability sign-off**. Gate 13 remains OPEN.
+Fresh uncontrolled-home +13C/+140 values remain unknown; HeapAlloc flags 0
+are not a zero default. Next bounded step: default PMatchInfo score/script
+owners and text producers. Full report rendering and native fresh capacity
+evidence precede the final closure attempt; do not repeat saved-report codecs.
+See `GATE13_LEGACY_CLUB_REPORT_STATE.md` for verification/provenance.
+
+The following paragraph describes the earlier producer/context checkpoint.
+
 Based on canonical `6207dbe0`, not a Gate-14 reconciliation. Native bit-9/
 attendance-byte lifecycle and D48's exact global-human native rank guards
 advance the ordinary producer. A source-materialized Coventry home fixture
