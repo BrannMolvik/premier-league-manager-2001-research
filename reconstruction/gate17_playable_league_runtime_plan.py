@@ -111,6 +111,13 @@ class PlayableLeagueRuntimePlan:
         )
 
     @property
+    def procedural_primary_competition_ids(self) -> tuple[int, ...]:
+        return tuple(
+            int(entry.competition_id) for entry in self.entries
+            if entry.runtime_owner == RUNTIME_PROCEDURAL_PRIMARY
+        )
+
+    @property
     def procedural_secondary_scope_ids(self) -> tuple[str, ...]:
         return tuple(
             entry.scope_id for entry in self.entries
