@@ -217,12 +217,48 @@ EventGlobalTick while those gates hold**. This does not yet establish the
 wall-clock duration of one GlobalTick and does not imply a per-frame or
 per-second interval.
 
+## Recovery 198: GlobalTick wall-clock throttle
+
+The FastView host's source scheduling layer is now bounded independently from
+the match-event semantics. Host update path `0x521B64` calls Win32
+`GetTickCount()`, subtracts the previous baseline at host `+0x2B0`, and
+compares elapsed milliseconds against the three dwords at `0x7CA538`:
+
+- speed index 0: **1000 ms**;
+- speed index 1: **500 ms**;
+- speed index 2: **250 ms**.
+
+The FastView constructor initializes speed index host `+0x2AC` to **1**, so
+500 ms is the source default. Key handler `0x521DA0` reacts to Space
+(`0x20`) by cycling the index 0 -> 1 -> 2 -> 0.
+
+When elapsed time reaches the selected threshold, the host stores the current
+GetTickCount value as the new baseline and invokes MatchController once at
+`0x521C03 -> 0x518330`. This path has no catch-up loop: a delayed host
+iteration still advances at most one controller step and can therefore make
+real observed intervals longer than the nominal threshold.
+
+MatchController's EventGlobalTick dispatcher `0x518790` sends the current
+counter at source field `+0x78` to all registered receivers and increments
+that counter after dispatch unless controller state `+0x90 == 5`.
+
+Combined with the source-closed one-EventPossession-opportunity-per-five-
+GlobalTicks gate, the **minimum throttle span** between possession opportunities
+is:
+
+- speed 0: **5000 ms**;
+- speed 1 (default): **2500 ms**;
+- speed 2: **1250 ms**.
+
+These are source scheduling thresholds, not guaranteed observed intervals under
+a delayed host loop.
+
 ## Remaining boundary
 
 Still open before claiming the bounded diagram is player-visible original
 FastView behavior:
 
-1. recover the wall-clock meaning/lifecycle of `EventGlobalTick` and any process/match reset semantics for the private presentation RNG; the event-count cadence is now exact at every fifth GlobalTick under the source gates;
+1. recover any process/match reset semantics for the private presentation RNG; EventGlobalTick event-count cadence and the host's GetTickCount throttle are now source-closed;
 2. recover side-0/user orientation rather than inferring it from
    `left/middle/right` filenames;
 3. keep the three 82×16 `team_bar_1` / `blank_bar` / `team_bar_2` assets under
