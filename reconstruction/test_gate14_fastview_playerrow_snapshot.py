@@ -65,7 +65,7 @@ class FastViewPlayerRowSnapshotTests(unittest.TestCase):
 
         self.assertEqual(row.form.text, "6")
         self.assertEqual(row.form.stored_value, 6)
-        self.assertEqual(row.energy.energy, 97)
+        self.assertEqual(row.energy.energy_value, 97)
         self.assertEqual(row.energy.dynamic_rect, (309, 27, 387, 43))
 
     def test_history_adapter_preserves_event_written_counter_channels(self):
@@ -84,7 +84,7 @@ class FastViewPlayerRowSnapshotTests(unittest.TestCase):
             displayed_own_goal_count=1,
         )
         self.assertEqual(row.form.text, "7")
-        self.assertEqual(row.energy.energy, 90)
+        self.assertEqual(row.energy.energy_value, 90)
         self.assertEqual(row.goal_count.text, "(2)")
         self.assertEqual(row.own_goal_count.text, "(1)")
 
