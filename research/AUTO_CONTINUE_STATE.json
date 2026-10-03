@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 210: PR #186 canonical at main cdfc5b88c67d05b4eb58fc3c42f879e9fe95146e after 1,560 tests / 22 expected skips and asset-policy success. Transplant the already source-closed PlayerRow cell-1 shirt/squad-number derivation from the stacked branch onto fresh canonical main: DBRPlayer accessor 0x41E3D0 (+0x70/+0x76) -> caller 0x533370 -> call 0x5333EC -> record+0x47 write 0x5333F3 -> PlayerRow cell1 %u. Verify/merge, then assemble a complete source-backed PlayerRow snapshot and integrate it with presentation state without duplicating simulation. Gate 13 remains earliest incomplete.",
-  "last_known_main_head": "cdfc5b88c67d05b4eb58fc3c42f879e9fe95146e",
+  "active_task": "Recovery 211: reconcile stale runtime with canonical main ef5760b669cdf5eacc91d8a9d4cd8c3fed95a216. Preserve merged Gate-13 PR #183 and full-original-port scope PR #189. Rebase only PR #187's source-closed PlayerRow shirt/squad-number delta onto current main: DBRPlayer accessor 0x41E3D0 (+0x70/+0x76) -> caller 0x533370 -> call 0x5333EC -> record+0x47 write 0x5333F3 -> PlayerRow cell1 %u. The stale branch already passed 1,560 tests / 22 expected skips and asset policy, but rerun CI on a fresh canonical-main branch before merge. Then assemble/integrate a complete source-backed PlayerRow snapshot without duplicating simulation. Gate 13 remains earliest incomplete.",
+  "last_known_main_head": "ef5760b669cdf5eacc91d8a9d4cd8c3fed95a216",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 210,
+  "recovery_generation": 211,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #186 canonical. Transplant only shirt-number delta from stacked child, then continue complete PlayerRow integration.",
+  "note": "Main advanced through Gate-13 PR #183 and project-scope PR #189. Preserve both; transplant only PR #187 PlayerRow shirt-number delta.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
