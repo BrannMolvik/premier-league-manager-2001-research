@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 207: canonical main 642c004eb9e9b542a21e2a7c4401eb233c58b531 after PR #178 passed 1,532 tests / 22 expected skips and asset-policy success. Continue Gate-14 with ScoreCompositeNormal phase presentation: source-bind half_time_icon.444, full_time_icon.444, extra_time_icon.444, penalties_icon.444 to their typed event callbacks and recover exact PictureControl/text geometry through helper 0x51BA30. Keep any unresolved localized label text and broader score semantics fail-closed. Gate 13 remains earliest incomplete for shell/navigation fidelity.",
-  "last_known_main_head": "642c004eb9e9b542a21e2a7c4401eb233c58b531",
+  "active_task": "Recovery 208: canonical main 9041cb9aff25e6982af6d9c80fccc0bac693f852 after PR #179 passed 1,543 tests / 22 expected skips and asset-policy success. Continue Gate-14 with FastViewTeam/TeamTable source pairing: side-index 0 uses team_name_grid/team_name_grid_2 with team_bar_1/blank_bar; side-index 1 uses team_name_grid_3/team_name_grid_4 with blank_bar/team_bar_2. Recover exact Row PictureControl/text geometry and state selection without inventing user-facing row semantics. Gate 13 remains earliest incomplete for shell/navigation fidelity.",
+  "last_known_main_head": "9041cb9aff25e6982af6d9c80fccc0bac693f852",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 207,
+  "recovery_generation": 208,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #178 canonical. Continue phase icon+label presentation path from clean main.",
+  "note": "PR #179 canonical. Continue TeamTable side-specific asset pairing from clean main.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
