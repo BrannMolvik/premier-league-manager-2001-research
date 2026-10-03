@@ -1789,6 +1789,30 @@
   ],
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "unrecovered_fail_closed",
-  "gate14_possession_figures_bar_geometry": "pending_source_trace",
-  "gate14_exact_next_task": "Verify Recovery 196 CI and merge; then source-trace the three 82x16 PossessionFigures bar placement/binding without inventing human-side orientation or diagram cadence."
+  "gate14_possession_figures_bar_geometry": "not_applicable_corrected_to_teamtable",
+  "gate14_exact_next_task": "Verify and merge Recovery 197 TeamTable ownership correction; then source-trace dynamic row-bar update 0x526680 receiver/caller semantics or continue the next independent Gate-14 presentation gap.",
+  "gate14_teamtable_bar_ownership_corrected": true,
+  "gate14_teamtable_bar_owner": "FastViewPanel::FastViewTeam::TeamTable::Row",
+  "gate14_teamtable_fastview_team_constructor_va": "0x524A20",
+  "gate14_teamtable_constructor_va": "0x524EC0",
+  "gate14_teamtable_row_constructor_va": "0x525DB0",
+  "gate14_teamtable_dynamic_bar_update_va": "0x526680",
+  "gate14_teamtable_row_count": 11,
+  "gate14_teamtable_row_step": 17,
+  "gate14_teamtable_side0_bar_rect_row0": [
+    309,
+    27,
+    391,
+    43
+  ],
+  "gate14_teamtable_side1_bar_rect_row0": [
+    409,
+    27,
+    491,
+    43
+  ],
+  "gate14_teamtable_bar_assets_imported": true,
+  "gate14_teamtable_bar_asset_count": 3,
+  "gate14_possession_figures_image_ownership": false,
+  "gate14_teamtable_dynamic_bar_semantics": "unrecovered_fail_closed"
 }
