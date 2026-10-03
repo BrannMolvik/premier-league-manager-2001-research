@@ -212,6 +212,28 @@ class InternalSaveTests(unittest.TestCase):
                                         dumps_human_gameplay(original))
         self.assertEqual(restored._pending_prior_results, original._pending_prior_results)
 
+    def test_completed_fastview_condition_histories_survive_result_roundtrip(self):
+        from internal_save import _restore_normal_match_result, _snapshot_normal_match_result
+        from match_simulation import NormalMatchResult, RetainedFastViewConditionHistory
+
+        original = NormalMatchResult(
+            events=(),
+            fastview_condition_histories=(
+                RetainedFastViewConditionHistory(0, 0, tuple(range(24))),
+                RetainedFastViewConditionHistory(1, 2, (80,) * 24),
+            ),
+        )
+        snapshot = _snapshot_normal_match_result(original)
+        restored = _restore_normal_match_result(snapshot)
+        self.assertEqual(
+            restored.fastview_condition_histories,
+            original.fastview_condition_histories,
+        )
+
+        del snapshot["fastview_condition_histories"]
+        with self.assertRaises(KeyError):
+            _restore_normal_match_result(snapshot)
+
     def test_saved_completion_scalar_shape_is_strict_and_not_rebuilt(self):
         from internal_save import _snapshot_normal_match_result, _restore_normal_match_result
         from match_simulation import NormalMatchResult
