@@ -295,6 +295,16 @@ The semantic FastView shell passes them through unchanged. Missing retained
 rows produce an empty tuple instead of reconstructing form/energy/player state
 from gameplay after the fact.
 
+Recovery 211 now source-closes the PlayerProxy value source beneath the
+complete row snapshot. Form is supplied by MatchCalculator wrapper
+`0x632FC0 -> 0x6308B0` from a 24-sample, five-minute **1..10 match-form
+history**. Energy is supplied by `0x633000 -> 0x630910` and is a
+presentation derivation over Condition history, form trend and one RNG(6) draw.
+The source writer `0x6309D0` proves DBRPlayer Condition `+0x77` seeds the
+Condition history while persistent form-state `+0x192` is only an input to
+the separate form history. Consequently neither modern `condition` nor
+`form_state` may be copied directly into FastView row output.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
