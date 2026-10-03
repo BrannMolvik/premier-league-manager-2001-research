@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 204: PR #172 merged canonical at main 9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658 after 1,514 tests / 22 expected skips and asset-policy success. Continue Gate-14 source work with FastViewLeagueScores / ScoreCompositeNormal current-fixture grid family. Reverify class ownership, exact source identities, constructor geometry and event/lifecycle semantics before integrating any pixels. Keep top/ticker binary import as a deterministic transport follow-up; do not block source work on it. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
+  "active_task": "Recovery 205: resume from canonical main 9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658. Continue exact current Gate-14 source task: FastViewLeagueScores / ScoreCompositeNormal current-fixture grid family. Reverify class ownership, exact source identities, constructor geometry, and event/lifecycle semantics before integrating any pixels. Keep top/ticker binary import as a deterministic transport follow-up and do not block source work on it. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
   "last_known_main_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 204,
+  "recovery_generation": 205,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #172 canonical. Continue FastViewLeagueScores / ScoreCompositeNormal current fixture grid trace without guessing geometry from bitmap sizes.",
+  "note": "Recovery 205 resumed from canonical PR #172 checkpoint. Continue FastViewLeagueScores / ScoreCompositeNormal only.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
