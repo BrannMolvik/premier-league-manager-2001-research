@@ -10681,3 +10681,13 @@ work may continue under the deferred-blocker policy.
 - `Receiver<EventPlayerOwnGoal>` is row `+0x60` / final vtable `0x7CA8E8`; callback `0x526880` increments separate counter `+0x1C`, writes `(%u)` to text-control `+0x30` = cell 5, then changes that control's native color via `0x650480`.
 - The source-computed own-goal color is not named because its runtime channel mapping has not yet been independently closed. Text cells 1..3 remain unassigned.
 - Added pure source-contract helpers/regressions for exact rectangles, unsigned formatting and independent goal/own-goal counter wrap behavior.
+
+
+## 3 October 2026 - Recovery 210 PlayerRow position ownership
+
+- Resumed from canonical main `88e8b3554ece25ca609e38a41f159b5473900065`; PR #184 was already merged and green at **1,557 tests / 22 expected skips** plus asset-policy success.
+- Traced shared PlayerRow refresh `0x526470 <- TeamTable 0x525B66` and row-data producer `0x525BD0` without assigning labels from the visual layout.
+- Source helper `0x635EC0` directly indexes pointer table `0x849930`, whose exact entries are empty index 0 followed by `PositionGK, PositionRB, PositionLB, PositionCD, PositionSW, PositionRWB, PositionLWB, PositionANC, PositionDM, PositionRM, PositionLM, PositionCM, PositionRW, PositionLW, PositionAM, PositionRF, PositionLF, PositionCF, PositionST`; it localizes the selected key through `0x6350D0`. Cell 2 is therefore the source-proven **position** text field.
+- Rechecked compact player import `0x418B90`: Master.dat byte +18, already proven as shirt/squad number, is imported to runtime DBRPlayer **+0x70**. PlayerRow cell 1 instead reads the separate 72-byte match-player proxy at **+0x47**, so the previous tempting squad-number inference is explicitly rejected until a producer proves it.
+- Cell 3 remains source-bounded only as the proxy's leading C string, formatted as `%s` when proxy+0x20 is '-' or `%c %s` otherwise. The user-facing meaning of the prefix byte remains unresolved.
+- Gate 13 remains the earliest incomplete validation gate. This is independent Gate-14 work-ahead.
