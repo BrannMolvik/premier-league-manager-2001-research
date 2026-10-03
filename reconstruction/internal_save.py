@@ -27,6 +27,7 @@ from contract_maintenance import (
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from game_state import GameCalendar, GameState
 from gate_receipts import GateAttendanceCell, GateReceiptResult
+from native_club_report_state import ClubAttendanceCounter
 from complete_fixture_report import snapshot_report, restore_report, validate_report_owner, report_language_from_database
 from human_gameplay import HumanGameplayController, HumanManagerState
 from primary_schedule_shadow import PrimaryScheduleShadowState
@@ -72,7 +73,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 41
+SAVE_SCHEMA_VERSION = 42
 
 
 def _iso(value: date | None) -> str | None:
@@ -1209,6 +1210,8 @@ def snapshot_game_state(state: GameState) -> dict[str, Any]:
                           {} if league is None else league.fixtures)
     return {
         "captured_match_reports": [snapshot_report(report) for report in state.captured_match_reports],
+        "native_club_attendance_counters": [[club_id, value.initialized, value.count]
+            for club_id, value in sorted(state.native_club_attendance_counters.items())],
         "fixture_match_info_links": [[key, value] for key, value in state.fixture_match_info_links.items()],
         "calendar_date": state.calendar.current_date.isoformat(),
         "monthly_player_updates": int(state.monthly_player_updates),
@@ -1822,6 +1825,16 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
         raise ValueError('Invalid saved fixture report links')
     state.fixture_match_info_links = dict(pairs)
     state.report_language = report_language_from_database(database)
+    counter_rows = snapshot['native_club_attendance_counters']
+    if type(counter_rows) is not list:
+        raise ValueError('Invalid native attendance-counter owner')
+    counters = {}
+    for row in counter_rows:
+        if (type(row) is not list or len(row) != 3 or type(row[0]) is not int
+                or row[0] not in state.clubs or row[0] in counters):
+            raise ValueError('Invalid native attendance-counter identity')
+        counters[row[0]] = ClubAttendanceCounter(row[1], row[2])
+    state.native_club_attendance_counters = counters
     # Immutable original setup pool is reconstructed from the same database;
     # no report codec or already-completed inputs are recalculated.
     from ordinary_report_setup import NativeSetupPlayerPool

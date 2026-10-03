@@ -97,6 +97,7 @@ from complete_fixture_report import (
 from original_fixture_report_capture import NativeCapturedScalar
 from original_fixture_report_capture import NATIVE_CAPTURE_SCALAR_COPIES
 from ordinary_report_setup import NativeSetupPlayerPool, gate_report_scalar_copies, report_participant_metadata
+from native_club_report_state import ClubAttendanceCounter, ordinary_human_adjustment
 from match_team_setup import pack_tactics_word, manager_tactics_packet_fields, team_tactics_packet_fields
 from stadium_state import StadiumSourceState, TicketRuntimeState
 from transfer_state import TransferRuntimeState
@@ -211,6 +212,7 @@ class GameState:
     report_language: tuple | None = None
     prepared_match_report_setup: dict[int, LiveReportSetupFragment] = field(default_factory=dict)
     native_setup_player_pool: NativeSetupPlayerPool | None = None
+    native_club_attendance_counters: dict[int, ClubAttendanceCounter] = field(default_factory=dict)
     prepared_match_report_scalars: dict[int, dict[int, NativeCapturedScalar]] = field(default_factory=dict)
     prepared_match_report_tactics: dict[int, tuple[int, int] | None] = field(default_factory=dict)
     captured_match_reports: tuple[CompleteFixtureReport, ...] = ()
@@ -452,6 +454,9 @@ class GameState:
         )
         state.report_language = report_language_from_database(database)
         state.native_setup_player_pool = NativeSetupPlayerPool.from_database(database)
+        if state.native_setup_player_pool is not None:
+            state.native_club_attendance_counters = {
+                club_id: ClubAttendanceCounter.fresh() for club_id in state.clubs}
         state.calendar.daily_hooks.append(state._run_daily_injury_returns)
         state.calendar.daily_hooks.append(state._run_daily_ai_pitch_recovery)
         state.calendar.monthly_hooks.append(state._run_monthly_player_development)
@@ -1698,6 +1703,9 @@ class GameState:
                 self.prepared_match_report_scalars.setdefault(fixture_id, {}).update(
                     (s.report_offset, s) for s in copies)
         self.post_gate_receipts(int(home_club_id), receipts)
+        counter = self.native_club_attendance_counters.get(int(home_club_id))
+        if counter is not None:
+            self.native_club_attendance_counters[int(home_club_id)] = counter.completed_home_gate()
         if fixture_id is not None:
             self.prepared_match_gate_receipts[fixture_id] = receipts
         return receipts
@@ -4312,6 +4320,34 @@ class GameState:
         self._publish_completed_fixture_report(fixture_id, result)
         return result
 
+    def _ordinary_native_human_adjustment(self, fixture, home_side, away_side):
+        controls = (home_side.attack_context.user_controlled,
+                    away_side.attack_context.user_controlled)
+        if not any(controls):
+            return 0  # 51101C, no human opponent.
+        if controls not in ((True, False), (False, True)):
+            return None
+        human_id, ai_id = ((fixture.home_club_id, fixture.away_club_id) if controls[0]
+                           else (fixture.away_club_id, fixture.home_club_id))
+        if self.user_controlled_club_id != human_id:
+            return None  # Native 4139D0's global user owner, not an arbitrary side.
+        counter = self.native_club_attendance_counters.get(ai_id)
+        early = ordinary_human_adjustment(counter, None)
+        if early is not None:
+            return early
+        # 4F4070 first refreshes native order through 4F4940, then returns the
+        # zero-based array index. Bypass the display method's ID tie fallback.
+        names = {club_id: _original_pl_short_name_bytes(self.clubs, club_id)
+                 for club_id in self.premier_league.club_ids}
+        if any(value is None for value in names.values()):
+            return None
+        try:
+            rows = self.premier_league.table(names.get)
+        except ValueError:
+            return None
+        rank = next((i for i, row in enumerate(rows) if row.club_id == human_id), None)
+        return ordinary_human_adjustment(counter, rank)
+
     def simulate_premier_league_fixture(
         self,
         fixture_id: int,
@@ -4357,11 +4393,8 @@ class GameState:
             native_previous_scores=(-1, -1),
             native_compact_spacing=0,
             native_report_date=self.calendar.current_date,
-            # 0x51101C writes D48=0 for AI-vs-AI. A human opponent's
-            # legacy DBRClub+0x130 adjustment remains unresolved, not zero.
-            native_ai_condition_adjustment=(
-                0 if not home_side.attack_context.user_controlled
-                and not away_side.attack_context.user_controlled else None),
+            native_ai_condition_adjustment=self._ordinary_native_human_adjustment(
+                self.premier_league.fixtures[fixture_id], home_side, away_side),
         )
         home_goals, away_goals = result.score
         self.record_premier_league_result(
