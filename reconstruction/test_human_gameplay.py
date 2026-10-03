@@ -677,6 +677,98 @@ class HumanGameplayControllerTests(unittest.TestCase):
         self.assertIn(6, controller.state.premier_league.results)
         self.assertIsNone(controller.pending_primary_entry)
 
+    def test_pending_cup_autofill_uses_cup_selection_rules(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+        controller.state.competitions[1] = SimpleNamespace(
+            id=1,
+            substitute_quota=3,
+            max_non_eu_players=10,
+            scheduled_matchday_count=8,
+            initialization_order_value=6,
+        )
+        token = ("cup_result", 1, 43, 4)
+        controller.state.install_domestic_cup_schedule_nodes(
+            (
+                StartupScheduleNode(
+                    node_kind="cup_match",
+                    competition_id=1,
+                    competition_context=0,
+                    round_id=43,
+                    pair_index=4,
+                    schedule_index=None,
+                    scheduled_week=0,
+                    scheduled_weekday=6,
+                    participant_0_ref=direct_club_ref(1),
+                    participant_1_ref=direct_club_ref(2),
+                    node_token=token,
+                    round_number=8,
+                    extra_time_capable=True,
+                    decisive_tiebreak=True,
+                    auxiliary_flag=False,
+                ),
+            ),
+            season_year=2000,
+        )
+        controller.state.primary_matchday_order = {
+            date(2000, 7, 8): (("domestic_cup", token),)
+        }
+
+        pending = controller.advance_to_next_user_primary_match()
+        self.assertEqual(pending, ("domestic_cup", token))
+
+        selection = controller.autofill_lineup()
+
+        self.assertEqual(len(selection.lineup.starters), 11)
+        self.assertEqual(len(selection.lineup.substitutes), 3)
+        self.assertEqual(len(controller.human.substitute_ids), 3)
+        outcome = controller.play_user_primary_match()
+        self.assertEqual(outcome.match_entry, ("domestic_cup", token))
+
+    def test_primary_outcome_uses_controlled_club_live_procedural_table(self):
+        controller = self.build_controller()
+        controller.select_club(1)
+
+        competition_id = 14
+        token = ("league_match", competition_id, 0, 0, 0)
+        controller.state.competitions[competition_id] = Competition(
+            id=competition_id,
+            substitute_quota=3,
+            max_non_eu_players=10,
+        )
+        controller.state.club_competition_membership[1] = competition_id
+        controller.state.club_competition_membership[2] = competition_id
+        live = LiveProceduralLeagueState(
+            competition_id=competition_id,
+            competition_context=0,
+            fixtures={
+                token: ProceduralLeagueFixture(
+                    node_token=token,
+                    home_club_id=1,
+                    away_club_id=2,
+                )
+            },
+            club_ids=(1, 2),
+        )
+        controller.state.procedural_leagues[(competition_id, 0)] = live
+        controller.state.primary_matchday_order = {
+            date(2000, 7, 8): (("procedural_league", token),)
+        }
+
+        pending = controller.advance_to_next_user_primary_match()
+        self.assertEqual(pending, ("procedural_league", token))
+        selection = controller.autofill_lineup()
+        self.assertEqual(len(selection.lineup.substitutes), 3)
+
+        outcome = controller.play_user_primary_match()
+
+        self.assertEqual(outcome.match_entry, ("procedural_league", token))
+        self.assertEqual(
+            tuple(int(row.club_id) for row in outcome.table),
+            tuple(int(row.club_id) for row in live.table()),
+        )
+        self.assertEqual({int(row.club_id) for row in outcome.table}, {1, 2})
+
     def test_shared_primary_controller_plays_human_procedural_league_entry(self):
         controller = self.build_controller()
         controller.select_club(1)
