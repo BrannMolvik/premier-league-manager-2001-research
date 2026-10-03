@@ -66,6 +66,105 @@ SCORE_COMPOSITE_EVENT_RECEIVERS = (
     ("EventGlobalSecondHalf", 0x7CA240, 0x7CA324, 0x51BA20),
 )
 
+SCORE_COMPOSITE_PHASE_DISPLAY_HELPER_VA = 0x51BA30
+SCORE_COMPOSITE_PHASE_DISPLAY_CLEAR_VA = 0x51BBE0
+SCORE_COMPOSITE_PHASE_ICON_LOCAL_RECT = (316, 0, 334, 16)
+SCORE_COMPOSITE_PHASE_TEXT_LOCAL_RECT = (311, 0, 339, 16)
+SCORE_COMPOSITE_PHASE_TEXT_RAW_FLAGS = 0x24
+SCORE_COMPOSITE_PHASE_TEXT_STYLE_INDEX = 1
+SCORE_COMPOSITE_PHASE_PICTURE_VARIANT = 0
+SCORE_COMPOSITE_PHASE_ACTIVE_FLAG_OFFSET = 0xAC
+SCORE_COMPOSITE_PHASE_PICTURE_PTR_OFFSET = 0xD8
+SCORE_COMPOSITE_PHASE_TEXT_PTR_OFFSET = 0xDC
+
+
+@dataclass(frozen=True)
+class FastViewScorePhaseResource:
+    event_name: str
+    name: str
+    source_path: str
+    sha256: str
+    byte_size: int
+    size: tuple[int, int]
+    path_literal_va: int
+    static_string_initializer_va: int
+    static_string_object_va: int
+    callback_va: int
+    callback_icon_pointer_va: int
+    callback_label_global_va: int
+    imported: bool = False
+
+
+HALF_TIME_ICON = FastViewScorePhaseResource(
+    event_name="EventHalfTime",
+    name="half_time_icon",
+    source_path="FM2001_Art/FastView/half_time_icon.444",
+    sha256="351589aa787ef62dae4013c67e231c90c7b6f2e82acd635fb67adb13e1c994c8",
+    byte_size=568,
+    size=(18, 16),
+    path_literal_va=0x828DD0,
+    static_string_initializer_va=0x51B650,
+    static_string_object_va=0x877628,
+    callback_va=0x51B9A0,
+    callback_icon_pointer_va=0x877630,
+    callback_label_global_va=0x982380,
+)
+
+FULL_TIME_ICON = FastViewScorePhaseResource(
+    event_name="EventFullTime",
+    name="full_time_icon",
+    source_path="FM2001_Art/FastView/full_time_icon.444",
+    sha256="9a24ab846620d6460afe265c6c98488870a08e2802d55476b9735a8641ae81b8",
+    byte_size=616,
+    size=(18, 16),
+    path_literal_va=0x828DF8,
+    static_string_initializer_va=0x51B690,
+    static_string_object_va=0x877610,
+    callback_va=0x51BA00,
+    callback_icon_pointer_va=0x877618,
+    callback_label_global_va=0x98237C,
+)
+
+EXTRA_TIME_ICON = FastViewScorePhaseResource(
+    event_name="EventExtraTime",
+    name="extra_time_icon",
+    source_path="FM2001_Art/FastView/extra_time_icon.444",
+    sha256="cf8af734450ab3069e0b32d82a770909d962ade9545533e7715d36d53e0eea2e",
+    byte_size=400,
+    size=(18, 16),
+    path_literal_va=0x828E20,
+    static_string_initializer_va=0x51B6D0,
+    static_string_object_va=0x8775F8,
+    callback_va=0x51B9C0,
+    callback_icon_pointer_va=0x877600,
+    callback_label_global_va=0x982378,
+)
+
+PENALTIES_ICON = FastViewScorePhaseResource(
+    event_name="EventPenalties",
+    name="penalties_icon",
+    source_path="FM2001_Art/FastView/penalties_icon.444",
+    sha256="0fc5b157ecfadfa437f65ef5a4b940b5de6886e8c1e81e1f4ccba8d97af23545",
+    byte_size=280,
+    size=(18, 16),
+    path_literal_va=0x828E48,
+    static_string_initializer_va=0x51B710,
+    static_string_object_va=0x8775E0,
+    callback_va=0x51B9E0,
+    callback_icon_pointer_va=0x8775E8,
+    callback_label_global_va=0x982374,
+)
+
+SCORE_COMPOSITE_PHASE_RESOURCES = (
+    HALF_TIME_ICON,
+    EXTRA_TIME_ICON,
+    PENALTIES_ICON,
+    FULL_TIME_ICON,
+)
+SCORE_COMPOSITE_PHASE_RESOURCE_BY_EVENT = {
+    item.event_name: item for item in SCORE_COMPOSITE_PHASE_RESOURCES
+}
+
 
 @dataclass(frozen=True)
 class FastViewScoreGridResource:
@@ -219,3 +318,42 @@ def score_composite_normal_page_slot_rects(
     """Resolve one visible page slot to exact final grid/text rectangles."""
     layout = fastview_league_scores_page_layout(source_count)
     return score_composite_normal_rects(layout.slot_origin(column, row))
+
+
+def score_composite_phase_local_rects() -> tuple[
+    tuple[int, int, int, int],
+    tuple[int, int, int, int],
+]:
+    """Return exact local PictureControl/text rectangles from 0x51BA30."""
+    return (
+        SCORE_COMPOSITE_PHASE_ICON_LOCAL_RECT,
+        SCORE_COMPOSITE_PHASE_TEXT_LOCAL_RECT,
+    )
+
+
+def score_composite_phase_rects(
+    origin: tuple[int, int],
+) -> tuple[tuple[int, int, int, int], tuple[int, int, int, int]]:
+    """Translate the exact phase icon/text pair to one composite origin."""
+    if (
+        type(origin) is not tuple
+        or len(origin) != 2
+        or any(type(value) is not int for value in origin)
+    ):
+        raise FastViewScoresError("ScoreComposite phase origin must be an integer pair")
+    return (
+        _translate_rect(SCORE_COMPOSITE_PHASE_ICON_LOCAL_RECT, origin),
+        _translate_rect(SCORE_COMPOSITE_PHASE_TEXT_LOCAL_RECT, origin),
+    )
+
+
+def score_composite_phase_resource(event_name: str) -> FastViewScorePhaseResource:
+    """Return only the exact typed callback-to-icon mapping proved in source."""
+    if type(event_name) is not str:
+        raise FastViewScoresError("ScoreComposite phase event name must be a string")
+    try:
+        return SCORE_COMPOSITE_PHASE_RESOURCE_BY_EVENT[event_name]
+    except KeyError as exc:
+        raise FastViewScoresError(
+            "No source-proven phase icon for this ScoreComposite event"
+        ) from exc

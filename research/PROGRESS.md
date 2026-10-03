@@ -10633,3 +10633,15 @@ work may continue under the deferred-blocker policy.
 - Source tables close seven heading text rectangles and nine row text rectangles. Their user-facing labels remain deliberately unassigned.
 - The constructor transforms source counts above 12 with `floor((count-1)/2)+1` = `ceil(count/2)`; this numeric transform is retained without inventing a page/half-table semantic.
 - Added `reconstruction/gate14_fastview_league_table.py` plus regression coverage. Both current-table assets remain unimported and no substitute art is used.\n- Final `Receiver<EventScore>` callback `0x51E360` mutates the backing table then calls shared refresh `0x51E4C0` at `0x51E3A8`; the constructor calls the same refresh at `0x51E1A5`. Refresh finishes by iterating the embedded `Sender<EventLeagueTableUpdate>` receiver list at `0x51E683`.\n- Registered the new module/test paths in `reconstruction-tests.yml` so PR verification cannot silently skip the full integration suite.
+
+
+## 3 October 2026 - Recovery 207 ScoreComposite phase icon presentation
+
+- PR #178 became canonical at `642c004eb9e9b542a21e2a7c4401eb233c58b531` after reconstruction run `37094555752` passed **1,532 tests / 22 expected skips** and asset-policy run `37094555803` passed.
+- Continued directly into the already typed ScoreCompositeNormal phase receivers rather than reopening completed score/table geometry.
+- Re-extracted and pinned the four authorized FastView phase icons. All are 18x16: half time 568 bytes / SHA-256 `351589aa787ef62dae4013c67e231c90c7b6f2e82acd635fb67adb13e1c994c8`; full time 616 / `9a24ab846620d6460afe265c6c98488870a08e2802d55476b9735a8641ae81b8`; extra time 400 / `cf8af734450ab3069e0b32d82a770909d962ade9545533e7715d36d53e0eea2e`; penalties 280 / `0fc5b157ecfadfa437f65ef5a4b940b5de6886e8c1e81e1f4ccba8d97af23545`.
+- Static path initializers and typed callbacks directly bind EventHalfTime -> half_time_icon, EventFullTime -> full_time_icon, EventExtraTime -> extra_time_icon and EventPenalties -> penalties_icon. This is no longer a filename-only inference.
+- Shared phase helper `0x51BA30` clears prior phase controls through `0x51BBE0`, then creates PictureControl local rect (316,0)-(334,16) and a paired generic text-control local rect (311,0)-(339,16). It stores active byte +0xAC, picture pointer +0xD8 and text pointer +0xDC.
+- EventGlobalSecondHalf callback `0x51BA20` only clears the display. It has no source-proven icon mapping and is rejected by the event->icon adapter.
+- The callbacks also supply separate language-string globals, but their exact localized text contents are not promoted in this checkpoint. No conventional "HT/FT/ET" labels are invented.
+- Added exact resource/geometry/event mapping and regressions to `gate14_fastview_scores.py`; all four binaries remain unimported and no substitute art is used.
