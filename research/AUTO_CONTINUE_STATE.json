@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 211: PR #191 canonical at main 5952be5c383d44a4dabe6258a10196f75416c1bb after 1,599 tests / 23 expected skips and asset-policy success. Gate-14 source trace now proves PlayerProxy form payload = 0x632FC0 -> 0x6308B0 match-form history, energy payload = 0x633000 -> 0x630910 derived from Condition history + form trend + RNG. Condition history is stored at side0 +0x4C / side1 +0x5FC with 0x4C player stride and five-minute index; form history is adjacent +0x18 at +0x64/+0x614, range 1..10. Persistent form_state +0x192 is only an input to form history; DBRPlayer Condition +0x77 seeds condition history. Materialize this source contract and exact derived-energy primitive, then retain exact histories/post-calc RNG state from the actual match path before populating outcome.fastview_player_rows. Do not alias modern condition/form_state directly. Gate 13 remains earliest incomplete.",
+  "active_task": "Recovery 212: resumed at main 5952be5c383d44a4dabe6258a10196f75416c1bb. Gate-14 work-ahead exact task remains the source-backed PlayerProxy form/energy history contract: form payload = 0x632FC0 -> 0x6308B0 match-form history; energy payload = 0x633000 -> 0x630910 derived from Condition history + form trend + RNG. Materialize the exact histories and derived-energy primitive, retain post-calc RNG state from the actual match path, and only then populate outcome.fastview_player_rows. Do not alias modern condition/form_state directly. Gate 13 remains earliest incomplete.",
   "last_known_main_head": "5952be5c383d44a4dabe6258a10196f75416c1bb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 211,
-  "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #191 merged. Exact next task is source-backed PlayerProxy form/energy history contract; no direct condition/form_state aliasing.",
+  "recovery_generation": 212,
+  "last_recovery_reason": "same-chat-recovery-no-progress",
+  "note": "Recovery 212 resumed from canonical GitHub state. Continue PlayerProxy form/energy history materialization; Gate 13 remains earliest incomplete.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
