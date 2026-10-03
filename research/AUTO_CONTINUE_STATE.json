@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is 459386f4118b5698b4f5827115911e8e9f7fc49b after Gate-17 PR #251 merged green. PR #252 is open at 5bbf9f59b1795bd9a7c856b6ea32fbddd835c37e and aggregates the canonical human-scope audit with the read-only runtime progression audit into one fail-closed full-scope preflight. CI had not appeared yet at the recovery checkpoint. Next action: inspect #252 hosted checks/diff, fix any failure, merge if green/scoped, then continue the next independent full-scope runtime generalization or validation step without changing Gate-13 ownership. Local private-source execution remains blocked by process-start ClientError.",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is 459386f4118b5698b4f5827115911e8e9f7fc49b after Gate-17 PR #251 merged green. PR #252 (head 5bbf9f59b1795bd9a7c856b6ea32fbddd835c37e) aggregates full-scope runtime preflight; asset policy passed and reconstruction run 37150925158 is still in progress. PR #253 (head 2aa2c27ac3748ebe043fa1ec45630a7c1138fb27) independently maps every TeamSelect League to fixed/procedural primary/secondary runtime ownership; reconstruction run 37151072990 and asset-policy run 37151072933 are in progress. Next action: merge #252 if green, recheck #253 against resulting main and merge if green/scoped, then continue the next cloud-safe Gate-17 full-scope step. Preserve Gate-13 ownership; local private-source execution remains blocked by process-start ClientError.",
   "last_known_main_head": "459386f4118b5698b4f5827115911e8e9f7fc49b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 246,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 246 checkpoint: #251 merged as 459386f4 after green hosted checks. Stale full-scope preflight was transplanted and strengthened on fresh branch worker/gate17-full-scope-preflight-v2; PR #252 opened at 5bbf9f59 with CI pending.",
+  "note": "Recovery 246 checkpoint: #251 merged as 459386f4. #252 and #253 are open with independent hosted validation running. #252 asset policy already passed; both full suites are in progress. All work remains cloud-safe Gate-17 preparation; Gate 13 stays earliest incomplete and Codex-owned.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
