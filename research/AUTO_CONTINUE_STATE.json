@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is 3ed02fdf4f6bcb1a4eb180763117d98246493535 after Gate-14 score/table art-loader PR #236 merged green. Gate-14 PR #237 (head 1acb0e39) is mergeable: asset-policy run 37140988553 passed and reconstruction run 37140988540 is in progress. It rasterizes source-backed current-fixture grids/typed phase icons and LeagueTable heading/row grids into separate unflattened planes. Prepared dependent branch worker/gate14-score-table-component-planes at fa38923f adds those two planes atomically to the existing optional FastView component container; do not open it until #237 is canonical, then transplant onto the squash head. Local process sandbox still fails before start with caas.internal.errors.ClientError, blocking private audio-bank/cross-z-order disassembly. Do not touch Gate-13-owned/shared runtime files.",
-  "last_known_main_head": "3ed02fdf4f6bcb1a4eb180763117d98246493535",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is af6afe2ce4c2ab4689691786adfad58ef4598712 after Gate-14 score/table static raster PR #237 merged green. PR #238 (head 7d0e2b69) is mergeable: asset policy 37142230004 passed and reconstruction run 37142230014 is actively running; it adds the verified league_scores_static + league_table_static pair to the unflattened FastView component container. Prepared dependent branch worker/gate14-score-table-frame-plan at 07810cf8 forwards an already-verified score/table raster set through the immutable frame-plan and completed-human adapter without deriving live counts/phase state. After #238 is canonical, transplant that four-file bridge onto the squash head and validate via hosted CI. Local process sandbox still fails before start with caas.internal.errors.ClientError, blocking private audio-bank and cross-component-z-order source adjudication. Do not touch Gate-13-owned/shared runtime files.",
+  "last_known_main_head": "af6afe2ce4c2ab4689691786adfad58ef4598712",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 235,
+  "recovery_generation": 236,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 235 checkpoint: #236 loader merged green as 3ed02fdf. #237 static score/table raster is mergeable with asset policy green and full reconstruction CI running. Next component-plane bridge is prepared at fa38923f but intentionally not opened until its dependency is canonical.",
+  "note": "Recovery 236 checkpoint: #237 merged green as af6afe2c. #238 score/table component-plane bridge is mergeable with asset policy green and reconstruction CI running. Next frame-plan pass-through bridge is prepared at 07810cf8 and must be freshly transplanted after #238 squash merge.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
