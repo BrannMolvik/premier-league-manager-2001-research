@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is 8855fe272265ad73ddf3da568230514be49943db after Recovery-246 progress chronology merged. PR #256 head 8ef030993c784c45990cd6b4cd26a5f6e1bb7a9e adds a diagnostic Gate-17 runtime-owner capability audit over the TeamSelect ownership plan. Repository asset-policy run 37151612601 passed; reconstruction run 37151612600 is in progress. If green, merge #256 and then feed this capability audit into the full-scope preflight so runtime-owner blockers become part of the unified Gate-17 readiness result. Preserve Gate-13 ownership; local private-source execution remains blocked by process-start ClientError.",
-  "last_known_main_head": "8855fe272265ad73ddf3da568230514be49943db",
+  "active_task": "Gate 13 remains OPEN with its private/local source work blocked. Canonical main is 1fe29c8434bf52e5bc0598728e479608ac21e523 after PR #256 merged the Gate-17 runtime-owner capability audit. Continue the recorded cloud-safe next step: integrate that audit into the Gate-17 full-scope preflight so human selection/runtime-owner/human dispatch/annual-progression blockers are part of the unified readiness result. Preserve Gate-13 ownership and do not declare later gates complete.",
+  "last_known_main_head": "1fe29c8434bf52e5bc0598728e479608ac21e523",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 246,
+  "recovery_generation": 247,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 246 continued: progress chronology merged as 8855fe27. #256 is open; asset policy green, full reconstruction suite running. Next dependent step is full-scope preflight integration after #256 verifies.",
+  "note": "Recovery 247 started from canonical main 1fe29c84. PR #256 is merged. Next exact task is runtime-owner capability integration into the Gate-17 full-scope preflight, with focused tests/docs and normal checkpointing.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
