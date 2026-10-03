@@ -134,6 +134,14 @@ constructor flow bind the 82x16 `team_bar_1` / `blank_bar` / `team_bar_2`
 family to `FastViewPanel::FastViewTeam` / `TeamTable`, while
 `PossessionFigures` remains the separate text-only component at `0x51E7E0`.
 
+Recovery 198 also source-closes the bounded diagram's typed receiver lifecycle.
+The FastView owner registers `PossessionDiagram` for EventPossession,
+EventGoal, and EventGlobalPenalties. Goal source field `+0x0C` values 0/1
+snap to diagram states 2/0. Global penalties latches object byte `+0x20`;
+subsequent possession callbacks force state 1 without consuming presentation
+RNG. The exact MatchController EventPossession emission cadence is still
+unrecovered, so no runtime scheduler frequency is inferred.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
