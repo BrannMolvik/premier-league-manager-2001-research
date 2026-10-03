@@ -33,6 +33,7 @@ from gate17_release_readiness import (
     require_path_outside_repo,
     run_final_release_audit,
     validate_clean_repository,
+    validate_full_scope_catalog,
     validate_limitations_document,
     validate_roadmap_prerequisites,
 )
@@ -115,6 +116,7 @@ def preflight_external_release_validation(
         root,
         "research/RELEASE_LIMITATIONS.md",
     )
+    full_scope_catalog = validate_full_scope_catalog(root)
 
     try:
         archive = require_path_outside_repo(
@@ -146,6 +148,7 @@ def preflight_external_release_validation(
         "repository": repository,
         "roadmap": roadmap,
         "limitations": limitations,
+        "full_scope_catalog": full_scope_catalog,
         "identity": identity,
         "release_archive": archive,
         "canonical_game_dir": game_dir,
