@@ -62,7 +62,8 @@ class OriginalFastViewPossessionFiguresArtTests(unittest.TestCase):
                 row.glyph_width * row.glyph_height * 4,
             )
             self.assertTrue(any(row.glyph_rgba[i + 3] for i in range(0, len(row.glyph_rgba), 4)))
-            self.assertFalse(art.human_side_orientation_recovered)
+            self.assertTrue(art.match_role_orientation_recovered)
+            self.assertTrue(art.human_side_orientation_requires_fixture_role)
 
     def test_all_source_percentage_strings_fit_40x18_controls(self):
         sizes = [
