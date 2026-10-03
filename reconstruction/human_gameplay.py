@@ -106,6 +106,7 @@ class HumanGameplayController:
         match_engine_rng=None,
         *,
         playable_primary_procedural_ids: Iterable[int] = (),
+        playable_primary_club_ids: Iterable[int] = (),
     ):
         if state.premier_league is None:
             raise RuntimeError("Premier League state is required")
@@ -116,6 +117,9 @@ class HumanGameplayController:
         self.match_engine_rng = match_engine_rng
         self.playable_primary_procedural_ids = tuple(
             dict.fromkeys(int(value) for value in playable_primary_procedural_ids)
+        )
+        self.playable_primary_club_ids = tuple(
+            dict.fromkeys(int(value) for value in playable_primary_club_ids)
         )
         self.human: HumanManagerState | None = None
         self.pending_fixture_id: int | None = None
@@ -162,6 +166,9 @@ class HumanGameplayController:
         )
         playable_primary_league_ids = (
             playable_runtime_plan.procedural_primary_competition_ids
+        )
+        playable_primary_club_ids = (
+            playable_runtime_plan.primary_selectable_club_ids
         )
         english_primary_leagues, english_secondary_leagues = (
             partition_root_procedural_league_ids(
@@ -258,6 +265,7 @@ class HumanGameplayController:
                 int(time()) if match_engine_seed is None else int(match_engine_seed)
             ),
             playable_primary_procedural_ids=playable_primary_league_ids,
+            playable_primary_club_ids=playable_primary_club_ids,
         )
 
     def regenerate_annual_primary_season(
@@ -422,18 +430,56 @@ class HumanGameplayController:
         self._pending_after_primary_entries = ()
         return regeneration
 
-    def select_club(self, club_id: int) -> HumanManagerState:
-        """Select one Premier League club for human control."""
+    def selectable_club_ids(self) -> tuple[int, ...]:
+        """Return source-backed clubs whose required primary runtime is live."""
+        fixed = tuple(
+            int(value) for value in self.state.premier_league.club_ids
+        )
+        output: list[int] = []
+        seen: set[int] = set()
+        for club_id in fixed + tuple(self.playable_primary_club_ids):
+            club_id = int(club_id)
+            if club_id not in seen:
+                output.append(club_id)
+                seen.add(club_id)
+        return tuple(output)
 
-        if self.pending_fixture_id is not None:
+    def select_club(self, club_id: int) -> HumanManagerState:
+        """Select one TeamSelect club backed by a live primary League owner."""
+
+        if self.pending_fixture_id is not None or self.pending_primary_entry is not None:
             raise RuntimeError("cannot change club during a pending matchday")
 
         club_id = int(club_id)
-        league = self.state.premier_league
-        if club_id not in set(int(value) for value in league.club_ids):
-            raise ValueError(f"club {club_id} is not in the Premier League")
+        if club_id not in set(self.selectable_club_ids()):
+            raise ValueError(
+                f"club {club_id} is not in the supported primary TeamSelect scope"
+            )
         if not self.state.ordered_club_roster(club_id):
             raise ValueError(f"club {club_id} has no runtime squad")
+
+        membership = self.state.club_competition_membership.get(club_id)
+        fixed_ids = {
+            int(value) for value in self.state.premier_league.club_ids
+        }
+        if club_id not in fixed_ids:
+            if membership is None:
+                raise RuntimeError(
+                    f"club {club_id} has no live League membership"
+                )
+            competition_id = int(membership)
+            if competition_id not in set(self.playable_primary_procedural_ids):
+                raise RuntimeError(
+                    f"club {club_id} membership {competition_id} is not a "
+                    "playable primary procedural League"
+                )
+            owner = self.state.procedural_leagues.get((competition_id, 0))
+            if owner is None or club_id not in {
+                int(value) for value in owner.club_ids
+            }:
+                raise RuntimeError(
+                    f"club {club_id} has no materialized primary League owner"
+                )
 
         self.human = HumanManagerState(club_id=club_id)
         club = self.state.clubs.get(club_id)
