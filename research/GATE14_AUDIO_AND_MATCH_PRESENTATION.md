@@ -79,13 +79,24 @@ bounded seven-resource family, so
 `reconstruction/gate14_fastview_resource_catalog.py` schema 2 now resolves
 those **source-proven exact paths** rather than relying on basename uniqueness:
 
-- `PossessionFigures`: `FM2001_Art/FastView/team_bar_1.444`,
+- `FastViewPanel::FastViewTeam::TeamTable`: `FM2001_Art/FastView/team_bar_1.444`,
   `FM2001_Art/FastView/blank_bar.444`,
   `FM2001_Art/FastView/team_bar_2.444`;
 - `PossessionDiagram`: `FM2001_Art/FastView/pitch_left.444`,
   `FM2001_Art/FastView/pitch_middle.444`,
   `FM2001_Art/FastView/pitch_right.444`,
   `FM2001_Art/FastView/pitch_normal.444`.
+
+Recovery 197 corrects the earlier ownership of the three 82x16 bar images.
+RTTI plus the `0x524A20 -> 0x524EC0 -> 0x525DB0` constructor chain proves
+they belong to `FastViewPanel::FastViewTeam::TeamTable::Row`, not
+`PossessionFigures`. The two TeamTables each contain 11 rows at a 17-pixel
+step; the bar rectangles are x 309..391 for side index 0 and x 409..491 for
+side index 1, with row 0 at y 27..43. Exact byte-identical originals are now
+staged and checksum-gated. `0x526680` dynamically updates the Row +0x38
+control and branches on the Row +0x40 source side flag, but its higher-level
+gameplay meaning remains deliberately neutral pending receiver closure. See
+`research/GATE14_FASTVIEW_TEAMTABLE_SOURCE_TRACE.md`.
 
 This matters because the real disc also contains
 `FM2001_Art/Generic/match_report/pitch_normal.444`. The executable separately
@@ -129,8 +140,8 @@ executable trace closes the three PossessionFigures 40x18 percentage text
 rectangles: side 1 is left at (311,181)-(351,199), neutral is centered at
 (382,181)-(422,199), and side 0 is right at (454,181)-(494,199). This is a
 source-index mapping only; which match side is the human user's screen side is
-still unproven and remains fail-closed. The three 82x16 bar controls still need
-direct placement/binding trace.
+still unproven and remains fail-closed. The earlier three-bar PossessionFigures task was a component-ownership error;
+those bars are now source-closed as FastViewTeam::TeamTable row controls.
 
 ## 3D / FastView resource evidence
 
