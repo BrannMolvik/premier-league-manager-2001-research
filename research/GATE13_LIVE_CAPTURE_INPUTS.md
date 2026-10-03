@@ -2,6 +2,35 @@
 
 _3 October 2026 KST. Gate 13 remains OPEN._
 
+## Recovery 223 fail-closed remaining-field candidate trace
+
+The execution container is still returning `ClientError` even for trivial
+filesystem commands, so the materialized authorized original disc archive
+cannot currently be extracted/disassembled in the private runtime. This is an
+infrastructure failure, not source absence.
+
+To make the next private pass reproducible instead of ad hoc,
+`gate13_remaining_field_source_trace.py` now provides a checksum-gated,
+candidate-only linear x86 scan for memory operands whose displacement is
+exactly one of the still-open native fields:
+
+- `+0x130` legacy DBRClub attendance-counter state;
+- `+0x13C` / `+0x140` visiting-capacity candidates;
+- `+0x76` secondary/loan-shirt selector candidate.
+
+The tool records only candidate instruction VA, mnemonic/operand text, raw
+instruction bytes and base/index register context. A hit is explicitly **not**
+accepted as proof of object type, read/write direction, control-flow
+reachability, initialization, capacity semantics, shirt semantics or lifecycle
+ownership. Manual private CFG/data-flow review against the canonical
+executable remains mandatory before any runtime behavior is promoted.
+
+Synthetic Capstone tests cover all four displacements and enforce bounded,
+fail-closed input handling. Gate 13 remains OPEN. The exact next source action
+is to run this scanner against the canonical executable once private execution
+recovers, then manually adjudicate the resulting candidates before touching
+runtime semantics.
+
 ## Recovery 222 partial human D48 closure
 
 The human-opponent D48 path is now split at the exact source guard instead of
