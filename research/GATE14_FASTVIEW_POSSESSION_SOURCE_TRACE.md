@@ -329,14 +329,58 @@ staged font identity/metrics and renders only these exact percentage glyphs at
 the already source-closed side1/neutral/side0 rectangles. It still does not
 assign side 0/1 to the human user or synthesize surrounding FastView pixels.
 
+## Recovery 202: home/away screen orientation and rejected loose background binding
+
+The fixed-fixture path now closes the match-role meaning of the side indices
+used by FastView.
+
+`0x6173D0` resolves the real fixture's team at `fixture+0x0C` first and
+the team at `fixture+0x10` second. These are the already recovered home and
+away fixture fields. The builder wraps them and calls `LeagueMatch::0x5104F0`.
+Its base constructor `0x5103D0` stores the first/home wrapper in the embedded
+team-reference subobject at `LeagueMatch+0x14` and the second/away wrapper at
+`LeagueMatch+0x28`.
+
+Match setup `0x510D60` invokes the first virtual accessor on those two
+subobjects in that order:
+
+- `LeagueMatch+0x14` -> `MatchCalculator+0x0000` = **side 0 = home**;
+- `LeagueMatch+0x28` -> `MatchCalculator+0x05B0` = **side 1 = away**.
+
+Combining that source identity with the already closed PossessionFigures
+rectangles gives the fixed match-role presentation:
+
+- **away / side 1 = left** at (311,181)-(351,199);
+- neutral = center;
+- **home / side 0 = right** at (454,181)-(494,199).
+
+The human-controlled club is therefore left when it is the away club and right
+when it is the home club. This is a fixture-role mapping, not a claim that the
+whole FastView scene mirrors itself around the human user.
+
+The loose 800x600 `FM2001_Art/FastView/background.444` lead was also traced
+to exhaustion at the direct-reference level. Literal `0x8294E8` is passed at
+`0x51F2F0` to generic string constructor `0x684620`, creating static string
+object `0x877758`; the only direct executable references to that static
+object/data are its construction and destruction (`0x68467F`). FastViewPanel
+constructor `0x51F490` does construct an 800x600 generic panel through
+`0x527350`, but that constructor receives no background path and no direct
+runtime consumer ties `0x877758` to the panel draw path.
+
+Therefore the authenticated 800x600 bitmap remains **unbound** and must not be
+rendered merely because its filename and dimensions look appropriate.
+`reconstruction/gate14_fastview_background.py` regression-locks this negative
+result.
+
 ## Remaining boundary
 
 Still open before claiming the bounded diagram is player-visible original
 FastView behavior:
 
 1. recover any process/match reset semantics for the private presentation RNG; EventGlobalTick event-count cadence and the host's GetTickCount throttle are now source-closed;
-2. recover side-0/user orientation rather than inferring it from
-   `left/middle/right` filenames;
+2. keep the now source-closed home/away mapping distinct from any broader
+   scene-mirroring claim: side 0/home is right and side 1/away is left for
+   PossessionFigures, while the human user's side follows fixture role;
 3. keep the three 82×16 `team_bar_1` / `blank_bar` / `team_bar_2` assets under
    the separately proven `FastViewTeam` / `TeamTable` ownership. They must not
    be wired into `PossessionFigures`; percentage text placement is already exact;
