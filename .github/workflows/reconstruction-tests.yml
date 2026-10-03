@@ -51,6 +51,8 @@ on:
       - "reconstruction/test_fastview_semantic_shell.py"
       - "reconstruction/gate14_fastview_resource_catalog.py"
       - "reconstruction/test_gate14_fastview_resource_catalog.py"
+      - "reconstruction/gate14_fastview_teamtable.py"
+      - "reconstruction/test_gate14_fastview_teamtable.py"
       - "reconstruction/gate14_possession_diagram.py"
       - "reconstruction/test_gate14_possession_diagram.py"
       - "reconstruction/original_fastview_possession_resources.py"
