@@ -76,3 +76,35 @@ catalog by recording:
 The final audit recomputes the catalog hash and rejects any stale, incomplete,
 reordered, missing or failed scope set. Six high-level booleans alone are not
 sufficient release evidence.
+
+## Full-scope receipt producer contract
+
+`reconstruction/gate17_full_scope_receipt.py` is the fail-closed producer for
+the fifth receipt. It does **not** discover playable scope or run careers by
+itself. It consumes a separate per-scope result JSON produced by the future
+full-scope runtime audit.
+
+The producer requires a real Windows 11 client workstation, the exact release
+archive/version/commit, a `source_backed_complete` repository catalog and an
+external results file outside Git. The results file must use schema 1, carry
+the exact catalog SHA-256, preserve the catalog's scope-ID order, and contain
+one result per catalog entry.
+
+Every per-scope result must declare all of these true:
+
+- `passed`;
+- `human_career_flow`;
+- `competition_progression`;
+- `original_management_gameplay_subsystems`.
+
+Any catalog hash drift, missing/reordered scope ID, false per-scope criterion,
+unrecovered catalog, in-repository result file, or existing output receipt
+fails before a new receipt is written.
+
+On success the producer writes `full_original_scope.json` with the release
+archive identity, Windows workstation facts, catalog SHA-256, results SHA-256,
+exact verified scope IDs/counts, and empty missing/failed lists. The final
+Gate-17 validator independently rechecks the catalog binding.
+
+Hosted Linux/Windows CI runs synthetic unit tests for this contract only. It
+does not create real full-scope release evidence.
