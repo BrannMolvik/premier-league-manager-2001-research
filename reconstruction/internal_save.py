@@ -26,6 +26,10 @@ from contract_maintenance import (
 )
 from finance_state import BalanceRuntimeState, FinancePosting, FinancialObjectiveState
 from game_state import GameCalendar, GameState
+from gate17_country_allocation_scope import (
+    PlayableCountryAllocationPlan,
+    PlayableCountryAllocationScope,
+)
 from gate_receipts import GateAttendanceCell, GateReceiptResult
 from native_club_report_state import ClubAttendanceCounter
 from complete_fixture_report import snapshot_report, restore_report, validate_report_owner, report_language_from_database
@@ -73,7 +77,48 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 42
+SAVE_SCHEMA_VERSION = 43
+
+
+def _snapshot_playable_country_allocation_plan(plan):
+    if plan is None:
+        return None
+    if type(plan) is not PlayableCountryAllocationPlan:
+        raise TypeError("playable country allocation plan has unexpected type")
+    return plan.as_dict()
+
+
+def _restore_playable_country_allocation_plan(value):
+    if value is None:
+        return None
+    if int(value.get("schema_version", -1)) != 1:
+        raise ValueError("unsupported playable country allocation plan schema")
+    countries = tuple(
+        PlayableCountryAllocationScope(
+            country_id=int(item["country_id"]),
+            country_name=str(item["country_name"]),
+            selectable_league_ids=tuple(
+                int(v) for v in item["selectable_league_ids"]
+            ),
+            allocation_ids=tuple(int(v) for v in item["allocation_ids"]),
+            ranking_endpoint_ids=tuple(
+                int(v) for v in item["ranking_endpoint_ids"]
+            ),
+        )
+        for item in value["countries"]
+    )
+    if int(value.get("country_count", -1)) != len(countries):
+        raise ValueError("playable country allocation plan country count mismatch")
+    return PlayableCountryAllocationPlan(
+        catalog_sha256=str(value["catalog_sha256"]),
+        countries=countries,
+        assigned_allocation_ids=tuple(
+            int(v) for v in value["assigned_allocation_ids"]
+        ),
+        ignored_allocation_ids=tuple(
+            int(v) for v in value["ignored_allocation_ids"]
+        ),
+    )
 
 
 def _iso(value: date | None) -> str | None:
@@ -1941,6 +1986,17 @@ def snapshot_human_gameplay(controller: HumanGameplayController) -> dict[str, An
             ],
             "match_rng_state": int(rng_state),
             "match_engine_rng": engine_snapshot,
+            "playable_primary_procedural_ids": [
+                int(v) for v in controller.playable_primary_procedural_ids
+            ],
+            "playable_primary_club_ids": [
+                int(v) for v in controller.playable_primary_club_ids
+            ],
+            "playable_country_allocation_plan": (
+                _snapshot_playable_country_allocation_plan(
+                    controller.playable_country_allocation_plan
+                )
+            ),
         },
     }
 
@@ -1972,6 +2028,15 @@ def restore_human_gameplay(
             None
             if engine_snapshot is None
             else MatchEngineRng.from_snapshot(engine_snapshot)
+        ),
+        playable_primary_procedural_ids=tuple(
+            int(v) for v in control["playable_primary_procedural_ids"]
+        ),
+        playable_primary_club_ids=tuple(
+            int(v) for v in control["playable_primary_club_ids"]
+        ),
+        playable_country_allocation_plan=_restore_playable_country_allocation_plan(
+            control["playable_country_allocation_plan"]
         ),
     )
 
