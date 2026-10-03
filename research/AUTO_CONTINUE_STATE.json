@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is ee594987c6dc6b037c2a13dc4d088548731811ed. In Recovery 246, Gate-17 PR #251 (read-only runtime progression audit), #252 (full-scope runtime preflight), #253 (TeamSelect League runtime ownership plan), and #254 (six-human full-scope release receipt contract) all merged after green hosted validation. #252 full suite ran 1,844 tests / 23 expected skips. Next cloud-safe step: persist the Recovery-246 chronology in research/PROGRESS.md, then build a read-only audit comparing the runtime ownership plan to the current canonical controller/runtime surfaces, exposing exact full-scope implementation blockers without mutating shared runtime. Preserve Gate-13 ownership; local private-source execution remains blocked by process-start ClientError.",
-  "last_known_main_head": "ee594987c6dc6b037c2a13dc4d088548731811ed",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is 8855fe272265ad73ddf3da568230514be49943db after Recovery-246 progress chronology merged. PR #256 head 8ef030993c784c45990cd6b4cd26a5f6e1bb7a9e adds a diagnostic Gate-17 runtime-owner capability audit over the TeamSelect ownership plan. Repository asset-policy run 37151612601 passed; reconstruction run 37151612600 is in progress. If green, merge #256 and then feed this capability audit into the full-scope preflight so runtime-owner blockers become part of the unified Gate-17 readiness result. Preserve Gate-13 ownership; local private-source execution remains blocked by process-start ClientError.",
+  "last_known_main_head": "8855fe272265ad73ddf3da568230514be49943db",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 246,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 246: merged #251 as 459386f4, #252 as c1b3f91f, #253 as d47a999b, and #254 as ee594987 after green reconstruction/asset-policy validation. Continue with progress persistence and a read-only runtime-owner capability audit; Gate 13 remains earliest incomplete and Codex-owned.",
+  "note": "Recovery 246 continued: progress chronology merged as 8855fe27. #256 is open; asset policy green, full reconstruction suite running. Next dependent step is full-scope preflight integration after #256 verifies.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
