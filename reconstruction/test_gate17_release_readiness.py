@@ -7,12 +7,20 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from gate17_full_scope_catalog import (
+    OriginalPlayableScope,
+    PlayableCountryScope,
+    PlayableLeagueScope,
+)
+
 from gate17_release_readiness import (
     ReleaseReadinessError,
+    build_full_scope_receipt_binding,
     parse_release_evidence,
     require_external_windows_11_workstation,
     require_path_outside_repo,
     validate_external_receipts,
+    validate_full_original_scope_binding,
     validate_limitations_document,
     validate_release_archive,
     validate_roadmap_prerequisites,
@@ -39,6 +47,43 @@ def write_receipt(path, **flags):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload), encoding="utf-8")
     return sha256(path.read_bytes()).hexdigest()
+
+
+def synthetic_full_scope():
+    return OriginalPlayableScope(
+        countries=(
+            PlayableCountryScope(
+                country_id=26,
+                name="England",
+                source_root_league_count=1,
+                visible_league_capacity=15,
+                leagues=(
+                    PlayableLeagueScope(
+                        competition_id=100,
+                        name="England League",
+                        source_club_count=2,
+                        selectable_club_ids=(1, 2),
+                        selectable_club_names=("Alpha", "Beta"),
+                    ),
+                ),
+            ),
+            PlayableCountryScope(
+                country_id=66,
+                name="Scotland",
+                source_root_league_count=1,
+                visible_league_capacity=14,
+                leagues=(
+                    PlayableLeagueScope(
+                        competition_id=200,
+                        name="Scotland League",
+                        source_club_count=2,
+                        selectable_club_ids=(3, 4),
+                        selectable_club_names=("Gamma", "Delta"),
+                    ),
+                ),
+            ),
+        )
+    )
 
 
 def write_roadmap(path, *, open_gate=None, omit_gate=None):
@@ -296,6 +341,102 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 "all_original_playable_countries",
             ):
                 validate_external_receipts(parse_release_evidence(raw), repo)
+
+    def test_full_scope_binding_is_exact_catalog_identity(self):
+        scope = synthetic_full_scope()
+        binding = build_full_scope_receipt_binding(scope)
+
+        self.assertEqual(binding["scope_catalog_sha256"], scope.catalog_sha256)
+        self.assertEqual(binding["scope_country_count"], 2)
+        self.assertEqual(binding["scope_entry_count"], 2)
+        self.assertEqual(binding["scope_selectable_club_row_count"], 4)
+        self.assertEqual(binding["scope_ids"], ("26:100", "66:200"))
+
+    def test_full_scope_receipt_is_bound_to_canonical_catalog(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            scope = synthetic_full_scope()
+            binding = build_full_scope_receipt_binding(scope)
+            name = "full_original_scope"
+            path = Path(raw["external_receipts"][name]["path"])
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload.update(
+                {
+                    "scope_catalog_sha256": binding["scope_catalog_sha256"],
+                    "scope_country_count": binding["scope_country_count"],
+                    "scope_entry_count": binding["scope_entry_count"],
+                    "scope_selectable_club_row_count": binding[
+                        "scope_selectable_club_row_count"
+                    ],
+                    "verified_scope_entry_count": binding["scope_entry_count"],
+                    "verified_scope_ids": list(binding["scope_ids"]),
+                    "missing_scope_ids": [],
+                    "failed_scope_ids": [],
+                }
+            )
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            raw["external_receipts"][name]["sha256"] = sha256(
+                path.read_bytes()
+            ).hexdigest()
+            evidence = parse_release_evidence(raw)
+
+            with patch(
+                "gate17_release_readiness.load_canonical_original_playable_scope",
+                return_value=scope,
+            ):
+                result = validate_full_original_scope_binding(
+                    evidence,
+                    repo,
+                    Path(temp) / "canonical-game",
+                )
+
+            self.assertEqual(result["scope_catalog_sha256"], scope.catalog_sha256)
+            self.assertEqual(result["verified_scope_ids"], ["26:100", "66:200"])
+
+            cases = (
+                (
+                    "scope_catalog_sha256",
+                    "0" * 64,
+                    "scope_catalog_sha256",
+                ),
+                (
+                    "verified_scope_ids",
+                    ["66:200", "26:100"],
+                    "verified_scope_ids",
+                ),
+                (
+                    "missing_scope_ids",
+                    ["26:100"],
+                    "missing_scope_ids",
+                ),
+                (
+                    "scope_entry_count",
+                    True,
+                    "scope_entry_count",
+                ),
+            )
+            for field, bad_value, message in cases:
+                with self.subTest(field=field):
+                    changed = dict(payload)
+                    changed[field] = bad_value
+                    path.write_text(json.dumps(changed), encoding="utf-8")
+                    raw["external_receipts"][name]["sha256"] = sha256(
+                        path.read_bytes()
+                    ).hexdigest()
+                    evidence = parse_release_evidence(raw)
+                    with patch(
+                        "gate17_release_readiness.load_canonical_original_playable_scope",
+                        return_value=scope,
+                    ):
+                        with self.assertRaisesRegex(
+                            ReleaseReadinessError,
+                            message,
+                        ):
+                            validate_full_original_scope_binding(
+                                evidence,
+                                repo,
+                                Path(temp) / "canonical-game",
+                            )
 
     def test_receipt_for_another_release_version_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
