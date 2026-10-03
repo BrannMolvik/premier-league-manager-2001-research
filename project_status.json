@@ -1807,7 +1807,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "dynamic_by_fixture_role_exact",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "Verify Recovery 210 PlayerRow name closure through CI, merge if green, then identify remaining cell 1 proxy+0x47 only through direct producer/consumer ownership. Do not infer squad number from layout.",
+  "gate14_exact_next_task": "Verify Recovery 210 PlayerRow shirt-number closure through CI, merge if green, then assemble a complete source-backed PlayerRow presentation snapshot from cells 1..6 plus energy/resources/geometry and attach it to the existing presentation seam without duplicating simulation logic.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -2419,7 +2419,7 @@
   "gate14_playerrow_cell2_position_lookup_va": "0x635EC0",
   "gate14_playerrow_cell2_position_table_va": "0x849930",
   "gate14_playerrow_cell2_position_localizer_va": "0x6350D0",
-  "gate14_playerrow_cell1_semantic": "unresolved_fail_closed",
+  "gate14_playerrow_cell1_semantic": "player_shirt_number",
   "gate14_playerrow_cell1_match_proxy_offset": "0x47",
   "gate14_playerrow_cell1_not_squad_number_by_offset": true,
   "gate14_dbrplayer_squad_number_runtime_offset": "0x70",
@@ -2438,5 +2438,20 @@
   "gate14_playerrow_name_prefix_sentinel": "-",
   "gate14_playerrow_name_plain_format": "%s",
   "gate14_playerrow_name_prefix_format": "%c %s",
-  "gate14_playerrow_name_with_position_format": "%c %s (%s)"
+  "gate14_playerrow_name_with_position_format": "%c %s (%s)",
+  "gate14_playerrow_name_merge": "cdfc5b88c67d05b4eb58fc3c42f879e9fe95146e",
+  "gate14_playerrow_name_reconstruction_run": 37099943167,
+  "gate14_playerrow_name_test_count": 1560,
+  "gate14_playerrow_name_expected_skips": 22,
+  "gate14_playerrow_name_asset_policy_run": 37099943164,
+  "gate14_playerrow_cell1_record_offset": "0x47",
+  "gate14_playerrow_shirt_accessor_va": "0x41E3D0",
+  "gate14_playerrow_shirt_runtime_offsets": [
+    "0x70",
+    "0x76"
+  ],
+  "gate14_playerrow_shirt_builder_caller_va": "0x533370",
+  "gate14_playerrow_shirt_accessor_call_va": "0x5333EC",
+  "gate14_playerrow_shirt_record_write_va": "0x5333F3",
+  "gate14_playerrow_cell1_derived_not_direct_alias": true
 }
