@@ -37,8 +37,9 @@ The canonical runner deliberately mirrors the current repository boundary:
 
 - human club selection comes from `state.premier_league.club_ids`;
 - fixed human League support is competition 0;
-- primary procedural League state already exists generically in
-  `state.procedural_leagues`;
+- every TeamSelect League classified `procedural_primary` is included in the
+  canonical primary scheduler/materialization set and is represented through
+  `state.procedural_leagues` when its source participants resolve;
 - `play_user_primary_match()` now dispatches already-materialized primary
   `procedural_league` entries through the shared human match backend;
 - GameState has no secondary procedural League runtime container;
