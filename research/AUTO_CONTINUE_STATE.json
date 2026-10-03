@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 199: resume from canonical main 6277e385cff41216f6842bce4b49daea41e366e6 with PR #167 as the exact active Gate-14 checkpoint. Verify/merge the clean FastView GlobalTick timing branch only if CI is green; then continue the smallest source-backed player-visible FastView possession integration using staged original diagram art, exact PossessionFigures text geometry, receiver lifecycle, and source timing while keeping human-side orientation and broader score/team/audio/3D behavior fail-closed. Gate 13 remains earliest incomplete pending the external schema-8 Windows receipt.",
-  "last_known_main_head": "6277e385cff41216f6842bce4b49daea41e366e6",
+  "active_task": "Recovery 199: PR #167 is canonical at main 78e305ca0e0fc7e5c22ed91649c2d9c5b163162f after 1,492 tests / 22 expected skips and asset-policy success. Continue Gate-14 work-ahead with the smallest source-backed player-visible FastView possession integration: reuse staged original PossessionDiagram art, exact diagram/text geometry, typed receiver lifecycle, every-fifth-GlobalTick cadence and GetTickCount speed thresholds. Keep human-side orientation, unresolved text font/color, broader FastView score/team/audio/3D choreography, and Gate 14 completion fail-closed. Gate 13 remains earliest incomplete pending the external schema-8 Windows receipt.",
+  "last_known_main_head": "78e305ca0e0fc7e5c22ed91649c2d9c5b163162f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 199,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 199 resumed from PR #167. Do not repeat prior source tracing or merged checkpoints.",
+  "note": "PR #167 merged. Continue live possession presentation slice without inventing unresolved orientation or typography.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
