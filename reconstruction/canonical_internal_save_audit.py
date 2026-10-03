@@ -399,10 +399,9 @@ def run_canonical_primary_scope_internal_save_audit(
         "save_prior_primary_results": len(
             pre_restore_snapshot["controller"]["pending_prior_primary_results"]
         ),
-        "save_after_primary_entries": [
-            _json_primary_entry(tuple(value))
-            for value in original._pending_after_primary_entries
-        ],
+        "save_after_primary_entries": list(
+            pre_restore_snapshot["controller"]["pending_after_primary_entries"]
+        ),
         "save_json_bytes": len(save_bytes),
         "save_gzip_bytes": len(compressed),
         "save_json_sha256": sha256(save_bytes).hexdigest(),
