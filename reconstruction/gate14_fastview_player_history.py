@@ -32,6 +32,13 @@ SOURCE_ENERGY_DERIVER_VA = 0x630910
 
 SOURCE_CONDITION_HISTORY_GETTER_VA = 0x630EF0
 SOURCE_HISTORY_WRITER_VA = 0x6309D0
+SOURCE_FORM_TRAJECTORY_LOOP_VA = 0x630CEC
+SOURCE_FORM_TRAJECTORY_RNG_VA = 0x630D46
+SOURCE_SEGMENT_HISTORY_UPDATE_VA = 0x62B3F0
+SOURCE_PARTICIPANT_SIDE0_CONDITION_SEED_VA = 0x62ACFF
+SOURCE_PARTICIPANT_SIDE1_CONDITION_SEED_VA = 0x62AD65
+SOURCE_PARTICIPANT_STARTER_FORM_SEED_SIDE0_VA = 0x62ACED
+SOURCE_PARTICIPANT_STARTER_FORM_SEED_SIDE1_VA = 0x62AD53
 SOURCE_DBRPLAYER_CONDITION_OFFSET = 0x77
 SOURCE_DBRPLAYER_FORM_STATE_OFFSET = 0x192
 
@@ -46,6 +53,10 @@ SOURCE_HISTORY_TICK_CAP = 0x77
 SOURCE_HISTORY_TICK_DIVISOR = 5
 SOURCE_MATCH_FORM_MIN = 1
 SOURCE_MATCH_FORM_MAX = 10
+SOURCE_MATCH_FORM_INITIAL = 5
+SOURCE_MATCH_FORM_TARGET_MIN = 4
+SOURCE_MATCH_FORM_TARGET_MAX = 10
+SOURCE_MATCH_FORM_RNG_BOUND = 2
 
 SOURCE_ENERGY_FORM_TREND_STEP = 4
 SOURCE_ENERGY_RNG_BOUND = 6
@@ -64,6 +75,136 @@ def player_history_sample_index(global_tick: int) -> int:
             "FastView player-history tick must be a non-negative integer"
         )
     return min(global_tick, SOURCE_HISTORY_TICK_CAP) // SOURCE_HISTORY_TICK_DIVISOR
+
+
+
+def match_form_trajectory_rng_draw_count(elapsed_sample_count: int) -> int:
+    """Return exact 0x630CEC-loop RNG(2) draw count for an active player."""
+    if (
+        type(elapsed_sample_count) is not int
+        or not 0 <= elapsed_sample_count <= SOURCE_HISTORY_SAMPLE_COUNT
+    ):
+        raise FastViewPlayerHistoryError(
+            "elapsed_sample_count must be an integer in 0..24"
+        )
+    return max(0, elapsed_sample_count - 1)
+
+
+def materialize_fastview_match_form_history(
+    target_rating: int,
+    elapsed_sample_count: int,
+    rng2_rolls,
+    *,
+    active_for_club: bool,
+) -> tuple[int, ...]:
+    """Mirror the active-player 0x630CEC..0x630D9E form trajectory.
+
+    The source resets sample 0 to 5, then visits samples 1..23. Samples before
+    MatchCalculator +0xFF8 each consume one MatchEngine RNG(2) result. A nonzero
+    roll moves one point toward participant target byte +0x30. If already equal
+    to the target and 0x417F50 says the player is active for this club, values
+    <=5 rise one point while values >5 fall one point. Samples at/after +0xFF8
+    hold the previous clamped value without consuming RNG.
+
+    rng2_rolls must contain exactly the draws the source would consume, so a
+    caller cannot accidentally desynchronize the separate MatchEngine stream.
+    """
+    if (
+        type(target_rating) is not int
+        or not SOURCE_MATCH_FORM_TARGET_MIN
+        <= target_rating
+        <= SOURCE_MATCH_FORM_TARGET_MAX
+    ):
+        raise FastViewPlayerHistoryError(
+            "target_rating must be an integer in source range 4..10"
+        )
+    if type(active_for_club) is not bool:
+        raise FastViewPlayerHistoryError("active_for_club must be a bool")
+
+    expected_draws = match_form_trajectory_rng_draw_count(elapsed_sample_count)
+    try:
+        rolls = tuple(rng2_rolls)
+    except TypeError as exc:
+        raise FastViewPlayerHistoryError("rng2_rolls must be iterable") from exc
+    if len(rolls) != expected_draws or any(
+        type(value) is not int or not 0 <= value < SOURCE_MATCH_FORM_RNG_BOUND
+        for value in rolls
+    ):
+        raise FastViewPlayerHistoryError(
+            f"rng2_rolls must contain exactly {expected_draws} source RNG(2) results"
+        )
+
+    history = [SOURCE_MATCH_FORM_INITIAL]
+    roll_index = 0
+    for sample_index in range(1, SOURCE_HISTORY_SAMPLE_COUNT):
+        previous = history[-1]
+        if sample_index >= elapsed_sample_count:
+            current = min(
+                SOURCE_MATCH_FORM_MAX,
+                max(SOURCE_MATCH_FORM_MIN, previous),
+            )
+        else:
+            roll = rolls[roll_index]
+            roll_index += 1
+            current = previous
+            if roll != 0:
+                if current < target_rating:
+                    current += 1
+                elif current > target_rating:
+                    current -= 1
+                elif active_for_club:
+                    current += 1 if current <= 5 else -1
+            current = min(
+                SOURCE_MATCH_FORM_MAX,
+                max(SOURCE_MATCH_FORM_MIN, current),
+            )
+        history.append(current)
+
+    return tuple(history)
+
+
+def condition_history_retained_prefix_count(elapsed_sample_count: int) -> int:
+    """Return Condition bytes that survive 0x630D12 future-fill."""
+    if (
+        type(elapsed_sample_count) is not int
+        or not 0 <= elapsed_sample_count <= SOURCE_HISTORY_SAMPLE_COUNT
+    ):
+        raise FastViewPlayerHistoryError(
+            "elapsed_sample_count must be an integer in 0..24"
+        )
+    return max(1, min(elapsed_sample_count, SOURCE_HISTORY_SAMPLE_COUNT))
+
+
+def materialize_fastview_condition_history(
+    captured_prefix,
+    elapsed_sample_count: int,
+    final_condition: int,
+) -> tuple[int, ...]:
+    """Complete the exact 24-byte Condition history after match finalization.
+
+    captured_prefix is the source-visible prefix that survives finalization:
+    sample 0 from participant setup plus the segment-boundary samples below
+    MatchCalculator +0xFF8. 0x630D12..0x630D3D fills every remaining history
+    byte with the player's final DBRPlayer Condition.
+    """
+    retained = condition_history_retained_prefix_count(elapsed_sample_count)
+    try:
+        prefix = tuple(captured_prefix)
+    except TypeError as exc:
+        raise FastViewPlayerHistoryError("captured_prefix must be iterable") from exc
+    if len(prefix) != retained or any(
+        type(value) is not int or not 0 <= value <= 0xFF for value in prefix
+    ):
+        raise FastViewPlayerHistoryError(
+            f"captured_prefix must contain exactly {retained} source-byte samples"
+        )
+    if type(final_condition) is not int or not 0 <= final_condition <= 0xFF:
+        raise FastViewPlayerHistoryError(
+            "final_condition must be an unsigned source byte"
+        )
+    return prefix + (final_condition,) * (
+        SOURCE_HISTORY_SAMPLE_COUNT - retained
+    )
 
 
 @dataclass(frozen=True)
