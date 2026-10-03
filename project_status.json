@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "136dd19",
-  "last_verified_reconstruction_ci_head": "9041cb9aff25e6982af6d9c80fccc0bac693f852",
-  "last_verified_test_count": 1543,
+  "last_verified_reconstruction_ci_head": "745c1576c337c94dcea86f996bf347af641c77c2",
+  "last_verified_test_count": 1549,
   "asset_policy_validated_head": "9b554eb6f9a5eae5c0b6f31205d9ed07aefaa658",
   "asset_policy_status": "passed",
-  "active_task": "Recovery 208 Gate-14 work-ahead: verify FastViewTeam/TeamTable side-indexed name-grid/bar pairing, row geometry and row-11 alternate-grid transition; then trace bar state consumer 0x526680 or the next directly owned FastViewTeam slice without inventing semantics.",
+  "active_task": "Recovery 209 Gate-14 work-ahead: verify exact EventPlayerUpdateEnergy bar transform, then trace PlayerRow EventPlayerUpdateForm/EventPlayerGoal/EventPlayerOwnGoal text/control data flow without inventing remaining row labels. Gate 13 remains earliest incomplete.",
   "last_local_focused_test_count": 453,
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
@@ -1821,7 +1821,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "dynamic_by_fixture_role_exact",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "Verify Recovery 208 TeamTable row contract through full CI, then trace 0x526680 bar-state consumer far enough to name only source-proven semantics; otherwise continue the next directly owned FastViewTeam resource/control family.",
+  "gate14_exact_next_task": "Verify Recovery 209 energy-bar contract through CI, then trace PlayerRow callbacks 0x526740 (EventPlayerUpdateForm), 0x526800 (EventPlayerGoal), and 0x526880 (EventPlayerOwnGoal) far enough to bind only directly proven row text/control semantics.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -2347,5 +2347,30 @@
     43
   ],
   "gate14_fastview_team_row_semantics": "unresolved_fail_closed",
-  "gate14_fastview_team_bar_state_semantics": "unresolved_fail_closed"
+  "gate14_fastview_team_bar_state_semantics": "EventPlayerUpdateEnergy_exact",
+  "gate14_fastview_team_rows_merge": "745c1576c337c94dcea86f996bf347af641c77c2",
+  "gate14_fastview_team_rows_reconstruction_run": 37095885928,
+  "gate14_fastview_team_rows_test_count": 1549,
+  "gate14_fastview_team_rows_expected_skips": 22,
+  "gate14_fastview_team_rows_asset_policy_run": 37095885981,
+  "gate14_fastview_team_energy_receiver": "EventPlayerUpdateEnergy",
+  "gate14_fastview_team_energy_receiver_offset": "0x58",
+  "gate14_fastview_team_energy_receiver_base_vftable": "0x7CA92C",
+  "gate14_fastview_team_energy_receiver_vftable": "0x7CA900",
+  "gate14_fastview_team_energy_callback_va": "0x5267D0",
+  "gate14_fastview_team_energy_update_va": "0x526680",
+  "gate14_fastview_team_energy_event_value_offset": "0x04",
+  "gate14_fastview_team_energy_anchor_min": 58,
+  "gate14_fastview_team_energy_anchor_max": 99,
+  "gate14_fastview_team_energy_span": 41,
+  "gate14_fastview_team_energy_bar_width": 82,
+  "gate14_fastview_team_energy_width_transform": "integer value<=99 => 2*(energy-58); value>99 => 82; source routine has no lower clamp",
+  "gate14_fastview_team_side_0_energy_layers": [
+    "team_bar_1.444",
+    "blank_bar.444"
+  ],
+  "gate14_fastview_team_side_1_energy_layers": [
+    "blank_bar.444",
+    "team_bar_2.444"
+  ]
 }

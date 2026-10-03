@@ -17,10 +17,24 @@ from gate14_fastview_team import (
     TEAM_ROW_PRIMARY_VFTABLE,
     TEAM_ROW_STEP,
     TEAM_ROW_TEXT_RAW_FLAGS,
+    PLAYER_ROW_ENERGY_RECEIVER_BASE_VFTABLE,
+    PLAYER_ROW_ENERGY_RECEIVER_VFTABLE,
+    PLAYER_ROW_ENERGY_RECEIVER_OFFSET,
+    PLAYER_ROW_ENERGY_CALLBACK_VA,
+    PLAYER_ROW_ENERGY_UPDATE_VA,
+    PLAYER_ROW_ENERGY_EVENT_VALUE_OFFSET,
+    PLAYER_ROW_ENERGY_MIN,
+    PLAYER_ROW_ENERGY_MAX,
+    PLAYER_ROW_ENERGY_SPAN,
+    PLAYER_ROW_ENERGY_SPAN_GLOBAL_VA,
+    PLAYER_ROW_ENERGY_SPAN_INIT_VA,
+    PLAYER_ROW_ENERGY_BAR_WIDTH,
+    PLAYER_ROW_FLOAT_TO_INT_VA,
     TEAM_TABLE_CONSTRUCTOR_VA,
     TEAM_TABLE_VFTABLE,
     FastViewTeamError,
     side_contract,
+    team_row_energy_bar_state,
     team_row_name_resource,
     team_row_origin,
     team_row_rects,
@@ -40,8 +54,8 @@ class FastViewTeamTests(unittest.TestCase):
             (
                 SIDE_0_CONTRACT.primary_name_grid,
                 SIDE_0_CONTRACT.alternate_name_grid,
-                SIDE_0_CONTRACT.bar_a,
-                SIDE_0_CONTRACT.bar_b,
+                SIDE_0_CONTRACT.dynamic_energy_bar,
+                SIDE_0_CONTRACT.static_energy_bar,
             ),
             (TEAM_NAME_GRID_1, TEAM_NAME_GRID_2, TEAM_BAR_1, BLANK_BAR),
         )
@@ -49,8 +63,8 @@ class FastViewTeamTests(unittest.TestCase):
             (
                 SIDE_1_CONTRACT.primary_name_grid,
                 SIDE_1_CONTRACT.alternate_name_grid,
-                SIDE_1_CONTRACT.bar_a,
-                SIDE_1_CONTRACT.bar_b,
+                SIDE_1_CONTRACT.dynamic_energy_bar,
+                SIDE_1_CONTRACT.static_energy_bar,
             ),
             (TEAM_NAME_GRID_3, TEAM_NAME_GRID_4, BLANK_BAR, TEAM_BAR_2),
         )
@@ -145,6 +159,54 @@ class FastViewTeamTests(unittest.TestCase):
         self.assertIs(team_row_name_resource(1, 11), TEAM_NAME_GRID_4)
         self.assertIs(team_row_name_resource(0, 20), TEAM_NAME_GRID_2)
 
+    def test_energy_receiver_and_source_transform_are_exact(self):
+        self.assertEqual(PLAYER_ROW_ENERGY_RECEIVER_BASE_VFTABLE, 0x7CA92C)
+        self.assertEqual(PLAYER_ROW_ENERGY_RECEIVER_VFTABLE, 0x7CA900)
+        self.assertEqual(PLAYER_ROW_ENERGY_RECEIVER_OFFSET, 0x58)
+        self.assertEqual(PLAYER_ROW_ENERGY_CALLBACK_VA, 0x5267D0)
+        self.assertEqual(PLAYER_ROW_ENERGY_UPDATE_VA, 0x526680)
+        self.assertEqual(PLAYER_ROW_ENERGY_EVENT_VALUE_OFFSET, 0x04)
+        self.assertEqual(PLAYER_ROW_ENERGY_MIN, 58)
+        self.assertEqual(PLAYER_ROW_ENERGY_MAX, 99)
+        self.assertEqual(PLAYER_ROW_ENERGY_SPAN, 41)
+        self.assertEqual(PLAYER_ROW_ENERGY_SPAN_GLOBAL_VA, 0x877754)
+        self.assertEqual(PLAYER_ROW_ENERGY_SPAN_INIT_VA, 0x51F330)
+        self.assertEqual(PLAYER_ROW_ENERGY_BAR_WIDTH, 82)
+        self.assertEqual(PLAYER_ROW_FLOAT_TO_INT_VA, 0x668350)
+
+    def test_side_zero_energy_expands_team_bar_over_blank_bar(self):
+        low = team_row_energy_bar_state(0, 0, 58)
+        mid = team_row_energy_bar_state(0, 0, 79)
+        full = team_row_energy_bar_state(0, 0, 99)
+        over = team_row_energy_bar_state(0, 0, 120)
+
+        self.assertIs(low.dynamic_resource, TEAM_BAR_1)
+        self.assertIs(low.static_resource, BLANK_BAR)
+        self.assertEqual(low.full_rect, (309, 27, 391, 43))
+        self.assertEqual(low.source_scaled_width, 0)
+        self.assertEqual(low.dynamic_rect, (309, 27, 309, 43))
+        self.assertEqual(mid.source_scaled_width, 42)
+        self.assertEqual(mid.dynamic_rect, (309, 27, 351, 43))
+        self.assertEqual(full.dynamic_rect, (309, 27, 391, 43))
+        self.assertEqual(over.dynamic_rect, (309, 27, 391, 43))
+
+    def test_side_one_energy_shrinks_blank_mask_to_reveal_team_bar(self):
+        low = team_row_energy_bar_state(1, 0, 58)
+        mid = team_row_energy_bar_state(1, 0, 79)
+        full = team_row_energy_bar_state(1, 0, 99)
+
+        self.assertIs(low.dynamic_resource, BLANK_BAR)
+        self.assertIs(low.static_resource, TEAM_BAR_2)
+        self.assertEqual(low.full_rect, (409, 27, 491, 43))
+        self.assertEqual(low.dynamic_rect, (409, 27, 491, 43))
+        self.assertEqual(mid.dynamic_rect, (409, 27, 449, 43))
+        self.assertEqual(full.dynamic_rect, (409, 27, 409, 43))
+
+    def test_source_does_not_lower_clamp_energy_transform(self):
+        low = team_row_energy_bar_state(0, 1, 57)
+        self.assertEqual(low.source_scaled_width, -2)
+        self.assertEqual(low.dynamic_rect, (309, 44, 307, 60))
+
     def test_invalid_side_and_row_inputs_fail_closed(self):
         for bad in (-1, 2, True, "0"):
             with self.subTest(side=bad):
@@ -154,6 +216,8 @@ class FastViewTeamTests(unittest.TestCase):
             with self.subTest(row=bad):
                 with self.assertRaises(FastViewTeamError):
                     team_row_origin(0, bad)
+        with self.assertRaises(FastViewTeamError):
+            team_row_energy_bar_state(0, 0, True)
 
 
 if __name__ == "__main__":
