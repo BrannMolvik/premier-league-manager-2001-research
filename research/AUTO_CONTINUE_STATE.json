@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 223: canonical main is 370ad184b4b3f2e9ecf33e5331afac212e588d9e. Continue Gate 13 exactly at unresolved native setup fields: uncontrolled-home visiting capacities DBRClub+0x13C/+0x140, legacy DBRClub+0x130 lifecycle for controlled-club native PL ranks 0..3, and secondary selector +0x76. Prefer bounded checksum-gated source tracing from the authorized original disc archive; if the execution container remains unavailable, add only fail-closed trace tooling or source-safe repository work and record the blocker. Do not infer 10% capacities, secondary selectors, or +0x130 semantics.",
-  "last_known_main_head": "370ad184b4b3f2e9ecf33e5331afac212e588d9e",
+  "active_task": "Ownership lock active: Gate 13 closure belongs exclusively to Codex. Read main research/WORK_OWNERSHIP.json and do not modify Gate-13 implementation/tests/audits/shared report state. Continue only independent Gate-14 work-ahead on disjoint files; if none is available, checkpoint rather than duplicating Gate 13.",
+  "last_known_main_head": "ab40df8446cf70343248ca549df233922c7e99c0",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 223,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 223 resumes from canonical Recovery 222; PR #198 and earlier persistence work are already merged history, not active.",
+  "note": "Durable coordination protocol is now in main research/CONTINUATION_INSTRUCTIONS.md + research/WORK_OWNERSHIP.json. Do not regenerate a Gate-13 worker task while that lock is active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
