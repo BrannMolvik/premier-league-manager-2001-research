@@ -378,9 +378,9 @@ The next shell slice is source-bound more strongly than the rejected loose
 background string. Live FastView code passes two concrete file paths directly
 into image-control constructor `0x527730`:
 
-- callsite `0x51FD63`: `FM2001_Art/FastView/top_bar.444`, exact source
+- path setup `0x51FD63`, control call `0x51FDA3`: `FM2001_Art/FastView/top_bar.444`, exact source
   800x95, placed at (0,0)-(800,95);
-- callsite `0x51FDF0`: `FM2001_Art/FastView/ticker.444`, exact source
+- path setup `0x51FDF0`, control call `0x51FE31`: `FM2001_Art/FastView/ticker.444`, exact source
   800x33, placed at (0,557)-(800,590).
 
 The authorized source files rehash to
