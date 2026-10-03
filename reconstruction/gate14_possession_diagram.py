@@ -13,7 +13,15 @@ SOURCE_CONSTRUCTOR_VA = 0x5227D0
 SOURCE_FASTVIEW_CALLSITE_VA = 0x5206CD
 SOURCE_STATE_SETTER_VA = 0x522B40
 SOURCE_UPDATE_VA = 0x522BB0
+SOURCE_GOAL_RECEIVER_VA = 0x522C30
+SOURCE_GLOBAL_PENALTIES_RECEIVER_VA = 0x522C60
 SOURCE_PRESENTATION_RNG_VA = 0x5227A0
+
+SOURCE_PRIMARY_RECEIVER_VFTABLE = 0x7CA87C
+SOURCE_GOAL_RECEIVER_VFTABLE = 0x7CA870
+SOURCE_GLOBAL_PENALTIES_RECEIVER_VFTABLE = 0x7CA864
+SOURCE_PENALTIES_LATCH_OFFSET = 0x20
+SOURCE_GOAL_FIELD_OFFSET = 0x0C
 SOURCE_OVERLAY_X_TABLE_VA = 0x829328
 
 PROCESS_INITIAL_PRESENTATION_RNG_STATE = 0
@@ -110,4 +118,114 @@ def advance_possession_diagram(
         rand15=rand15,
         roll_0_to_100=roll,
         next_state=next_state,
+    )
+
+
+@dataclass(frozen=True)
+class PossessionDiagramEventResult:
+    previous_state: int
+    next_state: int
+    rng_state_before: int
+    rng_state_after: int
+    penalties_latched: bool
+    event_kind: str
+    transition: PossessionDiagramStep | None = None
+
+
+def apply_possession_event(
+    state: int,
+    territory: int,
+    rng_state: int,
+    *,
+    penalties_latched: bool,
+) -> PossessionDiagramEventResult:
+    """Apply the exact EventPossession receiver at 0x522BB0.
+
+    Once EventGlobalPenalties has latched object+0x20, every later
+    EventPossession forces the middle state (1) and returns before the private
+    presentation RNG is called. Otherwise this delegates to the already
+    source-closed one-call territory transition.
+    """
+    if type(penalties_latched) is not bool:
+        raise ValueError("penalties_latched must be boolean")
+    if state not in (0, 1, 2):
+        raise ValueError("PossessionDiagram state must be 0, 1, or 2")
+    if penalties_latched:
+        return PossessionDiagramEventResult(
+            previous_state=state,
+            next_state=1,
+            rng_state_before=int(rng_state),
+            rng_state_after=int(rng_state),
+            penalties_latched=True,
+            event_kind="EventPossession",
+            transition=None,
+        )
+    step = advance_possession_diagram(state, territory, rng_state)
+    return PossessionDiagramEventResult(
+        previous_state=state,
+        next_state=step.next_state,
+        rng_state_before=int(rng_state),
+        rng_state_after=step.rng_state_after,
+        penalties_latched=False,
+        event_kind="EventPossession",
+        transition=step,
+    )
+
+
+def apply_goal_event(
+    state: int,
+    goal_field_0c: int,
+    rng_state: int,
+    *,
+    penalties_latched: bool,
+) -> PossessionDiagramEventResult:
+    """Apply Receiver<EventGoal>::0x522C30 without assigning side semantics.
+
+    Source field EventGoal+0x0C value 0 snaps the diagram to state 2; value 1
+    snaps it to state 0. Other values leave the current state unchanged.
+    This receiver consumes no presentation RNG and does not clear the penalties
+    latch.
+    """
+    if state not in (0, 1, 2):
+        raise ValueError("PossessionDiagram state must be 0, 1, or 2")
+    if type(goal_field_0c) is not int:
+        raise ValueError("goal_field_0c must be an integer source field")
+    if type(penalties_latched) is not bool:
+        raise ValueError("penalties_latched must be boolean")
+    next_state = 2 if goal_field_0c == 0 else 0 if goal_field_0c == 1 else state
+    return PossessionDiagramEventResult(
+        previous_state=state,
+        next_state=next_state,
+        rng_state_before=int(rng_state),
+        rng_state_after=int(rng_state),
+        penalties_latched=penalties_latched,
+        event_kind="EventGoal",
+        transition=None,
+    )
+
+
+def apply_global_penalties_event(
+    state: int,
+    rng_state: int,
+    *,
+    penalties_latched: bool,
+) -> PossessionDiagramEventResult:
+    """Apply Receiver<EventGlobalPenalties>::0x522C60.
+
+    The source receiver writes one byte at overall object+0x20. It does not
+    immediately move the overlay; the *next EventPossession* observes the latch
+    and forces state 1 without consuming presentation RNG.
+    """
+    if state not in (0, 1, 2):
+        raise ValueError("PossessionDiagram state must be 0, 1, or 2")
+    if type(penalties_latched) is not bool:
+        raise ValueError("penalties_latched must be boolean")
+    return PossessionDiagramEventResult(
+        previous_state=state,
+        next_state=state,
+        rng_state_before=int(rng_state),
+        rng_state_after=int(rng_state),
+        penalties_latched=True,
+        event_kind="EventGlobalPenalties",
+        transition=None,
     )
