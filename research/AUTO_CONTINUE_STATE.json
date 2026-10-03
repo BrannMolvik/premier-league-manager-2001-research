@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 PR #266 is active at d77499aa and contains the source-backed full fresh 0x5DFD30 objective generator, exact hierarchy predicates, and fresh 0x4F88C0 promotion-playoff count from child ClubRefs. Asset policy is green; full reconstruction CI is running. If green, merge #266. Immediate next dependency is exact shared-CRT state at the later 0x5DF670 -> 0x5DFD30 objective setup boundary; do not remove the non-PL fail-closed guard until that boundary is connected.",
+  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 PR #266 head 40c0f1e7 contains the full source-backed fresh 0x5DFD30 generator and corrected 0x4F88C0 promotion-playoff regression ordering; asset policy is green and replacement full CI is running. Stacked PR #267 head 2a46a34e adds fail-closed deterministic non-PL objective materialization only where the recovered branch consumes zero RNG; its asset policy is green and full CI is running. Merge #266 only if green, then reconcile/validate #267 on resulting main. RNG-bearing non-PL branches still require exact 0x5DF670 caller CRT state.",
   "last_known_main_head": "5e21e3887a6f8e42b2fc156ffe6156477e862041",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 249,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 249 resumed from main 5e21e388. Private FOOTBAL.EXE is not mounted in this recovered session, but the prior worker persisted the complete structural recovery on worker/gate17-full-fresh-objective-generator and PR #266. Existing startup research proves shared CRT continues beyond primary scheduling; caller-state integration remains separate.",
+  "note": "Recovery 249 checkpoint: first #266 CI found one synthetic equal-key English playoff test defect (0 vs expected 4); fixture was corrected to encode recovered semifinal-before-final Cup+0x38 order. No source behavior was relaxed. Secondary-container exact schedule fidelity remains unresolved and must stay fail-closed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
