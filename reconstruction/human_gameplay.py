@@ -606,10 +606,8 @@ class HumanGameplayController:
         if self.human is None:
             raise RuntimeError("select a human club first")
         club_id = int(self.human.club_id)
-        premier_ids = {
-            int(value) for value in self.state.premier_league.club_ids
-        }
-        if club_id not in premier_ids:
+        balance = self.state.finance_balances.get(club_id)
+        if balance is None or balance.financial_objective is None:
             competition_id = self.state.club_competition_membership.get(club_id)
             raise RuntimeError(
                 "fresh chairman objective candidates are not source-backed for "

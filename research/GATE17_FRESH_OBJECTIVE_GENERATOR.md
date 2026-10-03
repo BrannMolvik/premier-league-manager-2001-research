@@ -114,16 +114,29 @@ Canonical patterns covered by regression include:
 - Dutch Division 2: 6 unique positions across its two child Leagues;
 - a top League with no upper allocation: 0.
 
-## Remaining integration dependency
+## Integration boundary
 
 Fresh DBRUser construction `0x425680` initializes objective state byte
-`+0x9C = 0` and source-backed Balance cash, but does not itself call
-`0x5DFD30`.
+`+0x9C = 0` and source-backed Balance cash, but does not itself establish the
+shared CRT state at the later candidate-generation event.
 
-Normal objective setup in `0x5DF670` later calls `0x5DFD30` three times.
-Some branches consume global `0x64D540(100)` draws. The exact CRT state at
-that later event/UI boundary must therefore be connected before canonical
-non-Premier-League candidate materialization can be claimed RNG-exact.
+Normal objective setup in `0x5DF670` calls `0x5DFD30` three times. The full
+fresh branch table makes the remaining uncertainty narrower than an all-or-none
+non-PL guard:
 
-Until that boundary is recovered, the current non-PL controller guard remains
-correct: no random objective alternative is guessed.
+- first hierarchy class + lower-half fan rank is deterministic `(4,5,6)`;
+- non-first classes with zero promotion-playoff status-2 positions are
+  deterministic in both fan-rank halves;
+- first hierarchy class + high-half fan rank requires one `RNG(100)`;
+- every non-first branch with promotion-playoff positions requires one
+  `RNG(100)`.
+
+The clean-room runtime may therefore materialize a non-PL objective only when
+the exact recovered inputs prove that `0x5DFD30` consumes no RNG. The runtime
+uses a sentinel RNG object that raises if a supposedly deterministic branch
+tries to draw. RNG-bearing branches remain fail-closed until the exact
+`0x5DF670` caller CRT state is connected.
+
+Gate-17 scope readiness remains stricter than this per-club improvement: a
+League scope must not be reported complete while any selectable club can still
+reach an unresolved RNG-bearing fresh branch.

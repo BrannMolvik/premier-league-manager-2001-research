@@ -5,7 +5,11 @@ from datetime import date, timedelta
 from time import time
 from typing import Callable, Iterable
 
-from competition_startup import country_league_root_storage_order
+from competition_startup import (
+    country_league_root_storage_order,
+    fresh_objective_hierarchy,
+    fresh_promotion_playoff_position_count,
+)
 from competition_state import PremierLeagueState, season_weekday_date
 from cup_progression import (
     CupMatchCompletion,
@@ -31,6 +35,8 @@ from finance_state import (
     BalanceRuntimeState,
     FinancialObjectiveEvaluation,
     FinancialObjectiveState,
+    fresh_financial_objective_candidates,
+    fresh_financial_objective_requires_rng,
     GATE_HOME_ACCOUNT_CATEGORY,
     GATE_VISITING_ACCOUNT_CATEGORY,
     PLAYER_COST_ACCOUNT_CATEGORY,
@@ -1240,6 +1246,67 @@ class GameState:
                         len(league_club_ids),
                     ),
                 )
+
+        # Gate-17 source expansion: some non-PL fresh branches are fully
+        # deterministic. Materialize only those branches here. If 0x5DFD30
+        # would consume the shared RNG(100), leave the objective absent until
+        # the exact 0x5DF670 caller CRT state is recovered.
+        if (
+            objective is None
+            and self.source_fixture_identity is not None
+            and hasattr(club, "fan_base_index")
+        ):
+            competition_id = self.club_competition_membership.get(club_id)
+            owner = (
+                None
+                if competition_id is None
+                else self.procedural_leagues.get((int(competition_id), 0))
+            )
+            if owner is not None:
+                league_club_ids = tuple(int(value) for value in owner.club_ids)
+                if club_id in league_club_ids and league_club_ids:
+                    target_fan_base_index = int(getattr(club, "fan_base_index"))
+                    rank_count = sum(
+                        int(getattr(self.clubs[candidate_id], "fan_base_index"))
+                        <= target_fan_base_index
+                        for candidate_id in league_club_ids
+                    )
+                    hierarchy = fresh_objective_hierarchy(
+                        int(competition_id),
+                        tuple(self.competitions.values()),
+                    )
+                    playoff_count = fresh_promotion_playoff_position_count(
+                        int(competition_id),
+                        tuple(self.competitions.values()),
+                        self.league_allocation_records,
+                        self.cup_allocation_instructions,
+                        self.round_definitions,
+                    )
+                    if not fresh_financial_objective_requires_rng(
+                        rank_count,
+                        len(league_club_ids),
+                        first_hierarchy_class=hierarchy.first_class,
+                        promotion_playoff_position_count=playoff_count,
+                    ):
+                        class _NoFreshObjectiveRng:
+                            def randbelow(self, bound: int) -> int:
+                                raise AssertionError(
+                                    "deterministic fresh objective consumed RNG"
+                                )
+
+                        objective = FinancialObjectiveState(
+                            base_cash=amount,
+                            candidate_ids=fresh_financial_objective_candidates(
+                                rank_count,
+                                len(league_club_ids),
+                                first_hierarchy_class=hierarchy.first_class,
+                                last_hierarchy_class_equal=(
+                                    hierarchy.last_class_equal
+                                ),
+                                promotion_playoff_position_count=playoff_count,
+                                rng=_NoFreshObjectiveRng(),
+                            ),
+                        )
         balance = BalanceRuntimeState(
             current_cash=amount,
             financial_objective=objective,
