@@ -977,8 +977,8 @@ class IntegratedGameStateTests(unittest.TestCase):
                     self.assertEqual(state.players[identity].latest_match_performance(), item.rating)
         # Genuine simulation did not promote a statistics fragment into a
         # persistent capture owner or expose PMatchInfo context.
-        self.assertFalse(hasattr(state, 'captured_match_reports'))
-        self.assertFalse(hasattr(state, 'fixture_match_info_links'))
+        self.assertEqual(state.captured_match_reports, ())
+        self.assertEqual(state.fixture_match_info_links, {})
 
     def test_daily_injury_return_clears_exact_persistent_state(self):
         state = GameState.from_database(

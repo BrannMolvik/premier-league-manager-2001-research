@@ -10,6 +10,20 @@ topic-specific research files.
 
 **Gate 13 - Restore original management presentation**
 
+Local complete-report owner milestone, based on `41df3ac` and reconciled with
+`050085a8`: exact source caption/context/venue/weather setup fragments and initial
+normalized-history/booking bits are retained at production. Strict complete
+assembly, atomic ordered GameState owner/fixture links and schema-39 save/load
+are implemented. Synthetic complete-contract reload/context tests pass; no
+genuine ordinary calculated-report opening is claimed. Mandatory setup scalar
+and participant metadata still withholds ordinary publication. Gate 13 remains
+OPEN; final timing/recognizability audit is pending the genuine route. See
+`GATE13_LIVE_CAPTURE_INPUTS.md` for the exact remaining production boundary.
+Parallel RNG work is preserved and agent-runtime ownership is unchanged.
+Verification of this milestone: local full reconstruction suite **1,664 tests,
+23 expected licensed-source skips**, asset policy and diff checks pass. No
+successful real-fixture PMatchInfo/Windows claim or final closure audit is made.
+
 PR #194 follow-on from `cfab7abc`: live calculator completion now retains
 the native calendar tuple and D4C/D50 score accumulators, independently of the
 semantic score property, through pending-result save/reload (internal schema

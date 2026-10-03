@@ -2,6 +2,19 @@
 
 _Audit refreshed: 3 October 2026 KST_
 
+Local owner/persistence implementation milestone (not final criterion sign-off):
+source caption/setup and initial normalized-history/booking outputs now have
+live retention; strict complete assembly and ordered GameState owner/link
+save/load are implemented under schema 39. Synthetic complete-contract context
+reload is verified. Ordinary mandatory setup metadata remains incomplete, so
+the genuinely calculated fixture -> reload -> ordinary native right-click ->
+correct PMatchInfo proof is **not passed**. Gate 13 remains OPEN. No intermediate
+Windows schema-8 repetition, packaging claim or broad timing audit is made.
+Exact continuation: `GATE13_LIVE_CAPTURE_INPUTS.md`.
+Local milestone validation: 1,664 reconstruction tests / 23 expected skips;
+asset policy passes. Earlier Windows schema-8 receipts remain historical, not
+proof of this branch's unavailable ordinary successful captured-report route.
+
 PR #194 metadata checkpoint (not a refreshed criterion-level audit): producer
 calendar/score accumulators survive schema-37 pending-result reload; exact
 caption language binding and setup metadata consumers are recorded. Missing

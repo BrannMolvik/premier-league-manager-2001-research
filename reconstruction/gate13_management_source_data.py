@@ -1836,11 +1836,11 @@ class ManagementSourceDataBridge:
     def fixture_match_info_context(self, fixture_id: int):
         """Resolve only an explicit native capture-owner/link projection.
 
-        GameState does not yet produce a complete native captured report. Its
-        absence is a no-op, not permission to look in results/incidents. Future
-        capture integration must supply the ordered owner and match +0x40 words
-        together and persist them together. Scalar-copy fragments are not that
-        owner. This bridge never creates, appends or repairs a report.
+        GameState publishes only complete captures with ordered owner/link
+        persistence. Ordinary setup still lacks mandatory producer inputs;
+        their absence is a no-op, not permission to look in results/incidents.
+        Scalar-copy fragments are not that owner. This bridge never creates,
+        appends or repairs a report.
         """
         if type(fixture_id) is not int or fixture_id < 0:
             raise ManagementPresentationError('Fixture identity must be an integer')

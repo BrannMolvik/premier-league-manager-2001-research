@@ -124,7 +124,9 @@ fragments and requires complete report ownership/link state.
 
 ## Single remaining blocker
 
-Complete live native report production and persistence are still absent.
+Complete ordinary live native report production remains unavailable. The
+strict complete-report assembler and ordered owner/link persistence now exist;
+missing ordinary setup inputs still prevent publishing a report.
 The compact list/finalization, FullTime, participant statistics, selected-player
 and goal helpers are already recovered; do not retrace them. Next: retain the
 missing mandatory native setup metadata, adjusted initial participant-history
@@ -137,6 +139,76 @@ zero-filled snapshots. Final normal-play/timing closure remains pending that
 successful route.
 
 ### Metadata continuation from cfab7abc (not a closure audit)
+
+### Local metadata/owner milestone from main 41df3ac, reconciled with 050085a8
+
+- Actual ordinary AI/human preparation now retains the exact loaded caption
+  template/month bytes, competition context caption, ordinary home-club venue
+  identity and D46/D45/D44 environment copies. These remain **setup fragments**,
+  never report ownership. Unsupported language grammar/missing source strings
+  withholds the caption instead of substituting modern text.
+- Initial `0x62B3F0` history production retains participant-local low bits
+  before Condition changes. `0x62B447` copies the byte; `0x62B46C` subtracts
+  D48 with byte wrap for AI clubs; human clubs skip subtraction. Ordinary
+  AI-vs-AI's `0x51101C` D48=0 is explicit. Human-vs-AI's unresolved legacy
+  adjustment leaves AI entries null. Live discipline ownership supplies booking
+  bits; incident replay does not manufacture them. Schema 39 retains these
+  nullable producer outputs in pending results.
+- `0x632550` writes the existing calendar tuple at FEC/FF0/FF4; `0x632570`
+  aliases the same storage. The assembler reuses the already-retained calendar
+  producer, not a second guessed helper output.
+- `complete_fixture_report.py` requires all eleven direct calculator scalar
+  copies, bounded original caption, explicit venue/team/tactics/participant
+  metadata, retained calendar/accumulators, finalized statistics, selected-player
+  output, possession and finalized compact records. Packed script/goal arrays
+  must match those records. Native unwritten padding is excluded; no original
+  save-format compatibility is claimed.
+- GameState completion publishes an ordered immutable report owner and its
+  signed-word fixture index **atomically**, only after complete validation.
+  Schema 39 saves/restores both, rejects missing fields, duplicate/foreign
+  fixture identities and corrupt links, and retains the newer main's persistent
+  MatchEngine RNG. Annual regeneration clears season-local report ownership.
+- Synthetic complete-contract tests prove owner -> save/reload -> matching
+  source bridge context. They **do not prove** genuine calculated fixture ->
+  reload -> native right-click -> PMatchInfo. Ordinary setup currently never
+  supplies complete `ReportMetadata`; incomplete calculation remains unlinked.
+
+New source setup correlation (verified canonical executable, no private dumps
+committed): `0x4F6F45 -> 0x411A10` rebuilds nationality auxiliary lists by two
+passes over the original DBTPlayers array order. Separate exclusions are
+first-name byte +1 `'.'`, surname byte +0 `'N'`, +1 `'o'`, or +2 `'.'` (not a
+single `No.` prefix predicate). It groups by primary nationality byte +0x12.
+`0x421BA0` uses a group's list only for count >10, otherwise the entire player
+array. `0x510F40` retries first-name byte 0 `'-'` only for the first selection;
+the second is unfiltered. The setup argument is the home country's nationality
+identity, not its country ID. Short-string out-of-range byte behavior must not
+be silently padded. FE0/FE4 draws still need their actual setup integration.
+
+D88 correction: `0x5DA9E4` reads ticket owner +0x0C, the **seating ticket price**,
+not season-ticket quantity. Uncontrolled home setup uses the truncated
+reference seating-price calculation at `0x5DA9EC..0x5DAA05`.
+
+`0x41E3F0` takes the report team's identity and delegates to `0x41E3D0`:
+player +0x10 identity equal to that team selects shirt byte +0x70, otherwise
++0x76. The ordinary runtime's primary shirt field alone is therefore not
+evidence for every secondary/loan-team report context.
+
+Validation: local full suite 1,664 tests / 23 expected licensed-source skips;
+asset policy passes. The initial verification found one outdated no-owner
+assertion (now checks empty owner/link) and a missing Capstone environment;
+the corrected full rerun passes with the existing private dependency enabled.
+No new Windows schema-8 or package audit was run because the genuine successful
+ordinary report route remains unavailable, not because synthetic ownership
+was treated as sufficient. No proprietary binary or raw dump was committed.
+
+**Single remaining closure boundary:** complete ordinary report setup production.
+Next source-backed action: retain constructor B68, original-order FE0/FE4 setup
+draws and gate D84/D88/D8C/D90/D9C outputs, and finish explicit side tactics,
+shirt/context and human-opponent D48 metadata. `0x408170` tests legacy
+DBRClub+0x130; neither `0x405A40` nor compact import `0x403660` initializes that
+field, so fresh-allocation zero is not evidence. Connect complete metadata only
+after its producers are present, then run the genuine fixture/save/reload/native
+right-click proof and final timing/recognizability audit. Gate 13 stays OPEN.
 
 - `0x632550 -> 0x64CCD0` supplies calendar year-offset-from-1900, month and
   day. Its first four years are non-leap, then it uses 1461-day cycles, not

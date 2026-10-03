@@ -85,7 +85,6 @@ class ReportParticipantMetadata:
 @dataclass(frozen=True)
 class ReportMetadata:
     scalar_copies: tuple[NativeCapturedScalar, ...]
-    helper_copies: tuple[NativeCapturedScalar, ...]
     caption: bytes
     venue_id: int
     team_ids: tuple[int, int]
@@ -102,12 +101,6 @@ class ReportMetadata:
                        or (s.report_offset, s.calculator_offset, len(s.value)) != e
                        for s, e in zip(self.scalar_copies, expected))):
             raise ValueError('Every required calculator scalar copy must be present in source order')
-        expected_helpers = NATIVE_CAPTURE_HELPER_SCALAR_COPIES[:3]
-        if (type(self.helper_copies) is not tuple or len(self.helper_copies) != 3
-                or any(type(s) is not NativeCapturedScalar or type(s.value) is not bytes
-                       or (s.report_offset, s.calculator_offset, len(s.value)) != e
-                       for s, e in zip(self.helper_copies, expected_helpers))):
-            raise ValueError('All three producer-written +0xFEC helper dwords are mandatory')
         if type(self.caption) is not bytes or b'\0' in self.caption or not 0 < len(self.caption) < 64:
             raise ValueError('Caption requires bounded producer-written text, not padded memory')
         self.caption.decode('cp1252')
@@ -143,6 +136,16 @@ class CompleteFixtureReport:
     possession: NativeCapturedPossession
     goals: tuple[tuple[NativeCapturedGoal, ...], ...]
     script: bytes
+    compact_records: tuple[NativeCompactRecord, ...]
+
+    @property
+    def helper_copies(self):
+        # 0x632550 writes these exact three calendar outputs to FEC/FF0/FF4;
+        # 0x632570 aliases that storage. Reuse retained producer outputs rather
+        # than ask for a second calendar producer or recompute from a score/date.
+        return tuple(NativeCapturedScalar(d, s, value.to_bytes(width, 'little'))
+                     for value, (d, s, width) in zip(
+                         self.completion.calendar, NATIVE_CAPTURE_HELPER_SCALAR_COPIES[:3]))
 
     def __post_init__(self):
         _uint(self.fixture_id, 0x7FFFFFFF, 'fixture ID')
@@ -181,6 +184,10 @@ class CompleteFixtureReport:
             raise ValueError('Complete native packed script is mandatory')
         if not 2 <= (int.from_bytes(self.script[:2], 'little') & 0x3FF) <= 0x3FF:
             raise ValueError('Packed script count cannot omit native boundaries')
+        records = validated_report_compact_stream(self.compact_records)
+        if (pack_live_native_match_script(records) != self.script
+                or capture_finalized_native_goals(records) != self.goals):
+            raise ValueError('Report script/goals differ from retained finalized native fields')
 
 
 def assemble_complete_fixture_report(fixture_id, result, metadata, statistics, selected_player_id):
@@ -193,16 +200,21 @@ def assemble_complete_fixture_report(fixture_id, result, metadata, statistics, s
                 result.captured_possession, result.native_compact_events)
     if any(value is None for value in required):
         return None
-    records = result.native_compact_events
+    records = validated_report_compact_stream(result.native_compact_events)
+    return CompleteFixtureReport(fixture_id, metadata, result.native_completion_scalars,
+                                 statistics, selected_player_id, result.captured_possession,
+                                 capture_finalized_native_goals(records),
+                                 pack_live_native_match_script(records), records)
+
+
+def validated_report_compact_stream(records):
     if (type(records) is not tuple or any(type(r) is not NativeCompactRecord for r in records)
             or not any(r.kind == 6 for r in records) or not any(r.kind == 7 for r in records)
             or tuple(r.minute for r in records) != tuple(sorted(r.minute for r in records))
             or any(r.kind == 7 and r.field(0x24) not in (0, 1, 2) for r in records)):
         raise ValueError('Complete finalized ordered native boundaries are mandatory')
-    return CompleteFixtureReport(fixture_id, metadata, result.native_completion_scalars,
-                                 statistics, selected_player_id, result.captured_possession,
-                                 capture_finalized_native_goals(records),
-                                 pack_live_native_match_script(records))
+    pack_live_native_match_script(records)
+    return records
 
 
 def validate_report_owner(reports, links, fixtures):
@@ -230,7 +242,6 @@ def snapshot_report(report):
         'fixture_id': report.fixture_id,
         'metadata': {
             'scalars': [s.value.hex() for s in m.scalar_copies],
-            'helpers': [s.value.hex() for s in m.helper_copies],
             'caption': m.caption.hex(), 'venue_id': m.venue_id,
             'team_ids': list(m.team_ids), 'tactics_words': list(m.tactics_words),
             'participants': [[[p.player_id, p.shirt_number, p.booked_bit,
@@ -246,6 +257,8 @@ def snapshot_report(report):
         'possession': [report.possession.triplets.hex(), report.possession.averages.hex()],
         'goals': [[[g.player_index, g.minute, g.inversion] for g in side] for side in report.goals],
         'script': report.script.hex(),
+        'compact_records': [[r.minute, r.kind, [list(f) for f in r.fields]]
+                            for r in report.compact_records],
     }
 
 
@@ -260,7 +273,6 @@ def restore_report(value):
                          for v, (d, s, _) in zip(raw, expected))
         metadata = ReportMetadata(
             scalars(m['scalars'], NATIVE_CAPTURE_SCALAR_COPIES),
-            scalars(m['helpers'], NATIVE_CAPTURE_HELPER_SCALAR_COPIES[:3]),
             bytes.fromhex(m['caption']), m['venue_id'], tuple(m['team_ids']),
             tuple(m['tactics_words']),
             tuple(tuple(ReportParticipantMetadata(*p) for p in side) for side in m['participants']),
@@ -274,6 +286,8 @@ def restore_report(value):
             value['selected_player_id'], NativeCapturedPossession(*(
                 bytes.fromhex(v) for v in value['possession'])),
             tuple(tuple(NativeCapturedGoal(*g) for g in side) for side in value['goals']),
-            bytes.fromhex(value['script']))
+            bytes.fromhex(value['script']),
+            tuple(NativeCompactRecord(minute, kind, tuple(tuple(f) for f in fields))
+                  for minute, kind, fields in value['compact_records']))
     except (KeyError, TypeError, IndexError, UnicodeError) as exc:
         raise ValueError('Incomplete or malformed saved captured report') from exc

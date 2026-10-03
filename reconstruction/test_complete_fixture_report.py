@@ -21,7 +21,6 @@ def contract(fixture):
                         for i in range(11)) for side in range(2))
     metadata = ReportMetadata(
         tuple(NativeCapturedScalar(d, s, bytes(n)) for d, s, n in NATIVE_CAPTURE_SCALAR_COPIES),
-        tuple(NativeCapturedScalar(d, s, bytes(n)) for d, s, n in NATIVE_CAPTURE_HELPER_SCALAR_COPIES[:3]),
         b'Explicit synthetic contract', fixture.home_club_id,
         (fixture.home_club_id, fixture.away_club_id), (0, 0), sides, None)
     statistics = tuple(FinalizedSideParticipantStatistics(
@@ -65,13 +64,16 @@ class CompleteReportTests(unittest.TestCase):
         restored = restore_game_state(self.database, snapshot_game_state(self.state))
         self.assertEqual(restored.captured_match_reports, self.state.captured_match_reports)
         self.assertEqual(restored.fixture_match_info_links, {self.fixture.id: 0})
+        self.assertEqual(tuple(int.from_bytes(s.value, 'little')
+                               for s in restored.captured_match_reports[0].helper_copies),
+                         (100, 7, 1))
         context = ManagementSourceDataBridge(SimpleNamespace(state=restored)).fixture_match_info_context(self.fixture.id)
         self.assertIsNotNone(context)
         self.assertEqual(context.fixture_id, self.fixture.id)
 
-    def test_owner_identity_and_partial_helper_reject(self):
+    def test_owner_identity_and_partial_scalar_reject(self):
         with self.assertRaises(ValueError):
-            replace(self.metadata, helper_copies=())
+            replace(self.metadata, scalar_copies=())
         self.state.prepared_match_report_metadata[self.fixture.id] = replace(
             self.metadata, team_ids=tuple(reversed(self.metadata.team_ids)))
         self.state.prepared_match_participant_statistics[self.fixture.id] = self.statistics
@@ -94,7 +96,14 @@ class CompleteReportTests(unittest.TestCase):
     def test_incomplete_save_rejects_not_defaulted(self):
         self.publish()
         saved = snapshot_game_state(self.state)
-        del saved['captured_match_reports'][0]['metadata']['helpers']
+        del saved['captured_match_reports'][0]['calendar']
+        with self.assertRaises(ValueError):
+            restore_game_state(self.database, saved)
+
+    def test_packed_script_corruption_rejects(self):
+        self.publish()
+        saved = snapshot_game_state(self.state)
+        saved['captured_match_reports'][0]['script'] = '0200'
         with self.assertRaises(ValueError):
             restore_game_state(self.database, saved)
 
