@@ -4,6 +4,10 @@ import unittest
 from ea444_decoder import EA444DecodedImage
 from gate14_fastview_background import BACKGROUND_BINDING_STATUS
 from gate14_possession_figures import possession_figures_text_layout
+from gate14_fastview_playerrow_snapshot import (
+    build_fastview_player_row_render_plan,
+    build_fastview_player_row_snapshot,
+)
 from original_fastview_chrome_art import build_fastview_chrome_art
 from original_fastview_possession_art import build_fastview_possession_art
 from original_fastview_possession_figures_art import (
@@ -17,7 +21,9 @@ from gate14_fastview_partial_surface import (
     FASTVIEW_SURFACE_SIZE,
     FastViewPartialSurfaceError,
     FastViewTeamRowSelection,
+    build_fastview_partial_surface_from_render_plans,
     build_fastview_partial_surface_layout,
+    team_row_selections_from_render_plans,
 )
 
 
@@ -228,6 +234,70 @@ class FastViewPartialSurfaceTests(unittest.TestCase):
                 exact_figures(),
                 team_rows=(FastViewTeamRowSelection(0, 34),),
             )
+
+    def test_retained_render_plans_drive_team_row_surface_without_manual_reselection(self):
+        plans = tuple(
+            build_fastview_player_row_render_plan(
+                build_fastview_player_row_snapshot(
+                    side_index=side,
+                    row_index=row,
+                    shirt_number=shirt,
+                    source_position_code=position,
+                    surname=name,
+                    first_name_initial=initial,
+                    form_value=form,
+                    energy_value=energy,
+                )
+            )
+            for side, row, shirt, position, name, initial, form, energy in (
+                (1, 2, 4, 4, "Defender", "-", 7, 99),
+                (0, 0, 9, 19, "Striker", "A", 4, 79),
+            )
+        )
+
+        selections = team_row_selections_from_render_plans(plans)
+        self.assertEqual(
+            [(item.side_index, item.row_index) for item in selections],
+            [(1, 2), (0, 0)],
+        )
+
+        layout = build_fastview_partial_surface_from_render_plans(
+            exact_chrome(),
+            exact_possession(1),
+            exact_figures(),
+            render_plans=plans,
+        )
+        team_layers = [
+            layer for layer in layout.layers
+            if layer.component == "team_table_geometry"
+        ]
+        self.assertEqual(len(team_layers), 16)
+        self.assertEqual(
+            team_layers[0].identity,
+            "side1:row2:name_grid:team_name_grid_3",
+        )
+        self.assertEqual(team_layers[8].identity, "side0:row0:name_grid:team_name_grid")
+        self.assertFalse(layout.raster_composition_available)
+
+    def test_render_plan_surface_bridge_rejects_manual_or_duplicate_plan_inputs(self):
+        plan = build_fastview_player_row_render_plan(
+            build_fastview_player_row_snapshot(
+                side_index=0,
+                row_index=0,
+                shirt_number=9,
+                source_position_code=19,
+                surname="Striker",
+                first_name_initial="A",
+                form_value=4,
+                energy_value=79,
+            )
+        )
+        with self.assertRaisesRegex(FastViewPartialSurfaceError, "explicit tuple"):
+            team_row_selections_from_render_plans([plan])
+        with self.assertRaisesRegex(FastViewPartialSurfaceError, "contain only"):
+            team_row_selections_from_render_plans((object(),))
+        with self.assertRaisesRegex(FastViewPartialSurfaceError, "duplicate"):
+            team_row_selections_from_render_plans((plan, plan))
 
     def test_bad_figure_origin_fails_closed(self):
         figures = exact_figures()
