@@ -68,6 +68,9 @@ JSON syntax and diff-whitespace checks pass. Latest `origin/main` remains
 `d0dadf1fbe5088959bf611b360884f414e61590b`. No Windows run was repeated because
 the report-opening/presentation path has not become executable; the earlier
 receipt is historical, not validation of a completed new report route.
+Verified runtime/tool code is checkpointed at
+`bd7be42330e43879df2701a120f31fe773618e6a`; subsequent changes only reconcile
+documentation/validation identities.
 
 Canonical main was reconciled at `9019be2a1efa05e215a63464ea7d86e7a612d9b1`.
 PR #183 is already merged; this is a separate continuation branch. The
