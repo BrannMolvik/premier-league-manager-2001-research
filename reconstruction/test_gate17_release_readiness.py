@@ -13,6 +13,7 @@ from gate17_release_readiness import (
     require_external_windows_11_workstation,
     require_path_outside_repo,
     validate_external_receipts,
+    validate_full_scope_catalog,
     validate_limitations_document,
     validate_release_archive,
     validate_roadmap_prerequisites,
@@ -113,6 +114,38 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             encoding="utf-8",
         )
 
+        catalog_payload = {
+            "schema_version": 1,
+            "status": "source_backed_complete",
+            "expected_entry_count": 2,
+            "source_evidence": [
+                "synthetic original scope source A",
+                "synthetic original scope source B",
+            ],
+            "entries": [
+                {
+                    "scope_id": "scope-england-premier",
+                    "country": "England",
+                    "competition": "Premier",
+                    "source_reference": "synthetic-ref-1",
+                    "originally_playable": True,
+                },
+                {
+                    "scope_id": "scope-example-league",
+                    "country": "Exampleland",
+                    "competition": "Example League",
+                    "source_reference": "synthetic-ref-2",
+                    "originally_playable": True,
+                },
+            ],
+        }
+        catalog_path = repo / "research/GATE17_ORIGINAL_SCOPE_CATALOG.json"
+        catalog_path.write_text(
+            json.dumps(catalog_payload, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        catalog_sha = sha256(catalog_path.read_bytes()).hexdigest()
+
         private = temp / "private"
         receipts = {}
         receipt_flags = {
@@ -137,6 +170,15 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 "human_career_flow": True,
                 "competition_progression": True,
                 "original_management_gameplay_subsystems": True,
+                "scope_catalog_sha256": catalog_sha,
+                "scope_entry_count": 2,
+                "verified_scope_entry_count": 2,
+                "verified_scope_ids": [
+                    "scope-england-premier",
+                    "scope-example-league",
+                ],
+                "missing_scope_ids": [],
+                "failed_scope_ids": [],
             },
         }
         for name, flags in receipt_flags.items():
@@ -196,6 +238,71 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 "missing prerequisite gate sections: \\[14\\]",
             ):
                 validate_roadmap_prerequisites(repo)
+
+    def test_full_scope_catalog_requires_source_backed_complete_entries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, _raw = self.fixture(temp)
+            result = validate_full_scope_catalog(repo)
+            self.assertEqual(result["entry_count"], 2)
+            self.assertEqual(
+                result["scope_ids"],
+                ("scope-england-premier", "scope-example-league"),
+            )
+
+            path = repo / "research/GATE17_ORIGINAL_SCOPE_CATALOG.json"
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload["status"] = "unrecovered"
+            payload["expected_entry_count"] = 0
+            payload["entries"] = []
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "not source_backed_complete",
+            ):
+                validate_full_scope_catalog(repo)
+
+    def test_full_scope_receipt_is_bound_to_exact_catalog_and_all_scope_ids(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            name = "full_original_scope"
+            path = Path(raw["external_receipts"][name]["path"])
+
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload["scope_catalog_sha256"] = "0" * 64
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            raw["external_receipts"][name]["sha256"] = sha256(
+                path.read_bytes()
+            ).hexdigest()
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "different original-scope catalog",
+            ):
+                validate_external_receipts(parse_release_evidence(raw), repo)
+
+            catalog = validate_full_scope_catalog(repo)
+            payload["scope_catalog_sha256"] = catalog["sha256"]
+            payload["verified_scope_ids"] = ["scope-england-premier"]
+            payload["verified_scope_entry_count"] = 1
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            raw["external_receipts"][name]["sha256"] = sha256(
+                path.read_bytes()
+            ).hexdigest()
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "did not verify every scope entry",
+            ):
+                validate_external_receipts(parse_release_evidence(raw), repo)
+
+            payload["verified_scope_entry_count"] = 2
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            raw["external_receipts"][name]["sha256"] = sha256(
+                path.read_bytes()
+            ).hexdigest()
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "verified_scope_ids",
+            ):
+                validate_external_receipts(parse_release_evidence(raw), repo)
 
     def test_complete_external_evidence_and_archive_validate(self):
         with tempfile.TemporaryDirectory() as temp:

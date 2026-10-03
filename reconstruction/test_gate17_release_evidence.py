@@ -25,6 +25,7 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
         *,
         archive_sha: str,
         kind: str,
+        scope_catalog_sha: str | None = None,
         release_version: str = VERSION,
         repository_commit: str = COMMIT,
     ) -> Path:
@@ -50,6 +51,15 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
                 "human_career_flow": True,
                 "competition_progression": True,
                 "original_management_gameplay_subsystems": True,
+                "scope_catalog_sha256": scope_catalog_sha,
+                "scope_entry_count": 2,
+                "verified_scope_entry_count": 2,
+                "verified_scope_ids": [
+                    "scope-england-premier",
+                    "scope-example-league",
+                ],
+                "missing_scope_ids": [],
+                "failed_scope_ids": [],
             },
         }
         payload = {
@@ -69,6 +79,36 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
         root.mkdir(parents=True, exist_ok=True)
         repo = root / "repo"
         repo.mkdir()
+        catalog = {
+            "schema_version": 1,
+            "status": "source_backed_complete",
+            "expected_entry_count": 2,
+            "source_evidence": ["synthetic-ref-a", "synthetic-ref-b"],
+            "entries": [
+                {
+                    "scope_id": "scope-england-premier",
+                    "country": "England",
+                    "competition": "Premier",
+                    "source_reference": "synthetic-ref-1",
+                    "originally_playable": True,
+                },
+                {
+                    "scope_id": "scope-example-league",
+                    "country": "Exampleland",
+                    "competition": "Example League",
+                    "source_reference": "synthetic-ref-2",
+                    "originally_playable": True,
+                },
+            ],
+        }
+        catalog_path = repo / "research/GATE17_ORIGINAL_SCOPE_CATALOG.json"
+        catalog_path.parent.mkdir(parents=True)
+        catalog_path.write_text(
+            json.dumps(catalog, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        scope_catalog_sha = digest(catalog_path.read_bytes())
+
         archive = root / "release.zip"
         archive.write_bytes(b"candidate")
         archive_sha = digest(archive.read_bytes())
@@ -84,6 +124,7 @@ class Gate17ReleaseEvidenceAssemblerTests(unittest.TestCase):
                 root / f"{name}.json",
                 archive_sha=archive_sha,
                 kind=name,
+                scope_catalog_sha=scope_catalog_sha,
             )
         return repo, archive, receipts
 

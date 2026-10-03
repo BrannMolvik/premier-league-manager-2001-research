@@ -46,3 +46,33 @@ cannot pass.
 This is not a new product requirement. It makes the already-canonical ROADMAP
 scope invariant machine-checkable so missing shipped functionality cannot be
 documented away as a release limitation.
+
+## Source-backed scope catalog binding
+
+The release receipt is additionally bound to
+`research/GATE17_ORIGINAL_SCOPE_CATALOG.json`.
+
+The repository file is deliberately a release-blocking placeholder today:
+`status` is `unrecovered`, `expected_entry_count` is zero, and no country or
+competition entries are asserted. This prevents the current Premier-League-only
+runtime from becoming the source of truth for the shipped game's original scope.
+
+Before final release, authorized original evidence must populate that catalog
+with `status: source_backed_complete`, a positive exact entry count, non-empty
+source-evidence references, and one unique entry per originally playable
+country/competition target. Each entry carries a stable `scope_id`, country,
+competition, source reference and `originally_playable: true`.
+
+`full_original_scope.json` must then prove it was produced against that exact
+catalog by recording:
+
+- the catalog SHA-256;
+- the exact catalog entry count;
+- the same verified entry count;
+- the complete ordered `scope_id` list;
+- empty `missing_scope_ids`;
+- empty `failed_scope_ids`.
+
+The final audit recomputes the catalog hash and rejects any stale, incomplete,
+reordered, missing or failed scope set. Six high-level booleans alone are not
+sufficient release evidence.

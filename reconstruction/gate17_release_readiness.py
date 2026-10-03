@@ -31,6 +31,7 @@ class ReleaseReadinessError(RuntimeError):
 
 
 REQUIRED_PREREQUISITE_GATES = tuple(range(1, 17))
+FULL_SCOPE_CATALOG_PATH = "research/GATE17_ORIGINAL_SCOPE_CATALOG.json"
 
 REQUIRED_EXTERNAL_RECEIPTS = {
     "clean_windows_install": (
@@ -176,6 +177,95 @@ def require_path_outside_repo(path: Path, repo_root: Path, *, label: str) -> Pat
     return target
 
 
+def validate_full_scope_catalog(repo_root: Path) -> dict:
+    """Require a complete, source-backed catalog of original playable scope."""
+    root = Path(repo_root).resolve()
+    path = (root / FULL_SCOPE_CATALOG_PATH).resolve()
+    if not path.is_relative_to(root):
+        raise ReleaseReadinessError("full-scope catalog escaped repository root")
+    if not path.is_file():
+        raise ReleaseReadinessError(
+            f"full-scope catalog is missing: {FULL_SCOPE_CATALOG_PATH}"
+        )
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ReleaseReadinessError(
+            "full-scope catalog is not readable JSON"
+        ) from exc
+    if not isinstance(payload, dict):
+        raise ReleaseReadinessError("full-scope catalog root must be an object")
+    if int(payload.get("schema_version", 0)) != 1:
+        raise ReleaseReadinessError("full-scope catalog schema_version must be 1")
+    if payload.get("status") != "source_backed_complete":
+        raise ReleaseReadinessError(
+            "full-scope catalog is not source_backed_complete"
+        )
+    try:
+        expected_count = int(payload.get("expected_entry_count", 0))
+    except (TypeError, ValueError) as exc:
+        raise ReleaseReadinessError(
+            "full-scope catalog expected_entry_count is invalid"
+        ) from exc
+    if expected_count <= 0:
+        raise ReleaseReadinessError(
+            "full-scope catalog expected_entry_count must be positive"
+        )
+    source_evidence = payload.get("source_evidence")
+    if (
+        not isinstance(source_evidence, list)
+        or not source_evidence
+        or any(not isinstance(item, str) or not item.strip() for item in source_evidence)
+    ):
+        raise ReleaseReadinessError(
+            "full-scope catalog requires non-empty source_evidence"
+        )
+    entries = payload.get("entries")
+    if not isinstance(entries, list) or len(entries) != expected_count:
+        actual = len(entries) if isinstance(entries, list) else "invalid"
+        raise ReleaseReadinessError(
+            "full-scope catalog entry count mismatch: "
+            f"expected {expected_count}, got {actual}"
+        )
+
+    scope_ids: list[str] = []
+    target_keys: list[tuple[str, str]] = []
+    for index, raw in enumerate(entries):
+        if not isinstance(raw, Mapping):
+            raise ReleaseReadinessError(
+                f"full-scope catalog entry {index} must be an object"
+            )
+        fields = {}
+        for field in ("scope_id", "country", "competition", "source_reference"):
+            value = raw.get(field)
+            if not isinstance(value, str) or not value.strip():
+                raise ReleaseReadinessError(
+                    f"full-scope catalog entry {index} requires {field}"
+                )
+            fields[field] = value.strip()
+        if raw.get("originally_playable") is not True:
+            raise ReleaseReadinessError(
+                f"full-scope catalog entry {index} must prove originally_playable=true"
+            )
+        scope_ids.append(fields["scope_id"])
+        target_keys.append((fields["country"], fields["competition"]))
+
+    if len(set(scope_ids)) != len(scope_ids):
+        raise ReleaseReadinessError("full-scope catalog has duplicate scope_id values")
+    if len(set(target_keys)) != len(target_keys):
+        raise ReleaseReadinessError(
+            "full-scope catalog has duplicate country/competition targets"
+        )
+
+    return {
+        "path": FULL_SCOPE_CATALOG_PATH,
+        "sha256": _sha256_file(path),
+        "entry_count": expected_count,
+        "scope_ids": tuple(scope_ids),
+        "source_evidence": tuple(item.strip() for item in source_evidence),
+    }
+
+
 def validate_external_receipts(
     evidence: ReleaseEvidence,
     repo_root: Path,
@@ -183,6 +273,7 @@ def validate_external_receipts(
     """Hash and inspect every externally produced Windows release receipt."""
     checked: dict[str, dict] = {}
     root = Path(repo_root).resolve()
+    full_scope_catalog = validate_full_scope_catalog(root)
     used_paths: dict[Path, str] = {}
 
     for name, required_flags in REQUIRED_EXTERNAL_RECEIPTS.items():
@@ -260,6 +351,49 @@ def validate_external_receipts(
                 raise ReleaseReadinessError(
                     f"{name} receipt is missing required true flag {flag}"
                 )
+
+        if name == "full_original_scope":
+            if payload.get("scope_catalog_sha256") != full_scope_catalog["sha256"]:
+                raise ReleaseReadinessError(
+                    "full_original_scope receipt was produced for a different "
+                    "original-scope catalog"
+                )
+            try:
+                scope_entry_count = int(payload.get("scope_entry_count", 0))
+                verified_scope_entry_count = int(
+                    payload.get("verified_scope_entry_count", 0)
+                )
+            except (TypeError, ValueError) as exc:
+                raise ReleaseReadinessError(
+                    "full_original_scope receipt has invalid scope counts"
+                ) from exc
+            if scope_entry_count != full_scope_catalog["entry_count"]:
+                raise ReleaseReadinessError(
+                    "full_original_scope receipt scope_entry_count does not match "
+                    "the source-backed catalog"
+                )
+            if verified_scope_entry_count != scope_entry_count:
+                raise ReleaseReadinessError(
+                    "full_original_scope receipt did not verify every scope entry"
+                )
+            verified_ids = payload.get("verified_scope_ids")
+            if (
+                not isinstance(verified_ids, list)
+                or tuple(verified_ids) != full_scope_catalog["scope_ids"]
+            ):
+                raise ReleaseReadinessError(
+                    "full_original_scope receipt verified_scope_ids do not exactly "
+                    "match the source-backed catalog"
+                )
+            if payload.get("missing_scope_ids") != []:
+                raise ReleaseReadinessError(
+                    "full_original_scope receipt still has missing_scope_ids"
+                )
+            if payload.get("failed_scope_ids") != []:
+                raise ReleaseReadinessError(
+                    "full_original_scope receipt still has failed_scope_ids"
+                )
+
         checked[name] = {
             "path": str(path),
             "sha256": actual_sha,

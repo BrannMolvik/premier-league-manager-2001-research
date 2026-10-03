@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "unrecovered",
+  "expected_entry_count": 0,
+  "source_evidence": [],
+  "entries": [],
+  "note": "Release-blocking placeholder. Recover the exact originally selectable/playable country and league scope from authorized original evidence before Gate 17. Do not infer entries from the current Premier-League-only reconstruction."
+}
