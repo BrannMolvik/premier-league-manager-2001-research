@@ -2,7 +2,15 @@
 
 _Audit refreshed: 3 October 2026 KST_
 
-Latest live-input continuation: complete ordered rating/skill outputs with
+PR #194 implementation checkpoint (not a new broad closure audit): live
+ordinary compact scripts now undergo native finalization and retain FullTime's
+payload through pending-result save/reload under schema 36. Goal/statistic
+capture and selected-player output also have live-field consumers. Full report
+metadata/assembly/ordered owner/link remain incomplete; the successful normal
+route and timing/recognizability criteria remain unverified. No intermediate
+schema-8 run or Gate-14 change was made. Details: `GATE13_LIVE_CAPTURE_INPUTS.md`.
+
+Earlier live-input continuation: complete ordered rating/skill outputs with
 persistent player IDs are retained at actual AI/human finalization, and actual
 captured possession survives pending-matchday save/reload under schema 35.
 See `GATE13_LIVE_CAPTURE_INPUTS.md`. These are report inputs, not the complete

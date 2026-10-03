@@ -72,6 +72,21 @@ def native_participant_skill_flags(current_skills: tuple[int, ...]) -> bytes:
     return bytes(int(value >= 200) for value in values)
 
 
+def pack_live_participant_statistics(records) -> bytes:
+    """0x60BCB0 from actual finalizer output, without synthetic 0x4C memory."""
+    from match_postmatch import FinalizedParticipantStatistics
+    if (type(records) is not tuple or not 0 < len(records) <= 18
+            or any(type(record) is not FinalizedParticipantStatistics or record.player_index != i
+                   for i, record in enumerate(records))):
+        raise ValueError('Live packing requires complete ordered participant statistics')
+    writer = _NativeBitWriter()
+    for record in records:
+        writer.bits(record.rating, 4)
+        for value in record.skill_flags:
+            writer.raw_bit(value)
+    return writer.finish()
+
+
 def pack_native_match_script(records: tuple[bytes, ...]) -> bytes:
     """0x633610 -> 0x6336A0: encode linked-list-order 0x38-byte records.
 

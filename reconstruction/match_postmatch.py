@@ -520,6 +520,35 @@ class FinalizedSideParticipantStatistics:
             raise ValueError('Finalized side requires exact ordered unique player identities')
 
 
+def select_native_report_player_id(
+    sides: tuple[FinalizedSideParticipantStatistics, FinalizedSideParticipantStatistics],
+    history_averages: tuple[tuple[float, ...], tuple[float, ...]],
+) -> int:
+    """0x631110 -> calculator +0x1154, in side-0 then side-1 order.
+
+    Prefer higher final rating, then strictly higher populated recent-history
+    average (0x41FB60). Equal ties retain the earlier participant. The ctor's
+    -1 survives when the final best rating is zero. No RNG/score is consumed.
+    """
+    from math import isfinite
+    if (type(sides) is not tuple or len(sides) != 2
+            or any(type(s) is not FinalizedSideParticipantStatistics for s in sides)
+            or type(history_averages) is not tuple or len(history_averages) != 2):
+        raise ValueError('Report player selection requires two complete ordered sides')
+    for side, averages in zip(sides, history_averages):
+        if (type(averages) is not tuple or len(averages) != len(side.statistics)
+                or any(type(v) not in (int, float) or not isfinite(v) or not 0 <= v <= 255
+                       for v in averages)):
+            raise ValueError('Report player selection requires complete native history averages')
+    best_rating, best_average, player_id = 0, 0.0, -1
+    for side, averages in zip(sides, history_averages):
+        for identity, statistics, average in zip(side.player_ids, side.statistics, averages):
+            if statistics.rating > best_rating or (
+                    statistics.rating == best_rating and average > best_average):
+                best_rating, best_average, player_id = statistics.rating, average, identity & 0xFFFF
+    return player_id if best_rating else -1
+
+
 def finalize_match_participant_statistics(
     side: PreparedMatchSide,
     runtime_participants: Sequence[MutablePostMatchPlayer],

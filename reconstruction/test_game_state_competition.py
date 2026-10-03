@@ -925,6 +925,7 @@ class IntegratedGameStateTests(unittest.TestCase):
             MidpointRng(),
         )
         self.assertEqual(legacy.prepared_match_participant_statistics, {})
+        self.assertEqual(legacy.prepared_match_report_player_ids, {})
         self.assertEqual(
             sum(
                 player.match_performance_history_count
@@ -963,6 +964,8 @@ class IntegratedGameStateTests(unittest.TestCase):
             all(4 <= player.latest_match_performance() <= 10 for player in populated)
         )
         statistics = state.prepared_match_participant_statistics[0]
+        self.assertIn(state.prepared_match_report_player_ids[0],
+                      tuple(identity for side in statistics for identity in side.player_ids))
         self.assertEqual(len(statistics), 2)
         for side in statistics:
             self.assertEqual(tuple(item.player_index for item in side.statistics), tuple(range(16)))

@@ -6,6 +6,7 @@ from native_compact_match import (
     native_full_time_outcome,
 )
 from original_fixture_report_packing import pack_live_native_match_script, pack_native_match_script
+from original_fixture_report_capture import capture_finalized_native_goals, NativeCapturedGoal
 
 
 def chance(minute, outcome=0, kind=1, identity=0):
@@ -127,6 +128,51 @@ class NativeCompactFinalizerTests(unittest.TestCase):
         self.assertEqual(native_full_time_outcome((1, 1), (-1, -1), (3, 4)), 1)
         with self.assertRaises(ValueError):
             native_full_time_outcome((1, 1), None, (0, 0))
+
+    def test_goal_capture_uses_finalized_native_side_and_low_byte_fields(self):
+        from match_events import ChanceRecord, ChanceSource
+        from native_compact_match import compact_record_from_live_event
+        own = ChanceRecord(ChanceSource.OPEN_PLAY, 3, 1, 7, side_inversion=True,
+                           secondary_player_side=0, secondary_player_index=4)
+        record = compact_record_from_live_event(20, own)
+        self.assertEqual(record.field(4), 0)
+        goals = capture_finalized_native_goals(finalize(complete(record, chance(10, 1))))
+        self.assertEqual(goals, ((NativeCapturedGoal(7, 20, 1),), ()))
+        later = (native_boundary(45, 6), native_boundary(90, 9), chance(130),
+                 native_boundary(130, 7, outcome=0))
+        self.assertEqual(capture_finalized_native_goals(finalize(later)), ((), ()))
+
+    def test_live_participant_statistics_pack_without_padding_or_snapshot_defaults(self):
+        from match_postmatch import FinalizedParticipantStatistics
+        from original_fixture_report_packing import pack_live_participant_statistics, pack_native_participant_statistics
+        records = tuple(FinalizedParticipantStatistics(i, 4 + i % 7, b'\x01\x00' * 4)
+                        for i in range(18))
+        native = []
+        for record in records:
+            raw = bytearray(0x4C)
+            raw[0x30] = record.rating
+            raw[0x35:0x3D] = record.skill_flags
+            native.append(bytes(raw))
+        actual = pack_live_participant_statistics(records)
+        self.assertEqual(actual, pack_native_participant_statistics(tuple(native)))
+        self.assertEqual(len(actual), 27)
+        for invalid in ((), list(records), records[::-1]):
+            with self.assertRaises(ValueError):
+                pack_live_participant_statistics(invalid)
+
+    def test_report_player_selection_preserves_native_order_history_tie_and_zero_sentinel(self):
+        from match_postmatch import FinalizedParticipantStatistics as Stats
+        from match_postmatch import FinalizedSideParticipantStatistics as Side
+        from match_postmatch import select_native_report_player_id
+        def side(ids, ratings):
+            return Side(ids, tuple(Stats(i, r, bytes(8)) for i, r in enumerate(ratings)))
+        sides = (side((5, 6), (7, 8)), side((8, 9), (8, 8)))
+        self.assertEqual(select_native_report_player_id(sides, ((10, 7), (7, 7))), 6)
+        self.assertEqual(select_native_report_player_id(sides, ((10, 7), (9, 8))), 8)
+        zeros = (side((5,), (0,)), side((6,), (0,)))
+        self.assertEqual(select_native_report_player_id(zeros, ((9,), (10,))), -1)
+        with self.assertRaises(ValueError):
+            select_native_report_player_id(sides, ((1,), (2,)))
 
 
 if __name__ == '__main__':

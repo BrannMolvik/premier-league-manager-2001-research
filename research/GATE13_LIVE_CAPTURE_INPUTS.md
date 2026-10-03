@@ -44,6 +44,31 @@ intermediate milestone. The exact next task remains complete completion-time
 report assembly/ownership/persistence using the actual retained producer
 outputs; never promote this script alone to a captured report.
 
+The same continuation now retains `0x631110`'s selected-player ID at actual
+AI/human statistics completion when the distinct RNG is supplied: higher
+rating wins, equal rating uses strictly higher populated `0x41FB60` recent
+history average, equal ties retain side-0/side-local precedence, and all-zero
+ratings retain the constructor's `-1`. This transient input is season-cleared
+and deliberately not saved as a partial report. `0x41E3F0` was checked: it
+delegates to `0x41E3D0` with the team's persistent ID, i.e. the shirt-number
+accessor, not a position accessor. Participant capture still needs its native
+history/flag metadata before any complete report can be assembled.
+
+Live statistics pack without synthetic participant memory or unused 28-byte
+tail padding. Goal capture uses finalized +4/+8/+0/+20 fields verbatim, stops
+at kind 9, and does not derive destination/player/minute from persisted scores.
+Combined focused chain: **179 passed**. The expanded private producer report
+is `work/gate13-finalized-compact-producer-20261003.json`, SHA-256
+`453347464fea34e123f24d718370ad7137c59f3d475e57760fa6322b17f3fe79`.
+No proprietary bytes or generated disassembly were committed.
+
+Milestone validation: **1,644 full reconstruction tests, 23 expected skips,
+228.868 seconds, OK**; final targeted assertions **80 passed**. Asset policy,
+JSON syntax and diff-whitespace checks pass. Latest `origin/main` remains
+`d0dadf1fbe5088959bf611b360884f414e61590b`. No Windows run was repeated because
+the report-opening/presentation path has not become executable; the earlier
+receipt is historical, not validation of a completed new report route.
+
 Canonical main was reconciled at `9019be2a1efa05e215a63464ea7d86e7a612d9b1`.
 PR #183 is already merged; this is a separate continuation branch. The
 parallel Gate-14 worker and `agent-runtime` ownership are unchanged. The

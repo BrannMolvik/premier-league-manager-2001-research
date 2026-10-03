@@ -30,6 +30,8 @@ LIVE_PRODUCER_WINDOWS = (
     ('incident compact fields', 0x62EF20, 0x70),
     ('substitution compact fields', 0x62F000, 0xAC),
     ('open-play constructor argument flow', 0x62C740, 0x600),
+    ('report player shirt-number accessor', 0x41E3F0, 0x10),
+    ('report selected player output', 0x631110, 0x127),
 )
 
 

@@ -61,6 +61,40 @@ class NativeCapturedPossession:
     averages: bytes  # report +0x20/+0x21/+0x22
 
 
+@dataclass(frozen=True)
+class NativeCapturedGoal:
+    player_index: int
+    minute: int
+    inversion: int
+
+
+def capture_finalized_native_goals(records):
+    """0x60BD90 consumes finalized native fields, stopping at kind 9.
+
+    +4 selects the destination side, +8 the side-local participant, +0 the
+    low-byte minute and +20 its low-bit inversion flag. No score totals or
+    semantic own-goal reinterpretation supply these fields.
+    """
+    from native_compact_match import NativeCompactRecord
+    if (type(records) is not tuple or any(type(r) is not NativeCompactRecord for r in records)
+            or not any(r.kind == 7 for r in records)):
+        raise ValueError('Goal capture requires a complete finalized native stream')
+    if tuple(r.minute for r in records) != tuple(sorted(r.minute for r in records)):
+        raise ValueError('Goal capture requires finalized native link order')
+    goals = ([], [])
+    for record in records:
+        if record.kind == 9:
+            break
+        if 0 <= record.kind <= 4 and record.field(0x24) in (0, 3):
+            side = record.field(4)
+            if side not in (0, 1):
+                raise ValueError('Invalid native goal destination side')
+            goals[side].append(NativeCapturedGoal(record.field(8) & 0xFF,
+                                                  record.minute & 0xFF,
+                                                  record.field(0x20) & 1))
+    return tuple(tuple(side) for side in goals)
+
+
 def _captured_possession(triplets: bytes) -> NativeCapturedPossession:
     count = len(triplets) // 3
     second = sum(triplets[1::3]) // count

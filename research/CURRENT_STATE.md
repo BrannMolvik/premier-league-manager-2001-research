@@ -10,7 +10,26 @@ topic-specific research files.
 
 **Gate 13 - Restore original management presentation**
 
-Local continuation (3 October, after PR #183 merged): live AI/human performance
+PR #194 continuation (3 October): native compact pruning/spacing/boundary
+correction/stable ordering and explicit live FullTime payloads are implemented.
+Ordinary calculated fixtures retain constructor-written script fields and
+survive pending-matchday save/reload with identical packed scripts (schema 36).
+Live statistics pack without fabricated memory/tail padding; finalized goal
+fields and selected-player output are source-backed. Complete report assembly,
+ordered GameState owner/link and successful reload/right-click/PMatchInfo
+remain unfinished: missing native participant history/flag and helper/scalar
+metadata must not be filled with defaults. Next: retain those outputs at the
+calculator/completion producer, assemble only a complete report, persist owner
+and fixture links together, then verify the genuine normal route. Gate 13 is
+OPEN. Gate-14 files and agent-runtime ownership are untouched. No broad closure
+or repeated intermediate Windows audit was performed for this continuation.
+See `GATE13_LIVE_CAPTURE_INPUTS.md` for the current executable milestone.
+Milestone suite: 1,644 tests / 23 expected skips, plus 179 focused checks and
+80 final targeted assertions; asset policy passes. Current reconciled main is
+`d0dadf1f`. Complete report/owner persistence and successful PMatchInfo opening
+are explicitly not claimed by those passing tests.
+
+Earlier local continuation (3 October, after PR #183 merged): live AI/human performance
 finalization now retains ordered participant ratings/skill flags and persistent
 player identities as transient report inputs. Actual calculator possession is
 retained at completion and survives the already-saved pending matchday results
