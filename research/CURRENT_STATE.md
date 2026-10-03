@@ -26,6 +26,13 @@ See `GATE13_FIXTURE_REPORT_CAPTURE_TRACE.md`. Single next implementation
 blocker: materialize/persist the complete completion-time report from native
 participant/statistics/script and calculator/post-match state, then verify a
 calculated fixture -> save/reload -> correct PMatchInfo context on Windows.
+PR #183 continuation source-closes and tests the participant bit packing,
+eight native skill flags, all sixteen script families/six tactical subcommands,
+four additional scalar copies and exact two/four-group captured possession.
+These snapshot codecs do not supply a complete report or assign a link.
+Continue at the live calculator/completion boundary, not by retracing codecs:
+retain final native participant records, the complete compact-event list and
+calculator/post-match scalars, then assemble/persist the complete owner.
 Normal-play/timing criteria must be assessed on that real route, not the
 explicit popup seam. Parallel later-gate work and `agent-runtime` ownership
 are unchanged.
@@ -91,9 +98,14 @@ Evidence:
   background is integrated, not an active retrace task. Keyboard equivalence
   remains unclaimed and is not itself a closure prerequisite.
 - **Exact next Gate-13 task:** materialize and persist the complete native
-  completion-time report, focusing on `0x60BCB0` participant packing and
-  `0x633610` script extraction plus the recovered calculator/post-match
-  fields. Then verify real calculation/save/reload/right-press context and
+  completion-time report. PR #183 now closes `0x60BCB0` participant packing,
+  `0x630C4F/0x630DE0` skill flags, `0x633610` script extraction and the
+  `0x631270/0x631290` possession aggregation codecs. Retain their complete
+  source-backed inputs at live calculation/completion, including explicit
+  distinct MatchEngine RNG, final participant rating/flags, complete compact
+  event records and gate-receipt/scalar output. Do not default missing fields
+  or reconstruct report ownership from scores. Then verify real
+  calculation/save/reload/right-press context and
   assess normal-play/timing against the roadmap. The parallel cloud worker
   continues its existing Gate-14 task independently; runtime ownership is
   unchanged. Gate 13 is not complete merely because schema 8 passed.

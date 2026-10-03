@@ -10681,3 +10681,11 @@ work may continue under the deferred-blocker policy.
 - `Receiver<EventPlayerOwnGoal>` is row `+0x60` / final vtable `0x7CA8E8`; callback `0x526880` increments separate counter `+0x1C`, writes `(%u)` to text-control `+0x30` = cell 5, then changes that control's native color via `0x650480`.
 - The source-computed own-goal color is not named because its runtime channel mapping has not yet been independently closed. Text cells 1..3 remain unassigned.
 - Added pure source-contract helpers/regressions for exact rectangles, unsigned formatting and independent goal/own-goal counter wrap behavior.
+
+## 3 October 2026 - PR #183 captured-report packing continuation
+
+- Reconciled canonical `main` through `88e8b3554ece25ca609e38a41f159b5473900065`, preserving parallel Gate-14 work and leaving `agent-runtime` ownership untouched.
+- Source-closed native participant 12-bit packing, exact eight skill flags, all sixteen compact-script families/six tactical subcommands, four additional scalar copies and two/four-group possession capture. Added fail-closed snapshot codecs and independent bit-stream/offset/overflow regressions; no fragment is promoted to a report or assigned a fixture link.
+- Canonical private calibration passed (18 tests); focused Gate-13 report/route/host/bridge/audit/separation passed (118 tests, one expected skip). Asset policy passed. Fresh Windows schema-8 audit and reconciled frozen package smoke passed; private trace/receipt/package hashes are in `GATE13_CLOSURE_AUDIT.md`.
+- Full reconstruction rerun on the reconciled tree passed: 1,587 tests, 23 expected skips. Project JSON and diff-whitespace checks passed; no proprietary executable/archive/raw analysis or packaging output was staged.
+- Gate 13 remains OPEN. Single next blocker: retain the complete source-backed live calculator/completion inputs, assemble and persist the full report owner/link, then audit calculated fixture -> save/reload -> native right-click -> correct PMatchInfo and timing/normal-play criteria. Codecs are now recovered; do not restart their trace or derive context from results.

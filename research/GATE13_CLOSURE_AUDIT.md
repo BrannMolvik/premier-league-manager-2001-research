@@ -22,14 +22,46 @@ not absence of a schema-8 Windows run. The background work from #177 is closed
 and unchanged. `GATE13_FIXTURE_REPORT_CAPTURE_TRACE.md` closes eligibility,
 native ownership/lifecycle evidence and the exact right-button event chain.
 The single next implementation blocker is complete completion-time report
-production/persistence, including native packed participant statistics and
-script data. The read-only adapter has no real report producer yet and never
+production/persistence. PR #183 now source-closes/tests native participant
+packing and skill flags, script extraction, grouped possession and additional
+scalar projection; the live calculator still does not retain their complete
+inputs. The read-only adapter has no real report producer yet and never
 derives context from scores/completion. After that producer is integrated,
 audit a real calculated fixture through save/reload and PMatchInfo and assess
 the roadmap's normal-play/timing criteria. No formal Gate-14 transition or
 Gate-13 completion is claimed; parallel Gate-14 work-ahead remains separate.
 
 ## Final local validation (3 October)
+
+### PR #183 codec continuation
+
+- Reconciled newer continuous-worker work through
+  `88e8b3554ece25ca609e38a41f159b5473900065`; runtime ownership unchanged.
+- Native codec/copy/private calibration suite: **18 tests passed**, including
+  the canonical executable, five vtable slots and five dispatch tables.
+- Focused report/routing/host/bridge/audit/separation suite: **118 tests passed,
+  one expected private-source skip**.
+- Full suite rerun after the newer main merge passed: **1,587 tests,
+  23 expected skips** (288.634 seconds). Project JSON and whitespace checks
+  passed; the newer worker's Gate-14 tests are preserved and included.
+- Asset policy passed. Reproducible 49-window private trace SHA-256:
+  `fdd88b5e5f928c500b4fb366b88cb99436ea23601ccb460e57588804e76a8bd5`.
+- Fresh real Windows schema-8 audit passed at
+  `C:\Users\Brann\Documents\FM2001-audits\gate13-schema8-report-codecs-20261003.json`.
+  Its deterministic SHA-256 remains
+  `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`.
+  Successful ordinary report opening remains false. The live presentation
+  interaction path was not changed by these isolated snapshot codecs.
+- Fresh reconciled Windows onedir build and frozen `--package-smoke` passed.
+  Private executable SHA-256:
+  `3ae5e07a064b0cc5c226b68108e59e289348fbb8bfc10d2ebff5188490230308`.
+  This is not a Gate-17 release audit.
+- Gate 13 remains open. No calculated-fixture/save/reload/report-context
+  success or final timing/recognizability pass is claimed. The next action is
+  complete live calculator/completion inputs and report owner/save integration,
+  as specified in `GATE13_FIXTURE_REPORT_CAPTURE_TRACE.md`.
+
+### Prior PR #183 validation
 
 - Preserved the continuous worker's newer main work through
   `745c1576c337c94dcea86f996bf347af641c77c2`; no runtime ownership change.

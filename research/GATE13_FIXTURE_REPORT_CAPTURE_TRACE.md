@@ -117,6 +117,9 @@ codecs. They remain fragments, not complete reports or gameplay context:
   order. The next participant is not byte-aligned. Eighteen participants copy
   27 bytes; the helper copies only `ceil(bit_count / 8)` bytes into each
   28-byte destination, not a zero-filled 28-byte replacement.
+  `0x60B0A0` does not initialize these destination blocks; `0x60B240` writes
+  the entire 56-byte pair. The snapshot codec therefore deliberately does not
+  manufacture unused tail bytes or claim original-save compatibility.
 - Those eight bytes are now source-identified by `0x630C4F -> 0x630DE0`:
   threshold `>=200` on DBRPlayer offsets `+0x1E`, integer mean of
   `+0x27/+0x1E`, `+0x24`, `+0x26`, `+0x28`, `+0x25`, `+0x25`, `+0x22`.
