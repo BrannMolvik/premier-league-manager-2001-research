@@ -8,6 +8,16 @@ A conversation timeout is not a reason to restart the investigation. **GitHub is
 
 **Permanent assignment:** finish the entire FM2001 modernization through
 Gate 17, not merely the current gate or the next item in `CURRENT_STATE.md`.
+
+**Permanent scope invariant:** this project is a Windows 11 compatibility port
+of the shipped original game. Preserve the original game's functional scope,
+including every originally selectable/playable league and country and the
+management/gameplay systems required for complete careers in them. A temporary
+Premier-League-only human path is an intermediate reconstruction boundary, not
+an acceptable final release limitation. Do not close Gate 17 by documenting
+away missing original functionality. Modernization may replace incompatible
+implementation details, but must not intentionally reduce shipped functionality.
+
 Each gate's exact next task is the next action within this larger mission.
 When a verified subtask finishes, take the next available source-backed step
 in the same session if possible. When a gate passes its audit, advance to the
