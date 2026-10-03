@@ -273,6 +273,21 @@ position as `%c %s (%s)`, closing the field as the player display name.
 Cell 1 remains the only unnamed shared text cell and continues to fail closed
 at match-player proxy byte `+0x47`.
 
+### Recovery 210 PlayerRow shirt/squad-number field
+
+The final unnamed shared PlayerRow cell now has direct source ownership.
+Builder caller `0x533370` invokes DBRPlayer accessor `0x41E3D0` at
+`0x5333EC`. That accessor returns runtime shirt/squad-number state
+`+0x70` for the matching team context or alternate `+0x76`.
+`0x5333F3` writes the returned byte into the 72-byte display record at
+exactly `+0x47`, and shared PlayerRow producer `0x525BD0` renders that
+byte as `%u` in text cell 1.
+
+This resolves the earlier offset mismatch correctly: display-record `+0x47`
+is a derived presentation field, not a direct DBRPlayer offset alias. All six
+PlayerRow text cells now have source-backed semantics; the next integration
+slice can compose the complete row without inventing labels.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
