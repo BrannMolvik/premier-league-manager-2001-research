@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned on canonical main e75351d4a01d30954a4493a0ec4f2ba1cd7688df. Disjoint Gate-14 PR #228 (source-backed FastView component RGBA planes) is open at 4b616b5004341c5948067e14269a17e87cdf883c; asset policy run 37137641252 passed and full reconstruction run 37137641253 is still in progress. When it passes, merge PR #228, reconcile main, then continue the highest-efficiency disjoint Gate-14 implementation. Local container execution remains unavailable with caas ClientError; do not treat that as a source blocker or duplicate Gate-13 work.",
-  "last_known_main_head": "e75351d4a01d30954a4493a0ec4f2ba1cd7688df",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is now 9130c24dd89aa9ce2703f543f408a4c644e517ae after verified Gate-14 PR #228 merged (component RGBA planes; reconstruction 37138177620 + asset policy 37138177540 passed). Continue disjoint Gate-14 work: PR #229 TeamTable art loader has isolated test-fixture fix at 75961b1b2a38cbe50dd06901c496df9118d4674d and awaits restarted CI. Descendant branches prepare static TeamTable raster and verified-source chrome loading. Do not touch Gate-13-owned/shared runtime files.",
+  "last_known_main_head": "9130c24dd89aa9ce2703f543f408a4c644e517ae",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 229,
+  "recovery_generation": 230,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 229: resumed from merged Gate-17 catalog e75351d4. Opened Gate-14 PR #228 adding separate source-backed FastView chrome/possession/figures RGBA planes and frame-plan attachment. Asset policy passed; full reconstruction CI still running. Preserve Gate-13 Codex lock.",
+  "note": "Recovery 230 checkpoint: Gate-14 PR #228 merged green as 9130c24d. PR #229 loader failure was impossible malformed EA444 fixture, fixed at 75961b1b. Static TeamTable raster and chrome source-loader work are persisted on descendant/disjoint branches. Local process sandbox still unavailable.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
