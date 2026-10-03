@@ -11,6 +11,16 @@ topic-specific research files.
 **Gate 13 - Restore original management presentation**
 
 
+Recovery 223 adds only fail-closed source-discovery tooling for the three
+remaining setup fields: `DBRClub+0x130`, `+0x13C/+0x140`, and participant
+secondary/loan selector `+0x76`. The authorized original archive still
+materializes from Library, but the private execution container currently fails
+even trivial filesystem commands with `ClientError`. No field semantics are
+therefore promoted. The new checksum-gated scanner records only exact
+memory-displacement candidates for later private CFG/data-flow adjudication.
+Gate 13 remains OPEN; see `GATE13_LIVE_CAPTURE_INPUTS.md`.
+
+
 Recovery 222 narrows the human-opponent D48 blocker without guessing legacy
 club state. Exact native Premier League rank is now recomputed only from the
 recovered comparator plus original CP1252 short-name bytes; missing/ambiguous
