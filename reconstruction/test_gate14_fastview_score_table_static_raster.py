@@ -2,6 +2,7 @@
 import unittest
 
 from ea444_decoder import EA444DecodedImage
+from gate14_fastview_scores import FastViewScoresError
 from gate14_fastview_score_table_static_raster import (
     FastViewScoreTableStaticRasterError,
     build_fastview_score_table_static_rasters,
@@ -118,7 +119,7 @@ class FastViewScoreTableStaticRasterTests(unittest.TestCase):
                 ),
             )
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(FastViewScoresError):
             rasterize_fastview_league_scores_static(
                 art, 1, phase_events_by_source_index=((0, "EventGlobalSecondHalf"),)
             )
