@@ -26,6 +26,27 @@ class Gate17ExternalValidationTests(unittest.TestCase):
         game.mkdir()
         archive = root / "release.zip"
         archive.write_bytes(b"candidate")
+        research = repo / "research"
+        research.mkdir()
+        catalog = {
+            "schema_version": 1,
+            "status": "source_backed_complete",
+            "expected_entry_count": 1,
+            "source_evidence": ["synthetic-scope-source"],
+            "entries": [
+                {
+                    "scope_id": "scope-synthetic",
+                    "country": "Exampleland",
+                    "competition": "Example League",
+                    "source_reference": "synthetic-ref",
+                    "originally_playable": True,
+                }
+            ],
+        }
+        (research / "GATE17_ORIGINAL_SCOPE_CATALOG.json").write_text(
+            json.dumps(catalog),
+            encoding="utf-8",
+        )
         scope = root / "full_original_scope.json"
         scope.write_text("{}", encoding="utf-8")
         work = root / "external-validation"
@@ -70,6 +91,63 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                     )
 
             limitations.assert_not_called()
+            self.assertFalse(work.exists())
+
+    def test_preflight_rejects_unrecovered_scope_catalog_before_receipt_work(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, game, archive, scope, work = self._paths(temp)
+            catalog_path = repo / "research/GATE17_ORIGINAL_SCOPE_CATALOG.json"
+            catalog_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "status": "unrecovered",
+                        "expected_entry_count": 0,
+                        "source_evidence": [],
+                        "entries": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            with (
+                patch(
+                    "gate17_external_validation.require_external_windows_11_workstation",
+                    return_value={
+                        "windows_11": True,
+                        "windows_build": 26200,
+                        "windows_product_type": 1,
+                    },
+                ),
+                patch(
+                    "gate17_external_validation.validate_clean_repository",
+                    return_value={"working_tree_clean": True},
+                ),
+                patch(
+                    "gate17_external_validation.validate_roadmap_prerequisites",
+                    return_value={"all_prerequisites_complete": True},
+                ),
+                patch(
+                    "gate17_external_validation.validate_limitations_document",
+                    return_value={"path": "research/RELEASE_LIMITATIONS.md"},
+                ),
+                patch(
+                    "gate17_external_validation.run_clean_windows_install_receipt"
+                ) as clean,
+            ):
+                with self.assertRaisesRegex(
+                    ReleaseReadinessError,
+                    "not source_backed_complete",
+                ):
+                    run_external_release_validation(
+                        repo_root=repo,
+                        release_version=VERSION,
+                        repository_commit=COMMIT,
+                        release_archive=archive,
+                        canonical_game_dir=game,
+                        full_original_scope_receipt=scope,
+                        work_root=work,
+                    )
+            clean.assert_not_called()
             self.assertFalse(work.exists())
 
     def test_preflight_requires_existing_external_full_scope_receipt(self):
