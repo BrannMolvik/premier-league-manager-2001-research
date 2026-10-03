@@ -30,7 +30,11 @@ from internal_save import (
     snapshot_human_gameplay,
 )
 from match_engine_rng import MatchEngineRng
-from match_postmatch import PlayerTransferRequest
+from match_postmatch import (
+    FinalizedParticipantStatistics,
+    FinalizedSideParticipantStatistics,
+    PlayerTransferRequest,
+)
 from procedural_league_state import LiveProceduralLeagueState
 from primary_schedule_shadow import PrimaryScheduleShadowState
 from match_schedule import MsvcCrtRng
@@ -1796,6 +1800,46 @@ class InternalSaveTests(unittest.TestCase):
         self.assertEqual(receipt.total_attendance, 2_080)
         self.assertEqual(receipt.home_attendance, 1_680)
         self.assertEqual(receipt.visiting_attendance, 400)
+        self.assertEqual(
+            snapshot_human_gameplay(restored),
+            snapshot_human_gameplay(original),
+        )
+
+    def test_finalized_report_inputs_survive_roundtrip(self):
+        original = self.build_controller()
+        original.state.prepared_match_report_player_ids[7] = 4321
+        original.state.prepared_match_participant_statistics[7] = (
+            FinalizedSideParticipantStatistics(
+                player_ids=(100, 101),
+                statistics=(
+                    FinalizedParticipantStatistics(0, 8, bytes((1,0,1,0,1,0,1,0))),
+                    FinalizedParticipantStatistics(1, 0, bytes((0,0,0,0,0,0,0,0))),
+                ),
+            ),
+            FinalizedSideParticipantStatistics(
+                player_ids=(200, 201),
+                statistics=(
+                    FinalizedParticipantStatistics(0, 7, bytes((0,1,0,1,0,1,0,1))),
+                    FinalizedParticipantStatistics(1, 6, bytes((1,1,0,0,1,1,0,0))),
+                ),
+            ),
+        )
+
+        restored = loads_human_gameplay(
+            Database(),
+            coefficient_matrix(),
+            coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+
+        self.assertEqual(
+            restored.state.prepared_match_report_player_ids,
+            original.state.prepared_match_report_player_ids,
+        )
+        self.assertEqual(
+            restored.state.prepared_match_participant_statistics,
+            original.state.prepared_match_participant_statistics,
+        )
         self.assertEqual(
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),
