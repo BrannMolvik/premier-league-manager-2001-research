@@ -48,10 +48,12 @@ def plan_fixture():
 
 
 def records_fixture():
+    # Deliberately interleave countries. The country plan groups IDs by
+    # TeamSelect country order, while the executor must retain this source order.
     return (
+        Allocation(7, 27, 9, 8, 28, 0, 1),
         Allocation(0, 0, 18, 19, 2, 0, 1),
         Allocation(1, 0, 17, 17, 11, 0, 0),
-        Allocation(7, 27, 9, 8, 28, 0, 1),
         Allocation(99, 500, 0, 0, 501, 0, 0),
     )
 
@@ -93,10 +95,10 @@ class Gate17PlayableAllocationPreviewTests(unittest.TestCase):
 
         self.assertEqual(memberships, before)
         self.assertTrue(preview.ranking_capability.complete)
-        self.assertEqual(preview.assigned_allocation_ids, (0, 1, 7))
+        self.assertEqual(preview.assigned_allocation_ids, (7, 0, 1))
         self.assertEqual(
             tuple(exchange.allocation_id for exchange in preview.exchanges),
-            (0, 0, 1, 7, 7),
+            (7, 7, 0, 0, 1),
         )
         self.assertEqual(len(preview.exchanges), 5)
 
@@ -127,7 +129,7 @@ class Gate17PlayableAllocationPreviewTests(unittest.TestCase):
         payload = preview.as_dict()
         self.assertEqual(payload["exchange_count"], 5)
         self.assertTrue(payload["ranking_capability"]["complete"])
-        self.assertEqual(payload["assigned_allocation_ids"], [0, 1, 7])
+        self.assertEqual(payload["assigned_allocation_ids"], [7, 0, 1])
 
     def test_incomplete_ranking_capability_blocks_before_any_exchange(self):
         memberships = memberships_fixture()
@@ -174,18 +176,22 @@ class Gate17PlayableAllocationPreviewTests(unittest.TestCase):
                 memberships_fixture(),
             )
 
+        # Reordering source rows is allowed and must change execution order,
+        # because the canonical plan groups IDs by country rather than asserting
+        # one global row order.
         rows = list(records_fixture())
         rows[0], rows[1] = rows[1], rows[0]
-        with self.assertRaisesRegex(
-            Gate17PlayableAllocationPreviewError,
-            "do not preserve source row order",
-        ):
-            preview_playable_allocation_exchanges(
-                plan_fixture(),
-                tuple(rows),
-                rankings_fixture(),
-                memberships_fixture(),
-            )
+        preview = preview_playable_allocation_exchanges(
+            plan_fixture(),
+            tuple(rows),
+            rankings_fixture(),
+            memberships_fixture(),
+        )
+        self.assertEqual(preview.assigned_allocation_ids, (0, 7, 1))
+        self.assertEqual(
+            tuple(exchange.allocation_id for exchange in preview.exchanges),
+            (0, 0, 7, 7, 1),
+        )
 
     def test_duplicate_rows_and_bad_membership_payloads_fail_closed(self):
         rows = records_fixture()
