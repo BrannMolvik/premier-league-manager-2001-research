@@ -135,6 +135,9 @@ class PlayableLeagueRuntimePlan:
             "procedural_primary_scope_ids": list(
                 self.procedural_primary_scope_ids
             ),
+            "procedural_primary_competition_ids": list(
+                self.procedural_primary_competition_ids
+            ),
             "procedural_secondary_scope_ids": list(
                 self.procedural_secondary_scope_ids
             ),
