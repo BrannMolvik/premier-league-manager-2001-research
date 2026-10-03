@@ -131,6 +131,8 @@ on:
       - "research/GATE16_MIXED_PRIMARY_STRESS.md"
       - "reconstruction/canonical_multiseason_audit.py"
       - "reconstruction/test_canonical_multiseason_audit.py"
+      - "reconstruction/canonical_multiseed_audit.py"
+      - "reconstruction/test_canonical_multiseed_audit.py"
       - "research/GATE16_CANONICAL_MULTISEASON_AUDIT.md"
   workflow_dispatch:
 
