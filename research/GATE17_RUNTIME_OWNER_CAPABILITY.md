@@ -52,7 +52,9 @@ The canonical runner deliberately mirrors the current repository boundary:
 - fresh chairman-objective candidate generation remains instruction-locked
   only for competition 0, so non-PL scopes retain the explicit
   `fresh_financial_objective_missing` blocker;
-- annual LeagueAllocation commit remains the English-only transition path.
+- canonical annual LeagueAllocation commit now uses the exact TeamSelect-country
+  allocation plan, resolving required rankings fail-closed before the existing
+  atomic season-regeneration install.
 
 These are implementation facts about the present clean-room port, not claims
 about original behavior.
