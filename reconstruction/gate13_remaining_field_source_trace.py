@@ -45,10 +45,15 @@ def linear_memory_displacement_candidates(
     *,
     fields: tuple[tuple[str, int], ...] = REMAINING_GATE13_FIELDS,
     max_candidates: int = 512,
+    context_radius: int = 8,
 ) -> tuple[dict, ...]:
     """Return candidate x86 memory operands matching exact field displacements."""
     if type(max_candidates) is not int or max_candidates < 1:
         raise Gate13RemainingFieldTraceError("max_candidates must be positive")
+    if type(context_radius) is not int or not 0 <= context_radius <= 64:
+        raise Gate13RemainingFieldTraceError(
+            "context_radius must be an integer from 0 through 64"
+        )
 
     by_disp: dict[int, list[str]] = {}
     for label, displacement in fields:
@@ -64,7 +69,7 @@ def linear_memory_displacement_candidates(
         by_disp.setdefault(displacement, []).append(label)
 
     try:
-        from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+        from capstone import CS_AC_READ, CS_AC_WRITE, CS_ARCH_X86, CS_MODE_32, Cs
         from capstone.x86 import X86_OP_MEM
     except ImportError as exc:
         raise Gate13RemainingFieldTraceError(
@@ -90,15 +95,35 @@ def linear_memory_displacement_candidates(
                 disp = int(operand.mem.disp)
                 if disp not in by_disp:
                     continue
+                access = int(getattr(operand, "access", 0))
+                reads = bool(access & CS_AC_READ)
+                writes = bool(access & CS_AC_WRITE)
+                if reads and writes:
+                    access_name = "read_write"
+                elif reads:
+                    access_name = "read"
+                elif writes:
+                    access_name = "write"
+                else:
+                    access_name = "unknown"
+
+                instruction_offset = int(insn.address - section_va)
+                context_start = max(0, instruction_offset - context_radius)
+                context_end = min(
+                    len(blob),
+                    instruction_offset + int(insn.size) + context_radius,
+                )
                 found.append(
                     {
                         "candidate_instruction_va": int(insn.address),
+                        "candidate_instruction_size": int(insn.size),
                         "candidate_operand_index": int(operand_index),
                         "candidate_displacement": disp,
                         "candidate_field_labels": tuple(by_disp[disp]),
                         "candidate_mnemonic": insn.mnemonic,
                         "candidate_operands": insn.op_str,
                         "candidate_bytes": bytes(insn.bytes).hex(),
+                        "candidate_operand_access": access_name,
                         "base_register": (
                             insn.reg_name(operand.mem.base)
                             if operand.mem.base
@@ -111,6 +136,15 @@ def linear_memory_displacement_candidates(
                         ),
                         "scale": int(operand.mem.scale),
                         "section": section.name,
+                        "candidate_context_start_va": int(
+                            section_va + context_start
+                        ),
+                        "candidate_context_bytes": bytes(
+                            blob[context_start:context_end]
+                        ).hex(),
+                        "candidate_context_classification": (
+                            "bounded_raw_bytes_only_not_a_cfg_or_function_boundary"
+                        ),
                         "classification": (
                             "linear_disassembly_only_unconfirmed_memory_operand"
                         ),
@@ -126,11 +160,13 @@ def remaining_field_trace_report(
     *,
     fields: tuple[tuple[str, int], ...] = REMAINING_GATE13_FIELDS,
     max_candidates: int = 512,
+    context_radius: int = 8,
 ) -> dict:
     candidates = linear_memory_displacement_candidates(
         pe,
         fields=fields,
         max_candidates=max_candidates,
+        context_radius=context_radius,
     )
     counts = {
         f"0x{displacement:X}": sum(
@@ -148,15 +184,18 @@ def remaining_field_trace_report(
         ],
         "candidate_count": len(candidates),
         "candidate_counts_by_displacement": counts,
+        "candidate_context_radius_bytes": context_radius,
         "candidate_memory_operands_not_proven_field_accesses": candidates,
         "source_semantics_recovered": False,
         "gate13_closed": False,
         "evidence_limit": (
             "Linear x86 decode plus exact memory-displacement equality only. "
-            "A hit does not prove DBRClub/participant object type, read versus "
-            "write direction, reachable control flow, initialization, capacity "
-            "semantics, shirt semantics, or lifecycle ownership. Manual private "
-            "CFG/data-flow review against the canonical executable is required."
+            "The reported read/write label is Capstone operand metadata for the "
+            "candidate instruction, and the surrounding bytes are an unaligned "
+            "bounded context window; neither proves DBRClub/participant object "
+            "type, reachable control flow, initialization, capacity semantics, "
+            "shirt semantics, or lifecycle ownership. Manual private CFG/data-flow "
+            "review against the canonical executable is required."
         ),
     }
 
@@ -171,6 +210,12 @@ def main() -> int:
         help="Private JSON evidence path outside the Git repository",
     )
     parser.add_argument("--max-candidates", type=int, default=512)
+    parser.add_argument(
+        "--context-radius",
+        type=int,
+        default=8,
+        help="Raw context bytes to include before/after each candidate (0..64)",
+    )
     args = parser.parse_args()
 
     require_private_output_path(args.output)
@@ -178,6 +223,7 @@ def main() -> int:
     report = remaining_field_trace_report(
         pe,
         max_candidates=args.max_candidates,
+        context_radius=args.context_radius,
     )
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(f"Private Gate-13 remaining-field trace saved to {args.output}")
