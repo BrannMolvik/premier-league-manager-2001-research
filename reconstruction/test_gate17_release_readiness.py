@@ -373,6 +373,16 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             with self.assertRaisesRegex(ReleaseReadinessError, "pre-release"):
                 validate_limitations_document(repo, raw["limitations_path"])
 
+    def test_schema_one_evidence_is_rejected_as_stale_after_full_scope_upgrade(self):
+        with tempfile.TemporaryDirectory() as temp:
+            _repo, _private, _archive, raw = self.fixture(temp)
+            raw["schema_version"] = 1
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "schema_version must be 2",
+            ):
+                parse_release_evidence(raw)
+
     def test_evidence_schema_requires_exact_receipt_set_and_archive_identity(self):
         with tempfile.TemporaryDirectory() as temp:
             _repo, _private, _archive, raw = self.fixture(temp)
