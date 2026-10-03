@@ -59,7 +59,9 @@ dependencies needed elsewhere. Human primary procedural entries use the shared
 human match backend. Human lineup validation now resolves substitute and
 Non-EU limits from the actual pending Cup/League competition, and primary
 match outcomes expose the controlled club's live League table rather than
-hard-coding the Premier League table. Club selection itself remains unchanged.
+hard-coding the Premier League table. Canonical club selection now accepts the
+exact TeamSelect club set whose runtime owner is primary, but only when the
+club's current membership resolves to an actually materialized root owner.
 Secondary-container League support remains a separate boundary and is not
 silently routed through the primary engine.
 
@@ -73,7 +75,8 @@ After Gate 13 releases shared-runtime ownership:
 
 1. provide the distinct secondary-container continuation for catalog entries
    classified there;
-2. widen human club selection only where its required runtime owner is live;
+2. recover and connect the non-Premier-League fresh chairman-objective
+   candidate branches rather than extrapolating the proven PL branch;
 3. connect the already-parsed country allocation/ranking endpoints for annual
    progression;
 4. validate every catalog scope through the final Windows 11 archive.
