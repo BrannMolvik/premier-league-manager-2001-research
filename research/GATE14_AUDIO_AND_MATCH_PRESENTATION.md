@@ -1,6 +1,6 @@
 # Gate 14 Audio and Match Presentation
 
-_Last reconciled: 3 October 2026 KST, Recovery 199_
+_Last reconciled: 3 October 2026 KST, Recovery 200_
 
 ## Scope
 
@@ -172,6 +172,20 @@ PossessionFigures text. The disc's 800x600
 (205,984 bytes), but direct FastViewPanel draw ownership remains unproven, so
 that bitmap is not integrated yet.
 
+Recovery 200 closes the remaining PossessionFigures typography details.
+All three 40x18 controls use generic text constructor `0x527960` with style
+index 1. The style selector/initializer chain binds that index to the already
+staged `Fonts/Zurich_BdXCn_BT_18pixel.fnt` through wrapper `0x87BE90` and
+font object `0x9197E0`. Native color is `0xFFFF`; render flags become 9 and
+the generic draw path resolves them as left/top alignment. The widest valid
+percentage, `100%`, is 34x17 in the exact source font, so every possession
+percentage fits the recovered 40x18 rectangle without clipping.
+
+`reconstruction/original_fastview_possession_figures_art.py` now produces
+exact source-font RGBA glyph overlays for the three percentage controls. It
+still does not assign side 0/1 to the human user and does not fill unrecovered
+surrounding FastView pixels.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
@@ -222,10 +236,10 @@ bank/sample resource before integration.
 
 ## Exact next cloud-safe task
 
-Verify the Recovery-199 ClockControl/decoded-possession-art checkpoint through
-full CI. After it is canonical, trace the FastViewPanel ownership/draw path for
-the 800x600 `background.444` and the source typography/color used by
-PossessionFigures. Continue toward a player-visible bounded FastView surface
-without filling unknown pixels or assigning side 0/1 to the human user.
-Gate 13 remains the earliest incomplete validation gate and Gate 14 remains
-work-ahead, not passed.
+Verify the Recovery-200 PossessionFigures typography checkpoint through full
+CI. Once canonical, continue the narrow original-style FastView slice by
+source-tracing direct FastViewPanel ownership/draw of
+`FM2001_Art/FastView/background.444` and the side-0/side-1 presentation
+orientation. Do not compose a complete screen until those boundaries are
+source-closed or explicitly fail-closed. Gate 13 remains the earliest
+incomplete validation gate and Gate 14 remains work-ahead, not passed.
