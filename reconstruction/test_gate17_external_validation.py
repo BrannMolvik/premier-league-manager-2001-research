@@ -26,12 +26,14 @@ class Gate17ExternalValidationTests(unittest.TestCase):
         game.mkdir()
         archive = root / "release.zip"
         archive.write_bytes(b"candidate")
+        scope = root / "full_original_scope.json"
+        scope.write_text("{}", encoding="utf-8")
         work = root / "external-validation"
-        return repo, game, archive, work
+        return repo, game, archive, scope, work
 
     def test_preflight_checks_prerequisites_before_creating_work_root(self):
         with tempfile.TemporaryDirectory() as temp:
-            repo, game, archive, work = self._paths(temp)
+            repo, game, archive, scope, work = self._paths(temp)
             with (
                 patch(
                     "gate17_external_validation.require_external_windows_11_workstation",
@@ -63,15 +65,64 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         repository_commit=COMMIT,
                         release_archive=archive,
                         canonical_game_dir=game,
+                        full_original_scope_receipt=scope,
                         work_root=work,
                     )
 
             limitations.assert_not_called()
             self.assertFalse(work.exists())
 
+    def test_preflight_requires_existing_external_full_scope_receipt(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, game, archive, scope, work = self._paths(temp)
+            scope.unlink()
+            with (
+                patch(
+                    "gate17_external_validation.require_external_windows_11_workstation",
+                    return_value={
+                        "windows_11": True,
+                        "windows_build": 26200,
+                        "windows_product_type": 1,
+                    },
+                ),
+                patch(
+                    "gate17_external_validation.validate_clean_repository",
+                    return_value={"working_tree_clean": True},
+                ),
+                patch(
+                    "gate17_external_validation.validate_roadmap_prerequisites",
+                    return_value={"all_prerequisites_complete": True},
+                ),
+                patch(
+                    "gate17_external_validation.validate_limitations_document",
+                    return_value={"path": "research/RELEASE_LIMITATIONS.md"},
+                ),
+                patch(
+                    "gate17_external_validation.resolve_release_artifact_identity",
+                    return_value=SimpleNamespace(
+                        release_version=VERSION,
+                        repository_commit=COMMIT,
+                    ),
+                ),
+            ):
+                with self.assertRaisesRegex(
+                    ExternalReleaseValidationError,
+                    "full original scope receipt does not exist",
+                ):
+                    preflight_external_release_validation(
+                        repo_root=repo,
+                        release_version=VERSION,
+                        repository_commit=COMMIT,
+                        release_archive=archive,
+                        canonical_game_dir=game,
+                        full_original_scope_receipt=scope,
+                        work_root=work,
+                    )
+            self.assertFalse(work.exists())
+
     def test_preflight_rejects_pre_release_limitations_before_receipts(self):
         with tempfile.TemporaryDirectory() as temp:
-            repo, game, archive, work = self._paths(temp)
+            repo, game, archive, scope, work = self._paths(temp)
             with (
                 patch(
                     "gate17_external_validation.require_external_windows_11_workstation",
@@ -100,6 +151,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         repository_commit=COMMIT,
                         release_archive=archive,
                         canonical_game_dir=game,
+                        full_original_scope_receipt=scope,
                         work_root=work,
                     )
 
@@ -108,7 +160,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
 
     def test_success_runs_one_archive_identity_through_complete_transaction(self):
         with tempfile.TemporaryDirectory() as temp:
-            repo, game, archive, work = self._paths(temp)
+            repo, game, archive, scope, work = self._paths(temp)
             receipts = work / "receipts"
             clean_path = receipts / "clean_windows_install.json"
             management_path = receipts / "new_game_management_loop.json"
@@ -190,6 +242,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                     repository_commit=COMMIT,
                     release_archive=archive,
                     canonical_game_dir=game,
+                    full_original_scope_receipt=scope,
                     work_root=work,
                     player_seed=7,
                     max_days=430,
@@ -210,11 +263,16 @@ class Gate17ExternalValidationTests(unittest.TestCase):
             self.assertEqual(gameplay.call_args.kwargs["player_seed"], 7)
             self.assertEqual(gameplay.call_args.kwargs["max_days"], 430)
             self.assertEqual(evidence.call_args.kwargs["release_archive"], archive.resolve())
+            self.assertEqual(
+                evidence.call_args.kwargs["receipt_paths"]["full_original_scope"],
+                scope.resolve(),
+            )
+            self.assertEqual(result["full_original_scope"], scope.resolve())
             self.assertEqual(final_audit.call_args.kwargs["release_archive"], archive.resolve())
 
     def test_late_failure_removes_all_partial_external_evidence(self):
         with tempfile.TemporaryDirectory() as temp:
-            repo, game, archive, work = self._paths(temp)
+            repo, game, archive, scope, work = self._paths(temp)
 
             def clean_runner(**kwargs):
                 output = Path(kwargs["output_dir"])
@@ -263,6 +321,7 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         repository_commit=COMMIT,
                         release_archive=archive,
                         canonical_game_dir=game,
+                        full_original_scope_receipt=scope,
                         work_root=work,
                     )
 
