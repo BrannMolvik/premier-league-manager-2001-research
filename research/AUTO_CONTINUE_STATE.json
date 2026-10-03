@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 PR #266 head 40c0f1e7 contains the full source-backed fresh 0x5DFD30 generator and corrected 0x4F88C0 promotion-playoff regression ordering; asset policy is green and replacement full CI is running. Stacked PR #267 head 2a46a34e adds fail-closed deterministic non-PL objective materialization only where the recovered branch consumes zero RNG; its asset policy is green and full CI is running. Merge #266 only if green, then reconcile/validate #267 on resulting main. RNG-bearing non-PL branches still require exact 0x5DF670 caller CRT state.",
-  "last_known_main_head": "5e21e3887a6f8e42b2fc156ffe6156477e862041",
+  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 PR #266 merged green as main f199e9d2 after 1,875 tests / 23 expected skips: full source-backed fresh 0x5DFD30 generator, hierarchy predicates and 0x4F88C0 promotion-playoff count are canonical. Next task is reconcile stacked deterministic non-PL objective integration from PR #267 onto fresh main, validate and merge if green. RNG-bearing non-PL branches still require exact 0x5DF670 caller CRT state.",
+  "last_known_main_head": "f199e9d20490130bb19b087d87a25158821e0b40",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 249,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 249 checkpoint: first #266 CI found one synthetic equal-key English playoff test defect (0 vs expected 4); fixture was corrected to encode recovered semifinal-before-final Cup+0x38 order. No source behavior was relaxed. Secondary-container exact schedule fidelity remains unresolved and must stay fail-closed.",
+  "note": "Recovery 249: #266 green and merged. Its initial CI failure was only an artificial equal-key English playoff test fixture; corrected source-like round ordering passed full suite. Continue deterministic no-RNG integration, then harden capability audit with separate sporting-objective progression blocker.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
