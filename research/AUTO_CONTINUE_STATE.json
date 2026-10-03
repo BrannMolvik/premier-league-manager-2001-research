@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with private/local source work blocked. PR #258 merged green as main e686a421: human primary procedural League dispatch now exists and the capability audit measures it. Next cloud-safe Gate-17 task: include every TeamSelect runtime-plan entry classified procedural_primary in canonical controller live procedural IDs and primary matchday order, preserving existing annual/cup dependencies and excluding unresolved procedural_secondary entries.",
-  "last_known_main_head": "e686a4212370d86306c289ed88d6809e36f34acf",
+  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 work-ahead PR #259 merged green as main 26207bce after 1,858 tests / 23 expected skips: every TeamSelect procedural_primary League is now included in canonical primary scheduler/materialization and annual primary regeneration policy. Next cloud-safe task: generalize human lineup and primary-outcome League-table context to the actual pending/live competition without widening club selection or inventing non-PL financial-objective behavior.",
+  "last_known_main_head": "26207bce57b500ab0cd34a8dd25d22ab32e963cb",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 247,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 247: PR #258 passed 1,857 tests / 23 expected skips and repository asset policy before merge. Continuing source-driven primary playable League materialization.",
+  "note": "Recovery 247 checkpoint: PR #259 merged green. Competition-aware human match context is prepared separately and must be replayed onto fresh main because #259 was squash-merged.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
