@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 221: Gate 13 remains coordination-locked to PR #205; do not reconcile or edit its files. PR #206 merged canonical as a5976a7fb2578331ac170ec8676e3cac345c97b9 after reconstruction run 37121498780 passed 1,677 tests with 23 expected skips and asset-policy run 37121498972 passed. Continue only independent Gate-14 work-ahead. PlayerProxy batch RNG order remains fail-closed because 0x521C9C loop order is not persisted and private executable execution is currently blocked by container ClientError. Next research target: source-backed ownership/callsites for original audio banks; do not infer semantics from .bnk filenames.",
+  "active_task": "Recovery 221: Gate 13 remains coordination-locked to PR #205; do not edit/reconcile its files. Independent Gate-14 PR #207 head 6961480b68752ad87b9097a0d3557a1cdd97755c adds checksum-gated private executable .bnk string discovery with raw pointer-byte candidates only, synthetic tests, CI path coverage and GATE14_AUDIO_BANK_TRACE_PROCEDURE.md. Asset policy run 37122161515 passed; reconstruction run 37122161463 is in progress. Merge only if full CI passes. Private container execution remains blocked by ClientError even for trivial filesystem access, so no original-executable audio semantics have been claimed.",
   "last_known_main_head": "a5976a7fb2578331ac170ec8676e3cac345c97b9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 221,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate-13 coordination lock still active. Canonical PlayerRow retained-history adapter merged. Private source archive is present in Library but container/Python execution remains unavailable.",
+  "note": "PR #207 is neutral evidence tooling only. Bank semantics/event bindings remain false; do not infer roles from filenames. PR #205 still owns Gate 13.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
