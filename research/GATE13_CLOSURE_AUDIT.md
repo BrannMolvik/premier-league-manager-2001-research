@@ -1,6 +1,27 @@
 # Gate 13 Closure Audit
 
-_Audit date: 2 October 2026 KST_  
+_Audit refreshed: 3 October 2026 KST_
+
+## Windows refresh and playtest corrections
+
+The real Windows schema-8 receipt has passed, as has a separate post-fix run.
+See `GATE13_WINDOWS_PLAYTEST_CORRECTIONS.md` for both private-receipt hashes,
+native space-raster bypass, the exact 30px `MAIN MENU` / `START GAME` captions,
+and visible port-only rejected-Start feedback. The older “schema 8 pending”
+wording below describes the 2 October checkpoint, not the current blocker.
+
+| Roadmap criterion | Current result | Concrete evidence / remaining boundary |
+| --- | --- | --- |
+| Simulation separated from presentation | **PASS** | Presentation-separation tests, controller/session boundary; captions and error feedback do not add simulation semantics. |
+| Accessible original resources/layout/navigation reused | **PARTIAL** | Canonical resource hashes/import manifest; fresh schema-8 Tk bitmap/caption dimensions pass. Ordinary Fixtures cell/context navigation and management shell pixels remain unresolved. |
+| Main-menu/login presentation, structure, navigation and timing closely follow original | **PARTIAL** | Canonical strings, fonts, layouts, Button frames and real Tk menu/TeamSelect route pass; space/caption playtest defects fixed. Original timing is not certified by this receipt. |
+| Normal play recognizably FM2001 | **NOT YET ESTABLISHED** | Original PMenu/Squad/Fixtures/popup/Tables fragments render on real Windows. Schema 8 tests an explicit popup seam, not ordinary fixture-cell navigation, surrounding shell pixels or a human recognizability comparison. |
+
+Gate 13 remains **OPEN**, for substantive presentation/navigation boundaries,
+not absence of a schema-8 Windows run. Next: application-owned shell draw path,
+then fixture-cell hit-testing and secondary-context PMatchInfo owner bridge.
+
+## Prior checkpoint assessment (2 October)
 _Last reconciled during Recovery 182 after the bounded PSquadScreen view-transition seam and schema-8 audit update._
 
 ## Decision

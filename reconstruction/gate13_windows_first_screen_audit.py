@@ -185,9 +185,13 @@ def audit_frame_contract(
             raise WindowsFirstScreenAuditError(
                 "TeamSelect Back/Start geometry differs from recovered executable layout"
             )
-        if captions:
+        if captions and [(c["event"], c["original_text"], c["line_origin"])
+                         for c in captions] != [
+                             (0x29, "MAIN MENU", [251, 301]),
+                             (0x2A, "START GAME", [450, 301]),
+                         ]:
             raise WindowsFirstScreenAuditError(
-                "TeamSelect captions are still unresolved and must not be invented"
+                "TeamSelect captions differ from canonical labels/font geometry"
             )
         if tuple(frame.hierarchy_row_origins_not_interactive) != (
             TEAMSELECT_HIERARCHY_ROW_ORIGINS
@@ -617,6 +621,8 @@ def run_real_windows_graphical_audit(
             )
 
         team_contract = audit_frame_contract(presenter.snapshot(), 0)
+        if len(team_contract["captions"]) != 2:
+            raise WindowsFirstScreenAuditError("Live TeamSelect action captions missing")
         team_live = _verify_live_tk_redraw(viewer, root, team_contract)
 
         if len(team_contract["hierarchy_rows"]) != 13:

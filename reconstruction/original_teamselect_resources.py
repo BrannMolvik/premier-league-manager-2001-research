@@ -8,6 +8,14 @@ from __future__ import annotations
 from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
+from ea_font import EAFont
+from ea_language_strings import parse_language_pair
+from original_pstartmenu_labels import PStartMenuCaption
+from original_pstartmenu_resources import ENGLISH_STR_SHA256, ENGLISH_IDX_SHA256
+from original_teamselect_labels import (
+    TEAMSELECT_ACTION_FONT_PATH, TEAMSELECT_ACTION_FONT_SHA256,
+    prepare_original_teamselect_captions,
+)
 
 from ea444_decoder import EA444DecodedImage, decode_ea444
 from ea444_quantization import quantization_from_verified_executable
@@ -72,6 +80,7 @@ class OriginalTeamSelectResources:
     hierarchy_row_origins: tuple[tuple[int, int], ...]
     hierarchy_art: OriginalTeamSelectHierarchyArt | None = None
     native_hierarchy: OriginalTeamSelectNativeInputs | None = None
+    captions: tuple[PStartMenuCaption, ...] = ()
 
     def __post_init__(self) -> None:
         if len(self.background_rgba) != SCREEN_SIZE[0] * SCREEN_SIZE[1] * 4:
@@ -102,6 +111,11 @@ class OriginalTeamSelectResources:
             self.native_hierarchy, OriginalTeamSelectNativeInputs
         ):
             raise OriginalTeamSelectResourceError("Unverified native hierarchy inputs")
+        if self.captions and tuple(
+            (c.event, c.source_idx_position, c.control_rect) for c in self.captions
+        ) != ((TEAMSELECT_BACK_EVENT, 2487, TEAMSELECT_BACK_RECT),
+              (TEAMSELECT_START_EVENT, 2485, TEAMSELECT_START_RECT)):
+            raise OriginalTeamSelectResourceError("Unverified TeamSelect caption bindings")
 
     @property
     def proven_actions(self) -> tuple[tuple[int, object], ...]:
@@ -117,6 +131,7 @@ def assemble_original_teamselect_inputs(
     action_atlas: OriginalButtonAtlas,
     hierarchy_art: OriginalTeamSelectHierarchyArt | None = None,
     native_hierarchy: OriginalTeamSelectNativeInputs | None = None,
+    captions: tuple[PStartMenuCaption, ...] = (),
 ) -> OriginalTeamSelectResources:
     """Compose only the two proven background layers and original atlas."""
     return OriginalTeamSelectResources(
@@ -125,6 +140,7 @@ def assemble_original_teamselect_inputs(
         TEAMSELECT_HIERARCHY_ROW_ORIGINS,
         hierarchy_art,
         native_hierarchy,
+        captions,
     )
 
 
@@ -224,8 +240,16 @@ def load_verified_original_teamselect_inputs(
         tables=tables,
         quant=quant,
     )
+    font = EAFont.from_bytes(_read_verified_root(
+        source_root, TEAMSELECT_ACTION_FONT_PATH, TEAMSELECT_ACTION_FONT_SHA256,
+    ))
+    strings, index = parse_language_pair(
+        _read_verified_root(source_root, "English.str", ENGLISH_STR_SHA256),
+        _read_verified_root(source_root, "English.idx", ENGLISH_IDX_SHA256),
+    )
     result = assemble_original_teamselect_inputs(
         base, team, buttons, hierarchy_art, native_hierarchy,
+        prepare_original_teamselect_captions(font, strings, index),
     )
     if sha256(result.background_rgba).hexdigest() != (
         TEAMSELECT_COMPOSED_BACKGROUND_RGBA_SHA256

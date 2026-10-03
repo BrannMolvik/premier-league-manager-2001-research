@@ -118,12 +118,15 @@ class OriginalFirstScreenPresenter:
             )
         if screen is FrontEndScreen.TEAM_SELECT:
             atlas = self.team_select.action_atlas
+            captions = {item.event: item for item in self.team_select.captions}
             controls = (
                 OriginalActionPresentation(
-                    TEAMSELECT_BACK_EVENT, TEAMSELECT_BACK_RECT, atlas
+                    TEAMSELECT_BACK_EVENT, TEAMSELECT_BACK_RECT, atlas,
+                    captions.get(TEAMSELECT_BACK_EVENT),
                 ),
                 OriginalActionPresentation(
-                    TEAMSELECT_START_EVENT, TEAMSELECT_START_RECT, atlas
+                    TEAMSELECT_START_EVENT, TEAMSELECT_START_RECT, atlas,
+                    captions.get(TEAMSELECT_START_EVENT),
                 ),
             )
             hierarchy_rows = ()

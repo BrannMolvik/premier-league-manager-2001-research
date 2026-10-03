@@ -57,11 +57,11 @@ EXPECTED_CAPTIONS = (
     (1, 0, "Continue", 63, 19,
      "6af205e0d5ee04c063770438919a3418b18cd8e91ab615bdc8bb21a7e9137ae2"),
     (2, 1, "Start New Game", 117, 19,
-     "2fa38f32908de0f08b66c7c6d7f0f900ab9ba141cac4ae38abc3e7236134378a"),
+     "4b44e56c14963f59e5cdd6343f124e6674c45b96ccf8bc810480001da0462e60"),
     (3, 2, "Load Game", 81, 19,
-     "5f5b62250acce9bce3a46ee101db3b9357b8b8f6a139940e06ba5e43cd7312ea"),
+     "53d3f619416f77f04cac75543287d1ca23095f70de4417ec2fcdad492a7dc804"),
     (4, 6, "Quit to Windows", 120, 19,
-     "6f0030a88479d55ece7b77ac5b32f99b699ceff748be890e04614c22e5bb2140"),
+     "98458644c31c322d1bd6e64e20f59bc6e8c50291b3eef4b61a0da4c9fe91e421"),
 )
 
 

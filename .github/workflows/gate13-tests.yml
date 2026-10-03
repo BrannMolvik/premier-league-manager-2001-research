@@ -41,6 +41,8 @@ on:
       - "reconstruction/original_button_frames.py"
       - "reconstruction/original_pstartmenu_resources.py"
       - "reconstruction/original_teamselect_resources.py"
+      - "reconstruction/original_teamselect_labels.py"
+      - "reconstruction/test_original_teamselect_labels.py"
       - "reconstruction/original_teamselect_native.py"
       - "reconstruction/test_original_teamselect_native.py"
       - "reconstruction/original_scouting_resources.py"
@@ -148,6 +150,7 @@ jobs:
             test_original_button_frames \
             test_original_pstartmenu_resources \
             test_original_teamselect_resources \
+            test_original_teamselect_labels \
             test_original_teamselect_native \
             test_original_scouting_resources \
             test_original_squad_resources \
