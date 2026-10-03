@@ -9,6 +9,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from gate14_fastview_player_history import (
+    FastViewPlayerHistories,
+    derive_fastview_energy,
+)
 from gate14_fastview_team import (
     FastViewEnergyBarState,
     FastViewPlayerRowPositionState,
@@ -135,4 +139,43 @@ def build_fastview_player_row_snapshot(
         own_goal_count=own_goal,
         form=form,
         energy=energy,
+    )
+
+
+def build_fastview_player_row_snapshot_from_histories(
+    *,
+    side_index: int,
+    row_index: int,
+    shirt_number: int,
+    source_position_code: int,
+    surname: str,
+    first_name_initial: str,
+    histories: FastViewPlayerHistories,
+    global_tick: int,
+    energy_rng6_roll: int,
+    displayed_goal_count: int | None = None,
+    displayed_own_goal_count: int | None = None,
+) -> FastViewPlayerRowSnapshot:
+    """Compose one PlayerRow from retained source histories without replaying match state.
+
+    Form is the exact 0x632FC0 -> 0x6308B0 sample at global_tick. Energy is the
+    exact 0x633000 -> 0x630910 derivation using the caller-supplied source-order
+    RNG(6) result. This adapter deliberately accepts a resolved RNG result rather
+    than an RNG object, so presentation cannot advance or alias gameplay state.
+    """
+    return build_fastview_player_row_snapshot(
+        side_index=side_index,
+        row_index=row_index,
+        shirt_number=shirt_number,
+        source_position_code=source_position_code,
+        surname=surname,
+        first_name_initial=first_name_initial,
+        form_value=histories.form_at_tick(global_tick),
+        energy_value=derive_fastview_energy(
+            histories,
+            global_tick,
+            energy_rng6_roll,
+        ),
+        displayed_goal_count=displayed_goal_count,
+        displayed_own_goal_count=displayed_own_goal_count,
     )
