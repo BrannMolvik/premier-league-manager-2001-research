@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 221: Gate 13 remains coordination-locked to PR #205; do not edit/reconcile its files. Independent Gate-14 PR #207 head 6961480b68752ad87b9097a0d3557a1cdd97755c adds checksum-gated private executable .bnk string discovery with raw pointer-byte candidates only, synthetic tests, CI path coverage and GATE14_AUDIO_BANK_TRACE_PROCEDURE.md. Asset policy run 37122161515 passed; reconstruction run 37122161463 is in progress. Merge only if full CI passes. Private container execution remains blocked by ClientError even for trivial filesystem access, so no original-executable audio semantics have been claimed.",
-  "last_known_main_head": "a5976a7fb2578331ac170ec8676e3cac345c97b9",
+  "active_task": "Recovery 222: Gate-13 PR #205 is canonical at main 6207dbe01de068083c20f7fe22a773adab35e010. Stale Gate-14 PR #207 is superseded by reconciliation PR #208 head e9b2b5af09812c9ff35d94bb397d17a190e1dc67 on current main; require combined CI before merge. Gate 13 is no longer coordination-locked. Continue the exact remaining Gate-13 setup boundary from GATE13_LIVE_CAPTURE_INPUTS.md: source-close legacy uncontrolled-home visiting capacities DBRClub+0x13C/+0x140 and the human-opponent D48 attendance-counter/rank guard, while secondary-shirt contexts remain fail-closed. Do not fabricate missing report metadata.",
+  "last_known_main_head": "6207dbe01de068083c20f7fe22a773adab35e010",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 221,
+  "recovery_generation": 222,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #207 is neutral evidence tooling only. Bank semantics/event bindings remain false; do not infer roles from filenames. PR #205 still owns Gate 13.",
+  "note": "PR #208 contains only fail-closed audio evidence tooling; Gate 13 remains earliest incomplete. PR #207 closed as superseded.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
