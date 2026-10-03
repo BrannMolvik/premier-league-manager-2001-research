@@ -839,6 +839,21 @@ class HumanGameplayControllerTests(unittest.TestCase):
         ):
             controller.select_club(21)
 
+    def test_non_pl_primary_club_has_no_guessed_fresh_objective_candidates(self):
+        controller, _token = self.build_primary_procedural_controller()
+        controller.select_club(21)
+
+        with self.assertRaisesRegex(
+            RuntimeError,
+            "fresh chairman objective candidates are not source-backed",
+        ):
+            controller.financial_objective_candidates()
+        with self.assertRaisesRegex(
+            RuntimeError,
+            "fresh chairman objective candidates are not source-backed",
+        ):
+            controller.select_financial_objective(0)
+
     def test_pending_cup_autofill_uses_cup_selection_rules(self):
         controller = self.build_controller()
         controller.select_club(1)
