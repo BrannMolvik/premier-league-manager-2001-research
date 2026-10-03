@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 work-ahead PR #259 merged green as main 26207bce after 1,858 tests / 23 expected skips: every TeamSelect procedural_primary League is now included in canonical primary scheduler/materialization and annual primary regeneration policy. Next cloud-safe task: generalize human lineup and primary-outcome League-table context to the actual pending/live competition without widening club selection or inventing non-PL financial-objective behavior.",
-  "last_known_main_head": "26207bce57b500ab0cd34a8dd25d22ab32e963cb",
+  "active_task": "Gate 13 remains OPEN with private/local source work blocked. PR #260 merged green as main ab9a1881 after 1,860 tests / 23 expected skips: human lineup rules and primary-outcome League tables now resolve from the actual live competition. Active cloud-safe Gate-17 task is PR #261: source-driven TeamSelect primary club selection with a live-owner guard and an explicit fail-closed fresh_financial_objective_missing capability for non-PL scopes. Reconcile #261 onto main, verify its own CI/diff, and merge only if clean.",
+  "last_known_main_head": "ab9a1881fb299706049d0ae5f0b35a28fcd21289",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 247,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 247 checkpoint: PR #259 merged green. Competition-aware human match context is prepared separately and must be replayed onto fresh main because #259 was squash-merged.",
+  "note": "Recovery 247 checkpoint: PR #260 merged green as ab9a1881. PR #261 remains active; secondary runtime fidelity and non-PL objective candidate generation remain genuine unresolved source boundaries.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
