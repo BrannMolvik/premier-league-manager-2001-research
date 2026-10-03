@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 212: PR #192 is canonical at main 9019be2a1efa05e215a63464ea7d86e7a612d9b1 after reconstruction run 37103135199 passed 1,606 tests with 23 expected skips and asset-policy run 37103135246 passed. Continue Gate-14 work-ahead by retaining source-compatible 24-sample Condition and 1..10 match-form histories plus exact source-order presentation RNG state/results in the actual completed-match path. Do not populate outcome.fastview_player_rows until that live state is faithfully available; do not alias modern condition/form_state directly. Gate 13 remains earliest incomplete.",
+  "active_task": "Recovery 213: main remains 9019be2a1efa05e215a63464ea7d86e7a612d9b1. Continue verified Recovery-212 branch recovery212/gate14-playerproxy-live-history at 71933f7b5a5f53b3046215c39c1569a6f42e3723: CI-verify the exact 24-sample Condition/form lifecycle and source-order RNG(2) form trajectory, merge if green, then retain those histories and MatchEngine RNG state in the actual completed-match path before populating FastView PlayerRow snapshots. Gate 13 remains earliest incomplete.",
   "last_known_main_head": "9019be2a1efa05e215a63464ea7d86e7a612d9b1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 212,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 212 merged verified PlayerProxy history contract and is continuing live-history integration. Gate 13 remains earliest incomplete.",
+  "recovery_generation": 213,
+  "last_recovery_reason": "manual-start",
+  "note": "Manual recovery resumed exact persisted Recovery-212 branch; no main divergence. Continue CI then live-history integration.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
