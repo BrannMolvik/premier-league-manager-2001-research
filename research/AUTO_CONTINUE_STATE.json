@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 209: canonical main 88e8b3554ece25ca609e38a41f159b5473900065 after PR #184 passed 1,557 tests / 22 expected skips and asset-policy success. Continue Gate-14 shared PlayerRow refresh 0x526470 <- TeamTable 0x525B66 and producer 0x525BD0. Identify text cells 1..3 only through direct data ownership. Current bounded evidence: cell1 = %u from 72-byte player-proxy byte +0x47; cell2 = localized %s from helper 0x635EC0 using TeamTable row value +0x70; cell3 = %s or %c %s using proxy base string and proxy+0x20 char. Trace 0x635EC0 table and proxy field producers before assigning labels. Own-goal color remains fail-closed. Gate 13 remains earliest incomplete.",
+  "active_task": "Recovery 210: resume from canonical main 88e8b3554ece25ca609e38a41f159b5473900065. Continue exact Gate-14 PlayerRow shared refresh 0x526470 <- TeamTable 0x525B66 / producer 0x525BD0. Identify text cells 1..3 only through direct data ownership: cell1 %u from 72-byte player-proxy +0x47; cell2 localized %s via helper 0x635EC0 from TeamTable row +0x70; cell3 %s or %c %s from proxy base string and proxy+0x20 char. Trace helper table/proxy producers before assigning labels. Own-goal color remains fail-closed. Gate 13 remains earliest incomplete.",
   "last_known_main_head": "88e8b3554ece25ca609e38a41f159b5473900065",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 209,
+  "recovery_generation": 210,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #184 canonical. Continue source-only identification of PlayerRow cells 1..3.",
+  "note": "Recovery 210 resumed from canonical PR #184 state. Do not repeat completed PlayerRow form/goal/energy work.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
