@@ -22,8 +22,22 @@ from gate14_possession_figures import (
     SOURCE_TEXT_STYLE_SELECTOR_VA,
     SOURCE_TEXT_STYLE_WRAPPER_VA,
     SOURCE_TEXT_VERTICAL_ALIGNMENT,
+    SOURCE_FIXED_FIXTURE_BUILDER_VA,
+    SOURCE_LEAGUE_MATCH_CONSTRUCTOR_VA,
+    SOURCE_MATCH_SETUP_VA,
+    SOURCE_HOME_TEAM_SUBOBJECT_OFFSET,
+    SOURCE_AWAY_TEAM_SUBOBJECT_OFFSET,
+    SOURCE_MATCHCALCULATOR_SIDE0_TEAM_OFFSET,
+    SOURCE_MATCHCALCULATOR_SIDE1_TEAM_OFFSET,
+    SOURCE_SIDE0_ROLE,
+    SOURCE_SIDE1_ROLE,
+    SOURCE_SIDE0_SCREEN_POSITION,
+    SOURCE_SIDE1_SCREEN_POSITION,
     PossessionFiguresError,
+    human_screen_position,
+    match_role_for_side_index,
     possession_figures_text_layout,
+    screen_position_for_side_index,
 )
 
 
@@ -74,6 +88,35 @@ class PossessionFiguresTests(unittest.TestCase):
                 (0x0D, 0x51A700, 45, "45%", (454, 181, 494, 199), 0),
             ],
         )
+
+    def test_source_side_identity_is_home_right_and_away_left(self):
+        self.assertEqual(SOURCE_FIXED_FIXTURE_BUILDER_VA, 0x6173D0)
+        self.assertEqual(SOURCE_LEAGUE_MATCH_CONSTRUCTOR_VA, 0x5104F0)
+        self.assertEqual(SOURCE_MATCH_SETUP_VA, 0x510D60)
+        self.assertEqual(SOURCE_HOME_TEAM_SUBOBJECT_OFFSET, 0x14)
+        self.assertEqual(SOURCE_AWAY_TEAM_SUBOBJECT_OFFSET, 0x28)
+        self.assertEqual(SOURCE_MATCHCALCULATOR_SIDE0_TEAM_OFFSET, 0x0000)
+        self.assertEqual(SOURCE_MATCHCALCULATOR_SIDE1_TEAM_OFFSET, 0x05B0)
+        self.assertEqual(SOURCE_SIDE0_ROLE, "home")
+        self.assertEqual(SOURCE_SIDE1_ROLE, "away")
+        self.assertEqual(SOURCE_SIDE0_SCREEN_POSITION, "right")
+        self.assertEqual(SOURCE_SIDE1_SCREEN_POSITION, "left")
+        self.assertEqual(match_role_for_side_index(0), "home")
+        self.assertEqual(match_role_for_side_index(1), "away")
+        self.assertEqual(screen_position_for_side_index(0), "right")
+        self.assertEqual(screen_position_for_side_index(1), "left")
+        self.assertEqual(human_screen_position(human_is_home=True), "right")
+        self.assertEqual(human_screen_position(human_is_home=False), "left")
+
+    def test_orientation_helpers_fail_closed(self):
+        for bad in (-1, 2, True, "0"):
+            with self.subTest(bad=bad):
+                with self.assertRaises(PossessionFiguresError):
+                    match_role_for_side_index(bad)
+                with self.assertRaises(PossessionFiguresError):
+                    screen_position_for_side_index(bad)
+        with self.assertRaises(PossessionFiguresError):
+            human_screen_position(human_is_home=1)
 
     def test_invalid_percentages_fail_closed(self):
         for a, b in ((-1, 0), (101, 0), (80, 30), (True, 20), (45, "20")):
