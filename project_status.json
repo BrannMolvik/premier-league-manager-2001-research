@@ -2209,5 +2209,11 @@
   ],
   "gate14_league_table_row_step": 19,
   "gate14_league_table_count_transform": "count<=12 unchanged; count>12 => ceil(count/2)",
-  "gate14_league_table_text_semantics": "unresolved_fail_closed"
+  "gate14_league_table_text_semantics": "unresolved_fail_closed",
+  "gate14_league_table_event_score_callback_va": "0x51E360",
+  "gate14_league_table_event_score_refresh_call_va": "0x51E3A8",
+  "gate14_league_table_refresh_va": "0x51E4C0",
+  "gate14_league_table_constructor_refresh_call_va": "0x51E1A5",
+  "gate14_league_table_event_update_dispatch_loop_va": "0x51E683",
+  "gate14_league_table_update_lifecycle": "EventScore -> backing-record mutation -> shared refresh -> EventLeagueTableUpdate sender iteration"
 }
