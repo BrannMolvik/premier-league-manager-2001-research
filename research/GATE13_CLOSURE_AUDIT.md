@@ -47,6 +47,12 @@ Gate-13 completion is claimed; parallel Gate-14 work-ahead remains separate.
   **1,591 tests, 23 expected skips** (276.292 seconds). Asset policy, project
   JSON and diff-whitespace checks passed. The parallel worker's newer tests
   are included; no licensed archive/executable or private report was staged.
+  Subsequently preserved the worker's additional name-text main commit
+  `cdfc5b88c67d05b4eb58fc3c42f879e9fe95146e`; **104 focused tests passed**
+  on final code `ea289d93`, including Gate-14 TeamTable and Gate-13 backend,
+  save, routing and separation checks. The 1,591-test full-run revision remains
+  exactly `2e8893e1`, not the later merge. Final package build also used
+  `2e8893e1`; this revision boundary is not hidden.
 - Fresh real Windows schema-8 audit passed:
   `C:\Users\Brann\Documents\FM2001-audits\gate13-schema8-completion-inputs-20261003.json`.
   Deterministic SHA-256 remains
