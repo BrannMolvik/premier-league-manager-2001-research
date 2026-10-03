@@ -10586,3 +10586,15 @@ work may continue under the deferred-blocker policy.
 - Rechecked the loose `FM2001_Art/FastView/background.444` lead. Literal `0x8294E8` is copied at `0x51F2F0` into static string `0x877758` through generic string constructor `0x684620`. Direct executable-reference scanning finds only construction and destruction; the 800x600 FastViewPanel constructor `0x51F490 -> 0x527350` receives no bitmap path.
 - Recorded that negative result as `unbound_static_path_string_fail_closed`. The authenticated 800x600 bitmap is not imported/rendered as a panel background without a direct owner/draw path.
 - Gate 13 remains the earliest incomplete validation gate pending the external schema-8 Windows receipt; this remains Gate-14 work-ahead.
+
+
+## 3 October 2026 - Recovery 204 direct FastView top/ticker chrome
+
+- Resumed from canonical main `608e4f9168939c08ddffd90f5d6fb112b5d2724e`; PR #170 is already merged and verified with **1,509 tests / 22 expected skips** plus asset-policy success, so orientation/background work was not repeated.
+- Recovered and rehashed exact source `FM2001_Art/FastView/top_bar.444`: 19,268 bytes, 800x95, SHA-256 `f7410cf85900846ee1b276fa309bca4e560580286d5641092f2f98d20afa379a`.
+- Recovered and rehashed exact source `FM2001_Art/FastView/ticker.444`: 6,352 bytes, 800x33, SHA-256 `b0fe2d8266ae157b7821e8c1de310e89bbc37ae859f666e64f59731c78e68257`.
+- Canonical executable callsites source-bind both as direct FastViewPanel `PictureControl` children through constructor `0x527730`, vtable `0x7CAA5C`, RTTI `.?AVPictureControl@@`.
+- Exact source rectangles are top bar (0,0)-(800,95) at call `0x51FDA3` and ticker (0,557)-(800,590) at `0x51FE31`. This is direct live ownership, unlike the rejected loose `background.444` static string.
+- Added a fail-closed source contract/validator plus exact decoded-placement seam and regressions. The rejected 800x600 background path is explicitly excluded.
+- The current GitHub connector has no safe direct container-file-to-Git-blob handoff. The exact recovered binary files are therefore not manually transcribed into Git in this checkpoint; their later byte-identical import is deterministic from the recorded path/size/hash.
+- Gate 13 remains the earliest incomplete validation gate pending the external schema-8 Windows receipt; this is bounded Gate-14 work-ahead only.
