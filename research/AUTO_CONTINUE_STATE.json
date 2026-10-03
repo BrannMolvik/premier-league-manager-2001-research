@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 closure remains exclusively owned by Codex. PR #213 is canonical at main 4f8860b325484a19fec7a76cf9d49ae23584899f after reconstruction run 37128681158 passed 1,701 tests with 23 expected skips and asset-policy run 37128681160 passed. Continue independent Gate-14 work-ahead: extend source-closed FastView surface geometry with explicit TeamTable row regions without guessing visible row counts or cross-component z-order, and do not edit Gate-13/shared status files.",
-  "last_known_main_head": "4f8860b325484a19fec7a76cf9d49ae23584899f",
+  "active_task": "Gate 13 closure remains exclusively owned by Codex. Recovery 224 Gate-14 work-ahead is canonical through main 3655216b432f18ee05f2d40b6bb3f752a8c2f2e2: PR #213 partial FastView layout and PR #215 caller-explicit TeamTable geometry both passed full CI. Continue the next disjoint Gate-14 step by bridging retained source-backed PlayerRow snapshots into presentation render instructions without importing gameplay RNG/simulation, guessing localization text, or assigning unresolved raster/z-order semantics.",
+  "last_known_main_head": "3655216b432f18ee05f2d40b6bb3f752a8c2f2e2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 224,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 224 merged lock-safe Gate-14 PR #213. Next disjoint step is explicit TeamTable row geometry integration; Gate 13 ownership remains Codex.",
+  "note": "PR #215 merged after reconstruction run 37129286573 passed 1,705 tests with 23 skips and asset-policy run 37129286593 passed. Gate 13 lock still active; proceed only with disjoint Gate-14 files.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
