@@ -130,6 +130,14 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
             "save_reload": {
                 "save_reload": True,
             },
+            "full_original_scope": {
+                "full_original_scope": True,
+                "all_original_playable_leagues": True,
+                "all_original_playable_countries": True,
+                "human_career_flow": True,
+                "competition_progression": True,
+                "original_management_gameplay_subsystems": True,
+            },
         }
         for name, flags in receipt_flags.items():
             path = private / f"{name}.json"
@@ -258,7 +266,7 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                         save_reload=True,
                     )
 
-    def test_external_receipts_must_be_four_distinct_files(self):
+    def test_external_receipts_must_be_five_distinct_files(self):
         with tempfile.TemporaryDirectory() as temp:
             repo, _private, _archive, raw = self.fixture(temp)
             shared = raw["external_receipts"]["clean_windows_install"]
@@ -270,6 +278,24 @@ class Gate17ReleaseReadinessTests(unittest.TestCase):
                 "reuses the same evidence file",
             ):
                 validate_external_receipts(evidence, repo)
+
+    def test_full_original_scope_receipt_cannot_be_replaced_by_premier_smoke(self):
+        with tempfile.TemporaryDirectory() as temp:
+            repo, _private, _archive, raw = self.fixture(temp)
+            name = "full_original_scope"
+            path = Path(raw["external_receipts"][name]["path"])
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload["all_original_playable_countries"] = False
+            path.write_text(json.dumps(payload), encoding="utf-8")
+            raw["external_receipts"][name]["sha256"] = sha256(
+                path.read_bytes()
+            ).hexdigest()
+
+            with self.assertRaisesRegex(
+                ReleaseReadinessError,
+                "all_original_playable_countries",
+            ):
+                validate_external_receipts(parse_release_evidence(raw), repo)
 
     def test_receipt_for_another_release_version_is_rejected(self):
         with tempfile.TemporaryDirectory() as temp:
