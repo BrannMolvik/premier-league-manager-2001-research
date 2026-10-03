@@ -24,8 +24,10 @@ This checkpoint proves that composition without changing live GameState.
 It requires the ranking-endpoint capability audit to be complete before any
 exchange is attempted.
 
-The assigned allocation IDs must match the original source row order exactly.
-Rows outside the TeamSelect-playable scope remain ignored by this preview.
+The country plan identifies the assigned allocation set but groups IDs by
+TeamSelect country. The preview therefore recovers execution order independently
+by filtering the original LeagueAllocation record stream to that exact assigned
+set. Rows outside the TeamSelect-playable scope remain ignored.
 
 The function then delegates the actual slot selection and membership swaps to
 the existing source-backed `apply_league_allocation_exchanges()` implementation.
@@ -50,7 +52,7 @@ The caller's input membership mapping is never mutated.
 The preview aborts before exchange when:
 
 - an assigned source row is missing;
-- assigned IDs do not preserve source row order;
+- the source record stream does not cover the assigned allocation set exactly;
 - the plan assigns one allocation to multiple countries;
 - country assignment does not exactly cover the assigned set;
 - endpoint rankings are unavailable or too short;
