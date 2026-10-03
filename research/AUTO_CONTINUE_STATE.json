@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Coordination lock: Gate 13 closure is owned by Codex/reconciliation PR #205 until explicitly released. Do not modify Gate-13 producer/report/persistence code or shared Gate-13 state files on main. Continue only independent Gate-14 source research/work-ahead that does not touch game_state.py, internal_save.py, match_simulation.py, Gate-13 docs, or other files changed by PR #205; otherwise checkpoint and wait for the canonical main merge rather than duplicating Gate 13.",
+  "active_task": "Recovery 221: Gate 13 remains coordination-locked to open PR #205. Do not touch Gate-13 producer/report/persistence code or PR #205 files. Continue independent Gate-14 PlayerProxy work-ahead only: add a pure read-only adapter in gate14_fastview_playerrow_snapshot.py that consumes already-retained FastViewPlayerHistories, global tick and an explicit source-order RNG(6) result, derives 0x6308B0 form plus 0x630910 energy, and composes the existing PlayerRow snapshot without importing/advancing simulation or RNG state.",
   "last_known_main_head": "0402dd108d5a224438a161ea51ce859cd550a4ab",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 220,
+  "recovery_generation": 221,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Prevent Codex/continuous-worker desynchronization. PR #205 combines Codex 2dc710ec with worker main 0402dd1; worker must not independently advance Gate 13 until that ownership lock is released.",
+  "note": "Recovery 221 obeys Gate-13 lock. Work only in PlayerProxy helper/test files not changed by PR #205.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
