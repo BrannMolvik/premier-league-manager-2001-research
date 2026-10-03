@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 222: Gate-13 PR #209 merged canonical as main 370ad184b4b3f2e9ecf33e5331afac212e588d9e after reconstruction run 37123797539 passed 1,689 tests with 23 expected skips and asset-policy run 37123797538 passed. Human D48 is source-closed only when exact native PL rank >=4, yielding shipped value 5; ranks 0..3 remain fail-closed on legacy DBRClub+0x130. Continue Gate 13 at unresolved uncontrolled-home visiting capacities DBRClub+0x13C/+0x140, +0x130 lifecycle for top-four controlled clubs, and secondary selector +0x76. Build bounded checksum-gated trace tooling while container execution remains ClientError; do not infer 10% capacities or secondary selectors.",
+  "active_task": "Recovery 223: canonical main is 370ad184b4b3f2e9ecf33e5331afac212e588d9e. Continue Gate 13 exactly at unresolved native setup fields: uncontrolled-home visiting capacities DBRClub+0x13C/+0x140, legacy DBRClub+0x130 lifecycle for controlled-club native PL ranks 0..3, and secondary selector +0x76. Prefer bounded checksum-gated source tracing from the authorized original disc archive; if the execution container remains unavailable, add only fail-closed trace tooling or source-safe repository work and record the blocker. Do not infer 10% capacities, secondary selectors, or +0x130 semantics.",
   "last_known_main_head": "370ad184b4b3f2e9ecf33e5331afac212e588d9e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 222,
+  "recovery_generation": 223,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Gate-14 audio trace merged at c6b9eed0 with 1,690 tests/23 skips. Gate-13 D48 partial closure merged at 370ad184. Authorized original disc archive materializes from Library but container filesystem execution currently fails with ClientError.",
+  "note": "Recovery 223 resumes from canonical Recovery 222; PR #198 and earlier persistence work are already merged history, not active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
