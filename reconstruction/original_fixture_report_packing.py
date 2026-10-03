@@ -132,7 +132,10 @@ def _pack_match_script_fields(fields):
             copy(0x2C, 1)
             copy(0x24, 3)
             writer.raw_bit(field(0x20))
-            writer.bits(kind - 1, 2)
+            # 0x63385C dispatches kinds 1..4 to 0x63383F/0x63384D/
+            # 0x633831/0x633823: tags 2/3/1/0, not ordinal kind-1.
+            # 0x633D00 reads those tags back as kinds 1/2/3/4.
+            writer.bits((2, 3, 1, 0)[kind - 1], 2)
         elif kind == 5:  # 0x633870
             writer.bits(12, 4)
             copy(4, 1)

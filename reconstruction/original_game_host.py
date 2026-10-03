@@ -20,6 +20,7 @@ from original_pmatchinfo_summary import (
     ordinary_pmatchinfo_summary_lines, summary_line_pixels,
     ordinary_pmatchinfo_pitch_pixels,
     ordinary_pmatchinfo_possession_lines, load_pmatchinfo_nested_font,
+    ordinary_pmatchinfo_header_lines,
 )
 from original_pmenu_chrome import validate_original_pmenu_font
 
@@ -376,7 +377,10 @@ class OriginalGameTkHost:
                 self.canvas.create_image(art.x + x, art.y + y,
                     image=self._photo(png), anchor=self.tk.NW)
             if self.pmatchinfo_nested_font is not None:
-                for line in ordinary_pmatchinfo_possession_lines(
+                controller = self.presenter.session.gameplay
+                header = (() if controller is None else ordinary_pmatchinfo_header_lines(
+                    context.captured_report, controller.state.clubs))
+                for line in header + ordinary_pmatchinfo_possession_lines(
                         context.captured_report, self.pmatchinfo_snapshot):
                     pixels = summary_line_pixels(line, self.pmatchinfo_nested_font)
                     if pixels is not None:

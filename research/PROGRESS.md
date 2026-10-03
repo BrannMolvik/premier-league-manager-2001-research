@@ -4,6 +4,23 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Gate13 native header/possession and reader discrepancy
+
+Continued PR211 from requested `689c91dd`, without main reconciliation,
+Gate14 edits or ownership changes. Resumed fail-closed field discovery;
+actual writer618C10 proves controlled user-owned-stadium totals, not fresh AI
+defaults. Integrated original possession controls, complete Attendance caption,
+club names and native-aligned score. Required row-reader tracing exposed the
+existing encoder's ordinal chance tags; corrected against63385C and633D00
+with literal golden-byte/inverse-reader tests. Genuine calculation/publication/
+disk-save/fresh-reload/Windows-right-click passes with source-owned visible
+header/summary/pitch/possession. Source name corrects old club11 Newcastle label
+to Middlesbrough without changing IDs. Final 1722 tests/23 skips, 99 focused/
+5 skips, asset policy and fresh Windows schema8 pass. Required script rows and
+fresh uncontrolled capacities remain unresolved; Gate13 stays OPEN. Private
+evidence/receipts/saves are outside Git; exact next chain and hashes are in
+CURRENT_STATE and GATE13_LEGACY_CLUB_REPORT_STATE. No final timing or release claim.
+
 ### 3 October 2026 KST — genuine ordinary Gate-13 report route
 
 Isolated `codex/gate13-legacy-setup` from canonical `6207dbe0`; no main

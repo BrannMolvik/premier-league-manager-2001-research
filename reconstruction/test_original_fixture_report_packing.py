@@ -71,10 +71,10 @@ class NativeFixturePackingTests(unittest.TestCase):
                   0x14: 19, 0x18: 1, 0x1C: 0, 0x20: 1,
                   0x24: 5, 0x2C: 0x123456}
         payloads = {
-            1: [(1, 1), (1, 1), (3, 5), (17, 5), (0, 1), (5, 3), (1, 1), (0, 2)],
-            2: [(1, 1), (1, 1), (3, 5), (17, 5), (0, 1), (5, 3), (1, 1), (1, 2)],
-            3: [(1, 1), (1, 1), (3, 5), (17, 5), (0, 1), (5, 3), (1, 1), (2, 2)],
-            4: [(1, 1), (1, 1), (3, 5), (17, 5), (0, 1), (5, 3), (1, 1), (3, 2)],
+            1: [(1, 1), (1, 1), (3, 5), (17, 5), (0, 1), (5, 3), (1, 1), (2, 2)],
+            2: [(1, 1), (1, 1), (3, 5), (17, 5), (0, 1), (5, 3), (1, 1), (3, 2)],
+            3: [(1, 1), (1, 1), (3, 5), (17, 5), (0, 1), (5, 3), (1, 1), (1, 2)],
+            4: [(1, 1), (1, 1), (3, 5), (17, 5), (0, 1), (5, 3), (1, 1), (0, 2)],
             5: [(12, 4), (1, 1), (1, 1), (9, 5)],
             6: [(6, 3), (3, 2)],
             7: [(6, 3), (1, 2), (5, 2)],
@@ -93,6 +93,16 @@ class NativeFixturePackingTests(unittest.TestCase):
                 record = native_record(0x38, {**common, 0x28: kind})
                 self.assertEqual(pack_native_match_script((record,)),
                                  expected_stream([(1, 10), (0x23, 8)] + payload))
+
+    def test_chance_family_tags_decode_to_original_kind_not_ordinal(self):
+        # Native 0x633D00 branch tree: 00 -> 4, 01 -> 3,
+        # 10 -> 1, 11 -> 2 (LSB-first bit reader).
+        for kind, golden in ((1, '0100040010'), (2, '0100040018'),
+                             (3, '0100040008'), (4, '0100040000')):
+            packed = pack_native_match_script((native_record(0x38, {0x28: kind}),))
+            self.assertEqual(packed, bytes.fromhex(golden))
+            tag = (int.from_bytes(packed, 'little') >> 35) & 3
+            self.assertEqual((4, 3, 1, 2)[tag], kind)
 
     def test_incident_zero_branch_and_raw_flag_spill(self):
         record = native_record(0x38, {0x28: 5, 0x14: 19, 0x18: 1, 0x1C: 1})

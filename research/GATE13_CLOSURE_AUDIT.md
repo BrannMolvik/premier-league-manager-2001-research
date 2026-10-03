@@ -4,6 +4,19 @@ _Audit refreshed: 3 October 2026 KST_
 
 ## Current local producer milestone and criterion audit
 
+PR #211 continuation from `689c91dd`: original possession controls, complete
+Attendance/caption buffer and native-aligned home/away names/score are now
+rendered. Required row-reader tracing exposed an encoder tag discrepancy,
+fixed against the canonical jump table and inverse reader branches. The
+genuine calculation/save/fresh-reload/Windows right-click route passes on
+this code, without any manufactured report context. Required script rows
+remain blank: list ownership, duplicate/boundary flags, participant/shirt
+context and nested rendering must be integrated before recognizable report
+contents can pass. Fresh uncontrolled visiting capacities also remain
+unknown; `618C10` is a controlled user-owned-stadium writer, not a fresh AI
+initializer. Gate 13 remains OPEN; no final timing/normal-play sign-off or
+Gate-14 transition is claimed. This supersedes earlier score-header negatives.
+
 PR #211 continuation from reconciled `70c8af0a`: exact top-four D48
 roster/RNG production and automatic original controlled stadium bootstrap
 are integrated. The genuine calculated fixture -> complete report -> disk

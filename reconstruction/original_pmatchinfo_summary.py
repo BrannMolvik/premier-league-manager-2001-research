@@ -21,6 +21,7 @@ class PMatchInfoSummaryLine:
     setup_call_va: int
     rect: tuple[int, int, int, int]
     text: str
+    style: int = 0x24
 
 
 def _source_name(player, field):
@@ -68,8 +69,11 @@ def summary_line_pixels(line, font):
     mask = font.render_text_alpha(line.text)
     # 64F21C..22C / 64F269..279: floor(control/2) - floor(font/2),
     # NOT floor((control-font)/2); y=49 for the 50px,16px-high first line.
-    origin = (x + width // 2 - font.measure_text(line.text) // 2,
-              y + height // 2 - font.native_line_height() // 2)
+    measured = font.measure_text(line.text)
+    dx = width - measured if line.style & 2 else width // 2 - measured // 2 if line.style & 4 else 0
+    dy = height - font.native_line_height() if line.style & 0x10 else (
+        height // 2 - font.native_line_height() // 2 if line.style & 0x20 else 0)
+    origin = (x + dx, y + dy)
     clipped = _clip_text_mask(mask, line_origin=origin,
                              clip_rect=(x, y, x + width, y + height))
     if clipped is None:
@@ -119,3 +123,20 @@ def ordinary_pmatchinfo_possession_lines(report, snapshot):
     return tuple(PMatchInfoSummaryLine(call, (x, 145 + 42, 30, 20), f'{value}%')
         for call, x, value in zip((0x483BCA, 0x483C22, 0x483C7A),
                                  (295, 370, 443), reversed(report.possession.averages)))
+
+
+def ordinary_pmatchinfo_header_lines(report, clubs):
+    if type(report) is not CompleteFixtureReport or report.metadata.previous_scores is not None:
+        return ()
+    lines = []
+    for club_id, call, rect, style in zip(report.metadata.team_ids,
+            (0x485388, 0x485421), ((176, 5, 175, 37), (411, 5, 175, 37)), (0x22, 0x21)):
+        name = _source_name(clubs.get(club_id), 'name')
+        if name is not None:
+            lines.append(PMatchInfoSummaryLine(call, rect, name.decode('cp1252'), style))
+    # 488ADE reads report +18, supplied by the retained 60BA80 score nibbles.
+    # Display is permitted AFTER complete report ownership, not a context fallback.
+    packed = report.completion.native_score_nibbles
+    lines.append(PMatchInfoSummaryLine(0x4853C0, (354, 18, 55, 14),
+                                     f'{packed & 15}    {(packed >> 4) & 15}'))
+    return tuple(lines)

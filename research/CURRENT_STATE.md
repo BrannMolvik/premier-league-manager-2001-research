@@ -10,6 +10,29 @@ topic-specific research files.
 
 **Gate 13 - Restore original management presentation**
 
+Continuation from PR #211 head `689c91dd`: corrected scanner discovery past
+undecodable bytes (still candidate-only), traced controlled capacity writer
+`618C10`, and integrated original possession-percent controls, complete
+Attendance/caption buffer and native-aligned name/score header. +13C/+140
+fresh uncontrolled state remains unknown: the proven writer uses an existing
+user-owned stadium, not fresh AI setup. Required script rows remain withheld
+pending native lazy reader `60B1E0 -> 633BD0/633C50`, concrete list
+`487B80 -> 4872C0`, row factory `486EC0 -> 485B30` and source clipping.
+The reader exposed and now verifies a corrected native chance-family encoder
+tag mapping (kinds1..4 -> tags2/3/1/0), not a second decoded-kind remapping.
+Do not replay completed
+report assembly/save/owner/calculator work. Gate13 remains OPEN; main,
+later-gate files and ownership protocol are unchanged.
+
+Final changed-code milestone: **1,722 full tests / 23 expected skips**;
+99 focused tests / 5 expected licensed-source skips, asset policy and fresh
+real Windows schema8 pass. Genuine calculated fixture2 again publishes,
+saves/reloads and opens correct PMatchInfo with header/summary/pitch/possession.
+Required script rows remain blank. Exact receipts and encoder discrepancy
+evidence are in `GATE13_LEGACY_CLUB_REPORT_STATE.md`. No final closure or
+package/release success is inferred. The first full run lacked Capstone;
+the final run with the existing private runtime passes.
+
 Latest PR #211 continuation from reconciled `70c8af0a`: the top-four D48
 producer now performs the exact second full-roster Condition/RNG pass before
 participant snapshots. Human club selection automatically loads the original

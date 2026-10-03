@@ -4,6 +4,42 @@
 
 ### Continuation from `689c91dd`: actual writer and required child controls
 
+Ordinary popup names now use captured home/away ownership and original club
+names via `485388/485421 -> 5D67C0 -> 40DA70`. Rectangles are
+`(176,5,175,37)` / `(411,5,175,37)`, original BdXCn18, style22 right /
+style21 left, native vertical centering and white. `403600` checks a nonempty
+human name override first; the fresh ordinary runtime has no renamed-club
+context. Do not reuse this default-name path for eventual renamed contexts.
+Score setup `4853C0` uses `(354,18,55,14)`, style24. `488ADE` reads report
++18's retained native nibbles and formats `%d    %d` at81D134. This is
+display after complete-report ownership, never score-derived context.
+
+The genuine source-name header identifies fixture2 as Coventry City (5)
+versus Middlesbrough (11). Earlier research incorrectly called club11
+Newcastle. The authoritative fixture/report IDs were always (5,11); no
+stored identity, link or calculated-report context was changed to fix a label.
+
+Native reader `633C50 -> 633D00` maps serialized chance-family two-bit
+values0/1/2/3 to decoded kinds4/3/1/2. Its producer jump table `63385C`
+dispatches kinds1..4 to `63383F/63384D/633831/633823`, writing tags2/3/1/0.
+This exposed an existing encoder discrepancy: ordinal kind-1 tags were wrong.
+The encoder is corrected, with four literal golden-byte streams and an
+independent reader-branch inverse regression. Native encode/decode preserves
+the family kind; do not apply a second remapping to retained compact records.
+Strict report validation rejects old mismatched ordinal-tag report blobs;
+no partial report is promoted or repaired from scores/completion flags.
+Factory `486EC0 -> 485B30` also retains duplicate-row/boundary flags.
+This required reader/row-context chain remains to integrate; do not simply
+draw compact records as decoded native presentation records. Existing
+Other report codecs/owner/save production is not reopened.
+Private expanded source windows: `work/gate13-closure-tail-private-20261003.json`,
+SHA-256 `a555ff941d90654775e6270cd4ee0650e424b26d3386cd730554ec245b4f4bea`.
+The bounded trace also follows `485B30`'s participant selection from report
++84/+88, inversion/duplicate inputs and `5EF940 -> 408320` shirt construction,
+then `485F50`'s actual label, decimal and shirt-number-row updates. Existing
+incident-resource predicates are reusable, but do not establish complete
+list ownership, participant-name controls or row clipping by themselves.
+
 The support scanner stopped at the first undecodable sequence, before the
 known `5DA538/5DA56B` reads. Candidate discovery now enables Capstone skipdata
 and explicitly ignores synthetic data records; resumed decoding is still not
@@ -44,7 +80,27 @@ Default script list setup is now traced to vtable `7C43BC` slot +B0
 Row construction has duplicate-record/substitution and boundary-state
 inputs; do not simply draw six compact records or invent omitted fields.
 The earlier `4885A0` +78/+98 buffers produce **badge resource paths**, not
-club-name/score text. Required script/name/score rendering remains open.
+club-name/score text. Header names/score are now integrated; script rows remain open.
+
+The final-code genuine fixture2 route again passes after the native family-tag
+correction: calculated report publication -> disk save -> fresh reload -> real
+Windows right-click. Header is Coventry City / Middlesbrough / `1    1`,
+possession is `37% / 39% / 24%`, and the complete captured caption accompanies
+Attendance. Private receipt `work/gate13-calculated-reload-header-possession-20261003.json`
+SHA-256 `510312e36383d82e486e85e1c407828418b66f35012781ed8b5df7aa4b15510b`;
+save SHA-256 `23985d96249f5c07615a96af2271041ea4033b6242f940cc5c9e1fecccd71b1e`.
+Required script areas remain blank, not fabricated from the match score.
+
+Final milestone validation (4 October KST): **1,722 full tests / 23 expected
+licensed-source skips**; 99 focused tests / 5 expected skips, asset policy,
+JSON/diff checks and fresh real Windows schema8 pass. Private final receipt
+`work/gate13-header-possession-schema8-final-20261004.json` has deterministic
+SHA-256 `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`.
+The first full-suite invocation omitted the existing private Capstone path;
+the final run restores that dependency. The first final Windows invocation
+used the staging parent instead of FM2001_Art; the corrected invocation passes.
+No application-control bypass, frozen-package launch or final timing sign-off
+is claimed. Main, Gate14 and ownership protocol are untouched.
 
 ### Source-backed visible summary/default pitch milestone
 

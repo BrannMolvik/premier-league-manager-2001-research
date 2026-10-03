@@ -9,6 +9,7 @@ from original_pmatchinfo_summary import (
     ordinary_pmatchinfo_summary_lines, summary_line_pixels,
     ordinary_pmatchinfo_pitch_pixels,
     ordinary_pmatchinfo_possession_lines, load_pmatchinfo_nested_font,
+    ordinary_pmatchinfo_header_lines,
 )
 from original_pmenu_chrome import validate_original_pmenu_font
 from test_complete_fixture_report import contract
@@ -102,3 +103,16 @@ class PMatchInfoSummaryTests(unittest.TestCase):
         self.assertEqual(ordinary_pmatchinfo_possession_lines(report, snapshot), ())
         snapshot.selected_tab_event_id = 1
         self.assertEqual(ordinary_pmatchinfo_possession_lines(None, snapshot), ())
+
+    def test_header_names_alignment_and_retained_score_nibbles(self):
+        report = replace(self.report, completion=replace(self.report.completion, scores=(16, 16)))
+        clubs = {5: SimpleNamespace(name='Home'), 11: SimpleNamespace(name='Away')}
+        lines = ordinary_pmatchinfo_header_lines(report, clubs)
+        self.assertEqual([line.text for line in lines], ['Home', 'Away', '0    0'])
+        self.assertEqual([line.style for line in lines], [0x22, 0x21, 0x24])
+        font = load_pmatchinfo_nested_font(Path(__file__).resolve().parents[1] / 'original_assets/source')
+        home, away = (summary_line_pixels(line, font) for line in lines[:2])
+        self.assertEqual(home[0], 176 + 175 - font.measure_text('Home'))
+        self.assertEqual(away[0], 411)
+        self.assertEqual(ordinary_pmatchinfo_header_lines(None, clubs), ())
+        self.assertEqual(len(ordinary_pmatchinfo_header_lines(report, {})), 1)
