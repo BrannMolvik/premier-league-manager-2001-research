@@ -17,6 +17,13 @@ from gate14_possession_diagram import (
     SOURCE_EVENT_POSSESSION_CONSTRUCT_CALL_VA,
     SOURCE_EVENT_POSSESSION_SENDER_OFFSET,
     SOURCE_GLOBAL_TICK_DIVISOR,
+    SOURCE_FASTVIEW_DEFAULT_SPEED_INDEX,
+    SOURCE_FASTVIEW_SPEED_INTERVALS_MS,
+    SOURCE_FASTVIEW_SPEED_INTERVAL_TABLE_VA,
+    SOURCE_FASTVIEW_GETTICKCOUNT_CALL_VA,
+    SOURCE_FASTVIEW_MATCHCONTROLLER_STEP_CALL_VA,
+    SOURCE_FASTVIEW_KEY_HANDLER_VA,
+    SOURCE_FASTVIEW_SPACE_KEY,
     active_overlay_rect,
     advance_possession_diagram,
     apply_global_penalties_event,
@@ -25,6 +32,10 @@ from gate14_possession_diagram import (
     possession_roll,
     presentation_rand_step,
     should_emit_possession_on_global_tick,
+    fastview_global_tick_interval_ms,
+    fastview_global_tick_due,
+    next_fastview_speed_index_on_space,
+    possession_opportunity_threshold_ms,
 )
 
 
@@ -195,6 +206,38 @@ class PossessionDiagramTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 call()
 
+    def test_fastview_gettickcount_speed_thresholds_and_default(self):
+        self.assertEqual(SOURCE_FASTVIEW_GETTICKCOUNT_CALL_VA, 0x521B64)
+        self.assertEqual(SOURCE_FASTVIEW_MATCHCONTROLLER_STEP_CALL_VA, 0x521C03)
+        self.assertEqual(SOURCE_FASTVIEW_SPEED_INTERVAL_TABLE_VA, 0x7CA538)
+        self.assertEqual(SOURCE_FASTVIEW_SPEED_INTERVALS_MS, (1000, 500, 250))
+        self.assertEqual(SOURCE_FASTVIEW_DEFAULT_SPEED_INDEX, 1)
+        self.assertEqual(
+            [fastview_global_tick_interval_ms(i) for i in range(3)],
+            [1000, 500, 250],
+        )
+        self.assertEqual(
+            [possession_opportunity_threshold_ms(i) for i in range(3)],
+            [5000, 2500, 1250],
+        )
+
+    def test_fastview_tick_due_uses_threshold_without_catchup_count(self):
+        self.assertFalse(fastview_global_tick_due(999, 0))
+        self.assertTrue(fastview_global_tick_due(1000, 0))
+        self.assertFalse(fastview_global_tick_due(499, 1))
+        self.assertTrue(fastview_global_tick_due(500, 1))
+        self.assertFalse(fastview_global_tick_due(249, 2))
+        self.assertTrue(fastview_global_tick_due(250, 2))
+        self.assertTrue(fastview_global_tick_due(5000, 2))
+
+    def test_space_cycles_exact_three_fastview_speed_indices(self):
+        self.assertEqual(SOURCE_FASTVIEW_KEY_HANDLER_VA, 0x521DA0)
+        self.assertEqual(SOURCE_FASTVIEW_SPACE_KEY, 0x20)
+        self.assertEqual(
+            [next_fastview_speed_index_on_space(i) for i in range(3)],
+            [1, 2, 0],
+        )
+
     def test_invalid_inputs_fail_closed(self):
         with self.assertRaises(ValueError):
             active_overlay_rect(3)
@@ -208,6 +251,12 @@ class PossessionDiagramTests(unittest.TestCase):
             apply_goal_event(1, "0", 0, penalties_latched=False)
         with self.assertRaises(ValueError):
             apply_global_penalties_event(3, 0, penalties_latched=False)
+        with self.assertRaises(ValueError):
+            fastview_global_tick_interval_ms(3)
+        with self.assertRaises(ValueError):
+            fastview_global_tick_due(-1, 1)
+        with self.assertRaises(ValueError):
+            next_fastview_speed_index_on_space(True)
 
 
 if __name__ == "__main__":

@@ -10542,3 +10542,13 @@ work may continue under the deferred-blocker policy.
 - `EventPossession` has one direct construction call in this path: `0x5197B8 -> 0x51A6B0`, followed by dispatch through the embedded `Sender<EventPossession>` at source offset `+0x20`.
 - The branch is entered only when source byte `+0xA5 == 0`, source pointers `+0x98` and `+0xA0` are non-null, and the incoming EventGlobalTick first dword is divisible by **5**.
 - This source-closes possession emission cadence in event counts: every fifth GlobalTick while those gates hold. It does not source-close how many milliseconds/frames one GlobalTick represents, so no wall-clock timing is claimed.
+
+
+## 3 October 2026 - Recovery 198 FastView GlobalTick wall-clock throttle
+
+- Continued source tracing while parent EventPossession cadence PR #166 ran CI; this checkpoint is stacked on its head and must not be promoted before the parent becomes canonical.
+- FastView host update `0x521B64` calls Win32 `GetTickCount`, compares elapsed milliseconds with the three-dword source table `0x7CA538 = [1000, 500, 250]`, and returns early while elapsed time is below the selected threshold.
+- FastView constructor `0x51F5EB` initializes speed index host `+0x2AC = 1`, making 500 ms the source default. Keyboard handler `0x521DA0` cycles the index 0 -> 1 -> 2 -> 0 on Space (`0x20`).
+- Once due, the host writes current GetTickCount to baseline `+0x2B0` and calls MatchController once at `0x521C03 -> 0x518330`. There is no source catch-up loop in this host path, so delayed host iterations can only lengthen the real observed interval.
+- MatchController dispatcher `0x518790` sends its current `+0x78` value as EventGlobalTick and increments `+0x78` after dispatch unless state `+0x90 == 5`.
+- Combined with the parent checkpoint's every-fifth-GlobalTick EventPossession gate, source minimum possession thresholds are 5000 ms / 2500 ms / 1250 ms for speed indices 0/1/2. These are scheduling thresholds, not a promise of exact wall-clock spacing under event-loop delay.

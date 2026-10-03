@@ -32,6 +32,21 @@ SOURCE_GLOBAL_TICK_DIVISOR = 5
 SOURCE_MATCH_ITERATOR_GATE_A5_OFFSET = 0xA5
 SOURCE_MATCH_ITERATOR_GATE_98_OFFSET = 0x98
 SOURCE_MATCH_ITERATOR_GATE_A0_OFFSET = 0xA0
+
+SOURCE_MATCHCONTROLLER_GLOBAL_TICK_DISPATCH_VA = 0x518790
+SOURCE_MATCHCONTROLLER_STEP_TO_DISPATCH_CALL_VA = 0x518743
+SOURCE_MATCHCONTROLLER_GLOBAL_TICK_COUNTER_OFFSET = 0x78
+SOURCE_MATCHCONTROLLER_STATE_OFFSET = 0x90
+SOURCE_MATCHCONTROLLER_TERMINAL_STATE = 5
+SOURCE_FASTVIEW_GETTICKCOUNT_CALL_VA = 0x521B64
+SOURCE_FASTVIEW_MATCHCONTROLLER_STEP_CALL_VA = 0x521C03
+SOURCE_FASTVIEW_SPEED_INDEX_OFFSET = 0x2AC
+SOURCE_FASTVIEW_LAST_TICK_OFFSET = 0x2B0
+SOURCE_FASTVIEW_SPEED_INTERVAL_TABLE_VA = 0x7CA538
+SOURCE_FASTVIEW_SPEED_INTERVALS_MS = (1000, 500, 250)
+SOURCE_FASTVIEW_DEFAULT_SPEED_INDEX = 1
+SOURCE_FASTVIEW_KEY_HANDLER_VA = 0x521DA0
+SOURCE_FASTVIEW_SPACE_KEY = 0x20
 SOURCE_OVERLAY_X_TABLE_VA = 0x829328
 
 PROCESS_INITIAL_PRESENTATION_RNG_STATE = 0
@@ -269,4 +284,44 @@ def should_emit_possession_on_global_tick(
         and field_98_present
         and field_a0_present
         and global_tick_value % SOURCE_GLOBAL_TICK_DIVISOR == 0
+    )
+
+
+def fastview_global_tick_interval_ms(speed_index: int) -> int:
+    """Return the exact GetTickCount throttle threshold for one FastView speed.
+
+    This is a minimum elapsed-time threshold, not a promise that the host loop
+    executes at exactly that interval. The original path performs at most one
+    MatchController step after a due check and stores the current GetTickCount
+    as the new baseline, so delayed host iterations are not caught up here.
+    """
+    if type(speed_index) is not int or speed_index not in (0, 1, 2):
+        raise ValueError("FastView speed index must be 0, 1, or 2")
+    return SOURCE_FASTVIEW_SPEED_INTERVALS_MS[speed_index]
+
+
+def fastview_global_tick_due(elapsed_ms: int, speed_index: int) -> bool:
+    """Mirror the source elapsed-ms threshold check at 0x521BA3..0x521BB0."""
+    if type(elapsed_ms) is not int or elapsed_ms < 0:
+        raise ValueError("elapsed_ms must be a non-negative integer")
+    return elapsed_ms >= fastview_global_tick_interval_ms(speed_index)
+
+
+def next_fastview_speed_index_on_space(speed_index: int) -> int:
+    """Mirror 0x521DA0's Space-key speed cycle 0 -> 1 -> 2 -> 0."""
+    if type(speed_index) is not int or speed_index not in (0, 1, 2):
+        raise ValueError("FastView speed index must be 0, 1, or 2")
+    return (speed_index + 1) % 3
+
+
+def possession_opportunity_threshold_ms(speed_index: int) -> int:
+    """Return the minimum throttle span for five GlobalTicks at one speed.
+
+    EventPossession is eligible every fifth GlobalTick. Host-loop delays can
+    make the real wall-clock interval longer, so this is intentionally named a
+    threshold rather than an exact observed interval.
+    """
+    return (
+        fastview_global_tick_interval_ms(speed_index)
+        * SOURCE_GLOBAL_TICK_DIVISOR
     )
