@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 204: resume from canonical main 608e4f9168939c08ddffd90f5d6fb112b5d2724e. PR #170 is merged and verified; do not repeat orientation/background work. Continue Gate-14 source work with the already identified direct-owned FastView top_bar.444 and ticker.444 chrome slice: verify exact source paths, ownership/callsites, geometry and lifecycle from the canonical executable/disc, stage only assets whose live binding is proven, add fail-closed render seams/tests, then continue the next source-backed FastView slice. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
+  "active_task": "Recovery 203: PR #171 head 452f3f9e710632d619f088d8b1f11e734aaa7a71 stages direct-owned FastView top_bar/ticker chrome with exact provenance/geometry and decoded pixel seam. Verify CI and merge if green, then continue the next directly owned FastView shell/chrome or source-bound audio path. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
   "last_known_main_head": "608e4f9168939c08ddffd90f5d6fb112b5d2724e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 204,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #170 canonical. Continue direct-owned top_bar/ticker chrome only; do not use rejected background. Preserve Gate 13 external blocker.",
+  "note": "PR #170 merged as 608e4f91. PR #171 is the only active Gate-14 checkpoint.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
