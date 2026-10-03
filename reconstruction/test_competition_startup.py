@@ -13,6 +13,8 @@ from competition_startup import (
     expand_champions_league_to_uefa_transfer,
     expand_league_position_allocation_instructions,
     expand_standard_cup_allocation_instructions,
+    fresh_objective_hierarchy,
+    fresh_promotion_playoff_position_count,
     msvc_crt_qsort,
     materialize_cup_runtime_rounds,
     ordered_cup_allocation_instructions,
@@ -80,6 +82,7 @@ class Round:
     scheduled_week: int = 0
     scheduled_weekday: int = 1
     source_competition_reference: int = 0xFFFFFFFF
+    new_entrants: int = 0
 
 
 @dataclass(frozen=True)
@@ -91,6 +94,17 @@ class CupAllocation:
     source_reference: int = 0
     quantity: int = 0
     auxiliary: int = 0
+
+
+@dataclass(frozen=True)
+class LeagueAllocation:
+    id: int
+    competition_a_id: int
+    competition_a_start: int
+    competition_a_end: int
+    competition_b_id: int
+    competition_b_start: int
+    competition_b_end: int
 
 
 class RecordingRng:
@@ -279,6 +293,55 @@ class ContractCategoryRootOrderTests(unittest.TestCase):
             tuple(competition.id for competition in ordered),
             (0, 2, 3, 4, 7, 89),
         )
+
+
+class FreshObjectiveHierarchyTests(unittest.TestCase):
+    def test_england_subset_uses_plain_zero_based_classification(self):
+        competitions = (
+            Competition(0, 1, 1, None, 9, 26),
+            Competition(2, 1, 1, None, 10, 26),
+            Competition(3, 1, 1, None, 11, 26),
+            Competition(4, 1, 1, None, 12, 26),
+            Competition(7, 1, 1, None, 13, 26),
+            Competition(89, 3, 1, None, 14, 26),
+        )
+
+        premier = fresh_objective_hierarchy(0, competitions)
+        conference = fresh_objective_hierarchy(7, competitions)
+        dummy = fresh_objective_hierarchy(89, competitions)
+
+        self.assertEqual(
+            (premier.classification, premier.first_class, premier.last_class_equal),
+            (0, True, False),
+        )
+        self.assertEqual(
+            (conference.classification, conference.first_class, conference.last_class_equal),
+            (4, False, False),
+        )
+        self.assertEqual(
+            (dummy.classification, dummy.first_class, dummy.last_class_equal),
+            (5, False, True),
+        )
+
+    def test_germany_4fa520_merges_index_three_and_remaps_last_dummy(self):
+        competitions = (
+            Competition(21, 1, 1, None, 7, 33),
+            Competition(22, 1, 1, None, 8, 33),
+            Competition(24, 1, 1, None, 9, 33),
+            Competition(83, 1, 1, None, 9, 33),
+            Competition(25, 3, 1, None, 10, 33),
+        )
+
+        north = fresh_objective_hierarchy(24, competitions)
+        south = fresh_objective_hierarchy(83, competitions)
+        spare = fresh_objective_hierarchy(25, competitions)
+
+        self.assertEqual(north.classification, 2)
+        self.assertEqual(south.classification, 2)
+        self.assertEqual(spare.classification, 3)
+        self.assertTrue(spare.last_class_equal)
+        self.assertFalse(north.last_class_equal)
+        self.assertFalse(south.last_class_equal)
 
 
 class OrderedCompetitionRngTests(unittest.TestCase):
@@ -814,6 +877,129 @@ class LeaguePositionAllocationExpansionTests(unittest.TestCase):
 
         self.assertEqual(expansion.participant_refs, ())
         self.assertEqual(expansion.source_position_offsets, ())
+
+
+class FreshPromotionPlayoffCountTests(unittest.TestCase):
+    def test_english_division_one_marks_four_promotion_playoff_positions(self):
+        competitions = (
+            Competition(0, 1, 1, None, 9, 26),
+            Competition(2, 1, 1, None, 10, 26),
+            Competition(11, 2, 1, 2, 14, 26),
+        )
+        allocations = (
+            LeagueAllocation(0, 0, 18, 19, 2, 0, 1),
+            LeagueAllocation(1, 0, 17, 17, 11, 0, 0),
+        )
+        cup_allocations = (
+            CupAllocation(154, 11, 1, 4, 2, 2),
+            CupAllocation(155, 11, 2, 1, 2, 4),
+        )
+        rounds = (
+            # Preserve the recovered Cup+0x38 ordering dependency: the
+            # entrant-bearing semifinal precedes the no-new-entrant final.
+            # Equal synthetic schedule keys would make this regression depend
+            # on unrelated CRT qsort tie permutation instead.
+            Round(11, 4, 218, 2, 1, 1, 0xFFFFFFFF, 4),
+            Round(11, 2, 219, 1, 2, 1, 0xFFFFFFFF, 0),
+        )
+
+        self.assertEqual(
+            fresh_promotion_playoff_position_count(
+                2,
+                competitions,
+                allocations,
+                cup_allocations,
+                rounds,
+            ),
+            4,
+        )
+
+    def test_italian_division_two_reads_upper_leagues_child_playoff(self):
+        competitions = (
+            Competition(17, 1, 1, None, 7, 40),
+            Competition(18, 1, 1, None, 8, 40),
+            Competition(85, 2, 1, 17, 9, 40),
+        )
+        allocations = (
+            LeagueAllocation(16, 17, 15, 17, 18, 0, 2),
+            LeagueAllocation(17, 17, 14, 14, 85, 0, 0),
+        )
+        cup_allocations = (
+            CupAllocation(177, 85, 1, 4, 18, 3),
+            CupAllocation(178, 85, 2, 1, 18, 2),
+        )
+        rounds = (
+            Round(85, 2, 458, 1, 0, 0, 0xFFFFFFFF, 2),
+        )
+
+        self.assertEqual(
+            fresh_promotion_playoff_position_count(
+                18,
+                competitions,
+                allocations,
+                cup_allocations,
+                rounds,
+            ),
+            2,
+        )
+
+    def test_dutch_division_two_unions_two_child_league_selector_sets(self):
+        competitions = (
+            Competition(54, 1, 1, None, 7, 24),
+            Competition(96, 1, 1, None, 8, 24),
+            Competition(97, 1, 1, 96, 0, 24),
+            Competition(169, 1, 1, 96, 0, 24),
+        )
+        allocations = (
+            LeagueAllocation(23, 54, 17, 17, 96, 0, 0),
+            LeagueAllocation(24, 54, 16, 16, 97, 0, 0),
+            LeagueAllocation(12, 54, 15, 15, 169, 0, 0),
+        )
+        cup_allocations = (
+            CupAllocation(205, 97, 1, 4, 54, 15),
+            CupAllocation(206, 97, 2, 1, 54, 1),
+            CupAllocation(207, 97, 3, 4, 96, 1),
+            CupAllocation(208, 97, 4, 1, 96, 1),
+            CupAllocation(213, 97, 5, 4, 96, 1),
+            CupAllocation(214, 97, 6, 1, 96, 2),
+            CupAllocation(215, 169, 1, 4, 54, 16),
+            CupAllocation(216, 169, 2, 1, 54, 1),
+            CupAllocation(217, 169, 3, 4, 96, 2),
+            CupAllocation(218, 169, 4, 1, 96, 1),
+            CupAllocation(219, 169, 5, 4, 96, 2),
+            CupAllocation(220, 169, 6, 1, 96, 2),
+        )
+
+        self.assertEqual(
+            fresh_promotion_playoff_position_count(
+                96,
+                competitions,
+                allocations,
+                cup_allocations,
+                (),
+            ),
+            6,
+        )
+
+    def test_top_league_without_upper_allocation_has_no_promotion_playoff_count(self):
+        competitions = (
+            Competition(0, 1, 1, None, 9, 26),
+            Competition(2, 1, 1, None, 10, 26),
+        )
+        allocations = (
+            LeagueAllocation(0, 0, 18, 19, 2, 0, 1),
+        )
+
+        self.assertEqual(
+            fresh_promotion_playoff_position_count(
+                0,
+                competitions,
+                allocations,
+                (),
+                (),
+            ),
+            0,
+        )
 
 
 class StandardCupAllocationExpansionTests(unittest.TestCase):

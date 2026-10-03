@@ -20,6 +20,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 import math
+from typing import Protocol
 
 
 Money = int | float
@@ -55,6 +56,67 @@ def _money(value: Money) -> Money:
     return number
 
 
+class ObjectiveCandidateRng(Protocol):
+    def randbelow(self, bound: int) -> int: ...
+
+
+def fresh_financial_objective_candidates(
+    fan_base_rank_count: int,
+    league_team_count: int,
+    *,
+    first_hierarchy_class: bool,
+    last_hierarchy_class_equal: bool,
+    promotion_playoff_position_count: int,
+    rng: ObjectiveCandidateRng,
+) -> tuple[int, int, int]:
+    """Reproduce fresh-state (objective +0x9C == 0) 0x5DFD30.
+
+    The three calls use slot arguments 0, 1 and 2. 0x4FA570 supplies the
+    first-class predicate; 0x4FA590 compares the current 0x4FA520 class with
+    the last DBRCountry +0x48 League/DummyLeague subset entry. The second
+    0x4F88C0 output is the count of table positions marked status 2 by
+    promotion-playoff child ClubRefs.
+
+    Random branches call 0x64D540(100) and select the lower-numbered branch
+    when the returned integer is <= 50. Because 0x64D540 returns 0..99, this
+    deliberately preserves the original inclusive 51/49 split.
+    """
+    rank_count = int(fan_base_rank_count)
+    team_count = int(league_team_count)
+    playoff_count = int(promotion_playoff_position_count)
+    if team_count <= 0:
+        raise ValueError("league_team_count must be positive")
+    if not 0 <= rank_count <= team_count:
+        raise ValueError("fan_base_rank_count must be in 0..league_team_count")
+    if playoff_count < 0:
+        raise ValueError("promotion_playoff_position_count must be non-negative")
+    if rng is None or not callable(getattr(rng, "randbelow", None)):
+        raise TypeError("fresh objective candidates require bounded RNG")
+
+    high_rank = rank_count >= team_count // 2
+
+    def coin(low: int, high: int) -> int:
+        return int(low) if int(rng.randbelow(100)) <= 50 else int(high)
+
+    if bool(first_hierarchy_class):
+        if high_rank:
+            return (1, coin(2, 15), 3)
+        return (4, 5, 6)
+
+    if high_rank:
+        return (
+            13,
+            1,
+            5 if playoff_count <= 0 else coin(5, 8),
+        )
+
+    return (
+        1,
+        5 if playoff_count <= 0 else coin(5, 8),
+        9 if bool(last_hierarchy_class_equal) else 6,
+    )
+
+
 @dataclass(frozen=True)
 class FinancePosting:
     amount: Money
@@ -80,8 +142,8 @@ class FinancialObjectiveState:
     """Recovered Balance+0x30 chairman financial-objective slice.
 
     The original object carries additional bookkeeping fields. This slice keeps
-    only the fields whose behavior is instruction-locked for the fresh Premier
-    League path and three-year evaluation.
+    the source-backed fresh objective candidate set plus the selected
+    three-year evaluation lifecycle.
     """
 
     base_cash: Money
@@ -113,16 +175,20 @@ class FinancialObjectiveState:
         fan_base_rank_count: int,
         league_team_count: int,
     ) -> tuple[int, int, int]:
-        """Exact fresh 0x5DFD30 candidate branch for Premier League clubs."""
-        rank_count = int(fan_base_rank_count)
-        team_count = int(league_team_count)
-        if team_count <= 0:
-            raise ValueError("league_team_count must be positive")
-        if not 0 <= rank_count <= team_count:
-            raise ValueError("fan_base_rank_count must be in 0..league_team_count")
-        if rank_count >= team_count // 2:
-            return (13, 1, 5)
-        return (1, 5, 6)
+        """Compatibility wrapper for the no-RNG fresh Premier League branch."""
+
+        class _NoRngExpected:
+            def randbelow(self, bound: int) -> int:
+                raise AssertionError("Premier League fresh objective consumed RNG")
+
+        return fresh_financial_objective_candidates(
+            fan_base_rank_count,
+            league_team_count,
+            first_hierarchy_class=False,
+            last_hierarchy_class_equal=False,
+            promotion_playoff_position_count=0,
+            rng=_NoRngExpected(),
+        )
 
     def select(self, candidate_index: int, selected_on: date) -> Money:
         """Apply 0x5DFB90 selection and return the replacement current cash."""

@@ -9,6 +9,7 @@ from finance_state import (
     CREDIT_SECONDARY_DEBIT_RATE,
     FinancialObjectiveState,
     TRANSFER_ACCOUNT_CATEGORY,
+    fresh_financial_objective_candidates,
 )
 
 
@@ -82,7 +83,134 @@ class BalanceRuntimeStateTests(unittest.TestCase):
         self.assertAlmostEqual(posting.amount, -0.002)
 
 
+class RecordingObjectiveRng:
+    def __init__(self, values):
+        self.values = list(values)
+        self.calls = []
+
+    def randbelow(self, bound):
+        self.calls.append(int(bound))
+        if not self.values:
+            raise AssertionError("unexpected objective RNG call")
+        value = self.values.pop(0)
+        if not 0 <= value < bound:
+            raise AssertionError((value, bound))
+        return value
+
+
 class FinancialObjectiveStateTests(unittest.TestCase):
+    def test_full_fresh_candidate_generator_covers_first_class_branches(self):
+        low_rng = RecordingObjectiveRng(())
+        self.assertEqual(
+            fresh_financial_objective_candidates(
+                4,
+                10,
+                first_hierarchy_class=True,
+                last_hierarchy_class_equal=False,
+                promotion_playoff_position_count=0,
+                rng=low_rng,
+            ),
+            (4, 5, 6),
+        )
+        self.assertEqual(low_rng.calls, [])
+
+        rng_low = RecordingObjectiveRng((50,))
+        self.assertEqual(
+            fresh_financial_objective_candidates(
+                5,
+                10,
+                first_hierarchy_class=True,
+                last_hierarchy_class_equal=False,
+                promotion_playoff_position_count=0,
+                rng=rng_low,
+            ),
+            (1, 2, 3),
+        )
+        self.assertEqual(rng_low.calls, [100])
+
+        rng_high = RecordingObjectiveRng((51,))
+        self.assertEqual(
+            fresh_financial_objective_candidates(
+                5,
+                10,
+                first_hierarchy_class=True,
+                last_hierarchy_class_equal=False,
+                promotion_playoff_position_count=0,
+                rng=rng_high,
+            ),
+            (1, 15, 3),
+        )
+
+    def test_full_fresh_candidate_generator_uses_playoff_rng_only_when_present(self):
+        no_playoff = RecordingObjectiveRng(())
+        self.assertEqual(
+            fresh_financial_objective_candidates(
+                10,
+                20,
+                first_hierarchy_class=False,
+                last_hierarchy_class_equal=False,
+                promotion_playoff_position_count=0,
+                rng=no_playoff,
+            ),
+            (13, 1, 5),
+        )
+        self.assertEqual(no_playoff.calls, [])
+
+        rng_five = RecordingObjectiveRng((50,))
+        self.assertEqual(
+            fresh_financial_objective_candidates(
+                12,
+                20,
+                first_hierarchy_class=False,
+                last_hierarchy_class_equal=False,
+                promotion_playoff_position_count=4,
+                rng=rng_five,
+            ),
+            (13, 1, 5),
+        )
+        self.assertEqual(rng_five.calls, [100])
+
+        rng_eight = RecordingObjectiveRng((51,))
+        self.assertEqual(
+            fresh_financial_objective_candidates(
+                12,
+                20,
+                first_hierarchy_class=False,
+                last_hierarchy_class_equal=False,
+                promotion_playoff_position_count=4,
+                rng=rng_eight,
+            ),
+            (13, 1, 8),
+        )
+
+    def test_full_fresh_low_half_last_classification_controls_slot_two(self):
+        rng = RecordingObjectiveRng((51,))
+        self.assertEqual(
+            fresh_financial_objective_candidates(
+                4,
+                10,
+                first_hierarchy_class=False,
+                last_hierarchy_class_equal=True,
+                promotion_playoff_position_count=2,
+                rng=rng,
+            ),
+            (1, 8, 9),
+        )
+        self.assertEqual(rng.calls, [100])
+
+        no_playoff = RecordingObjectiveRng(())
+        self.assertEqual(
+            fresh_financial_objective_candidates(
+                4,
+                10,
+                first_hierarchy_class=False,
+                last_hierarchy_class_equal=False,
+                promotion_playoff_position_count=0,
+                rng=no_playoff,
+            ),
+            (1, 5, 6),
+        )
+
     def test_fresh_premier_league_candidates_use_recovered_rank_half(self):
         self.assertEqual(
             FinancialObjectiveState.premier_league_candidates(19, 20),
