@@ -4,7 +4,13 @@ from types import SimpleNamespace
 import unittest
 
 from ea444_decoder import EA444DecodedImage
-from gate14_fastview_human_frame_plan import build_human_fastview_frame_plan
+from gate14_fastview_human_frame_plan import (
+    build_human_fastview_frame_plan,
+    build_human_fastview_frame_plan_from_retained_histories,
+)
+from gate14_fastview_playerrow_from_result import (
+    FastViewRetainedPlayerRowIdentity,
+)
 from gate14_fastview_playerrow_snapshot import build_fastview_player_row_snapshot
 from gate14_possession_figures import possession_figures_text_layout
 from human_match_presentation import HumanMatchPresentationError
@@ -126,6 +132,45 @@ def completed_outcome(*, match_reference=23):
     return outcome, goal, possession, row
 
 
+def completed_outcome_with_retained_histories():
+    outcome, goal, possession, _row = completed_outcome()
+    result = SimpleNamespace(
+        events=outcome.user_result.events,
+        possession_segments=outcome.user_result.possession_segments,
+        fastview_condition_histories=(
+            SimpleNamespace(
+                side_index=0,
+                player_index=3,
+                samples=(80,) * 24,
+            ),
+        ),
+        fastview_form_histories=(
+            SimpleNamespace(
+                side_index=0,
+                player_index=3,
+                samples=(5, 6, 7) + (7,) * 21,
+            ),
+        ),
+    )
+    return (
+        SimpleNamespace(fixture_id=23, user_result=result),
+        goal,
+        possession,
+    )
+
+
+def retained_row_identity():
+    return FastViewRetainedPlayerRowIdentity(
+        side_index=0,
+        player_index=3,
+        row_index=0,
+        shirt_number=9,
+        source_position_code=19,
+        surname="Striker",
+        first_name_initial="A",
+    )
+
+
 class HumanFastViewFramePlanTests(unittest.TestCase):
     def test_composes_completed_outcome_through_existing_presentation_layers(self):
         outcome, goal, possession, row = completed_outcome()
@@ -161,6 +206,51 @@ class HumanFastViewFramePlanTests(unittest.TestCase):
         self.assertFalse(frame.complete_raster_frame)
         self.assertFalse(frame.audio_ready)
         self.assertFalse(frame.choreography_3d_ready)
+
+    def test_builds_completed_human_frame_from_retained_histories_without_mutation(self):
+        outcome, goal, possession = completed_outcome_with_retained_histories()
+
+        frame = build_human_fastview_frame_plan_from_retained_histories(
+            outcome,
+            exact_chrome(),
+            exact_possession(),
+            exact_figures(),
+            exact_team_art(),
+            row_identities=(retained_row_identity(),),
+            global_tick=10,
+            energy_rng6_rolls={(0, 3): 3},
+        )
+
+        self.assertFalse(hasattr(outcome, "fastview_player_rows"))
+        self.assertEqual(frame.match_reference, 23)
+        self.assertIs(frame.semantic_shell.events[0].event, goal)
+        self.assertIs(frame.semantic_shell.possession_figures[0].record, possession)
+        self.assertEqual(len(frame.semantic_shell.player_rows), 1)
+        row = frame.semantic_shell.player_rows[0]
+        self.assertEqual(row.player_name.text, "A Striker")
+        self.assertEqual(row.form.text, "7")
+        self.assertEqual(row.energy.energy_value, 76)
+        self.assertEqual(len(frame.player_row_render_plans), 1)
+        self.assertFalse(frame.complete_raster_frame)
+        self.assertFalse(frame.audio_ready)
+        self.assertFalse(frame.choreography_3d_ready)
+
+    def test_retained_history_frame_path_rejects_pre_attached_rows(self):
+        outcome, *_ = completed_outcome()
+        with self.assertRaisesRegex(
+            ValueError,
+            "requires outcome without attached PlayerRows",
+        ):
+            build_human_fastview_frame_plan_from_retained_histories(
+                outcome,
+                exact_chrome(),
+                exact_possession(),
+                exact_figures(),
+                exact_team_art(),
+                row_identities=(retained_row_identity(),),
+                global_tick=10,
+                energy_rng6_rolls={(0, 3): 3},
+            )
 
     def test_preserves_tagged_non_league_match_reference_without_reconstruction(self):
         reference = ("domestic_cup", ("cup_result", 4, 10, 2))
