@@ -11,6 +11,12 @@ from gate14_possession_diagram import (
     SOURCE_GLOBAL_PENALTIES_RECEIVER_VA,
     SOURCE_GOAL_RECEIVER_VA,
     SOURCE_PENALTIES_LATCH_OFFSET,
+    SOURCE_MATCH_ITERATOR_TICK_VA,
+    SOURCE_MATCH_ITERATOR_VFTABLE,
+    SOURCE_EVENT_POSSESSION_CONSTRUCTOR_VA,
+    SOURCE_EVENT_POSSESSION_CONSTRUCT_CALL_VA,
+    SOURCE_EVENT_POSSESSION_SENDER_OFFSET,
+    SOURCE_GLOBAL_TICK_DIVISOR,
     active_overlay_rect,
     advance_possession_diagram,
     apply_global_penalties_event,
@@ -18,6 +24,7 @@ from gate14_possession_diagram import (
     apply_possession_event,
     possession_roll,
     presentation_rand_step,
+    should_emit_possession_on_global_tick,
 )
 
 
@@ -141,6 +148,52 @@ class PossessionDiagramTests(unittest.TestCase):
         )
         self.assertEqual(followup.next_state, 1)
         self.assertEqual(followup.rng_state_after, 77)
+
+    def test_event_possession_emits_every_fifth_global_tick_under_source_gates(self):
+        self.assertEqual(SOURCE_MATCH_ITERATOR_TICK_VA, 0x519630)
+        self.assertEqual(SOURCE_MATCH_ITERATOR_VFTABLE, 0x7CA1DC)
+        self.assertEqual(SOURCE_EVENT_POSSESSION_CONSTRUCTOR_VA, 0x51A6B0)
+        self.assertEqual(SOURCE_EVENT_POSSESSION_CONSTRUCT_CALL_VA, 0x5197B8)
+        self.assertEqual(SOURCE_EVENT_POSSESSION_SENDER_OFFSET, 0x20)
+        self.assertEqual(SOURCE_GLOBAL_TICK_DIVISOR, 5)
+        self.assertFalse(
+            should_emit_possession_on_global_tick(
+                4, field_a5=0, field_98_present=True, field_a0_present=True
+            )
+        )
+        self.assertTrue(
+            should_emit_possession_on_global_tick(
+                5, field_a5=0, field_98_present=True, field_a0_present=True
+            )
+        )
+        self.assertTrue(
+            should_emit_possession_on_global_tick(
+                10, field_a5=0, field_98_present=True, field_a0_present=True
+            )
+        )
+
+    def test_event_possession_global_tick_gates_fail_closed(self):
+        for kwargs in (
+            dict(field_a5=1, field_98_present=True, field_a0_present=True),
+            dict(field_a5=0, field_98_present=False, field_a0_present=True),
+            dict(field_a5=0, field_98_present=True, field_a0_present=False),
+        ):
+            self.assertFalse(
+                should_emit_possession_on_global_tick(10, **kwargs)
+            )
+        for call in (
+            lambda: should_emit_possession_on_global_tick(
+                -1, field_a5=0, field_98_present=True, field_a0_present=True
+            ),
+            lambda: should_emit_possession_on_global_tick(
+                5, field_a5=256, field_98_present=True, field_a0_present=True
+            ),
+            lambda: should_emit_possession_on_global_tick(
+                5, field_a5=0, field_98_present=1, field_a0_present=True
+            ),
+        ):
+            with self.assertRaises(ValueError):
+                call()
 
     def test_invalid_inputs_fail_closed(self):
         with self.assertRaises(ValueError):
