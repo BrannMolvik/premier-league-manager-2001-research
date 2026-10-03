@@ -157,18 +157,18 @@ def preview_playable_allocation_exchanges(
             "playable allocation plan has duplicate assigned allocation IDs"
         )
 
+    missing = tuple(value for value in assigned_ids if value not in by_id)
+    if missing:
+        raise Gate17PlayableAllocationPreviewError(
+            f"playable allocation plan references missing rows {missing}"
+        )
+
     source_assigned_order = tuple(
         record_id for record_id in source_order if record_id in assigned_set
     )
     if source_assigned_order != assigned_ids:
         raise Gate17PlayableAllocationPreviewError(
             "playable allocation plan assigned IDs do not preserve source row order"
-        )
-
-    missing = tuple(value for value in assigned_ids if value not in by_id)
-    if missing:
-        raise Gate17PlayableAllocationPreviewError(
-            f"playable allocation plan references missing rows {missing}"
         )
 
     ranking_audit = audit_allocation_ranking_capability(
