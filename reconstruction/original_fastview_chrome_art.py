@@ -2,8 +2,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from hashlib import sha256
+from pathlib import Path
 
-from ea444_decoder import EA444DecodedImage
+from ea444_decoder import EA444DecodedImage, decode_ea444
+from ea444_quantization import quantization_from_verified_executable
+from ea444_tables import tables_from_original_executable
 from gate14_fastview_chrome import (
     FASTVIEW_DIRECT_CHROME_RESOURCES,
     FastViewChromeError,
@@ -76,3 +80,51 @@ def build_fastview_chrome_art(
             )
         )
     return OriginalFastViewChromeArt(tuple(placements))
+
+
+def load_verified_fastview_chrome_art_from_source(
+    source_root: str | Path,
+    original_executable: str | Path,
+) -> OriginalFastViewChromeArt:
+    """Hash-check and decode the two directly owned FastView chrome resources.
+
+    This source-root loader is intentionally separate from repository staging.
+    It allows a runtime/private audit to consume the authorized originals
+    without committing the binary resources or substituting replacement art.
+    """
+    root = Path(source_root)
+    try:
+        executable = Path(original_executable).read_bytes()
+    except FileNotFoundError as exc:
+        raise OriginalFastViewChromeArtError(
+            f"Missing canonical original executable: {original_executable}"
+        ) from exc
+
+    tables = tables_from_original_executable(executable)
+    quant = quantization_from_verified_executable(executable)
+
+    decoded: dict[str, EA444DecodedImage] = {}
+    for resource in FASTVIEW_DIRECT_CHROME_RESOURCES:
+        path = root / Path(resource.source_path)
+        try:
+            raw = path.read_bytes()
+        except FileNotFoundError as exc:
+            raise OriginalFastViewChromeArtError(
+                f"Missing original FastView chrome: {resource.source_path}"
+            ) from exc
+        if len(raw) != resource.byte_size:
+            raise OriginalFastViewChromeArtError(
+                f"FastView chrome byte-size mismatch: {resource.source_path}"
+            )
+        if sha256(raw).hexdigest() != resource.sha256:
+            raise OriginalFastViewChromeArtError(
+                f"FastView chrome checksum mismatch: {resource.source_path}"
+            )
+        image = decode_ea444(raw, tables=tables, quant=quant)
+        if (image.width, image.height) != resource.size:
+            raise OriginalFastViewChromeArtError(
+                f"Decoded FastView chrome geometry mismatch: {resource.source_path}"
+            )
+        decoded[resource.name] = image
+
+    return build_fastview_chrome_art(decoded)
