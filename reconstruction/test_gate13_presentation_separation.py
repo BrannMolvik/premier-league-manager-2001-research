@@ -144,8 +144,12 @@ class Gate13PresentationSeparationAuditTests(unittest.TestCase):
         # code from becoming another implementation of game rules.
         self.assertEqual(
             top_level_import_modules("gate13_management_source_data.py"),
-            ("dataclasses", "datetime"),
+            ("dataclasses", "datetime", "original_fixture_match_info_link"),
         )
+        # The added report-link primitive has no backend imports or mutation;
+        # check the transitive boundary rather than hiding it in a lazy import.
+        self.assertEqual(top_level_import_modules("original_fixture_match_info_link.py"),
+                         ("dataclasses",))
         source = (ROOT / "gate13_management_source_data.py").read_text(
             encoding="utf-8"
         )

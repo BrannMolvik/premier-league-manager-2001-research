@@ -62,6 +62,13 @@ on:
       - "reconstruction/original_management_canvas.py"
       - "reconstruction/test_original_management_canvas.py"
       - "reconstruction/original_game_host.py"
+      - "reconstruction/original_fixture_match_info_link.py"
+      - "reconstruction/original_fixture_report_capture.py"
+      - "reconstruction/original_fixture_report_packing.py"
+      - "reconstruction/test_original_fixture_match_info_link.py"
+      - "reconstruction/test_original_fixture_report_capture.py"
+      - "reconstruction/test_original_fixture_report_packing.py"
+      - "reconstruction/test_original_fixture_report_route.py"
       - "reconstruction/test_original_game_host.py"
       - "reconstruction/original_league_fixtures_resources.py"
       - "reconstruction/test_original_league_fixtures_resources.py"
@@ -161,6 +168,11 @@ jobs:
             test_original_management_presenter \
             test_original_management_canvas \
             test_original_game_host \
+            test_original_fixture_match_info_link \
+            test_original_fixture_report_capture \
+            test_original_fixture_report_packing \
+            test_original_fixture_report_route \
+            test_gate13_fixture_report_source_trace \
             test_original_league_fixtures_resources \
             test_original_league_fixtures_art \
             test_original_league_fixtures_presenter \

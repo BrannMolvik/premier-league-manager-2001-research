@@ -10682,6 +10682,22 @@ work may continue under the deferred-blocker policy.
 - The source-computed own-goal color is not named because its runtime channel mapping has not yet been independently closed. Text cells 1..3 remain unassigned.
 - Added pure source-contract helpers/regressions for exact rectangles, unsigned formatting and independent goal/own-goal counter wrap behavior.
 
+## 3 October 2026 - PR #183 captured-report packing continuation
+
+- Reconciled canonical `main` through `88e8b3554ece25ca609e38a41f159b5473900065`, preserving parallel Gate-14 work and leaving `agent-runtime` ownership untouched.
+- Source-closed native participant 12-bit packing, exact eight skill flags, all sixteen compact-script families/six tactical subcommands, four additional scalar copies and two/four-group possession capture. Added fail-closed snapshot codecs and independent bit-stream/offset/overflow regressions; no fragment is promoted to a report or assigned a fixture link.
+- Canonical private calibration passed (18 tests); focused Gate-13 report/route/host/bridge/audit/separation passed (118 tests, one expected skip). Asset policy passed. Fresh Windows schema-8 audit and reconciled frozen package smoke passed; private trace/receipt/package hashes are in `GATE13_CLOSURE_AUDIT.md`.
+- Full reconstruction rerun on the reconciled tree passed: 1,587 tests, 23 expected skips. Project JSON and diff-whitespace checks passed; no proprietary executable/archive/raw analysis or packaging output was staged.
+
+## 3 October 2026 - PR #183 live completion gate-input retention
+
+- Reconciled `origin/main` at `88e8b3554ece25ca609e38a41f159b5473900065`; no recovered codec/routing work was repeated and runtime ownership is unchanged.
+- Premier League AI/human completion now retains actual gate-receipt output by fixture ID at its existing finalizer. RNG/accounting are unchanged. Missing inputs do not get defaults; annual regeneration clears the transient map. It is not report ownership and is deliberately excluded from save until complete report production exists.
+- Focused completion/routing/competition/internal-save tests passed: 79 tests. Gate 13 remains open: complete native participant/event/scalar inputs, full report ownership/save integration and the genuine calculated-fixture/reload/right-click audit are still required.
+- Preserved the newer continuous-worker main `25aac6bdce57e1ae06f395da6f058209cd746794`, resolving the chronological-log conflict by retaining both entries. Fresh real Windows schema-8 audit passed. Package builds passed, but Application Control blocked the initial new executable before smoke-test startup; the final rebuilt package smoke remains deferred, with no bypass attempted. Exact hashes and boundary are recorded in the closure audit.
+- Final full reconstruction on reconciled code `2e8893e1` passed: 1,591 tests, 23 expected skips (276.292 seconds). Asset policy, project JSON and diff-whitespace checks passed. Full report production and ordinary successful context opening remain unclaimed.
+- Preserved the subsequent worker main `cdfc5b88c67d05b4eb58fc3c42f879e9fe95146e`; 104 focused Gate-14/Gate-13 backend/save/routing/separation tests passed on final merge code `ea289d93`. Full-suite and package-build evidence remain explicitly pinned to `2e8893e1` rather than falsely attributed to the later merge.
+- Gate 13 remains OPEN. Single next blocker: retain the complete source-backed live calculator/completion inputs, assemble and persist the full report owner/link, then audit calculated fixture -> save/reload -> native right-click -> correct PMatchInfo and timing/normal-play criteria. Codecs are now recovered; do not restart their trace or derive context from results.
 
 ## 3 October 2026 - Recovery 210 PlayerRow position ownership
 

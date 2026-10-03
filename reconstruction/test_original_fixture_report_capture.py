@@ -1,0 +1,85 @@
+import unittest
+from original_fixture_report_capture import (
+    NATIVE_CAPTURE_SCALAR_COPIES, copy_native_capture_scalars,
+    NATIVE_CAPTURE_HELPER_SCALAR_COPIES, copy_native_capture_helper_scalars,
+    copy_native_capture_possession,
+)
+
+
+class NativeFixtureCaptureTests(unittest.TestCase):
+    def test_direct_copy_offsets_widths_and_low_words(self):
+        native = bytearray(0xFE8)
+        for index, (_, offset, width) in enumerate(NATIVE_CAPTURE_SCALAR_COPIES):
+            native[offset:offset + width] = bytes((index + 1,)) * width
+        native[0xFE0:0xFE8] = bytes.fromhex('3412aabb7856ccdd')
+        fields = copy_native_capture_scalars(bytes(native))
+        self.assertEqual(tuple((f.report_offset, f.calculator_offset, len(f.value))
+                               for f in fields), NATIVE_CAPTURE_SCALAR_COPIES)
+        by_offset = {f.report_offset: f.value for f in fields}
+        self.assertEqual(by_offset[0x98], bytes.fromhex('3412'))
+        self.assertEqual(by_offset[0x9A], bytes.fromhex('7856'))
+        self.assertNotIn(0x41, by_offset)  # helper-generated caption is NOT invented
+        self.assertNotIn(0x84, by_offset)  # participant array is NOT zero-filled
+        self.assertNotIn(0xB8, by_offset)  # variable statistics are NOT invented
+
+    def test_truncated_or_mutable_native_memory_is_rejected(self):
+        for value in (b'', bytes(0xFE5), bytearray(0xFE8), None):
+            with self.assertRaises(ValueError):
+                copy_native_capture_scalars(value)
+
+    def test_scalar_projection_does_not_allocate_a_report_link(self):
+        from original_fixture_match_info_link import resolve_source_match_info_link
+        scalars = copy_native_capture_scalars(bytes(0xFE8))
+        # The API exposes scalar copies only; it neither appends a report nor
+        # supplies a native +0x40 link. No score/completion argument exists.
+        self.assertEqual(len(scalars), 11)
+        self.assertIsNone(resolve_source_match_info_link(0xFFFF, ()))
+
+    def test_resolved_helper_fields_are_exact_copies_not_default_values(self):
+        native = bytearray(0x1158)
+        for index, (_, offset, width) in enumerate(NATIVE_CAPTURE_HELPER_SCALAR_COPIES):
+            native[offset:offset + width] = (0xABC001 + index).to_bytes(width, 'little')
+        copies = copy_native_capture_helper_scalars(bytes(native))
+        self.assertEqual(tuple((c.report_offset, c.calculator_offset, len(c.value))
+                               for c in copies), NATIVE_CAPTURE_HELPER_SCALAR_COPIES)
+        self.assertEqual(tuple(int.from_bytes(c.value, 'little') for c in copies),
+                         tuple(0xABC001 + index for index in range(4)))
+        for invalid in (None, bytes(0x1157), bytearray(0x1158)):
+            with self.assertRaises(ValueError):
+                copy_native_capture_helper_scalars(invalid)
+
+    def test_report_possession_uses_two_or_four_groups_not_segment_count(self):
+        native = bytearray(0x1158)
+        groups = ((1, 8), (10, 8), (19, 2), (22, 2))
+        for base, initial in ((0x100C, 10), (0x106C, 20), (0x10CC, 30)):
+            # Poison excluded boundary entries so including them is visible.
+            for index in (0, 9, 18, 21):
+                native[base + 4 * index:base + 4 * index + 4] = (999).to_bytes(4, 'little')
+            for group, (start, length) in enumerate(groups):
+                for index in range(start, start + length):
+                    native[base + 4 * index:base + 4 * index + 4] = (
+                        initial + 10 * group).to_bytes(4, 'little')
+        native[0xFF8:0xFFC] = (18).to_bytes(4, 'little')
+        ordinary = copy_native_capture_possession(bytes(native))
+        self.assertEqual(ordinary.triplets, bytes((10, 20, 30, 20, 30, 40)))
+        self.assertEqual(ordinary.averages, bytes((25, 35, 40)))
+        for count in (0, 24, 0xFFFFFFFF):
+            native[0xFF8:0xFFC] = count.to_bytes(4, 'little')
+            extra = copy_native_capture_possession(bytes(native))
+            self.assertEqual(extra.triplets,
+                             bytes((10, 20, 30, 20, 30, 40, 30, 40, 50, 40, 50, 60)))
+            self.assertEqual(extra.averages, bytes((35, 45, 20)))
+
+    def test_possession_preserves_dword_wrap_byte_truncation_and_remainder(self):
+        native = bytearray(0x112C)
+        native[0xFF8:0xFFC] = (18).to_bytes(4, 'little')
+        for base in (0x100C, 0x106C, 0x10CC):
+            for start in (1, 10):
+                for index in range(start, start + 8):
+                    native[base + index * 4:base + index * 4 + 4] = b'\xff' * 4
+        result = copy_native_capture_possession(bytes(native))
+        self.assertEqual(result.triplets, b'\xff' * 6)
+        self.assertEqual(result.averages, bytes((255, 255, 102)))
+        for invalid in (None, bytes(0x112B), bytearray(0x112C)):
+            with self.assertRaises(ValueError):
+                copy_native_capture_possession(invalid)

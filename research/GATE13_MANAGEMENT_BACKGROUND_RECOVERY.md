@@ -90,21 +90,20 @@ The next boundary was traced rather than inferred from scores:
   0xF4 bytes, calls `0x60B0A0`, and captures through `0x60BE50`.
   Only successful capture appends the report with `0x617D70`, increments
   the list count and writes the old count to match +0x40 at `0x60BF6C`.
-  Native `0x51145B..0x511470` first requires both runtime fields
-  +0x5A4 and +0xB54 to be non-null. `0x60BE50` also has a rejection
-  branch via `0x516080`. A played fixture therefore does NOT prove a report.
+  Native `0x51145B..0x511470` first requires both participant counts
+  +0x5A4 and +0xB54 to be nonzero. `0x60BE50` also rejects via
+  `0x516080` (`/skipmatchcalc777`). A played fixture does NOT prove a report.
 
 `original_fixture_match_info_link.py` now tests exact grid reduction and
 signed-word/list lookup, without claiming a live captured report. The current
 runtime persists results/incidents but does not expose this proven captured-
 report list/link lifecycle. Ordinary opening remains fail-closed.
 
-Exact next work: recover the runtime owners/eligibility of +0x5A4/+0xB54
-and the capture rejection at `0x516080`; recover the data copied by
-`0x60B7F0/0x60BA80/0x60B8D0` and succeeding capture helpers, then persist
-the real report/link through save/reload. Close native pointer-event acceptance
-before wiring the ordinary callback. Do not substitute fixture ID, score,
-completion bit or a synthetic context for the native report.
+The above was #177's handoff. Subsequent local work in
+`GATE13_FIXTURE_REPORT_CAPTURE_TRACE.md` closes eligibility and native
+WM_RBUTTONDOWN acceptance and adds a read-only cell/link adapter. The remaining
+next implementation is complete captured-report production/persistence,
+not a background retrace or an invented score-derived context.
 
 Gate 13 remains OPEN; normal-play completeness and original menu timing still
 need criterion-level evidence beyond this smoke receipt.

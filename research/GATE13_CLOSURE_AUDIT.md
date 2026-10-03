@@ -13,18 +13,118 @@ wording below describes the 2 October checkpoint, not the current blocker.
 | Roadmap criterion | Current result | Concrete evidence / remaining boundary |
 | --- | --- | --- |
 | Simulation separated from presentation | **PASS** | Presentation-separation tests, controller/session boundary; captions and error feedback do not add simulation semantics. |
-| Accessible original resources/layout/navigation reused | **PARTIAL** | Native seasonal management base/header now integrated with 97 verified selected assets and a fresh Windows schema-8 pass. Ordinary Fixtures captured-report lifecycle/event acceptance and remaining shell/content stay open. |
+| Accessible original resources/layout/navigation reused | **PARTIAL** | #177 seasonal base/header preserved. Native right-press/cell/link adapter and capture eligibility/ownership are recovered; full captured-report production/save integration is still absent. |
 | Main-menu/login presentation, structure, navigation and timing closely follow original | **PARTIAL** | Canonical strings, fonts, layouts, Button frames and real Tk menu/TeamSelect route pass; space/caption playtest defects fixed. Original timing is not certified by this receipt. |
-| Normal play recognizably FM2001 | **NOT YET ESTABLISHED** | Original management backdrop/header plus PMenu/Squad/Fixtures/popup/Tables fragments render on real Windows. Schema 8 still tests an explicit popup seam, not ordinary captured-report navigation or complete normal-play content/recognizability. |
+| Normal play recognizably FM2001 | **NOT YET ESTABLISHED** | Fresh Windows schema 8 verifies native right-press no-op for uncaptured fixtures plus the existing original-art route. Injected-owner tests and the explicit popup seam are not normal-play report production or a recognizability judgment. |
 
 Gate 13 remains **OPEN**, for substantive presentation/navigation boundaries,
-not absence of a schema-8 Windows run. The base/header blocker is now narrowed
-by `GATE13_MANAGEMENT_BACKGROUND_RECOVERY.md`. Next: capture eligibility/data
-at `0x511479 -> 0x60BF10/0x60BE50`, persistent native report/link ownership,
-then native event acceptance and ordinary Fixtures -> PMatchInfo. Grid origin
-and signed-word lookup are source-closed/tested; no score-derived substitute
-context is accepted. Remaining normal-play content and original timing still
-prevent a truthful Gate-13 completion/transition to formal Gate-14 validation.
+not absence of a schema-8 Windows run. The background work from #177 is closed
+and unchanged. `GATE13_FIXTURE_REPORT_CAPTURE_TRACE.md` closes eligibility,
+native ownership/lifecycle evidence and the exact right-button event chain.
+The single next implementation blocker is complete completion-time report
+production/persistence. PR #183 now source-closes/tests native participant
+packing and skill flags, script extraction, grouped possession and additional
+scalar projection; the live calculator still does not retain their complete
+inputs. The read-only adapter has no real report producer yet and never
+derives context from scores/completion. After that producer is integrated,
+audit a real calculated fixture through save/reload and PMatchInfo and assess
+the roadmap's normal-play/timing criteria. No formal Gate-14 transition or
+Gate-13 completion is claimed; parallel Gate-14 work-ahead remains separate.
+
+## Final local validation (3 October)
+
+### PR #183 live completion input retention
+
+- Reconciled the newer worker's `main` through
+  `25aac6bdce57e1ae06f395da6f058209cd746794`. The sole progress-log merge
+  conflict was resolved by preserving both workers' complete entries.
+- Premier League AI/human completion now retains the actual gate-receipt
+  output by fixture identity, with unchanged source RNG/accounting. Missing
+  inputs remain absent. This transient map is not a report owner/link and
+  is deliberately excluded from save until the complete producer exists.
+- Focused completion/routing/competition/internal-save tests: **79 passed**.
+- Final full reconstruction on reconciled code `2e8893e1` passed:
+  **1,591 tests, 23 expected skips** (276.292 seconds). Asset policy, project
+  JSON and diff-whitespace checks passed. The parallel worker's newer tests
+  are included; no licensed archive/executable or private report was staged.
+  Subsequently preserved the worker's additional name-text main commit
+  `cdfc5b88c67d05b4eb58fc3c42f879e9fe95146e`; **104 focused tests passed**
+  on final code `ea289d93`, including Gate-14 TeamTable and Gate-13 backend,
+  save, routing and separation checks. The 1,591-test full-run revision remains
+  exactly `2e8893e1`, not the later merge. Final package build also used
+  `2e8893e1`; this revision boundary is not hidden.
+- Fresh real Windows schema-8 audit passed:
+  `C:\Users\Brann\Documents\FM2001-audits\gate13-schema8-completion-inputs-20261003.json`.
+  Deterministic SHA-256 remains
+  `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`;
+  successful ordinary report opening is still explicitly false.
+- Windows onedir package build passed. **Frozen smoke is blocked, not passed:**
+  Windows Application Control prevented process startup. No policy bypass was
+  attempted. Private executable SHA-256:
+  `2471772456e51a173cf110f804199ee9301f2f99e5037e496cc1336710bbb4ba`.
+  Final reconciled build also passed, SHA-256
+  `9b31b35f3b9c55556e0e0bbd46b4e40acb86194ce0f8b32180e8973659943621`;
+  its smoke was not rerun after the policy block. Both artifacts remain
+  private; package validation is incomplete, not silently waived.
+  Next Windows validation action is to resolve the Application Control block
+  through the user's normal security approval process and rerun
+  `FM2001-Windows11.exe --package-smoke` on this same artifact.
+- Gate 13 remains open. Full report production/ownership/save and the genuine
+  calculated-fixture/reload/right-click audit are not yet implemented; final
+  timing/recognizability closure is therefore not certified.
+
+### PR #183 codec continuation
+
+- Reconciled newer continuous-worker work through
+  `88e8b3554ece25ca609e38a41f159b5473900065`; runtime ownership unchanged.
+- Native codec/copy/private calibration suite: **18 tests passed**, including
+  the canonical executable, five vtable slots and five dispatch tables.
+- Focused report/routing/host/bridge/audit/separation suite: **118 tests passed,
+  one expected private-source skip**.
+- Full suite rerun after the newer main merge passed: **1,587 tests,
+  23 expected skips** (288.634 seconds). Project JSON and whitespace checks
+  passed; the newer worker's Gate-14 tests are preserved and included.
+- Asset policy passed. Reproducible 49-window private trace SHA-256:
+  `fdd88b5e5f928c500b4fb366b88cb99436ea23601ccb460e57588804e76a8bd5`.
+- Fresh real Windows schema-8 audit passed at
+  `C:\Users\Brann\Documents\FM2001-audits\gate13-schema8-report-codecs-20261003.json`.
+  Its deterministic SHA-256 remains
+  `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`.
+  Successful ordinary report opening remains false. The live presentation
+  interaction path was not changed by these isolated snapshot codecs.
+- Fresh reconciled Windows onedir build and frozen `--package-smoke` passed.
+  Private executable SHA-256:
+  `3ae5e07a064b0cc5c226b68108e59e289348fbb8bfc10d2ebff5188490230308`.
+  This is not a Gate-17 release audit.
+- Gate 13 remains open. No calculated-fixture/save/reload/report-context
+  success or final timing/recognizability pass is claimed. The next action is
+  complete live calculator/completion inputs and report owner/save integration,
+  as specified in `GATE13_FIXTURE_REPORT_CAPTURE_TRACE.md`.
+
+### Prior PR #183 validation
+
+- Preserved the continuous worker's newer main work through
+  `745c1576c337c94dcea86f996bf347af641c77c2`; no runtime ownership change.
+- Full reconstruction: **1,566 tests passed, 23 expected skips**. Focused
+  routing/capture/host/bridge/audit/separation suite passed; the separately
+  enabled private canonical trace calibration also passed.
+- Repository asset policy and `git diff --check` passed. No original
+  archive/executable, native memory or uncontrolled reports were staged.
+- Fresh real Windows 11/Tk schema **8** passed. Private receipt:
+  `C:\Users\Brann\Documents\FM2001-audits\gate13-schema8-fixture-native-right-press-final-20261003.json`,
+  SHA-256 `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`.
+  Native right-press binding and uncaptured-fixture no-op are true;
+  successful ordinary opening, full secondary context and owner-local child
+  controls remain false. The explicit popup seam is still labelled explicitly.
+- Windows onedir build (Python 3.12.14 / PyInstaller 6.22.3) and frozen
+  `--package-smoke` passed. Private executable SHA-256
+  `3550d4b0c6f592b49221feedc47fa56a9e530101c14dfb0882211b18eaabf311`.
+  This is a package build/smoke, **not** the Gate-17 clean-release audit.
+- Reproducible private native trace SHA-256
+  `5bb1072fc39dc856f09b80ab8deea5b7789fd2d2524977828000aec7ef545674`.
+
+Gate 13 remains open. The next implementation blocker and exact source-backed
+action are in `GATE13_FIXTURE_REPORT_CAPTURE_TRACE.md`; do not repeat #177.
 
 ## Prior checkpoint assessment (2 October)
 _Last reconciled during Recovery 182 after the bounded PSquadScreen view-transition seam and schema-8 audit update._

@@ -163,6 +163,27 @@ class GateLiveIntegrationTests(unittest.TestCase):
         self.assertIsNone(state._finish_premier_league_gate_receipts(0, None, rng))
         self.assertEqual(rng.bounds, [32768, 32768, 32768, 32768])
 
+    def test_missing_completion_receipts_never_default_or_create_report_ownership(self):
+        from gate13_management_source_data import ManagementSourceDataBridge
+        state = GameState(calendar=GameCalendar(date(2000, 8, 19)), players={})
+        state.prepared_match_gate_receipts[7] = object()  # stale input, not a report
+        rng = RecordingRng((1, 2, 3, 4))
+        self.assertIsNone(state._finish_premier_league_gate_receipts(
+            0, None, rng, fixture_id=7))
+        self.assertEqual(state.prepared_match_gate_receipts, {})
+        self.assertIsNone(ManagementSourceDataBridge(
+            SimpleNamespace(state=state)).fixture_match_info_context(7))
+        self.assertEqual(rng.bounds, [32768] * 4)
+
+    def test_invalid_completion_fixture_id_fails_before_rng_or_input_mutation(self):
+        state = GameState(calendar=GameCalendar(date(2000, 8, 19)), players={})
+        for identity in (True, -1, '7'):
+            rng = RecordingRng((1, 2, 3, 4))
+            with self.assertRaises(ValueError):
+                state._finish_premier_league_gate_receipts(0, None, rng, fixture_id=identity)
+            self.assertEqual(rng.bounds, [])
+            self.assertEqual(state.prepared_match_gate_receipts, {})
+
     def test_prepared_controlled_home_inputs_use_source_backed_pl_defaults(self):
         clubs = {
             0: SimpleNamespace(fan_base_index=0),
@@ -249,7 +270,11 @@ class GateLiveIntegrationTests(unittest.TestCase):
             cup_special=False,
         )
         rng = RecordingRng((0, 0, 0, 0))
-        receipts = state._finish_premier_league_gate_receipts(0, prepared, rng)
+        receipts = state._finish_premier_league_gate_receipts(0, prepared, rng, fixture_id=7)
+        self.assertIs(state.prepared_match_gate_receipts[7], receipts)
+        from gate13_management_source_data import ManagementSourceDataBridge
+        self.assertIsNone(ManagementSourceDataBridge(
+            SimpleNamespace(state=state)).fixture_match_info_context(7))
         self.assertEqual(rng.bounds, [32768, 32768, 32768, 32768])
         self.assertEqual(receipts.home_revenue, 41000)
         self.assertEqual(receipts.visiting_revenue, 28400)
