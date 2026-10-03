@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 201: resume exact Recovery-200 PossessionFigures typography checkpoint from canonical main 49cb46ece578a6d93105febf49968aed6cf4b694. Open/verify/merge the clean typography branch: source style index 1, Zurich_BdXCn_BT_18pixel.fnt, native white 0xFFFF, left/top flags 9, exact text art. Then continue direct FastViewPanel background ownership and side-orientation source tracing. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
+  "active_task": "Recovery 202: canonical main is 49cb46ece578a6d93105febf49968aed6cf4b694 and exact active Gate-14 checkpoint is PR #169 / head 664c3fe270af3d648db7e6de58634d6b932f25a4. Verify/merge the persisted PossessionFigures typography source closure only if CI is green: style index 1, Zurich_BdXCn_BT_18pixel.fnt, white 0xFFFF, flags 9 left/top, exact 40x18 percentage text art. Then continue direct FastViewPanel background ownership and side-orientation source tracing without repeating prior work. Gate 13 remains earliest incomplete pending external schema-8 Windows receipt.",
   "last_known_main_head": "49cb46ece578a6d93105febf49968aed6cf4b694",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 201,
+  "recovery_generation": 202,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 201 resumed with typography branch already persisted; do not repeat Recovery 199/200 investigation.",
+  "note": "Recovery 202 resumes PR #169 exactly. Do not repeat Recovery 199/200 source tracing.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
