@@ -939,17 +939,19 @@ The EventPossession constructor stores:
 
 The executable contains source path:
 
-`Applications\FootballManager\FastView\PossessionFigures.cpp`
+`Applications\\FootballManager\\FastView\\PossessionFigures.cpp`
 
-and art assets:
+PossessionFigures receiver `0x51EA80` reads EventPossession bytes
+`+0x0D/+0x0E/+0x0F` and formats all three as `%u%%`.
 
-- `team_bar_2.444`
-- `blank_bar.444`
-- `team_bar_1.444`
+Recovery 198 corrected an earlier adjacent-resource inference: the 82x16
+`team_bar_1.444`, `blank_bar.444`, and `team_bar_2.444` files belong to
+the separate `FastViewPanel::FastViewTeam::TeamTable` path
+(`0x524920 -> 0x524A20 -> 0x524EC0`), not to PossessionFigures. The
+percentage component is text-only at the currently source-closed boundary.
 
-PossessionFigures receiver `0x51EA80` reads EventPossession bytes `+0x0D/+0x0E/+0x0F` and formats all three as `%u%%`.
-
-This confirms a three-part possession display: the two teams plus a neutral/contested component.
+This confirms a three-part possession display: the two teams plus a
+neutral/contested component.
 
 ### +0x100C is territorial/pitch-position state, not another possession percentage
 
