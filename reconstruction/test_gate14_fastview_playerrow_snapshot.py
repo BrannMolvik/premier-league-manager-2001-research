@@ -1,9 +1,11 @@
 """Tests for the complete source-backed FastView PlayerRow snapshot."""
+from dataclasses import replace
 from pathlib import Path
 import unittest
 
 from gate14_fastview_player_history import FastViewPlayerHistories
 from gate14_fastview_playerrow_snapshot import (
+    build_fastview_player_row_render_plan,
     build_fastview_player_row_snapshot,
     build_fastview_player_row_snapshot_from_histories,
 )
@@ -140,6 +142,115 @@ class FastViewPlayerRowSnapshotTests(unittest.TestCase):
             energy_value=90,
         )
         self.assertIs(row.name_grid_resource, TEAM_NAME_GRID_2)
+
+    def test_render_plan_preserves_literal_localized_and_unwritten_channels(self):
+        row = build_fastview_player_row_snapshot(
+            side_index=0,
+            row_index=0,
+            shirt_number=9,
+            source_position_code=19,
+            surname="Striker",
+            first_name_initial="A",
+            form_value=4,
+            energy_value=79,
+        )
+        plan = build_fastview_player_row_render_plan(row)
+
+        self.assertEqual(plan.name_grid_rect, (37, 27, 296, 43))
+        self.assertEqual(plan.name_grid_resource.name, "team_name_grid")
+        self.assertEqual(plan.static_energy_resource.name, "blank_bar")
+        self.assertEqual(plan.dynamic_energy_resource.name, "team_bar_1")
+        self.assertEqual(plan.energy_full_rect, (309, 27, 391, 43))
+        self.assertEqual(plan.energy_dynamic_rect, (309, 27, 351, 43))
+        self.assertFalse(plan.raster_ready)
+        self.assertEqual(
+            [
+                (
+                    item.text_cell_index,
+                    item.semantic,
+                    item.value_kind,
+                    item.value,
+                )
+                for item in plan.text_instructions
+            ],
+            [
+                (1, "player_shirt_number", "literal", "9"),
+                (2, "player_position", "localization_key", "PositionST"),
+                (3, "player_display_name", "literal", "A Striker"),
+                (4, "player_goal_count", "unwritten", None),
+                (5, "player_own_goal_count", "unwritten", None),
+                (6, "player_form", "literal", "4"),
+            ],
+        )
+
+    def test_render_plan_keeps_event_written_goal_channels_and_own_goal_color_flag(self):
+        row = build_fastview_player_row_snapshot(
+            side_index=1,
+            row_index=2,
+            shirt_number=4,
+            source_position_code=4,
+            surname="Defender",
+            first_name_initial="-",
+            form_value=7,
+            energy_value=99,
+            displayed_goal_count=2,
+            displayed_own_goal_count=1,
+        )
+        plan = build_fastview_player_row_render_plan(row)
+        self.assertEqual(plan.static_energy_resource.name, "team_bar_2")
+        self.assertEqual(plan.dynamic_energy_resource.name, "blank_bar")
+        self.assertEqual(plan.text_instructions[3].value, "(2)")
+        self.assertEqual(plan.text_instructions[3].value_kind, "literal")
+        self.assertFalse(plan.text_instructions[3].source_color_update)
+        self.assertEqual(plan.text_instructions[4].value, "(1)")
+        self.assertEqual(plan.text_instructions[4].value_kind, "literal")
+        self.assertTrue(plan.text_instructions[4].source_color_update)
+
+    def test_render_plan_preserves_source_negative_width_energy_without_sanitizing(self):
+        row = build_fastview_player_row_snapshot(
+            side_index=0,
+            row_index=0,
+            shirt_number=9,
+            source_position_code=19,
+            surname="Striker",
+            first_name_initial="A",
+            form_value=4,
+            energy_value=57,
+        )
+        plan = build_fastview_player_row_render_plan(row)
+        self.assertEqual(plan.energy_dynamic_rect, (309, 27, 307, 43))
+        self.assertFalse(plan.raster_ready)
+
+    def test_render_plan_rejects_snapshot_geometry_or_resource_drift(self):
+        row = build_fastview_player_row_snapshot(
+            side_index=0,
+            row_index=0,
+            shirt_number=9,
+            source_position_code=19,
+            surname="Striker",
+            first_name_initial="A",
+            form_value=4,
+            energy_value=79,
+        )
+        with self.assertRaisesRegex(FastViewTeamError, "name-grid"):
+            build_fastview_player_row_render_plan(
+                replace(row, name_grid_resource=TEAM_NAME_GRID_2)
+            )
+
+        bad_energy = replace(row.energy, row_index=1)
+        with self.assertRaisesRegex(FastViewTeamError, "energy state"):
+            build_fastview_player_row_render_plan(
+                replace(row, energy=bad_energy)
+            )
+
+        bad_shirt = replace(row.shirt_number, rect=(38, 27, 62, 43))
+        with self.assertRaisesRegex(FastViewTeamError, "text cell 1"):
+            build_fastview_player_row_render_plan(
+                replace(row, shirt_number=bad_shirt)
+            )
+
+        with self.assertRaisesRegex(FastViewTeamError, "exact retained snapshot"):
+            build_fastview_player_row_render_plan(object())
 
     def test_invalid_counter_does_not_get_sanitized(self):
         kwargs = dict(
