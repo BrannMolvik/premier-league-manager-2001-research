@@ -12,9 +12,17 @@ from gate14_fastview_scores import (
     SCORE_COMPOSITE_NORMAL_LAYOUT_DWORDS,
     SCORE_COMPOSITE_NORMAL_LAYOUT_TABLE_VA,
     SCORE_COMPOSITE_NORMAL_PRIMARY_VFTABLE,
+    SCORE_COMPOSITE_NORMAL_GRID_LOCAL_RECT,
+    SCORE_COMPOSITE_NORMAL_TEXT_LOCAL_RECTS,
+    FASTVIEW_LEAGUE_SCORES_ROW_COUNT,
+    FASTVIEW_LEAGUE_SCORES_ROW_STEP,
+    FASTVIEW_LEAGUE_SCORES_TWO_COLUMN_STEP,
     FastViewScoresError,
     fastview_league_scores_grid_rects,
+    fastview_league_scores_page_layout,
     score_composite_normal_local_grid_size,
+    score_composite_normal_page_slot_rects,
+    score_composite_normal_rects,
 )
 
 
@@ -58,6 +66,59 @@ class FastViewScoresTests(unittest.TestCase):
         )
         for rect in fastview_league_scores_grid_rects(24):
             self.assertEqual((rect[2] - rect[0], rect[3] - rect[1]), (309, 19))
+
+    def test_score_composite_final_page_origins_follow_source_relayout(self):
+        one = fastview_league_scores_page_layout(12)
+        self.assertEqual(one.columns, 1)
+        self.assertEqual(one.rows_per_column, FASTVIEW_LEAGUE_SCORES_ROW_COUNT)
+        self.assertEqual(one.row_step, FASTVIEW_LEAGUE_SCORES_ROW_STEP)
+        self.assertEqual(one.slot_origin(0, 0), (246, 55))
+        self.assertEqual(one.slot_origin(0, 11), (246, 264))
+
+        two = fastview_league_scores_page_layout(13)
+        self.assertEqual(two.columns, 2)
+        self.assertEqual(two.column_step, FASTVIEW_LEAGUE_SCORES_TWO_COLUMN_STEP)
+        self.assertEqual(two.slot_origin(0, 0), (38, 55))
+        self.assertEqual(two.slot_origin(0, 11), (38, 264))
+        self.assertEqual(two.slot_origin(1, 0), (454, 55))
+        self.assertEqual(two.slot_origin(1, 11), (454, 264))
+
+    def test_score_composite_grid_and_text_rectangles_translate_from_fixed_table(self):
+        self.assertEqual(SCORE_COMPOSITE_NORMAL_GRID_LOCAL_RECT, (0, 0, 309, 16))
+        self.assertEqual(
+            SCORE_COMPOSITE_NORMAL_TEXT_LOCAL_RECTS,
+            (
+                (2, 0, 132, 16),
+                (177, 0, 307, 16),
+                (139, 0, 152, 16),
+                (158, 0, 171, 16),
+            ),
+        )
+        grid, text = score_composite_normal_rects((246, 55))
+        self.assertEqual(grid, (246, 55, 555, 71))
+        self.assertEqual(
+            text,
+            (
+                (248, 55, 378, 71),
+                (423, 55, 553, 71),
+                (385, 55, 398, 71),
+                (404, 55, 417, 71),
+            ),
+        )
+        grid2, text2 = score_composite_normal_page_slot_rects(13, 1, 0)
+        self.assertEqual(grid2, (454, 55, 763, 71))
+        self.assertEqual(text2[0], (456, 55, 586, 71))
+        self.assertEqual(text2[3], (612, 55, 625, 71))
+
+    def test_invalid_page_slot_and_origin_fail_closed(self):
+        with self.assertRaises(FastViewScoresError):
+            fastview_league_scores_page_layout(True)
+        with self.assertRaises(FastViewScoresError):
+            fastview_league_scores_page_layout(13).slot_origin(2, 0)
+        with self.assertRaises(FastViewScoresError):
+            fastview_league_scores_page_layout(13).slot_origin(1, 12)
+        with self.assertRaises(FastViewScoresError):
+            score_composite_normal_rects([38, 55])
 
     def test_invalid_grid_count_fails_closed(self):
         for value in (0, -1, True, 1.5, "12"):

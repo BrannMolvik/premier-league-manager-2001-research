@@ -10611,3 +10611,13 @@ work may continue under the deferred-blocker policy.
 - ScoreCompositeNormal fixed table `0x828E98` begins with exact grid-2 dimensions 309x16 and installs typed receivers for EventHalfTime, EventExtraTime, EventPenalties, EventFullTime and EventGlobalSecondHalf. The owning caller's final screen origin remains fail-closed and is not inferred from the bitmap.
 - Added `reconstruction/gate14_fastview_scores.py`, focused regressions and `research/GATE14_FASTVIEW_SCORES_SOURCE_TRACE.md`. Neither grid binary is imported yet; no substitute pixels are used.
 - Gate 13 remains the earliest incomplete validation gate, now with schema-8 Windows validation passed but additional shell/navigation fidelity work still open under the parallel worker.
+
+
+## 3 October 2026 - Recovery 205 ScoreCompositeNormal final row geometry
+
+- PR #175 became canonical at `29a55fdeed4192010940f9f3806f87cfea2dc5f5` after reconstruction run `37092578763` passed **1,523 tests / 22 expected skips** and asset-policy run `37092578747` passed.
+- Continued directly into the caller-origin gap. Base layout helper `0x522CD0` stores x/y, row/column counts and steps; relayout `0x5230B0` uses those fields to reposition the visible ScoreComposite objects.
+- Counts <=12 use one 12-row column with origin (246,55) and 19-pixel row step. Counts >12 use two 12-row columns at x=38 and x=454, same y=55 and row step 19; separate source paging exists above the 24 visible slots.
+- Shared `ScoreComposite::0x51A730` places current_fix_grid_2 at the composite origin itself, giving a 309x16 final rectangle per row.
+- The same fixed table source-closes four local text-control rectangles: (2,0)-(132,16), (177,0)-(307,16), (139,0)-(152,16), and (158,0)-(171,16). No user-facing semantic labels are assigned yet.
+- Added row/page layout and exact translated-rectangle helpers plus regressions. Next independent source task is the current_table_grid_1/current_table_grid_2 family.
