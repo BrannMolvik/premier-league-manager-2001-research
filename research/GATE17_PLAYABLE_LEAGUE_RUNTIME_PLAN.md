@@ -56,8 +56,12 @@ construction for the primary container. Canonical controller construction now
 adds every TeamSelect entry classified `procedural_primary` to the live primary
 scheduler/materialization set, while retaining the English/annual/Cup-child
 dependencies needed elsewhere. Human primary procedural entries use the shared
-human match backend. Secondary-container League support remains a separate
-boundary and is not silently routed through the primary engine.
+human match backend. Human lineup validation now resolves substitute and
+Non-EU limits from the actual pending Cup/League competition, and primary
+match outcomes expose the controlled club's live League table rather than
+hard-coding the Premier League table. Club selection itself remains unchanged.
+Secondary-container League support remains a separate boundary and is not
+silently routed through the primary engine.
 
 This plan therefore makes the full-scope implementation boundary explicit
 without changing `GameState`, `HumanGameplayController`, fixtures, RNG,
