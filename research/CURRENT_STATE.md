@@ -19,6 +19,10 @@ compact-event and remaining helper/scalar output retention, complete report
 owner/save integration and successful normal right-click remain the blocker.
 See `GATE13_LIVE_CAPTURE_INPUTS.md`. Gate 13 remains OPEN; Gate-14 worker,
 runtime ownership and full-original-functionality scope are unchanged.
+Fresh native production tracing additionally proves that capture needs the
+`0x62F7C0 -> 0x62FBF0` pruning/time/order finalizer and FullTime's explicit
+`0x62AE00` outcome payload, not an encoding of the present semantic event list.
+These inputs must be retained at production; no post-score reconstruction.
 
 Local Gate-13 branch update (3 October): management base lookup at `0x5D3560`
 is now recovered and integrated, including the month variant, exact source

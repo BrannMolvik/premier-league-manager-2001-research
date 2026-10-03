@@ -1,0 +1,39 @@
+"""Synthetic trace contracts only; not a native report-production test."""
+import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
+
+from gate13_button_source_trace import OriginalPETraceError
+from gate13_live_report_producer_trace import (
+    SOURCE_SHA256, LIVE_PRODUCER_WINDOWS, live_report_producer_trace,
+)
+
+
+class LiveReportProducerTraceTests(unittest.TestCase):
+    def test_rejects_wrong_source_before_reading(self):
+        def unexpected_read(*args):
+            raise AssertionError('read before canonical identity verification')
+        with self.assertRaises(OriginalPETraceError):
+            live_report_producer_trace(SimpleNamespace(sha256='wrong', read=unexpected_read))
+
+    def test_window_contract_does_not_promote_runtime_production(self):
+        pe = SimpleNamespace(sha256=SOURCE_SHA256, read=lambda address, size: bytes(size))
+        report = live_report_producer_trace(pe)
+        self.assertEqual(len(report['windows']), len(LIVE_PRODUCER_WINDOWS))
+        self.assertFalse(report['runtime_capture_production_complete'])
+        self.assertFalse(report['normal_pmatchinfo_opening_verified'])
+        self.assertFalse(report['gate13_closed'])
+        for window in report['windows']:
+            self.assertEqual(len(window['sha256']), 64)
+            self.assertNotIn('linear_disassembly_not_cfg', window)
+
+    def test_optional_disassembly_keeps_evidence_boundary(self):
+        pe = SimpleNamespace(sha256=SOURCE_SHA256, read=lambda address, size: bytes(size))
+        with patch('gate13_live_report_producer_trace.disassemble_window', return_value=[]):
+            report = live_report_producer_trace(pe, with_disassembly=True)
+        self.assertTrue(all('linear_disassembly_not_cfg' in row for row in report['windows']))
+        self.assertFalse(report['runtime_capture_production_complete'])
+
+
+if __name__ == '__main__':
+    unittest.main()
