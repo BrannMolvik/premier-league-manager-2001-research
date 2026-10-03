@@ -19,6 +19,10 @@ from hashlib import sha256
 
 from gate14_fastview_partial_surface import FASTVIEW_SURFACE_SIZE
 from gate14_fastview_team_static_raster import FastViewTeamStaticRaster
+from gate14_fastview_score_table_static_raster import (
+    FastViewScoreTableStaticPlane,
+    FastViewScoreTableStaticRasterSet,
+)
 from original_fastview_chrome_art import OriginalFastViewChromeArt
 from original_fastview_possession_art import OriginalFastViewPossessionArtFrame
 from original_fastview_possession_figures_art import (
@@ -45,6 +49,8 @@ class FastViewComponentRasterPlane:
             "possession_diagram",
             "possession_figures_text",
             "team_table_static",
+            "league_scores_static",
+            "league_table_static",
         }:
             raise FastViewComponentRasterError("unknown FastView raster component")
         if self.size != FASTVIEW_SURFACE_SIZE:
@@ -58,7 +64,7 @@ class FastViewComponentRasterPlane:
             raise FastViewComponentRasterError(
                 "FastView raster plane source_layer_count must be non-negative"
             )
-        if self.component != "team_table_static" and self.source_layer_count == 0:
+        if self.component not in {"team_table_static"} and self.source_layer_count == 0:
             raise FastViewComponentRasterError(
                 "non-TeamTable FastView raster planes require source layers"
             )
@@ -86,6 +92,8 @@ class FastViewComponentRasterSet:
     possession_diagram: FastViewComponentRasterPlane
     possession_figures: FastViewComponentRasterPlane
     team_table: FastViewComponentRasterPlane | None = None
+    league_scores: FastViewComponentRasterPlane | None = None
+    league_table: FastViewComponentRasterPlane | None = None
     cross_component_z_order_recovered: bool = False
     flattened_frame_available: bool = False
 
@@ -113,6 +121,25 @@ class FastViewComponentRasterSet:
                 raise FastViewComponentRasterError(
                     "TeamTable raster component identity mismatch"
                 )
+        optional = (
+            (self.league_scores, "league_scores_static"),
+            (self.league_table, "league_table_static"),
+        )
+        for plane, component in optional:
+            if plane is None:
+                continue
+            if type(plane) is not FastViewComponentRasterPlane:
+                raise FastViewComponentRasterError(
+                    "score/table raster must be an exact component plane"
+                )
+            if plane.component != component:
+                raise FastViewComponentRasterError(
+                    "score/table raster component identity mismatch"
+                )
+        if (self.league_scores is None) != (self.league_table is None):
+            raise FastViewComponentRasterError(
+                "league score/table planes must be supplied as one verified pair"
+            )
         if self.cross_component_z_order_recovered or self.flattened_frame_available:
             raise FastViewComponentRasterError(
                 "cross-component FastView composition remains unresolved"
@@ -317,13 +344,34 @@ def rasterize_fastview_team_table_plane(
     )
 
 
+def _lift_score_table_plane(
+    plane: FastViewScoreTableStaticPlane,
+) -> FastViewComponentRasterPlane:
+    if type(plane) is not FastViewScoreTableStaticPlane:
+        raise FastViewComponentRasterError(
+            "score/table plane must be exact FastViewScoreTableStaticPlane"
+        )
+    return FastViewComponentRasterPlane(
+        component=plane.component,
+        size=plane.size,
+        rgba=plane.rgba,
+        source_layer_count=plane.source_layer_count,
+        rgba_sha256=plane.rgba_sha256,
+    )
+
+
 def build_fastview_component_rasters(
     chrome: OriginalFastViewChromeArt,
     possession: OriginalFastViewPossessionArtFrame,
     figures: OriginalFastViewPossessionFiguresArt,
     team_table: FastViewTeamStaticRaster | None = None,
+    score_table: FastViewScoreTableStaticRasterSet | None = None,
 ) -> FastViewComponentRasterSet:
     """Build all currently source-rasterizable planes without flattening them."""
+    if score_table is not None and type(score_table) is not FastViewScoreTableStaticRasterSet:
+        raise FastViewComponentRasterError(
+            "score_table must be exact FastViewScoreTableStaticRasterSet"
+        )
     return FastViewComponentRasterSet(
         chrome=rasterize_fastview_chrome_plane(chrome),
         possession_diagram=rasterize_fastview_possession_plane(possession),
@@ -332,5 +380,15 @@ def build_fastview_component_rasters(
             None
             if team_table is None
             else rasterize_fastview_team_table_plane(team_table)
+        ),
+        league_scores=(
+            None
+            if score_table is None
+            else _lift_score_table_plane(score_table.league_scores)
+        ),
+        league_table=(
+            None
+            if score_table is None
+            else _lift_score_table_plane(score_table.league_table)
         ),
     )
