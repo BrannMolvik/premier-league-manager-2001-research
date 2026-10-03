@@ -25,6 +25,11 @@ import subprocess
 import sys
 from typing import Mapping
 
+from gate17_full_scope_catalog import (
+    OriginalPlayableScope,
+    load_canonical_original_playable_scope,
+)
+
 
 class ReleaseReadinessError(RuntimeError):
     """A Gate-17 release criterion is missing, stale or inconsistent."""
@@ -174,6 +179,139 @@ def require_path_outside_repo(path: Path, repo_root: Path, *, label: str) -> Pat
     if target == root or target.is_relative_to(root):
         raise ReleaseReadinessError(f"{label} must remain outside the Git repository")
     return target
+
+
+def build_full_scope_receipt_binding(
+    scope: OriginalPlayableScope,
+) -> dict:
+    """Derive the exact release-receipt identity of one canonical TeamSelect scope."""
+    if type(scope) is not OriginalPlayableScope:
+        raise ReleaseReadinessError(
+            "full-scope binding requires exact OriginalPlayableScope"
+        )
+
+    scope_ids = tuple(
+        f"{int(country.country_id)}:{int(league.competition_id)}"
+        for country in scope.countries
+        for league in country.leagues
+    )
+    if not scope.countries or not scope_ids:
+        raise ReleaseReadinessError(
+            "canonical original playable scope must contain countries and Leagues"
+        )
+    if len(set(scope_ids)) != len(scope_ids):
+        raise ReleaseReadinessError(
+            "canonical original playable scope contains duplicate country/League IDs"
+        )
+
+    selectable_club_rows = sum(
+        len(league.selectable_club_ids)
+        for country in scope.countries
+        for league in country.leagues
+    )
+    if selectable_club_rows <= 0:
+        raise ReleaseReadinessError(
+            "canonical original playable scope contains no selectable clubs"
+        )
+
+    return {
+        "scope_catalog_sha256": _require_hex_digest(
+            scope.catalog_sha256,
+            label="canonical playable-scope catalog sha256",
+        ),
+        "scope_country_count": len(scope.countries),
+        "scope_entry_count": len(scope_ids),
+        "scope_selectable_club_row_count": selectable_club_rows,
+        "scope_ids": scope_ids,
+    }
+
+
+def validate_full_original_scope_binding(
+    evidence: ReleaseEvidence,
+    repo_root: Path,
+    canonical_game_dir: Path,
+) -> dict:
+    """Bind the external full-scope receipt to the exact canonical TeamSelect catalog."""
+    scope = load_canonical_original_playable_scope(canonical_game_dir)
+    expected = build_full_scope_receipt_binding(scope)
+
+    spec = evidence.external_receipts["full_original_scope"]
+    path = require_path_outside_repo(
+        Path(spec.path),
+        Path(repo_root),
+        label="full_original_scope receipt",
+    )
+    if not path.is_file():
+        raise ReleaseReadinessError(
+            f"full_original_scope receipt does not exist: {path}"
+        )
+    actual_sha = _sha256_file(path)
+    if actual_sha != spec.sha256:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt checksum mismatch during scope binding"
+        )
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt is not readable JSON"
+        ) from exc
+    if not isinstance(payload, dict):
+        raise ReleaseReadinessError(
+            "full_original_scope receipt root must be an object"
+        )
+
+    scalar_fields = (
+        "scope_catalog_sha256",
+        "scope_country_count",
+        "scope_entry_count",
+        "scope_selectable_club_row_count",
+    )
+    for field in scalar_fields:
+        if payload.get(field) != expected[field]:
+            raise ReleaseReadinessError(
+                f"full_original_scope receipt {field} does not match "
+                "the canonical TeamSelect catalog"
+            )
+
+    try:
+        verified_count = int(payload.get("verified_scope_entry_count", -1))
+    except (TypeError, ValueError) as exc:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt verified_scope_entry_count is invalid"
+        ) from exc
+    if verified_count != expected["scope_entry_count"]:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt did not verify every catalog scope entry"
+        )
+
+    verified_ids = payload.get("verified_scope_ids")
+    if (
+        not isinstance(verified_ids, list)
+        or tuple(verified_ids) != expected["scope_ids"]
+    ):
+        raise ReleaseReadinessError(
+            "full_original_scope receipt verified_scope_ids do not exactly "
+            "match the canonical TeamSelect catalog"
+        )
+    if payload.get("missing_scope_ids") != []:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt still has missing_scope_ids"
+        )
+    if payload.get("failed_scope_ids") != []:
+        raise ReleaseReadinessError(
+            "full_original_scope receipt still has failed_scope_ids"
+        )
+
+    return {
+        "path": str(path),
+        "sha256": actual_sha,
+        **expected,
+        "verified_scope_entry_count": verified_count,
+        "verified_scope_ids": list(verified_ids),
+        "missing_scope_ids": [],
+        "failed_scope_ids": [],
+    }
 
 
 def validate_external_receipts(
@@ -545,6 +683,11 @@ def run_final_release_audit(
     repository = validate_clean_repository(root, evidence.repository_commit)
     roadmap_prerequisites = validate_roadmap_prerequisites(root)
     receipts = validate_external_receipts(evidence, root)
+    full_scope_binding = validate_full_original_scope_binding(
+        evidence,
+        root,
+        Path(canonical_game_dir).resolve(),
+    )
     archive = validate_release_archive(release_archive, evidence.archive, root)
     limitations = validate_limitations_document(root, evidence.limitations_path)
 
@@ -577,6 +720,7 @@ def run_final_release_audit(
         "repository": repository,
         "roadmap_prerequisites": roadmap_prerequisites,
         "external_receipts": receipts,
+        "full_original_scope_binding": full_scope_binding,
         "release_archive": archive,
         "limitations": limitations,
         "asset_policy": asset_policy,
