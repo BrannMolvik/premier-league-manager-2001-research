@@ -85,7 +85,7 @@ TARGETS = (
         "side-0 alternate PlayerRow name-grid source asset",
         0x8293F8,
         3512,
-        "0cce4d1646afa3dd11da5fb6b3a887ded8a6d647f39d998eaef8ffe5f71602",
+        "0cce4d1646afa3dd11da5f0db6b3a887ded8a6d647f39d998eaef8ffe5f71602",
         259,
         16,
     ),
