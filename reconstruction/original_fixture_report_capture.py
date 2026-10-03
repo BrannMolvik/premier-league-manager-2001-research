@@ -5,6 +5,41 @@ scores/NormalMatchResult. Caller-supplied native memory remains private. The
 unresolved helper-produced fields and variable arrays are not zero-filled.
 """
 from dataclasses import dataclass
+from datetime import date
+
+
+@dataclass(frozen=True)
+class LiveReportCompletionScalars:
+    """Producer-retained calendar and D4C/D50, NOT a complete report.
+
+    0x632550 -> 0x64CCD0 supplies the three calendar dwords. 0x60BA80
+    consumes the live score accumulators, not a semantic/result score lookup.
+    Other setup/caption/referee fields remain mandatory unresolved inputs.
+    """
+    calendar: tuple[int, int, int]
+    scores: tuple[int, int]
+
+    def __post_init__(self):
+        if (type(self.calendar) is not tuple or len(self.calendar) != 3
+                or any(type(v) is not int for v in self.calendar)
+                or not 0 <= self.calendar[0] <= 199):
+            raise ValueError('Report calendar requires supported native date components')
+        date(self.calendar[0] + 1900, self.calendar[1], self.calendar[2])
+        if (type(self.scores) is not tuple or len(self.scores) != 2
+                or any(type(v) is not int or not 0 <= v <= 0x7FFFFFFF for v in self.scores)):
+            raise ValueError('Report scores require explicit live accumulator outputs')
+
+    @classmethod
+    def from_calculation(cls, played_on: date, scores: tuple[int, int]):
+        if type(played_on) is not date:
+            raise ValueError('Report date must be the calculation setup date')
+        # Native leap-cycle semantics after 2099 are not Gregorian. Do not
+        # silently substitute datetime's calendar beyond the verified range.
+        return cls((played_on.year - 1900, played_on.month, played_on.day), scores)
+
+    @property
+    def native_score_nibbles(self) -> int:
+        return (self.scores[0] & 15) | ((self.scores[1] & 15) << 4)
 
 
 # (destination record offset, calculator offset, copied byte width).

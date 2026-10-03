@@ -10,6 +10,17 @@ from gate13_live_report_producer_trace import (
 
 
 class LiveReportProducerTraceTests(unittest.TestCase):
+    def test_metadata_scope_skips_completed_producers(self):
+        reads = []
+        def read(address, size):
+            reads.append((address, size))
+            return bytes(size)
+        report = live_report_producer_trace(SimpleNamespace(sha256=SOURCE_SHA256, read=read),
+                                            metadata_only=True)
+        self.assertEqual(reads, [(address, size) for _, address, size in LIVE_PRODUCER_WINDOWS[21:]])
+        self.assertEqual(len(report['windows']), 11)
+        self.assertFalse(report['runtime_capture_production_complete'])
+
     def test_rejects_wrong_source_before_reading(self):
         def unexpected_read(*args):
             raise AssertionError('read before canonical identity verification')

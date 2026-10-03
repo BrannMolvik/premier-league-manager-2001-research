@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from datetime import date
 from typing import Sequence
 
 from match_condition import (
@@ -30,7 +31,9 @@ from match_events import (
 )
 from match_orders import TeamOrderCategory, TeamOrderPriorities, select_set_piece_taker
 from match_statistics import SegmentCounters, normalize_segment_statistics
-from original_fixture_report_capture import NativeCapturedPossession, capture_completed_possession_rows
+from original_fixture_report_capture import (
+    NativeCapturedPossession, LiveReportCompletionScalars, capture_completed_possession_rows,
+)
 from native_compact_match import (
     NativeCompactRecord, compact_record_from_live_event,
     finalize_native_compact_events, native_full_time_outcome,
@@ -248,6 +251,7 @@ class NormalMatchResult:
     # leave this absent. A fragment is not a report and cannot assign a link.
     captured_possession: NativeCapturedPossession | None = None
     native_compact_events: tuple[NativeCompactRecord, ...] | None = None
+    native_completion_scalars: LiveReportCompletionScalars | None = None
 
     @property
     def score(self) -> tuple[int, int]:
@@ -415,6 +419,7 @@ def simulate_normal_match(
     extra_time: bool = False,
     native_previous_scores: tuple[int, int] | None = None,
     native_compact_spacing: int | None = None,
+    native_report_date: date | None = None,
 ) -> NormalMatchResult:
     """Run the verified scoring/chance backbone through normal or extra time.
 
@@ -434,6 +439,9 @@ def simulate_normal_match(
     """
     if side0.side != 0 or side1.side != 1:
         raise ValueError("simulate_normal_match requires side0.side=0 and side1.side=1")
+    if native_report_date is not None:
+        # Reject unsupported setup before consuming RNG or mutating players.
+        LiveReportCompletionScalars.from_calculation(native_report_date, (0, 0))
     if native_previous_scores is not None:
         native_full_time_outcome((0, 0), native_previous_scores, (0, 0))
     if native_compact_spacing is not None and (
@@ -599,4 +607,7 @@ def simulate_normal_match(
             # An unsupported/missing native payload withholds the ENTIRE
             # compact stream. It cannot promote a partial report or link.
             compact = None
-    return NormalMatchResult(tuple(events), tuple(possession_segments), captured_possession, compact)
+    completion = None if native_report_date is None else LiveReportCompletionScalars.from_calculation(
+        native_report_date, tuple(scores),
+    )
+    return NormalMatchResult(tuple(events), tuple(possession_segments), captured_possession, compact, completion)

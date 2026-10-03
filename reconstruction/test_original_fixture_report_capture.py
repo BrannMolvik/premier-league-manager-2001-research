@@ -8,6 +8,19 @@ from original_fixture_report_capture import (
 
 
 class NativeFixtureCaptureTests(unittest.TestCase):
+    def test_live_calendar_and_accumulators_are_explicit_not_semantic_scores(self):
+        from datetime import date
+        from original_fixture_report_capture import LiveReportCompletionScalars
+        output = LiveReportCompletionScalars.from_calculation(date(2000, 2, 29), (17, 34))
+        self.assertEqual(output.calendar, (100, 2, 29))
+        self.assertEqual(output.scores, (17, 34))
+        self.assertEqual(output.native_score_nibbles, 0x21)
+        for calendar, scores in (((100, 2, 30), (0, 0)), ((200, 1, 1), (0, 0)),
+                                 ((100, True, 1), (0, 0)), ((100, 1, 1), (-1, 0)),
+                                 ((100, 1, 1), (True, 0)), ((100, 1, 1), [0, 0])):
+            with self.assertRaises(ValueError):
+                LiveReportCompletionScalars(calendar, scores)
+
     def test_live_rows_match_calibrated_snapshot_projection_for_normal_and_extra(self):
         minutes = tuple(range(5, 45, 5)) + tuple(range(50, 90, 5))
         for extra in (False, True):

@@ -182,6 +182,42 @@ class InternalSaveTests(unittest.TestCase):
             self.assertIsNotNone(result.captured_possession)
             self.assertIsNone(bridge.fixture_match_info_context(fixture_id))
 
+    def test_live_completion_scalars_survive_reload_without_promoting_report(self):
+        from internal_save import _snapshot_normal_match_result, _restore_normal_match_result
+        original = self.build_controller()
+        original.advance_to_next_user_fixture()
+        for fixture_id, result in original._pending_prior_results:
+            scalars = result.native_completion_scalars
+            self.assertIsNotNone(scalars)
+            played_on = original.state.calendar.current_date
+            self.assertEqual(scalars.calendar, (played_on.year - 1900, played_on.month, played_on.day))
+            self.assertEqual(scalars.scores, result.score)
+            snapshot = _snapshot_normal_match_result(result)
+            self.assertEqual(_restore_normal_match_result(snapshot).native_completion_scalars, scalars)
+            # Retention does not authorize reconstructing missing inputs from
+            # semantic events, nor does it publish an owner/link.
+            snapshot['native_completion_scalars'] = None
+            self.assertIsNone(_restore_normal_match_result(snapshot).native_completion_scalars)
+            del snapshot['native_completion_scalars']
+            with self.assertRaises(KeyError):
+                _restore_normal_match_result(snapshot)
+            self.assertIsNone(ManagementSourceDataBridge(original).fixture_match_info_context(fixture_id))
+        restored = loads_human_gameplay(Database(), coefficient_matrix(), coefficient_matrix(),
+                                        dumps_human_gameplay(original))
+        self.assertEqual(restored._pending_prior_results, original._pending_prior_results)
+
+    def test_saved_completion_scalar_shape_is_strict_and_not_rebuilt(self):
+        from internal_save import _snapshot_normal_match_result, _restore_normal_match_result
+        from match_simulation import NormalMatchResult
+        for invalid in ({'calendar': [100, 2, 30], 'scores': [0, 0]},
+                        {'calendar': [100, 1, 1], 'scores': [True, 0]},
+                        {'calendar': [100, 1, 1]},
+                        {'calendar': (100, 1, 1), 'scores': [0, 0]}):
+            snapshot = _snapshot_normal_match_result(NormalMatchResult(()))
+            snapshot['native_completion_scalars'] = invalid
+            with self.assertRaises(ValueError):
+                _restore_normal_match_result(snapshot)
+
     def test_saved_possession_tampering_and_missing_input_fail_closed(self):
         from internal_save import _snapshot_normal_match_result, _restore_normal_match_result
         original = self.build_controller()

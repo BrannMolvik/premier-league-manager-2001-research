@@ -4190,6 +4190,7 @@ class GameState:
             # Default constructor 1145=1 selects 1150=0 at 0x62ACCC.
             native_previous_scores=(-1, -1),
             native_compact_spacing=0,
+            native_report_date=self.calendar.current_date,
         )
         home_goals, away_goals = result.score
         self.record_premier_league_result(

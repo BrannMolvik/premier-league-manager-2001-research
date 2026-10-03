@@ -58,7 +58,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 36
+SAVE_SCHEMA_VERSION = 37
 
 
 def _iso(value: date | None) -> str | None:
@@ -632,10 +632,17 @@ def _restore_event(value: dict[str, Any]):
 
 
 def _snapshot_normal_match_result(result: NormalMatchResult) -> dict[str, Any]:
+    from original_fixture_report_capture import LiveReportCompletionScalars
+    scalars = result.native_completion_scalars
+    if scalars is not None and type(scalars) is not LiveReportCompletionScalars:
+        raise ValueError('Invalid retained completion scalars')
     capture = result.captured_possession
     if capture is not None:
         _validate_retained_possession(result)
     return {
+        "native_completion_scalars": None if scalars is None else {
+            "calendar": list(scalars.calendar), "scores": list(scalars.scores),
+        },
         "native_compact_events": None if result.native_compact_events is None else [
             {"minute": r.minute, "kind": r.kind, "fields": [list(f) for f in r.fields]}
             for r in _validated_compact_stream(result.native_compact_events)
@@ -673,6 +680,15 @@ def _validate_retained_possession(result: NormalMatchResult) -> None:
 
 
 def _restore_normal_match_result(value: dict[str, Any]) -> NormalMatchResult:
+    from original_fixture_report_capture import LiveReportCompletionScalars
+    saved_scalars = value['native_completion_scalars']
+    scalars = None
+    if saved_scalars is not None:
+        if (type(saved_scalars) is not dict or set(saved_scalars) != {'calendar', 'scores'}
+                or any(type(v) is not list for v in saved_scalars.values())):
+            raise ValueError('Invalid saved completion scalars')
+        scalars = LiveReportCompletionScalars(tuple(saved_scalars['calendar']),
+                                            tuple(saved_scalars['scores']))
     # Missing input is NOT rebuilt from semantic rows, score or completion.
     saved_capture = value["captured_possession"]
     capture = None
@@ -695,6 +711,7 @@ def _restore_normal_match_result(value: dict[str, Any]) -> NormalMatchResult:
             r['minute'], r['kind'], tuple(tuple(f) for f in r['fields'])
         ) for r in compact))
     result = NormalMatchResult(
+        native_completion_scalars=scalars,
         captured_possession=capture,
         native_compact_events=compact,
         events=tuple(

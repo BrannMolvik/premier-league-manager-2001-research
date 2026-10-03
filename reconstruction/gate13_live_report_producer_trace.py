@@ -32,14 +32,26 @@ LIVE_PRODUCER_WINDOWS = (
     ('open-play constructor argument flow', 0x62C740, 0x600),
     ('report player shirt-number accessor', 0x41E3F0, 0x10),
     ('report selected player output', 0x631110, 0x127),
+    ('report calendar setup', 0x632550, 0x27),
+    ('report calendar conversion', 0x64CCD0, 0xF9),
+    ('report caption formatter', 0x5146B0, 0x378),
+    ('report caption language binding', 0x64C7A2, 0x32),
+    ('report month language bindings', 0x636FEC, 0x197),
+    ('report date formatter', 0x64D120, 0x2B8),
+    ('report venue owner selection', 0x514220, 0xB0),
+    ('report referee setup', 0x510F40, 0x78),
+    ('report referee catalog selection', 0x421BA0, 0x90),
+    ('report attendance scalar assignment', 0x5DB6FA, 0xCF),
+    ('report attendance classification combination', 0x5DBDE0, 0x1A),
 )
 
 
-def live_report_producer_trace(pe, *, with_disassembly=False):
+def live_report_producer_trace(pe, *, with_disassembly=False, metadata_only=False):
     if pe.sha256 != SOURCE_SHA256:
         raise OriginalPETraceError('Live producer trace requires the canonical executable')
     windows = []
-    for label, address, size in LIVE_PRODUCER_WINDOWS:
+    selected = LIVE_PRODUCER_WINDOWS[21:] if metadata_only else LIVE_PRODUCER_WINDOWS
+    for label, address, size in selected:
         blob = pe.read(address, size)
         window = {'label': label, 'va': address, 'size': size,
                   'sha256': sha256(blob).hexdigest()}
@@ -57,10 +69,13 @@ def main():
     parser.add_argument('--original-executable', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--disassemble', action='store_true')
+    parser.add_argument('--metadata-only', action='store_true',
+                        help='Skip already recovered compact/stat/goal windows')
     args = parser.parse_args()
     require_private_output_path(args.output)
     pe = OriginalPE32.parse(args.original_executable.read_bytes())
-    report = live_report_producer_trace(pe, with_disassembly=args.disassemble)
+    report = live_report_producer_trace(pe, with_disassembly=args.disassemble,
+                                      metadata_only=args.metadata_only)
     args.output.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     print(f'Private live-producer evidence saved to {args.output}')
 
