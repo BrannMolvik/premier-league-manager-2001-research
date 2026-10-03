@@ -2,8 +2,10 @@
 from pathlib import Path
 import unittest
 
+from gate14_fastview_player_history import FastViewPlayerHistories
 from gate14_fastview_playerrow_snapshot import (
     build_fastview_player_row_snapshot,
+    build_fastview_player_row_snapshot_from_histories,
 )
 from gate14_fastview_team import (
     FastViewTeamError,
@@ -43,6 +45,63 @@ class FastViewPlayerRowSnapshotTests(unittest.TestCase):
              for item in row.text_cells],
             [1, 2, 3, None, None, 6],
         )
+
+    def test_history_adapter_uses_exact_form_and_energy_at_tick(self):
+        condition = tuple(max(70, 100 - index) for index in range(24))
+        match_form = (5, 6, 6, 4, 4, 5) + (5,) * 18
+        histories = FastViewPlayerHistories(condition, match_form)
+
+        row = build_fastview_player_row_snapshot_from_histories(
+            side_index=0,
+            row_index=0,
+            shirt_number=9,
+            source_position_code=19,
+            surname="Striker",
+            first_name_initial="A",
+            histories=histories,
+            global_tick=11,
+            energy_rng6_roll=2,
+        )
+
+        self.assertEqual(row.form.text, "6")
+        self.assertEqual(row.form.stored_value, 6)
+        self.assertEqual(row.energy.energy_value, 97)
+        self.assertEqual(row.energy.dynamic_rect, (309, 27, 387, 43))
+
+    def test_history_adapter_preserves_event_written_counter_channels(self):
+        histories = FastViewPlayerHistories((90,) * 24, (7,) * 24)
+        row = build_fastview_player_row_snapshot_from_histories(
+            side_index=1,
+            row_index=2,
+            shirt_number=4,
+            source_position_code=4,
+            surname="Defender",
+            first_name_initial="-",
+            histories=histories,
+            global_tick=5,
+            energy_rng6_roll=3,
+            displayed_goal_count=2,
+            displayed_own_goal_count=1,
+        )
+        self.assertEqual(row.form.text, "7")
+        self.assertEqual(row.energy.energy_value, 90)
+        self.assertEqual(row.goal_count.text, "(2)")
+        self.assertEqual(row.own_goal_count.text, "(1)")
+
+    def test_history_adapter_rejects_bad_energy_roll_without_rng_side_effect(self):
+        histories = FastViewPlayerHistories((90,) * 24, (7,) * 24)
+        with self.assertRaises(ValueError):
+            build_fastview_player_row_snapshot_from_histories(
+                side_index=0,
+                row_index=0,
+                shirt_number=9,
+                source_position_code=19,
+                surname="Striker",
+                first_name_initial="A",
+                histories=histories,
+                global_tick=5,
+                energy_rng6_roll=6,
+            )
 
     def test_explicit_event_written_goal_counts_keep_distinct_source_channels(self):
         row = build_fastview_player_row_snapshot(
