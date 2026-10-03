@@ -20,6 +20,40 @@ class NativeClubReportStateTests(unittest.TestCase):
         self.assertEqual(counter.count, 0)
         self.assertEqual(ordinary_human_adjustment(counter, 0), 5)
 
+    def test_gate_tail_counter_is_independent_of_unknown_attendance(self):
+        state = GameState(GameCalendar(date(2000, 7, 1)), {})
+        state.native_club_attendance_counters[6] = ClubAttendanceCounter.fresh()
+        class Rng:
+            def randbelow(self, limit):
+                return 0
+        self.assertIsNone(state._finish_premier_league_gate_receipts(6, None, Rng()))
+        self.assertEqual(state.native_club_attendance_counters[6], ClubAttendanceCounter(True, 1))
+
+    def test_unretained_cup_lifecycle_invalidates_instead_of_resetting(self):
+        from cup_progression import CupMatchResolutionSnapshot
+        state = GameState(GameCalendar(date(2000, 7, 1)), {})
+        state.cup_results = SimpleNamespace(record_match_resolution=lambda *args: 'recorded')
+        state.native_club_attendance_counters = {6: ClubAttendanceCounter(True, 1),
+                                               7: ClubAttendanceCounter.fresh()}
+        self.assertEqual(state.record_cup_match_resolution((1,),
+            CupMatchResolutionSnapshot(6, 7, 0, 0)), 'recorded')
+        self.assertEqual(state.native_club_attendance_counters, {})
+
+    def test_native_rank_guard_uses_source_key_and_global_user(self):
+        state = GameState(GameCalendar(date(2000, 7, 1)), {},
+                          clubs={i: SimpleNamespace(short_name=f'Club {i}') for i in range(6)})
+        state.user_controlled_club_id = 5
+        def table(key):
+            self.assertEqual(key(5), b'Club 5')
+            return tuple(SimpleNamespace(club_id=i) for i in range(6))
+        state.premier_league = SimpleNamespace(club_ids=tuple(range(6)), table=table)
+        fixture = SimpleNamespace(home_club_id=5, away_club_id=1)
+        human = SimpleNamespace(attack_context=SimpleNamespace(user_controlled=True))
+        ai = SimpleNamespace(attack_context=SimpleNamespace(user_controlled=False))
+        self.assertEqual(state._ordinary_native_human_adjustment(fixture, human, ai), 5)
+        state.user_controlled_club_id = 4
+        self.assertIsNone(state._ordinary_native_human_adjustment(fixture, human, ai))
+
     def test_rank_guard_does_not_require_guessed_counter(self):
         for counter in (None, ClubAttendanceCounter.fresh(), ClubAttendanceCounter(True, 2)):
             self.assertIsNone(ordinary_human_adjustment(counter, 3))

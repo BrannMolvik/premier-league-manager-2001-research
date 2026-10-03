@@ -4,6 +4,11 @@
 Executable SHA-256: `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
 The authorized ZIP hash and physical MODE1/2352 sectors were reverified locally.
 No source files or binary dumps are committed here.
+Bounded private lifecycle windows are preserved by
+`work/trace_legacy_club_state_private.py`, output
+`work/gate13-legacy-club-state-private-20261003.json`, SHA-256
+`54245151942836638ac17c5500d2bd1f76318069503e37fb64401189b99be7b9`.
+Linear disassembly is analyst evidence, not a control-flow proof by itself.
 
 ## Confirmed visiting-capacity lifecycle; unresolved fresh bytes
 
@@ -34,6 +39,10 @@ attendance average is a separate field; `0x5DB9E3..EC` sets bit 9. Native
 clone/save paths retain flags and count. The new runtime type distinguishes
 known-clear flags with unknown count from a produced byte and saves that
 distinction in internal schema 42.
+The gate-tail counter write is retained even when attendance quantities remain
+unknown: it is independent of those quantities, not a fabricated attendance
+value. An unretained Cup gate or annual regeneration invalidates counter
+knowledge instead of silently keeping a stale count or guessing a fresh reset.
 
 `0x408170` returns zero for a null user. Count below 2 returns shipped global
 `0x8217D8` (5). Otherwise global human owner `0x4139D0`, registered League
@@ -69,8 +78,8 @@ preserve the identical report, link and attendance state. A real Tk
 context and the source-accepted popup rectangle `(20,50,760,500)`.
 
 Private receipt `work/gate13-calculated-reload-rightclick-20261003.json`:
-SHA-256 `23bdb02b2d2315a34692a05772d2dc6b1079563613ff9fbacc5811679f78f028`.
-Private save SHA-256 `8ada1012f08b1f703753a30f59c757147242521ecfd166890bd7c01294e6bea4`.
+Final-code SHA-256 `cffc957a71ef3c978f1e550dcad2196f72e68733ac3169118b03b8b111794166`.
+Private save SHA-256 `c63ca07393093b0586bfd4e33818a49074dc871d1a736b0a6ffacecd1d4c4d82`.
 Private reproducer: `work/probe_gate13_human_setup.py 2`; source extractor:
 `work/recover_stadium_setup_private.py coventry.map`. All stay outside Git.
 
@@ -81,3 +90,17 @@ first twelve visible columns; no invented scroll action was used. The ordinary
 host also does not automatically materialize these private stadium inputs.
 Gate 13 remains open; this probe does not sign off original timing or normal
 play recognizability, or reduce the original all-country functionality scope.
+
+## Validation of this milestone
+
+Final code: 1,695 full reconstruction tests pass, with 23 expected licensed-
+source skips; 135 focused counter/setup/calculation/save/route tests pass.
+An initial added rank test put clubs in the players positional field; its
+failure was corrected before these final passing runs. Asset policy, JSON
+and diff checks pass. Fresh real Windows schema-8 receipt
+`work/gate13-legacy-setup-schema8-20261003.json` passes, deterministic hash
+`131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`.
+The genuine calculated-state probe was repeated on the final code, separately
+from schema 8's injected/synthetic interaction seam. No frozen-package launch
+or release success is inferred; the prior Application Control restriction
+is not bypassed.

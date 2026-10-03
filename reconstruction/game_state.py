@@ -1685,6 +1685,11 @@ class GameState:
         if fixture_id is not None and (type(fixture_id) is not int or fixture_id < 0):
             raise ValueError("Completion input fixture ID must be a non-negative integer")
         rand15_values = self._draw_matchday_gate_rand15_values(rng)
+        # The gate tail's byte/bit-9 writes do not depend on the unresolved
+        # attendance quantities. Retain only this independent producer.
+        counter = self.native_club_attendance_counters.get(int(home_club_id))
+        if counter is not None:
+            self.native_club_attendance_counters[int(home_club_id)] = counter.completed_home_gate()
         if prepared_inputs is None:
             if fixture_id is not None:
                 self.prepared_match_gate_receipts.pop(fixture_id, None)
@@ -1703,9 +1708,6 @@ class GameState:
                 self.prepared_match_report_scalars.setdefault(fixture_id, {}).update(
                     (s.report_offset, s) for s in copies)
         self.post_gate_receipts(int(home_club_id), receipts)
-        counter = self.native_club_attendance_counters.get(int(home_club_id))
-        if counter is not None:
-            self.native_club_attendance_counters[int(home_club_id)] = counter.completed_home_gate()
         if fixture_id is not None:
             self.prepared_match_gate_receipts[fixture_id] = receipts
         return receipts
@@ -2409,7 +2411,13 @@ class GameState:
         snapshot: CupMatchResolutionSnapshot,
     ):
         """Persist a definitive Cup outcome in the live GameState registry."""
-        return self.cup_results.record_match_resolution(result_token, snapshot)
+        result = self.cup_results.record_match_resolution(result_token, snapshot)
+        # Cup gate/counter production is not retained here. Do not carry a
+        # stale ordinary count across another native gate lifecycle.
+        if snapshot.complete:
+            for club_id in (snapshot.participant_0_club_id, snapshot.participant_1_club_id):
+                self.native_club_attendance_counters.pop(club_id, None)
+        return result
 
     def resolve_cup_club_ref(self, ref):
         """Resolve a Cup ClubRef against live GameState result state."""
@@ -2596,6 +2604,9 @@ class GameState:
             for club_id, competition_id in club_competition_membership.items()
         }
         self.premier_league = new_premier
+        # No proven annual +E8/+130 producer/reset is connected at this
+        # boundary. Unknown is not the constructor's known-clear bit 9.
+        self.native_club_attendance_counters = {}
         self.cup_results = new_registry
         self.domestic_cups = new_domestic
         self.european_cups = new_european

@@ -2,6 +2,17 @@
 
 _3 October 2026 KST. Gate 13 remains OPEN._
 
+## Latest local ordinary producer milestone, based on `6207dbe0`
+
+Native attendance bit-9/byte retention, guarded D48 and schema-42 counter
+persistence now produce a complete real controlled-home report. Coventry
+fixture 2 survives disk save/fresh reload and actual Windows Fixtures
+right-click opens its correct PMatchInfo context. This supersedes the prior
+negative probe only for the source-qualified setup path. Evidence, raw source
+addresses, private receipt hashes and exact remaining allocation/boost/render
+dependencies are in `GATE13_LEGACY_CLUB_REPORT_STATE.md`. No Gate-14 or runtime
+ownership changes; partial/uncontrolled/secondary-shirt setups remain closed.
+
 ## PR #199 ordinary setup producers, based on `f8bbdd9c`
 
 The ordinary producer chain now retains B68 before team selection (constructor
