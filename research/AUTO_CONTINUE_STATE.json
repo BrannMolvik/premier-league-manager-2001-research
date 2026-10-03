@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 198: PR #165 merged canonical at main 46d3cb57a1d7ad0fdd5141f911b00dabda35cc4e after 1,487 tests / 22 expected skips and asset-policy success. Continue Gate-14 source work by materializing exact EventPossession emission cadence: MatchIterator Receiver<EventGlobalTick> callback 0x519630 emits only on GlobalTick value % 5 == 0 under source fields +0xA5==0, +0x98 non-null, +0xA0 non-null. Preserve wall-clock tick duration and human-side orientation as unresolved.",
-  "last_known_main_head": "46d3cb57a1d7ad0fdd5141f911b00dabda35cc4e",
+  "active_task": "Recovery 198: PR #166 merged canonical at main 6277e385cff41216f6842bce4b49daea41e366e6 after 1,489 tests / 22 expected skips and asset-policy success. Transplant the already source-closed FastView GlobalTick timing checkpoint onto a fresh branch from canonical main: GetTickCount thresholds [1000,500,250] ms, default index 1, Space cycle, one controller step per due update, MatchController GlobalTick counter dispatch/increment. Verify/merge, then continue the smallest source-backed player-visible FastView possession integration while preserving unresolved human-side orientation.",
+  "last_known_main_head": "6277e385cff41216f6842bce4b49daea41e366e6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 198,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #165 merged. Continue exact EventGlobalTick -> EventPossession cadence gate; do not infer wall-clock tick duration or Gate 14 completion.",
+  "note": "PR #166 merged. Squash ancestry made the stacked timing branch divergent; transplant content to a fresh canonical-main branch before PR.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
