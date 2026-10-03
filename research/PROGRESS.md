@@ -10700,3 +10700,13 @@ work may continue under the deferred-blocker policy.
 - Matching 72-byte player-display record builder `0x533A00` copies the DBRPlayer surname string to record offset 0 and copies the first byte of the DBRPlayer first-name string to record `+0x20`.
 - PlayerRow shared producer `0x525BD0` renders cell 3 using source `%s` when record+0x20 is `'-'`, otherwise `%c %s`. Independent match-presentation consumer `0x6CE809` combines the same prefix/string pair with the already source-closed localized position as `%c %s (%s)`, confirming the pair is the player display name.
 - Cell 3 is therefore source-closed as surname-only for the sentinel case or first-name initial plus surname otherwise. Cell 1 at proxy `+0x47` remains unnamed and fail-closed.
+
+
+## 3 October 2026 - Recovery 210 PlayerRow shirt/squad-number ownership
+
+- PR #186 became canonical at `cdfc5b88c67d05b4eb58fc3c42f879e9fe95146e` after reconstruction run `37099943167` passed **1,560 tests with 22 expected skips** and asset-policy run `37099943164` passed.
+- Continued the final unnamed shared PlayerRow cell through the 72-byte display-record producer instead of assigning semantics from the narrow leftmost layout.
+- Builder caller `0x533370` invokes DBRPlayer accessor `0x41E3D0` at `0x5333EC`. The accessor returns the proven shirt/squad-number byte from runtime DBRPlayer `+0x70` when the requested team context matches, otherwise alternate team-context byte `+0x76`.
+- `0x5333F3` stores that returned byte into the display record at exactly `+0x47`. PlayerRow shared producer `0x525BD0` later formats that exact byte as `%u` into text cell 1.
+- This supersedes the earlier cautious offset-only negative inference: display-record `+0x47` is not a direct alias of DBRPlayer `+0x70`, but it is source-derived from the shirt-number accessor and is therefore the row shirt/squad number.
+- With this closure, all six PlayerRow text cells plus the energy bar have source-backed ownership. The next useful Gate-14 step is a complete PlayerRow presentation snapshot/integration rather than more layout guessing.
