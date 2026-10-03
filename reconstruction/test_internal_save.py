@@ -1805,6 +1805,7 @@ class InternalSaveTests(unittest.TestCase):
             home_revenue=12_345,
             visiting_revenue=6_789,
             season_ticket_quantity=80,
+            report_seating_price=37,
         )
 
         restored = loads_human_gameplay(
@@ -1822,6 +1823,7 @@ class InternalSaveTests(unittest.TestCase):
         self.assertEqual(receipt.total_attendance, 2_080)
         self.assertEqual(receipt.home_attendance, 1_680)
         self.assertEqual(receipt.visiting_attendance, 400)
+        self.assertEqual(receipt.report_seating_price, 37)
         self.assertEqual(
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),
