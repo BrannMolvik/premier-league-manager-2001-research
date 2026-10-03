@@ -68,6 +68,7 @@ class Gate17RuntimeOwnerCapabilityTests(TestCase):
             materialized_secondary_procedural_ids=(),
             human_primary_procedural_ids=(),
             human_secondary_procedural_ids=(),
+            fresh_financial_objective_competition_ids=(0,),
             annual_progression_country_ids=(26,),
         )
         audit = audit_runtime_owner_capability(plan_fixture(), surface)
@@ -79,7 +80,11 @@ class Gate17RuntimeOwnerCapabilityTests(TestCase):
         self.assertTrue(fixed.complete)
         self.assertEqual(
             primary.blocker_codes,
-            ("human_selection_unavailable", "human_match_dispatch_missing"),
+            (
+                "human_selection_unavailable",
+                "human_match_dispatch_missing",
+                "fresh_financial_objective_missing",
+            ),
         )
         self.assertEqual(
             secondary.blocker_codes,
@@ -87,6 +92,7 @@ class Gate17RuntimeOwnerCapabilityTests(TestCase):
                 "human_selection_unavailable",
                 "runtime_owner_not_materialized",
                 "human_match_dispatch_missing",
+                "fresh_financial_objective_missing",
                 "annual_progression_country_missing",
             ),
         )
@@ -95,6 +101,7 @@ class Gate17RuntimeOwnerCapabilityTests(TestCase):
             (
                 "human_selection_unavailable",
                 "human_match_dispatch_missing",
+                "fresh_financial_objective_missing",
                 "runtime_owner_not_materialized",
                 "annual_progression_country_missing",
             ),
@@ -108,6 +115,7 @@ class Gate17RuntimeOwnerCapabilityTests(TestCase):
             materialized_secondary_procedural_ids=(27,),
             human_primary_procedural_ids=(2,),
             human_secondary_procedural_ids=(27,),
+            fresh_financial_objective_competition_ids=(0, 2, 27),
             annual_progression_country_ids=(26, 66),
         )
         audit = audit_runtime_owner_capability(plan_fixture(), surface)
@@ -117,7 +125,33 @@ class Gate17RuntimeOwnerCapabilityTests(TestCase):
             audit.supported_scope_ids,
             ("26:0", "26:2", "66:27"),
         )
-        self.assertTrue(audit.as_dict()["complete"])
+        payload = audit.as_dict()
+        self.assertTrue(payload["complete"])
+        self.assertEqual(payload["schema_version"], 2)
+
+    def test_missing_non_pl_fresh_objective_blocks_scope_fail_closed(self):
+        surface = normalized_surface(
+            selectable_club_ids=(1, 2, 3, 4),
+            fixed_primary_competition_ids=(0,),
+            materialized_primary_procedural_ids=(2,),
+            materialized_secondary_procedural_ids=(),
+            human_primary_procedural_ids=(2,),
+            human_secondary_procedural_ids=(),
+            fresh_financial_objective_competition_ids=(0,),
+            annual_progression_country_ids=(26,),
+        )
+        audit = audit_runtime_owner_capability(plan_fixture(), surface)
+
+        self.assertTrue(audit.entries[1].selection_supported)
+        self.assertTrue(audit.entries[1].runtime_materialized)
+        self.assertTrue(audit.entries[1].human_match_supported)
+        self.assertFalse(
+            audit.entries[1].fresh_financial_objective_supported
+        )
+        self.assertEqual(
+            audit.entries[1].blocker_codes,
+            ("fresh_financial_objective_missing",),
+        )
 
     def test_selection_requires_every_catalog_club_in_scope(self):
         surface = normalized_surface(
@@ -127,6 +161,7 @@ class Gate17RuntimeOwnerCapabilityTests(TestCase):
             materialized_secondary_procedural_ids=(27,),
             human_primary_procedural_ids=(2,),
             human_secondary_procedural_ids=(27,),
+            fresh_financial_objective_competition_ids=(0, 2, 27),
             annual_progression_country_ids=(26, 66),
         )
         audit = audit_runtime_owner_capability(plan_fixture(), surface)
@@ -144,12 +179,14 @@ class Gate17RuntimeOwnerCapabilityTests(TestCase):
             materialized_secondary_procedural_ids=(),
             human_primary_procedural_ids=(),
             human_secondary_procedural_ids=(),
+            fresh_financial_objective_competition_ids=(0,),
             annual_progression_country_ids=(26,),
         )
         for field, bad in (
             ("selectable_club_ids", (1, True)),
             ("fixed_primary_competition_ids", (0, 0)),
             ("materialized_primary_procedural_ids", (-1,)),
+            ("fresh_financial_objective_competition_ids", (0, True)),
             ("annual_progression_country_ids", ("26",)),
         ):
             changed = dict(kwargs)
@@ -166,6 +203,7 @@ class Gate17RuntimeOwnerCapabilityTests(TestCase):
             materialized_secondary_procedural_ids=(),
             human_primary_procedural_ids=(),
             human_secondary_procedural_ids=(),
+            fresh_financial_objective_competition_ids=(0,),
             annual_progression_country_ids=(26,),
         )
         with self.assertRaisesRegex(
