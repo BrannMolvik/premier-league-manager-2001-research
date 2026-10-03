@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains exclusively owned by Codex. Gate-14 Recovery 225 frame-plan PR #222 is merged at main 21d5a445f4f90f174c04bd5e4b26505b816018e3. Recovery 226 PR #223 (head c4640a1e77f6c4eb00e3fa53c9f46018e8ae3c88) connects completed human outcomes through HumanMatchPresentation and FastViewSemanticShell to the immutable FastViewFramePlan; verify CI, merge only when green, then continue the next independent source-backed Gate-14 step without touching Gate-13/shared status files.",
-  "last_known_main_head": "21d5a445f4f90f174c04bd5e4b26505b816018e3",
+  "active_task": "Gate 13 remains exclusively owned by Codex. Recovery 226 PR #223 merged green at main a9fc6900f974dc919b977ef2fcecf5ae68880ae1. Continue independent Gate-14 work by recovering the seven source-proven FastViewTeam/TeamTable EA444 assets from the authorized private original source, then add only hash/geometry-verified presentation integration without touching Gate-13/shared status files or inventing unresolved text/z-order fidelity.",
+  "last_known_main_head": "a9fc6900f974dc919b977ef2fcecf5ae68880ae1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 226,
   "last_recovery_reason": "analysis-errored-sandbox",
-  "note": "Recovery 226 checkpoint: PR #222 merged green; PR #223 opened on clean canonical main and awaits CI.",
+  "note": "Recovery 226: completed-human FastView frame-plan bridge is canonical; next source-backed task is exact TeamTable row art recovery/integration.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
