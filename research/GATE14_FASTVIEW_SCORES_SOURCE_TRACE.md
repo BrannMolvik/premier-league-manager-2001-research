@@ -153,6 +153,135 @@ Their semantic labels are intentionally not assigned by this checkpoint. The
 geometry is source-closed independently of whether a control later proves to be
 a club name, score, state marker or another text role.
 
+## Recovery 206: independent LeagueTableComposite current-table family
+
+The adjacent `current_table_grid_1.444` / `current_table_grid_2.444`
+resources are **not** owned by FastViewLeagueScores or ScoreCompositeNormal.
+Canonical RTTI and direct constructor references resolve a separate
+`LeagueTableComposite` family:
+
+- final `LeagueTableComposite` primary vtable `0x7CA400`;
+- final secondary vtable `0x7CA3F8`;
+- base `Receiver<EventScore>` vtable `0x7CA3B0`;
+- base `Sender<EventLeagueTableUpdate>` vtable `0x7CA40C`;
+- `Row@LeagueTableComposite` vtable `0x7CA3E8`;
+- `Heading@LeagueTableComposite` vtable `0x7CA3F0`.
+
+The FastView owner call at `0x523472` constructs `LeagueTableComposite`
+through `0x51E000` at exact origin **(382,32)**.
+
+The final primary vtable replaces the base `Receiver<EventScore>` callback
+with `0x51E360`. That callback applies the source score-record mutations and
+calls refresh `0x51E4C0` at `0x51E3A8`. The constructor independently
+calls the same refresh at `0x51E1A5` after heading/row construction. The
+refresh finishes by iterating the embedded `Sender<EventLeagueTableUpdate>`
+receiver list beginning at `0x51E683`, so score events and initial
+construction share one table-refresh/update-notification path.
+
+### Exact current-table resources
+
+| Owner | Path literal VA | Exact source path | Bytes | Dimensions | SHA-256 |
+| --- | ---: | --- | ---: | ---: | --- |
+| `LeagueTableComposite::Heading` | `0x829114` | `FM2001_Art/FastView/current_table_grid_1.444` | 4,496 | 381×19 | `db8114130becce71ba84f890ccd157606d04bf68501484df308564da28957a5f` |
+| `LeagueTableComposite::Row` | `0x8290B4` | `FM2001_Art/FastView/current_table_grid_2.444` | 4,276 | 381×16 | `e5a1b5688115cc8a63d47c738cf5af7f66f20eee9433292e47ee4e7c152ed70b` |
+
+Both remain unimported; no substitute art is used.
+
+### Heading geometry
+
+`Heading` constructor `0x51DCB0` places grid-1 at the parent origin, giving
+final rectangle **(382,32)-(763,51)**.
+
+Its fixed seven text rectangles are local:
+
+1. `(168,0)-(198,19)`;
+2. `(198,0)-(228,19)`;
+3. `(228,0)-(258,19)`;
+4. `(258,0)-(288,19)`;
+5. `(288,0)-(318,19)`;
+6. `(318,0)-(348,19)`;
+7. `(348,0)-(378,19)`.
+
+Therefore their final x range is 550..760 at y 32..51. No semantic column
+names are assigned here.
+
+### Row geometry and count transform
+
+`Row` constructor `0x51D730` places grid-2 locally at
+`(0,0)-(381,16)`. The parent creates the first row at **(382,55)** and
+advances y by exactly **19 pixels** per row.
+
+The nine fixed local row text rectangles are, in source-table order:
+
+1. `(168,0)-(198,16)`;
+2. `(198,0)-(228,16)`;
+3. `(228,0)-(258,16)`;
+4. `(258,0)-(288,16)`;
+5. `(288,0)-(318,16)`;
+6. `(318,0)-(348,16)`;
+7. `(348,0)-(378,16)`;
+8. `(0,0)-(26,16)`;
+9. `(30,0)-(160,16)`.
+
+At row 0 those become grid **(382,55)-(763,71)** and text cells spanning the
+same translated locations. Their user-facing meanings remain deliberately
+unassigned.
+
+Before row allocation, `0x51E0F0..0x51E101` transforms the source count:
+
+- counts <= 12 are used unchanged;
+- counts > 12 become `floor((count-1)/2)+1`, exactly `ceil(count/2)`.
+
+This checkpoint records that numeric transform without assigning a higher-level
+page/half-table semantic.
+
+## Recovery 207: typed phase icon + label presentation
+
+The four phase-image resources referenced beside ScoreCompositeNormal are now
+bound directly to the already source-closed typed receiver callbacks rather
+than inferred from filenames.
+
+| Typed callback | Callback VA | Exact source path | Bytes | Dimensions | SHA-256 |
+| --- | ---: | --- | ---: | ---: | --- |
+| `EventHalfTime` | `0x51B9A0` | `FM2001_Art/FastView/half_time_icon.444` | 568 | 18×16 | `351589aa787ef62dae4013c67e231c90c7b6f2e82acd635fb67adb13e1c994c8` |
+| `EventFullTime` | `0x51BA00` | `FM2001_Art/FastView/full_time_icon.444` | 616 | 18×16 | `9a24ab846620d6460afe265c6c98488870a08e2802d55476b9735a8641ae81b8` |
+| `EventExtraTime` | `0x51B9C0` | `FM2001_Art/FastView/extra_time_icon.444` | 400 | 18×16 | `cf8af734450ab3069e0b32d82a770909d962ade9545533e7715d36d53e0eea2e` |
+| `EventPenalties` | `0x51B9E0` | `FM2001_Art/FastView/penalties_icon.444` | 280 | 18×16 | `0fc5b157ecfadfa437f65ef5a4b940b5de6886e8c1e81e1f4ccba8d97af23545` |
+
+The exact path literals are `0x828DD0 / 0x828DF8 / 0x828E20 /
+0x828E48`. Their second static string-object family is initialized at
+`0x51B650 / 0x51B690 / 0x51B6D0 / 0x51B710`. The typed callbacks load the
+corresponding internal string pointer at
+`0x877630 / 0x877618 / 0x877600 / 0x8775E8`, respectively. This closes the
+event-to-icon identity independently of any localized display text.
+
+All four callbacks also load a separate language-string pointer and call shared
+phase-display helper `0x51BA30`. That helper first clears the previous display
+through `0x51BBE0`, then constructs:
+
+- one `PictureControl` at local rectangle **(316,0)-(334,16)** using the
+  callback-supplied icon path;
+- one paired generic text control at local rectangle
+  **(311,0)-(339,16)** using the callback-supplied language string.
+
+The helper stores its active byte at ScoreComposite offset `+0xAC`, the
+picture pointer at `+0xD8`, and the text pointer at `+0xDC`. Its raw
+PictureControl variant argument is 0; its paired text-control arguments include
+raw flags `0x24` and style index 1.
+
+For example, at a one-column row origin (246,55), those rectangles translate to
+icon **(562,55)-(580,71)** and paired text **(557,55)-(585,71)**.
+
+The exact localized strings behind callback globals `0x982380`,
+`0x98237C`, `0x982378`, and `0x982374` are not named here. The typed
+event identity proves the phase event and matching icon, but this checkpoint
+does not manufacture English label text from conventional football
+abbreviations.
+
+`EventGlobalSecondHalf` callback `0x51BA20` calls only clear helper
+`0x51BBE0`. It therefore has no source-proven phase icon in this family and
+the reconstruction mapping fails closed for that event.
+
 ## Reconstruction contract
 
 `reconstruction/gate14_fastview_scores.py` now records:
@@ -169,9 +298,10 @@ Both resources remain `imported=False`; no substitute art is used.
 
 After CI verifies this checkpoint:
 
-1. trace the adjacent `current_table_grid_1.444` /
-   `current_table_grid_2.444` family only if it is independently owned by the
-   same score workflow;
+1. verify the typed ScoreComposite phase icon/text helper contract through CI;
+2. after it is canonical, continue the next direct FastView resource family or
+   source-close exact localized phase strings only if their language-index
+   producer can be proved without guessing;
 3. keep the already source-closed top/ticker binary import as a deterministic
    transport follow-up rather than a blocker.
 

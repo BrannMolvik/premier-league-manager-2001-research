@@ -10621,3 +10621,27 @@ work may continue under the deferred-blocker policy.
 - Shared `ScoreComposite::0x51A730` places current_fix_grid_2 at the composite origin itself, giving a 309x16 final rectangle per row.
 - The same fixed table source-closes four local text-control rectangles: (2,0)-(132,16), (177,0)-(307,16), (139,0)-(152,16), and (158,0)-(171,16). No user-facing semantic labels are assigned yet.
 - Added row/page layout and exact translated-rectangle helpers plus regressions. Next independent source task is the current_table_grid_1/current_table_grid_2 family.
+
+
+## 3 October 2026 - Recovery 206 LeagueTableComposite current-table source closure
+
+- Resumed from canonical main `8ea49594b827542196a4b5e94137ea4cecc5d176`; PR #176 was already merged and verified with **1,526 tests / 22 expected skips** plus asset-policy success, so no completed score-row work was repeated.
+- Canonical RTTI separates `LeagueTableComposite` from the already closed FastViewLeagueScores / ScoreCompositeNormal current-fixture family: primary vtable `0x7CA400`, secondary `0x7CA3F8`, `Row` vtable `0x7CA3E8`, and `Heading` vtable `0x7CA3F0`.
+- Direct resource references bind `current_table_grid_1.444` to `Heading::0x51DCB0` and `current_table_grid_2.444` to `Row::0x51D730`.
+- Re-extracted both authorized source assets: grid 1 = 381x19 / 4,496 bytes / SHA-256 `db8114130becce71ba84f890ccd157606d04bf68501484df308564da28957a5f`; grid 2 = 381x16 / 4,276 bytes / SHA-256 `e5a1b5688115cc8a63d47c738cf5af7f66f20eee9433292e47ee4e7c152ed70b`.
+- FastView call `0x523472 -> 0x51E000` fixes the composite origin at (382,32). Heading grid is (382,32)-(763,51). Rows begin at (382,55), step by 19 pixels, and use exact 381x16 grid rectangles.
+- Source tables close seven heading text rectangles and nine row text rectangles. Their user-facing labels remain deliberately unassigned.
+- The constructor transforms source counts above 12 with `floor((count-1)/2)+1` = `ceil(count/2)`; this numeric transform is retained without inventing a page/half-table semantic.
+- Added `reconstruction/gate14_fastview_league_table.py` plus regression coverage. Both current-table assets remain unimported and no substitute art is used.\n- Final `Receiver<EventScore>` callback `0x51E360` mutates the backing table then calls shared refresh `0x51E4C0` at `0x51E3A8`; the constructor calls the same refresh at `0x51E1A5`. Refresh finishes by iterating the embedded `Sender<EventLeagueTableUpdate>` receiver list at `0x51E683`.\n- Registered the new module/test paths in `reconstruction-tests.yml` so PR verification cannot silently skip the full integration suite.
+
+
+## 3 October 2026 - Recovery 207 ScoreComposite phase icon presentation
+
+- PR #178 became canonical at `642c004eb9e9b542a21e2a7c4401eb233c58b531` after reconstruction run `37094555752` passed **1,532 tests / 22 expected skips** and asset-policy run `37094555803` passed.
+- Continued directly into the already typed ScoreCompositeNormal phase receivers rather than reopening completed score/table geometry.
+- Re-extracted and pinned the four authorized FastView phase icons. All are 18x16: half time 568 bytes / SHA-256 `351589aa787ef62dae4013c67e231c90c7b6f2e82acd635fb67adb13e1c994c8`; full time 616 / `9a24ab846620d6460afe265c6c98488870a08e2802d55476b9735a8641ae81b8`; extra time 400 / `cf8af734450ab3069e0b32d82a770909d962ade9545533e7715d36d53e0eea2e`; penalties 280 / `0fc5b157ecfadfa437f65ef5a4b940b5de6886e8c1e81e1f4ccba8d97af23545`.
+- Static path initializers and typed callbacks directly bind EventHalfTime -> half_time_icon, EventFullTime -> full_time_icon, EventExtraTime -> extra_time_icon and EventPenalties -> penalties_icon. This is no longer a filename-only inference.
+- Shared phase helper `0x51BA30` clears prior phase controls through `0x51BBE0`, then creates PictureControl local rect (316,0)-(334,16) and a paired generic text-control local rect (311,0)-(339,16). It stores active byte +0xAC, picture pointer +0xD8 and text pointer +0xDC.
+- EventGlobalSecondHalf callback `0x51BA20` only clears the display. It has no source-proven icon mapping and is rejected by the event->icon adapter.
+- The callbacks also supply separate language-string globals, but their exact localized text contents are not promoted in this checkpoint. No conventional "HT/FT/ET" labels are invented.
+- Added exact resource/geometry/event mapping and regressions to `gate14_fastview_scores.py`; all four binaries remain unimported and no substitute art is used.
