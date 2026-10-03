@@ -2,6 +2,15 @@
 
 _Audit refreshed: 3 October 2026 KST_
 
+Latest live-input continuation: complete ordered rating/skill outputs with
+persistent player IDs are retained at actual AI/human finalization, and actual
+captured possession survives pending-matchday save/reload under schema 35.
+See `GATE13_LIVE_CAPTURE_INPUTS.md`. These are report inputs, not the complete
+report/owner/link. The successful calculated-fixture -> reload -> native
+right-click -> PMatchInfo context is still unverified/unavailable. Consequently
+the criterion-level results below remain unchanged and **Gate 13 stays OPEN**.
+No timing/recognizability sign-off or formal Gate-14 transition is claimed.
+
 ## Windows refresh and playtest corrections
 
 The real Windows schema-8 receipt has passed, as has a separate post-fix run.

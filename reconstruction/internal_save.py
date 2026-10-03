@@ -41,6 +41,7 @@ from match_orders import TeamOrderPriorities
 from match_postmatch import PlayerTransferRequest
 from match_schedule import MsvcCrtRng
 from match_simulation import NormalMatchResult, SegmentPossession, TimedMatchEvent
+from original_fixture_report_capture import NativeCapturedPossession, capture_completed_possession_rows
 from match_team_setup import TeamTacticalState
 from player_development import DevelopmentState, PeakAges
 from runtime_state import RuntimePlayer
@@ -57,7 +58,7 @@ from youth_state import YouthRecord, YouthTeamState, YouthTrainingState
 
 
 SAVE_FORMAT = "fm2001-modern-internal-save"
-SAVE_SCHEMA_VERSION = 34
+SAVE_SCHEMA_VERSION = 35
 
 
 def _iso(value: date | None) -> str | None:
@@ -631,7 +632,14 @@ def _restore_event(value: dict[str, Any]):
 
 
 def _snapshot_normal_match_result(result: NormalMatchResult) -> dict[str, Any]:
+    capture = result.captured_possession
+    if capture is not None:
+        _validate_retained_possession(result)
     return {
+        # A complete calculator output, not a captured report / ownership link.
+        "captured_possession": None if capture is None else {
+            "triplets": capture.triplets.hex(), "averages": capture.averages.hex(),
+        },
         "events": [
             {"minute": int(timed.minute), "event": _snapshot_event(timed.event)}
             for timed in result.events
@@ -646,8 +654,33 @@ def _snapshot_normal_match_result(result: NormalMatchResult) -> dict[str, Any]:
     }
 
 
+def _validate_retained_possession(result: NormalMatchResult) -> None:
+    capture = result.captured_possession
+    if type(capture) is not NativeCapturedPossession:
+        raise ValueError('Invalid retained possession input')
+    expected = capture_completed_possession_rows(tuple(
+        (segment.calculation_minute, bytes((segment.record.territory,
+                                          segment.record.side0_percent,
+                                          segment.record.neutral_percent)))
+        for segment in result.possession_segments
+    ))
+    if capture != expected:
+        raise ValueError('Retained possession disagrees with complete calculator rows')
+
+
 def _restore_normal_match_result(value: dict[str, Any]) -> NormalMatchResult:
-    return NormalMatchResult(
+    # Missing input is NOT rebuilt from semantic rows, score or completion.
+    saved_capture = value["captured_possession"]
+    capture = None
+    if saved_capture is not None:
+        if (type(saved_capture) is not dict
+                or set(saved_capture) != {"triplets", "averages"}
+                or any(type(item) is not str for item in saved_capture.values())):
+            raise ValueError('Invalid saved possession input')
+        capture = NativeCapturedPossession(bytes.fromhex(saved_capture['triplets']),
+                                           bytes.fromhex(saved_capture['averages']))
+    result = NormalMatchResult(
+        captured_possession=capture,
         events=tuple(
             TimedMatchEvent(
                 minute=int(item["minute"]),
@@ -663,6 +696,9 @@ def _restore_normal_match_result(value: dict[str, Any]) -> NormalMatchResult:
             for item in value["possession_segments"]
         ),
     )
+    if capture is not None:
+        _validate_retained_possession(result)
+    return result
 
 
 def _snapshot_contract_terms(value: ContractTerms) -> dict[str, Any]:

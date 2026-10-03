@@ -10,6 +10,16 @@ topic-specific research files.
 
 **Gate 13 - Restore original management presentation**
 
+Local continuation (3 October, after PR #183 merged): live AI/human performance
+finalization now retains ordered participant ratings/skill flags and persistent
+player identities as transient report inputs. Actual calculator possession is
+retained at completion and survives the already-saved pending matchday results
+through internal schema 35. No partial input creates a report/link. Full live
+compact-event and remaining helper/scalar output retention, complete report
+owner/save integration and successful normal right-click remain the blocker.
+See `GATE13_LIVE_CAPTURE_INPUTS.md`. Gate 13 remains OPEN; Gate-14 worker,
+runtime ownership and full-original-functionality scope are unchanged.
+
 Local Gate-13 branch update (3 October): management base lookup at `0x5D3560`
 is now recovered and integrated, including the month variant, exact source
 club/country art fields and the application-owned competition header. All 97
@@ -31,7 +41,7 @@ eight native skill flags, all sixteen script families/six tactical subcommands,
 four additional scalar copies and exact two/four-group captured possession.
 These snapshot codecs do not supply a complete report or assign a link.
 Continue at the live calculator/completion boundary, not by retracing codecs:
-retain final native participant records, the complete compact-event list and
+retain the remaining native participant/goal metadata, complete compact-event list and
 calculator/post-match scalars, then assemble/persist the complete owner.
 The Premier League AI/human completion paths now retain actual gate receipts
 as transient inputs; this alone does not create or persist a report/link.

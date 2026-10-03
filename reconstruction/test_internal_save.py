@@ -17,6 +17,7 @@ from cup_progression import CupMatchResolutionSnapshot, complete_cup_match
 from domestic_cup_state import DomesticCupScheduleState
 from finance_state import FinancialObjectiveState
 from game_state import GameState
+from gate13_management_source_data import ManagementSourceDataBridge
 from human_gameplay import HumanGameplayController
 from internal_save import (
     SAVE_SCHEMA_VERSION,
@@ -164,6 +165,38 @@ class InternalSaveTests(unittest.TestCase):
             snapshot_human_gameplay(restored),
             snapshot_human_gameplay(original),
         )
+
+    def test_calculated_pending_fixture_possession_survives_reload_without_report_context(self):
+        original = self.build_controller()
+        original.advance_to_next_user_fixture()
+        self.assertTrue(original._pending_prior_results)
+        for _, result in original._pending_prior_results:
+            self.assertIsNotNone(result.captured_possession)
+        restored = loads_human_gameplay(
+            Database(), coefficient_matrix(), coefficient_matrix(),
+            dumps_human_gameplay(original),
+        )
+        self.assertEqual(restored._pending_prior_results, original._pending_prior_results)
+        bridge = ManagementSourceDataBridge(restored)
+        for fixture_id, result in restored._pending_prior_results:
+            self.assertIsNotNone(result.captured_possession)
+            self.assertIsNone(bridge.fixture_match_info_context(fixture_id))
+
+    def test_saved_possession_tampering_and_missing_input_fail_closed(self):
+        from internal_save import _snapshot_normal_match_result, _restore_normal_match_result
+        original = self.build_controller()
+        original.advance_to_next_user_fixture()
+        result = original._pending_prior_results[0][1]
+        snapshot = _snapshot_normal_match_result(result)
+        snapshot['captured_possession']['averages'] = '000000'
+        with self.assertRaises(ValueError):
+            _restore_normal_match_result(snapshot)
+        snapshot['captured_possession'] = None
+        # Even complete saved rows do not authorize synthesis of absent capture.
+        self.assertIsNone(_restore_normal_match_result(snapshot).captured_possession)
+        del snapshot['captured_possession']
+        with self.assertRaises(KeyError):
+            _restore_normal_match_result(snapshot)
 
     def test_primary_schedule_shadow_survives_roundtrip(self):
         original = self.build_controller()

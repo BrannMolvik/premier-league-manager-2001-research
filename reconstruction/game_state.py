@@ -72,7 +72,8 @@ from match_preparation import (
 from match_postmatch import (
     PlayerTransferRequest,
     apply_player_transfer_request_response,
-    persist_match_performance_history,
+    FinalizedSideParticipantStatistics,
+    finalize_match_participant_statistics,
     persist_premier_league_morale_and_form,
     persist_premier_league_match_incidents,
     sync_post_match_conditions,
@@ -192,6 +193,11 @@ class GameState:
     # the complete report producer exists these are transient and deliberately
     # excluded from internal save; no missing attendance is defaulted.
     prepared_match_gate_receipts: dict[int, GateReceiptResult] = field(default_factory=dict)
+    # Complete per-side rating/skill output from actual finalization, still
+    # only report INPUTS. No owner/link or save projection of fragments.
+    prepared_match_participant_statistics: dict[
+        int, tuple[FinalizedSideParticipantStatistics, FinalizedSideParticipantStatistics]
+    ] = field(default_factory=dict)
     premier_league_scheduler_order: dict[int, tuple[int, ...]] = field(default_factory=dict)
     primary_matchday_order: dict[date, tuple[tuple, ...]] = field(default_factory=dict)
     primary_schedule_shadow: PrimaryScheduleShadowState = field(
@@ -2551,6 +2557,7 @@ class GameState:
         self.premier_league_scheduler_order = new_scheduler_order
         self.prepared_match_environments = {}
         self.prepared_match_gate_receipts = {}
+        self.prepared_match_participant_statistics = {}
         return regeneration
 
     def refresh_primary_procedural_leagues(
@@ -3801,20 +3808,31 @@ class GameState:
         # ratings before returning to the later gate/incident/Form pipeline.
         # Keep this opt-in until a distinct MatchEngine RNG is explicitly
         # supplied; never alias the shared CRT stream as a substitute.
+        self.prepared_match_participant_statistics.pop(fixture_id, None)
         if match_engine_rng is not None:
-            persist_match_performance_history(
+            home_statistics = finalize_match_participant_statistics(
                 home.match_side,
                 home.preparation.selection.participants,
                 result,
                 rng,
                 match_engine_rng,
             )
-            persist_match_performance_history(
+            away_statistics = finalize_match_participant_statistics(
                 away.match_side,
                 away.preparation.selection.participants,
                 result,
                 rng,
                 match_engine_rng,
+            )
+            self.prepared_match_participant_statistics[fixture_id] = (
+                FinalizedSideParticipantStatistics(
+                    tuple(int(player.index) for player in home.preparation.selection.participants),
+                    home_statistics,
+                ),
+                FinalizedSideParticipantStatistics(
+                    tuple(int(player.index) for player in away.preparation.selection.participants),
+                    away_statistics,
+                ),
             )
 
         # 0x513252 -> 0x5DA2F0 runs after MatchCalculator and before
@@ -4027,20 +4045,29 @@ class GameState:
                 environment_byte=pitch_wear_before,
             ),
         )
+        self.prepared_match_participant_statistics.pop(fixture_id, None)
         if match_engine_rng is not None:
-            persist_match_performance_history(
+            home_statistics = finalize_match_participant_statistics(
                 home_side,
                 home_participants,
                 result,
                 rng,
                 match_engine_rng,
             )
-            persist_match_performance_history(
+            away_statistics = finalize_match_participant_statistics(
                 away_side,
                 away_participants,
                 result,
                 rng,
                 match_engine_rng,
+            )
+            self.prepared_match_participant_statistics[fixture_id] = (
+                FinalizedSideParticipantStatistics(
+                    tuple(int(player.index) for player in home_participants), home_statistics,
+                ),
+                FinalizedSideParticipantStatistics(
+                    tuple(int(player.index) for player in away_participants), away_statistics,
+                ),
             )
         self._finish_premier_league_gate_receipts(
             home_club_id, gate_inputs, rng, fixture_id=fixture_id,

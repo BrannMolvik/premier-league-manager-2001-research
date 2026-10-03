@@ -30,6 +30,7 @@ from match_events import (
 )
 from match_orders import TeamOrderCategory, TeamOrderPriorities, select_set_piece_taker
 from match_statistics import SegmentCounters, normalize_segment_statistics
+from original_fixture_report_capture import NativeCapturedPossession, capture_completed_possession_rows
 from match_substitution import apply_ai_substitution, apply_injury_substitution
 from match_strength import (
     TeamStrengthContext,
@@ -239,6 +240,9 @@ class SegmentPossession:
 class NormalMatchResult:
     events: tuple[TimedMatchEvent, ...]
     possession_segments: tuple[SegmentPossession, ...] = ()
+    # Actual completion-time output only. Older / synthetic semantic results
+    # leave this absent. A fragment is not a report and cannot assign a link.
+    captured_possession: NativeCapturedPossession | None = None
 
     @property
     def score(self) -> tuple[int, int]:
@@ -559,4 +563,10 @@ def simulate_normal_match(
                 BoundaryRecord(kind),
             ))
 
-    return NormalMatchResult(tuple(events), tuple(possession_segments))
+    captured_possession = capture_completed_possession_rows(tuple(
+        (segment.calculation_minute, bytes((segment.record.territory,
+                                          segment.record.side0_percent,
+                                          segment.record.neutral_percent)))
+        for segment in possession_segments
+    ))
+    return NormalMatchResult(tuple(events), tuple(possession_segments), captured_possession)

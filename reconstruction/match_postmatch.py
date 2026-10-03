@@ -8,6 +8,7 @@ from match_events import ChanceRecord, IncidentKind, IncidentRecord, Substitutio
 from match_performance import target_match_performance_rating
 from match_injury_persistence import generate_persistent_match_injury
 from match_simulation import NormalMatchResult, PreparedMatchSide
+from original_fixture_report_packing import native_participant_skill_flags
 
 
 DEFAULT_FORM_CHANGE_PROB = 5
@@ -478,17 +479,60 @@ def sync_post_match_conditions(
         runtime[local_index].condition = int(player.condition)
 
 
-def persist_match_performance_history(
+@dataclass(frozen=True)
+class FinalizedParticipantStatistics:
+    """Live +0x30/+0x35..+0x3C output, NOT a complete captured report.
+
+    player_index is the ordered side-local calculator index, not a DB player ID.
+    Zero rating is the explicit 0x630C4B non-appeared write, not missing data.
+    """
+
+    player_index: int
+    rating: int
+    skill_flags: bytes
+
+    def __post_init__(self):
+        if type(self.player_index) is not int or not 0 <= self.player_index < 18:
+            raise ValueError('Finalized participant index must be in 0..17')
+        if type(self.rating) is not int or self.rating not in (0, *range(4, 11)):
+            raise ValueError('Finalized participant rating must be zero or 4..10')
+        if (type(self.skill_flags) is not bytes or len(self.skill_flags) != 8
+                or any(value not in (0, 1) for value in self.skill_flags)):
+            raise ValueError('Finalized participant requires eight immutable skill flags')
+
+
+@dataclass(frozen=True)
+class FinalizedSideParticipantStatistics:
+    """Retain DB identities together with their completion-time local ordering."""
+
+    player_ids: tuple[int, ...]
+    statistics: tuple[FinalizedParticipantStatistics, ...]
+
+    def __post_init__(self):
+        if (type(self.player_ids) is not tuple or type(self.statistics) is not tuple
+                or not 0 < len(self.player_ids) <= 18
+                or len(self.player_ids) != len(self.statistics)
+                or any(type(value) is not int or value < 0 for value in self.player_ids)
+                or len(set(self.player_ids)) != len(self.player_ids)
+                or any(type(item) is not FinalizedParticipantStatistics
+                       or item.player_index != index
+                       for index, item in enumerate(self.statistics))):
+            raise ValueError('Finalized side requires exact ordered unique player identities')
+
+
+def finalize_match_participant_statistics(
     side: PreparedMatchSide,
     runtime_participants: Sequence[MutablePostMatchPlayer],
     result: NormalMatchResult,
     shared_rng: BoundedRng,
     match_engine_rng: BoundedRng,
-) -> tuple[int, ...]:
-    """Compute and append exact 0x6309D0 -> 0x630FC0 performance ratings.
+) -> tuple[FinalizedParticipantStatistics, ...]:
+    """Retain exact live finalization output in complete participant-array order.
 
-    Only players who appeared are processed, matching the original +0x18F
-    active/appearance guard. Ratings are computed in participant-array order.
+    Only appeared players consume rating RNG / append performance history.
+    Non-appeared players receive the explicit zero at 0x630C4B; all participants
+    receive the already recovered eight skill flags at 0x630C4F. This retains
+    actual calculation output without rerunning the finalizer for capture.
     Goal-family +0x40/+0x44 counters are reconstructed only from non-own goals:
     primary attribution is ChanceRecord.player_index and the separately mapped
     secondary attribution is ChanceRecord.secondary_player_index.
@@ -499,6 +543,13 @@ def persist_match_performance_history(
         raise ValueError(
             "runtime participant count must match prepared participant count"
         )
+    if len(prepared) > 18 or any(
+        int(player.player_index) != index for index, player in enumerate(prepared)
+    ):
+        raise ValueError('prepared participants must use bounded contiguous indices')
+    # Validate the complete input before changing any history or RNG state.
+    flags = tuple(native_participant_skill_flags(tuple(player.skills))
+                  for player in prepared)
 
     side_id = int(side.side)
     appeared = appeared_player_indices(side, result)
@@ -533,9 +584,10 @@ def persist_match_performance_history(
         (score0, score1) if side_id == 0 else (score1, score0)
     )
 
-    ratings: list[int] = []
+    finalized: list[FinalizedParticipantStatistics] = []
     for local_index, player in enumerate(runtime):
         if local_index not in appeared:
+            finalized.append(FinalizedParticipantStatistics(local_index, 0, flags[local_index]))
             continue
         prepared_player = prepared[local_index]
         if int(prepared_player.player_index) != local_index:
@@ -556,9 +608,22 @@ def persist_match_performance_history(
             match_engine_rng=match_engine_rng,
         )
         player.append_match_performance(rating)
-        ratings.append(int(rating))
+        finalized.append(FinalizedParticipantStatistics(local_index, int(rating), flags[local_index]))
 
-    return tuple(ratings)
+    return tuple(finalized)
+
+
+def persist_match_performance_history(
+    side: PreparedMatchSide,
+    runtime_participants: Sequence[MutablePostMatchPlayer],
+    result: NormalMatchResult,
+    shared_rng: BoundedRng,
+    match_engine_rng: BoundedRng,
+) -> tuple[int, ...]:
+    """Compatibility API: return only appeared ratings, with identical RNG cost."""
+    return tuple(item.rating for item in finalize_match_participant_statistics(
+        side, runtime_participants, result, shared_rng, match_engine_rng,
+    ) if item.rating != 0)
 
 
 def persist_post_match_form(

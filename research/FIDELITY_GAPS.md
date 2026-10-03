@@ -174,7 +174,7 @@ remains unresolved.
 ### Internal modern-port save/load
 
 **Resolved for Gate 8 and evolved since.** The versioned source-bound JSON save path
-now uses internal schema **34** and persists the live human-game runtime,
+now uses internal schema **35** and persists the live human-game runtime,
 relevant RNG streams, league/result state, player
 Condition/Form/injury/suspension/development state, tactics, scheduler order,
 and later-gate competition/transfer/finance state. File saves default to gzip.
@@ -186,6 +186,13 @@ season transitions and repeated save/reload stress. See
 
 This does **not** claim compatibility with original FM2001 save files; that is
 retained above as a separate fidelity gap.
+
+Schema 35 adds explicit retention/validation of the actual calculator's
+captured-possession output in saved pending matchday results. This does not
+close full live captured-report production/ownership/save persistence or
+ordinary PMatchInfo opening. Participant rating/skill outputs and identities
+are retained transiently at live completion; remaining inputs stay absent.
+See `GATE13_LIVE_CAPTURE_INPUTS.md`. Strict schema-34 migration is not claimed.
 
 ### Human-controlled minimum gameplay loop
 

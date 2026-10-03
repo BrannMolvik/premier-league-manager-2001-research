@@ -3,10 +3,35 @@ from original_fixture_report_capture import (
     NATIVE_CAPTURE_SCALAR_COPIES, copy_native_capture_scalars,
     NATIVE_CAPTURE_HELPER_SCALAR_COPIES, copy_native_capture_helper_scalars,
     copy_native_capture_possession,
+    capture_completed_possession_rows,
 )
 
 
 class NativeFixtureCaptureTests(unittest.TestCase):
+    def test_live_rows_match_calibrated_snapshot_projection_for_normal_and_extra(self):
+        minutes = tuple(range(5, 45, 5)) + tuple(range(50, 90, 5))
+        for extra in (False, True):
+            selected = minutes + ((95, 100, 110, 115) if extra else ())
+            rows = tuple((minute, bytes((10 + i, 30 + i, 5)))
+                         for i, minute in enumerate(selected))
+            native = bytearray(0x112C)
+            native[0xFF8:0xFFC] = (24 if extra else 18).to_bytes(4, 'little')
+            for minute, triplet in rows:
+                for component, base in enumerate((0x100C, 0x106C, 0x10CC)):
+                    offset = base + (minute // 5) * 4
+                    native[offset:offset + 4] = triplet[component].to_bytes(4, 'little')
+            self.assertEqual(capture_completed_possession_rows(rows),
+                             copy_native_capture_possession(bytes(native)))
+
+    def test_live_rows_reject_partial_reordered_duplicate_or_boundary_data(self):
+        minutes = tuple(range(5, 45, 5)) + tuple(range(50, 90, 5))
+        rows = tuple((minute, bytes((10, 30, 5))) for minute in minutes)
+        for invalid in ((), rows[:-1], rows[::-1], rows + rows[:1],
+                        ((0, bytes(3)),) + rows, list(rows),
+                        ((5, bytearray(3)),) + rows[1:]):
+            with self.assertRaises(ValueError):
+                capture_completed_possession_rows(invalid)
+
     def test_direct_copy_offsets_widths_and_low_words(self):
         native = bytearray(0xFE8)
         for index, (_, offset, width) in enumerate(NATIVE_CAPTURE_SCALAR_COPIES):
