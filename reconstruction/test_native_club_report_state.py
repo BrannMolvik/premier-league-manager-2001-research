@@ -1,11 +1,73 @@
 import unittest
 from types import SimpleNamespace
-from native_club_report_state import ClubAttendanceCounter, ordinary_human_adjustment
+from native_club_report_state import (
+    ClubAttendanceCounter, ordinary_human_adjustment,
+    initialize_top_four_opponent_condition,
+    produce_human_opponent_condition,
+)
 from game_state import GameState, GameCalendar
 from datetime import date
 
 
 class NativeClubReportStateTests(unittest.TestCase):
+    def test_top_four_producer_guards_unknowns_and_all_four_positions(self):
+        class Rng:
+            def __init__(self):
+                self.bounds = []
+            def randbelow(self, bound):
+                self.bounds.append(bound)
+                return 5
+        for rank in range(4):
+            rng = Rng()
+            player = SimpleNamespace(condition=90)
+            self.assertIsNone(produce_human_opponent_condition(
+                ClubAttendanceCounter.fresh(), rank, (player,), rng))
+            self.assertEqual(rng.bounds, [])
+            self.assertEqual(produce_human_opponent_condition(
+                ClubAttendanceCounter(True, 1), rank, (player,), rng), 5)
+            self.assertEqual(rng.bounds, [])
+            self.assertEqual(produce_human_opponent_condition(
+                ClubAttendanceCounter(True, 2), rank, (player,), rng), 16)
+            self.assertEqual(rng.bounds, [6, 6])
+            self.assertEqual(player.condition, 105)
+        self.assertIsNone(produce_human_opponent_condition(
+            ClubAttendanceCounter(True, 2), 0, (), None))
+
+    def test_top_four_exact_draw_pairs_and_condition_bytes(self):
+        for upper in range(6):
+            for lower in range(6):
+                draws = iter((upper, lower))
+                bounds = []
+                class Rng:
+                    def randbelow(self, bound):
+                        bounds.append(bound)
+                        return next(draws)
+                player = SimpleNamespace(condition=0)
+                self.assertEqual(initialize_top_four_opponent_condition((player,), Rng()), 16)
+                self.assertEqual(bounds, [6, 6])
+                self.assertEqual(player.condition, 90 + (75 * (10 + upper + lower)) // 100)
+
+    def test_top_four_second_full_roster_pass_precedes_snapshot(self):
+        from unittest.mock import patch
+        from match_preparation import build_premier_league_ai_match_side
+        roster = [SimpleNamespace(condition=0) for _ in range(15)]
+        bounds = []
+        class Rng:
+            def randbelow(self, bound):
+                bounds.append(bound)
+                return 0
+        seen = []
+        def snapshot(*args, **kwargs):
+            seen.extend(p.condition for p in roster)
+            return 'side'
+        preparation = SimpleNamespace(selection='selection')
+        with patch('match_preparation.build_prepared_match_side_from_selection', snapshot):
+            side = build_premier_league_ai_match_side(preparation, roster, side=1,
+                rng=Rng(), after_condition_initializer=initialize_top_four_opponent_condition)
+        self.assertEqual(bounds, [6, 5] * 15 + [6, 6] * 15)
+        self.assertEqual(seen, [97] * 15)
+        self.assertEqual(side.match_side, 'side')
+
     def test_bit9_first_write_does_not_read_unknown_counter(self):
         counter = ClubAttendanceCounter.fresh()
         self.assertIsNone(counter.count)

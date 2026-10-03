@@ -1,5 +1,46 @@
 # Gate 13 legacy club setup boundary
 
+## PR #211 continuation from `70c8af0a`
+
+The top-four D48 **producer**, not merely adjustment 16, is now integrated.
+`0x4081FB..0x4082E4` computes upper/lower spans (6,6) from shipped globals
+100/105/110. It runs RNG(upper span) then RNG(lower span) for every ordered
+AI roster slot, after the existing ordinary 4080F0 pass and before participant
+Condition snapshots (caller `0x511043/7B`, `0x5110A9/D9`). The scale uses
+SETL's boolean 1, **not the rank value**: `100 - trunc((100-0)/4) = 75`.
+Each byte is `(90 + trunc(75*(100+draw1+draw2-90)/100)) & 255`. D48 is
+returned from `(upper_span+lower_span)/2 + minimum - base`, giving 16.
+Unknown counters, native rank, global human ownership or MatchEngine stream
+still withhold this producer; no default byte or extra substitute RNG is used.
+Tests cover all 36 draw pairs, positions 0..3 and full-roster two-pass ordering.
+
+MinBoostChance's only code write is config parsing at `0x5036E5`, label
+`0x825CE0`. Its global `0x877494` is in the PE virtual zero-fill tail, unlike
+HeapAlloc's uninitialized club bytes. The existing shipped-tuning source
+contract is reused; custom tuning overrides are not invented. The loader
+zero-fill rule is specified in [Microsoft's PE section format](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#section-table-section-headers).
+
+The remaining capacity allocator is now followed through
+`668140 -> 669BE3 -> 669C0F`; `669CEE` pushes HeapAlloc flags **0**. It does
+not establish a zero-fill contract for the fresh club array. +13C/+140 stay
+unknown; native loaded/copy values are not fresh initialization evidence.
+Private continuation trace SHA-256:
+`02acfb6d930d26eae962e4eb424939ddf1e0057628caa5018435292d722d12f7`,
+`work/gate13-legacy-club-state-continuation-20261003.json`.
+
+Automatic controlled stadium setup is now attached to human club selection.
+It reuses the recovered DBRUser +6B0 constructor/map path `65CB20/65D5B0`
+and ticket bootstrap `6187E0` documented in EXECUTABLE_ANALYSIS. The immutable
+database loader reads the club's exact Master/English map path and original
+Lists/Buildings.dat; missing files stay unmaterialized, malformed inputs are
+not substituted. Existing owned stadium/ticket state is never regenerated.
+Save/reload rebinds source access from its database, not a saved host path;
+persisted section/pricing state remains authoritative. No save schema change.
+
+Gate 13 remains OPEN. Nested PMatchInfo rendering is the next independent
+minimum-closure task while the fresh legacy capacity boundary remains unknown.
+The ownership lock, Gate-14 files and main are not modified.
+
 3 October 2026; based exclusively on canonical main `6207dbe01de068083c20f7fe22a773adab35e010`.
 Executable SHA-256: `833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
 The authorized ZIP hash and physical MODE1/2352 sectors were reverified locally.

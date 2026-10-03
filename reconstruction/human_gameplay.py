@@ -424,6 +424,7 @@ class HumanGameplayController:
             # Lightweight synthetic databases may intentionally omit original
             # finance source fields.
             self.state.user_controlled_club_id = club_id
+        self.state.initialize_controlled_stadium_source(club_id)
         return self.human
 
     def initialize_fresh_youth(self, option_mode: int | None = None):

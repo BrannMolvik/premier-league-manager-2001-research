@@ -97,7 +97,10 @@ from complete_fixture_report import (
 from original_fixture_report_capture import NativeCapturedScalar
 from original_fixture_report_capture import NATIVE_CAPTURE_SCALAR_COPIES
 from ordinary_report_setup import NativeSetupPlayerPool, gate_report_scalar_copies, report_participant_metadata
-from native_club_report_state import ClubAttendanceCounter, ordinary_human_adjustment
+from native_club_report_state import (
+    ClubAttendanceCounter, ordinary_human_adjustment,
+    produce_human_opponent_condition,
+)
 from match_team_setup import pack_tactics_word, manager_tactics_packet_fields, team_tactics_packet_fields
 from stadium_state import StadiumSourceState, TicketRuntimeState
 from transfer_state import TransferRuntimeState
@@ -245,6 +248,7 @@ class GameState:
     # Master.dat club +165 -> DBRClub +0xD0/+0xD4 -> Balance +0x10.
     finance_balances: dict[int, BalanceRuntimeState] = field(default_factory=dict)
     stadium_sources: dict[int, StadiumSourceState] = field(default_factory=dict)
+    stadium_source_loader: Callable[[int], StadiumSourceState] | None = field(default=None, repr=False)
     ticket_states: dict[int, TicketRuntimeState] = field(default_factory=dict)
     # Gate-9/15 source/runtime inputs for the recovered weekly club acquisition
     # path. Startup roster counts are immutable initialization baselines;
@@ -454,6 +458,7 @@ class GameState:
         )
         state.report_language = report_language_from_database(database)
         state.native_setup_player_pool = NativeSetupPlayerPool.from_database(database)
+        state.configure_stadium_source_loader(database)
         if state.native_setup_player_pool is not None:
             state.native_club_attendance_counters = {
                 club_id: ClubAttendanceCounter.fresh() for club_id in state.clubs}
@@ -1109,6 +1114,33 @@ class GameState:
             return False
         for club_id in tuple(self.ai_transfer_buy_counter):
             self.ai_transfer_buy_counter[int(club_id)] = 0
+        return True
+
+    def configure_stadium_source_loader(self, database):
+        """Bind immutable original map access; never persist a host filesystem path."""
+        from pathlib import Path
+        source = getattr(database, 'stadium_source_state', None)
+        game_dir = getattr(database, 'game_dir', None)
+        if not callable(source) or game_dir is None:
+            self.stadium_source_loader = None
+            return
+        buildings = Path(game_dir) / 'Lists' / 'Buildings.dat'
+        self.stadium_source_loader = lambda club_id: source(club_id, buildings)
+
+    def initialize_controlled_stadium_source(self, club_id):
+        """Fresh DBRUser +6B0 -> 65D5B0 -> 6187E0 owned map/ticket setup."""
+        if club_id in self.stadium_sources or club_id in self.ticket_states:
+            # Save/reload owns both already; do not reallocate sections/prices.
+            return club_id in self.stadium_sources and club_id in self.ticket_states
+        if self.stadium_source_loader is None:
+            return False
+        try:
+            stadium = self.stadium_source_loader(club_id)
+        except FileNotFoundError:
+            return False  # No substitute map, capacity or context.
+        self.materialize_gate_source_state(club_id, stadium,
+            seating_reference=PREMIER_LEAGUE_SEATING_REFERENCE,
+            terrace_reference=PREMIER_LEAGUE_TERRACE_REFERENCE)
         return True
 
     def materialize_gate_source_state(
@@ -4232,11 +4264,22 @@ class GameState:
 
         self._retain_fixture_report_setup(fixture, competition, environment)
 
+        native_adjustment = None
+        def retain_human_opponent_condition(roster, condition_rng):
+            nonlocal native_adjustment
+            if self.user_controlled_club_id != human_club_id:
+                return
+            counter = self.native_club_attendance_counters.get(ai_club_id)
+            rank = self.native_premier_league_table_index(human_club_id)
+            native_adjustment = produce_human_opponent_condition(counter, rank,
+                roster, condition_rng if match_engine_rng is not None else None)
+
         ai_prepared = build_premier_league_ai_match_side(
             ai_preparation,
             ai_roster,
             side=1 if human_is_home else 0,
             rng=engine_rng,
+            after_condition_initializer=retain_human_opponent_condition,
             tactical_state=self.team_tactics.get(
                 ai_club_id,
                 TeamTacticalState(),
@@ -4287,11 +4330,7 @@ class GameState:
             condition_injury_settings=ConditionInjurySettings(
                 environment_byte=pitch_wear_before,
             ),
-            native_human_ai_condition_adjustment=(
-                self.source_qualified_human_ai_condition_adjustment(
-                    human_club_id
-                )
-            ),
+            native_human_ai_condition_adjustment=native_adjustment,
         )
         self.prepared_match_participant_statistics.pop(fixture_id, None)
         self.prepared_match_report_player_ids.pop(fixture_id, None)

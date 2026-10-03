@@ -1839,6 +1839,7 @@ def restore_game_state(database, snapshot: dict[str, Any]) -> GameState:
     # no report codec or already-completed inputs are recalculated.
     from ordinary_report_setup import NativeSetupPlayerPool
     state.native_setup_player_pool = NativeSetupPlayerPool.from_database(database)
+    state.configure_stadium_source_loader(database)
     validate_report_owner(state.captured_match_reports, state.fixture_match_info_links,
                           {} if league is None else league.fixtures)
     state.calendar.daily_hooks.append(state._run_daily_injury_returns)
