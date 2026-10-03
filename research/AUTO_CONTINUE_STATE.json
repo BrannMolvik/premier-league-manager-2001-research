@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 PR #265 merged green as main 5e21e388 after 1,866 tests / 23 expected skips. Continue private-source-backed recovery of the full fresh chairman-objective generator 0x5DFD30. Verified executable hash is canonical. Exact fresh branch logic, German 0x4FA520 special classification, 0x4FA590 last-subset comparison, and 0x4F88C0 status-count structure are recovered. Immediate task: derive the second 0x4F88C0 output (promotion-playoff count >0) from existing clean-room child competition/ClubRef materialization, then implement full source-backed fresh objective candidates for TeamSelect primary leagues.",
+  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 PR #266 is active at d77499aa and contains the source-backed full fresh 0x5DFD30 objective generator, exact hierarchy predicates, and fresh 0x4F88C0 promotion-playoff count from child ClubRefs. Asset policy is green; full reconstruction CI is running. If green, merge #266. Immediate next dependency is exact shared-CRT state at the later 0x5DF670 -> 0x5DFD30 objective setup boundary; do not remove the non-PL fail-closed guard until that boundary is connected.",
   "last_known_main_head": "5e21e3887a6f8e42b2fc156ffe6156477e862041",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 248,
-  "last_recovery_reason": "connection-interrupted-transient",
-  "note": "Recovery 248 checkpoint: PR #265 merged green as 5e21e388. Private canonical FOOTBAL.EXE source is available temporarily at /mnt/data/fm2001_source/FOOTBAL.EXE, verified SHA256 833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3. Never commit original bytes.",
+  "recovery_generation": 249,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 249 resumed from main 5e21e388. Private FOOTBAL.EXE is not mounted in this recovered session, but the prior worker persisted the complete structural recovery on worker/gate17-full-fresh-objective-generator and PR #266. Existing startup research proves shared CRT continues beyond primary scheduling; caller-state integration remains separate.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
