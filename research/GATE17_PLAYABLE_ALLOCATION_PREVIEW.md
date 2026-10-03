@@ -11,8 +11,10 @@ correctly across every playable country once all required endpoint rankings are
 available.
 
 This checkpoint first proved that composition without changing live GameState.
-Canonical annual regeneration now reuses that exact preview as its membership
-commit source before the existing atomic season installation.
+Gate-17 full-scope annual regeneration can now explicitly reuse that exact
+preview as its membership commit source before the existing atomic season
+installation. The established English-only default remains available while
+secondary ranking publishers are still incomplete.
 
 ## Contract
 
@@ -74,7 +76,7 @@ This checkpoint does not:
 - prove human control outside the current backend;
 - claim Gate 17 completion.
 
-The canonical annual-boundary sequence is now:
+The explicit Gate-17 full-scope annual-boundary sequence is now:
 
 1. derive the canonical playable-country allocation plan;
 2. resolve every required endpoint through live runtime ranking publishers;
