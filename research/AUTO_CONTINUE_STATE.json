@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 211: PR #190 canonical at main 0a8576cf1c72d7b8704fff665669d9eab516c8a9 after 1,592 tests / 23 expected skips and asset-policy success. Transplant only the complete PlayerRow snapshot/presentation-retention delta from child branch recovery211/gate14-playerrow-snapshot onto fresh canonical main. Verify/merge independently, then retain the required per-player FastView row state from the actual match/completion path rather than recomputing it after simulation. Preserve Gate-13 PR #183 and full-original-port scope.",
+  "active_task": "Recovery 211: PR #191 open from canonical main 0a8576cf1c72d7b8704fff665669d9eab516c8a9. Verify/merge the complete source-backed PlayerRow snapshot/presentation-retention seam. In parallel, source-trace the real match/completion path for the per-player row values needed to populate outcome.fastview_player_rows without recomputing simulation state. Preserve Gate-13 PR #183 and full-original-port scope. Gate 13 remains earliest incomplete.",
   "last_known_main_head": "0a8576cf1c72d7b8704fff665669d9eab516c8a9",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 211,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #190 merged. Next exact task is clean snapshot delta transplant and CI.",
+  "note": "PR #191 is the active checkpoint. Continue live per-player retention trace while CI runs.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
