@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 223: PR #212 head 2a7b915db1fef9e1b8ccac040f473dea0465deab adds checksum-gated candidate-only tracing for the exact remaining Gate-13 displacements +0x130, +0x13C, +0x140 and +0x76. Gate-13 focused run 37125513842 and asset-policy run 37125513740 passed; full reconstruction run 37125513766 is still in progress. Merge only if the exact head passes full CI. Then run the scanner privately against the canonical executable and manually adjudicate object provenance/read-write/control-flow before promoting any semantics. The execution container still returns ClientError, so no source field value may be guessed.",
-  "last_known_main_head": "370ad184b4b3f2e9ecf33e5331afac212e588d9e",
+  "active_task": "Recovery 223: PR #212 merged canonical as main 104738383273205c1697a035685e6b83f4fd1895 after Gate-13 run 37125513842 passed 548 tests/22 skips, full reconstruction run 37125513766 passed 1,697 tests/23 skips, and asset-policy run 37125513740 passed. Exact next Gate-13 action: run gate13_remaining_field_source_trace.py privately against canonical executable SHA-256 833bf95e... to collect candidate accesses for +0x130/+0x13C/+0x140/+0x76, then manually adjudicate object provenance/read-write/control flow before promoting semantics. If container still fails, record the infrastructure blocker and use only independent cloud-safe work-ahead; do not guess values.",
+  "last_known_main_head": "104738383273205c1697a035685e6b83f4fd1895",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 223,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 223 productive cloud-safe work complete pending full CI. Existing data model does not expose exact visiting-capacity or secondary-selector source fields. +0xE8 guard lifecycle also remains unproven; do not derive +0x130 from writer notes alone.",
+  "note": "Recovery 223 tooling merged verified. Runtime/data model remains fail-closed for unresolved visiting capacities, top-four +0x130 lifecycle and secondary selector.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
