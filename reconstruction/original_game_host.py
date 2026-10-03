@@ -6,11 +6,10 @@ native 800x600 coordinates using the recovered initial Button@ease frame and
 routes proven clicks through FrontEndSession. Successful TeamSelect Start enters
 the fixed PMenu management host.
 
-The surrounding application-owned management background remains unresolved,
-but the PMenu row assets, exact title/child fonts, line origins, clipping and
-static state colors/arrows are source-backed. The management host renders those
-known pixels and leaves only the unrecovered surrounding shell fail-closed
-rather than drawing the old generic ttk Play replacement or inventing a skin.
+The application-owned seasonal base and competition header are source-backed
+for the twenty original Premiership clubs. PMenu row assets, fonts and geometry
+are also recovered. Remaining shell controls and ordinary match-report context
+capture stay fail-closed; the host does not invent a replacement skin.
 """
 from __future__ import annotations
 
