@@ -14,6 +14,8 @@ on:
       - "reconstruction/competition_state.py"
       - "reconstruction/test_competition_state.py"
       - "reconstruction/game_state.py"
+      - "reconstruction/startup_rng.py"
+      - "reconstruction/test_startup_rng.py"
       - "reconstruction/human_gameplay.py"
       - "reconstruction/test_human_gameplay.py"
       - "reconstruction/internal_save.py"
