@@ -60,6 +60,39 @@ class ObjectiveCandidateRng(Protocol):
     def randbelow(self, bound: int) -> int: ...
 
 
+def fresh_financial_objective_requires_rng(
+    fan_base_rank_count: int,
+    league_team_count: int,
+    *,
+    first_hierarchy_class: bool,
+    promotion_playoff_position_count: int,
+) -> bool:
+    """Return whether fresh-state 0x5DFD30 must consume RNG(100).
+
+    For objective state +0x9C == 0, only two branch families are random:
+    - first hierarchy class with high-half fan-base rank (slot 1: 2/15);
+    - any non-first class with one or more promotion-playoff status-2
+      positions (slot 1 or 2: 5/8).
+
+    All other fresh branches are fully deterministic and may be materialized
+    without knowing the caller's shared CRT state.
+    """
+    rank_count = int(fan_base_rank_count)
+    team_count = int(league_team_count)
+    playoff_count = int(promotion_playoff_position_count)
+    if team_count <= 0:
+        raise ValueError("league_team_count must be positive")
+    if not 0 <= rank_count <= team_count:
+        raise ValueError("fan_base_rank_count must be in 0..league_team_count")
+    if playoff_count < 0:
+        raise ValueError("promotion_playoff_position_count must be non-negative")
+
+    high_rank = rank_count >= team_count // 2
+    if bool(first_hierarchy_class):
+        return high_rank
+    return playoff_count > 0
+
+
 def fresh_financial_objective_candidates(
     fan_base_rank_count: int,
     league_team_count: int,
