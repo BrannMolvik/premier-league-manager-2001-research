@@ -148,6 +148,11 @@ class HumanFastViewFramePlanTests(unittest.TestCase):
             frame.semantic_shell.player_row_render_plans,
         )
         self.assertEqual(frame.surface_layout.size, (800, 600))
+        self.assertEqual(frame.resolved_composite.size, (800, 600))
+        self.assertGreater(frame.resolved_composite.resolved_pixel_count, 0)
+        self.assertFalse(frame.resolved_composite.cross_component_z_order_recovered)
+        self.assertFalse(frame.resolved_composite.flattened_frame_available)
+        self.assertFalse(frame.resolved_composite.complete_fastview_frame)
         self.assertIsNotNone(frame.component_rasters.team_table)
         self.assertEqual(
             frame.component_rasters.team_table.component,
