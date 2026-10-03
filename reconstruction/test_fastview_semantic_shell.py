@@ -72,11 +72,29 @@ class FastViewSemanticShellTests(unittest.TestCase):
         figures = shell.possession_figures[0]
 
         self.assertEqual(figures.calculation_minute, 10)
+        self.assertEqual(figures.source_global_tick, 10)
+        self.assertEqual(figures.source_possession_array_index, 2)
         self.assertEqual(figures.side0_percent_text, "45%")
         self.assertEqual(figures.neutral_percent_text, "20%")
         self.assertEqual(figures.side1_percent_text, "35%")
         self.assertEqual(figures.territory_raw, 55)
         self.assertIs(figures.record, possession)
+
+    def test_non_five_minute_possession_segment_fails_source_bridge_closed(self):
+        possession = PossessionRecord(
+            territory=55,
+            side0_percent=45,
+            neutral_percent=20,
+        )
+        result = NormalMatchResult(
+            events=(),
+            possession_segments=(SegmentPossession(7, possession),),
+        )
+        presentation = build_human_match_presentation(
+            SimpleNamespace(fixture_id=23, user_result=result)
+        )
+        with self.assertRaisesRegex(ValueError, "divisible by five"):
+            build_fastview_semantic_shell(presentation)
 
     def test_shell_declares_only_persisted_component_and_fidelity_boundaries(self):
         presentation, *_ = self._presentation()
@@ -85,7 +103,7 @@ class FastViewSemanticShellTests(unittest.TestCase):
 
         self.assertEqual(
             shell.source_backed_components,
-            ("FastViewPanel", "ScoreComposite", "PossessionFigures"),
+            ("FastViewPanel", "ScoreComposite", "PossessionFigures", "PossessionDiagram"),
         )
         self.assertEqual(shell.source_backed_components, SOURCE_BACKED_COMPONENTS)
         self.assertFalse(shell.original_layout_recovered)

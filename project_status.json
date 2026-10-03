@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "136dd19",
-  "last_verified_reconstruction_ci_head": "e4b873d87596daa6a6607e9c6ed6502fb71300d3",
-  "last_verified_test_count": 1379,
+  "last_verified_reconstruction_ci_head": "78e305ca0e0fc7e5c22ed91649c2d9c5b163162f",
+  "last_verified_test_count": 1492,
   "asset_policy_validated_head": "76a32b36e7dc3261db17072a01b2c9382615dd91",
   "asset_policy_status": "passed",
-  "active_task": "Recovery 195: Gate 13 remains earliest incomplete pending the external schema-8 Windows 11/Tk receipt. Active cloud-safe branch recovery194/gate14-fastview-source-closure source-closes all seven bounded FastView resource paths and the PossessionDiagram geometry/private-RNG one-call transition primitive. Focused local verification passes 12 tests. Next: verify full reconstruction + asset policy, merge only if green, then intentionally import the four source-closed PossessionDiagram assets and continue PossessionFigures placement without inventing cadence or side orientation.",
+  "active_task": "Recovery 199 Gate-14 work-ahead: verify the ClockControl/source-array bridge and exact decoded PossessionDiagram art seam, then trace FastViewPanel background ownership and PossessionFigures typography while Gate 13 waits on the external schema-8 Windows receipt.",
   "last_local_focused_test_count": 453,
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
@@ -1790,7 +1790,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "unrecovered_fail_closed",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "After parent PR #166 is canonical, verify/merge the stacked GlobalTick timing checkpoint. Then integrate the smallest source-backed player-visible FastView possession slice using staged original diagram art, exact text geometry, receiver lifecycle, and source timing while preserving unresolved human-side orientation and broader score/team/audio/3D presentation.",
+  "gate14_exact_next_task": "Verify Recovery 199 ClockControl/source-array bridge and exact decoded possession-art seam through CI; then source-trace direct FastViewPanel ownership/draw of the 800x600 background and PossessionFigures typography/color without inventing missing pixels or user-side orientation.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -1836,7 +1836,7 @@
     "field_98_nonnull": true,
     "field_a0_nonnull": true
   },
-  "gate14_global_tick_wall_clock_duration": "unresolved_fail_closed",
+  "gate14_global_tick_wall_clock_duration": "source_thresholds_exact_observed_interval_may_be_longer",
   "gate14_global_tick_timing_source_exact": true,
   "gate14_global_tick_dispatch_va": "0x518790",
   "gate14_global_tick_counter_offset": "0x78",
@@ -1859,5 +1859,44 @@
     1250
   ],
   "gate14_fastview_tick_catchup_behavior": "none_one_controller_step_per_due_host_update",
-  "gate14_fastview_observed_interval_exact": false
+  "gate14_fastview_observed_interval_exact": false,
+  "gate14_event_possession_cadence_merge": "6277e385cff41216f6842bce4b49daea41e366e6",
+  "gate14_event_possession_cadence_reconstruction_run": 37083068477,
+  "gate14_event_possession_cadence_test_count": 1489,
+  "gate14_event_possession_cadence_expected_skips": 22,
+  "gate14_event_possession_cadence_asset_policy_run": 37083068484,
+  "gate14_global_tick_timing_merge": "78e305ca0e0fc7e5c22ed91649c2d9c5b163162f",
+  "gate14_global_tick_timing_reconstruction_run": 37083625545,
+  "gate14_global_tick_timing_test_count": 1492,
+  "gate14_global_tick_timing_expected_skips": 22,
+  "gate14_global_tick_timing_asset_policy_run": 37083625478,
+  "gate14_clock_control_receiver_va": "0x51EDB0",
+  "gate14_clock_control_render_va": "0x51EDD0",
+  "gate14_clock_control_format": "%u %s",
+  "gate14_clock_control_rect": [
+    439,
+    44,
+    621,
+    64
+  ],
+  "gate14_clock_control_half_switch_values": [
+    46,
+    91
+  ],
+  "gate14_possession_array_lookup_va": "0x631240",
+  "gate14_semantic_possession_source_tick_bridge": true,
+  "gate14_fastview_possession_art_decoder": "reconstruction/original_fastview_possession_art.py",
+  "gate14_fastview_possession_exact_pixel_seam": true,
+  "gate14_fastview_complete_frame_available": false,
+  "gate14_fastview_background_candidate": {
+    "path": "FM2001_Art/FastView/background.444",
+    "bytes": 205984,
+    "dimensions": [
+      800,
+      600
+    ],
+    "sha256": "499e930fe0a328d969096b8d2cdb8c817169f02812adcc78acf111dc666d95c0",
+    "path_literal_va": "0x8294E8",
+    "direct_draw_ownership": "unresolved_fail_closed"
+  }
 }

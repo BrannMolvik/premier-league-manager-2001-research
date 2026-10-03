@@ -253,6 +253,44 @@ is:
 These are source scheduling thresholds, not guaranteed observed intervals under
 a delayed host loop.
 
+## Recovery 199: ClockControl bridge and exact decoded possession art
+
+Fresh bounded executable tracing ties the same `EventGlobalTick` payload used
+by MatchIterator to the visible FastView clock. `ClockControl` constructor
+`0x51EB90` creates its text control at **(439,44)-(621,64)**. Receiver
+`0x51EDB0` reads the event's first dword and render helper `0x51EDD0`
+passes that same unsigned value to source format `%u %s` at `0x8292F4`.
+The source branches change around values **46** and **91**, matching the
+already recovered regulation-half clock boundary structure.
+
+Independently, MatchIterator divides the same GlobalTick value by **5** before
+passing the quotient to source statistics lookup `0x631240`. That lookup
+indexes the MatchCalculator segment arrays `+0x100C/+0x106C/+0x10CC`.
+`reconstruction/gate14_fastview_clock.py` records only these exact numeric
+relationships and does not assign an unverified localized suffix to the clock.
+
+The completed-match semantic shell now preserves each reconstructed
+five-minute possession segment's `calculation_minute` as the source
+GlobalTick value and records the exact `GlobalTick // 5` source-array index.
+A non-five-minute possession segment fails this bridge closed instead of being
+silently rescheduled.
+
+`reconstruction/original_fastview_possession_art.py` adds an exact pixel-output
+seam for the bounded possession component. It checksum-validates the four
+already staged original EA444 resources, decodes them using tables and
+quantization from the original executable, and returns only the exact
+base-pitch plus active-overlay placements. It explicitly reports that a complete
+FastView frame is unavailable because surrounding background ownership,
+PossessionFigures typography, and human-side orientation are not all recovered.
+
+The authorized disc also contains
+`FM2001_Art/FastView/background.444`: **205,984 bytes**, **800x600**,
+SHA-256
+`499e930fe0a328d969096b8d2cdb8c817169f02812adcc78acf111dc666d95c0`,
+with path literal at `0x8294E8`. This is a high-value shell lead, not a live
+asset claim: the direct draw/binding from FastViewPanel to this bitmap is not
+yet source-closed, so the renderer does not use it.
+
 ## Remaining boundary
 
 Still open before claiming the bounded diagram is player-visible original
@@ -264,9 +302,10 @@ FastView behavior:
 3. keep the three 82×16 `team_bar_1` / `blank_bar` / `team_bar_2` assets under
    the separately proven `FastViewTeam` / `TeamTable` ownership. They must not
    be wired into `PossessionFigures`; percentage text placement is already exact;
-4. connect the source-bounded diagram/text geometry to a player-visible
-   FastView surface only after its missing lifecycle/orientation boundaries are
-   resolved or explicitly fail-closed;
+4. continue from the exact decoded possession-art seam to a player-visible
+   FastView surface only after the surrounding shell/background ownership and
+   remaining event-order/orientation boundaries are source-closed or explicitly
+   fail-closed;
 5. recover audio/commentary and broader FastView/SCI choreography separately.
 
 No unresolved timing or orientation is described as original behavior by this
