@@ -682,8 +682,10 @@ def _materialize_closed_fastview_condition_histories(
     and fill samples after +0xFF8 from the calculator-final PreparedMatchPlayer
     Condition, matching 0x630D12..0x630D3D.
     """
-    if bool(side0.attack_context.user_controlled) or bool(
-        side1.attack_context.user_controlled
+    if any(
+        bool(side.attack_context.user_controlled)
+        or bool(side.defence_context.user_controlled)
+        for side in (side0, side1)
     ):
         return ()
     if not result.raw_condition_history_prefixes:
