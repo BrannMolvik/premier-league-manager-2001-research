@@ -10841,3 +10841,14 @@ work may continue under the deferred-blocker policy.
 - The scanner intentionally does not classify candidate hits as real DBRClub/participant accesses, reads/writes, lifecycle owners, capacities, or shirt selectors. Manual canonical CFG/data-flow adjudication remains required.
 - Added synthetic Capstone coverage for all four displacements and fail-closed argument validation; wired the new test into Gate-13 focused CI and the full reconstruction PR path.
 - Exact next step after CI: run the scanner privately on the canonical executable when container execution recovers, manually adjudicate candidate object provenance, then source-close one field at a time. No 10% capacity rule, secondary-selector value, or `+0x130` state is inferred.
+
+## 4 October 2026 - Recovery 246 Gate-17 full-scope work-ahead
+
+- Recovered from stale runtime metadata and reconciled canonical main to the already-merged playable-country LeagueAllocation preview.
+- Audited and merged PR #251 as `459386f4118b5698b4f5827115911e8e9f7fc49b`: the read-only runtime progression audit resolves every required playable-country ranking endpoint exactly once, proves ranking resolution and allocation preview leave runtime memberships unchanged, and fails closed when live ranking inputs are unavailable.
+- Rebased the prepared full-scope preflight onto fresh canonical main instead of replaying stale dependent commits. PR #252 merged as `c1b3f91f14e22bcf4291999c373b52aa33e2119b`; hosted reconstruction run `37150925158` passed **1,844 tests / 23 expected skips**, and asset-policy run `37150925188` passed.
+- PR #253 merged as `d47a999b2383696da7caa3fcacf6a2c52331bdf8` after reconstruction run `37151072990` and asset-policy run `37151072933` passed. It maps every source-backed TeamSelect League to its recovered fixed-primary, procedural-primary, or procedural-secondary runtime ownership without materializing fixtures or mutating GameState.
+- PR #254 merged as `ee594987c6dc6b037c2a13dc4d088548731811ed` after reconstruction run `37151146639` and asset-policy run `37151146634` passed. Final full-scope Windows evidence now fails closed unless it proves the source-backed six-simultaneous-human-manager TeamSelect capacity.
+- Gate 13 remains the earliest incomplete validation gate and remains Codex-owned. These Gate-17 changes are bounded cloud-safe work-ahead only; they do not widen the current human controller or bypass missing native presentation evidence.
+- Next independent cloud-safe step: compare the new playable-League runtime ownership plan with the actual canonical controller/runtime surfaces and report exact full-scope implementation blockers without mutating shared runtime.
+
