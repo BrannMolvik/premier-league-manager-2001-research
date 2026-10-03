@@ -5,12 +5,71 @@
 LeagueMatch+0x40 into the source report list, not into a score/result table.
 Only source-captured reports may be supplied to this read-only boundary.
 """
+from dataclasses import dataclass
+
 GRID_RECT = (378, 235, 348, 336)
 CELL_STEP = (29, 14)
 GRID_CONTROL_ID = 0x59
 REPORT_APPEND_VA = 0x60BF10
 REPORT_CAPTURE_VA = 0x60BE50
 REPORT_ALLOCATION_SIZE = 0xF4
+REPORT_OWNER_CALLBACK_VA = 0x46E620
+REPORT_CONTROL_INPUT_VA = 0x64F960
+REPORT_CONTROL_INPUT_SLOT = 0x78
+REPORT_LIST_LOAD_VA = 0x60BF90
+REPORT_LIST_SAVE_VA = 0x60C020
+
+
+@dataclass(frozen=True)
+class SourceFixtureMatchInfoContext:
+    fixture_id: int
+    link_word: int
+    captured_report: object
+
+
+def source_report_capture_eligible(
+    home_participant_count: int,
+    away_participant_count: int,
+    *,
+    skip_match_calculation: bool,
+) -> bool:
+    """0x51145B..70 and 0x60BE50's 0x516080 rejection, not a result gate.
+
+    This proves eligibility only. It does NOT create a report or claim that
+    NormalMatchResult contains all the fields copied by the native helpers.
+    The two calculator fields +0x5A4/+0xB54 are counts, not pointers.
+    """
+    for count in (home_participant_count, away_participant_count):
+        if type(count) is not int or not 0 <= count <= 0xFFFFFFFF:
+            raise ValueError('Native participant count must be an unsigned dword')
+    if type(skip_match_calculation) is not bool:
+        raise ValueError('Native developer switch must be boolean')
+    return bool(home_participant_count and away_participant_count
+                and not skip_match_calculation)
+
+
+def source_fixture_report_control_accepts(source_flags: int) -> bool:
+    """Native vtable +0x78 pre-owner gate: enabled, not already right-pressed.
+
+    Coordinate routing and the owner's +0x1C pre-acceptance callback must have
+    succeeded separately. Do not substitute the left-press method 0x64F7A0.
+    """
+    if type(source_flags) is not int or not 0 <= source_flags <= 0xFFFFFFFF:
+        raise ValueError('Source control flags must be an unsigned dword')
+    return bool(source_flags & 2 and not source_flags & 0x20)
+
+
+def source_fixture_report_hover_accepts(fixture_status: int | None) -> bool:
+    """0x46D400 requires a non-null matrix fixture and native +0x44 bit zero.
+
+    This is the independent native hover gate; it does not establish a report
+    link. In particular, completion alone must never construct a context.
+    """
+    if fixture_status is None:
+        return False
+    if type(fixture_status) is not int or not 0 <= fixture_status <= 0xFFFFFFFF:
+        raise ValueError('Native fixture status must be an unsigned dword')
+    return bool(fixture_status & 1)
 
 
 def fixture_cell_at_screen_point(x: int, y: int):

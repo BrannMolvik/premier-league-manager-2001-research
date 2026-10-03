@@ -18,6 +18,10 @@ from dataclasses import dataclass
 from typing import Callable, Iterable
 
 from front_end_session import FrontEndSession
+from original_fixture_match_info_link import (
+    fixture_cell_at_screen_point, source_fixture_report_control_accepts,
+    SourceFixtureMatchInfoContext,
+)
 from gate13_management_source_data import (
     ClubHeaderView,
     FixtureRowView,
@@ -358,3 +362,35 @@ class OriginalManagementPresenter:
             fixture_present=fixture_present,
             linked_context_available=linked_context_available,
         )
+
+    def fixture_report_at_screen_point(self, x: int, y: int):
+        """Native right-press read-only route; no result-derived context."""
+        if self.selected_child_id != LEAGUE_FIXTURES_PANEL.menu_id:
+            return None
+        # Fresh enabled visible grid, with no already-held right-press/modal.
+        if not source_fixture_report_control_accepts(0x183):
+            return None
+        point = fixture_cell_at_screen_point(x, y)
+        if point is None:
+            return None
+        snapshot = self.snapshot().league_fixtures
+        if snapshot is None:
+            return None
+        column, row = point
+        cells = [cell for cell in snapshot.cells
+                 if cell.column == column and cell.row == row]
+        if len(cells) != 1 or cells[0].fixture_id is None:
+            return None
+        bridge = self.bridge_factory(self.session.gameplay)
+        resolver = getattr(bridge, 'fixture_match_info_context', None)
+        if not callable(resolver):
+            return None
+        context = resolver(cells[0].fixture_id)
+        if context is None:
+            return None
+        if not isinstance(context, SourceFixtureMatchInfoContext) or (
+            context.fixture_id != cells[0].fixture_id
+            or context.captured_report is None
+        ):
+            raise OriginalManagementPresentationError('Native report context identity mismatch')
+        return context

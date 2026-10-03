@@ -15,6 +15,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
+from original_fixture_match_info_link import (
+    SourceFixtureMatchInfoContext, resolve_source_match_info_link,
+)
 
 
 class ManagementPresentationError(ValueError):
@@ -1829,6 +1832,32 @@ class ManagementSourceDataBridge:
                 away_goals=(None if result is None else int(result.away_goals)),
             ))
         return tuple(rows)
+
+    def fixture_match_info_context(self, fixture_id: int):
+        """Resolve only an explicit native capture-owner/link projection.
+
+        GameState does not yet produce a complete native captured report. Its
+        absence is a no-op, not permission to look in results/incidents. Future
+        capture integration must supply the ordered owner and match +0x40 words
+        together and persist them together. Scalar-copy fragments are not that
+        owner. This bridge never creates, appends or repairs a report.
+        """
+        if type(fixture_id) is not int or fixture_id < 0:
+            raise ManagementPresentationError('Fixture identity must be an integer')
+        reports = getattr(self.state, 'captured_match_reports', None)
+        links = getattr(self.state, 'fixture_match_info_links', None)
+        if reports is None and links is None:
+            return None
+        if type(reports) is not tuple or type(links) is not dict:
+            raise ManagementPresentationError('Incomplete native captured-report owner')
+        word = links.get(fixture_id, 0xFFFF)
+        try:
+            report = resolve_source_match_info_link(word, reports)
+        except ValueError as exc:
+            raise ManagementPresentationError(str(exc)) from exc
+        if report is None:
+            return None
+        return SourceFixtureMatchInfoContext(fixture_id, word, report)
 
     def league_fixtures_grid_source(self) -> LeagueFixturesGridSourceView:
         """Return the exact current Premier League member/matrix source contract.

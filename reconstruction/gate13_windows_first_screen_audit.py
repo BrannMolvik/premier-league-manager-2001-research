@@ -1015,6 +1015,21 @@ def run_real_windows_graphical_audit(
                 pmenu_resources,
             )
 
+            # Native WM_RBUTTONDOWN (0x204) is proven; capture production is NOT.
+            # Exercise the binding on a real matrix fixture and insist on no
+            # fabricated modal before the separately labelled explicit seam.
+            fixture_cell = next(cell for cell in
+                                clean_host.management_presenter.snapshot().league_fixtures.cells
+                                if cell.fixture_id is not None)
+            clean_host.canvas.event_generate(
+                "<Button-3>", x=378 + fixture_cell.column * 29,
+                y=235 + fixture_cell.row * 14)
+            _pump(root)
+            if clean_host.active_pmatchinfo_art is not None or (
+                clean_host.last_status != 'Native fixture report unavailable; no score-derived context'
+            ):
+                raise WindowsFirstScreenAuditError('Uncaptured native right-press fabricated a report')
+
             match_info_action = clean_host.apply_source_accepted_fixture_match_info(
                 fixture_present=True,
                 linked_context_available=True,
@@ -1110,6 +1125,8 @@ def run_real_windows_graphical_audit(
                 "source_backed_fixtures_photo_dimensions": fixture_photo_dimensions,
                 "pmatchinfo_source_accepted_action_verified": True,
                 "pmatchinfo_normal_fixture_cell_opening_verified": False,
+                "pmatchinfo_native_right_press_binding_verified": True,
+                "pmatchinfo_uncaptured_fixture_noop_verified": True,
                 "pmatchinfo_secondary_context_reconstructed": False,
                 "pmatchinfo_owner_local_child_controls_verified": False,
                 "pmatchinfo_popup_origin": [20, 50],

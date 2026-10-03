@@ -142,6 +142,7 @@ class OriginalGameTkHost:
         self.last_pmenu_activation = None
         self.last_squad_view_activation = None
         self.last_pmatchinfo_action = None
+        self.active_pmatchinfo_context = None
         self.active_pmatchinfo_art = None
         self._photos = []
         self.last_status = "Source-backed FM2001 host ready"
@@ -156,6 +157,7 @@ class OriginalGameTkHost:
             borderwidth=0,
         )
         self.canvas.pack()
+        self.canvas.bind("<Button-3>", self.on_fixture_report_press)
         self.canvas.bind("<Button-1>", self.on_click)
         self.redraw()
 
@@ -514,6 +516,7 @@ class OriginalGameTkHost:
         if action is None:
             self.last_pmatchinfo_action = None
             self.active_pmatchinfo_art = None
+            self.active_pmatchinfo_context = None
             self.last_status = "PMatchInfo source action rejected by recovered fixture gates"
             return None
 
@@ -528,6 +531,7 @@ class OriginalGameTkHost:
             pointer_y=pointer_y,
         )
         self.last_pmatchinfo_action = action
+        self.active_pmatchinfo_context = None
         self.active_pmatchinfo_art = art
         self.redraw()
         self.last_status = (
@@ -541,9 +545,38 @@ class OriginalGameTkHost:
         if self.active_pmatchinfo_art is None:
             raise OriginalGameHostError("No active PMatchInfo dialog to close")
         self.active_pmatchinfo_art = None
+        self.active_pmatchinfo_context = None
         self.last_pmatchinfo_action = None
         self.redraw()
         self.last_status = "Closed source-accepted PMatchInfo popup"
+
+    def on_fixture_report_press(self, event) -> None:
+        """WM_RBUTTONDOWN equivalent, proven at 0x531CF0..FA / 0x653600.
+
+        Opening requires the native captured-report owner, not completion or a
+        score. Current backend capture production remains incomplete, so an
+        ordinary uncaptured fixture is still a source-compatible no-op.
+        """
+        if (self.presenter.session.navigation.screen is not FrontEndScreen.MANAGEMENT
+                or self.active_pmatchinfo_art is not None):
+            return
+        if self.management_presenter is None:
+            self.management_presenter = self.management_presenter_factory(self.presenter.session)
+        try:
+            context = self.management_presenter.fixture_report_at_screen_point(
+                int(event.x), int(event.y))
+        except Exception as exc:
+            self.last_status = f'{type(exc).__name__}: {exc}'
+            self.error_reporter(self.last_status)
+            return
+        if context is None:
+            self.last_status = 'Native fixture report unavailable; no score-derived context'
+            return
+        action = self.apply_source_accepted_fixture_match_info(
+            fixture_present=True, linked_context_available=True,
+            pointer_x=int(event.x), pointer_y=int(event.y))
+        if action is not None:
+            self.active_pmatchinfo_context = context
 
     def on_click(self, event) -> None:
         if self.presenter.session.navigation.screen is FrontEndScreen.MANAGEMENT:
