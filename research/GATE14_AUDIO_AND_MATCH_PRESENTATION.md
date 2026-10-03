@@ -1,6 +1,6 @@
 # Gate 14 Audio and Match Presentation
 
-_Last reconciled: 3 October 2026 KST, Recovery 194_
+_Last reconciled: 3 October 2026 KST, Recovery 199_
 
 ## Scope
 
@@ -67,10 +67,11 @@ recovered FastView sender name where one exists. Unmapped events retain
 the exact three percentage strings and preserves the territorial value only as
 raw data.
 
-This is not yet the original visual FastView screen. Exact panel geometry,
-side-0 screen orientation, commentary, audio mapping, territorial
-left/middle/right thresholds and 3D choreography remain explicitly unrecovered
-and are not synthesized by this layer.
+This is not yet the complete original visual FastView screen. The bounded
+PossessionDiagram geometry/receiver timing is now source-closed, but the
+surrounding FastView shell pixels, human-side orientation, PossessionFigures
+typography, commentary/audio mapping and 3D choreography remain incomplete and
+are not synthesized by this layer.
 
 Recovery 194 rematerialized the authorized source, reproduced the full
 2,456-file / 211-folder Joliet inventory, and revalidated the canonical
@@ -99,8 +100,10 @@ the FastView owner at `0x5206CD`, places the normal 294×78 pitch at
 `(253,139)-(547,217)`. State 1 is initially active; left/middle/right
 overlays use exact x offsets `[0,98,169]`. Update `0x522BB0` uses a private
 MSVC-style presentation RNG and the EventPossession territory byte to choose
-the next state. The original callback cadence and side-0/user orientation are
-still intentionally unrecovered. See
+the next state. Recovery 198 subsequently source-closed its typed receiver
+lifecycle, every-fifth-GlobalTick EventPossession cadence and FastView
+GetTickCount throttle; side-0/user orientation remains intentionally
+unrecovered. See
 `research/GATE14_FASTVIEW_POSSESSION_SOURCE_TRACE.md` and
 `reconstruction/gate14_possession_diagram.py`.
 
@@ -139,8 +142,8 @@ The FastView owner registers `PossessionDiagram` for EventPossession,
 EventGoal, and EventGlobalPenalties. Goal source field `+0x0C` values 0/1
 snap to diagram states 2/0. Global penalties latches object byte `+0x20`;
 subsequent possession callbacks force state 1 without consuming presentation
-RNG. The exact MatchController EventPossession emission cadence is still
-unrecovered, so no runtime scheduler frequency is inferred.
+RNG. MatchIterator now source-closes the EventPossession opportunity to every
+fifth EventGlobalTick under its three exact source gates.
 
 The source timing layer is also now bounded. FastView uses
 Win32 GetTickCount with speed thresholds 1000/500/250 ms, defaults to the
@@ -149,6 +152,25 @@ MatchController at most once; no catch-up loop is present. Together with the
 every-fifth-GlobalTick possession sender gate, nominal minimum possession
 thresholds are 5.0 s / 2.5 s / 1.25 s. Host-loop delay may lengthen them, so
 they are not treated as guaranteed observed intervals.
+
+Recovery 199 source-closes the clock/index bridge used by the bounded
+presentation seam. ClockControl receiver `0x51EDB0` renders the same
+EventGlobalTick first dword through `%u %s`; MatchIterator divides that value
+by five before source lookup `0x631240`. The semantic shell therefore records
+each reconstructed five-minute possession segment as the same source GlobalTick
+value plus its exact `tick // 5` array index and rejects non-five-minute
+segments.
+
+The same checkpoint adds
+`reconstruction/original_fastview_possession_art.py`, which decodes the four
+already-staged PossessionDiagram EA444 files with the original executable's
+codec tables and emits only the source-proven base-pitch/active-overlay pixel
+placements. It does not fill the surrounding 800x600 surface or render
+PossessionFigures text. The disc's 800x600
+`FM2001_Art/FastView/background.444` is rehashed to
+`499e930fe0a328d969096b8d2cdb8c817169f02812adcc78acf111dc666d95c0`
+(205,984 bytes), but direct FastViewPanel draw ownership remains unproven, so
+that bitmap is not integrated yet.
 
 ## 3D / FastView resource evidence
 
@@ -200,16 +222,10 @@ bank/sample resource before integration.
 
 ## Exact next cloud-safe task
 
-Verify the Recovery-194 exact-path resolver and PossessionDiagram primitive
-through full CI. The four diagram paths, source identities and bounded pixel
-geometry are now source-closed, so after that checkpoint deliberately stage
-only those exact authorized assets under `original_assets/` using the existing
-asset-policy import path, then connect the diagram to a player-visible
-presentation surface **without** inventing update cadence or side orientation.
-
-Continue the smallest source-backed player-visible FastView slice: keep
-PossessionFigures percentage text and PossessionDiagram geometry separate from
-the now-corrected FastViewTeam bar family, then recover the original
-PossessionDiagram callback cadence or a source-backed presentation-host lifecycle
-without inventing human-side orientation. Gate 13 remains the
-earliest incomplete validation gate and Gate 14 remains work-ahead, not passed.
+Verify the Recovery-199 ClockControl/decoded-possession-art checkpoint through
+full CI. After it is canonical, trace the FastViewPanel ownership/draw path for
+the 800x600 `background.444` and the source typography/color used by
+PossessionFigures. Continue toward a player-visible bounded FastView surface
+without filling unknown pixels or assigning side 0/1 to the human user.
+Gate 13 remains the earliest incomplete validation gate and Gate 14 remains
+work-ahead, not passed.
