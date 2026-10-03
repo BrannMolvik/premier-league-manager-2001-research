@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with its private/local source work blocked. Canonical main is 1fe29c8434bf52e5bc0598728e479608ac21e523 after PR #256 merged the Gate-17 runtime-owner capability audit. Continue the recorded cloud-safe next step: integrate that audit into the Gate-17 full-scope preflight so human selection/runtime-owner/human dispatch/annual-progression blockers are part of the unified readiness result. Preserve Gate-13 ownership and do not declare later gates complete.",
-  "last_known_main_head": "1fe29c8434bf52e5bc0598728e479608ac21e523",
+  "active_task": "Gate 13 remains OPEN with private/local source work blocked. Gate-17 work-ahead preflight integration merged as main ab2a97d4. Next cloud-safe task: add source-backed human dispatch for already-materialized primary procedural LeagueMatch entries using the existing generic live League runtime and shared human-match backend; verify without widening club selection, adding secondary runtime ownership, or changing annual progression scope.",
+  "last_known_main_head": "ab2a97d4e14c7093514c42deb6e0d5b428f13acc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 247,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 247 started from canonical main 1fe29c84. PR #256 is merged. Next exact task is runtime-owner capability integration into the Gate-17 full-scope preflight, with focused tests/docs and normal checkpointing.",
+  "note": "Recovery 247: PR #257 merged green as ab2a97d4 after reconstruction suite and asset-policy success. Continuing bounded procedural-primary human match dispatch work-ahead; Gate 13 remains earliest incomplete validation gate.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
