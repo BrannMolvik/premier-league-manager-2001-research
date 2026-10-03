@@ -198,6 +198,18 @@ otherwise unconsumed static string; FastViewPanel's 800x600 base constructor
 takes no bitmap path. The authenticated file remains a source lead but is not
 rendered as the live panel background.
 
+Recovery 203 adds the first directly owned full-width FastView chrome
+outside the possession core. Live FastView path-setup sites `0x51FD63` / `0x51FDF0` and control calls `0x51FDA3` / `0x51FE31` pass `top_bar.444` and `ticker.444` directly to image-control
+constructor `0x527730`. Their exact source geometry and screen placement are:
+
+- `top_bar.444`: 800x95 at (0,0)-(800,95), 19,268 bytes, SHA-256
+  `f7410cf85900846ee1b276fa309bca4e560580286d5641092f2f98d20afa379a`;
+- `ticker.444`: 800x33 at (0,557)-(800,590), 6,352 bytes, SHA-256
+  `b0fe2d8266ae157b7821e8c1de310e89bbc37ae859f666e64f59731c78e68257`.
+
+Both originals are now staged byte-identically with provenance and exposed
+through a decoded-pixel seam. The unknown middle surface remains unfilled.
+
 ## 3D / FastView resource evidence
 
 Persisted disc/binary research records:
@@ -248,8 +260,8 @@ bank/sample resource before integration.
 
 ## Exact next cloud-safe task
 
-Verify Recovery 202 through full CI, then continue the next source-backed
-FastView shell/chrome component. Do not use the rejected loose-background
-inference, and do not mirror the whole scene around the human user merely from
-the now-proven home/right and away/left PossessionFigures mapping. Gate 13
+Verify Recovery 203 through full CI. Once canonical, continue from the direct-
+ownership standard used here: source-trace the next live FastView shell/chrome
+resource or a directly owned audio bank/sample. Do not infer ownership from
+filenames alone, and do not fill unrecovered middle-screen pixels. Gate 13
 remains earliest incomplete pending its external schema-8 Windows receipt.

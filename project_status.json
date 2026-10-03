@@ -10,11 +10,11 @@
   "gate_3_status": "complete",
   "gate_4_status": "complete",
   "latest_reverse_engineering_checkpoint": "136dd19",
-  "last_verified_reconstruction_ci_head": "c75ce5b07dc9d8c7467ed8dc4826854443ffd4a2",
-  "last_verified_test_count": 1504,
+  "last_verified_reconstruction_ci_head": "608e4f9168939c08ddffd90f5d6fb112b5d2724e",
+  "last_verified_test_count": 1509,
   "asset_policy_validated_head": "76a32b36e7dc3261db17072a01b2c9382615dd91",
   "asset_policy_status": "passed",
-  "active_task": "Recovery 202 Gate-14 work-ahead: verify side0/home/right and side1/away/left orientation plus the fail-closed unbound FastView background-string result, then continue the next source-backed FastView shell/chrome slice while Gate 13 waits on external schema-8 Windows.",
+  "active_task": "Recovery 203 Gate-14 work-ahead: verify the exact direct-owned FastView top_bar/ticker assets and decoded pixel seam through CI, then continue the next live FastView shell/chrome owner or source-bound audio path without filling unrecovered middle pixels. Gate 13 remains externally blocked on schema-8 Windows.",
   "last_local_focused_test_count": 453,
   "next_gate": 14,
   "next_gate_name": "Original audio and match presentation",
@@ -1790,7 +1790,7 @@
   "gate14_possession_figures_side_index_orientation": "side1_left_neutral_center_side0_right",
   "gate14_possession_user_side_orientation": "dynamic_by_fixture_role_exact",
   "gate14_possession_figures_bar_geometry": "not_applicable_wrong_component_association_rejected",
-  "gate14_exact_next_task": "Verify Recovery 202 home/away screen orientation and unbound-background negative result through CI; then continue the next source-backed FastView shell/chrome slice without filling unknown 800x600 pixels.",
+  "gate14_exact_next_task": "Verify Recovery 203 direct-owned top/ticker chrome through full CI; once canonical, source-trace the next direct-owned FastView shell/chrome resource or a directly owned audio bank/sample without using filename-only inference.",
   "gate14_fastview_team_bar_ownership_exact": true,
   "gate14_fastview_team_vftable": "0x7CA888",
   "gate14_fastview_team_constructor_va": "0x524920",
@@ -1948,5 +1948,48 @@
   "gate14_fastview_background_string_constructor_va": "0x684620",
   "gate14_fastview_background_string_destructor_va": "0x68467F",
   "gate14_fastview_background_static_runtime_reference_count": 2,
-  "gate14_fastview_background_live_render_allowed": false
+  "gate14_fastview_background_live_render_allowed": false,
+  "gate14_orientation_background_merge": "608e4f9168939c08ddffd90f5d6fb112b5d2724e",
+  "gate14_orientation_background_reconstruction_run": 37088996337,
+  "gate14_orientation_background_test_count": 1509,
+  "gate14_orientation_background_expected_skips": 22,
+  "gate14_orientation_background_asset_policy_run": 37088996360,
+  "gate14_fastview_direct_chrome_exact": true,
+  "gate14_fastview_chrome_image_constructor_va": "0x527730",
+  "gate14_fastview_top_bar": {
+    "path": "FM2001_Art/FastView/top_bar.444",
+    "bytes": 19268,
+    "dimensions": [
+      800,
+      95
+    ],
+    "rect": [
+      0,
+      0,
+      800,
+      95
+    ],
+    "sha256": "f7410cf85900846ee1b276fa309bca4e560580286d5641092f2f98d20afa379a",
+    "path_setup_va": "0x51FD63",
+    "control_call_va": "0x51FDA3"
+  },
+  "gate14_fastview_ticker": {
+    "path": "FM2001_Art/FastView/ticker.444",
+    "bytes": 6352,
+    "dimensions": [
+      800,
+      33
+    ],
+    "rect": [
+      0,
+      557,
+      800,
+      590
+    ],
+    "sha256": "b0fe2d8266ae157b7821e8c1de310e89bbc37ae859f666e64f59731c78e68257",
+    "path_setup_va": "0x51FDF0",
+    "control_call_va": "0x51FE31"
+  },
+  "gate14_fastview_chrome_art": "reconstruction/original_fastview_chrome_art.py",
+  "gate14_fastview_chrome_middle_surface_recovered": false
 }

@@ -10586,3 +10586,13 @@ work may continue under the deferred-blocker policy.
 - Rechecked the loose `FM2001_Art/FastView/background.444` lead. Literal `0x8294E8` is copied at `0x51F2F0` into static string `0x877758` through generic string constructor `0x684620`. Direct executable-reference scanning finds only construction and destruction; the 800x600 FastViewPanel constructor `0x51F490 -> 0x527350` receives no bitmap path.
 - Recorded that negative result as `unbound_static_path_string_fail_closed`. The authenticated 800x600 bitmap is not imported/rendered as a panel background without a direct owner/draw path.
 - Gate 13 remains the earliest incomplete validation gate pending the external schema-8 Windows receipt; this remains Gate-14 work-ahead.
+
+
+## 3 October 2026 - Recovery 203 direct-owned FastView top/ticker chrome
+
+- PR #170 became canonical at `608e4f9168939c08ddffd90f5d6fb112b5d2724e` after reconstruction run `37088996337` passed **1,509 tests with 22 expected skips** and asset-policy run `37088996360` passed.
+- Continued directly into source-owned shell chrome rather than revisiting the rejected loose background path.
+- Live FastView code passes `FM2001_Art/FastView/top_bar.444` at path setup `0x51FD63`, control call `0x51FDA3` and `FM2001_Art/FastView/ticker.444` with path setup at `0x51FDF0` and control call at `0x51FE31` directly to image-control constructor `0x527730`.
+- Re-extracted and rehashed the authorized originals: top_bar = 19,268 bytes, 800x95, SHA-256 `f7410cf85900846ee1b276fa309bca4e560580286d5641092f2f98d20afa379a`; ticker = 6,352 bytes, 800x33, SHA-256 `b0fe2d8266ae157b7821e8c1de310e89bbc37ae859f666e64f59731c78e68257`.
+- Staged both byte-identically under `original_assets/source/FM2001_Art/FastView/` with manifest provenance. Exact screen rectangles are top bar (0,0)-(800,95) and ticker (0,557)-(800,590).
+- Added resource guards and a decoded-pixel seam that emits only those two strips. The unrecovered middle FastView surface remains fail-closed and no complete 800x600 frame is claimed.
