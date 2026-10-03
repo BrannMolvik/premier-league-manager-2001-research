@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is b9dc4e9c42fb8662732b19fb907045bba4377ed4 after Gate-14 PR #239 frame-plan score/table pass-through and PR #240 fidelity-gap reconciliation merged green. PR #241 (head bd2c53eb) is mergeable with reconstruction run 37143110823 and asset-policy run 37143110809 in progress. It adds a fail-closed resolved-only FastView compositor that copies only singly owned source pixels and masks every cross-component overlap rather than guessing z-order. After #241 is canonical, attach that resolved-only composite to the immutable FastView frame plan on a fresh squash-head branch. Private audio-bank/cross-z-order/dynamic resize/text-color source adjudication remains blocked because local process starts fail with caas.internal.errors.ClientError. Do not touch Gate-13-owned/shared runtime files.",
-  "last_known_main_head": "b9dc4e9c42fb8662732b19fb907045bba4377ed4",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is c350bfa9dbedaf59137452c3385b74c24c5fe4f5 after Gate-14 PR #241 resolved-only FastView compositor merged green. PR #243 (head f344eb86) is mergeable: asset policy 37143532398 passed and reconstruction run 37143532405 is in progress; it attaches the resolved-only RGBA image/overlap mask to FastViewFramePlan and the completed-human presentation path with component-hash integrity checks. Next disjoint checkpoint is prepared on worker/gate14-retained-playerrow-adapter-v3 at cc2117c0: source-backed retained 24-sample histories -> immutable PlayerRow snapshots using explicit caller-supplied RNG(6) results; open/validate only after #243. Private audio-bank/cross-z-order/dynamic-resize/text-color source adjudication remains blocked by process-start ClientError. Do not touch Gate-13-owned/shared runtime files.",
+  "last_known_main_head": "c350bfa9dbedaf59137452c3385b74c24c5fe4f5",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 238,
+  "recovery_generation": 239,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 238 checkpoint: #239 and #240 merged green. #241 resolved-only FastView compositor is mergeable with full reconstruction and asset-policy CI running. Next renderer-input bridge should be prepared behind #241 and freshly transplanted after its squash merge.",
+  "note": "Recovery 239 checkpoint: #241 merged green as c350bfa9. #243 resolved-composite frame attachment is mergeable with asset policy green and reconstruction CI running. Retained-history PlayerRow adapter is freshly prepared at cc2117c0 for the next isolated Gate-14 PR.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
