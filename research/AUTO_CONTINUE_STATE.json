@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is c350bfa9dbedaf59137452c3385b74c24c5fe4f5 after Gate-14 PR #241 resolved-only FastView compositor merged green. PR #243 (head f344eb86) is mergeable: asset policy 37143532398 passed and reconstruction run 37143532405 is in progress; it attaches the resolved-only RGBA image/overlap mask to FastViewFramePlan and the completed-human presentation path with component-hash integrity checks. Next disjoint checkpoint is prepared on worker/gate14-retained-playerrow-adapter-v3 at cc2117c0: source-backed retained 24-sample histories -> immutable PlayerRow snapshots using explicit caller-supplied RNG(6) results; open/validate only after #243. Private audio-bank/cross-z-order/dynamic-resize/text-color source adjudication remains blocked by process-start ClientError. Do not touch Gate-13-owned/shared runtime files.",
-  "last_known_main_head": "c350bfa9dbedaf59137452c3385b74c24c5fe4f5",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical main is b9fab20ca01828512ec11e648c75f6c77e282a78 after Gate-14 PR #243 merged green, attaching the resolved-only FastView image/overlap mask to the immutable frame plan and completed-human path. PR #244 (head 5ce60cf0) is mergeable: asset policy 37144737376 passed and reconstruction run 37144737411 is in progress; it adds the presentation-only retained 24-sample history -> PlayerRow adapter using explicit caller-supplied RNG(6) results. Prepared dependent branch worker/gate14-retained-playerrow-frame-plan at a485e395 connects that adapter to the completed-human FastView frame path without mutating outcome/gameplay state; freshly transplant after #244 squash merge. Prepared independent Gate-17 branch worker/gate17-bind-full-scope-receipt-v2 at 5e1db409 makes the final Windows audit derive the hash-verified canonical TeamSelect catalog and require exact catalog SHA/count/scope-ID binding in full_original_scope.json. Private audio-bank/cross-z-order/dynamic-resize/text-color source adjudication remains blocked by local process-start ClientError. Do not touch Gate-13-owned/shared runtime files.",
+  "last_known_main_head": "b9fab20ca01828512ec11e648c75f6c77e282a78",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 239,
+  "recovery_generation": 240,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 239 checkpoint: #241 merged green as c350bfa9. #243 resolved-composite frame attachment is mergeable with asset policy green and reconstruction CI running. Retained-history PlayerRow adapter is freshly prepared at cc2117c0 for the next isolated Gate-14 PR.",
+  "note": "Recovery 240 checkpoint: #243 merged green as b9fab20c. #244 retained-history PlayerRow adapter is mergeable with asset policy green and reconstruction CI running. Dependent retained-history frame bridge prepared at a485e395. Independent Gate-17 exact canonical scope receipt binding prepared at 5e1db409.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
