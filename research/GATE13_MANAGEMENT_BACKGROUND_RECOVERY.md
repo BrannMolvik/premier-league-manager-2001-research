@@ -108,3 +108,18 @@ completion bit or a synthetic context for the native report.
 
 Gate 13 remains OPEN; normal-play completeness and original menu timing still
 need criterion-level evidence beyond this smoke receipt.
+
+## Final local verification
+
+- Reconciled `origin/main` through `8ea49594b827542196a4b5e94137ea4cecc5d176`,
+  preserving both newer FastView score checkpoints without working on Gate 14.
+- 73 focused Gate-13 tests passed.
+- Full reconstruction: 1,534 tests passed, 22 expected licensed-source skips.
+- Repository asset policy and `git diff --check` passed.
+- Canonical private database check resolves all twenty Premiership club art
+  fields across all twelve months: 240 exact base/header selections.
+- Fresh real Windows schema-8 presentation audit passed (receipt above).
+
+Only the feature branch is pushed for PR review; `main` and `agent-runtime`
+ownership are not changed. This is a verified partial closure, not Gate-13
+completion and not a Windows release certification.
