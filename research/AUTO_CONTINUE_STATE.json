@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Recovery 209: canonical main 745c1576c337c94dcea86f996bf347af641c77c2 after PR #180 passed 1,549 tests / 22 expected skips and asset-policy success. Continue Gate-14 PlayerRow typed receiver semantics: EventPlayerUpdateEnergy -> exact 58..99 clamped 82px energy-bar transform with side-index-specific dynamic/static layers; EventPlayerUpdateForm -> %u control +0x34; EventPlayerGoal/OwnGoal -> shared incrementing (%u) control +0x2C, with own-goal native-color change retained without guessing color semantics. Gate 13 remains earliest incomplete for shell/navigation fidelity.",
+  "active_task": "Recovery 209: PR #180 merged canonical at main 745c1576c337c94dcea86f996bf347af641c77c2 after 1,549 tests / 22 expected skips and asset-policy success. Continue Gate-14 by source-closing PlayerRow Receiver<EventPlayerUpdateEnergy> callback 0x5267D0 -> row update 0x526680, including exact 58..99 normalization constants, 82-pixel bar transform, truncation and mirrored side geometry. Do not invent meanings for the six other row text controls or unrelated row events. Gate 13 remains earliest incomplete for shell/navigation fidelity.",
   "last_known_main_head": "745c1576c337c94dcea86f996bf347af641c77c2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 209,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #180 canonical. Continue typed PlayerRow receiver semantics from clean main.",
+  "note": "PR #180 canonical. Continue exact energy-bar transform from verified executable.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
