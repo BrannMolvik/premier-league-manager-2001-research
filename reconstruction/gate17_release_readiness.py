@@ -47,6 +47,14 @@ REQUIRED_EXTERNAL_RECEIPTS = {
     "save_reload": (
         "save_reload",
     ),
+    "full_original_scope": (
+        "full_original_scope",
+        "all_original_playable_leagues",
+        "all_original_playable_countries",
+        "human_career_flow",
+        "competition_progression",
+        "original_management_gameplay_subsystems",
+    ),
 }
 
 
