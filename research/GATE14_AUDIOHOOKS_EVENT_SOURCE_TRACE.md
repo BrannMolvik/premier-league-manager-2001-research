@@ -92,8 +92,17 @@ descriptor `0x81AD90` and vtable `0x7BF4CC`. Vtable slot 0 targets
 
 That selector reads Button object field `+0x34`. When that field is null it
 returns numeric event ID **2**. Otherwise it passes Button word field `+0x4A`
-through virtual offset `+0xA8`; a result greater than one selects numeric
-event ID **10**, otherwise it returns **2**.
+through virtual offset `+0xA8`.
+
+For this Button vtable, `+0xA8` targets `0x5D62F0`. That helper returns
+**1** when its uint16 input equals **2**, and **11** otherwise. Slot 0 compares
+that result with one.
+
+Therefore the exact numeric rule is:
+
+- event **2** when `+0x34` is null;
+- event **2** when `+0x34` is non-null and `+0x4A == 2`;
+- event **10** when `+0x34` is non-null and `+0x4A != 2`.
 
 The already-source-closed Button input path `0x64F7A0` invokes this exact
 slot 0 before every dynamic AudioHooks call. Therefore all ten dynamic-control
@@ -176,8 +185,8 @@ Continue from the sender side rather than the dispatcher:
 
 1. tie only directly proven numeric sender contexts to higher-level native
    classes or event constructors;
-2. recover the source meaning of Button slot-0's 2-versus-10 condition only if
-   its `+0x34/+0x4A/+0xA8` data flow identifies that meaning directly;
+2. recover the source meaning of Button fields `+0x34` and `+0x4A` only
+   if their ownership/data flow identifies that meaning directly;
 3. add semantic names only when that source path itself establishes the meaning;
 4. keep BNK sample interpretation separate from sender semantics.
 
