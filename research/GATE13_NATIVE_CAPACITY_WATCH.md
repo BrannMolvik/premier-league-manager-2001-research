@@ -155,6 +155,61 @@ Source-qualified lifecycle probes:
   construction and on observed subsequent threads. Hardware events record
   post-instruction context and private preceding bytes, not a claimed writer.
 
+## Reconciled continuous-watch and static lifecycle adjudication (5 October 2026)
+
+PR #346 re-roots the verified PR #309 Gate-13 work onto current main without
+reverting Gate-14+ work. The current Gate-13 head adds an event-by-event
+all-user-thread watch ledger. From the selected array allocation event onward,
+the debugger reads back DR0/DR1/DR7 for every live target thread before every
+`ContinueDebugEvent`. A newly reported thread is armed and read back during its
+`CREATE_THREAD_DEBUG_EVENT`, before target execution is resumed. The final
+`5DA538` stop can therefore prove continuous **user-thread** write-watch coverage
+only if every debug-event boundary from allocation through that read is present,
+every resumed event had a successful all-live-thread read-back, and no watch
+loss occurred. The receipt deliberately keeps kernel/external-writer coverage
+false. Synthetic contracts do not substitute for a fresh native receipt.
+
+The canonical executable was re-recovered from the authorized disc and rehashed
+to SHA-256
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+Bounded source adjudication now closes the known fresh DBRClub paths:
+
+- `405A40` constructs each 0x2A8 DBRClub and explicitly writes fields such as
+  `+E8` and `+294`, but it does not initialize `+13C/+140`.
+- `403660` imports one DBTClub. Its initial `rep movsd` copies 0x39 dwords
+  from source `+4` through destination `+E4`; later code derives `+134/+138`
+  and other fields, but does not write `+13C/+140`.
+- The allocator path remains `668140 -> 669BE3 -> 669C0F -> 669CEE` with
+  HeapAlloc flags 0. Thus observed allocation bytes of 0/0 are not a
+  source-defined zero-fill/default contract.
+- `40BD10` allocates a separate 0x2A8 special club, searches for the literal
+  `!Spare` source entry, then calls `40BE30`. `40BE30` is a full DBRClub
+  copy and does copy `+13C/+140`, but its only direct call is `40BDEC` inside
+  that special-object constructor. The destination is the separately allocated
+  container `+0x0C` object, not the live array at container `+0x08`; it is
+  not an initializer/alias for the watched selected array member.
+- `618C10` remains the source-qualified capacity writer: it clears
+  `+134/+138/+13C/+140`, accumulates stadium sections, then adjusts the
+  capacities. Its only direct call sites are `4257A6`, `460B82`, and
+  `4C4713`, all through the already recovered user/stadium setup path. It is
+  not part of fresh uncontrolled DBRClub construction/import.
+
+This excludes the known constructor, import, DBRClub copy and controlled-stadium
+writer as a producer for the selected fresh uncontrolled array member. It still
+does **not** authorize zero as an initializer/default and does not prove that no
+indirect/native user-thread write occurs. The next native receipt is decisive:
+either it traps the authoritative write, or it reaches the selected
+`0x5DA538` receiver with uninterrupted all-user-thread DR coverage and no write.
+Only the latter would prove that this observed lifecycle reaches the read with
+the allocation bytes unchanged; if those bytes are again 0/0, that is a
+run-specific observed lifecycle state, not a general zero default.
+
+Verification on reconciled PR #346 head `6ed6913569e5f0f9b410e87b9334313716208429`:
+focused Gate-13 CI passed **643 tests / 22 expected skips**; full reconstruction
+CI passed **2,210 tests / 23 expected skips**; repository asset policy and the
+Windows release-candidate package job also passed. No original-game launch was
+performed by this checkpoint.
+
 Receipts always retain `capacity_initializer_proven=false`. Even observing a
 value/write needs receiver, CFG, copy/load ownership and lifecycle adjudication;
 no-watch-event results and allocation snapshots do not imply zero initialization.
