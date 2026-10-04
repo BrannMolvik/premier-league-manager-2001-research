@@ -52,6 +52,18 @@ def team_table_playerrow_count(source_player_count:int)->int:
 def team_table_visible_control_count(source_player_count:int)->int:
     return TEAM_TABLE_BASE_CONTROL_COUNT + TEAM_PLAYERROW_CONTROL_COUNT*team_table_playerrow_count(source_player_count)
 
+def fastview_team_visible_control_count(side0_player_count:int, side1_player_count:int)->int:
+    """Return both source-ordered TeamTable subtrees combined.
+
+    FastViewTeam constructs side 0 first at 0x524C4F and side 1 second at
+    0x524DBB, so this count preserves a two-block nested order rather than
+    treating the rows as one interleaved pool.
+    """
+    return (
+        team_table_visible_control_count(side0_player_count)
+        + team_table_visible_control_count(side1_player_count)
+    )
+
 @dataclass(frozen=True)
 class ScoreCompositePhaseTail:
     static_controls:int=SCORE_COMPOSITE_STATIC_CONTROL_COUNT
@@ -77,6 +89,7 @@ def nested_order_contract()->dict:
       "team_table_base_controls":6,
       "team_playerrow_controls":9,
       "team_playerrows_source_parameterized":True,
+      "team_side0_before_side1":True,
       "score_composite_static_controls":5,
       "score_phase_tail_controls":2,
       "score_phase_tail_runtime_mutation_recovered":True,
