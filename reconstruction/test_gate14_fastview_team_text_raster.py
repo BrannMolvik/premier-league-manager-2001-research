@@ -14,10 +14,13 @@ from gate14_fastview_team_text_raster import (
     PLAYERROW_TEXT_NATIVE_LINE_HEIGHT,
     PLAYERROW_TEXT_NATIVE_COLOR_16,
     PLAYERROW_TEXT_STYLE_INDEX,
+    PLAYERROW_POSITION_ENGLISH_IDX_BASE,
+    PLAYERROW_POSITION_ENGLISH_BY_KEY,
     FastViewTeamTextRasterError,
     _line_origin,
     load_verified_playerrow_text_font,
     rasterize_fastview_playerrow_text,
+    resolve_playerrow_position_english,
 )
 
 
@@ -75,26 +78,14 @@ class FastViewTeamTextRasterTests(unittest.TestCase):
 
         self.assertEqual(
             raster.rendered_cells,
-            ((0, 0, 1), (0, 0, 3), (0, 0, 6)),
+            ((0, 0, 1), (0, 0, 2), (0, 0, 3), (0, 0, 6)),
         )
-        self.assertEqual(
-            tuple(
-                (item.side_index, item.row_index, item.text_cell_index, item.reason)
-                for item in raster.unresolved_cells
-            ),
-            (
-                (
-                    0,
-                    0,
-                    2,
-                    "position_localization_string_not_source_bound",
-                ),
-            ),
-        )
+        self.assertEqual(raster.unresolved_cells, ())
         self.assertEqual(raster.text_style_index, PLAYERROW_TEXT_STYLE_INDEX)
         self.assertEqual(raster.native_color_16, PLAYERROW_TEXT_NATIVE_COLOR_16)
         self.assertEqual(raster.source_font_sha256, PLAYERROW_TEXT_FONT_SHA256)
-        self.assertFalse(raster.position_localization_recovered)
+        self.assertEqual(raster.source_language, "English")
+        self.assertTrue(raster.position_english_localization_recovered)
         self.assertFalse(raster.own_goal_color_recovered)
         self.assertFalse(raster.complete_team_table_text)
 
@@ -106,7 +97,7 @@ class FastViewTeamTextRasterTests(unittest.TestCase):
 
         self.assertEqual(
             raster.rendered_cells,
-            ((0, 0, 1), (0, 0, 3), (0, 0, 4), (0, 0, 6)),
+            ((0, 0, 1), (0, 0, 2), (0, 0, 3), (0, 0, 4), (0, 0, 6)),
         )
         unresolved = {
             item.text_cell_index: item.reason
@@ -114,11 +105,44 @@ class FastViewTeamTextRasterTests(unittest.TestCase):
         }
         self.assertEqual(
             unresolved,
-            {
-                2: "position_localization_string_not_source_bound",
-                5: "native_source_color_update_not_rgba_bound",
-            },
+            {5: "native_source_color_update_not_rgba_bound"},
         )
+
+    def test_source_closes_exact_english_position_sequence(self):
+        self.assertEqual(PLAYERROW_POSITION_ENGLISH_IDX_BASE, 2305)
+        expected = (
+            ("PositionGK", "GK"),
+            ("PositionRB", "RB"),
+            ("PositionLB", "LB"),
+            ("PositionCD", "CD"),
+            ("PositionSW", "SW"),
+            ("PositionRWB", "RWB"),
+            ("PositionLWB", "LWB"),
+            ("PositionANC", "ANC"),
+            ("PositionDM", "DM"),
+            ("PositionRM", "RM"),
+            ("PositionLM", "LM"),
+            ("PositionCM", "CM"),
+            ("PositionRW", "RW"),
+            ("PositionLW", "LW"),
+            ("PositionAM", "AM"),
+            ("PositionRF", "RF"),
+            ("PositionLF", "LF"),
+            ("PositionCF", "CF"),
+            ("PositionST", "ST"),
+        )
+        self.assertEqual(
+            tuple(PLAYERROW_POSITION_ENGLISH_BY_KEY.items())[1:],
+            expected,
+        )
+        for key, value in expected:
+            self.assertEqual(resolve_playerrow_position_english(key), value)
+        self.assertEqual(resolve_playerrow_position_english(""), "")
+        with self.assertRaisesRegex(
+            FastViewTeamTextRasterError,
+            "outside the source-closed English mapping",
+        ):
+            resolve_playerrow_position_english("PositionInvented")
 
     def test_center_and_left_alignment_use_native_18px_line_inside_16px_clip(self):
         font = load_verified_playerrow_text_font(REPO_ROOT)
@@ -183,8 +207,13 @@ class FastViewTeamTextRasterTests(unittest.TestCase):
 
     def test_raster_cannot_promote_unresolved_text_fidelity(self):
         raster = rasterize_fastview_playerrow_text(REPO_ROOT, (render_plan(),))
+        with self.assertRaisesRegex(
+            FastViewTeamTextRasterError,
+            "cannot drop source-closed English position strings",
+        ):
+            replace(raster, position_english_localization_recovered=False)
+
         for field in (
-            "position_localization_recovered",
             "own_goal_color_recovered",
             "complete_team_table_text",
         ):
