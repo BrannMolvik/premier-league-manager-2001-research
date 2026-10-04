@@ -107,6 +107,8 @@ on:
       - "reconstruction/test_original_fastview_chrome_source.py"
       - "reconstruction/gate14_audio_bank_source_trace.py"
       - "reconstruction/test_gate14_audio_bank_source_trace.py"
+      - "reconstruction/gate14_fastview_picturecontrol_source_trace.py"
+      - "reconstruction/test_gate14_fastview_picturecontrol_source_trace.py"
       - "reconstruction/gate14_fastview_league_table.py"
       - "reconstruction/test_gate14_fastview_league_table.py"
       - "reconstruction/original_fastview_score_table_art.py"
