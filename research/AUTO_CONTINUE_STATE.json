@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. PR #350 merged as canonical main 1604a08b after 2,224 tests/23 skips and asset-policy success. Continue independent Gate-14 AudioHooks sender attribution: source-close the concrete control/vtable classes feeding the dynamic 0x64F7xx sender family and recover numeric event values only where the original executable proves them. Do not assign human-readable event/sample semantics from numeric IDs, control state, or audio content.",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Verify Gate-14 PR #352 at head 7c63d861: Button@ease dynamic AudioHooks numeric event set {2,10}, exact native group rule, and reused source-closed group semantics. Asset policy is green; reconstruction CI is running. After green merge, source-close event-13 sender class context: PTitleMenuRow/PChildMenuRow RTTI -> vtables 0x7C3A80/0x7C3A20 -> shared slot 11 method 0x47ACF0 -> AudioHooks (13,0,0) only when incoming object +0x20 == 2. Keep +0x20 and event 13 human meaning unresolved.",
   "last_known_main_head": "1604a08b451a259dae8639c2286e213be15541d8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 278,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 278 merged PR #350 as 1604a08b. The AudioHooks global/vtable path and numeric sender families are canonical. Next exact task is concrete control-class attribution for the dynamic sender sites around 0x64F7xx, without semantic guessing. Continue only disjoint Gate-14 files while Gate 13 ownership lock remains active.",
+  "note": "Recovery 278: PR #352 latest head 7c63d861 is mergeable; prior import-only CI failure was fixed. Canonical executable privately revalidated PTitleMenuRow TD 0x81CDB0/vtable 0x7C3A80 and PChildMenuRow TD 0x81CDF0/vtable 0x7C3A20, both slot11 -> 0x47ACF0. Do not assign meaning to incoming +0x20==2 without source type proof.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
