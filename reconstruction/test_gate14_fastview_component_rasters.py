@@ -22,6 +22,7 @@ from original_fastview_possession_resources import (
     FASTVIEW_POSSESSION_DIAGRAM_RESOURCES,
 )
 from gate14_fastview_team_static_raster import FastViewTeamStaticRaster
+from gate14_fastview_team_energy_raster import FastViewTeamEnergyRaster
 from gate14_fastview_score_table_static_raster import (
     FastViewScoreTableStaticPlane,
     FastViewScoreTableStaticRasterSet,
@@ -161,6 +162,21 @@ class FastViewComponentRasterTests(unittest.TestCase):
         )
         plane = rasterize_fastview_team_table_plane(static)
         self.assertEqual(plane.component, "team_table_static")
+        self.assertEqual(plane.source_layer_count, 0)
+        self.assertEqual(plane.rgba, rgba)
+        self.assertFalse(plane.complete_fastview_frame)
+
+    def test_team_table_plane_accepts_verified_energy_raster(self):
+        rgba = bytes(800 * 600 * 4)
+        energy = FastViewTeamEnergyRaster(
+            size=(800, 600),
+            rgba=rgba,
+            row_identities=(),
+            source_layer_count=0,
+            rgba_sha256=sha256(rgba).hexdigest(),
+        )
+        plane = rasterize_fastview_team_table_plane(energy)
+        self.assertEqual(plane.component, "team_table_energy")
         self.assertEqual(plane.source_layer_count, 0)
         self.assertEqual(plane.rgba, rgba)
         self.assertFalse(plane.complete_fastview_frame)
