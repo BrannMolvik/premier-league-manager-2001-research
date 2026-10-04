@@ -6,6 +6,16 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Recovery 254 Gate-13 bounded setup-access checkpoint
+
+PR #284 merged as canonical main `88a3d38a` after **1,937 tests / 23 expected skips**, **571 Gate-13 tests / 22 expected skips**, and repository asset policy passed. The remaining-setup private trace can now optionally classify exact unresolved displacement operands only inside the seven source-qualified `REMAINING_SETUP_WINDOWS`. It reuses `REMAINING_GATE13_FIELDS`, records Capstone read/write/read-write direction plus base/index register and window/instruction identity, and labels every hit `bounded_linear_candidate_not_cfg_or_object_proof`. The classifier refuses to run outside `--remaining-setup-only`; it does not prove object identity, reachability, writer ownership, initialization semantics, a capacity value, or Gate-13 closure.
+
+Recovery 254 briefly restored one shell process and successfully rematerialized the authorized 511,121,336-byte source archive plus the persisted reconstruction-runtime ZIP from the Library. The next shell launch failed before process start with `caas.internal.errors.ClientError`. No canonical executable scan, new source hash, writer identity, or runtime result is claimed from this recovery.
+
+Exact private action when sustained execution returns: run the canonical executable with `--remaining-setup-only --classify-remaining-field-accesses`, then manually adjudicate the emitted candidates through CFG/data-flow from fresh club allocation to the uncontrolled `+0x13C/+0x140` read. Do not promote any candidate solely from displacement/access metadata.
+
+Until that private path is healthy, continue independent Gate-13 work that is already source-backed and does not depend on the unresolved capacity lifecycle. Preserve current PMatchInfo remaining blockers: native thumb/bar/hover/held-repeat behavior, remaining required shirt/color contexts, current-main real-Windows rerun, and final timing/normal-play recognizability.
+
 ## Recovery 253 Gate-13 remaining-setup trace checkpoint
 
 PR #283 merged as `7cfcad7c` after **1,935 tests / 23 expected skips**, **571 Gate-13 tests / 22 expected skips**, and repository asset policy passed. The current live-report private trace now has a checksum-gated `--remaining-setup-only` scope containing only seven already-known lifecycle neighborhoods around fresh club `+0x130/+0x13C/+0x140`, DBRClub construction, D48, player selection/assignment, and attendance/capacity. Its evidence contract remains explicitly fail-closed: `remaining_setup_trace_complete=false` and `legacy_capacity_writer_identified=false`.
