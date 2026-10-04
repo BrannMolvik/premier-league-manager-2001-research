@@ -6,6 +6,35 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Gate-13 installer prerequisite advanced (4 October 2026 KST)
+
+PR #309 remains on `codex/gate13-uncontrolled-capacity-lifecycle`. Latest fetched
+main is `9595291d83ad99d02d235736e94fe87e5464c4fd`; the branch already preserves
+disjoint worker work through `29781e92`. The Gate-13 lock is unchanged.
+
+Daniel's explicitly approved missing-only repair is now source-qualified and
+verified. The authorized original INS 3.00.077 writes each component's exact
+selection byte as REG_DWORD: 1 selected / 0 unselected. The original full-component
+configuration was applied only to missing art / stadia / fmv / matchengine in
+the existing 32-bit installation key, after export. Install Dir / CD Drive,
+Settings and all game files were left unchanged. Private source/before/after
+receipts and the rollback are in `GATE13_INSTALLER_RESOURCE_SELECTORS.md`.
+Actual original startup now accepts all four type-4 / size-4 / value-1 selectors
+and returns setup AL=1. No capacity/report value follows from this success.
+
+Exact original DLL staging has now removed the null driver call (`6151EB` ->
+`A911EC`): ThrashSoftware loads and graphics initialization returns success.
+The following run with verified original data reaches fresh-world allocation,
+construction and import of qualified DBRClub ID 5. No capacity writes or
+uncontrolled read were observed within the bound; zero snapshots are explicitly
+not initializer proof. Next: complete the private original startup resource
+dependencies, continue the real allocation-to-uncontrolled-read watch and
+adjudicate the actual +13C/+140 writer/copy lifecycle. No source-proven initialized
+capacity or human-away complete report is claimed. Ten debugger
+checks pass; gameplay/presentation code is unchanged, so prior full/Windows
+receipts below remain historical evidence, not a new closure claim. Gate 13
+remains OPEN. Do not touch Gate 14 or the ownership protocol.
+
 ## Local Gate-13 closure result (latest fetched main `29781e92`)
 
 Codex started a fresh `codex/gate13-uncontrolled-capacity-lifecycle` branch

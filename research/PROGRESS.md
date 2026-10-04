@@ -4,6 +4,21 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Source-proven installer repair and real club allocation
+
+The authorized original SETUP.INS numeric registry producer proves the four
+resource selector names and selected DWORD 1 / unselected DWORD 0. Following
+Daniel's explicit approval, the existing 32-bit key was exported and only the
+four missing selected-component flags were added; original paths, Settings and
+game files were preserved. Private before/after receipts and a narrowly guarded
+rollback remain outside Git. Native setup now accepts every flag. Exact original
+DLL staging removes the next null driver call; verified original data lets the
+bounded watch reach fresh allocation/construction/import of DBRClub ID 5.
+No watched capacity writes or uncontrolled read yet; zero snapshots are not
+initializer proof and no report producer was relaxed. Ten debugger checks pass.
+Gate 13 remains open; continue the actual native lifecycle. See
+`GATE13_INSTALLER_RESOURCE_SELECTORS.md` and `GATE13_NATIVE_CAPACITY_WATCH.md`.
+
 ### 4 October 2026 KST — Recovery 255 League Fixtures grid-selector integration
 
 PR #291 merged as `02b5d5c8` after **1,960 tests / 23 expected skips**, **594 Gate-13 tests / 22 expected skips**, asset policy and the Windows release-candidate package workflow all passed. It integrates the exact `PLeagueGrid` left-press screen rectangle `(378,235,348,336)`, 29x14 reduction and source column/row selector indices into the ordinary management host while preserving PMenu priority and the independent PMatchInfo context route.

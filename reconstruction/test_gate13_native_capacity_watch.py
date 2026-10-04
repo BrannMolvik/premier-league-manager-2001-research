@@ -6,10 +6,18 @@ from pathlib import Path
 from gate13_native_capacity_watch import (
     ALLOC_RETURN, CONSTRUCTED, IMPORTED, UNCONTROLLED_READ, CAPACITY_OFFSETS,
     CapacityWatchError, DebugEvent, WatchPlan, Wow64Context, arm_writes, observe,
+    INSTALL_QUERY_RETURNS, RESOURCE_SELECTOR_RETURNS, STARTUP_SITES,
 )
 
 
 class NativeCapacityWatchTests(unittest.TestCase):
+    def test_all_four_native_resource_query_returns_are_observed(self):
+        self.assertEqual({INSTALL_QUERY_RETURNS[va] for va in RESOURCE_SELECTOR_RETURNS},
+                         {'art', 'fmv', 'matchengine', 'stadia'})
+        self.assertTrue(RESOURCE_SELECTOR_RETURNS.issubset(STARTUP_SITES))
+        self.assertIn(0x530DD9, STARTUP_SITES)
+        self.assertIn(0x50D630, STARTUP_SITES)
+
     def test_calibration_modes_cannot_be_combined_or_read_an_input(self):
         with self.assertRaisesRegex(CapacityWatchError, 'separate probes'):
             observe(Path('not-an-executable'), Path('not-a-receipt'), WatchPlan(),

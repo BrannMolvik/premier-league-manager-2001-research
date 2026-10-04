@@ -28,8 +28,13 @@ CONTEXT_FLAGS = 0x1001F  # WOW64 control/integer/segments/FPU/debug registers
 ALLOC_RETURN, CONSTRUCTED, IMPORTED, UNCONTROLLED_READ = 0x40BC14, 0x40BC43, 0x40BA2C, 0x5DA538
 STRIDE, CAPACITY_OFFSETS = 0x2A8, (0x13C, 0x140)
 STARTUP_SITES = (0x66AB26, 0x66AB37, 0x66AB74, 0x530DAB, 0x530DD9, 0x66ABA7, 0x66ABF4,
-                 0x515C11, 0x515C17, 0x53078D, 0x5307F8, 0x53085F)
-INSTALL_QUERY_RETURNS = {0x53078D: 'CD Drive', 0x5307F8: 'Install Dir', 0x53085F: 'art'}
+                 0x515C11, 0x515C17, 0x53078D, 0x5307F8, 0x53085F,
+                 0x53093A, 0x5309DC, 0x530A79, 0x50D630,
+                 0x530E29, 0x530E47, 0x615188, 0x6151B5, 0x6A93FB, 0x6A941E,
+                 0x530EEE, 0x530F02, 0x530F3B, 0x530F9E)
+INSTALL_QUERY_RETURNS = {0x53078D: 'CD Drive', 0x5307F8: 'Install Dir', 0x53085F: 'art',
+                         0x53093A: 'fmv', 0x5309DC: 'matchengine', 0x530A79: 'stadia'}
+RESOURCE_SELECTOR_RETURNS = frozenset((0x53085F, 0x53093A, 0x5309DC, 0x530A79))
 
 
 class CapacityWatchError(OriginalPETraceError):
@@ -251,6 +256,20 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
                             report['native_install_key_open_result'] = int(ctx.Eax)
                         if address in INSTALL_QUERY_RETURNS:
                             report.setdefault('native_install_query_results', {})[INSTALL_QUERY_RETURNS[address]] = int(ctx.Eax)
+                            if address in RESOURCE_SELECTOR_RETURNS and ctx.Eax == 0:
+                                # Source call arguments: size +10, DWORD payload +14,
+                                # returned registry type +18. No defaults on failure.
+                                size, value, registry_type = struct.unpack('<III', read(ctx.Esp + 0x10, 12))
+                                report.setdefault('native_resource_selectors', {})[INSTALL_QUERY_RETURNS[address]] = dict(
+                                    size=size, value=value, registry_type=registry_type)
+                        if address == 0x530DD9:
+                            report['native_install_setup_accepted'] = bool(ctx.Eax & 0xFF)
+                        if address == 0x50D630:
+                            report['native_fresh_world_loader_observed'] = True
+                        if address in (0x6A93FB, 0x6A941E):
+                            report.setdefault('native_driver_load_results', []).append(dict(
+                                source_va=address, handle=int(ctx.Eax),
+                                requested_driver=read(ctx.Esi, 128).split(b'\0', 1)[0].decode('latin1')))
                         if address == ALLOC_RETURN:
                             if club is not None:
                                 raise CapacityWatchError('Second array allocation: lifecycle scope exhausted')
@@ -300,7 +319,12 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
                         set_context(event.tid, ctx)
                     elif code not in (0x80000003, 0x4000001F):
                         report['events'].append(dict(kind='native_exception', code=code,
-                                                     address=address, first_chance=int(exception.first_chance)))
+                                                     address=address, first_chance=int(exception.first_chance),
+                                                     information=[int(exception.record.information[i]) for i in
+                                                                  range(min(int(exception.record.count), 15))]))
+                        ctx = context(event.tid)
+                        snapshot('native_exception_context', event.tid, ctx,
+                                 stack_dwords=list(struct.unpack('<64I', read(ctx.Esp, 256))))
                         continuation = 0x80010001  # DBG_EXCEPTION_NOT_HANDLED
                         if not exception.first_chance:
                             report['stop_reason'], stop = 'unhandled_native_exception', True

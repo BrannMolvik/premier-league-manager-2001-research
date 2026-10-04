@@ -3,6 +3,40 @@
 4 October 2026; canonical base `3a3f60d1e89c7f44e7f12ca70fef3f263fe73a9b`.
 Gate 13 remains OPEN. No visiting-capacity value is authorized by this work.
 
+## Approved installer prerequisite repair (supersedes missing-selector stop)
+
+Daniel authorized missing-only registry repair after original-installer value
+proof. The INS 3.00.077 component-selection producer and numeric registry writer
+now prove exact REG_DWORD 1 for the all-four-selected configuration. The existing
+32-bit key was exported before adding only art / stadia / fmv / matchengine;
+both original root paths and other entries were preserved. Private reversible
+before/after/source receipts are recorded in `GATE13_INSTALLER_RESOURCE_SELECTORS.md`.
+The original now returns success for all four selectors and setup AL=1.
+
+Allocation still has not been observed: the executable-only private stage
+then calls a null driver function (`6151EB`, slot `A911EC`). The debugger now
+records the six query results, exact selector type/size/value, setup acceptance,
+driver load returns, native exception registers/stack and fresh-world entry
+`50D630` as distinct observations. Exact-source original DLL staging is the
+next bounded startup dependency check; do not infer a capacity initializer.
+Ten debugger ABI/planning tests pass. No report producer/gameplay default was
+changed, and the prior 2,011-test/Windows receipts are not rerun or relabeled.
+
+Exact original ThrashSoftware and companion DLL extraction removes that null
+call: driver LoadLibrary returns a nonzero handle and `615180` returns AL=1.
+With independently verified original Master/Static/string data copied only into
+the private runtime stage, the next bounded run reaches `50D630`, allocation
+`40BC14`, constructor return and selected import. The imported receiver has the
+qualified DBRClub vftable and observed ID 5. The two dwords read as zero at
+allocation/construction/import, but no hardware writes or uncontrolled read
+were observed before the 45-second bound. A first-chance native C++ exception
+is recorded. **Snapshots/no write events are not initialization semantics**;
+the report producer remains fail-closed. Private receipt
+`gate13-native-capacity-runtime-data-20261004.json`, SHA-256
+`7e82ef483c2449386ce31c377ca3d7ca51029b28a8da4401d6fa93b84abf28de`.
+Continue the actual runtime lifecycle using remaining original startup assets,
+not an injected capacity, forced caller or controlled-home substitute.
+
 ## Executable observation, not another displacement scan
 
 `reconstruction/gate13_native_capacity_watch.py` runs the checksum-qualified
