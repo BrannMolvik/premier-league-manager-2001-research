@@ -83,12 +83,17 @@ def runtime_owner_audit(*, complete=True, scope_id="26:0"):
 
 
 def save_scope_audit(*, complete=True, scope_id="26:0"):
-    blockers = () if complete else ("save_reload_capability_missing",)
+    blockers = (
+        ()
+        if complete
+        else ("save_serialization_missing", "save_reload_continuation_missing")
+    )
     entry = SaveScopeCapabilityEntry(
         scope_id=scope_id,
         competition_id=0,
         runtime_owner="fixed_primary",
-        save_reload_capable=complete,
+        serialization_supported=complete,
+        continuation_supported=complete,
         blocker_codes=blockers,
     )
     return SaveScopeCapabilityAudit(
@@ -279,7 +284,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
         self.assertEqual(result.save_scope_blocked_scope_ids, ("26:0",))
         self.assertEqual(
             result.save_scope_blocker_codes,
-            ("save_reload_capability_missing",),
+            ("save_serialization_missing", "save_reload_continuation_missing"),
         )
 
     def test_save_scope_catalog_and_order_must_match(self):
