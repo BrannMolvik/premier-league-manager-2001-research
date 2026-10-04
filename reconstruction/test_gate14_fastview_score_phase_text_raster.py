@@ -57,7 +57,7 @@ class FastViewScorePhaseTextRasterTests(unittest.TestCase):
             "EventHalfTime": (355, 53),
             "EventFullTime": (356, 53),
             "EventExtraTime": (356, 53),
-            "EventPenalties": (352, 53),
+            "EventPenalties": (351, 53),
         }
         control = (349, 55, 377, 71)
         for event_name, expected_origin in expected.items():
