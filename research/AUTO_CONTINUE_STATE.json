@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN. PR #285 head ae684f62 adds candidate-only read/write-direction classification for exact +0x76/+0x130/+0x13C/+0x140 operands inside the seven REMAINING_SETUP_WINDOWS only. Hosted checks are pending; merge only if the exact head is green. Private writer identity/value remains unresolved and no Gate-13 closure is claimed.",
-  "last_known_main_head": "b836a7347a78cb773f93a4fa9112732545bdd6a4",
+  "active_task": "Gate 13 remains OPEN. PR #284 is canonical as 88a3d38a after 1,937 full / 23 skips and 571 Gate13 / 22 skips plus asset policy. Private process startup remains blocked after rematerializing source/runtime inputs. PR #286 head ca6d0716 now adds fail-closed PMatchInfo scroll-resource readiness: verifies staged scroller_vert/vscroll_end identities, reports scroller_bar_vert/scroller_blue_bar/vscroll_blue_bar missing, and keeps native thumb/bar/hover/repeat geometry/behavior false. Full, Gate13 and asset-policy CI are running on this exact head.",
+  "last_known_main_head": "fa7c5084191a0aa5cd56716e9da2bbb1e103430b",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 254,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 254: PR #285 opened; waiting for hosted checks on exact head ae684f62.",
+  "note": "Recovery 254: bounded setup classifier merged via PR284; PR286 scroll readiness validating on head ca6d0716.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
