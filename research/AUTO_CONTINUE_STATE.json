@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Verify Gate-14 PR #345 at head 4bc1d040: source-closed SubPanelControl bridge and total relative draw order for currently rasterized FastView families. Asset policy is green; full reconstruction CI is still running. If green, merge #345 and continue immediately with the bounded native font destination-read/alpha-blend trace without unmasking pixels until the blend equation is source-closed.",
-  "last_known_main_head": "f35b895530d4038df778f4afade7462f9e09fa54",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. PR #345 merged as main 1beb2209 after 2,153 tests/23 skips and asset-policy success. Continue independent Gate-14 native font blend work: source-close the 0x657280 -> 0x6570F0 -> 0x658BC0 packed-16-bit glyph compositing primitive, including destination reads, alpha 0/255 endpoints, /256 intermediate blend, and runtime RGB-mask source. Do not unmask pixels until the runtime pixel-format/layout and color-key boundary are reconstruction-safe.",
+  "last_known_main_head": "1beb2209eb067359e9d84834983c5c15d9e1429f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 276,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 276 resumed exact open PR #345. main remains f35b8955. Do not touch Gate-13-owned files while the ownership lock remains active. Next after #345 is the native font blend/dataflow task documented in GATE14_FASTVIEW_FONT_BLEND_TRACE.md.",
+  "note": "Recovery 276 merged PR #345 as 1beb2209. Canonical source SHA-256 revalidated locally. Font blend path now has direct source evidence for packed destination read and mask-wise alpha arithmetic; promote only the pure primitive/evidence flags, not final overlap pixels.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
