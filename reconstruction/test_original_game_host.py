@@ -477,11 +477,12 @@ class OriginalGameHostTests(unittest.TestCase):
         activation = host.last_league_fixtures_grid_activation
         self.assertIsNotNone(activation)
         self.assertEqual((activation.column, activation.row), (1, 0))
-        self.assertEqual(activation.selected_cell, (1, 0))
         self.assertIsNone(activation.fixture_id)
-        self.assertEqual(
-            host.management_presenter.league_fixtures_selected_cell,
-            (1, 0),
+        self.assertFalse(
+            any(
+                cell.selected
+                for cell in activation.presentation.league_fixtures.cells
+            )
         )
         redraw.assert_called_once_with()
         self.assertIn("League Fixtures source grid press", host.last_status)
@@ -510,7 +511,6 @@ class OriginalGameHostTests(unittest.TestCase):
             host.on_click(SimpleNamespace(x=350, y=200))
 
         self.assertIsNone(host.last_league_fixtures_grid_activation)
-        self.assertIsNone(host.management_presenter.league_fixtures_selected_cell)
         self.assertIn("no source-bounded PMenu candidate row", host.last_status)
         self.assertIn("League Fixtures grid control", host.last_status)
 
