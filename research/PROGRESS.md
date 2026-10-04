@@ -10964,3 +10964,14 @@ work may continue under the deferred-blocker policy.
 - PR #272 reconstruction run `37163378899` passed **1,886 tests / 23 expected skips**; asset-policy run `37163378866` passed. Squash-merged as `053dc98f743110ee654d57a02a4351fb8c2f93d2`.
 - Local fallback validation was unavailable because the execution container could not resolve `github.com`; no local pass was inferred. Hosted Actions provided the executable verification.
 - Gate 13 remains the earliest incomplete validation gate. Remaining Gate-17 source/runtime blockers are secondary procedural ownership/human dispatch, exact CRT state for RNG-bearing non-PL fresh objectives, non-PL sporting-objective season-end progression, the authorized private non-PL save audit receipt, and eventually the full Windows 11 external receipt set. No blocker was guessed away.
+
+
+## 4 October 2026 - Recovery 270 AudioHooks caller trace and numeric menus PCM
+
+- Recovered from canonical main `cc194b095f4828107046279ff950e1c5020732b8` and restored `agent-runtime` to continuous/working at recovery generation 270 without restarting the already-completed BNKl v2 decode work.
+- Added a checksum-gated, fail-closed private caller tracer for `AudioHooks::0x5DBFC0`. It inventories decoded direct-CALL candidates plus nearby PUSH operands but deliberately keeps CFG reachability, calling convention, argument positions, semantic event binding, and sample meaning unresolved until the canonical executable is manually adjudicated.
+- PR #334 reconstruction run `37199107652` passed **2,096 tests / 23 expected skips** and asset-policy run `37199107633` passed. PR #334 squash-merged as `1873047b5fb31c3e34770768bfe11b137b35f305`.
+- Composed the already source-backed numeric AudioHooks event/state switch with the byte-identical canonical `menus.bnk` parser/decoder. The bridge verifies the bank SHA/size, preserves original silent numeric routes, resolves literal routed slots, and decodes routed source samples to mono 22,050 Hz PCM with deterministic per-sample PCM SHA-256 identity.
+- The PCM bridge does **not** name events or samples by ear and does not claim a Windows device played them. Semantic event binding, human-readable sample meaning, and audible host integration remain false.
+- PR #335 reconstruction run `37199545125` passed **2,101 tests / 23 expected skips** and asset-policy run `37199545111` passed. PR #335 squash-merged as `48f1f6dc8cb0074d5f0b149ad966b3288d4ed4e8`.
+- Gate 13 remains the earliest incomplete validation gate and remains Codex-owned. Exact private Gate-14 follow-up: run `gate14_audiohooks_event_source_trace.py` against the canonical executable and manually prove sender CFG/calling convention/event-state argument data-flow. Independent cloud-safe follow-up: connect the decoded numeric menu-PCM result to a bounded synchronous host playback backend while keeping original UI-event equivalence and audible Windows verification fail-closed.
