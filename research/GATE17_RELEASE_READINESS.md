@@ -130,6 +130,17 @@ and the final release-readiness audit. Consequently, none of the five required
 external receipts, nor the final Gate-17 sign-off, can be accepted from
 GitHub-hosted Windows CI or a Windows Server host.
 
+The final release-readiness audit also re-runs the canonical full-scope
+implementation preflight itself. This is deliberate duplication of the
+transactional coordinator's early guard: invoking
+`gate17_release_readiness.py` directly cannot bypass the repository-side
+human-scope, runtime-owner, per-scope save/reload, six-user multi-human, or
+completed-state progression checks merely by supplying externally plausible
+receipt JSON. The direct audit accepts the same `--player-seed` and
+`--max-days` controls, records the green implementation-preflight payload in
+the final receipt, and fails before validating external receipts when the
+current runtime still reports implementation blockers.
+
 
 ### Transactional external validation runner
 
