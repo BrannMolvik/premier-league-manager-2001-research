@@ -4,6 +4,14 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Recovery 251 Gate-17 primary-container save coverage
+
+PR #275 head `9e7473cc` passed reconstruction CI with **1,893 tests / 23 expected skips** and repository asset policy, then squash-merged as `636f4204`.
+
+The canonical save audit now joins the source-proven fixed Premier League save route and every procedural-primary TeamSelect route in exact playable-League runtime-plan order. It records the TeamSelect catalog SHA-256 and exact verified primary scope IDs, while preserving every procedural-secondary scope as explicitly unverified and setting full-original-scope save continuity false whenever any secondary scope remains. No secondary runtime behavior or private canonical receipt is inferred.
+
+The next independent Gate-17 readiness task is to add the already source-proven six-user TeamSelect requirement to the repository-side full-scope implementation preflight. The current gameplay backend remains single-manager, so the preflight must retain an explicit multi-human blocker even if league selection/runtime/progression dimensions later become green.
+
 ### 4 October 2026 KST — Recovery 251 Gate-17 primary save catalog binding
 
 Resumed from canonical main `b267f046` and agent-runtime generation 250. PR #274 head `b3c90bd9` had both required hosted checks green; reconstruction CI ran **1,891 tests / 23 expected skips** and repository asset policy passed. Merged PR #274 as `748b4782`.
