@@ -141,6 +141,59 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
         self.assertFalse(composite.flattened_frame_available)
         self.assertFalse(composite.complete_fastview_frame)
 
+    def test_optional_clock_follows_chrome_and_preserves_overlap_masking(self):
+        rasters = FastViewComponentRasterSet(
+            chrome=plane(
+                "direct_chrome",
+                {
+                    12: (1, 1, 1, 255),
+                    13: (2, 2, 2, 255),
+                },
+            ),
+            possession_diagram=plane(
+                "possession_diagram",
+                {14: (3, 3, 3, 255)},
+            ),
+            possession_figures=plane(
+                "possession_figures_text",
+                {15: (4, 4, 4, 255)},
+            ),
+            clock=plane(
+                "clock_text",
+                {
+                    12: (255, 255, 255, 128),
+                    16: (255, 255, 255, 255),
+                },
+            ),
+        )
+        composite = compose_fastview_resolved_only_pixels(rasters)
+
+        self.assertEqual(
+            composite.contributing_components,
+            (
+                "direct_chrome",
+                "clock_text",
+                "possession_diagram",
+                "possession_figures_text",
+            ),
+        )
+        self.assertEqual(composite.unresolved_overlap_mask[12], 1)
+        self.assertEqual(pixel(composite, 12), (0, 0, 0, 0))
+        self.assertEqual(
+            composite.unresolved_overlap_groups,
+            (
+                FastViewUnresolvedOverlapGroup(
+                    components=("direct_chrome", "clock_text"),
+                    pixel_count=1,
+                    bounding_rect=(12, 0, 13, 1),
+                ),
+            ),
+        )
+        self.assertEqual(pixel(composite, 13), (2, 2, 2, 255))
+        self.assertEqual(pixel(composite, 16), (255, 255, 255, 255))
+        self.assertFalse(composite.cross_component_z_order_recovered)
+        self.assertFalse(composite.flattened_frame_available)
+
     def test_phase_split_score_planes_keep_source_order_in_overlap_topology(self):
         rasters = FastViewComponentRasterSet(
             chrome=plane("direct_chrome", {30: (1, 1, 1, 255)}),
