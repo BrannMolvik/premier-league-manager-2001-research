@@ -85,8 +85,35 @@ Source-closed sites:
 | `0x64FD1B` | 8 | `0x40` |
 | `0x64FD8B` | 8 | `0x40` |
 
-This closes the sender shape without equating the dynamic return value to any
-specific AudioHooks event ID.
+The concrete dynamic return value is now source-closed numerically without
+assigning event meaning. MSVC RTTI resolves `.?AVButton@ease_2001@@` to type
+descriptor `0x81AD90` and vtable `0x7BF4CC`. Vtable slot 0 targets
+`0x6528A0`.
+
+That selector reads Button object field `+0x34`. When that field is null it
+returns numeric event ID **2**. Otherwise it passes Button word field `+0x4A`
+through virtual offset `+0xA8`.
+
+Gate 13 already source-closed `+0x4A` independently as the active
+Button@ease animation **group index**. The three exact group lengths are
+`(11, 11, 1)`, and group 2 is the disabled one-frame group. This checkpoint
+reuses that evidence rather than renaming the field.
+
+For this Button vtable, `+0xA8` targets `0x5D62F0`. That helper returns
+**1** for group **2**, and **11** for groups **0/1**. Slot 0 compares that
+result with one.
+
+Therefore the exact numeric rule is:
+
+- event **2** when `+0x34` is null;
+- event **2** when `+0x34` is non-null and native group **2** is active;
+- event **10** when `+0x34` is non-null and native group **0 or 1** is active.
+
+The already-source-closed Button input path `0x64F7A0` invokes this exact
+slot 0 before every dynamic AudioHooks call. Therefore all ten dynamic-control
+sites have the source-bounded event set **{2, 10}**.
+
+The condition deciding 2 versus 10 is not given a UI/event name.
 
 ## Derived non-control sender family
 
@@ -144,7 +171,8 @@ This checkpoint may promote:
 - proof that the third argument is unused by `0x5DBFC0`;
 - the exact numeric literal sender tuples above;
 - the exact locally derived numeric sender bounds above;
-- the exact dynamic-control sender shape above.
+- the exact dynamic-control sender shape above;
+- the Button@ease RTTI/vtable identity and dynamic numeric event set {2,10}.
 
 It does **not** promote:
 
@@ -160,10 +188,11 @@ Decoded audio remains non-evidence for naming events.
 
 Continue from the sender side rather than the dispatcher:
 
-1. source-close the remaining non-literal virtual sender candidates where event
-   or state is derived from registers/data flow;
-2. tie only directly proven sender contexts to higher-level native classes or
-   event constructors;
+1. tie only directly proven numeric sender contexts to higher-level native
+   classes or event constructors;
+2. recover the source meaning of Button field `+0x34` only if its
+   ownership/data flow identifies that meaning directly; `+0x4A` is already
+   source-closed as the native animation-group index;
 3. add semantic names only when that source path itself establishes the meaning;
 4. keep BNK sample interpretation separate from sender semantics.
 

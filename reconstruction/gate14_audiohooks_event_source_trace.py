@@ -38,6 +38,24 @@ AUDIO_HOOKS_EVENT_STACK_OFFSET = 0x04
 AUDIO_HOOKS_STATE_STACK_OFFSET = 0x08
 AUDIO_HOOKS_THIRD_STACK_OFFSET = 0x0C
 
+# Independently source-closed Button@ease_2001 RTTI/vtable path used by the
+# dynamic 0x64F7xx AudioHooks sender family.
+BUTTON_EASE_DECORATED_RTTI = ".?AVButton@ease_2001@@"
+BUTTON_EASE_TYPE_DESCRIPTOR_VA = 0x81AD90
+BUTTON_EASE_VTABLE_VA = 0x7BF4CC
+BUTTON_EASE_SLOT0_EVENT_SELECTOR_VA = 0x6528A0
+BUTTON_EASE_INPUT_VA = 0x64F7A0
+BUTTON_EASE_EVENT_IDS = (2, 10)
+BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD = 0x34
+BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD = 0x4A
+# Independently source-closed by GATE13_BUTTON_NATIVE_TRACE.md as the active
+# Button@ease animation group index.
+BUTTON_EASE_NATIVE_GROUP_FIELD = BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD
+BUTTON_EASE_NATIVE_GROUP_LENGTHS = (11, 11, 1)
+BUTTON_EASE_DISABLED_GROUP = 2
+BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET = 0xA8
+BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA = 0x5D62F0
+
 # Exact canonical callsites where all three AudioHooks stack operands are
 # immediate literals immediately before the slot-0 indirect call.
 # Tuple fields are: callsite, event arg1, state arg2, third arg3.
@@ -114,6 +132,27 @@ class AudioHooksCallingConvention:
 
 
 SOURCE_CALLING_CONVENTION = AudioHooksCallingConvention()
+
+
+def button_ease_audiohooks_event_id(
+    object_field_34_non_null: bool,
+    word_field_4a: int,
+) -> int:
+    """Reproduce Button@ease slot-0's source-closed numeric event selection.
+
+    No semantic meaning is assigned to either object field or to event 2/10.
+    """
+    if type(object_field_34_non_null) is not bool:
+        raise Gate14AudioHooksCallerTraceError(
+            "Button +0x34 presence must be explicit boolean"
+        )
+    if type(word_field_4a) is not int or not 0 <= word_field_4a <= 0xFFFF:
+        raise Gate14AudioHooksCallerTraceError(
+            "Button +0x4A value must be uint16"
+        )
+    if not object_field_34_non_null:
+        return 2
+    return 2 if word_field_4a == 2 else 10
 
 
 def _load_capstone():
@@ -394,7 +433,26 @@ def audiohooks_caller_trace_report(
         "global_slot0_call_candidates_not_cfg_proof": virtual,
         "source_closed_literal_virtual_senders": SOURCE_CLOSED_LITERAL_VIRTUAL_SENDERS,
         "source_closed_dynamic_control_senders": SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS,
+        "source_closed_dynamic_control_event_ids": BUTTON_EASE_EVENT_IDS,
         "source_closed_derived_virtual_senders": SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
+        "button_ease_source_contract": {
+            "decorated_rtti": BUTTON_EASE_DECORATED_RTTI,
+            "type_descriptor_va": BUTTON_EASE_TYPE_DESCRIPTOR_VA,
+            "vtable_va": BUTTON_EASE_VTABLE_VA,
+            "slot0_event_selector_va": BUTTON_EASE_SLOT0_EVENT_SELECTOR_VA,
+            "input_va": BUTTON_EASE_INPUT_VA,
+            "event_ids": BUTTON_EASE_EVENT_IDS,
+            "object_field_offset": BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD,
+            "word_field_offset": BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD,
+            "native_group_field_offset": BUTTON_EASE_NATIVE_GROUP_FIELD,
+            "native_group_lengths": BUTTON_EASE_NATIVE_GROUP_LENGTHS,
+            "disabled_group": BUTTON_EASE_DISABLED_GROUP,
+            "native_group_semantics_recovered": True,
+            "virtual_offset": BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET,
+            "virtual_target_va": BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA,
+            "numeric_rule": "event=2 if +0x34 is null or +0x4A==2; otherwise event=10",
+            "event_semantics_recovered": False,
+        },
         "rtti_vtable_global_path_recovered": True,
         "calling_convention_recovered": True,
         "event_argument_position_recovered": True,
@@ -405,8 +463,9 @@ def audiohooks_caller_trace_report(
         "sample_meaning_recovered": False,
         "evidence_limit": (
             "The AudioHooks RTTI/vtable/global-object path, three-stack-argument "
-            "convention, literal/derived numeric sender tuples, and dynamic-control "
-            "sender shape are source-backed. Numeric event IDs are not human-readable "
+            "convention, literal/derived numeric sender tuples, and Button@ease "
+            "dynamic-control event set {2,10} are source-backed. Numeric event IDs "
+            "are not human-readable "
             "event names, computed event results are not guessed, and decoded "
             "audio is not sample-meaning evidence."
         ),

@@ -21,6 +21,19 @@ from gate14_audiohooks_event_source_trace import (
     AUDIO_HOOKS_THIRD_STACK_OFFSET,
     AUDIO_HOOKS_VTABLE_SLOT0_TARGET_VA,
     AUDIO_HOOKS_VTABLE_VA,
+    BUTTON_EASE_DECORATED_RTTI,
+    BUTTON_EASE_EVENT_IDS,
+    BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD,
+    BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET,
+    BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA,
+    BUTTON_EASE_SLOT0_EVENT_SELECTOR_VA,
+    BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD,
+    BUTTON_EASE_DISABLED_GROUP,
+    BUTTON_EASE_INPUT_VA,
+    BUTTON_EASE_NATIVE_GROUP_FIELD,
+    BUTTON_EASE_NATIVE_GROUP_LENGTHS,
+    BUTTON_EASE_TYPE_DESCRIPTOR_VA,
+    BUTTON_EASE_VTABLE_VA,
     SOURCE_CALLING_CONVENTION,
     SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
     SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS,
@@ -29,6 +42,7 @@ from gate14_audiohooks_event_source_trace import (
     audiohooks_caller_trace_report,
     direct_audiohooks_call_candidates,
     main as tracer_main,
+    button_ease_audiohooks_event_id,
     virtual_audiohooks_call_candidates,
 )
 
@@ -120,6 +134,48 @@ class Gate14AudioHooksCallerSourceTraceTests(unittest.TestCase):
         self.assertEqual(
             [item.get("immediate_value") for item in pushes[:3]],
             [1, 1, 0],
+        )
+
+    def test_button_ease_dynamic_event_selector_is_source_closed_to_two_numeric_ids(self):
+        self.assertEqual(BUTTON_EASE_DECORATED_RTTI, ".?AVButton@ease_2001@@")
+        self.assertEqual(BUTTON_EASE_TYPE_DESCRIPTOR_VA, 0x81AD90)
+        self.assertEqual(BUTTON_EASE_VTABLE_VA, 0x7BF4CC)
+        self.assertEqual(BUTTON_EASE_SLOT0_EVENT_SELECTOR_VA, 0x6528A0)
+        self.assertEqual(BUTTON_EASE_INPUT_VA, 0x64F7A0)
+        self.assertEqual(BUTTON_EASE_EVENT_IDS, (2, 10))
+        self.assertEqual(BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD, 0x34)
+        self.assertEqual(BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD, 0x4A)
+        self.assertEqual(BUTTON_EASE_NATIVE_GROUP_FIELD, 0x4A)
+        self.assertEqual(BUTTON_EASE_NATIVE_GROUP_LENGTHS, (11, 11, 1))
+        self.assertEqual(BUTTON_EASE_DISABLED_GROUP, 2)
+        self.assertEqual(BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET, 0xA8)
+        self.assertEqual(BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA, 0x5D62F0)
+
+        self.assertEqual(button_ease_audiohooks_event_id(False, 0), 2)
+        self.assertEqual(button_ease_audiohooks_event_id(False, 0xFFFF), 2)
+        self.assertEqual(button_ease_audiohooks_event_id(True, 2), 2)
+        self.assertEqual(button_ease_audiohooks_event_id(True, 0), 10)
+        self.assertEqual(button_ease_audiohooks_event_id(True, 3), 10)
+        with self.assertRaisesRegex(
+            Gate14AudioHooksCallerTraceError, "explicit boolean"
+        ):
+            button_ease_audiohooks_event_id(1, 2)
+        with self.assertRaisesRegex(
+            Gate14AudioHooksCallerTraceError, "uint16"
+        ):
+            button_ease_audiohooks_event_id(True, 0x10000)
+
+        report = audiohooks_caller_trace_report(parse_fixture())
+        contract = report["button_ease_source_contract"]
+        self.assertEqual(tuple(contract["event_ids"]), (2, 10))
+        self.assertFalse(contract["event_semantics_recovered"])
+        self.assertTrue(contract["native_group_semantics_recovered"])
+        self.assertEqual(contract["native_group_field_offset"], 0x4A)
+        self.assertEqual(tuple(contract["native_group_lengths"]), (11, 11, 1))
+        self.assertEqual(contract["disabled_group"], 2)
+        self.assertEqual(
+            tuple(report["source_closed_dynamic_control_event_ids"]),
+            (2, 10),
         )
 
     def test_source_closed_literal_and_dynamic_sender_families_are_numeric_only(self):
