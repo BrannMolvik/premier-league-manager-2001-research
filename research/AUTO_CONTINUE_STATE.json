@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main includes dynamic PlayerRow energy raster integrated into the frame pipeline as 29781e92 (1,997 tests / 23 expected skips, asset policy green). Active PR #306 head 487abd6f adds source-closed PlayerRow text with exact style-3 Zurich_XCn_BT_16pixel rendering and canonical English Position* strings. Validate exact-head CI and rebase if main divergence blocks merge. Exact next source task after that: source-close EventPlayerOwnGoal native color update before claiming complete PlayerRow text.",
-  "last_known_main_head": "29781e9278c4a50ca0921723fa7614314f793b0d",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Gate-14 main now includes dynamic energy in the canonical frame path and complete English PlayerRow text. Active PR #308 composes exact retained PlayerRow pixels (name grid + complete text + source-cropped energy) with source-closed per-row control order and disjointness guards; require exact-head full CI and asset policy before merge. Private audio source access is healthy: named banks map to slots 0 menus, 1 game00, 2 playercalls, 3 Advice, but playback ownership is not yet source-closed, so do not assign menu/match roles from filenames.",
+  "last_known_main_head": "8c6b167f87de17b7ae26bc7f0f26d9ec93b9469d",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 261,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 261: resumed at main 29781e92; validating #306 and continuing own-goal color trace.",
+  "note": "Recovery 261 heartbeat: main 8c6b167f; validating retained PlayerRow compositor and tracing playback slot ownership.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
