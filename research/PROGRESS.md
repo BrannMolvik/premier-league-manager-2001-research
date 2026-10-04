@@ -38,6 +38,12 @@ The canonical save audit now joins the source-proven fixed Premier League save r
 
 The next independent Gate-17 readiness task is to add the already source-proven six-user TeamSelect requirement to the repository-side full-scope implementation preflight. The current gameplay backend remains single-manager, so the preflight must retain an explicit multi-human blocker even if league selection/runtime/progression dimensions later become green.
 
+### 4 October 2026 KST — Recovery 253 bounded remaining-setup trace restored
+
+Recomposed the useful fail-closed portion of stale PR #210 into the current evolved Gate-13 live-report tracer rather than replacing newer tracing work. PR #283 merged as `7cfcad7c`. The new `--remaining-setup-only` mode reads seven exact lifecycle neighborhoods for fresh club capacities/setup and explicitly reports that the remaining setup trace is incomplete and no legacy capacity writer is identified. No zero/default/percentage semantics are inferred.
+
+Fresh validation: **1,935 reconstruction tests / 23 expected skips**, **571 Gate-13 presentation tests / 22 expected skips**, and asset policy passed. The authorized source/runtime files are materialized locally, but shell and Python process creation both fail before startup with `caas.internal.errors.ClientError`, so no private trace result is claimed in this recovery.
+
 ### 4 October 2026 KST — Recovery 253 PR282 PMatchInfo reconciliation
 
 Recovered stale PR #242 without replaying its implementation. Only the 31 files disjoint from all current-main changes since its old base were transplanted byte-for-byte by Git blob identity; `project_status.json`, `CURRENT_STATE.md`, `FIDELITY_GAPS.md` and `PROGRESS.md` stayed on current main and were reconciled afterward. PR #282 merged as `ac9a417d`.
