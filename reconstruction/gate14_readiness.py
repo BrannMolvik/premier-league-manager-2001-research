@@ -142,7 +142,7 @@ def canonical_gate14_readiness() -> Gate14ReadinessEvidence:
 
         audio_bank_ownership_recovered=True,
         audio_playback_entrypoints_recovered=True,
-        audio_sample_decode_ready=False,
+        audio_sample_decode_ready=True,
         audio_event_binding_recovered=False,
         login_menu_audio_integrated=False,
 
