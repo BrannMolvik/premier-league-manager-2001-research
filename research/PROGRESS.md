@@ -10852,3 +10852,15 @@ work may continue under the deferred-blocker policy.
 - Gate 13 remains the earliest incomplete validation gate and remains Codex-owned. These Gate-17 changes are bounded cloud-safe work-ahead only; they do not widen the current human controller or bypass missing native presentation evidence.
 - Next independent cloud-safe step: compare the new playable-League runtime ownership plan with the actual canonical controller/runtime surfaces and report exact full-scope implementation blockers without mutating shared runtime.
 
+
+
+## 4 October 2026 - Recovery 250 Gate-17 non-PL save continuity and release binding
+
+- Recovered from canonical main `06c935b74bd2518cb4043fe5462058ba8923e70f`; restored `agent-runtime` to continuous/working at recovery generation 250 without restarting completed work.
+- Audited already-prepared PR #271. Reconstruction run `37161086537` passed **1,885 tests / 23 expected skips** and repository asset-policy run `37161086539` passed. Squash-merged PR #271 as `efb9eb7ba3ac15c2bc16ecbebe3dc26839bd5f11`.
+- PR #271 adds a data-driven canonical internal-save audit for a live non-PL `procedural_primary` TeamSelect club. It saves with the first procedural League entry pending, restores from fresh source database/coefficient objects, and requires exact playable-scope policy, logical snapshot, match outcome and RNG equality. The hosted tests prove the harness, not the licensed canonical execution receipt.
+- Audited Gate-17 final evidence and found the existing `save_reload.json` is explicitly Premier-League-centered while `full_original_scope.json` did not separately bind save/reload continuity to every TeamSelect scope.
+- Implemented PR #272 to require `all_original_scope_save_reload=true`, exact save/reload verified scope count and ordered IDs, plus empty save/reload missing/failed scope lists. This prevents one PL receipt or one representative non-PL audit from satisfying the final full-original-scope save requirement.
+- PR #272 reconstruction run `37163378899` passed **1,886 tests / 23 expected skips**; asset-policy run `37163378866` passed. Squash-merged as `053dc98f743110ee654d57a02a4351fb8c2f93d2`.
+- Local fallback validation was unavailable because the execution container could not resolve `github.com`; no local pass was inferred. Hosted Actions provided the executable verification.
+- Gate 13 remains the earliest incomplete validation gate. Remaining Gate-17 source/runtime blockers are secondary procedural ownership/human dispatch, exact CRT state for RNG-bearing non-PL fresh objectives, non-PL sporting-objective season-end progression, the authorized private non-PL save audit receipt, and eventually the full Windows 11 external receipt set. No blocker was guessed away.

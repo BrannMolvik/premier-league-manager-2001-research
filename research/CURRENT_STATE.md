@@ -1,10 +1,25 @@
 # Current State
 
-_Last reconciled: 3 October 2026 KST_
+_Last reconciled: 4 October 2026 KST_
 
 This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
+
+## Recovery 250 Gate-17 work-ahead checkpoint
+
+Gate 13 remains the earliest incomplete validation gate and stays OPEN. Private/source-dependent Gate-13 work must not be inferred from later-gate progress.
+
+Independent Gate-17 cloud-safe work through canonical main `053dc98f` is now:
+
+- PR #269 / `1a4f5eea`: fresh chairman-objective setup and season-end sporting-objective progression are tracked as separate capabilities; non-PL sporting progression remains fail-closed.
+- PR #270 / `06c935b7`: internal save schema 43 preserves playable primary procedural IDs, playable club IDs and the full-country allocation plan across reload.
+- PR #271 / `efb9eb7b`: canonical audit tooling can source-select a live non-PL procedural-primary TeamSelect club, save with its first procedural League entry pending, reload from fresh source objects and require exact controller-policy/state/result/RNG continuation. Hosted verification passed **1,885 tests / 23 expected skips** plus asset policy. This is an audit harness; no private canonical `--procedural-primary` receipt is claimed.
+- PR #272 / `053dc98f`: final full-scope Windows evidence now separately requires save/reload proof for every exact canonical TeamSelect scope ID, exact full scope count/order, and empty save/reload missing/failed lists. Hosted verification passed **1,886 tests / 23 expected skips** plus asset policy.
+
+The remaining Gate-17 runtime blockers are explicit: no secondary procedural League runtime container/human route; RNG-bearing non-PL fresh-objective branches still need the exact `0x5DF670` caller CRT state; non-PL season-end sporting-objective classification/progression is not source-closed; and the new non-PL canonical save audit still needs its authorized private execution receipt. The older PL-centered `save_reload.json` cannot substitute for full-scope save continuity.
+
+Exact next cloud-safe action: do not generalize any of those source-sensitive paths by analogy. If private execution is unavailable, audit the next independent release/runtime invariant or later-gate work that can be proven from existing repository evidence; preserve every source blocker explicitly. Final Gate 17 external Windows 11 evidence remains impossible until Gates 13-16 are formally closed and the full original scope is implemented.
 
 ## Current gate
 
