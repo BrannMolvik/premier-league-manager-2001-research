@@ -22,6 +22,12 @@ from gate14_fastview_scores import (
     FASTVIEW_LEAGUE_SCORES_EVENT_UPDATE_CALLBACK_VA,
     FASTVIEW_LEAGUE_SCORES_PRIMARY_VFTABLE,
     FASTVIEW_LEAGUE_SCORES_RECEIVER_VFTABLE,
+    FASTVIEW_LEAGUE_SCORES_LAYOUT_METHOD_VA,
+    FASTVIEW_LEAGUE_SCORES_SCORE_FACTORY_VA,
+    FASTVIEW_CUP_SCORES_PRIMARY_VFTABLE,
+    FASTVIEW_CUP_SCORES_RTTI,
+    FASTVIEW_CUP_SCORES_LAYOUT_METHOD_VA,
+    FASTVIEW_CUP_SCORES_SCORE_FACTORY_VA,
     SCORE_COMPOSITE_EVENT_RECEIVERS,
     SCORE_COMPOSITE_NORMAL_CONSTRUCTOR_VA,
     SCORE_COMPOSITE_NORMAL_LAYOUT_DWORDS,
@@ -31,12 +37,16 @@ from gate14_fastview_scores import (
     SCORE_COMPOSITE_NORMAL_TEXT_LOCAL_RECTS,
     FASTVIEW_LEAGUE_SCORES_ROW_COUNT,
     FASTVIEW_LEAGUE_SCORES_ROW_STEP,
-    FASTVIEW_LEAGUE_SCORES_TWO_COLUMN_STEP,
+    FASTVIEW_CUP_SCORES_ROW_COUNT,
+    FASTVIEW_CUP_SCORES_TWO_COLUMN_STEP,
     FastViewScoresError,
     fastview_league_scores_grid_rects,
     fastview_league_scores_page_layout,
+    fastview_cup_scores_grid_rects,
+    fastview_cup_scores_page_layout,
     score_composite_normal_local_grid_size,
     score_composite_normal_page_slot_rects,
+    score_composite_normal_cup_page_slot_rects,
     score_composite_normal_rects,
     score_composite_phase_local_rects,
     score_composite_phase_rects,
@@ -55,7 +65,7 @@ class FastViewScoresTests(unittest.TestCase):
         )
         self.assertEqual(
             CURRENT_FIX_GRID_1.owner,
-            "FastViewPanel::FastViewLeagueScores",
+            "FastViewPanel::FastViewLeagueScores and FastViewPanel::FastViewCupScores",
         )
 
         self.assertEqual(CURRENT_FIX_GRID_2.size, (309, 16))
@@ -171,37 +181,47 @@ class FastViewScoresTests(unittest.TestCase):
         with self.assertRaises(FastViewScoresError):
             score_composite_phase_rects([246, 55])
 
-    def test_league_scores_grid_one_strip_or_two_strips_at_source_threshold(self):
+    def test_league_and_cup_grid_layouts_are_distinct_source_classes(self):
+        for count in (1, 12, 13, 24):
+            with self.subTest(view="league", count=count):
+                self.assertEqual(
+                    fastview_league_scores_grid_rects(count),
+                    ((38, 32, 347, 51),),
+                )
+
         self.assertEqual(
-            fastview_league_scores_grid_rects(1),
+            fastview_cup_scores_grid_rects(1),
             ((246, 32, 555, 51),),
         )
         self.assertEqual(
-            fastview_league_scores_grid_rects(12),
+            fastview_cup_scores_grid_rects(12),
             ((246, 32, 555, 51),),
         )
         self.assertEqual(
-            fastview_league_scores_grid_rects(13),
+            fastview_cup_scores_grid_rects(13),
             ((38, 32, 347, 51), (454, 32, 763, 51)),
         )
-        for rect in fastview_league_scores_grid_rects(24):
-            self.assertEqual((rect[2] - rect[0], rect[3] - rect[1]), (309, 19))
 
-    def test_score_composite_final_page_origins_follow_source_relayout(self):
-        one = fastview_league_scores_page_layout(12)
-        self.assertEqual(one.columns, 1)
-        self.assertEqual(one.rows_per_column, FASTVIEW_LEAGUE_SCORES_ROW_COUNT)
-        self.assertEqual(one.row_step, FASTVIEW_LEAGUE_SCORES_ROW_STEP)
-        self.assertEqual(one.slot_origin(0, 0), (246, 55))
-        self.assertEqual(one.slot_origin(0, 11), (246, 264))
+    def test_score_composite_final_page_origins_preserve_class_split(self):
+        league = fastview_league_scores_page_layout(13)
+        self.assertEqual(league.columns, 1)
+        self.assertEqual(league.rows_per_column, FASTVIEW_LEAGUE_SCORES_ROW_COUNT)
+        self.assertEqual(league.row_step, FASTVIEW_LEAGUE_SCORES_ROW_STEP)
+        self.assertEqual(league.slot_origin(0, 0), (38, 55))
+        self.assertEqual(league.slot_origin(0, 11), (38, 264))
 
-        two = fastview_league_scores_page_layout(13)
-        self.assertEqual(two.columns, 2)
-        self.assertEqual(two.column_step, FASTVIEW_LEAGUE_SCORES_TWO_COLUMN_STEP)
-        self.assertEqual(two.slot_origin(0, 0), (38, 55))
-        self.assertEqual(two.slot_origin(0, 11), (38, 264))
-        self.assertEqual(two.slot_origin(1, 0), (454, 55))
-        self.assertEqual(two.slot_origin(1, 11), (454, 264))
+        cup_one = fastview_cup_scores_page_layout(12)
+        self.assertEqual(cup_one.columns, 1)
+        self.assertEqual(cup_one.rows_per_column, FASTVIEW_CUP_SCORES_ROW_COUNT)
+        self.assertEqual(cup_one.slot_origin(0, 0), (246, 55))
+
+        cup_two = fastview_cup_scores_page_layout(13)
+        self.assertEqual(cup_two.columns, 2)
+        self.assertEqual(cup_two.column_step, FASTVIEW_CUP_SCORES_TWO_COLUMN_STEP)
+        self.assertEqual(cup_two.slot_origin(0, 0), (38, 55))
+        self.assertEqual(cup_two.slot_origin(0, 11), (38, 264))
+        self.assertEqual(cup_two.slot_origin(1, 0), (454, 55))
+        self.assertEqual(cup_two.slot_origin(1, 11), (454, 264))
 
     def test_score_composite_grid_and_text_rectangles_translate_from_fixed_table(self):
         self.assertEqual(SCORE_COMPOSITE_NORMAL_GRID_LOCAL_RECT, (0, 0, 309, 16))
@@ -225,18 +245,24 @@ class FastViewScoresTests(unittest.TestCase):
                 (404, 55, 417, 71),
             ),
         )
-        grid2, text2 = score_composite_normal_page_slot_rects(13, 1, 0)
-        self.assertEqual(grid2, (454, 55, 763, 71))
-        self.assertEqual(text2[0], (456, 55, 586, 71))
-        self.assertEqual(text2[3], (612, 55, 625, 71))
+        league_grid, league_text = score_composite_normal_page_slot_rects(13, 0, 0)
+        self.assertEqual(league_grid, (38, 55, 347, 71))
+        self.assertEqual(league_text[0], (40, 55, 170, 71))
+
+        cup_grid, cup_text = score_composite_normal_cup_page_slot_rects(13, 1, 0)
+        self.assertEqual(cup_grid, (454, 55, 763, 71))
+        self.assertEqual(cup_text[0], (456, 55, 586, 71))
+        self.assertEqual(cup_text[3], (612, 55, 625, 71))
 
     def test_invalid_page_slot_and_origin_fail_closed(self):
         with self.assertRaises(FastViewScoresError):
             fastview_league_scores_page_layout(True)
         with self.assertRaises(FastViewScoresError):
-            fastview_league_scores_page_layout(13).slot_origin(2, 0)
+            fastview_league_scores_page_layout(13).slot_origin(1, 0)
         with self.assertRaises(FastViewScoresError):
-            fastview_league_scores_page_layout(13).slot_origin(1, 12)
+            fastview_cup_scores_page_layout(13).slot_origin(2, 0)
+        with self.assertRaises(FastViewScoresError):
+            fastview_cup_scores_page_layout(13).slot_origin(1, 12)
         with self.assertRaises(FastViewScoresError):
             score_composite_normal_rects([38, 55])
 
@@ -246,11 +272,18 @@ class FastViewScoresTests(unittest.TestCase):
                 with self.assertRaises(FastViewScoresError):
                     fastview_league_scores_grid_rects(value)
 
-    def test_fastview_league_scores_receiver_identity_is_source_bound(self):
+    def test_fastview_league_and_cup_scores_class_identity_is_source_bound(self):
         self.assertEqual(FASTVIEW_LEAGUE_SCORES_PRIMARY_VFTABLE, 0x7CA750)
         self.assertEqual(FASTVIEW_LEAGUE_SCORES_RECEIVER_VFTABLE, 0x7CA744)
+        self.assertEqual(FASTVIEW_LEAGUE_SCORES_LAYOUT_METHOD_VA, 0x523370)
+        self.assertEqual(FASTVIEW_LEAGUE_SCORES_SCORE_FACTORY_VA, 0x523CC0)
         self.assertEqual(EVENT_LEAGUE_TABLE_UPDATE_BASE_VFTABLE, 0x7CA7B4)
         self.assertEqual(FASTVIEW_LEAGUE_SCORES_EVENT_UPDATE_CALLBACK_VA, 0x523DB0)
+
+        self.assertEqual(FASTVIEW_CUP_SCORES_PRIMARY_VFTABLE, 0x7CA680)
+        self.assertEqual(FASTVIEW_CUP_SCORES_RTTI, ".?AVFastViewCupScores@FastViewPanel@@")
+        self.assertEqual(FASTVIEW_CUP_SCORES_LAYOUT_METHOD_VA, 0x523DF0)
+        self.assertEqual(FASTVIEW_CUP_SCORES_SCORE_FACTORY_VA, 0x5243B0)
 
     def test_score_composite_normal_source_table_and_receiver_lifecycle(self):
         self.assertEqual(SCORE_COMPOSITE_NORMAL_CONSTRUCTOR_VA, 0x51B740)
