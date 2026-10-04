@@ -20,6 +20,11 @@ from pathlib import Path
 
 from fm2001_data import FM2001Database
 from gate17_full_scope_catalog import load_canonical_original_playable_scope
+from gate17_playable_league_runtime_plan import (
+    RUNTIME_FIXED_PRIMARY,
+    RUNTIME_PROCEDURAL_PRIMARY,
+    load_canonical_playable_league_runtime_plan,
+)
 from human_gameplay import HumanGameplayController
 from internal_save import dumps_human_gameplay, loads_human_gameplay, snapshot_human_gameplay
 from match_coefficients import MatchCoefficientMatrices
@@ -581,6 +586,164 @@ def run_canonical_primary_scope_internal_save_sweep(
     return audit
 
 
+
+def run_canonical_primary_container_internal_save_sweep(
+    game_dir: str | Path,
+    *,
+    player_seed: int = 1,
+    pre_save_fixtures: int = 2,
+    fixed_post_save_fixtures: int = 4,
+    max_matches_before_save: int = 24,
+    procedural_post_save_matches: int = 3,
+    formation_id: int = 0,
+) -> dict:
+    """Audit every source-backed TeamSelect League in the primary container.
+
+    The fixed Premier League route and every procedural-primary route are
+    exercised independently and then joined in exact runtime-plan order. The
+    aggregate deliberately reports secondary-container TeamSelect scopes as
+    unverified; it never routes those scopes through the primary engine.
+    """
+    pre_save_fixtures = int(pre_save_fixtures)
+    fixed_post_save_fixtures = int(fixed_post_save_fixtures)
+    max_matches_before_save = int(max_matches_before_save)
+    procedural_post_save_matches = int(procedural_post_save_matches)
+    if pre_save_fixtures < 0:
+        raise ValueError("pre_save_fixtures must be non-negative")
+    if fixed_post_save_fixtures <= 0:
+        raise ValueError("fixed_post_save_fixtures must be positive")
+    if max_matches_before_save <= 0:
+        raise ValueError("max_matches_before_save must be positive")
+    if procedural_post_save_matches <= 0:
+        raise ValueError("procedural_post_save_matches must be positive")
+
+    game_dir = Path(game_dir)
+    plan = load_canonical_playable_league_runtime_plan(game_dir)
+    primary_entries = tuple(
+        entry for entry in plan.entries if entry.uses_primary_container
+    )
+    fixed_entries = tuple(
+        entry for entry in primary_entries
+        if entry.runtime_owner == RUNTIME_FIXED_PRIMARY
+    )
+    procedural_entries = tuple(
+        entry for entry in primary_entries
+        if entry.runtime_owner == RUNTIME_PROCEDURAL_PRIMARY
+    )
+    _require(primary_entries, "runtime plan contains no primary-container TeamSelect scopes")
+    _require(
+        len(fixed_entries) == 1 and int(fixed_entries[0].competition_id) == 0,
+        "primary save sweep requires the single source-proven fixed Premier League",
+    )
+
+    fixed_entry = fixed_entries[0]
+    _require(
+        bool(fixed_entry.selectable_club_ids),
+        "fixed Premier League scope contains no selectable TeamSelect club",
+    )
+    fixed_club_id = int(fixed_entry.selectable_club_ids[0])
+    fixed_audit = run_canonical_internal_save_audit(
+        game_dir,
+        player_seed=int(player_seed),
+        club_id=fixed_club_id,
+        pre_save_fixtures=pre_save_fixtures,
+        post_save_fixtures=fixed_post_save_fixtures,
+        formation_id=int(formation_id),
+    )
+    _require(
+        int(fixed_audit["human_club_id"]) == fixed_club_id,
+        "fixed primary save audit returned a different TeamSelect club",
+    )
+    _require(
+        fixed_audit.get("branches_equal") is True,
+        "fixed primary save audit did not prove branch equivalence",
+    )
+
+    if procedural_entries:
+        procedural = run_canonical_primary_scope_internal_save_sweep(
+            game_dir,
+            player_seed=int(player_seed),
+            max_matches_before_save=max_matches_before_save,
+            post_save_matches=procedural_post_save_matches,
+            formation_id=int(formation_id),
+        )
+        _require(
+            str(procedural["scope_catalog_sha256"]) == str(plan.catalog_sha256),
+            "procedural-primary save sweep targets a different TeamSelect catalog",
+        )
+        expected_procedural_scope_ids = [
+            str(entry.scope_id) for entry in procedural_entries
+        ]
+        _require(
+            list(procedural["verified_scope_ids"]) == expected_procedural_scope_ids,
+            "procedural-primary save sweep does not match runtime-plan scope order",
+        )
+        procedural_audits = list(procedural["scope_audits"])
+        _require(
+            len(procedural_audits) == len(procedural_entries),
+            "procedural-primary save sweep returned the wrong audit count",
+        )
+    else:
+        procedural = None
+        procedural_audits = []
+
+    audit_by_scope = {
+        str(fixed_entry.scope_id): {
+            "scope_id": str(fixed_entry.scope_id),
+            "competition_id": int(fixed_entry.competition_id),
+            "runtime_owner": str(fixed_entry.runtime_owner),
+            "human_club_id": fixed_club_id,
+            "audit": fixed_audit,
+        }
+    }
+    for entry, scope_audit in zip(procedural_entries, procedural_audits):
+        _require(
+            int(scope_audit["competition_id"]) == int(entry.competition_id),
+            "procedural-primary audit competition differs from runtime plan",
+        )
+        audit_by_scope[str(entry.scope_id)] = {
+            "scope_id": str(entry.scope_id),
+            "competition_id": int(entry.competition_id),
+            "runtime_owner": str(entry.runtime_owner),
+            "human_club_id": int(scope_audit["human_club_id"]),
+            "audit": scope_audit,
+        }
+
+    verified_primary_scope_ids = [str(entry.scope_id) for entry in primary_entries]
+    _require(
+        all(scope_id in audit_by_scope for scope_id in verified_primary_scope_ids),
+        "primary-container save sweep is missing a runtime-plan scope",
+    )
+    ordered_audits = [audit_by_scope[scope_id] for scope_id in verified_primary_scope_ids]
+    secondary_scope_ids = [
+        str(scope_id) for scope_id in plan.procedural_secondary_scope_ids
+    ]
+
+    audit = {
+        "canonical_files_verified": True,
+        "player_seed": int(player_seed),
+        "scope_catalog_sha256": str(plan.catalog_sha256),
+        "primary_scope_count": len(primary_entries),
+        "verified_primary_scope_ids": verified_primary_scope_ids,
+        "fixed_primary_scope_ids": [
+            str(entry.scope_id) for entry in fixed_entries
+        ],
+        "procedural_primary_scope_ids": [
+            str(entry.scope_id) for entry in procedural_entries
+        ],
+        "unverified_secondary_scope_ids": secondary_scope_ids,
+        "scope_audits": ordered_audits,
+        "all_primary_container_scopes_save_reload_equal": True,
+        "full_original_scope_save_reload_complete": not secondary_scope_ids,
+    }
+    payload = json.dumps(
+        audit,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("ascii")
+    audit["audit_sha256"] = sha256(payload).hexdigest()
+    return audit
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("game_dir", type=Path)
@@ -600,9 +763,26 @@ def main() -> int:
         action="store_true",
         help="audit every live procedural-primary TeamSelect competition",
     )
+    mode.add_argument(
+        "--primary-container-all",
+        action="store_true",
+        help="audit the fixed Premier League plus every procedural-primary TeamSelect scope",
+    )
     parser.add_argument("--max-before-save", type=int, default=24)
     args = parser.parse_args()
-    if args.procedural_primary_all:
+    if args.primary_container_all:
+        if args.club_id != 0:
+            parser.error("--club-id cannot be combined with --primary-container-all")
+        audit = run_canonical_primary_container_internal_save_sweep(
+            args.game_dir,
+            player_seed=args.player_seed,
+            pre_save_fixtures=args.pre_save_fixtures,
+            fixed_post_save_fixtures=args.post_save_fixtures,
+            max_matches_before_save=args.max_before_save,
+            procedural_post_save_matches=args.post_save_fixtures,
+            formation_id=args.formation,
+        )
+    elif args.procedural_primary_all:
         if args.club_id != 0:
             parser.error("--club-id cannot be combined with --procedural-primary-all")
         audit = run_canonical_primary_scope_internal_save_sweep(
