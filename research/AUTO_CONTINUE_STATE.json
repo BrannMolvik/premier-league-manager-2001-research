@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. PR #354 merged as canonical main ce4abfc1 after 2,226 tests/23 skips and asset-policy success. Continue independent Gate-14 PTeamOrders2K event-19 sender recovery: RTTI type descriptor 0x81DE68 / vtable 0x7C6FE0, slot 2 -> 0x4D7600 and slot 4 -> 0x4D6770 both reach helper 0x4D6FA0; helper sends numeric AudioHooks tuple (19,0,0) only when 0x64E5B0 returns AL==0 and the original second helper argument has nonzero low byte. Keep all player-facing/event semantics unresolved.",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Verify Gate-14 PR #355 at head bdc24afe: PTeamOrders2K RTTI/vtable paths reach helper 0x4D6FA0, which sends numeric AudioHooks tuple (19,0,0) only when 0x64E5B0 returns AL==0 and the original second helper argument has a nonzero low byte. Keep all event/helper/player-facing semantics unresolved. If green, merge and continue another disjoint source-backed Gate-14 sender context.",
   "last_known_main_head": "ce4abfc16ae3dd19e8cc63e5b47f10084bea6e8a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 279,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #354 canonical as ce4abfc1. Next source unit is PTeamOrders2K event-19 helper. Source facts are structural/numeric only; do not infer event meaning from class name or menus.bnk audio.",
+  "note": "PR #355 opened from canonical main ce4abfc1. PTeamOrders2K event-19 source contract is structural/numeric only and CI is pending. Do not touch Gate 13 while the ownership lock remains active.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
