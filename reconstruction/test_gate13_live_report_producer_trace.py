@@ -8,6 +8,7 @@ from gate13_live_report_producer_trace import (
     SOURCE_SHA256,
     LIVE_PRODUCER_WINDOWS,
     REMAINING_SETUP_WINDOWS,
+    bounded_remaining_setup_memory_candidates,
     live_report_producer_trace,
 )
 
@@ -43,6 +44,73 @@ class LiveReportProducerTraceTests(unittest.TestCase):
         self.assertFalse(report['remaining_setup_trace_complete'])
         self.assertFalse(report['legacy_capacity_writer_identified'])
         self.assertFalse(report['gate13_closed'])
+
+    def test_bounded_access_classifier_preserves_direction_and_register_context(self):
+        code = (
+            b'\x8B\x81\x3C\x01\x00\x00'  # mov eax,[ecx+13c]
+            b'\x89\x82\x40\x01\x00\x00'  # mov [edx+140],eax
+            b'\x83\x83\x30\x01\x00\x00\x01'  # add [ebx+130],1
+            b'\x80\x78\x76\x00'  # cmp byte ptr [eax+76],0
+        )
+
+        first_va = REMAINING_SETUP_WINDOWS[0][1]
+
+        def read(address, size):
+            if address == first_va:
+                return code + b'\x90' * (size - len(code))
+            return b'\x90' * size
+
+        pe = SimpleNamespace(sha256=SOURCE_SHA256, read=read)
+        candidates = bounded_remaining_setup_memory_candidates(pe)
+        self.assertEqual(
+            [
+                (
+                    row['candidate_displacement'],
+                    row['candidate_access'],
+                    row['base_register'],
+                )
+                for row in candidates
+            ],
+            [
+                (0x13C, 'read', 'ecx'),
+                (0x140, 'write', 'edx'),
+                (0x130, 'read_write', 'ebx'),
+                (0x76, 'read', 'eax'),
+            ],
+        )
+        self.assertTrue(
+            all(
+                row['classification']
+                == 'bounded_linear_candidate_not_cfg_or_object_proof'
+                for row in candidates
+            )
+        )
+
+    def test_report_access_classification_requires_remaining_setup_scope(self):
+        pe = SimpleNamespace(
+            sha256=SOURCE_SHA256,
+            read=lambda address, size: b'\x90' * size,
+        )
+        with self.assertRaisesRegex(
+            ValueError,
+            'requires remaining-setup-only',
+        ):
+            live_report_producer_trace(
+                pe,
+                classify_remaining_field_accesses=True,
+            )
+
+        report = live_report_producer_trace(
+            pe,
+            remaining_setup_only=True,
+            classify_remaining_field_accesses=True,
+        )
+        self.assertEqual(report['bounded_remaining_field_access_candidates'], [])
+        self.assertFalse(report['bounded_access_semantics_recovered'])
+        self.assertIn(
+            'do not prove',
+            report['bounded_access_evidence_limit'],
+        )
 
     def test_remaining_setup_scope_is_mutually_exclusive_with_metadata_scope(self):
         pe = SimpleNamespace(

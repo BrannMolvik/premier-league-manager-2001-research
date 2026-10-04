@@ -8,6 +8,7 @@ from gate13_button_source_trace import (
     OriginalPE32, OriginalPETraceError, require_private_output_path,
     disassemble_window,
 )
+from gate13_remaining_field_source_trace import REMAINING_GATE13_FIELDS
 
 SOURCE_SHA256 = '833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'
 REMAINING_SETUP_WINDOWS = (
@@ -57,17 +58,114 @@ LIVE_PRODUCER_WINDOWS = (
 )
 
 
+
+def bounded_remaining_setup_memory_candidates(pe) -> tuple[dict, ...]:
+    """Classify exact unresolved-field operands only inside approved setup windows.
+
+    This is a linear, bounded analyst aid. Access direction and register context
+    come from Capstone metadata; neither proves the base object is DBRClub/player
+    nor that an instruction is reachable in the fresh-game lifecycle.
+    """
+    if pe.sha256 != SOURCE_SHA256:
+        raise OriginalPETraceError(
+            'Bounded remaining-setup access trace requires the canonical executable'
+        )
+    try:
+        from capstone import (
+            CS_AC_READ,
+            CS_AC_WRITE,
+            CS_ARCH_X86,
+            CS_MODE_32,
+            Cs,
+        )
+        from capstone.x86 import X86_OP_MEM
+    except ImportError as exc:
+        raise OriginalPETraceError(
+            'Bounded setup access trace requires pip install "capstone>=5,<6"'
+        ) from exc
+
+    labels_by_displacement: dict[int, tuple[str, ...]] = {}
+    for label, displacement in REMAINING_GATE13_FIELDS:
+        existing = labels_by_displacement.get(int(displacement), ())
+        labels_by_displacement[int(displacement)] = existing + (str(label),)
+
+    engine = Cs(CS_ARCH_X86, CS_MODE_32)
+    engine.detail = True
+    engine.skipdata = True
+    candidates: list[dict] = []
+
+    for window_label, address, size in REMAINING_SETUP_WINDOWS:
+        blob = pe.read(address, size)
+        for insn in engine.disasm(blob, address):
+            if insn.id == 0:
+                continue
+            for operand_index, operand in enumerate(insn.operands):
+                if operand.type != X86_OP_MEM:
+                    continue
+                displacement = int(operand.mem.disp)
+                field_labels = labels_by_displacement.get(displacement)
+                if field_labels is None:
+                    continue
+                access = int(getattr(operand, 'access', 0))
+                reads = bool(access & CS_AC_READ)
+                writes = bool(access & CS_AC_WRITE)
+                if reads and writes:
+                    access_kind = 'read_write'
+                elif reads:
+                    access_kind = 'read'
+                elif writes:
+                    access_kind = 'write'
+                else:
+                    access_kind = 'unknown'
+
+                candidates.append(
+                    {
+                        'window_label': window_label,
+                        'window_va': int(address),
+                        'candidate_instruction_va': int(insn.address),
+                        'candidate_operand_index': int(operand_index),
+                        'candidate_displacement': displacement,
+                        'candidate_field_labels': field_labels,
+                        'candidate_access': access_kind,
+                        'candidate_mnemonic': insn.mnemonic,
+                        'candidate_operands': insn.op_str,
+                        'candidate_bytes': bytes(insn.bytes).hex(),
+                        'base_register': (
+                            insn.reg_name(operand.mem.base)
+                            if operand.mem.base
+                            else None
+                        ),
+                        'index_register': (
+                            insn.reg_name(operand.mem.index)
+                            if operand.mem.index
+                            else None
+                        ),
+                        'scale': int(operand.mem.scale),
+                        'classification': (
+                            'bounded_linear_candidate_not_cfg_or_object_proof'
+                        ),
+                    }
+                )
+
+    return tuple(candidates)
+
+
 def live_report_producer_trace(
     pe,
     *,
     with_disassembly=False,
     metadata_only=False,
     remaining_setup_only=False,
+    classify_remaining_field_accesses=False,
 ):
     if pe.sha256 != SOURCE_SHA256:
         raise OriginalPETraceError('Live producer trace requires the canonical executable')
     if metadata_only and remaining_setup_only:
         raise ValueError('Choose either metadata-only or remaining-setup-only, not both')
+    if classify_remaining_field_accesses and not remaining_setup_only:
+        raise ValueError(
+            'Remaining-field access classification requires remaining-setup-only'
+        )
     windows = []
     selected = (
         REMAINING_SETUP_WINDOWS
@@ -83,12 +181,24 @@ def live_report_producer_trace(
         if with_disassembly:
             window['linear_disassembly_not_cfg'] = disassemble_window(blob, address)
         windows.append(window)
-    return {'source_sha256': pe.sha256, 'windows': windows,
-            'scope': 'private analyst evidence, NOT a runtime captured report',
-            'remaining_setup_trace_complete': False,
+    report = {'source_sha256': pe.sha256, 'windows': windows,
+              'scope': 'private analyst evidence, NOT a runtime captured report',
+              'remaining_setup_trace_complete': False,
             'legacy_capacity_writer_identified': False,
-            'runtime_capture_production_complete': False,
-            'normal_pmatchinfo_opening_verified': False, 'gate13_closed': False}
+              'runtime_capture_production_complete': False,
+              'normal_pmatchinfo_opening_verified': False, 'gate13_closed': False}
+    if classify_remaining_field_accesses:
+        report['bounded_remaining_field_access_candidates'] = list(
+            bounded_remaining_setup_memory_candidates(pe)
+        )
+        report['bounded_access_semantics_recovered'] = False
+        report['bounded_access_evidence_limit'] = (
+            'Capstone access direction plus exact displacement/register context '
+            'inside source-qualified windows only. Candidate hits do not prove '
+            'DBRClub/player object identity, reachable CFG, fresh-game writer '
+            'ownership, initialization semantics, or runtime lifecycle.'
+        )
+    return report
 
 
 def main():
@@ -103,6 +213,14 @@ def main():
         action='store_true',
         help='Trace only unresolved Gate-13 setup lifecycle neighborhoods',
     )
+    parser.add_argument(
+        '--classify-remaining-field-accesses',
+        action='store_true',
+        help=(
+            'Inside --remaining-setup-only, classify exact unresolved-field '
+            'memory operands as read/write candidates without semantic promotion'
+        ),
+    )
     args = parser.parse_args()
     require_private_output_path(args.output)
     pe = OriginalPE32.parse(args.original_executable.read_bytes())
@@ -111,6 +229,7 @@ def main():
         with_disassembly=args.disassemble,
         metadata_only=args.metadata_only,
         remaining_setup_only=args.remaining_setup_only,
+        classify_remaining_field_accesses=args.classify_remaining_field_accesses,
     )
     args.output.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     print(f'Private live-producer evidence saved to {args.output}')
