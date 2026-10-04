@@ -183,7 +183,7 @@ class FakeCanvas:
 
 
 class HumanFastViewResolvedPresentationTests(unittest.TestCase):
-    def test_builds_integrity_bound_preview_and_coverage_from_completed_match(self):
+    def test_builds_integrity_bound_preview_coverage_and_overlap_readiness(self):
         presentation = build_human_fastview_resolved_presentation(
             completed_outcome(),
             exact_chrome(),
@@ -195,6 +195,7 @@ class HumanFastViewResolvedPresentationTests(unittest.TestCase):
         frame = presentation.frame
         preview = presentation.preview
         coverage = presentation.coverage
+        readiness = presentation.overlap_readiness
 
         self.assertEqual(frame.match_reference, 23)
         self.assertEqual(frame.semantic_shell.final_score, (1, 0))
@@ -222,6 +223,26 @@ class HumanFastViewResolvedPresentationTests(unittest.TestCase):
             frame.resolved_composite.unresolved_overlap_mask_sha256,
         )
         self.assertEqual(preview.overlap_groups, coverage.unresolved_overlap_groups)
+        self.assertEqual(
+            readiness.source_composite_rgba_sha256,
+            frame.resolved_composite.rgba_sha256,
+        )
+        self.assertEqual(
+            readiness.source_overlap_mask_sha256,
+            frame.resolved_composite.unresolved_overlap_mask_sha256,
+        )
+        self.assertEqual(
+            readiness.unresolved_overlap_pixel_count,
+            frame.resolved_composite.unresolved_overlap_pixel_count,
+        )
+        self.assertEqual(
+            readiness.draw_order_resolved_overlap_pixel_count
+            + readiness.draw_order_unresolved_overlap_pixel_count,
+            readiness.unresolved_overlap_pixel_count,
+        )
+        self.assertEqual(readiness.raster_resolvable_overlap_pixel_count, 0)
+        self.assertFalse(readiness.cross_component_blend_rule_recovered)
+        self.assertFalse(readiness.all_overlap_pixels_resolvable)
         self.assertFalse(presentation.complete_fastview_frame)
         self.assertFalse(presentation.audio_ready)
         self.assertFalse(presentation.choreography_3d_ready)
@@ -298,6 +319,16 @@ class HumanFastViewResolvedPresentationTests(unittest.TestCase):
             "RGBA source hashes drifted",
         ):
             replace(presentation, preview=drifted_preview)
+
+        drifted_readiness = replace(
+            presentation.overlap_readiness,
+            source_composite_rgba_sha256="0" * 64,
+        )
+        with self.assertRaisesRegex(
+            HumanFastViewResolvedPresentationError,
+            "RGBA source hashes drifted",
+        ):
+            replace(presentation, overlap_readiness=drifted_readiness)
 
         with self.assertRaisesRegex(
             HumanFastViewResolvedPresentationError,
