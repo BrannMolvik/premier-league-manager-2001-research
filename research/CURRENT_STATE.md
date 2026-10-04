@@ -6,6 +6,16 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Recovery 253 Gate-13 PMatchInfo row reconciliation checkpoint
+
+PR #282 reconciled the verified PR #242 native report-row milestone onto current canonical main as `ac9a417d` without overwriting newer project/status ledgers. The transplant used exact Git blob identities for 31 files that had not changed on main since PR #242's base: the native packed-script row implementation/tests, original PMatchInfo host/resource changes, provenance manifest, twenty original Premiership primary custom-shirt atlases, the original vertical scroller atlas, and Gate-13 evidence documents.
+
+Fresh hosted validation on the reconciled current code passed **1,933 tests / 23 expected skips**, **571 Gate-13 presentation tests / 22 expected skips**, repository asset policy, and Windows release-candidate package build/smoke. The older private genuine calculated-fixture route receipt and real Windows schema-8 receipt remain valid historical evidence for the byte-identical Gate-13 milestone files, but Recovery 253 did **not** rerun that private real-Windows route on `ac9a417d`; current-main graphical rerun remains pending.
+
+The older "required PMatchInfo script rows remain blank/withheld" wording below is superseded. Controlled-home report rows now render source labels/minutes, player abbreviations/selection colors, icons, primary numbered custom shirts, blank slots and source single-press arrow traversal; both retained eight-entry lists were previously exercised through actual Tk press/release. Gate 13 remains OPEN. Fresh uncontrolled club `+13C/+140` still has no authoritative initializer/lifecycle value and the genuine human-away/uncontrolled-home probe publishes no complete report. Native thumb/bar/hover/held-repeat behavior, remaining required shirt/color contexts, current-main real-Windows rerun, and final timing/normal-play recognizability remain open.
+
+Exact next Gate-13 action: recover the existing fail-closed remaining-setup trace harness from stale PR #210 only if it still composes with the current evolved live-report trace, then use it on a sustained private execution allocation to observe the allocation-to-read/write lifecycle for `+13C/+140`. Do not infer zero from HeapAlloc flags or substitute controlled-stadium values.
+
 ## Recovery 253 Gate-17 final-audit preflight checkpoint
 
 Gate 13 remains the earliest incomplete validation gate and stays OPEN. No later-gate work below closes or bypasses its private/source-dependent criteria.
