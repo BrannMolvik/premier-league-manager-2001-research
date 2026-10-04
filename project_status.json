@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "project": "FM2001 Windows 11 modernization/port",
-  "updated": "2026-10-03",
+  "updated": "2026-10-04",
   "current_gate": 13,
   "current_gate_name": "Restore original management presentation",
   "status": "in_progress",
@@ -1465,7 +1465,7 @@
   "gate13_league_tables_downstream_header_state_trace_complete": true,
   "gate13_league_tables_current_form_ordering_open": true,
   "gate13_closure_audit": "research/GATE13_CLOSURE_AUDIT.md",
-  "gate13_closure_audit_result": "open_native_header_possession_caption_rendered_corrected_chance_tags_genuine_reload_passes_required_script_rows_and_fresh_ai_capacities_unresolved",
+  "gate13_closure_audit_result": "open_reconciled_native_script_rows_and_arrow_traversal_green_fresh_uncontrolled_capacity_thumb_repeat_kit_color_timing_still_open",
   "gate13_required_integrated_path": "TeamSelect->PMenu->PSquadScreen->Tactics->LeagueFixtures/PMatchInfo->LeagueTables",
   "gate13_current_form_ordering_deferred_gate": 15,
   "gate13_pmenu_visible_row_trace_complete": true,
@@ -2612,5 +2612,18 @@
   "last_verified_main_checkpoint": "053dc98f743110ee654d57a02a4351fb8c2f93d2",
   "last_verified_expected_skips": 23,
   "last_verified_reconstruction_run": 37163378899,
-  "last_verified_asset_policy_run": 37163378866
+  "last_verified_asset_policy_run": 37163378866,
+  "gate13_script_row_research": "research/GATE13_PMATCHINFO_SCRIPT_ROWS.md",
+  "gate13_script_row_reconcile_pr": 282,
+  "gate13_script_row_reconcile_merge": "ac9a417dd47a059e532e1fdbfc6732535a14c7c8",
+  "gate13_script_row_reconcile_full_suite_tests": 1933,
+  "gate13_script_row_reconcile_full_suite_expected_skips": 23,
+  "gate13_script_row_reconcile_gate13_tests": 571,
+  "gate13_script_row_reconcile_gate13_expected_skips": 22,
+  "gate13_script_row_reconcile_asset_policy_passed": true,
+  "gate13_script_row_reconcile_windows_package_passed": true,
+  "gate13_script_row_prior_private_route_receipt_sha256": "dda3d6c6cdb289cd953fff6413b6f0fd762c159a3af7d8a7921e60642821840c",
+  "gate13_script_row_prior_private_windows_schema8_receipt_sha256": "131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9",
+  "gate13_script_row_current_main_real_windows_rerun_pending": true,
+  "gate13_uncontrolled_home_negative_receipt_sha256": "5a0c22887e38ad8e4a305f371528de273fdc5fa1461029fb8d77377bfb5973b2"
 }
