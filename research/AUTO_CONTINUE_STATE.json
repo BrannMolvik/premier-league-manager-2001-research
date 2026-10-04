@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN. PR #287 is canonical as eb44dd11 and PR #288 as 14ef3211, with the PMatchInfo scroll exact-path/staging-receipt pipeline complete up to private extraction. Process startup remains blocked. Next cloud-safe task: integrate the source-proven PLeagueFixtures 12-club column paging offset into OriginalManagementPresenter through an explicit source-accepted non-pointer seam; do not invent pointer hitboxes.",
-  "last_known_main_head": "d729c133be9e9a3ac37a963d7918085922035111",
+  "active_task": "Gate 13 remains OPEN. PR #289 is canonical as b28c4697. PR #290 head e4e3dc9a fixes the host-level source-accepted League Fixtures paging seam test so MANAGEMENT is entered through the real TeamSelect Start path. All four hosted workflows are validating this exact head. Merge only if Gate-13/full reconstruction/asset-policy/Windows-package checks are green; then continue the next source-backed Gate-13 presentation task without inventing pointer hitboxes.",
+  "last_known_main_head": "b28c469703248bc14616ad56d6c660ff1b589e3f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 254,
+  "recovery_generation": 255,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 254: PMatchInfo scroll staging pipeline merged; moving to source-accepted League Fixtures paging seam.",
+  "note": "Recovery 255: repaired PR #290 test fixture after stale recovery; validating exact head e4e3dc9a.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
