@@ -1,9 +1,10 @@
 """Source-closed direct FastView header TextControl contract.
 
 The outer FastViewPanel constructor creates two direct TextControls immediately
-after PossessionFigures and before the FastViewScores wrapper. Their pixels are
-not rasterized here because one source font is not yet provenance-staged and
-one leading runtime string still has deliberately neutral semantics.
+after PossessionFigures and before the FastViewScores wrapper. Their runtime
+string semantics are now source-closed. Pixels remain fail-closed because the
+exact source font bytes have been verified but are not yet provenance-staged in
+the repository.
 """
 from __future__ import annotations
 
@@ -31,6 +32,9 @@ TEXT_STYLE_WRAPPER_VA = 0x87BE30
 TEXT_FONT_OBJECT_GLOBAL_VA = 0x8CAB80
 TEXT_FONT_PATH_VA = 0x839E10
 TEXT_FONT_PATH = r"Fonts\Zurich_XCn_BT_18pixel.fnt"
+TEXT_FONT_SOURCE_SIZE = 79_734
+TEXT_FONT_SOURCE_SHA256 = "968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a"
+TEXT_FONT_SOURCE_ARCHIVE_SHA256 = "677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4"
 TEXT_NATIVE_COLOR_16 = 0xFFFF
 TEXT_RAW_FLAGS = 0x24
 TEXT_FORCED_RENDER_FLAG = 0x08
@@ -42,11 +46,13 @@ MATCH_LABEL_GLOBAL_VA = 0x981EE4
 REFEREE_LABEL_GLOBAL_VA = 0x982354
 ATTENDANCE_LABEL_GLOBAL_VA = 0x982C40
 FRIENDLY_LABEL_GLOBAL_VA = 0x9830C8
+MATCH_TODAY_AT_GLOBAL_VA = 0x982050
 
 MATCH_LABEL = ("%s MATCH", 2629, 21783)
 REFEREE_LABEL = ("Referee", 2345, 21542)
 ATTENDANCE_LABEL = ("Attendance", 1774, 20308)
 FRIENDLY_LABEL = ("Friendly", 1484, 20885)
+MATCH_TODAY_AT_LABEL = ("%s MATCH TODAY AT %s", 2538, 21705)
 
 MATCH_TYPE_FIELD_OFFSET = 0xD20
 ATTENDANCE_FIELD_OFFSET = 0xD84
@@ -69,6 +75,28 @@ SECOND_FINAL_FORMAT_VA = 0x8296F8
 SECOND_FINAL_FORMAT = "%s  -  %s %u"
 NESTED_DISPLAY_GETTER_VA = 0x514270
 NESTED_DISPLAY_OBJECT_GETTER_VA = 0x62AC80
+
+MATCH_STADIUM_CLUB_ID_HELPER_VA = 0x514220
+MATCH_STADIUM_DISPLAY_GETTER_VA = 0x514270
+DBT_CLUBS_GLOBAL_VA = 0x874B9C
+DBT_CLUBS_VTABLE_VA = 0x7BD718
+DBR_ACCESS_CLUB_LOADER_VA = 0x4022D0
+DBR_ACCESS_CLUB_STADIUM_NAME_OFFSET = 0x28
+DBR_ACCESS_CLUB_STADIUM_STRING_READ_CALLSITE_VA = 0x402364
+MATCH_RTTI_TYPES = (
+    "Match",
+    "LeagueMatch",
+    "CupMatch",
+    "FriendlyMatch",
+    "CupMatchReplay",
+    "SecondLegMatch",
+)
+ORIGINAL_STADIUM_STRINGS = {
+    919: "Highbury",
+    975: "Stamford Bridge",
+    1031: "Anfield",
+    1059: "Old Trafford",
+}
 
 MATCH_TYPE_LOOKUP_CONSTRUCTOR_VA = 0x4056D0
 MATCH_TYPE_LOOKUP_STAGE2_VA = 0x4F3B10
@@ -114,6 +142,9 @@ def direct_header_text_contract() -> dict:
         "style_wrapper_va": TEXT_STYLE_WRAPPER_VA,
         "font_object_global_va": TEXT_FONT_OBJECT_GLOBAL_VA,
         "font_path": TEXT_FONT_PATH,
+        "font_source_size": TEXT_FONT_SOURCE_SIZE,
+        "font_source_sha256": TEXT_FONT_SOURCE_SHA256,
+        "font_source_archive_sha256": TEXT_FONT_SOURCE_ARCHIVE_SHA256,
         "native_color_16": TEXT_NATIVE_COLOR_16,
         "raw_flags": TEXT_RAW_FLAGS,
         "render_flags": TEXT_RENDER_FLAGS,
@@ -129,7 +160,9 @@ def direct_header_text_contract() -> dict:
         "referee_display_name_source_closed": True,
         "match_type_source_closed": True,
         "attendance_numeric_source_closed": True,
-        "second_line_leading_value_semantics_recovered": False,
+        "second_line_leading_value_semantics_recovered": True,
+        "second_line_leading_value_semantics": "stadium_display_name",
+        "font_bytes_source_verified": True,
         "font_bytes_provenance_staged": False,
         "header_pixels_rasterized": False,
         "complete_fastview_frame_recovered": False,
