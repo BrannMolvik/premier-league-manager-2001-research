@@ -69,6 +69,18 @@ meaning is an offset/length/codec/rate/channel value. Every grouped record is
 labeled
 `shared_bnk_memory_displacement_candidate_not_object_or_field_proof`.
 
+## Shared-call triage boundary
+
+A second correlator groups exact direct-call targets that recur across at least
+two distinct bounded loader/playback windows. This identifies common helper
+targets worth manual control-flow analysis and preserves every source callsite
+VA plus the windows in which the target recurs.
+
+A repeated call target still does **not** prove a function role. It is not
+automatically a file-I/O routine, allocator, decoder, sample lookup, playback
+routine or bank-record accessor. Each grouped result is labeled
+`shared_bnk_direct_call_target_candidate_not_function_role_proof`.
+
 ## Fail-closed boundary
 
 The trace requires all of these to remain false until manually source-proven:
