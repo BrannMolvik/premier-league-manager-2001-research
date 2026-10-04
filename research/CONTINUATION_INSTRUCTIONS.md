@@ -208,12 +208,25 @@ debugger; elevation is not approval for exclusive fullscreen or loud playback.
 Daniel authorizes the smallest bounded original launch to qualify the prepared
 non-exclusive/windowed stage. Capacity and entry/CRT calibration launches require
 the exact-stage successful runtime display receipt; offline config is not proof.
-The first display-only qualification stopped on an observed game-owned topmost
-window. Static source also proves an explicit native topmost request, now guarded
-before API execution. Do not repeat the unchanged unsafe stage. Qualify a
-source-valid presentation-only compatibility remedy before another bounded
-attempt; ask Daniel before any genuinely necessary disruptive probe. Once display
-safety passes, resume the genuine fresh-club lifecycle without supplying values.
+Daniel subsequently authorized only clearing WS_EX_TOPMOST iff present in the
+dwExStyle argument at exact canonical CreateWindowExA 6A6363. Verify instruction,
+full argument block and read-back; no other bits/arguments, disk code, native
+fullscreen/game globals, registry, capacity or simulation may change. Treat this
+as probe-only compatibility, not original behavior. The shim run stopped on
+foreground takeover. A separately time-approved bounded activation trace reached
+creation return then stopped before source/runtime-qualified SetForegroundWindow
+at 6A6016, without additional patches or safety violations. That observation-only
+receipt cannot qualify normal display or capacity execution. Do not silently
+relax qualification conditions: obtain explicit temporary qualification/probe
+acceptance, bind its expiry if granted, and keep every other requirement strict.
+Daniel granted that acceptance until 2026-10-04 13:22 UTC / 22:22 KST. The exact
+stage's schema-4 receipt qualifies captionless/non-exclusive presentation using
+loss-free installed-provider DXGI Windowed=true, matching actual native HWND and
+stable visibility, plus graphics success and all non-activation checks. Caption
+absence or unchanged resolution alone is NOT proof. Receipts expire with consent;
+do not use this historical approval for a later launch. Audio remains manual.
+Never add broad activation patches or an unsafe CLI override. Once display safety
+passes, immediately resume the genuine lifecycle without supplying values.
 
 ## Gate completion procedure
 

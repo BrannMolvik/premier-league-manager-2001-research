@@ -4,6 +4,22 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Exact-callsite shim and non-exclusive runtime proof
+
+PR #309: Daniel's approved 6A6363 stack-only adaptation clears only exstyle bit8
+(8->0), verifies twelve arguments/read-back and preserves disk/game/capacity state.
+Separate source/runtime activation tracing isolates original SetForegroundWindow
+6A6016; it is executed normally under explicit temporary foreground/focus consent
+ending13:22UTC/22:22KST, never suppressed/faked. Native graphics succeeds.
+Loss-free installed-provider DXGI Windowed=true matches actual HWND/800x600 swap
+chain and stable visibility; desktop2560x1440/32bpp/165Hz unchanged, no topmost,
+capture or unrelated geometry failure. Exact-stage receipt0e96f4e8... expires with
+consent; no unsafe override. First qualified60second capacity probe reaches
+graphics but not allocation/read; receiptfc27bac7... does not prove capacity.
+Continue exact startup dependency, then actual producer and human-away route.
+Raw evidence stays private. Audio manual; Azure/signing abandoned; Gate13 OPEN,
+Gate14/ownership unchanged. Focused pure contracts and asset policy pass.
+
 ### 4 October 2026 KST — Quiet-probe prerequisite advanced; policy denial
 
 PR #309's stale description now records source-qualified repaired selectors and

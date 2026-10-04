@@ -1,10 +1,66 @@
 # Gate 13 private native-probe safety qualification
 
-4 October 2026 KST, PR #309. **Runtime display qualification stopped/failed.**
-Gate 13 remains open. One newly authorized bounded display-only original launch
-was stopped and terminated. Capacity initialization/human-away remain unproven.
+4 October 2026 KST, PR #309. **Runtime display qualified with expiring explicit
+foreground/focus consent until 13:22 UTC / 22:22 KST on 4 October.**
+Gate 13 remains open; capacity initialization/human-away remain unproven.
 
-## Current policy and exact next action (supersedes signing history below)
+## Authorized narrow shim and isolated activation request (latest)
+
+Daniel accepted 3c7a17ef and authorized only clearing WS_EX_TOPMOST in the
+dwExStyle stack argument at exact canonical CreateWindowExA 6A6363. Full
+instruction/source identity and twelve arguments are checked. Read-back proves
+only bit 8 changed, all other arguments unchanged; no disk/game/fullscreen/
+registry/capacity/simulation data is adapted. This is probe-only compatibility,
+not original-game behavior evidence.
+
+The bounded display run proves exstyle 8 -> 0 but stops at 0.516 seconds / 109
+events on foreground takeover. Desktop stays 2560x1440 / 32 bpp / 165 Hz, visible
+game window is no longer topmost and has no capture, no unrelated geometry
+violation reported. Graphics success not reached; original terminated, disk
+hash unchanged. Private `gate13-native-windowed-shim-qualification-20261004.json`
+SHA-256 `34a65dadf22f17ee463ae41a7b07150e47c42fd86e03b2a720768720903498e1`.
+
+Aligned native source proves 6A6235 reads initialized 853230=10000000
+(WS_VISIBLE), then adds WS_POPUP, and 6A5F80 calls window creation. Its
+6A5FDC/6A5FE6 nonzero-mode path requests SetForegroundWindow(EDI) at 6A6016.
+After Daniel's temporary foreground approval, one separate activation trace
+reaches actual CreateWindowExA return 6A6369 then stops before 6A6016 with the
+same HWND. **No safety violations** in that 0.563-second / 111-event trace;
+original terminated, disk hash unchanged. No second compatibility patch or fake
+return. Private `gate13-native-activation-boundary-20261004.json` SHA-256
+`6977ad4ca72f6d384849b75bfd4ae03d10b6479bf82695a490c945d6f9240d45`.
+
+Activation observation is fixed-bound, UTC approval-expiring, cannot enable
+capacity watches and can NEVER qualify a normal display receipt. All non-
+activation checks remain strict. Focus owner is now independently observed via
+read-only GetGUIThreadInfo(0). Normal probes require a complete exact-stage
+schema-4 receipt binding shim identity/read-back, actual wrapper load, graphics
+success and every required display condition. Daniel separately approved original
+foreground-call execution and temporary foreground/focus acceptance during
+qualification/capacity work. Expiry is 13:22 UTC / 22:22 KST on 4 October 2026.
+Expired receipts reject launch; no CLI unsafe override. Manual audio only.
+
+The ten-second DXGI qualification now reaches graphics success. Installed provider
+Microsoft-Windows-DXGI event 10 defines Windowed as Boolean and OutputWindow as
+HWND; its exact original PID's 800x600 swap chain reports Windowed=true matching
+the native CreateWindowExA return and stable visible samples. Zero ETW events
+lost; no exclusive-fullscreen request observed (event 182 bFullscreen, not the
+GetFullscreenState output pointer). Desktop stays 2560x1440/32bpp/165Hz; no
+topmost/capture/unrelated geometry failure. Only the explicitly accepted temporary
+foreground/focus observations remain. No second API adaptation was made.
+
+Private qualified receipt SHA-256:
+`0e96f4e83d804b7068a0fbd8e72f24289203e8d22be80b5e1eb4f9487603ab82`.
+ETL SHA-256 `fc52bcaeb5a00376b8cc1c4585d884ae92eb6c0fe7230af39569ca2b7472c1d3`.
+The raw trace and filtered original-only rows remain outside Git. The failed first
+decode used a disabled PowerShell -File invocation; saved evidence was decoded
+with ordinary read-only cmdlets, without changing execution/security policy.
+The borderless adjudicator requires loss-free mode evidence, actual HWND, stable
+visibility, graphics acceptance and all non-activation checks; removing the old
+caption requirement alone never qualifies a stage. 44 focused tests pass.
+Older no-shim/current-next-action statements below are historical, superseded here.
+
+## Historical pre-shim safety stop (superseded above; audio policy still applies)
 
 Daniel stopped Azure CLI / Artifact Signing / all custom mute-helper work. No
 paid signing infrastructure is wanted. He accepts manual FM2001 audio muting

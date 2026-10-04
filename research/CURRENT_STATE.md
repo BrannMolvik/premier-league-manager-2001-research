@@ -6,7 +6,70 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
-## Native-original display qualification (4 October 2026 KST)
+## Exact-callsite shim and activation trace (4 October 2026 KST)
+
+Daniel accepted 3c7a17ef and authorized only a probe-local dwExStyle adaptation
+at canonical CreateWindowExA call 6A6363. The checksum-qualified instruction and
+all twelve stack arguments are checked; only WS_EX_TOPMOST is cleared iff present.
+Read-back verifies all other style bits and eleven arguments unchanged. Disk code,
+fullscreen/game globals, registry, capacity and simulation state are not adapted.
+This is compatibility evidence, NEVER original-game semantic evidence.
+
+The bounded shim display run proves exstyle **8 -> 0**, XOR 8, unchanged other
+arguments and on-disk executable. It stopped at **0.516 seconds / 109 events**
+on foreground takeover, before native graphics success. Its game window was not
+topmost and had no capture; desktop stayed 2560x1440 / 32 bpp / 165 Hz and no
+unrelated geometry violation was reported. Original terminated; display did not
+qualify. Private `gate13-native-windowed-shim-qualification-20261004.json` SHA-256:
+`34a65dadf22f17ee463ae41a7b07150e47c42fd86e03b2a720768720903498e1`.
+
+Daniel then permitted temporary foreground observation for the next hour. A
+separate ten-second/256-event activation trace (no added shim) reached the window
+creation return at **6A6369**, then stopped BEFORE **6A6016 SetForegroundWindow**
+with that same HWND. It ended at **0.563 seconds / 111 events**, with no display
+violations and unchanged disk executable. Private `gate13-native-activation-boundary-20261004.json`
+SHA-256 `6977ad4ca72f6d384849b75bfd4ae03d10b6479bf82695a490c945d6f9240d45`.
+That explicit request is now runtime/source-qualified; this observation-only
+receipt does not qualify normal runtime or capacity execution. Native visible
+creation has source style 90000000 (853230 initialized WS_VISIBLE, OR WS_POPUP).
+No extra activation call was suppressed or return fabricated. The first failure
+alone did not distinguish implicit creation activation from the later call.
+
+Daniel explicitly approved executing the original startup foreground call and
+temporarily accepting foreground/focus during qualification/capacity probes until
+**2026-10-04 13:22 UTC / 22:22 KST**. This is an expiring human-managed condition,
+not another compatibility patch or an unsafe override. Every other check is strict.
+
+**Display now qualified within that consent window.** The ten-second exact-stage
+run reaches native graphics-success 6153A0; topmost-only shim read-back and actual
+wrapper load pass. Loss-free Microsoft-Windows-DXGI events report Windowed=true
+for the actual returned game HWND and its 800x600 swap chain. Stable visible HWND
+samples independently bind that HWND. Desktop remains 2560x1440/32bpp/165Hz;
+no topmost/capture/unrelated geometry violation. The native captionless WS_POPUP
+is qualified by actual DXGI state, never by appearance or assumed fullscreen mode.
+Private `gate13-native-windowed-dxgi-20261004-r2.qualified.json` SHA-256
+`0e96f4e83d804b7068a0fbd8e72f24289203e8d22be80b5e1eb4f9487603ab82`;
+ETL SHA-256 `fc52bcaeb5a00376b8cc1c4585d884ae92eb6c0fe7230af39569ca2b7472c1d3`.
+Zero events lost; no observed exclusive-fullscreen request. Schema-4 reader
+re-adjudicates exact PID/HWND DXGI rows and rejects expired approval or any
+non-activation safety problem. The original is terminated after each bound.
+
+**Current action:** the qualified 60-second capacity run reached graphics but
+not allocation. A narrowed run proves actual startup movie requests/returns,
+reaches53108D, and its terminal stack retains renderer return6154CF/caller532A82.
+6154C0 calls receiver947ABC vftable+58 with flags1/handle0 at6154CC. Observe that
+exact runtime receiver/target/first return and module ownership; no skipped movie
+or fabricated return. Then continue actual allocation/write/copy/alias/attendance
+tracing, adjudication and the genuine human-away route. No capacity semantics
+follows from startup progress. Private r3 receipt SHA-256
+`5cf565a9525a1c7ba5bc5dd847f0e2bd5108dcd4df05039a17dbedd10c89f91b`.
+After expiry, no receipt here authorizes further native execution.
+
+Audio remains accepted user-managed Volume Mixer; Azure/signing/custom mute work
+is stopped. Gate 13 stays OPEN; Gate-14/ownership unchanged. **44 focused tests**
+pass; no fresh full suite/Windows closure audit is claimed for debugger-only work.
+
+## Historical pre-shim display checkpoint (3c7a17ef; superseded above)
 
 **Daniel has stopped Azure CLI / Artifact Signing / custom mute-helper work.**
 Audio is an accepted user-managed Windows Volume Mixer condition, not a Gate-13

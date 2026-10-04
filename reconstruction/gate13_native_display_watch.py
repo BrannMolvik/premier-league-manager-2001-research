@@ -33,6 +33,8 @@ def compare_desktop(before: dict, after: dict, probe_pid: int) -> list[str]:
                 problems.append('probe_window_mouse_capture')
     if after['foreground_pid'] == probe_pid:
         problems.append('probe_took_foreground')
+    if after.get('focus_pid') == probe_pid:
+        problems.append('probe_took_focus')
     return sorted(set(problems))
 
 
@@ -96,6 +98,7 @@ class DisplayWatch:
         self.first_window_time = None
         self.problems = []
         self.failure_snapshot = None
+        self.visible_window_observations = {}
 
     def snapshot(self, probe_pid: int) -> dict:
         displays = []
@@ -147,28 +150,59 @@ class DisplayWatch:
         pid = self.w.DWORD()
         if foreground:
             self.user.GetWindowThreadProcessId(foreground, c.byref(pid))
-        return dict(displays=displays, windows=windows, foreground_pid=pid.value)
+        foreground_gui = self.GuiInfo()
+        foreground_gui.size = c.sizeof(foreground_gui)
+        if not self.user.GetGUIThreadInfo(0, c.byref(foreground_gui)):
+            raise DisplayWatchError('Cannot qualify foreground focus ownership')
+        focus_pid = self.w.DWORD()
+        if foreground_gui.focus:
+            self.user.GetWindowThreadProcessId(foreground_gui.focus, c.byref(focus_pid))
+        return dict(displays=displays, windows=windows, foreground_pid=pid.value, focus_pid=focus_pid.value)
 
     def check(self, probe_pid: int):
         self.last = self.snapshot(probe_pid)
         self.samples += 1
+        self.record_visible_windows(probe_pid)
         self.problems = sorted(set(self.problems + compare_desktop(self.baseline, self.last, probe_pid)))
         if self.problems:
             if self.failure_snapshot is None:
                 self.failure_snapshot = self.last
             raise DisplayWatchError(', '.join(self.problems))
         if has_normal_probe_window(self.last, probe_pid):
+            self.record_normal_window(probe_pid)
+
+    def record_normal_window(self, probe_pid: int):
+        if has_normal_probe_window(self.last, probe_pid):
             self.window_samples += 1
             if self.first_window_time is None:
                 self.first_window_time = time.monotonic()
 
+    def record_visible_windows(self, probe_pid: int):
+        # Visibility is NOT proof of non-exclusive presentation. Retain it for
+        # independent, loss-free DXGI Windowed adjudication of borderless HWNDs.
+        observations = getattr(self, 'visible_window_observations', {})
+        self.visible_window_observations = observations
+        now = time.monotonic()
+        for window in self.last['windows']:
+            if (window['pid'] == probe_pid and not window['topmost'] and not window['mouse_capture']
+                    and window['rect'][2] > window['rect'][0] and window['rect'][3] > window['rect'][1]):
+                row = observations.setdefault(str(window['hwnd']), dict(samples=0, first=now, last=now))
+                row['samples'] += 1
+                row['last'] = now
+
     def ready(self) -> bool:
-        return (not self.problems and self.window_samples >= 3 and self.first_window_time is not None
+        return not self.problems and self.normal_window_ready()
+
+    def normal_window_ready(self) -> bool:
+        return (self.window_samples >= 3 and self.first_window_time is not None
                 and time.monotonic() - self.first_window_time >= 1)
 
     def receipt(self) -> dict:
         return dict(baseline=self.baseline, final=self.last, sample_count=self.samples,
                     failure_snapshot=self.failure_snapshot,
                     normal_probe_window_samples=self.window_samples, problems=self.problems,
-                    normal_window_observed=self.ready(), resolution_mutation_api_used=False,
+                    visible_window_observations={hwnd: dict(samples=row['samples'],
+                        duration_seconds=row['last'] - row['first']) for hwnd, row in
+                        getattr(self, 'visible_window_observations', {}).items()},
+                    normal_window_observed=self.normal_window_ready(), resolution_mutation_api_used=False,
                     window_or_foreground_mutation_api_used=False, audio_condition='user_managed_volume_mixer')

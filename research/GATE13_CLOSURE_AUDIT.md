@@ -4,6 +4,15 @@ _Audit refreshed: 4 October 2026 KST_
 
 ## Subsequent prerequisite progress / probe-safety stop (not a new closure audit)
 
+The later exact-callsite topmost-only compatibility adaptation and explicit
+foreground/focus consent now qualify this exact private non-exclusive stage until
+2026-10-04 13:22 UTC. Loss-free DXGI Windowed=true matches native HWND; graphics
+success and every non-activation desktop check pass. No original gameplay state
+was adapted. Capacity tracing resumes; this does NOT source-close +13C/+140,
+prove the human-away report route, or pass a new Gate-13 closure audit.
+Current receipt/expiry are in `CURRENT_STATE.md`; older safety stops below are
+historical. Audio manual; signing/Azure remain stopped. Gate 13 stays OPEN.
+
 Original-installer evidence now qualifies the missing resource selectors;
 Daniel-approved reversible repair makes native setup succeed. Exact original
 DLL/data staging then reached actual fresh DBRClub allocation/construction/import

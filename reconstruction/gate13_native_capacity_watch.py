@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import ctypes as c
 from dataclasses import dataclass
+from datetime import datetime, timezone, timedelta
 import json
 import os
 from pathlib import Path
@@ -28,17 +29,25 @@ import time
 from gate13_button_source_trace import OriginalPE32, OriginalPETraceError, require_private_output_path
 from gate13_native_probe_safety import check_private_stage, ProbeSafetyError
 from gate13_native_display_watch import DisplayWatch, DisplayWatchError
+from gate13_native_dxgi_evidence import MODE as DXGI_MODE, windowed_dxgi_proof
 
 U32, U16, PTR = c.c_uint32, c.c_uint16, c.c_void_p
 CONTEXT_FLAGS = 0x1001F  # WOW64 control/integer/segments/FPU/debug registers
 ALLOC_RETURN, CONSTRUCTED, IMPORTED, UNCONTROLLED_READ = 0x40BC14, 0x40BC43, 0x40BA2C, 0x5DA538
 STRIDE, CAPACITY_OFFSETS = 0x2A8, (0x13C, 0x140)
 GRAPHICS_SUCCESS, CREATE_WINDOW_CALL = 0x6153A0, 0x6A6363
+FOREGROUND_REQUEST, FOREGROUND_RETURN = 0x6A6016, 0x6A601C
+WINDOW_CREATED = 0x6A6369
+CREATE_WINDOW_INSTRUCTION = bytes.fromhex('ff1584d27b00')
+PRESENTATION_SHIM = 'createwindowexa-6a6363-clear-topmost-v1'
 STARTUP_SITES = (0x66AB26, 0x66AB37, 0x66AB74, 0x530DAB, 0x530DD9, 0x66ABA7, 0x66ABF4,
                  0x515C11, 0x515C17, 0x53078D, 0x5307F8, 0x53085F,
                  0x53093A, 0x5309DC, 0x530A79, 0x50D630,
-                 0x530E29, 0x530E47, 0x615188, GRAPHICS_SUCCESS, CREATE_WINDOW_CALL, 0x6A93FB, 0x6A941E,
-                 0x530EEE, 0x530F02, 0x530F3B, 0x530F9E)
+                 0x530E29, 0x530E47, 0x615188, GRAPHICS_SUCCESS, CREATE_WINDOW_CALL, WINDOW_CREATED, FOREGROUND_REQUEST, FOREGROUND_RETURN, 0x6A93FB, 0x6A941E,
+                 0x530EEE, 0x530F02, 0x530F3B, 0x530F9E, 0x530FB8, 0x531079,
+                 0x531088, 0x53108D, 0x530F6E, 0x461E20, 0x461F31, 0x461F36,
+                 0x6154CC, 0x6154CF)
+ONE_SHOT_SITES = frozenset((0x6154CC, 0x6154CF))
 INSTALL_QUERY_RETURNS = {0x53078D: 'CD Drive', 0x5307F8: 'Install Dir', 0x53085F: 'art',
                          0x53093A: 'fmv', 0x5309DC: 'matchengine', 0x530A79: 'stadia'}
 RESOURCE_SELECTOR_RETURNS = frozenset((0x53085F, 0x53093A, 0x5309DC, 0x530A79))
@@ -74,9 +83,14 @@ class ThreadInfo(c.Structure):
     _fields_ = [('thread', PTR), ('tls', PTR), ('start', PTR)]
 
 
+class DllInfo(c.Structure):
+    _fields_ = [('file', PTR), ('base', PTR), ('offset', U32), ('size', U32),
+                ('name', PTR), ('unicode', U16)]
+
+
 class DebugUnion(c.Union):
     _fields_ = [('exception', ExceptionInfo), ('process', ProcessInfo), ('thread', ThreadInfo),
-                ('exit_code', U32), ('dll_file', PTR)]
+                ('exit_code', U32), ('dll_file', PTR), ('dll', DllInfo)]
 
 
 class DebugEvent(c.Structure):
@@ -122,34 +136,70 @@ def arm_writes(context: Wow64Context, club_address: int) -> None:
     context.Dr7 = 0xDD0005  # local DR0/1, each RW=01(write), LEN=11(dword)
 
 
-def require_desktop_safety_qualification(executable: Path, receipt: Path | None) -> None:
+def window_presentation_adaptation(callsite: int, instruction: bytes, arguments: bytes) -> dict:
+    """Authorized probe-only API argument adaptation, NEVER native game evidence."""
+    if callsite != CREATE_WINDOW_CALL or instruction != CREATE_WINDOW_INSTRUCTION:
+        raise CapacityWatchError('Presentation shim requires the exact qualified CreateWindowExA call')
+    if type(arguments) is not bytes or len(arguments) != 48:
+        raise CapacityWatchError('Presentation shim requires all twelve unchanged Win32 arguments')
+    original = struct.unpack_from('<I', arguments)[0]
+    modified = original & ~8
+    return dict(source_va=callsite, original_dwExStyle=original, modified_dwExStyle=modified,
+                original_dwStyle=struct.unpack_from('<I', arguments, 12)[0],
+                changed_bits=original ^ modified, other_style_bits_unchanged=(original ^ modified) in (0, 8),
+                applied=bool(original & 8), probe_only_compatibility_not_native_evidence=True)
+
+
+def require_desktop_safety_qualification(executable: Path, receipt: Path | None) -> datetime | None:
     if receipt is None:
         raise CapacityWatchError('Original launch disabled: first qualify the exact non-exclusive display stage')
     require_private_output_path(receipt)
     stage = check_private_stage(executable.resolve().parent)
     data = json.loads(receipt.read_text(encoding='utf-8'))
-    if (data.get('schema_version') != 2 or
+    conditions = data.get('display_observation', {})
+    until = None
+    if data.get('approved_activation_windowed_qualification') is True:
+        try:
+            until = datetime.fromisoformat(data['activation_approval_expiry_utc'])
+            validate_activation_approval(until)
+        except (KeyError, TypeError, ValueError) as error:
+            raise CapacityWatchError('Display receipt activation approval is missing/expired') from error
+    allowed_problems = {'probe_took_foreground', 'probe_took_focus'} if until else set()
+    window_observed = conditions.get('normal_window_observed') is True
+    if data.get('qualification_mode') == DXGI_MODE:
+        try:
+            proof = windowed_dxgi_proof(data, data['dxgi_events'], data['dxgi_events_lost'])
+            window_observed = proof == data['dxgi_windowed_proof']
+        except (KeyError, TypeError, ValueError):
+            raise CapacityWatchError('Loss-free exact-PID/HWND DXGI evidence missing')
+    if (data.get('schema_version') != 4 or
             data.get('stop_reason') != 'display_qualification_complete' or
             data.get('display_qualification_only') is not True or
+            data.get('activation_trace_only') is True or
             data.get('runtime_nonexclusive_qualified') is not True or
             data.get('source_sha256') != '833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3' or
             data.get('private_stage') != str(executable.resolve().parent) or
             data.get('wrapper_sha256') != stage['wrapper_sha256'] or
             data.get('config_sha256') != stage['config_sha256'] or
+            data.get('presentation_shim') != PRESENTATION_SHIM or
+            data.get('presentation_shim_verified') is not True or
             data.get('private_wrapper_load_observed') is not True or
             data.get('native_graphics_initialization_accepted') is not True or
-            data.get('display_observation', {}).get('normal_window_observed') is not True or
-            data.get('display_observation', {}).get('problems') != []):
+            not window_observed or
+            not isinstance(conditions.get('problems'), list) or
+            not set(conditions['problems']).issubset(allowed_problems)):
         raise CapacityWatchError('Display receipt does not qualify this exact private runtime stage')
+    return until
 
 
 def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: bool = False,
             calibrate_crt_writes: bool = False, display_receipt: Path | None = None) -> dict:
     if stop_at_entry and calibrate_crt_writes:
         raise CapacityWatchError('Entry-only and CRT write calibration are separate probes')
-    require_desktop_safety_qualification(executable, display_receipt)
+    until = require_desktop_safety_qualification(executable, display_receipt)
     return _observe(executable, output, plan, stop_at_entry=stop_at_entry,
-                    calibrate_crt_writes=calibrate_crt_writes)
+                    calibrate_crt_writes=calibrate_crt_writes, activation_trace_until=until,
+                    allow_approved_activation_qualification=until is not None)
 
 
 def qualify_windowed_display(executable: Path, output: Path) -> dict:
@@ -157,12 +207,50 @@ def qualify_windowed_display(executable: Path, output: Path) -> dict:
     return _observe(executable, output, WatchPlan(seconds=10, max_events=256), qualification_only=True)
 
 
+def validate_activation_approval(approved_until_utc: datetime) -> None:
+    now = datetime.now(timezone.utc)
+    if (not isinstance(approved_until_utc, datetime) or approved_until_utc.utcoffset() != timedelta(0)
+            or not now < approved_until_utc <= now + timedelta(hours=1)):
+        raise CapacityWatchError('Live, UTC, at-most-one-hour human activation approval required')
+
+
+def qualify_windowed_during_approved_activation(executable: Path, output: Path, *, approved_until_utc: datetime) -> dict:
+    """Explicitly approved temporary foreground condition; no added game/API shim."""
+    validate_activation_approval(approved_until_utc)
+    return _observe(executable, output, WatchPlan(seconds=10, max_events=256), qualification_only=True,
+                    activation_trace_until=approved_until_utc, allow_approved_activation_qualification=True)
+
+
+def trace_window_activation(executable: Path, output: Path, *, approved_until_utc: datetime) -> dict:
+    """Separately user-approved observation; can NEVER qualify a display receipt.
+
+    No CLI safety override. Caller must hold live human approval for transient
+    activation; timestamp is bounded to an hour and retained in the private receipt.
+    All non-activation safety conditions and pre-call stops remain mandatory.
+    """
+    validate_activation_approval(approved_until_utc)
+    return _observe(executable, output, WatchPlan(seconds=10, max_events=256),
+                    qualification_only=True, activation_trace_until=approved_until_utc)
+
+
 def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: bool = False,
-             calibrate_crt_writes: bool = False, qualification_only: bool = False) -> dict:
+             calibrate_crt_writes: bool = False, qualification_only: bool = False,
+             activation_trace_until: datetime | None = None,
+             allow_approved_activation_qualification: bool = False) -> dict:
+    if allow_approved_activation_qualification and activation_trace_until is None:
+        raise CapacityWatchError('Temporary activation qualification needs live human approval')
+    if activation_trace_until is not None:
+        validate_activation_approval(activation_trace_until)
+    if activation_trace_until is not None and not allow_approved_activation_qualification and (
+            not qualification_only or stop_at_entry or calibrate_crt_writes
+            or plan.seconds != 10 or plan.max_events != 256):
+        raise CapacityWatchError('Activation observation is separate from all capacity/calibration modes')
     require_private_output_path(output)
     require_private_output_path(executable)
     stage = check_private_stage(executable.resolve().parent)
     pe = OriginalPE32.parse(executable.read_bytes())
+    if pe.read(CREATE_WINDOW_CALL, 6) != CREATE_WINDOW_INSTRUCTION:
+        raise CapacityWatchError('Canonical presentation callsite instruction mismatch')
     if os.name != 'nt' or c.sizeof(PTR) != 8:
         raise CapacityWatchError('Requires 64-bit Windows Python and a WOW64 original process')
     if c.sizeof(Wow64Context) != 716 or c.sizeof(DebugEvent) != 176:
@@ -184,6 +272,7 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
         'Wow64GetThreadContext': ([PTR, c.POINTER(Wow64Context)], c.c_int),
         'Wow64SetThreadContext': ([PTR, c.POINTER(Wow64Context)], c.c_int),
         'TerminateProcess': ([PTR, U32], c.c_int), 'CloseHandle': ([PTR], c.c_int),
+        'SuspendThread': ([PTR], U32),
         'GetFinalPathNameByHandleW': ([PTR, c.c_wchar_p, U32, U32], U32),
     }
     for name, (args, result) in signatures.items():
@@ -199,15 +288,20 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
     startup.size, startup.flags, startup.show = c.sizeof(startup), 1, 0  # STARTF_USESHOWWINDOW / SW_HIDE
     checked(k.CreateProcessW(str(executable.resolve()), None, None, None, False, 2, None,
                              str(executable.resolve().parent), c.byref(startup), c.byref(created)))
-    report = dict(schema_version=2, source_sha256=pe.sha256, club_array_index=plan.club_index,
+    report = dict(schema_version=4, source_sha256=pe.sha256, club_array_index=plan.club_index,
                   capacity_initializer_proven=False, gate13_closed=False, events=[],
                   allocation_observed=False, uncontrolled_read_observed=False,
                   selected_club_import_observed=False,
                   observation_not_runtime_input=True, process_id=created.pid,
                   display_qualification_only=qualification_only,
+                  activation_trace_only=activation_trace_until is not None and not allow_approved_activation_qualification,
+                  approved_activation_windowed_qualification=allow_approved_activation_qualification,
+                  activation_approval_expiry_utc=activation_trace_until.isoformat() if activation_trace_until else None,
                   private_stage=str(executable.resolve().parent),
                   wrapper_sha256=stage['wrapper_sha256'], config_sha256=stage['config_sha256'],
                   private_wrapper_load_observed=False, native_graphics_initialization_accepted=False,
+                  presentation_shim=PRESENTATION_SHIM, presentation_shim_verified=False,
+                  presentation_adaptations=[],
                   runtime_nonexclusive_qualified=False, audio_condition='user_managed_volume_mixer')
     if calibrate_crt_writes:
         report['crt_write_watch_calibration_only'] = True
@@ -224,12 +318,13 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
             raise CapacityWatchError('Short private memory read')
         return buffer.raw
 
-    def write(address, data):
+    def write(address, data, *, instruction=True):
         buffer, done = c.create_string_buffer(data), c.c_size_t()
         checked(k.WriteProcessMemory(created.process, address, buffer, len(data), c.byref(done)))
         if done.value != len(data):
             raise CapacityWatchError('Short breakpoint write')
-        checked(k.FlushInstructionCache(created.process, address, len(data)))
+        if instruction:
+            checked(k.FlushInstructionCache(created.process, address, len(data)))
 
     def context(tid):
         ctx = Wow64Context()
@@ -252,9 +347,25 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
 
     try:
         while time.monotonic() - started < plan.seconds and event_count < plan.max_events:
-            display.check(created.pid)
-            if (qualification_only and display.ready() and report['private_wrapper_load_observed']
-                    and report['native_graphics_initialization_accepted']):
+            if activation_trace_until and datetime.now(timezone.utc) >= activation_trace_until:
+                raise CapacityWatchError('Human activation approval expired')
+            try:
+                display.check(created.pid)
+            except DisplayWatchError:
+                if (activation_trace_until is None or not display.problems
+                        or not set(display.problems).issubset({'probe_took_foreground', 'probe_took_focus'})):
+                    raise
+                display.record_normal_window(created.pid)
+                observations = report.setdefault('approved_activation_observations', [])
+                if len(observations) < 64 and (not observations or observations[-1]['debug_events_processed'] != event_count):
+                    observations.append(dict(debug_events_processed=event_count,
+                        foreground_pid=display.last['foreground_pid'], focus_pid=display.last.get('focus_pid'),
+                        observed_problems=list(display.problems)))
+            display_ready = (display.ready() if activation_trace_until is None else
+                allow_approved_activation_qualification and display.normal_window_ready() and
+                set(display.problems).issubset({'probe_took_foreground', 'probe_took_focus'}))
+            if (qualification_only and display_ready and report['private_wrapper_load_observed']
+                    and report['native_graphics_initialization_accepted'] and report['presentation_shim_verified']):
                 report['stop_reason'] = 'display_qualification_complete'
                 break
             event = DebugEvent()
@@ -290,6 +401,8 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                     length = k.GetFinalPathNameByHandleW(event.u.dll_file, buffer, len(buffer), 0)
                     if 0 < length < len(buffer):
                         loaded = Path(buffer.value.removeprefix('\\\\?\\')).resolve()
+                        report.setdefault('private_loaded_modules', []).append(dict(
+                            base=int(event.u.dll.base), path=str(loaded)))
                         if loaded == executable.resolve().parent / 'DDraw.dll':
                             report['private_wrapper_load_observed'] = True
                     k.CloseHandle(event.u.dll_file)
@@ -330,13 +443,52 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                             # NOT graphics startup acceptance.
                             report['native_graphics_initialization_accepted'] = (ctx.Eax & 0xFF) == 1
                         if address == CREATE_WINDOW_CALL:
-                            exstyle = struct.unpack('<I', read(ctx.Esp, 4))[0]
-                            report.setdefault('native_window_requests', []).append(dict(
-                                source_va=address, extended_style=exstyle))
-                            if exstyle & 8:  # WS_EX_TOPMOST, before the API executes
-                                report['stop_reason'], stop = 'native_topmost_request_guard', True
+                            # Only the qualified API argument on this suspended
+                            # thread's stack is adapted. Fullscreen/game globals,
+                            # disk code, simulation/capacity and other calls stay intact.
+                            instruction = originals[address] + read(address + 1, 5)
+                            arguments = read(ctx.Esp, 48)
+                            adaptation = window_presentation_adaptation(address, instruction, arguments)
+                            report['presentation_adaptations'].append(adaptation)
+                            if adaptation['applied']:
+                                write(ctx.Esp, struct.pack('<I', adaptation['modified_dwExStyle']), instruction=False)
+                            after = read(ctx.Esp, 48)
+                            adaptation['other_api_arguments_unchanged'] = after[4:] == arguments[4:]
+                            adaptation['write_readback_verified'] = after == (
+                                struct.pack('<I', adaptation['modified_dwExStyle']) + arguments[4:])
+                            if not adaptation['write_readback_verified']:
+                                report['stop_reason'], stop = 'presentation_shim_readback_failed', True
+                            else:
+                                report['presentation_shim_verified'] = True
+                        if address == FOREGROUND_REQUEST:
+                            # Independent source-proven presentation request;
+                            # record and STOP, never suppress/fake its return.
+                            report['native_foreground_request'] = dict(source_va=address,
+                                requested_hwnd=struct.unpack('<I', read(ctx.Esp, 4))[0],
+                                api_execution_permitted_by_live_approval=allow_approved_activation_qualification)
+                            if not allow_approved_activation_qualification:
+                                report['stop_reason'], stop = 'native_foreground_request_guard', True
+                        if address == FOREGROUND_RETURN:
+                            report['native_foreground_call_result'] = int(ctx.Eax)
+                        if address == WINDOW_CREATED:
+                            report.setdefault('native_window_creation_returns', []).append(dict(
+                                source_va=address, returned_hwnd=int(ctx.Eax)))
                         if address == 0x50D630:
                             report['native_fresh_world_loader_observed'] = True
+                        if address == 0x461F31:
+                            # Aligned native caller: path/flags/callback arguments
+                            # are already pushed, before 461900. Observe only.
+                            path_address = struct.unpack('<I', read(ctx.Esp, 4))[0]
+                            report['native_startup_movie_requested_path'] = read(path_address, 260).split(b'\0', 1)[0].decode('latin1')
+                        if address == 0x461F36:
+                            report['native_startup_movie_return_observed'] = True
+                        if address == 0x6154CC:
+                            report['native_renderer_wait_call'] = dict(source_va=address,
+                                receiver=int(ctx.Eax), vftable=int(ctx.Ecx),
+                                actual_target=struct.unpack('<I', read(ctx.Ecx + 0x58, 4))[0],
+                                arguments=list(struct.unpack('<3I', read(ctx.Esp, 12))))
+                        if address == 0x6154CF:
+                            report['native_renderer_wait_first_return'] = int(ctx.Eax)
                         if address in (0x6A93FB, 0x6A941E):
                             report.setdefault('native_driver_load_results', []).append(dict(
                                 source_va=address, handle=int(ctx.Eax),
@@ -367,7 +519,7 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                         ctx.Eip, ctx.EFlags = address, ctx.EFlags | 0x100
                         # Stop observing every other imported club after the selected
                         # slot. Hardware writes stay armed throughout the lifecycle.
-                        if address != IMPORTED or ctx.Ebx != plan.club_index:
+                        if address not in ONE_SHOT_SITES and (address != IMPORTED or ctx.Ebx != plan.club_index):
                             pending[event.tid] = address
                         else:
                             ctx.EFlags &= ~0x100
@@ -399,6 +551,9 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                         continuation = 0x80010001  # DBG_EXCEPTION_NOT_HANDLED
                         if not exception.first_chance:
                             report['stop_reason'], stop = 'unhandled_native_exception', True
+            except (OSError, CapacityWatchError, ProbeSafetyError, DisplayWatchError):
+                stop = True
+                raise
             finally:
                 # Terminate while the debug event still suspends the child;
                 # never resume a source-proven unsafe window request first.
@@ -408,6 +563,17 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
             if stop:
                 break
         report.setdefault('stop_reason', 'event_bound' if event_count >= plan.max_events else 'time_bound')
+        if report['stop_reason'] == 'time_bound' and not exited and created.tid in threads:
+            # One terminal diagnostic only: suspend the owned main thread, read
+            # registers/stack, then terminate in finally. Never alter its state
+            # or resume it to manufacture native progress.
+            prior = k.SuspendThread(threads[created.tid])
+            if prior == 0xFFFFFFFF:
+                checked(False)
+            ctx = context(created.tid)
+            snapshot('terminal_suspended_main_thread', created.tid, ctx,
+                observation_only_terminated_not_resumed=True,
+                stack_dwords=list(struct.unpack('<64I', read(ctx.Esp, 256))))
     except (OSError, CapacityWatchError, ProbeSafetyError, DisplayWatchError) as error:
         report['stop_reason'], report['error'] = 'probe_error', str(error)
     finally:
@@ -428,12 +594,17 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
         try:
             display.check(created.pid)
         except DisplayWatchError as error:
-            report['stop_reason'], report['error'] = 'display_safety_stop', str(error)
+            if (activation_trace_until is None or not display.problems or
+                    not set(display.problems).issubset({'probe_took_foreground', 'probe_took_focus'})):
+                report['stop_reason'], report['error'] = 'display_safety_stop', str(error)
         report['display_observation'] = display.receipt()
         report['runtime_nonexclusive_qualified'] = bool(
-            qualification_only and report['stop_reason'] == 'display_qualification_complete'
-            and display.ready() and report['private_wrapper_load_observed']
-            and report['native_graphics_initialization_accepted'])
+            qualification_only and not report['activation_trace_only'] and report['stop_reason'] == 'display_qualification_complete'
+            and display.normal_window_ready() and report['private_wrapper_load_observed']
+            and report['native_graphics_initialization_accepted'] and report['presentation_shim_verified'])
+        if activation_trace_until and datetime.now(timezone.utc) >= activation_trace_until:
+            report['runtime_nonexclusive_qualified'] = False
+            report['stop_reason'] = 'activation_approval_expired'
         report.update(debug_events=event_count, elapsed_seconds=round(time.monotonic() - started, 3))
         output.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     return report
@@ -463,7 +634,8 @@ def main() -> int:
           'uncontrolled_read_observed', 'capacity_initializer_proven', 'debug_events')}))
     if args.qualify_display:
         return 0 if result['runtime_nonexclusive_qualified'] else 2
-    return 2 if result['stop_reason'] in ('probe_error', 'display_safety_stop', 'native_topmost_request_guard') else 0
+    return 2 if result['stop_reason'] in ('probe_error', 'display_safety_stop',
+                    'native_foreground_request_guard', 'presentation_shim_readback_failed') else 0
 
 
 if __name__ == '__main__':

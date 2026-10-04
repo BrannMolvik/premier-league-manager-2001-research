@@ -3,7 +3,22 @@
 4 October 2026; canonical base `3a3f60d1e89c7f44e7f12ca70fef3f263fe73a9b`.
 Gate 13 remains OPEN. No visiting-capacity value is authorized by this work.
 
-## Display-only qualification and current stop
+## Current exact-stage display qualification
+
+The exact-callsite topmost-only stack adaptation is now verified; no disk/game/
+fullscreen/capacity edits. Original graphics initialization succeeds and loss-free
+DXGI proves Windowed=true for the actual HWND / 800x600 swap chain. All desktop
+checks except explicitly temporarily accepted foreground/focus pass. Exact-stage
+schema-4 receipt SHA-256
+`0e96f4e83d804b7068a0fbd8e72f24289203e8d22be80b5e1eb4f9487603ab82`.
+This receipt expires at **2026-10-04 13:22 UTC / 22:22 KST**; it never authorizes
+execution afterwards. Native capacity observation has resumed using it. Audio
+is Daniel's manual Volume Mixer condition; no signing/audio-automation work.
+Detailed evidence/identity checks are in `GATE13_NATIVE_PROBE_SAFETY.md`.
+No visiting-capacity semantics or human-away report success follows from display
+qualification. Follow actual writes/copies/aliases through the uncontrolled read.
+
+## Historical pre-shim display-only stop (superseded above)
 
 Daniel stopped all Azure/signing/custom mute-helper work. Audio is his accepted
 manual Volume Mixer condition, never a Gate-13 technical prerequisite.

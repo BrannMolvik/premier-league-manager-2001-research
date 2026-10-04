@@ -57,6 +57,11 @@ class DisplayWatchTests(unittest.TestCase):
                 window[key] = True
             self.assertTrue(compare_desktop(before, after, 20))
 
+    def test_focus_takeover_fails_even_without_probe_foreground_owner(self):
+        before, after = snapshot(), snapshot()
+        after['focus_pid'] = 20
+        self.assertEqual(compare_desktop(before, after, 20), ['probe_took_focus'])
+
     def test_captioned_normal_window_required(self):
         after = snapshot()
         window = dict(hwnd=2, pid=20, rect=[0, 0, 800, 600], caption=True,
