@@ -12,6 +12,7 @@ from gate13_button_source_trace import OriginalPE32
 from gate14_audio_bank_format_source_trace import (
     Gate14AudioBankFormatTraceError,
     audio_bank_format_trace_report,
+    classify_bnk_window_dataflow_candidates,
     main as tracer_main,
 )
 
@@ -33,7 +34,13 @@ def synthetic_pe() -> bytes:
     second = sections + 40
     out[second:second + 8] = b".rdata\x00\x00"
     struct.pack_into("<IIII", out, second + 8, 0x100, 0x2000, 0x100, 0x400)
-    out[0x210:0x218] = b"\x55\x8b\xec\x90\x90\x90\x5d\xc3"
+    out[0x210:0x220] = (
+        b"\x55\x8b\xec"          # push ebp; mov ebp,esp
+        b"\x8b\x41\x10"          # mov eax,[ecx+0x10]
+        b"\x6a\x20"               # push 0x20
+        b"\xe8\x03\x00\x00\x00" # call 0x401020
+        b"\x5d\xc3\x90"
+    )
     return bytes(out)
 
 
@@ -73,6 +80,60 @@ class Gate14AudioBankFormatTraceTests(unittest.TestCase):
                 self.assertFalse(report[key])
         self.assertIn("do not prove BNK field meanings", report["evidence_limit"])
 
+    def test_classifies_bounded_instruction_candidates_without_format_promotion(self):
+        pe = parse_fixture()
+        candidates = classify_bnk_window_dataflow_candidates(
+            pe,
+            windows=(("synthetic loader", 0x401010, 0x10),),
+        )
+
+        by_va = {item["instruction_va"]: item for item in candidates}
+        self.assertIn(0x401013, by_va)
+        self.assertEqual(
+            by_va[0x401013]["memory_operand_candidates"],
+            (
+                {
+                    "base": "ecx",
+                    "index": None,
+                    "scale": 1,
+                    "displacement": 0x10,
+                    "operand_size": 4,
+                },
+            ),
+        )
+        self.assertIn(0x401016, by_va)
+        self.assertIn(0x20, by_va[0x401016]["immediate_candidates"])
+        self.assertIn(0x401018, by_va)
+        self.assertEqual(
+            by_va[0x401018]["direct_call_target_candidate"],
+            0x401020,
+        )
+        self.assertEqual(
+            by_va[0x401018]["classification"],
+            "bounded_linear_bnk_dataflow_candidate_not_cfg_or_format_proof",
+        )
+
+        report = audio_bank_format_trace_report(
+            pe,
+            windows=(("synthetic loader", 0x401010, 0x10),),
+            classify_dataflow_candidates=True,
+        )
+        self.assertTrue(report["dataflow_candidates_classified"])
+        self.assertTrue(report["bounded_dataflow_candidates_not_format_proof"])
+        self.assertFalse(report["sample_table_layout_recovered"])
+        self.assertFalse(report["sample_codec_recovered"])
+        self.assertFalse(report["modern_sample_decode_ready"])
+
+    def test_dataflow_classifier_rejects_non_text_window(self):
+        with self.assertRaisesRegex(
+            Gate14AudioBankFormatTraceError,
+            "expected source-qualified code in .text",
+        ):
+            classify_bnk_window_dataflow_candidates(
+                parse_fixture(),
+                windows=(("bad", 0x402010, 8),),
+            )
+
     def test_rejects_non_text_and_malformed_arguments(self):
         pe = parse_fixture()
         with self.assertRaisesRegex(
@@ -101,6 +162,7 @@ class Gate14AudioBankFormatTraceTests(unittest.TestCase):
                 "--output",
                 str(output),
                 "--no-disassembly",
+                "--classify-dataflow-candidates",
             ]
             with (
                 patch.object(OriginalPE32, "parse", return_value=pe),
@@ -116,6 +178,8 @@ class Gate14AudioBankFormatTraceTests(unittest.TestCase):
             ):
                 self.assertEqual(tracer_main(), 0)
             emitted = json.loads(output.read_text(encoding="utf-8"))
+            self.assertTrue(emitted["dataflow_candidates_classified"])
+            self.assertTrue(emitted["bounded_dataflow_candidates_not_format_proof"])
             self.assertFalse(emitted["sample_codec_recovered"])
             self.assertFalse(emitted["modern_sample_decode_ready"])
             self.assertFalse(emitted["event_binding_recovered"])
