@@ -6,6 +6,16 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Recovery 255 Gate-13 League Fixtures paging checkpoint
+
+Gate 13 remains the earliest incomplete validation gate and stays OPEN.
+
+PR #289 merged as canonical main `b28c4697` after **1,951 tests / 23 expected skips**, **585 Gate-13 tests / 22 expected skips**, and repository asset policy passed. The integrated `OriginalManagementPresenter` now carries the already-recovered `PLeagueFixtures+0xA4` 12-club column window and exposes a source-accepted non-pointer paging seam. For the canonical 20-club shape the exact recovered transition is 0 -> 8, clamps at 8, and returns 8 -> 0. Fresh panel navigation resets to source offset 0. No page-button rectangle, caption, keyboard binding, hover state or pointer-event equivalence is claimed.
+
+PR #290 merged as canonical main `0ebdd839` after a test-fixture correction and final verification of **1,953 tests / 23 expected skips**, **587 Gate-13 tests / 22 expected skips**, repository asset policy, and the Windows release-candidate package workflow. `OriginalGameTkHost` now exposes the same source-accepted League Fixtures paging seam at the live host boundary, redraws only after that accepted transition, and remains fail-closed outside MANAGEMENT. The ordinary Tk `<Button-1>` handler is deliberately unchanged, so this does not invent the missing page-button input mapping.
+
+Private PMatchInfo scroll extraction/capacity lifecycle work remains infrastructure-blocked exactly as recorded below. The next cloud-safe Gate-13 action is to integrate the already source-proven League Fixtures **grid** pointer-selection path, whose exact control rectangle is `(378,235,348,336)` and whose recovered point reduction is 29x14, while keeping paging-button geometry and any unrecovered selector-control geometry fail-closed. Reuse the existing source-backed selected-cell/toggled-box projection; do not infer new visual semantics.
+
 ## Recovery 254 Gate-13 PMatchInfo scroll staging checkpoint
 
 Gate 13 remains the earliest incomplete validation gate and stays OPEN.
