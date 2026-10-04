@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete validation gate and Codex-owned; do not edit its Fixtures paging path from ChatGPT. Gate-14 PR #364 merged as main a99f1e02 after 2,274 tests/23 skips and asset-policy success. Continue the disjoint nested FastViewScores/FastViewTeam order checkpoint: exhaustively reconcile each wrapper's child-array construction using source-parameterized counts, then trace dynamic phase-tail mutation. Do not set global_fastview_z_order_recovered until both nested inventories and runtime mutation order are source-closed.",
+  "active_task": "Gate 13 remains the earliest incomplete validation gate and Codex-owned; do not edit its Fixtures paging path from ChatGPT. Verify Gate-14 PR #366 at head 642b7be0: nested LeagueTable/TeamTable count algorithms and runtime ScoreComposite phase-tail mutation, with global z-order still false. While CI runs, continue the disjoint final dynamic-order audit: exact FastViewLeagueScores ScoreComposite creation chronology/count, conditional pager-tail controls, and any remaining nested append/remove paths.",
   "last_known_main_head": "a99f1e029036c8cb37d66f36641c6093214d883a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 286,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Do not resurrect 18/23/26 outer counts. Canonical outer inventory is 36. Next task is nested score/team child arrays plus dynamic phase-tail mutation. Preserve Gate-13 ownership lock and do not promote global FastView z-order from setup-only evidence.",
+  "note": "PR #366 is the live nested-order checkpoint. Outer FastViewPanel count remains 36. Do not promote global_fastview_z_order_recovered until score factory chronology, paging controls, and dynamic phase-tail ordering are source-closed. Preserve Gate-13 ownership lock.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
