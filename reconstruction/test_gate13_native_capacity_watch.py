@@ -16,10 +16,114 @@ from gate13_native_capacity_watch import (
     window_presentation_adaptation, CREATE_WINDOW_INSTRUCTION, PRESENTATION_SHIM,
     FOREGROUND_REQUEST,
     trace_window_activation,
+    SupervisedWatchPlan, observe_supervised, write_watch_observation,
+    attendance_receiver_observation,
+    renew_display_activation_consent,
 )
 
 
 class NativeCapacityWatchTests(unittest.TestCase):
+    def test_consent_renewal_never_overwrites_receipt(self):
+        until = datetime.now(timezone.utc) + timedelta(minutes=10)
+        with patch('gate13_native_capacity_watch.require_private_output_path'), \
+                patch.object(Path, 'exists', return_value=True), \
+                patch.object(Path, 'read_bytes') as reader:
+            with self.assertRaisesRegex(CapacityWatchError, 'Preserve prior'):
+                renew_display_activation_consent(Path('original'), Path('prior'), Path('next'),
+                                                approved_until_utc=until)
+            reader.assert_not_called()
+
+    def test_consent_renewal_cannot_promote_failed_physical_evidence(self):
+        until = datetime.now(timezone.utc) + timedelta(minutes=10)
+        data = dict(approved_activation_windowed_qualification=True,
+                    activation_approval_expiry_utc='2000-01-01T00:00:00+00:00',
+                    runtime_nonexclusive_qualified=False)
+        written = []
+        with patch('gate13_native_capacity_watch.require_private_output_path'), \
+                patch('gate13_native_capacity_watch.check_private_stage', return_value={}), \
+                patch.object(Path, 'exists', return_value=False), \
+                patch.object(Path, 'read_bytes', return_value=json.dumps(data).encode()), \
+                patch.object(Path, 'write_text', side_effect=lambda payload, **kw: written.append(payload)), \
+                patch.object(Path, 'read_text', side_effect=lambda **kw: written[-1]):
+            with self.assertRaisesRegex(CapacityWatchError, 'does not qualify'):
+                renew_display_activation_consent(Path('original'), Path('prior'), Path('next'),
+                                                approved_until_utc=until)
+        renewed = json.loads(written[0])
+        self.assertFalse(renewed['runtime_nonexclusive_qualified'])
+        self.assertFalse(renewed['explicit_human_consent_renewal']['new_runtime_observation_claimed'])
+        self.assertEqual(data['activation_approval_expiry_utc'], '2000-01-01T00:00:00+00:00')
+
+    def test_supervised_probe_refuses_insufficient_remaining_time(self):
+        until = datetime.now(timezone.utc) + timedelta(seconds=60)
+        with patch('gate13_native_capacity_watch.require_desktop_safety_qualification', return_value=until), \
+                patch('gate13_native_capacity_watch.observe') as observer:
+            with self.assertRaisesRegex(CapacityWatchError, 'cover the five-minute'):
+                observe_supervised(Path('original'), Path('output'),
+                                   display_receipt=Path('receipt'), approved_until_utc=until)
+            observer.assert_not_called()
+
+    def test_supervised_probe_passes_only_the_exact_fixed_plan(self):
+        until = datetime.now(timezone.utc) + timedelta(minutes=10)
+        with patch('gate13_native_capacity_watch.require_desktop_safety_qualification', return_value=until), \
+                patch('gate13_native_capacity_watch.observe', return_value={}) as observer, \
+                patch.object(Path, 'write_text'):
+            result = observe_supervised(Path('original'), Path('output'), club_index=349,
+                                        display_receipt=Path('receipt'), approved_until_utc=until)
+        self.assertEqual(observer.call_args.args[2], SupervisedWatchPlan(club_index=349))
+        self.assertEqual(observer.call_args.kwargs, dict(display_receipt=Path('receipt')))
+        self.assertTrue(result['supervised_human_operated'])
+
+    def test_attendance_snapshot_reads_actual_receiver_not_selected_watch(self):
+        receiver = 0x200000
+        values = {(receiver, 4): struct.pack('<I', 0x7BD614),
+                  (receiver + 4, 2): struct.pack('<H', 349),
+                  (receiver + 0x13C, 8): struct.pack('<II', 123, 456)}
+        reads = []
+        def read(address, length):
+            reads.append((address, length))
+            return values[address, length]
+        row = attendance_receiver_observation(receiver, read)
+        self.assertEqual(reads, list(values))
+        self.assertEqual(row['capacity_u32'], [123, 456])
+        self.assertEqual(row['plus4_word_u16'], 349)
+        self.assertFalse(row['capacity_initializer_proven'])
+        self.assertTrue(row['observation_not_runtime_input'])
+
+    def test_attendance_snapshot_rejects_unqualified_object_before_reading_fields(self):
+        def read(address, length):
+            self.assertEqual((address, length), (0x200000, 4))
+            return struct.pack('<I', 0x7BD615)
+        with self.assertRaisesRegex(CapacityWatchError, 'not qualified DBRClub'):
+            attendance_receiver_observation(0x200000, read)
+
+    def test_watch_readback_is_not_continuous_coverage_or_initializer_proof(self):
+        context = Wow64Context()
+        arm_writes(context, 0x100000)
+        row = write_watch_observation(context, 0x100000)
+        self.assertTrue(row['selected_capacity_watches_present'])
+        self.assertFalse(row['continuous_all_thread_coverage_proven'])
+        self.assertEqual(row['registers']['Dr7'], 0xDD0005)
+        context.Dr0 += 4
+        self.assertFalse(write_watch_observation(context, 0x100000)['selected_capacity_watches_present'])
+        arm_writes(context, 0x100000)
+        context.Dr7 &= ~1
+        self.assertFalse(write_watch_observation(context, 0x100000)['selected_capacity_watches_present'])
+
+    def test_supervised_plan_does_not_expand_ordinary_cli_bound(self):
+        self.assertEqual(SupervisedWatchPlan().seconds, 300)
+        self.assertEqual(SupervisedWatchPlan().max_events, 4096)
+        for bad in (60, 301, True):
+            with self.assertRaises(CapacityWatchError):
+                SupervisedWatchPlan(seconds=bad)
+        with self.assertRaises(CapacityWatchError):
+            WatchPlan(seconds=300)
+
+    def test_supervised_probe_requires_exact_matching_live_five_minute_consent(self):
+        until=datetime.now(timezone.utc)+timedelta(minutes=10)
+        with patch('gate13_native_capacity_watch.require_desktop_safety_qualification',
+                   return_value=until-timedelta(seconds=1)), self.assertRaises(CapacityWatchError):
+            observe_supervised(Path('not-read'),Path('not-written'),
+                display_receipt=Path('private'),approved_until_utc=until)
     def test_activation_trace_is_separate_bounded_and_approval_expiring(self):
         until = datetime.now(timezone.utc) + timedelta(minutes=5)
         with patch('gate13_native_capacity_watch._observe', return_value={}) as observer:

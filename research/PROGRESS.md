@@ -4,6 +4,29 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Supervised native allocation-to-attendance receipt
+
+Daniel selected Southport and advanced normal play under explicit five-minute
+supervised foreground consent ending13:40UTC. First closure was the debugger's
+512-event ceiling, not a native crash. The supervised plan now uses the existing
+4096-event limit without expanding the ordinary60-second CLI. r2 reaches watched
+imported DBRClub5 (Coventry City) at uncontrolled attendance5DA538 and deliberately
+terminates after77.719seconds/1270events. No hardware writes;0/0 remains observed
+allocation state, NEVER a proven initializer or report input. Private receipt
+SHA256 abcfa7ea4af09a8cc60f63f67409d3cda8daf27cc64727d8a8190873f0a6d42f.
+All non-activation desktop checks pass; original terminated. Daniel confirms
+Southport's1-1 was HOME, not a human-away report proof. Next narrow watch retains
+DR0/DR1/DR7 read-back and actual attendance receiver, to adjudicate coverage and
+producer/alias lifecycle; no broad scan, no other shim, no guessed capacities.
+Consent expires; no further launch on historical approval. Gate13 OPEN; no
+Gate14/ownership change. Raw source/debug/display evidence stays outsideGit.
+Daniel then explicitly prohibited further original launches until he says it is
+fine again; proposed14:05UTC renewal was not approved. Continued offline
+watch/read-back contracts, regression tests and checkpoint documentation only.
+Final code passes 2082 reconstruction tests / 23 expected skips (292.054 seconds),
+46 focused probe-safety tests, asset policy, JSON and diff checks. No original
+execution after Daniel's stop and no new Windows/Tk closure pass are claimed.
+
 ### 4 October 2026 KST — Exact-callsite shim and non-exclusive runtime proof
 
 PR #309: Daniel's approved 6A6363 stack-only adaptation clears only exstyle bit8
@@ -19,6 +42,15 @@ graphics but not allocation/read; receiptfc27bac7... does not prove capacity.
 Continue exact startup dependency, then actual producer and human-away route.
 Raw evidence stays private. Audio manual; Azure/signing abandoned; Gate13 OPEN,
 Gate14/ownership unchanged. Focused pure contracts and asset policy pass.
+
+Subsequent exact root-redraw probes reach native fresh-world allocation,
+construction and imported DBRClub ID5 under the qualified safe stage. r6 ends at
+60.062seconds/362events; hardware writes and uncontrolled read absent. Zero
+snapshots remain observational only. Actual first root redraw and renderer wait
+return pass; repeated C++ throw resolves to eEPanelDeleted, not a resource-failure
+guess. Private receipt5d7e0e68... . No additional shim or blind elevated-game input.
+Next: supervised native interaction through actual uncontrolled attendance read,
+new foreground consent after13:22UTC; source-adjudicate producer before integration.
 
 ### 4 October 2026 KST — Quiet-probe prerequisite advanced; policy denial
 

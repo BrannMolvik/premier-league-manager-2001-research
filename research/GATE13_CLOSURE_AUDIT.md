@@ -4,6 +4,20 @@ _Audit refreshed: 4 October 2026 KST_
 
 ## Subsequent prerequisite progress / probe-safety stop (not a new closure audit)
 
+Supervised r2 now reaches the selected imported DBRClub ID5's uncontrolled
+attendance read5DA538 after77.719seconds/1270events. It stops there deliberately,
+not from a game crash. No hardware write was recorded;0/0 snapshots still do
+not establish an initializer/default or continuous all-thread watch coverage.
+Next is narrow watch-register/receiver lifecycle adjudication, not another broad
+scan. Private receipt hash and separately renewed13:40UTC foreground consent
+are in `CURRENT_STATE.md`; expired consent never authorizes another launch.
+Daniel's Southport1-1 was a home fixture, not the required human-away proof.
+No report producer was changed, no new closure/Windows audit is claimed, and
+Gate13 remains OPEN pending the actual capacity semantics and human-away route.
+Final offline regression passes 2082 tests / 23 expected skips, plus 46 focused
+probe-safety tests and repository asset policy. This is regression validation,
+not a new native producer finding or current-code Windows closure audit.
+
 The later exact-callsite topmost-only compatibility adaptation and explicit
 foreground/focus consent now qualify this exact private non-exclusive stage until
 2026-10-04 13:22 UTC. Loss-free DXGI Windowed=true matches native HWND; graphics
@@ -12,6 +26,14 @@ was adapted. Capacity tracing resumes; this does NOT source-close +13C/+140,
 prove the human-away report route, or pass a new Gate-13 closure audit.
 Current receipt/expiry are in `CURRENT_STATE.md`; older safety stops below are
 historical. Audio manual; signing/Azure remain stopped. Gate 13 stays OPEN.
+
+The later qualified r6 run now reaches fresh-world allocation/construction/import
+with hardware watches armed, but no +13C/+140 write or uncontrolled attendance
+read. Initial root redraw completes; no graphics hang is established. The actual
+capacity producer and human-away complete-report criterion remain unresolved;
+zero snapshots are not a default. Next is supervised native interaction through
+the attendance read (new foreground window required after consent expires), not
+another broad scan or compatibility patch. No fresh closure pass is claimed.
 
 Original-installer evidence now qualifies the missing resource selectors;
 Daniel-approved reversible repair makes native setup succeed. Exact original

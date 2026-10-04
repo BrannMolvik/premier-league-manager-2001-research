@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import ctypes as c
+from hashlib import sha256
 from dataclasses import dataclass
 from datetime import datetime, timezone, timedelta
 import json
@@ -46,7 +47,8 @@ STARTUP_SITES = (0x66AB26, 0x66AB37, 0x66AB74, 0x530DAB, 0x530DD9, 0x66ABA7, 0x6
                  0x530E29, 0x530E47, 0x615188, GRAPHICS_SUCCESS, CREATE_WINDOW_CALL, WINDOW_CREATED, FOREGROUND_REQUEST, FOREGROUND_RETURN, 0x6A93FB, 0x6A941E,
                  0x530EEE, 0x530F02, 0x530F3B, 0x530F9E, 0x530FB8, 0x531079,
                  0x531088, 0x53108D, 0x530F6E, 0x461E20, 0x461F31, 0x461F36,
-                 0x6154CC, 0x6154CF)
+                 0x6154CC, 0x6154CF, 0x531092, 0x531097, 0x5310B7, 0x5310BC,
+                 0x53120A, 0x53120F)
 ONE_SHOT_SITES = frozenset((0x6154CC, 0x6154CF))
 INSTALL_QUERY_RETURNS = {0x53078D: 'CD Drive', 0x5307F8: 'Install Dir', 0x53085F: 'art',
                          0x53093A: 'fmv', 0x5309DC: 'matchengine', 0x530A79: 'stadia'}
@@ -128,12 +130,46 @@ class WatchPlan:
         return address
 
 
+@dataclass(frozen=True)
+class SupervisedWatchPlan(WatchPlan):
+    """Separately human-approved five-minute run; ordinary CLI retains 60s limit."""
+    seconds: int = 300
+    max_events: int = 4096
+
+    def __post_init__(self):
+        WatchPlan(self.club_index, 60, self.max_events)
+        if type(self.seconds) is not int or self.seconds != 300:
+            raise CapacityWatchError('Supervised watch requires the exact approved five-minute bound')
+
+
 def arm_writes(context: Wow64Context, club_address: int) -> None:
     if type(club_address) is not int or not 0 < club_address <= 2**32 - STRIDE or club_address % 4:
         raise CapacityWatchError('Invalid watch receiver')
     context.Dr0, context.Dr1 = (club_address + off for off in CAPACITY_OFFSETS)
     context.Dr2 = context.Dr3 = context.Dr6 = 0
     context.Dr7 = 0xDD0005  # local DR0/1, each RW=01(write), LEN=11(dword)
+
+
+def write_watch_observation(context: Wow64Context, club_address: int) -> dict:
+    """Read-back witness, not a claim of continuous/all-thread watch coverage."""
+    registers = {name: int(getattr(context, name)) for name in ('Dr0', 'Dr1', 'Dr2', 'Dr3', 'Dr6', 'Dr7')}
+    return dict(registers=registers,
+                selected_capacity_watches_present=(
+                    registers['Dr0'] == club_address + CAPACITY_OFFSETS[0]
+                    and registers['Dr1'] == club_address + CAPACITY_OFFSETS[1]
+                    and registers['Dr7'] & 0xFFFF00FF == 0xDD0005),
+                continuous_all_thread_coverage_proven=False)
+
+
+def attendance_receiver_observation(receiver: int, read) -> dict:
+    """Actual ESI at qualified 5DA538; observed bytes are not report inputs."""
+    vftable = struct.unpack('<I', read(receiver, 4))[0]
+    if vftable != 0x7BD614:
+        raise CapacityWatchError('Uncontrolled attendance receiver is not qualified DBRClub')
+    return dict(address=receiver, vftable_u32=vftable,
+                plus4_word_u16=struct.unpack('<H', read(receiver + 4, 2))[0],
+                capacity_u32=list(struct.unpack('<II', read(receiver + 0x13C, 8))),
+                capacity_initializer_proven=False, observation_not_runtime_input=True)
 
 
 def window_presentation_adaptation(callsite: int, instruction: bytes, arguments: bytes) -> dict:
@@ -200,6 +236,47 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
     return _observe(executable, output, plan, stop_at_entry=stop_at_entry,
                     calibrate_crt_writes=calibrate_crt_writes, activation_trace_until=until,
                     allow_approved_activation_qualification=until is not None)
+
+
+def renew_display_activation_consent(executable: Path, previous: Path, output: Path, *,
+                                    approved_until_utc: datetime) -> None:
+    """New explicit HUMAN consent only; retain prior evidence, never overwrite it.
+
+    Presentation facts/identity are unchanged, not relabeled as a new runtime
+    observation. No CLI renewal/unsafe override: the caller must have new user
+    approval for this exact scope/time, as the original consent has expired.
+    """
+    validate_activation_approval(approved_until_utc)
+    require_private_output_path(previous)
+    require_private_output_path(output)
+    if output.exists():
+        raise CapacityWatchError('Preserve prior private consent receipts')
+    raw = previous.read_bytes()
+    data = json.loads(raw)
+    if data.get('approved_activation_windowed_qualification') is not True:
+        raise CapacityWatchError('No qualified temporary-activation stage to renew')
+    data['explicit_human_consent_renewal'] = dict(previous_receipt_sha256=sha256(raw).hexdigest(),
+        previous_expiry_utc=data.get('activation_approval_expiry_utc'),
+        new_expiry_utc=approved_until_utc.isoformat(),
+        new_runtime_observation_claimed=False, no_other_safety_condition_changed=True)
+    data['activation_approval_expiry_utc'] = approved_until_utc.isoformat()
+    output.write_text(json.dumps(data, indent=2)+'\n', encoding='utf-8')
+    # Re-adjudicate all actual mode evidence and exact current stage identity.
+    # Failed/partial original receipts NEVER gain qualification by renewal.
+    require_desktop_safety_qualification(executable, output)
+
+
+def observe_supervised(executable: Path, output: Path, *, display_receipt: Path,
+                       approved_until_utc: datetime, club_index: int = 5) -> dict:
+    validate_activation_approval(approved_until_utc)
+    until = require_desktop_safety_qualification(executable, display_receipt)
+    if until != approved_until_utc or until - datetime.now(timezone.utc) < timedelta(seconds=300):
+        raise CapacityWatchError('Exact explicit consent must cover the five-minute supervised watch')
+    result = observe(executable, output, SupervisedWatchPlan(club_index=club_index),
+                     display_receipt=display_receipt)
+    result['supervised_human_operated'] = True
+    output.write_text(json.dumps(result, indent=2)+'\n', encoding='utf-8')
+    return result
 
 
 def qualify_windowed_display(executable: Path, output: Path) -> dict:
@@ -339,10 +416,16 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
         row = dict(kind=kind, tid=tid, registers={n: int(getattr(ctx, n)) for n in
                    ('Eip', 'Eax', 'Ebx', 'Ecx', 'Edx', 'Esi', 'Edi', 'Esp', 'Ebp', 'Dr6')}, **extra)
         row['x87_control_word'] = struct.unpack('<I', bytes(ctx.FloatSave[:4]))[0]
+        if kind == 'source_breakpoint' and extra.get('source_va') == UNCONTROLLED_READ:
+            # Record the actual source-qualified attendance receiver, not just
+            # the separately hardware-watched array member. These read values
+            # are observations, never initialization or producer semantics.
+            row['attendance_receiver'] = attendance_receiver_observation(int(ctx.Esi), read)
         if club is not None:
             row.update(club_address=club, observed_club_plus4_word_u16=struct.unpack('<H', read(club + 4, 2))[0],
                        identity_import_observed=report['selected_club_import_observed'],
-                       visiting_capacity_u32=list(struct.unpack('<II', read(club + 0x13C, 8))))
+                       visiting_capacity_u32=list(struct.unpack('<II', read(club + 0x13C, 8))),
+                       write_watch_observation=write_watch_observation(ctx, club))
         report['events'].append(row)
 
     try:
@@ -487,8 +570,26 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                                 receiver=int(ctx.Eax), vftable=int(ctx.Ecx),
                                 actual_target=struct.unpack('<I', read(ctx.Ecx + 0x58, 4))[0],
                                 arguments=list(struct.unpack('<3I', read(ctx.Esp, 12))))
+                            if report.get('native_root_redraw_call_observed'):
+                                report['native_root_redraw_wait_call'] = dict(report['native_renderer_wait_call'])
                         if address == 0x6154CF:
                             report['native_renderer_wait_first_return'] = int(ctx.Eax)
+                            if report.get('native_root_redraw_call_observed'):
+                                report['native_root_redraw_wait_return'] = int(ctx.Eax)
+                        if address == 0x531092:
+                            report['native_database_setup_return_observed'] = True
+                        if address == 0x5310B7:
+                            report['native_5327e0_call_observed'] = True
+                        if address == 0x5310BC:
+                            report['native_5327e0_return_observed'] = True
+                        if address == 0x53120A:
+                            report['native_root_redraw_call_observed'] = True
+                            # Separate the original first root redraw from movie
+                            # frame waits. Re-arm only the observational probes.
+                            for site in ONE_SHOT_SITES:
+                                write(site, b'\xCC')
+                        if address == 0x53120F:
+                            report['native_root_redraw_return_observed'] = True
                         if address in (0x6A93FB, 0x6A941E):
                             report.setdefault('native_driver_load_results', []).append(dict(
                                 source_va=address, handle=int(ctx.Eax),

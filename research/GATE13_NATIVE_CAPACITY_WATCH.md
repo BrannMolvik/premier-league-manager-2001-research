@@ -5,6 +5,24 @@ Gate 13 remains OPEN. No visiting-capacity value is authorized by this work.
 
 ## Current exact-stage display qualification
 
+Latest supervised milestone: Daniel renewed temporary foreground/focus consent
+to13:40UTC/22:40KST on4October and operated the original normally. The initial
+512-event ceiling deliberately closed the game, not a crash. The supervised
+plan now has separately approved300seconds and4096events; ordinary CLI still
+rejects more than60seconds. r2 reached selected imported DBRClub ID5 /Coventry
+City's uncontrolled read5DA538 and deliberately stopped before executing it,
+after77.719seconds/1270events. No hardware write, fields0/0; no initializer is
+proven and no values enter the reconstructed report producer. DR-register
+read-back/continuous coverage is not established by that receipt. The next
+narrow observation retains actual receiver data and DR0/DR1/DR7 witnesses;
+source-adjudicate the lifecycle rather than repeating broad candidate scans.
+Receipt SHA-256 `abcfa7ea4af09a8cc60f63f67409d3cda8daf27cc64727d8a8190873f0a6d42f`.
+All non-activation desktop checks passed. Daniel selected Southport, but reports
+its first1-1 against Dagenham was at HOME; no human-away report success is claimed.
+Historical13:22UTC physical qualification below was renewed only by new human
+consent, preserving original mode/identity evidence without claiming new DXGI
+data. Renewed consent expires13:40UTC; never launch on expired approval.
+
 The exact-callsite topmost-only stack adaptation is now verified; no disk/game/
 fullscreen/capacity edits. Original graphics initialization succeeds and loss-free
 DXGI proves Windowed=true for the actual HWND / 800x600 swap chain. All desktop
@@ -15,8 +33,26 @@ This receipt expires at **2026-10-04 13:22 UTC / 22:22 KST**; it never authorize
 execution afterwards. Native capacity observation has resumed using it. Audio
 is Daniel's manual Volume Mixer condition; no signing/audio-automation work.
 Detailed evidence/identity checks are in `GATE13_NATIVE_PROBE_SAFETY.md`.
+Daniel subsequently prohibited further original launches until explicit reapproval;
+the proposed14:05UTC extension was not approved. Do not launch while he plays his
+esport match. Current work is offline contracts/tests/docs only.
 No visiting-capacity semantics or human-away report success follows from display
 qualification. Follow actual writes/copies/aliases through the uncontrolled read.
+
+The qualified r6 60-second/362-event run now reaches fresh-world entry, allocation,
+construction and import: count1246, selected array index5, source-qualified club
+ID5. Watches are armed before construction, including the actual loader thread.
+No capacity write or uncontrolled read; allocation/import/end snapshots remain
+zero but are NOT initialization proof. Private receipt SHA-256
+`5d7e0e6839788bfbb805d7e20c9083287384ac7ada622878e8444088b74134ca`.
+Original terminated, executable unchanged. Exact initial root redraw and renderer
+wait return both execute; earlier terminal stack samples did not prove a hang.
+Repeated observed C++ ThrowInfo8375592 source-resolves to eEPanelDeleted, not a
+missing-file guess. No throw, graphics return or startup stage was bypassed.
+Continue native interaction through the uncontrolled attendance read; elevated
+original inspection/control was unreliable, so no blind GUI action was sent.
+Supervised user interaction has been requested. After the13:22UTC consent expiry,
+obtain a new agreed foreground window before launch; never reuse expired receipts.
 
 ## Historical pre-shim display-only stop (superseded above)
 
@@ -103,7 +139,9 @@ invalid array bounds and repeated allocation. It never attaches to another
 process, generates GUI input, supplies report inputs or changes executable
 files/installation keys. Runtime INT3 probes and two dword WRITE watchpoints
 affect only the launched process, which is terminated on each bounded exit.
-Maximum observation is 60 seconds / 4,096 debug events.
+Ordinary maximum observation is60seconds/4096events. A separate human-operated
+plan requires explicit matching live consent covering its exact300second bound;
+it retains the4096event limit and is not exposed as an unsafe CLI override.
 
 Source-qualified lifecycle probes:
 

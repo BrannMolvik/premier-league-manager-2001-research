@@ -1,10 +1,25 @@
 # Gate 13 private native-probe safety qualification
 
 4 October 2026 KST, PR #309. **Runtime display qualified with expiring explicit
-foreground/focus consent until 13:22 UTC / 22:22 KST on 4 October.**
+foreground/focus consent; latest supervised approval expired13:40UTC /22:40KST
+on4October. No later launch on historical consent.**
 Gate 13 remains open; capacity initialization/human-away remain unproven.
 
+**Latest explicit user condition: no further original-game launch until Daniel
+says it is fine again.** Proposed14:05UTC supervised extension was not approved.
+Historical timing permissions do not supersede this stop. Offline work only.
+
 ## Authorized narrow shim and isolated activation request (latest)
+
+Daniel separately approved a five-minute supervised original probe with temporary
+foreground/focus acceptance until13:40UTC. All other conditions remain strict;
+there is no additional shim. The renewed private receipt retains the exact prior
+loss-free DXGI/window/graphics/identity facts and explicitly disclaims any new
+runtime display observation. r2 safely reached selected uncontrolled attendance
+and stopped intentionally; receipt/consent hashes are in `CURRENT_STATE.md`.
+The supervised API requires exact matching live consent with at least300seconds
+remaining; ordinary CLI bounds remain unchanged. No later launch is permitted
+without new explicit human approval. Manual Volume Mixer audio only.
 
 Daniel accepted 3c7a17ef and authorized only clearing WS_EX_TOPMOST in the
 dwExStyle stack argument at exact canonical CreateWindowExA 6A6363. Full

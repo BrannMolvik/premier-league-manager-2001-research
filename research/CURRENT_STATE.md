@@ -6,7 +6,60 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
-## Exact-callsite shim and activation trace (4 October 2026 KST)
+## Supervised allocation-to-attendance milestone (4 October 2026 KST)
+
+**Daniel explicitly stopped further original-game launches while playing an
+esport match. Do not launch again until he explicitly says it is fine.**
+The proposed14:05UTC extension was NOT approved. Offline analysis/tests/docs
+may continue; no desktop interaction, policy/audio work or ownership change.
+
+PR #309 advances beyond startup: Daniel selected Southport (canonical club 349)
+and advanced normal play. The first supervised run deliberately stopped at its
+512-event ceiling after 42.25 seconds, not a native crash. The separately approved
+five-minute plan now uses the existing 4096-event ceiling; ordinary CLI remains
+bounded to 60 seconds. No further compatibility adaptation was added.
+
+The next run reached fresh allocation/construction/import of watched DBRClub
+ID 5 (Coventry City), then its actual uncontrolled attendance read at `0x5DA538`.
+It deliberately terminated there after **77.719 seconds / 1270 events**, before
+executing the stopped instruction. Exact selected receiver identity is retained;
+this is not merely an attendance read belonging to another club. No hardware
+write was recorded, and `+0x13C/+0x140` still read 0/0. **Neither observation proves
+initialization, a zero default, or continuous all-thread watch coverage.**
+The receipt does not retain DR0/DR1/DR7 read-back; support tooling now retains
+that witness and actual attendance-receiver identity/fields in future runs.
+These additions have synthetic contracts, not a new native execution receipt.
+Do not manufacture a producer or promote this snapshot into report inputs.
+
+Private `gate13-native-capacity-supervised-20261004-r2.json` SHA-256:
+`abcfa7ea4af09a8cc60f63f67409d3cda8daf27cc64727d8a8190873f0a6d42f`.
+Daniel reports Southport's first fixture was a HOME 1-1 against Dagenham;
+it is not proof of a human-away fixture/report. All non-activation desktop
+checks passed. Original terminated; no native process remains from the probe.
+
+Daniel explicitly renewed foreground/focus approval until **2026-10-04
+13:40 UTC / 22:40 KST** for the supervised five-minute probe. The new private
+consent receipt preserves prior physical display evidence unchanged and does
+not claim a new DXGI observation. Consent receipt SHA-256:
+`0350a81816b2fbee95dfcbbe8b8d028d30c7fefa1f64f9704a220c2aff44a40f`.
+After expiry, no original launch is authorized by this historical consent.
+Any new supervised run needs a new explicit agreed foreground window; all
+other display safeguards and Daniel's manual audio condition remain mandatory.
+
+**Exact next action:** verify debug-register/watch coverage from allocation
+through this source-qualified attendance receiver; adjudicate the absence or
+presence of an authoritative write/copy/alias lifecycle without inferring zero.
+Then integrate only proven semantics and prove human-away complete report ->
+save -> fresh reload -> ordinary Fixtures right-click -> rendered PMatchInfo.
+Gate13 stays OPEN; no new closure/Windows schema8 pass is claimed. Gate14 and
+ownership unchanged. Broader regression results are recorded below/by checkpoint.
+
+Final offline validation: **2082 reconstruction tests / 23 expected skips**
+pass on the final code (292.054 seconds), along with **46 focused probe-safety
+tests**, repository asset policy, JSON and diff checks. No new Windows/Tk
+closure audit is claimed for debugger-only changes.
+
+## Exact-callsite shim and activation trace (historical prerequisite)
 
 Daniel accepted 3c7a17ef and authorized only a probe-local dwExStyle adaptation
 at canonical CreateWindowExA call 6A6363. The checksum-qualified instruction and
@@ -54,20 +107,35 @@ Zero events lost; no observed exclusive-fullscreen request. Schema-4 reader
 re-adjudicates exact PID/HWND DXGI rows and rejects expired approval or any
 non-activation safety problem. The original is terminated after each bound.
 
-**Current action:** the qualified 60-second capacity run reached graphics but
-not allocation. A narrowed run proves actual startup movie requests/returns,
-reaches53108D, and its terminal stack retains renderer return6154CF/caller532A82.
-6154C0 calls receiver947ABC vftable+58 with flags1/handle0 at6154CC. Observe that
-exact runtime receiver/target/first return and module ownership; no skipped movie
-or fabricated return. Then continue actual allocation/write/copy/alias/attendance
-tracing, adjudication and the genuine human-away route. No capacity semantics
-follows from startup progress. Private r3 receipt SHA-256
-`5cf565a9525a1c7ba5bc5dd847f0e2bd5108dcd4df05039a17dbedd10c89f91b`.
-After expiry, no receipt here authorizes further native execution.
+**Capacity watch resumed successfully after display qualification.** The narrowed
+60-second r6 run reaches fresh-world50D630, allocation40BC14, construction40BC43
+and import40BA2C of qualified DBRClub ID5 (array count1246). Hardware watches are
+armed before construction. No +13C/+140 write or uncontrolled read was observed;
+zero snapshots do NOT prove initialization and cannot supply report inputs.
+Private `gate13-native-capacity-qualified-20261004-r6.json` SHA-256
+`5d7e0e6839788bfbb805d7e20c9083287384ac7ada622878e8444088b74134ca`.
+Desktop checks remain satisfied under expiring foreground/focus consent; original
+terminated and disk hash unchanged. First root redraw53120A->53120F and its
+renderer call/return both complete; actual target belongs to exact private
+DDraw.dll. This is NOT a permanent renderer-stall finding or reason for another
+compatibility patch. Startup movies return normally. Repeated first-chance C++
+ThrowInfo8375592 source-resolves to eEPanelDeleted, not a guessed missing-file
+error; no exception/return was bypassed.
+
+Historical next action, superseded by the supervised milestone above: continue the armed fresh receiver's native write/
+copy/alias lifecycle through an actual uncontrolled-home attendance read, then
+adjudicate the producer, integrate only proven semantics and verify human-away
+report/save/fresh-reload/right-click/PMatchInfo. Automated inspection of the
+elevated original did not reliably show its surface (helper reports integrity
+limitation); no blind input was sent. Daniel has been asked about supervised
+native interaction. No extra presentation/game-state patch is authorized.
+After13:22UTC, this receipt/consent cannot authorize another native launch; arrange
+a new foreground window before any supervised probe. Audio remains manual.
 
 Audio remains accepted user-managed Volume Mixer; Azure/signing/custom mute work
-is stopped. Gate 13 stays OPEN; Gate-14/ownership unchanged. **44 focused tests**
-pass; no fresh full suite/Windows closure audit is claimed for debugger-only work.
+is stopped. Gate13 stays OPEN; Gate14/ownership unchanged. That prerequisite
+checkpoint passed44focused tests; latest validation is recorded above. No fresh
+Windows closure audit is claimed for debugger-only work.
 
 ## Historical pre-shim display checkpoint (3c7a17ef; superseded above)
 
