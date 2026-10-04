@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #280 merged as c8ab34e6 after 1,915 tests / 23 expected skips, asset policy, and Windows package workflow passed. Exact next cloud-safe task: harden direct run_final_release_audit so it independently requires the canonical full-scope implementation preflight and cannot be used to bypass gate17_external_validation.",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #281 head ebc007ee is open to bind direct run_final_release_audit to the canonical full-scope implementation preflight, record the green preflight payload, and propagate the external transaction's player seed/max-days. Merge only after reconstruction, asset-policy, and Windows-package checks are green; then continue the next independent Gate-17 release invariant.",
   "last_known_main_head": "c8ab34e685aa2c39d0fd2f99fc415cf1b21d1004",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 253,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 253 resumed after PR #280 merge; hardening direct final release audit preflight binding.",
+  "note": "Recovery 253: PR #281 opened at ebc007ee; reconstruction CI queued.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
