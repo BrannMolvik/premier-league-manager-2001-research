@@ -12,6 +12,11 @@ from unittest.mock import patch
 from gate13_button_source_trace import OriginalPE32
 from gate14_fastview_picturecontrol_source_trace import (
     Gate14PictureControlTraceError,
+    EMBEDDED_IMAGE_LAZY_ACQUIRE_VA,
+    EMBEDDED_PICTURE_DRAW_LEAD_VA,
+    EMBEDDED_PICTURE_SETUP_VA,
+    LOW_LEVEL_PICTURE_BLIT_LEAD_VA,
+    PICTURE_CONTROL_CHILD_RENDER_FORWARDER_VA,
     PictureControlVtableSlotCandidate,
     main as tracer_main,
     picturecontrol_trace_report,
@@ -115,7 +120,19 @@ class Gate14PictureControlSourceTraceTests(unittest.TestCase):
         )
         self.assertFalse(report["cross_component_z_order_recovered"])
         self.assertFalse(report["picturecontrol_resize_pixels_recovered"])
+        self.assertFalse(report["picturecontrol_crop_vs_stretch_recovered"])
+        self.assertFalse(report["embedded_picture_source_rect_recovered"])
         self.assertFalse(report["child_registration_order_recovered"])
+        self.assertEqual(
+            tuple(item["va"] for item in report["renderer_chain_leads"]),
+            (
+                PICTURE_CONTROL_CHILD_RENDER_FORWARDER_VA,
+                EMBEDDED_PICTURE_SETUP_VA,
+                EMBEDDED_IMAGE_LAZY_ACQUIRE_VA,
+                EMBEDDED_PICTURE_DRAW_LEAD_VA,
+                LOW_LEVEL_PICTURE_BLIT_LEAD_VA,
+            ),
+        )
         self.assertIn("No virtual-slot role", report["evidence_limit"])
 
     def test_non_text_vtable_is_required_and_limits_fail_closed(self):
@@ -196,6 +213,9 @@ class Gate14PictureControlSourceTraceTests(unittest.TestCase):
             emitted = json.loads(output.read_text(encoding="utf-8"))
             self.assertFalse(emitted["cross_component_z_order_recovered"])
             self.assertFalse(emitted["picturecontrol_resize_pixels_recovered"])
+            self.assertFalse(emitted["picturecontrol_crop_vs_stretch_recovered"])
+            self.assertFalse(emitted["embedded_picture_source_rect_recovered"])
+            self.assertEqual(len(emitted["renderer_chain_leads"]), 5)
             self.assertNotIn("draw_order", emitted)
             self.assertNotIn("resize_rule", emitted)
 
