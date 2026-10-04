@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Verify Gate-14 PR #352 at head 7c63d861: Button@ease dynamic AudioHooks numeric event set {2,10}, exact native group rule, and reused source-closed group semantics. Asset policy is green; reconstruction CI is running. After green merge, source-close event-13 sender class context: PTitleMenuRow/PChildMenuRow RTTI -> vtables 0x7C3A80/0x7C3A20 -> shared slot 11 method 0x47ACF0 -> AudioHooks (13,0,0) only when incoming object +0x20 == 2. Keep +0x20 and event 13 human meaning unresolved.",
-  "last_known_main_head": "1604a08b451a259dae8639c2286e213be15541d8",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. PR #352 merged as canonical main 6721056c after 2,225 tests/23 skips and asset-policy success. Continue independent Gate-14 event-13 sender-class recovery: source-close PTitleMenuRow/PChildMenuRow RTTI -> vtables 0x7C3A80/0x7C3A20 -> shared slot 11 method 0x47ACF0 -> AudioHooks numeric tuple (13,0,0) only when incoming object +0x20 == 2. Keep the meaning of +0x20 and event 13 unresolved unless source ownership/type evidence directly closes it.",
+  "last_known_main_head": "6721056c1c2fe4d2385710218148180a9cf5faaa",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 278,
+  "recovery_generation": 279,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 278: PR #352 latest head 7c63d861 is mergeable; prior import-only CI failure was fixed. Canonical executable privately revalidated PTitleMenuRow TD 0x81CDB0/vtable 0x7C3A80 and PChildMenuRow TD 0x81CDF0/vtable 0x7C3A20, both slot11 -> 0x47ACF0. Do not assign meaning to incoming +0x20==2 without source type proof.",
+  "note": "Recovery 279 merged PR #352. Event-13 next anchors already privately identified: PTitleMenuRow type descriptor 0x81CDB0/vtable 0x7C3A80; PChildMenuRow type descriptor 0x81CDF0/vtable 0x7C3A20; both vtable slot 11 -> 0x47ACF0; method sends AudioHooks (13,0,0) only on incoming +0x20==2. Do not name +0x20 or event 13 without direct source proof.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
