@@ -191,7 +191,11 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         work_root=work,
                     )
 
-            implementation.assert_called_once_with(game.resolve())
+            implementation.assert_called_once_with(
+                game.resolve(),
+                player_seed=1,
+                max_days=420,
+            )
             clean.assert_not_called()
             self.assertFalse(work.exists())
 
@@ -328,7 +332,11 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                 )
 
             self.assertTrue(work.is_dir())
-            implementation.assert_called_once_with(game.resolve())
+            implementation.assert_called_once_with(
+                game.resolve(),
+                player_seed=7,
+                max_days=430,
+            )
             final_payload = json.loads(
                 result["final_release_receipt"].read_text(encoding="utf-8")
             )
@@ -409,7 +417,11 @@ class Gate17ExternalValidationTests(unittest.TestCase):
                         work_root=work,
                     )
 
-            implementation.assert_called_once_with(game.resolve())
+            implementation.assert_called_once_with(
+                game.resolve(),
+                player_seed=1,
+                max_days=420,
+            )
             self.assertFalse(work.exists())
 
     def test_work_root_and_canonical_game_data_must_remain_outside_repo(self):
