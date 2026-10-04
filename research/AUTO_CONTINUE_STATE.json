@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Verify Gate-14 PR #348 at head 1714407a: source-closed font color-key semantics plus strict Windows original-runtime pixel-format receipt validation. Asset policy is green; full reconstruction CI is running. If green, merge #348 and continue source-closing the retained-mask RGB8 -> packed16 conversion (0x443E00/0x443E20) without assuming runtime RGB565/RGB555 values.",
-  "last_known_main_head": "96e1d7caabdc4a53f4f4736843ca169c0a536109",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. PR #348 merged as canonical main 8bc65124 after 2,161 tests/23 skips and asset-policy success. Continue independent Gate-14 native pixel-format work: source-close 0x443E00/0x443E20 RGB8 -> packed16 conversion using the retained mask metadata. Keep actual runtime mask values behind the strict Windows receipt and keep packed16 -> modern RGBA expansion / overlap pixels unresolved.",
+  "last_known_main_head": "8bc65124b422f3b271be4d5b07f8857456b509f3",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 277,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #348 turns the remaining channel layout question into an exact Windows receipt requirement. Static source now closes native key = red_mask | blue_mask and zero font replacement color. Next static source step after merge is the mask-metadata-driven RGB8 -> packed16 conversion; actual mask values remain external Windows evidence.",
+  "note": "Static source revalidation shows 0x653120 derives per-channel trailing-zero placement and 8-bit truncation shift from the runtime mask. 0x443E00 packs one channel as (value >> quantization_shift) << placement_shift; 0x443E20 applies this to red/green/blue. No runtime RGB565/RGB555 value is inferred.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
