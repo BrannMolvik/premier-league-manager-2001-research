@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete validation gate and Codex-owned; do not edit its Fixtures paging path from ChatGPT. Verify Gate-14 PR #366 at head 642b7be0: nested LeagueTable/TeamTable count algorithms and runtime ScoreComposite phase-tail mutation, with global z-order still false. While CI runs, continue the disjoint final dynamic-order audit: exact FastViewLeagueScores ScoreComposite creation chronology/count, conditional pager-tail controls, and any remaining nested append/remove paths.",
-  "last_known_main_head": "a99f1e029036c8cb37d66f36641c6093214d883a",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #366 merged as main 4398d083 after 2,279 tests/23 skips and asset-policy success. Next verify the disjoint score/table aggregate-order correction: remove the false pairwise relation between league_scores_static and league_table_static because LeagueScores ScoreComposite controls are registered before LeagueTable while other score-owned controls and runtime phase tails occur after it. Preserve all outer wrapper relations and keep global z-order false. Then correct the stale FastViewLeagueScores/FastViewCupScores geometry/class split.",
+  "last_known_main_head": "4398d083aec13a7a102996868d98d87627972eb6",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 286,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #366 is the live nested-order checkpoint. Outer FastViewPanel count remains 36. Do not promote global_fastview_z_order_recovered until score factory chronology, paging controls, and dynamic phase-tail ordering are source-closed. Preserve Gate-13 ownership lock.",
+  "note": "Nested counts/mutation are canonical on main 4398d083. Private source also proves 0x523DF0 belongs to FastViewCupScores (vtable 0x7CA680), not FastViewLeagueScores. LeagueScores setup is 0x523370 with fixed layout (38,55,12,1,0,19); CupScores owns the old centered/two-column threshold-12 layout. Do not promote global FastView z-order.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
