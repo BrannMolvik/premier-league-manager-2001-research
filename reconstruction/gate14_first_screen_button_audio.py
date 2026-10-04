@@ -94,17 +94,22 @@ class FirstScreenButtonAudioRoute:
     audible_windows_verified: bool = False
 
     def __post_init__(self) -> None:
-        if self.event_id not in (2, 10):
+        allowed_numeric_routes = {
+            (2, BUTTON_PRESS_STATE_VALUE, BUTTON_PRESS_MENU_SAMPLE_SLOT),
+            (10, BUTTON_PRESS_STATE_VALUE, BUTTON_PRESS_MENU_SAMPLE_SLOT),
+            (
+                10,
+                BUTTON_POINTER_ENTER_STATE_VALUE,
+                BUTTON_POINTER_ENTER_MENU_SAMPLE_SLOT,
+            ),
+        }
+        if (self.event_id, self.state_value, self.sample_slot) not in allowed_numeric_routes:
             raise Gate14FirstScreenButtonAudioError(
-                "first-screen Button route must retain source event 2 or 10"
+                "first-screen Button route is not one of the source-closed numeric routes"
             )
-        if self.state_value != 0 or self.third_argument != 0x40:
+        if self.third_argument != 0x40:
             raise Gate14FirstScreenButtonAudioError(
-                "first-screen press must retain source state 0 / arg3 0x40"
-            )
-        if self.sample_slot != BUTTON_PRESS_MENU_SAMPLE_SLOT:
-            raise Gate14FirstScreenButtonAudioError(
-                "accepted first-screen route must retain menus.bnk slot 2"
+                "first-screen Button audio route must retain arg3 0x40"
             )
         if self.native_group not in (0, 1):
             raise Gate14FirstScreenButtonAudioError(
