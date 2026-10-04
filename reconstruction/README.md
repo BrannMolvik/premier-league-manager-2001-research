@@ -81,6 +81,11 @@ Canonical real-data evidence now includes:
   evidence. It fails closed if any expected primary owner/target or catalog
   mapping is missing. This remains audit tooling until the authorized private
   run is actually executed.
+- `--primary-container-all` joins the source-proven fixed Premier League
+  save route with every procedural-primary audit in exact runtime-ownership-plan
+  order. It proves only primary-container save continuity and emits every
+  procedural-secondary TeamSelect scope as explicitly unverified instead of
+  routing secondary owners through the primary engine.
 
 Run the canonical save routes against an authorized game directory with:
 
@@ -88,6 +93,7 @@ Run the canonical save routes against an authorized game directory with:
 PYTHONPATH=reconstruction python reconstruction/canonical_internal_save_audit.py /path/to/game
 PYTHONPATH=reconstruction python reconstruction/canonical_internal_save_audit.py /path/to/game --procedural-primary
 PYTHONPATH=reconstruction python reconstruction/canonical_internal_save_audit.py /path/to/game --procedural-primary-all
+PYTHONPATH=reconstruction python reconstruction/canonical_internal_save_audit.py /path/to/game --primary-container-all
 ```
 - transfer/contract completion with human and AI calendar paths: `../research/GATE9_TRANSFERS_AND_CONTRACTS.md`.
 
