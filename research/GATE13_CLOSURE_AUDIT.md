@@ -11,13 +11,16 @@ in one bounded run. No capacity writer or uncontrolled read was observed; zero
 snapshots do not source-close initialization. The earlier missing-selector stop
 below is superseded, not an unresolved registry repair request.
 
-After fullscreen/resolution/focus/audio disruption, Daniel restricted further
-original execution. Normal capacity-debugger launches now fail closed before
-executable access/process creation. First qualify non-exclusive display and
-pre-play process-local silence; offline wrapper configuration is not runtime
-safety proof. Ask before any genuinely required disruptive probe. No original
-was launched after that restriction. Eleven focused debugger checks and asset
-policy pass; no new broad/Windows audit or human-away report success is claimed.
+Daniel now accepts manual Volume Mixer audio and has stopped Azure/signing/custom
+mute-helper work. Only display safety remains a technical probe prerequisite.
+The newly authorized bounded forced-windowed probe loaded the exact wrapper but
+stopped after 1.969 seconds on a game-owned topmost window, with desktop mode
+unchanged and child terminated. Canonical startup proves a native topmost request;
+the debugger now guards it before API execution. Normal capacity/calibration
+probes require exact-stage successful runtime display qualification. Qualify a
+source-valid presentation-only remedy; ask before any genuinely necessary
+disruptive observation. No new broad/Windows closure audit or human-away report
+success is claimed. Historical signing evidence is not a continuation task.
 Gate 13 stays OPEN with the same producer/normal-play criterion unresolved.
 See `GATE13_NATIVE_CAPACITY_WATCH.md` and `CONTINUATION_INSTRUCTIONS.md`.
 

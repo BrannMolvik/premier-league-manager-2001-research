@@ -3,8 +3,9 @@
 dgVoodoo can skip malformed config and fall back to defaults. FullScreenMode
 alone is insufficient while DirectX application-controlled mode is enabled.
 Require every desktop-critical value explicitly; missing is not safe/default.
-Actual non-exclusive behavior and pre-play process-local silence need separate
-runtime qualification. This module never launches, loads DLLs, or mutes audio.
+Actual non-exclusive behavior needs separate runtime qualification. Daniel
+manages audio through Volume Mixer; it is not a technical prerequisite.
+This module never launches, loads DLLs, or mutes audio.
 """
 from __future__ import annotations
 
@@ -60,7 +61,7 @@ def check_windowed_config(text: str) -> dict:
         raise ProbeSafetyError('Malformed/duplicate configuration must not fall back to wrapper defaults') from exc
     return dict(offline_configuration_passed=True, checked_settings=checked,
                 vendor_parser_qualified=False, runtime_nonexclusive_qualified=False,
-                pre_play_process_local_silence_qualified=False, original_launch_authorized=False)
+                audio_condition='user_managed_volume_mixer', original_launch_authorized=False)
 
 
 def check_private_stage(stage: Path) -> dict:

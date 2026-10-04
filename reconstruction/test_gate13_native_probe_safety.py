@@ -17,8 +17,10 @@ class NativeProbeSafetyTests(unittest.TestCase):
         result = check_windowed_config(safe_text())
         self.assertTrue(result['offline_configuration_passed'])
         for key in ('vendor_parser_qualified', 'runtime_nonexclusive_qualified',
-                    'pre_play_process_local_silence_qualified', 'original_launch_authorized'):
+                    'original_launch_authorized'):
             self.assertFalse(result[key])
+        self.assertEqual(result['audio_condition'], 'user_managed_volume_mixer')
+        self.assertNotIn('pre_play_process_local_silence_qualified', result)
 
     def test_every_required_value_must_be_explicit(self):
         for (_, name), value in REQUIRED_SETTINGS.items():

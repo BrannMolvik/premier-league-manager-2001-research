@@ -6,8 +6,9 @@ INT3 probes are in-memory only; two hardware dword WRITE watches are armed at
 the allocation return, before array construction. A receipt is observational
 evidence, NEVER a report input or automatic proof of an initializer.
 
-All original launches are currently paused by a fail-closed environment gate,
-including positive-control modes. No unsafe override is offered.
+Capacity/positive-control launches require the exact-stage windowed runtime
+receipt. A separate ten-second bounded display-only qualification is permitted.
+Daniel handles audio manually; no audio/signing prerequisite or unsafe override.
 
 Win32 ABI references: Microsoft DEBUG_EVENT, WOW64_CONTEXT, WaitForDebugEvent,
 Wow64GetThreadContext and Wow64SetThreadContext documentation. No GUI input is
@@ -25,15 +26,18 @@ import struct
 import time
 
 from gate13_button_source_trace import OriginalPE32, OriginalPETraceError, require_private_output_path
+from gate13_native_probe_safety import check_private_stage, ProbeSafetyError
+from gate13_native_display_watch import DisplayWatch, DisplayWatchError
 
 U32, U16, PTR = c.c_uint32, c.c_uint16, c.c_void_p
 CONTEXT_FLAGS = 0x1001F  # WOW64 control/integer/segments/FPU/debug registers
 ALLOC_RETURN, CONSTRUCTED, IMPORTED, UNCONTROLLED_READ = 0x40BC14, 0x40BC43, 0x40BA2C, 0x5DA538
 STRIDE, CAPACITY_OFFSETS = 0x2A8, (0x13C, 0x140)
+GRAPHICS_SUCCESS, CREATE_WINDOW_CALL = 0x6153A0, 0x6A6363
 STARTUP_SITES = (0x66AB26, 0x66AB37, 0x66AB74, 0x530DAB, 0x530DD9, 0x66ABA7, 0x66ABF4,
                  0x515C11, 0x515C17, 0x53078D, 0x5307F8, 0x53085F,
                  0x53093A, 0x5309DC, 0x530A79, 0x50D630,
-                 0x530E29, 0x530E47, 0x615188, 0x6151B5, 0x6A93FB, 0x6A941E,
+                 0x530E29, 0x530E47, 0x615188, GRAPHICS_SUCCESS, CREATE_WINDOW_CALL, 0x6A93FB, 0x6A941E,
                  0x530EEE, 0x530F02, 0x530F3B, 0x530F9E)
 INSTALL_QUERY_RETURNS = {0x53078D: 'CD Drive', 0x5307F8: 'Install Dir', 0x53085F: 'art',
                          0x53093A: 'fmv', 0x5309DC: 'matchengine', 0x530A79: 'stadia'}
@@ -118,23 +122,46 @@ def arm_writes(context: Wow64Context, club_address: int) -> None:
     context.Dr7 = 0xDD0005  # local DR0/1, each RW=01(write), LEN=11(dword)
 
 
-def require_desktop_safety_qualification() -> None:
-    # Daniel requires BOTH safeguards before ANY further original launch.
-    # No calibration/CLI exception: successful historical positive controls
-    # do not qualify windowed execution or pre-play mute. Future implementation
-    # must verify real safeguards here, not accept a boolean/unsafe override.
-    raise CapacityWatchError(
-        'Original launch disabled: first qualify non-exclusive display and '
-        'pre-play process-local silence; no calibration or unsafe override')
+def require_desktop_safety_qualification(executable: Path, receipt: Path | None) -> None:
+    if receipt is None:
+        raise CapacityWatchError('Original launch disabled: first qualify the exact non-exclusive display stage')
+    require_private_output_path(receipt)
+    stage = check_private_stage(executable.resolve().parent)
+    data = json.loads(receipt.read_text(encoding='utf-8'))
+    if (data.get('schema_version') != 2 or
+            data.get('stop_reason') != 'display_qualification_complete' or
+            data.get('display_qualification_only') is not True or
+            data.get('runtime_nonexclusive_qualified') is not True or
+            data.get('source_sha256') != '833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3' or
+            data.get('private_stage') != str(executable.resolve().parent) or
+            data.get('wrapper_sha256') != stage['wrapper_sha256'] or
+            data.get('config_sha256') != stage['config_sha256'] or
+            data.get('private_wrapper_load_observed') is not True or
+            data.get('native_graphics_initialization_accepted') is not True or
+            data.get('display_observation', {}).get('normal_window_observed') is not True or
+            data.get('display_observation', {}).get('problems') != []):
+        raise CapacityWatchError('Display receipt does not qualify this exact private runtime stage')
 
 
 def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: bool = False,
-            calibrate_crt_writes: bool = False) -> dict:
+            calibrate_crt_writes: bool = False, display_receipt: Path | None = None) -> dict:
     if stop_at_entry and calibrate_crt_writes:
         raise CapacityWatchError('Entry-only and CRT write calibration are separate probes')
-    require_desktop_safety_qualification()
+    require_desktop_safety_qualification(executable, display_receipt)
+    return _observe(executable, output, plan, stop_at_entry=stop_at_entry,
+                    calibrate_crt_writes=calibrate_crt_writes)
+
+
+def qualify_windowed_display(executable: Path, output: Path) -> dict:
+    """Daniel-authorized smallest bounded original display probe, not a bypass."""
+    return _observe(executable, output, WatchPlan(seconds=10, max_events=256), qualification_only=True)
+
+
+def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: bool = False,
+             calibrate_crt_writes: bool = False, qualification_only: bool = False) -> dict:
     require_private_output_path(output)
     require_private_output_path(executable)
+    stage = check_private_stage(executable.resolve().parent)
     pe = OriginalPE32.parse(executable.read_bytes())
     if os.name != 'nt' or c.sizeof(PTR) != 8:
         raise CapacityWatchError('Requires 64-bit Windows Python and a WOW64 original process')
@@ -142,7 +169,8 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
         raise CapacityWatchError('Unexpected Windows debugger ABI layout')
     pe_offset = struct.unpack_from('<I', pe.data, 0x3C)[0]
     entry = pe.image_base + struct.unpack_from('<I', pe.data, pe_offset + 24 + 16)[0]
-    sites = (entry, *STARTUP_SITES, ALLOC_RETURN, CONSTRUCTED, IMPORTED, UNCONTROLLED_READ)
+    sites = ((entry, *STARTUP_SITES) if qualification_only else
+             (entry, *STARTUP_SITES, ALLOC_RETURN, CONSTRUCTED, IMPORTED, UNCONTROLLED_READ))
     originals = {va: pe.read(va, 1) for va in sites}
     k = c.WinDLL('kernel32', use_last_error=True)
     signatures = {
@@ -156,6 +184,7 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
         'Wow64GetThreadContext': ([PTR, c.POINTER(Wow64Context)], c.c_int),
         'Wow64SetThreadContext': ([PTR, c.POINTER(Wow64Context)], c.c_int),
         'TerminateProcess': ([PTR, U32], c.c_int), 'CloseHandle': ([PTR], c.c_int),
+        'GetFinalPathNameByHandleW': ([PTR, c.c_wchar_p, U32, U32], U32),
     }
     for name, (args, result) in signatures.items():
         function = getattr(k, name)
@@ -165,15 +194,21 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
         if not result:
             raise c.WinError(c.get_last_error())
 
+    display = DisplayWatch()  # baseline before the child can run; read-only APIs
     created, startup = CreatedProcess(), StartupInfo()
     startup.size, startup.flags, startup.show = c.sizeof(startup), 1, 0  # STARTF_USESHOWWINDOW / SW_HIDE
     checked(k.CreateProcessW(str(executable.resolve()), None, None, None, False, 2, None,
                              str(executable.resolve().parent), c.byref(startup), c.byref(created)))
-    report = dict(schema_version=1, source_sha256=pe.sha256, club_array_index=plan.club_index,
+    report = dict(schema_version=2, source_sha256=pe.sha256, club_array_index=plan.club_index,
                   capacity_initializer_proven=False, gate13_closed=False, events=[],
                   allocation_observed=False, uncontrolled_read_observed=False,
                   selected_club_import_observed=False,
-                  observation_not_runtime_input=True, process_id=created.pid)
+                  observation_not_runtime_input=True, process_id=created.pid,
+                  display_qualification_only=qualification_only,
+                  private_stage=str(executable.resolve().parent),
+                  wrapper_sha256=stage['wrapper_sha256'], config_sha256=stage['config_sha256'],
+                  private_wrapper_load_observed=False, native_graphics_initialization_accepted=False,
+                  runtime_nonexclusive_qualified=False, audio_condition='user_managed_volume_mixer')
     if calibrate_crt_writes:
         report['crt_write_watch_calibration_only'] = True
         report['crt_write_watch_calibration_complete'] = False
@@ -217,6 +252,11 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
 
     try:
         while time.monotonic() - started < plan.seconds and event_count < plan.max_events:
+            display.check(created.pid)
+            if (qualification_only and display.ready() and report['private_wrapper_load_observed']
+                    and report['native_graphics_initialization_accepted']):
+                report['stop_reason'] = 'display_qualification_complete'
+                break
             event = DebugEvent()
             if not k.WaitForDebugEvent(c.byref(event), 100):
                 if c.get_last_error() != 121:  # ERROR_SEM_TIMEOUT
@@ -246,6 +286,12 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
                     threads.pop(event.tid, None)
                     pending.pop(event.tid, None)
                 elif event.code == 6 and event.u.dll_file:
+                    buffer = c.create_unicode_buffer(32768)
+                    length = k.GetFinalPathNameByHandleW(event.u.dll_file, buffer, len(buffer), 0)
+                    if 0 < length < len(buffer):
+                        loaded = Path(buffer.value.removeprefix('\\\\?\\')).resolve()
+                        if loaded == executable.resolve().parent / 'DDraw.dll':
+                            report['private_wrapper_load_observed'] = True
                     k.CloseHandle(event.u.dll_file)
                 elif event.code == 5:
                     exited, stop = True, True
@@ -278,6 +324,17 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
                                     size=size, value=value, registry_type=registry_type)
                         if address == 0x530DD9:
                             report['native_install_setup_accepted'] = bool(ctx.Eax & 0xFF)
+                        if address == GRAPHICS_SUCCESS:
+                            # 61539E writes AL=1 immediately before this successful
+                            # 615180 return. 6151B5 is a software-renderer query,
+                            # NOT graphics startup acceptance.
+                            report['native_graphics_initialization_accepted'] = (ctx.Eax & 0xFF) == 1
+                        if address == CREATE_WINDOW_CALL:
+                            exstyle = struct.unpack('<I', read(ctx.Esp, 4))[0]
+                            report.setdefault('native_window_requests', []).append(dict(
+                                source_va=address, extended_style=exstyle))
+                            if exstyle & 8:  # WS_EX_TOPMOST, before the API executes
+                                report['stop_reason'], stop = 'native_topmost_request_guard', True
                         if address == 0x50D630:
                             report['native_fresh_world_loader_observed'] = True
                         if address in (0x6A93FB, 0x6A941E):
@@ -343,11 +400,15 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
                         if not exception.first_chance:
                             report['stop_reason'], stop = 'unhandled_native_exception', True
             finally:
+                # Terminate while the debug event still suspends the child;
+                # never resume a source-proven unsafe window request first.
+                if stop and not exited:
+                    checked(k.TerminateProcess(created.process, 0xE013))
                 checked(k.ContinueDebugEvent(event.pid, event.tid, continuation))
             if stop:
                 break
         report.setdefault('stop_reason', 'event_bound' if event_count >= plan.max_events else 'time_bound')
-    except (OSError, CapacityWatchError) as error:
+    except (OSError, CapacityWatchError, ProbeSafetyError, DisplayWatchError) as error:
         report['stop_reason'], report['error'] = 'probe_error', str(error)
     finally:
         if not exited:
@@ -364,6 +425,15 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
                     break
         k.CloseHandle(created.thread)
         k.CloseHandle(created.process)
+        try:
+            display.check(created.pid)
+        except DisplayWatchError as error:
+            report['stop_reason'], report['error'] = 'display_safety_stop', str(error)
+        report['display_observation'] = display.receipt()
+        report['runtime_nonexclusive_qualified'] = bool(
+            qualification_only and report['stop_reason'] == 'display_qualification_complete'
+            and display.ready() and report['private_wrapper_load_observed']
+            and report['native_graphics_initialization_accepted'])
         report.update(debug_events=event_count, elapsed_seconds=round(time.monotonic() - started, 3))
         output.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     return report
@@ -378,13 +448,22 @@ def main() -> int:
     parser.add_argument('--max-events', type=int, default=512)
     parser.add_argument('--stop-at-entry', action='store_true')
     parser.add_argument('--calibrate-crt-writes', action='store_true')
+    parser.add_argument('--qualify-display', action='store_true', help='Separate ten-second display-only probe; audio user-managed')
+    parser.add_argument('--display-receipt', type=Path, help='Private exact-stage successful windowed qualification receipt')
     args = parser.parse_args()
-    result = observe(args.original_executable, args.output,
+    if args.qualify_display:
+        if args.stop_at_entry or args.calibrate_crt_writes or args.display_receipt:
+            parser.error('Display qualification cannot be combined with other launch modes')
+        result = qualify_windowed_display(args.original_executable, args.output)
+    else:
+        result = observe(args.original_executable, args.output,
                      WatchPlan(args.club_index, args.seconds, args.max_events), stop_at_entry=args.stop_at_entry,
-                     calibrate_crt_writes=args.calibrate_crt_writes)
+                     calibrate_crt_writes=args.calibrate_crt_writes, display_receipt=args.display_receipt)
     print(json.dumps({key: result[key] for key in ('stop_reason', 'allocation_observed',
           'uncontrolled_read_observed', 'capacity_initializer_proven', 'debug_events')}))
-    return 2 if result['stop_reason'] == 'probe_error' else 0
+    if args.qualify_display:
+        return 0 if result['runtime_nonexclusive_qualified'] else 2
+    return 2 if result['stop_reason'] in ('probe_error', 'display_safety_stop', 'native_topmost_request_guard') else 0
 
 
 if __name__ == '__main__':

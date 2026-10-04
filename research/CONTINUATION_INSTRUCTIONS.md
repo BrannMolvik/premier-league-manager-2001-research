@@ -194,8 +194,10 @@ debugger; elevation is not approval for exclusive fullscreen or loud playback.
 - Do not deliberately change the Windows desktop resolution, make the game
   always-on-top, or steal foreground/focus unnecessarily. Hidden startup alone
   does not prevent the original from switching display mode or playing sound.
-- When audio is irrelevant, verify process-local mute/effectively silent audio
-  before playback; do not mute or reconfigure other applications as a substitute.
+- Daniel handles FM2001 audio manually in Windows Volume Mixer. This is an
+  accepted user-managed condition, not a technical launch/Gate-13 prerequisite.
+  Do not resume custom mute helpers, signing, Artifact Signing, Azure discovery
+  or paid signing infrastructure; do not alter other applications' audio.
 - If a required source-valid observation genuinely needs exclusive fullscreen,
   display-mode switching or disruptive foreground interaction, stop and ask
   Daniel before that probe. Do not infer approval from an older launch consent.
@@ -203,12 +205,15 @@ debugger; elevation is not approval for exclusive fullscreen or loud playback.
   original pixels, timing, game semantics or a safely executed probe. Preserve
   hashes/configuration privately and qualify its behavior before normal launch.
 
-The bounded capacity debugger currently rejects ALL launches, including entry/
-CRT calibration, before reading the executable or creating a process. Historical
-entry/CRT controls ended before main/graphics/audio startup; they do not exempt
-future calibration launches from Daniel's requirement to qualify both safeguards.
-First qualify non-exclusive execution and pre-play process-local silence, then
-resume the genuine fresh-club lifecycle without supplying capacity values.
+Daniel authorizes the smallest bounded original launch to qualify the prepared
+non-exclusive/windowed stage. Capacity and entry/CRT calibration launches require
+the exact-stage successful runtime display receipt; offline config is not proof.
+The first display-only qualification stopped on an observed game-owned topmost
+window. Static source also proves an explicit native topmost request, now guarded
+before API execution. Do not repeat the unchanged unsafe stage. Qualify a
+source-valid presentation-only compatibility remedy before another bounded
+attempt; ask Daniel before any genuinely necessary disruptive probe. Once display
+safety passes, resume the genuine fresh-club lifecycle without supplying values.
 
 ## Gate completion procedure
 

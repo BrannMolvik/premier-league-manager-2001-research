@@ -1,8 +1,67 @@
 # Gate 13 private native-probe safety qualification
 
-4 October 2026 KST, PR #309. **Not qualified for an original launch.**
-Gate 13 remains open. No original executable was launched in this investigation.
-Neither capacity initialization nor a human-away complete report is proven.
+4 October 2026 KST, PR #309. **Runtime display qualification stopped/failed.**
+Gate 13 remains open. One newly authorized bounded display-only original launch
+was stopped and terminated. Capacity initialization/human-away remain unproven.
+
+## Current policy and exact next action (supersedes signing history below)
+
+Daniel stopped Azure CLI / Artifact Signing / all custom mute-helper work. No
+paid signing infrastructure is wanted. He accepts manual FM2001 audio muting
+in Windows Volume Mixer. Audio automation/signing are not prerequisites; do not
+resume them. No App Control, trust, registry or installed game-file changes were
+made in this checkpoint. Earlier unsigned helpers remain unexecuted.
+
+The prepared private stage's canonical executable SHA-256 remains
+`833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3`.
+The display-only debugger has a fixed ten-second/256-event bound, hidden startup,
+no capacity watches and read-only desktop/window diagnostics. It loaded the
+exact private DDraw wrapper and stopped after **1.969 seconds / 106 events**
+on `probe_window_always_on_top`. Before/after mode was **2560x1440 / 32 bpp /
+165 Hz**; no unrelated-window geometry/foreground violation was reported.
+The original was terminated; a process inventory confirmed none remained.
+This is a failed qualification, not permission for a capacity run.
+
+Private `work/gate13-native-windowed-qualification-20261004.json` SHA-256:
+`ce3733c202181e9ffda2d75a573dd3982b8790fa866d376a17eb5ccc47dff23a`.
+Its final sample was post-termination and lacks the offending window class;
+exact runtime owner is not proven. Monitoring now preserves first failure
+snapshots and only the probe's window class (not unrelated window titles).
+
+Canonical aligned CFG/data-flow establishes a concrete native topmost producer:
+
+1. `615180` startup unconditionally ORs bit 0 into `8547AC` at `615260/615262`
+   before `615150` initializes the renderer. This is not the 3Doptions Software
+   setting, and no command-line/windowed option is invented.
+2. `6AFFD6` passes `(~8547AC)&1` into `6B96B0`. Its `6B9708 sete al` passes the
+   inverted windowed input to `6A5060`. That routine writes argument 3 to
+   `A9115D` at `6A5367`; `6AEA0D` also retains the global's bit 0 there.
+3. `6A6230` tests object `+45D` at `6A6241`. The nonzero branch sets WS_POPUP
+   and local extended style 8 at `6A6270`, then joins the common arguments
+   for `CreateWindowExA` at `6A6363`. The zero branch uses captioned styles.
+4. Candidate raw xrefs were manually aligned/adjudicated; unrelated environment
+   logging `6A9930` and Software query `6D2C50/6151B5` are not windowed switches.
+
+These facts explain an unsafe source request without claiming the lost runtime
+window identity. New debugger instrumentation stops before `6A6363` if its exact
+stack extended-style argument includes WS_EX_TOPMOST; termination occurs while
+the debug event suspends execution, before ContinueDebugEvent. It never clears
+the flag or changes capacity/game logic. Graphics acceptance uses `6153A0`,
+immediately after successful `61539E mov al,1`, not the Software query.
+Normal probes require a successful exact-stage **schema-2** receipt binding
+canonical source, wrapper/config hashes, actual wrapper load, graphics success,
+observed normal window, unchanged desktop/windows and no violations.
+
+**Next:** source/vendor-qualify presentation-only handling of the native topmost
+request that preserves game semantics and desktop state; do not repeat the
+unchanged failed stage or patch its native flag. Matching vendor WindowedAttributes
+supports borderless/always-on-top/fullscreen-size, not a guessed NoActivate or
+NotTopmost option. Once a valid remedy is established, run the smallest bounded
+display qualification with user-managed audio, then resume the fresh uncontrolled
+DBRClub hardware watch through attendance consumption. Ask Daniel before any
+genuinely required disruptive probe; no unsafe override or security bypass.
+
+## Historical configuration correction (before the display-only probe)
 
 ## Windowed configuration: corrected, offline checks only
 
@@ -24,11 +83,10 @@ Only the private configuration was amended to explicitly require:
 
 `gate13_native_probe_safety.py` rejects omitted, duplicated, malformed,
 inherited, unsupported-version or unsafe settings and mismatched wrapper bytes.
-It reports offline success with **vendor-parser/runtime/silence/launch
-qualification all false**. The debugger's normal launch refusal is unchanged;
-no flag, receipt or configuration file authorizes a bypass. Daniel's latest
-restriction now blocks ALL original launches, including entry/CRT calibration,
-before executable access/process creation. Historical controls are not exceptions.
+It reports only offline success, not vendor-parser/runtime qualification.
+Normal capacity/calibration launches require the successful runtime display
+receipt described above. The separate fixed-bound display probe is not an
+unsafe override, and audio is user-managed rather than a qualification field.
 
 Private configuration SHA-256:
 `dc1b817547f98c206744f25ad0619c6b4bb9e00633213ba6be1faa4da37dd9e7`.
@@ -42,7 +100,13 @@ Official sources: [dgVoodoo readme](https://dgvoodoo2.dege.freeweb.hu/dgVoodoo2/
 [matching 2.87.5 developer package](https://github.com/dege-diosg/dgVoodoo2/releases/tag/v2.87.5).
 Developer headers/binaries remain private, not redistributed in this repository.
 
-## Silence: pre-play method identified, execution qualification blocked
+## Historical abandoned silence/signing work (not a blocker or next action)
+
+Everything below records superseded evidence. Daniel has stopped this work;
+do not install Azure tooling, authenticate, sign, execute helpers or create
+signing resources to continue Gate 13. Earlier proposed sequences are withdrawn.
+
+### Silence method investigated before Daniel's policy change
 
 Polling a future process's audio sessions cannot prove silence before its first
 sample. Microsoft instead documents `IAudioSessionManager.GetSimpleAudioVolume`
@@ -180,7 +244,7 @@ Six offline safety tests, the existing focused debugger/resource/geometry tests
 (34 total), asset policy, JSON-state and diff checks pass. These do not substitute
 for mute/windowed runtime qualification or a final Windows/normal-play audit.
 
-## Exact remaining prerequisite / continuation
+## Withdrawn earlier signing proposal (historical only; do not execute)
 
 The policy inventory is now complete. **Current authorization is discovery only;
 do not sign or execute the helper.** Obtain approval to install official Azure

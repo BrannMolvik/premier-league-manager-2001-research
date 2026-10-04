@@ -6,89 +6,55 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
-## Native-original desktop-safety restriction (4 October 2026 KST)
+## Native-original display qualification (4 October 2026 KST)
 
-PR #309's description is now corrected: installer selectors are source-qualified
-and repaired, native setup accepts them, and the earlier bounded native run did
-reach fresh allocation/import. Those are not capacity-initializer proof.
+**Daniel has stopped Azure CLI / Artifact Signing / custom mute-helper work.**
+Audio is an accepted user-managed Windows Volume Mixer condition, not a Gate-13
+prerequisite. Do not resume signing, discovery, paid infrastructure or automated
+silence qualification. Historical receipts remain evidence only.
 
-Current safety qualification found/corrected the private wrapper's omitted
-`AppControlledScreenMode=false` (vendor default is true); passthrough is explicitly
-disabled and Alt-Enter switching forbidden. Six new strict offline checks pass.
-Runtime/vendor-parser qualification remains false. A private GUI-free zero-PCM
-32-bit mute self-test was blocked before execution by Windows Application Control;
-matching Code Integrity 3077/3033/3089 identify Smart App Control policy
-`VerifiedAndReputableDesktop` (`{0283ac0f-fff1-49ae-ada1-8a933130cad6}`):
-requested level 2, validated level 1, zero signatures. This does not establish an
-organization-only signer requirement. After renewed read-only UAC approval,
-full `CiTool -lp -json` inventory succeeds: 15 policies, 7 `IsEnforced=true`
-(one audit-mode), all reported system-provided/signed. The denial GUID matches
-the currently enforced SAC base. No App Control/SAC policy or trust was changed.
-No security exception/bypass or original launch was attempted. Experimental
-warning-bearing helper remains private/unqualified, not imported into the debugger.
+PR #309 preserves the proven installer-selector repair and earlier fresh-club
+allocation/import. Neither establishes the `DBRClub +13C/+140` producer.
+The newly authorized smallest display-only original probe loaded the exact
+private dgVoodoo 2.87.5 wrapper but stopped after **1.969 seconds / 106 debug
+events** on `probe_window_always_on_top`. Desktop mode stayed **2560x1440,
+32 bpp, 165 Hz** before/after; no unrelated-window geometry or foreground
+violation was reported. The child was terminated and no original remains running.
+Non-exclusive desktop safety is **NOT qualified**. Private receipt:
+`work/gate13-native-windowed-qualification-20261004.json`, SHA-256
+`ce3733c202181e9ffda2d75a573dd3982b8790fa866d376a17eb5ccc47dff23a`.
+This receipt lacks the offending window's class/pre-termination snapshot, so
+its exact runtime owner is not established. Future monitoring retains both.
 
-The replacement `tools/gate13_mute_selftest.cpp` builds with the actual Microsoft
-C++/Windows SDK x86 ABI, `/W4 /WX`, without warnings. Build-only run
-`37189161424` passes at `4901e529`; exact unsigned SHA-256 is
-`4ebe2420fa798528df29c05b036a5f447e1178d8ed53c4f74e0dbce892c79f84`.
-The downloaded binary/source identities are verified, including runner CRLF
-versus reviewed LF source. **It is unsigned and has never executed.** Read-only
-discovery found no Azure CLI/Azure PowerShell/full Visual Studio authentication
-tooling or accessible authenticated context. VS Code is installed but has no
-matching Azure authentication extensions. Existing Windows IdentityCache was
-not read and does not establish Azure access. Account/profile/RBAC enumeration
-could not be performed; this is not proof that Azure signing resources are absent.
-No tool installation/login, credential-cache read or Azure resource/RBAC creation
-was performed. Region/endpoint/account/profile/signer-role status remain unknown.
-Private correlated policy/build receipt and exact identities are retained in
-`GATE13_NATIVE_PROBE_SAFETY.md`. Signed hash/signer/SignTool verification remain
-pending; this is not runtime mute or wrapper qualification.
+Canonical static source explains a concrete unsafe native request:
+`615260 -> 615262` explicitly sets bit 0 in `8547AC`; the renderer routes
+that bit through `6AFFD6 -> 6B96B0 -> 6A5060` into `A9115D`.
+`6A6230`'s nonzero-mode branch sets `WS_POPUP` and `WS_EX_TOPMOST=8`
+before `CreateWindowExA` at `6A6363`. This is not an inferred command-line
+option or a capacity producer. Prepared forced-windowed config alone did not
+prevent the observed topmost window; do not repeat that unchanged launch or
+patch this native flag. The debugger now stops **before** a topmost window API
+request while the debug event still suspends execution. Graphics acceptance is
+checked at the actual successful return `6153A0`, not the unrelated software
+renderer query `6151B5`.
 
-**Exact next action:** obtain approval for official Azure CLI installation and
-interactive user authentication, or a supplied authenticated read-only context.
-Enumerate existing accounts/profiles and effective signer permission; require
-production PublicTrust (never PublicTrustTest/PrivateTrust), then report exact
-region/endpoint/account/profile/authentication to Daniel **before signing**.
-Current authorization is discovery only: do not sign or execute the helper.
-If authenticated discovery proves missing resources, report exactly what must be
-created and await explicit approval; do not create Azure/billing/identity/profile/
-RBAC resources. After separate approval, SHA-256 sign the exact reviewed helper,
-verify with SignTool, then perform only an authorized harmless mute self-test.
-If signed execution is denied,
-stop with the exact correlated policy/signature reason; do not bypass policy.
-This must be followed by harmless pre-play mute and exact wrapper/runtime
-qualification before any original launch. Do not whitelist the unqualified
-candidate or disable system security. Evidence, identities and bounded next
-actions are in `GATE13_NATIVE_PROBE_SAFETY.md`. The launch guard remains.
-Daniel's latest requirement is enforced for ALL original launches, including
-entry/CRT calibration: historical positive controls are not an exception.
-Current checkpoint validation: 34 focused checks and asset policy pass, including
-the six new offline safety checks. No fresh full-suite/Windows closure audit is
-claimed for this environment-only work.
+**Exact next action:** source/vendor-qualify a presentation-only compatibility
+method that removes the native topmost request without changing game logic,
+capacity state or desktop mode. Then qualify that exact stage with the bounded
+display-only probe (manual Volume Mixer audio), and require its successful
+schema-2 receipt before allocation/write-watch. No unsafe override exists.
+If the only evidence-valid route requires desktop disruption, ask Daniel before
+executing it. No repeated original launch is authorized by an offline config pass.
 
-Daniel reports exclusive-fullscreen/resolution, focus/window and loud-audio
-disruption from the last original launch. No original was launched after his
-restriction. All capacity-debugger launches now fail closed before
-executable access/process creation. Earlier administrator approval does not
-authorize another disruptive probe; see `CONTINUATION_INSTRUCTIONS.md`.
-
-After that prerequisite, qualify a source-valid non-exclusive environment and
-verified pre-play process-local silence before resuming allocation/write-watch.
-The private dgVoodoo configuration has windowed mode, unforced resolution, no
-mouse capture and no always-on-top attributes, but is only checked offline.
-It has NOT been execution-qualified, and process-local mute is not yet qualified.
-Do not launch merely because the configuration exists. If the required native
-observation can only be performed disruptively, ask Daniel before running it.
-
-The last bounded original-essential-assets run ended at its 45-second bound
-without fresh-world entry/allocation; the earlier runtime-data run did reach
-allocation/import, but neither observed a capacity writer or uncontrolled read.
-These distinct receipts must not be combined into a proven normal startup or
-initializer. Gate 13 remains OPEN; the human-away report producer stays
-fail-closed. No ownership or Gate-14 work is changed.
-The previous checkpoint preserved main `9595291d`: 28 focused checks (including 11 debugger
-ABI/planning/launch-guard tests) and asset policy pass. No
-presentation/calculator change or new full-suite/Windows closure result is claimed.
+After display qualification, resume the existing fresh uncontrolled allocation/
+import hardware-watch through the attendance read, adjudicate writes/copies/
+aliases, integrate only source-proven values, and prove the genuine human-away
+report -> save -> fresh reload -> Fixtures right-click -> PMatchInfo route.
+Continue remaining required Gate-13 closure work. Gate 13 stays OPEN; capacities
+and the human-away report remain fail-closed. Ownership/Gate-14 work are unchanged.
+This environment/debugger checkpoint does not claim a new full-suite or real
+Windows schema-8 closure audit. **33 focused tests**, repository asset policy,
+state JSON and diff checks pass; no test launches the original.
 
 ## Gate-13 installer prerequisite advanced (4 October 2026 KST)
 
@@ -112,7 +78,7 @@ Exact original DLL staging has now removed the null driver call (`6151EB` ->
 The following run with verified original data reaches fresh-world allocation,
 construction and import of qualified DBRClub ID 5. No capacity writes or
 uncontrolled read were observed within the bound; zero snapshots are explicitly
-not initializer proof. After qualifying the quiet/non-exclusive probe environment
+not initializer proof. After qualifying the non-exclusive probe environment
 above, complete the private original startup resource dependencies, continue the
 real allocation-to-uncontrolled-read watch and
 adjudicate the actual +13C/+140 writer/copy lifecycle. No source-proven initialized
@@ -121,7 +87,7 @@ checks pass; gameplay/presentation code is unchanged, so prior full/Windows
 receipts below remain historical evidence, not a new closure claim. Gate 13
 remains OPEN. Do not touch Gate 14 or the ownership protocol.
 
-## Local Gate-13 closure result (latest fetched main `29781e92`)
+## Historical local Gate-13 closure result (base `29781e92`; live action above)
 
 Codex started a fresh `codex/gate13-uncontrolled-capacity-lifecycle` branch
 from fetched canonical main `3a3f60d1e89c7f44e7f12ca70fef3f263fe73a9b`.

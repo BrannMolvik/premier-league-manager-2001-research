@@ -227,6 +227,9 @@ jobs:
             test_gate13_button_rtti_candidates \
             test_gate13_squad_source_trace \
             test_gate13_remaining_field_source_trace \
+            test_gate13_native_capacity_watch \
+            test_gate13_native_probe_safety \
+            test_gate13_native_display_watch \
             test_gate13_original_source_audit \
             test_gate13_original_pixel_preview \
             test_gate13_original_first_screen_viewer \

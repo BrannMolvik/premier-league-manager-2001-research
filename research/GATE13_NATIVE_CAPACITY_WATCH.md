@@ -3,30 +3,26 @@
 4 October 2026; canonical base `3a3f60d1e89c7f44e7f12ca70fef3f263fe73a9b`.
 Gate 13 remains OPEN. No visiting-capacity value is authorized by this work.
 
-## Desktop-safety stop supersedes earlier launch approval
+## Display-only qualification and current stop
 
-See `GATE13_NATIVE_PROBE_SAFETY.md` for the subsequent six-check offline
-validator, corrected application-controlled-mode omission, and confirmed
-Application Control denial of the experimental mute self-test. Neither safety
-requirement is runtime-qualified; normal original launch remains disabled.
+Daniel stopped all Azure/signing/custom mute-helper work. Audio is his accepted
+manual Volume Mixer condition, never a Gate-13 technical prerequisite.
+The authorized ten-second/256-event display-only probe stopped automatically at
+1.969 seconds on a game-owned topmost window; desktop mode stayed 2560x1440,
+32 bpp, 165 Hz and the original process was terminated. The exact private wrapper
+loaded. Runtime display qualification remains false; no capacity writer was
+observed in this display-only run. Receipt hash/details and native window-source
+chain are in `GATE13_NATIVE_PROBE_SAFETY.md`.
 
-After the last original run, Daniel prohibited unapproved exclusive fullscreen,
-desktop-resolution changes, unnecessary focus stealing/always-on-top and loud
-audio during probes. No further original launch was performed. The debugger
-now rejects EVERY launch, including calibration, before input access/process
-creation; there is no unsafe CLI override. Historical entry/CRT calibration
-ended before main/graphics/audio startup, but does not exempt future launches
-from Daniel's requirement to qualify both safeguards first.
-
-Next qualify source-valid windowed execution AND verified process-local silence
-before audible playback. A private existing dgVoodoo 2.87.5 DDraw wrapper/config
-was prepared, not executed: FullScreenMode=false, Resolution=unforced, blank
-DesktopResolution/WindowedAttributes/FullscreenAttributes, no mouse capture or
-centering. The canonical executable and installation files remain unchanged.
-Offline config checks do not establish runtime safety or original rendering/
-timing fidelity. Process-local mute is not yet implemented/qualified. If a
-required source-valid observation genuinely needs disruptive execution, ask
-Daniel first; previous administrator approval does not cover that disruption.
+Capacity/calibration launches require the exact-stage successful schema-2 display
+receipt. There is no unsafe override. The canonical startup explicitly sets
+the renderer's fullscreen bit, leading to a native WS_EX_TOPMOST request before
+CreateWindowExA at 6A6363; a pre-call stop guard now prevents that request from
+executing. Do not repeat the unchanged stage or patch this game flag.
+Next source/vendor-qualify a presentation-only compatibility remedy that preserves
+game logic, desktop mode and unrelated windows, then run the smallest bounded
+display qualification. If the only valid route is disruptive, ask Daniel first.
+Once qualified, resume this same allocation/write/copy/alias/attendance chain.
 
 Private DDraw.dll SHA-256:
 `612a24408a090a3c6f3886557fa18034ee742e94ad0a40ebdf854d2816176c2e`.
@@ -34,8 +30,9 @@ Private dgVoodoo.conf SHA-256:
 `6b54be438a5f9c32c0f33f60694791f8ba0a1cf7aefc9b49862dcf1200a24552`.
 That earlier config is superseded by the corrected private config SHA-256
 `dc1b817547f98c206744f25ad0619c6b4bb9e00633213ba6be1faa4da37dd9e7`;
-it also explicitly disables app-controlled mode and passthrough. Neither version
-has been runtime-qualified; offline config success never enables launch.
+it also explicitly disables app-controlled mode and passthrough. The corrected
+version was executed in the stopped display-only probe, not successfully
+qualified; offline config success never enables a normal capacity launch.
 Neither compatibility file is native capacity evidence or a game-code patch.
 Policy is durable in `CONTINUATION_INSTRUCTIONS.md`.
 
