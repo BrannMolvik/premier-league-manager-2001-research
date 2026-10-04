@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned in PR #309. Canonical Gate-14 main now includes source-closed possession ordering, source-cropped dynamic PlayerRow energy, complete English PlayerRow text, and complete retained PlayerRow raster through main 9595291d. Continue disjoint Gate-14 source work on audio bank playback ownership: named bank slots 0 menus / 1 game00 / 2 playercalls / 3 Advice are inventory facts only; trace exact executable loader/playback callsites before assigning menu/login/match roles. Do not touch Gate 13/shared runtime.",
-  "last_known_main_head": "9595291d83ad99d02d235736e94fe87e5464c4fd",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned in PR #309. Gate-14 main now includes four-bank SFX ownership (2faf1b66) and exact speech-stream resource ownership (05b5a267; 2,021 tests / 23 expected skips). Active disjoint PR #312 head a744cf6a binds the separate CRWD resource-selection subsystem without promoting filename/user semantics. Validate exact-head CI before merge, then continue the next source-backed audio slice (CHANT.eam / chant bank selection or concrete speech/event binding) without touching Gate 13/shared runtime.",
+  "last_known_main_head": "05b5a267d4aacb32902466dd0e208435e0f731de",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 262,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery resumed at main 9595291d; continuing audio playback ownership trace after PlayerRow raster completion.",
+  "note": "Audio work-ahead continues: PR #312 CRWD selection validating; no music/commentary semantics claimed yet.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
