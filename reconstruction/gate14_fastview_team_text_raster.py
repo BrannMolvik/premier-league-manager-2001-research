@@ -244,21 +244,15 @@ def _draw_clipped_text(
 
 
 def rasterize_fastview_playerrow_text(
-    font: EAFont,
+    repo_root: str | Path,
     render_plans: tuple[FastViewPlayerRowRenderPlan, ...],
 ) -> FastViewTeamTextRaster:
-    """Rasterize only literal/default-color PlayerRow text cells."""
-    if type(font) is not EAFont:
-        raise FastViewTeamTextRasterError(
-            "PlayerRow text raster requires exact verified EAFont"
-        )
-    if (
-        (font.atlas_width, font.atlas_height) != PLAYERROW_TEXT_FONT_ATLAS_SIZE
-        or font.native_line_height() != PLAYERROW_TEXT_NATIVE_LINE_HEIGHT
-    ):
-        raise FastViewTeamTextRasterError(
-            "PlayerRow text raster received wrong source font geometry"
-        )
+    """Rasterize only literal/default-color PlayerRow text cells.
+
+    The verified font is loaded internally so callers cannot substitute a
+    same-shaped font while retaining the canonical source hash.
+    """
+    font = load_verified_playerrow_text_font(repo_root)
     if type(render_plans) is not tuple:
         raise FastViewTeamTextRasterError(
             "PlayerRow text render plans must be a retained tuple"
