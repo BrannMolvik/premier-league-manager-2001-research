@@ -94,6 +94,19 @@ capability has reached the point where full runtime validation is meaningful.
 It is not a Gate 17 pass and does not replace the external Windows 11 release
 receipt.
 
+## Canonical coordinator
+
+`run_canonical_full_scope_preflight(game_dir)` now assembles the current
+repository-side blocker snapshot from one verified game directory. It reuses
+the canonical human-scope, runtime-owner and save-scope capability runners,
+the immutable current multi-human capability audit, and one live canonical
+controller for the read-only progression audit.
+
+The coordinator does not advance the calendar, commit LeagueAllocation
+exchanges, create secondary owners, or widen multi-human support. Its CLI exits
+with status 2 while any blocker remains, making it suitable as a fail-closed
+preflight before later private/Windows validation.
+
 ## Integrity boundary
 
 The preflight rejects mismatched catalog fingerprints, mismatched TeamSelect
