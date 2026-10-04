@@ -4,6 +4,29 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 5 October 2026 KST — Separate idle surface-lock diagnostic, no crash reproduced
+
+With Daniel's separate <=60-second approval, implemented an isolated surface
+diagnostic using exact `5EE232` / `5EE252` returns and source-qualified caller
+descriptors, continuous re-arming and stop-before-copy on nonzero HRESULT or
+null/malformed descriptor. No new shim, result/pointer/game-state edits, GUI
+inputs or capacity probes. Fresh 16:44:35 UTC consent expired at 16:54:35 UTC.
+The original stayed idle and terminated intentionally on the 60-second bound
+(60.031 seconds including cleanup / 515 events). All 120 Lock returns were
+zero; all descriptors were size 108, 800x600, pitch 1600, non-null buffers.
+No AV/unhandled native exception; original stopped, disk hash unchanged.
+
+Private receipt digest
+`96f6e93c26e86d0b732604087773dbc7857edd7e21c4155e10750379719bfb5e`;
+adjudication digest
+`b80f832b0cd299da16a17a9bc2d61f555981c67c05bc470157800d0510bde4f0`.
+56 focused tests and asset policy pass. Daniel alt-tabbed during the preceding
+crash run but reports an earlier crash without interaction; causality remains
+open. The idle diagnostic is not a startup fix or capacity/report success.
+Next narrow observation is guarded ordinary interaction with actual Lock
+returns/descriptor and focus correlation, not broad scanning or an automatic
+retry. Gate 13 remains OPEN; worker ownership and Gate-14 work stay untouched.
+
 ### 5 October 2026 KST — Approved decisive probe executed; startup fault
 
 Fetched canonical main `781f90a1` and fast-forwarded local main, preserving seven

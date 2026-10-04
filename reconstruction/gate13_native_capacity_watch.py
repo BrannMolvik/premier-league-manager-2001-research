@@ -39,6 +39,7 @@ STRIDE, CAPACITY_OFFSETS = 0x2A8, (0x13C, 0x140)
 GRAPHICS_SUCCESS, CREATE_WINDOW_CALL = 0x6153A0, 0x6A6363
 FOREGROUND_REQUEST, FOREGROUND_RETURN = 0x6A6016, 0x6A601C
 WINDOW_CREATED = 0x6A6369
+STARTUP_SURFACE_RETURNS = {0x5EE232: 0x1C, 0x5EE252: 0x88}
 CREATE_WINDOW_INSTRUCTION = bytes.fromhex('ff1584d27b00')
 PRESENTATION_SHIM = 'createwindowexa-6a6363-clear-topmost-v1'
 STARTUP_SITES = (0x66AB26, 0x66AB37, 0x66AB74, 0x530DAB, 0x530DD9, 0x66ABA7, 0x66ABF4,
@@ -214,6 +215,23 @@ def attendance_receiver_observation(receiver: int, read) -> dict:
                 capacity_initializer_proven=False, observation_not_runtime_input=True)
 
 
+def startup_surface_return_observation(source_va: int, hresult: int, raw: bytes) -> dict:
+    """Actual caller-local Lock output; never a patched result or pointer."""
+    if (type(source_va) is not int or source_va not in STARTUP_SURFACE_RETURNS
+            or type(raw) is not bytes or len(raw) != 108
+            or type(hresult) is not int or not 0 <= hresult < 2**32):
+        raise CapacityWatchError('Exact startup surface return and 108-byte descriptor required')
+    size = struct.unpack_from('<I', raw)[0]
+    surface = struct.unpack_from('<I', raw, 0x24)[0]
+    return dict(source_va=source_va, hresult_u32=hresult,
+                descriptor_stack_offset=STARTUP_SURFACE_RETURNS[source_va],
+                descriptor_size_u32=size, caller_surface_u32=surface,
+                caller_pitch_i32=struct.unpack_from('<i', raw, 0x10)[0],
+                raw_descriptor=raw.hex(),
+                diagnostic_stop_required=hresult != 0 or size != 108 or surface == 0,
+                observation_only_no_result_or_surface_edit=True)
+
+
 def window_presentation_adaptation(callsite: int, instruction: bytes, arguments: bytes) -> dict:
     """Authorized probe-only API argument adaptation, NEVER native game evidence."""
     if callsite != CREATE_WINDOW_CALL or instruction != CREATE_WINDOW_INSTRUCTION:
@@ -321,6 +339,16 @@ def observe_supervised(executable: Path, output: Path, *, display_receipt: Path,
     return result
 
 
+def trace_startup_surface_returns(executable: Path, output: Path, *, display_receipt: Path) -> dict:
+    """Separately approved <=60s diagnostic; no capacity or GUI interaction."""
+    until = require_desktop_safety_qualification(executable, display_receipt)
+    if until is None or until - datetime.now(timezone.utc) < timedelta(seconds=60):
+        raise CapacityWatchError('Live activation consent must cover the complete surface diagnostic')
+    return _observe(executable, output, WatchPlan(seconds=60, max_events=4096),
+                    activation_trace_until=until, allow_approved_activation_qualification=True,
+                    startup_surface_trace_only=True)
+
+
 def qualify_windowed_display(executable: Path, output: Path) -> dict:
     """Daniel-authorized smallest bounded original display probe, not a bypass."""
     return _observe(executable, output, WatchPlan(seconds=10, max_events=256), qualification_only=True)
@@ -355,7 +383,11 @@ def trace_window_activation(executable: Path, output: Path, *, approved_until_ut
 def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: bool = False,
              calibrate_crt_writes: bool = False, qualification_only: bool = False,
              activation_trace_until: datetime | None = None,
-             allow_approved_activation_qualification: bool = False) -> dict:
+             allow_approved_activation_qualification: bool = False,
+             startup_surface_trace_only: bool = False) -> dict:
+    if startup_surface_trace_only and (qualification_only or stop_at_entry or calibrate_crt_writes
+                                      or plan.seconds != 60 or plan.max_events != 4096):
+        raise CapacityWatchError('Surface diagnostic is a separate fixed 60s/4096-event mode')
     if allow_approved_activation_qualification and activation_trace_until is None:
         raise CapacityWatchError('Temporary activation qualification needs live human approval')
     if activation_trace_until is not None:
@@ -376,7 +408,12 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
         raise CapacityWatchError('Unexpected Windows debugger ABI layout')
     pe_offset = struct.unpack_from('<I', pe.data, 0x3C)[0]
     entry = pe.image_base + struct.unpack_from('<I', pe.data, pe_offset + 24 + 16)[0]
-    sites = ((entry, *STARTUP_SITES) if qualification_only else
+    if startup_surface_trace_only:
+        for address in STARTUP_SURFACE_RETURNS:
+            if pe.read(address - 3, 3) != bytes.fromhex('ff5164'):
+                raise CapacityWatchError('Canonical surface Lock return instruction mismatch')
+    sites = ((entry, *STARTUP_SITES, *STARTUP_SURFACE_RETURNS) if startup_surface_trace_only else
+             (entry, *STARTUP_SITES) if qualification_only else
              (entry, *STARTUP_SITES, ALLOC_RETURN, CONSTRUCTED, IMPORTED, UNCONTROLLED_READ))
     originals = {va: pe.read(va, 1) for va in sites}
     k = c.WinDLL('kernel32', use_last_error=True)
@@ -413,6 +450,7 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                   selected_club_import_observed=False,
                   observation_not_runtime_input=True, process_id=created.pid,
                   display_qualification_only=qualification_only,
+                  startup_surface_trace_only=startup_surface_trace_only,
                   activation_trace_only=activation_trace_until is not None and not allow_approved_activation_qualification,
                   approved_activation_windowed_qualification=allow_approved_activation_qualification,
                   activation_approval_expiry_utc=activation_trace_until.isoformat() if activation_trace_until else None,
@@ -591,6 +629,15 @@ def _observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: 
                             report['selected_club_import_observed'] = True
                         if address != IMPORTED or ctx.Ebx == plan.club_index:
                             snapshot('source_breakpoint', event.tid, ctx, source_va=address)
+                        if startup_surface_trace_only and address in STARTUP_SURFACE_RETURNS:
+                            observed = startup_surface_return_observation(address, int(ctx.Eax),
+                                read(ctx.Esp + STARTUP_SURFACE_RETURNS[address], 108))
+                            observed.update(tid=int(event.tid), debug_event_number=event_count)
+                            report.setdefault('startup_surface_call_returns', []).append(observed)
+                            if observed['diagnostic_stop_required']:
+                                # Terminate while suspended before native copy; never
+                                # manufacture success, restore a surface or edit a pointer.
+                                report['stop_reason'], stop = 'startup_surface_return_guard', True
                         if address == 0x515C11:
                             # Exact RegOpenKeyExA argument from the source-qualified
                             # call site. Record the actual key, not a guessed install path.

@@ -4,6 +4,15 @@ _Audit refreshed: 4 October 2026 KST_
 
 ## 5 October 2026: decisive probe attempted, startup boundary failed
 
+Follow-up isolated idle surface-return diagnostic: intentional 60-second stop,
+515 events, 120 zero-HRESULT returns with 108-byte/800x600/pitch-1600/non-null
+descriptors; no native access violation or unhandled exception. This does not
+establish the cause of the previous graphics fault, fix the ordinary interaction
+path, supply visiting capacities, or close the human-away report requirement.
+Daniel's alt-tab recollection is a candidate, not a native causal proof; he also
+recalls an earlier idle crash. 56 focused probe/display checks and asset policy
+pass. Gate 13 remains OPEN; criterion-level outcomes are unchanged.
+
 On canonical main `781f90a1`, the approved single bounded capacity attempt
 ended with an unhandled native graphics-copy access violation at `5EE19B`
 (invalid destination `00009312`), after 58.031 seconds / 273 events. Allocation,

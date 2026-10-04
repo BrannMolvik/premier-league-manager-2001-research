@@ -20,10 +20,77 @@ from gate13_native_capacity_watch import (
     all_thread_write_watch_readback, finalize_user_thread_write_watch_coverage,
     attendance_receiver_observation,
     renew_display_activation_consent,
+    STARTUP_SURFACE_RETURNS, startup_surface_return_observation,
+    trace_startup_surface_returns,
 )
 
 
 class NativeCapacityWatchTests(unittest.TestCase):
+    def test_surface_trace_is_separate_and_has_exact_bound(self):
+        until = datetime.now(timezone.utc) + timedelta(minutes=10)
+        with patch('gate13_native_capacity_watch.require_desktop_safety_qualification', return_value=until), \
+                patch('gate13_native_capacity_watch._observe', return_value={}) as observer:
+            trace_startup_surface_returns(Path('original'), Path('private'), display_receipt=Path('qualified'))
+        plan = observer.call_args.args[2]
+        self.assertEqual((plan.seconds, plan.max_events), (60, 4096))
+        self.assertTrue(observer.call_args.kwargs['startup_surface_trace_only'])
+
+    def test_surface_trace_refuses_missing_or_insufficient_activation_consent(self):
+        for until in (None, datetime.now(timezone.utc) + timedelta(seconds=30)):
+            with patch('gate13_native_capacity_watch.require_desktop_safety_qualification', return_value=until), \
+                    patch('gate13_native_capacity_watch._observe') as observer:
+                with self.assertRaises(CapacityWatchError):
+                    trace_startup_surface_returns(Path('original'), Path('private'), display_receipt=Path('qualified'))
+                observer.assert_not_called()
+
+    def test_surface_diagnostic_sites_do_not_extend_ordinary_or_one_shot_probes(self):
+        from gate13_native_capacity_watch import ONE_SHOT_SITES
+        self.assertEqual(STARTUP_SURFACE_RETURNS, {0x5EE232: 0x1C, 0x5EE252: 0x88})
+        self.assertTrue(set(STARTUP_SURFACE_RETURNS).isdisjoint(STARTUP_SITES))
+        self.assertTrue(set(STARTUP_SURFACE_RETURNS).isdisjoint(ONE_SHOT_SITES))
+
+    def test_surface_diagnostic_cannot_mix_with_other_modes_or_expand_bounds(self):
+        from gate13_native_capacity_watch import _observe
+        for plan, options in ((WatchPlan(seconds=10), {}),
+                              (WatchPlan(seconds=60, max_events=4096), {'qualification_only': True}),
+                              (WatchPlan(seconds=60, max_events=4096), {'calibrate_crt_writes': True}),
+                              (WatchPlan(seconds=60, max_events=4096), {'stop_at_entry': True})):
+            with patch('gate13_native_capacity_watch.check_private_stage') as stage:
+                with self.assertRaisesRegex(CapacityWatchError, 'separate fixed'):
+                    _observe(Path('not-read'), Path('not-written'), plan,
+                             startup_surface_trace_only=True, **options)
+                stage.assert_not_called()
+
+    def test_surface_return_retains_actual_hresult_and_pointer_without_edit(self):
+        raw = bytearray(108)
+        struct.pack_into('<I', raw, 0, 108)
+        struct.pack_into('<i', raw, 0x10, 1600)
+        struct.pack_into('<I', raw, 0x24, 0x12340000)
+        original = bytes(raw)
+        for address, offset in STARTUP_SURFACE_RETURNS.items():
+            good = startup_surface_return_observation(address, 0, original)
+            self.assertFalse(good['diagnostic_stop_required'])
+            self.assertEqual(good['descriptor_stack_offset'], offset)
+            self.assertEqual(good['raw_descriptor'], original.hex())
+            failed = startup_surface_return_observation(address, 0x887601C2, original)
+            self.assertEqual(failed['hresult_u32'], 0x887601C2)
+            self.assertTrue(failed['diagnostic_stop_required'])
+        self.assertEqual(bytes(raw), original)
+
+    def test_surface_return_null_or_malformed_descriptor_stops_even_on_zero_hresult(self):
+        raw = bytearray(108)
+        struct.pack_into('<I', raw, 0, 108)
+        self.assertTrue(startup_surface_return_observation(0x5EE232, 0, bytes(raw))['diagnostic_stop_required'])
+        struct.pack_into('<I', raw, 0x24, 0x12340000)
+        struct.pack_into('<I', raw, 0, 0)
+        self.assertTrue(startup_surface_return_observation(0x5EE232, 0, bytes(raw))['diagnostic_stop_required'])
+
+    def test_surface_return_wrong_source_or_input_rejected(self):
+        for address, hresult, raw in ((0x5EE233, 0, bytes(108)), (0x5EE232, -1, bytes(108)),
+                                     (0x5EE232, True, bytes(108)), (0x5EE232, 0, bytes(107))):
+            with self.assertRaises(CapacityWatchError):
+                startup_surface_return_observation(address, hresult, raw)
+
     def test_consent_renewal_never_overwrites_receipt(self):
         until = datetime.now(timezone.utc) + timedelta(minutes=10)
         with patch('gate13_native_capacity_watch.require_private_output_path'), \

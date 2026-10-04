@@ -5,6 +5,41 @@ Gate 13 remains OPEN. No visiting-capacity value is authorized by this work.
 
 ## Latest decisive attempt: startup graphics fault (5 October 2026 KST)
 
+### Follow-up: idle Lock-return observation succeeds, cause remains open
+
+Daniel separately approved a <=60-second diagnostic, manually handling audio
+and leaving the game idle. The new `trace_startup_surface_returns` mode is
+isolated from capacity, display-qualification and CRT-calibration modes. It
+verifies canonical `ff 51 64` calls immediately before both return probes,
+uses source-qualified caller-local offsets `1C` / `88` for 108-byte descriptors,
+and re-arms both probes on every call. It stops while suspended before copying
+on nonzero HRESULT, null surface pointer or unexpected descriptor size; it
+never repairs/changes the return, surface pointer, game logic or registry.
+The fixed bounds are 60 seconds / 4096 debugger events. Ordinary capacity
+launches remain unchanged and do not acquire this diagnostic implicitly.
+
+Actual run: 60.031 seconds including cleanup / 515 events, intentional time-bound
+termination, 60 first-surface and 60 second-surface returns, all HRESULT 0.
+All retained descriptors: size 108, 800x600, pitch 1600, non-null buffers. No
+access violation/unhandled native exception. Sole topmost shim and graphics
+startup verified; no desktop violation beyond approved focus/foreground.
+No new DXGI observation or capacity/report conclusion is claimed.
+
+Native receipt SHA-256
+`96f6e93c26e86d0b732604087773dbc7857edd7e21c4155e10750379719bfb5e`;
+offline adjudication SHA-256
+`b80f832b0cd299da16a17a9bc2d61f555981c67c05bc470157800d0510bde4f0`.
+Execution used watcher source SHA-256
+`d72525b72ae862e4d6bd4292b733cd017daebbf967799782844ebc55e1372cbc`.
+56 focused tests and asset policy pass.
+
+Daniel recalls alt-tabbing during the preceding crash but also an earlier
+crash without interaction. Thus neither focus-loss nor the wrapper/debugger
+is proven causal. The idle pass does not fix/explain the previous invalid
+copy. Next bounded observation should retain failed Lock output and adjacent
+focus state in the actual ordinary interaction path. The single diagnostic
+approval has executed; do not treat its live timer as automatic-retry permission.
+
 The PR #351-approved single probe ran on main `781f90a1` with fresh 20-minute
 consent, 300-second/4096-event bounds, index 5, and only the existing verified
 topmost-bit shim. It ended after 58.031 seconds / 273 events with an unhandled

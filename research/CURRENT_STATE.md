@@ -10,6 +10,45 @@ topic-specific research files.
 
 ### Executed on current main: startup fault, not a capacity conclusion
 
+**Follow-up, separately approved idle surface diagnostic:** Daniel approved a
+single <=60-second run with the same safeguards and no additional shim. It ran
+from the PR #353 branch with newly isolated observational Lock-return probes
+at `5EE232` / `5EE252`, not capacity watches or GUI inputs. Fresh consent was
+generated at `2026-10-04T16:44:35.385300+00:00`, expiring 10 minutes later.
+It intentionally stopped on the 60-second time bound (60.031 seconds including
+cleanup / 515 debugger events), **not** an exception. All **120** returns
+(60 per surface) were zero; all retained descriptors were 108 bytes,
+800x600, pitch 1600, with non-null surface buffers. No access violation or
+unhandled native exception occurred. Original terminated; disk hash unchanged.
+Other desktop checks remained intact; only approved foreground/focus was seen.
+
+This is a successful **idle** diagnostic, not proof that the prior graphics
+fault is fixed, and not a capacity/report route or a new DXGI qualification.
+Daniel reports he alt-tabbed to another game during the prior crash run, but
+also recalls an earlier crash without interaction. Focus loss is a candidate,
+not a proven sole cause. No automatic additional original launch is authorized
+by the now-executed single diagnostic approval.
+
+Private diagnostic receipt SHA-256
+`96f6e93c26e86d0b732604087773dbc7857edd7e21c4155e10750379719bfb5e`;
+consent SHA-256
+`a2a5ed2e07ed34217ce3a9f305fc86f056a36b34dfda993adca079d7a6115ab5`;
+offline adjudication SHA-256
+`b80f832b0cd299da16a17a9bc2d61f555981c67c05bc470157800d0510bde4f0`.
+
+**Updated next action:** reproduce the ordinary startup/interaction boundary
+in a separately scoped bounded guarded native observation, retaining actual
+surface HRESULT/descriptors and adjacent focus/foreground state. Do not
+manufacture surface recovery or blame alt-tab from user recollection alone.
+The isolated diagnostic helper is fixed at 60 seconds / 4096 events, continuously
+re-arms its two probes and terminates before copying on nonzero HRESULT or a
+null/malformed descriptor. Ordinary capacity mode is unchanged. Resume the
+all-user-thread allocation-to-selected-read proof only after this startup
+dependency is closed; human-away report and final Gate-13 closure remain pending.
+Focused current-code watcher/display checks now pass **56 tests**; asset policy
+passes. No broad/full-suite/Windows closure repetition was needed for this
+observational milestone.
+
 The approved single run executed from canonical `781f90a1` using the hardened
 watcher. Fresh consent was generated immediately before execution at
 `2026-10-04T16:27:24.529140+00:00`, expiring 20 minutes later. Exact executable,
@@ -43,7 +82,7 @@ Private receipts (outside Git):
 - offline adjudication SHA-256
   `8e0936b2284dd6cae2fbe6730f5e5f7004b836283a576949660eb5ce51c16894`.
 
-**Exact next action:** a separately scoped bounded observation of actual
+**Next action at the failed capacity checkpoint (superseded above):** a separately scoped bounded observation of actual
 surface-lock HRESULT/descriptor returns at `5EE232` / `5EE252`, stopping before
 unsafe copying and never replacing pointers/returns or adding compatibility
 shims. The one approved capacity run has now executed; its live expiry is not
