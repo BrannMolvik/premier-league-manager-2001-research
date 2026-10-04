@@ -6,15 +6,17 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
-## Local Gate-13 native lifecycle checkpoint (current-main base `3a3f60d1`)
+## Local Gate-13 closure result (latest fetched main `29781e92`)
 
 Codex started a fresh `codex/gate13-uncontrolled-capacity-lifecycle` branch
 from fetched canonical main `3a3f60d1e89c7f44e7f12ca70fef3f263fe73a9b`.
+It subsequently preserved the worker's disjoint commits through
+`29781e9278c4a50ca0921723fa7614314f793b0d` by merge `c9c64fa0`.
 The exclusive Gate-13 ownership lock and disjoint Gate-14 work are unchanged.
 Existing report production/persistence/rows/arrows were not retraced or changed.
 
 A checksum-gated bounded WOW64 debugger now calibrates against the original
-entry point and can arm exact fresh-array capacity write watches before club
+entry point **and actual known CRT dword writes**, and can arm exact fresh-array capacity write watches before club
 construction. It did **not** reach allocation: non-admin install-key open
 returns 5; Daniel-approved elevation changes that result to 0, but the native
 mandatory `art` DWORD query returns 2 and setup exits. No installation key,
@@ -23,10 +25,18 @@ See `GATE13_NATIVE_CAPACITY_WATCH.md` for exact probes, receipts and limitations
 
 The three pending native scroll assets have been extracted from the rehashed
 authorized archive, strictly receipt-validated and provenance-imported. All
-five scroll loader-family identities now verify. This does not certify thumb
-pixels, hover, repeat or timing. Nineteen focused tooling/readiness tests and
-asset policy pass at this checkpoint; final current-main Windows/full-suite
-validation is still pending.
+five scroll loader-family identities now verify. The original thumb rectangle,
+range and `0.49900001287460327` conversion contracts are retained without
+inventing pixels/input. Twenty-six focused checks and asset policy pass.
+Fresh **current-main-based Windows 11/Tk schema-8 passes**, as does the genuine
+controlled-home calculated fixture -> save -> fresh reload -> ordinary
+right-click -> rendered PMatchInfo regression. The repeated human-away probe
+still publishes no report/link. Fresh criterion-by-criterion results and private
+receipt hashes are in `GATE13_CLOSURE_AUDIT.md`; timing/normal-play closure
+does not pass. Full starting-base regression: 2,004 tests / 23 expected skips;
+final post-merge regression: **2,011 tests / 23 expected skips, no failures or
+errors**. The subsequent calibration-mode guard is separately included in the
+26 passing focused checks; native entry/hardware calibration also passes.
 
 Gate 13 remains **OPEN**. Exact capacity next action: source-qualify original
 installer resource-location selectors and obtain approval before repairing
@@ -34,7 +44,11 @@ the existing installation keys, then observe actual allocation-to-uncontrolled
 read and adjudicate the writer/copy lifecycle. Do not infer zero or inject
 controlled-home values. Continue independently source-backed report-scroll
 geometry/input and required normal-play closure work while this native startup
-prerequisite is unresolved; then rerun current-code Windows/Tk and criteria.
+prerequisite is unresolved. `Setup/English/SETUP.INS` and its exact component/
+registry text are staged privately and hashed; component names alone do not
+authorize DWORD flag values. Administrator-debugger approval did **not**
+authorize modifying installation keys. No raw dump/executable/archive/save
+entered Git, and no full-original-functionality scope reduction is made.
 
 ## Recovery 255 Gate-13 League Fixtures grid-selector checkpoint
 

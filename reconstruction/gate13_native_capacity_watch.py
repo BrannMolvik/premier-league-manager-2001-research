@@ -110,7 +110,10 @@ def arm_writes(context: Wow64Context, club_address: int) -> None:
     context.Dr7 = 0xDD0005  # local DR0/1, each RW=01(write), LEN=11(dword)
 
 
-def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: bool = False) -> dict:
+def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: bool = False,
+            calibrate_crt_writes: bool = False) -> dict:
+    if stop_at_entry and calibrate_crt_writes:
+        raise CapacityWatchError('Entry-only and CRT write calibration are separate probes')
     require_private_output_path(output)
     require_private_output_path(executable)
     pe = OriginalPE32.parse(executable.read_bytes())
@@ -150,7 +153,12 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
     report = dict(schema_version=1, source_sha256=pe.sha256, club_array_index=plan.club_index,
                   capacity_initializer_proven=False, gate13_closed=False, events=[],
                   allocation_observed=False, uncontrolled_read_observed=False,
+                  selected_club_import_observed=False,
                   observation_not_runtime_input=True, process_id=created.pid)
+    if calibrate_crt_writes:
+        report['crt_write_watch_calibration_only'] = True
+        report['crt_write_watch_calibration_complete'] = False
+        report['crt_write_watch_post_instruction_vas'] = []
     threads, pending = {}, {}
     club, event_count, exited = None, 0, False
     started = time.monotonic()
@@ -183,7 +191,8 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
                    ('Eip', 'Eax', 'Ebx', 'Ecx', 'Edx', 'Esi', 'Edi', 'Esp', 'Ebp', 'Dr6')}, **extra)
         row['x87_control_word'] = struct.unpack('<I', bytes(ctx.FloatSave[:4]))[0]
         if club is not None:
-            row.update(club_address=club, club_id_u16=struct.unpack('<H', read(club + 4, 2))[0],
+            row.update(club_address=club, observed_club_plus4_word_u16=struct.unpack('<H', read(club + 4, 2))[0],
+                       identity_import_observed=report['selected_club_import_observed'],
                        visiting_capacity_u32=list(struct.unpack('<II', read(club + 0x13C, 8))))
         report['events'].append(row)
 
@@ -228,6 +237,10 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
                     code, address = int(exception.record.code), exception.record.address
                     if code in (0x80000003, 0x4000001F) and address in originals:
                         ctx = context(event.tid)
+                        if address == IMPORTED and ctx.Ebx == plan.club_index:
+                            if club is None or struct.unpack('<I', read(club, 4))[0] != 0x7BD614:
+                                raise CapacityWatchError('Selected import has no qualified DBRClub vftable')
+                            report['selected_club_import_observed'] = True
                         if address != IMPORTED or ctx.Ebx == plan.club_index:
                             snapshot('source_breakpoint', event.tid, ctx, source_va=address)
                         if address == 0x515C11:
@@ -253,6 +266,13 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
                             report['stop_reason'], stop = 'selected_club_uncontrolled_read', True
                         if address == entry and stop_at_entry:
                             report['stop_reason'], stop = 'entry_calibration_only', True
+                        if address == entry and calibrate_crt_writes:
+                            # Known CRT global MOV writes at 66AAF7/66AB05 are
+                            # positive controls for hardware watch delivery, NOT
+                            # DBRClub receivers or visiting-capacity producers.
+                            ctx.Dr0, ctx.Dr1 = 0x9FAC00, 0x9FABFC
+                            ctx.Dr2 = ctx.Dr3 = ctx.Dr6 = 0
+                            ctx.Dr7 = 0xDD0005
                         write(address, originals[address])
                         ctx.Eip, ctx.EFlags = address, ctx.EFlags | 0x100
                         # Stop observing every other imported club after the selected
@@ -267,6 +287,11 @@ def observe(executable: Path, output: Path, plan: WatchPlan, *, stop_at_entry: b
                         if ctx.Dr6 & 3:
                             snapshot('hardware_dword_write_after_instruction', event.tid, ctx,
                                      preceding_bytes_not_decoded=read(ctx.Eip - 16, 16).hex())
+                            if calibrate_crt_writes:
+                                report['crt_write_watch_post_instruction_vas'].append(int(ctx.Eip))
+                                if report['crt_write_watch_post_instruction_vas'] == [0x66AAFD, 0x66AB0B]:
+                                    report['crt_write_watch_calibration_complete'] = True
+                                    report['stop_reason'], stop = 'crt_write_watch_calibration_complete', True
                         rearm = pending.pop(event.tid, None)
                         if rearm is not None:
                             write(rearm, b'\xCC')
@@ -314,9 +339,11 @@ def main() -> int:
     parser.add_argument('--seconds', type=int, default=30)
     parser.add_argument('--max-events', type=int, default=512)
     parser.add_argument('--stop-at-entry', action='store_true')
+    parser.add_argument('--calibrate-crt-writes', action='store_true')
     args = parser.parse_args()
     result = observe(args.original_executable, args.output,
-                     WatchPlan(args.club_index, args.seconds, args.max_events), stop_at_entry=args.stop_at_entry)
+                     WatchPlan(args.club_index, args.seconds, args.max_events), stop_at_entry=args.stop_at_entry,
+                     calibrate_crt_writes=args.calibrate_crt_writes)
     print(json.dumps({key: result[key] for key in ('stop_reason', 'allocation_observed',
           'uncontrolled_read_observed', 'capacity_initializer_proven', 'debug_events')}))
     return 2 if result['stop_reason'] == 'probe_error' else 0

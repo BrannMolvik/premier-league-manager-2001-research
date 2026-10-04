@@ -31,8 +31,13 @@ value/write needs receiver, CFG, copy/load ownership and lifecycle adjudication;
 no-watch-event results and allocation snapshots do not imply zero initialization.
 Software breakpoint single-step windows are not an all-thread execution proof.
 
-Eight synthetic ABI/planning tests and a real canonical entry-point calibration
-pass. This establishes a working native debugger, NOT the requested capacity
+Nine synthetic ABI/planning tests, a real canonical entry-point calibration
+and `--calibrate-crt-writes` pass. The latter arms the same two dword WRITE
+watches on known CRT globals `9FAC00/9FABFC` before source writes at
+`66AAF7/66AB05`; actual hardware delivery records exactly the expected
+post-instruction EIPs `66AAFD/66AB0B` and stops before installation access.
+These positive-control globals are not club fields. This establishes a working
+native debugger/write-watch backend, NOT the requested capacity
 initializer or human-away report route.
 
 ## Exact newly observed native prerequisite
@@ -61,6 +66,16 @@ the uncontrolled read were **not reached**. No register/key/capacity was patched
 to bypass setup. The installed-directory launch separately exits before the
 entry probe with code `C0EC0002`; its cause is not established.
 
+Exact installer evidence was also extracted from the reverified authorized
+archive, outside Git: `Setup/English/SETUP.INS`, `registry.txt`, `compdesc.txt`
+and `compnent.txt`. The component text binds art / stadia / fmv / matchengine
+to their actual install components and distinguishes compact/typical choices;
+it does not by itself prove the compiled installer's DWORD write values.
+`SETUP.INS` SHA-256 is
+`7186f23158adb231a1ac36a17c4cb1ddcf4f33726c5b6c5eb426aaab7b743591`.
+The registry text contains Settings entries, not these missing selectors.
+No guessed flags were installed and no unrelated public copy was obtained.
+
 Next capacity action: source-qualify/restore the original installation's
 resource-location selectors using authorized installer evidence (new approval
 needed before changing installation keys), then rerun the watch through actual
@@ -76,6 +91,8 @@ capacities. Neither path authorizes `+13C/+140` initialization.
 
 All below remain outside Git in the authorized local `work` directory:
 
+- `gate13-native-hardware-watch-calibration-29781e92.json` SHA-256
+  `54c88bf4065bf9ecb2bbff4c9bb0cbcbb69d90cc7e9f18c2aa347c9bc02d0823`;
 - `gate13-native-capacity-admin-query-3a3f60d1.json` SHA-256
   `d30e61290983cb61039800edf496ffe0ee3e5d730b799ca2c1c6f25ad9d1b586`;
 - `gate13-capacity-scroll-source-3a3f60d1.json` SHA-256

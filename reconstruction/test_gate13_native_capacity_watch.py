@@ -1,14 +1,20 @@
 """Bounded debugger ABI/planning contracts; NOT native capacity initialization proof."""
 import ctypes
 import unittest
+from pathlib import Path
 
 from gate13_native_capacity_watch import (
     ALLOC_RETURN, CONSTRUCTED, IMPORTED, UNCONTROLLED_READ, CAPACITY_OFFSETS,
-    CapacityWatchError, DebugEvent, WatchPlan, Wow64Context, arm_writes,
+    CapacityWatchError, DebugEvent, WatchPlan, Wow64Context, arm_writes, observe,
 )
 
 
 class NativeCapacityWatchTests(unittest.TestCase):
+    def test_calibration_modes_cannot_be_combined_or_read_an_input(self):
+        with self.assertRaisesRegex(CapacityWatchError, 'separate probes'):
+            observe(Path('not-an-executable'), Path('not-a-receipt'), WatchPlan(),
+                    stop_at_entry=True, calibrate_crt_writes=True)
+
     def test_source_qualified_lifecycle_sites(self):
         self.assertEqual((ALLOC_RETURN, CONSTRUCTED, IMPORTED, UNCONTROLLED_READ),
                          (0x40BC14, 0x40BC43, 0x40BA2C, 0x5DA538))
