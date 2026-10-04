@@ -20,6 +20,10 @@ The final criterion review keeps Gate13 OPEN: the live first-screen host still
 draws fixed frame0 rather than recovered hover animation with qualified timing;
 required management header/ordinary data-text recognizability remains incomplete.
 Disjoint Gate14 #363 was fast-forward-preserved; agent-runtime is unchanged.
+Final verified code `daa1622f`: 2,283 tests/23 expected skips,44 focused tests,
+asset policy, fresh real Windows11/Tk schema8 and Windows candidate package
+CI37227429547 PASS. PR #365 retains the verified milestone and exact next
+timing/presentation boundary. No Gate13-complete or Gate17 claim is made.
 
 ### 5 October 2026 KST — Automatic uncontrolled producer and calculated-away report
 

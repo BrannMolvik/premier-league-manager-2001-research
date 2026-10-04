@@ -98,6 +98,14 @@ Initial corrected ordinary-route receipt SHA-256:
 `d22de98fa7b130df69331366073256e8e62a6ecaa67ea77f3a26004fbd159125`.
 Earlier occlusion failure SHA-256:
 `a7b65f52d8ab731c4b9bca5aa9c9937d9c4e3c7b5bb6e617797758c3920ff8e5`.
+The final reconciled-code fresh-process repeat produced the same deterministic
+corrected receipt SHA-256. Focused host/pager/popup/audit tests44 PASS; full
+reconciled regression2,283/23 expected skips PASS. Fresh Windows11/Tk schema8
+SHA-256 `131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`
+PASS, independently of the ordinary-arrow/report receipt. Asset policy PASS.
+Windows candidate package CI37227429547 PASS at code head
+`daa1622f8e5c2a64698e013f1f14fdb9edad3dd3`; no local frozen-game acceptance
+or Gate17 certification is inferred from packaging.
 
 ## Private source receipt identities
 

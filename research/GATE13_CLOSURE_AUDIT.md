@@ -47,6 +47,15 @@ bidirectional real pointer presses/releases, no seam, zero arrow occlusion and
 correct rendered report. Schema8 is not a substitute for all ROADMAP criteria.
 Gate13 remains ACTIVE; no transition is claimed.
 
+Final current-main-reconciled code `daa1622f`: **2,283 tests /23 expected skips**,
+**44 focused tests**, asset policy, fresh real Windows11/Tk schema8 and Windows
+candidate package CI all PASS. Windows receipt:
+`131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`.
+Package run37227429547 verifies frozen smoke and candidate packaging, **not**
+Daniel-machine clean install/ordinary frozen-game acceptance or Gate17 closure.
+The criterion failures above are concrete implementation gaps, not merely a
+request for another broad audit. Do not retrace completed report/capacity work.
+
 ## Historical probe checkpoints (superseded next-actions)
 
 ## 5 October: decisive user-thread capacity lifecycle proof

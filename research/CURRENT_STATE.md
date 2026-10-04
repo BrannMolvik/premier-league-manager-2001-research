@@ -37,6 +37,19 @@ right-click opens the correct rendered PMatchInfo. Receipt SHA-256:
 `d22de98fa7b130df69331366073256e8e62a6ecaa67ea77f3a26004fbd159125`.
 Exact source/asset/route evidence: `GATE13_FIXTURES_PAGING_TRACE.md`.
 
+Final code checkpoint `daa1622f8e5c2a64698e013f1f14fdb9edad3dd3`, based on
+current-main `7aac77afcb22931eb8cf6d17725df2e7b24daf1e` with the worker's
+disjoint Gate14 #363 preserved: **2,283 tests /23 expected skips**, **44 focused
+host/pager/popup/Windows-audit tests**, asset policy and fresh real Windows11/Tk
+schema8 PASS. Correct Windows receipt SHA-256:
+`131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`.
+Windows candidate package CI **PASS**, including frozen smoke:
+https://github.com/BrannMolvik/premier-league-manager-2001-research/actions/runs/37227429547
+This is not Daniel-machine frozen-package acceptance or Gate17 certification.
+Verified implementation/research is on PR **#365**,
+`codex/gate13-fixtures-paging-closure`; original/proprietary reports and save
+remain private. `agent-runtime` and ownership are unchanged.
+
 **Gate13 remains OPEN after the criterion review.** The next actual blocker is
 live first-screen Button hover/update timing: the host still draws fixed
 `build_original_debug_frame(view,0)`, not the recovered 11-step live state.
@@ -49,7 +62,7 @@ launch is required by these findings. Previous milestone regression passed
 **2,267 tests / 23 expected skips** after canonical-main reconciliation,
 plus **134 focused tests** and asset policy (pre-reconciliation: 2,248 tests).
 Fresh real Windows 11/Tk schema-8 passes; receipt SHA-256:
-`131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aae2e8cc9`.
+`131866c416673c306c932a11899dc4bfe3810c60ee683fd87e82aa7aae2e8cc9`.
 This validates existing host contracts, not every timing/
 recognizability criterion. Both original-probe attempts and consent are spent;
 no further original launch is authorized by those receipts. Gate14 work and
