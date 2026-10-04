@@ -7,7 +7,9 @@ from gate13_button_source_trace import OriginalPETraceError
 from gate13_live_report_producer_trace import (
     SOURCE_SHA256,
     LIVE_PRODUCER_WINDOWS,
+    REMAINING_SETUP_DISPLACEMENTS,
     REMAINING_SETUP_WINDOWS,
+    classify_remaining_setup_memory_operands,
     live_report_producer_trace,
 )
 
@@ -43,6 +45,72 @@ class LiveReportProducerTraceTests(unittest.TestCase):
         self.assertFalse(report['remaining_setup_trace_complete'])
         self.assertFalse(report['legacy_capacity_writer_identified'])
         self.assertFalse(report['gate13_closed'])
+
+    def test_bounded_memory_operand_classifier_preserves_direction_and_registers(self):
+        # mov eax,[ecx+13Ch]; mov [edx+140h],eax;
+        # add dword ptr [ebx+130h],1; cmp byte ptr [esi+76h],0
+        blob = bytes.fromhex(
+            "8b813c010000"
+            "898240010000"
+            "83833001000001"
+            "807e7600"
+        )
+        rows = classify_remaining_setup_memory_operands(blob, 0x500000)
+        self.assertEqual(
+            [(row["displacement"], row["access"]) for row in rows],
+            [(0x13C, "read"), (0x140, "write"), (0x130, "read_write"), (0x76, "read")],
+        )
+        self.assertEqual(
+            [row["base_register"] for row in rows],
+            ["ecx", "edx", "ebx", "esi"],
+        )
+        self.assertTrue(all(row["candidate_only"] for row in rows))
+        self.assertTrue(all(not row["semantic_identity_proven"] for row in rows))
+        self.assertEqual(
+            tuple(sorted({row["displacement"] for row in rows})),
+            tuple(sorted(REMAINING_SETUP_DISPLACEMENTS)),
+        )
+
+    def test_bounded_memory_operand_classifier_ignores_other_displacements(self):
+        blob = bytes.fromhex(
+            "8b810c010000"  # mov eax,[ecx+10Ch]
+            "898244010000"  # mov [edx+144h],eax
+        )
+        self.assertEqual(
+            classify_remaining_setup_memory_operands(blob, 0x500000),
+            [],
+        )
+
+    def test_remaining_setup_disassembly_adds_candidates_only_to_bounded_scope(self):
+        pe = SimpleNamespace(
+            sha256=SOURCE_SHA256,
+            read=lambda address, size: bytes(size),
+        )
+        classified = [{"candidate_only": True}]
+        with (
+            patch(
+                "gate13_live_report_producer_trace.disassemble_window",
+                return_value=[],
+            ),
+            patch(
+                "gate13_live_report_producer_trace.classify_remaining_setup_memory_operands",
+                return_value=classified,
+            ) as classifier,
+        ):
+            report = live_report_producer_trace(
+                pe,
+                with_disassembly=True,
+                remaining_setup_only=True,
+            )
+        self.assertEqual(classifier.call_count, len(REMAINING_SETUP_WINDOWS))
+        self.assertTrue(
+            all(
+                row["bounded_memory_operand_candidates"] == classified
+                for row in report["windows"]
+            )
+        )
+        self.assertFalse(report["remaining_setup_trace_complete"])
+        self.assertFalse(report["legacy_capacity_writer_identified"])
 
     def test_remaining_setup_scope_is_mutually_exclusive_with_metadata_scope(self):
         pe = SimpleNamespace(
