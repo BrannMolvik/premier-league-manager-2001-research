@@ -69,6 +69,31 @@ meaning is an offset/length/codec/rate/channel value. Every grouped record is
 labeled
 `shared_bnk_memory_displacement_candidate_not_object_or_field_proof`.
 
+## Indexed-access triage boundary
+
+A further classifier retains only non-stack memory operands that use a real x86
+index register. These are the most relevant bounded candidates for possible
+array/table access in the already-qualified loader/playback neighborhoods.
+
+Each record preserves:
+
+- source window and instruction VA;
+- base register;
+- index register;
+- x86 scale 1/2/4/8;
+- displacement;
+- operand width.
+
+The classifier deliberately excludes `esp`/`ebp` based operands and
+non-indexed accesses. A retained indexed access is still **not** proof of a BNK
+sample table, sample id, record stride, sample offset, codec field, or any other
+format semantic. Every record is labeled
+`indexed_bnk_memory_access_candidate_not_sample_table_proof`.
+
+This narrows the next private dataflow pass toward the unresolved
+`audio_sample_decode` readiness blocker without promoting any header/table
+layout.
+
 ## Shared-call triage boundary
 
 A second correlator groups exact direct-call targets that recur across at least
