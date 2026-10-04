@@ -102,6 +102,7 @@ SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS = (
     ("clock_text",),
     ("possession_diagram",),
     ("possession_figures_text",),
+    ("direct_header_text",),
     ("league_scores_early_rows_static",),
     ("league_table_static",),
     ("league_scores_late_grid_static",),
@@ -114,6 +115,7 @@ _COMPONENT_PARENT_GROUP = {
     "clock_text": "fastview_panel",
     "possession_diagram": "fastview_panel",
     "possession_figures_text": "fastview_panel",
+    "direct_header_text": "fastview_panel",
     "league_table_static": "fastview_scores",
     "league_scores_static": "fastview_scores",
     "league_scores_early_rows_static": "fastview_scores",
@@ -203,7 +205,7 @@ _SOURCE_CLOSED_PAIRWISE_RELATIONS = _source_closed_relations()
 # it cannot be ordered against LeagueTable or any split score phase. Its outer
 # wrapper relations remain valid: all direct FastViewPanel controls precede the
 # score wrapper, and the score wrapper precedes the team wrapper.
-for earlier in ("direct_chrome", "clock_text", "possession_diagram", "possession_figures_text"):
+for earlier in ("direct_chrome", "clock_text", "possession_diagram", "possession_figures_text", "direct_header_text"):
     relation = _relation(earlier, "league_scores_static")
     _SOURCE_CLOSED_PAIRWISE_RELATIONS[
         frozenset((earlier, "league_scores_static"))
