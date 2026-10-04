@@ -65,9 +65,38 @@ from gate14_audiohooks_event_source_trace import (
     P_TEAM_ORDERS_2K_SLOT4_OFFSET,
     P_TEAM_ORDERS_2K_TYPE_DESCRIPTOR_VA,
     P_TEAM_ORDERS_2K_VTABLE_VA,
+    P_FORMATION_PITCH_2K_COMPLETE_OBJECT_LOCATOR_VA,
+    P_FORMATION_PITCH_2K_DECORATED_RTTI,
+    P_FORMATION_PITCH_2K_EVENT1_METHOD_VA,
+    P_FORMATION_PITCH_2K_EVENT1_SENDERS,
+    P_FORMATION_PITCH_2K_EVENT1_SLOT_INDEX,
+    P_FORMATION_PITCH_2K_EVENT1_SLOT_OFFSET,
+    P_FORMATION_PITCH_2K_TYPE_DESCRIPTOR_VA,
+    P_FORMATION_PITCH_2K_VTABLE_VA,
+    P_SQUAD_PITCH_COMPLETE_OBJECT_LOCATOR_VA,
+    P_SQUAD_PITCH_DECORATED_RTTI,
+    P_SQUAD_PITCH_EVENT1_METHOD_VA,
+    P_SQUAD_PITCH_EVENT1_SENDERS,
+    P_SQUAD_PITCH_EVENT1_SLOT_INDEX,
+    P_SQUAD_PITCH_EVENT1_SLOT_OFFSET,
+    P_SQUAD_PITCH_TYPE_DESCRIPTOR_VA,
+    P_SQUAD_PITCH_VTABLE_VA,
+    P_SQUAD_SCREEN_COMPLETE_OBJECT_LOCATOR_VA,
+    P_SQUAD_SCREEN_DECORATED_RTTI,
+    P_SQUAD_SCREEN_EVENT1_SLOT4_INDEX,
+    P_SQUAD_SCREEN_EVENT1_SLOT4_METHOD_VA,
+    P_SQUAD_SCREEN_EVENT1_SLOT4_OFFSET,
+    P_SQUAD_SCREEN_EVENT1_SLOT4_SENDERS,
+    P_SQUAD_SCREEN_EVENT1_SLOT5_INDEX,
+    P_SQUAD_SCREEN_EVENT1_SLOT5_METHOD_VA,
+    P_SQUAD_SCREEN_EVENT1_SLOT5_OFFSET,
+    P_SQUAD_SCREEN_EVENT1_SLOT5_SENDERS,
+    P_SQUAD_SCREEN_TYPE_DESCRIPTOR_VA,
+    P_SQUAD_SCREEN_VTABLE_VA,
     SOURCE_CALLING_CONVENTION,
     SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
     SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS,
+    SOURCE_CLOSED_EVENT1_CLASS_SENDERS,
     SOURCE_CLOSED_LITERAL_VIRTUAL_SENDERS,
     Gate14AudioHooksCallerTraceError,
     audiohooks_caller_trace_report,
@@ -302,6 +331,75 @@ class Gate14AudioHooksCallerSourceTraceTests(unittest.TestCase):
         self.assertFalse(contract["guard_helper_semantics_recovered"])
         self.assertFalse(contract["second_argument_semantics_recovered"])
         self.assertFalse(contract["event_semantics_recovered"])
+
+    def test_event1_sender_family_is_fully_rtti_class_bounded(self):
+        self.assertEqual(P_FORMATION_PITCH_2K_DECORATED_RTTI, ".?AVPFormationPitch2k@@")
+        self.assertEqual(P_FORMATION_PITCH_2K_TYPE_DESCRIPTOR_VA, 0x81C418)
+        self.assertEqual(P_FORMATION_PITCH_2K_COMPLETE_OBJECT_LOCATOR_VA, 0x7E3258)
+        self.assertEqual(P_FORMATION_PITCH_2K_VTABLE_VA, 0x7C2084)
+        self.assertEqual(P_FORMATION_PITCH_2K_EVENT1_SLOT_INDEX, 5)
+        self.assertEqual(P_FORMATION_PITCH_2K_EVENT1_SLOT_OFFSET, 0x14)
+        self.assertEqual(P_FORMATION_PITCH_2K_EVENT1_METHOD_VA, 0x468620)
+        self.assertEqual(
+            P_FORMATION_PITCH_2K_EVENT1_SENDERS,
+            ((0x468720, 1, 1, 0), (0x468781, 1, 1, 0)),
+        )
+
+        self.assertEqual(P_SQUAD_PITCH_DECORATED_RTTI, ".?AVPSquadPitch@@")
+        self.assertEqual(P_SQUAD_PITCH_TYPE_DESCRIPTOR_VA, 0x81DB30)
+        self.assertEqual(P_SQUAD_PITCH_COMPLETE_OBJECT_LOCATOR_VA, 0x7E5A50)
+        self.assertEqual(P_SQUAD_PITCH_VTABLE_VA, 0x7C54A8)
+        self.assertEqual(P_SQUAD_PITCH_EVENT1_SLOT_INDEX, 5)
+        self.assertEqual(P_SQUAD_PITCH_EVENT1_SLOT_OFFSET, 0x14)
+        self.assertEqual(P_SQUAD_PITCH_EVENT1_METHOD_VA, 0x4B66E0)
+        self.assertEqual(
+            P_SQUAD_PITCH_EVENT1_SENDERS,
+            ((0x4B6822, 1, 1, 0), (0x4B6868, 1, 1, 0)),
+        )
+
+        self.assertEqual(P_SQUAD_SCREEN_DECORATED_RTTI, ".?AVPSquadScreen@@")
+        self.assertEqual(P_SQUAD_SCREEN_TYPE_DESCRIPTOR_VA, 0x819D48)
+        self.assertEqual(P_SQUAD_SCREEN_COMPLETE_OBJECT_LOCATOR_VA, 0x7E5F00)
+        self.assertEqual(P_SQUAD_SCREEN_VTABLE_VA, 0x7C5CA4)
+        self.assertEqual(P_SQUAD_SCREEN_EVENT1_SLOT4_INDEX, 4)
+        self.assertEqual(P_SQUAD_SCREEN_EVENT1_SLOT4_OFFSET, 0x10)
+        self.assertEqual(P_SQUAD_SCREEN_EVENT1_SLOT4_METHOD_VA, 0x4B8E70)
+        self.assertEqual(P_SQUAD_SCREEN_EVENT1_SLOT4_SENDERS, ((0x4B9297, 1, 2, 0),))
+        self.assertEqual(P_SQUAD_SCREEN_EVENT1_SLOT5_INDEX, 5)
+        self.assertEqual(P_SQUAD_SCREEN_EVENT1_SLOT5_OFFSET, 0x14)
+        self.assertEqual(P_SQUAD_SCREEN_EVENT1_SLOT5_METHOD_VA, 0x4B9350)
+        self.assertEqual(
+            P_SQUAD_SCREEN_EVENT1_SLOT5_SENDERS,
+            (
+                (0x4B95F4, 1, 1, 0),
+                (0x4B994F, 1, 1, 0),
+                (0x4B9AC0, 1, 1, 0),
+            ),
+        )
+
+        all_senders = tuple(
+            sender
+            for _owner, _vtable, _method, senders in SOURCE_CLOSED_EVENT1_CLASS_SENDERS
+            for sender in senders
+        )
+        self.assertEqual(len(all_senders), 8)
+        self.assertEqual({item[1] for item in all_senders}, {1})
+        self.assertEqual({item[2] for item in all_senders}, {1, 2})
+        self.assertEqual({item[3] for item in all_senders}, {0})
+        self.assertEqual(len({item[0] for item in all_senders}), 8)
+
+        report = audiohooks_caller_trace_report(parse_fixture())
+        contract = report["event1_class_sender_source_contract"]
+        self.assertEqual(contract["event_id"], 1)
+        self.assertEqual(len(contract["classes"]), 3)
+        self.assertFalse(contract["event_semantics_recovered"])
+        report_sites = {
+            row[0]
+            for owner in contract["classes"]
+            for path in owner["paths"]
+            for row in path["senders"]
+        }
+        self.assertEqual(report_sites, {item[0] for item in all_senders})
 
     def test_source_closed_literal_and_dynamic_sender_families_are_numeric_only(self):
         self.assertEqual(len(SOURCE_CLOSED_LITERAL_VIRTUAL_SENDERS), 10)
