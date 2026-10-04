@@ -38,6 +38,15 @@ FASTVIEW_TOP_TICKER_WINDOW_VA = 0x51FD40
 FASTVIEW_POSSESSION_CHILD_WINDOW_VA = 0x520690
 PLAYER_ROW_ENERGY_RECT_WRITER_VA = 0x526680
 
+# Source-qualified renderer chain leads from the private canonical pass.
+# These addresses are inspection anchors only until the contained image
+# source/destination data flow is manually adjudicated.
+PICTURE_CONTROL_CHILD_RENDER_FORWARDER_VA = 0x64F6D0
+EMBEDDED_PICTURE_SETUP_VA = 0x64E500
+EMBEDDED_IMAGE_LAZY_ACQUIRE_VA = 0x64D8A0
+EMBEDDED_PICTURE_DRAW_LEAD_VA = 0x64E5D0
+LOW_LEVEL_PICTURE_BLIT_LEAD_VA = 0x6556C0
+
 # Bounded inspection ranges only, not exact function boundaries.
 PICTURE_CONTROL_TRACE_WINDOWS = (
     (
@@ -74,6 +83,31 @@ PICTURE_CONTROL_TRACE_WINDOWS = (
         "PlayerRow EventPlayerUpdateEnergy rectangle writer",
         PLAYER_ROW_ENERGY_RECT_WRITER_VA,
         0x120,
+    ),
+    (
+        "PictureControl child-render virtual forwarder",
+        PICTURE_CONTROL_CHILD_RENDER_FORWARDER_VA,
+        0x60,
+    ),
+    (
+        "Embedded picture setup",
+        EMBEDDED_PICTURE_SETUP_VA,
+        0xC0,
+    ),
+    (
+        "Embedded image lazy acquisition",
+        EMBEDDED_IMAGE_LAZY_ACQUIRE_VA,
+        0x90,
+    ),
+    (
+        "Embedded picture draw lead",
+        EMBEDDED_PICTURE_DRAW_LEAD_VA,
+        0x100,
+    ),
+    (
+        "Lower picture blit lead",
+        LOW_LEVEL_PICTURE_BLIT_LEAD_VA,
+        0x180,
     ),
 )
 
@@ -224,6 +258,28 @@ def picturecontrol_trace_report(
         "picturecontrol_constructor_va": PICTURE_CONTROL_CONSTRUCTOR_VA,
         "picturecontrol_vtable_va": vtable_va,
         "known_picturecontrol_rtti": ".?AVPictureControl@@",
+        "renderer_chain_leads": (
+            {
+                "role": "child_render_virtual_forwarder_candidate",
+                "va": PICTURE_CONTROL_CHILD_RENDER_FORWARDER_VA,
+            },
+            {
+                "role": "embedded_picture_setup_candidate",
+                "va": EMBEDDED_PICTURE_SETUP_VA,
+            },
+            {
+                "role": "embedded_image_lazy_acquire_candidate",
+                "va": EMBEDDED_IMAGE_LAZY_ACQUIRE_VA,
+            },
+            {
+                "role": "embedded_picture_draw_candidate",
+                "va": EMBEDDED_PICTURE_DRAW_LEAD_VA,
+            },
+            {
+                "role": "lower_picture_blit_candidate",
+                "va": LOW_LEVEL_PICTURE_BLIT_LEAD_VA,
+            },
+        ),
         "windows": tuple(inspected),
         "picturecontrol_vtable_slot_candidates": tuple(
             {
@@ -242,12 +298,15 @@ def picturecontrol_trace_report(
         ),
         "cross_component_z_order_recovered": False,
         "picturecontrol_resize_pixels_recovered": False,
+        "picturecontrol_crop_vs_stretch_recovered": False,
+        "embedded_picture_source_rect_recovered": False,
         "child_registration_order_recovered": False,
         "evidence_limit": (
             "Known source anchors, bounded bytes/disassembly, raw vtable-pointer "
             "occurrences and bounded candidate vtable slots only. No virtual-slot "
             "role, vtable extent, CFG reachability, child registration direction, "
-            "draw/z-order, source-rectangle crop/stretch rule, alpha behavior, "
+            "draw/z-order, embedded image source-rectangle data flow, "
+            "crop/stretch rule, alpha behavior, "
             "visibility policy or complete FastView frame is proven."
         ),
     }
