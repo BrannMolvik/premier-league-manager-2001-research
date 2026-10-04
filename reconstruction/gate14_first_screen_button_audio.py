@@ -35,6 +35,14 @@ BUTTON_AUDIO_SELECTOR_VA = 0x6528A0
 BUTTON_PRESS_HANDLER_VA = 0x64F7A0
 BUTTON_PRESS_AUDIO_CALLSITE_VA = 0x64F7FE
 
+PSTARTMENU_VTABLE_VA = 0x7C64E0
+PSTARTMENU_OWNER_ACCEPT_SLOT_OFFSET = 0x0C
+PSTARTMENU_OWNER_ACCEPT_VA = 0x42DE00
+TEAMSELECT_VTABLE_VA = 0x7C7650
+TEAMSELECT_OWNER_ACCEPT_SLOT_OFFSET = 0x0C
+TEAMSELECT_OWNER_ACCEPT_VA = 0x5CFA50
+OWNER_ACCEPT_RETURN_VALUE = 1
+
 # 0x651E30 stores its fourth argument at +0x34. 0x652FD0 forwards all eleven
 # arguments unchanged. These are the already recovered first-screen action
 # button construction sites.
@@ -192,6 +200,14 @@ def first_screen_button_audio_contract() -> dict:
         "audio_selector_va": BUTTON_AUDIO_SELECTOR_VA,
         "press_handler_va": BUTTON_PRESS_HANDLER_VA,
         "press_audio_callsite_va": BUTTON_PRESS_AUDIO_CALLSITE_VA,
+        "pstartmenu_vtable_va": PSTARTMENU_VTABLE_VA,
+        "pstartmenu_owner_accept_slot_offset": PSTARTMENU_OWNER_ACCEPT_SLOT_OFFSET,
+        "pstartmenu_owner_accept_va": PSTARTMENU_OWNER_ACCEPT_VA,
+        "teamselect_vtable_va": TEAMSELECT_VTABLE_VA,
+        "teamselect_owner_accept_slot_offset": TEAMSELECT_OWNER_ACCEPT_SLOT_OFFSET,
+        "teamselect_owner_accept_va": TEAMSELECT_OWNER_ACCEPT_VA,
+        "owner_accept_return_value": OWNER_ACCEPT_RETURN_VALUE,
+        "first_screen_owner_acceptance_recovered": True,
         "pstartmenu_action_button_calls": PSTARTMENU_ACTION_BUTTON_CALLS,
         "teamselect_action_button_calls": TEAMSELECT_ACTION_BUTTON_CALLS,
         "first_screen_action_button_count": len(FIRST_SCREEN_ACTION_BUTTON_CALLS),
