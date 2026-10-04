@@ -208,11 +208,15 @@ def _ordered_component_planes(
             "resolved-only composite requires exact FastViewComponentRasterSet"
         )
 
-    planes = [
-        rasters.chrome,
-        rasters.possession_diagram,
-        rasters.possession_figures,
-    ]
+    planes = [rasters.chrome]
+    if rasters.clock is not None:
+        planes.append(rasters.clock)
+    planes.extend(
+        (
+            rasters.possession_diagram,
+            rasters.possession_figures,
+        )
+    )
     for optional in (
         rasters.league_scores,
         rasters.league_scores_early_rows,
