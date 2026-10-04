@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains the earliest incomplete gate and is Codex-owned. Gate-14 PR #382 is open and mergeable on head bf15837e: source-closes the FastView second header line as stadium display name and verifies exact Zurich_XCn_BT_18pixel.fnt source bytes (79,734 bytes; SHA-256 968936a5...). Asset policy passed; full reconstruction CI is still running. Next: merge #382 if green, stage the byte-identical font via a binary-safe GitHub path if available, then bind/rasterize the two direct header TextControls without touching Gate 13.",
-  "last_known_main_head": "4923fdc45c09e259781c7a763e005ddbcfb5afd5",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned. Gate-14 stadium-header semantic checkpoint #382 merged to main 8698939b after 2,334 tests/23 skips and asset-policy success. Current disjoint task: stage exact authorized Fonts/Zurich_XCn_BT_18pixel.fnt (79,734 bytes, SHA-256 968936a5...) on chatgpt/gate14-font-stage via checksum-gated temporary bootstrap, remove bootstrap artifacts, add manifest provenance, then rasterize/integrate the two direct header TextControls. Do not touch Gate 13.",
+  "last_known_main_head": "8698939b3b80ab048839f7cd46ef97c1418833e2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 295,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovered after stale activity. Do not restart PR #382 work; CI is in progress. Continue font staging/raster integration after verified merge.",
+  "note": "PR #382 is canonical. Temporary font bootstrap run 4 validates four exact payload-line hashes before decompression; no font staging claim until exact binary is committed and verified.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
