@@ -83,6 +83,11 @@ def audit_multi_human_capability(
             )
 
     required = int(required_simultaneous_users)
+    if required != ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS:
+        raise Gate17MultiHumanCapabilityError(
+            "required_simultaneous_users must equal the source-proven "
+            f"maximum {ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS}"
+        )
     selection_capacity = int(teamselect_selection_capacity)
     gameplay_capacity = int(gameplay_simultaneous_users_supported)
     blockers: list[str] = []
