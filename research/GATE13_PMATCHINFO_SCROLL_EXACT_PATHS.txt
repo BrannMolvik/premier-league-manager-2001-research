@@ -1,0 +1,8 @@
+# Exact source-backed PMatchInfo scroll assets not yet staged.
+# Use with gate13_source_inventory.py --deep --extract-path-file
+# --only-explicit --require-all-explicit. These are canonical disc-relative
+# paths recovered from the native loader chain; no checksum, geometry, or
+# runtime behavior is inferred until the extracted bytes are verified.
+FM2001_Art/Generic/GenericButtonsAndBars/scroller_bar_vert.444
+FM2001_Art/Generic/GenericButtonsAndBars/scroller_blue_bar.444
+FM2001_Art/Generic/GenericButtonsAndBars/vscroll_blue_bar.444
