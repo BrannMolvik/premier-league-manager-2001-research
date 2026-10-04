@@ -44,6 +44,42 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _resolve_staged_casefold_path(stage: Path, source_path: str) -> Path:
+    """Resolve one normalized relative path case-insensitively under stage."""
+    current = stage
+    for component in normalize_member(source_path).split("/"):
+        exact = current / component
+        if exact.exists():
+            current = exact
+            continue
+        if not current.is_dir():
+            raise Gate14AudioBankStageReceiptError(
+                f"staged audio bank is missing: {source_path}"
+            )
+        matches = [
+            candidate
+            for candidate in current.iterdir()
+            if candidate.name.casefold() == component.casefold()
+        ]
+        if len(matches) != 1:
+            raise Gate14AudioBankStageReceiptError(
+                f"staged audio bank path is missing or ambiguous: {source_path}"
+            )
+        current = matches[0]
+    resolved = current.resolve()
+    try:
+        resolved.relative_to(stage)
+    except ValueError as exc:
+        raise Gate14AudioBankStageReceiptError(
+            f"staged path escapes staging root: {source_path}"
+        ) from exc
+    if not resolved.is_file():
+        raise Gate14AudioBankStageReceiptError(
+            f"staged audio bank is missing: {source_path}"
+        )
+    return resolved
+
+
 def validate_audio_bank_stage_receipt(
     *,
     repo_root: str | Path,
@@ -156,32 +192,7 @@ def validate_audio_bank_stage_receipt(
                 f"{source_path} candidate identity is incomplete"
             )
 
-        staged = stage.joinpath(*source_path.split("/")).resolve()
-        try:
-            staged.relative_to(stage)
-        except ValueError as exc:
-            raise Gate14AudioBankStageReceiptError(
-                f"staged path escapes staging root: {source_path}"
-            ) from exc
-        if not staged.is_file():
-            # Case-preserving source extraction may retain a different spelling
-            # of the final basename. Resolve only within the exact parent dir.
-            parent = staged.parent
-            matches = (
-                [
-                    candidate
-                    for candidate in parent.iterdir()
-                    if candidate.is_file()
-                    and candidate.name.casefold() == staged.name.casefold()
-                ]
-                if parent.is_dir()
-                else []
-            )
-            if len(matches) != 1:
-                raise Gate14AudioBankStageReceiptError(
-                    f"staged audio bank is missing: {source_path}"
-                )
-            staged = matches[0]
+        staged = _resolve_staged_casefold_path(stage, source_path)
 
         actual_size = staged.stat().st_size
         actual_sha = _sha256_file(staged)
