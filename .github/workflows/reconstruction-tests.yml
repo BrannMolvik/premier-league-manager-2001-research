@@ -93,6 +93,8 @@ on:
       - "reconstruction/test_gate14_fastview_clock_raster.py"
       - "reconstruction/gate14_fastview_direct_header_text.py"
       - "reconstruction/test_gate14_fastview_direct_header_text.py"
+      - "reconstruction/gate14_fastview_direct_header_raster.py"
+      - "reconstruction/test_gate14_fastview_direct_header_raster.py"
       - "reconstruction/gate14_fastview_component_rasters.py"
       - "reconstruction/test_gate14_fastview_component_rasters.py"
       - "reconstruction/gate14_fastview_resolved_composite.py"
