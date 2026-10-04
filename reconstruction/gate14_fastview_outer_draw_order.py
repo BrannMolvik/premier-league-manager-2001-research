@@ -49,6 +49,25 @@ EMBEDDED_BUTTON1_REGISTER_CALL_VA = 0x52000B
 EMBEDDED_BUTTON1_CONSTRUCTOR_CALL_VA = 0x52009F
 EMBEDDED_BUTTON_CONSTRUCTOR_VA = 0x652FD0
 
+GOAL_FLASH_OWNER_CALL_VA = 0x5200CB
+GOAL_FLASH_CONSTRUCTOR_VA = 0x51C700
+GOAL_FLASH_CHILD_CONSTRUCTOR_VA = 0x51BE20
+GOAL_FLASH_CHILD_COUNT = 2
+GOAL_FLASH_TEXT_REGISTER_CALLS = (
+    0x51BF51,
+    0x51BFDC,
+    0x51C067,
+    0x51C0F2,
+    0x51C180,
+)
+GOAL_FLASH_TEXT_RECTS = (
+    (0, 0, 134, 33),
+    (0, 0, 30, 33),
+    (0, 0, 30, 33),
+    (0, 0, 134, 33),
+    (0, 0, 160, 33),
+)
+
 SCORE_COMPOSITE_MAIN_OWNER_CALL_VAS = (
     0x520356,
     0x520416,
@@ -194,6 +213,15 @@ def _build_outer_draw_entries() -> tuple[FastViewOuterDrawEntry, ...]:
         parent_offset=EMBEDDED_BUTTON1_PARENT_OFFSET,
     )
 
+    for child_index in range(GOAL_FLASH_CHILD_COUNT):
+        for text_index, call_va in enumerate(GOAL_FLASH_TEXT_REGISTER_CALLS):
+            add(
+                f"goal_flash_{child_index}_text_{text_index}",
+                "text_control_constructor",
+                call_va,
+                owner_call_va=GOAL_FLASH_OWNER_CALL_VA,
+            )
+
     for index, (call_va, kind) in enumerate(SCORE_COMPOSITE_MAIN_REGISTER_CALLS):
         add(
             f"score_composite_main_control_{index}",
@@ -266,7 +294,7 @@ def _build_outer_draw_entries() -> tuple[FastViewOuterDrawEntry, ...]:
 
 
 FASTVIEW_OUTER_DRAW_ENTRIES = _build_outer_draw_entries()
-FASTVIEW_OUTER_DRAW_COUNT = 26
+FASTVIEW_OUTER_DRAW_COUNT = 36
 
 
 @dataclass(frozen=True)
