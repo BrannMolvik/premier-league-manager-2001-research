@@ -6,6 +6,16 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Recovery 251 Gate-17 primary-save catalog checkpoint
+
+Gate 13 remains the earliest incomplete validation gate and stays OPEN. No later-gate work below closes or bypasses its private/source-dependent criteria.
+
+PR #274 merged as canonical main `748b4782`. The all-procedural-primary canonical save sweep is now bound to the exact hash-verified TeamSelect scope catalog: every audited competition maps to its exact ordered `<country_id>:<competition_id>` ID and the aggregate records the canonical catalog SHA-256. Missing or duplicate catalog competition identities fail closed. Hosted verification passed **1,891 tests / 23 expected skips** plus repository asset policy. This is still audit tooling only; no authorized private `--procedural-primary-all` execution receipt is claimed.
+
+The remaining Gate-17 runtime blockers are unchanged: secondary procedural Leagues still lack a distinct live runtime container/human route; RNG-bearing non-PL fresh chairman-objective branches still need the exact `0x5DF670` caller CRT state; non-PL season-end sporting-objective classification/progression is not source-closed; and the canonical full-scope Windows receipts remain external blockers. The older Premier-League-only save receipt cannot substitute for full-catalog save continuity.
+
+Exact next cloud-safe action: extend the canonical save audit from procedural-primary-only coverage to the complete **primary-container** TeamSelect scope using the already source-backed runtime-ownership plan, while continuing to report secondary-container scopes as unverified rather than routing them through the primary engine. Do not infer secondary-container semantics.
+
 ## Recovery 250 Gate-17 work-ahead checkpoint
 
 Gate 13 remains the earliest incomplete validation gate and stays OPEN. Private/source-dependent Gate-13 work must not be inferred from later-gate progress.
