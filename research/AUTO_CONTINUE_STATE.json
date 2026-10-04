@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main is 70018803: BNK loader/sample-format tracer merged after 2,056 tests / 23 expected skips plus asset policy. Active disjoint checkpoint is PR #322 head 0e5e310a, a roadmap-aligned fail-closed Gate-14 readiness audit. Merge only after exact-head reconstruction CI and asset policy pass. Current explicit Gate-14 blockers: audio sample decode/event binding/login-menu integration; global FastView z-order/font blend/complete frame; chant event semantics; 3D choreography; final recognizable-original-workflow verification. Do not reprobe private execution in this recovery.",
-  "last_known_main_head": "700188035ac3c926f244201513c6601854db86b9",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main includes roadmap-aligned readiness audit at b6aea8c1 (2,062 tests / 23 skips, asset policy green). Active disjoint checkpoint is PR #323 head 679a2b22: fail-closed bounded BNK loader/playback instruction-dataflow candidates to narrow audio_sample_decode analysis. Merge only after exact-head reconstruction CI and asset policy pass. Do not touch Gate 13/shared runtime or infer BNK format semantics from operand syntax.",
+  "last_known_main_head": "b6aea8c1a79771df5fb75f26da550380e6b1da06",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 266,
+  "recovery_generation": 267,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 266: validating PR #322 readiness audit on main 70018803; Gate 13 lock unchanged.",
+  "note": "Recovery 273: validating PR #323 BNK dataflow candidate classifier on main b6aea8c1.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
