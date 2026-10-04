@@ -85,12 +85,12 @@ visibly separate for the next native z-order trace.
 `gate14_fastview_frame_coverage.py` classifies every pixel in the 800x600
 resolved-only surface into one of three exhaustive states:
 
-- exactly one verified non-zero-alpha contributor: resolved;
+- exactly one verified visible/non-zero-alpha contributor: resolved;
 - two or more verified contributors: unresolved cross-component overlap;
-- no currently verified non-zero-alpha contributor.
+- no currently verified visible/non-zero-alpha contributor.
 
 The third class is intentionally named
-`no_verified_opaque_contributor_pixel_count`. It is **not** equivalent to
+`no_verified_visible_contributor_pixel_count`. It is **not** equivalent to
 "missing artwork": transparent pixels inside verified source resources, an
 unbound background layer, or another not-yet-integrated component can all appear
 there. The counts therefore quantify the renderer boundary without assigning a
