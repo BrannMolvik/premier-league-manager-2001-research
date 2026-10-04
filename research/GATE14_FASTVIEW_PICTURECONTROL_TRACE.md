@@ -51,12 +51,40 @@ other role until private control-flow evidence establishes that role.
 The report also retains raw little-endian occurrences of the vtable pointer.
 Those remain byte candidates, not validated constructor/xref sites.
 
+## Recovery 268: embedded picture render-chain leads
+
+The private canonical pass progressed beyond the generic control boundary far
+enough to identify the next bounded renderer neighborhoods without assigning the
+still-missing resize semantics:
+
+- PictureControl visible-child virtual forwarding: `0x64F6D0`;
+- embedded picture setup: `0x64E500`;
+- lazy embedded image acquisition: `0x64D8A0`;
+- embedded picture draw lead: `0x64E5D0`;
+- lower picture/blit lead: `0x6556C0`.
+
+The PlayerRow energy writer at `0x526680` changes the dynamic PictureControl
+destination rectangle and then invokes the generic refresh/invalidation path.
+That proves the destination geometry changes before redraw, but does not by
+itself prove whether the embedded renderer crops a native-width source, scales
+the source into the changed destination, or derives a separate source rectangle.
+
+The private tracer now includes all five renderer-chain neighborhoods in one
+checksum-gated report and exposes them as candidate roles only. The next healthy
+private execution should follow the rectangle values from the PictureControl
+control rect through `0x64F6D0` into the embedded picture object and through
+the lower blit call. Only if the source rectangle and size transform are
+unambiguous should `picturecontrol_crop_vs_stretch_recovered` or dynamic
+energy pixels be promoted.
+
 ## Fidelity boundary
 
 The report hard-codes all of the target conclusions false:
 
 - `cross_component_z_order_recovered=false`;
 - `picturecontrol_resize_pixels_recovered=false`;
+- `picturecontrol_crop_vs_stretch_recovered=false`;
+- `embedded_picture_source_rect_recovered=false`;
 - `child_registration_order_recovered=false`.
 
 A future private run must manually establish the relevant control-flow,
