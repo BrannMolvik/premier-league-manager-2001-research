@@ -10,6 +10,79 @@ from gate13_button_source_trace import (
 )
 
 SOURCE_SHA256 = '833bf95e92a1c76ade47106f8ad7d3ca307069b7e5778a7067cd0658838b7cc3'
+
+REMAINING_SETUP_DISPLACEMENTS = (0x76, 0x130, 0x13C, 0x140)
+
+
+def classify_remaining_setup_memory_operands(blob: bytes, va: int) -> list[dict]:
+    """Classify exact displacement operands inside one bounded setup window.
+
+    This is an analyst-prioritization aid only. Matching displacement values do
+    not establish object type, field identity, lifetime ownership, or semantic
+    meaning. Access direction comes only from Capstone's decoded operand access
+    flags for the individual instruction.
+    """
+    try:
+        from capstone import (
+            CS_AC_READ,
+            CS_AC_WRITE,
+            CS_ARCH_X86,
+            CS_MODE_32,
+            CS_OP_MEM,
+            Cs,
+        )
+    except ImportError as exc:
+        raise OriginalPETraceError(
+            'Capstone missing: install locally with pip install "capstone>=5,<6"'
+        ) from exc
+
+    engine = Cs(CS_ARCH_X86, CS_MODE_32)
+    engine.detail = True
+    output = []
+    allowed = set(REMAINING_SETUP_DISPLACEMENTS)
+    for insn in engine.disasm(blob, va):
+        for operand_index, operand in enumerate(insn.operands):
+            if operand.type != CS_OP_MEM:
+                continue
+            displacement = int(operand.mem.disp)
+            if displacement not in allowed:
+                continue
+            access = int(getattr(operand, "access", 0))
+            reads = bool(access & CS_AC_READ)
+            writes = bool(access & CS_AC_WRITE)
+            if reads and writes:
+                direction = "read_write"
+            elif reads:
+                direction = "read"
+            elif writes:
+                direction = "write"
+            else:
+                direction = "address_only_or_unknown"
+            output.append({
+                "instruction_va": int(insn.address),
+                "instruction_size": int(insn.size),
+                "mnemonic": str(insn.mnemonic),
+                "operands": str(insn.op_str),
+                "operand_index": int(operand_index),
+                "displacement": displacement,
+                "displacement_hex": f"+0x{displacement:X}",
+                "access": direction,
+                "base_register": (
+                    insn.reg_name(operand.mem.base)
+                    if int(operand.mem.base) != 0
+                    else None
+                ),
+                "index_register": (
+                    insn.reg_name(operand.mem.index)
+                    if int(operand.mem.index) != 0
+                    else None
+                ),
+                "scale": int(operand.mem.scale),
+                "candidate_only": True,
+                "semantic_identity_proven": False,
+            })
+    return output
+
 REMAINING_SETUP_WINDOWS = (
     # Known lifecycle neighborhoods only. These windows do not claim that the
     # unresolved writer necessarily lives inside them.
@@ -82,9 +155,17 @@ def live_report_producer_trace(
                   'sha256': sha256(blob).hexdigest()}
         if with_disassembly:
             window['linear_disassembly_not_cfg'] = disassemble_window(blob, address)
+            if remaining_setup_only:
+                window['bounded_memory_operand_candidates'] = (
+                    classify_remaining_setup_memory_operands(blob, address)
+                )
         windows.append(window)
     return {'source_sha256': pe.sha256, 'windows': windows,
             'scope': 'private analyst evidence, NOT a runtime captured report',
+            'remaining_setup_operand_classification': (
+                'candidate-only exact-displacement read/write direction inside '
+                'REMAINING_SETUP_WINDOWS; no object or field semantics inferred'
+            ),
             'remaining_setup_trace_complete': False,
             'legacy_capacity_writer_identified': False,
             'runtime_capture_production_complete': False,
