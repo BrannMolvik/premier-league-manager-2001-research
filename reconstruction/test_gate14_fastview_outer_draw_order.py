@@ -23,9 +23,24 @@ from gate14_fastview_outer_draw_order import (
     POST_TEAM_CONTROL_COUNT,
     POST_TEAM_CONTROL_STRIDE,
     POST_TEAM_REGISTER_LOOP_CALL_VA,
+    GOAL_FLASH_CHILD_CONSTRUCTOR_VA,
+    GOAL_FLASH_CHILD_COUNT,
+    GOAL_FLASH_CONSTRUCTOR_VA,
+    GOAL_FLASH_OWNER_CALL_VA,
+    GOAL_FLASH_TEXT_RECTS,
+    GOAL_FLASH_TEXT_REGISTER_CALLS,
     POSSESSION_DIAGRAM_REGISTER_CALLS,
     POSSESSION_FIGURES_REGISTER_CALLS,
+    SCORE_COMPOSITE_BASE_CONSTRUCTOR_VA,
+    SCORE_COMPOSITE_MAIN_CONSTRUCTORS,
+    SCORE_COMPOSITE_MAIN_OWNER_CALL_VAS,
+    SCORE_COMPOSITE_MAIN_REGISTER_CALLS,
     SCORES_SUBPANEL_REGISTER_CALL_VA,
+    SURFACED_PICTURE_CONTROL_CONSTRUCTOR_VA,
+    SURFACED_PICTURE_CONTROL_RTTI,
+    SURFACED_PICTURE_CONTROL_VTABLE_VA,
+    SURFACED_PICTURE_OWNER_CALLS,
+    SURFACED_PICTURE_REGISTER_CALL_VA,
     SOURCE_BOUNDARY,
     TEAM_SUBPANEL_REGISTER_CALL_VA,
     FastViewOuterDrawOrderError,
@@ -35,27 +50,45 @@ from gate14_fastview_outer_draw_order import (
 
 
 class FastViewOuterDrawOrderTests(unittest.TestCase):
-    def test_exhaustive_outer_sequence_has_18_unique_ranks(self):
-        self.assertEqual(FASTVIEW_OUTER_DRAW_COUNT, 18)
-        self.assertEqual(len(FASTVIEW_OUTER_DRAW_ENTRIES), 18)
+    def test_exhaustive_outer_sequence_has_36_unique_ranks(self):
+        self.assertEqual(FASTVIEW_OUTER_DRAW_COUNT, 36)
+        self.assertEqual(len(FASTVIEW_OUTER_DRAW_ENTRIES), 36)
         self.assertEqual(
             tuple(row.rank for row in FASTVIEW_OUTER_DRAW_ENTRIES),
-            tuple(range(18)),
+            tuple(range(36)),
         )
         self.assertEqual(
             len({row.identity for row in FASTVIEW_OUTER_DRAW_ENTRIES}),
-            18,
+            36,
         )
 
     def test_exact_outer_sequence(self):
         self.assertEqual(
             tuple(row.identity for row in FASTVIEW_OUTER_DRAW_ENTRIES),
             (
+                "surfaced_picture_control_0",
                 "top_bar_picture",
                 "ticker_picture",
                 "clock_text",
                 "embedded_button_0",
                 "embedded_button_1",
+                "goal_flash_0_text_0",
+                "goal_flash_0_text_1",
+                "goal_flash_0_text_2",
+                "goal_flash_0_text_3",
+                "goal_flash_0_text_4",
+                "goal_flash_1_text_0",
+                "goal_flash_1_text_1",
+                "goal_flash_1_text_2",
+                "goal_flash_1_text_3",
+                "goal_flash_1_text_4",
+                "score_composite_main_control_0",
+                "score_composite_main_control_1",
+                "score_composite_main_control_2",
+                "score_composite_main_control_3",
+                "score_composite_main_control_4",
+                "surfaced_picture_control_1",
+                "surfaced_picture_control_2",
                 "possession_diagram_picture_0",
                 "possession_diagram_picture_1",
                 "possession_diagram_picture_2",
@@ -73,6 +106,21 @@ class FastViewOuterDrawOrderTests(unittest.TestCase):
         )
 
     def test_clock_and_nested_component_source_anchors(self):
+        self.assertEqual(SURFACED_PICTURE_CONTROL_CONSTRUCTOR_VA, 0x526940)
+        self.assertEqual(SURFACED_PICTURE_CONTROL_VTABLE_VA, 0x7CA974)
+        self.assertEqual(
+            SURFACED_PICTURE_CONTROL_RTTI,
+            ".?AVSurfacedPictureControl@FastViewPanel@@",
+        )
+        self.assertEqual(SURFACED_PICTURE_REGISTER_CALL_VA, 0x5269E5)
+        self.assertEqual(
+            SURFACED_PICTURE_OWNER_CALLS,
+            (
+                (0x51FD31, (0, 0, 800, 600)),
+                (0x520642, (38, 1, 173, 94)),
+                (0x520697, (627, 1, 762, 94)),
+            ),
+        )
         self.assertEqual(CLOCK_OWNER_CALL_VA, 0x51FE7B)
         self.assertEqual(CLOCK_TEXT_REGISTER_CALL_VA, 0x51EC30)
         self.assertEqual(
@@ -82,6 +130,37 @@ class FastViewOuterDrawOrderTests(unittest.TestCase):
         self.assertEqual(
             POSSESSION_FIGURES_REGISTER_CALLS,
             (0x51E876, 0x51E900, 0x51E990),
+        )
+        self.assertEqual(GOAL_FLASH_OWNER_CALL_VA, 0x5200CB)
+        self.assertEqual(GOAL_FLASH_CONSTRUCTOR_VA, 0x51C700)
+        self.assertEqual(GOAL_FLASH_CHILD_CONSTRUCTOR_VA, 0x51BE20)
+        self.assertEqual(GOAL_FLASH_CHILD_COUNT, 2)
+        self.assertEqual(
+            GOAL_FLASH_TEXT_REGISTER_CALLS,
+            (0x51BF51, 0x51BFDC, 0x51C067, 0x51C0F2, 0x51C180),
+        )
+        self.assertEqual(
+            GOAL_FLASH_TEXT_RECTS,
+            (
+                (0, 0, 134, 33),
+                (0, 0, 30, 33),
+                (0, 0, 30, 33),
+                (0, 0, 134, 33),
+                (0, 0, 160, 33),
+            ),
+        )
+        self.assertEqual(SCORE_COMPOSITE_MAIN_OWNER_CALL_VAS, (0x520356, 0x520416, 0x5204D6))
+        self.assertEqual(SCORE_COMPOSITE_MAIN_CONSTRUCTORS, (0x51B400, 0x51B330))
+        self.assertEqual(SCORE_COMPOSITE_BASE_CONSTRUCTOR_VA, 0x51A730)
+        self.assertEqual(
+            SCORE_COMPOSITE_MAIN_REGISTER_CALLS,
+            (
+                (0x51A825, "picture_control_constructor"),
+                (0x51A8C1, "text_control_constructor"),
+                (0x51A93C, "text_control_constructor"),
+                (0x51A9D2, "text_control_constructor"),
+                (0x51AA83, "text_control_constructor"),
+            ),
         )
         self.assertEqual(SCORES_SUBPANEL_REGISTER_CALL_VA, 0x520DEF)
         self.assertEqual(TEAM_SUBPANEL_REGISTER_CALL_VA, 0x520EEF)
@@ -120,7 +199,7 @@ class FastViewOuterDrawOrderTests(unittest.TestCase):
         self.assertTrue(outer_draw_before("scores_subpanel", "team_subpanel"))
         self.assertTrue(outer_draw_before("team_subpanel", "post_team_control_0"))
         self.assertFalse(outer_draw_before("direct_text_1", "top_bar_picture"))
-        self.assertEqual(outer_draw_rank("direct_text_0"), 12)
+        self.assertEqual(outer_draw_rank("direct_text_0"), 30)
         with self.assertRaisesRegex(FastViewOuterDrawOrderError, "unknown"):
             outer_draw_rank("not_a_source_child")
 

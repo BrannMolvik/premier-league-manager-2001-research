@@ -24,6 +24,16 @@ PARENT_DRAW_REGISTER_VA = 0x5274C0
 PICTURE_CONTROL_CONSTRUCTOR_VA = 0x527730
 TEXT_CONTROL_CONSTRUCTOR_VA = 0x527960
 
+SURFACED_PICTURE_CONTROL_CONSTRUCTOR_VA = 0x526940
+SURFACED_PICTURE_CONTROL_VTABLE_VA = 0x7CA974
+SURFACED_PICTURE_CONTROL_RTTI = ".?AVSurfacedPictureControl@FastViewPanel@@"
+SURFACED_PICTURE_REGISTER_CALL_VA = 0x5269E5
+SURFACED_PICTURE_OWNER_CALLS = (
+    (0x51FD31, (0, 0, 800, 600)),
+    (0x520642, (38, 1, 173, 94)),
+    (0x520697, (627, 1, 762, 94)),
+)
+
 TOP_BAR_OWNER_CALL_VA = 0x51FDA3
 TICKER_OWNER_CALL_VA = 0x51FE31
 
@@ -38,6 +48,43 @@ EMBEDDED_BUTTON1_PARENT_OFFSET = 0x3D4
 EMBEDDED_BUTTON1_REGISTER_CALL_VA = 0x52000B
 EMBEDDED_BUTTON1_CONSTRUCTOR_CALL_VA = 0x52009F
 EMBEDDED_BUTTON_CONSTRUCTOR_VA = 0x652FD0
+
+GOAL_FLASH_OWNER_CALL_VA = 0x5200CB
+GOAL_FLASH_CONSTRUCTOR_VA = 0x51C700
+GOAL_FLASH_CHILD_CONSTRUCTOR_VA = 0x51BE20
+GOAL_FLASH_CHILD_COUNT = 2
+GOAL_FLASH_TEXT_REGISTER_CALLS = (
+    0x51BF51,
+    0x51BFDC,
+    0x51C067,
+    0x51C0F2,
+    0x51C180,
+)
+GOAL_FLASH_TEXT_RECTS = (
+    (0, 0, 134, 33),
+    (0, 0, 30, 33),
+    (0, 0, 30, 33),
+    (0, 0, 134, 33),
+    (0, 0, 160, 33),
+)
+
+SCORE_COMPOSITE_MAIN_OWNER_CALL_VAS = (
+    0x520356,
+    0x520416,
+    0x5204D6,
+)
+SCORE_COMPOSITE_MAIN_CONSTRUCTORS = (
+    0x51B400,
+    0x51B330,
+)
+SCORE_COMPOSITE_BASE_CONSTRUCTOR_VA = 0x51A730
+SCORE_COMPOSITE_MAIN_REGISTER_CALLS = (
+    (0x51A825, "picture_control_constructor"),
+    (0x51A8C1, "text_control_constructor"),
+    (0x51A93C, "text_control_constructor"),
+    (0x51A9D2, "text_control_constructor"),
+    (0x51AA83, "text_control_constructor"),
+)
 
 POSSESSION_DIAGRAM_OWNER_CALL_VA = 0x5206CD
 POSSESSION_DIAGRAM_REGISTER_CALLS = (
@@ -132,6 +179,12 @@ def _build_outer_draw_entries() -> tuple[FastViewOuterDrawEntry, ...]:
         )
 
     add(
+        "surfaced_picture_control_0",
+        "manual_parent_append",
+        SURFACED_PICTURE_REGISTER_CALL_VA,
+        owner_call_va=SURFACED_PICTURE_OWNER_CALLS[0][0],
+    )
+    add(
         "top_bar_picture",
         "picture_control_constructor",
         TOP_BAR_OWNER_CALL_VA,
@@ -159,6 +212,31 @@ def _build_outer_draw_entries() -> tuple[FastViewOuterDrawEntry, ...]:
         EMBEDDED_BUTTON1_REGISTER_CALL_VA,
         parent_offset=EMBEDDED_BUTTON1_PARENT_OFFSET,
     )
+
+    for child_index in range(GOAL_FLASH_CHILD_COUNT):
+        for text_index, call_va in enumerate(GOAL_FLASH_TEXT_REGISTER_CALLS):
+            add(
+                f"goal_flash_{child_index}_text_{text_index}",
+                "text_control_constructor",
+                call_va,
+                owner_call_va=GOAL_FLASH_OWNER_CALL_VA,
+            )
+
+    for index, (call_va, kind) in enumerate(SCORE_COMPOSITE_MAIN_REGISTER_CALLS):
+        add(
+            f"score_composite_main_control_{index}",
+            kind,
+            call_va,
+            owner_call_va=None,
+        )
+
+    for index in (1, 2):
+        add(
+            f"surfaced_picture_control_{index}",
+            "manual_parent_append",
+            SURFACED_PICTURE_REGISTER_CALL_VA,
+            owner_call_va=SURFACED_PICTURE_OWNER_CALLS[index][0],
+        )
 
     for index, call_va in enumerate(POSSESSION_DIAGRAM_REGISTER_CALLS):
         add(
@@ -216,7 +294,7 @@ def _build_outer_draw_entries() -> tuple[FastViewOuterDrawEntry, ...]:
 
 
 FASTVIEW_OUTER_DRAW_ENTRIES = _build_outer_draw_entries()
-FASTVIEW_OUTER_DRAW_COUNT = 18
+FASTVIEW_OUTER_DRAW_COUNT = 36
 
 
 @dataclass(frozen=True)
