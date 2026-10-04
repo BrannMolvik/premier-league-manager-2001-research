@@ -4,6 +4,14 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Recovery 251 Gate-17 multi-human readiness
+
+PR #276 head `26513995` passed reconstruction CI with **1,900 tests / 23 expected skips** and repository asset policy, then squash-merged as `fc985fab`.
+
+The full-scope implementation preflight now has an explicit multi-human capability input. Its source-proven required count is immutable at exactly six simultaneous users, matching the final release validator. Current clean-room state is reported honestly as TeamSelect selection capacity 6 but gameplay capacity 1, with multi-user Start, shared runtime and save/reload still absent. An otherwise green League/runtime/progression preflight therefore remains blocked on `multi_human_capability_incomplete`.
+
+Next cloud-safe readiness step is to separate save/reload capability from runtime-owner capability so newly implemented secondary owners cannot make the preflight green before their live state is serializable and continuation is proven.
+
 ### 4 October 2026 KST — Recovery 251 Gate-17 primary-container save coverage
 
 PR #275 head `9e7473cc` passed reconstruction CI with **1,893 tests / 23 expected skips** and repository asset policy, then squash-merged as `636f4204`.
