@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 PR #340 is verified and merged as main 44110d89. Continue highest-value disjoint Gate-14 work: narrow FastView cross-component child registration/draw order without promoting unresolved blend semantics. Use persisted source evidence where sufficient; otherwise add bounded fail-closed private trace support. Private canonical executable execution remains blocked by caas ClientError.",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. PR #341 is active Gate-14 cloud-safe work: fail-closed FastView overlap readiness is bound into completed-human presentation. Asset policy passed; reconstruction run 37205327966 is in progress. After verified merge, advance the exact blend blocker by adding instruction-level memory/arithmetic candidate classification to the private 0x657280 EA font-draw trace. Do not unmask pixels or claim blend semantics without private source evidence.",
   "last_known_main_head": "44110d892d762d06baa409ff80793be254f8c077",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 273,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 273 checkpoint: PR #340 merged after reconstruction run 37204633486 passed 2,128 tests / 23 expected skips and asset-policy run 37204633485 passed. Next: FastView child-registration/draw-order narrowing; do not unmask alpha-overlap pixels without blend proof.",
+  "note": "Recovery 273 checkpoint: PR #341 open/mergeable; asset-policy run 37205327963 passed; reconstruction run 37205327966 still executing. Next after merge: narrow EA font destination-read/blend trace.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
