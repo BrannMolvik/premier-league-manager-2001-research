@@ -6,12 +6,15 @@ use the generic append-order child array; the score and team subtrees enter that
 same parent array through SubPanelControl wrappers whose render slot delegates
 synchronously into the owned panel's generic forward traversal.
 
-This is intentionally not a total order. The aggregate league-scores raster
-contains native layers on both sides of the LeagueTable block, so no single
-pairwise edge is exposed between league_scores_static and league_table_static.
-The contract also does not claim a global FastView z-order across omitted or
-unbound layers, a cross-component pixel blend rule, background ownership,
-audio, or 3D choreography.
+The phase-split LeagueScores raster now has a source-closed order around the
+LeagueTable block: early score rows -> LeagueTable -> late grid -> runtime
+phase-icon tail. The older aggregate league_scores_static plane is retained only
+for compatibility and still has no single relation to LeagueTable or the split
+score phases because it spans more than one native position.
+
+The contract remains partial and does not claim a global FastView z-order
+across omitted or unbound layers, a cross-component pixel blend rule,
+background ownership, audio, or 3D choreography.
 """
 from __future__ import annotations
 
@@ -95,7 +98,10 @@ SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS = (
     ("direct_chrome",),
     ("possession_diagram",),
     ("possession_figures_text",),
-    ("league_scores_static", "league_table_static"),
+    ("league_scores_early_rows_static",),
+    ("league_table_static",),
+    ("league_scores_late_grid_static",),
+    ("league_scores_runtime_phase_icons",),
     ("team_table_static", "team_table_energy"),
 )
 
@@ -105,6 +111,9 @@ _COMPONENT_PARENT_GROUP = {
     "possession_figures_text": "fastview_panel",
     "league_table_static": "fastview_scores",
     "league_scores_static": "fastview_scores",
+    "league_scores_early_rows_static": "fastview_scores",
+    "league_scores_late_grid_static": "fastview_scores",
+    "league_scores_runtime_phase_icons": "fastview_scores",
     "team_table_static": "fastview_team",
     "team_table_energy": "fastview_team",
 }
@@ -183,6 +192,21 @@ def _source_closed_relations() -> dict[frozenset[str], FastViewPairwiseDrawOrder
 
 
 _SOURCE_CLOSED_PAIRWISE_RELATIONS = _source_closed_relations()
+
+# The historical aggregate score plane spans the three split score phases, so
+# it cannot be ordered against LeagueTable or any split score phase. Its outer
+# wrapper relations remain valid: all direct FastViewPanel controls precede the
+# score wrapper, and the score wrapper precedes the team wrapper.
+for earlier in ("direct_chrome", "possession_diagram", "possession_figures_text"):
+    relation = _relation(earlier, "league_scores_static")
+    _SOURCE_CLOSED_PAIRWISE_RELATIONS[
+        frozenset((earlier, "league_scores_static"))
+    ] = relation
+for later in ("team_table_static", "team_table_energy"):
+    relation = _relation("league_scores_static", later)
+    _SOURCE_CLOSED_PAIRWISE_RELATIONS[
+        frozenset(("league_scores_static", later))
+    ] = relation
 
 POSSESSION_DIAGRAM_BEFORE_FIGURES = _SOURCE_CLOSED_PAIRWISE_RELATIONS[
     frozenset(("possession_diagram", "possession_figures_text"))
