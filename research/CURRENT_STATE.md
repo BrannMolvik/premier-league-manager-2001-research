@@ -6,6 +6,14 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Recovery 252 Gate-17 save-scope preflight checkpoint
+
+Gate 13 remains the earliest incomplete validation gate and stays OPEN. No later-gate work below closes or bypasses its private/source-dependent criteria.
+
+PR #277 merged as canonical main `ed997a0a`. Full-scope implementation preflight now includes an independent, catalog-ordered per-scope save/reload capability audit. Runtime ownership can no longer imply persistence readiness: serialization and post-load continuation are required separately for each exact TeamSelect scope and owner class. Fixed-primary and procedural-primary scopes use the existing dedicated continuation surfaces; procedural-secondary scopes remain explicitly blocked on missing serialization and continuation. Hosted verification passed **1,909 tests / 23 expected skips** plus repository asset policy. No private canonical primary-container execution or secondary persistence implementation is claimed.
+
+Exact next cloud-safe action: add one canonical full-scope preflight runner that assembles the existing human-scope, runtime-owner, save-scope, multi-human and live progression audits from a single verified game directory/controller state. The runner must remain diagnostic and fail-closed; it should expose the exact current blocker set without mutating progression or manufacturing missing secondary/multi-human capability.
+
 ## Recovery 251 Gate-17 multi-human readiness checkpoint
 
 Gate 13 remains the earliest incomplete validation gate and stays OPEN. No later-gate work below closes or bypasses its private/source-dependent criteria.
