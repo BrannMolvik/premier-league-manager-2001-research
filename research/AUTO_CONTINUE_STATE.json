@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main has advanced through chant timing at 57a5d17e. PR #303 source-closed possession_diagram -> possession_figures_text pairwise native draw order and is merged; exact hosted receipt recorded separately. Active renderer task remains dynamic PlayerRow energy PictureControl source/destination behavior: trace embedded picture renderer far enough to prove crop vs stretch before adding dynamic pixels. Do not interfere with active chant PR #317 or Gate 13/shared runtime.",
-  "last_known_main_head": "57a5d17e85e340fc090e33f172a994f6da5cfc7c",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Gate-14 main now includes chant runtime pool selection at 0b4f98a7 (2,049 tests / 23 expected skips, asset policy green). Active renderer checkpoint is PR #319 head ce6ba3b9: extend PictureControl trace through 0x64F6D0 -> 0x64E500/0x64D8A0 -> 0x64E5D0 -> 0x6556C0. Asset policy green; reconstruction suite running. Private source archive/executable were reverified earlier in this recovery, but fresh Python process startup again fails with caas ClientError. Do not reprobe locally this recovery; merge #319 only if exact-head CI passes, then resume manual source/destination rectangle adjudication on next healthy execution.",
+  "last_known_main_head": "0b4f98a7dc3ce76da1a34d7644514fd09c62ff08",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 265,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery heartbeat: current main 57a5d17e. Private canonical executable was reverified earlier this session; process startup has regressed to ClientError, so continue cloud-safe renderer/audio work and resume exact PictureControl private trace on next healthy process.",
+  "note": "Recovery 269 heartbeat: main 0b4f98a7; PR #319 validates embedded render-chain trace. Dynamic energy crop-vs-stretch remains unproven and must stay fail-closed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
