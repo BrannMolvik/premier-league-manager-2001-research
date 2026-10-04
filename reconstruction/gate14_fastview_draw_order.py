@@ -99,12 +99,29 @@ SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS = (
     ("team_table_static", "team_table_energy"),
 )
 
+# Phase-specific score raster order. Unlike the aggregate league_scores_static
+# compatibility plane, these three score planes each occupy one source-bounded
+# native phase around LeagueTableComposite.
+SOURCE_CLOSED_SCORE_PHASE_ORDER_LEVELS = (
+    ("direct_chrome",),
+    ("possession_diagram",),
+    ("possession_figures_text",),
+    ("league_scores_early_rows_static",),
+    ("league_table_static",),
+    ("league_scores_late_grid_static",),
+    ("league_scores_runtime_phase_icons",),
+    ("team_table_static", "team_table_energy"),
+)
+
 _COMPONENT_PARENT_GROUP = {
     "direct_chrome": "fastview_panel",
     "possession_diagram": "fastview_panel",
     "possession_figures_text": "fastview_panel",
     "league_table_static": "fastview_scores",
     "league_scores_static": "fastview_scores",
+    "league_scores_early_rows_static": "fastview_scores",
+    "league_scores_late_grid_static": "fastview_scores",
+    "league_scores_runtime_phase_icons": "fastview_scores",
     "team_table_static": "fastview_team",
     "team_table_energy": "fastview_team",
 }
@@ -165,20 +182,28 @@ def _relation(earlier_component: str, later_component: str) -> FastViewPairwiseD
     )
 
 
-def _source_closed_relations() -> dict[frozenset[str], FastViewPairwiseDrawOrder]:
-    relations: dict[frozenset[str], FastViewPairwiseDrawOrder] = {}
-    for earlier_index, earlier_level in enumerate(
-        SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS
-    ):
-        for later_level in SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS[
-            earlier_index + 1 :
-        ]:
+def _add_level_relations(
+    relations: dict[frozenset[str], FastViewPairwiseDrawOrder],
+    levels: tuple[tuple[str, ...], ...],
+) -> None:
+    for earlier_index, earlier_level in enumerate(levels):
+        for later_level in levels[earlier_index + 1 :]:
             for earlier_component in earlier_level:
                 for later_component in later_level:
                     relation = _relation(earlier_component, later_component)
                     relations[
                         frozenset((earlier_component, later_component))
                     ] = relation
+
+
+def _source_closed_relations() -> dict[frozenset[str], FastViewPairwiseDrawOrder]:
+    relations: dict[frozenset[str], FastViewPairwiseDrawOrder] = {}
+    # Preserve the aggregate compatibility boundary: league_scores_static and
+    # league_table_static intentionally remain peers with no relation.
+    _add_level_relations(relations, SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS)
+    # Add the more precise phase-specific score relations without assigning the
+    # aggregate league_scores_static plane a false position.
+    _add_level_relations(relations, SOURCE_CLOSED_SCORE_PHASE_ORDER_LEVELS)
     return relations
 
 
