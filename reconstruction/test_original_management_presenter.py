@@ -110,6 +110,18 @@ class Bridge:
         )
 
 
+class WideBridge(Bridge):
+    def league_fixtures_grid_source(self):
+        return LeagueFixturesGridSourceView(
+            competition_id=0,
+            member_club_ids=tuple(range(100, 120)),
+            scheduled_matchday_count=38,
+            schedule_cycle_count=2,
+            matrix_layer_count=1,
+            fixtures_in_source_order=(),
+        )
+
+
 class OriginalManagementPresenterTests(unittest.TestCase):
     def test_integration_presenter_has_no_direct_simulation_import(self):
         source = Path(__file__).with_name("original_management_presenter.py").read_text(
@@ -353,6 +365,77 @@ class OriginalManagementPresenterTests(unittest.TestCase):
             "requires the integrated PSquadScreen",
         ):
             presenter.source_accepted_squad_view_transition(4)
+
+    def test_source_accepted_fixtures_paging_tracks_exact_clamped_column_window(self):
+        fixture_staged = tuple(resource.name for resource in LEAGUE_FIXTURES_RESOURCES)
+        presenter = OriginalManagementPresenter(
+            self.started_session(),
+            bridge_factory=WideBridge,
+            staged_league_fixture_resource_names=fixture_staged,
+        )
+        fixtures = presenter.navigate(0x25C)
+        self.assertEqual(fixtures.league_fixtures.column_offset, 0)
+        self.assertEqual(
+            fixtures.league_fixtures.visible_column_club_ids,
+            tuple(range(100, 112)),
+        )
+
+        right = presenter.source_accepted_league_fixtures_page(1)
+        self.assertEqual(right.previous_offset, 0)
+        self.assertEqual(right.column_offset, 8)
+        self.assertEqual(presenter.league_fixtures_column_offset, 8)
+        self.assertEqual(right.presentation.league_fixtures.column_offset, 8)
+        self.assertEqual(
+            right.presentation.league_fixtures.visible_column_club_ids,
+            tuple(range(108, 120)),
+        )
+
+        clamped = presenter.source_accepted_league_fixtures_page(1)
+        self.assertEqual((clamped.previous_offset, clamped.column_offset), (8, 8))
+        self.assertEqual(presenter.league_fixtures_column_offset, 8)
+
+        left = presenter.source_accepted_league_fixtures_page(-1)
+        self.assertEqual((left.previous_offset, left.column_offset), (8, 0))
+        self.assertEqual(
+            left.presentation.league_fixtures.visible_column_club_ids,
+            tuple(range(100, 112)),
+        )
+
+    def test_fixtures_page_seam_is_non_pointer_and_fails_closed_off_panel_or_bad_direction(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(),
+            bridge_factory=WideBridge,
+        )
+        with self.assertRaisesRegex(
+            OriginalManagementPresentationError,
+            "requires the integrated PLeagueFixtures",
+        ):
+            presenter.source_accepted_league_fixtures_page(1)
+
+        presenter.navigate(0x25C)
+        for bad in (0, 2, True, "1", None):
+            with self.subTest(bad=bad):
+                with self.assertRaisesRegex(
+                    OriginalManagementPresentationError,
+                    "exact -1 or 1",
+                ):
+                    presenter.source_accepted_league_fixtures_page(bad)
+        self.assertEqual(presenter.league_fixtures_column_offset, 0)
+
+    def test_panel_navigation_reconstructs_fixtures_at_initial_column_window(self):
+        presenter = OriginalManagementPresenter(
+            self.started_session(),
+            bridge_factory=WideBridge,
+        )
+        presenter.navigate(0x25C)
+        presenter.source_accepted_league_fixtures_page(1)
+        self.assertEqual(presenter.league_fixtures_column_offset, 8)
+
+        presenter.navigate(0x25A)
+        self.assertEqual(presenter.league_fixtures_column_offset, 0)
+        fixtures = presenter.navigate(0x25C)
+        self.assertEqual(fixtures.league_fixtures.column_offset, 0)
+        self.assertEqual(presenter.league_fixtures_column_offset, 0)
 
     def test_fixture_match_info_action_uses_recovered_two_gate_boundary(self):
         presenter = OriginalManagementPresenter(
