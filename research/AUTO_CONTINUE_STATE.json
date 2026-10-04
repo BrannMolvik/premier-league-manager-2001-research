@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. PR #292 was closed unmerged because it violated the Gate-13 ownership lock by adding Gate-13 audit implementation/tests/docs. Canonical main includes refreshed Gate-14 guidance at 8cacf5bc. Continuous-worker priority: disjoint Gate-14 critical path only—first recover/narrow cross-component FastView draw/z-order toward a complete source-backed frame; if private execution is required and blocked, advance a Gate-14-only player-visible composition boundary or another source-backed disjoint presentation task; when sustained private execution is healthy, trace exact audio bank loader/callsite ownership; keep SCI/3D choreography fail-closed until source sequencing is recovered. Do not touch Gate-13 implementation/tests/audits/status/shared runtime while the lock is active.",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Continuous worker is on disjoint Gate-14 critical path. PR #293 is the active cloud-safe overlap-topology narrowing for the resolved-only FastView compositor. Verify exact head CI, merge only if green, then continue the next Gate-14-only source-backed composition/z-order step without touching Gate-13 files or shared runtime.",
   "last_known_main_head": "8cacf5bcf07220f1bd88e1f70ab7f830460623c8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 255,
+  "recovery_generation": 256,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Coordinator closed PR #292 unmerged for violating the active Gate-13 Codex lock, closed stale superseded PR #227, and refreshed Gate-14 guidance on main at 8cacf5bc. Resume disjoint Gate-14 critical-path work.",
+  "note": "Resumed continuous Gate-14 worker from main 8cacf5bc; validating PR #293.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
