@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN. PR #289 is canonical as b28c4697. PR #290 head e4e3dc9a fixes the host-level source-accepted League Fixtures paging seam test so MANAGEMENT is entered through the real TeamSelect Start path. All four hosted workflows are validating this exact head. Merge only if Gate-13/full reconstruction/asset-policy/Windows-package checks are green; then continue the next source-backed Gate-13 presentation task without inventing pointer hitboxes.",
-  "last_known_main_head": "b28c469703248bc14616ad56d6c660ff1b589e3f",
+  "active_task": "Gate 13 remains OPEN. PR #289 is canonical as b28c4697 and PR #290 as 0ebdd839; Recovery 255 reconciliation is on main through b93d1cda. Next cloud-safe task: integrate the source-proven PLeagueFixtures grid pointer-selection path using exact GRID_RECT (378,235,348,336), 29x14 reduction, and the existing selected-cell/toggled-box projection. Do not invent paging-button hitboxes, selector-control geometry, or PMatchInfo behavior.",
+  "last_known_main_head": "b93d1cda9978058f5f476246b406c3c7268e821a",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 255,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 255: repaired PR #290 test fixture after stale recovery; validating exact head e4e3dc9a.",
+  "note": "Recovery 255: paging presenter+host merged and reconciled; starting exact League Fixtures grid pointer selection integration.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
