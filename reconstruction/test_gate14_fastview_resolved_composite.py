@@ -9,6 +9,7 @@ from gate14_fastview_component_rasters import (
 )
 from gate14_fastview_resolved_composite import (
     FastViewResolvedCompositeError,
+    FastViewUnresolvedOverlapGroup,
     compose_fastview_resolved_only_pixels,
 )
 
@@ -96,6 +97,16 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
         # Cross-component overlap is never resolved by branch/order choice.
         self.assertEqual(pixel(composite, 10), (0, 0, 0, 0))
         self.assertEqual(composite.unresolved_overlap_mask[10], 1)
+        self.assertEqual(
+            composite.unresolved_overlap_groups,
+            (
+                FastViewUnresolvedOverlapGroup(
+                    components=("direct_chrome", "possession_diagram"),
+                    pixel_count=1,
+                    bounding_rect=(10, 0, 11, 1),
+                ),
+            ),
+        )
 
         # Alpha-zero RGB does not count as a component-owned visible pixel.
         self.assertEqual(pixel(composite, 20), (0, 0, 0, 0))
@@ -145,6 +156,7 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
         composite = compose_fastview_resolved_only_pixels(rasters)
         self.assertEqual(composite.resolved_pixel_count, 3)
         self.assertEqual(composite.unresolved_overlap_pixel_count, 0)
+        self.assertEqual(composite.unresolved_overlap_groups, ())
         self.assertEqual(
             composite.contributing_components,
             (
@@ -154,7 +166,7 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
             ),
         )
 
-    def test_three_or_more_overlapping_components_still_produce_one_unresolved_pixel(self):
+    def test_three_or_more_overlapping_components_keep_exact_contributor_set(self):
         rasters = FastViewComponentRasterSet(
             chrome=plane("direct_chrome", {7: (1, 1, 1, 255)}),
             possession_diagram=plane(
@@ -171,6 +183,63 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
         self.assertEqual(composite.unresolved_overlap_pixel_count, 1)
         self.assertEqual(composite.unresolved_overlap_mask[7], 1)
         self.assertEqual(pixel(composite, 7), (0, 0, 0, 0))
+        self.assertEqual(
+            composite.unresolved_overlap_groups,
+            (
+                FastViewUnresolvedOverlapGroup(
+                    components=(
+                        "direct_chrome",
+                        "possession_diagram",
+                        "possession_figures_text",
+                    ),
+                    pixel_count=1,
+                    bounding_rect=(7, 0, 8, 1),
+                ),
+            ),
+        )
+
+    def test_overlap_topology_groups_exact_component_sets_and_bounds(self):
+        rasters = FastViewComponentRasterSet(
+            chrome=plane(
+                "direct_chrome",
+                {
+                    0: (1, 1, 1, 255),
+                    801: (1, 1, 1, 255),
+                    1000: (1, 1, 1, 255),
+                },
+            ),
+            possession_diagram=plane(
+                "possession_diagram",
+                {
+                    0: (2, 2, 2, 255),
+                    801: (2, 2, 2, 255),
+                },
+            ),
+            possession_figures=plane(
+                "possession_figures_text",
+                {1000: (3, 3, 3, 255)},
+            ),
+        )
+
+        composite = compose_fastview_resolved_only_pixels(rasters)
+
+        self.assertEqual(composite.resolved_pixel_count, 0)
+        self.assertEqual(composite.unresolved_overlap_pixel_count, 3)
+        self.assertEqual(
+            composite.unresolved_overlap_groups,
+            (
+                FastViewUnresolvedOverlapGroup(
+                    components=("direct_chrome", "possession_diagram"),
+                    pixel_count=2,
+                    bounding_rect=(0, 0, 2, 2),
+                ),
+                FastViewUnresolvedOverlapGroup(
+                    components=("direct_chrome", "possession_figures_text"),
+                    pixel_count=1,
+                    bounding_rect=(200, 1, 201, 2),
+                ),
+            ),
+        )
 
     def test_rejects_wrong_input_and_mutated_output_integrity(self):
         with self.assertRaisesRegex(
@@ -192,6 +261,19 @@ class FastViewResolvedCompositeTests(unittest.TestCase):
             replace(
                 composite,
                 unresolved_overlap_mask_sha256="0" * 64,
+            )
+        with self.assertRaisesRegex(
+            FastViewResolvedCompositeError,
+            "pixel counts",
+        ):
+            replace(
+                composite,
+                unresolved_overlap_groups=(
+                    replace(
+                        composite.unresolved_overlap_groups[0],
+                        pixel_count=2,
+                    ),
+                ),
             )
         with self.assertRaisesRegex(
             FastViewResolvedCompositeError,
