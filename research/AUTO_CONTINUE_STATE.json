@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Continue independent Gate-14 native font blend work from canonical main 1beb2209: source-close and encode the 0x657280 -> 0x6570F0 -> 0x658BC0 packed-16-bit glyph compositing primitive, including destination reads, alpha 0/255 endpoints, /256 intermediate blend, and runtime RGB-mask source. Do not unmask overlap pixels until runtime pixel-format/layout and color-key conversion are reconstruction-safe.",
-  "last_known_main_head": "1beb2209eb067359e9d84834983c5c15d9e1429f",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 PR #347 merged as main 96e1d7ca after 2,155 tests/23 skips and asset-policy success. Continue independent Gate-14 native font work: source-close the runtime color-key path and prepare a fail-closed runtime pixel-format mask receipt. Static source proves the color key is red-mask OR blue-mask and the font packed blitter receives replacement color 0; exact target-Windows mask values remain runtime evidence.",
+  "last_known_main_head": "96e1d7caabdc4a53f4f4736843ca169c0a536109",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 277,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 277 confirmed #345 merged as canonical main 1beb2209. Continue only disjoint Gate-14 files while Gate-13 ownership lock remains active. Font blend evidence currently supports a packed 16-bit destination read, alpha-zero skip, alpha-255 direct source-color write, and per-mask /256 interpolation; final RGBA overlap emission remains fail-closed pending pixel-format/layout closure.",
+  "note": "PR #347 canonicalized packed-16 alpha blending. Next source layer: 0x653090/0x6530D0/0x653120 populate runtime channel-mask metadata from the active surface; 0x604090 derives native key as red_mask | blue_mask; 0x65722E calls 0x658BC0 with zero replacement color. Add no fixed RGB565/RGB555 claim without runtime receipt.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
