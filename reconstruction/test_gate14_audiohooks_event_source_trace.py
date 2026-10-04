@@ -22,6 +22,7 @@ from gate14_audiohooks_event_source_trace import (
     AUDIO_HOOKS_VTABLE_SLOT0_TARGET_VA,
     AUDIO_HOOKS_VTABLE_VA,
     SOURCE_CALLING_CONVENTION,
+    SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
     SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS,
     SOURCE_CLOSED_LITERAL_VIRTUAL_SENDERS,
     Gate14AudioHooksCallerTraceError,
@@ -130,8 +131,23 @@ class Gate14AudioHooksCallerSourceTraceTests(unittest.TestCase):
         self.assertEqual(len(SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS), 10)
         self.assertEqual(SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS[0], (0x64F7FE, 0, 0x40))
         self.assertEqual(SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS[-1], (0x64FD8B, 8, 0x40))
+
+        self.assertEqual(len(SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS), 7)
+        self.assertIn(
+            (0x5EB69B, (23, 25), 0, 0, "event_two_value_branch"),
+            SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
+        )
+        self.assertIn(
+            (0x5EBA8A, (24, 26), 0, 0, "event_two_value_branch"),
+            SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
+        )
+        self.assertIn(
+            (0x5ED5E5, (17, 18), 0, 0, "event_two_value_branch"),
+            SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
+        )
         self.assertNotIn("menu", repr(SOURCE_CLOSED_LITERAL_VIRTUAL_SENDERS).lower())
         self.assertNotIn("click", repr(SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS).lower())
+        self.assertNotIn("sample", repr(SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS).lower())
 
     def test_report_promotes_structure_but_not_event_or_sample_meaning(self):
         report = audiohooks_caller_trace_report(parse_fixture())
