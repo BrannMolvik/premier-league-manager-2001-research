@@ -91,6 +91,8 @@ on:
       - "reconstruction/test_gate14_fastview_component_rasters.py"
       - "reconstruction/gate14_fastview_resolved_composite.py"
       - "reconstruction/test_gate14_fastview_resolved_composite.py"
+      - "reconstruction/gate14_fastview_tk_surface.py"
+      - "reconstruction/test_gate14_fastview_tk_surface.py"
       - "reconstruction/original_fastview_team_art.py"
       - "reconstruction/test_original_fastview_team_art.py"
       - "reconstruction/gate14_fastview_team_static_raster.py"
