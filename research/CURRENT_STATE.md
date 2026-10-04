@@ -6,6 +6,20 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Recovery 254 Gate-13 PMatchInfo scroll staging checkpoint
+
+Gate 13 remains the earliest incomplete validation gate and stays OPEN.
+
+PR #287 merged as `eb44dd11` after **1,944 tests / 23 expected skips**, **578 Gate-13 tests / 22 expected skips**, and repository asset policy passed. The three pending PMatchInfo vertical-scroll resources are now bound to one exact source-relative staging set for the existing fail-closed source inventory: `scroller_bar_vert.444`, `scroller_blue_bar.444`, and `vscroll_blue_bar.444`. No unknown checksum, byte size, geometry or behavior is assigned before extraction.
+
+PR #288 merged as `14ef3211` after **1,948 tests / 23 expected skips**, **582 Gate-13 tests / 22 expected skips**, and repository asset policy passed. A private-only staging receipt validator now requires one complete exact-path extraction report with `only_explicit=true`, no unresolved paths, a real source SHA-256, exactly one extracted candidate per required path, and byte-for-byte size/hash agreement with the staged files. It records raw EA444 header dimensions only and keeps `native_scroll_behavior_recovered=false` and `renderer_geometry_recovered=false`. Its output must remain outside Git.
+
+Private execution was reprobed after these checkpoints and still fails before process start with `caas.internal.errors.ClientError`. The authorized source/runtime archives are already materialized from earlier Recovery-254 work, but no new extraction, source hash, asset identity, renderer behavior, or canonical executable result is claimed.
+
+Exact next private action when execution recovers: run the exact-path source inventory with `--deep --hash-source --only-explicit --require-all-explicit`, validate the resulting staging directory/report with `gate13_pmatchinfo_scroll_stage_receipt.py`, then import only verified assets with provenance. This closes byte identity only; native thumb/bar geometry and interaction still require separate source adjudication.
+
+Next cloud-safe Gate-13 action: integrate the already recovered PLeagueFixtures 12-club paging offset into the stateful management presenter through a source-accepted non-pointer seam. Do not invent page-button hitboxes or claim ordinary user navigation until those controls are source-qualified.
+
 ## Recovery 254 Gate-13 PMatchInfo scroll-resource checkpoint
 
 Gate 13 remains the earliest incomplete validation gate and stays OPEN.
