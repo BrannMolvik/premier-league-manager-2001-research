@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 font-blend replay PR #342 merged as main 4f435494 after 2,136 tests/23 skips and asset-policy success. PR #343 now recovers the useful Windows-audibility readiness bridge against the current strict receipt validator: canonical readiness gains audible_windows_verified=false until genuine private evidence is replay-validated; the bridge must not promote semantic event binding or login/menu integration. Verify PR #343 CI and merge if green, then continue the next highest-value independent Gate-14 source-backed task.",
-  "last_known_main_head": "4f43549438be614754ed6bb7fa2570514174ab4b",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 PR #343 merged as main cc7803ab after 2,143 tests/23 skips and asset-policy success; canonical Gate-14 readiness now separately requires genuine replay-validated audible Windows evidence. Audio semantic binding and font blend arithmetic remain private-source blockers. Continue the highest-value independent cloud-safe Gate-14 presentation work: inspect already-persisted FastView child registration/construction evidence for additional source-backed cross-component draw-order relations before creating any new compositor pixels.",
+  "last_known_main_head": "cc7803ab7c51b09e8b79f09e05610214d3f6803e",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 274,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 274 heartbeat after verified PR #342 merge. PR #343 is the active disjoint Gate-14 work-ahead checkpoint; CI has not yet appeared at this instant. Preserve Gate 13 ownership lock.",
+  "note": "Recovery 274 checkpoint after PR #343 merge. Stale #339 and #333 closed as superseded. Next is disjoint Gate-14 FastView draw-order evidence reuse; do not infer order from geometry or file naming.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
