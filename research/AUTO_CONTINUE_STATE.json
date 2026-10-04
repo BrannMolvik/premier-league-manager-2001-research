@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. Main is 4e8a55e7. PR #273 is open to sweep the canonical pending-procedural-League save/reload audit across every expected live procedural-primary TeamSelect competition, one source-selected club per scope, failing closed on missing owners. CI runs 37163764278 and 37163764265 are pending. Merge only if green; no private canonical execution is claimed.",
-  "last_known_main_head": "4e8a55e75fd999a93823b2d213e1954f17f7a4e7",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #273 merged as b267f046 after 1,889 tests / 23 expected skips plus asset-policy success. Next cloud-safe Gate-17 task: bind the all-procedural-primary save sweep to the canonical full TeamSelect catalog SHA and exact <country_id>:<competition_id> scope IDs, so future private audit output can feed the final full-scope receipt without manual scope translation.",
+  "last_known_main_head": "b267f046bb5559092b4f0b1d58ab60fb38b59ec8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 250,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 250 continues; PR #273 pending hosted verification.",
+  "note": "Recovery 250 continues after #273 merge; mission incomplete.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
