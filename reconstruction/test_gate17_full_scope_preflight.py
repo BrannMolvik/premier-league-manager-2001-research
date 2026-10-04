@@ -2,7 +2,7 @@
 from dataclasses import replace
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from gate17_allocation_ranking_capability import (
     AllocationEndpointRequirement,
@@ -193,10 +193,17 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
         owner = runtime_owner_audit()
         save = save_scope_audit()
         multi = multi_human_audit(complete=False)
-        progression = progression_audit(complete=False, with_preview=False)
+        progression = progression_audit()
+        state = SimpleNamespace(
+            advance_one_day_with_primary_ai_matches=Mock(),
+        )
         controller = SimpleNamespace(
             playable_country_allocation_plan=object(),
-            state=object(),
+            state=state,
+            attack_matrix=object(),
+            defence_matrix=object(),
+            match_rng=object(),
+            match_engine_rng=object(),
         )
 
         with (
@@ -232,7 +239,8 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
 
         self.assertFalse(result.ready_for_full_runtime_validation)
         self.assertIn("multi_human_capability_incomplete", result.blocker_codes)
-        self.assertIn("progression_rankings_incomplete", result.blocker_codes)
+        self.assertNotIn("progression_rankings_incomplete", result.blocker_codes)
+        state.advance_one_day_with_primary_ai_matches.assert_not_called()
         human_runner.assert_called_once()
         owner_runner.assert_called_once()
         save_runner.assert_called_once()
@@ -244,6 +252,126 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             controller.playable_country_allocation_plan,
             controller.state,
         )
+
+    def test_canonical_coordinator_advances_disposable_state_until_progression_complete(self):
+        first = progression_audit(complete=False, with_preview=False)
+        second = progression_audit()
+        state = SimpleNamespace(
+            advance_one_day_with_primary_ai_matches=Mock(),
+        )
+        controller = SimpleNamespace(
+            playable_country_allocation_plan=object(),
+            state=state,
+            attack_matrix=object(),
+            defence_matrix=object(),
+            match_rng=object(),
+            match_engine_rng=object(),
+        )
+
+        with (
+            patch(
+                "gate17_full_scope_preflight.run_canonical_human_scope_capability",
+                return_value=human_audit(),
+            ),
+            patch(
+                "gate17_full_scope_preflight.run_canonical_runtime_owner_capability",
+                return_value=runtime_owner_audit(),
+            ),
+            patch(
+                "gate17_full_scope_preflight.run_canonical_save_scope_capability",
+                return_value=save_scope_audit(),
+            ),
+            patch(
+                "gate17_full_scope_preflight.run_current_multi_human_capability",
+                return_value=multi_human_audit(),
+            ),
+            patch(
+                "human_gameplay.HumanGameplayController.from_canonical_game_dir",
+                return_value=controller,
+            ),
+            patch(
+                "gate17_full_scope_preflight.audit_runtime_playable_progression",
+                side_effect=(first, second),
+            ) as progression_runner,
+        ):
+            result = run_canonical_full_scope_preflight(
+                "/canonical/game",
+                max_days=3,
+            )
+
+        self.assertTrue(result.progression_runtime_complete)
+        self.assertEqual(progression_runner.call_count, 2)
+        state.advance_one_day_with_primary_ai_matches.assert_called_once_with(
+            controller.attack_matrix,
+            controller.defence_matrix,
+            controller.match_rng,
+            match_engine_rng=controller.match_engine_rng,
+        )
+
+    def test_canonical_coordinator_returns_bounded_incomplete_progression(self):
+        incomplete = progression_audit(complete=False, with_preview=False)
+        state = SimpleNamespace(
+            advance_one_day_with_primary_ai_matches=Mock(),
+        )
+        controller = SimpleNamespace(
+            playable_country_allocation_plan=object(),
+            state=state,
+            attack_matrix=object(),
+            defence_matrix=object(),
+            match_rng=object(),
+            match_engine_rng=object(),
+        )
+
+        with (
+            patch(
+                "gate17_full_scope_preflight.run_canonical_human_scope_capability",
+                return_value=human_audit(),
+            ),
+            patch(
+                "gate17_full_scope_preflight.run_canonical_runtime_owner_capability",
+                return_value=runtime_owner_audit(),
+            ),
+            patch(
+                "gate17_full_scope_preflight.run_canonical_save_scope_capability",
+                return_value=save_scope_audit(),
+            ),
+            patch(
+                "gate17_full_scope_preflight.run_current_multi_human_capability",
+                return_value=multi_human_audit(),
+            ),
+            patch(
+                "human_gameplay.HumanGameplayController.from_canonical_game_dir",
+                return_value=controller,
+            ),
+            patch(
+                "gate17_full_scope_preflight.audit_runtime_playable_progression",
+                return_value=incomplete,
+            ) as progression_runner,
+        ):
+            result = run_canonical_full_scope_preflight(
+                "/canonical/game",
+                max_days=2,
+            )
+
+        self.assertFalse(result.progression_runtime_complete)
+        self.assertIn("progression_rankings_incomplete", result.blocker_codes)
+        self.assertEqual(progression_runner.call_count, 3)
+        self.assertEqual(
+            state.advance_one_day_with_primary_ai_matches.call_count,
+            2,
+        )
+
+    def test_canonical_coordinator_rejects_invalid_day_bound_before_private_files(self):
+        with self.assertRaisesRegex(ValueError, "max_days"):
+            run_canonical_full_scope_preflight(
+                "/private/source/not-needed",
+                max_days=-1,
+            )
+        with self.assertRaisesRegex(ValueError, "max_days"):
+            run_canonical_full_scope_preflight(
+                "/private/source/not-needed",
+                max_days=True,
+            )
 
     def test_canonical_coordinator_requires_allocation_plan_before_progression(self):
         controller = SimpleNamespace(
