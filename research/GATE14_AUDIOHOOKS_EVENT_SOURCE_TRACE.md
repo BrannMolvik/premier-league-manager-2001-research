@@ -172,6 +172,47 @@ The semantics of helper `0x64E5B0`, the selected 32-byte block, the second
 argument, and AudioHooks event **19** remain unresolved. The class name and
 numeric predicate are source facts, not player-facing event names.
 
+## Event-1 pitch/squad sender class family
+
+Recovery 279 now source-closes RTTI/vtable ownership for every recovered numeric
+AudioHooks event-1 sender without assigning event 1 a player-facing name.
+
+### PFormationPitch2k
+
+- type descriptor: `0x81C418`, RTTI `.?AVPFormationPitch2k@@`;
+- complete object locator: `0x7E3258`;
+- vtable: `0x7C2084`;
+- slot **5** (byte offset `0x14`) -> method `0x468620`;
+- literal sender callsites `0x468720` and `0x468781`, both tuple
+  **(event 1, state 1, arg3 0)**.
+
+### PSquadPitch
+
+- type descriptor: `0x81DB30`, RTTI `.?AVPSquadPitch@@`;
+- complete object locator: `0x7E5A50`;
+- vtable: `0x7C54A8`;
+- slot **5** (byte offset `0x14`) -> method `0x4B66E0`;
+- literal sender callsites `0x4B6822` and `0x4B6868`, both tuple
+  **(event 1, state 1, arg3 0)**.
+
+### PSquadScreen
+
+- type descriptor: `0x819D48`, RTTI `.?AVPSquadScreen@@`;
+- complete object locator: `0x7E5F00`;
+- vtable: `0x7C5CA4`;
+- slot **4** (byte offset `0x10`) -> method `0x4B8E70`, containing callsite
+  `0x4B9297` with tuple **(event 1, state 2, arg3 0)**;
+- slot **5** (byte offset `0x14`) -> method `0x4B9350`, containing callsites
+  `0x4B95F4`, `0x4B994F`, and `0x4B9AC0`, all tuple
+  **(event 1, state 1, arg3 0)**.
+
+The `0x4B95F4` site was previously source-closed only through local register
+flow. It is now additionally class-owned by the PSquadScreen slot-5 method.
+
+This accounts for all eight currently recovered event-1 sender sites. The class
+names and state values are source facts, but neither event **1** nor states
+**1/2** are assigned UI/audio meanings from those names alone.
+
 ## Derived non-control sender family
 
 Seven additional virtual senders are source-closed by local register/data-flow
@@ -179,7 +220,7 @@ rather than three immediate PUSHes:
 
 | Callsite | Possible event IDs | State | Arg3 | Derivation |
 | ---: | --- | ---: | ---: | --- |
-| `0x4B95F4` | 1 | 1 | 0 | arg3 register proven zero locally |
+| `0x4B95F4` | 1 | 1 | 0 | arg3 register proven zero locally; now also PSquadScreen slot-5 owned |
 | `0x5EB69B` | 23 or 25 | 0 | 0 | two-value arithmetic branch |
 | `0x5EBA8A` | 24 or 26 | 0 | 0 | two-value arithmetic branch |
 | `0x5EBC7B` | 32 | 0 | 0 | state/arg3 registers proven zero locally |
@@ -233,7 +274,9 @@ This checkpoint may promote:
 - the PTitleMenuRow/PChildMenuRow shared slot-11 sender method and its exact
   event-13 numeric predicate;
 - the PTeamOrders2K vtable paths to helper 0x4D6FA0 and its exact event-19
-  numeric send predicate.
+  numeric send predicate;
+- complete RTTI/vtable ownership for all eight currently recovered event-1
+  pitch/squad sender sites.
 
 It does **not** promote:
 
