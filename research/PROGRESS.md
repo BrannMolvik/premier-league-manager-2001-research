@@ -38,6 +38,14 @@ The canonical save audit now joins the source-proven fixed Premier League save r
 
 The next independent Gate-17 readiness task is to add the already source-proven six-user TeamSelect requirement to the repository-side full-scope implementation preflight. The current gameplay backend remains single-manager, so the preflight must retain an explicit multi-human blocker even if league selection/runtime/progression dimensions later become green.
 
+### 4 October 2026 KST — Recovery 253 PR282 PMatchInfo reconciliation
+
+Recovered stale PR #242 without replaying its implementation. Only the 31 files disjoint from all current-main changes since its old base were transplanted byte-for-byte by Git blob identity; `project_status.json`, `CURRENT_STATE.md`, `FIDELITY_GAPS.md` and `PROGRESS.md` stayed on current main and were reconciled afterward. PR #282 merged as `ac9a417d`.
+
+The reconciled milestone restores the exact retained packed-script row reader/ordering/eligibility/duplicate-boundary behavior, six native row slots, source labels/minutes/player abbreviations/selection colors/icons, twenty provenance-tracked Premiership primary custom numbered-shirt atlases, and source-backed single-press vertical arrow traversal. Fresh validation passed **1,933 tests / 23 expected skips**, **571 Gate-13 tests / 22 expected skips**, asset policy and Windows release-candidate package build/smoke.
+
+Historical private evidence for the identical Gate-13 milestone includes genuine calculated fixture2 -> complete report -> disk save -> fresh reload -> ordinary Windows Fixtures right-click with all eight entries reachable through actual Tk arrow press/release, plus a schema-8 Windows receipt. Recovery 253 did not rerun that private graphical route on the new merge commit. Gate 13 remains open on uncontrolled-home `+13C/+140` lifecycle, thumb/bar/hover/repeat, remaining kit/color contexts, current-main Windows rerun and final timing/recognizability.
+
 ### 4 October 2026 KST — Recovery 253 Gate-17 release-path hardening
 
 PR #280 merged as `c8ab34e6` after **1,915 tests / 23 expected skips**, asset policy and Windows release-candidate packaging passed. The external Windows validation transaction now gates receipt creation on the canonical full-scope implementation preflight using the same player seed/day bound.
