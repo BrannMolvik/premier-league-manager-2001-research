@@ -9,6 +9,7 @@ from gate14_fastview_frame_plan import (
     FastViewFramePlanError,
     build_fastview_frame_plan,
 )
+from gate14_fastview_frame_coverage import audit_fastview_frame_coverage
 from gate14_fastview_resolved_preview import build_fastview_frame_preview
 from gate14_fastview_playerrow_snapshot import (
     build_fastview_player_row_render_plan,
@@ -213,6 +214,44 @@ class FastViewFramePlanTests(unittest.TestCase):
         self.assertFalse(preview.cross_component_z_order_recovered)
         self.assertFalse(preview.flattened_frame_available)
         self.assertFalse(preview.complete_fastview_frame)
+
+    def test_audits_exact_resolved_frame_coverage_from_frame_plan(self):
+        frame = build_fastview_frame_plan(
+            exact_shell(),
+            exact_chrome(),
+            exact_possession(),
+            exact_figures(),
+            exact_team_art(),
+        )
+
+        coverage = audit_fastview_frame_coverage(frame.resolved_composite)
+
+        self.assertEqual(coverage.total_pixel_count, 800 * 600)
+        self.assertEqual(
+            coverage.resolved_pixel_count,
+            frame.resolved_composite.resolved_pixel_count,
+        )
+        self.assertEqual(
+            coverage.unresolved_overlap_pixel_count,
+            frame.resolved_composite.unresolved_overlap_pixel_count,
+        )
+        self.assertEqual(
+            coverage.resolved_pixel_count
+            + coverage.unresolved_overlap_pixel_count
+            + coverage.no_verified_visible_contributor_pixel_count,
+            coverage.total_pixel_count,
+        )
+        self.assertEqual(
+            coverage.source_composite_rgba_sha256,
+            frame.resolved_composite.rgba_sha256,
+        )
+        self.assertEqual(
+            coverage.source_overlap_mask_sha256,
+            frame.resolved_composite.unresolved_overlap_mask_sha256,
+        )
+        self.assertFalse(coverage.cross_component_z_order_recovered)
+        self.assertFalse(coverage.background_binding_recovered)
+        self.assertFalse(coverage.complete_fastview_frame)
 
     def test_rejects_resolved_composite_drift_from_component_planes(self):
         frame = build_fastview_frame_plan(
