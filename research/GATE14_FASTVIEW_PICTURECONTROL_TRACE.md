@@ -27,6 +27,7 @@ The default private report includes source-qualified inspection windows around:
 - PossessionDiagram child construction around `0x520690`;
 - generic panel constructor `0x527350`;
 - generic PictureControl constructor `0x527730`;
+- generic text/control draw neighborhood `0x64F090`;
 - PlayerRow energy rectangle writer `0x526680`.
 
 These are bounded inspection ranges only. They are not asserted to be complete
@@ -71,3 +72,12 @@ stretch behavior.
 The canonical executable bytes, raw trace windows and disassembly output must
 remain outside Git. Only the checksum-gated trace tool, synthetic calibration
 tests and source-backed conclusions may be committed.
+
+
+## Reconciliation with earlier draw-trace draft
+
+An overlapping worker draft also proposed bounded FastViewPanel, Panel,
+PictureControl and generic draw windows. This tracer subsumes that useful draw
+neighborhood while retaining the more targeted PictureControl vtable-slot
+inspection and the exact PlayerRow energy rectangle-writer window. The duplicate
+draft is therefore not a separate source of renderer semantics.
