@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #370 is merged as main 291371bb after 2,284 tests/23 skips and asset-policy success. Verify PR #371 at head cf84661c: carry split LeagueScores phase identities through component rasters, resolved-only overlap topology, and partial draw-order accounting while retaining legacy aggregate score/table ambiguity and all blend/global-z/complete-frame blockers.",
-  "last_known_main_head": "291371bbad801cc8cd1dac5f4303966fde0646f6",
+  "active_task": "Gate 13 remains earliest incomplete and Codex-owned; do not edit its Fixtures paging path. Gate-14 PR #371 is merged as main b6ef2d66 after 2,288 tests/23 skips and asset-policy success. Continue disjoint Gate-14 ScoreComposite phase-label source closure: persist the exact 2,714-entry localization loader mapping and prove the paired labels HT/FT/ET/PEN plus text-control style/color/alignment. Do not flatten phase icon/text runtime pixels until per-row append order and native blend/output boundaries are represented honestly.",
+  "last_known_main_head": "b6ef2d669dae85fba5479d496245bdeda6af356f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 287,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "PR #371 is disjoint from Gate-13 paging. If green, merge it and continue the next Gate-14 source-backed frame-fidelity blocker; do not treat phase-split draw-order completeness as blend or global-z completeness.",
+  "note": "PR #371 merged after one stale topology expectation was corrected. Private canonical-source trace now closes phase label globals through the exact English.idx loader: 0x982380=entry2334='HT', 0x98237C=2335='FT', 0x982378=2336='ET', 0x982374=2337='PEN'. Generic text flags resolve centered/centered, style 1, native color 0xFFFF. Preserve icon/text interleaving and blend fail-closed.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
