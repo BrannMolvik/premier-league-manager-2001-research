@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. PR #345 merged as main 1beb2209 after 2,153 tests/23 skips and asset-policy success. Continue independent Gate-14 native font blend work: source-close the 0x657280 -> 0x6570F0 -> 0x658BC0 packed-16-bit glyph compositing primitive, including destination reads, alpha 0/255 endpoints, /256 intermediate blend, and runtime RGB-mask source. Do not unmask pixels until the runtime pixel-format/layout and color-key boundary are reconstruction-safe.",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Continue independent Gate-14 native font blend work from canonical main 1beb2209: source-close and encode the 0x657280 -> 0x6570F0 -> 0x658BC0 packed-16-bit glyph compositing primitive, including destination reads, alpha 0/255 endpoints, /256 intermediate blend, and runtime RGB-mask source. Do not unmask overlap pixels until runtime pixel-format/layout and color-key conversion are reconstruction-safe.",
   "last_known_main_head": "1beb2209eb067359e9d84834983c5c15d9e1429f",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 276,
+  "recovery_generation": 277,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 276 merged PR #345 as 1beb2209. Canonical source SHA-256 revalidated locally. Font blend path now has direct source evidence for packed destination read and mask-wise alpha arithmetic; promote only the pure primitive/evidence flags, not final overlap pixels.",
+  "note": "Recovery 277 confirmed #345 merged as canonical main 1beb2209. Continue only disjoint Gate-14 files while Gate-13 ownership lock remains active. Font blend evidence currently supports a packed 16-bit destination read, alpha-zero skip, alpha-255 direct source-color write, and per-mask /256 interpolation; final RGBA overlap emission remains fail-closed pending pixel-format/layout closure.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
