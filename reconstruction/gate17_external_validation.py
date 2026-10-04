@@ -252,6 +252,8 @@ def run_external_release_validation(
             evidence_path=evidence,
             release_archive=preflight["release_archive"],
             canonical_game_dir=preflight["canonical_game_dir"],
+            player_seed=int(player_seed),
+            max_days=int(max_days),
         )
         _write_new_json(final_receipt_path, final_receipt)
     except Exception:
