@@ -4,6 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from canonical_internal_save_audit import (
+    _catalog_scope_ids_for_competitions,
     _first_live_procedural_primary_club,
     _json_primary_entry,
     _live_procedural_primary_scope_targets,
@@ -51,6 +52,25 @@ class _MultiController:
         return (21, 31, 22, 32)
 
 
+def _scope(*, duplicate=False):
+    second_leagues = [SimpleNamespace(competition_id=14)]
+    if duplicate:
+        second_leagues.append(SimpleNamespace(competition_id=15))
+    return SimpleNamespace(
+        catalog_sha256="a" * 64,
+        countries=(
+            SimpleNamespace(
+                country_id=26,
+                leagues=(SimpleNamespace(competition_id=15),),
+            ),
+            SimpleNamespace(
+                country_id=66,
+                leagues=tuple(second_leagues),
+            ),
+        ),
+    )
+
+
 class CanonicalPrimaryScopeSaveAuditTests(unittest.TestCase):
     def test_selects_first_live_procedural_primary_teamselect_club(self):
         self.assertEqual(
@@ -84,6 +104,24 @@ class CanonicalPrimaryScopeSaveAuditTests(unittest.TestCase):
                 require_all=True,
             )
 
+    def test_catalog_scope_ids_follow_requested_primary_order(self):
+        self.assertEqual(
+            _catalog_scope_ids_for_competitions(_scope(), (15, 14)),
+            ("26:15", "66:14"),
+        )
+
+    def test_catalog_scope_ids_fail_closed_on_missing_or_duplicate_competition(self):
+        with self.assertRaisesRegex(
+            RuntimeError,
+            "missing from canonical TeamSelect catalog: 99",
+        ):
+            _catalog_scope_ids_for_competitions(_scope(), (15, 99))
+        with self.assertRaisesRegex(
+            RuntimeError,
+            "duplicate competition ID 15",
+        ):
+            _catalog_scope_ids_for_competitions(_scope(duplicate=True), (15, 14))
+
     def test_scope_sweep_runs_every_source_order_target(self):
         controller = _MultiController()
 
@@ -104,13 +142,19 @@ class CanonicalPrimaryScopeSaveAuditTests(unittest.TestCase):
                 "canonical_internal_save_audit.run_canonical_primary_scope_internal_save_audit",
                 side_effect=fake_audit,
             ) as audit,
+            patch(
+                "canonical_internal_save_audit.load_canonical_original_playable_scope",
+                return_value=_scope(),
+            ),
         ):
             result = run_canonical_primary_scope_internal_save_sweep(
                 "/canonical/game",
                 player_seed=7,
             )
 
+        self.assertEqual(result["scope_catalog_sha256"], "a" * 64)
         self.assertEqual(result["procedural_primary_scope_count"], 2)
+        self.assertEqual(result["verified_scope_ids"], ["26:15", "66:14"])
         self.assertEqual(result["verified_competition_ids"], [15, 14])
         self.assertEqual(result["target_club_ids"], [31, 21])
         self.assertEqual(result["missing_competition_ids"], [])
