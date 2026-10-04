@@ -66,6 +66,28 @@ class FastViewOverlapReadinessTests(unittest.TestCase):
         self.assertFalse(item.pixels_resolvable)
         self.assertEqual(item.blockers, ("cross_component_blend_rule",))
 
+    def test_direct_chrome_clock_pair_is_order_resolved_but_blend_blocked(self):
+        group = FastViewUnresolvedOverlapGroup(
+            components=("direct_chrome", "clock_text"),
+            pixel_count=5,
+            bounding_rect=(439, 44, 470, 60),
+        )
+        item = classify_fastview_overlap_group(group)
+
+        self.assertEqual(item.required_pairwise_relation_count, 1)
+        self.assertEqual(item.recovered_pairwise_relation_count, 1)
+        self.assertTrue(item.complete_draw_order_recovered)
+        self.assertEqual(
+            tuple(
+                (relation.earlier_component, relation.later_component)
+                for relation in item.recovered_pairwise_order
+            ),
+            (("direct_chrome", "clock_text"),),
+        )
+        self.assertEqual(item.blockers, ("cross_component_blend_rule",))
+        self.assertFalse(item.cross_component_blend_rule_recovered)
+        self.assertFalse(item.pixels_resolvable)
+
     def test_direct_chrome_team_pair_is_now_order_resolved_but_blend_blocked(self):
         group = FastViewUnresolvedOverlapGroup(
             components=("direct_chrome", "team_table_static"),
