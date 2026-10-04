@@ -1,15 +1,15 @@
 """Fail-closed readiness audit for unresolved FastView overlap pixels.
 
 The resolved-only compositor deliberately masks every pixel with two or more
-source-backed component contributors. Some overlap groups now have a narrower
-reason for remaining masked than others: native draw order is source-closed for
-PossessionDiagram -> PossessionFigures text, while the anti-aliased native font
-blend rule is still unresolved.
+source-backed component contributors. The currently rasterized FastView
+families now have source-closed relative draw order, including the nested
+FastViewScores and FastViewTeam subpanel boundaries, while the native
+cross-component blend rule remains unresolved.
 
 This module classifies that distinction without changing a single composite
 pixel. Known pairwise order is imported only from gate14_fastview_draw_order;
-unknown relations stay unknown, cross-component blend remains unresolved, and
-no overlap group is promoted to raster-resolvable.
+unknown/unmodeled relations stay unknown, cross-component blend remains
+unresolved, and no overlap group is promoted to raster-resolvable.
 """
 from __future__ import annotations
 

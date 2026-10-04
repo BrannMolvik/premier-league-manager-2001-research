@@ -1,13 +1,15 @@
 """Source-closed partial FastView cross-component draw order.
 
-Private canonical-executable tracing closes one specific ordering relation:
-PossessionDiagram PictureControls are registered before PossessionFigures text
-controls in the same parent draw array, and the generic renderer traverses that
-array forward. Therefore possession percentage text is drawn after the diagram.
+Canonical executable tracing now closes the relative paint order of every
+currently rasterized FastView component family. Direct FastViewPanel controls
+use the generic append-order child array; the score and team subtrees enter that
+same parent array through SubPanelControl wrappers whose render slot delegates
+synchronously into the owned panel's generic forward traversal.
 
-This module records only that pairwise relation. It does not claim a global
-FastView z-order, background ownership, blend rule, dynamic PictureControl
-resize semantics, audio, or 3D choreography.
+This is a total order over the currently modeled raster families only. It does
+not claim a global FastView z-order across omitted/unbound layers, a
+cross-component pixel blend rule, background ownership, audio, or 3D
+choreography.
 """
 from __future__ import annotations
 
@@ -26,24 +28,75 @@ PARENT_DRAW_ARRAY_APPEND_HELPER_VA = 0x5275C0
 PARENT_DRAW_TRAVERSAL_VA = 0x6533A0
 CHILD_RENDER_VIRTUAL_OFFSET = 0x64
 
-# Constructors that both register their control object through 0x5274C0.
+# Constructors that register generic controls through 0x5274C0.
 PICTURE_CONTROL_CONSTRUCTOR_VA = 0x527730
 TEXT_CONTROL_CONSTRUCTOR_VA = 0x527960
 PICTURE_CONTROL_REGISTER_CALL_VA = 0x52782A
 TEXT_CONTROL_REGISTER_CALL_VA = 0x527A15
 
-# FastViewPanel owner construction order.
+# Direct FastViewPanel construction order retained from the earlier source pass.
+TOP_BAR_PICTURE_CALL_VA = 0x51FDA3
+TICKER_PICTURE_CALL_VA = 0x51FE31
 POSSESSION_DIAGRAM_OWNER_CALL_VA = 0x5206CD
 POSSESSION_FIGURES_OWNER_CALL_VA = 0x520802
 POSSESSION_DIAGRAM_CONSTRUCTOR_VA = 0x5227D0
 POSSESSION_FIGURES_CONSTRUCTOR_VA = 0x51E7E0
 
-# Slot +0x64 in both relevant generic control vtables dispatches the visible
-# child through the generic render seam. This supports traversal ownership, not
-# a cross-component alpha/blend rule.
+# Slot +0x64 in the generic PictureControl/TextControl vtables reaches this
+# visible-child forwarding seam.
 PICTURE_CONTROL_VTABLE_VA = 0x7CAA5C
 TEXT_CONTROL_VTABLE_VA = 0x7CAAF8
 GENERIC_CHILD_RENDER_TARGET_VA = 0x64F6D0
+
+# Recovery 275: nested score/team panels are represented in the parent draw
+# array by SubPanelControl@FastViewPanel wrappers. 0x650B20 stores the target
+# panel at +0x2C. The wrapper's +0x64 render slot is 0x650BB0 and its call at
+# 0x650BFF synchronously invokes generic traversal 0x6533A0 on that target.
+SUBPANEL_CONTROL_VTABLE_VA = 0x7CA5E4
+SUBPANEL_CONTROL_TARGET_PANEL_OFFSET = 0x2C
+SUBPANEL_CONTROL_RENDER_VA = 0x650BB0
+SUBPANEL_CONTROL_TRAVERSAL_CALL_VA = 0x650BFF
+
+FASTVIEW_SCORES_OBJECT_OFFSET = 0x90
+FASTVIEW_SCORES_SUBPANEL_REGISTER_CALL_VA = 0x520DEF
+FASTVIEW_SCORES_SUBPANEL_OFFSET = 0x98
+FASTVIEW_TEAM_OBJECT_OFFSET = 0x94
+FASTVIEW_TEAM_OWNER_CALL_VA = 0x520E67
+FASTVIEW_TEAM_CONSTRUCTOR_VA = 0x524920
+FASTVIEW_TEAM_SUBPANEL_REGISTER_CALL_VA = 0x520EEF
+FASTVIEW_TEAM_SUBPANEL_OFFSET = 0x9C
+
+# FastViewLeagueScores creates the LeagueTableComposite first. Its Heading/Row
+# controls receive the FastViewLeagueScores panel as parent. Only afterward is
+# the current-fixture grid PictureControl created in that same panel.
+LEAGUE_TABLE_COMPOSITE_FASTVIEW_CALLSITE_VA = 0x523472
+LEAGUE_TABLE_COMPOSITE_CONSTRUCTOR_VA = 0x51E000
+LEAGUE_TABLE_HEADING_CONSTRUCTOR_VA = 0x51DCB0
+LEAGUE_TABLE_ROW_CONSTRUCTOR_VA = 0x51D730
+LEAGUE_SCORES_GRID_PICTURE_CALLSITE_VA = 0x523554
+
+# Each tuple is one native paint position among the currently rasterized
+# families. team_table_static and team_table_energy are alternative
+# reconstruction views of the same native TeamTable position, not two native
+# siblings, so no relation is exposed between those aliases.
+SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS = (
+    ("direct_chrome",),
+    ("possession_diagram",),
+    ("possession_figures_text",),
+    ("league_table_static",),
+    ("league_scores_static",),
+    ("team_table_static", "team_table_energy"),
+)
+
+_COMPONENT_PARENT_GROUP = {
+    "direct_chrome": "fastview_panel",
+    "possession_diagram": "fastview_panel",
+    "possession_figures_text": "fastview_panel",
+    "league_table_static": "fastview_scores",
+    "league_scores_static": "fastview_scores",
+    "team_table_static": "fastview_team",
+    "team_table_energy": "fastview_team",
+}
 
 
 @dataclass(frozen=True)
@@ -53,6 +106,7 @@ class FastViewPairwiseDrawOrder:
     same_parent_draw_array: bool
     registration_is_append_order: bool
     traversal_is_forward: bool
+    nested_subpanel_bridge_recovered: bool = False
     pixel_blend_rule_recovered: bool = False
     global_z_order_recovered: bool = False
 
@@ -68,53 +122,87 @@ class FastViewPairwiseDrawOrder:
                 "pairwise draw-order components must be distinct non-empty names"
             )
         if not (
-            self.same_parent_draw_array
-            and self.registration_is_append_order
+            self.registration_is_append_order
             and self.traversal_is_forward
+            and (self.same_parent_draw_array or self.nested_subpanel_bridge_recovered)
         ):
             raise FastViewDrawOrderError(
                 "source-closed pairwise order requires the complete registration/traversal chain"
             )
+        if self.same_parent_draw_array and self.nested_subpanel_bridge_recovered:
+            raise FastViewDrawOrderError(
+                "pairwise order must identify either one shared parent array or a nested subpanel bridge"
+            )
         if self.pixel_blend_rule_recovered or self.global_z_order_recovered:
             raise FastViewDrawOrderError(
-                "pairwise possession order cannot promote blend or global z-order"
+                "pairwise FastView order cannot promote blend or global z-order"
             )
 
 
-POSSESSION_DIAGRAM_BEFORE_FIGURES = FastViewPairwiseDrawOrder(
-    earlier_component="possession_diagram",
-    later_component="possession_figures_text",
-    same_parent_draw_array=True,
-    registration_is_append_order=True,
-    traversal_is_forward=True,
-)
+def _relation(earlier_component: str, later_component: str) -> FastViewPairwiseDrawOrder:
+    same_parent = (
+        _COMPONENT_PARENT_GROUP[earlier_component]
+        == _COMPONENT_PARENT_GROUP[later_component]
+    )
+    return FastViewPairwiseDrawOrder(
+        earlier_component=earlier_component,
+        later_component=later_component,
+        same_parent_draw_array=same_parent,
+        registration_is_append_order=True,
+        traversal_is_forward=True,
+        nested_subpanel_bridge_recovered=not same_parent,
+    )
+
+
+def _source_closed_relations() -> dict[frozenset[str], FastViewPairwiseDrawOrder]:
+    relations: dict[frozenset[str], FastViewPairwiseDrawOrder] = {}
+    for earlier_index, earlier_level in enumerate(
+        SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS
+    ):
+        for later_level in SOURCE_CLOSED_RASTER_COMPONENT_ORDER_LEVELS[
+            earlier_index + 1 :
+        ]:
+            for earlier_component in earlier_level:
+                for later_component in later_level:
+                    relation = _relation(earlier_component, later_component)
+                    relations[
+                        frozenset((earlier_component, later_component))
+                    ] = relation
+    return relations
+
+
+_SOURCE_CLOSED_PAIRWISE_RELATIONS = _source_closed_relations()
+
+POSSESSION_DIAGRAM_BEFORE_FIGURES = _SOURCE_CLOSED_PAIRWISE_RELATIONS[
+    frozenset(("possession_diagram", "possession_figures_text"))
+]
 
 
 def source_closed_pairwise_order(
     first_component: str,
     second_component: str,
 ) -> FastViewPairwiseDrawOrder:
-    """Return the one currently source-closed cross-component relation.
+    """Return a source-closed relation among current raster component families.
 
     Either argument order is accepted for lookup. The returned record always
-    retains native earlier->later paint order.
+    retains native earlier->later paint order. Alternative TeamTable raster
+    aliases intentionally have no relation to each other.
     """
     if not isinstance(first_component, str) or not isinstance(second_component, str):
         raise FastViewDrawOrderError("component names must be strings")
     requested = frozenset((first_component, second_component))
-    known = frozenset(
-        (
-            POSSESSION_DIAGRAM_BEFORE_FIGURES.earlier_component,
-            POSSESSION_DIAGRAM_BEFORE_FIGURES.later_component,
-        )
-    )
-    if requested != known or len(requested) != 2:
+    if len(requested) != 2:
         raise FastViewDrawOrderError(
             "cross-component order remains unresolved for this pair"
         )
-    return POSSESSION_DIAGRAM_BEFORE_FIGURES
+    try:
+        return _SOURCE_CLOSED_PAIRWISE_RELATIONS[requested]
+    except KeyError as exc:
+        raise FastViewDrawOrderError(
+            "cross-component order remains unresolved for this pair"
+        ) from exc
 
 
 def later_component(first_component: str, second_component: str) -> str:
-    """Return the source-proven later-drawn component for the known pair."""
+    """Return the source-proven later-drawn component for a known pair."""
     return source_closed_pairwise_order(first_component, second_component).later_component
