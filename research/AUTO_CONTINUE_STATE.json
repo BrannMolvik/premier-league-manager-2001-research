@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. PR #330 is canonical as 94fea407 (2,081 tests / 23 expected skips, asset policy green). Private canonical source is materialized and the four source-owned BNKl v2 banks were extracted. Active disjoint Gate-14 task: source-close exact BNKl/PT header/table semantics and codec/rate/channel defaults from the canonical bank bytes, then validate EA-XA/PCM encoded-span and decoder behavior before promoting audio_sample_decode. Do not touch Gate 13/shared runtime.",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Disjoint Gate-14 recovery 270: PR #334 adds fail-closed AudioHooks::0x5DBFC0 direct-caller/PUSH source tracing; asset policy is green and the full reconstruction suite is still running. After verified merge, run the private canonical caller trace when available; meanwhile continue the numeric AudioHooks -> canonical menus.bnk decoded-PCM bridge without assigning semantic event/sample names.",
   "last_known_main_head": "cc194b095f4828107046279ff950e1c5020732b8",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 270,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 270: resynced to main cc194b; continue the latest disjoint Gate-14 source-backed audio task from canonical main.",
+  "note": "Recovery 270 checkpoint: PR #334 mergeable; asset policy passed; full reconstruction suite run 37199107652 still in progress.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
