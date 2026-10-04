@@ -4,6 +4,14 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Recovery 251 Gate-17 primary save catalog binding
+
+Resumed from canonical main `b267f046` and agent-runtime generation 250. PR #274 head `b3c90bd9` had both required hosted checks green; reconstruction CI ran **1,891 tests / 23 expected skips** and repository asset policy passed. Merged PR #274 as `748b4782`.
+
+The procedural-primary all-scope save audit now loads the same canonical source-backed TeamSelect catalog used by final Gate-17 release evidence, records its SHA-256, maps every audited competition to exact ordered `<country_id>:<competition_id>` scope IDs, and fails closed on missing or duplicate competition identity. No private canonical sweep or Windows release receipt is claimed. Gate 13 remains the earliest incomplete validation gate. Secondary procedural runtime/human routing, non-PL RNG-bearing fresh objectives, non-PL sporting-objective progression, and final external Windows validation remain blockers.
+
+Next cloud-safe save-continuity step is to aggregate the fixed Premier League route and every procedural-primary route into complete primary-container scope coverage while keeping every secondary-container scope explicitly unverified.
+
 ### 4 October 2026 KST — Gate13 native header/possession and reader discrepancy
 
 Continued PR211 from requested `689c91dd`, without main reconciliation,
