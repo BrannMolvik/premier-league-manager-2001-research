@@ -6,6 +6,16 @@ This is the **canonical live resume point**. Historical chronology belongs in
 `PROGRESS.md`; established technical evidence belongs in `FINDINGS.md` and
 topic-specific research files.
 
+## Recovery 253 Gate-13 remaining-setup trace checkpoint
+
+PR #283 merged as `7cfcad7c` after **1,935 tests / 23 expected skips**, **571 Gate-13 tests / 22 expected skips**, and repository asset policy passed. The current live-report private trace now has a checksum-gated `--remaining-setup-only` scope containing only seven already-known lifecycle neighborhoods around fresh club `+0x130/+0x13C/+0x140`, DBRClub construction, D48, player selection/assignment, and attendance/capacity. Its evidence contract remains explicitly fail-closed: `remaining_setup_trace_complete=false` and `legacy_capacity_writer_identified=false`.
+
+Private execution is still infrastructure-blocked after the authorized source/runtime files were materialized: both shell and independent Python process startup fail with `caas.internal.errors.ClientError`. No new original-byte hash, writer identity, capacity value or Windows result is claimed.
+
+Exact next private action when sustained execution returns: run the canonical executable through the bounded remaining-setup trace, follow allocation-to-uncontrolled-read data flow and identify the authoritative write/lifecycle for `+13C/+140`. Do not substitute zero, a controlled-stadium value or a guessed percentage.
+
+Until then, the next cloud-safe Gate-13 aid is to classify exact `+0x130/+0x13C/+0x140/+0x76` memory-operand candidates **inside those seven bounded windows only**, retaining read/write access and register context while explicitly refusing to infer object type or semantics. This should prioritize private CFG review without repeating the existing whole-.text displacement scan.
+
 ## Recovery 253 Gate-13 PMatchInfo row reconciliation checkpoint
 
 PR #282 reconciled the verified PR #242 native report-row milestone onto current canonical main as `ac9a417d` without overwriting newer project/status ledgers. The transplant used exact Git blob identities for 31 files that had not changed on main since PR #242's base: the native packed-script row implementation/tests, original PMatchInfo host/resource changes, provenance manifest, twenty original Premiership primary custom-shirt atlases, the original vertical scroller atlas, and Gate-13 evidence documents.
