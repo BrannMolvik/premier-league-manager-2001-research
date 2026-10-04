@@ -28,7 +28,10 @@ from gate14_audiohooks_event_source_trace import (
     BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA,
     BUTTON_EASE_SLOT0_EVENT_SELECTOR_VA,
     BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD,
+    BUTTON_EASE_DISABLED_GROUP,
     BUTTON_EASE_INPUT_VA,
+    BUTTON_EASE_NATIVE_GROUP_FIELD,
+    BUTTON_EASE_NATIVE_GROUP_LENGTHS,
     BUTTON_EASE_TYPE_DESCRIPTOR_VA,
     BUTTON_EASE_VTABLE_VA,
     SOURCE_CALLING_CONVENTION,
@@ -142,6 +145,9 @@ class Gate14AudioHooksCallerSourceTraceTests(unittest.TestCase):
         self.assertEqual(BUTTON_EASE_EVENT_IDS, (2, 10))
         self.assertEqual(BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD, 0x34)
         self.assertEqual(BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD, 0x4A)
+        self.assertEqual(BUTTON_EASE_NATIVE_GROUP_FIELD, 0x4A)
+        self.assertEqual(BUTTON_EASE_NATIVE_GROUP_LENGTHS, (11, 11, 1))
+        self.assertEqual(BUTTON_EASE_DISABLED_GROUP, 2)
         self.assertEqual(BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET, 0xA8)
         self.assertEqual(BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA, 0x5D62F0)
 
@@ -163,6 +169,10 @@ class Gate14AudioHooksCallerSourceTraceTests(unittest.TestCase):
         contract = report["button_ease_source_contract"]
         self.assertEqual(tuple(contract["event_ids"]), (2, 10))
         self.assertFalse(contract["event_semantics_recovered"])
+        self.assertTrue(contract["native_group_semantics_recovered"])
+        self.assertEqual(contract["native_group_field_offset"], 0x4A)
+        self.assertEqual(tuple(contract["native_group_lengths"]), (11, 11, 1))
+        self.assertEqual(contract["disabled_group"], 2)
         self.assertEqual(
             tuple(report["source_closed_dynamic_control_event_ids"]),
             (2, 10),
