@@ -25,6 +25,10 @@ from gate14_fastview_outer_draw_order import (
     POST_TEAM_REGISTER_LOOP_CALL_VA,
     POSSESSION_DIAGRAM_REGISTER_CALLS,
     POSSESSION_FIGURES_REGISTER_CALLS,
+    SCORE_COMPOSITE_BASE_CONSTRUCTOR_VA,
+    SCORE_COMPOSITE_MAIN_CONSTRUCTORS,
+    SCORE_COMPOSITE_MAIN_OWNER_CALL_VAS,
+    SCORE_COMPOSITE_MAIN_REGISTER_CALLS,
     SCORES_SUBPANEL_REGISTER_CALL_VA,
     SOURCE_BOUNDARY,
     TEAM_SUBPANEL_REGISTER_CALL_VA,
@@ -35,16 +39,16 @@ from gate14_fastview_outer_draw_order import (
 
 
 class FastViewOuterDrawOrderTests(unittest.TestCase):
-    def test_exhaustive_outer_sequence_has_18_unique_ranks(self):
-        self.assertEqual(FASTVIEW_OUTER_DRAW_COUNT, 18)
-        self.assertEqual(len(FASTVIEW_OUTER_DRAW_ENTRIES), 18)
+    def test_exhaustive_outer_sequence_has_23_unique_ranks(self):
+        self.assertEqual(FASTVIEW_OUTER_DRAW_COUNT, 23)
+        self.assertEqual(len(FASTVIEW_OUTER_DRAW_ENTRIES), 23)
         self.assertEqual(
             tuple(row.rank for row in FASTVIEW_OUTER_DRAW_ENTRIES),
-            tuple(range(18)),
+            tuple(range(23)),
         )
         self.assertEqual(
             len({row.identity for row in FASTVIEW_OUTER_DRAW_ENTRIES}),
-            18,
+            23,
         )
 
     def test_exact_outer_sequence(self):
@@ -56,6 +60,11 @@ class FastViewOuterDrawOrderTests(unittest.TestCase):
                 "clock_text",
                 "embedded_button_0",
                 "embedded_button_1",
+                "score_composite_main_control_0",
+                "score_composite_main_control_1",
+                "score_composite_main_control_2",
+                "score_composite_main_control_3",
+                "score_composite_main_control_4",
                 "possession_diagram_picture_0",
                 "possession_diagram_picture_1",
                 "possession_diagram_picture_2",
@@ -82,6 +91,19 @@ class FastViewOuterDrawOrderTests(unittest.TestCase):
         self.assertEqual(
             POSSESSION_FIGURES_REGISTER_CALLS,
             (0x51E876, 0x51E900, 0x51E990),
+        )
+        self.assertEqual(SCORE_COMPOSITE_MAIN_OWNER_CALL_VAS, (0x520356, 0x520416, 0x5204D6))
+        self.assertEqual(SCORE_COMPOSITE_MAIN_CONSTRUCTORS, (0x51B400, 0x51B330))
+        self.assertEqual(SCORE_COMPOSITE_BASE_CONSTRUCTOR_VA, 0x51A730)
+        self.assertEqual(
+            SCORE_COMPOSITE_MAIN_REGISTER_CALLS,
+            (
+                (0x51A825, "picture_control_constructor"),
+                (0x51A8C1, "text_control_constructor"),
+                (0x51A93C, "text_control_constructor"),
+                (0x51A9D2, "text_control_constructor"),
+                (0x51AA83, "text_control_constructor"),
+            ),
         )
         self.assertEqual(SCORES_SUBPANEL_REGISTER_CALL_VA, 0x520DEF)
         self.assertEqual(TEAM_SUBPANEL_REGISTER_CALL_VA, 0x520EEF)
@@ -120,7 +142,7 @@ class FastViewOuterDrawOrderTests(unittest.TestCase):
         self.assertTrue(outer_draw_before("scores_subpanel", "team_subpanel"))
         self.assertTrue(outer_draw_before("team_subpanel", "post_team_control_0"))
         self.assertFalse(outer_draw_before("direct_text_1", "top_bar_picture"))
-        self.assertEqual(outer_draw_rank("direct_text_0"), 12)
+        self.assertEqual(outer_draw_rank("direct_text_0"), 17)
         with self.assertRaisesRegex(FastViewOuterDrawOrderError, "unknown"):
             outer_draw_rank("not_a_source_child")
 
