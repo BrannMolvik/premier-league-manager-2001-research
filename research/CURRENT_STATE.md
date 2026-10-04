@@ -16,6 +16,16 @@ Private canonical execution remains infrastructure-blocked in this recovery: the
 
 Exact next cloud-safe action: bind the final external Gate-17 Windows release transaction to the canonical full-scope implementation preflight. External validation must refuse to create any release work root or receipts while repository-side full-scope capability is known incomplete, instead of relying only on a separately supplied external full-scope receipt.
 
+## Recovery 252 Gate-17 canonical preflight checkpoint
+
+Gate 13 remains the earliest incomplete validation gate and stays OPEN. No later-gate work below closes or bypasses its private/source-dependent criteria.
+
+PR #278 merged as canonical main `9fc7c2e5` after **1,911 tests / 23 expected skips** plus repository asset policy. The repository now has one diagnostic canonical full-scope preflight coordinator that assembles the human-scope, runtime-owner, per-scope save/reload, multi-human and live progression audits from a verified game directory. The live progression leg uses one deterministic controller and remains read-only; missing allocation-plan state fails closed. PR #279 separately reconciled the full-scope evidence wording as `46a29d7f`, removing the stale Premier-League-only handoff claim while preserving secondary, multi-human, objective/progression and Windows blockers.
+
+Private canonical execution remains infrastructure-blocked in this recovery: the authorized 511,121,336-byte source archive was successfully materialized from the Library, but local process execution failed before startup. No private preflight result is claimed.
+
+Exact next cloud-safe action: bind the final external Gate-17 Windows release transaction to the canonical full-scope implementation preflight. External validation must refuse to create any release work root or receipts while repository-side full-scope capability is known incomplete, instead of relying only on a separately supplied external full-scope receipt.
+
 ## Recovery 252 Gate-17 save-scope preflight checkpoint
 
 Gate 13 remains the earliest incomplete validation gate and stays OPEN. No later-gate work below closes or bypasses its private/source-dependent criteria.
