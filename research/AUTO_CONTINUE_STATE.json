@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN. PR #291 corrected head ce4187f7 integrates only exact PLeagueGrid column/row selector indices and adds a durable clarification that the older 24-entry toggled-box trace does not prove a synthetic one-cell highlight. Validate all hosted checks on this exact head; merge only if green. Next selector visual task is source-sensitive and remains fail-closed without exact +0x109B0/+0x109B4 data-flow.",
-  "last_known_main_head": "b93d1cda9978058f5f476246b406c3c7268e821a",
+  "active_task": "Gate 13 remains OPEN. PR #291 is canonical as 02b5d5c8; Recovery 255 reconciliation is on main through b400f9e3. Private source/runtime inputs materialize but shell and independent Python process startup fail with caas.internal.errors.ClientError after the first trivial process. Next cloud-safe task: add a fail-closed PLeagueFixtures country/League selector source-data contract that preserves the recovered static country order/events and refuses to derive dynamic League ordering from generic state.competitions/dict order until the original DBRCountry competition-array ordering is explicitly supplied.",
+  "last_known_main_head": "b400f9e337cd5c406474d5d5fcfc8a6ec6d000c2",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 255,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 255: PR #291 corrected selector-only boundary plus durable documentation at ce4187f7; awaiting exact-head CI.",
+  "note": "Recovery 255: grid selectors merged/reconciled; private process startup still unstable; starting selector input-boundary audit.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
