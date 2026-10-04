@@ -133,6 +133,12 @@ on:
       - "reconstruction/gate13_original_source_audit.py"
       - "reconstruction/test_iso9660_reader.py"
   workflow_dispatch:
+    inputs:
+      native_mute_build_only:
+        description: Build the harmless x86 mute self-test with MSVC/SDK; never execute or sign it
+        type: boolean
+        required: false
+        default: false
 
 concurrency:
   group: gate13-tests-${{ github.event.pull_request.number || github.ref }}
@@ -143,6 +149,7 @@ permissions:
 
 jobs:
   gate13:
+    if: ${{ github.event_name != 'workflow_dispatch' || !inputs.native_mute_build_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -232,3 +239,59 @@ jobs:
             test_gate13_management_catalog_audit \
             test_gate13_source_inventory \
             test_iso9660_reader
+
+  native-mute-build:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.native_mute_build_only }}
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile only the reviewed zero-PCM helper with Microsoft x86 tools
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $out = Join-Path $env:RUNNER_TEMP 'gate13-mute-build'
+          New-Item -ItemType Directory -Path $out | Out-Null
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+          $vs = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $vs) { throw 'Microsoft C++ x86/x64 tools unavailable' }
+          $devcmd = Join-Path $vs 'Common7\Tools\VsDevCmd.bat'
+          $source = Join-Path $env:GITHUB_WORKSPACE 'tools\gate13_mute_selftest.cpp'
+          $exe = Join-Path $out 'gate13_mute_selftest.exe'
+          $obj = Join-Path $out 'gate13_mute_selftest.obj'
+          $command = "call `"$devcmd`" -no_logo -host_arch=x64 -arch=x86 && cl /nologo /W4 /WX /std:c++17 /EHsc /MT /utf-8 /sdl /guard:cf /Fo`"$obj`" /Fe`"$exe`" `"$source`" /link /MACHINE:X86 /DYNAMICBASE /NXCOMPAT /GUARD:CF ole32.lib uuid.lib winmm.lib"
+          & cmd.exe /d /s /c $command 2>&1 | Tee-Object -FilePath (Join-Path $out 'build.log')
+          if ($LASTEXITCODE -ne 0) { throw "MSVC build failed: $LASTEXITCODE" }
+          $bytes = [IO.File]::ReadAllBytes($exe)
+          $pe = [BitConverter]::ToInt32($bytes, 0x3C)
+          $machine = [BitConverter]::ToUInt16($bytes, $pe + 4)
+          if ($machine -ne 0x14C) { throw 'Built helper is not native x86' }
+          $signature = Get-AuthenticodeSignature -LiteralPath $exe
+          if ($signature.Status -ne 'NotSigned') { throw 'Unexpected signing in build-only job' }
+          @{
+            schema_version = 1
+            repository_commit = $env:GITHUB_SHA
+            source_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $source).Hash.ToLowerInvariant()
+            unsigned_build_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $exe).Hash.ToLowerInvariant()
+            machine = '0x014c'
+            compiler = 'Microsoft cl.exe from VsDevCmd x86'
+            compiler_flags = '/W4 /WX /std:c++17 /EHsc /MT /utf-8 /sdl /guard:cf'
+            warning_free_build_required = $true
+            signature_status = 'NotSigned'
+            signed_binary_sha256 = $null
+            signer_identity = $null
+            signtool_verification_output = $null
+            helper_executed = $false
+            original_executed = $false
+            original_launch_authorized = $false
+          } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $out 'unsigned-build-receipt.json') -Encoding utf8
+      - name: Retain unsigned helper identity and Microsoft compiler output; NOT a launch permit
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate13-mute-unsigned-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/gate13-mute-build/gate13_mute_selftest.exe
+            ${{ runner.temp }}/gate13-mute-build/unsigned-build-receipt.json
+            ${{ runner.temp }}/gate13-mute-build/build.log
+          if-no-files-found: error
+          retention-days: 7
