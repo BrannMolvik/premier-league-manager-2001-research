@@ -29,6 +29,7 @@ from gate17_full_scope_catalog import (
     OriginalPlayableScope,
     load_canonical_original_playable_scope,
 )
+from gate17_multi_human_capability import ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS
 
 
 class ReleaseReadinessError(RuntimeError):
@@ -226,9 +227,6 @@ def build_full_scope_receipt_binding(
         "scope_selectable_club_row_count": selectable_club_rows,
         "scope_ids": scope_ids,
     }
-
-
-ORIGINAL_MAX_SIMULTANEOUS_HUMAN_USERS = 6
 
 
 def _validate_full_scope_multi_human(payload: Mapping[str, object]) -> int:
