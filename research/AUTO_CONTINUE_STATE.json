@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main now includes #293 overlap topology, #294 resolved PNG preview, #295 Tk presentation seam, #297 exact 800x600 coverage audit, and #299 decoded audio-bank operand candidate narrowing. Active disjoint checkpoint is PR #300 head 660b558d: compose completed human outcome -> source-backed frame plan -> canonical resolved preview -> exact coverage -> caller-owned Tk draw, with all z-order/background/audio/3D fidelity still fail-closed. Merge only after exact-head reconstruction CI and asset policy pass.",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main includes exact overlap topology, PNG/Tk resolved-only presentation, frame coverage audit, and #299 audio-bank operand candidate narrowing (1,977 tests / 23 expected skips, asset policy green). PR #300 is complementary completed-human resolved-presentation composition; PR #301 head 18b1e3c4 is the active draw/z-order private-source tracer checkpoint. Merge only exact-head green PRs; if one advances main, rebase the other before merge. Do not touch Gate 13/shared runtime.",
   "last_known_main_head": "e94b9e68dfa0091d79c964487c621f3c685e72c4",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 257,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 257: #299 merged as e94b9e68 after 1,977 tests / 23 skips plus asset policy; validating PR #300 completed-human resolved presentation.",
+  "note": "Recovery 257 heartbeat: main e94b9e68; PRs #300/#301 both asset-policy green with full reconstruction suites running.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
