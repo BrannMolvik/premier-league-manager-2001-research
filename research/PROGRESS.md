@@ -4,6 +4,21 @@ _Last updated: 26 September 2026_
 
 ## Purpose
 
+### 4 October 2026 KST — Quiet-probe prerequisite advanced; policy denial
+
+PR #309's stale description now records source-qualified repaired selectors and
+actual earlier fresh-world allocation/import. The private wrapper configuration
+needed an explicit `AppControlledScreenMode=false`, not FullScreenMode alone;
+passthrough/Alt-Enter are explicitly disabled too. Six strict offline safety
+checks were added, never authorizing original launch. A proposed private GUI-free
+32-bit zero-PCM mute self-test failed before execution: Code Integrity 3077/3033
+confirm Enterprise Application Control signing/policy denial. No bypass, security
+change or original launch; no mute/windowed runtime success is claimed. The
+unqualified candidate remains private. Exact next prerequisite is a reviewed,
+policy-approved build/signing path, then harmless pre-play audio and exact
+wrapper/runtime qualification. Capacity producer/report behavior remains
+fail-closed. See `GATE13_NATIVE_PROBE_SAFETY.md`.
+
 ### 4 October 2026 KST — Fail-closed native-original desktop safety
 
 Daniel restricted further original probes after fullscreen/resolution, focus

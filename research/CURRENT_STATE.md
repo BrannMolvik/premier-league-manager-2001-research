@@ -8,13 +8,35 @@ topic-specific research files.
 
 ## Native-original desktop-safety restriction (4 October 2026 KST)
 
+PR #309's description is now corrected: installer selectors are source-qualified
+and repaired, native setup accepts them, and the earlier bounded native run did
+reach fresh allocation/import. Those are not capacity-initializer proof.
+
+Current safety qualification found/corrected the private wrapper's omitted
+`AppControlledScreenMode=false` (vendor default is true); passthrough is explicitly
+disabled and Alt-Enter switching forbidden. Six new strict offline checks pass.
+Runtime/vendor-parser qualification remains false. A private GUI-free zero-PCM
+32-bit mute self-test was blocked before execution by Windows Application Control;
+matching Code Integrity 3077/3033 confirm Enterprise signing/policy denial.
+No security exception/bypass or original launch was attempted. Experimental
+helper code/binary remain private/unqualified, not imported into the debugger.
+
+**Current execution prerequisite:** an approved build/signing route for a reviewed
+native probe helper, followed by harmless pre-play mute and exact wrapper/runtime
+qualification before any original launch. Do not whitelist the unqualified
+candidate or disable system security. Evidence, identities and bounded next
+actions are in `GATE13_NATIVE_PROBE_SAFETY.md`. The normal launch guard remains.
+Current checkpoint validation: 34 focused checks and asset policy pass, including
+the six new offline safety checks. No fresh full-suite/Windows closure audit is
+claimed for this environment-only work.
+
 Daniel reports exclusive-fullscreen/resolution, focus/window and loud-audio
 disruption from the last original launch. No original was launched after his
 restriction. Non-calibration capacity-debugger launches now fail closed before
 executable access/process creation. Earlier administrator approval does not
 authorize another disruptive probe; see `CONTINUATION_INSTRUCTIONS.md`.
 
-**Immediate next action:** qualify a source-valid non-exclusive environment and
+After that prerequisite, qualify a source-valid non-exclusive environment and
 verified pre-play process-local silence before resuming allocation/write-watch.
 The private dgVoodoo configuration has windowed mode, unforced resolution, no
 mouse capture and no always-on-top attributes, but is only checked offline.

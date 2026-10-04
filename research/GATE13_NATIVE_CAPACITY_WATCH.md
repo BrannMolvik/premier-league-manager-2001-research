@@ -5,6 +5,11 @@ Gate 13 remains OPEN. No visiting-capacity value is authorized by this work.
 
 ## Desktop-safety stop supersedes earlier launch approval
 
+See `GATE13_NATIVE_PROBE_SAFETY.md` for the subsequent six-check offline
+validator, corrected application-controlled-mode omission, and confirmed
+Application Control denial of the experimental mute self-test. Neither safety
+requirement is runtime-qualified; normal original launch remains disabled.
+
 After the last original run, Daniel prohibited unapproved exclusive fullscreen,
 desktop-resolution changes, unnecessary focus stealing/always-on-top and loud
 audio during probes. No further original launch was performed. The debugger
@@ -26,6 +31,10 @@ Private DDraw.dll SHA-256:
 `612a24408a090a3c6f3886557fa18034ee742e94ad0a40ebdf854d2816176c2e`.
 Private dgVoodoo.conf SHA-256:
 `6b54be438a5f9c32c0f33f60694791f8ba0a1cf7aefc9b49862dcf1200a24552`.
+That earlier config is superseded by the corrected private config SHA-256
+`dc1b817547f98c206744f25ad0619c6b4bb9e00633213ba6be1faa4da37dd9e7`;
+it also explicitly disables app-controlled mode and passthrough. Neither version
+has been runtime-qualified; offline config success never enables launch.
 Neither compatibility file is native capacity evidence or a game-code patch.
 Policy is durable in `CONTINUATION_INSTRUCTIONS.md`.
 
@@ -145,7 +154,7 @@ it does not by itself prove the compiled installer's DWORD write values.
 The registry text contains Settings entries, not these missing selectors.
 No guessed flags were installed and no unrelated public copy was obtained.
 
-Next capacity action: source-qualify/restore the original installation's
+Historical next action (superseded by approved repair and safety stop above): source-qualify/restore the original installation's
 resource-location selectors using authorized installer evidence (new approval
 needed before changing installation keys), then rerun the watch through actual
 fresh-world creation and an uncontrolled-home match. Follow any observed alias
