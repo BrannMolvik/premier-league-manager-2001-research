@@ -15,7 +15,10 @@ from gate17_human_scope_capability import (
     HumanScopeCapabilityAudit,
     HumanScopeCapabilityEntry,
 )
-from gate17_multi_human_capability import audit_multi_human_capability
+from gate17_multi_human_capability import (
+    audit_multi_human_capability,
+    run_current_multi_human_capability,
+)
 from gate17_playable_allocation_preview import (
     PlayableAllocationPreview,
     PlayableCountryExchangeSummary,
@@ -178,6 +181,27 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
         self.assertEqual(result.previewed_allocation_ids, (0,))
         self.assertEqual(result.as_dict()["schema_version"], 3)
         self.assertTrue(result.as_dict()["ready_for_full_runtime_validation"])
+
+    def test_current_single_manager_backend_blocks_otherwise_ready_preflight(self):
+        multi_human = run_current_multi_human_capability()
+        result = build_full_scope_preflight(
+            human_audit(),
+            runtime_owner_audit(),
+            multi_human,
+            progression_audit(),
+        )
+
+        self.assertFalse(result.ready_for_full_runtime_validation)
+        self.assertEqual(
+            result.blocker_codes,
+            ("multi_human_capability_incomplete",),
+        )
+        self.assertEqual(result.multi_human_required_users, 6)
+        self.assertEqual(result.multi_human_gameplay_users_supported, 1)
+        self.assertEqual(
+            result.multi_human_blocker_codes,
+            multi_human.blocker_codes,
+        )
 
     def test_incomplete_surfaces_remain_explicit_blockers(self):
         result = build_full_scope_preflight(
