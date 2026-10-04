@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #276 is canonical as fc985fab with reconciliation through 403de220. PR #277 head 4c13d9bc is open to bind Gate 17 full-scope preflight to owner-correct per-scope save capability, requiring serialization and post-load continuation independently; procedural-secondary remains blocked. No private canonical sweep or secondary persistence implementation is claimed.",
-  "last_known_main_head": "403de220d079e8fc1441d4905253328d5d30b7d8",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #277 is canonical as ed997a0a with Recovery 252 reconciliation through 8cc249ec. Next cloud-safe task: add a diagnostic canonical Gate-17 full-scope preflight coordinator that assembles human-scope, runtime-owner, save-scope, multi-human and live progression audits from one verified game directory/controller state without mutating progression or inferring missing capability.",
+  "last_known_main_head": "8cc249ec474d2158fa156e14ba87fef6d26519cc",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 251,
-  "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 251: PR #277 opened after transient interruption; validating newest head.",
+  "recovery_generation": 252,
+  "last_recovery_reason": "stale-repository-activity",
+  "note": "Recovery 252 resumed interrupted PR #277, verified 1909 tests/23 skips + asset policy, merged and reconciled; starting canonical preflight coordinator.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
