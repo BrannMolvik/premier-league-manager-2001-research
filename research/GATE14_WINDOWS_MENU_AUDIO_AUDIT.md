@@ -24,8 +24,9 @@ The command:
 - requires explicit numeric `--event-id` and `--state-value` values;
 - rejects numeric routes that intentionally produce no `menus.bnk` sound;
 - decodes the exact routed sample through the existing source-backed bridge;
-- sends it synchronously through the real default
-  `WindowsMemoryWaveMenuPcmBackend`;
+- requires the exact `WindowsMemoryWaveMenuPcmBackend` adapter class, so an
+  arbitrary injected test backend cannot produce passing evidence;
+- sends it synchronously through that Windows memory-wave adapter;
 - verifies the delivery summary still matches the decoded literal sample slot;
 - **after playback**, prompts the human operator to type `YES` exactly if the
   sound was personally heard;
@@ -45,6 +46,7 @@ A passing private receipt records:
 - canonical `menus.bnk` size and SHA-256;
 - numeric event ID, numeric state value and routed sample slot;
 - decoded sample rate, channel count, sample count and PCM SHA-256;
+- exact playback-adapter class and memory flag;
 - synchronous adapter delivery completion;
 - explicit human audibility confirmation;
 - `audible_windows_verified: true`.
