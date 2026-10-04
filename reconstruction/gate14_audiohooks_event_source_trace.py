@@ -71,6 +71,33 @@ MENU_ROW_EVENT13_INCOMING_OBJECT_FIELD_OFFSET = 0x20
 MENU_ROW_EVENT13_REQUIRED_FIELD_VALUE = 2
 MENU_ROW_EVENT13_AUDIOHOOKS_TUPLE = (13, 0, 0)
 
+# Recovery 279: source-closed PTeamOrders2K class context for the literal
+# event-19 sender at 0x4D707F. Vtable slots 2 and 4 both reach helper 0x4D6FA0.
+P_TEAM_ORDERS_2K_DECORATED_RTTI = ".?AVPTeamOrders2K@@"
+P_TEAM_ORDERS_2K_TYPE_DESCRIPTOR_VA = 0x81DE68
+P_TEAM_ORDERS_2K_VTABLE_VA = 0x7C6FE0
+P_TEAM_ORDERS_2K_SLOT2_INDEX = 2
+P_TEAM_ORDERS_2K_SLOT2_OFFSET = 0x08
+P_TEAM_ORDERS_2K_SLOT2_METHOD_VA = 0x4D7600
+P_TEAM_ORDERS_2K_SLOT4_INDEX = 4
+P_TEAM_ORDERS_2K_SLOT4_OFFSET = 0x10
+P_TEAM_ORDERS_2K_SLOT4_METHOD_VA = 0x4D6770
+P_TEAM_ORDERS_2K_EVENT19_HELPER_VA = 0x4D6FA0
+P_TEAM_ORDERS_2K_EVENT19_GUARD_HELPER_VA = 0x64E5B0
+P_TEAM_ORDERS_2K_EVENT19_CALLSITE_VA = 0x4D707F
+P_TEAM_ORDERS_2K_EVENT19_AUDIOHOOKS_TUPLE = (19, 0, 0)
+P_TEAM_ORDERS_2K_EVENT19_HELPER_CALLSITES = (
+    0x4D6F2D,
+    0x4D6F61,
+    0x4D6F91,
+    0x4D7945,
+)
+P_TEAM_ORDERS_2K_EVENT19_INDEX_MIN = 0
+P_TEAM_ORDERS_2K_EVENT19_INDEX_MAX = 9
+P_TEAM_ORDERS_2K_EVENT19_SOURCE_BLOCK_OFFSET = 0x96C
+P_TEAM_ORDERS_2K_EVENT19_SOURCE_BLOCK_STRIDE = 0x20
+P_TEAM_ORDERS_2K_EVENT19_GUARD_OBJECT_OFFSET = 0xAD4
+
 # Exact canonical callsites where all three AudioHooks stack operands are
 # immediate literals immediately before the slot-0 indirect call.
 # Tuple fields are: callsite, event arg1, state arg2, third arg3.
@@ -189,6 +216,29 @@ def menu_row_event13_should_send(
             "incoming +0x20 value must be uint32"
         )
     return incoming_object_non_null and incoming_field_20 == 2
+
+
+def pteamorders2k_event19_should_send(
+    guard_helper_return_al: int,
+    second_argument: int,
+) -> bool:
+    """Mirror only 0x4D6FA0's source-closed numeric event-19 predicate.
+
+    Source closes the predicate, not the semantic meaning of helper 0x64E5B0,
+    the second argument, or AudioHooks event 19.
+    """
+    if (
+        type(guard_helper_return_al) is not int
+        or not 0 <= guard_helper_return_al <= 0xFF
+    ):
+        raise Gate14AudioHooksCallerTraceError(
+            "PTeamOrders2K guard helper return must be uint8"
+        )
+    if type(second_argument) is not int or not 0 <= second_argument < 1 << 32:
+        raise Gate14AudioHooksCallerTraceError(
+            "PTeamOrders2K second helper argument must be uint32"
+        )
+    return guard_helper_return_al == 0 and (second_argument & 0xFF) != 0
 
 
 def _load_capstone():
@@ -493,6 +543,42 @@ def audiohooks_caller_trace_report(
             "incoming_field_semantics_recovered": False,
             "event_semantics_recovered": False,
         },
+        "pteamorders2k_event19_source_contract": {
+            "decorated_rtti": P_TEAM_ORDERS_2K_DECORATED_RTTI,
+            "type_descriptor_va": P_TEAM_ORDERS_2K_TYPE_DESCRIPTOR_VA,
+            "vtable_va": P_TEAM_ORDERS_2K_VTABLE_VA,
+            "vtable_paths": (
+                {
+                    "slot_index": P_TEAM_ORDERS_2K_SLOT2_INDEX,
+                    "slot_offset": P_TEAM_ORDERS_2K_SLOT2_OFFSET,
+                    "method_va": P_TEAM_ORDERS_2K_SLOT2_METHOD_VA,
+                },
+                {
+                    "slot_index": P_TEAM_ORDERS_2K_SLOT4_INDEX,
+                    "slot_offset": P_TEAM_ORDERS_2K_SLOT4_OFFSET,
+                    "method_va": P_TEAM_ORDERS_2K_SLOT4_METHOD_VA,
+                },
+            ),
+            "shared_helper_va": P_TEAM_ORDERS_2K_EVENT19_HELPER_VA,
+            "helper_callsites": P_TEAM_ORDERS_2K_EVENT19_HELPER_CALLSITES,
+            "guard_helper_va": P_TEAM_ORDERS_2K_EVENT19_GUARD_HELPER_VA,
+            "audiohooks_callsite_va": P_TEAM_ORDERS_2K_EVENT19_CALLSITE_VA,
+            "audiohooks_numeric_tuple": P_TEAM_ORDERS_2K_EVENT19_AUDIOHOOKS_TUPLE,
+            "clamped_index_range": (
+                P_TEAM_ORDERS_2K_EVENT19_INDEX_MIN,
+                P_TEAM_ORDERS_2K_EVENT19_INDEX_MAX,
+            ),
+            "source_block_offset": P_TEAM_ORDERS_2K_EVENT19_SOURCE_BLOCK_OFFSET,
+            "source_block_stride": P_TEAM_ORDERS_2K_EVENT19_SOURCE_BLOCK_STRIDE,
+            "guard_object_offset": P_TEAM_ORDERS_2K_EVENT19_GUARD_OBJECT_OFFSET,
+            "numeric_predicate": (
+                "send only when 0x64E5B0 returns AL==0 and the original "
+                "second helper argument has a nonzero low byte"
+            ),
+            "guard_helper_semantics_recovered": False,
+            "second_argument_semantics_recovered": False,
+            "event_semantics_recovered": False,
+        },
         "button_ease_source_contract": {
             "decorated_rtti": BUTTON_EASE_DECORATED_RTTI,
             "type_descriptor_va": BUTTON_EASE_TYPE_DESCRIPTOR_VA,
@@ -522,8 +608,9 @@ def audiohooks_caller_trace_report(
         "evidence_limit": (
             "The AudioHooks RTTI/vtable/global-object path, three-stack-argument "
             "convention, literal/derived numeric sender tuples, Button@ease "
-            "dynamic-control event set {2,10}, and the shared PTitleMenuRow/"
-            "PChildMenuRow event-13 sender method are source-backed. Numeric event IDs "
+            "dynamic-control event set {2,10}, the shared PTitleMenuRow/"
+            "PChildMenuRow event-13 sender method, and the PTeamOrders2K event-19 "
+            "numeric sender predicate are source-backed. Numeric event IDs "
             "are not human-readable "
             "event names, computed event results are not guessed, and decoded "
             "audio is not sample-meaning evidence."
