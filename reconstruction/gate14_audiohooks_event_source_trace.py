@@ -49,6 +49,7 @@ BUTTON_EASE_EVENT_IDS = (2, 10)
 BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD = 0x34
 BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD = 0x4A
 BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET = 0xA8
+BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA = 0x5D62F0
 
 # Exact canonical callsites where all three AudioHooks stack operands are
 # immediate literals immediately before the slot-0 indirect call.
@@ -126,6 +127,27 @@ class AudioHooksCallingConvention:
 
 
 SOURCE_CALLING_CONVENTION = AudioHooksCallingConvention()
+
+
+def button_ease_audiohooks_event_id(
+    object_field_34_non_null: bool,
+    word_field_4a: int,
+) -> int:
+    """Reproduce Button@ease slot-0's source-closed numeric event selection.
+
+    No semantic meaning is assigned to either object field or to event 2/10.
+    """
+    if type(object_field_34_non_null) is not bool:
+        raise Gate14AudioHooksCallerTraceError(
+            "Button +0x34 presence must be explicit boolean"
+        )
+    if type(word_field_4a) is not int or not 0 <= word_field_4a <= 0xFFFF:
+        raise Gate14AudioHooksCallerTraceError(
+            "Button +0x4A value must be uint16"
+        )
+    if not object_field_34_non_null:
+        return 2
+    return 2 if word_field_4a == 2 else 10
 
 
 def _load_capstone():
@@ -418,6 +440,8 @@ def audiohooks_caller_trace_report(
             "object_field_offset": BUTTON_EASE_EVENT_SELECTOR_OBJECT_FIELD,
             "word_field_offset": BUTTON_EASE_EVENT_SELECTOR_WORD_FIELD,
             "virtual_offset": BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_OFFSET,
+            "virtual_target_va": BUTTON_EASE_EVENT_SELECTOR_VIRTUAL_TARGET_VA,
+            "numeric_rule": "event=2 if +0x34 is null or +0x4A==2; otherwise event=10",
             "event_semantics_recovered": False,
         },
         "rtti_vtable_global_path_recovered": True,
