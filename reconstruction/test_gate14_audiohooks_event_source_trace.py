@@ -34,6 +34,18 @@ from gate14_audiohooks_event_source_trace import (
     BUTTON_EASE_NATIVE_GROUP_LENGTHS,
     BUTTON_EASE_TYPE_DESCRIPTOR_VA,
     BUTTON_EASE_VTABLE_VA,
+    MENU_ROW_EVENT13_AUDIOHOOKS_TUPLE,
+    MENU_ROW_EVENT13_INCOMING_OBJECT_FIELD_OFFSET,
+    MENU_ROW_EVENT13_METHOD_VA,
+    MENU_ROW_EVENT13_REQUIRED_FIELD_VALUE,
+    MENU_ROW_EVENT13_VIRTUAL_SLOT_INDEX,
+    MENU_ROW_EVENT13_VIRTUAL_SLOT_OFFSET,
+    P_CHILD_MENU_ROW_DECORATED_RTTI,
+    P_CHILD_MENU_ROW_TYPE_DESCRIPTOR_VA,
+    P_CHILD_MENU_ROW_VTABLE_VA,
+    P_TITLE_MENU_ROW_DECORATED_RTTI,
+    P_TITLE_MENU_ROW_TYPE_DESCRIPTOR_VA,
+    P_TITLE_MENU_ROW_VTABLE_VA,
     SOURCE_CALLING_CONVENTION,
     SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
     SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS,
@@ -43,6 +55,7 @@ from gate14_audiohooks_event_source_trace import (
     direct_audiohooks_call_candidates,
     main as tracer_main,
     button_ease_audiohooks_event_id,
+    menu_row_event13_should_send,
     virtual_audiohooks_call_candidates,
 )
 
@@ -176,6 +189,45 @@ class Gate14AudioHooksCallerSourceTraceTests(unittest.TestCase):
         self.assertEqual(
             tuple(report["source_closed_dynamic_control_event_ids"]),
             (2, 10),
+        )
+
+    def test_event13_sender_is_shared_by_two_source_closed_menu_row_classes(self):
+        self.assertEqual(P_TITLE_MENU_ROW_DECORATED_RTTI, ".?AVPTitleMenuRow@@")
+        self.assertEqual(P_TITLE_MENU_ROW_TYPE_DESCRIPTOR_VA, 0x81CDB0)
+        self.assertEqual(P_TITLE_MENU_ROW_VTABLE_VA, 0x7C3A80)
+        self.assertEqual(P_CHILD_MENU_ROW_DECORATED_RTTI, ".?AVPChildMenuRow@@")
+        self.assertEqual(P_CHILD_MENU_ROW_TYPE_DESCRIPTOR_VA, 0x81CDF0)
+        self.assertEqual(P_CHILD_MENU_ROW_VTABLE_VA, 0x7C3A20)
+        self.assertEqual(MENU_ROW_EVENT13_VIRTUAL_SLOT_INDEX, 11)
+        self.assertEqual(MENU_ROW_EVENT13_VIRTUAL_SLOT_OFFSET, 0x2C)
+        self.assertEqual(MENU_ROW_EVENT13_METHOD_VA, 0x47ACF0)
+        self.assertEqual(MENU_ROW_EVENT13_INCOMING_OBJECT_FIELD_OFFSET, 0x20)
+        self.assertEqual(MENU_ROW_EVENT13_REQUIRED_FIELD_VALUE, 2)
+        self.assertEqual(MENU_ROW_EVENT13_AUDIOHOOKS_TUPLE, (13, 0, 0))
+
+        self.assertFalse(menu_row_event13_should_send(False, 2))
+        self.assertFalse(menu_row_event13_should_send(True, 1))
+        self.assertTrue(menu_row_event13_should_send(True, 2))
+        with self.assertRaisesRegex(
+            Gate14AudioHooksCallerTraceError, "explicit boolean"
+        ):
+            menu_row_event13_should_send(1, 2)
+        with self.assertRaisesRegex(
+            Gate14AudioHooksCallerTraceError, "uint32"
+        ):
+            menu_row_event13_should_send(True, -1)
+
+        report = audiohooks_caller_trace_report(parse_fixture())
+        contract = report["menu_row_event13_source_contract"]
+        self.assertEqual(contract["shared_virtual_slot_index"], 11)
+        self.assertEqual(contract["shared_virtual_slot_offset"], 0x2C)
+        self.assertEqual(contract["shared_method_va"], 0x47ACF0)
+        self.assertEqual(tuple(contract["audiohooks_numeric_tuple"]), (13, 0, 0))
+        self.assertFalse(contract["incoming_field_semantics_recovered"])
+        self.assertFalse(contract["event_semantics_recovered"])
+        self.assertEqual(
+            tuple(item["vtable_va"] for item in contract["classes"]),
+            (0x7C3A80, 0x7C3A20),
         )
 
     def test_source_closed_literal_and_dynamic_sender_families_are_numeric_only(self):
