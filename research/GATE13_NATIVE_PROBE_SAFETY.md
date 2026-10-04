@@ -79,14 +79,35 @@ The denial has requested signing level **2**, validated level **1**, status
 `0xc0e90002`; signature events show **zero signatures**, Unknown publisher/issuer.
 Level 2 means policy acceptance is required, not proof that only an
 organization-specific or Microsoft signer is allowed. No exact permitted signer
-class or complete current enforced-policy inventory is claimed.
+class or guaranteed acceptance of a future signed helper is claimed.
 Sources: [App Control troubleshooting](https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/operations/appcontrol-debugging-and-troubleshooting),
 [Smart App Control testing](https://learn.microsoft.com/en-us/windows/apps/develop/smart-app-control/test-your-app-with-smart-app-control).
 
-`CiTool -lp -json` failed non-elevated with access denied (OperationResult
-`-2147024891`). The read-only elevated inventory request was cancelled at UAC;
-it was not retried. The full inventory remains pending renewed approval.
-Do not interpret missing inventory/3099 results as absence of other policies.
+`CiTool -lp -json` initially failed non-elevated with access denied
+(OperationResult `-2147024891`), and the first UAC request was cancelled.
+After Daniel explicitly renewed **read-only** approval, the elevated collector
+completed with exit code / OperationResult **0**. The full receipt lists **15**
+policies, **7** with `IsEnforced=true`; all 15 are reported as system-provided and
+signed. One of those seven has `Enabled:Audit Mode`; it must not be presented as
+an additional blocking policy. No policy/token update, refresh or trust mutation
+was performed. [CiTool reference](https://learn.microsoft.com/en-us/windows/security/application-security/application-control/app-control-for-business/operations/citool-commands).
+
+| Currently reported active policy | Policy GUID | Audit mode |
+| --- | --- | --- |
+| VerifiedAndReputableDesktop | `0283ac0f-fff1-49ae-ada1-8a933130cad6` | No |
+| VerifiedAndReputableDesktopFlightSupplemental | `1678656c-05ef-481f-bc5b-ebd8c991502d` | No |
+| Microsoft Windows Cross Certificates for Code Integrity Exceptions Audit Policy | `784c4414-79f4-4c32-a6a5-f0fb42a51d0d` | Yes |
+| Microsoft Windows Cross Certificates for Code Integrity Exceptions Policy | `8f9cb695-5d48-48d6-a329-7202b44607e3` | No |
+| Microsoft Windows Driver Policy | `d2bda982-ccf6-4344-ac5b-0b44427b6816` | No |
+| Microsoft Windows Virtualization Based Security Policy | `a072029f-588b-4b5e-b7f9-05aad67df687` | No |
+| Microsoft Windows Endpoint Security Policy | `60fd87f8-4593-44a0-91b0-2e0da022f248` | No |
+
+The prior helper denial's exact GUID matches the currently enforced SAC base
+policy. The evaluation/test policies are reported inactive, not substituted for
+enforcement. The inventory identifies policies/options, not all signer rules;
+it does not prove every listed policy would accept an Artifact Signing binary.
+Private `work/gate13-ci-policy-inventory-20261004.json` SHA-256:
+`a80400f4ca15f4794c18f7e80425aee3294d47533031a307aaa7e76470e33c83`.
 
 `tools/gate13_mute_selftest.cpp` replaces the warning-bearing experimental
 candidate with a minimal **Microsoft Windows SDK native x86** self-test. It uses
@@ -117,10 +138,39 @@ The downloaded artifact is PE machine `0x014c`, Authenticode `NotSigned`.
   Signed hash, signer and SignTool verification are explicitly absent/pending;
   helper/original execution and both runtime safeguards remain false.
 
-No approved Artifact Signing endpoint/account/certificate profile or
-authentication route has been identified; Daniel has been asked for identifiers
-and authentication method, **not secret keys**. No signing account/profile was
-created, signature fabricated, self-signed root trusted or allow rule deployed.
+## Read-only Azure authentication/account discovery
+
+No approved Artifact Signing endpoint/account/certificate profile or authenticated
+Azure context has been identified. Bounded discovery found no Azure CLI / Azure
+Developer CLI on PATH or in checked standard/Scoop/Chocolatey locations, no
+available Az/Azure PowerShell modules or their known user/system locations,
+and no full Visual Studio installation/identity-service directory. Azure config
+directories and named credential-environment variables were absent; variable
+**presence only**, never secret values, was inspected. Bundled Python has no
+`azure` namespace, so no existing `DefaultAzureCredential` SDK/provider was used.
+
+VS Code **is** installed (1.140.0); it is not full Visual Studio. No matching
+Azure/identity/account extensions or Azure-account/resource-group global storage
+were found. A Windows `Microsoft/IdentityCache` directory exists, but its contents
+were **not accessed**. Its existence is not proof of Azure ARM authentication,
+a subscription, Public Trust profile or signer permission. No credential/token
+cache was read, interactive login started, Azure tool installed or cloud request
+made in this discovery.
+
+Therefore account/profile enumeration and effective signer-role verification
+were **not possible**, not empty results. Region, endpoint, account, profile and
+`Artifact Signing Certificate Profile Signer` membership remain **unknown**.
+Do not state that Daniel has no Azure account or must create signing resources.
+No signing account/profile was created, signature fabricated, self-signed root
+trusted or allow rule deployed.
+
+Private `work/gate13-ci-azure-readonly-discovery-20261004.json` retains the full
+policy-inventory reference, bounded tool/path/module/product metadata, negative
+authentication availability checks and unchanged `NotSigned` x86 helper identity.
+SHA-256: `4e4f4c9dd4cbc2a783684d53dfc9f54d1ed82c191b51e7c4ff5b1e0884dceae0`.
+The earlier `7ee1810c...` correlation/build receipt is preserved as historical;
+its then-pending inventory is superseded by the new receipts, not overwritten.
+
 Microsoft recommends Artifact Signing for Smart App Control; a trusted signature
 is not a guarantee of acceptance by every enforced policy.
 Sources: [Smart App Control signing](https://learn.microsoft.com/en-us/windows/apps/develop/smart-app-control/code-signing-for-smart-app-control),
@@ -132,11 +182,33 @@ for mute/windowed runtime qualification or a final Windows/normal-play audit.
 
 ## Exact remaining prerequisite / continuation
 
-Complete the read-only enforced-policy inventory with renewed UAC approval and
-obtain Daniel's approved Artifact Signing endpoint/account/profile/authentication
-route. Sign the **exact reviewed unsigned helper** with SHA-256 Authenticode,
-retain unsigned/signed hashes and signer, and verify with SignTool before
-executing only the harmless mute self-test. If it is still denied, stop and
+The policy inventory is now complete. **Current authorization is discovery only;
+do not sign or execute the helper.** Obtain approval to install official Azure
+CLI and perform user-interactive authentication, or use an already authenticated
+read-only Azure context supplied by Daniel. Enumerate accessible subscriptions,
+Artifact Signing accounts and certificate profiles using read-only operations.
+Select only an existing production **PublicTrust** profile and check its actual
+region/endpoint/account/profile plus the current identity's effective
+`Artifact Signing Certificate Profile Signer` permission. Report those exact
+identifiers and authentication route to Daniel **before any signing**.
+
+If authenticated discovery proves no suitable existing resources, report the
+exact missing setup and stop: eligible tenant/subscription/billing (if absent),
+`Microsoft.CodeSigning` registration (if absent), an Artifact Signing account in
+a supported region, completed eligible Public Trust identity validation, a
+production PublicTrust profile, and the approved user signer-role assignment at
+the appropriate scope. None is created without explicit approval. Identity
+validation eligibility must be checked; PublicTrustTest/PrivateTrust are not
+substitutes. Microsoft documents Public Trust for Win32/SAC, while Public Trust
+Test certificates are not publicly trusted.
+Sources: [trust models](https://learn.microsoft.com/en-us/azure/artifact-signing/concept-trust-models),
+[setup prerequisites](https://learn.microsoft.com/en-us/azure/artifact-signing/quickstart),
+[required signer role](https://learn.microsoft.com/en-us/azure/artifact-signing/tutorial-assign-roles).
+
+Only after separate signing authorization, sign the **exact reviewed unsigned
+helper** with SHA-256 Authenticode, retain unsigned/signed hashes and signer,
+and verify with SignTool before any separately authorized harmless mute self-test.
+If signed execution is still denied, stop and
 correlate the exact new policy/signature events; do not seek an execution bypass.
 An organization-specific signer or supplemental policy is a separate
 administrative action requiring Daniel's approval, not something this worker

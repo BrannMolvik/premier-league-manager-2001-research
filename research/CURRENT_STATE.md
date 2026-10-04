@@ -20,8 +20,10 @@ Runtime/vendor-parser qualification remains false. A private GUI-free zero-PCM
 matching Code Integrity 3077/3033/3089 identify Smart App Control policy
 `VerifiedAndReputableDesktop` (`{0283ac0f-fff1-49ae-ada1-8a933130cad6}`):
 requested level 2, validated level 1, zero signatures. This does not establish an
-organization-only signer requirement. Full `CiTool -lp -json` inventory remains
-pending: non-admin access denied and the read-only UAC request was cancelled.
+organization-only signer requirement. After renewed read-only UAC approval,
+full `CiTool -lp -json` inventory succeeds: 15 policies, 7 `IsEnforced=true`
+(one audit-mode), all reported system-provided/signed. The denial GUID matches
+the currently enforced SAC base. No App Control/SAC policy or trust was changed.
 No security exception/bypass or original launch was attempted. Experimental
 warning-bearing helper remains private/unqualified, not imported into the debugger.
 
@@ -30,17 +32,29 @@ C++/Windows SDK x86 ABI, `/W4 /WX`, without warnings. Build-only run
 `37189161424` passes at `4901e529`; exact unsigned SHA-256 is
 `4ebe2420fa798528df29c05b036a5f447e1178d8ed53c4f74e0dbce892c79f84`.
 The downloaded binary/source identities are verified, including runner CRLF
-versus reviewed LF source. **It is unsigned and has never executed.** No approved
-Artifact Signing profile/authentication is configured/identified; Daniel has
-been asked for the endpoint/account/profile and authentication method, not keys.
+versus reviewed LF source. **It is unsigned and has never executed.** Read-only
+discovery found no Azure CLI/Azure PowerShell/full Visual Studio authentication
+tooling or accessible authenticated context. VS Code is installed but has no
+matching Azure authentication extensions. Existing Windows IdentityCache was
+not read and does not establish Azure access. Account/profile/RBAC enumeration
+could not be performed; this is not proof that Azure signing resources are absent.
+No tool installation/login, credential-cache read or Azure resource/RBAC creation
+was performed. Region/endpoint/account/profile/signer-role status remain unknown.
 Private correlated policy/build receipt and exact identities are retained in
 `GATE13_NATIVE_PROBE_SAFETY.md`. Signed hash/signer/SignTool verification remain
 pending; this is not runtime mute or wrapper qualification.
 
-**Current execution prerequisite:** renewed read-only UAC inventory approval plus
-an approved Artifact Signing endpoint/account/profile/authentication route.
-Sign the exact reviewed helper with SHA-256 Authenticode, verify with SignTool,
-then execute ONLY its harmless mute self-test. If signed execution is denied,
+**Exact next action:** obtain approval for official Azure CLI installation and
+interactive user authentication, or a supplied authenticated read-only context.
+Enumerate existing accounts/profiles and effective signer permission; require
+production PublicTrust (never PublicTrustTest/PrivateTrust), then report exact
+region/endpoint/account/profile/authentication to Daniel **before signing**.
+Current authorization is discovery only: do not sign or execute the helper.
+If authenticated discovery proves missing resources, report exactly what must be
+created and await explicit approval; do not create Azure/billing/identity/profile/
+RBAC resources. After separate approval, SHA-256 sign the exact reviewed helper,
+verify with SignTool, then perform only an authorized harmless mute self-test.
+If signed execution is denied,
 stop with the exact correlated policy/signature reason; do not bypass policy.
 This must be followed by harmless pre-play mute and exact wrapper/runtime
 qualification before any original launch. Do not whitelist the unqualified
