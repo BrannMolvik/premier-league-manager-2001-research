@@ -184,6 +184,8 @@ This manifest will be populated as authorized FM2001 resources are intentionally
 | original_assets/source/FM2001_Art/FastView/pitch_right.444 | FM2001_Art/FastView/pitch_right.444 | dedc194dc9410ddc6d606fdabd3fe779a0c1bf0bfdfe85752f9a56d57171e5fd | original | Gate 14 source-proven PossessionDiagram right overlay, 125x78. Exact executable path, source bytes and placement state 2. Source archive SHA-256: 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4. |
 | original_assets/source/FM2001_Art/FastView/pitch_normal.444 | FM2001_Art/FastView/pitch_normal.444 | 326f484f264630d656e47aee1eb8419970ddbf336fbbc4e47588ff841a346ced | original | Gate 14 source-proven PossessionDiagram 294x78 base pitch. This is the FastView path, not the distinct Generic/match_report same-basename asset. Exact screen rect (253,139)-(547,217). Source archive SHA-256: 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4. |
 
+| original_assets/source/Fonts/Zurich_XCn_BT_18pixel.fnt | Fonts/Zurich_XCn_BT_18pixel.fnt | 968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a | original | Gate 14 direct FastView header TextControl style-3 font. Byte-identical 79,734-byte source asset; executable binding recovered through style selector `0x527BA0` -> wrapper `0x87BE30` -> font object `0x8CAB80` / loader `0x657650`. Source archive SHA-256: 677dcbc859109818d22599f34890ca7873393aea5adbf1f1f1a32d1a76f8a8a4. |
+
 Forms:
 
 - **original** - byte-identical extracted source asset;

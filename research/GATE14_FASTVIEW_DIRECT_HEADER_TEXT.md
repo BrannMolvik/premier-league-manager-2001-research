@@ -40,10 +40,10 @@ extraction:
 - exact `Fonts\Zurich_XCn_BT_18pixel.fnt`: **79,734 bytes**, SHA-256
   `968936a5f5e42c4dd321f0a1096a8668c8f9ca3bd0b86243b585190969c1b71a`.
 
-Those bytes are source-verified but are **not yet repository-staged**. The
-current connector can write UTF-8 GitHub content but has no binary-file ingest
-path from the recovered local asset, so this checkpoint records the exact proof
-without falsely marking provenance staging complete.
+Those exact bytes are now provenance-staged at
+`original_assets/source/Fonts/Zurich_XCn_BT_18pixel.fnt`. The Git blob SHA
+`a7286c680a13811f18c8f67ebcc3e17b381fd752` matches the Git-object SHA
+computed independently from the recovered local source bytes before upload.
 
 ## Match-context ownership
 
@@ -151,17 +151,13 @@ and their authorized archive provenance.
 
 It deliberately keeps false:
 
-- repository provenance staging of the byte-identical
-  `Zurich_XCn_BT_18pixel.fnt`;
 - header pixel rasterization;
 - complete FastView frame;
 - Gate 14 completion.
 
 ## Next step
 
-Transfer the already verified byte-identical
-`Fonts\Zurich_XCn_BT_18pixel.fnt` into `original_assets/source/Fonts/`
-through a binary-safe GitHub path and add its manifest provenance. Then bind
-the now source-closed stadium/referee/attendance strings to reconstructed match
-state and rasterize the two direct header controls with the exact style-3 font.
+Bind the now source-closed stadium/referee/attendance strings to reconstructed
+match state and rasterize the two direct header controls with the exact staged
+style-3 font.
 Gate 13 remains the earlier active validation gate and is not changed here.
