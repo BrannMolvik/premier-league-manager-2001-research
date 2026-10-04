@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #275 is canonical as 636f4204 with reconciliation through ac77995f. PR #276 is open to make the Gate 17 full-scope implementation preflight fail closed on the source-proven six-user TeamSelect requirement while the backend remains single-manager. Asset policy passed; reconstruction CI is running. No multi-human gameplay implementation is claimed.",
+  "active_task": "Gate 13 remains OPEN/source-private blocked. PR #276 head 1acb464f is open to make Gate 17 full-scope preflight fail closed on the source-proven six-user TeamSelect requirement. Updated-head asset policy passed; reconstruction run 37166288768 is pending/starting. No multi-human gameplay implementation is claimed.",
   "last_known_main_head": "ac77995f4ea06dac8e9322c98b317b7f4c110683",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 251,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 251: PR #276 asset policy passed; reconstruction run 37166231938 is in progress.",
+  "note": "Recovery 251: PR #276 updated head 1acb464f after catalog-bound documentation precision fix; asset policy passed, reconstruction CI pending.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
