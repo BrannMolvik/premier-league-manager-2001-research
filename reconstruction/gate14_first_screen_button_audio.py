@@ -34,6 +34,9 @@ BUTTON_CAPTION_SOURCE_FIELD_OFFSET = 0x34
 BUTTON_AUDIO_SELECTOR_VA = 0x6528A0
 BUTTON_PRESS_HANDLER_VA = 0x64F7A0
 BUTTON_PRESS_AUDIO_CALLSITE_VA = 0x64F7FE
+BUTTON_POINTER_HANDLER_VA = 0x64FBE0
+BUTTON_POINTER_ENTER_AUDIO_CALLSITE_VA = 0x64FC31
+BUTTON_POINTER_LEAVE_AUDIO_CALLSITE_VA = 0x64FC91
 
 PSTARTMENU_VTABLE_VA = 0x7C64E0
 PSTARTMENU_OWNER_ACCEPT_SLOT_OFFSET = 0x0C
@@ -72,6 +75,9 @@ BUTTON_PRESS_THIRD_ARGUMENT = 0x40
 BUTTON_CAPTION_PRESENT_ENABLED_EVENT_ID = 10
 BUTTON_CAPTION_ABSENT_EVENT_ID = 2
 BUTTON_PRESS_MENU_SAMPLE_SLOT = 2
+BUTTON_POINTER_ENTER_STATE_VALUE = 6
+BUTTON_POINTER_LEAVE_STATE_VALUE = 7
+BUTTON_POINTER_ENTER_MENU_SAMPLE_SLOT = 3
 
 
 @dataclass(frozen=True)
@@ -171,6 +177,48 @@ def verified_first_screen_action_press_route(
     )
 
 
+def verified_first_screen_pointer_enter_route(
+    native_group: int = 0,
+) -> FirstScreenButtonAudioRoute:
+    """Return the numeric route sent when the proven pointer handler enters."""
+    if type(native_group) is not int or native_group not in (0, 1):
+        raise Gate14FirstScreenButtonAudioError(
+            "accepted enabled pointer enter requires native group 0 or 1"
+        )
+    event_id = BUTTON_CAPTION_PRESENT_ENABLED_EVENT_ID
+    dispatch = menus_sample_for_audiohooks_event(
+        event_id,
+        BUTTON_POINTER_ENTER_STATE_VALUE,
+    )
+    if dispatch.sample_slot != BUTTON_POINTER_ENTER_MENU_SAMPLE_SLOT:
+        raise Gate14FirstScreenButtonAudioError(
+            "source AudioHooks dispatch drifted from first-screen pointer-enter route"
+        )
+    return FirstScreenButtonAudioRoute(
+        event_id=event_id,
+        state_value=BUTTON_POINTER_ENTER_STATE_VALUE,
+        third_argument=BUTTON_PRESS_THIRD_ARGUMENT,
+        sample_slot=dispatch.sample_slot,
+        caption_source_present=True,
+        native_group=native_group,
+    )
+
+
+def verified_first_screen_pointer_leave_is_silent(
+    native_group: int = 0,
+) -> bool:
+    """Prove the exact pointer-leave numeric route is silent for event 10."""
+    if type(native_group) is not int or native_group not in (0, 1):
+        raise Gate14FirstScreenButtonAudioError(
+            "accepted enabled pointer leave requires native group 0 or 1"
+        )
+    dispatch = menus_sample_for_audiohooks_event(
+        BUTTON_CAPTION_PRESENT_ENABLED_EVENT_ID,
+        BUTTON_POINTER_LEAVE_STATE_VALUE,
+    )
+    return dispatch.sample_slot is None
+
+
 def play_verified_first_screen_action_press(
     menus_bnk: bytes,
     backend: MenuPcmPlaybackBackend | None,
@@ -200,6 +248,9 @@ def first_screen_button_audio_contract() -> dict:
         "audio_selector_va": BUTTON_AUDIO_SELECTOR_VA,
         "press_handler_va": BUTTON_PRESS_HANDLER_VA,
         "press_audio_callsite_va": BUTTON_PRESS_AUDIO_CALLSITE_VA,
+        "pointer_handler_va": BUTTON_POINTER_HANDLER_VA,
+        "pointer_enter_audio_callsite_va": BUTTON_POINTER_ENTER_AUDIO_CALLSITE_VA,
+        "pointer_leave_audio_callsite_va": BUTTON_POINTER_LEAVE_AUDIO_CALLSITE_VA,
         "pstartmenu_vtable_va": PSTARTMENU_VTABLE_VA,
         "pstartmenu_owner_accept_slot_offset": PSTARTMENU_OWNER_ACCEPT_SLOT_OFFSET,
         "pstartmenu_owner_accept_va": PSTARTMENU_OWNER_ACCEPT_VA,
@@ -224,6 +275,10 @@ def first_screen_button_audio_contract() -> dict:
         "accepted_press_state_value": BUTTON_PRESS_STATE_VALUE,
         "accepted_press_third_argument": BUTTON_PRESS_THIRD_ARGUMENT,
         "menus_sample_slot": BUTTON_PRESS_MENU_SAMPLE_SLOT,
+        "pointer_enter_state_value": BUTTON_POINTER_ENTER_STATE_VALUE,
+        "pointer_enter_menus_sample_slot": BUTTON_POINTER_ENTER_MENU_SAMPLE_SLOT,
+        "pointer_leave_state_value": BUTTON_POINTER_LEAVE_STATE_VALUE,
+        "pointer_leave_is_silent": True,
         "semantic_event_binding_recovered": False,
         "sample_meaning_recovered": False,
         "front_end_binding_integrated": False,
