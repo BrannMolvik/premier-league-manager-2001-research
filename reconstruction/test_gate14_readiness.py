@@ -25,6 +25,7 @@ class Gate14ReadinessTests(unittest.TestCase):
         self.assertTrue(state.audio_bank_ownership_recovered)
         self.assertTrue(state.audio_playback_entrypoints_recovered)
         self.assertTrue(state.audio_sample_decode_ready)
+        self.assertFalse(state.audible_windows_verified)
         self.assertTrue(state.chant_runtime_selection_recovered)
         self.assertTrue(state.chant_runtime_timing_recovered)
 
@@ -34,6 +35,7 @@ class Gate14ReadinessTests(unittest.TestCase):
             blockers,
             (
                 "audio_event_binding",
+                "audible_windows_output",
                 "login_menu_audio_integration",
                 "global_fastview_z_order",
                 "font_blend_rule",
@@ -53,10 +55,35 @@ class Gate14ReadinessTests(unittest.TestCase):
             replace(
                 state,
                 audio_sample_decode_ready=False,
+                audio_event_binding_recovered=True,
+                audible_windows_verified=True,
                 login_menu_audio_integrated=True,
             )
 
-    def test_complete_frame_cannot_bypass_raster_prerequisites(self):
+
+    def test_audio_integration_cannot_bypass_event_binding_or_audible_windows(self):
+        state = canonical_gate14_readiness()
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "event binding, and audible Windows verification",
+        ):
+            replace(
+                state,
+                audio_event_binding_recovered=False,
+                audible_windows_verified=True,
+                login_menu_audio_integrated=True,
+            )
+        with self.assertRaisesRegex(
+            Gate14ReadinessError,
+            "event binding, and audible Windows verification",
+        ):
+            replace(
+                state,
+                audio_event_binding_recovered=True,
+                audible_windows_verified=False,
+                login_menu_audio_integrated=True,
+            )
+\n    def test_complete_frame_cannot_bypass_raster_prerequisites(self):
         state = canonical_gate14_readiness()
         with self.assertRaisesRegex(
             Gate14ReadinessError,
@@ -81,6 +108,7 @@ class Gate14ReadinessTests(unittest.TestCase):
             complete_fastview_frame_recovered=True,
             audio_sample_decode_ready=True,
             audio_event_binding_recovered=True,
+            audible_windows_verified=True,
             login_menu_audio_integrated=True,
             chant_event_semantics_recovered=True,
             choreography_3d_recovered=True,
