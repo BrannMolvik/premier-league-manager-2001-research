@@ -46,6 +46,25 @@ from gate14_audiohooks_event_source_trace import (
     P_TITLE_MENU_ROW_DECORATED_RTTI,
     P_TITLE_MENU_ROW_TYPE_DESCRIPTOR_VA,
     P_TITLE_MENU_ROW_VTABLE_VA,
+    P_TEAM_ORDERS_2K_DECORATED_RTTI,
+    P_TEAM_ORDERS_2K_EVENT19_AUDIOHOOKS_TUPLE,
+    P_TEAM_ORDERS_2K_EVENT19_CALLSITE_VA,
+    P_TEAM_ORDERS_2K_EVENT19_GUARD_HELPER_VA,
+    P_TEAM_ORDERS_2K_EVENT19_GUARD_OBJECT_OFFSET,
+    P_TEAM_ORDERS_2K_EVENT19_HELPER_CALLSITES,
+    P_TEAM_ORDERS_2K_EVENT19_HELPER_VA,
+    P_TEAM_ORDERS_2K_EVENT19_INDEX_MAX,
+    P_TEAM_ORDERS_2K_EVENT19_INDEX_MIN,
+    P_TEAM_ORDERS_2K_EVENT19_SOURCE_BLOCK_OFFSET,
+    P_TEAM_ORDERS_2K_EVENT19_SOURCE_BLOCK_STRIDE,
+    P_TEAM_ORDERS_2K_SLOT2_INDEX,
+    P_TEAM_ORDERS_2K_SLOT2_METHOD_VA,
+    P_TEAM_ORDERS_2K_SLOT2_OFFSET,
+    P_TEAM_ORDERS_2K_SLOT4_INDEX,
+    P_TEAM_ORDERS_2K_SLOT4_METHOD_VA,
+    P_TEAM_ORDERS_2K_SLOT4_OFFSET,
+    P_TEAM_ORDERS_2K_TYPE_DESCRIPTOR_VA,
+    P_TEAM_ORDERS_2K_VTABLE_VA,
     SOURCE_CALLING_CONVENTION,
     SOURCE_CLOSED_DERIVED_VIRTUAL_SENDERS,
     SOURCE_CLOSED_DYNAMIC_CONTROL_SENDERS,
@@ -56,6 +75,7 @@ from gate14_audiohooks_event_source_trace import (
     main as tracer_main,
     button_ease_audiohooks_event_id,
     menu_row_event13_should_send,
+    pteamorders2k_event19_should_send,
     virtual_audiohooks_call_candidates,
 )
 
@@ -229,6 +249,59 @@ class Gate14AudioHooksCallerSourceTraceTests(unittest.TestCase):
             tuple(item["vtable_va"] for item in contract["classes"]),
             (0x7C3A80, 0x7C3A20),
         )
+
+    def test_pteamorders2k_event19_sender_class_and_predicate_are_source_closed(self):
+        self.assertEqual(P_TEAM_ORDERS_2K_DECORATED_RTTI, ".?AVPTeamOrders2K@@")
+        self.assertEqual(P_TEAM_ORDERS_2K_TYPE_DESCRIPTOR_VA, 0x81DE68)
+        self.assertEqual(P_TEAM_ORDERS_2K_VTABLE_VA, 0x7C6FE0)
+        self.assertEqual(P_TEAM_ORDERS_2K_SLOT2_INDEX, 2)
+        self.assertEqual(P_TEAM_ORDERS_2K_SLOT2_OFFSET, 0x08)
+        self.assertEqual(P_TEAM_ORDERS_2K_SLOT2_METHOD_VA, 0x4D7600)
+        self.assertEqual(P_TEAM_ORDERS_2K_SLOT4_INDEX, 4)
+        self.assertEqual(P_TEAM_ORDERS_2K_SLOT4_OFFSET, 0x10)
+        self.assertEqual(P_TEAM_ORDERS_2K_SLOT4_METHOD_VA, 0x4D6770)
+        self.assertEqual(P_TEAM_ORDERS_2K_EVENT19_HELPER_VA, 0x4D6FA0)
+        self.assertEqual(P_TEAM_ORDERS_2K_EVENT19_GUARD_HELPER_VA, 0x64E5B0)
+        self.assertEqual(P_TEAM_ORDERS_2K_EVENT19_CALLSITE_VA, 0x4D707F)
+        self.assertEqual(P_TEAM_ORDERS_2K_EVENT19_AUDIOHOOKS_TUPLE, (19, 0, 0))
+        self.assertEqual(
+            P_TEAM_ORDERS_2K_EVENT19_HELPER_CALLSITES,
+            (0x4D6F2D, 0x4D6F61, 0x4D6F91, 0x4D7945),
+        )
+        self.assertEqual(
+            (P_TEAM_ORDERS_2K_EVENT19_INDEX_MIN, P_TEAM_ORDERS_2K_EVENT19_INDEX_MAX),
+            (0, 9),
+        )
+        self.assertEqual(P_TEAM_ORDERS_2K_EVENT19_SOURCE_BLOCK_OFFSET, 0x96C)
+        self.assertEqual(P_TEAM_ORDERS_2K_EVENT19_SOURCE_BLOCK_STRIDE, 0x20)
+        self.assertEqual(P_TEAM_ORDERS_2K_EVENT19_GUARD_OBJECT_OFFSET, 0xAD4)
+
+        self.assertFalse(pteamorders2k_event19_should_send(1, 1))
+        self.assertFalse(pteamorders2k_event19_should_send(0, 0))
+        self.assertFalse(pteamorders2k_event19_should_send(0, 0x100))
+        self.assertTrue(pteamorders2k_event19_should_send(0, 1))
+        self.assertTrue(pteamorders2k_event19_should_send(0, 0x10001))
+        with self.assertRaisesRegex(
+            Gate14AudioHooksCallerTraceError, "uint8"
+        ):
+            pteamorders2k_event19_should_send(0x100, 1)
+        with self.assertRaisesRegex(
+            Gate14AudioHooksCallerTraceError, "uint32"
+        ):
+            pteamorders2k_event19_should_send(0, -1)
+
+        report = audiohooks_caller_trace_report(parse_fixture())
+        contract = report["pteamorders2k_event19_source_contract"]
+        self.assertEqual(contract["vtable_va"], 0x7C6FE0)
+        self.assertEqual(
+            tuple(item["slot_index"] for item in contract["vtable_paths"]),
+            (2, 4),
+        )
+        self.assertEqual(contract["shared_helper_va"], 0x4D6FA0)
+        self.assertEqual(tuple(contract["audiohooks_numeric_tuple"]), (19, 0, 0))
+        self.assertFalse(contract["guard_helper_semantics_recovered"])
+        self.assertFalse(contract["second_argument_semantics_recovered"])
+        self.assertFalse(contract["event_semantics_recovered"])
 
     def test_source_closed_literal_and_dynamic_sender_families_are_numeric_only(self):
         self.assertEqual(len(SOURCE_CLOSED_LITERAL_VIRTUAL_SENDERS), 10)
