@@ -115,7 +115,7 @@ match-type branch, referee-name formatting path, and attendance source field.
 It deliberately keeps false:
 
 - semantic naming of the second line's leading `0x514270` result;
-- provenance staging of `Zurich_XCn_BT_18pixel.fnt`;
+- provenance staging of the already identity-pinned `Zurich_XCn_BT_18pixel.fnt`;
 - header pixel rasterization;
 - complete FastView frame;
 - Gate 14 completion.
