@@ -51,12 +51,30 @@ as literal text and still using the constructor's default white color:
 The raster loads and checksum-verifies the staged font internally, so a caller
 cannot substitute a same-shaped font while retaining the canonical source hash.
 
+## English position localization source closure
+
+Cell 2 no longer requires an inferred abbreviation. Helper `0x635EC0` indexes
+the exact `Position*` pointer table at `0x849930` and resolves the selected
+key through `0x6350D0`. That resolver has one dedicated global string object
+per position key.
+
+The source language initializer fills those objects by sequentially reading
+uint16 entries from `English.idx`. The sequence is independently anchored:
+`Versus` maps to English index entry 2257 and returns the expected source
+string `"v"`; the same contiguous object/read order reaches
+`PositionGK` at entry **2305**. Entries 2305..2323 resolve exactly to:
+
+`GK, RB, LB, CD, SW, RWB, LWB, ANC, DM, RM, LM, CM, RW, LW, AM, RF, LF, CF, ST`.
+
+That sequence exactly matches the executable's `PositionGK..PositionST` key
+order. The raster therefore source-binds cell 2 for the canonical English
+release and records `position_english_localization_recovered=true`. It does
+not claim equivalent strings for other language resources.
+
 ## Explicit unresolved cells
 
-Two channels remain fail-closed:
+One text-color channel remains fail-closed:
 
-- cell 2 retains a source `Position*` localization key, but that key has not
-  yet been bound to the exact selected language-table string;
 - cell 5, when written by EventPlayerOwnGoal, receives a native source color
   update whose 16-bit pixel-format meaning is not yet RGBA-bound.
 
