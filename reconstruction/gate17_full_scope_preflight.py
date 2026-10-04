@@ -283,15 +283,20 @@ def run_canonical_full_scope_preflight(
     game_dir: str | Path,
     *,
     player_seed: int = 1,
+    max_days: int = 420,
 ) -> FullScopePreflight:
     """Assemble the current canonical Gate-17 blocker snapshot.
 
-    This coordinator is diagnostic only. It reuses the existing canonical
-    capability runners, constructs one live controller solely for the
-    read-only progression audit, and never commits an allocation exchange or
-    manufactures missing secondary/multi-human capability.
+    Capability audits are joined with a disposable canonical controller that is
+    advanced only through the shared primary AI scheduler until the progression
+    audit has a completed-season ranking surface or the bounded day limit is
+    exhausted. The progression audit itself remains read-only and no previewed
+    LeagueAllocation exchange is committed.
     """
     from human_gameplay import HumanGameplayController
+
+    if type(max_days) is not int or max_days < 0:
+        raise ValueError("max_days must be an exact non-negative integer")
 
     game_dir = Path(game_dir)
     human_scope = run_canonical_human_scope_capability(game_dir)
@@ -309,7 +314,21 @@ def run_canonical_full_scope_preflight(
         raise Gate17FullScopePreflightError(
             "canonical controller has no playable-country allocation plan"
         )
-    progression = audit_runtime_playable_progression(plan, controller.state)
+    progression = None
+    for day_index in range(max_days + 1):
+        progression = audit_runtime_playable_progression(plan, controller.state)
+        if progression.complete:
+            break
+        if day_index == max_days:
+            break
+        controller.state.advance_one_day_with_primary_ai_matches(
+            controller.attack_matrix,
+            controller.defence_matrix,
+            controller.match_rng,
+            match_engine_rng=controller.match_engine_rng,
+        )
+    if progression is None:  # pragma: no cover - range always executes once
+        raise AssertionError("canonical progression preflight produced no audit")
 
     return build_full_scope_preflight(
         human_scope,
@@ -324,12 +343,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("game_dir", type=Path)
     parser.add_argument("--player-seed", type=int, default=1)
+    parser.add_argument("--max-days", type=int, default=420)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
     audit = run_canonical_full_scope_preflight(
         args.game_dir,
         player_seed=args.player_seed,
+        max_days=args.max_days,
     )
     text = json.dumps(audit.as_dict(), indent=2, sort_keys=True) + "\n"
     if args.output is None:
