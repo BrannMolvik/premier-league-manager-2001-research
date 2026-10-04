@@ -89,6 +89,8 @@ on:
       - "reconstruction/test_gate14_fastview_partial_surface.py"
       - "reconstruction/gate14_fastview_clock.py"
       - "reconstruction/test_gate14_fastview_clock.py"
+      - "reconstruction/gate14_fastview_clock_raster.py"
+      - "reconstruction/test_gate14_fastview_clock_raster.py"
       - "reconstruction/gate14_fastview_component_rasters.py"
       - "reconstruction/test_gate14_fastview_component_rasters.py"
       - "reconstruction/gate14_fastview_resolved_composite.py"
