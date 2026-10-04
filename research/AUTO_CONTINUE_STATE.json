@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN with private/local source work blocked. PR #271 merged as efb9eb7b. PR #272 is open from efb9eb7b to harden Gate-17 full-scope release evidence: final full_original_scope proof must cover save/reload for every exact TeamSelect scope ID rather than reuse the PL-centered save receipt or one representative non-PL audit. CI runs 37163378899 and 37163378866 are pending. If green, merge #272, reconcile PROGRESS/CURRENT_STATE, then continue the next independent source-backed task.",
-  "last_known_main_head": "efb9eb7ba3ac15c2bc16ecbebe3dc26839bd5f11",
+  "active_task": "Gate 13 remains OPEN and source/private blocked. Recovery 250 merged PR #271 (efb9eb7b) and PR #272 (053dc98f), then reconciled canonical state as main 4e8a55e7. Next cloud-safe Gate-17 task: audit/extend canonical save-continuation tooling from one representative non-PL procedural-primary TeamSelect club to an exact source-driven sweep of every live procedural-primary TeamSelect scope, without claiming private execution or touching unresolved secondary/RNG/sporting-progression behavior.",
+  "last_known_main_head": "4e8a55e75fd999a93823b2d213e1954f17f7a4e7",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 250,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 250 live checkpoint: #272 pending CI; no private canonical receipt claimed.",
+  "note": "Recovery 250 continues after durable main checkpoint 4e8a55e7; overall mission remains incomplete.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
