@@ -219,6 +219,7 @@ def _ordered_component_planes(
         rasters.league_table,
         rasters.league_scores_late_grid,
         rasters.league_scores_runtime_icons,
+        rasters.league_scores_runtime_text,
         rasters.team_table,
     ):
         if optional is not None:
