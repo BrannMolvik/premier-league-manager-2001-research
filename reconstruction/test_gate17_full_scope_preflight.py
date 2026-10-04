@@ -209,6 +209,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
         result = build_full_scope_preflight(
             human_audit(),
             runtime_owner_audit(),
+            save_scope_audit(),
             multi_human,
             progression_audit(),
         )
@@ -319,6 +320,7 @@ class Gate17FullScopePreflightTests(unittest.TestCase):
             build_full_scope_preflight(
                 human_audit(),
                 runtime_owner_audit(),
+                save_scope_audit(),
                 forged,
                 progression_audit(),
             )
