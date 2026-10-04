@@ -138,7 +138,7 @@ class Gate14AudioBankFormatTests(unittest.TestCase):
         raw = bytes(64) + frame
         decoded = decode_fm2001_bnk_sample(raw, sample)
         self.assertEqual(len(decoded), 28)
-        self.assertEqual(decoded[:6], (16, 31, 45, 58, 70, 81))
+        self.assertEqual(decoded[:6], (4096, 7936, 11536, 14911, 18075, 21041))
 
     def test_rejects_bad_signature_version_bounds_and_truncated_payload(self):
         raw, _ = synthetic_bank()
