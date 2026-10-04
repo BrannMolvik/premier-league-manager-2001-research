@@ -8,8 +8,8 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and Codex-owned. PR #341 is active Gate-14 cloud-safe work: fail-closed FastView overlap readiness is bound into completed-human presentation. Asset policy passed; reconstruction run 37205327966 is in progress. After verified merge, advance the exact blend blocker by adding instruction-level memory/arithmetic candidate classification to the private 0x657280 EA font-draw trace. Do not unmask pixels or claim blend semantics without private source evidence.",
-  "last_known_main_head": "44110d892d762d06baa409ff80793be254f8c077",
+  "active_task": "Gate 13 remains OPEN and Codex-owned. Gate-14 PR #341 merged as main 1664d411 after 2,135 tests/23 skips. PR #342 cleanly replays persisted PR #333 font-blend Capstone dataflow classification onto that main; fresh reconstruction run 37205675294 and asset-policy run 37205675293 are active. After verified merge, next cloud-safe candidate is to recover the useful audible-Windows readiness bridge from failed PR #339 against the current strict receipt validator, fixing its stale syntax/type design without promoting semantic binding or login/menu integration.",
+  "last_known_main_head": "1664d41184992792f7b98e3fdb73c5a8514da9c1",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
   "recovery_cooldown_minutes": 20,
@@ -20,7 +20,7 @@
   "canonical_state_path": "research/CURRENT_STATE.md",
   "recovery_generation": 273,
   "last_recovery_reason": "same-chat-recovery-no-progress",
-  "note": "Recovery 273 checkpoint: PR #341 open/mergeable; asset-policy run 37205327963 passed; reconstruction run 37205327966 still executing. Next after merge: narrow EA font destination-read/blend trace.",
+  "note": "Recovery 273 checkpoint: overlap readiness merged. Font-blend dataflow replay PR #342 active on exact current main. Reuse persisted PR #339 only after fresh redesign/validation because its old CI failed and its receipt type differs from current main.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
