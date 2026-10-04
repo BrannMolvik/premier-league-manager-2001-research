@@ -8,7 +8,7 @@
   "status": "working",
   "work_owner": "chatgpt",
   "active_gate": 13,
-  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned in PR #309. Active disjoint Gate-14 PR #317 head a44c8db4 source-closes runtime chant pool choice and is asset-policy green with full reconstruction CI running. Private canonical trace additionally proves numeric source event-record codes 9..13 reach chant selector 0 and codes 14..16 reach selector 1 through registered callback slot 0x86644C; human event meanings for those numeric codes remain unresolved. Merge #317 only if exact-head CI passes, then checkpoint the numeric event-code routing without inventing names.",
+  "active_task": "Gate 13 remains OPEN and exclusively Codex-owned. Canonical Gate-14 main has advanced through chant timing at 57a5d17e. PR #303 source-closed possession_diagram -> possession_figures_text pairwise native draw order and is merged; exact hosted receipt recorded separately. Active renderer task remains dynamic PlayerRow energy PictureControl source/destination behavior: trace embedded picture renderer far enough to prove crop vs stretch before adding dynamic pixels. Do not interfere with active chant PR #317 or Gate 13/shared runtime.",
   "last_known_main_head": "57a5d17e85e340fc090e33f172a994f6da5cfc7c",
   "checkpoint_target_minutes": 10,
   "stale_after_minutes": 15,
@@ -18,9 +18,9 @@
   "handoff_prompt_path": "research/HANDOFF_PROMPT.md",
   "continuation_instructions_path": "research/CONTINUATION_INSTRUCTIONS.md",
   "canonical_state_path": "research/CURRENT_STATE.md",
-  "recovery_generation": 264,
+  "recovery_generation": 265,
   "last_recovery_reason": "stale-repository-activity",
-  "note": "Recovery 264: validating #317; next source-backed slice is numeric chant event-code routing through callback slot 0x86644C.",
+  "note": "Recovery heartbeat: current main 57a5d17e. Private canonical executable was reverified earlier this session; process startup has regressed to ClientError, so continue cloud-safe renderer/audio work and resume exact PictureControl private trace on next healthy process.",
   "same_chat_fallback_minutes": 20,
   "active_generation_grace_minutes": 10
 }
